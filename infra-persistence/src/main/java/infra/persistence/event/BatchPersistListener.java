@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.persistence;
+package infra.persistence.event;
 
 import org.jspecify.annotations.Nullable;
 
@@ -68,7 +68,7 @@ import org.jspecify.annotations.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/9/20 12:47
  */
-public interface BatchPersistListener {
+public interface BatchPersistListener extends Listener {
 
   /**
    * Invoked before batch processing begins. This method allows custom logic

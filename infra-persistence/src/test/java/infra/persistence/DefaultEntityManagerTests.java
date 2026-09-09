@@ -56,6 +56,11 @@ import infra.jdbc.type.SmartTypeHandler;
 import infra.jdbc.type.TypeHandler;
 import infra.jdbc.type.WrappedTypeHandler;
 import infra.lang.Descriptive;
+import infra.persistence.event.BatchPersistListener;
+import infra.persistence.event.EntityDeleteEvent;
+import infra.persistence.event.EntityEventListener;
+import infra.persistence.event.EntityInsertEvent;
+import infra.persistence.event.EntityUpdateEvent;
 import infra.persistence.model.NoIdModel;
 import infra.persistence.platform.GenericPlatform;
 import infra.persistence.platform.Platform;
@@ -171,6 +176,41 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
       assertThat(userModelInDB.gender).isEqualTo(userModel.gender);
     }
 
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void entityEvents(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    List<String> received = new ArrayList<>();
+    entityManager.addEntityEventListener(new EntityEventListener<UserModel>() {
+
+      @Override
+      public void onInsert(EntityInsertEvent<UserModel> event) {
+        received.add("insert-" + event.getEntity().name);
+      }
+
+      @Override
+      public void onUpdate(EntityUpdateEvent<UserModel> event) {
+        received.add("update-" + event.getEntity().name);
+      }
+
+      @Override
+      public void onDelete(EntityDeleteEvent<UserModel> event) {
+        received.add("delete-" + event.getId());
+      }
+    });
+
+    UserModel user = UserModel.male("TODAY", 10);
+    entityManager.persist(user, true);
+    assertThat(user.id).isNotNull();
+
+    user.age = 20;
+    entityManager.updateById(user);
+
+    entityManager.delete(UserModel.class, user.id);
+
+    assertThat(received).containsExactly("insert-TODAY", "update-TODAY", "delete-" + user.id);
   }
 
   // find

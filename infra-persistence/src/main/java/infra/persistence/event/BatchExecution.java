@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-package infra.persistence;
+package infra.persistence.event;
 
 import java.util.ArrayList;
+
+import infra.persistence.EntityMetadata;
+import infra.persistence.PropertyUpdateStrategy;
 
 /**
  * Represents a batch execution context for executing bulk database operations.
@@ -80,7 +83,7 @@ public class BatchExecution {
 
   public final ArrayList<Object> entities = new ArrayList<>();
 
-  BatchExecution(String sql, PropertyUpdateStrategy strategy,
+  protected BatchExecution(String sql, PropertyUpdateStrategy strategy,
           EntityMetadata entityMetadata, boolean autoGenerateId) {
     this.sql = sql;
     this.strategy = strategy;

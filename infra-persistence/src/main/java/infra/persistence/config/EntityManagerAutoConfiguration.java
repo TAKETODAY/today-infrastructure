@@ -15,13 +15,13 @@ import infra.jdbc.RepositoryManager;
 import infra.jdbc.config.RepositoryManagerAutoConfiguration;
 import infra.jdbc.format.SqlStatementLogger;
 import infra.jdbc.type.TypeHandlerManager;
-import infra.persistence.BatchPersistListener;
 import infra.persistence.ConditionPropertyExtractor;
 import infra.persistence.DefaultEntityManager;
 import infra.persistence.DefaultEntityMetadataFactory;
 import infra.persistence.EntityManager;
 import infra.persistence.EntityMetadataFactory;
 import infra.persistence.VersionIncrementStrategy;
+import infra.persistence.event.BatchPersistListener;
 import infra.persistence.platform.Platform;
 import infra.stereotype.Component;
 

@@ -50,11 +50,15 @@ import infra.jdbc.RepositoryManager;
 import infra.jdbc.core.ResultSetExtractor;
 import infra.jdbc.datasource.DataSourceUtils;
 import infra.jdbc.format.SqlStatementLogger;
-import infra.util.Assert;
 import infra.lang.Descriptive;
 import infra.logging.LogMessage;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.persistence.event.BatchExecution;
+import infra.persistence.event.BatchPersistListener;
+import infra.persistence.event.DefaultEntityEventRegistry;
+import infra.persistence.event.EntityEventListener;
+import infra.persistence.event.EntityEventRegistry;
 import infra.persistence.platform.Platform;
 import infra.persistence.sql.Insert;
 import infra.persistence.sql.OrderByClause;
@@ -63,7 +67,7 @@ import infra.persistence.sql.SimpleSelect;
 import infra.persistence.sql.Update;
 import infra.persistence.support.DefaultVersionIncrementStrategy;
 import infra.transaction.TransactionDefinition;
-import infra.util.CollectionUtils;
+import infra.util.Assert;
 
 /**
  * Default implementation of the EntityManager interface, providing a comprehensive
@@ -86,6 +90,8 @@ import infra.util.CollectionUtils;
  * - Support for conditional queries and dynamic query handlers.
  * - Transaction management with configurable transaction definitions.
  * - Event listeners for monitoring batch persistence operations.
+ * - {@linkplain infra.persistence.event.EntityEvent Entity lifecycle events} for
+ * reacting to insert, update and delete operations of specific entity classes.
  *
  * <p>
  * This class is designed to be flexible and extensible, making it suitable for a
@@ -108,7 +114,7 @@ public class DefaultEntityManager implements EntityManager {
   @SuppressWarnings("rawtypes")
   private final ArrayList<ConditionPropertyExtractor> propertyExtractors = new ArrayList<>();
 
-  private @Nullable ArrayList<BatchPersistListener> batchPersistListeners;
+  private EntityEventRegistry entityEventRegistry = new DefaultEntityEventRegistry();
 
   private int maxBatchRecords = 0;
 
@@ -283,9 +289,8 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   /**
-   * Adds one or more batch persist listeners to the internal list of listeners.
-   * If no listeners have been registered yet, this method initializes the listener list.
-   * The method ensures that all provided listeners are added to the existing collection.
+   * Adds one or more batch persist listeners to the
+   * {@linkplain #getEntityEventRegistry() event registry}.
    *
    * <p>Example usage:
    * <pre>{@code
@@ -304,16 +309,15 @@ public class DefaultEntityManager implements EntityManager {
    * this method has no effect.
    */
   public void addBatchPersistListeners(BatchPersistListener... listeners) {
-    if (batchPersistListeners == null) {
-      batchPersistListeners = new ArrayList<>();
+    Assert.notNull(listeners, "BatchPersistListener array is required");
+    for (BatchPersistListener listener : listeners) {
+      entityEventRegistry.addListener(listener);
     }
-    CollectionUtils.addAll(batchPersistListeners, listeners);
   }
 
   /**
-   * Adds a collection of batch persist listeners to the current list of listeners.
-   * If no listeners are currently registered, this method initializes a new list
-   * before adding the provided listeners.
+   * Adds a collection of batch persist listeners to the
+   * {@linkplain #getEntityEventRegistry() event registry}.
    *
    * <p>Example usage:
    * <pre>{@code
@@ -328,14 +332,12 @@ public class DefaultEntityManager implements EntityManager {
    * to the internal list of batch persist listeners. Must not be null.
    */
   public void addBatchPersistListeners(Collection<BatchPersistListener> listeners) {
-    if (batchPersistListeners == null) {
-      batchPersistListeners = new ArrayList<>();
-    }
-    batchPersistListeners.addAll(listeners);
+    entityEventRegistry.addListeners(listeners);
   }
 
   /**
-   * Sets the collection of batch persist listeners for this object.
+   * Sets the collection of batch persist listeners on the
+   * {@linkplain #getEntityEventRegistry() event registry}.
    * If the provided collection is null, any existing listeners will be cleared.
    * Otherwise, the current listener list will be replaced with the contents
    * of the provided collection.
@@ -356,18 +358,48 @@ public class DefaultEntityManager implements EntityManager {
    * or null to clear all existing listeners
    */
   public void setBatchPersistListeners(@Nullable Collection<BatchPersistListener> listeners) {
-    if (listeners == null) {
-      this.batchPersistListeners = null;
+    entityEventRegistry.setListeners(listeners);
+  }
+
+  /**
+   * Return the {@link EntityEventRegistry} used to register and dispatch
+   * {@link infra.persistence.event.EntityEvent entity lifecycle events} and
+   * {@link infra.persistence.event.BatchPersistListener batch persist listeners}.
+   *
+   * @since 5.0
+   */
+  public EntityEventRegistry getEntityEventRegistry() {
+    return entityEventRegistry;
+  }
+
+  /**
+   * Set the {@link EntityEventRegistry} to use. When {@code null}, the default
+   * {@link DefaultEntityEventRegistry} is restored.
+   *
+   * @param entityEventRegistry the registry to use, or {@code null} to use the default
+   * @since 5.0
+   */
+  public void setEntityEventRegistry(@Nullable EntityEventRegistry entityEventRegistry) {
+    if (entityEventRegistry == null) {
+      this.entityEventRegistry = new DefaultEntityEventRegistry();
     }
     else {
-      if (batchPersistListeners == null) {
-        batchPersistListeners = new ArrayList<>();
-      }
-      else {
-        batchPersistListeners.clear();
-      }
-      batchPersistListeners.addAll(listeners);
+      this.entityEventRegistry = entityEventRegistry;
     }
+  }
+
+  /**
+   * Convenient shortcut for {@link EntityEventRegistry#addListener(Listener)
+   * entityEventRegistry.addListener(listener)}.
+   *
+   * <p>The entity type the listener observes is derived from its generic type
+   * parameter.
+   *
+   * @param listener the listener to register; must not be {@code null}
+   * @since 5.0
+   */
+  public void addEntityEventListener(EntityEventListener<?> listener) {
+    entityEventRegistry.addListener(listener);
   }
 
   /**
@@ -519,6 +551,7 @@ public class DefaultEntityManager implements EntityManager {
           }
         }
       }
+      entityEventRegistry.publishInsert(entity, entityMetadata);
       return updateCount;
     }
     catch (SQLException ex) {
@@ -670,6 +703,7 @@ public class DefaultEntityManager implements EntityManager {
                 "Optimistic locking failure updating entity [%s], expected version: %s, but %d row(s) were updated"
                         .formatted(metadata.tableName, oldVersion, updateCount));
       }
+      entityEventRegistry.publishUpdate(entity, metadata);
       return updateCount;
     }
     catch (SQLException ex) {
@@ -779,6 +813,7 @@ public class DefaultEntityManager implements EntityManager {
                 "Optimistic locking failure updating entity [%s] with ID: %s, expected version: %s, but %d row(s) were updated"
                         .formatted(metadata.tableName, id, oldVersion, updateCount));
       }
+      entityEventRegistry.publishUpdate(entity, metadata);
       return updateCount;
     }
     catch (SQLException ex) {
@@ -842,7 +877,9 @@ public class DefaultEntityManager implements EntityManager {
       int idx = setParameters(entity, properties, statement);
       // last one is where
       updateBy.setParameter(statement, idx, updateByValue);
-      return statement.executeUpdate();
+      int updateCount = statement.executeUpdate();
+      entityEventRegistry.publishUpdate(entity, metadata);
+      return updateCount;
     }
     catch (SQLException ex) {
       throw translateException("Updating entity By " + where, sql, ex);
@@ -887,7 +924,9 @@ public class DefaultEntityManager implements EntityManager {
     try {
       statement = con.prepareStatement(sql.toString());
       idProperty.setParameter(statement, 1, id);
-      return statement.executeUpdate();
+      int updateCount = statement.executeUpdate();
+      entityEventRegistry.publishDelete(entityClass, null, id, metadata);
+      return updateCount;
     }
     catch (SQLException ex) {
       throw translateException("Deleting entity using ID", sql.toString(), ex);
@@ -956,6 +995,7 @@ public class DefaultEntityManager implements EntityManager {
                 "Optimistic locking failure deleting entity [%s] with ID: %s, expected version: %s, but %d row(s) were deleted"
                         .formatted(metadata.tableName, id, versionValue, updateCount));
       }
+      entityEventRegistry.publishDelete(entityOrExample.getClass(), entityOrExample, id, metadata);
       return updateCount;
     }
     catch (SQLException ex) {
@@ -1587,6 +1627,9 @@ public class DefaultEntityManager implements EntityManager {
             }
           }
         }
+        for (Object entity : entities) {
+          entityEventRegistry.publishInsert(entity, entityMetadata);
+        }
       }
       catch (Throwable e) {
         exception = e;
@@ -1600,16 +1643,18 @@ public class DefaultEntityManager implements EntityManager {
     }
 
     private void postProcessing(boolean implicitExecution, @Nullable Throwable exception) {
-      if (CollectionUtils.isNotEmpty(batchPersistListeners)) {
-        for (BatchPersistListener listener : batchPersistListeners) {
+      List<BatchPersistListener> listeners = entityEventRegistry.getListeners(BatchPersistListener.class);
+      if (!listeners.isEmpty()) {
+        for (BatchPersistListener listener : listeners) {
           listener.postProcessing(this, implicitExecution, exception);
         }
       }
     }
 
     private void preProcessing(boolean implicitExecution) {
-      if (CollectionUtils.isNotEmpty(batchPersistListeners)) {
-        for (BatchPersistListener listener : batchPersistListeners) {
+      List<BatchPersistListener> listeners = entityEventRegistry.getListeners(BatchPersistListener.class);
+      if (!listeners.isEmpty()) {
+        for (BatchPersistListener listener : listeners) {
           listener.preProcessing(this, implicitExecution);
         }
       }
