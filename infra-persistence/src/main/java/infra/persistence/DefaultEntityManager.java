@@ -727,7 +727,7 @@ public class DefaultEntityManager implements EntityManager {
   @Override
   public int updateById(Object entity, @Nullable PropertyUpdateStrategy strategy) {
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entity.getClass());
-    EntityProperty idProperty = metadata.idProperty();
+    EntityProperty idProperty = idProperty(metadata, "Updating an entity, Id property not found");
 
     Object id = idProperty.getValue(entity);
     if (id == null) {
@@ -1496,12 +1496,9 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   private static EntityProperty idProperty(EntityMetadata metadata, String error) {
-    EntityProperty idProperty = metadata.idProperty;
+    EntityProperty idProperty = metadata.findIdProperty();
     if (idProperty == null) {
-      idProperty = metadata.refIdProperty;
-      if (idProperty == null) {
-        throw new InvalidDataAccessApiUsageException(error);
-      }
+      throw new InvalidDataAccessApiUsageException(error);
     }
     return idProperty;
   }

@@ -226,13 +226,10 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
 
   @Override
   public EntityMetadata createEntityMetadata(Class<?> entityClass) {
+    EntityMetadata refMetadata = getRefMetadata(entityClass);
     String tableName = tableNameGenerator.generateTableName(entityClass);
-    EntityMetadata refMetadata = null;
-    if (tableName == null) {
-      refMetadata = getRefMetadata(entityClass);
-      if (refMetadata != null) {
-        tableName = refMetadata.tableName;
-      }
+    if (tableName == null && refMetadata != null) {
+      tableName = refMetadata.tableName;
     }
 
     if (tableName == null) {
@@ -246,7 +243,6 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
 
     EntityProperty idProperty = null;
     EntityProperty versionProperty = null;
-    EntityProperty refIdProperty = null;
     for (BeanProperty property : metadata) {
       if (isFiltered(property)) {
         continue;
@@ -280,13 +276,9 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
       }
     }
 
-    if (idProperty == null) {
-      if (refMetadata == null) {
-        refMetadata = getRefMetadata(entityClass);
-      }
-      if (refMetadata != null) {
-        refIdProperty = refMetadata.idProperty;
-      }
+    if (refMetadata != null) {
+      return new RefEntityMetadata(refMetadata, metadata, entityClass, idProperty, tableName,
+              versionProperty, beanProperties, columnNames, entityProperties);
     }
 
     if (idProperty == null && entityProperties.isEmpty()) {
@@ -294,7 +286,7 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
     }
 
     return new EntityMetadata(metadata, entityClass, idProperty, tableName,
-            refIdProperty, versionProperty, beanProperties, columnNames, entityProperties);
+            versionProperty, beanProperties, columnNames, entityProperties);
   }
 
   private @Nullable EntityMetadata getRefMetadata(Class<?> entityClass) {

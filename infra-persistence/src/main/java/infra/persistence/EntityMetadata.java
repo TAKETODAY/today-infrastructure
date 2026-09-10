@@ -34,8 +34,8 @@ import infra.util.StringUtils;
 /**
  * Describes the mapping between an entity class and its database representation.
  *
- * <p>It exposes the table name, the ID / version / referenced-ID properties, the
- * entity properties together with their column names, and whether the ID is
+ * <p>It exposes the table name, the ID and version properties, the entity
+ * properties together with their column names, and whether the ID is
  * auto-generated. It also provides access to the merged annotations declared on
  * the entity class.
  *
@@ -74,9 +74,6 @@ public class EntityMetadata {
   /** The ID property, or {@code null} if the entity has no ID. */
   public final @Nullable EntityProperty idProperty;
 
-  /** The ID property inherited from a referenced entity, or {@code null} if none. */
-  public final @Nullable EntityProperty refIdProperty;
-
   /** The optimistic-locking version property, or {@code null} if none. */
   public final @Nullable EntityProperty versionProperty;
 
@@ -102,15 +99,14 @@ public class EntityMetadata {
 
   private final HashMap<String, EntityProperty> propertyMap;
 
-  protected EntityMetadata(BeanMetadata root, Class<?> entityClass, @Nullable EntityProperty idProperty, String tableName,
-          @Nullable EntityProperty refIdProperty, @Nullable EntityProperty versionProperty,
+  protected EntityMetadata(BeanMetadata root, Class<?> entityClass,
+          @Nullable EntityProperty idProperty, String tableName, @Nullable EntityProperty versionProperty,
           List<BeanProperty> beanProperties, List<String> columnNames, List<EntityProperty> entityProperties) {
     this.root = root;
     this.tableName = tableName;
     this.idProperty = idProperty;
     this.versionProperty = versionProperty;
     this.entityClass = entityClass;
-    this.refIdProperty = refIdProperty;
     this.propertyMap = mapProperties(entityProperties);
     this.idColumnName = idProperty != null ? idProperty.columnName : null;
     this.columnNames = StringUtils.toStringArray(columnNames);
@@ -143,13 +139,23 @@ public class EntityMetadata {
   }
 
   /**
+   * Return the ID property used for ID-based operations, or {@code null} if the
+   * entity has no ID. Subclasses may resolve the ID property from another entity.
+   *
+   * @return the effective ID property, or {@code null} if none
+   */
+  public @Nullable EntityProperty findIdProperty() {
+    return idProperty;
+  }
+
+  /**
    * Return the ID property of the entity.
    *
    * @return the ID property, never {@code null}
    * @throws IllegalEntityException if the entity has no ID property
    */
   public EntityProperty idProperty() throws IllegalEntityException {
-    EntityProperty idProperty = this.idProperty;
+    EntityProperty idProperty = findIdProperty();
     if (idProperty == null) {
       throw new IllegalEntityException("ID property is required");
     }
@@ -218,7 +224,7 @@ public class EntityMetadata {
   @Override
   public boolean equals(@Nullable Object o) {
     return this == o
-            || (o instanceof EntityMetadata that
+            || (o instanceof EntityMetadata that && that.getClass() == getClass()
             && Objects.equals(tableName, that.tableName)
             && Objects.equals(idProperty, that.idProperty)
             && Objects.equals(versionProperty, that.versionProperty)

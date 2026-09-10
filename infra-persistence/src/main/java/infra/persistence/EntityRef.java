@@ -46,7 +46,7 @@ import infra.beans.aot.RegisterBeanMetadata;
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see EntityMetadata#refIdProperty
+ * @see RefEntityMetadata#refIdProperty
  * @since 4.0 2024/4/11 13:36
  */
 @RegisterBeanMetadata
