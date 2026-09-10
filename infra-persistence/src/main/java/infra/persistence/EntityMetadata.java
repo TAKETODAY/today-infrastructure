@@ -29,6 +29,7 @@ import infra.beans.BeanProperty;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.style.ToStringBuilder;
+import infra.persistence.annotation.GeneratedId;
 import infra.util.StringUtils;
 
 /**

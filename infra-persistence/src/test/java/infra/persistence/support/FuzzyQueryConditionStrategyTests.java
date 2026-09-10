@@ -21,9 +21,9 @@ import org.junit.jupiter.api.Test;
 import infra.persistence.DefaultEntityMetadataFactory;
 import infra.persistence.EntityMetadata;
 import infra.persistence.EntityProperty;
-import infra.persistence.Like;
-import infra.persistence.PrefixLike;
-import infra.persistence.SuffixLike;
+import infra.persistence.annotation.Like;
+import infra.persistence.annotation.PrefixLike;
+import infra.persistence.annotation.SuffixLike;
 import infra.persistence.support.FuzzyQueryConditionStrategy.LikeRestriction;
 
 import static org.assertj.core.api.Assertions.assertThat;

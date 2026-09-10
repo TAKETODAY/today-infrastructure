@@ -20,6 +20,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
 
+import infra.persistence.annotation.Version;
+
 /**
  * Strategy for computing the next version value of a {@link Version} property for
  * optimistic locking. Implementations decide how the version is advanced when the

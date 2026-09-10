@@ -24,6 +24,7 @@ import java.util.Set;
 
 import infra.beans.BeanMetadata;
 import infra.jdbc.model.UserModel;
+import infra.persistence.annotation.Transient;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;

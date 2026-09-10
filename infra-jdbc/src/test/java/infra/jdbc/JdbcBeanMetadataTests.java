@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import infra.beans.BeanProperty;
+import infra.persistence.annotation.Column;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -221,7 +222,7 @@ class JdbcBeanMetadataTests {
   }
 
   static class EmptyAnnotationBean {
-    @infra.persistence.Column("")
+    @Column("")
     private String emptyNameField;
 
     public String getEmptyNameField() {
@@ -286,7 +287,7 @@ class JdbcBeanMetadataTests {
 
   static class AnnotatedTestBean {
 
-    @infra.persistence.Column("custom_name")
+    @Column("custom_name")
     private String annotatedField;
 
     public String getAnnotatedField() {

@@ -30,6 +30,12 @@ import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
 import infra.jdbc.model.UserModel;
 import infra.jdbc.type.TypeHandlerManager;
+import infra.persistence.annotation.Column;
+import infra.persistence.annotation.EntityRef;
+import infra.persistence.annotation.GeneratedId;
+import infra.persistence.annotation.Id;
+import infra.persistence.annotation.Table;
+import infra.persistence.annotation.Transient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

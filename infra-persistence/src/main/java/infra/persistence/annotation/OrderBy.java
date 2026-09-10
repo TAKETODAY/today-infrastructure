@@ -14,46 +14,46 @@
  * limitations under the License.
  */
 
-package infra.persistence;
+package infra.persistence.annotation;
 
-import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.aot.hint.annotation.Reflective;
+import infra.core.annotation.AliasFor;
+import infra.lang.Constant;
+import infra.persistence.Order;
 
 /**
- * Specifies the primary key of an entity.
- * The field or property to which the <code>GeneratedId</code> annotation
- * is applied should be one of the following types: any Java primitive type;
- * any primitive wrapper type;
- * <code>java.math.BigDecimal</code>;
- * <code>java.math.BigInteger</code>.
- *
- * <p>The mapped column for the primary key of the entity is assumed
- * to be the primary key of the primary table. If no <code>Column</code> annotation
- * is specified, the primary key column name is assumed to be the name
- * of the primary key property or field.
- *
- * <pre>{@code
- *   // Example:
- *
- *   @GeneratedId
- *   public Long getId() {
- *     return id;
- *   }
- * }</pre>
+ * Specifies the ordering criteria for query results.
+ * <p>
+ * The {@code clause} (or {@code value}) and {@code direction} attributes are mutually exclusive
+ * and cannot be specified simultaneously.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2024/2/14 21:11
+ * @since 4.0 2024/3/31 17:21
  */
-@Id
 @Reflective
-@Documented
-@Target({ ElementType.ANNOTATION_TYPE, ElementType.FIELD, ElementType.METHOD })
+@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface GeneratedId {
+public @interface OrderBy {
 
+  /**
+   * Class level
+   */
+  @AliasFor(attribute = "clause")
+  String value() default Constant.DEFAULT_NONE;
+
+  /**
+   * Class level
+   */
+  @AliasFor(attribute = "value")
+  String clause() default Constant.DEFAULT_NONE;
+
+  /**
+   * Property level
+   */
+  Order direction() default Order.ASC;
 }

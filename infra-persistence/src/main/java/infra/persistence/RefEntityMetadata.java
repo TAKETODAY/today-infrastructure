@@ -23,6 +23,7 @@ import java.util.Objects;
 
 import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
+import infra.persistence.annotation.EntityRef;
 
 /**
  * {@link EntityMetadata} for an entity annotated with {@link EntityRef}, mapping it to

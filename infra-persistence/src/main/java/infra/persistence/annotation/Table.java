@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.persistence;
+package infra.persistence.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -22,40 +22,41 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.aot.hint.annotation.Reflective;
+import infra.beans.aot.RegisterBeanMetadata;
+import infra.core.annotation.AliasFor;
 
 /**
- * Specifies the update by field or property
- * <pre>{@code
- *    // Example:
+ * Specifies the primary table for the annotated entity
  *
- *    @UpdateBy
- *    @Column(name = "name")
- *    public String getName() {
- *      return name;
+ * <p> If no <code>Table</code> annotation is specified for an entity
+ * class, the default values apply.
+ *
+ * <pre> {@code
+ *    Example:
+ *
+ *    @Table(name="t_user")
+ *    public class User {
+ *      ...
  *    }
- * }</pre>
- *
- * <pre>{@code
- *    // Example:
- *
- *    @UpdateBy
- *    private String name;
- *
- *    public String getName() {
- *      return name;
- *    }
- *
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see EntityManager#update
- * @since 4.0 2024/4/11 10:43
+ * @since 4.0 2022/8/16 21:05
  */
+@RegisterBeanMetadata
 @Documented
-@Reflective
-@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.FIELD })
+@Target({ ElementType.ANNOTATION_TYPE, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface UpdateBy {
+public @interface Table {
+
+  @AliasFor("name")
+  String value() default "";
+
+  /**
+   * (Optional) The name of the table.
+   * <p> Defaults to the entity name.
+   */
+  @AliasFor("value")
+  String name() default "";
 
 }

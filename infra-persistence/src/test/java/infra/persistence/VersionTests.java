@@ -31,6 +31,10 @@ import infra.dao.OptimisticLockingFailureException;
 import infra.jdbc.AbstractRepositoryManagerTests;
 import infra.jdbc.NamedQuery;
 import infra.jdbc.RepositoryManager;
+import infra.persistence.annotation.GeneratedId;
+import infra.persistence.annotation.Id;
+import infra.persistence.annotation.Table;
+import infra.persistence.annotation.Version;
 import infra.persistence.support.DefaultVersionIncrementStrategy;
 import infra.test.util.ReflectionTestUtils;
 

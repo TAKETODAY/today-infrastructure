@@ -53,6 +53,8 @@ import infra.lang.Descriptive;
 import infra.logging.LogMessage;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.persistence.annotation.UpdateBy;
+import infra.persistence.annotation.Version;
 import infra.persistence.event.BatchExecution;
 import infra.persistence.event.BatchPersistListener;
 import infra.persistence.event.DefaultEntityEventRegistry;

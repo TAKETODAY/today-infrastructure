@@ -16,7 +16,7 @@
 
 package infra.jdbc.pojos;
 
-import infra.persistence.Column;
+import infra.persistence.annotation.Column;
 
 /**
  * Created by IntelliJ IDEA. User: lars Date: 11/19/11 Time: 5:30 PM To change

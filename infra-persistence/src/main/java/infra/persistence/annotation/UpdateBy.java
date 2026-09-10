@@ -14,37 +14,49 @@
  * limitations under the License.
  */
 
-package infra.persistence;
+package infra.persistence.annotation;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.aot.hint.annotation.Reflective;
-import infra.core.annotation.AliasFor;
-import infra.lang.Constant;
+import infra.persistence.EntityManager;
 
 /**
- * trim string property
+ * Specifies the update by field or property
+ * <pre>{@code
+ *    // Example:
+ *
+ *    @UpdateBy
+ *    @Column(name = "name")
+ *    public String getName() {
+ *      return name;
+ *    }
+ * }</pre>
+ *
+ * <pre>{@code
+ *    // Example:
+ *
+ *    @UpdateBy
+ *    private String name;
+ *
+ *    public String getName() {
+ *      return name;
+ *    }
+ *
+ * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see String#trim()
- * @since 4.0 2024/2/24 22:45
+ * @see EntityManager#update
+ * @since 4.0 2024/4/11 10:43
  */
-@Where
+@Documented
 @Reflective
-@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
+@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface TrimWhere {
-
-  /**
-   * The where-clause predicate.
-   */
-  @AliasFor(annotation = Where.class, attribute = "value")
-  String value() default Constant.DEFAULT_NONE;
-
-  @AliasFor(annotation = Where.class, attribute = "operator")
-  String operator() default Constant.DEFAULT_NONE;
+public @interface UpdateBy {
 
 }

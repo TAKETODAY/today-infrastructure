@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.persistence;
+package infra.persistence.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -23,39 +23,37 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.aot.hint.annotation.Reflective;
-import infra.core.annotation.AliasFor;
-import infra.lang.Constant;
 
 /**
- * Specifies the mapped column for a persistent property or field.
- * If no <code>Column</code> annotation is specified, the default values apply.
- * <pre> {@code
- *    // Example
+ * Specifies the primary key of an entity.
+ * The field or property to which the <code>Id</code> annotation is applied
+ * should be one of the following types: any Java primitive type;
+ * any primitive wrapper type;
+ * <code>String</code>;
+ * <code>java.math.BigDecimal</code>;
+ * <code>java.math.BigInteger</code>.
  *
- *    @Column(name = "DESC")
- *    public String getDescription() {
- *      return description;
- *    }
+ * <p>The mapped column for the primary key of the entity is assumed
+ * to be the primary key of the primary table. If no <code>Column</code> annotation
+ * is specified, the primary key column name is assumed to be the name
+ * of the primary key property or field.
  *
+ * <pre>{@code
+ *   // Example:
+ *
+ *   @Id
+ *   public Long getId() {
+ *     return id;
+ *   }
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 2021/1/27 22:32
+ * @since 4.0 2022/8/16 20:58
  */
 @Reflective
 @Documented
+@Target({ ElementType.ANNOTATION_TYPE, ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.FIELD })
-public @interface Column {
-
-  @AliasFor("name")
-  String value() default Constant.BLANK;
-
-  /**
-   * (Optional) The name of the column. Defaults to
-   * the property or field name.
-   */
-  @AliasFor("value")
-  String name() default Constant.BLANK;
+public @interface Id {
 
 }

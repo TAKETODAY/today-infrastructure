@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.persistence;
+package infra.persistence.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import infra.jdbc.model.UserModel;
+import infra.persistence.annotation.EntityRef;
+import infra.persistence.annotation.OR;
+import infra.persistence.annotation.Where;
 import infra.persistence.platform.GenericPlatform;
 import infra.persistence.sql.Restriction;
 

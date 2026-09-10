@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.persistence;
+package infra.persistence.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -22,18 +22,29 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.aot.hint.annotation.Reflective;
+import infra.core.annotation.AliasFor;
+import infra.lang.Constant;
 
 /**
- * Represents a logical OR condition in the context of persistence operations.
- * This annotation can be applied to types, methods, or fields to denote
- * an OR relationship in query conditions or filtering logic.
+ * trim string property
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 5.0 2025/5/9 17:34
+ * @see String#trim()
+ * @since 4.0 2024/2/24 22:45
  */
+@Where
 @Reflective
 @Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface OR {
+public @interface TrimWhere {
+
+  /**
+   * The where-clause predicate.
+   */
+  @AliasFor(annotation = Where.class, attribute = "value")
+  String value() default Constant.DEFAULT_NONE;
+
+  @AliasFor(annotation = Where.class, attribute = "operator")
+  String operator() default Constant.DEFAULT_NONE;
 
 }

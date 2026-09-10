@@ -16,6 +16,8 @@
 
 package infra.persistence;
 
+import infra.persistence.annotation.Transient;
+
 /**
  * Indicates whether an entity is new (not yet persisted).
  * <p>

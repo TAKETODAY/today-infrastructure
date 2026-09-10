@@ -19,8 +19,8 @@ package infra.jdbc.model;
 import java.util.Objects;
 
 import infra.core.style.ToStringBuilder;
-import infra.persistence.Id;
-import infra.persistence.Table;
+import infra.persistence.annotation.Id;
+import infra.persistence.annotation.Table;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

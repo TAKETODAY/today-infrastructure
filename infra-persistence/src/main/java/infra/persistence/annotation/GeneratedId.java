@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.persistence;
+package infra.persistence.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -26,10 +26,9 @@ import infra.aot.hint.annotation.Reflective;
 
 /**
  * Specifies the primary key of an entity.
- * The field or property to which the <code>Id</code> annotation is applied
- * should be one of the following types: any Java primitive type;
+ * The field or property to which the <code>GeneratedId</code> annotation
+ * is applied should be one of the following types: any Java primitive type;
  * any primitive wrapper type;
- * <code>String</code>;
  * <code>java.math.BigDecimal</code>;
  * <code>java.math.BigInteger</code>.
  *
@@ -41,19 +40,20 @@ import infra.aot.hint.annotation.Reflective;
  * <pre>{@code
  *   // Example:
  *
- *   @Id
+ *   @GeneratedId
  *   public Long getId() {
  *     return id;
  *   }
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/8/16 20:58
+ * @since 4.0 2024/2/14 21:11
  */
+@Id
 @Reflective
 @Documented
 @Target({ ElementType.ANNOTATION_TYPE, ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Id {
+public @interface GeneratedId {
 
 }

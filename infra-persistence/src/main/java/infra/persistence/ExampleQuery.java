@@ -29,6 +29,8 @@ import infra.core.annotation.MergedAnnotation;
 import infra.lang.Constant;
 import infra.logging.LogMessage;
 import infra.persistence.PropertyConditionStrategy.Condition;
+import infra.persistence.annotation.OR;
+import infra.persistence.annotation.OrderBy;
 import infra.persistence.sql.MutableOrderByClause;
 import infra.persistence.sql.OrderByClause;
 import infra.persistence.sql.OrderBySource;

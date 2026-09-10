@@ -18,6 +18,8 @@ package infra.persistence;
 
 import java.util.Objects;
 
+import infra.persistence.annotation.Id;
+
 /**
  * A strategy interface for determining whether a specific property of an entity
  * should be updated during an update operation. Implementations of this interface

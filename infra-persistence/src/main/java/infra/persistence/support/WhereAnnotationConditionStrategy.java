@@ -22,8 +22,8 @@ import infra.core.annotation.MergedAnnotation;
 import infra.lang.Constant;
 import infra.persistence.EntityProperty;
 import infra.persistence.PropertyConditionStrategy;
-import infra.persistence.TrimWhere;
-import infra.persistence.Where;
+import infra.persistence.annotation.TrimWhere;
+import infra.persistence.annotation.Where;
 import infra.persistence.sql.Restriction;
 
 /**

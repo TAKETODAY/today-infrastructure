@@ -27,6 +27,7 @@ import java.util.List;
 import infra.core.annotation.AliasFor;
 import infra.jdbc.model.UserModel;
 import infra.lang.Constant;
+import infra.persistence.annotation.Column;
 
 import static infra.beans.BeanProperty.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;

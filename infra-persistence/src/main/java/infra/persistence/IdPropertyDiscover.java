@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 import infra.beans.BeanProperty;
+import infra.persistence.annotation.Id;
 import infra.util.Assert;
 
 /**

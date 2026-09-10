@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.persistence;
+package infra.persistence.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -22,37 +22,18 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.aot.hint.annotation.Reflective;
-import infra.core.annotation.AliasFor;
-import infra.lang.Constant;
 
 /**
- * Specifies the ordering criteria for query results.
- * <p>
- * The {@code clause} (or {@code value}) and {@code direction} attributes are mutually exclusive
- * and cannot be specified simultaneously.
+ * Represents a logical OR condition in the context of persistence operations.
+ * This annotation can be applied to types, methods, or fields to denote
+ * an OR relationship in query conditions or filtering logic.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2024/3/31 17:21
+ * @since 5.0 2025/5/9 17:34
  */
 @Reflective
 @Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface OrderBy {
+public @interface OR {
 
-  /**
-   * Class level
-   */
-  @AliasFor(attribute = "clause")
-  String value() default Constant.DEFAULT_NONE;
-
-  /**
-   * Class level
-   */
-  @AliasFor(attribute = "value")
-  String clause() default Constant.DEFAULT_NONE;
-
-  /**
-   * Property level
-   */
-  Order direction() default Order.ASC;
 }

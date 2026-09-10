@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.persistence;
+package infra.persistence.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -22,44 +22,40 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import infra.beans.aot.RegisterBeanMetadata;
+import infra.aot.hint.annotation.Reflective;
+import infra.core.annotation.AliasFor;
+import infra.lang.Constant;
 
 /**
- * Declares that the annotated entity references the primary table of another entity.
- *
- * <p>It is typically used on entities that do not declare an ID property of their own,
- * but instead share the primary key of the referenced entity, such as a partial view
- * or update model of a base entity.
- *
- * <p>Example:
+ * Specifies the mapped column for a persistent property or field.
+ * If no <code>Column</code> annotation is specified, the default values apply.
  * <pre> {@code
- *    @Table(name="t_user")
- *    public class User {
- *      // ...
- *    }
+ *    // Example
  *
- *    @EntityRef(User.class)
- *    public class UpdateUser {
- *      //...
+ *    @Column(name = "DESC")
+ *    public String getDescription() {
+ *      return description;
  *    }
  *
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see RefEntityMetadata#refIdProperty
- * @since 4.0 2024/4/11 13:36
+ * @since 2021/1/27 22:32
  */
-@RegisterBeanMetadata
+@Reflective
 @Documented
-@Target({ ElementType.ANNOTATION_TYPE, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface EntityRef {
+@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.FIELD })
+public @interface Column {
+
+  @AliasFor("name")
+  String value() default Constant.BLANK;
 
   /**
-   * The entity type whose primary table is referenced.
-   *
-   * @return the referenced entity class
+   * (Optional) The name of the column. Defaults to
+   * the property or field name.
    */
-  Class<?> value();
+  @AliasFor("value")
+  String name() default Constant.BLANK;
 
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.persistence;
+package infra.persistence.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -23,40 +23,44 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.beans.aot.RegisterBeanMetadata;
-import infra.core.annotation.AliasFor;
+import infra.persistence.RefEntityMetadata;
 
 /**
- * Specifies the primary table for the annotated entity
+ * Declares that the annotated entity references the primary table of another entity.
  *
- * <p> If no <code>Table</code> annotation is specified for an entity
- * class, the default values apply.
+ * <p>It is typically used on entities that do not declare an ID property of their own,
+ * but instead share the primary key of the referenced entity, such as a partial view
+ * or update model of a base entity.
  *
+ * <p>Example:
  * <pre> {@code
- *    Example:
- *
  *    @Table(name="t_user")
  *    public class User {
- *      ...
+ *      // ...
  *    }
+ *
+ *    @EntityRef(User.class)
+ *    public class UpdateUser {
+ *      //...
+ *    }
+ *
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/8/16 21:05
+ * @see RefEntityMetadata#refIdProperty
+ * @since 4.0 2024/4/11 13:36
  */
 @RegisterBeanMetadata
 @Documented
 @Target({ ElementType.ANNOTATION_TYPE, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Table {
-
-  @AliasFor("name")
-  String value() default "";
+public @interface EntityRef {
 
   /**
-   * (Optional) The name of the table.
-   * <p> Defaults to the entity name.
+   * The entity type whose primary table is referenced.
+   *
+   * @return the referenced entity class
    */
-  @AliasFor("value")
-  String name() default "";
+  Class<?> value();
 
 }

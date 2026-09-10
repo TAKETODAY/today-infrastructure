@@ -19,6 +19,7 @@ package infra.persistence;
 import org.junit.jupiter.api.Test;
 
 import infra.jdbc.model.UserModel;
+import infra.persistence.annotation.EntityRef;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

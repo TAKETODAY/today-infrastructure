@@ -16,7 +16,7 @@
 
 package infra.jdbc;
 
-import infra.persistence.Column;
+import infra.persistence.annotation.Column;
 
 public class ColumnEntity {
 

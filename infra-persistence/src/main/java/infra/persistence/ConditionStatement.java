@@ -25,6 +25,7 @@ import java.util.List;
 import infra.core.annotation.MergedAnnotation;
 import infra.lang.Constant;
 import infra.lang.Descriptive;
+import infra.persistence.annotation.OrderBy;
 import infra.persistence.sql.OrderByClause;
 import infra.persistence.sql.Restriction;
 

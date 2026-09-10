@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.persistence;
+package infra.persistence.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -23,6 +23,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.aot.hint.annotation.Reflective;
+import infra.persistence.DefaultEntityManager;
+import infra.persistence.IllegalEntityException;
+import infra.persistence.VersionIncrementStrategy;
 
 /**
  * Specifies the version property of an entity class that serves as its optimistic

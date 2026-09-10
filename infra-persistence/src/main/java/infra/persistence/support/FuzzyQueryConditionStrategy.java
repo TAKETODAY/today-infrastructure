@@ -21,10 +21,10 @@ import org.jspecify.annotations.Nullable;
 import infra.core.annotation.MergedAnnotation;
 import infra.lang.Constant;
 import infra.persistence.EntityProperty;
-import infra.persistence.Like;
-import infra.persistence.PrefixLike;
 import infra.persistence.PropertyConditionStrategy;
-import infra.persistence.SuffixLike;
+import infra.persistence.annotation.Like;
+import infra.persistence.annotation.PrefixLike;
+import infra.persistence.annotation.SuffixLike;
 import infra.persistence.sql.Restriction;
 import infra.util.StringUtils;
 
