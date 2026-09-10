@@ -21,14 +21,20 @@ import org.jspecify.annotations.Nullable;
 import java.time.Instant;
 
 /**
- * Strategy interface for computing the next version value for optimistic locking.
- * Implementations define how the version field should be incremented or updated
- * when an entity with a {@link Version} annotation is persisted or updated.
+ * Strategy for computing the next version value of a {@link Version} property for
+ * optimistic locking. Implementations decide how the version is advanced when the
+ * entity is updated.
  *
- * <p>
- * Users can provide custom implementations to support arbitrary version types
- * beyond the built-in defaults ({@code Integer}, {@code Long}, {@code Short},
- * {@link Instant}).
+ * <p>A strategy returns {@code null} to indicate that it does not support the given
+ * version type. Composed strategies (see {@link #and(VersionIncrementStrategy)}) use
+ * this to fall back to another strategy, and the entity manager fails with an
+ * exception when no strategy produced a value.
+ *
+ * <p>The default strategy {@link infra.persistence.support.DefaultVersionIncrementStrategy} supports numeric
+ * types ({@code Integer}, {@code Long}, {@code Short}) by incrementing them, and
+ * date-time types ({@link Instant}, {@code LocalDateTime}, {@code ZonedDateTime},
+ * {@code OffsetDateTime}) by setting them to the current time. Custom implementations
+ * can be provided to support arbitrary version types:
  *
  * <pre>{@code
  * // Custom strategy for a string-based version
@@ -36,13 +42,14 @@ import java.time.Instant;
  *   if (currentVersion instanceof String v) {
  *     return v + "_updated";
  *   }
- *   return null;
+ *   return null; // unsupported type, let a fallback handle it
  * };
  *
  * entityManager.setVersionIncrementStrategy(custom);
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see infra.persistence.support.DefaultVersionIncrementStrategy
  * @since 5.0
  */
 @FunctionalInterface
@@ -51,19 +58,19 @@ public interface VersionIncrementStrategy {
   /**
    * Compute the next version value based on the current version.
    *
-   * @param currentVersion the current version value, may be {@code null}
-   * @return the next version value
-   * @throws IllegalArgumentException if the version type is not supported by this strategy
+   * @param currentVersion the current version value (never {@code null} when
+   * invoked by the entity manager)
+   * @return the next version value, or {@code null} if the given version type is
+   * not supported by this strategy
    */
   @Nullable
   Object nextVersion(Object currentVersion);
 
   /**
-   * Combine this strategy with another strategy using fallback semantics.
-   * If this strategy successfully computes a version, its result is used;
-   * otherwise the {@code fallback} strategy is tried.
+   * Return a composed strategy that tries this strategy first and falls back to the
+   * given strategy when this one returns {@code null} (unsupported version type).
    *
-   * @param fallback the fallback strategy to use if this one fails
+   * @param fallback the strategy to use when this one returns {@code null}
    * @return a composed strategy that tries this strategy first, then the fallback
    */
   default VersionIncrementStrategy and(VersionIncrementStrategy fallback) {
