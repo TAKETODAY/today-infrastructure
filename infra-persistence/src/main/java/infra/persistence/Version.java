@@ -25,60 +25,57 @@ import java.lang.annotation.Target;
 import infra.aot.hint.annotation.Reflective;
 
 /**
- * Specifies the version field or property of an entity class that
- * serves as its optimistic lock value. The version is used to ensure
- * integrity when performing update and delete operations and for
- * optimistic concurrency control.
+ * Specifies the version property of an entity class that serves as its optimistic
+ * lock value. The version is used to ensure integrity when performing update and
+ * delete operations and for optimistic concurrency control.
  *
- * <p>Only a single {@code Version} property or field
- * should be used per class; applications that use more than one
- * {@code Version} property or field will not be portable.
- *
- * <p>The {@code Version} property should be mapped to
- * the primary table for the entity class; applications that
- * map the {@code Version} property to a table other than
- * the primary table will not be portable.
+ * <p>Only a single {@code Version} property is supported per entity class; entities
+ * with more than one {@code Version} property are rejected with an
+ * {@link IllegalEntityException}.
  *
  * <p>The following types are supported out of the box:
  * <ul>
  *   <li>{@code int}, {@code Integer}</li>
- *   <li>{@code short}, {@code Short}</li>
  *   <li>{@code long}, {@code Long}</li>
- *   <li>{@link java.sql.Timestamp}</li>
+ *   <li>{@code short}, {@code Short}</li>
  *   <li>{@link java.time.Instant}</li>
+ *   <li>{@link java.time.LocalDateTime}</li>
+ *   <li>{@link java.time.ZonedDateTime}</li>
+ *   <li>{@link java.time.OffsetDateTime}</li>
  * </ul>
  *
- * <p>For custom version types, implement and configure a
- * {@link VersionIncrementStrategy} on the
- * {@link DefaultEntityManager#setVersionIncrementStrategy DefaultEntityManager}:
+ * <p>For custom version types, implement a {@link VersionIncrementStrategy} and
+ * configure it on the {@link DefaultEntityManager}:
  *
  * <pre>{@code
- *    // Custom strategy for string-based version
+ *    // Custom strategy for a string-based version
  *    entityManager.setVersionIncrementStrategy(currentVersion -> {
  *      String v = (String) currentVersion;
  *      return v + "_updated";
  *    });
  *
- *    // Or compose with built-in defaults as fallback
+ *    // Or compose with the built-in defaults as fallback
  *    entityManager.setVersionIncrementStrategy(
- *      myCustomStrategy.or(VersionIncrementStrategy.defaults()));
+ *        myCustomStrategy.and(new DefaultVersionIncrementStrategy()));
  * }</pre>
  *
  * <p>Example:
  * <pre>{@code
- *    // Built-in type
+ *    // Numeric version
  *    @Version
  *    @Column(name = "OPTLOCK")
  *    protected int getVersionNum() {
  *      return versionNum;
  *    }
  *
- *    // Java 8 Instant
+ *    // Date-time version
  *    @Version
  *    protected Instant lastModified;
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see VersionIncrementStrategy
+ * @see infra.persistence.support.DefaultVersionIncrementStrategy
  * @since 4.0 2022/8/16 21:07
  */
 @Documented
