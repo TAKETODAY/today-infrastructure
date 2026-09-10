@@ -22,58 +22,36 @@ import infra.persistence.EntityMetadata;
 import infra.persistence.PropertyUpdateStrategy;
 
 /**
- * Represents a batch execution context for executing bulk database operations.
+ * Holds the context of a single batch persistence operation.
  *
- * <p>This class encapsulates the necessary information and configuration for performing
- * batch operations on a database. It includes the SQL statement to execute, metadata about
- * the entity being operated on, and the strategy for updating properties during the batch.
+ * <p>It exposes the SQL statement, the entity metadata, the property update
+ * strategy and whether auto-generated IDs are handled, together with the
+ * {@link #entities} collected for the batch. Instances are created by the
+ * persistence infrastructure; the constructor is {@code protected} and is not
+ * intended for application use.
  *
- * <p>Instances of this class are immutable except for the {@code entities} list, which is
- * used to collect entities to be processed in the batch. The class is typically used in
- * conjunction with a {@code PreparedBatch} to manage and execute batch operations.
- *
- * <p><b>Usage Example:</b>
- * <pre>{@code
- * // Define the SQL statement and metadata
- * String sql = "INSERT INTO users (name, age) VALUES (?, ?)";
- * EntityMetadata metadata = EntityMetadataFactory.create(User.class);
- * PropertyUpdateStrategy strategy = PropertyUpdateStrategy.DEFAULT;
- *
- * // Create a BatchExecution instance
- * BatchExecution batchExecution = new BatchExecution(sql, strategy, metadata, true);
- *
- * // Add entities to the batch
- * batchExecution.entities.add(new User("Alice", 30));
- * batchExecution.entities.add(new User("Bob", 25));
- *
- * // Execute the batch using PreparedBatch
- * try (Connection connection = dataSource.getConnection()) {
- *   PreparedBatch preparedBatch = new PreparedBatch(connection, sql, strategy, metadata, properties, true);
- *   for (Object entity : batchExecution.entities) {
- *     preparedBatch.addBatchUpdate(entity, 100);
- *   }
- *   preparedBatch.explicitExecuteBatch();
- * } catch (SQLException | Throwable e) {
- *   e.printStackTrace();
- * }
- * }</pre>
+ * <p>The metadata fields are read-only, while {@link #entities} is mutable and
+ * accumulates the entities to be processed. A {@code BatchExecution} is passed to
+ * {@link BatchPersistListener} callbacks so that listeners can inspect the batch
+ * before and after it is executed.
  *
  * <p><b>Key Features:</b>
  * <ul>
- *   <li>Encapsulates SQL statement and entity metadata for batch operations.</li>
- *   <li>Supports auto-generated IDs for entities.</li>
- *   <li>Provides flexibility through the {@code PropertyUpdateStrategy} for property updates.</li>
- *   <li>Collects entities to be processed in the batch via the {@code entities} list.</li>
+ *   <li>Encapsulates the SQL statement and entity metadata for batch operations.</li>
+ *   <li>Reports whether auto-generated IDs are handled for the batch.</li>
+ *   <li>Exposes the {@link PropertyUpdateStrategy} used for property updates.</li>
+ *   <li>Collects the entities to be processed via the {@link #entities} list.</li>
  * </ul>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see BatchPersistListener
  * @see EntityMetadata
  * @see PropertyUpdateStrategy
  * @since 4.0 2024/2/20 23:25
  */
 public class BatchExecution {
 
-  public final String sql;
+  public final String statement;
 
   public final boolean autoGenerateId;
 
@@ -83,9 +61,9 @@ public class BatchExecution {
 
   public final ArrayList<Object> entities = new ArrayList<>();
 
-  protected BatchExecution(String sql, PropertyUpdateStrategy strategy,
+  protected BatchExecution(String statement, PropertyUpdateStrategy strategy,
           EntityMetadata entityMetadata, boolean autoGenerateId) {
-    this.sql = sql;
+    this.statement = statement;
     this.strategy = strategy;
     this.entityMetadata = entityMetadata;
     this.autoGenerateId = autoGenerateId;

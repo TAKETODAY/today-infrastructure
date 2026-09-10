@@ -19,14 +19,19 @@ package infra.persistence.event;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A listener interface for monitoring batch persistence operations.
- * Implementations can be used to execute custom logic before and after
- * batch processing occurs.
+ * Listener for observing the lifecycle of batch persistence operations.
  *
- * <p>This interface provides two callback methods:
+ * <p>Implementations are notified before a batch is executed and again after it
+ * completes, either successfully or with an exception. A single batch is executed
+ * implicitly once the configured batch size is reached, or explicitly when the
+ * pending batch is flushed.
+ *
+ * <p>The callback methods are:
  * <ul>
- *   <li>{@link #preProcessing(BatchExecution, boolean)}: Invoked before batch processing begins.</li>
- *   <li>{@link #postProcessing(BatchExecution, boolean, Throwable)}: Invoked after batch processing completes or fails.</li>
+ *   <li>{@link #preProcessing(BatchExecution, boolean)}: invoked before batch
+ *       execution begins.</li>
+ *   <li>{@link #postProcessing(BatchExecution, boolean, Throwable)}: invoked after
+ *       batch execution completes or fails.</li>
  * </ul>
  *
  * <p><strong>Usage Example:</strong>
@@ -35,35 +40,21 @@ import org.jspecify.annotations.Nullable;
  *
  *   @Override
  *   public void preProcessing(BatchExecution execution, boolean implicitExecution) {
- *     System.out.println("Starting batch processing for SQL: " + execution.sql);
- *     System.out.println("Number of entities in batch: " + execution.entities.size());
+ *     System.out.println("Executing " + execution.entities.size()
+ *         + " entities with SQL: " + execution.statement);
  *   }
  *
  *   @Override
  *   public void postProcessing(BatchExecution execution, boolean implicitExecution, Throwable exception) {
  *     if (exception != null) {
- *       System.err.println("Batch processing failed with error: " + exception.getMessage());
- *     } else {
- *       System.out.println("Batch processing completed successfully.");
+ *       System.err.println("Batch execution failed: " + exception.getMessage());
  *     }
  *   }
  * }
  * }</pre>
  *
- * <p><strong>Integration Example:</strong>
- * <pre>{@code
- * BatchPersistListener listener = new LoggingBatchPersistListener();
- * BatchExecution execution = new BatchExecution("INSERT INTO users (name) VALUES (?)", null, null, false);
- *
- * try {
- *   listener.preProcessing(execution, false);
- *   // Perform batch operations here
- *   listener.postProcessing(execution, false, null);
- * }
- * catch (Exception e) {
- *   listener.postProcessing(execution, false, e);
- * }
- * }</pre>
+ * <p>Listeners are registered through the entity manager and can be ordered using
+ * {@link infra.core.annotation.Order @Order} or {@link infra.core.Ordered}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see infra.core.annotation.Order
@@ -73,86 +64,28 @@ import org.jspecify.annotations.Nullable;
 public interface BatchPersistListener extends Listener {
 
   /**
-   * Invoked before batch processing begins. This method allows custom logic
-   * to be executed prior to the execution of batch operations. It provides
-   * access to the batch execution metadata and a flag indicating whether the
-   * execution is implicit.
+   * Called before a batch is executed.
    *
-   * <p><strong>Usage Example:</strong>
-   * <pre>{@code
-   * public class LoggingBatchPersistListener implements BatchPersistListener {
-   *
-   *   @Override
-   *   public void preProcessing(BatchExecution execution, boolean implicitExecution) {
-   *     System.out.println("Starting batch processing for SQL: " + execution.sql);
-   *     System.out.println("Number of entities in batch: " + execution.entities.size());
-   *     if (implicitExecution) {
-   *       System.out.println("This is an implicit batch execution.");
-   *     }
-   *   }
-   * }
-   * }</pre>
-   *
-   * <p><strong>Integration Example:</strong>
-   * <pre>{@code
-   * BatchPersistListener listener = new LoggingBatchPersistListener();
-   * BatchExecution execution = new BatchExecution("INSERT INTO users (name) VALUES (?)", null, null, false);
-   *
-   * // Trigger the preProcessing callback
-   * listener.preProcessing(execution, false);
-   * }</pre>
-   *
-   * @param execution the batch execution metadata, including the SQL statement,
-   * entities, and other relevant details
-   * @param implicitExecution a flag indicating whether the batch execution
-   * is implicit (e.g., triggered automatically by the system)
+   * @param execution the batch execution metadata, including the SQL statement and
+   * the entities collected for the batch
+   * @param implicitExecution {@code true} if the execution was triggered implicitly
+   * because the configured batch size was reached; {@code false} if the pending
+   * batch was flushed explicitly
    */
   default void preProcessing(BatchExecution execution, boolean implicitExecution) {
   }
 
   /**
-   * Invoked after batch processing has completed. This method allows custom logic
-   * to be executed after the execution of batch operations. It provides access to
-   * the batch execution metadata, a flag indicating whether the execution was implicit,
-   * and any exception that may have occurred during processing.
+   * Called after a batch execution has completed, whether successfully or with an
+   * exception.
    *
-   * <p><strong>Usage Example:</strong>
-   * <pre>{@code
-   * public class LoggingBatchPersistListener implements BatchPersistListener {
-   *
-   *   @Override
-   *   public void postProcessing(BatchExecution execution, boolean implicitExecution, Throwable exception) {
-   *     if (exception == null) {
-   *       System.out.println("Batch processing completed successfully for SQL: " + execution.sql);
-   *       System.out.println("Number of entities processed: " + execution.entities.size());
-   *     } else {
-   *       System.err.println("Batch processing failed with exception: " + exception.getMessage());
-   *     }
-   *     if (implicitExecution) {
-   *       System.out.println("This was an implicit batch execution.");
-   *     }
-   *   }
-   * }
-   * }</pre>
-   *
-   * <p><strong>Integration Example:</strong>
-   * <pre>{@code
-   * BatchPersistListener listener = new LoggingBatchPersistListener();
-   * BatchExecution execution = new BatchExecution("INSERT INTO users (name) VALUES (?)", null, null, false);
-   *
-   * // Simulate successful batch processing
-   * listener.postProcessing(execution, false, null);
-   *
-   * // Simulate batch processing with an exception
-   * listener.postProcessing(execution, true, new RuntimeException("Database error"));
-   * }</pre>
-   *
-   * @param execution the batch execution metadata, including the SQL statement,
-   * entities, and other relevant details
-   * @param implicitExecution a flag indicating whether the batch execution
-   * was implicit (e.g., triggered automatically by the system)
-   * @param exception the exception that occurred during batch processing, if any;
-   * {@code null} if no exception occurred
+   * @param execution the batch execution metadata, including the SQL statement and
+   * the entities collected for the batch
+   * @param implicitExecution {@code true} if the execution was triggered implicitly
+   * because the configured batch size was reached; {@code false} if the pending
+   * batch was flushed explicitly
+   * @param exception the exception thrown during batch processing, or {@code null}
+   * if the batch completed successfully
    */
   void postProcessing(BatchExecution execution, boolean implicitExecution, @Nullable Throwable exception);
 

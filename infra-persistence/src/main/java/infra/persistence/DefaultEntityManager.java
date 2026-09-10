@@ -1573,7 +1573,7 @@ public class DefaultEntityManager implements EntityManager {
 
   final class PreparedBatch extends BatchExecution {
 
-    public final PreparedStatement statement;
+    public final PreparedStatement stmt;
 
     public final ArrayList<EntityProperty> properties;
 
@@ -1583,12 +1583,12 @@ public class DefaultEntityManager implements EntityManager {
             EntityMetadata entityMetadata, ArrayList<EntityProperty> properties, boolean autoGenerateId) throws SQLException {
       super(sql, strategy, entityMetadata, autoGenerateId);
       this.properties = properties;
-      this.statement = prepareStatement(connection, sql, autoGenerateId);
+      this.stmt = prepareStatement(connection, sql, autoGenerateId);
     }
 
     public void addBatchUpdate(Object entity, int maxBatchRecords) throws Throwable {
       entities.add(entity);
-      PreparedStatement statement = this.statement;
+      PreparedStatement statement = this.stmt;
       setParameters(entity, properties, statement);
       statement.addBatch();
       if (maxBatchRecords > 0 && ++currentBatchRecords % maxBatchRecords == 0) {
@@ -1597,19 +1597,19 @@ public class DefaultEntityManager implements EntityManager {
     }
 
     public void explicitExecuteBatch() throws Throwable {
-      executeBatch(statement, false);
-      closeResource(null, statement);
+      executeBatch(stmt, false);
+      closeResource(null, stmt);
     }
 
     private void executeBatch(PreparedStatement statement, boolean implicitExecution) throws Throwable {
       preProcessing(implicitExecution);
       if (stmtLogger.isDebugEnabled()) {
-        stmtLogger.logStatement(LogMessage.format("Executing batch size: {}", entities.size()), sql);
+        stmtLogger.logStatement(LogMessage.format("Executing batch size: {}", entities.size()), this.statement);
       }
       Throwable exception = null;
       try {
         int[] updateCounts = statement.executeBatch();
-        assertUpdateCount(sql, updateCounts.length, entities.size());
+        assertUpdateCount(this.statement, updateCounts.length, entities.size());
 
         if (autoGenerateId) {
           EntityProperty idProperty = entityMetadata.idProperty;

@@ -25,24 +25,28 @@ import java.lang.annotation.Target;
 import infra.beans.aot.RegisterBeanMetadata;
 
 /**
- * Specifies the primary table ref for the annotated entity
+ * Declares that the annotated entity references the primary table of another entity.
  *
+ * <p>It is typically used on entities that do not declare an ID property of their own,
+ * but instead share the primary key of the referenced entity, such as a partial view
+ * or update model of a base entity.
+ *
+ * <p>Example:
  * <pre> {@code
- *    Example:
- *
  *    @Table(name="t_user")
  *    public class User {
- *      ...
+ *      // ...
  *    }
  *
  *    @EntityRef(User.class)
  *    public class UpdateUser {
- *      ...
+ *      //...
  *    }
  *
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see EntityMetadata#refIdProperty
  * @since 4.0 2024/4/11 13:36
  */
 @RegisterBeanMetadata
@@ -52,29 +56,9 @@ import infra.beans.aot.RegisterBeanMetadata;
 public @interface EntityRef {
 
   /**
-   * Returns the class object representing the entity type
-   * referenced by this annotation.
+   * The entity type whose primary table is referenced.
    *
-   * <p>This method is typically used to obtain the primary
-   * table reference for an annotated entity. It allows frameworks
-   * or libraries to dynamically resolve and interact with the
-   * specified entity class at runtime.
-   *
-   * <p>Example usage:
-   * <pre>{@code
-   *    @EntityRef(User.class)
-   *    public class UpdateUser {
-   *      // Class body
-   *    }
-   *
-   *    // Retrieving the referenced entity class
-   *    EntityRef entityRef = UpdateUser.class.getAnnotation(EntityRef.class);
-   *    Class<?> entityClass = entityRef.value();
-   *
-   *    System.out.println("Referenced entity: " + entityClass.getName());
-   * }</pre>
-   *
-   * @return the {@link Class} object representing the referenced entity type
+   * @return the referenced entity class
    */
   Class<?> value();
 
