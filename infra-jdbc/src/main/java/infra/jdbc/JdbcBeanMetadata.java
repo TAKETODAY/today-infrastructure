@@ -51,8 +51,7 @@ public class JdbcBeanMetadata {
 
   final boolean throwOnMappingFailure;
 
-  @Nullable
-  private HashMap<String, BeanProperty> beanProperties;
+  private @Nullable HashMap<String, BeanProperty> beanProperties;
 
   public JdbcBeanMetadata(Class<?> clazz, boolean caseSensitive, boolean autoDeriveColumnNames, boolean throwOnMappingError) {
     this.caseSensitive = caseSensitive;
@@ -61,8 +60,7 @@ public class JdbcBeanMetadata {
     this.autoDeriveColumnNames = autoDeriveColumnNames;
   }
 
-  @Nullable
-  public BeanProperty getBeanProperty(String colName, @Nullable Map<String, String> columnMappings) {
+  public @Nullable BeanProperty getBeanProperty(String colName, @Nullable Map<String, String> columnMappings) {
     if (columnMappings != null) {
       // find in columnMappings
       String propertyName = columnMappings.get(caseSensitive ? colName : colName.toLowerCase(Locale.ROOT));
@@ -90,8 +88,7 @@ public class JdbcBeanMetadata {
     return null;
   }
 
-  @Nullable
-  private BeanProperty getProperty(String propertyName) {
+  private @Nullable BeanProperty getProperty(String propertyName) {
     HashMap<String, BeanProperty> beanProperties = this.beanProperties;
     if (beanProperties == null) {
       beanProperties = (caseSensitive ? caseSensitiveTrue : caseSensitiveFalse).get(beanMetadata.getType(), this);
@@ -112,7 +109,7 @@ public class JdbcBeanMetadata {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o)
       return true;
     if (!(o instanceof JdbcBeanMetadata that))
@@ -141,10 +138,9 @@ public class JdbcBeanMetadata {
     return propertyName;
   }
 
-  @Nullable
-  static String getAnnotatedPropertyName(AnnotatedElement propertyElement) {
+  static @Nullable String getAnnotatedPropertyName(AnnotatedElement propertyElement) {
     // just alias name, cannot override its getter,setter
-    var annotation = MergedAnnotations.from(propertyElement).get("infra.persistence.Column");
+    var annotation = MergedAnnotations.from(propertyElement).get("infra.persistence.annotation.Column");
     if (annotation.isPresent()) {
       String name = annotation.getStringValue();
       if (StringUtils.isNotEmpty(name)) {
