@@ -25,7 +25,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -57,7 +56,6 @@ import infra.logging.LoggerFactory;
 import infra.persistence.event.BatchExecution;
 import infra.persistence.event.BatchPersistListener;
 import infra.persistence.event.DefaultEntityEventRegistry;
-import infra.persistence.event.EntityEventListener;
 import infra.persistence.event.EntityEventRegistry;
 import infra.persistence.platform.Platform;
 import infra.persistence.sql.Insert;
@@ -114,8 +112,6 @@ public class DefaultEntityManager implements EntityManager {
   @SuppressWarnings("rawtypes")
   private final ArrayList<ConditionPropertyExtractor> propertyExtractors = new ArrayList<>();
 
-  private EntityEventRegistry entityEventRegistry = new DefaultEntityEventRegistry();
-
   private int maxBatchRecords = 0;
 
   /**
@@ -132,6 +128,8 @@ public class DefaultEntityManager implements EntityManager {
   private Pageable defaultPageable = Pageable.of(10, 1);
 
   private SqlStatementLogger stmtLogger = SqlStatementLogger.sharedInstance;
+
+  private EntityEventRegistry entityEventRegistry = new DefaultEntityEventRegistry();
 
   private @Nullable TransactionDefinition transactionConfig = TransactionDefinition.withDefaults();
 
@@ -276,7 +274,7 @@ public class DefaultEntityManager implements EntityManager {
 
   /**
    * Returns the maximum number of records allowed in a batch.
-   *
+   * <p>
    * This method retrieves the value of the {@code maxBatchRecords} property,
    * which defines the upper limit of records that can be processed in a single
    * batch operation. This is useful for configuring batch processing limits
@@ -286,79 +284,6 @@ public class DefaultEntityManager implements EntityManager {
    */
   public int getMaxBatchRecords() {
     return this.maxBatchRecords;
-  }
-
-  /**
-   * Adds one or more batch persist listeners to the
-   * {@linkplain #getEntityEventRegistry() event registry}.
-   *
-   * <p>Example usage:
-   * <pre>{@code
-   * BatchPersistListener listener1 = entities -> {
-   *   // Handle batch persist event for listener1
-   * };
-   * BatchPersistListener listener2 = entities -> {
-   *   // Handle batch persist event for listener2
-   * };
-   *
-   * someObject.addBatchPersistListeners(listener1, listener2);
-   * }</pre>
-   *
-   * @param listeners a variable number of {@link BatchPersistListener} instances
-   * to be added to the listener list. If null or empty,
-   * this method has no effect.
-   */
-  public void addBatchPersistListeners(BatchPersistListener... listeners) {
-    Assert.notNull(listeners, "BatchPersistListener array is required");
-    for (BatchPersistListener listener : listeners) {
-      entityEventRegistry.addListener(listener);
-    }
-  }
-
-  /**
-   * Adds a collection of batch persist listeners to the
-   * {@linkplain #getEntityEventRegistry() event registry}.
-   *
-   * <p>Example usage:
-   * <pre>{@code
-   *   List<BatchPersistListener> listeners = new ArrayList<>();
-   *   listeners.add(new MyBatchPersistListener());
-   *   listeners.add(new AnotherBatchPersistListener());
-   *
-   *   manager.addBatchPersistListeners(listeners);
-   * }</pre>
-   *
-   * @param listeners a collection of {@link BatchPersistListener} objects to be added
-   * to the internal list of batch persist listeners. Must not be null.
-   */
-  public void addBatchPersistListeners(Collection<BatchPersistListener> listeners) {
-    entityEventRegistry.addListeners(listeners);
-  }
-
-  /**
-   * Sets the collection of batch persist listeners on the
-   * {@linkplain #getEntityEventRegistry() event registry}.
-   * If the provided collection is null, any existing listeners will be cleared.
-   * Otherwise, the current listener list will be replaced with the contents
-   * of the provided collection.
-   *
-   * <p>Example usage:
-   * <pre>{@code
-   *   List<BatchPersistListener> listeners = new ArrayList<>();
-   *   listeners.add(new MyBatchPersistListener());
-   *
-   *   myObject.setBatchPersistListeners(listeners);
-   * }</pre>
-   *
-   * <p>This method ensures that the internal listener list is properly
-   * initialized or cleared before adding new listeners, preventing potential
-   * memory leaks or unintended behavior.
-   *
-   * @param listeners a collection of {@link BatchPersistListener} objects to set,
-   * or null to clear all existing listeners
-   */
-  public void setBatchPersistListeners(@Nullable Collection<BatchPersistListener> listeners) {
-    entityEventRegistry.setListeners(listeners);
   }
 
   /**
@@ -386,20 +311,6 @@ public class DefaultEntityManager implements EntityManager {
     else {
       this.entityEventRegistry = entityEventRegistry;
     }
-  }
-
-  /**
-   * Convenient shortcut for {@link EntityEventRegistry#addListener(Listener)
-   * entityEventRegistry.addListener(listener)}.
-   *
-   * <p>The entity type the listener observes is derived from its generic type
-   * parameter.
-   *
-   * @param listener the listener to register; must not be {@code null}
-   * @since 5.0
-   */
-  public void addEntityEventListener(EntityEventListener<?> listener) {
-    entityEventRegistry.addListener(listener);
   }
 
   /**

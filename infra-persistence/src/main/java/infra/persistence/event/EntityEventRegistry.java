@@ -60,14 +60,14 @@ public interface EntityEventRegistry {
    *
    * @param listener the listener to register; must not be {@code null}
    */
-  void addListener(Listener listener);
+  <T extends Listener> void addListener(T listener);
 
   /**
    * Register multiple {@linkplain Listener listeners}.
    *
-   * @param listeners the listeners to register; must not be {@code null}
+   * @param listeners the listeners to register
    */
-  void addListeners(Collection<? extends Listener> listeners);
+  void addListeners(@Nullable Collection<? extends Listener> listeners);
 
   /**
    * Replace all registered {@linkplain Listener listeners}.
@@ -91,6 +91,11 @@ public interface EntityEventRegistry {
   void removeListeners(Collection<? extends Listener> listeners);
 
   /**
+   * Remove all registered listeners (both entity event and batch persist listeners).
+   */
+  void clear();
+
+  /**
    * Return the listeners registered under the specified listener contract.
    *
    * <p>The returned list is a live registry-backed view and should be treated as
@@ -104,11 +109,6 @@ public interface EntityEventRegistry {
    * registered for the specified type
    */
   <T extends Listener> List<T> getListeners(Class<T> type);
-
-  /**
-   * Remove all registered listeners (both entity event and batch persist listeners).
-   */
-  void clear();
 
   /**
    * Dispatch an {@link EntityInsertEvent} to the matching listeners.

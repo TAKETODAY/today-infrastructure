@@ -183,7 +183,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
 
     List<String> received = new ArrayList<>();
-    entityManager.addEntityEventListener(new EntityEventListener<UserModel>() {
+    entityManager.getEntityEventRegistry().addListener(new EntityEventListener<UserModel>() {
 
       @Override
       public void onInsert(EntityInsertEvent<UserModel> event) {
@@ -517,7 +517,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     EntityMetadataFactory entityMetadataFactory = ReflectionTestUtils.getField(entityManager, "entityMetadataFactory");
     assertThat(entityMetadataFactory).isNotNull();
 
-    entityManager.addBatchPersistListeners((execution, implicitExecution, e) -> {
+    entityManager.getEntityEventRegistry().<BatchPersistListener>addListener((execution, implicitExecution, e) -> {
       assertThat(implicitExecution).isFalse();
       assertThat(execution.entityMetadata).isEqualTo(entityMetadataFactory.getEntityMetadata(UserModel.class));
       assertThat(execution.entities).hasSize(11);
@@ -1095,11 +1095,11 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     BatchPersistListener listener2 = mock(BatchPersistListener.class);
 
     // Should accept varargs listeners
-    assertThatCode(() -> entityManager.addBatchPersistListeners(listener1, listener2)).doesNotThrowAnyException();
+    assertThatCode(() -> entityManager.getEntityEventRegistry().addListeners(List.of(listener1, listener2))).doesNotThrowAnyException();
 
     // Should accept single listener
-    assertThatCode(() -> entityManager.addBatchPersistListeners(listener1)).doesNotThrowAnyException();
-    assertThatCode(() -> entityManager.addBatchPersistListeners(List.of(listener1))).doesNotThrowAnyException();
+    assertThatCode(() -> entityManager.getEntityEventRegistry().addListener(listener1)).doesNotThrowAnyException();
+    assertThatCode(() -> entityManager.getEntityEventRegistry().addListeners(List.of(listener1))).doesNotThrowAnyException();
   }
 
   @Test
@@ -1115,10 +1115,11 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     listeners.add(mock(BatchPersistListener.class));
 
     // Should accept non-null collection
-    assertThatCode(() -> entityManager.setBatchPersistListeners(listeners)).doesNotThrowAnyException();
+    assertThatCode(() -> entityManager.getEntityEventRegistry().addListeners(listeners)).doesNotThrowAnyException();
+    assertThatCode(() -> entityManager.getEntityEventRegistry().addListeners(listeners)).doesNotThrowAnyException();
 
     // Should accept null (clears listeners)
-    assertThatCode(() -> entityManager.setBatchPersistListeners(null)).doesNotThrowAnyException();
+    assertThatCode(() -> entityManager.getEntityEventRegistry().setListeners(null)).doesNotThrowAnyException();
   }
 
   @Test

@@ -21,7 +21,9 @@ import infra.persistence.DefaultEntityMetadataFactory;
 import infra.persistence.EntityManager;
 import infra.persistence.EntityMetadataFactory;
 import infra.persistence.VersionIncrementStrategy;
-import infra.persistence.event.BatchPersistListener;
+import infra.persistence.event.DefaultEntityEventRegistry;
+import infra.persistence.event.EntityEventRegistry;
+import infra.persistence.event.Listener;
 import infra.persistence.platform.Platform;
 import infra.stereotype.Component;
 
@@ -44,17 +46,17 @@ public final class EntityManagerAutoConfiguration {
   public static EntityManager entityManager(RepositoryManager manager, @Nullable Platform platform,
           EntityMetadataFactory entityMetadataFactory, SqlStatementLogger sqlStatementLogger,
           PersistenceProperties properties, @Nullable VersionIncrementStrategy versionIncrementStrategy,
-          List<BatchPersistListener> batchPersistListeners,
+          EntityEventRegistry entityEventRegistry,
           List<ConditionPropertyExtractor> conditionPropertyExtractors,
           ObjectProvider<EntityManagerCustomizer> customizers) {
     DefaultEntityManager entityManager = new DefaultEntityManager(manager, platform);
 
     entityManager.setStatementLogger(sqlStatementLogger);
     entityManager.setEntityMetadataFactory(entityMetadataFactory);
-    entityManager.setBatchPersistListeners(batchPersistListeners);
     entityManager.setMaxBatchRecords(properties.maxBatchRecords);
     entityManager.setAutoGenerateId(properties.autoGenerateId);
     entityManager.setConditionPropertyExtractors(conditionPropertyExtractors);
+    entityManager.setEntityEventRegistry(entityEventRegistry);
 
     if (versionIncrementStrategy != null) {
       entityManager.setVersionIncrementStrategy(versionIncrementStrategy);
@@ -64,6 +66,14 @@ public final class EntityManagerAutoConfiguration {
       customizer.customize(entityManager);
     }
     return entityManager;
+  }
+
+  @Component
+  @ConditionalOnMissingBean(EntityEventRegistry.class)
+  static EntityEventRegistry entityEventRegistry(List<Listener> listeners) {
+    DefaultEntityEventRegistry registry = new DefaultEntityEventRegistry();
+    registry.setListeners(listeners);
+    return registry;
   }
 
   @Component

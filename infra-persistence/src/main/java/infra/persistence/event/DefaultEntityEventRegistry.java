@@ -29,6 +29,7 @@ import infra.core.ResolvableType;
 import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.persistence.EntityMetadata;
 import infra.util.Assert;
+import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 
 /**
@@ -70,11 +71,11 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
   public void addListener(Listener listener) {
     Assert.notNull(listener, "Listener is required");
     matchingCache.clear();
-    if (listener instanceof EntityEventListener<?> entityListener) {
-      eventListeners.add(EntityEventListener.class, entityListener);
+    if (listener instanceof EntityEventListener<?>) {
+      eventListeners.add(EntityEventListener.class, listener);
     }
-    if (listener instanceof BatchPersistListener batchPersistListener) {
-      eventListeners.add(BatchPersistListener.class, batchPersistListener);
+    if (listener instanceof BatchPersistListener) {
+      eventListeners.add(BatchPersistListener.class, listener);
     }
     if (!(listener instanceof EntityEventListener<?> || listener instanceof BatchPersistListener)) {
       throw new IllegalArgumentException("Unsupported listener type: " + listener.getClass());
@@ -82,19 +83,18 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
   }
 
   @Override
-  public void addListeners(Collection<? extends Listener> listeners) {
-    Assert.notNull(listeners, "Listener collection is required");
-    for (Listener listener : listeners) {
-      addListener(listener);
+  public void addListeners(@Nullable Collection<? extends Listener> listeners) {
+    if (listeners != null) {
+      for (Listener listener : listeners) {
+        addListener(listener);
+      }
     }
   }
 
   @Override
   public void setListeners(@Nullable Collection<? extends Listener> listeners) {
     clear();
-    if (listeners != null) {
-      addListeners(listeners);
-    }
+    addListeners(listeners);
   }
 
   @Override
@@ -128,13 +128,12 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public <T extends Listener> List<T> getListeners(Class<T> type) {
-    List<Listener> listeners = eventListeners.get(type);
+    List<T> listeners = listeners(type);
     if (listeners == null) {
       return Collections.emptyList();
     }
-    return (List<T>) listeners;
+    return listeners;
   }
 
   @Override
@@ -143,31 +142,39 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
     matchingCache.clear();
   }
 
+  @SuppressWarnings("unchecked")
+  private <T extends Listener> @Nullable List<T> listeners(Class<T> type) {
+    return (List<T>) eventListeners.get(type);
+  }
+
   // ---------------------------------------------------------------------
   // Dispatch
   // ---------------------------------------------------------------------
 
   @Override
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public void publishInsert(Object entity, EntityMetadata metadata) {
     EntityInsertEvent<Object> event = new EntityInsertEvent<>(entity, metadata);
-    for (EntityEventListener<?> listener : matchingListeners(entity.getClass())) {
-      invokeInsert(listener, event);
+    for (EntityEventListener listener : matchingListeners(entity.getClass())) {
+      listener.onInsert(event);
     }
   }
 
   @Override
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public void publishUpdate(Object entity, EntityMetadata metadata) {
     EntityUpdateEvent<Object> event = new EntityUpdateEvent<>(entity, metadata);
-    for (EntityEventListener<?> listener : matchingListeners(entity.getClass())) {
-      invokeUpdate(listener, event);
+    for (EntityEventListener listener : matchingListeners(entity.getClass())) {
+      listener.onUpdate(event);
     }
   }
 
   @Override
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public void publishDelete(Class<?> entityClass, @Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
     EntityDeleteEvent<Object> event = new EntityDeleteEvent<>(entityClass, entity, id, metadata);
-    for (EntityEventListener<?> listener : matchingListeners(entityClass)) {
-      invokeDelete(listener, event);
+    for (EntityEventListener listener : matchingListeners(entityClass)) {
+      listener.onDelete(event);
     }
   }
 
@@ -184,17 +191,20 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
 
   @SuppressWarnings("rawtypes")
   private List<EntityEventListener<?>> resolveListeners(Class<?> entityClass) {
-    var listeners = getListeners(EntityEventListener.class);
-    ArrayList<EntityEventListener<?>> matched = new ArrayList<>(listeners.size());
-    for (EntityEventListener listener : listeners) {
-      Class<?> entityType = resolveEntityType(listener);
-      if (entityType.isAssignableFrom(entityClass)) {
-        matched.add(listener);
+    var listeners = listeners(EntityEventListener.class);
+    if (CollectionUtils.isNotEmpty(listeners)) {
+      ArrayList<EntityEventListener<?>> matched = new ArrayList<>(listeners.size());
+      for (EntityEventListener listener : listeners) {
+        Class<?> entityType = resolveEntityType(listener);
+        if (entityType.isAssignableFrom(entityClass)) {
+          matched.add(listener);
+        }
       }
+      matched.trimToSize();
+      AnnotationAwareOrderComparator.sort(matched);
+      return matched;
     }
-    matched.trimToSize();
-    AnnotationAwareOrderComparator.sort(matched);
-    return matched;
+    return Collections.emptyList();
   }
 
   /**
@@ -206,21 +216,6 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
     return ResolvableType.forClass(listener.getClass())
             .getGeneric(0)
             .resolve(Object.class);
-  }
-
-  @SuppressWarnings("unchecked")
-  private static void invokeInsert(EntityEventListener<?> listener, EntityInsertEvent<Object> event) {
-    ((EntityEventListener<Object>) listener).onInsert(event);
-  }
-
-  @SuppressWarnings("unchecked")
-  private static void invokeUpdate(EntityEventListener<?> listener, EntityUpdateEvent<Object> event) {
-    ((EntityEventListener<Object>) listener).onUpdate(event);
-  }
-
-  @SuppressWarnings("unchecked")
-  private static void invokeDelete(EntityEventListener<?> listener, EntityDeleteEvent<Object> event) {
-    ((EntityEventListener<Object>) listener).onDelete(event);
   }
 
 }
