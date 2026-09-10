@@ -23,8 +23,8 @@ import java.util.List;
 
 import infra.beans.BeanProperty;
 import infra.core.annotation.MergedAnnotation;
-import infra.util.Assert;
 import infra.reflect.Property;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**

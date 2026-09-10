@@ -27,7 +27,6 @@ import java.util.function.Consumer;
 
 import infra.core.annotation.MergedAnnotation;
 import infra.lang.Constant;
-import infra.util.InfraStrategies;
 import infra.logging.LogMessage;
 import infra.persistence.PropertyConditionStrategy.Condition;
 import infra.persistence.sql.MutableOrderByClause;
@@ -38,6 +37,7 @@ import infra.persistence.sql.SimpleSelect;
 import infra.persistence.support.DefaultConditionStrategy;
 import infra.persistence.support.FuzzyQueryConditionStrategy;
 import infra.persistence.support.WhereAnnotationConditionStrategy;
+import infra.util.InfraStrategies;
 
 /**
  * A query statement that builds SQL conditions based on a non-null example object.
