@@ -64,8 +64,8 @@ class DefaultEntityEventRegistryTests {
     registry.addListener(entityListener);
     registry.addListener(batchListener);
 
-    assertThat(registry.getListeners(EntityEventListener.class)).containsExactly(entityListener);
-    assertThat(registry.getListeners(BatchPersistListener.class)).containsExactly(batchListener);
+    assertThat(registry.listeners(EntityEventListener.class)).containsExactly(entityListener);
+    assertThat(registry.listeners(BatchPersistListener.class)).containsExactly(batchListener);
   }
 
   @Test
@@ -74,14 +74,14 @@ class DefaultEntityEventRegistryTests {
 
     registry.addListener(hybrid);
 
-    assertThat(registry.getListeners(EntityEventListener.class)).containsExactly(hybrid);
-    assertThat(registry.getListeners(BatchPersistListener.class)).containsExactly(hybrid);
+    assertThat(registry.listeners(EntityEventListener.class)).containsExactly(hybrid);
+    assertThat(registry.listeners(BatchPersistListener.class)).containsExactly(hybrid);
   }
 
   @Test
   void getListenersReturnsEmptyForUnknownContract() {
-    assertThat(registry.getListeners(EntityEventListener.class)).isEmpty();
-    assertThat(registry.getListeners(BatchPersistListener.class)).isEmpty();
+    assertThat(registry.listeners(EntityEventListener.class)).isEmpty();
+    assertThat(registry.listeners(BatchPersistListener.class)).isEmpty();
   }
 
   @Test
@@ -91,7 +91,7 @@ class DefaultEntityEventRegistryTests {
 
     registry.removeListener(listener);
 
-    assertThat(registry.getListeners(EntityEventListener.class)).isEmpty();
+    assertThat(registry.listeners(EntityEventListener.class)).isEmpty();
   }
 
   @Test
@@ -100,13 +100,13 @@ class DefaultEntityEventRegistryTests {
     };
 
     registry.addListener(listener);
-    assertThat(registry.getListeners(BatchPersistListener.class)).containsExactly(listener);
+    assertThat(registry.listeners(BatchPersistListener.class)).containsExactly(listener);
 
     registry.setListeners(List.of(listener));
-    assertThat(registry.getListeners(BatchPersistListener.class)).containsExactly(listener);
+    assertThat(registry.listeners(BatchPersistListener.class)).containsExactly(listener);
 
     registry.setListeners(null);
-    assertThat(registry.getListeners(BatchPersistListener.class)).isEmpty();
+    assertThat(registry.listeners(BatchPersistListener.class)).isEmpty();
   }
 
   @Test
@@ -115,16 +115,16 @@ class DefaultEntityEventRegistryTests {
     };
 
     registry.addListener(listener);
-    assertThat(registry.getListeners(EntityEventListener.class)).containsExactly(listener);
+    assertThat(registry.listeners(EntityEventListener.class)).containsExactly(listener);
 
     registry.removeListener(listener);
-    assertThat(registry.getListeners(EntityEventListener.class)).isEmpty();
+    assertThat(registry.listeners(EntityEventListener.class)).isEmpty();
   }
 
   @Test
   void addListenersAcceptsNullCollection() {
     registry.addListeners(null);
-    assertThat(registry.getListeners(EntityEventListener.class)).isEmpty();
+    assertThat(registry.listeners(EntityEventListener.class)).isEmpty();
   }
 
   @Test
@@ -135,7 +135,7 @@ class DefaultEntityEventRegistryTests {
 
     registry.removeListeners(List.of(first));
 
-    assertThat(registry.getListeners(EntityEventListener.class)).containsExactly(second);
+    assertThat(registry.listeners(EntityEventListener.class)).containsExactly(second);
   }
 
   @Test
@@ -146,47 +146,8 @@ class DefaultEntityEventRegistryTests {
 
     registry.clear();
 
-    assertThat(registry.getListeners(EntityEventListener.class)).isEmpty();
-    assertThat(registry.getListeners(BatchPersistListener.class)).isEmpty();
-  }
-
-  @Test
-  void matchingListenersFiltersByDeclaredGenericType() {
-    EntityEventListener<UserModel> user = new UserEventListening();
-    EntityEventListener<Object> all = new ObjectEventListening();
-    registry.addListener(user);
-    registry.addListener(all);
-
-    assertThat(registry.matchingListeners(EntityEventListener.class, UserModel.class))
-            .containsExactly(user, all);
-    assertThat(registry.matchingListeners(EntityEventListener.class, Object.class))
-            .containsExactly(all);
-  }
-
-  @Test
-  void matchingListenersAreNotCachedPastListenerChanges() {
-    EntityEventListener<UserModel> user = new UserEventListening();
-    EntityEventListener<Object> all = new ObjectEventListening();
-    registry.addListener(user);
-    registry.addListener(all);
-    assertThat(registry.matchingListeners(EntityEventListener.class, UserModel.class)).hasSize(2);
-
-    registry.removeListener(user);
-    assertThat(registry.matchingListeners(EntityEventListener.class, UserModel.class))
-            .containsExactly(all);
-
-    registry.clear();
-    assertThat(registry.matchingListeners(EntityEventListener.class, UserModel.class)).isEmpty();
-  }
-
-  @Test
-  void matchingListenersTreatsNonEntityContractAsObservingEveryEntity() {
-    BatchPersistListener batchListener = (execution, implicitExecution, exception) -> {
-    };
-    registry.addListener(batchListener);
-
-    assertThat(registry.matchingListeners(BatchPersistListener.class, UserModel.class))
-            .containsExactly(batchListener);
+    assertThat(registry.listeners(EntityEventListener.class)).isEmpty();
+    assertThat(registry.listeners(BatchPersistListener.class)).isEmpty();
   }
 
   static class UserEventListening implements EntityEventListener<UserModel> {

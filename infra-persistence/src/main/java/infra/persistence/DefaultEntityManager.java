@@ -56,7 +56,6 @@ import infra.logging.LoggerFactory;
 import infra.persistence.annotation.UpdateBy;
 import infra.persistence.annotation.Version;
 import infra.persistence.event.BatchExecution;
-import infra.persistence.event.BatchPersistListener;
 import infra.persistence.event.DefaultEntityEventRegistry;
 import infra.persistence.event.EntityEventRegistry;
 import infra.persistence.platform.Platform;
@@ -1526,7 +1525,7 @@ public class DefaultEntityManager implements EntityManager {
     }
 
     private void executeBatch(PreparedStatement statement, boolean implicitExecution) throws Throwable {
-      preProcessing(implicitExecution);
+      eventMulticaster.preProcessing(this, implicitExecution);
       if (stmtLogger.isDebugEnabled()) {
         stmtLogger.logStatement(LogMessage.format("Executing batch size: {}", entities.size()), this.statement);
       }
@@ -1560,27 +1559,9 @@ public class DefaultEntityManager implements EntityManager {
         throw e;
       }
       finally {
-        postProcessing(implicitExecution, exception);
+        eventMulticaster.postProcessing(this, implicitExecution, exception);
         this.currentBatchRecords = 0;
         this.entities.clear();
-      }
-    }
-
-    private void postProcessing(boolean implicitExecution, @Nullable Throwable exception) {
-      List<BatchPersistListener> listeners = entityEventRegistry.getListeners(BatchPersistListener.class);
-      if (!listeners.isEmpty()) {
-        for (BatchPersistListener listener : listeners) {
-          listener.postProcessing(this, implicitExecution, exception);
-        }
-      }
-    }
-
-    private void preProcessing(boolean implicitExecution) {
-      List<BatchPersistListener> listeners = entityEventRegistry.getListeners(BatchPersistListener.class);
-      if (!listeners.isEmpty()) {
-        for (BatchPersistListener listener : listeners) {
-          listener.preProcessing(this, implicitExecution);
-        }
       }
     }
 

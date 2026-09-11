@@ -38,7 +38,7 @@ class EventListenerGroupTests {
   void emptyGroupReportsNoListeners() {
     assertThat(group.isEmpty()).isTrue();
     assertThat(group.size()).isZero();
-    assertThat(group.getListeners()).isEmpty();
+    assertThat(group.asList()).isEmpty();
     assertThat(group).isEmpty();
     assertThat(group.matchingListeners(UserModel.class)).isEmpty();
   }
@@ -51,7 +51,7 @@ class EventListenerGroupTests {
     group.addListener(first);
     group.addListener(second);
     assertThat(group.size()).isEqualTo(2);
-    assertThat(group.getListeners()).containsExactly(first, second);
+    assertThat(group.asList()).containsExactly(first, second);
     assertThat(group).containsExactly(first, second);
 
     group.addListeners(List.of(first, second));
@@ -73,7 +73,7 @@ class EventListenerGroupTests {
     group.addListener(first);
     group.setListeners(List.of(replacement));
 
-    assertThat(group.getListeners()).containsExactly(replacement);
+    assertThat(group.asList()).containsExactly(replacement);
   }
 
   @Test
@@ -91,7 +91,7 @@ class EventListenerGroupTests {
     group.addListeners(List.of(first, second));
     group.removeListener(first);
 
-    assertThat(group.getListeners()).containsExactly(second);
+    assertThat(group.asList()).containsExactly(second);
   }
 
   @Test
@@ -103,7 +103,7 @@ class EventListenerGroupTests {
     group.addListeners(List.of(first, second, third));
     group.removeListeners(List.of(first, third));
 
-    assertThat(group.getListeners()).containsExactly(second);
+    assertThat(group.asList()).containsExactly(second);
   }
 
   @Test

@@ -18,9 +18,8 @@ package infra.persistence;
 
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
-
-import infra.persistence.EntityMetadata;
+import infra.persistence.event.BatchExecution;
+import infra.persistence.event.BatchPersistListener;
 import infra.persistence.event.DefaultEntityEventRegistry;
 import infra.persistence.event.EntityDeleteEvent;
 import infra.persistence.event.EntityEventListener;
@@ -42,6 +41,7 @@ import infra.persistence.event.EntityUpdateEvent;
  * @see DefaultEntityEventRegistry
  * @since 5.0
  */
+@SuppressWarnings("unchecked")
 final class DefaultEntityEventMulticaster {
 
   private final EntityEventRegistry registry;
@@ -51,79 +51,57 @@ final class DefaultEntityEventMulticaster {
   }
 
   void publishBeforePersist(Object entity, EntityMetadata metadata) {
-    List<EntityEventListener<?>> listeners = matchingListeners(entity.getClass());
-    if (listeners.isEmpty()) {
-      return;
-    }
     EntityPersistEvent<Object> event = new EntityPersistEvent<>(entity, metadata);
-    for (EntityEventListener listener : listeners) {
+    for (var listener : registry.listeners(EntityEventListener.class).matchingListeners(entity.getClass())) {
       listener.beforePersist(event);
     }
   }
 
   void publishAfterPersist(Object entity, EntityMetadata metadata) {
-    List<EntityEventListener<?>> listeners = matchingListeners(entity.getClass());
-    if (listeners.isEmpty()) {
-      return;
-    }
     EntityPersistEvent<Object> event = new EntityPersistEvent<>(entity, metadata);
-    for (EntityEventListener listener : listeners) {
+    for (var listener : registry.listeners(EntityEventListener.class).matchingListeners(entity.getClass())) {
       listener.afterPersist(event);
     }
   }
 
   void publishBeforeUpdate(Object entity, EntityMetadata metadata) {
-    List<EntityEventListener<?>> listeners = matchingListeners(entity.getClass());
-    if (listeners.isEmpty()) {
-      return;
-    }
     EntityUpdateEvent<Object> event = new EntityUpdateEvent<>(entity, metadata);
-    for (EntityEventListener listener : listeners) {
+    for (var listener : registry.listeners(EntityEventListener.class).matchingListeners(entity.getClass())) {
       listener.beforeUpdate(event);
     }
   }
 
   void publishAfterUpdate(Object entity, EntityMetadata metadata) {
-    List<EntityEventListener<?>> listeners = matchingListeners(entity.getClass());
-    if (listeners.isEmpty()) {
-      return;
-    }
     EntityUpdateEvent<Object> event = new EntityUpdateEvent<>(entity, metadata);
-    for (EntityEventListener listener : listeners) {
+    for (var listener : registry.listeners(EntityEventListener.class).matchingListeners(entity.getClass())) {
       listener.afterUpdate(event);
     }
   }
 
-  void publishBeforeDelete(Class<?> entityClass, @Nullable Object entity, @Nullable Object id,
-          EntityMetadata metadata) {
-    List<EntityEventListener<?>> listeners = matchingListeners(entityClass);
-    if (listeners.isEmpty()) {
-      return;
-    }
+  void publishBeforeDelete(Class<?> entityClass, @Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
     EntityDeleteEvent<Object> event = new EntityDeleteEvent<>(entityClass, entity, id, metadata);
-    for (EntityEventListener listener : listeners) {
+    for (var listener : registry.listeners(EntityEventListener.class).matchingListeners(entityClass)) {
       listener.beforeDelete(event);
     }
   }
 
   void publishAfterDelete(Class<?> entityClass, @Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
-    List<EntityEventListener<?>> listeners = matchingListeners(entityClass);
-    if (listeners.isEmpty()) {
-      return;
-    }
     EntityDeleteEvent<Object> event = new EntityDeleteEvent<>(entityClass, entity, id, metadata);
-    for (EntityEventListener listener : listeners) {
+    for (var listener : registry.listeners(EntityEventListener.class).matchingListeners(entityClass)) {
       listener.afterDelete(event);
     }
   }
 
-  /**
-   * Return the listeners matching the given entity class, resolved and cached by
-   * the {@link EntityEventRegistry}.
-   */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  private List<EntityEventListener<?>> matchingListeners(Class<?> entityClass) {
-    return (List) registry.matchingListeners(EntityEventListener.class, entityClass);
+  public void preProcessing(BatchExecution execution, boolean implicitExecution) {
+    for (BatchPersistListener listener : registry.listeners(BatchPersistListener.class)) {
+      listener.preProcessing(execution, implicitExecution);
+    }
+  }
+
+  public void postProcessing(BatchExecution execution, boolean implicitExecution, @Nullable Throwable exception) {
+    for (BatchPersistListener listener : registry.listeners(BatchPersistListener.class)) {
+      listener.postProcessing(execution, implicitExecution, exception);
+    }
   }
 
 }

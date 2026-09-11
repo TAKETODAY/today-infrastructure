@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import infra.core.ResolvableType;
 import infra.core.annotation.AnnotationAwareOrderComparator;
@@ -43,24 +42,34 @@ import infra.util.Assert;
  * as listeners of other contract types, observe every entity. Matched listeners are
  * sorted by {@link AnnotationAwareOrderComparator order}.
  *
+ * <p>This class is not thread-safe: mutating and dispatching listeners concurrently
+ * must be coordinated externally. Iterator-based access is intended for a single
+ * owner (typically the {@link EntityEventRegistry} backing this group).
+ *
  * @param <T> the listener contract type managed by this group
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see infra.persistence.event.EntityEventRegistry
  * @see infra.persistence.event.EntityEventListener
+ * @see infra.persistence.event.BatchPersistListener
  * @since 5.0
  */
 public class EventListenerGroup<T extends Listener> implements Iterable<T> {
 
-  private final List<T> listeners = new ArrayList<>();
+  private final ArrayList<T> listeners = new ArrayList<>();
 
   /**
    * Cached match result per entity class, invalidated on every listener mutation and
    * rebuilt lazily on the next dispatch for that entity class.
    */
-  private final Map<Class<?>, List<T>> matchingCache = new HashMap<>();
+  private final HashMap<Class<?>, List<T>> matchingCache = new HashMap<>();
 
   /**
-   * Register a listener with this group.
+   * Register a listener with this group. The cached match results are invalidated so
+   * the new listener participates in the next dispatch.
+   *
+   * <p>Note that the listener is inserted without any contract-type or entity-class
+   * validation; listeners incompatible with the group's contract type are accepted as
+   * long as they can be cast to {@code T} at dispatch time.
    *
    * @param listener the listener to register; must not be {@code null}
    */
@@ -71,9 +80,11 @@ public class EventListenerGroup<T extends Listener> implements Iterable<T> {
   }
 
   /**
-   * Register multiple {@linkplain Listener listeners}.
+   * Register multiple {@linkplain Listener listeners}, each treated as if passed to
+   * {@link #addListener(Listener)} individually.
    *
-   * @param listeners the listeners to register
+   * @param listeners the listeners to register; may be {@code null} or empty to do
+   * nothing
    */
   public void addListeners(@Nullable Collection<? extends T> listeners) {
     if (listeners != null) {
@@ -84,7 +95,8 @@ public class EventListenerGroup<T extends Listener> implements Iterable<T> {
   }
 
   /**
-   * Replace all registered {@linkplain Listener listeners}.
+   * Replace all registered {@linkplain Listener listeners} with the given ones.
+   * Effectively a {@link #clear()} followed by {@link #addListeners(Collection)}.
    *
    * @param listeners the listeners to set, or {@code null} to clear all listeners
    */
@@ -94,7 +106,8 @@ public class EventListenerGroup<T extends Listener> implements Iterable<T> {
   }
 
   /**
-   * Remove the given listener from this group.
+   * Remove the given listener from this group, invalidating the cached match results.
+   * No-op if the listener is not currently registered.
    *
    * @param listener the listener to remove; must not be {@code null}
    */
@@ -105,7 +118,8 @@ public class EventListenerGroup<T extends Listener> implements Iterable<T> {
   }
 
   /**
-   * Remove multiple {@linkplain Listener listeners}.
+   * Remove multiple {@linkplain Listener listeners}, each treated as if passed to
+   * {@link #removeListener(T)} individually.
    *
    * @param listeners the listeners to remove; must not be {@code null}
    */
@@ -117,7 +131,7 @@ public class EventListenerGroup<T extends Listener> implements Iterable<T> {
   }
 
   /**
-   * Remove all listeners from this group.
+   * Remove all listeners from this group and clear the cached match results.
    */
   public void clear() {
     listeners.clear();
@@ -127,14 +141,16 @@ public class EventListenerGroup<T extends Listener> implements Iterable<T> {
   /**
    * Return whether this group holds no listener.
    *
-   * @return whether this group holds no listener
+   * @return {@code true} if no listener is registered, {@code false} otherwise
    */
   public boolean isEmpty() {
     return listeners.isEmpty();
   }
 
   /**
-   * Return the number of listeners in this group.
+   * Return the number of listeners registered in this group.
+   *
+   * @return the number of registered listeners
    */
   public int size() {
     return listeners.size();
@@ -145,9 +161,9 @@ public class EventListenerGroup<T extends Listener> implements Iterable<T> {
    * read-only by callers; use {@link #addListener} and {@link #removeListener} to
    * mutate the group so the cached match results stay valid.
    *
-   * @return the registered listeners
+   * @return the registered listeners, in registration order
    */
-  public List<T> getListeners() {
+  public List<T> asList() {
     return listeners;
   }
 
@@ -159,9 +175,13 @@ public class EventListenerGroup<T extends Listener> implements Iterable<T> {
    * so steady-state dispatch is a single map lookup plus an iteration over the
    * resolved listeners. The returned list can be iterated directly.
    *
+   * <p>The returned list is an internal, unmodifiable-by-convention snapshot of the
+   * match result: it is safe to read after further mutations, but callers must not
+   * modify it.
+   *
    * @param entityClass the entity class to match against; must not be {@code null}
    * @return the matching listeners, or an empty list if no listener observes the
-   * entity class
+   * entity class; never {@code null}
    */
   public List<T> matchingListeners(Class<?> entityClass) {
     Assert.notNull(entityClass, "Entity class is required");
@@ -171,6 +191,11 @@ public class EventListenerGroup<T extends Listener> implements Iterable<T> {
     return matchingCache.computeIfAbsent(entityClass, this::resolveListeners);
   }
 
+  /**
+   * Return an iterator over the registered listeners, in registration order.
+   *
+   * @return an iterator over the registered listeners
+   */
   @Override
   public Iterator<T> iterator() {
     return listeners.iterator();
@@ -188,20 +213,10 @@ public class EventListenerGroup<T extends Listener> implements Iterable<T> {
     return matched;
   }
 
-  /**
-   * Resolve the entity type declared by the generic parameter of an
-   * {@link EntityEventListener}, or {@code Object} if it cannot be resolved (in
-   * which case the listener observes every entity) or the listener is not an
-   * {@link EntityEventListener}.
-   */
   private static Class<?> resolveEntityType(Listener listener) {
-    if (listener instanceof EntityEventListener<?>) {
-      return ResolvableType.forClass(listener.getClass())
-              .as(EntityEventListener.class)
-              .getGeneric(0)
-              .resolve(Object.class);
-    }
-    return Object.class;
+    return ResolvableType.forClass(listener.getClass())
+            .getGeneric(0)
+            .resolve(Object.class);
   }
 
 }
