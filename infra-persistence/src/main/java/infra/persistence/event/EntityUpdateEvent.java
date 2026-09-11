@@ -21,8 +21,8 @@ import infra.persistence.EntityMetadata;
 /**
  * Represents the lifecycle of a single entity update operation. It is passed to
  * listeners both before the entity is updated
- * ({@link EntityEventListener#beforeUpdate}) and after it has been updated
- * ({@link EntityEventListener#afterUpdate}).
+ * ({@link EntityEventListener#onPreUpdate}) and after it has been updated
+ * ({@link EntityEventListener#onPostUpdate}).
  *
  * <p>When dispatched <em>after</em> a successful update, this event is published for
  * every update that actually ran against the data store, regardless of the number of
@@ -32,8 +32,8 @@ import infra.persistence.EntityMetadata;
  *
  * @param <T> the entity type
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see EntityEventListener#beforeUpdate
- * @see EntityEventListener#afterUpdate
+ * @see EntityEventListener#onPreUpdate
+ * @see EntityEventListener#onPostUpdate
  * @since 5.0
  */
 public final class EntityUpdateEvent<T> extends EntityEvent<T> {

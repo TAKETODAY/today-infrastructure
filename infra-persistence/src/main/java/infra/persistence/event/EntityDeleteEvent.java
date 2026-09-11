@@ -23,8 +23,8 @@ import infra.persistence.EntityMetadata;
 /**
  * Represents the lifecycle of a single entity delete operation. It is passed to
  * listeners both before the entity is deleted
- * ({@link EntityEventListener#beforeDelete}) and after it has been deleted
- * ({@link EntityEventListener#afterDelete}).
+ * ({@link EntityEventListener#onPreDelete}) and after it has been deleted
+ * ({@link EntityEventListener#onPostDelete}).
  *
  * <p>When the entity is deleted by instance or example, the {@linkplain #getEntity()
  * entity} is available. When deleted by id only, no entity instance exists and the
@@ -32,8 +32,8 @@ import infra.persistence.EntityMetadata;
  *
  * @param <T> the entity type
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see EntityEventListener#beforeDelete
- * @see EntityEventListener#afterDelete
+ * @see EntityEventListener#onPreDelete
+ * @see EntityEventListener#onPostDelete
  * @since 5.0
  */
 public final class EntityDeleteEvent<T> extends EntityEvent<T> {

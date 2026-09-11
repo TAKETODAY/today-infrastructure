@@ -161,7 +161,7 @@ class DefaultEntityEventRegistryTests {
   static class HybridListener implements EntityEventListener<UserModel>, BatchPersistListener {
 
     @Override
-    public void afterPersist(EntityPersistEvent<UserModel> event) {
+    public void onPostPersist(EntityPersistEvent<UserModel> event) {
     }
 
     @Override

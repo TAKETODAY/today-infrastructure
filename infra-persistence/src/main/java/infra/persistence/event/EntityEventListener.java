@@ -50,6 +50,8 @@ package infra.persistence.event;
  * @see infra.persistence.event.EntityPersistEvent
  * @see infra.persistence.event.EntityUpdateEvent
  * @see infra.persistence.event.EntityDeleteEvent
+ * @see infra.persistence.event.EntityLoadEvent
+ * @see infra.persistence.event.EntityTruncateEvent
  * @see infra.core.annotation.Order
  * @see infra.core.Ordered
  * @since 5.0
@@ -64,7 +66,7 @@ public interface EntityEventListener<T> extends Listener {
    *
    * @param event the persist event holding the entity to be persisted
    */
-  default void beforePersist(EntityPersistEvent<T> event) {
+  default void onPrePersist(EntityPersistEvent<T> event) {
   }
 
   /**
@@ -74,7 +76,7 @@ public interface EntityEventListener<T> extends Listener {
    *
    * @param event the update event holding the entity to be updated
    */
-  default void beforeUpdate(EntityUpdateEvent<T> event) {
+  default void onPreUpdate(EntityUpdateEvent<T> event) {
   }
 
   /**
@@ -83,7 +85,7 @@ public interface EntityEventListener<T> extends Listener {
    *
    * @param event the delete event
    */
-  default void beforeDelete(EntityDeleteEvent<T> event) {
+  default void onPreDelete(EntityDeleteEvent<T> event) {
   }
 
   /**
@@ -91,7 +93,7 @@ public interface EntityEventListener<T> extends Listener {
    *
    * @param event the persist event holding the fully populated entity
    */
-  default void afterPersist(EntityPersistEvent<T> event) {
+  default void onPostPersist(EntityPersistEvent<T> event) {
   }
 
   /**
@@ -99,7 +101,7 @@ public interface EntityEventListener<T> extends Listener {
    *
    * @param event the update event holding the entity state before the update
    */
-  default void afterUpdate(EntityUpdateEvent<T> event) {
+  default void onPostUpdate(EntityUpdateEvent<T> event) {
   }
 
   /**
@@ -107,7 +109,28 @@ public interface EntityEventListener<T> extends Listener {
    *
    * @param event the delete event
    */
-  default void afterDelete(EntityDeleteEvent<T> event) {
+  default void onPostDelete(EntityDeleteEvent<T> event) {
+  }
+
+  /**
+   * Invoked after an entity of the observed type was loaded from the data store.
+   *
+   * <p>The entity is fully populated from the {@code ResultSet}. This callback is
+   * fired for every entity returned by a query (find / findById / iterate / page /
+   * count-derived reads). Listeners may modify the entity before it is handed to the
+   * caller, e.g. to populate derived fields or feed a cache.
+   *
+   * @param event the load event holding the loaded entity
+   */
+  default void onPostLoad(EntityLoadEvent<T> event) {
+  }
+
+  /**
+   * Invoked after the table of the observed entity type was truncated.
+   *
+   * @param event the truncate event; no entity instance is available
+   */
+  default void onPostTruncate(EntityTruncateEvent<T> event) {
   }
 
 }

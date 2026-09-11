@@ -19,33 +19,28 @@ package infra.persistence.event;
 import infra.persistence.EntityMetadata;
 
 /**
- * Represents the lifecycle of a single entity persistence operation. It is passed
- * to listeners both before the entity is persisted
- * ({@link EntityEventListener#onPrePersist}) and after it has been persisted
- * ({@link EntityEventListener#onPostPersist}).
+ * Event fired after an entity of the observed type was loaded from the data store.
  *
- * <p>When dispatched <em>after</em> a successful persist, the entity instance is
- * fully populated and auto-generated identifiers (if any) have already been written
- * back onto the entity. When dispatched <em>before</em> the persist, identifiers
- * are not yet assigned and listeners may modify the entity.
+ * <p>The entity instance is fully populated from the {@code ResultSet} by the time
+ * this event is published. Listeners may use this to populate derived fields, feed a
+ * cache, or run audit logging without touching every read path.
  *
  * @param <T> the entity type
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see EntityEventListener#onPrePersist
- * @see EntityEventListener#onPostPersist
+ * @see EntityEventListener#onPostLoad
  * @since 5.0
  */
-public final class EntityPersistEvent<T> extends EntityEvent<T> {
+public final class EntityLoadEvent<T> extends EntityEvent<T> {
 
   private final T entity;
 
   /**
-   * Create a new {@code EntityPersistEvent}.
+   * Create a new {@code EntityLoadEvent}.
    *
-   * @param entity the persisted entity; must not be {@code null}
+   * @param entity the loaded entity; must not be {@code null}
    * @param metadata the entity metadata; must not be {@code null}
    */
-  public EntityPersistEvent(T entity, EntityMetadata metadata) {
+  public EntityLoadEvent(T entity, EntityMetadata metadata) {
     super(entity.getClass(), metadata);
     this.entity = entity;
   }
@@ -57,7 +52,7 @@ public final class EntityPersistEvent<T> extends EntityEvent<T> {
 
   @Override
   public String toString() {
-    return "EntityPersistEvent[entity=" + this.entity + ']';
+    return "EntityLoadEvent[entity=" + this.entity + ']';
   }
 
 }

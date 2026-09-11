@@ -52,7 +52,7 @@ import infra.jdbc.ResultSetIterator;
  */
 public abstract class EntityIterator<T extends @Nullable Object> extends ResultSetIterator<T> {
 
-  private final EntityMetadata entityMetadata;
+  protected final EntityMetadata entityMetadata;
 
   protected EntityIterator(ResultSet resultSet, EntityMetadata entityMetadata) {
     super(resultSet);

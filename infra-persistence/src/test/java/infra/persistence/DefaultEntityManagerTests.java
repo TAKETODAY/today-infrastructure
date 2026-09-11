@@ -65,7 +65,9 @@ import infra.persistence.annotation.Where;
 import infra.persistence.event.BatchPersistListener;
 import infra.persistence.event.EntityDeleteEvent;
 import infra.persistence.event.EntityEventListener;
+import infra.persistence.event.EntityLoadEvent;
 import infra.persistence.event.EntityPersistEvent;
+import infra.persistence.event.EntityTruncateEvent;
 import infra.persistence.event.EntityUpdateEvent;
 import infra.persistence.model.NoIdModel;
 import infra.persistence.platform.GenericPlatform;
@@ -192,34 +194,34 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     entityManager.getEntityEventRegistry().addListener(new EntityEventListener<UserModel>() {
 
       @Override
-      public void beforePersist(EntityPersistEvent<UserModel> event) {
+      public void onPrePersist(EntityPersistEvent<UserModel> event) {
         // modification performed in a before callback must be picked up
         event.getEntity().age = 99;
         received.add("beforePersist");
       }
 
       @Override
-      public void afterPersist(EntityPersistEvent<UserModel> event) {
+      public void onPostPersist(EntityPersistEvent<UserModel> event) {
         received.add("afterPersist:" + event.getEntity().age);
       }
 
       @Override
-      public void beforeUpdate(EntityUpdateEvent<UserModel> event) {
+      public void onPreUpdate(EntityUpdateEvent<UserModel> event) {
         received.add("beforeUpdate");
       }
 
       @Override
-      public void afterUpdate(EntityUpdateEvent<UserModel> event) {
+      public void onPostUpdate(EntityUpdateEvent<UserModel> event) {
         received.add("afterUpdate");
       }
 
       @Override
-      public void beforeDelete(EntityDeleteEvent<UserModel> event) {
+      public void onPreDelete(EntityDeleteEvent<UserModel> event) {
         received.add("beforeDelete");
       }
 
       @Override
-      public void afterDelete(EntityDeleteEvent<UserModel> event) {
+      public void onPostDelete(EntityDeleteEvent<UserModel> event) {
         received.add("afterDelete:" + event.getId());
       }
     });
@@ -236,6 +238,53 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
 
     assertThat(received).containsExactly("beforePersist", "afterPersist:99",
             "beforeUpdate", "afterUpdate", "beforeDelete", "afterDelete:" + user.id);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void entityPostLoadEvent(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    List<String> received = new ArrayList<>();
+    entityManager.getEntityEventRegistry().addListener(new EntityEventListener<UserModel>() {
+
+      @Override
+      public void onPostLoad(EntityLoadEvent<UserModel> event) {
+        received.add("load:" + event.getEntity().name + ",id=" + event.getEntity().id);
+      }
+    });
+
+    UserModel user = UserModel.male("TODAY", 10);
+    entityManager.persist(user, true);
+
+    UserModel loaded = entityManager.findById(UserModel.class, user.id);
+    assertThat(loaded.name).isEqualTo("TODAY");
+    assertThat(received).containsExactly("load:TODAY,id=" + user.id);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void entityPostTruncateEvent(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    if (dbType == DbType.HyperSQL) {
+      entityManager.setPlatform(new HyperSQLPlatform());
+    }
+
+    List<String> received = new ArrayList<>();
+    entityManager.getEntityEventRegistry().addListener(new EntityEventListener<UserModel>() {
+
+      @Override
+      public void onPostTruncate(EntityTruncateEvent<UserModel> event) {
+        received.add("truncate:" + event.getEntityClass().getSimpleName()
+                + ",entity=" + (event.getEntity() == null));
+      }
+    });
+
+    entityManager.persist(UserModel.male("TODAY", 10), true);
+    assertThat(entityManager.count(UserModel.class).intValue()).isEqualTo(1);
+
+    entityManager.truncate(UserModel.class);
+
+    assertThat(entityManager.count(UserModel.class).intValue()).isZero();
+    assertThat(received).containsExactly("truncate:UserModel,entity=true");
   }
 
   // find
