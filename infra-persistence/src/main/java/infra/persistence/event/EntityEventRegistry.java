@@ -111,12 +111,12 @@ public interface EntityEventRegistry {
   <T extends Listener> List<T> getListeners(Class<T> type);
 
   /**
-   * Dispatch an {@link EntityInsertEvent} to the matching listeners.
+   * Dispatch an {@link EntityPersistEvent} to the matching listeners.
    *
    * @param entity the persisted entity; must not be {@code null}
    * @param metadata the entity metadata; must not be {@code null}
    */
-  void publishInsert(Object entity, EntityMetadata metadata);
+  void publishPersist(Object entity, EntityMetadata metadata);
 
   /**
    * Dispatch an {@link EntityUpdateEvent} to the matching listeners.

@@ -25,7 +25,7 @@ import java.util.EventListener;
  * <p>Known listener types:
  * <ul>
  *   <li>{@link EntityEventListener} — observes entity lifecycle events
- *   (insert / update / delete).</li>
+ *   (persist / update / delete).</li>
  *   <li>{@link BatchPersistListener} — observes batch persist operations.</li>
  * </ul>
  *

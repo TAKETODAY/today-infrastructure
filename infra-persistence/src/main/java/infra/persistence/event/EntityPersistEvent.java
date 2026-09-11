@@ -29,17 +29,17 @@ import infra.persistence.EntityMetadata;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
  */
-public final class EntityInsertEvent<T> extends EntityEvent<T> {
+public final class EntityPersistEvent<T> extends EntityEvent<T> {
 
   private final T entity;
 
   /**
-   * Create a new {@code EntityInsertEvent}.
+   * Create a new {@code EntityPersistEvent}.
    *
    * @param entity the persisted entity; must not be {@code null}
    * @param metadata the entity metadata; must not be {@code null}
    */
-  public EntityInsertEvent(T entity, EntityMetadata metadata) {
+  public EntityPersistEvent(T entity, EntityMetadata metadata) {
     super(entity.getClass(), metadata);
     this.entity = entity;
   }
@@ -51,7 +51,7 @@ public final class EntityInsertEvent<T> extends EntityEvent<T> {
 
   @Override
   public String toString() {
-    return "EntityInsertEvent[entity=" + this.entity + ']';
+    return "EntityPersistEvent[entity=" + this.entity + ']';
   }
 
 }

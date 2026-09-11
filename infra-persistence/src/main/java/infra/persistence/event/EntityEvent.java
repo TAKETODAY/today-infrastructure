@@ -34,7 +34,7 @@ import infra.persistence.EntityMetadata;
  *
  * @param <T> the entity type
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see infra.persistence.event.EntityInsertEvent
+ * @see infra.persistence.event.EntityPersistEvent
  * @see infra.persistence.event.EntityUpdateEvent
  * @see infra.persistence.event.EntityDeleteEvent
  * @since 5.0
@@ -58,7 +58,7 @@ public abstract class EntityEvent<T> {
 
   /**
    * Return the class of the entity this event is associated with. For
-   * {@link infra.persistence.event.EntityInsertEvent} and
+   * {@link infra.persistence.event.EntityPersistEvent} and
    * {@link infra.persistence.event.EntityUpdateEvent} this is the runtime class of
    * the {@linkplain #getEntity() entity}; for
    * {@link infra.persistence.event.EntityDeleteEvent} this is the entity class the

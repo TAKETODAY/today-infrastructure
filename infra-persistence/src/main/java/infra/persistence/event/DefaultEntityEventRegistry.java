@@ -153,10 +153,10 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
 
   @Override
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public void publishInsert(Object entity, EntityMetadata metadata) {
-    EntityInsertEvent<Object> event = new EntityInsertEvent<>(entity, metadata);
+  public void publishPersist(Object entity, EntityMetadata metadata) {
+    EntityPersistEvent<Object> event = new EntityPersistEvent<>(entity, metadata);
     for (EntityEventListener listener : matchingListeners(entity.getClass())) {
-      listener.onInsert(event);
+      listener.onPersist(event);
     }
   }
 

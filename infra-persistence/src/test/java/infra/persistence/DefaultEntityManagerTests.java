@@ -65,7 +65,7 @@ import infra.persistence.annotation.Where;
 import infra.persistence.event.BatchPersistListener;
 import infra.persistence.event.EntityDeleteEvent;
 import infra.persistence.event.EntityEventListener;
-import infra.persistence.event.EntityInsertEvent;
+import infra.persistence.event.EntityPersistEvent;
 import infra.persistence.event.EntityUpdateEvent;
 import infra.persistence.model.NoIdModel;
 import infra.persistence.platform.GenericPlatform;
@@ -192,7 +192,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     entityManager.getEntityEventRegistry().addListener(new EntityEventListener<UserModel>() {
 
       @Override
-      public void onInsert(EntityInsertEvent<UserModel> event) {
+      public void onPersist(EntityPersistEvent<UserModel> event) {
         received.add("insert-" + event.getEntity().name);
       }
 

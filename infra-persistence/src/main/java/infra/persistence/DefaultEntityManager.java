@@ -91,7 +91,7 @@ import infra.util.Assert;
  * - Transaction management with configurable transaction definitions.
  * - Event listeners for monitoring batch persistence operations.
  * - {@linkplain infra.persistence.event.EntityEvent Entity lifecycle events} for
- * reacting to insert, update and delete operations of specific entity classes.
+ * reacting to persist, update and delete operations of specific entity classes.
  *
  * <p>
  * This class is designed to be flexible and extensible, making it suitable for a
@@ -464,7 +464,7 @@ public class DefaultEntityManager implements EntityManager {
           }
         }
       }
-      entityEventRegistry.publishInsert(entity, entityMetadata);
+      entityEventRegistry.publishPersist(entity, entityMetadata);
       return updateCount;
     }
     catch (SQLException ex) {
@@ -1538,7 +1538,7 @@ public class DefaultEntityManager implements EntityManager {
           }
         }
         for (Object entity : entities) {
-          entityEventRegistry.publishInsert(entity, entityMetadata);
+          entityEventRegistry.publishPersist(entity, entityMetadata);
         }
       }
       catch (Throwable e) {

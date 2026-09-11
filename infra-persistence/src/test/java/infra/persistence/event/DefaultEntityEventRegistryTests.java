@@ -51,12 +51,12 @@ class DefaultEntityEventRegistryTests {
     registry.addListener(new EntityEventListener<UserModel>() {
 
       @Override
-      public void onInsert(EntityInsertEvent<UserModel> event) {
+      public void onPersist(EntityPersistEvent<UserModel> event) {
         received.add("insert:" + event.getEntity().name);
       }
     });
 
-    registry.publishInsert(UserModel.male("TODAY", 10), metadata);
+    registry.publishPersist(UserModel.male("TODAY", 10), metadata);
 
     assertThat(received).containsExactly("insert:TODAY");
   }
@@ -69,12 +69,12 @@ class DefaultEntityEventRegistryTests {
     registry.addListener(new EntityEventListener<UserModel>() {
 
       @Override
-      public void onInsert(EntityInsertEvent<UserModel> event) {
+      public void onPersist(EntityPersistEvent<UserModel> event) {
         received.add("user:" + event.getEntity().name);
       }
     });
 
-    registry.publishInsert(UserModel.male("TODAY", 10), metadata);
+    registry.publishPersist(UserModel.male("TODAY", 10), metadata);
     assertThat(received).containsExactly("user:TODAY");
 
     // generic type can not be resolved -> observes every entity
@@ -82,12 +82,12 @@ class DefaultEntityEventRegistryTests {
     registry.addListener(new EntityEventListener<>() {
 
       @Override
-      public void onInsert(EntityInsertEvent<Object> event) {
+      public void onPersist(EntityPersistEvent<Object> event) {
         allReceived.add("all:" + event.getEntity().getClass().getSimpleName());
       }
     });
 
-    registry.publishInsert(UserModel.male("TODAY", 10), metadata);
+    registry.publishPersist(UserModel.male("TODAY", 10), metadata);
     assertThat(allReceived).containsExactly("all:UserModel");
   }
 
@@ -98,12 +98,12 @@ class DefaultEntityEventRegistryTests {
     registry.addListener(new EntityEventListener<Object>() {
 
       @Override
-      public void onInsert(EntityInsertEvent<Object> event) {
+      public void onPersist(EntityPersistEvent<Object> event) {
         received.add("supertype:" + event.getEntity().getClass().getSimpleName());
       }
     });
 
-    registry.publishInsert(UserModel.male("TODAY", 10), metadata);
+    registry.publishPersist(UserModel.male("TODAY", 10), metadata);
 
     assertThat(received).containsExactly("supertype:UserModel");
   }
@@ -115,7 +115,7 @@ class DefaultEntityEventRegistryTests {
     registry.addListener(new EntityEventListener<UserModel>() {
 
       @Override
-      public void onInsert(EntityInsertEvent<UserModel> event) {
+      public void onPersist(EntityPersistEvent<UserModel> event) {
         received.add("insert");
       }
 
@@ -130,7 +130,7 @@ class DefaultEntityEventRegistryTests {
       }
     });
 
-    registry.publishInsert(UserModel.male("TODAY", 10), metadata);
+    registry.publishPersist(UserModel.male("TODAY", 10), metadata);
     registry.publishUpdate(UserModel.male("TODAY", 10), metadata);
     registry.publishDelete(UserModel.class, null, 42, metadata);
 
@@ -165,7 +165,7 @@ class DefaultEntityEventRegistryTests {
     registry.addListener(new EntityEventListener<UserModel>() {
 
       @Override
-      public void onInsert(EntityInsertEvent<UserModel> event) {
+      public void onPersist(EntityPersistEvent<UserModel> event) {
         received.add("first");
       }
     });
@@ -173,12 +173,12 @@ class DefaultEntityEventRegistryTests {
     registry.addListener(new EntityEventListener<UserModel>() {
 
       @Override
-      public void onInsert(EntityInsertEvent<UserModel> event) {
+      public void onPersist(EntityPersistEvent<UserModel> event) {
         received.add("second");
       }
     });
 
-    registry.publishInsert(UserModel.male("TODAY", 10), metadata);
+    registry.publishPersist(UserModel.male("TODAY", 10), metadata);
 
     assertThat(received).containsExactly("first", "second");
   }
@@ -190,12 +190,12 @@ class DefaultEntityEventRegistryTests {
     registry.addListener(new EntityEventListener<NamedEntity>() {
 
       @Override
-      public void onInsert(EntityInsertEvent<NamedEntity> event) {
+      public void onPersist(EntityPersistEvent<NamedEntity> event) {
         received.add("named:" + event.getEntity().getName());
       }
     });
 
-    registry.publishInsert(new IEntity("TODAY"), metadata);
+    registry.publishPersist(new IEntity("TODAY"), metadata);
 
     assertThat(received).containsExactly("named:TODAY");
   }
@@ -207,19 +207,19 @@ class DefaultEntityEventRegistryTests {
     EntityEventListener<UserModel> listener = new EntityEventListener<>() {
 
       @Override
-      public void onInsert(EntityInsertEvent<UserModel> event) {
+      public void onPersist(EntityPersistEvent<UserModel> event) {
         received.add("insert");
       }
     };
 
     registry.addListener(listener);
     registry.removeListener(listener);
-    registry.publishInsert(UserModel.male("TODAY", 10), metadata);
+    registry.publishPersist(UserModel.male("TODAY", 10), metadata);
     assertThat(received).isEmpty();
 
     registry.addListener(listener);
     registry.clear();
-    registry.publishInsert(UserModel.male("TODAY", 10), metadata);
+    registry.publishPersist(UserModel.male("TODAY", 10), metadata);
     assertThat(received).isEmpty();
   }
 
@@ -245,14 +245,14 @@ class DefaultEntityEventRegistryTests {
     EntityEventListener<UserModel> first = new EntityEventListener<>() {
 
       @Override
-      public void onInsert(EntityInsertEvent<UserModel> event) {
+      public void onPersist(EntityPersistEvent<UserModel> event) {
         received.add("first");
       }
     };
     EntityEventListener<UserModel> second = new EntityEventListener<>() {
 
       @Override
-      public void onInsert(EntityInsertEvent<UserModel> event) {
+      public void onPersist(EntityPersistEvent<UserModel> event) {
         received.add("second");
       }
     };
@@ -260,7 +260,7 @@ class DefaultEntityEventRegistryTests {
     registry.addListener(first);
     registry.setListeners(List.of(second));
 
-    registry.publishInsert(UserModel.male("TODAY", 10), metadata);
+    registry.publishPersist(UserModel.male("TODAY", 10), metadata);
     assertThat(received).containsExactly("second");
   }
 
@@ -271,14 +271,14 @@ class DefaultEntityEventRegistryTests {
     EntityEventListener<UserModel> first = new EntityEventListener<>() {
 
       @Override
-      public void onInsert(EntityInsertEvent<UserModel> event) {
+      public void onPersist(EntityPersistEvent<UserModel> event) {
         received.add("first");
       }
     };
     EntityEventListener<UserModel> second = new EntityEventListener<>() {
 
       @Override
-      public void onInsert(EntityInsertEvent<UserModel> event) {
+      public void onPersist(EntityPersistEvent<UserModel> event) {
         received.add("second");
       }
     };
@@ -287,7 +287,7 @@ class DefaultEntityEventRegistryTests {
     registry.addListener(second);
     registry.removeListeners(List.of(first, second));
 
-    registry.publishInsert(UserModel.male("TODAY", 10), metadata);
+    registry.publishPersist(UserModel.male("TODAY", 10), metadata);
     assertThat(received).isEmpty();
   }
 

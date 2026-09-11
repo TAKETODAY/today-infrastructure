@@ -47,7 +47,7 @@ package infra.persistence.event;
  * @param <T> the entity type to observe
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see infra.persistence.event.EntityEventRegistry
- * @see infra.persistence.event.EntityInsertEvent
+ * @see infra.persistence.event.EntityPersistEvent
  * @see infra.persistence.event.EntityUpdateEvent
  * @see infra.persistence.event.EntityDeleteEvent
  * @see infra.core.annotation.Order
@@ -59,9 +59,9 @@ public interface EntityEventListener<T> extends Listener {
   /**
    * Invoked after an entity of the observed type was successfully persisted.
    *
-   * @param event the insert event holding the fully populated entity
+   * @param event the persist event holding the fully populated entity
    */
-  default void onInsert(EntityInsertEvent<T> event) {
+  default void onPersist(EntityPersistEvent<T> event) {
   }
 
   /**
