@@ -31,14 +31,13 @@ import infra.persistence.EntityMetadata;
  * <p>Listeners are registered <strong>generically</strong> via {@link #addListener}
  * without any binding to a concrete entity class: the entity type an
  * {@link EntityEventListener} wants to observe is derived from its generic type
- * parameter. When the {@link infra.persistence.EntityManager} performs a write
- * operation on an entity, the matching listeners are invoked
- * <strong>synchronously</strong> and in
- * {@linkplain infra.core.annotation.AnnotationAwareOrderComparator order}.
+ * parameter. Dispatch of {@link infra.persistence.event.EntityEvent entity lifecycle
+ * events} is performed by the {@link infra.persistence.EntityManager} against the
+ * registered listeners.
  *
  * <p>This interface is deliberately decoupled from any IoC container or application
- * event mechanism: it is just a plain registration + dispatch registry and can be
- * used in a bare JDBC environment.
+ * event mechanism: it is just a plain registration registry and can be used in a
+ * bare JDBC environment.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see infra.persistence.event.Listener
@@ -111,58 +110,22 @@ public interface EntityEventRegistry {
   <T extends Listener> List<T> getListeners(Class<T> type);
 
   /**
-   * Dispatch an {@link EntityPersistEvent} to the matching listeners before the
-   * entity is persisted.
+   * Return the listeners of the specified contract that observe the given entity
+   * class, sorted by {@link infra.core.annotation.AnnotationAwareOrderComparator order}.
    *
-   * @param entity the entity to be persisted; must not be {@code null}
-   * @param metadata the entity metadata; must not be {@code null}
-   */
-  void publishBeforePersist(Object entity, EntityMetadata metadata);
-
-  /**
-   * Dispatch an {@link EntityPersistEvent} to the matching listeners.
+   * <p>An {@link EntityEventListener} observes an entity class when that class is
+   * assignable to the entity type declared by its generic parameter. The result is
+   * cached per {@code (listenerType, entityClass)} and invalidated whenever
+   * listeners are added or removed, so steady-state dispatch performs no generic
+   * type resolution.
    *
-   * @param entity the persisted entity; must not be {@code null}
-   * @param metadata the entity metadata; must not be {@code null}
+   * @param <L> the listener type
+   * @param listenerType the listener contract used as the registry key; must not be
+   * {@code null}
+   * @param entityClass the entity class to match against; must not be {@code null}
+   * @return the listeners observing the given entity class, or an empty list if
+   * none registered for the specified type observe it
    */
-  void publishAfterPersist(Object entity, EntityMetadata metadata);
-
-  /**
-   * Dispatch an {@link EntityUpdateEvent} to the matching listeners before the
-   * entity is updated.
-   *
-   * @param entity the entity to be updated; must not be {@code null}
-   * @param metadata the entity metadata; must not be {@code null}
-   */
-  void publishBeforeUpdate(Object entity, EntityMetadata metadata);
-
-  /**
-   * Dispatch an {@link EntityUpdateEvent} to the matching listeners.
-   *
-   * @param entity the updated entity; must not be {@code null}
-   * @param metadata the entity metadata; must not be {@code null}
-   */
-  void publishAfterUpdate(Object entity, EntityMetadata metadata);
-
-  /**
-   * Dispatch an {@link EntityDeleteEvent} to the matching listeners before the
-   * entity is deleted.
-   *
-   * @param entityClass the entity class; must not be {@code null}
-   * @param entity the entity to be deleted, or {@code null} if not available
-   * @param id the id to be deleted, or {@code null} if not available
-   * @param metadata the entity metadata; must not be {@code null}
-   */
-  void publishBeforeDelete(Class<?> entityClass, @Nullable Object entity, @Nullable Object id, EntityMetadata metadata);
-
-  /**
-   * Dispatch an {@link EntityDeleteEvent} to the matching listeners.
-   *
-   * @param entityClass the entity class; must not be {@code null}
-   * @param entity the deleted entity, or {@code null} if not available
-   * @param id the deleted id, or {@code null} if not available
-   * @param metadata the entity metadata; must not be {@code null}
-   */
-  void publishAfterDelete(Class<?> entityClass, @Nullable Object entity, @Nullable Object id, EntityMetadata metadata);
+  <L extends Listener> List<L> matchingListeners(Class<L> listenerType, Class<?> entityClass);
 
 }

@@ -18,32 +18,28 @@ package infra.persistence.event;
 
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import infra.core.ResolvableType;
-import infra.core.annotation.AnnotationAwareOrderComparator;
-import infra.persistence.EntityMetadata;
 import infra.util.Assert;
-import infra.util.CollectionUtils;
-import infra.util.MultiValueMap;
 
 /**
  * Default {@link EntityEventRegistry} implementation.
  *
- * <p>All listeners are stored in a single {@link MultiValueMap} keyed by their
- * listener contract type — {@link EntityEventListener} or
- * {@link BatchPersistListener}. Dispatch resolves the entity type of every entity
- * event listener once, cached per entity class, so steady-state dispatch is a map
- * lookup followed by an iteration over the resolved listeners.
+ * <p>Listeners are dispatched by contract type into {@link EventListenerGroup groups}
+ * kept in a single {@link Map} keyed by the listener contract type — e.g.
+ * {@link EntityEventListener} or {@link BatchPersistListener}. Each group owns its
+ * listener storage and per-entity-class match cache, and new listener contract types
+ * can be added without changing this registry's storage layout.
  *
- * <p>Listeners are invoked in {@linkplain AnnotationAwareOrderComparator order},
- * lowest value first. All mutating methods as well as the dispatch methods are
- * intended to be invoked from a single thread during steady-state operations.
+ * <p>Dispatch of {@link infra.persistence.event.EntityEvent entity lifecycle events}
+ * is performed separately by the entity manager.
+ *
+ * <p>All mutating methods are intended to be invoked from a single thread during
+ * steady-state operations.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
@@ -51,17 +47,9 @@ import infra.util.MultiValueMap;
 public class DefaultEntityEventRegistry implements EntityEventRegistry {
 
   /**
-   * Single listener storage keyed by listener contract type — e.g.
-   * {@link BatchPersistListener} — backing {@link #getListeners(Class)}.
+   * Listener groups keyed by their listener contract type.
    */
-  private final MultiValueMap<Class<?>, Listener> eventListeners =
-          MultiValueMap.forSmartListAdaptation();
-
-  /**
-   * Cached order-sorted listeners for each encountered entity class, cleared on
-   * every mutation and rebuilt lazily on first dispatch for that entity class.
-   */
-  private final Map<Class<?>, List<EntityEventListener<?>>> matchingCache = new HashMap<>();
+  private final Map<Class<?>, EventListenerGroup<?>> listenerGroups = new HashMap<>();
 
   // ---------------------------------------------------------------------
   // Registration
@@ -70,12 +58,11 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
   @Override
   public void addListener(Listener listener) {
     Assert.notNull(listener, "Listener is required");
-    matchingCache.clear();
     if (listener instanceof EntityEventListener<?>) {
-      eventListeners.add(EntityEventListener.class, listener);
+      groupFor(EntityEventListener.class).addListener(listener);
     }
     if (listener instanceof BatchPersistListener) {
-      eventListeners.add(BatchPersistListener.class, listener);
+      groupFor(BatchPersistListener.class).addListener(listener);
     }
     if (!(listener instanceof EntityEventListener<?> || listener instanceof BatchPersistListener)) {
       throw new IllegalArgumentException("Unsupported listener type: " + listener.getClass());
@@ -100,21 +87,16 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
   @Override
   public void removeListener(Listener listener) {
     Assert.notNull(listener, "Listener is required");
-    matchingCache.clear();
     if (listener instanceof EntityEventListener<?>) {
-      removeListener(EntityEventListener.class, listener);
+      EventListenerGroup group = group(EntityEventListener.class);
+      if (group != null) {
+        group.removeListener(listener);
+      }
     }
     if (listener instanceof BatchPersistListener) {
-      removeListener(BatchPersistListener.class, listener);
-    }
-  }
-
-  private void removeListener(Class<?> listenerType, Listener listener) {
-    List<Listener> listeners = eventListeners.get(listenerType);
-    if (listeners != null) {
-      listeners.remove(listener);
-      if (listeners.isEmpty()) {
-        eventListeners.remove(listenerType);
+      EventListenerGroup group = group(BatchPersistListener.class);
+      if (group != null) {
+        group.removeListener(listener);
       }
     }
   }
@@ -128,121 +110,44 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
   }
 
   @Override
+  public void clear() {
+    listenerGroups.clear();
+  }
+
+  // ---------------------------------------------------------------------
+  // Lookup
+  // ---------------------------------------------------------------------
+
+  @Override
+  @SuppressWarnings("unchecked")
   public <T extends Listener> List<T> getListeners(Class<T> type) {
-    List<T> listeners = listeners(type);
-    if (listeners == null) {
+    EventListenerGroup group = group(type);
+    if (group == null) {
       return Collections.emptyList();
     }
-    return listeners;
+    return (List<T>) group.getListeners();
   }
 
   @Override
-  public void clear() {
-    eventListeners.clear();
-    matchingCache.clear();
-  }
-
   @SuppressWarnings("unchecked")
-  private <T extends Listener> @Nullable List<T> listeners(Class<T> type) {
-    return (List<T>) eventListeners.get(type);
+  public <L extends Listener> List<L> matchingListeners(Class<L> listenerType, Class<?> entityClass) {
+    EventListenerGroup group = group(listenerType);
+    if (group == null) {
+      return Collections.emptyList();
+    }
+    return (List<L>) group.matchingListeners(entityClass);
   }
 
   // ---------------------------------------------------------------------
-  // Dispatch
+  // Internal
   // ---------------------------------------------------------------------
 
-  @Override
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  public void publishBeforePersist(Object entity, EntityMetadata metadata) {
-    EntityPersistEvent<Object> event = new EntityPersistEvent<>(entity, metadata);
-    for (EntityEventListener listener : matchingListeners(entity.getClass())) {
-      listener.beforePersist(event);
-    }
+  private EventListenerGroup group(Class<?> listenerType) {
+    return listenerGroups.get(listenerType);
   }
 
-  @Override
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  public void publishAfterPersist(Object entity, EntityMetadata metadata) {
-    EntityPersistEvent<Object> event = new EntityPersistEvent<>(entity, metadata);
-    for (EntityEventListener listener : matchingListeners(entity.getClass())) {
-      listener.afterPersist(event);
-    }
-  }
-
-  @Override
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  public void publishBeforeUpdate(Object entity, EntityMetadata metadata) {
-    EntityUpdateEvent<Object> event = new EntityUpdateEvent<>(entity, metadata);
-    for (EntityEventListener listener : matchingListeners(entity.getClass())) {
-      listener.beforeUpdate(event);
-    }
-  }
-
-  @Override
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  public void publishAfterUpdate(Object entity, EntityMetadata metadata) {
-    EntityUpdateEvent<Object> event = new EntityUpdateEvent<>(entity, metadata);
-    for (EntityEventListener listener : matchingListeners(entity.getClass())) {
-      listener.afterUpdate(event);
-    }
-  }
-
-  @Override
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  public void publishBeforeDelete(Class<?> entityClass, @Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
-    EntityDeleteEvent<Object> event = new EntityDeleteEvent<>(entityClass, entity, id, metadata);
-    for (EntityEventListener listener : matchingListeners(entityClass)) {
-      listener.beforeDelete(event);
-    }
-  }
-
-  @Override
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  public void publishAfterDelete(Class<?> entityClass, @Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
-    EntityDeleteEvent<Object> event = new EntityDeleteEvent<>(entityClass, entity, id, metadata);
-    for (EntityEventListener listener : matchingListeners(entityClass)) {
-      listener.afterDelete(event);
-    }
-  }
-
-  /**
-   * Return the listeners matching the given entity class, sorted by
-   * {@link AnnotationAwareOrderComparator order}.
-   *
-   * <p>The result is cached per entity class and rebuilt lazily after any mutation:
-   * dispatch is a single map lookup plus an iteration over the resolved listeners.
-   */
-  private List<EntityEventListener<?>> matchingListeners(Class<?> entityClass) {
-    return matchingCache.computeIfAbsent(entityClass, this::resolveListeners);
-  }
-
-  @SuppressWarnings("rawtypes")
-  private List<EntityEventListener<?>> resolveListeners(Class<?> entityClass) {
-    var listeners = listeners(EntityEventListener.class);
-    if (CollectionUtils.isNotEmpty(listeners)) {
-      ArrayList<EntityEventListener<?>> matched = new ArrayList<>(listeners.size());
-      for (EntityEventListener listener : listeners) {
-        Class<?> entityType = resolveEntityType(listener);
-        if (entityType.isAssignableFrom(entityClass)) {
-          matched.add(listener);
-        }
-      }
-      matched.trimToSize();
-      AnnotationAwareOrderComparator.sort(matched);
-      return matched;
-    }
-    return Collections.emptyList();
-  }
-
-  /**
-   * Resolve the entity type declared by the generic parameter of the listener, or
-   * {@link Object} if it cannot be resolved (in which case the listener observes
-   * every entity).
-   */
-  private static Class<?> resolveEntityType(Listener listener) {
-    return ResolvableType.forClass(listener.getClass())
-            .getGeneric(0)
-            .resolve(Object.class);
+  private EventListenerGroup groupFor(Class<?> listenerType) {
+    return listenerGroups.computeIfAbsent(listenerType, type -> new EventListenerGroup<>());
   }
 
 }

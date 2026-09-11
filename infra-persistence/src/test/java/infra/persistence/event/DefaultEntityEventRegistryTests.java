@@ -16,17 +16,16 @@
 
 package infra.persistence.event;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import infra.jdbc.model.UserModel;
-import infra.persistence.EntityMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -36,220 +35,63 @@ class DefaultEntityEventRegistryTests {
 
   private DefaultEntityEventRegistry registry;
 
-  private EntityMetadata metadata;
-
   @BeforeEach
   void setUp() {
     registry = new DefaultEntityEventRegistry();
-    metadata = mock(EntityMetadata.class);
   }
 
   @Test
-  void insertEventIsDispatchedToGenericListener() {
-    List<String> received = new ArrayList<>();
-
-    registry.addListener(new EntityEventListener<UserModel>() {
-
-      @Override
-      public void afterPersist(EntityPersistEvent<UserModel> event) {
-        received.add("insert:" + event.getEntity().name);
-      }
-    });
-
-    registry.publishAfterPersist(UserModel.male("TODAY", 10), metadata);
-
-    assertThat(received).containsExactly("insert:TODAY");
+  void addListenerRejectsNull() {
+    assertThatThrownBy(() -> registry.addListener(null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Listener is required");
   }
 
   @Test
-  void listenerIsFilteredByDeclaredGenericType() {
-    List<String> received = new ArrayList<>();
-
-    // listens only to UserModel, "not-an-entity" must not be received
-    registry.addListener(new EntityEventListener<UserModel>() {
-
-      @Override
-      public void afterPersist(EntityPersistEvent<UserModel> event) {
-        received.add("user:" + event.getEntity().name);
-      }
-    });
-
-    registry.publishAfterPersist(UserModel.male("TODAY", 10), metadata);
-    assertThat(received).containsExactly("user:TODAY");
-
-    // generic type can not be resolved -> observes every entity
-    List<String> allReceived = new ArrayList<>();
-    registry.addListener(new EntityEventListener<>() {
-
-      @Override
-      public void afterPersist(EntityPersistEvent<Object> event) {
-        allReceived.add("all:" + event.getEntity().getClass().getSimpleName());
-      }
-    });
-
-    registry.publishAfterPersist(UserModel.male("TODAY", 10), metadata);
-    assertThat(allReceived).containsExactly("all:UserModel");
+  void addListenerRejectsUnsupportedListener() {
+    assertThatThrownBy(() -> registry.addListener(new Listener() {
+    }))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Unsupported listener type");
   }
 
   @Test
-  void beforePersistUpdateDeleteAreDispatched() {
-    List<String> received = new ArrayList<>();
-
-    registry.addListener(new EntityEventListener<UserModel>() {
-
-      @Override
-      public void beforePersist(EntityPersistEvent<UserModel> event) {
-        received.add("beforePersist");
-      }
-
-      @Override
-      public void beforeUpdate(EntityUpdateEvent<UserModel> event) {
-        received.add("beforeUpdate");
-      }
-
-      @Override
-      public void beforeDelete(EntityDeleteEvent<UserModel> event) {
-        received.add("beforeDelete");
-      }
-    });
-
-    registry.publishBeforePersist(UserModel.male("TODAY", 10), metadata);
-    registry.publishBeforeUpdate(UserModel.male("TODAY", 10), metadata);
-    registry.publishBeforeDelete(UserModel.class, null, 42, metadata);
-
-    assertThat(received).containsExactly("beforePersist", "beforeUpdate", "beforeDelete");
-  }
-
-  @Test
-  void listenerObservingSupertypeReceivesSubtypeEvents() {
-    List<String> received = new ArrayList<>();
-
-    registry.addListener(new EntityEventListener<Object>() {
-
-      @Override
-      public void afterPersist(EntityPersistEvent<Object> event) {
-        received.add("supertype:" + event.getEntity().getClass().getSimpleName());
-      }
-    });
-
-    registry.publishAfterPersist(UserModel.male("TODAY", 10), metadata);
-
-    assertThat(received).containsExactly("supertype:UserModel");
-  }
-
-  @Test
-  void insertUpdateAndDeleteAreDispatched() {
-    List<String> received = new ArrayList<>();
-
-    registry.addListener(new EntityEventListener<UserModel>() {
-
-      @Override
-      public void afterPersist(EntityPersistEvent<UserModel> event) {
-        received.add("insert");
-      }
-
-      @Override
-      public void afterUpdate(EntityUpdateEvent<UserModel> event) {
-        received.add("update");
-      }
-
-      @Override
-      public void afterDelete(EntityDeleteEvent<UserModel> event) {
-        received.add("delete");
-      }
-    });
-
-    registry.publishAfterPersist(UserModel.male("TODAY", 10), metadata);
-    registry.publishAfterUpdate(UserModel.male("TODAY", 10), metadata);
-    registry.publishAfterDelete(UserModel.class, null, 42, metadata);
-
-    assertThat(received).containsExactly("insert", "update", "delete");
-  }
-
-  @Test
-  void deleteEventCarriesEntityAndId() {
-    List<String> received = new ArrayList<>();
-
-    registry.addListener(new EntityEventListener<UserModel>() {
-
-      @Override
-      public void afterDelete(EntityDeleteEvent<UserModel> event) {
-        received.add("entity=" + (event.getEntity() != null)
-                + ",id=" + event.getId() + ",class=" + event.getEntityClass().getName());
-      }
-    });
-
-    registry.publishAfterDelete(UserModel.class, null, 42, metadata);
-    registry.publishAfterDelete(UserModel.class, UserModel.male("TODAY", 10), 7, metadata);
-
-    assertThat(received).containsExactly(
-            "entity=false,id=42,class=" + UserModel.class.getName(),
-            "entity=true,id=7,class=" + UserModel.class.getName());
-  }
-
-  @Test
-  void listenersAreInvokedInOrder() {
-    List<String> received = new ArrayList<>();
-
-    registry.addListener(new EntityEventListener<UserModel>() {
-
-      @Override
-      public void afterPersist(EntityPersistEvent<UserModel> event) {
-        received.add("first");
-      }
-    });
-
-    registry.addListener(new EntityEventListener<UserModel>() {
-
-      @Override
-      public void afterPersist(EntityPersistEvent<UserModel> event) {
-        received.add("second");
-      }
-    });
-
-    registry.publishAfterPersist(UserModel.male("TODAY", 10), metadata);
-
-    assertThat(received).containsExactly("first", "second");
-  }
-
-  @Test
-  void listenerObservingInterfaceReceivesImplementorEvents() {
-    List<String> received = new ArrayList<>();
-
-    registry.addListener(new EntityEventListener<NamedEntity>() {
-
-      @Override
-      public void afterPersist(EntityPersistEvent<NamedEntity> event) {
-        received.add("named:" + event.getEntity().getName());
-      }
-    });
-
-    registry.publishAfterPersist(new IEntity("TODAY"), metadata);
-
-    assertThat(received).containsExactly("named:TODAY");
-  }
-
-  @Test
-  void removeAndClearTakeEffect() {
-    List<String> received = new ArrayList<>();
-
-    EntityEventListener<UserModel> listener = new EntityEventListener<>() {
-
-      @Override
-      public void afterPersist(EntityPersistEvent<UserModel> event) {
-        received.add("insert");
-      }
+  void listenersAreStoredByContract() {
+    EntityEventListener<UserModel> entityListener = new UserEventListening();
+    BatchPersistListener batchListener = (execution, implicitExecution, exception) -> {
     };
 
-    registry.addListener(listener);
-    registry.removeListener(listener);
-    registry.publishAfterPersist(UserModel.male("TODAY", 10), metadata);
-    assertThat(received).isEmpty();
+    registry.addListener(entityListener);
+    registry.addListener(batchListener);
 
+    assertThat(registry.getListeners(EntityEventListener.class)).containsExactly(entityListener);
+    assertThat(registry.getListeners(BatchPersistListener.class)).containsExactly(batchListener);
+  }
+
+  @Test
+  void listenerImplementingMultipleContractsIsRegisteredUnderEach() {
+    HybridListener hybrid = new HybridListener();
+
+    registry.addListener(hybrid);
+
+    assertThat(registry.getListeners(EntityEventListener.class)).containsExactly(hybrid);
+    assertThat(registry.getListeners(BatchPersistListener.class)).containsExactly(hybrid);
+  }
+
+  @Test
+  void getListenersReturnsEmptyForUnknownContract() {
+    assertThat(registry.getListeners(EntityEventListener.class)).isEmpty();
+    assertThat(registry.getListeners(BatchPersistListener.class)).isEmpty();
+  }
+
+  @Test
+  void getListenersReturnsEmptyAfterAllListenersOfContractAreRemoved() {
+    EntityEventListener<UserModel> listener = new UserEventListening();
     registry.addListener(listener);
-    registry.clear();
-    registry.publishAfterPersist(UserModel.male("TODAY", 10), metadata);
-    assertThat(received).isEmpty();
+
+    registry.removeListener(listener);
+
+    assertThat(registry.getListeners(EntityEventListener.class)).isEmpty();
   }
 
   @Test
@@ -268,74 +110,101 @@ class DefaultEntityEventRegistryTests {
   }
 
   @Test
-  void setListenersReplacesAll() {
-    List<String> received = new ArrayList<>();
-
-    EntityEventListener<UserModel> first = new EntityEventListener<>() {
-
-      @Override
-      public void afterPersist(EntityPersistEvent<UserModel> event) {
-        received.add("first");
-      }
-    };
-    EntityEventListener<UserModel> second = new EntityEventListener<>() {
-
-      @Override
-      public void afterPersist(EntityPersistEvent<UserModel> event) {
-        received.add("second");
-      }
+  void entityEventListenersAreStoredByContract() {
+    EntityEventListener<UserModel> listener = new EntityEventListener<>() {
     };
 
-    registry.addListener(first);
-    registry.setListeners(List.of(second));
+    registry.addListener(listener);
+    assertThat(registry.getListeners(EntityEventListener.class)).containsExactly(listener);
 
-    registry.publishAfterPersist(UserModel.male("TODAY", 10), metadata);
-    assertThat(received).containsExactly("second");
+    registry.removeListener(listener);
+    assertThat(registry.getListeners(EntityEventListener.class)).isEmpty();
   }
 
   @Test
-  void removeListenersRemovesAll() {
-    List<String> received = new ArrayList<>();
-
-    EntityEventListener<UserModel> first = new EntityEventListener<>() {
-
-      @Override
-      public void afterPersist(EntityPersistEvent<UserModel> event) {
-        received.add("first");
-      }
-    };
-    EntityEventListener<UserModel> second = new EntityEventListener<>() {
-
-      @Override
-      public void afterPersist(EntityPersistEvent<UserModel> event) {
-        received.add("second");
-      }
-    };
-
-    registry.addListener(first);
-    registry.addListener(second);
-    registry.removeListeners(List.of(first, second));
-
-    registry.publishAfterPersist(UserModel.male("TODAY", 10), metadata);
-    assertThat(received).isEmpty();
+  void addListenersAcceptsNullCollection() {
+    registry.addListeners(null);
+    assertThat(registry.getListeners(EntityEventListener.class)).isEmpty();
   }
 
-  interface NamedEntity {
+  @Test
+  void removeListenersRemovesMultipleListeners() {
+    EntityEventListener<UserModel> first = new UserEventListening();
+    EntityEventListener<UserModel> second = new UserEventListening();
+    registry.addListeners(List.of(first, second));
 
-    String getName();
+    registry.removeListeners(List.of(first));
+
+    assertThat(registry.getListeners(EntityEventListener.class)).containsExactly(second);
   }
 
-  static class IEntity implements NamedEntity {
+  @Test
+  void clearRemovesAllListenersAcrossContracts() {
+    registry.addListener(new UserEventListening());
+    registry.addListener((BatchPersistListener) (execution, implicitExecution, exception) -> {
+    });
 
-    private final String name;
+    registry.clear();
 
-    IEntity(String name) {
-      this.name = name;
+    assertThat(registry.getListeners(EntityEventListener.class)).isEmpty();
+    assertThat(registry.getListeners(BatchPersistListener.class)).isEmpty();
+  }
+
+  @Test
+  void matchingListenersFiltersByDeclaredGenericType() {
+    EntityEventListener<UserModel> user = new UserEventListening();
+    EntityEventListener<Object> all = new ObjectEventListening();
+    registry.addListener(user);
+    registry.addListener(all);
+
+    assertThat(registry.matchingListeners(EntityEventListener.class, UserModel.class))
+            .containsExactly(user, all);
+    assertThat(registry.matchingListeners(EntityEventListener.class, Object.class))
+            .containsExactly(all);
+  }
+
+  @Test
+  void matchingListenersAreNotCachedPastListenerChanges() {
+    EntityEventListener<UserModel> user = new UserEventListening();
+    EntityEventListener<Object> all = new ObjectEventListening();
+    registry.addListener(user);
+    registry.addListener(all);
+    assertThat(registry.matchingListeners(EntityEventListener.class, UserModel.class)).hasSize(2);
+
+    registry.removeListener(user);
+    assertThat(registry.matchingListeners(EntityEventListener.class, UserModel.class))
+            .containsExactly(all);
+
+    registry.clear();
+    assertThat(registry.matchingListeners(EntityEventListener.class, UserModel.class)).isEmpty();
+  }
+
+  @Test
+  void matchingListenersTreatsNonEntityContractAsObservingEveryEntity() {
+    BatchPersistListener batchListener = (execution, implicitExecution, exception) -> {
+    };
+    registry.addListener(batchListener);
+
+    assertThat(registry.matchingListeners(BatchPersistListener.class, UserModel.class))
+            .containsExactly(batchListener);
+  }
+
+  static class UserEventListening implements EntityEventListener<UserModel> {
+
+  }
+
+  static class ObjectEventListening implements EntityEventListener<Object> {
+
+  }
+
+  static class HybridListener implements EntityEventListener<UserModel>, BatchPersistListener {
+
+    @Override
+    public void afterPersist(EntityPersistEvent<UserModel> event) {
     }
 
     @Override
-    public String getName() {
-      return name;
+    public void postProcessing(BatchExecution execution, boolean implicitExecution, @Nullable Throwable exception) {
     }
   }
 
