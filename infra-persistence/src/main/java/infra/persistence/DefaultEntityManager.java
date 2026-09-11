@@ -132,7 +132,7 @@ public class DefaultEntityManager implements EntityManager {
 
   private EntityEventRegistry entityEventRegistry = new DefaultEntityEventRegistry();
 
-  private DefaultEntityEventMulticaster eventMulticaster = new DefaultEntityEventMulticaster(entityEventRegistry);
+  private EntityEventMulticaster eventMulticaster = new EntityEventMulticaster(entityEventRegistry);
 
   private @Nullable TransactionDefinition transactionConfig = TransactionDefinition.withDefaults();
 
@@ -315,7 +315,7 @@ public class DefaultEntityManager implements EntityManager {
     else {
       this.entityEventRegistry = entityEventRegistry;
     }
-    this.eventMulticaster = new DefaultEntityEventMulticaster(this.entityEventRegistry);
+    this.eventMulticaster = new EntityEventMulticaster(this.entityEventRegistry);
   }
 
   /**

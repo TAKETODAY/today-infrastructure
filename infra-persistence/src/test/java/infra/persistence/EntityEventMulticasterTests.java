@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import infra.jdbc.model.UserModel;
-import infra.persistence.EntityMetadata;
 import infra.persistence.event.DefaultEntityEventRegistry;
 import infra.persistence.event.EntityDeleteEvent;
 import infra.persistence.event.EntityEventListener;
@@ -37,18 +36,18 @@ import static org.mockito.Mockito.mock;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
  */
-class DefaultEntityEventMulticasterTests {
+class EntityEventMulticasterTests {
 
   private DefaultEntityEventRegistry registry;
 
-  private DefaultEntityEventMulticaster multicaster;
+  private EntityEventMulticaster multicaster;
 
   private EntityMetadata metadata;
 
   @BeforeEach
   void setUp() {
     registry = new DefaultEntityEventRegistry();
-    multicaster = new DefaultEntityEventMulticaster(registry);
+    multicaster = new EntityEventMulticaster(registry);
     metadata = mock(EntityMetadata.class);
   }
 

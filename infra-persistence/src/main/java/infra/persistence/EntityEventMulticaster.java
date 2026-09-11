@@ -42,11 +42,11 @@ import infra.persistence.event.EntityUpdateEvent;
  * @since 5.0
  */
 @SuppressWarnings("unchecked")
-final class DefaultEntityEventMulticaster {
+final class EntityEventMulticaster {
 
   private final EntityEventRegistry registry;
 
-  DefaultEntityEventMulticaster(EntityEventRegistry registry) {
+  EntityEventMulticaster(EntityEventRegistry registry) {
     this.registry = registry;
   }
 
