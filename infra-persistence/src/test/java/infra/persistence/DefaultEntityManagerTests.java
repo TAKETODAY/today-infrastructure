@@ -64,11 +64,10 @@ import infra.persistence.annotation.UpdateBy;
 import infra.persistence.annotation.Where;
 import infra.persistence.event.BatchPersistListener;
 import infra.persistence.event.EntityDeleteEvent;
-import infra.persistence.event.EntityEventListener;
-import infra.persistence.event.EntityLoadEvent;
-import infra.persistence.event.EntityPersistEvent;
-import infra.persistence.event.EntityTruncateEvent;
 import infra.persistence.event.EntityUpdateEvent;
+import infra.persistence.event.PersistingEventListener;
+import infra.persistence.event.PostLoadEventListener;
+import infra.persistence.event.PostTruncateEventListener;
 import infra.persistence.model.NoIdModel;
 import infra.persistence.platform.GenericPlatform;
 import infra.persistence.platform.Platform;
@@ -191,18 +190,18 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
 
     List<String> received = new ArrayList<>();
-    entityManager.getEntityEventRegistry().addListener(new EntityEventListener<UserModel>() {
+    entityManager.getEntityEventRegistry().addListener(new PersistingEventListener<UserModel>() {
 
       @Override
-      public void onPrePersist(EntityPersistEvent<UserModel> event) {
+      public void onPrePersisting(UserModel entity, EntityMetadata metadata) {
         // modification performed in a before callback must be picked up
-        event.getEntity().age = 99;
+        entity.age = 99;
         received.add("beforePersist");
       }
 
       @Override
-      public void onPostPersist(EntityPersistEvent<UserModel> event) {
-        received.add("afterPersist:" + event.getEntity().age);
+      public void onPostPersisting(UserModel entity, EntityMetadata metadata) {
+        received.add("afterPersist:" + entity.age);
       }
 
       @Override
@@ -245,11 +244,11 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
 
     List<String> received = new ArrayList<>();
-    entityManager.getEntityEventRegistry().addListener(new EntityEventListener<UserModel>() {
+    entityManager.getEntityEventRegistry().addListener(new PostLoadEventListener<UserModel>() {
 
       @Override
-      public void onPostLoad(EntityLoadEvent<UserModel> event) {
-        received.add("load:" + event.getEntity().name + ",id=" + event.getEntity().id);
+      public void onPostLoad(UserModel entity, EntityMetadata metadata) {
+        received.add("load:" + entity.name + ",id=" + entity.id);
       }
     });
 
@@ -269,12 +268,11 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     }
 
     List<String> received = new ArrayList<>();
-    entityManager.getEntityEventRegistry().addListener(new EntityEventListener<UserModel>() {
+    entityManager.getEntityEventRegistry().addListener(new PostTruncateEventListener<UserModel>() {
 
       @Override
-      public void onPostTruncate(EntityTruncateEvent<UserModel> event) {
-        received.add("truncate:" + event.getEntityClass().getSimpleName()
-                + ",entity=" + (event.getEntity() == null));
+      public void onPostTruncate(Class<?> entityClass, EntityMetadata metadata) {
+        received.add("truncate:" + entityClass.getSimpleName());
       }
     });
 
@@ -284,7 +282,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     entityManager.truncate(UserModel.class);
 
     assertThat(entityManager.count(UserModel.class).intValue()).isZero();
-    assertThat(received).containsExactly("truncate:UserModel,entity=true");
+    assertThat(received).containsExactly("truncate:UserModel");
   }
 
   // find

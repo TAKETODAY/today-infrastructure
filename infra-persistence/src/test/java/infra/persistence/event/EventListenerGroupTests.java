@@ -40,7 +40,7 @@ class EventListenerGroupTests {
     assertThat(group.size()).isZero();
     assertThat(group.asList()).isEmpty();
     assertThat(group).isEmpty();
-    assertThat(group.matchingListeners(UserModel.class)).isEmpty();
+    assertThat(group.entityListeners(UserModel.class)).isEmpty();
   }
 
   @Test
@@ -121,8 +121,8 @@ class EventListenerGroupTests {
     EntityEventListener<Object> all = new EverythingListener();
     group.addListeners(List.of(user, all));
 
-    assertThat(group.matchingListeners(UserModel.class)).containsExactly(user, all);
-    assertThat(group.matchingListeners(Object.class)).containsExactly(all);
+    assertThat(group.entityListeners(UserModel.class)).containsExactly(user, all);
+    assertThat(group.entityListeners(Object.class)).containsExactly(all);
   }
 
   @Test
@@ -130,7 +130,7 @@ class EventListenerGroupTests {
     EntityEventListener<Object> all = new EverythingListener();
     group.addListener(all);
 
-    assertThat(group.matchingListeners(UserModel.class)).containsExactly(all);
+    assertThat(group.entityListeners(UserModel.class)).containsExactly(all);
   }
 
   @Test
@@ -138,8 +138,8 @@ class EventListenerGroupTests {
     EntityEventListener<NamedEntity> named = new NamedListener();
     group.addListener(named);
 
-    assertThat(group.matchingListeners(IEntity.class)).containsExactly(named);
-    assertThat(group.matchingListeners(UserModel.class)).isEmpty();
+    assertThat(group.entityListeners(IEntity.class)).containsExactly(named);
+    assertThat(group.entityListeners(UserModel.class)).isEmpty();
   }
 
   @Test
@@ -147,8 +147,8 @@ class EventListenerGroupTests {
     EntityEventListener<UserModel> user = new UserListener();
     group.addListener(user);
 
-    assertThat(group.matchingListeners(UserModel.class)).containsExactly(user);
-    assertThat(group.matchingListeners(String.class)).isEmpty();
+    assertThat(group.entityListeners(UserModel.class)).containsExactly(user);
+    assertThat(group.entityListeners(String.class)).isEmpty();
   }
 
   @Test
@@ -159,16 +159,16 @@ class EventListenerGroupTests {
 
     group.addListeners(List.of(second, third, first));
 
-    assertThat(group.matchingListeners(UserModel.class)).containsExactly(first, second, third);
+    assertThat(group.entityListeners(UserModel.class)).containsExactly(first, second, third);
   }
 
   @Test
   void matchingCacheIsInvalidatedWhenListenerIsAdded() {
     EntityEventListener<UserModel> user = new UserListener();
-    assertThat(group.matchingListeners(UserModel.class)).isEmpty();
+    assertThat(group.entityListeners(UserModel.class)).isEmpty();
 
     group.addListener(user);
-    assertThat(group.matchingListeners(UserModel.class)).containsExactly(user);
+    assertThat(group.entityListeners(UserModel.class)).containsExactly(user);
   }
 
   @Test
@@ -176,19 +176,19 @@ class EventListenerGroupTests {
     EntityEventListener<UserModel> first = new UserListener();
     EntityEventListener<UserModel> second = new UserListener();
     group.addListeners(List.of(first, second));
-    assertThat(group.matchingListeners(UserModel.class)).hasSize(2);
+    assertThat(group.entityListeners(UserModel.class)).hasSize(2);
 
     group.removeListener(first);
-    assertThat(group.matchingListeners(UserModel.class)).containsExactly(second);
+    assertThat(group.entityListeners(UserModel.class)).containsExactly(second);
   }
 
   @Test
   void matchingCacheIsInvalidatedWhenGroupIsCleared() {
     group.addListener(new UserListener());
-    assertThat(group.matchingListeners(UserModel.class)).isNotEmpty();
+    assertThat(group.entityListeners(UserModel.class)).isNotEmpty();
 
     group.clear();
-    assertThat(group.matchingListeners(UserModel.class)).isEmpty();
+    assertThat(group.entityListeners(UserModel.class)).isEmpty();
   }
 
   @Test
@@ -207,7 +207,7 @@ class EventListenerGroupTests {
 
   @Test
   void matchingListenersRejectsNullEntityClass() {
-    assertThatThrownBy(() -> group.matchingListeners(null))
+    assertThatThrownBy(() -> group.entityListeners(null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Entity class is required");
   }

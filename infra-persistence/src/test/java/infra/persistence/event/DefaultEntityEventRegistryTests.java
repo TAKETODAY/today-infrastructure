@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import infra.jdbc.model.UserModel;
+import infra.persistence.EntityMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -158,10 +159,10 @@ class DefaultEntityEventRegistryTests {
 
   }
 
-  static class HybridListener implements EntityEventListener<UserModel>, BatchPersistListener {
+  static class HybridListener implements PersistingEventListener<UserModel>, BatchPersistListener {
 
     @Override
-    public void onPostPersist(EntityPersistEvent<UserModel> event) {
+    public void onPostPersisting(UserModel entity, EntityMetadata metadata) {
     }
 
     @Override

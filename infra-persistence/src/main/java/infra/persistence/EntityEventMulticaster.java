@@ -24,10 +24,10 @@ import infra.persistence.event.DefaultEntityEventRegistry;
 import infra.persistence.event.EntityDeleteEvent;
 import infra.persistence.event.EntityEventListener;
 import infra.persistence.event.EntityEventRegistry;
-import infra.persistence.event.EntityLoadEvent;
-import infra.persistence.event.EntityPersistEvent;
-import infra.persistence.event.EntityTruncateEvent;
 import infra.persistence.event.EntityUpdateEvent;
+import infra.persistence.event.PersistingEventListener;
+import infra.persistence.event.PostLoadEventListener;
+import infra.persistence.event.PostTruncateEventListener;
 
 /**
  * Package-private multicast for {@link infra.persistence.event.EntityEvent entity
@@ -52,59 +52,55 @@ final class EntityEventMulticaster {
     this.registry = registry;
   }
 
-  void onPrePersist(Object entity, EntityMetadata metadata) {
-    EntityPersistEvent<Object> event = new EntityPersistEvent<>(entity, metadata);
-    for (var listener : registry.listeners(EntityEventListener.class).matchingListeners(entity.getClass())) {
-      listener.onPrePersist(event);
+  void onPrePersisting(Object entity, EntityMetadata metadata) {
+    for (var listener : registry.listeners(PersistingEventListener.class).entityListeners(entity.getClass())) {
+      listener.onPrePersisting(entity, metadata);
     }
   }
 
-  void onPostPersist(Object entity, EntityMetadata metadata) {
-    EntityPersistEvent<Object> event = new EntityPersistEvent<>(entity, metadata);
-    for (var listener : registry.listeners(EntityEventListener.class).matchingListeners(entity.getClass())) {
-      listener.onPostPersist(event);
+  void onPostPersisting(Object entity, EntityMetadata metadata) {
+    for (var listener : registry.listeners(PersistingEventListener.class).entityListeners(entity.getClass())) {
+      listener.onPostPersisting(entity, metadata);
     }
   }
 
   void onPreUpdate(Object entity, EntityMetadata metadata) {
     EntityUpdateEvent<Object> event = new EntityUpdateEvent<>(entity, metadata);
-    for (var listener : registry.listeners(EntityEventListener.class).matchingListeners(entity.getClass())) {
+    for (var listener : registry.listeners(PersistingEventListener.class).entityListeners(entity.getClass())) {
       listener.onPreUpdate(event);
     }
   }
 
   void onPostUpdate(Object entity, EntityMetadata metadata) {
     EntityUpdateEvent<Object> event = new EntityUpdateEvent<>(entity, metadata);
-    for (var listener : registry.listeners(EntityEventListener.class).matchingListeners(entity.getClass())) {
+    for (var listener : registry.listeners(EntityEventListener.class).entityListeners(entity.getClass())) {
       listener.onPostUpdate(event);
     }
   }
 
   void onPreDelete(Class<?> entityClass, @Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
     EntityDeleteEvent<Object> event = new EntityDeleteEvent<>(entityClass, entity, id, metadata);
-    for (var listener : registry.listeners(EntityEventListener.class).matchingListeners(entityClass)) {
+    for (var listener : registry.listeners(EntityEventListener.class).entityListeners(entityClass)) {
       listener.onPreDelete(event);
     }
   }
 
   void onPostDelete(Class<?> entityClass, @Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
     EntityDeleteEvent<Object> event = new EntityDeleteEvent<>(entityClass, entity, id, metadata);
-    for (var listener : registry.listeners(EntityEventListener.class).matchingListeners(entityClass)) {
+    for (var listener : registry.listeners(EntityEventListener.class).entityListeners(entityClass)) {
       listener.onPostDelete(event);
     }
   }
 
   void onPostLoad(Object entity, EntityMetadata metadata) {
-    EntityLoadEvent<Object> event = new EntityLoadEvent<>(entity, metadata);
-    for (var listener : registry.listeners(EntityEventListener.class).matchingListeners(entity.getClass())) {
-      listener.onPostLoad(event);
+    for (var listener : registry.listeners(PostLoadEventListener.class).entityListeners(entity.getClass())) {
+      listener.onPostLoad(entity, metadata);
     }
   }
 
   void onPostTruncate(Class<?> entityClass, EntityMetadata metadata) {
-    EntityTruncateEvent<Object> event = new EntityTruncateEvent<>(entityClass, metadata);
-    for (var listener : registry.listeners(EntityEventListener.class).matchingListeners(entityClass)) {
-      listener.onPostTruncate(event);
+    for (var listener : registry.listeners(PostTruncateEventListener.class).entityListeners(entityClass)) {
+      listener.onPostTruncate(entityClass, metadata);
     }
   }
 

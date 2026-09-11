@@ -50,34 +50,11 @@ package infra.persistence.event;
  * @see infra.persistence.event.EntityPersistEvent
  * @see infra.persistence.event.EntityUpdateEvent
  * @see infra.persistence.event.EntityDeleteEvent
- * @see infra.persistence.event.EntityLoadEvent
- * @see infra.persistence.event.EntityTruncateEvent
  * @see infra.core.annotation.Order
  * @see infra.core.Ordered
  * @since 5.0
  */
 public interface EntityEventListener<T> extends Listener {
-
-  /**
-   * Invoked before an entity of the observed type is persisted, before the insert
-   * statement is built and executed. Listeners may modify the entity; the changes
-   * are picked up by the persistence operation (generated identifiers are not yet
-   * assigned at this point).
-   *
-   * @param event the persist event holding the entity to be persisted
-   */
-  default void onPrePersist(EntityPersistEvent<T> event) {
-  }
-
-  /**
-   * Invoked before an entity of the observed type is updated, before the update
-   * statement is built and executed. Listeners may modify the entity; the changes
-   * are picked up by the update operation.
-   *
-   * @param event the update event holding the entity to be updated
-   */
-  default void onPreUpdate(EntityUpdateEvent<T> event) {
-  }
 
   /**
    * Invoked before an entity of the observed type is deleted, before the delete
@@ -89,11 +66,13 @@ public interface EntityEventListener<T> extends Listener {
   }
 
   /**
-   * Invoked after an entity of the observed type was successfully persisted.
+   * Invoked before an entity of the observed type is updated, before the update
+   * statement is built and executed. Listeners may modify the entity; the changes
+   * are picked up by the update operation.
    *
-   * @param event the persist event holding the fully populated entity
+   * @param event the update event holding the entity to be updated
    */
-  default void onPostPersist(EntityPersistEvent<T> event) {
+  default void onPreUpdate(EntityUpdateEvent<T> event) {
   }
 
   /**
@@ -110,27 +89,6 @@ public interface EntityEventListener<T> extends Listener {
    * @param event the delete event
    */
   default void onPostDelete(EntityDeleteEvent<T> event) {
-  }
-
-  /**
-   * Invoked after an entity of the observed type was loaded from the data store.
-   *
-   * <p>The entity is fully populated from the {@code ResultSet}. This callback is
-   * fired for every entity returned by a query (find / findById / iterate / page /
-   * count-derived reads). Listeners may modify the entity before it is handed to the
-   * caller, e.g. to populate derived fields or feed a cache.
-   *
-   * @param event the load event holding the loaded entity
-   */
-  default void onPostLoad(EntityLoadEvent<T> event) {
-  }
-
-  /**
-   * Invoked after the table of the observed entity type was truncated.
-   *
-   * @param event the truncate event; no entity instance is available
-   */
-  default void onPostTruncate(EntityTruncateEvent<T> event) {
   }
 
 }

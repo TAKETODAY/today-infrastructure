@@ -46,7 +46,12 @@ import infra.util.Assert;
 public class DefaultEntityEventRegistry implements EntityEventRegistry {
 
   private static final Set<Class<? extends Listener>> supportedListenerTypes = Set.of(
-          EntityEventListener.class, BatchPersistListener.class);
+          EntityEventListener.class,
+          PersistingEventListener.class,
+
+          PostLoadEventListener.class,
+          PostTruncateEventListener.class,
+          BatchPersistListener.class);
 
   /**
    * Listener groups keyed by their listener contract type.

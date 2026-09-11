@@ -183,7 +183,7 @@ public class EventListenerGroup<T extends Listener> implements Iterable<T> {
    * @return the matching listeners, or an empty list if no listener observes the
    * entity class; never {@code null}
    */
-  public List<T> matchingListeners(Class<?> entityClass) {
+  public List<T> entityListeners(Class<?> entityClass) {
     Assert.notNull(entityClass, "Entity class is required");
     if (listeners.isEmpty()) {
       return Collections.emptyList();
@@ -215,6 +215,7 @@ public class EventListenerGroup<T extends Listener> implements Iterable<T> {
 
   private static Class<?> resolveEntityType(Listener listener) {
     return ResolvableType.forClass(listener.getClass())
+            .as(EntityEventListener.class)
             .getGeneric(0)
             .resolve(Object.class);
   }
