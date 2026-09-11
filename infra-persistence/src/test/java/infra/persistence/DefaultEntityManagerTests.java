@@ -63,11 +63,11 @@ import infra.persistence.annotation.Table;
 import infra.persistence.annotation.UpdateBy;
 import infra.persistence.annotation.Where;
 import infra.persistence.event.BatchPersistListener;
-import infra.persistence.event.EntityDeleteEvent;
-import infra.persistence.event.EntityUpdateEvent;
+import infra.persistence.event.DeletingEventListener;
 import infra.persistence.event.PersistingEventListener;
 import infra.persistence.event.PostLoadEventListener;
 import infra.persistence.event.PostTruncateEventListener;
+import infra.persistence.event.UpdatingEventListener;
 import infra.persistence.model.NoIdModel;
 import infra.persistence.platform.GenericPlatform;
 import infra.persistence.platform.Platform;
@@ -203,25 +203,29 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
       public void onPostPersisting(UserModel entity, EntityMetadata metadata) {
         received.add("afterPersist:" + entity.age);
       }
+    });
+    entityManager.getEntityEventRegistry().addListener(new UpdatingEventListener<UserModel>() {
 
       @Override
-      public void onPreUpdate(EntityUpdateEvent<UserModel> event) {
+      public void onPreUpdating(UserModel entity, EntityMetadata metadata) {
         received.add("beforeUpdate");
       }
 
       @Override
-      public void onPostUpdate(EntityUpdateEvent<UserModel> event) {
+      public void onPostUpdating(UserModel entity, EntityMetadata metadata) {
         received.add("afterUpdate");
       }
+    });
+    entityManager.getEntityEventRegistry().addListener(new DeletingEventListener<UserModel>() {
 
       @Override
-      public void onPreDelete(EntityDeleteEvent<UserModel> event) {
+      public void onPreDeleting(UserModel entity, Object id, EntityMetadata metadata) {
         received.add("beforeDelete");
       }
 
       @Override
-      public void onPostDelete(EntityDeleteEvent<UserModel> event) {
-        received.add("afterDelete:" + event.getId());
+      public void onPostDeleting(UserModel entity, Object id, EntityMetadata metadata) {
+        received.add("afterDelete:" + id);
       }
     });
 

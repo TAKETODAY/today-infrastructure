@@ -26,9 +26,8 @@ import java.util.Collection;
  * <p>Listeners are registered <strong>generically</strong> via {@link #addListener}
  * without any binding to a concrete entity class: the entity type an
  * {@link EntityEventListener} wants to observe is derived from its generic type
- * parameter. Dispatch of {@link infra.persistence.event.EntityEvent entity lifecycle
- * events} is performed by the {@link infra.persistence.EntityManager} against the
- * registered listeners.
+ * parameter. Dispatch of entity lifecycle events is performed by the
+ * {@link infra.persistence.EntityManager} against the registered listeners.
  *
  * <p>This interface is deliberately decoupled from any IoC container or application
  * event mechanism: it is just a plain registration registry and can be used in a

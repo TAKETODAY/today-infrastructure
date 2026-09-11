@@ -89,8 +89,8 @@ import infra.util.Assert;
  * - Support for conditional queries and dynamic query handlers.
  * - Transaction management with configurable transaction definitions.
  * - Event listeners for monitoring batch persistence operations.
- * - {@linkplain infra.persistence.event.EntityEvent Entity lifecycle events} for
- * reacting to persist, update and delete operations of specific entity classes.
+ * - {@linkplain infra.persistence.event.EntityEventListener Entity lifecycle events}
+ * for reacting to persist, update and delete operations of specific entity classes.
  *
  * <p>
  * This class is designed to be flexible and extensible, making it suitable for a
@@ -830,7 +830,7 @@ public class DefaultEntityManager implements EntityManager {
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
     EntityProperty idProperty = idProperty(metadata, "Deleting an entity, Id property not found");
 
-    eventMulticaster.onPreDelete(entityClass, null, id, metadata);
+    eventMulticaster.onPreDelete(null, id, metadata);
 
     StringBuilder sql = new StringBuilder();
     sql.append("DELETE FROM ");
@@ -849,7 +849,7 @@ public class DefaultEntityManager implements EntityManager {
       statement = con.prepareStatement(sql.toString());
       idProperty.setParameter(statement, 1, id);
       int updateCount = statement.executeUpdate();
-      eventMulticaster.onPostDelete(entityClass, null, id, metadata);
+      eventMulticaster.onPostDelete(null, id, metadata);
       return updateCount;
     }
     catch (SQLException ex) {
@@ -875,7 +875,7 @@ public class DefaultEntityManager implements EntityManager {
       versionValue = versionProperty.getValue(entityOrExample);
     }
 
-    eventMulticaster.onPreDelete(entityOrExample.getClass(), entityOrExample, id, metadata);
+    eventMulticaster.onPreDelete(entityOrExample, id, metadata);
 
     ExampleQuery exampleQuery = null;
 
@@ -921,7 +921,7 @@ public class DefaultEntityManager implements EntityManager {
                 "Optimistic locking failure deleting entity [%s] with ID: %s, expected version: %s, but %d row(s) were deleted"
                         .formatted(metadata.tableName, id, versionValue, updateCount));
       }
-      eventMulticaster.onPostDelete(entityOrExample.getClass(), entityOrExample, id, metadata);
+      eventMulticaster.onPostDelete(entityOrExample, id, metadata);
       return updateCount;
     }
     catch (SQLException ex) {

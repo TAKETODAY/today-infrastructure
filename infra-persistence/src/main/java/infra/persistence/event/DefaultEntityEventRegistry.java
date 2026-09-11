@@ -34,8 +34,8 @@ import infra.util.Assert;
  * listener storage and per-entity-class match cache, and new listener contract types
  * can be added without changing this registry's storage layout.
  *
- * <p>Dispatch of {@link infra.persistence.event.EntityEvent entity lifecycle events}
- * is performed separately by the entity manager.
+ * <p>Dispatch of entity lifecycle events is performed separately by the entity
+ * manager.
  *
  * <p>All mutating methods are intended to be invoked from a single thread during
  * steady-state operations.
@@ -48,7 +48,8 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
   private static final Set<Class<? extends Listener>> supportedListenerTypes = Set.of(
           EntityEventListener.class,
           PersistingEventListener.class,
-
+          UpdatingEventListener.class,
+          DeletingEventListener.class,
           PostLoadEventListener.class,
           PostTruncateEventListener.class,
           BatchPersistListener.class);

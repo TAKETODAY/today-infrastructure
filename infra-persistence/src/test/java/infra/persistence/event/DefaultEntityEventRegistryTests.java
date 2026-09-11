@@ -151,6 +151,36 @@ class DefaultEntityEventRegistryTests {
     assertThat(registry.listeners(BatchPersistListener.class)).isEmpty();
   }
 
+  @Test
+  void updatingAndDeletingListenersAreStoredByTheirOwnContract() {
+    UpdatingEventListener<UserModel> updating = new UpdatingEventListener<>() {
+    };
+    DeletingEventListener<UserModel> deleting = new DeletingEventListener<>() {
+    };
+
+    registry.addListener(updating);
+    registry.addListener(deleting);
+
+    assertThat(registry.listeners(UpdatingEventListener.class)).containsExactly(updating);
+    assertThat(registry.listeners(DeletingEventListener.class)).containsExactly(deleting);
+  }
+
+  @Test
+  void updatingAndDeletingListenersAreRemovedIndependently() {
+    UpdatingEventListener<UserModel> updating = new UpdatingEventListener<>() {
+    };
+    DeletingEventListener<UserModel> deleting = new DeletingEventListener<>() {
+    };
+
+    registry.addListener(updating);
+    registry.addListener(deleting);
+
+    registry.removeListener(updating);
+
+    assertThat(registry.listeners(UpdatingEventListener.class)).isEmpty();
+    assertThat(registry.listeners(DeletingEventListener.class)).containsExactly(deleting);
+  }
+
   static class UserEventListening implements EntityEventListener<UserModel> {
 
   }

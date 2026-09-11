@@ -61,7 +61,7 @@ public class EventListenerGroup<T extends Listener> implements Iterable<T> {
    * Cached match result per entity class, invalidated on every listener mutation and
    * rebuilt lazily on the next dispatch for that entity class.
    */
-  private final HashMap<Class<?>, List<T>> matchingCache = new HashMap<>();
+  private final HashMap<Class<?>, List<T>> matchingCache = new HashMap<>(); // todo 分层设计
 
   /**
    * Register a listener with this group. The cached match results are invalidated so

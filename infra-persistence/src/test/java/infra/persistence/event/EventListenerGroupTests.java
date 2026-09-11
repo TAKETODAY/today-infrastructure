@@ -152,6 +152,17 @@ class EventListenerGroupTests {
   }
 
   @Test
+  void specializedListenersResolveEntityTypeThroughBaseContract() {
+    UpdatingEventListener<UserModel> updating = new UpdatingUserListener();
+    DeletingEventListener<UserModel> deleting = new DeletingUserListener();
+
+    group.addListeners(List.of(updating, deleting));
+
+    assertThat(group.entityListeners(UserModel.class)).containsExactlyInAnyOrder(updating, deleting);
+    assertThat(group.entityListeners(String.class)).isEmpty();
+  }
+
+  @Test
   void matchingResultIsSortedByOrder() {
     EntityEventListener<UserModel> first = new OrderListeners.First();
     EntityEventListener<UserModel> second = new OrderListeners.Second();
@@ -240,6 +251,14 @@ class EventListenerGroupTests {
   }
 
   static class NamedListener implements EntityEventListener<NamedEntity> {
+
+  }
+
+  static class UpdatingUserListener implements UpdatingEventListener<UserModel> {
+
+  }
+
+  static class DeletingUserListener implements DeletingEventListener<UserModel> {
 
   }
 

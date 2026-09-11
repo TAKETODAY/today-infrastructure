@@ -21,18 +21,17 @@ import org.jspecify.annotations.Nullable;
 import infra.persistence.event.BatchExecution;
 import infra.persistence.event.BatchPersistListener;
 import infra.persistence.event.DefaultEntityEventRegistry;
-import infra.persistence.event.EntityDeleteEvent;
-import infra.persistence.event.EntityEventListener;
+import infra.persistence.event.DeletingEventListener;
 import infra.persistence.event.EntityEventRegistry;
-import infra.persistence.event.EntityUpdateEvent;
 import infra.persistence.event.PersistingEventListener;
 import infra.persistence.event.PostLoadEventListener;
 import infra.persistence.event.PostTruncateEventListener;
+import infra.persistence.event.UpdatingEventListener;
 
 /**
- * Package-private multicast for {@link infra.persistence.event.EntityEvent entity
- * lifecycle events}. It is owned by the {@link DefaultEntityManager} and dispatched
- * against the {@link EntityEventRegistry} it was created with.
+ * Package-private multicast for entity lifecycle events. It is owned by the
+ * {@link DefaultEntityManager} and dispatched against the {@link EntityEventRegistry}
+ * it was created with.
  *
  * <p>It keeps the dispatch concern out of the public registry contract without
  * exposing an additional API: the manager uses it to fire
@@ -65,30 +64,26 @@ final class EntityEventMulticaster {
   }
 
   void onPreUpdate(Object entity, EntityMetadata metadata) {
-    EntityUpdateEvent<Object> event = new EntityUpdateEvent<>(entity, metadata);
-    for (var listener : registry.listeners(PersistingEventListener.class).entityListeners(entity.getClass())) {
-      listener.onPreUpdate(event);
+    for (var listener : registry.listeners(UpdatingEventListener.class).entityListeners(entity.getClass())) {
+      listener.onPreUpdating(entity, metadata);
     }
   }
 
   void onPostUpdate(Object entity, EntityMetadata metadata) {
-    EntityUpdateEvent<Object> event = new EntityUpdateEvent<>(entity, metadata);
-    for (var listener : registry.listeners(EntityEventListener.class).entityListeners(entity.getClass())) {
-      listener.onPostUpdate(event);
+    for (var listener : registry.listeners(UpdatingEventListener.class).entityListeners(entity.getClass())) {
+      listener.onPostUpdating(entity, metadata);
     }
   }
 
-  void onPreDelete(Class<?> entityClass, @Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
-    EntityDeleteEvent<Object> event = new EntityDeleteEvent<>(entityClass, entity, id, metadata);
-    for (var listener : registry.listeners(EntityEventListener.class).entityListeners(entityClass)) {
-      listener.onPreDelete(event);
+  void onPreDelete(@Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
+    for (var listener : registry.listeners(DeletingEventListener.class).entityListeners(metadata.entityClass)) {
+      listener.onPreDeleting(entity, id, metadata);
     }
   }
 
-  void onPostDelete(Class<?> entityClass, @Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
-    EntityDeleteEvent<Object> event = new EntityDeleteEvent<>(entityClass, entity, id, metadata);
-    for (var listener : registry.listeners(EntityEventListener.class).entityListeners(entityClass)) {
-      listener.onPostDelete(event);
+  void onPostDelete(@Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
+    for (var listener : registry.listeners(DeletingEventListener.class).entityListeners(metadata.entityClass)) {
+      listener.onPostDeleting(entity, id, metadata);
     }
   }
 
