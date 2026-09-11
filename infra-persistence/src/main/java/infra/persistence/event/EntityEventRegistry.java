@@ -111,12 +111,30 @@ public interface EntityEventRegistry {
   <T extends Listener> List<T> getListeners(Class<T> type);
 
   /**
+   * Dispatch an {@link EntityPersistEvent} to the matching listeners before the
+   * entity is persisted.
+   *
+   * @param entity the entity to be persisted; must not be {@code null}
+   * @param metadata the entity metadata; must not be {@code null}
+   */
+  void publishBeforePersist(Object entity, EntityMetadata metadata);
+
+  /**
    * Dispatch an {@link EntityPersistEvent} to the matching listeners.
    *
    * @param entity the persisted entity; must not be {@code null}
    * @param metadata the entity metadata; must not be {@code null}
    */
-  void publishPersist(Object entity, EntityMetadata metadata);
+  void publishAfterPersist(Object entity, EntityMetadata metadata);
+
+  /**
+   * Dispatch an {@link EntityUpdateEvent} to the matching listeners before the
+   * entity is updated.
+   *
+   * @param entity the entity to be updated; must not be {@code null}
+   * @param metadata the entity metadata; must not be {@code null}
+   */
+  void publishBeforeUpdate(Object entity, EntityMetadata metadata);
 
   /**
    * Dispatch an {@link EntityUpdateEvent} to the matching listeners.
@@ -124,7 +142,18 @@ public interface EntityEventRegistry {
    * @param entity the updated entity; must not be {@code null}
    * @param metadata the entity metadata; must not be {@code null}
    */
-  void publishUpdate(Object entity, EntityMetadata metadata);
+  void publishAfterUpdate(Object entity, EntityMetadata metadata);
+
+  /**
+   * Dispatch an {@link EntityDeleteEvent} to the matching listeners before the
+   * entity is deleted.
+   *
+   * @param entityClass the entity class; must not be {@code null}
+   * @param entity the entity to be deleted, or {@code null} if not available
+   * @param id the id to be deleted, or {@code null} if not available
+   * @param metadata the entity metadata; must not be {@code null}
+   */
+  void publishBeforeDelete(Class<?> entityClass, @Nullable Object entity, @Nullable Object id, EntityMetadata metadata);
 
   /**
    * Dispatch an {@link EntityDeleteEvent} to the matching listeners.
@@ -134,6 +163,6 @@ public interface EntityEventRegistry {
    * @param id the deleted id, or {@code null} if not available
    * @param metadata the entity metadata; must not be {@code null}
    */
-  void publishDelete(Class<?> entityClass, @Nullable Object entity, @Nullable Object id, EntityMetadata metadata);
+  void publishAfterDelete(Class<?> entityClass, @Nullable Object entity, @Nullable Object id, EntityMetadata metadata);
 
 }

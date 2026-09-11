@@ -192,31 +192,50 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     entityManager.getEntityEventRegistry().addListener(new EntityEventListener<UserModel>() {
 
       @Override
-      public void onPersist(EntityPersistEvent<UserModel> event) {
-        received.add("insert-" + event.getEntity().name);
+      public void beforePersist(EntityPersistEvent<UserModel> event) {
+        // modification performed in a before callback must be picked up
+        event.getEntity().age = 99;
+        received.add("beforePersist");
       }
 
       @Override
-      public void onUpdate(EntityUpdateEvent<UserModel> event) {
-        received.add("update-" + event.getEntity().name);
+      public void afterPersist(EntityPersistEvent<UserModel> event) {
+        received.add("afterPersist:" + event.getEntity().age);
       }
 
       @Override
-      public void onDelete(EntityDeleteEvent<UserModel> event) {
-        received.add("delete-" + event.getId());
+      public void beforeUpdate(EntityUpdateEvent<UserModel> event) {
+        received.add("beforeUpdate");
+      }
+
+      @Override
+      public void afterUpdate(EntityUpdateEvent<UserModel> event) {
+        received.add("afterUpdate");
+      }
+
+      @Override
+      public void beforeDelete(EntityDeleteEvent<UserModel> event) {
+        received.add("beforeDelete");
+      }
+
+      @Override
+      public void afterDelete(EntityDeleteEvent<UserModel> event) {
+        received.add("afterDelete:" + event.getId());
       }
     });
 
     UserModel user = UserModel.male("TODAY", 10);
     entityManager.persist(user, true);
     assertThat(user.id).isNotNull();
+    assertThat(entityManager.findById(UserModel.class, user.id).age).isEqualTo(99);
 
     user.age = 20;
     entityManager.updateById(user);
 
     entityManager.delete(UserModel.class, user.id);
 
-    assertThat(received).containsExactly("insert-TODAY", "update-TODAY", "delete-" + user.id);
+    assertThat(received).containsExactly("beforePersist", "afterPersist:99",
+            "beforeUpdate", "afterUpdate", "beforeDelete", "afterDelete:" + user.id);
   }
 
   // find

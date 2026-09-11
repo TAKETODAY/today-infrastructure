@@ -37,7 +37,7 @@ package infra.persistence.event;
  * entityManager.getEntityEventRegistry()
  *     .addListener(new EntityEventListener<ProjectProcess>() {
  *       @Override
- *       public void onDelete(EntityDeleteEvent<ProjectProcess> event) {
+ *       public void afterDelete(EntityDeleteEvent<ProjectProcess> event) {
  *         ProjectProcess projectProcess = event.getEntity();   // type-safe, may be null
  *         // handle logic...
  *       }
@@ -57,11 +57,41 @@ package infra.persistence.event;
 public interface EntityEventListener<T> extends Listener {
 
   /**
+   * Invoked before an entity of the observed type is persisted, before the insert
+   * statement is built and executed. Listeners may modify the entity; the changes
+   * are picked up by the persistence operation (generated identifiers are not yet
+   * assigned at this point).
+   *
+   * @param event the persist event holding the entity to be persisted
+   */
+  default void beforePersist(EntityPersistEvent<T> event) {
+  }
+
+  /**
+   * Invoked before an entity of the observed type is updated, before the update
+   * statement is built and executed. Listeners may modify the entity; the changes
+   * are picked up by the update operation.
+   *
+   * @param event the update event holding the entity to be updated
+   */
+  default void beforeUpdate(EntityUpdateEvent<T> event) {
+  }
+
+  /**
+   * Invoked before an entity of the observed type is deleted, before the delete
+   * statement is built and executed.
+   *
+   * @param event the delete event
+   */
+  default void beforeDelete(EntityDeleteEvent<T> event) {
+  }
+
+  /**
    * Invoked after an entity of the observed type was successfully persisted.
    *
    * @param event the persist event holding the fully populated entity
    */
-  default void onPersist(EntityPersistEvent<T> event) {
+  default void afterPersist(EntityPersistEvent<T> event) {
   }
 
   /**
@@ -69,7 +99,7 @@ public interface EntityEventListener<T> extends Listener {
    *
    * @param event the update event holding the entity state before the update
    */
-  default void onUpdate(EntityUpdateEvent<T> event) {
+  default void afterUpdate(EntityUpdateEvent<T> event) {
   }
 
   /**
@@ -77,7 +107,7 @@ public interface EntityEventListener<T> extends Listener {
    *
    * @param event the delete event
    */
-  default void onDelete(EntityDeleteEvent<T> event) {
+  default void afterDelete(EntityDeleteEvent<T> event) {
   }
 
 }

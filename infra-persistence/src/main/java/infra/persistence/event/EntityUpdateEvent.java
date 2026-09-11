@@ -19,14 +19,21 @@ package infra.persistence.event;
 import infra.persistence.EntityMetadata;
 
 /**
- * Event fired when an entity has been successfully updated.
+ * Represents the lifecycle of a single entity update operation. It is passed to
+ * listeners both before the entity is updated
+ * ({@link EntityEventListener#beforeUpdate}) and after it has been updated
+ * ({@link EntityEventListener#afterUpdate}).
  *
- * <p>This event is published for every update that actually ran against the data
- * store, regardless of the number of affected rows. The entity instance reflects
- * the state <em>before</em> the update is applied.
+ * <p>When dispatched <em>after</em> a successful update, this event is published for
+ * every update that actually ran against the data store, regardless of the number of
+ * affected rows; the entity instance reflects the state before the update is applied.
+ * When dispatched <em>before</em> the update, listeners may modify the entity and the
+ * changes are picked up by the update operation.
  *
  * @param <T> the entity type
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see EntityEventListener#beforeUpdate
+ * @see EntityEventListener#afterUpdate
  * @since 5.0
  */
 public final class EntityUpdateEvent<T> extends EntityEvent<T> {

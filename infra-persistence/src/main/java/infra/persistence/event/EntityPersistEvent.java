@@ -19,14 +19,20 @@ package infra.persistence.event;
 import infra.persistence.EntityMetadata;
 
 /**
- * Event fired when an entity has been successfully persisted.
+ * Represents the lifecycle of a single entity persistence operation. It is passed
+ * to listeners both before the entity is persisted
+ * ({@link EntityEventListener#beforePersist}) and after it has been persisted
+ * ({@link EntityEventListener#afterPersist}).
  *
- * <p>The entity instance is fully populated by the time this event is published:
- * auto-generated identifiers (if any) have already been written back onto the
- * entity.
+ * <p>When dispatched <em>after</em> a successful persist, the entity instance is
+ * fully populated and auto-generated identifiers (if any) have already been written
+ * back onto the entity. When dispatched <em>before</em> the persist, identifiers
+ * are not yet assigned and listeners may modify the entity.
  *
  * @param <T> the entity type
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see EntityEventListener#beforePersist
+ * @see EntityEventListener#afterPersist
  * @since 5.0
  */
 public final class EntityPersistEvent<T> extends EntityEvent<T> {

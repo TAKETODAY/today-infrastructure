@@ -153,28 +153,55 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
 
   @Override
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public void publishPersist(Object entity, EntityMetadata metadata) {
+  public void publishBeforePersist(Object entity, EntityMetadata metadata) {
     EntityPersistEvent<Object> event = new EntityPersistEvent<>(entity, metadata);
     for (EntityEventListener listener : matchingListeners(entity.getClass())) {
-      listener.onPersist(event);
+      listener.beforePersist(event);
     }
   }
 
   @Override
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public void publishUpdate(Object entity, EntityMetadata metadata) {
+  public void publishAfterPersist(Object entity, EntityMetadata metadata) {
+    EntityPersistEvent<Object> event = new EntityPersistEvent<>(entity, metadata);
+    for (EntityEventListener listener : matchingListeners(entity.getClass())) {
+      listener.afterPersist(event);
+    }
+  }
+
+  @Override
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public void publishBeforeUpdate(Object entity, EntityMetadata metadata) {
     EntityUpdateEvent<Object> event = new EntityUpdateEvent<>(entity, metadata);
     for (EntityEventListener listener : matchingListeners(entity.getClass())) {
-      listener.onUpdate(event);
+      listener.beforeUpdate(event);
     }
   }
 
   @Override
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public void publishDelete(Class<?> entityClass, @Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
+  public void publishAfterUpdate(Object entity, EntityMetadata metadata) {
+    EntityUpdateEvent<Object> event = new EntityUpdateEvent<>(entity, metadata);
+    for (EntityEventListener listener : matchingListeners(entity.getClass())) {
+      listener.afterUpdate(event);
+    }
+  }
+
+  @Override
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public void publishBeforeDelete(Class<?> entityClass, @Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
     EntityDeleteEvent<Object> event = new EntityDeleteEvent<>(entityClass, entity, id, metadata);
     for (EntityEventListener listener : matchingListeners(entityClass)) {
-      listener.onDelete(event);
+      listener.beforeDelete(event);
+    }
+  }
+
+  @Override
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public void publishAfterDelete(Class<?> entityClass, @Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
+    EntityDeleteEvent<Object> event = new EntityDeleteEvent<>(entityClass, entity, id, metadata);
+    for (EntityEventListener listener : matchingListeners(entityClass)) {
+      listener.afterDelete(event);
     }
   }
 
