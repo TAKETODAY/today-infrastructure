@@ -49,7 +49,36 @@ import infra.util.Assert;
  */
 public class EventListenerGroup<T extends Listener> implements Iterable<T> {
 
+  private final Class<?> listenerType;
+
   private final ArrayList<T> listeners = new ArrayList<>();
+
+  /**
+   * Create a group for the given listener contract type.
+   *
+   * @param listenerType the listener contract type managed by this group; must not be
+   * {@code null}
+   */
+  public EventListenerGroup(Class<?> listenerType) {
+    Assert.notNull(listenerType, "Listener type is required");
+    this.listenerType = listenerType;
+  }
+
+  /**
+   * Create a group for the generic {@link Listener} contract type.
+   */
+  public EventListenerGroup() {
+    this(Listener.class);
+  }
+
+  /**
+   * Return the listener contract type managed by this group.
+   *
+   * @return the listener contract type; never {@code null}
+   */
+  public Class<?> listenerType() {
+    return listenerType;
+  }
 
   /**
    * Register a listener with this group. The listener is inserted without any

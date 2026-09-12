@@ -25,9 +25,10 @@ import infra.util.Assert;
 /**
  * Default {@link EntityEventRegistry} implementation.
  *
- * <p>The supported listener contract types are a fixed, small set, so groups are held
- * in a plain array indexed in lockstep with that set. Looking up a group is therefore
- * a short identity comparison over the contract types instead of a map lookup, and an
+ * <p>The supported listener contract types are a fixed, small set, so one group is
+ * held per contract in a plain array. Each {@link EventListenerGroup} knows the
+ * contract type it manages, so registering or removing a listener is a short
+ * {@code isInstance} comparison against that type instead of a map lookup. An
  * {@link EntityEventListener} contract gets an entity-class aware
  * {@link EntityListenerGroup} (owning the per-entity-class match cache) while other
  * contracts such as {@link BatchPersistListener} get a plain {@link EventListenerGroup}.
@@ -44,37 +45,36 @@ import infra.util.Assert;
 public class DefaultEntityEventRegistry implements EntityEventRegistry {
 
   /**
-   * The listener contract types supported by this registry, in a fixed order that is
-   * shared with {@link #listenerGroups} by index.
-   */
-  private static final Class<?>[] supportedListenerTypes = {
-          PostLoadEventListener.class,
-          PersistingEventListener.class,
-          UpdatingEventListener.class,
-          DeletingEventListener.class,
-          BatchPersistListener.class,
-          PostTruncateEventListener.class,
-  };
-
-  /**
-   * Listener groups indexed in lockstep with {@link #supportedListenerTypes}; a
-   * {@code null} slot is created lazily on first use.
+   * Listener groups, one per supported listener contract type, built eagerly on
+   * construction so lookups and iteration never allocate. The contract type each group
+   * matches is held by the group itself.
    */
   @SuppressWarnings("rawtypes")
-  private final @Nullable EventListenerGroup[] listenerGroups = new EventListenerGroup[supportedListenerTypes.length];
+  private final EventListenerGroup[] listenerGroups;
+
+  public DefaultEntityEventRegistry() {
+    this.listenerGroups = new EventListenerGroup[] {
+            new EntityListenerGroup<>(PostLoadEventListener.class),
+            new EntityListenerGroup<>(PersistingEventListener.class),
+            new EntityListenerGroup<>(UpdatingEventListener.class),
+            new EntityListenerGroup<>(DeletingEventListener.class),
+            new EventListenerGroup<>(BatchPersistListener.class),
+            new EventListenerGroup<>(PostTruncateEventListener.class),
+    };
+  }
 
   // ---------------------------------------------------------------------
   // Registration
   // ---------------------------------------------------------------------
 
   @Override
-  @SuppressWarnings({ "unchecked" })
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public void addListener(Listener listener) {
     Assert.notNull(listener, "Listener is required");
     boolean supported = false;
-    for (int i = 0; i < supportedListenerTypes.length; i++) {
-      if (supportedListenerTypes[i].isInstance(listener)) {
-        groupAt(i).addListener(listener);
+    for (EventListenerGroup group : listenerGroups) {
+      if (group.listenerType().isInstance(listener)) {
+        group.addListener(listener);
         supported = true;
       }
     }
@@ -103,12 +103,9 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public void removeListener(Listener listener) {
     Assert.notNull(listener, "Listener is required");
-    for (int i = 0; i < supportedListenerTypes.length; i++) {
-      if (supportedListenerTypes[i].isInstance(listener)) {
-        EventListenerGroup group = listenerGroups[i];
-        if (group != null) {
-          group.removeListener(listener);
-        }
+    for (EventListenerGroup group : listenerGroups) {
+      if (group.listenerType().isInstance(listener)) {
+        group.removeListener(listener);
       }
     }
   }
@@ -125,11 +122,9 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
   @SuppressWarnings("rawtypes")
   public void clear() {
     for (EventListenerGroup group : listenerGroups) {
-      if (group != null) {
-        // Keep the group instance alive so callers holding a reference obtained from
-        // listeners(Class) stay valid; only its listeners are removed.
-        group.clear();
-      }
+      // Keep the group instance alive so callers holding a reference obtained from
+      // listeners(Class) stay valid; only its listeners are removed.
+      group.clear();
     }
   }
 
@@ -138,33 +133,15 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
   // ---------------------------------------------------------------------
 
   @Override
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   public <T extends Listener> EventListenerGroup<T> listeners(Class<T> type) {
     Assert.notNull(type, "Listener type is required");
-    for (int i = 0; i < supportedListenerTypes.length; i++) {
-      if (supportedListenerTypes[i] == type) {
-        return groupAt(i);
+    for (EventListenerGroup group : listenerGroups) {
+      if (group.listenerType() == type) {
+        return (EventListenerGroup<T>) group;
       }
     }
     throw new IllegalArgumentException("Unsupported listener type: " + type);
-  }
-
-  @SuppressWarnings("rawtypes")
-  private EventListenerGroup groupAt(int index) {
-    EventListenerGroup group = listenerGroups[index];
-    if (group == null) {
-      group = createGroup(supportedListenerTypes[index]);
-      listenerGroups[index] = group;
-    }
-    return group;
-  }
-
-  @SuppressWarnings("rawtypes")
-  private EventListenerGroup createGroup(Class<?> listenerType) {
-    if (EntityEventListener.class.isAssignableFrom(listenerType)) {
-      return new EntityListenerGroup<>(listenerType);
-    }
-    return new EventListenerGroup();
   }
 
 }

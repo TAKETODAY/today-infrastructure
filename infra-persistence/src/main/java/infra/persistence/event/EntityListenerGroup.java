@@ -52,18 +52,13 @@ import infra.util.Assert;
  */
 public class EntityListenerGroup<T extends EntityEventListener<?>> extends EventListenerGroup<T> {
 
-  /**
-   * The listener contract type, used as the component type of the result arrays.
-   */
-  private final Class<?> listenerType;
-
   private final T[] emptyArray;
 
   private final HashMap<Class<?>, T[]> matchingCache = new HashMap<>();
 
   @SuppressWarnings("unchecked")
   public EntityListenerGroup(Class<?> listenerType) {
-    this.listenerType = listenerType;
+    super(listenerType);
     this.emptyArray = (T[]) Array.newInstance(listenerType, 0);
   }
 
@@ -102,7 +97,7 @@ public class EntityListenerGroup<T extends EntityEventListener<?>> extends Event
       }
     }
     AnnotationAwareOrderComparator.sort(matched);
-    return matched.toArray((T[]) Array.newInstance(listenerType, matched.size()));
+    return matched.toArray((T[]) Array.newInstance(listenerType(), matched.size()));
   }
 
   private static Class<?> resolveEntityType(EntityEventListener<?> listener) {
