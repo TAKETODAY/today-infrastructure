@@ -26,7 +26,16 @@ import infra.aot.hint.annotation.Reflective;
 import infra.persistence.EntityManager;
 
 /**
- * Specifies the update by field or property
+ * Marks a property used as the matching condition ({@code WHERE}) when updating an
+ * entity, instead of updating it.
+ *
+ * <p>When {@link EntityManager#update(Object)} is called on an entity that has no
+ * usable ID value, the properties annotated with {@code @UpdateBy} are collected into
+ * the update statement's {@code WHERE} clause (their values are taken from the entity),
+ * while the remaining properties selected by the update strategy form the {@code SET}
+ * clause. At least one {@code @UpdateBy} property is required in that case, otherwise an
+ * {@link infra.dao.InvalidDataAccessApiUsageException} is thrown.
+ *
  * <pre>{@code
  *    // Example:
  *

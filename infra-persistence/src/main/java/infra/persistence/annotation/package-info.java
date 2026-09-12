@@ -10,8 +10,10 @@
  *
  * <p>Query condition annotations drive dynamic condition building for example
  * based queries: {@link Where}, {@link TrimWhere}, {@link Like},
- * {@link PrefixLike}, {@link SuffixLike}, {@link OR}, {@link OrderBy} and
- * {@link UpdateBy}.
+ * {@link PrefixLike}, {@link SuffixLike}, {@link OR} and {@link OrderBy}.
+ *
+ * <p>Update behavior is customized with {@link UpdateBy}, which marks the
+ * properties used as the matching condition when updating an entity.
  *
  * @since 5.0
  */

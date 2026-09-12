@@ -628,37 +628,47 @@ public interface EntityManager {
           throws DataAccessException;
 
   /**
-   * Updates records in the database based on the provided entity or example and a custom WHERE clause.
-   * The method allows for flexible updates by accepting an object representing the updated values
-   * and a WHERE condition to specify which records should be affected.
+   * Updates records in the database using one of the entity properties as the
+   * matching condition. The {@code where} argument names the property (or column)
+   * that identifies the record(s) to update, and its value is taken from the given
+   * entity or example; the remaining updatable properties form the {@code SET} clause.
+   *
+   * <p>For example, {@code updateBy(user, "name")} generates a statement equivalent
+   * to {@code UPDATE t_user SET ... WHERE name = ?} where the parameter is
+   * {@code user.name}.
    *
    * @param entityOrExample an instance of Object containing the fields to be updated.
    * This can either represent a full entity or an example with partial fields.
-   * @param where a String representing the WHERE clause of the update query.
-   * This should follow SQL syntax conventions and can include placeholders if needed.
+   * @param where the name of the property or column used as the update condition.
+   * It must match a property name or column name of the entity, and its value must
+   * not be null.
    * @return the number of rows affected by the update operation.
    * @throws DataAccessException if there is an issue accessing the database or executing the update.
+   * @throws infra.dao.InvalidDataAccessApiUsageException if the named property cannot be found
+   * or its value is {@code null}.
    */
   int updateBy(Object entityOrExample, String where) throws DataAccessException;
 
   /**
-   * Updates records in the database based on the provided entity or example object,
-   * with an optional WHERE clause and a specified update strategy.
+   * Updates records in the database using one of the entity properties as the
+   * matching condition, with a specified update strategy.
    *
-   * <p>This method allows for flexible updates by accepting either an entity instance
-   * or an example object to define the update criteria. The WHERE clause can be used
-   * to further refine the selection of records to be updated. Additionally, a custom
-   * update strategy can be applied to control how properties are updated.
+   * <p>The {@code where} argument names the property (or column) that identifies the
+   * record(s) to update, and its value is taken from the given entity or example. The
+   * remaining properties selected by the {@code strategy} form the {@code SET} clause.
    *
    * @param entityOrExample the entity or example object that defines the update criteria.
    * If an entity is provided, its non-null fields are used for updating.
    * If an example is provided, it serves as a template for matching records.
-   * @param where a String representing the WHERE clause of the update query.
-   * This should follow SQL syntax conventions and can include placeholders if needed.
+   * @param where the name of the property or column used as the update condition.
+   * It must match a property name or column name of the entity, and its value must
+   * not be null.
    * @param strategy the optional update strategy that determines how properties
    * are updated. If null, a default strategy is applied.
    * @return the number of rows affected by the update operation.
    * @throws DataAccessException if there is an issue accessing the database during the update process.
+   * @throws infra.dao.InvalidDataAccessApiUsageException if the named property cannot be found
+   * or its value is {@code null}.
    */
   int updateBy(Object entityOrExample, String where, @Nullable PropertyUpdateStrategy strategy)
           throws DataAccessException;
@@ -667,7 +677,7 @@ public interface EntityManager {
    * Saves a new entity or updates an existing one in the data store.
    * If the entity already exists (typically determined by its unique identifier),
    * it will be updated. Otherwise, a new entity will be created.
-   *
+   * <p>
    * Example usage:
    * <pre>{@code
    *   User user = new User();
@@ -737,7 +747,7 @@ public interface EntityManager {
    * The entity to be deleted is determined by the provided entity class and
    * its unique identifier (id). If no matching entity is found, the behavior
    * depends on the underlying data access implementation.
-   *
+   * <p>
    * Example usage:
    * <pre>{@code
    *   // Assuming a User entity with ID 101 exists in the database
@@ -1111,7 +1121,7 @@ public interface EntityManager {
    * Finds and returns a list of entities of the specified class, sorted
    * according to the provided sort key. This method is typically used to
    * retrieve data from a data store with a specific ordering.
-   *
+   * <p>
    * Example usage:
    * <pre>{@code
    *   Pair<String, Order> sortKey = new Pair<>("createdAt", Order.DESC);
@@ -1169,11 +1179,11 @@ public interface EntityManager {
 
   /**
    * Searches for entities matching the given example object.
-   *
+   * <p>
    * This method retrieves a list of entities that match the properties
    * defined in the provided example object. It performs a query based on
    * the non-null fields of the example, effectively filtering results.
-   *
+   * <p>
    * Example usage:
    * <pre>{@code
    *   User userExample = new User();
@@ -1257,7 +1267,7 @@ public interface EntityManager {
   /**
    * Searches for entities matching the given example and organizes the results into a map.
    * The map is keyed by the specified property of the entities, as defined by the `mapKey` parameter.
-   *
+   * <p>
    * Example usage:
    * <pre>{@code
    * User exampleUser = new User();
@@ -1286,7 +1296,7 @@ public interface EntityManager {
    * Finds and retrieves a map of entities based on the provided example and maps them using the specified key.
    * This method is typically used for querying data from a database where the result needs to be mapped
    * to a specific key attribute.
-   *
+   * <p>
    * Example usage:
    * <pre>
    * {@code
@@ -1511,7 +1521,7 @@ public interface EntityManager {
    * Counts the total number of entities of the specified class in the data store.
    * This method is useful for determining the size of a dataset without retrieving
    * all the entities, which can be more efficient for large datasets.
-   *
+   * <p>
    * Example usage:
    * <pre>{@code
    *   long userCount = entityManager.count(User.class);
@@ -1758,7 +1768,7 @@ public interface EntityManager {
   /**
    * Queries a paginated result set for the specified entity class using an optional condition handler.
    * This method is typically used to fetch data in pages, which is useful for handling large datasets efficiently.
-   *
+   * <p>
    * Example usage:
    * <pre>{@code
    *   ConditionStatement condition = query -> query.eq("status", "ACTIVE");
