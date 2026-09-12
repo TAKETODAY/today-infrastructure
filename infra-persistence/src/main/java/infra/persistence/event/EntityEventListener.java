@@ -26,7 +26,6 @@ package infra.persistence.event;
  *   <li>{@link UpdatingEventListener} — update operations.</li>
  *   <li>{@link DeletingEventListener} — delete operations.</li>
  *   <li>{@link PostLoadEventListener} — entity load operations.</li>
- *   <li>{@link PostTruncateEventListener} — table truncate operations.</li>
  * </ul>
  *
  * <p>The entity type a listener observes is declared by its generic type
@@ -44,7 +43,6 @@ package infra.persistence.event;
  * @see UpdatingEventListener
  * @see DeletingEventListener
  * @see PostLoadEventListener
- * @see PostTruncateEventListener
  * @see EntityEventRegistry
  * @since 5.0
  */

@@ -297,7 +297,7 @@ class EntityEventMulticasterTests {
   void loadAndTruncateEventsAreDispatched() {
     List<String> received = new ArrayList<>();
 
-    class Listener0 implements PostTruncateEventListener<UserModel>, PostLoadEventListener<UserModel> {
+    class Listener0 implements PostTruncateEventListener, PostLoadEventListener<UserModel> {
 
       @Override
       public void onPostLoad(UserModel entity, EntityMetadata metadata) {

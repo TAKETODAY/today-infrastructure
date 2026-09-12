@@ -136,6 +136,12 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
     return groupFor(type);
   }
 
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T extends EntityEventListener<?>> EntityListenerGroup<T> entityListeners(Class<T> type) {
+    return (EntityListenerGroup<T>) groupFor(type);
+  }
+
   @SuppressWarnings("unchecked")
   private <T extends Listener> EventListenerGroup<T> findGroup(Class<T> listenerType) {
     return listenerGroups.get(listenerType);
@@ -143,7 +149,15 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
 
   @SuppressWarnings("unchecked")
   private <T extends Listener> EventListenerGroup<T> groupFor(Class<T> listenerType) {
-    return listenerGroups.computeIfAbsent(listenerType, type -> new EventListenerGroup<>());
+    return listenerGroups.computeIfAbsent(listenerType, this::createGroup);
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private EventListenerGroup createGroup(Class<?> listenerType) {
+    if (EntityEventListener.class.isAssignableFrom(listenerType)) {
+      return new EntityListenerGroup();
+    }
+    return new EventListenerGroup();
   }
 
 }

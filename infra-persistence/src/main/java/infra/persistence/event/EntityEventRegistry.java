@@ -120,4 +120,22 @@ public interface EntityEventRegistry {
    */
   <T extends Listener> EventListenerGroup<T> listeners(Class<T> type);
 
+  /**
+   * Return the {@link EntityListenerGroup} managing the {@link EntityEventListener
+   * entity lifecycle listeners} of the given contract type, creating it on first
+   * access.
+   *
+   * <p>Unlike {@link #listeners(Class)}, the returned group is entity-class aware: it
+   * exposes {@link EntityListenerGroup#matchingListeners(Class)} to resolve the
+   * listeners observing a concrete entity class. This method is intended for
+   * dispatching entity lifecycle events (persist / update / delete / load).
+   *
+   * @param type the entity listener contract type, e.g.
+   * {@code UpdatingEventListener.class}; must not be {@code null}
+   * @param <T> the entity listener contract type
+   * @return the group managing the entity listeners of the given type, never
+   * {@code null}
+   */
+  <T extends EntityEventListener<?>> EntityListenerGroup<T> entityListeners(Class<T> type);
+
 }

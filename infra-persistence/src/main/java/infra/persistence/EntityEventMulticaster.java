@@ -47,54 +47,54 @@ final class EntityEventMulticaster {
 
   private final EntityEventRegistry registry;
 
-  EntityEventMulticaster(EntityEventRegistry registry) {
+  public EntityEventMulticaster(EntityEventRegistry registry) {
     this.registry = registry;
   }
 
-  void onPrePersisting(Object entity, EntityMetadata metadata) {
-    for (var listener : registry.listeners(PersistingEventListener.class).entityListeners(entity.getClass())) {
+  public void onPrePersisting(Object entity, EntityMetadata metadata) {
+    for (var listener : registry.entityListeners(PersistingEventListener.class).matchingListeners(entity.getClass())) {
       listener.onPrePersisting(entity, metadata);
     }
   }
 
-  void onPostPersisting(Object entity, EntityMetadata metadata) {
-    for (var listener : registry.listeners(PersistingEventListener.class).entityListeners(entity.getClass())) {
+  public void onPostPersisting(Object entity, EntityMetadata metadata) {
+    for (var listener : registry.entityListeners(PersistingEventListener.class).matchingListeners(entity.getClass())) {
       listener.onPostPersisting(entity, metadata);
     }
   }
 
-  void onPreUpdate(Object entity, EntityMetadata metadata) {
-    for (var listener : registry.listeners(UpdatingEventListener.class).entityListeners(entity.getClass())) {
+  public void onPreUpdate(Object entity, EntityMetadata metadata) {
+    for (var listener : registry.entityListeners(UpdatingEventListener.class).matchingListeners(entity.getClass())) {
       listener.onPreUpdating(entity, metadata);
     }
   }
 
-  void onPostUpdate(Object entity, EntityMetadata metadata) {
-    for (var listener : registry.listeners(UpdatingEventListener.class).entityListeners(entity.getClass())) {
+  public void onPostUpdate(Object entity, EntityMetadata metadata) {
+    for (var listener : registry.entityListeners(UpdatingEventListener.class).matchingListeners(entity.getClass())) {
       listener.onPostUpdating(entity, metadata);
     }
   }
 
-  void onPreDelete(@Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
-    for (var listener : registry.listeners(DeletingEventListener.class).entityListeners(metadata.entityClass)) {
+  public void onPreDelete(@Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
+    for (var listener : registry.entityListeners(DeletingEventListener.class).matchingListeners(metadata.entityClass)) {
       listener.onPreDeleting(entity, id, metadata);
     }
   }
 
-  void onPostDelete(@Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
-    for (var listener : registry.listeners(DeletingEventListener.class).entityListeners(metadata.entityClass)) {
+  public void onPostDelete(@Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
+    for (var listener : registry.entityListeners(DeletingEventListener.class).matchingListeners(metadata.entityClass)) {
       listener.onPostDeleting(entity, id, metadata);
     }
   }
 
-  void onPostLoad(Object entity, EntityMetadata metadata) {
-    for (var listener : registry.listeners(PostLoadEventListener.class).entityListeners(entity.getClass())) {
+  public void onPostLoad(Object entity, EntityMetadata metadata) {
+    for (var listener : registry.entityListeners(PostLoadEventListener.class).matchingListeners(entity.getClass())) {
       listener.onPostLoad(entity, metadata);
     }
   }
 
-  void onPostTruncate(Class<?> entityClass, EntityMetadata metadata) {
-    for (var listener : registry.listeners(PostTruncateEventListener.class).entityListeners(entityClass)) {
+  public void onPostTruncate(Class<?> entityClass, EntityMetadata metadata) {
+    for (var listener : registry.listeners(PostTruncateEventListener.class)) {
       listener.onPostTruncate(entityClass, metadata);
     }
   }

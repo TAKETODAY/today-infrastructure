@@ -272,7 +272,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     }
 
     List<String> received = new ArrayList<>();
-    entityManager.getEntityEventRegistry().addListener(new PostTruncateEventListener<UserModel>() {
+    entityManager.getEntityEventRegistry().addListener(new PostTruncateEventListener() {
 
       @Override
       public void onPostTruncate(Class<?> entityClass, EntityMetadata metadata) {
