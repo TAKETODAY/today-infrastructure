@@ -17,13 +17,14 @@
 package infra.persistence.event;
 
 import infra.persistence.EntityMetadata;
+import infra.persistence.PropertyUpdateStrategy;
 
 /**
  * Listener for entity <strong>update</strong> operations.
  *
  * <p>This interface extends {@link EntityEventListener}, the common base contract
  * shared by all entity lifecycle listeners, and adds the update callbacks
- * {@link #onPreUpdating(Object, EntityMetadata)} and
+ * {@link #onPreUpdating(Object, EntityMetadata, PropertyUpdateStrategy)} and
  * {@link #onPostUpdating(Object, EntityMetadata)}.
  *
  * <p>The entity type this listener observes is declared by its generic type
@@ -45,13 +46,21 @@ public interface UpdatingEventListener<T> extends EntityEventListener<T> {
 
   /**
    * Invoked before an entity of the observed type is updated, before the update
-   * statement is built and executed. Listeners may modify the entity; the changes
-   * are picked up by the update operation.
+   * statement is built and executed.
+   *
+   * <p>Whether a modification made to the entity in this callback is applied
+   * depends on the given {@link PropertyUpdateStrategy}: with the default
+   * {@code noneNull()} strategy only non-null properties are written back, and a
+   * {@code @Version} property is always overwritten by the framework's own version
+   * increment. This callback is therefore best used for observation, validation, or
+   * auditing rather than for reliably mutating the entity.
    *
    * @param entity the entity to be updated; must not be {@code null}
    * @param metadata the entity metadata; must not be {@code null}
+   * @param strategy the property update strategy used to select the updated
+   * properties; must not be {@code null}
    */
-  default void onPreUpdating(T entity, EntityMetadata metadata) {
+  default void onPreUpdating(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
   }
 
   /**

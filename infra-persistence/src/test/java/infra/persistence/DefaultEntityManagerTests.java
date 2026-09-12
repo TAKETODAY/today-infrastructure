@@ -193,7 +193,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     entityManager.getEntityEventRegistry().addListener(new PersistingEventListener<UserModel>() {
 
       @Override
-      public void onPrePersisting(UserModel entity, EntityMetadata metadata) {
+      public void onPrePersisting(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
         // modification performed in a before callback must be picked up
         entity.age = 99;
         received.add("beforePersist");
@@ -207,7 +207,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     entityManager.getEntityEventRegistry().addListener(new UpdatingEventListener<UserModel>() {
 
       @Override
-      public void onPreUpdating(UserModel entity, EntityMetadata metadata) {
+      public void onPreUpdating(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
         received.add("beforeUpdate");
       }
 

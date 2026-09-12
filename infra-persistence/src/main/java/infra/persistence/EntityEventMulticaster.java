@@ -51,9 +51,9 @@ final class EntityEventMulticaster {
     this.registry = registry;
   }
 
-  public void onPrePersisting(Object entity, EntityMetadata metadata) {
+  public void onPrePersisting(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
     for (var listener : registry.entityListeners(PersistingEventListener.class).matchingListeners(entity.getClass())) {
-      listener.onPrePersisting(entity, metadata);
+      listener.onPrePersisting(entity, metadata, strategy);
     }
   }
 
@@ -63,9 +63,9 @@ final class EntityEventMulticaster {
     }
   }
 
-  public void onPreUpdate(Object entity, EntityMetadata metadata) {
+  public void onPreUpdate(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
     for (var listener : registry.entityListeners(UpdatingEventListener.class).matchingListeners(entity.getClass())) {
-      listener.onPreUpdating(entity, metadata);
+      listener.onPreUpdating(entity, metadata, strategy);
     }
   }
 

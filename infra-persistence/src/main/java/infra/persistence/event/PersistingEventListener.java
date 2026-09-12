@@ -17,13 +17,15 @@
 package infra.persistence.event;
 
 import infra.persistence.EntityMetadata;
+import infra.persistence.PropertyUpdateStrategy;
 
 /**
  * Listener for entity <strong>persist</strong> operations.
  *
  * <p>This interface extends {@link EntityEventListener}, so an implementation
  * observes the full entity lifecycle through the inherited callbacks in addition
- * to reacting upon persistence via {@link #onPrePersisting(Object, EntityMetadata)} and
+ * to reacting upon persistence via
+ * {@link #onPrePersisting(Object, EntityMetadata, PropertyUpdateStrategy)} and
  * {@link #onPostPersisting(Object, EntityMetadata)}.
  *
  * <p>The entity type this listener observes is declared by its generic type
@@ -45,14 +47,21 @@ public interface PersistingEventListener<T> extends EntityEventListener<T> {
 
   /**
    * Invoked before an entity of the observed type is persisted, before the insert
-   * statement is built and executed. Listeners may modify the entity; the changes
-   * are picked up by the persistence operation (generated identifiers are not yet
-   * assigned at this point).
+   * statement is built and executed. Generated identifiers are not yet assigned at
+   * this point.
+   *
+   * <p>The given {@code strategy} is the {@link PropertyUpdateStrategy} that will
+   * decide which properties are written back; a modification made to the entity in
+   * this callback is only applied when the strategy selects the modified property
+   * (with the default {@code noneNull()} strategy, a property is written back once
+   * it is non-null).
    *
    * @param entity the entity to be persisted; must not be {@code null}
    * @param metadata the entity metadata; must not be {@code null}
+   * @param strategy the property update strategy used to select the persisted
+   * properties; must not be {@code null}
    */
-  default void onPrePersisting(T entity, EntityMetadata metadata) {
+  default void onPrePersisting(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
   }
 
   /**

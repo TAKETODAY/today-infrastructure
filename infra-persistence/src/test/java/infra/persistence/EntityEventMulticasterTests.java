@@ -75,14 +75,14 @@ class EntityEventMulticasterTests {
     registry.addListener(new PersistingEventListener<UserModel>() {
 
       @Override
-      public void onPrePersisting(UserModel entity, EntityMetadata metadata) {
+      public void onPrePersisting(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
         received.add("beforePersist");
       }
     });
     registry.addListener(new UpdatingEventListener<UserModel>() {
 
       @Override
-      public void onPreUpdating(UserModel entity, EntityMetadata metadata) {
+      public void onPreUpdating(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
         received.add("beforeUpdate");
       }
     });
@@ -94,8 +94,8 @@ class EntityEventMulticasterTests {
       }
     });
 
-    multicaster.onPrePersisting(UserModel.male("TODAY", 10), metadata);
-    multicaster.onPreUpdate(UserModel.male("TODAY", 10), metadata);
+    multicaster.onPrePersisting(UserModel.male("TODAY", 10), metadata, PropertyUpdateStrategy.noneNull());
+    multicaster.onPreUpdate(UserModel.male("TODAY", 10), metadata, PropertyUpdateStrategy.noneNull());
     multicaster.onPreDelete(null, 42, metadata);
 
     assertThat(received).containsExactly("beforePersist", "beforeUpdate", "beforeDelete");
@@ -229,12 +229,12 @@ class EntityEventMulticasterTests {
     registry.addListener(new UpdatingEventListener<Object>() {
 
       @Override
-      public void onPreUpdating(Object entity, EntityMetadata metadata) {
+      public void onPreUpdating(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
         received.add("supertype:" + entity.getClass().getSimpleName());
       }
     });
 
-    multicaster.onPreUpdate(UserModel.male("TODAY", 10), metadata);
+    multicaster.onPreUpdate(UserModel.male("TODAY", 10), metadata, PropertyUpdateStrategy.noneNull());
 
     assertThat(received).containsExactly("supertype:UserModel");
   }
