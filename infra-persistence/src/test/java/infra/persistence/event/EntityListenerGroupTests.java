@@ -35,39 +35,39 @@ class EntityListenerGroupTests {
   private final EntityListenerGroup<EntityEventListener<?>> group = new EntityListenerGroup<>();
 
   @Test
-  void matchingListenersFilterByDeclaredGenericType() {
+  void listenersForFilterByDeclaredGenericType() {
     EntityEventListener<UserModel> user = new UserListener();
     EntityEventListener<Object> all = new EverythingListener();
     group.addListeners(List.of(user, all));
 
-    assertThat(group.matchingListeners(UserModel.class)).containsExactly(user, all);
-    assertThat(group.matchingListeners(Object.class)).containsExactly(all);
+    assertThat(group.listenersFor(UserModel.class)).containsExactly(user, all);
+    assertThat(group.listenersFor(Object.class)).containsExactly(all);
   }
 
   @Test
-  void matchingListenersObserveSupertypeEntities() {
+  void listenersForObserveSupertypeEntities() {
     EntityEventListener<Object> all = new EverythingListener();
     group.addListener(all);
 
-    assertThat(group.matchingListeners(UserModel.class)).containsExactly(all);
+    assertThat(group.listenersFor(UserModel.class)).containsExactly(all);
   }
 
   @Test
-  void matchingListenersObserveInterfaceImplementors() {
+  void listenersForObserveInterfaceImplementors() {
     EntityEventListener<NamedEntity> named = new NamedListener();
     group.addListener(named);
 
-    assertThat(group.matchingListeners(IEntity.class)).containsExactly(named);
-    assertThat(group.matchingListeners(UserModel.class)).isEmpty();
+    assertThat(group.listenersFor(IEntity.class)).containsExactly(named);
+    assertThat(group.listenersFor(UserModel.class)).isEmpty();
   }
 
   @Test
-  void matchingListenersOnlyMatchAssignableEntityClasses() {
+  void listenersForOnlyMatchAssignableEntityClasses() {
     EntityEventListener<UserModel> user = new UserListener();
     group.addListener(user);
 
-    assertThat(group.matchingListeners(UserModel.class)).containsExactly(user);
-    assertThat(group.matchingListeners(String.class)).isEmpty();
+    assertThat(group.listenersFor(UserModel.class)).containsExactly(user);
+    assertThat(group.listenersFor(String.class)).isEmpty();
   }
 
   @Test
@@ -77,28 +77,28 @@ class EntityListenerGroupTests {
 
     group.addListeners(List.of(updating, deleting));
 
-    assertThat(group.matchingListeners(UserModel.class)).containsExactlyInAnyOrder(updating, deleting);
-    assertThat(group.matchingListeners(String.class)).isEmpty();
+    assertThat(group.listenersFor(UserModel.class)).containsExactlyInAnyOrder(updating, deleting);
+    assertThat(group.listenersFor(String.class)).isEmpty();
   }
 
   @Test
-  void matchingListenersResultIsSortedByOrder() {
+  void listenersForResultIsSortedByOrder() {
     EntityEventListener<UserModel> first = new OrderListeners.First();
     EntityEventListener<UserModel> second = new OrderListeners.Second();
     EntityEventListener<UserModel> third = new OrderListeners.Third();
 
     group.addListeners(List.of(second, third, first));
 
-    assertThat(group.matchingListeners(UserModel.class)).containsExactly(first, second, third);
+    assertThat(group.listenersFor(UserModel.class)).containsExactly(first, second, third);
   }
 
   @Test
   void matchingCacheIsInvalidatedWhenListenerIsAdded() {
     EntityEventListener<UserModel> user = new UserListener();
-    assertThat(group.matchingListeners(UserModel.class)).isEmpty();
+    assertThat(group.listenersFor(UserModel.class)).isEmpty();
 
     group.addListener(user);
-    assertThat(group.matchingListeners(UserModel.class)).containsExactly(user);
+    assertThat(group.listenersFor(UserModel.class)).containsExactly(user);
   }
 
   @Test
@@ -106,24 +106,24 @@ class EntityListenerGroupTests {
     EntityEventListener<UserModel> first = new UserListener();
     EntityEventListener<UserModel> second = new UserListener();
     group.addListeners(List.of(first, second));
-    assertThat(group.matchingListeners(UserModel.class)).hasSize(2);
+    assertThat(group.listenersFor(UserModel.class)).hasSize(2);
 
     group.removeListener(first);
-    assertThat(group.matchingListeners(UserModel.class)).containsExactly(second);
+    assertThat(group.listenersFor(UserModel.class)).containsExactly(second);
   }
 
   @Test
   void matchingCacheIsInvalidatedWhenGroupIsCleared() {
     group.addListener(new UserListener());
-    assertThat(group.matchingListeners(UserModel.class)).isNotEmpty();
+    assertThat(group.listenersFor(UserModel.class)).isNotEmpty();
 
     group.clear();
-    assertThat(group.matchingListeners(UserModel.class)).isEmpty();
+    assertThat(group.listenersFor(UserModel.class)).isEmpty();
   }
 
   @Test
-  void matchingListenersRejectsNullEntityClass() {
-    assertThatThrownBy(() -> group.matchingListeners(null))
+  void listenersForRejectsNullEntityClass() {
+    assertThatThrownBy(() -> group.listenersFor(null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Entity class is required");
   }

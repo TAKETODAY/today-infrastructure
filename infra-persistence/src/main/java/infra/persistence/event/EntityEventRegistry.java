@@ -109,11 +109,11 @@ public interface EntityEventRegistry {
    * <p>The group exposes the registered listeners (e.g. via
    * {@link EventListenerGroup#iterator()} or {@link EventListenerGroup#asList()}) and
    * allows a caller to dispatch events directly. For an {@link EntityEventListener}
-   * contract the returned group is entity-class aware — {@link
-   * EventListenerGroup#matchingListeners(Class)} resolves the listeners observing a
-   * concrete entity class — while for a flat contract such as
-   * {@link BatchPersistListener} every listener matches. Callers therefore never need
-   * to know which kind of group they obtained.
+   * contract the returned group is entity-class aware, so {@link
+   * EventListenerGroup#listenersFor(Class)} resolves the listeners observing a
+   * concrete entity class; a flat contract such as {@link BatchPersistListener} does
+   * not support entity-class lookup and rejects it with
+   * {@link UnsupportedOperationException}.
    *
    * <p>Note that the {@link infra.persistence.EntityManager} dispatches events
    * automatically during persist / update / delete, so explicit dispatch is only

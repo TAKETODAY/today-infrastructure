@@ -198,10 +198,10 @@ class DefaultEntityEventRegistryTests {
     UpdatingEventListener<Object> all = new UpdatingEverythingListener();
     registry.addListeners(List.of(user, all));
 
-    // the group obtained via listeners(...) is entity aware: matchingListeners filter
-    assertThat(registry.listeners(UpdatingEventListener.class).matchingListeners(UserModel.class))
+    // the group obtained via listeners(...) is entity aware: listenersFor filter
+    assertThat(registry.listeners(UpdatingEventListener.class).listenersFor(UserModel.class))
             .containsExactlyInAnyOrder(user, all);
-    assertThat(registry.listeners(UpdatingEventListener.class).matchingListeners(String.class))
+    assertThat(registry.listeners(UpdatingEventListener.class).listenersFor(String.class))
             .containsExactly(all);
   }
 

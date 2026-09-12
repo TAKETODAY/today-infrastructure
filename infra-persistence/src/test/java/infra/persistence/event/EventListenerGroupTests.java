@@ -42,6 +42,15 @@ class EventListenerGroupTests {
   }
 
   @Test
+  void baseGroupDoesNotSupportEntityClassLookup() {
+    group.addListener(new UserListener());
+
+    assertThatThrownBy(() -> group.listenersFor(UserModel.class))
+            .isInstanceOf(UnsupportedOperationException.class)
+            .hasMessageContaining("Entity-class lookup is not supported");
+  }
+
+  @Test
   void listenersCanBeAddedIndividuallyAndInBulk() {
     EntityEventListener<UserModel> first = new UserListener();
     EntityEventListener<UserModel> second = new UserListener();

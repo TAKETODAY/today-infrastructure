@@ -57,7 +57,7 @@ public class EntityListenerGroup<T extends EntityEventListener<?>> extends Event
   }
 
   /**
-   * Return the listeners observing the given entity class, sorted by
+   * Return the listeners applicable to the given entity class, sorted by
    * {@link AnnotationAwareOrderComparator order}.
    *
    * <p>The result is cached per entity class and rebuilt lazily after any mutation,
@@ -65,11 +65,11 @@ public class EntityListenerGroup<T extends EntityEventListener<?>> extends Event
    * resolved listeners. The returned list can be iterated directly.
    *
    * @param entityClass the entity class to match against; must not be {@code null}
-   * @return the matching listeners, or an empty list if no listener observes the
+   * @return the applicable listeners, or an empty list if no listener observes the
    * entity class; never {@code null}
    */
   @Override
-  public List<T> matchingListeners(Class<?> entityClass) {
+  public List<T> listenersFor(Class<?> entityClass) {
     Assert.notNull(entityClass, "Entity class is required");
     if (isEmpty()) {
       return Collections.emptyList();

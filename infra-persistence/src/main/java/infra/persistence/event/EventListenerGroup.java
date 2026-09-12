@@ -153,20 +153,22 @@ public class EventListenerGroup<T extends Listener> implements Iterable<T> {
   }
 
   /**
-   * Return the listeners matching the given entity class.
+   * Return the listeners applicable to the given entity class.
    *
-   * <p>This base group is not entity aware, so every registered listener matches and
-   * the returned list is equivalent to {@link #asList()}. Entity-aware subclasses —
-   * namely {@link EntityListenerGroup} — override this method to filter by each
-   * listener's declared entity type, so a caller never has to know whether the group
-   * it obtained is entity aware or not.
+   * <p>This base group is not entity aware, so entity-class lookup is not supported
+   * and the default implementation always throws {@link UnsupportedOperationException}.
+   * The entity-aware subclass {@link EntityListenerGroup} overrides this method to
+   * return the listeners observing the given entity class, so a caller holding an
+   * {@link EntityEventListener} contract can invoke it uniformly.
    *
    * @param entityClass the entity class to match against; must not be {@code null}
-   * @return the matching listeners, in registration order; never {@code null}
+   * @return the applicable listeners
+   * @throws UnsupportedOperationException always, unless overridden by an
+   * entity-aware subclass
    */
-  public List<T> matchingListeners(Class<?> entityClass) {
-    Assert.notNull(entityClass, "Entity class is required");
-    return listeners;
+  public List<T> listenersFor(Class<?> entityClass) {
+    throw new UnsupportedOperationException(
+            "Entity-class lookup is not supported by " + getClass().getSimpleName());
   }
 
   /**
