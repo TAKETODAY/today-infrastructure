@@ -25,7 +25,7 @@ import infra.persistence.PropertyUpdateStrategy;
  * <p>This interface extends {@link EntityEventListener}, the common base contract
  * shared by all entity lifecycle listeners, and adds the update callbacks
  * {@link #onPreUpdating(Object, EntityMetadata, PropertyUpdateStrategy)} and
- * {@link #onPostUpdating(Object, EntityMetadata)}.
+ * {@link #onPostUpdating(Object, EntityMetadata, PropertyUpdateStrategy)}.
  *
  * <p>The entity type this listener observes is declared by its generic type
  * parameter, e.g. {@code UpdatingEventListener<ProjectProcess>} receives only
@@ -66,11 +66,18 @@ public interface UpdatingEventListener<T> extends EntityEventListener<T> {
   /**
    * Invoked after an entity of the observed type was successfully updated.
    *
+   * <p>The given {@code strategy} is the same {@link PropertyUpdateStrategy} that
+   * drove the update. It describes the selection rule, not a snapshot of the
+   * written columns: version handling or other entity changes may affect the
+   * result of evaluating the strategy again after execution.
+   *
    * @param entity the updated entity, reflecting the state before the update was
    * applied; must not be {@code null}
    * @param metadata the entity metadata; must not be {@code null}
+   * @param strategy the property update strategy that selected the updated
+   * properties; must not be {@code null}
    */
-  default void onPostUpdating(T entity, EntityMetadata metadata) {
+  default void onPostUpdating(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
   }
 
 }

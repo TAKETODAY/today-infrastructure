@@ -24,6 +24,7 @@ import java.util.List;
 
 import infra.jdbc.model.UserModel;
 import infra.persistence.EntityMetadata;
+import infra.persistence.PropertyUpdateStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -192,7 +193,7 @@ class DefaultEntityEventRegistryTests {
   static class HybridListener implements PersistingEventListener<UserModel>, BatchPersistListener {
 
     @Override
-    public void onPostPersisting(UserModel entity, EntityMetadata metadata) {
+    public void onPostPersisting(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
     }
 
     @Override

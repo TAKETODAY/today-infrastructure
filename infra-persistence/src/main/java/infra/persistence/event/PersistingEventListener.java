@@ -26,7 +26,7 @@ import infra.persistence.PropertyUpdateStrategy;
  * observes the full entity lifecycle through the inherited callbacks in addition
  * to reacting upon persistence via
  * {@link #onPrePersisting(Object, EntityMetadata, PropertyUpdateStrategy)} and
- * {@link #onPostPersisting(Object, EntityMetadata)}.
+ * {@link #onPostPersisting(Object, EntityMetadata, PropertyUpdateStrategy)}.
  *
  * <p>The entity type this listener observes is declared by its generic type
  * parameter, e.g. {@code PersistingEventListener<ProjectProcess>} receives only
@@ -71,10 +71,17 @@ public interface PersistingEventListener<T> extends EntityEventListener<T> {
    * auto-generated identifiers (if any) have already been written back onto the
    * entity.
    *
+   * <p>The given {@code strategy} is the same {@link PropertyUpdateStrategy} that
+   * drove the insert. It describes the selection rule, not a snapshot of the
+   * written columns: generated identifiers or other entity changes may affect
+   * the result of evaluating the strategy again after execution.
+   *
    * @param entity the fully populated entity; must not be {@code null}
    * @param metadata the entity metadata; must not be {@code null}
+   * @param strategy the property update strategy that selected the persisted
+   * properties; must not be {@code null}
    */
-  default void onPostPersisting(T entity, EntityMetadata metadata) {
+  default void onPostPersisting(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
   }
 
 }

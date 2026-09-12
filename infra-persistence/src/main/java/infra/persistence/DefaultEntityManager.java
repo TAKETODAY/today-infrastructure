@@ -469,7 +469,7 @@ public class DefaultEntityManager implements EntityManager {
           }
         }
       }
-      eventMulticaster.onPostPersisting(entity, entityMetadata);
+      eventMulticaster.onPostPersisting(entity, entityMetadata, strategy);
       return updateCount;
     }
     catch (SQLException ex) {
@@ -558,7 +558,7 @@ public class DefaultEntityManager implements EntityManager {
       }
     }
 
-    eventMulticaster.onPreUpdate(entity, metadata, strategy);
+    eventMulticaster.onPreUpdating(entity, metadata, strategy);
 
     EntityProperty versionProperty = metadata.versionProperty;
     Object oldVersion = null;
@@ -624,7 +624,7 @@ public class DefaultEntityManager implements EntityManager {
                 "Optimistic locking failure updating entity [%s], expected version: %s, but %d row(s) were updated"
                         .formatted(metadata.tableName, oldVersion, updateCount));
       }
-      eventMulticaster.onPostUpdate(entity, metadata);
+      eventMulticaster.onPostUpdating(entity, metadata, strategy);
       return updateCount;
     }
     catch (SQLException ex) {
@@ -686,7 +686,7 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   private int doUpdateById(Object entity, Object id, EntityProperty idProperty, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
-    eventMulticaster.onPreUpdate(entity, metadata, strategy);
+    eventMulticaster.onPreUpdating(entity, metadata, strategy);
 
     EntityProperty versionProperty = metadata.versionProperty;
     Object oldVersion = null;
@@ -736,7 +736,7 @@ public class DefaultEntityManager implements EntityManager {
                 "Optimistic locking failure updating entity [%s] with ID: %s, expected version: %s, but %d row(s) were updated"
                         .formatted(metadata.tableName, id, oldVersion, updateCount));
       }
-      eventMulticaster.onPostUpdate(entity, metadata);
+      eventMulticaster.onPostUpdating(entity, metadata, strategy);
       return updateCount;
     }
     catch (SQLException ex) {
@@ -759,7 +759,7 @@ public class DefaultEntityManager implements EntityManager {
       strategy = defaultUpdateStrategy(entity);
     }
 
-    eventMulticaster.onPreUpdate(entity, metadata, strategy);
+    eventMulticaster.onPreUpdating(entity, metadata, strategy);
     Update updateStmt = new Update(metadata.tableName);
 
     EntityProperty updateBy = null;
@@ -801,7 +801,7 @@ public class DefaultEntityManager implements EntityManager {
       // last one is where
       updateBy.setParameter(statement, idx, updateByValue);
       int updateCount = statement.executeUpdate();
-      eventMulticaster.onPostUpdate(entity, metadata);
+      eventMulticaster.onPostUpdating(entity, metadata, strategy);
       return updateCount;
     }
     catch (SQLException ex) {
@@ -830,7 +830,7 @@ public class DefaultEntityManager implements EntityManager {
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
     EntityProperty idProperty = idProperty(metadata, "Deleting an entity, Id property not found");
 
-    eventMulticaster.onPreDelete(null, id, metadata);
+    eventMulticaster.onPreDeleting(null, id, metadata);
 
     StringBuilder sql = new StringBuilder();
     sql.append("DELETE FROM ");
@@ -849,7 +849,7 @@ public class DefaultEntityManager implements EntityManager {
       statement = con.prepareStatement(sql.toString());
       idProperty.setParameter(statement, 1, id);
       int updateCount = statement.executeUpdate();
-      eventMulticaster.onPostDelete(null, id, metadata);
+      eventMulticaster.onPostDeleting(null, id, metadata);
       return updateCount;
     }
     catch (SQLException ex) {
@@ -875,7 +875,7 @@ public class DefaultEntityManager implements EntityManager {
       versionValue = versionProperty.getValue(entityOrExample);
     }
 
-    eventMulticaster.onPreDelete(entityOrExample, id, metadata);
+    eventMulticaster.onPreDeleting(entityOrExample, id, metadata);
 
     ExampleQuery exampleQuery = null;
 
@@ -921,7 +921,7 @@ public class DefaultEntityManager implements EntityManager {
                 "Optimistic locking failure deleting entity [%s] with ID: %s, expected version: %s, but %d row(s) were deleted"
                         .formatted(metadata.tableName, id, versionValue, updateCount));
       }
-      eventMulticaster.onPostDelete(entityOrExample, id, metadata);
+      eventMulticaster.onPostDeleting(entityOrExample, id, metadata);
       return updateCount;
     }
     catch (SQLException ex) {
@@ -1556,7 +1556,7 @@ public class DefaultEntityManager implements EntityManager {
           }
         }
         for (Object entity : entities) {
-          eventMulticaster.onPostPersisting(entity, entityMetadata);
+          eventMulticaster.onPostPersisting(entity, entityMetadata, strategy);
         }
       }
       catch (Throwable e) {

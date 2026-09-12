@@ -190,17 +190,21 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
 
     List<String> received = new ArrayList<>();
+    List<PropertyUpdateStrategy> persistStrategies = new ArrayList<>();
+    List<PropertyUpdateStrategy> updateStrategies = new ArrayList<>();
     entityManager.getEntityEventRegistry().addListener(new PersistingEventListener<UserModel>() {
 
       @Override
       public void onPrePersisting(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+        persistStrategies.add(strategy);
         // modification performed in a before callback must be picked up
         entity.age = 99;
         received.add("beforePersist");
       }
 
       @Override
-      public void onPostPersisting(UserModel entity, EntityMetadata metadata) {
+      public void onPostPersisting(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+        persistStrategies.add(strategy);
         received.add("afterPersist:" + entity.age);
       }
     });
@@ -208,11 +212,13 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
 
       @Override
       public void onPreUpdating(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+        updateStrategies.add(strategy);
         received.add("beforeUpdate");
       }
 
       @Override
-      public void onPostUpdating(UserModel entity, EntityMetadata metadata) {
+      public void onPostUpdating(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+        updateStrategies.add(strategy);
         received.add("afterUpdate");
       }
     });
@@ -241,6 +247,10 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
 
     assertThat(received).containsExactly("beforePersist", "afterPersist:99",
             "beforeUpdate", "afterUpdate", "beforeDelete", "afterDelete:" + user.id);
+    assertThat(persistStrategies).hasSize(2);
+    assertThat(persistStrategies.get(1)).isSameAs(persistStrategies.get(0));
+    assertThat(updateStrategies).hasSize(2);
+    assertThat(updateStrategies.get(1)).isSameAs(updateStrategies.get(0));
   }
 
   @ParameterizedRepositoryManagerTest
@@ -1818,5 +1828,3 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
   }
 
 }
-
-

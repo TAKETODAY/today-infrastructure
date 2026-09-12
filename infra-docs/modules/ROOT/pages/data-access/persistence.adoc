@@ -395,18 +395,18 @@ boolean hasNext = page.isHasNextPage();
 **同步**回调，因此监听器抛出的异常会传播给调用方。监听器可通过容器自动注册（作为 `Listener` bean），
 也可手动注册到 `EntityEventRegistry`。
 
-持久化 / 更新的**前置**回调会额外收到当次操作生效的 `PropertyUpdateStrategy`，可据此判断在回调中
-对实体的修改是否会被写回（默认 `noneNull()` 策略下仅非 null 属性参与写入）。
+持久化 / 更新的回调会收到当次操作生效的 `PropertyUpdateStrategy`（决定哪些属性被写回，
+默认 `noneNull()` 策略下仅非 null 属性参与写入），前置与后置回调拿到的是同一个策略实例。
 
 [cols="1,3"]
 |===
 | 监听器 | 回调
 
 | `PersistingEventListener<T>`
-| `onPrePersisting(entity, metadata, strategy)` / `onPostPersisting(entity, metadata)`。前置回调可拿到选择写入属性的 `PropertyUpdateStrategy`；后置回调触发时自增主键已回填。
+| `onPrePersisting(entity, metadata, strategy)` / `onPostPersisting(entity, metadata, strategy)`。回调可拿到选择写入属性的 `PropertyUpdateStrategy`；后置回调触发时自增主键已回填。
 
 | `UpdatingEventListener<T>`
-| `onPreUpdating(entity, metadata, strategy)` / `onPostUpdating(entity, metadata)`。默认策略下只会写回非 null 属性，版本字段由框架覆盖。
+| `onPreUpdating(entity, metadata, strategy)` / `onPostUpdating(entity, metadata, strategy)`。默认策略下只会写回非 null 属性，版本字段由框架覆盖。
 
 | `DeletingEventListener<T>`
 | `onPreDeleting` / `onPostDeleting`，可获取被删除实体与主键。
@@ -433,7 +433,7 @@ class UserAuditListener implements UpdatingEventListener<User> {
   }
 
   @Override
-  public void onPostUpdating(User entity, EntityMetadata metadata) {
+  public void onPostUpdating(User entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
     // 更新后处理
   }
 }

@@ -57,31 +57,31 @@ final class EntityEventMulticaster {
     }
   }
 
-  public void onPostPersisting(Object entity, EntityMetadata metadata) {
+  public void onPostPersisting(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
     for (var listener : registry.entityListeners(PersistingEventListener.class).matchingListeners(entity.getClass())) {
-      listener.onPostPersisting(entity, metadata);
+      listener.onPostPersisting(entity, metadata, strategy);
     }
   }
 
-  public void onPreUpdate(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+  public void onPreUpdating(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
     for (var listener : registry.entityListeners(UpdatingEventListener.class).matchingListeners(entity.getClass())) {
       listener.onPreUpdating(entity, metadata, strategy);
     }
   }
 
-  public void onPostUpdate(Object entity, EntityMetadata metadata) {
+  public void onPostUpdating(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
     for (var listener : registry.entityListeners(UpdatingEventListener.class).matchingListeners(entity.getClass())) {
-      listener.onPostUpdating(entity, metadata);
+      listener.onPostUpdating(entity, metadata, strategy);
     }
   }
 
-  public void onPreDelete(@Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
+  public void onPreDeleting(@Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
     for (var listener : registry.entityListeners(DeletingEventListener.class).matchingListeners(metadata.entityClass)) {
       listener.onPreDeleting(entity, id, metadata);
     }
   }
 
-  public void onPostDelete(@Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
+  public void onPostDeleting(@Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
     for (var listener : registry.entityListeners(DeletingEventListener.class).matchingListeners(metadata.entityClass)) {
       listener.onPostDeleting(entity, id, metadata);
     }
