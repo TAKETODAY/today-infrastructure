@@ -68,6 +68,7 @@ public class EntityListenerGroup<T extends EntityEventListener<?>> extends Event
    * @return the matching listeners, or an empty list if no listener observes the
    * entity class; never {@code null}
    */
+  @Override
   public List<T> matchingListeners(Class<?> entityClass) {
     Assert.notNull(entityClass, "Entity class is required");
     if (isEmpty()) {

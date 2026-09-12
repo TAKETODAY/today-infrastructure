@@ -21,10 +21,11 @@ import infra.persistence.EntityMetadata;
 /**
  * Listener for entity <strong>load</strong> operations.
  *
- * <p>This interface extends {@link EntityEventListener}, so an implementation
- * observes the full entity lifecycle (persist / update / delete / truncate) through
- * the inherited callbacks in addition to reacting upon entity loading via
- * {@link #onPostLoad(Object, EntityMetadata)}.
+ * <p>This interface extends {@link EntityEventListener} — the common base contract
+ * shared by the entity lifecycle listeners — and models only the load concern via
+ * {@link #onPostLoad(Object, EntityMetadata)}. To observe other lifecycle
+ * operations, implement the corresponding contract, e.g. {@link PersistingEventListener}
+ * or {@link DeletingEventListener}.
  *
  * <p>The entity type this listener observes is declared by its generic type
  * parameter, e.g. {@code PostLoadEventListener<ProjectProcess>} receives only

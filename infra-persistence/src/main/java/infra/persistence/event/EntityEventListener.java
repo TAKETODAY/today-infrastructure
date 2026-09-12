@@ -17,7 +17,7 @@
 package infra.persistence.event;
 
 /**
- * Base contract for all entity lifecycle listeners.
+ * Base contract for the entity-instance lifecycle listeners.
  *
  * <p>Each lifecycle concern is modelled as a dedicated listener interface that
  * extends this contract and declares its own callbacks:
@@ -27,6 +27,10 @@ package infra.persistence.event;
  *   <li>{@link DeletingEventListener} — delete operations.</li>
  *   <li>{@link PostLoadEventListener} — entity load operations.</li>
  * </ul>
+ *
+ * <p>Table truncation is not an entity-instance operation and therefore has no
+ * generic entity type to resolve; it is modelled by the standalone
+ * {@link PostTruncateEventListener} contract, which does not extend this interface.
  *
  * <p>The entity type a listener observes is declared by its generic type
  * parameter, e.g. {@code UpdatingEventListener<ProjectProcess>} receives only
@@ -43,6 +47,7 @@ package infra.persistence.event;
  * @see UpdatingEventListener
  * @see DeletingEventListener
  * @see PostLoadEventListener
+ * @see PostTruncateEventListener
  * @see EntityEventRegistry
  * @since 5.0
  */

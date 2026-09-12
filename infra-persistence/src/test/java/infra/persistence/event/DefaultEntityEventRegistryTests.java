@@ -58,15 +58,25 @@ class DefaultEntityEventRegistryTests {
   }
 
   @Test
+  void baseEntityEventListenerIsNotRegistrable() {
+    // EntityEventListener is the common base contract and carries no callbacks, so
+    // it is not a registrable contract on its own; a concrete contract is required.
+    assertThatThrownBy(() -> registry.addListener(new EntityEventListener<>() {
+    }))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Unsupported listener type");
+  }
+
+  @Test
   void listenersAreStoredByContract() {
-    EntityEventListener<UserModel> entityListener = new UserEventListening();
+    PersistingEventListener<UserModel> entityListener = new UserEventListening();
     BatchPersistListener batchListener = (execution, implicitExecution, exception) -> {
     };
 
     registry.addListener(entityListener);
     registry.addListener(batchListener);
 
-    assertThat(registry.listeners(EntityEventListener.class)).containsExactly(entityListener);
+    assertThat(registry.listeners(PersistingEventListener.class)).containsExactly(entityListener);
     assertThat(registry.listeners(BatchPersistListener.class)).containsExactly(batchListener);
   }
 
@@ -76,24 +86,24 @@ class DefaultEntityEventRegistryTests {
 
     registry.addListener(hybrid);
 
-    assertThat(registry.listeners(EntityEventListener.class)).containsExactly(hybrid);
+    assertThat(registry.listeners(PersistingEventListener.class)).containsExactly(hybrid);
     assertThat(registry.listeners(BatchPersistListener.class)).containsExactly(hybrid);
   }
 
   @Test
   void getListenersReturnsEmptyForUnknownContract() {
-    assertThat(registry.listeners(EntityEventListener.class)).isEmpty();
+    assertThat(registry.listeners(PersistingEventListener.class)).isEmpty();
     assertThat(registry.listeners(BatchPersistListener.class)).isEmpty();
   }
 
   @Test
   void getListenersReturnsEmptyAfterAllListenersOfContractAreRemoved() {
-    EntityEventListener<UserModel> listener = new UserEventListening();
+    PersistingEventListener<UserModel> listener = new UserEventListening();
     registry.addListener(listener);
 
     registry.removeListener(listener);
 
-    assertThat(registry.listeners(EntityEventListener.class)).isEmpty();
+    assertThat(registry.listeners(PersistingEventListener.class)).isEmpty();
   }
 
   @Test
@@ -113,31 +123,31 @@ class DefaultEntityEventRegistryTests {
 
   @Test
   void entityEventListenersAreStoredByContract() {
-    EntityEventListener<UserModel> listener = new EntityEventListener<>() {
+    PersistingEventListener<UserModel> listener = new PersistingEventListener<>() {
     };
 
     registry.addListener(listener);
-    assertThat(registry.listeners(EntityEventListener.class)).containsExactly(listener);
+    assertThat(registry.listeners(PersistingEventListener.class)).containsExactly(listener);
 
     registry.removeListener(listener);
-    assertThat(registry.listeners(EntityEventListener.class)).isEmpty();
+    assertThat(registry.listeners(PersistingEventListener.class)).isEmpty();
   }
 
   @Test
   void addListenersAcceptsNullCollection() {
     registry.addListeners(null);
-    assertThat(registry.listeners(EntityEventListener.class)).isEmpty();
+    assertThat(registry.listeners(PersistingEventListener.class)).isEmpty();
   }
 
   @Test
   void removeListenersRemovesMultipleListeners() {
-    EntityEventListener<UserModel> first = new UserEventListening();
-    EntityEventListener<UserModel> second = new UserEventListening();
+    PersistingEventListener<UserModel> first = new UserEventListening();
+    PersistingEventListener<UserModel> second = new UserEventListening();
     registry.addListeners(List.of(first, second));
 
     registry.removeListeners(List.of(first));
 
-    assertThat(registry.listeners(EntityEventListener.class)).containsExactly(second);
+    assertThat(registry.listeners(PersistingEventListener.class)).containsExactly(second);
   }
 
   @Test
@@ -148,7 +158,7 @@ class DefaultEntityEventRegistryTests {
 
     registry.clear();
 
-    assertThat(registry.listeners(EntityEventListener.class)).isEmpty();
+    assertThat(registry.listeners(PersistingEventListener.class)).isEmpty();
     assertThat(registry.listeners(BatchPersistListener.class)).isEmpty();
   }
 
@@ -182,11 +192,28 @@ class DefaultEntityEventRegistryTests {
     assertThat(registry.listeners(DeletingEventListener.class)).containsExactly(deleting);
   }
 
-  static class UserEventListening implements EntityEventListener<UserModel> {
+  @Test
+  void listenersOfAnEntityContractAreEntityAwareThroughTheUnifiedLookup() {
+    UpdatingEventListener<UserModel> user = new UpdatingUserListener();
+    UpdatingEventListener<Object> all = new UpdatingEverythingListener();
+    registry.addListeners(List.of(user, all));
+
+    // the group obtained via listeners(...) is entity aware: matchingListeners filter
+    assertThat(registry.listeners(UpdatingEventListener.class).matchingListeners(UserModel.class))
+            .containsExactlyInAnyOrder(user, all);
+    assertThat(registry.listeners(UpdatingEventListener.class).matchingListeners(String.class))
+            .containsExactly(all);
+  }
+
+  static class UserEventListening implements PersistingEventListener<UserModel> {
 
   }
 
-  static class ObjectEventListening implements EntityEventListener<Object> {
+  static class UpdatingUserListener implements UpdatingEventListener<UserModel> {
+
+  }
+
+  static class UpdatingEverythingListener implements UpdatingEventListener<Object> {
 
   }
 

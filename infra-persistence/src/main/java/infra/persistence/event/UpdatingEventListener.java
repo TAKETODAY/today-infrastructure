@@ -22,10 +22,12 @@ import infra.persistence.PropertyUpdateStrategy;
 /**
  * Listener for entity <strong>update</strong> operations.
  *
- * <p>This interface extends {@link EntityEventListener}, the common base contract
- * shared by all entity lifecycle listeners, and adds the update callbacks
+ * <p>This interface extends {@link EntityEventListener} — the common base contract
+ * shared by the entity lifecycle listeners — and models only the update concern via
  * {@link #onPreUpdating(Object, EntityMetadata, PropertyUpdateStrategy)} and
- * {@link #onPostUpdating(Object, EntityMetadata, PropertyUpdateStrategy)}.
+ * {@link #onPostUpdating(Object, EntityMetadata, PropertyUpdateStrategy)}. To
+ * observe other lifecycle operations, implement the corresponding contract, e.g.
+ * {@link PersistingEventListener} or {@link DeletingEventListener}.
  *
  * <p>The entity type this listener observes is declared by its generic type
  * parameter, e.g. {@code UpdatingEventListener<ProjectProcess>} receives only

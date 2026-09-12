@@ -28,11 +28,13 @@ import infra.util.Assert;
 /**
  * Default {@link EntityEventRegistry} implementation.
  *
- * <p>Listeners are dispatched by contract type into {@link EventListenerGroup groups}
- * kept in a single {@link Map} keyed by the listener contract type — e.g.
- * {@link EntityEventListener} or {@link BatchPersistListener}. Each group owns its
- * listener storage and per-entity-class match cache, and new listener contract types
- * can be added without changing this registry's storage layout.
+ * <p>Listeners are grouped by contract type into {@link EventListenerGroup groups}
+ * kept in a single {@link Map} keyed by the listener contract type. An
+ * {@link EntityEventListener} contract gets an entity-class aware
+ * {@link EntityListenerGroup} (owning the per-entity-class match cache), while other
+ * contracts such as {@link BatchPersistListener} get a plain {@link EventListenerGroup}.
+ * New listener contract types can be added without changing this registry's storage
+ * layout.
  *
  * <p>Dispatch of entity lifecycle events is performed separately by the entity
  * manager.
@@ -46,7 +48,6 @@ import infra.util.Assert;
 public class DefaultEntityEventRegistry implements EntityEventRegistry {
 
   private static final Set<Class<? extends Listener>> supportedListenerTypes = Set.of(
-          EntityEventListener.class,
           PersistingEventListener.class,
           UpdatingEventListener.class,
           DeletingEventListener.class,
@@ -134,12 +135,6 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
   @Override
   public <T extends Listener> EventListenerGroup<T> listeners(Class<T> type) {
     return groupFor(type);
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public <T extends EntityEventListener<?>> EntityListenerGroup<T> entityListeners(Class<T> type) {
-    return (EntityListenerGroup<T>) groupFor(type);
   }
 
   @SuppressWarnings("unchecked")

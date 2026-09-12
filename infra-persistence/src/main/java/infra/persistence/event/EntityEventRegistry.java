@@ -108,34 +108,23 @@ public interface EntityEventRegistry {
    *
    * <p>The group exposes the registered listeners (e.g. via
    * {@link EventListenerGroup#iterator()} or {@link EventListenerGroup#asList()}) and
-   * allows a caller to dispatch events directly against the matching listeners. Note
-   * that the {@link infra.persistence.EntityManager} dispatches events automatically
-   * during persist / update / delete, so explicit dispatch is only needed for custom
-   * listeners or event flows.
+   * allows a caller to dispatch events directly. For an {@link EntityEventListener}
+   * contract the returned group is entity-class aware — {@link
+   * EventListenerGroup#matchingListeners(Class)} resolves the listeners observing a
+   * concrete entity class — while for a flat contract such as
+   * {@link BatchPersistListener} every listener matches. Callers therefore never need
+   * to know which kind of group they obtained.
    *
-   * @param type the listener contract type, e.g. {@code EntityEventListener.class}
-   * or {@code BatchPersistListener.class}; must not be {@code null}
+   * <p>Note that the {@link infra.persistence.EntityManager} dispatches events
+   * automatically during persist / update / delete, so explicit dispatch is only
+   * needed for custom listeners or event flows.
+   *
+   * @param type the listener contract type, e.g.
+   * {@code UpdatingEventListener.class} or {@code BatchPersistListener.class}; must
+   * not be {@code null}
    * @param <T> the listener contract type
    * @return the group managing the listeners of the given type, never {@code null}
    */
   <T extends Listener> EventListenerGroup<T> listeners(Class<T> type);
-
-  /**
-   * Return the {@link EntityListenerGroup} managing the {@link EntityEventListener
-   * entity lifecycle listeners} of the given contract type, creating it on first
-   * access.
-   *
-   * <p>Unlike {@link #listeners(Class)}, the returned group is entity-class aware: it
-   * exposes {@link EntityListenerGroup#matchingListeners(Class)} to resolve the
-   * listeners observing a concrete entity class. This method is intended for
-   * dispatching entity lifecycle events (persist / update / delete / load).
-   *
-   * @param type the entity listener contract type, e.g.
-   * {@code UpdatingEventListener.class}; must not be {@code null}
-   * @param <T> the entity listener contract type
-   * @return the group managing the entity listeners of the given type, never
-   * {@code null}
-   */
-  <T extends EntityEventListener<?>> EntityListenerGroup<T> entityListeners(Class<T> type);
 
 }

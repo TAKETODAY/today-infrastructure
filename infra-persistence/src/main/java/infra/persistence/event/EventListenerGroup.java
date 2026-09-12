@@ -153,6 +153,23 @@ public class EventListenerGroup<T extends Listener> implements Iterable<T> {
   }
 
   /**
+   * Return the listeners matching the given entity class.
+   *
+   * <p>This base group is not entity aware, so every registered listener matches and
+   * the returned list is equivalent to {@link #asList()}. Entity-aware subclasses —
+   * namely {@link EntityListenerGroup} — override this method to filter by each
+   * listener's declared entity type, so a caller never has to know whether the group
+   * it obtained is entity aware or not.
+   *
+   * @param entityClass the entity class to match against; must not be {@code null}
+   * @return the matching listeners, in registration order; never {@code null}
+   */
+  public List<T> matchingListeners(Class<?> entityClass) {
+    Assert.notNull(entityClass, "Entity class is required");
+    return listeners;
+  }
+
+  /**
    * Return an iterator over the registered listeners, in registration order.
    *
    * @return an iterator over the registered listeners

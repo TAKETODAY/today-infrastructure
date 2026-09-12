@@ -23,10 +23,12 @@ import infra.persistence.EntityMetadata;
 /**
  * Listener for entity <strong>delete</strong> operations.
  *
- * <p>This interface extends {@link EntityEventListener}, the common base contract
- * shared by all entity lifecycle listeners, and adds the delete callbacks
+ * <p>This interface extends {@link EntityEventListener} — the common base contract
+ * shared by the entity lifecycle listeners — and models only the delete concern via
  * {@link #onPreDeleting(Object, Object, EntityMetadata)} and
- * {@link #onPostDeleting(Object, Object, EntityMetadata)}.
+ * {@link #onPostDeleting(Object, Object, EntityMetadata)}. To observe other
+ * lifecycle operations, implement the corresponding contract, e.g.
+ * {@link PersistingEventListener} or {@link UpdatingEventListener}.
  *
  * <p>The entity type this listener observes is declared by its generic type
  * parameter, e.g. {@code DeletingEventListener<ProjectProcess>} receives only
