@@ -99,6 +99,9 @@ public interface EntityEventRegistry {
 
   /**
    * Remove all registered listeners across every supported contract.
+   *
+   * <p>Groups previously returned by {@link #listeners(Class)} are retained and
+   * emptied, not discarded, so cached references remain valid.
    */
   void clear();
 
@@ -118,6 +121,11 @@ public interface EntityEventRegistry {
    * <p>Note that the {@link infra.persistence.EntityManager} dispatches events
    * automatically during persist / update / delete, so explicit dispatch is only
    * needed for custom listeners or event flows.
+   *
+   * <p>The returned group is retained for the lifetime of this registry:
+   * {@link #clear()} and {@link #setListeners(Collection)} remove the listeners from
+   * it but do not discard the group instance. A caller may therefore safely cache the
+   * returned reference, for example to avoid re-resolving it on every dispatch.
    *
    * @param type the listener contract type, e.g.
    * {@code UpdatingEventListener.class} or {@code BatchPersistListener.class}; must

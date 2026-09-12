@@ -163,6 +163,25 @@ class DefaultEntityEventRegistryTests {
   }
 
   @Test
+  void groupInstanceIsRetainedAcrossClearSoCachedReferencesStayValid() {
+    EventListenerGroup<?> groupBefore = registry.listeners(PersistingEventListener.class);
+    registry.addListener(new UserEventListening());
+    assertThat(groupBefore).isNotEmpty();
+
+    registry.clear();
+
+    // the same instance is returned and it is now empty, so a cached reference
+    // obtained before the clear keeps observing the registry
+    EventListenerGroup<?> groupAfter = registry.listeners(PersistingEventListener.class);
+    assertThat(groupAfter).isSameAs(groupBefore);
+    assertThat(groupBefore).isEmpty();
+
+    PersistingEventListener<UserModel> listener = new UserEventListening();
+    registry.addListener(listener);
+    assertThat(groupBefore).hasSize(1);
+  }
+
+  @Test
   void updatingAndDeletingListenersAreStoredByTheirOwnContract() {
     UpdatingEventListener<UserModel> updating = new UpdatingEventListener<>() {
     };

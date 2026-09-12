@@ -124,11 +124,11 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
   @Override
   @SuppressWarnings("rawtypes")
   public void clear() {
-    for (int i = 0; i < listenerGroups.length; i++) {
-      EventListenerGroup group = listenerGroups[i];
+    for (EventListenerGroup group : listenerGroups) {
       if (group != null) {
+        // Keep the group instance alive so callers holding a reference obtained from
+        // listeners(Class) stay valid; only its listeners are removed.
         group.clear();
-        listenerGroups[i] = null;
       }
     }
   }
