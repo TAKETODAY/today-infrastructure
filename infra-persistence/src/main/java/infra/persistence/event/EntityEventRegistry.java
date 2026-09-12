@@ -98,7 +98,7 @@ public interface EntityEventRegistry {
   void removeListeners(Collection<? extends Listener> listeners);
 
   /**
-   * Remove all registered listeners (both entity event and batch persist listeners).
+   * Remove all registered listeners across every supported contract.
    */
   void clear();
 
@@ -124,6 +124,7 @@ public interface EntityEventRegistry {
    * not be {@code null}
    * @param <T> the listener contract type
    * @return the group managing the listeners of the given type, never {@code null}
+   * @throws IllegalArgumentException if the contract type is not supported
    */
   <T extends Listener> EventListenerGroup<T> listeners(Class<T> type);
 

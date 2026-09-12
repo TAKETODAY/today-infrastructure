@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 class EntityListenerGroupTests {
 
-  private final EntityListenerGroup<EntityEventListener<?>> group = new EntityListenerGroup<>();
+  private final EntityListenerGroup<EntityEventListener<?>> group = new EntityListenerGroup<>(EntityEventListener.class);
 
   @Test
   void listenersForFilterByDeclaredGenericType() {

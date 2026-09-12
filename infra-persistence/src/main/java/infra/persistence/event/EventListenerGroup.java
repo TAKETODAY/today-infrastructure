@@ -153,7 +153,8 @@ public class EventListenerGroup<T extends Listener> implements Iterable<T> {
   }
 
   /**
-   * Return the listeners applicable to the given entity class.
+   * Return the listeners applicable to the given entity class, as an array ready for
+   * allocation-free iteration during dispatch.
    *
    * <p>This base group is not entity aware, so entity-class lookup is not supported
    * and the default implementation always throws {@link UnsupportedOperationException}.
@@ -162,11 +163,11 @@ public class EventListenerGroup<T extends Listener> implements Iterable<T> {
    * {@link EntityEventListener} contract can invoke it uniformly.
    *
    * @param entityClass the entity class to match against; must not be {@code null}
-   * @return the applicable listeners
+   * @return the applicable listeners, never {@code null}
    * @throws UnsupportedOperationException always, unless overridden by an
    * entity-aware subclass
    */
-  public List<T> listenersFor(Class<?> entityClass) {
+  public T[] listenersFor(Class<?> entityClass) {
     throw new UnsupportedOperationException(
             "Entity-class lookup is not supported by " + getClass().getSimpleName());
   }

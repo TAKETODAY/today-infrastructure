@@ -19,22 +19,18 @@ package infra.persistence.event;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 import infra.util.Assert;
 
 /**
  * Default {@link EntityEventRegistry} implementation.
  *
- * <p>Listeners are grouped by contract type into {@link EventListenerGroup groups}
- * kept in a single {@link Map} keyed by the listener contract type. An
+ * <p>The supported listener contract types are a fixed, small set, so groups are held
+ * in a plain array indexed in lockstep with that set. Looking up a group is therefore
+ * a short identity comparison over the contract types instead of a map lookup, and an
  * {@link EntityEventListener} contract gets an entity-class aware
- * {@link EntityListenerGroup} (owning the per-entity-class match cache), while other
+ * {@link EntityListenerGroup} (owning the per-entity-class match cache) while other
  * contracts such as {@link BatchPersistListener} get a plain {@link EventListenerGroup}.
- * New listener contract types can be added without changing this registry's storage
- * layout.
  *
  * <p>Dispatch of entity lifecycle events is performed separately by the entity
  * manager.
@@ -47,38 +43,43 @@ import infra.util.Assert;
  */
 public class DefaultEntityEventRegistry implements EntityEventRegistry {
 
-  private static final Set<Class<? extends Listener>> supportedListenerTypes = Set.of(
+  /**
+   * The listener contract types supported by this registry, in a fixed order that is
+   * shared with {@link #listenerGroups} by index.
+   */
+  private static final Class<?>[] supportedListenerTypes = {
+          PostLoadEventListener.class,
           PersistingEventListener.class,
           UpdatingEventListener.class,
           DeletingEventListener.class,
-          PostLoadEventListener.class,
+          BatchPersistListener.class,
           PostTruncateEventListener.class,
-          BatchPersistListener.class);
+  };
 
   /**
-   * Listener groups keyed by their listener contract type.
+   * Listener groups indexed in lockstep with {@link #supportedListenerTypes}; a
+   * {@code null} slot is created lazily on first use.
    */
   @SuppressWarnings("rawtypes")
-  private final HashMap<Class<?>, EventListenerGroup> listenerGroups = new HashMap<>();
+  private final @Nullable EventListenerGroup[] listenerGroups = new EventListenerGroup[supportedListenerTypes.length];
 
   // ---------------------------------------------------------------------
   // Registration
   // ---------------------------------------------------------------------
 
   @Override
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({ "unchecked" })
   public void addListener(Listener listener) {
     Assert.notNull(listener, "Listener is required");
-    boolean unsupported = true;
-    for (var listenerType : supportedListenerTypes) {
-      if (listenerType.isInstance(listener)) {
-        EventListenerGroup listeners = groupFor(listenerType);
-        listeners.addListener(listener);
-        unsupported = false;
+    boolean supported = false;
+    for (int i = 0; i < supportedListenerTypes.length; i++) {
+      if (supportedListenerTypes[i].isInstance(listener)) {
+        groupAt(i).addListener(listener);
+        supported = true;
       }
     }
 
-    if (unsupported) {
+    if (!supported) {
       throw new IllegalArgumentException("Unsupported listener type: " + listener.getClass());
     }
   }
@@ -102,9 +103,9 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public void removeListener(Listener listener) {
     Assert.notNull(listener, "Listener is required");
-    for (var listenerType : supportedListenerTypes) {
-      if (listenerType.isInstance(listener)) {
-        EventListenerGroup group = findGroup(listenerType);
+    for (int i = 0; i < supportedListenerTypes.length; i++) {
+      if (supportedListenerTypes[i].isInstance(listener)) {
+        EventListenerGroup group = listenerGroups[i];
         if (group != null) {
           group.removeListener(listener);
         }
@@ -121,11 +122,15 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
   }
 
   @Override
+  @SuppressWarnings("rawtypes")
   public void clear() {
-    for (var group : listenerGroups.values()) {
-      group.clear();
+    for (int i = 0; i < listenerGroups.length; i++) {
+      EventListenerGroup group = listenerGroups[i];
+      if (group != null) {
+        group.clear();
+        listenerGroups[i] = null;
+      }
     }
-    listenerGroups.clear();
   }
 
   // ---------------------------------------------------------------------
@@ -133,24 +138,31 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
   // ---------------------------------------------------------------------
 
   @Override
+  @SuppressWarnings("unchecked")
   public <T extends Listener> EventListenerGroup<T> listeners(Class<T> type) {
-    return groupFor(type);
+    Assert.notNull(type, "Listener type is required");
+    for (int i = 0; i < supportedListenerTypes.length; i++) {
+      if (supportedListenerTypes[i] == type) {
+        return groupAt(i);
+      }
+    }
+    throw new IllegalArgumentException("Unsupported listener type: " + type);
   }
 
-  @SuppressWarnings("unchecked")
-  private <T extends Listener> EventListenerGroup<T> findGroup(Class<T> listenerType) {
-    return listenerGroups.get(listenerType);
+  @SuppressWarnings("rawtypes")
+  private EventListenerGroup groupAt(int index) {
+    EventListenerGroup group = listenerGroups[index];
+    if (group == null) {
+      group = createGroup(supportedListenerTypes[index]);
+      listenerGroups[index] = group;
+    }
+    return group;
   }
 
-  @SuppressWarnings("unchecked")
-  private <T extends Listener> EventListenerGroup<T> groupFor(Class<T> listenerType) {
-    return listenerGroups.computeIfAbsent(listenerType, this::createGroup);
-  }
-
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings("rawtypes")
   private EventListenerGroup createGroup(Class<?> listenerType) {
     if (EntityEventListener.class.isAssignableFrom(listenerType)) {
-      return new EntityListenerGroup();
+      return new EntityListenerGroup<>(listenerType);
     }
     return new EventListenerGroup();
   }
