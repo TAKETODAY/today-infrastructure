@@ -23,8 +23,6 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import infra.jdbc.model.UserModel;
-import infra.persistence.EntityMetadata;
-import infra.persistence.PropertyUpdateStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -35,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 class DefaultEntityEventRegistryTests {
 
-  private DefaultEntityEventRegistry registry;
+  private EntityEventRegistry registry;
 
   @BeforeEach
   void setUp() {
@@ -153,7 +151,8 @@ class DefaultEntityEventRegistryTests {
   @Test
   void clearRemovesAllListenersAcrossContracts() {
     registry.addListener(new UserEventListening());
-    registry.addListener((BatchPersistListener) (execution, implicitExecution, exception) -> {
+    registry.<BatchPersistListener>addListener((execution, implicitExecution, exception) -> {
+      assertThat(execution.getAffectedRows()).isZero();
     });
 
     registry.clear();
@@ -237,10 +236,6 @@ class DefaultEntityEventRegistryTests {
   }
 
   static class HybridListener implements PersistEventListener<UserModel>, BatchPersistListener {
-
-    @Override
-    public void onPostPersist(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
-    }
 
     @Override
     public void postProcessing(BatchExecution execution, boolean implicitExecution, @Nullable Throwable exception) {

@@ -532,22 +532,22 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public void persist(Iterable<?> entities) throws DataAccessException {
-    persist(entities, null, autoGenerateId);
+  public int persist(Iterable<?> entities) throws DataAccessException {
+    return persist(entities, null, autoGenerateId);
   }
 
   @Override
-  public void persist(Iterable<?> entities, boolean autoGenerateId) throws DataAccessException {
-    persist(entities, null, autoGenerateId);
+  public int persist(Iterable<?> entities, boolean autoGenerateId) throws DataAccessException {
+    return persist(entities, null, autoGenerateId);
   }
 
   @Override
-  public void persist(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy) throws DataAccessException {
-    persist(entities, strategy, autoGenerateId);
+  public int persist(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy) throws DataAccessException {
+    return persist(entities, strategy, autoGenerateId);
   }
 
   @Override
-  public void persist(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean autoGenerateId)
+  public int persist(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean autoGenerateId)
           throws DataAccessException //
   {
     try (var transaction = repositoryManager.beginTransaction(transactionConfig)) {
@@ -572,10 +572,12 @@ public class DefaultEntityManager implements EntityManager {
           batch.addBatchUpdate(entity, maxBatchRecords);
         }
 
+        int updateCount = 0;
         for (PreparedBatch preparedBatch : statements.values()) {
-          preparedBatch.explicitExecuteBatch();
+          updateCount += preparedBatch.explicitExecuteBatch();
         }
         transaction.commit(false);
+        return updateCount;
       }
       catch (Throwable ex) {
         transaction.rollback(false);
@@ -1584,6 +1586,8 @@ public class DefaultEntityManager implements EntityManager {
 
     public int currentBatchRecords = 0;
 
+    private int affectedRows = 0;
+
     PreparedBatch(Connection connection, String sql, PropertyUpdateStrategy strategy,
             EntityMetadata entityMetadata, ArrayList<EntityProperty> properties, boolean autoGenerateId) throws SQLException {
       super(sql, strategy, entityMetadata, autoGenerateId);
@@ -1601,9 +1605,10 @@ public class DefaultEntityManager implements EntityManager {
       }
     }
 
-    public void explicitExecuteBatch() throws Throwable {
+    public int explicitExecuteBatch() throws Throwable {
       executeBatch(stmt, false);
       closeResource(null, stmt);
+      return affectedRows;
     }
 
     private void executeBatch(PreparedStatement statement, boolean implicitExecution) throws Throwable {
@@ -1613,8 +1618,9 @@ public class DefaultEntityManager implements EntityManager {
       }
       Throwable exception = null;
       try {
+        int batchSize = entities.size();
         int[] updateCounts = statement.executeBatch();
-        assertUpdateCount(this.statement, updateCounts.length, entities.size());
+        assertUpdateCount(this.statement, updateCounts.length, batchSize);
 
         if (autoGenerateId) {
           EntityProperty idProperty = entityMetadata.getIdProperty();
@@ -1635,6 +1641,7 @@ public class DefaultEntityManager implements EntityManager {
         for (Object entity : entities) {
           eventMulticaster.onPostPersist(entity, entityMetadata, strategy);
         }
+        this.affectedRows += batchSize;
       }
       catch (Throwable e) {
         exception = e;
@@ -1645,6 +1652,11 @@ public class DefaultEntityManager implements EntityManager {
         this.currentBatchRecords = 0;
         this.entities.clear();
       }
+    }
+
+    @Override
+    public int getAffectedRows() {
+      return affectedRows;
     }
 
   }

@@ -216,10 +216,11 @@ public interface EntityManager {
    * @param entities an {@link Iterable} of entities to be persisted. Each entity
    * must not be null and should conform to the data model structure
    * expected by the data store.
+   * @return the total number of rows affected by the persistence operation
    * @throws DataAccessException if there is an issue while interacting with the
    * underlying data store during the persist operation.
    */
-  void persist(Iterable<?> entities) throws DataAccessException;
+  int persist(Iterable<?> entities) throws DataAccessException;
 
   /**
    * Persists the given entities to the underlying data store.
@@ -249,10 +250,11 @@ public interface EntityManager {
    * must not be null
    * @param autoGenerateId a boolean flag indicating whether IDs should be
    * auto-generated for entities that do not have them
+   * @return the total number of rows affected by the persistence operation
    * @throws DataAccessException if an error occurs while accessing or writing
    * to the data store
    */
-  void persist(Iterable<?> entities, boolean autoGenerateId)
+  int persist(Iterable<?> entities, boolean autoGenerateId)
           throws DataAccessException;
 
   /**
@@ -283,10 +285,11 @@ public interface EntityManager {
    * @param strategy the strategy to use for updating properties of existing entities
    * in the data store. If null, a default strategy defined by the
    * implementation will be used.
+   * @return the total number of rows affected by the persistence operation
    * @throws DataAccessException if there is any issue accessing the data store during
    * the persistence operation.
    */
-  void persist(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy)
+  int persist(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy)
           throws DataAccessException;
 
   /**
@@ -320,9 +323,10 @@ public interface EntityManager {
    * @param entities the collection of entities to be persisted; must not be null
    * @param strategy the strategy to use for property updates; can be null to use the default
    * @param autoGenerateId whether to automatically generate IDs for entities without one
+   * @return the total number of rows affected by the persistence operation
    * @throws DataAccessException if an error occurs while accessing the data store
    */
-  void persist(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean autoGenerateId)
+  int persist(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean autoGenerateId)
           throws DataAccessException;
 
   /**
@@ -343,10 +347,11 @@ public interface EntityManager {
    * }</pre>
    *
    * @param entities the stream of entities to be persisted; must not be null
+   * @return the total number of rows affected by the persistence operation
    * @throws DataAccessException if there is an issue during the persistence process
    */
-  default void persist(Stream<?> entities) throws DataAccessException {
-    persist(new StreamIterable<>(entities));
+  default int persist(Stream<?> entities) throws DataAccessException {
+    return persist(new StreamIterable<>(entities));
   }
 
   /**
@@ -371,11 +376,12 @@ public interface EntityManager {
    * @param entities a stream of entities to be persisted; must not be null
    * @param autoGenerateId a flag indicating whether to automatically generate IDs for entities
    * without identifiers; if true, ID generation is enabled
+   * @return the total number of rows affected by the persistence operation
    * @throws DataAccessException if an error occurs during the persistence process, such as
    * database connectivity issues or constraint violations
    */
-  default void persist(Stream<?> entities, boolean autoGenerateId) throws DataAccessException {
-    persist(new StreamIterable<>(entities), autoGenerateId);
+  default int persist(Stream<?> entities, boolean autoGenerateId) throws DataAccessException {
+    return persist(new StreamIterable<>(entities), autoGenerateId);
   }
 
   /**
@@ -403,10 +409,11 @@ public interface EntityManager {
    * @param entities a stream of entities to be persisted; must not be null
    * @param strategy the strategy to use for property updates during persistence;
    * can be null, in which case a default strategy will be applied
+   * @return the total number of rows affected by the persistence operation
    * @throws DataAccessException if an error occurs during the persistence process
    */
-  default void persist(Stream<?> entities, @Nullable PropertyUpdateStrategy strategy) throws DataAccessException {
-    persist(new StreamIterable<>(entities), strategy);
+  default int persist(Stream<?> entities, @Nullable PropertyUpdateStrategy strategy) throws DataAccessException {
+    return persist(new StreamIterable<>(entities), strategy);
   }
 
   /**
@@ -430,10 +437,11 @@ public interface EntityManager {
    * can be null if no specific strategy is required
    * @param autoGenerateId indicates whether IDs should be automatically generated for
    * entities that do not already have one
+   * @return the total number of rows affected by the persistence operation
    * @throws DataAccessException if an error occurs during the persistence process
    */
-  default void persist(Stream<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean autoGenerateId) throws DataAccessException {
-    persist(new StreamIterable<>(entities), strategy, autoGenerateId);
+  default int persist(Stream<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean autoGenerateId) throws DataAccessException {
+    return persist(new StreamIterable<>(entities), strategy, autoGenerateId);
   }
 
   /**

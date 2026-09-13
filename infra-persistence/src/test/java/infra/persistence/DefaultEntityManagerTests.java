@@ -152,6 +152,63 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
   }
 
   @ParameterizedRepositoryManagerTest
+  void addQueryStatementFactoryRejectsNull(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    assertThatThrownBy(() -> entityManager.addQueryStatementFactory(null))
+            .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void setQueryStatementFactoriesToNullClearsRegistrations(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    QueryStatementFactory factory = mock(QueryStatementFactory.class);
+    entityManager.addQueryStatementFactory(factory);
+    entityManager.setQueryStatementFactories(null);
+
+    QueryStatementFactories handlerFactories = ReflectionTestUtils.getField(entityManager, "handlerFactories");
+    assertThat(handlerFactories).isNotNull();
+    assertThat(handlerFactories.factories).doesNotContain(factory);
+    assertThat(handlerFactories.factories).last().isInstanceOf(DefaultQueryStatementFactory.class);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void keepsRegisteredFactoriesWhenMetadataFactoryReplaced(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    QueryStatementFactory factory = mock(QueryStatementFactory.class);
+    entityManager.addQueryStatementFactory(factory);
+    entityManager.setEntityMetadataFactory(new DefaultEntityMetadataFactory());
+
+    QueryStatementFactories handlerFactories = ReflectionTestUtils.getField(entityManager, "handlerFactories");
+    assertThat(handlerFactories).isNotNull();
+    assertThat(handlerFactories.factories).startsWith(factory);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void registeredQueryStatementFactoryTakesEffect(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    QueryStatementFactory registered = mock(QueryStatementFactory.class);
+    when(registered.createQuery(any())).thenReturn(null);
+    when(registered.createCondition(any())).thenReturn(null);
+    entityManager.addQueryStatementFactory(registered);
+
+    UserModel example = new UserModel();
+    example.age = 99;
+
+    QueryStatementFactories handlerFactories = ReflectionTestUtils.getField(entityManager, "handlerFactories");
+
+    // The registered factory must be consulted first for both entry points.
+    handlerFactories.createQuery(example);
+    handlerFactories.createCondition(example);
+
+    verify(registered).createQuery(example);
+    verify(registered).createCondition(example);
+  }
+
+  @ParameterizedRepositoryManagerTest
   void persist(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
 
@@ -207,6 +264,26 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
       assertThat(userModelInDB.gender).isEqualTo(userModel.gender);
     }
 
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void batchPersistReturnsAffectedRowCount(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    // force several implicit batch executions plus a final explicit one
+    entityManager.setMaxBatchRecords(3);
+
+    List<UserModel> entities = new ArrayList<>();
+    for (int i = 0; i < 10; i++) {
+      entities.add(UserModel.male("TODAY", 10 + i));
+    }
+
+    int rows = entityManager.persist(entities);
+    assertThat(rows).isEqualTo(10);
+
+    try (NamedQuery query = repositoryManager.createNamedQuery("SELECT * from t_user")) {
+      query.setAutoDerivingColumns(true);
+      assertThat(query.fetch(UserModel.class)).hasSize(10);
+    }
   }
 
   @ParameterizedRepositoryManagerTest

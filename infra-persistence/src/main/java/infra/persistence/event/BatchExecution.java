@@ -49,7 +49,7 @@ import infra.persistence.PropertyUpdateStrategy;
  * @see PropertyUpdateStrategy
  * @since 4.0 2024/2/20 23:25
  */
-public class BatchExecution {
+public abstract class BatchExecution {
 
   public final String statement;
 
@@ -68,5 +68,17 @@ public class BatchExecution {
     this.entityMetadata = entityMetadata;
     this.autoGenerateId = autoGenerateId;
   }
+
+  /**
+   * Return the total number of rows affected by this batch execution so far.
+   *
+   * <p>The count accumulates across every execution of the same batch, whether
+   * triggered implicitly when the configured batch size is reached or explicitly
+   * when the pending batch is flushed. It is available to
+   * {@link BatchPersistListener} callbacks.
+   *
+   * @return the total number of rows affected by the batch execution
+   */
+  public abstract int getAffectedRows();
 
 }
