@@ -128,14 +128,14 @@ public final class LoggingPreparedStatement implements InvocationHandler {
     return String.join(", ", labels);
   }
 
-  private static String rowValues(ResultSet resultSet) throws Exception {
+  private String rowValues(ResultSet resultSet) throws Exception {
     ResultSetMetaData metaData = resultSet.getMetaData();
     int count = metaData.getColumnCount();
     Object[] values = new Object[count];
     for (int i = 1; i <= count; i++) {
       values[i - 1] = resultSet.getObject(i);
     }
-    return SqlStatementLogger.formatParameters(values);
+    return logger.formatParameters(values);
   }
 
   private static boolean isExecution(String name) {

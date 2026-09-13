@@ -76,13 +76,22 @@ public class SqlStatementLogger {
 
   public static final String DEFAULT_LOG_PREFIX = "today-infrastructure";
 
+  /**
+   * Default maximum number of characters logged for a {@code CharSequence} parameter
+   * value.
+   *
+   * @since 5.0
+   */
+  public static final int DEFAULT_STRING_PREVIEW_LENGTH = 10;
+
   public static final SqlStatementLogger sharedInstance = new SqlStatementLogger(
           InfraStrategies.getFlag("sql.logToStdout", false),
           InfraStrategies.getFlag("sql.format", true),
           InfraStrategies.getFlag("sql.highlight", true),
           InfraStrategies.getFlag("sql.stdoutOnly", false),
           InfraStrategies.getLong("sql.logSlowQuery", 0),
-          InfraStrategies.getProperty("sql.stdoutOnlyPrefix", DEFAULT_LOG_PREFIX)
+          InfraStrategies.getProperty("sql.stdoutOnlyPrefix", DEFAULT_LOG_PREFIX),
+          InfraStrategies.getInt("sql.stringPreviewLength", DEFAULT_STRING_PREVIEW_LENGTH)
   );
 
   private final boolean format;
@@ -104,6 +113,14 @@ public class SqlStatementLogger {
   private final String stdoutOnlyPrefix;
 
   /**
+   * Maximum number of characters logged for a {@code CharSequence} parameter value; a
+   * non-positive value disables truncation.
+   *
+   * @since 5.0
+   */
+  private final int stringPreviewLength;
+
+  /**
    * Constructs a new SqlStatementLogger instance.
    *
    * @param logToStdout Should we log to STDOUT in addition to our internal logger.
@@ -112,7 +129,7 @@ public class SqlStatementLogger {
    * @param logSlowQuery Should we logs query which executed slower than specified milliseconds. 0 - disabled.
    */
   public SqlStatementLogger(boolean logToStdout, boolean format, boolean highlight, long logSlowQuery) {
-    this(logToStdout, format, highlight, false, logSlowQuery, DEFAULT_LOG_PREFIX);
+    this(logToStdout, format, highlight, false, logSlowQuery, DEFAULT_LOG_PREFIX, DEFAULT_STRING_PREVIEW_LENGTH);
   }
 
   /**
@@ -127,12 +144,31 @@ public class SqlStatementLogger {
    */
   public SqlStatementLogger(boolean logToStdout, boolean format,
           boolean highlight, boolean stdoutOnly, long logSlowQuery, @Nullable String stdoutOnlyPrefix) {
+    this(logToStdout, format, highlight, stdoutOnly, logSlowQuery, stdoutOnlyPrefix, DEFAULT_STRING_PREVIEW_LENGTH);
+  }
+
+  /**
+   * Constructs a new SqlStatementLogger instance.
+   *
+   * @param logToStdout Should we log to STDOUT in addition to our internal logger
+   * @param format Should we format the statements in the console and log
+   * @param highlight Should we highlight the statements in the console
+   * @param stdoutOnly just log to std out
+   * @param logSlowQuery Should we logs query which executed slower than specified milliseconds, 0 - disabled
+   * @param stdoutOnlyPrefix stdout-only log prefix
+   * @param stringPreviewLength maximum number of characters logged for a
+   * {@code CharSequence} parameter value; a non-positive value disables truncation
+   * @since 5.0
+   */
+  public SqlStatementLogger(boolean logToStdout, boolean format, boolean highlight, boolean stdoutOnly,
+          long logSlowQuery, @Nullable String stdoutOnlyPrefix, int stringPreviewLength) {
     this.logToStdout = logToStdout;
     this.format = format;
     this.highlight = highlight;
     this.stdoutOnly = stdoutOnly;
     this.logSlowQuery = logSlowQuery;
     this.stdoutOnlyPrefix = Objects.requireNonNullElse(stdoutOnlyPrefix, DEFAULT_LOG_PREFIX);
+    this.stringPreviewLength = stringPreviewLength;
   }
 
   /**
@@ -269,7 +305,7 @@ public class SqlStatementLogger {
    * @param parameters the parameter values in bind order
    * @return the formatted representation, never {@code null}
    */
-  static String formatParameters(@Nullable Object[] parameters) {
+  String formatParameters(@Nullable Object[] parameters) {
     StringBuilder sb = new StringBuilder(parameters.length * 12 + 2);
     sb.append('[');
     for (int i = 0; i < parameters.length; i++) {
@@ -281,7 +317,7 @@ public class SqlStatementLogger {
     return sb.append(']').toString();
   }
 
-  private static String formatParameter(@Nullable Object value) {
+  private String formatParameter(@Nullable Object value) {
     if (value == null) {
       return "null";
     }
@@ -289,8 +325,8 @@ public class SqlStatementLogger {
       return "byte[" + bytes.length + "]";
     }
     Object text = value;
-    if (value instanceof CharSequence cs) {
-      text = StringUtils.truncate(cs, 10);
+    if (value instanceof CharSequence cs && stringPreviewLength > 0) {
+      text = StringUtils.truncate(cs, stringPreviewLength);
     }
     return text + "(" + value.getClass().getSimpleName() + ")";
   }

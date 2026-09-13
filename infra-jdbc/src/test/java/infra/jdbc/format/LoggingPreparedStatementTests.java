@@ -135,8 +135,24 @@ class LoggingPreparedStatementTests {
 
   @Test
   void formatsParameterValuesWithType() {
-    assertThat(SqlStatementLogger.formatParameters(new Object[] { 10, "TODAY", null }))
+    assertThat(logger().formatParameters(new Object[] { 10, "TODAY", null }))
             .isEqualTo("[10(Integer), TODAY(String), null]");
+  }
+
+  @Test
+  void truncatesCharSequenceByConfiguredLength() {
+    SqlStatementLogger logger = new SqlStatementLogger(false, false, false, false, 0, null, 3);
+    assertThat(logger.formatParameters(new Object[] { "TODAY" })).isEqualTo("[TOD (truncated)...(String)]");
+  }
+
+  @Test
+  void nonPositiveMaxParameterLengthDisablesTruncation() {
+    SqlStatementLogger logger = new SqlStatementLogger(false, false, false, false, 0, null, 0);
+    assertThat(logger.formatParameters(new Object[] { "TODAY" })).isEqualTo("[TODAY(String)]");
+  }
+
+  private static SqlStatementLogger logger() {
+    return new SqlStatementLogger(false, false, false, 0);
   }
 
   private static SqlStatementLogger capturingLogger(List<Object[]> parameters, List<String> outcomes) {
