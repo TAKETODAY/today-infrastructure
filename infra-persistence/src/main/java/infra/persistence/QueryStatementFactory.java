@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
  * Factory interface for creating query statements based on example objects.
  *
  * <p>This interface provides methods to create both general {@link QueryStatement} and
- * {@link ConditionStatement} instances from example objects. Implementations of this
+ * {@link QueryCondition} instances from example objects. Implementations of this
  * interface are responsible for analyzing the provided example object and generating
  * appropriate query representations.</p>
  *
@@ -42,7 +42,7 @@ import org.jspecify.annotations.Nullable;
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see QueryStatement
- * @see ConditionStatement
+ * @see QueryCondition
  * @since 4.0 2024/4/10 13:54
  */
 public interface QueryStatementFactory {
@@ -62,17 +62,17 @@ public interface QueryStatementFactory {
   QueryStatement createQuery(Object example);
 
   /**
-   * Creates a {@link ConditionStatement} based on the provided example object.
+   * Creates a {@link QueryCondition} based on the provided example object.
    *
    * <p>The example object is analyzed to determine the appropriate conditions
    * for filtering data. The returned condition statement can be used to add
    * WHERE clauses or other filtering criteria to queries.</p>
    *
    * @param example the example object to base the conditions on
-   * @return a ConditionStatement representing the conditions derived from the example,
+   * @return a QueryCondition representing the conditions derived from the example,
    * or null if this factory cannot create conditions for the given example
    */
   @Nullable
-  ConditionStatement createCondition(Object example);
+  QueryCondition createCondition(Object example);
 
 }

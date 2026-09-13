@@ -41,7 +41,7 @@ final class DefaultQueryStatementFactory implements QueryStatementFactory {
   }
 
   @Override
-  public ConditionStatement createCondition(Object example) {
+  public QueryCondition createCondition(Object example) {
     return new ExampleQuery(factory, example, extractors);
   }
 

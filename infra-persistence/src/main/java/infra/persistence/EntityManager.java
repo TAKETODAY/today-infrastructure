@@ -1578,7 +1578,7 @@ public interface EntityManager {
    *
    * <p>Example usage:
    * <pre>{@code
-   * ConditionStatement condition = Condition.eq("status", "active");
+   * QueryCondition condition = Condition.eq("status", "active");
    * long activeUserCount = entityManager.count(User.class, condition).longValue();
    * System.out.println("Active users: " + activeUserCount);
    * }</pre>
@@ -1600,7 +1600,7 @@ public interface EntityManager {
    * underlying implementation
    * @throws DataAccessException if there is any issue accessing the data source
    */
-  <T> Number count(Class<T> entityClass, @Nullable ConditionStatement handler)
+  <T> Number count(Class<T> entityClass, @Nullable QueryCondition handler)
           throws DataAccessException;
 
   /**
@@ -1779,7 +1779,7 @@ public interface EntityManager {
    * <p>
    * Example usage:
    * <pre>{@code
-   *   ConditionStatement condition = query -> query.eq("status", "ACTIVE");
+   *   QueryCondition condition = query -> query.eq("status", "ACTIVE");
    *   Page<User> userPage = entityManager.page(User.class, condition);
    *   userPage.getRows().forEach(user -> {
    *     System.out.println(user.getName());
@@ -1795,7 +1795,7 @@ public interface EntityManager {
    * @return a {@link Page} object containing the paginated results for the specified entity class
    * @throws DataAccessException if there is any issue accessing the underlying data source
    */
-  <T> Page<T> page(Class<T> entityClass, @Nullable ConditionStatement handler)
+  <T> Page<T> page(Class<T> entityClass, @Nullable QueryCondition handler)
           throws DataAccessException;
 
   /**
@@ -1811,7 +1811,7 @@ public interface EntityManager {
    * <p><b>Example Usage:</b></p>
    * <pre>{@code
    *   // Define a condition statement
-   *   ConditionStatement condition = query -> query.eq("status", "ACTIVE");
+   *   QueryCondition condition = query -> query.eq("status", "ACTIVE");
    *
    *   // Create pagination details
    *   Pageable pageable = Pageable.of(1, 10); // Fetch the first 10 records
@@ -1835,7 +1835,7 @@ public interface EntityManager {
    * metadata such as total elements and total pages
    * @throws DataAccessException if there is an issue accessing the underlying data source
    */
-  <T> Page<T> page(Class<T> entityClass, @Nullable ConditionStatement handler, @Nullable Pageable pageable)
+  <T> Page<T> page(Class<T> entityClass, @Nullable QueryCondition handler, @Nullable Pageable pageable)
           throws DataAccessException;
 
   /**

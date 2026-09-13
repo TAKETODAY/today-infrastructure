@@ -36,7 +36,7 @@ import infra.lang.Descriptive;
  * <p>1. A query statement that uses a map of parameters:
  * <pre>{@code
  * static class MapQueryStatement extends SimpleSelectQueryStatement
- *         implements QueryStatement, ConditionStatement, DebugDescriptive {
+ *         implements QueryStatement, QueryCondition, DebugDescriptive {
  *
  *   private final Map<?, ?> map;
  *
@@ -46,11 +46,11 @@ import infra.lang.Descriptive;
  *
  *   @Override
  *   protected void renderInternal(EntityMetadata metadata, SimpleSelect select) {
- *     renderWhereClause(metadata, select.restrictions);
+ *     collectRestrictions(metadata, select.restrictions);
  *   }
  *
  *   @Override
- *   public void renderWhereClause(EntityMetadata metadata, List<Restriction> restrictions) {
+ *   public void collectRestrictions(EntityMetadata metadata, List<Restriction> restrictions) {
  *     for (Map.Entry<?, ?> entry : map.entrySet()) {
  *       restrictions.add(Restriction.equal(entry.getKey().toString()));
  *     }

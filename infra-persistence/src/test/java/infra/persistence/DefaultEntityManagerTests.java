@@ -506,7 +506,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
       }
 
       @Override
-      public ConditionStatement createCondition(Object example) {
+      public QueryCondition createCondition(Object example) {
         return NoConditionsQuery.instance;
       }
     });
@@ -1113,7 +1113,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     }
     createData(entityManager);
 
-    Page<UserModel> page = entityManager.page(UserModel.class, (ConditionStatement) null);
+    Page<UserModel> page = entityManager.page(UserModel.class, (QueryCondition) null);
     assertThat(page.getRows()).isNotEmpty();
   }
 

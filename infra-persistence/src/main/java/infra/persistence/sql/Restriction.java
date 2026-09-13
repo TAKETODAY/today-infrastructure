@@ -599,8 +599,9 @@ public interface Restriction {
   }
 
   /**
-   * Renders a collection of restrictions into the provided SQL buffer, prefixing them with "WHERE" if the collection is not empty.
-   * This is useful for constructing SQL queries with multiple conditions.
+   * Appends a collection of restrictions into the provided SQL buffer, prefixing them
+   * with {@code " WHERE "} when the collection is not empty. This is useful for
+   * constructing SQL queries with multiple conditions.
    *
    * <p><b>Usage Example:</b>
    * <pre>{@code
@@ -609,7 +610,7 @@ public interface Restriction {
    *       Restriction.isNull("email")
    *   );
    *   StringBuilder sqlBuffer = new StringBuilder();
-   *   Restriction.render(restrictions, sqlBuffer);
+   *   Restriction.append(restrictions, sqlBuffer);
    *   // The resulting SQL fragment might look like:
    *   // " WHERE age = 30 AND email IS NULL"
    * }</pre>
@@ -654,8 +655,10 @@ public interface Restriction {
   }
 
   /**
-   * Renders a collection of restrictions into the provided SQL buffer, separating them with "AND".
-   * This is useful for combining multiple conditions into a single SQL fragment.
+   * Appends a collection of restrictions into the provided SQL buffer, separating them
+   * with {@code " AND "} or {@code " OR "} according to each restriction's
+   * {@link Restriction#logicalAnd() logical operator}. This is useful for combining
+   * multiple conditions into a single SQL fragment.
    *
    * <p><b>Usage Example:</b>
    * <pre>{@code
@@ -664,7 +667,7 @@ public interface Restriction {
    *       Restriction.isNull("email")
    *   );
    *   StringBuilder sqlBuffer = new StringBuilder();
-   *   Restriction.renderWhereClause(restrictions, sqlBuffer);
+   *   Restriction.appendWhereClause(restrictions, sqlBuffer);
    *   // The resulting SQL fragment might look like:
    *   // "age = 30 AND email IS NULL"
    * }</pre>

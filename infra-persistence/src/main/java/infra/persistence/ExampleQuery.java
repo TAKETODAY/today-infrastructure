@@ -53,7 +53,7 @@ import infra.util.InfraStrategies;
  * @since 4.0 2024/2/19 19:56
  */
 @SuppressWarnings("rawtypes")
-final class ExampleQuery extends SimpleSelectQueryStatement implements ConditionStatement, DebugDescriptive {
+final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCondition, DebugDescriptive {
 
   static final List<PropertyConditionStrategy> strategies;
 
@@ -93,10 +93,6 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements Condition
     select.orderBy(example instanceof OrderBySource source ? source.orderByClause() : orderByClause);
   }
 
-  public void renderWhereClause(StringBuilder sql) {
-    Restriction.append(scan(null), sql);
-  }
-
   @Override
   public void collectRestrictions(EntityMetadata metadata, List<Restriction> restrictions) {
     restrictions.addAll(scan(null));
@@ -104,7 +100,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements Condition
 
   @Override
   @SuppressWarnings("NullAway")
-  public OrderByClause getOrderByClause(EntityMetadata metadata) {
+  public OrderByClause resolveOrderByClause(EntityMetadata metadata) {
     if (example instanceof OrderBySource source) {
       OrderByClause orderByClause = source.orderByClause();
       if (!orderByClause.isEmpty()) {
@@ -112,7 +108,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements Condition
       }
     }
     if (orderByClause == null) {
-      orderByClause = ConditionStatement.super.getOrderByClause(metadata);
+      orderByClause = QueryCondition.super.resolveOrderByClause(metadata);
     }
     return orderByClause;
   }

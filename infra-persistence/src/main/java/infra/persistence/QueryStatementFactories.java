@@ -27,7 +27,7 @@ import infra.util.InfraStrategies;
 
 /**
  * Registry and aggregator of the {@link QueryStatementFactory factories} used to
- * turn an example object into a {@link QueryStatement} or {@link ConditionStatement}.
+ * turn an example object into a {@link QueryStatement} or {@link QueryCondition}.
  *
  * <p>This is the central place to manage {@link QueryStatementFactory} instances:
  * use {@link #addFactory} to register one, or {@link #setFactories} to replace the
@@ -215,10 +215,10 @@ public final class QueryStatementFactories implements QueryStatementFactory {
   }
 
   @Override
-  public @Nullable ConditionStatement createCondition(Object example) {
+  public @Nullable QueryCondition createCondition(Object example) {
     Assert.notNull(example, "Example object is required");
     for (QueryStatementFactory factory : factories) {
-      ConditionStatement condition = factory.createCondition(example);
+      QueryCondition condition = factory.createCondition(example);
       if (condition != null) {
         return condition;
       }

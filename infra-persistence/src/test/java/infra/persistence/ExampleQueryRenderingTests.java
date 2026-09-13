@@ -104,7 +104,7 @@ class ExampleQueryRenderingTests {
     ExampleQuery query = new ExampleQuery(metadataFactory, example, extractors);
 
     StringBuilder sql = new StringBuilder();
-    query.renderWhereClause(sql);
+    query.appendWhereClause(likeMetadata, sql);
 
     assertThat(sql.toString()).contains("like ?");
   }
@@ -134,7 +134,7 @@ class ExampleQueryRenderingTests {
     String sql = sequence.toStatementString(Platform.generic());
     assertThat(sql).containsIgnoringCase("order by `age` DESC");
 
-    OrderByClause clause = query.getOrderByClause(metadata);
+    OrderByClause clause = query.resolveOrderByClause(metadata);
     assertThat(clause).isNotNull();
     assertThat(clause.isEmpty()).isFalse();
   }

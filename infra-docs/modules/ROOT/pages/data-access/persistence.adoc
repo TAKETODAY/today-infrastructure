@@ -474,8 +474,10 @@ class LoggingBatchListener implements BatchPersistListener {
 `Restriction`（等值、比较、空值、逻辑组合等）、`JoinFragment` / `ANSIJoinFragment`、
 `OrderByClause` / `MutableOrderByClause`、`CaseFragment` 等。
 
-`QueryStatement` / `ConditionStatement` 定义了「渲染 SQL + 绑定参数」的契约：实现 `render` 返回
-`StatementSequence`，`setParameter` 负责把值绑定到 `PreparedStatement`。内置实现有按主键查询、
+`QueryStatement` 定义了「渲染 SQL + 绑定参数」的契约：实现 `render` 返回
+`StatementSequence`，`setParameter` 负责把值绑定到 `PreparedStatement`。`QueryCondition`
+描述查询的条件部分：`collectRestrictions` 收集 WHERE 条件、`appendWhereClause` 将条件渲染到
+缓冲区、`getOrderByClause` 解析排序、`setParameter` 绑定参数。内置实现有按主键查询、
 无条件查询、示例查询与 `Map` 查询等。
 
 `infra.persistence.platform.Platform` 抽象了数据库方言差异，默认实现为 `GenericPlatform`

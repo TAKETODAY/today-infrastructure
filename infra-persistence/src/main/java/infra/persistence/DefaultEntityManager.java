@@ -246,7 +246,7 @@ public class DefaultEntityManager implements EntityManager {
   /**
    * Return the {@link QueryStatementFactories} managing the {@link QueryStatementFactory}
    * instances used to turn an example object into a {@link QueryStatement} or
-   * {@link ConditionStatement}.
+   * {@link QueryCondition}.
    *
    * <p>Use it to register custom factories:
    * <pre>{@code
@@ -916,7 +916,7 @@ public class DefaultEntityManager implements EntityManager {
 
     eventMulticaster.onPreDelete(entityOrExample, id, metadata);
 
-    ConditionStatement conditionStmt = null;
+    QueryCondition conditionStmt = null;
 
     StringBuilder sql = new StringBuilder();
     sql.append("DELETE FROM ");
@@ -1182,7 +1182,7 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <T> Page<T> page(Class<T> entityClass, @Nullable ConditionStatement handler) throws DataAccessException {
+  public <T> Page<T> page(Class<T> entityClass, @Nullable QueryCondition handler) throws DataAccessException {
     return page(entityClass, handler, Pageable.unwrap(handler));
   }
 
@@ -1245,7 +1245,7 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <T> Number count(Class<T> entityClass, @Nullable ConditionStatement handler) throws DataAccessException {
+  public <T> Number count(Class<T> entityClass, @Nullable QueryCondition handler) throws DataAccessException {
     if (handler == null) {
       handler = NoConditionsQuery.instance;
     }
@@ -1262,7 +1262,7 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <T> Page<T> page(Class<T> entityClass, @Nullable ConditionStatement handler, @Nullable Pageable pageable) throws DataAccessException {
+  public <T> Page<T> page(Class<T> entityClass, @Nullable QueryCondition handler, @Nullable Pageable pageable) throws DataAccessException {
     if (handler == null) {
       handler = NoConditionsQuery.instance;
     }
@@ -1288,7 +1288,7 @@ public class DefaultEntityManager implements EntityManager {
       statement = new SimpleSelect(Arrays.asList(metadata.getColumnNames(false)), restrictions)
               .setTableName(metadata.getTableName())
               .pageable(pageable)
-              .orderBy(handler.getOrderByClause(metadata))
+              .orderBy(handler.resolveOrderByClause(metadata))
               .toStatementString(platform);
 
       stmt = prepareStatement(con, statement, false);
@@ -1313,7 +1313,7 @@ public class DefaultEntityManager implements EntityManager {
     }
   }
 
-  private Number doQueryCount(EntityMetadata metadata, ConditionStatement handler, List<Restriction> restrictions, Connection con) throws DataAccessException {
+  private Number doQueryCount(EntityMetadata metadata, QueryCondition handler, List<Restriction> restrictions, Connection con) throws DataAccessException {
     StringBuilder countSql = new StringBuilder(restrictions.size() * 10 + 25 + metadata.getTableName().length());
     platform.selectCountFrom(countSql, metadata.getTableName());
 

@@ -31,7 +31,7 @@ import infra.persistence.sql.Select;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/20 17:03
  */
-final class NoConditionsQuery extends ColumnsQueryStatement implements ConditionStatement, DebugDescriptive {
+final class NoConditionsQuery extends ColumnsQueryStatement implements QueryCondition, DebugDescriptive {
 
   static final NoConditionsQuery instance = new NoConditionsQuery();
 

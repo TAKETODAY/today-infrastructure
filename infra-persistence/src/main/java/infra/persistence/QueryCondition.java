@@ -33,33 +33,35 @@ import infra.persistence.sql.Restriction;
  * Builds the conditional (WHERE / ORDER BY) part of a dynamic SQL statement and
  * binds its parameters.
  *
- * <p>A {@code ConditionStatement} offloads two cooperating pieces of work to its
- * implementations, which callers must use consistently:
+ * <p>A {@code QueryCondition} describes the conditional part of a query through
+ * three cooperating operations, which callers must use consistently:
  * <ul>
  *   <li>{@link #collectRestrictions(EntityMetadata, List)} collects the
- *       {@link Restriction restrictions} that describe the WHERE clause</li>
- *   <li>{@link #setParameter(EntityMetadata, PreparedStatement)} binds their values
- *       in the same order the restrictions were rendered</li>
+ *       {@link Restriction restrictions} that make up the WHERE clause</li>
+ *   <li>{@link #resolveOrderByClause(EntityMetadata)} resolves the ORDER BY clause</li>
+ *   <li>{@link #setParameter(EntityMetadata, PreparedStatement)} binds the values of
+ *       the collected restrictions, in the same order</li>
  * </ul>
  *
- * <p>Rendering to SQL is deliberately kept out of the core contract. The convenience
- * {@link #appendWhereClause(EntityMetadata, StringBuilder)} appends {@code " WHERE "}
- * followed by the rendered restrictions when there is at least one, and
- * {@link #collectRestrictions(EntityMetadata)} returns the collected list as-is.
+ * <p>Collecting restrictions is the core contract; rendering them to SQL is a
+ * convenience layered on top. {@link #appendWhereClause(EntityMetadata, StringBuilder)}
+ * appends {@code " WHERE "} followed by the rendered restrictions when there is at
+ * least one, while {@link #collectRestrictions(EntityMetadata)} returns the collected
+ * list as-is.
  *
  * <p>Instances are typically created by a {@link QueryStatementFactory} (see
  * {@link QueryStatementFactories#createCondition}) and consumed by
  * {@link DefaultEntityManager} for {@code count}, {@code page} and {@code delete}
  * operations. Implementations should therefore be stateless, or at least safe for a
- * single render-then-bind cycle under concurrent use.
+ * single collect-then-bind cycle under concurrent use.
  *
  * <p>Example:
  * <pre>{@code
- * ConditionStatement condition = queryStatementFactory
+ * QueryCondition condition = queryStatementFactory
  *         .createCondition(example);
  *
  * StringBuilder sql = new StringBuilder("SELECT * FROM t_user");
- * condition.renderWhereClause(metadata, sql);
+ * condition.appendWhereClause(metadata, sql);
  *
  * try (PreparedStatement statement = connection.prepareStatement(sql.toString())) {
  *   condition.setParameter(metadata, statement);
@@ -74,10 +76,10 @@ import infra.persistence.sql.Restriction;
  * @see OrderByClause
  * @since 4.0 2024/3/31 15:51
  */
-public interface ConditionStatement {
+public interface QueryCondition {
 
   /**
-   * Render the WHERE clause for the given entity into the supplied buffer, prefixed
+   * Append the WHERE clause for the given entity to the supplied buffer, prefixed
    * with {@code " WHERE "} when at least one restriction applies.
    *
    * <p>This is a convenience combining {@link #collectRestrictions(EntityMetadata, List)}
@@ -128,7 +130,7 @@ public interface ConditionStatement {
    * declares no ordering
    * @see OrderBy
    */
-  default @Nullable OrderByClause getOrderByClause(EntityMetadata metadata) {
+  default @Nullable OrderByClause resolveOrderByClause(EntityMetadata metadata) {
     MergedAnnotation<OrderBy> orderBy = metadata.getAnnotation(OrderBy.class);
     if (orderBy.isPresent()) {
       String clause = orderBy.getStringValue();
@@ -140,12 +142,12 @@ public interface ConditionStatement {
   }
 
   /**
-   * Bind the values backing the rendered restrictions to the given statement.
+   * Bind the values of the restrictions collected by
+   * {@link #collectRestrictions(EntityMetadata, List)} to the given statement.
    *
    * <p>Parameter indexes start at {@code 1} and must follow the same order in which
-   * the restrictions were rendered by
-   * {@link #collectRestrictions(EntityMetadata, List)}. Each implementation is expected
-   * to consume exactly the placeholders it produced.
+   * the restrictions were collected. Each implementation is expected to consume
+   * exactly the placeholders it produced.
    *
    * @param metadata the metadata of the entity being queried
    * @param statement the statement to bind parameters to

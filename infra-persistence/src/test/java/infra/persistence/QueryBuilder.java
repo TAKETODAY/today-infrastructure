@@ -29,7 +29,7 @@ import infra.util.CollectionUtils;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/6/17 15:42
  */
-public class QueryBuilder extends ColumnsQueryStatement implements ConditionStatement {
+public class QueryBuilder extends ColumnsQueryStatement implements QueryCondition {
 
   private final List<Restriction> restrictions = new ArrayList<>();
 

@@ -103,10 +103,10 @@ class NoConditionsQueryTests {
   }
 
   @Test
-  void shouldImplementConditionStatement() {
+  void shouldImplementQueryCondition() {
     NoConditionsQuery noConditionsQuery = NoConditionsQuery.instance;
 
-    assertThat(noConditionsQuery).isInstanceOf(ConditionStatement.class);
+    assertThat(noConditionsQuery).isInstanceOf(QueryCondition.class);
   }
 
   @Test

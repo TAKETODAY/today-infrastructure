@@ -49,7 +49,7 @@ class WhereAnnotationTests {
 
     ExampleQuery exampleQuery = new ExampleQuery(metadataFactory, query, List.of());
     StringBuilder sqlBuffer = new StringBuilder();
-    exampleQuery.renderWhereClause(sqlBuffer);
+    exampleQuery.appendWhereClause(userModelMetadata, sqlBuffer);
 
     String statementString = exampleQuery.render(userModelMetadata)
             .toStatementString(new GenericPlatform());

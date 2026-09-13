@@ -41,7 +41,7 @@ final class MapQueryStatementFactory implements QueryStatementFactory {
   }
 
   @Override
-  public @Nullable ConditionStatement createCondition(Object example) {
+  public @Nullable QueryCondition createCondition(Object example) {
     if (example instanceof Map<?, ?> map) {
       return new MapQueryStatement(map);
     }
@@ -49,7 +49,7 @@ final class MapQueryStatementFactory implements QueryStatementFactory {
   }
 
   static class MapQueryStatement extends SimpleSelectQueryStatement
-          implements QueryStatement, ConditionStatement, DebugDescriptive {
+          implements QueryStatement, QueryCondition, DebugDescriptive {
 
     private final Map<?, ?> map;
 

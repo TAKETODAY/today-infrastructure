@@ -66,7 +66,7 @@ class QueryStatementFactoriesTests {
     QueryStatementFactories factories = new QueryStatementFactories(entityMetadataFactory, extractors);
 
     Object example = new Object();
-    ConditionStatement condition = factories.createCondition(example);
+    QueryCondition condition = factories.createCondition(example);
 
     assertThat(condition).isNotNull();
   }
@@ -167,7 +167,7 @@ class QueryStatementFactoriesTests {
   void shouldReturnFirstNonNullConditionFromFactories() {
     QueryStatementFactory factory1 = mock(QueryStatementFactory.class);
     QueryStatementFactory factory2 = mock(QueryStatementFactory.class);
-    ConditionStatement condition2 = mock(ConditionStatement.class);
+    QueryCondition condition2 = mock(QueryCondition.class);
 
     when(factory1.createCondition(any())).thenReturn(null);
     when(factory2.createCondition(any())).thenReturn(condition2);
@@ -175,7 +175,7 @@ class QueryStatementFactoriesTests {
     QueryStatementFactories factories = new QueryStatementFactories(List.of(factory1, factory2, new MapQueryStatementFactory()));
 
     Object example = new Object();
-    ConditionStatement result = factories.createCondition(example);
+    QueryCondition result = factories.createCondition(example);
 
     assertThat(result).isEqualTo(condition2);
   }
@@ -209,7 +209,7 @@ class QueryStatementFactoriesTests {
     QueryStatementFactories factories = new QueryStatementFactories(List.of(factory1, factory2));
 
     Object example = new Object();
-    ConditionStatement result = factories.createCondition(example);
+    QueryCondition result = factories.createCondition(example);
 
     assertThat(result).isNull();
   }
@@ -249,7 +249,7 @@ class QueryStatementFactoriesTests {
   @Test
   void shouldUseRegisteredFactoryForConditionBeforeBuiltInOnes() {
     QueryStatementFactory registered = mock(QueryStatementFactory.class);
-    ConditionStatement registeredCondition = mock(ConditionStatement.class);
+    QueryCondition registeredCondition = mock(QueryCondition.class);
     when(registered.createCondition(any())).thenReturn(registeredCondition);
 
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);

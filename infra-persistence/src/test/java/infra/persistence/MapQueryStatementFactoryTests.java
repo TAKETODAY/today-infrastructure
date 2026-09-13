@@ -39,7 +39,7 @@ class MapQueryStatementFactoryTests {
   @Test
   void createCondition() {
     MapQueryStatementFactory factory = new MapQueryStatementFactory();
-    ConditionStatement condition = factory.createCondition(Map.of("name", "TODAY"));
+    QueryCondition condition = factory.createCondition(Map.of("name", "TODAY"));
     assertThat(condition).isNotNull();
 
     ArrayList<Restriction> restrictions = new ArrayList<>();

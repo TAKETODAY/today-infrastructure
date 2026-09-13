@@ -41,14 +41,14 @@ import static org.mockito.Mockito.when;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/11/8 20:04
  */
-class ConditionStatementTests {
+class QueryConditionTests {
 
   @Test
   void shouldRenderWhereClauseWithRestrictions() {
     EntityMetadata mockMetadata = mock(EntityMetadata.class);
     List<Restriction> restrictions = new ArrayList<>();
 
-    ConditionStatement conditionStatement = new TestConditionStatement();
+    QueryCondition conditionStatement = new TestQueryCondition();
     conditionStatement.collectRestrictions(mockMetadata, restrictions);
 
     // Verify that the method can be called without exceptions
@@ -60,8 +60,8 @@ class ConditionStatementTests {
     EntityMetadata mockMetadata = mock(EntityMetadata.class);
     when(mockMetadata.getAnnotation(OrderBy.class)).thenReturn(MergedAnnotation.missing());
 
-    ConditionStatement conditionStatement = new TestConditionStatement();
-    OrderByClause orderByClause = conditionStatement.getOrderByClause(mockMetadata);
+    QueryCondition conditionStatement = new TestQueryCondition();
+    OrderByClause orderByClause = conditionStatement.resolveOrderByClause(mockMetadata);
 
     assertThat(orderByClause).isNull();
   }
@@ -74,8 +74,8 @@ class ConditionStatementTests {
     when(mockAnnotation.getStringValue()).thenReturn(Constant.DEFAULT_NONE);
     when(mockMetadata.getAnnotation(OrderBy.class)).thenReturn(mockAnnotation);
 
-    ConditionStatement conditionStatement = new TestConditionStatement();
-    OrderByClause orderByClause = conditionStatement.getOrderByClause(mockMetadata);
+    QueryCondition conditionStatement = new TestQueryCondition();
+    OrderByClause orderByClause = conditionStatement.resolveOrderByClause(mockMetadata);
 
     assertThat(orderByClause).isNull();
   }
@@ -88,8 +88,8 @@ class ConditionStatementTests {
     when(mockAnnotation.getStringValue()).thenReturn("name ASC");
     when(mockMetadata.getAnnotation(OrderBy.class)).thenReturn(mockAnnotation);
 
-    ConditionStatement conditionStatement = new TestConditionStatement();
-    OrderByClause orderByClause = conditionStatement.getOrderByClause(mockMetadata);
+    QueryCondition conditionStatement = new TestQueryCondition();
+    OrderByClause orderByClause = conditionStatement.resolveOrderByClause(mockMetadata);
 
     assertThat(orderByClause).isNotNull();
     assertThat(orderByClause.toClause()).isEqualTo("name ASC");
@@ -101,14 +101,14 @@ class ConditionStatementTests {
     PreparedStatement mockStatement = mock(PreparedStatement.class);
     doThrow(new SQLException("Test exception")).when(mockStatement).setObject(anyInt(), any());
 
-    ConditionStatement conditionStatement = new TestConditionStatement();
+    QueryCondition conditionStatement = new TestQueryCondition();
 
     assertThatThrownBy(() -> conditionStatement.setParameter(mockMetadata, mockStatement))
             .isInstanceOf(SQLException.class)
             .hasMessage("Test exception");
   }
 
-  private static class TestConditionStatement implements ConditionStatement {
+  private static class TestQueryCondition implements QueryCondition {
     @Override
     public void collectRestrictions(EntityMetadata metadata, List<Restriction> restrictions) {
       // No-op implementation for testing
