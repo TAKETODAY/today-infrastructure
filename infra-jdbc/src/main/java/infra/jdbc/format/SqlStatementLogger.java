@@ -257,7 +257,7 @@ public class SqlStatementLogger {
    * @param parameters the parameter values in bind order; may be {@code null} or
    * empty to log nothing
    */
-  void logParameters(@Nullable Object @Nullable [] parameters) {
+  protected void logParameters(@Nullable Object @Nullable [] parameters) {
     if (parameters == null || parameters.length == 0) {
       return;
     }
@@ -278,7 +278,7 @@ public class SqlStatementLogger {
    * @param action the outcome label, e.g. {@code Updates} or {@code Total}
    * @param count the affected row count
    */
-  void logResult(String action, int count) {
+  protected void logResult(String action, int count) {
     logOutcome("<== " + action + ": " + count);
   }
 
@@ -288,7 +288,7 @@ public class SqlStatementLogger {
    *
    * @param text the fully formatted line to log
    */
-  void logOutcome(String text) {
+  protected void logOutcome(String text) {
     if (!stdoutOnly) {
       sqlLogger.debug(text);
     }
