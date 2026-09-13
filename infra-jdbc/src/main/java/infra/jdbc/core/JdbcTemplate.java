@@ -50,13 +50,14 @@ import infra.jdbc.core.simple.JdbcClient;
 import infra.jdbc.datasource.ConnectionProxy;
 import infra.jdbc.datasource.DataSourceUtils;
 import infra.jdbc.datasource.WrappedConnection;
+import infra.jdbc.format.LoggingPreparedStatement;
 import infra.jdbc.support.JdbcAccessor;
 import infra.jdbc.support.JdbcUtils;
 import infra.jdbc.support.KeyHolder;
 import infra.jdbc.support.SQLExceptionTranslator;
 import infra.jdbc.support.rowset.SqlRowSet;
-import infra.util.Assert;
 import infra.logging.LogMessage;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.LinkedCaseInsensitiveMap;
 
@@ -691,7 +692,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
     Connection con = DataSourceUtils.getConnection(obtainDataSource());
     PreparedStatement ps = null;
     try {
-      ps = psc.createPreparedStatement(con);
+      ps = LoggingPreparedStatement.wrap(psc.createPreparedStatement(con), stmtLogger);
       applyStatementSettings(ps);
       T result = action.doInPreparedStatement(ps);
       handleWarnings(ps);

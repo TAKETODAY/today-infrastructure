@@ -972,11 +972,11 @@ public class DefaultEntityManager implements EntityManager {
       stmtLogger.logStatement(LogMessage.format("Truncate table: [{}]", entityClass), sql);
     }
 
-    Statement statement = null;
+    PreparedStatement statement = null;
     Connection con = DataSourceUtils.getConnection(dataSource);
     try {
-      statement = con.createStatement();
-      statement.executeUpdate(sql);
+      statement = prepareStatement(con, sql, false);
+      statement.executeUpdate();
       eventMulticaster.onPostTruncate(entityClass, metadata);
     }
     catch (SQLException ex) {
