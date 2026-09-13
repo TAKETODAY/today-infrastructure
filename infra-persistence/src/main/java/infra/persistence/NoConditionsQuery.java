@@ -56,7 +56,7 @@ final class NoConditionsQuery extends ColumnsQueryStatement implements Condition
   }
 
   @Override
-  public void renderWhereClause(EntityMetadata metadata, List<Restriction> restrictions) {
+  public void collectRestrictions(EntityMetadata metadata, List<Restriction> restrictions) {
     // noop
   }
 

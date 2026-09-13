@@ -61,7 +61,7 @@ class WhereAnnotationTests {
     assertThat(sqlBuffer.toString()).isEqualTo(" WHERE status > ? AND `status2` = ? OR `status3` <= ?");
 
     ArrayList<Restriction> restrictions = new ArrayList<>();
-    exampleQuery.renderWhereClause(userModelMetadata, restrictions);
+    exampleQuery.collectRestrictions(userModelMetadata, restrictions);
     assertThat(restrictions).hasSize(3);
 
   }

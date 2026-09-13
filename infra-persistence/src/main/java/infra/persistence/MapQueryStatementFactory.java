@@ -59,11 +59,11 @@ final class MapQueryStatementFactory implements QueryStatementFactory {
 
     @Override
     protected void renderInternal(EntityMetadata metadata, SimpleSelect select) {
-      renderWhereClause(metadata, select.restrictions);
+      collectRestrictions(metadata, select.restrictions);
     }
 
     @Override
-    public void renderWhereClause(EntityMetadata metadata, List<Restriction> restrictions) {
+    public void collectRestrictions(EntityMetadata metadata, List<Restriction> restrictions) {
       for (Map.Entry<?, ?> entry : map.entrySet()) {
         restrictions.add(Restriction.equal(entry.getKey().toString()));
       }

@@ -43,7 +43,7 @@ class MapQueryStatementFactoryTests {
     assertThat(condition).isNotNull();
 
     ArrayList<Restriction> restrictions = new ArrayList<>();
-    condition.renderWhereClause(entityMetadata, restrictions);
+    condition.collectRestrictions(entityMetadata, restrictions);
     assertThat(restrictions).hasSize(1).contains(Restriction.equal("name"));
 
     //

@@ -96,7 +96,7 @@ class NoConditionsQueryTests {
     List<Restriction> restrictions = mock();
 
     // Should not throw any exception
-    noConditionsQuery.renderWhereClause(metadata, restrictions);
+    noConditionsQuery.collectRestrictions(metadata, restrictions);
 
     // Verify no interactions with mocks
     verifyNoInteractions(metadata, restrictions);

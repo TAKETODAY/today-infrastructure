@@ -49,7 +49,7 @@ class ConditionStatementTests {
     List<Restriction> restrictions = new ArrayList<>();
 
     ConditionStatement conditionStatement = new TestConditionStatement();
-    conditionStatement.renderWhereClause(mockMetadata, restrictions);
+    conditionStatement.collectRestrictions(mockMetadata, restrictions);
 
     // Verify that the method can be called without exceptions
     assertThat(restrictions).isNotNull();
@@ -110,7 +110,7 @@ class ConditionStatementTests {
 
   private static class TestConditionStatement implements ConditionStatement {
     @Override
-    public void renderWhereClause(EntityMetadata metadata, List<Restriction> restrictions) {
+    public void collectRestrictions(EntityMetadata metadata, List<Restriction> restrictions) {
       // No-op implementation for testing
     }
 

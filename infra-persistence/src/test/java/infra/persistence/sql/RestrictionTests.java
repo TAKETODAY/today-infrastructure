@@ -107,7 +107,7 @@ class RestrictionTests {
     Restriction restriction1 = Restriction.equal("column1", "value1");
     Restriction restriction2 = Restriction.lessThan("column2", "value2");
 
-    Restriction.render(List.of(restriction1, restriction2), sqlBuffer);
+    Restriction.append(List.of(restriction1, restriction2), sqlBuffer);
 
     assertThat(sqlBuffer.toString()).isEqualTo(" WHERE `column1` = value1 AND `column2` < value2");
   }
@@ -146,7 +146,7 @@ class RestrictionTests {
     List<Restriction> restrictions = List.of(Restriction.equal("col", "val"));
     StringBuilder sqlBuffer = new StringBuilder();
 
-    Restriction.renderWhereClause(restrictions, sqlBuffer);
+    Restriction.appendWhereClause(restrictions, sqlBuffer);
 
     assertThat(sqlBuffer.toString()).isEqualTo("`col` = val");
   }
@@ -156,7 +156,7 @@ class RestrictionTests {
     List<Restriction> restrictions = Collections.emptyList();
     StringBuilder sqlBuffer = new StringBuilder();
 
-    Restriction.render(restrictions, sqlBuffer);
+    Restriction.append(restrictions, sqlBuffer);
 
     assertThat(sqlBuffer).isEmpty();
   }
@@ -165,7 +165,7 @@ class RestrictionTests {
   void render_withNullRestrictions_shouldNotAppendWhereClause() {
     StringBuilder sqlBuffer = new StringBuilder();
 
-    Restriction.render(null, sqlBuffer);
+    Restriction.append(null, sqlBuffer);
 
     assertThat(sqlBuffer).isEmpty();
   }
@@ -205,7 +205,7 @@ class RestrictionTests {
     );
     StringBuilder sqlBuffer = new StringBuilder();
 
-    Restriction.renderWhereClause(restrictions, sqlBuffer);
+    Restriction.appendWhereClause(restrictions, sqlBuffer);
 
     assertThat(sqlBuffer.toString())
             .isEqualTo("`col1` = val1 AND (`col2` = val2 OR `col3` = val3)");
@@ -279,7 +279,7 @@ class RestrictionTests {
             Restriction.equal("col3", "val3")
     );
 
-    Restriction.render(restrictions, sqlBuffer);
+    Restriction.append(restrictions, sqlBuffer);
 
     assertThat(sqlBuffer.toString())
             .isEqualTo(" WHERE `col1` = val1 AND `col2` = val2 AND `col3` = val3");
@@ -298,7 +298,7 @@ class RestrictionTests {
             Restriction.or(r3, r4)
     );
 
-    Restriction.renderWhereClause(restrictions, sqlBuffer);
+    Restriction.appendWhereClause(restrictions, sqlBuffer);
 
     assertThat(sqlBuffer.toString())
             .isEqualTo("(`a` = 1 AND `b` = 2) AND (`c` = 3 OR `d` = 4)");
@@ -388,7 +388,7 @@ class RestrictionTests {
     );
 
     StringBuilder sqlBuffer = new StringBuilder();
-    Restriction.renderWhereClause(restrictions, sqlBuffer);
+    Restriction.appendWhereClause(restrictions, sqlBuffer);
 
     assertThat(sqlBuffer.toString())
             .isEqualTo("`a` = 1 OR `b` = 2 AND (`c` = 3 AND `d` = 4)");
@@ -488,7 +488,7 @@ class RestrictionTests {
     );
     StringBuilder sqlBuffer = new StringBuilder();
 
-    Restriction.renderWhereClause(restrictions, sqlBuffer);
+    Restriction.appendWhereClause(restrictions, sqlBuffer);
 
     assertThat(sqlBuffer.toString()).isEqualTo("`col` = val");
   }
@@ -550,7 +550,7 @@ class RestrictionTests {
     );
 
     StringBuilder sqlBuffer = new StringBuilder();
-    Restriction.renderWhereClause(restrictions, sqlBuffer);
+    Restriction.appendWhereClause(restrictions, sqlBuffer);
 
     assertThat(sqlBuffer.toString())
             .isEqualTo("`a` = 1 AND `b` <> 2 AND `c` > 3 AND `d` >= 4 AND `e` < 5 AND `f` <= 6");
@@ -582,7 +582,7 @@ class RestrictionTests {
     );
     StringBuilder sqlBuffer = new StringBuilder();
 
-    Restriction.renderWhereClause(restrictions, sqlBuffer);
+    Restriction.appendWhereClause(restrictions, sqlBuffer);
 
     assertThat(sqlBuffer.toString()).isEqualTo("`col1` =  AND `col2` = ");
   }
@@ -595,7 +595,7 @@ class RestrictionTests {
     );
     StringBuilder sqlBuffer = new StringBuilder();
 
-    Restriction.renderWhereClause(restrictions, sqlBuffer);
+    Restriction.appendWhereClause(restrictions, sqlBuffer);
 
     assertThat(sqlBuffer.toString()).isEqualTo("`col@1` = val#1 AND `col$2` = val%2");
   }
@@ -605,7 +605,7 @@ class RestrictionTests {
     StringBuilder sqlBuffer = new StringBuilder(0);
     List<Restriction> restrictions = List.of(Restriction.equal("col", "val"));
 
-    Restriction.renderWhereClause(restrictions, sqlBuffer);
+    Restriction.appendWhereClause(restrictions, sqlBuffer);
 
     assertThat(sqlBuffer.toString()).isEqualTo("`col` = val");
     assertThat(sqlBuffer.capacity()).isGreaterThan(0);
@@ -619,7 +619,7 @@ class RestrictionTests {
     }
 
     StringBuilder sqlBuffer = new StringBuilder();
-    Restriction.renderWhereClause(restrictions, sqlBuffer);
+    Restriction.appendWhereClause(restrictions, sqlBuffer);
 
     String result = sqlBuffer.toString();
     assertThat(result).startsWith("`col0` = 0");

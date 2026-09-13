@@ -19,20 +19,23 @@ package infra.persistence;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import infra.util.Assert;
 import infra.util.InfraStrategies;
 
 /**
- * Aggregates the {@link QueryStatementFactory factories} used to turn an example
- * object into a {@link QueryStatement} or {@link ConditionStatement}.
+ * Registry and aggregator of the {@link QueryStatementFactory factories} used to
+ * turn an example object into a {@link QueryStatement} or {@link ConditionStatement}.
  *
- * <p>Factories are consulted in order and the first non-null result wins. The
- * lookup order is:
+ * <p>This is the central place to manage {@link QueryStatementFactory} instances:
+ * use {@link #addFactory} to register one, or {@link #setFactories} to replace the
+ * registered ones. Factories are consulted in order and the first non-null result
+ * wins. The lookup order is:
  * <ol>
- *   <li>factories explicitly registered via
- *       {@link DefaultEntityManager#addQueryStatementFactory}, in registration order</li>
+ *   <li>factories registered via {@link #addFactory}/{@link #setFactories}, in
+ *       registration order</li>
  *   <li>factories discovered as {@link QueryStatementFactory} strategies, already
  *       sorted by {@link infra.core.annotation.AnnotationAwareOrderComparator}
  *       (so {@code @Order}/{@link infra.core.Ordered} are honored)</li>
@@ -40,25 +43,163 @@ import infra.util.InfraStrategies;
  *   <li>the built-in {@link DefaultQueryStatementFactory}, as the final fallback</li>
  * </ol>
  *
+ * <p>This class also manages the {@link ConditionPropertyExtractor extractors}
+ * used by the fallback factory: see {@link #addConditionPropertyExtractor} and
+ * {@link #setConditionPropertyExtractors}.
+ *
+ * <p>{@link #getFactories()} returns an immutable snapshot of all factories in the
+ * above lookup order.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/4/10 17:55
  */
 @SuppressWarnings("rawtypes")
-final class QueryStatementFactories implements QueryStatementFactory {
+public final class QueryStatementFactories implements QueryStatementFactory {
 
-  final List<QueryStatementFactory> factories;
+  private final List<QueryStatementFactory> registeredFactories = new ArrayList<>();
 
-  QueryStatementFactories(EntityMetadataFactory metadataFactory, List<ConditionPropertyExtractor> extractors) {
-    this(metadataFactory, extractors, List.of());
+  private final List<QueryStatementFactory> builtInFactories;
+
+  private final List<ConditionPropertyExtractor> extractors = new ArrayList<>();
+
+  private @Nullable DefaultQueryStatementFactory defaultFactory;
+
+  private List<QueryStatementFactory> factories;
+
+  /**
+   * Create a registry with the discovered and built-in factories.
+   *
+   * @param entityMetadataFactory the metadata factory used by the fallback factory
+   */
+  public QueryStatementFactories(EntityMetadataFactory entityMetadataFactory) {
+    this(entityMetadataFactory, List.of());
   }
 
-  QueryStatementFactories(EntityMetadataFactory metadataFactory, List<ConditionPropertyExtractor> extractors,
+  /**
+   * Create a registry pre-populated with the given condition property extractors.
+   *
+   * @param entityMetadataFactory the metadata factory used by the fallback factory
+   * @param extractors condition property extractors used by the fallback factory
+   */
+  public QueryStatementFactories(EntityMetadataFactory entityMetadataFactory, List<ConditionPropertyExtractor> extractors) {
+    this(entityMetadataFactory, extractors, List.of());
+  }
+
+  /**
+   * Create a registry pre-populated with the given condition property extractors
+   * and registered factories.
+   *
+   * @param entityMetadataFactory the metadata factory used by the fallback factory
+   * @param extractors condition property extractors used by the fallback factory
+   * @param registeredFactories factories to register, consulted before the discovered ones
+   */
+  public QueryStatementFactories(EntityMetadataFactory entityMetadataFactory, List<ConditionPropertyExtractor> extractors,
           List<QueryStatementFactory> registeredFactories) {
-    this(defaultFactories(metadataFactory, extractors, registeredFactories));
+    Assert.notNull(entityMetadataFactory, "EntityMetadataFactory is required");
+    Assert.notNull(extractors, "ConditionPropertyExtractors is required");
+    this.extractors.addAll(extractors);
+    this.registeredFactories.addAll(registeredFactories);
+
+    List<QueryStatementFactory> builtIn = new ArrayList<>(4);
+    builtIn.addAll(InfraStrategies.find(QueryStatementFactory.class));
+    builtIn.add(new MapQueryStatementFactory());
+    this.builtInFactories = List.copyOf(builtIn);
+
+    setEntityMetadataFactory(entityMetadataFactory);
   }
 
   QueryStatementFactories(List<QueryStatementFactory> factories) {
-    this.factories = List.copyOf(factories);
+    this.registeredFactories.addAll(factories);
+    this.builtInFactories = List.of();
+    rebuild();
+  }
+
+  /**
+   * Register a {@link QueryStatementFactory} consulted before the discovered and
+   * built-in factories, in registration order.
+   *
+   * @param factory the factory to register; must not be null
+   */
+  public void addFactory(QueryStatementFactory factory) {
+    Assert.notNull(factory, "QueryStatementFactory is required");
+    registeredFactories.add(factory);
+    rebuild();
+  }
+
+  /**
+   * Replace the registered factories. When {@code null}, the current registrations
+   * are cleared. Discovered and built-in factories are kept.
+   *
+   * @param factories the factories to register, or {@code null} to clear
+   */
+  public void setFactories(@Nullable List<QueryStatementFactory> factories) {
+    registeredFactories.clear();
+    if (factories != null) {
+      registeredFactories.addAll(factories);
+    }
+    rebuild();
+  }
+
+  /**
+   * Return an immutable snapshot of all factories in lookup order: registered,
+   * discovered, built-in and finally the fallback factory.
+   *
+   * @return the factories in the order they are consulted
+   */
+  public List<QueryStatementFactory> getFactories() {
+    return factories;
+  }
+
+  /**
+   * Add a {@link ConditionPropertyExtractor} used to extract condition values from
+   * example objects, consulted in registration order by the fallback factory.
+   *
+   * @param extractor the extractor to add; must not be null
+   */
+  public void addConditionPropertyExtractor(ConditionPropertyExtractor extractor) {
+    Assert.notNull(extractor, "ConditionPropertyExtractor is required");
+    this.extractors.add(extractor);
+  }
+
+  /**
+   * Replace the condition property extractors. When {@code null}, the current
+   * extractors are cleared.
+   *
+   * @param extractors the extractors to set, or {@code null} to clear
+   */
+  public void setConditionPropertyExtractors(@Nullable List<ConditionPropertyExtractor> extractors) {
+    this.extractors.clear();
+    if (extractors != null) {
+      this.extractors.addAll(extractors);
+    }
+  }
+
+  /**
+   * Return an unmodifiable live view of the condition property extractors.
+   *
+   * @return the current condition property extractors
+   */
+  public List<ConditionPropertyExtractor> getConditionPropertyExtractors() {
+    return Collections.unmodifiableList(extractors);
+  }
+
+  /**
+   * Update the metadata factory used by the fallback factory.
+   */
+  void setEntityMetadataFactory(EntityMetadataFactory entityMetadataFactory) {
+    Assert.notNull(entityMetadataFactory, "EntityMetadataFactory is required");
+    this.defaultFactory = new DefaultQueryStatementFactory(entityMetadataFactory, extractors);
+    rebuild();
+  }
+
+  private void rebuild() {
+    List<QueryStatementFactory> list = new ArrayList<>(registeredFactories.size() + builtInFactories.size() + 1);
+    list.addAll(registeredFactories);
+    list.addAll(builtInFactories);
+    if (defaultFactory != null) {
+      list.add(defaultFactory);
+    }
+    this.factories = List.copyOf(list);
   }
 
   @Override
@@ -83,16 +224,6 @@ final class QueryStatementFactories implements QueryStatementFactory {
       }
     }
     return null;
-  }
-
-  private static List<QueryStatementFactory> defaultFactories(EntityMetadataFactory entityMetadataFactory,
-          List<ConditionPropertyExtractor> extractors, List<QueryStatementFactory> registeredFactories) {
-    List<QueryStatementFactory> list = new ArrayList<>(registeredFactories.size() + 4);
-    list.addAll(registeredFactories);
-    list.addAll(InfraStrategies.find(QueryStatementFactory.class));
-    list.add(new MapQueryStatementFactory());
-    list.add(new DefaultQueryStatementFactory(entityMetadataFactory, extractors));
-    return list;
   }
 
 }

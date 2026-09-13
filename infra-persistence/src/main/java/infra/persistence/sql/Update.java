@@ -116,7 +116,7 @@ public class Update implements StatementSequence {
       }
     }
 
-    Restriction.render(restrictions, buf);
+    Restriction.append(restrictions, buf);
     return buf.toString();
   }
 

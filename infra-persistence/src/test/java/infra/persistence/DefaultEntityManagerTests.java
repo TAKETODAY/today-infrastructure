@@ -128,49 +128,16 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
   }
 
   @ParameterizedRepositoryManagerTest
-  void addQueryStatementFactory(DbType dbType, RepositoryManager repositoryManager) {
+  void exposesQueryStatementFactories(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    QueryStatementFactories factories = entityManager.getQueryStatementFactories();
+    assertThat(factories).isNotNull();
 
     QueryStatementFactory factory = mock(QueryStatementFactory.class);
-    entityManager.addQueryStatementFactory(factory);
+    factories.addFactory(factory);
 
-    QueryStatementFactories handlerFactories = ReflectionTestUtils.getField(entityManager, "handlerFactories");
-    assertThat(handlerFactories).isNotNull();
-    assertThat(handlerFactories.factories).startsWith(factory);
-  }
-
-  @ParameterizedRepositoryManagerTest
-  void setQueryStatementFactories(DbType dbType, RepositoryManager repositoryManager) {
-    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
-
-    QueryStatementFactory factory = mock(QueryStatementFactory.class);
-    entityManager.setQueryStatementFactories(List.of(factory));
-
-    QueryStatementFactories handlerFactories = ReflectionTestUtils.getField(entityManager, "handlerFactories");
-    assertThat(handlerFactories).isNotNull();
-    assertThat(handlerFactories.factories).startsWith(factory);
-  }
-
-  @ParameterizedRepositoryManagerTest
-  void addQueryStatementFactoryRejectsNull(DbType dbType, RepositoryManager repositoryManager) {
-    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
-
-    assertThatThrownBy(() -> entityManager.addQueryStatementFactory(null))
-            .isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @ParameterizedRepositoryManagerTest
-  void setQueryStatementFactoriesToNullClearsRegistrations(DbType dbType, RepositoryManager repositoryManager) {
-    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
-
-    QueryStatementFactory factory = mock(QueryStatementFactory.class);
-    entityManager.addQueryStatementFactory(factory);
-    entityManager.setQueryStatementFactories(null);
-
-    QueryStatementFactories handlerFactories = ReflectionTestUtils.getField(entityManager, "handlerFactories");
-    assertThat(handlerFactories).isNotNull();
-    assertThat(handlerFactories.factories).doesNotContain(factory);
-    assertThat(handlerFactories.factories).last().isInstanceOf(DefaultQueryStatementFactory.class);
+    assertThat(entityManager.getQueryStatementFactories().getFactories()).startsWith(factory);
   }
 
   @ParameterizedRepositoryManagerTest
@@ -178,12 +145,10 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
 
     QueryStatementFactory factory = mock(QueryStatementFactory.class);
-    entityManager.addQueryStatementFactory(factory);
+    entityManager.getQueryStatementFactories().addFactory(factory);
     entityManager.setEntityMetadataFactory(new DefaultEntityMetadataFactory());
 
-    QueryStatementFactories handlerFactories = ReflectionTestUtils.getField(entityManager, "handlerFactories");
-    assertThat(handlerFactories).isNotNull();
-    assertThat(handlerFactories.factories).startsWith(factory);
+    assertThat(entityManager.getQueryStatementFactories().getFactories()).startsWith(factory);
   }
 
   @ParameterizedRepositoryManagerTest
@@ -193,16 +158,14 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     QueryStatementFactory registered = mock(QueryStatementFactory.class);
     when(registered.createQuery(any())).thenReturn(null);
     when(registered.createCondition(any())).thenReturn(null);
-    entityManager.addQueryStatementFactory(registered);
+    entityManager.getQueryStatementFactories().addFactory(registered);
 
     UserModel example = new UserModel();
     example.age = 99;
 
-    QueryStatementFactories handlerFactories = ReflectionTestUtils.getField(entityManager, "handlerFactories");
-
     // The registered factory must be consulted first for both entry points.
-    handlerFactories.createQuery(example);
-    handlerFactories.createCondition(example);
+    entityManager.getQueryStatementFactories().createQuery(example);
+    entityManager.getQueryStatementFactories().createCondition(example);
 
     verify(registered).createQuery(example);
     verify(registered).createCondition(example);
@@ -529,6 +492,31 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
 
     deleteRows = entityManager.delete(userModel);
     assertThat(deleteRows).isEqualTo(10);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void deleteByExampleUsesRegisteredQueryStatementFactory(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    entityManager.getQueryStatementFactories().addFactory(new QueryStatementFactory() {
+      @Override
+      public QueryStatement createQuery(Object example) {
+        return NoConditionsQuery.instance;
+      }
+
+      @Override
+      public ConditionStatement createCondition(Object example) {
+        return NoConditionsQuery.instance;
+      }
+    });
+
+    UserModel example = new UserModel();
+    example.name = "NOT_EXISTING";
+
+    // NoConditionsQuery drops the where clause, so every row is deleted.
+    int deleteRows = entityManager.delete(example);
+    assertThat(deleteRows).isEqualTo(11);
   }
 
   @ParameterizedRepositoryManagerTest

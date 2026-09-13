@@ -617,10 +617,10 @@ public interface Restriction {
    * @param restrictions the collection of restrictions to render. May be null or empty.
    * @param buf the {@code StringBuilder} to which the SQL fragment will be appended. Must not be null.
    */
-  static void render(@Nullable Collection<? extends Restriction> restrictions, StringBuilder buf) {
+  static void append(@Nullable Collection<? extends Restriction> restrictions, StringBuilder buf) {
     if (CollectionUtils.isNotEmpty(restrictions)) {
       buf.append(" WHERE ");
-      renderWhereClause(restrictions, buf);
+      appendWhereClause(restrictions, buf);
     }
   }
 
@@ -647,7 +647,7 @@ public interface Restriction {
   static @Nullable StringBuilder renderWhereClause(@Nullable Collection<? extends Restriction> restrictions) {
     if (CollectionUtils.isNotEmpty(restrictions)) {
       StringBuilder buf = new StringBuilder(restrictions.size() * 10);
-      renderWhereClause(restrictions, buf);
+      appendWhereClause(restrictions, buf);
       return buf;
     }
     return null;
@@ -672,7 +672,7 @@ public interface Restriction {
    * @param restrictions the collection of restrictions to render. Must not be null or empty.
    * @param buf the {@code StringBuilder} to which the SQL fragment will be appended. Must not be null.
    */
-  static void renderWhereClause(Collection<? extends Restriction> restrictions, StringBuilder buf) {
+  static void appendWhereClause(Collection<? extends Restriction> restrictions, StringBuilder buf) {
     boolean appended = false;
     for (Restriction restriction : restrictions) {
       if (appended) {

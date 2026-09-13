@@ -34,9 +34,9 @@ import org.jspecify.annotations.Nullable;
  *   <li>discovered as strategies, in which case they are ordered through
  *       {@link infra.core.annotation.AnnotationAwareOrderComparator}; annotate with
  *       {@code @Order} or implement {@link infra.core.Ordered} to control precedence</li>
- *   <li>registered explicitly via
- *       {@link DefaultEntityManager#addQueryStatementFactory}, which always takes
- *       precedence over discovered factories</li>
+ *   <li>registered explicitly via {@link QueryStatementFactories#addFactory}
+ *       (obtained from {@link DefaultEntityManager#getQueryStatementFactories()}),
+ *       which always takes precedence over discovered factories</li>
  * </ul>
  * The first factory returning a non-null statement is used.
  *

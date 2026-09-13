@@ -109,11 +109,6 @@ public class DefaultEntityManager implements EntityManager {
 
   private final RepositoryManager repositoryManager;
 
-  @SuppressWarnings("rawtypes")
-  private final ArrayList<ConditionPropertyExtractor> propertyExtractors = new ArrayList<>();
-
-  private final ArrayList<QueryStatementFactory> queryStatementFactories = new ArrayList<>();
-
   private int maxBatchRecords = 0;
 
   /**
@@ -139,8 +134,7 @@ public class DefaultEntityManager implements EntityManager {
 
   private @Nullable TransactionDefinition transactionConfig = TransactionDefinition.withDefaults();
 
-  private QueryStatementFactories handlerFactories = new QueryStatementFactories(
-          entityMetadataFactory, propertyExtractors, queryStatementFactories);
+  private QueryStatementFactories statementFactories = new QueryStatementFactories(entityMetadataFactory);
 
   public DefaultEntityManager(RepositoryManager repositoryManager) {
     this(repositoryManager, Platform.generic());
@@ -246,48 +240,23 @@ public class DefaultEntityManager implements EntityManager {
   public void setEntityMetadataFactory(EntityMetadataFactory entityMetadataFactory) {
     Assert.notNull(entityMetadataFactory, "EntityMetadataFactory is required");
     this.entityMetadataFactory = entityMetadataFactory;
-    rebuildHandlerFactories();
+    this.statementFactories.setEntityMetadataFactory(entityMetadataFactory);
   }
 
   /**
-   * Registers a {@link QueryStatementFactory} that is consulted before the
-   * discovered and built-in factories when creating a query or condition
-   * statement from an example object.
+   * Return the {@link QueryStatementFactories} managing the {@link QueryStatementFactory}
+   * instances used to turn an example object into a {@link QueryStatement} or
+   * {@link ConditionStatement}.
    *
-   * <p>Registered factories are tried in registration order and the first one
-   * returning a non-null statement wins. This is an explicit alternative to
-   * registering a factory through the {@link QueryStatementFactory} strategy
-   * discovery mechanism, and it is not affected by {@code @Order} or
-   * {@link infra.core.Ordered}.
+   * <p>Use it to register custom factories:
+   * <pre>{@code
+   * entityManager.getQueryStatementFactories().addFactory(myFactory);
+   * }</pre>
    *
-   * @param factory the factory to register; must not be null
    * @since 5.0
    */
-  public void addQueryStatementFactory(QueryStatementFactory factory) {
-    Assert.notNull(factory, "QueryStatementFactory is required");
-    this.queryStatementFactories.add(factory);
-    rebuildHandlerFactories();
-  }
-
-  /**
-   * Replaces the explicitly registered {@link QueryStatementFactory factories}
-   * consulted when creating a query or condition statement. When {@code null},
-   * the current registrations are cleared.
-   *
-   * @param factories the factories to register, or {@code null} to clear
-   * @see #addQueryStatementFactory
-   * @since 5.0
-   */
-  public void setQueryStatementFactories(@Nullable List<QueryStatementFactory> factories) {
-    this.queryStatementFactories.clear();
-    if (factories != null) {
-      this.queryStatementFactories.addAll(factories);
-    }
-    rebuildHandlerFactories();
-  }
-
-  private void rebuildHandlerFactories() {
-    this.handlerFactories = new QueryStatementFactories(entityMetadataFactory, propertyExtractors, queryStatementFactories);
+  public QueryStatementFactories getQueryStatementFactories() {
+    return statementFactories;
   }
 
   /**
@@ -411,8 +380,7 @@ public class DefaultEntityManager implements EntityManager {
    */
   @SuppressWarnings("rawtypes")
   public void addConditionPropertyExtractor(ConditionPropertyExtractor extractor) {
-    Assert.notNull(extractor, "ConditionPropertyExtractor is required");
-    this.propertyExtractors.add(extractor);
+    this.statementFactories.addConditionPropertyExtractor(extractor);
   }
 
   /**
@@ -440,10 +408,7 @@ public class DefaultEntityManager implements EntityManager {
    */
   @SuppressWarnings("rawtypes")
   public void setConditionPropertyExtractors(@Nullable List<ConditionPropertyExtractor> extractors) {
-    propertyExtractors.clear();
-    if (extractors != null) {
-      this.propertyExtractors.addAll(extractors);
-    }
+    this.statementFactories.setConditionPropertyExtractors(extractors);
   }
 
   // ---------------------------------------------------------------------
@@ -951,7 +916,7 @@ public class DefaultEntityManager implements EntityManager {
 
     eventMulticaster.onPreDelete(entityOrExample, id, metadata);
 
-    ExampleQuery exampleQuery = null;
+    ConditionStatement conditionStmt = null;
 
     StringBuilder sql = new StringBuilder();
     sql.append("DELETE FROM ");
@@ -966,8 +931,10 @@ public class DefaultEntityManager implements EntityManager {
       }
     }
     else {
-      exampleQuery = new ExampleQuery(entityOrExample, metadata, propertyExtractors);
-      exampleQuery.renderWhereClause(sql);
+      conditionStmt = statementFactories.createCondition(entityOrExample);
+      if (conditionStmt != null) {
+        conditionStmt.appendWhereClause(metadata, sql);
+      }
     }
 
     if (stmtLogger.isDebugEnabled()) {
@@ -985,8 +952,8 @@ public class DefaultEntityManager implements EntityManager {
           versionProperty.setParameter(statement, paramIdx, versionValue);
         }
       }
-      else {
-        exampleQuery.setParameter(metadata, statement);
+      else if (conditionStmt != null) {
+        conditionStmt.setParameter(metadata, statement);
       }
 
       int updateCount = statement.executeUpdate();
@@ -1185,7 +1152,7 @@ public class DefaultEntityManager implements EntityManager {
 
   @Override
   public <T> Number count(Class<T> entityClass, Object example) throws DataAccessException {
-    return count(entityClass, handlerFactories.createCondition(example));
+    return count(entityClass, statementFactories.createCondition(example));
   }
 
   @Override
@@ -1211,7 +1178,7 @@ public class DefaultEntityManager implements EntityManager {
 
   @Override
   public <T> Page<T> page(Class<T> entityClass, Object example, @Nullable Pageable pageable) throws DataAccessException {
-    return page(entityClass, handlerFactories.createCondition(example), pageable);
+    return page(entityClass, statementFactories.createCondition(example), pageable);
   }
 
   @Override
@@ -1248,7 +1215,7 @@ public class DefaultEntityManager implements EntityManager {
 
   @Override
   public <T> EntityIterator<T> iterate(Class<T> entityClass, Object example) throws DataAccessException {
-    return iterate(entityClass, handlerFactories.createQuery(example));
+    return iterate(entityClass, statementFactories.createQuery(example));
   }
 
   @Override
@@ -1284,9 +1251,7 @@ public class DefaultEntityManager implements EntityManager {
     }
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
 
-    ArrayList<Restriction> restrictions = new ArrayList<>();
-    handler.renderWhereClause(metadata, restrictions);
-
+    List<Restriction> restrictions = handler.collectRestrictions(metadata);
     Connection con = DataSourceUtils.getConnection(dataSource);
     try {
       return doQueryCount(metadata, handler, restrictions, con);
@@ -1306,9 +1271,8 @@ public class DefaultEntityManager implements EntityManager {
       pageable = defaultPageable();
     }
 
-    ArrayList<Restriction> restrictions = new ArrayList<>();
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
-    handler.renderWhereClause(metadata, restrictions);
+    List<Restriction> restrictions = handler.collectRestrictions(metadata);
 
     Connection con = DataSourceUtils.getConnection(dataSource);
     String statement = null;
@@ -1349,11 +1313,11 @@ public class DefaultEntityManager implements EntityManager {
     }
   }
 
-  private Number doQueryCount(EntityMetadata metadata, ConditionStatement handler, ArrayList<Restriction> restrictions, Connection con) throws DataAccessException {
+  private Number doQueryCount(EntityMetadata metadata, ConditionStatement handler, List<Restriction> restrictions, Connection con) throws DataAccessException {
     StringBuilder countSql = new StringBuilder(restrictions.size() * 10 + 25 + metadata.getTableName().length());
     platform.selectCountFrom(countSql, metadata.getTableName());
 
-    Restriction.render(restrictions, countSql);
+    Restriction.append(restrictions, countSql);
 
     String statement = countSql.toString();
     ResultSet resultSet = null;

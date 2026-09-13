@@ -191,7 +191,7 @@ public class SimpleSelect implements StatementSequence {
     applySelectClause(buf);
     buf.append(" FROM ").append(tableName);
     // where
-    Restriction.render(restrictions, buf);
+    Restriction.append(restrictions, buf);
 
     OrderByClause orderByClause = this.orderByClause;
     if (orderByClause != null && !orderByClause.isEmpty()) {

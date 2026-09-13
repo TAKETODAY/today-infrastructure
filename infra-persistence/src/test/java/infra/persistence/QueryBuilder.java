@@ -58,7 +58,7 @@ public class QueryBuilder extends ColumnsQueryStatement implements ConditionStat
   }
 
   @Override
-  public void renderWhereClause(EntityMetadata metadata, List<Restriction> restrictions) {
+  public void collectRestrictions(EntityMetadata metadata, List<Restriction> restrictions) {
     restrictions.addAll(this.restrictions);
   }
 

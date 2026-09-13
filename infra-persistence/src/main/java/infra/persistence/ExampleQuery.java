@@ -94,11 +94,11 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements Condition
   }
 
   public void renderWhereClause(StringBuilder sql) {
-    Restriction.render(scan(null), sql);
+    Restriction.append(scan(null), sql);
   }
 
   @Override
-  public void renderWhereClause(EntityMetadata metadata, List<Restriction> restrictions) {
+  public void collectRestrictions(EntityMetadata metadata, List<Restriction> restrictions) {
     restrictions.addAll(scan(null));
   }
 

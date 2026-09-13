@@ -82,7 +82,7 @@ public class Delete implements StatementSequence {
 
     buf.append("DELETE FROM ").append(tableName);
 
-    Restriction.render(restrictions, buf);
+    Restriction.append(restrictions, buf);
 
     return buf.toString();
   }
