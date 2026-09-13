@@ -55,9 +55,9 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
   public DefaultEntityEventRegistry() {
     this.listenerGroups = new EventListenerGroup[] {
             new EntityListenerGroup<>(PostLoadEventListener.class),
-            new EntityListenerGroup<>(PersistingEventListener.class),
-            new EntityListenerGroup<>(UpdatingEventListener.class),
-            new EntityListenerGroup<>(DeletingEventListener.class),
+            new EntityListenerGroup<>(PersistEventListener.class),
+            new EntityListenerGroup<>(UpdateEventListener.class),
+            new EntityListenerGroup<>(DeleteEventListener.class),
             new EventListenerGroup<>(BatchPersistListener.class),
             new EventListenerGroup<>(PostTruncateEventListener.class),
     };

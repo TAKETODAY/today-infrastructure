@@ -63,11 +63,11 @@ import infra.persistence.annotation.Table;
 import infra.persistence.annotation.UpdateBy;
 import infra.persistence.annotation.Where;
 import infra.persistence.event.BatchPersistListener;
-import infra.persistence.event.DeletingEventListener;
-import infra.persistence.event.PersistingEventListener;
+import infra.persistence.event.DeleteEventListener;
+import infra.persistence.event.PersistEventListener;
 import infra.persistence.event.PostLoadEventListener;
 import infra.persistence.event.PostTruncateEventListener;
-import infra.persistence.event.UpdatingEventListener;
+import infra.persistence.event.UpdateEventListener;
 import infra.persistence.model.NoIdModel;
 import infra.persistence.platform.GenericPlatform;
 import infra.persistence.platform.Platform;
@@ -192,10 +192,10 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     List<String> received = new ArrayList<>();
     List<PropertyUpdateStrategy> persistStrategies = new ArrayList<>();
     List<PropertyUpdateStrategy> updateStrategies = new ArrayList<>();
-    entityManager.getEntityEventRegistry().addListener(new PersistingEventListener<UserModel>() {
+    entityManager.getEntityEventRegistry().addListener(new PersistEventListener<UserModel>() {
 
       @Override
-      public void onPrePersisting(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+      public void onPrePersist(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
         persistStrategies.add(strategy);
         // modification performed in a before callback must be picked up
         entity.age = 99;
@@ -203,34 +203,34 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
       }
 
       @Override
-      public void onPostPersisting(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+      public void onPostPersist(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
         persistStrategies.add(strategy);
         received.add("afterPersist:" + entity.age);
       }
     });
-    entityManager.getEntityEventRegistry().addListener(new UpdatingEventListener<UserModel>() {
+    entityManager.getEntityEventRegistry().addListener(new UpdateEventListener<UserModel>() {
 
       @Override
-      public void onPreUpdating(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+      public void onPreUpdate(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
         updateStrategies.add(strategy);
         received.add("beforeUpdate");
       }
 
       @Override
-      public void onPostUpdating(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+      public void onPostUpdate(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
         updateStrategies.add(strategy);
         received.add("afterUpdate");
       }
     });
-    entityManager.getEntityEventRegistry().addListener(new DeletingEventListener<UserModel>() {
+    entityManager.getEntityEventRegistry().addListener(new DeleteEventListener<UserModel>() {
 
       @Override
-      public void onPreDeleting(UserModel entity, Object id, EntityMetadata metadata) {
+      public void onPreDelete(UserModel entity, Object id, EntityMetadata metadata) {
         received.add("beforeDelete");
       }
 
       @Override
-      public void onPostDeleting(UserModel entity, Object id, EntityMetadata metadata) {
+      public void onPostDelete(UserModel entity, Object id, EntityMetadata metadata) {
         received.add("afterDelete:" + id);
       }
     });

@@ -402,14 +402,14 @@ boolean hasNext = page.isHasNextPage();
 |===
 | 监听器 | 回调
 
-| `PersistingEventListener<T>`
-| `onPrePersisting(entity, metadata, strategy)` / `onPostPersisting(entity, metadata, strategy)`。回调可拿到选择写入属性的 `PropertyUpdateStrategy`；后置回调触发时自增主键已回填。
+| `PersistEventListener<T>`
+| `onPrePersist(entity, metadata, strategy)` / `onPostPersist(entity, metadata, strategy)`。回调可拿到选择写入属性的 `PropertyUpdateStrategy`；后置回调触发时自增主键已回填。
 
-| `UpdatingEventListener<T>`
-| `onPreUpdating(entity, metadata, strategy)` / `onPostUpdating(entity, metadata, strategy)`。默认策略下只会写回非 null 属性，版本字段由框架覆盖。
+| `UpdateEventListener<T>`
+| `onPreUpdate(entity, metadata, strategy)` / `onPostUpdate(entity, metadata, strategy)`。默认策略下只会写回非 null 属性，版本字段由框架覆盖。
 
-| `DeletingEventListener<T>`
-| `onPreDeleting` / `onPostDeleting`，可获取被删除实体与主键。
+| `DeleteEventListener<T>`
+| `onPreDelete` / `onPostDelete`，可获取被删除实体与主键。
 
 | `PostLoadEventListener<T>`
 | `onPostLoad`，实体从 `ResultSet` 装配完成后触发，可用于填充派生字段或写入缓存。
@@ -425,15 +425,15 @@ boolean hasNext = page.isHasNextPage();
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 @Component
-class UserAuditListener implements UpdatingEventListener<User> {
+class UserAuditListener implements UpdateEventListener<User> {
 
   @Override
-  public void onPreUpdating(User entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+  public void onPreUpdate(User entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
     // 校验或审计；strategy 决定哪些属性会被写回
   }
 
   @Override
-  public void onPostUpdating(User entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+  public void onPostUpdate(User entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
     // 更新后处理
   }
 }

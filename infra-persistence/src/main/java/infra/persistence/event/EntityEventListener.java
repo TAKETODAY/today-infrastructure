@@ -22,9 +22,9 @@ package infra.persistence.event;
  * <p>Each lifecycle concern is modelled as a dedicated listener interface that
  * extends this contract and declares its own callbacks:
  * <ul>
- *   <li>{@link PersistingEventListener} — persist (insert) operations.</li>
- *   <li>{@link UpdatingEventListener} — update operations.</li>
- *   <li>{@link DeletingEventListener} — delete operations.</li>
+ *   <li>{@link PersistEventListener} — persist (insert) operations.</li>
+ *   <li>{@link UpdateEventListener} — update operations.</li>
+ *   <li>{@link DeleteEventListener} — delete operations.</li>
  *   <li>{@link PostLoadEventListener} — entity load operations.</li>
  * </ul>
  *
@@ -33,7 +33,7 @@ package infra.persistence.event;
  * {@link PostTruncateEventListener} contract, which does not extend this interface.
  *
  * <p>The entity type a listener observes is declared by its generic type
- * parameter, e.g. {@code UpdatingEventListener<ProjectProcess>} receives only
+ * parameter, e.g. {@code UpdateEventListener<ProjectProcess>} receives only
  * {@code ProjectProcess} events. A listener whose generic type cannot be resolved
  * observes every entity.
  *
@@ -43,9 +43,9 @@ package infra.persistence.event;
  *
  * @param <T> the entity type to observe
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see PersistingEventListener
- * @see UpdatingEventListener
- * @see DeletingEventListener
+ * @see PersistEventListener
+ * @see UpdateEventListener
+ * @see DeleteEventListener
  * @see PostLoadEventListener
  * @see PostTruncateEventListener
  * @see EntityEventRegistry

@@ -25,13 +25,14 @@ import infra.persistence.EntityMetadata;
  *
  * <p>This interface extends {@link EntityEventListener} — the common base contract
  * shared by the entity lifecycle listeners — and models only the delete concern via
- * {@link #onPreDeleting(Object, Object, EntityMetadata)} and
- * {@link #onPostDeleting(Object, Object, EntityMetadata)}. To observe other
+ * {@link #onPreDelete(Object, Object, EntityMetadata)},
+ * {@link #onPostDelete(Object, Object, EntityMetadata)}, and
+ * {@link #onDeleteFailed(Object, Object, EntityMetadata, Throwable)}. To observe other
  * lifecycle operations, implement the corresponding contract, e.g.
- * {@link PersistingEventListener} or {@link UpdatingEventListener}.
+ * {@link PersistEventListener} or {@link UpdateEventListener}.
  *
  * <p>The entity type this listener observes is declared by its generic type
- * parameter, e.g. {@code DeletingEventListener<ProjectProcess>} receives only
+ * parameter, e.g. {@code DeleteEventListener<ProjectProcess>} receives only
  * {@code ProjectProcess} delete events. A listener whose generic type cannot be
  * resolved observes every entity.
  *
@@ -45,7 +46,7 @@ import infra.persistence.EntityMetadata;
  * @see EntityEventRegistry
  * @since 5.0
  */
-public interface DeletingEventListener<T> extends EntityEventListener<T> {
+public interface DeleteEventListener<T> extends EntityEventListener<T> {
 
   /**
    * Invoked before an entity of the observed type is deleted, before the delete
@@ -57,7 +58,7 @@ public interface DeletingEventListener<T> extends EntityEventListener<T> {
    * (e.g. when deleting by example)
    * @param metadata the entity metadata; must not be {@code null}
    */
-  default void onPreDeleting(@Nullable T entity, @Nullable Object id, EntityMetadata metadata) {
+  default void onPreDelete(@Nullable T entity, @Nullable Object id, EntityMetadata metadata) {
   }
 
   /**
@@ -69,7 +70,23 @@ public interface DeletingEventListener<T> extends EntityEventListener<T> {
    * when deleting by example)
    * @param metadata the entity metadata; must not be {@code null}
    */
-  default void onPostDeleting(@Nullable T entity, @Nullable Object id, EntityMetadata metadata) {
+  default void onPostDelete(@Nullable T entity, @Nullable Object id, EntityMetadata metadata) {
+  }
+
+  /**
+   * Invoked when deleting an entity of the observed type failed.
+   *
+   * <p>This callback is invoked after any failure raised while deleting the entity,
+   * before the exception is propagated to the caller.
+   *
+   * @param entity the entity that failed to be deleted, or {@code null} if the
+   * entity was deleted by id and no instance is available
+   * @param id the id of the entity that failed to be deleted, or {@code null} if not
+   * available (e.g. when deleting by example)
+   * @param metadata the entity metadata; must not be {@code null}
+   * @param exception the exception that caused the failure; must not be {@code null}
+   */
+  default void onDeleteFailed(@Nullable T entity, @Nullable Object id, EntityMetadata metadata, Throwable exception) {
   }
 
 }

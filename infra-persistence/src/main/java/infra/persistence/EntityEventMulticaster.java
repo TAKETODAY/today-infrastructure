@@ -21,12 +21,12 @@ import org.jspecify.annotations.Nullable;
 import infra.persistence.event.BatchExecution;
 import infra.persistence.event.BatchPersistListener;
 import infra.persistence.event.DefaultEntityEventRegistry;
-import infra.persistence.event.DeletingEventListener;
+import infra.persistence.event.DeleteEventListener;
 import infra.persistence.event.EntityEventRegistry;
-import infra.persistence.event.PersistingEventListener;
+import infra.persistence.event.PersistEventListener;
 import infra.persistence.event.PostLoadEventListener;
 import infra.persistence.event.PostTruncateEventListener;
-import infra.persistence.event.UpdatingEventListener;
+import infra.persistence.event.UpdateEventListener;
 
 /**
  * Package-private multicast for entity lifecycle events. It is owned by the
@@ -35,7 +35,8 @@ import infra.persistence.event.UpdatingEventListener;
  *
  * <p>It keeps the dispatch concern out of the public registry contract without
  * exposing an additional API: the manager uses it to fire
- * {@code before/after persist/update/delete} events. The matching listeners are
+ * {@code before/after persist/update/delete} events as well as their
+ * {@code failed} variants. The matching listeners are
  * resolved and cached by the {@link EntityEventRegistry} per entity class.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -51,39 +52,57 @@ final class EntityEventMulticaster {
     this.registry = registry;
   }
 
-  public void onPrePersisting(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
-    for (var listener : registry.listeners(PersistingEventListener.class).listenersFor(entity.getClass())) {
-      listener.onPrePersisting(entity, metadata, strategy);
+  public void onPrePersist(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+    for (var listener : registry.listeners(PersistEventListener.class).listenersFor(entity.getClass())) {
+      listener.onPrePersist(entity, metadata, strategy);
     }
   }
 
-  public void onPostPersisting(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
-    for (var listener : registry.listeners(PersistingEventListener.class).listenersFor(entity.getClass())) {
-      listener.onPostPersisting(entity, metadata, strategy);
+  public void onPostPersist(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+    for (var listener : registry.listeners(PersistEventListener.class).listenersFor(entity.getClass())) {
+      listener.onPostPersist(entity, metadata, strategy);
     }
   }
 
-  public void onPreUpdating(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
-    for (var listener : registry.listeners(UpdatingEventListener.class).listenersFor(entity.getClass())) {
-      listener.onPreUpdating(entity, metadata, strategy);
+  public void onPersistFailed(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, Throwable exception) {
+    for (var listener : registry.listeners(PersistEventListener.class).listenersFor(entity.getClass())) {
+      listener.onPersistFailed(entity, metadata, strategy, exception);
     }
   }
 
-  public void onPostUpdating(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
-    for (var listener : registry.listeners(UpdatingEventListener.class).listenersFor(entity.getClass())) {
-      listener.onPostUpdating(entity, metadata, strategy);
+  public void onPreUpdate(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+    for (var listener : registry.listeners(UpdateEventListener.class).listenersFor(entity.getClass())) {
+      listener.onPreUpdate(entity, metadata, strategy);
     }
   }
 
-  public void onPreDeleting(@Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
-    for (var listener : registry.listeners(DeletingEventListener.class).listenersFor(metadata.entityClass)) {
-      listener.onPreDeleting(entity, id, metadata);
+  public void onPostUpdate(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+    for (var listener : registry.listeners(UpdateEventListener.class).listenersFor(entity.getClass())) {
+      listener.onPostUpdate(entity, metadata, strategy);
     }
   }
 
-  public void onPostDeleting(@Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
-    for (var listener : registry.listeners(DeletingEventListener.class).listenersFor(metadata.entityClass)) {
-      listener.onPostDeleting(entity, id, metadata);
+  public void onUpdateFailed(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, Throwable exception) {
+    for (var listener : registry.listeners(UpdateEventListener.class).listenersFor(entity.getClass())) {
+      listener.onUpdateFailed(entity, metadata, strategy, exception);
+    }
+  }
+
+  public void onPreDelete(@Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
+    for (var listener : registry.listeners(DeleteEventListener.class).listenersFor(metadata.entityClass)) {
+      listener.onPreDelete(entity, id, metadata);
+    }
+  }
+
+  public void onPostDelete(@Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
+    for (var listener : registry.listeners(DeleteEventListener.class).listenersFor(metadata.entityClass)) {
+      listener.onPostDelete(entity, id, metadata);
+    }
+  }
+
+  public void onDeleteFailed(@Nullable Object entity, @Nullable Object id, EntityMetadata metadata, Throwable exception) {
+    for (var listener : registry.listeners(DeleteEventListener.class).listenersFor(metadata.entityClass)) {
+      listener.onDeleteFailed(entity, id, metadata, exception);
     }
   }
 

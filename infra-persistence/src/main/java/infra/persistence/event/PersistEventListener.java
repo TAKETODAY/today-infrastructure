@@ -24,13 +24,14 @@ import infra.persistence.PropertyUpdateStrategy;
  *
  * <p>This interface extends {@link EntityEventListener} — the common base contract
  * shared by the entity lifecycle listeners — and models only the persist concern via
- * {@link #onPrePersisting(Object, EntityMetadata, PropertyUpdateStrategy)} and
- * {@link #onPostPersisting(Object, EntityMetadata, PropertyUpdateStrategy)}. To
+ * {@link #onPrePersist(Object, EntityMetadata, PropertyUpdateStrategy)},
+ * {@link #onPostPersist(Object, EntityMetadata, PropertyUpdateStrategy)}, and
+ * {@link #onPersistFailed(Object, EntityMetadata, PropertyUpdateStrategy, Throwable)}. To
  * observe other lifecycle operations, implement the corresponding contract, e.g.
- * {@link UpdatingEventListener} or {@link DeletingEventListener}.
+ * {@link UpdateEventListener} or {@link DeleteEventListener}.
  *
  * <p>The entity type this listener observes is declared by its generic type
- * parameter, e.g. {@code PersistingEventListener<ProjectProcess>} receives only
+ * parameter, e.g. {@code PersistEventListener<ProjectProcess>} receives only
  * {@code ProjectProcess} persist events. A listener whose generic type cannot be
  * resolved observes every entity.
  *
@@ -44,7 +45,7 @@ import infra.persistence.PropertyUpdateStrategy;
  * @see EntityEventRegistry
  * @since 5.0
  */
-public interface PersistingEventListener<T> extends EntityEventListener<T> {
+public interface PersistEventListener<T> extends EntityEventListener<T> {
 
   /**
    * Invoked before an entity of the observed type is persisted, before the insert
@@ -62,7 +63,7 @@ public interface PersistingEventListener<T> extends EntityEventListener<T> {
    * @param strategy the property update strategy used to select the persisted
    * properties; must not be {@code null}
    */
-  default void onPrePersisting(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+  default void onPrePersist(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
   }
 
   /**
@@ -82,7 +83,24 @@ public interface PersistingEventListener<T> extends EntityEventListener<T> {
    * @param strategy the property update strategy that selected the persisted
    * properties; must not be {@code null}
    */
-  default void onPostPersisting(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+  default void onPostPersist(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+  }
+
+  /**
+   * Invoked when persisting an entity of the observed type failed.
+   *
+   * <p>This callback is invoked after any failure raised while persisting the
+   * entity, before the exception is propagated to the caller. Unlike
+   * {@link #onPostPersist}, the entity may only be partially populated (e.g. an
+   * auto-generated identifier is not written back when the insert failed).
+   *
+   * @param entity the entity that failed to be persisted; must not be {@code null}
+   * @param metadata the entity metadata; must not be {@code null}
+   * @param strategy the property update strategy used for the failed persistence;
+   * must not be {@code null}
+   * @param exception the exception that caused the failure; must not be {@code null}
+   */
+  default void onPersistFailed(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, Throwable exception) {
   }
 
 }

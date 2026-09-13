@@ -40,7 +40,7 @@ import infra.util.Assert;
  *
  * <p>The entity type a listener observes is derived from the generic type parameter of
  * its {@link EntityEventListener} super-interface — e.g.
- * {@code UpdatingEventListener<ProjectProcess>} observes {@code ProjectProcess}. A
+ * {@code UpdateEventListener<ProjectProcess>} observes {@code ProjectProcess}. A
  * listener whose generic type cannot be resolved observes every entity. Matched
  * listeners are sorted by {@link AnnotationAwareOrderComparator order}.
  *

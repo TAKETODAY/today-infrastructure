@@ -128,7 +128,7 @@ public interface EntityEventRegistry {
    * returned reference, for example to avoid re-resolving it on every dispatch.
    *
    * @param type the listener contract type, e.g.
-   * {@code UpdatingEventListener.class} or {@code BatchPersistListener.class}; must
+   * {@code UpdateEventListener.class} or {@code BatchPersistListener.class}; must
    * not be {@code null}
    * @param <T> the listener contract type
    * @return the group managing the listeners of the given type, never {@code null}

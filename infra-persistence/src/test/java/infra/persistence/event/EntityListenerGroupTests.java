@@ -72,8 +72,8 @@ class EntityListenerGroupTests {
 
   @Test
   void specializedListenersResolveEntityTypeThroughBaseContract() {
-    UpdatingEventListener<UserModel> updating = new UpdatingUserListener();
-    DeletingEventListener<UserModel> deleting = new DeletingUserListener();
+    UpdateEventListener<UserModel> updating = new UpdatingUserListener();
+    DeleteEventListener<UserModel> deleting = new DeletingUserListener();
 
     group.addListeners(List.of(updating, deleting));
 
@@ -159,11 +159,11 @@ class EntityListenerGroupTests {
 
   }
 
-  static class UpdatingUserListener implements UpdatingEventListener<UserModel> {
+  static class UpdatingUserListener implements UpdateEventListener<UserModel> {
 
   }
 
-  static class DeletingUserListener implements DeletingEventListener<UserModel> {
+  static class DeletingUserListener implements DeleteEventListener<UserModel> {
 
   }
 

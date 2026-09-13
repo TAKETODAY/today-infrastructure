@@ -24,13 +24,14 @@ import infra.persistence.PropertyUpdateStrategy;
  *
  * <p>This interface extends {@link EntityEventListener} — the common base contract
  * shared by the entity lifecycle listeners — and models only the update concern via
- * {@link #onPreUpdating(Object, EntityMetadata, PropertyUpdateStrategy)} and
- * {@link #onPostUpdating(Object, EntityMetadata, PropertyUpdateStrategy)}. To
+ * {@link #onPreUpdate(Object, EntityMetadata, PropertyUpdateStrategy)},
+ * {@link #onPostUpdate(Object, EntityMetadata, PropertyUpdateStrategy)}, and
+ * {@link #onUpdateFailed(Object, EntityMetadata, PropertyUpdateStrategy, Throwable)}. To
  * observe other lifecycle operations, implement the corresponding contract, e.g.
- * {@link PersistingEventListener} or {@link DeletingEventListener}.
+ * {@link PersistEventListener} or {@link DeleteEventListener}.
  *
  * <p>The entity type this listener observes is declared by its generic type
- * parameter, e.g. {@code UpdatingEventListener<ProjectProcess>} receives only
+ * parameter, e.g. {@code UpdateEventListener<ProjectProcess>} receives only
  * {@code ProjectProcess} update events. A listener whose generic type cannot be
  * resolved observes every entity.
  *
@@ -44,7 +45,7 @@ import infra.persistence.PropertyUpdateStrategy;
  * @see EntityEventRegistry
  * @since 5.0
  */
-public interface UpdatingEventListener<T> extends EntityEventListener<T> {
+public interface UpdateEventListener<T> extends EntityEventListener<T> {
 
   /**
    * Invoked before an entity of the observed type is updated, before the update
@@ -62,7 +63,7 @@ public interface UpdatingEventListener<T> extends EntityEventListener<T> {
    * @param strategy the property update strategy used to select the updated
    * properties; must not be {@code null}
    */
-  default void onPreUpdating(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+  default void onPreUpdate(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
   }
 
   /**
@@ -79,7 +80,24 @@ public interface UpdatingEventListener<T> extends EntityEventListener<T> {
    * @param strategy the property update strategy that selected the updated
    * properties; must not be {@code null}
    */
-  default void onPostUpdating(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+  default void onPostUpdate(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+  }
+
+  /**
+   * Invoked when updating an entity of the observed type failed.
+   *
+   * <p>This callback is invoked after any failure raised while updating the entity,
+   * before the exception is propagated to the caller. Besides database errors this
+   * also covers an optimistic locking failure, in which case the entity already
+   * carries the incremented version.
+   *
+   * @param entity the entity that failed to be updated; must not be {@code null}
+   * @param metadata the entity metadata; must not be {@code null}
+   * @param strategy the property update strategy used for the failed update; must
+   * not be {@code null}
+   * @param exception the exception that caused the failure; must not be {@code null}
+   */
+  default void onUpdateFailed(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, Throwable exception) {
   }
 
 }
