@@ -18,137 +18,81 @@ package infra.persistence;
 
 import java.sql.PreparedStatement;
 
-import infra.lang.Descriptive;
+import infra.persistence.platform.Platform;
 
 /**
- * Represents a query statement that can be rendered into SQL and
- * applied to a JDBC {@link PreparedStatement}. This interface provides
- * methods for generating SQL statements and setting parameters for
- * execution.
+ * Renders the SQL of a query from an entity's {@link EntityMetadata} and binds
+ * the values of the placeholders it produced.
  *
- * <p>Implementations of this interface are typically used to encapsulate
- * the logic for constructing SQL queries dynamically based on entity metadata
- * and application-specific conditions.
+ * <p>A {@code QueryStatement} is the read-side counterpart of
+ * {@link QueryCondition}: it builds a full statement — columns, table, WHERE,
+ * ORDER BY and so on — rather than only the WHERE clause. It is used by
+ * {@link EntityManager} for {@code find}, {@code iterate} and similar query
+ * operations; insert and update statements are built directly from the entity
+ * properties and do not go through this interface.
  *
- * <p><b>Usage Examples:</b>
+ * <p>The contract is a two-phase, caller-driven cycle that must be executed in
+ * the following order:
+ * <ol>
+ *   <li>{@link #render(EntityMetadata)} builds a dialect-neutral
+ *       {@link StatementSequence}</li>
+ *   <li>{@link StatementSequence#toStatementString(Platform)} turns it into a
+ *       platform-specific SQL string</li>
+ *   <li>{@link ParameterSource#setParameter(EntityMetadata, PreparedStatement)}
+ *       binds the values, following the order of the {@code ?} placeholders
+ *       emitted by {@code render}</li>
+ * </ol>
  *
- * <p>1. A query statement that uses a map of parameters:
+ * <p>The same {@link EntityMetadata} must be passed to both {@code render} and
+ * {@code setParameter}, and neither the statement's state nor any example it
+ * reads from may change in between, otherwise placeholders and bound values can
+ * silently mismatch.
+ *
+ * <p>Most implementations extend {@link ColumnsQueryStatement} or
+ * {@link SimpleSelectQueryStatement} and only implement {@code renderInternal};
+ * a {@link QueryCondition} can be reused here as well. Implementations should be
+ * stateless, or at least safe for a single render-then-bind cycle under
+ * concurrent use. Implementing {@link DebugDescriptive} is optional but
+ * recommended, so that statements can describe themselves in SQL logs and error
+ * messages.
+ *
+ * <p>Example:
  * <pre>{@code
- * static class MapQueryStatement extends SimpleSelectQueryStatement
- *         implements QueryStatement, QueryCondition, DebugDescriptive {
- *
- *   private final Map<?, ?> map;
- *
- *   public MapQueryStatement(Map<?, ?> map) {
- *     this.map = map;
- *   }
+ * class ActiveUsers extends ColumnsQueryStatement {
  *
  *   @Override
- *   protected void renderInternal(EntityMetadata metadata, SimpleSelect select) {
- *     collectRestrictions(metadata, select.restrictions);
- *   }
- *
- *   @Override
- *   public void collectRestrictions(EntityMetadata metadata, List<Restriction> restrictions) {
- *     for (Map.Entry<?, ?> entry : map.entrySet()) {
- *       restrictions.add(Restriction.equal(entry.getKey().toString()));
- *     }
+ *   protected void renderInternal(EntityMetadata metadata, Select select) {
+ *     select.setWhereClause("`status` = ?");
  *   }
  *
  *   @Override
  *   public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException {
- *     int idx = 1;
- *     for (Map.Entry<?, ?> entry : map.entrySet()) {
- *       statement.setObject(idx++, entry.getValue());
- *     }
+ *     statement.setString(1, "active");
  *   }
- *
- *   @Override
- *   public String getDescription() {
- *     return "Query with Map of params: " + map;
- *   }
- * }
- * }</pre>
- *
- * <p>2. A query statement that fetches an entity by its ID:
- * <pre>{@code
- * class FindByIdQuery extends ColumnsQueryStatement implements QueryStatement, DebugDescriptive {
- *   private final Object id;
- *
- *   FindByIdQuery(Object id) {
- *     this.id = id;
- *   }
- *
- *   @Override
- *   protected void renderInternal(EntityMetadata metadata, Select select) {
- *     select.setWhereClause('`' + metadata.idColumnName + "`=? LIMIT 1");
- *   }
- *
- *   @Override
- *   public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException {
- *     metadata.idProperty().setParameter(statement, 1, id);
- *   }
- *
- *   @Override
- *   public String getDescription() {
- *     return "Fetch entity By ID";
- *   }
- * }
- * }</pre>
- *
- * <p>3. A query statement that applies an order-by clause:
- * <pre>{@code
- * class NoConditionsOrderByQuery extends ColumnsQueryStatement implements QueryStatement {
- *   private final OrderByClause clause;
- *
- *   NoConditionsOrderByQuery(OrderByClause clause) {
- *     this.clause = clause;
- *   }
- *
- *   @Override
- *   protected void renderInternal(EntityMetadata metadata, Select select) {
- *     if (!clause.isEmpty()) {
- *       select.setOrderByClause(clause.toClause());
- *     }
- *   }
- *
- *   @Override
- *   public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException { }
  * }
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see DebugDescriptive
- * @see Descriptive
+ * @see QueryCondition
  * @see ParameterSource
+ * @see StatementSequence
+ * @see DebugDescriptive
  * @since 4.0 2024/2/16 14:45
  */
 public interface QueryStatement extends ParameterSource {
 
   /**
-   * Renders a sequence of SQL statements based on the provided entity metadata.
+   * Render the SQL for the given entity into a dialect-neutral
+   * {@link StatementSequence}.
    *
-   * <p>This method generates a {@link StatementSequence} object that encapsulates
-   * the SQL statements required for operations involving the given entity. The
-   * generated statements are typically used for database interactions such as
-   * inserts, updates, or queries.
+   * <p>The returned sequence is not yet a SQL string; pass it to
+   * {@link StatementSequence#toStatementString(Platform)} to resolve the
+   * platform dialect. The {@code ?} placeholders emitted here fix the order in
+   * which {@link ParameterSource#setParameter(EntityMetadata, PreparedStatement)}
+   * must bind values.
    *
-   * <p>Example usage:
-   * <pre>{@code
-   * EntityMetadata metadata = ...; // Obtain entity metadata
-   * QueryStatement queryStatement = new Query();
-   * StatementSequence statementSequence = queryStatement.render(metadata);
-   *
-   * // Convert the statement sequence to an SQL string for a specific platform
-   * String sql = statementSequence.toStatementString(platform);
-   * System.out.println(sql);
-   * }</pre>
-   *
-   * @param metadata the metadata of the entity for which the SQL statements are generated;
-   * must not be null. This includes details such as table name, column mappings,
-   * and properties of the entity.
-   * @return a {@link StatementSequence} object representing the rendered SQL statements.
-   * The returned object can be further processed to generate platform-specific SQL strings.
+   * @param metadata the metadata of the entity to query; must not be {@code null}
+   * @return the rendered statement sequence; never {@code null}
    */
   StatementSequence render(EntityMetadata metadata);
 
