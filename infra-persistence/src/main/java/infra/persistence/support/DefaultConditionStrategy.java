@@ -35,7 +35,7 @@ public class DefaultConditionStrategy implements PropertyConditionStrategy {
     if (value instanceof String string && StringUtils.isBlank(string)) {
       return null;
     }
-    return new Condition(value, Restriction.equal(entityProperty.columnName), entityProperty, logicalAnd);
+    return new Condition(value, Restriction.equal(entityProperty.getColumnName()), entityProperty, logicalAnd);
   }
 
 }

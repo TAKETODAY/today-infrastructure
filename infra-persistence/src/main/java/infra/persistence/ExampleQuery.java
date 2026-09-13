@@ -139,11 +139,12 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements Condition
   private ArrayList<Condition> scan(@Nullable Consumer<Condition> consumer) {
     ArrayList<Condition> conditions = this.conditions;
     if (conditions == null) {
-      conditions = new ArrayList<>(exampleMetadata.entityProperties.length);
+      EntityProperty[] entityProperties = exampleMetadata.getEntityProperties(false);
+      conditions = new ArrayList<>(entityProperties.length);
       // apply class level order by
       applyOrderByClause();
 
-      for (EntityProperty property : exampleMetadata.entityProperties) {
+      for (EntityProperty property : entityProperties) {
         Object propertyValue = property.getValue(example);
         if (propertyValue != null) {
           Object extracted = propertyValue;
@@ -212,7 +213,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements Condition
           mutable = OrderByClause.mutable();
           this.orderByClause = mutable;
         }
-        mutable.orderBy(entityProperty.columnName, direction);
+        mutable.orderBy(entityProperty.getColumnName(), direction);
       }
     }
   }

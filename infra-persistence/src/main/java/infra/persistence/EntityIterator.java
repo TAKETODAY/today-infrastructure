@@ -94,7 +94,7 @@ public abstract class EntityIterator<T extends @Nullable Object> extends ResultS
   public <K> Map<K, T> toMap(String mapKey) {
     try {
       LinkedHashMap<K, T> entities = new LinkedHashMap<>();
-      BeanProperty beanProperty = entityMetadata.root.obtainBeanProperty(mapKey);
+      BeanProperty beanProperty = entityMetadata.getBeanMetadata().obtainBeanProperty(mapKey);
       while (hasNext()) {
         T entity = next();
         Object propertyValue = beanProperty.getValue(entity);

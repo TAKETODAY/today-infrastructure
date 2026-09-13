@@ -231,7 +231,7 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
     EntityMetadata refMetadata = getRefMetadata(entityClass);
     String tableName = tableNameGenerator.generateTableName(entityClass);
     if (tableName == null && refMetadata != null) {
-      tableName = refMetadata.tableName;
+      tableName = refMetadata.getTableName();
     }
 
     if (tableName == null) {
@@ -240,7 +240,6 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
 
     BeanMetadata metadata = BeanMetadata.forClass(entityClass);
     ArrayList<String> columnNames = new ArrayList<>();
-    ArrayList<BeanProperty> beanProperties = new ArrayList<>();
     ArrayList<EntityProperty> entityProperties = new ArrayList<>();
 
     EntityProperty idProperty = null;
@@ -257,7 +256,6 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
       }
 
       columnNames.add(columnName);
-      beanProperties.add(property);
 
       if (idPropertyDiscover.isIdProperty(property)) {
         if (idProperty != null) {
@@ -279,16 +277,16 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
     }
 
     if (refMetadata != null) {
-      return new RefEntityMetadata(refMetadata, metadata, entityClass, idProperty, tableName,
-              versionProperty, beanProperties, columnNames, entityProperties);
+      return new RefEntityMetadata(refMetadata, metadata, entityClass, tableName, idProperty,
+              versionProperty, columnNames, entityProperties);
     }
 
     if (idProperty == null && entityProperties.isEmpty()) {
       throw new IllegalEntityException("Cannot determine properties for entity: " + entityClass);
     }
 
-    return new EntityMetadata(metadata, entityClass, idProperty, tableName,
-            versionProperty, beanProperties, columnNames, entityProperties);
+    return new EntityMetadata(metadata, entityClass, tableName,
+            idProperty, versionProperty, columnNames, entityProperties);
   }
 
   private @Nullable EntityMetadata getRefMetadata(Class<?> entityClass) {

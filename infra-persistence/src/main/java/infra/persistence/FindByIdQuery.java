@@ -35,7 +35,7 @@ class FindByIdQuery extends ColumnsQueryStatement implements QueryStatement, Deb
 
   @Override
   protected void renderInternal(EntityMetadata metadata, Select select) {
-    select.setWhereClause('`' + metadata.idColumnName + "`=? LIMIT 1");
+    select.setWhereClause('`' + metadata.getIdColumnName() + "`=? LIMIT 1");
   }
 
   @Override

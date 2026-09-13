@@ -42,17 +42,17 @@ import infra.jdbc.type.TypeHandler;
  */
 public class EntityProperty {
 
-  public final String columnName;
+  private final String columnName;
 
-  public final boolean isIdProperty;
+  private final boolean isIdProperty;
 
-  public final BeanProperty property;
+  private final BeanProperty beanProperty;
 
-  public final TypeHandler<Object> typeHandler;
+  private final TypeHandler<Object> typeHandler;
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  EntityProperty(BeanProperty property, String columnName, TypeHandler typeHandler, boolean isIdProperty) {
-    this.property = property;
+  EntityProperty(BeanProperty beanProperty, String columnName, TypeHandler typeHandler, boolean isIdProperty) {
+    this.beanProperty = beanProperty;
     this.columnName = columnName;
     this.typeHandler = typeHandler;
     this.isIdProperty = isIdProperty;
@@ -65,7 +65,7 @@ public class EntityProperty {
    * @return the property value, or {@code null} if the property value is null
    */
   public @Nullable Object getValue(Object entity) {
-    return property.getValue(entity);
+    return beanProperty.getValue(entity);
   }
 
   /**
@@ -75,7 +75,7 @@ public class EntityProperty {
    * @param propertyValue the value to set, may be {@code null}
    */
   public void setValue(Object entity, @Nullable Object propertyValue) {
-    property.setDirectly(entity, propertyValue);
+    beanProperty.setDirectly(entity, propertyValue);
   }
 
   /**
@@ -93,7 +93,7 @@ public class EntityProperty {
    * or the type of the given object is ambiguous
    */
   public void setTo(PreparedStatement ps, int parameterIndex, Object entity) throws SQLException {
-    Object propertyValue = property.getValue(entity);
+    Object propertyValue = beanProperty.getValue(entity);
     typeHandler.setParameter(ps, parameterIndex, propertyValue);
   }
 
@@ -142,7 +142,43 @@ public class EntityProperty {
    */
   public void setProperty(Object entity, ResultSet rs, int columnIndex) throws SQLException {
     Object propertyValue = getResult(rs, columnIndex);
-    property.setDirectly(entity, propertyValue);
+    beanProperty.setDirectly(entity, propertyValue);
+  }
+
+  /**
+   * Return the name of the database column this property maps to.
+   *
+   * @return the column name
+   */
+  public String getColumnName() {
+    return columnName;
+  }
+
+  /**
+   * Return whether this property is the entity's ID property.
+   *
+   * @return {@code true} if this is the ID property, {@code false} otherwise
+   */
+  public boolean isIdProperty() {
+    return isIdProperty;
+  }
+
+  /**
+   * Return the underlying bean property.
+   *
+   * @return the bean property
+   */
+  public BeanProperty getBeanProperty() {
+    return beanProperty;
+  }
+
+  /**
+   * Return the {@link TypeHandler} used to read and write the mapped column.
+   *
+   * @return the type handler
+   */
+  public TypeHandler<Object> getTypeHandler() {
+    return typeHandler;
   }
 
   /**
@@ -151,7 +187,7 @@ public class EntityProperty {
    * @return the merged annotations
    */
   public MergedAnnotations getAnnotations() {
-    return property.mergedAnnotations();
+    return beanProperty.mergedAnnotations();
   }
 
   /**
@@ -179,7 +215,7 @@ public class EntityProperty {
   @Override
   public String toString() {
     return ToStringBuilder.forInstance(this)
-            .append("property", property)
+            .append("property", beanProperty)
             .append("columnName", columnName)
             .toString();
   }
@@ -188,13 +224,13 @@ public class EntityProperty {
   public boolean equals(@Nullable Object o) {
     return this == o
             || (o instanceof EntityProperty that
-            && Objects.equals(property, that.property)
+            && Objects.equals(beanProperty, that.beanProperty)
             && Objects.equals(typeHandler, that.typeHandler));
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(property, typeHandler);
+    return Objects.hash(beanProperty, typeHandler);
   }
 
 }

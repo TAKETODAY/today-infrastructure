@@ -89,19 +89,19 @@ final class EntityEventMulticaster {
   }
 
   public void onPreDelete(@Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
-    for (var listener : registry.listeners(DeleteEventListener.class).listenersFor(metadata.entityClass)) {
+    for (var listener : registry.listeners(DeleteEventListener.class).listenersFor(metadata.getEntityClass())) {
       listener.onPreDelete(entity, id, metadata);
     }
   }
 
   public void onPostDelete(@Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
-    for (var listener : registry.listeners(DeleteEventListener.class).listenersFor(metadata.entityClass)) {
+    for (var listener : registry.listeners(DeleteEventListener.class).listenersFor(metadata.getEntityClass())) {
       listener.onPostDelete(entity, id, metadata);
     }
   }
 
   public void onDeleteFailed(@Nullable Object entity, @Nullable Object id, EntityMetadata metadata, Throwable exception) {
-    for (var listener : registry.listeners(DeleteEventListener.class).listenersFor(metadata.entityClass)) {
+    for (var listener : registry.listeners(DeleteEventListener.class).listenersFor(metadata.getEntityClass())) {
       listener.onDeleteFailed(entity, id, metadata, exception);
     }
   }

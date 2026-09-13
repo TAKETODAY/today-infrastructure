@@ -132,11 +132,11 @@ public class WhereAnnotationConditionStrategy implements PropertyConditionStrate
         String operator = annotation.getString("operator");
         if (Constant.DEFAULT_NONE.equals(operator)) {
           // default to equality operator
-          return new Condition(extracted, Restriction.equal(entityProperty.columnName), entityProperty, logicalAnd);
+          return new Condition(extracted, Restriction.equal(entityProperty.getColumnName()), entityProperty, logicalAnd);
         }
         else {
           return new Condition(extracted, Restriction.forOperator(
-                  entityProperty.columnName, operator, "?"), entityProperty, logicalAnd);
+                  entityProperty.getColumnName(), operator, "?"), entityProperty, logicalAnd);
         }
       }
     }

@@ -129,7 +129,7 @@ public interface PropertyUpdateStrategy {
    * the property is an ID property
    */
   static PropertyUpdateStrategy isId() {
-    return (entity, property) -> property.isIdProperty;
+    return (entity, property) -> property.isIdProperty();
   }
 
   /**
@@ -144,7 +144,7 @@ public interface PropertyUpdateStrategy {
    * the property is not an ID property
    */
   static PropertyUpdateStrategy notId() {
-    return (entity, property) -> !property.isIdProperty;
+    return (entity, property) -> !property.isIdProperty();
   }
 
   /**

@@ -154,7 +154,7 @@ public abstract class ColumnsQueryStatement implements QueryStatement {
     StringBuilder selectClause = new StringBuilder();
 
     boolean first = true;
-    for (EntityProperty property : metadata.entityProperties) {
+    for (EntityProperty property : metadata.getEntityProperties(false)) {
       if (first) {
         first = false;
         selectClause.append('`');
@@ -162,12 +162,12 @@ public abstract class ColumnsQueryStatement implements QueryStatement {
       else {
         selectClause.append(", `");
       }
-      selectClause.append(property.columnName)
+      selectClause.append(property.getColumnName())
               .append('`');
     }
 
     select.setSelectClause(selectClause);
-    select.setFromClause(metadata.tableName);
+    select.setFromClause(metadata.getTableName());
 
     renderInternal(metadata, select);
     return select;

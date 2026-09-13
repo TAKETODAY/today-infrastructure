@@ -381,6 +381,17 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
   }
 
   @ParameterizedRepositoryManagerTest
+  void findByIdWithRefEntityWithoutId(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    UserFailed found = entityManager.findById(UserFailed.class, 1);
+
+    assertThat(found).isNotNull();
+    assertThat(found.name).isEqualTo("TODAY");
+  }
+
+  @ParameterizedRepositoryManagerTest
   void deleteByEntity(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     createData(entityManager);
@@ -522,7 +533,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
             .isInstanceOf(InvalidDataAccessApiUsageException.class)
             .hasMessage("Updating an entity, There is no update properties");
 
-    assertThat(entityManager.updateById(update, (entity, property) -> property.property.getName().equals("age")))
+    assertThat(entityManager.updateById(update, (entity, property) -> property.getBeanProperty().getName().equals("age")))
             .isEqualTo(1);
 
     UserModel newVal = entityManager.findById(UserModel.class, 1);
@@ -1506,9 +1517,9 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     // Create EntityProperty with isIdProperty = true
     EntityProperty entityProperty = new EntityProperty(beanProperty, "id_column", typeHandler, true);
 
-    assertThat(entityProperty.isIdProperty).isTrue();
-    assertThat(entityProperty.columnName).isEqualTo("id_column");
-    assertThat(entityProperty.property).isEqualTo(beanProperty);
+    assertThat(entityProperty.isIdProperty()).isTrue();
+    assertThat(entityProperty.getColumnName()).isEqualTo("id_column");
+    assertThat(entityProperty.getBeanProperty()).isEqualTo(beanProperty);
   }
 
   @Test
@@ -1524,9 +1535,9 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     // Create EntityProperty with isIdProperty = false
     EntityProperty entityProperty = new EntityProperty(beanProperty, "name_column", typeHandler, false);
 
-    assertThat(entityProperty.isIdProperty).isFalse();
-    assertThat(entityProperty.columnName).isEqualTo("name_column");
-    assertThat(entityProperty.property).isEqualTo(beanProperty);
+    assertThat(entityProperty.isIdProperty()).isFalse();
+    assertThat(entityProperty.getColumnName()).isEqualTo("name_column");
+    assertThat(entityProperty.getBeanProperty()).isEqualTo(beanProperty);
   }
 
   @Test

@@ -39,11 +39,11 @@ class PropertyUpdateStrategyTests {
     UserModel userModel = new UserModel();
 
     EntityMetadata entityMetadata = metadataFactory.getEntityMetadata(UserModel.class);
-    assertThat(propertyUpdateStrategy.shouldUpdate(userModel, entityMetadata.idProperty))
+    assertThat(propertyUpdateStrategy.shouldUpdate(userModel, entityMetadata.getIdProperty()))
             .isFalse();
 
     userModel.setId(1);
-    assertThat(propertyUpdateStrategy.shouldUpdate(userModel, entityMetadata.idProperty))
+    assertThat(propertyUpdateStrategy.shouldUpdate(userModel, entityMetadata.getIdProperty()))
             .isTrue();
   }
 
@@ -62,7 +62,7 @@ class PropertyUpdateStrategyTests {
 
   @Test
   void and() {
-    PropertyUpdateStrategy strategy = PropertyUpdateStrategy.noneNull().and((entity, property) -> !property.isIdProperty);
+    PropertyUpdateStrategy strategy = PropertyUpdateStrategy.noneNull().and((entity, property) -> !property.isIdProperty());
 
     UserModel userModel = new UserModel();
     assertThat(strategy.shouldUpdate(userModel, entityMetadata.idProperty()))
@@ -79,7 +79,7 @@ class PropertyUpdateStrategyTests {
 
   @Test
   void or() {
-    PropertyUpdateStrategy strategy = PropertyUpdateStrategy.noneNull().or((entity, property) -> !property.isIdProperty);
+    PropertyUpdateStrategy strategy = PropertyUpdateStrategy.noneNull().or((entity, property) -> !property.isIdProperty());
 
     UserModel userModel = new UserModel();
     assertThat(strategy.shouldUpdate(userModel, entityMetadata.idProperty()))

@@ -216,8 +216,8 @@ class VersionTests extends AbstractRepositoryManagerTests {
     DefaultEntityMetadataFactory factory = new DefaultEntityMetadataFactory();
     EntityMetadata metadata = factory.getEntityMetadata(VersionedModel.class);
 
-    assertThat(metadata.versionProperty).isNotNull();
-    assertThat(metadata.versionProperty.columnName).isEqualTo("version");
+    assertThat(metadata.getVersionProperty()).isNotNull();
+    assertThat(metadata.getVersionProperty().getColumnName()).isEqualTo("version");
   }
 
   @Test
@@ -225,8 +225,8 @@ class VersionTests extends AbstractRepositoryManagerTests {
     DefaultEntityMetadataFactory factory = new DefaultEntityMetadataFactory();
     EntityMetadata metadata = factory.getEntityMetadata(VersionedOnGetterModel.class);
 
-    assertThat(metadata.versionProperty).isNotNull();
-    assertThat(metadata.versionProperty.columnName).isEqualTo("version");
+    assertThat(metadata.getVersionProperty()).isNotNull();
+    assertThat(metadata.getVersionProperty().getColumnName()).isEqualTo("version");
   }
 
   @Test
@@ -234,10 +234,10 @@ class VersionTests extends AbstractRepositoryManagerTests {
     DefaultEntityMetadataFactory factory = new DefaultEntityMetadataFactory();
     EntityMetadata metadata = factory.getEntityMetadata(MetaVersionedModel.class);
 
-    assertThat(metadata.versionProperty).isNotNull();
-    assertThat(metadata.versionProperty.columnName).isEqualTo("version");
-    assertThat(metadata.versionProperty.isPresent(Version.class)).isTrue();
-    assertThat(metadata.versionProperty.isPresent(MyVersion.class)).isTrue();
+    assertThat(metadata.getVersionProperty()).isNotNull();
+    assertThat(metadata.getVersionProperty().getColumnName()).isEqualTo("version");
+    assertThat(metadata.getVersionProperty().isPresent(Version.class)).isTrue();
+    assertThat(metadata.getVersionProperty().isPresent(MyVersion.class)).isTrue();
   }
 
   @Test
@@ -254,8 +254,8 @@ class VersionTests extends AbstractRepositoryManagerTests {
     DefaultEntityMetadataFactory factory = new DefaultEntityMetadataFactory();
     EntityMetadata metadata = factory.getEntityMetadata(VersionedModel.class);
 
-    assertThat(metadata.entityProperties)
-            .extracting(p -> p.columnName)
+    assertThat(metadata.getEntityProperties(false))
+            .extracting(EntityProperty::getColumnName)
             .contains("version");
   }
 
@@ -265,8 +265,8 @@ class VersionTests extends AbstractRepositoryManagerTests {
     EntityMetadata metadata = factory.getEntityMetadata(VersionedModel.class);
 
     // version is not the ID, so it should be in entityPropertiesExcludeId
-    assertThat(metadata.entityPropertiesExcludeId)
-            .extracting(p -> p.columnName)
+    assertThat(metadata.getEntityProperties(true))
+            .extracting(EntityProperty::getColumnName)
             .contains("version");
   }
 
@@ -404,8 +404,8 @@ class VersionTests extends AbstractRepositoryManagerTests {
     DefaultEntityMetadataFactory factory = new DefaultEntityMetadataFactory();
 
     EntityMetadata metadata = factory.getEntityMetadata(MetaVersionedModel.class);
-    assertThat(metadata.versionProperty).isNotNull();
-    assertThat(metadata.versionProperty.isPresent(Version.class)).isTrue();
+    assertThat(metadata.getVersionProperty()).isNotNull();
+    assertThat(metadata.getVersionProperty().isPresent(Version.class)).isTrue();
   }
 
   @ParameterizedRepositoryManagerTest
@@ -465,8 +465,8 @@ class VersionTests extends AbstractRepositoryManagerTests {
     EntityMetadata fieldMeta = factory.getEntityMetadata(FieldVersion.class);
     EntityMetadata methodMeta = factory.getEntityMetadata(MethodVersion.class);
 
-    assertThat(fieldMeta.versionProperty).isNotNull();
-    assertThat(methodMeta.versionProperty).isNotNull();
+    assertThat(fieldMeta.getVersionProperty()).isNotNull();
+    assertThat(methodMeta.getVersionProperty()).isNotNull();
   }
 
   // -------------------------------------------------------------------------

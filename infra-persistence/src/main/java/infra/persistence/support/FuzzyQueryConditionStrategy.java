@@ -50,7 +50,7 @@ public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
           // get column name
           String column = annotation.getStringValue();
           if (Constant.DEFAULT_NONE.equals(column)) {
-            column = entityProperty.columnName;
+            column = entityProperty.getColumnName();
           }
 
           if (entityProperty.isPresent(PrefixLike.class)) {

@@ -185,7 +185,7 @@ class EntityEventMulticasterTests {
       @Override
       public void onPostDelete(UserModel entity, Object id, EntityMetadata meta) {
         received.add("entity=" + (entity != null)
-                + ",id=" + id + ",class=" + meta.entityClass.getName());
+                + ",id=" + id + ",class=" + meta.getEntityClass().getName());
       }
     });
 

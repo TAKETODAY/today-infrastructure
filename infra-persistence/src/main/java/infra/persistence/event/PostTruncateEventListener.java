@@ -43,7 +43,7 @@ public interface PostTruncateEventListener extends Listener {
    * Invoked after the table of the given entity class was truncated.
    *
    * <p>No entity instance is available; the callback exposes the truncated entity
-   * class and its metadata, e.g. to react upon {@link EntityMetadata#tableName}.
+   * class and its metadata, e.g. to react upon {@link EntityMetadata#getTableName()}.
    *
    * @param entityClass the truncated entity class; must not be {@code null}
    * @param metadata the entity metadata; must not be {@code null}
