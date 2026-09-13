@@ -48,6 +48,7 @@ import infra.jdbc.PersistenceException;
 import infra.jdbc.RepositoryManager;
 import infra.jdbc.core.ResultSetExtractor;
 import infra.jdbc.datasource.DataSourceUtils;
+import infra.jdbc.format.LoggingPreparedStatement;
 import infra.jdbc.format.SqlStatementLogger;
 import infra.lang.Descriptive;
 import infra.logging.LogMessage;
@@ -612,7 +613,7 @@ public class DefaultEntityManager implements EntityManager {
     Connection con = DataSourceUtils.getConnection(dataSource);
     PreparedStatement statement = null;
     try {
-      statement = con.prepareStatement(sql);
+      statement = prepareStatement(con, sql, false);
       int idx = setParameters(entity, properties, statement);
       // apply where parameters
       for (EntityProperty updateBy : updateByProperties) {
@@ -733,7 +734,7 @@ public class DefaultEntityManager implements EntityManager {
     Connection con = DataSourceUtils.getConnection(dataSource);
     PreparedStatement statement = null;
     try {
-      statement = con.prepareStatement(sql);
+      statement = prepareStatement(con, sql, false);
       int idx = setParameters(entity, properties, statement);
       // last one is ID
       idProperty.setParameter(statement, idx, id);
@@ -811,7 +812,7 @@ public class DefaultEntityManager implements EntityManager {
     Connection con = DataSourceUtils.getConnection(dataSource);
     PreparedStatement statement = null;
     try {
-      statement = con.prepareStatement(sql);
+      statement = prepareStatement(con, sql, false);
       int idx = setParameters(entity, properties, statement);
       // last one is where
       updateBy.setParameter(statement, idx, updateByValue);
@@ -866,7 +867,7 @@ public class DefaultEntityManager implements EntityManager {
     Connection con = DataSourceUtils.getConnection(dataSource);
     PreparedStatement statement = null;
     try {
-      statement = con.prepareStatement(sql.toString());
+      statement = prepareStatement(con, sql.toString(), false);
       idProperty.setParameter(statement, 1, id);
       int updateCount = statement.executeUpdate();
       eventMulticaster.onPostDelete(null, id, metadata);
@@ -928,7 +929,7 @@ public class DefaultEntityManager implements EntityManager {
     Connection con = DataSourceUtils.getConnection(dataSource);
     PreparedStatement statement = null;
     try {
-      statement = con.prepareStatement(sql.toString());
+      statement = prepareStatement(con, sql.toString(), false);
       if (id != null) {
         int paramIdx = 1;
         metadata.idProperty.setParameter(statement, paramIdx++, id);
@@ -1213,7 +1214,7 @@ public class DefaultEntityManager implements EntityManager {
 
     Connection con = DataSourceUtils.getConnection(dataSource);
     try {
-      PreparedStatement stmt = con.prepareStatement(statement);
+      PreparedStatement stmt = prepareStatement(con, statement, false);
       handler.setParameter(metadata, stmt);
 
       if (stmtLogger.isDebugEnabled()) {
@@ -1278,7 +1279,7 @@ public class DefaultEntityManager implements EntityManager {
               .orderBy(handler.getOrderByClause(metadata))
               .toStatementString(platform);
 
-      stmt = con.prepareStatement(statement);
+      stmt = prepareStatement(con, statement, false);
       handler.setParameter(metadata, stmt);
 
       if (stmtLogger.isDebugEnabled()) {
@@ -1310,7 +1311,7 @@ public class DefaultEntityManager implements EntityManager {
     ResultSet resultSet = null;
     PreparedStatement stmt = null;
     try {
-      stmt = con.prepareStatement(statement);
+      stmt = prepareStatement(con, statement, false);
       handler.setParameter(metadata, stmt);
 
       if (stmtLogger.isDebugEnabled()) {
@@ -1352,10 +1353,10 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   protected PreparedStatement prepareStatement(Connection connection, String sql, boolean autoGenerateId) throws SQLException {
-    if (autoGenerateId) {
-      return connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-    }
-    return connection.prepareStatement(sql);
+    PreparedStatement statement = autoGenerateId
+            ? connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
+            : connection.prepareStatement(sql);
+    return LoggingPreparedStatement.wrap(statement, stmtLogger);
   }
 
   private DataAccessException translateException(String task, @Nullable String sql, SQLException ex) {

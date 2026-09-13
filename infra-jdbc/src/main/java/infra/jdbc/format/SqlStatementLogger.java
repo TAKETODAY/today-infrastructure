@@ -14,10 +14,11 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import infra.core.style.ToStringBuilder;
-import infra.util.InfraStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.InfraStrategies;
 import infra.util.LogFormatUtils;
+import infra.util.StringUtils;
 
 /**
  * A utility class for logging SQL statements and slow queries with various
@@ -140,7 +141,7 @@ public class SqlStatementLogger {
    * @return True if this Logger is enabled for the DEBUG level, false otherwise.
    */
   public boolean isDebugEnabled() {
-    return sqlLogger.isDebugEnabled();
+    return sqlLogger.isDebugEnabled() || logToStdout || stdoutOnly;
   }
 
   /**
@@ -212,6 +213,86 @@ public class SqlStatementLogger {
       String prefix = highlight ? "\u001b[35m[" + this.stdoutOnlyPrefix + "]\u001b[0m " : this.stdoutOnlyPrefix + ": ";
       System.out.println(prefix + statement);
     }
+  }
+
+  /**
+   * Log the bound parameters of a prepared statement, MyBatis style.
+   *
+   * @param parameters the parameter values in bind order; may be {@code null} or
+   * empty to log nothing
+   */
+  void logParameters(@Nullable Object @Nullable [] parameters) {
+    if (parameters == null || parameters.length == 0) {
+      return;
+    }
+    String text = "==> Parameters: " + formatParameters(parameters);
+    if (!stdoutOnly) {
+      sqlLogger.debug(text);
+    }
+    if (stdoutOnly || logToStdout) {
+      String prefix = highlight ? "\u001b[35m[" + this.stdoutOnlyPrefix + "]\u001b[0m " : this.stdoutOnlyPrefix + ": ";
+      System.out.println(prefix + text);
+    }
+  }
+
+  /**
+   * Log the outcome of an executed statement, MyBatis style, e.g.
+   * {@code <== Updates: 3} or {@code <== Total: 5}.
+   *
+   * @param action the outcome label, e.g. {@code Updates} or {@code Total}
+   * @param count the affected row count
+   */
+  void logResult(String action, int count) {
+    logOutcome("<== " + action + ": " + count);
+  }
+
+  /**
+   * Log a raw result-set outcome line, e.g. {@code <==    Columns: id, name} or
+   * {@code <==        Row: 1, TODAY}, honoring the stdout options.
+   *
+   * @param text the fully formatted line to log
+   */
+  void logOutcome(String text) {
+    if (!stdoutOnly) {
+      sqlLogger.debug(text);
+    }
+    if (stdoutOnly || logToStdout) {
+      String prefix = highlight ? "\u001b[35m[" + this.stdoutOnlyPrefix + "]\u001b[0m " : this.stdoutOnlyPrefix + ": ";
+      System.out.println(prefix + text);
+    }
+  }
+
+  /**
+   * Format parameter values as a comma-separated list, e.g.
+   * {@code [10(Integer), TODAY(String)]}.
+   *
+   * @param parameters the parameter values in bind order
+   * @return the formatted representation, never {@code null}
+   */
+  static String formatParameters(@Nullable Object[] parameters) {
+    StringBuilder sb = new StringBuilder(parameters.length * 12 + 2);
+    sb.append('[');
+    for (int i = 0; i < parameters.length; i++) {
+      if (i > 0) {
+        sb.append(", ");
+      }
+      sb.append(formatParameter(parameters[i]));
+    }
+    return sb.append(']').toString();
+  }
+
+  private static String formatParameter(@Nullable Object value) {
+    if (value == null) {
+      return "null";
+    }
+    if (value instanceof byte[] bytes) {
+      return "byte[" + bytes.length + "]";
+    }
+    Object text = value;
+    if (value instanceof CharSequence cs) {
+      text = StringUtils.truncate(cs, 10);
+    }
+    return text + "(" + value.getClass().getSimpleName() + ")";
   }
 
   /**

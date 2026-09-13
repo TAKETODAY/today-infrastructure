@@ -38,6 +38,7 @@ import infra.core.conversion.ConversionService;
 import infra.core.conversion.support.DefaultConversionService;
 import infra.dao.DataAccessException;
 import infra.jdbc.core.ResultSetExtractor;
+import infra.jdbc.format.LoggingPreparedStatement;
 import infra.jdbc.format.SqlStatementLogger;
 import infra.jdbc.support.JdbcUtils;
 import infra.jdbc.type.ObjectTypeHandler;
@@ -357,6 +358,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
     if (statement == null) {
       JdbcConnection connection = getConnection();
       statement = preparedStatement(connection.getJdbcConnection(), allowArrayParameters);
+      statement = LoggingPreparedStatement.wrap(statement, stmtLogger);
       this.preparedStatement = statement; // update
       connection.registerStatement(statement);
     }
