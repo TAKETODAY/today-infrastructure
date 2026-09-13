@@ -17,7 +17,6 @@
 package infra.persistence;
 
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 import infra.lang.Descriptive;
 
@@ -121,9 +120,10 @@ import infra.lang.Descriptive;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DebugDescriptive
  * @see Descriptive
+ * @see ParameterSource
  * @since 4.0 2024/2/16 14:45
  */
-public interface QueryStatement {
+public interface QueryStatement extends ParameterSource {
 
   /**
    * Renders a sequence of SQL statements based on the provided entity metadata.
@@ -151,31 +151,5 @@ public interface QueryStatement {
    * The returned object can be further processed to generate platform-specific SQL strings.
    */
   StatementSequence render(EntityMetadata metadata);
-
-  /**
-   * Sets parameters in the provided {@code PreparedStatement} based on the given {@code EntityMetadata}.
-   *
-   * <p>This method is responsible for mapping the entity's properties to the corresponding
-   * parameters in the prepared statement. It uses the metadata to determine the appropriate
-   * values and their positions in the statement. This is typically used in database operations
-   * such as inserts or updates.
-   *
-   * <p>Example usage:
-   * <pre>{@code
-   * EntityMetadata metadata = ...; // Obtain entity metadata
-   * PreparedStatement statement = connection.prepareStatement("INSERT INTO table (col1, col2) VALUES (?, ?)");
-   *
-   * QueryStatement queryStatement = new Query();
-   * queryStatement.setParameter(metadata, statement);
-   *
-   * statement.executeUpdate();
-   * }</pre>
-   *
-   * @param metadata the metadata of the entity containing details such as column mappings
-   * and property information; must not be null
-   * @param statement the prepared statement where parameters will be set; must not be null
-   * @throws SQLException if a database access error occurs while setting the parameters
-   */
-  void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException;
 
 }

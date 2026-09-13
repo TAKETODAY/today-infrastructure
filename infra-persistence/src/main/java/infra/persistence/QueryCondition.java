@@ -19,7 +19,6 @@ package infra.persistence;
 import org.jspecify.annotations.Nullable;
 
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,8 +38,8 @@ import infra.persistence.sql.Restriction;
  *   <li>{@link #collectRestrictions(EntityMetadata, List)} collects the
  *       {@link Restriction restrictions} that make up the WHERE clause</li>
  *   <li>{@link #resolveOrderByClause(EntityMetadata)} resolves the ORDER BY clause</li>
- *   <li>{@link #setParameter(EntityMetadata, PreparedStatement)} binds the values of
- *       the collected restrictions, in the same order</li>
+ *   <li>{@link ParameterSource#setParameter(EntityMetadata, PreparedStatement)} binds
+ *       the values of the collected restrictions, in the same order</li>
  * </ul>
  *
  * <p>Collecting restrictions is the core contract; rendering them to SQL is a
@@ -72,11 +71,12 @@ import infra.persistence.sql.Restriction;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see QueryStatement
  * @see QueryStatementFactory
+ * @see ParameterSource
  * @see Restriction
  * @see OrderByClause
  * @since 4.0 2024/3/31 15:51
  */
-public interface QueryCondition {
+public interface QueryCondition extends ParameterSource {
 
   /**
    * Append the WHERE clause for the given entity to the supplied buffer, prefixed
@@ -140,20 +140,5 @@ public interface QueryCondition {
     }
     return null;
   }
-
-  /**
-   * Bind the values of the restrictions collected by
-   * {@link #collectRestrictions(EntityMetadata, List)} to the given statement.
-   *
-   * <p>Parameter indexes start at {@code 1} and must follow the same order in which
-   * the restrictions were collected. Each implementation is expected to consume
-   * exactly the placeholders it produced.
-   *
-   * @param metadata the metadata of the entity being queried
-   * @param statement the statement to bind parameters to
-   * @throws SQLException if a database access error occurs or a parameter index is invalid
-   */
-  void setParameter(EntityMetadata metadata, PreparedStatement statement)
-          throws SQLException;
 
 }
