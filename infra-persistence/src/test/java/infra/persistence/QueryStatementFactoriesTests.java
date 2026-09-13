@@ -229,4 +229,53 @@ class QueryStatementFactoriesTests {
     assertThat(hasDefaultFactory).isTrue();
   }
 
+  @Test
+  void shouldTryRegisteredFactoriesBeforeBuiltInOnes() {
+    QueryStatementFactory registered = mock(QueryStatementFactory.class);
+    QueryStatement registeredQuery = mock(QueryStatement.class);
+    when(registered.createQuery(any())).thenReturn(registeredQuery);
+
+    EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
+    List<ConditionPropertyExtractor> extractors = mock();
+
+    QueryStatementFactories factories = new QueryStatementFactories(
+            entityMetadataFactory, extractors, List.of(registered));
+
+    assertThat(factories.factories).startsWith(registered);
+    assertThat(factories.createQuery(new Object())).isEqualTo(registeredQuery);
+  }
+
+  @Test
+  void shouldUseRegisteredFactoryForConditionBeforeBuiltInOnes() {
+    QueryStatementFactory registered = mock(QueryStatementFactory.class);
+    ConditionStatement registeredCondition = mock(ConditionStatement.class);
+    when(registered.createCondition(any())).thenReturn(registeredCondition);
+
+    EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
+    List<ConditionPropertyExtractor> extractors = mock();
+
+    QueryStatementFactories factories = new QueryStatementFactories(
+            entityMetadataFactory, extractors, List.of(registered));
+
+    assertThat(factories.createCondition(new Object())).isEqualTo(registeredCondition);
+  }
+
+  @Test
+  void shouldKeepRegistrationOrderForRegisteredFactories() {
+    QueryStatementFactory first = mock(QueryStatementFactory.class);
+    QueryStatementFactory second = mock(QueryStatementFactory.class);
+    QueryStatement secondQuery = mock(QueryStatement.class);
+    when(first.createQuery(any())).thenReturn(null);
+    when(second.createQuery(any())).thenReturn(secondQuery);
+
+    EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
+    List<ConditionPropertyExtractor> extractors = mock();
+
+    QueryStatementFactories factories = new QueryStatementFactories(
+            entityMetadataFactory, extractors, List.of(first, second));
+
+    assertThat(factories.factories).startsWith(first, second);
+    assertThat(factories.createQuery(new Object())).isEqualTo(secondQuery);
+  }
+
 }

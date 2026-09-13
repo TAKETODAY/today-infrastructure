@@ -18,12 +18,28 @@ package infra.persistence;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import infra.util.Assert;
 import infra.util.InfraStrategies;
 
 /**
+ * Aggregates the {@link QueryStatementFactory factories} used to turn an example
+ * object into a {@link QueryStatement} or {@link ConditionStatement}.
+ *
+ * <p>Factories are consulted in order and the first non-null result wins. The
+ * lookup order is:
+ * <ol>
+ *   <li>factories explicitly registered via
+ *       {@link DefaultEntityManager#addQueryStatementFactory}, in registration order</li>
+ *   <li>factories discovered as {@link QueryStatementFactory} strategies, already
+ *       sorted by {@link infra.core.annotation.AnnotationAwareOrderComparator}
+ *       (so {@code @Order}/{@link infra.core.Ordered} are honored)</li>
+ *   <li>the built-in {@link MapQueryStatementFactory}, handling {@code Map} examples</li>
+ *   <li>the built-in {@link DefaultQueryStatementFactory}, as the final fallback</li>
+ * </ol>
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/4/10 17:55
  */
@@ -33,11 +49,16 @@ final class QueryStatementFactories implements QueryStatementFactory {
   final List<QueryStatementFactory> factories;
 
   QueryStatementFactories(EntityMetadataFactory metadataFactory, List<ConditionPropertyExtractor> extractors) {
-    this(defaultFactories(metadataFactory, extractors));
+    this(metadataFactory, extractors, List.of());
+  }
+
+  QueryStatementFactories(EntityMetadataFactory metadataFactory, List<ConditionPropertyExtractor> extractors,
+          List<QueryStatementFactory> registeredFactories) {
+    this(defaultFactories(metadataFactory, extractors, registeredFactories));
   }
 
   QueryStatementFactories(List<QueryStatementFactory> factories) {
-    this.factories = factories;
+    this.factories = List.copyOf(factories);
   }
 
   @Override
@@ -64,8 +85,11 @@ final class QueryStatementFactories implements QueryStatementFactory {
     return null;
   }
 
-  private static List<QueryStatementFactory> defaultFactories(EntityMetadataFactory entityMetadataFactory, List<ConditionPropertyExtractor> extractors) {
-    List<QueryStatementFactory> list = InfraStrategies.find(QueryStatementFactory.class);
+  private static List<QueryStatementFactory> defaultFactories(EntityMetadataFactory entityMetadataFactory,
+          List<ConditionPropertyExtractor> extractors, List<QueryStatementFactory> registeredFactories) {
+    List<QueryStatementFactory> list = new ArrayList<>(registeredFactories.size() + 4);
+    list.addAll(registeredFactories);
+    list.addAll(InfraStrategies.find(QueryStatementFactory.class));
     list.add(new MapQueryStatementFactory());
     list.add(new DefaultQueryStatementFactory(entityMetadataFactory, extractors));
     return list;

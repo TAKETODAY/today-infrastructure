@@ -29,6 +29,17 @@ import org.jspecify.annotations.Nullable;
  * <p>Typically used in persistence frameworks to convert domain objects or criteria
  * into database query representations that can be executed against a data store.</p>
  *
+ * <p>Implementations can be contributed in two ways:
+ * <ul>
+ *   <li>discovered as strategies, in which case they are ordered through
+ *       {@link infra.core.annotation.AnnotationAwareOrderComparator}; annotate with
+ *       {@code @Order} or implement {@link infra.core.Ordered} to control precedence</li>
+ *   <li>registered explicitly via
+ *       {@link DefaultEntityManager#addQueryStatementFactory}, which always takes
+ *       precedence over discovered factories</li>
+ * </ul>
+ * The first factory returning a non-null statement is used.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see QueryStatement
  * @see ConditionStatement

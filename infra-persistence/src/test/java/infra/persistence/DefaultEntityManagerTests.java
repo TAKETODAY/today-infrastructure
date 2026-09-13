@@ -128,6 +128,30 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
   }
 
   @ParameterizedRepositoryManagerTest
+  void addQueryStatementFactory(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    QueryStatementFactory factory = mock(QueryStatementFactory.class);
+    entityManager.addQueryStatementFactory(factory);
+
+    QueryStatementFactories handlerFactories = ReflectionTestUtils.getField(entityManager, "handlerFactories");
+    assertThat(handlerFactories).isNotNull();
+    assertThat(handlerFactories.factories).startsWith(factory);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void setQueryStatementFactories(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    QueryStatementFactory factory = mock(QueryStatementFactory.class);
+    entityManager.setQueryStatementFactories(List.of(factory));
+
+    QueryStatementFactories handlerFactories = ReflectionTestUtils.getField(entityManager, "handlerFactories");
+    assertThat(handlerFactories).isNotNull();
+    assertThat(handlerFactories.factories).startsWith(factory);
+  }
+
+  @ParameterizedRepositoryManagerTest
   void persist(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
 

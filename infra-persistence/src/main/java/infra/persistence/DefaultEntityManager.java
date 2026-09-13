@@ -114,6 +114,8 @@ public class DefaultEntityManager implements EntityManager {
   @SuppressWarnings("rawtypes")
   private final ArrayList<ConditionPropertyExtractor> propertyExtractors = new ArrayList<>();
 
+  private final ArrayList<QueryStatementFactory> queryStatementFactories = new ArrayList<>();
+
   private int maxBatchRecords = 0;
 
   /**
@@ -137,7 +139,8 @@ public class DefaultEntityManager implements EntityManager {
 
   private @Nullable TransactionDefinition transactionConfig = TransactionDefinition.withDefaults();
 
-  private QueryStatementFactories handlerFactories = new QueryStatementFactories(entityMetadataFactory, propertyExtractors);
+  private QueryStatementFactories handlerFactories = new QueryStatementFactories(
+          entityMetadataFactory, propertyExtractors, queryStatementFactories);
 
   public DefaultEntityManager(RepositoryManager repositoryManager) {
     this(repositoryManager, Platform.generic());
@@ -243,7 +246,48 @@ public class DefaultEntityManager implements EntityManager {
   public void setEntityMetadataFactory(EntityMetadataFactory entityMetadataFactory) {
     Assert.notNull(entityMetadataFactory, "EntityMetadataFactory is required");
     this.entityMetadataFactory = entityMetadataFactory;
-    this.handlerFactories = new QueryStatementFactories(entityMetadataFactory, propertyExtractors);
+    rebuildHandlerFactories();
+  }
+
+  /**
+   * Registers a {@link QueryStatementFactory} that is consulted before the
+   * discovered and built-in factories when creating a query or condition
+   * statement from an example object.
+   *
+   * <p>Registered factories are tried in registration order and the first one
+   * returning a non-null statement wins. This is an explicit alternative to
+   * registering a factory through the {@link QueryStatementFactory} strategy
+   * discovery mechanism, and it is not affected by {@code @Order} or
+   * {@link infra.core.Ordered}.
+   *
+   * @param factory the factory to register; must not be null
+   * @since 5.0
+   */
+  public void addQueryStatementFactory(QueryStatementFactory factory) {
+    Assert.notNull(factory, "QueryStatementFactory is required");
+    this.queryStatementFactories.add(factory);
+    rebuildHandlerFactories();
+  }
+
+  /**
+   * Replaces the explicitly registered {@link QueryStatementFactory factories}
+   * consulted when creating a query or condition statement. When {@code null},
+   * the current registrations are cleared.
+   *
+   * @param factories the factories to register, or {@code null} to clear
+   * @see #addQueryStatementFactory
+   * @since 5.0
+   */
+  public void setQueryStatementFactories(@Nullable List<QueryStatementFactory> factories) {
+    this.queryStatementFactories.clear();
+    if (factories != null) {
+      this.queryStatementFactories.addAll(factories);
+    }
+    rebuildHandlerFactories();
+  }
+
+  private void rebuildHandlerFactories() {
+    this.handlerFactories = new QueryStatementFactories(entityMetadataFactory, propertyExtractors, queryStatementFactories);
   }
 
   /**
@@ -1326,7 +1370,6 @@ public class DefaultEntityManager implements EntityManager {
       return 0;
     }
     catch (SQLException ex) {
-      DataSourceUtils.releaseConnection(con, dataSource);
       throw translateException(getDescription(handler), statement, ex);
     }
     finally {
