@@ -105,8 +105,6 @@ public class DefaultEntityManager implements EntityManager {
 
   private static final Logger logger = LoggerFactory.getLogger(DefaultEntityManager.class);
 
-  private EntityMetadataFactory entityMetadataFactory = new DefaultEntityMetadataFactory();
-
   private final DataSource dataSource;
 
   private final RepositoryManager repositoryManager;
@@ -124,6 +122,8 @@ public class DefaultEntityManager implements EntityManager {
   private boolean autoGenerateId = true;
 
   private Platform platform;
+
+  private EntityMetadataFactory entityMetadataFactory = new DefaultEntityMetadataFactory();
 
   private PropertyUpdateStrategy defaultUpdateStrategy = PropertyUpdateStrategy.noneNull();
 
