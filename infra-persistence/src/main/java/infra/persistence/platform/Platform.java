@@ -16,6 +16,8 @@
 
 package infra.persistence.platform;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.regex.Pattern;
 
 import infra.persistence.sql.ANSIJoinFragment;
@@ -60,6 +62,69 @@ public abstract class Platform {
 
   private static final Pattern ESCAPE_CLOSING_COMMENT_PATTERN = Pattern.compile("\\*/");
   private static final Pattern ESCAPE_OPENING_COMMENT_PATTERN = Pattern.compile("/\\*");
+
+  /**
+   * Return the character that opens a quoted identifier for this platform.
+   *
+   * <p>The default is the SQL-standard double quote ({@code "}). Databases that
+   * deviate override this method together with {@link #closeQuote()} — for
+   * example MySQL, which uses the backtick, or SQL Server, which uses brackets.
+   *
+   * @return the opening quote character
+   */
+  public char openQuote() {
+    return '"';
+  }
+
+  /**
+   * Return the character that closes a quoted identifier for this platform.
+   *
+   * @return the closing quote character
+   * @see #openQuote()
+   */
+  public char closeQuote() {
+    return '"';
+  }
+
+  /**
+   * Wrap the given name in this platform's quote characters.
+   *
+   * @param name the identifier to quote, possibly {@code null}
+   * @return the quoted identifier, or {@code null} when the given name is {@code null}
+   */
+  public @Nullable String toQuotedIdentifier(@Nullable String name) {
+    if (name == null) {
+      return null;
+    }
+    return new StringBuilder(name.length() + 2)
+            .append(openQuote())
+            .append(name)
+            .append(closeQuote())
+            .toString();
+  }
+
+  /**
+   * Resolve an identifier written in the internal backtick convention.
+   *
+   * <p>A name enclosed in a matched pair of backticks is taken to require
+   * quoting: the markers are replaced by this platform's quote characters. Any
+   * other value is returned unchanged. This lets statements be assembled in a
+   * dialect-neutral way and defer the actual quoting to the platform.
+   *
+   * @param name the identifier to resolve, possibly {@code null}
+   * @return the platform-quoted text, or the name unchanged when it is not
+   * enclosed in a matched pair of backticks
+   */
+  public @Nullable String quote(@Nullable String name) {
+    if (name == null) {
+      return null;
+    }
+    int length = name.length();
+    if (length < 2 || name.charAt(0) != '`' || name.charAt(length - 1) != '`') {
+      return name;
+    }
+    return toQuotedIdentifier(name.substring(1, length - 1));
+  }
 
   public static CharSequence escapeComment(CharSequence comment) {
     if (StringUtils.isNotEmpty(comment)) {
