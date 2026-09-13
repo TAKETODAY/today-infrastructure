@@ -22,14 +22,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import infra.persistence.sql.Restriction;
-import infra.persistence.sql.Select;
+import infra.persistence.sql.SimpleSelect;
 import infra.util.CollectionUtils;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/6/17 15:42
  */
-public class QueryBuilder extends ColumnsQueryStatement implements QueryCondition {
+public class QueryBuilder extends SimpleSelectQueryStatement implements QueryCondition {
 
   private final List<Restriction> restrictions = new ArrayList<>();
 
@@ -53,8 +53,8 @@ public class QueryBuilder extends ColumnsQueryStatement implements QueryConditio
   }
 
   @Override
-  protected void renderInternal(EntityMetadata metadata, Select select) {
-    select.setWhereClause(Restriction.renderWhereClause(restrictions));
+  protected void renderInternal(EntityMetadata metadata, SimpleSelect select) {
+    select.restrictions.addAll(restrictions);
   }
 
   @Override

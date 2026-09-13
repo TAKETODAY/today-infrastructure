@@ -23,7 +23,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import infra.persistence.sql.Restriction;
-import infra.persistence.sql.Select;
+import infra.persistence.sql.SimpleSelect;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -48,7 +48,7 @@ class NoConditionsQueryTests {
   void shouldRenderInternalDoNothing() {
     NoConditionsQuery noConditionsQuery = NoConditionsQuery.instance;
     EntityMetadata metadata = mock(EntityMetadata.class);
-    Select select = mock(Select.class);
+    SimpleSelect select = mock(SimpleSelect.class);
 
     // Should not throw any exception
     noConditionsQuery.renderInternal(metadata, select);

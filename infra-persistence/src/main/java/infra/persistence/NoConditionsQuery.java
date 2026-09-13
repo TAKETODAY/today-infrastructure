@@ -23,7 +23,7 @@ import java.util.List;
 import infra.logging.LogMessage;
 import infra.persistence.sql.OrderByClause;
 import infra.persistence.sql.Restriction;
-import infra.persistence.sql.Select;
+import infra.persistence.sql.SimpleSelect;
 
 /**
  * resolving {@link OrderByClause} from entity
@@ -31,12 +31,12 @@ import infra.persistence.sql.Select;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/20 17:03
  */
-final class NoConditionsQuery extends ColumnsQueryStatement implements QueryCondition, DebugDescriptive {
+final class NoConditionsQuery extends SimpleSelectQueryStatement implements QueryCondition, DebugDescriptive {
 
   static final NoConditionsQuery instance = new NoConditionsQuery();
 
   @Override
-  protected void renderInternal(EntityMetadata metadata, Select select) {
+  protected void renderInternal(EntityMetadata metadata, SimpleSelect select) {
     // noop
   }
 

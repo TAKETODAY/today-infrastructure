@@ -48,21 +48,26 @@ import infra.persistence.platform.Platform;
  * reads from may change in between, otherwise placeholders and bound values can
  * silently mismatch.
  *
- * <p>Most implementations extend {@link ColumnsQueryStatement} or
- * {@link SimpleSelectQueryStatement} and only implement {@code renderInternal};
- * a {@link QueryCondition} can be reused here as well. Implementations should be
- * stateless, or at least safe for a single render-then-bind cycle under
- * concurrent use. Implementing {@link DebugDescriptive} is optional but
- * recommended, so that statements can describe themselves in SQL logs and error
- * messages.
+ * <p>Rendering stays dialect-neutral until the sequence is turned into a SQL
+ * string. Implementations must not hard-code a quoting character such as a
+ * backtick: identifier quoting is resolved against the platform in
+ * {@link StatementSequence#toStatementString(Platform)}, through
+ * {@link Platform#toQuotedIdentifier(String)} and {@link Platform#quote(String)}.
+ *
+ * <p>Most implementations extend {@link SimpleSelectQueryStatement} and only
+ * implement {@code renderInternal}; a {@link QueryCondition} can be reused here
+ * as well. Implementations should be stateless, or at least safe for a single
+ * render-then-bind cycle under concurrent use. Implementing
+ * {@link DebugDescriptive} is optional but recommended, so that statements can
+ * describe themselves in SQL logs and error messages.
  *
  * <p>Example:
  * <pre>{@code
- * class ActiveUsers extends ColumnsQueryStatement {
+ * class ActiveUsers extends SimpleSelectQueryStatement {
  *
  *   @Override
- *   protected void renderInternal(EntityMetadata metadata, Select select) {
- *     select.setWhereClause("`status` = ?");
+ *   protected void renderInternal(EntityMetadata metadata, SimpleSelect select) {
+ *     select.addRestriction(Restriction.equal("status"));
  *   }
  *
  *   @Override
@@ -87,12 +92,17 @@ public interface QueryStatement extends ParameterSource {
    *
    * <p>The returned sequence is not yet a SQL string; pass it to
    * {@link StatementSequence#toStatementString(Platform)} to resolve the
-   * platform dialect. The {@code ?} placeholders emitted here fix the order in
-   * which {@link ParameterSource#setParameter(EntityMetadata, PreparedStatement)}
+   * platform dialect. This method must not emit dialect-specific text — in
+   * particular it must not hard-code identifier quoting; resolve that against
+   * the platform when the sequence is converted.
+   *
+   * <p>The {@code ?} placeholders emitted here fix the order in which
+   * {@link ParameterSource#setParameter(EntityMetadata, PreparedStatement)}
    * must bind values.
    *
    * @param metadata the metadata of the entity to query; must not be {@code null}
    * @return the rendered statement sequence; never {@code null}
+   * @see StatementSequence#toStatementString(Platform)
    */
   StatementSequence render(EntityMetadata metadata);
 

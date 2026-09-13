@@ -35,20 +35,15 @@ public class SimpleSelect implements StatementSequence {
 
   protected String tableName;
 
-  @Nullable
-  protected OrderByClause orderByClause;
+  protected @Nullable OrderByClause orderByClause;
 
-  @Nullable
-  protected CharSequence comment;
+  protected @Nullable CharSequence comment;
 
-  @Nullable
-  protected HashMap<String, String> aliases;
+  protected @Nullable HashMap<String, String> aliases;
 
-  @Nullable
-  private Integer limit;
+  private @Nullable Integer limit;
 
-  @Nullable
-  private Integer offset;
+  private @Nullable Integer offset;
 
   @SuppressWarnings("NullAway")
   public SimpleSelect() {

@@ -20,13 +20,13 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import infra.persistence.sql.OrderByClause;
-import infra.persistence.sql.Select;
+import infra.persistence.sql.SimpleSelect;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/16 22:39
  */
-class NoConditionsOrderByQuery extends ColumnsQueryStatement implements QueryStatement {
+class NoConditionsOrderByQuery extends SimpleSelectQueryStatement implements QueryStatement {
 
   private final OrderByClause clause;
 
@@ -35,9 +35,9 @@ class NoConditionsOrderByQuery extends ColumnsQueryStatement implements QuerySta
   }
 
   @Override
-  protected void renderInternal(EntityMetadata metadata, Select select) {
+  protected void renderInternal(EntityMetadata metadata, SimpleSelect select) {
     if (!clause.isEmpty()) {
-      select.setOrderByClause(clause.toClause());
+      select.orderBy(clause);
     }
   }
 

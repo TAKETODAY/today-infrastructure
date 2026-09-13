@@ -38,7 +38,12 @@ class NoConditionsOrderByQueryTests {
     var handler = new NoConditionsOrderByQuery(OrderByClause.forMap(Map.of("name", Order.ASC, "age", Order.DESC)));
 
     StatementSequence select = handler.render(entityMetadata);
-    assertThat(select).extracting("orderByClause").isNotNull().asString().contains("`name` ASC").contains("`age` DESC");
+    assertThat(select).extracting("orderByClause")
+            .isNotNull()
+            .asInstanceOf(org.assertj.core.api.InstanceOfAssertFactories.type(OrderByClause.class))
+            .extracting(OrderByClause::toClause).asString()
+            .contains("`name` ASC")
+            .contains("`age` DESC");
   }
 
 }

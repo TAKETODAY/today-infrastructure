@@ -20,13 +20,13 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import infra.logging.LogMessage;
-import infra.persistence.sql.Select;
+import infra.persistence.sql.SimpleSelect;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/19 19:31
  */
-class FindByIdQuery extends ColumnsQueryStatement implements QueryStatement, DebugDescriptive {
+class FindByIdQuery extends SimpleSelectQueryStatement implements QueryStatement, DebugDescriptive {
   private final Object id;
 
   FindByIdQuery(Object id) {
@@ -34,8 +34,9 @@ class FindByIdQuery extends ColumnsQueryStatement implements QueryStatement, Deb
   }
 
   @Override
-  protected void renderInternal(EntityMetadata metadata, Select select) {
-    select.setWhereClause('`' + metadata.getIdColumnName() + "`=? LIMIT 1");
+  protected void renderInternal(EntityMetadata metadata, SimpleSelect select) {
+    select.addWhereToken('`' + metadata.getIdColumnName() + "`=?");
+    select.limit(1);
   }
 
   @Override
