@@ -134,7 +134,7 @@ public class DefaultEntityManager implements EntityManager {
 
   private @Nullable TransactionDefinition transactionConfig = TransactionDefinition.withDefaults();
 
-  private QueryStatementFactories statementFactories = new QueryStatementFactories(entityMetadataFactory);
+  private final QueryStatementFactories statementFactories = new QueryStatementFactories(entityMetadataFactory);
 
   public DefaultEntityManager(RepositoryManager repositoryManager) {
     this(repositoryManager, Platform.generic());
@@ -358,57 +358,6 @@ public class DefaultEntityManager implements EntityManager {
    */
   public void setTransactionConfig(@Nullable TransactionDefinition definition) {
     this.transactionConfig = definition;
-  }
-
-  /**
-   * Adds a custom {@link ConditionPropertyExtractor} to the internal list of property extractors.
-   * This method is used to register an extractor that can be utilized for extracting condition
-   * properties during processing. The provided extractor must not be null.
-   *
-   * <p>Example usage:
-   * <pre>{@code
-   * ConditionPropertyExtractor<MyCondition> extractor = condition -> {
-   *   // Implement logic to extract properties from the condition
-   *   return Collections.singletonMap("key", "value");
-   * };
-   *
-   * processor.addConditionPropertyExtractor(extractor);
-   * }</pre>
-   *
-   * @param extractor the {@link ConditionPropertyExtractor} to be added; must not be null
-   * @throws IllegalArgumentException if the provided extractor is null
-   */
-  @SuppressWarnings("rawtypes")
-  public void addConditionPropertyExtractor(ConditionPropertyExtractor extractor) {
-    this.statementFactories.addConditionPropertyExtractor(extractor);
-  }
-
-  /**
-   * Sets the list of condition property extractors to be used for extracting
-   * properties from conditions. If the provided list is {@code null}, the current
-   * list of extractors will be cleared.
-   *
-   * <p>This method is useful when you want to customize or replace the existing
-   * set of property extractors with a new set. For example, you can define your
-   * own extractors to handle specific types of conditions.</p>
-   *
-   * <p>Example usage:</p>
-   *
-   * <pre>{@code
-   *   List<ConditionPropertyExtractor> customExtractors = Arrays.asList(
-   *     new CustomExtractor1(),
-   *     new CustomExtractor2()
-   *   );
-   *
-   *   processor.setConditionPropertyExtractors(customExtractors);
-   * }</pre>
-   *
-   * @param extractors the list of {@link ConditionPropertyExtractor} instances to set,
-   * or {@code null} to clear the current list
-   */
-  @SuppressWarnings("rawtypes")
-  public void setConditionPropertyExtractors(@Nullable List<ConditionPropertyExtractor> extractors) {
-    this.statementFactories.setConditionPropertyExtractors(extractors);
   }
 
   // ---------------------------------------------------------------------

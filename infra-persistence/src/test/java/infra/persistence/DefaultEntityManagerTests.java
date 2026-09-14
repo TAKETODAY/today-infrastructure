@@ -863,11 +863,11 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
       query.executeUpdate();
     }
 
-    assertThatThrownBy(() -> entityManager.addConditionPropertyExtractor(null))
+    assertThatThrownBy(() -> entityManager.getQueryStatementFactories().addConditionPropertyExtractor(null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("ConditionPropertyExtractor is required");
 
-    entityManager.addConditionPropertyExtractor(new Base64ValueExtractor());
+    entityManager.getQueryStatementFactories().addConditionPropertyExtractor(new Base64ValueExtractor());
     repositoryManager.getTypeHandlerManager().register(new Base64ValueHandler());
 
     Option entity = Option.of("k", "v");
@@ -905,7 +905,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
 
     assertThat(entityManager.findUnique(Option.of("k", null))).isNull();
 
-    entityManager.setConditionPropertyExtractors(List.of(new Base64ValueExtractor()));
+    entityManager.getQueryStatementFactories().setConditionPropertyExtractors(List.of(new Base64ValueExtractor()));
 
     assertThat(entityManager.findUnique(Option.of("k", null))).isEqualTo(entity);
     assertThat(entityManager.findUnique(Option.of("k1", null))).isNull();
@@ -1356,10 +1356,10 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     ConditionPropertyExtractor extractor = mock(ConditionPropertyExtractor.class);
 
     // Should accept non-null extractor
-    assertThatCode(() -> entityManager.addConditionPropertyExtractor(extractor)).doesNotThrowAnyException();
+    assertThatCode(() -> entityManager.getQueryStatementFactories().addConditionPropertyExtractor(extractor)).doesNotThrowAnyException();
 
     // Should reject null extractor
-    assertThatThrownBy(() -> entityManager.addConditionPropertyExtractor(null))
+    assertThatThrownBy(() -> entityManager.getQueryStatementFactories().addConditionPropertyExtractor(null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("ConditionPropertyExtractor is required");
   }
@@ -1377,10 +1377,10 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     extractors.add(mock(ConditionPropertyExtractor.class));
 
     // Should accept non-null list
-    assertThatCode(() -> entityManager.setConditionPropertyExtractors(extractors)).doesNotThrowAnyException();
+    assertThatCode(() -> entityManager.getQueryStatementFactories().setConditionPropertyExtractors(extractors)).doesNotThrowAnyException();
 
     // Should accept null (clears extractors)
-    assertThatCode(() -> entityManager.setConditionPropertyExtractors(null)).doesNotThrowAnyException();
+    assertThatCode(() -> entityManager.getQueryStatementFactories().setConditionPropertyExtractors(null)).doesNotThrowAnyException();
   }
 
   @Test

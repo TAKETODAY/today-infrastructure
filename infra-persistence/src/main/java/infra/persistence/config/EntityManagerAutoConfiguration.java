@@ -55,7 +55,7 @@ public final class EntityManagerAutoConfiguration {
     entityManager.setEntityMetadataFactory(entityMetadataFactory);
     entityManager.setMaxBatchRecords(properties.maxBatchRecords);
     entityManager.setAutoGenerateId(properties.autoGenerateId);
-    entityManager.setConditionPropertyExtractors(conditionPropertyExtractors);
+    entityManager.getQueryStatementFactories().setConditionPropertyExtractors(conditionPropertyExtractors);
     entityManager.setEntityEventRegistry(entityEventRegistry);
 
     if (versionIncrementStrategy != null) {
