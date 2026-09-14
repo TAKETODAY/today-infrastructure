@@ -19,6 +19,9 @@ import infra.persistence.DefaultEntityManager;
 import infra.persistence.DefaultEntityMetadataFactory;
 import infra.persistence.EntityManager;
 import infra.persistence.EntityMetadataFactory;
+import infra.persistence.EntityQueryFactories;
+import infra.persistence.EntityQueryFactory;
+import infra.persistence.PropertyConditionStrategy;
 import infra.persistence.VersionIncrementStrategy;
 import infra.persistence.event.DefaultEntityEventRegistry;
 import infra.persistence.event.EntityEventRegistry;
@@ -44,7 +47,7 @@ public final class EntityManagerAutoConfiguration {
   public static EntityManager entityManager(RepositoryManager manager, @Nullable Platform platform,
           EntityMetadataFactory entityMetadataFactory, SqlStatementLogger sqlStatementLogger,
           PersistenceProperties properties, @Nullable VersionIncrementStrategy versionIncrementStrategy,
-          EntityEventRegistry entityEventRegistry,
+          EntityEventRegistry entityEventRegistry, EntityQueryFactories entityQueryFactories,
           ObjectProvider<EntityManagerCustomizer> customizers) {
     DefaultEntityManager entityManager = new DefaultEntityManager(manager, platform);
 
@@ -53,6 +56,7 @@ public final class EntityManagerAutoConfiguration {
     entityManager.setMaxBatchRecords(properties.maxBatchRecords);
     entityManager.setAutoGenerateId(properties.autoGenerateId);
     entityManager.setEntityEventRegistry(entityEventRegistry);
+    entityManager.setEntityQueryFactories(entityQueryFactories);
 
     if (versionIncrementStrategy != null) {
       entityManager.setVersionIncrementStrategy(versionIncrementStrategy);
@@ -62,6 +66,17 @@ public final class EntityManagerAutoConfiguration {
       customizer.customize(entityManager);
     }
     return entityManager;
+  }
+
+  @Component
+  @ConditionalOnMissingBean(EntityQueryFactories.class)
+  static EntityQueryFactories entityQueryFactories(EntityMetadataFactory entityMetadataFactory,
+          List<EntityQueryFactory> entityQueryFactories, List<PropertyConditionStrategy> strategies) {
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory, entityQueryFactories);
+    for (PropertyConditionStrategy strategy : strategies) {
+      factories.addStrategy(strategy);
+    }
+    return factories;
   }
 
   @Component

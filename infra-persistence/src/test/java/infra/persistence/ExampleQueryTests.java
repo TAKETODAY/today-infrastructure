@@ -18,6 +18,8 @@ package infra.persistence;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +37,7 @@ class ExampleQueryTests {
     Object example = new Object();
     EntityMetadata exampleMetadata = mock(EntityMetadata.class);
 
-    ExampleQuery query = new ExampleQuery(example, exampleMetadata, DefaultEntityQueryFactory.strategies);
+    ExampleQuery query = new ExampleQuery(example, exampleMetadata, List.of());
 
     assertThat(query).isNotNull();
     assertThat(query.getDescription()).isEqualTo("Query entities with example");
@@ -46,7 +48,7 @@ class ExampleQueryTests {
     Object example = new Object();
     EntityMetadata exampleMetadata = mock(EntityMetadata.class);
 
-    ExampleQuery query = new ExampleQuery(example, exampleMetadata, DefaultEntityQueryFactory.strategies);
+    ExampleQuery query = new ExampleQuery(example, exampleMetadata, List.of());
     Object logMessage = query.getDebugLogMessage();
 
     assertThat(logMessage).isNotNull();

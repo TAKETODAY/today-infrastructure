@@ -7,7 +7,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.jdbc.config.DataSourceAutoConfiguration;
 import infra.jdbc.config.DataSourceTransactionManagerAutoConfiguration;
@@ -17,11 +16,16 @@ import infra.jdbc.type.MappedTypes;
 import infra.jdbc.type.TypeHandler;
 import infra.jdbc.type.TypeHandlerManager;
 import infra.jdbc.type.UnknownTypeHandler;
+import infra.persistence.DefaultEntityManager;
 import infra.persistence.EntityManager;
 import infra.persistence.EntityMetadataFactory;
+import infra.persistence.EntityQueryFactories;
+import infra.persistence.EntityQueryFactory;
+import infra.persistence.PropertyConditionStrategy;
 import infra.persistence.PropertyFilter;
 import infra.persistence.VersionIncrementStrategy;
 import infra.persistence.support.DefaultVersionIncrementStrategy;
+import infra.test.context.runner.ApplicationContextRunner;
 import infra.util.function.SupplierUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -95,6 +99,33 @@ class EntityManagerAutoConfigurationTests {
               assertThat(context).hasSingleBean(EntityManager.class);
               assertThat(context.getBean(EntityManager.class))
                       .extracting("autoGenerateId").isEqualTo(false);
+            });
+  }
+
+  @Test
+  void entityQueryFactory() {
+    EntityQueryFactory queryFactory = mock(EntityQueryFactory.class);
+    contextRunner.withBean("queryFactory", EntityQueryFactory.class, () -> queryFactory)
+            .run(context -> {
+              assertThat(context).hasSingleBean(EntityManager.class);
+              DefaultEntityManager entityManager = (DefaultEntityManager) context.getBean(EntityManager.class);
+              assertThat(entityManager.getEntityQueryFactories().getFactories()).startsWith(queryFactory);
+            });
+  }
+
+  @Test
+  void entityQueryFactoriesIsNotExposedAsEntityQueryFactory() {
+    contextRunner.run(context ->
+            assertThat(context.getBeanNamesForType(EntityQueryFactory.class)).doesNotContain("entityQueryFactories"));
+  }
+
+  @Test
+  void propertyConditionStrategies() {
+    PropertyConditionStrategy strategy = mock(PropertyConditionStrategy.class);
+    contextRunner.withBean("propertyConditionStrategy", PropertyConditionStrategy.class, () -> strategy)
+            .run(context -> {
+              DefaultEntityManager entityManager = (DefaultEntityManager) context.getBean(EntityManager.class);
+              assertThat(entityManager.getEntityQueryFactories().getStrategies()).contains(strategy);
             });
   }
 

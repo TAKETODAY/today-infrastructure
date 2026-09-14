@@ -134,7 +134,7 @@ public class DefaultEntityManager implements EntityManager {
 
   private @Nullable TransactionDefinition transactionConfig = TransactionDefinition.withDefaults();
 
-  private final EntityQueryFactories entityQueryFactories = new EntityQueryFactories(entityMetadataFactory);
+  private EntityQueryFactories entityQueryFactories = new EntityQueryFactories(entityMetadataFactory);
 
   public DefaultEntityManager(RepositoryManager repositoryManager) {
     this(repositoryManager, Platform.generic());
@@ -257,6 +257,24 @@ public class DefaultEntityManager implements EntityManager {
    */
   public EntityQueryFactories getEntityQueryFactories() {
     return entityQueryFactories;
+  }
+
+  /**
+   * Set the {@link EntityQueryFactories} used to turn an example object into a
+   * {@link QueryStatement} or {@link QueryCondition}. When {@code null}, the default
+   * {@link EntityQueryFactories} is restored.
+   *
+   * @param entityQueryFactories the factories to use, or {@code null} to use the default
+   * @since 5.0
+   */
+  public void setEntityQueryFactories(@Nullable EntityQueryFactories entityQueryFactories) {
+    if (entityQueryFactories == null) {
+      this.entityQueryFactories = new EntityQueryFactories(entityMetadataFactory);
+    }
+    else {
+      entityQueryFactories.setEntityMetadataFactory(entityMetadataFactory);
+      this.entityQueryFactories = entityQueryFactories;
+    }
   }
 
   /**

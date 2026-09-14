@@ -39,22 +39,23 @@ import infra.util.InfraStrategies;
  *       sorted by {@link infra.core.annotation.AnnotationAwareOrderComparator}
  *       (so {@code @Order}/{@link infra.core.Ordered} are honored)</li>
  *   <li>the built-in {@link MapEntityQueryFactory}, handling {@code Map} examples</li>
- *   <li>the built-in {@link DefaultEntityQueryFactory}, as the final fallback</li>
  * </ol>
  *
- * <p>{@link #getFactories()} returns an immutable snapshot of all factories in the
- * above lookup order.
+ * <p>When none of them produces a result, the built-in
+ * {@link DefaultEntityQueryFactory} is used as the final fallback; it is not part of
+ * {@link #getFactories()}, which returns an immutable snapshot of the registered and
+ * built-in factories in the above lookup order.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/4/10 17:55
  */
-public final class EntityQueryFactories implements EntityQueryFactory {
+public final class EntityQueryFactories {
 
   private final List<EntityQueryFactory> registeredFactories = new ArrayList<>();
 
   private final List<EntityQueryFactory> builtInFactories;
 
-  private @Nullable DefaultEntityQueryFactory defaultFactory;
+  private final DefaultEntityQueryFactory defaultFactory;
 
   private List<EntityQueryFactory> factories;
 
@@ -68,8 +69,7 @@ public final class EntityQueryFactories implements EntityQueryFactory {
   }
 
   /**
-   * Create a registry pre-populated with the given condition property extractors
-   * and registered factories.
+   * Create a registry pre-populated with the given registered factories.
    *
    * @param entityMetadataFactory the metadata factory used by the fallback factory
    * @param registeredFactories factories to register, consulted before the discovered ones
@@ -77,18 +77,20 @@ public final class EntityQueryFactories implements EntityQueryFactory {
   public EntityQueryFactories(EntityMetadataFactory entityMetadataFactory, List<EntityQueryFactory> registeredFactories) {
     Assert.notNull(entityMetadataFactory, "EntityMetadataFactory is required");
     this.registeredFactories.addAll(registeredFactories);
+    this.defaultFactory = new DefaultEntityQueryFactory(entityMetadataFactory);
 
     List<EntityQueryFactory> builtIn = new ArrayList<>(4);
     builtIn.addAll(InfraStrategies.find(EntityQueryFactory.class));
     builtIn.add(new MapEntityQueryFactory());
     this.builtInFactories = List.copyOf(builtIn);
 
-    setEntityMetadataFactory(entityMetadataFactory);
+    rebuild();
   }
 
   EntityQueryFactories(List<EntityQueryFactory> factories) {
     this.registeredFactories.addAll(factories);
     this.builtInFactories = List.of();
+    this.defaultFactory = new DefaultEntityQueryFactory(new DefaultEntityMetadataFactory());
     rebuild();
   }
 
@@ -119,8 +121,8 @@ public final class EntityQueryFactories implements EntityQueryFactory {
   }
 
   /**
-   * Return an immutable snapshot of all factories in lookup order: registered,
-   * discovered, built-in and finally the fallback factory.
+   * Return an immutable snapshot of the registered and built-in factories in lookup
+   * order, excluding the fallback factory.
    *
    * @return the factories in the order they are consulted
    */
@@ -129,26 +131,42 @@ public final class EntityQueryFactories implements EntityQueryFactory {
   }
 
   /**
+   * Add a {@link PropertyConditionStrategy} applied by the fallback factory, consulted
+   * before its built-in default strategy.
+   *
+   * @param strategy the strategy to add; must not be {@code null}
+   */
+  public void addStrategy(PropertyConditionStrategy strategy) {
+    defaultFactory.addStrategy(strategy);
+  }
+
+  /**
+   * Return an unmodifiable view of the fallback factory's condition strategies in
+   * evaluation order.
+   *
+   * @return the condition strategies
+   */
+  public List<PropertyConditionStrategy> getStrategies() {
+    return defaultFactory.getStrategies();
+  }
+
+  /**
    * Update the metadata factory used by the fallback factory.
    */
   void setEntityMetadataFactory(EntityMetadataFactory entityMetadataFactory) {
     Assert.notNull(entityMetadataFactory, "EntityMetadataFactory is required");
-    this.defaultFactory = new DefaultEntityQueryFactory(entityMetadataFactory);
+    defaultFactory.setEntityMetadataFactory(entityMetadataFactory);
     rebuild();
   }
 
   private void rebuild() {
-    List<EntityQueryFactory> list = new ArrayList<>(registeredFactories.size() + builtInFactories.size() + 1);
+    List<EntityQueryFactory> list = new ArrayList<>(registeredFactories.size() + builtInFactories.size());
     list.addAll(registeredFactories);
     list.addAll(builtInFactories);
-    if (defaultFactory != null) {
-      list.add(defaultFactory);
-    }
     this.factories = List.copyOf(list);
   }
 
-  @Override
-  public @Nullable QueryStatement createQuery(Object example) {
+  public QueryStatement createQuery(Object example) {
     Assert.notNull(example, "Example object is required");
     for (EntityQueryFactory factory : factories) {
       QueryStatement query = factory.createQuery(example);
@@ -156,11 +174,10 @@ public final class EntityQueryFactories implements EntityQueryFactory {
         return query;
       }
     }
-    return null;
+    return defaultFactory.createQuery(example);
   }
 
-  @Override
-  public @Nullable QueryCondition createCondition(Object example) {
+  public QueryCondition createCondition(Object example) {
     Assert.notNull(example, "Example object is required");
     for (EntityQueryFactory factory : factories) {
       QueryCondition condition = factory.createCondition(example);
@@ -168,7 +185,7 @@ public final class EntityQueryFactories implements EntityQueryFactory {
         return condition;
       }
     }
-    return null;
+    return defaultFactory.createCondition(example);
   }
 
 }

@@ -82,7 +82,6 @@ class EntityQueryFactoriesTests {
     EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory);
 
     assertThat(factories.getFactories()).hasAtLeastOneElementOfType(MapEntityQueryFactory.class);
-    assertThat(factories.getFactories()).hasAtLeastOneElementOfType(DefaultEntityQueryFactory.class);
   }
 
   @Test
@@ -173,52 +172,49 @@ class EntityQueryFactoriesTests {
   }
 
   @Test
-  void shouldReturnNullWhenAllFactoriesReturnNullForQuery() {
+  void shouldFallBackToDefaultFactoryWhenAllFactoriesReturnNullForQuery() {
 
     EntityQueryFactory factory1 = mock(EntityQueryFactory.class);
     EntityQueryFactory factory2 = mock(EntityQueryFactory.class);
+    EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
 
     when(factory1.createQuery(any())).thenReturn(null);
     when(factory2.createQuery(any())).thenReturn(null);
 
-    EntityQueryFactories factories = new EntityQueryFactories(List.of(factory1, factory2));
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory, List.of(factory1, factory2));
 
     Object example = new Object();
     QueryStatement result = factories.createQuery(example);
 
-    assertThat(result).isNull();
+    assertThat(result).isNotNull();
   }
 
   @Test
-  void shouldReturnNullWhenAllFactoriesReturnNullForCondition() {
+  void shouldFallBackToDefaultFactoryWhenAllFactoriesReturnNullForCondition() {
 
     EntityQueryFactory factory1 = mock(EntityQueryFactory.class);
     EntityQueryFactory factory2 = mock(EntityQueryFactory.class);
+    EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
 
     when(factory1.createCondition(any())).thenReturn(null);
     when(factory2.createCondition(any())).thenReturn(null);
 
-    EntityQueryFactories factories = new EntityQueryFactories(List.of(factory1, factory2));
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory, List.of(factory1, factory2));
 
     Object example = new Object();
     QueryCondition result = factories.createCondition(example);
 
-    assertThat(result).isNull();
+    assertThat(result).isNotNull();
   }
 
   @Test
-  void shouldIncludeMapAndDefaultFactoriesInConstructor() {
+  void shouldIncludeMapFactoryInConstructor() {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
 
     EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory);
 
-    boolean hasMapFactory = factories.getFactories().stream()
-            .anyMatch(f -> f instanceof MapEntityQueryFactory);
-    boolean hasDefaultFactory = factories.getFactories().stream()
-            .anyMatch(f -> f instanceof DefaultEntityQueryFactory);
-
-    assertThat(hasMapFactory).isTrue();
-    assertThat(hasDefaultFactory).isTrue();
+    assertThat(factories.getFactories()).hasAtLeastOneElementOfType(MapEntityQueryFactory.class);
+    assertThat(factories.getFactories()).doesNotHaveAnyElementsOfTypes(DefaultEntityQueryFactory.class);
   }
 
   @Test
@@ -268,12 +264,14 @@ class EntityQueryFactoriesTests {
   }
 
   @Test
-  void shouldUseDefaultFactoryAsLastResort() {
+  void shouldUseDefaultFactoryAsFallback() {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
 
     EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory);
 
-    assertThat(factories.getFactories()).last().isInstanceOf(DefaultEntityQueryFactory.class);
+    assertThat(factories.getFactories()).doesNotHaveAnyElementsOfTypes(DefaultEntityQueryFactory.class);
+    assertThat(factories.createQuery(new Object())).isNotNull();
+    assertThat(factories.createCondition(new Object())).isNotNull();
   }
 
   @Test
@@ -314,7 +312,6 @@ class EntityQueryFactoriesTests {
     factories.addFactory(second);
 
     assertThat(factories.getFactories()).startsWith(first, second);
-    assertThat(factories.getFactories()).last().isInstanceOf(DefaultEntityQueryFactory.class);
   }
 
   @Test
@@ -362,7 +359,7 @@ class EntityQueryFactoriesTests {
     factories.setEntityMetadataFactory(new DefaultEntityMetadataFactory());
 
     assertThat(factories.getFactories()).startsWith(registered);
-    assertThat(factories.getFactories()).last().isInstanceOf(DefaultEntityQueryFactory.class);
+    assertThat(factories.getFactories()).doesNotHaveAnyElementsOfTypes(DefaultEntityQueryFactory.class);
   }
 
   @Test
@@ -372,6 +369,17 @@ class EntityQueryFactoriesTests {
 
     assertThatThrownBy(() -> factories.getFactories().add(mock(EntityQueryFactory.class)))
             .isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
+  void shouldAddPropertyConditionStrategy() {
+    EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory);
+
+    PropertyConditionStrategy strategy = mock(PropertyConditionStrategy.class);
+    factories.addStrategy(strategy);
+
+    assertThat(factories.getStrategies()).contains(strategy);
   }
 
 }
