@@ -76,9 +76,9 @@ final class EntityEventMulticaster {
     }
   }
 
-  public void onPostUpdate(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+  public void onPostUpdate(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, int affectedRows) {
     for (var listener : registry.listeners(UpdateEventListener.class).listenersFor(entity.getClass())) {
-      listener.onPostUpdate(entity, metadata, strategy);
+      listener.onPostUpdate(entity, metadata, strategy, affectedRows);
     }
   }
 

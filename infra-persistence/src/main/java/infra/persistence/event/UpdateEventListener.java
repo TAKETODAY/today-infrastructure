@@ -25,7 +25,7 @@ import infra.persistence.PropertyUpdateStrategy;
  * <p>This interface extends {@link EntityEventListener} — the common base contract
  * shared by the entity lifecycle listeners — and models only the update concern via
  * {@link #onPreUpdate(Object, EntityMetadata, PropertyUpdateStrategy)},
- * {@link #onPostUpdate(Object, EntityMetadata, PropertyUpdateStrategy)}, and
+ * {@link #onPostUpdate(Object, EntityMetadata, PropertyUpdateStrategy, int)}, and
  * {@link #onUpdateFailed(Object, EntityMetadata, PropertyUpdateStrategy, Throwable)}. To
  * observe other lifecycle operations, implement the corresponding contract, e.g.
  * {@link PersistEventListener} or {@link DeleteEventListener}.
@@ -79,8 +79,9 @@ public interface UpdateEventListener<T> extends EntityEventListener<T> {
    * @param metadata the entity metadata; must not be {@code null}
    * @param strategy the property update strategy that selected the updated
    * properties; must not be {@code null}
+   * @param affectedRows the number of rows affected by the update statement
    */
-  default void onPostUpdate(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+  default void onPostUpdate(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, int affectedRows) {
   }
 
   /**

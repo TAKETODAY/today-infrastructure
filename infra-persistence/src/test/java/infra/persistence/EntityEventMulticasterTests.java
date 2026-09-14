@@ -157,7 +157,7 @@ class EntityEventMulticasterTests {
     registry.addListener(new UpdateEventListener<UserModel>() {
 
       @Override
-      public void onPostUpdate(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+      public void onPostUpdate(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, int affectedRows) {
         received.add("update");
       }
     });
@@ -170,10 +170,27 @@ class EntityEventMulticasterTests {
     });
 
     multicaster.onPostPersist(UserModel.male("TODAY", 10), metadata, PropertyUpdateStrategy.noneNull());
-    multicaster.onPostUpdate(UserModel.male("TODAY", 10), metadata, PropertyUpdateStrategy.noneNull());
+    multicaster.onPostUpdate(UserModel.male("TODAY", 10), metadata, PropertyUpdateStrategy.noneNull(), 1);
     multicaster.onPostDelete(null, 42, metadata);
 
     assertThat(received).containsExactly("persist", "update", "delete");
+  }
+
+  @Test
+  void postUpdateEventCarriesAffectedRows() {
+    List<Integer> received = new ArrayList<>();
+
+    registry.addListener(new UpdateEventListener<UserModel>() {
+
+      @Override
+      public void onPostUpdate(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, int affectedRows) {
+        received.add(affectedRows);
+      }
+    });
+
+    multicaster.onPostUpdate(UserModel.male("TODAY", 10), metadata, PropertyUpdateStrategy.noneNull(), 3);
+
+    assertThat(received).containsExactly(3);
   }
 
   @Test
@@ -203,22 +220,22 @@ class EntityEventMulticasterTests {
     registry.addListener(new UpdateEventListener<UserModel>() {
 
       @Override
-      public void onPostUpdate(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+      public void onPostUpdate(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, int affectedRows) {
         userReceived.add("user:" + entity.name);
       }
     });
-    multicaster.onPostUpdate(UserModel.male("TODAY", 10), metadata, PropertyUpdateStrategy.noneNull());
+    multicaster.onPostUpdate(UserModel.male("TODAY", 10), metadata, PropertyUpdateStrategy.noneNull(), 1);
     assertThat(userReceived).containsExactly("user:TODAY");
 
     List<String> allReceived = new ArrayList<>();
     registry.addListener(new UpdateEventListener<Object>() {
 
       @Override
-      public void onPostUpdate(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+      public void onPostUpdate(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, int affectedRows) {
         allReceived.add("all:" + entity.getClass().getSimpleName());
       }
     });
-    multicaster.onPostUpdate(UserModel.male("TODAY", 10), metadata, PropertyUpdateStrategy.noneNull());
+    multicaster.onPostUpdate(UserModel.male("TODAY", 10), metadata, PropertyUpdateStrategy.noneNull(), 1);
     assertThat(allReceived).containsExactly("all:UserModel");
   }
 
@@ -271,7 +288,7 @@ class EntityEventMulticasterTests {
     registry.addListener(new UpdateEventListener<UserModel>() {
 
       @Override
-      public void onPostUpdate(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+      public void onPostUpdate(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, int affectedRows) {
         received.add("update");
       }
     });
@@ -287,7 +304,7 @@ class EntityEventMulticasterTests {
     multicaster.onPostPersist(UserModel.male("TODAY", 10), metadata, PropertyUpdateStrategy.noneNull());
     assertThat(received).isEmpty();
 
-    multicaster.onPostUpdate(UserModel.male("TODAY", 10), metadata, PropertyUpdateStrategy.noneNull());
+    multicaster.onPostUpdate(UserModel.male("TODAY", 10), metadata, PropertyUpdateStrategy.noneNull(), 1);
     multicaster.onPostDelete(null, 42, metadata);
 
     assertThat(received).containsExactly("update", "delete");

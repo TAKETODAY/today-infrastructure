@@ -437,7 +437,7 @@ boolean hasNext = page.hasNextPage();
 | `onPrePersist(entity, metadata, strategy)` / `onPostPersist(entity, metadata, strategy)` / `onPersistFailed(entity, metadata, strategy, exception)`。回调可拿到选择写入属性的 `PropertyUpdateStrategy`；后置回调触发时自增主键已回填。
 
 | `UpdateEventListener<T>`
-| `onPreUpdate(entity, metadata, strategy)` / `onPostUpdate(entity, metadata, strategy)` / `onUpdateFailed(entity, metadata, strategy, exception)`。默认策略下只会写回非 null 属性，版本字段由框架覆盖；乐观锁失败也会触发失败回调。
+| `onPreUpdate(entity, metadata, strategy)` / `onPostUpdate(entity, metadata, strategy, affectedRows)` / `onUpdateFailed(entity, metadata, strategy, exception)`。默认策略下只会写回非 null 属性，版本字段由框架覆盖；乐观锁失败也会触发失败回调；后置回调可通过 `affectedRows` 获取本次更新的受影响行数。
 
 | `DeleteEventListener<T>`
 | `onPreDelete(entity, id, metadata)` / `onPostDelete(entity, id, metadata)` / `onDeleteFailed(entity, id, metadata, exception)`，可获取被删除实体与主键（按 id 或示例删除时二者可能为 `null`）。
@@ -464,7 +464,7 @@ class UserAuditListener implements UpdateEventListener<User> {
   }
 
   @Override
-  public void onPostUpdate(User entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+  public void onPostUpdate(User entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, int affectedRows) {
     // 更新后处理
   }
 }

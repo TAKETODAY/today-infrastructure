@@ -281,7 +281,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
       }
 
       @Override
-      public void onPostUpdate(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+      public void onPostUpdate(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, int affectedRows) {
         updateStrategies.add(strategy);
         received.add("afterUpdate");
       }
