@@ -26,7 +26,7 @@ import infra.persistence.EntityMetadata;
  * <p>This interface extends {@link EntityEventListener} — the common base contract
  * shared by the entity lifecycle listeners — and models only the delete concern via
  * {@link #onPreDelete(Object, Object, EntityMetadata)},
- * {@link #onPostDelete(Object, Object, EntityMetadata)}, and
+ * {@link #onPostDelete(Object, Object, EntityMetadata, int)}, and
  * {@link #onDeleteFailed(Object, Object, EntityMetadata, Throwable)}. To observe other
  * lifecycle operations, implement the corresponding contract, e.g.
  * {@link PersistEventListener} or {@link UpdateEventListener}.
@@ -69,8 +69,9 @@ public interface DeleteEventListener<T> extends EntityEventListener<T> {
    * @param id the id of the deleted entity, or {@code null} if not available (e.g.
    * when deleting by example)
    * @param metadata the entity metadata; must not be {@code null}
+   * @param affectedRows the number of rows affected by the delete statement
    */
-  default void onPostDelete(@Nullable T entity, @Nullable Object id, EntityMetadata metadata) {
+  default void onPostDelete(@Nullable T entity, @Nullable Object id, EntityMetadata metadata, int affectedRows) {
   }
 
   /**

@@ -882,7 +882,7 @@ public class DefaultEntityManager implements EntityManager {
       statement = prepareStatement(con, sql.toString(), false);
       idProperty.setParameter(statement, 1, id);
       int updateCount = statement.executeUpdate();
-      eventMulticaster.onPostDelete(null, id, metadata);
+      eventMulticaster.onPostDelete(null, id, metadata, updateCount);
       return updateCount;
     }
     catch (SQLException ex) {
@@ -962,7 +962,7 @@ public class DefaultEntityManager implements EntityManager {
                 "Optimistic locking failure deleting entity [%s] with ID: %s, expected version: %s, but %d row(s) were deleted"
                         .formatted(metadata.getTableName(), id, versionValue, updateCount));
       }
-      eventMulticaster.onPostDelete(entityOrExample, id, metadata);
+      eventMulticaster.onPostDelete(entityOrExample, id, metadata, updateCount);
       return updateCount;
     }
     catch (SQLException ex) {

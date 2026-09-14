@@ -294,7 +294,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
       }
 
       @Override
-      public void onPostDelete(UserModel entity, Object id, EntityMetadata metadata) {
+      public void onPostDelete(UserModel entity, Object id, EntityMetadata metadata, int affectedRows) {
         received.add("afterDelete:" + id);
       }
     });

@@ -94,9 +94,9 @@ final class EntityEventMulticaster {
     }
   }
 
-  public void onPostDelete(@Nullable Object entity, @Nullable Object id, EntityMetadata metadata) {
+  public void onPostDelete(@Nullable Object entity, @Nullable Object id, EntityMetadata metadata, int affectedRows) {
     for (var listener : registry.listeners(DeleteEventListener.class).listenersFor(metadata.getEntityClass())) {
-      listener.onPostDelete(entity, id, metadata);
+      listener.onPostDelete(entity, id, metadata, affectedRows);
     }
   }
 

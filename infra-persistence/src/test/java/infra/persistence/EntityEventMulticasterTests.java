@@ -164,14 +164,14 @@ class EntityEventMulticasterTests {
     registry.addListener(new DeleteEventListener<UserModel>() {
 
       @Override
-      public void onPostDelete(UserModel entity, Object id, EntityMetadata metadata) {
+      public void onPostDelete(UserModel entity, Object id, EntityMetadata metadata, int affectedRows) {
         received.add("delete");
       }
     });
 
     multicaster.onPostPersist(UserModel.male("TODAY", 10), metadata, PropertyUpdateStrategy.noneNull());
     multicaster.onPostUpdate(UserModel.male("TODAY", 10), metadata, PropertyUpdateStrategy.noneNull(), 1);
-    multicaster.onPostDelete(null, 42, metadata);
+    multicaster.onPostDelete(null, 42, metadata, 1);
 
     assertThat(received).containsExactly("persist", "update", "delete");
   }
@@ -200,14 +200,14 @@ class EntityEventMulticasterTests {
     registry.addListener(new DeleteEventListener<UserModel>() {
 
       @Override
-      public void onPostDelete(UserModel entity, Object id, EntityMetadata meta) {
+      public void onPostDelete(UserModel entity, Object id, EntityMetadata meta, int affectedRows) {
         received.add("entity=" + (entity != null)
                 + ",id=" + id + ",class=" + meta.getEntityClass().getName());
       }
     });
 
-    multicaster.onPostDelete(null, 42, metadata);
-    multicaster.onPostDelete(UserModel.male("TODAY", 10), 7, metadata);
+    multicaster.onPostDelete(null, 42, metadata, 1);
+    multicaster.onPostDelete(UserModel.male("TODAY", 10), 7, metadata, 1);
 
     assertThat(received).containsExactly(
             "entity=false,id=42,class=" + UserModel.class.getName(),
@@ -262,22 +262,22 @@ class EntityEventMulticasterTests {
     registry.addListener(new DeleteEventListener<UserModel>() {
 
       @Override
-      public void onPostDelete(UserModel entity, Object id, EntityMetadata metadata) {
+      public void onPostDelete(UserModel entity, Object id, EntityMetadata metadata, int affectedRows) {
         userReceived.add("user:" + id);
       }
     });
-    multicaster.onPostDelete(null, 42, metadata);
+    multicaster.onPostDelete(null, 42, metadata, 1);
     assertThat(userReceived).containsExactly("user:42");
 
     List<String> allReceived = new ArrayList<>();
     registry.addListener(new DeleteEventListener<Object>() {
 
       @Override
-      public void onPostDelete(Object entity, Object id, EntityMetadata metadata) {
+      public void onPostDelete(Object entity, Object id, EntityMetadata metadata, int affectedRows) {
         allReceived.add("all:" + id);
       }
     });
-    multicaster.onPostDelete(null, 7, metadata);
+    multicaster.onPostDelete(null, 7, metadata, 1);
     assertThat(allReceived).containsExactly("all:7");
   }
 
@@ -295,7 +295,7 @@ class EntityEventMulticasterTests {
     registry.addListener(new DeleteEventListener<UserModel>() {
 
       @Override
-      public void onPostDelete(UserModel entity, Object id, EntityMetadata metadata) {
+      public void onPostDelete(UserModel entity, Object id, EntityMetadata metadata, int affectedRows) {
         received.add("delete");
       }
     });
@@ -305,7 +305,7 @@ class EntityEventMulticasterTests {
     assertThat(received).isEmpty();
 
     multicaster.onPostUpdate(UserModel.male("TODAY", 10), metadata, PropertyUpdateStrategy.noneNull(), 1);
-    multicaster.onPostDelete(null, 42, metadata);
+    multicaster.onPostDelete(null, 42, metadata, 1);
 
     assertThat(received).containsExactly("update", "delete");
   }
