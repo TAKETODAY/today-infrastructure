@@ -10,7 +10,7 @@
 
 * xref:data-access/persistence.adoc#persistence-config[自动配置与依赖]：引入即用，无需编写样板代码。
 * xref:data-access/persistence.adoc#persistence-mapping[实体映射]：注解驱动的表 / 列 / 主键 / 版本映射与可插拔的元数据工厂。
-* xref:data-access/persistence.adoc#persistence-manager[`EntityManager`]：`persist` / `update` / `delete` / `find` / `count` / `page` / `iterate` 等完整 API。
+* xref:data-access/persistence.adoc#persistence-manager[`EntityManager`]：`persist` / `update` / `updateById` / `updateBy` / `saveOrUpdate` / `delete` / `truncate` / `find*` / `count` / `page` / `iterate` 等完整 API。
 * xref:data-access/persistence.adoc#persistence-example[示例查询 (Query by Example)]：以对象作为查询条件，支持 `@Where`、`@Like`、`@OR`、`@OrderBy`。
 * xref:data-access/persistence.adoc#persistence-update-strategy[属性更新策略]：精细控制哪些字段参与更新。
 * xref:data-access/persistence.adoc#persistence-version[乐观锁]：基于 `@Version` 的并发控制。
@@ -117,6 +117,10 @@ class MyEntityManagerCustomizer implements EntityManagerCustomizer {
 | 类型
 | 声明该类型引用另一个实体的主表，用于没有自己的主键、而与目标实体共享主键的场景（如查询 / 更新模型）。
 
+| `@UpdateBy`
+| 字段 / 方法
+| 标记用于更新的 `WHERE` 条件属性（不参与 `SET`）；当 `update()` 的实体没有可用主键时，由这些属性的值构成条件，详见 <<persistence-update>>。
+
 |===
 
 === 默认命名策略
@@ -167,11 +171,15 @@ entityManager.persist(user, PropertyUpdateStrategy.noneNull(), true);
 entityManager.persist(userStream, true);
 ----
 
+[[persistence-update]]
 === 更新
+
+`update(Object)` 依据实体自身状态更新，可指定更新策略。条件选择顺序为：优先使用实体主键作为 `WHERE`；当实体没有可用主键时，
+则使用标注了 `@UpdateBy` 的属性值构成 `WHERE` 条件（此时若没有任何 `@UpdateBy` 属性，会抛出 `InvalidDataAccessApiUsageException`）。
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
-// 按实体状态更新（主键作为条件），可指定更新策略
+// 按实体状态更新（主键作为条件，或 @UpdateBy 属性作为条件），可指定更新策略
 int rows = entityManager.update(user);
 entityManager.update(user, PropertyUpdateStrategy.noneNull());
 
@@ -179,6 +187,7 @@ entityManager.update(user, PropertyUpdateStrategy.noneNull());
 entityManager.updateById(user);
 entityManager.updateById(user, 10L);
 entityManager.updateById(user, PropertyUpdateStrategy.noneNull());
+entityManager.updateById(user, 10L, PropertyUpdateStrategy.noneNull());
 
 // 按指定属性（属性名或列名）的值作为 WHERE 条件更新
 // 其余可更新属性由更新策略决定，例：UPDATE t_user SET ... WHERE name = ?
@@ -187,6 +196,27 @@ entityManager.updateBy(user, "name", PropertyUpdateStrategy.noneNull());
 
 // 新实体插入、已存在则更新
 entityManager.saveOrUpdate(user);
+entityManager.saveOrUpdate(user, PropertyUpdateStrategy.noneNull());
+----
+
+当实体没有主键、又要以某个属性定位记录时，可在该属性上标注 `@UpdateBy`：
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+@Table(name = "t_user")
+class User {
+
+  @UpdateBy
+  @Column(name = "name")
+  String name;
+
+  Integer age;
+}
+
+User user = new User();
+user.name = "John";
+user.age = 30;
+entityManager.update(user);   // UPDATE t_user SET age = ? WHERE name = ?
 ----
 
 === 删除与清空
@@ -308,7 +338,8 @@ List<User> users = entityManager.find(User.class, (Object) example);
 
 * `PropertyConditionStrategy`：根据 `EntityProperty` 与值决定生成什么条件。内置实现包括
   `WhereAnnotationConditionStrategy`、`FuzzyQueryConditionStrategy`（`@Like` 系列）和
-  `DefaultConditionStrategy`（默认等值），并可通过 `InfraStrategies` 扩展。
+  `DefaultConditionStrategy`（默认等值）；自定义实现可通过 `InfraStrategies` 机制被发现，
+  并排在上述默认实现之前生效。
 * `ConditionPropertyExtractor`：在构造条件前对属性值做转换或包装，可通过
   `DefaultEntityManager#addConditionPropertyExtractor` 注册。
 
@@ -382,7 +413,7 @@ Page<User> page = entityManager.page(User.class, pageable);
 List<User> rows = page.getRows();
 Number totalRows = page.getTotalRows();
 int totalPages = page.getTotalPages();
-boolean hasNext = page.isHasNextPage();
+boolean hasNext = page.hasNextPage();
 ----
 
 也可以通过 `DefaultEntityManager#setDefaultPageable` 设置缺省分页。排序使用 `Order.ASC` / `Order.DESC`，
@@ -403,13 +434,13 @@ boolean hasNext = page.isHasNextPage();
 | 监听器 | 回调
 
 | `PersistEventListener<T>`
-| `onPrePersist(entity, metadata, strategy)` / `onPostPersist(entity, metadata, strategy)`。回调可拿到选择写入属性的 `PropertyUpdateStrategy`；后置回调触发时自增主键已回填。
+| `onPrePersist(entity, metadata, strategy)` / `onPostPersist(entity, metadata, strategy)` / `onPersistFailed(entity, metadata, strategy, exception)`。回调可拿到选择写入属性的 `PropertyUpdateStrategy`；后置回调触发时自增主键已回填。
 
 | `UpdateEventListener<T>`
-| `onPreUpdate(entity, metadata, strategy)` / `onPostUpdate(entity, metadata, strategy)`。默认策略下只会写回非 null 属性，版本字段由框架覆盖。
+| `onPreUpdate(entity, metadata, strategy)` / `onPostUpdate(entity, metadata, strategy)` / `onUpdateFailed(entity, metadata, strategy, exception)`。默认策略下只会写回非 null 属性，版本字段由框架覆盖；乐观锁失败也会触发失败回调。
 
 | `DeleteEventListener<T>`
-| `onPreDelete` / `onPostDelete`，可获取被删除实体与主键。
+| `onPreDelete(entity, id, metadata)` / `onPostDelete(entity, id, metadata)` / `onDeleteFailed(entity, id, metadata, exception)`，可获取被删除实体与主键（按 id 或示例删除时二者可能为 `null`）。
 
 | `PostLoadEventListener<T>`
 | `onPostLoad`，实体从 `ResultSet` 装配完成后触发，可用于填充派生字段或写入缓存。
@@ -445,8 +476,9 @@ class UserAuditListener implements UpdateEventListener<User> {
 批量写入通过 `PersistenceProperties.maxBatchRecords` 控制：当累积的记录数达到该值时，
 会隐式执行一次 `executeBatch()`；为 `0` 时不自动执行，由显式的刷新触发。
 
-`BatchPersistListener` 会在每个批次执行前后收到通知，`BatchExecution` 暴露了 SQL 语句、实体元数据、
-更新策略、是否处理自增主键以及当前批次收集到的实体集合。监听器可通过 `@Order` / `Ordered` 排序。
+`BatchPersistListener` 会在每个批次执行前后收到通知，`BatchExecution` 暴露了 SQL 语句 `statement`、实体元数据
+`entityMetadata`、更新策略 `strategy`、是否处理自增主键 `autoGenerateId` 以及当前批次收集到的实体集合 `entities`，
+并通过 `getAffectedRows()` 返回该批次累计受影响的行数。监听器可通过 `@Order` / `Ordered` 排序。
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -477,7 +509,7 @@ class LoggingBatchListener implements BatchPersistListener {
 `QueryStatement` 定义了「渲染 SQL + 绑定参数」的契约：实现 `render` 返回
 `StatementSequence`，`setParameter` 负责把值绑定到 `PreparedStatement`。`QueryCondition`
 描述查询的条件部分：`collectRestrictions` 收集 WHERE 条件、`appendWhereClause` 将条件渲染到
-缓冲区、`getOrderByClause` 解析排序、`setParameter` 绑定参数。内置实现有按主键查询、
+缓冲区、`resolveOrderByClause` 解析排序、`setParameter` 绑定参数。内置实现有按主键查询、
 无条件查询、示例查询与 `Map` 查询等。
 
 `infra.persistence.platform.Platform` 抽象了数据库方言差异，默认实现为 `GenericPlatform`
