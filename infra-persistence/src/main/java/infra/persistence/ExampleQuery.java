@@ -35,10 +35,6 @@ import infra.persistence.sql.OrderByClause;
 import infra.persistence.sql.OrderBySource;
 import infra.persistence.sql.Restriction;
 import infra.persistence.sql.SimpleSelect;
-import infra.persistence.support.DefaultConditionStrategy;
-import infra.persistence.support.FuzzyQueryConditionStrategy;
-import infra.persistence.support.WhereAnnotationConditionStrategy;
-import infra.util.InfraStrategies;
 
 /**
  * A query statement that builds SQL conditions based on a non-null example object.
@@ -53,31 +49,25 @@ import infra.util.InfraStrategies;
  */
 final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCondition, DebugDescriptive {
 
-  static final List<PropertyConditionStrategy> strategies;
-
-  static {
-    List<PropertyConditionStrategy> list = InfraStrategies.find(PropertyConditionStrategy.class);
-    list.add(new WhereAnnotationConditionStrategy());
-    list.add(new FuzzyQueryConditionStrategy());
-    list.add(new DefaultConditionStrategy());
-    strategies = List.copyOf(list);
-  }
-
   private final Object example;
 
   private final EntityMetadata exampleMetadata;
+
+  private final List<PropertyConditionStrategy> strategies;
 
   private @Nullable OrderByClause orderByClause;
 
   private @Nullable ArrayList<Condition> conditions;
 
-  ExampleQuery(Object example, EntityMetadata exampleMetadata) {
+  ExampleQuery(Object example, EntityMetadata exampleMetadata, List<PropertyConditionStrategy> strategies) {
     this.example = example;
     this.exampleMetadata = exampleMetadata;
+    this.strategies = strategies;
   }
 
-  ExampleQuery(EntityMetadataFactory factory, Object example) {
+  ExampleQuery(EntityMetadataFactory factory, Object example, List<PropertyConditionStrategy> strategies) {
     this.example = example;
+    this.strategies = strategies;
     this.exampleMetadata = factory.getEntityMetadata(example.getClass());
   }
 

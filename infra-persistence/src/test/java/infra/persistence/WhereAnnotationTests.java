@@ -46,7 +46,7 @@ class WhereAnnotationTests {
     query.status2 = 2;
     query.status3 = 3;
 
-    ExampleQuery exampleQuery = new ExampleQuery(metadataFactory, query);
+    ExampleQuery exampleQuery = new ExampleQuery(metadataFactory, query, DefaultEntityQueryFactory.strategies);
     StringBuilder sqlBuffer = new StringBuilder();
     exampleQuery.appendWhereClause(userModelMetadata, sqlBuffer);
 

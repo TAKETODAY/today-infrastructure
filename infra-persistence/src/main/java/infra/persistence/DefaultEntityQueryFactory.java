@@ -16,12 +16,29 @@
 
 package infra.persistence;
 
+import java.util.List;
+
+import infra.persistence.support.DefaultConditionStrategy;
+import infra.persistence.support.FuzzyQueryConditionStrategy;
+import infra.persistence.support.WhereAnnotationConditionStrategy;
+import infra.util.InfraStrategies;
+
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ExampleQuery
  * @since 4.0 2024/4/10 16:53
  */
 final class DefaultEntityQueryFactory implements EntityQueryFactory {
+
+  static final List<PropertyConditionStrategy> strategies;
+
+  static {
+    List<PropertyConditionStrategy> list = InfraStrategies.find(PropertyConditionStrategy.class);
+    list.add(new WhereAnnotationConditionStrategy());
+    list.add(new FuzzyQueryConditionStrategy());
+    list.add(new DefaultConditionStrategy());
+    strategies = List.copyOf(list);
+  }
 
   private final EntityMetadataFactory factory;
 
@@ -31,12 +48,12 @@ final class DefaultEntityQueryFactory implements EntityQueryFactory {
 
   @Override
   public QueryStatement createQuery(Object example) {
-    return new ExampleQuery(factory, example);
+    return new ExampleQuery(factory, example, strategies);
   }
 
   @Override
   public QueryCondition createCondition(Object example) {
-    return new ExampleQuery(factory, example);
+    return new ExampleQuery(factory, example, strategies);
   }
 
 }

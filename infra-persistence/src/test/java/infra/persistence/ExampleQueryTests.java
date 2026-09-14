@@ -35,7 +35,7 @@ class ExampleQueryTests {
     Object example = new Object();
     EntityMetadata exampleMetadata = mock(EntityMetadata.class);
 
-    ExampleQuery query = new ExampleQuery(example, exampleMetadata);
+    ExampleQuery query = new ExampleQuery(example, exampleMetadata, DefaultEntityQueryFactory.strategies);
 
     assertThat(query).isNotNull();
     assertThat(query.getDescription()).isEqualTo("Query entities with example");
@@ -46,7 +46,7 @@ class ExampleQueryTests {
     Object example = new Object();
     EntityMetadata exampleMetadata = mock(EntityMetadata.class);
 
-    ExampleQuery query = new ExampleQuery(example, exampleMetadata);
+    ExampleQuery query = new ExampleQuery(example, exampleMetadata, DefaultEntityQueryFactory.strategies);
     Object logMessage = query.getDebugLogMessage();
 
     assertThat(logMessage).isNotNull();
