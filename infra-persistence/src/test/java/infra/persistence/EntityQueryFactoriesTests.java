@@ -32,14 +32,14 @@ import static org.mockito.Mockito.when;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/11/8 20:33
  */
-class QueryStatementFactoriesTests {
+class EntityQueryFactoriesTests {
 
   @Test
-  void shouldCreateQueryStatementFactories() {
+  void shouldCreateEntityQueryFactories() {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
     List<ConditionPropertyExtractor> extractors = List.of();
 
-    QueryStatementFactories factories = new QueryStatementFactories(entityMetadataFactory, extractors);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory, extractors);
 
     assertThat(factories).isNotNull();
     assertThat(factories.getFactories()).isNotEmpty();
@@ -50,7 +50,7 @@ class QueryStatementFactoriesTests {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
     List<ConditionPropertyExtractor> extractors = List.of();
 
-    QueryStatementFactories factories = new QueryStatementFactories(entityMetadataFactory, extractors);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory, extractors);
 
     Object example = new Object();
     QueryStatement query = factories.createQuery(example);
@@ -63,7 +63,7 @@ class QueryStatementFactoriesTests {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
     List<ConditionPropertyExtractor> extractors = List.of();
 
-    QueryStatementFactories factories = new QueryStatementFactories(entityMetadataFactory, extractors);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory, extractors);
 
     Object example = new Object();
     QueryCondition condition = factories.createCondition(example);
@@ -76,17 +76,17 @@ class QueryStatementFactoriesTests {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
     List<ConditionPropertyExtractor> extractors = List.of();
 
-    QueryStatementFactory customFactory = mock(QueryStatementFactory.class);
+    EntityQueryFactory customFactory = mock(EntityQueryFactory.class);
     QueryStatement customQuery = mock(QueryStatement.class);
 
     when(customFactory.createQuery(any())).thenReturn(customQuery);
 
     // We can't easily inject our custom factory into the static list, but we can verify
     // the behavior by checking that the default factories are used
-    QueryStatementFactories factories = new QueryStatementFactories(entityMetadataFactory, extractors);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory, extractors);
 
-    assertThat(factories.getFactories()).hasAtLeastOneElementOfType(MapQueryStatementFactory.class);
-    assertThat(factories.getFactories()).hasAtLeastOneElementOfType(DefaultQueryStatementFactory.class);
+    assertThat(factories.getFactories()).hasAtLeastOneElementOfType(MapEntityQueryFactory.class);
+    assertThat(factories.getFactories()).hasAtLeastOneElementOfType(DefaultEntityQueryFactory.class);
   }
 
   @Test
@@ -94,10 +94,10 @@ class QueryStatementFactoriesTests {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
     List<ConditionPropertyExtractor> extractors = List.of();
 
-    QueryStatementFactories factories = new QueryStatementFactories(entityMetadataFactory, extractors);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory, extractors);
 
     // Create a mock factory that always returns null
-    QueryStatementFactory nullFactory = mock(QueryStatementFactory.class);
+    EntityQueryFactory nullFactory = mock(EntityQueryFactory.class);
     when(nullFactory.createQuery(any())).thenReturn(null);
 
     // The actual behavior depends on the default factories, but we can at least
@@ -110,10 +110,10 @@ class QueryStatementFactoriesTests {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
     List<ConditionPropertyExtractor> extractors = List.of();
 
-    QueryStatementFactories factories = new QueryStatementFactories(entityMetadataFactory, extractors);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory, extractors);
 
     // Create a mock factory that always returns null
-    QueryStatementFactory nullFactory = mock(QueryStatementFactory.class);
+    EntityQueryFactory nullFactory = mock(EntityQueryFactory.class);
     when(nullFactory.createCondition(any())).thenReturn(null);
 
     // The actual behavior depends on the default factories, but we can at least
@@ -126,7 +126,7 @@ class QueryStatementFactoriesTests {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
     List<ConditionPropertyExtractor> extractors = List.of();
 
-    QueryStatementFactories factories = new QueryStatementFactories(entityMetadataFactory, extractors);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory, extractors);
 
     assertThatThrownBy(() -> {
       factories.createQuery(null);
@@ -138,7 +138,7 @@ class QueryStatementFactoriesTests {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
     List<ConditionPropertyExtractor> extractors = List.of();
 
-    QueryStatementFactories factories = new QueryStatementFactories(entityMetadataFactory, extractors);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory, extractors);
 
     assertThatThrownBy(() -> {
       factories.createCondition(null);
@@ -148,14 +148,14 @@ class QueryStatementFactoriesTests {
   @Test
   void shouldReturnFirstNonNullQueryFromFactories() {
 
-    QueryStatementFactory factory1 = mock(QueryStatementFactory.class);
-    QueryStatementFactory factory2 = mock(QueryStatementFactory.class);
+    EntityQueryFactory factory1 = mock(EntityQueryFactory.class);
+    EntityQueryFactory factory2 = mock(EntityQueryFactory.class);
     QueryStatement query2 = mock(QueryStatement.class);
 
     when(factory1.createQuery(any())).thenReturn(null);
     when(factory2.createQuery(any())).thenReturn(query2);
 
-    QueryStatementFactories factories = new QueryStatementFactories(List.of(factory1, factory2, new MapQueryStatementFactory()));
+    EntityQueryFactories factories = new EntityQueryFactories(List.of(factory1, factory2, new MapEntityQueryFactory()));
 
     Object example = new Object();
     QueryStatement result = factories.createQuery(example);
@@ -165,14 +165,14 @@ class QueryStatementFactoriesTests {
 
   @Test
   void shouldReturnFirstNonNullConditionFromFactories() {
-    QueryStatementFactory factory1 = mock(QueryStatementFactory.class);
-    QueryStatementFactory factory2 = mock(QueryStatementFactory.class);
+    EntityQueryFactory factory1 = mock(EntityQueryFactory.class);
+    EntityQueryFactory factory2 = mock(EntityQueryFactory.class);
     QueryCondition condition2 = mock(QueryCondition.class);
 
     when(factory1.createCondition(any())).thenReturn(null);
     when(factory2.createCondition(any())).thenReturn(condition2);
 
-    QueryStatementFactories factories = new QueryStatementFactories(List.of(factory1, factory2, new MapQueryStatementFactory()));
+    EntityQueryFactories factories = new EntityQueryFactories(List.of(factory1, factory2, new MapEntityQueryFactory()));
 
     Object example = new Object();
     QueryCondition result = factories.createCondition(example);
@@ -183,13 +183,13 @@ class QueryStatementFactoriesTests {
   @Test
   void shouldReturnNullWhenAllFactoriesReturnNullForQuery() {
 
-    QueryStatementFactory factory1 = mock(QueryStatementFactory.class);
-    QueryStatementFactory factory2 = mock(QueryStatementFactory.class);
+    EntityQueryFactory factory1 = mock(EntityQueryFactory.class);
+    EntityQueryFactory factory2 = mock(EntityQueryFactory.class);
 
     when(factory1.createQuery(any())).thenReturn(null);
     when(factory2.createQuery(any())).thenReturn(null);
 
-    QueryStatementFactories factories = new QueryStatementFactories(List.of(factory1, factory2));
+    EntityQueryFactories factories = new EntityQueryFactories(List.of(factory1, factory2));
 
     Object example = new Object();
     QueryStatement result = factories.createQuery(example);
@@ -200,13 +200,13 @@ class QueryStatementFactoriesTests {
   @Test
   void shouldReturnNullWhenAllFactoriesReturnNullForCondition() {
 
-    QueryStatementFactory factory1 = mock(QueryStatementFactory.class);
-    QueryStatementFactory factory2 = mock(QueryStatementFactory.class);
+    EntityQueryFactory factory1 = mock(EntityQueryFactory.class);
+    EntityQueryFactory factory2 = mock(EntityQueryFactory.class);
 
     when(factory1.createCondition(any())).thenReturn(null);
     when(factory2.createCondition(any())).thenReturn(null);
 
-    QueryStatementFactories factories = new QueryStatementFactories(List.of(factory1, factory2));
+    EntityQueryFactories factories = new EntityQueryFactories(List.of(factory1, factory2));
 
     Object example = new Object();
     QueryCondition result = factories.createCondition(example);
@@ -219,12 +219,12 @@ class QueryStatementFactoriesTests {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
     List<ConditionPropertyExtractor> extractors = List.of();
 
-    QueryStatementFactories factories = new QueryStatementFactories(entityMetadataFactory, extractors);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory, extractors);
 
     boolean hasMapFactory = factories.getFactories().stream()
-            .anyMatch(f -> f instanceof MapQueryStatementFactory);
+            .anyMatch(f -> f instanceof MapEntityQueryFactory);
     boolean hasDefaultFactory = factories.getFactories().stream()
-            .anyMatch(f -> f instanceof DefaultQueryStatementFactory);
+            .anyMatch(f -> f instanceof DefaultEntityQueryFactory);
 
     assertThat(hasMapFactory).isTrue();
     assertThat(hasDefaultFactory).isTrue();
@@ -232,14 +232,14 @@ class QueryStatementFactoriesTests {
 
   @Test
   void shouldTryRegisteredFactoriesBeforeBuiltInOnes() {
-    QueryStatementFactory registered = mock(QueryStatementFactory.class);
+    EntityQueryFactory registered = mock(EntityQueryFactory.class);
     QueryStatement registeredQuery = mock(QueryStatement.class);
     when(registered.createQuery(any())).thenReturn(registeredQuery);
 
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
     List<ConditionPropertyExtractor> extractors = List.of();
 
-    QueryStatementFactories factories = new QueryStatementFactories(
+    EntityQueryFactories factories = new EntityQueryFactories(
             entityMetadataFactory, extractors, List.of(registered));
 
     assertThat(factories.getFactories()).startsWith(registered);
@@ -248,14 +248,14 @@ class QueryStatementFactoriesTests {
 
   @Test
   void shouldUseRegisteredFactoryForConditionBeforeBuiltInOnes() {
-    QueryStatementFactory registered = mock(QueryStatementFactory.class);
+    EntityQueryFactory registered = mock(EntityQueryFactory.class);
     QueryCondition registeredCondition = mock(QueryCondition.class);
     when(registered.createCondition(any())).thenReturn(registeredCondition);
 
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
     List<ConditionPropertyExtractor> extractors = List.of();
 
-    QueryStatementFactories factories = new QueryStatementFactories(
+    EntityQueryFactories factories = new EntityQueryFactories(
             entityMetadataFactory, extractors, List.of(registered));
 
     assertThat(factories.createCondition(new Object())).isEqualTo(registeredCondition);
@@ -263,8 +263,8 @@ class QueryStatementFactoriesTests {
 
   @Test
   void shouldKeepRegistrationOrderForRegisteredFactories() {
-    QueryStatementFactory first = mock(QueryStatementFactory.class);
-    QueryStatementFactory second = mock(QueryStatementFactory.class);
+    EntityQueryFactory first = mock(EntityQueryFactory.class);
+    EntityQueryFactory second = mock(EntityQueryFactory.class);
     QueryStatement secondQuery = mock(QueryStatement.class);
     when(first.createQuery(any())).thenReturn(null);
     when(second.createQuery(any())).thenReturn(secondQuery);
@@ -272,7 +272,7 @@ class QueryStatementFactoriesTests {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
     List<ConditionPropertyExtractor> extractors = List.of();
 
-    QueryStatementFactories factories = new QueryStatementFactories(
+    EntityQueryFactories factories = new EntityQueryFactories(
             entityMetadataFactory, extractors, List.of(first, second));
 
     assertThat(factories.getFactories()).startsWith(first, second);
@@ -284,21 +284,21 @@ class QueryStatementFactoriesTests {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
     List<ConditionPropertyExtractor> extractors = List.of();
 
-    QueryStatementFactories factories = new QueryStatementFactories(entityMetadataFactory, extractors);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory, extractors);
 
-    assertThat(factories.getFactories()).last().isInstanceOf(DefaultQueryStatementFactory.class);
+    assertThat(factories.getFactories()).last().isInstanceOf(DefaultEntityQueryFactory.class);
   }
 
   @Test
   void shouldFallThroughToBuiltInFactoriesWhenRegisteredReturnsNull() {
-    QueryStatementFactory registered = mock(QueryStatementFactory.class);
+    EntityQueryFactory registered = mock(EntityQueryFactory.class);
     when(registered.createQuery(any())).thenReturn(null);
     when(registered.createCondition(any())).thenReturn(null);
 
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
     List<ConditionPropertyExtractor> extractors = List.of();
 
-    QueryStatementFactories factories = new QueryStatementFactories(
+    EntityQueryFactories factories = new EntityQueryFactories(
             entityMetadataFactory, extractors, List.of(registered));
 
     assertThat(factories.createQuery(Map.of("name", "TODAY"))).isNotNull();
@@ -310,9 +310,9 @@ class QueryStatementFactoriesTests {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
     List<ConditionPropertyExtractor> extractors = List.of();
 
-    QueryStatementFactories withEmpty = new QueryStatementFactories(
+    EntityQueryFactories withEmpty = new EntityQueryFactories(
             entityMetadataFactory, extractors, List.of());
-    QueryStatementFactories without = new QueryStatementFactories(entityMetadataFactory, extractors);
+    EntityQueryFactories without = new EntityQueryFactories(entityMetadataFactory, extractors);
 
     assertThat(withEmpty.getFactories()).hasSize(without.getFactories().size());
   }
@@ -321,23 +321,23 @@ class QueryStatementFactoriesTests {
   void shouldAppendFactoryOnAddFactory() {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
     List<ConditionPropertyExtractor> extractors = List.of();
-    QueryStatementFactories factories = new QueryStatementFactories(entityMetadataFactory, extractors);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory, extractors);
 
-    QueryStatementFactory first = mock(QueryStatementFactory.class);
-    QueryStatementFactory second = mock(QueryStatementFactory.class);
+    EntityQueryFactory first = mock(EntityQueryFactory.class);
+    EntityQueryFactory second = mock(EntityQueryFactory.class);
 
     factories.addFactory(first);
     factories.addFactory(second);
 
     assertThat(factories.getFactories()).startsWith(first, second);
-    assertThat(factories.getFactories()).last().isInstanceOf(DefaultQueryStatementFactory.class);
+    assertThat(factories.getFactories()).last().isInstanceOf(DefaultEntityQueryFactory.class);
   }
 
   @Test
   void shouldRejectNullFactoryOnAddFactory() {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
     List<ConditionPropertyExtractor> extractors = List.of();
-    QueryStatementFactories factories = new QueryStatementFactories(entityMetadataFactory, extractors);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory, extractors);
 
     assertThatThrownBy(() -> factories.addFactory(null))
             .isInstanceOf(IllegalArgumentException.class);
@@ -347,10 +347,10 @@ class QueryStatementFactoriesTests {
   void shouldReplaceRegisteredFactoriesOnSetFactories() {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
     List<ConditionPropertyExtractor> extractors = List.of();
-    QueryStatementFactories factories = new QueryStatementFactories(entityMetadataFactory, extractors);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory, extractors);
 
-    QueryStatementFactory original = mock(QueryStatementFactory.class);
-    QueryStatementFactory replacement = mock(QueryStatementFactory.class);
+    EntityQueryFactory original = mock(EntityQueryFactory.class);
+    EntityQueryFactory replacement = mock(EntityQueryFactory.class);
     factories.addFactory(original);
     factories.setFactories(List.of(replacement));
 
@@ -361,9 +361,9 @@ class QueryStatementFactoriesTests {
   void shouldClearRegisteredFactoriesOnSetFactoriesNull() {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
     List<ConditionPropertyExtractor> extractors = List.of();
-    QueryStatementFactories factories = new QueryStatementFactories(entityMetadataFactory, extractors);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory, extractors);
 
-    QueryStatementFactory registered = mock(QueryStatementFactory.class);
+    EntityQueryFactory registered = mock(EntityQueryFactory.class);
     factories.addFactory(registered);
     factories.setFactories(null);
 
@@ -374,31 +374,31 @@ class QueryStatementFactoriesTests {
   void shouldKeepRegisteredFactoriesWhenMetadataFactoryReplaced() {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
     List<ConditionPropertyExtractor> extractors = List.of();
-    QueryStatementFactories factories = new QueryStatementFactories(entityMetadataFactory, extractors);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory, extractors);
 
-    QueryStatementFactory registered = mock(QueryStatementFactory.class);
+    EntityQueryFactory registered = mock(EntityQueryFactory.class);
     factories.addFactory(registered);
 
     factories.setEntityMetadataFactory(new DefaultEntityMetadataFactory());
 
     assertThat(factories.getFactories()).startsWith(registered);
-    assertThat(factories.getFactories()).last().isInstanceOf(DefaultQueryStatementFactory.class);
+    assertThat(factories.getFactories()).last().isInstanceOf(DefaultEntityQueryFactory.class);
   }
 
   @Test
   void getFactoriesShouldBeImmutable() {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
     List<ConditionPropertyExtractor> extractors = List.of();
-    QueryStatementFactories factories = new QueryStatementFactories(entityMetadataFactory, extractors);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory, extractors);
 
-    assertThatThrownBy(() -> factories.getFactories().add(mock(QueryStatementFactory.class)))
+    assertThatThrownBy(() -> factories.getFactories().add(mock(EntityQueryFactory.class)))
             .isInstanceOf(UnsupportedOperationException.class);
   }
 
   @Test
   void shouldAddConditionPropertyExtractor() {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
-    QueryStatementFactories factories = new QueryStatementFactories(entityMetadataFactory);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory);
 
     ConditionPropertyExtractor extractor = mock(ConditionPropertyExtractor.class);
     factories.addConditionPropertyExtractor(extractor);
@@ -409,7 +409,7 @@ class QueryStatementFactoriesTests {
   @Test
   void shouldRejectNullConditionPropertyExtractor() {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
-    QueryStatementFactories factories = new QueryStatementFactories(entityMetadataFactory);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory);
 
     assertThatThrownBy(() -> factories.addConditionPropertyExtractor(null))
             .isInstanceOf(IllegalArgumentException.class)
@@ -419,7 +419,7 @@ class QueryStatementFactoriesTests {
   @Test
   void shouldReplaceConditionPropertyExtractors() {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
-    QueryStatementFactories factories = new QueryStatementFactories(entityMetadataFactory);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory);
 
     ConditionPropertyExtractor original = mock(ConditionPropertyExtractor.class);
     ConditionPropertyExtractor replacement = mock(ConditionPropertyExtractor.class);
@@ -432,7 +432,7 @@ class QueryStatementFactoriesTests {
   @Test
   void shouldClearConditionPropertyExtractorsOnNull() {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
-    QueryStatementFactories factories = new QueryStatementFactories(entityMetadataFactory);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory);
 
     factories.addConditionPropertyExtractor(mock(ConditionPropertyExtractor.class));
     factories.setConditionPropertyExtractors(null);
@@ -445,7 +445,7 @@ class QueryStatementFactoriesTests {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
     ConditionPropertyExtractor extractor = mock(ConditionPropertyExtractor.class);
 
-    QueryStatementFactories factories = new QueryStatementFactories(
+    EntityQueryFactories factories = new EntityQueryFactories(
             entityMetadataFactory, List.of(extractor));
 
     assertThat(factories.getConditionPropertyExtractors()).containsExactly(extractor);
@@ -454,7 +454,7 @@ class QueryStatementFactoriesTests {
   @Test
   void shouldKeepConditionPropertyExtractorsWhenMetadataFactoryReplaced() {
     EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
-    QueryStatementFactories factories = new QueryStatementFactories(entityMetadataFactory);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory);
 
     ConditionPropertyExtractor extractor = mock(ConditionPropertyExtractor.class);
     factories.addConditionPropertyExtractor(extractor);

@@ -24,13 +24,13 @@ import java.util.List;
  * @since 4.0 2024/4/10 16:53
  */
 @SuppressWarnings("rawtypes")
-final class DefaultQueryStatementFactory implements QueryStatementFactory {
+final class DefaultEntityQueryFactory implements EntityQueryFactory {
 
   private final EntityMetadataFactory factory;
 
   private final List<ConditionPropertyExtractor> extractors;
 
-  public DefaultQueryStatementFactory(EntityMetadataFactory factory, List<ConditionPropertyExtractor> extractors) {
+  public DefaultEntityQueryFactory(EntityMetadataFactory factory, List<ConditionPropertyExtractor> extractors) {
     this.factory = factory;
     this.extractors = extractors;
   }

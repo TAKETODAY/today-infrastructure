@@ -30,7 +30,7 @@ import infra.persistence.sql.SimpleSelect;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/4/10 16:54
  */
-final class MapQueryStatementFactory implements QueryStatementFactory {
+final class MapEntityQueryFactory implements EntityQueryFactory {
 
   @Override
   public @Nullable QueryStatement createQuery(Object example) {

@@ -48,15 +48,15 @@ import infra.persistence.sql.Restriction;
  * least one, while {@link #collectRestrictions(EntityMetadata)} returns the collected
  * list as-is.
  *
- * <p>Instances are typically created by a {@link QueryStatementFactory} (see
- * {@link QueryStatementFactories#createCondition}) and consumed by
+ * <p>Instances are typically created by a {@link EntityQueryFactory} (see
+ * {@link EntityQueryFactories#createCondition}) and consumed by
  * {@link DefaultEntityManager} for {@code count}, {@code page} and {@code delete}
  * operations. Implementations should therefore be stateless, or at least safe for a
  * single collect-then-bind cycle under concurrent use.
  *
  * <p>Example:
  * <pre>{@code
- * QueryCondition condition = queryStatementFactory
+ * QueryCondition condition = entityQueryFactory
  *         .createCondition(example);
  *
  * StringBuilder sql = new StringBuilder("SELECT * FROM t_user");
@@ -70,7 +70,7 @@ import infra.persistence.sql.Restriction;
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see QueryStatement
- * @see QueryStatementFactory
+ * @see EntityQueryFactory
  * @see ParameterSource
  * @see Restriction
  * @see OrderByClause

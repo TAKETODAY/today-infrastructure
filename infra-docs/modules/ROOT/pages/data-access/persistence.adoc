@@ -341,7 +341,7 @@ List<User> users = entityManager.find(User.class, (Object) example);
   `DefaultConditionStrategy`（默认等值）；自定义实现可通过 `InfraStrategies` 机制被发现，
   并排在上述默认实现之前生效。
 * `ConditionPropertyExtractor`：在构造条件前对属性值做转换或包装，可通过
-  `QueryStatementFactories#addConditionPropertyExtractor`（`EntityManager#getQueryStatementFactories`）注册。
+  `EntityQueryFactories#addConditionPropertyExtractor`（`EntityManager#getEntityQueryFactories`）注册。
 
 [[persistence-update-strategy]]
 == 属性更新策略

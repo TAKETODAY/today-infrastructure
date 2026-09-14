@@ -128,44 +128,44 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
   }
 
   @ParameterizedRepositoryManagerTest
-  void exposesQueryStatementFactories(DbType dbType, RepositoryManager repositoryManager) {
+  void exposesEntityQueryFactories(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
 
-    QueryStatementFactories factories = entityManager.getQueryStatementFactories();
+    EntityQueryFactories factories = entityManager.getEntityQueryFactories();
     assertThat(factories).isNotNull();
 
-    QueryStatementFactory factory = mock(QueryStatementFactory.class);
+    EntityQueryFactory factory = mock(EntityQueryFactory.class);
     factories.addFactory(factory);
 
-    assertThat(entityManager.getQueryStatementFactories().getFactories()).startsWith(factory);
+    assertThat(entityManager.getEntityQueryFactories().getFactories()).startsWith(factory);
   }
 
   @ParameterizedRepositoryManagerTest
   void keepsRegisteredFactoriesWhenMetadataFactoryReplaced(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
 
-    QueryStatementFactory factory = mock(QueryStatementFactory.class);
-    entityManager.getQueryStatementFactories().addFactory(factory);
+    EntityQueryFactory factory = mock(EntityQueryFactory.class);
+    entityManager.getEntityQueryFactories().addFactory(factory);
     entityManager.setEntityMetadataFactory(new DefaultEntityMetadataFactory());
 
-    assertThat(entityManager.getQueryStatementFactories().getFactories()).startsWith(factory);
+    assertThat(entityManager.getEntityQueryFactories().getFactories()).startsWith(factory);
   }
 
   @ParameterizedRepositoryManagerTest
-  void registeredQueryStatementFactoryTakesEffect(DbType dbType, RepositoryManager repositoryManager) {
+  void registeredEntityQueryFactoryTakesEffect(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
 
-    QueryStatementFactory registered = mock(QueryStatementFactory.class);
+    EntityQueryFactory registered = mock(EntityQueryFactory.class);
     when(registered.createQuery(any())).thenReturn(null);
     when(registered.createCondition(any())).thenReturn(null);
-    entityManager.getQueryStatementFactories().addFactory(registered);
+    entityManager.getEntityQueryFactories().addFactory(registered);
 
     UserModel example = new UserModel();
     example.age = 99;
 
     // The registered factory must be consulted first for both entry points.
-    entityManager.getQueryStatementFactories().createQuery(example);
-    entityManager.getQueryStatementFactories().createCondition(example);
+    entityManager.getEntityQueryFactories().createQuery(example);
+    entityManager.getEntityQueryFactories().createCondition(example);
 
     verify(registered).createQuery(example);
     verify(registered).createCondition(example);
@@ -495,11 +495,11 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
   }
 
   @ParameterizedRepositoryManagerTest
-  void deleteByExampleUsesRegisteredQueryStatementFactory(DbType dbType, RepositoryManager repositoryManager) {
+  void deleteByExampleUsesRegisteredEntityQueryFactory(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     createData(entityManager);
 
-    entityManager.getQueryStatementFactories().addFactory(new QueryStatementFactory() {
+    entityManager.getEntityQueryFactories().addFactory(new EntityQueryFactory() {
       @Override
       public QueryStatement createQuery(Object example) {
         return NoConditionsQuery.instance;
@@ -863,11 +863,11 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
       query.executeUpdate();
     }
 
-    assertThatThrownBy(() -> entityManager.getQueryStatementFactories().addConditionPropertyExtractor(null))
+    assertThatThrownBy(() -> entityManager.getEntityQueryFactories().addConditionPropertyExtractor(null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("ConditionPropertyExtractor is required");
 
-    entityManager.getQueryStatementFactories().addConditionPropertyExtractor(new Base64ValueExtractor());
+    entityManager.getEntityQueryFactories().addConditionPropertyExtractor(new Base64ValueExtractor());
     repositoryManager.getTypeHandlerManager().register(new Base64ValueHandler());
 
     Option entity = Option.of("k", "v");
@@ -905,7 +905,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
 
     assertThat(entityManager.findUnique(Option.of("k", null))).isNull();
 
-    entityManager.getQueryStatementFactories().setConditionPropertyExtractors(List.of(new Base64ValueExtractor()));
+    entityManager.getEntityQueryFactories().setConditionPropertyExtractors(List.of(new Base64ValueExtractor()));
 
     assertThat(entityManager.findUnique(Option.of("k", null))).isEqualTo(entity);
     assertThat(entityManager.findUnique(Option.of("k1", null))).isNull();
@@ -1356,10 +1356,10 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     ConditionPropertyExtractor extractor = mock(ConditionPropertyExtractor.class);
 
     // Should accept non-null extractor
-    assertThatCode(() -> entityManager.getQueryStatementFactories().addConditionPropertyExtractor(extractor)).doesNotThrowAnyException();
+    assertThatCode(() -> entityManager.getEntityQueryFactories().addConditionPropertyExtractor(extractor)).doesNotThrowAnyException();
 
     // Should reject null extractor
-    assertThatThrownBy(() -> entityManager.getQueryStatementFactories().addConditionPropertyExtractor(null))
+    assertThatThrownBy(() -> entityManager.getEntityQueryFactories().addConditionPropertyExtractor(null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("ConditionPropertyExtractor is required");
   }
@@ -1377,10 +1377,10 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     extractors.add(mock(ConditionPropertyExtractor.class));
 
     // Should accept non-null list
-    assertThatCode(() -> entityManager.getQueryStatementFactories().setConditionPropertyExtractors(extractors)).doesNotThrowAnyException();
+    assertThatCode(() -> entityManager.getEntityQueryFactories().setConditionPropertyExtractors(extractors)).doesNotThrowAnyException();
 
     // Should accept null (clears extractors)
-    assertThatCode(() -> entityManager.getQueryStatementFactories().setConditionPropertyExtractors(null)).doesNotThrowAnyException();
+    assertThatCode(() -> entityManager.getEntityQueryFactories().setConditionPropertyExtractors(null)).doesNotThrowAnyException();
   }
 
   @Test

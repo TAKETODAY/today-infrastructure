@@ -134,7 +134,7 @@ public class DefaultEntityManager implements EntityManager {
 
   private @Nullable TransactionDefinition transactionConfig = TransactionDefinition.withDefaults();
 
-  private final QueryStatementFactories statementFactories = new QueryStatementFactories(entityMetadataFactory);
+  private final EntityQueryFactories entityQueryFactories = new EntityQueryFactories(entityMetadataFactory);
 
   public DefaultEntityManager(RepositoryManager repositoryManager) {
     this(repositoryManager, Platform.generic());
@@ -229,7 +229,7 @@ public class DefaultEntityManager implements EntityManager {
 
   /**
    * Sets the {@code EntityMetadataFactory} to be used for creating entity metadata.
-   * This method also initializes a new instance of {@code QueryStatementFactories}
+   * This method also initializes a new instance of {@code EntityQueryFactories}
    * using the provided {@code EntityMetadataFactory} and existing property extractors.
    *
    * <p>If the provided {@code EntityMetadataFactory} is {@code null}, an
@@ -240,23 +240,23 @@ public class DefaultEntityManager implements EntityManager {
   public void setEntityMetadataFactory(EntityMetadataFactory entityMetadataFactory) {
     Assert.notNull(entityMetadataFactory, "EntityMetadataFactory is required");
     this.entityMetadataFactory = entityMetadataFactory;
-    this.statementFactories.setEntityMetadataFactory(entityMetadataFactory);
+    this.entityQueryFactories.setEntityMetadataFactory(entityMetadataFactory);
   }
 
   /**
-   * Return the {@link QueryStatementFactories} managing the {@link QueryStatementFactory}
+   * Return the {@link EntityQueryFactories} managing the {@link EntityQueryFactory}
    * instances used to turn an example object into a {@link QueryStatement} or
    * {@link QueryCondition}.
    *
    * <p>Use it to register custom factories:
    * <pre>{@code
-   * entityManager.getQueryStatementFactories().addFactory(myFactory);
+   * entityManager.getEntityQueryFactories().addFactory(myFactory);
    * }</pre>
    *
    * @since 5.0
    */
-  public QueryStatementFactories getQueryStatementFactories() {
-    return statementFactories;
+  public EntityQueryFactories getEntityQueryFactories() {
+    return entityQueryFactories;
   }
 
   /**
@@ -880,7 +880,7 @@ public class DefaultEntityManager implements EntityManager {
       }
     }
     else {
-      conditionStmt = statementFactories.createCondition(entityOrExample);
+      conditionStmt = entityQueryFactories.createCondition(entityOrExample);
       if (conditionStmt != null) {
         conditionStmt.appendWhereClause(metadata, sql);
       }
@@ -1101,7 +1101,7 @@ public class DefaultEntityManager implements EntityManager {
 
   @Override
   public <T> Number count(Class<T> entityClass, Object example) throws DataAccessException {
-    return count(entityClass, statementFactories.createCondition(example));
+    return count(entityClass, entityQueryFactories.createCondition(example));
   }
 
   @Override
@@ -1127,7 +1127,7 @@ public class DefaultEntityManager implements EntityManager {
 
   @Override
   public <T> Page<T> page(Class<T> entityClass, Object example, @Nullable Pageable pageable) throws DataAccessException {
-    return page(entityClass, statementFactories.createCondition(example), pageable);
+    return page(entityClass, entityQueryFactories.createCondition(example), pageable);
   }
 
   @Override
@@ -1164,7 +1164,7 @@ public class DefaultEntityManager implements EntityManager {
 
   @Override
   public <T> EntityIterator<T> iterate(Class<T> entityClass, Object example) throws DataAccessException {
-    return iterate(entityClass, statementFactories.createQuery(example));
+    return iterate(entityClass, entityQueryFactories.createQuery(example));
   }
 
   @Override

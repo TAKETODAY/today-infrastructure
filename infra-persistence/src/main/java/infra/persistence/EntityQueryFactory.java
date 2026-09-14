@@ -34,8 +34,8 @@ import org.jspecify.annotations.Nullable;
  *   <li>discovered as strategies, in which case they are ordered through
  *       {@link infra.core.annotation.AnnotationAwareOrderComparator}; annotate with
  *       {@code @Order} or implement {@link infra.core.Ordered} to control precedence</li>
- *   <li>registered explicitly via {@link QueryStatementFactories#addFactory}
- *       (obtained from {@link DefaultEntityManager#getQueryStatementFactories()}),
+ *   <li>registered explicitly via {@link EntityQueryFactories#addFactory}
+ *       (obtained from {@link DefaultEntityManager#getEntityQueryFactories()}),
  *       which always takes precedence over discovered factories</li>
  * </ul>
  * The first factory returning a non-null statement is used.
@@ -45,7 +45,7 @@ import org.jspecify.annotations.Nullable;
  * @see QueryCondition
  * @since 4.0 2024/4/10 13:54
  */
-public interface QueryStatementFactory {
+public interface EntityQueryFactory {
 
   /**
    * Creates a {@link QueryStatement} based on the provided example object.

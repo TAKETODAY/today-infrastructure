@@ -31,14 +31,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/4/10 17:39
  */
-class MapQueryStatementFactoryTests {
+class MapEntityQueryFactoryTests {
 
   final DefaultEntityMetadataFactory metadataFactory = new DefaultEntityMetadataFactory();
   final EntityMetadata entityMetadata = metadataFactory.getEntityMetadata(UserModel.class);
 
   @Test
   void createCondition() {
-    MapQueryStatementFactory factory = new MapQueryStatementFactory();
+    MapEntityQueryFactory factory = new MapEntityQueryFactory();
     QueryCondition condition = factory.createCondition(Map.of("name", "TODAY"));
     assertThat(condition).isNotNull();
 
@@ -52,7 +52,7 @@ class MapQueryStatementFactoryTests {
 
   @Test
   void createQuery() {
-    MapQueryStatementFactory factory = new MapQueryStatementFactory();
+    MapEntityQueryFactory factory = new MapEntityQueryFactory();
     QueryStatement queryStatement = factory.createQuery(Map.of("name", "TODAY"));
     assertThat(queryStatement).isNotNull();
 

@@ -26,21 +26,21 @@ import infra.util.Assert;
 import infra.util.InfraStrategies;
 
 /**
- * Registry and aggregator of the {@link QueryStatementFactory factories} used to
+ * Registry and aggregator of the {@link EntityQueryFactory factories} used to
  * turn an example object into a {@link QueryStatement} or {@link QueryCondition}.
  *
- * <p>This is the central place to manage {@link QueryStatementFactory} instances:
+ * <p>This is the central place to manage {@link EntityQueryFactory} instances:
  * use {@link #addFactory} to register one, or {@link #setFactories} to replace the
  * registered ones. Factories are consulted in order and the first non-null result
  * wins. The lookup order is:
  * <ol>
  *   <li>factories registered via {@link #addFactory}/{@link #setFactories}, in
  *       registration order</li>
- *   <li>factories discovered as {@link QueryStatementFactory} strategies, already
+ *   <li>factories discovered as {@link EntityQueryFactory} strategies, already
  *       sorted by {@link infra.core.annotation.AnnotationAwareOrderComparator}
  *       (so {@code @Order}/{@link infra.core.Ordered} are honored)</li>
- *   <li>the built-in {@link MapQueryStatementFactory}, handling {@code Map} examples</li>
- *   <li>the built-in {@link DefaultQueryStatementFactory}, as the final fallback</li>
+ *   <li>the built-in {@link MapEntityQueryFactory}, handling {@code Map} examples</li>
+ *   <li>the built-in {@link DefaultEntityQueryFactory}, as the final fallback</li>
  * </ol>
  *
  * <p>This class also manages the {@link ConditionPropertyExtractor extractors}
@@ -54,24 +54,24 @@ import infra.util.InfraStrategies;
  * @since 4.0 2024/4/10 17:55
  */
 @SuppressWarnings("rawtypes")
-public final class QueryStatementFactories implements QueryStatementFactory {
+public final class EntityQueryFactories implements EntityQueryFactory {
 
-  private final List<QueryStatementFactory> registeredFactories = new ArrayList<>();
+  private final List<EntityQueryFactory> registeredFactories = new ArrayList<>();
 
-  private final List<QueryStatementFactory> builtInFactories;
+  private final List<EntityQueryFactory> builtInFactories;
 
   private final List<ConditionPropertyExtractor> extractors = new ArrayList<>();
 
-  private @Nullable DefaultQueryStatementFactory defaultFactory;
+  private @Nullable DefaultEntityQueryFactory defaultFactory;
 
-  private List<QueryStatementFactory> factories;
+  private List<EntityQueryFactory> factories;
 
   /**
    * Create a registry with the discovered and built-in factories.
    *
    * @param entityMetadataFactory the metadata factory used by the fallback factory
    */
-  public QueryStatementFactories(EntityMetadataFactory entityMetadataFactory) {
+  public EntityQueryFactories(EntityMetadataFactory entityMetadataFactory) {
     this(entityMetadataFactory, List.of());
   }
 
@@ -81,7 +81,7 @@ public final class QueryStatementFactories implements QueryStatementFactory {
    * @param entityMetadataFactory the metadata factory used by the fallback factory
    * @param extractors condition property extractors used by the fallback factory
    */
-  public QueryStatementFactories(EntityMetadataFactory entityMetadataFactory, List<ConditionPropertyExtractor> extractors) {
+  public EntityQueryFactories(EntityMetadataFactory entityMetadataFactory, List<ConditionPropertyExtractor> extractors) {
     this(entityMetadataFactory, extractors, List.of());
   }
 
@@ -93,35 +93,35 @@ public final class QueryStatementFactories implements QueryStatementFactory {
    * @param extractors condition property extractors used by the fallback factory
    * @param registeredFactories factories to register, consulted before the discovered ones
    */
-  public QueryStatementFactories(EntityMetadataFactory entityMetadataFactory, List<ConditionPropertyExtractor> extractors,
-          List<QueryStatementFactory> registeredFactories) {
+  public EntityQueryFactories(EntityMetadataFactory entityMetadataFactory, List<ConditionPropertyExtractor> extractors,
+          List<EntityQueryFactory> registeredFactories) {
     Assert.notNull(entityMetadataFactory, "EntityMetadataFactory is required");
     Assert.notNull(extractors, "ConditionPropertyExtractors is required");
     this.extractors.addAll(extractors);
     this.registeredFactories.addAll(registeredFactories);
 
-    List<QueryStatementFactory> builtIn = new ArrayList<>(4);
-    builtIn.addAll(InfraStrategies.find(QueryStatementFactory.class));
-    builtIn.add(new MapQueryStatementFactory());
+    List<EntityQueryFactory> builtIn = new ArrayList<>(4);
+    builtIn.addAll(InfraStrategies.find(EntityQueryFactory.class));
+    builtIn.add(new MapEntityQueryFactory());
     this.builtInFactories = List.copyOf(builtIn);
 
     setEntityMetadataFactory(entityMetadataFactory);
   }
 
-  QueryStatementFactories(List<QueryStatementFactory> factories) {
+  EntityQueryFactories(List<EntityQueryFactory> factories) {
     this.registeredFactories.addAll(factories);
     this.builtInFactories = List.of();
     rebuild();
   }
 
   /**
-   * Register a {@link QueryStatementFactory} consulted before the discovered and
+   * Register a {@link EntityQueryFactory} consulted before the discovered and
    * built-in factories, in registration order.
    *
    * @param factory the factory to register; must not be null
    */
-  public void addFactory(QueryStatementFactory factory) {
-    Assert.notNull(factory, "QueryStatementFactory is required");
+  public void addFactory(EntityQueryFactory factory) {
+    Assert.notNull(factory, "EntityQueryFactory is required");
     registeredFactories.add(factory);
     rebuild();
   }
@@ -132,7 +132,7 @@ public final class QueryStatementFactories implements QueryStatementFactory {
    *
    * @param factories the factories to register, or {@code null} to clear
    */
-  public void setFactories(@Nullable List<QueryStatementFactory> factories) {
+  public void setFactories(@Nullable List<EntityQueryFactory> factories) {
     registeredFactories.clear();
     if (factories != null) {
       registeredFactories.addAll(factories);
@@ -146,7 +146,7 @@ public final class QueryStatementFactories implements QueryStatementFactory {
    *
    * @return the factories in the order they are consulted
    */
-  public List<QueryStatementFactory> getFactories() {
+  public List<EntityQueryFactory> getFactories() {
     return factories;
   }
 
@@ -188,12 +188,12 @@ public final class QueryStatementFactories implements QueryStatementFactory {
    */
   void setEntityMetadataFactory(EntityMetadataFactory entityMetadataFactory) {
     Assert.notNull(entityMetadataFactory, "EntityMetadataFactory is required");
-    this.defaultFactory = new DefaultQueryStatementFactory(entityMetadataFactory, extractors);
+    this.defaultFactory = new DefaultEntityQueryFactory(entityMetadataFactory, extractors);
     rebuild();
   }
 
   private void rebuild() {
-    List<QueryStatementFactory> list = new ArrayList<>(registeredFactories.size() + builtInFactories.size() + 1);
+    List<EntityQueryFactory> list = new ArrayList<>(registeredFactories.size() + builtInFactories.size() + 1);
     list.addAll(registeredFactories);
     list.addAll(builtInFactories);
     if (defaultFactory != null) {
@@ -205,7 +205,7 @@ public final class QueryStatementFactories implements QueryStatementFactory {
   @Override
   public @Nullable QueryStatement createQuery(Object example) {
     Assert.notNull(example, "Example object is required");
-    for (QueryStatementFactory factory : factories) {
+    for (EntityQueryFactory factory : factories) {
       QueryStatement query = factory.createQuery(example);
       if (query != null) {
         return query;
@@ -217,7 +217,7 @@ public final class QueryStatementFactories implements QueryStatementFactory {
   @Override
   public @Nullable QueryCondition createCondition(Object example) {
     Assert.notNull(example, "Example object is required");
-    for (QueryStatementFactory factory : factories) {
+    for (EntityQueryFactory factory : factories) {
       QueryCondition condition = factory.createCondition(example);
       if (condition != null) {
         return condition;
