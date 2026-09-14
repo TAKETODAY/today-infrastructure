@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
-import java.util.List;
 
 import infra.jdbc.model.UserModel;
 import infra.persistence.annotation.Column;
@@ -50,14 +49,12 @@ class ExampleQueryRenderingTests {
 
   final EntityMetadata metadata = metadataFactory.getEntityMetadata(UserModel.class);
 
-  final List<ConditionPropertyExtractor> extractors = new ArrayList<>();
-
   @Test
   void rendersEqualityConditionForNonNullProperty() {
     UserModel example = new UserModel();
     example.name = "TODAY";
 
-    ExampleQuery query = new ExampleQuery(metadataFactory, example, extractors);
+    ExampleQuery query = new ExampleQuery(metadataFactory, example);
 
     ArrayList<Restriction> restrictions = new ArrayList<>();
     query.collectRestrictions(metadata, restrictions);
@@ -70,7 +67,7 @@ class ExampleQueryRenderingTests {
 
   @Test
   void skipsNullProperties() {
-    ExampleQuery query = new ExampleQuery(metadataFactory, new UserModel(), extractors);
+    ExampleQuery query = new ExampleQuery(metadataFactory, new UserModel());
 
     ArrayList<Restriction> restrictions = new ArrayList<>();
     query.collectRestrictions(metadata, restrictions);
@@ -84,7 +81,7 @@ class ExampleQueryRenderingTests {
     example.name = "TODAY";
     example.age = 10;
 
-    ExampleQuery query = new ExampleQuery(metadataFactory, example, extractors);
+    ExampleQuery query = new ExampleQuery(metadataFactory, example);
 
     ArrayList<Restriction> restrictions = new ArrayList<>();
     query.collectRestrictions(metadata, restrictions);
@@ -101,7 +98,7 @@ class ExampleQueryRenderingTests {
     example.name = "TODAY";
 
     EntityMetadata likeMetadata = metadataFactory.getEntityMetadata(LikeForm.class);
-    ExampleQuery query = new ExampleQuery(metadataFactory, example, extractors);
+    ExampleQuery query = new ExampleQuery(metadataFactory, example);
 
     StringBuilder sql = new StringBuilder();
     query.appendWhereClause(likeMetadata, sql);
@@ -114,7 +111,7 @@ class ExampleQueryRenderingTests {
     OrForm example = new OrForm();
     example.age = 10;
 
-    ExampleQuery query = new ExampleQuery(metadataFactory, example, extractors);
+    ExampleQuery query = new ExampleQuery(metadataFactory, example);
 
     ArrayList<Restriction> restrictions = new ArrayList<>();
     query.collectRestrictions(metadata, restrictions);
@@ -127,7 +124,7 @@ class ExampleQueryRenderingTests {
     OrderByForm example = new OrderByForm();
     example.age = 1;
 
-    ExampleQuery query = new ExampleQuery(metadataFactory, example, extractors);
+    ExampleQuery query = new ExampleQuery(metadataFactory, example);
 
     // trigger scan(), which applies the class level @OrderBy
     StatementSequence sequence = query.render(metadata);
@@ -145,7 +142,7 @@ class ExampleQueryRenderingTests {
     example.name = "TODAY";
     example.age = 10;
 
-    ExampleQuery query = new ExampleQuery(metadataFactory, example, extractors);
+    ExampleQuery query = new ExampleQuery(metadataFactory, example);
     PreparedStatement statement = mock(PreparedStatement.class);
 
     query.setParameter(metadata, statement);
@@ -159,7 +156,7 @@ class ExampleQueryRenderingTests {
     UserModel example = new UserModel();
     example.name = "TODAY";
 
-    ExampleQuery query = new ExampleQuery(metadataFactory, example, extractors);
+    ExampleQuery query = new ExampleQuery(metadataFactory, example);
     StatementSequence sequence = query.render(metadata);
 
     String sql = sequence.toStatementString(Platform.generic());

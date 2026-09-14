@@ -16,33 +16,27 @@
 
 package infra.persistence;
 
-import java.util.List;
-
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ExampleQuery
  * @since 4.0 2024/4/10 16:53
  */
-@SuppressWarnings("rawtypes")
 final class DefaultEntityQueryFactory implements EntityQueryFactory {
 
   private final EntityMetadataFactory factory;
 
-  private final List<ConditionPropertyExtractor> extractors;
-
-  public DefaultEntityQueryFactory(EntityMetadataFactory factory, List<ConditionPropertyExtractor> extractors) {
+  public DefaultEntityQueryFactory(EntityMetadataFactory factory) {
     this.factory = factory;
-    this.extractors = extractors;
   }
 
   @Override
   public QueryStatement createQuery(Object example) {
-    return new ExampleQuery(factory, example, extractors);
+    return new ExampleQuery(factory, example);
   }
 
   @Override
   public QueryCondition createCondition(Object example) {
-    return new ExampleQuery(factory, example, extractors);
+    return new ExampleQuery(factory, example);
   }
 
 }

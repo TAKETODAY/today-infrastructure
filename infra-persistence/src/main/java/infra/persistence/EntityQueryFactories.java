@@ -19,7 +19,6 @@ package infra.persistence;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import infra.util.Assert;
@@ -43,24 +42,17 @@ import infra.util.InfraStrategies;
  *   <li>the built-in {@link DefaultEntityQueryFactory}, as the final fallback</li>
  * </ol>
  *
- * <p>This class also manages the {@link ConditionPropertyExtractor extractors}
- * used by the fallback factory: see {@link #addConditionPropertyExtractor} and
- * {@link #setConditionPropertyExtractors}.
- *
  * <p>{@link #getFactories()} returns an immutable snapshot of all factories in the
  * above lookup order.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/4/10 17:55
  */
-@SuppressWarnings("rawtypes")
 public final class EntityQueryFactories implements EntityQueryFactory {
 
   private final List<EntityQueryFactory> registeredFactories = new ArrayList<>();
 
   private final List<EntityQueryFactory> builtInFactories;
-
-  private final List<ConditionPropertyExtractor> extractors = new ArrayList<>();
 
   private @Nullable DefaultEntityQueryFactory defaultFactory;
 
@@ -76,28 +68,14 @@ public final class EntityQueryFactories implements EntityQueryFactory {
   }
 
   /**
-   * Create a registry pre-populated with the given condition property extractors.
-   *
-   * @param entityMetadataFactory the metadata factory used by the fallback factory
-   * @param extractors condition property extractors used by the fallback factory
-   */
-  public EntityQueryFactories(EntityMetadataFactory entityMetadataFactory, List<ConditionPropertyExtractor> extractors) {
-    this(entityMetadataFactory, extractors, List.of());
-  }
-
-  /**
    * Create a registry pre-populated with the given condition property extractors
    * and registered factories.
    *
    * @param entityMetadataFactory the metadata factory used by the fallback factory
-   * @param extractors condition property extractors used by the fallback factory
    * @param registeredFactories factories to register, consulted before the discovered ones
    */
-  public EntityQueryFactories(EntityMetadataFactory entityMetadataFactory, List<ConditionPropertyExtractor> extractors,
-          List<EntityQueryFactory> registeredFactories) {
+  public EntityQueryFactories(EntityMetadataFactory entityMetadataFactory, List<EntityQueryFactory> registeredFactories) {
     Assert.notNull(entityMetadataFactory, "EntityMetadataFactory is required");
-    Assert.notNull(extractors, "ConditionPropertyExtractors is required");
-    this.extractors.addAll(extractors);
     this.registeredFactories.addAll(registeredFactories);
 
     List<EntityQueryFactory> builtIn = new ArrayList<>(4);
@@ -151,44 +129,11 @@ public final class EntityQueryFactories implements EntityQueryFactory {
   }
 
   /**
-   * Add a {@link ConditionPropertyExtractor} used to extract condition values from
-   * example objects, consulted in registration order by the fallback factory.
-   *
-   * @param extractor the extractor to add; must not be null
-   */
-  public void addConditionPropertyExtractor(ConditionPropertyExtractor extractor) {
-    Assert.notNull(extractor, "ConditionPropertyExtractor is required");
-    this.extractors.add(extractor);
-  }
-
-  /**
-   * Replace the condition property extractors. When {@code null}, the current
-   * extractors are cleared.
-   *
-   * @param extractors the extractors to set, or {@code null} to clear
-   */
-  public void setConditionPropertyExtractors(@Nullable List<ConditionPropertyExtractor> extractors) {
-    this.extractors.clear();
-    if (extractors != null) {
-      this.extractors.addAll(extractors);
-    }
-  }
-
-  /**
-   * Return an unmodifiable live view of the condition property extractors.
-   *
-   * @return the current condition property extractors
-   */
-  public List<ConditionPropertyExtractor> getConditionPropertyExtractors() {
-    return Collections.unmodifiableList(extractors);
-  }
-
-  /**
    * Update the metadata factory used by the fallback factory.
    */
   void setEntityMetadataFactory(EntityMetadataFactory entityMetadataFactory) {
     Assert.notNull(entityMetadataFactory, "EntityMetadataFactory is required");
-    this.defaultFactory = new DefaultEntityQueryFactory(entityMetadataFactory, extractors);
+    this.defaultFactory = new DefaultEntityQueryFactory(entityMetadataFactory);
     rebuild();
   }
 

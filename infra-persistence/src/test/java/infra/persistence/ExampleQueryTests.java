@@ -34,9 +34,8 @@ class ExampleQueryTests {
   void shouldCreateExampleQuery() {
     Object example = new Object();
     EntityMetadata exampleMetadata = mock(EntityMetadata.class);
-    List<ConditionPropertyExtractor> extractors = new ArrayList<>();
 
-    ExampleQuery query = new ExampleQuery(example, exampleMetadata, extractors);
+    ExampleQuery query = new ExampleQuery(example, exampleMetadata);
 
     assertThat(query).isNotNull();
     assertThat(query.getDescription()).isEqualTo("Query entities with example");
@@ -46,9 +45,8 @@ class ExampleQueryTests {
   void shouldGetDebugLogMessage() {
     Object example = new Object();
     EntityMetadata exampleMetadata = mock(EntityMetadata.class);
-    List<ConditionPropertyExtractor> extractors = new ArrayList<>();
 
-    ExampleQuery query = new ExampleQuery(example, exampleMetadata, extractors);
+    ExampleQuery query = new ExampleQuery(example, exampleMetadata);
     Object logMessage = query.getDebugLogMessage();
 
     assertThat(logMessage).isNotNull();

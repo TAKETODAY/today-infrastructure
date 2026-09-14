@@ -15,7 +15,6 @@ import infra.jdbc.RepositoryManager;
 import infra.jdbc.config.RepositoryManagerAutoConfiguration;
 import infra.jdbc.format.SqlStatementLogger;
 import infra.jdbc.type.TypeHandlerManager;
-import infra.persistence.ConditionPropertyExtractor;
 import infra.persistence.DefaultEntityManager;
 import infra.persistence.DefaultEntityMetadataFactory;
 import infra.persistence.EntityManager;
@@ -41,13 +40,11 @@ import infra.stereotype.Component;
 public final class EntityManagerAutoConfiguration {
 
   @Component
-  @SuppressWarnings("rawtypes")
   @ConditionalOnMissingBean(EntityManager.class)
   public static EntityManager entityManager(RepositoryManager manager, @Nullable Platform platform,
           EntityMetadataFactory entityMetadataFactory, SqlStatementLogger sqlStatementLogger,
           PersistenceProperties properties, @Nullable VersionIncrementStrategy versionIncrementStrategy,
           EntityEventRegistry entityEventRegistry,
-          List<ConditionPropertyExtractor> conditionPropertyExtractors,
           ObjectProvider<EntityManagerCustomizer> customizers) {
     DefaultEntityManager entityManager = new DefaultEntityManager(manager, platform);
 
@@ -55,7 +52,6 @@ public final class EntityManagerAutoConfiguration {
     entityManager.setEntityMetadataFactory(entityMetadataFactory);
     entityManager.setMaxBatchRecords(properties.maxBatchRecords);
     entityManager.setAutoGenerateId(properties.autoGenerateId);
-    entityManager.getEntityQueryFactories().setConditionPropertyExtractors(conditionPropertyExtractors);
     entityManager.setEntityEventRegistry(entityEventRegistry);
 
     if (versionIncrementStrategy != null) {

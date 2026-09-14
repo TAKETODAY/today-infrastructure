@@ -19,7 +19,6 @@ package infra.persistence;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import infra.jdbc.model.UserModel;
 import infra.persistence.annotation.EntityRef;
@@ -47,7 +46,7 @@ class WhereAnnotationTests {
     query.status2 = 2;
     query.status3 = 3;
 
-    ExampleQuery exampleQuery = new ExampleQuery(metadataFactory, query, List.of());
+    ExampleQuery exampleQuery = new ExampleQuery(metadataFactory, query);
     StringBuilder sqlBuffer = new StringBuilder();
     exampleQuery.appendWhereClause(userModelMetadata, sqlBuffer);
 

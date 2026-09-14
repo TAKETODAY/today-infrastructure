@@ -19,7 +19,6 @@ package infra.persistence;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
-import java.io.Serializable;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -51,10 +50,7 @@ import infra.jdbc.RepositoryManager;
 import infra.jdbc.format.SqlStatementLogger;
 import infra.jdbc.model.Gender;
 import infra.jdbc.model.UserModel;
-import infra.jdbc.type.BasicTypeHandler;
-import infra.jdbc.type.SmartTypeHandler;
 import infra.jdbc.type.TypeHandler;
-import infra.jdbc.type.WrappedTypeHandler;
 import infra.lang.Descriptive;
 import infra.persistence.annotation.Column;
 import infra.persistence.annotation.EntityRef;
@@ -850,68 +846,6 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
   }
 
   @ParameterizedRepositoryManagerTest
-  void addConditionPropertyExtractor(DbType dbType, RepositoryManager repositoryManager) {
-    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
-    repositoryManager.createQuery("drop table if exists t_option").executeUpdate();
-    try (Query query = repositoryManager.createQuery("""
-            create table t_option (
-                `name`  varchar(255) default null,
-                `value` varchar(255) default null
-            );
-            """)) {
-
-      query.executeUpdate();
-    }
-
-    assertThatThrownBy(() -> entityManager.getEntityQueryFactories().addConditionPropertyExtractor(null))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("ConditionPropertyExtractor is required");
-
-    entityManager.getEntityQueryFactories().addConditionPropertyExtractor(new Base64ValueExtractor());
-    repositoryManager.getTypeHandlerManager().register(new Base64ValueHandler());
-
-    Option entity = Option.of("k", "v");
-    entityManager.persist(entity);
-
-    Option unique = entityManager.findUnique(Option.of("k", "v"));
-    assertThat(unique).isEqualTo(entity);
-
-    assertThat(entityManager.findUnique(Option.of("k", null))).isEqualTo(entity);
-    assertThat(entityManager.findUnique(Option.of("k1", null))).isNull();
-
-    assertThatThrownBy(() -> entityManager.find(OptionError.class))
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessage("Not writable entity property its value is required");
-  }
-
-  @ParameterizedRepositoryManagerTest
-  void setConditionPropertyExtractors(DbType dbType, RepositoryManager repositoryManager) {
-    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
-    repositoryManager.createQuery("drop table if exists t_option").executeUpdate();
-    try (NamedQuery query = repositoryManager.createNamedQuery("""
-            create table t_option (
-                `name`  varchar(255) default null,
-                `value` varchar(255) default null
-            );
-            """)) {
-
-      query.executeUpdate();
-    }
-
-    repositoryManager.getTypeHandlerManager().register(new Base64ValueHandler());
-
-    Option entity = Option.of("k", "v");
-    entityManager.persist(entity);
-
-    assertThat(entityManager.findUnique(Option.of("k", null))).isNull();
-
-    entityManager.getEntityQueryFactories().setConditionPropertyExtractors(List.of(new Base64ValueExtractor()));
-
-    assertThat(entityManager.findUnique(Option.of("k", null))).isEqualTo(entity);
-    assertThat(entityManager.findUnique(Option.of("k1", null))).isNull();
-  }
-
-  @ParameterizedRepositoryManagerTest
   void saveOrUpdate(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
 
@@ -1346,44 +1280,6 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
   }
 
   @Test
-  void shouldAddConditionPropertyExtractor() {
-    RepositoryManager repositoryManager = mock(RepositoryManager.class);
-    DataSource dataSource = mock(DataSource.class);
-    when(repositoryManager.getDataSource()).thenReturn(dataSource);
-
-    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
-
-    ConditionPropertyExtractor extractor = mock(ConditionPropertyExtractor.class);
-
-    // Should accept non-null extractor
-    assertThatCode(() -> entityManager.getEntityQueryFactories().addConditionPropertyExtractor(extractor)).doesNotThrowAnyException();
-
-    // Should reject null extractor
-    assertThatThrownBy(() -> entityManager.getEntityQueryFactories().addConditionPropertyExtractor(null))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("ConditionPropertyExtractor is required");
-  }
-
-  @Test
-  void shouldSetConditionPropertyExtractors() {
-    RepositoryManager repositoryManager = mock(RepositoryManager.class);
-    DataSource dataSource = mock(DataSource.class);
-    when(repositoryManager.getDataSource()).thenReturn(dataSource);
-
-    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
-
-    List<ConditionPropertyExtractor> extractors = new ArrayList<>();
-    extractors.add(mock(ConditionPropertyExtractor.class));
-    extractors.add(mock(ConditionPropertyExtractor.class));
-
-    // Should accept non-null list
-    assertThatCode(() -> entityManager.getEntityQueryFactories().setConditionPropertyExtractors(extractors)).doesNotThrowAnyException();
-
-    // Should accept null (clears extractors)
-    assertThatCode(() -> entityManager.getEntityQueryFactories().setConditionPropertyExtractors(null)).doesNotThrowAnyException();
-  }
-
-  @Test
   void shouldHandleDefaultPageable() {
     RepositoryManager repositoryManager = mock(RepositoryManager.class);
     DataSource dataSource = mock(DataSource.class);
@@ -1803,121 +1699,6 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     String name;
   }
 
-  @Table("t_option")
-  static class Option {
-
-    public final Base64Value name = new Base64Value();
-
-    public final Base64Value value = new Base64Value();
-
-    static Option of(@Nullable String name, @Nullable String value) {
-      Option option = new Option();
-      option.name.set(name);
-      option.value.set(value);
-      return option;
-    }
-
-    @Override
-    public boolean equals(Object param) {
-      if (this == param)
-        return true;
-      if (!(param instanceof Option option))
-        return false;
-      return Objects.equals(name, option.name)
-              && Objects.equals(value, option.value);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(name, value);
-    }
-
-  }
-
-  @Table("t_option")
-  static class OptionError {
-
-    @Nullable
-    public final Base64Value value = null;
-
-  }
-
-  static class Base64Value implements Serializable {
-
-    @Nullable
-    private String value;
-
-    Base64Value() {
-
-    }
-
-    Base64Value(@Nullable String value) {
-      this.value = value;
-    }
-
-    public void set(@Nullable String value) {
-      this.value = value;
-    }
-
-    @Nullable
-    public String get() {
-      return value;
-    }
-
-    @Override
-    public boolean equals(Object param) {
-      if (this == param)
-        return true;
-      if (!(param instanceof Base64Value that))
-        return false;
-      return Objects.equals(value, that.value);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hashCode(value);
-    }
-
-  }
-
-  static class Base64ValueExtractor implements ConditionPropertyExtractor<String> {
-
-    @Nullable
-    @Override
-    public Object extract(Object entityOrExample, EntityProperty property, @Nullable Object value) {
-      if (value instanceof Base64Value base64Value) {
-        return base64Value.value;
-      }
-      return value;
-    }
-
-    @Override
-    public Object wrap(String extracted) {
-      return new Base64Value(extracted);
-    }
-
-  }
-
-  static class Base64ValueHandler extends BasicTypeHandler<Base64Value>
-          implements SmartTypeHandler<Base64Value>, WrappedTypeHandler<Base64Value> {
-
-    @Override
-    public boolean supportsProperty(BeanProperty property) {
-      return property.getTypeDescriptor().is(Base64Value.class);
-    }
-
-    @Override
-    public void applyResult(Base64Value value, ResultSet rs, int columnIndex) throws SQLException {
-      value.set(rs.getString(columnIndex));
-    }
-
-    @Override
-    public void setNonNullParameter(PreparedStatement ps, int parameterIndex, Base64Value arg) throws SQLException {
-      ps.setString(parameterIndex, arg.value);
-    }
-
-  }
-
   static class HyperSQLPlatform extends GenericPlatform {
 
     @Override
@@ -1928,3 +1709,4 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
   }
 
 }
+
