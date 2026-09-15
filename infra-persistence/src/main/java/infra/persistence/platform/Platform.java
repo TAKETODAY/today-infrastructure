@@ -34,27 +34,41 @@ import infra.persistence.sql.JoinFragment;
 import infra.util.StringUtils;
 
 /**
- * An abstract class representing a database platform. This class provides
- * utility methods and configurations for handling SQL syntax and database-specific
- * behaviors. It serves as a base for concrete platform implementations such as
- * {@code MySQLPlatform}, {@code OraclePlatform}, and {@code PostgreSQLPlatform}.
+ * A database platform — the collection of SQL syntax variations specific to one
+ * database family.
  *
- * <p>This class includes constants, static utility methods, and abstract methods
- * that must be implemented by subclasses to handle platform-specific SQL generation.
+ * <p>A {@code Platform} is consulted while an SQL statement is rendered to text,
+ * most importantly to {@linkplain #toQuotedIdentifier(String) quote identifiers}
+ * with the characters the target database expects. Concrete platforms live in
+ * this package, for example {@link GenericPlatform} for ANSI SQL and
+ * {@link MySQLPlatform} for MySQL and MariaDB.
  *
- * <p><b>Subclassing Example:</b>
- * To create a custom platform implementation, extend this class and override
- * necessary methods. For example:
+ * <p>Platforms carry no mutable state, so a single instance may be shared. The
+ * static factory methods return ready-to-use instances: use
+ * {@link #forDataSource(DataSource)} to detect the platform from a JDBC data
+ * source, or {@link #generic()} and {@link #mysql()} to obtain a known one. A
+ * database without a dedicated implementation falls back to
+ * {@link GenericPlatform}.
+ *
+ * <p>Custom platforms are created by subclassing this class and overriding the
+ * methods whose defaults differ, for example:
  * <pre>{@code
  * public class CustomPlatform extends Platform {
  *   @Override
- *   public String getForUpdateString() {
- *     return " FOR UPDATE NOWAIT";
+ *   public char openQuote() {
+ *     return '[';
+ *   }
+ *
+ *   @Override
+ *   public char closeQuote() {
+ *     return ']';
  *   }
  * }
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @see GenericPlatform
+ * @see MySQLPlatform
  * @since 4.0 2021/10/10 13:11
  */
 public abstract class Platform {
@@ -62,12 +76,14 @@ public abstract class Platform {
   private static final Logger log = LoggerFactory.getLogger(Platform.class);
 
   /**
-   * Characters used as opening for quoting SQL identifiers
+   * Characters that may open a quoted SQL identifier: a backtick, a double quote
+   * or an opening square bracket.
    */
   public static final String QUOTE = "`\"[";
 
   /**
-   * Characters used as closing for quoting SQL identifiers
+   * Characters that may close a quoted SQL identifier: a backtick, a double quote
+   * or a closing square bracket. Mirrors {@link #QUOTE}.
    */
   public static final String CLOSED_QUOTE = "`\"]";
 
@@ -90,6 +106,9 @@ public abstract class Platform {
   /**
    * Return the character that closes a quoted identifier for this platform.
    *
+   * <p>The default is the SQL-standard double quote ({@code "}) and should be
+   * overridden together with {@link #openQuote()} whenever a database deviates.
+   *
    * @return the closing quote character
    * @see #openQuote()
    */
@@ -102,6 +121,8 @@ public abstract class Platform {
    *
    * @param name the identifier to quote, possibly {@code null}
    * @return the quoted identifier, or {@code null} when the given name is {@code null}
+   * @see #openQuote()
+   * @see #closeQuote()
    */
   public @Nullable String toQuotedIdentifier(@Nullable String name) {
     if (name == null) {
@@ -125,6 +146,7 @@ public abstract class Platform {
    * @param name the identifier to resolve, possibly {@code null}
    * @return the platform-quoted text, or the name unchanged when it is not
    * enclosed in a matched pair of backticks
+   * @see #toQuotedIdentifier(String)
    */
   public @Nullable String quote(@Nullable String name) {
     if (name == null) {
@@ -137,6 +159,13 @@ public abstract class Platform {
     return toQuotedIdentifier(name.substring(1, length - 1));
   }
 
+  /**
+   * Escape the SQL comment delimiters embedded in the given text, so that the
+   * text cannot prematurely close or reopen the surrounding block comment.
+   *
+   * @param comment the comment text to escape, possibly {@code null}
+   * @return the escaped text, or the original value when it is empty or {@code null}
+   */
   public static CharSequence escapeComment(CharSequence comment) {
     if (StringUtils.isNotEmpty(comment)) {
       final String escaped = ESCAPE_CLOSING_COMMENT_PATTERN.matcher(comment).replaceAll("*\\\\/");
@@ -146,38 +175,44 @@ public abstract class Platform {
   }
 
   /**
-   * determine the appropriate for update fragment to use.
+   * Return the fragment appended to a query to lock the selected rows for update.
    *
-   * @return The appropriate for update fragment.
+   * <p>The default is {@code " for update"}, understood by most databases.
+   *
+   * @return the {@code FOR UPDATE} fragment
    */
   public String getForUpdateString() {
     return " for update";
   }
 
   /**
-   * The fragment used to insert a row without specifying any column values.
-   * This is not possible on some databases.
+   * Return the fragment used by an insert statement that specifies no columns.
    *
-   * @return The appropriate empty values clause.
+   * <p>The default is {@code "VALUES ( )"}. Databases requiring a different form
+   * — for example MySQL — override it.
+   *
+   * @return the empty values clause
    */
   public String getNoColumnsInsertString() {
     return "VALUES ( )";
   }
 
   /**
-   * Create a {@link JoinFragment} strategy responsible
-   * for handling this dialect's variations in how joins are handled.
+   * Create the {@link JoinFragment} strategy that renders joins for this platform.
    *
-   * @return This dialect's {@link JoinFragment} strategy.
+   * <p>The default returns an ANSI-style fragment.
+   *
+   * @return this platform's join fragment strategy, never {@code null}
    */
   public JoinFragment createOuterJoinFragment() {
     return new ANSIJoinFragment();
   }
 
   /**
-   * A SQL statement that truncates the given table.
+   * Build the statement that truncates the given table.
    *
-   * @param tableName the name of the table
+   * @param tableName the name of the table to truncate
+   * @return the {@code TRUNCATE TABLE} statement
    * @since 5.0
    */
   public String getTruncateTableStatement(String tableName) {
@@ -185,9 +220,11 @@ public abstract class Platform {
   }
 
   /**
-   * SELECT COUNT
+   * Append a {@code SELECT COUNT(*)} query for the given table to the supplied
+   * buffer.
    *
-   * @param tableName the name of the table
+   * @param countSql the buffer to append to
+   * @param tableName the name of the table to count
    * @since 5.0
    */
   public void selectCountFrom(StringBuilder countSql, String tableName) {
@@ -196,18 +233,22 @@ public abstract class Platform {
             .append('`');
   }
 
-  //
+  // Static factory methods
 
   /**
-   * ANSI SQL Platform
+   * Return the ANSI SQL platform, the fallback for databases without a dedicated
+   * implementation.
+   *
+   * @return a new {@link GenericPlatform}
    */
   public static Platform generic() {
     return new GenericPlatform();
   }
 
   /**
-   * MySQL Platform
+   * Return the MySQL platform, also used for MariaDB.
    *
+   * @return a new {@link MySQLPlatform}
    * @see MySQLPlatform
    * @since 5.0
    */
@@ -218,12 +259,17 @@ public abstract class Platform {
   /**
    * Select the platform for the database behind the given data source.
    *
-   * <p>The database product name is read from JDBC metadata. If metadata cannot
-   * be obtained, the ANSI-compatible {@link GenericPlatform} is returned.
+   * <p>Reads the {@linkplain DatabaseMetaData#getDatabaseProductName() database
+   * product name} from the data source's JDBC metadata and resolves it through
+   * {@link #forDatabaseProductName(String)}. A {@code null} data source, or one
+   * whose metadata cannot be obtained, yields the {@linkplain #generic() generic
+   * platform} instead of failing.
    *
    * @param dataSource the data source to inspect, possibly {@code null}
    * @return the matching platform, never {@code null}
    * @see #forDatabaseMetaData(DatabaseMetaData)
+   * @see #forDatabaseProductName(String)
+   * @since 5.0
    */
   public static Platform forDataSource(@Nullable DataSource dataSource) {
     if (dataSource == null) {
@@ -239,23 +285,32 @@ public abstract class Platform {
   }
 
   /**
-   * Select the platform matching the given JDBC metadata.
+   * Select the platform matching the database described by the given JDBC
+   * metadata.
    *
    * @param metaData the database metadata to inspect
-   * @return the matching platform, never {@code null}
-   * @throws SQLException if the database product name cannot be read
+   * @return the matching platform; {@link GenericPlatform} when the product name
+   * has no dedicated implementation
+   * @throws SQLException if the database product name cannot be read from the
+   * metadata
    * @see #forDatabaseProductName(String)
+   * @since 5.0
    */
   public static Platform forDatabaseMetaData(DatabaseMetaData metaData) throws SQLException {
     return forDatabaseProductName(metaData.getDatabaseProductName());
   }
 
   /**
-   * Select the platform matching the given database product name.
+   * Select the platform matching the given database product name, as returned by
+   * {@link DatabaseMetaData#getDatabaseProductName()}.
+   *
+   * <p>Names that map to no dedicated platform fall back to
+   * {@link GenericPlatform}; a {@code null} name is treated the same way.
    *
    * @param productName the database product name, possibly {@code null}
    * @return the matching platform, never {@code null}
    * @see #forDriver(DatabaseDriver)
+   * @since 5.0
    */
   public static Platform forDatabaseProductName(@Nullable String productName) {
     return forDriver(DatabaseDriver.fromProductName(productName));
@@ -266,6 +321,9 @@ public abstract class Platform {
    *
    * @param driver the database driver, never {@code null}
    * @return the matching platform, never {@code null}
+   * @see #generic()
+   * @see #mysql()
+   * @since 5.0
    */
   public static Platform forDriver(DatabaseDriver driver) {
     return switch (driver) {

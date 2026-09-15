@@ -28,6 +28,9 @@ package infra.persistence.platform;
  * <p>It also overrides {@link #getNoColumnsInsertString()} to the MySQL form of
  * an insert statement that names no columns.
  *
+ * <p>Instances are obtained from {@link Platform#mysql()} or resolved
+ * automatically by {@link Platform#forDataSource(javax.sql.DataSource)}.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Platform
  * @see GenericPlatform

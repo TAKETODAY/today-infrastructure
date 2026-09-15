@@ -657,7 +657,7 @@ public class DefaultEntityManager implements EntityManager {
    * @return returns a new Strategy
    */
   private static PropertyUpdateStrategy updateExcludeId(PropertyUpdateStrategy strategy) {
-    return (entity, property) -> !property.isIdProperty() && strategy.shouldUpdate(entity, property);
+    return PropertyUpdateStrategy.notId().and(strategy);
   }
 
   @Override
