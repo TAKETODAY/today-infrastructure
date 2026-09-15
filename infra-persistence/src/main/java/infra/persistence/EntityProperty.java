@@ -37,7 +37,13 @@ import infra.jdbc.type.TypeHandler;
  * a specific column in a database table, linking it to a corresponding Java bean property.
  * It handles type conversion via {@link TypeHandler} and supports annotation inspection.
  *
+ * <p>Instances are created and cached by {@link EntityMetadata}, which is in turn
+ * obtained from an {@link EntityMetadataFactory}.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see EntityMetadata
+ * @see BeanProperty
+ * @see TypeHandler
  * @since 4.0 2022/9/7 22:46
  */
 public class EntityProperty {
@@ -182,6 +188,48 @@ public class EntityProperty {
   }
 
   /**
+   * Return the name of the underlying Java bean property.
+   * <p>
+   * This is the property name (for example {@code userName}), not the mapped
+   * {@linkplain #getColumnName() column name}, which may differ.
+   *
+   * @return the bean property name
+   * @see #getColumnName()
+   * @since 5.0
+   */
+  public String getName() {
+    return beanProperty.getName();
+  }
+
+  /**
+   * Return the declared Java type of the underlying bean property.
+   * <p>
+   * This is the type read from and written to the mapped column through the
+   * associated {@link #getTypeHandler() type handler}.
+   *
+   * @return the property type
+   * @see #getTypeHandler()
+   * @since 5.0
+   */
+  public Class<?> getType() {
+    return beanProperty.getType();
+  }
+
+  /**
+   * Return whether this property has a non-{@code null} value on the given entity.
+   * <p>
+   * A convenient alternative to {@code getValue(entity) != null}, typically used by
+   * update strategies to decide whether a property participates in an update.
+   *
+   * @param entity the entity instance to inspect
+   * @return {@code true} if {@link #getValue(Object)} is not {@code null}, {@code false} otherwise
+   * @since 5.0
+   */
+  public boolean hasValue(Object entity) {
+    return getValue(entity) != null;
+  }
+
+  /**
    * Returns the merged annotations present on the underlying bean property.
    *
    * @return the merged annotations
@@ -199,6 +247,28 @@ public class EntityProperty {
    */
   public <A extends Annotation> MergedAnnotation<A> getAnnotation(Class<A> annType) {
     return getAnnotations().get(annType);
+  }
+
+  /**
+   * Return the annotation of the specified type present on the underlying bean
+   * property, synthesized into a concrete {@link Annotation} instance that can be
+   * used directly in code.
+   * <p>
+   * Unlike {@link #getAnnotation(Class)}, which returns a {@link MergedAnnotation},
+   * this method resolves merged attribute values (including {@code @AliasFor} and
+   * composed annotations) and materializes the annotation through a JDK proxy.
+   * Synthesis may incur a computational cost when first invoked.
+   *
+   * @param annType the annotation type to synthesize
+   * @param <A> the annotation type
+   * @return the synthesized annotation instance
+   * @throws java.util.NoSuchElementException if the annotation is not present
+   * @see #getAnnotation(Class)
+   * @see #isPresent(Class)
+   * @since 5.0
+   */
+  public <A extends Annotation> A synthesizedAnnotation(Class<A> annType) {
+    return getAnnotations().get(annType).synthesize();
   }
 
   /**
