@@ -636,52 +636,6 @@ public interface EntityManager {
           throws DataAccessException;
 
   /**
-   * Updates records in the database using one of the entity properties as the
-   * matching condition. The {@code where} argument names the property (or column)
-   * that identifies the record(s) to update, and its value is taken from the given
-   * entity or example; the remaining updatable properties form the {@code SET} clause.
-   *
-   * <p>For example, {@code updateBy(user, "name")} generates a statement equivalent
-   * to {@code UPDATE t_user SET ... WHERE name = ?} where the parameter is
-   * {@code user.name}.
-   *
-   * @param entityOrExample an instance of Object containing the fields to be updated.
-   * This can either represent a full entity or an example with partial fields.
-   * @param where the name of the property or column used as the update condition.
-   * It must match a property name or column name of the entity, and its value must
-   * not be null.
-   * @return the number of rows affected by the update operation.
-   * @throws DataAccessException if there is an issue accessing the database or executing the update.
-   * @throws infra.dao.InvalidDataAccessApiUsageException if the named property cannot be found
-   * or its value is {@code null}.
-   */
-  int updateBy(Object entityOrExample, String where) throws DataAccessException;
-
-  /**
-   * Updates records in the database using one of the entity properties as the
-   * matching condition, with a specified update strategy.
-   *
-   * <p>The {@code where} argument names the property (or column) that identifies the
-   * record(s) to update, and its value is taken from the given entity or example. The
-   * remaining properties selected by the {@code strategy} form the {@code SET} clause.
-   *
-   * @param entityOrExample the entity or example object that defines the update criteria.
-   * If an entity is provided, its non-null fields are used for updating.
-   * If an example is provided, it serves as a template for matching records.
-   * @param where the name of the property or column used as the update condition.
-   * It must match a property name or column name of the entity, and its value must
-   * not be null.
-   * @param strategy the optional update strategy that determines how properties
-   * are updated. If null, a default strategy is applied.
-   * @return the number of rows affected by the update operation.
-   * @throws DataAccessException if there is an issue accessing the database during the update process.
-   * @throws infra.dao.InvalidDataAccessApiUsageException if the named property cannot be found
-   * or its value is {@code null}.
-   */
-  int updateBy(Object entityOrExample, String where, @Nullable PropertyUpdateStrategy strategy)
-          throws DataAccessException;
-
-  /**
    * Saves a new entity or updates an existing one in the data store.
    * If the entity already exists (typically determined by its unique identifier),
    * it will be updated. Otherwise, a new entity will be created.

@@ -29,7 +29,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -732,76 +731,6 @@ public class DefaultEntityManager implements EntityManager {
     catch (SQLException ex) {
       eventMulticaster.onUpdateFailed(entity, metadata, strategy, ex);
       throw translateException("Updating entity By ID", sql, ex);
-    }
-    catch (RuntimeException | Error ex) {
-      eventMulticaster.onUpdateFailed(entity, metadata, strategy, ex);
-      throw ex;
-    }
-    finally {
-      closeResource(con, statement);
-    }
-  }
-
-  @Override
-  public int updateBy(Object entity, String where) {
-    return updateBy(entity, where, null);
-  }
-
-  @Override
-  public int updateBy(Object entity, String where, @Nullable PropertyUpdateStrategy strategy) {
-    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entity.getClass());
-    if (strategy == null) {
-      strategy = defaultUpdateStrategy(entity);
-    }
-
-    eventMulticaster.onPreUpdate(entity, metadata, strategy);
-    Update updateStmt = new Update(metadata.getTableName());
-
-    EntityProperty updateBy = null;
-    ArrayList<EntityProperty> properties = new ArrayList<>();
-    for (EntityProperty property : metadata.getEntityProperties(false)) {
-      // columnName or property name
-      if (Objects.equals(where, property.getColumnName())
-              || Objects.equals(where, property.getBeanProperty().getName())) {
-        updateBy = property;
-      }
-      else if (strategy.shouldUpdate(entity, property)) {
-        updateStmt.addAssignment(property.getColumnName());
-        properties.add(property);
-      }
-    }
-
-    if (updateBy == null) {
-      throw new InvalidDataAccessApiUsageException("Updating an entity, 'where' property '%s' not found".formatted(where));
-    }
-
-    updateStmt.addRestriction(updateBy.getColumnName());
-
-    Object updateByValue = updateBy.getValue(entity);
-    if (updateByValue == null) {
-      throw new InvalidDataAccessApiUsageException(
-              "Updating an entity, 'where' property value '%s' is required".formatted(where));
-    }
-
-    String sql = updateStmt.toStatementString(platform);
-    if (stmtLogger.isDebugEnabled()) {
-      stmtLogger.logStatement(LogMessage.format("Updating entity using {} : '{}'", where, updateByValue), sql);
-    }
-
-    Connection con = DataSourceUtils.getConnection(dataSource);
-    PreparedStatement statement = null;
-    try {
-      statement = prepareStatement(con, sql, false);
-      int idx = setParameters(entity, properties, statement);
-      // last one is where
-      updateBy.setParameter(statement, idx, updateByValue);
-      int updateCount = statement.executeUpdate();
-      eventMulticaster.onPostUpdate(entity, metadata, strategy, updateCount);
-      return updateCount;
-    }
-    catch (SQLException ex) {
-      eventMulticaster.onUpdateFailed(entity, metadata, strategy, ex);
-      throw translateException("Updating entity By " + where, sql, ex);
     }
     catch (RuntimeException | Error ex) {
       eventMulticaster.onUpdateFailed(entity, metadata, strategy, ex);

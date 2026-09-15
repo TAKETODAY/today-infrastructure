@@ -10,7 +10,7 @@
 
 * xref:data-access/persistence.adoc#persistence-config[自动配置与依赖]：引入即用，无需编写样板代码。
 * xref:data-access/persistence.adoc#persistence-mapping[实体映射]：注解驱动的表 / 列 / 主键 / 版本映射与可插拔的元数据工厂。
-* xref:data-access/persistence.adoc#persistence-manager[`EntityManager`]：`persist` / `update` / `updateById` / `updateBy` / `saveOrUpdate` / `delete` / `truncate` / `find*` / `count` / `page` / `iterate` 等完整 API。
+* xref:data-access/persistence.adoc#persistence-manager[`EntityManager`]：`persist` / `update` / `updateById` / `saveOrUpdate` / `delete` / `truncate` / `find*` / `count` / `page` / `iterate` 等完整 API。
 * xref:data-access/persistence.adoc#persistence-example[示例查询 (Query by Example)]：以对象作为查询条件，支持 `@Where`、`@Like`、`@OR`、`@OrderBy`。
 * xref:data-access/persistence.adoc#persistence-update-strategy[属性更新策略]：精细控制哪些字段参与更新。
 * xref:data-access/persistence.adoc#persistence-version[乐观锁]：基于 `@Version` 的并发控制。
@@ -188,11 +188,6 @@ entityManager.updateById(user);
 entityManager.updateById(user, 10L);
 entityManager.updateById(user, PropertyUpdateStrategy.noneNull());
 entityManager.updateById(user, 10L, PropertyUpdateStrategy.noneNull());
-
-// 按指定属性（属性名或列名）的值作为 WHERE 条件更新
-// 其余可更新属性由更新策略决定，例：UPDATE t_user SET ... WHERE name = ?
-entityManager.updateBy(user, "name");
-entityManager.updateBy(user, "name", PropertyUpdateStrategy.noneNull());
 
 // 新实体插入、已存在则更新
 entityManager.saveOrUpdate(user);
