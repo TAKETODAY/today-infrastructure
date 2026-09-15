@@ -69,6 +69,12 @@ public final class EntityManagerAutoConfiguration {
   }
 
   @Component
+  @ConditionalOnMissingBean(Platform.class)
+  public static Platform platform(DataSource dataSource) {
+    return Platform.forDataSource(dataSource);
+  }
+
+  @Component
   @ConditionalOnMissingBean(EntityQueryFactories.class)
   static EntityQueryFactories entityQueryFactories(EntityMetadataFactory entityMetadataFactory,
           List<EntityQueryFactory> entityQueryFactories, List<PropertyConditionStrategy> strategies) {

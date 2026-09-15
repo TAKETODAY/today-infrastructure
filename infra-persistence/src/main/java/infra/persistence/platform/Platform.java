@@ -18,8 +18,17 @@ package infra.persistence.platform;
 
 import org.jspecify.annotations.Nullable;
 
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 import java.util.regex.Pattern;
 
+import javax.sql.DataSource;
+
+import infra.jdbc.config.DatabaseDriver;
+import infra.jdbc.support.JdbcUtils;
+import infra.jdbc.support.MetaDataAccessException;
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
 import infra.persistence.sql.ANSIJoinFragment;
 import infra.persistence.sql.JoinFragment;
 import infra.util.StringUtils;
@@ -49,6 +58,8 @@ import infra.util.StringUtils;
  * @since 4.0 2021/10/10 13:11
  */
 public abstract class Platform {
+
+  private static final Logger log = LoggerFactory.getLogger(Platform.class);
 
   /**
    * Characters used as opening for quoting SQL identifiers
@@ -192,6 +203,75 @@ public abstract class Platform {
    */
   public static Platform generic() {
     return new GenericPlatform();
+  }
+
+  /**
+   * MySQL Platform
+   *
+   * @see MySQLPlatform
+   * @since 5.0
+   */
+  public static Platform mysql() {
+    return new MySQLPlatform();
+  }
+
+  /**
+   * Select the platform for the database behind the given data source.
+   *
+   * <p>The database product name is read from JDBC metadata. If metadata cannot
+   * be obtained, the ANSI-compatible {@link GenericPlatform} is returned.
+   *
+   * @param dataSource the data source to inspect, possibly {@code null}
+   * @return the matching platform, never {@code null}
+   * @see #forDatabaseMetaData(DatabaseMetaData)
+   */
+  public static Platform forDataSource(@Nullable DataSource dataSource) {
+    if (dataSource == null) {
+      return generic();
+    }
+    try {
+      return JdbcUtils.extractDatabaseMetaData(dataSource, Platform::forDatabaseMetaData);
+    }
+    catch (MetaDataAccessException ex) {
+      log.debug("Cannot resolve a Platform from the DataSource metadata, falling back to GenericPlatform", ex);
+      return generic();
+    }
+  }
+
+  /**
+   * Select the platform matching the given JDBC metadata.
+   *
+   * @param metaData the database metadata to inspect
+   * @return the matching platform, never {@code null}
+   * @throws SQLException if the database product name cannot be read
+   * @see #forDatabaseProductName(String)
+   */
+  public static Platform forDatabaseMetaData(DatabaseMetaData metaData) throws SQLException {
+    return forDatabaseProductName(metaData.getDatabaseProductName());
+  }
+
+  /**
+   * Select the platform matching the given database product name.
+   *
+   * @param productName the database product name, possibly {@code null}
+   * @return the matching platform, never {@code null}
+   * @see #forDriver(DatabaseDriver)
+   */
+  public static Platform forDatabaseProductName(@Nullable String productName) {
+    return forDriver(DatabaseDriver.fromProductName(productName));
+  }
+
+  /**
+   * Select the platform matching the given database driver.
+   *
+   * @param driver the database driver, never {@code null}
+   * @return the matching platform, never {@code null}
+   */
+  public static Platform forDriver(DatabaseDriver driver) {
+    return switch (driver) {
+      case MYSQL, MARIADB -> mysql();
+      default -> generic();
+    };
   }
 
 }
