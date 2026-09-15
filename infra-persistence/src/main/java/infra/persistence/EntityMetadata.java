@@ -28,6 +28,7 @@ import infra.beans.BeanMetadata;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.style.ToStringBuilder;
+import infra.lang.Unmodifiable;
 import infra.persistence.annotation.GeneratedId;
 import infra.util.StringUtils;
 
@@ -117,7 +118,7 @@ public class EntityMetadata {
   private HashMap<String, EntityProperty> mapProperties(List<EntityProperty> entityProperties) {
     HashMap<String, EntityProperty> propertyMap = new HashMap<>();
     for (EntityProperty property : entityProperties) {
-      propertyMap.put(property.getBeanProperty().getName(), property);
+      propertyMap.put(property.getName(), property);
     }
     return propertyMap;
   }
@@ -206,6 +207,7 @@ public class EntityMetadata {
    * @param excludeId whether to omit the ID column from the result
    * @return the column names, never {@code null}
    */
+  @Unmodifiable
   public String[] getColumnNames(boolean excludeId) {
     return excludeId ? columnNamesExcludeId : columnNames;
   }
@@ -223,6 +225,7 @@ public class EntityMetadata {
    * @param excludeId whether to omit the ID property from the result
    * @return the entity properties, never {@code null}
    */
+  @Unmodifiable
   public EntityProperty[] getEntityProperties(boolean excludeId) {
     return excludeId ? entityPropertiesExcludeId : entityProperties;
   }
@@ -314,6 +317,28 @@ public class EntityMetadata {
    */
   public <A extends Annotation> boolean isPresent(Class<A> annType) {
     return getAnnotations().isPresent(annType);
+  }
+
+  /**
+   * Return the annotation of the given type declared on the entity class,
+   * synthesized into a concrete {@link Annotation} instance that can be used
+   * directly in code.
+   * <p>
+   * Unlike {@link #getAnnotation(Class)}, which returns a {@link MergedAnnotation},
+   * this method resolves merged attribute values (including {@code @AliasFor} and
+   * composed annotations) and materializes the annotation through a JDK proxy.
+   * Synthesis may incur a computational cost when first invoked.
+   *
+   * @param annType the annotation type to synthesize
+   * @param <A> the annotation type
+   * @return the synthesized annotation instance
+   * @throws java.util.NoSuchElementException if the annotation is not present
+   * @see #getAnnotation(Class)
+   * @see #isPresent(Class)
+   * @since 5.0
+   */
+  public <A extends Annotation> A synthesizedAnnotation(Class<A> annType) {
+    return getAnnotations().get(annType).synthesize();
   }
 
   @Override
