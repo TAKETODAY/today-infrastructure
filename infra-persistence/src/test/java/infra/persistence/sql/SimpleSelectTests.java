@@ -39,7 +39,7 @@ class SimpleSelectTests {
             .addColumns(new String[] { "id", "gender" })
             .setTableName("t_user");
 
-    assertThat(select.toStatementString(platform)).isEqualTo("SELECT `name`, `age`, `id`, `gender` FROM t_user");
+    assertThat(select.toStatementString(platform)).isEqualTo("SELECT name, age, id, gender FROM t_user");
   }
 
   @Test
@@ -51,7 +51,7 @@ class SimpleSelectTests {
             .addColumn("user_id", "id")
             .setTableName("t_user");
 
-    assertThat(select.toStatementString(platform)).isEqualTo("SELECT `name`, `age`, `user_id` AS id FROM t_user");
+    assertThat(select.toStatementString(platform)).isEqualTo("SELECT name, age, user_id AS id FROM t_user");
   }
 
   @Test
@@ -67,7 +67,7 @@ class SimpleSelectTests {
             .setTableName("t_user");
 
     assertThat(select.toStatementString(platform)).isEqualTo(
-            "SELECT `name`, `age`, `user_id` AS id FROM t_user WHERE id = 1 AND `name` = ? AND `gender` = ? AND `age` <> 1");
+            "SELECT name, age, user_id AS id FROM t_user WHERE id = 1 AND name = ? AND gender = ? AND age <> 1");
   }
 
   @Test
@@ -81,7 +81,7 @@ class SimpleSelectTests {
             .orderBy("id", Order.DESC);
 
     assertThat(select.toStatementString(platform)).isEqualTo(
-            "SELECT `name`, `age` FROM t_user WHERE id = 1 AND `name` = ? order by `id` DESC");
+            "SELECT name, age FROM t_user WHERE id = 1 AND name = ? order by id DESC");
   }
 
   @Test
@@ -95,7 +95,7 @@ class SimpleSelectTests {
             .orderBy("id");
 
     assertThat(select.toStatementString(platform)).isEqualTo(
-            "/* find by id */ SELECT `name`, `age` FROM t_user WHERE id = 1 order by `id` ASC");
+            "/* find by id */ SELECT name, age FROM t_user WHERE id = 1 order by id ASC");
   }
 
 }

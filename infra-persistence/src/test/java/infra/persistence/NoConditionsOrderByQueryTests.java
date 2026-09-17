@@ -42,8 +42,8 @@ class NoConditionsOrderByQueryTests {
             .isNotNull()
             .asInstanceOf(org.assertj.core.api.InstanceOfAssertFactories.type(OrderByClause.class))
             .extracting(OrderByClause::toClause).asString()
-            .contains("`name` ASC")
-            .contains("`age` DESC");
+            .contains("name ASC")
+            .contains("age DESC");
   }
 
 }

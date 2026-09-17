@@ -19,7 +19,6 @@ import infra.persistence.Order;
 import infra.persistence.Pageable;
 import infra.persistence.StatementSequence;
 import infra.persistence.platform.Platform;
-import infra.util.CollectionUtils;
 
 /**
  * A SQL {@code SELECT} statement with no table joins.
@@ -93,7 +92,9 @@ public class SimpleSelect implements StatementSequence {
    * Adds selections
    */
   public SimpleSelect addColumns(String[] columnNames) {
-    CollectionUtils.addAll(this.columns, columnNames);
+    for (String columnName : columnNames) {
+      addColumn(columnName);
+    }
     return this;
   }
 

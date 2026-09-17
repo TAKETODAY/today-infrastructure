@@ -34,22 +34,22 @@ class OrderByClauseTests {
   @Test
   void toClause() {
     OrderByClause clause = OrderByClause.forMap(Map.of("name", Order.ASC));
-    assertThat(clause.toClause().toString()).isEqualTo("`name` ASC");
+    assertThat(clause.toClause().toString()).isEqualTo("name ASC");
 
     assertThat(OrderByClause.valueOf(Pair.of("name", Order.ASC), Pair.of("age", Order.DESC))
-            .toClause().toString()).isEqualTo("`name` ASC, `age` DESC");
+            .toClause().toString()).isEqualTo("name ASC, age DESC");
   }
 
   @Test
   void desc() {
     assertThat(OrderByClause.valueOf()
-            .desc("name").toClause().toString()).isEqualTo("`name` DESC");
+            .desc("name").toClause().toString()).isEqualTo("name DESC");
   }
 
   @Test
   void asc() {
     assertThat(OrderByClause.mutable()
-            .asc("name").toClause().toString()).isEqualTo("`name` ASC");
+            .asc("name").toClause().toString()).isEqualTo("name ASC");
   }
 
   @Test
@@ -63,7 +63,7 @@ class OrderByClauseTests {
     MutableOrderByClause clause = new MutableOrderByClause().asc("name");
     clause.merge(OrderByClause.mutable().desc("age"));
     assertThat(clause.isEmpty()).isFalse();
-    assertThat(clause.toClause().toString()).isEqualTo("`name` ASC, `age` DESC");
+    assertThat(clause.toClause().toString()).isEqualTo("name ASC, age DESC");
   }
 
   @Test

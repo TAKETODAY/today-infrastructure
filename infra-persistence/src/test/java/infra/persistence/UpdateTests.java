@@ -37,10 +37,10 @@ class UpdateTests {
     update.addAssignment("name");
     update.addRestriction("id");
 
-    assertThat(update.toStatementString(platform)).isEqualTo("UPDATE t_user set `name`=? WHERE `id` = ?");
+    assertThat(update.toStatementString(platform)).isEqualTo("UPDATE t_user set name=? WHERE id = ?");
 
     update.addAssignment("name", ":name");
-    assertThat(update.toStatementString(platform)).isEqualTo("UPDATE t_user set `name`=:name WHERE `id` = ?");
+    assertThat(update.toStatementString(platform)).isEqualTo("UPDATE t_user set name=:name WHERE id = ?");
   }
 
 }
