@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import infra.persistence.Identifier;
 import infra.persistence.Order;
 import infra.persistence.Pageable;
 import infra.persistence.StatementSequence;
@@ -31,15 +32,15 @@ public class SimpleSelect implements StatementSequence {
 
   public final List<Restriction> restrictions;
 
-  protected final List<String> columns;
+  protected final List<Identifier> columns;
 
-  protected String tableName;
+  protected Identifier tableName;
 
   protected @Nullable OrderByClause orderByClause;
 
   protected @Nullable CharSequence comment;
 
-  protected @Nullable HashMap<String, String> aliases;
+  protected @Nullable HashMap<Identifier, String> aliases;
 
   private @Nullable Integer limit;
 
@@ -52,7 +53,7 @@ public class SimpleSelect implements StatementSequence {
   }
 
   @SuppressWarnings("NullAway")
-  public SimpleSelect(List<String> columns, List<Restriction> restrictions) {
+  public SimpleSelect(List<Identifier> columns, List<Restriction> restrictions) {
     this.restrictions = restrictions;
     this.columns = columns;
   }
@@ -77,6 +78,13 @@ public class SimpleSelect implements StatementSequence {
    * Sets the name of the table we are selecting from
    */
   public SimpleSelect setTableName(String tableName) {
+    return setTableName(Identifier.parse(tableName));
+  }
+
+  /**
+   * Sets the name of the table we are selecting from
+   */
+  public SimpleSelect setTableName(Identifier tableName) {
     this.tableName = tableName;
     return this;
   }
@@ -93,6 +101,13 @@ public class SimpleSelect implements StatementSequence {
    * Adds a selection
    */
   public SimpleSelect addColumn(String columnName) {
+    return addColumn(Identifier.parse(columnName));
+  }
+
+  /**
+   * Adds a selection
+   */
+  public SimpleSelect addColumn(Identifier columnName) {
     columns.add(columnName);
     return this;
   }
@@ -101,6 +116,13 @@ public class SimpleSelect implements StatementSequence {
    * Adds a selection, with an alias
    */
   public SimpleSelect addColumn(String columnName, String alias) {
+    return addColumn(Identifier.parse(columnName), alias);
+  }
+
+  /**
+   * Adds a selection, with an alias
+   */
+  public SimpleSelect addColumn(Identifier columnName, String alias) {
     columns.add(columnName);
     if (aliases == null) {
       aliases = new HashMap<>();
@@ -113,7 +135,7 @@ public class SimpleSelect implements StatementSequence {
    * Appends a complete where condition.
    * The {@code condition} is added as-is.
    */
-  public SimpleSelect addWhereToken(CharSequence condition) {
+  public SimpleSelect addWhereToken(@Nullable CharSequence condition) {
     if (condition != null) {
       restrictions.add(Restriction.plain(condition));
     }
@@ -124,6 +146,13 @@ public class SimpleSelect implements StatementSequence {
    * Appends a restriction comparing the {@code columnName} for equality with a parameter
    */
   public SimpleSelect addRestriction(String columnName) {
+    return addRestriction(Identifier.parse(columnName));
+  }
+
+  /**
+   * Appends a restriction comparing the {@code columnName} for equality with a parameter
+   */
+  public SimpleSelect addRestriction(Identifier columnName) {
     restrictions.add(Restriction.equal(columnName));
     return this;
   }
@@ -178,19 +207,19 @@ public class SimpleSelect implements StatementSequence {
 
   @Override
   public String toStatementString(Platform platform) {
-    StringBuilder buf = new StringBuilder(columns.size() * 10 + tableName.length() + restrictions.size() * 10 + 10);
+    StringBuilder buf = new StringBuilder(columns.size() * 10 + tableName.getText().length() + restrictions.size() * 10 + 10);
     if (comment != null) {
       buf.append("/* ").append(Platform.escapeComment(comment)).append(" */ ");
     }
 
-    applySelectClause(buf);
-    buf.append(" FROM ").append(tableName);
+    applySelectClause(platform, buf);
+    buf.append(" FROM ").append(tableName.render(platform));
     // where
-    Restriction.append(restrictions, buf);
+    Restriction.append(platform, restrictions, buf);
 
     OrderByClause orderByClause = this.orderByClause;
     if (orderByClause != null && !orderByClause.isEmpty()) {
-      buf.append(" order by ").append(orderByClause.toClause());
+      buf.append(" order by ").append(orderByClause.toClause(platform));
     }
 
     if (limit != null) {
@@ -203,35 +232,30 @@ public class SimpleSelect implements StatementSequence {
     return buf.toString();
   }
 
-  private void applySelectClause(StringBuilder buf) {
+  private void applySelectClause(Platform platform, StringBuilder buf) {
     buf.append("SELECT ");
 
     boolean appendComma = false;
     final HashSet<String> uniqueColumns = new HashSet<>();
-    for (final String col : columns) {
+    for (final Identifier col : columns) {
       final String alias = getAlias(col);
-      if (uniqueColumns.add(alias == null ? col : alias)) {
+      if (uniqueColumns.add(alias == null ? col.getText() : alias)) {
         if (appendComma) {
-          buf.append(", `");
+          buf.append(", ");
         }
         else {
           appendComma = true;
-          buf.append('`');
         }
-        buf.append(col);
 
-        if (alias != null && !alias.equals(col)) {
-          buf.append("` AS ").append(alias);
-        }
-        else {
-          buf.append('`');
+        buf.append(col.render(platform));
+        if (alias != null && !alias.equals(col.getText())) {
+          buf.append(" AS ").append(alias);
         }
       }
     }
   }
 
-  @Nullable
-  private String getAlias(String col) {
+  private @Nullable String getAlias(Identifier col) {
     if (aliases == null) {
       return null;
     }

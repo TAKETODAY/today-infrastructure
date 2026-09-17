@@ -21,10 +21,12 @@ import org.jspecify.annotations.Nullable;
 import infra.core.annotation.MergedAnnotation;
 import infra.lang.Constant;
 import infra.persistence.EntityProperty;
+import infra.persistence.Identifier;
 import infra.persistence.PropertyConditionStrategy;
 import infra.persistence.annotation.Like;
 import infra.persistence.annotation.PrefixLike;
 import infra.persistence.annotation.SuffixLike;
+import infra.persistence.platform.Platform;
 import infra.persistence.sql.Restriction;
 import infra.util.StringUtils;
 
@@ -47,12 +49,6 @@ public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
           string = string.trim();
         }
         if (StringUtils.hasText(string)) {
-          // get column name
-          String column = annotation.getStringValue();
-          if (Constant.DEFAULT_NONE.equals(column)) {
-            column = entityProperty.getColumnName();
-          }
-
           if (entityProperty.isPresent(PrefixLike.class)) {
             string = string + '%';
           }
@@ -64,6 +60,8 @@ public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
           }
 
           value = string;
+          // get column name
+          Identifier column = getColumn(entityProperty, annotation);
           return new Condition(value, new LikeRestriction(column), entityProperty, logicalAnd);
         }
       }
@@ -71,19 +69,26 @@ public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
     return null;
   }
 
+  private static Identifier getColumn(EntityProperty property, MergedAnnotation<Like> annotation) {
+    String columnText = annotation.getStringValue();
+    if (Constant.DEFAULT_NONE.equals(columnText)) {
+      return property.getColumnName();
+    }
+    return Identifier.parse(columnText);
+  }
+
   static final class LikeRestriction implements Restriction {
 
-    final String columnName;
+    final Identifier columnName;
 
-    LikeRestriction(String columnName) {
+    LikeRestriction(Identifier columnName) {
       this.columnName = columnName;
     }
 
     @Override
-    public void render(StringBuilder sqlBuffer) {
-      sqlBuffer.append('`')
-              .append(columnName)
-              .append("` like ?");
+    public void render(Platform platform, StringBuilder sqlBuffer) {
+      sqlBuffer.append(columnName.render(platform))
+              .append(" like ?");
     }
 
   }

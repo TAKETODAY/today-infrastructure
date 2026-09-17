@@ -763,10 +763,10 @@ public class DefaultEntityManager implements EntityManager {
 
     StringBuilder sql = new StringBuilder();
     sql.append("DELETE FROM ");
-    sql.append(metadata.getTableName());
-    sql.append(" WHERE `");
-    sql.append(idProperty.getColumnName());
-    sql.append("` = ? ");
+    sql.append(metadata.getTableName().render(platform));
+    sql.append(" WHERE ");
+    sql.append(idProperty.getColumnName().render(platform));
+    sql.append(" = ? ");
 
     if (stmtLogger.isDebugEnabled()) {
       stmtLogger.logStatement(LogMessage.format("Deleting entity using ID: {}", id), sql);
@@ -816,20 +816,20 @@ public class DefaultEntityManager implements EntityManager {
 
     StringBuilder sql = new StringBuilder();
     sql.append("DELETE FROM ");
-    sql.append(metadata.getTableName());
+    sql.append(metadata.getTableName().render(platform));
     if (id != null) {
       // delete by id
-      sql.append(" WHERE `");
-      sql.append(idProperty.getColumnName());
-      sql.append("` = ? ");
+      sql.append(" WHERE ");
+      sql.append(idProperty.getColumnName().render(platform));
+      sql.append(" = ? ");
       if (versionProperty != null && versionValue != null) {
-        sql.append("AND `").append(versionProperty.getColumnName()).append("` = ? ");
+        sql.append("AND ").append(versionProperty.getColumnName().render(platform)).append(" = ? ");
       }
     }
     else {
       conditionStmt = entityQueryFactories.createCondition(entityOrExample);
       if (conditionStmt != null) {
-        conditionStmt.appendWhereClause(metadata, sql);
+        conditionStmt.appendWhereClause(platform, metadata, sql);
       }
     }
 
@@ -878,7 +878,7 @@ public class DefaultEntityManager implements EntityManager {
   public void truncate(Class<?> entityClass) throws DataAccessException {
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
 
-    String sql = platform.getTruncateTableStatement(metadata.getTableName());
+    String sql = platform.getTruncateTableStatement(metadata.getTableName().render(platform));
     if (stmtLogger.isDebugEnabled()) {
       stmtLogger.logStatement(LogMessage.format("Truncate table: [{}]", entityClass), sql);
     }
@@ -973,7 +973,7 @@ public class DefaultEntityManager implements EntityManager {
   @Override
   public <T> List<T> find(Class<T> entityClass, Pair<String, Order> sortKey) throws DataAccessException {
     Assert.notNull(sortKey, "sortKey is required");
-    return find(entityClass, new NoConditionsOrderByQuery(OrderByClause.mutable().orderBy(sortKey)));
+    return find(entityClass, new NoConditionsOrderByQuery(OrderByClause.mutable().orderBy(sortKey.first, sortKey.second)));
   }
 
   @SafeVarargs
@@ -1210,10 +1210,11 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   private Number doQueryCount(EntityMetadata metadata, QueryCondition handler, List<Restriction> restrictions, Connection con) throws DataAccessException {
-    StringBuilder countSql = new StringBuilder(restrictions.size() * 10 + 25 + metadata.getTableName().length());
-    platform.selectCountFrom(countSql, metadata.getTableName());
+    String tableName = metadata.getTableName().render(platform);
+    StringBuilder countSql = new StringBuilder(restrictions.size() * 10 + 25 + tableName.length());
+    platform.selectCountFrom(countSql, tableName);
 
-    Restriction.append(restrictions, countSql);
+    Restriction.append(platform, restrictions, countSql);
 
     String statement = countSql.toString();
     ResultSet resultSet = null;

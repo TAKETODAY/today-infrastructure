@@ -22,7 +22,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import infra.core.Pair;
+import infra.persistence.Identifier;
 import infra.persistence.Order;
+import infra.persistence.platform.Platform;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -30,13 +32,13 @@ import infra.persistence.Order;
  */
 public class MutableOrderByClause implements OrderByClause {
 
-  private final ArrayList<Pair<String, Order>> sortKeys;
+  private final ArrayList<Pair<Identifier, Order>> sortKeys;
 
   public MutableOrderByClause() {
     this.sortKeys = new ArrayList<>();
   }
 
-  public MutableOrderByClause(Collection<Pair<String, Order>> sortKeys) {
+  public MutableOrderByClause(Collection<Pair<Identifier, Order>> sortKeys) {
     this.sortKeys = new ArrayList<>(sortKeys);
   }
 
@@ -45,20 +47,32 @@ public class MutableOrderByClause implements OrderByClause {
   }
 
   public MutableOrderByClause asc(String col) {
+    return asc(Identifier.parse(col));
+  }
+
+  public MutableOrderByClause asc(Identifier col) {
     sortKeys.add(Pair.of(col, Order.ASC));
     return this;
   }
 
   public MutableOrderByClause desc(String col) {
+    return desc(Identifier.parse(col));
+  }
+
+  public MutableOrderByClause desc(Identifier col) {
     sortKeys.add(Pair.of(col, Order.DESC));
     return this;
   }
 
   public MutableOrderByClause orderBy(String col, Order order) {
+    return orderBy(Identifier.parse(col), order);
+  }
+
+  public MutableOrderByClause orderBy(Identifier col, Order order) {
     return orderBy(Pair.of(col, order));
   }
 
-  public MutableOrderByClause orderBy(Pair<String, Order> sortKey) {
+  public MutableOrderByClause orderBy(Pair<Identifier, Order> sortKey) {
     sortKeys.add(sortKey);
     return this;
   }
@@ -75,22 +89,19 @@ public class MutableOrderByClause implements OrderByClause {
   }
 
   @Override
-  public CharSequence toClause() {
+  public CharSequence toClause(Platform platform) {
     StringBuilder orderByClause = new StringBuilder();
     boolean first = true;
     for (var entry : sortKeys) {
       if (first) {
         first = false;
-        orderByClause.append('`');
-        orderByClause.append(entry.first)
-                .append("` ")
-                .append(entry.second.name());
+        orderByClause.append(entry.first.render(platform))
+                .append(' ').append(entry.second.name());
       }
       else {
-        orderByClause.append(", `")
-                .append(entry.first)
-                .append("` ")
-                .append(entry.second.name());
+        orderByClause.append(", ")
+                .append(entry.first.render(platform))
+                .append(' ').append(entry.second.name());
       }
     }
     return orderByClause;

@@ -45,8 +45,8 @@ public class RefEntityMetadata extends EntityMetadata {
   private final EntityMetadata refMetadata;
 
   protected RefEntityMetadata(EntityMetadata refMetadata, BeanMetadata root, Class<?> entityClass,
-          String tableName, @Nullable EntityProperty idProperty, @Nullable EntityProperty versionProperty,
-          List<String> columnNames, List<EntityProperty> entityProperties) {
+          Identifier tableName, @Nullable EntityProperty idProperty, @Nullable EntityProperty versionProperty,
+          List<Identifier> columnNames, List<EntityProperty> entityProperties) {
     super(root, entityClass, tableName, idProperty, versionProperty, columnNames, entityProperties);
     this.refMetadata = refMetadata;
   }

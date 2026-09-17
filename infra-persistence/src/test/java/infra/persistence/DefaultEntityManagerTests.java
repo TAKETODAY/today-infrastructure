@@ -32,7 +32,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 
 import javax.sql.DataSource;
@@ -45,7 +44,6 @@ import infra.dao.IncorrectResultSizeDataAccessException;
 import infra.dao.InvalidDataAccessApiUsageException;
 import infra.jdbc.JdbcUpdateAffectedIncorrectNumberOfRowsException;
 import infra.jdbc.NamedQuery;
-import infra.jdbc.Query;
 import infra.jdbc.RepositoryManager;
 import infra.jdbc.format.SqlStatementLogger;
 import infra.jdbc.model.Gender;
@@ -55,7 +53,6 @@ import infra.lang.Descriptive;
 import infra.persistence.annotation.Column;
 import infra.persistence.annotation.EntityRef;
 import infra.persistence.annotation.Id;
-import infra.persistence.annotation.Table;
 import infra.persistence.annotation.UpdateBy;
 import infra.persistence.annotation.Where;
 import infra.persistence.event.BatchPersistListener;
@@ -95,15 +92,15 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     try (NamedQuery query = repositoryManager.createNamedQuery("""
             create table t_user
             (
-                `id`               int auto_increment primary key,
-                `age`              int           default 0    ,
-                `name`             varchar(255)  default null ,
-                `avatar`           varchar(255)  default null ,
-                `password`         varchar(255)  default null ,
-                `introduce`        varchar(1000) default null ,
-                `email`            varchar(255)  default null ,
-                `gender`           int           default -1   ,
-                `mobile_phone`     varchar(36)   default null
+                id               int auto_increment primary key,
+                age              int           default 0    ,
+                name             varchar(255)  default null ,
+                avatar           varchar(255)  default null ,
+                password         varchar(255)  default null ,
+                introduce        varchar(1000) default null ,
+                email            varchar(255)  default null ,
+                gender           int           default -1   ,
+                mobile_phone     varchar(36)   default null
             );
             """)) {
 
@@ -180,7 +177,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
 
     assertThat(userModel.id).isNotNull();
 
-    try (NamedQuery query = repositoryManager.createNamedQuery("SELECT * from t_user where `id`=:id")) {
+    try (NamedQuery query = repositoryManager.createNamedQuery("SELECT * from t_user where id=:id")) {
       query.addParameter("id", userModel.id);
       query.setAutoDerivingColumns(true);
 
@@ -373,17 +370,17 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     @Column("id")
     Integer userId;
 
-    @Where("`name` = ?")
+    @Where("name = ?")
     String name;
 
     @Nullable
     @Where(operator = "=")
     Integer age;
 
-    @Where("`birthday` >= ?")
+    @Where("birthday >= ?")
     LocalDate birthdayBegin;
 
-    @Where("`birthday` <= ?")
+    @Where("birthday <= ?")
     LocalDate birthdayEnd;
 
   }
@@ -1361,7 +1358,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     TypeHandler<Object> typeHandler = mock(TypeHandler.class);
 
     // Create EntityProperty
-    EntityProperty entityProperty = new EntityProperty(beanProperty, "test_column", typeHandler, false);
+    EntityProperty entityProperty = new EntityProperty(beanProperty, Identifier.parse("test_column"), typeHandler, false);
 
     // Mock PreparedStatement
     PreparedStatement ps = mock(PreparedStatement.class);
@@ -1394,7 +1391,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     TypeHandler<Object> typeHandler = mock(TypeHandler.class);
 
     // Create EntityProperty
-    EntityProperty entityProperty = new EntityProperty(beanProperty, "test_column", typeHandler, false);
+    EntityProperty entityProperty = new EntityProperty(beanProperty, Identifier.parse("test_column"), typeHandler, false);
 
     // Test getValue method
     Object value = entityProperty.getValue(entity);
@@ -1420,7 +1417,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     when(typeHandler.getResult(any(ResultSet.class), anyInt())).thenReturn("resultValue");
 
     // Create EntityProperty
-    EntityProperty entityProperty = new EntityProperty(beanProperty, "test_column", typeHandler, false);
+    EntityProperty entityProperty = new EntityProperty(beanProperty, Identifier.parse("test_column"), typeHandler, false);
 
     // Mock ResultSet
     ResultSet rs = mock(ResultSet.class);
@@ -1443,7 +1440,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     TypeHandler<Object> typeHandler = mock(TypeHandler.class);
 
     // Create EntityProperty
-    EntityProperty entityProperty = new EntityProperty(beanProperty, "test_column", typeHandler, false);
+    EntityProperty entityProperty = new EntityProperty(beanProperty, Identifier.parse("test_column"), typeHandler, false);
 
     // Test getAnnotations method
     MergedAnnotations result = entityProperty.getAnnotations();
@@ -1474,10 +1471,10 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     TypeHandler<Object> typeHandler = mock(TypeHandler.class);
 
     // Create EntityProperty with isIdProperty = true
-    EntityProperty entityProperty = new EntityProperty(beanProperty, "id_column", typeHandler, true);
+    EntityProperty entityProperty = new EntityProperty(beanProperty, Identifier.parse("id_column"), typeHandler, true);
 
     assertThat(entityProperty.isIdProperty()).isTrue();
-    assertThat(entityProperty.getColumnName()).isEqualTo("id_column");
+    assertThat(entityProperty.getColumnName().getText()).isEqualTo("id_column");
     assertThat(entityProperty.getBeanProperty()).isEqualTo(beanProperty);
   }
 
@@ -1492,10 +1489,10 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     TypeHandler<Object> typeHandler = mock(TypeHandler.class);
 
     // Create EntityProperty with isIdProperty = false
-    EntityProperty entityProperty = new EntityProperty(beanProperty, "name_column", typeHandler, false);
+    EntityProperty entityProperty = new EntityProperty(beanProperty, Identifier.parse("name_column"), typeHandler, false);
 
     assertThat(entityProperty.isIdProperty()).isFalse();
-    assertThat(entityProperty.getColumnName()).isEqualTo("name_column");
+    assertThat(entityProperty.getColumnName().getText()).isEqualTo("name_column");
     assertThat(entityProperty.getBeanProperty()).isEqualTo(beanProperty);
   }
 
@@ -1683,4 +1680,3 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
   }
 
 }
-

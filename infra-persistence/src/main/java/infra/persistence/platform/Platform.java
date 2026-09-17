@@ -117,22 +117,19 @@ public abstract class Platform {
   }
 
   /**
-   * Wrap the given name in this platform's quote characters.
+   * Wrap the given identifier name in this platform's quote characters.
    *
-   * @param name the identifier to quote, possibly {@code null}
-   * @return the quoted identifier, or {@code null} when the given name is {@code null}
+   * <p>This method only adds the opening and closing delimiters. It does not
+   * escape quote characters already present in the name; callers should provide
+   * the bare identifier name.
+   *
+   * @param name the non-null identifier name to quote
+   * @return the quoted identifier
    * @see #openQuote()
    * @see #closeQuote()
    */
-  public @Nullable String toQuotedIdentifier(@Nullable String name) {
-    if (name == null) {
-      return null;
-    }
-    return new StringBuilder(name.length() + 2)
-            .append(openQuote())
-            .append(name)
-            .append(closeQuote())
-            .toString();
+  public String toQuotedIdentifier(String name) {
+    return openQuote() + name + closeQuote();
   }
 
   /**

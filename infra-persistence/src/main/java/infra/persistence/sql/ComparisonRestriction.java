@@ -20,6 +20,9 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
+import infra.persistence.Identifier;
+import infra.persistence.platform.Platform;
+
 /**
  * Represents a binary comparison restriction in SQL, such as {@code column = value}.
  * <p>
@@ -31,23 +34,21 @@ import java.util.Objects;
  */
 final class ComparisonRestriction implements Restriction {
 
-  private final String lhs;
+  private final Identifier lhs;
 
   private final String operator;
 
   private final String rhs;
 
-  public ComparisonRestriction(String lhs, String operator, String rhs) {
+  public ComparisonRestriction(Identifier lhs, String operator, String rhs) {
     this.lhs = lhs;
     this.operator = operator;
     this.rhs = rhs;
   }
 
   @Override
-  public void render(StringBuilder buffer) {
-    buffer.append('`')
-            .append(lhs)
-            .append('`')
+  public void render(Platform platform, StringBuilder sqlBuffer) {
+    sqlBuffer.append(lhs.render(platform))
             .append(operator)
             .append(rhs);
   }

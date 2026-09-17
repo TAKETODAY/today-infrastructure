@@ -24,6 +24,7 @@ import infra.persistence.EntityProperty;
 import infra.persistence.annotation.Like;
 import infra.persistence.annotation.PrefixLike;
 import infra.persistence.annotation.SuffixLike;
+import infra.persistence.platform.Platform;
 import infra.persistence.support.FuzzyQueryConditionStrategy.LikeRestriction;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,10 +67,10 @@ class FuzzyQueryConditionStrategyTests {
     assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
 
     var likeRestriction = (LikeRestriction) condition.restriction;
-    assertThat(likeRestriction.columnName).isEqualTo("trim_like");
+    assertThat(likeRestriction.columnName.getText()).isEqualTo("trim_like");
 
     String string = render(likeRestriction);
-    assertThat(string).isEqualTo("`trim_like` like ?");
+    assertThat(string).isEqualTo("trim_like like ?");
   }
 
   @Test
@@ -85,10 +86,10 @@ class FuzzyQueryConditionStrategyTests {
     assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
 
     var likeRestriction = (LikeRestriction) condition.restriction;
-    assertThat(likeRestriction.columnName).isEqualTo("not_trim_like");
+    assertThat(likeRestriction.columnName.getText()).isEqualTo("not_trim_like");
 
     String string = render(likeRestriction);
-    assertThat(string).isEqualTo("`not_trim_like` like ?");
+    assertThat(string).isEqualTo("not_trim_like like ?");
   }
 
   @Test
@@ -102,10 +103,10 @@ class FuzzyQueryConditionStrategyTests {
     assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
 
     var likeRestriction = (LikeRestriction) condition.restriction;
-    assertThat(likeRestriction.columnName).isEqualTo("trim_prefix_like");
+    assertThat(likeRestriction.columnName.getText()).isEqualTo("trim_prefix_like");
 
     String string = render(likeRestriction);
-    assertThat(string).isEqualTo("`trim_prefix_like` like ?");
+    assertThat(string).isEqualTo("trim_prefix_like like ?");
   }
 
   @Test
@@ -121,10 +122,10 @@ class FuzzyQueryConditionStrategyTests {
     assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
 
     var likeRestriction = (LikeRestriction) condition.restriction;
-    assertThat(likeRestriction.columnName).isEqualTo("not_trim_prefix_like");
+    assertThat(likeRestriction.columnName.getText()).isEqualTo("not_trim_prefix_like");
 
     String string = render(likeRestriction);
-    assertThat(string).isEqualTo("`not_trim_prefix_like` like ?");
+    assertThat(string).isEqualTo("not_trim_prefix_like like ?");
   }
 
   @Test
@@ -138,10 +139,10 @@ class FuzzyQueryConditionStrategyTests {
     assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
 
     var likeRestriction = (LikeRestriction) condition.restriction;
-    assertThat(likeRestriction.columnName).isEqualTo("trim_suffix_like");
+    assertThat(likeRestriction.columnName.getText()).isEqualTo("trim_suffix_like");
 
     String string = render(likeRestriction);
-    assertThat(string).isEqualTo("`trim_suffix_like` like ?");
+    assertThat(string).isEqualTo("trim_suffix_like like ?");
   }
 
   @Test
@@ -157,10 +158,10 @@ class FuzzyQueryConditionStrategyTests {
     assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
 
     var likeRestriction = (LikeRestriction) condition.restriction;
-    assertThat(likeRestriction.columnName).isEqualTo("not_trim_suffix_like");
+    assertThat(likeRestriction.columnName.getText()).isEqualTo("not_trim_suffix_like");
 
     String string = render(likeRestriction);
-    assertThat(string).isEqualTo("`not_trim_suffix_like` like ?");
+    assertThat(string).isEqualTo("not_trim_suffix_like like ?");
   }
 
   @Test
@@ -178,15 +179,15 @@ class FuzzyQueryConditionStrategyTests {
     assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
 
     var likeRestriction = (LikeRestriction) condition.restriction;
-    assertThat(likeRestriction.columnName).isEqualTo("col");
+    assertThat(likeRestriction.columnName.getText()).isEqualTo("col");
 
     String string = render(likeRestriction);
-    assertThat(string).isEqualTo("`col` like ?");
+    assertThat(string).isEqualTo("col like ?");
   }
 
   private static String render(LikeRestriction likeRestriction) {
     StringBuilder sqlBuffer = new StringBuilder();
-    likeRestriction.render(sqlBuffer);
+    likeRestriction.render(Platform.mysql(), sqlBuffer);
 
     return sqlBuffer.toString();
   }

@@ -65,7 +65,11 @@ final class MapEntityQueryFactory implements EntityQueryFactory {
     @Override
     public void collectRestrictions(EntityMetadata metadata, List<Restriction> restrictions) {
       for (Map.Entry<?, ?> entry : map.entrySet()) {
-        restrictions.add(Restriction.equal(entry.getKey().toString()));
+        String name = entry.getKey().toString();
+        EntityProperty property = metadata.findProperty(name);
+        restrictions.add(property != null
+                ? Restriction.equal(property.getColumnName())
+                : Restriction.equal(name));
       }
     }
 

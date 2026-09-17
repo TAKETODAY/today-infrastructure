@@ -51,7 +51,7 @@ class WhereAnnotationTests {
 
     ExampleQuery exampleQuery = new ExampleQuery(metadataFactory, query, strategies);
     StringBuilder sqlBuffer = new StringBuilder();
-    exampleQuery.appendWhereClause(userModelMetadata, sqlBuffer);
+    exampleQuery.appendWhereClause(new GenericPlatform(), userModelMetadata, sqlBuffer);
 
     String statementString = exampleQuery.render(userModelMetadata)
             .toStatementString(new GenericPlatform());
@@ -60,7 +60,7 @@ class WhereAnnotationTests {
     System.out.println(statementString);
 
     assertThat(statementString).endsWith(sqlBuffer);
-    assertThat(sqlBuffer.toString()).isEqualTo(" WHERE status > ? AND `status2` = ? OR `status3` <= ?");
+    assertThat(sqlBuffer.toString()).isEqualTo(" WHERE status > ? AND status2 = ? OR status3 <= ?");
 
     ArrayList<Restriction> restrictions = new ArrayList<>();
     exampleQuery.collectRestrictions(userModelMetadata, restrictions);

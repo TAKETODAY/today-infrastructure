@@ -20,69 +20,31 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
 
+import infra.persistence.Identifier;
+import infra.persistence.platform.Platform;
 import infra.util.CollectionUtils;
 
 /**
- * Represents a restriction in SQL query generation. This interface provides
- * methods to render SQL fragments for various types of restrictions, such as
- * equality, comparison, nullness checks, and custom operators.
+ * A predicate fragment used in the {@code WHERE} clause of a SQL statement.
  *
- * <p>Restrictions can be combined to form complex SQL conditions. The
- * {@link #render(StringBuilder)} method is used to append the SQL representation
- * of the restriction to a given buffer.
+ * <p>A restriction renders only its predicate, without a leading {@code WHERE},
+ * {@code AND}, or {@code OR}. Identifier-bearing implementations retain
+ * {@link infra.persistence.Identifier Identifier} metadata and use the supplied
+ * {@link Platform} when rendering database-specific quote characters.
  *
- * <p><strong>Example Usage:</strong>
+ * <p>Factory methods create comparison, nullness and plain SQL restrictions.
+ * Restrictions can be grouped with {@link #and(Restriction, Restriction)} and
+ * {@link #or(Restriction, Restriction)}, or rendered as a collection with
+ * {@link #append(Platform, Collection, StringBuilder)}:
  * <pre>{@code
- *   // Create a restriction for equality
- *   Restriction eqRestriction = Restriction.equal("age", "30");
+ * List<Restriction> restrictions = List.of(
+ *     Restriction.equal("age", "?"),
+ *     Restriction.isNotNull("email"));
  *
- *   // Create a restriction for null check
- *   Restriction nullRestriction = Restriction.isNull("email");
- *
- *   // Combine restrictions into a list
- *   List<Restriction> restrictions = new ArrayList<>();
- *   restrictions.add(eqRestriction);
- *   restrictions.add(nullRestriction);
- *
- *   // Render the restrictions into an SQL buffer
- *   StringBuilder sqlBuffer = new StringBuilder();
- *   Restriction.render(restrictions, sqlBuffer);
- *
- *   // The sqlBuffer now contains: " WHERE `age` = 30 AND email is null"
- *   System.out.println(sqlBuffer.toString());
+ * StringBuilder sql = new StringBuilder("SELECT * FROM users");
+ * Restriction.append(platform, restrictions, sql);
+ * // SELECT * FROM users WHERE age = ? AND email is not null
  * }</pre>
- *
- * <p>This interface also provides static factory methods to create common
- * types of restrictions, such as equality, comparison, and nullness checks.
- *
- * <p><strong>Static Factory Methods:</strong>
- * <ul>
- *   <li>{@link #equal(String, String)} - Creates an equality restriction.</li>
- *   <li>{@link #notEqual(String, String)} - Creates a non-equality restriction.</li>
- *   <li>{@link #isNull(String)} - Creates a nullness restriction (IS NULL).</li>
- *   <li>{@link #isNotNull(String)} - Creates a non-nullness restriction (IS NOT NULL).</li>
- *   <li>{@link #forOperator(String, String, String)} - Creates a custom operator restriction.</li>
- * </ul>
- *
- * <p><strong>Rendering Multiple Restrictions:</strong>
- * <pre>{@code
- *   // Example of rendering multiple restrictions with a WHERE clause
- *   List<Restriction> restrictions = Arrays.asList(
- *       Restriction.graterThan("salary", "50000"),
- *       Restriction.lessEqual("age", "40")
- *   );
- *
- *   StringBuilder sqlBuffer = Restriction.renderWhereClause(restrictions);
- *   if (sqlBuffer != null) {
- *     System.out.println(sqlBuffer.toString());
- *     // Output: "`salary` > 50000 AND `age` <= 40"
- *   }
- * }</pre>
- *
- * <p><strong>Implementation Notes:</strong>
- * Implementations of this interface should ensure that the {@link #render(StringBuilder)}
- * method appends valid SQL fragments to the provided buffer. The static utility methods
- * handle common use cases and provide a convenient way to construct SQL conditions.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ComparisonRestriction
@@ -93,39 +55,26 @@ import infra.util.CollectionUtils;
 public interface Restriction {
 
   /**
-   * Renders the SQL representation of this restriction into the provided
-   * {@code StringBuilder}. This method is typically used to append the
-   * restriction's SQL fragment to a larger SQL query being constructed.
+   * Render this restriction as a platform-specific SQL fragment and append it to
+   * the supplied buffer.
    *
-   * <p>For example, this method can be used in the context of building a
-   * {@code DELETE} or {@code SELECT} statement where restrictions are applied
-   * to filter rows based on certain conditions.
+   * <p>The given {@link Platform} determines dialect-specific syntax such as the
+   * quote characters used for identifiers. Implementations should append only the
+   * restriction itself; they must not add a {@code WHERE} keyword or a leading
+   * logical operator. Those are supplied by the statement or collection rendering
+   * methods that compose restrictions.
    *
-   * <p><b>Usage Example:</b>
-   * <pre>{@code
-   * Restriction restriction = Restriction.equal("age", "30");
-   * StringBuilder sqlBuffer = new StringBuilder();
-   *
-   * restriction.render(sqlBuffer);
-   *
-   * // The resulting SQL fragment might look like:
-   * // "age = 30"
-   * System.out.println(sqlBuffer.toString());
-   * }</pre>
-   *
-   * @param sqlBuffer the {@code StringBuilder} to which the SQL fragment
-   * of this restriction will be appended. Must not be null.
+   * @param platform the database platform whose SQL rendering rules apply
+   * @param sqlBuffer the buffer to which the rendered restriction is appended
+   * @since 5.0
    */
-  void render(StringBuilder sqlBuffer);
+  void render(Platform platform, StringBuilder sqlBuffer);
 
   /**
-   * Performs a logical AND operation.
-   * By default, this method returns {@code true}. It serves as a
-   * basic implementation that can be overridden to provide custom
-   * logical AND behavior.
+   * Return how this restriction should be joined to the preceding restriction
+   * when rendered as part of a collection.
    *
-   * @return the result of the logical AND operation. By default,
-   * this method always returns {@code true}.
+   * @return {@code true} for {@code AND}, or {@code false} for {@code OR}
    */
   default boolean logicalAnd() {
     return true;
@@ -134,115 +83,100 @@ public interface Restriction {
   // Static Factory Methods
 
   /**
-   * Creates a plain SQL restriction using the provided character sequence.
-   * This method allows you to directly include custom SQL fragments as restrictions
-   * in your query. The resulting {@code Restriction} will render the given sequence
-   * as-is when its SQL representation is generated.
+   * Create a restriction that appends the given SQL fragment unchanged.
    *
-   * <p><b>Usage Example:</b>
-   * <pre>{@code
-   * // Create a plain restriction with a custom SQL fragment
-   * Restriction restriction = Restriction.plain("status = 'ACTIVE'");
+   * <p>No identifier quoting, validation, escaping, or parameterization is
+   * performed. Prefer the structured factory methods for externally supplied
+   * names or values.
    *
-   * // Use the restriction in a DELETE statement
-   * Delete delete = new Delete("users");
-   * delete.addColumnRestriction(restriction);
-   *
-   * // Render the SQL statement
-   * String sql = delete.toStatementString(platform);
-   *
-   * // The resulting SQL might look like:
-   * // DELETE FROM users WHERE status = 'ACTIVE'
-   * }</pre>
-   *
-   * @param sequence the character sequence representing the SQL fragment to be used
-   * as a restriction. Must not be null.
-   * @return a new {@code Restriction} instance that renders the provided sequence
-   * as its SQL representation.
+   * @param sequence the SQL predicate fragment
+   * @return a restriction that renders the fragment as-is
    */
   static Restriction plain(CharSequence sequence) {
     return new Plain(sequence);
   }
 
   /**
-   * Creates an equality restriction for the specified column name using a placeholder value (?).
-   * This is typically used in prepared statements where the actual value will be provided later.
+   * Create a {@code column = ?} restriction.
    *
-   * <p><b>Usage Example:</b>
-   * <pre>{@code
-   *   Restriction restriction = Restriction.equal("age");
-   *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(sqlBuffer);
-   *   // The resulting SQL fragment might look like:
-   *   // "age = ?"
-   * }</pre>
-   *
-   * @param columnName the name of the column to apply the equality restriction to. Must not be null.
-   * @return a new {@code Restriction} instance representing the equality condition.
+   * @param columnName the column name to parse as an identifier
+   * @return the equality restriction
    */
   static Restriction equal(String columnName) {
+    return equal(Identifier.parse(columnName));
+  }
+
+  /**
+   * Create a {@code column = ?} restriction.
+   *
+   * @param columnName the column identifier
+   * @return the equality restriction
+   */
+  static Restriction equal(Identifier columnName) {
     return new ComparisonRestriction(columnName, " = ", "?");
   }
 
   /**
-   * Creates an equality restriction between the left-hand side (LHS) and right-hand side (RHS) values.
-   * This is used to directly compare two values in a query.
+   * Create a {@code column = expression} restriction.
    *
-   * <p><b>Usage Example:</b>
-   * <pre>{@code
-   *   Restriction restriction = Restriction.equal("age", "30");
-   *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(sqlBuffer);
-   *   // The resulting SQL fragment might look like:
-   *   // "age = 30"
-   * }</pre>
-   *
-   * @param lhs the left-hand side value (e.g., column name). Must not be null.
-   * @param rhs the right-hand side value (e.g., constant or parameter). Must not be null.
-   * @return a new {@code Restriction} instance representing the equality condition.
+   * @param lhs the column name to parse as an identifier
+   * @param rhs the SQL expression on the right-hand side
+   * @return the equality restriction
    */
   static Restriction equal(String lhs, String rhs) {
+    return equal(Identifier.parse(lhs), rhs);
+  }
+
+  /**
+   * Create a {@code column = expression} restriction.
+   *
+   * @param lhs the column identifier
+   * @param rhs the SQL expression on the right-hand side
+   * @return the equality restriction
+   */
+  static Restriction equal(Identifier lhs, String rhs) {
     return new ComparisonRestriction(lhs, " = ", rhs);
   }
 
   /**
-   * Creates a non-equality restriction for the specified column name using a placeholder value (?).
-   * This is typically used in prepared statements where the actual value will be provided later.
+   * Create a {@code column <> ?} restriction.
    *
-   * <p><b>Usage Example:</b>
-   * <pre>{@code
-   *   Restriction restriction = Restriction.notEqual("status");
-   *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(sqlBuffer);
-   *   // The resulting SQL fragment might look like:
-   *   // "status <> ?"
-   * }</pre>
-   *
-   * @param columnName the name of the column to apply the non-equality restriction to. Must not be null.
-   * @return a new {@code Restriction} instance representing the non-equality condition.
+   * @param columnName the column name to parse as an identifier
+   * @return the inequality restriction
    */
   static Restriction notEqual(String columnName) {
+    return notEqual(Identifier.parse(columnName));
+  }
+
+  /**
+   * Create a {@code column <> ?} restriction.
+   *
+   * @param columnName the column identifier
+   * @return the inequality restriction
+   */
+  static Restriction notEqual(Identifier columnName) {
     return new ComparisonRestriction(columnName, " <> ", "?");
   }
 
   /**
-   * Creates a non-equality restriction between the left-hand side (LHS) and right-hand side (RHS) values.
-   * This is used to directly compare two values in a query for inequality.
+   * Create a {@code column <> expression} restriction.
    *
-   * <p><b>Usage Example:</b>
-   * <pre>{@code
-   *   Restriction restriction = Restriction.notEqual("status", "'ACTIVE'");
-   *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(sqlBuffer);
-   *   // The resulting SQL fragment might look like:
-   *   // "status <> 'ACTIVE'"
-   * }</pre>
-   *
-   * @param lhs the left-hand side value (e.g., column name). Must not be null.
-   * @param rhs the right-hand side value (e.g., constant or parameter). Must not be null.
-   * @return a new {@code Restriction} instance representing the non-equality condition.
+   * @param lhs the column name to parse as an identifier
+   * @param rhs the SQL expression on the right-hand side
+   * @return the inequality restriction
    */
   static Restriction notEqual(String lhs, String rhs) {
+    return notEqual(Identifier.parse(lhs), rhs);
+  }
+
+  /**
+   * Create a {@code column <> expression} restriction.
+   *
+   * @param lhs the column identifier
+   * @param rhs the SQL expression on the right-hand side
+   * @return the inequality restriction
+   */
+  static Restriction notEqual(Identifier lhs, String rhs) {
     return new ComparisonRestriction(lhs, " <> ", rhs);
   }
 
@@ -254,7 +188,7 @@ public interface Restriction {
    * <pre>{@code
    *   Restriction restriction = Restriction.graterThan("salary");
    *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(sqlBuffer);
+   *   restriction.render(platform, sqlBuffer);
    *   // The resulting SQL fragment might look like:
    *   // "salary > ?"
    * }</pre>
@@ -263,6 +197,16 @@ public interface Restriction {
    * @return a new {@code Restriction} instance representing the "greater than" condition.
    */
   static Restriction graterThan(String columnName) {
+    return graterThan(Identifier.parse(columnName));
+  }
+
+  /**
+   * Create a {@code column > ?} restriction.
+   *
+   * @param columnName the column identifier
+   * @return the greater-than restriction
+   */
+  static Restriction graterThan(Identifier columnName) {
     return graterThan(columnName, "?");
   }
 
@@ -274,7 +218,7 @@ public interface Restriction {
    * <pre>{@code
    *   Restriction restriction = Restriction.graterThan("salary", "50000");
    *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(sqlBuffer);
+   *   restriction.render(platform, sqlBuffer);
    *   // The resulting SQL fragment might look like:
    *   // "salary > 50000"
    * }</pre>
@@ -284,6 +228,17 @@ public interface Restriction {
    * @return a new {@code Restriction} instance representing the "greater than" condition.
    */
   static Restriction graterThan(String lhs, String rhs) {
+    return graterThan(Identifier.parse(lhs), rhs);
+  }
+
+  /**
+   * Create a {@code column > expression} restriction.
+   *
+   * @param lhs the column identifier
+   * @param rhs the SQL expression on the right-hand side
+   * @return the greater-than restriction
+   */
+  static Restriction graterThan(Identifier lhs, String rhs) {
     return new ComparisonRestriction(lhs, " > ", rhs);
   }
 
@@ -295,7 +250,7 @@ public interface Restriction {
    * <pre>{@code
    *   Restriction restriction = Restriction.graterEqual("age");
    *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(sqlBuffer);
+   *   restriction.render(platform, sqlBuffer);
    *   // The resulting SQL fragment might look like:
    *   // "age >= ?"
    * }</pre>
@@ -304,6 +259,16 @@ public interface Restriction {
    * @return a new {@code Restriction} instance representing the "greater than or equal to" condition.
    */
   static Restriction graterEqual(String columnName) {
+    return graterEqual(Identifier.parse(columnName));
+  }
+
+  /**
+   * Create a {@code column >= ?} restriction.
+   *
+   * @param columnName the column identifier
+   * @return the greater-than-or-equal restriction
+   */
+  static Restriction graterEqual(Identifier columnName) {
     return graterEqual(columnName, "?");
   }
 
@@ -315,7 +280,7 @@ public interface Restriction {
    * <pre>{@code
    *   Restriction restriction = Restriction.graterEqual("age", "18");
    *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(sqlBuffer);
+   *   restriction.render(platform, sqlBuffer);
    *   // The resulting SQL fragment might look like:
    *   // "age >= 18"
    * }</pre>
@@ -325,6 +290,17 @@ public interface Restriction {
    * @return a new {@code Restriction} instance representing the "greater than or equal to" condition.
    */
   static Restriction graterEqual(String lhs, String rhs) {
+    return graterEqual(Identifier.parse(lhs), rhs);
+  }
+
+  /**
+   * Create a {@code column >= expression} restriction.
+   *
+   * @param lhs the column identifier
+   * @param rhs the SQL expression on the right-hand side
+   * @return the greater-than-or-equal restriction
+   */
+  static Restriction graterEqual(Identifier lhs, String rhs) {
     return new ComparisonRestriction(lhs, " >= ", rhs);
   }
 
@@ -336,7 +312,7 @@ public interface Restriction {
    * <pre>{@code
    *   Restriction restriction = Restriction.lessThan("price");
    *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(sqlBuffer);
+   *   restriction.render(platform, sqlBuffer);
    *   // The resulting SQL fragment might look like:
    *   // "price < ?"
    * }</pre>
@@ -345,6 +321,16 @@ public interface Restriction {
    * @return a new {@code Restriction} instance representing the "less than" condition.
    */
   static Restriction lessThan(String columnName) {
+    return lessThan(Identifier.parse(columnName));
+  }
+
+  /**
+   * Create a {@code column < ?} restriction.
+   *
+   * @param columnName the column identifier
+   * @return the less-than restriction
+   */
+  static Restriction lessThan(Identifier columnName) {
     return lessThan(columnName, "?");
   }
 
@@ -356,7 +342,7 @@ public interface Restriction {
    * <pre>{@code
    *   Restriction restriction = Restriction.lessThan("price", "100");
    *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(sqlBuffer);
+   *   restriction.render(platform, sqlBuffer);
    *   // The resulting SQL fragment might look like:
    *   // "price < 100"
    * }</pre>
@@ -366,6 +352,17 @@ public interface Restriction {
    * @return a new {@code Restriction} instance representing the "less than" condition.
    */
   static Restriction lessThan(String lhs, String rhs) {
+    return lessThan(Identifier.parse(lhs), rhs);
+  }
+
+  /**
+   * Create a {@code column < expression} restriction.
+   *
+   * @param lhs the column identifier
+   * @param rhs the SQL expression on the right-hand side
+   * @return the less-than restriction
+   */
+  static Restriction lessThan(Identifier lhs, String rhs) {
     return new ComparisonRestriction(lhs, " < ", rhs);
   }
 
@@ -377,7 +374,7 @@ public interface Restriction {
    * <pre>{@code
    *   Restriction restriction = Restriction.lessEqual("quantity");
    *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(sqlBuffer);
+   *   restriction.render(platform, sqlBuffer);
    *   // The resulting SQL fragment might look like:
    *   // "quantity <= ?"
    * }</pre>
@@ -386,6 +383,16 @@ public interface Restriction {
    * @return a new {@code Restriction} instance representing the "less than or equal to" condition.
    */
   static Restriction lessEqual(String columnName) {
+    return lessEqual(Identifier.parse(columnName));
+  }
+
+  /**
+   * Create a {@code column <= ?} restriction.
+   *
+   * @param columnName the column identifier
+   * @return the less-than-or-equal restriction
+   */
+  static Restriction lessEqual(Identifier columnName) {
     return lessEqual(columnName, "?");
   }
 
@@ -397,7 +404,7 @@ public interface Restriction {
    * <pre>{@code
    *   Restriction restriction = Restriction.lessEqual("quantity", "50");
    *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(sqlBuffer);
+   *   restriction.render(platform, sqlBuffer);
    *   // The resulting SQL fragment might look like:
    *   // "quantity <= 50"
    * }</pre>
@@ -407,6 +414,17 @@ public interface Restriction {
    * @return a new {@code Restriction} instance representing the "less than or equal to" condition.
    */
   static Restriction lessEqual(String lhs, String rhs) {
+    return lessEqual(Identifier.parse(lhs), rhs);
+  }
+
+  /**
+   * Create a {@code column <= expression} restriction.
+   *
+   * @param lhs the column identifier
+   * @param rhs the SQL expression on the right-hand side
+   * @return the less-than-or-equal restriction
+   */
+  static Restriction lessEqual(Identifier lhs, String rhs) {
     return new ComparisonRestriction(lhs, " <= ", rhs);
   }
 
@@ -418,7 +436,7 @@ public interface Restriction {
    * <pre>{@code
    *   Restriction restriction = Restriction.forOperator("name", "LIKE", "'%John%'");
    *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(sqlBuffer);
+   *   restriction.render(platform, sqlBuffer);
    *   // The resulting SQL fragment might look like:
    *   // "name LIKE '%John%'"
    * }</pre>
@@ -429,6 +447,20 @@ public interface Restriction {
    * @return a new {@code Restriction} instance representing the custom condition.
    */
   static Restriction forOperator(String lhs, String operator, String rhs) {
+    return forOperator(Identifier.parse(lhs), operator, rhs);
+  }
+
+  /**
+   * Create a comparison using a caller-supplied SQL operator and expression.
+   *
+   * <p>The operator and right-hand expression are appended unchanged.
+   *
+   * @param lhs the column identifier
+   * @param operator the SQL operator, including any required surrounding spaces
+   * @param rhs the SQL expression on the right-hand side
+   * @return the custom comparison restriction
+   */
+  static Restriction forOperator(Identifier lhs, String operator, String rhs) {
     return new ComparisonRestriction(lhs, operator, rhs);
   }
 
@@ -440,7 +472,7 @@ public interface Restriction {
    * <pre>{@code
    *   Restriction restriction = Restriction.isNull("email");
    *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(sqlBuffer);
+   *   restriction.render(platform, sqlBuffer);
    *   // The resulting SQL fragment might look like:
    *   // "email IS NULL"
    * }</pre>
@@ -449,6 +481,16 @@ public interface Restriction {
    * @return a new {@code Restriction} instance representing the "IS NULL" condition.
    */
   static Restriction isNull(String columnName) {
+    return isNull(Identifier.parse(columnName));
+  }
+
+  /**
+   * Create a {@code column is null} restriction.
+   *
+   * @param columnName the column identifier
+   * @return the nullness restriction
+   */
+  static Restriction isNull(Identifier columnName) {
     return new NullnessRestriction(columnName, true);
   }
 
@@ -460,7 +502,7 @@ public interface Restriction {
    * <pre>{@code
    *   Restriction restriction = Restriction.isNotNull("email");
    *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(sqlBuffer);
+   *   restriction.render(platform, sqlBuffer);
    *   // The resulting SQL fragment might look like:
    *   // "email IS NOT NULL"
    * }</pre>
@@ -469,6 +511,16 @@ public interface Restriction {
    * @return a new {@code Restriction} instance representing the "IS NOT NULL" condition.
    */
   static Restriction isNotNull(String columnName) {
+    return isNotNull(Identifier.parse(columnName));
+  }
+
+  /**
+   * Create a {@code column is not null} restriction.
+   *
+   * @param columnName the column identifier
+   * @return the non-nullness restriction
+   */
+  static Restriction isNotNull(Identifier columnName) {
     return new NullnessRestriction(columnName, false);
   }
 
@@ -479,7 +531,7 @@ public interface Restriction {
    * <pre>{@code
    *   Restriction restriction = Restriction.between("age");
    *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(sqlBuffer);
+   *   restriction.render(platform, sqlBuffer);
    *   // The resulting SQL fragment might look like:
    *   // "`age` BETWEEN ? AND ?"
    * }</pre>
@@ -488,6 +540,16 @@ public interface Restriction {
    * @return a new {@code Restriction} instance representing the custom condition.
    */
   static Restriction between(String columnName) {
+    return between(Identifier.parse(columnName));
+  }
+
+  /**
+   * Create a {@code column BETWEEN ? AND ?} restriction.
+   *
+   * @param columnName the column identifier
+   * @return the between restriction
+   */
+  static Restriction between(Identifier columnName) {
     return forOperator(columnName, " BETWEEN", " ? AND ?");
   }
 
@@ -498,7 +560,7 @@ public interface Restriction {
    * <pre>{@code
    *   Restriction restriction = Restriction.notBetween("age");
    *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(sqlBuffer);
+   *   restriction.render(platform, sqlBuffer);
    *   // The resulting SQL fragment might look like:
    *   // "`age` NOT BETWEEN ? AND ?"
    * }</pre>
@@ -507,27 +569,25 @@ public interface Restriction {
    * @return a new {@code Restriction} instance representing the custom condition.
    */
   static Restriction notBetween(String columnName) {
+    return notBetween(Identifier.parse(columnName));
+  }
+
+  /**
+   * Create a {@code column NOT BETWEEN ? AND ?} restriction.
+   *
+   * @param columnName the column identifier
+   * @return the not-between restriction
+   */
+  static Restriction notBetween(Identifier columnName) {
     return forOperator(columnName, " NOT BETWEEN", " ? AND ?");
   }
 
   /**
-   * Combines two {@code Restriction} objects using a logical AND operation.
-   * This method creates a new {@code LogicalRestriction} that represents the
-   * conjunction of the two input restrictions.
+   * Group two restrictions with {@code AND}.
    *
-   * <p>Example usage:
-   * <pre>{@code
-   * Restriction restriction1 = ...;
-   * Restriction restriction2 = ...;
-   * Restriction combined = Restriction.and(restriction1, restriction2);
-   *
-   * // The resulting `combined` restriction can be used in further operations
-   * }</pre>
-   *
-   * @param lhs the left-hand side {@code Restriction} to be combined
-   * @param rhs the right-hand side {@code Restriction} to be combined
-   * @return a new {@code Restriction} object representing the logical AND
-   * of the two input restrictions
+   * @param lhs the left operand
+   * @param rhs the right operand
+   * @return a parenthesized logical restriction
    * @since 5.0
    */
   static Restriction and(Restriction lhs, Restriction rhs) {
@@ -535,31 +595,22 @@ public interface Restriction {
   }
 
   /**
-   * Creates a new {@code Restriction} that represents a logical OR operation
-   * with the given {@code Restriction}. This method is typically used in the
-   * context of building dynamic SQL queries where conditions need to be combined.
+   * Mark a restriction to be joined to the preceding collection element with
+   * {@code OR} instead of the default {@code AND}.
    *
-   * <p>Example usage:
-   * <pre>{@code
+   * <p>Rendering the returned restriction by itself does not prepend an
+   * {@code OR} token; collection rendering supplies the connector.
    *
-   *  Restriction orCondition = Restriction.or(Restriction.plain("column1 = 'value1'"));
-   * StringBuilder sql = new StringBuilder();
-   * orCondition.render(sql);
-   * System.out.println(sql.toString()); // OR column1 = 'value1'
-   * }</pre>
-   *
-   * @param rhs the right-hand side {@code Restriction} to be combined with the current one
-   * using a logical OR operation. Must not be null.
-   * @return a new {@code Restriction} instance that, when rendered, applies the logical OR
-   * operation between the current restriction and the provided one.
+   * @param rhs the restriction to mark
+   * @return a delegating restriction whose {@link #logicalAnd()} is {@code false}
    * @since 5.0
    */
   static Restriction or(Restriction rhs) {
     return new Restriction() {
 
       @Override
-      public void render(StringBuilder sqlBuffer) {
-        rhs.render(sqlBuffer);
+      public void render(Platform platform, StringBuilder sqlBuffer) {
+        rhs.render(platform, sqlBuffer);
       }
 
       @Override
@@ -571,27 +622,11 @@ public interface Restriction {
   }
 
   /**
-   * Combines two restrictions into a logical OR operation.
+   * Group two restrictions with {@code OR}.
    *
-   * This method creates a new {@code LogicalRestriction} that represents the logical
-   * OR of the given left-hand side (lhs) and right-hand side (rhs) restrictions.
-   * It can be used to build complex restriction logic in a fluent manner.
-   *
-   * Example usage:
-   * <pre>
-   *   Restriction restriction1 = ...;
-   *   Restriction restriction2 = ...;
-   *
-   *   Restriction combined = Restriction.or(restriction1, restriction2);
-   *
-   *   // The resulting 'combined' restriction will evaluate to true if either
-   *   // restriction1 or restriction2 evaluates to true.
-   * </pre>
-   *
-   * @param lhs the left-hand side restriction to be combined
-   * @param rhs the right-hand side restriction to be combined
-   * @return a new {@code Restriction} instance representing the logical OR
-   * of the two input restrictions
+   * @param lhs the left operand
+   * @param rhs the right operand
+   * @return a parenthesized logical restriction
    * @since 5.0
    */
   static Restriction or(Restriction lhs, Restriction rhs) {
@@ -599,83 +634,46 @@ public interface Restriction {
   }
 
   /**
-   * Appends a collection of restrictions into the provided SQL buffer, prefixing them
-   * with {@code " WHERE "} when the collection is not empty. This is useful for
-   * constructing SQL queries with multiple conditions.
+   * Append a {@code WHERE} clause when restrictions are present.
    *
-   * <p><b>Usage Example:</b>
-   * <pre>{@code
-   *   List<Restriction> restrictions = Arrays.asList(
-   *       Restriction.equal("age", "30"),
-   *       Restriction.isNull("email")
-   *   );
-   *   StringBuilder sqlBuffer = new StringBuilder();
-   *   Restriction.append(restrictions, sqlBuffer);
-   *   // The resulting SQL fragment might look like:
-   *   // " WHERE age = 30 AND email IS NULL"
-   * }</pre>
-   *
-   * @param restrictions the collection of restrictions to render. May be null or empty.
-   * @param buf the {@code StringBuilder} to which the SQL fragment will be appended. Must not be null.
+   * @param platform the database platform whose rendering rules apply
+   * @param restrictions the restrictions to render, possibly {@code null}
+   * @param buf the buffer to append to; left unchanged for no restrictions
    */
-  static void append(@Nullable Collection<? extends Restriction> restrictions, StringBuilder buf) {
+  static void append(Platform platform, @Nullable Collection<? extends Restriction> restrictions, StringBuilder buf) {
     if (CollectionUtils.isNotEmpty(restrictions)) {
       buf.append(" WHERE ");
-      appendWhereClause(restrictions, buf);
+      appendWhereClause(platform, restrictions, buf);
     }
   }
 
   /**
-   * Renders a collection of restrictions into a new {@code StringBuilder}, returning it if the collection is not empty.
-   * This is useful for generating standalone SQL fragments for multiple conditions.
+   * Render restrictions without a leading {@code WHERE} keyword.
    *
-   * <p><b>Usage Example:</b>
-   * <pre>{@code
-   *   List<Restriction> restrictions = Arrays.asList(
-   *       Restriction.equal("age", "30"),
-   *       Restriction.isNull("email")
-   *   );
-   *   StringBuilder sqlBuffer = Restriction.renderWhereClause(restrictions);
-   *   if (sqlBuffer != null) {
-   *     System.out.println(sqlBuffer.toString());
-   *     // Output: "age = 30 AND email IS NULL"
-   *   }
-   * }</pre>
-   *
-   * @param restrictions the collection of restrictions to render. May be null or empty.
-   * @return a new {@code StringBuilder} containing the rendered SQL fragment, or null if the collection is empty.
+   * @param platform the database platform whose rendering rules apply
+   * @param restrictions the restrictions to render, possibly {@code null}
+   * @return a new buffer containing the predicate list, or {@code null} for a
+   * {@code null} or empty collection
    */
-  static @Nullable StringBuilder renderWhereClause(@Nullable Collection<? extends Restriction> restrictions) {
+  static @Nullable StringBuilder renderWhereClause(Platform platform, @Nullable Collection<? extends Restriction> restrictions) {
     if (CollectionUtils.isNotEmpty(restrictions)) {
       StringBuilder buf = new StringBuilder(restrictions.size() * 10);
-      appendWhereClause(restrictions, buf);
+      appendWhereClause(platform, restrictions, buf);
       return buf;
     }
     return null;
   }
 
   /**
-   * Appends a collection of restrictions into the provided SQL buffer, separating them
-   * with {@code " AND "} or {@code " OR "} according to each restriction's
-   * {@link Restriction#logicalAnd() logical operator}. This is useful for combining
-   * multiple conditions into a single SQL fragment.
+   * Append restrictions separated according to each element's
+   * {@link #logicalAnd()} value, without a leading {@code WHERE} keyword.
+   * The first element's connector is ignored.
    *
-   * <p><b>Usage Example:</b>
-   * <pre>{@code
-   *   List<Restriction> restrictions = Arrays.asList(
-   *       Restriction.equal("age", "30"),
-   *       Restriction.isNull("email")
-   *   );
-   *   StringBuilder sqlBuffer = new StringBuilder();
-   *   Restriction.appendWhereClause(restrictions, sqlBuffer);
-   *   // The resulting SQL fragment might look like:
-   *   // "age = 30 AND email IS NULL"
-   * }</pre>
-   *
-   * @param restrictions the collection of restrictions to render. Must not be null or empty.
-   * @param buf the {@code StringBuilder} to which the SQL fragment will be appended. Must not be null.
+   * @param platform the database platform whose rendering rules apply
+   * @param restrictions the restrictions to render
+   * @param buf the buffer to append to
    */
-  static void appendWhereClause(Collection<? extends Restriction> restrictions, StringBuilder buf) {
+  static void appendWhereClause(Platform platform, Collection<? extends Restriction> restrictions, StringBuilder buf) {
     boolean appended = false;
     for (Restriction restriction : restrictions) {
       if (appended) {
@@ -684,11 +682,14 @@ public interface Restriction {
       else {
         appended = true;
       }
-      restriction.render(buf);
+      restriction.render(platform, buf);
     }
   }
 
-  class Plain implements Restriction {
+  /**
+   * A restriction that renders a caller-provided SQL fragment unchanged.
+   */
+  final class Plain implements Restriction {
 
     private final CharSequence sequence;
 
@@ -697,10 +698,9 @@ public interface Restriction {
     }
 
     @Override
-    public void render(StringBuilder sqlBuffer) {
+    public void render(Platform platform, StringBuilder sqlBuffer) {
       sqlBuffer.append(sequence);
     }
-
   }
 
 }

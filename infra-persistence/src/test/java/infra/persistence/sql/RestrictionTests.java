@@ -23,6 +23,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import infra.persistence.platform.Platform;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -31,12 +33,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class RestrictionTests {
 
+  private final Platform platform = Platform.mysql();
+
   @Test
   void shouldRenderPlainRestriction() {
     StringBuilder sqlBuffer = new StringBuilder();
     Restriction restriction = Restriction.plain("SELECT * FROM table");
 
-    restriction.render(sqlBuffer);
+    restriction.render(platform, sqlBuffer);
 
     assertThat(sqlBuffer.toString()).isEqualTo("SELECT * FROM table");
   }
@@ -46,9 +50,22 @@ class RestrictionTests {
     StringBuilder sqlBuffer = new StringBuilder();
     Restriction restriction = Restriction.equal("column", "value");
 
-    restriction.render(sqlBuffer);
+    restriction.render(platform, sqlBuffer);
 
-    assertThat(sqlBuffer.toString()).isEqualTo("`column` = value");
+    assertThat(sqlBuffer.toString()).isEqualTo("column = value");
+  }
+
+  @Test
+  void shouldRenderQuotedIdentifierForPlatform() {
+    Restriction restriction = Restriction.equal("`column`", "value");
+
+    StringBuilder genericSql = new StringBuilder();
+    restriction.render(Platform.generic(), genericSql);
+    assertThat(genericSql.toString()).isEqualTo("\"column\" = value");
+
+    StringBuilder mysqlSql = new StringBuilder();
+    restriction.render(Platform.mysql(), mysqlSql);
+    assertThat(mysqlSql.toString()).isEqualTo("`column` = value");
   }
 
   @Test
@@ -56,9 +73,9 @@ class RestrictionTests {
     StringBuilder sqlBuffer = new StringBuilder();
     Restriction restriction = Restriction.notEqual("column", "value");
 
-    restriction.render(sqlBuffer);
+    restriction.render(platform, sqlBuffer);
 
-    assertThat(sqlBuffer.toString()).isEqualTo("`column` <> value");
+    assertThat(sqlBuffer.toString()).isEqualTo("column <> value");
   }
 
   @Test
@@ -66,9 +83,9 @@ class RestrictionTests {
     StringBuilder sqlBuffer = new StringBuilder();
     Restriction restriction = Restriction.graterThan("column", "value");
 
-    restriction.render(sqlBuffer);
+    restriction.render(platform, sqlBuffer);
 
-    assertThat(sqlBuffer.toString()).isEqualTo("`column` > value");
+    assertThat(sqlBuffer.toString()).isEqualTo("column > value");
   }
 
   @Test
@@ -76,9 +93,9 @@ class RestrictionTests {
     StringBuilder sqlBuffer = new StringBuilder();
     Restriction restriction = Restriction.lessThan("column", "value");
 
-    restriction.render(sqlBuffer);
+    restriction.render(platform, sqlBuffer);
 
-    assertThat(sqlBuffer.toString()).isEqualTo("`column` < value");
+    assertThat(sqlBuffer.toString()).isEqualTo("column < value");
   }
 
   @Test
@@ -86,9 +103,9 @@ class RestrictionTests {
     StringBuilder sqlBuffer = new StringBuilder();
     Restriction restriction = Restriction.isNull("column");
 
-    restriction.render(sqlBuffer);
+    restriction.render(platform, sqlBuffer);
 
-    assertThat(sqlBuffer.toString()).isEqualTo("`column` is null");
+    assertThat(sqlBuffer.toString()).isEqualTo("column is null");
   }
 
   @Test
@@ -96,9 +113,9 @@ class RestrictionTests {
     StringBuilder sqlBuffer = new StringBuilder();
     Restriction restriction = Restriction.isNotNull("column");
 
-    restriction.render(sqlBuffer);
+    restriction.render(platform, sqlBuffer);
 
-    assertThat(sqlBuffer.toString()).isEqualTo("`column` is not null");
+    assertThat(sqlBuffer.toString()).isEqualTo("column is not null");
   }
 
   @Test
@@ -107,9 +124,9 @@ class RestrictionTests {
     Restriction restriction1 = Restriction.equal("column1", "value1");
     Restriction restriction2 = Restriction.lessThan("column2", "value2");
 
-    Restriction.append(List.of(restriction1, restriction2), sqlBuffer);
+    Restriction.append(platform, List.of(restriction1, restriction2), sqlBuffer);
 
-    assertThat(sqlBuffer.toString()).isEqualTo(" WHERE `column1` = value1 AND `column2` < value2");
+    assertThat(sqlBuffer.toString()).isEqualTo(" WHERE column1 = value1 AND column2 < value2");
   }
 
   @Test
@@ -123,21 +140,21 @@ class RestrictionTests {
     StringBuilder sqlBuffer = new StringBuilder();
     Restriction restriction = Restriction.graterEqual("column");
 
-    restriction.render(sqlBuffer);
+    restriction.render(platform, sqlBuffer);
 
-    assertThat(sqlBuffer.toString()).isEqualTo("`column` >= ?");
+    assertThat(sqlBuffer.toString()).isEqualTo("column >= ?");
   }
 
   @Test
   void renderWhereClause_withEmptyRestrictions_shouldReturnNull() {
     List<Restriction> restrictions = Collections.emptyList();
-    StringBuilder result = Restriction.renderWhereClause(restrictions);
+    StringBuilder result = Restriction.renderWhereClause(platform, restrictions);
     assertThat(result).isNull();
   }
 
   @Test
   void renderWhereClause_withNullRestrictions_shouldReturnNull() {
-    StringBuilder result = Restriction.renderWhereClause(null);
+    StringBuilder result = Restriction.renderWhereClause(platform, null);
     assertThat(result).isNull();
   }
 
@@ -146,9 +163,9 @@ class RestrictionTests {
     List<Restriction> restrictions = List.of(Restriction.equal("col", "val"));
     StringBuilder sqlBuffer = new StringBuilder();
 
-    Restriction.appendWhereClause(restrictions, sqlBuffer);
+    Restriction.appendWhereClause(platform, restrictions, sqlBuffer);
 
-    assertThat(sqlBuffer.toString()).isEqualTo("`col` = val");
+    assertThat(sqlBuffer.toString()).isEqualTo("col = val");
   }
 
   @Test
@@ -156,7 +173,7 @@ class RestrictionTests {
     List<Restriction> restrictions = Collections.emptyList();
     StringBuilder sqlBuffer = new StringBuilder();
 
-    Restriction.append(restrictions, sqlBuffer);
+    Restriction.append(platform, restrictions, sqlBuffer);
 
     assertThat(sqlBuffer).isEmpty();
   }
@@ -165,7 +182,7 @@ class RestrictionTests {
   void render_withNullRestrictions_shouldNotAppendWhereClause() {
     StringBuilder sqlBuffer = new StringBuilder();
 
-    Restriction.append(null, sqlBuffer);
+    Restriction.append(platform, null, sqlBuffer);
 
     assertThat(sqlBuffer).isEmpty();
   }
@@ -177,9 +194,9 @@ class RestrictionTests {
     StringBuilder sqlBuffer = new StringBuilder();
 
     Restriction combined = Restriction.and(r1, r2);
-    combined.render(sqlBuffer);
+    combined.render(platform, sqlBuffer);
 
-    assertThat(sqlBuffer.toString()).isEqualTo("(`col1` = val1 AND `col2` = val2)");
+    assertThat(sqlBuffer.toString()).isEqualTo("(col1 = val1 AND col2 = val2)");
   }
 
   @Test
@@ -189,9 +206,9 @@ class RestrictionTests {
     StringBuilder sqlBuffer = new StringBuilder();
 
     Restriction combined = Restriction.or(r1, r2);
-    combined.render(sqlBuffer);
+    combined.render(platform, sqlBuffer);
 
-    assertThat(sqlBuffer.toString()).isEqualTo("(`col1` = val1 OR `col2` = val2)");
+    assertThat(sqlBuffer.toString()).isEqualTo("(col1 = val1 OR col2 = val2)");
   }
 
   @Test
@@ -205,10 +222,10 @@ class RestrictionTests {
     );
     StringBuilder sqlBuffer = new StringBuilder();
 
-    Restriction.appendWhereClause(restrictions, sqlBuffer);
+    Restriction.appendWhereClause(platform, restrictions, sqlBuffer);
 
     assertThat(sqlBuffer.toString())
-            .isEqualTo("`col1` = val1 AND (`col2` = val2 OR `col3` = val3)");
+            .isEqualTo("col1 = val1 AND (col2 = val2 OR col3 = val3)");
   }
 
   @Test
@@ -216,9 +233,9 @@ class RestrictionTests {
     StringBuilder sqlBuffer = new StringBuilder();
     Restriction restriction = Restriction.lessEqual("column");
 
-    restriction.render(sqlBuffer);
+    restriction.render(platform, sqlBuffer);
 
-    assertThat(sqlBuffer.toString()).isEqualTo("`column` <= ?");
+    assertThat(sqlBuffer.toString()).isEqualTo("column <= ?");
   }
 
   @Test
@@ -226,9 +243,9 @@ class RestrictionTests {
     StringBuilder sqlBuffer = new StringBuilder();
     Restriction restriction = Restriction.forOperator("name", " LIKE ", "'%test%'");
 
-    restriction.render(sqlBuffer);
+    restriction.render(platform, sqlBuffer);
 
-    assertThat(sqlBuffer.toString()).isEqualTo("`name` LIKE '%test%'");
+    assertThat(sqlBuffer.toString()).isEqualTo("name LIKE '%test%'");
   }
 
   @Test
@@ -239,9 +256,9 @@ class RestrictionTests {
     Restriction r3 = Restriction.equal("c", "3");
 
     Restriction combined = Restriction.and(infra.persistence.sql.Restriction.and(r1, r2), r3);
-    combined.render(sqlBuffer);
+    combined.render(platform, sqlBuffer);
 
-    assertThat(sqlBuffer.toString()).isEqualTo("((`a` = 1 AND `b` = 2) AND `c` = 3)");
+    assertThat(sqlBuffer.toString()).isEqualTo("((a = 1 AND b = 2) AND c = 3)");
   }
 
   @Test
@@ -252,9 +269,9 @@ class RestrictionTests {
     Restriction r3 = Restriction.equal("c", "3");
 
     Restriction combined = Restriction.or(infra.persistence.sql.Restriction.or(r1, r2), r3);
-    combined.render(sqlBuffer);
+    combined.render(platform, sqlBuffer);
 
-    assertThat(sqlBuffer.toString()).isEqualTo("((`a` = 1 OR `b` = 2) OR `c` = 3)");
+    assertThat(sqlBuffer.toString()).isEqualTo("((a = 1 OR b = 2) OR c = 3)");
   }
 
   @Test
@@ -265,9 +282,9 @@ class RestrictionTests {
     Restriction r3 = Restriction.equal("c", "3");
 
     Restriction combined = Restriction.or(infra.persistence.sql.Restriction.and(r1, r2), r3);
-    combined.render(sqlBuffer);
+    combined.render(platform, sqlBuffer);
 
-    assertThat(sqlBuffer.toString()).isEqualTo("((`a` = 1 AND `b` = 2) OR `c` = 3)");
+    assertThat(sqlBuffer.toString()).isEqualTo("((a = 1 AND b = 2) OR c = 3)");
   }
 
   @Test
@@ -279,10 +296,10 @@ class RestrictionTests {
             Restriction.equal("col3", "val3")
     );
 
-    Restriction.append(restrictions, sqlBuffer);
+    Restriction.append(platform, restrictions, sqlBuffer);
 
     assertThat(sqlBuffer.toString())
-            .isEqualTo(" WHERE `col1` = val1 AND `col2` = val2 AND `col3` = val3");
+            .isEqualTo(" WHERE col1 = val1 AND col2 = val2 AND col3 = val3");
   }
 
   @Test
@@ -298,10 +315,10 @@ class RestrictionTests {
             Restriction.or(r3, r4)
     );
 
-    Restriction.appendWhereClause(restrictions, sqlBuffer);
+    Restriction.appendWhereClause(platform, restrictions, sqlBuffer);
 
     assertThat(sqlBuffer.toString())
-            .isEqualTo("(`a` = 1 AND `b` = 2) AND (`c` = 3 OR `d` = 4)");
+            .isEqualTo("(a = 1 AND b = 2) AND (c = 3 OR d = 4)");
   }
 
   @Test
@@ -319,10 +336,10 @@ class RestrictionTests {
     );
 
     StringBuilder sqlBuffer = new StringBuilder();
-    combined.render(sqlBuffer);
+    combined.render(platform, sqlBuffer);
 
     assertThat(sqlBuffer.toString())
-            .isEqualTo("(((`a` = 1 AND `b` = 2) AND `c` = 3) AND `d` = 4)");
+            .isEqualTo("(((a = 1 AND b = 2) AND c = 3) AND d = 4)");
   }
 
   @Test
@@ -340,10 +357,10 @@ class RestrictionTests {
     );
 
     StringBuilder sqlBuffer = new StringBuilder();
-    combined.render(sqlBuffer);
+    combined.render(platform, sqlBuffer);
 
     assertThat(sqlBuffer.toString())
-            .isEqualTo("(((`a` = 1 OR `b` = 2) OR `c` = 3) OR `d` = 4)");
+            .isEqualTo("(((a = 1 OR b = 2) OR c = 3) OR d = 4)");
   }
 
   @Test
@@ -359,10 +376,10 @@ class RestrictionTests {
     );
 
     StringBuilder sqlBuffer = new StringBuilder();
-    combined.render(sqlBuffer);
+    combined.render(platform, sqlBuffer);
 
     assertThat(sqlBuffer.toString())
-            .isEqualTo("((`a` = 1 OR `b` = 2) AND (`c` = 3 AND `d` = 4))");
+            .isEqualTo("((a = 1 OR b = 2) AND (c = 3 AND d = 4))");
   }
 
   @Test
@@ -370,9 +387,9 @@ class RestrictionTests {
     Restriction restriction = Restriction.or(infra.persistence.sql.Restriction.equal("col", "val"));
     StringBuilder sqlBuffer = new StringBuilder();
 
-    restriction.render(sqlBuffer);
+    restriction.render(platform, sqlBuffer);
 
-    assertThat(sqlBuffer.toString()).isEqualTo("`col` = val");
+    assertThat(sqlBuffer.toString()).isEqualTo("col = val");
     assertThat(restriction.logicalAnd()).isFalse();
   }
 
@@ -388,10 +405,10 @@ class RestrictionTests {
     );
 
     StringBuilder sqlBuffer = new StringBuilder();
-    Restriction.appendWhereClause(restrictions, sqlBuffer);
+    Restriction.appendWhereClause(platform, restrictions, sqlBuffer);
 
     assertThat(sqlBuffer.toString())
-            .isEqualTo("`a` = 1 OR `b` = 2 AND (`c` = 3 AND `d` = 4)");
+            .isEqualTo("a = 1 OR b = 2 AND (c = 3 AND d = 4)");
   }
 
   @Test
@@ -400,9 +417,9 @@ class RestrictionTests {
     Restriction combined = Restriction.or(infra.persistence.sql.Restriction.or(r1));
     StringBuilder sqlBuffer = new StringBuilder();
 
-    combined.render(sqlBuffer);
+    combined.render(platform, sqlBuffer);
 
-    assertThat(sqlBuffer.toString()).isEqualTo("`a` = 1");
+    assertThat(sqlBuffer.toString()).isEqualTo("a = 1");
   }
 
   @Test
@@ -417,10 +434,10 @@ class RestrictionTests {
     );
 
     StringBuilder sqlBuffer = new StringBuilder();
-    combined.render(sqlBuffer);
+    combined.render(platform, sqlBuffer);
 
     assertThat(sqlBuffer.toString())
-            .isEqualTo("(`a` = 1 AND (`b` = 2 OR `c` = 3))");
+            .isEqualTo("(a = 1 AND (b = 2 OR c = 3))");
   }
 
   @Test
@@ -435,10 +452,10 @@ class RestrictionTests {
     );
 
     StringBuilder sqlBuffer = new StringBuilder();
-    combined.render(sqlBuffer);
+    combined.render(platform, sqlBuffer);
 
     assertThat(sqlBuffer.toString())
-            .isEqualTo("((`a` > 1 AND `b` <= 2) OR (`b` <= 2 OR `c` <> 3))");
+            .isEqualTo("((a > 1 AND b <= 2) OR (b <= 2 OR c <> 3))");
   }
 
   @Test
@@ -453,10 +470,10 @@ class RestrictionTests {
     );
 
     StringBuilder sqlBuffer = new StringBuilder();
-    combined.render(sqlBuffer);
+    combined.render(platform, sqlBuffer);
 
     assertThat(sqlBuffer.toString())
-            .isEqualTo("((`a` is null OR `b` is not null) AND `c` = 3)");
+            .isEqualTo("((a is null OR b is not null) AND c = 3)");
   }
 
   @Test
@@ -475,10 +492,10 @@ class RestrictionTests {
     );
 
     StringBuilder sqlBuffer = new StringBuilder();
-    combined.render(sqlBuffer);
+    combined.render(platform, sqlBuffer);
 
     assertThat(sqlBuffer.toString())
-            .isEqualTo("(((`a` = 1 OR `b` = 2) AND (`c` = 3 AND `d` = 4)) OR `e` = 5)");
+            .isEqualTo("(((a = 1 OR b = 2) AND (c = 3 AND d = 4)) OR e = 5)");
   }
 
   @Test
@@ -488,9 +505,9 @@ class RestrictionTests {
     );
     StringBuilder sqlBuffer = new StringBuilder();
 
-    Restriction.appendWhereClause(restrictions, sqlBuffer);
+    Restriction.appendWhereClause(platform, restrictions, sqlBuffer);
 
-    assertThat(sqlBuffer.toString()).isEqualTo("`col` = val");
+    assertThat(sqlBuffer.toString()).isEqualTo("col = val");
   }
 
   @Test
@@ -509,10 +526,10 @@ class RestrictionTests {
     );
 
     StringBuilder sqlBuffer = new StringBuilder();
-    combined.render(sqlBuffer);
+    combined.render(platform, sqlBuffer);
 
     assertThat(sqlBuffer.toString())
-            .isEqualTo("((`a` = 1 AND (`b` = 2 OR `c` = 3)) OR `d` = 4)");
+            .isEqualTo("((a = 1 AND (b = 2 OR c = 3)) OR d = 4)");
   }
 
   @Test
@@ -532,10 +549,10 @@ class RestrictionTests {
     );
 
     StringBuilder sqlBuffer = new StringBuilder();
-    combined.render(sqlBuffer);
+    combined.render(platform, sqlBuffer);
 
     assertThat(sqlBuffer.toString())
-            .isEqualTo("(((`col1` = 1 OR `col2` >= 2) AND (`col3` <= 3 AND `col4` <> 4)) OR `col5` is null)");
+            .isEqualTo("(((col1 = 1 OR col2 >= 2) AND (col3 <= 3 AND col4 <> 4)) OR col5 is null)");
   }
 
   @Test
@@ -550,10 +567,10 @@ class RestrictionTests {
     );
 
     StringBuilder sqlBuffer = new StringBuilder();
-    Restriction.appendWhereClause(restrictions, sqlBuffer);
+    Restriction.appendWhereClause(platform, restrictions, sqlBuffer);
 
     assertThat(sqlBuffer.toString())
-            .isEqualTo("`a` = 1 AND `b` <> 2 AND `c` > 3 AND `d` >= 4 AND `e` < 5 AND `f` <= 6");
+            .isEqualTo("a = 1 AND b <> 2 AND c > 3 AND d >= 4 AND e < 5 AND f <= 6");
   }
 
   @Test
@@ -568,10 +585,10 @@ class RestrictionTests {
     );
 
     StringBuilder sqlBuffer = new StringBuilder();
-    combined.render(sqlBuffer);
+    combined.render(platform, sqlBuffer);
 
     assertThat(sqlBuffer.toString())
-            .isEqualTo("(`col1` = ? AND (`col2` > ? OR `col3` < ?))");
+            .isEqualTo("(col1 = ? AND (col2 > ? OR col3 < ?))");
   }
 
   @Test
@@ -582,9 +599,9 @@ class RestrictionTests {
     );
     StringBuilder sqlBuffer = new StringBuilder();
 
-    Restriction.appendWhereClause(restrictions, sqlBuffer);
+    Restriction.appendWhereClause(platform, restrictions, sqlBuffer);
 
-    assertThat(sqlBuffer.toString()).isEqualTo("`col1` =  AND `col2` = ");
+    assertThat(sqlBuffer.toString()).isEqualTo("col1 =  AND col2 = ");
   }
 
   @Test
@@ -595,9 +612,9 @@ class RestrictionTests {
     );
     StringBuilder sqlBuffer = new StringBuilder();
 
-    Restriction.appendWhereClause(restrictions, sqlBuffer);
+    Restriction.appendWhereClause(platform, restrictions, sqlBuffer);
 
-    assertThat(sqlBuffer.toString()).isEqualTo("`col@1` = val#1 AND `col$2` = val%2");
+    assertThat(sqlBuffer.toString()).isEqualTo("`col@1` = val#1 AND col$2 = val%2");
   }
 
   @Test
@@ -605,9 +622,9 @@ class RestrictionTests {
     StringBuilder sqlBuffer = new StringBuilder(0);
     List<Restriction> restrictions = List.of(Restriction.equal("col", "val"));
 
-    Restriction.appendWhereClause(restrictions, sqlBuffer);
+    Restriction.appendWhereClause(platform, restrictions, sqlBuffer);
 
-    assertThat(sqlBuffer.toString()).isEqualTo("`col` = val");
+    assertThat(sqlBuffer.toString()).isEqualTo("col = val");
     assertThat(sqlBuffer.capacity()).isGreaterThan(0);
   }
 
@@ -619,11 +636,11 @@ class RestrictionTests {
     }
 
     StringBuilder sqlBuffer = new StringBuilder();
-    Restriction.appendWhereClause(restrictions, sqlBuffer);
+    Restriction.appendWhereClause(platform, restrictions, sqlBuffer);
 
     String result = sqlBuffer.toString();
-    assertThat(result).startsWith("`col0` = 0");
-    assertThat(result).endsWith("`col99` = 99");
+    assertThat(result).startsWith("col0 = 0");
+    assertThat(result).endsWith("col99 = 99");
     assertThat(result.split("AND")).hasSize(100);
   }
 
@@ -635,10 +652,10 @@ class RestrictionTests {
             Restriction.equal("col3", "\u0000\u0001\u0002")
     );
 
-    StringBuilder sqlBuffer = Restriction.renderWhereClause(restrictions);
+    StringBuilder sqlBuffer = Restriction.renderWhereClause(platform, restrictions);
 
     assertThat(sqlBuffer.toString())
-            .isEqualTo("`col1` = 1' OR '1'='1 AND `col2` = '); DROP TABLE users;-- AND `col3` = \u0000\u0001\u0002");
+            .isEqualTo("col1 = 1' OR '1'='1 AND col2 = '); DROP TABLE users;-- AND col3 = \u0000\u0001\u0002");
   }
 
   @Test
@@ -646,24 +663,24 @@ class RestrictionTests {
     Restriction r = Restriction.equal("col", "val");
     List<Restriction> restrictions = Arrays.asList(r, r, r);
 
-    StringBuilder sqlBuffer = Restriction.renderWhereClause(restrictions);
+    StringBuilder sqlBuffer = Restriction.renderWhereClause(platform, restrictions);
 
     assertThat(sqlBuffer.toString())
-            .isEqualTo("`col` = val AND `col` = val AND `col` = val");
+            .isEqualTo("col = val AND col = val AND col = val");
   }
 
   @Test
   void between() {
-    StringBuilder sqlBuffer = Restriction.renderWhereClause(List.of(Restriction.between("age")));
+    StringBuilder sqlBuffer = Restriction.renderWhereClause(platform, List.of(Restriction.between("age")));
     assertThat(sqlBuffer.toString())
-            .isEqualTo("`age` BETWEEN ? AND ?");
+            .isEqualTo("age BETWEEN ? AND ?");
   }
 
   @Test
   void notBetween() {
-    StringBuilder sqlBuffer = Restriction.renderWhereClause(List.of(Restriction.notBetween("age")));
+    StringBuilder sqlBuffer = Restriction.renderWhereClause(platform, List.of(Restriction.notBetween("age")));
     assertThat(sqlBuffer.toString())
-            .isEqualTo("`age` NOT BETWEEN ? AND ?");
+            .isEqualTo("age NOT BETWEEN ? AND ?");
   }
 
 }

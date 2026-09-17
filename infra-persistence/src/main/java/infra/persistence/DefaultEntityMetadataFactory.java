@@ -229,8 +229,12 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
   @Override
   public EntityMetadata createEntityMetadata(Class<?> entityClass) {
     EntityMetadata refMetadata = getRefMetadata(entityClass);
-    String tableName = tableNameGenerator.generateTableName(entityClass);
-    if (tableName == null && refMetadata != null) {
+    String tableNameText = tableNameGenerator.generateTableName(entityClass);
+    Identifier tableName = null;
+    if (tableNameText != null) {
+      tableName = createIdentifier(tableNameText);
+    }
+    else if (refMetadata != null) {
       tableName = refMetadata.getTableName();
     }
 
@@ -239,22 +243,23 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
     }
 
     BeanMetadata metadata = BeanMetadata.forClass(entityClass);
-    ArrayList<String> columnNames = new ArrayList<>();
-    ArrayList<EntityProperty> entityProperties = new ArrayList<>();
+    ArrayList<Identifier> columnNames = new ArrayList<>(10);
+    ArrayList<EntityProperty> entityProperties = new ArrayList<>(10);
 
     EntityProperty idProperty = null;
     EntityProperty versionProperty = null;
-    for (BeanProperty property : metadata) {
+    for (BeanProperty property : metadata.getBeanProperties()) {
       if (isFiltered(property)) {
         continue;
       }
 
-      String columnName = columnNameDiscover.getColumnName(property);
-      if (columnName == null) {
+      String columnNameText = columnNameDiscover.getColumnName(property);
+      if (columnNameText == null) {
         throw new IllegalEntityException("Cannot determine column name for property: %s#%s"
                 .formatted(ClassUtils.getShortName(property.getDeclaringClass()), property.getName()));
       }
 
+      Identifier columnName = createIdentifier(columnNameText);
       columnNames.add(columnName);
 
       if (idPropertyDiscover.isIdProperty(property)) {
@@ -297,8 +302,12 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
     return null;
   }
 
-  private EntityProperty createEntityProperty(BeanProperty property, String columnName, boolean isId) {
+  private EntityProperty createEntityProperty(BeanProperty property, Identifier columnName, boolean isId) {
     return new EntityProperty(property, columnName, typeHandlerManager.getTypeHandler(property), isId);
+  }
+
+  private Identifier createIdentifier(String columnName) {
+    return Identifier.parse(columnName);
   }
 
   private boolean isFiltered(BeanProperty property) {

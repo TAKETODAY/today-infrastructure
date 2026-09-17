@@ -48,7 +48,7 @@ import infra.jdbc.type.TypeHandler;
  */
 public class EntityProperty {
 
-  private final String columnName;
+  private final Identifier columnName;
 
   private final boolean isIdProperty;
 
@@ -57,7 +57,7 @@ public class EntityProperty {
   private final TypeHandler<Object> typeHandler;
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  EntityProperty(BeanProperty beanProperty, String columnName, TypeHandler typeHandler, boolean isIdProperty) {
+  EntityProperty(BeanProperty beanProperty, Identifier columnName, TypeHandler typeHandler, boolean isIdProperty) {
     this.beanProperty = beanProperty;
     this.columnName = columnName;
     this.typeHandler = typeHandler;
@@ -156,7 +156,7 @@ public class EntityProperty {
    *
    * @return the column name
    */
-  public String getColumnName() {
+  public Identifier getColumnName() {
     return columnName;
   }
 

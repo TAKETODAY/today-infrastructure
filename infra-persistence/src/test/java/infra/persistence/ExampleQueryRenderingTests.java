@@ -64,8 +64,8 @@ class ExampleQueryRenderingTests {
 
     assertThat(restrictions).hasSize(1);
     StringBuilder sql = new StringBuilder();
-    Restriction.appendWhereClause(restrictions, sql);
-    assertThat(sql.toString()).contains("`name` = ?");
+    Restriction.appendWhereClause(Platform.mysql(), restrictions, sql);
+    assertThat(sql.toString()).contains("name = ?");
   }
 
   @Test
@@ -91,8 +91,8 @@ class ExampleQueryRenderingTests {
 
     assertThat(restrictions).hasSize(2);
     StringBuilder sql = new StringBuilder();
-    Restriction.appendWhereClause(restrictions, sql);
-    assertThat(sql.toString()).contains("`name` = ?").contains("`age` = ?").contains("AND");
+    Restriction.appendWhereClause(Platform.mysql(), restrictions, sql);
+    assertThat(sql.toString()).contains("name = ?").contains("age = ?").contains("AND");
   }
 
   @Test
@@ -104,7 +104,7 @@ class ExampleQueryRenderingTests {
     ExampleQuery query = new ExampleQuery(metadataFactory, example, strategies);
 
     StringBuilder sql = new StringBuilder();
-    query.appendWhereClause(likeMetadata, sql);
+    query.appendWhereClause(Platform.mysql(), likeMetadata, sql);
 
     assertThat(sql.toString()).contains("like ?");
   }
@@ -163,7 +163,7 @@ class ExampleQueryRenderingTests {
     StatementSequence sequence = query.render(metadata);
 
     String sql = sequence.toStatementString(Platform.generic());
-    assertThat(sql).startsWith("SELECT").contains("FROM t_user").contains("WHERE `name` = ?");
+    assertThat(sql).startsWith("SELECT").contains("FROM t_user").contains("WHERE name = ?");
   }
 
   @Table("t_like_form")

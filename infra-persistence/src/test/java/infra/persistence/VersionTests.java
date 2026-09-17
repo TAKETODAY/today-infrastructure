@@ -256,6 +256,7 @@ class VersionTests extends AbstractRepositoryManagerTests {
 
     assertThat(metadata.getEntityProperties(false))
             .extracting(EntityProperty::getColumnName)
+            .extracting(Identifier::getText)
             .contains("version");
   }
 
@@ -267,6 +268,7 @@ class VersionTests extends AbstractRepositoryManagerTests {
     // version is not the ID, so it should be in entityPropertiesExcludeId
     assertThat(metadata.getEntityProperties(true))
             .extracting(EntityProperty::getColumnName)
+            .extracting(Identifier::getText)
             .contains("version");
   }
 

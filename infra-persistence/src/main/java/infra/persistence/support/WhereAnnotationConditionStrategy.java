@@ -114,9 +114,8 @@ public class WhereAnnotationConditionStrategy implements PropertyConditionStrate
    * @param extracted The extracted value to be used in the condition. Can be {@code null}.
    * @return A {@link Condition} object if a valid condition is resolved, or {@code null} if no condition can be determined.
    */
-  @Nullable
   @Override
-  public Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object extracted) {
+  public @Nullable Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object extracted) {
     if (extracted instanceof String string && entityProperty.isPresent(TrimWhere.class)) {
       extracted = string.trim();
     }

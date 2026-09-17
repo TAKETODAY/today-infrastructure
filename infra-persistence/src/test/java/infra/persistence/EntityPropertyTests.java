@@ -45,7 +45,7 @@ class EntityPropertyTests {
   private final TypeHandler<Object> typeHandler = mock(TypeHandler.class);
 
   private EntityProperty entityProperty(boolean isIdProperty) {
-    return new EntityProperty(beanProperty, "test_column", typeHandler, isIdProperty);
+    return new EntityProperty(beanProperty, Identifier.parse("test_column"), typeHandler, isIdProperty);
   }
 
   @Test

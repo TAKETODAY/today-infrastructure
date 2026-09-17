@@ -16,6 +16,9 @@
 
 package infra.persistence.sql;
 
+import infra.persistence.Identifier;
+import infra.persistence.platform.Platform;
+
 /**
  * Nullness restriction - IS (NOT)? NULL
  *
@@ -24,20 +27,18 @@ package infra.persistence.sql;
  */
 final class NullnessRestriction implements Restriction {
 
-  private final String columnName;
+  private final Identifier columnName;
 
   private final boolean affirmative;
 
-  NullnessRestriction(String columnName, boolean affirmative) {
+  NullnessRestriction(Identifier columnName, boolean affirmative) {
     this.columnName = columnName;
     this.affirmative = affirmative;
   }
 
   @Override
-  public void render(StringBuilder sqlBuffer) {
-    sqlBuffer.append('`');
-    sqlBuffer.append(columnName);
-    sqlBuffer.append('`');
+  public void render(Platform platform, StringBuilder sqlBuffer) {
+    sqlBuffer.append(columnName.render(platform));
     if (affirmative) {
       sqlBuffer.append(" is null");
     }

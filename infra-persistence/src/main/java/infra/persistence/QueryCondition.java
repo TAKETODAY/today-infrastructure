@@ -25,6 +25,7 @@ import java.util.List;
 import infra.core.annotation.MergedAnnotation;
 import infra.lang.Constant;
 import infra.persistence.annotation.OrderBy;
+import infra.persistence.platform.Platform;
 import infra.persistence.sql.OrderByClause;
 import infra.persistence.sql.Restriction;
 
@@ -43,7 +44,7 @@ import infra.persistence.sql.Restriction;
  * </ul>
  *
  * <p>Collecting restrictions is the core contract; rendering them to SQL is a
- * convenience layered on top. {@link #appendWhereClause(EntityMetadata, StringBuilder)}
+   * convenience layered on top. {@link #appendWhereClause(Platform, EntityMetadata, StringBuilder)}
  * appends {@code " WHERE "} followed by the rendered restrictions when there is at
  * least one, while {@link #collectRestrictions(EntityMetadata)} returns the collected
  * list as-is.
@@ -60,7 +61,7 @@ import infra.persistence.sql.Restriction;
  *         .createCondition(example);
  *
  * StringBuilder sql = new StringBuilder("SELECT * FROM t_user");
- * condition.appendWhereClause(metadata, sql);
+   * condition.appendWhereClause(platform, metadata, sql);
  *
  * try (PreparedStatement statement = connection.prepareStatement(sql.toString())) {
  *   condition.setParameter(metadata, statement);
@@ -83,15 +84,16 @@ public interface QueryCondition extends ParameterSource {
    * with {@code " WHERE "} when at least one restriction applies.
    *
    * <p>This is a convenience combining {@link #collectRestrictions(EntityMetadata, List)}
-   * with {@link Restriction#append(java.util.Collection, StringBuilder)}. When the
+   * with {@link Restriction#append(Platform, java.util.Collection, StringBuilder)}. When the
    * entity declares no condition, the buffer is left unchanged.
    *
+   * @param platform the database platform whose rendering rules apply
    * @param metadata the metadata of the entity being queried
    * @param sql the buffer to append the rendered WHERE clause to
    * @since 5.0
    */
-  default void appendWhereClause(EntityMetadata metadata, StringBuilder sql) {
-    Restriction.append(collectRestrictions(metadata), sql);
+  default void appendWhereClause(Platform platform, EntityMetadata metadata, StringBuilder sql) {
+    Restriction.append(platform, collectRestrictions(metadata), sql);
   }
 
   /**

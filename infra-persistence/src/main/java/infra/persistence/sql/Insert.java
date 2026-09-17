@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import infra.core.Pair;
+import infra.persistence.Identifier;
 import infra.persistence.StatementSequence;
 import infra.persistence.platform.Platform;
 
@@ -25,14 +26,17 @@ import infra.persistence.platform.Platform;
  */
 public class Insert implements StatementSequence {
 
-  protected final String tableName;
+  protected final Identifier tableName;
 
-  @Nullable
-  protected String comment;
+  protected @Nullable String comment;
 
-  public final ArrayList<Pair<String, String>> columns = new ArrayList<>();
+  public final ArrayList<Pair<Identifier, String>> columns = new ArrayList<>();
 
   public Insert(String tableName) {
+    this(Identifier.parse(tableName));
+  }
+
+  public Insert(Identifier tableName) {
     this.tableName = tableName;
   }
 
@@ -42,6 +46,10 @@ public class Insert implements StatementSequence {
   }
 
   public Insert addColumn(String columnName) {
+    return addColumn(Identifier.parse(columnName));
+  }
+
+  public Insert addColumn(Identifier columnName) {
     return addColumn(columnName, "?");
   }
 
@@ -52,26 +60,26 @@ public class Insert implements StatementSequence {
     return this;
   }
 
-  public Insert addColumn(String columnName, String valueExpression) {
+  public Insert addColumn(Identifier columnName, String valueExpression) {
     columns.add(Pair.of(columnName, valueExpression));
     return this;
   }
 
   @Override
   public String toStatementString(Platform platform) {
-    final StringBuilder buf = new StringBuilder(columns.size() * 15 + tableName.length() + 10);
+    final StringBuilder buf = new StringBuilder(columns.size() * 15 + tableName.getText().length() + 10);
     if (comment != null) {
       buf.append("/* ").append(Platform.escapeComment(comment)).append(" */ ");
     }
 
-    buf.append("INSERT INTO ").append(tableName);
+    buf.append("INSERT INTO ").append(tableName.render(platform));
 
     if (columns.isEmpty()) {
       buf.append(' ').append(platform.getNoColumnsInsertString());
     }
     else {
       buf.append(" (");
-      renderInsertionSpec(buf);
+      renderInsertionSpec(platform, buf);
       buf.append(") VALUES (");
       renderRowValues(buf);
       buf.append(')');
@@ -79,19 +87,19 @@ public class Insert implements StatementSequence {
     return buf.toString();
   }
 
-  private void renderInsertionSpec(StringBuilder buf) {
-    buf.append('`');
-    final Iterator<Pair<String, String>> itr = columns.iterator();
+  private void renderInsertionSpec(Platform platform, StringBuilder buf) {
+    final Iterator<Pair<Identifier, String>> itr = columns.iterator();
     while (itr.hasNext()) {
-      buf.append(itr.next().first).append('`');
+      Identifier identifier = itr.next().first;
+      buf.append(identifier.render(platform));
       if (itr.hasNext()) {
-        buf.append(", `");
+        buf.append(", ");
       }
     }
   }
 
   private void renderRowValues(StringBuilder buf) {
-    final Iterator<Pair<String, String>> itr = columns.iterator();
+    final Iterator<Pair<Identifier, String>> itr = columns.iterator();
     while (itr.hasNext()) {
       buf.append(itr.next().second);
       if (itr.hasNext()) {

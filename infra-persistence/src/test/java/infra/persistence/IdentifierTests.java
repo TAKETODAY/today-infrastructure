@@ -23,6 +23,7 @@ import java.util.Objects;
 import infra.persistence.platform.Platform;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
@@ -147,15 +148,21 @@ class IdentifierTests {
   // toIdentifier
 
   @Test
-  void toIdentifierReturnsNullForBlankText() {
-    assertThat(Identifier.toIdentifier(null)).isNull();
-    assertThat(Identifier.toIdentifier("")).isNull();
-    assertThat(Identifier.toIdentifier("   ")).isNull();
+  void toIdentifierRejectsBlankText() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> Identifier.parse(null))
+            .withMessage("Identifier text must not be blank");
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> Identifier.parse(""))
+            .withMessage("Identifier text must not be blank");
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> Identifier.parse("   "))
+            .withMessage("Identifier text must not be blank");
   }
 
   @Test
   void toIdentifierKeepsPlainNameUnquoted() {
-    Identifier identifier = Identifier.toIdentifier("user_name");
+    Identifier identifier = Identifier.parse("user_name");
 
     assertThat(identifier).isNotNull();
     assertThat(identifier.getText()).isEqualTo("user_name");
@@ -164,7 +171,7 @@ class IdentifierTests {
 
   @Test
   void toIdentifierTrimsWhitespace() {
-    Identifier identifier = Identifier.toIdentifier("  name  ");
+    Identifier identifier = Identifier.parse("  name  ");
 
     assertThat(identifier).isNotNull();
     assertThat(identifier.getText()).isEqualTo("name");
@@ -172,7 +179,7 @@ class IdentifierTests {
 
   @Test
   void toIdentifierAutoquotesNonPlainName() {
-    Identifier identifier = Identifier.toIdentifier("user name");
+    Identifier identifier = Identifier.parse("user name");
 
     assertThat(identifier).isNotNull();
     assertThat(identifier.getText()).isEqualTo("user name");
@@ -181,7 +188,7 @@ class IdentifierTests {
 
   @Test
   void toIdentifierAutoquotesNameStartingWithDigit() {
-    Identifier identifier = Identifier.toIdentifier("1abc");
+    Identifier identifier = Identifier.parse("1abc");
 
     assertThat(identifier).isNotNull();
     assertThat(identifier.isQuoted()).isTrue();
@@ -189,28 +196,11 @@ class IdentifierTests {
 
   @Test
   void toIdentifierStripsQuoteMarkers() {
-    assertThat(Identifier.toIdentifier("`user name`").getText()).isEqualTo("user name");
-    assertThat(Identifier.toIdentifier("`user name`").isQuoted()).isTrue();
+    assertThat(Identifier.parse("`user name`").getText()).isEqualTo("user name");
+    assertThat(Identifier.parse("`user name`").isQuoted()).isTrue();
 
-    assertThat(Identifier.toIdentifier("\"user\"").getText()).isEqualTo("user");
-    assertThat(Identifier.toIdentifier("[user]").getText()).isEqualTo("user");
-  }
-
-  @Test
-  void toIdentifierWithExplicitQuote() {
-    Identifier identifier = Identifier.toIdentifier("name", true);
-
-    assertThat(identifier).isNotNull();
-    assertThat(identifier.isQuoted()).isTrue();
-  }
-
-  @Test
-  void toIdentifierWithoutAutoquoteKeepsNameBare() {
-    Identifier identifier = Identifier.toIdentifier("user name", false, false);
-
-    assertThat(identifier).isNotNull();
-    assertThat(identifier.getText()).isEqualTo("user name");
-    assertThat(identifier.isQuoted()).isFalse();
+    assertThat(Identifier.parse("\"user\"").getText()).isEqualTo("user");
+    assertThat(Identifier.parse("[user]").getText()).isEqualTo("user");
   }
 
   // isQuoted / unQuote

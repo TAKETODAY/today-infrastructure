@@ -22,6 +22,7 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 import infra.persistence.platform.Platform;
+import infra.util.InfraStrategies;
 import infra.util.StringUtils;
 
 /**
@@ -45,6 +46,12 @@ public class Identifier implements Comparable<Identifier> {
    * underscores or dollar signs.
    */
   private static final Pattern PLAIN_NAME = Pattern.compile("[\\p{L}_][\\p{L}\\p{N}_$]*");
+
+  private static final boolean DEFAULT_QUOTE =
+          InfraStrategies.getFlag("infra.persistence.identifier.quote", false);
+
+  private static final boolean DEFAULT_AUTO_QUOTE =
+          InfraStrategies.getFlag("infra.persistence.identifier.autoquote", true);
 
   /** The bare name, without any quote marker. */
   private final String name;
@@ -174,51 +181,32 @@ public class Identifier implements Comparable<Identifier> {
   }
 
   /**
-   * Build an identifier from its text form, without forcing quoting.
+   * Build an identifier from its text form using the default quoting strategies.
    *
-   * <p>Returns {@code null} for a blank input. Text wrapped in a matched pair of
-   * quote markers (backtick, double quote, or brackets) is treated as quoted and
-   * kept without the markers. Otherwise the name is quoted automatically when it
-   * is not a {@linkplain #PLAIN_NAME plain name}.
+   * <p>The {@code infra.persistence.identifier.quote} strategy controls whether
+   * unquoted names are always quoted and defaults to {@code false}. The
+   * {@code infra.persistence.identifier.autoquote} strategy controls whether
+   * non-{@linkplain #PLAIN_NAME plain} names are quoted automatically and defaults
+   * to {@code true}.
    *
-   * @param text the text form, possibly {@code null}
-   * @return the identifier, or {@code null} if the text is blank
-   */
-  public static @Nullable Identifier toIdentifier(@Nullable String text) {
-    return toIdentifier(text, false, true);
-  }
-
-  /**
-   * Build an identifier from its text form.
+   * <p>Text wrapped in a matched pair of quote markers (backtick, double quote,
+   * or brackets) is treated as quoted and kept without the markers. Otherwise
+   * the name is quoted automatically when it is not a
+   * {@linkplain #PLAIN_NAME plain name}.
    *
    * @param text the text form, possibly {@code null}
-   * @param quote whether an unquoted name should be rendered quoted
-   * @return the identifier, or {@code null} if the text is blank
-   * @see #toIdentifier(String)
+   * @return the identifier
+   * @throws IllegalArgumentException if the text is blank
    */
-  public static @Nullable Identifier toIdentifier(@Nullable String text, boolean quote) {
-    return toIdentifier(text, quote, true);
-  }
-
-  /**
-   * Build an identifier from its text form.
-   *
-   * @param text the text form, possibly {@code null}
-   * @param quote whether an unquoted name should be rendered quoted
-   * @param autoquote whether a non-{@linkplain #PLAIN_NAME plain} name should be
-   * quoted automatically
-   * @return the identifier, or {@code null} if the text is blank
-   * @see #toIdentifier(String)
-   */
-  public static @Nullable Identifier toIdentifier(@Nullable String text, boolean quote, boolean autoquote) {
+  public static Identifier parse(String text) {
     if (StringUtils.isBlank(text)) {
-      return null;
+      throw new IllegalArgumentException("Identifier text must not be blank");
     }
     String name = text.trim();
     if (isQuoted(name)) {
       return new Identifier(unQuote(name), true);
     }
-    boolean mustQuote = quote || (autoquote && !PLAIN_NAME.matcher(name).matches());
+    boolean mustQuote = DEFAULT_QUOTE || (DEFAULT_AUTO_QUOTE && !PLAIN_NAME.matcher(name).matches());
     return new Identifier(name, mustQuote);
   }
 

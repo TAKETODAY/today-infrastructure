@@ -16,11 +16,13 @@
 
 package infra.persistence.sql;
 
-import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import infra.core.Pair;
+import infra.persistence.Identifier;
 import infra.persistence.Order;
+import infra.persistence.platform.Platform;
 import infra.util.Assert;
 import infra.util.StringUtils;
 
@@ -32,7 +34,11 @@ import infra.util.StringUtils;
  */
 public interface OrderByClause {
 
-  CharSequence toClause();
+  default CharSequence toClause() {
+    return toClause(Platform.generic());
+  }
+
+  CharSequence toClause(Platform platform);
 
   boolean isEmpty();
 
@@ -49,7 +55,7 @@ public interface OrderByClause {
   @SafeVarargs
   static MutableOrderByClause valueOf(Pair<String, Order>... sortKeys) {
     Assert.notNull(sortKeys, "sortKeys is required");
-    return new MutableOrderByClause(List.of(sortKeys));
+    return new MutableOrderByClause(Stream.of(sortKeys).map(pair -> Pair.of(Identifier.parse(pair.first), pair.second)).toList());
   }
 
   static OrderByClause plain(CharSequence sequence) {
@@ -72,7 +78,7 @@ public interface OrderByClause {
     }
 
     @Override
-    public CharSequence toClause() {
+    public CharSequence toClause(Platform platform) {
       return sequence;
     }
 
