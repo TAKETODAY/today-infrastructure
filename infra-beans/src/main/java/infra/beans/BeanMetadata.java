@@ -246,7 +246,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    * @since 5.0
    */
   @Unmodifiable
-  public Set<String> propertyNames() {
+  public Set<String> getPropertyNames() {
     return propertyHolder().mapping.keySet();
   }
 
@@ -343,17 +343,17 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
 
   @Override
   public Iterator<BeanProperty> iterator() {
-    return propertyHolder().beanProperties.iterator();
+    return getBeanProperties().iterator();
   }
 
   @Override
   public void forEach(Consumer<? super BeanProperty> action) {
-    propertyHolder().beanProperties.forEach(action);
+    getBeanProperties().forEach(action);
   }
 
   @Override
   public Spliterator<BeanProperty> spliterator() {
-    return propertyHolder().beanProperties.spliterator();
+    return getBeanProperties().spliterator();
   }
 
   //---------------------------------------------------------------------

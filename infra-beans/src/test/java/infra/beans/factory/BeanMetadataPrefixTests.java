@@ -109,12 +109,12 @@ class BeanMetadataPrefixTests {
   void fieldNamesReturnsAllNonStaticFieldNames() {
     BeanMetadata beanMetadata = BeanMetadata.forClass(PrefixedBean.class);
 
-    assertThat(beanMetadata.propertyNames()).contains(
+    assertThat(beanMetadata.getPropertyNames()).contains(
             "name", "age", "_nickname", "m_", "title");
     // 静态字段被排除
-    assertThat(beanMetadata.propertyNames()).doesNotContain("STATIC");
+    assertThat(beanMetadata.getPropertyNames()).doesNotContain("STATIC");
 
-    assertThatThrownBy(() -> beanMetadata.propertyNames().add("any"))
+    assertThatThrownBy(() -> beanMetadata.getPropertyNames().add("any"))
             .isInstanceOf(UnsupportedOperationException.class);
   }
 

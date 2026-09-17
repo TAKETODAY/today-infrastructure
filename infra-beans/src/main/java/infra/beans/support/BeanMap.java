@@ -79,7 +79,7 @@ public final class BeanMap<T> extends AbstractMap<String, Object> {
 
   @Override
   public Set<String> keySet() {
-    return metadata.propertyNames();
+    return metadata.getPropertyNames();
   }
 
   /**
