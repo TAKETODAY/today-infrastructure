@@ -181,20 +181,10 @@ public interface Restriction {
   }
 
   /**
-   * Creates a "greater than" restriction for the specified column name using a placeholder value (?).
-   * This is typically used in prepared statements where the actual value will be provided later.
+   * Create a {@code column > ?} restriction.
    *
-   * <p><b>Usage Example:</b>
-   * <pre>{@code
-   *   Restriction restriction = Restriction.graterThan("salary");
-   *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(platform, sqlBuffer);
-   *   // The resulting SQL fragment might look like:
-   *   // "salary > ?"
-   * }</pre>
-   *
-   * @param columnName the name of the column to apply the "greater than" restriction to. Must not be null.
-   * @return a new {@code Restriction} instance representing the "greater than" condition.
+   * @param columnName the column name to parse as an identifier
+   * @return the greater-than restriction
    */
   static Restriction graterThan(String columnName) {
     return graterThan(Identifier.parse(columnName));
@@ -211,21 +201,11 @@ public interface Restriction {
   }
 
   /**
-   * Creates a "greater than" restriction between the left-hand side (LHS) and right-hand side (RHS) values.
-   * This is used to directly compare two values in a query.
+   * Create a {@code column > expression} restriction.
    *
-   * <p><b>Usage Example:</b>
-   * <pre>{@code
-   *   Restriction restriction = Restriction.graterThan("salary", "50000");
-   *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(platform, sqlBuffer);
-   *   // The resulting SQL fragment might look like:
-   *   // "salary > 50000"
-   * }</pre>
-   *
-   * @param lhs the left-hand side value (e.g., column name). Must not be null.
-   * @param rhs the right-hand side value (e.g., constant or parameter). Must not be null.
-   * @return a new {@code Restriction} instance representing the "greater than" condition.
+   * @param lhs the column name to parse as an identifier
+   * @param rhs the SQL expression on the right-hand side
+   * @return the greater-than restriction
    */
   static Restriction graterThan(String lhs, String rhs) {
     return graterThan(Identifier.parse(lhs), rhs);
@@ -243,20 +223,10 @@ public interface Restriction {
   }
 
   /**
-   * Creates a "greater than or equal to" restriction for the specified column name using a placeholder value (?).
-   * This is typically used in prepared statements where the actual value will be provided later.
+   * Create a {@code column >= ?} restriction.
    *
-   * <p><b>Usage Example:</b>
-   * <pre>{@code
-   *   Restriction restriction = Restriction.graterEqual("age");
-   *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(platform, sqlBuffer);
-   *   // The resulting SQL fragment might look like:
-   *   // "age >= ?"
-   * }</pre>
-   *
-   * @param columnName the name of the column to apply the "greater than or equal to" restriction to. Must not be null.
-   * @return a new {@code Restriction} instance representing the "greater than or equal to" condition.
+   * @param columnName the column name to parse as an identifier
+   * @return the greater-than-or-equal restriction
    */
   static Restriction graterEqual(String columnName) {
     return graterEqual(Identifier.parse(columnName));
@@ -273,21 +243,11 @@ public interface Restriction {
   }
 
   /**
-   * Creates a "greater than or equal to" restriction between the left-hand side (LHS) and right-hand side (RHS) values.
-   * This is used to directly compare two values in a query.
+   * Create a {@code column >= expression} restriction.
    *
-   * <p><b>Usage Example:</b>
-   * <pre>{@code
-   *   Restriction restriction = Restriction.graterEqual("age", "18");
-   *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(platform, sqlBuffer);
-   *   // The resulting SQL fragment might look like:
-   *   // "age >= 18"
-   * }</pre>
-   *
-   * @param lhs the left-hand side value (e.g., column name). Must not be null.
-   * @param rhs the right-hand side value (e.g., constant or parameter). Must not be null.
-   * @return a new {@code Restriction} instance representing the "greater than or equal to" condition.
+   * @param lhs the column name to parse as an identifier
+   * @param rhs the SQL expression on the right-hand side
+   * @return the greater-than-or-equal restriction
    */
   static Restriction graterEqual(String lhs, String rhs) {
     return graterEqual(Identifier.parse(lhs), rhs);
@@ -305,20 +265,10 @@ public interface Restriction {
   }
 
   /**
-   * Creates a "less than" restriction for the specified column name using a placeholder value (?).
-   * This is typically used in prepared statements where the actual value will be provided later.
+   * Create a {@code column < ?} restriction.
    *
-   * <p><b>Usage Example:</b>
-   * <pre>{@code
-   *   Restriction restriction = Restriction.lessThan("price");
-   *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(platform, sqlBuffer);
-   *   // The resulting SQL fragment might look like:
-   *   // "price < ?"
-   * }</pre>
-   *
-   * @param columnName the name of the column to apply the "less than" restriction to. Must not be null.
-   * @return a new {@code Restriction} instance representing the "less than" condition.
+   * @param columnName the column name to parse as an identifier
+   * @return the less-than restriction
    */
   static Restriction lessThan(String columnName) {
     return lessThan(Identifier.parse(columnName));
@@ -335,21 +285,11 @@ public interface Restriction {
   }
 
   /**
-   * Creates a "less than" restriction between the left-hand side (LHS) and right-hand side (RHS) values.
-   * This is used to directly compare two values in a query.
+   * Create a {@code column < expression} restriction.
    *
-   * <p><b>Usage Example:</b>
-   * <pre>{@code
-   *   Restriction restriction = Restriction.lessThan("price", "100");
-   *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(platform, sqlBuffer);
-   *   // The resulting SQL fragment might look like:
-   *   // "price < 100"
-   * }</pre>
-   *
-   * @param lhs the left-hand side value (e.g., column name). Must not be null.
-   * @param rhs the right-hand side value (e.g., constant or parameter). Must not be null.
-   * @return a new {@code Restriction} instance representing the "less than" condition.
+   * @param lhs the column name to parse as an identifier
+   * @param rhs the SQL expression on the right-hand side
+   * @return the less-than restriction
    */
   static Restriction lessThan(String lhs, String rhs) {
     return lessThan(Identifier.parse(lhs), rhs);
@@ -367,20 +307,10 @@ public interface Restriction {
   }
 
   /**
-   * Creates a "less than or equal to" restriction for the specified column name using a placeholder value (?).
-   * This is typically used in prepared statements where the actual value will be provided later.
+   * Create a {@code column <= ?} restriction.
    *
-   * <p><b>Usage Example:</b>
-   * <pre>{@code
-   *   Restriction restriction = Restriction.lessEqual("quantity");
-   *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(platform, sqlBuffer);
-   *   // The resulting SQL fragment might look like:
-   *   // "quantity <= ?"
-   * }</pre>
-   *
-   * @param columnName the name of the column to apply the "less than or equal to" restriction to. Must not be null.
-   * @return a new {@code Restriction} instance representing the "less than or equal to" condition.
+   * @param columnName the column name to parse as an identifier
+   * @return the less-than-or-equal restriction
    */
   static Restriction lessEqual(String columnName) {
     return lessEqual(Identifier.parse(columnName));
@@ -397,21 +327,11 @@ public interface Restriction {
   }
 
   /**
-   * Creates a "less than or equal to" restriction between the left-hand side (LHS) and right-hand side (RHS) values.
-   * This is used to directly compare two values in a query.
+   * Create a {@code column <= expression} restriction.
    *
-   * <p><b>Usage Example:</b>
-   * <pre>{@code
-   *   Restriction restriction = Restriction.lessEqual("quantity", "50");
-   *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(platform, sqlBuffer);
-   *   // The resulting SQL fragment might look like:
-   *   // "quantity <= 50"
-   * }</pre>
-   *
-   * @param lhs the left-hand side value (e.g., column name). Must not be null.
-   * @param rhs the right-hand side value (e.g., constant or parameter). Must not be null.
-   * @return a new {@code Restriction} instance representing the "less than or equal to" condition.
+   * @param lhs the column name to parse as an identifier
+   * @param rhs the SQL expression on the right-hand side
+   * @return the less-than-or-equal restriction
    */
   static Restriction lessEqual(String lhs, String rhs) {
     return lessEqual(Identifier.parse(lhs), rhs);
@@ -429,22 +349,14 @@ public interface Restriction {
   }
 
   /**
-   * Creates a custom restriction using the specified operator between the left-hand side (LHS) and right-hand side (RHS) values.
-   * This allows for flexible query generation with custom operators such as LIKE, IN, or BETWEEN.
+   * Create a comparison using a caller-supplied SQL operator and expression.
    *
-   * <p><b>Usage Example:</b>
-   * <pre>{@code
-   *   Restriction restriction = Restriction.forOperator("name", "LIKE", "'%John%'");
-   *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(platform, sqlBuffer);
-   *   // The resulting SQL fragment might look like:
-   *   // "name LIKE '%John%'"
-   * }</pre>
+   * <p>The operator and right-hand expression are appended unchanged.
    *
-   * @param lhs the left-hand side value (e.g., column name). Must not be null.
-   * @param operator the custom SQL operator to use (e.g., LIKE, IN, BETWEEN). Must not be null.
-   * @param rhs the right-hand side value (e.g., constant or parameter). Must not be null.
-   * @return a new {@code Restriction} instance representing the custom condition.
+   * @param lhs the column name to parse as an identifier
+   * @param operator the SQL operator, including any required surrounding spaces
+   * @param rhs the SQL expression on the right-hand side
+   * @return the custom comparison restriction
    */
   static Restriction forOperator(String lhs, String operator, String rhs) {
     return forOperator(Identifier.parse(lhs), operator, rhs);
@@ -465,20 +377,10 @@ public interface Restriction {
   }
 
   /**
-   * Creates a restriction to check if the specified column is null.
-   * This is used to generate SQL conditions such as "IS NULL".
+   * Create a {@code column is null} restriction.
    *
-   * <p><b>Usage Example:</b>
-   * <pre>{@code
-   *   Restriction restriction = Restriction.isNull("email");
-   *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(platform, sqlBuffer);
-   *   // The resulting SQL fragment might look like:
-   *   // "email IS NULL"
-   * }</pre>
-   *
-   * @param columnName the name of the column to apply the "IS NULL" restriction to. Must not be null.
-   * @return a new {@code Restriction} instance representing the "IS NULL" condition.
+   * @param columnName the column name to parse as an identifier
+   * @return the nullness restriction
    */
   static Restriction isNull(String columnName) {
     return isNull(Identifier.parse(columnName));
@@ -495,20 +397,10 @@ public interface Restriction {
   }
 
   /**
-   * Creates a restriction to check if the specified column is not null.
-   * This is used to generate SQL conditions such as "IS NOT NULL".
+   * Create a {@code column is not null} restriction.
    *
-   * <p><b>Usage Example:</b>
-   * <pre>{@code
-   *   Restriction restriction = Restriction.isNotNull("email");
-   *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(platform, sqlBuffer);
-   *   // The resulting SQL fragment might look like:
-   *   // "email IS NOT NULL"
-   * }</pre>
-   *
-   * @param columnName the name of the column to apply the "IS NOT NULL" restriction to. Must not be null.
-   * @return a new {@code Restriction} instance representing the "IS NOT NULL" condition.
+   * @param columnName the column name to parse as an identifier
+   * @return the non-nullness restriction
    */
   static Restriction isNotNull(String columnName) {
     return isNotNull(Identifier.parse(columnName));
@@ -525,19 +417,10 @@ public interface Restriction {
   }
 
   /**
-   * Creates a custom BETWEEN restriction.
+   * Create a {@code column BETWEEN ? AND ?} restriction.
    *
-   * <p><b>Usage Example:</b>
-   * <pre>{@code
-   *   Restriction restriction = Restriction.between("age");
-   *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(platform, sqlBuffer);
-   *   // The resulting SQL fragment might look like:
-   *   // "`age` BETWEEN ? AND ?"
-   * }</pre>
-   *
-   * @param columnName the name of the column to apply the "between" restriction to. Must not be null.
-   * @return a new {@code Restriction} instance representing the custom condition.
+   * @param columnName the column name to parse as an identifier
+   * @return the between restriction
    */
   static Restriction between(String columnName) {
     return between(Identifier.parse(columnName));
@@ -554,19 +437,10 @@ public interface Restriction {
   }
 
   /**
-   * Creates a custom NOT-BETWEEN restriction.
+   * Create a {@code column NOT BETWEEN ? AND ?} restriction.
    *
-   * <p><b>Usage Example:</b>
-   * <pre>{@code
-   *   Restriction restriction = Restriction.notBetween("age");
-   *   StringBuilder sqlBuffer = new StringBuilder();
-   *   restriction.render(platform, sqlBuffer);
-   *   // The resulting SQL fragment might look like:
-   *   // "`age` NOT BETWEEN ? AND ?"
-   * }</pre>
-   *
-   * @param columnName the name of the column to apply the "between" restriction to. Must not be null.
-   * @return a new {@code Restriction} instance representing the custom condition.
+   * @param columnName the column name to parse as an identifier
+   * @return the not-between restriction
    */
   static Restriction notBetween(String columnName) {
     return notBetween(Identifier.parse(columnName));
