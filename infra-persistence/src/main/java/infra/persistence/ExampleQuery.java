@@ -21,15 +21,12 @@ import org.jspecify.annotations.Nullable;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
-import infra.core.annotation.MergedAnnotation;
 import infra.logging.LogMessage;
 import infra.persistence.PropertyConditionStrategy.Condition;
 import infra.persistence.annotation.OR;
-import infra.persistence.annotation.OrderBy;
 import infra.persistence.sql.OrderSpec;
 import infra.persistence.sql.OrderSpecSource;
 import infra.persistence.sql.Restriction;
@@ -101,47 +98,8 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
         return spec;
       }
     }
-    // 2. class-level raw clause, from the example's own metadata
-    OrderSpec classLevel = QueryCondition.super.resolveOrderByClause(exampleMetadata);
-    if (classLevel != null) {
-      return classLevel;
-    }
-    // 3. property-level keys, in property declaration order
-    return resolvePropertyOrderBy();
-  }
-
-  /**
-   * Collect the {@link OrderBy @OrderBy} keys of the example's properties into an
-   * {@link OrderSpec}, ordered by each key's {@link OrderBy#order() precedence}.
-   *
-   * <p>This is independent of the WHERE-condition scan, so ordering resolution
-   * stays reliable regardless of when it is invoked.
-   *
-   * @return the property ordering spec, or {@code null} when no property declares one
-   */
-  private @Nullable OrderSpec resolvePropertyOrderBy() {
-    ArrayList<SortKey> sortKeys = null;
-    for (EntityProperty property : exampleMetadata.getEntityProperties(false)) {
-      MergedAnnotation<OrderBy> annotation = property.getAnnotation(OrderBy.class);
-      if (annotation.isPresent()) {
-        if (sortKeys == null) {
-          sortKeys = new ArrayList<>();
-        }
-        sortKeys.add(new SortKey(
-                annotation.getInt("order"),
-                property.getColumnName(),
-                annotation.getEnum("value", Order.class)));
-      }
-    }
-    if (sortKeys == null) {
-      return null;
-    }
-    sortKeys.sort(Comparator.comparingInt(SortKey::order));
-    OrderSpec.Builder builder = OrderSpec.builder();
-    for (SortKey sortKey : sortKeys) {
-      builder.orderBy(sortKey.column, sortKey.direction);
-    }
-    return builder.build();
+    // 2. declarative ordering, cached on the example's own metadata
+    return exampleMetadata.getOrderSpec();
   }
 
   @Override
@@ -193,6 +151,4 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
     return conditions;
   }
 
-  private record SortKey(int order, Identifier column, Order direction) {
-  }
 }

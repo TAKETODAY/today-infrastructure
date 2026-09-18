@@ -22,7 +22,6 @@ import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.core.annotation.MergedAnnotation;
 import infra.persistence.annotation.OrderBy;
 import infra.persistence.annotation.OrderByClause;
 import infra.persistence.platform.Platform;
@@ -124,20 +123,19 @@ public interface QueryCondition extends ParameterSource {
   void collectRestrictions(EntityMetadata metadata, List<Restriction> restrictions);
 
   /**
-   * Resolve the ORDER BY clause for the given entity, typically from an
-   * {@link OrderBy @OrderBy} annotation declared on the entity class or its properties.
+   * Return the declarative ORDER BY spec cached by the given entity metadata.
+   *
+   * <p>The metadata resolves class-level {@link OrderByClause @OrderByClause}
+   * before property-level {@link OrderBy @OrderBy} keys.
    *
    * @param metadata the metadata of the entity being queried
    * @return the resolved {@link OrderSpec}, or {@code null} when the entity
    * declares no ordering
+   * @see OrderByClause
    * @see OrderBy
    */
   default @Nullable OrderSpec resolveOrderByClause(EntityMetadata metadata) {
-    MergedAnnotation<OrderByClause> orderBy = metadata.getAnnotation(OrderByClause.class);
-    if (orderBy.isPresent()) {
-      return OrderSpec.plain(orderBy.getStringValue());
-    }
-    return null;
+    return metadata.getOrderSpec();
   }
 
 }

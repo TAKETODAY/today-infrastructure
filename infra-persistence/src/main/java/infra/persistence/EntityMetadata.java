@@ -19,7 +19,9 @@ package infra.persistence;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -30,6 +32,9 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.style.ToStringBuilder;
 import infra.lang.Unmodifiable;
 import infra.persistence.annotation.GeneratedId;
+import infra.persistence.annotation.OrderBy;
+import infra.persistence.annotation.OrderByClause;
+import infra.persistence.sql.OrderSpec;
 
 /**
  * Describes the mapping between an entity class and its database representation.
@@ -91,6 +96,9 @@ public class EntityMetadata {
 
   /** Cached merged annotations of the entity class, resolved lazily. */
   private @Nullable MergedAnnotations annotations;
+
+  /** Cached ORDER BY spec resolved from {@code @OrderByClause}/{@code @OrderBy}, lazily. */
+  private @Nullable OrderSpec orderSpec;
 
   protected EntityMetadata(BeanMetadata beanMetadata, Class<?> entityClass, Identifier tableName,
           @Nullable EntityProperty idProperty, @Nullable EntityProperty versionProperty,
@@ -341,6 +349,66 @@ public class EntityMetadata {
     return getAnnotations().get(annType).synthesize();
   }
 
+  /**
+   * Return the ORDER BY spec resolved from this entity's declarative ordering
+   * ({@code @OrderByClause} or property-level {@code @OrderBy}), cached on first
+   * access.
+   *
+   * <p>A class-level {@link OrderByClause @OrderByClause} wins over property-level
+   * {@link OrderBy @OrderBy}; property keys are ordered by their
+   * {@link OrderBy#order() precedence}.
+   *
+   * <p>Internal helper for the example-query machinery, not part of the public
+   * contract. Subclasses may override {@link #resolveOrderSpec()} to contribute
+   * additional ordering, for example to fall back to a referenced entity.
+   *
+   * @return the resolved spec, or {@code null} when the entity declares no ordering
+   * @since 5.0
+   */
+  protected @Nullable OrderSpec getOrderSpec() {
+    OrderSpec orderSpec = this.orderSpec;
+    if (orderSpec == null) {
+      orderSpec = resolveOrderSpec();
+      this.orderSpec = orderSpec;
+    }
+    return orderSpec;
+  }
+
+  /**
+   * Resolve this entity's own declarative ordering, ignoring any fallback. Subclasses
+   * may override to extend the resolution.
+   *
+   * @return the spec resolved from this entity, or {@code null} if none
+   */
+  protected @Nullable OrderSpec resolveOrderSpec() {
+    MergedAnnotation<OrderByClause> clause = getAnnotations().get(OrderByClause.class);
+    if (clause.isPresent()) {
+      return OrderSpec.plain(clause.getStringValue());
+    }
+    ArrayList<SortKey> sortKeys = null;
+    for (EntityProperty property : entityProperties) {
+      MergedAnnotation<OrderBy> annotation = property.getAnnotation(OrderBy.class);
+      if (annotation.isPresent()) {
+        if (sortKeys == null) {
+          sortKeys = new ArrayList<>();
+        }
+        sortKeys.add(new SortKey(
+                annotation.getInt("order"),
+                property.getColumnName(),
+                annotation.getEnum("value", Order.class)));
+      }
+    }
+    if (sortKeys == null) {
+      return null;
+    }
+    sortKeys.sort(Comparator.comparingInt(SortKey::order));
+    OrderSpec.Builder builder = OrderSpec.builder();
+    for (SortKey sortKey : sortKeys) {
+      builder.orderBy(sortKey.column, sortKey.direction);
+    }
+    return builder.build();
+  }
+
   @Override
   public String toString() {
     return ToStringBuilder.forInstance(this)
@@ -371,6 +439,9 @@ public class EntityMetadata {
     result = 31 * result + Arrays.hashCode(columnNames);
     result = 31 * result + Arrays.hashCode(entityProperties);
     return result;
+  }
+
+  private record SortKey(int order, Identifier column, Order direction) {
   }
 
 }

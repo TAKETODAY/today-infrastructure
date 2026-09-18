@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import infra.persistence.annotation.EntityRef;
 import infra.persistence.annotation.Id;
 import infra.persistence.annotation.OrderBy;
 import infra.persistence.annotation.OrderByClause;
@@ -159,6 +160,140 @@ class OrderByTests {
     OrderSpec orderSpec = query.resolveOrderByClause(metadata);
     assertThat(orderSpec).isNotNull();
     assertThat(orderSpec.toClause(Platform.generic()).toString()).isEqualTo("id DESC");
+  }
+
+  @Test
+  void refEntityMetadataFallsBackToReferencedOrdering() {
+    EntityMetadata metadata = metadataFactory.getEntityMetadata(RefOrderByView.class);
+
+    assertThat(metadata).isInstanceOf(RefEntityMetadata.class);
+    OrderSpec orderSpec = metadata.getOrderSpec();
+    assertThat(orderSpec).isNotNull();
+    assertThat(orderSpec.toClause(Platform.generic()).toString()).isEqualTo("name DESC");
+  }
+
+  @Test
+  void refEntityOwnOrderingTakesPrecedenceOverReferenced() {
+    EntityMetadata metadata = metadataFactory.getEntityMetadata(RefOwnOrderingView.class);
+
+    assertThat(metadata).isInstanceOf(RefEntityMetadata.class);
+    OrderSpec orderSpec = metadata.getOrderSpec();
+    assertThat(orderSpec).isNotNull();
+    assertThat(orderSpec.toClause(Platform.generic())).isEqualTo("id ASC");
+  }
+
+  @Test
+  void refEntityFallsBackToReferencedPropertyOrdering() {
+    EntityMetadata metadata = metadataFactory.getEntityMetadata(RefPropertyView.class);
+
+    assertThat(metadata).isInstanceOf(RefEntityMetadata.class);
+    OrderSpec orderSpec = metadata.getOrderSpec();
+    assertThat(orderSpec).isNotNull();
+    assertThat(orderSpec.toClause(Platform.generic()).toString()).isEqualTo("name ASC");
+  }
+
+  @Test
+  void refEntityWithoutAnyOrderingYieldsNull() {
+    EntityMetadata metadata = metadataFactory.getEntityMetadata(RefNoOrderingView.class);
+
+    assertThat(metadata).isInstanceOf(RefEntityMetadata.class);
+    assertThat(metadata.getOrderSpec()).isNull();
+  }
+
+  @Test
+  void getOrderSpecIsCached() {
+    EntityMetadata metadata = metadataFactory.getEntityMetadata(DescOrderByModel.class);
+
+    OrderSpec first = metadata.getOrderSpec();
+    OrderSpec second = metadata.getOrderSpec();
+
+    assertThat(first).isNotNull();
+    assertThat(second).isSameAs(first);
+  }
+
+  @Test
+  void ordersByGetterAnnotatedProperty() {
+    GetterOrderByModel example = new GetterOrderByModel();
+    example.id = 1;
+    example.setName("n");
+
+    EntityMetadata metadata = metadataFactory.getEntityMetadata(GetterOrderByModel.class);
+    ExampleQuery query = new ExampleQuery(metadataFactory, example, strategies);
+    query.render(metadata);
+
+    OrderSpec orderSpec = query.resolveOrderByClause(metadata);
+    assertThat(orderSpec).isNotNull();
+    assertThat(orderSpec.toClause(Platform.generic()).toString()).isEqualTo("name DESC");
+  }
+
+  @Table("t_order_by_ref")
+  @OrderByClause("name DESC")
+  static class OrderedBaseModel {
+
+    @Id
+    Integer id;
+
+    String name;
+
+  }
+
+  @EntityRef(OrderedBaseModel.class)
+  static class RefOrderByView {
+
+    String name;
+
+  }
+
+  @EntityRef(OrderedBaseModel.class)
+  @OrderByClause("id ASC")
+  static class RefOwnOrderingView {
+
+    String name;
+
+  }
+
+  @Table("t_order_by_prop_base")
+  static class OrderedPropertyBaseModel {
+
+    @Id
+    Integer id;
+
+    @OrderBy(Order.ASC)
+    String name;
+
+  }
+
+  @EntityRef(OrderedPropertyBaseModel.class)
+  static class RefPropertyView {
+
+    String name;
+
+  }
+
+  @EntityRef(NoOrderByModel.class)
+  static class RefNoOrderingView {
+
+    String name;
+
+  }
+
+  @Table("t_order_by_getter")
+  static class GetterOrderByModel {
+
+    @Id
+    Integer id;
+
+    private String name;
+
+    @OrderBy(Order.DESC)
+    public String getName() {
+      return name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+
   }
 
   @Table("t_order_by_asc")

@@ -23,6 +23,7 @@ import java.util.Objects;
 
 import infra.beans.BeanMetadata;
 import infra.persistence.annotation.EntityRef;
+import infra.persistence.sql.OrderSpec;
 
 /**
  * {@link EntityMetadata} for an entity annotated with {@link EntityRef}, mapping it to
@@ -33,6 +34,9 @@ import infra.persistence.annotation.EntityRef;
  * ID-based operations; otherwise {@link #findIdProperty()} falls back to the ID
  * property of the referenced entity, letting a partial view or update model share the
  * primary key and its type handler with the base entity.
+ *
+ * <p>Ordering behaves the same way: {@link #getOrderSpec()} falls back to the
+ * referenced entity's declarative ordering when this entity declares none.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see EntityRef
@@ -62,6 +66,18 @@ public class RefEntityMetadata extends EntityMetadata {
   public @Nullable EntityProperty findIdProperty() {
     EntityProperty idProperty = getIdProperty();
     return idProperty != null ? idProperty : refMetadata.findIdProperty();
+  }
+
+  /**
+   * Resolve ordering with a fallback: this entity's own declarative ordering when
+   * present, otherwise the referenced entity's ordering.
+   *
+   * @return the effective ordering spec, or {@code null} if neither declares one
+   */
+  @Override
+  protected @Nullable OrderSpec resolveOrderSpec() {
+    OrderSpec orderSpec = super.resolveOrderSpec();
+    return orderSpec != null ? orderSpec : refMetadata.getOrderSpec();
   }
 
   @Override
