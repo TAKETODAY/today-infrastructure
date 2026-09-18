@@ -22,38 +22,32 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.aot.hint.annotation.Reflective;
-import infra.core.annotation.AliasFor;
-import infra.lang.Constant;
 import infra.persistence.Order;
 
 /**
- * Specifies the ordering criteria for query results.
- * <p>
- * The {@code clause} (or {@code value}) and {@code direction} attributes are mutually exclusive
- * and cannot be specified simultaneously.
+ * Specifies the sort direction of an entity property when it takes part in the
+ * ORDER BY clause of an example query.
+ *
+ * <p>Place on a mapped property (field or getter) to make example queries order
+ * results by that property, using the declared direction. When several properties
+ * carry the annotation, they are applied in declaration order, so an earlier
+ * property takes precedence over later ones.
+ *
+ * <p>To declare a whole SQL ORDER BY fragment at the class level, use
+ * {@link OrderByClause @OrderByClause} instead. Both annotations are independent;
+ * a class-level clause overrides any property-level {@code @OrderBy}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see OrderByClause
  * @since 4.0 2024/3/31 17:21
  */
 @Reflective
-@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
+@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OrderBy {
 
   /**
-   * Class level
+   * The sort direction of the annotated property.
    */
-  @AliasFor(attribute = "clause")
-  String value() default Constant.DEFAULT_NONE;
-
-  /**
-   * Class level
-   */
-  @AliasFor(attribute = "value")
-  String clause() default Constant.DEFAULT_NONE;
-
-  /**
-   * Property level
-   */
-  Order direction() default Order.ASC;
+  Order value() default Order.ASC;
 }

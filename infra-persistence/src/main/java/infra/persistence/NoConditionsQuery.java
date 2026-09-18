@@ -21,12 +21,12 @@ import java.sql.SQLException;
 import java.util.List;
 
 import infra.logging.LogMessage;
-import infra.persistence.sql.OrderByClause;
+import infra.persistence.sql.OrderSpec;
 import infra.persistence.sql.Restriction;
 import infra.persistence.sql.SimpleSelect;
 
 /**
- * resolving {@link OrderByClause} from entity
+ * resolving {@link OrderSpec} from entity
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/20 17:03

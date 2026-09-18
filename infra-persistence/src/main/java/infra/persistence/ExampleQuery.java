@@ -25,14 +25,13 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import infra.core.annotation.MergedAnnotation;
-import infra.lang.Constant;
 import infra.logging.LogMessage;
 import infra.persistence.PropertyConditionStrategy.Condition;
 import infra.persistence.annotation.OR;
 import infra.persistence.annotation.OrderBy;
-import infra.persistence.sql.MutableOrderByClause;
-import infra.persistence.sql.OrderByClause;
-import infra.persistence.sql.OrderBySource;
+import infra.persistence.sql.MutableOrderSpec;
+import infra.persistence.sql.OrderSpec;
+import infra.persistence.sql.OrderSpecSource;
 import infra.persistence.sql.Restriction;
 import infra.persistence.sql.SimpleSelect;
 
@@ -55,7 +54,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
 
   private final List<PropertyConditionStrategy> strategies;
 
-  private @Nullable OrderByClause orderByClause;
+  private @Nullable OrderSpec orderSpec;
 
   private @Nullable ArrayList<Condition> conditions;
 
@@ -74,7 +73,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
   @Override
   protected void renderInternal(EntityMetadata metadata, SimpleSelect select) {
     scan(select::addRestriction);
-    select.orderBy(example instanceof OrderBySource source ? source.orderByClause() : orderByClause);
+    select.orderBy(example instanceof OrderSpecSource source ? source.orderSpec() : orderSpec);
   }
 
   @Override
@@ -83,18 +82,17 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
   }
 
   @Override
-  @SuppressWarnings("NullAway")
-  public OrderByClause resolveOrderByClause(EntityMetadata metadata) {
-    if (example instanceof OrderBySource source) {
-      OrderByClause orderByClause = source.orderByClause();
-      if (!orderByClause.isEmpty()) {
-        return orderByClause;
+  public @Nullable OrderSpec resolveOrderByClause(EntityMetadata metadata) {
+    if (example instanceof OrderSpecSource source) {
+      OrderSpec orderSpec = source.orderSpec();
+      if (!orderSpec.isEmpty()) {
+        return orderSpec;
       }
     }
-    if (orderByClause == null) {
-      orderByClause = QueryCondition.super.resolveOrderByClause(metadata);
+    if (orderSpec == null) {
+      orderSpec = QueryCondition.super.resolveOrderByClause(metadata);
     }
-    return orderByClause;
+    return orderSpec;
   }
 
   @Override
@@ -151,24 +149,18 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
   }
 
   private void applyOrderByClause() {
-    MergedAnnotation<OrderBy> orderBy = exampleMetadata.getAnnotation(OrderBy.class);
-    if (orderBy.isPresent()) {
-      String clause = orderBy.getString("clause");
-      if (!Constant.DEFAULT_NONE.equals(clause)) {
-        orderByClause = OrderByClause.plain(clause);
-      }
-    }
+    orderSpec = resolveOrderByClause(exampleMetadata);
   }
 
   private void applyOrderByClause(EntityProperty entityProperty) {
-    if (!(orderByClause instanceof OrderByClause.Plain)) {
+    if (!(orderSpec instanceof OrderSpec.Plain)) {
       MergedAnnotation<OrderBy> annotation = entityProperty.getAnnotation(OrderBy.class);
       if (annotation.isPresent()) {
-        Order direction = annotation.getEnum("direction", Order.class);
-        MutableOrderByClause mutable = (MutableOrderByClause) orderByClause;
+        Order direction = annotation.getEnum("value", Order.class);
+        MutableOrderSpec mutable = (MutableOrderSpec) orderSpec;
         if (mutable == null) {
-          mutable = OrderByClause.mutable();
-          this.orderByClause = mutable;
+          mutable = OrderSpec.mutable();
+          this.orderSpec = mutable;
         }
         mutable.orderBy(entityProperty.getColumnName(), direction);
       }

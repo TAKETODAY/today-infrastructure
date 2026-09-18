@@ -26,8 +26,9 @@ import java.util.List;
 import infra.core.annotation.MergedAnnotation;
 import infra.lang.Constant;
 import infra.persistence.annotation.OrderBy;
+import infra.persistence.annotation.OrderByClause;
 import infra.persistence.platform.Platform;
-import infra.persistence.sql.OrderByClause;
+import infra.persistence.sql.OrderSpec;
 import infra.persistence.sql.Restriction;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,41 +60,40 @@ class QueryConditionTests {
   @Test
   void shouldReturnNullWhenOrderByAnnotationNotPresent() {
     EntityMetadata mockMetadata = mock(EntityMetadata.class);
-    when(mockMetadata.getAnnotation(OrderBy.class)).thenReturn(MergedAnnotation.missing());
+    when(mockMetadata.getAnnotation(OrderByClause.class)).thenReturn(MergedAnnotation.missing());
 
     QueryCondition conditionStatement = new TestQueryCondition();
-    OrderByClause orderByClause = conditionStatement.resolveOrderByClause(mockMetadata);
+    OrderSpec orderSpec = conditionStatement.resolveOrderByClause(mockMetadata);
 
-    assertThat(orderByClause).isNull();
+    assertThat(orderSpec).isNull();
   }
 
   @Test
   void shouldReturnNullWhenOrderByValueIsDefaultNone() {
     EntityMetadata mockMetadata = mock(EntityMetadata.class);
-    MergedAnnotation<OrderBy> mockAnnotation = mock(MergedAnnotation.class);
-    when(mockAnnotation.isPresent()).thenReturn(true);
-    when(mockAnnotation.getStringValue()).thenReturn(Constant.DEFAULT_NONE);
-    when(mockMetadata.getAnnotation(OrderBy.class)).thenReturn(mockAnnotation);
+    MergedAnnotation<OrderByClause> mockAnnotation = mock(MergedAnnotation.class);
+    when(mockAnnotation.isPresent()).thenReturn(false);
+    when(mockMetadata.getAnnotation(OrderByClause.class)).thenReturn(mockAnnotation);
 
     QueryCondition conditionStatement = new TestQueryCondition();
-    OrderByClause orderByClause = conditionStatement.resolveOrderByClause(mockMetadata);
+    OrderSpec orderSpec = conditionStatement.resolveOrderByClause(mockMetadata);
 
-    assertThat(orderByClause).isNull();
+    assertThat(orderSpec).isNull();
   }
 
   @Test
   void shouldReturnOrderByClauseWhenAnnotationPresentWithValidValue() {
     EntityMetadata mockMetadata = mock(EntityMetadata.class);
-    MergedAnnotation<OrderBy> mockAnnotation = mock();
+    MergedAnnotation<OrderByClause> mockAnnotation = mock();
     when(mockAnnotation.isPresent()).thenReturn(true);
     when(mockAnnotation.getStringValue()).thenReturn("name ASC");
-    when(mockMetadata.getAnnotation(OrderBy.class)).thenReturn(mockAnnotation);
+    when(mockMetadata.getAnnotation(OrderByClause.class)).thenReturn(mockAnnotation);
 
     QueryCondition conditionStatement = new TestQueryCondition();
-    OrderByClause orderByClause = conditionStatement.resolveOrderByClause(mockMetadata);
+    OrderSpec orderSpec = conditionStatement.resolveOrderByClause(mockMetadata);
 
-    assertThat(orderByClause).isNotNull();
-    assertThat(orderByClause.toClause(Platform.generic())).isEqualTo("name ASC");
+    assertThat(orderSpec).isNotNull();
+    assertThat(orderSpec.toClause(Platform.generic())).isEqualTo("name ASC");
   }
 
   @Test

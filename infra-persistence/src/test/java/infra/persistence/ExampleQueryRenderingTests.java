@@ -26,10 +26,10 @@ import infra.jdbc.model.UserModel;
 import infra.persistence.annotation.Column;
 import infra.persistence.annotation.Like;
 import infra.persistence.annotation.OR;
-import infra.persistence.annotation.OrderBy;
+import infra.persistence.annotation.OrderByClause;
 import infra.persistence.annotation.Table;
 import infra.persistence.platform.Platform;
-import infra.persistence.sql.OrderByClause;
+import infra.persistence.sql.OrderSpec;
 import infra.persistence.sql.Restriction;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -134,7 +134,7 @@ class ExampleQueryRenderingTests {
     String sql = sequence.toStatementString(Platform.generic());
     assertThat(sql).containsIgnoringCase("order by `age` DESC");
 
-    OrderByClause clause = query.resolveOrderByClause(metadata);
+    OrderSpec clause = query.resolveOrderByClause(metadata);
     assertThat(clause).isNotNull();
     assertThat(clause.isEmpty()).isFalse();
   }
@@ -183,7 +183,7 @@ class ExampleQueryRenderingTests {
   }
 
   @Table("t_order_by_form")
-  @OrderBy("`age` DESC")
+  @OrderByClause("`age` DESC")
   static class OrderByForm {
 
     @Column("age")

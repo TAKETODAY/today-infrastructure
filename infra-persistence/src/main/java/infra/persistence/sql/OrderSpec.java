@@ -25,7 +25,7 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/3/31 12:39
  */
-public interface OrderByClause {
+public interface OrderSpec {
 
   CharSequence toClause(Platform platform);
 
@@ -33,18 +33,18 @@ public interface OrderByClause {
 
   // Static Factory Methods
 
-  static OrderByClause plain(CharSequence sequence) {
+  static OrderSpec plain(CharSequence sequence) {
     return new Plain(sequence);
   }
 
-  static MutableOrderByClause mutable() {
-    return new MutableOrderByClause();
+  static MutableOrderSpec mutable() {
+    return new MutableOrderSpec();
   }
 
   /**
    * Plain
    */
-  class Plain implements OrderByClause {
+  class Plain implements OrderSpec {
 
     final CharSequence sequence;
 

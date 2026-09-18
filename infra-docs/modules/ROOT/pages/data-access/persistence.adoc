@@ -497,7 +497,7 @@ class LoggingBatchListener implements BatchPersistListener {
 `infra.persistence.sql` 包提供了一组可复用的 SQL 片段构建器（移植自 Hibernate 的 SQL 支持），
 包括 `Select` / `SimpleSelect` / `QuerySelect`、`Insert` / `InsertSelect`、`Update`、`Delete`、
 `Restriction`（等值、比较、空值、逻辑组合等）、`JoinFragment` / `ANSIJoinFragment`、
-`OrderByClause` / `MutableOrderByClause`、`CaseFragment` 等。
+`OrderSpec` / `MutableOrderSpec`、`CaseFragment` 等。
 
 `QueryStatement` 定义了「渲染 SQL + 绑定参数」的契约：实现 `render` 返回
 `StatementSequence`，`setParameter` 负责把值绑定到 `PreparedStatement`。`QueryCondition`

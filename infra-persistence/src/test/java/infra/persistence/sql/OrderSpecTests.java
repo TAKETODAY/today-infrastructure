@@ -26,32 +26,32 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/3/31 12:53
  */
-class OrderByClauseTests {
+class OrderSpecTests {
 
   @Test
   void asc() {
-    assertThat(OrderByClause.mutable()
+    assertThat(OrderSpec.mutable()
             .asc("name").toClause(Platform.generic()).toString()).isEqualTo("name ASC");
   }
 
   @Test
   void isEmpty() {
-    assertThat(OrderByClause.mutable().isEmpty()).isTrue();
-    assertThat(OrderByClause.mutable().asc("name").isEmpty()).isFalse();
+    assertThat(OrderSpec.mutable().isEmpty()).isTrue();
+    assertThat(OrderSpec.mutable().asc("name").isEmpty()).isFalse();
   }
 
   @Test
   void merge() {
-    MutableOrderByClause clause = new MutableOrderByClause().asc("name");
-    clause.merge(OrderByClause.mutable().desc("age"));
+    MutableOrderSpec clause = new MutableOrderSpec().asc("name");
+    clause.merge(OrderSpec.mutable().desc("age"));
     assertThat(clause.isEmpty()).isFalse();
     assertThat(clause.toClause(Platform.generic()).toString()).isEqualTo("name ASC, age DESC");
   }
 
   @Test
   void plain() {
-    assertThat(OrderByClause.plain("`name` ASC, `age` DESC").isEmpty()).isFalse();
-    assertThat(OrderByClause.plain("`name` ASC, `age` DESC").toClause(Platform.generic())).isEqualTo("`name` ASC, `age` DESC");
+    assertThat(OrderSpec.plain("`name` ASC, `age` DESC").isEmpty()).isFalse();
+    assertThat(OrderSpec.plain("`name` ASC, `age` DESC").toClause(Platform.generic())).isEqualTo("`name` ASC, `age` DESC");
   }
 
 }

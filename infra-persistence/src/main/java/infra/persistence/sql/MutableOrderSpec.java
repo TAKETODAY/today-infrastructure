@@ -29,46 +29,46 @@ import infra.persistence.platform.Platform;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/3/31 19:51
  */
-public class MutableOrderByClause implements OrderByClause {
+public class MutableOrderSpec implements OrderSpec {
 
   private final ArrayList<Pair<Identifier, Order>> sortKeys;
 
-  public MutableOrderByClause() {
+  public MutableOrderSpec() {
     this.sortKeys = new ArrayList<>();
   }
 
-  public MutableOrderByClause asc(String col) {
+  public MutableOrderSpec asc(String col) {
     return asc(Identifier.parse(col));
   }
 
-  public MutableOrderByClause asc(Identifier col) {
+  public MutableOrderSpec asc(Identifier col) {
     sortKeys.add(Pair.of(col, Order.ASC));
     return this;
   }
 
-  public MutableOrderByClause desc(String col) {
+  public MutableOrderSpec desc(String col) {
     return desc(Identifier.parse(col));
   }
 
-  public MutableOrderByClause desc(Identifier col) {
+  public MutableOrderSpec desc(Identifier col) {
     sortKeys.add(Pair.of(col, Order.DESC));
     return this;
   }
 
-  public MutableOrderByClause orderBy(String col, Order order) {
+  public MutableOrderSpec orderBy(String col, Order order) {
     return orderBy(Identifier.parse(col), order);
   }
 
-  public MutableOrderByClause orderBy(Identifier col, Order order) {
+  public MutableOrderSpec orderBy(Identifier col, Order order) {
     return orderBy(Pair.of(col, order));
   }
 
-  public MutableOrderByClause orderBy(Pair<Identifier, Order> sortKey) {
+  public MutableOrderSpec orderBy(Pair<Identifier, Order> sortKey) {
     sortKeys.add(sortKey);
     return this;
   }
 
-  public MutableOrderByClause merge(@Nullable MutableOrderByClause orderByClause) {
+  public MutableOrderSpec merge(@Nullable MutableOrderSpec orderByClause) {
     if (orderByClause != null) {
       sortKeys.addAll(orderByClause.sortKeys);
     }

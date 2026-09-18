@@ -52,7 +52,7 @@ import infra.lang.Descriptive;
 import infra.persistence.annotation.Column;
 import infra.persistence.annotation.EntityRef;
 import infra.persistence.annotation.Id;
-import infra.persistence.annotation.OrderBy;
+import infra.persistence.annotation.OrderByClause;
 import infra.persistence.annotation.UpdateBy;
 import infra.persistence.annotation.Where;
 import infra.persistence.event.BatchPersistListener;
@@ -659,12 +659,12 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     createData(entityManager);
 
-    @OrderBy(clause = "age DESC")
+    @OrderByClause("age DESC")
     @EntityRef(UserModel.class)
     class UserModelOrderByAge {
     }
 
-    @OrderBy(clause = "id DESC")
+    @OrderByClause("id DESC")
     @EntityRef(UserModel.class)
     class UserModelOrderById {
     }

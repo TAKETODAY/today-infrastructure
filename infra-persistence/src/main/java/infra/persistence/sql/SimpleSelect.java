@@ -35,7 +35,7 @@ public class SimpleSelect implements StatementSequence {
 
   protected Identifier tableName;
 
-  protected @Nullable OrderByClause orderByClause;
+  protected @Nullable OrderSpec orderSpec;
 
   protected @Nullable CharSequence comment;
 
@@ -187,17 +187,17 @@ public class SimpleSelect implements StatementSequence {
     return this;
   }
 
-  public SimpleSelect orderBy(@Nullable OrderByClause orderByClause) {
-    this.orderByClause = orderByClause;
+  public SimpleSelect orderBy(@Nullable OrderSpec orderSpec) {
+    this.orderSpec = orderSpec;
     return this;
   }
 
-  public MutableOrderByClause orderBy() {
-    if (orderByClause instanceof MutableOrderByClause mutable) {
+  public MutableOrderSpec orderBy() {
+    if (orderSpec instanceof MutableOrderSpec mutable) {
       return mutable;
     }
-    var mutable = OrderByClause.mutable();
-    this.orderByClause = mutable;
+    var mutable = OrderSpec.mutable();
+    this.orderSpec = mutable;
     return mutable;
   }
 
@@ -218,9 +218,9 @@ public class SimpleSelect implements StatementSequence {
     // where
     Restriction.append(platform, restrictions, buf);
 
-    OrderByClause orderByClause = this.orderByClause;
-    if (orderByClause != null && !orderByClause.isEmpty()) {
-      buf.append(" order by ").append(orderByClause.toClause(platform));
+    OrderSpec orderSpec = this.orderSpec;
+    if (orderSpec != null && !orderSpec.isEmpty()) {
+      buf.append(" order by ").append(orderSpec.toClause(platform));
     }
 
     if (limit != null) {

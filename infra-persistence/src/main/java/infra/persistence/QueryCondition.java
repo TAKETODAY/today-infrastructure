@@ -23,10 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import infra.core.annotation.MergedAnnotation;
-import infra.lang.Constant;
 import infra.persistence.annotation.OrderBy;
+import infra.persistence.annotation.OrderByClause;
 import infra.persistence.platform.Platform;
-import infra.persistence.sql.OrderByClause;
+import infra.persistence.sql.OrderSpec;
 import infra.persistence.sql.Restriction;
 
 /**
@@ -44,7 +44,7 @@ import infra.persistence.sql.Restriction;
  * </ul>
  *
  * <p>Collecting restrictions is the core contract; rendering them to SQL is a
-   * convenience layered on top. {@link #appendWhereClause(Platform, EntityMetadata, StringBuilder)}
+ * convenience layered on top. {@link #appendWhereClause(Platform, EntityMetadata, StringBuilder)}
  * appends {@code " WHERE "} followed by the rendered restrictions when there is at
  * least one, while {@link #collectRestrictions(EntityMetadata)} returns the collected
  * list as-is.
@@ -61,7 +61,7 @@ import infra.persistence.sql.Restriction;
  *         .createCondition(example);
  *
  * StringBuilder sql = new StringBuilder("SELECT * FROM t_user");
-   * condition.appendWhereClause(platform, metadata, sql);
+ * condition.appendWhereClause(platform, metadata, sql);
  *
  * try (PreparedStatement statement = connection.prepareStatement(sql.toString())) {
  *   condition.setParameter(metadata, statement);
@@ -74,7 +74,7 @@ import infra.persistence.sql.Restriction;
  * @see EntityQueryFactory
  * @see ParameterSource
  * @see Restriction
- * @see OrderByClause
+ * @see OrderSpec
  * @since 4.0 2024/3/31 15:51
  */
 public interface QueryCondition extends ParameterSource {
@@ -128,17 +128,14 @@ public interface QueryCondition extends ParameterSource {
    * {@link OrderBy @OrderBy} annotation declared on the entity class or its properties.
    *
    * @param metadata the metadata of the entity being queried
-   * @return the resolved {@link OrderByClause}, or {@code null} when the entity
+   * @return the resolved {@link OrderSpec}, or {@code null} when the entity
    * declares no ordering
    * @see OrderBy
    */
-  default @Nullable OrderByClause resolveOrderByClause(EntityMetadata metadata) {
-    MergedAnnotation<OrderBy> orderBy = metadata.getAnnotation(OrderBy.class);
+  default @Nullable OrderSpec resolveOrderByClause(EntityMetadata metadata) {
+    MergedAnnotation<OrderByClause> orderBy = metadata.getAnnotation(OrderByClause.class);
     if (orderBy.isPresent()) {
-      String clause = orderBy.getStringValue();
-      if (!Constant.DEFAULT_NONE.equals(clause)) {
-        return OrderByClause.plain(clause);
-      }
+      return OrderSpec.plain(orderBy.getStringValue());
     }
     return null;
   }
