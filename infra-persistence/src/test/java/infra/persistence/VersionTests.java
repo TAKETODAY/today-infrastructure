@@ -198,9 +198,9 @@ class VersionTests extends AbstractRepositoryManagerTests {
     try (NamedQuery query = repositoryManager.createNamedQuery("""
             create table t_versioned
             (
-                `id`      int auto_increment primary key,
-                `name`    varchar(255)  default null,
-                `version` bigint        default 0
+                id      int auto_increment primary key,
+                name    varchar(255)  default null,
+                version bigint        default 0
             );
             """)) {
       query.executeUpdate();
@@ -217,7 +217,7 @@ class VersionTests extends AbstractRepositoryManagerTests {
     EntityMetadata metadata = factory.getEntityMetadata(VersionedModel.class);
 
     assertThat(metadata.getVersionProperty()).isNotNull();
-    assertThat(metadata.getVersionProperty().getColumnName()).isEqualTo("version");
+    assertThat(metadata.getVersionProperty().getColumnName().getText()).isEqualTo("version");
   }
 
   @Test
@@ -226,7 +226,7 @@ class VersionTests extends AbstractRepositoryManagerTests {
     EntityMetadata metadata = factory.getEntityMetadata(VersionedOnGetterModel.class);
 
     assertThat(metadata.getVersionProperty()).isNotNull();
-    assertThat(metadata.getVersionProperty().getColumnName()).isEqualTo("version");
+    assertThat(metadata.getVersionProperty().getColumnName().getText()).isEqualTo("version");
   }
 
   @Test
@@ -235,7 +235,7 @@ class VersionTests extends AbstractRepositoryManagerTests {
     EntityMetadata metadata = factory.getEntityMetadata(MetaVersionedModel.class);
 
     assertThat(metadata.getVersionProperty()).isNotNull();
-    assertThat(metadata.getVersionProperty().getColumnName()).isEqualTo("version");
+    assertThat(metadata.getVersionProperty().getColumnName().getText()).isEqualTo("version");
     assertThat(metadata.getVersionProperty().isPresent(Version.class)).isTrue();
     assertThat(metadata.getVersionProperty().isPresent(MyVersion.class)).isTrue();
   }

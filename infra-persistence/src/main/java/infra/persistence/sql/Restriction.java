@@ -111,6 +111,7 @@ public interface Restriction {
    *
    * @param columnName the column identifier
    * @return the equality restriction
+   * @since 5.0
    */
   static Restriction equal(Identifier columnName) {
     return new ComparisonRestriction(columnName, " = ", "?");
@@ -133,6 +134,7 @@ public interface Restriction {
    * @param lhs the column identifier
    * @param rhs the SQL expression on the right-hand side
    * @return the equality restriction
+   * @since 5.0
    */
   static Restriction equal(Identifier lhs, String rhs) {
     return new ComparisonRestriction(lhs, " = ", rhs);
@@ -153,6 +155,7 @@ public interface Restriction {
    *
    * @param columnName the column identifier
    * @return the inequality restriction
+   * @since 5.0
    */
   static Restriction notEqual(Identifier columnName) {
     return new ComparisonRestriction(columnName, " <> ", "?");
@@ -175,6 +178,7 @@ public interface Restriction {
    * @param lhs the column identifier
    * @param rhs the SQL expression on the right-hand side
    * @return the inequality restriction
+   * @since 5.0
    */
   static Restriction notEqual(Identifier lhs, String rhs) {
     return new ComparisonRestriction(lhs, " <> ", rhs);
@@ -195,6 +199,7 @@ public interface Restriction {
    *
    * @param columnName the column identifier
    * @return the greater-than restriction
+   * @since 5.0
    */
   static Restriction graterThan(Identifier columnName) {
     return graterThan(columnName, "?");
@@ -217,6 +222,7 @@ public interface Restriction {
    * @param lhs the column identifier
    * @param rhs the SQL expression on the right-hand side
    * @return the greater-than restriction
+   * @since 5.0
    */
   static Restriction graterThan(Identifier lhs, String rhs) {
     return new ComparisonRestriction(lhs, " > ", rhs);
@@ -237,6 +243,7 @@ public interface Restriction {
    *
    * @param columnName the column identifier
    * @return the greater-than-or-equal restriction
+   * @since 5.0
    */
   static Restriction graterEqual(Identifier columnName) {
     return graterEqual(columnName, "?");
@@ -259,6 +266,7 @@ public interface Restriction {
    * @param lhs the column identifier
    * @param rhs the SQL expression on the right-hand side
    * @return the greater-than-or-equal restriction
+   * @since 5.0
    */
   static Restriction graterEqual(Identifier lhs, String rhs) {
     return new ComparisonRestriction(lhs, " >= ", rhs);
@@ -279,6 +287,7 @@ public interface Restriction {
    *
    * @param columnName the column identifier
    * @return the less-than restriction
+   * @since 5.0
    */
   static Restriction lessThan(Identifier columnName) {
     return lessThan(columnName, "?");
@@ -301,6 +310,7 @@ public interface Restriction {
    * @param lhs the column identifier
    * @param rhs the SQL expression on the right-hand side
    * @return the less-than restriction
+   * @since 5.0
    */
   static Restriction lessThan(Identifier lhs, String rhs) {
     return new ComparisonRestriction(lhs, " < ", rhs);
@@ -321,6 +331,7 @@ public interface Restriction {
    *
    * @param columnName the column identifier
    * @return the less-than-or-equal restriction
+   * @since 5.0
    */
   static Restriction lessEqual(Identifier columnName) {
     return lessEqual(columnName, "?");
@@ -343,6 +354,7 @@ public interface Restriction {
    * @param lhs the column identifier
    * @param rhs the SQL expression on the right-hand side
    * @return the less-than-or-equal restriction
+   * @since 5.0
    */
   static Restriction lessEqual(Identifier lhs, String rhs) {
     return new ComparisonRestriction(lhs, " <= ", rhs);
@@ -371,6 +383,7 @@ public interface Restriction {
    * @param operator the SQL operator, including any required surrounding spaces
    * @param rhs the SQL expression on the right-hand side
    * @return the custom comparison restriction
+   * @since 5.0
    */
   static Restriction forOperator(Identifier lhs, String operator, String rhs) {
     return new ComparisonRestriction(lhs, operator, rhs);
@@ -391,6 +404,7 @@ public interface Restriction {
    *
    * @param columnName the column identifier
    * @return the nullness restriction
+   * @since 5.0
    */
   static Restriction isNull(Identifier columnName) {
     return new NullnessRestriction(columnName, true);
@@ -411,6 +425,7 @@ public interface Restriction {
    *
    * @param columnName the column identifier
    * @return the non-nullness restriction
+   * @since 5.0
    */
   static Restriction isNotNull(Identifier columnName) {
     return new NullnessRestriction(columnName, false);
@@ -431,6 +446,7 @@ public interface Restriction {
    *
    * @param columnName the column identifier
    * @return the between restriction
+   * @since 5.0
    */
   static Restriction between(Identifier columnName) {
     return forOperator(columnName, " BETWEEN", " ? AND ?");
@@ -451,6 +467,7 @@ public interface Restriction {
    *
    * @param columnName the column identifier
    * @return the not-between restriction
+   * @since 5.0
    */
   static Restriction notBetween(Identifier columnName) {
     return forOperator(columnName, " NOT BETWEEN", " ? AND ?");
