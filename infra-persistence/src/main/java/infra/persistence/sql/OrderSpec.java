@@ -111,13 +111,16 @@ public final class OrderSpec {
    * Create a spec from a single raw SQL fragment, for example
    * {@code "LENGTH(name) DESC"} or {@code "CASE WHEN status='active' THEN 1 ELSE 2 END"}.
    *
-   * <p>The fragment is rendered as-is, without validation or dialect quoting.
+   * <p>The fragment is rendered as-is, without validation or dialect quoting. A blank
+   * clause yields the shared {@link #empty() empty} spec.
    *
    * @param clause the raw SQL ORDER BY fragment
    * @return the immutable spec
    */
   public static OrderSpec plain(CharSequence clause) {
-    return new OrderSpec(List.of(new Fragment(clause.toString())));
+    return StringUtils.hasText(clause)
+            ? new OrderSpec(List.of(new Fragment(clause)))
+            : EMPTY;
   }
 
   /**
@@ -146,15 +149,10 @@ public final class OrderSpec {
   /**
    * Whether this spec contributes no ordering.
    *
-   * @return {@code true} when there is no non-blank part
+   * @return {@code true} when there are no parts
    */
   public boolean isEmpty() {
-    for (Part part : parts) {
-      if (!part.isEmpty()) {
-        return false;
-      }
-    }
-    return true;
+    return parts.isEmpty();
   }
 
   /**
@@ -173,7 +171,7 @@ public final class OrderSpec {
 
   /**
    * Render this spec into a SQL ORDER BY fragment for the given platform, joining the
-   * non-empty parts with {@code ", "}.
+   * parts with {@code ", "}.
    *
    * @param platform the database platform whose quoting rules apply
    * @return the rendered clause; empty when {@link #isEmpty()}
@@ -181,9 +179,6 @@ public final class OrderSpec {
   public String toClause(Platform platform) {
     StringBuilder builder = new StringBuilder();
     for (Part part : parts) {
-      if (part.isEmpty()) {
-        continue;
-      }
       if (!builder.isEmpty()) {
         builder.append(", ");
       }
@@ -211,13 +206,6 @@ public final class OrderSpec {
   public sealed interface Part {
 
     /**
-     * Whether this part contributes no SQL text.
-     *
-     * @return {@code true} when this part should be skipped on rendering
-     */
-    boolean isEmpty();
-
-    /**
      * Render this part for the given platform.
      *
      * @param platform the database platform whose quoting rules apply
@@ -230,11 +218,6 @@ public final class OrderSpec {
   public record Item(Identifier column, Order direction) implements Part {
 
     @Override
-    public boolean isEmpty() {
-      return false;
-    }
-
-    @Override
     public CharSequence toClause(Platform platform) {
       return new StringBuilder()
               .append(column.render(platform))
@@ -243,12 +226,7 @@ public final class OrderSpec {
   }
 
   /** A raw SQL ORDER BY fragment, rendered as-is without dialect quoting. */
-  public record Fragment(String text) implements Part {
-
-    @Override
-    public boolean isEmpty() {
-      return StringUtils.isBlank(text);
-    }
+  public record Fragment(CharSequence text) implements Part {
 
     @Override
     public CharSequence toClause(Platform platform) {
@@ -298,13 +276,16 @@ public final class OrderSpec {
 
     /**
      * Append a raw SQL fragment as a sort key, for example {@code LENGTH(name) DESC}.
-     * It is rendered as-is and may be combined with structured keys.
+     * It is rendered as-is and may be combined with structured keys. A blank clause is
+     * ignored.
      *
      * @param clause the raw SQL ORDER BY fragment
      * @return this builder, to facilitate method chaining
      */
     public Builder raw(CharSequence clause) {
-      parts.add(new Fragment(clause.toString()));
+      if (StringUtils.hasText(clause)) {
+        parts.add(new Fragment(clause));
+      }
       return this;
     }
 
