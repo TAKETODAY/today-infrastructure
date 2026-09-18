@@ -16,14 +16,7 @@
 
 package infra.persistence.sql;
 
-import java.util.Map;
-import java.util.stream.Stream;
-
-import infra.core.Pair;
-import infra.persistence.Identifier;
-import infra.persistence.Order;
 import infra.persistence.platform.Platform;
-import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**
@@ -34,29 +27,11 @@ import infra.util.StringUtils;
  */
 public interface OrderByClause {
 
-  default CharSequence toClause() {
-    return toClause(Platform.generic());
-  }
-
   CharSequence toClause(Platform platform);
 
   boolean isEmpty();
 
   // Static Factory Methods
-
-  static MutableOrderByClause forMap(Map<String, Order> sortKeys) {
-    MutableOrderByClause clause = new MutableOrderByClause(sortKeys.size());
-    for (Map.Entry<String, Order> entry : sortKeys.entrySet()) {
-      clause.orderBy(entry.getKey(), entry.getValue());
-    }
-    return clause;
-  }
-
-  @SafeVarargs
-  static MutableOrderByClause valueOf(Pair<String, Order>... sortKeys) {
-    Assert.notNull(sortKeys, "sortKeys is required");
-    return new MutableOrderByClause(Stream.of(sortKeys).map(pair -> Pair.of(Identifier.parse(pair.first), pair.second)).toList());
-  }
 
   static OrderByClause plain(CharSequence sequence) {
     return new Plain(sequence);

@@ -24,7 +24,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import infra.core.Pair;
 import infra.dao.DataAccessException;
 import infra.util.StreamIterable;
 
@@ -1048,96 +1047,6 @@ public interface EntityManager {
    * @throws DataAccessException if there is an issue accessing the data store
    */
   <T> List<T> find(Class<T> entityClass) throws DataAccessException;
-
-  /**
-   * Finds and returns a list of entities of the specified type, sorted
-   * according to the provided sort keys. This method is typically used to
-   * retrieve data from a data store with custom sorting options.
-   *
-   * <p>Example usage:
-   * <pre>{@code
-   * Map<String, Order> sortKeys = new HashMap<>();
-   * sortKeys.put("name", Order.ASC);
-   * sortKeys.put("age", Order.DESC);
-   *
-   * try {
-   *   List<Person> people = entityManager.find(Person.class, sortKeys);
-   *   people.forEach(System.out::println);
-   * }
-   * catch (DataAccessException e) {
-   *   System.err.println("Error while fetching data: " + e.getMessage());
-   * }
-   * }</pre>
-   *
-   * @param <T> the type of the entity to be retrieved
-   * @param entityClass the class object representing the type of entity to find
-   * @param sortKeys a map where keys are field names and values define
-   * the sort order for those fields
-   * @return a list of entities of type T, sorted based on the provided sort keys
-   * @throws DataAccessException if there is an issue accessing the data store
-   */
-  <T> List<T> find(Class<T> entityClass, Map<String, Order> sortKeys)
-          throws DataAccessException;
-
-  /**
-   * Finds and returns a list of entities of the specified class, sorted
-   * according to the provided sort key. This method is typically used to
-   * retrieve data from a data store with a specific ordering.
-   * <p>
-   * Example usage:
-   * <pre>{@code
-   *   Pair<String, Order> sortKey = new Pair<>("createdAt", Order.DESC);
-   *   try {
-   *     List<User> users = entityManager.find(User.class, sortKey);
-   *     users.forEach(user -> System.out.println(user.getName()));
-   *   }
-   *   catch (DataAccessException e) {
-   *     System.err.println("Error while fetching data: " + e.getMessage());
-   *   }
-   * }</pre>
-   *
-   * @param <T> the type of the entity to be retrieved
-   * @param entityClass the class of the entity to be retrieved; this
-   * determines the type of objects returned in the list
-   * @param sortKey a pair containing the field name and the order
-   * (ascending or descending) to sort the results by
-   * @return a list of entities of type T, sorted based on the provided
-   * sort key; returns an empty list if no data is found
-   * @throws DataAccessException if there is an issue accessing the data
-   * store during the operation
-   */
-  <T> List<T> find(Class<T> entityClass, Pair<String, Order> sortKey)
-          throws DataAccessException;
-
-  /**
-   * Finds and retrieves a list of entities of the specified type, sorted
-   * according to the provided sort keys. This method allows dynamic sorting
-   * by accepting multiple sort key-value pairs.
-   *
-   * <p>Example usage:
-   * <pre>{@code
-   *   // Assuming we have an entity class `User` and want to sort by "name" ascending
-   *   Class<User> userClass = User.class;
-   *   Pair<String, Order> sortKey = new Pair<>("name", Order.ASC);
-   *
-   *   try {
-   *     List<User> users = entityManager.find(userClass, sortKey);
-   *     users.forEach(System.out::println);
-   *   }
-   *   catch (DataAccessException e) {
-   *     System.err.println("Error occurred while fetching data: " + e.getMessage());
-   *   }
-   * }</pre>
-   *
-   * @param <T> the type of the entity to be retrieved
-   * @param entityClass the class object representing the entity type to query
-   * @param sortKeys variable number of pairs where the key is the field name
-   * and the value is the sort order (ascending or descending)
-   * @return a list of entities of type T, sorted based on the provided sort keys
-   * @throws DataAccessException if there is an issue accessing the data source
-   */
-  <T> List<T> find(Class<T> entityClass, Pair<String, Order>... sortKeys)
-          throws DataAccessException;
 
   /**
    * Searches for entities matching the given example object.

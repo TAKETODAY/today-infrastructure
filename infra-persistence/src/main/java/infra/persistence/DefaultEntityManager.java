@@ -60,7 +60,6 @@ import infra.persistence.event.DefaultEntityEventRegistry;
 import infra.persistence.event.EntityEventRegistry;
 import infra.persistence.platform.Platform;
 import infra.persistence.sql.Insert;
-import infra.persistence.sql.OrderByClause;
 import infra.persistence.sql.Restriction;
 import infra.persistence.sql.SimpleSelect;
 import infra.persistence.sql.Update;
@@ -962,24 +961,6 @@ public class DefaultEntityManager implements EntityManager {
   @Override
   public <T> List<T> find(Class<T> entityClass) throws DataAccessException {
     return find(entityClass, (QueryStatement) null);
-  }
-
-  @Override
-  public <T> List<T> find(Class<T> entityClass, Map<String, Order> sortKeys) throws DataAccessException {
-    Assert.notEmpty(sortKeys, "sortKeys is required");
-    return find(entityClass, new NoConditionsOrderByQuery(OrderByClause.forMap(sortKeys)));
-  }
-
-  @Override
-  public <T> List<T> find(Class<T> entityClass, Pair<String, Order> sortKey) throws DataAccessException {
-    Assert.notNull(sortKey, "sortKey is required");
-    return find(entityClass, new NoConditionsOrderByQuery(OrderByClause.mutable().orderBy(sortKey.first, sortKey.second)));
-  }
-
-  @SafeVarargs
-  @Override
-  public final <T> List<T> find(Class<T> entityClass, Pair<String, Order>... sortKeys) throws DataAccessException {
-    return find(entityClass, new NoConditionsOrderByQuery(OrderByClause.valueOf(sortKeys)));
   }
 
   @Override

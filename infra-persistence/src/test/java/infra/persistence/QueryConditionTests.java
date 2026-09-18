@@ -26,6 +26,7 @@ import java.util.List;
 import infra.core.annotation.MergedAnnotation;
 import infra.lang.Constant;
 import infra.persistence.annotation.OrderBy;
+import infra.persistence.platform.Platform;
 import infra.persistence.sql.OrderByClause;
 import infra.persistence.sql.Restriction;
 
@@ -92,7 +93,7 @@ class QueryConditionTests {
     OrderByClause orderByClause = conditionStatement.resolveOrderByClause(mockMetadata);
 
     assertThat(orderByClause).isNotNull();
-    assertThat(orderByClause.toClause()).isEqualTo("name ASC");
+    assertThat(orderByClause.toClause(Platform.generic())).isEqualTo("name ASC");
   }
 
   @Test

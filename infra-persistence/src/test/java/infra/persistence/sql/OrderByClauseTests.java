@@ -18,10 +18,7 @@ package infra.persistence.sql;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
-
-import infra.core.Pair;
-import infra.persistence.Order;
+import infra.persistence.platform.Platform;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,24 +29,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 class OrderByClauseTests {
 
   @Test
-  void toClause() {
-    OrderByClause clause = OrderByClause.forMap(Map.of("name", Order.ASC));
-    assertThat(clause.toClause().toString()).isEqualTo("name ASC");
-
-    assertThat(OrderByClause.valueOf(Pair.of("name", Order.ASC), Pair.of("age", Order.DESC))
-            .toClause().toString()).isEqualTo("name ASC, age DESC");
-  }
-
-  @Test
-  void desc() {
-    assertThat(OrderByClause.valueOf()
-            .desc("name").toClause().toString()).isEqualTo("name DESC");
-  }
-
-  @Test
   void asc() {
     assertThat(OrderByClause.mutable()
-            .asc("name").toClause().toString()).isEqualTo("name ASC");
+            .asc("name").toClause(Platform.generic()).toString()).isEqualTo("name ASC");
   }
 
   @Test
@@ -63,13 +45,13 @@ class OrderByClauseTests {
     MutableOrderByClause clause = new MutableOrderByClause().asc("name");
     clause.merge(OrderByClause.mutable().desc("age"));
     assertThat(clause.isEmpty()).isFalse();
-    assertThat(clause.toClause().toString()).isEqualTo("name ASC, age DESC");
+    assertThat(clause.toClause(Platform.generic()).toString()).isEqualTo("name ASC, age DESC");
   }
 
   @Test
   void plain() {
     assertThat(OrderByClause.plain("`name` ASC, `age` DESC").isEmpty()).isFalse();
-    assertThat(OrderByClause.plain("`name` ASC, `age` DESC").toClause()).isEqualTo("`name` ASC, `age` DESC");
+    assertThat(OrderByClause.plain("`name` ASC, `age` DESC").toClause(Platform.generic())).isEqualTo("`name` ASC, `age` DESC");
   }
 
 }

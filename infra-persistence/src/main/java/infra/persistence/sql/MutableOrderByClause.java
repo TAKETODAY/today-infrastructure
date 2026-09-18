@@ -19,7 +19,6 @@ package infra.persistence.sql;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 import infra.core.Pair;
 import infra.persistence.Identifier;
@@ -36,14 +35,6 @@ public class MutableOrderByClause implements OrderByClause {
 
   public MutableOrderByClause() {
     this.sortKeys = new ArrayList<>();
-  }
-
-  public MutableOrderByClause(Collection<Pair<Identifier, Order>> sortKeys) {
-    this.sortKeys = new ArrayList<>(sortKeys);
-  }
-
-  MutableOrderByClause(int initialCapacity) {
-    this.sortKeys = new ArrayList<>(initialCapacity);
   }
 
   public MutableOrderByClause asc(String col) {

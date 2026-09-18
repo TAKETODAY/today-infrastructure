@@ -37,7 +37,6 @@ import java.util.function.Function;
 import javax.sql.DataSource;
 
 import infra.beans.BeanProperty;
-import infra.core.Pair;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.dao.IncorrectResultSizeDataAccessException;
@@ -53,6 +52,7 @@ import infra.lang.Descriptive;
 import infra.persistence.annotation.Column;
 import infra.persistence.annotation.EntityRef;
 import infra.persistence.annotation.Id;
+import infra.persistence.annotation.OrderBy;
 import infra.persistence.annotation.UpdateBy;
 import infra.persistence.annotation.Where;
 import infra.persistence.event.BatchPersistListener;
@@ -659,8 +659,18 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     createData(entityManager);
 
-    assertThat(entityManager.find(UserModel.class, Map.of("age", Order.DESC)))
-            .isEqualTo(entityManager.find(UserModel.class, Map.of("id", Order.DESC)));
+    @OrderBy(clause = "age DESC")
+    @EntityRef(UserModel.class)
+    class UserModelOrderByAge {
+    }
+
+    @OrderBy(clause = "id DESC")
+    @EntityRef(UserModel.class)
+    class UserModelOrderById {
+    }
+
+    assertThat(entityManager.find(UserModel.class, new UserModelOrderByAge()))
+            .isEqualTo(entityManager.find(UserModel.class, new UserModelOrderById()));
   }
 
   @ParameterizedRepositoryManagerTest
@@ -913,25 +923,6 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     int rows = entityManager.saveOrUpdate(model, PropertyUpdateStrategy.noneNull());
     assertThat(rows).isEqualTo(1);
     assertThat(entityManager.find(model)).hasSize(1);
-  }
-
-  @ParameterizedRepositoryManagerTest
-  void findWithSortMap(DbType dbType, RepositoryManager repositoryManager) {
-    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
-    createData(entityManager);
-
-    Map<String, Order> sortKeys = Map.of("id", Order.ASC);
-    List<UserModel> users = entityManager.find(UserModel.class, sortKeys);
-    assertThat(users).isNotEmpty();
-  }
-
-  @ParameterizedRepositoryManagerTest
-  void findWithSortPair(DbType dbType, RepositoryManager repositoryManager) {
-    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
-    createData(entityManager);
-
-    List<UserModel> users = entityManager.find(UserModel.class, Pair.of("id", Order.ASC));
-    assertThat(users).isNotEmpty();
   }
 
   @ParameterizedRepositoryManagerTest
