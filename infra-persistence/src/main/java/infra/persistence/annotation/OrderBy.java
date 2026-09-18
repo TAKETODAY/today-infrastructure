@@ -30,8 +30,8 @@ import infra.persistence.Order;
  *
  * <p>Place on a mapped property (field or getter) to make example queries order
  * results by that property, using the declared direction. When several properties
- * carry the annotation, they are applied in declaration order, so an earlier
- * property takes precedence over later ones.
+ * carry the annotation, they are ordered by their {@link #order() order} value,
+ * so a lower value is applied earlier and takes precedence.
  *
  * <p>To declare a whole SQL ORDER BY fragment at the class level, use
  * {@link OrderByClause @OrderByClause} instead. Both annotations are independent;
@@ -50,4 +50,10 @@ public @interface OrderBy {
    * The sort direction of the annotated property.
    */
   Order value() default Order.ASC;
+
+  /**
+   * The precedence of this sort key among all {@link OrderBy @OrderBy} properties.
+   * Lower values are applied earlier in the ORDER BY clause.
+   */
+  int order() default 0;
 }

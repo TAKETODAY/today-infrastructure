@@ -286,7 +286,10 @@ entityManager.iterate(User.class, example, this::process);
 | 将当前属性的条件与前一个条件以 `OR` 连接（默认为 `AND`）。
 
 | `@OrderBy`
-| 类级别指定完整 `ORDER BY` 子句；属性级别指定排序方向。
+| 属性级别指定排序方向与优先级：`@OrderBy(Order.DESC)`；多个属性排序时可用 `order()` 声明优先级（值越小越靠前）。
+
+| `@OrderByClause`
+| 类级别指定完整的原始 `ORDER BY` 子句，如 `@OrderByClause("name DESC, age ASC")`。
 
 |===
 
@@ -310,7 +313,7 @@ class UserQuery {
   @Where(operator = "<=")
   Integer score;            // ... OR score <= ?
 
-  @OrderBy(direction = Order.DESC)
+  @OrderBy(Order.DESC)
   @Column(name = "created_at")
   LocalDateTime createdAt;
 }
@@ -320,6 +323,37 @@ query.name = "Jo";
 query.age = 18;
 List<User> users = entityManager.find(User.class, query);
 ----
+
+=== ORDER BY 解析优先级
+
+示例查询的 `ORDER BY` 按以下优先级解析，命中较早的来源即生效：
+
+. 实现 `OrderSpecSource` 的对象自身提供的编程式排序；
+. 类级别 `@OrderByClause` 指定的原始 SQL 片段；
+. 属性级别 `@OrderBy` —— 多个属性按各自 `order()` 值排序，值越小越先应用（优先级越高）。
+
+主键（`@Id`）属性与普通属性一样会被扫描，因此同样可以用 `@OrderBy` 参与排序。例如：
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+@Table(name = "t_user")
+@OrderByClause("name DESC")            // 类级别原始子句，优先级最高（若实现 OrderSpecSource 则由其覆盖）
+class User {
+
+  @Id
+  Integer id;
+
+  @OrderBy(value = Order.DESC, order = 0)   // 属性级：order 越小越靠前
+  @Column(name = "created_at")
+  LocalDateTime createdAt;
+
+  @OrderBy(order = 1)
+  String name;
+}
+----
+
+上面的例子中，`created_at DESC` 会排在 `name ASC` 之前；若类级别声明了 `@OrderByClause`
+或实体实现了 `OrderSpecSource`，则属性级排序不会生效。
 
 也可以直接使用 `Map` 作为条件（键为列名，值为参数）：
 
@@ -410,7 +444,7 @@ boolean hasNext = page.hasNextPage();
 ----
 
 也可以通过 `DefaultEntityManager#setDefaultPageable` 设置缺省分页。排序使用 `Order.ASC` / `Order.DESC`，
-配合 `Pair<String, Order>` 或 `Map<String, Order>` 使用。
+配合 `Pair<String, Order>`（可变参数，按声明顺序）使用。
 
 [[persistence-events]]
 == 生命周期事件
@@ -497,7 +531,7 @@ class LoggingBatchListener implements BatchPersistListener {
 `infra.persistence.sql` 包提供了一组可复用的 SQL 片段构建器（移植自 Hibernate 的 SQL 支持），
 包括 `Select` / `SimpleSelect` / `QuerySelect`、`Insert` / `InsertSelect`、`Update`、`Delete`、
 `Restriction`（等值、比较、空值、逻辑组合等）、`JoinFragment` / `ANSIJoinFragment`、
-`OrderSpec` / `MutableOrderSpec`、`CaseFragment` 等。
+`OrderSpec`（结构化排序键或原始子句）、`CaseFragment` 等。
 
 `QueryStatement` 定义了「渲染 SQL + 绑定参数」的契约：实现 `render` 返回
 `StatementSequence`，`setParameter` 负责把值绑定到 `PreparedStatement`。`QueryCondition`

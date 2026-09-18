@@ -130,6 +130,37 @@ class OrderByTests {
     assertThat(orderSpec.toClause(Platform.generic()).toString()).isEqualTo("score DESC");
   }
 
+  @Test
+  void ordersByExplicitOrderPrecedence() {
+    OrderedModel example = new OrderedModel();
+    example.id = 1;
+    example.name = "n";
+    example.age = 10;
+
+    EntityMetadata metadata = metadataFactory.getEntityMetadata(OrderedModel.class);
+    ExampleQuery query = new ExampleQuery(metadataFactory, example, strategies);
+    query.render(metadata);
+
+    OrderSpec orderSpec = query.resolveOrderByClause(metadata);
+    assertThat(orderSpec).isNotNull();
+    assertThat(orderSpec.toClause(Platform.generic()).toString()).isEqualTo("age DESC, name ASC");
+  }
+
+  @Test
+  void ordersByIdProperty() {
+    IdOrderByModel example = new IdOrderByModel();
+    example.id = 1;
+    example.name = "n";
+
+    EntityMetadata metadata = metadataFactory.getEntityMetadata(IdOrderByModel.class);
+    ExampleQuery query = new ExampleQuery(metadataFactory, example, strategies);
+    query.render(metadata);
+
+    OrderSpec orderSpec = query.resolveOrderByClause(metadata);
+    assertThat(orderSpec).isNotNull();
+    assertThat(orderSpec.toClause(Platform.generic()).toString()).isEqualTo("id DESC");
+  }
+
   @Table("t_order_by_asc")
   static class OrderByModel {
 
@@ -182,6 +213,31 @@ class OrderByTests {
 
     @MyOrderBy
     Integer score;
+
+  }
+
+  @Table("t_order_by_ordered")
+  static class OrderedModel {
+
+    @Id
+    Integer id;
+
+    @OrderBy(value = Order.ASC, order = 1)
+    String name;
+
+    @OrderBy(value = Order.DESC, order = 0)
+    Integer age;
+
+  }
+
+  @Table("t_order_by_id")
+  static class IdOrderByModel {
+
+    @Id
+    @OrderBy(Order.DESC)
+    Integer id;
+
+    String name;
 
   }
 

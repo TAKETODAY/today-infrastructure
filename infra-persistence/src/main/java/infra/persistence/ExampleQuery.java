@@ -21,6 +21,7 @@ import org.jspecify.annotations.Nullable;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -39,10 +40,23 @@ import infra.persistence.sql.SimpleSelect;
  * <p>
  * This class scans the properties of the provided example instance. For each non-null property,
  * it applies configured {@link PropertyConditionStrategy} instances to generate corresponding
- * {@link Restriction} objects for the WHERE clause. It also supports dynamic ORDER BY clauses
- * derived from {@link OrderBy} annotations on the example class or its properties.
+ * {@link Restriction} objects for the WHERE clause. It also resolves the ORDER BY clause for
+ * the query.
+ *
+ * <p>The ORDER BY clause is resolved in the following priority order:
+ * <ol>
+ *   <li>{@link OrderSpecSource} — a programmatic spec contributed by the example object itself;</li>
+ *   <li>class-level {@link infra.persistence.annotation.OrderByClause @OrderByClause} — a raw SQL fragment;</li>
+ *   <li>property-level {@link infra.persistence.annotation.OrderBy @OrderBy} — ordered by each key's
+ *   {@link infra.persistence.annotation.OrderBy#order() precedence}.</li>
+ * </ol>
+ * An earlier source wins over later ones. The ID property is scanned like any other
+ * property and may therefore be ordered as well.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see OrderSpecSource
+ * @see infra.persistence.annotation.OrderBy
+ * @see infra.persistence.annotation.OrderByClause
  * @since 4.0 2024/2/19 19:56
  */
 final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCondition, DebugDescriptive {
@@ -53,11 +67,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
 
   private final List<PropertyConditionStrategy> strategies;
 
-  private @Nullable OrderSpec orderSpec;
-
   private @Nullable ArrayList<Condition> conditions;
-
-  private OrderSpec.@Nullable Builder orderBuilder;
 
   ExampleQuery(Object example, EntityMetadata exampleMetadata, List<PropertyConditionStrategy> strategies) {
     this.example = example;
@@ -84,19 +94,54 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
 
   @Override
   public @Nullable OrderSpec resolveOrderByClause(EntityMetadata metadata) {
+    // 1. programmatic source takes precedence
     if (example instanceof OrderSpecSource source) {
-      OrderSpec orderSpec = source.orderSpec();
-      if (!orderSpec.isEmpty()) {
-        return orderSpec;
+      OrderSpec spec = source.orderSpec();
+      if (!spec.isEmpty()) {
+        return spec;
       }
     }
-    if (orderSpec == null && orderBuilder != null) {
-      orderSpec = orderBuilder.build();
+    // 2. class-level raw clause, from the example's own metadata
+    OrderSpec classLevel = QueryCondition.super.resolveOrderByClause(exampleMetadata);
+    if (classLevel != null) {
+      return classLevel;
     }
-    if (orderSpec == null) {
-      orderSpec = QueryCondition.super.resolveOrderByClause(metadata);
+    // 3. property-level keys, in property declaration order
+    return resolvePropertyOrderBy();
+  }
+
+  /**
+   * Collect the {@link OrderBy @OrderBy} keys of the example's properties into an
+   * {@link OrderSpec}, ordered by each key's {@link OrderBy#order() precedence}.
+   *
+   * <p>This is independent of the WHERE-condition scan, so ordering resolution
+   * stays reliable regardless of when it is invoked.
+   *
+   * @return the property ordering spec, or {@code null} when no property declares one
+   */
+  private @Nullable OrderSpec resolvePropertyOrderBy() {
+    ArrayList<SortKey> sortKeys = null;
+    for (EntityProperty property : exampleMetadata.getEntityProperties(false)) {
+      MergedAnnotation<OrderBy> annotation = property.getAnnotation(OrderBy.class);
+      if (annotation.isPresent()) {
+        if (sortKeys == null) {
+          sortKeys = new ArrayList<>();
+        }
+        sortKeys.add(new SortKey(
+                annotation.getInt("order"),
+                property.getColumnName(),
+                annotation.getEnum("value", Order.class)));
+      }
     }
-    return orderSpec;
+    if (sortKeys == null) {
+      return null;
+    }
+    sortKeys.sort(Comparator.comparingInt(SortKey::order));
+    OrderSpec.Builder builder = OrderSpec.builder();
+    for (SortKey sortKey : sortKeys) {
+      builder.orderBy(sortKey.column, sortKey.direction);
+    }
+    return builder.build();
   }
 
   @Override
@@ -122,8 +167,6 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
     if (conditions == null) {
       EntityProperty[] entityProperties = exampleMetadata.getEntityProperties(false);
       conditions = new ArrayList<>(entityProperties.length);
-      // apply class level order by
-      applyOrderByClause();
 
       for (EntityProperty property : entityProperties) {
         Object propertyValue = property.getValue(example);
@@ -141,8 +184,6 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
             }
           }
         } // todo 构建 null 的情况
-
-        applyOrderByClause(property);
       }
       this.conditions = conditions;
     }
@@ -152,19 +193,6 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
     return conditions;
   }
 
-  private void applyOrderByClause() {
-    orderSpec = resolveOrderByClause(exampleMetadata);
-  }
-
-  private void applyOrderByClause(EntityProperty entityProperty) {
-    if (orderSpec != null) {
-      return;
-    }
-    MergedAnnotation<OrderBy> annotation = entityProperty.getAnnotation(OrderBy.class);
-    if (annotation.isPresent()) {
-      Order direction = annotation.getEnum("value", Order.class);
-      OrderSpec.Builder builder = orderBuilder != null ? orderBuilder : (orderBuilder = OrderSpec.builder());
-      builder.orderBy(entityProperty.getColumnName(), direction);
-    }
+  private record SortKey(int order, Identifier column, Order direction) {
   }
 }
