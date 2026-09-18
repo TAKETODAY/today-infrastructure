@@ -20,6 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import infra.core.Pair;
 import infra.persistence.Identifier;
@@ -47,11 +48,15 @@ public final class OrderSpec {
   /** A shared, immutable spec that contributes no ordering. */
   private static final OrderSpec EMPTY = new OrderSpec(List.of());
 
-  /** The ordered parts of the clause. */
+  /** The ordered parts of the clause, already immutable. */
   private final List<Part> parts;
 
+  /**
+   * Internal constructor: the given list is kept as-is, so callers must pass an
+   * immutable list (typically {@link List#of} or {@link List#copyOf}).
+   */
   private OrderSpec(List<Part> parts) {
-    this.parts = List.copyOf(parts);
+    this.parts = parts;
   }
 
   // ---------- structured factories ----------
@@ -89,7 +94,7 @@ public final class OrderSpec {
    * @return the immutable spec
    */
   public static OrderSpec asc(String column) {
-    return builder().asc(column).build();
+    return new OrderSpec(List.of(new Item(Identifier.parse(column), Order.ASC)));
   }
 
   /**
@@ -99,7 +104,7 @@ public final class OrderSpec {
    * @return the immutable spec
    */
   public static OrderSpec desc(String column) {
-    return builder().desc(column).build();
+    return new OrderSpec(List.of(new Item(Identifier.parse(column), Order.DESC)));
   }
 
   /**
@@ -112,7 +117,7 @@ public final class OrderSpec {
    * @return the immutable spec
    */
   public static OrderSpec plain(CharSequence clause) {
-    return builder().raw(clause).build();
+    return new OrderSpec(List.of(new Fragment(clause.toString())));
   }
 
   /**
@@ -304,11 +309,55 @@ public final class OrderSpec {
     }
 
     /**
+     * Remove every structured sort key on the given column, leaving raw fragments and
+     * other keys untouched.
+     *
+     * @param column the column name whose keys to remove
+     * @return this builder, to facilitate method chaining
+     */
+    public Builder remove(String column) {
+      return remove(Identifier.parse(column));
+    }
+
+    /**
+     * Remove every structured sort key on the given column, leaving raw fragments and
+     * other keys untouched.
+     *
+     * @param column the column whose keys to remove
+     * @return this builder, to facilitate method chaining
+     */
+    public Builder remove(Identifier column) {
+      parts.removeIf(part -> part instanceof Item item && item.column().equals(column));
+      return this;
+    }
+
+    /**
+     * Remove every part matching the given filter.
+     *
+     * @param filter the filter selecting parts to remove
+     * @return this builder, to facilitate method chaining
+     */
+    public Builder removeIf(Predicate<Part> filter) {
+      parts.removeIf(filter);
+      return this;
+    }
+
+    /**
+     * Remove all parts.
+     *
+     * @return this builder, to facilitate method chaining
+     */
+    public Builder clear() {
+      parts.clear();
+      return this;
+    }
+
+    /**
      * Build the immutable spec holding the parts appended so far. A builder with no
      * parts yields the shared {@link #empty() empty} spec.
      */
     public OrderSpec build() {
-      return parts.isEmpty() ? EMPTY : new OrderSpec(parts);
+      return parts.isEmpty() ? EMPTY : new OrderSpec(List.copyOf(parts));
     }
   }
 

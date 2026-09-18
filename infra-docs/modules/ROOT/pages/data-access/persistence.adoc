@@ -566,6 +566,7 @@ boolean noOrdering = spec.isEmpty();
 
 * `empty()`：共享的空规格，无排序，`isEmpty()` 为 `true`；`builder()` 未追加任何内容时也返回该单例。
 * `builder().raw(...)`：追加一个原始 SQL 片段（如表达式或 `CASE`），可与结构化键按顺序混排，用 `, ` 连接。
+* `builder().remove(column)` / `removeIf(predicate)` / `clear()`：从已累积的排序中移除指定列的键、按条件移除、或全部清空。
 * `mutate()`：保留全部排序键与原始片段，转出 `Builder` 继续追加。
 * `containsRaw()`：是否包含原始 SQL 片段。
 * 值语义：`equals` / `hashCode` 基于有序的排序键与片段。

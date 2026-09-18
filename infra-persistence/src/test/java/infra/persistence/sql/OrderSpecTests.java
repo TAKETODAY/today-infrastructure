@@ -34,12 +34,12 @@ class OrderSpecTests {
 
   @Test
   void asc() {
-    assertThat(OrderSpec.asc("name").toClause(platform).toString()).isEqualTo("name ASC");
+    assertThat(OrderSpec.asc("name").toClause(platform)).isEqualTo("name ASC");
   }
 
   @Test
   void desc() {
-    assertThat(OrderSpec.desc("name").toClause(platform).toString()).isEqualTo("name DESC");
+    assertThat(OrderSpec.desc("name").toClause(platform)).isEqualTo("name DESC");
   }
 
   @Test
@@ -52,7 +52,7 @@ class OrderSpecTests {
   @Test
   void empty() {
     assertThat(OrderSpec.empty().isEmpty()).isTrue();
-    assertThat(OrderSpec.empty().toClause(platform).toString()).isEmpty();
+    assertThat(OrderSpec.empty().toClause(platform)).isEmpty();
     assertThat(OrderSpec.builder().build()).isSameAs(OrderSpec.empty());
   }
 
@@ -73,7 +73,7 @@ class OrderSpecTests {
   @Test
   void of() {
     OrderSpec orderSpec = OrderSpec.of(Pair.of("name", Order.ASC), Pair.of("age", Order.DESC));
-    assertThat(orderSpec.toClause(platform).toString()).isEqualTo("name ASC, age DESC");
+    assertThat(orderSpec.toClause(platform)).isEqualTo("name ASC, age DESC");
   }
 
   @Test
@@ -82,7 +82,7 @@ class OrderSpecTests {
             .desc("name")
             .asc("age")
             .build();
-    assertThat(orderSpec.toClause(platform).toString()).isEqualTo("name DESC, age ASC");
+    assertThat(orderSpec.toClause(platform)).isEqualTo("name DESC, age ASC");
   }
 
   @Test
@@ -91,7 +91,7 @@ class OrderSpecTests {
     OrderSpec orderSpec = builder.build();
     builder.asc("age");
 
-    assertThat(orderSpec.toClause(platform).toString()).isEqualTo("name ASC");
+    assertThat(orderSpec.toClause(platform)).isEqualTo("name ASC");
   }
 
   @Test
@@ -100,9 +100,9 @@ class OrderSpecTests {
 
     OrderSpec extended = orderSpec.mutate().desc("age").build();
 
-    assertThat(extended.toClause(platform).toString()).isEqualTo("name ASC, age DESC");
+    assertThat(extended.toClause(platform)).isEqualTo("name ASC, age DESC");
     // the original spec is unchanged
-    assertThat(orderSpec.toClause(platform).toString()).isEqualTo("name ASC");
+    assertThat(orderSpec.toClause(platform)).isEqualTo("name ASC");
   }
 
   @Test
@@ -120,7 +120,7 @@ class OrderSpecTests {
     OrderSpec spec = OrderSpec.builder().asc("a").raw("x DESC").build();
 
     assertThat(spec.containsRaw()).isTrue();
-    assertThat(spec.toClause(platform).toString()).isEqualTo("a ASC, x DESC");
+    assertThat(spec.toClause(platform)).isEqualTo("a ASC, x DESC");
   }
 
   @Test
@@ -128,7 +128,7 @@ class OrderSpecTests {
     OrderSpec spec = OrderSpec.builder().raw("x DESC").asc("a").build();
 
     assertThat(spec.containsRaw()).isTrue();
-    assertThat(spec.toClause(platform).toString()).isEqualTo("x DESC, a ASC");
+    assertThat(spec.toClause(platform)).isEqualTo("x DESC, a ASC");
   }
 
   @Test
@@ -143,6 +143,27 @@ class OrderSpecTests {
     assertThat(OrderSpec.plain("`name` ASC, `age` DESC").isEmpty()).isFalse();
     assertThat(OrderSpec.plain("`name` ASC, `age` DESC").toClause(platform))
             .isEqualTo("`name` ASC, `age` DESC");
+  }
+
+  @Test
+  void builderRemovesColumn() {
+    OrderSpec.Builder builder = OrderSpec.builder().asc("a").raw("x DESC").desc("b");
+
+    builder.remove("a");
+    OrderSpec spec = builder.build();
+
+    assertThat(spec.toClause(platform)).isEqualTo("x DESC, b DESC");
+  }
+
+  @Test
+  void builderRemoveIfAndClear() {
+    OrderSpec.Builder builder = OrderSpec.builder().asc("a").raw("x DESC").desc("b");
+
+    builder.removeIf(part -> part instanceof OrderSpec.Fragment);
+    assertThat(builder.build().toClause(platform)).isEqualTo("a ASC, b DESC");
+
+    builder.clear();
+    assertThat(builder.build()).isSameAs(OrderSpec.empty());
   }
 
 }
