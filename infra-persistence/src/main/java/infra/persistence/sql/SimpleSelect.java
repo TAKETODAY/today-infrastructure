@@ -204,17 +204,15 @@ public class SimpleSelect implements StatementSequence {
   /**
    * Return a builder for incrementally appending sort keys.
    *
-   * <p>When a structured spec was set through {@link #orderBy(OrderSpec)}, the
-   * builder is seeded with its keys so appending continues from it. A
-   * {@linkplain OrderSpec#isRaw() raw-clause} spec cannot be extended, so an empty
-   * builder is started instead.
+   * <p>When a spec was set through {@link #orderBy(OrderSpec)}, the builder is seeded
+   * from its parts, so further keys or fragments are appended after them.
    *
    * @return the builder backing this select's ordering
    */
   public OrderSpec.Builder orderBy() {
     OrderSpec.Builder builder = orderByBuilder;
     if (builder == null) {
-      builder = orderSpec.isRaw() ? OrderSpec.builder() : orderSpec.mutate();
+      builder = orderSpec.mutate();
       this.orderByBuilder = builder;
       // the spec has been folded into the builder; keep a single source of truth
       this.orderSpec = OrderSpec.empty();

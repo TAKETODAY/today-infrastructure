@@ -111,14 +111,14 @@ class SimpleSelectTests {
   }
 
   @Test
-  void orderByBuilderRestartsAfterRawSpec() {
+  void orderByBuilderAppendsAfterRawSpec() {
     SimpleSelect select = new SimpleSelect();
     select.addColumn("name").setTableName("t_user");
     select.orderBy(OrderSpec.plain("x DESC"));
     select.orderBy("b");
 
     assertThat(select.toStatementString(platform)).isEqualTo(
-            "SELECT name FROM t_user order by b ASC");
+            "SELECT name FROM t_user order by x DESC, b ASC");
   }
 
   @Test

@@ -20,7 +20,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import infra.core.Pair;
 import infra.persistence.Identifier;
@@ -29,15 +28,16 @@ import infra.persistence.platform.Platform;
 import infra.util.StringUtils;
 
 /**
- * An immutable ORDER BY specification: an ordered list of sort keys, or a raw SQL
- * fragment for cases that cannot be expressed as plain column ordering.
+ * An immutable ORDER BY specification: an ordered list of sort keys and/or raw SQL
+ * fragments, rendered in declaration order so the first part takes precedence.
  *
- * <p>Sort keys are rendered in declaration order, so the first key takes precedence.
- * Each key's column is an {@link Identifier}, allowing platform-aware quoting.
+ * <p>Most keys are structured ({@link Item}: a column with a direction, quoted via
+ * {@link Platform}); {@link Fragment fragments} embed arbitrary SQL such as an
+ * expression or a {@code CASE} clause and are rendered as-is. The two may be freely
+ * mixed, for example {@code ORDER BY LENGTH(name) DESC, created_at DESC}.
  *
- * <p>Use {@link #of(Pair...)} / {@link #asc} / {@link #desc} for structured keys, or
- * {@link #plain} to embed an arbitrary SQL fragment such as an expression or a
- * {@code CASE} clause. Build incrementally with {@link #builder()}.
+ * <p>Use {@link #of(Pair...)} / {@link #asc} / {@link #desc} for structured keys,
+ * {@link #plain} for a single fragment, or {@link #builder()} to assemble a mix.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/3/31 12:39
@@ -45,17 +45,13 @@ import infra.util.StringUtils;
 public final class OrderSpec {
 
   /** A shared, immutable spec that contributes no ordering. */
-  private static final OrderSpec EMPTY = new OrderSpec(List.of(), null);
+  private static final OrderSpec EMPTY = new OrderSpec(List.of());
 
-  /** Ordered sort keys; empty when this is a raw clause. */
-  private final List<Item> items;
+  /** The ordered parts of the clause. */
+  private final List<Part> parts;
 
-  /** Raw SQL fragment, non-null only when built via {@link #plain}. */
-  private final @Nullable CharSequence rawClause;
-
-  private OrderSpec(List<Item> items, @Nullable CharSequence rawClause) {
-    this.items = List.copyOf(items);
-    this.rawClause = rawClause;
+  private OrderSpec(List<Part> parts) {
+    this.parts = List.copyOf(parts);
   }
 
   // ---------- structured factories ----------
@@ -73,7 +69,7 @@ public final class OrderSpec {
   }
 
   /**
-   * Create an ORDER BY spec from an ordered sequence of sort keys.
+   * Create an ORDER BY spec from an ordered sequence of structured sort keys.
    *
    * @param sortKeys the sort keys in declaration order
    * @return the immutable spec
@@ -107,7 +103,7 @@ public final class OrderSpec {
   }
 
   /**
-   * Use an arbitrary SQL fragment as the ORDER BY clause, for example
+   * Create a spec from a single raw SQL fragment, for example
    * {@code "LENGTH(name) DESC"} or {@code "CASE WHEN status='active' THEN 1 ELSE 2 END"}.
    *
    * <p>The fragment is rendered as-is, without validation or dialect quoting.
@@ -116,7 +112,7 @@ public final class OrderSpec {
    * @return the immutable spec
    */
   public static OrderSpec plain(CharSequence clause) {
-    return new OrderSpec(List.of(), clause);
+    return builder().raw(clause).build();
   }
 
   /**
@@ -129,22 +125,14 @@ public final class OrderSpec {
   }
 
   /**
-   * Return a builder seeded with this spec's sort keys, for mutating and re-building
-   * an ORDER BY spec.
+   * Return a builder seeded with this spec's parts, for mutating and re-building an
+   * ORDER BY spec.
    *
-   * <p>Only structured specs can be mutated. Calling this on a
-   * {@linkplain #plain(CharSequence) raw-clause} spec throws, since a raw fragment
-   * cannot be represented as individual sort keys.
-   *
-   * @return a builder pre-populated with this spec's keys
-   * @throws IllegalStateException if this spec is a raw clause
+   * @return a builder pre-populated from this spec
    */
   public Builder mutate() {
-    if (isRaw()) {
-      throw new IllegalStateException("Cannot convert a raw-clause OrderSpec to a Builder");
-    }
     Builder builder = new Builder();
-    builder.items.addAll(items);
+    builder.parts.addAll(parts);
     return builder;
   }
 
@@ -153,73 +141,113 @@ public final class OrderSpec {
   /**
    * Whether this spec contributes no ordering.
    *
-   * @return {@code true} when there are no sort keys and no non-blank raw clause
+   * @return {@code true} when there is no non-blank part
    */
   public boolean isEmpty() {
-    return rawClause != null ? StringUtils.isBlank(rawClause) : items.isEmpty();
+    for (Part part : parts) {
+      if (!part.isEmpty()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
-   * Whether this spec is a {@linkplain #plain(CharSequence) raw SQL clause} rather
-   * than a list of structured sort keys.
+   * Whether this spec contains at least one raw SQL {@link Fragment}.
    *
-   * <p>A raw spec cannot be {@linkplain #mutate() mutated} into a builder, since its
-   * fragment is not decomposed into individual keys.
-   *
-   * @return {@code true} if this spec was built via {@link #plain(CharSequence)}
+   * @return {@code true} if any part is a raw fragment
    */
-  public boolean isRaw() {
-    return rawClause != null;
+  public boolean containsRaw() {
+    for (Part part : parts) {
+      if (part instanceof Fragment) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
-   * Render this spec into a SQL ORDER BY fragment for the given platform.
+   * Render this spec into a SQL ORDER BY fragment for the given platform, joining the
+   * non-empty parts with {@code ", "}.
    *
    * @param platform the database platform whose quoting rules apply
    * @return the rendered clause; empty when {@link #isEmpty()}
    */
-  public CharSequence toClause(Platform platform) {
-    if (rawClause != null) {
-      return rawClause;
-    }
+  public String toClause(Platform platform) {
     StringBuilder builder = new StringBuilder();
-    for (int i = 0; i < items.size(); i++) {
-      if (i > 0) {
+    for (Part part : parts) {
+      if (part.isEmpty()) {
+        continue;
+      }
+      if (!builder.isEmpty()) {
         builder.append(", ");
       }
-      builder.append(items.get(i).toClause(platform));
+      builder.append(part.toClause(platform));
     }
-    return builder;
+    return builder.toString();
   }
 
   @Override
   public boolean equals(@Nullable Object o) {
-    if (this == o) {
-      return true;
-    }
-    return o instanceof OrderSpec that
-            && items.equals(that.items)
-            && Objects.equals(rawClauseText(), that.rawClauseText());
+    return this == o || (o instanceof OrderSpec that && parts.equals(that.parts));
   }
 
   @Override
   public int hashCode() {
-    return 31 * items.hashCode() + Objects.hashCode(rawClauseText());
+    return parts.hashCode();
   }
 
-  private @Nullable String rawClauseText() {
-    return rawClause != null ? rawClause.toString() : null;
+  // ---------- parts ----------
+
+  /**
+   * One element of an ORDER BY clause: either a structured {@link Item} or a raw
+   * {@link Fragment}.
+   */
+  public sealed interface Part {
+
+    /**
+     * Whether this part contributes no SQL text.
+     *
+     * @return {@code true} when this part should be skipped on rendering
+     */
+    boolean isEmpty();
+
+    /**
+     * Render this part for the given platform.
+     *
+     * @param platform the database platform whose quoting rules apply
+     * @return the rendered text
+     */
+    CharSequence toClause(Platform platform);
   }
 
-  // ---------- sort key ----------
+  /** A structured sort key: a column and a direction. */
+  public record Item(Identifier column, Order direction) implements Part {
 
-  /** A single ordered sort key: a column and a direction. */
-  public record Item(Identifier column, Order direction) {
+    @Override
+    public boolean isEmpty() {
+      return false;
+    }
 
-    CharSequence toClause(Platform platform) {
+    @Override
+    public CharSequence toClause(Platform platform) {
       return new StringBuilder()
               .append(column.render(platform))
               .append(' ').append(direction.name());
+    }
+  }
+
+  /** A raw SQL ORDER BY fragment, rendered as-is without dialect quoting. */
+  public record Fragment(String text) implements Part {
+
+    @Override
+    public boolean isEmpty() {
+      return StringUtils.isBlank(text);
+    }
+
+    @Override
+    public CharSequence toClause(Platform platform) {
+      return text;
     }
   }
 
@@ -230,7 +258,7 @@ public final class OrderSpec {
    */
   public static final class Builder {
 
-    private final ArrayList<Item> items = new ArrayList<>();
+    private final ArrayList<Part> parts = new ArrayList<>();
 
     /** Append an ascending sort key. */
     public Builder asc(String column) {
@@ -259,13 +287,28 @@ public final class OrderSpec {
 
     /** Append a sort key with the given direction. */
     public Builder orderBy(Identifier column, Order direction) {
-      items.add(new Item(column, direction));
+      parts.add(new Item(column, direction));
       return this;
     }
 
-    /** Build the immutable spec holding the keys appended so far. */
+    /**
+     * Append a raw SQL fragment as a sort key, for example {@code LENGTH(name) DESC}.
+     * It is rendered as-is and may be combined with structured keys.
+     *
+     * @param clause the raw SQL ORDER BY fragment
+     * @return this builder, to facilitate method chaining
+     */
+    public Builder raw(CharSequence clause) {
+      parts.add(new Fragment(clause.toString()));
+      return this;
+    }
+
+    /**
+     * Build the immutable spec holding the parts appended so far. A builder with no
+     * parts yields the shared {@link #empty() empty} spec.
+     */
     public OrderSpec build() {
-      return items.isEmpty() ? EMPTY : new OrderSpec(items, null);
+      return parts.isEmpty() ? EMPTY : new OrderSpec(parts);
     }
   }
 

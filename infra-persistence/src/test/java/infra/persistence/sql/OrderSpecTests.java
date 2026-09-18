@@ -23,7 +23,6 @@ import infra.persistence.Order;
 import infra.persistence.platform.Platform;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -107,16 +106,36 @@ class OrderSpecTests {
   }
 
   @Test
-  void mutateRejectsPlain() {
-    assertThatThrownBy(() -> OrderSpec.plain("name ASC").mutate())
-            .isInstanceOf(IllegalStateException.class);
+  void mutateOfRawClause() {
+    OrderSpec raw = OrderSpec.plain("name ASC");
+
+    OrderSpec copy = raw.mutate().build();
+
+    assertThat(copy).isEqualTo(raw);
+    assertThat(copy.containsRaw()).isTrue();
   }
 
   @Test
-  void isRaw() {
-    assertThat(OrderSpec.asc("name").isRaw()).isFalse();
-    assertThat(OrderSpec.plain("name ASC").isRaw()).isTrue();
-    assertThat(OrderSpec.empty().isRaw()).isFalse();
+  void builderMixesKeysAndRaw() {
+    OrderSpec spec = OrderSpec.builder().asc("a").raw("x DESC").build();
+
+    assertThat(spec.containsRaw()).isTrue();
+    assertThat(spec.toClause(platform).toString()).isEqualTo("a ASC, x DESC");
+  }
+
+  @Test
+  void builderMixesRawAndKeys() {
+    OrderSpec spec = OrderSpec.builder().raw("x DESC").asc("a").build();
+
+    assertThat(spec.containsRaw()).isTrue();
+    assertThat(spec.toClause(platform).toString()).isEqualTo("x DESC, a ASC");
+  }
+
+  @Test
+  void containsRaw() {
+    assertThat(OrderSpec.asc("name").containsRaw()).isFalse();
+    assertThat(OrderSpec.plain("name ASC").containsRaw()).isTrue();
+    assertThat(OrderSpec.empty().containsRaw()).isFalse();
   }
 
   @Test
