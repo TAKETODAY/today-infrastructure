@@ -33,6 +33,9 @@ import infra.persistence.platform.Platform;
 import infra.persistence.sql.OrderSpec;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for the {@link OrderBy @OrderBy} annotation and its resolution into an
@@ -99,7 +102,8 @@ class OrderByTests {
     query.render(metadata);
 
     OrderSpec orderSpec = query.resolveOrderByClause(metadata);
-    assertThat(orderSpec).isNull();
+    assertThat(orderSpec).isNotNull();
+    assertThat(orderSpec.isEmpty()).isTrue();
   }
 
   @Test
@@ -193,11 +197,12 @@ class OrderByTests {
   }
 
   @Test
-  void refEntityWithoutAnyOrderingYieldsNull() {
+  void refEntityWithoutAnyOrderingYieldsEmpty() {
     EntityMetadata metadata = metadataFactory.getEntityMetadata(RefNoOrderingView.class);
 
     assertThat(metadata).isInstanceOf(RefEntityMetadata.class);
-    assertThat(metadata.getOrderSpec()).isNull();
+    assertThat(metadata.getOrderSpec()).isNotNull();
+    assertThat(metadata.getOrderSpec().isEmpty()).isTrue();
   }
 
   @Test
@@ -209,6 +214,18 @@ class OrderByTests {
 
     assertThat(first).isNotNull();
     assertThat(second).isSameAs(first);
+  }
+
+  @Test
+  void getOrderSpecCachesEmptyResult() {
+    EntityMetadata metadata = spy(metadataFactory.getEntityMetadata(NoOrderByModel.class));
+
+    OrderSpec first = metadata.getOrderSpec();
+    OrderSpec second = metadata.getOrderSpec();
+
+    assertThat(first).isSameAs(OrderSpec.empty());
+    assertThat(second).isSameAs(first);
+    verify(metadata, times(1)).resolveOrderSpec();
   }
 
   @Test

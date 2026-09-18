@@ -53,14 +53,14 @@ class QueryConditionTests {
   }
 
   @Test
-  void shouldReturnNullWhenMetadataHasNoOrderSpec() {
+  void shouldReturnEmptyOrderSpecWhenMetadataHasNoOrdering() {
     EntityMetadata mockMetadata = mock(EntityMetadata.class);
-    when(mockMetadata.getOrderSpec()).thenReturn(null);
+    when(mockMetadata.getOrderSpec()).thenReturn(OrderSpec.empty());
 
     QueryCondition conditionStatement = new TestQueryCondition();
     OrderSpec orderSpec = conditionStatement.resolveOrderByClause(mockMetadata);
 
-    assertThat(orderSpec).isNull();
+    assertThat(orderSpec).isSameAs(OrderSpec.empty());
   }
 
   @Test

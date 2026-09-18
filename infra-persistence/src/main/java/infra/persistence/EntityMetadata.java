@@ -362,10 +362,13 @@ public class EntityMetadata {
    * contract. Subclasses may override {@link #resolveOrderSpec()} to contribute
    * additional ordering, for example to fall back to a referenced entity.
    *
-   * @return the resolved spec, or {@code null} when the entity declares no ordering
+   * <p>Resolution happens once; an entity that declares no ordering yields the
+   * shared {@link OrderSpec#empty() empty} spec, which is cached as well.
+   *
+   * @return the resolved spec, never {@code null}
    * @since 5.0
    */
-  protected @Nullable OrderSpec getOrderSpec() {
+  protected OrderSpec getOrderSpec() {
     OrderSpec orderSpec = this.orderSpec;
     if (orderSpec == null) {
       orderSpec = resolveOrderSpec();
@@ -378,9 +381,9 @@ public class EntityMetadata {
    * Resolve this entity's own declarative ordering, ignoring any fallback. Subclasses
    * may override to extend the resolution.
    *
-   * @return the spec resolved from this entity, or {@code null} if none
+   * @return the spec resolved from this entity, or {@link OrderSpec#empty()} if none
    */
-  protected @Nullable OrderSpec resolveOrderSpec() {
+  protected OrderSpec resolveOrderSpec() {
     MergedAnnotation<OrderByClause> clause = getAnnotations().get(OrderByClause.class);
     if (clause.isPresent()) {
       return OrderSpec.plain(clause.getStringValue());
@@ -399,7 +402,7 @@ public class EntityMetadata {
       }
     }
     if (sortKeys == null) {
-      return null;
+      return OrderSpec.empty();
     }
     sortKeys.sort(Comparator.comparingInt(SortKey::order));
     OrderSpec.Builder builder = OrderSpec.builder();

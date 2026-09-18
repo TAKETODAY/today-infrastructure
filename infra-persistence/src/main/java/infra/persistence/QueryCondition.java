@@ -16,8 +16,6 @@
 
 package infra.persistence;
 
-import org.jspecify.annotations.Nullable;
-
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
@@ -129,12 +127,12 @@ public interface QueryCondition extends ParameterSource {
    * before property-level {@link OrderBy @OrderBy} keys.
    *
    * @param metadata the metadata of the entity being queried
-   * @return the resolved {@link OrderSpec}, or {@code null} when the entity
+   * @return the resolved {@link OrderSpec}, never {@code null}; empty when the entity
    * declares no ordering
    * @see OrderByClause
    * @see OrderBy
    */
-  default @Nullable OrderSpec resolveOrderByClause(EntityMetadata metadata) {
+  default OrderSpec resolveOrderByClause(EntityMetadata metadata) {
     return metadata.getOrderSpec();
   }
 

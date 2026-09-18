@@ -90,7 +90,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
   }
 
   @Override
-  public @Nullable OrderSpec resolveOrderByClause(EntityMetadata metadata) {
+  public OrderSpec resolveOrderByClause(EntityMetadata metadata) {
     // 1. programmatic source takes precedence
     if (example instanceof OrderSpecSource source) {
       OrderSpec spec = source.orderSpec();

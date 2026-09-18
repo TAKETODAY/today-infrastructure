@@ -72,12 +72,12 @@ public class RefEntityMetadata extends EntityMetadata {
    * Resolve ordering with a fallback: this entity's own declarative ordering when
    * present, otherwise the referenced entity's ordering.
    *
-   * @return the effective ordering spec, or {@code null} if neither declares one
+   * @return the effective ordering spec, never {@code null}
    */
   @Override
-  protected @Nullable OrderSpec resolveOrderSpec() {
+  protected OrderSpec resolveOrderSpec() {
     OrderSpec orderSpec = super.resolveOrderSpec();
-    return orderSpec != null ? orderSpec : refMetadata.getOrderSpec();
+    return !orderSpec.isEmpty() ? orderSpec : refMetadata.getOrderSpec();
   }
 
   @Override

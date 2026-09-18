@@ -50,6 +50,27 @@ class OrderSpecTests {
   }
 
   @Test
+  void empty() {
+    assertThat(OrderSpec.empty().isEmpty()).isTrue();
+    assertThat(OrderSpec.empty().toClause(platform).toString()).isEmpty();
+    assertThat(OrderSpec.builder().build()).isSameAs(OrderSpec.empty());
+  }
+
+  @Test
+  void equalsAndHashCode() {
+    assertThat(OrderSpec.asc("name")).isEqualTo(OrderSpec.asc("name"));
+    assertThat(OrderSpec.asc("name")).hasSameHashCodeAs(OrderSpec.asc("name"));
+    assertThat(OrderSpec.asc("name")).isEqualTo(OrderSpec.of(Pair.of("name", Order.ASC)));
+    assertThat(OrderSpec.asc("name")).isNotEqualTo(OrderSpec.desc("name"));
+    assertThat(OrderSpec.plain("name ASC")).isEqualTo(OrderSpec.plain("name ASC"));
+    assertThat(OrderSpec.plain("name ASC")).isNotEqualTo(OrderSpec.empty());
+    assertThat(OrderSpec.of(Pair.of("name", Order.ASC), Pair.of("age", Order.DESC)))
+            .isEqualTo(OrderSpec.builder().asc("name").desc("age").build());
+    assertThat(OrderSpec.of(Pair.of("name", Order.ASC), Pair.of("age", Order.DESC)))
+            .isNotEqualTo(OrderSpec.of(Pair.of("age", Order.DESC), Pair.of("name", Order.ASC)));
+  }
+
+  @Test
   void of() {
     OrderSpec orderSpec = OrderSpec.of(Pair.of("name", Order.ASC), Pair.of("age", Order.DESC));
     assertThat(orderSpec.toClause(platform).toString()).isEqualTo("name ASC, age DESC");

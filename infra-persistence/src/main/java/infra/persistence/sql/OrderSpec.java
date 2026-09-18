@@ -20,6 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import infra.core.Pair;
 import infra.persistence.Identifier;
@@ -43,6 +44,9 @@ import infra.util.StringUtils;
  */
 public final class OrderSpec {
 
+  /** A shared, immutable spec that contributes no ordering. */
+  private static final OrderSpec EMPTY = new OrderSpec(List.of(), null);
+
   /** Ordered sort keys; empty when this is a raw clause. */
   private final List<Item> items;
 
@@ -55,6 +59,18 @@ public final class OrderSpec {
   }
 
   // ---------- structured factories ----------
+
+  /**
+   * Return the shared empty spec, which contributes no ordering.
+   *
+   * <p>Lets callers avoid {@code null}: an empty spec is always returned when no
+   * ordering applies. {@link #isEmpty()} returns {@code true} for it.
+   *
+   * @return the shared empty spec
+   */
+  public static OrderSpec empty() {
+    return EMPTY;
+  }
 
   /**
    * Create an ORDER BY spec from an ordered sequence of sort keys.
@@ -143,6 +159,25 @@ public final class OrderSpec {
     return builder;
   }
 
+  @Override
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
+    }
+    return o instanceof OrderSpec that
+            && items.equals(that.items)
+            && Objects.equals(rawClauseText(), that.rawClauseText());
+  }
+
+  @Override
+  public int hashCode() {
+    return 31 * items.hashCode() + Objects.hashCode(rawClauseText());
+  }
+
+  private @Nullable String rawClauseText() {
+    return rawClause != null ? rawClause.toString() : null;
+  }
+
   // ---------- sort key ----------
 
   /** A single ordered sort key: a column and a direction. */
@@ -197,7 +232,7 @@ public final class OrderSpec {
 
     /** Build the immutable spec holding the keys appended so far. */
     public OrderSpec build() {
-      return new OrderSpec(items, null);
+      return items.isEmpty() ? EMPTY : new OrderSpec(items, null);
     }
   }
 
