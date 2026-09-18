@@ -37,6 +37,8 @@ public class SimpleSelect implements StatementSequence {
 
   protected @Nullable OrderSpec orderSpec;
 
+  protected OrderSpec.@Nullable Builder orderByBuilder;
+
   protected @Nullable CharSequence comment;
 
   protected @Nullable HashMap<Identifier, String> aliases;
@@ -189,16 +191,17 @@ public class SimpleSelect implements StatementSequence {
 
   public SimpleSelect orderBy(@Nullable OrderSpec orderSpec) {
     this.orderSpec = orderSpec;
+    this.orderByBuilder = null;
     return this;
   }
 
-  public MutableOrderSpec orderBy() {
-    if (orderSpec instanceof MutableOrderSpec mutable) {
-      return mutable;
+  public OrderSpec.Builder orderBy() {
+    OrderSpec.Builder builder = orderByBuilder;
+    if (builder == null) {
+      builder = OrderSpec.builder();
+      this.orderByBuilder = builder;
     }
-    var mutable = OrderSpec.mutable();
-    this.orderSpec = mutable;
-    return mutable;
+    return builder;
   }
 
   public SimpleSelect setComment(@Nullable String comment) {
@@ -219,6 +222,9 @@ public class SimpleSelect implements StatementSequence {
     Restriction.append(platform, restrictions, buf);
 
     OrderSpec orderSpec = this.orderSpec;
+    if (orderSpec == null && orderByBuilder != null) {
+      orderSpec = orderByBuilder.build();
+    }
     if (orderSpec != null && !orderSpec.isEmpty()) {
       buf.append(" order by ").append(orderSpec.toClause(platform));
     }

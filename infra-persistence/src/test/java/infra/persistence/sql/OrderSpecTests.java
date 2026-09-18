@@ -18,6 +18,8 @@ package infra.persistence.sql;
 
 import org.junit.jupiter.api.Test;
 
+import infra.core.Pair;
+import infra.persistence.Order;
 import infra.persistence.platform.Platform;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,30 +30,54 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class OrderSpecTests {
 
+  private final Platform platform = Platform.generic();
+
   @Test
   void asc() {
-    assertThat(OrderSpec.mutable()
-            .asc("name").toClause(Platform.generic()).toString()).isEqualTo("name ASC");
+    assertThat(OrderSpec.asc("name").toClause(platform).toString()).isEqualTo("name ASC");
+  }
+
+  @Test
+  void desc() {
+    assertThat(OrderSpec.desc("name").toClause(platform).toString()).isEqualTo("name DESC");
   }
 
   @Test
   void isEmpty() {
-    assertThat(OrderSpec.mutable().isEmpty()).isTrue();
-    assertThat(OrderSpec.mutable().asc("name").isEmpty()).isFalse();
+    assertThat(OrderSpec.builder().build().isEmpty()).isTrue();
+    assertThat(OrderSpec.asc("name").isEmpty()).isFalse();
+    assertThat(OrderSpec.plain("   ").isEmpty()).isTrue();
   }
 
   @Test
-  void merge() {
-    MutableOrderSpec clause = new MutableOrderSpec().asc("name");
-    clause.merge(OrderSpec.mutable().desc("age"));
-    assertThat(clause.isEmpty()).isFalse();
-    assertThat(clause.toClause(Platform.generic()).toString()).isEqualTo("name ASC, age DESC");
+  void of() {
+    OrderSpec orderSpec = OrderSpec.of(Pair.of("name", Order.ASC), Pair.of("age", Order.DESC));
+    assertThat(orderSpec.toClause(platform).toString()).isEqualTo("name ASC, age DESC");
+  }
+
+  @Test
+  void builder() {
+    OrderSpec orderSpec = OrderSpec.builder()
+            .desc("name")
+            .asc("age")
+            .build();
+    assertThat(orderSpec.toClause(platform).toString()).isEqualTo("name DESC, age ASC");
+  }
+
+  @Test
+  void builderIsImmutableAfterBuild() {
+    OrderSpec.Builder builder = OrderSpec.builder().asc("name");
+    OrderSpec orderSpec = builder.build();
+    builder.asc("age");
+
+    assertThat(orderSpec.toClause(platform).toString()).isEqualTo("name ASC");
   }
 
   @Test
   void plain() {
     assertThat(OrderSpec.plain("`name` ASC, `age` DESC").isEmpty()).isFalse();
-    assertThat(OrderSpec.plain("`name` ASC, `age` DESC").toClause(Platform.generic())).isEqualTo("`name` ASC, `age` DESC");
+    assertThat(OrderSpec.plain("`name` ASC, `age` DESC").toClause(platform))
+            .isEqualTo("`name` ASC, `age` DESC");
   }
 
 }

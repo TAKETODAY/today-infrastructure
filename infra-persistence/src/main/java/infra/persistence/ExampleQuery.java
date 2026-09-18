@@ -29,7 +29,6 @@ import infra.logging.LogMessage;
 import infra.persistence.PropertyConditionStrategy.Condition;
 import infra.persistence.annotation.OR;
 import infra.persistence.annotation.OrderBy;
-import infra.persistence.sql.MutableOrderSpec;
 import infra.persistence.sql.OrderSpec;
 import infra.persistence.sql.OrderSpecSource;
 import infra.persistence.sql.Restriction;
@@ -58,6 +57,8 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
 
   private @Nullable ArrayList<Condition> conditions;
 
+  private OrderSpec.@Nullable Builder orderBuilder;
+
   ExampleQuery(Object example, EntityMetadata exampleMetadata, List<PropertyConditionStrategy> strategies) {
     this.example = example;
     this.exampleMetadata = exampleMetadata;
@@ -73,7 +74,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
   @Override
   protected void renderInternal(EntityMetadata metadata, SimpleSelect select) {
     scan(select::addRestriction);
-    select.orderBy(example instanceof OrderSpecSource source ? source.orderSpec() : orderSpec);
+    select.orderBy(resolveOrderByClause(metadata));
   }
 
   @Override
@@ -88,6 +89,9 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
       if (!orderSpec.isEmpty()) {
         return orderSpec;
       }
+    }
+    if (orderSpec == null && orderBuilder != null) {
+      orderSpec = orderBuilder.build();
     }
     if (orderSpec == null) {
       orderSpec = QueryCondition.super.resolveOrderByClause(metadata);
@@ -153,17 +157,14 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
   }
 
   private void applyOrderByClause(EntityProperty entityProperty) {
-    if (!(orderSpec instanceof OrderSpec.Plain)) {
-      MergedAnnotation<OrderBy> annotation = entityProperty.getAnnotation(OrderBy.class);
-      if (annotation.isPresent()) {
-        Order direction = annotation.getEnum("value", Order.class);
-        MutableOrderSpec mutable = (MutableOrderSpec) orderSpec;
-        if (mutable == null) {
-          mutable = OrderSpec.mutable();
-          this.orderSpec = mutable;
-        }
-        mutable.orderBy(entityProperty.getColumnName(), direction);
-      }
+    if (orderSpec != null) {
+      return;
+    }
+    MergedAnnotation<OrderBy> annotation = entityProperty.getAnnotation(OrderBy.class);
+    if (annotation.isPresent()) {
+      Order direction = annotation.getEnum("value", Order.class);
+      OrderSpec.Builder builder = orderBuilder != null ? orderBuilder : (orderBuilder = OrderSpec.builder());
+      builder.orderBy(entityProperty.getColumnName(), direction);
     }
   }
 }
