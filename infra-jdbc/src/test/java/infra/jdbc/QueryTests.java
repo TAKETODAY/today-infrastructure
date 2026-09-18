@@ -36,15 +36,15 @@ class QueryTests extends AbstractRepositoryManagerTests {
     try (NamedQuery query = repositoryManager.createNamedQuery("""
             create table t_user
             (
-                `id`               int auto_increment primary key,
-                `age`              int           default 0    ,
-                `name`             varchar(255)  default null ,
-                `avatar`           varchar(255)  default null ,
-                `password`         varchar(255)  default null ,
-                `introduce`        varchar(1000) default null ,
-                `email`            varchar(255)  default null ,
-                `gender`           int           default -1   ,
-                `mobile_phone`     varchar(36)   default null
+                id               int auto_increment primary key,
+                age              int           default 0    ,
+                name             varchar(255)  default null ,
+                avatar           varchar(255)  default null ,
+                password         varchar(255)  default null ,
+                introduce        varchar(1000) default null ,
+                email            varchar(255)  default null ,
+                gender           int           default -1   ,
+                mobile_phone     varchar(36)   default null
             );
             """)) {
 
@@ -60,7 +60,7 @@ class QueryTests extends AbstractRepositoryManagerTests {
 
     try (JdbcConnection connection = repositoryManager.open()) {
 
-      Query query = connection.createQuery("select * from t_user where `id`=?")
+      Query query = connection.createQuery("select * from t_user where id=?")
               .addParameter(1);
 
       query.setAutoDerivingColumns(true);
@@ -77,7 +77,7 @@ class QueryTests extends AbstractRepositoryManagerTests {
     createData(entityManager);
 
     try (JdbcConnection connection = repositoryManager.open()) {
-      Query query = connection.createQuery("select * from t_user where `id`=? and `name`=?")
+      Query query = connection.createQuery("select * from t_user where id=? and name=?")
               .addParameter(1)
               .addParameter("TODAY");
 
