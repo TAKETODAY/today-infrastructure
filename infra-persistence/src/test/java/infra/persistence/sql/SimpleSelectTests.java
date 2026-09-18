@@ -98,4 +98,38 @@ class SimpleSelectTests {
             "/* find by id */ SELECT name, age FROM t_user WHERE id = 1 order by id ASC");
   }
 
+  @Test
+  void orderByBuilderAppendsToExistingSpec() {
+    SimpleSelect select = new SimpleSelect();
+    select.addColumn("name")
+            .setTableName("t_user")
+            .orderBy(OrderSpec.asc("a"))
+            .orderBy("b");
+
+    assertThat(select.toStatementString(platform)).isEqualTo(
+            "SELECT name FROM t_user order by a ASC, b ASC");
+  }
+
+  @Test
+  void orderByBuilderRestartsAfterRawSpec() {
+    SimpleSelect select = new SimpleSelect();
+    select.addColumn("name").setTableName("t_user");
+    select.orderBy(OrderSpec.plain("x DESC"));
+    select.orderBy("b");
+
+    assertThat(select.toStatementString(platform)).isEqualTo(
+            "SELECT name FROM t_user order by b ASC");
+  }
+
+  @Test
+  void orderByBuilderReplacedBySpec() {
+    SimpleSelect select = new SimpleSelect();
+    select.addColumn("name").setTableName("t_user");
+    select.orderBy().asc("a");
+    select.orderBy(OrderSpec.desc("b"));
+
+    assertThat(select.toStatementString(platform)).isEqualTo(
+            "SELECT name FROM t_user order by b DESC");
+  }
+
 }

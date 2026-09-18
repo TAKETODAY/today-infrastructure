@@ -23,6 +23,7 @@ import infra.persistence.Order;
 import infra.persistence.platform.Platform;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -92,6 +93,30 @@ class OrderSpecTests {
     builder.asc("age");
 
     assertThat(orderSpec.toClause(platform).toString()).isEqualTo("name ASC");
+  }
+
+  @Test
+  void mutate() {
+    OrderSpec orderSpec = OrderSpec.builder().asc("name").build();
+
+    OrderSpec extended = orderSpec.mutate().desc("age").build();
+
+    assertThat(extended.toClause(platform).toString()).isEqualTo("name ASC, age DESC");
+    // the original spec is unchanged
+    assertThat(orderSpec.toClause(platform).toString()).isEqualTo("name ASC");
+  }
+
+  @Test
+  void mutateRejectsPlain() {
+    assertThatThrownBy(() -> OrderSpec.plain("name ASC").mutate())
+            .isInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
+  void isRaw() {
+    assertThat(OrderSpec.asc("name").isRaw()).isFalse();
+    assertThat(OrderSpec.plain("name ASC").isRaw()).isTrue();
+    assertThat(OrderSpec.empty().isRaw()).isFalse();
   }
 
   @Test

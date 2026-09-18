@@ -286,7 +286,7 @@ entityManager.iterate(User.class, example, this::process);
 | 将当前属性的条件与前一个条件以 `OR` 连接（默认为 `AND`）。
 
 | `@OrderBy`
-| 属性级别指定排序方向与优先级：`@OrderBy(Order.DESC)`；多个属性排序时可用 `order()` 声明优先级（值越小越靠前）。
+| 属性级别排序键：`@OrderBy(Order.DESC)`；多个属性用 `order()` 声明优先级（越小越靠前，相同则按属性声明顺序）。详见 <<persistence-order-by>>。
 
 | `@OrderByClause`
 | 类级别指定完整的原始 `ORDER BY` 子句，如 `@OrderByClause("name DESC, age ASC")`。
@@ -324,6 +324,7 @@ query.age = 18;
 List<User> users = entityManager.find(User.class, query);
 ----
 
+[[persistence-order-by]]
 === ORDER BY 解析优先级
 
 示例查询的 `ORDER BY` 按以下优先级解析，命中较早的来源即生效：
@@ -532,6 +533,42 @@ class LoggingBatchListener implements BatchPersistListener {
 包括 `Select` / `SimpleSelect` / `QuerySelect`、`Insert` / `InsertSelect`、`Update`、`Delete`、
 `Restriction`（等值、比较、空值、逻辑组合等）、`JoinFragment` / `ANSIJoinFragment`、
 `OrderSpec`（结构化排序键或原始子句）、`CaseFragment` 等。
+
+[[persistence-order-spec]]
+=== OrderSpec
+
+`OrderSpec` 是不可变的排序规格：一组有序排序键，或一段原始 SQL 子句。列名以 `Identifier` 表示，
+渲染时交给 `Platform` 决定引号，因此同一规格可服务于不同数据库。
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+OrderSpec asc = OrderSpec.asc("name");                        // name ASC
+OrderSpec desc = OrderSpec.desc("age");                       // age DESC
+OrderSpec of = OrderSpec.of(Pair.of("name", Order.ASC),       // name ASC, age DESC
+        Pair.of("age", Order.DESC));
+OrderSpec raw = OrderSpec.plain("LENGTH(name) DESC");         // 原始片段，原样渲染
+
+// 增量构建
+OrderSpec spec = OrderSpec.builder()
+        .asc("name")
+        .desc("age")
+        .build();
+
+// 从已有结构化规格转出 Builder，继续追加排序键
+OrderSpec extended = spec.mutate().asc("id").build();
+
+// 空规格：不产生 ORDER BY，避免返回 null
+OrderSpec empty = OrderSpec.empty();
+
+CharSequence clause = spec.toClause(platform);                // 交由 Platform 方言渲染
+boolean noOrdering = spec.isEmpty();
+----
+
+* `empty()`：共享的空规格，无排序，`isEmpty()` 为 `true`；`builder()` 未追加任何键时也返回该单例。
+* `mutate()`：仅结构化规格可转换为 `Builder`；对 `plain(...)` 的原始子句规格调用会抛
+  `IllegalStateException`（原始片段无法拆成单个排序键）。
+* `isRaw()`：是否为 `plain(...)` 创建的原始子句规格；可在调用 `mutate()` 前预判。
+* 值语义：`equals` / `hashCode` 基于排序键与原始子句文本。
 
 `QueryStatement` 定义了「渲染 SQL + 绑定参数」的契约：实现 `render` 返回
 `StatementSequence`，`setParameter` 负责把值绑定到 `PreparedStatement`。`QueryCondition`

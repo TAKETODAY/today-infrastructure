@@ -35,7 +35,7 @@ public class SimpleSelect implements StatementSequence {
 
   protected Identifier tableName;
 
-  protected @Nullable OrderSpec orderSpec;
+  protected OrderSpec orderSpec = OrderSpec.empty();
 
   protected OrderSpec.@Nullable Builder orderByBuilder;
 
@@ -189,17 +189,35 @@ public class SimpleSelect implements StatementSequence {
     return this;
   }
 
+  /**
+   * Set the ORDER BY spec directly, discarding any keys previously accumulated
+   * through {@link #orderBy()}.
+   *
+   * @param orderSpec the spec to use; {@code null} clears the ordering
+   */
   public SimpleSelect orderBy(@Nullable OrderSpec orderSpec) {
-    this.orderSpec = orderSpec;
+    this.orderSpec = orderSpec != null ? orderSpec : OrderSpec.empty();
     this.orderByBuilder = null;
     return this;
   }
 
+  /**
+   * Return a builder for incrementally appending sort keys.
+   *
+   * <p>When a structured spec was set through {@link #orderBy(OrderSpec)}, the
+   * builder is seeded with its keys so appending continues from it. A
+   * {@linkplain OrderSpec#isRaw() raw-clause} spec cannot be extended, so an empty
+   * builder is started instead.
+   *
+   * @return the builder backing this select's ordering
+   */
   public OrderSpec.Builder orderBy() {
     OrderSpec.Builder builder = orderByBuilder;
     if (builder == null) {
-      builder = OrderSpec.builder();
+      builder = orderSpec.isRaw() ? OrderSpec.builder() : orderSpec.mutate();
       this.orderByBuilder = builder;
+      // the spec has been folded into the builder; keep a single source of truth
+      this.orderSpec = OrderSpec.empty();
     }
     return builder;
   }
@@ -221,11 +239,8 @@ public class SimpleSelect implements StatementSequence {
     // where
     Restriction.append(platform, restrictions, buf);
 
-    OrderSpec orderSpec = this.orderSpec;
-    if (orderSpec == null && orderByBuilder != null) {
-      orderSpec = orderByBuilder.build();
-    }
-    if (orderSpec != null && !orderSpec.isEmpty()) {
+    OrderSpec orderSpec = orderByBuilder != null ? orderByBuilder.build() : this.orderSpec;
+    if (!orderSpec.isEmpty()) {
       buf.append(" order by ").append(orderSpec.toClause(platform));
     }
 

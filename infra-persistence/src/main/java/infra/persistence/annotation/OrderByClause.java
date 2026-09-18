@@ -30,13 +30,16 @@ import infra.aot.hint.annotation.Reflective;
  * <p>The clause is a raw SQL fragment (e.g. {@code "name ASC, age DESC"} or
  * {@code "CASE WHEN status='active' THEN 1 ELSE 2 END"}) and is rendered without
  * validation or dialect quoting. It overrides any property-level
- * {@link OrderBy @OrderBy} ordering.
+ * {@link OrderBy @OrderBy} ordering, while an
+ * {@link infra.persistence.sql.OrderSpecSource} implemented by the example object
+ * takes precedence over it.
  *
  * <p>For ordering by individual mapped properties, use {@link OrderBy @OrderBy}
  * on the properties instead.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see OrderBy
+ * @see infra.persistence.sql.OrderSpecSource
  * @since 5.0 2026/9/18 22:08
  */
 @Reflective

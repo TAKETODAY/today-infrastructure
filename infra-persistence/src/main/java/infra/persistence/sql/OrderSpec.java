@@ -128,6 +128,26 @@ public final class OrderSpec {
     return new Builder();
   }
 
+  /**
+   * Return a builder seeded with this spec's sort keys, for mutating and re-building
+   * an ORDER BY spec.
+   *
+   * <p>Only structured specs can be mutated. Calling this on a
+   * {@linkplain #plain(CharSequence) raw-clause} spec throws, since a raw fragment
+   * cannot be represented as individual sort keys.
+   *
+   * @return a builder pre-populated with this spec's keys
+   * @throws IllegalStateException if this spec is a raw clause
+   */
+  public Builder mutate() {
+    if (isRaw()) {
+      throw new IllegalStateException("Cannot convert a raw-clause OrderSpec to a Builder");
+    }
+    Builder builder = new Builder();
+    builder.items.addAll(items);
+    return builder;
+  }
+
   // ---------- query ----------
 
   /**
@@ -137,6 +157,19 @@ public final class OrderSpec {
    */
   public boolean isEmpty() {
     return rawClause != null ? StringUtils.isBlank(rawClause) : items.isEmpty();
+  }
+
+  /**
+   * Whether this spec is a {@linkplain #plain(CharSequence) raw SQL clause} rather
+   * than a list of structured sort keys.
+   *
+   * <p>A raw spec cannot be {@linkplain #mutate() mutated} into a builder, since its
+   * fragment is not decomposed into individual keys.
+   *
+   * @return {@code true} if this spec was built via {@link #plain(CharSequence)}
+   */
+  public boolean isRaw() {
+    return rawClause != null;
   }
 
   /**

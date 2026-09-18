@@ -25,20 +25,44 @@ import infra.aot.hint.annotation.Reflective;
 import infra.persistence.Order;
 
 /**
- * Specifies the sort direction of an entity property when it takes part in the
- * ORDER BY clause of an example query.
+ * Marks a mapped entity property as a sort key for example queries, using the
+ * direction declared by {@link #value() value}.
  *
- * <p>Place on a mapped property (field or getter) to make example queries order
- * results by that property, using the declared direction. When several properties
- * carry the annotation, they are ordered by their {@link #order() order} value,
- * so a lower value is applied earlier and takes precedence.
+ * <p>Place on a mapped field or getter. Properties carrying the annotation take
+ * part in the ORDER BY clause resolved from the entity metadata. They are ordered
+ * by {@link #order() order}, ascending, so a lower value is applied first; keys
+ * that share the same {@code order} keep their property declaration order (the
+ * sort is stable). The entity's ID property may be ordered like any other
+ * property.
  *
- * <p>To declare a whole SQL ORDER BY fragment at the class level, use
- * {@link OrderByClause @OrderByClause} instead. Both annotations are independent;
- * a class-level clause overrides any property-level {@code @OrderBy}.
+ * <p>Example:
+ * <pre>{@code
+ * @Table("t_user")
+ * class User {
+ *
+ *   @Id
+ *   Integer id;
+ *
+ *   @OrderBy                                     // name ASC
+ *   String name;
+ *
+ *   @OrderBy(value = Order.DESC, order = -1)     // applied before name
+ *   LocalDateTime createdAt;
+ * }
+ * // ORDER BY created_at DESC, name ASC
+ * }</pre>
+ *
+ * <p>The ordering of an example query is resolved with the following precedence,
+ * where the earliest applicable source wins:
+ * <ol>
+ *   <li>an {@link infra.persistence.sql.OrderSpecSource} implemented by the example object;</li>
+ *   <li>a class-level {@link OrderByClause @OrderByClause};</li>
+ *   <li>property-level {@code @OrderBy} (this annotation).</li>
+ * </ol>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see OrderByClause
+ * @see infra.persistence.sql.OrderSpecSource
  * @since 4.0 2024/3/31 17:21
  */
 @Reflective
@@ -52,8 +76,8 @@ public @interface OrderBy {
   Order value() default Order.ASC;
 
   /**
-   * The precedence of this sort key among all {@link OrderBy @OrderBy} properties.
-   * Lower values are applied earlier in the ORDER BY clause.
+   * The precedence of this sort key among all {@link OrderBy @OrderBy} properties;
+   * lower values are applied earlier. Defaults to {@code 0}.
    */
   int order() default 0;
 }
