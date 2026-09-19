@@ -27,10 +27,23 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 
 /**
- * Config server time zone like: {@code serverTimezone=UTC}
+ * A {@link TypeHandler} for {@link Instant}, binding it to JDBC timestamp values.
+ *
+ * <p>Reading uses {@link ResultSet#getObject(int, Class)} with {@link OffsetDateTime}
+ * as the target type, so the value is interpreted using the connection time zone
+ * rather than the JVM default time zone. This requires the JDBC driver to support
+ * JDBC 4.2 target types; for MySQL a connection time zone such as
+ * {@code serverTimezone=UTC} (or {@code connectionTimeZone=UTC} in Connector/J 8+)
+ * should be configured explicitly.
+ *
+ * <p>Note that {@link Instant} has nanosecond precision while JDBC timestamp columns
+ * usually retain only milliseconds or microseconds, so a value read back may be
+ * truncated to the column precision. This is especially relevant when an
+ * {@link Instant} is used as the version property of optimistic locking.
  *
  * @author Tomas Rohovsky
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see OffsetDateTime
  * @since 4.0
  */
 public class InstantTypeHandler extends BasicTypeHandler<Instant> {
