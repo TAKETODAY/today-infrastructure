@@ -80,13 +80,13 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
 
   @Override
   protected void renderInternal(EntityMetadata metadata, SimpleSelect select) {
-    scan(select::addRestriction);
+    scanConditions(select::addRestriction);
     select.orderBy(resolveOrderByClause(metadata));
   }
 
   @Override
   public void collectRestrictions(EntityMetadata metadata, List<Restriction> restrictions) {
-    restrictions.addAll(scan(null));
+    restrictions.addAll(scanConditions(null));
   }
 
   @Override
@@ -99,13 +99,13 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
       }
     }
     // 2. declarative ordering, cached on the example's own metadata
-    return exampleMetadata.getOrderSpec();
+    return QueryCondition.super.resolveOrderByClause(exampleMetadata);
   }
 
   @Override
   public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException {
     int idx = 1;
-    for (var condition : scan(null)) {
+    for (var condition : scanConditions(null)) {
       idx = condition.setParameter(statement, idx);
     }
   }
@@ -120,7 +120,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
     return LogMessage.format("Query entity using example: {}", example);
   }
 
-  private ArrayList<Condition> scan(@Nullable Consumer<Condition> consumer) {
+  private ArrayList<Condition> scanConditions(@Nullable Consumer<Condition> consumer) {
     ArrayList<Condition> conditions = this.conditions;
     if (conditions == null) {
       EntityProperty[] entityProperties = exampleMetadata.getEntityProperties(true);
