@@ -32,7 +32,27 @@ import infra.persistence.sql.Restriction;
 import infra.util.StringUtils;
 
 /**
+ * A {@link PropertyConditionStrategy} that turns an entity property annotated
+ * with {@link Like @Like} into a SQL {@code LIKE} condition.
+ *
+ * <p>Only a non-empty {@link String} value participates in the query. The value
+ * is {@linkplain ValueNormalizer normalized} first, then wrapped with the
+ * {@code %}-wildcards matching the annotation combination:
+ * <ul>
+ *   <li>{@link PrefixLike @PrefixLike} produces {@code "value%"} (prefix match);</li>
+ *   <li>{@link SuffixLike @SuffixLike} produces {@code "%value"} (suffix match);</li>
+ *   <li>otherwise {@code "%value%"} (substring match).</li>
+ * </ul>
+ *
+ * <p>The predicate targets the column declared by the {@code Like} annotation,
+ * falling back to the property's mapped column when none is given. A property
+ * without a {@code @Like} annotation, or with a blank or non-string value, is
+ * declined by returning {@code null}.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see Like
+ * @see PrefixLike
+ * @see SuffixLike
  * @since 4.0 2024/2/28 22:48
  */
 public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
@@ -40,41 +60,48 @@ public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
   @Override
   public @Nullable Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object value,
           ValueNormalizer valueNormalizer) {
-    MergedAnnotation<Like> annotation = entityProperty.getAnnotation(Like.class);
-    if (annotation.isPresent()) {
-      value = valueNormalizer.normalize(entityProperty, value);
-
-      // handle string
-      if (value instanceof String string) {
-        if (StringUtils.hasText(string)) {
-          if (entityProperty.isPresent(PrefixLike.class)) {
-            string = string + '%';
-          }
-          else if (entityProperty.isPresent(SuffixLike.class)) {
-            string = '%' + string;
-          }
-          else {
-            string = '%' + string + '%';
-          }
-
-          value = string;
-          // get column name
-          Identifier column = getColumn(entityProperty, annotation);
-          return new Condition(value, new LikeRestriction(column), entityProperty, logicalAnd);
+    // handle string
+    if (value instanceof String string && StringUtils.hasText(string)) {
+      MergedAnnotation<Like> annotation = entityProperty.getAnnotation(Like.class);
+      if (annotation.isPresent()) {
+        string = (String) valueNormalizer.normalize(entityProperty, value);
+        if (entityProperty.isPresent(PrefixLike.class)) {
+          string = string + '%';
         }
+        else if (entityProperty.isPresent(SuffixLike.class)) {
+          string = '%' + string;
+        }
+        else {
+          string = '%' + string + '%';
+        }
+
+        // get column name
+        Identifier column = getColumn(entityProperty, annotation);
+        return new Condition(string, new LikeRestriction(column), entityProperty, logicalAnd);
       }
     }
     return null;
   }
 
+  /**
+   * Resolve the column targeted by the {@link Like} annotation.
+   *
+   * @param property the mapped entity property
+   * @param annotation the resolved {@code @Like} annotation
+   * @return the annotation-declared column, or the property's mapped column when
+   * no column is declared
+   */
   private static Identifier getColumn(EntityProperty property, MergedAnnotation<Like> annotation) {
-    String columnText = annotation.getStringValue();
+    String columnText = annotation.getString("column");
     if (Constant.DEFAULT_NONE.equals(columnText)) {
       return property.getColumnName();
     }
     return Identifier.parse(columnText);
   }
 
+  /**
+   * Renders a {@code column LIKE ?} predicate.
+   */
   static final class LikeRestriction implements Restriction {
 
     final Identifier columnName;

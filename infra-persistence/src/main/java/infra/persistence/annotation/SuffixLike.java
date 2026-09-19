@@ -26,38 +26,25 @@ import infra.core.annotation.AliasFor;
 import infra.lang.Constant;
 
 /**
- * Indicates that a field or parameter should be treated as a "suffix-like" query condition.
- * This annotation can be applied to classes, methods, or fields and is retained at runtime.
- * It is typically used in conjunction with query builders or ORM frameworks to generate
- * SQL-like conditions dynamically, specifically for suffix-based matching (e.g., "LIKE '%value'").
+ * Indicates that a field, method, or class should be treated as a "suffix-like" query condition,
+ * a specialized form of {@link Like @Like} for suffix-based searches.
  *
- * <p>The {@code SuffixLike} annotation allows specifying the column name. The value can be
- * trimmed before processing by combining it with {@link Trim @Trim}.</p>
+ * <p>The annotation can specify the target column via {@link #column()}. If no column is given,
+ * the mapped column of the property is used. The annotated value can be trimmed before processing
+ * by combining it with {@link Trim @Trim}.</p>
  *
- * <p><b>Attributes:</b></p>
- * <ul>
- *   <li>{@code value}: The column name or where-clause predicate. Defaults to {@code Constant.DEFAULT_NONE}.</li>
- *   <li>{@code column}: An alias for {@code value}. Defaults to {@code Constant.DEFAULT_NONE}.</li>
- * </ul>
+ * <p>A suffix-like condition matches {@code column LIKE '%value'}, i.e. rows whose column value
+ * ends with the given string.</p>
  *
- * <p><b>Usage Examples:</b></p>
- *
- * Example 1: Basic usage on a field
+ * <p>Usage on a field:
  * <pre>{@code
- * @SuffixLike(value = "name")
- * private String searchName;
+ * @SuffixLike
+ * private String name;
  * }</pre>
- *
- * Example 2: Using alias attributes
- * <pre>{@code
- * @SuffixLike(column = "email")
- * private String emailFilter;
- * }</pre>
- *
- * <p>This annotation is particularly useful in scenarios where dynamic query conditions
- * are required, such as filtering data based on user input with suffix-based matching.</p>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see Like
+ * @see PrefixLike
  * @since 4.0 2024/2/24 23:53
  */
 @Like
@@ -67,11 +54,14 @@ import infra.lang.Constant;
 public @interface SuffixLike {
 
   /**
-   * The where-clause predicate.
+   * The column name or where-clause predicate the suffix-like condition targets.
+   *
+   * <p>An alias for the {@link Like#column()} attribute of the composing
+   * {@link Like @Like} annotation. When set to {@link Constant#DEFAULT_NONE},
+   * the property's mapped column is used instead.</p>
+   *
+   * @return the column name or predicate, or {@link Constant#DEFAULT_NONE} if not specified
    */
-  @AliasFor(annotation = Like.class, attribute = "value")
-  String value() default Constant.DEFAULT_NONE;
-
   @AliasFor(annotation = Like.class, attribute = "column")
   String column() default Constant.DEFAULT_NONE;
 
