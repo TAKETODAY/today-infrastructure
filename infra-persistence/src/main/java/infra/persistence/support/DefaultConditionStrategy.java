@@ -46,10 +46,10 @@ public class DefaultConditionStrategy implements PropertyConditionStrategy {
   @Override
   public @Nullable Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object value,
           ValueNormalizer valueNormalizer) {
-    value = valueNormalizer.normalize(entityProperty, value);
     if (value instanceof String string && StringUtils.isBlank(string)) {
       return null;
     }
+    value = valueNormalizer.normalize(entityProperty, value);
     return new Condition(value, Restriction.equal(entityProperty.getColumnName()), entityProperty, logicalAnd);
   }
 

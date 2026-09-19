@@ -30,7 +30,7 @@ import java.util.EventListener;
  * </ul>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see infra.persistence.event.EntityEventRegistry
+ * @see EntityEventRegistry
  * @since 5.0
  */
 public interface Listener extends EventListener {

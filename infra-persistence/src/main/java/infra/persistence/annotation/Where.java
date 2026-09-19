@@ -25,24 +25,24 @@ import infra.aot.hint.annotation.Reflective;
 import infra.lang.Constant;
 
 /**
- * An annotation used to define conditional logic for the annotated element,
- * such as filtering query results or applying runtime constraints. It is
- * typically applied to classes, methods, or fields to specify a where-clause
- * predicate.
+ * Defines a where-clause predicate for the annotated element, such as filtering
+ * query results or applying runtime constraints. It is typically applied to
+ * fields of an entity used as an example in a query.
  *
- * <p>The {@link #value()} attribute defines the primary condition as a string.
- * If no value is explicitly provided, the default is set to
- * {@link Constant#DEFAULT_NONE}, which represents the absence of a meaningful
- * default value in annotations. This ensures compatibility with annotation
- * constraints that do not allow {@code null} values.
+ * <p>The predicate is derived from the annotation attributes as follows:
+ * <ul>
+ *   <li>{@link #value()} — a complete SQL predicate fragment, e.g.
+ *   {@code "status > ?"}, rendered unchanged;</li>
+ *   <li>{@link #operator()} — a comparison operator applied to the property's
+ *   column, e.g. {@code ">"}, rendering {@code column > ?};</li>
+ *   <li>neither — the property's column is compared for equality, rendering
+ *   {@code column = ?}.</li>
+ * </ul>
  *
- * <p><b>Usage Examples:</b>
- *
+ * <p>Usage on a field:
  * <pre>{@code
- *   // Example 1: Applying a simple where-clause to a field
- *   @Where(value = "status > ?")
- *   private int status;
- *
+ * @Where(value = "status > ?")
+ * private int status;
  * }</pre>
  *
  * @author Emmanuel Bernard
@@ -55,57 +55,22 @@ import infra.lang.Constant;
 public @interface Where {
 
   /**
-   * Returns the value of the annotation's primary condition as a string.
-   * This attribute defines the main predicate or logic to be applied,
-   * typically used in filtering query results or applying runtime constraints.
+   * A complete where-clause predicate fragment to apply.
    *
-   * <p>If no value is explicitly provided, the default is set to
-   * {@link Constant#DEFAULT_NONE}, which represents the absence of a meaningful
-   * default value. This ensures compatibility with annotation constraints that
-   * do not allow {@code null} values.
+   * <p>When set to {@link Constant#DEFAULT_NONE}, the predicate falls back to
+   * {@link #operator()} or, failing that, to an equality comparison.
    *
-   * <p><b>Usage Examples:</b>
-   *
-   * <pre>{@code
-   *   // Example 1: Specifying a custom condition
-   *   @Where(value = "status > ?")
-   *   private int status;
-   *
-   *   // Example 2: Using the default value
-   *   @Where
-   *   private String description;
-   * }</pre>
-   *
-   * @return the string representation of the condition or
-   * {@link Constant#DEFAULT_NONE} if no value is specified
+   * @return the predicate fragment, or {@link Constant#DEFAULT_NONE} if not specified
    */
   String value() default Constant.DEFAULT_NONE;
 
   /**
-   * Returns the operator associated with the annotation's condition.
-   * This attribute defines the logical operator to be applied, typically
-   * used in conjunction with the {@link #value()} attribute to construct
-   * complex query conditions or filtering logic.
+   * A comparison operator applied to the property's column.
    *
-   * <p>If no operator is explicitly provided, the default is set to
-   * {@link Constant#DEFAULT_NONE}, which represents the absence of a meaningful
-   * default value. This ensures compatibility with annotation constraints that
-   * do not allow {@code null} values.
+   * <p>Only consulted when {@link #value()} is not specified. When both are
+   * {@link Constant#DEFAULT_NONE}, an equality comparison is used.
    *
-   * <p><b>Usage Examples:</b>
-   *
-   * <pre>{@code
-   *   // Example 1: Specifying a custom operator
-   *   @Where(operator = "=")
-   *   private int status;
-   *
-   *   // Example 2: Using the default operator
-   *   @Where(value = "name LIKE ?")
-   *   private String name;
-   * }</pre>
-   *
-   * @return the string representation of the operator or
-   * {@link Constant#DEFAULT_NONE} if no operator is specified
+   * @return the comparison operator, or {@link Constant#DEFAULT_NONE} if not specified
    */
   String operator() default Constant.DEFAULT_NONE;
 

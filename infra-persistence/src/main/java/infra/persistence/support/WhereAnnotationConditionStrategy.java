@@ -27,87 +27,43 @@ import infra.persistence.annotation.Where;
 import infra.persistence.sql.Restriction;
 
 /**
- * A strategy implementation for resolving SQL WHERE conditions based on the
- * presence and configuration of the {@code @Where} annotation on an entity property.
+ * A {@link PropertyConditionStrategy} that turns an entity property annotated
+ * with {@link Where @Where} into a SQL predicate.
  *
- * <p>This class implements the {@link PropertyConditionStrategy} interface and
- * provides a mechanism to dynamically generate SQL conditions by inspecting the
- * {@code @Where} annotation associated with an entity property. It supports
- * customizing the condition using the annotation's attributes, such as the
- * operator or a predefined SQL fragment.
- *
- * <p>If the {@code @Where} annotation is present, this strategy resolves the
- * condition as follows:
+ * <p>The property value is {@linkplain ValueNormalizer normalized} first. When
+ * the {@code @Where} annotation is present, the predicate is built as follows:
  * <ul>
- *   <li>If the annotation specifies a non-default SQL fragment, it uses that fragment.</li>
- *   <li>If no SQL fragment is specified, it falls back to using the operator defined
- *       in the annotation (defaulting to equality if no operator is provided).</li>
+ *   <li>with a {@link Where#value()} SQL fragment — the fragment is rendered
+ *   unchanged via {@link Restriction#plain(CharSequence) plain()};</li>
+ *   <li>otherwise with an {@link Where#operator()} — as {@code column <operator> ?}
+ *   via {@link Restriction#forOperator(String, String, String) forOperator()};</li>
+ *   <li>otherwise — as {@code column = ?} via {@link Restriction#equal(String)}.</li>
  * </ul>
  *
- * <p><b>Usage Example:</b>
- * <pre>{@code
- * // Define an entity property with a @Where annotation
- * EntityProperty property = ...; // Obtain an EntityProperty instance
- * Object extractedValue = "  exampleValue  ";
- *
- * // Resolve the condition using WhereAnnotationConditionStrategy
- * WhereAnnotationConditionStrategy strategy = new WhereAnnotationConditionStrategy();
- * Condition condition = strategy.resolve(property, extractedValue);
- *
- * if (condition != null) {
- *   StringBuilder sql = new StringBuilder("SELECT * FROM table WHERE ");
- *   condition.render(sql);
- *   System.out.println(sql.toString());
- * }
- * }</pre>
- *
- * <p>In the above example, if the {@code @Where} annotation specifies an operator
- * like "LIKE", the generated SQL might look like:
- * <pre>{@code
- * SELECT * FROM table WHERE column LIKE ?
- * }</pre>
- *
- * <p>If the annotation specifies a custom SQL fragment, such as "column > ?", the
- * generated SQL would reflect that instead:
- * <pre>{@code
- * SELECT * FROM table WHERE column > ?
- * }</pre>
- *
- * <p>This strategy is particularly useful for scenarios where dynamic query
- * construction is required based on metadata annotations.
+ * <p>A property without a {@code @Where} annotation is declined by returning
+ * {@code null}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see Where
  * @since 4.0 2024/2/25 00:02
  */
 public class WhereAnnotationConditionStrategy implements PropertyConditionStrategy {
 
   /**
-   * Resolves a condition based on the provided parameters and annotations associated with the entity property.
-   * This method processes the {@code extracted} value and uses the {@code @Where}
-   * annotation to determine the appropriate condition to return.
+   * Resolve a condition for the given property and value.
    *
-   * <p>Usage example:
-   * <pre>{@code
-   *   EntityProperty property = ...; // Obtain an EntityProperty instance
-   *   Object extractedValue = "  example  "; // Example extracted value
-   *   boolean logicalAnd = true; // Logical AND flag
+   * <p>The value is {@linkplain ValueNormalizer normalized} before it is bound.
+   * The predicate is chosen from the {@code @Where} annotation as described in
+   * the class-level documentation; a property without the annotation yields
+   * {@code null}.
    *
-   *   Condition condition = strategy.resolve(logicalAnd, property, extractedValue);
-   *   if (condition != null) {
-   *     System.out.println("Resolved condition: " + condition);
-   *   }
-   * }</pre>
-   *
-   * <p>This method handles the following scenarios:
-   * <ul>
-   *   <li>If the {@code @Where} annotation is present, its value or operator is used to construct the condition.</li>
-   *   <li>If no valid condition can be resolved, the method returns {@code null}.</li>
-   * </ul>
-   *
-   * @param logicalAnd Indicates whether the condition should be combined using a logical AND operation.
-   * @param entityProperty The entity property associated with the condition. Must not be {@code null}.
-   * @param value The extracted value to be used in the condition.
-   * @return A {@link Condition} object if a valid condition is resolved, or {@code null} if no condition can be determined.
+   * @param logicalAnd whether this condition is joined to the preceding one with
+   * {@code AND}; {@code false} selects {@code OR}
+   * @param entityProperty the mapped entity property
+   * @param value the property value to evaluate
+   * @param valueNormalizer the normalizer for the property, never {@code null}
+   * @return the resolved condition, or {@code null} when the property is not
+   * annotated with {@code @Where}
    */
   @Override
   public @Nullable Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object value,

@@ -28,15 +28,15 @@ import infra.lang.Constant;
 
 /**
  * Specifies the mapped column for a persistent property or field.
- * If no <code>Column</code> annotation is specified, the default values apply.
- * <pre> {@code
- *    // Example
  *
- *    @Column(name = "DESC")
- *    public String getDescription() {
- *      return description;
- *    }
+ * <p>When the annotation is absent, the mapped column defaults to the property
+ * or field name. The column can be given through either {@link #name()} or its
+ * alias {@link #value()}.
  *
+ * <p>Usage on a field:
+ * <pre>{@code
+ * @Column(name = "DESC")
+ * private String description;
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -48,12 +48,24 @@ import infra.lang.Constant;
 @Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.FIELD })
 public @interface Column {
 
+  /**
+   * The name of the column.
+   *
+   * <p>An alias for {@link #name()}. When set to {@link Constant#BLANK}, the
+   * mapped column defaults to the property or field name.
+   *
+   * @return the column name, or {@link Constant#BLANK} if not specified
+   */
   @AliasFor("name")
   String value() default Constant.BLANK;
 
   /**
-   * (Optional) The name of the column. Defaults to
-   * the property or field name.
+   * The name of the column.
+   *
+   * <p>An alias for {@link #value()}. When set to {@link Constant#BLANK}, the
+   * mapped column defaults to the property or field name.
+   *
+   * @return the column name, or {@link Constant#BLANK} if not specified
    */
   @AliasFor("value")
   String name() default Constant.BLANK;

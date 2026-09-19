@@ -28,26 +28,21 @@ import infra.persistence.RefEntityMetadata;
 /**
  * Declares that the annotated entity references the primary table of another entity.
  *
- * <p>It is typically used on entities that do not declare an ID property of their own,
- * but instead share the primary key of the referenced entity, such as a partial view
- * or update model of a base entity.
+ * <p>Typically used on entities that do not declare their own ID property, but
+ * instead share the primary key of the referenced entity. This is common for
+ * partial views or update models of a base entity.
  *
- * <p>Example:
- * <pre> {@code
- *    @Table(name="t_user")
- *    public class User {
- *      // ...
- *    }
+ * <p>Usage:
+ * <pre>{@code
+ * @Table(name = "t_user")
+ * public class User { ... }
  *
- *    @EntityRef(User.class)
- *    public class UpdateUser {
- *      //...
- *    }
- *
+ * @EntityRef(User.class)
+ * public class UpdateUser { ... }
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see RefEntityMetadata#refIdProperty
+ * @see RefEntityMetadata#findIdProperty()
  * @since 4.0 2024/4/11 13:36
  */
 @RegisterBeanMetadata
