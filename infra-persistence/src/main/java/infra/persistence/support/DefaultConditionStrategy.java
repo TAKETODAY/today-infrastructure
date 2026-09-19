@@ -18,24 +18,55 @@ package infra.persistence.support;
 
 import org.jspecify.annotations.Nullable;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+import infra.core.annotation.MergedAnnotation;
 import infra.persistence.EntityProperty;
 import infra.persistence.PropertyConditionStrategy;
+import infra.persistence.annotation.WhereIsNull;
 import infra.persistence.sql.Restriction;
 import infra.util.StringUtils;
 
 /**
+ * The fallback {@link PropertyConditionStrategy} that turns an example property
+ * value into an equality predicate.
+ *
+ * <p>A blank string declines to contribute a predicate. A {@code null} value on
+ * a property annotated with {@link WhereIsNull @NullQuery} produces an
+ * {@code IS NULL} / {@code IS NOT NULL} predicate; a {@code null} value on any
+ * other property takes no part in the query.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/28 22:43
  */
 public class DefaultConditionStrategy implements PropertyConditionStrategy {
 
-  @Nullable
   @Override
-  public Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object value) {
+  public @Nullable Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object value) {
     if (value instanceof String string && StringUtils.isBlank(string)) {
       return null;
     }
     return new Condition(value, Restriction.equal(entityProperty.getColumnName()), entityProperty, logicalAnd);
+  }
+
+  @Override
+  public @Nullable Condition resolve(boolean logicalAnd, EntityProperty entityProperty) {
+    MergedAnnotation<WhereIsNull> annotation = entityProperty.getAnnotation(WhereIsNull.class);
+    if (!annotation.isPresent()) {
+      return null;
+    }
+    boolean not = annotation.getBoolean("not");
+    Restriction restriction = not
+            ? Restriction.isNotNull(entityProperty.getColumnName())
+            : Restriction.isNull(entityProperty.getColumnName());
+    return new Condition(null, restriction, entityProperty, logicalAnd) {
+
+      @Override
+      public int setParameter(PreparedStatement ps, int parameterIndex) throws SQLException {
+        return parameterIndex;
+      }
+    };
   }
 
 }

@@ -128,20 +128,20 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
 
       for (EntityProperty property : entityProperties) {
         Object propertyValue = property.getValue(example);
-        if (propertyValue != null) {
-          boolean logicalAnd = !property.isPresent(OR.class);
+        boolean logicalAnd = !property.isPresent(OR.class);
 
-          for (var strategy : strategies) {
-            var condition = strategy.resolve(logicalAnd, property, propertyValue);
-            if (condition != null) {
-              if (consumer != null) {
-                consumer.accept(condition);
-              }
-              conditions.add(condition);
-              break;
+        for (var strategy : strategies) {
+          var condition = propertyValue == null
+                  ? strategy.resolve(logicalAnd, property)
+                  : strategy.resolve(logicalAnd, property, propertyValue);
+          if (condition != null) {
+            if (consumer != null) {
+              consumer.accept(condition);
             }
+            conditions.add(condition);
+            break;
           }
-        } // todo 构建 null 的情况
+        }
       }
       this.conditions = conditions;
     }

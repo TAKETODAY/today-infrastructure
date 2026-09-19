@@ -33,6 +33,11 @@ import infra.persistence.sql.Restriction;
  * returns a {@link Condition} that keeps SQL rendering and JDBC parameter binding
  * in the same order.
  *
+ * <p>A property whose value is {@code null} is ruled either by
+ * {@link #resolve(boolean, EntityProperty)} — by default returning {@code null}
+ * so that the property takes no part in the query — or by a strategy willing to
+ * contribute a nullness predicate such as {@code IS NULL}.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/24 23:58
  */
@@ -40,6 +45,9 @@ public interface PropertyConditionStrategy {
 
   /**
    * Resolve a condition for the given mapped property and value.
+   *
+   * <p>The value is never {@code null}; a {@code null} property value is routed
+   * to {@link #resolve(boolean, EntityProperty)} instead.
    *
    * @param logicalAnd whether this condition is joined to the preceding one with
    * {@code AND}; {@code false} selects {@code OR}
@@ -50,6 +58,24 @@ public interface PropertyConditionStrategy {
    */
   @Nullable
   Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object value);
+
+  /**
+   * Resolve a condition for a property whose value is {@code null}.
+   *
+   * <p>Whether a {@code null} value contributes an {@code IS NULL} predicate is a
+   * strategy decision. The default implementation declines, leaving the property
+   * out of the query.
+   *
+   * @param logicalAnd whether this condition is joined to the preceding one with
+   * {@code AND}; {@code false} selects {@code OR}
+   * @param entityProperty the mapped entity property
+   * @return the resolved condition, or {@code null} when the strategy does not
+   * apply and the property should not contribute a predicate
+   * @since 5.0
+   */
+  default @Nullable Condition resolve(boolean logicalAnd, EntityProperty entityProperty) {
+    return null;
+  }
 
   /**
    * A resolved property predicate consisting of its SQL restriction, bindable
