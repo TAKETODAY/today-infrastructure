@@ -554,7 +554,7 @@ public class DefaultEntityManager implements EntityManager {
 
     ArrayList<EntityProperty> properties = new ArrayList<>(4);
     ArrayList<EntityProperty> updateByProperties = new ArrayList<>(2);
-    for (EntityProperty property : metadata.getEntityProperties(true)) {
+    for (EntityProperty property : metadata.getEntityProperties(false)) {
       if (property == versionProperty) {
         updateStmt.addAssignment(property.getColumnName());
         properties.add(property);
@@ -687,7 +687,7 @@ public class DefaultEntityManager implements EntityManager {
     updateStmt.addRestriction(idProperty.getColumnName());
 
     ArrayList<EntityProperty> properties = new ArrayList<>();
-    for (EntityProperty property : metadata.getEntityProperties(false)) {
+    for (EntityProperty property : metadata.getEntityProperties(true)) {
       if (property == versionProperty || strategy.shouldUpdate(entity, property)) {
         updateStmt.addAssignment(property.getColumnName());
         properties.add(property);
@@ -1162,7 +1162,7 @@ public class DefaultEntityManager implements EntityManager {
         return new Page<>(pageable, 0, Collections.emptyList());
       }
 
-      statement = new SimpleSelect(Arrays.asList(metadata.getColumnNames(false)), restrictions)
+      statement = new SimpleSelect(Arrays.asList(metadata.getColumnNames(true)), restrictions)
               .setTableName(metadata.getTableName())
               .pageable(pageable)
               .orderBy(handler.resolveOrderByClause(metadata))
@@ -1254,7 +1254,7 @@ public class DefaultEntityManager implements EntityManager {
 
   private Pair<String, ArrayList<EntityProperty>> insertStatement(PropertyUpdateStrategy strategy, Object entity, EntityMetadata entityMetadata) {
     Insert insert = new Insert(entityMetadata.getTableName());
-    EntityProperty[] entityProperties = entityMetadata.getEntityProperties(false);
+    EntityProperty[] entityProperties = entityMetadata.getEntityProperties(true);
     var properties = new ArrayList<EntityProperty>(entityProperties.length);
     for (EntityProperty property : entityProperties) {
       if (strategy.shouldUpdate(entity, property)) {

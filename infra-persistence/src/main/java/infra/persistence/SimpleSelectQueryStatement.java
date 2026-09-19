@@ -74,7 +74,7 @@ public abstract class SimpleSelectQueryStatement implements QueryStatement {
    */
   @Override
   public StatementSequence render(EntityMetadata metadata) {
-    SimpleSelect select = new SimpleSelect(Arrays.asList(metadata.getColumnNames(false)), new ArrayList<>());
+    SimpleSelect select = new SimpleSelect(Arrays.asList(metadata.getColumnNames(true)), new ArrayList<>());
     select.setTableName(metadata.getTableName());
 
     renderInternal(metadata, select);

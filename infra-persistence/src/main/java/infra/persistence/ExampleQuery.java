@@ -123,7 +123,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
   private ArrayList<Condition> scan(@Nullable Consumer<Condition> consumer) {
     ArrayList<Condition> conditions = this.conditions;
     if (conditions == null) {
-      EntityProperty[] entityProperties = exampleMetadata.getEntityProperties(false);
+      EntityProperty[] entityProperties = exampleMetadata.getEntityProperties(true);
       conditions = new ArrayList<>(entityProperties.length);
 
       for (EntityProperty property : entityProperties) {

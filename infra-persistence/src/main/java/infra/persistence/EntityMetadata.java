@@ -204,38 +204,38 @@ public class EntityMetadata {
   /**
    * Return the column names of the mapped properties.
    *
-   * <p>When {@code excludeId} is {@code false}, the ID column (if the entity has one)
-   * is included; when {@code true}, it is omitted. The result mirrors
+   * <p>When {@code includeId} is {@code true}, the ID column (if the entity has one)
+   * is included; when {@code false}, it is omitted. The result mirrors
    * {@link #getEntityProperties(boolean)} called with the same argument, so that a
    * column name and its property share the same position.
    *
    * <p>The returned array is the internally cached instance; callers must not modify
    * it.
    *
-   * @param excludeId whether to omit the ID column from the result
+   * @param includeId whether to include the ID column in the result
    * @return the column names, never {@code null}
    */
   @Unmodifiable
-  public Identifier[] getColumnNames(boolean excludeId) {
-    return excludeId ? columnNamesExcludeId : columnNames;
+  public Identifier[] getColumnNames(boolean includeId) {
+    return includeId ? columnNames : columnNamesExcludeId;
   }
 
   /**
    * Return the mapped entity properties.
    *
-   * <p>When {@code excludeId} is {@code false}, the ID property (if the entity has
-   * one) is included; when {@code true}, it is omitted. The result mirrors
+   * <p>When {@code includeId} is {@code true}, the ID property (if the entity has
+   * one) is included; when {@code false}, it is omitted. The result mirrors
    * {@link #getColumnNames(boolean)} called with the same argument.
    *
    * <p>The returned array is the internally cached instance; callers must not modify
    * it.
    *
-   * @param excludeId whether to omit the ID property from the result
+   * @param includeId whether to include the ID property in the result
    * @return the entity properties, never {@code null}
    */
   @Unmodifiable
-  public EntityProperty[] getEntityProperties(boolean excludeId) {
-    return excludeId ? entityPropertiesExcludeId : entityProperties;
+  public EntityProperty[] getEntityProperties(boolean includeId) {
+    return includeId ? entityProperties : entityPropertiesExcludeId;
   }
 
   /**

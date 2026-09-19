@@ -254,7 +254,7 @@ class VersionTests extends AbstractRepositoryManagerTests {
     DefaultEntityMetadataFactory factory = new DefaultEntityMetadataFactory();
     EntityMetadata metadata = factory.getEntityMetadata(VersionedModel.class);
 
-    assertThat(metadata.getEntityProperties(false))
+    assertThat(metadata.getEntityProperties(true))
             .extracting(EntityProperty::getColumnName)
             .extracting(Identifier::getText)
             .contains("version");
@@ -266,7 +266,7 @@ class VersionTests extends AbstractRepositoryManagerTests {
     EntityMetadata metadata = factory.getEntityMetadata(VersionedModel.class);
 
     // version is not the ID, so it should be in entityPropertiesExcludeId
-    assertThat(metadata.getEntityProperties(true))
+    assertThat(metadata.getEntityProperties(false))
             .extracting(EntityProperty::getColumnName)
             .extracting(Identifier::getText)
             .contains("version");

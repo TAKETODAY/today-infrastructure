@@ -245,8 +245,8 @@ class DefaultEntityMetadataFactoryTests {
     assertThat(metadata).isNotNull();
     assertThat(metadata.getEntityClass()).isEqualTo(UserModel.class);
     assertThat(metadata.getTableName()).isNotNull();
-    assertThat(metadata.getEntityProperties(false)).isNotEmpty();
-    assertThat(metadata.getColumnNames(false)).isNotEmpty();
+    assertThat(metadata.getEntityProperties(true)).isNotEmpty();
+    assertThat(metadata.getColumnNames(true)).isNotEmpty();
   }
 
   @Test
@@ -291,7 +291,7 @@ class DefaultEntityMetadataFactoryTests {
   @Test
   void shouldCreateEntityPropertyWithCorrectTypeHandler() {
     EntityMetadata metadata = factory.createEntityMetadata(UserModel.class);
-    for (EntityProperty property : metadata.getEntityProperties(false)) {
+    for (EntityProperty property : metadata.getEntityProperties(true)) {
       // TypeHandler should be assigned for each property
       assertThat(property.getTypeHandler()).isNotNull();
     }
@@ -303,10 +303,10 @@ class DefaultEntityMetadataFactoryTests {
 
     if (metadata.getIdProperty() != null) {
       // ID column should not be in columnNamesExcludeId
-      assertThat(metadata.getColumnNames(true)).doesNotContain(metadata.getIdProperty().getColumnName());
+      assertThat(metadata.getColumnNames(false)).doesNotContain(metadata.getIdProperty().getColumnName());
 
       // ID property should not be in entityPropertiesExcludeId
-      assertThat(metadata.getEntityProperties(true)).noneMatch(ep -> ep == metadata.getIdProperty());
+      assertThat(metadata.getEntityProperties(false)).noneMatch(ep -> ep == metadata.getIdProperty());
     }
   }
 
@@ -349,7 +349,7 @@ class DefaultEntityMetadataFactoryTests {
 
     EntityMetadata metadata = factory.createEntityMetadata(UserModel.class);
     // All columns should have the custom name (though this would cause issues with duplicates)
-    assertThat(metadata.getColumnNames(false)).allMatch(name -> name.matches(customColumnName));
+    assertThat(metadata.getColumnNames(true)).allMatch(name -> name.matches(customColumnName));
   }
 
   @Test
@@ -388,7 +388,7 @@ class DefaultEntityMetadataFactoryTests {
     EntityMetadata metadata = factory.createEntityMetadata(UserModel.class);
 
     // EntityProperty should use type handlers from the custom manager
-    for (EntityProperty property : metadata.getEntityProperties(false)) {
+    for (EntityProperty property : metadata.getEntityProperties(true)) {
       assertThat(property.getTypeHandler()).isNotNull();
     }
   }
@@ -692,7 +692,7 @@ class DefaultEntityMetadataFactoryTests {
     EntityMetadata metadata = factory.createEntityMetadata(UserModel.class);
 
     // Should be able to find properties by name
-    for (EntityProperty property : metadata.getEntityProperties(false)) {
+    for (EntityProperty property : metadata.getEntityProperties(true)) {
       EntityProperty found = metadata.findProperty(property.getBeanProperty().getName());
       assertThat(found).isNotNull().isEqualTo(property);
     }
