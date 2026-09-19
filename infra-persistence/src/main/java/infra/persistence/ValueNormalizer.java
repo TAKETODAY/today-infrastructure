@@ -57,7 +57,7 @@ public interface ValueNormalizer {
    * annotated with {@link Trim @Trim} and leaves every other value unchanged.
    */
   ValueNormalizer DEFAULT = (entityProperty, value) -> {
-    if (entityProperty.isPresent(Trim.class) && value instanceof String string) {
+    if (value instanceof String string && entityProperty.isPresent(Trim.class)) {
       return string.trim();
     }
     return value;
