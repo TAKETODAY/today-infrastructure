@@ -81,7 +81,7 @@ public class Update implements StatementSequence {
   }
 
   public Update addRestriction(Identifier column) {
-    restrictions.add(Restriction.equal(column));
+    restrictions.add(Restrictions.equal(column));
     return this;
   }
 
@@ -95,17 +95,17 @@ public class Update implements StatementSequence {
   }
 
   public Update addRestriction(String column, String value) {
-    restrictions.add(Restriction.equal(column, value));
+    restrictions.add(Restrictions.equal(column, value));
     return this;
   }
 
   public Update addColumnIsNullRestriction(String columnName) {
-    restrictions.add(Restriction.isNull(columnName));
+    restrictions.add(Restrictions.isNull(columnName));
     return this;
   }
 
   public Update addColumnIsNotNullRestriction(String columnName) {
-    restrictions.add(Restriction.isNotNull(columnName));
+    restrictions.add(Restrictions.isNotNull(columnName));
     return this;
   }
 
@@ -133,7 +133,7 @@ public class Update implements StatementSequence {
       }
     }
 
-    Restriction.append(platform, restrictions, buf);
+    Restrictions.append(platform, restrictions, buf);
     return buf.toString();
   }
 

@@ -29,6 +29,7 @@ import infra.persistence.annotation.EntityRef;
 import infra.persistence.annotation.WhereIsNull;
 import infra.persistence.platform.GenericPlatform;
 import infra.persistence.sql.Restriction;
+import infra.persistence.sql.Restrictions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -61,7 +62,7 @@ class WhereIsNullTests {
 
     assertThat(restrictions).hasSize(1);
     StringBuilder sql = new StringBuilder();
-    Restriction.appendWhereClause(new GenericPlatform(), restrictions, sql);
+    Restrictions.appendWhereClause(new GenericPlatform(), restrictions, sql);
     assertThat(sql.toString()).containsIgnoringCase("deleted_at IS NULL");
   }
 
@@ -75,7 +76,7 @@ class WhereIsNullTests {
 
     assertThat(restrictions).hasSize(1);
     StringBuilder sql = new StringBuilder();
-    Restriction.appendWhereClause(new GenericPlatform(), restrictions, sql);
+    Restrictions.appendWhereClause(new GenericPlatform(), restrictions, sql);
     assertThat(sql.toString()).containsIgnoringCase("status IS NOT NULL");
   }
 
@@ -90,7 +91,7 @@ class WhereIsNullTests {
 
     assertThat(restrictions).hasSize(1);
     StringBuilder sql = new StringBuilder();
-    Restriction.appendWhereClause(new GenericPlatform(), restrictions, sql);
+    Restrictions.appendWhereClause(new GenericPlatform(), restrictions, sql);
     assertThat(sql.toString()).contains("deleted_at = ?");
   }
 

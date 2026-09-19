@@ -61,11 +61,12 @@ class WhereAnnotationTests {
     System.out.println(statementString);
 
     assertThat(statementString).endsWith(sqlBuffer);
-    assertThat(sqlBuffer.toString()).isEqualTo(" WHERE status > ? AND status2 = ? OR status3 <= ?");
+    assertThat(sqlBuffer.toString())
+            .isEqualTo(" WHERE ((status > ? AND status2 = ?) OR status3 <= ?)");
 
     ArrayList<Restriction> restrictions = new ArrayList<>();
     exampleQuery.collectRestrictions(userModelMetadata, restrictions);
-    assertThat(restrictions).hasSize(3);
+    assertThat(restrictions).hasSize(1);
 
   }
 

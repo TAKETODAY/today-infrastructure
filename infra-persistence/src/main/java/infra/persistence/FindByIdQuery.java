@@ -20,7 +20,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import infra.logging.LogMessage;
-import infra.persistence.sql.Restriction;
+import infra.persistence.sql.Restrictions;
 import infra.persistence.sql.SimpleSelect;
 
 /**
@@ -36,7 +36,7 @@ class FindByIdQuery extends SimpleSelectQueryStatement implements QueryStatement
 
   @Override
   protected void renderInternal(EntityMetadata metadata, SimpleSelect select) {
-    select.addRestriction(Restriction.equal(metadata.idProperty().getColumnName()));
+    select.addRestriction(Restrictions.equal(metadata.idProperty().getColumnName()));
     select.limit(1);
   }
 

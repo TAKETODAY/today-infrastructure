@@ -24,6 +24,7 @@ import java.util.Map;
 import infra.jdbc.model.UserModel;
 import infra.persistence.platform.Platform;
 import infra.persistence.sql.Restriction;
+import infra.persistence.sql.Restrictions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,7 +45,7 @@ class MapEntityQueryFactoryTests {
 
     ArrayList<Restriction> restrictions = new ArrayList<>();
     condition.collectRestrictions(entityMetadata, restrictions);
-    assertThat(restrictions).hasSize(1).contains(Restriction.equal("name"));
+    assertThat(restrictions).hasSize(1).contains(Restrictions.equal("name"));
 
     //
     assertThat(factory.createCondition(null)).isNull();

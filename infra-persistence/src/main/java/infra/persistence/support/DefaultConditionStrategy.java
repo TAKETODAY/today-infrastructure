@@ -28,6 +28,7 @@ import infra.persistence.ValueNormalizer;
 import infra.persistence.annotation.WhereIsNull;
 import infra.persistence.sql.LogicalOperator;
 import infra.persistence.sql.Restriction;
+import infra.persistence.sql.Restrictions;
 import infra.util.StringUtils;
 
 /**
@@ -51,7 +52,7 @@ public class DefaultConditionStrategy implements PropertyConditionStrategy {
       return null;
     }
     value = valueNormalizer.normalize(entityProperty, value);
-    return new Condition(value, Restriction.equal(entityProperty.getColumnName()), entityProperty, connector);
+    return new Condition(value, Restrictions.equal(entityProperty.getColumnName()), entityProperty, connector);
   }
 
   @Override
@@ -62,8 +63,8 @@ public class DefaultConditionStrategy implements PropertyConditionStrategy {
     }
     boolean not = annotation.getBoolean("not");
     Restriction restriction = not
-            ? Restriction.isNotNull(entityProperty.getColumnName())
-            : Restriction.isNull(entityProperty.getColumnName());
+            ? Restrictions.isNotNull(entityProperty.getColumnName())
+            : Restrictions.isNull(entityProperty.getColumnName());
     return new Condition(null, restriction, entityProperty, connector) {
 
       @Override

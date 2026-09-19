@@ -147,11 +147,6 @@ public interface PropertyConditionStrategy {
       restriction.render(platform, sqlBuffer);
     }
 
-    @Override
-    public LogicalOperator connector() {
-      return connector;
-    }
-
     /**
      * Return a copy with a different bindable value.
      *

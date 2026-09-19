@@ -25,6 +25,7 @@ import infra.persistence.EntityProperty;
 import infra.persistence.ValueNormalizer;
 import infra.persistence.sql.LogicalOperator;
 import infra.persistence.sql.Restriction;
+import infra.persistence.sql.Restrictions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,7 +57,7 @@ class DefaultConditionStrategyTests {
 
     assertThat(condition.entityProperty).isSameAs(name);
     assertThat(condition.value).isEqualTo("name");
-    assertThat(condition.restriction).isEqualTo(Restriction.equal("name"));
+    assertThat(condition.restriction).isEqualTo(Restrictions.equal("name"));
 
   }
 
@@ -74,7 +75,7 @@ class DefaultConditionStrategyTests {
 
     assertThat(condition.entityProperty).isSameAs(number);
     assertThat(condition.value).isEqualTo(2);
-    assertThat(condition.restriction).isEqualTo(Restriction.equal("number"));
+    assertThat(condition.restriction).isEqualTo(Restrictions.equal("number"));
   }
 
   static class Model {

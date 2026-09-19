@@ -63,7 +63,7 @@ class SimpleSelectTests {
             .addColumn("user_id", "id")
             .addWhereToken("id = 1")
             .addRestrictions("name", "gender")
-            .addRestriction(Restriction.notEqual("age", "1"))
+            .addRestriction(Restrictions.notEqual("age", "1"))
             .setTableName("t_user");
 
     assertThat(select.toStatementString(platform)).isEqualTo(

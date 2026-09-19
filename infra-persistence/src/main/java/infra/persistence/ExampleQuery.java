@@ -22,7 +22,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import infra.logging.LogMessage;
 import infra.persistence.PropertyConditionStrategy.Condition;
@@ -31,6 +30,7 @@ import infra.persistence.sql.LogicalOperator;
 import infra.persistence.sql.OrderSpec;
 import infra.persistence.sql.OrderSpecSource;
 import infra.persistence.sql.Restriction;
+import infra.persistence.sql.Restrictions;
 import infra.persistence.sql.SimpleSelect;
 
 /**
@@ -81,13 +81,15 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
 
   @Override
   protected void renderInternal(EntityMetadata metadata, SimpleSelect select) {
-    scanConditions(select::addRestriction);
+    for (Restriction restriction : restrictions()) {
+      select.addRestriction(restriction);
+    }
     select.orderBy(resolveOrderByClause(metadata));
   }
 
   @Override
   public void collectRestrictions(EntityMetadata metadata, List<Restriction> restrictions) {
-    restrictions.addAll(scanConditions(null));
+    restrictions.addAll(restrictions());
   }
 
   @Override
@@ -106,7 +108,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
   @Override
   public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException {
     int idx = 1;
-    for (var condition : scanConditions(null)) {
+    for (var condition : scanConditions()) {
       idx = condition.setParameter(statement, idx);
     }
   }
@@ -121,7 +123,47 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
     return LogMessage.format("Query entity using example: {}", example);
   }
 
-  private ArrayList<Condition> scanConditions(@Nullable Consumer<Condition> consumer) {
+  /**
+   * Resolve the WHERE restrictions for the scanned conditions.
+   *
+   * <p>When every condition but the first uses the default {@code AND}
+   * connector, the conditions are returned as a flat list so that collection
+   * rendering emits a plain {@code a AND b AND c}. As soon as an explicit
+   * {@code OR} or {@code XOR} appears, the conditions are folded left-to-right
+   * into a single, parenthesized expression, which keeps the mixed connectors
+   * unambiguous. Either way the placeholder order matches {@link #setParameter}.
+   *
+   * @return the restrictions to render, never {@code null}
+   */
+  private List<Restriction> restrictions() {
+    ArrayList<Condition> conditions = scanConditions();
+    if (conditions.isEmpty()) {
+      return List.of();
+    }
+    boolean allDefault = true;
+    for (int i = 1; i < conditions.size(); i++) {
+      if (conditions.get(i).connector != LogicalOperator.AND) {
+        allDefault = false;
+        break;
+      }
+    }
+    if (allDefault) {
+      return new ArrayList<>(conditions);
+    }
+
+    Restriction expression = conditions.get(0);
+    for (int i = 1; i < conditions.size(); i++) {
+      Condition condition = conditions.get(i);
+      expression = switch (condition.connector) {
+        case AND -> Restrictions.and(expression, condition);
+        case OR -> Restrictions.or(expression, condition);
+        case XOR -> Restrictions.xor(expression, condition);
+      };
+    }
+    return List.of(expression);
+  }
+
+  private ArrayList<Condition> scanConditions() {
     ArrayList<Condition> conditions = this.conditions;
     if (conditions == null) {
       EntityProperty[] entityProperties = exampleMetadata.getEntityProperties(true);
@@ -138,18 +180,12 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
                   ? strategy.resolve(connector, property)
                   : strategy.resolve(connector, property, propertyValue, ValueNormalizer.DEFAULT);
           if (condition != null) {
-            if (consumer != null) {
-              consumer.accept(condition);
-            }
             conditions.add(condition);
             break;
           }
         }
       }
       this.conditions = conditions;
-    }
-    else if (consumer != null) {
-      conditions.forEach(consumer);
     }
     return conditions;
   }

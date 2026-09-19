@@ -41,7 +41,7 @@ public class Delete implements StatementSequence {
   }
 
   public Delete addColumnRestriction(String columnName) {
-    restrictions.add(Restriction.equal(columnName));
+    restrictions.add(Restrictions.equal(columnName));
     return this;
   }
 
@@ -56,12 +56,12 @@ public class Delete implements StatementSequence {
   }
 
   public Delete addColumnIsNullRestriction(String columnName) {
-    restrictions.add(Restriction.isNull(columnName));
+    restrictions.add(Restrictions.isNull(columnName));
     return this;
   }
 
   public Delete addColumnIsNotNullRestriction(String columnName) {
-    restrictions.add(Restriction.isNotNull(columnName));
+    restrictions.add(Restrictions.isNotNull(columnName));
     return this;
   }
 
@@ -82,7 +82,7 @@ public class Delete implements StatementSequence {
 
     buf.append("DELETE FROM ").append(tableName);
 
-    Restriction.append(platform, restrictions, buf);
+    Restrictions.append(platform, restrictions, buf);
 
     return buf.toString();
   }

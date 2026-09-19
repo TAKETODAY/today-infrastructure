@@ -67,7 +67,7 @@ import infra.persistence.platform.Platform;
  *
  *   @Override
  *   protected void renderInternal(EntityMetadata metadata, SimpleSelect select) {
- *     select.addRestriction(Restriction.equal("status"));
+ *     select.addRestriction(Restrictions.equal("status"));
  *   }
  *
  *   @Override

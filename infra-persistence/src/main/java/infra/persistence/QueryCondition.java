@@ -25,6 +25,7 @@ import infra.persistence.annotation.OrderByClause;
 import infra.persistence.platform.Platform;
 import infra.persistence.sql.OrderSpec;
 import infra.persistence.sql.Restriction;
+import infra.persistence.sql.Restrictions;
 
 /**
  * Builds the conditional (WHERE / ORDER BY) part of a dynamic SQL statement and
@@ -90,7 +91,7 @@ public interface QueryCondition extends ParameterSource {
    * @since 5.0
    */
   default void appendWhereClause(Platform platform, EntityMetadata metadata, StringBuilder sql) {
-    Restriction.append(platform, collectRestrictions(metadata), sql);
+    Restrictions.append(platform, collectRestrictions(metadata), sql);
   }
 
   /**

@@ -32,6 +32,7 @@ import infra.persistence.annotation.Trim;
 import infra.persistence.platform.Platform;
 import infra.persistence.sql.OrderSpec;
 import infra.persistence.sql.Restriction;
+import infra.persistence.sql.Restrictions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -65,7 +66,7 @@ class ExampleQueryRenderingTests {
 
     assertThat(restrictions).hasSize(1);
     StringBuilder sql = new StringBuilder();
-    Restriction.appendWhereClause(Platform.mysql(), restrictions, sql);
+    Restrictions.appendWhereClause(Platform.mysql(), restrictions, sql);
     assertThat(sql.toString()).contains("name = ?");
   }
 
@@ -92,7 +93,7 @@ class ExampleQueryRenderingTests {
 
     assertThat(restrictions).hasSize(2);
     StringBuilder sql = new StringBuilder();
-    Restriction.appendWhereClause(Platform.mysql(), restrictions, sql);
+    Restrictions.appendWhereClause(Platform.mysql(), restrictions, sql);
     assertThat(sql.toString()).contains("name = ?").contains("age = ?").contains("AND");
   }
 

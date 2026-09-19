@@ -138,7 +138,7 @@ public class SimpleSelect implements StatementSequence {
    */
   public SimpleSelect addWhereToken(@Nullable CharSequence condition) {
     if (condition != null) {
-      restrictions.add(Restriction.plain(condition));
+      restrictions.add(Restrictions.plain(condition));
     }
     return this;
   }
@@ -154,7 +154,7 @@ public class SimpleSelect implements StatementSequence {
    * Appends a restriction comparing the {@code columnName} for equality with a parameter
    */
   public SimpleSelect addRestriction(Identifier columnName) {
-    restrictions.add(Restriction.equal(columnName));
+    restrictions.add(Restrictions.equal(columnName));
     return this;
   }
 
@@ -223,7 +223,7 @@ public class SimpleSelect implements StatementSequence {
     applySelectClause(platform, buf);
     buf.append(" FROM ").append(tableName.render(platform));
     // where
-    Restriction.append(platform, restrictions, buf);
+    Restrictions.append(platform, restrictions, buf);
 
     OrderSpec orderSpec = orderByBuilder.build();
     if (!orderSpec.isEmpty()) {

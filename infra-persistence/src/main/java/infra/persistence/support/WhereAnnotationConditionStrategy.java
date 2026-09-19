@@ -26,6 +26,7 @@ import infra.persistence.ValueNormalizer;
 import infra.persistence.annotation.Where;
 import infra.persistence.sql.LogicalOperator;
 import infra.persistence.sql.Restriction;
+import infra.persistence.sql.Restrictions;
 
 /**
  * A {@link PropertyConditionStrategy} that turns an entity property annotated
@@ -75,16 +76,16 @@ public class WhereAnnotationConditionStrategy implements PropertyConditionStrate
       value = valueNormalizer.normalize(entityProperty, value);
       String restriction = annotation.getStringValue();
       if (!Constant.DEFAULT_NONE.equals(restriction)) {
-        return new Condition(value, Restriction.plain(restriction), entityProperty, connector);
+        return new Condition(value, Restrictions.plain(restriction), entityProperty, connector);
       }
       else {
         String operator = annotation.getString("operator");
         if (Constant.DEFAULT_NONE.equals(operator)) {
           // default to equality operator
-          return new Condition(value, Restriction.equal(entityProperty.getColumnName()), entityProperty, connector);
+          return new Condition(value, Restrictions.equal(entityProperty.getColumnName()), entityProperty, connector);
         }
         else {
-          return new Condition(value, Restriction.forOperator(
+          return new Condition(value, Restrictions.forOperator(
                   entityProperty.getColumnName(), operator, "?"), entityProperty, connector);
         }
       }

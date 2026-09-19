@@ -65,6 +65,7 @@ import infra.persistence.model.NoIdModel;
 import infra.persistence.platform.GenericPlatform;
 import infra.persistence.platform.Platform;
 import infra.persistence.sql.Restriction;
+import infra.persistence.sql.Restrictions;
 import infra.test.util.ReflectionTestUtils;
 import infra.transaction.TransactionDefinition;
 import infra.util.CollectionUtils;
@@ -518,14 +519,14 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     createData(entityManager);
 
     assertThatThrownBy(() ->
-            entityManager.findUnique(UserModel.class, QueryBuilder.of()
-                    .add(Restriction.isNotNull("name"))
-                    .add(Restriction.or(Restriction.between("age")), 1, 20)))
+            entityManager.findUnique(UserModel.class, QueryBuilder.of(Restrictions.or(
+                    Restrictions.isNotNull("name"),
+                    Restrictions.between("age")), 1, 20)))
             .isInstanceOf(IncorrectResultSizeDataAccessException.class);
 
     UserModel unique = entityManager.findUnique(UserModel.class,
-            QueryBuilder.of(Restriction.isNotNull("name"))
-                    .add(Restriction.equal("age"), 9));
+            QueryBuilder.of(Restrictions.isNotNull("name"))
+                    .add(Restrictions.equal("age"), 9));
 
     assertThat(unique).isNotNull()
             .extracting("id").isEqualTo(1);
@@ -538,8 +539,8 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
 
     // null
     unique = entityManager.findUnique(UserModel.class,
-            QueryBuilder.of(Restriction.isNotNull("name"))
-                    .add(Restriction.equal("age"), 9));
+            QueryBuilder.of(Restrictions.isNotNull("name"))
+                    .add(Restrictions.equal("age"), 9));
     assertThat(unique).isNull();
   }
 
@@ -608,7 +609,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     assertThat(entityManager.find(UserModel.class, example, "age")).isNotEmpty().hasSize(11);
 
     assertThat(entityManager.find(UserModel.class,
-            QueryBuilder.of(Restriction.equal("name"), "TODAY"), "age"))
+            QueryBuilder.of(Restrictions.equal("name"), "TODAY"), "age"))
             .isEqualTo(entityManager.find(UserModel.class, example, "age"));
   }
 
@@ -621,7 +622,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     example.setName("TODAY");
     assertThat(entityManager.find(UserModel.class, example, UserModel::getAge)).isNotEmpty().hasSize(11);
 
-    assertThat(entityManager.find(UserModel.class, QueryBuilder.of(Restriction.equal("name"), "TODAY"), UserModel::getAge))
+    assertThat(entityManager.find(UserModel.class, QueryBuilder.of(Restrictions.equal("name"), "TODAY"), UserModel::getAge))
             .isEqualTo(entityManager.find(example, UserModel::getAge));
   }
 
@@ -635,7 +636,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     assertThat(entityManager.find(UserModel.class, example)).isNotEmpty().hasSize(11);
 
     assertThat(entityManager.find(UserModel.class,
-            QueryBuilder.of(Restriction.equal("name"), "TODAY")))
+            QueryBuilder.of(Restrictions.equal("name"), "TODAY")))
             .isEqualTo(entityManager.find(UserModel.class, example))
             .isEqualTo(entityManager.find(example));
   }

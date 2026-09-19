@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import infra.persistence.sql.Restriction;
+import infra.persistence.sql.Restrictions;
 import infra.persistence.sql.SimpleSelect;
 
 /**
@@ -68,8 +69,8 @@ final class MapEntityQueryFactory implements EntityQueryFactory {
         String name = entry.getKey().toString();
         EntityProperty property = metadata.findProperty(name);
         restrictions.add(property != null
-                ? Restriction.equal(property.getColumnName())
-                : Restriction.equal(name));
+                ? Restrictions.equal(property.getColumnName())
+                : Restrictions.equal(name));
       }
     }
 

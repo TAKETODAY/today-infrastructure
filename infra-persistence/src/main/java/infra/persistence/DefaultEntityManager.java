@@ -61,6 +61,7 @@ import infra.persistence.event.EntityEventRegistry;
 import infra.persistence.platform.Platform;
 import infra.persistence.sql.Insert;
 import infra.persistence.sql.Restriction;
+import infra.persistence.sql.Restrictions;
 import infra.persistence.sql.SimpleSelect;
 import infra.persistence.sql.Update;
 import infra.persistence.support.DefaultVersionIncrementStrategy;
@@ -1195,7 +1196,7 @@ public class DefaultEntityManager implements EntityManager {
     StringBuilder countSql = new StringBuilder(restrictions.size() * 10 + 25 + tableName.length());
     platform.selectCountFrom(countSql, tableName);
 
-    Restriction.append(platform, restrictions, countSql);
+    Restrictions.append(platform, restrictions, countSql);
 
     String statement = countSql.toString();
     ResultSet resultSet = null;
