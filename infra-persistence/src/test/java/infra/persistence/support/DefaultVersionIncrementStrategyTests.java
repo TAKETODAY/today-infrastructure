@@ -2,6 +2,7 @@ package infra.persistence.support;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -10,6 +11,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -73,6 +75,25 @@ class DefaultVersionIncrementStrategyTests {
   void defaultStrategy_unsupportedType_returnsNull() {
     DefaultVersionIncrementStrategy strategy = new DefaultVersionIncrementStrategy();
     assertThat(strategy.nextVersion("unsupported")).isNull();
+  }
+
+  @Test
+  void defaultStrategy_usesInjectedClockForDateTimeVersions() {
+    Instant fixed = Instant.parse("2026-01-01T00:00:00Z");
+    Clock clock = Clock.fixed(fixed, ZoneOffset.UTC);
+    DefaultVersionIncrementStrategy strategy = new DefaultVersionIncrementStrategy(clock);
+
+    assertThat(strategy.nextVersion(Instant.now())).isEqualTo(fixed);
+    assertThat(strategy.nextVersion(LocalDateTime.now())).isEqualTo(LocalDateTime.ofInstant(fixed, ZoneOffset.UTC));
+    assertThat(strategy.nextVersion(ZonedDateTime.now(ZoneOffset.UTC))).isEqualTo(fixed.atZone(ZoneOffset.UTC));
+    assertThat(strategy.nextVersion(OffsetDateTime.now(ZoneOffset.UTC))).isEqualTo(fixed.atOffset(ZoneOffset.UTC));
+  }
+
+  @Test
+  void defaultStrategy_nullClock_throws() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> new DefaultVersionIncrementStrategy(null))
+            .withMessage("clock is required");
   }
 
 }

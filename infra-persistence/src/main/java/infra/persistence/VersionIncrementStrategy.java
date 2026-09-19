@@ -18,9 +18,11 @@ package infra.persistence;
 
 import org.jspecify.annotations.Nullable;
 
+import java.time.Clock;
 import java.time.Instant;
 
 import infra.persistence.annotation.Version;
+import infra.util.Assert;
 
 /**
  * Strategy for computing the next version value of a {@link Version} property for
@@ -32,10 +34,10 @@ import infra.persistence.annotation.Version;
  * this to fall back to another strategy, and the entity manager fails with an
  * exception when no strategy produced a value.
  *
- * <p>The default strategy {@link infra.persistence.support.DefaultVersionIncrementStrategy} supports numeric
- * types ({@code Integer}, {@code Long}, {@code Short}) by incrementing them, and
- * date-time types ({@link Instant}, {@code LocalDateTime}, {@code ZonedDateTime},
- * {@code OffsetDateTime}) by setting them to the current time. Custom implementations
+ * <p>The default strategy {@link infra.persistence.support.DefaultVersionIncrementStrategy} increments
+ * numeric types ({@code Integer}, {@code Long}, {@code Short}) and sets date-time types
+ * ({@link Instant}, {@code LocalDateTime}, {@code ZonedDateTime}, {@code OffsetDateTime})
+ * to the current time read from a {@link Clock} (UTC by default). Custom implementations
  * can be provided to support arbitrary version types:
  *
  * <pre>{@code
@@ -72,16 +74,16 @@ public interface VersionIncrementStrategy {
    * Return a composed strategy that tries this strategy first and falls back to the
    * given strategy when this one returns {@code null} (unsupported version type).
    *
-   * @param fallback the strategy to use when this one returns {@code null}
-   * @return a composed strategy that tries this strategy first, then the fallback
+   * @param next the strategy to use when this one returns {@code null}; must not be
+   * {@code null}
+   * @return a composed strategy that tries this strategy first, then {@code next}
+   * @throws IllegalArgumentException if {@code next} is {@code null}
    */
-  default VersionIncrementStrategy and(VersionIncrementStrategy fallback) {
+  default VersionIncrementStrategy and(VersionIncrementStrategy next) {
+    Assert.notNull(next, "next strategy is required");
     return currentVersion -> {
-      Object next = nextVersion(currentVersion);
-      if (next == null) {
-        return fallback.nextVersion(currentVersion);
-      }
-      return next;
+      Object result = nextVersion(currentVersion);
+      return result != null ? result : next.nextVersion(currentVersion);
     };
   }
 
