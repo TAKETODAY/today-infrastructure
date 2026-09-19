@@ -27,6 +27,7 @@ import java.util.function.Consumer;
 import infra.logging.LogMessage;
 import infra.persistence.PropertyConditionStrategy.Condition;
 import infra.persistence.annotation.OR;
+import infra.persistence.sql.LogicalOperator;
 import infra.persistence.sql.OrderSpec;
 import infra.persistence.sql.OrderSpecSource;
 import infra.persistence.sql.Restriction;
@@ -128,12 +129,14 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
 
       for (EntityProperty property : entityProperties) {
         Object propertyValue = property.getValue(example);
-        boolean logicalAnd = !property.isPresent(OR.class);
+        LogicalOperator connector = property.isPresent(OR.class)
+                ? LogicalOperator.OR
+                : LogicalOperator.AND;
 
         for (var strategy : strategies) {
           var condition = propertyValue == null
-                  ? strategy.resolve(logicalAnd, property)
-                  : strategy.resolve(logicalAnd, property, propertyValue, ValueNormalizer.DEFAULT);
+                  ? strategy.resolve(connector, property)
+                  : strategy.resolve(connector, property, propertyValue, ValueNormalizer.DEFAULT);
           if (condition != null) {
             if (consumer != null) {
               consumer.accept(condition);

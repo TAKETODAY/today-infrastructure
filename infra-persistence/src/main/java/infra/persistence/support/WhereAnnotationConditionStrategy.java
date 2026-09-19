@@ -24,6 +24,7 @@ import infra.persistence.EntityProperty;
 import infra.persistence.PropertyConditionStrategy;
 import infra.persistence.ValueNormalizer;
 import infra.persistence.annotation.Where;
+import infra.persistence.sql.LogicalOperator;
 import infra.persistence.sql.Restriction;
 
 /**
@@ -57,8 +58,8 @@ public class WhereAnnotationConditionStrategy implements PropertyConditionStrate
    * the class-level documentation; a property without the annotation yields
    * {@code null}.
    *
-   * @param logicalAnd whether this condition is joined to the preceding one with
-   * {@code AND}; {@code false} selects {@code OR}
+   * @param connector the logical operator joining this condition to the
+   * preceding one, never {@code null}
    * @param entityProperty the mapped entity property
    * @param value the property value to evaluate
    * @param valueNormalizer the normalizer for the property, never {@code null}
@@ -66,7 +67,7 @@ public class WhereAnnotationConditionStrategy implements PropertyConditionStrate
    * annotated with {@code @Where}
    */
   @Override
-  public @Nullable Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object value,
+  public @Nullable Condition resolve(LogicalOperator connector, EntityProperty entityProperty, Object value,
           ValueNormalizer valueNormalizer) {
     // render where clause
     MergedAnnotation<Where> annotation = entityProperty.getAnnotation(Where.class);
@@ -74,17 +75,17 @@ public class WhereAnnotationConditionStrategy implements PropertyConditionStrate
       value = valueNormalizer.normalize(entityProperty, value);
       String restriction = annotation.getStringValue();
       if (!Constant.DEFAULT_NONE.equals(restriction)) {
-        return new Condition(value, Restriction.plain(restriction), entityProperty, logicalAnd);
+        return new Condition(value, Restriction.plain(restriction), entityProperty, connector);
       }
       else {
         String operator = annotation.getString("operator");
         if (Constant.DEFAULT_NONE.equals(operator)) {
           // default to equality operator
-          return new Condition(value, Restriction.equal(entityProperty.getColumnName()), entityProperty, logicalAnd);
+          return new Condition(value, Restriction.equal(entityProperty.getColumnName()), entityProperty, connector);
         }
         else {
           return new Condition(value, Restriction.forOperator(
-                  entityProperty.getColumnName(), operator, "?"), entityProperty, logicalAnd);
+                  entityProperty.getColumnName(), operator, "?"), entityProperty, connector);
         }
       }
     }

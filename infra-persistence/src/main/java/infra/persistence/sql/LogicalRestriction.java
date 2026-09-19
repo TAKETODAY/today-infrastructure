@@ -20,12 +20,14 @@ import infra.persistence.platform.Platform;
 import infra.util.Assert;
 
 /**
- * An immutable restriction that combines two restrictions with {@code AND} or
- * {@code OR}.
+ * An immutable restriction that combines two restrictions with a
+ * {@link LogicalOperator}.
  *
  * <p>The rendered expression is always enclosed in parentheses to preserve its
  * precedence when nested in another logical expression. The supplied
- * {@link Platform} is passed unchanged to both operands.
+ * {@link Platform} is passed unchanged to both operands and to
+ * {@link LogicalOperator#render(Platform, StringBuilder)}, which resolves the
+ * dialect-specific operator token.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see Restriction
@@ -35,7 +37,7 @@ final class LogicalRestriction implements Restriction {
 
   private final Restriction left;
 
-  private final boolean logicalAnd;
+  private final LogicalOperator operator;
 
   private final Restriction right;
 
@@ -43,16 +45,17 @@ final class LogicalRestriction implements Restriction {
    * Create a logical combination of two restrictions.
    *
    * @param left the left operand
-   * @param logicalAnd {@code true} for {@code AND}, {@code false} for {@code OR}
+   * @param operator the logical operator joining the operands
    * @param right the right operand
-   * @throws IllegalArgumentException if either operand is {@code null}
+   * @throws IllegalArgumentException if an operand or the operator is {@code null}
    */
-  public LogicalRestriction(Restriction left, boolean logicalAnd, Restriction right) {
+  public LogicalRestriction(Restriction left, LogicalOperator operator, Restriction right) {
     Assert.notNull(left, "Left restriction is required");
+    Assert.notNull(operator, "LogicalOperator is required");
     Assert.notNull(right, "Right restriction is required");
     this.left = left;
+    this.operator = operator;
     this.right = right;
-    this.logicalAnd = logicalAnd;
   }
 
   /**
@@ -66,7 +69,7 @@ final class LogicalRestriction implements Restriction {
   public void render(Platform platform, StringBuilder sqlBuffer) {
     sqlBuffer.append('(');
     left.render(platform, sqlBuffer);
-    sqlBuffer.append(' ').append(logicalAnd ? "AND" : "OR").append(' ');
+    operator.render(platform, sqlBuffer);
     right.render(platform, sqlBuffer);
     sqlBuffer.append(')');
   }

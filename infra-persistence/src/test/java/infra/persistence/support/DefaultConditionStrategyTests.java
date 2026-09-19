@@ -23,6 +23,7 @@ import infra.persistence.EntityMetadata;
 import infra.persistence.EntityMetadataFactory;
 import infra.persistence.EntityProperty;
 import infra.persistence.ValueNormalizer;
+import infra.persistence.sql.LogicalOperator;
 import infra.persistence.sql.Restriction;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +44,7 @@ class DefaultConditionStrategyTests {
     EntityProperty name = entityMetadata.findProperty("name");
     assertThat(name).isNotNull();
 
-    boolean logicalAnd = true;
+    LogicalOperator logicalAnd = LogicalOperator.AND;
     assertThat(strategy.resolve(logicalAnd, name, "  ", ValueNormalizer.DEFAULT)).isNull();
     assertThat(strategy.resolve(logicalAnd, name, "\n", ValueNormalizer.DEFAULT)).isNull();
     assertThat(strategy.resolve(logicalAnd, name, "\t\n\r", ValueNormalizer.DEFAULT)).isNull();
@@ -67,7 +68,7 @@ class DefaultConditionStrategyTests {
     EntityProperty number = entityMetadata.findProperty("number");
     assertThat(number).isNotNull();
 
-    boolean logicalAnd = true;
+    LogicalOperator logicalAnd = LogicalOperator.AND;
     var condition = strategy.resolve(logicalAnd, number, 2, ValueNormalizer.DEFAULT);
     assertThat(condition).isNotNull();
 

@@ -27,6 +27,7 @@ import infra.persistence.annotation.PrefixLike;
 import infra.persistence.annotation.SuffixLike;
 import infra.persistence.annotation.Trim;
 import infra.persistence.platform.Platform;
+import infra.persistence.sql.LogicalOperator;
 import infra.persistence.support.FuzzyQueryConditionStrategy.LikeRestriction;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class FuzzyQueryConditionStrategyTests {
 
-  boolean logicalAnd = true;
+  LogicalOperator logicalAnd = LogicalOperator.AND;
 
   FuzzyQueryConditionStrategy strategy = new FuzzyQueryConditionStrategy();
 

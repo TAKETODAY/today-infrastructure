@@ -22,6 +22,7 @@ import java.util.Collection;
 
 import infra.persistence.Identifier;
 import infra.persistence.platform.Platform;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 
 /**
@@ -33,8 +34,9 @@ import infra.util.CollectionUtils;
  * {@link Platform} when rendering database-specific quote characters.
  *
  * <p>Factory methods create comparison, nullness and plain SQL restrictions.
- * Restrictions can be grouped with {@link #and(Restriction, Restriction)} and
- * {@link #or(Restriction, Restriction)}, or rendered as a collection with
+ * Restrictions can be grouped with {@link #and(Restriction, Restriction)},
+ * {@link #or(Restriction, Restriction)} and {@link #xor(Restriction, Restriction)},
+ * or rendered as a collection with
  * {@link #append(Platform, Collection, StringBuilder)}:
  * <pre>{@code
  * List<Restriction> restrictions = List.of(
@@ -71,13 +73,60 @@ public interface Restriction {
   void render(Platform platform, StringBuilder sqlBuffer);
 
   /**
-   * Return how this restriction should be joined to the preceding restriction
-   * when rendered as part of a collection.
+   * Return the logical operator that joins this restriction to the preceding
+   * one when rendered as part of a collection.
    *
-   * @return {@code true} for {@code AND}, or {@code false} for {@code OR}
+   * <p>The connector belongs to collection rendering, not to the fragment
+   * itself: a restriction rendered on its own never emits it, and the first
+   * element of a collection has its connector ignored.
+   *
+   * @return the connector, never {@code null}
+   * @since 5.0
    */
-  default boolean logicalAnd() {
-    return true;
+  default LogicalOperator connector() {
+    return LogicalOperator.AND;
+  }
+
+  /**
+   * Return a restriction that carries the given logical connector for
+   * collection rendering.
+   *
+   * <p>The connector is metadata consumed by
+   * {@link #appendWhereClause(Platform, Collection, StringBuilder)}; it is not
+   * part of the fragment. Rendering the returned restriction on its own emits
+   * only this restriction and never the connector. Collection rendering still
+   * ignores the first element's connector.
+   *
+   * <p>{@link LogicalOperator#AND} is the default connector, so passing it
+   * returns this instance unchanged instead of wrapping it.
+   *
+   * @param connector the operator joining this restriction to the preceding
+   * collection element, never {@code null}
+   * @return this restriction when {@code connector} is {@link LogicalOperator#AND},
+   * otherwise a delegating restriction whose {@link #connector()} is {@code connector}
+   * @throws IllegalArgumentException if {@code connector} is {@code null}
+   * @see #connector()
+   * @since 5.0
+   */
+  default Restriction withConnector(LogicalOperator connector) {
+    Assert.notNull(connector, "LogicalOperator is required");
+    if (connector == LogicalOperator.AND) {
+      return this;
+    }
+    Restriction self = this;
+    return new Restriction() {
+
+      @Override
+      public void render(Platform platform, StringBuilder sqlBuffer) {
+        self.render(platform, sqlBuffer);
+      }
+
+      @Override
+      public LogicalOperator connector() {
+        return connector;
+      }
+
+    };
   }
 
   // Static Factory Methods
@@ -482,34 +531,44 @@ public interface Restriction {
    * @since 5.0
    */
   static Restriction and(Restriction lhs, Restriction rhs) {
-    return new LogicalRestriction(lhs, true, rhs);
+    return new LogicalRestriction(lhs, LogicalOperator.AND, rhs);
   }
 
   /**
-   * Mark a restriction to be joined to the preceding collection element with
-   * {@code OR} instead of the default {@code AND}.
+   * Return {@code restriction} marked to be joined to the preceding collection
+   * element with {@code OR}.
    *
-   * <p>Rendering the returned restriction by itself does not prepend an
-   * {@code OR} token; collection rendering supplies the connector.
+   * <p>Equivalent to {@code restriction.withConnector(LogicalOperator.OR)}.
+   * Rendering the result on its own emits only the wrapped restriction; the
+   * {@code OR} token is supplied by collection rendering.
    *
-   * @param rhs the restriction to mark
-   * @return a delegating restriction whose {@link #logicalAnd()} is {@code false}
+   * @param restriction the restriction to mark, never {@code null}
+   * @return a restriction whose {@link #connector()} is {@link LogicalOperator#OR}
+   * @throws IllegalArgumentException if {@code restriction} is {@code null}
+   * @see #withConnector(LogicalOperator)
    * @since 5.0
    */
-  static Restriction or(Restriction rhs) {
-    return new Restriction() {
+  static Restriction or(Restriction restriction) {
+    return restriction.withConnector(LogicalOperator.OR);
+  }
 
-      @Override
-      public void render(Platform platform, StringBuilder sqlBuffer) {
-        rhs.render(platform, sqlBuffer);
-      }
-
-      @Override
-      public boolean logicalAnd() {
-        return false;
-      }
-
-    };
+  /**
+   * Return {@code restriction} marked to be joined to the preceding collection
+   * element with {@code XOR}.
+   *
+   * <p>Equivalent to {@code restriction.withConnector(LogicalOperator.XOR)}.
+   * The connector is emitted only while rendering a collection, and only on a
+   * {@link Platform} that supports XOR natively.
+   *
+   * @param restriction the restriction to mark, never {@code null}
+   * @return a restriction whose {@link #connector()} is {@link LogicalOperator#XOR}
+   * @throws IllegalArgumentException if {@code restriction} is {@code null}
+   * @see #withConnector(LogicalOperator)
+   * @see LogicalOperator#XOR
+   * @since 5.0
+   */
+  static Restriction xor(Restriction restriction) {
+    return restriction.withConnector(LogicalOperator.XOR);
   }
 
   /**
@@ -521,7 +580,26 @@ public interface Restriction {
    * @since 5.0
    */
   static Restriction or(Restriction lhs, Restriction rhs) {
-    return new LogicalRestriction(lhs, false, rhs);
+    return new LogicalRestriction(lhs, LogicalOperator.OR, rhs);
+  }
+
+  /**
+   * Group two restrictions with {@code XOR}.
+   *
+   * <p>{@code XOR} is not part of ANSI SQL. The returned restriction renders
+   * successfully only on a {@link Platform} that supports it natively, such as
+   * MySQL; elsewhere rendering fails fast rather than emitting an invalid
+   * statement.
+   *
+   * @param lhs the left operand
+   * @param rhs the right operand
+   * @return a parenthesized logical restriction
+   * @throws UnsupportedOperationException when rendered on a platform without native XOR
+   * @see LogicalOperator#XOR
+   * @since 5.0
+   */
+  static Restriction xor(Restriction lhs, Restriction rhs) {
+    return new LogicalRestriction(lhs, LogicalOperator.XOR, rhs);
   }
 
   /**
@@ -557,7 +635,7 @@ public interface Restriction {
 
   /**
    * Append restrictions separated according to each element's
-   * {@link #logicalAnd()} value, without a leading {@code WHERE} keyword.
+   * {@link #connector()} value, without a leading {@code WHERE} keyword.
    * The first element's connector is ignored.
    *
    * @param platform the database platform whose rendering rules apply
@@ -568,7 +646,7 @@ public interface Restriction {
     boolean appended = false;
     for (Restriction restriction : restrictions) {
       if (appended) {
-        buf.append(restriction.logicalAnd() ? " AND " : " OR ");
+        restriction.connector().render(platform, buf);
       }
       else {
         appended = true;

@@ -26,6 +26,8 @@ import java.util.List;
 import infra.persistence.platform.Platform;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -130,9 +132,9 @@ class RestrictionTests {
   }
 
   @Test
-  void logicalAnd_shouldReturnTrue_forPlainRestriction() {
+  void connector_shouldDefaultToAnd_forPlainRestriction() {
     Restriction plain = Restriction.plain("test");
-    assertThat(plain.logicalAnd()).isTrue();
+    assertThat(plain.connector()).isEqualTo(LogicalOperator.AND);
   }
 
   @Test
@@ -390,7 +392,66 @@ class RestrictionTests {
     restriction.render(platform, sqlBuffer);
 
     assertThat(sqlBuffer.toString()).isEqualTo("col = val");
-    assertThat(restriction.logicalAnd()).isFalse();
+    assertThat(restriction.connector()).isEqualTo(LogicalOperator.OR);
+  }
+
+  @Test
+  void xor_shouldRenderOnPlatformWithNativeSupport() {
+    Restriction combined = Restriction.xor(
+            Restriction.equal("a", "1"),
+            Restriction.equal("b", "2"));
+    StringBuilder sqlBuffer = new StringBuilder();
+
+    combined.render(Platform.mysql(), sqlBuffer);
+
+    assertThat(sqlBuffer.toString()).isEqualTo("(a = 1 XOR b = 2)");
+  }
+
+  @Test
+  void xor_shouldFailFastOnPlatformWithoutSupport() {
+    Restriction combined = Restriction.xor(
+            Restriction.equal("a", "1"),
+            Restriction.equal("b", "2"));
+    StringBuilder sqlBuffer = new StringBuilder();
+
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> combined.render(Platform.generic(), sqlBuffer));
+  }
+
+  @Test
+  void connectorXor_shouldBeRespectedInWhereClause() {
+    List<Restriction> restrictions = Arrays.asList(
+            Restriction.equal("a", "1"),
+            Restriction.xor(Restriction.equal("b", "2")));
+    StringBuilder sqlBuffer = new StringBuilder();
+
+    Restriction.appendWhereClause(Platform.mysql(), restrictions, sqlBuffer);
+
+    assertThat(sqlBuffer.toString()).isEqualTo("a = 1 XOR b = 2");
+  }
+
+  @Test
+  void withConnector_shouldReturnSameInstance_forAnd() {
+    Restriction restriction = Restriction.equal("a", "1");
+    assertThat(restriction.withConnector(LogicalOperator.AND)).isSameAs(restriction);
+  }
+
+  @Test
+  void withConnector_shouldMarkRestriction_forNonDefaultOperator() {
+    Restriction marked = Restriction.equal("a", "1").withConnector(LogicalOperator.OR);
+    StringBuilder sqlBuffer = new StringBuilder();
+
+    marked.render(Platform.mysql(), sqlBuffer);
+
+    assertThat(marked.connector()).isEqualTo(LogicalOperator.OR);
+    assertThat(sqlBuffer.toString()).isEqualTo("a = 1");
+  }
+
+  @Test
+  void withConnector_shouldRejectNull() {
+    Restriction restriction = Restriction.equal("a", "1");
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> restriction.withConnector(null));
   }
 
   @Test

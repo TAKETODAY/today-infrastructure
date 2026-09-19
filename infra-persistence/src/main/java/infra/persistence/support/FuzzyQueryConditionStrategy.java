@@ -28,6 +28,7 @@ import infra.persistence.annotation.Like;
 import infra.persistence.annotation.PrefixLike;
 import infra.persistence.annotation.SuffixLike;
 import infra.persistence.platform.Platform;
+import infra.persistence.sql.LogicalOperator;
 import infra.persistence.sql.Restriction;
 import infra.util.StringUtils;
 
@@ -58,7 +59,7 @@ import infra.util.StringUtils;
 public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
 
   @Override
-  public @Nullable Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object value,
+  public @Nullable Condition resolve(LogicalOperator connector, EntityProperty entityProperty, Object value,
           ValueNormalizer valueNormalizer) {
     // handle string
     if (value instanceof String string && StringUtils.hasText(string)) {
@@ -77,7 +78,7 @@ public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
 
         // get column name
         Identifier column = getColumn(entityProperty, annotation);
-        return new Condition(string, new LikeRestriction(column), entityProperty, logicalAnd);
+        return new Condition(string, new LikeRestriction(column), entityProperty, connector);
       }
     }
     return null;

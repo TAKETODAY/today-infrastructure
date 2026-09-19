@@ -26,6 +26,7 @@ import infra.persistence.EntityProperty;
 import infra.persistence.PropertyConditionStrategy;
 import infra.persistence.ValueNormalizer;
 import infra.persistence.annotation.WhereIsNull;
+import infra.persistence.sql.LogicalOperator;
 import infra.persistence.sql.Restriction;
 import infra.util.StringUtils;
 
@@ -44,17 +45,17 @@ import infra.util.StringUtils;
 public class DefaultConditionStrategy implements PropertyConditionStrategy {
 
   @Override
-  public @Nullable Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object value,
+  public @Nullable Condition resolve(LogicalOperator connector, EntityProperty entityProperty, Object value,
           ValueNormalizer valueNormalizer) {
     if (value instanceof String string && StringUtils.isBlank(string)) {
       return null;
     }
     value = valueNormalizer.normalize(entityProperty, value);
-    return new Condition(value, Restriction.equal(entityProperty.getColumnName()), entityProperty, logicalAnd);
+    return new Condition(value, Restriction.equal(entityProperty.getColumnName()), entityProperty, connector);
   }
 
   @Override
-  public @Nullable Condition resolve(boolean logicalAnd, EntityProperty entityProperty) {
+  public @Nullable Condition resolve(LogicalOperator connector, EntityProperty entityProperty) {
     MergedAnnotation<WhereIsNull> annotation = entityProperty.getAnnotation(WhereIsNull.class);
     if (!annotation.isPresent()) {
       return null;
@@ -63,7 +64,7 @@ public class DefaultConditionStrategy implements PropertyConditionStrategy {
     Restriction restriction = not
             ? Restriction.isNotNull(entityProperty.getColumnName())
             : Restriction.isNull(entityProperty.getColumnName());
-    return new Condition(null, restriction, entityProperty, logicalAnd) {
+    return new Condition(null, restriction, entityProperty, connector) {
 
       @Override
       public int setParameter(PreparedStatement ps, int parameterIndex) throws SQLException {

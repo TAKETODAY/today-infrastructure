@@ -22,6 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import infra.persistence.platform.Platform;
+import infra.persistence.sql.LogicalOperator;
 import infra.persistence.sql.Restriction;
 
 /**
@@ -34,11 +35,11 @@ import infra.persistence.sql.Restriction;
  * in the same order.
  *
  * <p>A property whose value is {@code null} is ruled either by
- * {@link #resolve(boolean, EntityProperty)} — by default returning {@code null}
+ * {@link #resolve(LogicalOperator, EntityProperty)} — by default returning {@code null}
  * so that the property takes no part in the query — or by a strategy willing to
  * contribute a nullness predicate such as {@code IS NULL}.
  *
- * <p>A {@link ValueNormalizer} is supplied to {@link #resolve(boolean, EntityProperty, Object, ValueNormalizer)};
+ * <p>A {@link ValueNormalizer} is supplied to {@link #resolve(LogicalOperator, EntityProperty, Object, ValueNormalizer)};
  * the strategy uses it when it needs a normalized value (for example trimming a
  * string value of a property annotated with {@code @Trim}).
  *
@@ -51,10 +52,10 @@ public interface PropertyConditionStrategy {
    * Resolve a condition for the given mapped property and value.
    *
    * <p>The value is never {@code null}; a {@code null} property value is routed
-   * to {@link #resolve(boolean, EntityProperty)} instead.
+   * to {@link #resolve(LogicalOperator, EntityProperty)} instead.
    *
-   * @param logicalAnd whether this condition is joined to the preceding one with
-   * {@code AND}; {@code false} selects {@code OR}
+   * @param connector the logical operator joining this condition to the
+   * preceding one, never {@code null}
    * @param entityProperty the mapped entity property
    * @param value the property value to evaluate
    * @param valueNormalizer the normalizer for the property, never {@code null}
@@ -63,7 +64,7 @@ public interface PropertyConditionStrategy {
    * @since 5.0
    */
   @Nullable
-  Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object value,
+  Condition resolve(LogicalOperator connector, EntityProperty entityProperty, Object value,
           ValueNormalizer valueNormalizer);
 
   /**
@@ -73,14 +74,14 @@ public interface PropertyConditionStrategy {
    * strategy decision. The default implementation declines, leaving the property
    * out of the query.
    *
-   * @param logicalAnd whether this condition is joined to the preceding one with
-   * {@code AND}; {@code false} selects {@code OR}
+   * @param connector the logical operator joining this condition to the
+   * preceding one, never {@code null}
    * @param entityProperty the mapped entity property
    * @return the resolved condition, or {@code null} when the strategy does not
    * apply and the property should not contribute a predicate
    * @since 5.0
    */
-  default @Nullable Condition resolve(boolean logicalAnd, EntityProperty entityProperty) {
+  default @Nullable Condition resolve(LogicalOperator connector, EntityProperty entityProperty) {
     return null;
   }
 
@@ -104,7 +105,7 @@ public interface PropertyConditionStrategy {
 
     public final EntityProperty entityProperty;
 
-    public final boolean logicalAnd;
+    public final LogicalOperator connector;
 
     /**
      * Create an {@code AND}-connected condition.
@@ -114,7 +115,7 @@ public interface PropertyConditionStrategy {
      * @param entityProperty the mapped property used to bind the value
      */
     public Condition(Object value, Restriction restriction, EntityProperty entityProperty) {
-      this(value, restriction, entityProperty, true);
+      this(value, restriction, entityProperty, LogicalOperator.AND);
     }
 
     /**
@@ -123,15 +124,16 @@ public interface PropertyConditionStrategy {
      * @param value the value to bind
      * @param restriction the SQL restriction to render
      * @param entityProperty the mapped property used to bind the value
-     * @param logicalAnd {@code true} to join this condition with {@code AND}, or
-     * {@code false} to join it with {@code OR}
+     * @param connector the logical operator joining this condition to the
+     * preceding one
      * @since 5.0
      */
-    public Condition(Object value, Restriction restriction, EntityProperty entityProperty, boolean logicalAnd) {
+    public Condition(Object value, Restriction restriction, EntityProperty entityProperty,
+            LogicalOperator connector) {
       this.value = value;
       this.restriction = restriction;
       this.entityProperty = entityProperty;
-      this.logicalAnd = logicalAnd;
+      this.connector = connector;
     }
 
     /**
@@ -146,8 +148,8 @@ public interface PropertyConditionStrategy {
     }
 
     @Override
-    public boolean logicalAnd() {
-      return logicalAnd;
+    public LogicalOperator connector() {
+      return connector;
     }
 
     /**
@@ -158,7 +160,7 @@ public interface PropertyConditionStrategy {
      * @since 5.0
      */
     public Condition withValue(Object propertyValue) {
-      return new Condition(propertyValue, restriction, entityProperty, logicalAnd);
+      return new Condition(propertyValue, restriction, entityProperty, connector);
     }
 
     /**

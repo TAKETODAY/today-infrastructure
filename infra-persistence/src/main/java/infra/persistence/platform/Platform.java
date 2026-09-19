@@ -31,6 +31,7 @@ import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.persistence.sql.ANSIJoinFragment;
 import infra.persistence.sql.JoinFragment;
+import infra.persistence.sql.LogicalOperator;
 import infra.util.StringUtils;
 
 /**
@@ -203,6 +204,29 @@ public abstract class Platform {
    */
   public JoinFragment createOuterJoinFragment() {
     return new ANSIJoinFragment();
+  }
+
+  /**
+   * Return the SQL token that renders the given logical operator on this
+   * platform.
+   *
+   * <p>ANSI SQL supports {@link LogicalOperator#AND AND} and
+   * {@link LogicalOperator#OR OR}. {@link LogicalOperator#XOR XOR} is not part
+   * of the standard, so the default implementation rejects it by throwing;
+   * platforms that support it natively override this method. The returned token
+   * carries no surrounding whitespace.
+   *
+   * @param operator the logical operator to render, never {@code null}
+   * @return the operator token
+   * @throws UnsupportedOperationException if this platform cannot render the operator
+   * @since 5.0
+   */
+  public String getLogicalOperator(LogicalOperator operator) {
+    if (operator == LogicalOperator.XOR) {
+      throw new UnsupportedOperationException(
+              "Logical operator XOR is not supported by " + getClass().getName());
+    }
+    return operator.name();
   }
 
   /**

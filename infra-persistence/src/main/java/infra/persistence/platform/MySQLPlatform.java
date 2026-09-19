@@ -16,6 +16,8 @@
 
 package infra.persistence.platform;
 
+import infra.persistence.sql.LogicalOperator;
+
 /**
  * The {@link Platform} implementation for MySQL and MariaDB.
  *
@@ -67,6 +69,16 @@ public class MySQLPlatform extends Platform {
   @Override
   public String getNoColumnsInsertString() {
     return "() VALUES ()";
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>MySQL supports the non-standard {@link LogicalOperator#XOR XOR} operator.
+   */
+  @Override
+  public String getLogicalOperator(LogicalOperator operator) {
+    return operator.name();
   }
 
 }
