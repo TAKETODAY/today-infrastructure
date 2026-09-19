@@ -110,7 +110,7 @@ public interface Restriction {
    */
   default Restriction withConnector(LogicalOperator connector) {
     Assert.notNull(connector, "LogicalOperator is required");
-    if (connector == LogicalOperator.AND) {
+    if (connector == connector()) {
       return this;
     }
     Restriction self = this;
