@@ -81,7 +81,7 @@ class RestrictionTests {
   @Test
   void shouldRenderGreaterThanRestriction() {
     StringBuilder sqlBuffer = new StringBuilder();
-    Restriction restriction = Restriction.graterThan("column", "value");
+    Restriction restriction = Restriction.greaterThan("column", "value");
 
     restriction.render(platform, sqlBuffer);
 
@@ -138,7 +138,7 @@ class RestrictionTests {
   @Test
   void graterEqual_withColumnOnly_shouldRenderCorrectly() {
     StringBuilder sqlBuffer = new StringBuilder();
-    Restriction restriction = Restriction.graterEqual("column");
+    Restriction restriction = Restriction.greaterEqual("column");
 
     restriction.render(platform, sqlBuffer);
 
@@ -442,7 +442,7 @@ class RestrictionTests {
 
   @Test
   void multipleOperators_withDifferentPrecedence_shouldRenderCorrectly() {
-    Restriction r1 = Restriction.graterThan("a", "1");
+    Restriction r1 = Restriction.greaterThan("a", "1");
     Restriction r2 = Restriction.lessEqual("b", "2");
     Restriction r3 = Restriction.notEqual("c", "3");
 
@@ -535,7 +535,7 @@ class RestrictionTests {
   @Test
   void multiLevelNesting_withMixedOperators_shouldRenderCorrectly() {
     Restriction r1 = Restriction.equal("col1", "1");
-    Restriction r2 = Restriction.graterEqual("col2", "2");
+    Restriction r2 = Restriction.greaterEqual("col2", "2");
     Restriction r3 = Restriction.lessEqual("col3", "3");
     Restriction r4 = Restriction.notEqual("col4", "4");
     Restriction r5 = Restriction.isNull("col5");
@@ -560,8 +560,8 @@ class RestrictionTests {
     List<Restriction> restrictions = Arrays.asList(
             Restriction.equal("a", "1"),
             Restriction.notEqual("b", "2"),
-            Restriction.graterThan("c", "3"),
-            Restriction.graterEqual("d", "4"),
+            Restriction.greaterThan("c", "3"),
+            Restriction.greaterEqual("d", "4"),
             Restriction.lessThan("e", "5"),
             Restriction.lessEqual("f", "6")
     );
@@ -576,7 +576,7 @@ class RestrictionTests {
   @Test
   void nestedRestrictions_withParameters_shouldRenderCorrectly() {
     Restriction r1 = Restriction.equal("col1", "?");
-    Restriction r2 = Restriction.graterThan("col2");
+    Restriction r2 = Restriction.greaterThan("col2");
     Restriction r3 = Restriction.lessThan("col3");
 
     Restriction combined = Restriction.and(

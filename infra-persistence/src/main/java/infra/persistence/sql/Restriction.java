@@ -190,8 +190,8 @@ public interface Restriction {
    * @param columnName the column name to parse as an identifier
    * @return the greater-than restriction
    */
-  static Restriction graterThan(String columnName) {
-    return graterThan(Identifier.parse(columnName));
+  static Restriction greaterThan(String columnName) {
+    return greaterThan(Identifier.parse(columnName));
   }
 
   /**
@@ -201,8 +201,8 @@ public interface Restriction {
    * @return the greater-than restriction
    * @since 5.0
    */
-  static Restriction graterThan(Identifier columnName) {
-    return graterThan(columnName, "?");
+  static Restriction greaterThan(Identifier columnName) {
+    return greaterThan(columnName, "?");
   }
 
   /**
@@ -212,8 +212,8 @@ public interface Restriction {
    * @param rhs the SQL expression on the right-hand side
    * @return the greater-than restriction
    */
-  static Restriction graterThan(String lhs, String rhs) {
-    return graterThan(Identifier.parse(lhs), rhs);
+  static Restriction greaterThan(String lhs, String rhs) {
+    return greaterThan(Identifier.parse(lhs), rhs);
   }
 
   /**
@@ -224,7 +224,7 @@ public interface Restriction {
    * @return the greater-than restriction
    * @since 5.0
    */
-  static Restriction graterThan(Identifier lhs, String rhs) {
+  static Restriction greaterThan(Identifier lhs, String rhs) {
     return new ComparisonRestriction(lhs, " > ", rhs);
   }
 
@@ -234,8 +234,8 @@ public interface Restriction {
    * @param columnName the column name to parse as an identifier
    * @return the greater-than-or-equal restriction
    */
-  static Restriction graterEqual(String columnName) {
-    return graterEqual(Identifier.parse(columnName));
+  static Restriction greaterEqual(String columnName) {
+    return greaterEqual(Identifier.parse(columnName));
   }
 
   /**
@@ -245,8 +245,8 @@ public interface Restriction {
    * @return the greater-than-or-equal restriction
    * @since 5.0
    */
-  static Restriction graterEqual(Identifier columnName) {
-    return graterEqual(columnName, "?");
+  static Restriction greaterEqual(Identifier columnName) {
+    return greaterEqual(columnName, "?");
   }
 
   /**
@@ -256,8 +256,8 @@ public interface Restriction {
    * @param rhs the SQL expression on the right-hand side
    * @return the greater-than-or-equal restriction
    */
-  static Restriction graterEqual(String lhs, String rhs) {
-    return graterEqual(Identifier.parse(lhs), rhs);
+  static Restriction greaterEqual(String lhs, String rhs) {
+    return greaterEqual(Identifier.parse(lhs), rhs);
   }
 
   /**
@@ -268,7 +268,7 @@ public interface Restriction {
    * @return the greater-than-or-equal restriction
    * @since 5.0
    */
-  static Restriction graterEqual(Identifier lhs, String rhs) {
+  static Restriction greaterEqual(Identifier lhs, String rhs) {
     return new ComparisonRestriction(lhs, " >= ", rhs);
   }
 
