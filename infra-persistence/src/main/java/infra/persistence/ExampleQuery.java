@@ -133,7 +133,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
         for (var strategy : strategies) {
           var condition = propertyValue == null
                   ? strategy.resolve(logicalAnd, property)
-                  : strategy.resolve(logicalAnd, property, propertyValue);
+                  : strategy.resolve(logicalAnd, property, propertyValue, ValueNormalizer.DEFAULT);
           if (condition != null) {
             if (consumer != null) {
               consumer.accept(condition);

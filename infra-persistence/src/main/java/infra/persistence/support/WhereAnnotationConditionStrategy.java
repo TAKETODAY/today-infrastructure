@@ -22,7 +22,7 @@ import infra.core.annotation.MergedAnnotation;
 import infra.lang.Constant;
 import infra.persistence.EntityProperty;
 import infra.persistence.PropertyConditionStrategy;
-import infra.persistence.annotation.TrimWhere;
+import infra.persistence.ValueNormalizer;
 import infra.persistence.annotation.Where;
 import infra.persistence.sql.Restriction;
 
@@ -43,9 +43,6 @@ import infra.persistence.sql.Restriction;
  *   <li>If no SQL fragment is specified, it falls back to using the operator defined
  *       in the annotation (defaulting to equality if no operator is provided).</li>
  * </ul>
- *
- * <p>Additionally, if the property is annotated with {@code @TrimWhere}, any string
- * value extracted for the condition will be trimmed before processing.
  *
  * <p><b>Usage Example:</b>
  * <pre>{@code
@@ -86,8 +83,8 @@ public class WhereAnnotationConditionStrategy implements PropertyConditionStrate
 
   /**
    * Resolves a condition based on the provided parameters and annotations associated with the entity property.
-   * This method processes the {@code extracted} value and uses annotations like {@code @Where} and {@code @TrimWhere}
-   * to determine the appropriate condition to return.
+   * This method processes the {@code extracted} value and uses the {@code @Where}
+   * annotation to determine the appropriate condition to return.
    *
    * <p>Usage example:
    * <pre>{@code
@@ -103,38 +100,34 @@ public class WhereAnnotationConditionStrategy implements PropertyConditionStrate
    *
    * <p>This method handles the following scenarios:
    * <ul>
-   *   <li>If the {@code extracted} value is a string and the {@code @TrimWhere} annotation is present,
-   *       the string is trimmed before further processing.</li>
    *   <li>If the {@code @Where} annotation is present, its value or operator is used to construct the condition.</li>
    *   <li>If no valid condition can be resolved, the method returns {@code null}.</li>
    * </ul>
    *
    * @param logicalAnd Indicates whether the condition should be combined using a logical AND operation.
    * @param entityProperty The entity property associated with the condition. Must not be {@code null}.
-   * @param extracted The extracted value to be used in the condition. Can be {@code null}.
+   * @param value The extracted value to be used in the condition.
    * @return A {@link Condition} object if a valid condition is resolved, or {@code null} if no condition can be determined.
    */
   @Override
-  public @Nullable Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object extracted) {
-    if (extracted instanceof String string && entityProperty.isPresent(TrimWhere.class)) {
-      extracted = string.trim();
-    }
-
+  public @Nullable Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object value,
+          ValueNormalizer valueNormalizer) {
     // render where clause
     MergedAnnotation<Where> annotation = entityProperty.getAnnotation(Where.class);
     if (annotation.isPresent()) {
-      String value = annotation.getStringValue();
-      if (!Constant.DEFAULT_NONE.equals(value)) {
-        return new Condition(extracted, Restriction.plain(value), entityProperty, logicalAnd);
+      value = valueNormalizer.normalize(entityProperty, value);
+      String restriction = annotation.getStringValue();
+      if (!Constant.DEFAULT_NONE.equals(restriction)) {
+        return new Condition(value, Restriction.plain(restriction), entityProperty, logicalAnd);
       }
       else {
         String operator = annotation.getString("operator");
         if (Constant.DEFAULT_NONE.equals(operator)) {
           // default to equality operator
-          return new Condition(extracted, Restriction.equal(entityProperty.getColumnName()), entityProperty, logicalAnd);
+          return new Condition(value, Restriction.equal(entityProperty.getColumnName()), entityProperty, logicalAnd);
         }
         else {
-          return new Condition(extracted, Restriction.forOperator(
+          return new Condition(value, Restriction.forOperator(
                   entityProperty.getColumnName(), operator, "?"), entityProperty, logicalAnd);
         }
       }

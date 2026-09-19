@@ -31,15 +31,13 @@ import infra.lang.Constant;
  * It is typically used in conjunction with query builders or ORM frameworks to generate
  * SQL-like conditions dynamically.
  *
- * <p>The {@code Like} annotation allows specifying the column name and whether the value
- * should be trimmed before processing. By default, the value is trimmed to remove leading
- * and trailing whitespace.</p>
+ * <p>The {@code Like} annotation allows specifying the column name. The value can be
+ * trimmed before processing by combining it with {@link Trim @Trim}.</p>
  *
  * <p><b>Attributes:</b></p>
  * <ul>
  *   <li>{@code value}: The column name or where-clause predicate. Defaults to {@code Constant.DEFAULT_NONE}.</li>
  *   <li>{@code column}: An alias for {@code value}. Defaults to {@code Constant.DEFAULT_NONE}.</li>
- *   <li>{@code trim}: Whether to trim the value before processing. Defaults to {@code true}.</li>
  * </ul>
  *
  * <p><b>Usage Examples:</b></p>
@@ -50,13 +48,7 @@ import infra.lang.Constant;
  * private String searchName;
  * }</pre>
  *
- * Example 2: Disabling trimming
- * <pre>{@code
- * @Like(value = "description", trim = false)
- * private String descriptionQuery;
- * }</pre>
- *
- * Example 3: Using alias attributes
+ * Example 2: Using alias attributes
  * <pre>{@code
  * @Like(column = "email")
  * private String emailFilter;
@@ -134,29 +126,4 @@ public @interface Like {
   @AliasFor(annotation = Like.class, attribute = "value")
   String column() default Constant.DEFAULT_NONE;
 
-  /**
-   * Indicates whether the value should be trimmed before processing.
-   * Trimming removes leading and trailing whitespace from the value.
-   * By default, trimming is enabled ({@code true}).
-   *
-   * <p><b>Usage Examples:</b></p>
-   *
-   * Example 1: Enabling trimming (default behavior)
-   * <pre>{@code
-   * @Like(value = "name")
-   * private String searchName;
-   * }</pre>
-   *
-   * Example 2: Disabling trimming
-   * <pre>{@code
-   * @Like(value = "description", trim = false)
-   * private String descriptionQuery;
-   * }</pre>
-   *
-   * <p>When trimming is disabled, the value will be processed as-is,
-   * including any leading or trailing whitespace.</p>
-   *
-   * @return {@code true} if trimming is enabled, {@code false} otherwise
-   */
-  boolean trim() default true;
 }

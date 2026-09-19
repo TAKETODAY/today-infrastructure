@@ -21,46 +21,73 @@ import org.junit.jupiter.api.Test;
 import infra.persistence.DefaultEntityMetadataFactory;
 import infra.persistence.EntityMetadata;
 import infra.persistence.EntityProperty;
+import infra.persistence.ValueNormalizer;
 import infra.persistence.annotation.Like;
 import infra.persistence.annotation.PrefixLike;
 import infra.persistence.annotation.SuffixLike;
+import infra.persistence.annotation.Trim;
 import infra.persistence.platform.Platform;
 import infra.persistence.support.FuzzyQueryConditionStrategy.LikeRestriction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
+ * Verifies the {@link FuzzyQueryConditionStrategy} turns {@code @Like} family
+ * values into {@code LIKE} conditions, trimming the value when the property is
+ * annotated with {@code @Trim}.
+ *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2024/10/12 19:34
  */
 class FuzzyQueryConditionStrategyTests {
 
   boolean logicalAnd = true;
-  
+
   FuzzyQueryConditionStrategy strategy = new FuzzyQueryConditionStrategy();
 
   EntityMetadata entityMetadata = new DefaultEntityMetadataFactory().getEntityMetadata(Model.class);
 
   EntityProperty number = entityMetadata.findProperty("number");
+  EntityProperty like = entityMetadata.findProperty("like");
   EntityProperty trimLike = entityMetadata.findProperty("trimLike");
-  EntityProperty notTrimLike = entityMetadata.findProperty("notTrimLike");
+  EntityProperty prefixLike = entityMetadata.findProperty("prefixLike");
   EntityProperty trimPrefixLike = entityMetadata.findProperty("trimPrefixLike");
-  EntityProperty notTrimPrefixLike = entityMetadata.findProperty("notTrimPrefixLike");
+  EntityProperty suffixLike = entityMetadata.findProperty("suffixLike");
   EntityProperty trimSuffixLike = entityMetadata.findProperty("trimSuffixLike");
-  EntityProperty notTrimSuffixLike = entityMetadata.findProperty("notTrimSuffixLike");
   EntityProperty numberLike = entityMetadata.findProperty("numberLike");
   EntityProperty column = entityMetadata.findProperty("column");
 
   @Test
   void noLikeAnnotation() {
-    assertThat(strategy.resolve(logicalAnd, number, 2)).isNull();
+    assertThat(strategy.resolve(logicalAnd, number, 2, ValueNormalizer.DEFAULT)).isNull();
+  }
+
+  @Test
+  void numberLike() {
+    assertThat(strategy.resolve(logicalAnd, numberLike, 1, ValueNormalizer.DEFAULT)).isNull();
+  }
+
+  @Test
+  void like() {
+    var condition = strategy.resolve(logicalAnd, like, " \n f", ValueNormalizer.DEFAULT);
+    assertThat(condition).isNotNull();
+    assertThat(condition.entityProperty).isSameAs(like);
+    assertThat(condition.value).isEqualTo("% \n f%");
+    assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
+
+    var likeRestriction = (LikeRestriction) condition.restriction;
+    assertThat(likeRestriction.columnName.getText()).isEqualTo("like");
+
+    String string = render(likeRestriction);
+    assertThat(string).isEqualTo("like like ?");
   }
 
   @Test
   void trimLike() {
-    assertTrim(trimLike);
+    var normalizer = ValueNormalizer.DEFAULT;
+    assertTrim(trimLike, normalizer);
 
-    var condition = strategy.resolve(logicalAnd, trimLike, " \n f");
+    var condition = strategy.resolve(logicalAnd, trimLike, " f ", normalizer);
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(trimLike);
     assertThat(condition.value).isEqualTo("%f%");
@@ -74,29 +101,26 @@ class FuzzyQueryConditionStrategyTests {
   }
 
   @Test
-  void notTrimLike() {
-    assertThat(strategy.resolve(logicalAnd, notTrimLike, " ")).isNull();
-    assertThat(strategy.resolve(logicalAnd, notTrimLike, "")).isNull();
-    assertThat(strategy.resolve(logicalAnd, notTrimLike, " fd ")).isNotNull();
-
-    var condition = strategy.resolve(logicalAnd, notTrimLike, " f ");
+  void prefixLike() {
+    var condition = strategy.resolve(logicalAnd, prefixLike, " f ", ValueNormalizer.DEFAULT);
     assertThat(condition).isNotNull();
-    assertThat(condition.entityProperty).isSameAs(notTrimLike);
-    assertThat(condition.value).isEqualTo("% f %");
+    assertThat(condition.entityProperty).isSameAs(prefixLike);
+    assertThat(condition.value).isEqualTo(" f %");
     assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
 
     var likeRestriction = (LikeRestriction) condition.restriction;
-    assertThat(likeRestriction.columnName.getText()).isEqualTo("not_trim_like");
+    assertThat(likeRestriction.columnName.getText()).isEqualTo("prefix_like");
 
     String string = render(likeRestriction);
-    assertThat(string).isEqualTo("not_trim_like like ?");
+    assertThat(string).isEqualTo("prefix_like like ?");
   }
 
   @Test
   void trimPrefixLike() {
-    assertTrim(trimPrefixLike);
+    var normalizer = ValueNormalizer.DEFAULT;
+    assertTrim(trimPrefixLike, normalizer);
 
-    var condition = strategy.resolve(logicalAnd, trimPrefixLike, " \n f");
+    var condition = strategy.resolve(logicalAnd, trimPrefixLike, " f ", normalizer);
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(trimPrefixLike);
     assertThat(condition.value).isEqualTo("f%");
@@ -110,29 +134,26 @@ class FuzzyQueryConditionStrategyTests {
   }
 
   @Test
-  void notTrimPrefixLike() {
-    assertThat(strategy.resolve(logicalAnd, notTrimPrefixLike, " ")).isNull();
-    assertThat(strategy.resolve(logicalAnd, notTrimPrefixLike, "")).isNull();
-    assertThat(strategy.resolve(logicalAnd, notTrimPrefixLike, " fd ")).isNotNull();
-
-    var condition = strategy.resolve(logicalAnd, notTrimPrefixLike, " f ");
+  void suffixLike() {
+    var condition = strategy.resolve(logicalAnd, suffixLike, " f ", ValueNormalizer.DEFAULT);
     assertThat(condition).isNotNull();
-    assertThat(condition.entityProperty).isSameAs(notTrimPrefixLike);
-    assertThat(condition.value).isEqualTo(" f %");
+    assertThat(condition.entityProperty).isSameAs(suffixLike);
+    assertThat(condition.value).isEqualTo("% f ");
     assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
 
     var likeRestriction = (LikeRestriction) condition.restriction;
-    assertThat(likeRestriction.columnName.getText()).isEqualTo("not_trim_prefix_like");
+    assertThat(likeRestriction.columnName.getText()).isEqualTo("suffix_like");
 
     String string = render(likeRestriction);
-    assertThat(string).isEqualTo("not_trim_prefix_like like ?");
+    assertThat(string).isEqualTo("suffix_like like ?");
   }
 
   @Test
   void trimSuffixLike() {
-    assertTrim(trimSuffixLike);
+    var normalizer = ValueNormalizer.DEFAULT;
+    assertTrim(trimSuffixLike, normalizer);
 
-    var condition = strategy.resolve(logicalAnd, trimSuffixLike, " \n f");
+    var condition = strategy.resolve(logicalAnd, trimSuffixLike, " f ", normalizer);
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(trimSuffixLike);
     assertThat(condition.value).isEqualTo("%f");
@@ -146,36 +167,12 @@ class FuzzyQueryConditionStrategyTests {
   }
 
   @Test
-  void notTrimSuffixLike() {
-    assertThat(strategy.resolve(logicalAnd, notTrimSuffixLike, " ")).isNull();
-    assertThat(strategy.resolve(logicalAnd, notTrimSuffixLike, "")).isNull();
-    assertThat(strategy.resolve(logicalAnd, notTrimSuffixLike, " fd ")).isNotNull();
-
-    var condition = strategy.resolve(logicalAnd, notTrimSuffixLike, " f ");
-    assertThat(condition).isNotNull();
-    assertThat(condition.entityProperty).isSameAs(notTrimSuffixLike);
-    assertThat(condition.value).isEqualTo("% f ");
-    assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
-
-    var likeRestriction = (LikeRestriction) condition.restriction;
-    assertThat(likeRestriction.columnName.getText()).isEqualTo("not_trim_suffix_like");
-
-    String string = render(likeRestriction);
-    assertThat(string).isEqualTo("not_trim_suffix_like like ?");
-  }
-
-  @Test
-  void numberLike() {
-    assertThat(strategy.resolve(logicalAnd, numberLike, 1)).isNull();
-  }
-
-  @Test
   void column() {
-    var condition = strategy.resolve(logicalAnd, column, " f");
+    var condition = strategy.resolve(logicalAnd, column, " f", ValueNormalizer.DEFAULT);
     assertThat(condition).isNotNull();
 
     assertThat(condition.entityProperty).isSameAs(column);
-    assertThat(condition.value).isEqualTo("%f%");
+    assertThat(condition.value).isEqualTo("% f%");
     assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
 
     var likeRestriction = (LikeRestriction) condition.restriction;
@@ -192,20 +189,12 @@ class FuzzyQueryConditionStrategyTests {
     return sqlBuffer.toString();
   }
 
-  private void assertTrim(EntityProperty trimLike) {
-    assertThat(strategy.resolve(logicalAnd, trimLike, "    ")).isNull();
-    assertThat(strategy.resolve(logicalAnd, trimLike, " \n ")).isNull();
-    assertThat(strategy.resolve(logicalAnd, trimLike, " \t ")).isNull();
-    assertThat(strategy.resolve(logicalAnd, trimLike, " \r ")).isNull();
-    assertThat(strategy.resolve(logicalAnd, trimLike, "\r")).isNull();
-    assertThat(strategy.resolve(logicalAnd, trimLike, "\n")).isNull();
-    assertThat(strategy.resolve(logicalAnd, trimLike, "\t")).isNull();
-    assertThat(strategy.resolve(logicalAnd, trimLike, "\t \n \r")).isNull();
-    assertThat(strategy.resolve(logicalAnd, trimLike, "\t\n\r")).isNull();
-    assertThat(strategy.resolve(logicalAnd, trimLike, " \t\n\r")).isNull();
-
-    assertThat(strategy.resolve(logicalAnd, trimLike, "f ")).isNotNull();
-    assertThat(strategy.resolve(logicalAnd, trimLike, " f")).isNotNull();
+  private void assertTrim(EntityProperty trimLike, ValueNormalizer normalizer) {
+    assertThat(strategy.resolve(logicalAnd, trimLike, "    ", normalizer)).isNull();
+    assertThat(strategy.resolve(logicalAnd, trimLike, " \n ", normalizer)).isNull();
+    assertThat(strategy.resolve(logicalAnd, trimLike, " \t ", normalizer)).isNull();
+    assertThat(strategy.resolve(logicalAnd, trimLike, " \r ", normalizer)).isNull();
+    assertThat(strategy.resolve(logicalAnd, trimLike, " f ", normalizer)).isNotNull();
   }
 
   static class Model {
@@ -219,22 +208,25 @@ class FuzzyQueryConditionStrategyTests {
     public String column;
 
     @Like
+    public String like;
+
+    @Like
+    @Trim
     public String trimLike;
 
-    @Like(trim = false)
-    public String notTrimLike;
+    @PrefixLike
+    public String prefixLike;
 
     @PrefixLike
+    @Trim
     public String trimPrefixLike;
 
-    @PrefixLike(trim = false)
-    public String notTrimPrefixLike;
+    @SuffixLike
+    public String suffixLike;
 
     @SuffixLike
+    @Trim
     public String trimSuffixLike;
-
-    @SuffixLike(trim = false)
-    public String notTrimSuffixLike;
 
   }
 

@@ -22,6 +22,7 @@ import infra.persistence.DefaultEntityMetadataFactory;
 import infra.persistence.EntityMetadata;
 import infra.persistence.EntityMetadataFactory;
 import infra.persistence.EntityProperty;
+import infra.persistence.ValueNormalizer;
 import infra.persistence.sql.Restriction;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,13 +44,13 @@ class DefaultConditionStrategyTests {
     assertThat(name).isNotNull();
 
     boolean logicalAnd = true;
-    assertThat(strategy.resolve(logicalAnd, name, "  ")).isNull();
-    assertThat(strategy.resolve(logicalAnd, name, "\n")).isNull();
-    assertThat(strategy.resolve(logicalAnd, name, "\t\n\r")).isNull();
-    assertThat(strategy.resolve(logicalAnd, name, "\t\n\r ")).isNull();
-    assertThat(strategy.resolve(logicalAnd, name, " ")).isNull();
+    assertThat(strategy.resolve(logicalAnd, name, "  ", ValueNormalizer.DEFAULT)).isNull();
+    assertThat(strategy.resolve(logicalAnd, name, "\n", ValueNormalizer.DEFAULT)).isNull();
+    assertThat(strategy.resolve(logicalAnd, name, "\t\n\r", ValueNormalizer.DEFAULT)).isNull();
+    assertThat(strategy.resolve(logicalAnd, name, "\t\n\r ", ValueNormalizer.DEFAULT)).isNull();
+    assertThat(strategy.resolve(logicalAnd, name, " ", ValueNormalizer.DEFAULT)).isNull();
 
-    var condition = strategy.resolve(logicalAnd, name, "name");
+    var condition = strategy.resolve(logicalAnd, name, "name", ValueNormalizer.DEFAULT);
     assertThat(condition).isNotNull();
 
     assertThat(condition.entityProperty).isSameAs(name);
@@ -67,7 +68,7 @@ class DefaultConditionStrategyTests {
     assertThat(number).isNotNull();
 
     boolean logicalAnd = true;
-    var condition = strategy.resolve(logicalAnd, number, 2);
+    var condition = strategy.resolve(logicalAnd, number, 2, ValueNormalizer.DEFAULT);
     assertThat(condition).isNotNull();
 
     assertThat(condition.entityProperty).isSameAs(number);

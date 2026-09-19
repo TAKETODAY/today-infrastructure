@@ -22,29 +22,37 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.aot.hint.annotation.Reflective;
-import infra.core.annotation.AliasFor;
-import infra.lang.Constant;
 
 /**
- * trim string property
+ * Trims the string value of the annotated property before it is turned into a
+ * query condition.
+ *
+ * <p>This is a general behaviour modifier that can be combined with any query
+ * condition annotation such as {@link Where @Where} or {@link Like @Like}. The
+ * value is trimmed with {@link String#trim()} before the corresponding strategy
+ * renders the predicate.
+ *
+ * <p><b>Usage Examples:</b>
+ *
+ * <pre>{@code
+ *   @Where("name like ?")
+ *   @Trim
+ *   private String name;
+ *
+ *   @Like
+ *   @Trim
+ *   private String nickname;
+ * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see String#trim()
- * @since 4.0 2024/2/24 22:45
+ * @see Where
+ * @see Like
+ * @since 5.0
  */
-@Where
 @Reflective
 @Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface TrimWhere {
-
-  /**
-   * The where-clause predicate.
-   */
-  @AliasFor(annotation = Where.class, attribute = "value")
-  String value() default Constant.DEFAULT_NONE;
-
-  @AliasFor(annotation = Where.class, attribute = "operator")
-  String operator() default Constant.DEFAULT_NONE;
+public @interface Trim {
 
 }

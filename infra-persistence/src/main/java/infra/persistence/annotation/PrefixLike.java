@@ -31,15 +31,13 @@ import infra.lang.Constant;
  * It is typically used in conjunction with query builders or ORM frameworks to generate
  * SQL-like conditions dynamically, specifically for prefix-based searches.
  *
- * <p>The {@code PrefixLike} annotation allows specifying the column name or where-clause predicate,
- * and whether the value should be trimmed before processing. By default, the value is trimmed to
- * remove leading and trailing whitespace.</p>
+ * <p>The {@code PrefixLike} annotation allows specifying the column name or where-clause predicate.
+ * The value can be trimmed before processing by combining it with {@link Trim @Trim}.</p>
  *
  * <p><b>Attributes:</b></p>
  * <ul>
  *   <li>{@code value}: The column name or where-clause predicate. Defaults to {@code Constant.DEFAULT_NONE}.</li>
  *   <li>{@code column}: An alias for {@code value}. Defaults to {@code Constant.DEFAULT_NONE}.</li>
- *   <li>{@code trim}: Whether to trim the value before processing. Defaults to {@code true}.</li>
  * </ul>
  *
  * <p><b>Usage Examples:</b></p>
@@ -50,13 +48,7 @@ import infra.lang.Constant;
  * private String searchName;
  * }</pre>
  *
- * Example 2: Disabling trimming for a specific field
- * <pre>{@code
- * @PrefixLike(value = "description", trim = false)
- * private String descriptionQuery;
- * }</pre>
- *
- * Example 3: Using alias attributes interchangeably
+ * Example 2: Using alias attributes
  * <pre>{@code
  * @PrefixLike(column = "email")
  * private String emailFilter;
@@ -82,8 +74,5 @@ public @interface PrefixLike {
 
   @AliasFor(annotation = Like.class, attribute = "column")
   String column() default Constant.DEFAULT_NONE;
-
-  @AliasFor(annotation = Like.class, attribute = "trim")
-  boolean trim() default true;
 
 }

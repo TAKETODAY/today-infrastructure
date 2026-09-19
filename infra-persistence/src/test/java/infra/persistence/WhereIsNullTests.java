@@ -16,6 +16,7 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.sql.PreparedStatement;
@@ -109,15 +110,14 @@ class WhereIsNullTests {
   static class NullQueryForm {
 
     @WhereIsNull
-    public Instant deletedAt;
-
+    public @Nullable Instant deletedAt;
   }
 
   @EntityRef(UserModel.class)
   static class NotNullQueryForm {
 
     @WhereIsNull(not = true)
-    public Integer status;
+    public @Nullable Integer status;
 
   }
 

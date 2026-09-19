@@ -38,6 +38,10 @@ import infra.persistence.sql.Restriction;
  * so that the property takes no part in the query — or by a strategy willing to
  * contribute a nullness predicate such as {@code IS NULL}.
  *
+ * <p>A {@link ValueNormalizer} is supplied to {@link #resolve(boolean, EntityProperty, Object, ValueNormalizer)};
+ * the strategy uses it when it needs a normalized value (for example trimming a
+ * string value of a property annotated with {@code @Trim}).
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/24 23:58
  */
@@ -53,11 +57,14 @@ public interface PropertyConditionStrategy {
    * {@code AND}; {@code false} selects {@code OR}
    * @param entityProperty the mapped entity property
    * @param value the property value to evaluate
+   * @param valueNormalizer the normalizer for the property, never {@code null}
    * @return the resolved condition, or {@code null} when this strategy does not
    * apply or the value should not contribute a predicate
+   * @since 5.0
    */
   @Nullable
-  Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object value);
+  Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object value,
+          ValueNormalizer valueNormalizer);
 
   /**
    * Resolve a condition for a property whose value is {@code null}.

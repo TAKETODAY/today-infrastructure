@@ -9,7 +9,7 @@
  * and {@link EntityRef} maps an entity onto the primary table of another entity.
  *
  * <p>Query condition annotations drive dynamic condition building for example
- * based queries: {@link Where}, {@link TrimWhere}, {@link Like},
+ * based queries: {@link Where}, {@link Trim}, {@link Like},
  * {@link PrefixLike}, {@link SuffixLike}, {@link OR} and {@link OrderBy}.
  *
  * <p>Update behavior is customized with {@link UpdateBy}, which marks the

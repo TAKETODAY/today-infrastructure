@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import infra.core.annotation.MergedAnnotation;
 import infra.persistence.EntityProperty;
 import infra.persistence.PropertyConditionStrategy;
+import infra.persistence.ValueNormalizer;
 import infra.persistence.annotation.WhereIsNull;
 import infra.persistence.sql.Restriction;
 import infra.util.StringUtils;
@@ -43,7 +44,9 @@ import infra.util.StringUtils;
 public class DefaultConditionStrategy implements PropertyConditionStrategy {
 
   @Override
-  public @Nullable Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object value) {
+  public @Nullable Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object value,
+          ValueNormalizer valueNormalizer) {
+    value = valueNormalizer.normalize(entityProperty, value);
     if (value instanceof String string && StringUtils.isBlank(string)) {
       return null;
     }

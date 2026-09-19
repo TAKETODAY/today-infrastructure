@@ -24,6 +24,7 @@ import java.util.List;
 import infra.jdbc.model.UserModel;
 import infra.persistence.annotation.EntityRef;
 import infra.persistence.annotation.OR;
+import infra.persistence.annotation.Trim;
 import infra.persistence.annotation.Where;
 import infra.persistence.platform.GenericPlatform;
 import infra.persistence.sql.Restriction;
@@ -65,6 +66,27 @@ class WhereAnnotationTests {
     ArrayList<Restriction> restrictions = new ArrayList<>();
     exampleQuery.collectRestrictions(userModelMetadata, restrictions);
     assertThat(restrictions).hasSize(3);
+
+  }
+
+  @Test
+  void trimsValueBeforeWhere() {
+    TrimQuery query = new TrimQuery();
+    query.name = "  TODAY  ";
+
+    ExampleQuery exampleQuery = new ExampleQuery(metadataFactory, query, strategies);
+    StringBuilder sqlBuffer = new StringBuilder();
+    exampleQuery.appendWhereClause(new GenericPlatform(), userModelMetadata, sqlBuffer);
+
+    assertThat(sqlBuffer.toString()).isEqualTo(" WHERE name = ?");
+  }
+
+  @EntityRef(UserModel.class)
+  static class TrimQuery {
+
+    @Where
+    @Trim
+    public String name;
 
   }
 

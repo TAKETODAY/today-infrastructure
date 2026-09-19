@@ -23,6 +23,7 @@ import infra.lang.Constant;
 import infra.persistence.EntityProperty;
 import infra.persistence.Identifier;
 import infra.persistence.PropertyConditionStrategy;
+import infra.persistence.ValueNormalizer;
 import infra.persistence.annotation.Like;
 import infra.persistence.annotation.PrefixLike;
 import infra.persistence.annotation.SuffixLike;
@@ -36,18 +37,15 @@ import infra.util.StringUtils;
  */
 public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
 
-  @Nullable
   @Override
-  public Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object value) {
+  public @Nullable Condition resolve(boolean logicalAnd, EntityProperty entityProperty, Object value,
+          ValueNormalizer valueNormalizer) {
     MergedAnnotation<Like> annotation = entityProperty.getAnnotation(Like.class);
     if (annotation.isPresent()) {
-      // handle string
+      value = valueNormalizer.normalize(entityProperty, value);
 
+      // handle string
       if (value instanceof String string) {
-        // trim
-        if (annotation.getBoolean("trim")) {
-          string = string.trim();
-        }
         if (StringUtils.hasText(string)) {
           if (entityProperty.isPresent(PrefixLike.class)) {
             string = string + '%';

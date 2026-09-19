@@ -28,6 +28,7 @@ import infra.persistence.annotation.Like;
 import infra.persistence.annotation.OR;
 import infra.persistence.annotation.OrderByClause;
 import infra.persistence.annotation.Table;
+import infra.persistence.annotation.Trim;
 import infra.persistence.platform.Platform;
 import infra.persistence.sql.OrderSpec;
 import infra.persistence.sql.Restriction;
@@ -172,6 +173,29 @@ class ExampleQueryRenderingTests {
     @Like
     String name;
 
+  }
+
+  @Table("t_like_trim_form")
+  static class LikeTrimForm {
+
+    @Like
+    @Trim
+    String name;
+
+  }
+
+  @Test
+  void trimsLikeValueBeforeRendering() {
+    LikeTrimForm example = new LikeTrimForm();
+    example.name = "  TODAY  ";
+
+    EntityMetadata likeMetadata = metadataFactory.getEntityMetadata(LikeTrimForm.class);
+    ExampleQuery query = new ExampleQuery(metadataFactory, example, strategies);
+
+    StringBuilder sql = new StringBuilder();
+    query.appendWhereClause(Platform.mysql(), likeMetadata, sql);
+
+    assertThat(sql.toString()).contains("like ?");
   }
 
   @Table("t_or_form")

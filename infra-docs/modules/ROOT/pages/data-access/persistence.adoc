@@ -270,8 +270,8 @@ entityManager.iterate(User.class, example, this::process);
 | `@Where`
 | 自定义条件片段或操作符，如 `@Where("status > ?")`、`@Where(operator = " > ")`；缺省为等值匹配。
 
-| `@TrimWhere`
-| 元注解形式，在生成条件前对字符串值执行 `trim()`。
+| `@Trim`
+| 通用行为修饰，生成条件前对字符串值执行 `trim()`，可与 `@Where`/`@Like` 等叠加。
 
 | `@Like`
 | 生成 `LIKE` 条件，默认会去除首尾空白。
