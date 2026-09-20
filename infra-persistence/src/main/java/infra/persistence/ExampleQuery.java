@@ -29,6 +29,7 @@ import java.util.Map;
 import infra.core.annotation.MergedAnnotation;
 import infra.logging.LogMessage;
 import infra.persistence.annotation.Group;
+import infra.persistence.annotation.GroupConnector;
 import infra.persistence.annotation.OR;
 import infra.persistence.sql.LogicalOperator;
 import infra.persistence.sql.OrderSpec;
@@ -174,14 +175,18 @@ final class ExampleQuery extends SimpleSelectQueryStatement
       }
       present = true;
       MergedAnnotation<Group> annotation = property.getAnnotation(Group.class);
-      LogicalOperator connector = property.isPresent(OR.class)
+      LogicalOperator memberConnector = property.isPresent(OR.class)
               ? LogicalOperator.OR
               : LogicalOperator.AND;
       if (annotation.isPresent()) {
-        root.addGroup(annotation.getStringValue(), annotation.synthesize(), connector, condition);
+        MergedAnnotation<GroupConnector> connector = property.getAnnotation(GroupConnector.class);
+        LogicalOperator groupConnector = connector.isPresent()
+                ? connector.getEnum("value", LogicalOperator.class)
+                : LogicalOperator.AND;
+        root.addGroup(annotation.getStringValue(), groupConnector, memberConnector, condition);
       }
       else {
-        root.addOccurrence(connector, condition);
+        root.addOccurrence(memberConnector, condition);
       }
     }
     return present ? root.toTree() : null;
@@ -220,8 +225,8 @@ final class ExampleQuery extends SimpleSelectQueryStatement
    * <p>A group name may be a dot-separated path ({@code "outer.inner"}); every
    * segment becomes a level, so groups nest arbitrarily deep. Connectors are
    * uniform: a member joins the preceding one with {@code AND} unless it carries
-   * {@link OR @OR}; the group's own link to the preceding term is the connector
-   * of its first member.
+   * {@link OR @OR}; the group's link to the preceding term is declared with
+   * {@link GroupConnector @GroupConnector}.
    */
   private static final class GroupNode {
 
@@ -241,7 +246,8 @@ final class ExampleQuery extends SimpleSelectQueryStatement
       children.add(new Term(condition, connector));
     }
 
-    void addGroup(String path, Group group, LogicalOperator memberConnector, Condition condition) {
+    void addGroup(String path, LogicalOperator groupConnector,
+            LogicalOperator memberConnector, Condition condition) {
       GroupNode node = this;
       for (String segment : path.split("\\.")) {
         GroupNode child = node.subgroups.get(segment);
@@ -253,7 +259,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement
         node = child;
       }
       if (node.connector == null) {
-        node.connector = group.connector();
+        node.connector = groupConnector;
       }
       node.children.add(new Term(condition, memberConnector));
     }

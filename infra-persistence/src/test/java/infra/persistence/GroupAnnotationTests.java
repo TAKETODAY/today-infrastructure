@@ -24,6 +24,7 @@ import java.util.List;
 import infra.jdbc.model.UserModel;
 import infra.persistence.annotation.EntityRef;
 import infra.persistence.annotation.Group;
+import infra.persistence.annotation.GroupConnector;
 import infra.persistence.annotation.OR;
 import infra.persistence.annotation.Where;
 import infra.persistence.platform.GenericPlatform;
@@ -251,7 +252,8 @@ class GroupAnnotationTests {
     @Where("status > ?")
     public int status;
 
-    @Group(value = "state", connector = LogicalOperator.OR)
+    @GroupConnector(LogicalOperator.OR)
+    @Group("state")
     @Where(operator = " = ")
     public int status2;
 
@@ -292,7 +294,8 @@ class GroupAnnotationTests {
     @Where(operator = " like ")
     public String email;
 
-    @Group(value = "g2", connector = LogicalOperator.OR)
+    @GroupConnector(LogicalOperator.OR)
+    @Group("g2")
     @Where(operator = " > ")
     public int password;
 
@@ -312,11 +315,12 @@ class GroupAnnotationTests {
     @Where(operator = " = ")
     public int status2;
 
-    @Group(value = "g.h", connector = LogicalOperator.OR)
+    @GroupConnector(LogicalOperator.OR)
+    @Group("g.h")
     @Where(operator = " <= ")
     public int status3;
 
-    @Group(value = "g.h", connector = LogicalOperator.OR)
+    @Group("g.h")
     @Where(operator = " > ")
     public int status4;
 
@@ -332,16 +336,17 @@ class GroupAnnotationTests {
     @Where(operator = " = ")
     public int status2;
 
-    @Group(value = "g.h", connector = LogicalOperator.OR)
+    @GroupConnector(LogicalOperator.OR)
+    @Group("g.h")
     @Where(operator = " <= ")
     public int status3;
 
-    @Group(value = "g.h", connector = LogicalOperator.OR)
+    @Group("g.h")
     @OR
     @Where(operator = " > ")
     public int status4;
 
-    @Group(value = "g.h", connector = LogicalOperator.OR)
+    @Group("g.h")
     @Where(operator = " < ")
     public int status5;
 

@@ -22,16 +22,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.aot.hint.annotation.Reflective;
-import infra.persistence.sql.LogicalOperator;
 
 /**
  * Groups several example properties into one parenthesized condition.
  *
  * <p>Properties carrying the same {@link #value() group name} are combined into
  * a single, parenthesized condition. The group takes the position of its first
- * member and is connected to the preceding top-level condition — or another
- * group — with {@link #connector()}. This is how a non-linear {@code WHERE}
- * clause is expressed declaratively:
+ * member. This is how a non-linear {@code WHERE} clause is expressed
+ * declaratively:
  *
  * <pre>{@code
  * @EntityRef(UserModel.class)
@@ -52,14 +50,15 @@ import infra.persistence.sql.LogicalOperator;
  * // status > ? AND (status2 = ? OR status3 <= ?)
  * }</pre>
  *
- * <p>Two connectors are in play. {@link #connector()} links the group as a
- * whole to the preceding term, defaulting to {@code AND}. Inside the group,
- * members join the preceding member with {@code AND} unless they carry the
- * {@link OR @OR} annotation — exactly like top-level conditions. Groups merely
- * add parentheses:
+ * <p>This annotation is purely structural: it decides which properties belong
+ * together and how groups nest. Connection is declared separately — inside a
+ * group members join the preceding member with {@code AND} unless they carry
+ * {@link OR @OR}, and the group's link to the preceding term is declared with
+ * {@link GroupConnector @GroupConnector}:
  *
  * <pre>{@code
- * @Group(value = "g", connector = LogicalOperator.OR)
+ * @GroupConnector(LogicalOperator.OR)
+ * @Group("g")
  * @Where(...)
  * int a;
  *
@@ -72,14 +71,15 @@ import infra.persistence.sql.LogicalOperator;
  * <p>A group name may be a dot-separated path, so groups nest to any depth:
  *
  * <pre>{@code
- * @Group("a")      int x;   // level 1
- * @Group("a.b")    int y;   // level 2, nested in "a"
- * @Group("a.b.c")  int z;   // level 3, nested in "a.b"
+ * @Group("a") int x;   // level 1
+ * @Group("a.b") int y;   // level 2, nested in "a"
+ * @Group("a.b.c") int z;   // level 3, nested in "a.b"
  * // (x AND (y AND z))
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see infra.persistence.ConditionGroup
+ * @see GroupConnector
  * @see OR
  * @since 5.0
  */
@@ -95,13 +95,5 @@ public @interface Group {
    * @return the group name
    */
   String value();
-
-  /**
-   * The operator joining this group to the preceding top-level condition or
-   * group.
-   *
-   * @return the external connector, default {@link LogicalOperator#AND}
-   */
-  LogicalOperator connector() default LogicalOperator.AND;
 
 }
