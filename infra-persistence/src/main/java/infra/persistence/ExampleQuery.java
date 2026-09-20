@@ -21,16 +21,19 @@ import org.jspecify.annotations.Nullable;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+import infra.core.annotation.MergedAnnotation;
 import infra.logging.LogMessage;
-import infra.persistence.PropertyConditionStrategy.Condition;
+import infra.persistence.annotation.Group;
 import infra.persistence.annotation.OR;
 import infra.persistence.sql.LogicalOperator;
 import infra.persistence.sql.OrderSpec;
 import infra.persistence.sql.OrderSpecSource;
 import infra.persistence.sql.Restriction;
-import infra.persistence.sql.Restrictions;
 import infra.persistence.sql.SimpleSelect;
 
 /**
@@ -38,8 +41,8 @@ import infra.persistence.sql.SimpleSelect;
  * <p>
  * This class scans the properties of the provided example instance. For each non-null property,
  * it applies configured {@link PropertyConditionStrategy} instances to generate corresponding
- * {@link Restriction} objects for the WHERE clause. It also resolves the ORDER BY clause for
- * the query.
+ * {@link Condition} objects, then assembles them into a {@link ConditionTree} for the WHERE
+ * clause. It also resolves the ORDER BY clause for the query.
  *
  * <p>The ORDER BY clause is resolved in the following priority order:
  * <ol>
@@ -57,7 +60,8 @@ import infra.persistence.sql.SimpleSelect;
  * @see infra.persistence.annotation.OrderByClause
  * @since 4.0 2024/2/19 19:56
  */
-final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCondition, DebugDescriptive {
+final class ExampleQuery extends SimpleSelectQueryStatement
+        implements QueryCondition, DebugDescriptive, ValueNormalizer {
 
   private final Object example;
 
@@ -65,31 +69,40 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
 
   private final List<PropertyConditionStrategy> strategies;
 
-  private @Nullable ArrayList<Condition> conditions;
+  private final List<ValueNormalizer> valueNormalizers;
+
+  private @Nullable ConditionTree predicates;
 
   ExampleQuery(Object example, EntityMetadata exampleMetadata, List<PropertyConditionStrategy> strategies) {
     this.example = example;
     this.exampleMetadata = exampleMetadata;
     this.strategies = strategies;
+    this.valueNormalizers = Collections.emptyList();
   }
 
   ExampleQuery(EntityMetadataFactory factory, Object example, List<PropertyConditionStrategy> strategies) {
+    this(factory, example, strategies, List.of());
+  }
+
+  ExampleQuery(EntityMetadataFactory factory, Object example,
+          List<PropertyConditionStrategy> strategies, List<ValueNormalizer> valueNormalizers) {
     this.example = example;
     this.strategies = strategies;
+    this.valueNormalizers = valueNormalizers;
     this.exampleMetadata = factory.getEntityMetadata(example.getClass());
   }
 
   @Override
   protected void renderInternal(EntityMetadata metadata, SimpleSelect select) {
-    for (Restriction restriction : restrictions()) {
-      select.addRestriction(restriction);
+    for (Condition condition : where()) {
+      select.addRestriction(condition);
     }
     select.orderBy(resolveOrderByClause(metadata));
   }
 
   @Override
   public void collectRestrictions(EntityMetadata metadata, List<Restriction> restrictions) {
-    restrictions.addAll(restrictions());
+    restrictions.addAll(where());
   }
 
   @Override
@@ -108,9 +121,17 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
   @Override
   public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException {
     int idx = 1;
-    for (var condition : scanConditions()) {
+    for (Condition condition : where()) {
       idx = condition.setParameter(statement, idx);
     }
+  }
+
+  @Override
+  public Object normalize(EntityProperty entityProperty, Object value) {
+    for (ValueNormalizer normalizer : valueNormalizers) {
+      value = normalizer.normalize(entityProperty, value);
+    }
+    return value;
   }
 
   @Override
@@ -124,70 +145,157 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements QueryCond
   }
 
   /**
-   * Resolve the WHERE restrictions for the scanned conditions.
+   * Return the assembled {@link ConditionTree WHERE} tree, computed once.
    *
-   * <p>When every condition but the first uses the default {@code AND}
-   * connector, the conditions are returned as a flat list so that collection
-   * rendering emits a plain {@code a AND b AND c}. As soon as an explicit
-   * {@code OR} or {@code XOR} appears, the conditions are folded left-to-right
-   * into a single, parenthesized expression, which keeps the mixed connectors
-   * unambiguous. Either way the placeholder order matches {@link #setParameter}.
+   * <p>{@link Group @Group}-annotated properties that share a name are collapsed
+   * into a nested {@link ConditionGroup} here; each top-level term carries the
+   * connector that joins it to the preceding one.
    *
-   * @return the restrictions to render, never {@code null}
+   * @return the tree, or {@code null} when no property took part in the query
    */
-  private List<Restriction> restrictions() {
-    ArrayList<Condition> conditions = scanConditions();
-    if (conditions.isEmpty()) {
-      return List.of();
+  private @Nullable ConditionTree predicates() {
+    ConditionTree predicates = this.predicates;
+    if (predicates == null) {
+      predicates = buildPredicates();
+      this.predicates = predicates;
     }
-    boolean allDefault = true;
-    for (int i = 1; i < conditions.size(); i++) {
-      if (conditions.get(i).connector != LogicalOperator.AND) {
-        allDefault = false;
-        break;
-      }
-    }
-    if (allDefault) {
-      return new ArrayList<>(conditions);
-    }
-
-    Restriction expression = conditions.get(0);
-    for (int i = 1; i < conditions.size(); i++) {
-      Condition condition = conditions.get(i);
-      expression = switch (condition.connector) {
-        case AND -> Restrictions.and(expression, condition);
-        case OR -> Restrictions.or(expression, condition);
-        case XOR -> Restrictions.xor(expression, condition);
-      };
-    }
-    return List.of(expression);
+    return predicates;
   }
 
-  private ArrayList<Condition> scanConditions() {
-    ArrayList<Condition> conditions = this.conditions;
-    if (conditions == null) {
-      EntityProperty[] entityProperties = exampleMetadata.getEntityProperties(true);
-      conditions = new ArrayList<>(entityProperties.length);
+  private @Nullable ConditionTree buildPredicates() {
+    EntityProperty[] entityProperties = exampleMetadata.getEntityProperties(true);
+    GroupNode root = new GroupNode();
+    boolean present = false;
 
-      for (EntityProperty property : entityProperties) {
-        Object propertyValue = property.getValue(example);
-        LogicalOperator connector = property.isPresent(OR.class)
-                ? LogicalOperator.OR
-                : LogicalOperator.AND;
-
-        for (var strategy : strategies) {
-          var condition = propertyValue == null
-                  ? strategy.resolve(connector, property)
-                  : strategy.resolve(connector, property, propertyValue, ValueNormalizer.DEFAULT);
-          if (condition != null) {
-            conditions.add(condition);
-            break;
-          }
-        }
+    for (EntityProperty property : entityProperties) {
+      Condition condition = resolveCondition(property);
+      if (condition == null) {
+        continue;
       }
-      this.conditions = conditions;
+      present = true;
+      MergedAnnotation<Group> annotation = property.getAnnotation(Group.class);
+      LogicalOperator connector = property.isPresent(OR.class)
+              ? LogicalOperator.OR
+              : LogicalOperator.AND;
+      if (annotation.isPresent()) {
+        root.addGroup(annotation.getStringValue(), annotation.synthesize(), connector, condition);
+      }
+      else {
+        root.addOccurrence(connector, condition);
+      }
     }
-    return conditions;
+    return present ? root.toTree() : null;
+  }
+
+  private @Nullable Condition resolveCondition(EntityProperty property) {
+    Object propertyValue = property.getValue(example);
+
+    for (PropertyConditionStrategy strategy : strategies) {
+      Condition condition = propertyValue == null
+              ? strategy.resolve(property)
+              : strategy.resolve(property, propertyValue, this);
+      if (condition != null) {
+        return condition;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Resolve the conditions to render and bind.
+   *
+   * <p>The {@link ConditionTree} drives both rendering and {@link #setParameter},
+   * so placeholders are bound in exactly the order they are rendered.
+   *
+   * @return the top-level conditions, never {@code null}
+   */
+  private List<Condition> where() {
+    ConditionTree predicates = predicates();
+    return predicates == null ? List.of() : List.of(predicates);
+  }
+
+  /**
+   * A node in the tree of {@link Group @Group}s.
+   *
+   * <p>A group name may be a dot-separated path ({@code "outer.inner"}); every
+   * segment becomes a level, so groups nest arbitrarily deep. Connectors are
+   * uniform: a member joins the preceding one with {@code AND} unless it carries
+   * {@link OR @OR}; the group's own link to the preceding term is the connector
+   * of its first member.
+   */
+  private static final class GroupNode {
+
+    // ordered children: a term or a nested group; type-safe, no casts
+    final List<Member> children = new ArrayList<>();
+
+    final Map<String, GroupNode> subgroups = new LinkedHashMap<>();
+
+    /**
+     * The connector joining this group to the preceding top-level term,
+     * declared by the first {@link Group @Group} that names it; falls back to
+     * {@code AND}. Kept {@code null} until a declaration supplies one.
+     */
+    @Nullable LogicalOperator connector;
+
+    void addOccurrence(LogicalOperator connector, Condition condition) {
+      children.add(new Term(condition, connector));
+    }
+
+    void addGroup(String path, Group group, LogicalOperator memberConnector, Condition condition) {
+      GroupNode node = this;
+      for (String segment : path.split("\\.")) {
+        GroupNode child = node.subgroups.get(segment);
+        if (child == null) {
+          child = new GroupNode();
+          node.subgroups.put(segment, child);
+          node.children.add(new Subgroup(child));
+        }
+        node = child;
+      }
+      if (node.connector == null) {
+        node.connector = group.connector();
+      }
+      node.children.add(new Term(condition, memberConnector));
+    }
+
+    ConditionTree toTree() {
+      List<ConditionTree.Occurrence> occurrences = new ArrayList<>(children.size());
+      for (Member member : children) {
+        occurrences.add(occurrenceOf(member));
+      }
+      return ConditionTree.of(occurrences);
+    }
+
+    Condition toCondition() {
+      List<ConditionTree.Occurrence> occurrences = new ArrayList<>(children.size());
+      for (Member member : children) {
+        occurrences.add(occurrenceOf(member));
+      }
+      return ConditionGroup.of(occurrences);
+    }
+
+    private ConditionTree.Occurrence occurrenceOf(Member member) {
+      if (member instanceof Subgroup subgroup) {
+        GroupNode node = subgroup.node;
+        return new ConditionTree.Occurrence(
+                node.connector != null ? node.connector : LogicalOperator.AND,
+                node.toCondition());
+      }
+      Term term = (Term) member;
+      return new ConditionTree.Occurrence(
+              term.connector != null ? term.connector : LogicalOperator.AND,
+              term.condition);
+    }
+
+    private sealed interface Member {
+    }
+
+    private record Term(Condition condition, @Nullable LogicalOperator connector) implements Member {
+    }
+
+    private record Subgroup(GroupNode node) implements Member {
+    }
+
   }
 
 }

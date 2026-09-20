@@ -32,10 +32,9 @@ import infra.persistence.platform.Platform;
  * a {@link Restriction} wrapper instead.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see Restriction#connector()
- * @see Restriction#and(Restriction, Restriction)
- * @see Restriction#or(Restriction, Restriction)
- * @see Restriction#xor(Restriction, Restriction)
+ * @see Restrictions#and(Restriction, Restriction)
+ * @see Restrictions#or(Restriction, Restriction)
+ * @see Restrictions#xor(Restriction, Restriction)
  * @since 5.0
  */
 public enum LogicalOperator {

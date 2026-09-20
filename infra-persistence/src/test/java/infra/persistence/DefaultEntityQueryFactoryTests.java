@@ -18,9 +18,12 @@ package infra.persistence;
 
 import org.junit.jupiter.api.Test;
 
+import infra.persistence.annotation.Trim;
 import infra.persistence.support.DefaultConditionStrategy;
 import infra.persistence.support.FuzzyQueryConditionStrategy;
 import infra.persistence.support.WhereAnnotationConditionStrategy;
+
+import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -65,6 +68,54 @@ class DefaultEntityQueryFactoryTests {
   void shouldReturnImmutableStrategies() {
     assertThatThrownBy(() -> factory.getStrategies().add(mock(PropertyConditionStrategy.class)))
             .isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
+  void shouldExposeDefaultValueNormalizer() {
+    assertThat(factory.getValueNormalizers()).containsExactly(ValueNormalizer.DEFAULT);
+  }
+
+  @Test
+  void shouldAddNormalizerBeforeDefault() {
+    ValueNormalizer normalizer = mock(ValueNormalizer.class);
+
+    factory.addNormalizer(normalizer);
+
+    assertThat(factory.getValueNormalizers()).contains(normalizer);
+    assertThat(factory.getValueNormalizers()).last().isSameAs(ValueNormalizer.DEFAULT);
+  }
+
+  @Test
+  void shouldRejectNullNormalizer() {
+    assertThatThrownBy(() -> factory.addNormalizer(null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("ValueNormalizer is required");
+  }
+
+  @Test
+  void shouldReturnImmutableValueNormalizers() {
+    assertThatThrownBy(() -> factory.getValueNormalizers().add(mock(ValueNormalizer.class)))
+            .isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
+  void shouldChainNormalizersThroughCreatedQuery() {
+    factory.addNormalizer((property, value) ->
+            value instanceof String string ? string.toUpperCase(Locale.ROOT) : value);
+
+    QueryStatement query = factory.createQuery(new TrimModel());
+
+    Object normalized = ((ValueNormalizer) query).normalize(
+            metadataFactory.getEntityMetadata(TrimModel.class).findProperty("name"), "  today  ");
+
+    assertThat(normalized).isEqualTo("TODAY");
+  }
+
+  static class TrimModel {
+
+    @Trim
+    public String name;
+
   }
 
 }

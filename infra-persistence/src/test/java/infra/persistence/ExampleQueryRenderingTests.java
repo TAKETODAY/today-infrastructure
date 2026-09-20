@@ -91,7 +91,9 @@ class ExampleQueryRenderingTests {
     ArrayList<Restriction> restrictions = new ArrayList<>();
     query.collectRestrictions(metadata, restrictions);
 
-    assertThat(restrictions).hasSize(2);
+    assertThat(restrictions).hasSize(1);
+    ConditionTree tree = (ConditionTree) restrictions.get(0);
+    assertThat(tree.occurrences()).hasSize(2);
     StringBuilder sql = new StringBuilder();
     Restrictions.appendWhereClause(Platform.mysql(), restrictions, sql);
     assertThat(sql.toString()).contains("name = ?").contains("age = ?").contains("AND");

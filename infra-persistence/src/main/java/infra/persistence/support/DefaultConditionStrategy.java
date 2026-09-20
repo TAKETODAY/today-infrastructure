@@ -18,15 +18,13 @@ package infra.persistence.support;
 
 import org.jspecify.annotations.Nullable;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
 import infra.core.annotation.MergedAnnotation;
+import infra.persistence.Condition;
 import infra.persistence.EntityProperty;
 import infra.persistence.PropertyConditionStrategy;
 import infra.persistence.ValueNormalizer;
 import infra.persistence.annotation.WhereIsNull;
-import infra.persistence.sql.LogicalOperator;
+import infra.persistence.platform.Platform;
 import infra.persistence.sql.Restriction;
 import infra.persistence.sql.Restrictions;
 import infra.util.StringUtils;
@@ -46,32 +44,41 @@ import infra.util.StringUtils;
 public class DefaultConditionStrategy implements PropertyConditionStrategy {
 
   @Override
-  public @Nullable Condition resolve(LogicalOperator connector, EntityProperty entityProperty, Object value,
-          ValueNormalizer valueNormalizer) {
+  public @Nullable Condition resolve(EntityProperty entityProperty, Object value, ValueNormalizer valueNormalizer) {
     if (value instanceof String string && StringUtils.isBlank(string)) {
       return null;
     }
     value = valueNormalizer.normalize(entityProperty, value);
-    return new Condition(value, Restrictions.equal(entityProperty.getColumnName()), entityProperty, connector);
+    return new PropertyCondition(value, Restrictions.equal(entityProperty.getColumnName()), entityProperty);
   }
 
   @Override
-  public @Nullable Condition resolve(LogicalOperator connector, EntityProperty entityProperty) {
+  public @Nullable Condition resolve(EntityProperty entityProperty) {
     MergedAnnotation<WhereIsNull> annotation = entityProperty.getAnnotation(WhereIsNull.class);
     if (!annotation.isPresent()) {
       return null;
     }
-    boolean not = annotation.getBoolean("not");
-    Restriction restriction = not
+    Restriction restriction = annotation.getBoolean("not")
             ? Restrictions.isNotNull(entityProperty.getColumnName())
             : Restrictions.isNull(entityProperty.getColumnName());
-    return new Condition(null, restriction, entityProperty, connector) {
+    return new IsNullCondition(restriction);
+  }
 
-      @Override
-      public int setParameter(PreparedStatement ps, int parameterIndex) throws SQLException {
-        return parameterIndex;
-      }
-    };
+  /**
+   * A condition that renders {@code IS (NOT) NULL} and consumes no parameter.
+   */
+  private static final class IsNullCondition implements Condition {
+
+    private final Restriction restriction;
+
+    IsNullCondition(Restriction restriction) {
+      this.restriction = restriction;
+    }
+
+    @Override
+    public void render(Platform platform, StringBuilder sqlBuffer) {
+      restriction.render(platform, sqlBuffer);
+    }
   }
 
 }

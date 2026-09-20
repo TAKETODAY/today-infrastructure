@@ -151,6 +151,26 @@ public final class EntityQueryFactories {
   }
 
   /**
+   * Add a {@link ValueNormalizer} applied by the fallback factory, consulted before
+   * its built-in {@link ValueNormalizer#DEFAULT}.
+   *
+   * @param normalizer the normalizer to add; must not be {@code null}
+   */
+  public void addNormalizer(ValueNormalizer normalizer) {
+    defaultFactory.addNormalizer(normalizer);
+  }
+
+  /**
+   * Return an unmodifiable view of the fallback factory's value normalizers in
+   * application order.
+   *
+   * @return the value normalizers
+   */
+  public List<ValueNormalizer> getValueNormalizers() {
+    return defaultFactory.getValueNormalizers();
+  }
+
+  /**
    * Update the metadata factory used by the fallback factory.
    */
   void setEntityMetadataFactory(EntityMetadataFactory entityMetadataFactory) {

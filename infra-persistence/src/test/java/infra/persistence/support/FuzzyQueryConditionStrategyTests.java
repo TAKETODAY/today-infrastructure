@@ -27,7 +27,7 @@ import infra.persistence.annotation.PrefixLike;
 import infra.persistence.annotation.SuffixLike;
 import infra.persistence.annotation.Trim;
 import infra.persistence.platform.Platform;
-import infra.persistence.sql.LogicalOperator;
+
 import infra.persistence.support.FuzzyQueryConditionStrategy.LikeRestriction;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,8 +41,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 5.0 2024/10/12 19:34
  */
 class FuzzyQueryConditionStrategyTests {
-
-  LogicalOperator logicalAnd = LogicalOperator.AND;
 
   FuzzyQueryConditionStrategy strategy = new FuzzyQueryConditionStrategy();
 
@@ -60,17 +58,17 @@ class FuzzyQueryConditionStrategyTests {
 
   @Test
   void noLikeAnnotation() {
-    assertThat(strategy.resolve(logicalAnd, number, 2, ValueNormalizer.DEFAULT)).isNull();
+    assertThat(strategy.resolve(number, 2, ValueNormalizer.DEFAULT)).isNull();
   }
 
   @Test
   void numberLike() {
-    assertThat(strategy.resolve(logicalAnd, numberLike, 1, ValueNormalizer.DEFAULT)).isNull();
+    assertThat(strategy.resolve(numberLike, 1, ValueNormalizer.DEFAULT)).isNull();
   }
 
   @Test
   void like() {
-    var condition = strategy.resolve(logicalAnd, like, " \n f", ValueNormalizer.DEFAULT);
+    PropertyCondition condition = (PropertyCondition) strategy.resolve(like, " \n f", ValueNormalizer.DEFAULT);
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(like);
     assertThat(condition.value).isEqualTo("% \n f%");
@@ -88,7 +86,7 @@ class FuzzyQueryConditionStrategyTests {
     var normalizer = ValueNormalizer.DEFAULT;
     assertTrim(trimLike, normalizer);
 
-    var condition = strategy.resolve(logicalAnd, trimLike, " f ", normalizer);
+    PropertyCondition condition = (PropertyCondition) strategy.resolve(trimLike, " f ", normalizer);
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(trimLike);
     assertThat(condition.value).isEqualTo("%f%");
@@ -103,7 +101,7 @@ class FuzzyQueryConditionStrategyTests {
 
   @Test
   void prefixLike() {
-    var condition = strategy.resolve(logicalAnd, prefixLike, " f ", ValueNormalizer.DEFAULT);
+    PropertyCondition condition = (PropertyCondition) strategy.resolve(prefixLike, " f ", ValueNormalizer.DEFAULT);
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(prefixLike);
     assertThat(condition.value).isEqualTo(" f %");
@@ -121,7 +119,7 @@ class FuzzyQueryConditionStrategyTests {
     var normalizer = ValueNormalizer.DEFAULT;
     assertTrim(trimPrefixLike, normalizer);
 
-    var condition = strategy.resolve(logicalAnd, trimPrefixLike, " f ", normalizer);
+    PropertyCondition condition = (PropertyCondition) strategy.resolve(trimPrefixLike, " f ", normalizer);
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(trimPrefixLike);
     assertThat(condition.value).isEqualTo("f%");
@@ -136,7 +134,7 @@ class FuzzyQueryConditionStrategyTests {
 
   @Test
   void suffixLike() {
-    var condition = strategy.resolve(logicalAnd, suffixLike, " f ", ValueNormalizer.DEFAULT);
+    PropertyCondition condition = (PropertyCondition) strategy.resolve(suffixLike, " f ", ValueNormalizer.DEFAULT);
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(suffixLike);
     assertThat(condition.value).isEqualTo("% f ");
@@ -154,7 +152,7 @@ class FuzzyQueryConditionStrategyTests {
     var normalizer = ValueNormalizer.DEFAULT;
     assertTrim(trimSuffixLike, normalizer);
 
-    var condition = strategy.resolve(logicalAnd, trimSuffixLike, " f ", normalizer);
+    PropertyCondition condition = (PropertyCondition) strategy.resolve(trimSuffixLike, " f ", normalizer);
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(trimSuffixLike);
     assertThat(condition.value).isEqualTo("%f");
@@ -169,7 +167,7 @@ class FuzzyQueryConditionStrategyTests {
 
   @Test
   void column() {
-    var condition = strategy.resolve(logicalAnd, column, " f", ValueNormalizer.DEFAULT);
+    PropertyCondition condition = (PropertyCondition) strategy.resolve(column, " f", ValueNormalizer.DEFAULT);
     assertThat(condition).isNotNull();
 
     assertThat(condition.entityProperty).isSameAs(column);
@@ -191,11 +189,11 @@ class FuzzyQueryConditionStrategyTests {
   }
 
   private void assertTrim(EntityProperty trimLike, ValueNormalizer normalizer) {
-    assertThat(strategy.resolve(logicalAnd, trimLike, "    ", normalizer)).isNull();
-    assertThat(strategy.resolve(logicalAnd, trimLike, " \n ", normalizer)).isNull();
-    assertThat(strategy.resolve(logicalAnd, trimLike, " \t ", normalizer)).isNull();
-    assertThat(strategy.resolve(logicalAnd, trimLike, " \r ", normalizer)).isNull();
-    assertThat(strategy.resolve(logicalAnd, trimLike, " f ", normalizer)).isNotNull();
+    assertThat(strategy.resolve(trimLike, "    ", normalizer)).isNull();
+    assertThat(strategy.resolve(trimLike, " \n ", normalizer)).isNull();
+    assertThat(strategy.resolve(trimLike, " \t ", normalizer)).isNull();
+    assertThat(strategy.resolve(trimLike, " \r ", normalizer)).isNull();
+    assertThat(strategy.resolve(trimLike, " f ", normalizer)).isNotNull();
   }
 
   static class Model {

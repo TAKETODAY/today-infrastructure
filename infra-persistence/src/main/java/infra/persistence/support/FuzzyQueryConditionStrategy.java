@@ -20,6 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.core.annotation.MergedAnnotation;
 import infra.lang.Constant;
+import infra.persistence.Condition;
 import infra.persistence.EntityProperty;
 import infra.persistence.Identifier;
 import infra.persistence.PropertyConditionStrategy;
@@ -28,7 +29,6 @@ import infra.persistence.annotation.Like;
 import infra.persistence.annotation.PrefixLike;
 import infra.persistence.annotation.SuffixLike;
 import infra.persistence.platform.Platform;
-import infra.persistence.sql.LogicalOperator;
 import infra.persistence.sql.Restriction;
 import infra.util.StringUtils;
 
@@ -59,8 +59,7 @@ import infra.util.StringUtils;
 public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
 
   @Override
-  public @Nullable Condition resolve(LogicalOperator connector, EntityProperty entityProperty, Object value,
-          ValueNormalizer valueNormalizer) {
+  public @Nullable Condition resolve(EntityProperty entityProperty, Object value, ValueNormalizer valueNormalizer) {
     // handle string
     if (value instanceof String string && StringUtils.hasText(string)) {
       MergedAnnotation<Like> annotation = entityProperty.getAnnotation(Like.class);
@@ -78,7 +77,7 @@ public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
 
         // get column name
         Identifier column = getColumn(entityProperty, annotation);
-        return new Condition(string, new LikeRestriction(column), entityProperty, connector);
+        return new PropertyCondition(string, new LikeRestriction(column), entityProperty);
       }
     }
     return null;

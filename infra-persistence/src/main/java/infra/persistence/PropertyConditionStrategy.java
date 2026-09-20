@@ -18,30 +18,27 @@ package infra.persistence;
 
 import org.jspecify.annotations.Nullable;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
-import infra.persistence.platform.Platform;
-import infra.persistence.sql.LogicalOperator;
-import infra.persistence.sql.Restriction;
-
 /**
- * Strategy for turning an entity property value into a SQL
- * {@link Restriction} and its bindable value.
+ * Strategy for turning an entity property value into a SQL restriction and its
+ * bindable value.
  *
  * <p>Strategies are consulted while an example object is converted into a query.
  * A strategy may decline a property by returning {@code null}; otherwise it
- * returns a {@link Condition} that keeps SQL rendering and JDBC parameter binding
- * in the same order.
+ * returns a {@link Condition} that keeps SQL rendering and JDBC parameter
+ * binding in the same order.
+ *
+ * <p>How the produced condition is joined to its siblings is assembly-time
+ * metadata and not part of this contract: the caller decides the connectors.
  *
  * <p>A property whose value is {@code null} is ruled either by
- * {@link #resolve(LogicalOperator, EntityProperty)} — by default returning {@code null}
- * so that the property takes no part in the query — or by a strategy willing to
+ * {@link #resolve(EntityProperty)} — by default returning {@code null} so that
+ * the property takes no part in the query — or by a strategy willing to
  * contribute a nullness predicate such as {@code IS NULL}.
  *
- * <p>A {@link ValueNormalizer} is supplied to {@link #resolve(LogicalOperator, EntityProperty, Object, ValueNormalizer)};
- * the strategy uses it when it needs a normalized value (for example trimming a
- * string value of a property annotated with {@code @Trim}).
+ * <p>A {@link ValueNormalizer} is supplied to
+ * {@link #resolve(EntityProperty, Object, ValueNormalizer)}; the strategy uses
+ * it when it needs a normalized value (for example trimming a string value of a
+ * property annotated with {@code @Trim}).
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/24 23:58
@@ -52,10 +49,8 @@ public interface PropertyConditionStrategy {
    * Resolve a condition for the given mapped property and value.
    *
    * <p>The value is never {@code null}; a {@code null} property value is routed
-   * to {@link #resolve(LogicalOperator, EntityProperty)} instead.
+   * to {@link #resolve(EntityProperty)} instead.
    *
-   * @param connector the logical operator joining this condition to the
-   * preceding one, never {@code null}
    * @param entityProperty the mapped entity property
    * @param value the property value to evaluate
    * @param valueNormalizer the normalizer for the property, never {@code null}
@@ -64,112 +59,22 @@ public interface PropertyConditionStrategy {
    * @since 5.0
    */
   @Nullable
-  Condition resolve(LogicalOperator connector, EntityProperty entityProperty, Object value,
-          ValueNormalizer valueNormalizer);
+  Condition resolve(EntityProperty entityProperty, Object value, ValueNormalizer valueNormalizer);
 
   /**
    * Resolve a condition for a property whose value is {@code null}.
    *
-   * <p>Whether a {@code null} value contributes an {@code IS NULL} predicate is a
-   * strategy decision. The default implementation declines, leaving the property
-   * out of the query.
+   * <p>Whether a {@code null} value contributes an {@code IS NULL} predicate is
+   * a strategy decision. The default implementation declines, leaving the
+   * property out of the query.
    *
-   * @param connector the logical operator joining this condition to the
-   * preceding one, never {@code null}
    * @param entityProperty the mapped entity property
    * @return the resolved condition, or {@code null} when the strategy does not
    * apply and the property should not contribute a predicate
    * @since 5.0
    */
-  default @Nullable Condition resolve(LogicalOperator connector, EntityProperty entityProperty) {
+  default @Nullable Condition resolve(EntityProperty entityProperty) {
     return null;
   }
 
-  /**
-   * A resolved property predicate consisting of its SQL restriction, bindable
-   * value, mapped property and logical connector.
-   *
-   * <p>Rendering delegates to the underlying restriction. Parameter binding uses
-   * the {@link EntityProperty} type handler, so conditions must be bound in the
-   * same order in which they were rendered.
-   *
-   * @see Restriction
-   * @see EntityProperty
-   * @since 4.0
-   */
-  class Condition implements Restriction {
-
-    public final Object value;
-
-    public final Restriction restriction;
-
-    public final EntityProperty entityProperty;
-
-    public final LogicalOperator connector;
-
-    /**
-     * Create an {@code AND}-connected condition.
-     *
-     * @param value the value to bind
-     * @param restriction the SQL restriction to render
-     * @param entityProperty the mapped property used to bind the value
-     */
-    public Condition(Object value, Restriction restriction, EntityProperty entityProperty) {
-      this(value, restriction, entityProperty, LogicalOperator.AND);
-    }
-
-    /**
-     * Create a condition with an explicit logical connector.
-     *
-     * @param value the value to bind
-     * @param restriction the SQL restriction to render
-     * @param entityProperty the mapped property used to bind the value
-     * @param connector the logical operator joining this condition to the
-     * preceding one
-     * @since 5.0
-     */
-    public Condition(Object value, Restriction restriction, EntityProperty entityProperty,
-            LogicalOperator connector) {
-      this.value = value;
-      this.restriction = restriction;
-      this.entityProperty = entityProperty;
-      this.connector = connector;
-    }
-
-    /**
-     * Delegate rendering to the underlying restriction.
-     *
-     * @param platform the database platform whose rendering rules apply
-     * @param sqlBuffer the buffer to append to
-     */
-    @Override
-    public void render(Platform platform, StringBuilder sqlBuffer) {
-      restriction.render(platform, sqlBuffer);
-    }
-
-    /**
-     * Return a copy with a different bindable value.
-     *
-     * @param propertyValue the replacement value
-     * @return a condition retaining the restriction, property and logical connector
-     * @since 5.0
-     */
-    public Condition withValue(Object propertyValue) {
-      return new Condition(propertyValue, restriction, entityProperty, connector);
-    }
-
-    /**
-     * Bind this condition's value at the given JDBC parameter index.
-     *
-     * @param ps the prepared statement to bind
-     * @param parameterIndex the one-based parameter index
-     * @return the next parameter index
-     * @throws SQLException if the value cannot be bound
-     */
-    public int setParameter(PreparedStatement ps, int parameterIndex) throws SQLException {
-      entityProperty.setParameter(ps, parameterIndex++, value);
-      return parameterIndex;
-    }
-
-  }
 }

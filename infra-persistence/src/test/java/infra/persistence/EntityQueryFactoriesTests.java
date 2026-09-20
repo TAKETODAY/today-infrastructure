@@ -382,4 +382,24 @@ class EntityQueryFactoriesTests {
     assertThat(factories.getStrategies()).contains(strategy);
   }
 
+  @Test
+  void shouldExposeDefaultValueNormalizer() {
+    EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory);
+
+    assertThat(factories.getValueNormalizers()).containsExactly(ValueNormalizer.DEFAULT);
+  }
+
+  @Test
+  void shouldAddValueNormalizer() {
+    EntityMetadataFactory entityMetadataFactory = mock(EntityMetadataFactory.class);
+    EntityQueryFactories factories = new EntityQueryFactories(entityMetadataFactory);
+
+    ValueNormalizer normalizer = mock(ValueNormalizer.class);
+    factories.addNormalizer(normalizer);
+
+    assertThat(factories.getValueNormalizers()).contains(normalizer);
+    assertThat(factories.getValueNormalizers()).last().isSameAs(ValueNormalizer.DEFAULT);
+  }
+
 }

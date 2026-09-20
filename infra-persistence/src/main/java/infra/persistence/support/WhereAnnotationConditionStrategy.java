@@ -20,12 +20,11 @@ import org.jspecify.annotations.Nullable;
 
 import infra.core.annotation.MergedAnnotation;
 import infra.lang.Constant;
+import infra.persistence.Condition;
 import infra.persistence.EntityProperty;
 import infra.persistence.PropertyConditionStrategy;
 import infra.persistence.ValueNormalizer;
 import infra.persistence.annotation.Where;
-import infra.persistence.sql.LogicalOperator;
-import infra.persistence.sql.Restriction;
 import infra.persistence.sql.Restrictions;
 
 /**
@@ -36,10 +35,10 @@ import infra.persistence.sql.Restrictions;
  * the {@code @Where} annotation is present, the predicate is built as follows:
  * <ul>
  *   <li>with a {@link Where#value()} SQL fragment — the fragment is rendered
- *   unchanged via {@link Restriction#plain(CharSequence) plain()};</li>
+ *   unchanged via {@link Restrictions#plain(CharSequence) plain()};</li>
  *   <li>otherwise with an {@link Where#operator()} — as {@code column <operator> ?}
- *   via {@link Restriction#forOperator(String, String, String) forOperator()};</li>
- *   <li>otherwise — as {@code column = ?} via {@link Restriction#equal(String)}.</li>
+ *   via {@link Restrictions#forOperator(String, String, String) forOperator()};</li>
+ *   <li>otherwise — as {@code column = ?} via {@link Restrictions#equal(String)}.</li>
  * </ul>
  *
  * <p>A property without a {@code @Where} annotation is declined by returning
@@ -59,8 +58,6 @@ public class WhereAnnotationConditionStrategy implements PropertyConditionStrate
    * the class-level documentation; a property without the annotation yields
    * {@code null}.
    *
-   * @param connector the logical operator joining this condition to the
-   * preceding one, never {@code null}
    * @param entityProperty the mapped entity property
    * @param value the property value to evaluate
    * @param valueNormalizer the normalizer for the property, never {@code null}
@@ -68,25 +65,25 @@ public class WhereAnnotationConditionStrategy implements PropertyConditionStrate
    * annotated with {@code @Where}
    */
   @Override
-  public @Nullable Condition resolve(LogicalOperator connector, EntityProperty entityProperty, Object value,
-          ValueNormalizer valueNormalizer) {
+  public @Nullable Condition resolve(EntityProperty entityProperty, Object value, ValueNormalizer valueNormalizer) {
     // render where clause
     MergedAnnotation<Where> annotation = entityProperty.getAnnotation(Where.class);
     if (annotation.isPresent()) {
       value = valueNormalizer.normalize(entityProperty, value);
       String restriction = annotation.getStringValue();
       if (!Constant.DEFAULT_NONE.equals(restriction)) {
-        return new Condition(value, Restrictions.plain(restriction), entityProperty, connector);
+        return new PropertyCondition(value, Restrictions.plain(restriction), entityProperty);
       }
       else {
         String operator = annotation.getString("operator");
         if (Constant.DEFAULT_NONE.equals(operator)) {
           // default to equality operator
-          return new Condition(value, Restrictions.equal(entityProperty.getColumnName()), entityProperty, connector);
+          return new PropertyCondition(value,
+                  Restrictions.equal(entityProperty.getColumnName()), entityProperty);
         }
         else {
-          return new Condition(value, Restrictions.forOperator(
-                  entityProperty.getColumnName(), operator, "?"), entityProperty, connector);
+          return new PropertyCondition(value, Restrictions.forOperator(
+                  entityProperty.getColumnName(), operator, "?"), entityProperty);
         }
       }
     }

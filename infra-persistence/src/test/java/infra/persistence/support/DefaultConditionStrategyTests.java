@@ -23,8 +23,6 @@ import infra.persistence.EntityMetadata;
 import infra.persistence.EntityMetadataFactory;
 import infra.persistence.EntityProperty;
 import infra.persistence.ValueNormalizer;
-import infra.persistence.sql.LogicalOperator;
-import infra.persistence.sql.Restriction;
 import infra.persistence.sql.Restrictions;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,14 +43,14 @@ class DefaultConditionStrategyTests {
     EntityProperty name = entityMetadata.findProperty("name");
     assertThat(name).isNotNull();
 
-    LogicalOperator logicalAnd = LogicalOperator.AND;
-    assertThat(strategy.resolve(logicalAnd, name, "  ", ValueNormalizer.DEFAULT)).isNull();
-    assertThat(strategy.resolve(logicalAnd, name, "\n", ValueNormalizer.DEFAULT)).isNull();
-    assertThat(strategy.resolve(logicalAnd, name, "\t\n\r", ValueNormalizer.DEFAULT)).isNull();
-    assertThat(strategy.resolve(logicalAnd, name, "\t\n\r ", ValueNormalizer.DEFAULT)).isNull();
-    assertThat(strategy.resolve(logicalAnd, name, " ", ValueNormalizer.DEFAULT)).isNull();
+    assertThat(strategy.resolve(name, "  ", ValueNormalizer.DEFAULT)).isNull();
+    assertThat(strategy.resolve(name, "\n", ValueNormalizer.DEFAULT)).isNull();
+    assertThat(strategy.resolve(name, "\t\n\r", ValueNormalizer.DEFAULT)).isNull();
+    assertThat(strategy.resolve(name, "\t\n\r ", ValueNormalizer.DEFAULT)).isNull();
+    assertThat(strategy.resolve(name, " ", ValueNormalizer.DEFAULT)).isNull();
 
-    var condition = strategy.resolve(logicalAnd, name, "name", ValueNormalizer.DEFAULT);
+    PropertyCondition condition =
+            (PropertyCondition) strategy.resolve(name, "name", ValueNormalizer.DEFAULT);
     assertThat(condition).isNotNull();
 
     assertThat(condition.entityProperty).isSameAs(name);
@@ -69,8 +67,8 @@ class DefaultConditionStrategyTests {
     EntityProperty number = entityMetadata.findProperty("number");
     assertThat(number).isNotNull();
 
-    LogicalOperator logicalAnd = LogicalOperator.AND;
-    var condition = strategy.resolve(logicalAnd, number, 2, ValueNormalizer.DEFAULT);
+    PropertyCondition condition =
+            (PropertyCondition) strategy.resolve(number, 2, ValueNormalizer.DEFAULT);
     assertThat(condition).isNotNull();
 
     assertThat(condition.entityProperty).isSameAs(number);
