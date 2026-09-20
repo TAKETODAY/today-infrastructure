@@ -22,12 +22,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import infra.jdbc.model.UserModel;
+import infra.persistence.annotation.Connector;
 import infra.persistence.annotation.EntityRef;
 import infra.persistence.annotation.Group;
-import infra.persistence.annotation.GroupConnector;
+import infra.persistence.annotation.GroupOR;
 import infra.persistence.annotation.OR;
 import infra.persistence.annotation.Where;
 import infra.persistence.platform.GenericPlatform;
+import infra.persistence.platform.Platform;
 import infra.persistence.sql.LogicalOperator;
 import infra.persistence.sql.Restriction;
 
@@ -229,6 +231,21 @@ class GroupAnnotationTests {
 
   }
 
+  @Test
+  void groupConnectorXor_shouldJoinGroupWithXor() {
+    XorLinkedGroupQuery query = new XorLinkedGroupQuery();
+    query.status = 1;
+    query.status2 = 2;
+    query.status3 = 3;
+
+    ExampleQuery exampleQuery = new ExampleQuery(metadataFactory, query, strategies);
+    StringBuilder sqlBuffer = new StringBuilder();
+    exampleQuery.appendWhereClause(Platform.mysql(), userModelMetadata, sqlBuffer);
+
+    assertThat(sqlBuffer.toString())
+            .isEqualTo(" WHERE (status > ? XOR (status2 = ? AND status3 <= ?))");
+  }
+
   @EntityRef(UserModel.class)
   static class GroupedQuery {
 
@@ -247,12 +264,29 @@ class GroupAnnotationTests {
   }
 
   @EntityRef(UserModel.class)
+  static class XorLinkedGroupQuery {
+
+    @Where("status > ?")
+    public int status;
+
+    @Connector(value = LogicalOperator.XOR, group = true)
+    @Group("state")
+    @Where(operator = " = ")
+    public int status2;
+
+    @Group("state")
+    @Where(operator = " <= ")
+    public int status3;
+
+  }
+
+  @EntityRef(UserModel.class)
   static class OrLinkedGroupQuery {
 
     @Where("status > ?")
     public int status;
 
-    @GroupConnector(LogicalOperator.OR)
+    @GroupOR
     @Group("state")
     @Where(operator = " = ")
     public int status2;
@@ -294,7 +328,7 @@ class GroupAnnotationTests {
     @Where(operator = " like ")
     public String email;
 
-    @GroupConnector(LogicalOperator.OR)
+    @GroupOR
     @Group("g2")
     @Where(operator = " > ")
     public int password;
@@ -315,7 +349,7 @@ class GroupAnnotationTests {
     @Where(operator = " = ")
     public int status2;
 
-    @GroupConnector(LogicalOperator.OR)
+    @GroupOR
     @Group("g.h")
     @Where(operator = " <= ")
     public int status3;
@@ -336,7 +370,7 @@ class GroupAnnotationTests {
     @Where(operator = " = ")
     public int status2;
 
-    @GroupConnector(LogicalOperator.OR)
+    @GroupOR
     @Group("g.h")
     @Where(operator = " <= ")
     public int status3;

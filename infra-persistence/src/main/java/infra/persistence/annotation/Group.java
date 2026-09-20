@@ -53,11 +53,13 @@ import infra.aot.hint.annotation.Reflective;
  * <p>This annotation is purely structural: it decides which properties belong
  * together and how groups nest. Connection is declared separately — inside a
  * group members join the preceding member with {@code AND} unless they carry
- * {@link OR @OR}, and the group's link to the preceding term is declared with
- * {@link GroupConnector @GroupConnector}:
+ * {@link OR @OR} (equivalent to {@code @Connector(LogicalOperator.OR)}), and
+ * the group's link to the preceding term is declared with
+ * {@link GroupOR @GroupOR} (equivalent to
+ * {@code @Connector(value = LogicalOperator.OR, group = true)}):
  *
  * <pre>{@code
- * @GroupConnector(LogicalOperator.OR)
+ * @GroupOR
  * @Group("g")
  * @Where(...)
  * int a;
@@ -79,7 +81,8 @@ import infra.aot.hint.annotation.Reflective;
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see infra.persistence.ConditionGroup
- * @see GroupConnector
+ * @see Connector
+ * @see GroupOR
  * @see OR
  * @since 5.0
  */

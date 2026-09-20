@@ -28,8 +28,9 @@ import java.util.Map;
 
 import infra.core.annotation.MergedAnnotation;
 import infra.logging.LogMessage;
+import infra.persistence.annotation.Connector;
 import infra.persistence.annotation.Group;
-import infra.persistence.annotation.GroupConnector;
+import infra.persistence.annotation.GroupOR;
 import infra.persistence.annotation.OR;
 import infra.persistence.sql.LogicalOperator;
 import infra.persistence.sql.OrderSpec;
@@ -175,21 +176,33 @@ final class ExampleQuery extends SimpleSelectQueryStatement
       }
       present = true;
       MergedAnnotation<Group> annotation = property.getAnnotation(Group.class);
-      LogicalOperator memberConnector = property.isPresent(OR.class)
-              ? LogicalOperator.OR
-              : LogicalOperator.AND;
+      LogicalOperator memberConnector = resolveConnector(property, false);
       if (annotation.isPresent()) {
-        MergedAnnotation<GroupConnector> connector = property.getAnnotation(GroupConnector.class);
-        LogicalOperator groupConnector = connector.isPresent()
-                ? connector.getEnum("value", LogicalOperator.class)
-                : LogicalOperator.AND;
-        root.addGroup(annotation.getStringValue(), groupConnector, memberConnector, condition);
+        root.addGroup(annotation.getStringValue(),
+                resolveConnector(property, true), memberConnector, condition);
       }
       else {
         root.addOccurrence(memberConnector, condition);
       }
     }
     return present ? root.toTree() : null;
+  }
+
+  /**
+   * Resolve a connector from the property's {@link Connector @Connector} (or its
+   * meta-annotations {@link OR @OR} / {@link GroupOR @GroupOR}), defaulting to
+   * {@code AND}.
+   *
+   * @param property the entity property
+   * @param group {@code true} to read the group connector, {@code false} the member connector
+   * @return the resolved operator
+   */
+  private static LogicalOperator resolveConnector(EntityProperty property, boolean group) {
+    MergedAnnotation<Connector> connector = property.getAnnotation(Connector.class);
+    if (connector.isPresent() && connector.getBoolean("group") == group) {
+      return connector.getEnum("value", LogicalOperator.class);
+    }
+    return LogicalOperator.AND;
   }
 
   private @Nullable Condition resolveCondition(EntityProperty property) {
@@ -226,7 +239,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement
    * segment becomes a level, so groups nest arbitrarily deep. Connectors are
    * uniform: a member joins the preceding one with {@code AND} unless it carries
    * {@link OR @OR}; the group's link to the preceding term is declared with
-   * {@link GroupConnector @GroupConnector}.
+   * {@link GroupOR @GroupOR} or {@link Connector @Connector}.
    */
   private static final class GroupNode {
 

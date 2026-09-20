@@ -25,48 +25,40 @@ import infra.aot.hint.annotation.Reflective;
 import infra.persistence.sql.LogicalOperator;
 
 /**
- * Declares how the {@link Group group} a property belongs to is joined to the
- * preceding top-level condition or group.
+ * Shorthand for {@code @Connector(value = LogicalOperator.OR, group = true)}.
  *
- * <p>Place it on any member of a group; it sets the connector of that group as
- * a whole when it is placed among sibling conditions. Absent, the group joins
- * with {@code AND}:
+ * <p>Declares that the whole {@link Group group} a property belongs to is joined
+ * to the preceding top-level condition or group with {@code OR}.
+ *
+ * <p>This is the <em>inter-group</em> connector: it decides how the group is
+ * connected to its predecessor, not how the members inside it connect to each
+ * other. Members keep joining with {@code AND} unless they carry {@link OR @OR}.
  *
  * <pre>{@code
  * @Where("status > ?")
  * int status;
  *
- * @GroupConnector(LogicalOperator.OR)
+ * @GroupOR
  * @Group("state")
- * @Where(...)
+ * @Where(operator = " = ")
  * int status2;
  *
  * @Group("state")
- * @Where(...)
+ * @Where(operator = " <= ")
  * int status3;
  * // status > ? OR (status2 = ? AND status3 <= ?)
  * }</pre>
  *
- * <p>This only affects the connection from the group to its predecessor.
- * Whether members connect with {@code AND} or {@link OR @OR} inside the group
- * is decided by the members themselves, exactly like top-level conditions.
- *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see Connector
  * @see Group
  * @see OR
  * @since 5.0
  */
 @Reflective
+@Connector(group = true, value = LogicalOperator.OR)
 @Target({ ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface GroupConnector {
-
-  /**
-   * The operator joining the group to the preceding top-level condition or
-   * group.
-   *
-   * @return the connector, default {@link LogicalOperator#OR}
-   */
-  LogicalOperator value() default LogicalOperator.OR;
+public @interface GroupOR {
 
 }

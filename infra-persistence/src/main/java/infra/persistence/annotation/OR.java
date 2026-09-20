@@ -22,16 +22,26 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.aot.hint.annotation.Reflective;
+import infra.persistence.sql.LogicalOperator;
 
 /**
- * Represents a logical OR condition in the context of persistence operations.
- * This annotation can be applied to types, methods, or fields to denote
- * an OR relationship in query conditions or filtering logic.
+ * Member-level connector shorthand, meta-annotated with
+ * {@code @Connector(LogicalOperator.OR)}.
+ *
+ * <p>Represents a logical OR: the annotated member joins the preceding one with
+ * {@code OR} instead of the default {@code AND}. This is the
+ * <em>member-level</em> connector — it decides how a single condition connects
+ * to its predecessor, both at the top level and inside a {@link Group}. Use
+ * {@link GroupOR @GroupOR} for the whole-group connector.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see Connector
+ * @see GroupOR
+ * @see Group
  * @since 5.0 2025/5/9 17:34
  */
 @Reflective
+@Connector(LogicalOperator.OR)
 @Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OR {
