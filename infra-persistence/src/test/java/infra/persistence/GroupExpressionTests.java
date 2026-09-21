@@ -23,7 +23,11 @@ import java.util.List;
 import infra.jdbc.model.UserModel;
 import infra.persistence.annotation.EntityRef;
 import infra.persistence.annotation.GroupExpression;
+import infra.persistence.annotation.Like;
+import infra.persistence.annotation.PrefixLike;
+import infra.persistence.annotation.SuffixLike;
 import infra.persistence.annotation.Where;
+import infra.persistence.annotation.WhereIsNull;
 import infra.persistence.platform.Platform;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -79,9 +83,9 @@ class GroupExpressionTests {
     query.age = 10;
     query.email = "x";
 
-    // a OR b AND c → a OR (b AND c)
+    // a OR b AND c → a OR b AND c (no parentheses in the source)
     assertThat(renderWhere(query))
-            .isEqualTo(" WHERE name = ? OR (age = ? AND email = ?)");
+            .isEqualTo(" WHERE name = ? OR age = ? AND email = ?");
   }
 
   @Test
@@ -145,9 +149,9 @@ class GroupExpressionTests {
     query.age = 10;
     query.email = "x";
 
-    // a && b || c → (a AND b) OR c
+    // a && b || c → a AND b OR c (no parentheses in the source)
     assertThat(renderWhere(query))
-            .isEqualTo(" WHERE (name = ? AND age = ?) OR email = ?");
+            .isEqualTo(" WHERE name = ? AND age = ? OR email = ?");
   }
 
   @Test
@@ -179,6 +183,38 @@ class GroupExpressionTests {
     assertThatThrownBy(() -> renderWhere(new NonExistentPropertyQuery()))
             .isInstanceOf(IllegalEntityException.class)
             .hasMessageContaining("nonexistent");
+  }
+
+  @Test
+  void mixedOperators_shouldRenderEachPredicate() {
+    MixedOperators query = new MixedOperators();
+    query.age = 25;
+    query.name = "TODAY";
+    query.id = 7;
+
+    assertThat(renderWhere(query))
+            .isEqualTo(" WHERE age >= ? AND name like ? OR id <> ?");
+  }
+
+  @Test
+  void rawFragments_shouldRenderAsIs() {
+    RawFragments query = new RawFragments();
+    query.active = true;
+    query.age = 25;
+
+    assertThat(renderWhere(query))
+            .isEqualTo(" WHERE is_active = 1 AND age > ?");
+  }
+
+  @Test
+  void rawAndOperatorMixed_shouldRenderInExpressionOrder() {
+    RawAndOperator query = new RawAndOperator();
+    query.age = 25;
+    query.id = 7;
+    query.email = "x";
+
+    assertThat(renderWhere(query))
+            .isEqualTo(" WHERE age > ? AND id <> ? OR email = ?");
   }
 
   // ---- test query classes ----
@@ -295,11 +331,232 @@ class GroupExpressionTests {
     String avatar;
   }
 
+  @Test
+  void likeFamily_mixedWithAndOrXor_shouldRender() {
+    LikeFamilyMixed query = new LikeFamilyMixed();
+    query.name = "TODAY";
+    query.email = "x";
+    query.mobilePhone = "12";
+    query.gender = null;
+
+    // name AND (email OR mobilePhone) XOR genderIsNull
+    assertThat(renderWhere(query))
+            .isEqualTo(" WHERE name like ? AND (email like ? OR mobile_phone like ?) XOR gender is null");
+  }
+
+  @Test
+  void whereIsNull_pairShouldRenderNullnessPredicates() {
+    WhereIsNullPair query = new WhereIsNullPair();
+    query.deletedAt = null;
+    query.status = null;
+
+    assertThat(renderWhere(query))
+            .isEqualTo(" WHERE deleted_at is null OR status is not null");
+  }
+
+  @Test
+  void whereIsNull_singleLeaf() {
+    SingleIsNull query = new SingleIsNull();
+    query.deletedAt = null;
+
+    assertThat(renderWhere(query))
+            .isEqualTo(" WHERE deleted_at is null");
+  }
+
+  @Test
+  void not_singleLeaf() {
+    NotSingle query = new NotSingle();
+    query.name = "TODAY";
+
+    assertThat(renderWhere(query))
+            .isEqualTo(" WHERE NOT (name = ?)");
+  }
+
+  @Test
+  void not_parenthesizedGroup() {
+    NotGroup query = new NotGroup();
+    query.name = "TODAY";
+    query.age = 10;
+
+    assertThat(renderWhere(query))
+            .isEqualTo(" WHERE NOT (name = ? OR age = ?)");
+  }
+
+  @Test
+  void not_mixedWithAndOrXor() {
+    NotMixed query = new NotMixed();
+    query.name = "TODAY";
+    query.age = 10;
+    query.email = "x";
+    query.id = 1;
+
+    // name AND NOT (email OR id) XOR age
+    assertThat(renderWhere(query))
+            .isEqualTo(" WHERE name = ? AND NOT (email = ? OR id = ?) XOR age = ?");
+  }
+
+  @Test
+  void not_bindsTighterThanAnd() {
+    NotPrecedence query = new NotPrecedence();
+    query.name = "TODAY";
+    query.age = 10;
+    query.email = "x";
+
+    // NOT name AND email → (NOT name) AND email
+    assertThat(renderWhere(query))
+            .isEqualTo(" WHERE NOT (name = ?) AND email = ?");
+  }
+
+  @Test
+  void repeatedProperty_rendersEveryOccurrence() {
+    RepeatedProperty query = new RepeatedProperty();
+    query.name = "TODAY";
+    query.age = 10;
+    query.email = "x";
+
+    // name OR (email AND name)
+    assertThat(renderWhere(query))
+            .isEqualTo(" WHERE name = ? OR (email = ? AND name = ?)");
+  }
+
+  @Test
+  void malformedExpressions_shouldThrow() {
+    assertThatThrownBy(() -> GroupExpressionParser.parse(""))
+            .isInstanceOf(IllegalEntityException.class);
+    assertThatThrownBy(() -> GroupExpressionParser.parse("   "))
+            .isInstanceOf(IllegalEntityException.class);
+    assertThatThrownBy(() -> GroupExpressionParser.parse("name AND"))
+            .isInstanceOf(IllegalEntityException.class);
+    assertThatThrownBy(() -> GroupExpressionParser.parse("AND name"))
+            .isInstanceOf(IllegalEntityException.class);
+    assertThatThrownBy(() -> GroupExpressionParser.parse("(name OR age"))
+            .isInstanceOf(IllegalEntityException.class);
+    assertThatThrownBy(() -> GroupExpressionParser.parse("name OR age)"))
+            .isInstanceOf(IllegalEntityException.class);
+    assertThatThrownBy(() -> GroupExpressionParser.parse("name age"))
+            .isInstanceOf(IllegalEntityException.class);
+    assertThatThrownBy(() -> GroupExpressionParser.parse("name &&& age"))
+            .isInstanceOf(IllegalEntityException.class);
+  }
+
+  // ---- test query classes ----
+
   @EntityRef(UserModel.class)
   @GroupExpression("nonexistent")
   static class NonExistentPropertyQuery {
     @Where("name = ?")
     String name;
+  }
+
+  @EntityRef(UserModel.class)
+  @GroupExpression("age AND name OR id")
+  static class MixedOperators {
+    @Where(operator = " >= ")
+    Integer age;
+    @Where(operator = " like ")
+    String name;
+    @Where(operator = " <> ")
+    Integer id;
+  }
+
+  @EntityRef(UserModel.class)
+  @GroupExpression("active AND age")
+  static class RawFragments {
+    @Where("is_active = 1")
+    boolean active;
+    @Where("age > ?")
+    Integer age;
+  }
+
+  @EntityRef(UserModel.class)
+  @GroupExpression("age AND id OR email")
+  static class RawAndOperator {
+    @Where("age > ?")
+    Integer age;
+    @Where("id <> ?")
+    Integer id;
+    @Where("email = ?")
+    String email;
+  }
+
+  @EntityRef(UserModel.class)
+  @GroupExpression("name AND (email OR mobilePhone) XOR gender")
+  static class LikeFamilyMixed {
+    @Like
+    String name;
+    @PrefixLike
+    String email;
+    @SuffixLike
+    String mobilePhone;
+    @WhereIsNull
+    Integer gender;
+  }
+
+  @EntityRef(UserModel.class)
+  @GroupExpression("deletedAt OR status")
+  static class WhereIsNullPair {
+    @WhereIsNull
+    Integer deletedAt;
+    @WhereIsNull(not = true)
+    Integer status;
+  }
+
+  @EntityRef(UserModel.class)
+  @GroupExpression("deletedAt")
+  static class SingleIsNull {
+    @WhereIsNull
+    Integer deletedAt;
+  }
+
+  @EntityRef(UserModel.class)
+  @GroupExpression("NOT name")
+  static class NotSingle {
+    @Where("name = ?")
+    String name;
+  }
+
+  @EntityRef(UserModel.class)
+  @GroupExpression("NOT (name OR age)")
+  static class NotGroup {
+    @Where("name = ?")
+    String name;
+    @Where("age = ?")
+    Integer age;
+  }
+
+  @EntityRef(UserModel.class)
+  @GroupExpression("name AND NOT (email OR id) XOR age")
+  static class NotMixed {
+    @Where("name = ?")
+    String name;
+    @Where("age = ?")
+    Integer age;
+    @Where("email = ?")
+    String email;
+    @Where("id = ?")
+    Integer id;
+  }
+
+  @EntityRef(UserModel.class)
+  @GroupExpression("NOT name AND email")
+  static class NotPrecedence {
+    @Where("name = ?")
+    String name;
+    @Where("email = ?")
+    String email;
+    @Where("age = ?")
+    Integer age;
+  }
+
+  @EntityRef(UserModel.class)
+  @GroupExpression("name OR (email AND name)")
+  static class RepeatedProperty {
+    @Where("name = ?")
+    String name;
+    @Where("email = ?")
+    String email;
+    @Where("age = ?")
+    Integer age;
   }
 
 }

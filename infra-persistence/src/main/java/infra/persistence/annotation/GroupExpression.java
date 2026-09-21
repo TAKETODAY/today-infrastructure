@@ -40,10 +40,11 @@ import infra.aot.hint.annotation.Reflective;
  * <p>Every token in the expression is the {@linkplain
  * infra.persistence.EntityProperty#getName() name} of an example property.
  * Tokens are joined with {@code AND} / {@code &&}, {@code OR} / {@code ||} and
- * {@code XOR} (case insensitive for words), and parenthesized sub-expressions
- * become nested groups. The usual SQL precedence applies — {@code AND} binds
- * tighter than {@code XOR}, which binds tighter than {@code OR} — so
- * {@code a OR b AND c} means {@code a OR (b AND c)}.
+ * {@code XOR} (case insensitive for words), negated with unary {@code NOT}, and
+ * parenthesized sub-expressions become nested groups. Precedence follows SQL:
+ * {@code NOT} binds tighter than {@code AND}, which binds tighter than
+ * {@code XOR}, which binds tighter than {@code OR} — so {@code NOT a OR b AND c}
+ * means {@code (NOT a) OR (b AND c)}.
  *
  * <p>Only properties named by the expression take part in the query. A property
  * whose value is {@code null} is skipped (its leaf is dropped); when every leaf

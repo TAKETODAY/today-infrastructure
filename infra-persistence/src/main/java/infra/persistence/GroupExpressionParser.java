@@ -28,9 +28,10 @@ import infra.persistence.sql.LogicalOperator;
  * string into an AST of {@link Node nodes}.
  *
  * <p>The expression is a boolean formula over property names joined with
- * {@code AND} / {@code &&}, {@code OR} / {@code ||} and {@code XOR}
- * (case insensitive for words), and parenthesized for grouping. Precedence
- * follows SQL: {@code AND} &gt; {@code XOR} &gt; {@code OR}.
+ * {@code NOT}, {@code AND} / {@code &&}, {@code OR} / {@code ||} and
+ * {@code XOR} (case insensitive for words), and parenthesized for grouping.
+ * Precedence follows SQL: {@code NOT} &gt; {@code AND} &gt; {@code XOR}
+ * &gt; {@code OR}.
  *
  * <p>The result is a tree of {@link Group groups} whose children are either
  * further groups or {@link Literal literal} property references. Every {@link
@@ -72,7 +73,8 @@ final class GroupExpressionParser {
   // expr := or
   // or   := xor ( OR xor )*
   // xor  := and ( XOR and )*
-  // and  := primary ( AND primary )*
+  // and  := not ( AND not )*
+  // not  := NOT* primary
   // primary := '(' expr ')' | IDENTIFIER
 
   private Node parseExpression() {
@@ -112,19 +114,26 @@ final class GroupExpressionParser {
   }
 
   private Node parseAnd() {
-    Node left = parsePrimary();
+    Node left = parseNot();
     List<Node> nodes = null;
     while (matchWord("AND") || match('&', '&')) {
       if (nodes == null) {
         nodes = new ArrayList<>();
         nodes.add(left);
       }
-      nodes.add(parsePrimary());
+      nodes.add(parseNot());
     }
     if (nodes == null) {
       return left;
     }
     return new Group(LogicalOperator.AND, nodes, false);
+  }
+
+  private Node parseNot() {
+    if (matchWord("NOT")) {
+      return new Not(parseNot());
+    }
+    return parsePrimary();
   }
 
   private Node parsePrimary() {
@@ -235,7 +244,7 @@ final class GroupExpressionParser {
    * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
    * @since 5.0
    */
-  sealed interface Node permits Literal, Group {
+  sealed interface Node permits Literal, Group, Not {
   }
 
   /**
@@ -246,6 +255,16 @@ final class GroupExpressionParser {
    * @since 5.0
    */
   record Literal(String name) implements Node {
+  }
+
+  /**
+   * A unary {@code NOT} applied to a nested node.
+   *
+   * @param operand the node to negate
+   * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+   * @since 5.0
+   */
+  record Not(Node operand) implements Node {
   }
 
   /**

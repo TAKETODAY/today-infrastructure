@@ -208,6 +208,10 @@ final class ExampleQuery extends SimpleSelectQueryStatement
       Condition cond = resolveExpressionLeaf(lit.name());
       return cond != null ? ConditionTree.of(cond) : null;
     }
+    if (root instanceof GroupExpressionParser.Not notNode) {
+      Condition cond = buildExpressionCondition(notNode);
+      return cond != null ? ConditionTree.of(cond) : null;
+    }
     GroupExpressionParser.Group group = (GroupExpressionParser.Group) root;
     if (group.parenthesized()) {
       List<ConditionTree.Occurrence> occurrences = new ArrayList<>();
@@ -243,6 +247,10 @@ final class ExampleQuery extends SimpleSelectQueryStatement
     if (node instanceof GroupExpressionParser.Literal lit) {
       return resolveExpressionLeaf(lit.name());
     }
+    if (node instanceof GroupExpressionParser.Not notNode) {
+      Condition inner = buildExpressionCondition(notNode.operand());
+      return inner == null ? null : new NotCondition(inner);
+    }
     GroupExpressionParser.Group group = (GroupExpressionParser.Group) node;
     List<ConditionTree.Occurrence> occurrences = new ArrayList<>();
     for (var child : group.children()) {
@@ -260,10 +268,15 @@ final class ExampleQuery extends SimpleSelectQueryStatement
       }
       return ConditionGroup.of(occurrences);
     }
+    // no parentheses in the source: render flat, without adding any
     if (occurrences.size() == 1) {
       return occurrences.get(0).condition();
     }
-    return ConditionGroup.of(occurrences);
+    List<Condition> conditions = new ArrayList<>(occurrences.size());
+    for (var occurrence : occurrences) {
+      conditions.add(occurrence.condition());
+    }
+    return new FlatCondition(group.connector(), conditions);
   }
 
   private @Nullable Condition resolveExpressionLeaf(String propertyName) {
@@ -272,10 +285,6 @@ final class ExampleQuery extends SimpleSelectQueryStatement
       throw new IllegalEntityException("Property '" + propertyName
               + "' referenced in @GroupExpression not found in "
               + exampleMetadata.getEntityClass());
-    }
-    Object value = prop.getValue(example);
-    if (value == null) {
-      return null;
     }
     return resolveCondition(prop);
   }
@@ -410,8 +419,8 @@ final class ExampleQuery extends SimpleSelectQueryStatement
   }
 
   /**
-   * A condition that always renders within parentheses, even when it wraps a
-   * single member. Used to preserve an explicitly parenthesized group such as
+   * A condition that renders within parentheses, even when it wraps a single
+   * member. Used to preserve an explicitly parenthesized group such as
    * {@code (a)} in a {@link GroupExpression @GroupExpression}.
    *
    * @param inner the wrapped condition
@@ -425,6 +434,34 @@ final class ExampleQuery extends SimpleSelectQueryStatement
       sqlBuffer.append('(');
       inner.render(platform, sqlBuffer);
       sqlBuffer.append(')');
+    }
+
+    @Override
+    public int setParameter(PreparedStatement ps, int parameterIndex) throws SQLException {
+      return inner.setParameter(ps, parameterIndex);
+    }
+  }
+
+  /**
+   * A unary {@code NOT} condition, rendering {@code NOT (...)}.
+   *
+   * @param inner the negated condition
+   * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+   * @since 5.0
+   */
+  private record NotCondition(Condition inner) implements Condition {
+
+    @Override
+    public void render(Platform platform, StringBuilder sqlBuffer) {
+      sqlBuffer.append("NOT ");
+      if (inner instanceof ConditionGroup || inner instanceof ParenthesizedCondition) {
+        inner.render(platform, sqlBuffer);
+      }
+      else {
+        sqlBuffer.append('(');
+        inner.render(platform, sqlBuffer);
+        sqlBuffer.append(')');
+      }
     }
 
     @Override
