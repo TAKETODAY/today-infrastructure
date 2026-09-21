@@ -27,11 +27,14 @@ import java.util.List;
 import java.util.Map;
 
 import infra.core.annotation.MergedAnnotation;
+import infra.core.annotation.MergedAnnotations;
 import infra.logging.LogMessage;
 import infra.persistence.annotation.Connector;
 import infra.persistence.annotation.Group;
+import infra.persistence.annotation.GroupExpression;
 import infra.persistence.annotation.GroupOR;
 import infra.persistence.annotation.OR;
+import infra.persistence.platform.Platform;
 import infra.persistence.sql.LogicalOperator;
 import infra.persistence.sql.OrderSpec;
 import infra.persistence.sql.OrderSpecSource;
@@ -165,6 +168,12 @@ final class ExampleQuery extends SimpleSelectQueryStatement
   }
 
   private @Nullable ConditionTree buildPredicates() {
+    // @GroupExpression takes precedence over property-level @Group
+    var exprAnnot = MergedAnnotations.from(exampleMetadata.getEntityClass()).get(GroupExpression.class);
+    if (exprAnnot.isPresent()) {
+      return buildExpressionPredicates(exprAnnot.getStringValue());
+    }
+
     EntityProperty[] entityProperties = exampleMetadata.getEntityProperties(true);
     GroupNode root = new GroupNode();
     boolean present = false;
@@ -186,6 +195,84 @@ final class ExampleQuery extends SimpleSelectQueryStatement
       }
     }
     return present ? root.toTree() : null;
+  }
+
+  private @Nullable ConditionTree buildExpressionPredicates(String expression) {
+    var root = GroupExpressionParser.parse(expression);
+    if (root instanceof GroupExpressionParser.Literal lit) {
+      Condition cond = resolveExpressionLeaf(lit.name());
+      return cond != null ? ConditionTree.of(cond) : null;
+    }
+    GroupExpressionParser.Group group = (GroupExpressionParser.Group) root;
+    if (group.parenthesized()) {
+      List<ConditionTree.Occurrence> occurrences = new ArrayList<>();
+      for (var child : group.children()) {
+        Condition cond = buildExpressionCondition(child);
+        if (cond != null) {
+          occurrences.add(new ConditionTree.Occurrence(group.connector(), cond));
+        }
+      }
+      if (occurrences.isEmpty()) {
+        return null;
+      }
+      return ConditionTree.of(ConditionGroup.of(occurrences));
+    }
+    // non-parenthesized root: render flat without outer parentheses
+    List<Condition> conditions = new ArrayList<>();
+    for (var child : group.children()) {
+      Condition cond = buildExpressionCondition(child);
+      if (cond != null) {
+        conditions.add(cond);
+      }
+    }
+    if (conditions.isEmpty()) {
+      return null;
+    }
+    if (conditions.size() == 1) {
+      return ConditionTree.of(conditions.get(0));
+    }
+    return ConditionTree.of(new FlatCondition(group.connector(), conditions));
+  }
+
+  private @Nullable Condition buildExpressionCondition(GroupExpressionParser.Node node) {
+    if (node instanceof GroupExpressionParser.Literal lit) {
+      return resolveExpressionLeaf(lit.name());
+    }
+    GroupExpressionParser.Group group = (GroupExpressionParser.Group) node;
+    List<ConditionTree.Occurrence> occurrences = new ArrayList<>();
+    for (var child : group.children()) {
+      Condition cond = buildExpressionCondition(child);
+      if (cond != null) {
+        occurrences.add(new ConditionTree.Occurrence(group.connector(), cond));
+      }
+    }
+    if (occurrences.isEmpty()) {
+      return null;
+    }
+    if (group.parenthesized()) {
+      if (occurrences.size() == 1) {
+        return new ParenthesizedCondition(occurrences.get(0).condition());
+      }
+      return ConditionGroup.of(occurrences);
+    }
+    if (occurrences.size() == 1) {
+      return occurrences.get(0).condition();
+    }
+    return ConditionGroup.of(occurrences);
+  }
+
+  private @Nullable Condition resolveExpressionLeaf(String propertyName) {
+    EntityProperty prop = exampleMetadata.findProperty(propertyName);
+    if (prop == null) {
+      throw new IllegalEntityException("Property '" + propertyName
+              + "' referenced in @GroupExpression not found in "
+              + exampleMetadata.getEntityClass());
+    }
+    Object value = prop.getValue(example);
+    if (value == null) {
+      return null;
+    }
+    return resolveCondition(prop);
   }
 
   /**
@@ -315,6 +402,60 @@ final class ExampleQuery extends SimpleSelectQueryStatement
     private record Subgroup(GroupNode node) implements Member {
     }
 
+  }
+
+  /**
+   * A condition that always renders within parentheses, even when it wraps a
+   * single member. Used to preserve an explicitly parenthesized group such as
+   * {@code (a)} in a {@link GroupExpression @GroupExpression}.
+   *
+   * @param inner the wrapped condition
+   * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+   * @since 5.0
+   */
+  private record ParenthesizedCondition(Condition inner) implements Condition {
+
+    @Override
+    public void render(Platform platform, StringBuilder sqlBuffer) {
+      sqlBuffer.append('(');
+      inner.render(platform, sqlBuffer);
+      sqlBuffer.append(')');
+    }
+
+    @Override
+    public int setParameter(PreparedStatement ps, int parameterIndex) throws SQLException {
+      return inner.setParameter(ps, parameterIndex);
+    }
+  }
+
+  /**
+   * Renders its children flat, joined by the given connector, without any
+   * outer parentheses. Used for the non-parenthesized root of a
+   * {@link GroupExpression @GroupExpression}.
+   *
+   * @param connector the connector joining the children
+   * @param children the ordered conditions
+   * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+   * @since 5.0
+   */
+  private record FlatCondition(LogicalOperator connector, List<Condition> children) implements Condition {
+
+    @Override
+    public void render(Platform platform, StringBuilder sqlBuffer) {
+      children.get(0).render(platform, sqlBuffer);
+      for (int i = 1; i < children.size(); i++) {
+        connector.render(platform, sqlBuffer);
+        children.get(i).render(platform, sqlBuffer);
+      }
+    }
+
+    @Override
+    public int setParameter(PreparedStatement ps, int parameterIndex) throws SQLException {
+      for (Condition child : children) {
+        parameterIndex = child.setParameter(ps, parameterIndex);
+      }
+      return parameterIndex;
+    }
   }
 
 }
