@@ -23,6 +23,12 @@ import infra.persistence.Condition;
 import infra.persistence.EntityProperty;
 import infra.persistence.PropertyConditionStrategy;
 import infra.persistence.ValueNormalizer;
+import infra.persistence.annotation.Between;
+import infra.persistence.annotation.In;
+import infra.persistence.annotation.Like;
+import infra.persistence.annotation.PrefixLike;
+import infra.persistence.annotation.SuffixLike;
+import infra.persistence.annotation.Where;
 import infra.persistence.annotation.WhereIsNull;
 import infra.persistence.platform.Platform;
 import infra.persistence.sql.Restriction;
@@ -38,6 +44,11 @@ import infra.util.StringUtils;
  * {@code IS NULL} / {@code IS NOT NULL} predicate; a {@code null} value on any
  * other property takes no part in the query.
  *
+ * <p>A property carrying a dedicated condition annotation ({@link Where @Where},
+ * {@link Like @Like} family, {@link In @In} or {@link Between @Between}) is left
+ * to the matching strategy and never turned into an equality here, so an
+ * intentionally empty multi-value predicate keeps the property out of the query.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/28 22:43
  */
@@ -46,6 +57,14 @@ public class DefaultConditionStrategy implements PropertyConditionStrategy {
   @Override
   public @Nullable Condition resolve(EntityProperty entityProperty, Object value, ValueNormalizer valueNormalizer) {
     if (value instanceof String string && StringUtils.isBlank(string)) {
+      return null;
+    }
+    if (entityProperty.isPresent(Where.class)
+            || entityProperty.isPresent(Like.class)
+            || entityProperty.isPresent(PrefixLike.class)
+            || entityProperty.isPresent(SuffixLike.class)
+            || entityProperty.isPresent(In.class)
+            || entityProperty.isPresent(Between.class)) {
       return null;
     }
     value = valueNormalizer.normalize(entityProperty, value);
