@@ -29,6 +29,8 @@ import infra.persistence.annotation.SuffixLike;
 import infra.persistence.annotation.Where;
 import infra.persistence.annotation.WhereIsNull;
 import infra.persistence.platform.Platform;
+import infra.persistence.sql.Restrictions;
+import infra.persistence.support.PropertyCondition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -420,6 +422,45 @@ class GroupExpressionTests {
   }
 
   @Test
+  void repeatedProperty_resolvesThePropertyOnlyOnce() {
+    CountingStrategy counting = new CountingStrategy();
+    RepeatedProperty query = new RepeatedProperty();
+    query.name = "TODAY";
+    query.age = 10;
+    query.email = "x";
+
+    EntityMetadata metadata = metadataFactory.getEntityMetadata(RepeatedProperty.class);
+    StringBuilder sql = new StringBuilder();
+    new ExampleQuery(metadataFactory, query, List.of(counting))
+            .appendWhereClause(Platform.mysql(), metadata, sql);
+
+    assertThat(sql.toString())
+            .isEqualTo(" WHERE name = ? OR (email = ? AND name = ?)");
+    // name appears twice in the expression but is resolved into one condition only
+    assertThat(counting.nameResolves).isEqualTo(1);
+  }
+
+  @Test
+  void repeatedPropertyComplex_rendersEveryOccurrenceAndReuses() {
+    CountingStrategy counting = new CountingStrategy();
+    ComplexRepeated query = new ComplexRepeated();
+    query.name = "TODAY";
+    query.email = "x";
+    query.age = 10;
+
+    EntityMetadata metadata = metadataFactory.getEntityMetadata(ComplexRepeated.class);
+    StringBuilder sql = new StringBuilder();
+    new ExampleQuery(metadataFactory, query, List.of(counting))
+            .appendWhereClause(Platform.mysql(), metadata, sql);
+
+    // name appears three times, across an AND group, a NOT, and a parenthesized group
+    assertThat(sql.toString())
+            .isEqualTo(" WHERE name = ? AND (email = ? OR NOT (name = ?))"
+                    + " XOR (name = ? AND age = ?)");
+    assertThat(counting.nameResolves).isEqualTo(1);
+  }
+
+  @Test
   void malformedExpressions_shouldThrow() {
     assertThatThrownBy(() -> GroupExpressionParser.parse(""))
             .isInstanceOf(IllegalEntityException.class);
@@ -437,6 +478,37 @@ class GroupExpressionTests {
             .isInstanceOf(IllegalEntityException.class);
     assertThatThrownBy(() -> GroupExpressionParser.parse("name &&& age"))
             .isInstanceOf(IllegalEntityException.class);
+  }
+
+  @Test
+  void bigCombo_rendersComplexExpression() {
+    BigCombo query = new BigCombo();
+    query.name = "TODAY";
+    query.email = "x";
+    query.mobilePhone = "12";
+    query.age = 25;
+    query.id = 7;
+    query.password = "p";
+    query.avatar = "a";
+    query.gender = null;
+
+    assertThat(renderWhere(query))
+            .isEqualTo(" WHERE name like ?"
+                    + " AND (email like ? XOR mobile_phone like ? OR age > ?)"
+                    + " AND NOT (id = ? AND password = ?)"
+                    + " XOR (avatar = ? OR gender is null)");
+  }
+
+  @Test
+  void bigCombo_nullLeaves_arePrunedAlongTheWholeTree() {
+    BigCombo query = new BigCombo();
+    query.name = "TODAY";
+    query.gender = null;
+
+    // every other leaf is null -> the groups collapse away, but the
+    // explicit parentheses around (avatar OR gender) are preserved
+    assertThat(renderWhere(query))
+            .isEqualTo(" WHERE name like ? XOR (gender is null)");
   }
 
   // ---- test query classes ----
@@ -557,6 +629,55 @@ class GroupExpressionTests {
     String email;
     @Where("age = ?")
     Integer age;
+  }
+
+  @EntityRef(UserModel.class)
+  @GroupExpression("name AND (email OR NOT name) XOR (name AND age)")
+  static class ComplexRepeated {
+    @Where("name = ?")
+    String name;
+    @Where("email = ?")
+    String email;
+    @Where("age = ?")
+    Integer age;
+  }
+
+  @EntityRef(UserModel.class)
+  @GroupExpression("name AND (email XOR mobilePhone OR age) AND NOT (id AND password) XOR (avatar OR gender)")
+  static class BigCombo {
+    @Like
+    String name;
+    @PrefixLike
+    String email;
+    @SuffixLike
+    String mobilePhone;
+    @Where("age > ?")
+    Integer age;
+    @Where("id = ?")
+    Integer id;
+    @Where("password = ?")
+    String password;
+    @Where("avatar = ?")
+    String avatar;
+    @WhereIsNull
+    Integer gender;
+  }
+
+  /**
+   * Counts how often the {@code name} property is resolved, proving that a
+   * property referenced several times is parsed into a single condition.
+   */
+  private static final class CountingStrategy implements PropertyConditionStrategy {
+
+    int nameResolves;
+
+    @Override
+    public Condition resolve(EntityProperty property, Object value, ValueNormalizer valueNormalizer) {
+      if (property.getName().equals("name")) {
+        nameResolves++;
+      }
+      return new PropertyCondition(value, Restrictions.equal(property.getColumnName()), property);
+    }
   }
 
 }

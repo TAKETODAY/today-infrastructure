@@ -22,6 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +78,14 @@ final class ExampleQuery extends SimpleSelectQueryStatement
   private final List<ValueNormalizer> valueNormalizers;
 
   private @Nullable ConditionTree predicates;
+
+  /**
+   * Conditions already resolved for {@link GroupExpression @GroupExpression}
+   * leaves, keyed by property name. Reusing the same condition for every
+   * occurrence of a property keeps multiple references to one property bound to
+   * the same value.
+   */
+  private final Map<String, Condition> expressionLeaves = new HashMap<>();
 
   ExampleQuery(Object example, EntityMetadata exampleMetadata, List<PropertyConditionStrategy> strategies) {
     this.example = example;
@@ -280,13 +289,19 @@ final class ExampleQuery extends SimpleSelectQueryStatement
   }
 
   private @Nullable Condition resolveExpressionLeaf(String propertyName) {
+    if (expressionLeaves.containsKey(propertyName)) {
+      return expressionLeaves.get(propertyName);
+    }
     EntityProperty prop = exampleMetadata.findProperty(propertyName);
     if (prop == null) {
-      throw new IllegalEntityException("Property '" + propertyName
-              + "' referenced in @GroupExpression not found in "
-              + exampleMetadata.getEntityClass());
+      throw new IllegalEntityException("Property '%s' referenced in @GroupExpression not found in %s"
+              .formatted(propertyName, exampleMetadata.getEntityClass()));
     }
-    return resolveCondition(prop);
+    Condition condition = resolveCondition(prop);
+    if (condition != null) {
+      expressionLeaves.put(propertyName, condition);
+    }
+    return condition;
   }
 
   /**

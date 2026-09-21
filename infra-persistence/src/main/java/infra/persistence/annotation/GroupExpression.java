@@ -49,7 +49,9 @@ import infra.aot.hint.annotation.Reflective;
  * <p>Only properties named by the expression take part in the query. A property
  * whose value is {@code null} is skipped (its leaf is dropped); when every leaf
  * of a group is dropped the whole group is omitted. A token that does not match
- * any property is rejected.
+ * any property is rejected. A property that is referenced more than once — for
+ * example {@code a AND (b OR a)} — shares the same condition fragment, so both
+ * references bind the same value.
  *
  * <p>This annotation is purely structural, exactly like {@link Group @Group}.
  * The shape of each leaf predicate is decided by the other property-level
