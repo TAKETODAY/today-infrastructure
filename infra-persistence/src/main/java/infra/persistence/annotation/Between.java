@@ -22,25 +22,32 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.aot.hint.annotation.Reflective;
+import infra.core.annotation.AliasFor;
 import infra.lang.Constant;
 
 /**
  * Turns the annotated example property into a {@code column BETWEEN ? AND ?}
  * predicate. The property must hold a
- * {@link infra.persistence.Range Range} whose lower and upper bounds are both
- * non-{@code null}.
+ * {@link infra.persistence.Range Range} or a two-element array / collection
+ * whose bounds are both non-{@code null}.
+ *
+ * <p>{@link #value()} aliases the {@link Column @Column} column name, so the
+ * target column can be set without a separate {@code @Column}. When blank, the
+ * property's mapped column (via {@code @Column} or the property name) is used:
  *
  * <pre>{@code
- * @Between
+ * @Between("age")
  * Range age = Range.of(18, 30);
  * // WHERE age BETWEEN ? AND ?
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see infra.persistence.Range
+ * @see Column
  * @see In
  * @since 5.0
  */
+@Column
 @Reflective
 @Target({ ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
@@ -49,11 +56,12 @@ public @interface Between {
   /**
    * The column that the between operand targets.
    *
-   * <p>When set to {@link Constant#DEFAULT_NONE}, the property's mapped column is
-   * used instead.
+   * <p>An alias for {@link Column#value()}. When blank, the property's mapped
+   * column is used instead.
    *
-   * @return the column name, or {@link Constant#DEFAULT_NONE} if not specified
+   * @return the column name, or {@link Constant#BLANK} if not specified
    */
-  String column() default Constant.DEFAULT_NONE;
+  @AliasFor(annotation = Column.class, attribute = "value")
+  String value() default Constant.BLANK;
 
 }

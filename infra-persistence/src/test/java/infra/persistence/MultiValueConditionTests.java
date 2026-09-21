@@ -22,6 +22,7 @@ import java.util.List;
 
 import infra.jdbc.model.UserModel;
 import infra.persistence.annotation.Between;
+import infra.persistence.annotation.Column;
 import infra.persistence.annotation.EntityRef;
 import infra.persistence.annotation.In;
 import infra.persistence.annotation.Where;
@@ -131,6 +132,58 @@ class MultiValueConditionTests {
             .isEqualTo(" WHERE ids IN (?, ?) AND age BETWEEN ? AND ?");
   }
 
+  @Test
+  void between_columnAlias_overridesMappedColumn() {
+    ColumnAliasQuery query = new ColumnAliasQuery();
+    query.age = Range.of(18, 30);
+    query.name = "TODAY";
+
+    // column() is an alias for @Column.name, resolved through the meta-annotation
+    assertThat(renderWhere(query))
+            .isEqualTo(" WHERE user_age BETWEEN ? AND ? AND name = ?");
+  }
+
+  @Test
+  void in_columnAlias_overridesMappedColumn() {
+    InColumnAliasQuery query = new InColumnAliasQuery();
+    query.statuses = List.of(1, 2, 3);
+
+    assertThat(renderWhere(query))
+            .isEqualTo(" WHERE status_code IN (?, ?, ?)");
+  }
+
+  @Test
+  void between_withLoneColumnAnnotation_stillWorks() {
+    // the user doesn't know @Between("...") and uses @Column("...") instead
+    between_columnOnlyBefore();
+    between_columnOnlyAfter();
+  }
+
+  private void between_columnOnlyBefore() {
+    ColumnOnlyBeforeQuery query = new ColumnOnlyBeforeQuery();
+    query.age = Range.of(18, 30);
+
+    assertThat(renderWhere(query))
+            .isEqualTo(" WHERE user_age BETWEEN ? AND ?");
+  }
+
+  private void between_columnOnlyAfter() {
+    ColumnOnlyAfterQuery query = new ColumnOnlyAfterQuery();
+    query.age = Range.of(18, 30);
+
+    assertThat(renderWhere(query))
+            .isEqualTo(" WHERE user_age BETWEEN ? AND ?");
+  }
+
+  @Test
+  void in_withLoneColumnAnnotation_stillWorks() {
+    ColumnOnlyInQuery query = new ColumnOnlyInQuery();
+    query.statuses = List.of(1, 2);
+
+    assertThat(renderWhere(query))
+            .isEqualTo(" WHERE status_code IN (?, ?)");
+  }
+
   @EntityRef(UserModel.class)
   static class BetweenQuery {
 
@@ -143,9 +196,57 @@ class MultiValueConditionTests {
   }
 
   @EntityRef(UserModel.class)
+  static class ColumnAliasQuery {
+
+    @Between("user_age")
+    Range age;
+
+    @Where("name = ?")
+    String name;
+
+  }
+
+  @EntityRef(UserModel.class)
+  static class InColumnAliasQuery {
+
+    @In("status_code")
+    List<Integer> statuses;
+
+  }
+
+  @EntityRef(UserModel.class)
+  static class ColumnOnlyBeforeQuery {
+
+    // @Column before @Between
+    @Column("user_age")
+    @Between
+    Range age;
+
+  }
+
+  @EntityRef(UserModel.class)
+  static class ColumnOnlyAfterQuery {
+
+    // @Between before @Column
+    @Between
+    @Column("user_age")
+    Range age;
+
+  }
+
+  @EntityRef(UserModel.class)
+  static class ColumnOnlyInQuery {
+
+    @Column("status_code")
+    @In
+    List<Integer> statuses;
+
+  }
+
+  @EntityRef(UserModel.class)
   static class BetweenArrayQuery {
 
-    @Between
+    @Between("age")
     Integer[] age;
 
   }

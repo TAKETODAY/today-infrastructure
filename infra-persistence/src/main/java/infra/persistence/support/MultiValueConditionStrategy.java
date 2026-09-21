@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import infra.lang.Constant;
 import infra.persistence.Condition;
 import infra.persistence.EntityProperty;
 import infra.persistence.Identifier;
@@ -50,6 +49,11 @@ import infra.util.Assert;
  *   lower and upper bound.</li>
  * </ul>
  *
+ * <p>The target column is the property's mapped column, resolved through
+ * {@link EntityProperty#getColumnName()} — which honours the
+ * {@link infra.persistence.annotation.Column @Column} meta-annotation
+ * declared on {@code @In} / {@code @Between}.
+ *
  * <p>An empty {@code IN} list, a {@link Between} value with fewer than two
  * elements, or a range with a {@code null} bound, contributes no predicate.
  *
@@ -63,9 +67,6 @@ public class MultiValueConditionStrategy implements PropertyConditionStrategy {
 
   @Override
   public @Nullable Condition resolve(EntityProperty property, Object value, ValueNormalizer valueNormalizer) {
-    if (value == null) {
-      return null;
-    }
     if (property.isPresent(In.class)) {
       return resolveIn(property, value);
     }
@@ -80,8 +81,7 @@ public class MultiValueConditionStrategy implements PropertyConditionStrategy {
     if (values.isEmpty()) {
       return null;
     }
-    Identifier column = columnOf(property, In.class);
-    return new MultiValueCondition(property, in(column, values.size()), values);
+    return new MultiValueCondition(property, in(property.getColumnName(), values.size()), values);
   }
 
   private @Nullable Condition resolveBetween(EntityProperty property, Object value) {
@@ -102,17 +102,8 @@ public class MultiValueConditionStrategy implements PropertyConditionStrategy {
     if (lower == null || upper == null) {
       return null;
     }
-    Identifier column = columnOf(property, Between.class);
     return new MultiValueCondition(property,
-            Restrictions.between(column), List.of(lower, upper));
-  }
-
-  private static Identifier columnOf(EntityProperty property, Class<? extends java.lang.annotation.Annotation> type) {
-    String column = property.getAnnotation(type).getString("column");
-    if (Constant.DEFAULT_NONE.equals(column)) {
-      return property.getColumnName();
-    }
-    return Identifier.parse(column);
+            Restrictions.between(property.getColumnName()), List.of(lower, upper));
   }
 
   /**

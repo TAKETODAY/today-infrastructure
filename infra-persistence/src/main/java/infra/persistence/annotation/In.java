@@ -22,6 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.aot.hint.annotation.Reflective;
+import infra.core.annotation.AliasFor;
 import infra.lang.Constant;
 
 /**
@@ -29,16 +30,22 @@ import infra.lang.Constant;
  * predicate. The property must hold a non-empty {@link Iterable} or array whose
  * elements are bound as the {@code IN} list.
  *
+ * <p>{@link #value()} aliases the {@link Column @Column} column name, so the
+ * target column can be set without a separate {@code @Column}. When blank, the
+ * property's mapped column (via {@code @Column} or the property name) is used:
+ *
  * <pre>{@code
- * @In
+ * @In("status")
  * List<Integer> statuses = List.of(1, 2, 3);
  * // WHERE status IN (?, ?, ?)
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see Column
  * @see Between
  * @since 5.0
  */
+@Column
 @Reflective
 @Target({ ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
@@ -47,11 +54,12 @@ public @interface In {
   /**
    * The column that the {@code IN} operand targets.
    *
-   * <p>When set to {@link Constant#DEFAULT_NONE}, the property's mapped column is
-   * used instead.
+   * <p>An alias for {@link Column#value()}. When blank, the property's mapped
+   * column is used instead.
    *
-   * @return the column name, or {@link Constant#DEFAULT_NONE} if not specified
+   * @return the column name, or {@link Constant#BLANK} if not specified
    */
-  String column() default Constant.DEFAULT_NONE;
+  @AliasFor(annotation = Column.class, attribute = "value")
+  String value() default Constant.BLANK;
 
 }
