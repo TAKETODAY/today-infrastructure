@@ -120,7 +120,12 @@ final class ExampleQuery extends SimpleSelectQueryStatement
       }
     }
     // 2. declarative ordering, cached on the example's own metadata
-    return QueryCondition.super.resolveOrderByClause(exampleMetadata);
+    OrderSpec spec = QueryCondition.super.resolveOrderByClause(exampleMetadata);
+    if (!spec.isEmpty()) {
+      return spec;
+    }
+    // 3. fall back to the target entity metadata
+    return QueryCondition.super.resolveOrderByClause(metadata);
   }
 
   @Override
