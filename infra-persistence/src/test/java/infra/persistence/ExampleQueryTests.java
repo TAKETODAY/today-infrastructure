@@ -19,15 +19,18 @@ package infra.persistence;
 import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
+import java.sql.PreparedStatement;
 import java.util.List;
 
 import infra.persistence.annotation.EntityRef;
 import infra.persistence.annotation.Id;
 import infra.persistence.annotation.Subquery;
 import infra.persistence.annotation.Table;
+import infra.persistence.platform.Platform;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -56,6 +59,22 @@ class ExampleQueryTests {
 
     assertThat(logMessage).isNotNull();
     assertThat(logMessage.toString()).contains("Query entity using example");
+  }
+
+  @Test
+  void shouldGenerateAndBindSubquery() throws Exception {
+    DefaultEntityMetadataFactory metadataFactory = new DefaultEntityMetadataFactory();
+    DefaultEntityQueryFactory queryFactory = new DefaultEntityQueryFactory(metadataFactory);
+    EntityMetadata labelMetadata = metadataFactory.getEntityMetadata(Label.class);
+    QueryStatement query = queryFactory.createQuery(new TagQuery(42L));
+
+    assertThat(query.render(labelMetadata).toStatementString(Platform.generic()))
+            .endsWith("FROM label WHERE id IN (SELECT label_id FROM article_label WHERE article_id = ?)");
+
+    PreparedStatement statement = mock(PreparedStatement.class);
+    query.setParameter(labelMetadata, statement);
+
+    verify(statement).setLong(1, 42L);
   }
 
   @EntityRef(Label.class)
