@@ -100,10 +100,10 @@ public @interface Subquery {
   Class<?> from() default void.class;
 
   /**
-   * The column that the not-between operand targets.
+   * Override the {@code WHERE} column in the junction table.
    *
-   * <p>An alias for {@link Column#value()}. When blank, the property's mapped
-   * column is used instead.
+   * <p>An alias for {@link Column#value()}. When blank (default), the annotated
+   * field's mapped column name is used.
    *
    * @return the column name, or {@link Constant#BLANK} if not specified
    */
