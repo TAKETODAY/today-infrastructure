@@ -26,24 +26,26 @@ import java.util.List;
 
 import infra.persistence.Condition;
 import infra.persistence.EntityProperty;
-import infra.persistence.Identifier;
 import infra.persistence.PropertyConditionStrategy;
 import infra.persistence.Range;
 import infra.persistence.ValueNormalizer;
 import infra.persistence.annotation.Between;
 import infra.persistence.annotation.In;
+import infra.persistence.annotation.NotBetween;
+import infra.persistence.annotation.NotIn;
+import infra.persistence.sql.Restriction;
 import infra.persistence.sql.Restrictions;
 
 /**
  * A {@link PropertyConditionStrategy} that turns an example property annotated
- * with {@link In @In} or {@link Between @Between} into a multi-value predicate.
+ * with {@link In @In}, {@link NotIn @NotIn}, {@link Between @Between} or
+ * {@link NotBetween @NotBetween} into a multi-value predicate.
  *
  * <ul>
- *   <li>{@code @In} — the property holds an {@link Iterable} or array; renders
- *   {@code column IN (?, ?, ...)} binding every element.</li>
- *   <li>{@code @Between} — the property holds a {@link Range} or a two-element
- *   array / collection; renders {@code column BETWEEN ? AND ?} binding the
- *   lower and upper bound.</li>
+ *   <li>{@code @In} — renders {@code column IN (?, ?, ...)}</li>
+ *   <li>{@code @NotIn} — renders {@code column NOT IN (?, ?, ...)}</li>
+ *   <li>{@code @Between} — renders {@code column BETWEEN ? AND ?}</li>
+ *   <li>{@code @NotBetween} — renders {@code column NOT BETWEEN ? AND ?}</li>
  * </ul>
  *
  * <p>The target column is the property's mapped column, resolved through
@@ -67,8 +69,14 @@ public class MultiValueConditionStrategy implements PropertyConditionStrategy {
     if (property.isPresent(In.class)) {
       return resolveIn(property, value);
     }
+    if (property.isPresent(NotIn.class)) {
+      return resolveNotIn(property, value);
+    }
     if (property.isPresent(Between.class)) {
       return resolveBetween(property, value);
+    }
+    if (property.isPresent(NotBetween.class)) {
+      return resolveNotBetween(property, value);
     }
     return null;
   }
@@ -81,7 +89,23 @@ public class MultiValueConditionStrategy implements PropertyConditionStrategy {
     return new MultiValueCondition(property, Restrictions.in(property.getColumnName(), values.size()), values);
   }
 
+  private @Nullable Condition resolveNotIn(EntityProperty property, Object value) {
+    List<Object> values = toList(value);
+    if (values.isEmpty()) {
+      return null;
+    }
+    return new MultiValueCondition(property, Restrictions.notIn(property.getColumnName(), values.size()), values);
+  }
+
   private @Nullable Condition resolveBetween(EntityProperty property, Object value) {
+    return resolveBetween(property, value, false);
+  }
+
+  private @Nullable Condition resolveNotBetween(EntityProperty property, Object value) {
+    return resolveBetween(property, value, true);
+  }
+
+  private @Nullable Condition resolveBetween(EntityProperty property, Object value, boolean negative) {
     Object lower;
     Object upper;
     if (value instanceof Range range) {
@@ -99,8 +123,10 @@ public class MultiValueConditionStrategy implements PropertyConditionStrategy {
     if (lower == null || upper == null) {
       return null;
     }
-    return new MultiValueCondition(property,
-            Restrictions.between(property.getColumnName()), List.of(lower, upper));
+    Restriction restriction = negative
+            ? Restrictions.notBetween(property.getColumnName())
+            : Restrictions.between(property.getColumnName());
+    return new MultiValueCondition(property, restriction, List.of(lower, upper));
   }
 
   /**
