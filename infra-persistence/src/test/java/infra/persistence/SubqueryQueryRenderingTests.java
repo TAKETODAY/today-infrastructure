@@ -139,21 +139,11 @@ class SubqueryQueryRenderingTests {
   }
 
   @Test
-  void selfQueryWithoutEntityRefUsesOwnId() {
-    EntityMetadata articleMetadata = metadataFactory.getEntityMetadata(ArticleQuery.class);
-    QueryStatement query = queryFactory.createQuery(new ArticleQuery(42L));
-
-    assertThat(query.render(articleMetadata).toStatementString(generic))
-            .contains("WHERE id IN (SELECT label_id FROM article_label WHERE article_id = ?)");
-  }
-
-  @Test
   void mysqlQuotesRecursivelyQuotedIdentifiers() {
     QueryStatement query = queryFactory.createQuery(new QuotedQuery(42L));
-    EntityMetadata metadata = metadataFactory.getEntityMetadata(QuotedQuery.class);
 
-    assertThat(query.render(metadata).toStatementString(Platform.mysql()))
-            .contains("WHERE `id` IN (SELECT label_id FROM `article_label` WHERE `article_id` = ?)");
+    assertThat(query.render(labelMetadata).toStatementString(Platform.mysql()))
+            .contains("WHERE `code` IN (SELECT label_id FROM `article_label` WHERE `article_id` = ?)");
   }
 
   @Test
@@ -499,28 +489,11 @@ class SubqueryQueryRenderingTests {
     }
   }
 
-  @Table("article")
-  static class ArticleQuery {
-
-    @Id
-    public Long id;
-
-    @Subquery(select = "label_id", fromTable = "article_label")
-    public final Long articleId;
-
-    ArticleQuery(Long articleId) {
-      this.articleId = articleId;
-    }
-  }
-
-  @Table("quoted_article")
+  @EntityRef(Label.class)
   static class QuotedQuery {
 
-    @Id
-    @Column("`id`")
-    public Long id;
-
-    @Subquery(select = "label_id", fromTable = "`article_label`", where = "`article_id`")
+    @Subquery(select = "label_id", fromTable = "`article_label`",
+            where = "`article_id`", target = "`code`")
     public final Long articleId;
 
     QuotedQuery(Long articleId) {
