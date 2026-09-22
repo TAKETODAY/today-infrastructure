@@ -87,6 +87,11 @@ public class SubqueryConditionStrategy implements PropertyConditionStrategy {
     if (Constant.BLANK.equals(target)) {
       return refMetadata.getIdColumnName();
     }
+    // resolve the target as a property of the referenced entity, honouring its mapped column
+    EntityProperty property = refMetadata.findProperty(target);
+    if (property != null) {
+      return property.getColumnName();
+    }
     return Identifier.parse(target);
   }
 

@@ -125,9 +125,13 @@ public @interface Subquery {
   /**
    * The target column of the referenced entity to match against.
    *
-   * <p>When blank (default), the referenced entity's ID column is used.
+   * <p>When blank (default), the referenced entity's ID column is used. Otherwise
+   * the value is first resolved as a property of the referenced entity — using
+   * that property's mapped column, so a {@link Column @Column} rename is honoured —
+   * and falls back to the raw column name when no such property exists.
    *
-   * @return the target column name, or {@link Constant#BLANK} to use the ID column
+   * @return the target property or column name, or {@link Constant#BLANK} to use
+   * the ID column
    */
   String target() default Constant.BLANK;
 

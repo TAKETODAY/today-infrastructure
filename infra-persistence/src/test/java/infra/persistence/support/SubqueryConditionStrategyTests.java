@@ -26,6 +26,7 @@ import infra.persistence.EntityMetadata;
 import infra.persistence.EntityProperty;
 import infra.persistence.IllegalEntityException;
 import infra.persistence.ValueNormalizer;
+import infra.persistence.annotation.Column;
 import infra.persistence.annotation.EntityRef;
 import infra.persistence.annotation.Id;
 import infra.persistence.annotation.Subquery;
@@ -84,6 +85,22 @@ class SubqueryConditionStrategyTests {
 
     assertThat(render(condition)).isEqualTo(
             "code IN (SELECT label_id FROM article_label WHERE article_id = ?)");
+  }
+
+  @Test
+  void shouldResolveTargetViaMappedColumn() {
+    Condition condition = resolve(RenamedTargetQuery.class, "articleId", 42L);
+
+    assertThat(render(condition)).isEqualTo(
+            "display_code IN (SELECT label_id FROM article_label WHERE article_id = ?)");
+  }
+
+  @Test
+  void shouldFallBackToRawTargetWhenUnknown() {
+    Condition condition = resolve(UnknownTargetQuery.class, "articleId", 42L);
+
+    assertThat(render(condition)).isEqualTo(
+            "unknown_col IN (SELECT label_id FROM article_label WHERE article_id = ?)");
   }
 
   @Test
@@ -220,6 +237,28 @@ class SubqueryConditionStrategyTests {
   }
 
   @EntityRef(Label.class)
+  static class RenamedTargetQuery {
+
+    @Subquery(select = "label_id", fromTable = "article_label", target = "displayCode")
+    public final Long articleId;
+
+    RenamedTargetQuery(Long articleId) {
+      this.articleId = articleId;
+    }
+  }
+
+  @EntityRef(Label.class)
+  static class UnknownTargetQuery {
+
+    @Subquery(select = "label_id", fromTable = "article_label", target = "unknown_col")
+    public final Long articleId;
+
+    UnknownTargetQuery(Long articleId) {
+      this.articleId = articleId;
+    }
+  }
+
+  @EntityRef(Label.class)
   static class SelectQuery {
 
     @Subquery(select = "label_id", fromTable = "custom_junction")
@@ -281,6 +320,9 @@ class SubqueryConditionStrategyTests {
     public String name;
 
     public String code;
+
+    @Column("display_code")
+    public String displayCode;
 
   }
 
