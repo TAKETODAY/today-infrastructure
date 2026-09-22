@@ -1,0 +1,19 @@
+[[persistence-paging]]
+= 分页
+
+`Pageable` 描述分页参数，`Page` 承载分页结果：
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+Pageable pageable = Pageable.of(2, 10);   // 页码从 1 开始
+int offset = pageable.offset();
+
+Page<User> page = entityManager.page(User.class, pageable);
+List<User> rows = page.getRows();
+Number totalRows = page.getTotalRows();
+int totalPages = page.getTotalPages();
+boolean hasNext = page.hasNextPage();
+----
+
+也可以通过 `DefaultEntityManager#setDefaultPageable` 设置缺省分页。排序使用 `Order.ASC` / `Order.DESC`，
+配合 `Pair<String, Order>`（可变参数，按声明顺序）使用。

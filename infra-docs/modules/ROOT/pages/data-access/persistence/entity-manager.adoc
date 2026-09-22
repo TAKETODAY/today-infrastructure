@@ -1,0 +1,103 @@
+[[persistence-manager]]
+= EntityManager
+
+`EntityManager` 是持久化的中心 API，所有方法在数据访问失败时抛出 `DataAccessException`，
+实体元数据非法时抛出 `IllegalEntityException`。
+
+== 持久化
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+// 插入：支持单个实体、集合或 Stream；可指定更新策略与是否回填自增主键
+int rows = entityManager.persist(user);
+entityManager.persist(users);
+entityManager.persist(user, PropertyUpdateStrategy.noneNull(), true);
+entityManager.persist(userStream, true);
+----
+
+[[persistence-update]]
+== 更新
+
+`update(Object)` 依据实体自身状态更新，可指定更新策略。条件选择顺序为：优先使用实体主键作为 `WHERE`；当实体没有可用主键时，
+则使用标注了 `@UpdateBy` 的属性值构成 `WHERE` 条件（此时若没有任何 `@UpdateBy` 属性，会抛出 `InvalidDataAccessApiUsageException`）。
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+// 按实体状态更新（主键作为条件，或 @UpdateBy 属性作为条件），可指定更新策略
+int rows = entityManager.update(user);
+entityManager.update(user, PropertyUpdateStrategy.noneNull());
+
+// 按主键更新
+entityManager.updateById(user);
+entityManager.updateById(user, 10L);
+entityManager.updateById(user, PropertyUpdateStrategy.noneNull());
+entityManager.updateById(user, 10L, PropertyUpdateStrategy.noneNull());
+
+// 新实体插入、已存在则更新
+entityManager.saveOrUpdate(user);
+entityManager.saveOrUpdate(user, PropertyUpdateStrategy.noneNull());
+----
+
+当实体没有主键、又要以某个属性定位记录时，可在该属性上标注 `@UpdateBy`：
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+@Table(name = "t_user")
+class User {
+
+  @UpdateBy
+  @Column(name = "name")
+  String name;
+
+  Integer age;
+}
+
+User user = new User();
+user.name = "John";
+user.age = 30;
+entityManager.update(user);   // UPDATE t_user SET age = ? WHERE name = ?
+----
+
+== 删除与清空
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+entityManager.delete(User.class, 1L);   // 按主键删除
+entityManager.delete(example);          // 按实体 / 示例条件删除
+entityManager.truncate(User.class);     // 清空整张表，保留表结构
+----
+
+== 查询
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+// 按主键查询
+User user = entityManager.findById(User.class, 1L);
+
+// 首条 / 唯一结果，超过一条时抛异常
+User first = entityManager.findFirst(User.class);
+User unique = entityManager.findUnique(User.class, example);
+
+// 列表查询：无条件、按排序、按示例、按 QueryStatement
+List<User> all = entityManager.find(User.class);
+List<User> sorted = entityManager.find(User.class, new Pair<>("age", Order.DESC));
+List<User> matched = entityManager.find(example);
+
+// 结果映射为 Map（按属性名或 keyMapper）
+Map<Long, User> byId = entityManager.find(User.class, User::getId);
+
+// 计数
+Number total = entityManager.count(User.class);
+Number active = entityManager.count(User.class, example);
+
+// 分页
+Page<User> page = entityManager.page(User.class, Pageable.of(1, 10));
+
+// 迭代（避免一次性加载全部数据）
+try (EntityIterator<User> it = entityManager.iterate(User.class)) {
+  while (it.hasNext()) {
+    process(it.next());
+  }
+}
+entityManager.iterate(User.class, example, this::process);
+----

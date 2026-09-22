@@ -1,0 +1,98 @@
+[[persistence-mapping]]
+= 实体映射
+
+通过 `infra.persistence.annotation` 包中的注解描述实体与表之间的映射：
+
+[cols="1,1,4"]
+|===
+| 注解 | 目标 | 说明
+
+| `@Table`
+| 类型
+| 指定实体对应的表名，如 `@Table(name = "t_user")`；缺省时按命名策略从类名推导。
+
+| `@Id`
+| 字段 / 方法
+| 指定主键属性。
+
+| `@GeneratedId`
+| 字段 / 方法
+| 元注解形式的主键声明，表示主键由数据库生成（自增），配合 `autoGenerateId` 使用。
+
+| `@Column`
+| 字段 / 方法
+| 指定属性映射的列名；缺省时使用 `camelCase` 转下划线的策略。`value` 与 `name` 互为别名。
+
+| `@Transient`
+| 字段 / 方法
+| 标记该属性不参与持久化。
+
+| `@Version`
+| 字段 / 方法
+| 声明乐观锁版本属性，详见 xref:data-access/persistence/version.adoc[乐观锁]。
+
+| `@EntityRef`
+| 类型
+| 声明该类型引用另一个实体的主表，用于没有自己的主键、而与目标实体共享主键的场景（如查询 / 更新模型）。
+
+| `@UpdateBy`
+| 字段 / 方法
+| 标记用于更新的 `WHERE` 条件属性（不参与 `SET`）；当 `update()` 的实体没有可用主键时，由这些属性的值构成条件，详见 xref:data-access/persistence/entity-manager.adoc#persistence-update[更新]。
+
+|===
+
+== 默认命名策略
+
+`DefaultEntityMetadataFactory` 的默认行为如下：
+
+* **表名**：优先取 `@Table` 的值；否则使用类名，并将 `camelCase` 转为下划线、转为小写（`UserOrder` -> `user_order`）。
+* **列名**：优先取 `@Column` 的值；否则将属性名 `camelCase` 转为下划线。
+* **主键**：优先取标注了 `@Id` / `@GeneratedId` 的属性；否则取名为 `id` 的属性。一个实体只允许一个主键，否则抛出 `IllegalEntityException`。
+* **属性过滤**：忽略名为 `class`、`new` 的属性、标注 `@Transient` 的属性以及内部类的 `this$0`。
+* **混合类型**：通过 `TypeHandlerManager` 为每个属性解析 `TypeHandler` 完成 Java 类型与 SQL 类型的转换。
+
+[[persistence-ref-entity]]
+== 引用实体 (@EntityRef)
+
+标注 `@EntityRef` 的类型没有自己的表，而是复用被引用实体的主表与主键，常用于"只读查询视图"或"部分字段更新模型"：
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+@EntityRef(User.class)
+class UserQuery {
+
+  @Like
+  String name;
+}
+
+// UserQuery 与 User 使用同一张表；UserQuery 未声明主键时，
+// 其 ID 属性自动回退为 User 的 ID
+----
+
+框架为这类类型创建 `RefEntityMetadata`：
+
+* `getTableName()` 复用被引用实体的表名。
+* `findIdProperty()` 在自身未声明主键时回退到被引用实体的主键。
+* `getRefMetadata()` 返回被引用实体的元数据（普通实体返回 `null`）。
+* `getOrderSpec()` 在自身无声明式排序时回退到被引用实体的排序。
+
+== 元数据
+
+`EntityMetadataFactory#getEntityMetadata(Class)` 返回并缓存 `EntityMetadata`，其中包含表名、主键属性 / 列名、
+版本属性、属性与列名的对应关系以及主键是否为自动生成。元数据被视为只读，由工厂创建后缓存复用。
+
+可以替换其中任意策略：
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+DefaultEntityMetadataFactory factory = new DefaultEntityMetadataFactory();
+
+// 表名、列名、主键发现、属性过滤、类型处理器均可插拔
+factory.setTableNameGenerator(new DefaultTableNameGenerator());
+factory.setColumnNameDiscover(ColumnNameDiscover.forColumnAnnotation()
+        .and(ColumnNameDiscover.camelCaseToUnderscore()));
+factory.setIdPropertyDiscover(IdPropertyDiscover.forIdAnnotation()
+        .and(IdPropertyDiscover.forPropertyName("id")));
+factory.setPropertyFilter(PropertyFilter.filteredNames(Set.of("class", "new"))
+        .and(PropertyFilter.forTransientAnnotation()));
+----

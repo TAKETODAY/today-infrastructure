@@ -1,0 +1,27 @@
+[[persistence-batch]]
+= 批量持久化
+
+批量写入通过 `PersistenceProperties.maxBatchRecords` 控制：当累积的记录数达到该值时，
+会隐式执行一次 `executeBatch()`；为 `0` 时不自动执行，由显式的刷新触发。
+
+`BatchPersistListener` 会在每个批次执行前后收到通知，`BatchExecution` 暴露了 SQL 语句 `statement`、实体元数据
+`entityMetadata`、更新策略 `strategy`、是否处理自增主键 `autoGenerateId` 以及当前批次收集到的实体集合 `entities`，
+并通过 `getAffectedRows()` 返回该批次累计受影响的行数。监听器可通过 `@Order` / `Ordered` 排序。
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+class LoggingBatchListener implements BatchPersistListener {
+
+  @Override
+  public void preProcessing(BatchExecution execution, boolean implicitExecution) {
+    // execution.statement, execution.entities
+  }
+
+  @Override
+  public void postProcessing(BatchExecution execution, boolean implicitExecution, Throwable ex) {
+    if (ex != null) {
+      // 处理批次失败
+    }
+  }
+}
+----

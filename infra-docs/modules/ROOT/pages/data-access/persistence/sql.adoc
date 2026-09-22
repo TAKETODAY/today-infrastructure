@@ -1,0 +1,114 @@
+[[persistence-sql]]
+= SQL 构建与数据库平台
+
+`infra.persistence.sql` 包提供了一组可复用的 SQL 片段构建器（移植自 Hibernate 的 SQL 支持），
+包括 `Select` / `SimpleSelect` / `QuerySelect`、`Insert` / `InsertSelect`、`Update`、`Delete`、
+`JoinFragment` / `ANSIJoinFragment`、`OrderSpec`（结构化排序键或原始子句）、`CaseFragment` 等。
+
+[[persistence-restriction]]
+== Restriction 与 Condition 分层
+
+SQL 谓词被拆成两层，便于渲染与参数绑定：
+
+* `Restriction`：只负责渲染 SQL 片段，无绑定值。实现包括 `ComparisonRestriction`、`NullnessRestriction`、
+  `LikeRestriction`、`InRestriction`、`ExistsRestriction`、`PlainRestriction` 与逻辑组合 `LogicalRestriction`。
+* `Condition extends Restriction`：在片段之上携带可绑定值，`setParameter(PreparedStatement, index)` 负责按渲染顺序绑定。
+  实现包括 `PropertyCondition`、`MultiValueCondition`、`SubqueryCondition` 等。
+
+`Restrictions` 是条件工厂，并提供 `WHERE` 关键字与连接符的渲染支持：
+
+[cols="1,1"]
+|===
+| 工厂方法 | 生成片段
+
+| `plain(CharSequence)` | 原样追加的 SQL 片段
+| `equal` / `notEqual` | `column = ?` / `column <> ?`
+| `greaterThan` / `greaterEqual` / `lessThan` / `lessEqual` | `column > ?` / `>= ?` / `< ?` / `<= ?`
+| `forOperator(lhs, op, rhs)` | 自定义操作符与右值
+| `isNull` / `isNotNull` | `column is null` / `column is not null`
+| `between` / `notBetween` | `column BETWEEN ? AND ?` / `column NOT BETWEEN ? AND ?`
+| `like` / `notLike` | `column LIKE ?` / `column NOT LIKE ?`
+| `in(column, count)` / `notIn(column, count)` | `column IN (?, ...)` / `column NOT IN (?, ...)`
+| `exists` / `notExists` | `EXISTS (subquery)` / `NOT EXISTS (subquery)`
+| `and` / `or` / `xor` | 括号化的逻辑组合
+|===
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+// 以调用方提供的操作符与右值构造比较
+Restriction r = Restrictions.forOperator("age", " >= ", "?");
+
+// 组合：OR 会自动加括号，保持优先级
+Restriction where = Restrictions.and(
+        Restrictions.like("name"),
+        Restrictions.or(Restrictions.isNull("age"), Restrictions.in("status", 3)));
+
+// 渲染到已有缓冲区
+StringBuilder buf = new StringBuilder();
+Restrictions.append(platform, List.of(where), buf);   // " WHERE ..."
+----
+
+「渲染 + 绑定」的契约由 `QueryStatement` 定义：`render` 返回 `StatementSequence`，
+`setParameter` 把值绑定到 `PreparedStatement`。`QueryCondition` 描述查询的条件部分：
+`collectRestrictions` 收集 WHERE 条件、`appendWhereClause` 将条件渲染到缓冲区、
+`resolveOrderByClause` 解析排序、`setParameter` 绑定参数。内置实现有按主键查询、无条件查询、
+示例查询与 `Map` 查询等。
+
+[[persistence-order-spec]]
+== OrderSpec
+
+`OrderSpec` 是不可变的排序规格：一组**有序**的排序键与/或原始 SQL 片段，按顺序渲染。结构化键的列名
+以 `Identifier` 表示，渲染时交给 `Platform` 决定引号；原始片段原样输出。两者可自由混排。
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+OrderSpec asc = OrderSpec.asc("name");                        // name ASC
+OrderSpec desc = OrderSpec.desc("age");                       // age DESC
+OrderSpec of = OrderSpec.of(Pair.of("name", Order.ASC),       // name ASC, age DESC
+        Pair.of("age", Order.DESC));
+OrderSpec raw = OrderSpec.plain("LENGTH(name) DESC");         // 原始片段，原样渲染
+
+// 增量构建，并可混排结构化键与原始片段
+OrderSpec spec = OrderSpec.builder()
+        .raw("LENGTH(name) DESC")
+        .asc("created_at")
+        .build();                                             // LENGTH(name) DESC, created_at ASC
+
+// 从已有规格转出 Builder，继续追加（排序键与原始片段都保留）
+OrderSpec extended = spec.mutate().desc("age").build();
+
+// 空规格：不产生 ORDER BY，避免返回 null
+OrderSpec empty = OrderSpec.empty();
+
+CharSequence clause = spec.toClause(platform);                // 交由 Platform 方言渲染
+boolean noOrdering = spec.isEmpty();
+----
+
+* `empty()`：共享的空规格，无排序，`isEmpty()` 为 `true`；`builder()` 未追加任何内容时也返回该单例。
+* `builder().raw(...)`：追加一个原始 SQL 片段（如表达式或 `CASE`），可与结构化键按顺序混排，用 `, ` 连接。
+* `builder().remove(column)` / `removeIf(predicate)` / `clear()`：从已累积的排序中移除指定列的键、按条件移除、或全部清空。
+* `mutate()`：保留全部排序键与原始片段，转出 `Builder` 继续追加。
+* `containsRaw()`：是否包含原始 SQL 片段。
+* 值语义：`equals` / `hashCode` 基于有序的排序键与片段。
+
+[[persistence-platform]]
+== 数据库平台
+
+`infra.persistence.platform.Platform` 抽象了数据库方言差异，默认实现为 `GenericPlatform`
+（ANSI SQL），MySQL / MariaDB 使用 `MySQLPlatform`。可按需覆盖：
+
+* `getForUpdateString()`：`FOR UPDATE` 片段。
+* `getNoColumnsInsertString()`：无列插入的取值子句。
+* `getTruncateTableStatement(String)`：清空表语句。
+* `selectCountFrom(StringBuilder, String)`：计数语句。
+* `createOuterJoinFragment()`：外连接片段。
+* `openQuote()` / `closeQuote()`：标识符引号字符。
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+Platform platform = Platform.generic();
+Platform mysql = Platform.mysql();
+----
+
+`Identifier` 表示 SQL 标识符，配合 `Platform` 决定引号渲染：`render(platform)` 按方言加引号，
+`render()` 使用反引号的中立形式。

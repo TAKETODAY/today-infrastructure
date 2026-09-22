@@ -1,0 +1,33 @@
+[[persistence-version]]
+= 乐观锁
+
+在版本属性上标注 `@Version` 即可启用乐观锁。更新时框架会校验版本并自动递进；删除同样受版本约束。
+每个实体只允许一个版本属性，否则抛出 `IllegalEntityException`。
+
+开箱支持的类型：`int`/`Integer`、`long`/`Long`、`short`/`Short`，以及
+`Instant`、`LocalDateTime`、`ZonedDateTime`、`OffsetDateTime`。数值类型递增，时间类型取当前时间。
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+@Table(name = "t_user")
+class User {
+
+  @GeneratedId
+  Integer id;
+
+  @Version
+  Integer version;
+}
+----
+
+自定义类型可实现 `VersionIncrementStrategy`，返回 `null` 表示不支持该类型以便回退：
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+entityManager.setVersionIncrementStrategy(current -> {
+  if (current instanceof String v) {
+    return v + "_updated";
+  }
+  return null; // 交给回退策略
+});
+----

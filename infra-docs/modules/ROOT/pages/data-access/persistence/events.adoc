@@ -1,0 +1,50 @@
+[[persistence-events]]
+= 生命周期事件
+
+监听器通过泛型参数声明所关注的实体类型（无法解析泛型时监听所有实体），由 `EntityManager` 在操作期间
+**同步**回调，因此监听器抛出的异常会传播给调用方。监听器可通过容器自动注册（作为 `Listener` bean），
+也可手动注册到 `EntityEventRegistry`。
+
+持久化 / 更新的回调会收到当次操作生效的 `PropertyUpdateStrategy`（决定哪些属性被写回，
+默认 `noneNull()` 策略下仅非 null 属性参与写入），前置与后置回调拿到的是同一个策略实例。
+
+[cols="1,3"]
+|===
+| 监听器 | 回调
+
+| `PersistEventListener<T>`
+| `onPrePersist(entity, metadata, strategy)` / `onPostPersist(entity, metadata, strategy)` / `onPersistFailed(entity, metadata, strategy, exception)`。回调可拿到选择写入属性的 `PropertyUpdateStrategy`；后置回调触发时自增主键已回填。
+
+| `UpdateEventListener<T>`
+| `onPreUpdate(entity, metadata, strategy)` / `onPostUpdate(entity, metadata, strategy, affectedRows)` / `onUpdateFailed(entity, metadata, strategy, exception)`。默认策略下只会写回非 null 属性，版本字段由框架覆盖；乐观锁失败也会触发失败回调；后置回调可通过 `affectedRows` 获取本次更新的受影响行数。
+
+| `DeleteEventListener<T>`
+| `onPreDelete(entity, id, metadata)` / `onPostDelete(entity, id, metadata, affectedRows)` / `onDeleteFailed(entity, id, metadata, exception)`，可获取被删除实体与主键（按 id 或示例删除时二者可能为 `null`）；后置回调可通过 `affectedRows` 获取本次删除的受影响行数。
+
+| `PostLoadEventListener<T>`
+| `onPostLoad`，实体从 `ResultSet` 装配完成后触发，可用于填充派生字段或写入缓存。
+
+| `PostTruncateEventListener`
+| `onPostTruncate`，清空表后触发（无实体实例，只有实体类与元数据）。
+
+| `BatchPersistListener`
+| `preProcessing` / `postProcessing`，见 xref:data-access/persistence/batch.adoc[批量持久化]。
+
+|===
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+@Component
+class UserAuditListener implements UpdateEventListener<User> {
+
+  @Override
+  public void onPreUpdate(User entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+    // 校验或审计；strategy 决定哪些属性会被写回
+  }
+
+  @Override
+  public void onPostUpdate(User entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, int affectedRows) {
+    // 更新后处理
+  }
+}
+----

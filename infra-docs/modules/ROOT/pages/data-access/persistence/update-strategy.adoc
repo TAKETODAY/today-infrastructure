@@ -1,0 +1,21 @@
+[[persistence-update-strategy]]
+= 属性更新策略
+
+`PropertyUpdateStrategy` 决定更新 / 持久化时哪些属性参与写入。它支持用 `and` / `or` 组合，
+并内置常用策略：
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+PropertyUpdateStrategy.noneNull();        // 仅非 null 属性（默认）
+PropertyUpdateStrategy.always();          // 全部属性
+PropertyUpdateStrategy.never();           // 全部忽略
+PropertyUpdateStrategy.notId();           // 排除主键
+PropertyUpdateStrategy.isId();            // 仅主键
+PropertyUpdateStrategy.isEqual(value);    // 值等于给定值
+PropertyUpdateStrategy.isNotEqual(value); // 值不等于给定值
+
+// 组合：非 null 且排除主键
+PropertyUpdateStrategy strategy = PropertyUpdateStrategy.noneNull()
+        .and(PropertyUpdateStrategy.notId());
+entityManager.update(user, strategy);
+----

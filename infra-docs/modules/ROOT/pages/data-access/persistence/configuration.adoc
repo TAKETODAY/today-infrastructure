@@ -1,0 +1,60 @@
+[[persistence-config]]
+= 自动配置与依赖
+
+在项目中引入 `infra-persistence`：
+
+[source,groovy,indent=0,subs="verbatim,quotes"]
+----
+dependencies {
+  implementation("cn.taketoday:infra-persistence")
+}
+----
+
+该模块依赖 `infra-jdbc` 与 `infra-tx`，因此需要配置一个 `DataSource`（或 `RepositoryManager`）。
+当容器中存在唯一的 `DataSource` 候选者时，`EntityManagerAutoConfiguration` 会自动注册以下 bean：
+
+* `EntityManager`：默认实现为 `DefaultEntityManager`。
+* `EntityMetadataFactory`：默认实现为 `DefaultEntityMetadataFactory`。
+* `EntityEventRegistry`：默认实现为 `DefaultEntityEventRegistry`，并自动注册容器中所有的 `Listener` bean。
+* `SqlStatementLogger`：SQL 日志记录器。
+
+== 配置属性
+
+`PersistenceProperties` 绑定到 `persistence` 前缀：
+
+[cols="1,1,1,3"]
+|===
+| 属性 | 类型 | 默认值 | 说明
+
+| `persistence.max-batch-records`
+| `int`
+| `0`
+| 单次批处理允许累积的记录数；达到该值后 `addToBatch()` 会隐式调用 `executeBatch()`。为 `0` 时不隐式执行批处理。
+
+| `persistence.auto-generate-id`
+| `boolean`
+| `true`
+| 是否自动回填由数据库生成的主键。
+
+|===
+
+== 自定义
+
+可以通过实现以下接口来定制自动配置的组件，它们会被自动收集并应用：
+
+* `EntityManagerCustomizer`：定制 `DefaultEntityManager`（如更新策略、版本策略、默认分页等）。
+* `EntityMetadataFactoryCustomizer`：定制 `DefaultEntityMetadataFactory`（如表名、列名、主键发现策略）。
+* `TypeHandlerManagerCustomizer`：定制 JDBC 类型处理器（来自 `infra-jdbc`）。
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+@Component
+class MyEntityManagerCustomizer implements EntityManagerCustomizer {
+
+  @Override
+  public void customize(DefaultEntityManager manager) {
+    manager.setAutoGenerateId(false);
+    manager.setDefaultPageable(Pageable.of(1, 20));
+  }
+}
+----

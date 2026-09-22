@@ -1,0 +1,199 @@
+[[persistence-example]]
+= 示例查询 (Query by Example)
+
+示例查询把对象的非空属性转换为 `WHERE` 条件。查询条件可以通过注解在属性上精细描述。
+
+[[persistence-condition-annotations]]
+== 条件注解
+
+[cols="1,4"]
+|===
+| 注解 | 说明
+
+| `@Where`
+| 自定义条件片段或操作符，如 `@Where("status > ?")`、`@Where(operator = " > ")`；缺省为等值匹配。
+
+| `@Trim`
+| 通用行为修饰，生成条件前对字符串值执行 `trim()`，可与 `@Where`/`@Like` 等叠加。
+
+| `@Like`
+| 生成 `LIKE` 条件，默认匹配 `%value%`。
+
+| `@PrefixLike`
+| 生成前缀匹配 `LIKE 'value%'`。
+
+| `@SuffixLike`
+| 生成后缀匹配 `LIKE '%value'`。
+
+| `@In`
+| 属性为集合 / 数组时生成 `column IN (?, ?, ...)`；空集合不产生条件。
+
+| `@NotIn`
+| 属性为集合 / 数组时生成 `column NOT IN (?, ?, ...)`；空集合不产生条件。
+
+| `@Between`
+| 属性为 `Range` 或两元素集合 / 数组时生成 `column BETWEEN ? AND ?`。
+
+| `@NotBetween`
+| 属性为 `Range` 或两元素集合 / 数组时生成 `column NOT BETWEEN ? AND ?`。
+
+| `@WhereIsNull`
+| 当属性值为 `null` 时生成 `column IS NULL`（`@WhereIsNull(not = true)` 为 `IS NOT NULL`）。
+
+| `@Subquery`
+| 通过连接表生成 `target IN (SELECT ...)` 多对多子查询谓词，见 <<persistence-subquery>>。
+
+| `@OR`
+| 将当前属性的条件与前一个条件以 `OR` 连接（默认为 `AND`），整体加括号。
+
+| `@Group`
+| 以点分路径把属性归入命名分组；配合 `@Connector` / `@GroupOR` 控制组内与组间连接。
+
+| `@GroupExpression`
+| 类级别，用布尔表达式描述复杂分组，如 `@GroupExpression("name OR age")`。
+
+| `@OrderBy`
+| 属性级别排序键：`@OrderBy(Order.DESC)`；多个属性用 `order()` 声明优先级（越小越靠前）。详见 <<persistence-order-by>>。
+
+| `@OrderByClause`
+| 类级别指定完整的原始 `ORDER BY` 子句，如 `@OrderByClause("name DESC, age ASC")`。
+
+|===
+
+例如，定义一个引用 `User` 主表的查询对象：
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+@EntityRef(User.class)
+class UserQuery {
+
+  @Like
+  String name;              // name LIKE ?
+
+  @PrefixLike
+  String mobilePhone;       // mobile_phone LIKE ?
+
+  @Where(operator = ">")
+  Integer age;              // age > ?
+
+  @OR
+  @Where(operator = "<=")
+  Integer score;            // ... OR score <= ?
+
+  @OrderBy(Order.DESC)
+  @Column(name = "created_at")
+  LocalDateTime createdAt;
+}
+
+UserQuery query = new UserQuery();
+query.name = "Jo";
+query.age = 18;
+List<User> users = entityManager.find(User.class, query);
+----
+
+[[persistence-subquery]]
+== 多对多子查询 (@Subquery)
+
+`@Subquery` 用于"通过连接表查询被引用实体"的多对多场景，只能标注在 `@EntityRef` 查询类的字段上。它生成：
+
+[source,sql,indent=0,subs="verbatim,quotes"]
+----
+targetColumn IN (SELECT select FROM junctionTable WHERE fieldColumn = ?)
+----
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+@EntityRef(Label.class)
+class TagQuery {
+
+  // 连接表名直接给出；WHERE 列取自字段映射列（article_id）
+  @Subquery(fromTable = "article_label", select = "label_id")
+  public final Long articleId;
+}
+// id IN (SELECT label_id FROM article_label WHERE article_id = ?)
+----
+
+* `select`：子查询选出的列（对应被引用实体主键的连接表列），必填。
+* `fromTable`：连接表名；或用 `from` 指定连接实体，由其实体的 `@Table` 解析表名（`from` 优先）。
+* 字段的映射列名作为连接表 `WHERE` 列；可用 `where` 覆盖。
+* `target`：外层匹配列。缺省为被引用实体的主键列；也可指定被引用实体的属性名（按其映射列解析），
+  不存在时按原始列名处理。
+* `negative = true`：生成 `NOT IN (SELECT ...)`。
+
+[source,sql,indent=0,subs="verbatim,quotes"]
+----
+-- @Subquery(fromTable = "article_label", select = "label_id", target = "code")
+code IN (SELECT label_id FROM article_label WHERE article_id = ?)
+
+-- @Subquery(from = ArticleLabel.class, select = "label_id",
+--           where = "post_id", target = "code", negative = true)
+code NOT IN (SELECT label_id FROM article_label WHERE post_id = ?)
+----
+
+多字段可各自声明 `@Subquery`，谓词按字段顺序用 `AND` 连接；配合 `@OR` 则以 `OR` 连接并加括号。
+
+[[persistence-condition-precedence]]
+== 注解优先级
+
+同一属性上叠加多个条件注解时，策略按注册顺序选择第一个产生条件的注解，**不会把多个注解合并**。顺序为：
+
+. `@Where`
+. `@Subquery`
+. `@Like` / `@PrefixLike` / `@SuffixLike`
+. `@In` / `@NotIn` / `@Between` / `@NotBetween`
+. 兜底等值（`@WhereIsNull` 仅在 `null` 值路径生效）
+
+因此 `@Where` 会覆盖 `@Subquery`，`@Subquery` 会覆盖 `@Like`/`@In`。若某个注解因值不满足而放弃
+（如空 `@In`、无法解析的 `@Subquery`），会继续向后落到兜底等值 `column = ?`。
+
+[[persistence-order-by]]
+== ORDER BY 解析优先级
+
+示例查询的 `ORDER BY` 按以下优先级解析，命中较早的来源即生效：
+
+. 实现 `OrderSpecSource` 的对象自身提供的编程式排序；
+. 类级别 `@OrderByClause` 指定的原始 SQL 片段；
+. 属性级别 `@OrderBy` —— 多个属性按各自 `order()` 值排序，值越小越先应用（优先级越高）。
+
+主键（`@Id`）属性与普通属性一样会被扫描，因此同样可以用 `@OrderBy` 参与排序。例如：
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+@Table(name = "t_user")
+@OrderByClause("name DESC")            // 类级别原始子句，优先级最高（若实现 OrderSpecSource 则由其覆盖）
+class User {
+
+  @Id
+  Integer id;
+
+  @OrderBy(value = Order.DESC, order = 0)   // 属性级：order 越小越靠前
+  @Column(name = "created_at")
+  LocalDateTime createdAt;
+
+  @OrderBy(order = 1)
+  String name;
+}
+----
+
+上面的例子中，`created_at DESC` 会排在 `name ASC` 之前；若类级别声明了 `@OrderByClause`
+或实体实现了 `OrderSpecSource`，则属性级排序不会生效。
+
+也可以直接使用 `Map` 作为条件（键为列名，值为参数）：
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+Map<String, Object> example = Map.of("name", "John", "age", 30);
+List<User> users = entityManager.find(User.class, (Object) example);
+----
+
+[[persistence-condition-strategy]]
+== 条件策略与值提取
+
+* `PropertyConditionStrategy`：根据 `EntityMetadata`、`EntityProperty` 与值决定生成什么条件，签名
+  `resolve(EntityMetadata, EntityProperty, Object, ValueNormalizer)`；对 `null` 值另有
+  `resolve(EntityMetadata, EntityProperty)`。
+  内置实现包括 `WhereAnnotationConditionStrategy`、`SubqueryConditionStrategy`、
+  `FuzzyQueryConditionStrategy`（`@Like` 系列）、`MultiValueConditionStrategy`（`@In`/`@Between` 系列）
+  与兜底的 `DefaultConditionStrategy`（默认等值 / `@WhereIsNull`）；自定义实现可通过 `InfraStrategies`
+  机制被发现，并排在上述默认实现之前生效。
+* `ValueNormalizer`：在生成条件前对值做规范化（如 `@Trim` 的 `trim()`）。
