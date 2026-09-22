@@ -36,18 +36,18 @@ import infra.lang.Constant;
  * <pre>{@code
  * @EntityRef(Label.class)
  * class TagQuery {
- *   @Subquery(table = "article_label", select = "label_id")
+ *   @Subquery(fromTable = "article_label", select = "label_id")
  *   public final Long articleId;
  * }
  * }</pre>
  *
- * <p>The junction table name can be specified directly via {@link #table()}, or
- * resolved from an entity class via {@link #entity()}:
+ * <p>The junction table name can be specified directly via {@link #fromTable()}, or
+ * resolved from an entity class via {@link #from()}:
  *
  * <pre>{@code
  * @EntityRef(Label.class)
  * class TagQuery {
- *   @Subquery(entity = ArticleLabel.class, select = "label_id")
+ *   @Subquery(from = ArticleLabel.class, select = "label_id")
  *   public final Long articleId;
  * }
  * }</pre>
@@ -73,31 +73,31 @@ import infra.lang.Constant;
 public @interface Subquery {
 
   /**
-   * The junction (many-to-many) table name.
-   *
-   * <p>Ignored when {@link #entity()} is set to a non-default value; the table
-   * name is then resolved from that entity's {@link Table @Table} annotation.
-   *
-   * @return the junction table name
-   */
-  String table() default "";
-
-  /**
-   * An entity class whose {@link Table @Table} provides the junction table name.
-   *
-   * <p>When set to a non-default value, the table name is resolved from this
-   * entity's {@code @Table} annotation, and {@link #table()} is ignored.
-   *
-   * @return the junction entity class
-   */
-  Class<?> entity() default void.class;
-
-  /**
    * Column selected in the subquery, matching the referenced entity's ID.
    *
    * @return the select column name
    */
   String select();
+
+  /**
+   * The junction (many-to-many) table name.
+   *
+   * <p>Ignored when {@link #from()} is set to a non-default value; the table
+   * name is then resolved from that entity's {@link Table @Table} annotation.
+   *
+   * @return the junction table name
+   */
+  String fromTable() default "";
+
+  /**
+   * An entity class whose {@link Table @Table} provides the junction table name.
+   *
+   * <p>When set to a non-default value, the table name is resolved from this
+   * entity's {@code @Table} annotation, and {@link #fromTable()} is ignored.
+   *
+   * @return the junction entity class
+   */
+  Class<?> from() default void.class;
 
   /**
    * The column that the not-between operand targets.

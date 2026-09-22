@@ -75,7 +75,7 @@ public class SubqueryConditionStrategy implements PropertyConditionStrategy {
     }
 
     Identifier tableName = resolveTableName(subquery);
-    String sourceColumn = entityProperty.getColumnName().render();
+    var sourceColumn = entityProperty.getColumnName();
     String operator = subquery.getBoolean("negative") ? " NOT IN (" : " IN (";
     String sql = targetColumn.render()
             + operator
@@ -87,15 +87,15 @@ public class SubqueryConditionStrategy implements PropertyConditionStrategy {
   }
 
   private Identifier resolveTableName(MergedAnnotation<Subquery> subquery) {
-    Class<?> entityClass = subquery.getClass("entity");
+    Class<?> entityClass = subquery.getClass("from");
     if (entityClass != void.class) {
       EntityMetadata junctionMetadata = metadataFactory.getEntityMetadata(entityClass);
       return junctionMetadata.getTableName();
     }
-    String tableName = subquery.getString("table");
+    String tableName = subquery.getString("fromTable");
     if (tableName.isEmpty()) {
       throw new IllegalEntityException(
-              "@Subquery table name is required when 'entity' is not specified");
+              "@Subquery fromTable is required when 'from' is not specified");
     }
     return Identifier.parse(tableName);
   }
