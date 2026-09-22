@@ -151,6 +151,14 @@ class SubqueryConditionStrategyTests {
   }
 
   @Test
+  void noEntityRefFallsBackToQueriedEntity() {
+    Condition condition = resolve(SelfQuery.class, "articleId", 42L);
+
+    assertThat(render(condition)).isEqualTo(
+            "id IN (SELECT label_id FROM article_label WHERE article_id = ?)");
+  }
+
+  @Test
   void noEntityRefDeclines() {
     assertThat(resolveCondition(NoEntityRefQuery.class, "articleId", 42L)).isNull();
   }
@@ -296,6 +304,19 @@ class SubqueryConditionStrategyTests {
     public final Long articleId;
 
     NoEntityRefQuery(Long articleId) {
+      this.articleId = articleId;
+    }
+  }
+
+  static class SelfQuery {
+
+    @Id
+    public Long id;
+
+    @Subquery(select = "label_id", fromTable = "article_label")
+    public final Long articleId;
+
+    SelfQuery(Long articleId) {
       this.articleId = articleId;
     }
   }

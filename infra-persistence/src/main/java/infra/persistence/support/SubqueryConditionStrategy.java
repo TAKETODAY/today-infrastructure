@@ -38,7 +38,8 @@ import infra.persistence.annotation.Subquery;
  *
  * <p>The target column is resolved from the referenced entity's metadata — the
  * entity the queried class maps to via {@link EntityRef @EntityRef}, exposed by
- * {@link EntityMetadata#getRefMetadata()} as the ID column by default or a
+ * {@link EntityMetadata#getRefMetadata()}, falling back to the queried entity
+ * itself when no reference is declared. It is the ID column by default or a
  * {@link Subquery#target() target} column otherwise. The junction table and its
  * columns are declared in the {@code @Subquery} annotation.
  *
@@ -59,13 +60,13 @@ public class SubqueryConditionStrategy implements PropertyConditionStrategy {
     MergedAnnotation<Subquery> subquery = property.getAnnotation(Subquery.class);
     if (subquery.isPresent()) {
 
-      // the queried class maps to the referenced entity's primary table and ID
-      EntityMetadata refMetadata = metadata.getRefMetadata();
-      if (refMetadata == null) {
-        return null;
+      // resolve against the referenced entity, or this entity when it declares no @EntityRef
+      EntityMetadata targetMetadata = metadata.getRefMetadata();
+      if (targetMetadata == null) {
+        targetMetadata = metadata;
       }
 
-      Identifier targetColumn = resolveTargetColumn(subquery, refMetadata);
+      Identifier targetColumn = resolveTargetColumn(subquery, targetMetadata);
       if (targetColumn == null) {
         return null;
       }
@@ -75,19 +76,18 @@ public class SubqueryConditionStrategy implements PropertyConditionStrategy {
 
       value = valueNormalizer.normalize(property, value);
       return new SubqueryCondition(targetColumn, subquery.getBoolean("negative"),
-              subquery.getString("select"), tableName, sourceColumn,
-              value, property);
+              subquery.getString("select"), tableName, sourceColumn, value, property);
     }
     return null;
   }
 
-  private @Nullable Identifier resolveTargetColumn(MergedAnnotation<Subquery> subquery, EntityMetadata refMetadata) {
+  private @Nullable Identifier resolveTargetColumn(MergedAnnotation<Subquery> subquery, EntityMetadata targetMetadata) {
     String target = subquery.getString("target");
     if (Constant.BLANK.equals(target)) {
-      return refMetadata.getIdColumnName();
+      return targetMetadata.getIdColumnName();
     }
     // resolve the target as a property of the referenced entity, honouring its mapped column
-    EntityProperty property = refMetadata.findProperty(target);
+    EntityProperty property = targetMetadata.findProperty(target);
     if (property != null) {
       return property.getColumnName();
     }

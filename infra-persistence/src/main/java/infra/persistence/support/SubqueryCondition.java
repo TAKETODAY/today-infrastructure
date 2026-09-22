@@ -48,9 +48,8 @@ final class SubqueryCondition implements Condition {
 
   private final EntityProperty entityProperty;
 
-  SubqueryCondition(Identifier targetColumn, boolean negative, String select,
-          Identifier tableName, Identifier sourceColumn,
-          Object value, EntityProperty entityProperty) {
+  SubqueryCondition(Identifier targetColumn, boolean negative, String select, Identifier tableName,
+          Identifier sourceColumn, Object value, EntityProperty entityProperty) {
     this.targetColumn = targetColumn;
     this.negative = negative;
     this.select = select;
