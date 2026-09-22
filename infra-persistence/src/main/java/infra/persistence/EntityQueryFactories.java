@@ -38,7 +38,8 @@ import infra.util.InfraStrategies;
  *   <li>factories discovered as {@link EntityQueryFactory} strategies, already
  *       sorted by {@link infra.core.annotation.AnnotationAwareOrderComparator}
  *       (so {@code @Order}/{@link infra.core.Ordered} are honored)</li>
- *   <li>the built-in {@link MapEntityQueryFactory}, handling {@code Map} examples</li>
+ *   <li>the built-in {@link OrderSpecEntityQueryFactory} and {@link MapEntityQueryFactory},
+ *       handling {@link infra.persistence.sql.OrderSpec} and {@code Map} examples</li>
  * </ol>
  *
  * <p>When none of them produces a result, the built-in
@@ -81,6 +82,7 @@ public final class EntityQueryFactories {
 
     List<EntityQueryFactory> builtIn = new ArrayList<>(4);
     builtIn.addAll(InfraStrategies.find(EntityQueryFactory.class));
+    builtIn.add(new OrderSpecEntityQueryFactory());
     builtIn.add(new MapEntityQueryFactory());
     this.builtInFactories = List.copyOf(builtIn);
 
