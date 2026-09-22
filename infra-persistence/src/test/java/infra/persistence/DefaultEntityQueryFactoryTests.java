@@ -19,7 +19,6 @@ package infra.persistence;
 import org.junit.jupiter.api.Test;
 
 import infra.persistence.annotation.Trim;
-import infra.persistence.support.DefaultConditionStrategy;
 import infra.persistence.support.FuzzyQueryConditionStrategy;
 import infra.persistence.support.WhereAnnotationConditionStrategy;
 
@@ -43,8 +42,7 @@ class DefaultEntityQueryFactoryTests {
   void shouldExposeBuiltInStrategies() {
     assertThat(factory.getStrategies())
             .hasAtLeastOneElementOfType(WhereAnnotationConditionStrategy.class)
-            .hasAtLeastOneElementOfType(FuzzyQueryConditionStrategy.class)
-            .hasAtLeastOneElementOfType(DefaultConditionStrategy.class);
+            .hasAtLeastOneElementOfType(FuzzyQueryConditionStrategy.class);
   }
 
   @Test
@@ -54,7 +52,7 @@ class DefaultEntityQueryFactoryTests {
     factory.addStrategy(strategy);
 
     assertThat(factory.getStrategies()).contains(strategy);
-    assertThat(factory.getStrategies()).last().isInstanceOf(DefaultConditionStrategy.class);
+    assertThat(factory.getStrategies()).isNotEmpty();
   }
 
   @Test

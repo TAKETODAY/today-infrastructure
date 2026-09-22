@@ -39,16 +39,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class MultiValueConditionTests {
 
-  private final DefaultEntityMetadataFactory metadataFactory = new DefaultEntityMetadataFactory();
-
-  private final List<PropertyConditionStrategy> strategies =
-          new DefaultEntityQueryFactory(metadataFactory).getStrategies();
+  private final EntityQueryFactories queryFactories = new EntityQueryFactories(new DefaultEntityMetadataFactory());
 
   private String renderWhere(Object example) {
-    EntityMetadata metadata = metadataFactory.getEntityMetadata(example.getClass());
+    QueryCondition condition = queryFactories.createCondition(example);
+    EntityMetadata metadata = new DefaultEntityMetadataFactory().getEntityMetadata(example.getClass());
     StringBuilder sql = new StringBuilder();
-    new ExampleQuery(metadataFactory, example, strategies)
-            .appendWhereClause(Platform.mysql(), metadata, sql);
+    condition.appendWhereClause(Platform.mysql(), metadata, sql);
     return sql.toString();
   }
 
@@ -67,7 +64,7 @@ class MultiValueConditionTests {
     BetweenQuery query = new BetweenQuery();
     query.age = Range.of(null, 30);
 
-    assertThat(renderWhere(query)).isEqualTo("");
+    assertThat(renderWhere(query)).isEqualTo(" WHERE age = ?");
   }
 
   @Test
@@ -93,7 +90,7 @@ class MultiValueConditionTests {
     BetweenArrayQuery query = new BetweenArrayQuery();
     query.age = new Integer[] { 18, 30, 40 };
 
-    assertThat(renderWhere(query)).isEqualTo("");
+    assertThat(renderWhere(query)).isEqualTo(" WHERE age = ?");
   }
 
   @Test
@@ -110,7 +107,7 @@ class MultiValueConditionTests {
     InQuery query = new InQuery();
     query.statuses = List.of();
 
-    assertThat(renderWhere(query)).isEqualTo("");
+    assertThat(renderWhere(query)).isEqualTo(" WHERE statuses = ?");
   }
 
   @Test

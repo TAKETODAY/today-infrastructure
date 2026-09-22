@@ -14,17 +14,12 @@
  * limitations under the License.
  */
 
-package infra.persistence.support;
+package infra.persistence;
 
 import org.junit.jupiter.api.Test;
 
-import infra.persistence.DefaultConditionStrategy;
-import infra.persistence.DefaultEntityMetadataFactory;
-import infra.persistence.EntityMetadata;
-import infra.persistence.EntityMetadataFactory;
-import infra.persistence.EntityProperty;
-import infra.persistence.ValueNormalizer;
 import infra.persistence.sql.Restrictions;
+import infra.persistence.support.PropertyCondition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

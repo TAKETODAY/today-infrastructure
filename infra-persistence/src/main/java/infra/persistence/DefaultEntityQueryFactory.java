@@ -19,7 +19,6 @@ package infra.persistence;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.persistence.support.DefaultConditionStrategy;
 import infra.persistence.support.FuzzyQueryConditionStrategy;
 import infra.persistence.support.MultiValueConditionStrategy;
 import infra.persistence.support.SubqueryConditionStrategy;

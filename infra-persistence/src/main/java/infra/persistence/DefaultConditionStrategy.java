@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package infra.persistence.support;
+package infra.persistence;
 
 import org.jspecify.annotations.Nullable;
 
 import infra.core.annotation.MergedAnnotation;
-import infra.persistence.Condition;
-import infra.persistence.EntityProperty;
-import infra.persistence.PropertyConditionStrategy;
-import infra.persistence.ValueNormalizer;
 import infra.persistence.annotation.Between;
 import infra.persistence.annotation.In;
 import infra.persistence.annotation.Like;
@@ -31,6 +27,7 @@ import infra.persistence.annotation.WhereIsNull;
 import infra.persistence.platform.Platform;
 import infra.persistence.sql.Restriction;
 import infra.persistence.sql.Restrictions;
+import infra.persistence.support.PropertyCondition;
 import infra.util.StringUtils;
 
 /**
@@ -50,7 +47,7 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/28 22:43
  */
-class DefaultConditionStrategy implements PropertyConditionStrategy {
+final class DefaultConditionStrategy implements PropertyConditionStrategy {
 
   @Override
   public @Nullable Condition resolve(EntityProperty entityProperty, Object value, ValueNormalizer valueNormalizer) {
