@@ -80,7 +80,7 @@ import infra.aot.hint.annotation.Reflective;
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see infra.persistence.ConditionGroup
+ * @see infra.persistence.query.ConditionGroup
  * @see Connector
  * @see GroupOR
  * @see OR

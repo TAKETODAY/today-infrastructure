@@ -16,11 +16,11 @@
 
 package infra.persistence.event;
 
-import org.jspecify.annotations.Nullable;
 
-import java.util.Collection;
 
 import infra.util.Assert;
+import java.util.Collection;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Default {@link EntityEventRegistry} implementation.

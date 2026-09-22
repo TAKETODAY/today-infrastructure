@@ -57,7 +57,7 @@ import infra.aot.hint.annotation.Reflective;
  * The shape of each leaf predicate is decided by the other property-level
  * annotations (for example {@link Where @Where} and {@link Trim @Trim}),
  * resolved through the configured
- * {@link infra.persistence.PropertyConditionStrategy strategies}.
+ * {@link infra.persistence.query.PropertyConditionStrategy strategies}.
  *
  * <p>When {@code @GroupExpression} is present, the property-level
  * {@link Group @Group} / {@link GroupOR @GroupOR} / {@link OR @OR} structure is
@@ -66,8 +66,8 @@ import infra.aot.hint.annotation.Reflective;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Group
  * @see Where
- * @see infra.persistence.ConditionGroup
- * @see infra.persistence.ConditionTree
+ * @see infra.persistence.query.ConditionGroup
+ * @see infra.persistence.query.ConditionTree
  * @since 5.0
  */
 @Reflective

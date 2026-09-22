@@ -43,7 +43,7 @@ import infra.persistence.Order;
  *   @Id
  *   Integer id;
  *
- *   @OrderBy                                     // name ASC
+ *   @OrderBy // name ASC
  *   String name;
  *
  *   @OrderBy(value = Order.DESC, order = -1)     // applied before name

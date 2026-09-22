@@ -16,6 +16,8 @@
 
 package infra.persistence;
 
+
+
 import infra.persistence.annotation.Transient;
 
 /**

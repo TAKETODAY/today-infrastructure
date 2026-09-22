@@ -16,6 +16,8 @@
 
 package infra.persistence.platform;
 
+
+
 import infra.persistence.sql.LogicalOperator;
 
 /**

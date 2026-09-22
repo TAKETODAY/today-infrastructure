@@ -23,7 +23,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.beans.aot.RegisterBeanMetadata;
-import infra.persistence.RefEntityMetadata;
 
 /**
  * Declares that the annotated entity references the primary table of another entity.
@@ -42,7 +41,7 @@ import infra.persistence.RefEntityMetadata;
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see RefEntityMetadata#findIdProperty()
+ * @see infra.persistence.RefEntityMetadata#findIdProperty()
  * @since 4.0 2024/4/11 13:36
  */
 @RegisterBeanMetadata

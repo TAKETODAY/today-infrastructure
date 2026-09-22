@@ -16,12 +16,12 @@
 
 package infra.persistence;
 
-import org.jspecify.annotations.Nullable;
 
-import java.util.Locale;
 
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
+import java.util.Locale;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A default implementation of {@link TableNameGenerator} that generates table names

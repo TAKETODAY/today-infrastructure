@@ -16,16 +16,18 @@
 
 package infra.persistence;
 
-import org.jspecify.annotations.Nullable;
 
+
+import infra.dao.DataAccessException;
+import infra.persistence.query.QueryCondition;
+import infra.persistence.query.QueryStatement;
+import infra.util.StreamIterable;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
-import infra.dao.DataAccessException;
-import infra.util.StreamIterable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The EntityManager class provides a comprehensive API for managing

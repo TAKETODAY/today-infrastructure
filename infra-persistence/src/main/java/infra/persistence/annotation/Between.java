@@ -28,7 +28,7 @@ import infra.lang.Constant;
 /**
  * Turns the annotated example property into a {@code column BETWEEN ? AND ?}
  * predicate. The property must hold a
- * {@link infra.persistence.Range Range} or a two-element array / collection
+ * {@link infra.persistence.query.Range Range} or a two-element array / collection
  * whose bounds are both non-{@code null}.
  *
  * <p>{@link #value()} aliases the {@link Column @Column} column name, so the
@@ -42,7 +42,7 @@ import infra.lang.Constant;
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see infra.persistence.Range
+ * @see infra.persistence.query.Range
  * @see Column
  * @see In
  * @since 5.0

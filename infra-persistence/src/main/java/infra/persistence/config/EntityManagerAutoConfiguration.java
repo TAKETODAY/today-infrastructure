@@ -1,10 +1,6 @@
 package infra.persistence.config;
 
-import org.jspecify.annotations.Nullable;
 
-import java.util.List;
-
-import javax.sql.DataSource;
 
 import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
@@ -19,15 +15,18 @@ import infra.persistence.DefaultEntityManager;
 import infra.persistence.DefaultEntityMetadataFactory;
 import infra.persistence.EntityManager;
 import infra.persistence.EntityMetadataFactory;
-import infra.persistence.EntityQueryFactories;
-import infra.persistence.EntityQueryFactory;
-import infra.persistence.PropertyConditionStrategy;
 import infra.persistence.VersionIncrementStrategy;
 import infra.persistence.event.DefaultEntityEventRegistry;
 import infra.persistence.event.EntityEventRegistry;
 import infra.persistence.event.Listener;
 import infra.persistence.platform.Platform;
+import infra.persistence.query.EntityQueryFactories;
+import infra.persistence.query.EntityQueryFactory;
+import infra.persistence.query.PropertyConditionStrategy;
 import infra.stereotype.Component;
+import java.util.List;
+import javax.sql.DataSource;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Auto-configuration class for setting up the {@link EntityManager}.

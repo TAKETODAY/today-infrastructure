@@ -21,15 +21,16 @@ import org.junit.jupiter.api.Test;
 import infra.persistence.DefaultEntityMetadataFactory;
 import infra.persistence.EntityMetadata;
 import infra.persistence.EntityProperty;
-import infra.persistence.ValueNormalizer;
 import infra.persistence.annotation.Like;
 import infra.persistence.annotation.PrefixLike;
 import infra.persistence.annotation.SuffixLike;
 import infra.persistence.annotation.Trim;
+import infra.persistence.query.FuzzyQueryConditionStrategy;
+import infra.persistence.query.PropertyCondition;
+import infra.persistence.query.ValueNormalizer;
 import infra.persistence.sql.Restriction;
 
 import static infra.persistence.platform.Platform.mysql;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

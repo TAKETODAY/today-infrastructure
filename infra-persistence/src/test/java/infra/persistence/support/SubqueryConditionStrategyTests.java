@@ -20,18 +20,19 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.PreparedStatement;
 
-import infra.persistence.Condition;
 import infra.persistence.DefaultEntityMetadataFactory;
 import infra.persistence.EntityMetadata;
 import infra.persistence.EntityProperty;
 import infra.persistence.IllegalEntityException;
-import infra.persistence.ValueNormalizer;
 import infra.persistence.annotation.Column;
 import infra.persistence.annotation.EntityRef;
 import infra.persistence.annotation.Id;
 import infra.persistence.annotation.Subquery;
 import infra.persistence.annotation.Table;
 import infra.persistence.platform.Platform;
+import infra.persistence.query.Condition;
+import infra.persistence.query.SubqueryConditionStrategy;
+import infra.persistence.query.ValueNormalizer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

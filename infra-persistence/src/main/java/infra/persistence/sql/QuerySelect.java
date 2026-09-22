@@ -7,11 +7,12 @@
 
 package infra.persistence.sql;
 
+
+
+import infra.persistence.platform.Platform;
+import infra.persistence.query.StatementSequence;
 import java.util.Iterator;
 import java.util.Set;
-
-import infra.persistence.StatementSequence;
-import infra.persistence.platform.Platform;
 
 /**
  * A translated HQL query

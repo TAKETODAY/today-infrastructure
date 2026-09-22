@@ -16,15 +16,15 @@
 
 package infra.persistence;
 
-import org.jspecify.annotations.Nullable;
 
+
+import infra.beans.BeanProperty;
+import infra.jdbc.ResultSetIterator;
 import java.sql.ResultSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
-
-import infra.beans.BeanProperty;
-import infra.jdbc.ResultSetIterator;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An abstract class that extends {@link ResultSetIterator} to provide iteration

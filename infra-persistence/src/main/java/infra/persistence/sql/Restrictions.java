@@ -16,14 +16,14 @@
 
 package infra.persistence.sql;
 
-import org.jspecify.annotations.Nullable;
 
-import java.util.Collection;
 
 import infra.persistence.Identifier;
 import infra.persistence.platform.Platform;
 import infra.util.Assert;
 import infra.util.CollectionUtils;
+import java.util.Collection;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Factory and rendering support for {@link Restriction WHERE restrictions}.

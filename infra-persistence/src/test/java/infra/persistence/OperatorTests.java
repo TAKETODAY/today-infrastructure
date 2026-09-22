@@ -24,8 +24,4 @@ package infra.persistence;
  */
 class OperatorTests {
 
-
-
-
-
 }

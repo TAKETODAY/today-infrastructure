@@ -21,6 +21,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import infra.persistence.query.QueryCondition;
+import infra.persistence.query.SimpleSelectQueryStatement;
 import infra.persistence.sql.Restriction;
 import infra.persistence.sql.SimpleSelect;
 import infra.util.CollectionUtils;

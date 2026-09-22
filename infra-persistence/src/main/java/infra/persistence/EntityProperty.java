@@ -16,19 +16,19 @@
 
 package infra.persistence;
 
-import org.jspecify.annotations.Nullable;
 
-import java.lang.annotation.Annotation;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Objects;
 
 import infra.beans.BeanProperty;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.style.ToStringBuilder;
 import infra.jdbc.type.TypeHandler;
+import java.lang.annotation.Annotation;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a property of an entity mapped to a database column.

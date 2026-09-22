@@ -7,14 +7,15 @@
 
 package infra.persistence.sql;
 
+
+
+import infra.persistence.platform.Platform;
+import infra.persistence.query.StatementSequence;
+import infra.util.Assert;
+import infra.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import infra.persistence.StatementSequence;
-import infra.persistence.platform.Platform;
-import infra.util.Assert;
-import infra.util.CollectionUtils;
 
 /**
  * Implementation of InsertSelect.

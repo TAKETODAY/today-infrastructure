@@ -7,6 +7,10 @@
 
 package infra.persistence.sql;
 
+
+
+
+
 /**
  * An ANSI SQL CASE expression : {@code case when ... then ... end as ..}
  *

@@ -16,9 +16,10 @@
 
 package infra.persistence;
 
-import java.util.Objects;
+
 
 import infra.persistence.annotation.Id;
+import java.util.Objects;
 
 /**
  * A strategy interface for determining whether a specific property of an entity

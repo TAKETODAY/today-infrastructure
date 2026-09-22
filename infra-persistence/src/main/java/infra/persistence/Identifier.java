@@ -16,14 +16,14 @@
 
 package infra.persistence;
 
-import org.jspecify.annotations.Nullable;
 
-import java.util.Locale;
-import java.util.regex.Pattern;
 
 import infra.persistence.platform.Platform;
 import infra.util.InfraStrategies;
 import infra.util.StringUtils;
+import java.util.Locale;
+import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A SQL identifier, pairing a bare name with whether it has to be quoted.

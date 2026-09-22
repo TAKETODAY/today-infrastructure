@@ -16,16 +16,16 @@
 
 package infra.persistence.support;
 
-import org.jspecify.annotations.Nullable;
 
+
+import infra.persistence.VersionIncrementStrategy;
+import infra.util.Assert;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
-
-import infra.persistence.VersionIncrementStrategy;
-import infra.util.Assert;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Default implementation of {@link VersionIncrementStrategy}.

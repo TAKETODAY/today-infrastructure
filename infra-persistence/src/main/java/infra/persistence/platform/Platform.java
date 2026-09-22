@@ -16,13 +16,7 @@
 
 package infra.persistence.platform;
 
-import org.jspecify.annotations.Nullable;
 
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
-import java.util.regex.Pattern;
-
-import javax.sql.DataSource;
 
 import infra.jdbc.config.DatabaseDriver;
 import infra.jdbc.support.JdbcUtils;
@@ -33,6 +27,11 @@ import infra.persistence.sql.ANSIJoinFragment;
 import infra.persistence.sql.JoinFragment;
 import infra.persistence.sql.LogicalOperator;
 import infra.util.StringUtils;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+import java.util.regex.Pattern;
+import javax.sql.DataSource;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A database platform — the collection of SQL syntax variations specific to one

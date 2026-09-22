@@ -16,6 +16,8 @@
 
 package infra.persistence.event;
 
+
+
 import org.jspecify.annotations.Nullable;
 
 /**

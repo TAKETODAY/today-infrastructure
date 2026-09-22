@@ -16,6 +16,10 @@
 
 package infra.persistence;
 
+
+
+
+
 /**
  * A source interface for providing a {@link PropertyUpdateStrategy} that determines
  * how properties of an entity should be updated. Implementations of this interface

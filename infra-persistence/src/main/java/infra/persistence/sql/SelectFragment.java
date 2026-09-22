@@ -7,13 +7,14 @@
 
 package infra.persistence.sql;
 
-import org.jspecify.annotations.Nullable;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 import static infra.persistence.sql.CaseFragment.qualify;
 

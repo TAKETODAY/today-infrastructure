@@ -16,9 +16,7 @@
 
 package infra.persistence;
 
-import org.jspecify.annotations.Nullable;
 
-import java.lang.annotation.Annotation;
 
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
@@ -26,6 +24,8 @@ import infra.persistence.annotation.EntityRef;
 import infra.persistence.annotation.Table;
 import infra.util.Assert;
 import infra.util.StringUtils;
+import java.lang.annotation.Annotation;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An interface for generating table names based on entity classes. It provides

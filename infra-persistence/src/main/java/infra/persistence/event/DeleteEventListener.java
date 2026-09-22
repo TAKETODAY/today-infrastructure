@@ -16,9 +16,10 @@
 
 package infra.persistence.event;
 
-import org.jspecify.annotations.Nullable;
+
 
 import infra.persistence.EntityMetadata;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Listener for entity <strong>delete</strong> operations.

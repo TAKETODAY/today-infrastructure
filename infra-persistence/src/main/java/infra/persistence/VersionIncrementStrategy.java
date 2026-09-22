@@ -16,13 +16,13 @@
 
 package infra.persistence;
 
-import org.jspecify.annotations.Nullable;
 
-import java.time.Clock;
-import java.time.Instant;
 
 import infra.persistence.annotation.Version;
 import infra.util.Assert;
+import java.time.Clock;
+import java.time.Instant;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Strategy for computing the next version value of a {@link Version} property for

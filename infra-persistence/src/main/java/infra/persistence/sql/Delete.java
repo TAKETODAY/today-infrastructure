@@ -7,12 +7,12 @@
 
 package infra.persistence.sql;
 
-import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 
-import infra.persistence.StatementSequence;
 import infra.persistence.platform.Platform;
+import infra.persistence.query.StatementSequence;
+import java.util.ArrayList;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An SQL {@code DELETE} statement

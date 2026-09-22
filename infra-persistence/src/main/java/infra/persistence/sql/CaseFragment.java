@@ -7,9 +7,10 @@
 
 package infra.persistence.sql;
 
-import org.jspecify.annotations.Nullable;
+
 
 import java.util.LinkedHashMap;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Abstract SQL case fragment renderer

@@ -16,17 +16,17 @@
 
 package infra.persistence;
 
-import org.jspecify.annotations.Nullable;
 
+
+import infra.core.style.ToStringBuilder;
+import infra.util.Assert;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import infra.core.style.ToStringBuilder;
-import infra.util.Assert;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a paginated result set containing a subset of data from a larger dataset.

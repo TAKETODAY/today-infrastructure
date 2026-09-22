@@ -384,7 +384,7 @@ public class EntityMetadata {
    * @return the resolved spec, never {@code null}
    * @since 5.0
    */
-  protected OrderSpec getOrderSpec() {
+  public OrderSpec getOrderSpec() {
     OrderSpec orderSpec = this.orderSpec;
     if (orderSpec == null) {
       orderSpec = resolveOrderSpec();

@@ -7,10 +7,11 @@
 
 package infra.persistence.sql;
 
-import org.jspecify.annotations.Nullable;
 
-import infra.persistence.StatementSequence;
+
 import infra.persistence.platform.Platform;
+import infra.persistence.query.StatementSequence;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A simple SQL <tt>SELECT</tt> statement
