@@ -16,9 +16,6 @@
 
 package infra.persistence.sql;
 
-
-
-import infra.persistence.annotation.OR;
 import infra.persistence.platform.Platform;
 
 /**

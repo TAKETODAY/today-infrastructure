@@ -7,11 +7,10 @@
 
 package infra.persistence.sql;
 
-
+import org.jspecify.annotations.Nullable;
 
 import infra.persistence.platform.Platform;
 import infra.util.StringUtils;
-import org.jspecify.annotations.Nullable;
 
 /**
  * A join that appears in a translated HQL query

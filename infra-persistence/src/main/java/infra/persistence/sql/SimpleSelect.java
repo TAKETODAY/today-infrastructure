@@ -7,18 +7,18 @@
 
 package infra.persistence.sql;
 
+import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
 import infra.persistence.Identifier;
 import infra.persistence.Order;
 import infra.persistence.Pageable;
 import infra.persistence.platform.Platform;
 import infra.persistence.query.StatementSequence;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import org.jspecify.annotations.Nullable;
 
 /**
  * A SQL {@code SELECT} statement with no table joins.

@@ -16,14 +16,13 @@
 
 package infra.persistence;
 
-
+import java.lang.annotation.Annotation;
+import java.util.List;
+import java.util.Objects;
 
 import infra.beans.BeanProperty;
 import infra.persistence.annotation.Id;
 import infra.util.Assert;
-import java.lang.annotation.Annotation;
-import java.util.List;
-import java.util.Objects;
 
 /**
  * An interface to discover and determine whether a given property is an ID property.

@@ -16,17 +16,17 @@
 
 package infra.persistence.sql;
 
+import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
 
 import infra.core.Pair;
 import infra.persistence.Identifier;
 import infra.persistence.Order;
 import infra.persistence.platform.Platform;
 import infra.util.StringUtils;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
-import org.jspecify.annotations.Nullable;
 
 /**
  * An immutable ORDER BY specification: an ordered list of sort keys and/or raw SQL

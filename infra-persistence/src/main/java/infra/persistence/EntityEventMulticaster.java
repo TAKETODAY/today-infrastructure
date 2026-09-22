@@ -16,7 +16,7 @@
 
 package infra.persistence;
 
-
+import org.jspecify.annotations.Nullable;
 
 import infra.persistence.event.BatchExecution;
 import infra.persistence.event.BatchPersistListener;
@@ -27,7 +27,6 @@ import infra.persistence.event.PersistEventListener;
 import infra.persistence.event.PostLoadEventListener;
 import infra.persistence.event.PostTruncateEventListener;
 import infra.persistence.event.UpdateEventListener;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Package-private multicast for entity lifecycle events. It is owned by the

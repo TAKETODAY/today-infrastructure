@@ -16,10 +16,6 @@
 
 package infra.persistence.sql;
 
-
-
-
-
 /**
  * A programmatic source of an {@link OrderSpec}, allowing an entity to supply its
  * own ORDER BY clause instead of relying on {@code @OrderBy}/{@code @OrderByClause}

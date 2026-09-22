@@ -1,7 +1,5 @@
 package infra.persistence.config;
 
-
-
 import infra.persistence.DefaultEntityManager;
 
 /**

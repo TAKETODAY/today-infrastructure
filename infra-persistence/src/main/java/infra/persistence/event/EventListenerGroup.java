@@ -16,14 +16,14 @@
 
 package infra.persistence.event;
 
+import org.jspecify.annotations.Nullable;
 
-
-import infra.util.Assert;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import org.jspecify.annotations.Nullable;
+
+import infra.util.Assert;
 
 /**
  * A self-managing group of {@link Listener listeners} of a single contract type.

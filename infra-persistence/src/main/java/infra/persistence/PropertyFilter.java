@@ -16,13 +16,12 @@
 
 package infra.persistence;
 
-
+import java.lang.annotation.Annotation;
+import java.util.Set;
 
 import infra.beans.BeanProperty;
 import infra.persistence.annotation.Transient;
 import infra.util.Assert;
-import java.lang.annotation.Annotation;
-import java.util.Set;
 
 /**
  * A filter interface used to determine whether a bean property should be excluded

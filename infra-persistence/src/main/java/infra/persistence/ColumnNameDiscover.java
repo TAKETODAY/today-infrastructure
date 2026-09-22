@@ -16,7 +16,10 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
 
+import java.lang.annotation.Annotation;
+import java.util.List;
 
 import infra.beans.BeanProperty;
 import infra.core.annotation.MergedAnnotation;
@@ -24,9 +27,6 @@ import infra.persistence.annotation.Column;
 import infra.reflect.Property;
 import infra.util.Assert;
 import infra.util.StringUtils;
-import java.lang.annotation.Annotation;
-import java.util.List;
-import org.jspecify.annotations.Nullable;
 
 /**
  * An interface for discovering column names associated with a given property.

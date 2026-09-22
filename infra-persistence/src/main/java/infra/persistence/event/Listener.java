@@ -16,8 +16,6 @@
 
 package infra.persistence.event;
 
-
-
 import java.util.EventListener;
 
 /**

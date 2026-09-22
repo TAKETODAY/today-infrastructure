@@ -7,14 +7,14 @@
 
 package infra.persistence.sql;
 
+import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import infra.persistence.Identifier;
 import infra.persistence.platform.Platform;
 import infra.persistence.query.StatementSequence;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import org.jspecify.annotations.Nullable;
 
 /**
  * A SQL {@code UPDATE} statement.

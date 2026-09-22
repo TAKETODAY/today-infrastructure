@@ -7,10 +7,9 @@
 
 package infra.persistence.sql;
 
-
+import org.jspecify.annotations.Nullable;
 
 import infra.util.StringUtils;
-import org.jspecify.annotations.Nullable;
 
 /**
  * An abstract SQL join fragment renderer

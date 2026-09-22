@@ -16,11 +16,10 @@
 
 package infra.persistence.event;
 
-
+import java.util.ArrayList;
 
 import infra.persistence.EntityMetadata;
 import infra.persistence.PropertyUpdateStrategy;
-import java.util.ArrayList;
 
 /**
  * Holds the context of a single batch persistence operation.

@@ -16,7 +16,23 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+import javax.sql.DataSource;
 
 import infra.core.Pair;
 import infra.dao.DataAccessException;
@@ -57,21 +73,6 @@ import infra.persistence.sql.Update;
 import infra.persistence.support.DefaultVersionIncrementStrategy;
 import infra.transaction.TransactionDefinition;
 import infra.util.Assert;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import javax.sql.DataSource;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Default implementation of the EntityManager interface, providing a comprehensive

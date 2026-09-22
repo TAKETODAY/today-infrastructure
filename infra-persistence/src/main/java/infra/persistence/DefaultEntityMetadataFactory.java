@@ -16,6 +16,10 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Set;
 
 import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
@@ -26,9 +30,6 @@ import infra.persistence.annotation.EntityRef;
 import infra.persistence.annotation.Version;
 import infra.util.Assert;
 import infra.util.ClassUtils;
-import java.util.ArrayList;
-import java.util.Set;
-import org.jspecify.annotations.Nullable;
 
 /**
  * A factory class responsible for creating {@link EntityMetadata} instances for entity classes.

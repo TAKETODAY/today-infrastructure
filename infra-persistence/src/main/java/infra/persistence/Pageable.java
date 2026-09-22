@@ -16,8 +16,6 @@
 
 package infra.persistence;
 
-
-
 import org.jspecify.annotations.Nullable;
 
 /**

@@ -7,15 +7,15 @@
 
 package infra.persistence.sql;
 
+import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import infra.core.Pair;
 import infra.persistence.Identifier;
 import infra.persistence.platform.Platform;
 import infra.persistence.query.StatementSequence;
-import java.util.ArrayList;
-import java.util.Iterator;
-import org.jspecify.annotations.Nullable;
 
 /**
  * An SQL <tt>INSERT</tt> statement

@@ -16,10 +16,6 @@
 
 package infra.persistence;
 
-
-
-
-
 /**
  * An enumeration representing the sorting order for query results.
  *

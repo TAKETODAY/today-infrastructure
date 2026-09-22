@@ -16,8 +16,6 @@
 
 package infra.persistence.event;
 
-
-
 import infra.persistence.EntityManager;
 import infra.persistence.EntityMetadata;
 

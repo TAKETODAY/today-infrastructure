@@ -7,8 +7,6 @@
 
 package infra.persistence.sql;
 
-
-
 import org.jspecify.annotations.Nullable;
 
 /**

@@ -16,12 +16,12 @@
 
 package infra.persistence.sql;
 
+import org.jspecify.annotations.Nullable;
 
+import java.util.Objects;
 
 import infra.persistence.Identifier;
 import infra.persistence.platform.Platform;
-import java.util.Objects;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a binary comparison restriction in SQL, such as {@code column = value}.
