@@ -43,12 +43,12 @@ import infra.persistence.sql.OrderSpec;
  * @see #findIdProperty()
  * @since 5.0
  */
-public class RefEntityMetadata extends EntityMetadata {
+final class RefEntityMetadata extends EntityMetadata {
 
   /** The metadata of the referenced entity whose primary table is shared. */
   private final EntityMetadata refMetadata;
 
-  protected RefEntityMetadata(EntityMetadata refMetadata, BeanMetadata root, Class<?> entityClass,
+  RefEntityMetadata(EntityMetadata refMetadata, BeanMetadata root, Class<?> entityClass,
           Identifier tableName, @Nullable EntityProperty idProperty, @Nullable EntityProperty versionProperty,
           List<Identifier> columnNames, List<EntityProperty> entityProperties) {
     super(root, entityClass, tableName, idProperty, versionProperty, columnNames, entityProperties);
@@ -66,6 +66,16 @@ public class RefEntityMetadata extends EntityMetadata {
   public @Nullable EntityProperty findIdProperty() {
     EntityProperty idProperty = getIdProperty();
     return idProperty != null ? idProperty : refMetadata.findIdProperty();
+  }
+
+  /**
+   * Return the metadata of the referenced entity whose primary table is shared.
+   *
+   * @return the referenced entity metadata, never {@code null}
+   */
+  @Override
+  public EntityMetadata getRefMetadata() {
+    return refMetadata;
   }
 
   /**

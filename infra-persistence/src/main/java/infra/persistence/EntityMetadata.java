@@ -265,6 +265,22 @@ public class EntityMetadata {
   }
 
   /**
+   * Return the metadata of the entity referenced through
+   * {@link infra.persistence.annotation.EntityRef @EntityRef}, or {@code null} when
+   * this metadata does not describe a referencing entity.
+   *
+   * <p>The default implementation returns {@code null}; a
+   * {@link RefEntityMetadata} returns the metadata of the entity it maps to.
+   *
+   * @return the referenced entity metadata, or {@code null} if none
+   * @see RefEntityMetadata
+   * @since 5.0
+   */
+  public @Nullable EntityMetadata getRefMetadata() {
+    return null;
+  }
+
+  /**
    * Return the effective ID property, failing if the entity has none.
    *
    * <p>This is the non-null variant of {@link #findIdProperty()}.

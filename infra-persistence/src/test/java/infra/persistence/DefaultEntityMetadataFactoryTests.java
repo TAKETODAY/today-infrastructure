@@ -541,6 +541,18 @@ class DefaultEntityMetadataFactoryTests {
     // Should have refIdProperty from UserModel
     assertThat(metadata.findIdProperty()).isNotNull();
     assertThat(metadata).isNotEqualTo(factory.getEntityMetadata(UserModel.class));
+
+    // referenced entity metadata is reachable from the "ref" metadata
+    EntityMetadata refMetadata = metadata.getRefMetadata();
+    assertThat(refMetadata).isNotNull();
+    assertThat(refMetadata.getEntityClass()).isEqualTo(UserModel.class);
+    assertThat(refMetadata.getTableName().getText()).isEqualTo("t_user");
+  }
+
+  @Test
+  void getRefMetadataIsNullForPlainEntity() {
+    EntityMetadata metadata = factory.getEntityMetadata(UserModel.class);
+    assertThat(metadata.getRefMetadata()).isNull();
   }
 
   @Test

@@ -36,8 +36,10 @@ import infra.persistence.annotation.Subquery;
  * property into a {@code column IN (SELECT ...)} predicate for many-to-many lookups
  * through a junction table.
  *
- * <p>The target column is resolved from the referenced entity's ID column via
- * {@link EntityRef @EntityRef} on the declaring class. The junction table and its
+ * <p>The target column is resolved from the referenced entity's metadata — the
+ * entity the queried class maps to via {@link EntityRef @EntityRef}, exposed by
+ * {@link EntityMetadata#getRefMetadata()} as the ID column by default or a
+ * {@link Subquery#target() target} column otherwise. The junction table and its
  * columns are declared in the {@code @Subquery} annotation.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -55,29 +57,28 @@ public class SubqueryConditionStrategy implements PropertyConditionStrategy {
   public @Nullable Condition resolve(EntityMetadata entityMetadata, EntityProperty entityProperty,
           Object value, ValueNormalizer valueNormalizer) {
     MergedAnnotation<Subquery> subquery = entityProperty.getAnnotation(Subquery.class);
-    if (!subquery.isPresent()) {
-      return null;
+    if (subquery.isPresent()) {
+
+      // the queried class maps to the referenced entity's primary table and ID
+      EntityMetadata refMetadata = entityMetadata.getRefMetadata();
+      if (refMetadata == null) {
+        return null;
+      }
+
+      Identifier targetColumn = resolveTargetColumn(subquery, refMetadata);
+      if (targetColumn == null) {
+        return null;
+      }
+
+      Identifier tableName = resolveTableName(subquery);
+      Identifier sourceColumn = entityProperty.getColumnName();
+
+      value = valueNormalizer.normalize(entityProperty, value);
+      return new SubqueryCondition(targetColumn, subquery.getBoolean("negative"),
+              subquery.getString("select"), tableName, sourceColumn,
+              value, entityProperty);
     }
-
-    // resolve the referenced entity's metadata via @EntityRef
-    MergedAnnotation<EntityRef> entityRef = entityMetadata.getAnnotation(EntityRef.class);
-    if (!entityRef.isPresent()) {
-      return null;
-    }
-
-    EntityMetadata refMetadata = metadataFactory.getEntityMetadata(entityRef.getClassValue());
-    Identifier targetColumn = resolveTargetColumn(subquery, refMetadata);
-    if (targetColumn == null) {
-      return null;
-    }
-
-    Identifier tableName = resolveTableName(subquery);
-    Identifier sourceColumn = entityProperty.getColumnName();
-
-    value = valueNormalizer.normalize(entityProperty, value);
-    return new SubqueryCondition(targetColumn, subquery.getBoolean("negative"),
-            subquery.getString("select"), tableName, sourceColumn,
-            value, entityProperty);
+    return null;
   }
 
   private @Nullable Identifier resolveTargetColumn(MergedAnnotation<Subquery> subquery, EntityMetadata refMetadata) {
