@@ -18,10 +18,13 @@ package infra.persistence;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.Serializable;
 import java.util.List;
 
-import java.util.ArrayList;
-import java.util.List;
+import infra.persistence.annotation.EntityRef;
+import infra.persistence.annotation.Id;
+import infra.persistence.annotation.Subquery;
+import infra.persistence.annotation.Table;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -53,6 +56,27 @@ class ExampleQueryTests {
 
     assertThat(logMessage).isNotNull();
     assertThat(logMessage.toString()).contains("Query entity using example");
+  }
+
+  @EntityRef(Label.class)
+  static class TagQuery {
+
+    @Subquery(table = "article_label", column = "label_id", sourceColumn = "article_id")
+    public final Long articleId;
+
+    TagQuery(Long articleId) {
+      this.articleId = articleId;
+    }
+  }
+
+  @Table("label")
+  static class Label implements Serializable {
+
+    @Id
+    public Long id;
+
+    public String name;
+
   }
 
 }

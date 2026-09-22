@@ -22,6 +22,7 @@ import java.util.List;
 import infra.persistence.support.DefaultConditionStrategy;
 import infra.persistence.support.FuzzyQueryConditionStrategy;
 import infra.persistence.support.MultiValueConditionStrategy;
+import infra.persistence.support.SubqueryConditionStrategy;
 import infra.persistence.support.WhereAnnotationConditionStrategy;
 import infra.util.Assert;
 import infra.util.InfraStrategies;
@@ -65,6 +66,7 @@ final class DefaultEntityQueryFactory implements EntityQueryFactory {
     this.factory = factory;
     this.strategies.addAll(InfraStrategies.find(PropertyConditionStrategy.class));
     this.strategies.add(new WhereAnnotationConditionStrategy());
+    this.strategies.add(new SubqueryConditionStrategy(factory));
     this.strategies.add(new FuzzyQueryConditionStrategy());
     this.strategies.add(new MultiValueConditionStrategy());
     this.resolvedStrategies = resolveStrategies();
