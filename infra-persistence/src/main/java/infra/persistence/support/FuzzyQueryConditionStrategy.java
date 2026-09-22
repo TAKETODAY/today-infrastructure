@@ -57,17 +57,17 @@ import infra.util.StringUtils;
 public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
 
   @Override
-  public @Nullable Condition resolve(EntityMetadata entityMetadata, EntityProperty entityProperty,
+  public @Nullable Condition resolve(EntityMetadata metadata, EntityProperty property,
           Object value, ValueNormalizer valueNormalizer) {
     // handle string
     if (value instanceof String string && StringUtils.hasText(string)) {
-      MergedAnnotation<Like> annotation = entityProperty.getAnnotation(Like.class);
+      MergedAnnotation<Like> annotation = property.getAnnotation(Like.class);
       if (annotation.isPresent()) {
-        string = (String) valueNormalizer.normalize(entityProperty, value);
-        if (entityProperty.isPresent(PrefixLike.class)) {
+        string = (String) valueNormalizer.normalize(property, value);
+        if (property.isPresent(PrefixLike.class)) {
           string = string + '%';
         }
-        else if (entityProperty.isPresent(SuffixLike.class)) {
+        else if (property.isPresent(SuffixLike.class)) {
           string = '%' + string;
         }
         else {
@@ -76,7 +76,7 @@ public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
 
         // get column name
         return new PropertyCondition(
-                string, Restrictions.like(entityProperty.getColumnName()), entityProperty);
+                string, Restrictions.like(property.getColumnName()), property);
       }
     }
     return null;

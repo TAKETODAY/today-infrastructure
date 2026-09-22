@@ -50,13 +50,13 @@ import infra.util.StringUtils;
 final class DefaultConditionStrategy implements PropertyConditionStrategy {
 
   @Override
-  public @Nullable Condition resolve(EntityMetadata entityMetadata, EntityProperty entityProperty,
+  public @Nullable Condition resolve(EntityMetadata metadata, EntityProperty property,
           Object value, ValueNormalizer valueNormalizer) {
     if (value instanceof String string && StringUtils.isBlank(string)) {
       return null;
     }
-    value = valueNormalizer.normalize(entityProperty, value);
-    return new PropertyCondition(value, Restrictions.equal(entityProperty.getColumnName()), entityProperty);
+    value = valueNormalizer.normalize(property, value);
+    return new PropertyCondition(value, Restrictions.equal(property.getColumnName()), property);
   }
 
   @Override

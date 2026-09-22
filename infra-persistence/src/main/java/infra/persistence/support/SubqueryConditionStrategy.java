@@ -54,13 +54,13 @@ public class SubqueryConditionStrategy implements PropertyConditionStrategy {
   }
 
   @Override
-  public @Nullable Condition resolve(EntityMetadata entityMetadata, EntityProperty entityProperty,
+  public @Nullable Condition resolve(EntityMetadata metadata, EntityProperty property,
           Object value, ValueNormalizer valueNormalizer) {
-    MergedAnnotation<Subquery> subquery = entityProperty.getAnnotation(Subquery.class);
+    MergedAnnotation<Subquery> subquery = property.getAnnotation(Subquery.class);
     if (subquery.isPresent()) {
 
       // the queried class maps to the referenced entity's primary table and ID
-      EntityMetadata refMetadata = entityMetadata.getRefMetadata();
+      EntityMetadata refMetadata = metadata.getRefMetadata();
       if (refMetadata == null) {
         return null;
       }
@@ -71,12 +71,12 @@ public class SubqueryConditionStrategy implements PropertyConditionStrategy {
       }
 
       Identifier tableName = resolveTableName(subquery);
-      Identifier sourceColumn = entityProperty.getColumnName();
+      Identifier sourceColumn = property.getColumnName();
 
-      value = valueNormalizer.normalize(entityProperty, value);
+      value = valueNormalizer.normalize(property, value);
       return new SubqueryCondition(targetColumn, subquery.getBoolean("negative"),
               subquery.getString("select"), tableName, sourceColumn,
-              value, entityProperty);
+              value, property);
     }
     return null;
   }

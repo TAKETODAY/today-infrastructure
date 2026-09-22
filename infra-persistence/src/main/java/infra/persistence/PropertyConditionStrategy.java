@@ -51,8 +51,8 @@ public interface PropertyConditionStrategy {
    * <p>The value is never {@code null}; a {@code null} property value is routed
    * to {@link #resolve(EntityMetadata, EntityProperty)} instead.
    *
-   * @param entityMetadata the metadata of the entity being queried, never {@code null}
-   * @param entityProperty the mapped entity property
+   * @param metadata the metadata of the entity being queried, never {@code null}
+   * @param property the mapped entity property
    * @param value the property value to evaluate
    * @param valueNormalizer the normalizer for the property, never {@code null}
    * @return the resolved condition, or {@code null} when this strategy does not
@@ -60,7 +60,7 @@ public interface PropertyConditionStrategy {
    * @since 5.0
    */
   @Nullable
-  Condition resolve(EntityMetadata entityMetadata, EntityProperty entityProperty,
+  Condition resolve(EntityMetadata metadata, EntityProperty property,
           Object value, ValueNormalizer valueNormalizer);
 
   /**

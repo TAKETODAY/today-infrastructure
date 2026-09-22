@@ -59,34 +59,34 @@ public class WhereAnnotationConditionStrategy implements PropertyConditionStrate
    * the class-level documentation; a property without the annotation yields
    * {@code null}.
    *
-   * @param entityMetadata the metadata of the entity being queried, never {@code null}
-   * @param entityProperty the mapped entity property
+   * @param metadata the metadata of the entity being queried, never {@code null}
+   * @param property the mapped entity property
    * @param value the property value to evaluate
    * @param valueNormalizer the normalizer for the property, never {@code null}
    * @return the resolved condition, or {@code null} when the property is not
    * annotated with {@code @Where}
    */
   @Override
-  public @Nullable Condition resolve(EntityMetadata entityMetadata, EntityProperty entityProperty,
+  public @Nullable Condition resolve(EntityMetadata metadata, EntityProperty property,
           Object value, ValueNormalizer valueNormalizer) {
     // render where clause
-    MergedAnnotation<Where> annotation = entityProperty.getAnnotation(Where.class);
+    MergedAnnotation<Where> annotation = property.getAnnotation(Where.class);
     if (annotation.isPresent()) {
-      value = valueNormalizer.normalize(entityProperty, value);
+      value = valueNormalizer.normalize(property, value);
       String restriction = annotation.getStringValue();
       if (!Constant.DEFAULT_NONE.equals(restriction)) {
-        return new PropertyCondition(value, Restrictions.plain(restriction), entityProperty);
+        return new PropertyCondition(value, Restrictions.plain(restriction), property);
       }
       else {
         String operator = annotation.getString("operator");
         if (Constant.DEFAULT_NONE.equals(operator)) {
           // default to equality operator
           return new PropertyCondition(value,
-                  Restrictions.equal(entityProperty.getColumnName()), entityProperty);
+                  Restrictions.equal(property.getColumnName()), property);
         }
         else {
           return new PropertyCondition(value, Restrictions.forOperator(
-                  entityProperty.getColumnName(), operator, "?"), entityProperty);
+                  property.getColumnName(), operator, "?"), property);
         }
       }
     }

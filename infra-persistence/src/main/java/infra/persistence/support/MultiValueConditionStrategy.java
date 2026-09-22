@@ -66,7 +66,7 @@ import infra.persistence.sql.Restrictions;
 public class MultiValueConditionStrategy implements PropertyConditionStrategy {
 
   @Override
-  public @Nullable Condition resolve(EntityMetadata entityMetadata, EntityProperty property,
+  public @Nullable Condition resolve(EntityMetadata metadata, EntityProperty property,
           Object value, ValueNormalizer valueNormalizer) {
     if (property.isPresent(In.class)) {
       return resolveIn(property, value);

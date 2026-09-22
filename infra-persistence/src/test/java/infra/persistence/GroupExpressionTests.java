@@ -672,7 +672,7 @@ class GroupExpressionTests {
     int nameResolves;
 
     @Override
-    public Condition resolve(EntityMetadata entityMetadata, EntityProperty property,
+    public Condition resolve(EntityMetadata metadata, EntityProperty property,
             Object value, ValueNormalizer valueNormalizer) {
       if (property.getName().equals("name")) {
         nameResolves++;
