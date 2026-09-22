@@ -17,7 +17,6 @@
 package infra.persistence;
 
 import infra.persistence.annotation.Trim;
-import infra.persistence.sql.LogicalOperator;
 
 /**
  * Normalizes an entity property value before it is turned into a query condition.
@@ -29,7 +28,7 @@ import infra.persistence.sql.LogicalOperator;
  * instance per property.
  *
  * <p>A normalizer is supplied to
- * {@link PropertyConditionStrategy#resolve(LogicalOperator, EntityProperty, Object, ValueNormalizer)}
+ * {@link PropertyConditionStrategy#resolve(EntityMetadata, EntityProperty, Object, ValueNormalizer)}
  * and used by the strategy when it needs the normalized value. The supplied
  * normalizer is never {@code null}.
  *

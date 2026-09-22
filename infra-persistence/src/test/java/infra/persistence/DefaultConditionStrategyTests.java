@@ -39,14 +39,14 @@ class DefaultConditionStrategyTests {
     EntityProperty name = entityMetadata.findProperty("name");
     assertThat(name).isNotNull();
 
-    assertThat(strategy.resolve(name, "  ", ValueNormalizer.DEFAULT)).isNull();
-    assertThat(strategy.resolve(name, "\n", ValueNormalizer.DEFAULT)).isNull();
-    assertThat(strategy.resolve(name, "\t\n\r", ValueNormalizer.DEFAULT)).isNull();
-    assertThat(strategy.resolve(name, "\t\n\r ", ValueNormalizer.DEFAULT)).isNull();
-    assertThat(strategy.resolve(name, " ", ValueNormalizer.DEFAULT)).isNull();
+    assertThat(strategy.resolve(entityMetadata, name, "  ", ValueNormalizer.DEFAULT)).isNull();
+    assertThat(strategy.resolve(entityMetadata, name, "\n", ValueNormalizer.DEFAULT)).isNull();
+    assertThat(strategy.resolve(entityMetadata, name, "\t\n\r", ValueNormalizer.DEFAULT)).isNull();
+    assertThat(strategy.resolve(entityMetadata, name, "\t\n\r ", ValueNormalizer.DEFAULT)).isNull();
+    assertThat(strategy.resolve(entityMetadata, name, " ", ValueNormalizer.DEFAULT)).isNull();
 
     PropertyCondition condition =
-            (PropertyCondition) strategy.resolve(name, "name", ValueNormalizer.DEFAULT);
+            (PropertyCondition) strategy.resolve(entityMetadata, name, "name", ValueNormalizer.DEFAULT);
     assertThat(condition).isNotNull();
 
     assertThat(condition.entityProperty).isSameAs(name);
@@ -64,7 +64,7 @@ class DefaultConditionStrategyTests {
     assertThat(number).isNotNull();
 
     PropertyCondition condition =
-            (PropertyCondition) strategy.resolve(number, 2, ValueNormalizer.DEFAULT);
+            (PropertyCondition) strategy.resolve(entityMetadata, number, 2, ValueNormalizer.DEFAULT);
     assertThat(condition).isNotNull();
 
     assertThat(condition.entityProperty).isSameAs(number);

@@ -19,7 +19,6 @@ package infra.persistence.support;
 import org.jspecify.annotations.Nullable;
 
 import infra.core.annotation.MergedAnnotation;
-import infra.core.annotation.MergedAnnotations;
 import infra.lang.Constant;
 import infra.persistence.Condition;
 import infra.persistence.EntityMetadata;
@@ -53,17 +52,15 @@ public class SubqueryConditionStrategy implements PropertyConditionStrategy {
   }
 
   @Override
-  public @Nullable Condition resolve(EntityProperty entityProperty, Object value, ValueNormalizer valueNormalizer) {
+  public @Nullable Condition resolve(EntityMetadata entityMetadata, EntityProperty entityProperty,
+          Object value, ValueNormalizer valueNormalizer) {
     MergedAnnotation<Subquery> subquery = entityProperty.getAnnotation(Subquery.class);
     if (!subquery.isPresent()) {
       return null;
     }
 
-    value = valueNormalizer.normalize(entityProperty, value);
-
-    // resolve the referenced entity's ID column via @EntityRef
-    Class<?> declaringClass = entityProperty.getBeanProperty().getDeclaringClass();
-    MergedAnnotation<EntityRef> entityRef = MergedAnnotations.from(declaringClass).get(EntityRef.class);
+    // resolve the referenced entity's metadata via @EntityRef
+    MergedAnnotation<EntityRef> entityRef = entityMetadata.getAnnotation(EntityRef.class);
     if (!entityRef.isPresent()) {
       return null;
     }
@@ -77,6 +74,7 @@ public class SubqueryConditionStrategy implements PropertyConditionStrategy {
     Identifier tableName = resolveTableName(subquery);
     Identifier sourceColumn = entityProperty.getColumnName();
 
+    value = valueNormalizer.normalize(entityProperty, value);
     return new SubqueryCondition(targetColumn, subquery.getBoolean("negative"),
             subquery.getString("select"), tableName, sourceColumn,
             value, entityProperty);

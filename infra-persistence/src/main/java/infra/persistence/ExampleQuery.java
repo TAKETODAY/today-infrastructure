@@ -326,8 +326,8 @@ final class ExampleQuery extends SimpleSelectQueryStatement
 
     for (PropertyConditionStrategy strategy : strategies) {
       Condition condition = propertyValue == null
-              ? strategy.resolve(property)
-              : strategy.resolve(property, propertyValue, this);
+              ? strategy.resolve(exampleMetadata, property)
+              : strategy.resolve(exampleMetadata, property, propertyValue, this);
       if (condition != null) {
         return condition;
       }

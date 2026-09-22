@@ -50,7 +50,8 @@ import infra.util.StringUtils;
 final class DefaultConditionStrategy implements PropertyConditionStrategy {
 
   @Override
-  public @Nullable Condition resolve(EntityProperty entityProperty, Object value, ValueNormalizer valueNormalizer) {
+  public @Nullable Condition resolve(EntityMetadata entityMetadata, EntityProperty entityProperty,
+          Object value, ValueNormalizer valueNormalizer) {
     if (value instanceof String string && StringUtils.isBlank(string)) {
       return null;
     }
@@ -59,7 +60,7 @@ final class DefaultConditionStrategy implements PropertyConditionStrategy {
   }
 
   @Override
-  public @Nullable Condition resolve(EntityProperty entityProperty) {
+  public @Nullable Condition resolve(EntityMetadata entityMetadata, EntityProperty entityProperty) {
     MergedAnnotation<WhereIsNull> annotation = entityProperty.getAnnotation(WhereIsNull.class);
     if (!annotation.isPresent()) {
       return null;

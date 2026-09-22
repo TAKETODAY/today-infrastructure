@@ -20,6 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.core.annotation.MergedAnnotation;
 import infra.persistence.Condition;
+import infra.persistence.EntityMetadata;
 import infra.persistence.EntityProperty;
 import infra.persistence.PropertyConditionStrategy;
 import infra.persistence.ValueNormalizer;
@@ -56,7 +57,8 @@ import infra.util.StringUtils;
 public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
 
   @Override
-  public @Nullable Condition resolve(EntityProperty entityProperty, Object value, ValueNormalizer valueNormalizer) {
+  public @Nullable Condition resolve(EntityMetadata entityMetadata, EntityProperty entityProperty,
+          Object value, ValueNormalizer valueNormalizer) {
     // handle string
     if (value instanceof String string && StringUtils.hasText(string)) {
       MergedAnnotation<Like> annotation = entityProperty.getAnnotation(Like.class);

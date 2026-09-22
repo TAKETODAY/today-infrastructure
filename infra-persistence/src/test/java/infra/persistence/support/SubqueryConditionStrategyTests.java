@@ -172,7 +172,7 @@ class SubqueryConditionStrategyTests {
     EntityMetadata metadata = metadataFactory.getEntityMetadata(queryClass);
     EntityProperty property = metadata.findProperty(propertyName);
     assertThat(property).isNotNull();
-    return strategy.resolve(property, value, ValueNormalizer.DEFAULT);
+    return strategy.resolve(metadata, property, value, ValueNormalizer.DEFAULT);
   }
 
   private String render(Condition condition) {

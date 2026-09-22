@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 
 import infra.persistence.Condition;
+import infra.persistence.EntityMetadata;
 import infra.persistence.EntityProperty;
 import infra.persistence.PropertyConditionStrategy;
 import infra.persistence.Range;
@@ -65,7 +66,8 @@ import infra.persistence.sql.Restrictions;
 public class MultiValueConditionStrategy implements PropertyConditionStrategy {
 
   @Override
-  public @Nullable Condition resolve(EntityProperty property, Object value, ValueNormalizer valueNormalizer) {
+  public @Nullable Condition resolve(EntityMetadata entityMetadata, EntityProperty property,
+          Object value, ValueNormalizer valueNormalizer) {
     if (property.isPresent(In.class)) {
       return resolveIn(property, value);
     }

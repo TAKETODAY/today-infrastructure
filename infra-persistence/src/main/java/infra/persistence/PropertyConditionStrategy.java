@@ -31,14 +31,14 @@ import org.jspecify.annotations.Nullable;
  * metadata and not part of this contract: the caller decides the connectors.
  *
  * <p>A property whose value is {@code null} is ruled either by
- * {@link #resolve(EntityProperty)} — by default returning {@code null} so that
- * the property takes no part in the query — or by a strategy willing to
- * contribute a nullness predicate such as {@code IS NULL}.
+ * {@link #resolve(EntityMetadata, EntityProperty)} — by default returning
+ * {@code null} so that the property takes no part in the query — or by a strategy
+ * willing to contribute a nullness predicate such as {@code IS NULL}.
  *
  * <p>A {@link ValueNormalizer} is supplied to
- * {@link #resolve(EntityProperty, Object, ValueNormalizer)}; the strategy uses
- * it when it needs a normalized value (for example trimming a string value of a
- * property annotated with {@code @Trim}).
+ * {@link #resolve(EntityMetadata, EntityProperty, Object, ValueNormalizer)}; the
+ * strategy uses it when it needs a normalized value (for example trimming a
+ * string value of a property annotated with {@code @Trim}).
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/24 23:58
@@ -49,8 +49,9 @@ public interface PropertyConditionStrategy {
    * Resolve a condition for the given mapped property and value.
    *
    * <p>The value is never {@code null}; a {@code null} property value is routed
-   * to {@link #resolve(EntityProperty)} instead.
+   * to {@link #resolve(EntityMetadata, EntityProperty)} instead.
    *
+   * @param entityMetadata the metadata of the entity being queried, never {@code null}
    * @param entityProperty the mapped entity property
    * @param value the property value to evaluate
    * @param valueNormalizer the normalizer for the property, never {@code null}
@@ -59,7 +60,8 @@ public interface PropertyConditionStrategy {
    * @since 5.0
    */
   @Nullable
-  Condition resolve(EntityProperty entityProperty, Object value, ValueNormalizer valueNormalizer);
+  Condition resolve(EntityMetadata entityMetadata, EntityProperty entityProperty,
+          Object value, ValueNormalizer valueNormalizer);
 
   /**
    * Resolve a condition for a property whose value is {@code null}.
@@ -68,12 +70,13 @@ public interface PropertyConditionStrategy {
    * a strategy decision. The default implementation declines, leaving the
    * property out of the query.
    *
+   * @param entityMetadata the metadata of the entity being queried, never {@code null}
    * @param entityProperty the mapped entity property
    * @return the resolved condition, or {@code null} when the strategy does not
    * apply and the property should not contribute a predicate
    * @since 5.0
    */
-  default @Nullable Condition resolve(EntityProperty entityProperty) {
+  default @Nullable Condition resolve(EntityMetadata entityMetadata, EntityProperty entityProperty) {
     return null;
   }
 

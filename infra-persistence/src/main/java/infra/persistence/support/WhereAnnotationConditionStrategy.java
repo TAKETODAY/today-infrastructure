@@ -21,6 +21,7 @@ import org.jspecify.annotations.Nullable;
 import infra.core.annotation.MergedAnnotation;
 import infra.lang.Constant;
 import infra.persistence.Condition;
+import infra.persistence.EntityMetadata;
 import infra.persistence.EntityProperty;
 import infra.persistence.PropertyConditionStrategy;
 import infra.persistence.ValueNormalizer;
@@ -58,6 +59,7 @@ public class WhereAnnotationConditionStrategy implements PropertyConditionStrate
    * the class-level documentation; a property without the annotation yields
    * {@code null}.
    *
+   * @param entityMetadata the metadata of the entity being queried, never {@code null}
    * @param entityProperty the mapped entity property
    * @param value the property value to evaluate
    * @param valueNormalizer the normalizer for the property, never {@code null}
@@ -65,7 +67,8 @@ public class WhereAnnotationConditionStrategy implements PropertyConditionStrate
    * annotated with {@code @Where}
    */
   @Override
-  public @Nullable Condition resolve(EntityProperty entityProperty, Object value, ValueNormalizer valueNormalizer) {
+  public @Nullable Condition resolve(EntityMetadata entityMetadata, EntityProperty entityProperty,
+          Object value, ValueNormalizer valueNormalizer) {
     // render where clause
     MergedAnnotation<Where> annotation = entityProperty.getAnnotation(Where.class);
     if (annotation.isPresent()) {

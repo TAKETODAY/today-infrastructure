@@ -58,17 +58,17 @@ class FuzzyQueryConditionStrategyTests {
 
   @Test
   void noLikeAnnotation() {
-    assertThat(strategy.resolve(number, 2, ValueNormalizer.DEFAULT)).isNull();
+    assertThat(strategy.resolve(entityMetadata, number, 2, ValueNormalizer.DEFAULT)).isNull();
   }
 
   @Test
   void numberLike() {
-    assertThat(strategy.resolve(numberLike, 1, ValueNormalizer.DEFAULT)).isNull();
+    assertThat(strategy.resolve(entityMetadata, numberLike, 1, ValueNormalizer.DEFAULT)).isNull();
   }
 
   @Test
   void like() {
-    PropertyCondition condition = (PropertyCondition) strategy.resolve(like, " \n f", ValueNormalizer.DEFAULT);
+    PropertyCondition condition = (PropertyCondition) strategy.resolve(entityMetadata, like, " \n f", ValueNormalizer.DEFAULT);
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(like);
     assertThat(condition.value).isEqualTo("% \n f%");
@@ -80,7 +80,7 @@ class FuzzyQueryConditionStrategyTests {
     var normalizer = ValueNormalizer.DEFAULT;
     assertTrim(trimLike, normalizer);
 
-    PropertyCondition condition = (PropertyCondition) strategy.resolve(trimLike, " f ", normalizer);
+    PropertyCondition condition = (PropertyCondition) strategy.resolve(entityMetadata, trimLike, " f ", normalizer);
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(trimLike);
     assertThat(condition.value).isEqualTo("%f%");
@@ -89,7 +89,7 @@ class FuzzyQueryConditionStrategyTests {
 
   @Test
   void prefixLike() {
-    PropertyCondition condition = (PropertyCondition) strategy.resolve(prefixLike, " f ", ValueNormalizer.DEFAULT);
+    PropertyCondition condition = (PropertyCondition) strategy.resolve(entityMetadata, prefixLike, " f ", ValueNormalizer.DEFAULT);
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(prefixLike);
     assertThat(condition.value).isEqualTo(" f %");
@@ -101,7 +101,7 @@ class FuzzyQueryConditionStrategyTests {
     var normalizer = ValueNormalizer.DEFAULT;
     assertTrim(trimPrefixLike, normalizer);
 
-    PropertyCondition condition = (PropertyCondition) strategy.resolve(trimPrefixLike, " f ", normalizer);
+    PropertyCondition condition = (PropertyCondition) strategy.resolve(entityMetadata, trimPrefixLike, " f ", normalizer);
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(trimPrefixLike);
     assertThat(condition.value).isEqualTo("f%");
@@ -110,7 +110,7 @@ class FuzzyQueryConditionStrategyTests {
 
   @Test
   void suffixLike() {
-    PropertyCondition condition = (PropertyCondition) strategy.resolve(suffixLike, " f ", ValueNormalizer.DEFAULT);
+    PropertyCondition condition = (PropertyCondition) strategy.resolve(entityMetadata, suffixLike, " f ", ValueNormalizer.DEFAULT);
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(suffixLike);
     assertThat(condition.value).isEqualTo("% f ");
@@ -122,7 +122,7 @@ class FuzzyQueryConditionStrategyTests {
     var normalizer = ValueNormalizer.DEFAULT;
     assertTrim(trimSuffixLike, normalizer);
 
-    PropertyCondition condition = (PropertyCondition) strategy.resolve(trimSuffixLike, " f ", normalizer);
+    PropertyCondition condition = (PropertyCondition) strategy.resolve(entityMetadata, trimSuffixLike, " f ", normalizer);
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(trimSuffixLike);
     assertThat(condition.value).isEqualTo("%f");
@@ -131,7 +131,7 @@ class FuzzyQueryConditionStrategyTests {
 
   @Test
   void column() {
-    PropertyCondition condition = (PropertyCondition) strategy.resolve(column, " f", ValueNormalizer.DEFAULT);
+    PropertyCondition condition = (PropertyCondition) strategy.resolve(entityMetadata, column, " f", ValueNormalizer.DEFAULT);
     assertThat(condition).isNotNull();
 
     assertThat(condition.entityProperty).isSameAs(column);
@@ -146,11 +146,11 @@ class FuzzyQueryConditionStrategyTests {
   }
 
   private void assertTrim(EntityProperty trimLike, ValueNormalizer normalizer) {
-    assertThat(strategy.resolve(trimLike, "    ", normalizer)).isNull();
-    assertThat(strategy.resolve(trimLike, " \n ", normalizer)).isNull();
-    assertThat(strategy.resolve(trimLike, " \t ", normalizer)).isNull();
-    assertThat(strategy.resolve(trimLike, " \r ", normalizer)).isNull();
-    assertThat(strategy.resolve(trimLike, " f ", normalizer)).isNotNull();
+    assertThat(strategy.resolve(entityMetadata, trimLike, "    ", normalizer)).isNull();
+    assertThat(strategy.resolve(entityMetadata, trimLike, " \n ", normalizer)).isNull();
+    assertThat(strategy.resolve(entityMetadata, trimLike, " \t ", normalizer)).isNull();
+    assertThat(strategy.resolve(entityMetadata, trimLike, " \r ", normalizer)).isNull();
+    assertThat(strategy.resolve(entityMetadata, trimLike, " f ", normalizer)).isNotNull();
   }
 
   static class Model {
