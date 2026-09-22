@@ -26,8 +26,6 @@ import infra.persistence.ValueNormalizer;
 import infra.persistence.annotation.Between;
 import infra.persistence.annotation.In;
 import infra.persistence.annotation.Like;
-import infra.persistence.annotation.PrefixLike;
-import infra.persistence.annotation.SuffixLike;
 import infra.persistence.annotation.Where;
 import infra.persistence.annotation.WhereIsNull;
 import infra.persistence.platform.Platform;
@@ -57,14 +55,6 @@ public class DefaultConditionStrategy implements PropertyConditionStrategy {
   @Override
   public @Nullable Condition resolve(EntityProperty entityProperty, Object value, ValueNormalizer valueNormalizer) {
     if (value instanceof String string && StringUtils.isBlank(string)) {
-      return null;
-    }
-    if (entityProperty.isPresent(Where.class)
-            || entityProperty.isPresent(Like.class)
-            || entityProperty.isPresent(PrefixLike.class)
-            || entityProperty.isPresent(SuffixLike.class)
-            || entityProperty.isPresent(In.class)
-            || entityProperty.isPresent(Between.class)) {
       return null;
     }
     value = valueNormalizer.normalize(entityProperty, value);

@@ -82,7 +82,7 @@ public interface QueryCondition extends ParameterSource {
    * with {@code " WHERE "} when at least one restriction applies.
    *
    * <p>This is a convenience combining {@link #collectRestrictions(EntityMetadata, List)}
-   * with {@link Restriction#append(Platform, java.util.Collection, StringBuilder)}. When the
+   * with {@link Restrictions#append(Platform, java.util.Collection, StringBuilder)}. When the
    * entity declares no condition, the buffer is left unchanged.
    *
    * @param platform the database platform whose rendering rules apply

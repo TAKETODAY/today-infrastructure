@@ -160,7 +160,7 @@ class FuzzyQueryConditionStrategyTests {
     @Like
     public int numberLike;
 
-    @Like(column = "col")
+    @Like("col")
     public String column;
 
     @Like

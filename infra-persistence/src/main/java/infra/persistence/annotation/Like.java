@@ -22,6 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.aot.hint.annotation.Reflective;
+import infra.core.annotation.AliasFor;
 import infra.lang.Constant;
 
 /**
@@ -47,19 +48,21 @@ import infra.lang.Constant;
  * @see SuffixLike
  * @since 4.0 2024/2/28 22:48
  */
+@Column
 @Reflective
 @Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Like {
 
   /**
-   * The column name or where-clause predicate the like condition targets.
+   * The column that the between operand targets.
    *
-   * <p>When set to {@link Constant#DEFAULT_NONE}, the property's mapped column is
-   * used instead.</p>
+   * <p>An alias for {@link Column#value()}. When blank, the property's mapped
+   * column is used instead.
    *
-   * @return the column name or predicate, or {@link Constant#DEFAULT_NONE} if not specified
+   * @return the column name, or {@link Constant#BLANK} if not specified
    */
-  String column() default Constant.DEFAULT_NONE;
+  @AliasFor(annotation = Column.class, attribute = "value")
+  String value() default Constant.BLANK;
 
 }

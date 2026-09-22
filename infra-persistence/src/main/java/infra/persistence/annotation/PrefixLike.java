@@ -56,13 +56,13 @@ public @interface PrefixLike {
   /**
    * The column name or where-clause predicate the prefix-like condition targets.
    *
-   * <p>An alias for the {@link Like#column()} attribute of the composing
-   * {@link Like @Like} annotation. When set to {@link Constant#DEFAULT_NONE},
+   * <p>An alias for the {@link Like#value()} attribute of the composing
+   * {@link Like @Like} annotation. When set to {@link Constant#BLANK},
    * the property's mapped column is used instead.</p>
    *
-   * @return the column name or predicate, or {@link Constant#DEFAULT_NONE} if not specified
+   * @return the column name or predicate, or {@link Constant#BLANK} if not specified
    */
-  @AliasFor(annotation = Like.class, attribute = "column")
-  String column() default Constant.DEFAULT_NONE;
+  @AliasFor(annotation = Like.class, attribute = "value")
+  String value() default Constant.BLANK;
 
 }

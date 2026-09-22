@@ -19,10 +19,8 @@ package infra.persistence.support;
 import org.jspecify.annotations.Nullable;
 
 import infra.core.annotation.MergedAnnotation;
-import infra.lang.Constant;
 import infra.persistence.Condition;
 import infra.persistence.EntityProperty;
-import infra.persistence.Identifier;
 import infra.persistence.PropertyConditionStrategy;
 import infra.persistence.ValueNormalizer;
 import infra.persistence.annotation.Like;
@@ -75,27 +73,11 @@ public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
         }
 
         // get column name
-        Identifier column = getColumn(entityProperty, annotation);
-        return new PropertyCondition(string, Restrictions.like(column), entityProperty);
+        return new PropertyCondition(
+                string, Restrictions.like(entityProperty.getColumnName()), entityProperty);
       }
     }
     return null;
-  }
-
-  /**
-   * Resolve the column targeted by the {@link Like} annotation.
-   *
-   * @param property the mapped entity property
-   * @param annotation the resolved {@code @Like} annotation
-   * @return the annotation-declared column, or the property's mapped column when
-   * no column is declared
-   */
-  private static Identifier getColumn(EntityProperty property, MergedAnnotation<Like> annotation) {
-    String columnText = annotation.getString("column");
-    if (Constant.DEFAULT_NONE.equals(columnText)) {
-      return property.getColumnName();
-    }
-    return Identifier.parse(columnText);
   }
 
 }
