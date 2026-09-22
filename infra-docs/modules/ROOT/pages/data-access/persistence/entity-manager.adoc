@@ -69,6 +69,10 @@ entityManager.truncate(User.class);     // 清空整张表，保留表结构
 
 == 查询
 
+查询方法接受一个 `QueryCondition`（描述条件部分）或 `QueryStatement`（渲染 SQL 并绑定参数）；
+`find(example)` 这类重载只是其中"以对象为探针"的输入形式，详见
+xref:data-access/persistence/query-by-example.adoc[查询条件与示例查询]。
+
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 // 按主键查询

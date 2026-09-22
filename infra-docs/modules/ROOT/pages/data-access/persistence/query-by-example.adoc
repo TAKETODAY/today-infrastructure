@@ -1,7 +1,14 @@
 [[persistence-example]]
-= 示例查询 (Query by Example)
+= 查询条件与示例查询 (QueryCondition)
 
-示例查询把对象的非空属性转换为 `WHERE` 条件。查询条件可以通过注解在属性上精细描述。
+面向用户的通用查询抽象是 `QueryCondition`：它描述"要查什么条件"（`collectRestrictions` 收集条件、
+`setParameter` 绑定参数、`resolveOrderByClause` 解析排序）。具体条件如何表达由实现决定，
+`EntityManager.find(...)` / `count(...)` / `page(...)` 等均接受 `QueryCondition`。
+
+示例查询（Query by Example，QBE）是 `QueryCondition` 的一种：以对象作为"探针（probe）"，
+把它的非空属性转换为 `WHERE` 条件，并可通过注解在属性上精细描述。
+
+NOTE: 示例查询是 `QueryCondition` 的一种，探针对象即 *example*。
 
 [[persistence-condition-annotations]]
 == 条件注解

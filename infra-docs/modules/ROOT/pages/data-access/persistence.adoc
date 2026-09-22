@@ -16,7 +16,7 @@
 == 运行时 API
 
 * xref:data-access/persistence/entity-manager.adoc[`EntityManager`]：`persist` / `update` / `updateById` / `saveOrUpdate` / `delete` / `truncate` / `find*` / `count` / `page` / `iterate` 等完整 API。
-* xref:data-access/persistence/query-by-example.adoc[示例查询 (Query by Example)]：条件注解（`@Where`、`@Like`、`@In`、`@Between`、`@Subquery` 等）、注解优先级与 `ORDER BY` 解析。
+* xref:data-access/persistence/query-by-example.adoc[查询条件 (QueryCondition) 与示例查询]：通用查询抽象 `QueryCondition`、条件注解（`@Where`、`@Like`、`@In`、`@Between`、`@Subquery` 等）、注解优先级与 `ORDER BY` 解析。
 * xref:data-access/persistence/update-strategy.adoc[属性更新策略]：精细控制哪些字段参与更新。
 * xref:data-access/persistence/version.adoc[乐观锁]：基于 `@Version` 的并发控制。
 * xref:data-access/persistence/paging.adoc[分页]：`Pageable` / `Page` / `Order`。
