@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 import infra.aot.hint.annotation.Reflective;
 
 /**
- * Generates a {@code column IN (SELECT column FROM table WHERE sourceColumn = ?)}
+ * Generates a {@code targetId IN (SELECT referencingColumn FROM junctionTable WHERE fieldColumn = ?)}
  * predicate for a many-to-many relationship through a junction table.
  *
  * <p>Used on a field of an {@link EntityRef @EntityRef} query class. The generated
@@ -33,10 +33,24 @@ import infra.aot.hint.annotation.Reflective;
  * <pre>{@code
  * @EntityRef(Label.class)
  * class TagQuery {
- *   @Subquery(table = "article_label", column = "label_id", sourceColumn = "article_id")
+ *   @Subquery(table = "article_label", referencingColumn = "label_id")
  *   public final Long articleId;
  * }
  * }</pre>
+ *
+ * <p>The junction table name can be specified directly via {@link #table()}, or
+ * resolved from an entity class via {@link #entity()}:
+ *
+ * <pre>{@code
+ * @EntityRef(Label.class)
+ * class TagQuery {
+ *   @Subquery(entity = ArticleLabel.class, referencingColumn = "label_id")
+ *   public final Long articleId;
+ * }
+ * }</pre>
+ *
+ * <p>The {@code WHERE} column in the junction table is resolved automatically
+ * from the annotated field's mapped column name.
  *
  * <p>Given {@code Label} has {@code @Id Long id} mapped to column {@code id},
  * this generates:
@@ -55,22 +69,29 @@ public @interface Subquery {
   /**
    * The junction (many-to-many) table name.
    *
+   * <p>Ignored when {@link #entity()} is set to a non-default value; the table
+   * name is then resolved from that entity's {@link Table @Table} annotation.
+   *
    * @return the junction table name
    */
-  String table();
+  String table() default "";
 
   /**
-   * Column in the junction table that matches the referenced entity's ID.
+   * An entity class whose {@link Table @Table} provides the junction table name.
    *
-   * @return the column name
+   * <p>When set to a non-default value, the table name is resolved from this
+   * entity's {@code @Table} annotation, and {@link #table()} is ignored.
+   *
+   * @return the junction entity class
    */
-  String column();
+  Class<?> entity() default void.class;
 
   /**
-   * Column in the junction table that maps to the annotated property value.
+   * Column in the junction table that references the target entity (the entity
+   * referenced by {@link EntityRef @EntityRef}).
    *
-   * @return the source column name
+   * @return the referencing column name
    */
-  String sourceColumn();
+  String referencingColumn();
 
 }

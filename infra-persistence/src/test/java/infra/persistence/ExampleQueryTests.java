@@ -80,7 +80,7 @@ class ExampleQueryTests {
   @EntityRef(Label.class)
   static class TagQuery {
 
-    @Subquery(table = "article_label", column = "label_id", sourceColumn = "article_id")
+    @Subquery(table = "article_label", referencingColumn = "label_id")
     public final Long articleId;
 
     TagQuery(Long articleId) {
@@ -95,6 +95,23 @@ class ExampleQueryTests {
     public Long id;
 
     public String name;
+
+  }
+
+  @Table("article_label")
+  static class ArticleLabel {
+
+    public Long labelId;
+
+    public Long articleId;
+
+    public ArticleLabel() {
+    }
+
+    public ArticleLabel(Long labelId, Long articleId) {
+      this.labelId = labelId;
+      this.articleId = articleId;
+    }
 
   }
 

@@ -73,12 +73,23 @@ public class SubqueryConditionStrategy implements PropertyConditionStrategy {
       return null;
     }
 
+    Identifier tableName = resolveTableName(subquery);
+    String sourceColumn = entityProperty.getColumnName().render();
     String sql = targetColumn.render()
-            + " IN (SELECT " + subquery.getString("column")
-            + " FROM " + subquery.getString("table")
-            + " WHERE " + subquery.getString("sourceColumn") + " = ?)";
+            + " IN (SELECT " + subquery.getString("referencingColumn")
+            + " FROM " + tableName
+            + " WHERE " + sourceColumn + " = ?)";
 
     return new PropertyCondition(value, Restrictions.plain(sql), entityProperty);
+  }
+
+  private Identifier resolveTableName(MergedAnnotation<Subquery> subquery) {
+    Class<?> entityClass = subquery.getClass("entity");
+    if (entityClass != void.class) {
+      EntityMetadata junctionMetadata = metadataFactory.getEntityMetadata(entityClass);
+      return junctionMetadata.getTableName();
+    }
+    return Identifier.parse(subquery.getString("table"));
   }
 
 }
