@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import infra.jdbc.model.UserModel;
 import infra.persistence.platform.Platform;
 import infra.persistence.sql.OrderSpec;
+import infra.persistence.sql.OrderSpecSource;
 import infra.persistence.sql.Restriction;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,6 +72,22 @@ class OrderSpecEntityQueryFactoryTests {
     assertThat(factory.createCondition(null)).isNull();
     assertThat(factory.createQuery(OrderSpec.empty()).render(metadata).toStatementString(Platform.generic()))
             .endsWith("FROM t_user");
+  }
+
+  @Test
+  void acceptsBuilder() {
+    OrderSpecEntityQueryFactory factory = new OrderSpecEntityQueryFactory();
+    QueryStatement query = factory.createQuery(OrderSpec.builder().asc("name"));
+    assertThat(query.render(metadata).toStatementString(Platform.generic()))
+            .endsWith("order by name ASC");
+  }
+
+  @Test
+  void acceptsOrderSpecSource() {
+    OrderSpecEntityQueryFactory factory = new OrderSpecEntityQueryFactory();
+    OrderSpec spec = OrderSpec.desc("id");
+    QueryCondition condition = factory.createCondition((OrderSpecSource) () -> spec);
+    assertThat(condition.resolveOrderByClause(metadata)).isSameAs(spec);
   }
 
 }

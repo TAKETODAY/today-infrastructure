@@ -22,11 +22,13 @@ import java.sql.PreparedStatement;
 import java.util.List;
 
 import infra.persistence.sql.OrderSpec;
+import infra.persistence.sql.OrderSpecSource;
 import infra.persistence.sql.Restriction;
 import infra.persistence.sql.SimpleSelect;
 
 /**
- * Creates queries with ordering but no filtering from an {@link OrderSpec}.
+ * Creates queries with ordering but no filtering from an {@link OrderSpec},
+ * {@link OrderSpec.Builder}, or {@link OrderSpecSource}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
@@ -35,12 +37,25 @@ final class OrderSpecEntityQueryFactory implements EntityQueryFactory {
 
   @Override
   public @Nullable QueryStatement createQuery(Object example) {
-    return example instanceof OrderSpec spec ? new OrderSpecQuery(spec) : null;
+    return toSpec(example) != null ? new OrderSpecQuery(toSpec(example)) : null;
   }
 
   @Override
   public @Nullable QueryCondition createCondition(Object example) {
-    return example instanceof OrderSpec spec ? new OrderSpecQuery(spec) : null;
+    return toSpec(example) != null ? new OrderSpecQuery(toSpec(example)) : null;
+  }
+
+  private static @Nullable OrderSpec toSpec(Object example) {
+    if (example instanceof OrderSpec spec) {
+      return spec;
+    }
+    if (example instanceof OrderSpec.Builder builder) {
+      return builder.build();
+    }
+    if (example instanceof OrderSpecSource source) {
+      return source.orderSpec();
+    }
+    return null;
   }
 
   private static final class OrderSpecQuery extends SimpleSelectQueryStatement implements QueryCondition {
