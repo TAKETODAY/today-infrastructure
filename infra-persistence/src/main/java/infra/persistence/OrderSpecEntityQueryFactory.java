@@ -37,12 +37,14 @@ final class OrderSpecEntityQueryFactory implements EntityQueryFactory {
 
   @Override
   public @Nullable QueryStatement createQuery(Object example) {
-    return toSpec(example) != null ? new OrderSpecQuery(toSpec(example)) : null;
+    OrderSpec spec = toSpec(example);
+    return spec != null ? new OrderSpecQuery(spec) : null;
   }
 
   @Override
   public @Nullable QueryCondition createCondition(Object example) {
-    return toSpec(example) != null ? new OrderSpecQuery(toSpec(example)) : null;
+    OrderSpec spec = toSpec(example);
+    return spec != null ? new OrderSpecQuery(spec) : null;
   }
 
   private static @Nullable OrderSpec toSpec(Object example) {
