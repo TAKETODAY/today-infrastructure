@@ -80,7 +80,7 @@ class ExampleQueryTests {
   @EntityRef(Label.class)
   static class TagQuery {
 
-    @Subquery(table = "article_label", referencingColumn = "label_id")
+    @Subquery(table = "article_label", select = "label_id")
     public final Long articleId;
 
     TagQuery(Long articleId) {

@@ -25,6 +25,7 @@ import infra.persistence.EntityMetadata;
 import infra.persistence.EntityMetadataFactory;
 import infra.persistence.EntityProperty;
 import infra.persistence.Identifier;
+import infra.persistence.IllegalEntityException;
 import infra.persistence.PropertyConditionStrategy;
 import infra.persistence.ValueNormalizer;
 import infra.persistence.annotation.EntityRef;
@@ -75,8 +76,10 @@ public class SubqueryConditionStrategy implements PropertyConditionStrategy {
 
     Identifier tableName = resolveTableName(subquery);
     String sourceColumn = entityProperty.getColumnName().render();
+    String operator = subquery.getBoolean("negative") ? " NOT IN (" : " IN (";
     String sql = targetColumn.render()
-            + " IN (SELECT " + subquery.getString("referencingColumn")
+            + operator
+            + "SELECT " + subquery.getString("select")
             + " FROM " + tableName
             + " WHERE " + sourceColumn + " = ?)";
 
@@ -89,7 +92,12 @@ public class SubqueryConditionStrategy implements PropertyConditionStrategy {
       EntityMetadata junctionMetadata = metadataFactory.getEntityMetadata(entityClass);
       return junctionMetadata.getTableName();
     }
-    return Identifier.parse(subquery.getString("table"));
+    String tableName = subquery.getString("table");
+    if (tableName.isEmpty()) {
+      throw new IllegalEntityException(
+              "@Subquery table name is required when 'entity' is not specified");
+    }
+    return Identifier.parse(tableName);
   }
 
 }

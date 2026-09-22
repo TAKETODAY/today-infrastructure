@@ -22,10 +22,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.aot.hint.annotation.Reflective;
+import infra.core.annotation.AliasFor;
+import infra.lang.Constant;
 
 /**
- * Generates a {@code targetId IN (SELECT referencingColumn FROM junctionTable WHERE fieldColumn = ?)}
- * predicate for a many-to-many relationship through a junction table.
+ * Generates a {@code targetId IN (SELECT select FROM junctionTable WHERE fieldColumn = ?)}
+ * or {@code targetId NOT IN (SELECT ...)} predicate for a many-to-many relationship through a
+ * junction table.
  *
  * <p>Used on a field of an {@link EntityRef @EntityRef} query class. The generated
  * predicate targets the referenced entity's ID column:
@@ -33,7 +36,7 @@ import infra.aot.hint.annotation.Reflective;
  * <pre>{@code
  * @EntityRef(Label.class)
  * class TagQuery {
- *   @Subquery(table = "article_label", referencingColumn = "label_id")
+ *   @Subquery(table = "article_label", select = "label_id")
  *   public final Long articleId;
  * }
  * }</pre>
@@ -44,7 +47,7 @@ import infra.aot.hint.annotation.Reflective;
  * <pre>{@code
  * @EntityRef(Label.class)
  * class TagQuery {
- *   @Subquery(entity = ArticleLabel.class, referencingColumn = "label_id")
+ *   @Subquery(entity = ArticleLabel.class, select = "label_id")
  *   public final Long articleId;
  * }
  * }</pre>
@@ -58,9 +61,12 @@ import infra.aot.hint.annotation.Reflective;
  * id IN (SELECT label_id FROM article_label WHERE article_id = ?)
  * }</pre>
  *
+ * <p>Set {@link #negative()} to {@code true} to generate {@code NOT IN} instead.
+ *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
+@Column
 @Reflective
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
@@ -87,11 +93,29 @@ public @interface Subquery {
   Class<?> entity() default void.class;
 
   /**
-   * Column in the junction table that references the target entity (the entity
-   * referenced by {@link EntityRef @EntityRef}).
+   * Column selected in the subquery, matching the referenced entity's ID.
    *
-   * @return the referencing column name
+   * @return the select column name
    */
-  String referencingColumn();
+  String select();
+
+  /**
+   * The column that the not-between operand targets.
+   *
+   * <p>An alias for {@link Column#value()}. When blank, the property's mapped
+   * column is used instead.
+   *
+   * @return the column name, or {@link Constant#BLANK} if not specified
+   */
+  @AliasFor(annotation = Column.class, attribute = "value")
+  String where() default Constant.BLANK;
+
+  /**
+   * Whether to generate {@code NOT IN} instead of {@code IN}.
+   *
+   * @return {@code true} for {@code NOT IN (SELECT ...)}, {@code false} for
+   * {@code IN (SELECT ...)}
+   */
+  boolean negative() default false;
 
 }
