@@ -32,10 +32,7 @@ import infra.persistence.Range;
 import infra.persistence.ValueNormalizer;
 import infra.persistence.annotation.Between;
 import infra.persistence.annotation.In;
-import infra.persistence.platform.Platform;
-import infra.persistence.sql.Restriction;
 import infra.persistence.sql.Restrictions;
-import infra.util.Assert;
 
 /**
  * A {@link PropertyConditionStrategy} that turns an example property annotated
@@ -81,7 +78,7 @@ public class MultiValueConditionStrategy implements PropertyConditionStrategy {
     if (values.isEmpty()) {
       return null;
     }
-    return new MultiValueCondition(property, in(property.getColumnName(), values.size()), values);
+    return new MultiValueCondition(property, Restrictions.in(property.getColumnName(), values.size()), values);
   }
 
   private @Nullable Condition resolveBetween(EntityProperty property, Object value) {
@@ -107,22 +104,6 @@ public class MultiValueConditionStrategy implements PropertyConditionStrategy {
   }
 
   /**
-   * Render a {@code column IN (?, ?, ...)} restriction with the given count of
-   * placeholders.
-   */
-  private static Restriction in(Identifier column, int count) {
-    Assert.isTrue(count > 0, "IN requires at least one placeholder");
-    StringBuilder placeholders = new StringBuilder(count * 2 - 1);
-    for (int i = 0; i < count; i++) {
-      if (i > 0) {
-        placeholders.append(", ");
-      }
-      placeholders.append('?');
-    }
-    return new InRestriction(column, placeholders);
-  }
-
-  /**
    * Convert an {@link Iterable} or array value into a list.
    */
   private static List<Object> toList(Object value) {
@@ -145,29 +126,6 @@ public class MultiValueConditionStrategy implements PropertyConditionStrategy {
       return result;
     }
     return new ArrayList<>(Arrays.asList(value));
-  }
-
-  /**
-   * Renders a {@code column IN (?, ..., ?)} predicate.
-   */
-  private static final class InRestriction implements Restriction {
-
-    private final Identifier column;
-
-    private final CharSequence placeholders;
-
-    InRestriction(Identifier column, CharSequence placeholders) {
-      this.column = column;
-      this.placeholders = placeholders;
-    }
-
-    @Override
-    public void render(Platform platform, StringBuilder sqlBuffer) {
-      sqlBuffer.append(column.render(platform))
-              .append(" IN (")
-              .append(placeholders)
-              .append(')');
-    }
   }
 
 }

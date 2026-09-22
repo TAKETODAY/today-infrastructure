@@ -29,14 +29,20 @@ import static infra.persistence.sql.Restrictions.and;
 import static infra.persistence.sql.Restrictions.append;
 import static infra.persistence.sql.Restrictions.appendWhereClause;
 import static infra.persistence.sql.Restrictions.equal;
+import static infra.persistence.sql.Restrictions.exists;
 import static infra.persistence.sql.Restrictions.forOperator;
 import static infra.persistence.sql.Restrictions.greaterEqual;
 import static infra.persistence.sql.Restrictions.greaterThan;
+import static infra.persistence.sql.Restrictions.in;
 import static infra.persistence.sql.Restrictions.isNotNull;
 import static infra.persistence.sql.Restrictions.isNull;
 import static infra.persistence.sql.Restrictions.lessEqual;
 import static infra.persistence.sql.Restrictions.lessThan;
+import static infra.persistence.sql.Restrictions.like;
 import static infra.persistence.sql.Restrictions.notEqual;
+import static infra.persistence.sql.Restrictions.notExists;
+import static infra.persistence.sql.Restrictions.notIn;
+import static infra.persistence.sql.Restrictions.notLike;
 import static infra.persistence.sql.Restrictions.or;
 import static infra.persistence.sql.Restrictions.plain;
 import static infra.persistence.sql.Restrictions.renderWhereClause;
@@ -60,6 +66,40 @@ class RestrictionTests {
     restriction.render(platform, sqlBuffer);
 
     assertThat(sqlBuffer.toString()).isEqualTo("SELECT * FROM table");
+  }
+
+  @Test
+  void shouldRenderLikeRestrictions() {
+    assertThat(render(like("name"))).isEqualTo("name like ?");
+    assertThat(render(notLike("name"))).isEqualTo("name not like ?");
+  }
+
+  @Test
+  void shouldRenderInRestrictions() {
+    assertThat(render(in("status", 3))).isEqualTo("status IN (?, ?, ?)");
+    assertThat(render(notIn("status", 2))).isEqualTo("status NOT IN (?, ?)");
+  }
+
+  @Test
+  void shouldRejectEmptyInRestrictions() {
+    assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> in("status", 0));
+    assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> notIn("status", 0));
+  }
+
+  @Test
+  void shouldRenderExistsRestrictions() {
+    CharSequence subquery = "SELECT 1 FROM account WHERE account.id = user.account_id";
+
+    assertThat(render(exists(subquery))).isEqualTo("EXISTS (" + subquery + ")");
+    assertThat(render(notExists(subquery))).isEqualTo("NOT EXISTS (" + subquery + ")");
+  }
+
+  private String render(Restriction restriction) {
+    StringBuilder sqlBuffer = new StringBuilder();
+    restriction.render(platform, sqlBuffer);
+    return sqlBuffer.toString();
   }
 
   @Test

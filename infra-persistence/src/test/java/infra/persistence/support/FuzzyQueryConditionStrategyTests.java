@@ -26,9 +26,9 @@ import infra.persistence.annotation.Like;
 import infra.persistence.annotation.PrefixLike;
 import infra.persistence.annotation.SuffixLike;
 import infra.persistence.annotation.Trim;
-import infra.persistence.platform.Platform;
+import infra.persistence.sql.Restriction;
 
-import infra.persistence.support.FuzzyQueryConditionStrategy.LikeRestriction;
+import static infra.persistence.platform.Platform.mysql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -72,13 +72,7 @@ class FuzzyQueryConditionStrategyTests {
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(like);
     assertThat(condition.value).isEqualTo("% \n f%");
-    assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
-
-    var likeRestriction = (LikeRestriction) condition.restriction;
-    assertThat(likeRestriction.columnName.getText()).isEqualTo("like");
-
-    String string = render(likeRestriction);
-    assertThat(string).isEqualTo("like like ?");
+    assertThat(render(condition.restriction)).isEqualTo("like like ?");
   }
 
   @Test
@@ -90,13 +84,7 @@ class FuzzyQueryConditionStrategyTests {
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(trimLike);
     assertThat(condition.value).isEqualTo("%f%");
-    assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
-
-    var likeRestriction = (LikeRestriction) condition.restriction;
-    assertThat(likeRestriction.columnName.getText()).isEqualTo("trim_like");
-
-    String string = render(likeRestriction);
-    assertThat(string).isEqualTo("trim_like like ?");
+    assertThat(render(condition.restriction)).isEqualTo("trim_like like ?");
   }
 
   @Test
@@ -105,13 +93,7 @@ class FuzzyQueryConditionStrategyTests {
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(prefixLike);
     assertThat(condition.value).isEqualTo(" f %");
-    assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
-
-    var likeRestriction = (LikeRestriction) condition.restriction;
-    assertThat(likeRestriction.columnName.getText()).isEqualTo("prefix_like");
-
-    String string = render(likeRestriction);
-    assertThat(string).isEqualTo("prefix_like like ?");
+    assertThat(render(condition.restriction)).isEqualTo("prefix_like like ?");
   }
 
   @Test
@@ -123,13 +105,7 @@ class FuzzyQueryConditionStrategyTests {
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(trimPrefixLike);
     assertThat(condition.value).isEqualTo("f%");
-    assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
-
-    var likeRestriction = (LikeRestriction) condition.restriction;
-    assertThat(likeRestriction.columnName.getText()).isEqualTo("trim_prefix_like");
-
-    String string = render(likeRestriction);
-    assertThat(string).isEqualTo("trim_prefix_like like ?");
+    assertThat(render(condition.restriction)).isEqualTo("trim_prefix_like like ?");
   }
 
   @Test
@@ -138,13 +114,7 @@ class FuzzyQueryConditionStrategyTests {
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(suffixLike);
     assertThat(condition.value).isEqualTo("% f ");
-    assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
-
-    var likeRestriction = (LikeRestriction) condition.restriction;
-    assertThat(likeRestriction.columnName.getText()).isEqualTo("suffix_like");
-
-    String string = render(likeRestriction);
-    assertThat(string).isEqualTo("suffix_like like ?");
+    assertThat(render(condition.restriction)).isEqualTo("suffix_like like ?");
   }
 
   @Test
@@ -156,13 +126,7 @@ class FuzzyQueryConditionStrategyTests {
     assertThat(condition).isNotNull();
     assertThat(condition.entityProperty).isSameAs(trimSuffixLike);
     assertThat(condition.value).isEqualTo("%f");
-    assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
-
-    var likeRestriction = (LikeRestriction) condition.restriction;
-    assertThat(likeRestriction.columnName.getText()).isEqualTo("trim_suffix_like");
-
-    String string = render(likeRestriction);
-    assertThat(string).isEqualTo("trim_suffix_like like ?");
+    assertThat(render(condition.restriction)).isEqualTo("trim_suffix_like like ?");
   }
 
   @Test
@@ -172,19 +136,12 @@ class FuzzyQueryConditionStrategyTests {
 
     assertThat(condition.entityProperty).isSameAs(column);
     assertThat(condition.value).isEqualTo("% f%");
-    assertThat(condition.restriction).isInstanceOf(LikeRestriction.class);
-
-    var likeRestriction = (LikeRestriction) condition.restriction;
-    assertThat(likeRestriction.columnName.getText()).isEqualTo("col");
-
-    String string = render(likeRestriction);
-    assertThat(string).isEqualTo("col like ?");
+    assertThat(render(condition.restriction)).isEqualTo("col like ?");
   }
 
-  private static String render(LikeRestriction likeRestriction) {
+  private static String render(Restriction restriction) {
     StringBuilder sqlBuffer = new StringBuilder();
-    likeRestriction.render(Platform.mysql(), sqlBuffer);
-
+    restriction.render(mysql(), sqlBuffer);
     return sqlBuffer.toString();
   }
 

@@ -28,8 +28,7 @@ import infra.persistence.ValueNormalizer;
 import infra.persistence.annotation.Like;
 import infra.persistence.annotation.PrefixLike;
 import infra.persistence.annotation.SuffixLike;
-import infra.persistence.platform.Platform;
-import infra.persistence.sql.Restriction;
+import infra.persistence.sql.Restrictions;
 import infra.util.StringUtils;
 
 /**
@@ -77,7 +76,7 @@ public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
 
         // get column name
         Identifier column = getColumn(entityProperty, annotation);
-        return new PropertyCondition(string, new LikeRestriction(column), entityProperty);
+        return new PropertyCondition(string, Restrictions.like(column), entityProperty);
       }
     }
     return null;
@@ -97,25 +96,6 @@ public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
       return property.getColumnName();
     }
     return Identifier.parse(columnText);
-  }
-
-  /**
-   * Renders a {@code column LIKE ?} predicate.
-   */
-  static final class LikeRestriction implements Restriction {
-
-    final Identifier columnName;
-
-    LikeRestriction(Identifier columnName) {
-      this.columnName = columnName;
-    }
-
-    @Override
-    public void render(Platform platform, StringBuilder sqlBuffer) {
-      sqlBuffer.append(columnName.render(platform))
-              .append(" like ?");
-    }
-
   }
 
 }

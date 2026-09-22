@@ -423,6 +423,127 @@ public abstract class Restrictions {
   }
 
   /**
+   * Create a {@code column LIKE ?} restriction.
+   *
+   * @param columnName the column name to parse as an identifier
+   * @return the like restriction
+   */
+  public static Restriction like(String columnName) {
+    return like(Identifier.parse(columnName));
+  }
+
+  /**
+   * Create a {@code column LIKE ?} restriction.
+   *
+   * @param columnName the column identifier
+   * @return the like restriction
+   */
+  public static Restriction like(Identifier columnName) {
+    return new LikeRestriction(columnName, true);
+  }
+
+  /**
+   * Create a {@code column NOT LIKE ?} restriction.
+   *
+   * @param columnName the column name to parse as an identifier
+   * @return the not-like restriction
+   */
+  public static Restriction notLike(String columnName) {
+    return notLike(Identifier.parse(columnName));
+  }
+
+  /**
+   * Create a {@code column NOT LIKE ?} restriction.
+   *
+   * @param columnName the column identifier
+   * @return the not-like restriction
+   */
+  public static Restriction notLike(Identifier columnName) {
+    return new LikeRestriction(columnName, false);
+  }
+
+  /**
+   * Create a {@code column IN (?, ?, ...)} restriction with the given count of
+   * placeholders.
+   *
+   * @param columnName the column name to parse as an identifier
+   * @param count the number of placeholders; must be at least 1
+   * @return the in restriction
+   */
+  public static Restriction in(String columnName, int count) {
+    return in(Identifier.parse(columnName), count);
+  }
+
+  /**
+   * Create a {@code column IN (?, ?, ...)} restriction with the given count of
+   * placeholders.
+   *
+   * @param columnName the column identifier
+   * @param count the number of placeholders; must be at least 1
+   * @return the in restriction
+   */
+  public static Restriction in(Identifier columnName, int count) {
+    Assert.isTrue(count > 0, "IN requires at least one placeholder");
+    return new InRestriction(columnName, placeholders(count), true);
+  }
+
+  /**
+   * Create a {@code column NOT IN (?, ?, ...)} restriction with the given count
+   * of placeholders.
+   *
+   * @param columnName the column name to parse as an identifier
+   * @param count the number of placeholders; must be at least 1
+   * @return the not-in restriction
+   */
+  public static Restriction notIn(String columnName, int count) {
+    return notIn(Identifier.parse(columnName), count);
+  }
+
+  /**
+   * Create a {@code column NOT IN (?, ?, ...)} restriction with the given count
+   * of placeholders.
+   *
+   * @param columnName the column identifier
+   * @param count the number of placeholders; must be at least 1
+   * @return the not-in restriction
+   */
+  public static Restriction notIn(Identifier columnName, int count) {
+    Assert.isTrue(count > 0, "NOT IN requires at least one placeholder");
+    return new InRestriction(columnName, placeholders(count), false);
+  }
+
+  /**
+   * Create an {@code EXISTS (subquery)} restriction.
+   *
+   * @param subquery the subquery SQL fragment
+   * @return the exists restriction
+   */
+  public static Restriction exists(CharSequence subquery) {
+    return new ExistsRestriction(subquery, true);
+  }
+
+  /**
+   * Create a {@code NOT EXISTS (subquery)} restriction.
+   *
+   * @param subquery the subquery SQL fragment
+   * @return the not-exists restriction
+   */
+  public static Restriction notExists(CharSequence subquery) {
+    return new ExistsRestriction(subquery, false);
+  }
+
+  private static CharSequence placeholders(int count) {
+    StringBuilder buf = new StringBuilder(count * 2 - 1);
+    for (int i = 0; i < count; i++) {
+      if (i > 0) {
+        buf.append(", ");
+      }
+      buf.append('?');
+    }
+    return buf;
+  }
+
+  /**
    * Group two restrictions with {@code AND}.
    *
    * @param lhs the left operand
