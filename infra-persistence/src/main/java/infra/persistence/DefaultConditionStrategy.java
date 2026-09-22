@@ -50,7 +50,7 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/28 22:43
  */
-public class DefaultConditionStrategy implements PropertyConditionStrategy {
+class DefaultConditionStrategy implements PropertyConditionStrategy {
 
   @Override
   public @Nullable Condition resolve(EntityProperty entityProperty, Object value, ValueNormalizer valueNormalizer) {

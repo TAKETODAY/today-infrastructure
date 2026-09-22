@@ -20,6 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
+import infra.lang.Constant;
 import infra.persistence.Condition;
 import infra.persistence.EntityMetadata;
 import infra.persistence.EntityMetadataFactory;
@@ -30,7 +31,6 @@ import infra.persistence.PropertyConditionStrategy;
 import infra.persistence.ValueNormalizer;
 import infra.persistence.annotation.EntityRef;
 import infra.persistence.annotation.Subquery;
-import infra.persistence.sql.Restrictions;
 
 /**
  * A {@link PropertyConditionStrategy} that turns a {@link Subquery @Subquery}-annotated
@@ -69,21 +69,25 @@ public class SubqueryConditionStrategy implements PropertyConditionStrategy {
     }
 
     EntityMetadata refMetadata = metadataFactory.getEntityMetadata(entityRef.getClassValue());
-    Identifier targetColumn = refMetadata.getIdColumnName();
+    Identifier targetColumn = resolveTargetColumn(subquery, refMetadata);
     if (targetColumn == null) {
       return null;
     }
 
     Identifier tableName = resolveTableName(subquery);
-    var sourceColumn = entityProperty.getColumnName();
-    String operator = subquery.getBoolean("negative") ? " NOT IN (" : " IN (";
-    String sql = targetColumn.render()
-            + operator
-            + "SELECT " + subquery.getString("select")
-            + " FROM " + tableName
-            + " WHERE " + sourceColumn + " = ?)";
+    Identifier sourceColumn = entityProperty.getColumnName();
 
-    return new PropertyCondition(value, Restrictions.plain(sql), entityProperty);
+    return new SubqueryCondition(targetColumn, subquery.getBoolean("negative"),
+            subquery.getString("select"), tableName, sourceColumn,
+            value, entityProperty);
+  }
+
+  private @Nullable Identifier resolveTargetColumn(MergedAnnotation<Subquery> subquery, EntityMetadata refMetadata) {
+    String target = subquery.getString("target");
+    if (Constant.BLANK.equals(target)) {
+      return refMetadata.getIdColumnName();
+    }
+    return Identifier.parse(target);
   }
 
   private Identifier resolveTableName(MergedAnnotation<Subquery> subquery) {

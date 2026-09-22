@@ -26,12 +26,12 @@ import infra.core.annotation.AliasFor;
 import infra.lang.Constant;
 
 /**
- * Generates a {@code targetId IN (SELECT select FROM junctionTable WHERE fieldColumn = ?)}
- * or {@code targetId NOT IN (SELECT ...)} predicate for a many-to-many relationship through a
+ * Generates a {@code targetColumn IN (SELECT select FROM junctionTable WHERE fieldColumn = ?)}
+ * or {@code targetColumn NOT IN (SELECT ...)} predicate for a many-to-many relationship through a
  * junction table.
  *
  * <p>Used on a field of an {@link EntityRef @EntityRef} query class. The generated
- * predicate targets the referenced entity's ID column:
+ * predicate targets the referenced entity's ID column by default:
  *
  * <pre>{@code
  * @EntityRef(Label.class)
@@ -59,6 +59,18 @@ import infra.lang.Constant;
  * this generates:
  * <pre>{@code
  * id IN (SELECT label_id FROM article_label WHERE article_id = ?)
+ * }</pre>
+ *
+ * <p>Use {@link #target()} to match against a non-ID column of the referenced
+ * entity:
+ *
+ * <pre>{@code
+ * @EntityRef(Label.class)
+ * class TagQuery {
+ *   @Subquery(fromTable = "article_label", select = "label_id", target = "code")
+ *   public final Long articleId;
+ * }
+ * // label.code IN (SELECT label_id FROM article_label WHERE article_id = ?)
  * }</pre>
  *
  * <p>Set {@link #negative()} to {@code true} to generate {@code NOT IN} instead.
@@ -109,6 +121,15 @@ public @interface Subquery {
    */
   @AliasFor(annotation = Column.class, attribute = "value")
   String where() default Constant.BLANK;
+
+  /**
+   * The target column of the referenced entity to match against.
+   *
+   * <p>When blank (default), the referenced entity's ID column is used.
+   *
+   * @return the target column name, or {@link Constant#BLANK} to use the ID column
+   */
+  String target() default Constant.BLANK;
 
   /**
    * Whether to generate {@code NOT IN} instead of {@code IN}.

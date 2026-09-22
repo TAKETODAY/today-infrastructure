@@ -18,6 +18,7 @@ package infra.persistence.support;
 
 import org.junit.jupiter.api.Test;
 
+import infra.persistence.DefaultConditionStrategy;
 import infra.persistence.DefaultEntityMetadataFactory;
 import infra.persistence.EntityMetadata;
 import infra.persistence.EntityMetadataFactory;
