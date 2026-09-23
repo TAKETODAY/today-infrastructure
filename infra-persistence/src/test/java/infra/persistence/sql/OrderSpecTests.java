@@ -50,6 +50,28 @@ class OrderSpecTests {
   }
 
   @Test
+  void builderIsEmptyTracksMutations() {
+    OrderSpec.Builder builder = OrderSpec.builder();
+    assertThat(builder.isEmpty()).isTrue();
+
+    builder.raw("   ");
+    assertThat(builder.isEmpty()).isTrue();
+
+    builder.asc("name");
+    assertThat(builder.isEmpty()).isFalse();
+
+    builder.remove("name");
+    assertThat(builder.isEmpty()).isTrue();
+
+    builder.raw("LENGTH(name) DESC");
+    assertThat(builder.isEmpty()).isFalse();
+
+    builder.clear();
+    assertThat(builder.isEmpty()).isTrue();
+    assertThat(OrderSpec.desc("age").mutate().isEmpty()).isFalse();
+  }
+
+  @Test
   void empty() {
     assertThat(OrderSpec.empty().isEmpty()).isTrue();
     assertThat(OrderSpec.empty().toClause(platform)).isEmpty();
@@ -129,6 +151,25 @@ class OrderSpecTests {
 
     assertThat(spec.containsRaw()).isTrue();
     assertThat(spec.toClause(platform)).isEqualTo("x DESC, a ASC");
+  }
+
+  @Test
+  void appendToExistingBufferPreservesOrderAndPlatformQuoting() {
+    OrderSpec spec = OrderSpec.builder().asc("`name`").raw("LENGTH(name) DESC").desc("`age`").build();
+    StringBuilder sql = new StringBuilder("SELECT id FROM users order by ");
+
+    spec.appendTo(sql, platform);
+    assertThat(sql.toString()).isEqualTo("SELECT id FROM users order by \"name\" ASC, LENGTH(name) DESC, \"age\" DESC");
+    assertThat(spec.toClause(Platform.mysql())).isEqualTo("`name` ASC, LENGTH(name) DESC, `age` DESC");
+  }
+
+  @Test
+  void emptyAppendLeavesBufferUntouched() {
+    StringBuilder sql = new StringBuilder("SELECT id FROM users");
+
+    OrderSpec.empty().appendTo(sql, platform);
+
+    assertThat(sql.toString()).isEqualTo("SELECT id FROM users");
   }
 
   @Test

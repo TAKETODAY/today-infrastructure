@@ -16,6 +16,8 @@
 
 package infra.persistence.platform;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.persistence.sql.LogicalOperator;
 
 /**
@@ -39,6 +41,28 @@ import infra.persistence.sql.LogicalOperator;
  * @since 5.0
  */
 public class MySQLPlatform extends Platform {
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>MySQL uses LIMIT/OFFSET. An offset without a limit uses MySQL's
+   * maximum unsigned row count to represent an unlimited result.
+   */
+  @Override
+  public void appendPagination(StringBuilder sql, @Nullable Integer limit, @Nullable Integer offset) {
+    if ((limit != null && limit < 0) || (offset != null && offset < 0)) {
+      throw new IllegalArgumentException("Limit and offset must not be negative");
+    }
+    if (limit != null) {
+      sql.append(" LIMIT ").append(limit);
+    }
+    else if (offset != null && offset > 0) {
+      sql.append(" LIMIT 18446744073709551615");
+    }
+    if (offset != null && offset > 0) {
+      sql.append(" OFFSET ").append(offset);
+    }
+  }
 
   /**
    * {@inheritDoc}

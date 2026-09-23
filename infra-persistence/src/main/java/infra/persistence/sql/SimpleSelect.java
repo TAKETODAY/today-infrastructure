@@ -57,19 +57,63 @@ public class SimpleSelect implements StatementSequence {
     this.columns = columns;
   }
 
+  /**
+   * Replace both the limit and offset with the supplied pagination.
+   *
+   * @param pageable the pagination to apply
+   * @return this select
+   * @throws IllegalArgumentException if the limit or offset is negative
+   */
   public SimpleSelect pageable(Pageable pageable) {
-    this.limit = pageable.pageSize();
-    this.offset = pageable.offset();
+    int limit = pageable.pageSize();
+    int offset = pageable.offset();
+    if (limit < 0 || offset < 0) {
+      throw new IllegalArgumentException("Limit and offset must not be negative");
+    }
+    this.limit = limit;
+    this.offset = offset;
     return this;
   }
 
+  /**
+   * Set the maximum row count, leaving the offset unchanged.
+   *
+   * @param limit a non-negative row count, or {@code null} to remove the limit
+   * @return this select
+   * @throws IllegalArgumentException if the limit is negative
+   */
   public SimpleSelect limit(@Nullable Integer limit) {
+    if (limit != null && limit < 0) {
+      throw new IllegalArgumentException("Limit must not be negative");
+    }
     this.limit = limit;
     return this;
   }
 
+  /**
+   * Set the number of rows to skip, independently of the limit.
+   *
+   * @param offset a non-negative offset, or {@code null} to remove the offset
+   * @return this select
+   * @throws IllegalArgumentException if the offset is negative
+   */
   public SimpleSelect offset(@Nullable Integer offset) {
+    if (offset != null && offset < 0) {
+      throw new IllegalArgumentException("Offset must not be negative");
+    }
     this.offset = offset;
+    return this;
+  }
+
+  /**
+   * Clear both the limit and offset.
+   *
+   * @return this select
+   * @since 5.0
+   */
+  public SimpleSelect clearPagination() {
+    this.limit = null;
+    this.offset = null;
     return this;
   }
 
@@ -199,6 +243,17 @@ public class SimpleSelect implements StatementSequence {
   }
 
   /**
+   * Replace the ORDER BY with the given spec, discarding any parts previously
+   * accumulated through {@link #orderBy()}.
+   *
+   * @param orderSpec the spec to use; {@code null} clears the ordering
+   */
+  public SimpleSelect orderBy(OrderSpec.@Nullable Builder orderSpec) {
+    this.orderByBuilder = orderSpec != null ? orderSpec : OrderSpec.builder();
+    return this;
+  }
+
+  /**
    * Return the builder backing this select's ordering, for incrementally appending
    * sort keys or raw fragments. Appending continues after any parts already present.
    *
@@ -225,18 +280,12 @@ public class SimpleSelect implements StatementSequence {
     // where
     Restrictions.append(platform, restrictions, buf);
 
-    OrderSpec orderSpec = orderByBuilder.build();
-    if (!orderSpec.isEmpty()) {
-      buf.append(" order by ").append(orderSpec.toClause(platform));
+    if (!orderByBuilder.isEmpty()) {
+      buf.append(" order by ");
+      orderByBuilder.build().appendTo(buf, platform);
     }
 
-    if (limit != null) {
-      buf.append(" LIMIT ").append(limit);
-      if (offset != null && offset > 0) {
-        buf.append(" OFFSET ").append(offset);
-      }
-    }
-
+    platform.appendPagination(buf, limit, offset);
     return buf.toString();
   }
 

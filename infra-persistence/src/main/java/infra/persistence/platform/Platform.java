@@ -254,7 +254,31 @@ public abstract class Platform {
             .append('`');
   }
 
-  // Static factory methods
+  /**
+   * Append pagination to a SELECT statement, after its ORDER BY clause.
+   * The default implementation uses SQL-standard OFFSET/FETCH syntax.
+   * Dialects may override this method to modify the supplied statement as needed.
+   *
+   * <p>This method does not add ordering. Callers should supply a deterministic
+   * ORDER BY for stable pages; some databases require ordering for pagination.
+   *
+   * @param sql the SELECT statement buffer
+   * @param limit the maximum row count, or {@code null} for no limit
+   * @param offset the number of rows to skip, or {@code null} for no offset
+   * @throws IllegalArgumentException if either value is negative
+   * @since 5.0
+   */
+  public void appendPagination(StringBuilder sql, @Nullable Integer limit, @Nullable Integer offset) {
+    if ((limit != null && limit < 0) || (offset != null && offset < 0)) {
+      throw new IllegalArgumentException("Limit and offset must not be negative");
+    }
+    if (offset != null && offset > 0) {
+      sql.append(" OFFSET ").append(offset).append(" ROWS");
+    }
+    if (limit != null) {
+      sql.append(" FETCH FIRST ").append(limit).append(" ROWS ONLY");
+    }
+  }
 
   /**
    * Return the ANSI SQL platform, the fallback for databases without a dedicated

@@ -19,6 +19,7 @@ package infra.persistence.sql;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -92,6 +93,7 @@ public final class OrderSpec {
    *
    * @param column the column name to order by
    * @return the immutable spec
+   * @since 5.0
    */
   public static OrderSpec asc(String column) {
     return new OrderSpec(List.of(new Item(Identifier.parse(column), Order.ASC)));
@@ -102,6 +104,7 @@ public final class OrderSpec {
    *
    * @param column the column name to order by
    * @return the immutable spec
+   * @since 5.0
    */
   public static OrderSpec desc(String column) {
     return new OrderSpec(List.of(new Item(Identifier.parse(column), Order.DESC)));
@@ -116,6 +119,7 @@ public final class OrderSpec {
    *
    * @param clause the raw SQL ORDER BY fragment
    * @return the immutable spec
+   * @since 5.0
    */
   public static OrderSpec plain(CharSequence clause) {
     return StringUtils.hasText(clause)
@@ -127,6 +131,7 @@ public final class OrderSpec {
    * Return a new builder for incrementally assembling an ORDER BY spec.
    *
    * @return a fresh builder
+   * @since 5.0
    */
   public static Builder builder() {
     return new Builder();
@@ -137,6 +142,7 @@ public final class OrderSpec {
    * ORDER BY spec.
    *
    * @return a builder pre-populated from this spec
+   * @since 5.0
    */
   public Builder mutate() {
     Builder builder = new Builder();
@@ -150,6 +156,7 @@ public final class OrderSpec {
    * Whether this spec contributes no ordering.
    *
    * @return {@code true} when there are no parts
+   * @since 5.0
    */
   public boolean isEmpty() {
     return parts.isEmpty();
@@ -159,6 +166,7 @@ public final class OrderSpec {
    * Whether this spec contains at least one raw SQL {@link Fragment}.
    *
    * @return {@code true} if any part is a raw fragment
+   * @since 5.0
    */
   public boolean containsRaw() {
     for (Part part : parts) {
@@ -175,16 +183,30 @@ public final class OrderSpec {
    *
    * @param platform the database platform whose quoting rules apply
    * @return the rendered clause; empty when {@link #isEmpty()}
+   * @since 5.0
    */
   public String toClause(Platform platform) {
-    StringBuilder builder = new StringBuilder();
-    for (Part part : parts) {
-      if (!builder.isEmpty()) {
+    StringBuilder builder = new StringBuilder(parts.size() * 12);
+    appendTo(builder, platform);
+    return builder.toString();
+  }
+
+  /**
+   * Append the ORDER BY clause contents to an existing buffer, without the
+   * {@code ORDER BY} keyword. Parts are separated by {@code ", "}.
+   *
+   * @param builder the buffer to append to
+   * @param platform the database platform whose quoting rules apply
+   * @since 5.0
+   */
+  public void appendTo(StringBuilder builder, Platform platform) {
+    Iterator<Part> iterator = parts.iterator();
+    while (iterator.hasNext()) {
+      iterator.next().appendTo(builder, platform);
+      if (iterator.hasNext()) {
         builder.append(", ");
       }
-      builder.append(part.toClause(platform));
     }
-    return builder.toString();
   }
 
   @Override
@@ -206,22 +228,20 @@ public final class OrderSpec {
   public sealed interface Part {
 
     /**
-     * Render this part for the given platform.
+     * Append this part to an existing buffer.
      *
+     * @param builder the buffer to append to
      * @param platform the database platform whose quoting rules apply
-     * @return the rendered text
      */
-    CharSequence toClause(Platform platform);
+    void appendTo(StringBuilder builder, Platform platform);
   }
 
   /** A structured sort key: a column and a direction. */
   public record Item(Identifier column, Order direction) implements Part {
 
     @Override
-    public CharSequence toClause(Platform platform) {
-      return new StringBuilder()
-              .append(column.render(platform))
-              .append(' ').append(direction.name());
+    public void appendTo(StringBuilder builder, Platform platform) {
+      builder.append(column.render(platform)).append(' ').append(direction.name());
     }
   }
 
@@ -229,8 +249,8 @@ public final class OrderSpec {
   public record Fragment(CharSequence text) implements Part {
 
     @Override
-    public CharSequence toClause(Platform platform) {
-      return text;
+    public void appendTo(StringBuilder builder, Platform platform) {
+      builder.append(text);
     }
   }
 
@@ -242,6 +262,15 @@ public final class OrderSpec {
   public static final class Builder {
 
     private final ArrayList<Part> parts = new ArrayList<>();
+
+    /**
+     * Whether this builder currently has no sort keys or raw fragments.
+     *
+     * @return {@code true} when there are no parts
+     */
+    public boolean isEmpty() {
+      return parts.isEmpty();
+    }
 
     /** Append an ascending sort key. */
     public Builder asc(String column) {
