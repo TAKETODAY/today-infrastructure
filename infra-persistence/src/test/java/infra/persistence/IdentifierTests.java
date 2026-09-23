@@ -84,6 +84,30 @@ class IdentifierTests {
   }
 
   @Test
+  void appendToUsesPlatformQuotingOnlyWhenRequested() {
+    Platform custom = new Platform() {
+
+      @Override
+      public char openQuote() {
+        return '[';
+      }
+
+      @Override
+      public char closeQuote() {
+        return ']';
+      }
+    };
+    StringBuilder sql = new StringBuilder("SELECT ");
+
+    new Identifier("name", true).appendTo(sql, custom);
+    sql.append(", ");
+    new Identifier("age", false).appendTo(sql, custom);
+
+    assertThat(sql.toString()).isEqualTo("SELECT [name], age");
+    assertThat(new Identifier("name", true).render(custom)).isEqualTo("[name]");
+  }
+
+  @Test
   void quotedReturnsCounterpart() {
     Identifier unquoted = new Identifier("name", false);
     Identifier quoted = unquoted.quoted();

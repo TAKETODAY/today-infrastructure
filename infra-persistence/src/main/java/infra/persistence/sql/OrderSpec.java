@@ -241,7 +241,7 @@ public final class OrderSpec {
 
     @Override
     public void appendTo(StringBuilder builder, Platform platform) {
-      builder.append(column.render(platform)).append(' ').append(direction.name());
+      column.appendTo(builder, platform).append(' ').append(direction.name());
     }
   }
 

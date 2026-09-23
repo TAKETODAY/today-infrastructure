@@ -16,10 +16,10 @@
 
 package infra.persistence.sql;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.jspecify.annotations.Nullable;
 
 import infra.persistence.Order;
 import infra.persistence.Pageable;
@@ -35,6 +35,25 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 class SimpleSelectTests {
 
   private final Platform platform = Platform.generic();
+
+  @Test
+  void quotedColumnsAndTableUsePlatformQuoting() {
+    Platform custom = new Platform() {
+
+      @Override
+      public char openQuote() {
+        return '[';
+      }
+
+      @Override
+      public char closeQuote() {
+        return ']';
+      }
+    };
+
+    assertThat(new SimpleSelect().addColumn("`name`").setTableName("`users`").toStatementString(custom))
+            .isEqualTo("SELECT [name] FROM [users]");
+  }
 
   @ParameterizedTest
   @CsvSource({

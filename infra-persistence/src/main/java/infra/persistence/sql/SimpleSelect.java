@@ -276,7 +276,8 @@ public class SimpleSelect implements StatementSequence {
     }
 
     applySelectClause(platform, buf);
-    buf.append(" FROM ").append(tableName.render(platform));
+    buf.append(" FROM ");
+    tableName.appendTo(buf, platform);
     // where
     Restrictions.append(platform, restrictions, buf);
 
@@ -304,7 +305,7 @@ public class SimpleSelect implements StatementSequence {
           appendComma = true;
         }
 
-        buf.append(col.render(platform));
+        col.appendTo(buf, platform);
         if (alias != null && !alias.equals(col.getText())) {
           buf.append(" AS ").append(alias);
         }

@@ -129,6 +129,23 @@ public class Identifier implements Comparable<Identifier> {
   }
 
   /**
+   * Append this identifier to an SQL buffer using the platform's quoting rules.
+   *
+   * @param sql the buffer to append to
+   * @param platform the platform whose quoting rules apply
+   * @since 5.0
+   */
+  public StringBuilder appendTo(StringBuilder sql, Platform platform) {
+    if (quoted) {
+      platform.appendQuotedIdentifier(sql, name);
+    }
+    else {
+      sql.append(name);
+    }
+    return sql;
+  }
+
+  /**
    * Render this identifier in an internal neutral form, using backticks as the
    * quote markers. Prefer {@link #render(Platform)} for actual SQL text.
    *

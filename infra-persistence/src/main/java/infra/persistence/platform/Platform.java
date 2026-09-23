@@ -29,6 +29,7 @@ import infra.jdbc.support.JdbcUtils;
 import infra.jdbc.support.MetaDataAccessException;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.persistence.Identifier;
 import infra.persistence.sql.ANSIJoinFragment;
 import infra.persistence.sql.JoinFragment;
 import infra.persistence.sql.LogicalOperator;
@@ -134,6 +135,21 @@ public abstract class Platform {
   }
 
   /**
+   * Append a bare identifier name surrounded by this platform's quote characters.
+   * Like {@link #toQuotedIdentifier(String)}, this does not escape quote characters
+   * in the name. The default uses {@link #openQuote()} and {@link #closeQuote()};
+   * platforms that override {@link #toQuotedIdentifier(String)} with different
+   * quoting behavior should override this method as well.
+   *
+   * @param sql the buffer to append to
+   * @param name the bare identifier name to quote
+   * @since 5.0
+   */
+  public void appendQuotedIdentifier(StringBuilder sql, String name) {
+    sql.append(openQuote()).append(name).append(closeQuote());
+  }
+
+  /**
    * Resolve an identifier written in the internal backtick convention.
    *
    * <p>A name enclosed in a matched pair of backticks is taken to require
@@ -236,8 +252,8 @@ public abstract class Platform {
    * @return the {@code TRUNCATE TABLE} statement
    * @since 5.0
    */
-  public String getTruncateTableStatement(String tableName) {
-    return "TRUNCATE TABLE " + tableName;
+  public String getTruncateTableStatement(Identifier tableName) {
+    return "TRUNCATE TABLE " + tableName.render(this);
   }
 
   /**
@@ -248,10 +264,9 @@ public abstract class Platform {
    * @param tableName the name of the table to count
    * @since 5.0
    */
-  public void selectCountFrom(StringBuilder countSql, String tableName) {
-    countSql.append("SELECT COUNT(*) FROM `")
-            .append(tableName)
-            .append('`');
+  public void selectCountFrom(StringBuilder countSql, Identifier tableName) {
+    countSql.append("SELECT COUNT(*) FROM ")
+            .append(tableName.render(this));
   }
 
   /**

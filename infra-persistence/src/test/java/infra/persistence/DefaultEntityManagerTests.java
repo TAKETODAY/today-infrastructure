@@ -1668,11 +1668,6 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
 
   static class HyperSQLPlatform extends GenericPlatform {
 
-    @Override
-    public void selectCountFrom(StringBuilder countSql, String tableName) {
-      countSql.append("SELECT COUNT(*) FROM ")
-              .append(tableName);
-    }
   }
 
 }

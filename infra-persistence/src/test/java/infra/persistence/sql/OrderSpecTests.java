@@ -164,6 +164,24 @@ class OrderSpecTests {
   }
 
   @Test
+  void appendToRespectsCustomPlatformQuoting() {
+    Platform custom = new Platform() {
+
+      @Override
+      public char openQuote() {
+        return '[';
+      }
+
+      @Override
+      public char closeQuote() {
+        return ']';
+      }
+    };
+
+    assertThat(OrderSpec.asc("`name`").toClause(custom)).isEqualTo("[name] ASC");
+  }
+
+  @Test
   void emptyAppendLeavesBufferUntouched() {
     StringBuilder sql = new StringBuilder("SELECT id FROM users");
 

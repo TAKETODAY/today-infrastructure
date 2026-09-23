@@ -884,7 +884,7 @@ public class DefaultEntityManager implements EntityManager {
   public void truncate(Class<?> entityClass) throws DataAccessException {
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
 
-    String sql = platform.getTruncateTableStatement(metadata.getTableName().render(platform));
+    String sql = platform.getTruncateTableStatement(metadata.getTableName());
     if (stmtLogger.isDebugEnabled()) {
       stmtLogger.logStatement(LogMessage.format("Truncate table: [{}]", entityClass), sql);
     }
@@ -1198,8 +1198,8 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   private Number doQueryCount(EntityMetadata metadata, QueryCondition handler, List<Restriction> restrictions, Connection con) throws DataAccessException {
-    String tableName = metadata.getTableName().render(platform);
-    StringBuilder countSql = new StringBuilder(restrictions.size() * 10 + 25 + tableName.length());
+    var tableName = metadata.getTableName();
+    StringBuilder countSql = new StringBuilder(restrictions.size() * 10 + 25 + tableName.getText().length());
     platform.selectCountFrom(countSql, tableName);
 
     Restrictions.append(platform, restrictions, countSql);
