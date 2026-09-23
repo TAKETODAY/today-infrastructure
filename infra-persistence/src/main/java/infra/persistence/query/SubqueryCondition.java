@@ -46,19 +46,22 @@ final class SubqueryCondition implements Condition {
 
   private final Identifier sourceColumn;
 
+  private final String whereOperator;
+
   private final Object value;
 
   private final EntityProperty entityProperty;
 
   SubqueryCondition(Identifier targetColumn, boolean negative, String operator, String select,
-          Identifier tableName,
-          Identifier sourceColumn, Object value, EntityProperty entityProperty) {
+          Identifier tableName, Identifier sourceColumn, String whereOperator,
+          Object value, EntityProperty entityProperty) {
     this.targetColumn = targetColumn;
     this.negative = negative;
     this.operator = operator;
     this.select = select;
     this.tableName = tableName;
     this.sourceColumn = sourceColumn;
+    this.whereOperator = whereOperator;
     this.value = value;
     this.entityProperty = entityProperty;
   }
@@ -80,7 +83,7 @@ final class SubqueryCondition implements Condition {
             .append(tableName.render(platform))
             .append(" WHERE ")
             .append(sourceColumn.render(platform))
-            .append(" = ?)");
+            .append(' ').append(whereOperator).append(" ?)");
   }
 
   @Override

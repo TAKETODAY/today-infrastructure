@@ -73,7 +73,8 @@ public class SubqueryConditionStrategy implements PropertyConditionStrategy {
       value = valueNormalizer.normalize(property, value);
       return new SubqueryCondition(targetColumn, subquery.getBoolean("negative"),
               subquery.getString("operator"),
-              subquery.getString("select"), tableName, sourceColumn, value, property);
+              subquery.getString("select"), tableName, sourceColumn,
+              subquery.getString("whereOperator"), value, property);
     }
     return null;
   }

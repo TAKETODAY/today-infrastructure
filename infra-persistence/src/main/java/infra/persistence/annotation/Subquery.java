@@ -123,6 +123,17 @@ public @interface Subquery {
   String where() default Constant.BLANK;
 
   /**
+   * Operator between the junction table's {@link #where()} column and the bound value.
+   *
+   * <p>Defaults to {@code =}. For example, {@code whereOperator = ">="}
+   * generates {@code WHERE fieldColumn >= ?}. This is independent of
+   * {@link #operator()}, which compares the target column with the subquery result.
+   *
+   * @return the operator for the subquery's {@code WHERE} predicate
+   */
+  String whereOperator() default "=";
+
+  /**
    * The target column of the referenced entity to match against.
    *
    * <p>When blank (default), the referenced entity's ID column is used. Otherwise

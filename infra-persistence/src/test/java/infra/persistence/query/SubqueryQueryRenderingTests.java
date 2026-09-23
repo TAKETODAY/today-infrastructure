@@ -92,6 +92,18 @@ class SubqueryQueryRenderingTests {
   }
 
   @Test
+  void innerOperatorRendersAndBinds() throws Exception {
+    QueryStatement query = queryFactory.createQuery(new InnerOperatorQuery(42L));
+
+    assertThat(query.render(labelMetadata).toStatementString(generic))
+            .contains("WHERE id IN (SELECT label_id FROM article_label WHERE article_id >= ?)");
+
+    PreparedStatement statement = mock(PreparedStatement.class);
+    query.setParameter(labelMetadata, statement);
+    verify(statement).setLong(1, 42L);
+  }
+
+  @Test
   void targetResolvesMappedColumn() {
     assertThat(render(new RenamedTargetQuery(42L)))
             .isEqualTo("WHERE display_code IN (SELECT label_id FROM article_label WHERE article_id = ?)");
@@ -313,6 +325,17 @@ class SubqueryQueryRenderingTests {
 
     ScalarSubqueryQuery(Long studentId) {
       this.studentId = studentId;
+    }
+  }
+
+  @EntityRef(Label.class)
+  static class InnerOperatorQuery {
+
+    @Subquery(select = "label_id", fromTable = "article_label", whereOperator = ">=")
+    public final Long articleId;
+
+    InnerOperatorQuery(Long articleId) {
+      this.articleId = articleId;
     }
   }
 
