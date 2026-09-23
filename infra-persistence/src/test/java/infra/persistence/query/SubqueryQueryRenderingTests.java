@@ -86,6 +86,12 @@ class SubqueryQueryRenderingTests {
   }
 
   @Test
+  void scalarOperatorRenders() {
+    assertThat(render(new ScalarSubqueryQuery(42L)))
+            .isEqualTo("WHERE id > (SELECT MAX(score) FROM exam_result WHERE student_id = ?)");
+  }
+
+  @Test
   void targetResolvesMappedColumn() {
     assertThat(render(new RenamedTargetQuery(42L)))
             .isEqualTo("WHERE display_code IN (SELECT label_id FROM article_label WHERE article_id = ?)");
@@ -156,6 +162,22 @@ class SubqueryQueryRenderingTests {
     query.setParameter(labelMetadata, statement);
 
     verify(statement).setLong(1, 42L);
+  }
+
+  @Test
+  void bindsValueInsteadOfAppendingItToSql() throws Exception {
+    String value = "42' OR '1'='1";
+    QueryStatement query = queryFactory.createQuery(new StringValueQuery(value));
+
+    String sql = query.render(labelMetadata).toStatementString(generic);
+
+    assertThat(sql).contains("WHERE id IN (SELECT label_id FROM article_label WHERE article_id = ?)");
+    assertThat(sql).doesNotContain(value);
+
+    PreparedStatement statement = mock(PreparedStatement.class);
+    query.setParameter(labelMetadata, statement);
+
+    verify(statement).setString(1, value);
   }
 
   @Test
@@ -238,6 +260,18 @@ class SubqueryQueryRenderingTests {
   }
 
   @EntityRef(Label.class)
+  static class StringValueQuery {
+
+    @Subquery(select = "label_id", fromTable = "article_label")
+    @Column("article_id")
+    public final String articleId;
+
+    StringValueQuery(String articleId) {
+      this.articleId = articleId;
+    }
+  }
+
+  @EntityRef(Label.class)
   static class FromEntityQuery {
 
     @Subquery(select = "label_id", from = ArticleLabel.class)
@@ -267,6 +301,18 @@ class SubqueryQueryRenderingTests {
 
     TargetQuery(Long articleId) {
       this.articleId = articleId;
+    }
+  }
+
+  @EntityRef(Label.class)
+  static class ScalarSubqueryQuery {
+
+    @Subquery(select = "MAX(score)", fromTable = "exam_result",
+            where = "student_id", operator = ">")
+    public final Long studentId;
+
+    ScalarSubqueryQuery(Long studentId) {
+      this.studentId = studentId;
     }
   }
 

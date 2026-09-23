@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.PreparedStatement;
 
+import infra.lang.Constant;
 import infra.persistence.Identifier;
 import infra.persistence.platform.Platform;
 
@@ -51,7 +52,7 @@ class SubqueryConditionTests {
 
   @Test
   void shouldRenderInSubquery() {
-    var condition = new SubqueryCondition(targetId, false, select,
+    var condition = new SubqueryCondition(targetId, false, Constant.DEFAULT_NONE, select,
             junctionTable, sourceColumn, value, null);
 
     StringBuilder buf = new StringBuilder();
@@ -63,7 +64,7 @@ class SubqueryConditionTests {
 
   @Test
   void shouldRenderNotInSubquery() {
-    var condition = new SubqueryCondition(targetId, true, select,
+    var condition = new SubqueryCondition(targetId, true, Constant.DEFAULT_NONE, select,
             junctionTable, sourceColumn, value, null);
 
     StringBuilder buf = new StringBuilder();
@@ -74,8 +75,20 @@ class SubqueryConditionTests {
   }
 
   @Test
+  void shouldRenderCustomOperatorSubquery() {
+    var condition = new SubqueryCondition(targetId, false, ">", "MAX(score)",
+            Identifier.parse("exam_result"), Identifier.parse("student_id"), value, null);
+
+    StringBuilder buf = new StringBuilder();
+    condition.render(generic, buf);
+
+    assertThat(buf.toString()).isEqualTo(
+            "id > (SELECT MAX(score) FROM exam_result WHERE student_id = ?)");
+  }
+
+  @Test
   void shouldRenderWithCustomTargetColumn() {
-    var condition = new SubqueryCondition(targetCode, false, select,
+    var condition = new SubqueryCondition(targetCode, false, Constant.DEFAULT_NONE, select,
             junctionTable, sourceColumn, value, null);
 
     StringBuilder buf = new StringBuilder();
@@ -90,7 +103,7 @@ class SubqueryConditionTests {
     var quotedTarget = new infra.persistence.Identifier("id", true);
     var quotedTable = new infra.persistence.Identifier("article_label", true);
     var quotedSource = new infra.persistence.Identifier("article_id", true);
-    var condition = new SubqueryCondition(quotedTarget, false, select,
+    var condition = new SubqueryCondition(quotedTarget, false, Constant.DEFAULT_NONE, select,
             quotedTable, quotedSource, value, null);
 
     StringBuilder buf = new StringBuilder();
@@ -103,7 +116,7 @@ class SubqueryConditionTests {
   @Test
   void shouldRenderWithQuotedTargetColumn() {
     var quotedTarget = Identifier.parse("\"target_id\"");
-    var condition = new SubqueryCondition(quotedTarget, false, select,
+    var condition = new SubqueryCondition(quotedTarget, false, Constant.DEFAULT_NONE, select,
             junctionTable, sourceColumn, value, null);
 
     StringBuilder buf = new StringBuilder();
@@ -116,7 +129,7 @@ class SubqueryConditionTests {
   @Test
   void shouldBindParameter() throws Exception {
     var entityProperty = mock(infra.persistence.EntityProperty.class);
-    var condition = new SubqueryCondition(targetId, false, select,
+    var condition = new SubqueryCondition(targetId, false, Constant.DEFAULT_NONE, select,
             junctionTable, sourceColumn, value, entityProperty);
 
     PreparedStatement ps = mock(PreparedStatement.class);

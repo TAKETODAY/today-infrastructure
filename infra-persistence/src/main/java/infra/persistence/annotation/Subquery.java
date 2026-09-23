@@ -26,9 +26,9 @@ import infra.core.annotation.AliasFor;
 import infra.lang.Constant;
 
 /**
- * Generates a {@code targetColumn IN (SELECT select FROM junctionTable WHERE fieldColumn = ?)}
- * or {@code targetColumn NOT IN (SELECT ...)} predicate for a many-to-many relationship through a
- * junction table.
+ * Generates a {@code targetColumn IN (SELECT select FROM junctionTable WHERE fieldColumn = ?)},
+ * {@code targetColumn NOT IN (SELECT ...)}, or a scalar comparison such as
+ * {@code targetColumn > (SELECT select FROM junctionTable WHERE fieldColumn = ?)} predicate.
  *
  * <p>Used on a field of an {@link EntityRef @EntityRef} query class. The generated
  * predicate targets the referenced entity's ID column by default:
@@ -142,5 +142,22 @@ public @interface Subquery {
    * {@code IN (SELECT ...)}
    */
   boolean negative() default false;
+
+  /**
+   * Comparison operator to use between the target column and the subquery.
+   *
+   * <p>When not specified, {@code IN} or {@code NOT IN} is generated according to
+   * {@link #negative()}. When specified, this operator is used instead and
+   * {@link #negative()} is ignored.
+   *
+   * <p>For example, {@code operator = ">"} generates:
+   * <pre>{@code
+   * score > (SELECT MAX(score) FROM exam_result WHERE student_id = ?)
+   * }</pre>
+   *
+   * @return the SQL comparison operator, or {@link Constant#DEFAULT_NONE} when
+   * not specified
+   */
+  String operator() default Constant.DEFAULT_NONE;
 
 }

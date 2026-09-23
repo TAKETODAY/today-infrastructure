@@ -19,6 +19,7 @@ package infra.persistence.query;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import infra.lang.Constant;
 import infra.persistence.EntityProperty;
 import infra.persistence.Identifier;
 import infra.persistence.platform.Platform;
@@ -37,6 +38,8 @@ final class SubqueryCondition implements Condition {
 
   private final boolean negative;
 
+  private final String operator;
+
   private final String select;
 
   private final Identifier tableName;
@@ -47,10 +50,12 @@ final class SubqueryCondition implements Condition {
 
   private final EntityProperty entityProperty;
 
-  SubqueryCondition(Identifier targetColumn, boolean negative, String select, Identifier tableName,
+  SubqueryCondition(Identifier targetColumn, boolean negative, String operator, String select,
+          Identifier tableName,
           Identifier sourceColumn, Object value, EntityProperty entityProperty) {
     this.targetColumn = targetColumn;
     this.negative = negative;
+    this.operator = operator;
     this.select = select;
     this.tableName = tableName;
     this.sourceColumn = sourceColumn;
@@ -61,7 +66,10 @@ final class SubqueryCondition implements Condition {
   @Override
   public void render(Platform platform, StringBuilder sqlBuffer) {
     sqlBuffer.append(targetColumn.render(platform));
-    if (negative) {
+    if (!Constant.DEFAULT_NONE.equals(operator)) {
+      sqlBuffer.append(' ').append(operator).append(" (SELECT ");
+    }
+    else if (negative) {
       sqlBuffer.append(" NOT IN (SELECT ");
     }
     else {

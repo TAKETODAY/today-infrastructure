@@ -121,6 +121,15 @@ class SubqueryConditionStrategyTests {
   }
 
   @Test
+  void whereAliasShouldChangePropertyColumnName() {
+    EntityMetadata metadata = metadataFactory.getEntityMetadata(WhereOverrideQuery.class);
+    EntityProperty property = metadata.findProperty("articleId");
+
+    assertThat(property).isNotNull();
+    assertThat(property.getColumnName().getText()).isEqualTo("post_id");
+  }
+
+  @Test
   void shouldQuoteTargetColumnPerPlatform() {
     Condition condition = resolve(QuotedTargetQuery.class, "articleId", 42L);
 
