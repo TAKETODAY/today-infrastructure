@@ -41,7 +41,7 @@ import infra.util.Assert;
  * Pageable pageable = Pageable.of(2, 10);
  *
  * // Simulate a database query result
- * List<String> allRows = List.of("row1", "row2", "row3", ..., "row100");
+ * List<String> allRows = ...;
  * Number totalRows = allRows.size();
  * List<String> currentPageRows = allRows.subList(pageable.offset(), pageable.offset() + pageable.pageSize());
  *
@@ -51,7 +51,7 @@ import infra.util.Assert;
  * // Access page information
  * System.out.println("Current Page: " + page.getPageNumber());
  * System.out.println("Total Pages: " + page.getTotalPages());
- * System.out.println("Has Next Page: " + page.isHasNextPage());
+ * System.out.println("Has Next Page: " + page.hasNextPage());
  *
  * // Map rows to uppercase
  * Page<String> upperCasePage = page.mapRows(String::toUpperCase);
@@ -60,8 +60,9 @@ import infra.util.Assert;
  * upperCasePage.getRows().forEach(System.out::println);
  * }</pre>
  *
- * <p>This class is immutable and thread-safe. To create a new instance with modified
- * rows, use the {@link #withRows(List)} method.</p>
+ * <p>The row list is copied on construction and cannot be modified through this page.
+ * Its elements are not copied. To create a new instance with different rows, use
+ * {@link #withRows(List)}.</p>
  *
  * @param <T> the type of elements in the rows list
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -142,37 +143,36 @@ public class Page<T> {
 
   /**
    * Constructs a new {@code Page} object representing a paginated result set.
-   * <p>This constructor initializes the pagination properties based on the provided
-   * parameters and performs automatic correction for invalid input values.
+   * <p>A page number beyond the last page is retained, matching the offset used
+   * to fetch its rows. Zero total rows are represented as one empty page.
    *
    * @param total the total number of rows in the dataset. Must not be null.
    * @param pageNumber the current page number requested by the user.
-   * If less than 1, it will default to 1.
+   * Must be positive.
    * @param limit the maximum number of rows per page. Must be greater than 0.
    * @param rows the list of rows to be displayed on the current page.
-   * Can be empty but must not be null.
+   * May be empty or {@code null}; the list is defensively copied.
+   * @throws IllegalArgumentException if the page number or limit is not positive,
+   * the total is negative, or the total page count exceeds {@link Integer#MAX_VALUE}
    */
   public Page(Number total, int pageNumber, int limit, @Nullable List<T> rows) {
     Assert.isTrue(limit > 0, "limit must great than 0");
-    // set basic params
+    Assert.isTrue(pageNumber > 0, "pageNumber must be positive");
+    Assert.notNull(total, "total must not be null");
+    long totalCount = total.longValue();
+    Assert.isTrue(totalCount >= 0, "total must not be negative");
+    long pages = totalCount == 0 ? 1 : 1 + (totalCount - 1) / limit;
+    Assert.isTrue(pages <= Integer.MAX_VALUE, "totalPages exceeds the integer range");
+
     this.totalRows = total;
     this.limit = limit;
-    this.rows = rows == null ? Collections.emptyList() : rows;
-    this.totalPages = (int) ((total.longValue() - 1) / limit + 1);
-
-    // automatic correction based on the current number of the wrong input
-    if (pageNumber >= 1) {
-      this.pageNumber = Math.min(pageNumber, this.totalPages);
-    }
-    else {
-      this.pageNumber = 1;
-    }
-
-    this.firstPage = this.pageNumber == 1;
-    this.lastPage = this.totalPages == this.pageNumber;
-    // and the determination of pageNum boundaries
-    this.hasPrevPage = pageNumber != 1;
-    this.hasNextPage = pageNumber != totalPages;
+    this.rows = rows == null ? Collections.emptyList() : List.copyOf(rows);
+    this.totalPages = (int) pages;
+    this.pageNumber = pageNumber;
+    this.firstPage = pageNumber == 1;
+    this.lastPage = pageNumber >= totalPages;
+    this.hasPrevPage = pageNumber > 1;
+    this.hasNextPage = pageNumber < totalPages;
     this.nextPage = hasNextPage ? (pageNumber + 1) : 1;
     this.prevPage = hasPrevPage ? (pageNumber - 1) : 1;
   }
@@ -426,8 +426,7 @@ public class Page<T> {
    * processing or display purposes. For example, it can be used to validate the
    * amount of data retrieved or to configure pagination settings.
    *
-   * @return the total number of rows as a {@link Number}, or {@code null} if the
-   * information is not available or has not been set.
+   * @return the total number of rows as a non-null {@link Number}
    */
   public Number getTotalRows() {
     return totalRows;
@@ -438,8 +437,7 @@ public class Page<T> {
    *
    * This method is typically used to retrieve all the rows that have been
    * previously set or initialized within the object. The returned list is
-   * a direct reference to the internal storage, so modifications to the list
-   * may affect the internal state of the object.
+   * unmodifiable; row objects themselves may still be mutable.
    *
    * <p>Example usage:
    * <pre>{@code

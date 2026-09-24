@@ -18,6 +18,7 @@ package infra.persistence;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,10 +76,8 @@ class PageTests {
   @Test
   void shouldHandleInvalidPageNumber() {
     List<String> rows = List.of("row1", "row2");
-    Page<String> page = new Page<>(100, 0, 10, rows); // Invalid page number
-
-    assertThat(page.getPageNumber()).isEqualTo(1);
-    assertThat(page.isFirstPage()).isTrue();
+    assertThatThrownBy(() -> new Page<>(100, 0, 10, rows))
+            .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -213,10 +212,14 @@ class PageTests {
 
   @Test
   void shouldHandleLargePageNumberThatExceedsTotalPages() {
-    Page<String> page = new Page<>(50, 100, 10, List.of("row1", "row2"));
+    Page<String> page = new Page<>(50, 100, 10, List.of());
 
-    assertThat(page.getPageNumber()).isEqualTo(5); // Should be corrected to totalPages
+    assertThat(page.getPageNumber()).isEqualTo(100);
     assertThat(page.isLastPage()).isTrue();
+    assertThat(page.hasNextPage()).isFalse();
+    assertThat(page.getNextPage()).isEqualTo(1);
+    assertThat(page.hasPrevPage()).isTrue();
+    assertThat(page.getPrevPage()).isEqualTo(99);
   }
 
   @Test
@@ -262,10 +265,32 @@ class PageTests {
 
   @Test
   void shouldHandlePageNumberLessThanOne() {
-    Page<String> page = new Page<>(50, -1, 10, List.of("row1"));
+    assertThatThrownBy(() -> new Page<>(50, -1, 10, List.of("row1")))
+            .isInstanceOf(IllegalArgumentException.class);
+  }
 
-    assertThat(page.getPageNumber()).isEqualTo(1);
-    assertThat(page.isFirstPage()).isTrue();
+  @Test
+  void shouldRejectInvalidTotalsAndTooManyPages() {
+    assertThatThrownBy(() -> new Page<String>(null, 1, 10, List.of()))
+            .isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> new Page<String>(-1, 1, 10, List.of()))
+            .isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> new Page<String>((long) Integer.MAX_VALUE + 1, 1, 1, List.of()))
+            .isInstanceOf(IllegalArgumentException.class);
+    assertThat(new Page<String>(Integer.MAX_VALUE, 1, 1, List.of()).getTotalPages())
+            .isEqualTo(Integer.MAX_VALUE);
+  }
+
+  @Test
+  void shouldDefensivelyCopyRows() {
+    ArrayList<String> rows = new ArrayList<>(List.of("one"));
+    Page<String> page = new Page<>(10, 1, 2, rows);
+    rows.add("two");
+
+    assertThat(page.getRows()).containsExactly("one");
+    assertThatThrownBy(() -> page.getRows().add("three"))
+            .isInstanceOf(UnsupportedOperationException.class);
+    assertThat(page.withRows(rows).getRows()).containsExactly("one", "two");
   }
 
   @Test
