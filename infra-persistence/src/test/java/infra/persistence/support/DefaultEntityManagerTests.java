@@ -91,6 +91,8 @@ import infra.persistence.sql.Restrictions;
 import infra.test.util.ReflectionTestUtils;
 import infra.transaction.TransactionDefinition;
 import infra.util.CollectionUtils;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 import static infra.persistence.PropertyUpdateStrategy.noneNull;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -980,6 +982,41 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     assertThatThrownBy(() -> entityManager.keysetPage(NoIdUser.class, null, request))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("entity ID or explicit unique ordering");
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void keysetPageCursorSurvivesJsonHttpRoundTrip(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    if (dbType == DbType.HyperSQL) {
+      entityManager.setPlatform(new HyperSQLPlatform());
+    }
+    entityManager.persist(List.of(
+            UserModel.male("same", 10), UserModel.male("same", 10),
+            UserModel.male("same", 20), UserModel.male("other", 30)));
+
+    QueryCondition condition = new QueryBuilder() {
+      @Override
+      public OrderSpec resolveOrderByClause(EntityMetadata metadata) {
+        return OrderSpec.asc("age");
+      }
+    }.add(Restrictions.equal("name"), "same");
+    KeysetPageable request = KeysetPageable.first(2);
+    KeysetPage<UserModel> first = entityManager.keysetPage(UserModel.class, condition, request);
+
+    JsonMapper json = JsonMapper.builder().build();
+    // HTTP response -> client: deserialize the JSON representation, not the original cursor object.
+    Map<String, Object> response = json.readValue(json.writeValueAsString(first), new TypeReference<>() { });
+    @SuppressWarnings("unchecked") Map<String, ?> receivedCursor = (Map<String, ?>) response.get("nextCursor");
+    assertThat(receivedCursor).containsKeys("age", "id");
+
+    // Client -> HTTP request -> server: reconstruct the pageable from request JSON.
+    KeysetPageable receivedRequest = json.readValue(json.writeValueAsString(request.after(receivedCursor)), KeysetPageable.class);
+    KeysetPage<UserModel> second = entityManager.keysetPage(UserModel.class, condition, receivedRequest);
+
+    assertThat(first.rows()).hasSize(2);
+    assertThat(second.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
+    assertThat(second.hasNext()).isFalse();
+    assertThat(second.rows().get(0).id).isNotIn(first.rows().stream().map(user -> user.id).toList());
   }
 
   @infra.persistence.annotation.Table("t_user")
