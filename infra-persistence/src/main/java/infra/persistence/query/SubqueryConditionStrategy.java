@@ -42,7 +42,7 @@ import infra.persistence.annotation.Subquery;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-public class SubqueryConditionStrategy implements PropertyConditionStrategy {
+final class SubqueryConditionStrategy implements PropertyConditionStrategy {
 
   private final EntityMetadataFactory metadataFactory;
 

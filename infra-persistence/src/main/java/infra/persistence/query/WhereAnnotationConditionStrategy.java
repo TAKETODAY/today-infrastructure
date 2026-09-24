@@ -46,7 +46,7 @@ import infra.persistence.sql.Restrictions;
  * @see Where
  * @since 4.0 2024/2/25 00:02
  */
-public class WhereAnnotationConditionStrategy implements PropertyConditionStrategy {
+final class WhereAnnotationConditionStrategy implements PropertyConditionStrategy {
 
   /**
    * Resolve a condition for the given property and value.

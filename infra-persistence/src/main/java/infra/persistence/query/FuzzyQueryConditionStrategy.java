@@ -51,7 +51,7 @@ import infra.util.StringUtils;
  * @see SuffixLike
  * @since 4.0 2024/2/28 22:48
  */
-public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
+final class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
 
   @Override
   public @Nullable Condition resolve(EntityMetadata metadata, EntityProperty property,

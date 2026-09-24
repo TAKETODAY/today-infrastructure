@@ -73,13 +73,13 @@ public interface PropertyConditionStrategy {
    * a strategy decision. The default implementation declines, leaving the
    * property out of the query.
    *
-   * @param entityMetadata the metadata of the entity being queried, never {@code null}
-   * @param entityProperty the mapped entity property
+   * @param metadata the metadata of the entity being queried, never {@code null}
+   * @param property the mapped entity property
    * @return the resolved condition, or {@code null} when the strategy does not
    * apply and the property should not contribute a predicate
    * @since 5.0
    */
-  default @Nullable Condition resolve(EntityMetadata entityMetadata, EntityProperty entityProperty) {
+  default @Nullable Condition resolve(EntityMetadata metadata, EntityProperty property) {
     return null;
   }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.persistence.support;
+package infra.persistence.query;
 
 import org.junit.jupiter.api.Test;
 
@@ -30,9 +30,6 @@ import infra.persistence.annotation.Id;
 import infra.persistence.annotation.Subquery;
 import infra.persistence.annotation.Table;
 import infra.persistence.platform.Platform;
-import infra.persistence.query.Condition;
-import infra.persistence.query.SubqueryConditionStrategy;
-import infra.persistence.query.ValueNormalizer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

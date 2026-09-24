@@ -59,7 +59,7 @@ import infra.persistence.sql.Restrictions;
  * @see Range
  * @since 5.0
  */
-public class MultiValueConditionStrategy implements PropertyConditionStrategy {
+final class MultiValueConditionStrategy implements PropertyConditionStrategy {
 
   @Override
   public @Nullable Condition resolve(EntityMetadata metadata, EntityProperty property,

@@ -61,14 +61,14 @@ final class DefaultConditionStrategy implements PropertyConditionStrategy {
   }
 
   @Override
-  public @Nullable Condition resolve(EntityMetadata entityMetadata, EntityProperty entityProperty) {
-    MergedAnnotation<WhereIsNull> annotation = entityProperty.getAnnotation(WhereIsNull.class);
+  public @Nullable Condition resolve(EntityMetadata metadata, EntityProperty property) {
+    MergedAnnotation<WhereIsNull> annotation = property.getAnnotation(WhereIsNull.class);
     if (!annotation.isPresent()) {
       return null;
     }
     Restriction restriction = annotation.getBoolean("not")
-            ? Restrictions.isNotNull(entityProperty.getColumnName())
-            : Restrictions.isNull(entityProperty.getColumnName());
+            ? Restrictions.isNotNull(property.getColumnName())
+            : Restrictions.isNull(property.getColumnName());
     return new IsNullCondition(restriction);
   }
 
