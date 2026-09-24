@@ -1704,6 +1704,94 @@ public interface EntityManager {
           throws DataAccessException;
 
   /**
+   * Fetch a slice using limit and offset without querying the total row count.
+   * One additional row is fetched to determine {@link Slice#hasNext()}.
+   * Supply a stable ordering through the entity metadata or a condition handler
+   * when navigating between slices.
+   *
+   * @param entityClass the entity type
+   * @param handler optional filtering and ordering conditions
+   * @param pageable pagination details, or {@code null} for the default
+   * @param <T> the entity type
+   * @return the requested slice
+   * @throws DataAccessException on data access errors
+   * @since 5.0
+   */
+  <T> Slice<T> slice(Class<T> entityClass, @Nullable QueryCondition handler, @Nullable Pageable pageable)
+          throws DataAccessException;
+
+  /**
+   * Fetch a slice without additional conditions.
+   *
+   * @param entityClass the entity type
+   * @param pageable pagination details, or {@code null} for the default
+   * @param <T> the entity type
+   * @return the requested slice
+   * @throws DataAccessException on data access errors
+   * @since 5.0
+   */
+  default <T> Slice<T> slice(Class<T> entityClass, @Nullable Pageable pageable) throws DataAccessException {
+    return slice(entityClass, (QueryCondition) null, pageable);
+  }
+
+  /**
+   * Fetch a slice using the supplied example as a filter.
+   *
+   * @param entityClass the entity type
+   * @param example the example used to build query conditions
+   * @param pageable pagination details, or {@code null} for the default
+   * @param <T> the entity type
+   * @return the requested slice
+   * @throws DataAccessException on data access errors
+   * @since 5.0
+   */
+  <T> Slice<T> slice(Class<T> entityClass, Object example, @Nullable Pageable pageable)
+          throws DataAccessException;
+
+  /**
+   * Fetch a slice using an entity as an example.
+   *
+   * @param example the entity example
+   * @param pageable pagination details, or {@code null} for the default
+   * @param <T> the entity type
+   * @return the requested slice
+   * @throws DataAccessException on data access errors
+   * @since 5.0
+   */
+  @SuppressWarnings("unchecked")
+  default <T> Slice<T> slice(T example, @Nullable Pageable pageable) throws DataAccessException {
+    return slice((Class<T>) example.getClass(), example, pageable);
+  }
+
+  /**
+   * Fetch a forward-only keyset page without a count or offset query. The sort
+   * property and entity ID must contain non-null values; the ID ensures stable
+   * ordering when several rows have the same sort value. The cursor is exclusive.
+   *
+   * @param entityClass the entity type
+   * @param handler optional filtering conditions (its ordering is ignored)
+   * @param pageable the sort, size and optional cursor
+   * @return the page and a cursor when more rows are available
+   * @throws DataAccessException on data access errors
+   * @since 5.0
+   */
+  <T> KeysetPage<T> keysetPage(Class<T> entityClass, @Nullable QueryCondition handler, KeysetPageable pageable)
+          throws DataAccessException;
+
+  /**
+   * Fetch a keyset page without additional filtering.
+   *
+   * @param entityClass the entity type
+   * @param pageable the keyset page request
+   * @return the resulting page
+   * @throws DataAccessException on data access errors
+   * @since 5.0
+   */
+  default <T> KeysetPage<T> keysetPage(Class<T> entityClass, KeysetPageable pageable) throws DataAccessException {
+    return keysetPage(entityClass, null, pageable);
+  }
+
+  /**
    * Iterates over a collection of entities matching the provided example and
    * applies the given consumer function to each entity. This method is useful
    * for processing large datasets in a streaming manner without loading all

@@ -770,6 +770,120 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     assertThat(page.getTotalRows()).isEqualTo(101L);
     assertThat(page.getRows().get(0)).isEqualTo(userModel);
 
+    Page<UserModel> beyond = entityManager.page(UserModel.class, Pageable.of(12, 10));
+    assertThat(beyond.getRows()).isEmpty();
+    assertThat(beyond.getPageNumber()).isEqualTo(12);
+    assertThat(beyond.getTotalPages()).isEqualTo(11);
+    assertThat(beyond.isLastPage()).isTrue();
+    assertThat(beyond.hasNextPage()).isFalse();
+    assertThat(beyond.hasPrevPage()).isTrue();
+
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void slice(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    if (dbType == DbType.HyperSQL) {
+      entityManager.setPlatform(new HyperSQLPlatform());
+    }
+
+    Slice<UserModel> empty = entityManager.slice(UserModel.class, Pageable.of(1, 2));
+    assertThat(empty.rows()).isEmpty();
+    assertThat(empty.hasNext()).isFalse();
+    assertThat(empty.hasPrevious()).isFalse();
+
+    entityManager.persist(List.of(
+            UserModel.male("same", 10),
+            UserModel.male("same", 11),
+            UserModel.male("same", 12),
+            UserModel.male("same", 13),
+            UserModel.male("other", 14)));
+
+    Slice<UserModel> defaultSlice = entityManager.slice(UserModel.class, (Pageable) null);
+    assertThat(defaultSlice.pageNumber()).isEqualTo(1);
+    assertThat(defaultSlice.pageSize()).isEqualTo(10);
+    assertThat(defaultSlice.rows()).hasSize(5);
+    assertThat(defaultSlice.hasNext()).isFalse();
+
+    UserForm filter = new UserForm();
+    filter.name = "same";
+    Slice<UserModel> first = entityManager.slice(UserModel.class, filter, Pageable.of(1, 2));
+    assertThat(first.rows()).hasSize(2).allMatch(user -> user.name.equals("same"));
+    assertThat(first.pageNumber()).isEqualTo(1);
+    assertThat(first.pageSize()).isEqualTo(2);
+    assertThat(first.hasNext()).isTrue();
+    assertThat(first.hasPrevious()).isFalse();
+
+    Slice<UserModel> second = entityManager.slice(UserModel.class, filter, Pageable.of(2, 2));
+    assertThat(second.rows()).hasSize(2).allMatch(user -> user.name.equals("same"));
+    assertThat(second.hasNext()).isFalse();
+    assertThat(second.hasPrevious()).isTrue();
+
+    Slice<UserModel> beyond = entityManager.slice(UserModel.class, filter, Pageable.of(3, 2));
+    assertThat(beyond.rows()).isEmpty();
+    assertThat(beyond.hasNext()).isFalse();
+
+    Slice<UserModel> allLast = entityManager.slice(UserModel.class, Pageable.of(3, 2));
+    assertThat(allLast.rows()).hasSize(1);
+    assertThat(allLast.hasNext()).isFalse();
+
+    QueryCondition condition = entityManager.getEntityQueryFactories().createCondition(Map.of("name", "other"));
+    assertThat(entityManager.slice(UserModel.class, condition, Pageable.of(1, 1)).rows())
+            .singleElement().extracting(user -> user.name).isEqualTo("other");
+
+    assertThatThrownBy(() -> entityManager.slice(UserModel.class, Pageable.of(0, 2)))
+            .isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> entityManager.slice(UserModel.class, Pageable.of(1, 0)))
+            .isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> entityManager.slice(UserModel.class, Pageable.of(1, Integer.MAX_VALUE)))
+            .isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> entityManager.slice(UserModel.class, Pageable.of(Integer.MAX_VALUE, 2)))
+            .isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> entityManager.slice(UserModel.class, Pageable.of(1_073_741_825, 4)))
+            .isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> entityManager.slice(UserModel.class, Pageable.of(Integer.MAX_VALUE, Integer.MAX_VALUE)))
+            .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void keysetPage(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    if (dbType == DbType.HyperSQL) {
+      entityManager.setPlatform(new HyperSQLPlatform());
+    }
+    entityManager.persist(List.of(
+            UserModel.male("same", 10),
+            UserModel.male("same", 10),
+            UserModel.male("same", 20),
+            UserModel.male("other", 30)
+    ));
+
+    QueryCondition filter = entityManager.getEntityQueryFactories().createCondition(Map.of("name", "same"));
+    for (Order direction : Order.values()) {
+      KeysetPageable request = KeysetPageable.first("age", direction, 2);
+      KeysetPage<UserModel> first = entityManager.keysetPage(UserModel.class, filter, request);
+      assertThat(first.rows()).hasSize(2);
+      assertThat(first.hasNext()).isTrue();
+      assertThat(first.nextCursor()).containsKeys("age", "id");
+
+      KeysetPage<UserModel> second = entityManager.keysetPage(UserModel.class, filter, request.after(first.nextCursor()));
+      assertThat(second.rows()).hasSize(1);
+      assertThat(second.hasNext()).isFalse();
+      assertThat(second.rows().get(0).age).isEqualTo(direction == Order.ASC ? 20 : 10);
+      assertThat(first.rows()).allMatch(user -> user.name.equals("same"));
+      assertThat(first.rows().stream().map(user -> user.id).toList())
+              .doesNotContain(second.rows().get(0).id);
+      assertThat(first.rows().get(0).age).isEqualTo(direction == Order.ASC ? 10 : 20);
+    }
+
+    KeysetPageable byId = KeysetPageable.first("id", Order.ASC, 2);
+    KeysetPage<UserModel> first = entityManager.keysetPage(UserModel.class, null, byId);
+    assertThat(first.nextCursor()).containsOnlyKeys("id");
+    assertThat(entityManager.keysetPage(UserModel.class, null, byId.after(first.nextCursor())).rows()).hasSize(2);
+    assertThatThrownBy(() -> entityManager.keysetPage(UserModel.class, null,
+            byId.after(Map.of("age", 10)))).isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> entityManager.keysetPage(UserModel.class, null,
+            KeysetPageable.first("unknown", Order.ASC, 2))).isInstanceOf(IllegalArgumentException.class);
   }
 
   // update
