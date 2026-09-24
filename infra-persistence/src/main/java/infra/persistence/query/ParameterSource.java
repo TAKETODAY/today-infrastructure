@@ -27,9 +27,10 @@ import infra.persistence.EntityMetadata;
  *
  * <p>A {@code ParameterSource} represents an object that holds the values to be
  * bound to the placeholder parameters ({@code ?}) of a prepared SQL statement
- * and knows how to apply them. Parameter indexes start at {@code 1} and must
- * follow the same order in which the corresponding placeholders appear in the
- * rendered SQL.
+ * and knows how to apply them. JDBC parameter indexes start at {@code 1};
+ * values must be bound in the same order as their placeholders in the rendered SQL.
+ * The indexed binding method returns the next available index, allowing another
+ * source or the caller to bind parameters immediately after this source.
  *
  * <p>This is the shared binding contract of {@link QueryStatement} and
  * {@link QueryCondition}, allowing callers that only need to bind parameters to
@@ -43,18 +44,37 @@ import infra.persistence.EntityMetadata;
 public interface ParameterSource {
 
   /**
-   * Apply the parameters held by this source to the given statement.
+   * Bind this source's parameters starting at JDBC index {@code 1}.
    *
-   * <p>Parameter indexes start at {@code 1} and must follow the same order in
-   * which the corresponding placeholders appeared when the SQL was rendered.
-   * Each implementation is expected to consume exactly the placeholders it
-   * produced.
+   * <p>Convenience form of {@link #setParameter(EntityMetadata, PreparedStatement, int)}
+   * for statements whose first placeholder belongs to this source.
    *
    * @param metadata the metadata of the entity being queried
    * @param statement the statement to bind parameters to
+   * @return the next available parameter index after the parameters bound by this source
    * @throws SQLException if a database access error occurs or a parameter index is invalid
    */
-  void setParameter(EntityMetadata metadata, PreparedStatement statement)
+  default int setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException {
+    return setParameter(metadata, statement, 1);
+  }
+
+  /**
+   * Bind this source's parameters beginning at the specified JDBC parameter index.
+   * Bind values in the order of the corresponding placeholders in the rendered SQL,
+   * consuming exactly the placeholders produced by this source.
+   *
+   * <p>Return the first unused index so that subsequent parameters can be bound
+   * without inspecting JDBC parameter metadata. For example, binding two values
+   * starting at index {@code 3} returns {@code 5}; binding no values returns
+   * {@code 3}.
+   *
+   * @param metadata the metadata of the entity being queried
+   * @param statement the statement to bind parameters to
+   * @param parameterIndex the first index to bind, starting at {@code 1}
+   * @return the next available parameter index after the parameters bound by this source
+   * @throws SQLException if a database access error occurs or a parameter index is invalid
+   */
+  int setParameter(EntityMetadata metadata, PreparedStatement statement, int parameterIndex)
           throws SQLException;
 
 }

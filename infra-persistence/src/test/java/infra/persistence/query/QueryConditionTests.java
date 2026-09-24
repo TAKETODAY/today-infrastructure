@@ -84,7 +84,7 @@ class QueryConditionTests {
 
     QueryCondition conditionStatement = new TestQueryCondition();
 
-    assertThatThrownBy(() -> conditionStatement.setParameter(mockMetadata, mockStatement))
+    assertThatThrownBy(() -> conditionStatement.setParameter(mockMetadata, mockStatement, 1))
             .isInstanceOf(SQLException.class)
             .hasMessage("Test exception");
   }
@@ -96,7 +96,7 @@ class QueryConditionTests {
     }
 
     @Override
-    public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException {
+    public int setParameter(EntityMetadata metadata, PreparedStatement statement, int parameterIndex) throws SQLException {
       throw new SQLException("Test exception");
     }
   }

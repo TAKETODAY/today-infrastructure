@@ -78,11 +78,11 @@ final class MapEntityQueryFactory implements EntityQueryFactory {
     }
 
     @Override
-    public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException {
-      int idx = 1;
+    public int setParameter(EntityMetadata metadata, PreparedStatement statement, int parameterIndex) throws SQLException {
       for (Map.Entry<?, ?> entry : map.entrySet()) {
-        statement.setObject(idx++, entry.getValue());
+        statement.setObject(parameterIndex++, entry.getValue());
       }
+      return parameterIndex;
     }
 
     @Override

@@ -903,6 +903,26 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
             KeysetPageable.first("unknown", Order.ASC, 2))).isInstanceOf(IllegalArgumentException.class);
   }
 
+  @ParameterizedRepositoryManagerTest
+  void keysetPageBindsCursorAfterFilter(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    if (dbType == DbType.HyperSQL) {
+      entityManager.setPlatform(new HyperSQLPlatform());
+    }
+    entityManager.persist(List.of(
+            UserModel.male("same", 10),
+            UserModel.male("same", 20),
+            UserModel.male("same", 30)));
+
+    QueryCondition filter = entityManager.getEntityQueryFactories().createCondition(Map.of("name", "same"));
+    KeysetPageable request = KeysetPageable.first("age", Order.ASC, 1);
+    KeysetPage<UserModel> first = entityManager.keysetPage(UserModel.class, filter, request);
+    KeysetPage<UserModel> second = entityManager.keysetPage(UserModel.class, filter, request.after(first.nextCursor()));
+
+    assertThat(first.rows()).singleElement().extracting(user -> user.age).isEqualTo(10);
+    assertThat(second.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
+  }
+
   // update
 
   @ParameterizedRepositoryManagerTest

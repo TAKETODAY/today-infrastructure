@@ -1323,9 +1323,8 @@ public class DefaultEntityManager implements EntityManager {
     PreparedStatement stmt = null;
     try {
       stmt = prepareStatement(con, statement, false);
-      handler.setParameter(metadata, stmt);
+      int index = handler.setParameter(metadata, stmt, 1);
       if (cursor != null) {
-        int index = stmt.getParameterMetaData().getParameterCount() - (sortById ? 1 : 3) + 1;
         sortProperty.setParameter(stmt, index++, sortValue);
         if (!sortById) {
           sortProperty.setParameter(stmt, index++, sortValue);

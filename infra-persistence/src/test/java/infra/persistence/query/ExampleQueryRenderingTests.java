@@ -161,6 +161,20 @@ class ExampleQueryRenderingTests {
   }
 
   @Test
+  void bindsParametersAfterEarlierValues() throws Exception {
+    UserModel example = new UserModel();
+    example.name = "TODAY";
+    example.age = 10;
+
+    ExampleQuery query = new ExampleQuery(metadataFactory, example, strategies);
+    PreparedStatement statement = mock(PreparedStatement.class);
+
+    assertThat(query.setParameter(metadata, statement, 3)).isEqualTo(5);
+    verify(statement).setInt(3, 10);
+    verify(statement).setString(4, "TODAY");
+  }
+
+  @Test
   void rendersSelectWithWhereClause() {
     UserModel example = new UserModel();
     example.name = "TODAY";

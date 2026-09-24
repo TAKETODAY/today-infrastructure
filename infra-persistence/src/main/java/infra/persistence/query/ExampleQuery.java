@@ -143,11 +143,11 @@ final class ExampleQuery extends SimpleSelectQueryStatement
   }
 
   @Override
-  public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException {
-    int idx = 1;
+  public int setParameter(EntityMetadata metadata, PreparedStatement statement, int parameterIndex) throws SQLException {
     for (Condition condition : where()) {
-      idx = condition.setParameter(statement, idx);
+      parameterIndex = condition.setParameter(statement, parameterIndex);
     }
+    return parameterIndex;
   }
 
   @Override

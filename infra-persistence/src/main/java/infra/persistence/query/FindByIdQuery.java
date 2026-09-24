@@ -43,8 +43,9 @@ public class FindByIdQuery extends SimpleSelectQueryStatement implements QuerySt
   }
 
   @Override
-  public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException {
-    metadata.idProperty().setParameter(statement, 1, id);
+  public int setParameter(EntityMetadata metadata, PreparedStatement statement, int parameterIndex) throws SQLException {
+    metadata.idProperty().setParameter(statement, parameterIndex, id);
+    return parameterIndex + 1;
   }
 
   @Override

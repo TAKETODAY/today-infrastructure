@@ -65,11 +65,11 @@ public class QueryBuilder extends SimpleSelectQueryStatement implements QueryCon
   }
 
   @Override
-  public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException {
-    int index = 1;
+  public int setParameter(EntityMetadata metadata, PreparedStatement statement, int parameterIndex) throws SQLException {
     for (Object condition : conditions) {
-      statement.setObject(index++, condition);
+      statement.setObject(parameterIndex++, condition);
     }
+    return parameterIndex;
   }
 
   public static QueryBuilder of() {

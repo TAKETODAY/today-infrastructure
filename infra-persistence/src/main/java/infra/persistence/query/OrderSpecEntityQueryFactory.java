@@ -19,6 +19,7 @@ package infra.persistence.query;
 import org.jspecify.annotations.Nullable;
 
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 
 import infra.persistence.EntityMetadata;
@@ -85,8 +86,8 @@ final class OrderSpecEntityQueryFactory implements EntityQueryFactory {
     }
 
     @Override
-    public void setParameter(EntityMetadata metadata, PreparedStatement statement) {
-      // No parameters to bind.
+    public int setParameter(EntityMetadata metadata, PreparedStatement statement, int parameterIndex) throws SQLException {
+      return parameterIndex;
     }
   }
 

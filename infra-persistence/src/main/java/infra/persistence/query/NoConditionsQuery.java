@@ -43,8 +43,8 @@ public final class NoConditionsQuery extends SimpleSelectQueryStatement implemen
   }
 
   @Override
-  public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException {
-    // noop
+  public int setParameter(EntityMetadata metadata, PreparedStatement statement, int parameterIndex) throws SQLException {
+    return parameterIndex;
   }
 
   @Override

@@ -18,6 +18,7 @@ package infra.persistence.query;
 
 import org.junit.jupiter.api.Test;
 
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -29,6 +30,8 @@ import infra.persistence.sql.Restriction;
 import infra.persistence.sql.Restrictions;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -63,6 +66,16 @@ class MapEntityQueryFactoryTests {
     assertThat(sequence.toStatementString(Platform.generic())).endsWith("FROM t_user WHERE name = ?");
 
     assertThat(factory.createQuery(null)).isNull();
+  }
+
+  @Test
+  void bindsFromGivenParameterIndex() throws Exception {
+    QueryCondition condition = new MapEntityQueryFactory().createCondition(Map.of("name", "TODAY"));
+    assertThat(condition).isNotNull();
+    PreparedStatement statement = mock(PreparedStatement.class);
+
+    assertThat(condition.setParameter(entityMetadata, statement, 3)).isEqualTo(4);
+    verify(statement).setObject(3, "TODAY");
   }
 
 }

@@ -74,8 +74,9 @@ import infra.persistence.platform.Platform;
  *   }
  *
  *   @Override
- *   public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException {
- *     statement.setString(1, "active");
+ *   public int setParameter(EntityMetadata metadata, PreparedStatement statement, int parameterIndex) throws SQLException {
+ *     statement.setString(parameterIndex, "active");
+ *     return parameterIndex + 1;
  *   }
  * }
  * }</pre>
