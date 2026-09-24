@@ -86,6 +86,7 @@ import infra.persistence.query.EntityQueryFactory;
 import infra.persistence.query.NoConditionsQuery;
 import infra.persistence.query.QueryCondition;
 import infra.persistence.query.QueryStatement;
+import infra.persistence.sql.OrderSpec;
 import infra.persistence.sql.Restrictions;
 import infra.test.util.ReflectionTestUtils;
 import infra.transaction.TransactionDefinition;
@@ -875,15 +876,21 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
             UserModel.male("other", 30)
     ));
 
-    QueryCondition filter = entityManager.getEntityQueryFactories().createCondition(Map.of("name", "same"));
     for (Order direction : Order.values()) {
-      KeysetPageable request = KeysetPageable.first("age", direction, 2);
-      KeysetPage<UserModel> first = entityManager.keysetPage(UserModel.class, filter, request);
+      OrderSpec order = OrderSpec.builder().orderBy("age", direction).build();
+      QueryCondition ordered = new QueryBuilder() {
+        @Override
+        public OrderSpec resolveOrderByClause(EntityMetadata metadata) {
+          return order;
+        }
+      }.add(Restrictions.equal("name"), "same");
+      KeysetPageable request = KeysetPageable.first(2);
+      KeysetPage<UserModel> first = entityManager.keysetPage(UserModel.class, ordered, request);
       assertThat(first.rows()).hasSize(2);
       assertThat(first.hasNext()).isTrue();
       assertThat(first.nextCursor()).containsKeys("age", "id");
 
-      KeysetPage<UserModel> second = entityManager.keysetPage(UserModel.class, filter, request.after(first.nextCursor()));
+      KeysetPage<UserModel> second = entityManager.keysetPage(UserModel.class, ordered, request.after(first.nextCursor()));
       assertThat(second.rows()).hasSize(1);
       assertThat(second.hasNext()).isFalse();
       assertThat(second.rows().get(0).age).isEqualTo(direction == Order.ASC ? 20 : 10);
@@ -893,14 +900,15 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
       assertThat(first.rows().get(0).age).isEqualTo(direction == Order.ASC ? 10 : 20);
     }
 
-    KeysetPageable byId = KeysetPageable.first("id", Order.ASC, 2);
+    KeysetPageable byId = KeysetPageable.first(2);
     KeysetPage<UserModel> first = entityManager.keysetPage(UserModel.class, null, byId);
     assertThat(first.nextCursor()).containsOnlyKeys("id");
     assertThat(entityManager.keysetPage(UserModel.class, null, byId.after(first.nextCursor())).rows()).hasSize(2);
     assertThatThrownBy(() -> entityManager.keysetPage(UserModel.class, null,
             byId.after(Map.of("age", 10)))).isInstanceOf(IllegalArgumentException.class);
-    assertThatThrownBy(() -> entityManager.keysetPage(UserModel.class, null,
-            KeysetPageable.first("unknown", Order.ASC, 2))).isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> entityManager.keysetPage(UserModel.class,
+            entityManager.getEntityQueryFactories().createCondition(OrderSpec.asc("unknown")), byId))
+            .isInstanceOf(IllegalArgumentException.class);
   }
 
   @ParameterizedRepositoryManagerTest
@@ -915,12 +923,76 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
             UserModel.male("same", 30)));
 
     QueryCondition filter = entityManager.getEntityQueryFactories().createCondition(Map.of("name", "same"));
-    KeysetPageable request = KeysetPageable.first("age", Order.ASC, 1);
+    KeysetPageable request = KeysetPageable.first(1);
     KeysetPage<UserModel> first = entityManager.keysetPage(UserModel.class, filter, request);
     KeysetPage<UserModel> second = entityManager.keysetPage(UserModel.class, filter, request.after(first.nextCursor()));
 
     assertThat(first.rows()).singleElement().extracting(user -> user.age).isEqualTo(10);
     assertThat(second.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void keysetPageWithMultipleSortColumns(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    if (dbType == DbType.HyperSQL) {
+      entityManager.setPlatform(new HyperSQLPlatform());
+    }
+    entityManager.persist(List.of(
+            UserModel.male("a", 10), UserModel.male("b", 10),
+            UserModel.male("b", 10), UserModel.male("c", 10), UserModel.male("d", 20)));
+
+    OrderSpec order = OrderSpec.builder().asc("age").desc("name").build();
+    QueryCondition condition = entityManager.getEntityQueryFactories().createCondition(order);
+    KeysetPageable request = KeysetPageable.first(1);
+    List<String> names = new ArrayList<>();
+    KeysetPage<UserModel> page;
+    do {
+      page = entityManager.keysetPage(UserModel.class, condition, request);
+      page.rows().forEach(user -> names.add(user.name));
+      if (page.hasNext()) {
+        assertThat(page.nextCursor()).containsKeys("age", "name", "id");
+        request = request.after(page.nextCursor());
+      }
+    } while (page.hasNext());
+
+    assertThat(names).containsExactly("c", "b", "b", "a", "d");
+    assertThatThrownBy(() -> entityManager.keysetPage(UserModel.class,
+            entityManager.getEntityQueryFactories().createCondition(OrderSpec.plain("LENGTH(name) DESC")),
+            KeysetPageable.first(1))).isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void keysetPageWithoutIdUsesExplicitOrdering(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    if (dbType == DbType.HyperSQL) {
+      entityManager.setPlatform(new HyperSQLPlatform());
+    }
+    repositoryManager.createNamedQuery("insert into t_user (name, age) values ('a', 10), ('b', 20), ('c', 30)").executeUpdate();
+
+    QueryCondition ordered = entityManager.getEntityQueryFactories().createCondition(OrderSpec.asc("age"));
+    KeysetPageable request = KeysetPageable.first(1);
+    KeysetPage<NoIdUser> first = entityManager.keysetPage(NoIdUser.class, ordered, request);
+    KeysetPage<NoIdUser> second = entityManager.keysetPage(NoIdUser.class, ordered, request.after(first.nextCursor()));
+
+    assertThat(first.rows()).singleElement().extracting(user -> user.age).isEqualTo(10);
+    assertThat(first.nextCursor()).containsOnlyKeys("age");
+    assertThat(second.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
+    assertThatThrownBy(() -> entityManager.keysetPage(NoIdUser.class, null, request))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("entity ID or explicit unique ordering");
+  }
+
+  @infra.persistence.annotation.Table("t_user")
+  static class NoIdUser {
+    public Integer age;
+    public String name;
+  }
+
+  @Test
+  void keysetPageRejectsMissingNextCursor() {
+    KeysetPageable request = KeysetPageable.first(2);
+    assertThatThrownBy(() -> request.after(null)).isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> request.after(Map.of())).isInstanceOf(IllegalArgumentException.class);
   }
 
   // update

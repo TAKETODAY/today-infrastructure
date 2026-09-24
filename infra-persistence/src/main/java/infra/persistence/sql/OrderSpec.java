@@ -163,6 +163,16 @@ public final class OrderSpec {
   }
 
   /**
+   * Return the ordered sort keys and raw fragments in this specification.
+   *
+   * @return an immutable list of parts
+   * @since 5.0
+   */
+  public List<Part> parts() {
+    return parts;
+  }
+
+  /**
    * Whether this spec contains at least one raw SQL {@link Fragment}.
    *
    * @return {@code true} if any part is a raw fragment

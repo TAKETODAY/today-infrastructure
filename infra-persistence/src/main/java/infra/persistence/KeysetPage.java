@@ -23,7 +23,8 @@ import java.util.Map;
 
 /**
  * A page of entities without a total count. A non-null next cursor indicates
- * that another page is available.
+ * that another page is available. Pass it to {@link KeysetPageable#after(Map)}
+ * only while {@link #hasNext()} is {@code true}.
  *
  * @param rows the rows in this page
  * @param nextCursor values to pass to {@link KeysetPageable#after(Map)}, or null at the end

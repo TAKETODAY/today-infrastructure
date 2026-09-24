@@ -84,6 +84,7 @@ import infra.persistence.query.NoConditionsQuery;
 import infra.persistence.query.QueryCondition;
 import infra.persistence.query.QueryStatement;
 import infra.persistence.sql.Insert;
+import infra.persistence.sql.OrderSpec;
 import infra.persistence.sql.Restriction;
 import infra.persistence.sql.Restrictions;
 import infra.persistence.sql.SimpleSelect;
@@ -1083,8 +1084,8 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <T> Page<T> page(Class<T> entityClass, @Nullable QueryCondition handler) throws DataAccessException {
-    return page(entityClass, handler, Pageable.unwrap(handler));
+  public <T> Page<T> page(Class<T> entityClass, @Nullable QueryCondition condition) throws DataAccessException {
+    return page(entityClass, condition, Pageable.unwrap(condition));
   }
 
   @Override
@@ -1146,16 +1147,16 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <T> Number count(Class<T> entityClass, @Nullable QueryCondition handler) throws DataAccessException {
-    if (handler == null) {
-      handler = NoConditionsQuery.instance;
+  public <T> Number count(Class<T> entityClass, @Nullable QueryCondition condition) throws DataAccessException {
+    if (condition == null) {
+      condition = NoConditionsQuery.instance;
     }
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
 
-    List<Restriction> restrictions = handler.collectRestrictions(metadata);
+    List<Restriction> restrictions = condition.collectRestrictions(metadata);
     Connection con = DataSourceUtils.getConnection(dataSource);
     try {
-      return doQueryCount(metadata, handler, restrictions, con);
+      return doQueryCount(metadata, condition, restrictions, con);
     }
     finally {
       DataSourceUtils.releaseConnection(con, dataSource);
@@ -1163,9 +1164,9 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <T> Page<T> page(Class<T> entityClass, @Nullable QueryCondition handler, @Nullable Pageable pageable) throws DataAccessException {
-    if (handler == null) {
-      handler = NoConditionsQuery.instance;
+  public <T> Page<T> page(Class<T> entityClass, @Nullable QueryCondition condition, @Nullable Pageable pageable) throws DataAccessException {
+    if (condition == null) {
+      condition = NoConditionsQuery.instance;
     }
 
     if (pageable == null) {
@@ -1173,13 +1174,13 @@ public class DefaultEntityManager implements EntityManager {
     }
 
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
-    List<Restriction> restrictions = handler.collectRestrictions(metadata);
+    List<Restriction> restrictions = condition.collectRestrictions(metadata);
 
     Connection con = DataSourceUtils.getConnection(dataSource);
     String statement = null;
     PreparedStatement stmt = null;
     try {
-      Number count = doQueryCount(metadata, handler, restrictions, con);
+      Number count = doQueryCount(metadata, condition, restrictions, con);
       if (count.intValue() < 1) {
         // no record
         DataSourceUtils.releaseConnection(con, dataSource);
@@ -1189,14 +1190,14 @@ public class DefaultEntityManager implements EntityManager {
       statement = new SimpleSelect(Arrays.asList(metadata.getColumnNames(true)), restrictions)
               .setTableName(metadata.getTableName())
               .pageable(pageable)
-              .orderBy(handler.resolveOrderByClause(metadata))
+              .orderBy(condition.resolveOrderByClause(metadata))
               .toStatementString(platform);
 
       stmt = prepareStatement(con, statement, false);
-      handler.setParameter(metadata, stmt);
+      condition.setParameter(metadata, stmt);
 
       if (stmtLogger.isDebugEnabled()) {
-        stmtLogger.logStatement(getDebugLogMessage(handler), statement);
+        stmtLogger.logStatement(getDebugLogMessage(condition), statement);
       }
 
       return new Page<>(pageable, count,
@@ -1208,7 +1209,7 @@ public class DefaultEntityManager implements EntityManager {
         throw dae;
       }
       if (ex instanceof SQLException) {
-        throw translateException(getDescription(handler), statement, (SQLException) ex);
+        throw translateException(getDescription(condition), statement, (SQLException) ex);
       }
       throw new DataRetrievalFailureException("Unable to retrieve the pageable data ", ex);
     }
@@ -1220,9 +1221,9 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <T> Slice<T> slice(Class<T> entityClass, @Nullable QueryCondition handler, @Nullable Pageable pageable) throws DataAccessException {
-    if (handler == null) {
-      handler = NoConditionsQuery.instance;
+  public <T> Slice<T> slice(Class<T> entityClass, @Nullable QueryCondition condition, @Nullable Pageable pageable) throws DataAccessException {
+    if (condition == null) {
+      condition = NoConditionsQuery.instance;
     }
     if (pageable == null) {
       pageable = defaultPageable();
@@ -1237,20 +1238,20 @@ public class DefaultEntityManager implements EntityManager {
     }
 
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
-    String statement = new SimpleSelect(Arrays.asList(metadata.getColumnNames(true)), handler.collectRestrictions(metadata))
+    String statement = new SimpleSelect(Arrays.asList(metadata.getColumnNames(true)), condition.collectRestrictions(metadata))
             .setTableName(metadata.getTableName())
             .limit(pageSize + 1)
             .offset(pageable.offset())
-            .orderBy(handler.resolveOrderByClause(metadata))
+            .orderBy(condition.resolveOrderByClause(metadata))
             .toStatementString(platform);
 
     Connection con = DataSourceUtils.getConnection(dataSource);
     PreparedStatement stmt = null;
     try {
       stmt = prepareStatement(con, statement, false);
-      handler.setParameter(metadata, stmt);
+      condition.setParameter(metadata, stmt);
       if (stmtLogger.isDebugEnabled()) {
-        stmtLogger.logStatement(getDebugLogMessage(handler), statement);
+        stmtLogger.logStatement(getDebugLogMessage(condition), statement);
       }
 
       List<T> rows = new DefaultEntityIterator<T>(con, stmt, entityClass, metadata).list();
@@ -1266,92 +1267,54 @@ public class DefaultEntityManager implements EntityManager {
         throw dae;
       }
       if (ex instanceof SQLException sqlException) {
-        throw translateException(getDescription(handler), statement, sqlException);
+        throw translateException(getDescription(condition), statement, sqlException);
       }
       throw new DataRetrievalFailureException("Unable to retrieve the slice", ex);
     }
   }
 
   @Override
-  public <T> KeysetPage<T> keysetPage(Class<T> entityClass, @Nullable QueryCondition handler, KeysetPageable pageable) throws DataAccessException {
-    if (handler == null) {
-      handler = NoConditionsQuery.instance;
+  public <T> KeysetPage<T> keysetPage(Class<T> entityClass, @Nullable QueryCondition condition, KeysetPageable pageable) throws DataAccessException {
+    if (condition == null) {
+      condition = NoConditionsQuery.instance;
     }
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
-    EntityProperty sortProperty = metadata.findProperty(pageable.property());
-    if (sortProperty == null) {
-      throw new IllegalArgumentException("Unknown keyset property: " + pageable.property());
-    }
-    EntityProperty idProperty = metadata.idProperty();
-    boolean sortById = sortProperty.getName().equals(idProperty.getName());
+    KeysetOrder order = KeysetOrder.resolve(metadata, condition.resolveOrderByClause(metadata));
     Map<String, ?> cursor = pageable.cursor();
-    Object sortValue = null;
-    Object idValue = null;
     if (cursor != null) {
-      if (cursor.size() != (sortById ? 1 : 2) || !cursor.containsKey(sortProperty.getName())
-              || !cursor.containsKey(idProperty.getName())) {
-        throw new IllegalArgumentException("Cursor must contain the sort property and entity ID");
-      }
-      sortValue = cursor.get(sortProperty.getName());
-      idValue = cursor.get(idProperty.getName());
+      order.validateCursor(cursor);
     }
 
-    List<Restriction> restrictions = handler.collectRestrictions(metadata);
+    List<Restriction> restrictions = condition.collectRestrictions(metadata);
     if (cursor != null) {
-      Restriction comparison = pageable.order() == Order.ASC
-              ? Restrictions.greaterThan(sortProperty.getColumnName())
-              : Restrictions.lessThan(sortProperty.getColumnName());
-      if (!sortById) {
-        Restriction idComparison = pageable.order() == Order.ASC
-                ? Restrictions.greaterThan(idProperty.getColumnName())
-                : Restrictions.lessThan(idProperty.getColumnName());
-        comparison = Restrictions.or(comparison,
-                Restrictions.and(Restrictions.equal(sortProperty.getColumnName()), idComparison));
-      }
-      restrictions.add(comparison);
+      restrictions.add(order.afterCursor());
     }
 
     SimpleSelect select = new SimpleSelect(Arrays.asList(metadata.getColumnNames(true)), restrictions)
             .setTableName(metadata.getTableName())
             .limit(pageable.pageSize() + 1);
-    select.orderBy().orderBy(sortProperty.getColumnName(), pageable.order());
-    if (!sortById) {
-      select.orderBy().orderBy(idProperty.getColumnName(), pageable.order());
-    }
+    order.applyTo(select);
     String statement = select.toStatementString(platform);
     Connection con = DataSourceUtils.getConnection(dataSource);
     PreparedStatement stmt = null;
     try {
       stmt = prepareStatement(con, statement, false);
-      int index = handler.setParameter(metadata, stmt, 1);
+      int index = condition.setParameter(metadata, stmt);
       if (cursor != null) {
-        sortProperty.setParameter(stmt, index++, sortValue);
-        if (!sortById) {
-          sortProperty.setParameter(stmt, index++, sortValue);
-          idProperty.setParameter(stmt, index, idValue);
-        }
+        order.bindCursor(stmt, index, cursor);
       }
       if (stmtLogger.isDebugEnabled()) {
-        stmtLogger.logStatement(getDebugLogMessage(handler), statement);
+        stmtLogger.logStatement(getDebugLogMessage(condition), statement);
       }
       List<T> rows = new DefaultEntityIterator<T>(con, stmt, entityClass, metadata).list(pageable.pageSize() + 1);
       for (T row : rows) {
-        if (sortProperty.getValue(row) == null || idProperty.getValue(row) == null) {
-          throw new IllegalArgumentException("Keyset columns must not contain null values");
-        }
+        order.validateRow(row);
       }
       boolean hasNext = rows.size() > pageable.pageSize();
       if (hasNext) {
         rows = rows.subList(0, pageable.pageSize());
       }
-      Map<String, Object> nextCursor = null;
-      if (hasNext) {
-        T last = rows.get(rows.size() - 1);
-        Object lastSort = sortProperty.getValue(last);
-        Object lastId = idProperty.getValue(last);
-        nextCursor = sortById ? Map.of(idProperty.getName(), lastId)
-                : Map.of(sortProperty.getName(), lastSort, idProperty.getName(), lastId);
-      }
+      Map<String, Object> nextCursor = hasNext ? order.cursorFor(rows.get(rows.size() - 1)) : null;
       return new KeysetPage<>(rows, nextCursor);
     }
     catch (Throwable ex) {
@@ -1360,7 +1323,7 @@ public class DefaultEntityManager implements EntityManager {
         throw dae;
       }
       if (ex instanceof SQLException sqlException) {
-        throw translateException(getDescription(handler), statement, sqlException);
+        throw translateException(getDescription(condition), statement, sqlException);
       }
       throw new DataRetrievalFailureException("Unable to retrieve the keyset page", ex);
     }
@@ -1677,6 +1640,101 @@ public class DefaultEntityManager implements EntityManager {
       return affectedRows;
     }
 
+  }
+
+  private record KeysetSort(EntityProperty property, Order direction) {
+  }
+
+  private record KeysetOrder(List<KeysetSort> keys) {
+
+    static KeysetOrder resolve(EntityMetadata metadata, OrderSpec spec) {
+      ArrayList<KeysetSort> keys = new ArrayList<>();
+      for (OrderSpec.Part part : spec.parts()) {
+        if (!(part instanceof OrderSpec.Item item)) {
+          throw new IllegalArgumentException("Keyset pagination requires mapped sort columns, not raw SQL fragments");
+        }
+        EntityProperty property = null;
+        for (EntityProperty candidate : metadata.getEntityProperties(true)) {
+          if (candidate.getColumnName().equals(item.column())) {
+            property = candidate;
+            break;
+          }
+        }
+        if (property == null) {
+          throw new IllegalArgumentException("Unknown keyset sort column: " + item.column());
+        }
+        for (KeysetSort key : keys) {
+          if (key.property() == property) {
+            throw new IllegalArgumentException("Duplicate keyset sort column: " + item.column());
+          }
+        }
+        keys.add(new KeysetSort(property, item.direction()));
+      }
+      EntityProperty idProperty = metadata.findIdProperty();
+      if (idProperty != null && keys.stream().noneMatch(key -> key.property() == idProperty)) {
+        keys.add(new KeysetSort(idProperty, keys.isEmpty() ? Order.ASC : keys.get(keys.size() - 1).direction()));
+      }
+      if (keys.isEmpty()) {
+        throw new IllegalArgumentException("Keyset pagination requires an entity ID or explicit unique ordering");
+      }
+      return new KeysetOrder(List.copyOf(keys));
+    }
+
+    void validateCursor(Map<String, ?> cursor) {
+      if (cursor.size() != keys.size()) {
+        throw new IllegalArgumentException("Cursor must contain every keyset sort property");
+      }
+      for (KeysetSort key : keys) {
+        if (!cursor.containsKey(key.property().getName())) {
+          throw new IllegalArgumentException("Cursor is missing keyset property: " + key.property().getName());
+        }
+      }
+    }
+
+    Restriction afterCursor() {
+      Restriction comparison = null;
+      for (int i = keys.size() - 1; i >= 0; i--) {
+        KeysetSort key = keys.get(i);
+        var column = key.property().getColumnName();
+        Restriction next = key.direction() == Order.ASC
+                ? Restrictions.greaterThan(column) : Restrictions.lessThan(column);
+        comparison = comparison == null ? next : Restrictions.or(next, Restrictions.and(Restrictions.equal(column), comparison));
+      }
+      return comparison;
+    }
+
+    void applyTo(SimpleSelect select) {
+      for (KeysetSort key : keys) {
+        select.orderBy().orderBy(key.property().getColumnName(), key.direction());
+      }
+    }
+
+    void bindCursor(PreparedStatement stmt, int index, Map<String, ?> cursor) throws SQLException {
+      for (int i = 0; i < keys.size(); i++) {
+        EntityProperty property = keys.get(i).property();
+        Object value = cursor.get(property.getName());
+        property.setParameter(stmt, index++, value);
+        if (i < keys.size() - 1) {
+          property.setParameter(stmt, index++, value);
+        }
+      }
+    }
+
+    void validateRow(Object row) {
+      for (KeysetSort key : keys) {
+        if (key.property().getValue(row) == null) {
+          throw new IllegalArgumentException("Keyset columns must not contain null values");
+        }
+      }
+    }
+
+    Map<String, Object> cursorFor(Object row) {
+      Map<String, Object> cursor = new HashMap<>();
+      for (KeysetSort key : keys) {
+        cursor.put(key.property().getName(), key.property().getValue(row));
+      }
+      return cursor;
+    }
   }
 
 }

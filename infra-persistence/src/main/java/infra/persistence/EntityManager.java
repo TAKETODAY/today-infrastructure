@@ -1458,14 +1458,14 @@ public interface EntityManager {
    * @param <T> the type of the entity class
    * @param entityClass the class of the entity for which the count is to be calculated;
    * must not be null
-   * @param handler the condition statement specifying the criteria for counting;
+   * @param condition the condition statement specifying the criteria for counting;
    * can be null if no specific condition is required
    * @return the count of entities matching the condition as a Number object;
    * the exact runtime type (e.g., Integer, Long) depends on the
    * underlying implementation
    * @throws DataAccessException if there is any issue accessing the data source
    */
-  <T> Number count(Class<T> entityClass, @Nullable QueryCondition handler)
+  <T> Number count(Class<T> entityClass, @Nullable QueryCondition condition)
           throws DataAccessException;
 
   /**
@@ -1656,11 +1656,11 @@ public interface EntityManager {
    *
    * @param <T> the type of the entity class being queried
    * @param entityClass the class object representing the entity type to query (e.g., User.class)
-   * @param handler an optional condition handler to filter or customize the query; can be null
+   * @param condition an optional condition handler to filter or customize the query; can be null
    * @return a {@link Page} object containing the paginated results for the specified entity class
    * @throws DataAccessException if there is any issue accessing the underlying data source
    */
-  <T> Page<T> page(Class<T> entityClass, @Nullable QueryCondition handler)
+  <T> Page<T> page(Class<T> entityClass, @Nullable QueryCondition condition)
           throws DataAccessException;
 
   /**
@@ -1692,7 +1692,7 @@ public interface EntityManager {
    *
    * @param <T> the type of the entity to query
    * @param entityClass the class object of the entity type (e.g., {@code User.class})
-   * @param handler an optional condition statement to filter the query results;
+   * @param condition an optional condition statement to filter the query results;
    * pass {@code null} if no filtering is required
    * @param pageable an optional pagination configuration; pass {@code null} if
    * pagination is not needed
@@ -1700,7 +1700,7 @@ public interface EntityManager {
    * metadata such as total elements and total pages
    * @throws DataAccessException if there is an issue accessing the underlying data source
    */
-  <T> Page<T> page(Class<T> entityClass, @Nullable QueryCondition handler, @Nullable Pageable pageable)
+  <T> Page<T> page(Class<T> entityClass, @Nullable QueryCondition condition, @Nullable Pageable pageable)
           throws DataAccessException;
 
   /**
@@ -1753,29 +1753,34 @@ public interface EntityManager {
    * when navigating between slices.
    *
    * @param entityClass the entity type
-   * @param handler optional filtering and ordering conditions
+   * @param condition optional filtering and ordering conditions
    * @param pageable pagination details, or {@code null} for the default
    * @param <T> the entity type
    * @return the requested slice
    * @throws DataAccessException on data access errors
    * @since 5.0
    */
-  <T> Slice<T> slice(Class<T> entityClass, @Nullable QueryCondition handler, @Nullable Pageable pageable)
+  <T> Slice<T> slice(Class<T> entityClass, @Nullable QueryCondition condition, @Nullable Pageable pageable)
           throws DataAccessException;
 
   /**
    * Fetch a forward-only keyset page without a count or offset query. The sort
-   * property and entity ID must contain non-null values; the ID ensures stable
-   * ordering when several rows have the same sort value. The cursor is exclusive.
+   * properties must contain non-null values. When the entity has an ID, it is
+   * appended as a unique tie-breaker unless already ordered. Without an ID,
+   * explicit ordering must uniquely identify each row. The cursor is exclusive.
+   * Ordering is resolved from {@link QueryCondition#resolveOrderByClause(EntityMetadata)};
+   * when no ordering is specified, the entity ID is used if available. Raw SQL
+   * fragments and unmapped sort columns are not supported. Keep filtering and ordering unchanged
+   * when following a cursor.
    *
    * @param entityClass the entity type
-   * @param handler optional filtering conditions (its ordering is ignored)
-   * @param pageable the sort, size and optional cursor
+   * @param condition optional filtering and ordering conditions
+   * @param pageable the page size and optional cursor
    * @return the page and a cursor when more rows are available
    * @throws DataAccessException on data access errors
    * @since 5.0
    */
-  <T> KeysetPage<T> keysetPage(Class<T> entityClass, @Nullable QueryCondition handler, KeysetPageable pageable)
+  <T> KeysetPage<T> keysetPage(Class<T> entityClass, @Nullable QueryCondition condition, KeysetPageable pageable)
           throws DataAccessException;
 
   /**
