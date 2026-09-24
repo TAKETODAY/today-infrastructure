@@ -27,6 +27,7 @@ import java.util.List;
  * @param pageSize the requested number of rows per slice
  * @param hasNext whether another slice exists
  * @param <T> the type of each row
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
 public record Slice<T>(List<T> rows, int pageNumber, int pageSize, boolean hasNext) {

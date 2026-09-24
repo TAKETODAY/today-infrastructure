@@ -28,6 +28,7 @@ import java.util.Map;
  * @param rows the rows in this page
  * @param nextCursor values to pass to {@link KeysetPageable#after(Map)}, or null at the end
  * @param <T> entity type
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
 public record KeysetPage<T>(List<T> rows, @Nullable Map<String, Object> nextCursor) {

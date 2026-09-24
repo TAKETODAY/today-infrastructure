@@ -1704,23 +1704,6 @@ public interface EntityManager {
           throws DataAccessException;
 
   /**
-   * Fetch a slice using limit and offset without querying the total row count.
-   * One additional row is fetched to determine {@link Slice#hasNext()}.
-   * Supply a stable ordering through the entity metadata or a condition handler
-   * when navigating between slices.
-   *
-   * @param entityClass the entity type
-   * @param handler optional filtering and ordering conditions
-   * @param pageable pagination details, or {@code null} for the default
-   * @param <T> the entity type
-   * @return the requested slice
-   * @throws DataAccessException on data access errors
-   * @since 5.0
-   */
-  <T> Slice<T> slice(Class<T> entityClass, @Nullable QueryCondition handler, @Nullable Pageable pageable)
-          throws DataAccessException;
-
-  /**
    * Fetch a slice without additional conditions.
    *
    * @param entityClass the entity type
@@ -1731,7 +1714,7 @@ public interface EntityManager {
    * @since 5.0
    */
   default <T> Slice<T> slice(Class<T> entityClass, @Nullable Pageable pageable) throws DataAccessException {
-    return slice(entityClass, (QueryCondition) null, pageable);
+    return slice(entityClass, null, pageable);
   }
 
   /**
@@ -1762,6 +1745,23 @@ public interface EntityManager {
   default <T> Slice<T> slice(T example, @Nullable Pageable pageable) throws DataAccessException {
     return slice((Class<T>) example.getClass(), example, pageable);
   }
+
+  /**
+   * Fetch a slice using limit and offset without querying the total row count.
+   * One additional row is fetched to determine {@link Slice#hasNext()}.
+   * Supply a stable ordering through the entity metadata or a condition handler
+   * when navigating between slices.
+   *
+   * @param entityClass the entity type
+   * @param handler optional filtering and ordering conditions
+   * @param pageable pagination details, or {@code null} for the default
+   * @param <T> the entity type
+   * @return the requested slice
+   * @throws DataAccessException on data access errors
+   * @since 5.0
+   */
+  <T> Slice<T> slice(Class<T> entityClass, @Nullable QueryCondition handler, @Nullable Pageable pageable)
+          throws DataAccessException;
 
   /**
    * Fetch a forward-only keyset page without a count or offset query. The sort

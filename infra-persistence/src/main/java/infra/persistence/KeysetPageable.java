@@ -28,6 +28,7 @@ import java.util.Map;
  * @param order the sort direction
  * @param pageSize the maximum number of rows, greater than zero
  * @param cursor values returned by {@link KeysetPage#nextCursor()}, or null for the first page
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
 public record KeysetPageable(String property, Order order, int pageSize, @Nullable Map<String, ?> cursor) {
