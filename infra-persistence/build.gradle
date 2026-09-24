@@ -15,6 +15,7 @@ dependencies {
   testImplementation(testFixtures(project(":module:infra-sql")))
 
   testImplementation project(":infra-test")
+  testImplementation("tools.jackson.core:jackson-databind")
 
   testImplementation("org.hsqldb:hsqldb")
   testImplementation("com.h2database:h2")
@@ -29,4 +30,3 @@ dependencies {
   testRuntimeOnly("com.mysql:mysql-connector-j")
 
 }
-

@@ -1215,8 +1215,7 @@ public class DefaultEntityManager implements EntityManager {
     if (pageNumber < 1 || pageSize < 1 || pageSize == Integer.MAX_VALUE) {
       throw new IllegalArgumentException("Slice page number and size must be positive, and size must allow one extra row");
     }
-    long offset = ((long) pageNumber - 1) * pageSize;
-    if (offset > Integer.MAX_VALUE) {
+    if (pageNumber - 1 > Integer.MAX_VALUE / pageSize) {
       throw new IllegalArgumentException("Slice offset exceeds the integer range");
     }
 
@@ -1224,7 +1223,7 @@ public class DefaultEntityManager implements EntityManager {
     String statement = new SimpleSelect(Arrays.asList(metadata.getColumnNames(true)), handler.collectRestrictions(metadata))
             .setTableName(metadata.getTableName())
             .limit(pageSize + 1)
-            .offset((int) offset)
+            .offset(pageable.offset())
             .orderBy(handler.resolveOrderByClause(metadata))
             .toStatementString(platform);
 
