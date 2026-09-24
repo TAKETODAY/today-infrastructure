@@ -20,7 +20,6 @@ import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 
-import infra.persistence.DefaultEntityManager;
 import infra.persistence.EntityMetadata;
 import infra.persistence.annotation.OrderBy;
 import infra.persistence.annotation.OrderByClause;
@@ -28,6 +27,7 @@ import infra.persistence.platform.Platform;
 import infra.persistence.sql.OrderSpec;
 import infra.persistence.sql.Restriction;
 import infra.persistence.sql.Restrictions;
+import infra.persistence.support.DefaultEntityManager;
 
 /**
  * Builds the conditional (WHERE / ORDER BY) part of a dynamic SQL statement and

@@ -35,6 +35,7 @@ import infra.persistence.annotation.GeneratedId;
 import infra.persistence.annotation.Id;
 import infra.persistence.annotation.Table;
 import infra.persistence.annotation.Version;
+import infra.persistence.support.DefaultEntityManager;
 import infra.persistence.support.DefaultVersionIncrementStrategy;
 import infra.test.util.ReflectionTestUtils;
 

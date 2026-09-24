@@ -15,7 +15,6 @@ import infra.jdbc.RepositoryManager;
 import infra.jdbc.config.RepositoryManagerAutoConfiguration;
 import infra.jdbc.format.SqlStatementLogger;
 import infra.jdbc.type.TypeHandlerManager;
-import infra.persistence.DefaultEntityManager;
 import infra.persistence.DefaultEntityMetadataFactory;
 import infra.persistence.EntityManager;
 import infra.persistence.EntityMetadataFactory;
@@ -27,6 +26,7 @@ import infra.persistence.platform.Platform;
 import infra.persistence.query.EntityQueryFactories;
 import infra.persistence.query.EntityQueryFactory;
 import infra.persistence.query.PropertyConditionStrategy;
+import infra.persistence.support.DefaultEntityManager;
 import infra.stereotype.Component;
 
 /**

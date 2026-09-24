@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.persistence;
+package infra.persistence.support;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
@@ -49,6 +49,23 @@ import infra.jdbc.model.Gender;
 import infra.jdbc.model.UserModel;
 import infra.jdbc.type.TypeHandler;
 import infra.lang.Descriptive;
+import infra.persistence.DebugDescriptive;
+import infra.persistence.DefaultEntityMetadataFactory;
+import infra.persistence.EntityMetadata;
+import infra.persistence.EntityMetadataFactory;
+import infra.persistence.EntityProperty;
+import infra.persistence.EntityPropertyTestFactory;
+import infra.persistence.IllegalEntityException;
+import infra.persistence.KeysetPage;
+import infra.persistence.KeysetPageable;
+import infra.persistence.NewEntityIndicator;
+import infra.persistence.Order;
+import infra.persistence.Page;
+import infra.persistence.Pageable;
+import infra.persistence.PropertyUpdateStrategy;
+import infra.persistence.QueryBuilder;
+import infra.persistence.Slice;
+import infra.persistence.UpdateStrategySource;
 import infra.persistence.annotation.Column;
 import infra.persistence.annotation.EntityRef;
 import infra.persistence.annotation.Id;
@@ -1468,7 +1485,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     TypeHandler<Object> typeHandler = mock(TypeHandler.class);
 
     // Create EntityProperty
-    EntityProperty entityProperty = new EntityProperty(beanProperty, Identifier.parse("test_column"), typeHandler, false);
+    EntityProperty entityProperty = EntityPropertyTestFactory.create(beanProperty, "test_column", typeHandler, false);
 
     // Mock PreparedStatement
     PreparedStatement ps = mock(PreparedStatement.class);
@@ -1501,7 +1518,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     TypeHandler<Object> typeHandler = mock(TypeHandler.class);
 
     // Create EntityProperty
-    EntityProperty entityProperty = new EntityProperty(beanProperty, Identifier.parse("test_column"), typeHandler, false);
+    EntityProperty entityProperty = EntityPropertyTestFactory.create(beanProperty, "test_column", typeHandler, false);
 
     // Test getValue method
     Object value = entityProperty.getValue(entity);
@@ -1527,7 +1544,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     when(typeHandler.getResult(any(ResultSet.class), anyInt())).thenReturn("resultValue");
 
     // Create EntityProperty
-    EntityProperty entityProperty = new EntityProperty(beanProperty, Identifier.parse("test_column"), typeHandler, false);
+    EntityProperty entityProperty = EntityPropertyTestFactory.create(beanProperty, "test_column", typeHandler, false);
 
     // Mock ResultSet
     ResultSet rs = mock(ResultSet.class);
@@ -1550,7 +1567,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     TypeHandler<Object> typeHandler = mock(TypeHandler.class);
 
     // Create EntityProperty
-    EntityProperty entityProperty = new EntityProperty(beanProperty, Identifier.parse("test_column"), typeHandler, false);
+    EntityProperty entityProperty = EntityPropertyTestFactory.create(beanProperty, "test_column", typeHandler, false);
 
     // Test getAnnotations method
     MergedAnnotations result = entityProperty.getAnnotations();
@@ -1581,7 +1598,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     TypeHandler<Object> typeHandler = mock(TypeHandler.class);
 
     // Create EntityProperty with isIdProperty = true
-    EntityProperty entityProperty = new EntityProperty(beanProperty, Identifier.parse("id_column"), typeHandler, true);
+    EntityProperty entityProperty = EntityPropertyTestFactory.create(beanProperty, "id_column", typeHandler, true);
 
     assertThat(entityProperty.isIdProperty()).isTrue();
     assertThat(entityProperty.getColumnName().getText()).isEqualTo("id_column");
@@ -1599,7 +1616,7 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     TypeHandler<Object> typeHandler = mock(TypeHandler.class);
 
     // Create EntityProperty with isIdProperty = false
-    EntityProperty entityProperty = new EntityProperty(beanProperty, Identifier.parse("name_column"), typeHandler, false);
+    EntityProperty entityProperty = EntityPropertyTestFactory.create(beanProperty, "name_column", typeHandler, false);
 
     assertThat(entityProperty.isIdProperty()).isFalse();
     assertThat(entityProperty.getColumnName().getText()).isEqualTo("name_column");

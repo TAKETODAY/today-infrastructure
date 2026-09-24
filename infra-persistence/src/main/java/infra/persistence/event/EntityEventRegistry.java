@@ -43,7 +43,7 @@ import java.util.Collection;
  * @see infra.persistence.event.EntityEventListener
  * @see infra.persistence.event.BatchPersistListener
  * @see infra.persistence.event.EventListenerGroup
- * @see infra.persistence.DefaultEntityManager#getEntityEventRegistry()
+ * @see infra.persistence.support.DefaultEntityManager#getEntityEventRegistry()
  * @since 5.0
  */
 public interface EntityEventRegistry {

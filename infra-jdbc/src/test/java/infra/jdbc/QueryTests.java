@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import infra.jdbc.model.UserModel;
-import infra.persistence.DefaultEntityManager;
+import infra.persistence.support.DefaultEntityManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

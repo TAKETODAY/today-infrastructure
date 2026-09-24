@@ -18,7 +18,7 @@ package infra.persistence.query;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.persistence.DefaultEntityManager;
+import infra.persistence.support.DefaultEntityManager;
 
 /**
  * Factory interface for creating query statements based on example objects.

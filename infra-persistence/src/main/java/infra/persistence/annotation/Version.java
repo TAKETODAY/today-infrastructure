@@ -23,9 +23,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import infra.aot.hint.annotation.Reflective;
-import infra.persistence.DefaultEntityManager;
 import infra.persistence.IllegalEntityException;
 import infra.persistence.VersionIncrementStrategy;
+import infra.persistence.support.DefaultEntityManager;
 
 /**
  * Specifies the version property of an entity class that serves as its optimistic

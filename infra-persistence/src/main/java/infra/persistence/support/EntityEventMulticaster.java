@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package infra.persistence;
+package infra.persistence.support;
 
 import org.jspecify.annotations.Nullable;
 
+import infra.persistence.EntityMetadata;
+import infra.persistence.PropertyUpdateStrategy;
 import infra.persistence.event.BatchExecution;
 import infra.persistence.event.BatchPersistListener;
 import infra.persistence.event.DefaultEntityEventRegistry;

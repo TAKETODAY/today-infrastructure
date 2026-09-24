@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.persistence;
+package infra.persistence.support;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import infra.jdbc.model.UserModel;
+import infra.persistence.DefaultEntityMetadataFactory;
+import infra.persistence.EntityMetadata;
+import infra.persistence.PropertyUpdateStrategy;
 import infra.persistence.event.DefaultEntityEventRegistry;
 import infra.persistence.event.DeleteEventListener;
 import infra.persistence.event.PersistEventListener;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.persistence;
+package infra.persistence.support;
 
 import org.jspecify.annotations.Nullable;
 
@@ -53,6 +53,24 @@ import infra.lang.Descriptive;
 import infra.logging.LogMessage;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.persistence.DebugDescriptive;
+import infra.persistence.DefaultEntityMetadataFactory;
+import infra.persistence.EntityIterator;
+import infra.persistence.EntityManager;
+import infra.persistence.EntityMetadata;
+import infra.persistence.EntityMetadataFactory;
+import infra.persistence.EntityProperty;
+import infra.persistence.IllegalEntityException;
+import infra.persistence.KeysetPage;
+import infra.persistence.KeysetPageable;
+import infra.persistence.NewEntityIndicator;
+import infra.persistence.Order;
+import infra.persistence.Page;
+import infra.persistence.Pageable;
+import infra.persistence.PropertyUpdateStrategy;
+import infra.persistence.Slice;
+import infra.persistence.UpdateStrategySource;
+import infra.persistence.VersionIncrementStrategy;
 import infra.persistence.annotation.UpdateBy;
 import infra.persistence.annotation.Version;
 import infra.persistence.event.BatchExecution;
@@ -70,7 +88,6 @@ import infra.persistence.sql.Restriction;
 import infra.persistence.sql.Restrictions;
 import infra.persistence.sql.SimpleSelect;
 import infra.persistence.sql.Update;
-import infra.persistence.support.DefaultVersionIncrementStrategy;
 import infra.transaction.TransactionDefinition;
 import infra.util.Assert;
 
