@@ -32,6 +32,7 @@ import infra.core.annotation.MergedAnnotations;
 import infra.core.style.ToStringBuilder;
 import infra.lang.Unmodifiable;
 import infra.persistence.annotation.GeneratedId;
+import infra.persistence.annotation.Keyset;
 import infra.persistence.annotation.OrderBy;
 import infra.persistence.annotation.OrderByClause;
 import infra.persistence.sql.OrderSpec;
@@ -88,6 +89,9 @@ public class EntityMetadata {
   /** Entity properties indexed by bean property name, backing {@link #findProperty(String)}. */
   private final HashMap<String, EntityProperty> propertyMap;
 
+  /** Entity properties indexed by mapped column, backing {@link #findProperty(Identifier)}. */
+  private final HashMap<Identifier, EntityProperty> columnPropertyMap;
+
   /** The optimistic-locking version property, or {@code null} if none. */
   private final @Nullable EntityProperty versionProperty;
 
@@ -100,6 +104,9 @@ public class EntityMetadata {
   /** Cached ORDER BY spec resolved from {@code @OrderByClause}/{@code @OrderBy}, lazily. */
   private @Nullable OrderSpec orderSpec;
 
+  /** Cached keyset order resolved from {@code @Keyset}, lazily. */
+  private @Nullable OrderSpec keysetOrderSpec;
+
   protected EntityMetadata(BeanMetadata beanMetadata, Class<?> entityClass, Identifier tableName,
           @Nullable EntityProperty idProperty, @Nullable EntityProperty versionProperty,
           List<Identifier> columnNames, List<EntityProperty> entityProperties) {
@@ -109,6 +116,7 @@ public class EntityMetadata {
     this.versionProperty = versionProperty;
     this.entityClass = entityClass;
     this.propertyMap = mapProperties(entityProperties);
+    this.columnPropertyMap = mapColumns(entityProperties);
     this.columnNames = columnNames.toArray(new Identifier[0]);
     this.entityProperties = entityProperties.toArray(new EntityProperty[0]);
 
@@ -129,6 +137,14 @@ public class EntityMetadata {
       propertyMap.put(property.getName(), property);
     }
     return propertyMap;
+  }
+
+  private HashMap<Identifier, EntityProperty> mapColumns(List<EntityProperty> entityProperties) {
+    HashMap<Identifier, EntityProperty> columns = new HashMap<>();
+    for (EntityProperty property : entityProperties) {
+      columns.putIfAbsent(property.getColumnName(), property);
+    }
+    return columns;
   }
 
   private boolean determineGeneratedId(@Nullable EntityProperty idProperty) {
@@ -308,6 +324,17 @@ public class EntityMetadata {
   }
 
   /**
+   * Find the entity property mapped to the given database column.
+   *
+   * @param column the mapped column name
+   * @return the matching property, or {@code null} if the column is not mapped
+   * @since 5.0
+   */
+  public @Nullable EntityProperty findProperty(Identifier column) {
+    return columnPropertyMap.get(column);
+  }
+
+  /**
    * Return the merged annotations of the entity class, loading and caching them
    * on first access.
    *
@@ -417,7 +444,58 @@ public class EntityMetadata {
                 annotation.getEnum("value", Order.class)));
       }
     }
-    if (sortKeys == null) {
+    return buildOrderSpec(sortKeys);
+  }
+
+  /**
+   * Return the keyset sort order declared by {@link Keyset @Keyset} annotations,
+   * cached on first access.
+   *
+   * <p>Repeatable declarations are ordered by their {@link Keyset#order()
+   * precedence}, ascending. An entity that declares no keyset order yields the
+   * shared {@link OrderSpec#empty() empty} spec, which is cached as well.
+   *
+   * @return the resolved keyset order, never {@code null}
+   * @see Keyset
+   * @since 5.0
+   */
+  public OrderSpec getKeysetOrderSpec() {
+    OrderSpec keysetOrderSpec = this.keysetOrderSpec;
+    if (keysetOrderSpec == null) {
+      keysetOrderSpec = resolveKeysetOrderSpec();
+      this.keysetOrderSpec = keysetOrderSpec;
+    }
+    return keysetOrderSpec;
+  }
+
+  /**
+   * Resolve the keyset sort order from this entity's {@link Keyset @Keyset}
+   * declarations.
+   *
+   * @return the spec resolved from this entity, or {@link OrderSpec#empty()} if none
+   * @throws IllegalEntityException if a declared property is not mapped
+   */
+  protected OrderSpec resolveKeysetOrderSpec() {
+    ArrayList<SortKey> sortKeys = null;
+    for (MergedAnnotation<Keyset> annotation : getAnnotations().stream(Keyset.class).toList()) {
+      String name = annotation.getString("property");
+      EntityProperty property = findProperty(name);
+      if (property == null) {
+        throw new IllegalEntityException("Unknown @Keyset property: " + name);
+      }
+      if (sortKeys == null) {
+        sortKeys = new ArrayList<>();
+      }
+      sortKeys.add(new SortKey(
+              annotation.getInt("order"),
+              property.getColumnName(),
+              annotation.getEnum("direction", Order.class)));
+    }
+    return buildOrderSpec(sortKeys);
+  }
+
+  private static OrderSpec buildOrderSpec(@Nullable List<SortKey> sortKeys) {
+    if (sortKeys == null || sortKeys.isEmpty()) {
       return OrderSpec.empty();
     }
     sortKeys.sort(Comparator.comparingInt(SortKey::order));

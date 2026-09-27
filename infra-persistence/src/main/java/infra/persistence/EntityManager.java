@@ -1764,24 +1764,21 @@ public interface EntityManager {
           throws DataAccessException;
 
   /**
-   * Fetch a forward-only keyset page without a count or offset query. The sort
-   * properties must contain non-null values. When the entity has an ID, it is
-   * appended as a unique tie-breaker unless already ordered. Without an ID,
-   * explicit ordering must uniquely identify each row. The cursor is exclusive.
-   * Ordering is resolved from {@link QueryCondition#resolveOrderByClause(EntityMetadata)};
-   * when no ordering is specified, the entity ID is used if available. Raw SQL
-   * fragments and unmapped sort columns are not supported. Keep filtering and ordering unchanged
-   * when following a cursor.
+   * Fetch a keyset page using an entity example as both the filter and the cursor
+   * carrier.
    *
-   * @param entityClass the entity type
-   * @param condition optional filtering and ordering conditions
-   * @param pageable the page size and optional cursor
+   * @param example the example carrying filters and the keyset cursor
+   * @param pageable the page size, or {@code null} for the default
+   * @param <T> the entity type
    * @return the page and a cursor when more rows are available
    * @throws DataAccessException on data access errors
+   * @see #keysetPage(Class, Object, KeysetPageable)
    * @since 5.0
    */
-  <T> KeysetPage<T> keysetPage(Class<T> entityClass, @Nullable QueryCondition condition, KeysetPageable pageable)
-          throws DataAccessException;
+  @SuppressWarnings("unchecked")
+  default <T> KeysetPage<T> keysetPage(T example, @Nullable KeysetPageable pageable) throws DataAccessException {
+    return keysetPage((Class<T>) example.getClass(), example, pageable);
+  }
 
   /**
    * Fetch a keyset page without additional filtering.
@@ -1792,9 +1789,52 @@ public interface EntityManager {
    * @throws DataAccessException on data access errors
    * @since 5.0
    */
-  default <T> KeysetPage<T> keysetPage(Class<T> entityClass, KeysetPageable pageable) throws DataAccessException {
+  default <T> KeysetPage<T> keysetPage(Class<T> entityClass, @Nullable KeysetPageable pageable) throws DataAccessException {
     return keysetPage(entityClass, null, pageable);
   }
+
+  /**
+   * Fetch a keyset page using an example as both the filter and the cursor carrier.
+   *
+   * <p>Properties annotated with
+   * {@link infra.persistence.annotation.Keyset @Keyset} do not act as equality
+   * filters: their non-null values are read from the example as the cursor for the
+   * requested page. The example is not modified; use the returned
+   * {@link KeysetPage#nextCursor()} with {@link KeysetPageable#after(java.util.Map)}
+   * to request the next page. All other non-null properties are used as filters.
+   *
+   * @param entityClass the entity type
+   * @param example the example carrying filters and the keyset cursor
+   * @param pageable the page size and optional keyset order, or {@code null} for the default
+   * @param <T> the entity type
+   * @return the page and a cursor when more rows are available
+   * @throws DataAccessException on data access errors
+   * @since 5.0
+   */
+  <T> KeysetPage<T> keysetPage(Class<T> entityClass, Object example, @Nullable KeysetPageable pageable)
+          throws DataAccessException;
+
+  /**
+   * Fetch a forward-only keyset page without a count or offset query. The sort
+   * properties must contain non-null values. When the entity has an ID, it is
+   * appended as a unique tie-breaker unless already ordered. Without an ID,
+   * explicit ordering must uniquely identify each row. The cursor is exclusive.
+   * Ordering is resolved from the {@link KeysetPageable#orderSpec() page request},
+   * then the entity's {@code @Keyset} declarations, then
+   * {@link QueryCondition#resolveOrderByClause(EntityMetadata)}. When no ordering
+   * is specified, the entity ID is used if available. Raw SQL
+   * fragments and unmapped sort columns are not supported. Keep filtering and ordering unchanged
+   * when following a cursor.
+   *
+   * @param entityClass the entity type
+   * @param condition optional filtering and ordering conditions
+   * @param pageable the page size and optional cursor
+   * @return the page and a cursor when more rows are available
+   * @throws DataAccessException on data access errors
+   * @since 5.0
+   */
+  <T> KeysetPage<T> keysetPage(Class<T> entityClass, @Nullable QueryCondition condition, @Nullable KeysetPageable pageable)
+          throws DataAccessException;
 
   /**
    * Iterates over a collection of entities matching the provided example and

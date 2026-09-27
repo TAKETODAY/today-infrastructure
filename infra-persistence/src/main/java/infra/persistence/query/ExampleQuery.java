@@ -21,11 +21,13 @@ import org.jspecify.annotations.Nullable;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
@@ -82,6 +84,8 @@ final class ExampleQuery extends SimpleSelectQueryStatement
 
   private final List<ValueNormalizer> valueNormalizers;
 
+  private final Set<String> excludedProperties;
+
   private @Nullable ConditionTree predicates;
 
   /**
@@ -97,6 +101,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement
     this.exampleMetadata = exampleMetadata;
     this.strategies = strategies;
     this.valueNormalizers = Collections.emptyList();
+    this.excludedProperties = Set.of();
   }
 
   ExampleQuery(EntityMetadataFactory factory, Object example, List<PropertyConditionStrategy> strategies) {
@@ -105,9 +110,16 @@ final class ExampleQuery extends SimpleSelectQueryStatement
 
   ExampleQuery(EntityMetadataFactory factory, Object example,
           List<PropertyConditionStrategy> strategies, List<ValueNormalizer> valueNormalizers) {
+    this(factory, example, strategies, valueNormalizers, Set.of());
+  }
+
+  ExampleQuery(EntityMetadataFactory factory, Object example,
+          List<PropertyConditionStrategy> strategies, List<ValueNormalizer> valueNormalizers,
+          Collection<String> excludedProperties) {
     this.example = example;
     this.strategies = strategies;
     this.valueNormalizers = valueNormalizers;
+    this.excludedProperties = Set.copyOf(excludedProperties);
     this.exampleMetadata = factory.getEntityMetadata(example.getClass());
   }
 
@@ -327,6 +339,10 @@ final class ExampleQuery extends SimpleSelectQueryStatement
   }
 
   private @Nullable Condition resolveCondition(EntityProperty property) {
+    if (excludedProperties.contains(property.getName())) {
+      // properties carrying the keyset cursor are not equality filters
+      return null;
+    }
     Object propertyValue = property.getValue(example);
 
     for (PropertyConditionStrategy strategy : strategies) {

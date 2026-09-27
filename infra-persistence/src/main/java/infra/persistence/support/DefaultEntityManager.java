@@ -1274,12 +1274,22 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <T> KeysetPage<T> keysetPage(Class<T> entityClass, @Nullable QueryCondition condition, KeysetPageable pageable) throws DataAccessException {
+  public <T> KeysetPage<T> keysetPage(Class<T> entityClass, Object example, @Nullable KeysetPageable pageable) throws DataAccessException {
+    return keysetPage(entityClass, entityQueryFactories.createCondition(example), pageable);
+  }
+
+  @Override
+  public <T> KeysetPage<T> keysetPage(Class<T> entityClass, @Nullable QueryCondition condition, @Nullable KeysetPageable pageable) throws DataAccessException {
     if (condition == null) {
       condition = NoConditionsQuery.instance;
     }
+
+    if (pageable == null) {
+      pageable = KeysetPageable.first(defaultPageable().pageSize());
+    }
+
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
-    KeysetOrder order = KeysetOrder.resolve(metadata, condition.resolveOrderByClause(metadata));
+    KeysetOrder order = resolveKeysetOrder(metadata, condition, pageable);
     Map<String, ?> cursor = pageable.cursor();
     if (cursor != null) {
       order.validateCursor(cursor);
@@ -1327,6 +1337,17 @@ public class DefaultEntityManager implements EntityManager {
       }
       throw new DataRetrievalFailureException("Unable to retrieve the keyset page", ex);
     }
+  }
+
+  private KeysetOrder resolveKeysetOrder(EntityMetadata metadata, QueryCondition condition, KeysetPageable pageable) {
+    OrderSpec keysetOrder = pageable.orderSpec();
+    if (keysetOrder == null || keysetOrder.isEmpty()) {
+      keysetOrder = metadata.getKeysetOrderSpec();
+    }
+    if (keysetOrder.isEmpty()) {
+      keysetOrder = condition.resolveOrderByClause(metadata);
+    }
+    return KeysetOrder.resolve(metadata, keysetOrder);
   }
 
   private Number doQueryCount(EntityMetadata metadata, QueryCondition handler, List<Restriction> restrictions, Connection con) throws DataAccessException {
@@ -1653,13 +1674,7 @@ public class DefaultEntityManager implements EntityManager {
         if (!(part instanceof OrderSpec.Item item)) {
           throw new IllegalArgumentException("Keyset pagination requires mapped sort columns, not raw SQL fragments");
         }
-        EntityProperty property = null;
-        for (EntityProperty candidate : metadata.getEntityProperties(true)) {
-          if (candidate.getColumnName().equals(item.column())) {
-            property = candidate;
-            break;
-          }
-        }
+        EntityProperty property = metadata.findProperty(item.column());
         if (property == null) {
           throw new IllegalArgumentException("Unknown keyset sort column: " + item.column());
         }
@@ -1735,6 +1750,32 @@ public class DefaultEntityManager implements EntityManager {
       }
       return cursor;
     }
+
+    List<String> propertyNames() {
+      List<String> names = new ArrayList<>(keys.size());
+      for (KeysetSort key : keys) {
+        names.add(key.property().getName());
+      }
+      return names;
+    }
+
+    /**
+     * Read a complete cursor from the keyset properties of the given example, or
+     * {@code null} when the example does not carry one.
+     */
+    @Nullable
+    Map<String, Object> cursorFrom(Object example) {
+      Map<String, Object> cursor = new HashMap<>();
+      for (KeysetSort key : keys) {
+        Object value = key.property().getValue(example);
+        if (value == null) {
+          return null;
+        }
+        cursor.put(key.property().getName(), value);
+      }
+      return cursor;
+    }
+
   }
 
 }

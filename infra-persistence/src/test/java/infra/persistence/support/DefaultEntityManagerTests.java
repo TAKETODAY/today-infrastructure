@@ -69,6 +69,7 @@ import infra.persistence.UpdateStrategySource;
 import infra.persistence.annotation.Column;
 import infra.persistence.annotation.EntityRef;
 import infra.persistence.annotation.Id;
+import infra.persistence.annotation.Keyset;
 import infra.persistence.annotation.OrderByClause;
 import infra.persistence.annotation.UpdateBy;
 import infra.persistence.annotation.Where;
@@ -985,6 +986,102 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
   }
 
   @ParameterizedRepositoryManagerTest
+  void keysetPageUsesKeysetAnnotationOrdering(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    if (dbType == DbType.HyperSQL) {
+      entityManager.setPlatform(new HyperSQLPlatform());
+    }
+    entityManager.persist(List.of(
+            UserModel.male("a", 10), UserModel.male("b", 20), UserModel.male("c", 30)));
+
+    KeysetPageable request = KeysetPageable.first(1);
+    KeysetPage<KeysetDescUser> first = entityManager.keysetPage(KeysetDescUser.class, null, request);
+    KeysetPage<KeysetDescUser> second = entityManager.keysetPage(KeysetDescUser.class, null, request.after(first.nextCursor()));
+
+    assertThat(first.rows()).singleElement().extracting(user -> user.age).isEqualTo(30);
+    assertThat(first.nextCursor()).containsOnlyKeys("age");
+    assertThat(second.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void keysetPageWithExampleCarriesCursor(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    if (dbType == DbType.HyperSQL) {
+      entityManager.setPlatform(new HyperSQLPlatform());
+    }
+    entityManager.persist(List.of(
+            UserModel.male("same", 10), UserModel.male("same", 10),
+            UserModel.male("same", 20), UserModel.male("other", 30)));
+
+    ExampleKeysetUser example = new ExampleKeysetUser();
+    example.name = "same";
+
+    KeysetPageable request = KeysetPageable.first(2);
+    KeysetPage<ExampleKeysetUser> first = entityManager.keysetPage(ExampleKeysetUser.class, example, request);
+    assertThat(first.rows()).hasSize(2);
+    assertThat(first.hasNext()).isTrue();
+    assertThat(example.age).isNull();
+    assertThat(example.id).isNull();
+
+    KeysetPage<ExampleKeysetUser> second = entityManager.keysetPage(ExampleKeysetUser.class, example, request.after(first.nextCursor()));
+    assertThat(second.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
+    assertThat(second.hasNext()).isFalse();
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void keysetPagePageableOrderOverridesKeysetAnnotation(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    if (dbType == DbType.HyperSQL) {
+      entityManager.setPlatform(new HyperSQLPlatform());
+    }
+    entityManager.persist(List.of(
+            UserModel.male("a", 10), UserModel.male("b", 20), UserModel.male("c", 30)));
+
+    KeysetPageable request = KeysetPageable.first(1).withOrder(OrderSpec.asc("age"));
+    KeysetPage<KeysetDescUser> first = entityManager.keysetPage(KeysetDescUser.class, request);
+    KeysetPage<KeysetDescUser> second = entityManager.keysetPage(KeysetDescUser.class, request.after(first.nextCursor()));
+
+    assertThat(first.rows()).singleElement().extracting(user -> user.age).isEqualTo(10);
+    assertThat(first.nextCursor()).containsOnlyKeys("age");
+    assertThat(second.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void keysetPageExampleUsesPageableOrderForCursor(DbType dbType, RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    if (dbType == DbType.HyperSQL) {
+      entityManager.setPlatform(new HyperSQLPlatform());
+    }
+    entityManager.persist(List.of(
+            UserModel.male("same", 10), UserModel.male("same", 20), UserModel.male("same", 30)));
+
+    ExampleKeysetUser example = new ExampleKeysetUser();
+    example.name = "same";
+    KeysetPageable request = KeysetPageable.first(1).withOrder(OrderSpec.desc("age"));
+    KeysetPage<ExampleKeysetUser> first = entityManager.keysetPage(ExampleKeysetUser.class, example, request);
+    KeysetPage<ExampleKeysetUser> second = entityManager.keysetPage(ExampleKeysetUser.class, example, request.after(first.nextCursor()));
+
+    assertThat(first.rows()).singleElement().extracting(user -> user.age).isEqualTo(30);
+    assertThat(second.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
+  }
+
+  @Test
+  void keysetAnnotationOrderRespectsPrecedence() {
+    EntityMetadata metadata = new DefaultEntityMetadataFactory().getEntityMetadata(CompositeKeysetUser.class);
+
+    assertThat(metadata.getKeysetOrderSpec().toClause(Platform.generic())).isEqualTo("age DESC, name ASC");
+  }
+
+  @Test
+  void keysetAnnotationWithUnknownPropertyFails() {
+    EntityMetadata metadata = new DefaultEntityMetadataFactory().getEntityMetadata(BadKeysetUser.class);
+
+    assertThatThrownBy(metadata::getKeysetOrderSpec)
+            .isInstanceOf(IllegalEntityException.class)
+            .hasMessageContaining("Unknown @Keyset property");
+  }
+
+  @ParameterizedRepositoryManagerTest
   void keysetPageCursorSurvivesJsonHttpRoundTrip(DbType dbType, RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     if (dbType == DbType.HyperSQL) {
@@ -1017,6 +1114,37 @@ class DefaultEntityManagerTests extends infra.jdbc.AbstractRepositoryManagerTest
     assertThat(second.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
     assertThat(second.hasNext()).isFalse();
     assertThat(second.rows().get(0).id).isNotIn(first.rows().stream().map(user -> user.id).toList());
+  }
+
+  @infra.persistence.annotation.Table("t_user")
+  @Keyset(property = "age", direction = Order.DESC)
+  static class KeysetDescUser {
+    public Integer age;
+    public String name;
+  }
+
+  @infra.persistence.annotation.Table("t_user")
+  @Keyset(property = "age")
+  static class ExampleKeysetUser {
+    @Id
+    public Integer id;
+    public Integer age;
+    public String name;
+  }
+
+  @infra.persistence.annotation.Table("t_user")
+  @Keyset(property = "name", order = 1)
+  @Keyset(property = "age", direction = Order.DESC, order = 0)
+  static class CompositeKeysetUser {
+    public Integer age;
+    public String name;
+  }
+
+  @infra.persistence.annotation.Table("t_user")
+  @Keyset(property = "missing")
+  static class BadKeysetUser {
+    public Integer age;
+    public String name;
   }
 
   @infra.persistence.annotation.Table("t_user")
