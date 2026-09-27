@@ -1764,76 +1764,88 @@ public interface EntityManager {
           throws DataAccessException;
 
   /**
-   * Fetch a keyset page using an entity example as both the filter and the cursor
-   * carrier.
+   * Scroll through every row of the given entity type using the entity's declared
+   * ordering.
    *
-   * @param example the example carrying filters and the keyset cursor
-   * @param pageable the page size, or {@code null} for the default
+   * @param entityClass the entity type
+   * @param position the scroll position, never {@code null}
+   * @param pageable the window size and optional keyset order
    * @param <T> the entity type
-   * @return the page and a cursor when more rows are available
+   * @return the window at the requested position
    * @throws DataAccessException on data access errors
-   * @see #keysetPage(Class, Object, KeysetPageable)
    * @since 5.0
    */
-  @SuppressWarnings("unchecked")
-  default <T> KeysetPage<T> keysetPage(T example, @Nullable KeysetPageable pageable) throws DataAccessException {
-    return keysetPage((Class<T>) example.getClass(), example, pageable);
+  default <T> Scroll<T> scroll(Class<T> entityClass, ScrollPosition position, ScrollPageable pageable)
+          throws DataAccessException {
+    return scroll(entityClass, null, position, pageable);
   }
 
   /**
-   * Fetch a keyset page without additional filtering.
+   * Scroll through the rows matching the given condition.
    *
-   * @param entityClass the entity type
-   * @param pageable the keyset page request
-   * @return the resulting page
-   * @throws DataAccessException on data access errors
-   * @since 5.0
-   */
-  default <T> KeysetPage<T> keysetPage(Class<T> entityClass, @Nullable KeysetPageable pageable) throws DataAccessException {
-    return keysetPage(entityClass, null, pageable);
-  }
-
-  /**
-   * Fetch a keyset page using an example as both the filter and the cursor carrier.
+   * <p>The keyset order is resolved from {@link ScrollPageable#order()}, then the
+   * entity's {@link infra.persistence.annotation.Keyset @Keyset} declarations,
+   * then {@link QueryCondition#resolveOrderByClause(EntityMetadata)}. When the
+   * entity has an ID it is appended as a unique tie-breaker unless already
+   * ordered. Without an ID, explicit ordering must uniquely identify each row.
+   * Raw SQL fragments and unmapped sort columns are not supported. Keyset sort
+   * properties must contain non-null values.
    *
-   * <p>Properties annotated with
-   * {@link infra.persistence.annotation.Keyset @Keyset} do not act as equality
-   * filters: their non-null values are read from the example as the cursor for the
-   * requested page. The example is not modified; use the returned
-   * {@link KeysetPage#nextCursor()} with {@link KeysetPageable#after(java.util.Map)}
-   * to request the next page. All other non-null properties are used as filters.
-   *
-   * @param entityClass the entity type
-   * @param example the example carrying filters and the keyset cursor
-   * @param pageable the page size and optional keyset order, or {@code null} for the default
-   * @param <T> the entity type
-   * @return the page and a cursor when more rows are available
-   * @throws DataAccessException on data access errors
-   * @since 5.0
-   */
-  <T> KeysetPage<T> keysetPage(Class<T> entityClass, Object example, @Nullable KeysetPageable pageable)
-          throws DataAccessException;
-
-  /**
-   * Fetch a forward-only keyset page without a count or offset query. The sort
-   * properties must contain non-null values. When the entity has an ID, it is
-   * appended as a unique tie-breaker unless already ordered. Without an ID,
-   * explicit ordering must uniquely identify each row. The cursor is exclusive.
-   * Ordering is resolved from the {@link KeysetPageable#orderSpec() page request},
-   * then the entity's {@code @Keyset} declarations, then
-   * {@link QueryCondition#resolveOrderByClause(EntityMetadata)}. When no ordering
-   * is specified, the entity ID is used if available. Raw SQL
-   * fragments and unmapped sort columns are not supported. Keep filtering and ordering unchanged
-   * when following a cursor.
+   * <p>The position is exclusive: rows are returned after it. Use
+   * {@link Scroll#position()} with the returned window to scroll forward. Keep
+   * filtering and ordering unchanged when following a position.
    *
    * @param entityClass the entity type
    * @param condition optional filtering and ordering conditions
-   * @param pageable the page size and optional cursor
-   * @return the page and a cursor when more rows are available
+   * @param position the scroll position, never {@code null}
+   * @param pageable the window size and optional keyset order
+   * @param <T> the entity type
+   * @return the window at the requested position
    * @throws DataAccessException on data access errors
    * @since 5.0
    */
-  <T> KeysetPage<T> keysetPage(Class<T> entityClass, @Nullable QueryCondition condition, @Nullable KeysetPageable pageable)
+  <T> Scroll<T> scroll(Class<T> entityClass, @Nullable QueryCondition condition,
+          ScrollPosition position, ScrollPageable pageable) throws DataAccessException;
+
+  /**
+   * Scroll through the rows matching the given example.
+   *
+   * <p>Non-null properties of the example are used as filters. The scroll
+   * position and keyset order behave as in
+   * {@link #scroll(Class, QueryCondition, ScrollPosition, ScrollPageable)}.
+   *
+   * @param example the example whose non-null properties filter the result
+   * @param position the scroll position, never {@code null}
+   * @param pageable the window size and optional keyset order
+   * @param <T> the entity type
+   * @return the window at the requested position
+   * @throws DataAccessException on data access errors
+   * @since 5.0
+   */
+  @SuppressWarnings("unchecked")
+  default <T> Scroll<T> scroll(T example, ScrollPosition position, ScrollPageable pageable)
+          throws DataAccessException {
+    return scroll((Class<T>) example.getClass(), example, position, pageable);
+  }
+
+  /**
+   * Scroll through the rows matching the given example with an explicit entity
+   * type.
+   *
+   * <p>Non-null properties of the example are used as filters. The scroll
+   * position and keyset order behave as in
+   * {@link #scroll(Class, QueryCondition, ScrollPosition, ScrollPageable)}.
+   *
+   * @param entityClass the entity type
+   * @param example the example whose non-null properties filter the result
+   * @param position the scroll position, never {@code null}
+   * @param pageable the window size and optional keyset order
+   * @param <T> the entity type
+   * @return the window at the requested position
+   * @throws DataAccessException on data access errors
+   * @since 5.0
+   */
+  <T> Scroll<T> scroll(Class<T> entityClass, Object example, ScrollPosition position, ScrollPageable pageable)
           throws DataAccessException;
 
   /**

@@ -61,13 +61,15 @@ import infra.persistence.EntityMetadata;
 import infra.persistence.EntityMetadataFactory;
 import infra.persistence.EntityProperty;
 import infra.persistence.IllegalEntityException;
-import infra.persistence.KeysetPage;
-import infra.persistence.KeysetPageable;
+import infra.persistence.KeysetScrollPosition;
 import infra.persistence.NewEntityIndicator;
 import infra.persistence.Order;
 import infra.persistence.Page;
 import infra.persistence.Pageable;
 import infra.persistence.PropertyUpdateStrategy;
+import infra.persistence.Scroll;
+import infra.persistence.ScrollPageable;
+import infra.persistence.ScrollPosition;
 import infra.persistence.Slice;
 import infra.persistence.UpdateStrategySource;
 import infra.persistence.VersionIncrementStrategy;
@@ -1274,36 +1276,36 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <T> KeysetPage<T> keysetPage(Class<T> entityClass, Object example, @Nullable KeysetPageable pageable) throws DataAccessException {
-    return keysetPage(entityClass, entityQueryFactories.createCondition(example), pageable);
-  }
+  public <T> Scroll<T> scroll(Class<T> entityClass, @Nullable QueryCondition condition,
+          ScrollPosition position, ScrollPageable pageable) throws DataAccessException {
+    Assert.notNull(position, "ScrollPosition is required");
+    Assert.notNull(pageable, "ScrollPageable is required");
 
-  @Override
-  public <T> KeysetPage<T> keysetPage(Class<T> entityClass, @Nullable QueryCondition condition, @Nullable KeysetPageable pageable) throws DataAccessException {
     if (condition == null) {
       condition = NoConditionsQuery.instance;
     }
 
-    if (pageable == null) {
-      pageable = KeysetPageable.first(defaultPageable().pageSize());
-    }
-
+    int pageSize = pageable.pageSize();
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
-    KeysetOrder order = resolveKeysetOrder(metadata, condition, pageable);
-    Map<String, ?> cursor = pageable.cursor();
-    if (cursor != null) {
-      order.validateCursor(cursor);
+    KeysetOrder keysetOrder = resolveKeysetOrder(metadata, condition, pageable.order());
+    Map<String, ?> cursor = null;
+    if (!position.isInitial()) {
+      if (!(position instanceof KeysetScrollPosition keysetPosition)) {
+        throw new IllegalArgumentException("Unsupported scroll position type: " + position.getClass().getName());
+      }
+      cursor = keysetPosition.keys();
+      keysetOrder.validateCursor(cursor);
     }
 
     List<Restriction> restrictions = condition.collectRestrictions(metadata);
     if (cursor != null) {
-      restrictions.add(order.afterCursor());
+      restrictions.add(keysetOrder.afterCursor());
     }
 
     SimpleSelect select = new SimpleSelect(metadata.getTableName(),
             Arrays.asList(metadata.getColumnNames(true)), restrictions)
-            .limit(pageable.pageSize() + 1);
-    order.applyTo(select);
+            .limit(pageSize + 1);
+    keysetOrder.applyTo(select);
     String statement = select.toStatementString(platform);
     Connection con = DataSourceUtils.getConnection(dataSource);
     PreparedStatement stmt = null;
@@ -1311,21 +1313,20 @@ public class DefaultEntityManager implements EntityManager {
       stmt = prepareStatement(con, statement, false);
       int index = condition.setParameter(metadata, stmt);
       if (cursor != null) {
-        order.bindCursor(stmt, index, cursor);
+        keysetOrder.bindCursor(stmt, index, cursor);
       }
       if (stmtLogger.isDebugEnabled()) {
         stmtLogger.logStatement(getDebugLogMessage(condition), statement);
       }
-      List<T> rows = new DefaultEntityIterator<T>(con, stmt, entityClass, metadata).list(pageable.pageSize() + 1);
+      List<T> rows = new DefaultEntityIterator<T>(con, stmt, entityClass, metadata).list(pageSize + 1);
       for (T row : rows) {
-        order.validateRow(row);
+        keysetOrder.validateRow(row);
       }
-      boolean hasNext = rows.size() > pageable.pageSize();
+      boolean hasNext = rows.size() > pageSize;
       if (hasNext) {
-        rows = rows.subList(0, pageable.pageSize());
+        rows = rows.subList(0, pageSize);
       }
-      Map<String, Object> nextCursor = hasNext ? order.cursorFor(rows.get(rows.size() - 1)) : null;
-      return new KeysetPage<>(rows, nextCursor);
+      return new ListScroll<>(rows, !hasNext, keysetOrder::positionFrom);
     }
     catch (Throwable ex) {
       closeResource(con, stmt);
@@ -1335,12 +1336,17 @@ public class DefaultEntityManager implements EntityManager {
       if (ex instanceof SQLException sqlException) {
         throw translateException(getDescription(condition), statement, sqlException);
       }
-      throw new DataRetrievalFailureException("Unable to retrieve the keyset page", ex);
+      throw new DataRetrievalFailureException("Unable to scroll the query result", ex);
     }
   }
 
-  private KeysetOrder resolveKeysetOrder(EntityMetadata metadata, QueryCondition condition, KeysetPageable pageable) {
-    OrderSpec keysetOrder = pageable.orderSpec();
+  @Override
+  public <T> Scroll<T> scroll(Class<T> entityClass, Object example, ScrollPosition position, ScrollPageable pageable) {
+    return scroll(entityClass, entityQueryFactories.createCondition(example), position, pageable);
+  }
+
+  private KeysetOrder resolveKeysetOrder(EntityMetadata metadata, QueryCondition condition, @Nullable OrderSpec order) {
+    OrderSpec keysetOrder = order;
     if (keysetOrder == null || keysetOrder.isEmpty()) {
       keysetOrder = metadata.getKeysetOrderSpec();
     }
@@ -1743,37 +1749,43 @@ public class DefaultEntityManager implements EntityManager {
       }
     }
 
-    Map<String, Object> cursorFor(Object row) {
-      Map<String, Object> cursor = new HashMap<>();
-      for (KeysetSort key : keys) {
-        cursor.put(key.property().getName(), key.property().getValue(row));
+    KeysetScrollPosition positionFrom(Object row) {
+      Map<String, Object> keys = new HashMap<>();
+      for (KeysetSort key : this.keys) {
+        keys.put(key.property().getName(), key.property().getValue(row));
       }
-      return cursor;
+      return KeysetScrollPosition.of(keys);
     }
 
-    List<String> propertyNames() {
-      List<String> names = new ArrayList<>(keys.size());
-      for (KeysetSort key : keys) {
-        names.add(key.property().getName());
-      }
-      return names;
+  }
+
+  private static final class ListScroll<T> implements Scroll<T> {
+
+    private final List<T> content;
+
+    private final boolean last;
+
+    private final Function<T, ScrollPosition> positionExtractor;
+
+    private ListScroll(List<T> content, boolean last, Function<T, ScrollPosition> positionExtractor) {
+      this.content = List.copyOf(content);
+      this.last = last;
+      this.positionExtractor = positionExtractor;
     }
 
-    /**
-     * Read a complete cursor from the keyset properties of the given example, or
-     * {@code null} when the example does not carry one.
-     */
-    @Nullable
-    Map<String, Object> cursorFrom(Object example) {
-      Map<String, Object> cursor = new HashMap<>();
-      for (KeysetSort key : keys) {
-        Object value = key.property().getValue(example);
-        if (value == null) {
-          return null;
-        }
-        cursor.put(key.property().getName(), value);
-      }
-      return cursor;
+    @Override
+    public List<T> content() {
+      return content;
+    }
+
+    @Override
+    public ScrollPosition positionAt(int index) {
+      return positionExtractor.apply(content.get(index));
+    }
+
+    @Override
+    public boolean isLast() {
+      return last;
     }
 
   }

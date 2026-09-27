@@ -58,14 +58,13 @@ import infra.persistence.Order;
  * }</pre>
  *
  * <p>The entity ID is appended as a unique tie-breaker when it is not already
- * part of the declared order. The keyset order is only a default: a query-level
-  * ordering supplied through
-  * {@link infra.persistence.KeysetPageable#withOrder(infra.persistence.sql.OrderSpec)}
- * takes precedence over it.
+ * part of the declared order. The keyset order is only a default: an explicit
+ * order supplied to {@link infra.persistence.EntityManager#scroll} takes
+ * precedence over it.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see OrderBy
- * @see infra.persistence.KeysetPageable
+ * @see infra.persistence.ScrollPosition
  * @since 5.0
  */
 @Reflective

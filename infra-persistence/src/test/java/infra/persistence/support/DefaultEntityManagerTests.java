@@ -31,6 +31,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -58,14 +59,16 @@ import infra.persistence.EntityMetadataFactory;
 import infra.persistence.EntityProperty;
 import infra.persistence.EntityPropertyTestFactory;
 import infra.persistence.IllegalEntityException;
-import infra.persistence.KeysetPage;
-import infra.persistence.KeysetPageable;
+import infra.persistence.KeysetScrollPosition;
 import infra.persistence.NewEntityIndicator;
 import infra.persistence.Order;
 import infra.persistence.Page;
 import infra.persistence.Pageable;
 import infra.persistence.PropertyUpdateStrategy;
 import infra.persistence.QueryBuilder;
+import infra.persistence.Scroll;
+import infra.persistence.ScrollPageable;
+import infra.persistence.ScrollPosition;
 import infra.persistence.Slice;
 import infra.persistence.UpdateStrategySource;
 import infra.persistence.annotation.Column;
@@ -1713,6 +1716,10 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       DefaultEntityManagerTests.this.prepareTestsData(dbType, repositoryManager);
     }
 
+    private static Map<String, Object> keysetKeys(ScrollPosition position) {
+      return ((KeysetScrollPosition) position).keys();
+    }
+
     @ParameterizedRepositoryManagerTest
     void keysetPage(DbType dbType, RepositoryManager repositoryManager) {
       DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
@@ -1734,30 +1741,26 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
             return order;
           }
         }.add(Restrictions.equal("name"), "same");
-        KeysetPageable request = KeysetPageable.first(2);
-        KeysetPage<UserModel> first = entityManager.keysetPage(UserModel.class, ordered, request);
-        assertThat(first.rows()).hasSize(2);
-        assertThat(first.hasNext()).isTrue();
-        assertThat(first.nextCursor()).containsKeys("age", "id");
+        Scroll<UserModel> first = entityManager.scroll(UserModel.class, ordered, ScrollPosition.keyset(), ScrollPageable.of(2).withOrder(order));
+        assertThat(first.content()).hasSize(2);
+        assertThat(first.isLast()).isFalse();
+        assertThat(keysetKeys(first.position())).containsKeys("age", "id");
 
-        KeysetPage<UserModel> second = entityManager.keysetPage(UserModel.class, ordered, request.after(first.nextCursor()));
-        assertThat(second.rows()).hasSize(1);
-        assertThat(second.hasNext()).isFalse();
-        assertThat(second.rows().get(0).age).isEqualTo(direction == Order.ASC ? 20 : 10);
-        assertThat(first.rows()).allMatch(user -> user.name.equals("same"));
-        assertThat(first.rows().stream().map(user -> user.id).toList())
-                .doesNotContain(second.rows().get(0).id);
-        assertThat(first.rows().get(0).age).isEqualTo(direction == Order.ASC ? 10 : 20);
+        Scroll<UserModel> second = entityManager.scroll(UserModel.class, ordered, first.position(), ScrollPageable.of(2).withOrder(order));
+        assertThat(second.content()).hasSize(1);
+        assertThat(second.isLast()).isTrue();
+        assertThat(second.content().get(0).age).isEqualTo(direction == Order.ASC ? 20 : 10);
+        assertThat(first.content()).allMatch(user -> user.name.equals("same"));
+        assertThat(first.content().stream().map(user -> user.id).toList())
+                .doesNotContain(second.content().get(0).id);
+        assertThat(first.content().get(0).age).isEqualTo(direction == Order.ASC ? 10 : 20);
       }
 
-      KeysetPageable byId = KeysetPageable.first(2);
-      KeysetPage<UserModel> first = entityManager.keysetPage(UserModel.class, null, byId);
-      assertThat(first.nextCursor()).containsOnlyKeys("id");
-      assertThat(entityManager.keysetPage(UserModel.class, null, byId.after(first.nextCursor())).rows()).hasSize(2);
-      assertThatThrownBy(() -> entityManager.keysetPage(UserModel.class, null,
-              byId.after(Map.of("age", 10)))).isInstanceOf(IllegalArgumentException.class);
-      assertThatThrownBy(() -> entityManager.keysetPage(UserModel.class,
-              entityManager.getEntityQueryFactories().createCondition(OrderSpec.asc("unknown")), byId))
+      Scroll<UserModel> byIdFirst = entityManager.scroll(UserModel.class, ScrollPosition.keyset(), ScrollPageable.of(2));
+      assertThat(keysetKeys(byIdFirst.position())).containsOnlyKeys("id");
+      assertThat(entityManager.scroll(UserModel.class, byIdFirst.position(), ScrollPageable.of(2)).content()).hasSize(2);
+      assertThatThrownBy(() -> entityManager.scroll(UserModel.class, ScrollPosition.keyset(Map.of("age", 10)), ScrollPageable.of(2))).isInstanceOf(IllegalArgumentException.class);
+      assertThatThrownBy(() -> entityManager.scroll(UserModel.class, entityManager.getEntityQueryFactories().createCondition(OrderSpec.asc("unknown")), ScrollPosition.keyset(), ScrollPageable.of(2)))
               .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -1773,12 +1776,11 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
               UserModel.male("same", 30)));
 
       QueryCondition filter = entityManager.getEntityQueryFactories().createCondition(Map.of("name", "same"));
-      KeysetPageable request = KeysetPageable.first(1);
-      KeysetPage<UserModel> first = entityManager.keysetPage(UserModel.class, filter, request);
-      KeysetPage<UserModel> second = entityManager.keysetPage(UserModel.class, filter, request.after(first.nextCursor()));
+      Scroll<UserModel> first = entityManager.scroll(UserModel.class, filter, ScrollPosition.keyset(), ScrollPageable.of(1));
+      Scroll<UserModel> second = entityManager.scroll(UserModel.class, filter, first.position(), ScrollPageable.of(1));
 
-      assertThat(first.rows()).singleElement().extracting(user -> user.age).isEqualTo(10);
-      assertThat(second.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
+      assertThat(first.content()).singleElement().extracting(user -> user.age).isEqualTo(10);
+      assertThat(second.content()).singleElement().extracting(user -> user.age).isEqualTo(20);
     }
 
     @ParameterizedRepositoryManagerTest
@@ -1793,23 +1795,21 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
 
       OrderSpec order = OrderSpec.builder().asc("age").desc("name").build();
       QueryCondition condition = entityManager.getEntityQueryFactories().createCondition(order);
-      KeysetPageable request = KeysetPageable.first(1);
       List<String> names = new ArrayList<>();
-      KeysetPage<UserModel> page;
+      ScrollPosition position = ScrollPosition.keyset();
+      Scroll<UserModel> page;
       do {
-        page = entityManager.keysetPage(UserModel.class, condition, request);
-        page.rows().forEach(user -> names.add(user.name));
-        if (page.hasNext()) {
-          assertThat(page.nextCursor()).containsKeys("age", "name", "id");
-          request = request.after(page.nextCursor());
+        page = entityManager.scroll(UserModel.class, condition, position, ScrollPageable.of(1).withOrder(order));
+        page.content().forEach(user -> names.add(user.name));
+        if (!page.isLast()) {
+          assertThat(keysetKeys(page.position())).containsKeys("age", "name", "id");
+          position = page.position();
         }
       }
-      while (page.hasNext());
+      while (!page.isLast());
 
       assertThat(names).containsExactly("c", "b", "b", "a", "d");
-      assertThatThrownBy(() -> entityManager.keysetPage(UserModel.class,
-              entityManager.getEntityQueryFactories().createCondition(OrderSpec.plain("LENGTH(name) DESC")),
-              KeysetPageable.first(1))).isInstanceOf(IllegalArgumentException.class);
+      assertThatThrownBy(() -> entityManager.scroll(UserModel.class, entityManager.getEntityQueryFactories().createCondition(OrderSpec.plain("LENGTH(name) DESC")), ScrollPosition.keyset(), ScrollPageable.of(1))).isInstanceOf(IllegalArgumentException.class);
     }
 
     @ParameterizedRepositoryManagerTest
@@ -1821,14 +1821,13 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       repositoryManager.createNamedQuery("insert into t_user (name, age) values ('a', 10), ('b', 20), ('c', 30)").executeUpdate();
 
       QueryCondition ordered = entityManager.getEntityQueryFactories().createCondition(OrderSpec.asc("age"));
-      KeysetPageable request = KeysetPageable.first(1);
-      KeysetPage<NoIdUser> first = entityManager.keysetPage(NoIdUser.class, ordered, request);
-      KeysetPage<NoIdUser> second = entityManager.keysetPage(NoIdUser.class, ordered, request.after(first.nextCursor()));
+      Scroll<NoIdUser> first = entityManager.scroll(NoIdUser.class, ordered, ScrollPosition.keyset(), ScrollPageable.of(1));
+      Scroll<NoIdUser> second = entityManager.scroll(NoIdUser.class, ordered, first.position(), ScrollPageable.of(1));
 
-      assertThat(first.rows()).singleElement().extracting(user -> user.age).isEqualTo(10);
-      assertThat(first.nextCursor()).containsOnlyKeys("age");
-      assertThat(second.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
-      assertThatThrownBy(() -> entityManager.keysetPage(NoIdUser.class, null, request))
+      assertThat(first.content()).singleElement().extracting(user -> user.age).isEqualTo(10);
+      assertThat(keysetKeys(first.position())).containsOnlyKeys("age");
+      assertThat(second.content()).singleElement().extracting(user -> user.age).isEqualTo(20);
+      assertThatThrownBy(() -> entityManager.scroll(NoIdUser.class, ScrollPosition.keyset(), ScrollPageable.of(1)))
               .isInstanceOf(IllegalArgumentException.class)
               .hasMessageContaining("entity ID or explicit unique ordering");
     }
@@ -1842,13 +1841,12 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       entityManager.persist(List.of(
               UserModel.male("a", 10), UserModel.male("b", 20), UserModel.male("c", 30)));
 
-      KeysetPageable request = KeysetPageable.first(1);
-      KeysetPage<KeysetDescUser> first = entityManager.keysetPage(KeysetDescUser.class, null, request);
-      KeysetPage<KeysetDescUser> second = entityManager.keysetPage(KeysetDescUser.class, null, request.after(first.nextCursor()));
+      Scroll<KeysetDescUser> first = entityManager.scroll(KeysetDescUser.class, ScrollPosition.keyset(), ScrollPageable.of(1));
+      Scroll<KeysetDescUser> second = entityManager.scroll(KeysetDescUser.class, first.position(), ScrollPageable.of(1));
 
-      assertThat(first.rows()).singleElement().extracting(user -> user.age).isEqualTo(30);
-      assertThat(first.nextCursor()).containsOnlyKeys("age");
-      assertThat(second.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
+      assertThat(first.content()).singleElement().extracting(user -> user.age).isEqualTo(30);
+      assertThat(keysetKeys(first.position())).containsOnlyKeys("age");
+      assertThat(second.content()).singleElement().extracting(user -> user.age).isEqualTo(20);
     }
 
     @ParameterizedRepositoryManagerTest
@@ -1861,26 +1859,26 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
               UserModel.male("b", 20), UserModel.male("a", 20),
               UserModel.male("a", 20), UserModel.male("c", 10), UserModel.male("a", 10)));
 
-      KeysetPageable request = KeysetPageable.first(1);
       List<String> names = new ArrayList<>();
       List<Integer> ids = new ArrayList<>();
-      KeysetPage<CompositeKeysetWithIdUser> page;
+      ScrollPosition position = ScrollPosition.keyset();
+      Scroll<CompositeKeysetWithIdUser> page;
       do {
-        page = entityManager.keysetPage(CompositeKeysetWithIdUser.class, request);
-        assertThat(page.rows()).hasSize(1);
-        CompositeKeysetWithIdUser row = page.rows().get(0);
+        page = entityManager.scroll(CompositeKeysetWithIdUser.class, position, ScrollPageable.of(1));
+        assertThat(page.content()).hasSize(1);
+        CompositeKeysetWithIdUser row = page.content().get(0);
         names.add(row.age + ":" + row.name);
         ids.add(row.id);
-        if (page.hasNext()) {
-          assertThat(page.nextCursor()).containsOnlyKeys("age", "name", "id");
-          request = request.after(page.nextCursor());
+        if (!page.isLast()) {
+          assertThat(keysetKeys(page.position())).containsOnlyKeys("age", "name", "id");
+          position = page.position();
         }
       }
-      while (page.hasNext());
+      while (!page.isLast());
 
       assertThat(names).containsExactly("20:a", "20:a", "20:b", "10:a", "10:c");
       assertThat(ids).doesNotHaveDuplicates();
-      assertThat(page.nextCursor()).isNull();
+      assertThat(page.isLast()).isTrue();
     }
 
     @ParameterizedRepositoryManagerTest
@@ -1891,16 +1889,15 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       }
       repositoryManager.createNamedQuery("insert into t_user (name, age) values ('a', 20), ('b', 20), ('c', 10)").executeUpdate();
 
-      KeysetPageable request = KeysetPageable.first(1);
-      KeysetPage<CompositeKeysetUser> first = entityManager.keysetPage(CompositeKeysetUser.class, request);
-      KeysetPage<CompositeKeysetUser> second = entityManager.keysetPage(CompositeKeysetUser.class, request.after(first.nextCursor()));
-      KeysetPage<CompositeKeysetUser> third = entityManager.keysetPage(CompositeKeysetUser.class, request.after(second.nextCursor()));
+      Scroll<CompositeKeysetUser> first = entityManager.scroll(CompositeKeysetUser.class, ScrollPosition.keyset(), ScrollPageable.of(1));
+      Scroll<CompositeKeysetUser> second = entityManager.scroll(CompositeKeysetUser.class, first.position(), ScrollPageable.of(1));
+      Scroll<CompositeKeysetUser> third = entityManager.scroll(CompositeKeysetUser.class, second.position(), ScrollPageable.of(1));
 
-      assertThat(first.rows()).singleElement().extracting(user -> user.name).isEqualTo("a");
-      assertThat(first.nextCursor()).containsOnlyKeys("age", "name");
-      assertThat(second.rows()).singleElement().extracting(user -> user.name).isEqualTo("b");
-      assertThat(third.rows()).singleElement().extracting(user -> user.name).isEqualTo("c");
-      assertThat(third.hasNext()).isFalse();
+      assertThat(first.content()).singleElement().extracting(user -> user.name).isEqualTo("a");
+      assertThat(keysetKeys(first.position())).containsOnlyKeys("age", "name");
+      assertThat(second.content()).singleElement().extracting(user -> user.name).isEqualTo("b");
+      assertThat(third.content()).singleElement().extracting(user -> user.name).isEqualTo("c");
+      assertThat(third.isLast()).isTrue();
     }
 
     @ParameterizedRepositoryManagerTest
@@ -1910,11 +1907,10 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
         entityManager.setPlatform(new HyperSQLPlatform());
       }
 
-      KeysetPageable request = KeysetPageable.first(1);
-      assertThatThrownBy(() -> entityManager.keysetPage(CompositeKeysetUser.class, request.after(Map.of("age", 20))))
+      assertThatThrownBy(() -> entityManager.scroll(CompositeKeysetUser.class, ScrollPosition.keyset(Map.of("age", 20)), ScrollPageable.of(1)))
               .isInstanceOf(IllegalArgumentException.class)
               .hasMessageContaining("every keyset sort property");
-      assertThatThrownBy(() -> entityManager.keysetPage(CompositeKeysetUser.class, request.after(Map.of("age", 20, "id", 1))))
+      assertThatThrownBy(() -> entityManager.scroll(CompositeKeysetUser.class, ScrollPosition.keyset(Map.of("age", 20, "id", 1)), ScrollPageable.of(1)))
               .isInstanceOf(IllegalArgumentException.class)
               .hasMessageContaining("name");
     }
@@ -1928,10 +1924,10 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       entityManager.persist(List.of(UserModel.male("a", 10), UserModel.male("b", 20)));
 
       QueryCondition ascending = entityManager.getEntityQueryFactories().createCondition(OrderSpec.asc("age"));
-      KeysetPage<KeysetDescUser> first = entityManager.keysetPage(KeysetDescUser.class, ascending, KeysetPageable.first(1));
+      Scroll<KeysetDescUser> first = entityManager.scroll(KeysetDescUser.class, ascending, ScrollPosition.keyset(), ScrollPageable.of(1));
 
-      assertThat(first.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
-      assertThat(first.nextCursor()).containsOnlyKeys("age");
+      assertThat(first.content()).singleElement().extracting(user -> user.age).isEqualTo(20);
+      assertThat(keysetKeys(first.position())).containsOnlyKeys("age");
     }
 
     @ParameterizedRepositoryManagerTest
@@ -1947,16 +1943,15 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       ExampleKeysetUser example = new ExampleKeysetUser();
       example.name = "same";
 
-      KeysetPageable request = KeysetPageable.first(2);
-      KeysetPage<KeysetAgeUser> first = entityManager.keysetPage(KeysetAgeUser.class, example, request);
-      assertThat(first.rows()).hasSize(2);
-      assertThat(first.hasNext()).isTrue();
-      assertThat(first.nextCursor()).containsOnlyKeys("age", "id");
+      Scroll<KeysetAgeUser> first = entityManager.scroll(KeysetAgeUser.class, example, ScrollPosition.keyset(), ScrollPageable.of(2));
+      assertThat(first.content()).hasSize(2);
+      assertThat(first.isLast()).isFalse();
+      assertThat(keysetKeys(first.position())).containsOnlyKeys("age", "id");
       assertThat(example.name).isEqualTo("same");
 
-      KeysetPage<KeysetAgeUser> second = entityManager.keysetPage(KeysetAgeUser.class, example, request.after(first.nextCursor()));
-      assertThat(second.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
-      assertThat(second.hasNext()).isFalse();
+      Scroll<KeysetAgeUser> second = entityManager.scroll(KeysetAgeUser.class, example, first.position(), ScrollPageable.of(2));
+      assertThat(second.content()).singleElement().extracting(user -> user.age).isEqualTo(20);
+      assertThat(second.isLast()).isTrue();
     }
 
     @ParameterizedRepositoryManagerTest
@@ -1968,13 +1963,13 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       entityManager.persist(List.of(
               UserModel.male("a", 10), UserModel.male("b", 20), UserModel.male("c", 30)));
 
-      KeysetPageable request = KeysetPageable.first(1).withOrder(OrderSpec.asc("age"));
-      KeysetPage<KeysetDescUser> first = entityManager.keysetPage(KeysetDescUser.class, request);
-      KeysetPage<KeysetDescUser> second = entityManager.keysetPage(KeysetDescUser.class, request.after(first.nextCursor()));
+      OrderSpec order = OrderSpec.asc("age");
+      Scroll<KeysetDescUser> first = entityManager.scroll(KeysetDescUser.class, null, ScrollPosition.keyset(), ScrollPageable.of(1).withOrder(order));
+      Scroll<KeysetDescUser> second = entityManager.scroll(KeysetDescUser.class, null, first.position(), ScrollPageable.of(1).withOrder(order));
 
-      assertThat(first.rows()).singleElement().extracting(user -> user.age).isEqualTo(10);
-      assertThat(first.nextCursor()).containsOnlyKeys("age");
-      assertThat(second.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
+      assertThat(first.content()).singleElement().extracting(user -> user.age).isEqualTo(10);
+      assertThat(keysetKeys(first.position())).containsOnlyKeys("age");
+      assertThat(second.content()).singleElement().extracting(user -> user.age).isEqualTo(20);
     }
 
     @ParameterizedRepositoryManagerTest
@@ -1984,12 +1979,10 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
         entityManager.setPlatform(new HyperSQLPlatform());
       }
 
-      assertThatThrownBy(() -> entityManager.keysetPage(KeysetDescUser.class,
-              KeysetPageable.first(1).withOrder(OrderSpec.asc("unknown"))))
+      assertThatThrownBy(() -> entityManager.scroll(KeysetDescUser.class, null, ScrollPosition.keyset(), ScrollPageable.of(1).withOrder(OrderSpec.asc("unknown"))))
               .isInstanceOf(IllegalArgumentException.class)
               .hasMessageContaining("Unknown keyset sort column");
-      assertThatThrownBy(() -> entityManager.keysetPage(KeysetDescUser.class,
-              KeysetPageable.first(1).withOrder(OrderSpec.plain("LENGTH(name) DESC"))))
+      assertThatThrownBy(() -> entityManager.scroll(KeysetDescUser.class, null, ScrollPosition.keyset(), ScrollPageable.of(1).withOrder(OrderSpec.plain("LENGTH(name) DESC"))))
               .isInstanceOf(IllegalArgumentException.class)
               .hasMessageContaining("not raw SQL fragments");
     }
@@ -2005,12 +1998,12 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
 
       ExampleKeysetUser example = new ExampleKeysetUser();
       example.name = "same";
-      KeysetPageable request = KeysetPageable.first(1).withOrder(OrderSpec.desc("age"));
-      KeysetPage<UserModel> first = entityManager.keysetPage(UserModel.class, example, request);
-      KeysetPage<UserModel> second = entityManager.keysetPage(UserModel.class, example, request.after(first.nextCursor()));
+      OrderSpec order = OrderSpec.desc("age");
+      Scroll<UserModel> first = entityManager.scroll(UserModel.class, example, ScrollPosition.keyset(), ScrollPageable.of(1).withOrder(order));
+      Scroll<UserModel> second = entityManager.scroll(UserModel.class, example, first.position(), ScrollPageable.of(1).withOrder(order));
 
-      assertThat(first.rows()).singleElement().extracting(user -> user.age).isEqualTo(30);
-      assertThat(second.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
+      assertThat(first.content()).singleElement().extracting(user -> user.age).isEqualTo(30);
+      assertThat(second.content()).singleElement().extracting(user -> user.age).isEqualTo(20);
     }
 
     @Test
@@ -2055,23 +2048,23 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
           return OrderSpec.asc("age");
         }
       }.add(Restrictions.equal("name"), "same");
-      KeysetPageable request = KeysetPageable.first(2);
-      KeysetPage<UserModel> first = entityManager.keysetPage(UserModel.class, condition, request);
+      OrderSpec order = OrderSpec.asc("age");
+      Scroll<UserModel> first = entityManager.scroll(UserModel.class, condition, ScrollPosition.keyset(), ScrollPageable.of(2).withOrder(order));
 
       JsonMapper json = JsonMapper.builder().build();
-      // HTTP response -> client: deserialize the JSON representation, not the original cursor object.
-      Map<String, Object> response = json.readValue(json.writeValueAsString(first), new TypeReference<>() { });
-      @SuppressWarnings("unchecked") Map<String, ?> receivedCursor = (Map<String, ?>) response.get("nextCursor");
-      assertThat(receivedCursor).containsKeys("age", "id");
+      // HTTP response -> client: serialize the position's keys, not the position object itself.
+      Map<String, Object> response = json.readValue(
+              json.writeValueAsString(keysetKeys(first.position())), new TypeReference<>() { });
+      assertThat(response).containsKeys("age", "id");
 
-      // Client -> HTTP request -> server: reconstruct the pageable from request JSON.
-      KeysetPageable receivedRequest = json.readValue(json.writeValueAsString(request.after(receivedCursor)), KeysetPageable.class);
-      KeysetPage<UserModel> second = entityManager.keysetPage(UserModel.class, condition, receivedRequest);
+      // Client -> HTTP request -> server: rebuild the position from request JSON.
+      KeysetScrollPosition receivedPosition = KeysetScrollPosition.of(response);
+      Scroll<UserModel> second = entityManager.scroll(UserModel.class, condition, receivedPosition, ScrollPageable.of(2).withOrder(order));
 
-      assertThat(first.rows()).hasSize(2);
-      assertThat(second.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
-      assertThat(second.hasNext()).isFalse();
-      assertThat(second.rows().get(0).id).isNotIn(first.rows().stream().map(user -> user.id).toList());
+      assertThat(first.content()).hasSize(2);
+      assertThat(second.content()).singleElement().extracting(user -> user.age).isEqualTo(20);
+      assertThat(second.isLast()).isTrue();
+      assertThat(second.content().get(0).id).isNotIn(first.content().stream().map(user -> user.id).toList());
     }
 
     @infra.persistence.annotation.Table("t_user")
@@ -2127,10 +2120,13 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     }
 
     @Test
-    void keysetPageRejectsMissingNextCursor() {
-      KeysetPageable request = KeysetPageable.first(2);
-      assertThatThrownBy(() -> request.after(null)).isInstanceOf(IllegalArgumentException.class);
-      assertThatThrownBy(() -> request.after(Map.of())).isInstanceOf(IllegalArgumentException.class);
+    void keysetPositionOfEmptyMapIsInitial() {
+      assertThat(ScrollPosition.keyset().isInitial()).isTrue();
+      assertThat(KeysetScrollPosition.of(Map.of()).isInitial()).isTrue();
+
+      Map<String, Object> withNull = new HashMap<>();
+      withNull.put("age", null);
+      assertThatThrownBy(() -> KeysetScrollPosition.of(withNull)).isInstanceOf(IllegalArgumentException.class);
     }
 
   }
