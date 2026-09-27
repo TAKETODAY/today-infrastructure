@@ -51,7 +51,7 @@ class SimpleSelectTests {
       }
     };
 
-    assertThat(new SimpleSelect().addColumn("`name`").setTableName("`users`").toStatementString(custom))
+    assertThat(new SimpleSelect("`users`").addColumn("`name`").toStatementString(custom))
             .isEqualTo("SELECT [name] FROM [users]");
   }
 
@@ -67,7 +67,7 @@ class SimpleSelectTests {
   })
   void paginationUsesPlatformSyntax(@Nullable Integer limit, @Nullable Integer offset,
           String standard, String mysql) {
-    SimpleSelect select = new SimpleSelect().setTableName("t_user").addColumn("id")
+    SimpleSelect select = new SimpleSelect("t_user").addColumn("id")
             .addRestriction("name").orderBy("id").limit(limit).offset(offset);
     String base = "SELECT id FROM t_user WHERE name = ? order by id ASC";
 
@@ -77,7 +77,7 @@ class SimpleSelectTests {
 
   @Test
   void pageableReplacesPaginationAndCanBeCleared() {
-    SimpleSelect select = new SimpleSelect().setTableName("t_user").addColumn("id")
+    SimpleSelect select = new SimpleSelect("t_user").addColumn("id")
             .limit(1).offset(99).pageable(Pageable.of(3, 10));
 
     assertThat(select.toStatementString(Platform.mysql()))
@@ -92,7 +92,7 @@ class SimpleSelectTests {
 
   @Test
   void invalidPaginationDoesNotChangeExistingState() {
-    SimpleSelect select = new SimpleSelect().setTableName("t_user").addColumn("id").limit(10).offset(20);
+    SimpleSelect select = new SimpleSelect("t_user").addColumn("id").limit(10).offset(20);
     Pageable invalid = new Pageable() {
       @Override
       public int pageNumber() {
@@ -119,38 +119,35 @@ class SimpleSelectTests {
 
   @Test
   void simple() {
-    SimpleSelect select = new SimpleSelect();
+    SimpleSelect select = new SimpleSelect("t_user");
     select.addColumn("name")
             .addColumn("age")
-            .addColumns(new String[] { "id", "gender" })
-            .setTableName("t_user");
+            .addColumns(new String[] { "id", "gender" });
 
     assertThat(select.toStatementString(platform)).isEqualTo("SELECT name, age, id, gender FROM t_user");
   }
 
   @Test
   void alias() {
-    SimpleSelect select = new SimpleSelect();
+    SimpleSelect select = new SimpleSelect("t_user");
     select.addColumn("name")
             .addColumn("age")
             .addColumn("user_id", "id")
-            .addColumn("user_id", "id")
-            .setTableName("t_user");
+            .addColumn("user_id", "id");
 
     assertThat(select.toStatementString(platform)).isEqualTo("SELECT name, age, user_id AS id FROM t_user");
   }
 
   @Test
   void where() {
-    SimpleSelect select = new SimpleSelect();
+    SimpleSelect select = new SimpleSelect("t_user");
     select.addColumn("name")
             .addColumn("age")
             .addColumn("user_id", "id")
             .addColumn("user_id", "id")
             .addWhereToken("id = 1")
             .addRestrictions("name", "gender")
-            .addRestriction(Restrictions.notEqual("age", "1"))
-            .setTableName("t_user");
+            .addRestriction(Restrictions.notEqual("age", "1"));
 
     assertThat(select.toStatementString(platform)).isEqualTo(
             "SELECT name, age, user_id AS id FROM t_user WHERE id = 1 AND name = ? AND gender = ? AND age <> 1");
@@ -158,12 +155,11 @@ class SimpleSelectTests {
 
   @Test
   void orderBy() {
-    SimpleSelect select = new SimpleSelect();
+    SimpleSelect select = new SimpleSelect("t_user");
     select.addColumn("name")
             .addColumn("age")
             .addWhereToken("id = 1")
             .addRestriction("name")
-            .setTableName("t_user")
             .orderBy("id", Order.DESC);
 
     assertThat(select.toStatementString(platform)).isEqualTo(
@@ -172,11 +168,10 @@ class SimpleSelectTests {
 
   @Test
   void comment() {
-    SimpleSelect select = new SimpleSelect();
+    SimpleSelect select = new SimpleSelect("t_user");
     select.addColumn("name")
             .addColumn("age")
             .addWhereToken("id = 1")
-            .setTableName("t_user")
             .setComment("find by id")
             .orderBy("id");
 
@@ -186,9 +181,8 @@ class SimpleSelectTests {
 
   @Test
   void orderByBuilderAppendsToExistingSpec() {
-    SimpleSelect select = new SimpleSelect();
+    SimpleSelect select = new SimpleSelect("t_user");
     select.addColumn("name")
-            .setTableName("t_user")
             .orderBy(OrderSpec.asc("a"))
             .orderBy("b");
 
@@ -198,8 +192,8 @@ class SimpleSelectTests {
 
   @Test
   void orderByBuilderAppendsAfterRawSpec() {
-    SimpleSelect select = new SimpleSelect();
-    select.addColumn("name").setTableName("t_user");
+    SimpleSelect select = new SimpleSelect("t_user");
+    select.addColumn("name");
     select.orderBy(OrderSpec.plain("x DESC"));
     select.orderBy("b");
 
@@ -209,8 +203,8 @@ class SimpleSelectTests {
 
   @Test
   void orderByBuilderReplacedBySpec() {
-    SimpleSelect select = new SimpleSelect();
-    select.addColumn("name").setTableName("t_user");
+    SimpleSelect select = new SimpleSelect("t_user");
+    select.addColumn("name");
     select.orderBy().asc("a");
     select.orderBy(OrderSpec.desc("b"));
 

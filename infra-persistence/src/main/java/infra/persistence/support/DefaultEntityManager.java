@@ -1187,8 +1187,8 @@ public class DefaultEntityManager implements EntityManager {
         return new Page<>(pageable, 0, Collections.emptyList());
       }
 
-      statement = new SimpleSelect(Arrays.asList(metadata.getColumnNames(true)), restrictions)
-              .setTableName(metadata.getTableName())
+      statement = new SimpleSelect(metadata.getTableName(),
+              Arrays.asList(metadata.getColumnNames(true)), restrictions)
               .pageable(pageable)
               .orderBy(condition.resolveOrderByClause(metadata))
               .toStatementString(platform);
@@ -1238,8 +1238,8 @@ public class DefaultEntityManager implements EntityManager {
     }
 
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
-    String statement = new SimpleSelect(Arrays.asList(metadata.getColumnNames(true)), condition.collectRestrictions(metadata))
-            .setTableName(metadata.getTableName())
+    String statement = new SimpleSelect(metadata.getTableName(),
+            Arrays.asList(metadata.getColumnNames(true)), condition.collectRestrictions(metadata))
             .limit(pageSize + 1)
             .offset(pageable.offset())
             .orderBy(condition.resolveOrderByClause(metadata))
@@ -1300,8 +1300,8 @@ public class DefaultEntityManager implements EntityManager {
       restrictions.add(order.afterCursor());
     }
 
-    SimpleSelect select = new SimpleSelect(Arrays.asList(metadata.getColumnNames(true)), restrictions)
-            .setTableName(metadata.getTableName())
+    SimpleSelect select = new SimpleSelect(metadata.getTableName(),
+            Arrays.asList(metadata.getColumnNames(true)), restrictions)
             .limit(pageable.pageSize() + 1);
     order.applyTo(select);
     String statement = select.toStatementString(platform);

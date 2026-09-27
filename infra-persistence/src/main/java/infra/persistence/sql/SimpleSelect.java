@@ -29,11 +29,11 @@ import infra.persistence.query.StatementSequence;
  */
 public class SimpleSelect implements StatementSequence {
 
+  protected final Identifier tableName;
+
   public final List<Restriction> restrictions;
 
   protected final List<Identifier> columns;
-
-  protected Identifier tableName;
 
   protected OrderSpec.Builder orderByBuilder = OrderSpec.builder();
 
@@ -45,16 +45,16 @@ public class SimpleSelect implements StatementSequence {
 
   private @Nullable Integer offset;
 
-  @SuppressWarnings("NullAway")
-  public SimpleSelect() {
+  public SimpleSelect(String tableName) {
+    this.tableName = Identifier.parse(tableName);
     this.columns = new ArrayList<>();
     this.restrictions = new ArrayList<>();
   }
 
-  @SuppressWarnings("NullAway")
-  public SimpleSelect(List<Identifier> columns, List<Restriction> restrictions) {
-    this.restrictions = restrictions;
+  public SimpleSelect(Identifier tableName, List<Identifier> columns, List<Restriction> restrictions) {
+    this.tableName = tableName;
     this.columns = columns;
+    this.restrictions = restrictions;
   }
 
   /**
@@ -114,21 +114,6 @@ public class SimpleSelect implements StatementSequence {
   public SimpleSelect clearPagination() {
     this.limit = null;
     this.offset = null;
-    return this;
-  }
-
-  /**
-   * Sets the name of the table we are selecting from
-   */
-  public SimpleSelect setTableName(String tableName) {
-    return setTableName(Identifier.parse(tableName));
-  }
-
-  /**
-   * Sets the name of the table we are selecting from
-   */
-  public SimpleSelect setTableName(Identifier tableName) {
-    this.tableName = tableName;
     return this;
   }
 
