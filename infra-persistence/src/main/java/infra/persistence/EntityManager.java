@@ -1809,7 +1809,9 @@ public interface EntityManager {
    *
    * <p>Non-null properties of the example are used as filters. The scroll
    * position and keyset order behave as in
-   * {@link #scroll(Class, QueryCondition, ScrollPageable)}.
+   * {@link #scroll(Class, QueryCondition, ScrollPageable)}. When the example
+   * implements {@link ScrollPositionSource}, its position takes precedence over
+   * the position in the pageable.
    *
    * @param example the example whose non-null properties filter the result
    * @param pageable the window size, optional keyset order, and scroll position
@@ -1829,7 +1831,9 @@ public interface EntityManager {
    *
    * <p>Non-null properties of the example are used as filters. The scroll
    * position and keyset order behave as in
-   * {@link #scroll(Class, QueryCondition, ScrollPageable)}.
+   * {@link #scroll(Class, QueryCondition, ScrollPageable)}. When the example
+   * implements {@link ScrollPositionSource}, its position takes precedence over
+   * the position in the pageable.
    *
    * @param entityClass the entity type
    * @param example the example whose non-null properties filter the result

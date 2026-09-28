@@ -69,6 +69,7 @@ import infra.persistence.Scroll;
 import infra.persistence.ScrollIterator;
 import infra.persistence.ScrollPageable;
 import infra.persistence.ScrollPosition;
+import infra.persistence.ScrollPositionSource;
 import infra.persistence.Slice;
 import infra.persistence.UpdateStrategySource;
 import infra.persistence.annotation.Column;
@@ -76,6 +77,7 @@ import infra.persistence.annotation.EntityRef;
 import infra.persistence.annotation.Id;
 import infra.persistence.annotation.OrderBy;
 import infra.persistence.annotation.OrderByClause;
+import infra.persistence.annotation.Transient;
 import infra.persistence.annotation.UpdateBy;
 import infra.persistence.annotation.Where;
 import infra.persistence.event.BatchPersistListener;
@@ -97,7 +99,6 @@ import infra.persistence.sql.Restrictions;
 import infra.test.util.ReflectionTestUtils;
 import infra.transaction.TransactionDefinition;
 import infra.util.CollectionUtils;
-import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
 
 import static infra.persistence.PropertyUpdateStrategy.noneNull;
@@ -1855,7 +1856,15 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     }
 
     private static Map<String, Object> keysetKeys(ScrollPosition position) {
-      return position.keys();
+      Map<String, Object> keys = new HashMap<>();
+      for (ScrollPosition.Entry entry : position.cursor()) {
+        keys.put(entry.property(), entry.value());
+      }
+      return keys;
+    }
+
+    private static ScrollPosition position(ScrollPosition.Entry... entries) {
+      return ScrollPosition.keyset(List.of(entries));
     }
 
     @ParameterizedRepositoryManagerTest
@@ -1932,7 +1941,9 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       Scroll<UserModel> byIdFirst = entityManager.scroll(UserModel.class, ScrollPageable.of(2));
       assertThat(keysetKeys(byIdFirst.position())).containsOnlyKeys("id");
       assertThat(entityManager.scroll(UserModel.class, ScrollPageable.of(2).withPosition(byIdFirst.position())).content()).hasSize(2);
-      assertThatThrownBy(() -> entityManager.scroll(UserModel.class, ScrollPageable.of(2).withPosition(ScrollPosition.keyset(Map.of("age", 10))))).isInstanceOf(IllegalArgumentException.class);
+      assertThatThrownBy(() -> entityManager.scroll(UserModel.class, ScrollPageable.of(2).withPosition(
+              position(new ScrollPosition.Entry("age", 10, Order.ASC)))))
+              .isInstanceOf(IllegalArgumentException.class);
       assertThatThrownBy(() -> entityManager.scroll(UserModel.class, entityManager.getEntityQueryFactories().createCondition(OrderSpec.asc("unknown")), ScrollPageable.of(2)))
               .isInstanceOf(IllegalArgumentException.class);
     }
@@ -2081,12 +2092,20 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
         entityManager.setPlatform(new HyperSQLPlatform());
       }
 
-      assertThatThrownBy(() -> entityManager.scroll(CompositeOrderByUser.class, ScrollPageable.of(1).withPosition(ScrollPosition.keyset(Map.of("age", 20)))))
+      assertThatThrownBy(() -> entityManager.scroll(CompositeOrderByUser.class, ScrollPageable.of(1).withPosition(
+              position(new ScrollPosition.Entry("age", 20, Order.DESC)))))
               .isInstanceOf(IllegalArgumentException.class)
               .hasMessageContaining("every keyset sort property");
-      assertThatThrownBy(() -> entityManager.scroll(CompositeOrderByUser.class, ScrollPageable.of(1).withPosition(ScrollPosition.keyset(Map.of("age", 20, "id", 1)))))
+      assertThatThrownBy(() -> entityManager.scroll(CompositeOrderByUser.class, ScrollPageable.of(1).withPosition(position(
+              new ScrollPosition.Entry("age", 20, Order.DESC),
+              new ScrollPosition.Entry("id", 1, Order.ASC)))))
               .isInstanceOf(IllegalArgumentException.class)
               .hasMessageContaining("name");
+      assertThatThrownBy(() -> entityManager.scroll(CompositeOrderByUser.class, ScrollPageable.of(1).withPosition(position(
+              new ScrollPosition.Entry("age", 20, Order.ASC),
+              new ScrollPosition.Entry("name", "a", Order.ASC)))))
+              .isInstanceOf(IllegalArgumentException.class)
+              .hasMessageContaining("direction");
     }
 
     @ParameterizedRepositoryManagerTest
@@ -2123,7 +2142,8 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       assertThat(keysetKeys(first.position())).containsOnlyKeys("age", "id");
       assertThat(example.name).isEqualTo("same");
 
-      Scroll<OrderByAgeUser> second = entityManager.scroll(OrderByAgeUser.class, example, ScrollPageable.of(2).withPosition(first.position()));
+      example.position = first.position();
+      Scroll<OrderByAgeUser> second = entityManager.scroll(OrderByAgeUser.class, example, ScrollPageable.of(2));
       assertThat(second.content()).singleElement().extracting(user -> user.age).isEqualTo(20);
       assertThat(second.isLast()).isTrue();
     }
@@ -2190,7 +2210,8 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       example.name = "same";
       OrderSpec order = OrderSpec.desc("age");
       Scroll<UserModel> first = entityManager.scroll(UserModel.class, example, ScrollPageable.of(1).withOrder(order));
-      Scroll<UserModel> second = entityManager.scroll(UserModel.class, example, ScrollPageable.of(1).withOrder(order).withPosition(first.position()));
+      example.position = first.position();
+      Scroll<UserModel> second = entityManager.scroll(UserModel.class, example, ScrollPageable.of(1).withOrder(order));
 
       assertThat(first.content()).singleElement().extracting(user -> user.age).isEqualTo(30);
       assertThat(second.content()).singleElement().extracting(user -> user.age).isEqualTo(20);
@@ -2223,13 +2244,10 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       Scroll<UserModel> first = entityManager.scroll(UserModel.class, condition, ScrollPageable.of(2).withOrder(order));
 
       JsonMapper json = JsonMapper.builder().build();
-      // HTTP response -> client: serialize the position's keys, not the position object itself.
-      Map<String, Object> response = json.readValue(
-              json.writeValueAsString(keysetKeys(first.position())), new TypeReference<>() { });
-      assertThat(response).containsKeys("age", "id");
-
-      // Client -> HTTP request -> server: rebuild the position from request JSON.
-      ScrollPosition receivedPosition = ScrollPosition.keyset(response);
+      ScrollPosition receivedPosition = json.readValue(
+              json.writeValueAsString(first.position()), ScrollPosition.class);
+      assertThat(receivedPosition.cursor()).extracting(ScrollPosition.Entry::property)
+              .containsExactly("age", "id");
       Scroll<UserModel> second = entityManager.scroll(UserModel.class, condition, ScrollPageable.of(2).withOrder(order).withPosition(receivedPosition));
 
       assertThat(first.content()).hasSize(2);
@@ -2246,8 +2264,16 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     }
 
     @EntityRef(UserModel.class)
-    static class ExampleKeysetUser {
+    static class ExampleKeysetUser implements ScrollPositionSource {
       public String name;
+
+      @Transient
+      public @Nullable ScrollPosition position;
+
+      @Override
+      public @Nullable ScrollPosition scrollPosition() {
+        return position;
+      }
     }
 
     @EntityRef(UserModel.class)
@@ -2291,13 +2317,11 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     }
 
     @Test
-    void keysetPositionOfEmptyMapIsInitial() {
+    void keysetPositionValidatesCursor() {
       assertThat(ScrollPosition.keyset().isInitial()).isTrue();
-      assertThat(ScrollPosition.keyset(Map.of()).isInitial()).isTrue();
-
-      Map<String, Object> withNull = new HashMap<>();
-      withNull.put("age", null);
-      assertThatThrownBy(() -> ScrollPosition.keyset(withNull)).isInstanceOf(IllegalArgumentException.class);
+      assertThatThrownBy(() -> ScrollPosition.keyset(List.of())).isInstanceOf(IllegalArgumentException.class);
+      assertThatThrownBy(() -> new ScrollPosition.Entry("age", null, Order.ASC))
+              .isInstanceOf(IllegalArgumentException.class);
     }
 
   }

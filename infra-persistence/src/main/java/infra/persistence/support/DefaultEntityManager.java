@@ -69,6 +69,7 @@ import infra.persistence.PropertyUpdateStrategy;
 import infra.persistence.Scroll;
 import infra.persistence.ScrollPageable;
 import infra.persistence.ScrollPosition;
+import infra.persistence.ScrollPositionSource;
 import infra.persistence.Slice;
 import infra.persistence.UpdateStrategySource;
 import infra.persistence.VersionIncrementStrategy;
@@ -1249,6 +1250,10 @@ public class DefaultEntityManager implements EntityManager {
 
   @Override
   public <T> Scroll<T> scroll(Class<T> entityClass, Object example, ScrollPageable pageable) {
+    if (example instanceof ScrollPositionSource source) {
+      ScrollPosition position = source.scrollPosition();
+      pageable = pageable.withPosition(position != null ? position : ScrollPosition.keyset());
+    }
     return scroll(entityClass, entityQueryFactories.createCondition(example), pageable);
   }
 
@@ -1264,9 +1269,9 @@ public class DefaultEntityManager implements EntityManager {
     int pageSize = pageable.pageSize();
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
     KeysetOrder keysetOrder = resolveKeysetOrder(metadata, condition, pageable.orderSpec());
-    Map<String, ?> cursor = null;
+    List<ScrollPosition.Entry> cursor = null;
     if (!position.isInitial()) {
-      cursor = position.keys();
+      cursor = position.cursor();
       keysetOrder.validateCursor(cursor);
     }
 
@@ -1666,13 +1671,20 @@ public class DefaultEntityManager implements EntityManager {
       return new KeysetOrder(List.copyOf(keys));
     }
 
-    void validateCursor(Map<String, ?> cursor) {
+    void validateCursor(List<ScrollPosition.Entry> cursor) {
       if (cursor.size() != keys.size()) {
         throw new IllegalArgumentException("Cursor must contain every keyset sort property");
       }
-      for (KeysetSort key : keys) {
-        if (!cursor.containsKey(key.property().getName())) {
-          throw new IllegalArgumentException("Cursor is missing keyset property: " + key.property().getName());
+      for (int i = 0; i < keys.size(); i++) {
+        KeysetSort key = keys.get(i);
+        ScrollPosition.Entry entry = cursor.get(i);
+        if (!key.property().getName().equals(entry.property())) {
+          throw new IllegalArgumentException("Expected keyset property '%s' at index %d, but got '%s'"
+                  .formatted(key.property().getName(), i, entry.property()));
+        }
+        if (key.direction() != entry.direction()) {
+          throw new IllegalArgumentException("Expected keyset direction '%s' for property '%s', but got '%s'"
+                  .formatted(key.direction(), key.property().getName(), entry.direction()));
         }
       }
     }
@@ -1695,10 +1707,10 @@ public class DefaultEntityManager implements EntityManager {
       }
     }
 
-    void bindCursor(PreparedStatement stmt, int index, Map<String, ?> cursor) throws SQLException {
+    void bindCursor(PreparedStatement stmt, int index, List<ScrollPosition.Entry> cursor) throws SQLException {
       for (int i = 0; i < keys.size(); i++) {
         EntityProperty property = keys.get(i).property();
-        Object value = cursor.get(property.getName());
+        Object value = cursor.get(i).value();
         property.setParameter(stmt, index++, value);
         if (i < keys.size() - 1) {
           property.setParameter(stmt, index++, value);
@@ -1715,11 +1727,12 @@ public class DefaultEntityManager implements EntityManager {
     }
 
     ScrollPosition positionFrom(Object row) {
-      Map<String, Object> keys = new HashMap<>();
+      ArrayList<ScrollPosition.Entry> cursor = new ArrayList<>(keys.size());
       for (KeysetSort key : this.keys) {
-        keys.put(key.property().getName(), key.property().getValue(row));
+        Object value = key.property().getValue(row);
+        cursor.add(new ScrollPosition.Entry(key.property().getName(), value, key.direction()));
       }
-      return ScrollPosition.keyset(keys);
+      return ScrollPosition.keyset(cursor);
     }
 
   }

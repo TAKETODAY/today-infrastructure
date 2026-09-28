@@ -16,8 +16,9 @@
 
 package infra.persistence;
 
-import java.util.Map;
-import java.util.Objects;
+import org.jspecify.annotations.Nullable;
+
+import java.util.List;
 
 import infra.util.Assert;
 
@@ -25,35 +26,29 @@ import infra.util.Assert;
  * Identifies an exact position within a scroll result. A scroll query treats the
  * position exclusively: results start <em>after</em> the given position.
  *
- * <p>An {@linkplain #isInitial() initial} position has an empty key map and applies
- * no additional filtering. Positions are pure coordinates:
- * they do not carry the page size or the sort order, both of which are supplied
- * separately to the scroll request.
+ * <p>An {@linkplain #isInitial() initial} position has no cursor and applies no
+ * additional filtering. A non-initial position contains one entry for every
+ * keyset sort property, in sort order. Each entry carries its property name,
+ * value, and direction so that a position cannot silently be reused with a
+ * different ordering.
  *
- * <p>Keys are mapped entity property names used by the keyset order. Values must
- * be non-null for keyset comparison. The map is copied on construction, but
- * values are not converted; callers restoring a position must supply values of
- * types accepted by the mapped properties.
+ * <p>Values must be non-null for keyset comparison. The cursor list is copied on
+ * construction, but values are not converted; callers restoring a position must
+ * supply values of types accepted by the mapped properties.
  *
- * <p>This type is intentionally opaque at the transport layer. It is a
- * structured value and is not encoded into a token or string; clients that need
- * to pass a position across process boundaries should persist the values
- * themselves.
- *
- * @param keys the keyset values mapped by property name, never {@code null}
+ * @param cursor the ordered keyset entries, or {@code null} for the initial position
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-public record ScrollPosition(Map<String, Object> keys) {
+public record ScrollPosition(@Nullable List<Entry> cursor) {
 
-  private static final ScrollPosition INITIAL = new ScrollPosition(Map.of());
+  public static final ScrollPosition INITIAL = new ScrollPosition(null);
 
   public ScrollPosition {
-    Assert.notNull(keys, "Keys are required");
-    if (keys.values().stream().anyMatch(Objects::isNull)) {
-      throw new IllegalArgumentException("Keyset values must not be null");
+    if (cursor != null) {
+      Assert.notEmpty(cursor, "Cursor entries are required");
+      cursor = List.copyOf(cursor);
     }
-    keys = Map.copyOf(keys);
   }
 
   /**
@@ -66,14 +61,14 @@ public record ScrollPosition(Map<String, Object> keys) {
   }
 
   /**
-   * Return a keyset position for the given key values.
+   * Return a keyset position containing the given ordered cursor entries.
    *
-   * @param keys the ordered keyset values, mapped by property name
+   * @param cursor entries in keyset sort order
    * @return a keyset position
    */
-  public static ScrollPosition keyset(Map<String, Object> keys) {
-    Assert.notNull(keys, "Keys are required");
-    return keys.isEmpty() ? INITIAL : new ScrollPosition(keys);
+  public static ScrollPosition keyset(List<Entry> cursor) {
+    Assert.notNull(cursor, "Cursor entries are required");
+    return new ScrollPosition(cursor);
   }
 
   /**
@@ -82,7 +77,24 @@ public record ScrollPosition(Map<String, Object> keys) {
    * @return {@code true} when no position filtering should be applied
    */
   public boolean isInitial() {
-    return keys.isEmpty();
+    return cursor == null;
+  }
+
+  /**
+   * A single value in a keyset position.
+   *
+   * @param property the mapped entity property name
+   * @param value the non-null property value
+   * @param direction the ordering direction
+   */
+  public record Entry(String property, Object value, Order direction) {
+
+    public Entry {
+      Assert.hasText(property, "Keyset property is required");
+      Assert.notNull(value, "Keyset value is required");
+      Assert.notNull(direction, "Keyset direction is required");
+    }
+
   }
 
 }

@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +36,7 @@ class ScrollIteratorTests {
   @Test
   void iteratesAllElementsAcrossScrolls() {
     ScrollIterator<Integer> iterator = ScrollIterator.of(position -> {
-      int from = position.isInitial() ? 0 : (int) position.keys().get("index") + 1;
+      int from = position.isInitial() ? 0 : (int) position.cursor().get(0).value() + 1;
       int to = Math.min(from + 2, VALUES.size());
       return window(VALUES.subList(from, to), to >= VALUES.size());
     });
@@ -61,10 +60,10 @@ class ScrollIteratorTests {
   @Test
   void resumesFromGivenPosition() {
     ScrollIterator<Integer> iterator = ScrollIterator.of(position -> {
-      int from = (int) position.keys().get("index") + 1;
+      int from = (int) position.cursor().get(0).value() + 1;
       int to = Math.min(from + 2, VALUES.size());
       return window(VALUES.subList(from, to), to >= VALUES.size());
-    }, ScrollPosition.keyset(Map.of("index", 1)));
+    }, ScrollPosition.keyset(List.of(new ScrollPosition.Entry("index", 1, Order.ASC))));
 
     List<Integer> collected = new ArrayList<>();
     while (iterator.hasNext()) {
@@ -83,7 +82,7 @@ class ScrollIteratorTests {
 
       @Override
       public ScrollPosition positionAt(int index) {
-        return ScrollPosition.keyset(Map.of("index", content.get(index)));
+        return ScrollPosition.keyset(List.of(new ScrollPosition.Entry("index", content.get(index), Order.ASC)));
       }
 
       @Override
