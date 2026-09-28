@@ -1781,7 +1781,7 @@ public interface EntityManager {
   /**
    * Scroll through the rows matching the given condition.
    *
-   * <p>The keyset order is resolved from {@link ScrollPageable#order()}, then the
+   * <p>The keyset order is resolved from {@link ScrollPageable#orderSpec()}, then the
    * entity's {@link infra.persistence.annotation.Keyset @Keyset} declarations,
    * then {@link QueryCondition#resolveOrderByClause(EntityMetadata)}. When the
    * entity has an ID it is appended as a unique tie-breaker unless already

@@ -1259,7 +1259,7 @@ public class DefaultEntityManager implements EntityManager {
 
     int pageSize = pageable.pageSize();
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
-    KeysetOrder keysetOrder = resolveKeysetOrder(metadata, condition, pageable.order());
+    KeysetOrder keysetOrder = resolveKeysetOrder(metadata, condition, pageable.orderSpec());
     Map<String, ?> cursor = null;
     if (!position.isInitial()) {
       cursor = position.keys();

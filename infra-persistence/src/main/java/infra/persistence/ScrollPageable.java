@@ -26,19 +26,19 @@ import infra.util.Assert;
  * the window size, an optional explicit keyset order, and the position at which
  * to resume. Requests start at the initial keyset position by default.
  *
- * <p>When no {@link #order() order} is given, the keyset order is resolved from
+ * <p>When no {@link #orderSpec() order specification} is given, the keyset order is resolved from
  * the entity's {@link infra.persistence.annotation.Keyset @Keyset} declarations
  * and then the query condition.
  *
  * @param pageSize the maximum number of rows per window, between 1 and
  * {@code Integer.MAX_VALUE - 1}
- * @param order explicit keyset order, or {@code null} to use the entity or condition ordering
+ * @param orderSpec explicit keyset order, or {@code null} to use the entity or condition ordering
  * @param position the position at which to resume scrolling
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see ScrollPosition
  * @since 5.0
  */
-public record ScrollPageable(int pageSize, @Nullable OrderSpec order, ScrollPosition position) {
+public record ScrollPageable(int pageSize, @Nullable OrderSpec orderSpec, ScrollPosition position) {
 
   public ScrollPageable {
     Assert.isTrue(pageSize > 0 && pageSize < Integer.MAX_VALUE,
@@ -75,7 +75,7 @@ public record ScrollPageable(int pageSize, @Nullable OrderSpec order, ScrollPosi
    */
   public ScrollPageable withPosition(ScrollPosition position) {
     Assert.notNull(position, "ScrollPosition is required");
-    return new ScrollPageable(pageSize, order, position);
+    return new ScrollPageable(pageSize, orderSpec, position);
   }
 
 }
