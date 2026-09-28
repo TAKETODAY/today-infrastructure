@@ -248,7 +248,7 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
 
     EntityProperty idProperty = null;
     EntityProperty versionProperty = null;
-    for (BeanProperty property : metadata.getBeanProperties()) {
+    for (BeanProperty property : metadata.getPropertyList()) {
       if (isFiltered(property)) {
         continue;
       }

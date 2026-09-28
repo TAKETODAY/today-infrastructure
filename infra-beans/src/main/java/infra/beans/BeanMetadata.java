@@ -23,14 +23,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.Spliterator;
-import java.util.function.Consumer;
 
 import infra.beans.support.BeanInstantiator;
 import infra.lang.Unmodifiable;
@@ -52,7 +49,7 @@ import infra.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 3.0 2021/1/27 22:26
  */
-public final class BeanMetadata implements Iterable<BeanProperty> {
+public final class BeanMetadata {
 
   /**
    * Strategy property for a comma-delimited list of field name prefixes.
@@ -138,7 +135,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    * @return the {@link BeanProperty} instance, or {@code null} if no such property exists
    */
   public @Nullable BeanProperty getProperty(String propertyName) {
-    return getBeanPropertyMap().get(propertyName);
+    return getPropertyMap().get(propertyName);
   }
 
   /**
@@ -203,7 +200,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    * @return an unmodifiable map containing all {@link BeanProperty} instances
    */
   @Unmodifiable
-  public Map<String, BeanProperty> getBeanPropertyMap() {
+  public Map<String, BeanProperty> getPropertyMap() {
     return propertyHolder().mapping;
   }
 
@@ -213,7 +210,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    * @return an unmodifiable list of {@link BeanProperty} instances
    */
   @Unmodifiable
-  public List<BeanProperty> getBeanProperties() {
+  public List<BeanProperty> getPropertyList() {
     return propertyHolder().beanProperties;
   }
 
@@ -262,7 +259,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
     return propertyHolder;
   }
 
-  public HashMap<String, BeanProperty> createBeanProperties() {
+  private HashMap<String, BeanProperty> createBeanProperties() {
     HashMap<String, BeanProperty> beanPropertyMap = new LinkedHashMap<>();
     CachedIntrospectionResults results = new CachedIntrospectionResults(beanClass);
 
@@ -335,25 +332,6 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
   @Override
   public int hashCode() {
     return Objects.hash(beanClass);
-  }
-
-  //---------------------------------------------------------------------
-  // Implementation of Iterable interface
-  //---------------------------------------------------------------------
-
-  @Override
-  public Iterator<BeanProperty> iterator() {
-    return getBeanProperties().iterator();
-  }
-
-  @Override
-  public void forEach(Consumer<? super BeanProperty> action) {
-    getBeanProperties().forEach(action);
-  }
-
-  @Override
-  public Spliterator<BeanProperty> spliterator() {
-    return getBeanProperties().spliterator();
   }
 
   //---------------------------------------------------------------------

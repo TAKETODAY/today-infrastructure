@@ -242,7 +242,7 @@ public class BeanPropertyRowMapper<T extends @Nullable Object> implements RowMap
 
     HashSet<String> mappedProperties = new HashSet<>();
     HashMap<String, BeanProperty> mappedFields = new HashMap<>();
-    for (BeanProperty property : metadata) {
+    for (BeanProperty property : metadata.getPropertyList()) {
       if (property.isWriteable()) {
         String lowerCaseName = lowerCaseName(property.getName());
         mappedFields.put(lowerCaseName, property);

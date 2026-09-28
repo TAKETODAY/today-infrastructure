@@ -641,7 +641,7 @@ public final class NamedQuery extends AbstractQuery {
   @SuppressWarnings({ "unchecked", "NullAway" })
   public NamedQuery bind(Object pojo) {
     HashMap<String, QueryParameter> queryParameters = this.queryParameters;
-    for (BeanProperty property : BeanMetadata.forInstance(pojo)) {
+    for (BeanProperty property : BeanMetadata.forInstance(pojo).getPropertyList()) {
       String name = property.getName();
       try {
         if (queryParameters.containsKey(name)) {

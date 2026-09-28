@@ -192,7 +192,7 @@ public abstract class BeanProperties {
       }
       else {
         BeanMetadata sourceMetadata = BeanMetadata.forInstance(source);
-        for (BeanProperty property : sourceMetadata) {
+        for (BeanProperty property : sourceMetadata.getPropertyList()) {
           if (property.isReadable()) {
             String propertyName = property.getName();
             if (!ignorePropertiesSet.contains(propertyName)) {
@@ -217,7 +217,7 @@ public abstract class BeanProperties {
       }
       else {
         BeanMetadata sourceMetadata = BeanMetadata.forInstance(source);
-        for (BeanProperty property : sourceMetadata) {
+        for (BeanProperty property : sourceMetadata.getPropertyList()) {
           if (property.isReadable()) {
             String propertyName = property.getName();
             BeanProperty beanProperty = destination.getProperty(propertyName);

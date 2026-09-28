@@ -160,7 +160,7 @@ public class JdbcBeanMetadata {
     protected HashMap<String, BeanProperty> createValue(Class<?> key, JdbcBeanMetadata params) {
       boolean caseSensitive = params.caseSensitive;
       HashMap<String, BeanProperty> beanPropertyMap = new HashMap<>();
-      for (BeanProperty property : params.beanMetadata) {
+      for (BeanProperty property : params.beanMetadata.getPropertyList()) {
         String propertyName_ = getPropertyName(property);
         if (caseSensitive) {
           beanPropertyMap.put(propertyName_, property);

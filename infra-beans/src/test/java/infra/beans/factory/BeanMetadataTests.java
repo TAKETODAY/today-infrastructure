@@ -173,10 +173,10 @@ public class BeanMetadataTests {
     int size = beanMetadata.getPropertyCount();
 
     assertThat(size).isPositive();
-    assertThat(beanMetadata.getBeanProperties()).hasSize(size);
+    assertThat(beanMetadata.getPropertyList()).hasSize(size);
 
     int iterated = 0;
-    for (BeanProperty ignored : beanMetadata) {
+    for (BeanProperty ignored : beanMetadata.getPropertyList()) {
       iterated++;
     }
     assertThat(iterated).isEqualTo(size);

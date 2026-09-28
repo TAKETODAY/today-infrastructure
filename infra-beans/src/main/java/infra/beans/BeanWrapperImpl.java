@@ -221,7 +221,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 
   @Override
   public List<BeanProperty> getBeanProperties() {
-    return getMetadata().getBeanProperties();
+    return getMetadata().getPropertyList();
   }
 
   @Override

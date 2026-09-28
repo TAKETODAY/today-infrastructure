@@ -71,7 +71,7 @@ public final class BeanMap<T> extends AbstractMap<String, Object> {
   public Set<Entry<String, Object>> entrySet() {
     Object target = this.target;
     LinkedHashSet<Entry<String, Object>> entrySet = new LinkedHashSet<>();
-    for (BeanProperty property : metadata) {
+    for (BeanProperty property : metadata.getPropertyList()) {
       entrySet.add(Pair.of(property.getName(), property.getValue(target)));
     }
     return entrySet;
