@@ -32,7 +32,7 @@ import infra.util.Assert;
  * <p>Usage:
  * <pre>{@code
  * ScrollIterator<User> users = ScrollIterator
- *     .of(position -> entityManager.scroll(User.class, null, null, 10, position))
+ *     .of(position -> entityManager.scroll(User.class, ScrollPageable.of(10).withPosition(position)))
  *     .startingAt(ScrollPosition.keyset());
  *
  * while (users.hasNext()) {

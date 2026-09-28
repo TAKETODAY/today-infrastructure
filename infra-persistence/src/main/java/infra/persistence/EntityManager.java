@@ -1768,16 +1768,14 @@ public interface EntityManager {
    * ordering.
    *
    * @param entityClass the entity type
-   * @param position the scroll position, never {@code null}
-   * @param pageable the window size and optional keyset order
+   * @param pageable the window size, optional keyset order, and scroll position
    * @param <T> the entity type
    * @return the window at the requested position
    * @throws DataAccessException on data access errors
    * @since 5.0
    */
-  default <T> Scroll<T> scroll(Class<T> entityClass, ScrollPosition position, ScrollPageable pageable)
-          throws DataAccessException {
-    return scroll(entityClass, null, position, pageable);
+  default <T> Scroll<T> scroll(Class<T> entityClass, ScrollPageable pageable) throws DataAccessException {
+    return scroll(entityClass, null, pageable);
   }
 
   /**
@@ -1797,35 +1795,32 @@ public interface EntityManager {
    *
    * @param entityClass the entity type
    * @param condition optional filtering and ordering conditions
-   * @param position the scroll position, never {@code null}
-   * @param pageable the window size and optional keyset order
+   * @param pageable the window size, optional keyset order, and scroll position
    * @param <T> the entity type
    * @return the window at the requested position
    * @throws DataAccessException on data access errors
    * @since 5.0
    */
-  <T> Scroll<T> scroll(Class<T> entityClass, @Nullable QueryCondition condition,
-          ScrollPosition position, ScrollPageable pageable) throws DataAccessException;
+  <T> Scroll<T> scroll(Class<T> entityClass, @Nullable QueryCondition condition, ScrollPageable pageable)
+          throws DataAccessException;
 
   /**
    * Scroll through the rows matching the given example.
    *
    * <p>Non-null properties of the example are used as filters. The scroll
    * position and keyset order behave as in
-   * {@link #scroll(Class, QueryCondition, ScrollPosition, ScrollPageable)}.
+   * {@link #scroll(Class, QueryCondition, ScrollPageable)}.
    *
    * @param example the example whose non-null properties filter the result
-   * @param position the scroll position, never {@code null}
-   * @param pageable the window size and optional keyset order
+   * @param pageable the window size, optional keyset order, and scroll position
    * @param <T> the entity type
    * @return the window at the requested position
    * @throws DataAccessException on data access errors
    * @since 5.0
    */
   @SuppressWarnings("unchecked")
-  default <T> Scroll<T> scroll(T example, ScrollPosition position, ScrollPageable pageable)
-          throws DataAccessException {
-    return scroll((Class<T>) example.getClass(), example, position, pageable);
+  default <T> Scroll<T> scroll(T example, ScrollPageable pageable) throws DataAccessException {
+    return scroll((Class<T>) example.getClass(), example, pageable);
   }
 
   /**
@@ -1834,18 +1829,17 @@ public interface EntityManager {
    *
    * <p>Non-null properties of the example are used as filters. The scroll
    * position and keyset order behave as in
-   * {@link #scroll(Class, QueryCondition, ScrollPosition, ScrollPageable)}.
+   * {@link #scroll(Class, QueryCondition, ScrollPageable)}.
    *
    * @param entityClass the entity type
    * @param example the example whose non-null properties filter the result
-   * @param position the scroll position, never {@code null}
-   * @param pageable the window size and optional keyset order
+   * @param pageable the window size, optional keyset order, and scroll position
    * @param <T> the entity type
    * @return the window at the requested position
    * @throws DataAccessException on data access errors
    * @since 5.0
    */
-  <T> Scroll<T> scroll(Class<T> entityClass, Object example, ScrollPosition position, ScrollPageable pageable)
+  <T> Scroll<T> scroll(Class<T> entityClass, Object example, ScrollPageable pageable)
           throws DataAccessException;
 
   /**

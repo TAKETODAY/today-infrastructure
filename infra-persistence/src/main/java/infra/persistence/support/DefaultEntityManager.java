@@ -1250,9 +1250,9 @@ public class DefaultEntityManager implements EntityManager {
 
   @Override
   public <T> Scroll<T> scroll(Class<T> entityClass, @Nullable QueryCondition condition,
-          ScrollPosition position, ScrollPageable pageable) throws DataAccessException {
-    Assert.notNull(position, "ScrollPosition is required");
+          ScrollPageable pageable) throws DataAccessException {
     Assert.notNull(pageable, "ScrollPageable is required");
+    ScrollPosition position = pageable.position();
 
     if (condition == null) {
       condition = NoConditionsQuery.instance;
@@ -1314,8 +1314,8 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <T> Scroll<T> scroll(Class<T> entityClass, Object example, ScrollPosition position, ScrollPageable pageable) {
-    return scroll(entityClass, entityQueryFactories.createCondition(example), position, pageable);
+  public <T> Scroll<T> scroll(Class<T> entityClass, Object example, ScrollPageable pageable) {
+    return scroll(entityClass, entityQueryFactories.createCondition(example), pageable);
   }
 
   private KeysetOrder resolveKeysetOrder(EntityMetadata metadata, QueryCondition condition, @Nullable OrderSpec order) {

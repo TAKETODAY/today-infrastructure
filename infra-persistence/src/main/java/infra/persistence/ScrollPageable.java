@@ -23,8 +23,8 @@ import infra.util.Assert;
 
 /**
  * Request parameters for a {@linkplain EntityManager#scroll scroll} operation:
- * the window size and an optional explicit keyset order. The scroll position is
- * supplied separately, since it is a coordinate rather than a request setting.
+ * the window size, an optional explicit keyset order, and the position at which
+ * to resume. Requests start at the initial keyset position by default.
  *
  * <p>When no {@link #order() order} is given, the keyset order is resolved from
  * the entity's {@link infra.persistence.annotation.Keyset @Keyset} declarations
@@ -33,15 +33,17 @@ import infra.util.Assert;
  * @param pageSize the maximum number of rows per window, between 1 and
  * {@code Integer.MAX_VALUE - 1}
  * @param order explicit keyset order, or {@code null} to use the entity or condition ordering
+ * @param position the position at which to resume scrolling
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see ScrollPosition
  * @since 5.0
  */
-public record ScrollPageable(int pageSize, @Nullable OrderSpec order) {
+public record ScrollPageable(int pageSize, @Nullable OrderSpec order, ScrollPosition position) {
 
   public ScrollPageable {
     Assert.isTrue(pageSize > 0 && pageSize < Integer.MAX_VALUE,
             "Page size must be between 1 and Integer.MAX_VALUE - 1");
+    Assert.notNull(position, "ScrollPosition is required");
   }
 
   /**
@@ -51,7 +53,7 @@ public record ScrollPageable(int pageSize, @Nullable OrderSpec order) {
    * @return a scroll request
    */
   public static ScrollPageable of(int pageSize) {
-    return new ScrollPageable(pageSize, null);
+    return new ScrollPageable(pageSize, null, ScrollPosition.keyset());
   }
 
   /**
@@ -62,7 +64,18 @@ public record ScrollPageable(int pageSize, @Nullable OrderSpec order) {
    */
   public ScrollPageable withOrder(OrderSpec order) {
     Assert.notNull(order, "OrderSpec is required");
-    return new ScrollPageable(pageSize, order);
+    return new ScrollPageable(pageSize, order, position);
+  }
+
+  /**
+   * Return a request resuming after the given position.
+   *
+   * @param position the position to resume after
+   * @return a request with the given position
+   */
+  public ScrollPageable withPosition(ScrollPosition position) {
+    Assert.notNull(position, "ScrollPosition is required");
+    return new ScrollPageable(pageSize, order, position);
   }
 
 }
