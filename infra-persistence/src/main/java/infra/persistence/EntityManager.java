@@ -1781,10 +1781,10 @@ public interface EntityManager {
   /**
    * Scroll through the rows matching the given condition.
    *
-   * <p>The keyset order is resolved from {@link ScrollPageable#orderSpec()}, then the
-   * entity's {@link infra.persistence.annotation.Keyset @Keyset} declarations,
-   * then {@link QueryCondition#resolveOrderByClause(EntityMetadata)}. When the
-   * entity has an ID it is appended as a unique tie-breaker unless already
+   * <p>The keyset order is resolved from {@link ScrollPageable#orderSpec()}, then
+   * {@link QueryCondition#resolveOrderByClause(EntityMetadata)}, which defaults
+   * to the entity's {@link infra.persistence.annotation.OrderBy @OrderBy} declarations.
+   * When the entity has an ID it is appended as a unique tie-breaker unless already
    * ordered. Without an ID, explicit ordering must uniquely identify each row.
    * Raw SQL fragments and unmapped sort columns are not supported. Keyset sort
    * properties must contain non-null values.

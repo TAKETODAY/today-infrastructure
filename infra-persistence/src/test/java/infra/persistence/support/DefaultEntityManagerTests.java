@@ -74,7 +74,7 @@ import infra.persistence.UpdateStrategySource;
 import infra.persistence.annotation.Column;
 import infra.persistence.annotation.EntityRef;
 import infra.persistence.annotation.Id;
-import infra.persistence.annotation.Keyset;
+import infra.persistence.annotation.OrderBy;
 import infra.persistence.annotation.OrderByClause;
 import infra.persistence.annotation.UpdateBy;
 import infra.persistence.annotation.Where;
@@ -2007,7 +2007,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     }
 
     @ParameterizedRepositoryManagerTest
-    void keysetPageUsesKeysetAnnotationOrdering(DbType dbType, RepositoryManager repositoryManager) {
+    void keysetPageUsesOrderByAnnotation(DbType dbType, RepositoryManager repositoryManager) {
       DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
       if (dbType == DbType.HyperSQL) {
         entityManager.setPlatform(new HyperSQLPlatform());
@@ -2015,8 +2015,8 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       entityManager.persist(List.of(
               UserModel.male("a", 10), UserModel.male("b", 20), UserModel.male("c", 30)));
 
-      Scroll<KeysetDescUser> first = entityManager.scroll(KeysetDescUser.class, ScrollPageable.of(1));
-      Scroll<KeysetDescUser> second = entityManager.scroll(KeysetDescUser.class, ScrollPageable.of(1).withPosition(first.position()));
+      Scroll<OrderByDescUser> first = entityManager.scroll(OrderByDescUser.class, ScrollPageable.of(1));
+      Scroll<OrderByDescUser> second = entityManager.scroll(OrderByDescUser.class, ScrollPageable.of(1).withPosition(first.position()));
 
       assertThat(first.content()).singleElement().extracting(user -> user.age).isEqualTo(30);
       assertThat(keysetKeys(first.position())).containsOnlyKeys("age");
@@ -2036,11 +2036,11 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       List<String> names = new ArrayList<>();
       List<Integer> ids = new ArrayList<>();
       ScrollPosition position = ScrollPosition.keyset();
-      Scroll<CompositeKeysetWithIdUser> page;
+      Scroll<CompositeOrderByWithIdUser> page;
       do {
-        page = entityManager.scroll(CompositeKeysetWithIdUser.class, ScrollPageable.of(1).withPosition(position));
+        page = entityManager.scroll(CompositeOrderByWithIdUser.class, ScrollPageable.of(1).withPosition(position));
         assertThat(page.content()).hasSize(1);
-        CompositeKeysetWithIdUser row = page.content().get(0);
+        CompositeOrderByWithIdUser row = page.content().get(0);
         names.add(row.age + ":" + row.name);
         ids.add(row.id);
         if (!page.isLast()) {
@@ -2063,9 +2063,9 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       }
       repositoryManager.createNamedQuery("insert into t_user (name, age) values ('a', 20), ('b', 20), ('c', 10)").executeUpdate();
 
-      Scroll<CompositeKeysetUser> first = entityManager.scroll(CompositeKeysetUser.class, ScrollPageable.of(1));
-      Scroll<CompositeKeysetUser> second = entityManager.scroll(CompositeKeysetUser.class, ScrollPageable.of(1).withPosition(first.position()));
-      Scroll<CompositeKeysetUser> third = entityManager.scroll(CompositeKeysetUser.class, ScrollPageable.of(1).withPosition(second.position()));
+      Scroll<CompositeOrderByUser> first = entityManager.scroll(CompositeOrderByUser.class, ScrollPageable.of(1));
+      Scroll<CompositeOrderByUser> second = entityManager.scroll(CompositeOrderByUser.class, ScrollPageable.of(1).withPosition(first.position()));
+      Scroll<CompositeOrderByUser> third = entityManager.scroll(CompositeOrderByUser.class, ScrollPageable.of(1).withPosition(second.position()));
 
       assertThat(first.content()).singleElement().extracting(user -> user.name).isEqualTo("a");
       assertThat(keysetKeys(first.position())).containsOnlyKeys("age", "name");
@@ -2075,22 +2075,22 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     }
 
     @ParameterizedRepositoryManagerTest
-    void keysetPageRejectsCursorWithWrongAnnotationKeys(DbType dbType, RepositoryManager repositoryManager) {
+    void keysetPageRejectsCursorWithWrongOrderByKeys(DbType dbType, RepositoryManager repositoryManager) {
       DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
       if (dbType == DbType.HyperSQL) {
         entityManager.setPlatform(new HyperSQLPlatform());
       }
 
-      assertThatThrownBy(() -> entityManager.scroll(CompositeKeysetUser.class, ScrollPageable.of(1).withPosition(ScrollPosition.keyset(Map.of("age", 20)))))
+      assertThatThrownBy(() -> entityManager.scroll(CompositeOrderByUser.class, ScrollPageable.of(1).withPosition(ScrollPosition.keyset(Map.of("age", 20)))))
               .isInstanceOf(IllegalArgumentException.class)
               .hasMessageContaining("every keyset sort property");
-      assertThatThrownBy(() -> entityManager.scroll(CompositeKeysetUser.class, ScrollPageable.of(1).withPosition(ScrollPosition.keyset(Map.of("age", 20, "id", 1)))))
+      assertThatThrownBy(() -> entityManager.scroll(CompositeOrderByUser.class, ScrollPageable.of(1).withPosition(ScrollPosition.keyset(Map.of("age", 20, "id", 1)))))
               .isInstanceOf(IllegalArgumentException.class)
               .hasMessageContaining("name");
     }
 
     @ParameterizedRepositoryManagerTest
-    void keysetAnnotationPrecedesConditionOrdering(DbType dbType, RepositoryManager repositoryManager) {
+    void conditionOrderingOverridesEntityOrderBy(DbType dbType, RepositoryManager repositoryManager) {
       DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
       if (dbType == DbType.HyperSQL) {
         entityManager.setPlatform(new HyperSQLPlatform());
@@ -2098,9 +2098,9 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       entityManager.persist(List.of(UserModel.male("a", 10), UserModel.male("b", 20)));
 
       QueryCondition ascending = entityManager.getEntityQueryFactories().createCondition(OrderSpec.asc("age"));
-      Scroll<KeysetDescUser> first = entityManager.scroll(KeysetDescUser.class, ascending, ScrollPageable.of(1));
+      Scroll<OrderByDescUser> first = entityManager.scroll(OrderByDescUser.class, ascending, ScrollPageable.of(1));
 
-      assertThat(first.content()).singleElement().extracting(user -> user.age).isEqualTo(20);
+      assertThat(first.content()).singleElement().extracting(user -> user.age).isEqualTo(10);
       assertThat(keysetKeys(first.position())).containsOnlyKeys("age");
     }
 
@@ -2117,19 +2117,19 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       ExampleKeysetUser example = new ExampleKeysetUser();
       example.name = "same";
 
-      Scroll<KeysetAgeUser> first = entityManager.scroll(KeysetAgeUser.class, example, ScrollPageable.of(2));
+      Scroll<OrderByAgeUser> first = entityManager.scroll(OrderByAgeUser.class, example, ScrollPageable.of(2));
       assertThat(first.content()).hasSize(2);
       assertThat(first.isLast()).isFalse();
       assertThat(keysetKeys(first.position())).containsOnlyKeys("age", "id");
       assertThat(example.name).isEqualTo("same");
 
-      Scroll<KeysetAgeUser> second = entityManager.scroll(KeysetAgeUser.class, example, ScrollPageable.of(2).withPosition(first.position()));
+      Scroll<OrderByAgeUser> second = entityManager.scroll(OrderByAgeUser.class, example, ScrollPageable.of(2).withPosition(first.position()));
       assertThat(second.content()).singleElement().extracting(user -> user.age).isEqualTo(20);
       assertThat(second.isLast()).isTrue();
     }
 
     @ParameterizedRepositoryManagerTest
-    void keysetPagePageableOrderOverridesKeysetAnnotation(DbType dbType, RepositoryManager repositoryManager) {
+    void keysetPagePageableOrderOverridesOrderBy(DbType dbType, RepositoryManager repositoryManager) {
       DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
       if (dbType == DbType.HyperSQL) {
         entityManager.setPlatform(new HyperSQLPlatform());
@@ -2138,8 +2138,8 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
               UserModel.male("a", 10), UserModel.male("b", 20), UserModel.male("c", 30)));
 
       OrderSpec order = OrderSpec.asc("age");
-      Scroll<KeysetDescUser> first = entityManager.scroll(KeysetDescUser.class, null, ScrollPageable.of(1).withOrder(order));
-      Scroll<KeysetDescUser> second = entityManager.scroll(KeysetDescUser.class, null, ScrollPageable.of(1).withOrder(order).withPosition(first.position()));
+      Scroll<OrderByDescUser> first = entityManager.scroll(OrderByDescUser.class, null, ScrollPageable.of(1).withOrder(order));
+      Scroll<OrderByDescUser> second = entityManager.scroll(OrderByDescUser.class, null, ScrollPageable.of(1).withOrder(order).withPosition(first.position()));
 
       assertThat(first.content()).singleElement().extracting(user -> user.age).isEqualTo(10);
       assertThat(keysetKeys(first.position())).containsOnlyKeys("age");
@@ -2147,18 +2147,34 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     }
 
     @ParameterizedRepositoryManagerTest
-    void keysetPageRejectsInvalidExplicitOrderEvenWithAnnotation(DbType dbType, RepositoryManager repositoryManager) {
+    void keysetPageRejectsInvalidExplicitOrderEvenWithOrderBy(DbType dbType, RepositoryManager repositoryManager) {
       DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
       if (dbType == DbType.HyperSQL) {
         entityManager.setPlatform(new HyperSQLPlatform());
       }
 
-      assertThatThrownBy(() -> entityManager.scroll(KeysetDescUser.class, null, ScrollPageable.of(1).withOrder(OrderSpec.asc("unknown"))))
+      assertThatThrownBy(() -> entityManager.scroll(OrderByDescUser.class, null, ScrollPageable.of(1).withOrder(OrderSpec.asc("unknown"))))
               .isInstanceOf(IllegalArgumentException.class)
               .hasMessageContaining("Unknown keyset sort column");
-      assertThatThrownBy(() -> entityManager.scroll(KeysetDescUser.class, null, ScrollPageable.of(1).withOrder(OrderSpec.plain("LENGTH(name) DESC"))))
+      assertThatThrownBy(() -> entityManager.scroll(OrderByDescUser.class, null, ScrollPageable.of(1).withOrder(OrderSpec.plain("LENGTH(name) DESC"))))
               .isInstanceOf(IllegalArgumentException.class)
               .hasMessageContaining("not raw SQL fragments");
+    }
+
+    @ParameterizedRepositoryManagerTest
+    void keysetPageRejectsRawOrderByClauseUnlessOverridden(DbType dbType, RepositoryManager repositoryManager) {
+      DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+      if (dbType == DbType.HyperSQL) {
+        entityManager.setPlatform(new HyperSQLPlatform());
+      }
+      entityManager.persist(List.of(UserModel.male("a", 10), UserModel.male("b", 20)));
+
+      assertThatThrownBy(() -> entityManager.scroll(RawOrderByUser.class, ScrollPageable.of(1)))
+              .isInstanceOf(IllegalArgumentException.class)
+              .hasMessageContaining("not raw SQL fragments");
+      Scroll<RawOrderByUser> first = entityManager.scroll(RawOrderByUser.class,
+              ScrollPageable.of(1).withOrder(OrderSpec.asc("age")));
+      assertThat(first.content()).singleElement().extracting(user -> user.age).isEqualTo(10);
     }
 
     @ParameterizedRepositoryManagerTest
@@ -2181,29 +2197,10 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     }
 
     @Test
-    void keysetAnnotationOrderRespectsPrecedence() {
-      EntityMetadata metadata = new DefaultEntityMetadataFactory().getEntityMetadata(CompositeKeysetUser.class);
+    void orderByAnnotationProvidesKeysetOrdering() {
+      EntityMetadata metadata = new DefaultEntityMetadataFactory().getEntityMetadata(CompositeOrderByUser.class);
 
-      assertThat(metadata.getKeysetOrderSpec().toClause(Platform.generic())).isEqualTo("age DESC, name ASC");
-    }
-
-    @Test
-    void keysetAnnotationOrderIsCachedAndAbsentAnnotationIsEmpty() {
-      DefaultEntityMetadataFactory factory = new DefaultEntityMetadataFactory();
-      EntityMetadata annotated = factory.getEntityMetadata(CompositeKeysetUser.class);
-      EntityMetadata plain = factory.getEntityMetadata(NoIdUser.class);
-
-      assertThat(annotated.getKeysetOrderSpec()).isSameAs(annotated.getKeysetOrderSpec());
-      assertThat(plain.getKeysetOrderSpec()).isSameAs(OrderSpec.empty());
-    }
-
-    @Test
-    void keysetAnnotationWithUnknownPropertyFails() {
-      EntityMetadata metadata = new DefaultEntityMetadataFactory().getEntityMetadata(BadKeysetUser.class);
-
-      assertThatThrownBy(metadata::getKeysetOrderSpec)
-              .isInstanceOf(IllegalEntityException.class)
-              .hasMessageContaining("Unknown @Keyset property");
+      assertThat(metadata.getOrderSpec().toClause(Platform.generic())).isEqualTo("age DESC, name ASC");
     }
 
     @ParameterizedRepositoryManagerTest
@@ -2242,8 +2239,8 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     }
 
     @infra.persistence.annotation.Table("t_user")
-    @Keyset(property = "age", direction = Order.DESC)
-    static class KeysetDescUser {
+    static class OrderByDescUser {
+      @OrderBy(Order.DESC)
       public Integer age;
       public String name;
     }
@@ -2254,35 +2251,35 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     }
 
     @EntityRef(UserModel.class)
-    @Keyset(property = "age")
-    static class KeysetAgeUser {
+    static class OrderByAgeUser {
       @Id
       public Integer id;
+      @OrderBy
       public Integer age;
       public String name;
     }
 
     @infra.persistence.annotation.Table("t_user")
-    @Keyset(property = "name", order = 1)
-    @Keyset(property = "age", direction = Order.DESC, order = 0)
-    static class CompositeKeysetUser {
+    static class CompositeOrderByUser {
+      @OrderBy(value = Order.DESC, order = 0)
       public Integer age;
+      @OrderBy(order = 1)
       public String name;
     }
 
     @EntityRef(UserModel.class)
-    @Keyset(property = "name", order = 1)
-    @Keyset(property = "age", direction = Order.DESC, order = 0)
-    static class CompositeKeysetWithIdUser {
+    static class CompositeOrderByWithIdUser {
       @Id
       public Integer id;
+      @OrderBy(value = Order.DESC, order = 0)
       public Integer age;
+      @OrderBy(order = 1)
       public String name;
     }
 
-    @EntityRef(UserModel.class)
-    @Keyset(property = "missing")
-    static class BadKeysetUser {
+    @infra.persistence.annotation.Table("t_user")
+    @OrderByClause("LENGTH(name) DESC")
+    static class RawOrderByUser {
       public Integer age;
       public String name;
     }

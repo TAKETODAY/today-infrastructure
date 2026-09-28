@@ -1317,9 +1317,6 @@ public class DefaultEntityManager implements EntityManager {
   private KeysetOrder resolveKeysetOrder(EntityMetadata metadata, QueryCondition condition, @Nullable OrderSpec order) {
     OrderSpec keysetOrder = order;
     if (keysetOrder == null || keysetOrder.isEmpty()) {
-      keysetOrder = metadata.getKeysetOrderSpec();
-    }
-    if (keysetOrder.isEmpty()) {
       keysetOrder = condition.resolveOrderByClause(metadata);
     }
     return KeysetOrder.resolve(metadata, keysetOrder);

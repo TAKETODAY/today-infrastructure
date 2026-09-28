@@ -26,9 +26,11 @@ import infra.util.Assert;
  * the window size, an optional explicit keyset order, and the position at which
  * to resume. Requests start at the initial keyset position by default.
  *
- * <p>When no {@link #orderSpec() order specification} is given, the keyset order is resolved from
- * the entity's {@link infra.persistence.annotation.Keyset @Keyset} declarations
- * and then the query condition.
+ * <p>When no {@link #orderSpec() order specification} is given, the keyset
+ * order is resolved from the query condition or the entity's
+ * {@link infra.persistence.annotation.OrderBy @OrderBy} declarations.
+ * Raw {@link infra.persistence.annotation.OrderByClause @OrderByClause} SQL
+ * fragments cannot be used as keyset sort keys.
  *
  * @param pageSize the maximum number of rows per window, between 1 and
  * {@code Integer.MAX_VALUE - 1}
