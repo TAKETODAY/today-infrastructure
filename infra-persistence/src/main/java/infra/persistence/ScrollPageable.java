@@ -16,31 +16,26 @@
 
 package infra.persistence;
 
-import org.jspecify.annotations.Nullable;
-
-import infra.persistence.sql.OrderSpec;
 import infra.util.Assert;
 
 /**
  * Request parameters for a {@linkplain EntityManager#scroll scroll} operation:
- * the window size, an optional explicit keyset order, and the position at which
- * to resume. Requests start at the initial keyset position by default.
+ * the window size and the position at which to resume. Requests start at the
+ * initial keyset position by default.
  *
- * <p>When no {@link #orderSpec() order specification} is given, the keyset
- * order is resolved from the query condition or the entity's
+ * <p>The keyset order is resolved from the query condition or the entity's
  * {@link infra.persistence.annotation.OrderBy @OrderBy} declarations.
  * Raw {@link infra.persistence.annotation.OrderByClause @OrderByClause} SQL
  * fragments cannot be used as keyset sort keys.
  *
  * @param pageSize the maximum number of rows per window, between 1 and
  * {@code Integer.MAX_VALUE - 1}
- * @param orderSpec explicit keyset order, or {@code null} to use the entity or condition ordering
  * @param position the position at which to resume scrolling
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see ScrollPosition
  * @since 5.0
  */
-public record ScrollPageable(int pageSize, @Nullable OrderSpec orderSpec, ScrollPosition position) {
+public record ScrollPageable(int pageSize, ScrollPosition position) {
 
   public ScrollPageable {
     Assert.isTrue(pageSize > 0 && pageSize < Integer.MAX_VALUE,
@@ -55,18 +50,7 @@ public record ScrollPageable(int pageSize, @Nullable OrderSpec orderSpec, Scroll
    * @return a scroll request
    */
   public static ScrollPageable of(int pageSize) {
-    return new ScrollPageable(pageSize, null, ScrollPosition.keyset());
-  }
-
-  /**
-   * Return a request with the given explicit keyset order.
-   *
-   * @param order the keyset ordering to apply
-   * @return a request with the given ordering
-   */
-  public ScrollPageable withOrder(OrderSpec order) {
-    Assert.notNull(order, "OrderSpec is required");
-    return new ScrollPageable(pageSize, order, position);
+    return new ScrollPageable(pageSize, ScrollPosition.keyset());
   }
 
   /**
@@ -77,7 +61,7 @@ public record ScrollPageable(int pageSize, @Nullable OrderSpec orderSpec, Scroll
    */
   public ScrollPageable withPosition(ScrollPosition position) {
     Assert.notNull(position, "ScrollPosition is required");
-    return new ScrollPageable(pageSize, orderSpec, position);
+    return new ScrollPageable(pageSize, position);
   }
 
 }

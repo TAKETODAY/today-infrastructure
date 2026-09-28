@@ -16,11 +16,14 @@
 
 package infra.persistence.query;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 
 import infra.persistence.EntityMetadata;
+import infra.persistence.ScrollPosition;
 import infra.persistence.annotation.OrderBy;
 import infra.persistence.annotation.OrderByClause;
 import infra.persistence.platform.Platform;
@@ -137,6 +140,15 @@ public interface QueryCondition extends ParameterSource {
    */
   default OrderSpec resolveOrderByClause(EntityMetadata metadata) {
     return metadata.getOrderSpec();
+  }
+
+  /**
+   * Return an explicitly supplied scroll position, if any.
+   *
+   * @return the supplied scroll position, or {@code null}
+   */
+  default @Nullable ScrollPosition scrollPosition(EntityMetadata metadata) {
+    return null;
   }
 
 }

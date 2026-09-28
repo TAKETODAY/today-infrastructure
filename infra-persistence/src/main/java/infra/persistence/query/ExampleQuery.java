@@ -37,6 +37,8 @@ import infra.persistence.EntityMetadata;
 import infra.persistence.EntityMetadataFactory;
 import infra.persistence.EntityProperty;
 import infra.persistence.IllegalEntityException;
+import infra.persistence.ScrollPosition;
+import infra.persistence.ScrollPositionSource;
 import infra.persistence.annotation.Connector;
 import infra.persistence.annotation.Group;
 import infra.persistence.annotation.GroupExpression;
@@ -152,6 +154,15 @@ final class ExampleQuery extends SimpleSelectQueryStatement
     }
     // 3. fall back to the target entity metadata
     return QueryCondition.super.resolveOrderByClause(metadata);
+  }
+
+  @Override
+  public @Nullable ScrollPosition scrollPosition(EntityMetadata metadata) {
+    if (example instanceof ScrollPositionSource source) {
+      ScrollPosition position = source.scrollPosition();
+      return position != null ? position : ScrollPosition.keyset();
+    }
+    return null;
   }
 
   @Override

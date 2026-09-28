@@ -1768,7 +1768,7 @@ public interface EntityManager {
    * ordering.
    *
    * @param entityClass the entity type
-   * @param pageable the window size, optional keyset order, and scroll position
+   * @param pageable the window size and scroll position
    * @param <T> the entity type
    * @return the window at the requested position
    * @throws DataAccessException on data access errors
@@ -1781,9 +1781,9 @@ public interface EntityManager {
   /**
    * Scroll through the rows matching the given condition.
    *
-   * <p>The keyset order is resolved from {@link ScrollPageable#orderSpec()}, then
-   * {@link QueryCondition#resolveOrderByClause(EntityMetadata)}, which defaults
-   * to the entity's {@link infra.persistence.annotation.OrderBy @OrderBy} declarations.
+   * <p>The keyset order is resolved from
+   * {@link QueryCondition#resolveOrderByClause(EntityMetadata)}, which defaults to
+   * the entity's {@link infra.persistence.annotation.OrderBy @OrderBy} declarations.
    * When the entity has an ID it is appended as a unique tie-breaker unless already
    * ordered. Without an ID, explicit ordering must uniquely identify each row.
    * Raw SQL fragments and unmapped sort columns are not supported. Keyset sort
@@ -1795,7 +1795,7 @@ public interface EntityManager {
    *
    * @param entityClass the entity type
    * @param condition optional filtering and ordering conditions
-   * @param pageable the window size, optional keyset order, and scroll position
+   * @param pageable the window size and scroll position
    * @param <T> the entity type
    * @return the window at the requested position
    * @throws DataAccessException on data access errors
@@ -1814,7 +1814,7 @@ public interface EntityManager {
    * the position in the pageable.
    *
    * @param example the example whose non-null properties filter the result
-   * @param pageable the window size, optional keyset order, and scroll position
+   * @param pageable the window size and scroll position
    * @param <T> the entity type
    * @return the window at the requested position
    * @throws DataAccessException on data access errors
@@ -1837,7 +1837,7 @@ public interface EntityManager {
    *
    * @param entityClass the entity type
    * @param example the example whose non-null properties filter the result
-   * @param pageable the window size, optional keyset order, and scroll position
+   * @param pageable the window size and scroll position
    * @param <T> the entity type
    * @return the window at the requested position
    * @throws DataAccessException on data access errors

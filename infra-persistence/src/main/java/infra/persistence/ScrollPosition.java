@@ -32,9 +32,10 @@ import infra.util.Assert;
  * value, and direction so that a position cannot silently be reused with a
  * different ordering.
  *
- * <p>Values must be non-null for keyset comparison. The cursor list is copied on
- * construction, but values are not converted; callers restoring a position must
- * supply values of types accepted by the mapped properties.
+ * <p>An initial position may carry ordering with all values set to {@code null}.
+ * A position used to resume scrolling has a non-null value for every entry. The
+ * cursor list is copied on construction, but values are not converted; callers
+ * restoring a position must supply values of types accepted by the mapped properties.
  *
  * @param cursor the ordered keyset entries, or {@code null} for the initial position
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -48,6 +49,11 @@ public record ScrollPosition(@Nullable List<Entry> cursor) {
     if (cursor != null) {
       Assert.notEmpty(cursor, "Cursor entries are required");
       cursor = List.copyOf(cursor);
+      boolean initial = cursor.get(0).value() == null;
+      for (Entry entry : cursor) {
+        Assert.isTrue((entry.value() == null) == initial,
+                "Keyset values must be either all null or all non-null");
+      }
     }
   }
 
@@ -77,21 +83,20 @@ public record ScrollPosition(@Nullable List<Entry> cursor) {
    * @return {@code true} when no position filtering should be applied
    */
   public boolean isInitial() {
-    return cursor == null;
+    return cursor == null || cursor.get(0).value() == null;
   }
 
   /**
    * A single value in a keyset position.
    *
    * @param property the mapped entity property name
-   * @param value the non-null property value
+   * @param value the property value, or {@code null} for an initial position
    * @param direction the ordering direction
    */
-  public record Entry(String property, Object value, Order direction) {
+  public record Entry(String property, @Nullable Object value, Order direction) {
 
     public Entry {
       Assert.hasText(property, "Keyset property is required");
-      Assert.notNull(value, "Keyset value is required");
       Assert.notNull(direction, "Keyset direction is required");
     }
 

@@ -1879,8 +1879,13 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
               UserModel.male("same", 30));
       entityManager.persist(users);
 
-      QueryCondition filter = entityManager.getEntityQueryFactories().createCondition(Map.of("name", "same"));
-      ScrollPageable pageable = ScrollPageable.of(2).withOrder(OrderSpec.asc("age"));
+      QueryCondition filter = new QueryBuilder() {
+        @Override
+        public OrderSpec resolveOrderByClause(EntityMetadata metadata) {
+          return OrderSpec.asc("age");
+        }
+      }.add(Restrictions.equal("name"), "same");
+      ScrollPageable pageable = ScrollPageable.of(2);
       Function<ScrollPosition, Scroll<UserModel>> supplier =
               position -> entityManager.scroll(UserModel.class, filter, pageable.withPosition(position));
 
@@ -1923,12 +1928,12 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
           }
         }.add(Restrictions.equal("name"), "same");
 
-        Scroll<UserModel> first = entityManager.scroll(UserModel.class, ordered, ScrollPageable.of(2).withOrder(order));
+        Scroll<UserModel> first = entityManager.scroll(UserModel.class, ordered, ScrollPageable.of(2));
         assertThat(first.rows()).hasSize(2);
         assertThat(first.isLast()).isFalse();
         assertThat(keysetKeys(first.position())).containsKeys("age", "id");
 
-        Scroll<UserModel> second = entityManager.scroll(UserModel.class, ordered, ScrollPageable.of(2).withOrder(order).withPosition(first.position()));
+        Scroll<UserModel> second = entityManager.scroll(UserModel.class, ordered, ScrollPageable.of(2).withPosition(first.position()));
         assertThat(second.rows()).hasSize(1);
         assertThat(second.isLast()).isTrue();
         assertThat(second.rows().get(0).age).isEqualTo(direction == Order.ASC ? 20 : 10);
@@ -1983,7 +1988,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       ScrollPosition position = ScrollPosition.keyset();
       Scroll<UserModel> page;
       do {
-        page = entityManager.scroll(UserModel.class, condition, ScrollPageable.of(1).withOrder(order).withPosition(position));
+        page = entityManager.scroll(UserModel.class, condition, ScrollPageable.of(1).withPosition(position));
         page.rows().forEach(user -> names.add(user.name));
         if (!page.isLast()) {
           assertThat(keysetKeys(page.position())).containsKeys("age", "name", "id");
@@ -2086,26 +2091,26 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     }
 
     @ParameterizedRepositoryManagerTest
-    void keysetPageRejectsCursorWithWrongOrderByKeys(DbType dbType, RepositoryManager repositoryManager) {
+    void keysetPageUsesCursorOrderAndRejectsInvalidProperties(DbType dbType, RepositoryManager repositoryManager) {
       DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
       if (dbType == DbType.HyperSQL) {
         entityManager.setPlatform(new HyperSQLPlatform());
       }
 
+      repositoryManager.createNamedQuery("insert into t_user (name, age) values ('a', 20), ('b', 20), ('c', 10)").executeUpdate();
+      Scroll<CompositeOrderByUser> page = entityManager.scroll(CompositeOrderByUser.class,
+              ScrollPageable.of(1).withPosition(position(new ScrollPosition.Entry("age", 20, Order.DESC))));
+      assertThat(page.rows()).singleElement().extracting(user -> user.age).isEqualTo(10);
+
       assertThatThrownBy(() -> entityManager.scroll(CompositeOrderByUser.class, ScrollPageable.of(1).withPosition(
-              position(new ScrollPosition.Entry("age", 20, Order.DESC)))))
+              position(new ScrollPosition.Entry("unknown", 20, Order.DESC)))))
               .isInstanceOf(IllegalArgumentException.class)
-              .hasMessageContaining("every keyset sort property");
-      assertThatThrownBy(() -> entityManager.scroll(CompositeOrderByUser.class, ScrollPageable.of(1).withPosition(position(
-              new ScrollPosition.Entry("age", 20, Order.DESC),
-              new ScrollPosition.Entry("id", 1, Order.ASC)))))
-              .isInstanceOf(IllegalArgumentException.class)
-              .hasMessageContaining("name");
+              .hasMessageContaining("Unknown keyset sort property");
       assertThatThrownBy(() -> entityManager.scroll(CompositeOrderByUser.class, ScrollPageable.of(1).withPosition(position(
               new ScrollPosition.Entry("age", 20, Order.ASC),
-              new ScrollPosition.Entry("name", "a", Order.ASC)))))
+              new ScrollPosition.Entry("age", 20, Order.DESC)))))
               .isInstanceOf(IllegalArgumentException.class)
-              .hasMessageContaining("direction");
+              .hasMessageContaining("Duplicate keyset sort property");
     }
 
     @ParameterizedRepositoryManagerTest
@@ -2149,7 +2154,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     }
 
     @ParameterizedRepositoryManagerTest
-    void keysetPagePageableOrderOverridesOrderBy(DbType dbType, RepositoryManager repositoryManager) {
+    void keysetPageConditionOrderOverridesOrderBy(DbType dbType, RepositoryManager repositoryManager) {
       DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
       if (dbType == DbType.HyperSQL) {
         entityManager.setPlatform(new HyperSQLPlatform());
@@ -2158,8 +2163,9 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
               UserModel.male("a", 10), UserModel.male("b", 20), UserModel.male("c", 30)));
 
       OrderSpec order = OrderSpec.asc("age");
-      Scroll<OrderByDescUser> first = entityManager.scroll(OrderByDescUser.class, null, ScrollPageable.of(1).withOrder(order));
-      Scroll<OrderByDescUser> second = entityManager.scroll(OrderByDescUser.class, null, ScrollPageable.of(1).withOrder(order).withPosition(first.position()));
+      QueryCondition condition = entityManager.getEntityQueryFactories().createCondition(order);
+      Scroll<OrderByDescUser> first = entityManager.scroll(OrderByDescUser.class, condition, ScrollPageable.of(1));
+      Scroll<OrderByDescUser> second = entityManager.scroll(OrderByDescUser.class, condition, ScrollPageable.of(1).withPosition(first.position()));
 
       assertThat(first.rows()).singleElement().extracting(user -> user.age).isEqualTo(10);
       assertThat(keysetKeys(first.position())).containsOnlyKeys("age");
@@ -2173,10 +2179,12 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
         entityManager.setPlatform(new HyperSQLPlatform());
       }
 
-      assertThatThrownBy(() -> entityManager.scroll(OrderByDescUser.class, null, ScrollPageable.of(1).withOrder(OrderSpec.asc("unknown"))))
+      QueryCondition unknown = entityManager.getEntityQueryFactories().createCondition(OrderSpec.asc("unknown"));
+      QueryCondition raw = entityManager.getEntityQueryFactories().createCondition(OrderSpec.plain("LENGTH(name) DESC"));
+      assertThatThrownBy(() -> entityManager.scroll(OrderByDescUser.class, unknown, ScrollPageable.of(1)))
               .isInstanceOf(IllegalArgumentException.class)
-              .hasMessageContaining("Unknown keyset sort column");
-      assertThatThrownBy(() -> entityManager.scroll(OrderByDescUser.class, null, ScrollPageable.of(1).withOrder(OrderSpec.plain("LENGTH(name) DESC"))))
+              .hasMessageContaining("Unknown keyset sort property");
+      assertThatThrownBy(() -> entityManager.scroll(OrderByDescUser.class, raw, ScrollPageable.of(1)))
               .isInstanceOf(IllegalArgumentException.class)
               .hasMessageContaining("not raw SQL fragments");
     }
@@ -2192,13 +2200,13 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       assertThatThrownBy(() -> entityManager.scroll(RawOrderByUser.class, ScrollPageable.of(1)))
               .isInstanceOf(IllegalArgumentException.class)
               .hasMessageContaining("not raw SQL fragments");
-      Scroll<RawOrderByUser> first = entityManager.scroll(RawOrderByUser.class,
-              ScrollPageable.of(1).withOrder(OrderSpec.asc("age")));
+      QueryCondition ascending = entityManager.getEntityQueryFactories().createCondition(OrderSpec.asc("age"));
+      Scroll<RawOrderByUser> first = entityManager.scroll(RawOrderByUser.class, ascending, ScrollPageable.of(1));
       assertThat(first.rows()).singleElement().extracting(user -> user.age).isEqualTo(10);
     }
 
     @ParameterizedRepositoryManagerTest
-    void keysetPageExampleUsesPageableOrderForCursor(DbType dbType, RepositoryManager repositoryManager) {
+    void keysetPageConditionOrderWithFilter(DbType dbType, RepositoryManager repositoryManager) {
       DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
       if (dbType == DbType.HyperSQL) {
         entityManager.setPlatform(new HyperSQLPlatform());
@@ -2206,12 +2214,16 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       entityManager.persist(List.of(
               UserModel.male("same", 10), UserModel.male("same", 20), UserModel.male("same", 30)));
 
-      ExampleKeysetUser example = new ExampleKeysetUser();
-      example.name = "same";
       OrderSpec order = OrderSpec.desc("age");
-      Scroll<UserModel> first = entityManager.scroll(UserModel.class, example, ScrollPageable.of(1).withOrder(order));
-      example.position = first.position();
-      Scroll<UserModel> second = entityManager.scroll(UserModel.class, example, ScrollPageable.of(1).withOrder(order));
+      QueryCondition condition = new QueryBuilder() {
+        @Override
+        public OrderSpec resolveOrderByClause(EntityMetadata metadata) {
+          return order;
+        }
+      }.add(Restrictions.equal("name"), "same");
+      Scroll<UserModel> first = entityManager.scroll(UserModel.class, condition, ScrollPageable.of(1));
+      Scroll<UserModel> second = entityManager.scroll(UserModel.class, condition,
+              ScrollPageable.of(1).withPosition(first.position()));
 
       assertThat(first.rows()).singleElement().extracting(user -> user.age).isEqualTo(30);
       assertThat(second.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
@@ -2241,14 +2253,14 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
         }
       }.add(Restrictions.equal("name"), "same");
       OrderSpec order = OrderSpec.asc("age");
-      Scroll<UserModel> first = entityManager.scroll(UserModel.class, condition, ScrollPageable.of(2).withOrder(order));
+      Scroll<UserModel> first = entityManager.scroll(UserModel.class, condition, ScrollPageable.of(2));
 
       JsonMapper json = JsonMapper.builder().build();
       ScrollPosition receivedPosition = json.readValue(
               json.writeValueAsString(first.position()), ScrollPosition.class);
       assertThat(receivedPosition.cursor()).extracting(ScrollPosition.Entry::property)
               .containsExactly("age", "id");
-      Scroll<UserModel> second = entityManager.scroll(UserModel.class, condition, ScrollPageable.of(2).withOrder(order).withPosition(receivedPosition));
+      Scroll<UserModel> second = entityManager.scroll(UserModel.class, condition, ScrollPageable.of(2).withPosition(receivedPosition));
 
       assertThat(first.rows()).hasSize(2);
       assertThat(second.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
@@ -2320,7 +2332,10 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     void keysetPositionValidatesCursor() {
       assertThat(ScrollPosition.keyset().isInitial()).isTrue();
       assertThatThrownBy(() -> ScrollPosition.keyset(List.of())).isInstanceOf(IllegalArgumentException.class);
-      assertThatThrownBy(() -> new ScrollPosition.Entry("age", null, Order.ASC))
+      assertThat(position(new ScrollPosition.Entry("age", null, Order.ASC)).isInitial()).isTrue();
+      assertThatThrownBy(() -> ScrollPosition.keyset(List.of(
+              new ScrollPosition.Entry("age", null, Order.ASC),
+              new ScrollPosition.Entry("id", 1, Order.ASC))))
               .isInstanceOf(IllegalArgumentException.class);
     }
 

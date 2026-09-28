@@ -69,7 +69,6 @@ import infra.persistence.PropertyUpdateStrategy;
 import infra.persistence.Scroll;
 import infra.persistence.ScrollPageable;
 import infra.persistence.ScrollPosition;
-import infra.persistence.ScrollPositionSource;
 import infra.persistence.Slice;
 import infra.persistence.UpdateStrategySource;
 import infra.persistence.VersionIncrementStrategy;
@@ -1250,17 +1249,12 @@ public class DefaultEntityManager implements EntityManager {
 
   @Override
   public <T> Scroll<T> scroll(Class<T> entityClass, Object example, ScrollPageable pageable) {
-    if (example instanceof ScrollPositionSource source) {
-      ScrollPosition position = source.scrollPosition();
-      pageable = pageable.withPosition(position != null ? position : ScrollPosition.keyset());
-    }
     return scroll(entityClass, entityQueryFactories.createCondition(example), pageable);
   }
 
   @Override
   public <T> Scroll<T> scroll(Class<T> entityClass, @Nullable QueryCondition condition, ScrollPageable pageable) throws DataAccessException {
     Assert.notNull(pageable, "ScrollPageable is required");
-    ScrollPosition position = pageable.position();
 
     if (condition == null) {
       condition = NoConditionsQuery.instance;
@@ -1268,7 +1262,14 @@ public class DefaultEntityManager implements EntityManager {
 
     int pageSize = pageable.pageSize();
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
-    KeysetOrder keysetOrder = resolveKeysetOrder(metadata, condition, pageable.orderSpec());
+    ScrollPosition position = condition.scrollPosition(metadata);
+    if (position == null) {
+      position = pageable.position();
+    }
+    if (position.cursor() == null) {
+      position = resolveScrollPosition(metadata, condition);
+    }
+    KeysetOrder keysetOrder = resolveKeysetOrder(metadata, position);
     List<ScrollPosition.Entry> cursor = null;
     if (!position.isInitial()) {
       cursor = position.cursor();
@@ -1318,12 +1319,27 @@ public class DefaultEntityManager implements EntityManager {
     }
   }
 
-  private KeysetOrder resolveKeysetOrder(EntityMetadata metadata, QueryCondition condition, @Nullable OrderSpec order) {
-    OrderSpec keysetOrder = order;
-    if (keysetOrder == null || keysetOrder.isEmpty()) {
-      keysetOrder = condition.resolveOrderByClause(metadata);
+  private KeysetOrder resolveKeysetOrder(EntityMetadata metadata, ScrollPosition position) {
+    return KeysetOrder.resolve(metadata, position);
+  }
+
+  private ScrollPosition resolveScrollPosition(EntityMetadata metadata, QueryCondition condition) {
+    OrderSpec orderSpec = condition.resolveOrderByClause(metadata);
+    if (orderSpec.isEmpty()) {
+      return ScrollPosition.keyset();
     }
-    return KeysetOrder.resolve(metadata, keysetOrder);
+    ArrayList<ScrollPosition.Entry> cursor = new ArrayList<>(orderSpec.parts().size());
+    for (OrderSpec.Part part : orderSpec.parts()) {
+      if (!(part instanceof OrderSpec.Item item)) {
+        throw new IllegalArgumentException("Keyset pagination requires mapped sort columns, not raw SQL fragments");
+      }
+      EntityProperty property = metadata.findProperty(item.column());
+      if (property == null) {
+        throw new IllegalArgumentException("Unknown keyset sort property: " + item.column());
+      }
+      cursor.add(new ScrollPosition.Entry(property.getName(), null, item.direction()));
+    }
+    return ScrollPosition.keyset(cursor);
   }
 
   private Number doQueryCount(EntityMetadata metadata, QueryCondition handler, List<Restriction> restrictions, Connection con) throws DataAccessException {
@@ -1644,22 +1660,22 @@ public class DefaultEntityManager implements EntityManager {
 
   private record KeysetOrder(List<KeysetSort> keys) {
 
-    static KeysetOrder resolve(EntityMetadata metadata, OrderSpec spec) {
+    static KeysetOrder resolve(EntityMetadata metadata, ScrollPosition position) {
       ArrayList<KeysetSort> keys = new ArrayList<>();
-      for (OrderSpec.Part part : spec.parts()) {
-        if (!(part instanceof OrderSpec.Item item)) {
-          throw new IllegalArgumentException("Keyset pagination requires mapped sort columns, not raw SQL fragments");
-        }
-        EntityProperty property = metadata.findProperty(item.column());
-        if (property == null) {
-          throw new IllegalArgumentException("Unknown keyset sort column: " + item.column());
-        }
-        for (KeysetSort key : keys) {
-          if (key.property() == property) {
-            throw new IllegalArgumentException("Duplicate keyset sort column: " + item.column());
+      List<ScrollPosition.Entry> cursor = position.cursor();
+      if (cursor != null) {
+        for (ScrollPosition.Entry entry : cursor) {
+          EntityProperty property = metadata.findProperty(entry.property());
+          if (property == null) {
+            throw new IllegalArgumentException("Unknown keyset sort property: " + entry.property());
           }
+          for (KeysetSort key : keys) {
+            if (key.property() == property) {
+              throw new IllegalArgumentException("Duplicate keyset sort property: " + entry.property());
+            }
+          }
+          keys.add(new KeysetSort(property, entry.direction()));
         }
-        keys.add(new KeysetSort(property, item.direction()));
       }
       EntityProperty idProperty = metadata.findIdProperty();
       if (idProperty != null && keys.stream().noneMatch(key -> key.property() == idProperty)) {
