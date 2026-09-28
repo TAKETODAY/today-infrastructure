@@ -437,21 +437,6 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     List<UserModel> list = entityManager.find(UserModel.class, userForm);
 
     assertThat(list).hasSize(entities.size()).isEqualTo(entities);
-
-    // entityManager.iterate(UserModel.class, userForm, System.out::println);
-  }
-
-  @ParameterizedRepositoryManagerTest
-  void iterateListOfQueryConditions(DbType dbType, RepositoryManager repositoryManager) {
-    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
-    createData(entityManager);
-
-//    QueryCondition condition =
-//            QueryCondition.equalsTo("age", 10)
-//                    .and(QueryCondition.of("name", ConditionOperator.LIKE, "T"));
-
-//    QueryCondition condition = QueryCondition.of("name", Operator.SUFFIX_LIKE, "T");
-    // entityManager.iterate(UserModel.class, condition, System.out::println);
   }
 
   @ParameterizedRepositoryManagerTest
@@ -1047,37 +1032,6 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
 
     Map<String, UserModel> map = entityManager.find(UserModel.class, (Function<UserModel, String>) u -> u.getName());
     assertThat(map).isNotEmpty();
-  }
-
-  @ParameterizedRepositoryManagerTest
-  void iterateAll(DbType dbType, RepositoryManager repositoryManager) {
-    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
-    createData(entityManager);
-
-    int count = 0;
-    try (var it = entityManager.iterate(UserModel.class)) {
-      while (it.hasNext()) {
-        it.next();
-        count++;
-      }
-    }
-    assertThat(count).isEqualTo(11);
-  }
-
-  @ParameterizedRepositoryManagerTest
-  void iterateByExample(DbType dbType, RepositoryManager repositoryManager) {
-    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
-    createData(entityManager);
-
-    UserModel example = UserModel.forId(1);
-    int count = 0;
-    try (var it = entityManager.iterate(example)) {
-      while (it.hasNext()) {
-        it.next();
-        count++;
-      }
-    }
-    assertThat(count).isEqualTo(1);
   }
 
   @ParameterizedRepositoryManagerTest
@@ -1706,6 +1660,118 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     Object result = entityManager.getDebugLogMessage(nonDescriptive);
 
     assertThat(result.toString()).contains("Query entities without conditions");
+  }
+
+  @Nested
+  class IterateTests extends AbstractRepositoryManagerTests {
+
+    @Override
+    protected void prepareTestsData(DbType dbType, RepositoryManager repositoryManager) {
+      DefaultEntityManagerTests.this.prepareTestsData(dbType, repositoryManager);
+    }
+
+    @ParameterizedRepositoryManagerTest
+    void iterateAll(DbType dbType, RepositoryManager repositoryManager) {
+      DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+      createData(entityManager);
+
+      try (var iterator = entityManager.iterate(UserModel.class)) {
+        assertThat(iterator.getCurrentIndex()).isEqualTo(-1);
+        assertThat(iterator.hasNext()).isTrue();
+        assertThat(iterator.hasNext()).isTrue();
+        assertThat(iterator.next().age).isEqualTo(9);
+        assertThat(iterator.getCurrentIndex()).isZero();
+
+        int count = 1;
+        while (iterator.hasNext()) {
+          iterator.next();
+          count++;
+        }
+        assertThat(count).isEqualTo(11);
+        assertThat(iterator.getCurrentIndex()).isEqualTo(10);
+        assertThat(iterator.hasNext()).isFalse();
+        assertThatThrownBy(iterator::next).isInstanceOf(java.util.NoSuchElementException.class);
+      }
+    }
+
+    @ParameterizedRepositoryManagerTest
+    void iterateByExample(DbType dbType, RepositoryManager repositoryManager) {
+      DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+      createData(entityManager);
+
+      UserModel example = UserModel.forId(1);
+      try (var iterator = entityManager.iterate(example)) {
+        assertThat(iterator.list()).singleElement().extracting(user -> user.id).isEqualTo(1);
+      }
+      try (var iterator = entityManager.iterate(UserModel.class, example)) {
+        assertThat(iterator.first()).extracting(user -> user.id).isEqualTo(1);
+      }
+      try (var iterator = entityManager.iterate(UserModel.class, Map.of("age", 999))) {
+        assertThat(iterator.list()).isEmpty();
+      }
+    }
+
+    @ParameterizedRepositoryManagerTest
+    void iterateByStatement(DbType dbType, RepositoryManager repositoryManager) {
+      DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+      createData(entityManager);
+
+      QueryStatement statement = QueryBuilder.of(Restrictions.between("age"), 10, 12);
+      try (var iterator = entityManager.iterate(UserModel.class, statement)) {
+        assertThat(iterator.list()).extracting(user -> user.age).containsExactlyInAnyOrder(10, 11, 12);
+      }
+      try (var iterator = entityManager.iterate(UserModel.class, (QueryStatement) null)) {
+        assertThat(iterator.list()).hasSize(11);
+      }
+    }
+
+    @ParameterizedRepositoryManagerTest
+    void iterateWithConsumers(DbType dbType, RepositoryManager repositoryManager) {
+      DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+      createData(entityManager);
+
+      List<Integer> ids = new ArrayList<>();
+      entityManager.iterate(UserModel.forId(1), user -> ids.add(user.id));
+      assertThat(ids).containsExactly(1);
+
+      ids.clear();
+      entityManager.iterate(UserModel.class, Map.of("age", 10), user -> ids.add(user.id));
+      assertThat(ids).containsExactly(2);
+
+      ids.clear();
+      entityManager.iterate(UserModel.class, QueryBuilder.of(Restrictions.between("age"), 10, 12), user -> ids.add(user.id));
+      assertThat(ids).containsExactlyInAnyOrder(2, 3, 4);
+
+      ids.clear();
+      entityManager.iterate(UserModel.class, Map.of("age", 999), user -> ids.add(user.id));
+      assertThat(ids).isEmpty();
+    }
+
+    @ParameterizedRepositoryManagerTest
+    void iterateResults(DbType dbType, RepositoryManager repositoryManager) {
+      DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+      createData(entityManager);
+
+      try (var iterator = entityManager.iterate(UserModel.class)) {
+        assertThat(iterator.toMap("id")).hasSize(11).containsKey(1);
+      }
+      try (var iterator = entityManager.iterate(UserModel.class)) {
+        assertThat(iterator.toMap(user -> user.age)).hasSize(11).containsKey(9);
+      }
+      try (var iterator = entityManager.iterate(UserModel.class, UserModel.forId(1))) {
+        assertThat(iterator.unique()).extracting(user -> user.id).isEqualTo(1);
+      }
+      try (var iterator = entityManager.iterate(UserModel.class, Map.of("age", 999))) {
+        assertThat(iterator.first()).isNull();
+      }
+      try (var iterator = entityManager.iterate(UserModel.class, Map.of("age", 999))) {
+        assertThat(iterator.unique()).isNull();
+      }
+      try (var iterator = entityManager.iterate(UserModel.class)) {
+        assertThatThrownBy(iterator::unique).isInstanceOf(IncorrectResultSizeDataAccessException.class);
+      }
+    }
+
   }
 
   @Nested
