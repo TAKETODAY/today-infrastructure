@@ -27,7 +27,6 @@ import infra.beans.BeanWrapperImpl;
 import infra.beans.SimpleTypeConverter;
 import infra.beans.TypeConverter;
 import infra.util.Assert;
-import infra.util.ObjectUtils;
 
 /**
  * Utilities for copying property values between beans or from a map into a bean.
@@ -58,15 +57,15 @@ public abstract class BeanPropertyUtils {
    *
    * @param source the source bean or map of property names to values
    * @param destination the destination bean
-   * @param converter the converter for source bean property values, or {@code null}
-   * to use the default; map values are assigned directly
+   * @param converter the converter for source property values, or {@code null}
+   * to use the default
    */
   public static void copy(Object source, Object destination, @Nullable TypeConverter converter) {
     Assert.notNull(source, "source object is required");
     Assert.notNull(destination, "destination object is required");
 
     BeanMetadata destinationMetadata = BeanMetadata.forInstance(destination);
-    copy(source, destinationMetadata, destination, converter, null);
+    copy(source, destinationMetadata, destination, converter, Set.of(), false);
   }
 
   /**
@@ -84,21 +83,49 @@ public abstract class BeanPropertyUtils {
   /**
    * Copy matching property values, excluding the specified property names.
    * Properties missing from or not writable on the destination are ignored.
+   *
+   * @param source the source bean or map of property names to values
+   * @param destination the destination bean
+   * @param ignoreProperties property names to exclude
+   */
+  public static void copy(Object source, Object destination, Set<String> ignoreProperties) {
+    copy(source, destination, null, ignoreProperties);
+  }
+
+  /**
+   * Copy matching property values, excluding the specified property names.
+   * Properties missing from or not writable on the destination are ignored.
    * A {@link SimpleTypeConverter} is used when {@code converter} is {@code null}.
    *
    * @param source the source bean or map of property names to values
    * @param destination the destination bean
-   * @param converter the converter for source bean property values, or {@code null}
-   * to use the default; map values are assigned directly
+   * @param converter the converter for source property values, or {@code null}
+   * to use the default
    * @param ignoreProperties property names to exclude, or {@code null} for none
    */
   public static void copy(Object source, Object destination,
           @Nullable TypeConverter converter, String @Nullable ... ignoreProperties) {
+    copy(source, destination, converter, toPropertySet(ignoreProperties));
+  }
+
+  /**
+   * Copy matching property values, excluding the specified property names.
+   * Properties missing from or not writable on the destination are ignored.
+   *
+   * @param source the source bean or map of property names to values
+   * @param destination the destination bean
+   * @param converter the converter for source property values, or {@code null}
+   * to use a {@link SimpleTypeConverter}
+   * @param ignoreProperties property names to exclude
+   */
+  public static void copy(Object source, Object destination,
+          @Nullable TypeConverter converter, Set<String> ignoreProperties) {
     Assert.notNull(source, "source object is required");
     Assert.notNull(destination, "destination object is required");
+    Assert.notNull(ignoreProperties, "ignoreProperties is required");
 
     BeanMetadata destinationMetadata = BeanMetadata.forInstance(destination);
-    copy(source, destinationMetadata, destination, converter, ignoreProperties);
+    copy(source, destinationMetadata, destination, converter, ignoreProperties, false);
   }
 
   /**
@@ -122,8 +149,8 @@ public abstract class BeanPropertyUtils {
    * @param <T> the destination bean type
    * @param source the source bean or map of property names to values
    * @param destination the class to instantiate
-   * @param converter the converter for source bean property values, or {@code null}
-   * to use the default; map values are assigned directly
+   * @param converter the converter for source property values, or {@code null}
+   * to use the default
    * @return the populated destination bean
    */
   @SuppressWarnings("unchecked")
@@ -133,7 +160,7 @@ public abstract class BeanPropertyUtils {
 
     BeanMetadata destinationMetadata = BeanMetadata.forClass(destination);
     Object destinationInstance = destinationMetadata.newInstance(); // destination
-    copy(source, destinationMetadata, destinationInstance, converter, null);
+    copy(source, destinationMetadata, destinationInstance, converter, Set.of(), false);
     return (T) destinationInstance;
   }
 
@@ -154,44 +181,230 @@ public abstract class BeanPropertyUtils {
   /**
    * Create a destination bean and copy matching property values, excluding
    * the specified property names. Unmatched or read-only properties are ignored.
+   *
+   * @param <T> the destination bean type
+   * @param source the source bean or map of property names to values
+   * @param destination the class to instantiate
+   * @param ignoreProperties property names to exclude
+   * @return the populated destination bean
+   */
+  public static <T> T copy(Object source, Class<T> destination, Set<String> ignoreProperties) {
+    return copy(source, destination, null, ignoreProperties);
+  }
+
+  /**
+   * Create a destination bean and copy matching property values, excluding
+   * the specified property names. Unmatched or read-only properties are ignored.
    * A {@link SimpleTypeConverter} is used when {@code converter} is {@code null}.
    *
    * @param <T> the destination bean type
    * @param source the source bean or map of property names to values
    * @param destination the class to instantiate
-   * @param converter the converter for source bean property values, or {@code null}
-   * to use the default; map values are assigned directly
+   * @param converter the converter for source property values, or {@code null}
+   * to use the default
    * @param ignoreProperties property names to exclude, or {@code null} for none
+   * @return the populated destination bean
+   */
+  public static <T> T copy(Object source, Class<T> destination,
+          @Nullable TypeConverter converter, String @Nullable ... ignoreProperties) {
+    return copy(source, destination, converter, toPropertySet(ignoreProperties));
+  }
+
+  /**
+   * Create a destination bean and copy matching property values, excluding
+   * the specified property names. Unmatched or read-only properties are ignored.
+   *
+   * @param <T> the destination bean type
+   * @param source the source bean or map of property names to values
+   * @param destination the class to instantiate
+   * @param converter the converter for source property values, or {@code null}
+   * to use a {@link SimpleTypeConverter}
+   * @param ignoreProperties property names to exclude
    * @return the populated destination bean
    */
   @SuppressWarnings("unchecked")
   public static <T> T copy(Object source, Class<T> destination,
-          @Nullable TypeConverter converter, String @Nullable ... ignoreProperties) {
+          @Nullable TypeConverter converter, Set<String> ignoreProperties) {
     Assert.notNull(source, "source object is required");
     Assert.notNull(destination, "destination class is required");
+    Assert.notNull(ignoreProperties, "ignoreProperties is required");
 
     BeanMetadata destinationMetadata = BeanMetadata.forClass(destination);
     Object destinationInstance = destinationMetadata.newInstance(); // destination
-    copy(source, destinationMetadata, destinationInstance, converter, ignoreProperties);
+    copy(source, destinationMetadata, destinationInstance, converter, ignoreProperties, false);
     return (T) destinationInstance;
+  }
+
+  /**
+   * Copy matching non-null property values from a source bean or map into a destination bean.
+   * Null source values leave the destination unchanged; missing and read-only
+   * destination properties are ignored.
+   *
+   * @param source the source bean or map of property names to values
+   * @param destination the destination bean
+   */
+  public static void copyNonNull(Object source, Object destination) {
+    copyNonNull(source, destination, (TypeConverter) null);
+  }
+
+  /**
+   * Copy matching non-null property values from a source bean or map into a destination bean.
+   * Null source values leave the destination unchanged.
+   *
+   * @param source the source bean or map of property names to values
+   * @param destination the destination bean
+   * @param converter the converter for source property values, or {@code null}
+   * to use a {@link SimpleTypeConverter}
+   */
+  public static void copyNonNull(Object source, Object destination, @Nullable TypeConverter converter) {
+    copyNonNull(source, destination, converter, (String[]) null);
+  }
+
+  /**
+   * Copy matching non-null property values, excluding the specified property names.
+   * Null source values and excluded properties leave the destination unchanged.
+   *
+   * @param source the source bean or map of property names to values
+   * @param destination the destination bean
+   * @param ignoreProperties property names to exclude, or {@code null} for none
+   */
+  public static void copyNonNull(Object source, Object destination, String @Nullable ... ignoreProperties) {
+    copyNonNull(source, destination, null, ignoreProperties);
+  }
+
+  /**
+   * Copy matching non-null property values, excluding the specified property names.
+   * Null source values and excluded properties leave the destination unchanged.
+   *
+   * @param source the source bean or map of property names to values
+   * @param destination the destination bean
+   * @param ignoreProperties property names to exclude
+   */
+  public static void copyNonNull(Object source, Object destination, Set<String> ignoreProperties) {
+    copyNonNull(source, destination, null, ignoreProperties);
+  }
+
+  /**
+   * Copy matching non-null property values, excluding the specified property names.
+   * Null source values and excluded properties leave the destination unchanged.
+   * Missing and read-only destination properties are ignored.
+   *
+   * @param source the source bean or map of property names to values
+   * @param destination the destination bean
+   * @param converter the converter for source property values, or {@code null}
+   * to use a {@link SimpleTypeConverter}
+   * @param ignoreProperties property names to exclude, or {@code null} for none
+   */
+  public static void copyNonNull(Object source, Object destination,
+          @Nullable TypeConverter converter, String @Nullable ... ignoreProperties) {
+    copyNonNull(source, destination, converter, toPropertySet(ignoreProperties));
+  }
+
+  /**
+   * Copy matching non-null property values, excluding the specified property names.
+   * Null source values and excluded properties leave the destination unchanged.
+   * Missing and read-only destination properties are ignored.
+   *
+   * @param source the source bean or map of property names to values
+   * @param destination the destination bean
+   * @param converter the converter for source property values, or {@code null}
+   * to use a {@link SimpleTypeConverter}
+   * @param ignoreProperties property names to exclude
+   */
+  public static void copyNonNull(Object source, Object destination,
+          @Nullable TypeConverter converter, Set<String> ignoreProperties) {
+    Assert.notNull(source, "source object is required");
+    Assert.notNull(destination, "destination object is required");
+    Assert.notNull(ignoreProperties, "ignoreProperties is required");
+    copy(source, BeanMetadata.forInstance(destination), destination, converter, ignoreProperties, true);
+  }
+
+  /**
+   * Create a destination bean and copy matching non-null property values into it.
+   * Null source values leave the new bean's initial values unchanged.
+   *
+   * @param <T> the destination bean type
+   * @param source the source bean or map of property names to values
+   * @param destination the class to instantiate
+   * @return the populated destination bean
+   */
+  public static <T> T copyNonNull(Object source, Class<T> destination) {
+    return copyNonNull(source, destination, (TypeConverter) null);
+  }
+
+  /**
+   * Create a destination bean and copy matching non-null property values into it.
+   * Null source values leave the new bean's initial values unchanged.
+   *
+   * @param <T> the destination bean type
+   * @param source the source bean or map of property names to values
+   * @param destination the class to instantiate
+   * @param converter the converter for source property values, or {@code null}
+   * to use a {@link SimpleTypeConverter}
+   * @return the populated destination bean
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> T copyNonNull(Object source, Class<T> destination, @Nullable TypeConverter converter) {
+    Assert.notNull(source, "source object is required");
+    Assert.notNull(destination, "destination class is required");
+    BeanMetadata metadata = BeanMetadata.forClass(destination);
+    Object instance = metadata.newInstance();
+    copy(source, metadata, instance, converter, Set.of(), true);
+    return (T) instance;
+  }
+
+  /**
+   * Create a destination bean and copy matching non-null property values,
+   * excluding the specified property names.
+   *
+   * @param <T> the destination bean type
+   * @param source the source bean or map of property names to values
+   * @param destination the class to instantiate
+   * @param ignoreProperties property names to exclude
+   * @return the populated destination bean
+   */
+  public static <T> T copyNonNull(Object source, Class<T> destination, Set<String> ignoreProperties) {
+    return copyNonNull(source, destination, null, ignoreProperties);
+  }
+
+  /**
+   * Create a destination bean and copy matching non-null property values,
+   * excluding the specified property names.
+   *
+   * @param <T> the destination bean type
+   * @param source the source bean or map of property names to values
+   * @param destination the class to instantiate
+   * @param converter the converter for source property values, or {@code null}
+   * to use a {@link SimpleTypeConverter}
+   * @param ignoreProperties property names to exclude
+   * @return the populated destination bean
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> T copyNonNull(Object source, Class<T> destination,
+          @Nullable TypeConverter converter, Set<String> ignoreProperties) {
+    Assert.notNull(source, "source object is required");
+    Assert.notNull(destination, "destination class is required");
+    Assert.notNull(ignoreProperties, "ignoreProperties is required");
+    BeanMetadata metadata = BeanMetadata.forClass(destination);
+    Object instance = metadata.newInstance();
+    copy(source, metadata, instance, converter, ignoreProperties, true);
+    return (T) instance;
   }
 
   /**
    * Copy readable source values into matching writable destination properties.
    * Unknown, read-only, and excluded properties are skipped.
    */
-  @SuppressWarnings("unchecked")
-  private static void copy(Object source, BeanMetadata destination,
-          Object destinationInstance, @Nullable TypeConverter converter, String @Nullable [] ignoreProperties) {
+  private static void copy(Object source, BeanMetadata destination, Object destinationInstance,
+          @Nullable TypeConverter converter, Set<String> ignoreProperties, boolean skipNull) {
     if (converter == null) {
       converter = new SimpleTypeConverter();
     }
-    if (ObjectUtils.isNotEmpty(ignoreProperties)) {
-      Set<String> ignorePropertiesSet = Set.of(ignoreProperties);
+    if (!ignoreProperties.isEmpty()) {
       if (source instanceof Map) {
-        for (Map.Entry<String, Object> entry : ((Map<String, Object>) source).entrySet()) {
+        for (var entry : ((Map<String, @Nullable Object>) source).entrySet()) {
           String propertyName = entry.getKey();
-          if (!ignorePropertiesSet.contains(propertyName)) {
+          if (!ignoreProperties.contains(propertyName) && (!skipNull || entry.getValue() != null)) {
             BeanProperty beanProperty = destination.getProperty(propertyName);
             if (beanProperty != null && beanProperty.isWriteable()) {
               beanProperty.setValue(destinationInstance, entry.getValue(), converter);
@@ -204,10 +417,13 @@ public abstract class BeanPropertyUtils {
         for (BeanProperty property : sourceMetadata.getPropertyList()) {
           if (property.isReadable()) {
             String propertyName = property.getName();
-            if (!ignorePropertiesSet.contains(propertyName)) {
+            if (!ignoreProperties.contains(propertyName)) {
               BeanProperty beanProperty = destination.getProperty(propertyName);
               if (beanProperty != null && beanProperty.isWriteable()) {
-                beanProperty.setValue(destinationInstance, property.getValue(source), converter);
+                Object value = property.getValue(source);
+                if (!skipNull || value != null) {
+                  beanProperty.setValue(destinationInstance, value, converter);
+                }
               }
             }
           }
@@ -216,10 +432,10 @@ public abstract class BeanPropertyUtils {
     }
     else {
       if (source instanceof Map) {
-        for (Map.Entry<String, Object> entry : ((Map<String, Object>) source).entrySet()) {
+        for (var entry : ((Map<String, @Nullable Object>) source).entrySet()) {
           String propertyName = entry.getKey();
           BeanProperty beanProperty = destination.getProperty(propertyName);
-          if (beanProperty != null && beanProperty.isWriteable()) {
+          if (beanProperty != null && beanProperty.isWriteable() && (!skipNull || entry.getValue() != null)) {
             beanProperty.setValue(destinationInstance, entry.getValue(), converter);
           }
         }
@@ -231,13 +447,20 @@ public abstract class BeanPropertyUtils {
             String propertyName = property.getName();
             BeanProperty beanProperty = destination.getProperty(propertyName);
             if (beanProperty != null && beanProperty.isWriteable()) {
-              beanProperty.setValue(destinationInstance, property.getValue(source), converter);
+              Object value = property.getValue(source);
+              if (!skipNull || value != null) {
+                beanProperty.setValue(destinationInstance, value, converter);
+              }
             }
           }
         }
       }
     }
 
+  }
+
+  private static Set<String> toPropertySet(String @Nullable [] ignoreProperties) {
+    return ignoreProperties == null ? Set.of() : Set.of(ignoreProperties);
   }
 
   //

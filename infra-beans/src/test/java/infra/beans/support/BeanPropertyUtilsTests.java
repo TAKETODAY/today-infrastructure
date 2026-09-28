@@ -21,7 +21,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
+import infra.beans.SimpleTypeConverter;
 import infra.beans.factory.BeanMappingTestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * @author TODAY 2021/5/2 22:18
  */
-public class BeanPropertyUtilsTests {
+class BeanPropertyUtilsTests {
 
   static class VO {
     public int age;
@@ -48,6 +50,165 @@ public class BeanPropertyUtilsTests {
     public float aFloat;
     public double aDouble;
     public String name;
+  }
+
+  static class NullableValues {
+    public String name = "initial";
+    public String description = "default";
+  }
+
+  static class MapCopyTarget {
+    public int age;
+    public String name = "initial";
+    public String description = "default";
+
+    public String getReadOnly() {
+      return "unchanged";
+    }
+  }
+
+  @Test
+  void copyNonNullFromMapWithIgnoredProperties() {
+    Map<String, Object> source = new HashMap<>();
+    source.put("age", "42");
+    source.put("name", "excluded");
+    source.put("description", null);
+    source.put("readOnly", "ignored");
+    source.put("missing", "ignored");
+    MapCopyTarget destination = new MapCopyTarget();
+
+    BeanPropertyUtils.copyNonNull(source, destination, new SimpleTypeConverter(), "name");
+
+    assertThat(destination.age).isEqualTo(42);
+    assertThat(destination.name).isEqualTo("initial");
+    assertThat(destination.description).isEqualTo("default");
+    assertThat(destination.getReadOnly()).isEqualTo("unchanged");
+
+    MapCopyTarget withDefaultConverter = new MapCopyTarget();
+    BeanPropertyUtils.copyNonNull(source, withDefaultConverter, "name");
+    assertThat(withDefaultConverter.age).isEqualTo(42);
+    assertThat(withDefaultConverter.name).isEqualTo("initial");
+    assertThat(withDefaultConverter.description).isEqualTo("default");
+  }
+
+  @Test
+  void copyFromMapWithIgnoredPropertiesStillCopiesNull() {
+    Map<String, Object> source = new HashMap<>();
+    source.put("age", "42");
+    source.put("name", "excluded");
+    source.put("description", null);
+    source.put("readOnly", "ignored");
+    source.put("missing", "ignored");
+    MapCopyTarget destination = new MapCopyTarget();
+
+    BeanPropertyUtils.copy(source, destination, "name");
+
+    assertThat(destination.age).isEqualTo(42);
+    assertThat(destination.name).isEqualTo("initial");
+    assertThat(destination.description).isNull();
+    assertThat(destination.getReadOnly()).isEqualTo("unchanged");
+  }
+
+  @Test
+  void copyWithIgnoredPropertySet() {
+    Map<String, Object> source = new HashMap<>();
+    source.put("age", "42");
+    source.put("name", "excluded");
+    source.put("description", null);
+    Set<String> ignored = Set.of("name");
+
+    MapCopyTarget destination = new MapCopyTarget();
+    BeanPropertyUtils.copy(source, destination, ignored);
+    assertThat(destination.age).isEqualTo(42);
+    assertThat(destination.name).isEqualTo("initial");
+    assertThat(destination.description).isNull();
+
+    MapCopyTarget converted = new MapCopyTarget();
+    BeanPropertyUtils.copy(source, converted, new SimpleTypeConverter(), ignored);
+    assertThat(converted.age).isEqualTo(42);
+    assertThat(converted.name).isEqualTo("initial");
+
+    MapCopyTarget created = BeanPropertyUtils.copy(source, MapCopyTarget.class, ignored);
+    assertThat(created.name).isEqualTo("initial");
+    assertThat(created.description).isNull();
+    assertThat(BeanPropertyUtils.copy(source, MapCopyTarget.class, new SimpleTypeConverter(), ignored).age)
+            .isEqualTo(42);
+  }
+
+  @Test
+  void copyNonNullWithIgnoredPropertySet() {
+    NullableValues source = new NullableValues();
+    source.name = "excluded";
+    source.description = null;
+    Set<String> ignored = Set.of("name");
+
+    NullableValues destination = new NullableValues();
+    BeanPropertyUtils.copyNonNull(source, destination, ignored);
+    assertThat(destination.name).isEqualTo("initial");
+    assertThat(destination.description).isEqualTo("default");
+
+    Map<String, Object> values = new HashMap<>();
+    values.put("age", "42");
+    values.put("name", "excluded");
+    values.put("description", null);
+    MapCopyTarget target = new MapCopyTarget();
+    BeanPropertyUtils.copyNonNull(values, target, new SimpleTypeConverter(), ignored);
+    assertThat(target.age).isEqualTo(42);
+    assertThat(target.name).isEqualTo("initial");
+    assertThat(target.description).isEqualTo("default");
+
+    MapCopyTarget created = BeanPropertyUtils.copyNonNull(values, MapCopyTarget.class, ignored);
+    assertThat(created.age).isEqualTo(42);
+    assertThat(created.name).isEqualTo("initial");
+    assertThat(created.description).isEqualTo("default");
+    assertThat(BeanPropertyUtils.copyNonNull(values, MapCopyTarget.class, new SimpleTypeConverter(), ignored).age)
+            .isEqualTo(42);
+  }
+
+  @Test
+  void copyNonNullFromBeanPreservesDestinationValues() {
+    NullableValues source = new NullableValues();
+    source.name = null;
+    source.description = "updated";
+    NullableValues destination = new NullableValues();
+    destination.name = "keep";
+
+    BeanPropertyUtils.copyNonNull(source, destination);
+
+    assertThat(destination.name).isEqualTo("keep");
+    assertThat(destination.description).isEqualTo("updated");
+
+    NullableValues normalCopy = new NullableValues();
+    BeanPropertyUtils.copy(source, normalCopy);
+    assertThat(normalCopy.name).isNull();
+  }
+
+  @Test
+  void copyNonNullFromMapSkipsNullAndConvertsValues() {
+    Map<String, Object> source = new HashMap<>();
+    source.put("name", null);
+    source.put("description", "from map");
+    source.put("age", "42");
+    NullableValues destination = new NullableValues();
+    destination.name = "keep";
+
+    BeanPropertyUtils.copyNonNull(source, destination);
+    assertThat(destination.name).isEqualTo("keep");
+    assertThat(destination.description).isEqualTo("from map");
+
+    DTO converted = BeanPropertyUtils.copyNonNull(source, DTO.class);
+    assertThat(converted.age).isEqualTo(42);
+
+    NullableValues created = BeanPropertyUtils.copyNonNull(source, NullableValues.class);
+    assertThat(created.name).isEqualTo("initial");
+    assertThat(created.description).isEqualTo("from map");
+
+    NullableValues fromBean = new NullableValues();
+    fromBean.name = null;
+    fromBean.description = "from bean";
+    NullableValues beanCopy = BeanPropertyUtils.copyNonNull(fromBean, NullableValues.class);
+    assertThat(beanCopy.name).isEqualTo("initial");
+    assertThat(beanCopy.description).isEqualTo("from bean");
   }
 
   @Test
