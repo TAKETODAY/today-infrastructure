@@ -317,7 +317,10 @@ public class Property implements Member, AnnotatedElement, Serializable {
 
   /**
    * Determine whether this property is readable.
-   * <p>A property is considered readable if it has a read method (getter) or an accessible field.
+   * <p>A property is considered readable if it has a read method (getter) or
+   * a field that can be found by {@link #getField()}. A property backed only
+   * by a write method (setter), with no corresponding field, is not readable;
+   * callers that need to obtain its value should check this method first.
    *
    * @return {@code true} if the property can be read from, {@code false} otherwise
    * @since 4.0

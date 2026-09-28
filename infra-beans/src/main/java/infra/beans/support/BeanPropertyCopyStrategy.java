@@ -87,15 +87,14 @@ public interface BeanPropertyCopyStrategy {
   }
 
   /**
-   * Return a strategy that excludes properties with the given names.
+   * Return a strategy that excludes destination properties with the given names.
+   * A {@code null} or empty set excludes no properties.
    *
-   * @param ignoreProperties the destination property names to exclude
-   * @return a strategy that copies only properties outside the set
+   * @param names the destination property names to exclude, or {@code null} for none
+   * @return a strategy that permits copying properties whose names are not in the set
    */
-  static BeanPropertyCopyStrategy ignoreProperties(Set<String> ignoreProperties) {
-    Assert.notNull(ignoreProperties, "ignoreProperties is required");
-    Set<String> names = Set.copyOf(ignoreProperties);
-    return (source, property, value) -> !names.contains(property.getName());
+  static BeanPropertyCopyStrategy ignoreProperties(@Nullable Set<String> names) {
+    return (source, property, value) -> names == null || !names.contains(property.getName());
   }
 
 }

@@ -59,7 +59,8 @@ public interface TypeConverter {
    * @see Converter
    */
   @Nullable
-  <T> T convertIfNecessary(@Nullable Object value, @Nullable Class<T> requiredType) throws TypeMismatchException;
+  <T> T convertIfNecessary(@Nullable Object value, @Nullable Class<T> requiredType)
+          throws TypeMismatchException;
 
   /**
    * Convert the value to the required type (if necessary from a String).
@@ -79,8 +80,7 @@ public interface TypeConverter {
    * @see Converter
    */
   @Nullable
-  <T> T convertIfNecessary(@Nullable Object value,
-          @Nullable Class<T> requiredType, @Nullable MethodParameter methodParam)
+  <T> T convertIfNecessary(@Nullable Object value, @Nullable Class<T> requiredType, @Nullable MethodParameter methodParam)
           throws TypeMismatchException;
 
   /**
@@ -101,8 +101,8 @@ public interface TypeConverter {
    * @see Converter
    */
   @Nullable
-  <T> T convertIfNecessary(@Nullable Object value,
-          @Nullable Class<T> requiredType, @Nullable Field field) throws TypeMismatchException;
+  <T> T convertIfNecessary(@Nullable Object value, @Nullable Class<T> requiredType, @Nullable Field field)
+          throws TypeMismatchException;
 
   /**
    * Convert the value to the required type (if necessary from a String).

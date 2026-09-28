@@ -69,6 +69,56 @@ class BeanPropertyUtilsTests {
     }
   }
 
+  static class WriteOnlySource {
+    private String readable = "copied";
+
+    public String getReadable() {
+      return readable;
+    }
+
+    public void setWriteOnly(String value) {
+      // Intentionally no getter or backing field named writeOnly.
+    }
+  }
+
+  static class WriteOnlyTarget {
+    public String readable = "initial";
+    public String writeOnly = "unchanged";
+  }
+
+  @Test
+  void copySkipsUnreadableBeanProperties() {
+    WriteOnlySource source = new WriteOnlySource();
+    assertThat(infra.beans.BeanMetadata.forInstance(source).getRequiredProperty("writeOnly").isReadable()).isFalse();
+    WriteOnlyTarget target = new WriteOnlyTarget();
+
+    BeanPropertyUtils.copy(source, target);
+
+    assertThat(target.readable).isEqualTo("copied");
+    assertThat(target.writeOnly).isEqualTo("unchanged");
+  }
+
+  @Test
+  void nullCopyStrategyCopiesNullValuesFromBeanAndMap() {
+    NullableValues source = new NullableValues();
+    source.name = null;
+    source.description = "updated";
+    NullableValues target = new NullableValues();
+
+    BeanPropertyUtils.copy(source, target, (BeanPropertyCopyStrategy) null);
+
+    assertThat(target.name).isNull();
+    assertThat(target.description).isEqualTo("updated");
+
+    Map<String, Object> values = new HashMap<>();
+    values.put("name", null);
+    values.put("description", "from map");
+    NullableValues mapTarget = BeanPropertyUtils.copy(values, NullableValues.class,
+            new SimpleTypeConverter(), (BeanPropertyCopyStrategy) null);
+    assertThat(mapTarget.name).isNull();
+    assertThat(mapTarget.description).isEqualTo("from map");
+  }
+
   @Test
   void strategySelectsBeanPropertiesAndCombinesPredicates() {
     NullableValues source = new NullableValues();

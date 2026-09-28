@@ -27,6 +27,7 @@ import infra.beans.BeanWrapperImpl;
 import infra.beans.SimpleTypeConverter;
 import infra.beans.TypeConverter;
 import infra.util.Assert;
+import infra.util.ObjectUtils;
 
 /**
  * Utilities for copying property values between beans or from a map into a bean.
@@ -84,7 +85,7 @@ public abstract class BeanPropertyUtils {
    * @param destination the destination bean
    * @param ignoreProperties property names to exclude
    */
-  public static void copy(Object source, Object destination, Set<String> ignoreProperties) {
+  public static void copy(Object source, Object destination, @Nullable Set<String> ignoreProperties) {
     copy(source, destination, null, ignoreProperties);
   }
 
@@ -113,7 +114,7 @@ public abstract class BeanPropertyUtils {
    * to use a {@link SimpleTypeConverter}
    * @param ignoreProperties property names to exclude
    */
-  public static void copy(Object source, Object destination, @Nullable TypeConverter converter, Set<String> ignoreProperties) {
+  public static void copy(Object source, Object destination, @Nullable TypeConverter converter, @Nullable Set<String> ignoreProperties) {
     copy(source, destination, converter, BeanPropertyCopyStrategy.ignoreProperties(ignoreProperties));
   }
 
@@ -170,7 +171,7 @@ public abstract class BeanPropertyUtils {
    * @param ignoreProperties property names to exclude
    * @return the populated destination bean
    */
-  public static <T> T copy(Object source, Class<T> destination, Set<String> ignoreProperties) {
+  public static <T> T copy(Object source, Class<T> destination, @Nullable Set<String> ignoreProperties) {
     return copy(source, destination, null, ignoreProperties);
   }
 
@@ -203,7 +204,7 @@ public abstract class BeanPropertyUtils {
    * @param ignoreProperties property names to exclude
    * @return the populated destination bean
    */
-  public static <T> T copy(Object source, Class<T> destination, @Nullable TypeConverter converter, Set<String> ignoreProperties) {
+  public static <T> T copy(Object source, Class<T> destination, @Nullable TypeConverter converter, @Nullable Set<String> ignoreProperties) {
     return copy(source, destination, converter, BeanPropertyCopyStrategy.ignoreProperties(ignoreProperties));
   }
 
@@ -252,7 +253,7 @@ public abstract class BeanPropertyUtils {
    * @param destination the destination bean
    * @param ignoreProperties property names to exclude
    */
-  public static void copyNonNull(Object source, Object destination, Set<String> ignoreProperties) {
+  public static void copyNonNull(Object source, Object destination, @Nullable Set<String> ignoreProperties) {
     copyNonNull(source, destination, null, ignoreProperties);
   }
 
@@ -267,8 +268,7 @@ public abstract class BeanPropertyUtils {
    * to use a {@link SimpleTypeConverter}
    * @param ignoreProperties property names to exclude, or {@code null} for none
    */
-  public static void copyNonNull(Object source, Object destination,
-          @Nullable TypeConverter converter, String @Nullable ... ignoreProperties) {
+  public static void copyNonNull(Object source, Object destination, @Nullable TypeConverter converter, String @Nullable ... ignoreProperties) {
     copyNonNull(source, destination, converter, toPropertySet(ignoreProperties));
   }
 
@@ -283,7 +283,7 @@ public abstract class BeanPropertyUtils {
    * to use a {@link SimpleTypeConverter}
    * @param ignoreProperties property names to exclude
    */
-  public static void copyNonNull(Object source, Object destination, @Nullable TypeConverter converter, Set<String> ignoreProperties) {
+  public static void copyNonNull(Object source, Object destination, @Nullable TypeConverter converter, @Nullable Set<String> ignoreProperties) {
     copy(source, destination, converter,
             BeanPropertyCopyStrategy.ignoreProperties(ignoreProperties).and(BeanPropertyCopyStrategy.nonNull()));
   }
@@ -326,7 +326,7 @@ public abstract class BeanPropertyUtils {
    * @param ignoreProperties property names to exclude
    * @return the populated destination bean
    */
-  public static <T> T copyNonNull(Object source, Class<T> destination, Set<String> ignoreProperties) {
+  public static <T> T copyNonNull(Object source, Class<T> destination, @Nullable Set<String> ignoreProperties) {
     return copyNonNull(source, destination, null, ignoreProperties);
   }
 
@@ -342,8 +342,7 @@ public abstract class BeanPropertyUtils {
    * @param ignoreProperties property names to exclude
    * @return the populated destination bean
    */
-  public static <T> T copyNonNull(Object source, Class<T> destination,
-          @Nullable TypeConverter converter, Set<String> ignoreProperties) {
+  public static <T> T copyNonNull(Object source, Class<T> destination, @Nullable TypeConverter converter, @Nullable Set<String> ignoreProperties) {
     return copy(source, destination, converter,
             BeanPropertyCopyStrategy.ignoreProperties(ignoreProperties).and(BeanPropertyCopyStrategy.nonNull()));
   }
@@ -357,8 +356,21 @@ public abstract class BeanPropertyUtils {
    * @param destination the destination bean
    * @param strategy the strategy deciding which values to copy
    */
-  public static void copy(Object source, Object destination, BeanPropertyCopyStrategy strategy) {
+  public static void copy(Object source, Object destination, @Nullable BeanPropertyCopyStrategy strategy) {
     copy(source, destination, null, strategy);
+  }
+
+  /**
+   * Create a destination bean and copy properties selected by a strategy.
+   *
+   * @param <T> the destination bean type
+   * @param source the source bean or map of property names to values
+   * @param destination the class to instantiate
+   * @param strategy the strategy deciding which values to copy
+   * @return the populated destination bean
+   */
+  public static <T> T copy(Object source, Class<T> destination, @Nullable BeanPropertyCopyStrategy strategy) {
+    return copy(source, destination, null, strategy);
   }
 
   /**
@@ -371,24 +383,10 @@ public abstract class BeanPropertyUtils {
    * @param converter the converter for source values, or {@code null} for the default
    * @param strategy the strategy deciding which values to copy
    */
-  public static void copy(Object source, Object destination, @Nullable TypeConverter converter, BeanPropertyCopyStrategy strategy) {
+  public static void copy(Object source, Object destination, @Nullable TypeConverter converter, @Nullable BeanPropertyCopyStrategy strategy) {
     Assert.notNull(source, "source object is required");
     Assert.notNull(destination, "destination object is required");
-    Assert.notNull(strategy, "strategy is required");
     copy(source, BeanMetadata.forInstance(destination), destination, converter, strategy);
-  }
-
-  /**
-   * Create a destination bean and copy properties selected by a strategy.
-   *
-   * @param <T> the destination bean type
-   * @param source the source bean or map of property names to values
-   * @param destination the class to instantiate
-   * @param strategy the strategy deciding which values to copy
-   * @return the populated destination bean
-   */
-  public static <T> T copy(Object source, Class<T> destination, BeanPropertyCopyStrategy strategy) {
-    return copy(source, destination, null, strategy);
   }
 
   /**
@@ -403,10 +401,9 @@ public abstract class BeanPropertyUtils {
    * @return the populated destination bean
    */
   @SuppressWarnings("unchecked")
-  public static <T> T copy(Object source, Class<T> destination, @Nullable TypeConverter converter, BeanPropertyCopyStrategy strategy) {
+  public static <T> T copy(Object source, Class<T> destination, @Nullable TypeConverter converter, @Nullable BeanPropertyCopyStrategy strategy) {
     Assert.notNull(source, "source object is required");
     Assert.notNull(destination, "destination class is required");
-    Assert.notNull(strategy, "strategy is required");
     BeanMetadata metadata = BeanMetadata.forClass(destination);
     Object instance = metadata.newInstance();
     copy(source, metadata, instance, converter, strategy);
@@ -419,9 +416,13 @@ public abstract class BeanPropertyUtils {
    */
   @SuppressWarnings("unchecked")
   private static void copy(Object source, BeanMetadata destination, Object destinationInstance,
-          @Nullable TypeConverter converter, BeanPropertyCopyStrategy strategy) {
+          @Nullable TypeConverter converter, @Nullable BeanPropertyCopyStrategy strategy) {
     if (converter == null) {
       converter = new SimpleTypeConverter();
+    }
+
+    if (strategy == null) {
+      strategy = BeanPropertyCopyStrategy.always();
     }
 
     if (source instanceof Map) {
@@ -449,8 +450,8 @@ public abstract class BeanPropertyUtils {
     }
   }
 
-  private static Set<String> toPropertySet(String @Nullable [] ignoreProperties) {
-    return ignoreProperties == null ? Set.of() : Set.of(ignoreProperties);
+  private static @Nullable Set<String> toPropertySet(String @Nullable [] ignoreProperties) {
+    return ObjectUtils.isEmpty(ignoreProperties) ? null : Set.of(ignoreProperties);
   }
 
   //
