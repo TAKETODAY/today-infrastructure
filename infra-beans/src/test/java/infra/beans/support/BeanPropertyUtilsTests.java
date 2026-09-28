@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * @author TODAY 2021/5/2 22:18
  */
-public class BeanPropertiesTests {
+public class BeanPropertyUtilsTests {
 
   static class VO {
     public int age;
@@ -60,7 +60,7 @@ public class BeanPropertiesTests {
     vo.missed = "missed";
 
     final DTO dto = new DTO();
-    BeanProperties.copy(vo, dto);
+    BeanPropertyUtils.copy(vo, dto);
 
     assertThat(dto).isNotNull();
     assertThat(dto.age).isEqualTo(vo.age);
@@ -70,7 +70,7 @@ public class BeanPropertiesTests {
 
     //
 
-    final DTO copy = BeanProperties.copy(vo, DTO.class);
+    final DTO copy = BeanPropertyUtils.copy(vo, DTO.class);
 
     assertThat(copy).isNotNull();
     assertThat(copy.age).isEqualTo(vo.age);
@@ -89,12 +89,12 @@ public class BeanPropertiesTests {
     vo.missed = "missed";
 
     final DTO dto = new DTO();
-    BeanProperties.copy(vo, dto, "name");
+    BeanPropertyUtils.copy(vo, dto, "name");
 
     assertThat(dto).isNotNull();
     assertThat(dto.name).isNull();
 
-    final DTO copy = BeanProperties.copy(vo, DTO.class, "name");
+    final DTO copy = BeanPropertyUtils.copy(vo, DTO.class, "name");
 
     assertThat(copy).isNotNull();
     assertThat(copy.age).isEqualTo(vo.age);
@@ -123,7 +123,7 @@ public class BeanPropertiesTests {
     map.put("stringProperty", "New String Property");
     final BeanMappingTestBean bean = new BeanMappingTestBean();
     try {
-      BeanProperties.copy(map, bean);
+      BeanPropertyUtils.copy(map, bean);
     }
     catch (final Throwable t) {
       fail("Threw " + t);
@@ -177,7 +177,7 @@ public class BeanPropertiesTests {
 
     // Copy the origin bean to our destination test bean
     try {
-      BeanProperties.copy(orig, bean);
+      BeanPropertyUtils.copy(orig, bean);
     }
     catch (final Exception e) {
       fail("Threw exception: " + e);
@@ -227,7 +227,7 @@ public class BeanPropertiesTests {
     map.put("intIndexed[4]", "140");
     BeanMappingTestBean bean = new BeanMappingTestBean();
 
-    BeanProperties.populate(bean, map);
+    BeanPropertyUtils.populate(bean, map);
 
     assertEquals(100, bean.getIntIndexed(0), "intIndexed[0] is 100");
     assertEquals(10, bean.getIntIndexed(1), "intIndexed[1] is 10");
@@ -239,7 +239,7 @@ public class BeanPropertiesTests {
     map.put("stringIndexed[1]", "New String 1");
     map.put("stringIndexed[3]", "New String 3");
 
-    BeanProperties.populate(bean, map);
+    BeanPropertyUtils.populate(bean, map);
 
     assertEquals("String 0", bean.getStringIndexed(0), "stringIndexed[0] is \"String 0\"");
     assertEquals("New String 1", bean.getStringIndexed(1), "stringIndexed[1] is \"New String 1\"");
@@ -263,7 +263,7 @@ public class BeanPropertiesTests {
             { "New String 0", "New String 1" };
     map.put("stringArray", stringArray);
 
-    BeanProperties.populate(bean, map);
+    BeanPropertyUtils.populate(bean, map);
 
     intArray = bean.getIntArray();
     assertNotNull(intArray, "intArray is present");
@@ -289,7 +289,7 @@ public class BeanPropertiesTests {
     map.put("mappedProperty[First Key])", "New First Value");
     map.put("mappedProperty[Third Key]", "New Third Value");
 
-    BeanProperties.populate(bean, map);
+    BeanPropertyUtils.populate(bean, map);
 
     assertEquals("New First Value", bean.getMappedProperty("First Key"), "mappedProperty(First Key)");
     assertEquals("New Third Value", bean.getMappedProperty("Third Key"), "mappedProperty(Third Key)");
@@ -315,7 +315,7 @@ public class BeanPropertiesTests {
     // stringProperty is left at "This is a string"
     map.put("nested.writeOnlyProperty", "New writeOnlyProperty value");
 
-    BeanProperties.populate(bean, map);
+    BeanPropertyUtils.populate(bean, map);
 
     assertFalse(bean.getNested().getBooleanProperty(), "booleanProperty is false");
     Assertions.assertTrue(bean.getNested().isBooleanSecond(), "booleanSecond is true");
@@ -351,7 +351,7 @@ public class BeanPropertiesTests {
     map.put("writeOnlyProperty", "New writeOnlyProperty value");
     map.put("readOnlyProperty", "New readOnlyProperty value");
 
-    BeanProperties.populate(bean, map);
+    BeanPropertyUtils.populate(bean, map);
 
     assertFalse(bean.getBooleanProperty(), "booleanProperty is false");
     Assertions.assertTrue(bean.isBooleanSecond(), "booleanSecond is true");

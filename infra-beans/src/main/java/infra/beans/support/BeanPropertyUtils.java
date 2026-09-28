@@ -24,43 +24,42 @@ import java.util.Set;
 import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
 import infra.beans.BeanWrapperImpl;
-import infra.beans.InvalidPropertyException;
-import infra.beans.NoSuchPropertyException;
 import infra.beans.SimpleTypeConverter;
 import infra.beans.TypeConverter;
 import infra.util.Assert;
 import infra.util.ObjectUtils;
 
 /**
- * Bean properties utils
+ * Utilities for copying property values between beans or from a map into a bean.
+ * Copying matches properties by name and skips source properties that are not
+ * writable on the destination. Population delegates to {@link BeanWrapperImpl}
+ * and supports nested property paths.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0.2 2021/5/2 22:14
  */
-public abstract class BeanProperties {
+public abstract class BeanPropertyUtils {
 
   /**
-   * Copy the property values of the given source bean into the given target bean.
-   * <p>Note: The source and target classes do not have to match or even be derived
-   * from each other, as long as the properties match. Any bean properties that the
-   * source bean exposes but the target bean does not will silently be ignored.
+   * Copy matching property values from a source bean or map to a destination bean.
+   * Properties missing from or not writable on the destination are ignored.
    *
-   * @param source source object
-   * @param destination destination object
+   * @param source the source bean or map of property names to values
+   * @param destination the destination bean
    */
   public static void copy(Object source, Object destination) {
     copy(source, destination, (TypeConverter) null);
   }
 
   /**
-   * Copy the property values of the given source bean into the given target bean.
-   * <p>Note: The source and target classes do not have to match or even be derived
-   * from each other, as long as the properties match. Any bean properties that the
-   * source bean exposes but the target bean does not will silently be ignored.
+   * Copy matching property values from a source bean or map to a destination bean.
+   * Properties missing from or not writable on the destination are ignored.
+   * A {@link SimpleTypeConverter} is used when {@code converter} is {@code null}.
    *
-   * @param source source object
-   * @param destination destination object
-   * @param converter type-converter to convert bean-properties
+   * @param source the source bean or map of property names to values
+   * @param destination the destination bean
+   * @param converter the converter for source bean property values, or {@code null}
+   * to use the default; map values are assigned directly
    */
   public static void copy(Object source, Object destination, @Nullable TypeConverter converter) {
     Assert.notNull(source, "source object is required");
@@ -71,27 +70,27 @@ public abstract class BeanProperties {
   }
 
   /**
-   * Copy the property values of the given source bean into the given target bean.
-   * <p>Note: The source and target classes do not have to match or even be derived
-   * from each other, as long as the properties match. Any bean properties that the
-   * source bean exposes but the target bean does not will silently be ignored.
+   * Copy matching property values, excluding the specified property names.
+   * Properties missing from or not writable on the destination are ignored.
    *
-   * @param source the source bean
-   * @param ignoreProperties array of property names to ignore
+   * @param source the source bean or map of property names to values
+   * @param destination the destination bean
+   * @param ignoreProperties property names to exclude, or {@code null} for none
    */
   public static void copy(Object source, Object destination, String @Nullable ... ignoreProperties) {
     copy(source, destination, null, ignoreProperties);
   }
 
   /**
-   * Copy the property values of the given source bean into the given target bean.
-   * <p>Note: The source and target classes do not have to match or even be derived
-   * from each other, as long as the properties match. Any bean properties that the
-   * source bean exposes but the target bean does not will silently be ignored.
+   * Copy matching property values, excluding the specified property names.
+   * Properties missing from or not writable on the destination are ignored.
+   * A {@link SimpleTypeConverter} is used when {@code converter} is {@code null}.
    *
-   * @param source the source bean
-   * @param converter type-converter to convert bean-properties
-   * @param ignoreProperties array of property names to ignore
+   * @param source the source bean or map of property names to values
+   * @param destination the destination bean
+   * @param converter the converter for source bean property values, or {@code null}
+   * to use the default; map values are assigned directly
+   * @param ignoreProperties property names to exclude, or {@code null} for none
    */
   public static void copy(Object source, Object destination,
           @Nullable TypeConverter converter, String @Nullable ... ignoreProperties) {
@@ -103,29 +102,29 @@ public abstract class BeanProperties {
   }
 
   /**
-   * Copy the property values of the given source bean into the given target bean.
-   * <p>Note: The source and target classes do not have to match or even be derived
-   * from each other, as long as the properties match. Any bean properties that the
-   * source bean exposes but the target bean does not will silently be ignored.
+   * Create a destination bean and copy matching property values into it.
+   * Properties missing from or not writable on the destination are ignored.
    *
-   * @param source source object
-   * @param destination destination class
-   * @return returns a destination type object
+   * @param <T> the destination bean type
+   * @param source the source bean or map of property names to values
+   * @param destination the class to instantiate
+   * @return the populated destination bean
    */
   public static <T> T copy(Object source, Class<T> destination) {
     return copy(source, destination, (TypeConverter) null);
   }
 
   /**
-   * Copy the property values of the given source bean into the given target bean.
-   * <p>Note: The source and target classes do not have to match or even be derived
-   * from each other, as long as the properties match. Any bean properties that the
-   * source bean exposes but the target bean does not will silently be ignored.
+   * Create a destination bean and copy matching property values into it.
+   * Properties missing from or not writable on the destination are ignored.
+   * A {@link SimpleTypeConverter} is used when {@code converter} is {@code null}.
    *
-   * @param source source object
-   * @param destination destination class
-   * @param converter type-converter to convert bean-properties
-   * @return returns a destination type object
+   * @param <T> the destination bean type
+   * @param source the source bean or map of property names to values
+   * @param destination the class to instantiate
+   * @param converter the converter for source bean property values, or {@code null}
+   * to use the default; map values are assigned directly
+   * @return the populated destination bean
    */
   @SuppressWarnings("unchecked")
   public static <T> T copy(Object source, Class<T> destination, @Nullable TypeConverter converter) {
@@ -139,22 +138,31 @@ public abstract class BeanProperties {
   }
 
   /**
-   * Copy the property values of the given source bean into the given target bean.
-   * <p>Note: The source and target classes do not have to match or even be derived
-   * from each other, as long as the properties match. Any bean properties that the
-   * source bean exposes but the target bean does not will silently be ignored.
+   * Create a destination bean and copy matching property values, excluding
+   * the specified property names. Unmatched or read-only properties are ignored.
+   *
+   * @param <T> the destination bean type
+   * @param source the source bean or map of property names to values
+   * @param destination the class to instantiate
+   * @param ignoreProperties property names to exclude, or {@code null} for none
+   * @return the populated destination bean
    */
   public static <T> T copy(Object source, Class<T> destination, String @Nullable ... ignoreProperties) {
     return copy(source, destination, null, ignoreProperties);
   }
 
   /**
-   * Copy the property values of the given source bean into the given target bean.
-   * <p>Note: The source and target classes do not have to match or even be derived
-   * from each other, as long as the properties match. Any bean properties that the
-   * source bean exposes but the target bean does not will silently be ignored.
+   * Create a destination bean and copy matching property values, excluding
+   * the specified property names. Unmatched or read-only properties are ignored.
+   * A {@link SimpleTypeConverter} is used when {@code converter} is {@code null}.
    *
-   * @param converter type-converter to convert bean-properties
+   * @param <T> the destination bean type
+   * @param source the source bean or map of property names to values
+   * @param destination the class to instantiate
+   * @param converter the converter for source bean property values, or {@code null}
+   * to use the default; map values are assigned directly
+   * @param ignoreProperties property names to exclude, or {@code null} for none
+   * @return the populated destination bean
    */
   @SuppressWarnings("unchecked")
   public static <T> T copy(Object source, Class<T> destination,
@@ -169,7 +177,8 @@ public abstract class BeanProperties {
   }
 
   /**
-   * Ignore read-only properties
+   * Copy readable source values into matching writable destination properties.
+   * Unknown, read-only, and excluded properties are skipped.
    */
   @SuppressWarnings("unchecked")
   private static void copy(Object source, BeanMetadata destination,
@@ -234,56 +243,27 @@ public abstract class BeanProperties {
   //
 
   /**
-   * <p>Populate the JavaBeans properties of the specified bean, based on
-   * the specified name/value pairs.  This method uses Java reflection APIs
-   * to identify corresponding "property setter" method names, and deals
-   * with setter arguments of type <code>String</code>, <code>boolean</code>,
-   * <code>int</code>, <code>long</code>, <code>float</code>, and
-   * <code>double</code>.  In addition, array setters for these types (or the
-   * corresponding primitive types) can also be identified.</p>
+   * Populate a bean from property names and values, ignoring unknown properties.
+   * Nested property paths are supported and intermediate objects may be created.
    *
-   * <p>The particular setter method to be called for each property is
-   * determined using the usual JavaBeans introspection mechanisms.  Thus,
-   * you may identify custom setter methods using a BeanInfo class that is
-   * associated with the class of the bean itself.  If no such BeanInfo
-   * class is available, the standard method name conversion ("set" plus
-   * the capitalized name of the property in question) is used.</p>
-   *
-   * <p>
-   * default is ignoreUnknownProperty
-   * </p>
-   *
-   * @param bean JavaBean whose properties are being populated
-   * @param properties Map keyed by property name, with the
-   * corresponding (String or String[]) value(s) to be set
-   * @throws NoSuchPropertyException If no such property
-   * @throws InvalidPropertyException Invalid property value
+   * @param bean the bean to populate
+   * @param properties property names and values to apply
+   * @see #populate(Object, Map, boolean)
    */
   public static void populate(Object bean, Map<String, Object> properties) {
     populate(bean, properties, true);
   }
 
   /**
-   * <p>Populate the JavaBeans properties of the specified bean, based on
-   * the specified name/value pairs. This method uses Java reflection APIs
-   * to identify corresponding "property setter" method names, and deals
-   * with setter arguments of type <code>String</code>, <code>boolean</code>,
-   * <code>int</code>, <code>long</code>, <code>float</code>, and
-   * <code>double</code>.  In addition, array setters for these types (or the
-   * corresponding primitive types) can also be identified.</p>
+   * Populate a bean from property names and values using a {@link BeanWrapperImpl}.
+   * Nested property paths are supported and intermediate objects may be created.
+   * Unknown or non-writable properties are ignored when {@code ignoreUnknown}
+   * is {@code true}; missing intermediate values in nested paths are ignored.
+   * Conversion and property access errors may still be reported.
    *
-   * <p>The particular setter method to be called for each property is
-   * determined using the usual JavaBeans introspection mechanisms.  Thus,
-   * you may identify custom setter methods using a BeanInfo class that is
-   * associated with the class of the bean itself.  If no such BeanInfo
-   * class is available, the standard method name conversion ("set" plus
-   * the capitalized name of the property in question) is used.</p>
-   *
-   * @param bean JavaBean whose properties are being populated
-   * @param properties Map keyed by property name, with the
-   * corresponding (String or String[]) value(s) to be set
-   * @throws NoSuchPropertyException If no such property
-   * @throws InvalidPropertyException Invalid property value
+   * @param bean the bean to populate
+   * @param properties property names and values to apply
+   * @param ignoreUnknown whether to ignore unknown or non-writable properties
    * @see BeanWrapperImpl
    */
   public static void populate(Object bean, Map<String, Object> properties, boolean ignoreUnknown) {

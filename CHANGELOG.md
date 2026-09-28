@@ -48,7 +48,7 @@
 - :bug: fix handleDependency 并发修改
 
 ## v3.0.2
-- :sparkles: 新增 `BeanProperties` 工具类
+- :sparkles: 新增 `BeanPropertyUtils` 工具类
 - :sparkles: 新增 `StringToBytesConverter`
 - :sparkles: 新增  `TypeDescriptor#ofParameter`
 - :zap: 解决 原型Bean 依赖循环 initializeBean
