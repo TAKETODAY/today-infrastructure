@@ -1739,26 +1739,26 @@ public class DefaultEntityManager implements EntityManager {
 
   private static final class ListScroll<T> implements Scroll<T> {
 
-    private final List<T> content;
+    private final List<T> rows;
 
     private final boolean last;
 
     private final Function<T, ScrollPosition> positionExtractor;
 
-    private ListScroll(List<T> content, boolean last, Function<T, ScrollPosition> positionExtractor) {
-      this.content = List.copyOf(content);
+    private ListScroll(List<T> rows, boolean last, Function<T, ScrollPosition> positionExtractor) {
+      this.rows = List.copyOf(rows);
       this.last = last;
       this.positionExtractor = positionExtractor;
     }
 
     @Override
-    public List<T> content() {
-      return content;
+    public List<T> rows() {
+      return rows;
     }
 
     @Override
     public ScrollPosition positionAt(int index) {
-      return positionExtractor.apply(content.get(index));
+      return positionExtractor.apply(rows.get(index));
     }
 
     @Override

@@ -73,16 +73,16 @@ class ScrollIteratorTests {
     assertThat(collected).containsExactly(2, 3, 4);
   }
 
-  private static Scroll<Integer> window(List<Integer> content, boolean last) {
+  private static Scroll<Integer> window(List<Integer> rows, boolean last) {
     return new Scroll<>() {
       @Override
-      public List<Integer> content() {
-        return content;
+      public List<Integer> rows() {
+        return rows;
       }
 
       @Override
       public ScrollPosition positionAt(int index) {
-        return ScrollPosition.keyset(List.of(new ScrollPosition.Entry("index", content.get(index), Order.ASC)));
+        return ScrollPosition.keyset(List.of(new ScrollPosition.Entry("index", rows.get(index), Order.ASC)));
       }
 
       @Override

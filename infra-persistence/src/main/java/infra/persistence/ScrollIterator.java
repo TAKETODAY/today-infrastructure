@@ -119,7 +119,7 @@ public final class ScrollIterator<T> implements Iterator<T> {
       scroll = windowSupplier.apply(scroll.position());
     }
 
-    iterator = scroll.content().iterator();
+    iterator = scroll.rows().iterator();
     if (!iterator.hasNext()) {
       exhausted = true;
     }

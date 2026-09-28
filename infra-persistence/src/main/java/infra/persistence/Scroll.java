@@ -40,14 +40,14 @@ public interface Scroll<T> extends Iterable<T> {
   /**
    * Return the elements contained in this window.
    *
-   * @return the window content, never {@code null}
+   * @return the rows in this window, never {@code null}
    */
-  List<T> content();
+  List<T> rows();
 
   /**
    * Return the scroll position of the element at the given index.
    *
-   * @param index the zero-based index within {@link #content()}
+   * @param index the zero-based index within {@link #rows()}
    * @return the position of that element
    */
   ScrollPosition positionAt(int index);
@@ -62,10 +62,10 @@ public interface Scroll<T> extends Iterable<T> {
   /**
    * Return whether this window contains no elements.
    *
-   * @return {@code true} when {@link #content()} is empty
+   * @return {@code true} when {@link #rows()} is empty
    */
   default boolean isEmpty() {
-    return content().isEmpty();
+    return rows().isEmpty();
   }
 
   /**
@@ -75,16 +75,16 @@ public interface Scroll<T> extends Iterable<T> {
    * @throws IllegalStateException if this window is empty
    */
   default ScrollPosition position() {
-    List<T> content = content();
-    if (content.isEmpty()) {
+    List<T> rows = rows();
+    if (rows.isEmpty()) {
       throw new IllegalStateException("Cannot determine the position of an empty window");
     }
-    return positionAt(content.size() - 1);
+    return positionAt(rows.size() - 1);
   }
 
   @Override
   default Iterator<T> iterator() {
-    return content().iterator();
+    return rows().iterator();
   }
 
 }
