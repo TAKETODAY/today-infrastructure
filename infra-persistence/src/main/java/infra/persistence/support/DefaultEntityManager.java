@@ -417,18 +417,6 @@ public class DefaultEntityManager implements EntityManager {
     return persist(entity, defaultUpdateStrategy(entity), autoGenerateId);
   }
 
-  /**
-   * Persists the given entity to the data store using the specified property update strategy.
-   * If the strategy is not provided, a default strategy may be used. The method delegates
-   * the persistence operation to an overloaded method, passing the entity, strategy, and
-   * auto-generation flag for the identifier.
-   *
-   * @param entity the entity to be persisted; must not be null
-   * @param strategy the strategy to apply for updating properties during persistence;
-   * can be null if no specific strategy is required
-   * @return the number of records affected by the persistence operation
-   * @throws DataAccessException if an error occurs while accessing the data store
-   */
   @Override
   public int persist(Object entity, @Nullable PropertyUpdateStrategy strategy) throws DataAccessException {
     return persist(entity, strategy, autoGenerateId);
@@ -928,21 +916,6 @@ public class DefaultEntityManager implements EntityManager {
   // Query methods
   // -----------------------------------------------------------------------------------------------
 
-  /**
-   * Find by primary key.
-   * Search for an entity of the specified class and primary key.
-   * If the entity instance is contained in the underlying repository,
-   * it is returned from there.
-   *
-   * @param entityClass entity class
-   * @param id primary key
-   * @return the found entity instance or null if the entity does
-   * not exist
-   * @throws IllegalArgumentException if the first argument does
-   * not denote an entity type or the second argument is
-   * is not a valid type for that entity's primary key or
-   * is null
-   */
   @Override
   public <T> @Nullable T findById(Class<T> entityClass, Object id) throws DataAccessException {
     return iterate(entityClass, new FindByIdQuery(id)).first();
