@@ -20,6 +20,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -65,6 +67,93 @@ class BeanPropertyUtilsTests {
     public String getReadOnly() {
       return "unchanged";
     }
+  }
+
+  @Test
+  void strategySelectsBeanPropertiesAndCombinesPredicates() {
+    NullableValues source = new NullableValues();
+    source.name = null;
+    source.description = "updated";
+    NullableValues destination = new NullableValues();
+    destination.name = "keep";
+    List<String> visited = new ArrayList<>();
+
+    BeanPropertyCopyStrategy strategy = ((BeanPropertyCopyStrategy) (bean, property, value) -> {
+      assertThat(bean).isSameAs(source);
+      visited.add(property.getName());
+      return !property.getName().equals("name");
+    }).and(BeanPropertyCopyStrategy.nonNull());
+    BeanPropertyUtils.copy(source, destination, strategy);
+
+    assertThat(destination.name).isEqualTo("keep");
+    assertThat(destination.description).isEqualTo("updated");
+    assertThat(visited).contains("name", "description");
+
+    NullableValues all = BeanPropertyUtils.copy(source, NullableValues.class,
+            BeanPropertyCopyStrategy.always());
+    assertThat(all.name).isNull();
+    assertThat(all.description).isEqualTo("updated");
+  }
+
+  @Test
+  void strategySelectsMapPropertiesBeforeConversionAndAfterExclusions() {
+    Map<String, Object> values = new HashMap<>();
+    values.put("age", "42");
+    values.put("name", "excluded");
+    values.put("description", null);
+    values.put("missing", "ignored");
+    values.put("readOnly", "ignored");
+    List<String> visited = new ArrayList<>();
+    BeanPropertyCopyStrategy strategy = (source, property, value) -> {
+      assertThat(source).isSameAs(values);
+      visited.add(property.getName());
+      if (property.getName().equals("age")) {
+        assertThat(value).isEqualTo("42");
+      }
+      return value != null;
+    };
+    MapCopyTarget target = new MapCopyTarget();
+
+    BeanPropertyUtils.copy(values, target, new SimpleTypeConverter(),
+            BeanPropertyCopyStrategy.ignoreProperties(Set.of("name")).and(strategy));
+
+    assertThat(target.age).isEqualTo(42);
+    assertThat(target.name).isEqualTo("initial");
+    assertThat(target.description).isEqualTo("default");
+    assertThat(visited).containsExactlyInAnyOrder("age", "description");
+
+    MapCopyTarget created = BeanPropertyUtils.copy(values, MapCopyTarget.class,
+            new SimpleTypeConverter(), BeanPropertyCopyStrategy.ignoreProperties(Set.of("name")).and(strategy));
+    assertThat(created.age).isEqualTo(42);
+    assertThat(created.description).isEqualTo("default");
+    assertThat(created.name).isEqualTo("initial");
+    assertThat(visited).containsExactlyInAnyOrder("age", "description", "age", "description");
+  }
+
+  @Test
+  void ignorePropertiesStrategyWorksWithBeanAndMapSources() {
+    BeanPropertyCopyStrategy ignoreName = BeanPropertyCopyStrategy.ignoreProperties(Set.of("name"));
+    NullableValues beanSource = new NullableValues();
+    beanSource.name = "ignored";
+    beanSource.description = "copied";
+
+    NullableValues beanTarget = new NullableValues();
+    BeanPropertyUtils.copy(beanSource, beanTarget, ignoreName);
+    assertThat(beanTarget.name).isEqualTo("initial");
+    assertThat(beanTarget.description).isEqualTo("copied");
+
+    Map<String, Object> mapSource = new HashMap<>();
+    mapSource.put("name", "ignored");
+    mapSource.put("description", null);
+    NullableValues mapTarget = BeanPropertyUtils.copy(mapSource, NullableValues.class,
+            ignoreName.and(BeanPropertyCopyStrategy.nonNull()));
+    assertThat(mapTarget.name).isEqualTo("initial");
+    assertThat(mapTarget.description).isEqualTo("default");
+
+    NullableValues copyNull = BeanPropertyUtils.copy(mapSource, NullableValues.class,
+            ignoreName.and(BeanPropertyCopyStrategy.always()));
+    assertThat(copyNull.name).isEqualTo("initial");
+    assertThat(copyNull.description).isNull();
   }
 
   @Test
