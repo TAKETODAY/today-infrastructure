@@ -920,13 +920,13 @@ public interface EntityManager {
    *
    * @param <T> the type of the entity to be retrieved
    * @param entityClass the class object representing the type of entity to search for
-   * @param handler the query statement defining the search conditions; can be {@code null}
+   * @param statement the query statement defining the search conditions; can be {@code null}
    * @return the first matching entity of the specified type, or {@code null} if
    * no match is found
    * @throws DataAccessException if there is an issue accessing the underlying data store
    */
   @Nullable
-  <T> T findFirst(Class<T> entityClass, @Nullable QueryStatement handler)
+  <T> T findFirst(Class<T> entityClass, @Nullable QueryStatement statement)
           throws DataAccessException;
 
   /**
@@ -1012,7 +1012,7 @@ public interface EntityManager {
    *
    * @param <T> the type of the entity to be retrieved
    * @param entityClass the class of the entity to be retrieved; must not be {@code null}
-   * @param handler the query statement used to define search criteria;
+   * @param statement the query statement used to define search criteria;
    * can be {@code null} to retrieve any single entity of the type
    * @return the unique entity matching the query criteria, or {@code null}
    * if no matching entity is found
@@ -1020,7 +1020,7 @@ public interface EntityManager {
    * or if there is an issue accessing the data source
    */
   @Nullable
-  <T> T findUnique(Class<T> entityClass, @Nullable QueryStatement handler)
+  <T> T findUnique(Class<T> entityClass, @Nullable QueryStatement statement)
           throws DataAccessException;
 
   /**
@@ -1130,11 +1130,11 @@ public interface EntityManager {
    *
    * @param <T> the type of the entity class to be queried
    * @param entityClass the class object representing the type of entity to retrieve
-   * @param handler an optional query statement used to filter results; pass {@code null} to retrieve all entities
+   * @param statement an optional query statement used to filter results; pass {@code null} to retrieve all entities
    * @return a list of entities of type {@code T} matching the query, or all entities if no query is provided
    * @throws DataAccessException if there is an issue accessing the underlying data source
    */
-  <T> List<T> find(Class<T> entityClass, @Nullable QueryStatement handler)
+  <T> List<T> find(Class<T> entityClass, @Nullable QueryStatement statement)
           throws DataAccessException;
 
   /**
@@ -1218,13 +1218,13 @@ public interface EntityManager {
    * @param <K> the type of keys in the resulting map
    * @param <T> the type of entities to be queried
    * @param entityClass the class of the entities to be queried (e.g., {@code User.class})
-   * @param handler the query handler to customize the query; can be {@code null}
+   * @param statement the query handler to customize the query; can be {@code null}
    * @param mapKey the property name to use as the key in the resulting map
    * @return a map where the keys are determined by the {@code mapKey} property
    * and the values are the corresponding entities
    * @throws DataAccessException if there is an issue accessing the data source
    */
-  <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryStatement handler, String mapKey)
+  <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryStatement statement, String mapKey)
           throws DataAccessException;
 
   /**
@@ -1351,14 +1351,14 @@ public interface EntityManager {
    * @param <K> the type of keys in the resulting map
    * @param <T> the type of entities to be retrieved
    * @param entityClass the class of the entities to query (e.g., {@code User.class})
-   * @param handler the query statement to execute; can be {@code null} if no
+   * @param statement the query statement to execute; can be {@code null} if no
    * specific query conditions are required
    * @param keyMapper a function to extract the key from each entity (e.g., {@code User::getId})
    * @return a map where keys are derived using the {@code keyMapper}
    * and values are the retrieved entities
    * @throws DataAccessException if there is an issue accessing the data source
    */
-  <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryStatement handler, Function<T, K> keyMapper)
+  <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryStatement statement, Function<T, K> keyMapper)
           throws DataAccessException;
 
   /**
@@ -1931,12 +1931,12 @@ public interface EntityManager {
    *
    * @param <T> the type of the entity being iterated
    * @param entityClass the class object representing the entity type to iterate over
-   * @param handler an optional query statement to customize the retrieval
+   * @param statement an optional query statement to customize the retrieval
    * process (e.g., filtering or sorting); can be {@code null}
    * @param entityConsumer a consumer function that processes each retrieved entity
    * @throws DataAccessException if an error occurs during data access or iteration
    */
-  <T> void iterate(Class<T> entityClass, @Nullable QueryStatement handler, Consumer<T> entityConsumer)
+  <T> void iterate(Class<T> entityClass, @Nullable QueryStatement statement, Consumer<T> entityConsumer)
           throws DataAccessException;
 
   /**
@@ -2057,13 +2057,13 @@ public interface EntityManager {
    *
    * @param <T> the type of the entity to iterate over
    * @param entityClass the class of the entity to be iterated; must not be null
-   * @param handler an optional query handler to customize the iteration logic;
+   * @param statement an optional query handler to customize the iteration logic;
    * pass null if no specific query is required
    * @return an {@link EntityIterator} instance that allows iterating
    * over the entities of the specified class
    * @throws DataAccessException if there is an issue accessing the data source
    */
-  <T> EntityIterator<T> iterate(Class<T> entityClass, @Nullable QueryStatement handler)
+  <T> EntityIterator<T> iterate(Class<T> entityClass, @Nullable QueryStatement statement)
           throws DataAccessException;
 
 }

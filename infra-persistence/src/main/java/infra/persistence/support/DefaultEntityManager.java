@@ -965,8 +965,8 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <T> @Nullable T findFirst(Class<T> entityClass, @Nullable QueryStatement handler) throws DataAccessException {
-    return iterate(entityClass, handler).first();
+  public <T> @Nullable T findFirst(Class<T> entityClass, @Nullable QueryStatement statement) throws DataAccessException {
+    return iterate(entityClass, statement).first();
   }
 
   @Override
@@ -981,8 +981,8 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <T> @Nullable T findUnique(Class<T> entityClass, @Nullable QueryStatement handler) throws DataAccessException {
-    return iterate(entityClass, handler).unique();
+  public <T> @Nullable T findUnique(Class<T> entityClass, @Nullable QueryStatement statement) throws DataAccessException {
+    return iterate(entityClass, statement).unique();
   }
 
   @Override
@@ -1002,8 +1002,8 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <T> List<T> find(Class<T> entityClass, @Nullable QueryStatement handler) throws DataAccessException {
-    return iterate(entityClass, handler).list();
+  public <T> List<T> find(Class<T> entityClass, @Nullable QueryStatement statement) throws DataAccessException {
+    return iterate(entityClass, statement).list();
   }
 
   @Override
@@ -1018,8 +1018,8 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryStatement handler, String mapKey) throws DataAccessException {
-    return iterate(entityClass, handler).toMap(mapKey);
+  public <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryStatement statement, String mapKey) throws DataAccessException {
+    return iterate(entityClass, statement).toMap(mapKey);
   }
 
   @Override
@@ -1039,8 +1039,8 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryStatement handler, Function<T, K> keyMapper) throws DataAccessException {
-    return iterate(entityClass, handler).toMap(keyMapper);
+  public <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryStatement statement, Function<T, K> keyMapper) throws DataAccessException {
+    return iterate(entityClass, statement).toMap(keyMapper);
   }
 
   @Override
@@ -1102,8 +1102,8 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <T> void iterate(Class<T> entityClass, @Nullable QueryStatement handler, Consumer<T> entityConsumer) throws DataAccessException {
-    iterate(entityClass, handler).consume(entityConsumer);
+  public <T> void iterate(Class<T> entityClass, @Nullable QueryStatement statement, Consumer<T> entityConsumer) throws DataAccessException {
+    iterate(entityClass, statement).consume(entityConsumer);
   }
 
   @Override
