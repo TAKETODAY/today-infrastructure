@@ -59,7 +59,6 @@ import infra.persistence.EntityMetadataFactory;
 import infra.persistence.EntityProperty;
 import infra.persistence.EntityPropertyTestFactory;
 import infra.persistence.IllegalEntityException;
-import infra.persistence.KeysetScrollPosition;
 import infra.persistence.NewEntityIndicator;
 import infra.persistence.Order;
 import infra.persistence.Page;
@@ -67,6 +66,7 @@ import infra.persistence.Pageable;
 import infra.persistence.PropertyUpdateStrategy;
 import infra.persistence.QueryBuilder;
 import infra.persistence.Scroll;
+import infra.persistence.ScrollIterator;
 import infra.persistence.ScrollPageable;
 import infra.persistence.ScrollPosition;
 import infra.persistence.Slice;
@@ -1855,7 +1855,41 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     }
 
     private static Map<String, Object> keysetKeys(ScrollPosition position) {
-      return ((KeysetScrollPosition) position).keys();
+      return position.keys();
+    }
+
+    @ParameterizedRepositoryManagerTest
+    void scrollIteratorTraversesAndResumes(DbType dbType, RepositoryManager repositoryManager) {
+      DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+      if (dbType == DbType.HyperSQL) {
+        entityManager.setPlatform(new HyperSQLPlatform());
+      }
+      List<UserModel> users = List.of(
+              UserModel.male("same", 10), UserModel.male("other", 15),
+              UserModel.male("same", 10), UserModel.male("same", 20),
+              UserModel.male("same", 30));
+      entityManager.persist(users);
+
+      QueryCondition filter = entityManager.getEntityQueryFactories().createCondition(Map.of("name", "same"));
+      ScrollPageable pageable = ScrollPageable.of(2).withOrder(OrderSpec.asc("age"));
+      Function<ScrollPosition, Scroll<UserModel>> supplier =
+              position -> entityManager.scroll(UserModel.class, filter, pageable.withPosition(position));
+
+      List<Integer> ids = new ArrayList<>();
+      ScrollIterator<UserModel> iterator = ScrollIterator.of(supplier);
+      while (iterator.hasNext()) {
+        ids.add(iterator.next().id);
+      }
+      assertThat(iterator.hasNext()).isFalse();
+      assertThat(ids).containsExactly(users.get(0).id, users.get(2).id, users.get(3).id, users.get(4).id);
+
+      ScrollPosition position = entityManager.scroll(UserModel.class, filter, pageable).position();
+      List<Integer> resumedIds = new ArrayList<>();
+      ScrollIterator<UserModel> resumed = ScrollIterator.of(supplier, position);
+      while (resumed.hasNext()) {
+        resumedIds.add(resumed.next().id);
+      }
+      assertThat(resumedIds).containsExactly(users.get(3).id, users.get(4).id);
     }
 
     @ParameterizedRepositoryManagerTest
@@ -2198,7 +2232,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       assertThat(response).containsKeys("age", "id");
 
       // Client -> HTTP request -> server: rebuild the position from request JSON.
-      KeysetScrollPosition receivedPosition = KeysetScrollPosition.of(response);
+      ScrollPosition receivedPosition = ScrollPosition.keyset(response);
       Scroll<UserModel> second = entityManager.scroll(UserModel.class, condition, ScrollPageable.of(2).withOrder(order).withPosition(receivedPosition));
 
       assertThat(first.content()).hasSize(2);
@@ -2262,11 +2296,11 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     @Test
     void keysetPositionOfEmptyMapIsInitial() {
       assertThat(ScrollPosition.keyset().isInitial()).isTrue();
-      assertThat(KeysetScrollPosition.of(Map.of()).isInitial()).isTrue();
+      assertThat(ScrollPosition.keyset(Map.of()).isInitial()).isTrue();
 
       Map<String, Object> withNull = new HashMap<>();
       withNull.put("age", null);
-      assertThatThrownBy(() -> KeysetScrollPosition.of(withNull)).isInstanceOf(IllegalArgumentException.class);
+      assertThatThrownBy(() -> ScrollPosition.keyset(withNull)).isInstanceOf(IllegalArgumentException.class);
     }
 
   }

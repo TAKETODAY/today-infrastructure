@@ -37,10 +37,10 @@ class ScrollIteratorTests {
   @Test
   void iteratesAllElementsAcrossScrolls() {
     ScrollIterator<Integer> iterator = ScrollIterator.of(position -> {
-      int from = position.isInitial() ? 0 : (int) ((KeysetScrollPosition) position).keys().get("index") + 1;
+      int from = position.isInitial() ? 0 : (int) position.keys().get("index") + 1;
       int to = Math.min(from + 2, VALUES.size());
       return window(VALUES.subList(from, to), to >= VALUES.size());
-    }).startingAt(ScrollPosition.keyset());
+    });
 
     List<Integer> collected = new ArrayList<>();
     while (iterator.hasNext()) {
@@ -52,11 +52,26 @@ class ScrollIteratorTests {
 
   @Test
   void emptyFirstScrollEndsIteration() {
-    ScrollIterator<Integer> iterator = ScrollIterator.of(position -> window(List.of(), true))
-            .startingAt(ScrollPosition.keyset());
+    ScrollIterator<Integer> iterator = ScrollIterator.of(position -> window(List.of(), true));
 
     assertThat(iterator.hasNext()).isFalse();
     assertThatThrownBy(iterator::next).isInstanceOf(NoSuchElementException.class);
+  }
+
+  @Test
+  void resumesFromGivenPosition() {
+    ScrollIterator<Integer> iterator = ScrollIterator.of(position -> {
+      int from = (int) position.keys().get("index") + 1;
+      int to = Math.min(from + 2, VALUES.size());
+      return window(VALUES.subList(from, to), to >= VALUES.size());
+    }, ScrollPosition.keyset(Map.of("index", 1)));
+
+    List<Integer> collected = new ArrayList<>();
+    while (iterator.hasNext()) {
+      collected.add(iterator.next());
+    }
+
+    assertThat(collected).containsExactly(2, 3, 4);
   }
 
   private static Scroll<Integer> window(List<Integer> content, boolean last) {

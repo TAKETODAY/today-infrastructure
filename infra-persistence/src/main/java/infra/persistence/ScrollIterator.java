@@ -32,8 +32,7 @@ import infra.util.Assert;
  * <p>Usage:
  * <pre>{@code
  * ScrollIterator<User> users = ScrollIterator
- *     .of(position -> entityManager.scroll(User.class, ScrollPageable.of(10).withPosition(position)))
- *     .startingAt(ScrollPosition.keyset());
+ *     .of(position -> entityManager.scroll(User.class, ScrollPageable.of(10).withPosition(position)));
  *
  * while (users.hasNext()) {
  *   User user = users.next();
@@ -50,17 +49,19 @@ public final class ScrollIterator<T> implements Iterator<T> {
 
   private final Function<ScrollPosition, Scroll<T>> windowSupplier;
 
-  private ScrollPosition position = ScrollPosition.keyset();
+  private final ScrollPosition position;
 
-  private @Nullable Scroll<T> window;
+  private @Nullable Scroll<T> scroll;
 
   private Iterator<T> iterator = Collections.emptyIterator();
 
   private boolean exhausted;
 
-  private ScrollIterator(Function<ScrollPosition, Scroll<T>> windowSupplier) {
+  private ScrollIterator(Function<ScrollPosition, Scroll<T>> windowSupplier, ScrollPosition position) {
     Assert.notNull(windowSupplier, "Scroll supplier is required");
+    Assert.notNull(position, "ScrollPosition is required");
     this.windowSupplier = windowSupplier;
+    this.position = position;
   }
 
   /**
@@ -71,22 +72,19 @@ public final class ScrollIterator<T> implements Iterator<T> {
    * @return a new window iterator positioned at the start of the scroll operation
    */
   public static <T> ScrollIterator<T> of(Function<ScrollPosition, Scroll<T>> windowSupplier) {
-    return new ScrollIterator<>(windowSupplier);
+    return of(windowSupplier, ScrollPosition.keyset());
   }
 
   /**
-   * Start the iteration at the given position.
+   * Create an iterator that resumes after the given position.
    *
-   * @param position the position to start from
-   * @return this iterator
+   * @param windowSupplier a function returning the window at a scroll position
+   * @param position the position to resume after
+   * @param <T> the element type
+   * @return a new window iterator starting after the given position
    */
-  public ScrollIterator<T> startingAt(ScrollPosition position) {
-    Assert.notNull(position, "ScrollPosition is required");
-    this.position = position;
-    this.window = null;
-    this.iterator = Collections.emptyIterator();
-    this.exhausted = false;
-    return this;
+  public static <T> ScrollIterator<T> of(Function<ScrollPosition, Scroll<T>> windowSupplier, ScrollPosition position) {
+    return new ScrollIterator<>(windowSupplier, position);
   }
 
   @Override
@@ -110,18 +108,18 @@ public final class ScrollIterator<T> implements Iterator<T> {
   }
 
   private void fetchScroll() {
-    if (window == null) {
-      window = windowSupplier.apply(position);
+    if (scroll == null) {
+      scroll = windowSupplier.apply(position);
     }
-    else if (window.isLast()) {
+    else if (scroll.isLast()) {
       exhausted = true;
       return;
     }
     else {
-      window = windowSupplier.apply(window.position());
+      scroll = windowSupplier.apply(scroll.position());
     }
 
-    iterator = window.content().iterator();
+    iterator = scroll.content().iterator();
     if (!iterator.hasNext()) {
       exhausted = true;
     }

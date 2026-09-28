@@ -61,7 +61,6 @@ import infra.persistence.EntityMetadata;
 import infra.persistence.EntityMetadataFactory;
 import infra.persistence.EntityProperty;
 import infra.persistence.IllegalEntityException;
-import infra.persistence.KeysetScrollPosition;
 import infra.persistence.NewEntityIndicator;
 import infra.persistence.Order;
 import infra.persistence.Page;
@@ -1263,10 +1262,7 @@ public class DefaultEntityManager implements EntityManager {
     KeysetOrder keysetOrder = resolveKeysetOrder(metadata, condition, pageable.order());
     Map<String, ?> cursor = null;
     if (!position.isInitial()) {
-      if (!(position instanceof KeysetScrollPosition keysetPosition)) {
-        throw new IllegalArgumentException("Unsupported scroll position type: " + position.getClass().getName());
-      }
-      cursor = keysetPosition.keys();
+      cursor = position.keys();
       keysetOrder.validateCursor(cursor);
     }
 
@@ -1722,12 +1718,12 @@ public class DefaultEntityManager implements EntityManager {
       }
     }
 
-    KeysetScrollPosition positionFrom(Object row) {
+    ScrollPosition positionFrom(Object row) {
       Map<String, Object> keys = new HashMap<>();
       for (KeysetSort key : this.keys) {
         keys.put(key.property().getName(), key.property().getValue(row));
       }
-      return KeysetScrollPosition.of(keys);
+      return ScrollPosition.keyset(keys);
     }
 
   }
