@@ -150,7 +150,7 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    * @return the {@link BeanProperty} instance
    * @throws NoSuchPropertyException if no property with the given name exists
    */
-  public BeanProperty obtainBeanProperty(String propertyName) {
+  public BeanProperty getRequiredProperty(String propertyName) {
     BeanProperty beanProperty = getProperty(propertyName);
     if (beanProperty == null) {
       throw new NoSuchPropertyException(beanClass, propertyName);
@@ -166,10 +166,10 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    * @param value the new value to assign to the property
    * @throws NotWritablePropertyException if the property is read-only and cannot be written to
    * @throws NoSuchPropertyException if no property with the given name exists
-   * @see #obtainBeanProperty(String)
+   * @see #getRequiredProperty(String)
    */
   public void setPropertyValue(Object root, String propertyName, Object value) {
-    obtainBeanProperty(propertyName).setValue(root, value);
+    getRequiredProperty(propertyName).setValue(root, value);
   }
 
   /**
@@ -179,10 +179,10 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    * @param propertyName the name of the property to retrieve
    * @return the value of the property, or {@code null} if the property value is null
    * @throws NoSuchPropertyException if no property with the given name exists
-   * @see #obtainBeanProperty(String)
+   * @see #getRequiredProperty(String)
    */
   public @Nullable Object getPropertyValue(Object root, String propertyName) {
-    return obtainBeanProperty(propertyName).getValue(root);
+    return getRequiredProperty(propertyName).getValue(root);
   }
 
   /**
@@ -191,10 +191,10 @@ public final class BeanMetadata implements Iterable<BeanProperty> {
    * @param propertyName the name of the property whose type is to be retrieved
    * @return the class representing the type of the property
    * @throws NoSuchPropertyException if no property with the given name exists
-   * @see #obtainBeanProperty(String)
+   * @see #getRequiredProperty(String)
    */
   public Class<?> getPropertyType(String propertyName) {
-    return obtainBeanProperty(propertyName).getType();
+    return getRequiredProperty(propertyName).getType();
   }
 
   /**

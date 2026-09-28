@@ -101,7 +101,7 @@ class BeanPropertyTypeDescriptorTests {
   @Test
   public void property() throws Exception {
     BeanMetadata metadata = BeanMetadata.forClass(getClass());
-    BeanProperty property = metadata.obtainBeanProperty("property");
+    BeanProperty property = metadata.getRequiredProperty("property");
 
     TypeDescriptor desc = property.getTypeDescriptor();
 

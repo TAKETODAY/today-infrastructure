@@ -40,11 +40,11 @@ class IdPropertyDiscoverTests {
             IdPropertyDiscover.forPropertyName("myId_"),
             IdPropertyDiscover.forAnnotation(MyId.class));
     BeanMetadata metadata = BeanMetadata.forClass(MyIdEntity.class);
-    propertyDiscover.isIdProperty(metadata.obtainBeanProperty("id"));
-    assertThat(propertyDiscover.isIdProperty(metadata.obtainBeanProperty("id"))).isFalse();
-    assertThat(propertyDiscover.isIdProperty(metadata.obtainBeanProperty("myId"))).isTrue();
+    propertyDiscover.isIdProperty(metadata.getRequiredProperty("id"));
+    assertThat(propertyDiscover.isIdProperty(metadata.getRequiredProperty("id"))).isFalse();
+    assertThat(propertyDiscover.isIdProperty(metadata.getRequiredProperty("myId"))).isTrue();
 
-    assertThat(propertyDiscover.isIdProperty(BeanMetadata.forClass(MyIdAnnoEntity.class).obtainBeanProperty("id"))).isTrue();
+    assertThat(propertyDiscover.isIdProperty(BeanMetadata.forClass(MyIdAnnoEntity.class).getRequiredProperty("id"))).isTrue();
 
   }
 

@@ -57,7 +57,7 @@ class TypeHandlerManagerTests {
     manager.addHandlerResolver(new AnyTypeHandlerResolver());
 
     BeanMetadata metadata = BeanMetadata.forClass(UserModel.class);
-    BeanProperty name = metadata.obtainBeanProperty("name");
+    BeanProperty name = metadata.getRequiredProperty("name");
     TypeHandler<String> typeHandler = manager.getTypeHandler(name);
     assertThat(typeHandler).isInstanceOf(AnyTypeHandler.class)
             .extracting("type").isEqualTo(String.class);
@@ -68,7 +68,7 @@ class TypeHandlerManagerTests {
     manager.setHandlerResolver(new AnyTypeHandlerResolver());
 
     BeanMetadata metadata = BeanMetadata.forClass(UserModel.class);
-    BeanProperty name = metadata.obtainBeanProperty("name");
+    BeanProperty name = metadata.getRequiredProperty("name");
     TypeHandler<String> typeHandler = manager.getTypeHandler(name);
     assertThat(typeHandler).isInstanceOf(AnyTypeHandler.class)
             .extracting("type").isEqualTo(String.class);
@@ -84,7 +84,7 @@ class TypeHandlerManagerTests {
     manager.register(new SmartTypeHandler0());
 
     BeanMetadata metadata = BeanMetadata.forClass(UserModel.class);
-    BeanProperty name = metadata.obtainBeanProperty("name");
+    BeanProperty name = metadata.getRequiredProperty("name");
     TypeHandler<String> typeHandler = manager.getTypeHandler(name);
     assertThat(typeHandler).isInstanceOf(SmartTypeHandler0.class);
 

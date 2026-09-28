@@ -89,12 +89,13 @@ public abstract class EntityIterator<T extends @Nullable Object> extends ResultS
    * @return a {@link Map} where the keys are the values of the specified property and the
    * values are the corresponding entities. If the property value is null for any
    * entity, the behavior is undefined.
+   * @throws NoSuchPropertyException if no property with the given name exists
    */
   @SuppressWarnings({ "unchecked", "NullAway" })
   public <K> Map<K, T> toMap(String mapKey) {
     try {
       LinkedHashMap<K, T> entities = new LinkedHashMap<>();
-      BeanProperty beanProperty = entityMetadata.getBeanMetadata().obtainBeanProperty(mapKey);
+      BeanProperty beanProperty = entityMetadata.getBeanMetadata().getRequiredProperty(mapKey);
       while (hasNext()) {
         T entity = next();
         Object propertyValue = beanProperty.getValue(entity);

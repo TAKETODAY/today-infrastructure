@@ -17,11 +17,21 @@
 package infra.beans;
 
 /**
- * @author TODAY
+ * Exception thrown when a requested property does not exist on a bean class.
+ * Carries the bean class and missing property name through
+ * {@link InvalidPropertyException}.
+ *
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 2018-08-05 10:08
  */
 public class NoSuchPropertyException extends InvalidPropertyException {
 
+  /**
+   * Create an exception for a property that could not be found on the target class.
+   *
+   * @param target the bean class on which the property was requested
+   * @param name the name of the missing property
+   */
   public NoSuchPropertyException(Class<?> target, String name) {
     super(target, name, "Property not found");
   }

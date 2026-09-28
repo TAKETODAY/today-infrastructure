@@ -95,7 +95,7 @@ final class PropertyPath {
     BeanMetadata metadata = BeanMetadata.forClass(objectType);
     int pos = PropertyAccessorUtils.getFirstNestedPropertySeparatorIndex(propertyPath);
     String name = propertyPath.substring(0, pos);
-    this.beanProperty = metadata.obtainBeanProperty(name);
+    this.beanProperty = metadata.getRequiredProperty(name);
 
     BeanMetadata nextMetadata = BeanMetadata.forClass(beanProperty.getType());
     this.next = new PropertyPath(propertyPath.substring(pos + 1), nextMetadata);

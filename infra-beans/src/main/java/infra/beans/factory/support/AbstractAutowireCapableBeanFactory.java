@@ -1246,7 +1246,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     LinkedHashSet<String> autowiredBeanNames = new LinkedHashSet<>(propertyNames.length * 2);
     for (String propertyName : propertyNames) {
       try {
-        BeanProperty beanProperty = metadata.obtainBeanProperty(propertyName);
+        BeanProperty beanProperty = metadata.getRequiredProperty(propertyName);
         // Don't try autowiring by type for type Object: never makes sense,
         // even if it technically is an unsatisfied, non-simple property, non-writeable.
         if (Object.class != beanProperty.getType() && beanProperty.isWriteable()) {

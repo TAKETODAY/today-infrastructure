@@ -47,11 +47,11 @@ public class BeanMetadataTests {
     beanMetadata.setPropertyValue(instance, "doubleProperty", 123.45);
     assertThat(bean.getDoubleProperty()).isEqualTo(123.45);
 
-    beanMetadata.obtainBeanProperty("doubleProperty").setValue(instance, 321.0);
+    beanMetadata.getRequiredProperty("doubleProperty").setValue(instance, 321.0);
     assertThat(bean.getDoubleProperty()).isEqualTo(321.0);
 
     assertThatThrownBy(() -> {
-      beanMetadata.obtainBeanProperty("1243");
+      beanMetadata.getRequiredProperty("1243");
     }).hasMessageStartingWith(String.format("Invalid property '1243' of bean class [%s]: Property not found", BeanMappingTestBean.class.getName()));
 
   }
@@ -185,7 +185,7 @@ public class BeanMetadataTests {
   @Test
   void obtainBeanPropertyThrowsForUnknown() {
     BeanMetadata beanMetadata = BeanMetadata.forClass(RichBean.class);
-    assertThatThrownBy(() -> beanMetadata.obtainBeanProperty("missing"))
+    assertThatThrownBy(() -> beanMetadata.getRequiredProperty("missing"))
             .isInstanceOf(Exception.class)
             .hasMessageStartingWith("Invalid property 'missing' of bean class [%s]".formatted(RichBean.class.getName()));
   }

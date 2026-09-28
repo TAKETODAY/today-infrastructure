@@ -144,7 +144,7 @@ public final class BeanMap<T> extends AbstractMap<String, Object> {
    * @see SetterMethod#set(Object, Object)
    */
   public @Nullable Object put(Object target, String key, Object value) {
-    BeanProperty beanProperty = this.metadata.obtainBeanProperty(key);
+    BeanProperty beanProperty = this.metadata.getRequiredProperty(key);
     if (beanProperty.isWriteable()) {
       Object old = beanProperty.isReadable() ? beanProperty.getValue(target) : null;
       beanProperty.setValue(target, value);
