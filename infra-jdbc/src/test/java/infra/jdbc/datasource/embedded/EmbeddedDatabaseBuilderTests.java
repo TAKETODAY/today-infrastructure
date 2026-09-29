@@ -148,6 +148,7 @@ public class EmbeddedDatabaseBuilderTests {
   }
 
   @Test
+  @SuppressWarnings("removal")
   public void setTypeToDerbyAndIgnoreFailedDrops() throws Exception {
     doTwice(() -> {
       EmbeddedDatabase db = builder//
