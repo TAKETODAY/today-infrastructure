@@ -49,12 +49,16 @@ class PropertyAccessorUtilsTests {
   public void getFirstNestedPropertySeparatorIndex() {
     assertThat(PropertyAccessorUtils.getFirstNestedPropertySeparatorIndex("[user]")).isEqualTo(-1);
     assertThat(PropertyAccessorUtils.getFirstNestedPropertySeparatorIndex("user.name")).isEqualTo(4);
+    assertThat(PropertyAccessorUtils.getFirstNestedPropertySeparatorIndex("map[key[0]].name")).isEqualTo(11);
+    assertThat(PropertyAccessorUtils.getFirstNestedPropertySeparatorIndex("a[b[c.d]]")).isEqualTo(-1);
   }
 
   @Test
   public void getLastNestedPropertySeparatorIndex() {
     assertThat(PropertyAccessorUtils.getLastNestedPropertySeparatorIndex("[user]")).isEqualTo(-1);
     assertThat(PropertyAccessorUtils.getLastNestedPropertySeparatorIndex("user.address.street")).isEqualTo(12);
+    assertThat(PropertyAccessorUtils.getLastNestedPropertySeparatorIndex("map[key[0]].name")).isEqualTo(11);
+    assertThat(PropertyAccessorUtils.getLastNestedPropertySeparatorIndex("d.c]b]a")).isEqualTo(-1);
   }
 
   @Test
@@ -83,6 +87,9 @@ class PropertyAccessorUtilsTests {
     assertThat(PropertyAccessorUtils.canonicalPropertyName("map[\"key1]")).isEqualTo("map[\"key1]");
     assertThat(PropertyAccessorUtils.canonicalPropertyName("map[']")).isEqualTo("map[']");
     assertThat(PropertyAccessorUtils.canonicalPropertyName("map[\"]")).isEqualTo("map[\"]");
+    assertThat(PropertyAccessorUtils.canonicalPropertyName("map[\"key[0]\"]")).isEqualTo("map[key[0]]");
+    assertThat(PropertyAccessorUtils.canonicalPropertyName("map['key[0]'].name")).isEqualTo("map[key[0]].name");
+    assertThat(PropertyAccessorUtils.canonicalPropertyName("users['admin[0]']")).isEqualTo("users[admin[0]]");
   }
 
   @Test
