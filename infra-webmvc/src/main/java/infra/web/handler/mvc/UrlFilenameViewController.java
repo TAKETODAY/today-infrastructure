@@ -23,8 +23,11 @@ import org.jspecify.annotations.Nullable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import infra.http.HttpStatus;
 import infra.web.HttpContext;
+import infra.web.server.ResponseStatusException;
 import infra.web.util.WebUtils;
+import infra.web.view.UrlBasedViewResolver;
 
 /**
  * Simple {@code Controller} implementation that transforms the virtual
@@ -164,7 +167,12 @@ public class UrlFilenameViewController extends AbstractUrlViewController {
    * @see #getSuffix()
    */
   protected String postProcessViewName(String viewName) {
-    return getPrefix() + viewName + getSuffix();
+    String name = getPrefix() + viewName + getSuffix();
+    if (name.startsWith(UrlBasedViewResolver.REDIRECT_URL_PREFIX)
+            || name.startsWith(UrlBasedViewResolver.FORWARD_URL_PREFIX)) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Rejected viewName '" + viewName + "'");
+    }
+    return name;
   }
 
 }
