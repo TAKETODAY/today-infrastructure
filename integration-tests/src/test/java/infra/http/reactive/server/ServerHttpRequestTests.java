@@ -196,6 +196,16 @@ public class ServerHttpRequestTests {
   }
 
   @Test
+  void mutateContextPathToNull() throws Exception {
+    ServerHttpRequest request = createRequest("/context/path").mutate().contextPath("/context").build();
+
+    ServerHttpRequest mutated = request.mutate().contextPath(null).build();
+    assertThat(mutated.getPath().contextPath().value()).isEmpty();
+    assertThat(mutated.getPath().pathWithinApplication().value()).isEqualTo("/context/path");
+    assertThat(mutated.getURI().getRawPath()).isEqualTo("/context/path");
+  }
+
+  @Test
   void mutateContextPathWithoutUpdatingPathShouldFail() throws Exception {
     ServerHttpRequest request = createRequest("/path");
 
