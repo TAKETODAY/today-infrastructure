@@ -317,25 +317,25 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
   }
 
   /**
-   * Process the given {@code @Scheduled} method declaration on the given bean,
-   * attempting to distinguish {@linkplain #processScheduledAsync(Scheduled, Method, Object)
-   * reactive} methods from {@linkplain #processScheduledSync(Scheduled, Method, Object)
-   * synchronous} methods.
+   * Process the given {@code @Scheduled} method declaration on the given bean.
    *
    * @param scheduled the {@code @Scheduled} annotation
    * @param method the method that the annotation has been declared on
    * @param bean the target bean instance
-   * @see #processScheduledSync(Scheduled, Method, Object)
-   * @see #processScheduledAsync(Scheduled, Method, Object)
    */
   protected void processScheduled(Scheduled scheduled, Method method, Object bean) {
+    Object key = AopProxyUtils.getSingletonTarget(bean);
+    if (key == null) {
+      key = bean;
+    }
+
     // Is the method a Kotlin suspending function? Throws if true and the reactor bridge isn't on the classpath.
     // Does the method return a reactive type? Throws if true and it isn't a deferred Publisher type.
     if (isPresent(Feature.REACTIVE_STREAMS) && ScheduledAnnotationReactiveSupport.isReactive(method)) {
-      processScheduledAsync(scheduled, method, bean);
+      processScheduledAsync(scheduled, method, bean, key);
       return;
     }
-    processScheduledSync(scheduled, method, bean);
+    processScheduledSync(scheduled, method, bean, key);
   }
 
   /**
@@ -347,8 +347,9 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
    * @param scheduled the {@code @Scheduled} annotation
    * @param method the method that the annotation has been declared on
    * @param bean the target bean instance
+   * @param key a cache key for the target bean instance
    */
-  private void processScheduledSync(Scheduled scheduled, Method method, Object bean) {
+  private void processScheduledSync(Scheduled scheduled, Method method, Object bean, Object key) {
     Runnable task;
     try {
       task = createRunnable(bean, method, scheduled.scheduler());
@@ -357,7 +358,7 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
       throw new IllegalStateException("Could not create recurring task for @Scheduled method '%s': %s"
               .formatted(method.getName(), ex.getMessage()), ex);
     }
-    processScheduledTask(scheduled, task, method, bean);
+    processScheduledTask(scheduled, task, method, key);
   }
 
   /**
@@ -373,33 +374,34 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
    * @param method the method that the annotation has been declared on, which
    * must either return a Publisher-adaptable type or be a Kotlin suspending function
    * @param bean the target bean instance
+   * @param key a cache key for the target bean (potentially the raw singleton target)
    * @see ScheduledAnnotationReactiveSupport
    */
-  private void processScheduledAsync(Scheduled scheduled, Method method, Object bean) {
+  private void processScheduledAsync(Scheduled scheduled, Method method, Object bean, Object key) {
     Runnable task;
     try {
       task = ScheduledAnnotationReactiveSupport.createSubscriptionRunnable(method, bean, scheduled,
-              this.reactiveSubscriptions.computeIfAbsent(bean, k -> new CopyOnWriteArrayList<>()));
+              this.reactiveSubscriptions.computeIfAbsent(key, k -> new CopyOnWriteArrayList<>()));
     }
     catch (IllegalArgumentException ex) {
       throw new IllegalStateException(
               "Could not create recurring task for @Scheduled method '%s': %s".formatted(method.getName(), ex.getMessage()), ex);
     }
-    processScheduledTask(scheduled, task, method, bean);
+    processScheduledTask(scheduled, task, method, key);
   }
 
   /**
    * Parse the {@code Scheduled} annotation and schedule the provided {@code Runnable}
    * accordingly. The Runnable can represent either a synchronous method invocation
-   * (see {@link #processScheduledSync(Scheduled, Method, Object)}) or an asynchronous
-   * one (see {@link #processScheduledAsync(Scheduled, Method, Object)}).
+   * (see {@link #processScheduledSync}) or an asynchronous one (see
+   * {@link #processScheduledAsync}).
    *
    * @param scheduled the {@code @Scheduled} annotation
    * @param runnable the runnable to be scheduled
    * @param method the method that the annotation has been declared on
-   * @param bean the target bean instance
+   * @param key a cache key for the target bean (potentially the raw singleton target)
    */
-  private void processScheduledTask(Scheduled scheduled, Runnable runnable, Method method, Object bean) {
+  private void processScheduledTask(Scheduled scheduled, Runnable runnable, Method method, Object key) {
     try {
       boolean processedSchedule = false;
       String errorMessage = "Exactly one of the 'cron', 'fixedDelay' or 'fixedRate' attributes is required";
@@ -514,7 +516,7 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
 
       // Finally register the scheduled tasks
       synchronized(this.scheduledTasks) {
-        Set<ScheduledTask> regTasks = this.scheduledTasks.computeIfAbsent(bean, key -> new LinkedHashSet<>(4));
+        Set<ScheduledTask> regTasks = this.scheduledTasks.computeIfAbsent(key, k -> new LinkedHashSet<>(4));
         regTasks.addAll(tasks);
       }
     }

@@ -43,6 +43,8 @@ import infra.context.annotation.Scope;
 import infra.context.support.PropertySourcesPlaceholderConfigurer;
 import infra.core.task.TaskExecutor;
 import infra.core.testfixture.EnabledForTestGroups;
+import infra.resilience.annotation.ConcurrencyLimit;
+import infra.resilience.annotation.EnableResilientMethods;
 import infra.scheduling.TaskScheduler;
 import infra.scheduling.concurrent.SimpleAsyncTaskScheduler;
 import infra.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -316,6 +318,20 @@ public class EnableSchedulingTests {
 
     Thread.sleep(110);
     assertThat(ctx.getBean(AtomicInteger.class).get()).isGreaterThan(1);
+  }
+
+  @Test
+  void withPlainTaskToDestroy() {
+    ctx = new AnnotationConfigApplicationContext(PlainTaskConfig.class);
+    ctx.getBeanFactory().destroySingleton("config");
+    assertThat(ctx.getBean(ScheduledAnnotationBeanPostProcessor.class).getScheduledTasks()).isEmpty();
+  }
+
+  @Test
+  void withProxiedTaskToDestroy() {
+    ctx = new AnnotationConfigApplicationContext(ProxiedTaskConfig.class);
+    ctx.getBeanFactory().destroySingleton("config");
+    assertThat(ctx.getBean(ScheduledAnnotationBeanPostProcessor.class).getScheduledTasks()).isEmpty();
   }
 
   @Configuration
@@ -867,6 +883,28 @@ public class EnableSchedulingTests {
       scheduler.schedule(() -> counter().incrementAndGet(),
               triggerContext -> Instant.now().plus(10, ChronoUnit.MILLIS));
       return scheduler;
+    }
+  }
+
+  @Configuration("config")
+  @EnableScheduling
+  static class PlainTaskConfig {
+
+    @Scheduled(fixedDelay = 100)
+    public void task() throws InterruptedException {
+      Thread.sleep(100);
+    }
+  }
+
+  @Configuration("config")
+  @EnableScheduling
+  @EnableResilientMethods(proxyTargetClass = true)
+  static class ProxiedTaskConfig {
+
+    @Scheduled(fixedDelay = 100)
+    @ConcurrencyLimit(1)
+    public void task() throws InterruptedException {
+      Thread.sleep(100);
     }
   }
 
