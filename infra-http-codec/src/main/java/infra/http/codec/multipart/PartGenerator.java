@@ -542,6 +542,14 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     }
 
     private void fileCreated(WritingFileState newState) {
+      if (PartGenerator.this.maxDiskUsagePerPart != -1
+              && this.byteCount > PartGenerator.this.maxDiskUsagePerPart) {
+        MultipartUtils.closeChannel(newState.channel);
+        MultipartUtils.deleteFile(newState.file);
+        emitError(new DataBufferLimitException("Part exceeded the disk usage limit of "
+                + PartGenerator.this.maxDiskUsagePerPart + " bytes"));
+        return;
+      }
       this.releaseOnDispose = false;
       if (changeState(this, newState)) {
         newState.writeBuffers(this.content);
