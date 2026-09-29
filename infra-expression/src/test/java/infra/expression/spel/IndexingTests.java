@@ -338,6 +338,7 @@ class IndexingTests {
       assertThat(configuration.getMaximumAutoGrowSize())
               .isEqualTo(SpelParserConfiguration.DEFAULT_MAX_AUTO_GROW_SIZE)
               .isEqualTo(256);
+      assertThat(SpelParserConfiguration.builder().autoGrowCollections().build().getMaximumAutoGrowSize()).isEqualTo(256);
     }
 
     @Test

@@ -44,7 +44,7 @@ public class SpelExpressionParser extends TemplateAwareExpressionParser {
    * Create a parser with default settings.
    */
   public SpelExpressionParser() {
-    this.configuration = new SpelParserConfiguration();
+    this.configuration = SpelParserConfiguration.withDefaults();
   }
 
   /**

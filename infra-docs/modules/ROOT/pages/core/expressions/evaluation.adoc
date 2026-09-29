@@ -219,10 +219,10 @@ class Demo {
   public List<String> list;
 }
 
-// 开启:
-// - 自动空引用初始化
-// - 自动集合增长
-SpelParserConfiguration config = new SpelParserConfiguration(true, true);
+SpelParserConfiguration config = SpelParserConfiguration.builder()
+    .autoGrowNullReferences()
+    .autoGrowCollections()
+    .build();
 
 ExpressionParser parser = new SpelExpressionParser(config);
 
@@ -241,6 +241,9 @@ Object o = expression.getValue(demo);
 启用集合自动增长后，集合默认最多自动增长到 256 个元素，与数据绑定的默认集合增长上限一致。
 通过编程方式创建 `SpelExpressionParser` 时，可以在 `SpelParserConfiguration` 中指定
 `maximumAutoGrowSize` 来调整该上限。
+
+推荐使用 `SpelParserConfiguration.builder()` 只覆盖需要调整的选项；全部使用默认值时可调用
+`SpelParserConfiguration.withDefaults()`。原有构造器继续可用。
 
 默认情况下，SpEL 表达式不能包含超过 10,000 个字符；但是，`maxExpressionLength` 是可配置的。
 如果你以编程方式创建 `SpelExpressionParser`，则可以在创建提供给 `SpelExpressionParser` 的
