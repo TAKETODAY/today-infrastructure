@@ -37,8 +37,8 @@ import infra.web.annotation.RequestMapping;
  * parts of the object graph that are not meant to be accessed or modified by
  * external clients. Therefore the design and use of data binding should be considered
  * carefully with regard to security. For more details, please refer to the dedicated
- * sections on data binding for
- * <a href="https://docs.today-tech.cn/today-infrastructure/web.html#mvc-ann-initbinder-model-design">Infra Web MVC</a>
+ * section on
+ * <a href="https://docs.today-tech.cn/today-infrastructure/reference/web/webmvc/mvc-controller/ann-initbinder.html#mvc-ann-initbinder-model-design">Infra Web MVC data binding</a>
  * in the reference manual.
  *
  * <p>{@code @InitBinder} methods support all arguments that
@@ -73,4 +73,3 @@ public @interface InitBinder {
   String[] value() default {};
 
 }
-

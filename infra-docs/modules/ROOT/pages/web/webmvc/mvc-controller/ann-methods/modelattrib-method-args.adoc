@@ -48,7 +48,7 @@ public String create(@ModelAttribute("account") Account account) { // <1>
 默认情况下，同时应用构造函数和属性的 xref:core/validation/beans-beans.adoc#beans-binding[数据绑定]。
 然而，模型对象设计需要仔细考虑，出于安全原因，建议使用专门针对 Web 绑定的对象，或者仅应用构造函数绑定。
 如果必须使用属性绑定，则应设置 _allowedFields_ 模式以限制可以设置哪些属性。有关此问题的更多详细信息和示例配置，
-请参阅 xref:web/webmvc/mvc-controller/ann-initbinder.adoc#mvc-ann-initbinder-model-design[模型设计]。
+请参阅 xref:web/webmvc/mvc-controller/ann-initbinder.adoc#mvc-ann-initbinder-model-design[安全的模型对象设计]。
 
 使用构造函数绑定时，您可以通过 `@BindParam` 注解自定义请求参数名称。例如：
 
@@ -154,4 +154,3 @@ TIP: 使用 `@ModelAttribute` 是可选的。默认情况下，任何不是由
 WARNING: 当使用 GraalVM 编译为原生镜像时，上述描述的隐式 `@ModelAttribute`
 支持不允许正确提前推断相关数据绑定反射提示。因此，建议在 GraalVM 原生镜像中使用时，
 显式地用 `@ModelAttribute` 注解方法参数。
-
