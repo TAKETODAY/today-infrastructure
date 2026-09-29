@@ -351,7 +351,12 @@ class IndexingTests {
     @Test
     void zeroMaximumAutoGrowSizeIsAllowedAndDisablesGrowth() {
       decimals = new ArrayList<>();
-      SpelParserConfiguration configuration = new SpelParserConfiguration(true, true, 0);
+      SpelParserConfiguration configuration = SpelParserConfiguration.builder()
+              .autoGrowNullReferences()
+              .autoGrowCollections()
+              .maximumAutoGrowSize(0)
+              .build();
+
       SpelExpressionParser parser = new SpelExpressionParser(configuration);
 
       Expression indexExpression = parser.parseExpression("decimals[0]");
@@ -363,7 +368,7 @@ class IndexingTests {
     @Test
     void negativeMaximumAutoGrowSizeIsRejected() {
       assertThatIllegalArgumentException()
-              .isThrownBy(() -> new SpelParserConfiguration(true, true, -1))
+              .isThrownBy(() -> SpelParserConfiguration.builder().maximumAutoGrowSize(-1))
               .withMessage("'maximumAutoGrowSize' must not be negative");
     }
 

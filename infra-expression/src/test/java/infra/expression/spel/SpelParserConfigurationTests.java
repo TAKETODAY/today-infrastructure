@@ -33,7 +33,7 @@ class SpelParserConfigurationTests {
 
   @Test
   void builderAppliesSameDefaultsAsNoArgConstructor() {
-    SpelParserConfiguration expected = new SpelParserConfiguration();
+    SpelParserConfiguration expected = SpelParserConfiguration.withDefaults();
     SpelParserConfiguration actual = SpelParserConfiguration.builder().build();
     assertThat(actual.getCompilerMode()).isEqualTo(expected.getCompilerMode());
     assertThat(actual.getCompilerClassLoader()).isEqualTo(expected.getCompilerClassLoader());
@@ -47,7 +47,7 @@ class SpelParserConfigurationTests {
 
   @Test
   void maximumAutoGrowSizeDefaults() {
-    assertThat(new SpelParserConfiguration().getMaximumAutoGrowSize()).isEqualTo(SpelParserConfiguration.DEFAULT_MAX_AUTO_GROW_SIZE);
+    assertThat(SpelParserConfiguration.withDefaults().getMaximumAutoGrowSize()).isEqualTo(SpelParserConfiguration.DEFAULT_MAX_AUTO_GROW_SIZE);
     assertThat(SpelParserConfiguration.builder().build().getMaximumAutoGrowSize())
             .isEqualTo(SpelParserConfiguration.DEFAULT_MAX_AUTO_GROW_SIZE)
             .isEqualTo(256);
@@ -105,7 +105,8 @@ class SpelParserConfigurationTests {
 
     @Test
     void noArgConstructorAppliesDefaults() {
-      SpelParserConfiguration configuration = new SpelParserConfiguration();
+      SpelParserConfiguration configuration = SpelParserConfiguration.withDefaults();
+
       assertThat(configuration.getCompilerMode()).isEqualTo(SpelCompilerMode.OFF);
       assertThat(configuration.getCompilerClassLoader()).isNull();
       assertThat(configuration.isAutoGrowNullReferences()).isFalse();
@@ -119,7 +120,11 @@ class SpelParserConfigurationTests {
     @Test
     void compilerModeAndClassLoaderConstructor() {
       ClassLoader classLoader = getClass().getClassLoader();
-      SpelParserConfiguration configuration = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, classLoader);
+      SpelParserConfiguration configuration = SpelParserConfiguration.builder()
+              .compilerMode(SpelCompilerMode.IMMEDIATE)
+              .compilerClassLoader(classLoader)
+              .build();
+
       assertThat(configuration.getCompilerMode()).isEqualTo(SpelCompilerMode.IMMEDIATE);
       assertThat(configuration.getCompilerClassLoader()).isSameAs(classLoader);
       assertThat(configuration.getMaximumAutoGrowSize()).isEqualTo(SpelParserConfiguration.DEFAULT_MAX_AUTO_GROW_SIZE);
@@ -127,7 +132,11 @@ class SpelParserConfigurationTests {
 
     @Test
     void autoGrowFlagsConstructor() {
-      SpelParserConfiguration configuration = new SpelParserConfiguration(true, true);
+      SpelParserConfiguration configuration = SpelParserConfiguration.builder()
+              .autoGrowNullReferences()
+              .autoGrowCollections()
+              .build();
+
       assertThat(configuration.isAutoGrowNullReferences()).isTrue();
       assertThat(configuration.isAutoGrowCollections()).isTrue();
       assertThat(configuration.getMaximumAutoGrowSize()).isEqualTo(SpelParserConfiguration.DEFAULT_MAX_AUTO_GROW_SIZE);
@@ -135,13 +144,25 @@ class SpelParserConfigurationTests {
 
     @Test
     void autoGrowFlagsAndMaximumAutoGrowSizeConstructor() {
-      SpelParserConfiguration configuration = new SpelParserConfiguration(true, true, 99);
+      SpelParserConfiguration configuration = SpelParserConfiguration.builder()
+              .compilerMode(SpelCompilerMode.IMMEDIATE)
+              .autoGrowNullReferences()
+              .autoGrowCollections()
+              .maximumAutoGrowSize(99)
+              .build();
+
       assertThat(configuration.getMaximumAutoGrowSize()).isEqualTo(99);
     }
 
     @Test
     void fiveArgConstructorAppliesAllValues() {
-      SpelParserConfiguration configuration = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, null, true, true, 99);
+      SpelParserConfiguration configuration = SpelParserConfiguration.builder()
+              .compilerMode(SpelCompilerMode.IMMEDIATE)
+              .autoGrowNullReferences()
+              .autoGrowCollections()
+              .maximumAutoGrowSize(99)
+              .build();
+
       assertThat(configuration.getCompilerMode()).isEqualTo(SpelCompilerMode.IMMEDIATE);
       assertThat(configuration.isAutoGrowNullReferences()).isTrue();
       assertThat(configuration.isAutoGrowCollections()).isTrue();
@@ -150,7 +171,13 @@ class SpelParserConfigurationTests {
 
     @Test
     void sixArgConstructorAppliesMaximumExpressionLength() {
-      SpelParserConfiguration configuration = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, null, true, true, 99, 100);
+      SpelParserConfiguration configuration = SpelParserConfiguration.builder()
+              .compilerMode(SpelCompilerMode.IMMEDIATE)
+              .autoGrowNullReferences()
+              .autoGrowCollections()
+              .maximumAutoGrowSize(99)
+              .maximumExpressionLength(100)
+              .build();
       assertThat(configuration.getMaximumExpressionLength()).isEqualTo(100);
       assertThat(configuration.getMaximumBigPowerBits()).isEqualTo(SpelParserConfiguration.DEFAULT_MAX_BIG_POWER_BITS);
     }
@@ -165,18 +192,5 @@ class SpelParserConfigurationTests {
       assertThat(configuration.getMaximumNestingDepth()).isEqualTo(103);
     }
 
-    @Test
-    void canonicalConstructorRejectsInvalidValues() {
-      assertThatIllegalArgumentException().isThrownBy(() ->
-              new SpelParserConfiguration(null, null, false, false, 0, 1, 1, 1));
-      assertThatIllegalArgumentException().isThrownBy(() ->
-              new SpelParserConfiguration(SpelCompilerMode.OFF, null, false, false, -1, 1, 1, 1));
-      assertThatIllegalArgumentException().isThrownBy(() ->
-              new SpelParserConfiguration(SpelCompilerMode.OFF, null, false, false, 0, 0, 1, 1));
-      assertThatIllegalArgumentException().isThrownBy(() ->
-              new SpelParserConfiguration(SpelCompilerMode.OFF, null, false, false, 0, 1, 0, 1));
-      assertThatIllegalArgumentException().isThrownBy(() ->
-              new SpelParserConfiguration(SpelCompilerMode.OFF, null, false, false, 0, 1, 1, 0));
-    }
   }
 }

@@ -696,7 +696,7 @@ class SpelReproTests extends AbstractExpressionTests {
   @Test
   void testCompiledExpressionForProxy_SPR16191() {
     SpelExpressionParser expressionParser =
-            new SpelExpressionParser(new infra.expression.spel.SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, null));
+            new SpelExpressionParser(SpelParserConfiguration.builder().compilerMode(SpelCompilerMode.IMMEDIATE).build());
     Expression expression = expressionParser.parseExpression("#target.process(#root)");
 
     VarargsReceiver receiver = new VarargsReceiver();

@@ -45,28 +45,6 @@ import infra.util.InfraStrategies;
 public class SpelParserConfiguration {
 
   /**
-   * Create a configuration with the same defaults as {@link #builder()}.
-   * <p>Equivalent to {@code SpelParserConfiguration.builder().build()}.
-   *
-   * @return a configuration with default settings
-   * @see #builder()
-   */
-  public static SpelParserConfiguration withDefaults() {
-    return builder().build();
-  }
-
-  /**
-   * Create a {@link Builder} to override only the settings that differ from
-   * their defaults.
-   *
-   * @return a new configuration builder
-   * @see #withDefaults()
-   */
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  /**
    * Default maximum size to which a collection or array can automatically grow: {@value}.
    * <p>Aligned with the default limit used for data binding, for consistent
    * auto-growth behavior.
@@ -142,8 +120,7 @@ public class SpelParserConfiguration {
 
   private final SpelCompilerMode compilerMode;
 
-  @Nullable
-  private final ClassLoader compilerClassLoader;
+  private final @Nullable ClassLoader compilerClassLoader;
 
   private final boolean autoGrowNullReferences;
 
@@ -156,122 +133,6 @@ public class SpelParserConfiguration {
   private final int maximumBigPowerBits;
 
   private final int maximumNestingDepth;
-
-  /**
-   * Create a new {@code SpelParserConfiguration} instance with default settings.
-   * <p>Prefer {@link #withDefaults()} for a configuration with builder defaults.
-   *
-   * @deprecated in favor of {@link #withDefaults()}
-   */
-  @Deprecated(since = "5.0")
-  public SpelParserConfiguration() {
-    this(null, null, false, false, DEFAULT_MAX_AUTO_GROW_SIZE);
-  }
-
-  /**
-   * Create a new {@code SpelParserConfiguration} instance.
-   * <p>Prefer {@link #builder()} to override only the required settings.
-   *
-   * @param compilerMode the compiler mode for the parser
-   * @param compilerClassLoader the ClassLoader to use as the basis for expression compilation
-   * @deprecated in favor of {@link #builder()}
-   */
-  @Deprecated(since = "5.0")
-  public SpelParserConfiguration(@Nullable SpelCompilerMode compilerMode, @Nullable ClassLoader compilerClassLoader) {
-    this(compilerMode, compilerClassLoader, false, false, DEFAULT_MAX_AUTO_GROW_SIZE);
-  }
-
-  /**
-   * Create a new {@code SpelParserConfiguration} instance.
-   * <p>Prefer {@link #builder()} to override only the required settings.
-   *
-   * @param autoGrowNullReferences if null references should automatically grow
-   * @param autoGrowCollections if collections should automatically grow
-   * @see #SpelParserConfiguration(boolean, boolean, int)
-   * @deprecated in favor of {@link #builder()}
-   */
-  @Deprecated(since = "5.0")
-  public SpelParserConfiguration(boolean autoGrowNullReferences, boolean autoGrowCollections) {
-    this(null, null, autoGrowNullReferences, autoGrowCollections, DEFAULT_MAX_AUTO_GROW_SIZE);
-  }
-
-  /**
-   * Create a new {@code SpelParserConfiguration} instance.
-   * <p>Prefer {@link #builder()} to override only the required settings.
-   *
-   * @param autoGrowNullReferences if null references should automatically grow
-   * @param autoGrowCollections if collections should automatically grow
-   * @param maximumAutoGrowSize the maximum size that the collection can auto grow;
-   * zero disables growth, and negative values are not allowed
-   * @deprecated in favor of {@link #builder()}
-   */
-  @Deprecated(since = "5.0")
-  public SpelParserConfiguration(boolean autoGrowNullReferences, boolean autoGrowCollections, int maximumAutoGrowSize) {
-    this(null, null, autoGrowNullReferences, autoGrowCollections, maximumAutoGrowSize);
-  }
-
-  /**
-   * Create a new {@code SpelParserConfiguration} instance.
-   * <p>Prefer {@link #builder()} to override only the required settings.
-   *
-   * @param compilerMode the compiler mode that parsers using this configuration object should use
-   * @param compilerClassLoader the ClassLoader to use as the basis for expression compilation
-   * @param autoGrowNullReferences if null references should automatically grow
-   * @param autoGrowCollections if collections should automatically grow
-   * @param maximumAutoGrowSize the maximum size that the collection can auto grow
-   * @deprecated in favor of {@link #builder()}
-   */
-  @Deprecated(since = "5.0")
-  public SpelParserConfiguration(@Nullable SpelCompilerMode compilerMode, @Nullable ClassLoader compilerClassLoader,
-          boolean autoGrowNullReferences, boolean autoGrowCollections, int maximumAutoGrowSize) {
-
-    this(compilerMode, compilerClassLoader, autoGrowNullReferences, autoGrowCollections,
-            maximumAutoGrowSize, DEFAULT_MAX_EXPRESSION_LENGTH);
-  }
-
-  /**
-   * Create a new {@code SpelParserConfiguration} instance.
-   * <p>Prefer {@link #builder()} to override only the required settings.
-   *
-   * @param compilerMode the compiler mode that parsers using this configuration object should use
-   * @param compilerClassLoader the ClassLoader to use as the basis for expression compilation
-   * @param autoGrowNullReferences if null references should automatically grow
-   * @param autoGrowCollections if collections should automatically grow
-   * @param maximumAutoGrowSize the maximum size that a collection can auto grow
-   * @param maximumExpressionLength the maximum length of a SpEL expression;
-   * must be a positive number
-   * @deprecated in favor of {@link #builder()}
-   */
-  @Deprecated(since = "5.0")
-  public SpelParserConfiguration(@Nullable SpelCompilerMode compilerMode, @Nullable ClassLoader compilerClassLoader,
-          boolean autoGrowNullReferences, boolean autoGrowCollections, int maximumAutoGrowSize, int maximumExpressionLength) {
-
-    this(compilerMode, compilerClassLoader, autoGrowNullReferences, autoGrowCollections,
-            maximumAutoGrowSize, maximumExpressionLength, retrieveMaxBigPowerBits());
-  }
-
-  /**
-   * Create a parser configuration with an explicit limit on big-number power results.
-   * <p>Prefer {@link #builder()} to override only the required settings.
-   *
-   * @param compilerMode compiler mode, or {@code null} for the default
-   * @param compilerClassLoader class loader for compilation
-   * @param autoGrowNullReferences whether to grow null references
-   * @param autoGrowCollections whether to grow collections
-   * @param maximumAutoGrowSize maximum auto-grow size
-   * @param maximumExpressionLength maximum expression length
-   * @param maximumBigPowerBits maximum bits in a BigDecimal or BigInteger power result
-   * @deprecated in favor of {@link #builder()}
-   */
-  @Deprecated(since = "5.0")
-  public SpelParserConfiguration(@Nullable SpelCompilerMode compilerMode, @Nullable ClassLoader compilerClassLoader,
-          boolean autoGrowNullReferences, boolean autoGrowCollections, int maximumAutoGrowSize,
-          int maximumExpressionLength, int maximumBigPowerBits) {
-
-    this(compilerMode != null ? compilerMode : defaultCompilerMode, compilerClassLoader,
-            autoGrowNullReferences, autoGrowCollections, maximumAutoGrowSize,
-            maximumExpressionLength, maximumBigPowerBits, DEFAULT_MAX_EXPRESSION_NESTING_DEPTH);
-  }
 
   /**
    * Internal constructor with explicit limits on big-number powers and expression nesting.
@@ -288,12 +149,6 @@ public class SpelParserConfiguration {
   SpelParserConfiguration(SpelCompilerMode compilerMode, @Nullable ClassLoader compilerClassLoader,
           boolean autoGrowNullReferences, boolean autoGrowCollections, int maximumAutoGrowSize,
           int maximumExpressionLength, int maximumBigPowerBits, int maximumNestingDepth) {
-
-    Assert.notNull(compilerMode, "'compilerMode' must not be null");
-    Assert.isTrue(maximumExpressionLength > 0, "'maximumExpressionLength' must be a positive number");
-    Assert.isTrue(maximumBigPowerBits > 0, "'maximumBigPowerBits' must be a positive number");
-    Assert.isTrue(maximumNestingDepth > 0, "'maximumNestingDepth' must be a positive number");
-    Assert.isTrue(maximumAutoGrowSize >= 0, "'maximumAutoGrowSize' must not be negative");
     this.compilerMode = compilerMode;
     this.compilerClassLoader = compilerClassLoader;
     this.autoGrowNullReferences = autoGrowNullReferences;
@@ -314,8 +169,7 @@ public class SpelParserConfiguration {
   /**
    * Return the ClassLoader to use as the basis for expression compilation.
    */
-  @Nullable
-  public ClassLoader getCompilerClassLoader() {
+  public @Nullable ClassLoader getCompilerClassLoader() {
     return this.compilerClassLoader;
   }
 
@@ -375,14 +229,39 @@ public class SpelParserConfiguration {
     }
     try {
       int maxBits = Integer.parseInt(value.trim());
-      Assert.isTrue(maxBits > 0, () -> "Value [" + maxBits + "] for property [" +
-              EXPRESSION_MAX_BIG_POWER_BITS_PROPERTY_NAME + "] must be positive");
+      if (maxBits <= 0) {
+        throw new IllegalArgumentException("Value [%d] for property [%s] must be positive".formatted(maxBits, EXPRESSION_MAX_BIG_POWER_BITS_PROPERTY_NAME));
+      }
       return maxBits;
     }
     catch (NumberFormatException ex) {
-      throw new IllegalArgumentException("Failed to parse value for property [" +
-              EXPRESSION_MAX_BIG_POWER_BITS_PROPERTY_NAME + "]: " + ex.getMessage(), ex);
+      throw new IllegalArgumentException("Failed to parse value for property [%s]: %s"
+              .formatted(EXPRESSION_MAX_BIG_POWER_BITS_PROPERTY_NAME, ex.getMessage()), ex);
     }
+  }
+
+  /**
+   * Create a configuration with the same defaults as {@link #builder()}.
+   * <p>Equivalent to {@code SpelParserConfiguration.builder().build()}.
+   *
+   * @return a configuration with default settings
+   * @see #builder()
+   * @since 5.0
+   */
+  public static SpelParserConfiguration withDefaults() {
+    return builder().build();
+  }
+
+  /**
+   * Create a {@link Builder} to override only the settings that differ from
+   * their defaults.
+   *
+   * @return a new configuration builder
+   * @see #withDefaults()
+   * @since 5.0
+   */
+  public static Builder builder() {
+    return new Builder();
   }
 
   /**
@@ -426,7 +305,7 @@ public class SpelParserConfiguration {
      * @return this builder
      */
     public Builder compilerMode(SpelCompilerMode compilerMode) {
-      Assert.notNull(compilerMode, "'compilerMode' must not be null");
+      Assert.notNull(compilerMode, "'compilerMode' is required");
       this.compilerMode = compilerMode;
       return this;
     }
