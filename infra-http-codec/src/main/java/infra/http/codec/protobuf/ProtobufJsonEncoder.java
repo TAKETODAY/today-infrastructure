@@ -58,6 +58,8 @@ import reactor.core.publisher.Mono;
  */
 public class ProtobufJsonEncoder implements HttpMessageEncoder<Message> {
 
+  private static final byte[] NEWLINE_SEPARATOR = { '\n' };
+
   private static final ResolvableType MESSAGE_TYPE = ResolvableType.forClass(Message.class);
 
   private static final List<MimeType> defaultMimeTypes = List.of(
@@ -114,21 +116,29 @@ public class ProtobufJsonEncoder implements HttpMessageEncoder<Message> {
               .map(value -> encodeValue(value, bufferFactory, elementType, mimeType, hints))
               .flux();
     }
-    JsonArrayJoinHelper helper = new JsonArrayJoinHelper();
+    byte[] separator = getStreamingMediaTypeSeparator(mimeType);
+    if (separator != null) {
+      return Flux.from(inputStream)
+              .map(value -> bufferFactory.join(encodeValue(value, bufferFactory, MESSAGE_TYPE, mimeType, hints),
+                      bufferFactory.wrap(separator)));
+    }
+    else {
+      JsonArrayJoinHelper helper = new JsonArrayJoinHelper();
 
-    // Do not prepend JSON array prefix until first signal is known, onNext vs onError
-    // Keeps response not committed for error handling
-    return Flux.from(inputStream)
-            .map(value -> {
-              byte[] prefix = helper.getPrefix();
-              byte[] delimiter = helper.getDelimiter();
-              DataBuffer dataBuffer = encodeValue(value, bufferFactory, MESSAGE_TYPE, mimeType, hints);
-              return (prefix.length > 0 ?
-                      bufferFactory.join(bufferFactory.wrap(prefix), bufferFactory.wrap(delimiter), dataBuffer) :
-                      bufferFactory.join(bufferFactory.wrap(delimiter), dataBuffer));
-            })
-            .switchIfEmpty(Mono.fromCallable(() -> bufferFactory.wrap(helper.getPrefix())))
-            .concatWith(Mono.fromCallable(() -> bufferFactory.wrap(helper.getSuffix())));
+      // Do not prepend JSON array prefix until first signal is known, onNext vs onError
+      // Keeps response not committed for error handling
+      return Flux.from(inputStream)
+              .map(value -> {
+                byte[] prefix = helper.getPrefix();
+                byte[] delimiter = helper.getDelimiter();
+                DataBuffer dataBuffer = encodeValue(value, bufferFactory, MESSAGE_TYPE, mimeType, hints);
+                return (prefix.length > 0 ?
+                        bufferFactory.join(bufferFactory.wrap(prefix), bufferFactory.wrap(delimiter), dataBuffer) :
+                        bufferFactory.join(bufferFactory.wrap(delimiter), dataBuffer));
+              })
+              .switchIfEmpty(Mono.fromCallable(() -> bufferFactory.wrap(helper.getPrefix())))
+              .concatWith(Mono.fromCallable(() -> bufferFactory.wrap(helper.getSuffix())));
+    }
   }
 
   @Override
@@ -145,6 +155,16 @@ public class ProtobufJsonEncoder implements HttpMessageEncoder<Message> {
     catch (IOException ex) {
       throw new IllegalStateException("Unexpected I/O error while writing to data buffer", ex);
     }
+  }
+
+  /** Return a newline for streaming media types, or {@code null} for JSON arrays. */
+  protected byte @Nullable [] getStreamingMediaTypeSeparator(@Nullable MimeType mimeType) {
+    for (MediaType streamingMediaType : getStreamingMediaTypes()) {
+      if (streamingMediaType.isCompatibleWith(mimeType)) {
+        return NEWLINE_SEPARATOR;
+      }
+    }
+    return null;
   }
 
   private static final class JsonArrayJoinHelper {
