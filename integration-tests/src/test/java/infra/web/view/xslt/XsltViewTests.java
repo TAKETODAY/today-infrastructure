@@ -38,6 +38,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
+import infra.context.ApplicationContextException;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
@@ -48,6 +49,7 @@ import infra.web.mock.MockResponse;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
@@ -75,6 +77,15 @@ public class XsltViewTests {
     final XsltView view = new XsltView();
     assertThatIllegalArgumentException().isThrownBy(
             view::afterPropertiesSet);
+  }
+
+  @Test
+  void invalidStylesheetLocation() {
+    XsltView view = getXsltView(HTML_OUTPUT);
+    view.setUrl("/WEB-INF/../infra/web/view/xslt/products.xsl");
+    assertThatExceptionOfType(ApplicationContextException.class)
+            .isThrownBy(view::getStylesheetSource)
+            .withMessageContaining("Invalid XSLT stylesheet location");
   }
 
   @Test
