@@ -201,7 +201,9 @@ Boolean b = simple.booleanList.get(0);
 == 解析器配置
 
 可以使用解析器配置对象 (`infra.expression.spel.SpelParserConfiguration`) 配置 SpEL 表达式解析器。
-配置对象控制某些表达式组件的行为。例如，如果你对数组或集合进行索引，并且指定索引处的元素为 `null`，
+优先使用 `SpelParserConfiguration.builder()`，只设置需要覆盖的选项；全部使用构建器默认值时，
+调用 `SpelParserConfiguration.withDefaults()`。配置对象控制某些表达式组件的行为。
+例如，如果你对数组或集合进行索引，并且指定索引处的元素为 `null`，
 SpEL 可以自动创建该元素。这在使用由属性引用链组成的表达式时非常有用。
 如果你对数组或列表进行索引并指定超出数组或列表当前大小的索引，SpEL 可以自动增加数组或列表以容纳该索引。
 为了在指定索引处添加元素，SpEL 将尝试在设置指定值之前使用元素类型的默认构造函数创建元素。
@@ -238,18 +240,16 @@ Object o = expression.getValue(demo);
 
 ======
 
-通过配置构建器启用集合自动增长后，集合默认最多自动增长到 256 个元素，
-与数据绑定的默认集合增长上限一致。未显式指定上限的旧构造器仍以 `Integer.MAX_VALUE` 为默认上限，
-以保持兼容；需要可控上限时请使用构建器或显式配置 `maximumAutoGrowSize`。
+启用集合自动增长后，集合默认最多自动增长到 256 个元素，与数据绑定的默认集合增长上限一致。
+旧构造器和配置构建器使用相同的默认上限；需要自定义上限时请显式配置 `maximumAutoGrowSize`。
 通过编程方式创建 `SpelExpressionParser` 时，可以在 `SpelParserConfiguration` 中指定
 `maximumAutoGrowSize` 来调整该上限。
 
-推荐使用 `SpelParserConfiguration.builder()` 只覆盖需要调整的选项；全部使用默认值时可调用
-`SpelParserConfiguration.withDefaults()`。原有构造器继续可用。
+原有构造器继续可用。
 
 默认情况下，SpEL 表达式不能包含超过 10,000 个字符；但是，`maxExpressionLength` 是可配置的。
-如果你以编程方式创建 `SpelExpressionParser`，则可以在创建提供给 `SpelExpressionParser` 的
-`SpelParserConfiguration` 时指定自定义 `maxExpressionLength`。
+如果你以编程方式创建 `SpelExpressionParser`，则可以通过
+`SpelParserConfiguration.builder().maximumExpressionLength(...)` 指定自定义最大长度。
 如果你希望设置用于在 `ApplicationContext` 中解析 SpEL 表达式的 `maxExpressionLength`
 （例如，在 XML bean 定义、`@Value` 等中），你可以将名为 `infra.context.expression.maxLength`
 的 JVM 系统属性或 Infra 属性设置为应用程序所需的最大表达式长度
@@ -257,14 +257,15 @@ Object o = expression.getValue(demo);
 
 此外，SpEL 表达式中的 `BigDecimal` 或 `BigInteger` 幂运算结果默认不能超过 1,000,000 位，
 大约相当于 300,000 位十进制数字。较大的底数或指数可能使计算消耗大量资源，因此可以在创建
-`SpelParserConfiguration` 时通过 `maximumBigPowerBits` 参数指定更合适的上限；若需要实际上
+`SpelParserConfiguration` 时通过 `builder().maximumBigPowerBits(...)` 指定更合适的上限；若需要实际上
 不限制结果位数，可以传入 `Integer.MAX_VALUE`。如果无法显式配置解析器，可以通过 JVM 系统属性或
 `InfraStrategies` 属性 `spel.default.max-big-power-bits` 设置默认上限（参见
 xref:appendix.adoc#appendix-infra-properties[支持的 Infra 属性]）。
 
 SpEL 表达式的结构嵌套深度（例如嵌套列表、映射、括号、三元或 Elvis 表达式，以及连续的一元运算符）
-默认不得超过 1,000 层。以编程方式创建解析器时，可通过 `SpelParserConfiguration` 的
-`maximumNestingDepth` 参数调整上限；目前没有用于全局配置该参数的 JVM 系统属性或 Infra 属性。
+默认不得超过 1,000 层。以编程方式创建解析器时，可通过
+`SpelParserConfiguration.builder().maximumNestingDepth(...)` 调整上限；
+目前没有用于全局配置该参数的 JVM 系统属性或 Infra 属性。
 
 [NOTE]
 ====
@@ -330,8 +331,10 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE,
-    this.getClass().getClassLoader());
+SpelParserConfiguration config = SpelParserConfiguration.builder()
+    .compilerMode(SpelCompilerMode.IMMEDIATE)
+    .compilerClassLoader(getClass().getClassLoader())
+    .build();
 
 SpelExpressionParser parser = new SpelExpressionParser(config);
 

@@ -111,7 +111,7 @@ public class SpelParserConfiguration {
    */
   @Deprecated(since = "5.0")
   public SpelParserConfiguration() {
-    this(null, null, false, false, Integer.MAX_VALUE);
+    this(null, null, false, false, DEFAULT_MAX_AUTO_GROW_SIZE);
   }
 
   /**
@@ -123,7 +123,7 @@ public class SpelParserConfiguration {
    */
   @Deprecated(since = "5.0")
   public SpelParserConfiguration(@Nullable SpelCompilerMode compilerMode, @Nullable ClassLoader compilerClassLoader) {
-    this(compilerMode, compilerClassLoader, false, false, Integer.MAX_VALUE);
+    this(compilerMode, compilerClassLoader, false, false, DEFAULT_MAX_AUTO_GROW_SIZE);
   }
 
   /**
@@ -136,7 +136,7 @@ public class SpelParserConfiguration {
    */
   @Deprecated(since = "5.0")
   public SpelParserConfiguration(boolean autoGrowNullReferences, boolean autoGrowCollections) {
-    this(null, null, autoGrowNullReferences, autoGrowCollections, Integer.MAX_VALUE);
+    this(null, null, autoGrowNullReferences, autoGrowCollections, DEFAULT_MAX_AUTO_GROW_SIZE);
   }
 
   /**
@@ -208,14 +208,15 @@ public class SpelParserConfiguration {
           boolean autoGrowNullReferences, boolean autoGrowCollections, int maximumAutoGrowSize,
           int maximumExpressionLength, int maximumBigPowerBits) {
 
-    this(compilerMode, compilerClassLoader, autoGrowNullReferences, autoGrowCollections, maximumAutoGrowSize,
+    this(compilerMode != null ? compilerMode : defaultCompilerMode, compilerClassLoader,
+            autoGrowNullReferences, autoGrowCollections, maximumAutoGrowSize,
             maximumExpressionLength, maximumBigPowerBits, DEFAULT_MAX_EXPRESSION_NESTING_DEPTH);
   }
 
   /**
-   * Create a parser configuration with explicit limits on big-number powers and expression nesting.
+   * Internal constructor with explicit limits on big-number powers and expression nesting.
    *
-   * @param compilerMode compiler mode, or {@code null} for the default
+   * @param compilerMode compiler mode; must not be {@code null}
    * @param compilerClassLoader class loader for compilation
    * @param autoGrowNullReferences whether to grow null references
    * @param autoGrowCollections whether to grow collections
@@ -223,17 +224,17 @@ public class SpelParserConfiguration {
    * @param maximumExpressionLength maximum expression length
    * @param maximumBigPowerBits maximum bits in a big-number power result
    * @param maximumNestingDepth maximum structural nesting depth; must be positive
-   * @deprecated in favor of {@link #builder()}
    */
-  @Deprecated(since = "5.0")
-  public SpelParserConfiguration(@Nullable SpelCompilerMode compilerMode, @Nullable ClassLoader compilerClassLoader,
+  SpelParserConfiguration(SpelCompilerMode compilerMode, @Nullable ClassLoader compilerClassLoader,
           boolean autoGrowNullReferences, boolean autoGrowCollections, int maximumAutoGrowSize,
           int maximumExpressionLength, int maximumBigPowerBits, int maximumNestingDepth) {
 
+    Assert.notNull(compilerMode, "'compilerMode' must not be null");
+    Assert.isTrue(maximumExpressionLength > 0, "'maximumExpressionLength' must be a positive number");
     Assert.isTrue(maximumBigPowerBits > 0, "'maximumBigPowerBits' must be a positive number");
     Assert.isTrue(maximumNestingDepth > 0, "'maximumNestingDepth' must be a positive number");
     Assert.isTrue(maximumAutoGrowSize >= 0, "'maximumAutoGrowSize' must not be negative");
-    this.compilerMode = (compilerMode != null ? compilerMode : defaultCompilerMode);
+    this.compilerMode = compilerMode;
     this.compilerClassLoader = compilerClassLoader;
     this.autoGrowNullReferences = autoGrowNullReferences;
     this.autoGrowCollections = autoGrowCollections;
@@ -389,7 +390,6 @@ public class SpelParserConfiguration {
     }
 
     /** Build the configured parser configuration. */
-    @SuppressWarnings("deprecation")
     public SpelParserConfiguration build() {
       int maximumBigPowerBits = this.maximumBigPowerBits != null ? this.maximumBigPowerBits : retrieveMaxBigPowerBits();
       return new SpelParserConfiguration(this.compilerMode, this.compilerClassLoader,

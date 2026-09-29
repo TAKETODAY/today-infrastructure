@@ -93,9 +93,10 @@ class SpelParserTests {
 
     @Test
     void maxNestingDepthProtectsAgainstStackOverflowFromChainedUnaryOperators() {
-      SpelParserConfiguration configuration = new SpelParserConfiguration(SpelCompilerMode.OFF, null,
-              false, false, 0, Integer.MAX_VALUE, SpelParserConfiguration.DEFAULT_MAX_BIG_POWER_BITS,
-              SpelParserConfiguration.DEFAULT_MAX_EXPRESSION_NESTING_DEPTH);
+      SpelParserConfiguration configuration = SpelParserConfiguration.builder()
+              .compilerMode(SpelCompilerMode.OFF)
+              .maximumExpressionLength(Integer.MAX_VALUE)
+              .build();
       SpelExpressionParser parser = new SpelExpressionParser(configuration);
 
       assertParseExceptionThrownBy(() -> parser.parseExpression("!".repeat(100_000) + "true"))
@@ -115,8 +116,8 @@ class SpelParserTests {
     }
 
     private static SpelParserConfiguration configurationWithMaxNestingDepth(int maxNestingDepth) {
-      return new SpelParserConfiguration(SpelCompilerMode.OFF, null, false, false, 0, 10_000,
-              SpelParserConfiguration.DEFAULT_MAX_BIG_POWER_BITS, maxNestingDepth);
+      return SpelParserConfiguration.builder().compilerMode(SpelCompilerMode.OFF)
+              .maximumNestingDepth(maxNestingDepth).build();
     }
 
     private static void assertNestingDepthExceeded(ThrowableAssert.ThrowingCallable callable, int maxNestingDepth) {

@@ -24,7 +24,11 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-/** Tests for {@link SpelParserConfiguration}. */
+/**
+ * Tests for {@link SpelParserConfiguration}.
+ *
+ * @author Sam Brannen
+ */
 class SpelParserConfigurationTests {
 
   @Test
@@ -35,7 +39,7 @@ class SpelParserConfigurationTests {
     assertThat(actual.getCompilerClassLoader()).isEqualTo(expected.getCompilerClassLoader());
     assertThat(actual.isAutoGrowNullReferences()).isEqualTo(expected.isAutoGrowNullReferences());
     assertThat(actual.isAutoGrowCollections()).isEqualTo(expected.isAutoGrowCollections());
-    // The legacy constructor keeps its unbounded default for compatibility.
+    assertThat(actual.getMaximumAutoGrowSize()).isEqualTo(expected.getMaximumAutoGrowSize());
     assertThat(actual.getMaximumExpressionLength()).isEqualTo(expected.getMaximumExpressionLength());
     assertThat(actual.getMaximumBigPowerBits()).isEqualTo(expected.getMaximumBigPowerBits());
     assertThat(actual.getMaximumNestingDepth()).isEqualTo(expected.getMaximumNestingDepth());
@@ -43,7 +47,7 @@ class SpelParserConfigurationTests {
 
   @Test
   void maximumAutoGrowSizeDefaults() {
-    assertThat(new SpelParserConfiguration().getMaximumAutoGrowSize()).isEqualTo(Integer.MAX_VALUE);
+    assertThat(new SpelParserConfiguration().getMaximumAutoGrowSize()).isEqualTo(SpelParserConfiguration.DEFAULT_MAX_AUTO_GROW_SIZE);
     assertThat(SpelParserConfiguration.builder().build().getMaximumAutoGrowSize())
             .isEqualTo(SpelParserConfiguration.DEFAULT_MAX_AUTO_GROW_SIZE)
             .isEqualTo(256);
@@ -106,7 +110,7 @@ class SpelParserConfigurationTests {
       assertThat(configuration.getCompilerClassLoader()).isNull();
       assertThat(configuration.isAutoGrowNullReferences()).isFalse();
       assertThat(configuration.isAutoGrowCollections()).isFalse();
-      assertThat(configuration.getMaximumAutoGrowSize()).isEqualTo(Integer.MAX_VALUE);
+      assertThat(configuration.getMaximumAutoGrowSize()).isEqualTo(SpelParserConfiguration.DEFAULT_MAX_AUTO_GROW_SIZE);
       assertThat(configuration.getMaximumExpressionLength()).isEqualTo(SpelParserConfiguration.DEFAULT_MAX_EXPRESSION_LENGTH);
       assertThat(configuration.getMaximumBigPowerBits()).isEqualTo(SpelParserConfiguration.DEFAULT_MAX_BIG_POWER_BITS);
       assertThat(configuration.getMaximumNestingDepth()).isEqualTo(SpelParserConfiguration.DEFAULT_MAX_EXPRESSION_NESTING_DEPTH);
@@ -118,7 +122,7 @@ class SpelParserConfigurationTests {
       SpelParserConfiguration configuration = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, classLoader);
       assertThat(configuration.getCompilerMode()).isEqualTo(SpelCompilerMode.IMMEDIATE);
       assertThat(configuration.getCompilerClassLoader()).isSameAs(classLoader);
-      assertThat(configuration.getMaximumAutoGrowSize()).isEqualTo(Integer.MAX_VALUE);
+      assertThat(configuration.getMaximumAutoGrowSize()).isEqualTo(SpelParserConfiguration.DEFAULT_MAX_AUTO_GROW_SIZE);
     }
 
     @Test
@@ -126,7 +130,7 @@ class SpelParserConfigurationTests {
       SpelParserConfiguration configuration = new SpelParserConfiguration(true, true);
       assertThat(configuration.isAutoGrowNullReferences()).isTrue();
       assertThat(configuration.isAutoGrowCollections()).isTrue();
-      assertThat(configuration.getMaximumAutoGrowSize()).isEqualTo(Integer.MAX_VALUE);
+      assertThat(configuration.getMaximumAutoGrowSize()).isEqualTo(SpelParserConfiguration.DEFAULT_MAX_AUTO_GROW_SIZE);
     }
 
     @Test
@@ -164,7 +168,11 @@ class SpelParserConfigurationTests {
     @Test
     void canonicalConstructorRejectsInvalidValues() {
       assertThatIllegalArgumentException().isThrownBy(() ->
+              new SpelParserConfiguration(null, null, false, false, 0, 1, 1, 1));
+      assertThatIllegalArgumentException().isThrownBy(() ->
               new SpelParserConfiguration(SpelCompilerMode.OFF, null, false, false, -1, 1, 1, 1));
+      assertThatIllegalArgumentException().isThrownBy(() ->
+              new SpelParserConfiguration(SpelCompilerMode.OFF, null, false, false, 0, 0, 1, 1));
       assertThatIllegalArgumentException().isThrownBy(() ->
               new SpelParserConfiguration(SpelCompilerMode.OFF, null, false, false, 0, 1, 0, 1));
       assertThatIllegalArgumentException().isThrownBy(() ->

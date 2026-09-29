@@ -47,7 +47,7 @@ class SpelCompilerTests {
   @Test
     // gh-24357
   void expressionCompilesWhenMethodComesFromPublicInterface() {
-    SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, null);
+    SpelParserConfiguration config = SpelParserConfiguration.builder().compilerMode(SpelCompilerMode.IMMEDIATE).build();
     SpelExpressionParser parser = new SpelExpressionParser(config);
 
     OrderedComponent component = new OrderedComponent();
@@ -61,7 +61,7 @@ class SpelCompilerTests {
   @Test
   void simpleEvaluationContextBlocksCompilationByDefault() {
     SpelExpressionParser parser = new SpelExpressionParser(
-            new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, null));
+            SpelParserConfiguration.builder().compilerMode(SpelCompilerMode.IMMEDIATE).build());
     Expression expression = parser.parseExpression("order");
     SimpleEvaluationContext context = SimpleEvaluationContext.forReadOnlyDataBinding().build();
     assertThat(context.isCompilationSupported()).isFalse();
@@ -74,7 +74,7 @@ class SpelCompilerTests {
   @Test
   void simpleEvaluationContextAllowsCompilationWhenSupported() {
     SpelExpressionParser parser = new SpelExpressionParser(
-            new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, null));
+            SpelParserConfiguration.builder().compilerMode(SpelCompilerMode.IMMEDIATE).build());
     Expression expression = parser.parseExpression("order");
     SimpleEvaluationContext context = SimpleEvaluationContext.forReadOnlyDataBinding()
             .withCompilationSupported().build();
@@ -88,7 +88,7 @@ class SpelCompilerTests {
   @Test
   void simpleEvaluationContextIgnoresPrecompiledExpressionByDefault() {
     SpelExpressionParser parser = new SpelExpressionParser(
-            new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, null));
+            SpelParserConfiguration.builder().compilerMode(SpelCompilerMode.IMMEDIATE).build());
     Expression expression = parser.parseExpression("order");
     EvaluationContext standardContext = new StandardEvaluationContext();
     assertThat(standardContext.isCompilationSupported()).isTrue();
@@ -108,7 +108,7 @@ class SpelCompilerTests {
   @Test
   void simpleEvaluationContextSetAsDefaultBlocksCompilationForImplicitContextVariants() {
     SpelExpression expression = new SpelExpressionParser(
-            new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, null)).parseRaw("order");
+            SpelParserConfiguration.builder().compilerMode(SpelCompilerMode.IMMEDIATE).build()).parseRaw("order");
     OrderedComponent component = new OrderedComponent();
     SimpleEvaluationContext context = SimpleEvaluationContext.forReadOnlyDataBinding()
             .withRootObject(component).build();
@@ -130,7 +130,7 @@ class SpelCompilerTests {
   @Test
   void simpleEvaluationContextSetAsDefaultIgnoresPrecompiledExpressionForImplicitContextVariants() {
     SpelExpression expression = new SpelExpressionParser(
-            new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, null)).parseRaw("order");
+            SpelParserConfiguration.builder().compilerMode(SpelCompilerMode.IMMEDIATE).build()).parseRaw("order");
     StandardEvaluationContext standardContext = new StandardEvaluationContext();
     assertThat(standardContext.isCompilationSupported()).isTrue();
     OrderedComponent component = new OrderedComponent();
@@ -158,7 +158,7 @@ class SpelCompilerTests {
   @Test
     // gh-25706
   void defaultMethodInvocation() {
-    SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, null);
+    SpelParserConfiguration config = SpelParserConfiguration.builder().compilerMode(SpelCompilerMode.IMMEDIATE).build();
     SpelExpressionParser parser = new SpelExpressionParser(config);
 
     StandardEvaluationContext context = new StandardEvaluationContext();
@@ -184,7 +184,7 @@ class SpelCompilerTests {
   @Test
     // gh-28043
   void changingRegisteredVariableTypeDoesNotResultInFailureInMixedMode() {
-    SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.MIXED, null);
+    SpelParserConfiguration config = SpelParserConfiguration.builder().compilerMode(SpelCompilerMode.MIXED).build();
     SpelExpressionParser parser = new SpelExpressionParser(config);
     Expression sharedExpression = parser.parseExpression("#bean.value");
     StandardEvaluationContext context = new StandardEvaluationContext();
