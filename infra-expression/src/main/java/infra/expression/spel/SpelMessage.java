@@ -295,7 +295,11 @@ public enum SpelMessage {
 
   /** @since 5.0 */
   EXCEPTION_DURING_INDEX_WRITE(Kind.ERROR, 1084,
-          "A problem occurred while attempting to write index ''{0}'' in ''{1}''");
+          "A problem occurred while attempting to write index ''{0}'' in ''{1}''"),
+
+  MAX_BIG_POWER_RESULT_EXCEEDED(Kind.ERROR, 1086,
+          "BigDecimal/BigInteger power operation with base bit length ''{0}'' and exponent ''{1}'' " +
+                  "would produce a result exceeding the configured maximum of ''{2}'' bits");
 
   private final Kind kind;
 

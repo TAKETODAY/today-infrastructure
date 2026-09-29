@@ -721,6 +721,60 @@ class EvaluationTests extends AbstractExpressionTests {
   }
 
   @Nested
+  class PowerOperatorTests {
+
+    private static final int TEST_MAX_RESULT_BITS = 16;
+
+    private final EvaluationContext context = SimpleEvaluationContext.forReadOnlyDataBinding().build();
+
+    private final SpelExpressionParser limitedParser = new SpelExpressionParser(
+            new SpelParserConfiguration(SpelCompilerMode.OFF, null, false, false,
+                    0, 10, TEST_MAX_RESULT_BITS));
+
+    @Test
+    void powerOperatorWithBigDecimal() {
+      context.setVariable("bd", BigDecimal.valueOf(2.0));
+      Expression expr = parser.parseExpression("#bd ^ 4");
+      assertThat(expr.getValue(context, BigDecimal.class)).isEqualByComparingTo("16");
+    }
+
+    @Test
+    void powerOperatorWithBigDecimalUnderResultLimit() {
+      context.setVariable("bd", BigDecimal.valueOf(2.0));
+      Expression expr = limitedParser.parseExpression("#bd ^ 3");
+      assertThat(expr.getValue(context, BigDecimal.class)).isEqualByComparingTo("8");
+    }
+
+    @Test
+    void powerOperatorWithBigDecimalExceedingResultLimit() {
+      context.setVariable("bd", BigDecimal.valueOf(2.0));
+      evaluateAndCheckError(limitedParser, context, "#bd ^ 4", BigDecimal.class,
+              SpelMessage.MAX_BIG_POWER_RESULT_EXCEEDED, 4, 5, 4, TEST_MAX_RESULT_BITS);
+    }
+
+    @Test
+    void powerOperatorWithBigInteger() {
+      context.setVariable("bi", BigInteger.valueOf(2));
+      Expression expr = parser.parseExpression("#bi ^ 4");
+      assertThat(expr.getValue(context, BigInteger.class)).isEqualTo(BigInteger.valueOf(16));
+    }
+
+    @Test
+    void powerOperatorWithBigIntegerUnderResultLimit() {
+      context.setVariable("bi", BigInteger.valueOf(2));
+      Expression expr = limitedParser.parseExpression("#bi ^ 8");
+      assertThat(expr.getValue(context, BigInteger.class)).isEqualTo(BigInteger.valueOf(256));
+    }
+
+    @Test
+    void powerOperatorWithBigIntegerExceedingResultLimit() {
+      context.setVariable("bi", BigInteger.valueOf(2));
+      evaluateAndCheckError(limitedParser, context, "#bi ^ 9", BigInteger.class,
+              SpelMessage.MAX_BIG_POWER_RESULT_EXCEEDED, 4, 2, 9, TEST_MAX_RESULT_BITS);
+    }
+  }
+
+  @Nested
   class TernaryOperatorTests {
 
     @Test

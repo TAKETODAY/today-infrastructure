@@ -23,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Locale;
 
 import infra.expression.spel.standard.SpelExpressionParser;
+import infra.util.Assert;
 import infra.util.InfraStrategies;
 
 /**
@@ -52,6 +53,12 @@ public class SpelParserConfiguration {
    */
   public static final String MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME = "spel.default.max-length";
 
+  /** Default maximum number of bits in a BigDecimal or BigInteger power result. */
+  public static final int DEFAULT_MAX_BIG_POWER_BITS = 1_000_000;
+
+  /** Property configuring the default maximum bit length of big-number power results. */
+  public static final String EXPRESSION_MAX_BIG_POWER_BITS_PROPERTY_NAME = "spel.default.max-big-power-bits";
+
   private static final SpelCompilerMode defaultCompilerMode;
 
   /**
@@ -77,6 +84,8 @@ public class SpelParserConfiguration {
   private final int maximumAutoGrowSize;
 
   private final int maximumExpressionLength;
+
+  private final int maximumBigPowerBits;
 
   /**
    * Create a new {@code SpelParserConfiguration} instance with default settings.
@@ -147,12 +156,33 @@ public class SpelParserConfiguration {
   public SpelParserConfiguration(@Nullable SpelCompilerMode compilerMode, @Nullable ClassLoader compilerClassLoader,
           boolean autoGrowNullReferences, boolean autoGrowCollections, int maximumAutoGrowSize, int maximumExpressionLength) {
 
+    this(compilerMode, compilerClassLoader, autoGrowNullReferences, autoGrowCollections,
+            maximumAutoGrowSize, maximumExpressionLength, retrieveMaxBigPowerBits());
+  }
+
+  /**
+   * Create a parser configuration with an explicit limit on big-number power results.
+   *
+   * @param compilerMode compiler mode, or {@code null} for the default
+   * @param compilerClassLoader class loader for compilation
+   * @param autoGrowNullReferences whether to grow null references
+   * @param autoGrowCollections whether to grow collections
+   * @param maximumAutoGrowSize maximum auto-grow size
+   * @param maximumExpressionLength maximum expression length
+   * @param maximumBigPowerBits maximum bits in a BigDecimal or BigInteger power result
+   */
+  public SpelParserConfiguration(@Nullable SpelCompilerMode compilerMode, @Nullable ClassLoader compilerClassLoader,
+          boolean autoGrowNullReferences, boolean autoGrowCollections, int maximumAutoGrowSize,
+          int maximumExpressionLength, int maximumBigPowerBits) {
+
+    Assert.isTrue(maximumBigPowerBits > 0, "'maximumBigPowerBits' must be a positive number");
     this.compilerMode = (compilerMode != null ? compilerMode : defaultCompilerMode);
     this.compilerClassLoader = compilerClassLoader;
     this.autoGrowNullReferences = autoGrowNullReferences;
     this.autoGrowCollections = autoGrowCollections;
     this.maximumAutoGrowSize = maximumAutoGrowSize;
     this.maximumExpressionLength = maximumExpressionLength;
+    this.maximumBigPowerBits = maximumBigPowerBits;
   }
 
   /**
@@ -196,6 +226,28 @@ public class SpelParserConfiguration {
    */
   public int getMaximumExpressionLength() {
     return this.maximumExpressionLength;
+  }
+
+  /** Return the maximum number of bits in a big-number power result. */
+  public int getMaximumBigPowerBits() {
+    return this.maximumBigPowerBits;
+  }
+
+  private static int retrieveMaxBigPowerBits() {
+    String value = InfraStrategies.getProperty(EXPRESSION_MAX_BIG_POWER_BITS_PROPERTY_NAME);
+    if (value == null || value.isBlank()) {
+      return DEFAULT_MAX_BIG_POWER_BITS;
+    }
+    try {
+      int maxBits = Integer.parseInt(value.trim());
+      Assert.isTrue(maxBits > 0, () -> "Value [" + maxBits + "] for property [" +
+              EXPRESSION_MAX_BIG_POWER_BITS_PROPERTY_NAME + "] must be positive");
+      return maxBits;
+    }
+    catch (NumberFormatException ex) {
+      throw new IllegalArgumentException("Failed to parse value for property [" +
+              EXPRESSION_MAX_BIG_POWER_BITS_PROPERTY_NAME + "]: " + ex.getMessage(), ex);
+    }
   }
 
 }

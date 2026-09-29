@@ -246,6 +246,13 @@ Object o = expression.getValue(demo);
 的 JVM 系统属性或 Infra 属性设置为应用程序所需的最大表达式长度
 （请参阅 xref:appendix.adoc#appendix-infra-properties[支持的 Infra 属性]）。
 
+此外，SpEL 表达式中的 `BigDecimal` 或 `BigInteger` 幂运算结果默认不能超过 1,000,000 位，
+大约相当于 300,000 位十进制数字。较大的底数或指数可能使计算消耗大量资源，因此可以在创建
+`SpelParserConfiguration` 时通过 `maximumBigPowerBits` 参数指定更合适的上限；若需要实际上
+不限制结果位数，可以传入 `Integer.MAX_VALUE`。如果无法显式配置解析器，可以通过 JVM 系统属性或
+`InfraStrategies` 属性 `spel.default.max-big-power-bits` 设置默认上限（参见
+xref:appendix.adoc#appendix-infra-properties[支持的 Infra 属性]）。
+
 
 [[expressions-spel-compilation]]
 == SpEL 编译
