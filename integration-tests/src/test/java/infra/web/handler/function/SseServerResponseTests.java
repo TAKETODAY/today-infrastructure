@@ -71,7 +71,7 @@ class SseServerResponseTests {
 
     Object mav = response.writeTo(httpContext, context);
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);
-    String expected = "data:" + body + "\n\n";
+    String expected = "data: " + body + "\n\n";
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(expected);
   }
 
@@ -95,7 +95,7 @@ class SseServerResponseTests {
 
     Object mav = response.writeTo(httpContext, context);
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);
-    String expected = "data:{\"name\":\"John Doe\",\"age\":42}\n\n";
+    String expected = "data: {\"name\":\"John Doe\",\"age\":42}\n\n";
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(expected);
   }
 
@@ -120,13 +120,7 @@ class SseServerResponseTests {
     Object mav = response.writeTo(httpContext, context);
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
-    String expected = """
-            data:{
-            data:  "name" : "John Doe",
-            data:  "age" : 42
-            data:}
-            
-            """;
+    String expected = "data: {\ndata:   \"name\" : \"John Doe\",\ndata:   \"age\" : 42\ndata: }\n\n";
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(expected);
   }
 
@@ -153,15 +147,7 @@ class SseServerResponseTests {
 
     Object mav = response.writeTo(httpContext, context);
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);
-    String expected = """
-            id:id
-            event:name
-            :comment line 1
-            :comment line 2
-            retry:1000
-            data:data
-            
-            """;
+    String expected = "id:id\nevent:name\n:comment line 1\n:comment line 2\nretry:1000\ndata: data\n\n";
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(expected);
   }
 
@@ -185,6 +171,39 @@ class SseServerResponseTests {
 
     String expected = "event:custom\n\n";
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(expected);
+  }
+
+  @Test
+  void sendStringWithCarriageReturn() throws Throwable {
+    String body = "line1\rline2\r\nline3";
+    ServerResponse response = ServerResponse.sse(sse -> {
+      try {
+        sse.send(body);
+      }
+      catch (IOException ex) {
+        throw new UncheckedIOException(ex);
+      }
+    });
+
+    Object result = response.writeTo(new MockHttpContext(null, mockRequest, mockResponse), Collections::emptyList);
+    assertThat(result).isSameAs(ServerResponse.NONE_RETURN_VALUE);
+    assertThat(mockResponse.getContentAsString()).isEqualTo("data: line1\ndata: line2\ndata: line3\n\n");
+  }
+
+  @Test
+  void commentWithCarriageReturn() throws Throwable {
+    ServerResponse response = ServerResponse.sse(sse -> {
+      try {
+        sse.comment("line1\rline2").send();
+      }
+      catch (IOException ex) {
+        throw new UncheckedIOException(ex);
+      }
+    });
+
+    Object result = response.writeTo(new MockHttpContext(null, mockRequest, mockResponse), Collections::emptyList);
+    assertThat(result).isSameAs(ServerResponse.NONE_RETURN_VALUE);
+    assertThat(mockResponse.getContentAsString()).isEqualTo(":line1\n:line2\n\n");
   }
 
   @Test

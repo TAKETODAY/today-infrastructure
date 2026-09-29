@@ -28,7 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import infra.http.MediaType;
-import infra.util.Assert;
+import infra.http.SseUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 import infra.web.view.ModelAndView;
@@ -187,14 +187,14 @@ public class SseEmitter extends ResponseBodyEmitter {
 
     @Override
     public SseEventBuilder id(String id) {
-      checkEvent(id);
+      SseUtils.assertNoLineSeparator(id);
       append("id:").append(id).append('\n');
       return this;
     }
 
     @Override
     public SseEventBuilder name(String name) {
-      checkEvent(name);
+      SseUtils.assertNoLineSeparator(name);
       this.hasName = true;
       append("event:").append(name).append('\n');
       return this;
@@ -209,7 +209,7 @@ public class SseEmitter extends ResponseBodyEmitter {
     @Override
     public SseEventBuilder comment(String comment) {
       append(':');
-      appendEscaped(comment, "\n:");
+      SseUtils.appendFieldValue("", comment, this.sb);
       append('\n');
       return this;
     }
@@ -224,7 +224,7 @@ public class SseEmitter extends ResponseBodyEmitter {
       if (object instanceof ModelAndView mav && !this.hasName && mav.getViewName() != null) {
         name(mav.getViewName());
       }
-      append("data:");
+      append("data: ");
       saveAppendedText(TEXT_PLAIN);
       if (object instanceof String text) {
         writeStringData(text, mediaType);
@@ -236,42 +236,13 @@ public class SseEmitter extends ResponseBodyEmitter {
       return this;
     }
 
-    private static void checkEvent(String content) {
-      Assert.isTrue(content.indexOf('\n') == -1 && content.indexOf('\r') == -1,
-              "illegal character '\\n' or '\\r' in event content");
-    }
-
     private void writeStringData(String input, @Nullable MediaType mediaType) {
       if (input.indexOf('\n') == -1 && input.indexOf('\r') == -1) {
         this.dataToSend.add(new DataWithMediaType(input, mediaType));
       }
       else {
-        appendEscaped(input, "\ndata:");
+        SseUtils.appendFieldValue("data", input, this.sb);
         saveAppendedText(mediaType);
-      }
-    }
-
-    private void appendEscaped(String input, String replacement) {
-      if (input.indexOf('\n') == -1 && input.indexOf('\r') == -1) {
-        append(input);
-      }
-      else {
-        int length = input.length();
-        for (int i = 0; i < length; i++) {
-          char c = input.charAt(i);
-          if (c == '\r') {
-            if (i + 1 < length && input.charAt(i + 1) == '\n') {
-              i++;
-            }
-            append(replacement);
-          }
-          else if (c == '\n') {
-            append(replacement);
-          }
-          else {
-            append(c);
-          }
-        }
       }
     }
 

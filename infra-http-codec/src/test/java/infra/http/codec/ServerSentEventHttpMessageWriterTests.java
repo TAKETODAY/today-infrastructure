@@ -84,7 +84,7 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
 
     StepVerifier.create(outputMessage.getBody())
             .consumeNextWith(stringConsumer(
-                    "id:c42\nevent:foo\nretry:123\n:bla\n:bla bla\n:bla bla bla\ndata:bar\n\n"))
+                     "id:c42\nevent:foo\nretry:123\n:bla\n:bla bla\n:bla bla bla\ndata: bar\n\n"))
             .expectComplete()
             .verify();
   }
@@ -98,8 +98,8 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
     testWrite(source, outputMessage, String.class);
 
     StepVerifier.create(outputMessage.getBody())
-            .consumeNextWith(stringConsumer("data:foo\n\n"))
-            .consumeNextWith(stringConsumer("data:bar\n\n"))
+            .consumeNextWith(stringConsumer("data: foo\n\n"))
+            .consumeNextWith(stringConsumer("data: bar\n\n"))
             .expectComplete()
             .verify();
   }
@@ -113,9 +113,9 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
     testWrite(source, outputMessage, String.class);
 
     StepVerifier.create(outputMessage.getBody())
-            .consumeNextWith(stringConsumer("data:first\ndata:second\n\n"))
-            .consumeNextWith(stringConsumer("data:first\ndata:second\n\n"))
-            .consumeNextWith(stringConsumer("data:first\ndata:second\n\n"))
+            .consumeNextWith(stringConsumer("data: first\ndata: second\n\n"))
+            .consumeNextWith(stringConsumer("data: first\ndata: second\n\n"))
+            .consumeNextWith(stringConsumer("data: first\ndata: second\n\n"))
             .expectComplete()
             .verify();
   }
@@ -135,7 +135,7 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
             .consumeNextWith(dataBuffer -> {
               String value = dataBuffer.toString(charset);
               dataBuffer.release();
-              assertThat(value).isEqualTo("data:\u00A3\n\n");
+              assertThat(value).isEqualTo("data: \u00A3\n\n");
             })
             .expectComplete()
             .verify();
@@ -150,10 +150,10 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
     testWrite(source, outputMessage, Pojo.class);
 
     StepVerifier.create(outputMessage.getBody())
-            .consumeNextWith(stringConsumer("data:"))
+            .consumeNextWith(stringConsumer("data: "))
             .consumeNextWith(stringConsumer("{\"foo\":\"foofoo\",\"bar\":\"barbar\"}"))
             .consumeNextWith(stringConsumer("\n\n"))
-            .consumeNextWith(stringConsumer("data:"))
+            .consumeNextWith(stringConsumer("data: "))
             .consumeNextWith(stringConsumer("{\"foo\":\"foofoofoo\",\"bar\":\"barbarbar\"}"))
             .consumeNextWith(stringConsumer("\n\n"))
             .expectComplete()
@@ -172,19 +172,11 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
     testWrite(source, outputMessage, Pojo.class);
 
     StepVerifier.create(outputMessage.getBody())
-            .consumeNextWith(stringConsumer("data:"))
-            .consumeNextWith(stringConsumer("""
-                    {
-                    data:  "foo" : "foofoo",
-                    data:  "bar" : "barbar"
-                    data:}"""))
+            .consumeNextWith(stringConsumer("data: "))
+            .consumeNextWith(stringConsumer("{\ndata:   \"foo\" : \"foofoo\",\ndata:   \"bar\" : \"barbar\"\ndata: }"))
             .consumeNextWith(stringConsumer("\n\n"))
-            .consumeNextWith(stringConsumer("data:"))
-            .consumeNextWith(stringConsumer("""
-                    {
-                    data:  "foo" : "foofoofoo",
-                    data:  "bar" : "barbarbar"
-                    data:}"""))
+            .consumeNextWith(stringConsumer("data: "))
+            .consumeNextWith(stringConsumer("{\ndata:   \"foo\" : \"foofoofoo\",\ndata:   \"bar\" : \"barbarbar\"\ndata: }"))
             .consumeNextWith(stringConsumer("\n\n"))
             .expectComplete()
             .verify();
@@ -202,7 +194,7 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
 
     assertThat(outputMessage.getHeaders().getContentType()).isEqualTo(mediaType);
     StepVerifier.create(outputMessage.getBody())
-            .consumeNextWith(stringConsumer("data:", charset))
+            .consumeNextWith(stringConsumer("data: ", charset))
             .consumeNextWith(stringConsumer("{\"foo\":\"foo\uD834\uDD1E\",\"bar\":\"bar\uD834\uDD1E\"}", charset))
             .consumeNextWith(stringConsumer("\n\n", charset))
             .expectComplete()

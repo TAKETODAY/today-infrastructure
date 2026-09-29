@@ -34,6 +34,7 @@ import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
 import infra.http.HttpLogging;
 import infra.http.MediaType;
+import infra.http.SseUtils;
 import infra.http.reactive.ReactiveHttpOutputMessage;
 import infra.http.reactive.server.ServerHttpRequest;
 import infra.http.reactive.server.ServerHttpResponse;
@@ -142,27 +143,7 @@ public class ServerSentEventHttpMessageWriter implements HttpMessageWriter<Objec
   }
 
   private void writeStringData(String input, StringBuilder sb) {
-    if (input.indexOf('\n') == -1 && input.indexOf('\r') == -1) {
-      sb.append(input);
-    }
-    else {
-      int length = input.length();
-      for (int i = 0; i < length; i++) {
-        char c = input.charAt(i);
-        if (c == '\r') {
-          if (i + 1 < length && input.charAt(i + 1) == '\n') {
-            i++;
-          }
-          sb.append("\ndata:");
-        }
-        else if (c == '\n') {
-          sb.append("\ndata:");
-        }
-        else {
-          sb.append(c);
-        }
-      }
-    }
+    SseUtils.appendFieldValue("data", input, sb);
     sb.append("\n\n");
   }
 
