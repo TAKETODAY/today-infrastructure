@@ -253,6 +253,18 @@ Object o = expression.getValue(demo);
 `InfraStrategies` 属性 `spel.default.max-big-power-bits` 设置默认上限（参见
 xref:appendix.adoc#appendix-infra-properties[支持的 Infra 属性]）。
 
+SpEL 表达式的结构嵌套深度（例如嵌套列表、映射、括号、三元或 Elvis 表达式，以及连续的一元运算符）
+默认不得超过 1,000 层。以编程方式创建解析器时，可通过 `SpelParserConfiguration` 的
+`maximumNestingDepth` 参数调整上限；目前没有用于全局配置该参数的 JVM 系统属性或 Infra 属性。
+
+[NOTE]
+====
+嵌套过深可能使递归下降解析器耗尽线程调用栈。深度限制通常能提前抛出明确的
+`SpelParseException`，但实际栈消耗依赖 JVM、JIT 和线程栈大小，不能保证在所有环境中避免
+`StackOverflowError`。对于来自不可信来源的表达式，仍需遵循本章的安全注意事项，
+不要仅依赖这一上限。
+====
+
 
 [[expressions-spel-compilation]]
 == SpEL 编译

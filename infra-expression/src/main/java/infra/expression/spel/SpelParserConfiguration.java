@@ -56,6 +56,9 @@ public class SpelParserConfiguration {
   /** Default maximum number of bits in a BigDecimal or BigInteger power result. */
   public static final int DEFAULT_MAX_BIG_POWER_BITS = 1_000_000;
 
+  /** Default maximum structural nesting depth of a SpEL expression. */
+  public static final int DEFAULT_MAX_EXPRESSION_NESTING_DEPTH = 1_000;
+
   /** Property configuring the default maximum bit length of big-number power results. */
   public static final String EXPRESSION_MAX_BIG_POWER_BITS_PROPERTY_NAME = "spel.default.max-big-power-bits";
 
@@ -86,6 +89,8 @@ public class SpelParserConfiguration {
   private final int maximumExpressionLength;
 
   private final int maximumBigPowerBits;
+
+  private final int maximumNestingDepth;
 
   /**
    * Create a new {@code SpelParserConfiguration} instance with default settings.
@@ -175,7 +180,28 @@ public class SpelParserConfiguration {
           boolean autoGrowNullReferences, boolean autoGrowCollections, int maximumAutoGrowSize,
           int maximumExpressionLength, int maximumBigPowerBits) {
 
+    this(compilerMode, compilerClassLoader, autoGrowNullReferences, autoGrowCollections, maximumAutoGrowSize,
+            maximumExpressionLength, maximumBigPowerBits, DEFAULT_MAX_EXPRESSION_NESTING_DEPTH);
+  }
+
+  /**
+   * Create a parser configuration with explicit limits on big-number powers and expression nesting.
+   *
+   * @param compilerMode compiler mode, or {@code null} for the default
+   * @param compilerClassLoader class loader for compilation
+   * @param autoGrowNullReferences whether to grow null references
+   * @param autoGrowCollections whether to grow collections
+   * @param maximumAutoGrowSize maximum auto-grow size
+   * @param maximumExpressionLength maximum expression length
+   * @param maximumBigPowerBits maximum bits in a big-number power result
+   * @param maximumNestingDepth maximum structural nesting depth; must be positive
+   */
+  public SpelParserConfiguration(@Nullable SpelCompilerMode compilerMode, @Nullable ClassLoader compilerClassLoader,
+          boolean autoGrowNullReferences, boolean autoGrowCollections, int maximumAutoGrowSize,
+          int maximumExpressionLength, int maximumBigPowerBits, int maximumNestingDepth) {
+
     Assert.isTrue(maximumBigPowerBits > 0, "'maximumBigPowerBits' must be a positive number");
+    Assert.isTrue(maximumNestingDepth > 0, "'maximumNestingDepth' must be a positive number");
     this.compilerMode = (compilerMode != null ? compilerMode : defaultCompilerMode);
     this.compilerClassLoader = compilerClassLoader;
     this.autoGrowNullReferences = autoGrowNullReferences;
@@ -183,6 +209,7 @@ public class SpelParserConfiguration {
     this.maximumAutoGrowSize = maximumAutoGrowSize;
     this.maximumExpressionLength = maximumExpressionLength;
     this.maximumBigPowerBits = maximumBigPowerBits;
+    this.maximumNestingDepth = maximumNestingDepth;
   }
 
   /**
@@ -231,6 +258,11 @@ public class SpelParserConfiguration {
   /** Return the maximum number of bits in a big-number power result. */
   public int getMaximumBigPowerBits() {
     return this.maximumBigPowerBits;
+  }
+
+  /** Return the maximum structural nesting depth permitted within an expression. */
+  public int getMaximumNestingDepth() {
+    return this.maximumNestingDepth;
   }
 
   private static int retrieveMaxBigPowerBits() {
