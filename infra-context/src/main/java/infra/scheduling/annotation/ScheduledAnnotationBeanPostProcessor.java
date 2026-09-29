@@ -29,6 +29,7 @@ import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -446,7 +447,8 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
             else {
               trigger = new CronTrigger(cron);
             }
-            tasks.add(this.registrar.scheduleCronTask(new CronTask(runnable, trigger)));
+            tasks.add(Objects.requireNonNull(
+                    this.registrar.scheduleCronTask(new CronTask(runnable, trigger))));
           }
         }
       }
@@ -459,7 +461,8 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
       if (!fixedDelay.isNegative()) {
         Assert.isTrue(!processedSchedule, errorMessage);
         processedSchedule = true;
-        tasks.add(this.registrar.scheduleFixedDelayTask(new FixedDelayTask(runnable, fixedDelay, delayToUse)));
+        tasks.add(Objects.requireNonNull(
+                this.registrar.scheduleFixedDelayTask(new FixedDelayTask(runnable, fixedDelay, delayToUse))));
       }
 
       String fixedDelayString = scheduled.fixedDelayString();
@@ -477,7 +480,8 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
             throw new IllegalArgumentException(
                     "Invalid fixedDelayString value \"%s\" - cannot parse into long".formatted(fixedDelayString), ex);
           }
-          tasks.add(this.registrar.scheduleFixedDelayTask(new FixedDelayTask(runnable, fixedDelay, delayToUse)));
+          tasks.add(Objects.requireNonNull(
+                  this.registrar.scheduleFixedDelayTask(new FixedDelayTask(runnable, fixedDelay, delayToUse))));
         }
       }
 
@@ -486,7 +490,8 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
       if (!fixedRate.isNegative()) {
         Assert.isTrue(!processedSchedule, errorMessage);
         processedSchedule = true;
-        tasks.add(this.registrar.scheduleFixedRateTask(new FixedRateTask(runnable, fixedRate, delayToUse)));
+        tasks.add(Objects.requireNonNull(
+                this.registrar.scheduleFixedRateTask(new FixedRateTask(runnable, fixedRate, delayToUse))));
       }
       String fixedRateString = scheduled.fixedRateString();
       if (StringUtils.hasText(fixedRateString)) {
@@ -503,7 +508,8 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
             throw new IllegalArgumentException(
                     "Invalid fixedRateString value \"%s\" - cannot parse into long".formatted(fixedRateString), ex);
           }
-          tasks.add(this.registrar.scheduleFixedRateTask(new FixedRateTask(runnable, fixedRate, delayToUse)));
+          tasks.add(Objects.requireNonNull(
+                  this.registrar.scheduleFixedRateTask(new FixedRateTask(runnable, fixedRate, delayToUse))));
         }
       }
 
@@ -511,7 +517,8 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
         if (initialDelay.isNegative()) {
           throw new IllegalArgumentException("One-time task only supported with specified initial delay");
         }
-        tasks.add(this.registrar.scheduleOneTimeTask(new OneTimeTask(runnable, delayToUse)));
+        tasks.add(Objects.requireNonNull(
+                this.registrar.scheduleOneTimeTask(new OneTimeTask(runnable, delayToUse))));
       }
 
       // Finally register the scheduled tasks
