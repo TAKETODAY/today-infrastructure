@@ -28,31 +28,57 @@ import infra.util.InfraStrategies;
 
 /**
  * Configuration object for the SpEL expression parser.
+ * <p>Prefer {@link #builder()} to configure only the settings that differ from
+ * their defaults, or {@link #withDefaults()} when none need overriding.
+ * The existing constructors are deprecated in favor of the builder.
  *
  * @author Juergen Hoeller
  * @author Phillip Webb
  * @author Andy Clement
+ * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see SpelExpressionParser#SpelExpressionParser(SpelParserConfiguration)
+ * @see #withDefaults()
+ * @see #builder()
  * @since 4.0
  */
 public class SpelParserConfiguration {
 
-  /** Create a configuration using the builder defaults. */
+  /**
+   * Create a configuration with the same defaults as {@link #builder()}.
+   * <p>Equivalent to {@code SpelParserConfiguration.builder().build()}.
+   *
+   * @return a configuration with default settings
+   * @see #builder()
+   */
   public static SpelParserConfiguration withDefaults() {
     return builder().build();
   }
 
-  /** Create a builder for selectively overriding parser defaults. */
+  /**
+   * Create a {@link Builder} to override only the settings that differ from
+   * their defaults.
+   *
+   * @return a new configuration builder
+   * @see #withDefaults()
+   */
   public static Builder builder() {
     return new Builder();
   }
 
-  /** Default maximum size to which a collection or array can automatically grow. */
+  /**
+   * Default maximum size to which a collection or array can automatically grow: {@value}.
+   * <p>Aligned with the default limit used for data binding, for consistent
+   * auto-growth behavior.
+   *
+   * @see Builder#maximumAutoGrowSize(int)
+   */
   public static final int DEFAULT_MAX_AUTO_GROW_SIZE = 256;
 
   /**
    * System property to configure the default compiler mode for SpEL expression parsers: {@value}.
+   * <p>Prefer {@link Builder#compilerMode(SpelCompilerMode)} when setting the
+   * mode for an individual parser. Can also be configured via {@link InfraStrategies}.
    *
    * @see #getCompilerMode()
    */
@@ -61,24 +87,50 @@ public class SpelParserConfiguration {
   /**
    * System property to configure the maximum length for SpEL expressions: {@value}.
    * <p>Can also be configured via the {@link InfraStrategies} mechanism.
+   * Prefer {@link Builder#maximumExpressionLength(int)} for individual parsers.
    *
    * @see SpelParserConfiguration#getMaximumExpressionLength()
    */
   public static final String MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME = "spel.default.max-length";
 
-  /** Default maximum number of bits in a BigDecimal or BigInteger power result. */
+  /**
+   * Default maximum number of bits in a {@link java.math.BigDecimal} or
+   * {@link java.math.BigInteger} power result: {@value}.
+   * <p>Approximately equivalent to a decimal number with 300,000 digits.
+   *
+   * @see #EXPRESSION_MAX_BIG_POWER_BITS_PROPERTY_NAME
+   */
   public static final int DEFAULT_MAX_BIG_POWER_BITS = 1_000_000;
 
-  /** Default maximum structural nesting depth of a SpEL expression. */
+  /**
+   * Default maximum structural nesting depth of a SpEL expression: {@value}.
+   * <p>Deeply nested inline lists, maps, parentheses, conditional expressions,
+   * and chained unary operators can exhaust a recursive-descent parser's stack.
+   * This limit typically turns that failure into a {@link SpelParseException},
+   * but does not guarantee protection from {@link StackOverflowError} for every
+   * JVM thread stack size and execution environment. Do not rely on it alone
+   * when evaluating expressions from untrusted sources.
+   *
+   * @see Builder#maximumNestingDepth(int)
+   */
   public static final int DEFAULT_MAX_EXPRESSION_NESTING_DEPTH = 1_000;
 
-  /** Property configuring the default maximum bit length of big-number power results. */
+  /**
+   * Property configuring the default maximum bit length of big-number power
+   * results: {@value}.
+   * <p>Can also be configured via {@link InfraStrategies}. Prefer
+   * {@link Builder#maximumBigPowerBits(int)} for individual parsers.
+   *
+   * @see #DEFAULT_MAX_BIG_POWER_BITS
+   */
   public static final String EXPRESSION_MAX_BIG_POWER_BITS_PROPERTY_NAME = "spel.default.max-big-power-bits";
 
   private static final SpelCompilerMode defaultCompilerMode;
 
   /**
    * Default maximum length permitted for a SpEL expression.
+   *
+   * @see #MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME
    */
   public static final int DEFAULT_MAX_EXPRESSION_LENGTH;
 
@@ -107,6 +159,8 @@ public class SpelParserConfiguration {
 
   /**
    * Create a new {@code SpelParserConfiguration} instance with default settings.
+   * <p>Prefer {@link #withDefaults()} for a configuration with builder defaults.
+   *
    * @deprecated in favor of {@link #withDefaults()}
    */
   @Deprecated(since = "5.0")
@@ -116,6 +170,7 @@ public class SpelParserConfiguration {
 
   /**
    * Create a new {@code SpelParserConfiguration} instance.
+   * <p>Prefer {@link #builder()} to override only the required settings.
    *
    * @param compilerMode the compiler mode for the parser
    * @param compilerClassLoader the ClassLoader to use as the basis for expression compilation
@@ -128,6 +183,7 @@ public class SpelParserConfiguration {
 
   /**
    * Create a new {@code SpelParserConfiguration} instance.
+   * <p>Prefer {@link #builder()} to override only the required settings.
    *
    * @param autoGrowNullReferences if null references should automatically grow
    * @param autoGrowCollections if collections should automatically grow
@@ -141,6 +197,7 @@ public class SpelParserConfiguration {
 
   /**
    * Create a new {@code SpelParserConfiguration} instance.
+   * <p>Prefer {@link #builder()} to override only the required settings.
    *
    * @param autoGrowNullReferences if null references should automatically grow
    * @param autoGrowCollections if collections should automatically grow
@@ -155,6 +212,7 @@ public class SpelParserConfiguration {
 
   /**
    * Create a new {@code SpelParserConfiguration} instance.
+   * <p>Prefer {@link #builder()} to override only the required settings.
    *
    * @param compilerMode the compiler mode that parsers using this configuration object should use
    * @param compilerClassLoader the ClassLoader to use as the basis for expression compilation
@@ -173,6 +231,7 @@ public class SpelParserConfiguration {
 
   /**
    * Create a new {@code SpelParserConfiguration} instance.
+   * <p>Prefer {@link #builder()} to override only the required settings.
    *
    * @param compilerMode the compiler mode that parsers using this configuration object should use
    * @param compilerClassLoader the ClassLoader to use as the basis for expression compilation
@@ -193,6 +252,7 @@ public class SpelParserConfiguration {
 
   /**
    * Create a parser configuration with an explicit limit on big-number power results.
+   * <p>Prefer {@link #builder()} to override only the required settings.
    *
    * @param compilerMode compiler mode, or {@code null} for the default
    * @param compilerClassLoader class loader for compilation
@@ -275,6 +335,8 @@ public class SpelParserConfiguration {
 
   /**
    * Return the maximum size that a collection can auto grow.
+   *
+   * @see #DEFAULT_MAX_AUTO_GROW_SIZE
    */
   public int getMaximumAutoGrowSize() {
     return this.maximumAutoGrowSize;
@@ -287,12 +349,21 @@ public class SpelParserConfiguration {
     return this.maximumExpressionLength;
   }
 
-  /** Return the maximum number of bits in a big-number power result. */
+  /**
+   * Return the maximum number of bits in a {@link java.math.BigDecimal} or
+   * {@link java.math.BigInteger} power result.
+   *
+   * @see #DEFAULT_MAX_BIG_POWER_BITS
+   */
   public int getMaximumBigPowerBits() {
     return this.maximumBigPowerBits;
   }
 
-  /** Return the maximum structural nesting depth permitted within an expression. */
+  /**
+   * Return the maximum structural nesting depth permitted within an expression.
+   *
+   * @see #DEFAULT_MAX_EXPRESSION_NESTING_DEPTH
+   */
   public int getMaximumNestingDepth() {
     return this.maximumNestingDepth;
   }
@@ -314,7 +385,16 @@ public class SpelParserConfiguration {
     }
   }
 
-  /** Fluent configuration of a SpEL parser without specifying unrelated limits. */
+  /**
+   * Fluent configuration of a SpEL parser without specifying unrelated limits.
+   * <p>Only override the properties that differ from their defaults. The
+   * compiler mode and big-power limit honor the configured
+   * {@link InfraStrategies} properties unless overridden here; collection
+   * auto-growth defaults to {@value #DEFAULT_MAX_AUTO_GROW_SIZE}.
+   *
+   * @see SpelParserConfiguration#builder()
+   * @since 5.0
+   */
   public static final class Builder {
 
     private SpelCompilerMode compilerMode = defaultCompilerMode;
@@ -336,60 +416,120 @@ public class SpelParserConfiguration {
     private Builder() {
     }
 
-    /** Set the compiler mode. */
+    /**
+     * Set the compiler mode for parsers using this configuration.
+     * <p>Defaults to the value of
+     * {@value SpelParserConfiguration#EXPRESSION_COMPILER_MODE_PROPERTY_NAME},
+     * or {@link SpelCompilerMode#OFF} when that property is not set.
+     *
+     * @param compilerMode the compiler mode; must not be {@code null}
+     * @return this builder
+     */
     public Builder compilerMode(SpelCompilerMode compilerMode) {
       Assert.notNull(compilerMode, "'compilerMode' must not be null");
       this.compilerMode = compilerMode;
       return this;
     }
 
-    /** Set the class loader used as the basis for expression compilation. */
+    /**
+     * Set the class loader used as the basis for expression compilation.
+     * <p>Defaults to {@code null}, indicating the default class loader.
+     *
+     * @param compilerClassLoader the class loader to use, or {@code null}
+     * @return this builder
+     */
     public Builder compilerClassLoader(@Nullable ClassLoader compilerClassLoader) {
       this.compilerClassLoader = compilerClassLoader;
       return this;
     }
 
-    /** Enable automatic growth of null references. */
+    /**
+     * Enable automatic growth of null references encountered in property paths.
+     * <p>Disabled by default.
+     *
+     * @return this builder
+     */
     public Builder autoGrowNullReferences() {
       this.autoGrowNullReferences = true;
       return this;
     }
 
-    /** Enable automatic growth of collections. */
+    /**
+     * Enable automatic growth of collections and arrays encountered in
+     * property paths. Disabled by default.
+     *
+     * @return this builder
+     * @see #maximumAutoGrowSize(int)
+     */
     public Builder autoGrowCollections() {
       this.autoGrowCollections = true;
       return this;
     }
 
-    /** Set the maximum size to which collections may grow. */
+    /**
+     * Set the maximum size to which collections and arrays may automatically grow.
+     * <p>Defaults to {@value SpelParserConfiguration#DEFAULT_MAX_AUTO_GROW_SIZE}.
+     * Zero effectively prevents growth beyond the current size.
+     *
+     * @param maximumAutoGrowSize the maximum size; must not be negative
+     * @return this builder
+     * @see #autoGrowCollections()
+     */
     public Builder maximumAutoGrowSize(int maximumAutoGrowSize) {
       Assert.isTrue(maximumAutoGrowSize >= 0, "'maximumAutoGrowSize' must not be negative");
       this.maximumAutoGrowSize = maximumAutoGrowSize;
       return this;
     }
 
-    /** Set the maximum expression length. */
+    /**
+     * Set the maximum length permitted for a SpEL expression.
+     * <p>Defaults to {@link SpelParserConfiguration#DEFAULT_MAX_EXPRESSION_LENGTH}.
+     *
+     * @param maximumExpressionLength the maximum length; must be positive
+     * @return this builder
+     */
     public Builder maximumExpressionLength(int maximumExpressionLength) {
       Assert.isTrue(maximumExpressionLength > 0, "'maximumExpressionLength' must be a positive number");
       this.maximumExpressionLength = maximumExpressionLength;
       return this;
     }
 
-    /** Set the maximum number of bits in a big-number power result. */
+    /**
+     * Set the maximum number of bits in a {@link java.math.BigDecimal} or
+     * {@link java.math.BigInteger} power result.
+     * <p>Defaults to the value of
+     * {@value SpelParserConfiguration#EXPRESSION_MAX_BIG_POWER_BITS_PROPERTY_NAME},
+     * or {@link SpelParserConfiguration#DEFAULT_MAX_BIG_POWER_BITS} when unset.
+     * Use {@link Integer#MAX_VALUE} for effectively no limit.
+     *
+     * @param maximumBigPowerBits the maximum bit count; must be positive
+     * @return this builder
+     */
     public Builder maximumBigPowerBits(int maximumBigPowerBits) {
       Assert.isTrue(maximumBigPowerBits > 0, "'maximumBigPowerBits' must be a positive number");
       this.maximumBigPowerBits = maximumBigPowerBits;
       return this;
     }
 
-    /** Set the maximum expression nesting depth. */
+    /**
+     * Set the maximum nesting depth permitted within a SpEL expression.
+     * <p>Defaults to
+     * {@link SpelParserConfiguration#DEFAULT_MAX_EXPRESSION_NESTING_DEPTH}.
+     *
+     * @param maximumNestingDepth the maximum depth; must be positive
+     * @return this builder
+     */
     public Builder maximumNestingDepth(int maximumNestingDepth) {
       Assert.isTrue(maximumNestingDepth > 0, "'maximumNestingDepth' must be a positive number");
       this.maximumNestingDepth = maximumNestingDepth;
       return this;
     }
 
-    /** Build the configured parser configuration. */
+    /**
+     * Build the configured parser configuration.
+     *
+     * @return a configuration with the specified overrides
+     */
     public SpelParserConfiguration build() {
       int maximumBigPowerBits = this.maximumBigPowerBits != null ? this.maximumBigPowerBits : retrieveMaxBigPowerBits();
       return new SpelParserConfiguration(this.compilerMode, this.compilerClassLoader,
