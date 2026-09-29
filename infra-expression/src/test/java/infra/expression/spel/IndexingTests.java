@@ -58,9 +58,11 @@ import tools.jackson.databind.node.StringNode;
 import static infra.expression.spel.SpelMessage.EXCEPTION_DURING_INDEX_READ;
 import static infra.expression.spel.SpelMessage.EXCEPTION_DURING_INDEX_WRITE;
 import static infra.expression.spel.SpelMessage.INDEXING_NOT_SUPPORTED_FOR_TYPE;
+import static infra.expression.spel.SpelMessage.UNABLE_TO_GROW_COLLECTION;
 import static infra.expression.spel.SpelMessage.UNABLE_TO_GROW_COLLECTION_UNKNOWN_ELEMENT_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -325,6 +327,61 @@ class IndexingTests {
     assertThatExceptionOfType(SpelEvaluationException.class)
             .isThrownBy(() -> indexExpression.getValue(this))
             .satisfies(ex -> assertThat(ex.getMessageCode()).isEqualTo(UNABLE_TO_GROW_COLLECTION_UNKNOWN_ELEMENT_TYPE));
+  }
+
+  @Nested
+  class MaxAutoGrowSizeTests {
+
+    @Test
+    void defaultMaxAutoGrowSizeMatchesDataBinderDefault() {
+      SpelParserConfiguration configuration = new SpelParserConfiguration(true, true);
+      assertThat(configuration.getMaximumAutoGrowSize())
+              .isEqualTo(SpelParserConfiguration.DEFAULT_MAX_AUTO_GROW_SIZE)
+              .isEqualTo(256);
+    }
+
+    @Test
+    void zeroMaximumAutoGrowSizeIsAllowedAndDisablesGrowth() {
+      decimals = new ArrayList<>();
+      SpelParserConfiguration configuration = new SpelParserConfiguration(true, true, 0);
+      SpelExpressionParser parser = new SpelExpressionParser(configuration);
+
+      Expression indexExpression = parser.parseExpression("decimals[0]");
+      assertThatExceptionOfType(SpelEvaluationException.class)
+              .isThrownBy(() -> indexExpression.getValue(IndexingTests.this))
+              .satisfies(ex -> assertThat(ex.getMessageCode()).isEqualTo(UNABLE_TO_GROW_COLLECTION));
+    }
+
+    @Test
+    void negativeMaximumAutoGrowSizeIsRejected() {
+      assertThatIllegalArgumentException()
+              .isThrownBy(() -> new SpelParserConfiguration(true, true, -1))
+              .withMessage("'maximumAutoGrowSize' must not be negative");
+    }
+
+    @Test
+    void collectionGrowsUpToDefaultMaxAutoGrowSizeButNotBeyond() {
+      decimals = new ArrayList<>();
+      SpelExpressionParser parser = new SpelExpressionParser(new SpelParserConfiguration(true, true));
+
+      parser.parseExpression("decimals[255]").getValue(IndexingTests.this);
+      assertThat(decimals).hasSize(256);
+
+      Expression indexExpression = parser.parseExpression("decimals[256]");
+      assertThatExceptionOfType(SpelEvaluationException.class)
+              .isThrownBy(() -> indexExpression.getValue(IndexingTests.this))
+              .satisfies(ex -> assertThat(ex.getMessageCode()).isEqualTo(UNABLE_TO_GROW_COLLECTION));
+    }
+
+    @Test
+    void collectionCanGrowBeyondDefaultMaxAutoGrowSizeWhenConfiguredExplicitly() {
+      decimals = new ArrayList<>();
+      SpelParserConfiguration configuration = new SpelParserConfiguration(true, true, 1000);
+      SpelExpressionParser parser = new SpelExpressionParser(configuration);
+
+      parser.parseExpression("decimals[500]").getValue(IndexingTests.this);
+      assertThat(decimals).hasSize(501);
+    }
   }
 
   @Test

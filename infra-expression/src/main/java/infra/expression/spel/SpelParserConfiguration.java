@@ -38,6 +38,9 @@ import infra.util.InfraStrategies;
  */
 public class SpelParserConfiguration {
 
+  /** Default maximum size to which a collection or array can automatically grow. */
+  public static final int DEFAULT_MAX_AUTO_GROW_SIZE = 256;
+
   /**
    * System property to configure the default compiler mode for SpEL expression parsers: {@value}.
    *
@@ -96,7 +99,7 @@ public class SpelParserConfiguration {
    * Create a new {@code SpelParserConfiguration} instance with default settings.
    */
   public SpelParserConfiguration() {
-    this(null, null, false, false, Integer.MAX_VALUE);
+    this(null, null, false, false, DEFAULT_MAX_AUTO_GROW_SIZE);
   }
 
   /**
@@ -106,7 +109,7 @@ public class SpelParserConfiguration {
    * @param compilerClassLoader the ClassLoader to use as the basis for expression compilation
    */
   public SpelParserConfiguration(@Nullable SpelCompilerMode compilerMode, @Nullable ClassLoader compilerClassLoader) {
-    this(compilerMode, compilerClassLoader, false, false, Integer.MAX_VALUE);
+    this(compilerMode, compilerClassLoader, false, false, DEFAULT_MAX_AUTO_GROW_SIZE);
   }
 
   /**
@@ -117,7 +120,7 @@ public class SpelParserConfiguration {
    * @see #SpelParserConfiguration(boolean, boolean, int)
    */
   public SpelParserConfiguration(boolean autoGrowNullReferences, boolean autoGrowCollections) {
-    this(null, null, autoGrowNullReferences, autoGrowCollections, Integer.MAX_VALUE);
+    this(null, null, autoGrowNullReferences, autoGrowCollections, DEFAULT_MAX_AUTO_GROW_SIZE);
   }
 
   /**
@@ -125,7 +128,8 @@ public class SpelParserConfiguration {
    *
    * @param autoGrowNullReferences if null references should automatically grow
    * @param autoGrowCollections if collections should automatically grow
-   * @param maximumAutoGrowSize the maximum size that the collection can auto grow
+   * @param maximumAutoGrowSize the maximum size that the collection can auto grow;
+   * zero disables growth, and negative values are not allowed
    */
   public SpelParserConfiguration(boolean autoGrowNullReferences, boolean autoGrowCollections, int maximumAutoGrowSize) {
     this(null, null, autoGrowNullReferences, autoGrowCollections, maximumAutoGrowSize);
@@ -202,6 +206,7 @@ public class SpelParserConfiguration {
 
     Assert.isTrue(maximumBigPowerBits > 0, "'maximumBigPowerBits' must be a positive number");
     Assert.isTrue(maximumNestingDepth > 0, "'maximumNestingDepth' must be a positive number");
+    Assert.isTrue(maximumAutoGrowSize >= 0, "'maximumAutoGrowSize' must not be negative");
     this.compilerMode = (compilerMode != null ? compilerMode : defaultCompilerMode);
     this.compilerClassLoader = compilerClassLoader;
     this.autoGrowNullReferences = autoGrowNullReferences;

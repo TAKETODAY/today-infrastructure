@@ -238,6 +238,10 @@ Object o = expression.getValue(demo);
 
 ======
 
+启用集合自动增长后，集合默认最多自动增长到 256 个元素，与数据绑定的默认集合增长上限一致。
+通过编程方式创建 `SpelExpressionParser` 时，可以在 `SpelParserConfiguration` 中指定
+`maximumAutoGrowSize` 来调整该上限。
+
 默认情况下，SpEL 表达式不能包含超过 10,000 个字符；但是，`maxExpressionLength` 是可配置的。
 如果你以编程方式创建 `SpelExpressionParser`，则可以在创建提供给 `SpelExpressionParser` 的
 `SpelParserConfiguration` 时指定自定义 `maxExpressionLength`。
