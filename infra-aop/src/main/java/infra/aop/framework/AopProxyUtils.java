@@ -87,9 +87,9 @@ public abstract class AopProxyUtils {
    * @param candidate the (potential) proxy to check
    * @return the singleton target object managed in a {@link SingletonTargetSource},
    * or the original candidate if not a proxy or not an existing singleton target
-   * @since 5.0
    * @see Advised#getTargetSource()
    * @see SingletonTargetSource#getTarget()
+   * @since 5.0
    */
   public static Object ultimateSingletonTarget(Object candidate) {
     Object current = candidate;
