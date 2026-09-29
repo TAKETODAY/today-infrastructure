@@ -50,7 +50,7 @@ public record ScrollPageable(int pageSize, ScrollPosition position) {
    * @return a scroll request
    */
   public static ScrollPageable of(int pageSize) {
-    return new ScrollPageable(pageSize, ScrollPosition.keyset());
+    return new ScrollPageable(pageSize, ScrollPosition.INITIAL);
   }
 
   /**

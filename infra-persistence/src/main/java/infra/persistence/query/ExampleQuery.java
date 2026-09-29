@@ -160,7 +160,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement
   public @Nullable ScrollPosition scrollPosition(EntityMetadata metadata) {
     if (example instanceof ScrollPositionSource source) {
       ScrollPosition position = source.scrollPosition();
-      return position != null ? position : ScrollPosition.keyset();
+      return position != null ? position : ScrollPosition.INITIAL;
     }
     return null;
   }

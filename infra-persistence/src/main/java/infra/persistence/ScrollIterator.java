@@ -72,7 +72,7 @@ public final class ScrollIterator<T> implements Iterator<T> {
    * @return a new window iterator positioned at the start of the scroll operation
    */
   public static <T> ScrollIterator<T> of(Function<ScrollPosition, Scroll<T>> windowSupplier) {
-    return of(windowSupplier, ScrollPosition.keyset());
+    return of(windowSupplier, ScrollPosition.INITIAL);
   }
 
   /**

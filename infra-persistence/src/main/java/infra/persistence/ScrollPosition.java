@@ -58,15 +58,6 @@ public record ScrollPosition(@Nullable List<Entry> cursor) {
   }
 
   /**
-   * Return the position marking the start of a keyset scroll operation.
-   *
-   * @return an initial keyset position
-   */
-  public static ScrollPosition keyset() {
-    return INITIAL;
-  }
-
-  /**
    * Return a keyset position containing the given ordered cursor entries.
    *
    * @param cursor entries in keyset sort order

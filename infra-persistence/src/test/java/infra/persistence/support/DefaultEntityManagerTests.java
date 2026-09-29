@@ -1985,7 +1985,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       OrderSpec order = OrderSpec.builder().asc("age").desc("name").build();
       QueryCondition condition = entityManager.getEntityQueryFactories().createCondition(order);
       List<String> names = new ArrayList<>();
-      ScrollPosition position = ScrollPosition.keyset();
+      ScrollPosition position = ScrollPosition.INITIAL;
       Scroll<UserModel> page;
       do {
         page = entityManager.scroll(UserModel.class, condition, ScrollPageable.of(1).withPosition(position));
@@ -2051,7 +2051,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
 
       List<String> names = new ArrayList<>();
       List<Integer> ids = new ArrayList<>();
-      ScrollPosition position = ScrollPosition.keyset();
+      ScrollPosition position = ScrollPosition.INITIAL;
       Scroll<CompositeOrderByWithIdUser> page;
       do {
         page = entityManager.scroll(CompositeOrderByWithIdUser.class, ScrollPageable.of(1).withPosition(position));
@@ -2330,7 +2330,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
 
     @Test
     void keysetPositionValidatesCursor() {
-      assertThat(ScrollPosition.keyset().isInitial()).isTrue();
+      assertThat(ScrollPosition.INITIAL.isInitial()).isTrue();
       assertThatThrownBy(() -> ScrollPosition.keyset(List.of())).isInstanceOf(IllegalArgumentException.class);
       assertThat(position(new ScrollPosition.Entry("age", null, Order.ASC)).isInitial()).isTrue();
       assertThatThrownBy(() -> ScrollPosition.keyset(List.of(

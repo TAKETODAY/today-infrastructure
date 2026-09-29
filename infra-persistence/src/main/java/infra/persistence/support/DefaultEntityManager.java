@@ -1326,7 +1326,7 @@ public class DefaultEntityManager implements EntityManager {
   private ScrollPosition resolveScrollPosition(EntityMetadata metadata, QueryCondition condition) {
     OrderSpec orderSpec = condition.resolveOrderByClause(metadata);
     if (orderSpec.isEmpty()) {
-      return ScrollPosition.keyset();
+      return ScrollPosition.INITIAL;
     }
     ArrayList<ScrollPosition.Entry> cursor = new ArrayList<>(orderSpec.parts().size());
     for (OrderSpec.Part part : orderSpec.parts()) {

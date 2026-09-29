@@ -440,10 +440,7 @@ public class EntityMetadata {
                 annotation.getEnum("value", Order.class)));
       }
     }
-    return buildOrderSpec(sortKeys);
-  }
 
-  private static OrderSpec buildOrderSpec(@Nullable List<SortKey> sortKeys) {
     if (sortKeys == null || sortKeys.isEmpty()) {
       return OrderSpec.empty();
     }
