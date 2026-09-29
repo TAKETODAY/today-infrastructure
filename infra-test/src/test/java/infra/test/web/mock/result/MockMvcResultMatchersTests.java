@@ -47,6 +47,12 @@ public class MockMvcResultMatchersTests {
   }
 
   @Test
+  void redirectWithNullAssertsNoRedirectOccurred() {
+    assertThatCode(() -> redirectedUrl(null).match(noRedirectOrForwardStub()))
+            .doesNotThrowAnyException();
+  }
+
+  @Test
   public void redirectNonMatching() throws Exception {
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> redirectedUrl("/resource/2").match(redirectedUrlStub("/resource/1")))
@@ -58,6 +64,13 @@ public class MockMvcResultMatchersTests {
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> redirectedUrl("/resource/1").match(forwardedUrlStub("/resource/1")))
             .withMessageEndingWith("expected:</resource/1> but was:<null>");
+  }
+
+  @Test
+  void redirectWithNullNonMatchingBecauseRedirectOccurred() {
+    assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> redirectedUrl(null).match(redirectedUrlStub("/resource/1")))
+            .withMessageEndingWith("expected:<null> but was:</resource/1>");
   }
 
   @Test
@@ -93,6 +106,12 @@ public class MockMvcResultMatchersTests {
   }
 
   @Test
+  void forwardWithNullAssertsNoForwardingOccurred() {
+    assertThatCode(() -> forwardedUrl(null).match(noRedirectOrForwardStub()))
+            .doesNotThrowAnyException();
+  }
+
+  @Test
   public void forwardNonMatching() {
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> forwardedUrlPattern("api/resource/2").match(forwardedUrlStub("api/resource/1")))
@@ -104,6 +123,13 @@ public class MockMvcResultMatchersTests {
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> forwardedUrlPattern("/resource/*").match(redirectedUrlStub("/resource/1")))
             .withMessage("Forwarded URL 'null' does not match the expected URL pattern '/resource/*'");
+  }
+
+  @Test
+  void forwardWithNullNonMatchingBecauseForwardingOccurred() {
+    assertThatExceptionOfType(AssertionError.class)
+            .isThrownBy(() -> forwardedUrl(null).match(forwardedUrlStub("/resource/1")))
+            .withMessageEndingWith("expected:<null> but was:</resource/1>");
   }
 
   @Test
@@ -136,6 +162,10 @@ public class MockMvcResultMatchersTests {
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> forwardedUrlPattern("/resource/*").match(redirectedUrlStub("/resource/1")))
             .withMessage("Forwarded URL 'null' does not match the expected URL pattern '/resource/*'");
+  }
+
+  private StubMvcResult noRedirectOrForwardStub() {
+    return new StubMvcResult(null, null, null, null, null, null, new MockResponse());
   }
 
   private StubMvcResult redirectedUrlStub(String redirectUrl) throws Exception {
