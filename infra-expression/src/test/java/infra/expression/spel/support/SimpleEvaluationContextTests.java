@@ -50,6 +50,24 @@ class SimpleEvaluationContextTests {
   private final Model model = new Model();
 
   @Test
+  void compilationNotSupportedByDefault() {
+    assertThat(SimpleEvaluationContext.forReadOnlyDataBinding().build().isCompilationSupported()).isFalse();
+    assertThat(SimpleEvaluationContext.forReadWriteDataBinding().build().isCompilationSupported()).isFalse();
+    assertThat(SimpleEvaluationContext.forPropertyAccessors(DataBindingPropertyAccessor.forReadOnlyAccess())
+            .build().isCompilationSupported()).isFalse();
+  }
+
+  @Test
+  void compilationSupportedViaBuilder() {
+    assertThat(SimpleEvaluationContext.forReadOnlyDataBinding()
+            .withCompilationSupported().build().isCompilationSupported()).isTrue();
+    assertThat(SimpleEvaluationContext.forReadWriteDataBinding()
+            .withCompilationSupported().build().isCompilationSupported()).isTrue();
+    assertThat(SimpleEvaluationContext.forPropertyAccessors(DataBindingPropertyAccessor.forReadOnlyAccess())
+            .withCompilationSupported().build().isCompilationSupported()).isTrue();
+  }
+
+  @Test
   void forReadWriteDataBinding() {
     infra.expression.spel.support.SimpleEvaluationContext context = SimpleEvaluationContext.forReadWriteDataBinding()
             .withIndexAccessors(colorsIndexAccessor)

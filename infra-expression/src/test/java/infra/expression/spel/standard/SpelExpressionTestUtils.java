@@ -19,6 +19,7 @@
 package infra.expression.spel.standard;
 
 import java.lang.reflect.Field;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.expression.Expression;
 
@@ -37,6 +38,29 @@ public abstract class SpelExpressionTestUtils {
       field.setAccessible(true);
       Object object = field.get(expression);
       assertThat(object).isNotNull();
+    }
+    catch (Exception ex) {
+      throw new AssertionError(ex.getMessage(), ex);
+    }
+  }
+
+  public static void assertIsNotCompiled(Expression expression) {
+    try {
+      Field field = SpelExpression.class.getDeclaredField("compiledAst");
+      field.setAccessible(true);
+      assertThat(field.get(expression)).isNull();
+    }
+    catch (Exception ex) {
+      throw new AssertionError(ex.getMessage(), ex);
+    }
+  }
+
+  /** Return the number of times this expression has been evaluated in interpreted mode. */
+  public static int getInterpretedCount(Expression expression) {
+    try {
+      Field field = SpelExpression.class.getDeclaredField("interpretedCount");
+      field.setAccessible(true);
+      return ((AtomicInteger) field.get(expression)).get();
     }
     catch (Exception ex) {
       throw new AssertionError(ex.getMessage(), ex);
