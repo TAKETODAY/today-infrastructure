@@ -36,7 +36,7 @@ class ScrollIteratorTests {
   @Test
   void iteratesAllElementsAcrossScrolls() {
     ScrollIterator<Integer> iterator = ScrollIterator.of(position -> {
-      int from = position.isInitial() ? 0 : (int) position.cursor().get(0).value() + 1;
+      int from = position == null ? 0 : (int) position.cursor().get(0).value() + 1;
       int to = Math.min(from + 2, VALUES.size());
       return window(VALUES.subList(from, to), to >= VALUES.size());
     });

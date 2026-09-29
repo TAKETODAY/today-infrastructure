@@ -47,9 +47,9 @@ import infra.util.Assert;
  */
 public final class ScrollIterator<T> implements Iterator<T> {
 
-  private final Function<ScrollPosition, Scroll<T>> windowSupplier;
+  private final Function<@Nullable ScrollPosition, Scroll<T>> windowSupplier;
 
-  private final ScrollPosition position;
+  private final @Nullable ScrollPosition position;
 
   private @Nullable Scroll<T> scroll;
 
@@ -57,9 +57,8 @@ public final class ScrollIterator<T> implements Iterator<T> {
 
   private boolean exhausted;
 
-  private ScrollIterator(Function<ScrollPosition, Scroll<T>> windowSupplier, ScrollPosition position) {
+  private ScrollIterator(Function<@Nullable ScrollPosition, Scroll<T>> windowSupplier, @Nullable ScrollPosition position) {
     Assert.notNull(windowSupplier, "Scroll supplier is required");
-    Assert.notNull(position, "ScrollPosition is required");
     this.windowSupplier = windowSupplier;
     this.position = position;
   }
@@ -67,23 +66,24 @@ public final class ScrollIterator<T> implements Iterator<T> {
   /**
    * Create an iterator backed by the given window supplier.
    *
-   * @param windowSupplier a function returning the window at a scroll position
+   * @param windowSupplier a function returning the window at a scroll position,
+   * receiving {@code null} for the first window
    * @param <T> the element type
    * @return a new window iterator positioned at the start of the scroll operation
    */
-  public static <T> ScrollIterator<T> of(Function<ScrollPosition, Scroll<T>> windowSupplier) {
-    return of(windowSupplier, ScrollPosition.INITIAL);
+  public static <T> ScrollIterator<T> of(Function<@Nullable ScrollPosition, Scroll<T>> windowSupplier) {
+    return of(windowSupplier, null);
   }
 
   /**
    * Create an iterator that resumes after the given position.
    *
    * @param windowSupplier a function returning the window at a scroll position
-   * @param position the position to resume after
+   * @param position the position to resume after, or {@code null} to start
    * @param <T> the element type
    * @return a new window iterator starting after the given position
    */
-  public static <T> ScrollIterator<T> of(Function<ScrollPosition, Scroll<T>> windowSupplier, ScrollPosition position) {
+  public static <T> ScrollIterator<T> of(Function<@Nullable ScrollPosition, Scroll<T>> windowSupplier, @Nullable ScrollPosition position) {
     return new ScrollIterator<>(windowSupplier, position);
   }
 

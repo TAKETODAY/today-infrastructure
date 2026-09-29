@@ -27,34 +27,27 @@ import infra.util.Assert;
  * Identifies an exact position within a scroll result. A scroll query treats the
  * position exclusively: results start <em>after</em> the given position.
  *
- * <p>An {@linkplain #isInitial() initial} position has no cursor and applies no
- * additional filtering. A non-initial position contains one entry for every
- * keyset sort property, in sort order. Each entry carries its property name,
+ * <p>A {@code null} position starts a scroll without additional filtering.
+ * A position contains one entry for every keyset sort property, in sort order.
+ * Each entry carries its property name,
  * value, and direction so that a position cannot silently be reused with a
  * different ordering.
  *
- * <p>An initial position may carry ordering with all values set to {@code null}.
- * A position used to resume scrolling has a non-null value for every entry. The
+ * <p>A position used to resume scrolling has a non-null value for every entry. The
  * cursor list is copied on construction, but values are not converted; callers
  * restoring a position must supply values of types accepted by the mapped properties.
  *
- * @param cursor the ordered keyset entries, or {@code null} for the initial position
+ * @param cursor the non-empty ordered keyset entries
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-public record ScrollPosition(@Nullable List<Entry> cursor) {
-
-  public static final ScrollPosition INITIAL = new ScrollPosition(null);
+public record ScrollPosition(List<Entry> cursor) {
 
   public ScrollPosition {
-    if (cursor != null) {
-      Assert.notEmpty(cursor, "Cursor entries are required");
-      cursor = List.copyOf(cursor);
-      boolean initial = cursor.get(0).value() == null;
-      for (Entry entry : cursor) {
-        Assert.isTrue((entry.value() == null) == initial,
-                "Keyset values must be either all null or all non-null");
-      }
+    Assert.notEmpty(cursor, "Cursor entries are required");
+    cursor = List.copyOf(cursor);
+    for (Entry entry : cursor) {
+      Assert.notNull(entry.value(), "Keyset value is required");
     }
   }
 
@@ -70,8 +63,7 @@ public record ScrollPosition(@Nullable List<Entry> cursor) {
   }
 
   /**
-   * Create a builder for an ordered keyset position. Add keys in sort order;
-   * use {@code null} values for all keys to describe an initial position.
+   * Create a builder for an ordered keyset position. Add keys in sort order.
    *
    * @return a new keyset position builder
    */
@@ -80,25 +72,17 @@ public record ScrollPosition(@Nullable List<Entry> cursor) {
   }
 
   /**
-   * Return whether this position marks the start of a scroll operation.
-   *
-   * @return {@code true} when no position filtering should be applied
-   */
-  public boolean isInitial() {
-    return cursor == null || cursor.get(0).value() == null;
-  }
-
-  /**
    * A single value in a keyset position.
    *
    * @param property the mapped entity property name
-   * @param value the property value, or {@code null} for an initial position
+   * @param value the non-null property value
    * @param direction the ordering direction
    */
   public record Entry(String property, @Nullable Object value, Order direction) {
 
     public Entry {
       Assert.hasText(property, "Keyset property is required");
+      Assert.notNull(value, "Keyset value is required");
       Assert.notNull(direction, "Keyset direction is required");
     }
 
@@ -118,7 +102,7 @@ public record ScrollPosition(@Nullable List<Entry> cursor) {
      * Append an ascending key.
      *
      * @param property the mapped entity property name
-     * @param value the cursor value, or {@code null} for an initial position
+     * @param value the non-null cursor value
      * @return this builder
      */
     public Builder asc(String property, @Nullable Object value) {
@@ -129,7 +113,7 @@ public record ScrollPosition(@Nullable List<Entry> cursor) {
      * Append a descending key.
      *
      * @param property the mapped entity property name
-     * @param value the cursor value, or {@code null} for an initial position
+     * @param value the non-null cursor value
      * @return this builder
      */
     public Builder desc(String property, @Nullable Object value) {
@@ -140,7 +124,7 @@ public record ScrollPosition(@Nullable List<Entry> cursor) {
      * Append a key with the given direction.
      *
      * @param property the mapped entity property name
-     * @param value the cursor value, or {@code null} for an initial position
+     * @param value the non-null cursor value
      * @param direction the sort direction
      * @return this builder
      */
@@ -153,7 +137,7 @@ public record ScrollPosition(@Nullable List<Entry> cursor) {
      * Create an immutable position from the keys in insertion order.
      *
      * @return the keyset position
-     * @throws IllegalArgumentException if no keys are present or values mix null and non-null
+     * @throws IllegalArgumentException if no keys are present
      */
     public ScrollPosition build() {
       return ScrollPosition.keyset(entries);

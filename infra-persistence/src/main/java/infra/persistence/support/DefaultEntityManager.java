@@ -1264,23 +1264,16 @@ public class DefaultEntityManager implements EntityManager {
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
     ScrollPosition examplePosition = condition.scrollPosition(metadata);
     ScrollPosition position = pageable.position();
-    if (examplePosition != null && !examplePosition.isInitial()) {
-      if (!position.isInitial()) {
+    if (examplePosition != null) {
+      if (position != null) {
         throw new IllegalArgumentException("Scroll position must be supplied by either the example or ScrollPageable, not both");
       }
       position = examplePosition;
     }
     OrderSpec orderSpec = condition.resolveOrderByClause(metadata);
-    if (position.cursor() == null) {
-      position = resolveScrollPosition(metadata, orderSpec);
-    }
-    KeysetOrder keysetOrder = resolveKeysetOrder(metadata, position);
-    if (!orderSpec.isEmpty()) {
-      keysetOrder.validateOrder(metadata, orderSpec);
-    }
-    List<ScrollPosition.Entry> cursor = null;
-    if (!position.isInitial()) {
-      cursor = position.cursor();
+    KeysetOrder keysetOrder = KeysetOrder.resolve(metadata, orderSpec, position);
+    List<ScrollPosition.Entry> cursor = position == null ? null : position.cursor();
+    if (cursor != null) {
       keysetOrder.validateCursor(cursor);
     }
 
@@ -1325,28 +1318,6 @@ public class DefaultEntityManager implements EntityManager {
       }
       throw new DataRetrievalFailureException("Unable to scroll the query result", ex);
     }
-  }
-
-  private KeysetOrder resolveKeysetOrder(EntityMetadata metadata, ScrollPosition position) {
-    return KeysetOrder.resolve(metadata, position);
-  }
-
-  private ScrollPosition resolveScrollPosition(EntityMetadata metadata, OrderSpec orderSpec) {
-    if (orderSpec.isEmpty()) {
-      return ScrollPosition.INITIAL;
-    }
-    ArrayList<ScrollPosition.Entry> cursor = new ArrayList<>(orderSpec.parts().size());
-    for (OrderSpec.Part part : orderSpec.parts()) {
-      if (!(part instanceof OrderSpec.Item item)) {
-        throw new IllegalArgumentException("Keyset pagination requires mapped sort columns, not raw SQL fragments");
-      }
-      EntityProperty property = metadata.findProperty(item.column());
-      if (property == null) {
-        throw new IllegalArgumentException("Unknown keyset sort property: " + item.column());
-      }
-      cursor.add(new ScrollPosition.Entry(property.getName(), null, item.direction()));
-    }
-    return ScrollPosition.keyset(cursor);
   }
 
   private Number doQueryCount(EntityMetadata metadata, QueryCondition handler, List<Restriction> restrictions, Connection con) throws DataAccessException {
@@ -1667,11 +1638,27 @@ public class DefaultEntityManager implements EntityManager {
 
   private record KeysetOrder(List<KeysetSort> keys) {
 
-    static KeysetOrder resolve(EntityMetadata metadata, ScrollPosition position) {
+    static KeysetOrder resolve(EntityMetadata metadata, OrderSpec orderSpec, @Nullable ScrollPosition position) {
       ArrayList<KeysetSort> keys = new ArrayList<>();
-      List<ScrollPosition.Entry> cursor = position.cursor();
-      if (cursor != null) {
-        for (ScrollPosition.Entry entry : cursor) {
+      if (!orderSpec.isEmpty()) {
+        for (OrderSpec.Part part : orderSpec.parts()) {
+          if (!(part instanceof OrderSpec.Item item)) {
+            throw new IllegalArgumentException("Keyset pagination requires mapped sort columns, not raw SQL fragments");
+          }
+          EntityProperty property = metadata.findProperty(item.column());
+          if (property == null) {
+            throw new IllegalArgumentException("Unknown keyset sort property: " + item.column());
+          }
+          for (KeysetSort key : keys) {
+            if (key.property() == property) {
+              throw new IllegalArgumentException("Duplicate keyset sort property: " + item.column());
+            }
+          }
+          keys.add(new KeysetSort(property, item.direction()));
+        }
+      }
+      else if (position != null) {
+        for (ScrollPosition.Entry entry : position.cursor()) {
           EntityProperty property = metadata.findProperty(entry.property());
           if (property == null) {
             throw new IllegalArgumentException("Unknown keyset sort property: " + entry.property());
@@ -1694,44 +1681,19 @@ public class DefaultEntityManager implements EntityManager {
       return new KeysetOrder(List.copyOf(keys));
     }
 
-    void validateOrder(EntityMetadata metadata, OrderSpec orderSpec) {
-      if (orderSpec.parts().size() > keys.size()) {
-        throw new IllegalArgumentException("Scroll position does not match the query ordering");
-      }
-      for (int i = 0; i < orderSpec.parts().size(); i++) {
-        OrderSpec.Part part = orderSpec.parts().get(i);
-        if (!(part instanceof OrderSpec.Item item)) {
-          throw new IllegalArgumentException("Keyset pagination requires mapped sort columns, not raw SQL fragments");
-        }
-        EntityProperty property = metadata.findProperty(item.column());
-        if (property == null) {
-          throw new IllegalArgumentException("Unknown keyset sort property: " + item.column());
-        }
-        KeysetSort key = keys.get(i);
-        if (key.property() != property || key.direction() != item.direction()) {
-          throw new IllegalArgumentException("Scroll position does not match the query ordering");
-        }
-      }
-      if (orderSpec.parts().size() < keys.size()
-              && (keys.size() != orderSpec.parts().size() + 1
-              || keys.get(keys.size() - 1).property() != metadata.findIdProperty())) {
-        throw new IllegalArgumentException("Scroll position does not match the query ordering");
-      }
-    }
-
     void validateCursor(List<ScrollPosition.Entry> cursor) {
       if (cursor.size() != keys.size()) {
-        throw new IllegalArgumentException("Cursor must contain every keyset sort property");
+        throw new IllegalArgumentException("Scroll position does not match the query ordering: cursor must contain every keyset sort property");
       }
       for (int i = 0; i < keys.size(); i++) {
         KeysetSort key = keys.get(i);
         ScrollPosition.Entry entry = cursor.get(i);
         if (!key.property().getName().equals(entry.property())) {
-          throw new IllegalArgumentException("Expected keyset property '%s' at index %d, but got '%s'"
+          throw new IllegalArgumentException("Scroll position does not match the query ordering: expected keyset property '%s' at index %d, but got '%s'"
                   .formatted(key.property().getName(), i, entry.property()));
         }
         if (key.direction() != entry.direction()) {
-          throw new IllegalArgumentException("Expected keyset direction '%s' for property '%s', but got '%s'"
+          throw new IllegalArgumentException("Scroll position does not match the query ordering: expected keyset direction '%s' for property '%s', but got '%s'"
                   .formatted(key.direction(), key.property().getName(), entry.direction()));
         }
       }

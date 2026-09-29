@@ -27,15 +27,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class ScrollPositionTests {
 
   @Test
-  void initialPositionHasNoCursor() {
-    assertThat(ScrollPosition.INITIAL.isInitial()).isTrue();
-    assertThat(ScrollPosition.INITIAL.cursor()).isNull();
-
-    ScrollPosition withOrder = ScrollPosition.builder().desc("age", null).asc("id", null).build();
-    assertThat(withOrder.isInitial()).isTrue();
-    assertThat(withOrder.cursor()).containsExactly(
-            new ScrollPosition.Entry("age", null, Order.DESC),
-            new ScrollPosition.Entry("id", null, Order.ASC));
+  void pageableStartsWithoutPosition() {
+    assertThat(ScrollPageable.of(2).position()).isNull();
+    assertThat(new ScrollPageable(2, null).position()).isNull();
+    assertThat(ScrollPageable.of(2).withPosition(null).position()).isNull();
   }
 
   @Test
@@ -43,7 +38,6 @@ class ScrollPositionTests {
     ScrollPosition position = ScrollPosition.builder().desc("age", 20).add("name", "Alice", Order.ASC)
             .asc("id", 3).build();
 
-    assertThat(position.isInitial()).isFalse();
     assertThat(position.cursor()).containsExactly(
             new ScrollPosition.Entry("age", 20, Order.DESC),
             new ScrollPosition.Entry("name", "Alice", Order.ASC),
@@ -71,9 +65,9 @@ class ScrollPositionTests {
   void rejectsInvalidCursorValuesAndEntries() {
     assertThatThrownBy(() -> ScrollPosition.builder().build()).isInstanceOf(IllegalArgumentException.class);
     assertThatThrownBy(() -> ScrollPosition.keyset(null)).isInstanceOf(IllegalArgumentException.class);
-    assertThatThrownBy(() -> ScrollPosition.builder().asc("age", null).asc("id", 1).build())
+    assertThatThrownBy(() -> ScrollPosition.builder().asc("age", null))
             .isInstanceOf(IllegalArgumentException.class);
-    assertThatThrownBy(() -> ScrollPosition.builder().asc("age", 20).asc("id", null).build())
+    assertThatThrownBy(() -> ScrollPosition.builder().asc("age", 20).asc("id", null))
             .isInstanceOf(IllegalArgumentException.class);
     assertThatThrownBy(() -> ScrollPosition.builder().asc(" ", 20))
             .isInstanceOf(IllegalArgumentException.class);

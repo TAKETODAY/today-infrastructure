@@ -24,7 +24,7 @@ import org.jspecify.annotations.Nullable;
  * <p>Example objects can implement this interface to carry their position across
  * an HTTP boundary together with their filtering and ordering state. A
  * {@code null} position uses the position supplied by {@link ScrollPageable}.
- * When both the example and {@code ScrollPageable} supply a non-initial position,
+ * When both the example and {@code ScrollPageable} supply a position,
  * scrolling fails rather than silently choosing one.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

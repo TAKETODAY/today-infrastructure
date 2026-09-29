@@ -1886,7 +1886,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
         }
       }.add(Restrictions.equal("name"), "same");
       ScrollPageable pageable = ScrollPageable.of(2);
-      Function<ScrollPosition, Scroll<UserModel>> supplier =
+      Function<@Nullable ScrollPosition, Scroll<UserModel>> supplier =
               position -> entityManager.scroll(UserModel.class, filter, pageable.withPosition(position));
 
       List<Integer> ids = new ArrayList<>();
@@ -1985,7 +1985,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       OrderSpec order = OrderSpec.builder().asc("age").desc("name").build();
       QueryCondition condition = entityManager.getEntityQueryFactories().createCondition(order);
       List<String> names = new ArrayList<>();
-      ScrollPosition position = ScrollPosition.INITIAL;
+      ScrollPosition position = null;
       Scroll<UserModel> page;
       do {
         page = entityManager.scroll(UserModel.class, condition, ScrollPageable.of(1).withPosition(position));
@@ -2051,7 +2051,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
 
       List<String> names = new ArrayList<>();
       List<Integer> ids = new ArrayList<>();
-      ScrollPosition position = ScrollPosition.INITIAL;
+      ScrollPosition position = null;
       Scroll<CompositeOrderByWithIdUser> page;
       do {
         page = entityManager.scroll(CompositeOrderByWithIdUser.class, ScrollPageable.of(1).withPosition(position));
@@ -2157,11 +2157,6 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
               ScrollPageable.of(2).withPosition(first.position()));
       assertThat(fromPageable.rows()).extracting(user -> user.id)
               .containsExactly(second.rows().get(0).id);
-
-      example.position = ScrollPosition.INITIAL;
-      assertThat(entityManager.scroll(OrderByAgeUser.class, example,
-              ScrollPageable.of(2).withPosition(first.position())).rows())
-              .extracting(user -> user.id).containsExactly(second.rows().get(0).id);
 
       example.position = first.position();
       assertThatThrownBy(() -> entityManager.scroll(OrderByAgeUser.class, example,
@@ -2363,31 +2358,6 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     static class NoIdUser {
       public Integer age;
       public String name;
-    }
-
-    @Test
-    void keysetPositionValidatesCursor() {
-      assertThat(ScrollPosition.INITIAL.isInitial()).isTrue();
-      assertThatThrownBy(() -> ScrollPosition.keyset(List.of())).isInstanceOf(IllegalArgumentException.class);
-      assertThat(position(new ScrollPosition.Entry("age", null, Order.ASC)).isInitial()).isTrue();
-      assertThatThrownBy(() -> ScrollPosition.keyset(List.of(
-              new ScrollPosition.Entry("age", null, Order.ASC),
-              new ScrollPosition.Entry("id", 1, Order.ASC))))
-              .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    void keysetPositionBuilderPreservesOrderAndValidatesValues() {
-      ScrollPosition position = ScrollPosition.builder().desc("age", 20).asc("id", 3).build();
-      assertThat(position.cursor()).containsExactly(
-              new ScrollPosition.Entry("age", 20, Order.DESC),
-              new ScrollPosition.Entry("id", 3, Order.ASC));
-      assertThat(position.isInitial()).isFalse();
-      assertThat(ScrollPosition.builder().asc("age", null).desc("id", null).build().isInitial()).isTrue();
-
-      assertThatThrownBy(() -> ScrollPosition.builder().build()).isInstanceOf(IllegalArgumentException.class);
-      assertThatThrownBy(() -> ScrollPosition.builder().asc("age", null).asc("id", 3).build())
-              .isInstanceOf(IllegalArgumentException.class);
     }
 
   }
