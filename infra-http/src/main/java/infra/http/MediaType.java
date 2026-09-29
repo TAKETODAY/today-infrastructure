@@ -348,7 +348,7 @@ public class MediaType extends MimeType implements Serializable {
   @Override
   protected void checkParameters(String attribute, String value) {
     super.checkParameters(attribute, value);
-    if (PARAM_QUALITY_FACTOR.equals(attribute)) {
+    if (PARAM_QUALITY_FACTOR.equalsIgnoreCase(attribute)) {
       value = unquote(value);
       double d = Double.parseDouble(value);
       if (!(d >= 0D && d <= 1D)) {
@@ -448,7 +448,7 @@ public class MediaType extends MimeType implements Serializable {
       return this;
     }
     LinkedHashMap<String, String> params = new LinkedHashMap<>(getParameters());
-    params.remove(PARAM_QUALITY_FACTOR);
+    params.keySet().removeIf(PARAM_QUALITY_FACTOR::equalsIgnoreCase);
     return new MediaType(this, params);
   }
 

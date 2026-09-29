@@ -547,6 +547,28 @@ class MimeTypeTests {
   }
 
   @Test
+  void equalsIsCaseInsensitiveForParameterNames() {
+    MimeType m1 = new MimeType("text", "plain", singletonMap("Spring", "framework"));
+    MimeType m2 = new MimeType("text", "plain", singletonMap("spring", "framework"));
+    assertThat(m1).isEqualTo(m2);
+    assertThat(m2).isEqualTo(m1);
+    assertThat(m1).hasSameHashCodeAs(m2);
+    assertThat(m1.compareTo(m2)).isEqualTo(0);
+    assertThat(m2.compareTo(m1)).isEqualTo(0);
+  }
+
+  @Test
+  void equalsIsCaseInsensitiveForCharsetParameterName() {
+    MimeType m1 = new MimeType("text", "plain", singletonMap("Charset", "UTF-8"));
+    MimeType m2 = new MimeType("text", "plain", singletonMap("charset", "utf-8"));
+    assertThat(m1).isEqualTo(m2);
+    assertThat(m2).isEqualTo(m1);
+    assertThat(m1).hasSameHashCodeAs(m2);
+    assertThat(m1.compareTo(m2)).isEqualTo(0);
+    assertThat(m2.compareTo(m1)).isEqualTo(0);
+  }
+
+  @Test
   void equalsIgnoresParameterValueQuoting() {
     MimeType m1 = MimeTypeUtils.parseMimeType("text/plain; infra=\"framework\"");
     MimeType m2 = MimeTypeUtils.parseMimeType("text/plain; infra=framework");
