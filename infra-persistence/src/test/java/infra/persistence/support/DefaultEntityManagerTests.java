@@ -51,12 +51,9 @@ import infra.jdbc.format.SqlStatementLogger;
 import infra.jdbc.model.Gender;
 import infra.jdbc.model.UserModel;
 import infra.jdbc.type.TypeHandler;
-import infra.http.MediaType;
-import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.lang.Descriptive;
 import infra.persistence.DebugDescriptive;
 import infra.persistence.DefaultEntityMetadataFactory;
-import infra.persistence.EntityManager;
 import infra.persistence.EntityMetadata;
 import infra.persistence.EntityMetadataFactory;
 import infra.persistence.EntityProperty;
@@ -100,18 +97,11 @@ import infra.persistence.query.QueryStatement;
 import infra.persistence.sql.OrderSpec;
 import infra.persistence.sql.Restrictions;
 import infra.test.util.ReflectionTestUtils;
-import infra.test.web.mock.MockMvc;
-import infra.test.web.mock.setup.MockMvcBuilders;
 import infra.transaction.TransactionDefinition;
 import infra.util.CollectionUtils;
-import infra.web.annotation.PostMapping;
-import infra.web.annotation.RequestBody;
-import infra.web.annotation.RestController;
 import tools.jackson.databind.json.JsonMapper;
 
 import static infra.persistence.PropertyUpdateStrategy.noneNull;
-import static infra.test.web.mock.request.MockMvcRequestBuilders.post;
-import static infra.test.web.mock.result.MockMvcResultMatchers.status;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -2313,70 +2303,6 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       assertThat(second.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
       assertThat(second.isLast()).isTrue();
       assertThat(second.rows().get(0).id).isNotIn(first.rows().stream().map(user -> user.id).toList());
-    }
-
-    @ParameterizedRepositoryManagerTest
-    void webScrollRequestResponseAcrossWindows(DbType dbType, RepositoryManager repositoryManager) throws Exception {
-      DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
-      if (dbType == DbType.HyperSQL) {
-        entityManager.setPlatform(new HyperSQLPlatform());
-      }
-      List<UserModel> users = List.of(
-              UserModel.male("same", 10), UserModel.male("other", 15),
-              UserModel.male("same", 10), UserModel.male("same", 20),
-              UserModel.male("same", 30), UserModel.male("same", 40));
-      entityManager.persist(users);
-
-      JsonMapper json = JsonMapper.builder().build();
-      MockMvc mvc = MockMvcBuilders.standaloneSetup(new ScrollController(entityManager))
-              .setMessageConverters(new JacksonJsonHttpMessageConverter(json))
-              .build();
-
-      WebScrollResponse first = webScroll(mvc, json, "{\"name\":\"same\"}");
-      assertThat(first.ids()).containsExactly(users.get(0).id, users.get(2).id);
-      assertThat(first.last()).isFalse();
-      assertThat(first.nextPosition()).isNotNull();
-      assertThat(first.nextPosition().cursor()).extracting(ScrollPosition.Entry::property)
-              .containsExactly("age", "id");
-
-      WebScrollResponse second = webScroll(mvc, json,
-              json.writeValueAsString(Map.of("name", "same", "position", first.nextPosition())));
-      assertThat(second.ids()).containsExactly(users.get(3).id, users.get(4).id);
-      assertThat(second.last()).isFalse();
-
-      WebScrollResponse third = webScroll(mvc, json,
-              json.writeValueAsString(Map.of("name", "same", "position", second.nextPosition())));
-      assertThat(third.ids()).containsExactly(users.get(5).id);
-      assertThat(third.last()).isTrue();
-      assertThat(third.nextPosition()).isNull();
-    }
-
-    private WebScrollResponse webScroll(MockMvc mvc, JsonMapper json, String request) throws Exception {
-      String response = mvc.perform(post("/users/scroll")
-                      .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
-                      .content(request))
-              .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
-      return json.readValue(response, WebScrollResponse.class);
-    }
-
-    @RestController
-    static class ScrollController {
-
-      private final EntityManager entityManager;
-
-      ScrollController(EntityManager entityManager) {
-        this.entityManager = entityManager;
-      }
-
-      @PostMapping("/users/scroll")
-      public WebScrollResponse scroll(@RequestBody ExampleKeysetUser request) {
-        Scroll<OrderByAgeUser> scroll = entityManager.scroll(OrderByAgeUser.class, request, ScrollPageable.of(2));
-        ScrollPosition next = scroll.isLast() || scroll.isEmpty() ? null : scroll.position();
-        return new WebScrollResponse(scroll.rows().stream().map(user -> user.id).toList(), scroll.isLast(), next);
-      }
-    }
-
-    record WebScrollResponse(List<Integer> ids, boolean last, @Nullable ScrollPosition nextPosition) {
     }
 
     @infra.persistence.annotation.Table("t_user")

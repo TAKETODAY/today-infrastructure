@@ -30,6 +30,7 @@ dependencies {
   testImplementation(testFixtures(project(":infra-webmvc")))
 
   testImplementation(project(":infra-jdbc"))
+  testImplementation(project(":infra-persistence"))
   testImplementation(project(":infra-tx"))
   testImplementation(project(":infra-web"))
   testImplementation(project(":infra-webmvc"))
@@ -108,6 +109,7 @@ dependencies {
 
   testImplementation(testFixtures(project(":infra-context")))
   testImplementation(testFixtures(project(":infra-core")))
+  testImplementation(testFixtures(project(":infra-jdbc")))
   testImplementation(testFixtures(project(":infra-beans")))
   testImplementation(testFixtures(project(":infra-tx")))
   testImplementation(testFixtures(project(":infra-jcache")))
