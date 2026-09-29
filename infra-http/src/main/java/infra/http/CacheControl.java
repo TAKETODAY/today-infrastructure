@@ -199,8 +199,8 @@ public class CacheControl {
    *
    * @return {@code this}, to facilitate method chaining
    * @throws IllegalStateException if the "no-store" directive has not been set
-   * @since 5.0
    * @see <a href="https://www.rfc-editor.org/rfc/rfc9111#section-5.2.2.3">rfc9111 section 5.2.2.3</a>
+   * @since 5.0
    */
   public CacheControl mustUnderstand() {
     Assert.state(this.noStore, "The \"no-store\" directive should be set as a fallback, "
