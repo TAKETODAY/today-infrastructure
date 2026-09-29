@@ -34,6 +34,7 @@ import java.util.Map;
 
 import infra.http.HttpHeaders;
 import infra.web.mock.MockRequest;
+import infra.web.mock.MockSession;
 import infra.web.mock.api.Cookie;
 import infra.util.FileCopyUtils;
 import infra.util.StreamUtils;
@@ -59,6 +60,33 @@ class MockHttpRequestTests {
   private static final String HOST = "Host";
 
   private final MockRequest request = new MockRequest();
+
+  @Test
+  void requestedSessionIdValidShouldDefaultToFalse() {
+    assertThat(request.getRequestedSessionId()).isNull();
+    assertThat(request.isRequestedSessionIdValid()).isFalse();
+  }
+
+  @Test
+  void requestedSessionIdValidShouldReturnTrueWhenSessionValid() {
+    MockSession session = new MockSession();
+    request.setSession(session);
+    request.setRequestedSessionId(session.getId());
+    assertThat(request.getRequestedSessionId()).isEqualTo(session.getId());
+    assertThat(request.isRequestedSessionIdValid()).isTrue();
+  }
+
+  @Test
+  void requestedSessionIdValidShouldReturnFalseWhenRotated() {
+    MockSession session = new MockSession();
+    request.setSession(session);
+    request.setRequestedSessionId(session.getId());
+    String previousRequestedId = request.getRequestedSessionId();
+    request.changeSessionId();
+    assertThat(session.getId()).isNotEqualTo(previousRequestedId);
+    assertThat(request.getRequestedSessionId()).isEqualTo(previousRequestedId);
+    assertThat(request.isRequestedSessionIdValid()).isFalse();
+  }
 
   @Test
   void protocolAndScheme() {

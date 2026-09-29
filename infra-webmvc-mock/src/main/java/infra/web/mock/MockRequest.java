@@ -224,7 +224,7 @@ public class MockRequest extends DefaultAttributeAccessor {
 
   private @Nullable Session session;
 
-  private boolean requestedSessionIdValid = true;
+  private @Nullable Boolean requestedSessionIdValid;
 
   private boolean requestedSessionIdFromCookie = true;
 
@@ -1142,7 +1142,15 @@ public class MockRequest extends DefaultAttributeAccessor {
   }
 
   public boolean isRequestedSessionIdValid() {
-    return this.requestedSessionIdValid;
+    if (this.requestedSessionIdValid != null) {
+      return this.requestedSessionIdValid;
+    }
+    String requestedId = getRequestedSessionId();
+    if (requestedId == null) {
+      return false;
+    }
+    Session currentSession = getSession(false);
+    return currentSession != null && requestedId.equals(currentSession.getId());
   }
 
   public void setRequestedSessionIdFromCookie(boolean requestedSessionIdFromCookie) {
