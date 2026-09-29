@@ -111,7 +111,7 @@ public class SpelParserConfiguration {
    */
   @Deprecated(since = "5.0")
   public SpelParserConfiguration() {
-    this(null, null, false, false, DEFAULT_MAX_AUTO_GROW_SIZE);
+    this(null, null, false, false, Integer.MAX_VALUE);
   }
 
   /**
@@ -123,7 +123,7 @@ public class SpelParserConfiguration {
    */
   @Deprecated(since = "5.0")
   public SpelParserConfiguration(@Nullable SpelCompilerMode compilerMode, @Nullable ClassLoader compilerClassLoader) {
-    this(compilerMode, compilerClassLoader, false, false, DEFAULT_MAX_AUTO_GROW_SIZE);
+    this(compilerMode, compilerClassLoader, false, false, Integer.MAX_VALUE);
   }
 
   /**
@@ -136,7 +136,7 @@ public class SpelParserConfiguration {
    */
   @Deprecated(since = "5.0")
   public SpelParserConfiguration(boolean autoGrowNullReferences, boolean autoGrowCollections) {
-    this(null, null, autoGrowNullReferences, autoGrowCollections, DEFAULT_MAX_AUTO_GROW_SIZE);
+    this(null, null, autoGrowNullReferences, autoGrowCollections, Integer.MAX_VALUE);
   }
 
   /**

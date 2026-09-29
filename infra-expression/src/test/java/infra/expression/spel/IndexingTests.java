@@ -334,7 +334,8 @@ class IndexingTests {
 
     @Test
     void defaultMaxAutoGrowSizeMatchesDataBinderDefault() {
-      SpelParserConfiguration configuration = new SpelParserConfiguration(true, true);
+      SpelParserConfiguration configuration = SpelParserConfiguration.builder()
+              .autoGrowNullReferences().autoGrowCollections().build();
       assertThat(configuration.getMaximumAutoGrowSize())
               .isEqualTo(SpelParserConfiguration.DEFAULT_MAX_AUTO_GROW_SIZE)
               .isEqualTo(256);
@@ -363,7 +364,8 @@ class IndexingTests {
     @Test
     void collectionGrowsUpToDefaultMaxAutoGrowSizeButNotBeyond() {
       decimals = new ArrayList<>();
-      SpelExpressionParser parser = new SpelExpressionParser(new SpelParserConfiguration(true, true));
+      SpelExpressionParser parser = new SpelExpressionParser(SpelParserConfiguration.builder()
+              .autoGrowNullReferences().autoGrowCollections().build());
 
       parser.parseExpression("decimals[255]").getValue(IndexingTests.this);
       assertThat(decimals).hasSize(256);
@@ -377,11 +379,21 @@ class IndexingTests {
     @Test
     void collectionCanGrowBeyondDefaultMaxAutoGrowSizeWhenConfiguredExplicitly() {
       decimals = new ArrayList<>();
-      SpelParserConfiguration configuration = new SpelParserConfiguration(true, true, 1000);
+      SpelParserConfiguration configuration = SpelParserConfiguration.builder()
+              .autoGrowNullReferences().autoGrowCollections().maximumAutoGrowSize(1000).build();
       SpelExpressionParser parser = new SpelExpressionParser(configuration);
 
       parser.parseExpression("decimals[500]").getValue(IndexingTests.this);
       assertThat(decimals).hasSize(501);
+    }
+
+    @Test
+    void legacyConstructorRetainsUnboundedAutoGrowDefault() {
+      decimals = new ArrayList<>();
+      SpelExpressionParser parser = new SpelExpressionParser(new SpelParserConfiguration(true, true));
+
+      parser.parseExpression("decimals[256]").getValue(IndexingTests.this);
+      assertThat(decimals).hasSize(257);
     }
   }
 
