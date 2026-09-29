@@ -187,7 +187,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
   @SuppressWarnings("NullAway")
   private HttpHeaders getHeaders() {
     if (this.headers == null) {
-      this.headers = originalResponse.headers().asHttpHeaders().asWritable();
+      this.headers = HttpHeaders.copyOf(this.originalResponse.headers().asHttpHeaders());
     }
     return this.headers;
   }
@@ -209,7 +209,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
   @SuppressWarnings("NullAway")
   private MultiValueMap<String, ResponseCookie> getCookies() {
     if (this.cookies == null) {
-      this.cookies = new LinkedMultiValueMap<>(this.originalResponse.cookies());
+      this.cookies = new LinkedMultiValueMap<>(this.originalResponse.cookies()).deepCopy();
     }
     return this.cookies;
   }
