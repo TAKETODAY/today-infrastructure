@@ -86,7 +86,7 @@ class ScrollPaginationIntegrationTests {
   void getQueryParametersScrollAcrossWindowsAndControlSize() throws Exception {
     try (TestStore store = new TestStore()) {
       JsonMapper json = JsonMapper.builder().build();
-      MockMvc mvc = MockMvcBuilders.standaloneSetup(new GetScrollController(store.entityManager, json))
+      MockMvc mvc = MockMvcBuilders.standaloneSetup(new GetScrollController(store.entityManager))
               .setMessageConverters(new JacksonJsonHttpMessageConverter(json)).build();
 
       ScrollResponse first = getScroll(mvc, json, "same", 2, null);
@@ -121,7 +121,10 @@ class ScrollPaginationIntegrationTests {
     var request = get("/users/scroll").param("name", name).param("pageSize", String.valueOf(pageSize))
             .accept(MediaType.APPLICATION_JSON);
     if (position != null) {
-      request.param("position", json.writeValueAsString(position));
+      List<ScrollPosition.Entry> cursor = position.cursor();
+      assertThat(cursor).extracting(ScrollPosition.Entry::property).containsExactly("age", "id");
+      request.param("cursorAge", cursor.get(0).value().toString());
+      request.param("cursorId", cursor.get(1).value().toString());
     }
     String response = mvc.perform(request)
             .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
@@ -177,20 +180,21 @@ class ScrollPaginationIntegrationTests {
 
     private final EntityManager entityManager;
 
-    private final JsonMapper json;
-
-    GetScrollController(EntityManager entityManager, JsonMapper json) {
+    GetScrollController(EntityManager entityManager) {
       this.entityManager = entityManager;
-      this.json = json;
     }
 
     @GetMapping("/users/scroll")
     public ScrollResponse scroll(@RequestParam String name, @RequestParam int pageSize,
-            @RequestParam(required = false) @Nullable String position) {
+            @RequestParam(required = false) @Nullable Integer cursorAge,
+            @RequestParam(required = false) @Nullable Integer cursorId) {
       UserSearch request = new UserSearch();
       request.name = name;
-      if (position != null) {
-        request.position = json.readValue(position, ScrollPosition.class);
+      if (cursorAge != null && cursorId != null) {
+        request.position = ScrollPosition.builder()
+                .asc("age", cursorAge)
+                .asc("id", cursorId)
+                .build();
       }
       return response(entityManager.scroll(UserView.class, request, ScrollPageable.of(pageSize)));
     }

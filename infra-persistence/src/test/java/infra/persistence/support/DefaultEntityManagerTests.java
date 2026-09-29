@@ -2376,6 +2376,20 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
               .isInstanceOf(IllegalArgumentException.class);
     }
 
+    @Test
+    void keysetPositionBuilderPreservesOrderAndValidatesValues() {
+      ScrollPosition position = ScrollPosition.builder().desc("age", 20).asc("id", 3).build();
+      assertThat(position.cursor()).containsExactly(
+              new ScrollPosition.Entry("age", 20, Order.DESC),
+              new ScrollPosition.Entry("id", 3, Order.ASC));
+      assertThat(position.isInitial()).isFalse();
+      assertThat(ScrollPosition.builder().asc("age", null).desc("id", null).build().isInitial()).isTrue();
+
+      assertThatThrownBy(() -> ScrollPosition.builder().build()).isInstanceOf(IllegalArgumentException.class);
+      assertThatThrownBy(() -> ScrollPosition.builder().asc("age", null).asc("id", 3).build())
+              .isInstanceOf(IllegalArgumentException.class);
+    }
+
   }
 
   public static void createData(DefaultEntityManager entityManager) {

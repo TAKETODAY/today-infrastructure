@@ -18,6 +18,7 @@ package infra.persistence;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import infra.util.Assert;
@@ -69,6 +70,16 @@ public record ScrollPosition(@Nullable List<Entry> cursor) {
   }
 
   /**
+   * Create a builder for an ordered keyset position. Add keys in sort order;
+   * use {@code null} values for all keys to describe an initial position.
+   *
+   * @return a new keyset position builder
+   */
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  /**
    * Return whether this position marks the start of a scroll operation.
    *
    * @return {@code true} when no position filtering should be applied
@@ -89,6 +100,63 @@ public record ScrollPosition(@Nullable List<Entry> cursor) {
     public Entry {
       Assert.hasText(property, "Keyset property is required");
       Assert.notNull(direction, "Keyset direction is required");
+    }
+
+  }
+
+  /**
+   * Builds a keyset position from mapped property names, values, and directions.
+   */
+  public static final class Builder {
+
+    private final ArrayList<Entry> entries = new ArrayList<>();
+
+    private Builder() {
+    }
+
+    /**
+     * Append an ascending key.
+     *
+     * @param property the mapped entity property name
+     * @param value the cursor value, or {@code null} for an initial position
+     * @return this builder
+     */
+    public Builder asc(String property, @Nullable Object value) {
+      return add(property, value, Order.ASC);
+    }
+
+    /**
+     * Append a descending key.
+     *
+     * @param property the mapped entity property name
+     * @param value the cursor value, or {@code null} for an initial position
+     * @return this builder
+     */
+    public Builder desc(String property, @Nullable Object value) {
+      return add(property, value, Order.DESC);
+    }
+
+    /**
+     * Append a key with the given direction.
+     *
+     * @param property the mapped entity property name
+     * @param value the cursor value, or {@code null} for an initial position
+     * @param direction the sort direction
+     * @return this builder
+     */
+    public Builder add(String property, @Nullable Object value, Order direction) {
+      entries.add(new Entry(property, value, direction));
+      return this;
+    }
+
+    /**
+     * Create an immutable position from the keys in insertion order.
+     *
+     * @return the keyset position
+     * @throws IllegalArgumentException if no keys are present or values mix null and non-null
+     */
+    public ScrollPosition build() {
+      return ScrollPosition.keyset(entries);
     }
 
   }
