@@ -521,7 +521,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
   }
 
   @Override
-  public <T> Stream<T> queryForStream(String sql, RowMapper<T> rowMapper) throws DataAccessException {
+  public <T extends @Nullable Object> Stream<T> queryForStream(String sql, RowMapper<T> rowMapper) throws DataAccessException {
     class StreamStatementCallback implements StatementCallback<Stream<T>>, SqlProvider {
       @Override
       public Stream<T> doInStatement(Statement stmt) throws SQLException {

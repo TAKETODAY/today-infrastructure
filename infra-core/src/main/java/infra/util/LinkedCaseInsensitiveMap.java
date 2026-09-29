@@ -53,7 +53,7 @@ import java.util.function.Function;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-12-08 20:20
  */
-public class LinkedCaseInsensitiveMap<V> implements Map<String, V>, Serializable, Cloneable {
+public class LinkedCaseInsensitiveMap<V extends @Nullable Object> implements Map<String, V>, Serializable, Cloneable {
 
   @Serial
   private static final long serialVersionUID = 1L;

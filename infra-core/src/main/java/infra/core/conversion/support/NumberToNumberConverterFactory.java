@@ -18,6 +18,8 @@
 
 package infra.core.conversion.support;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.TypeDescriptor;
 import infra.core.conversion.ConditionalConverter;
 import infra.core.conversion.Converter;
@@ -45,7 +47,7 @@ import infra.util.NumberUtils;
 final class NumberToNumberConverterFactory implements ConverterFactory<Number, Number>, ConditionalConverter {
 
   @Override
-  public <T extends Number> Converter<Number, T> getConverter(Class<T> targetType) {
+  public <T extends Number> Converter<Number, ? extends @Nullable T> getConverter(Class<T> targetType) {
     return new NumberToNumber<>(targetType);
   }
 

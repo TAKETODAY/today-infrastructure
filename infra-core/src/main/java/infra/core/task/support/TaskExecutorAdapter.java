@@ -104,7 +104,7 @@ public class TaskExecutorAdapter implements AsyncTaskExecutor {
   }
 
   @Override
-  public <T> Future<T> submit(Callable<T> task) {
+  public <T extends @Nullable Object> Future<T> submit(Callable<T> task) {
     var future = Future.forFutureTask(task, this);
     execute(future, TIMEOUT_INDEFINITE);
     return future;
