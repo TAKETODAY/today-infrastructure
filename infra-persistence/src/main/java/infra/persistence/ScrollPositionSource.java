@@ -23,7 +23,9 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>Example objects can implement this interface to carry their position across
  * an HTTP boundary together with their filtering and ordering state. A
- * {@code null} position starts the scroll from the beginning.
+ * {@code null} position uses the position supplied by {@link ScrollPageable}.
+ * When both the example and {@code ScrollPageable} supply a non-initial position,
+ * scrolling fails rather than silently choosing one.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ScrollPosition
@@ -34,7 +36,7 @@ public interface ScrollPositionSource {
   /**
    * Return the position after which scrolling should resume.
    *
-   * @return the scroll position, or {@code null} to start from the beginning
+   * @return the scroll position, or {@code null} to use the pageable position
    */
   @Nullable
   ScrollPosition scrollPosition();

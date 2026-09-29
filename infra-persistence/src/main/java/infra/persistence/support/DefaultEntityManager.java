@@ -1262,14 +1262,22 @@ public class DefaultEntityManager implements EntityManager {
 
     int pageSize = pageable.pageSize();
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
-    ScrollPosition position = condition.scrollPosition(metadata);
-    if (position == null) {
-      position = pageable.position();
+    ScrollPosition examplePosition = condition.scrollPosition(metadata);
+    ScrollPosition position = pageable.position();
+    if (examplePosition != null && !examplePosition.isInitial()) {
+      if (!position.isInitial()) {
+        throw new IllegalArgumentException("Scroll position must be supplied by either the example or ScrollPageable, not both");
+      }
+      position = examplePosition;
     }
+    OrderSpec orderSpec = condition.resolveOrderByClause(metadata);
     if (position.cursor() == null) {
-      position = resolveScrollPosition(metadata, condition);
+      position = resolveScrollPosition(metadata, orderSpec);
     }
     KeysetOrder keysetOrder = resolveKeysetOrder(metadata, position);
+    if (!orderSpec.isEmpty()) {
+      keysetOrder.validateOrder(metadata, orderSpec);
+    }
     List<ScrollPosition.Entry> cursor = null;
     if (!position.isInitial()) {
       cursor = position.cursor();
@@ -1323,8 +1331,7 @@ public class DefaultEntityManager implements EntityManager {
     return KeysetOrder.resolve(metadata, position);
   }
 
-  private ScrollPosition resolveScrollPosition(EntityMetadata metadata, QueryCondition condition) {
-    OrderSpec orderSpec = condition.resolveOrderByClause(metadata);
+  private ScrollPosition resolveScrollPosition(EntityMetadata metadata, OrderSpec orderSpec) {
     if (orderSpec.isEmpty()) {
       return ScrollPosition.INITIAL;
     }
@@ -1685,6 +1692,31 @@ public class DefaultEntityManager implements EntityManager {
         throw new IllegalArgumentException("Keyset pagination requires an entity ID or explicit unique ordering");
       }
       return new KeysetOrder(List.copyOf(keys));
+    }
+
+    void validateOrder(EntityMetadata metadata, OrderSpec orderSpec) {
+      if (orderSpec.parts().size() > keys.size()) {
+        throw new IllegalArgumentException("Scroll position does not match the query ordering");
+      }
+      for (int i = 0; i < orderSpec.parts().size(); i++) {
+        OrderSpec.Part part = orderSpec.parts().get(i);
+        if (!(part instanceof OrderSpec.Item item)) {
+          throw new IllegalArgumentException("Keyset pagination requires mapped sort columns, not raw SQL fragments");
+        }
+        EntityProperty property = metadata.findProperty(item.column());
+        if (property == null) {
+          throw new IllegalArgumentException("Unknown keyset sort property: " + item.column());
+        }
+        KeysetSort key = keys.get(i);
+        if (key.property() != property || key.direction() != item.direction()) {
+          throw new IllegalArgumentException("Scroll position does not match the query ordering");
+        }
+      }
+      if (orderSpec.parts().size() < keys.size()
+              && (keys.size() != orderSpec.parts().size() + 1
+              || keys.get(keys.size() - 1).property() != metadata.findIdProperty())) {
+        throw new IllegalArgumentException("Scroll position does not match the query ordering");
+      }
     }
 
     void validateCursor(List<ScrollPosition.Entry> cursor) {

@@ -15,6 +15,11 @@ dependencies {
   testImplementation(testFixtures(project(":module:infra-sql")))
 
   testImplementation project(":infra-test")
+  testImplementation project(":infra-webmvc-mock")
+  testImplementation project(":infra-webmvc")
+  testImplementation project(":infra-web")
+  testImplementation project(":infra-http")
+  testImplementation project(":infra-http-converter")
   testImplementation("tools.jackson.core:jackson-databind")
 
   testImplementation("org.hsqldb:hsqldb")
