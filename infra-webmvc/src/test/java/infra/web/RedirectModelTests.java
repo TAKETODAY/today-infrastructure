@@ -89,6 +89,15 @@ class RedirectModelTests {
   }
 
   @Test
+  void notExpiredWithLargeTimeToLive() {
+    RedirectModel model = new RedirectModel();
+    model.startExpirationPeriod(Integer.MAX_VALUE);
+
+    assertThat(model.getExpirationTime()).isGreaterThan(System.currentTimeMillis());
+    assertThat(model.isExpired()).isFalse();
+  }
+
+  @Test
   void findOutputModelReturnsNullForMissingAttribute() {
     AttributeAccessor accessor = mock(AttributeAccessor.class);
     when(accessor.getAttribute(RedirectModel.OUTPUT_ATTRIBUTE)).thenReturn(null);
