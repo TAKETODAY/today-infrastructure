@@ -60,6 +60,20 @@ public class ChangeEmailController {
 
 您也可以注册 `disallowedFields` 模式（不区分大小写）。然而，"允许" 配置比 "不允许" 配置更受青睐，因为它更明确，也更不容易出错。
 
+传给 `allowedFields` 和 `disallowedFields` 的模式并不限于顶层字段名。它们是属性路径，
+使用与框架其他位置读写 bean 属性相同的语法，并且支持使用 `*` 作为通配符。
+因此，您可以更精确地约束数据绑定：
+
+* `"address"` 匹配 `address` 属性。
+* `"person.address.city"` 匹配 `person` 的嵌套 `address` 属性中的 `city` 属性。
+* `"addresses[0].city"` 匹配 `addresses` 数组或 `List` 中索引为 `0` 的元素的 `city` 属性。
+* `"map[key]"` 匹配 `map` 属性中与 `key` 关联的条目。
+* `"map*"` 匹配 `map` 属性中的每个条目，例如 `"map[key1]"` 和 `"map[key2]"`。
+  相同的通配符语法也适用于数组或 `List` 中的索引元素。
+
+有关支持的模式语法的更多信息，请参阅
+{today-framework-api}/validation/DataBinder.html#setAllowedFields(java.lang.String...)[`DataBinder#setAllowedFields` JavaDoc]。
+
 默认情况下，构造函数绑定和属性绑定都被使用。如果您只想使用构造函数绑定，您可以通过 `@InitBinder`
 方法在 `WebDataBinder` 上设置 `declarativeBinding` 标志，这可以局部地在控制器内进行，也可以通过
 `@ControllerAdvice` 全局进行。打开此标志确保只使用构造函数绑定，并且除非配置了 `allowedFields` 模式，否则不使用属性绑定。
