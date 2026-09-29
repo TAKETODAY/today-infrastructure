@@ -1272,7 +1272,7 @@ public class DefaultEntityManager implements EntityManager {
     }
     OrderSpec orderSpec = condition.resolveOrderByClause(metadata);
     KeysetOrder keysetOrder = KeysetOrder.resolve(metadata, orderSpec, position);
-    List<ScrollPosition.Entry> cursor = position == null ? null : position.cursor();
+    List<ScrollPosition.Entry> cursor = position == null || position.isInitial() ? null : position.cursor();
     if (cursor != null) {
       keysetOrder.validateCursor(cursor);
     }

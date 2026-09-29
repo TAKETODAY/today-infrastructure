@@ -21,11 +21,26 @@ import org.jspecify.annotations.Nullable;
 /**
  * A source of the {@link ScrollPosition} used to resume a keyset scroll.
  *
- * <p>Example objects can implement this interface to carry their position across
- * an HTTP boundary together with their filtering and ordering state. A
- * {@code null} position uses the position supplied by {@link ScrollPageable}.
+ * <p>Example objects can implement this interface to carry typed cursor
+ * properties across an HTTP boundary and construct the corresponding position
+ * after deserialization. A {@code null} position uses the position supplied by
+ * {@link ScrollPageable}.
  * When both the example and {@code ScrollPageable} supply a position,
  * scrolling fails rather than silently choosing one.
+ *
+ * <pre>{@code
+ * class UserSearch implements ScrollPositionSource {
+ *   Integer age;
+ *   Integer id;
+ *
+ *   public ScrollPosition scrollPosition() {
+ *     return ScrollPosition.builder()
+ *         .asc("age", age)
+ *         .asc("id", id)
+ *         .build();
+ *   }
+ * }
+ * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ScrollPosition

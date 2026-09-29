@@ -95,6 +95,7 @@ import infra.persistence.query.NoConditionsQuery;
 import infra.persistence.query.QueryCondition;
 import infra.persistence.query.QueryStatement;
 import infra.persistence.sql.OrderSpec;
+import infra.persistence.sql.OrderSpecSource;
 import infra.persistence.sql.Restrictions;
 import infra.test.util.ReflectionTestUtils;
 import infra.transaction.TransactionDefinition;
@@ -2262,6 +2263,24 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       assertThat(second.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
     }
 
+    @ParameterizedRepositoryManagerTest
+    void keysetPageOrderSpecSourceKeepsExampleFilters(DbType dbType, RepositoryManager repositoryManager) {
+      DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+      if (dbType == DbType.HyperSQL) {
+        entityManager.setPlatform(new HyperSQLPlatform());
+      }
+      entityManager.persist(List.of(
+              UserModel.male("same", 10), UserModel.male("same", 20),
+              UserModel.male("other", 30)));
+
+      OrderedUserSearch example = new OrderedUserSearch();
+      example.name = "same";
+      Scroll<UserModel> scroll = entityManager.scroll(UserModel.class, example, ScrollPageable.of(10));
+
+      assertThat(scroll.rows()).extracting(user -> user.age).containsExactly(20, 10);
+      assertThat(scroll.rows()).allMatch(user -> user.name.equals("same"));
+    }
+
     @Test
     void orderByAnnotationProvidesKeysetOrdering() {
       EntityMetadata metadata = new DefaultEntityMetadataFactory().getEntityMetadata(CompositeOrderByUser.class);
@@ -2270,7 +2289,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     }
 
     @ParameterizedRepositoryManagerTest
-    void keysetPageCursorSurvivesJsonHttpRoundTrip(DbType dbType, RepositoryManager repositoryManager) {
+    void keysetPageExampleSurvivesJsonHttpRoundTrip(DbType dbType, RepositoryManager repositoryManager) {
       DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
       if (dbType == DbType.HyperSQL) {
         entityManager.setPlatform(new HyperSQLPlatform());
@@ -2279,25 +2298,50 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
               UserModel.male("same", 10), UserModel.male("same", 10),
               UserModel.male("same", 20), UserModel.male("other", 30)));
 
-      QueryCondition condition = new QueryBuilder() {
-        @Override
-        public OrderSpec resolveOrderByClause(EntityMetadata metadata) {
-          return OrderSpec.asc("age");
-        }
-      }.add(Restrictions.equal("name"), "same");
-      Scroll<UserModel> first = entityManager.scroll(UserModel.class, condition, ScrollPageable.of(2));
-
       JsonMapper json = JsonMapper.builder().build();
-      ScrollPosition receivedPosition = json.readValue(
-              json.writeValueAsString(first.position()), ScrollPosition.class);
-      assertThat(receivedPosition.cursor()).extracting(ScrollPosition.Entry::property)
-              .containsExactly("age", "id");
-      Scroll<UserModel> second = entityManager.scroll(UserModel.class, condition, ScrollPageable.of(2).withPosition(receivedPosition));
+      UserSearch firstRequest = json.readValue("{\"name\":\"same\"}", UserSearch.class);
+      Scroll<UserModel> first = entityManager.scroll(UserModel.class, firstRequest, ScrollPageable.of(2));
+      UserModel last = first.rows().get(first.rows().size() - 1);
+
+      UserSearch nextRequest = new UserSearch();
+      nextRequest.name = "same";
+      nextRequest.age = last.age;
+      nextRequest.id = last.id;
+      UserSearch received = json.readValue(json.writeValueAsString(nextRequest), UserSearch.class);
+      Scroll<UserModel> second = entityManager.scroll(UserModel.class, received, ScrollPageable.of(2));
 
       assertThat(first.rows()).hasSize(2);
       assertThat(second.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
       assertThat(second.isLast()).isTrue();
       assertThat(second.rows().get(0).id).isNotIn(first.rows().stream().map(user -> user.id).toList());
+    }
+
+    @ParameterizedRepositoryManagerTest
+    void keysetPageBuildsPositionFromOrderByExample(DbType dbType, RepositoryManager repositoryManager) {
+      DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+      if (dbType == DbType.HyperSQL) {
+        entityManager.setPlatform(new HyperSQLPlatform());
+      }
+      entityManager.persist(List.of(
+              UserModel.male("same", 10), UserModel.male("same", 10),
+              UserModel.male("same", 20), UserModel.male("other", 30)));
+
+      UserSearchOrderBy firstRequest = new UserSearchOrderBy();
+      firstRequest.name = "same";
+      Scroll<UserModel> first = entityManager.scroll(UserModel.class, firstRequest, ScrollPageable.of(2));
+      UserModel last = first.rows().get(first.rows().size() - 1);
+
+      UserSearchOrderBy nextRequest = new UserSearchOrderBy();
+      nextRequest.name = "same";
+      nextRequest.age = last.age;
+      nextRequest.id = last.id;
+      JsonMapper json = JsonMapper.builder().build();
+      UserSearchOrderBy received = json.readValue(json.writeValueAsString(nextRequest), UserSearchOrderBy.class);
+      Scroll<UserModel> second = entityManager.scroll(UserModel.class, received, ScrollPageable.of(2));
+
+      assertThat(first.rows()).hasSize(2).allMatch(user -> user.name.equals("same"));
+      assertThat(second.rows()).singleElement().extracting(user -> user.age).isEqualTo(20);
+      assertThat(second.isLast()).isTrue();
     }
 
     @infra.persistence.annotation.Table("t_user")
@@ -2317,6 +2361,47 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       @Override
       public @Nullable ScrollPosition scrollPosition() {
         return position;
+      }
+    }
+
+    @EntityRef(UserModel.class)
+    public static class UserSearch implements ScrollPositionSource {
+
+      public String name;
+
+      public Integer age;
+
+      public Integer id;
+
+      @Override
+      public ScrollPosition scrollPosition() {
+        return ScrollPosition.builder()
+                .asc("age", age)
+                .asc("id", id)
+                .build();
+      }
+    }
+
+    @EntityRef(UserModel.class)
+    public static class UserSearchOrderBy {
+
+      public String name;
+
+      @OrderBy(order = 2)
+      public Integer id;
+
+      @OrderBy(order = 1)
+      public Integer age;
+    }
+
+    @EntityRef(UserModel.class)
+    public static class OrderedUserSearch implements OrderSpecSource {
+
+      public String name;
+
+      @Override
+      public OrderSpec orderSpec() {
+        return OrderSpec.desc("age");
       }
     }
 

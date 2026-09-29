@@ -24,13 +24,12 @@ import java.util.List;
 
 import infra.persistence.EntityMetadata;
 import infra.persistence.sql.OrderSpec;
-import infra.persistence.sql.OrderSpecSource;
 import infra.persistence.sql.Restriction;
 import infra.persistence.sql.SimpleSelect;
 
 /**
- * Creates queries with ordering but no filtering from an {@link OrderSpec},
- * {@link OrderSpec.Builder}, or {@link OrderSpecSource}.
+ * Creates queries with ordering but no filtering from an {@link OrderSpec} or
+ * {@link OrderSpec.Builder}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
@@ -55,9 +54,6 @@ final class OrderSpecEntityQueryFactory implements EntityQueryFactory {
     }
     if (example instanceof OrderSpec.Builder builder) {
       return builder.build();
-    }
-    if (example instanceof OrderSpecSource source) {
-      return source.orderSpec();
     }
     return null;
   }

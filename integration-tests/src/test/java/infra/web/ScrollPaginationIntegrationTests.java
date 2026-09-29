@@ -34,7 +34,6 @@ import infra.persistence.ScrollPositionSource;
 import infra.persistence.annotation.EntityRef;
 import infra.persistence.annotation.Id;
 import infra.persistence.annotation.OrderBy;
-import infra.persistence.annotation.Transient;
 import infra.persistence.support.DefaultEntityManager;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.setup.MockMvcBuilders;
@@ -65,20 +64,20 @@ class ScrollPaginationIntegrationTests {
       ScrollResponse first = postScroll(mvc, json, "{\"name\":\"same\"}");
       assertThat(first.ids()).containsExactly(store.users.get(0).id, store.users.get(2).id);
       assertThat(first.last()).isFalse();
-      assertThat(first.nextPosition()).isNotNull();
-      assertThat(first.nextPosition().cursor()).extracting(ScrollPosition.Entry::property)
-              .containsExactly("age", "id");
+      assertThat(first.nextCursor()).isNotNull();
 
       ScrollResponse second = postScroll(mvc, json,
-              json.writeValueAsString(Map.of("name", "same", "position", first.nextPosition())));
+              json.writeValueAsString(Map.of("name", "same",
+                      "age", first.nextCursor().age(), "id", first.nextCursor().id())));
       assertThat(second.ids()).containsExactly(store.users.get(3).id, store.users.get(4).id);
       assertThat(second.last()).isFalse();
 
       ScrollResponse third = postScroll(mvc, json,
-              json.writeValueAsString(Map.of("name", "same", "position", second.nextPosition())));
+              json.writeValueAsString(Map.of("name", "same",
+                      "age", second.nextCursor().age(), "id", second.nextCursor().id())));
       assertThat(third.ids()).containsExactly(store.users.get(5).id);
       assertThat(third.last()).isTrue();
-      assertThat(third.nextPosition()).isNull();
+      assertThat(third.nextCursor()).isNull();
     }
   }
 
@@ -92,16 +91,16 @@ class ScrollPaginationIntegrationTests {
       ScrollResponse first = getScroll(mvc, json, "same", 2, null);
       assertThat(first.ids()).containsExactly(store.users.get(0).id, store.users.get(2).id);
       assertThat(first.last()).isFalse();
-      assertThat(first.nextPosition()).isNotNull();
+      assertThat(first.nextCursor()).isNotNull();
 
-      ScrollResponse second = getScroll(mvc, json, "same", 2, first.nextPosition());
+      ScrollResponse second = getScroll(mvc, json, "same", 2, first.nextCursor());
       assertThat(second.ids()).containsExactly(store.users.get(3).id, store.users.get(4).id);
       assertThat(second.last()).isFalse();
 
-      ScrollResponse third = getScroll(mvc, json, "same", 2, second.nextPosition());
+      ScrollResponse third = getScroll(mvc, json, "same", 2, second.nextCursor());
       assertThat(third.ids()).containsExactly(store.users.get(5).id);
       assertThat(third.last()).isTrue();
-      assertThat(third.nextPosition()).isNull();
+      assertThat(third.nextCursor()).isNull();
 
       ScrollResponse largerWindow = getScroll(mvc, json, "same", 3, null);
       assertThat(largerWindow.ids()).containsExactly(store.users.get(0).id, store.users.get(2).id, store.users.get(3).id);
@@ -117,14 +116,12 @@ class ScrollPaginationIntegrationTests {
   }
 
   private static ScrollResponse getScroll(MockMvc mvc, JsonMapper json, String name, int pageSize,
-          @Nullable ScrollPosition position) throws Exception {
+          @Nullable ScrollCursor cursor) throws Exception {
     var request = get("/users/scroll").param("name", name).param("pageSize", String.valueOf(pageSize))
             .accept(MediaType.APPLICATION_JSON);
-    if (position != null) {
-      List<ScrollPosition.Entry> cursor = position.cursor();
-      assertThat(cursor).extracting(ScrollPosition.Entry::property).containsExactly("age", "id");
-      request.param("cursorAge", cursor.get(0).value().toString());
-      request.param("cursorId", cursor.get(1).value().toString());
+    if (cursor != null) {
+      request.param("cursorAge", cursor.age().toString());
+      request.param("cursorId", cursor.id().toString());
     }
     String response = mvc.perform(request)
             .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
@@ -132,7 +129,11 @@ class ScrollPaginationIntegrationTests {
   }
 
   private static ScrollResponse response(Scroll<UserView> scroll) {
-    ScrollPosition next = scroll.isLast() || scroll.isEmpty() ? null : scroll.position();
+    ScrollCursor next = null;
+    if (!scroll.isLast() && !scroll.isEmpty()) {
+      UserView row = scroll.rows().get(scroll.rows().size() - 1);
+      next = new ScrollCursor(row.age, row.id);
+    }
     return new ScrollResponse(scroll.rows().stream().map(user -> user.id).toList(), scroll.isLast(), next);
   }
 
@@ -190,12 +191,8 @@ class ScrollPaginationIntegrationTests {
             @RequestParam(required = false) @Nullable Integer cursorId) {
       UserSearch request = new UserSearch();
       request.name = name;
-      if (cursorAge != null && cursorId != null) {
-        request.position = ScrollPosition.builder()
-                .asc("age", cursorAge)
-                .asc("id", cursorId)
-                .build();
-      }
+      request.age = cursorAge;
+      request.id = cursorId;
       return response(entityManager.scroll(UserView.class, request, ScrollPageable.of(pageSize)));
     }
   }
@@ -205,12 +202,16 @@ class ScrollPaginationIntegrationTests {
 
     public String name;
 
-    @Transient
-    public @Nullable ScrollPosition position;
+    public Integer age;
+
+    public Integer id;
 
     @Override
     public @Nullable ScrollPosition scrollPosition() {
-      return position;
+      return ScrollPosition.builder()
+              .asc("age", age)
+              .asc("id", id)
+              .build();
     }
   }
 
@@ -226,6 +227,21 @@ class ScrollPaginationIntegrationTests {
     public String name;
   }
 
-  record ScrollResponse(List<Integer> ids, boolean last, @Nullable ScrollPosition nextPosition) {
+  record ScrollResponse(List<Integer> ids, boolean last, @Nullable ScrollCursor nextCursor) {
+  }
+
+  record ScrollCursor(Integer age, Integer id) {
+  }
+
+  @EntityRef(UserModel.class)
+  public static class UserSearchOrderBy {
+
+    public String name;
+
+    @OrderBy(order = 2)
+    public Integer id;
+
+    @OrderBy(order = 1)
+    public Integer age;
   }
 }

@@ -62,12 +62,11 @@ class ScrollPositionTests {
   }
 
   @Test
-  void rejectsInvalidCursorValuesAndEntries() {
+  void supportsInitialOrderingAndRejectsInvalidEntries() {
     assertThatThrownBy(() -> ScrollPosition.builder().build()).isInstanceOf(IllegalArgumentException.class);
     assertThatThrownBy(() -> ScrollPosition.keyset(null)).isInstanceOf(IllegalArgumentException.class);
-    assertThatThrownBy(() -> ScrollPosition.builder().asc("age", null))
-            .isInstanceOf(IllegalArgumentException.class);
-    assertThatThrownBy(() -> ScrollPosition.builder().asc("age", 20).asc("id", null))
+    assertThat(ScrollPosition.builder().asc("age", null).asc("id", null).build().isInitial()).isTrue();
+    assertThatThrownBy(() -> ScrollPosition.builder().asc("age", 20).asc("id", null).build())
             .isInstanceOf(IllegalArgumentException.class);
     assertThatThrownBy(() -> ScrollPosition.builder().asc(" ", 20))
             .isInstanceOf(IllegalArgumentException.class);

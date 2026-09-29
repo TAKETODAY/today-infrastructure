@@ -33,12 +33,19 @@ import infra.util.Assert;
  * value, and direction so that a position cannot silently be reused with a
  * different ordering.
  *
- * <p>A position used to resume scrolling has a non-null value for every entry. The
- * cursor list is copied on construction, but values are not converted; callers
- * restoring a position must supply values of types accepted by the mapped properties.
+ * <p>An initial position may carry ordering with all values set to {@code null}.
+ * A position used to resume scrolling has a non-null value for every entry. The
+ * cursor list is copied on construction, but values are not converted.
+ *
+ * <p>This type is an internal query coordinate, not a transport DTO. Applications
+ * should carry typed cursor properties in their example object and construct a
+ * position through {@link ScrollPositionSource}, or annotate those properties
+ * with {@link infra.persistence.annotation.OrderBy @OrderBy} for automatic
+ * construction.
  *
  * @param cursor the non-empty ordered keyset entries
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @see ScrollPositionSource
  * @since 5.0
  */
 public record ScrollPosition(List<Entry> cursor) {
@@ -46,9 +53,20 @@ public record ScrollPosition(List<Entry> cursor) {
   public ScrollPosition {
     Assert.notEmpty(cursor, "Cursor entries are required");
     cursor = List.copyOf(cursor);
+    boolean initial = cursor.get(0).value() == null;
     for (Entry entry : cursor) {
-      Assert.notNull(entry.value(), "Keyset value is required");
+      Assert.isTrue((entry.value() == null) == initial,
+              "Keyset values must be either all null or all non-null");
     }
+  }
+
+  /**
+   * Return whether this position only declares ordering and has no cursor values.
+   *
+   * @return {@code true} when no position filtering should be applied
+   */
+  public boolean isInitial() {
+    return cursor.get(0).value() == null;
   }
 
   /**
@@ -75,14 +93,13 @@ public record ScrollPosition(List<Entry> cursor) {
    * A single value in a keyset position.
    *
    * @param property the mapped entity property name
-   * @param value the non-null property value
+   * @param value the property value, or {@code null} for an initial position
    * @param direction the ordering direction
    */
   public record Entry(String property, @Nullable Object value, Order direction) {
 
     public Entry {
       Assert.hasText(property, "Keyset property is required");
-      Assert.notNull(value, "Keyset value is required");
       Assert.notNull(direction, "Keyset direction is required");
     }
 

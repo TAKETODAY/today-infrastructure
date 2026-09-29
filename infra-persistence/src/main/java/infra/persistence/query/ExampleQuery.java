@@ -44,6 +44,7 @@ import infra.persistence.annotation.Group;
 import infra.persistence.annotation.GroupExpression;
 import infra.persistence.annotation.GroupOR;
 import infra.persistence.annotation.OR;
+import infra.persistence.annotation.OrderBy;
 import infra.persistence.platform.Platform;
 import infra.persistence.sql.LogicalOperator;
 import infra.persistence.sql.OrderSpec;
@@ -89,6 +90,8 @@ final class ExampleQuery extends SimpleSelectQueryStatement
   private final Set<String> excludedProperties;
 
   private @Nullable ConditionTree predicates;
+
+  private @Nullable ScrollPosition resolvedScrollPosition;
 
   /**
    * Conditions already resolved for {@link GroupExpression @GroupExpression}
@@ -159,9 +162,26 @@ final class ExampleQuery extends SimpleSelectQueryStatement
   @Override
   public @Nullable ScrollPosition scrollPosition(EntityMetadata metadata) {
     if (example instanceof ScrollPositionSource source) {
-      return source.scrollPosition();
+      resolvedScrollPosition = source.scrollPosition();
+      return resolvedScrollPosition;
     }
-    return null;
+    OrderSpec orderSpec = exampleMetadata.getOrderSpec();
+    if (orderSpec.isEmpty()) {
+      return null;
+    }
+    ScrollPosition.Builder builder = ScrollPosition.builder();
+    for (OrderSpec.Part part : orderSpec.parts()) {
+      if (!(part instanceof OrderSpec.Item item)) {
+        return null;
+      }
+      EntityProperty property = exampleMetadata.findProperty(item.column());
+      if (property == null || !property.isPresent(OrderBy.class)) {
+        return null;
+      }
+      builder.add(property.getName(), property.getValue(example), item.direction());
+    }
+    resolvedScrollPosition = builder.build();
+    return resolvedScrollPosition;
   }
 
   @Override
@@ -349,7 +369,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement
   }
 
   private @Nullable Condition resolveCondition(EntityProperty property) {
-    if (excludedProperties.contains(property.getName())) {
+    if (excludedProperties.contains(property.getName()) || isCursorProperty(property.getName())) {
       // properties carrying the keyset cursor are not equality filters
       return null;
     }
@@ -364,6 +384,18 @@ final class ExampleQuery extends SimpleSelectQueryStatement
       }
     }
     return null;
+  }
+
+  private boolean isCursorProperty(String propertyName) {
+    ScrollPosition position = resolvedScrollPosition;
+    if (position != null) {
+      for (ScrollPosition.Entry entry : position.cursor()) {
+        if (entry.property().equals(propertyName)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   /**
