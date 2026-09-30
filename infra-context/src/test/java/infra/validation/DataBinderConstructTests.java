@@ -29,11 +29,14 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.core.ResolvableType;
+import infra.beans.ConfigurablePropertyAccessor;
+import infra.beans.InvalidPropertyException;
 import infra.format.support.DefaultFormattingConversionService;
 import infra.util.Assert;
 import jakarta.validation.constraints.NotNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Unit tests for {@link DataBinder} with constructor binding.
@@ -41,6 +44,31 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rossen Stoyanchev
  */
 class DataBinderConstructTests {
+
+  @Test
+  void maxNestedPathDepth() {
+    DataBinder binder = initDataBinder(NodeRecord.class);
+    binder.setMaxNestedPathDepth(2);
+    binder.construct(new MapValueResolver(Map.of("next.next.value", "enigma")));
+    NodeRecord target = getTarget(binder);
+    assertThat(target.next().next().value()).isEqualTo("enigma");
+
+    DataBinder tooDeep = initDataBinder(NodeRecord.class);
+    tooDeep.setMaxNestedPathDepth(2);
+    assertThatExceptionOfType(InvalidPropertyException.class)
+            .isThrownBy(() -> tooDeep.construct(new MapValueResolver(Map.of("next.next.next.value", "enigma"))))
+            .withMessageEndingWith("Nesting depth of property path exceeds the maximum of 2");
+  }
+
+  @Test
+  void maxNestedPathDepthProtectsAgainstStackOverflow() {
+    DataBinder binder = initDataBinder(NodeRecord.class);
+    String propertyPath = "next.".repeat(100_000) + "value";
+    assertThatExceptionOfType(InvalidPropertyException.class)
+            .isThrownBy(() -> binder.construct(new MapValueResolver(Map.of(propertyPath, "enigma"))))
+            .withMessageEndingWith("Nesting depth of property path exceeds the maximum of " +
+                    ConfigurablePropertyAccessor.DEFAULT_MAX_NESTED_PATH_DEPTH);
+  }
 
   @Test
   void dataClassBinding() {
@@ -340,6 +368,8 @@ class DataBinderConstructTests {
       return this.nestedParam2;
     }
   }
+
+  private record NodeRecord(@Nullable NodeRecord next, @Nullable String value) { }
 
   private record DataClassListRecord(List<DataClass> dataClassList) {
   }

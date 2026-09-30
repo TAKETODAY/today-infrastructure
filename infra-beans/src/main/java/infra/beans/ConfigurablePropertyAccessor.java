@@ -23,18 +23,29 @@ import org.jspecify.annotations.Nullable;
 import infra.core.conversion.ConversionService;
 
 /**
- * Interface that encapsulates configuration methods for a PropertyAccessor.
- * Also extends the PropertyEditorRegistry interface, which defines methods
- * for PropertyEditor management.
+ * Interface that encapsulates configuration methods for a {@link PropertyAccessor}.
+ * Also extends the {@link PropertyEditorRegistry} interface for
+ * {@link java.beans.PropertyEditor} management.
  *
  * <p>Serves as base interface for {@link BeanWrapper}.
  *
  * @author Juergen Hoeller
  * @author Stephane Nicoll
+ * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/17 17:37
  */
 public interface ConfigurablePropertyAccessor extends PropertyAccessor, PropertyEditorRegistry, TypeConverter {
+
+  /**
+   * Default maximum nested property path depth: {@value}.
+   * <p>This limit turns excessive recursive traversal into an
+   * {@link InvalidPropertyException}, but cannot guarantee protection against
+   * {@link StackOverflowError} for every JVM stack size, JIT state, and platform.
+   * @since 5.0
+   * @see #setMaxNestedPathDepth(int)
+   */
+  int DEFAULT_MAX_NESTED_PATH_DEPTH = 100;
 
   /**
    * Specify a ConversionService to use for converting
@@ -89,5 +100,21 @@ public interface ConfigurablePropertyAccessor extends PropertyAccessor, Property
    * @since 5.0
    */
   int getAutoGrowCollectionLimit();
+
+  /**
+   * Set the maximum number of intermediate properties traversed in a path;
+   * {@code address.country.name} has depth 2. A value of {@code 0} disallows
+   * nested paths while permitting simple, indexed, and mapped access.
+   * Default is {@link #DEFAULT_MAX_NESTED_PATH_DEPTH}.
+   * @param maxNestedPathDepth the non-negative limit
+   * @since 5.0
+   */
+  void setMaxNestedPathDepth(int maxNestedPathDepth);
+
+  /**
+   * Return the maximum allowed depth of a nested property path.
+   * @since 5.0
+   */
+  int getMaxNestedPathDepth();
 
 }

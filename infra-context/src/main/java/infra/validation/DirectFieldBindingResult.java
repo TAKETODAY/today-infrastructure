@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.beans.BeanWrapper;
 import infra.beans.ConfigurablePropertyAccessor;
+import infra.util.Assert;
 
 /**
  * Special implementation of the Errors and BindingResult interfaces,
@@ -31,6 +32,7 @@ import infra.beans.ConfigurablePropertyAccessor;
  * <p>this implementation is able to traverse nested fields.
  *
  * @author Juergen Hoeller
+ * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see DataBinder#getBindingResult()
  * @see DataBinder#initDirectFieldAccess()
@@ -46,6 +48,8 @@ public class DirectFieldBindingResult extends AbstractPropertyBindingResult {
   private final boolean autoGrowNestedPaths;
 
   private final int autoGrowCollectionLimit;
+
+  private final int maxNestedPathDepth;
 
   @Nullable
   private transient ConfigurablePropertyAccessor directFieldAccessor;
@@ -83,10 +87,28 @@ public class DirectFieldBindingResult extends AbstractPropertyBindingResult {
   public DirectFieldBindingResult(@Nullable Object target, String objectName,
           boolean autoGrowNestedPaths, int autoGrowCollectionLimit) {
 
+    this(target, objectName, autoGrowNestedPaths, autoGrowCollectionLimit,
+            ConfigurablePropertyAccessor.DEFAULT_MAX_NESTED_PATH_DEPTH);
+  }
+
+  /**
+   * Create a result with a custom nested field path depth limit.
+   * @param target the target object to bind onto
+   * @param objectName the name of the target object
+   * @param autoGrowNestedPaths whether to auto-grow null nested paths
+   * @param autoGrowCollectionLimit the collection auto-growing limit
+   * @param maxNestedPathDepth the non-negative maximum nesting depth
+   * @since 5.0
+   */
+  public DirectFieldBindingResult(@Nullable Object target, String objectName,
+          boolean autoGrowNestedPaths, int autoGrowCollectionLimit, int maxNestedPathDepth) {
+
     super(objectName);
+    Assert.isTrue(maxNestedPathDepth >= 0, "'maxNestedPathDepth' must not be negative");
     this.target = target;
     this.autoGrowNestedPaths = autoGrowNestedPaths;
     this.autoGrowCollectionLimit = autoGrowCollectionLimit;
+    this.maxNestedPathDepth = maxNestedPathDepth;
   }
 
   @Override
@@ -108,6 +130,7 @@ public class DirectFieldBindingResult extends AbstractPropertyBindingResult {
       this.directFieldAccessor.setExtractOldValueForEditor(true);
       this.directFieldAccessor.setAutoGrowNestedPaths(this.autoGrowNestedPaths);
       this.directFieldAccessor.setAutoGrowCollectionLimit(this.autoGrowCollectionLimit);
+      this.directFieldAccessor.setMaxNestedPathDepth(this.maxNestedPathDepth);
     }
     return this.directFieldAccessor;
   }

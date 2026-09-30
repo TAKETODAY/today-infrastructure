@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import infra.util.CollectionUtils;
+import infra.util.Assert;
 
 /**
  * Abstract implementation of the {@link PropertyAccessor} interface.
@@ -33,6 +34,7 @@ import infra.util.CollectionUtils;
  *
  * @author Juergen Hoeller
  * @author Stephane Nicoll
+ * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #getPropertyValue
  * @see #setPropertyValue
@@ -47,6 +49,8 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
   protected boolean suppressNotWritablePropertyException = false;
 
   protected int autoGrowCollectionLimit = Integer.MAX_VALUE;
+
+  private int maxNestedPathDepth = DEFAULT_MAX_NESTED_PATH_DEPTH;
 
   @Override
   public void setExtractOldValueForEditor(boolean extractOldValueForEditor) {
@@ -83,6 +87,17 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
   @Override
   public int getAutoGrowCollectionLimit() {
     return this.autoGrowCollectionLimit;
+  }
+
+  @Override
+  public void setMaxNestedPathDepth(int maxNestedPathDepth) {
+    Assert.isTrue(maxNestedPathDepth >= 0, "'maxNestedPathDepth' must not be negative");
+    this.maxNestedPathDepth = maxNestedPathDepth;
+  }
+
+  @Override
+  public int getMaxNestedPathDepth() {
+    return this.maxNestedPathDepth;
   }
 
   @Override
@@ -242,4 +257,3 @@ public abstract class AbstractPropertyAccessor extends TypeConverterSupport impl
   public abstract void setPropertyValue(String propertyName, @Nullable Object value) throws BeansException;
 
 }
-

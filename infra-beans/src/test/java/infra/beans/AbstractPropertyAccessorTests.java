@@ -19,6 +19,8 @@
 package infra.beans;
 
 import org.jspecify.annotations.Nullable;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -216,10 +218,7 @@ abstract class AbstractPropertyAccessorTests {
 
   @Test
   void getAnotherNestedDeepProperty() {
-    ITestBean target = new TestBean("rod", 31);
-    ITestBean kerry = new TestBean("kerry", 35);
-    target.setSpouse(kerry);
-    kerry.setSpouse(target);
+    ITestBean target = createSpouseCycle();
     AbstractPropertyAccessor accessor = createAccessor(target);
     Integer KA = (Integer) accessor.getPropertyValue("spouse.age");
     assertThat(KA).as("kerry is 35").isEqualTo(35);
@@ -1601,6 +1600,90 @@ abstract class AbstractPropertyAccessorTests {
     AbstractPropertyAccessor accessor = createAccessor(target);
     accessor.setPropertyValue("something", 42);
     assertThat(target.something).isEqualTo(Integer.valueOf(42));
+  }
+
+  @Nested
+  class MaxNestedPathDepthTests {
+
+    @ParameterizedTest
+    @ValueSource(ints = { -1, Integer.MIN_VALUE })
+    void setMaxNestedPathDepthPreconditions(int depth) {
+      AbstractPropertyAccessor accessor = createAccessor(createSpouseCycle());
+      assertThatIllegalArgumentException().isThrownBy(() -> accessor.setMaxNestedPathDepth(depth))
+              .withMessage("'maxNestedPathDepth' must not be negative");
+    }
+
+    @Test
+    void maxNestedPathDepthOfZeroOnlyDisablesNestedPropertyPaths() {
+      AbstractPropertyAccessor accessor = createAccessor(createSpouseCycle());
+      accessor.setMaxNestedPathDepth(0);
+
+      assertThat(accessor.getPropertyValue("name")).isEqualTo("rod");
+      accessor.setPropertyValue("name", "ROD");
+      assertThat(accessor.getPropertyValue("name")).isEqualTo("ROD");
+      accessor.setPropertyValue("stringArray", new String[] { "a", "b" });
+      assertThat(accessor.getPropertyValue("stringArray[1]")).isEqualTo("b");
+      accessor.setPropertyValue("stringArray[1]", "B");
+      assertThat(accessor.getPropertyValue("stringArray[1]")).isEqualTo("B");
+      accessor.setPropertyValue("someMap[key]", "value");
+      assertThat(accessor.getPropertyValue("someMap[key]")).isEqualTo("value");
+
+      assertNestedPathDepthExceeded(() -> accessor.getPropertyValue(nestedSpousePath(1)), 0);
+      assertNestedPathDepthExceeded(() -> accessor.getPropertyValue(nestedSpousePath(2)), 0);
+      assertNestedPathDepthExceeded(() -> accessor.setPropertyValue(nestedSpousePath(1), "Joe"), 0);
+      assertNestedPathDepthExceeded(() -> accessor.setPropertyValue(nestedSpousePath(2), "Joe"), 0);
+    }
+
+    @Test
+    void defaultMaxNestedPathDepth() {
+      AbstractPropertyAccessor accessor = createAccessor(createSpouseCycle());
+      int maxDepth = ConfigurablePropertyAccessor.DEFAULT_MAX_NESTED_PATH_DEPTH;
+      assertThat(accessor.getMaxNestedPathDepth()).isEqualTo(maxDepth);
+      assertThat(accessor.getPropertyValue(nestedSpousePath(maxDepth))).isEqualTo("rod");
+      assertNestedPathDepthExceeded(() -> accessor.getPropertyValue(nestedSpousePath(maxDepth + 1)), maxDepth);
+    }
+
+    @Test
+    void getNestedPropertyWithCustomMaxNestedPathDepth() {
+      AbstractPropertyAccessor accessor = createAccessor(createSpouseCycle());
+      accessor.setMaxNestedPathDepth(10);
+      assertThat(accessor.getPropertyValue(nestedSpousePath(9))).isEqualTo("kerry");
+      assertThat(accessor.getPropertyValue(nestedSpousePath(10))).isEqualTo("rod");
+      assertNestedPathDepthExceeded(() -> accessor.getPropertyValue(nestedSpousePath(11)), 10);
+      assertNestedPathDepthExceeded(() -> accessor.getPropertyValue(nestedSpousePath(100)), 10);
+    }
+
+    @Test
+    void setNestedPropertyExceedingMaxNestedPathDepth() {
+      AbstractPropertyAccessor accessor = createAccessor(createSpouseCycle());
+      accessor.setMaxNestedPathDepth(10);
+      assertNestedPathDepthExceeded(() -> accessor.setPropertyValue(nestedSpousePath(11), "Jane"), 10);
+    }
+
+    @Test
+    void maxNestedPathDepthProtectsAgainstStackOverflow() {
+      AbstractPropertyAccessor accessor = createAccessor(createSpouseCycle());
+      accessor.setAutoGrowNestedPaths(true);
+      assertNestedPathDepthExceeded(() -> accessor.getPropertyValue(nestedSpousePath(100_000)), 100);
+      assertNestedPathDepthExceeded(() -> accessor.setPropertyValue(nestedSpousePath(100_000), "Jane"), 100);
+    }
+
+    private static String nestedSpousePath(int depth) {
+      return "spouse.".repeat(depth) + "name";
+    }
+
+    private static void assertNestedPathDepthExceeded(ThrowingCallable action, int maxDepth) {
+      assertThatExceptionOfType(InvalidPropertyException.class).isThrownBy(action)
+              .withMessageEndingWith("Nesting depth of property path exceeds the maximum of " + maxDepth);
+    }
+  }
+
+  private static ITestBean createSpouseCycle() {
+    ITestBean rod = new TestBean("rod", 31);
+    ITestBean kerry = new TestBean("kerry", 35);
+    rod.setSpouse(kerry);
+    kerry.setSpouse(rod);
+    return rod;
   }
 
   private Person createPerson(String name, String city, String country) {

@@ -2078,6 +2078,42 @@ class DataBinderTests {
   }
 
   @Test
+  void defaultMaxNestedPathDepthIsAppliedToPropertyAccessor() {
+    DataBinder binder = new DataBinder(new TestBean(), "testBean");
+    int maxDepth = infra.beans.ConfigurablePropertyAccessor.DEFAULT_MAX_NESTED_PATH_DEPTH;
+    assertThat(binder.getMaxNestedPathDepth()).isEqualTo(maxDepth);
+    assertThat(binder.getInternalBindingResult().getPropertyAccessor().getMaxNestedPathDepth()).isEqualTo(maxDepth);
+  }
+
+  @Test
+  void setMaxNestedPathDepth() {
+    TestBean rod = new TestBean("rod", 31);
+    TestBean kerry = new TestBean("kerry", 35);
+    rod.setSpouse(kerry);
+    kerry.setSpouse(rod);
+
+    DataBinder binder = new DataBinder(rod);
+    binder.setMaxNestedPathDepth(2);
+    PropertyValues values = new PropertyValues();
+    values.add("spouse.spouse.name", "Jane");
+    binder.bind(values);
+    assertThat(rod.getName()).isEqualTo("Jane");
+
+    PropertyValues tooDeep = new PropertyValues();
+    tooDeep.add("spouse.spouse.spouse.name", "Joe");
+    assertThatExceptionOfType(InvalidPropertyException.class).isThrownBy(() -> binder.bind(tooDeep))
+            .withMessageEndingWith("Nesting depth of property path exceeds the maximum of 2");
+  }
+
+  @Test
+  void setMaxNestedPathDepthAfterInitialization() {
+    DataBinder binder = new DataBinder(new TestBean());
+    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+    assertThatIllegalStateException().isThrownBy(() -> binder.setMaxNestedPathDepth(2))
+            .withMessageContaining("DataBinder is already initialized - call setMaxNestedPathDepth before other configuration methods");
+  }
+
+  @Test
   void setCustomMessageCodesResolverBeforeInitializeBindingResultForBeanPropertyAccess() {
     TestBean testBean = new TestBean();
     DataBinder binder = new DataBinder(testBean, "testBean");

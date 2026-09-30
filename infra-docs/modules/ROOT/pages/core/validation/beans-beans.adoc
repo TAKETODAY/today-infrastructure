@@ -39,7 +39,7 @@ xref:beans-beans-conventions[类型转换] 会根据需要应用于转换用户�
 JavaBean 是一个具有默认无参数构造函数的类，并且遵循命名约定，其中（例如）名为 `bingoMadness` 的属性将具有 setter 方法 `setBingoMadness(..)` 和 getter 方法 `getBingoMadness()`。有关 JavaBeans 及其规范的更多信息，请参阅
 {java-api}/java.desktop/java/beans/package-summary.html[javabeans]。
 
-beans 包中一个相当重要的类是 `BeanWrapper` 接口及其相应的实现 (`BeanWrapperImpl`)。引用 javadoc 中的话，`BeanWrapper` 提供了设置和获取属性值（单独或批量）、获取属性描述符以及查询属性以确定它们是可读还是可写的功能。此外，`BeanWrapper` 还支持嵌套属性，允许将子属性上的属性设置为无限深度。`BeanWrapper` 还支持添加标准 JavaBeans `PropertyChangeListeners` 和 `VetoableChangeListeners` 的能力，而无需在目标类中支持代码。
+beans 包中一个相当重要的类是 `BeanWrapper` 接口及其相应的实现 (`BeanWrapperImpl`)。引用 javadoc 中的话，`BeanWrapper` 提供了设置和获取属性值（单独或批量）、获取属性描述符以及查询属性以确定它们是可读还是可写的功能。此外，`BeanWrapper` 还支持嵌套属性，允许在 xref:beans-beans-nested-path-depth[可配置的最大嵌套深度]以内设置子属性。`BeanWrapper` 还支持添加标准 JavaBeans `PropertyChangeListeners` 和 `VetoableChangeListeners` 的能力，而无需在目标类中支持代码。
 最后但并非最不重要的一点是，`BeanWrapper` 提供了对设置索引属性的支持。
 `BeanWrapper` 通常不由应用程序代码直接使用，而是由 `DataBinder` 和 `BeanFactory` 使用。
 
@@ -162,6 +162,22 @@ Float salary = (Float) company.getPropertyValue("managingDirector.salary");
 ======
 
 
+
+[[beans-beans-nested-path-depth]]
+=== 嵌套属性路径的最大深度
+
+解析 `managingDirector.salary` 等属性路径时，每经过一个中间属性就增加一级深度。例如，`address.country.name` 的嵌套深度为 2，因为到达 `name` 前需依次经过 `address` 和 `country`。
+
+默认最大深度为 100。可以在 `BeanWrapperImpl` 等 `ConfigurablePropertyAccessor` 上调用 `setMaxNestedPathDepth(...)`，也可以在 `DataBinder`（包括 `WebDataBinder`，例如通过 `@InitBinder`）上配置。超过上限会抛出 `InvalidPropertyException`。设为 `0` 将禁止嵌套路径，但仍允许 `name`、`accounts[2]`、`accounts[KEY]` 等简单、索引和映射属性访问。
+
+该限制同时适用于属性绑定和 `DataBinder.construct` 的 xref:beans-constructor-binding[构造函数绑定]：对象类型的构造参数同样沿嵌套路径递归创建。
+
+[NOTE]
+====
+不限制嵌套深度时，极深的路径可能耗尽当前线程栈，产生 `StackOverflowError`。此限制能在常见情况下提供明确的 `InvalidPropertyException`，但栈空间消耗随 JVM、JIT 状态和平台而变化，因此并不能保证在所有线程栈配置下避免 `StackOverflowError`。
+
+绑定不可信输入时，还应按 xref:web/webmvc/mvc-controller/ann-initbinder.adoc#mvc-ann-initbinder-model-design[模型设计]中的建议限制允许绑定的字段。
+====
 
 [[beans-beans-conversion]]
 == ``PropertyEditor``
