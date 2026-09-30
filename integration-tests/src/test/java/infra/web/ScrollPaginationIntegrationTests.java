@@ -32,7 +32,6 @@ import infra.persistence.ScrollPageable;
 import infra.persistence.ScrollPosition;
 import infra.persistence.ScrollPositionSource;
 import infra.persistence.annotation.EntityRef;
-import infra.persistence.annotation.Id;
 import infra.persistence.annotation.OrderBy;
 import infra.persistence.support.DefaultEntityManager;
 import infra.test.web.mock.MockMvc;
@@ -117,14 +116,17 @@ class ScrollPaginationIntegrationTests {
 
   private static ScrollResponse getScroll(MockMvc mvc, JsonMapper json, String name, int pageSize,
           @Nullable ScrollCursor cursor) throws Exception {
-    var request = get("/users/scroll").param("name", name).param("pageSize", String.valueOf(pageSize))
+    var request = get("/users/scroll")
+            .param("name", name)
+            .param("pageSize", String.valueOf(pageSize))
             .accept(MediaType.APPLICATION_JSON);
     if (cursor != null) {
-      request.param("cursorAge", cursor.age().toString());
-      request.param("cursorId", cursor.id().toString());
+      request.param("age", cursor.age().toString());
+      request.param("id", cursor.id().toString());
     }
     String response = mvc.perform(request)
-            .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+            .andExpect(status().isOk())
+            .andReturn().getResponse().getContentAsString();
     return json.readValue(response, ScrollResponse.class);
   }
 
@@ -186,14 +188,8 @@ class ScrollPaginationIntegrationTests {
     }
 
     @GetMapping("/users/scroll")
-    public ScrollResponse scroll(@RequestParam String name, @RequestParam int pageSize,
-            @RequestParam(required = false) @Nullable Integer cursorAge,
-            @RequestParam(required = false) @Nullable Integer cursorId) {
-      UserSearch request = new UserSearch();
-      request.name = name;
-      request.age = cursorAge;
-      request.id = cursorId;
-      return response(entityManager.scroll(UserView.class, request, ScrollPageable.of(pageSize)));
+    public ScrollResponse scroll(UserSearchOrderBy search, @RequestParam int pageSize) {
+      return response(entityManager.scroll(UserView.class, search, ScrollPageable.of(pageSize)));
     }
   }
 
@@ -202,9 +198,9 @@ class ScrollPaginationIntegrationTests {
 
     public String name;
 
-    public Integer age;
+    public @Nullable Integer age;
 
-    public Integer id;
+    public @Nullable Integer id;
 
     @Override
     public @Nullable ScrollPosition scrollPosition() {
@@ -216,12 +212,23 @@ class ScrollPaginationIntegrationTests {
   }
 
   @EntityRef(UserModel.class)
+  public record UserSearchRecord(
+          String name, @Nullable Integer age, @Nullable Integer id) implements ScrollPositionSource {
+
+    @Override
+    public ScrollPosition scrollPosition() {
+      return ScrollPosition.builder()
+              .asc("age", age)
+              .asc("id", id)
+              .build();
+    }
+  }
+
+  @EntityRef(UserModel.class)
   static class UserView {
 
-    @Id
     public Integer id;
 
-    @OrderBy
     public Integer age;
 
     public String name;
