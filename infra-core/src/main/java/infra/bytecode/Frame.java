@@ -236,6 +236,9 @@ class Frame {
    * types of the constructors which are invoked in the basic block, in order to do this replacement
    * during the second step of the algorithm, where the frames are fully computed. Note that this
    * array can contain abstract types that are relative to the input locals or to the input stack.
+   *
+   * <p>The first element is the actual number n of abstract types in this array (at indices 1 to n
+   * included). Maybe {@literal null}.
    */
   private int @Nullable [] initializations;
 
