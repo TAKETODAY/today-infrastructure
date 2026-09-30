@@ -83,6 +83,7 @@ public class DefaultGenerationContext implements infra.aot.generate.GenerationCo
    * specified items.
    *
    * @param generatedClasses the generated classes
+   * @param generatedResources the generated resources
    * @param generatedFiles the generated files
    * @param runtimeHints the runtime hints
    */

@@ -21,6 +21,7 @@ package infra.aot.generate;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -83,7 +84,7 @@ class GeneratedResourceTests {
   }
 
   @Test
-  void createResourceInvokedTwiceWithSameContent() {
+  void createInvokedTwiceThrowsException() {
     GeneratedResource resource = new GeneratedResource(TEST_RESOURCE_PATH);
     resource.handle(writer -> writer.create("test=1"));
     assertThatIllegalStateException()
@@ -97,6 +98,19 @@ class GeneratedResourceTests {
     resource.handle(writer -> writer.createOrValidate(appendable -> appendable.append("test").append("=").append("1")));
     InMemoryGeneratedFiles generatedFiles = applyToGeneratedFiles(resource);
     assertThat(generatedFiles.getGeneratedFileContent(Kind.RESOURCE, TEST_RESOURCE_PATH)).isEqualTo("test=1");
+  }
+
+  @Test
+  void createOrValidateOnFirstCallDoesNotInvokeContentProducerTwice() throws IOException {
+    GeneratedResource resource = new GeneratedResource(TEST_RESOURCE_PATH);
+    AtomicInteger invocationCount = new AtomicInteger();
+    resource.handle(writer -> writer.createOrValidate(appendable -> {
+      invocationCount.incrementAndGet();
+      appendable.append("test=1");
+    }));
+    InMemoryGeneratedFiles generatedFiles = applyToGeneratedFiles(resource);
+    assertThat(generatedFiles.getGeneratedFileContent(Kind.RESOURCE, TEST_RESOURCE_PATH)).isEqualTo("test=1");
+    assertThat(invocationCount).hasValue(1);
   }
 
   @Test
