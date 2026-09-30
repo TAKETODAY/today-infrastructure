@@ -40,9 +40,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.net.URI;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,7 +48,6 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -69,33 +66,6 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * @author Eric Bruneton
  */
 class ClassWriterTests extends AsmTest {
-
-  /** The java.* modules of the JDK 17 API. */
-  private static String[] JDK17_JAVA_MODULES =
-          new String[] {
-                  "java.base",
-                  "java.compiler",
-                  "java.datatransfer",
-                  "java.desktop",
-                  "java.instrument",
-                  "java.logging",
-                  "java.management",
-                  "java.management.rmi",
-                  "java.naming",
-                  "java.net.http",
-                  "java.prefs",
-                  "java.rmi",
-                  "java.scripting",
-                  "java.se",
-                  "java.security.jgss",
-                  "java.security.sasl",
-                  "java.smartcardio",
-                  "java.sql",
-                  "java.sql.rowset",
-                  "java.transaction.xa",
-                  "java.xml",
-                  "java.xml.crypto"
-          };
 
   /**
    * Tests that the non-static fields of ClassWriter are the expected ones. This test is designed to
@@ -874,10 +844,10 @@ class ClassWriterTests extends AsmTest {
    */
   @ParameterizedTest
   @ValueSource(ints = { ClassWriter.COMPUTE_MAXS, ClassWriter.COMPUTE_FRAMES })
-  void testReadAndWrite_computeLimits(final int computeFlags) {
+  void testReadAndWrite_defaultComputeLimits(final int computeFlags) {
     AtomicInteger numClasses = new AtomicInteger();
     AtomicInteger numErrors = new AtomicInteger();
-    listAllJavaModulesClasses()
+    AsmTest.listAllJavaModulesClasses()
             .forEach(
                     classFile -> {
                       numClasses.getAndIncrement();
@@ -1076,26 +1046,6 @@ class ClassWriterTests extends AsmTest {
 
   private static Attribute[] attributes() {
     return new Attribute[] { new Comment(), new CodeComment() };
-  }
-
-  private static Stream<byte[]> listAllJavaModulesClasses() {
-    return Stream.of(JDK17_JAVA_MODULES)
-            .map(name -> Paths.get(URI.create("jrt:/" + name)))
-            .flatMap(ClassWriterTests::listAllClasses);
-  }
-
-  private static Stream<byte[]> listAllClasses(final Path path) {
-    try {
-      if (path.toString().endsWith(".class")) {
-        return Stream.of(Files.readAllBytes(path));
-      }
-      else {
-        return Files.list(path).flatMap(ClassWriterTests::listAllClasses);
-      }
-    }
-    catch (IOException e) {
-      return Stream.empty();
-    }
   }
 
   private static class DeadCodeInserter extends ClassVisitor {

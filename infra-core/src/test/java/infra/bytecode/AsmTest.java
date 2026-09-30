@@ -34,6 +34,11 @@ import org.junit.jupiter.params.provider.Arguments;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -75,6 +80,33 @@ import java.util.stream.Stream;
  * @author Eric Bruneton
  */
 public abstract class AsmTest {
+
+  /** The java.* modules of the JDK 17 API. */
+  private static String[] JDK17_JAVA_MODULES =
+          new String[] {
+                  "java.base",
+                  "java.compiler",
+                  "java.datatransfer",
+                  "java.desktop",
+                  "java.instrument",
+                  "java.logging",
+                  "java.management",
+                  "java.management.rmi",
+                  "java.naming",
+                  "java.net.http",
+                  "java.prefs",
+                  "java.rmi",
+                  "java.scripting",
+                  "java.se",
+                  "java.security.jgss",
+                  "java.security.sasl",
+                  "java.smartcardio",
+                  "java.sql",
+                  "java.sql.rowset",
+                  "java.transaction.xa",
+                  "java.xml",
+                  "java.xml.crypto"
+          };
 
   /** The size of the temporary byte array used to read class input streams chunk by chunk. */
   private static final int INPUT_STREAM_DATA_CHUNK_SIZE = 4096;
@@ -394,6 +426,34 @@ public abstract class AsmTest {
     }
     catch (IOException e) {
       throw new ClassFormatException("Can't read " + name, e);
+    }
+  }
+
+  /**
+   * Returns the bytecode of all the classes in the JDK17 java.* modules.
+   *
+   * @return the bytecode of all the classes in the JDK17 java.* modules.
+   */
+  public static Stream<byte[]> listAllJavaModulesClasses() {
+    return Stream.of(JDK17_JAVA_MODULES)
+            .map(name -> Paths.get(URI.create("jrt:/" + name)))
+            .flatMap(AsmTest::listAllClasses);
+  }
+
+  private static Stream<byte[]> listAllClasses(final Path path) {
+    try {
+      if (path.toString().endsWith(".class")) {
+        return Stream.of(Files.readAllBytes(path));
+      }
+      else if (Files.isDirectory(path)) {
+        return Files.list(path).flatMap(AsmTest::listAllClasses);
+      }
+      else {
+        return Stream.empty();
+      }
+    }
+    catch (IOException e) {
+      throw new UncheckedIOException(e);
     }
   }
 }

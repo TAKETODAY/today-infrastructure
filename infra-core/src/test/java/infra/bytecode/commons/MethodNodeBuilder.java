@@ -59,6 +59,16 @@ final class MethodNodeBuilder {
     methodNode.visitCode();
   }
 
+  MethodNodeBuilder frame(final Object[] locals, final Object[] stack) {
+    if (stack != null) {
+      methodNode.visitFrame(Opcodes.F_NEW, locals.length, locals, stack.length, stack);
+    }
+    else {
+      methodNode.visitFrame(Opcodes.F_NEW, locals.length, locals, 0, null);
+    }
+    return this;
+  }
+
   MethodNodeBuilder insn(final int opcode) {
     methodNode.visitInsn(opcode);
     return this;
