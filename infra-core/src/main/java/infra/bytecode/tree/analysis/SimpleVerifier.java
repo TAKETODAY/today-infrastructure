@@ -114,6 +114,7 @@ public class SimpleVerifier extends BasicVerifier {
       return BasicValue.UNINITIALIZED_VALUE;
     }
 
+    numOperations += 2;
     boolean isArray = type.getSort() == Type.ARRAY;
     if (isArray) {
       switch (type.getElementType().getSort()) {
@@ -121,12 +122,13 @@ public class SimpleVerifier extends BasicVerifier {
         case Type.CHAR:
         case Type.BYTE:
         case Type.SHORT:
-          return new BasicValue(type);
+          return newBasicValue(type);
         default:
           break;
       }
     }
 
+    numOperations += 10;
     BasicValue value = super.newValue(type);
     if (BasicValue.REFERENCE_VALUE.equals(value)) {
       if (isArray) {
@@ -136,13 +138,18 @@ public class SimpleVerifier extends BasicVerifier {
           descriptor.append('[');
         }
         descriptor.append(value.getType().getDescriptor());
-        value = new BasicValue(Type.forDescriptor(descriptor.toString()));
+        value = newBasicValue(Type.forDescriptor(descriptor.toString()));
       }
       else {
-        value = new BasicValue(type);
+        value = newBasicValue(type);
       }
     }
     return value;
+  }
+
+  private final BasicValue newBasicValue(final Type type) {
+    allocatedBytes += BasicValue.SIZE_BYTES;
+    return new BasicValue(type);
   }
 
   @Override
@@ -153,6 +160,7 @@ public class SimpleVerifier extends BasicVerifier {
 
   @Override
   protected BasicValue getElementValue(final BasicValue objectArrayValue) throws AnalyzerException {
+    numOperations += 3;
     Type arrayType = objectArrayValue.getType();
     if (arrayType != null) {
       if (arrayType.getSort() == Type.ARRAY) {
@@ -167,6 +175,7 @@ public class SimpleVerifier extends BasicVerifier {
 
   @Override
   protected boolean isSubTypeOf(final BasicValue value, final BasicValue expected) {
+    numOperations += 15;
     Type type = value.getType();
     Type expectedType = expected.getType();
     // Null types correspond to BasicValue.UNINITIALIZED_VALUE.
@@ -242,6 +251,7 @@ public class SimpleVerifier extends BasicVerifier {
 
   @Override
   public BasicValue merge(final BasicValue value1, final BasicValue value2) {
+    numOperations += 15;
     Type type1 = value1.getType();
     Type type2 = value2.getType();
     // Null types correspond to BasicValue.UNINITIALIZED_VALUE.
@@ -310,6 +320,7 @@ public class SimpleVerifier extends BasicVerifier {
   }
 
   private BasicValue newArrayValue(final Type type, final int dimensions) {
+    numOperations += dimensions + 2;
     if (dimensions == 0) {
       return newValue(type);
     }
@@ -368,6 +379,7 @@ public class SimpleVerifier extends BasicVerifier {
    * superinterface of the class corresponding to 'type2'.
    */
   protected boolean isAssignableFrom(final Type type1, final Type type2) {
+    numOperations += 10;
     if (type1.equals(type2)) {
       return true;
     }
@@ -388,6 +400,7 @@ public class SimpleVerifier extends BasicVerifier {
         return true;
       }
       if (currentClassInterfaces != null) {
+        numOperations += currentClassInterfaces.length;
         for (Type currentClassInterface : currentClassInterfaces) {
           if (isAssignableFrom(type1, currentClassInterface)) {
             return true;
@@ -408,6 +421,7 @@ public class SimpleVerifier extends BasicVerifier {
    * @return the class corresponding to 'type'.
    */
   protected Class<?> getClass(final Type type) {
+    numOperations += 5;
     try {
       if (type.getSort() == Type.ARRAY) {
         // This should never happen, given the preconditions of this method, but is kept for

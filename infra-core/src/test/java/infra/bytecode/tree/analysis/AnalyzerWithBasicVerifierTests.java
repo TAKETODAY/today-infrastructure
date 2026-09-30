@@ -37,6 +37,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import infra.bytecode.AsmTest;
 import infra.bytecode.ClassReader;
 import infra.bytecode.Label;
+import infra.bytecode.LimitExceededException;
 import infra.bytecode.Opcodes;
 import infra.bytecode.tree.ClassNode;
 import infra.bytecode.tree.MethodNode;
@@ -280,6 +281,12 @@ class AnalyzerWithBasicVerifierTests extends AsmTest {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);
     Analyzer<BasicValue> analyzer = newAnalyzer();
+    analyzer.setComputeLimits(
+            Analyzer.DEFAULT_MAX_MEMORY_LIMIT * 2, Analyzer.DEFAULT_MAX_OPERATIONS_LIMIT);
+    if (classParameter == PrecompiledClass.JDK3_LARGE_METHOD) {
+      analyzer.setComputeLimits(
+              Analyzer.DEFAULT_MAX_MEMORY_LIMIT * 2, Analyzer.DEFAULT_MAX_OPERATIONS_LIMIT);
+    }
 
     for (MethodNode methodNode : classNode.methods) {
       assertDoesNotThrow(() -> analyzer.analyze(classNode.name, methodNode));
@@ -310,6 +317,29 @@ class AnalyzerWithBasicVerifierTests extends AsmTest {
 
     String message = assertThrows(AnalyzerException.class, analyze).getMessage();
     assertTrue(message.contains("Error at instruction 8: Expected I, but found ."));
+  }
+
+  @Test
+  void testAnalyze_basicVerifier_defaultComputeLimits() {
+    int[] numClasses = new int[] { 0 };
+    int[] numErrors = new int[] { 0 };
+    Analyzer<BasicValue> analyzer = new Analyzer<>(new BasicVerifier());
+    analyzer.setComputeLimits(
+            Analyzer.DEFAULT_MAX_MEMORY_LIMIT / 20, Analyzer.DEFAULT_MAX_OPERATIONS_LIMIT / 10);
+    listAllJavaModulesClasses()
+            .forEach(
+                    classFile -> {
+                      numClasses[0]++;
+                      try {
+                        ClassAnalyzer<BasicValue> classAnalyzer = new ClassAnalyzer<>(analyzer);
+                        new ClassReader(classFile).accept(classAnalyzer, ClassReader.SKIP_FRAMES);
+                      }
+                      catch (LimitExceededException e) {
+                        numErrors[0]++;
+                      }
+                    });
+    assertTrue(numClasses[0] > 10000);
+    assertEquals(0, numErrors[0]);
   }
 
   private static Analyzer<BasicValue> newAnalyzer() {

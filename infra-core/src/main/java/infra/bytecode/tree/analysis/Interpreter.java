@@ -48,6 +48,20 @@ import infra.bytecode.tree.TryCatchBlockNode;
 public abstract class Interpreter<V extends Value> {
 
   /**
+   * The number of bytes allocated by this interpreter. Subclasses should increment this each time
+   * they allocate some objects (see {@link Analyzer#setComputeLimits}). This is periodically reset
+   * to 0 by the {@link Analyzer}.
+   */
+  protected int allocatedBytes;
+
+  /**
+   * The number of "operations" allocated by this interpreter. Subclasses should increment this each
+   * time they do some "operations" (see {@link Analyzer#setComputeLimits}). This is periodically
+   * reset to 0 by the {@link Analyzer}.
+   */
+  protected long numOperations;
+
+  /**
    * Constructs a new {@link Interpreter}.
    */
   protected Interpreter() { }
@@ -255,4 +269,17 @@ public abstract class Interpreter<V extends Value> {
    * <i>must</i> return {@code value1}.
    */
   public abstract V merge(V value1, V value2);
+
+  /**
+   * Checks that the number of bytes allocated and the number of operations done since the last call
+   * to this method are within the given limits.
+   *
+   * @param limits the memory and time limits to analyze a method.
+   */
+  final void checkLimits(final ComputeLimits limits) {
+    limits.checkNewBytes(allocatedBytes);
+    limits.checkNewOperations(numOperations);
+    allocatedBytes = 0;
+    numOperations = 0;
+  }
 }

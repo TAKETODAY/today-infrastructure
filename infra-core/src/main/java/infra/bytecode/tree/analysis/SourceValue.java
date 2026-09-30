@@ -40,6 +40,9 @@ import infra.bytecode.tree.AbstractInsnNode;
  */
 public class SourceValue implements Value {
 
+  /** Size in bytes of a SourceValue (object header + 2 fields) and a SmallSet. */
+  static final int SIZE_BYTES = (ComputeLimits.OBJECT_HEADER_BYTES + 2 * 4) + SmallSet.SIZE_BYTES;
+
   /**
    * The size of this value, in 32 bits words. This size is 1 for byte, boolean, char, short, int,
    * float, object and array types, and 2 for long and double.
