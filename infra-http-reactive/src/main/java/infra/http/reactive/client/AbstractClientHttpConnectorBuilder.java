@@ -51,7 +51,7 @@ abstract class AbstractClientHttpConnectorBuilder<T extends ClientHttpConnector>
   }
 
   protected final List<Consumer<T>> mergedCustomizers(Consumer<T> customizer) {
-    Assert.notNull(this.customizers, "'customizer' is required");
+    Assert.notNull(customizer, "'customizer' is required");
     return merge(this.customizers, List.of(customizer));
   }
 
