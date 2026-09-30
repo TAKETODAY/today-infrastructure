@@ -41,7 +41,7 @@ import infra.beans.BeanUtils;
 import infra.beans.BeanWrapper;
 import infra.beans.BeanWrapperImpl;
 import infra.beans.BeansException;
-import infra.beans.PropertyAccessorUtils;
+import infra.beans.PropertyAccessor;
 import infra.beans.PropertyValue;
 import infra.beans.PropertyValues;
 import infra.beans.TypeConverter;
@@ -1143,7 +1143,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
         Object convertedValue = resolvedValue;
         boolean convertible = beanWrapper.isWritableProperty(propertyName)
-                && !PropertyAccessorUtils.isNestedOrIndexedProperty(propertyName);
+                && !isNestedOrIndexedProperty(propertyName);
         if (convertible) {
           convertedValue = convertForProperty(resolvedValue, propertyName, beanWrapper, converter);
         }
@@ -1179,6 +1179,19 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
       throw new BeanCreationException(
               definition.getResourceDescription(), beanName, ex.getMessage(), ex);
     }
+  }
+
+  /**
+   * Check whether the given property path indicates an indexed or nested property.
+   */
+  private static boolean isNestedOrIndexedProperty(String propertyName) {
+    for (int i = 0; i < propertyName.length(); i++) {
+      char ch = propertyName.charAt(i);
+      if (ch == PropertyAccessor.NESTED_PROPERTY_SEPARATOR_CHAR || ch == PropertyAccessor.PROPERTY_KEY_PREFIX_CHAR) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
