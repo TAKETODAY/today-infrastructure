@@ -45,12 +45,12 @@ class GeneratedClassesTests {
   private static final Consumer<TypeSpec.Builder> emptyTypeCustomizer = type -> { };
 
   private final GeneratedClasses generatedClasses = new GeneratedClasses(
-          new ClassNameGenerator(ClassName.get("com.example", "Test")));
+          new NameGenerator(ClassName.get("com.example", "Test")));
 
   @Test
-  void createWhenClassNameGeneratorIsNullThrowsException() {
+  void createWhenNameGeneratorIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> new GeneratedClasses(null))
-            .withMessage("'classNameGenerator' is required");
+            .withMessage("'nameGenerator' is required");
   }
 
   @Test

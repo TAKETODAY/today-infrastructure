@@ -29,10 +29,10 @@ import java.util.stream.Stream;
 
 import javax.lang.model.element.Modifier;
 
-import infra.aot.generate.ClassNameGenerator;
 import infra.aot.generate.GenerationContext;
 import infra.aot.generate.MethodReference;
 import infra.aot.generate.MethodReference.ArgumentCodeGenerator;
+import infra.aot.generate.NameGenerator;
 import infra.aot.generate.ValueCodeGenerationException;
 import infra.aot.test.generate.TestGenerationContext;
 import infra.beans.factory.aot.BeanRegistrationsAotContribution.Registration;
@@ -110,7 +110,7 @@ class BeanRegistrationsAotContributionTests {
   @Test
   void applyToWhenHasNameGeneratesPrefixedFeatureName() {
     this.generationContext = new TestGenerationContext(
-            new ClassNameGenerator(TestGenerationContext.TEST_TARGET, "Management"));
+            new NameGenerator(TestGenerationContext.TEST_TARGET, "Management"));
     this.beanFactoryInitializationCode = new MockBeanFactoryInitializationCode(this.generationContext);
     RegisteredBean registeredBean = registerBean(new RootBeanDefinition(TestBean.class));
     BeanDefinitionMethodGenerator generator = new BeanDefinitionMethodGenerator(this.methodGeneratorFactory,

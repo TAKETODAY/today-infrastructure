@@ -53,10 +53,23 @@ public interface GenerationContext {
   infra.aot.generate.GeneratedClasses getGeneratedClasses();
 
   /**
+   * Get the {@link GeneratedResources} used by the context.
+   * <p>All generated resources are written at the end of AOT processing.
+   *
+   * @return the generated resources
+   * @since 5.0
+   */
+  GeneratedResources getGeneratedResources();
+
+  /**
    * Get the {@link GeneratedFiles} used by the context.
-   * <p>Used to write resource, java source, or class bytecode files.
+   * <p>Used to write java source, resource, or class bytecode files.
+   * For java source and resource, use {@link #getGeneratedResources()}
+   * and {@link #getGeneratedClasses()}, respectively.
    *
    * @return the generated files
+   * @see #getGeneratedClasses()
+   * @see #getGeneratedResources()
    */
   GeneratedFiles getGeneratedFiles();
 
