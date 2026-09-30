@@ -16,6 +16,8 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -25,9 +27,11 @@ import java.util.List;
  *
  * <p>Unlike {@link Slice} or {@link Page}, a window never applies an offset; it
  * resumes from a position captured on one of its own elements. Use
- * {@link #position()} to obtain the position of the last element, or
- * {@link #positionAt(int)} for a specific element, and pass it to the next scroll
- * request. When {@link #isLast()} is {@code true} the window is the final one.
+ * {@link #nextPosition()} to obtain the position of the next window, which is
+ * {@code null} once scrolling ends, {@link #position()} to obtain the position of
+ * the last element, or {@link #positionAt(int)} for a specific element, and pass
+ * it to the next scroll request. When {@link #isLast()} is {@code true} the window
+ * is the final one.
  *
  * @param <T> the entity type
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -66,6 +70,21 @@ public interface Scroll<T> extends Iterable<T> {
    */
   default boolean hasNext() {
     return !isLast();
+  }
+
+  /**
+   * Return the position at which to resume scrolling, or {@code null} when there
+   * is no next window.
+   *
+   * <p>This is the nullable variant of {@link #position()}: it returns {@code null}
+   * for the final window and for an empty window, so callers do not have to guard
+   * against {@link #isLast()} or {@link #isEmpty()} themselves.
+   *
+   * @return the position after which the next window starts, or {@code null} when
+   * no further rows follow
+   */
+  default @Nullable ScrollPosition nextPosition() {
+    return isLast() || isEmpty() ? null : position();
   }
 
   /**
