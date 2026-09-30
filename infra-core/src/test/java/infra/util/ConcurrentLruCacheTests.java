@@ -20,6 +20,9 @@ package infra.util;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
+import java.util.concurrent.locks.Lock;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -104,6 +107,31 @@ public class ConcurrentLruCacheTests {
     assertThat(this.cache.contains("k1")).isFalse();
     assertThat(this.cache.contains("k2")).isFalse();
     assertThat(this.cache.contains("k3")).isTrue();
+  }
+
+  @Test
+  void clearRemovesEntryWithPendingWriteOperation() throws Exception {
+    String key = "k1";
+    Field lockField = ConcurrentLruCache.class.getDeclaredField("evictionLock");
+    lockField.setAccessible(true);
+    Lock lock = (Lock) lockField.get(this.cache);
+
+    lock.lock();
+    try {
+      Thread putTrigger = new Thread(() -> this.cache.get(key));
+      putTrigger.start();
+      putTrigger.join(5000);
+      assertThat(putTrigger.isAlive()).isFalse();
+    }
+    finally {
+      lock.unlock();
+    }
+
+    assertThat(this.cache.size()).as("cache size").isEqualTo(1);
+    assertThat(this.cache.contains(key)).as("contains %s", key).isTrue();
+    this.cache.clear();
+    assertThat(this.cache.size()).as("cache size").isZero();
+    assertThat(this.cache.contains(key)).as("contains %s", key).isFalse();
   }
 
 }
