@@ -40,13 +40,17 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -65,6 +69,33 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * @author Eric Bruneton
  */
 class ClassWriterTests extends AsmTest {
+
+  /** The java.* modules of the JDK 17 API. */
+  private static String[] JDK17_JAVA_MODULES =
+          new String[] {
+                  "java.base",
+                  "java.compiler",
+                  "java.datatransfer",
+                  "java.desktop",
+                  "java.instrument",
+                  "java.logging",
+                  "java.management",
+                  "java.management.rmi",
+                  "java.naming",
+                  "java.net.http",
+                  "java.prefs",
+                  "java.rmi",
+                  "java.scripting",
+                  "java.se",
+                  "java.security.jgss",
+                  "java.security.sasl",
+                  "java.smartcardio",
+                  "java.sql",
+                  "java.sql.rowset",
+                  "java.transaction.xa",
+                  "java.xml",
+                  "java.xml.crypto"
+          };
 
   /**
    * Tests that the non-static fields of ClassWriter are the expected ones. This test is designed to
@@ -114,6 +145,7 @@ class ClassWriterTests extends AsmTest {
             "lastRecordComponent",
             "firstAttribute",
             "compute",
+            "limits",
             "classLoader"
     );
     // IMPORTANT: if this fails, update the string list AND update the logic that resets the
@@ -394,6 +426,7 @@ class ClassWriterTests extends AsmTest {
     ClassReader classReader =
             new ClassReader(Files.newInputStream(Paths.get("src/test/resources/" + classFileName)));
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+    classWriter.setComputeLimits(1024 * 1024, 1000000000);
     classReader.accept(classWriter, attributes(), 0);
 
     Executable toByteArray = () -> classWriter.toByteArray();
@@ -836,6 +869,94 @@ class ClassWriterTests extends AsmTest {
   }
 
   /**
+   * Tests that COMPUTE_MAXS and COMPUTE_FRAMES work on all the classes of the JDK17 java.* modules
+   * with compute limits 10 times lower than their default value.
+   */
+  @ParameterizedTest
+  @ValueSource(ints = { ClassWriter.COMPUTE_MAXS, ClassWriter.COMPUTE_FRAMES })
+  void testReadAndWrite_computeLimits(final int computeFlags) {
+    AtomicInteger numClasses = new AtomicInteger();
+    AtomicInteger numErrors = new AtomicInteger();
+    listAllJavaModulesClasses()
+            .forEach(
+                    classFile -> {
+                      numClasses.getAndIncrement();
+                      try {
+                        ClassReader reader = new ClassReader(classFile);
+                        ClassWriter writer = new ClassWriter(computeFlags);
+                        writer.setComputeLimits(
+                                ClassWriter.DEFAULT_MAX_MEMORY_LIMIT / 10,
+                                ClassWriter.DEFAULT_MAX_OPERATIONS_LIMIT / 10);
+                        if (computeFlags == ClassWriter.COMPUTE_MAXS) {
+                          // Decrease the class version and remove the stack map frames, otherwise max stack
+                          // and locals are computed from them, which is very cheap and is not even tracked
+                          // for limits.
+                          reader.accept(
+                                  new ClassVisitor(writer) {
+
+                                    @Override
+                                    public void visit(
+                                            final int version,
+                                            final int access,
+                                            final String name,
+                                            final String signature,
+                                            final String superName,
+                                            final String[] interfaces) {
+                                      super.visit(Opcodes.V1_5, access, name, signature, superName, interfaces);
+                                    }
+                                  },
+                                  ClassReader.SKIP_FRAMES);
+                        }
+                        else {
+                          reader.accept(writer, 0);
+                        }
+                        writer.toByteArray();
+                      }
+                      catch (LimitExceededException e) {
+                        numErrors.getAndIncrement();
+                      }
+                    });
+    assertTrue(numClasses.get() > 10000);
+    assertEquals(0, numErrors.get());
+  }
+
+  /** Tests that COMPUTE_MAXS throws a LimitExceededException when it exceeds the time limit. */
+  @Test
+  void testReadAndWrite_computeMaxsLimitExceeded() {
+    byte[] classFile = AsmTest.PrecompiledClass.JDK5_ALL_INSTRUCTIONS.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+    classWriter.setComputeLimits(ClassWriter.DEFAULT_MAX_MEMORY_LIMIT, 100);
+
+    Executable accept = () -> classReader.accept(classWriter, 0);
+
+    Exception exception = assertThrows(LimitExceededException.class, accept);
+    assertTrue(exception.getMessage().matches("Too many operations"));
+  }
+
+  /**
+   * Tests that COMPUTE_FRAMES throws a LimitExceededException when it exceeds the time or memory
+   * limit.
+   */
+  @Test
+  void testReadAndWrite_computeFramesLimitExceeded() {
+    byte[] classFile = AsmTest.PrecompiledClass.JDK5_ALL_INSTRUCTIONS.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassWriter classWriter1 = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+    classWriter1.setComputeLimits(16, ClassWriter.DEFAULT_MAX_OPERATIONS_LIMIT);
+    ClassWriter classWriter2 = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+    classWriter2.setComputeLimits(ClassWriter.DEFAULT_MAX_MEMORY_LIMIT, 10_000);
+
+    Executable accept1 = () -> classReader.accept(classWriter1, 0);
+    Executable accept2 = () -> classReader.accept(classWriter2, 0);
+
+    Exception exception1 = assertThrows(LimitExceededException.class, accept1);
+    assertTrue(exception1.getMessage().matches("Too many allocated bytes"));
+    Exception exception2 = assertThrows(LimitExceededException.class, accept2);
+    assertTrue(exception2.getMessage().matches("Too many operations"));
+  }
+
+  /**
    * Tests that classes going through a ClassReader -> ClassWriter transform with the SKIP_FRAMES
    * and COMPUTE_FRAMES options can be loaded and pass bytecode verification.
    */
@@ -955,6 +1076,26 @@ class ClassWriterTests extends AsmTest {
 
   private static Attribute[] attributes() {
     return new Attribute[] { new Comment(), new CodeComment() };
+  }
+
+  private static Stream<byte[]> listAllJavaModulesClasses() {
+    return Stream.of(JDK17_JAVA_MODULES)
+            .map(name -> Paths.get(URI.create("jrt:/" + name)))
+            .flatMap(ClassWriterTests::listAllClasses);
+  }
+
+  private static Stream<byte[]> listAllClasses(final Path path) {
+    try {
+      if (path.toString().endsWith(".class")) {
+        return Stream.of(Files.readAllBytes(path));
+      }
+      else {
+        return Files.list(path).flatMap(ClassWriterTests::listAllClasses);
+      }
+    }
+    catch (IOException e) {
+      return Stream.empty();
+    }
   }
 
   private static class DeadCodeInserter extends ClassVisitor {

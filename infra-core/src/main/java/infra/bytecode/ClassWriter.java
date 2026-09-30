@@ -72,6 +72,18 @@ public class ClassWriter extends ClassVisitor {
   public static final int COMPUTE_FRAMES = 2;
 
   /**
+   * The default max memory limit for {@link #setComputeLimits}. Update the comment in {@link
+   * #setComputeLimits} is you change this value.
+   */
+  static final int DEFAULT_MAX_MEMORY_LIMIT = 10 * 1024 * 1024;
+
+  /**
+   * The default max operations limit for {@link #setComputeLimits}. Update the comment in {@link
+   * #setComputeLimits} is you change this value.
+   */
+  static final long DEFAULT_MAX_OPERATIONS_LIMIT = 100_000_000;
+
+  /**
    * The flags passed to the constructor. Must be zero or more of {@link #COMPUTE_MAXS} and {@link
    * #COMPUTE_FRAMES}.
    */
@@ -228,6 +240,13 @@ public class ClassWriter extends ClassVisitor {
   private int compute;
 
   /**
+   * The memory and time limits to compute the maximum stack and locals or the stack map frames
+   * <i>of each method</i>.
+   */
+  private ComputeLimits limits =
+          new ComputeLimits(DEFAULT_MAX_MEMORY_LIMIT, DEFAULT_MAX_OPERATIONS_LIMIT);
+
+  /**
    * the {@link ClassLoader} to be used by the default implementation of {@link
    * #getCommonSuperClass(String, String)}, that of this {@link ClassWriter}'s runtime type by
    * default.
@@ -362,6 +381,28 @@ public class ClassWriter extends ClassVisitor {
    */
   public boolean hasFlags(final int flags) {
     return (this.flags & flags) == flags;
+  }
+
+  /**
+   * Sets the maximum number of bytes which can be allocated, and the maximum number of "operations"
+   * which can be performed, to compute the maximum stack and locals or the stack map frames of each
+   * method. Operations are not formally defined but their total number is deterministic and
+   * approximatively proportional to the computation time.
+   *
+   * <p>The default limits should be sufficient for any "normal" class. You only need to set new
+   * limits if {@link MethodVisitor#visitMaxs} throws a {@link LimitExceededException} on some of
+   * your classes.
+   *
+   * @param maxBytes the maximum number of bytes which can be allocated. Not all object
+   * instantiations are tracked (and garbage collection is ignored), but the most important ones
+   * are. The default value, 10MB, is more than ten times larger than the memory used for any
+   * method in the java.* modules of the JDK.
+   * @param maxOperations the maximum number of "operations" that can be performed. The default
+   * value, 100M, is more than ten times larger than the number of operations used for any
+   * method in the java.* modules of the JDK.
+   */
+  public void setComputeLimits(final int maxBytes, final long maxOperations) {
+    limits = new ComputeLimits(maxBytes, maxOperations);
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -538,7 +579,15 @@ public class ClassWriter extends ClassVisitor {
   public final MethodVisitor visitMethod(final int access, final String name,
           final String descriptor, final @Nullable String signature, final String @Nullable [] exceptions) {
     MethodWriter methodWriter =
-            new MethodWriter(symbolTable, access, name, descriptor, signature, exceptions, compute);
+            new MethodWriter(
+                    symbolTable,
+                    access,
+                    name,
+                    descriptor,
+                    signature,
+                    exceptions,
+                    compute,
+                    new ComputeLimits(limits));
     if (firstMethod == null) {
       firstMethod = methodWriter;
     }

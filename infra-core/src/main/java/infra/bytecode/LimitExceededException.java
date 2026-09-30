@@ -30,29 +30,17 @@
 
 package infra.bytecode;
 
-/**
- * Information about the input stack map frame at the "current" instruction of a method. This is
- * implemented as a Frame subclass for a "basic block" containing only one instruction.
- *
- * @author Eric Bruneton
- */
-final class CurrentFrame extends Frame {
+/** Exception thrown when a limit set by {@link ClassWriter#setComputeLimits} is exceeded. */
+public final class LimitExceededException extends RuntimeException {
 
-  CurrentFrame(final Label owner, final ComputeLimits limits) {
-    super(owner, limits);
-  }
+  private static final long serialVersionUID = -1007650817078992929L;
 
   /**
-   * Sets this CurrentFrame to the input stack map frame of the next "current" instruction, i.e. the
-   * instruction just after the given one. It is assumed that the value of this object when this
-   * method is called is the stack map frame status just before the given instruction is executed.
+   * Constructs a new {@link LimitExceededException}.
+   *
+   * @param message details about the exceeded limit.
    */
-  @Override
-  void execute(
-          final int opcode, final int arg, final Symbol symbolArg, final SymbolTable symbolTable) {
-    super.execute(opcode, arg, symbolArg, symbolTable);
-    Frame successor = new Frame(null, limits);
-    merge(symbolTable, successor, 0);
-    copyFrom(successor);
+  public LimitExceededException(final String message) {
+    super(message);
   }
 }
