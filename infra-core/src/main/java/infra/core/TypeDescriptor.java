@@ -63,15 +63,14 @@ public class TypeDescriptor implements Serializable {
 
   private static final Map<Class<?>, TypeDescriptor> commonTypesCache;
 
-  private static final Class<?>[] CACHED_COMMON_TYPES = {
-          boolean.class, Boolean.class, byte.class, Byte.class, char.class, Character.class,
-          double.class, Double.class, float.class, Float.class, int.class, Integer.class,
-          long.class, Long.class, short.class, Short.class, String.class, Object.class
-  };
-
   static {
-    Map<Class<?>, TypeDescriptor> commonTypes = CollectionUtils.newHashMap(CACHED_COMMON_TYPES.length);
-    for (Class<?> preCachedClass : CACHED_COMMON_TYPES) {
+    final Class<?>[] cachedCommonTypes = {
+            boolean.class, Boolean.class, byte.class, Byte.class, char.class, Character.class,
+            double.class, Double.class, float.class, Float.class, int.class, Integer.class,
+            long.class, Long.class, short.class, Short.class, String.class, Object.class
+    };
+    Map<Class<?>, TypeDescriptor> commonTypes = CollectionUtils.newHashMap(cachedCommonTypes.length);
+    for (Class<?> preCachedClass : cachedCommonTypes) {
       commonTypes.put(preCachedClass, new TypeDescriptor(ResolvableType.forClass(preCachedClass), null, (Annotation[]) null));
     }
     commonTypesCache = Map.copyOf(commonTypes);
