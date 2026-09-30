@@ -2232,23 +2232,21 @@ final class MethodWriter extends MethodVisitor {
         case Opcodes.JSR:
         case Opcodes.IFNULL:
         case Opcodes.IFNONNULL:
-          {
-            int jumpOffset = readShort(offset + 1);
-            // There can be at most jumpOffset / 3 standard jump, lookup, or table switch
-            // instructions between this instruction and its target (assuming jumpOffset > 0). At
-            // most 5 bytes can be added to each of them if they are changed to ASM instructions and
-            // eventually replaced (or if padding changes). Hence, if maxFinalJumpOffset fits in a
-            // signed short value, this jump instruction will never need to be replaced. Otherwise
-            // it might, and we thus add it to the list. The reasoning is similar if jumpOffset < 0.
-            int maxFinalJumpOffset = jumpOffset + 5 * (jumpOffset / 3);
-            if (maxFinalJumpOffset < Short.MIN_VALUE || maxFinalJumpOffset > Short.MAX_VALUE) {
-              jumpIndices[numJumpInsns] = offset;
-              jumpTargets[numJumpInsns] = offset + jumpOffset;
-              jumpOffsets[numJumpInsns++] = jumpOffset;
-            }
-            offset += 3;
-            break;
+          int jumpOffset = readShort(offset + 1);
+          // There can be at most jumpOffset / 3 standard jump, lookup, or table switch
+          // instructions between this instruction and its target (assuming jumpOffset > 0). At
+          // most 5 bytes can be added to each of them if they are changed to ASM instructions and
+          // eventually replaced (or if padding changes). Hence, if maxFinalJumpOffset fits in a
+          // signed short value, this jump instruction will never need to be replaced. Otherwise
+          // it might, and we thus add it to the list. The reasoning is similar if jumpOffset < 0.
+          int maxFinalJumpOffset = jumpOffset + 5 * (jumpOffset / 3);
+          if (maxFinalJumpOffset < Short.MIN_VALUE || maxFinalJumpOffset > Short.MAX_VALUE) {
+            jumpIndices[numJumpInsns] = offset;
+            jumpTargets[numJumpInsns] = offset + jumpOffset;
+            jumpOffsets[numJumpInsns++] = jumpOffset;
           }
+          offset += 3;
+          break;
         case Constants.GOTO_W:
         case Constants.JSR_W:
           offset += 5;
@@ -2282,26 +2280,22 @@ final class MethodWriter extends MethodVisitor {
           offset += (bytecode[offset + 1] & 0xFF) == Opcodes.IINC ? 6 : 4;
           break;
         case Opcodes.TABLESWITCH:
-          {
-            asmInsnIndicesToProcess[numAsmInsnsToProcess++] = offset;
-            // Skip the opcode, plus 0 to 3 padding bytes.
-            offset += 4 - (offset & 3);
-            // Skip the rest of the instruction.
-            int low = readInt(offset + 4);
-            int high = readInt(offset + 8);
-            offset += 12 + 4 * (high - low + 1);
-            break;
-          }
+          asmInsnIndicesToProcess[numAsmInsnsToProcess++] = offset;
+          // Skip the opcode, plus 0 to 3 padding bytes.
+          offset += 4 - (offset & 3);
+          // Skip the rest of the instruction.
+          int low = readInt(offset + 4);
+          int high = readInt(offset + 8);
+          offset += 12 + 4 * (high - low + 1);
+          break;
         case Opcodes.LOOKUPSWITCH:
-          {
-            asmInsnIndicesToProcess[numAsmInsnsToProcess++] = offset;
-            // Skip the opcode, plus 0 to 3 padding bytes.
-            offset += 4 - (offset & 3);
-            // Skip the rest of the instruction.
-            int numPairs = readInt(offset + 4);
-            offset += 8 + 8 * numPairs;
-            break;
-          }
+          asmInsnIndicesToProcess[numAsmInsnsToProcess++] = offset;
+          // Skip the opcode, plus 0 to 3 padding bytes.
+          offset += 4 - (offset & 3);
+          // Skip the rest of the instruction.
+          int numPairs = readInt(offset + 4);
+          offset += 8 + 8 * numPairs;
+          break;
         case Opcodes.ILOAD:
         case Opcodes.LLOAD:
         case Opcodes.FLOAD:
