@@ -586,7 +586,7 @@ class BeanPropertyUtilsTests {
     BeanMappingTestBean bean = new BeanMappingTestBean();
 
     final HashMap<String, Object> map = new HashMap<>();
-    map.put("mappedProperty[First Key])", "New First Value");
+    map.put("mappedProperty[First Key]", "New First Value");
     map.put("mappedProperty[Third Key]", "New Third Value");
 
     BeanPropertyUtils.populate(bean, map);

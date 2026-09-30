@@ -43,8 +43,10 @@ import infra.beans.BeanUtils;
 import infra.beans.BeanWrapper;
 import infra.beans.ConfigurablePropertyAccessor;
 import infra.beans.InvalidPropertyException;
+import infra.beans.InvalidPropertyPathException;
 import infra.beans.PropertyAccessException;
 import infra.beans.PropertyAccessorUtils;
+import infra.beans.PropertyPath;
 import infra.beans.PropertyBatchUpdateException;
 import infra.beans.PropertyEditorRegistrar;
 import infra.beans.PropertyEditorRegistry;
@@ -538,9 +540,8 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * {@code "xxx*yyy"} matches (with an arbitrary number of pattern parts), as
    * well as direct equality.
    * <p>The default implementation of this method stores allowed field patterns
-   * in {@linkplain PropertyAccessorUtils#canonicalPropertyName(String) canonical}
-   * form. Subclasses which override this method must therefore take this into
-   * account.
+   * in {@linkplain PropertyPath#canonicalName() canonical} form. Subclasses
+   * which override this method must therefore take this into account.
    * <p>More sophisticated matching can be implemented by overriding the
    * {@link #isAllowed} method.
    * <p>Alternatively, specify a list of <i>disallowed</i> field patterns.
@@ -553,7 +554,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * @see #isAllowed(String)
    */
   public void setAllowedFields(String @Nullable ... allowedFields) {
-    this.allowedFields = PropertyAccessorUtils.canonicalPropertyNames(allowedFields);
+    this.allowedFields = canonicalPropertyNames(allowedFields);
   }
 
   /**
@@ -575,9 +576,9 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * {@code "xxx*yyy"} matches (with an arbitrary number of pattern parts),
    * as well as direct equality.
    * <p>The default implementation of this method stores disallowed field
-   * patterns in {@linkplain PropertyAccessorUtils#canonicalPropertyName(String)
-   * canonical} form, and subsequently pattern matching in {@link #isAllowed}
-   * is case-insensitive. Subclasses that override this method must therefore
+   * patterns in {@linkplain PropertyPath#canonicalName() canonical} form,
+   * and subsequently pattern matching in {@link #isAllowed} is
+   * case-insensitive. Subclasses that override this method must therefore
    * take this transformation into account.
    * <p>More sophisticated matching can be implemented by overriding the
    * {@link #isAllowed} method.
@@ -591,16 +592,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * @see #isAllowed(String)
    */
   public void setDisallowedFields(String @Nullable ... disallowedFields) {
-    if (disallowedFields == null) {
-      this.disallowedFields = null;
-    }
-    else {
-      String[] fieldPatterns = new String[disallowedFields.length];
-      for (int i = 0; i < fieldPatterns.length; i++) {
-        fieldPatterns[i] = PropertyAccessorUtils.canonicalPropertyName(disallowedFields[i]);
-      }
-      this.disallowedFields = fieldPatterns;
-    }
+    this.disallowedFields = canonicalPropertyNames(disallowedFields);
   }
 
   /**
@@ -628,7 +620,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * @see DefaultBindingErrorProcessor#MISSING_FIELD_ERROR_CODE
    */
   public void setRequiredFields(String @Nullable ... requiredFields) {
-    this.requiredFields = PropertyAccessorUtils.canonicalPropertyNames(requiredFields);
+    this.requiredFields = canonicalPropertyNames(requiredFields);
     if (logger.isDebugEnabled()) {
       logger.debug("DataBinder requires binding of required fields [{}]",
               StringUtils.arrayToCommaDelimitedString(requiredFields));
@@ -1286,9 +1278,33 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * @see #getAllowedFields
    * @see #isAllowed(String)
    */
+  private static String @Nullable [] canonicalPropertyNames(String @Nullable [] fields) {
+    if (fields == null) {
+      return null;
+    }
+    String[] result = new String[fields.length];
+    for (int i = 0; i < fields.length; i++) {
+      result[i] = PropertyPath.canonicalNameOrOriginal(fields[i]);
+    }
+    return result;
+  }
+
   protected void checkAllowedFields(PropertyValues mpvs) {
+    PropertyPath.Options options = PropertyPath.Options.withMaxNestedPathDepth(getMaxNestedPathDepth());
     for (PropertyValue pv : mpvs.toArray()) {
-      String field = PropertyAccessorUtils.canonicalPropertyName(pv.getName());
+      PropertyPath parsed;
+      try {
+        parsed = PropertyPath.parse(pv.getName(), options);
+      }
+      catch (InvalidPropertyPathException ex) {
+        mpvs.remove(pv);
+        Object target = getTarget();
+        getBindingErrorProcessor().processPropertyAccessException(
+                new InvalidPropertyPathException(target != null ? target : this, pv.getName(), pv.getValue(), ex),
+                getInternalBindingResult());
+        continue;
+      }
+      String field = parsed.canonicalName();
       if (!isAllowed(field)) {
         mpvs.remove(pv);
         getBindingResult().recordSuppressedField(field);
@@ -1311,14 +1327,16 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * matching against disallowed field patterns is case-insensitive.
    * <p>A field matching a disallowed pattern will not be accepted even if it
    * also happens to match a pattern in the allowed list.
+   * <p>{@code field} is matched as-is, but it must already have been validated
+   * and canonicalized via {@link PropertyPath} by the caller first.
    * <p>Can be overridden in subclasses, but care must be taken to honor the
    * aforementioned contract.
    *
-   * @param field the field to check
+   * @param field the field to check, expected to already be in canonical form
    * @return {@code true} if the field is allowed
    * @see #setAllowedFields
    * @see #setDisallowedFields
-   * @see PatternMatchUtils#simpleMatch(String, String)
+   * @see PatternMatchUtils#simpleMatch(String[], String)
    */
   protected boolean isAllowed(String field) {
     String[] allowed = getAllowedFields();
@@ -1347,7 +1365,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
     if (ObjectUtils.isNotEmpty(requiredFields)) {
       HashMap<String, PropertyValue> propertyValues = new HashMap<>();
       for (PropertyValue pv : mpvs) {
-        String canonicalName = PropertyAccessorUtils.canonicalPropertyName(pv.getName());
+        String canonicalName = PropertyPath.canonicalNameOrOriginal(pv.getName());
         propertyValues.put(canonicalName, pv);
       }
 

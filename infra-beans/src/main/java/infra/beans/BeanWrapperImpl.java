@@ -226,9 +226,16 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 
   @Override
   public BeanProperty getBeanProperty(String propertyName) throws InvalidPropertyException {
-    BeanWrapperImpl nestedBw = (BeanWrapperImpl) getPropertyAccessorForPropertyPath(propertyName);
-    String finalPath = getFinalPath(nestedBw, propertyName);
-    BeanProperty property = nestedBw.getMetadata().getProperty(finalPath);
+    ResolvedProperty resolved;
+    try {
+      resolved = resolvePropertyPath(propertyName);
+    }
+    catch (InvalidPropertyPathException ex) {
+      throw new InvalidPropertyException(getRootClass(), getNestedPath() + propertyName,
+              java.util.Objects.requireNonNull(ex.getMessage()), ex);
+    }
+    BeanWrapperImpl nestedBw = (BeanWrapperImpl) resolved.accessor();
+    BeanProperty property = nestedBw.getMetadata().getProperty(resolved.tokens().canonicalName);
     if (property == null) {
       throw new InvalidPropertyException(getRootClass(), getNestedPath() + propertyName,
               "No property '%s' found".formatted(propertyName));

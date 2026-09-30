@@ -48,7 +48,7 @@ class DataBinderFieldAccessTests {
     rod.setSpouse(kerry);
     kerry.setSpouse(rod);
 
-    DataBinder binder = new DataBinder(rod);
+    DataBinder binder = new DataBinder(rod, "rod");
     binder.setMaxNestedPathDepth(2);
     binder.initDirectFieldAccess();
 
@@ -59,8 +59,11 @@ class DataBinderFieldAccessTests {
 
     PropertyValues tooDeep = new PropertyValues();
     tooDeep.add("spouse.spouse.spouse.name", "Joe");
-    assertThatExceptionOfType(InvalidPropertyException.class).isThrownBy(() -> binder.bind(tooDeep))
-            .withMessageEndingWith("Nesting depth of property path exceeds the maximum of 2");
+    binder.bind(tooDeep);
+    assertThat(binder.getBindingResult().getFieldErrors("spouse.spouse.spouse.name")).singleElement().satisfies(error -> {
+      assertThat(error.getCode()).isEqualTo(infra.beans.InvalidPropertyPathException.ERROR_CODE);
+      assertThat(error.getRejectedValue()).isEqualTo("Joe");
+    });
   }
 
   @Test

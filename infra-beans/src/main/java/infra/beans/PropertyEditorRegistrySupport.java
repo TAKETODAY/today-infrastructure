@@ -399,7 +399,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
   public boolean hasCustomEditorForElement(@Nullable Class<?> elementType, @Nullable String propertyPath) {
     if (propertyPath != null && customEditorsForPath != null) {
       for (var entry : customEditorsForPath.entrySet()) {
-        if (PropertyAccessorUtils.matchesProperty(entry.getKey(), propertyPath)
+        if (matchesProperty(entry.getKey(), propertyPath)
                 && entry.getValue().getPropertyEditor(elementType) != null) {
           return true;
         }
@@ -409,6 +409,19 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
     return elementType != null
             && this.customEditors != null
             && this.customEditors.containsKey(elementType);
+  }
+
+  private static boolean matchesProperty(String registeredPath, String propertyPath) {
+    String registered = PropertyPath.canonicalNameOrOriginal(registeredPath);
+    String property = PropertyPath.canonicalNameOrOriginal(propertyPath);
+    if (!registered.startsWith(property)) {
+      return false;
+    }
+    if (registered.length() == property.length()) {
+      return true;
+    }
+    return registered.charAt(property.length()) == PropertyAccessor.PROPERTY_KEY_PREFIX_CHAR
+            && registered.indexOf(PropertyAccessor.PROPERTY_KEY_SUFFIX_CHAR, property.length() + 1) == registered.length() - 1;
   }
 
   /**
@@ -528,8 +541,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
    * will be copied. If this is null, all editors will be copied.
    */
   protected void copyCustomEditorsTo(PropertyEditorRegistry target, @Nullable String nestedProperty) {
-    String actualPropertyName =
-            nestedProperty != null ? PropertyAccessorUtils.getPropertyName(nestedProperty) : null;
+    String actualPropertyName = nestedProperty != null ? actualPropertyNameOf(nestedProperty) : null;
     if (customEditors != null) {
       for (var entry : customEditors.entrySet()) {
         target.registerCustomEditor(entry.getKey(), entry.getValue());
@@ -540,10 +552,16 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
         String editorPath = entry.getKey();
         CustomEditorHolder editorHolder = entry.getValue();
         if (nestedProperty != null) {
-          int pos = PropertyAccessorUtils.getFirstNestedPropertySeparatorIndex(editorPath);
-          if (pos != -1) {
-            String editorNestedProperty = editorPath.substring(0, pos);
-            String editorNestedPath = editorPath.substring(pos + 1);
+          PropertyPath parsed;
+          try {
+            parsed = PropertyPath.parse(editorPath);
+          }
+          catch (InvalidPropertyPathException ex) {
+            continue;
+          }
+          if (parsed.segments().size() > 1) {
+            String editorNestedProperty = parsed.segments().get(0).toCanonicalName();
+            String editorNestedPath = parsed.subPath(1).canonicalName();
             if (editorNestedProperty.equals(nestedProperty) || editorNestedProperty.equals(actualPropertyName)) {
               target.registerCustomEditor(editorHolder.registeredType, editorNestedPath, editorHolder.propertyEditor);
             }
@@ -553,6 +571,16 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
           target.registerCustomEditor(editorHolder.registeredType, editorPath, editorHolder.propertyEditor);
         }
       }
+    }
+  }
+
+  private static @Nullable String actualPropertyNameOf(String nestedProperty) {
+    try {
+      List<PropertyPath.Segment> segments = PropertyPath.parse(nestedProperty).segments();
+      return segments.size() == 1 ? segments.get(0).name() : null;
+    }
+    catch (InvalidPropertyPathException ex) {
+      return null;
     }
   }
 

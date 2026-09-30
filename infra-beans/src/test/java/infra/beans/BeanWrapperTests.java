@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.beans.testfixture.beans.TestBean;
 
@@ -48,18 +47,6 @@ class BeanWrapperTests extends AbstractPropertyAccessorTests {
   @Override
   protected BeanWrapperImpl createAccessor(Object target) {
     return new BeanWrapperImpl(target);
-  }
-
-  @Test
-  void overriddenGetPropertyAccessorForPropertyPathIsInvokedForEachNestedLevel() {
-    TestBean rod = new TestBean("rod", 31);
-    TestBean kerry = new TestBean("kerry", 35);
-    rod.setSpouse(kerry);
-    kerry.setSpouse(rod);
-
-    CountingBeanWrapper accessor = new CountingBeanWrapper(rod);
-    assertThat(accessor.getPropertyValue("spouse.spouse.name")).isEqualTo("rod");
-    assertThat(accessor.invocations).hasValue(3);
   }
 
   @Test
@@ -223,9 +210,17 @@ class BeanWrapperTests extends AbstractPropertyAccessorTests {
   void incompletelyQuotedKeyLeadsToPropertyException() {
     TestBean target = new TestBean();
     BeanWrapper accessor = createAccessor(target);
-    assertThatExceptionOfType(NotWritablePropertyException.class).isThrownBy(() ->
+    assertThatExceptionOfType(InvalidPropertyPathException.class).isThrownBy(() ->
                     accessor.setPropertyValue("[']", "foobar"))
-            .satisfies(ex -> assertThat(ex.getPossibleMatches()).isNull());
+            .withMessageContaining("unterminated quote");
+  }
+
+  @Test
+  void getBeanPropertyForMalformedPathThrowsInvalidPropertyException() {
+    BeanWrapper accessor = createAccessor(new TestBean());
+    assertThatExceptionOfType(InvalidPropertyException.class)
+            .isThrownBy(() -> accessor.getBeanProperty("map[unterminated"))
+            .withCauseInstanceOf(InvalidPropertyPathException.class);
   }
 
   private interface BaseProperty {
@@ -325,33 +320,6 @@ class BeanWrapperTests extends AbstractPropertyAccessorTests {
 
     public Optional<TestBean> getObject() {
       return Optional.ofNullable(this.value);
-    }
-  }
-
-  /** Counts calls at each level of a nested property path. */
-  private static class CountingBeanWrapper extends BeanWrapperImpl {
-
-    private final AtomicInteger invocations;
-
-    CountingBeanWrapper(Object target) {
-      super(target);
-      this.invocations = new AtomicInteger();
-    }
-
-    private CountingBeanWrapper(Object target, String nestedPath, CountingBeanWrapper parent) {
-      super(target, nestedPath, parent.getRootInstance());
-      this.invocations = parent.invocations;
-    }
-
-    @Override
-    protected BeanWrapperImpl newNestedPropertyAccessor(Object object, String nestedPath) {
-      return new CountingBeanWrapper(object, nestedPath, this);
-    }
-
-    @Override
-    protected AbstractNestablePropertyAccessor getPropertyAccessorForPropertyPath(String propertyPath) {
-      this.invocations.incrementAndGet();
-      return super.getPropertyAccessorForPropertyPath(propertyPath);
     }
   }
 
