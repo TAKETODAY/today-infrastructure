@@ -40,6 +40,7 @@ import infra.test.classpath.resources.WithPackageResources;
 import infra.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link HttpComponentsClientHttpConnectorBuilder} and
@@ -79,6 +80,14 @@ class HttpComponentsClientHttpConnectorBuilderTests
     connectionConfigCustomizer2.assertCalled();
     defaultRequestConfigCustomizer.assertCalled();
     defaultRequestConfigCustomizer1.assertCalled();
+  }
+
+  @Test
+  @SuppressWarnings("NullAway") // Test null check
+  void withHttpClientCustomizerWhenCustomizerIsNullThrowsException() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> ClientHttpConnectorBuilder.httpComponents().withHttpClientCustomizer(null))
+            .withMessage("'httpClientCustomizer' is required");
   }
 
   @Test
