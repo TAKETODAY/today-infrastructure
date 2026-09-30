@@ -43,6 +43,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * ClassWriter unit tests for COMPUTE_MAXS option with JSR instructions.
@@ -908,6 +910,28 @@ public class ClassWriterComputeMaxsTest {
             controlFlowGraph("N0=N18", "N3=N4", "N4=N21", "N6=N3,N4", "N14=", "N18=N6", "N21=");
     assertEquals(expectedControlFlowGraph, controlFlowGraph);
     assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
+  }
+
+  /** Tests an invalid subroutine with two possible ret instructions. */
+  @Test
+  void testVisitMaxs_multipleRetsToSingleJsr() {
+    TestCaseBuilder testCase =
+            new TestCaseBuilder()
+                    .iconst_0()
+                    .istore(1)
+                    .jsr(label0)
+                    .vreturn()
+                    .label(label0)
+                    .astore(2)
+                    .iload(1)
+                    .ifne(label1)
+                    .ret(2)
+                    .label(label1)
+                    .ret(2);
+
+    Exception exception = assertThrows(RuntimeException.class, () -> testCase.visitMaxs());
+
+    assertTrue(exception.getMessage().matches("Multiple rets to single jsr"));
   }
 
   /**

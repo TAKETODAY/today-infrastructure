@@ -570,7 +570,10 @@ public class Label {
    * this label and, for each one of them, adds an outgoing edge to the basic block following the
    * given subroutine call. In other words, completes the control flow graph by adding the edges
    * corresponding to the return from this subroutine, when called from the given caller basic
-   * block.
+   * block. Throws a RuntimeException if multiple ret instructions are found for this subroutine
+   * (See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.9.2: "The
+   * instruction following each jsr or jsr_w instruction may be returned to only by a single ret
+   * instruction.").
    *
    * <p>Note: a precondition and postcondition of this method is that all labels must have a null
    * {@link #nextListElement}.
@@ -587,6 +590,7 @@ public class Label {
     Label listOfProcessedBlocks = EMPTY_LIST;
     Label listOfBlocksToProcess = this;
     listOfBlocksToProcess.nextListElement = EMPTY_LIST;
+    boolean retInsnFound = false;
     while (listOfBlocksToProcess != EMPTY_LIST) {
       // Move a basic block from the list of blocks to process to the list of processed blocks.
       Label basicBlock = listOfBlocksToProcess;
@@ -599,6 +603,10 @@ public class Label {
       // subroutine.
       if ((basicBlock.flags & FLAG_SUBROUTINE_END) != 0
               && basicBlock.subroutineId != subroutineCaller.subroutineId) {
+        if (retInsnFound) {
+          throw new RuntimeException("Multiple rets to single jsr");
+        }
+        retInsnFound = true;
         basicBlock.outgoingEdges =
                 new Edge(basicBlock.outputStackSize,
                         // By construction, the first outgoing edge of a basic block that ends with a jsr
