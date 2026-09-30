@@ -36,10 +36,13 @@ jar {
       "${System.getProperty("java.version")} (${System.getProperty("java.specification.vendor")})"
 
   from("${rootDir}") {
-    include "LICENSE"
     include "NOTICE"
     into "META-INF"
     expand(copyright: new Date().format("yyyy"), version: project.version)
+  }
+  from("${rootDir}") {
+    include "LICENSE"
+    into "META-INF"
   }
 }
 
