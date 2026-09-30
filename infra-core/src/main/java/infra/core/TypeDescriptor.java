@@ -28,7 +28,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -62,17 +61,20 @@ public class TypeDescriptor implements Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private static final HashMap<Class<?>, TypeDescriptor> commonTypesCache = new HashMap<>(32);
+  private static final Map<Class<?>, TypeDescriptor> commonTypesCache;
+
+  private static final Class<?>[] CACHED_COMMON_TYPES = {
+          boolean.class, Boolean.class, byte.class, Byte.class, char.class, Character.class,
+          double.class, Double.class, float.class, Float.class, int.class, Integer.class,
+          long.class, Long.class, short.class, Short.class, String.class, Object.class
+  };
 
   static {
-    final Class<?>[] cachedCommonTypes = {
-            boolean.class, Boolean.class, byte.class, Byte.class, char.class, Character.class,
-            double.class, Double.class, float.class, Float.class, int.class, Integer.class,
-            long.class, Long.class, short.class, Short.class, String.class, Object.class
-    };
-    for (Class<?> preCachedClass : cachedCommonTypes) {
-      commonTypesCache.put(preCachedClass, valueOf(preCachedClass));
+    Map<Class<?>, TypeDescriptor> commonTypes = CollectionUtils.newHashMap(CACHED_COMMON_TYPES.length);
+    for (Class<?> preCachedClass : CACHED_COMMON_TYPES) {
+      commonTypes.put(preCachedClass, new TypeDescriptor(ResolvableType.forClass(preCachedClass), null, (Annotation[]) null));
     }
+    commonTypesCache = Map.copyOf(commonTypes);
   }
 
   private final Class<?> type;
