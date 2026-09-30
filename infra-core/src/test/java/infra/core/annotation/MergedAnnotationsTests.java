@@ -2041,6 +2041,30 @@ class MergedAnnotationsTests {
   }
 
   @Test
+  void toStringForSynthesizedAnnotationsWithNonFiniteFloatingPointValues() {
+    Map<String, Object> attributes = Map.of(
+            "name", "test",
+            "floatValue", Float.NaN,
+            "doubleValue", Double.NaN);
+    RequestMapping mapping = MergedAnnotation.valueOf(RequestMapping.class, attributes).synthesize();
+    assertThat(mapping).asString().contains("floatValue=0.0f/0.0f", "doubleValue=0.0/0.0");
+
+    attributes = Map.of(
+            "name", "test",
+            "floatValue", Float.POSITIVE_INFINITY,
+            "doubleValue", Double.POSITIVE_INFINITY);
+    mapping = MergedAnnotation.valueOf(RequestMapping.class, attributes).synthesize();
+    assertThat(mapping).asString().contains("floatValue=1.0f/0.0f", "doubleValue=1.0/0.0");
+
+    attributes = Map.of(
+            "name", "test",
+            "floatValue", Float.NEGATIVE_INFINITY,
+            "doubleValue", Double.NEGATIVE_INFINITY);
+    mapping = MergedAnnotation.valueOf(RequestMapping.class, attributes).synthesize();
+    assertThat(mapping).asString().contains("floatValue=-1.0f/0.0f", "doubleValue=-1.0/0.0");
+  }
+
+  @Test
   void toStringForSynthesizedAnnotationsWithSingleValueAttributes() {
     MyRepeatable myRepeatable = MergedAnnotations.from(SingleMyRepeatableClass.class)
             .get(MyRepeatable.class).synthesize();
