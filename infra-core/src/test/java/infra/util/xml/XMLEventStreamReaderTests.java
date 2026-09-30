@@ -20,6 +20,8 @@ package infra.util.xml;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.w3c.dom.Node;
 import org.xmlunit.util.Predicate;
 
@@ -28,6 +30,7 @@ import java.io.StringWriter;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stax.StAXSource;
@@ -67,6 +70,32 @@ class XMLEventStreamReaderTests {
     Predicate<Node> nodeFilter = n ->
             n.getNodeType() != Node.DOCUMENT_TYPE_NODE && n.getNodeType() != Node.PROCESSING_INSTRUCTION_NODE;
     assertThat(XmlContent.from(writer)).isSimilarTo(XML, nodeFilter);
+  }
+
+  @ParameterizedTest
+  @CsvSource(textBlock = """
+          0, content
+          1, ontent
+          4, ent
+          6, t
+          7, ''
+          """)
+  void getTextCharactersHonorsSourceStart(int sourceStart, String expected) throws Exception {
+    advanceToCharacters();
+
+    // text node is "content" (7 chars); request an oversized buffer to ensure
+    // getTextCharacters(sourceStart, ...) does not read past the source
+    char[] target = new char[10];
+    int count = streamReader.getTextCharacters(sourceStart, target, 0, 10);
+
+    assertThat(count).isEqualTo(expected.length());
+    assertThat(new String(target, 0, count)).isEqualTo(expected);
+  }
+
+  private void advanceToCharacters() throws Exception {
+    while (streamReader.getEventType() != XMLStreamConstants.CHARACTERS) {
+      streamReader.next();
+    }
   }
 
 }
