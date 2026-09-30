@@ -1562,7 +1562,7 @@ public class ClassReader {
           }
         }
         case Opcodes.TABLESWITCH -> {
-          // Skip 0 to 3 padding bytes.
+          // Skip the opcode, plus 0 to 3 padding bytes.
           currentOffset += 4 - (bytecodeOffset & 3);
           // Read the default label and the number of table entries.
           createLabel(bytecodeOffset + readInt(currentOffset), labels);
@@ -1575,7 +1575,7 @@ public class ClassReader {
           }
         }
         case Opcodes.LOOKUPSWITCH -> {
-          // Skip 0 to 3 padding bytes.
+          // Skip the opcode, plus 0 to 3 padding bytes.
           currentOffset += 4 - (bytecodeOffset & 3);
           // Read the default label and the number of switch cases.
           createLabel(bytecodeOffset + readInt(currentOffset), labels);
@@ -1939,7 +1939,7 @@ public class ClassReader {
           }
         }
         case Opcodes.TABLESWITCH -> {
-          // Skip 0 to 3 padding bytes.
+          // Skip the opcode, plus 0 to 3 padding bytes.
           currentOffset += 4 - (currentBytecodeOffset & 3);
           // Read the instruction.
           Label defaultLabel = labels[currentBytecodeOffset + readInt(currentOffset)];
@@ -1954,7 +1954,7 @@ public class ClassReader {
           methodVisitor.visitTableSwitchInsn(low, high, defaultLabel, table);
         }
         case Opcodes.LOOKUPSWITCH -> {
-          // Skip 0 to 3 padding bytes.
+          // Skip the opcode, plus 0 to 3 padding bytes.
           currentOffset += 4 - (currentBytecodeOffset & 3);
           // Read the instruction.
           Label defaultLabel = labels[currentBytecodeOffset + readInt(currentOffset)];
@@ -3058,7 +3058,7 @@ public class ClassReader {
    * @return the read value.
    */
   public int readUnsignedShort(final int offset) {
-    byte[] classBuffer = classFileBuffer;
+    final byte[] classBuffer = classFileBuffer;
     return ((classBuffer[offset] & 0xFF) << 8) | (classBuffer[offset + 1] & 0xFF);
   }
 
@@ -3070,7 +3070,7 @@ public class ClassReader {
    * @return the read value.
    */
   public short readShort(final int offset) {
-    byte[] classBuffer = classFileBuffer;
+    final byte[] classBuffer = classFileBuffer;
     return (short) (((classBuffer[offset] & 0xFF) << 8) | (classBuffer[offset + 1] & 0xFF));
   }
 
@@ -3082,7 +3082,7 @@ public class ClassReader {
    * @return the read value.
    */
   public int readInt(final int offset) {
-    byte[] classBuffer = classFileBuffer;
+    final byte[] classBuffer = classFileBuffer;
     return ((classBuffer[offset] & 0xFF) << 24)
             | ((classBuffer[offset + 1] & 0xFF) << 16)
             | ((classBuffer[offset + 2] & 0xFF) << 8)
@@ -3155,7 +3155,7 @@ public class ClassReader {
     int currentOffset = utfOffset;
     int endOffset = currentOffset + utfLength;
     int strLength = 0;
-    byte[] classBuffer = classFileBuffer;
+    final byte[] classBuffer = classFileBuffer;
     while (currentOffset < endOffset) {
       int currentByte = classBuffer[currentOffset++];
       if ((currentByte & 0x80) == 0) {

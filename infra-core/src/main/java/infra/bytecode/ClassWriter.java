@@ -565,7 +565,7 @@ public class ClassWriter extends ClassVisitor {
    * @throws MethodTooLargeException if the Code attribute of a method is too large.
    */
   public byte[] toByteArray() {
-    while (true) {
+    for (int pass = 0; pass < 2; ++pass) {
       // First step: compute the size in bytes of the ClassFile structure.
       // The magic field uses 4 bytes, 10 mandatory fields (minor_version, major_version,
       // constant_pool_count, access_flags, this_class, super_class, interfaces_count, fields_count,
@@ -725,7 +725,10 @@ public class ClassWriter extends ClassVisitor {
       methodWriter = firstMethod;
       while (methodWriter != null) {
         hasFrames |= methodWriter.hasFrames();
-        hasAsmInstructions |= methodWriter.hasAsmInstructions();
+        if (methodWriter.hasAsmInstructions()) {
+          methodWriter.completeAsmInstructions();
+          hasAsmInstructions = true;
+        }
         methodWriter.putMethodInfo(result);
         methodWriter = (MethodWriter) methodWriter.mv;
       }
@@ -806,12 +809,16 @@ public class ClassWriter extends ClassVisitor {
       // Third step: replace the ASM specific instructions, if any.
       if (hasAsmInstructions) {
         replaceAsmInstructions(result.data, hasFrames);
-        // Go back to step 1 to recompute the byte array.
+        // Do another pass to recompute the byte array. Thanks to the completeAsmInstructions() call
+        // above, replaceAsmInstructions() should not introduce any new ASM specific instructions.
+        // Hence the second pass should take the else branch below and return.
       }
       else {
         return result.data;
       }
     }
+    // The loop should always return after one or two iterations (see above).
+    throw new AssertionError();
   }
 
   /**

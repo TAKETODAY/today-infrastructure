@@ -471,6 +471,172 @@ class ClassWriterTests extends AsmTest {
     assertTrue(new ClassFile(classFile).toString().contains("[[[[[[[[Ljava/lang/Number;"));
   }
 
+  @ParameterizedTest
+  @ValueSource(ints = { Opcodes.V1_5, Opcodes.V1_7 })
+  void testToByteArray_completeAsmInsnsInSeveralIterations(final int version) {
+    ClassWriter classWriter =
+            new ClassWriter(
+                    version < Opcodes.V1_7 ? ClassWriter.COMPUTE_MAXS : ClassWriter.COMPUTE_FRAMES);
+    classWriter.visit(version, Opcodes.ACC_PUBLIC, "A", null, "java/lang/Object", null);
+    MethodVisitor constructor =
+            classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+    constructor.visitCode();
+    constructor.visitVarInsn(Opcodes.ALOAD, 0);
+    constructor.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+    constructor.visitInsn(Opcodes.RETURN);
+    constructor.visitMaxs(0, 0);
+    constructor.visitEnd();
+    MethodVisitor methodVisitor =
+            classWriter.visitMethod(Opcodes.ACC_STATIC, "m", "(Ljava/lang/Runnable;)V", null, null);
+    methodVisitor.visitCode();
+    Label l1 = new Label();
+    Label l2 = new Label();
+    Label l3 = new Label();
+    Label l4 = new Label();
+    Label l5 = new Label();
+    Label l6 = new Label();
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l4); // bytecode index 0, jump offset 32764
+    methodVisitor.visitLabel(l1);
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l5); // bytecode index 3, jump offset 32766
+    methodVisitor.visitLabel(l2);
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l6); // bytecode index 6, jump offset 32768
+    methodVisitor.visitLabel(l3);
+    for (int i = 0; i < 32748; ++i) {
+      methodVisitor.visitInsn(Opcodes.NOP);
+    }
+    methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+    methodVisitor.visitMethodInsn(
+            Opcodes.INVOKEINTERFACE, "java/lang/Runnable", "run", "()V", true);
+    methodVisitor.visitInsn(Opcodes.RETURN);
+    methodVisitor.visitLabel(l4);
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l1); // bytecode index 32764
+    methodVisitor.visitInsn(Opcodes.NOP);
+    methodVisitor.visitInsn(Opcodes.NOP);
+    methodVisitor.visitLabel(l5);
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l2); // bytecode index 32769
+    methodVisitor.visitInsn(Opcodes.NOP);
+    methodVisitor.visitInsn(Opcodes.NOP);
+    methodVisitor.visitLabel(l6);
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l3); // bytecode index 32774
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+    classWriter.visitEnd();
+
+    // GOTO l6 jump offset is too large, GOTO must be rewritten to GOTO_W (5 bytes instead of 3).
+    // Then jump offset of GOTO l5 becomes 32766 + 2, too large too.
+    // After that the jump offset of GOTO l4 becomes 32764 + 2 + 2, too large again.
+    byte[] classFile = classWriter.toByteArray();
+
+    assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = { Opcodes.V1_5, Opcodes.V1_7 })
+  void testToByteArray_completeAsmInsnsWithLookupswitch(final int version) {
+    ClassWriter classWriter =
+            new ClassWriter(
+                    version < Opcodes.V1_7 ? ClassWriter.COMPUTE_MAXS : ClassWriter.COMPUTE_FRAMES);
+    classWriter.visit(version, Opcodes.ACC_PUBLIC, "A", null, "java/lang/Object", null);
+    MethodVisitor constructor =
+            classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+    constructor.visitCode();
+    constructor.visitVarInsn(Opcodes.ALOAD, 0);
+    constructor.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+    constructor.visitInsn(Opcodes.RETURN);
+    constructor.visitMaxs(0, 0);
+    constructor.visitEnd();
+    MethodVisitor methodVisitor =
+            classWriter.visitMethod(Opcodes.ACC_STATIC, "m", "(I)V", null, null);
+    methodVisitor.visitCode();
+    Label l1 = new Label();
+    Label l2 = new Label();
+    Label l3 = new Label();
+    Label l4 = new Label();
+    Label l5 = new Label();
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l4); // bytecode index 0, jump offset 32768
+    methodVisitor.visitInsn(Opcodes.NOP);
+    methodVisitor.visitLabel(l1);
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l5); // bytecode index 4, jump offset 32767
+    methodVisitor.visitLabel(l2);
+    methodVisitor.visitLookupSwitchInsn(l3, new int[0], new Label[0]); // 0 padding, total 9 bytes
+    methodVisitor.visitLabel(l3);
+    methodVisitor.visitIincInsn(0, 1);
+    for (int i = 0; i < 32748; ++i) {
+      methodVisitor.visitInsn(Opcodes.NOP);
+    }
+    methodVisitor.visitInsn(Opcodes.RETURN);
+
+    methodVisitor.visitLabel(l4);
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l1); // bytecode index 32768
+    methodVisitor.visitLabel(l5);
+    methodVisitor.visitVarInsn(Opcodes.ILOAD, 0); //  bytecode index 32771
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l2);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+    classWriter.visitEnd();
+
+    // GOTO l4 jump offset is too large, GOTO must be rewritten to GOTO_W (5 bytes instead of 3).
+    // The lookupswitch then starts 2 bytes later, which adds 2 bytes of padding. This makes the
+    // jump offset of GOTO l5 too large. This GOTO must thus be rewritten to a GOTO_W too.
+    byte[] classFile = classWriter.toByteArray();
+
+    assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = { Opcodes.V1_5, Opcodes.V1_7 })
+  void testToByteArray_completeAsmInsnsWithTableswitch(final int version) {
+    ClassWriter classWriter =
+            new ClassWriter(
+                    version < Opcodes.V1_7 ? ClassWriter.COMPUTE_MAXS : ClassWriter.COMPUTE_FRAMES);
+    classWriter.visit(version, Opcodes.ACC_PUBLIC, "A", null, "java/lang/Object", null);
+    MethodVisitor constructor =
+            classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+    constructor.visitCode();
+    constructor.visitVarInsn(Opcodes.ALOAD, 0);
+    constructor.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+    constructor.visitInsn(Opcodes.RETURN);
+    constructor.visitMaxs(0, 0);
+    constructor.visitEnd();
+    MethodVisitor methodVisitor =
+            classWriter.visitMethod(Opcodes.ACC_STATIC, "m", "(I)V", null, null);
+    methodVisitor.visitCode();
+    Label l1 = new Label();
+    Label l2 = new Label();
+    Label l3 = new Label();
+    Label l4 = new Label();
+    Label l5 = new Label();
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l4); // bytecode index 0, jump offset 32768
+    methodVisitor.visitInsn(Opcodes.NOP);
+    methodVisitor.visitLabel(l1);
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l5); // bytecode index 4, jump offset 32767
+    methodVisitor.visitLabel(l2);
+    methodVisitor.visitTableSwitchInsn(0, 0, l3, l3); // 0 padding, total 17 bytes
+    methodVisitor.visitLabel(l3);
+    for (int i = 0; i < 32738; ++i) {
+      methodVisitor.visitInsn(Opcodes.NOP);
+    }
+    methodVisitor.visitInsn(Opcodes.ICONST_1);
+    methodVisitor.visitMultiANewArrayInsn("[[I", 1);
+    methodVisitor.visitInsn(Opcodes.RETURN);
+
+    methodVisitor.visitLabel(l4);
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l1); // bytecode index 32768
+    methodVisitor.visitLabel(l5);
+    methodVisitor.visitVarInsn(Opcodes.ILOAD, 0); //  bytecode index 32771
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l2);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+    classWriter.visitEnd();
+
+    // GOTO l4 jump offset is too large, GOTO must be rewritten to GOTO_W (5 bytes instead of 3).
+    // The tableswitch then starts 2 bytes later, which adds 2 bytes of padding. This makes the
+    // jump offset of GOTO l5 too large. This GOTO must thus be rewritten to a GOTO_W too.
+    byte[] classFile = classWriter.toByteArray();
+
+    assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
+  }
+
   @Test
   public void testGetCommonSuperClass() {
     ClassWriter classWriter = new ClassWriter(0);
