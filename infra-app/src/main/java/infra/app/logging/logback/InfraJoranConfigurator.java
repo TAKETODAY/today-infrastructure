@@ -65,6 +65,7 @@ import infra.context.aot.AbstractAotProcessor;
 import infra.core.NativeDetector;
 import infra.core.io.ByteArrayResource;
 import infra.core.io.ClassPathResource;
+import infra.core.io.InputStreamSource;
 import infra.core.io.PropertiesUtils;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
@@ -436,10 +437,7 @@ class InfraJoranConfigurator extends JoranConfigurator {
     @Override
     public void acceptWithException(FileHandler file) throws Exception {
       if (file.exists()) {
-        byte[] existingContent;
-        try (InputStream inputStream = file.getContent().getInputStream()) {
-          existingContent = inputStream.readAllBytes();
-        }
+        byte[] existingContent = toByteArray(file.getContent());
         if (!Arrays.equals(this.newContent, existingContent)) {
           throw new IllegalStateException(
                   "Logging configuration differs from the configuration that has already been written. "
@@ -448,6 +446,12 @@ class InfraJoranConfigurator extends JoranConfigurator {
       }
       else {
         file.create(new ByteArrayResource(this.newContent));
+      }
+    }
+
+    private byte[] toByteArray(InputStreamSource content) throws IOException {
+      try (InputStream inputStream = content.getInputStream()) {
+        return inputStream.readAllBytes();
       }
     }
 
