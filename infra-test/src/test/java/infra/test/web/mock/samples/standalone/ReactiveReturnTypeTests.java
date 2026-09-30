@@ -54,7 +54,7 @@ public class ReactiveReturnTypeTests {
             .andReturn();
 
     mockMvc.perform(asyncDispatch(mvcResult))
-            .andExpect(content().string("data:event0\n\ndata:event1\n\ndata:event2\n\n"));
+            .andExpect(content().string("data: event0\n\ndata: event1\n\ndata: event2\n\n"));
   }
 
   @RestController
