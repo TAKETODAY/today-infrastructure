@@ -18,9 +18,11 @@
 
 package infra.core.conversion.support;
 
+import infra.core.TypeDescriptor;
+import infra.core.conversion.ConditionalConverter;
 import infra.core.conversion.Converter;
 import infra.core.conversion.ConverterFactory;
-import infra.util.ClassUtils;
+import infra.util.Assert;
 
 /**
  * Converts from a Integer to a {@link Enum} by calling {@link Class#getEnumConstants()}.
@@ -30,11 +32,18 @@ import infra.util.ClassUtils;
  * @since 4.0
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
-final class IntegerToEnumConverterFactory implements ConverterFactory<Integer, Enum> {
+final class IntegerToEnumConverterFactory implements ConverterFactory<Integer, Enum>, ConditionalConverter {
 
   @Override
   public <T extends Enum> Converter<Integer, T> getConverter(Class<T> targetType) {
-    return new IntegerToEnum(ClassUtils.getEnumType(targetType));
+    Class<?> enumType = ConversionUtils.resolveEnumType(targetType);
+    Assert.notNull(enumType, () -> "The target type " + targetType.getName() + " does not refer to an enum");
+    return new IntegerToEnum(enumType);
+  }
+
+  @Override
+  public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+    return ConversionUtils.resolveEnumType(targetType.getType()) != null;
   }
 
   private record IntegerToEnum<T extends Enum>(Class<T> enumType) implements Converter<Integer, T> {

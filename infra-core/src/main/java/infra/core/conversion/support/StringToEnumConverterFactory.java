@@ -20,9 +20,11 @@ package infra.core.conversion.support;
 
 import org.jspecify.annotations.Nullable;
 
+import infra.core.TypeDescriptor;
+import infra.core.conversion.ConditionalConverter;
 import infra.core.conversion.Converter;
 import infra.core.conversion.ConverterFactory;
-import infra.util.ClassUtils;
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**
@@ -33,11 +35,18 @@ import infra.util.StringUtils;
  * @since 3.0
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
-final class StringToEnumConverterFactory implements ConverterFactory<String, Enum> {
+final class StringToEnumConverterFactory implements ConverterFactory<String, Enum>, ConditionalConverter {
 
   @Override
   public <T extends Enum> Converter<String, T> getConverter(Class<T> targetType) {
-    return new StringToEnum(ClassUtils.getEnumType(targetType));
+    Class<?> enumType = ConversionUtils.resolveEnumType(targetType);
+    Assert.notNull(enumType, () -> "The target type " + targetType.getName() + " does not refer to an enum");
+    return new StringToEnum(enumType);
+  }
+
+  @Override
+  public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+    return ConversionUtils.resolveEnumType(targetType.getType()) != null;
   }
 
   private record StringToEnum<T extends Enum>(Class<T> enumType) implements Converter<String, T> {
