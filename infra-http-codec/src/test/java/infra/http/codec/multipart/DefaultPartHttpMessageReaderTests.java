@@ -62,6 +62,7 @@ import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 
 /**
  * @author Arjen Poutsma
+ * @author Seonghun Lee
  */
 class DefaultPartHttpMessageReaderTests extends AbstractLeakCheckingTests {
 
@@ -332,6 +333,20 @@ class DefaultPartHttpMessageReaderTests extends AbstractLeakCheckingTests {
     StepVerifier.create(result)
             .expectErrorMatches(ex -> ex instanceof DataBufferLimitException
                     && ex.getMessage().equals("Part exceeded the disk usage limit of 195 bytes"))
+            .verify();
+  }
+
+  @Test
+  void exceedDiskUsageOnSpillOver() {
+    MockServerHttpRequest request = createRequest("files.multipart", "\"----WebKitFormBoundaryG8fJ50opQOML0oGD\"");
+
+    DefaultPartHttpMessageReader reader = new DefaultPartHttpMessageReader();
+    reader.setMaxInMemorySize(90);
+    reader.setMaxDiskUsagePerPart(99);
+    Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
+
+    StepVerifier.create(result)
+            .expectError(DataBufferLimitException.class)
             .verify();
   }
 
