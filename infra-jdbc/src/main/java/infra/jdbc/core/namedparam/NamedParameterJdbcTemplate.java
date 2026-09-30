@@ -70,6 +70,7 @@ import infra.util.ObjectUtils;
  *
  * @author Thomas Risberg
  * @author Juergen Hoeller
+ * @author Yanming Zhou
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see NamedParameterJdbcOperations
  * @see JdbcTemplate
@@ -393,6 +394,10 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
 
       @Override
       public void setValues(PreparedStatement ps, int i) throws SQLException {
+        if (i == 0) {
+          // batchArgs[0] is already set by pscf.newPreparedStatementCreator()
+          return;
+        }
         Object[] values = NamedParameterUtils.buildValueArray(parsedSql, batchArgs[i], null);
         pscf.newPreparedStatementSetter(values).setValues(ps);
       }

@@ -52,6 +52,7 @@ import static org.mockito.Mockito.verify;
 
 /**
  * @author Juergen Hoeller
+ * @author Yanming Zhou
  * @since 4.0
  */
 public class JdbcClientNamedParameterTests {
@@ -429,6 +430,30 @@ public class JdbcClientNamedParameterTests {
   }
 
   @Test
+  void batchUpdateWithGeneratedKeys() throws SQLException {
+    given(resultSetMetaData.getColumnCount()).willReturn(1);
+    given(resultSetMetaData.getColumnLabel(1)).willReturn("1");
+    given(resultSet.getMetaData()).willReturn(resultSetMetaData);
+    given(resultSet.next()).willReturn(true, false);
+    given(resultSet.getObject(1)).willReturn(11);
+    given(preparedStatement.executeUpdate()).willReturn(1);
+    given(preparedStatement.getGeneratedKeys()).willReturn(resultSet);
+    given(connection.prepareStatement(INSERT_GENERATE_KEYS_PARSED, PreparedStatement.RETURN_GENERATED_KEYS))
+            .willReturn(preparedStatement);
+
+    KeyHolder generatedKeyHolder = new GeneratedKeyHolder();
+    int[] rowsAffected = client.sql(INSERT_GENERATE_KEYS).batch().param("name", "rod").add().update(generatedKeyHolder);
+
+    assertThat(rowsAffected).isEqualTo(new int[] { 1 });
+    assertThat(generatedKeyHolder.getKeyList()).hasSize(1);
+    assertThat(generatedKeyHolder.getKey()).isEqualTo(11);
+    verify(preparedStatement).setString(1, "rod");
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
+  }
+
+  @Test
   public void updateWithGeneratedKeysAndKeyColumnNames() throws SQLException {
     given(resultSetMetaData.getColumnCount()).willReturn(1);
     given(resultSetMetaData.getColumnLabel(1)).willReturn("1");
@@ -444,6 +469,30 @@ public class JdbcClientNamedParameterTests {
     int rowsAffected = client.sql(INSERT_GENERATE_KEYS).param("name", "rod").update(generatedKeyHolder, "id");
 
     assertThat(rowsAffected).isEqualTo(1);
+    assertThat(generatedKeyHolder.getKeyList()).hasSize(1);
+    assertThat(generatedKeyHolder.getKey()).isEqualTo(11);
+    verify(preparedStatement).setString(1, "rod");
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
+  }
+
+  @Test
+  void batchUpdateWithGeneratedKeysAndKeyColumnNames() throws SQLException {
+    given(resultSetMetaData.getColumnCount()).willReturn(1);
+    given(resultSetMetaData.getColumnLabel(1)).willReturn("1");
+    given(resultSet.getMetaData()).willReturn(resultSetMetaData);
+    given(resultSet.next()).willReturn(true, false);
+    given(resultSet.getObject(1)).willReturn(11);
+    given(preparedStatement.executeUpdate()).willReturn(1);
+    given(preparedStatement.getGeneratedKeys()).willReturn(resultSet);
+    given(connection.prepareStatement(INSERT_GENERATE_KEYS_PARSED, new String[] { "id" }))
+            .willReturn(preparedStatement);
+
+    KeyHolder generatedKeyHolder = new GeneratedKeyHolder();
+    int[] rowsAffected = client.sql(INSERT_GENERATE_KEYS).batch().param("name", "rod").add().update(generatedKeyHolder, "id");
+
+    assertThat(rowsAffected).isEqualTo(new int[] { 1 });
     assertThat(generatedKeyHolder.getKeyList()).hasSize(1);
     assertThat(generatedKeyHolder.getKey()).isEqualTo(11);
     verify(preparedStatement).setString(1, "rod");
