@@ -36,6 +36,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import infra.bytecode.AsmTest;
+import infra.bytecode.LimitExceededException;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -84,5 +85,18 @@ public class SignatureReaderTests extends AsmTest {
     Executable acceptVisitor = () -> signatureReader.accept(signatureVisitor);
 
     assertThrows(IllegalArgumentException.class, acceptVisitor);
+  }
+
+  @Test
+  public void testAccept_tooManyNestedTypeArguments() {
+    String signature =
+            SignaturesProviders.buildDeepSignature(new StringBuilder(), /* depth= */ 300).toString();
+    SignatureReader signatureReader = new SignatureReader(signature);
+    SignatureVisitor signatureVisitor =
+            new SignatureVisitor() { };
+
+    Executable acceptVisitor = () -> signatureReader.accept(signatureVisitor);
+
+    assertThrows(LimitExceededException.class, acceptVisitor);
   }
 }
