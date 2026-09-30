@@ -436,7 +436,10 @@ class InfraJoranConfigurator extends JoranConfigurator {
     @Override
     public void acceptWithException(FileHandler file) throws Exception {
       if (file.exists()) {
-        byte[] existingContent = file.getContent().getInputStream().readAllBytes();
+        byte[] existingContent;
+        try (InputStream inputStream = file.getContent().getInputStream()) {
+          existingContent = inputStream.readAllBytes();
+        }
         if (!Arrays.equals(this.newContent, existingContent)) {
           throw new IllegalStateException(
                   "Logging configuration differs from the configuration that has already been written. "
