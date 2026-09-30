@@ -33,6 +33,7 @@ import infra.util.Assert;
  *
  * @author Eddú Meléndez
  * @author Edson Chávez
+ * @author Yingzi Zhang
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Period
  * @since 4.0
@@ -89,7 +90,7 @@ public enum PeriodStyle {
     @Override
     public String print(Period value, @Nullable ChronoUnit unit) {
       if (value.isZero()) {
-        return Unit.fromChronoUnit(unit).print(value);
+        return "0" + Unit.fromChronoUnit(unit).suffix;
       }
       StringBuilder result = new StringBuilder();
       append(result, value, Unit.YEARS);
