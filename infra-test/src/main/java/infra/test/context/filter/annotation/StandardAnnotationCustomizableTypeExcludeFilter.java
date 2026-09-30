@@ -29,6 +29,7 @@ import infra.core.ResolvableType;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.MergedAnnotations.SearchStrategy;
+import infra.test.context.TestContextAnnotationUtils;
 import infra.util.Assert;
 
 /**
@@ -59,8 +60,10 @@ public abstract class StandardAnnotationCustomizableTypeExcludeFilter<A extends 
   private final MergedAnnotation<A> annotation;
 
   protected StandardAnnotationCustomizableTypeExcludeFilter(Class<?> testClass) {
-    this.annotation = MergedAnnotations.from(testClass, SearchStrategy.INHERITED_ANNOTATIONS)
-            .get(getAnnotationType());
+    this.annotation = MergedAnnotations.search(SearchStrategy.TYPE_HIERARCHY)
+            .withEnclosingClasses(TestContextAnnotationUtils::searchEnclosingClass)
+            .from(testClass)
+            .get(this.getAnnotationType());
   }
 
   protected final MergedAnnotation<A> getAnnotation() {

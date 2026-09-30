@@ -23,9 +23,14 @@ import org.jspecify.annotations.Nullable;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import infra.aot.AotDetector;
 import infra.context.annotation.config.TypeExcludeFilter;
+import infra.core.annotation.MergedAnnotation;
+import infra.core.annotation.MergedAnnotations;
+import infra.core.annotation.MergedAnnotations.SearchStrategy;
 import infra.test.context.ContextConfigurationAttributes;
 import infra.test.context.ContextCustomizer;
 import infra.test.context.ContextCustomizerFactory;
@@ -45,18 +50,17 @@ class TypeExcludeFiltersContextCustomizerFactory implements ContextCustomizerFac
     if (AotDetector.useGeneratedArtifacts()) {
       return null;
     }
-    var descriptor = TestContextAnnotationUtils.findAnnotationDescriptor(testClass, TypeExcludeFilters.class);
-    if (descriptor == null) {
+    Set<Class<? extends TypeExcludeFilter>> filterClasses = MergedAnnotations.search(SearchStrategy.TYPE_HIERARCHY)
+            .withEnclosingClasses(TestContextAnnotationUtils::searchEnclosingClass)
+            .from(testClass)
+            .stream(TypeExcludeFilters.class)
+            .map(MergedAnnotation::synthesize)
+            .flatMap((annotation) -> Arrays.stream(annotation.value()))
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+    if (filterClasses.isEmpty()) {
       return null;
     }
-    Class<?>[] filterClasses = descriptor.getAnnotation().value();
-    return createContextCustomizer(descriptor.getRootDeclaringClass(), filterClasses);
-  }
-
-  @SuppressWarnings("unchecked")
-  private ContextCustomizer createContextCustomizer(Class<?> testClass, Class<?>[] filterClasses) {
-    return new TypeExcludeFiltersContextCustomizer(testClass,
-            new LinkedHashSet<>(Arrays.asList((Class<? extends TypeExcludeFilter>[]) filterClasses)));
+    return new TypeExcludeFiltersContextCustomizer(testClass, filterClasses);
   }
 
 }
