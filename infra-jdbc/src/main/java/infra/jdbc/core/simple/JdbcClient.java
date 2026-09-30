@@ -419,9 +419,9 @@ public interface JdbcClient {
    * either as JDBC-style positional parameters or as Infra-style named parameters
    * (but not both within the same batch).
    *
-   * @since 5.0
    * @see StatementSpec#batch()
    * @see BatchEntry
+   * @since 5.0
    */
   interface BatchSpec {
 
@@ -448,7 +448,6 @@ public interface JdbcClient {
      * @return this batch specification (for chaining)
      * @throws IllegalStateException if the list is empty, or if named and
      * indexed parameters are mixed within the batch
-     *
      * @see StatementSpec#params(List)
      */
     BatchSpec entry(List<?> values);
@@ -461,7 +460,6 @@ public interface JdbcClient {
      * @return this batch specification (for chaining)
      * @throws IllegalStateException if the map is empty, or if named and
      * indexed parameters are mixed within the batch
-     *
      * @see StatementSpec#params(Map)
      */
     BatchSpec entry(Map<String, ?> paramMap);
@@ -478,7 +476,6 @@ public interface JdbcClient {
      * @return this batch specification (for chaining)
      * @throws IllegalStateException if named and indexed parameters are
      * mixed within the batch
-     *
      * @see #entries(List)
      */
     BatchSpec entries(Object... namedParamObjects);
@@ -507,7 +504,6 @@ public interface JdbcClient {
      * @return an array containing the numbers of rows affected by each execution in the batch
      * (may also contain special JDBC-defined negative values for affected rows such as
      * {@link java.sql.Statement#SUCCESS_NO_INFO}/{@link java.sql.Statement#EXECUTE_FAILED})
-     *
      * @throws DataAccessException if there is any problem issuing the update
      * @see java.sql.PreparedStatement#executeBatch()
      */
@@ -521,7 +517,6 @@ public interface JdbcClient {
      * @return an array containing the numbers of rows affected by each execution in the batch
      * (may also contain special JDBC-defined negative values for affected rows such as
      * {@link java.sql.Statement#SUCCESS_NO_INFO}/{@link java.sql.Statement#EXECUTE_FAILED})
-     *
      * @throws DataAccessException if there is any problem issuing the update
      * @see #update()
      * @see infra.jdbc.support.GeneratedKeyHolder
@@ -538,7 +533,6 @@ public interface JdbcClient {
      * @return an array containing the numbers of rows affected by each execution in the batch
      * (may also contain special JDBC-defined negative values for affected rows such as
      * {@link java.sql.Statement#SUCCESS_NO_INFO}/{@link java.sql.Statement#EXECUTE_FAILED})
-     *
      * @throws DataAccessException if there is any problem issuing the update
      * @see #update()
      * @see infra.jdbc.support.GeneratedKeyHolder
@@ -546,7 +540,6 @@ public interface JdbcClient {
      */
     int[] update(KeyHolder generatedKeyHolder, String... keyColumnNames);
   }
-
 
   /**
    * A specification for binding the parameters of a single batch entry,
@@ -556,8 +549,8 @@ public interface JdbcClient {
    * either as JDBC-style positional parameters or as Infra-style named parameters
    * (but not both).
    *
-   * @since 5.0
    * @see BatchSpec#entry(Consumer)
+   * @since 5.0
    */
   interface BatchEntry {
 
@@ -644,6 +637,7 @@ public interface JdbcClient {
      */
     BatchEntry paramSource(SqlParameterSource namedParamSource);
   }
+
   /**
    * A specification for simple result queries.
    */

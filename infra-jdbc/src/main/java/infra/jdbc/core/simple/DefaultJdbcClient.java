@@ -495,7 +495,6 @@ final class DefaultJdbcClient implements JdbcClient {
       }
     }
 
-
     private static class DefaultBatchEntry implements BatchEntry {
 
       private final List<@Nullable Object> indexedParams = new ArrayList<>();
