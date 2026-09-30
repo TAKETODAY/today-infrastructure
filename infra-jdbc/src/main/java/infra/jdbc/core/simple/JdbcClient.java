@@ -31,6 +31,7 @@ import java.util.stream.Stream;
 import javax.sql.DataSource;
 
 import infra.core.conversion.ConversionService;
+import infra.dao.DataAccessException;
 import infra.dao.support.DataAccessUtils;
 import infra.jdbc.core.JdbcOperations;
 import infra.jdbc.core.JdbcTemplate;
@@ -58,11 +59,14 @@ import infra.jdbc.support.rowset.SqlRowSet;
  *
  * <p>Delegates to {@link JdbcTemplate} and
  * {@link NamedParameterJdbcTemplate}.
- * For complex JDBC operations, e.g. batch inserts and stored procedure calls,
+ * Batch updates are supported in a fluent fashion through {@link StatementSpec#batch()};
+ * for other complex JDBC operations - for example, stored procedure calls -
  * you may use those lower-level template classes directly - or alternatively,
  * {@link SimpleJdbcInsert} and {@link SimpleJdbcCall}.
  *
  * @author Juergen Hoeller
+ * @author Jiri Krokviak
+ * @author Yanming Zhou
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ResultSetExtractor
  * @see RowCallbackHandler
@@ -372,6 +376,165 @@ public interface JdbcClient {
      * @see java.sql.DatabaseMetaData#supportsGetGeneratedKeys()
      */
     int update(KeyHolder generatedKeyHolder, String... keyColumnNames);
+
+    /**
+     * Begin a batch update for the provided SQL statement, accumulating several
+     * sets of parameters with each set representing the parameters for one
+     * statement execution within the batch.
+     * <p>Bind the parameters for each batch entry through the returned
+     * {@link BatchSpec} in the same fashion as for a single update, separating
+     * consecutive entries with {@link BatchSpec#add()}, and finally trigger
+     * execution through {@link BatchSpec#update()}:
+     * <pre class="code">
+     * int[] rowsAffected = client.sql("INSERT INTO user (first_name, last_name) VALUES (:first, :last)")
+     *     .batch()
+     *         .param("first", "Jane").param("last", "Smith").add()
+     *         .param("first", "John").param("last", "Doe")
+     *     .update();
+     * </pre>
+     * <p>The final batch entry does not need to be marked with {@code add()};
+     * {@link BatchSpec#update()} completes it implicitly.
+     *
+     * @return a batch specification for accumulating sets of parameters
+     * @since 5.0
+     * @see java.sql.PreparedStatement#executeBatch()
+     */
+    BatchSpec batch();
+  }
+
+
+  /**
+   * A specification for accumulating several sets of parameters for a batch
+   * update, with each set representing the parameters for one statement
+   * execution within the batch.
+   *
+   * <p>Parameters are bound in the same fashion as for a single {@link StatementSpec},
+   * either as JDBC-style positional parameters or as Infra-style named parameters
+   * (but not both within the same batch). A batch entry is completed and a new one
+   * started through {@link #add()}; the final entry is completed implicitly by
+   * {@link #update()}.
+   *
+   * @since 5.0
+   * @see StatementSpec#batch()
+   */
+  interface BatchSpec {
+
+    /**
+     * Bind a positional parameter for the current batch entry.
+     *
+     * @param value the parameter value to bind
+     * @return this batch specification (for chaining)
+     * @see StatementSpec#param(Object)
+     */
+    BatchSpec param(@Nullable Object value);
+
+    /**
+     * Bind a named parameter for the current batch entry.
+     *
+     * @param name the parameter name
+     * @param value the parameter value to bind
+     * @return this batch specification (for chaining)
+     * @see StatementSpec#param(String, Object)
+     */
+    BatchSpec param(String name, @Nullable Object value);
+
+    /**
+     * Bind a var-args list of positional parameters for the current batch entry.
+     *
+     * @param values the parameter values to bind
+     * @return this batch specification (for chaining)
+     * @see StatementSpec#params(Object...)
+     */
+    BatchSpec params(Object... values);
+
+    /**
+     * Bind a list of positional parameters for the current batch entry.
+     *
+     * @param values the parameter values to bind
+     * @return this batch specification (for chaining)
+     * @see StatementSpec#params(List)
+     */
+    BatchSpec params(List<?> values);
+
+    /**
+     * Bind named parameters for the current batch entry.
+     *
+     * @param paramMap a map of names and parameter values to bind
+     * @return this batch specification (for chaining)
+     * @see StatementSpec#params(Map)
+     */
+    BatchSpec params(Map<String, ?> paramMap);
+
+    /**
+     * Provide all named parameters for the current batch entry based on the
+     * properties, record components, or fields of the given parameter object.
+     *
+     * @param namedParamObject a custom parameter object
+     * @return this batch specification (for chaining)
+     * @see StatementSpec#paramSource(Object)
+     */
+    BatchSpec paramSource(Object namedParamObject);
+
+    /**
+     * Provide all named parameters for the current batch entry through the
+     * given parameter source.
+     *
+     * @param namedParamSource a custom {@link SqlParameterSource} instance
+     * @return this batch specification (for chaining)
+     * @see StatementSpec#paramSource(SqlParameterSource)
+     */
+    BatchSpec paramSource(SqlParameterSource namedParamSource);
+
+    /**
+     * Complete the current set of parameters as one batch entry and start a
+     * new one for the subsequent parameter bindings.
+     *
+     * @return this batch specification (for chaining)
+     */
+    BatchSpec add();
+
+    /**
+     * Execute the accumulated sets of parameters as a batch update, completing
+     * the current (final) set as the last batch entry.
+     *
+     * @return an array containing the numbers of rows affected by each execution in the batch
+     * (may also contain special JDBC-defined negative values for affected rows such as
+     * {@link java.sql.Statement#SUCCESS_NO_INFO}/{@link java.sql.Statement#EXECUTE_FAILED})
+     * @throws DataAccessException if there is any problem issuing the update
+     * @see java.sql.PreparedStatement#executeBatch()
+     */
+    int[] update();
+
+    /**
+     * Execute the accumulated sets of parameters as a batch update, completing
+     * the current (final) set as the last batch entry, returning generated keys.
+     *
+     * @param generatedKeyHolder a {@link KeyHolder} that will hold the generated keys
+     * @return an array containing the numbers of rows affected by each execution in the batch
+     * (may also contain special JDBC-defined negative values for affected rows such as
+     * {@link java.sql.Statement#SUCCESS_NO_INFO}/{@link java.sql.Statement#EXECUTE_FAILED})
+     * @throws DataAccessException if there is any problem issuing the update
+     * @see #update()
+     * @see infra.jdbc.support.GeneratedKeyHolder
+     * @see java.sql.DatabaseMetaData#supportsGetGeneratedKeys()
+     */
+    int[] update(KeyHolder generatedKeyHolder);
+
+    /**
+     * Execute the accumulated sets of parameters as a batch update, completing
+     * the current (final) set as the last batch entry, returning generated keys.
+     *
+     * @param generatedKeyHolder a {@link KeyHolder} that will hold the generated keys
+     * @param keyColumnNames names of the columns that will have keys generated for them
+     * @return an array containing the numbers of rows affected by each execution in the batch
+     * (may also contain special JDBC-defined negative values for affected rows such as
+     * {@link java.sql.Statement#SUCCESS_NO_INFO}/{@link java.sql.Statement#EXECUTE_FAILED})
+     * @throws DataAccessException if there is any problem issuing the update
+     * @see #update()
+     * @see infra.jdbc.support.GeneratedKeyHolder
+     * @see java.sql.DatabaseMetaData#supportsGetGeneratedKeys()
+     */
+    int[] update(KeyHolder generatedKeyHolder, String... keyColumnNames);
   }
 
   /**
