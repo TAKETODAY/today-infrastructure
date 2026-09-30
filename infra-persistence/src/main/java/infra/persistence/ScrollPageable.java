@@ -16,12 +16,14 @@
 
 package infra.persistence;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.util.Assert;
 
 /**
  * Request parameters for a {@linkplain EntityManager#scroll scroll} operation:
- * the window size and the position at which to resume. Requests start at the
- * initial keyset position by default.
+ * the window size and the position at which to resume. A {@code null} position
+ * starts at the beginning.
  *
  * <p>The keyset order is resolved from the query condition or the entity's
  * {@link infra.persistence.annotation.OrderBy @OrderBy} declarations.
@@ -30,27 +32,26 @@ import infra.util.Assert;
  *
  * @param pageSize the maximum number of rows per window, between 1 and
  * {@code Integer.MAX_VALUE - 1}
- * @param position the position at which to resume scrolling
+ * @param position the position at which to resume scrolling, or {@code null} to start
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see ScrollPosition
  * @since 5.0
  */
-public record ScrollPageable(int pageSize, ScrollPosition position) {
+public record ScrollPageable(int pageSize, @Nullable ScrollPosition position) {
 
   public ScrollPageable {
     Assert.isTrue(pageSize > 0 && pageSize < Integer.MAX_VALUE,
             "Page size must be between 1 and Integer.MAX_VALUE - 1");
-    Assert.notNull(position, "ScrollPosition is required");
   }
 
   /**
-   * Create a request with the given window size and no explicit order.
+   * Create a request for the first window with the given window size.
    *
    * @param pageSize the maximum number of rows per window
    * @return a scroll request
    */
   public static ScrollPageable of(int pageSize) {
-    return new ScrollPageable(pageSize, ScrollPosition.INITIAL);
+    return new ScrollPageable(pageSize, null);
   }
 
   /**
@@ -59,8 +60,7 @@ public record ScrollPageable(int pageSize, ScrollPosition position) {
    * @param position the position to resume after
    * @return a request with the given position
    */
-  public ScrollPageable withPosition(ScrollPosition position) {
-    Assert.notNull(position, "ScrollPosition is required");
+  public ScrollPageable withPosition(@Nullable ScrollPosition position) {
     return new ScrollPageable(pageSize, position);
   }
 

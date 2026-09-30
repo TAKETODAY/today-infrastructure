@@ -36,7 +36,7 @@ class ScrollIteratorTests {
   @Test
   void iteratesAllElementsAcrossScrolls() {
     ScrollIterator<Integer> iterator = ScrollIterator.of(position -> {
-      int from = position.isInitial() ? 0 : (int) position.cursor().get(0).value() + 1;
+      int from = position == null ? 0 : (int) position.cursor().get(0).value() + 1;
       int to = Math.min(from + 2, VALUES.size());
       return window(VALUES.subList(from, to), to >= VALUES.size());
     });
@@ -55,6 +55,24 @@ class ScrollIteratorTests {
 
     assertThat(iterator.hasNext()).isFalse();
     assertThatThrownBy(iterator::next).isInstanceOf(NoSuchElementException.class);
+  }
+
+  @Test
+  void scrollWindowConveniences() {
+    Scroll<Integer> window = window(List.of(1, 2), false);
+    assertThat(window.hasNext()).isTrue();
+    assertThat(window.lastRow()).isEqualTo(2);
+    assertThat(window.position()).isEqualTo(window.positionAt(1));
+
+    Scroll<Integer> last = window(List.of(3), true);
+    assertThat(last.hasNext()).isFalse();
+    assertThat(last.lastRow()).isEqualTo(3);
+
+    Scroll<Integer> empty = window(List.of(), true);
+    assertThat(empty.isEmpty()).isTrue();
+    assertThat(empty.hasNext()).isFalse();
+    assertThatThrownBy(empty::lastRow).isInstanceOf(IllegalStateException.class);
+    assertThatThrownBy(empty::position).isInstanceOf(IllegalStateException.class);
   }
 
   @Test
