@@ -18,7 +18,10 @@
 
 package infra.beans.factory;
 
+import java.lang.reflect.Type;
+
 import infra.beans.BeansException;
+import infra.core.ResolvableType;
 import infra.util.ClassUtils;
 
 /**
@@ -35,7 +38,7 @@ public class BeanNotOfRequiredTypeException extends BeansException {
   private final String beanName;
 
   /** The required type. */
-  private final Class<?> requiredType;
+  private final Type genericRequiredType;
 
   /** The offending type. */
   private final Class<?> actualType;
@@ -49,11 +52,22 @@ public class BeanNotOfRequiredTypeException extends BeansException {
    * the expected type
    */
   public BeanNotOfRequiredTypeException(String beanName, Class<?> requiredType, Class<?> actualType) {
+    this(beanName, (Type) requiredType, actualType);
+  }
+
+  /**
+   * Create an exception for a generic required type.
+   * @param beanName the requested bean name
+   * @param requiredType the generic type required
+   * @param actualType the actual bean type
+   * @since 5.0
+   */
+  public BeanNotOfRequiredTypeException(String beanName, Type requiredType, Class<?> actualType) {
     super("Bean named '%s' is expected to be of type '%s' but was actually of type '%s'"
-            .formatted(beanName, ClassUtils.getQualifiedName(requiredType), ClassUtils.getQualifiedName(actualType)));
+            .formatted(beanName, requiredType.getTypeName(), ClassUtils.getQualifiedName(actualType)));
     this.beanName = beanName;
     this.actualType = actualType;
-    this.requiredType = requiredType;
+    this.genericRequiredType = requiredType;
   }
 
   /**
@@ -67,7 +81,15 @@ public class BeanNotOfRequiredTypeException extends BeansException {
    * Return the expected type for the bean.
    */
   public Class<?> getRequiredType() {
-    return this.requiredType;
+    return genericRequiredType instanceof Class<?> clazz ? clazz : ResolvableType.forType(genericRequiredType).toClass();
+  }
+
+  /**
+   * Return the generic type required for the bean.
+   * @since 5.0
+   */
+  public Type getGenericRequiredType() {
+    return this.genericRequiredType;
   }
 
   /**

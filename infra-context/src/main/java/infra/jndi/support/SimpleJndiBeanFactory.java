@@ -140,6 +140,17 @@ public class SimpleJndiBeanFactory extends JndiLocatorSupport implements BeanFac
   }
 
   @Override
+  @SuppressWarnings("unchecked")
+  public <T> T getBean(String name, infra.core.ParameterizedTypeReference<T> typeReference) throws BeansException {
+    Object bean = getBean(name);
+    java.lang.reflect.Type requiredType = typeReference.getType();
+    if (!infra.core.ResolvableType.forType(requiredType).isInstance(bean)) {
+      throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
+    }
+    return (T) bean;
+  }
+
+  @Override
   public Object getBean(String name, @Nullable Object @Nullable ... args) throws BeansException {
     if (args != null) {
       throw new UnsupportedOperationException(

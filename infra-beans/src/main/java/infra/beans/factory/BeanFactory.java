@@ -208,6 +208,22 @@ public interface BeanFactory extends DependencyInjectorProvider {
   <T> T getBean(String name, Class<T> requiredType) throws BeansException;
 
   /**
+   * Return a named bean whose generic type matches the supplied reference.
+   * Aliases and parent factories are handled in the same way as {@link #getBean(String)}.
+   * A type mismatch raises {@link BeanNotOfRequiredTypeException}, including
+   * when a factory method supplies a null stub.
+   * @param name the name of the bean to retrieve
+   * @param typeReference the generic type the bean must match
+   * @return the matching bean instance
+   * @throws NoSuchBeanDefinitionException if there is no such bean
+   * @throws BeanNotOfRequiredTypeException if the bean does not match
+   * @throws BeansException if bean creation fails
+   * @since 5.0
+   * @see #getBean(String, Class)
+   */
+  <T> T getBean(String name, ParameterizedTypeReference<T> typeReference) throws BeansException;
+
+  /**
    * Is this bean a shared singleton? That is, will {@link #getBean} always
    * return the same instance?
    * <p>Note: This method returning {@code false} does not clearly indicate
