@@ -215,8 +215,8 @@ class ResponseBodyEmitterReturnValueHandlerTests {
             "event:update\n" +
             "id:1\n" +
             "retry:5000\n" +
-            "data:{\"id\":1,\"name\":\"Joe\"}\n" +
-            "data:{\"id\":2,\"name\":\"John\"}\n" +
+            "data: {\"id\":1,\"name\":\"Joe\"}\n" +
+            "data: {\"id\":2,\"name\":\"John\"}\n" +
             "\n"));
   }
 
@@ -238,7 +238,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     sink.tryEmitComplete();
 
     assertThat(this.response.getContentType()).isEqualTo("text/event-stream");
-    assertThat(this.response.getContentAsString()).isEqualTo("data:foo\n\ndata:bar\n\ndata:baz\n\n");
+    assertThat(this.response.getContentAsString()).isEqualTo("data: foo\n\ndata: bar\n\ndata: baz\n\n");
   }
 
   @Test // gh-21972
@@ -328,7 +328,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     assertThat(this.request.isAsyncStarted()).isTrue();
     assertThat(this.response.getStatus()).isEqualTo(200);
     assertThat(this.response.getContentType()).isEqualTo("text/event-stream");
-    assertThat(this.response.getContentAsString()).isEqualTo("data:foo\n\ndata:bar\n\n");
+    assertThat(this.response.getContentAsString()).isEqualTo("data: foo\n\ndata: bar\n\n");
   }
 
   @Test
