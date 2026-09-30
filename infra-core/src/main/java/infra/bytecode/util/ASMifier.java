@@ -97,7 +97,7 @@ public class ASMifier extends Printer {
           Map.entry(Opcodes.V21, "V21"), Map.entry(Opcodes.V22, "V22"),
           Map.entry(Opcodes.V23, "V23"), Map.entry(Opcodes.V24, "V24"),
           Map.entry(Opcodes.V25, "V25"), Map.entry(Opcodes.V26, "V26"),
-          Map.entry(Opcodes.V27, "V27")
+          Map.entry(Opcodes.V27, "V27"), Map.entry(Opcodes.V28, "V28")
   );
 
   /** The name of the visitor variable in the produced code. */

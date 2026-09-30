@@ -555,6 +555,18 @@ class ClassReaderTests extends AsmTest implements Opcodes {
   }
 
   @Test
+  void testTemporarilyNotAccept_V28_previewClass() {
+    byte[] classFile = PrecompiledClass.JDK11_ALL_INSTRUCTIONS.getBytes();
+    // Set the minor version to 65535.
+    classFile[4] = (byte) 0xFF;
+    classFile[5] = (byte) 0xFF;
+    // set major version to 28
+    classFile[6] = (byte) 0x1C;
+    classFile[7] = (byte) 0x00;
+    assertThrows(IllegalArgumentException.class, () -> new ClassReader(classFile));
+  }
+
+  @Test
   void testAccept_invalidCustomAttribute() {
     byte[] input = Base64.getDecoder().decode("IftdBAAAAAAAAgEAAAD/AAAAAAAAAAAAAAIBAAF/////");
     ClassReader reader = new ClassReader(input);

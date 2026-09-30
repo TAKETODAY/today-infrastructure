@@ -282,6 +282,7 @@ public interface Opcodes {
   int V25 = 0 << 16 | 69;
   int V26 = 0 << 16 | 70;
   int V27 = 0 << 16 | 71;
+  int V28 = 0 << 16 | 72;
 
   int JAVA_VERSION = V17;
 
