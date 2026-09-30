@@ -413,7 +413,7 @@ public Mono<Void> reactiveSomething() {
       return Mono.fromRunnable(() -> System.out.println("Message"));
     }
     return Mono.error(new IllegalStateException("Cannot deliver message"));
-  })
+  });
 }
 ----
 
