@@ -432,7 +432,7 @@ public class Label {
     boolean hasAsmInstructions = false;
     int offset = lastForwardReference & 0xFFFF;
     while (offset != 0) {
-      final int nextOffset = ((code[offset] & 0xFF) << 8) | (code[offset + 1] & 0xFF);
+      final int previousOffset = ((code[offset] & 0xFF) << 8) | (code[offset + 1] & 0xFF);
       final int sourceInsnBytecodeOffset = offset - 1;
       final int relativeOffset = bytecodeOffset - sourceInsnBytecodeOffset;
       if (relativeOffset < Short.MIN_VALUE || relativeOffset > Short.MAX_VALUE) {
@@ -453,12 +453,12 @@ public class Label {
       }
       code[offset++] = (byte) (relativeOffset >>> 8);
       code[offset] = (byte) relativeOffset;
-      offset = nextOffset;
+      offset = previousOffset;
     }
 
     offset = lastWideForwardReference & 0xFFFF;
     while (offset != 0) {
-      final int nextOffset = ((code[offset] & 0xFF) << 8) | (code[offset + 1] & 0xFF);
+      final int previousOffset = ((code[offset] & 0xFF) << 8) | (code[offset + 1] & 0xFF);
       final int sourceInsnBytecodeOffset =
               ((code[offset + 2] & 0xFF) << 8) | (code[offset + 3] & 0xFF);
       final int relativeOffset = bytecodeOffset - sourceInsnBytecodeOffset;
@@ -466,16 +466,16 @@ public class Label {
       code[offset++] = (byte) (relativeOffset >>> 16);
       code[offset++] = (byte) (relativeOffset >>> 8);
       code[offset] = (byte) relativeOffset;
-      offset = nextOffset;
+      offset = previousOffset;
     }
 
     offset = lastStackMapForwardReference & 0xFFFF;
     while (offset != 0) {
       final byte[] data = stackMapTableEntries.data;
-      final int nextOffset = ((data[offset] & 0xFF) << 8) | (data[offset + 1] & 0xFF);
+      final int previousOffset = ((data[offset] & 0xFF) << 8) | (data[offset + 1] & 0xFF);
       data[offset++] = (byte) (bytecodeOffset >>> 8);
       data[offset] = (byte) bytecodeOffset;
-      offset = nextOffset;
+      offset = previousOffset;
     }
 
     lastForwardReference = 0;
