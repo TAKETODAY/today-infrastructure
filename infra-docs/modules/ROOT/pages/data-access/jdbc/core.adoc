@@ -549,14 +549,25 @@ this.jdbcClient.sql("insert into t_actor (first_name, last_name) values (:firstN
     .update();
 ----
 
-对于批量更新，可通过 `batch()` 以流式方式累积批次条目：每个条目的参数绑定方式与单条更新相同——既可以是有位置参数，也可以是命名参数——并使用 `add()` 分隔相邻条目。累积的条目由 `update()` 作为一个 JDBC 批次执行，同时隐式完成最后一个条目：
+对于批量更新，可通过 `batch()` 以流式方式累积批次条目：通过 `entry(...)` 定义每个条目——既可以传入一个与单条更新一样绑定位置或命名参数的回调，也可以传入位置参数的 `List` 或命名参数的 `Map`。累积的条目由 `update()` 作为一个 JDBC 批次执行：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 this.jdbcClient.sql("insert into t_actor (first_name, last_name) values (:firstName, :lastName)")
     .batch()
-        .param("firstName", "Leonor").param("lastName", "Watling").add()
-        .param("firstName", "Christian").param("lastName", "Bale")
+        .entry(entry -> entry.param("firstName", "Leonor").param("lastName", "Watling"))
+        .entry(entry -> entry.param("firstName", "Christian").param("lastName", "Bale"))
+    .update();
+----
+
+也可以通过 `entries(...)` 一次性定义多个条目，其中每个给定的参数源对象（例如 `Actor` 记录）代表一个条目。`entry(...)` 与 `entries(...)` 调用可在同一批次中自由组合：
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+List<Actor> actors = ...;
+this.jdbcClient.sql("insert into t_actor (first_name, last_name) values (:firstName, :lastName)")
+    .batch()
+        .entries(actors)
     .update();
 ----
 
