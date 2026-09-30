@@ -89,7 +89,9 @@ public class JsonbTester<T> extends AbstractJsonMarshalTester<T> {
 
   @Override
   protected T readObject(Reader reader, ResolvableType type) throws IOException {
-    return this.jsonb.fromJson(reader, type.getType());
+    try (reader) {
+      return this.jsonb.fromJson(reader, type.getType());
+    }
   }
 
   /**

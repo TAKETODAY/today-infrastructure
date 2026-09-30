@@ -22,7 +22,6 @@ import org.assertj.core.api.Assertions;
 import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedReader;
-import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -315,7 +314,6 @@ public abstract class AbstractJsonMarshalTester<T> {
     Assert.notNull(resource, "'resource' is required");
     InputStream inputStream = resource.getInputStream();
     T object = readObject(inputStream, getTypeNotNull());
-    closeQuietly(inputStream);
     return new ObjectContent<>(this.type, object);
   }
 
@@ -342,17 +340,7 @@ public abstract class AbstractJsonMarshalTester<T> {
     verify();
     Assert.notNull(reader, "'reader' is required");
     T object = readObject(reader, getTypeNotNull());
-    closeQuietly(reader);
     return new ObjectContent<>(this.type, object);
-  }
-
-  private void closeQuietly(Closeable closeable) {
-    try {
-      closeable.close();
-    }
-    catch (IOException ex) {
-      // Ignore
-    }
   }
 
   private void verify() {
