@@ -32,6 +32,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
@@ -98,6 +99,28 @@ class JdkClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTests {
 
     try (ClientHttpResponse response = request.execute()) {
       assertThat(response.getStatusCode()).as("Invalid response status").isEqualTo(HttpStatus.OK);
+    }
+  }
+
+  @Test
+  void readTimeoutZeroShouldNotThrowException() throws Exception {
+    ((JdkClientHttpRequestFactory) factory).setReadTimeout(0);
+    URI uri = URI.create(this.baseUrl + "/methods/get");
+    ClientHttpRequest request =
+            new BufferingClientHttpRequestFactory(this.factory).createRequest(uri, HttpMethod.GET);
+    try (ClientHttpResponse response = request.execute()) {
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+  }
+
+  @Test
+  void readTimeoutDurationZeroShouldNotThrowException() throws Exception {
+    ((JdkClientHttpRequestFactory) factory).setReadTimeout(Duration.ZERO);
+    URI uri = URI.create(this.baseUrl + "/methods/get");
+    ClientHttpRequest request =
+            new BufferingClientHttpRequestFactory(this.factory).createRequest(uri, HttpMethod.GET);
+    try (ClientHttpResponse response = request.execute()) {
+      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
   }
 
