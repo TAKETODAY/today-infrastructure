@@ -338,7 +338,7 @@ class DefaultPartHttpMessageReaderTests extends AbstractLeakCheckingTests {
   @ParameterizedDefaultPartHttpMessageReaderTest
   void emptyLastPart(DefaultPartHttpMessageReader reader) throws InterruptedException {
     MockServerHttpRequest request = createRequest(
-            "empty-part.multipart", "LiG0chJ0k7YtLt-FzTklYFgz50i88xJCW5jD");
+            "empty-part-last.multipart", "LiG0chJ0k7YtLt-FzTklYFgz50i88xJCW5jD");
 
     Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
 
@@ -346,6 +346,21 @@ class DefaultPartHttpMessageReaderTests extends AbstractLeakCheckingTests {
     StepVerifier.create(result)
             .consumeNextWith(part -> testPart(part, null, "", latch))
             .consumeNextWith(part -> testPart(part, null, "", latch))
+            .verifyComplete();
+
+    latch.await();
+  }
+
+  @ParameterizedDefaultPartHttpMessageReaderTest
+  void emptyPartNotLast(DefaultPartHttpMessageReader reader) throws InterruptedException {
+    MockServerHttpRequest request = createRequest("empty-part.multipart", "simple-boundary");
+
+    Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
+
+    CountDownLatch latch = new CountDownLatch(2);
+    StepVerifier.create(result)
+            .consumeNextWith(part -> testPart(part, "file", "", latch)).as("file")
+            .consumeNextWith(part -> testPart(part, "action", "asd", latch)).as("action")
             .verifyComplete();
 
     latch.await();
