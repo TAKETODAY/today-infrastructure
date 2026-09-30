@@ -37,9 +37,13 @@ import infra.core.env.Environment;
  * {@link ConfigurationProperties @ConfigurationProperties},
  * the default value for the property will not be used even if the property value is
  * empty.
+ * <p>
+ * Property placeholders in the default value are resolved using the {@link Binder}'s
+ * {@link PlaceholdersResolver} before the value is converted to the property's type.
  *
  * @author Madhura Bhave
  * @author Pavel Anisimov
+ * @author Wan bin yu
  * @since 4.0
  */
 @Documented

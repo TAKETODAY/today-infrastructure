@@ -135,10 +135,20 @@ class ValueObjectBinder implements DataObjectBinder {
         if (defaultValue.length == 0) {
           return getNewDefaultValueInstanceIfPossible(context, type);
         }
-        return convertDefaultValue(context.getConverter(), defaultValue, type, annotations);
+        return convertDefaultValue(context.getConverter(),
+                resolveDefaultValue(context.getPlaceholdersResolver(), defaultValue), type, annotations);
       }
     }
     return null;
+  }
+
+  private String[] resolveDefaultValue(PlaceholdersResolver resolver, String[] defaultValue) {
+    String[] resolved = new String[defaultValue.length];
+    for (int i = 0; i < defaultValue.length; i++) {
+      Object value = resolver.resolvePlaceholders(defaultValue[i]);
+      resolved[i] = String.valueOf(value);
+    }
+    return resolved;
   }
 
   @Nullable
