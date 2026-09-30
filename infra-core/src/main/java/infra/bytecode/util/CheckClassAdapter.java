@@ -45,6 +45,7 @@ import infra.bytecode.ClassVisitor;
 import infra.bytecode.ClassWriter;
 import infra.bytecode.FieldVisitor;
 import infra.bytecode.Label;
+import infra.bytecode.LimitExceededException;
 import infra.bytecode.MethodVisitor;
 import infra.bytecode.ModuleVisitor;
 import infra.bytecode.Opcodes;
@@ -116,8 +117,8 @@ public class CheckClassAdapter extends ClassVisitor {
 
   /** The help message shown when command line arguments are incorrect. */
   private static final String USAGE =
-          "Verifies the given class.\n"
-                  + "Usage: CheckClassAdapter <fully qualified class name or class file name>";
+          "Usage: CheckClassAdapter [--maxBytes INTEGER] [--maxOperations LONG] "
+                  + "<fully qualified class name or class file name>";
 
   private static final String ERROR_AT = ": error at index ";
 
@@ -154,6 +155,12 @@ public class CheckClassAdapter extends ClassVisitor {
   /** The index of the instruction designated by each visited label so far. */
   private final Map<Label, Integer> labelInsnIndices;
 
+  /** The maximum number of bytes which can be allocated per analyzed method. */
+  private int maxBytes = CheckMethodAdapter.DEFAULT_MAX_MEMORY_LIMIT;
+
+  /** The maximum number of "operations" which can be performed per analyzed method. */
+  private long maxOperations = CheckMethodAdapter.DEFAULT_MAX_OPERATIONS_LIMIT;
+
   // -----------------------------------------------------------------------------------------------
   // Constructors
   // -----------------------------------------------------------------------------------------------
@@ -177,6 +184,28 @@ public class CheckClassAdapter extends ClassVisitor {
     super(classVisitor);
     this.labelInsnIndices = new HashMap<>();
     this.checkDataFlow = checkDataFlow;
+  }
+
+  /**
+   * Sets the maximum number of bytes which can be allocated, and the maximum number of "operations"
+   * which can be performed, for the data flow checks of each method (which are only performed if
+   * the checkDataFlow option is set in the {@link #CheckClassAdapter(ClassVisitor,boolean)} or
+   * {@link #CheckClassAdapter(int, ClassVisitor, boolean)} constructors are used). Operations are
+   * not formally defined but their total number is deterministic and approximatively proportional
+   * to the computation time.
+   *
+   * <p>The default limits should be sufficient for any "normal" class. You only need to set new
+   * limits if a {@link LimitExceededException} is thrown for some of your classes.
+   *
+   * @param maxBytes the maximum number of bytes which can be allocated. Not all object
+   * instantiations are tracked (and garbage collection is ignored), but the most important ones
+   * are. The default value is 400MB.
+   * @param maxOperations the maximum number of "operations" that can be performed. The default
+   * value is 50 billions.
+   */
+  public void setComputeLimits(final int maxBytes, final long maxOperations) {
+    this.maxBytes = maxBytes;
+    this.maxOperations = maxOperations;
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -454,6 +483,7 @@ public class CheckClassAdapter extends ClassVisitor {
       checkMethodAdapter = new CheckMethodAdapter(methodVisitor, labelInsnIndices);
     }
     checkMethodAdapter.version = version;
+    checkMethodAdapter.setComputeLimits(maxBytes, maxOperations);
     return checkMethodAdapter;
   }
 
@@ -974,23 +1004,87 @@ public class CheckClassAdapter extends ClassVisitor {
    * @throws IOException if the class cannot be found, or if an IO exception occurs.
    */
   static void main(final String[] args, final PrintWriter logger) throws IOException {
-    if (args.length != 1) {
-      logger.println(USAGE);
+    // Define default or unassigned values for optional flags
+    int maxBytes = CheckMethodAdapter.DEFAULT_MAX_MEMORY_LIMIT;
+    long maxOperations = CheckMethodAdapter.DEFAULT_MAX_OPERATIONS_LIMIT;
+    String className = null;
+
+    int i = 0;
+    while (i < args.length) {
+      switch (args[i]) {
+        case "--maxBytes":
+          if (i + 1 < args.length) {
+            try {
+              maxBytes = Integer.parseInt(args[++i]);
+            }
+            catch (NumberFormatException e) {
+              printUsageAndExit("Error: --maxBytes requires a valid integer.", logger);
+              return;
+            }
+          }
+          else {
+            printUsageAndExit("Error: --maxBytes missing value.", logger);
+            return;
+          }
+          break;
+
+        case "--maxOperations":
+          if (i + 1 < args.length) {
+            try {
+              maxOperations = Long.parseLong(args[++i]);
+            }
+            catch (NumberFormatException e) {
+              printUsageAndExit("Error: --maxOperations requires a valid long integer.", logger);
+              return;
+            }
+          }
+          else {
+            printUsageAndExit("Error: --maxOperations missing value.", logger);
+            return;
+          }
+          break;
+
+        default:
+          if (args[i].startsWith("--")) {
+            printUsageAndExit("Error: unknown option '" + args[i] + "'.", logger);
+            return;
+          }
+          else if (className != null) {
+            printUsageAndExit("Error: extra class name '" + args[i] + "'.", logger);
+            return;
+          }
+          else {
+            className = args[i];
+          }
+          break;
+      }
+      ++i;
+    }
+
+    // Validate required arguments
+    if (className == null) {
+      printUsageAndExit("Error: class name is required.", logger);
       return;
     }
 
     ClassReader classReader;
-    if (args[0].endsWith(".class")) {
+    if (className.endsWith(".class")) {
       // Can't fix PMD warning for 1.5 compatibility.
-      try (InputStream inputStream = new FileInputStream(args[0])) { // NOPMD(AvoidFileStream)
+      try (InputStream inputStream = new FileInputStream(className)) { // NOPMD(AvoidFileStream)
         classReader = new ClassReader(inputStream);
       }
     }
     else {
-      classReader = new ClassReader(args[0]);
+      classReader = new ClassReader(className);
     }
 
-    verify(classReader, false, logger);
+    verify(classReader, null, false, logger, maxBytes, maxOperations);
+  }
+
+  private static void printUsageAndExit(final String error, final PrintWriter logger) {
+    logger.println(error);
+    logger.println(USAGE);
+    System.exit(1); // NOPMD(DoNotTerminateVM): ok for a command line tool.
   }
 
   /**
@@ -1019,6 +1113,34 @@ public class CheckClassAdapter extends ClassVisitor {
           final ClassLoader loader,
           final boolean printResults,
           final PrintWriter printWriter) {
+    verify(
+            classReader,
+            loader,
+            printResults,
+            printWriter,
+            CheckMethodAdapter.DEFAULT_MAX_MEMORY_LIMIT,
+            CheckMethodAdapter.DEFAULT_MAX_OPERATIONS_LIMIT);
+  }
+
+  /**
+   * Checks the given class.
+   *
+   * @param classReader the class to be checked.
+   * @param loader a {@link ClassLoader} which will be used to load referenced classes. May be
+   * {@literal null}.
+   * @param printResults whether to print the results of the bytecode verification.
+   * @param printWriter where the results (or the stack trace in case of error) must be printed.
+   * @param maxBytes the maximum number of bytes which can be allocated per analyzed method.
+   * @param maxOperations the maximum number of "operations" which can be performed per analyzed
+   * method.
+   */
+  public static void verify(
+          final ClassReader classReader,
+          final ClassLoader loader,
+          final boolean printResults,
+          final PrintWriter printWriter,
+          final int maxBytes,
+          final long maxOperations) {
     ClassNode classNode = new ClassNode();
     classReader.accept(
             new CheckClassAdapter(classNode, false) { },
@@ -1034,13 +1156,15 @@ public class CheckClassAdapter extends ClassVisitor {
                       (classNode.access & Opcodes.ACC_INTERFACE) != 0,
                       Type.forObjectTypes(classNode.interfaces));
       Analyzer<BasicValue> analyzer = new Analyzer<>(verifier);
+      analyzer.setComputeLimits(maxBytes, maxOperations);
       if (loader != null) {
         verifier.setClassLoader(loader);
       }
       try {
         analyzer.analyze(classNode.name, method);
       }
-      catch (AnalyzerException e) {
+      catch (LimitExceededException | AnalyzerException e) {
+        printWriter.println("Error in " + method.name + method.desc + ":");
         e.printStackTrace(printWriter);
       }
       if (printResults) {

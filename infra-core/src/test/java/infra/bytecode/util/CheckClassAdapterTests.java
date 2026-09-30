@@ -36,8 +36,10 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Method;
 
 import infra.bytecode.AsmTest;
 import infra.bytecode.Attribute;
@@ -63,8 +65,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class CheckClassAdapterTests extends AsmTest implements Opcodes {
 
   private static final String EXPECTED_USAGE =
-          "Verifies the given class.\n"
-                  + "Usage: CheckClassAdapter <fully qualified class name or class file name>";
+          "Usage: CheckClassAdapter [--maxBytes INTEGER] [--maxOperations LONG] "
+                  + "<fully qualified class name or class file name>";
 
   @Test
   void testConstructor() {
@@ -557,24 +559,109 @@ class CheckClassAdapterTests extends AsmTest implements Opcodes {
   }
 
   @Test
-  void testMain_missingClassName() throws IOException {
+  void testMain_missingClassName() throws Exception {
     StringWriter logger = new StringWriter();
     String[] args = new String[0];
+    Method main = getCheckClassAdapterMainMethodWithoutSystemExit();
 
-    CheckClassAdapter.main(args, new PrintWriter(logger, true));
+    main.invoke(null, args, new PrintWriter(logger, true));
 
-    assertEquals(EXPECTED_USAGE, logger.toString().trim());
+    assertEquals("Error: class name is required.\n" + EXPECTED_USAGE, logger.toString().trim());
   }
 
   @Test
-  void testMain_tooManyArguments() throws IOException {
+  void testMain_tooManyArguments() throws Exception {
     StringWriter logger = new StringWriter();
     String[] args = { getClass().getName(), "extraArgument" };
+    Method main = getCheckClassAdapterMainMethodWithoutSystemExit();
 
-    CheckClassAdapter.main(args, new PrintWriter(logger, true));
+    main.invoke(null, args, new PrintWriter(logger, true));
 
-    assertEquals(EXPECTED_USAGE, logger.toString().trim());
+    assertEquals(
+            "Error: extra class name 'extraArgument'.\n" + EXPECTED_USAGE, logger.toString().trim());
   }
+
+  @Test
+  void testMain_unknownOption() throws Exception {
+    StringWriter logger = new StringWriter();
+    String[] args = new String[] { "--foo", getClass().getName() };
+    Method main = getCheckClassAdapterMainMethodWithoutSystemExit();
+
+    main.invoke(null, args, new PrintWriter(logger, true));
+
+    assertEquals("Error: unknown option '--foo'.\n" + EXPECTED_USAGE, logger.toString().trim());
+  }
+
+  @Test
+  void testMain_missingMaxBytesValue() throws Exception {
+    StringWriter logger = new StringWriter();
+    String[] args = new String[] { getClass().getName(), "--maxBytes" };
+    Method main = getCheckClassAdapterMainMethodWithoutSystemExit();
+
+    main.invoke(null, args, new PrintWriter(logger, true));
+
+    assertEquals("Error: --maxBytes missing value.\n" + EXPECTED_USAGE, logger.toString().trim());
+  }
+
+  @Test
+  void testMain_missingMaxOperationsValue() throws Exception {
+    StringWriter logger = new StringWriter();
+    String[] args = new String[] { getClass().getName(), "--maxOperations" };
+    Method main = getCheckClassAdapterMainMethodWithoutSystemExit();
+
+    main.invoke(null, args, new PrintWriter(logger, true));
+
+    assertEquals(
+            "Error: --maxOperations missing value.\n" + EXPECTED_USAGE, logger.toString().trim());
+  }
+
+  @Test
+  void testMain_badMaxBytesValue() throws Exception {
+    StringWriter logger = new StringWriter();
+    String[] args = new String[] { "--maxBytes", "ten", getClass().getName() };
+    Method main = getCheckClassAdapterMainMethodWithoutSystemExit();
+
+    main.invoke(null, args, new PrintWriter(logger, true));
+
+    assertEquals(
+            "Error: --maxBytes requires a valid integer.\n" + EXPECTED_USAGE, logger.toString().trim());
+  }
+
+  @Test
+  void testMain_badMaxOperationsValue() throws Exception {
+    StringWriter logger = new StringWriter();
+    String[] args = new String[] { "--maxOperations", "ten", getClass().getName() };
+    Method main = getCheckClassAdapterMainMethodWithoutSystemExit();
+
+    main.invoke(null, args, new PrintWriter(logger, true));
+
+    assertEquals(
+            "Error: --maxOperations requires a valid long integer.\n" + EXPECTED_USAGE,
+            logger.toString().trim());
+  }
+
+  @Test
+  void testMain_tooManyAllocatedBytes() throws Exception {
+    StringWriter logger = new StringWriter();
+    String[] args = { "--maxBytes", "100", getClass().getName() };
+    Method main = getCheckClassAdapterMainMethodWithoutSystemExit();
+
+    main.invoke(null, args, new PrintWriter(logger, true));
+
+    assertTrue(logger.toString().contains("LimitExceededException: Too many allocated bytes"));
+  }
+
+  @Test
+  void testMain_tooManyOperations() throws Exception {
+    StringWriter logger = new StringWriter();
+    String[] args = { "--maxOperations", "100", getClass().getName() };
+    Method main = getCheckClassAdapterMainMethodWithoutSystemExit();
+
+    main.invoke(null, args, new PrintWriter(logger, true));
+
+    assertTrue(logger.toString().contains("LimitExceededException: Too many operations"));
+  }
+
 
   @Test
   void testMain_classFileNotFound() {
@@ -602,6 +689,18 @@ class CheckClassAdapterTests extends AsmTest implements Opcodes {
   void testMain_className() throws IOException {
     StringWriter logger = new StringWriter();
     String[] args = { getClass().getName() };
+
+    CheckClassAdapter.main(args, new PrintWriter(logger, true));
+
+    assertEquals("", logger.toString());
+  }
+
+  @Test
+  void testMain_classNameWithComputeLimits() throws IOException {
+    StringWriter logger = new StringWriter();
+    String[] args = {
+            "--maxBytes", "40000000", "--maxOperations", "5000000000", getClass().getName()
+    };
 
     CheckClassAdapter.main(args, new PrintWriter(logger, true));
 
@@ -653,7 +752,8 @@ class CheckClassAdapterTests extends AsmTest implements Opcodes {
     String log = logger.toString();
     assertTrue(
             log.startsWith(
-                    AnalyzerException.class.getName()
+                    "Error in m()V:\n"
+                            + AnalyzerException.class.getName()
                             + ": Error at instruction 1: Expected I, but found LC;"));
   }
 
@@ -663,5 +763,80 @@ class CheckClassAdapterTests extends AsmTest implements Opcodes {
 
   Object methodWithObjectArrayArgument(final Object[] arg) {
     return arg;
+  }
+
+  private Method getCheckClassAdapterMainMethodWithoutSystemExit() throws Exception {
+    ClassLoader removeSystemExitClassLoader =
+            new SystemExitRemovingClassLoader(getClass().getClassLoader());
+    Class<?> checkClassAdapterClass =
+            removeSystemExitClassLoader.loadClass(CheckClassAdapter.class.getName());
+    Method main =
+            checkClassAdapterClass.getDeclaredMethod("main", String[].class, PrintWriter.class);
+    main.setAccessible(true); // NOPMD(AvoidAccessibilityAlteration): ok for tests.
+    return main;
+  }
+
+  private static final class SystemExitRemovingClassLoader extends ClassLoader {
+
+    SystemExitRemovingClassLoader(final ClassLoader parent) {
+      super(parent);
+    }
+
+    @Override
+    public Class<?> loadClass(final String name) throws ClassNotFoundException {
+      if (!name.startsWith("infra.bytecode.util.")) {
+        return super.loadClass(name);
+      }
+      String resourcePath = name.replace('.', '/') + ".class";
+      try (InputStream is = getResourceAsStream(resourcePath)) {
+        if (is == null) {
+          throw new ClassNotFoundException("Class resource not found: " + name);
+        }
+        byte[] classFile = is.readAllBytes();
+        ClassReader classReader = new ClassReader(classFile);
+        ClassWriter classWriter = new ClassWriter(classReader, 0);
+        classReader.accept(new RemoveSystemExitClassVisitor(classWriter), 0);
+        classFile = classWriter.toByteArray();
+        return defineClass(name, classFile, 0, classFile.length);
+      }
+      catch (IOException e) {
+        throw new ClassNotFoundException("Failed to transform class: " + name, e);
+      }
+    }
+  }
+
+  private static final class RemoveSystemExitClassVisitor extends ClassVisitor {
+
+    RemoveSystemExitClassVisitor(final ClassVisitor classVisitor) {
+      super(classVisitor);
+    }
+
+    @Override
+    public MethodVisitor visitMethod(
+            final int access,
+            final String name,
+            final String descriptor,
+            final String signature,
+            final String[] exceptions) {
+      return new MethodVisitor(super.visitMethod(access, name, descriptor, signature, exceptions)) {
+        @Override
+        public void visitMethodInsn(
+                final int opcode,
+                final String owner,
+                final String name,
+                final String descriptor,
+                final boolean isInterface) {
+          if (opcode == Opcodes.INVOKESTATIC
+                  && "java/lang/System".equals(owner)
+                  && "exit".equals(name)
+                  && "(I)V".equals(descriptor)) {
+            super.visitInsn(Opcodes.POP);
+          }
+          else {
+            super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+          }
+        }
+      };
+    }
   }
 }

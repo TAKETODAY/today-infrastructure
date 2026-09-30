@@ -346,14 +346,14 @@ public class Analyzer<V extends Value> implements Opcodes {
             if (newControlFlowExceptionEdge(insnIndex, tryCatchBlock)) {
               // Merge the frame *before* this instruction, with its stack cleared and an exception
               // pushed, with the handler's frame.
-              Frame<V> handler = newFrame(oldFrame).setLimits(limits);
+              Frame<V> handler = newFrameWithComputeLimits(oldFrame);
               handler.clearStack();
               V exceptionValue = interpreter.newExceptionValue(tryCatchBlock, handler, catchType);
               handler.push(exceptionValue);
               merge(insnList.indexOf(tryCatchBlock.handler), handler, subroutine);
               // Merge the frame *after* this instruction, with its stack cleared and an exception
               // pushed, with the handler's frame.
-              handler = newFrame(currentFrame).setLimits(limits);
+              handler = newFrameWithComputeLimits(currentFrame);
               handler.clearStack();
               handler.push(exceptionValue);
               merge(insnList.indexOf(tryCatchBlock.handler), handler, subroutine);
@@ -545,7 +545,7 @@ public class Analyzer<V extends Value> implements Opcodes {
    * @return the initial execution stack frame of the 'method'.
    */
   private Frame<V> computeInitialFrame(final String owner, final MethodNode method) {
-    Frame<V> frame = newFrame(method.maxLocals, method.maxStack).setLimits(limits);
+    Frame<V> frame = newFrameWithComputeLimits(method.maxLocals, method.maxStack);
     int currentLocal = 0;
     boolean isInstanceMethod = (method.access & ACC_STATIC) == 0;
     Interpreter<V> interpreter = this.interpreter;
@@ -630,6 +630,29 @@ public class Analyzer<V extends Value> implements Opcodes {
   }
 
   /**
+   * Constructs a new frame with the given size, and subject to the compute limits set in {@link
+   * #setComputeLimits}.
+   *
+   * @param numLocals the maximum number of local variables of the frame.
+   * @param numStack the maximum stack size of the frame.
+   * @return the created frame.
+   */
+  protected final Frame<V> newFrameWithComputeLimits(final int numLocals, final int numStack) {
+    return newFrame(numLocals, numStack).setLimits(limits);
+  }
+
+  /**
+   * Constructs a copy of the given frame, and subject to the compute limits set in {@link
+   * #setComputeLimits}.
+   *
+   * @param frame a frame.
+   * @return the created frame.
+   */
+  protected final Frame<V> newFrameWithComputeLimits(final Frame<? extends V> frame) {
+    return newFrame(frame).setLimits(limits);
+  }
+
+  /**
    * Creates a control flow graph edge. The default implementation of this method does nothing. It
    * can be overridden in order to construct the control flow graph of a method (this method is
    * called by the {@link #analyze} method during its visit of the method's code).
@@ -674,6 +697,23 @@ public class Analyzer<V extends Value> implements Opcodes {
     return newControlFlowExceptionEdge(insnIndex, insnList.indexOf(tryCatchBlock.handler));
   }
 
+  /**
+   * Checks that the given allocations and operations are within the limits set in {@link
+   * #setComputeLimits}. This also checks that the allocations and operations done by the
+   * interpreter, since the last call to this method, are within the limits. Subclasses should call
+   * this when they allocate additional memory or perform additional operations, for instance in
+   * {@link #init}, {@link #newControlFlowEdge}, etc.
+   *
+   * @param numBytes a number of bytes to allocate.
+   * @param numOperations a number of operations to perform.
+   * @throws LimitExceededException if the limits are exceeded.
+   */
+  protected final void checkLimits(final int numBytes, final long numOperations) {
+    limits.checkNewBytes(numBytes);
+    limits.checkNewOperations(numOperations);
+    interpreter.checkLimits(limits);
+  }
+
   // -----------------------------------------------------------------------------------------------
 
   /**
@@ -693,7 +733,7 @@ public class Analyzer<V extends Value> implements Opcodes {
     boolean changed;
     Frame<V> oldFrame = frames[insnIndex];
     if (oldFrame == null) {
-      frames[insnIndex] = newFrame(frame).setLimits(limits);
+      frames[insnIndex] = newFrameWithComputeLimits(frame);
       changed = true;
     }
     else {
@@ -747,7 +787,7 @@ public class Analyzer<V extends Value> implements Opcodes {
     boolean changed;
     Frame<V> oldFrame = frames[insnIndex];
     if (oldFrame == null) {
-      frames[insnIndex] = newFrame(frameAfterRet).setLimits(limits);
+      frames[insnIndex] = newFrameWithComputeLimits(frameAfterRet);
       changed = true;
     }
     else {
