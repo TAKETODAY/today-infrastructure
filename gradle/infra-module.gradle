@@ -32,8 +32,7 @@ jar {
   manifest.attributes["Implementation-Vendor"] = 'TODAY Tech'
   manifest.attributes["Implementation-Vendor-Id"] = 'cn.taketoday'
   manifest.attributes["Automatic-Module-Name"] = project.name.replace('-', '.')  // for Jigsaw
-  manifest.attributes["Created-By"] =
-      "${System.getProperty("java.version")} (${System.getProperty("java.specification.vendor")})"
+  manifest.attributes["Build-Jdk-Spec"] = "${System.getProperty("java.specification.version")}"
 
   from("${rootDir}") {
     include "LICENSE"
