@@ -30,6 +30,7 @@ import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 
 import infra.util.Assert;
+import infra.util.function.ThrowingConsumer;
 
 /**
  * {@link Appendable} implementation that can be used to return a byte array. Designed to
@@ -37,6 +38,7 @@ import infra.util.Assert;
  * cached buffer scoped to the thread.
  *
  * @author Phillip Webb
+ * @author Stephane Nicoll
  */
 class AppendableByteArray implements Appendable {
 
@@ -114,7 +116,6 @@ class AppendableByteArray implements Appendable {
     }
     byte[] result = new byte[size];
     System.arraycopy(this.out.array(), this.out.arrayOffset() + position, result, 0, size);
-    reset();
     return result;
   }
 
@@ -123,19 +124,35 @@ class AppendableByteArray implements Appendable {
     this.encoder.reset();
   }
 
-  static AppendableByteArray get(Charset charset) {
+  static byte[] toByteArray(Charset charset, ThrowingConsumer<Appendable> appendable) throws IOException {
+    Assert.notNull(charset, "'charset' is required");
+    Assert.notNull(appendable, "'appendable' is required");
+    AppendableByteArray appendableByteArray = get(charset);
+    try {
+      appendable.acceptWithException(appendableByteArray);
+      return appendableByteArray.toByteArray();
+    }
+    catch (IOException | RuntimeException ex) {
+      throw ex;
+    }
+    catch (Error err) {
+      throw err;
+    }
+    catch (Throwable ex) {
+      throw new IllegalStateException(ex);
+    }
+    finally {
+      appendableByteArray.reset();
+    }
+  }
+
+  private static AppendableByteArray get(Charset charset) {
     Assert.notNull(charset, "'charset' is required");
     SoftReference<AppendableByteArray> cached = cache.get();
     AppendableByteArray result = (cached != null) ? cached.get() : null;
     if (result == null || !result.charset.equals(charset)) {
       result = new AppendableByteArray(charset);
       cache.set(new SoftReference<>(result));
-    }
-    else {
-      // The cached instance is reused, so it must be clean before it is
-      // handed out again. A previous use may have been abandoned part-way,
-      // for example when writing the value threw, leaving content behind.
-      result.reset();
     }
     return result;
   }
