@@ -35,14 +35,14 @@ import infra.core.annotation.AliasFor;
 
 /**
  * Annotation indicating that a method (or all methods on a class) triggers a
- * {@link Cache#put(Object, Object) cache put} operation.
+ * {@linkplain Cache#put(Object, Object) cache put} operation.
  *
  * <p>In contrast to the {@link Cacheable @Cacheable} annotation, this annotation
  * does not cause the advised method to be skipped. Rather, it always causes the
  * method to be invoked and its result to be stored in the associated cache if the
  * {@link #condition()} and {@link #unless()} expressions match accordingly. Note
- * that Java8's {@code Optional} return types are automatically handled and its
- * content is stored in the cache if present.
+ * that Java's {@code Optional} return types are automatically handled and their
+ * contents are stored in the cache if present.
  *
  * <p>This annotation may be used as a <em>meta-annotation</em> to create custom
  * <em>composed annotations</em> with attribute overrides.
@@ -87,14 +87,16 @@ public @interface CachePut {
    * <ul>
    * <li>{@code #result} for a reference to the result of the method invocation. For
    * supported wrappers such as {@code Optional}, {@code #result} refers to the actual
-   * object, not the wrapper</li>
+   * object, not the wrapper. For a method that returns a {@code Flux}, {@code #result}
+   * refers to a {@code List} containing all values collected from the {@code Flux},
+   * mirroring the value that is cached.</li>
    * <li>{@code #root.method}, {@code #root.target}, and {@code #root.caches} for
    * references to the {@link java.lang.reflect.Method method}, target object, and
    * affected cache(s) respectively.</li>
    * <li>Shortcuts for the method name ({@code #root.methodName}) and target class
    * ({@code #root.targetClass}) are also available.
-   * <li>Method arguments can be accessed by index. For instance the second argument
-   * can be accessed via {@code #root.args[1]}, {@code #p1} or {@code #a1}. Arguments
+   * <li>Method arguments can be accessed by index. For example, the second argument
+   * can be accessed via {@code #root.args[1]}, {@code #p1}, or {@code #a1}. Arguments
    * can also be accessed by name if that information is available.</li>
    * </ul>
    */
@@ -130,7 +132,7 @@ public @interface CachePut {
 
   /**
    * Expression Language (SpEL) expression used for making the cache
-   * put operation conditional. Update the cache if the condition evaluates to
+   * put operation conditional. Updates the cache if the condition evaluates to
    * {@code true}.
    * <p>This expression is evaluated after the method has been called due to the
    * nature of the put operation and can therefore refer to the {@code result}.
@@ -140,14 +142,16 @@ public @interface CachePut {
    * <ul>
    * <li>{@code #result} for a reference to the result of the method invocation. For
    * supported wrappers such as {@code Optional}, {@code #result} refers to the actual
-   * object, not the wrapper</li>
+   * object, not the wrapper. For a method that returns a {@code Flux}, {@code #result}
+   * refers to a {@code List} containing all values collected from the {@code Flux},
+   * mirroring the value that is cached.</li>
    * <li>{@code #root.method}, {@code #root.target}, and {@code #root.caches} for
    * references to the {@link java.lang.reflect.Method method}, target object, and
    * affected cache(s) respectively.</li>
    * <li>Shortcuts for the method name ({@code #root.methodName}) and target class
    * ({@code #root.targetClass}) are also available.
-   * <li>Method arguments can be accessed by index. For instance the second argument
-   * can be accessed via {@code #root.args[1]}, {@code #p1} or {@code #a1}. Arguments
+   * <li>Method arguments can be accessed by index. For example, the second argument
+   * can be accessed via {@code #root.args[1]}, {@code #p1}, or {@code #a1}. Arguments
    * can also be accessed by name if that information is available.</li>
    * </ul>
    */
@@ -155,21 +159,23 @@ public @interface CachePut {
 
   /**
    * Expression Language (SpEL) expression used to veto the cache put operation.
-   * Veto updating the cache if the condition evaluates to {@code true}.
+   * Vetoes updating the cache if the condition evaluates to {@code true}.
    * <p>Default is {@code ""}, meaning that caching is never vetoed.
    * <p>The EL expression evaluates against a dedicated context that provides the
    * following meta-data:
    * <ul>
    * <li>{@code #result} for a reference to the result of the method invocation. For
    * supported wrappers such as {@code Optional}, {@code #result} refers to the actual
-   * object, not the wrapper</li>
+   * object, not the wrapper. For a method that returns a {@code Flux}, {@code #result}
+   * refers to a {@code List} containing all values collected from the {@code Flux},
+   * mirroring the value that is cached.</li>
    * <li>{@code #root.method}, {@code #root.target}, and {@code #root.caches} for
    * references to the {@link java.lang.reflect.Method method}, target object, and
    * affected cache(s) respectively.</li>
    * <li>Shortcuts for the method name ({@code #root.methodName}) and target class
    * ({@code #root.targetClass}) are also available.
-   * <li>Method arguments can be accessed by index. For instance the second argument
-   * can be accessed via {@code #root.args[1]}, {@code #p1} or {@code #a1}. Arguments
+   * <li>Method arguments can be accessed by index. For example, the second argument
+   * can be accessed via {@code #root.args[1]}, {@code #p1}, or {@code #a1}. Arguments
    * can also be accessed by name if that information is available.</li>
    * </ul>
    */

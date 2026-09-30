@@ -147,7 +147,7 @@ NOTE: 这是一个可选功能，您喜欢的缓存库可能不支持它。核�
 [[cache-annotations-cacheable-reactive]]
 === 使用 CompletableFuture 和响应式返回类型进行缓存
 
-从 6.1 开始，缓存注解将 `CompletableFuture` 和响应式返回类型纳入考量，自动相应地调整缓存交互。
+缓存注解将 `CompletableFuture` 和响应式返回类型纳入考量，自动相应地调整缓存交互。
 
 对于返回 `CompletableFuture` 的方法，该 future 生成的对象将在完成时被缓存，并且缓存命中的缓存查找将通过 `CompletableFuture` 检索：
 
@@ -172,6 +172,8 @@ public Mono<Book> findBook(ISBN isbn) {...}
 @Cacheable("books")
 public Flux<Book> findBooks(String author) {...}
 ----
+
+对于此类方法，这个收集得到的 `List` 也是 `unless` SpEL 表达式看到的 `#result`（参见 <<cache-spel-context,SpEL 求值上下文>>）；返回给调用方的 `Flux` 不受此收集过程的影响。
 
 这种 `CompletableFuture` 和响应式适配也适用于同步缓存，在并发缓存未命中的情况下仅计算一次值：
 
@@ -293,7 +295,7 @@ public Book updateBook(ISBN isbn, BookDescriptor descriptor)
 
 IMPORTANT: 通常强烈建议不要在同一方法上使用 `@CachePut` 和 `@Cacheable` 注解，因为它们具有不同的行为。后者通过使用缓存导致跳过方法调用，而前者为了运行缓存更新而强制调用。这会导致意想不到的行为，除了特定的边缘情况（例如具有将它们彼此排除的条件的注解）之外，应避免此类声明。另请注意，此类条件不应依赖于结果对象（即 `#result` 变量），因为这些是在前期验证以确认排除的。
 
-从 6.1 开始，`@CachePut` 将 `CompletableFuture` 和响应式返回类型纳入考量，只要生成的对象可用，就执行放置操作。
+`@CachePut` 将 `CompletableFuture` 和响应式返回类型纳入考量，只要生成的对象可用，就执行放置操作。
 
 
 [[cache-annotations-evict]]
@@ -314,7 +316,7 @@ public void loadBooks(InputStream batch)
 
 请注意，`void` 方法可以与 `@CacheEvict` 一起使用 - 由于方法充当触发器，因此返回值被忽略（因为它们不与缓存交互）。`@Cacheable` 的情况并非如此，它将数据添加到缓存或更新缓存中的数据，因此需要结果。
 
-从 6.1 开始，`@CacheEvict` 将 `CompletableFuture` 和响应式返回类型纳入考量，只要处理完成，就执行调用后驱逐操作。与 `@Cacheable` 和 `@CachePut` 一样，对于返回 `Flux` 的方法，所有发出的元素会在执行驱逐操作之前被收集到 `List` 中。当 `beforeInvocation` 为 `false` 时，`condition` SpEL 表达式看到的 `#result` 就是这个 `List`。无论如何，返回给调用方的 `Flux` 都不受此收集过程的影响。
+`@CacheEvict` 将 `CompletableFuture` 和响应式返回类型纳入考量，只要处理完成，就执行调用后驱逐操作。与 `@Cacheable` 和 `@CachePut` 一样，对于返回 `Flux` 的方法，所有发出的元素会在执行驱逐操作之前被收集到 `List` 中。当 `beforeInvocation` 为 `false` 时，`condition` SpEL 表达式看到的 `#result` 就是这个 `List`。无论如何，返回给调用方的 `Flux` 都不受此收集过程的影响。
 
 
 [[cache-annotations-caching]]
