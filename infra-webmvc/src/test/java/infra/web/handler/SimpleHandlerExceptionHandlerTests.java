@@ -160,6 +160,24 @@ class SimpleHandlerExceptionHandlerTests {
   }
 
   @Test
+  void handleHttpMessageNotReadableWithDisconnectedClient() throws Exception {
+    HttpMessageNotReadableException ex = new HttpMessageNotReadableException(
+            "Cannot read request", new IOException("Broken pipe"), null);
+    Object result = exceptionResolver.handleException(context, ex, null);
+    assertThat(result).isEqualTo(HandlerExceptionHandler.NONE_RETURN_VALUE);
+    assertThat(response.getStatus()).isEqualTo(500);
+  }
+
+  @Test
+  void handleHttpMessageNotWritableWithDisconnectedClient() throws Exception {
+    HttpMessageNotWritableException ex = new HttpMessageNotWritableException(
+            "Cannot write response", new IOException("Broken pipe"));
+    Object result = exceptionResolver.handleException(context, ex, null);
+    assertThat(result).isEqualTo(HandlerExceptionHandler.NONE_RETURN_VALUE);
+    assertThat(response.getStatus()).isEqualTo(500);
+  }
+
+  @Test
   void handleMethodArgumentNotValid() throws Exception {
     BeanPropertyBindingResult errors = new BeanPropertyBindingResult(new TestBean(), "testBean");
     errors.rejectValue("name", "invalid");
