@@ -22,6 +22,7 @@ import java.util.List;
 
 import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
+import infra.beans.NotWritablePropertyException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -217,6 +218,42 @@ public class BeanMetadataTests {
     assertThat(b).isInstanceOf(RichBean.class);
     assertThat(a).isNotSameAs(b);
   }
+
+  @Test
+  void recordComponentsAreReadOnlyProperties() {
+    BeanMetadata metadata = BeanMetadata.forClass(PersonRecord.class);
+    PersonRecord person = new PersonRecord("Alice", 30);
+
+    assertThat(metadata.getType()).isEqualTo(PersonRecord.class);
+    assertThat(metadata.getPropertyNames()).containsExactlyInAnyOrder("class", "name", "age");
+    assertThat(metadata.getPropertyCount()).isEqualTo(3);
+    assertThat(metadata.getPropertyList()).hasSize(3);
+
+    BeanProperty name = metadata.getRequiredProperty("name");
+    assertThat(name.getType()).isEqualTo(String.class);
+    assertThat(name.getReadMethod()).isNotNull();
+    assertThat(name.getReadMethod().getName()).isEqualTo("name");
+    assertThat(name.getWriteMethod()).isNull();
+    assertThat(name.isReadable()).isTrue();
+    assertThat(name.isWriteable()).isFalse();
+    assertThat(metadata.getPropertyType("age")).isEqualTo(int.class);
+    assertThat(metadata.getPropertyValue(person, "name")).isEqualTo("Alice");
+    assertThat(metadata.getPropertyValue(person, "age")).isEqualTo(30);
+
+    assertThatThrownBy(() -> metadata.setPropertyValue(person, "name", "Bob"))
+            .isInstanceOf(NotWritablePropertyException.class);
+    assertThat(person.name()).isEqualTo("Alice");
+  }
+
+  @Test
+  void recordCanBeInstantiatedWithCanonicalConstructorArguments() {
+    BeanMetadata metadata = BeanMetadata.forClass(PersonRecord.class);
+
+    assertThat(metadata.newInstance(new Object[] { "Bob", 42 }))
+            .isEqualTo(new PersonRecord("Bob", 42));
+  }
+
+  record PersonRecord(String name, int age) { }
 
   static class BooleanConflictBean {
 
