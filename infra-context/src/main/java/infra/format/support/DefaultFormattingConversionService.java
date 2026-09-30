@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import infra.core.StringValueResolver;
 import infra.core.conversion.support.DefaultConversionService;
 import infra.format.FormatterRegistry;
-import infra.format.datetime.DateFormatterRegistrar;
+import infra.format.datetime.DateTimeFormatAnnotationFormatterFactory;
 import infra.format.datetime.standard.DateTimeFormatterRegistrar;
 import infra.format.number.NumberFormatAnnotationFormatterFactory;
 import infra.format.number.money.CurrencyUnitFormatter;
@@ -113,11 +113,12 @@ public class DefaultFormattingConversionService extends FormattingConversionServ
 
     // Default handling of date-time values
 
-    // just handling JSR-310 specific date and time types
+    // Handling of JSR-310 specific date and time types, along with the legacy
+    // Date/Calendar/Long converters (see DateTimeConverters).
     new DateTimeFormatterRegistrar().registerFormatters(formatterRegistry);
 
-    // regular DateFormat-based Date, Calendar, Long converters
-    new DateFormatterRegistrar().registerFormatters(formatterRegistry);
+    // Support for the @DateTimeFormat annotation on legacy Date/Calendar fields
+    formatterRegistry.addFormatterForFieldAnnotation(new DateTimeFormatAnnotationFormatterFactory());
   }
 
 }
