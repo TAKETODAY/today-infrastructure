@@ -158,7 +158,7 @@ public class Page<T> {
   public Page(Number total, int pageNumber, int limit, @Nullable List<T> rows) {
     Assert.isTrue(limit > 0, "limit must great than 0");
     Assert.isTrue(pageNumber > 0, "pageNumber must be positive");
-    Assert.notNull(total, "total must not be null");
+    Assert.notNull(total, "total is required");
     long totalCount = total.longValue();
     Assert.isTrue(totalCount >= 0, "total must not be negative");
     long pages = totalCount == 0 ? 1 : 1 + (totalCount - 1) / limit;

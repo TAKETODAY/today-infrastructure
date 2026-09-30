@@ -33,6 +33,7 @@ import infra.util.Assert;
  * quotes, or unquoted with balanced nested brackets and no quote characters.
  * The {@linkplain #canonicalName() canonical name} is suitable for policy
  * matching, and the {@linkplain #segments() segments} for navigation.
+ *
  * @author Brian Clozel
  * @since 5.0
  */
@@ -49,6 +50,7 @@ public final class PropertyPath {
 
   /**
    * Parse a property path; an empty path has no segments.
+   *
    * @param path the path to parse
    * @return the parsed path
    * @throws InvalidPropertyPathException if the path is malformed
@@ -59,14 +61,15 @@ public final class PropertyPath {
 
   /**
    * Parse a property path subject to a maximum nesting depth.
+   *
    * @param path the path to parse
    * @param options parsing options
    * @return the parsed path
    * @throws InvalidPropertyPathException if malformed or too deep
    */
   public static PropertyPath parse(String path, Options options) {
-    Assert.notNull(path, "Property path must not be null");
-    Assert.notNull(options, "Options must not be null");
+    Assert.notNull(path, "Property path is required");
+    Assert.notNull(options, "Options is required");
     if (path.isEmpty()) {
       return new PropertyPath("", List.of());
     }
@@ -82,6 +85,7 @@ public final class PropertyPath {
    * Return a canonical path or the original text if malformed (empty for null).
    * Intended for displaying or matching user-supplied names; navigation should
    * instead use {@link #parse(String)} and reject malformed paths.
+   *
    * @param path a possibly null path
    * @return its canonical or original form
    * @since 5.0
@@ -110,6 +114,7 @@ public final class PropertyPath {
 
   /**
    * Return a path starting at the specified segment index.
+   *
    * @param fromIndex the inclusive start index
    * @return the suffix, or this path for index zero
    * @throws IndexOutOfBoundsException if the index is negative
@@ -148,14 +153,15 @@ public final class PropertyPath {
 
   /**
    * A dot-separated path segment with zero or more index keys.
+   *
    * @param name the property name, empty only for a root-level index
    * @param keys the unquoted keys, possibly empty but never null
    */
   public record Segment(String name, List<String> keys) {
 
     public Segment {
-      Assert.notNull(name, "Segment name must not be null");
-      Assert.notNull(keys, "Segment keys must not be null");
+      Assert.notNull(name, "Segment name is required");
+      Assert.notNull(keys, "Segment keys is required");
       keys = List.copyOf(keys);
     }
 
@@ -221,6 +227,7 @@ public final class PropertyPath {
 
     /**
      * Limit the number of intermediate properties in a path.
+     *
      * @param maxNestedPathDepth the non-negative maximum
      * @return parsing options enforcing the limit
      */

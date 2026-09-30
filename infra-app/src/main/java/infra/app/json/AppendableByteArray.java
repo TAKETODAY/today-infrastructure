@@ -124,7 +124,7 @@ class AppendableByteArray implements Appendable {
   }
 
   static AppendableByteArray get(Charset charset) {
-    Assert.notNull(charset, "'charset' must not be null");
+    Assert.notNull(charset, "'charset' is required");
     SoftReference<AppendableByteArray> cached = cache.get();
     AppendableByteArray result = (cached != null) ? cached.get() : null;
     if (result == null || !result.charset.equals(charset)) {

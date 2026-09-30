@@ -29,9 +29,10 @@ import java.util.Objects;
  * {@link NotReadablePropertyException} or {@link NotWritablePropertyException}.
  * <p>As a {@link PropertyAccessException}, this failure may be collected in a
  * {@link PropertyBatchUpdateException} alongside other binding errors.
+ *
  * @author Brian Clozel
- * @since 5.0
  * @see PropertyPath#parse(String)
+ * @since 5.0
  */
 @SuppressWarnings("serial")
 public class InvalidPropertyPathException extends PropertyAccessException {
@@ -43,6 +44,7 @@ public class InvalidPropertyPathException extends PropertyAccessException {
 
   /**
    * Create an exception for a malformed property path.
+   *
    * @param propertyPath the offending path
    * @param reason the violated grammar rule
    */
@@ -53,6 +55,7 @@ public class InvalidPropertyPathException extends PropertyAccessException {
 
   /**
    * Associate a parsing failure with a property change event.
+   *
    * @param propertyChangeEvent the event for the property
    * @param cause the original parsing failure
    */
@@ -63,6 +66,7 @@ public class InvalidPropertyPathException extends PropertyAccessException {
 
   /**
    * Associate a parsing failure with an attempted change.
+   *
    * @param source the bean that fired the event
    * @param propertyName the programmatic property name
    * @param newValue the attempted value
