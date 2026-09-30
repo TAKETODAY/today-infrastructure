@@ -33,7 +33,9 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -545,7 +547,9 @@ public abstract class HttpHeaders implements Serializable {
   public static final DateTimeFormatter[] DATE_PARSERS = new DateTimeFormatter[] {
           DateTimeFormatter.RFC_1123_DATE_TIME,
           ofPattern("EEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US),
-          ofPattern("EEE MMM dd HH:mm:ss yyyy", Locale.US).withZone(GMT)
+          ofPattern("EEE MMM dd HH:mm:ss yyyy", Locale.US).withZone(GMT),
+          // RFC 9651: Structured Field Values for HTTP
+          new DateTimeFormatterBuilder().appendLiteral('@').appendValue(ChronoField.INSTANT_SECONDS).toFormatter(Locale.US).withZone(GMT)
   };
 
   /**
@@ -1734,7 +1738,7 @@ public abstract class HttpHeaders implements Serializable {
       // No header value sent at all
       return null;
     }
-    if (headerValue.length() >= 3) {
+    if (headerValue.length() >= 3 || headerValue.startsWith("@")) {
       // Short "0" or "-1" like values are never valid HTTP date headers...
       // Let's only bother with DateTimeFormatter parsing for long enough values.
 
