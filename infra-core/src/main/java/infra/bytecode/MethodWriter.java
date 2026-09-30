@@ -1156,7 +1156,7 @@ final class MethodWriter extends MethodVisitor {
         // Record the fact that 'label' is the target of a jump instruction.
         label.getCanonicalInstance().flags |= Label.FLAG_JUMP_TARGET;
         // Add 'label' as a successor of the current basic block.
-        addSuccessorToCurrentBasicBlock(Edge.JUMP, label);
+        addSuccessorToCurrentBasicBlock(0, label);
         if (baseOpcode != Opcodes.GOTO) {
           // The next instruction starts a new basic block (except for GOTO: by default the code
           // following a goto is unreachable - unless there is an explicit label for it - and we
@@ -1235,7 +1235,7 @@ final class MethodWriter extends MethodVisitor {
           return;
         }
         // End the current basic block (with one new successor).
-        addSuccessorToCurrentBasicBlock(Edge.JUMP, label);
+        addSuccessorToCurrentBasicBlock(0, label);
       }
       // Append 'label' at the end of the basic block list.
       if (lastBasicBlock != null) {
@@ -1385,10 +1385,10 @@ final class MethodWriter extends MethodVisitor {
       if (compute == COMPUTE_ALL_FRAMES) {
         currentBasicBlock.frame.execute(Opcodes.LOOKUPSWITCH, 0, null, null);
         // Add all the labels as successors of the current basic block.
-        addSuccessorToCurrentBasicBlock(Edge.JUMP, dflt);
+        addSuccessorToCurrentBasicBlock(0, dflt);
         dflt.getCanonicalInstance().flags |= Label.FLAG_JUMP_TARGET;
         for (Label label : labels) {
-          addSuccessorToCurrentBasicBlock(Edge.JUMP, label);
+          addSuccessorToCurrentBasicBlock(0, label);
           label.getCanonicalInstance().flags |= Label.FLAG_JUMP_TARGET;
         }
       }
@@ -1576,22 +1576,11 @@ final class MethodWriter extends MethodVisitor {
 
   /** Computes all the stack map frames of the method, from scratch. */
   private void computeAllFrames() {
-    // Complete the control flow graph with exception handler blocks.
+    // Make sure we generate a stack map frame for each exception handler.
     Handler handler = firstHandler;
     while (handler != null) {
-      String catchTypeDescriptor = handler.catchTypeDescriptor == null ? "java/lang/Throwable" : handler.catchTypeDescriptor;
-      int catchType = Frame.getAbstractTypeFromInternalName(symbolTable, catchTypeDescriptor);
-      // Mark handlerBlock as an exception handler.
       Label handlerBlock = handler.handlerPc.getCanonicalInstance();
       handlerBlock.flags |= Label.FLAG_JUMP_TARGET;
-      // Add handlerBlock as a successor of all the basic blocks in the exception handler range.
-      Label handlerRangeBlock = handler.startPc.getCanonicalInstance();
-      Label handlerRangeEnd = handler.endPc.getCanonicalInstance();
-      while (handlerRangeBlock != handlerRangeEnd) {
-        handlerRangeBlock.outgoingEdges =
-                new Edge(catchType, handlerBlock, handlerRangeBlock.outgoingEdges);
-        handlerRangeBlock = handlerRangeBlock.nextBasicBlock;
-      }
       handler = handler.nextHandler;
     }
 
@@ -1626,7 +1615,7 @@ final class MethodWriter extends MethodVisitor {
       while (outgoingEdge != null) {
         Label successorBlock = outgoingEdge.successor.getCanonicalInstance();
         boolean successorBlockChanged =
-                basicBlock.frame.merge(symbolTable, successorBlock.frame, outgoingEdge.info);
+                basicBlock.frame.merge(symbolTable, successorBlock.frame, 0);
         if (successorBlockChanged && successorBlock.nextListElement == null) {
           // If successorBlock has changed it must be processed. Thus, if it is not already in the
           // list of blocks to process, add it to this list.
@@ -1634,6 +1623,29 @@ final class MethodWriter extends MethodVisitor {
           listOfBlocksToProcess = successorBlock;
         }
         outgoingEdge = outgoingEdge.nextEdge;
+      }
+      // Also process the implicit successors (the catch block of each covering try/catch).
+      int basicBlockOffset = basicBlock.bytecodeOffset;
+      handler = firstHandler;
+      while (handler != null) {
+        int startOffset = handler.startPc.bytecodeOffset;
+        int endOffset = handler.endPc.bytecodeOffset;
+        if (basicBlockOffset >= startOffset && basicBlockOffset < endOffset) {
+          String catchTypeDescriptor =
+                  handler.catchTypeDescriptor == null
+                          ? "java/lang/Throwable"
+                          : handler.catchTypeDescriptor;
+          int catchType = Frame.getAbstractTypeFromInternalName(symbolTable, catchTypeDescriptor);
+          Label successorBlock = handler.handlerPc.getCanonicalInstance();
+          boolean successorBlockChanged =
+                  basicBlock.frame.merge(symbolTable, successorBlock.frame, catchType);
+          if (successorBlockChanged && successorBlock.nextListElement == null) {
+            // If successorBlock has changed it must be processed, add it to the list.
+            successorBlock.nextListElement = listOfBlocksToProcess;
+            listOfBlocksToProcess = successorBlock;
+          }
+        }
+        handler = handler.nextHandler;
       }
     }
 
@@ -1677,37 +1689,12 @@ final class MethodWriter extends MethodVisitor {
 
   /** Computes the maximum stack size of the method. */
   private void computeMaxStackAndLocal() {
-    // Complete the control flow graph with exception handler blocks.
-    Handler handler = firstHandler;
-    while (handler != null) {
-      Label handlerBlock = handler.handlerPc;
-      Label handlerRangeBlock = handler.startPc;
-      Label handlerRangeEnd = handler.endPc;
-      // Add handlerBlock as a successor of all the basic blocks in the exception handler range.
-      while (handlerRangeBlock != handlerRangeEnd) {
-        if ((handlerRangeBlock.flags & Label.FLAG_SUBROUTINE_CALLER) == 0) {
-          handlerRangeBlock.outgoingEdges =
-                  new Edge(Edge.EXCEPTION, handlerBlock, handlerRangeBlock.outgoingEdges);
-        }
-        else {
-          // If handlerRangeBlock is a JSR block, add handlerBlock after the first two outgoing
-          // edges to preserve the hypothesis about JSR block successors order (see
-          // {@link #visitJumpInsn}).
-          handlerRangeBlock.outgoingEdges.nextEdge.nextEdge =
-                  new Edge(
-                          Edge.EXCEPTION, handlerBlock, handlerRangeBlock.outgoingEdges.nextEdge.nextEdge);
-        }
-        handlerRangeBlock = handlerRangeBlock.nextBasicBlock;
-      }
-      handler = handler.nextHandler;
-    }
-
     // Complete the control flow graph with the successor blocks of subroutines, if needed.
     if (hasSubroutines) {
       // First step: find the subroutines. This step determines, for each basic block, to which
       // subroutine(s) it belongs. Start with the main "subroutine":
       short numSubroutines = 1;
-      firstBasicBlock.markSubroutine(numSubroutines);
+      firstBasicBlock.markSubroutine(numSubroutines, firstHandler);
       // Then, mark the subroutines called by the main subroutine, then the subroutines called by
       // those called by the main subroutine, etc.
       for (short currentSubroutine = 1; currentSubroutine <= numSubroutines; ++currentSubroutine) {
@@ -1718,7 +1705,7 @@ final class MethodWriter extends MethodVisitor {
             Label jsrTarget = basicBlock.outgoingEdges.nextEdge.successor;
             if (jsrTarget.subroutineId == 0) {
               // If this subroutine has not been marked yet, find its basic blocks.
-              jsrTarget.markSubroutine(++numSubroutines);
+              jsrTarget.markSubroutine(++numSubroutines, firstHandler);
             }
           }
           basicBlock = basicBlock.nextBasicBlock;
@@ -1733,7 +1720,7 @@ final class MethodWriter extends MethodVisitor {
           // By construction, jsr targets are stored in the second outgoing edge of basic blocks
           // that ends with a jsr instruction (see {@link #FLAG_SUBROUTINE_CALLER}).
           Label subroutine = basicBlock.outgoingEdges.nextEdge.successor;
-          subroutine.addSubroutineRetSuccessors(basicBlock);
+          subroutine.addSubroutineRetSuccessors(basicBlock, firstHandler);
         }
         basicBlock = basicBlock.nextBasicBlock;
       }
@@ -1772,12 +1759,27 @@ final class MethodWriter extends MethodVisitor {
       while (outgoingEdge != null) {
         Label successorBlock = outgoingEdge.successor;
         if (successorBlock.nextListElement == null) {
-          successorBlock.inputStackSize =
-                  (short) (outgoingEdge.info == Edge.EXCEPTION ? 1 : inputStackTop + outgoingEdge.info);
+          successorBlock.inputStackSize = (short) (inputStackTop + outgoingEdge.stackSizeDelta);
           successorBlock.nextListElement = listOfBlocksToProcess;
           listOfBlocksToProcess = successorBlock;
         }
         outgoingEdge = outgoingEdge.nextEdge;
+      }
+      // Also process the implicit successors (the catch block of each covering try/catch).
+      int basicBlockOffset = basicBlock.bytecodeOffset;
+      Handler handler = firstHandler;
+      while (handler != null) {
+        int startOffset = handler.startPc.bytecodeOffset;
+        int endOffset = handler.endPc.bytecodeOffset;
+        if (basicBlockOffset >= startOffset && basicBlockOffset < endOffset) {
+          Label successorBlock = handler.handlerPc;
+          if (successorBlock.nextListElement == null) {
+            successorBlock.inputStackSize = 1;
+            successorBlock.nextListElement = listOfBlocksToProcess;
+            listOfBlocksToProcess = successorBlock;
+          }
+        }
+        handler = handler.nextHandler;
       }
     }
     this.maxStack = maxStackSize;

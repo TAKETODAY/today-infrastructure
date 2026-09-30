@@ -499,8 +499,9 @@ public class Label {
    *
    * @param subroutineId the id of the subroutine starting with the basic block corresponding to
    * this label.
+   * @param firstHandler the first element in the exception handler list. May be {@literal null}.
    */
-  final void markSubroutine(final short subroutineId) {
+  final void markSubroutine(final short subroutineId, final Handler firstHandler) {
     // Data flow algorithm: put this basic block in a list of blocks to process (which are blocks
     // belonging to subroutine subroutineId) and, while there are blocks to process, remove one from
     // the list, mark it as belonging to the subroutine, and add its successor basic blocks in the
@@ -517,7 +518,7 @@ public class Label {
       // subroutineId and add its successors to the list of blocks to process (unless already done).
       if (basicBlock.subroutineId == 0) {
         basicBlock.subroutineId = subroutineId;
-        listOfBlocksToProcess = basicBlock.pushSuccessors(listOfBlocksToProcess);
+        listOfBlocksToProcess = basicBlock.pushSuccessors(listOfBlocksToProcess, firstHandler);
       }
     }
   }
@@ -537,8 +538,9 @@ public class Label {
    *
    * @param subroutineCaller a basic block that ends with a jsr to the basic block corresponding to
    * this label. This label is supposed to correspond to the start of a subroutine.
+   * @param firstHandler the first element in the exception handler list. May be {@literal null}.
    */
-  final void addSubroutineRetSuccessors(final Label subroutineCaller) {
+  final void addSubroutineRetSuccessors(final Label subroutineCaller, final Handler firstHandler) {
     // Data flow algorithm: put this basic block in a list blocks to process (which are blocks
     // belonging to a subroutine starting with this label) and, while there are blocks to process,
     // remove one from the list, put it in a list of blocks that have been processed, add a return
@@ -576,7 +578,7 @@ public class Label {
       // not push basic blocks which are already in a list. Here this means either in the list of
       // blocks to process, or in the list of already processed blocks. This second list is
       // important to make sure we don't reprocess an already processed block.
-      listOfBlocksToProcess = basicBlock.pushSuccessors(listOfBlocksToProcess);
+      listOfBlocksToProcess = basicBlock.pushSuccessors(listOfBlocksToProcess, firstHandler);
     }
     // Reset the {@link #nextListElement} of all the basic blocks that have been processed to null,
     // so that this method can be called again with a different subroutine or subroutine caller.
@@ -594,9 +596,10 @@ public class Label {
    *
    * @param listOfLabelsToProcess a list of basic blocks to process, linked together with their
    * {@link #nextListElement} field.
+   * @param firstHandler the first element in the exception handler list. May be {@literal null}.
    * @return the new list of blocks to process.
    */
-  private Label pushSuccessors(final Label listOfLabelsToProcess) {
+  private Label pushSuccessors(final Label listOfLabelsToProcess, final Handler firstHandler) {
     Label newListOfLabelsToProcess = listOfLabelsToProcess;
     Edge outgoingEdge = outgoingEdges;
     while (outgoingEdge != null) {
@@ -611,6 +614,21 @@ public class Label {
         newListOfLabelsToProcess = outgoingEdge.successor;
       }
       outgoingEdge = outgoingEdge.nextEdge;
+    }
+    // Also process the implicit successors (the catch block of each covering try/catch).
+    int basicBlockOffset = bytecodeOffset;
+    Handler handler = firstHandler;
+    while (handler != null) {
+      int startOffset = handler.startPc.bytecodeOffset;
+      int endOffset = handler.endPc.bytecodeOffset;
+      if (basicBlockOffset >= startOffset && basicBlockOffset < endOffset) {
+        Label successorBlock = handler.handlerPc;
+        if (successorBlock.nextListElement == null) {
+          successorBlock.nextListElement = newListOfLabelsToProcess;
+          newListOfLabelsToProcess = successorBlock;
+        }
+      }
+      handler = handler.nextHandler;
     }
     return newListOfLabelsToProcess;
   }
