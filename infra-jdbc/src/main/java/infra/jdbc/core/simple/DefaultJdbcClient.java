@@ -334,8 +334,7 @@ final class DefaultJdbcClient implements JdbcClient {
       return pscf.newPreparedStatementCreator(this.indexedParams);
     }
 
-
-    private class DefaultBatchSpec implements BatchSpec {
+    private final class DefaultBatchSpec implements BatchSpec {
 
       private final List<Object[]> indexedBatch = new ArrayList<>();
 
@@ -493,7 +492,6 @@ final class DefaultJdbcClient implements JdbcClient {
         }
       }
     }
-
 
     private final class IndexedParamResultQuerySpec implements ResultQuerySpec {
 

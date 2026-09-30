@@ -37,8 +37,8 @@ import infra.util.StringUtils;
  * generation.
  *
  * @author Stephane Nicoll
- * @since 5.0
  * @see GeneratedResource
+ * @since 5.0
  */
 public class GeneratedResources {
 

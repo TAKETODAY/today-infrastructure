@@ -42,8 +42,9 @@ public interface ConfigurablePropertyAccessor extends PropertyAccessor, Property
    * <p>This limit turns excessive recursive traversal into an
    * {@link InvalidPropertyException}, but cannot guarantee protection against
    * {@link StackOverflowError} for every JVM stack size, JIT state, and platform.
-   * @since 5.0
+   *
    * @see #setMaxNestedPathDepth(int)
+   * @since 5.0
    */
   int DEFAULT_MAX_NESTED_PATH_DEPTH = 100;
 
@@ -106,6 +107,7 @@ public interface ConfigurablePropertyAccessor extends PropertyAccessor, Property
    * {@code address.country.name} has depth 2. A value of {@code 0} disallows
    * nested paths while permitting simple, indexed, and mapped access.
    * Default is {@link #DEFAULT_MAX_NESTED_PATH_DEPTH}.
+   *
    * @param maxNestedPathDepth the non-negative limit
    * @since 5.0
    */
@@ -113,6 +115,7 @@ public interface ConfigurablePropertyAccessor extends PropertyAccessor, Property
 
   /**
    * Return the maximum allowed depth of a nested property path.
+   *
    * @since 5.0
    */
   int getMaxNestedPathDepth();

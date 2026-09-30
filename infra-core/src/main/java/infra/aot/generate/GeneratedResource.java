@@ -35,8 +35,8 @@ import infra.util.function.ThrowingConsumer;
  * A single generated resource.
  *
  * @author Stephane Nicoll
- * @since 5.0
  * @see GeneratedResources
+ * @since 5.0
  */
 public final class GeneratedResource {
 

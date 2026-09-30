@@ -61,9 +61,9 @@ import infra.core.TypeDescriptor;
 import infra.core.conversion.ConversionService;
 import infra.format.Formatter;
 import infra.format.support.FormatterPropertyEditorAdapter;
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 import infra.util.PatternMatchUtils;
@@ -81,8 +81,8 @@ import infra.validation.annotation.ValidationAnnotationUtils;
  * parts of the object graph that are not meant to be accessed or modified by
  * external clients. Therefore, the design and use of data binding should be considered
  * carefully with regard to security. For more details, please refer to the dedicated
-   * section on
-   * <a href="https://docs.today-tech.cn/today-infrastructure/reference/web/webmvc/mvc-controller/ann-initbinder.html#mvc-ann-initbinder-model-design">Infra Web MVC data binding</a>
+ * section on
+ * <a href="https://docs.today-tech.cn/today-infrastructure/reference/web/webmvc/mvc-controller/ann-initbinder.html#mvc-ann-initbinder-model-design">Infra Web MVC data binding</a>
  * in the reference manual.
  *
  * <p>The binding results can be examined via the {@link BindingResult} interface,
@@ -306,9 +306,10 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * binding through {@link #bind(PropertyValues)} and recursive constructor
    * binding through {@link #construct(ValueResolver)}.
    * <p>Default is {@link ConfigurablePropertyAccessor#DEFAULT_MAX_NESTED_PATH_DEPTH}.
+   *
    * @param maxNestedPathDepth the non-negative maximum depth
-   * @since 5.0
    * @see ConfigurablePropertyAccessor#setMaxNestedPathDepth(int)
+   * @since 5.0
    */
   public void setMaxNestedPathDepth(int maxNestedPathDepth) {
     Assert.state(this.bindingResult == null,
@@ -319,6 +320,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 
   /**
    * Return the maximum depth of a nested property path.
+   *
    * @since 5.0
    */
   public int getMaxNestedPathDepth() {
@@ -1273,7 +1275,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * Check the given property values against the allowed fields,
    * removing values for fields that are not allowed.
    *
-   * @param mpvs the property values to be bound (can be modified)
+   * @param fields the property values to be bound (can be modified)
    * @see #getAllowedFields
    * @see #isAllowed(String)
    */

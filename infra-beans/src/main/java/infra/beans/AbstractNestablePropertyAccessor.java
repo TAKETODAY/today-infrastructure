@@ -39,9 +39,9 @@ import infra.core.ResolvableType;
 import infra.core.TypeDescriptor;
 import infra.core.conversion.ConversionException;
 import infra.core.conversion.ConverterNotFoundException;
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
@@ -77,8 +77,6 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
    * We'll create a lot of these objects, so we don't want a new logger every time.
    */
   private static final Logger log = LoggerFactory.getLogger(AbstractNestablePropertyAccessor.class);
-
-
 
   protected @Nullable Object wrappedObject;
 
@@ -152,7 +150,6 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     setMaxNestedPathDepth(parent.getMaxNestedPathDepth());
     setConversionService(parent.getConversionService());
   }
-
 
   /**
    * Switch the target object, replacing the cached introspection results only
@@ -781,6 +778,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 
   /**
    * Resolve a path by parsing once, then navigating its intermediate segments.
+   *
    * @param propertyPath the path to resolve
    * @return the accessor and local property tokens
    * @throws InvalidPropertyPathException if the path is malformed or too deep
@@ -797,14 +795,6 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
             ? new PropertyPath.Segment(propertyPath, List.of()) : segments.get(segments.size() - 1);
     return new ResolvedProperty(accessor, getPropertyNameTokens(segment.toCanonicalName()));
   }
-
-  /**
-   * The accessor that owns the final property and its parsed local tokens.
-   * @param accessor the accessor for the target bean
-   * @param tokens tokens for the final property
-   * @since 5.0
-   */
-  protected record ResolvedProperty(AbstractNestablePropertyAccessor accessor, PropertyTokenHolder tokens) { }
 
   /**
    * Retrieve a Property accessor for the given nested property.
@@ -1024,5 +1014,14 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 
     public String @Nullable [] keys;
   }
+
+  /**
+   * The accessor that owns the final property and its parsed local tokens.
+   *
+   * @param accessor the accessor for the target bean
+   * @param tokens tokens for the final property
+   * @since 5.0
+   */
+  protected record ResolvedProperty(AbstractNestablePropertyAccessor accessor, PropertyTokenHolder tokens) { }
 
 }

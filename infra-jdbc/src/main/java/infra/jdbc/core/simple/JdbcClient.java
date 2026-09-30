@@ -396,12 +396,11 @@ public interface JdbcClient {
      * {@link BatchSpec#update()} completes it implicitly.
      *
      * @return a batch specification for accumulating sets of parameters
-     * @since 5.0
      * @see java.sql.PreparedStatement#executeBatch()
+     * @since 5.0
      */
     BatchSpec batch();
   }
-
 
   /**
    * A specification for accumulating several sets of parameters for a batch
@@ -414,8 +413,8 @@ public interface JdbcClient {
    * started through {@link #add()}; the final entry is completed implicitly by
    * {@link #update()}.
    *
-   * @since 5.0
    * @see StatementSpec#batch()
+   * @since 5.0
    */
   interface BatchSpec {
 
