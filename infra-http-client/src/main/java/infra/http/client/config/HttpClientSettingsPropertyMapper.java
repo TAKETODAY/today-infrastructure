@@ -64,7 +64,7 @@ public class HttpClientSettingsPropertyMapper {
       }
 
       if (properties.cookieHandling != null) {
-        settings.withCookieHandling(properties.cookieHandling);
+        settings = settings.withCookieHandling(properties.cookieHandling);
       }
     }
     return settings.orElse(this.settings);
