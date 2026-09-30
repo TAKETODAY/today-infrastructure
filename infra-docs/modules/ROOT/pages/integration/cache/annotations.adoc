@@ -275,7 +275,7 @@ public Optional<Book> findBook(String name)
 
 | `result`
 | 评估上下文
-| 方法调用的结果（要缓存的值）。仅在 `unless` 表达式、`cache put` 表达式（用于计算 `key`）或 `cache evict` 表达式（当 `beforeInvocation` 为 `false` 时）中可用。对于支持的包装器（如 `Optional`），`#result` 指的是实际对象，而不是包装器。
+| 方法调用的结果（要缓存或用于驱逐评估的值）。仅在 `unless` 表达式、`cache put` 表达式（`key`、`condition` 或 `unless`）或 `cache evict` 表达式（当 `beforeInvocation` 为 `false` 时的 `key` 或 `condition`）中可用。对于支持的包装器（如 `Optional`），`#result` 指的是实际对象，而不是包装器。对于返回 `Flux` 的方法，`#result` 指的是包含从 `Flux` 收集的所有值的 `List`。
 | `#result`
 |===
 
@@ -314,7 +314,7 @@ public void loadBooks(InputStream batch)
 
 请注意，`void` 方法可以与 `@CacheEvict` 一起使用 - 由于方法充当触发器，因此返回值被忽略（因为它们不与缓存交互）。`@Cacheable` 的情况并非如此，它将数据添加到缓存或更新缓存中的数据，因此需要结果。
 
-从 6.1 开始，`@CacheEvict` 将 `CompletableFuture` 和响应式返回类型纳入考量，只要处理完成，就执行调用后驱逐操作。
+从 6.1 开始，`@CacheEvict` 将 `CompletableFuture` 和响应式返回类型纳入考量，只要处理完成，就执行调用后驱逐操作。与 `@Cacheable` 和 `@CachePut` 一样，对于返回 `Flux` 的方法，所有发出的元素会在执行驱逐操作之前被收集到 `List` 中。当 `beforeInvocation` 为 `false` 时，`condition` SpEL 表达式看到的 `#result` 就是这个 `List`。无论如何，返回给调用方的 `Flux` 都不受此收集过程的影响。
 
 
 [[cache-annotations-caching]]
