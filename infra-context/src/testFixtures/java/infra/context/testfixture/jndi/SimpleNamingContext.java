@@ -327,7 +327,7 @@ public class SimpleNamingContext implements Context {
           }
         }
       }
-      if (contents.size() == 0) {
+      if (contents.isEmpty()) {
         throw new NamingException("Invalid root: [" + context.root + proot + "]");
       }
       this.iterator = contents.values().iterator();
