@@ -97,6 +97,10 @@ public abstract class DataSourceUnwrapper {
    * @since 5.0
    */
   public static DataSource unwrapRoot(DataSource dataSource) {
+    DataSource unwrapped = safeUnwrap(dataSource);
+    if (unwrapped != null && unwrapped != dataSource) {
+      return unwrapRoot(unwrapped);
+    }
     DataSource targetDataSource = getTargetDataSource(dataSource);
     if (targetDataSource != null) {
       return unwrapRoot(targetDataSource);
@@ -106,13 +110,6 @@ public abstract class DataSourceUnwrapper {
       if (proxyTarget instanceof DataSource proxyDataSource) {
         return unwrapRoot(proxyDataSource);
       }
-    }
-    DataSource unwrapped = safeUnwrap(dataSource);
-    if (unwrapped != null) {
-      if (unwrapped == dataSource) {
-        return unwrapped;
-      }
-      return unwrapRoot(unwrapped);
     }
     return dataSource;
   }
