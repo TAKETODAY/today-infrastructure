@@ -385,6 +385,11 @@ public class AssertTest {
   }
 
   @Test
+  public void noNullElementsWithEmptyCollectionAndMessageSupplier() {
+    Assert.noNullElements(emptyList(), () -> "enigma");
+  }
+
+  @Test
   public void noNullElementsWithNullArrayAndMessageSupplier() {
     Assert.noNullElements((Object[]) null, () -> "enigma");
   }
