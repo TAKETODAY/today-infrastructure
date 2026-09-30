@@ -2978,6 +2978,9 @@ public class ClassReader {
    */
   private Attribute readAttribute(final Attribute[] attributePrototypes, final String type,
           final int offset, final int length, final char[] charBuffer, final int codeAttributeOffset, final Label[] labels) {
+    if (length > classFileBuffer.length - offset) {
+      throw new IllegalArgumentException();
+    }
     for (Attribute attributePrototype : attributePrototypes) {
       if (attributePrototype.type.equals(type)) {
         return attributePrototype.read(
