@@ -92,7 +92,8 @@ public class TraceSignatureVisitorTests {
           {
                   "java.util.Hashtable<java.lang.Object, java.lang.String>",
                   "Ljava/util/Hashtable<Ljava/lang/Object;Ljava/lang/String;>;"
-          }
+          },
+          { "java.util.List<java.lang.Boolean[]>[][][]", "[[[Ljava/util/List<[Ljava/lang/Boolean;>;" }
   };
 
   private static final String[][] METHOD_SIGNATURES = {
@@ -123,6 +124,10 @@ public class TraceSignatureVisitorTests {
           {
                   "java.util.Map<java.lang.Object, java.lang.String><E, T extends java.lang.Comparable<E>>(java.lang.Object, java.util.Map<java.lang.Object, java.lang.String>, T)",
                   "<E:Ljava/lang/Object;T::Ljava/lang/Comparable<TE;>;>(Ljava/lang/Object;Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;TT;)Ljava/util/Map<Ljava/lang/Object;Ljava/lang/String;>;"
+          },
+          {
+                  "(java.util.Map<java.util.Map<java.lang.String, ? extends java.util.List<? super java.lang.Runnable>>, java.util.List<java.lang.Boolean[]>[]>)",
+                  "(Ljava/util/Map<Ljava/util/Map<Ljava/lang/String;+Ljava/util/List<-Ljava/lang/Runnable;>;>;[Ljava/util/List<[Ljava/lang/Boolean;>;>;)Ljava/lang/Object;"
           }
   };
 
