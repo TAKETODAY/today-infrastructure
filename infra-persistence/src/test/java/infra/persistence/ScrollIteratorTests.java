@@ -58,6 +58,24 @@ class ScrollIteratorTests {
   }
 
   @Test
+  void scrollWindowConveniences() {
+    Scroll<Integer> window = window(List.of(1, 2), false);
+    assertThat(window.hasNext()).isTrue();
+    assertThat(window.lastRow()).isEqualTo(2);
+    assertThat(window.position()).isEqualTo(window.positionAt(1));
+
+    Scroll<Integer> last = window(List.of(3), true);
+    assertThat(last.hasNext()).isFalse();
+    assertThat(last.lastRow()).isEqualTo(3);
+
+    Scroll<Integer> empty = window(List.of(), true);
+    assertThat(empty.isEmpty()).isTrue();
+    assertThat(empty.hasNext()).isFalse();
+    assertThatThrownBy(empty::lastRow).isInstanceOf(IllegalStateException.class);
+    assertThatThrownBy(empty::position).isInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
   void resumesFromGivenPosition() {
     ScrollIterator<Integer> iterator = ScrollIterator.of(position -> {
       int from = (int) position.cursor().get(0).value() + 1;

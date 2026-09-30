@@ -130,8 +130,8 @@ class ScrollPaginationIntegrationTests {
 
   private static ScrollResponse response(Scroll<UserView> scroll) {
     ScrollCursor next = null;
-    if (!scroll.isLast() && !scroll.isEmpty()) {
-      UserView row = scroll.rows().get(scroll.rows().size() - 1);
+    if (scroll.hasNext() && !scroll.isEmpty()) {
+      UserView row = scroll.lastRow();
       next = new ScrollCursor(row.age, row.id);
     }
     return new ScrollResponse(scroll.rows().stream().map(user -> user.id).toList(), scroll.isLast(), next);

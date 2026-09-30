@@ -60,12 +60,35 @@ public interface Scroll<T> extends Iterable<T> {
   boolean isLast();
 
   /**
+   * Return whether more rows follow this window.
+   *
+   * @return {@code true} when this is not the final window
+   */
+  default boolean hasNext() {
+    return !isLast();
+  }
+
+  /**
    * Return whether this window contains no elements.
    *
    * @return {@code true} when {@link #rows()} is empty
    */
   default boolean isEmpty() {
     return rows().isEmpty();
+  }
+
+  /**
+   * Return the last row in this window.
+   *
+   * @return the last row
+   * @throws IllegalStateException if this window is empty
+   */
+  default T lastRow() {
+    List<T> rows = rows();
+    if (rows.isEmpty()) {
+      throw new IllegalStateException("Cannot determine the last row of an empty window");
+    }
+    return rows.get(rows.size() - 1);
   }
 
   /**
