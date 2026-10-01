@@ -300,10 +300,14 @@ public final class BeanMetadata {
     // so that a field like "isEnabled" does not surface a second, conflicting
     // property next to the accessor-derived "enabled". Other fields keep their
     // raw name (e.g. a field named "Title" stays distinct from the "title" getter).
-    if (fieldName.startsWith("is")) {
+    if (field.getType() == boolean.class && fieldName.startsWith("is") && fieldName.length() > 2) {
       Method readMethod = ReflectionUtils.getReadMethod(field);
       Method writeMethod = ReflectionUtils.getWriteMethod(field);
-      String propertyName = ReflectionUtils.getPropertyName(readMethod, writeMethod);
+      // A getter with the same name as its backing field is still an "is" getter here,
+      // rather than a plain accessor whose property name includes the "is" prefix.
+      String propertyName = readMethod != null
+              ? StringUtils.uncapitalize(fieldName.substring(2))
+              : ReflectionUtils.getPropertyName(null, writeMethod);
       if (propertyName != null && beanProperties.containsKey(propertyName)) {
         return propertyName;
       }
