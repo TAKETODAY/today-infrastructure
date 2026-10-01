@@ -81,7 +81,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
   protected @Nullable Object rootObject;
 
   /** Map with cached nested Accessors: path segment -> Accessor instance. */
-  private @Nullable Map<PropertyPath.Segment, AbstractNestablePropertyAccessor> nestedPropertyAccessors;
+  private @Nullable HashMap<PropertyPath.Segment, AbstractNestablePropertyAccessor> nestedPropertyAccessors;
 
   private String nestedPath = "";
 
@@ -291,7 +291,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
         Object convertedValue = convertIfNecessary(
                 canonicalName, oldValue, pv.getValue(), componentType, ph.nested(keys.size()));
         int length = Array.getLength(propValue);
-        if (arrayIndex >= length && arrayIndex < this.autoGrowCollectionLimit) {
+        if (arrayIndex >= length && arrayIndex < autoGrowCollectionLimit) {
           Object newArray = Array.newInstance(componentType, arrayIndex + 1);
           System.arraycopy(propValue, 0, newArray, 0, length);
           String propName = segment.withoutLastKey().toCanonicalName();
@@ -391,6 +391,8 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
   }
 
   private void processLocalProperty(PropertyPath.Segment segment, PropertyValue pv) {
+    // segment.keys() is always empty here (see setPropertyValue(Segment, PropertyValue)
+    // above), so the segment's canonical name is always just its raw name.
     String name = segment.name();
     PropertyHandler ph = getLocalPropertyHandler(name);
     if (ph == null || !ph.writable) {
@@ -438,7 +440,9 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
       ph.setValue(valueToApply);
     }
     catch (TypeMismatchException ex) {
-      throw ex;
+      if (!ph.setValueFallbackIfPossible(pv.getValue())) {
+        throw ex;
+      }
     }
     catch (InvocationTargetException ex) {
       PropertyChangeEvent event = new PropertyChangeEvent(
@@ -588,12 +592,12 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
   protected @Nullable Object getPropertyValue(PropertyPath.Segment segment) throws BeansException {
     String actualName = segment.name();
     String propertyName = segment.toCanonicalName();
-    PropertyHandler handler = getLocalPropertyHandler(actualName);
-    if (handler == null || !handler.readable) {
+    PropertyHandler ph = getLocalPropertyHandler(actualName);
+    if (ph == null || !ph.readable) {
       throw new NotReadablePropertyException(getRootClass(), this.nestedPath + propertyName);
     }
     try {
-      Object value = handler.getValue();
+      Object value = ph.getValue();
       List<String> keys = segment.keys();
       if (!keys.isEmpty()) {
         if (value == null) {
@@ -605,7 +609,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
                     "Cannot access indexed value of property referenced in indexed property path '%s': returned null".formatted(propertyName));
           }
         }
-        String indexedPropertyName = actualName;
+        StringBuilder indexedPropertyName = new StringBuilder(actualName);
         // apply indexes and map keys
         for (int i = 0; i < keys.size(); i++) {
           String key = keys.get(i);
@@ -615,21 +619,21 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
           }
           else if (value.getClass().isArray()) {
             int index = Integer.parseInt(key);
-            value = growArrayIfNecessary(value, index, indexedPropertyName);
+            value = growArrayIfNecessary(value, index, indexedPropertyName.toString());
             value = Array.get(value, index);
           }
           else if (value instanceof List list) {
             int index = Integer.parseInt(key);
-            growCollectionIfNecessary(list, index, indexedPropertyName, handler, i + 1);
+            growCollectionIfNecessary(list, index, indexedPropertyName.toString(), ph, i + 1);
             if (index < 0 || index >= list.size()) {
               throw new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
-                      "Cannot get element with index %s from List of size %s, accessed using property path '%s'"
+                      "Cannot get element with index %d from List of size %d, accessed using property path '%s'"
                               .formatted(index, list.size(), propertyName));
             }
             value = list.get(index);
           }
-          else if (value instanceof Map<?, ?> map) {
-            Class<?> mapKeyType = handler.getResolvableType().getNested(i + 1).asMap().resolveGeneric(0);
+          else if (value instanceof Map map) {
+            Class<?> mapKeyType = ph.getResolvableType().getNested(i + 1).asMap().resolveGeneric(0);
             // IMPORTANT: Do not pass full property name in here - property editors
             // must not kick in for map keys but rather only for map values.
             TypeDescriptor typeDescriptor = TypeDescriptor.valueOf(mapKeyType);
@@ -642,7 +646,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
             if (value instanceof Collection<?> coll) {
               if (index < 0 || index >= coll.size()) {
                 throw new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
-                        "Cannot get element with index %s from Collection of size %s, accessed using property path '%s'"
+                        "Cannot get element with index %d from Collection of size %d, accessed using property path '%s'"
                                 .formatted(index, coll.size(), propertyName));
               }
             }
@@ -659,16 +663,16 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
             }
             if (!found) {
               throw new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
-                      "Cannot get element with index %s from Iterable of size %s, accessed using property path '%s'"
+                      "Cannot get element with index %d from Iterable of size %d, accessed using property path '%s'"
                               .formatted(index, currIndex, propertyName));
             }
           }
           else {
             throw new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
-                    "Property referenced in indexed property path '%s' is neither an array nor a List nor a Set nor a Map; returned value was [%s]"
+                    "Property referenced in indexed property path '%s' is neither an array nor a List/Set/Collection/Iterable nor a Map; returned value was [%s]"
                             .formatted(propertyName, value));
           }
-          indexedPropertyName = new PropertyPath.Segment(actualName, keys.subList(0, i + 1)).toCanonicalName();
+          indexedPropertyName.append(PROPERTY_KEY_PREFIX).append(key).append(PROPERTY_KEY_SUFFIX);
         }
       }
       return value;
@@ -817,26 +821,26 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
    * @return the PropertyAccessor instance, either cached or newly created
    */
   private AbstractNestablePropertyAccessor getNestedPropertyAccessor(PropertyPath.Segment segment) {
-    var nestedPropertyAccessors = this.nestedPropertyAccessors;
-    if (nestedPropertyAccessors == null) {
-      nestedPropertyAccessors = new HashMap<>();
-      this.nestedPropertyAccessors = nestedPropertyAccessors;
+    var nestedAccessors = this.nestedPropertyAccessors;
+    if (nestedAccessors == null) {
+      nestedAccessors = new HashMap<>();
+      this.nestedPropertyAccessors = nestedAccessors;
     }
     // Get value of bean property.
-    String canonicalName = segment.toCanonicalName();
     Object value = getPropertyValue(segment);
     if (value == null || (value instanceof Optional<?> optional && optional.isEmpty())) {
       if (isAutoGrowNestedPaths()) {
         value = setDefaultValue(segment);
       }
       else {
-        throw new NullValueInNestedPathException(getRootClass(), this.nestedPath + canonicalName);
+        throw new NullValueInNestedPathException(getRootClass(), this.nestedPath + segment.toCanonicalName());
       }
     }
 
     // Lookup cached sub-PropertyAccessor, create new one if not found.
-    var nestedPa = nestedPropertyAccessors.get(segment);
+    var nestedPa = nestedAccessors.get(segment);
     if (nestedPa == null || nestedPa.getWrappedInstance() != ObjectUtils.unwrapOptional(value)) {
+      String canonicalName = segment.toCanonicalName();
       if (log.isDebugEnabled()) {
         log.trace("Creating new nested {} for property '{}'", getClass().getSimpleName(), canonicalName);
       }
@@ -844,11 +848,11 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
       // Inherit all type-specific PropertyEditors.
       copyDefaultEditorsTo(nestedPa);
       copyCustomEditorsTo(nestedPa, canonicalName);
-      nestedPropertyAccessors.put(segment, nestedPa);
+      nestedAccessors.put(segment, nestedPa);
     }
     else {
       if (log.isDebugEnabled()) {
-        log.trace("Using cached nested property accessor for property '{}'", canonicalName);
+        log.trace("Using cached nested property accessor for property '{}'", segment.toCanonicalName());
       }
     }
     return nestedPa;
@@ -944,6 +948,33 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
       this.writable = writable;
     }
 
+    /**
+     * Return the declared type of the property.
+     *
+     * @return the property type
+     */
+    public Class<?> getPropertyType() {
+      return this.propertyType;
+    }
+
+    /**
+     * Return whether the property can be read.
+     *
+     * @return whether the property is readable
+     */
+    public boolean isReadable() {
+      return this.readable;
+    }
+
+    /**
+     * Return whether the property can be written.
+     *
+     * @return whether the property is writable
+     */
+    public boolean isWritable() {
+      return this.writable;
+    }
+
     public abstract TypeDescriptor toTypeDescriptor();
 
     public abstract ResolvableType getResolvableType();
@@ -965,6 +996,18 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     public abstract @Nullable Object getValue() throws Exception;
 
     public abstract void setValue(@Nullable Object value) throws Exception;
+
+    /**
+     * Try an alternative write method after conversion to the primary property's
+     * type failed. The default implementation does not provide a fallback.
+     *
+     * @param value the original value to write
+     * @return whether the fallback successfully wrote the value
+     * @since 5.0
+     */
+    public boolean setValueFallbackIfPossible(@Nullable Object value) {
+      return false;
+    }
   }
 
   /**

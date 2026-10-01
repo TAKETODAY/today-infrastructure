@@ -20,15 +20,19 @@ package infra.beans;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
 import infra.beans.testfixture.beans.TestBean;
+import infra.core.conversion.support.DefaultConversionService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * Specific {@link BeanWrapperImpl} tests.
@@ -153,6 +157,72 @@ class BeanWrapperTests extends AbstractPropertyAccessorTests {
     assertThat(target.value).isEqualTo("a String");
     assertThat(target.getObject()).isEqualTo(8);
     assertThat(accessor.getPropertyValue("object")).isEqualTo(8);
+  }
+
+  @Test
+  void setterOverload() {
+    SetterOverload target = new SetterOverload();
+    BeanWrapper accessor = createAccessor(target);
+
+    accessor.setPropertyValue("object", "a String");
+    assertThat(target.value).isEqualTo("a String");
+    assertThat(target.getObject()).isEqualTo("a String");
+    assertThat(accessor.getPropertyValue("object")).isEqualTo("a String");
+
+    accessor.setPropertyValue("object", 1000);
+    assertThat(target.value).isEqualTo("1000");
+    assertThat(target.getObject()).isEqualTo("1000");
+    assertThat(accessor.getPropertyValue("object")).isEqualTo("1000");
+
+    accessor.setPropertyValue("value", 1000);
+    assertThat(target.value).isEqualTo("1000i");
+    assertThat(target.getObject()).isEqualTo("1000i");
+    assertThat(accessor.getPropertyValue("object")).isEqualTo("1000i");
+
+    accessor.setPropertyValue("value", Duration.ofSeconds(1000));
+    assertThat(target.value).isEqualTo("1000s");
+    assertThat(target.getObject()).isEqualTo("1000s");
+    assertThat(accessor.getPropertyValue("object")).isEqualTo("1000s");
+  }
+
+  @Test
+  void uniqueSetterFallbackConvertsOriginalValue() throws Exception {
+    NumericSetterOverload target = new NumericSetterOverload();
+    BeanWrapperImpl accessor = numericSetterAccessor(target);
+    DefaultConversionService conversions = new DefaultConversionService();
+    conversions.addConverter(String.class, Integer.class, value -> {
+      throw new IllegalArgumentException("Primary conversion rejected");
+    });
+    accessor.setConversionService(conversions);
+
+    accessor.setPropertyValue("number", "42");
+
+    assertThat(target.value).isEqualTo(42L);
+  }
+
+  @Test
+  void failedSetterFallbackPreservesOriginalTypeMismatch() throws Exception {
+    NumericSetterOverload target = new NumericSetterOverload();
+    BeanWrapperImpl accessor = numericSetterAccessor(target);
+
+    assertThatExceptionOfType(TypeMismatchException.class)
+            .isThrownBy(() -> accessor.setPropertyValue("number", "invalid"))
+            .satisfies(ex -> {
+              assertThat(ex.getRequiredType()).isEqualTo(Integer.class);
+              assertThat(ex.getValue()).isEqualTo("invalid");
+            });
+    assertThat(target.value).isNull();
+  }
+
+  private BeanWrapperImpl numericSetterAccessor(NumericSetterOverload target) throws Exception {
+    // Select the primary overload explicitly so this test is independent of
+    // the JDK introspector's ordering of overloaded setters.
+    BeanProperty property = new BeanProperty(new GenericTypeAwarePropertyDescriptor(
+            NumericSetterOverload.class, "number", null,
+            NumericSetterOverload.class.getMethod("setNumber", Integer.class), null), NumericSetterOverload.class);
+    BeanMetadata metadata = mock(BeanMetadata.class);
+    given(metadata.getProperty("number")).willReturn(property);
+    return new BeanWrapperImpl(target, metadata);
   }
 
   @Test
@@ -307,6 +377,44 @@ class BeanWrapperTests extends AbstractPropertyAccessorTests {
 
     public Integer getObject() {
       return (this.value != null ? this.value.length() : null);
+    }
+  }
+
+  public static class NumericSetterOverload {
+
+    public Long value;
+
+    public void setNumber(Integer value) {
+      this.value = value.longValue();
+    }
+
+    public void setNumber(Long value) {
+      this.value = value;
+    }
+  }
+
+  public static class SetterOverload {
+
+    public String value;
+
+    public void setObject(Integer length) {
+      this.value = length + "i";
+    }
+
+    public void setObject(String object) {
+      this.value = object;
+    }
+
+    public String getObject() {
+      return this.value;
+    }
+
+    public void setValue(int length) {
+      this.value = length + "i";
+    }
+
+    public void setValue(Duration duration) {
+      this.value = duration.getSeconds() + "s";
     }
   }
 
