@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serial;
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Properties;
 
@@ -175,6 +177,11 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
   private String transactionSynchronizationRegistryName;
 
   private boolean autodetectTransactionSynchronizationRegistry = true;
+
+  private static final @Nullable Method beginWithReadOnlyMethod =
+          infra.util.ReflectionUtils.getMethodIfAvailable(UserTransaction.class, "begin", boolean.class);
+
+  private boolean enforceReadOnly;
 
   private boolean allowCustomIsolationLevels = false;
 
@@ -445,6 +452,19 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
    */
   public void setAllowCustomIsolationLevels(boolean allowCustomIsolationLevels) {
     this.allowCustomIsolationLevels = allowCustomIsolationLevels;
+  }
+
+  /**
+   * 是否向 JTA 事务管理器传递只读标记，按 JTA 2.1 规范强制资源只读访问。
+   * <p>需要 JTA 2.1，默认 {@code false}。默认情况下，Infra 事务的只读状态
+   * 仅提供给事务同步（例如抑制 Hibernate flush），JTA 事务仍正常提交。
+   * 当事务性 XA 资源支持 JTA 2.1 的 {@code ExtendedXAResource} SPI 时，
+   * 可以开启此标记，以只读模式运行并最终执行回滚。
+   * @param enforceReadOnly 是否强制只读
+   * @since 5.0
+   */
+  public void setEnforceReadOnly(boolean enforceReadOnly) {
+    this.enforceReadOnly = enforceReadOnly;
   }
 
   /**
@@ -908,7 +928,28 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
     applyIsolationLevel(txObject, definition.getIsolationLevel());
     int timeout = determineTimeout(definition);
     applyTimeout(txObject, timeout);
-    txObject.getUserTransaction().begin();
+    if (this.enforceReadOnly && definition.isReadOnly()) {
+      if (beginWithReadOnlyMethod == null) {
+        throw new NotSupportedException("enforceReadOnly requires JTA 2.1");
+      }
+      try {
+        beginWithReadOnlyMethod.invoke(txObject.getUserTransaction(), true);
+      }
+      catch (Exception ex) {
+        if (ex instanceof InvocationTargetException ite) {
+          if (ite.getTargetException() instanceof NotSupportedException nse) {
+            throw nse;
+          }
+          if (ite.getTargetException() instanceof SystemException se) {
+            throw se;
+          }
+        }
+        infra.util.ReflectionUtils.handleReflectionException(ex);
+      }
+    }
+    else {
+      txObject.getUserTransaction().begin();
+    }
   }
 
   /**
@@ -1059,7 +1100,12 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
         }
         throw new UnexpectedRollbackException("JTA transaction already rolled back (probably due to a timeout)");
       }
-      txObject.getUserTransaction().commit();
+      if (this.enforceReadOnly && status.isReadOnly()) {
+        txObject.getUserTransaction().rollback();
+      }
+      else {
+        txObject.getUserTransaction().commit();
+      }
     }
     catch (RollbackException ex) {
       throw new UnexpectedRollbackException(

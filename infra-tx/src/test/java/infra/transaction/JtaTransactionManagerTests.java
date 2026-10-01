@@ -1147,6 +1147,21 @@ public class JtaTransactionManagerTests {
     return new JtaTransactionManager(ut);
   }
 
+  @Test
+  void enforceReadOnlyRejectsUnsupportedJtaVersion() throws Exception {
+    UserTransaction ut = mock();
+    given(ut.getStatus()).willReturn(Status.STATUS_NO_TRANSACTION);
+    JtaTransactionManager manager = newJtaTransactionManager(ut);
+    manager.setEnforceReadOnly(true);
+    TransactionTemplate template = new TransactionTemplate(manager);
+    template.setReadOnly(true);
+    if (infra.util.ReflectionUtils.getMethodIfAvailable(UserTransaction.class, "begin", boolean.class) == null) {
+      assertThatExceptionOfType(NestedTransactionNotSupportedException.class)
+              .isThrownBy(() -> template.executeWithoutResult(status -> { }))
+              .withCauseInstanceOf(NotSupportedException.class);
+    }
+  }
+
   protected JtaTransactionManager newJtaTransactionManager(TransactionManager tm) {
     return new JtaTransactionManager(tm);
   }
