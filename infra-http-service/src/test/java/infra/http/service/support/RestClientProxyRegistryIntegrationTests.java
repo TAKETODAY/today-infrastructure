@@ -121,8 +121,6 @@ public class RestClientProxyRegistryIntegrationTests {
       protected boolean isEligibleForOverriding(String className) {
         return className.contains("EchoA");
       }
-
-      ;
     };
 
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();

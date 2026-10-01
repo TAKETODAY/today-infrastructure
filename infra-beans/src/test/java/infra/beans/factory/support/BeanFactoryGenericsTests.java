@@ -924,11 +924,9 @@ class BeanFactoryGenericsTests {
   public static class UrlSet extends HashSet<URL> {
 
     public UrlSet() {
-      super();
     }
 
     public UrlSet(Set<? extends URL> urls) {
-      super();
     }
 
     public void setUrlNames(Set<URI> urlNames) throws MalformedURLException {

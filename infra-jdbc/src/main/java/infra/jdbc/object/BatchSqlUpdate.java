@@ -72,7 +72,6 @@ public class BatchSqlUpdate extends SqlUpdate {
    * @see #setSql
    */
   public BatchSqlUpdate() {
-    super();
   }
 
   /**

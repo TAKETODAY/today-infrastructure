@@ -100,7 +100,6 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
    * @see java.util.concurrent.Executors#newSingleThreadScheduledExecutor()
    */
   public ConcurrentTaskScheduler() {
-    super();
     this.scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
     this.enterpriseConcurrentScheduler = false;
   }

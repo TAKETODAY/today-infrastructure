@@ -42,7 +42,6 @@ public class CustomizableThreadFactory extends CustomizableThreadCreator impleme
    * Create a new CustomizableThreadFactory with default thread name prefix.
    */
   public CustomizableThreadFactory() {
-    super();
   }
 
   /**

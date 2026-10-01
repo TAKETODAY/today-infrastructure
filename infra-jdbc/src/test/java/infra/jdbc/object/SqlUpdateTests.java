@@ -203,7 +203,7 @@ public class SqlUpdateTests {
     verify(preparedStatement).setObject(1, 1, Types.NUMERIC);
     verify(preparedStatement).setObject(2, 1, Types.NUMERIC, 2);
     verify(preparedStatement).setString(3, "rod");
-    verify(preparedStatement).setBoolean(4, Boolean.TRUE);
+    verify(preparedStatement).setBoolean(4, true);
   }
 
   @Test
@@ -242,7 +242,7 @@ public class SqlUpdateTests {
     verify(preparedStatement).setObject(1, 1, Types.NUMERIC);
     verify(preparedStatement).setObject(2, 1, Types.NUMERIC);
     verify(preparedStatement).setString(3, "rod");
-    verify(preparedStatement).setBoolean(4, Boolean.TRUE);
+    verify(preparedStatement).setBoolean(4, true);
   }
 
   @Test

@@ -864,7 +864,6 @@ class BeanUtilsTests {
     private String address;
 
     public User() {
-      super();
     }
 
     public String getAddress() {

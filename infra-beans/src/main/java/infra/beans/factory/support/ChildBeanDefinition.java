@@ -66,7 +66,6 @@ public class ChildBeanDefinition extends AbstractBeanDefinition {
    * @see #setPropertyValues
    */
   public ChildBeanDefinition(String parentName) {
-    super();
     this.parentName = parentName;
   }
 

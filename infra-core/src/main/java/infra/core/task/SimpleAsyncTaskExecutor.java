@@ -88,7 +88,6 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implement
    * Create a new SimpleAsyncTaskExecutor with default thread name prefix.
    */
   public SimpleAsyncTaskExecutor() {
-    super();
   }
 
   /**
