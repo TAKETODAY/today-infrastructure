@@ -1,0 +1,99 @@
+/*
+ * Copyright 2017 - 2026 the TODAY authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package infra.web.annotation;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import infra.core.annotation.AliasFor;
+import infra.http.HttpMethod;
+
+/**
+ * Annotation for mapping HTTP {@code QUERY} requests onto specific handler
+ * methods.
+ *
+ * <p>Specifically, {@code @QueryMapping} is a <em>composed annotation</em> that
+ * acts as a shortcut for {@code @RequestMapping(method = HttpMethod.QUERY)}.
+ *
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0
+ */
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@RequestMapping(method = HttpMethod.QUERY)
+@Target({ ElementType.METHOD, ElementType.TYPE })
+public @interface QueryMapping {
+
+  /**
+   * Alias for {@link RequestMapping#name}.
+   */
+  @AliasFor(annotation = RequestMapping.class)
+  String name() default "";
+
+  /**
+   * Alias for {@link RequestMapping#value}.
+   */
+  @AliasFor(annotation = RequestMapping.class)
+  String[] value() default {};
+
+  /**
+   * Alias for {@link RequestMapping#path}.
+   */
+  @AliasFor(annotation = RequestMapping.class)
+  String[] path() default {};
+
+  /**
+   * Combine this condition with another such as conditions from a
+   * type-level and method-level {@code @RequestMapping} annotation.
+   */
+  @AliasFor(annotation = RequestMapping.class)
+  boolean combine() default true;
+
+  /**
+   * Alias for {@link RequestMapping#params}.
+   */
+  @AliasFor(annotation = RequestMapping.class)
+  String[] params() default {};
+
+  /**
+   * Alias for {@link RequestMapping#headers}.
+   */
+  @AliasFor(annotation = RequestMapping.class)
+  String[] headers() default {};
+
+  /**
+   * Alias for {@link RequestMapping#consumes}.
+   */
+  @AliasFor(annotation = RequestMapping.class)
+  String[] consumes() default {};
+
+  /**
+   * Alias for {@link RequestMapping#produces}.
+   */
+  @AliasFor(annotation = RequestMapping.class)
+  String[] produces() default {};
+
+  /**
+   * Alias for {@link RequestMapping#version()}.
+   */
+  @AliasFor(annotation = RequestMapping.class)
+  String version() default "";
+
+}
