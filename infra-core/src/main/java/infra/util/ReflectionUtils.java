@@ -1629,21 +1629,15 @@ public abstract class ReflectionUtils {
   @Nullable
   public static String getPropertyName(@Nullable Method readMethod, @Nullable Method writeMethod) {
     if (readMethod != null) {
-      int index = readMethod.getName().indexOf("get");
-      if (index != -1) {
-        index += 3;
+      String name = readMethod.getName();
+      int index = 0;
+      if (name.startsWith("get")) {
+        index = isPlainPropertyAccessor(readMethod) ? 0 : 3;
       }
-      else {
-        index = readMethod.getName().indexOf("is");
-        if (index != -1) {
-          index += 2;
-        }
-        else {
-          // Record-style plain accessor method, e.g. name()
-          index = 0;
-        }
+      else if (name.startsWith("is")) {
+        index = isPlainPropertyAccessor(readMethod) ? 0 : 2;
       }
-      return StringUtils.uncapitalize(readMethod.getName().substring(index));
+      return StringUtils.uncapitalize(name.substring(index));
     }
     else if (writeMethod != null) {
       int index = writeMethod.getName().indexOf("set");
@@ -1653,6 +1647,18 @@ public abstract class ReflectionUtils {
       }
     }
     return null;
+  }
+
+  private static boolean isPlainPropertyAccessor(Method method) {
+    if (Modifier.isStatic(method.getModifiers()) || method.getParameterCount() > 0 || method.getReturnType() == void.class) {
+      return false;
+    }
+    try {
+      return !Modifier.isStatic(method.getDeclaringClass().getDeclaredField(method.getName()).getModifiers());
+    }
+    catch (Exception ex) {
+      return false;
+    }
   }
 
   //
@@ -1827,4 +1833,3 @@ public abstract class ReflectionUtils {
   }
 
 }
-
