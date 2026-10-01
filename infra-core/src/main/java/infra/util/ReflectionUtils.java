@@ -1640,10 +1640,8 @@ public abstract class ReflectionUtils {
       return StringUtils.uncapitalize(name.substring(index));
     }
     else if (writeMethod != null) {
-      int index = writeMethod.getName().indexOf("set");
-      if (index != -1) {
-        index += 3;
-        return StringUtils.uncapitalize(writeMethod.getName().substring(index));
+      if (writeMethod.getName().startsWith("set")) {
+        return StringUtils.uncapitalize(writeMethod.getName().substring(3));
       }
     }
     return null;

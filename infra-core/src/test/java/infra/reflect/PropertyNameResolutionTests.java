@@ -16,6 +16,7 @@ package infra.reflect;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 class PropertyNameResolutionTests {
 
@@ -43,11 +44,22 @@ class PropertyNameResolutionTests {
     assertThat(new Property(type, type.getMethod(method), null).getName()).isEqualTo(expected);
   }
 
+  @Test
+  void rejectNonSetterWriteMethods() {
+    for (String name : new String[] { "updateName", "offsetX", "upset" }) {
+      assertThatIllegalArgumentException().isThrownBy(() ->
+              new Property(TestBean.class, null, TestBean.class.getMethod(name, String.class)));
+    }
+  }
+
   static class TestBean {
     public String getName() { return null; }
     public boolean isEnabled() { return false; }
     public boolean isTarget() { return false; }
     public void setName(String name) { }
+    public void updateName(String name) { }
+    public void offsetX(String name) { }
+    public void upset(String name) { }
   }
 
   record SampleRecord(String name, String budget, String issue) {
