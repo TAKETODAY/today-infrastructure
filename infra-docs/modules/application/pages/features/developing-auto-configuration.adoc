@@ -1,0 +1,113 @@
+// Derived from Spring Boot reference/pages/features/developing-auto-configuration.adoc.
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+[[features.developing-auto-configuration]]
+= 创建自己的自动配置
+
+共享库可以把自动配置放在独立 JAR 中，让使用者添加依赖后自动获得默认 Bean。
+还可以提供 Starter，集中声明自动配置模块和该技术通常需要的依赖。
+
+== 自动配置类
+
+使用 `infra.context.annotation.config.AutoConfiguration` 声明自动配置类。
+该注解包含 `@Configuration(proxyBeanMethods = false)`，再通过条件注解限制何时生效。
+常见组合是 `infra.context.condition.ConditionalOnClass` 和 `ConditionalOnMissingBean`：仅在所需库存在且用户没有定义匹配 Bean 时提供默认 Bean。
+
+== 注册候选配置
+
+在发布的 JAR 中添加以下 UTF-8 文件：
+
+[source,text]
+----
+META-INF/config/infra.context.annotation.config.AutoConfiguration.imports
+----
+
+每行写一个自动配置类的完全限定名称：
+
+[source,text]
+----
+com.mycorp.libx.autoconfigure.LibXAutoConfiguration
+com.mycorp.libx.autoconfigure.LibXWebAutoConfiguration
+----
+
+可以使用 `#` 写注释。嵌套类名称使用 `$`，例如 `com.example.Outer$NestedAutoConfiguration`。
+自动配置应通过候选文件加载，放在独立包中，避免被应用组件扫描意外发现。
+自动配置内部也不应通过组件扫描寻找额外组件，应使用明确的 `@Import`。
+
+== 配置顺序与替换
+
+通过 `@AutoConfiguration` 的 `before`、`beforeName`、`after` 和 `afterName` 控制自动配置相对顺序，也可以使用 `AutoConfigureBefore`、`AutoConfigureAfter`。
+互不直接依赖的配置可以用 `AutoConfigureOrder` 给出排序值。
+这些设置只决定 Bean 定义的注册顺序；Bean 实例创建顺序由依赖关系和 `@DependsOn` 等约束决定。
+
+移动或替换自动配置类时，还需兼容旧名称在排序和排除列表中的引用。
+创建 `META-INF/config/infra.context.annotation.config.AutoConfiguration.replacements`：
+
+[source,properties]
+----
+com.mycorp.libx.autoconfigure.LibXAutoConfiguration=com.mycorp.libx.autoconfigure.core.LibXAutoConfiguration
+----
+
+候选 `.imports` 文件应只列出替换后的类。
+
+== 条件注解
+
+条件可以放在配置类或 Bean 工厂方法上。
+
+=== 类条件
+
+`ConditionalOnClass` 和 `ConditionalOnMissingClass` 检查类的存在或缺失。
+配置类注解元数据通过字节码读取，因此直接声明在配置类上的 `ConditionalOnClass.value` 可以引用运行时可能不存在的类。
+组合成元注解时应使用 `name` 写类名。
+
+如果 Bean 方法返回可选库的类型，JVM 可能在方法条件生效前就解析它。
+把这类方法放在独立的嵌套配置类中，并在配置类上添加类条件，隔离可选类型。
+
+=== Bean 条件
+
+`ConditionalOnBean` 和 `ConditionalOnMissingBean` 按类型或名称判断已注册的 Bean，`search` 控制上下文层次搜索范围。
+放在 Bean 方法上而没有显式类型时，通常使用方法返回类型。
+条件依据已经处理的 Bean 定义判断，因此推荐在自动配置中使用，确保用户定义先注册。
+工厂方法应声明尽可能具体的返回类型，避免条件判断缺少必要的类型信息。
+
+类级条件不匹配时，不注册该配置类；逐方法条件则分别控制各个工厂方法。
+
+=== 属性条件
+
+`ConditionalOnProperty` 用 `prefix` 和 `name` 指定属性。
+默认匹配存在且值不为 `false` 的属性，`havingValue` 指定期望值，`matchIfMissing` 决定缺失时是否匹配。
+声明多个名称时，全部属性都必须满足条件。
+布尔属性还可以使用 `ConditionalOnBooleanProperty`。
+
+=== 资源、Web 和表达式条件
+
+`ConditionalOnResource` 检查资源，例如 `file:/home/user/test.dat`。
+`ConditionalOnWebApplication` 和 `ConditionalOnNotWebApplication` 检查 Web 应用条件；目标 Web 类型为 `ANY`、`MVC`、`REACTIVE`，不是上游的 Servlet 专用枚举。
+
+`ConditionalOnExpression` 根据表达式结果判断。
+在表达式中引用 Bean 会导致它过早初始化，可能错过配置属性绑定等后处理步骤，应避免这种用法。
+
+== 测试自动配置
+
+`infra.test.context.runner.ApplicationContextRunner` 可以为每个用例创建独立上下文，组合用户配置、属性和自动配置。
+使用 `infra.context.annotation.config.AutoConfigurations.of(...)` 提供自动配置候选，使用 `withUserConfiguration` 加入用户配置，使用 `withPropertyValues` 设置环境属性，再通过 `run` 回调断言结果。
+测试应覆盖默认 Bean、用户 Bean 导致退让、条件不匹配和配置属性变化等场景。
+
+`infra.test.context.FilteredClassLoader` 可以模拟某些类或包不可用的环境。
+Web 和响应式上下文分别使用 `WebApplicationContextRunner` 和 `ReactiveWebApplicationContextRunner`，位于 `infra.test.context.runner`。
+这些 Runner 用于 JVM 上的上下文测试，不应把它们当作原生镜像内的通用测试设施。
+
+== 创建 Starter
+
+可以把自动配置和 API 放在一个模块，把依赖集合放在另一个 Starter 模块。
+简单且没有可选功能时，也可以合并；包含多种可选技术时，分离有助于避免引入无用依赖。
+Starter 的主要作用是提供一组合理的依赖，而不是包含业务实现。
+
+第三方 Starter 应使用自有命名空间，例如 `acme-infra-starter`，避免占用官方模块名称。
+配置键同样使用自有前缀，如 `acme.*`，避免混入 `app`、`infra`、`server`、`logging` 等既有配置命名空间。
+测试专用集成可以另提供测试范围的 Starter。
+
+为配置属性成员编写英文 JavaDoc，并使用配置处理器生成 IDE 元数据。
+record 的组件说明使用类级 `@param` 标签。
+描述应明确属性作用、单位和约束；布尔选项可用 “Whether” 开头，集合说明明确是否为逗号分隔列表。
+推荐用 `Duration` 表示时长，而不是没有明确单位的整数。
+生成后还应人工检查元数据质量，不只判断处理器是否运行成功。

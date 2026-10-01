@@ -1,0 +1,53 @@
+// Derived from Spring Boot reference/pages/features/dev-services.adoc.
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+[[features.dev-services]]
+= 开发期服务
+
+开发期服务为本地开发提供数据库等外部依赖，不应成为部署环境默认启动容器的要求。
+TODAY infra 提供 Docker Compose 与 Testcontainers 集成。
+
+== Docker Compose
+
+添加 `cn.taketoday:infra-docker-compose` 可以启用 Compose 支持。
+使用应用 Gradle 插件时，把它声明在 `developmentOnly`，避免作为常规生产依赖打包。
+需要在测试中使用时可改为 `testAndDevelopmentOnly`，并设置 `infra.docker.compose.skip.in-tests=false`。
+
+模块在工作目录查找常见 Compose 文件名，默认执行 `docker compose up`，为支持的服务创建连接详情，并在关闭时执行 `docker compose stop`。
+服务已经运行时，默认跳过启动；生命周期行为还受相关选项控制。
+必须安装可用的 Docker 和 Docker Compose CLI，并提供可访问的 Docker 环境。
+
+`infra.docker.compose.file` 可以指定其他文件位置。
+`infra.docker.compose.enabled=false` 禁用支持，`lifecycle-management` 可设置为 `none`、`start-only` 或 `start-and-stop`。
+`start.command` 和 `stop.command` 调整启动与停止命令，`arguments`、`start.arguments`、`stop.arguments` 分别提供通用及阶段参数。
+这些属性均位于 `infra.docker.compose` 前缀下。
+
+== 服务连接
+
+服务连接使用容器映射到宿主机的端口，而不是假设容器内端口可以直接访问。
+目标 JDBC 模块提供 ClickHouse、MariaDB、MySQL、PostgreSQL、SQL Server 和 Oracle 镜像的连接详情工厂。
+消费这些详情的自动配置可以使用它们替代普通连接属性。
+上游列出的 Redis、Kafka、MongoDB 等连接工厂不是目标已提供的通用能力。
+
+自定义镜像需要兼容被匹配服务的环境变量和端口约定。
+用 `infra.service-connection` 标签指定匹配名称，用 `infra.ignore: true` 忽略不需要连接的服务。
+目标标签前缀不是 `org.springframework.boot`。
+
+== 就绪与 Profile
+
+建议在 Compose 文件中配置 `healthcheck`。
+默认还可以通过映射端口上的 TCP 连接检查就绪，但 TCP 可连接并不等于服务的业务初始化完成。
+单个服务可以用 `infra.readiness-check.tcp.disable` 禁用 TCP 检查。
+`infra.docker.compose.readiness.tcp.connect-timeout`、`read-timeout` 和 `infra.docker.compose.readiness.timeout` 控制检查超时。
+
+`infra.docker.compose.profiles.active` 设置 Compose Profile。
+Compose Profile 与 `infra.profiles.active` 是两个独立配置，不能认为激活应用 Profile 会自动激活同名 Compose Profile。
+
+== 开发期 Testcontainers
+
+Testcontainers 可以用 Java 配置代替 Compose YAML。
+在测试类路径中声明容器配置，并从测试目录的启动类运行应用，可以让容器依赖保持测试范围。
+`Application.from(MyApplication::main).with(MyContainersConfiguration.class).run(args)` 可以复用真实主入口并增加测试配置。
+需要添加 `cn.taketoday:infra-testcontainers` 及相应容器依赖。
+容器生命周期和服务连接限制见 xref:testing/testcontainers.adoc[]。
+
+目标没有上游 DevTools 的重启作用域能力；不要使用 `RestartScope` 或承诺应用自动重启时保留容器实例。

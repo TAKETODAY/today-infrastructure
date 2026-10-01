@@ -1,0 +1,29 @@
+= 应用开发
+
+本节介绍使用 TODAY infra 开发应用时的代码组织、依赖注入和自动配置，以及配置加载、日志、SSL、JDBC、REST 客户端和应用测试等集成功能。
+从 xref:tutorial:first-application/index.adoc[第一个 Web 应用程序]开始，可以了解应用启动和可执行 JAR 的构建方式。
+
+这些页面翻译并适配自 Spring Boot 参考文档，来源版本固定为上游提交 `ab1843bbf6d855ca066ea6b9ccf7e64b83139469`。
+类名、包名、配置键和示例以 TODAY infra 当前实现为准；示例仅提供 Java，不包含 Kotlin 代码。
+本节目前覆盖导航列出的章节，并非完整 Spring Boot 参考手册。
+上游长章节的内容在本批中按目标能力整理；尚未逐段完整翻译的细节和未迁移的 Java 示例不视为已完成。
+
+== 阅读顺序
+
+. xref:using/structuring-your-code.adoc[组织代码]，确定应用入口和组件的包结构。
+. xref:using/configuration-classes.adoc[配置类]和 xref:using/beans-and-dependency-injection.adoc[依赖注入]，了解如何定义应用组件。
+. xref:using/using-the-infraapplication-annotation.adoc[`@InfraApplication`]和 xref:using/auto-configuration.adoc[自动配置]，了解默认配置及其替换方式。
+. xref:using/running-your-application.adoc[运行应用]，了解 IDE、Gradle 和可执行 JAR 的启动方式。
+
+== 配置命名空间
+
+TODAY infra 的配置键不能通过统一替换 Spring Boot 的 `spring` 前缀得到。
+例如，配置文件加载使用 `app.config.*`，Profile 使用 `infra.profiles.*`，国际化使用 `infra.messages.*`，邮件使用 `mail.*`。
+各章的配置示例给出了对应功能的实际命名空间。
+
+== 文档来源与许可
+
+本节的翻译来源为 Spring Boot 仓库的 `documentation/spring-boot-docs/src/docs/antora/modules/reference/pages/`。
+上游 AsciiDoc 页面没有独立文件版权头；其 Java 示例具有原始版权和 Apache License 2.0 许可证头。
+派生页面和示例的来源声明保存在对应页面顶部的 AsciiDoc 注释中。
+翻译和适配使用 Apache License 2.0；参见 https://www.apache.org/licenses/LICENSE-2.0[许可证全文]。

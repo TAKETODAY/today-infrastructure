@@ -1,0 +1,40 @@
+// Derived from Spring Boot reference/pages/io/email.adoc.
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+[[io.email]]
+= 发送邮件
+
+TODAY infra 使用 `infra.mail.javamail.JavaMailSender` 抽象发送邮件，并提供相应自动配置。
+具体邮件 API 用法见 xref:ROOT:integration/email.adoc[邮件集成]。
+应用可以添加 `cn.taketoday:infra-starter-mail`，引入邮件模块及 Jakarta Mail 实现。
+
+当 `mail.host` 已配置，且类路径中存在邮件所需的类型时，自动配置在没有用户提供的 `infra.mail.MailSender` Bean 的情况下创建默认邮件发送器。
+`mail.jndi-name` 也可以触发自动配置。
+邮件相关选项由 `infra.mail.config.MailProperties` 定义，使用 `mail` 命名空间，而不是 `spring.mail` 或 `infra.mail`。
+
+[source,yaml]
+----
+mail:
+  host: smtp.example.com
+  port: 587
+  username: my-user
+  password: ${MAIL_PASSWORD}
+  properties:
+    "[mail.smtp.auth]": true
+    "[mail.smtp.starttls.enable]": true
+    "[mail.smtp.connectiontimeout]": 5000
+    "[mail.smtp.timeout]": 3000
+    "[mail.smtp.writetimeout]": 5000
+----
+
+TIP: 某些邮件协议超时默认值为无限。显式设置连接、读取和写入超时，可以避免无响应的邮件服务器长期阻塞线程。上述超时值单位为毫秒；认证和 STARTTLS 是否需要启用取决于服务器要求。
+
+也可以使用通过 JNDI 获取的 `jakarta.mail.Session`：
+
+[source,yaml]
+----
+mail:
+  jndi-name: "mail/Session"
+----
+
+设置 `jndi-name` 后，使用 JNDI Session 的配置优先于其他 Session 相关设置。
+运行环境必须提供可用的 JNDI 上下文及该名称对应的 Session。

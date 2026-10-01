@@ -1,0 +1,44 @@
+// Derived from Spring Boot reference/pages/testing/testcontainers.adoc.
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+[[testing.testcontainers]]
+= Testcontainers
+
+https://testcontainers.com/[Testcontainers] 可以为集成测试管理 Docker 容器，让测试连接真实后端服务。
+容器库本身提供 JUnit Jupiter 扩展，也可以与 TODAY infra 的应用测试和容器生命周期支持组合使用。
+
+== 生命周期管理
+
+使用 Testcontainers 的 `@Testcontainers` 和 `@Container` 时，由其 JUnit 扩展管理生命周期。
+静态字段容器通常在测试类完成后停止，实例字段容器通常在每个测试方法后停止。
+TestContext 可能仍缓存并复用应用上下文；如果上下文依赖已停止的容器，后续测试和销毁回调可能失败。
+
+需要容器与缓存上下文保持一致时，优先在测试配置中将容器声明为 Bean，并启用 `infra-testcontainers` 集成。
+也可以使用 `infra.testcontainers.context.ImportTestcontainers` 导入声明容器静态字段的类或接口。
+集成管理的容器生命周期跟随上下文，而不一定跟随单个测试类；一个容器可能服务于多个测试类。
+不要让两个独立生命周期管理者同时负责同一个容器的关闭。
+
+== 服务连接
+
+`infra.testcontainers.service.connection.ServiceConnection` 可以放在容器字段或 Bean 方法上。
+它本身只是连接源声明；还需要存在匹配的 `ContainerConnectionDetailsFactory`，才能创建详情 Bean。
+目标 JDBC 测试模块提供 JDBC 容器工厂，Flyway 模块提供 Flyway 容器工厂。
+因此仅添加 `infra-testcontainers` 并不自动获得上游所有数据库、消息中间件和遥测连接工厂。
+
+工厂可以根据容器子类型或镜像名称匹配。
+容器静态字段已经有实例时，可以读取镜像仓库名；Bean 方法不能为判断镜像提前调用，否则会引起过早初始化。
+返回 `GenericContainer` 且依赖名称匹配的 Bean 方法，需要使用 `@ServiceConnection(name = "...")` 提供名称提示，并确保目标确实有该服务的工厂。
+`type` 属性可以限制生成的连接详情类型，不声明时允许所有匹配类型。
+
+== 动态属性
+
+不支持服务连接的技术可以通过 `infra.test.context.DynamicPropertySource` 或 `DynamicPropertyRegistrar` 提供连接属性。
+依赖容器的属性应在容器已经启动后读取，例如映射端口，不能硬编码宿主机端口。
+使用声明 Bean 的动态注册器时，把容器作为工厂方法参数，可以明确建立依赖关系。
+
+== SSL
+
+服务连接包还提供 `Ssl`、`JksKeyStore`、`JksTrustStore`、`PemKeyStore` 和 `PemTrustStore` 注解。
+这些注解为支持 SSL 的连接工厂提供客户端信任材料，不负责在容器中的服务端启用 TLS。
+具体连接工厂必须实现对应消费逻辑；不要把注解存在当成任意服务都支持 SSL 的依据。
+
+使用容器测试需要可用的 Docker 环境；测试构建成功不等于已经运行并验证容器连接。

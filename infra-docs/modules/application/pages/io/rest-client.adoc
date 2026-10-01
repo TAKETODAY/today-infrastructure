@@ -1,0 +1,54 @@
+// Derived from Spring Boot reference/pages/io/rest-client.adoc.
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+[[io.rest-client]]
+= 调用 REST 服务
+
+TODAY infra 提供命令式 `infra.web.client.RestClient` 和响应式 `infra.web.reactive.client.WebClient`。
+普通阻塞应用通常选择 `RestClient`；使用 Reactor 的非阻塞应用可以选择 `WebClient`。
+底层 API 的详细说明见 xref:ROOT:integration/rest-clients.adoc[REST 客户端]。
+
+== 使用自动配置的 Builder
+
+分别通过 `cn.taketoday:infra-starter-restclient` 或 `cn.taketoday:infra-starter-webclient` 引入相应客户端集成。
+自动配置提供原型作用域的 Builder，每个注入点获得独立实例。
+推荐注入 `RestClient.Builder` 或 `WebClient.Builder`，以保留自动配置的请求工厂、连接器、消息转换器或 Codec 设置。
+
+Builder 有状态，对它的修改会影响以后通过该实例构建的客户端。
+使用同一个 Builder 创建多个独立配置的客户端时，可以先调用 `clone()`。
+
+应用级定制可以提供 `infra.web.client.RestClientCustomizer` 或 `infra.web.reactive.client.WebClientCustomizer` Bean。
+直接调用 `RestClient.create()` 或 `WebClient.create()` 则不应用容器中的这些定制器。
+
+== 底层 HTTP 客户端
+
+目标命令式请求工厂的默认检测顺序是 Apache HttpClient、Reactor Netty、JDK HttpClient。
+响应式连接器的默认检测顺序是 Reactor Netty、Apache HttpClient、JDK HttpClient。
+上游的 Jetty 和简单 `HttpURLConnection` 检测分支不属于目标这两个 Builder 的当前默认能力。
+
+可以自己提供 `infra.http.client.ClientHttpRequestFactoryBuilder` 或 `infra.http.reactive.client.ClientHttpConnectorBuilder` Bean 取代默认 Builder。
+需要在默认 Builder 上增加定制时，使用相应配置包中的 `ClientHttpRequestFactoryBuilderCustomizer` 或 `ClientHttpConnectorBuilderCustomizer`。
+这些 API 返回新 Builder 时，应使用返回值，不要假设所有操作都会原地修改实例。
+
+== 全局设置
+
+通用默认设置使用 `http.clients.*` 前缀：
+
+[source,yaml]
+----
+http:
+  clients:
+    connect-timeout: 5s
+    read-timeout: 10s
+----
+
+`infra.http.client.config.HttpClientsProperties` 还提供重定向、Cookie 处理和 SSL Bundle 设置。
+各底层 HTTP 库的读超时和资源生命周期语义可能不同；需要更细控制时使用对应 Builder。
+
+有 `SslBundles` Bean 时，可以通过 `infra.web.client.config.RestClientSsl` 或 `infra.web.reactive.client.config.WebClientSsl` 为 Builder 应用指定 Bundle。
+SSL Bundle 必须先由应用配置或代码注册，不能引用不存在的名称。
+
+== HTTP 服务接口
+
+可以使用 `infra.http.service.annotation.HttpExchange` 及 `GetExchange`、`PostExchange` 等方法级变体定义 Java 接口，将远程调用建模为服务契约。
+相关接口导入、客户端适配和分组配置见 xref:ROOT:integration/rest-clients.adoc[HTTP 服务客户端说明]。
+客户端 API 版本策略应显式配置，不能假定服务器的版本设置会自动传播到客户端。

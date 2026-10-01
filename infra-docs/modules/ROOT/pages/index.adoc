@@ -5,6 +5,7 @@
 xref:overview.adoc[概述] :: 背景, 名称, 系统要求，反馈和贡献, 鸣谢，开源协议。
 xref:core.adoc[核心技术] :: IoC 容器, 事件（观察者模式）, 资源（Resources）, 国际化, Validation, 数据绑定,
 类型转换, SpEL, 切面编程, AOT。
+xref:application:index.adoc[应用开发] :: 代码组织、配置类、自动配置、依赖注入、应用启动、国际化、AOP、校验和邮件。
 <<testing.adoc#testing, 测试>> :: Mock Objects, TestContext Framework, Web MVC Test。
 xref:data-access.adoc[数据存取] :: 事物, DAO, JDBC, 自研ORM框架。
 xref:web.adoc[Web 模块] :: Web 框架, WebSocket。

@@ -1,0 +1,142 @@
+// Derived from Spring Boot reference/pages/features/logging.adoc.
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+[[features.logging]]
+= 日志
+
+TODAY infra 内部使用 `infra.logging` 日志抽象，底层日志实现可替换。
+应用日志初始化支持 Logback 和 Java Util Logging。
+添加 `cn.taketoday:infra-starter-logback` 可以获得 Logback 集成；具体桥接依赖应以所选 Starter 的依赖集合为准。
+目标没有与上游同等的 Log4j2 应用日志初始化模块，因此不能直接采用上游 Log4j2 自动配置和扩展说明。
+
+== 控制台输出和级别
+
+默认日志输出到控制台，通常显示 `ERROR`、`WARN` 和 `INFO` 级别。
+`--debug` 或 `debug=true` 为一组选定的框架 Logger 增加调试输出，不会把全部应用 Logger 都设为 `DEBUG`。
+`--trace` 或 `trace=true` 同样启用选定的跟踪输出。
+
+使用 `logging.level.<logger-name>` 设置具体 Logger 的级别，`logging.level.root` 设置根 Logger：
+
+[source,yaml]
+----
+logging:
+  level:
+    root: warn
+    infra.web: debug
+    org.hibernate: error
+----
+
+支持的级别取决于底层实现，应用属性可以使用 `TRACE`、`DEBUG`、`INFO`、`WARN`、`ERROR`、`FATAL` 和 `OFF`。
+Logback 没有独立的 `FATAL`，它映射为 `ERROR`。
+
+环境变量 `LOGGING_LEVEL_INFRA_WEB=DEBUG` 可以设置包级 Logger。
+环境变量绑定会小写化名称，不适合直接设置含大写字母的类级 Logger；此时使用配置文件或 `INFRA_APPLICATION_JSON`。
+
+== 日志组
+
+`logging.group` 可以把多个 Logger 组合为一个逻辑名称：
+
+[source,yaml]
+----
+logging:
+  group:
+    my-client: "com.example.client,com.example.transport"
+  level:
+    my-client: debug
+----
+
+内建 `web` 组包含 `infra.core.codec`、`infra.http`、`infra.session` 和 `infra.web`。
+内建 `sql` 组包含 `infra.jdbc.core`、`org.hibernate.SQL`、`infra.SQL`、`infra.SQL_SLOW` 和 `org.jooq.tools.LoggerListener`。
+
+== 文件输出与滚动
+
+默认不写日志文件。设置 `logging.file.name` 指定文件，或设置 `logging.file.path` 指定目录。
+同时设置时，`name` 优先；仅设置目录时，目标文件名为 `infra-app.log`，不是上游的 `spring.log`。
+相对路径以进程工作目录为基准。
+
+Logback 的滚动策略可以使用下列属性：
+
+* `logging.logback.rollingpolicy.file-name-pattern`：归档文件名模式。
+* `logging.logback.rollingpolicy.clean-history-on-start`：启动时是否清理历史归档。
+* `logging.logback.rollingpolicy.max-file-size`：单个日志文件上限。
+* `logging.logback.rollingpolicy.total-size-cap`：归档总大小上限。
+* `logging.logback.rollingpolicy.max-history`：保留的历史周期数。
+
+其他日志系统的滚动行为应按其原生配置设置，不能假定这些 Logback 属性对它们生效。
+
+== 自定义配置
+
+`logging.config` 指定日志配置资源。
+Logback 可以使用类路径的 `logback.xml`，需要 infra 扩展时推荐使用 `logback-infra.xml`。
+普通配置可能被底层日志库过早读取，使框架无法完整控制初始化。
+
+日志在应用上下文创建前初始化，不能依赖普通配置类上的 `@PropertySource` 控制早期日志设置。
+通过 Java 系统属性 `infra.app.logging.LoggingSystem` 可以指定实现类，值为 `none` 时禁用框架的日志系统初始化。
+
+`logging.register-shutdown-hook=false` 可以禁用日志清理关闭钩子。
+具有复杂上下文层次的应用应根据底层日志库的资源管理方式决定是否使用该钩子。
+
+== 日志模式与系统属性
+
+可以设置 `logging.pattern.console`、`logging.pattern.file`、`logging.pattern.level` 和 `logging.pattern.dateformat`。
+字符集使用 `logging.charset.console` 和 `logging.charset.file`，输出阈值使用 `logging.threshold.console` 和 `logging.threshold.file`。
+默认配置会把这些设置转换为 `CONSOLE_LOG_PATTERN`、`FILE_LOG_PATTERN`、`LOG_LEVEL_PATTERN`、`LOG_DATEFORMAT_PATTERN` 等系统属性供日志配置消费。
+文件名和目录对应 `LOG_FILE`、`LOG_PATH`。
+
+`app.name` 和 `app.group` 可以参与应用名称和组名输出，分别由 `logging.include-application-name` 和 `logging.include-application-group` 控制是否包含。
+日志模式中的 MDC 内容可以通过 `%X` 等底层格式语法加入。
+应用属性中的占位符默认值使用 `:`，不要把它与 Logback 原生的 `:-` 语法混用。
+
+== 结构化日志
+
+Logback 集成支持 ECS、GELF 和 Logstash JSON 格式。
+控制台和文件分别使用 `logging.structured.format.console` 和 `logging.structured.format.file`：
+
+[source,yaml]
+----
+logging:
+  structured:
+    format:
+      console: ecs
+      file: ecs
+----
+
+需要文件输出时，还必须配置日志文件；仅设置文件格式不会自动确定文件位置。
+已有自定义 Logback 配置应使用 `infra.app.logging.logback.StructuredLogEncoder`，并读取 `CONSOLE_LOG_STRUCTURED_FORMAT` 或 `FILE_LOG_STRUCTURED_FORMAT`，否则不会自动切换 Encoder。
+
+`logging.structured.json.include` 和 `exclude` 控制成员过滤，`rename` 重命名路径，`add` 添加固定成员。
+例如：
+
+[source,yaml]
+----
+logging:
+  structured:
+    json:
+      exclude: log.level
+      rename:
+        process.pid: procid
+      add:
+        corpname: mycorp
+----
+
+堆栈输出可通过 `logging.structured.json.stacktrace.*` 调整，例如根异常顺序、长度和公共栈帧处理。
+使用这些设置时，应确保日志接收端仍有足够信息诊断问题。
+自定义格式实现 `infra.app.logging.structured.StructuredLogFormatter`，Logback 事件类型为 `ch.qos.logback.classic.spi.ILoggingEvent`。
+将格式属性设为实现类的完全限定名称，即可使用自定义格式，不强制要求返回 JSON。
+
+== Logback 扩展
+
+目标扩展标签名为 `infra-profile` 和 `infra-property`，不是 `springProfile`、`springProperty`。
+在 `logback-infra.xml` 或由 `logging.config` 指定并交给框架加载的配置中使用：
+
+[source,xml]
+----
+<infra-profile name="dev | staging">
+  <!-- 开发和预发布环境的日志设置 -->
+</infra-profile>
+
+<infra-property scope="context" name="remoteHost"
+    source="myapp.logging.host" defaultValue="localhost"/>
+----
+
+Profile 名称可以是表达式，属性的 `source` 推荐使用小写连字符形式。
+这些扩展不能与 Logback 的自动配置扫描组合使用，因为原生重载流程不会应用相同的扩展处理器。

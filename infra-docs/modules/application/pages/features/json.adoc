@@ -1,0 +1,58 @@
+// Derived from Spring Boot reference/pages/features/json.adoc.
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+[[features.json]]
+= JSON
+
+TODAY infra 提供 Jackson 3、Gson 和 JSON-B 的自动配置。
+各自动配置必须随对应模块进入类路径；仅添加某个底层 JSON 库，并不代表其自动配置模块已经存在。
+
+== Jackson 3
+
+使用 `cn.taketoday:infra-starter-jackson` 可以引入 Jackson 及其集成模块。
+满足自动配置条件且没有用户提供的匹配 Bean 时，会创建 `tools.jackson.databind.json.JsonMapper`。
+设置由 `infra.jackson.config.JacksonProperties` 定义，前缀是 `jackson`：
+
+[source,yaml]
+----
+jackson:
+  property-naming-strategy: SNAKE_CASE
+  default-property-inclusion: non_null
+----
+
+需要进一步定制时，可以提供 `infra.jackson.config.JsonMapperBuilderCustomizer` 或 `JsonFactoryBuilderCustomizer` Bean。
+
+=== 自定义序列化和反序列化
+
+可以通过 Jackson 模块注册自定义序列化器，也可以使用 `infra.jackson.JacksonComponent` 声明可由容器发现的 Jackson 组件。
+支持 `tools.jackson.databind.ValueSerializer`、`ValueDeserializer` 和 `KeyDeserializer` 实现，以及包含这些实现的嵌套类。
+组件必须位于组件扫描范围内，或通过其他方式注册为 Bean，才会由 `JacksonComponentModule` 加入自动配置的 Mapper。
+
+`infra.jackson.ObjectValueSerializer` 和 `ObjectValueDeserializer` 提供面向对象值的辅助基类。
+使用这些 API 时应按 Jackson 3 的接口编写代码，不应复制 Jackson 2 的序列化器类型或方法签名。
+
+=== Mixin
+
+可以在 Mixin 类上声明 `infra.jackson.JacksonMixin`。
+自动配置通过 `JacksonMixinModule` 扫描自动配置包并把发现的 Mixin 注册到 Mapper。
+该扫描使用自动配置包，而不是 `@InfraApplication.scanBasePackages` 指定的组件扫描包。
+
+== Gson
+
+使用 `cn.taketoday:infra-starter-gson` 引入相应集成。
+自动配置在不存在用户提供的匹配 Bean 时创建 `com.google.gson.GsonBuilder` 和 `Gson`。
+属性由 `infra.gson.config.GsonProperties` 定义，使用 `gson.*` 前缀。
+可以通过 `infra.gson.config.GsonBuilderCustomizer` Bean 定制 Builder。
+
+[source,properties]
+----
+gson.pretty-printing=true
+gson.serialize-nulls=true
+----
+
+== JSON-B
+
+使用 `cn.taketoday:infra-starter-jsonb` 引入 JSON-B 集成。
+当 `jakarta.json.bind.Jsonb` 和所需的 JSON-B、JSON-P Provider 服务资源存在，且没有用户提供的 `Jsonb` Bean 时，自动配置调用 `JsonbBuilder.create()` 创建默认 Bean。
+
+上游当前文档中的 Jackson 2 兼容模块、相关弃用计划和 Kotlin Serialization 自动配置不作为本页的 infra 使用说明。
+多个 Mapper 同时存在时，HTTP 转换器使用哪一种还取决于其自身配置，不能仅根据 JSON Bean 的存在推断。

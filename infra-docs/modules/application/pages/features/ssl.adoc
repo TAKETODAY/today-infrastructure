@@ -1,0 +1,99 @@
+// Derived from Spring Boot reference/pages/features/ssl.adoc.
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+[[features.ssl]]
+= SSL Bundle
+
+SSL Bundle 为可复用的密钥和信任材料提供命名配置。
+目标使用 `ssl.bundle.*` 前缀，每个 Bundle 名称由应用自行指定。
+
+== Java KeyStore
+
+`ssl.bundle.jks` 配置 JKS 或 PKCS12 格式的密钥库和信任库。
+为服务器提供证书及私钥时，通常配置密钥库：
+
+[source,yaml]
+----
+ssl:
+  bundle:
+    jks:
+      mybundle:
+        key:
+          alias: application
+        keystore:
+          location: classpath:application.p12
+          password: ${KEYSTORE_PASSWORD}
+          type: PKCS12
+----
+
+客户端验证远端证书时，通常配置包含受信任证书的信任库：
+
+[source,yaml]
+----
+ssl:
+  bundle:
+    jks:
+      remote:
+        truststore:
+          location: classpath:server.p12
+          password: ${TRUSTSTORE_PASSWORD}
+          type: PKCS12
+----
+
+完整字段由 `infra.app.config.ssl.JksSslBundleProperties` 定义。
+
+== PEM
+
+`ssl.bundle.pem` 支持 PEM 编码的证书链和私钥：
+
+[source,yaml]
+----
+ssl:
+  bundle:
+    pem:
+      mybundle:
+        keystore:
+          certificate: classpath:application.crt
+          private-key: classpath:application.key
+----
+
+仅需信任远端证书时，可以设置 `truststore.certificate`。
+证书和私钥属性可以是资源位置，也可以直接提供包含 `BEGIN` 和 `END` 标记的完整 PEM 内容。
+示例中的资源必须替换为应用实际提供的文件，不能用省略的证书片段作为可运行配置。
+完整字段由 `infra.app.config.ssl.PemSslBundleProperties` 定义。
+
+通过环境变量绑定这些 Map 时，Bundle 名称会小写化，应保持引用名称一致。
+
+== 使用 Bundle
+
+自动配置提供 `infra.core.ssl.SslBundles`，通过 `getBundle(name)` 取得 `SslBundle`。
+
+* `getStores()` 提供密钥库、信任库及相关密码。
+* `getManagers()` 提供 KeyManagerFactory、TrustManagerFactory 及其管理器数组。
+* `createSslContext()` 创建 `javax.net.ssl.SSLContext`。
+
+Bundle 还包含所用密钥、协议和 SSL 引擎选项。
+注册 Bundle 并不自动让所有连接使用它；应在对应客户端或服务器集成中明确应用。
+REST 客户端的应用方式见 xref:io/rest-client.adoc[]。
+
+== 文件变更与重载
+
+可以设置某个 Bundle 的 `reload-on-update=true`，监控其文件型密钥和信任材料：
+
+[source,yaml]
+----
+ssl:
+  bundle:
+    pem:
+      mybundle:
+        reload-on-update: true
+        keystore:
+          certificate: file:/some/directory/application.crt
+          private-key: file:/some/directory/application.key
+----
+
+文件变更后，注册器重新创建并更新 Bundle。
+使用方还必须订阅并支持 Bundle 更新，才能重新应用证书；不能从 Bundle 可重载推断任意客户端连接或现有 TLS 会话都会自动更新。
+`ssl.bundle.watch.file.quiet-period` 设置确认变更前的静默期，默认 10 秒。
+
+Let's Encrypt 证书也可以作为文件配置，但证书申请和续期应由 Certbot 等外部工具负责。
+TODAY infra 本身不会申请或续期证书。

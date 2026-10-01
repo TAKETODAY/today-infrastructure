@@ -1,0 +1,83 @@
+// Derived from Spring Boot reference/pages/features/task-execution-and-scheduling.adoc.
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+[[features.task-execution-and-scheduling]]
+= 任务执行和调度
+
+没有用户定义的 `java.util.concurrent.Executor` Bean 时，自动配置提供名为 `applicationTaskExecutor` 的异步任务执行器。
+默认使用 `infra.scheduling.concurrent.ThreadPoolTaskExecutor`。
+Java 21 及以上且 `infra.threads.virtual.enabled=true` 时，改用支持虚拟线程的 `infra.core.task.SimpleAsyncTaskExecutor`。
+
+== 异步执行
+
+使用 `infra.scheduling.annotation.EnableAsync` 启用异步方法处理。
+自动配置在不存在用户 `AsyncConfigurer` 时提供一个配置器，使异步任务使用 `applicationTaskExecutor`。
+用户提供自己的 `infra.scheduling.annotation.AsyncConfigurer` 时，可以明确控制异步方法的执行器。
+
+默认情况下，用户提供 `Executor` Bean 会让默认执行器配置退让。
+需要保留用户执行器并同时创建默认执行器时，可以设置：
+
+[source,properties]
+----
+infra.task.execution.mode=force
+----
+
+此时即使有其他执行器，自动配置也会创建 `applicationTaskExecutor`。
+没有自定义 `AsyncConfigurer` 时，异步方法仍使用该自动配置执行器，而不是其他 `@Primary` 执行器。
+如果希望异步方法使用另一个执行器，提供 `AsyncConfigurer`。
+
+NOTE: 不同 Web 集成对执行器的名称和类型有各自约定。不要把普通 `Executor` Bean 当作所有 Web 异步入口的通用替代品；相关 MVC API 见 xref:ROOT:web/webmvc/mvc-ann-async.adoc[]。
+
+存在 `applicationTaskExecutor` 且没有 `bootstrapExecutor` 时，自动配置会注册后者为前者的别名，供上下文后台初始化使用。
+
+== 线程池设置
+
+默认核心线程数是 8，允许核心线程超时，空闲存活时间为 60 秒。
+默认队列无界，因此仅提高 `max-size` 不能使线程池扩展；需要同时配置有界队列：
+
+[source,yaml]
+----
+infra:
+  task:
+    execution:
+      pool:
+        max-size: 16
+        queue-capacity: 100
+        keep-alive: 10s
+----
+
+队列达到 100 个任务后，线程池可以扩展到最多 16 个线程。
+空闲线程可以在 10 秒后回收；达到最大线程数且队列仍满时，应考虑执行器的拒绝策略，不能假定任务会无限排队。
+虚拟线程执行器不使用这些线程池大小属性，可通过 `infra.task.execution.simple.concurrency-limit` 限制并发。
+
+== 定时任务
+
+使用 `infra.scheduling.annotation.EnableScheduling` 启用定时任务处理器。
+存在处理器且没有用户提供的 `TaskScheduler` 或 `ScheduledExecutorService` 时，自动配置创建调度器。
+平台线程模式下使用 `ThreadPoolTaskScheduler`，默认池大小为 1：
+
+[source,yaml]
+----
+infra:
+  task:
+    scheduling:
+      thread-name-prefix: scheduling-
+      pool:
+        size: 2
+----
+
+虚拟线程模式下使用 `SimpleAsyncTaskScheduler`，线程池相关设置不生效。
+虚拟线程为守护线程，需要在没有其他非守护线程的应用中考虑 `app.main.keep-alive=true`，避免 JVM 提前退出。
+
+== 自定义执行器和调度器
+
+自动配置提供以下 Builder，位于 `infra.scheduling.support`：
+
+* `ThreadPoolTaskExecutorBuilder`
+* `SimpleAsyncTaskExecutorBuilder`
+* `ThreadPoolTaskSchedulerBuilder`
+* `SimpleAsyncTaskSchedulerBuilder`
+
+可以注入它们创建具有默认配置的实例，再根据需要调整参数。
+Simple 类型的 Builder 在启用虚拟线程时会使用虚拟线程。
+任务执行和任务调度的属性分别由 `TaskExecutionProperties` 与 `TaskSchedulingProperties` 定义，位于 `infra.scheduling.config`。
+它们还提供关闭时等待任务结束的设置；是否等待及等待多久应依据任务的中断和关闭语义决定。

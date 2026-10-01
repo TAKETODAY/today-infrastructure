@@ -1,0 +1,53 @@
+// Derived from Spring Boot reference/pages/io/validation.adoc and io/validation/MyBean.java.
+// Copyright 2012-present the original author or authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+[[io.validation]]
+= 校验
+
+当类路径中存在 Jakarta Bean Validation 的方法校验 API 和可发现的实现（例如 Hibernate Validator）时，自动配置可以启用方法校验。
+可以在 Bean 方法的参数和返回值上添加 `jakarta.validation` 约束。
+需要在目标类上声明 `infra.validation.annotation.Validated`，以启用对该 Bean 的方法约束检测。
+
+例如，以下服务限制第一个参数的长度为 8 到 10（包含边界）：
+
+[source,java]
+----
+import infra.stereotype.Service;
+import infra.validation.annotation.Validated;
+import jakarta.validation.constraints.Size;
+
+@Service
+@Validated
+public class MyBean {
+
+  public Archive findByCodeAndAuthor(@Size(min = 8, max = 10) String code, Author author) {
+    return null;
+  }
+
+}
+----
+
+`Archive` 和 `Author` 是应用的领域类型，方法体仅表示业务实现位置。
+`@Size` 本身允许 `null`；如果参数不允许为空，还应添加 `@NotNull`。
+方法校验通过代理生效，应通过容器提供的 Bean 调用方法；对象内部直接调用自己的方法不会经过该代理。
+
+应用的 `infra.context.MessageSource` 用于解析约束消息中的 `\{parameters}`。
+这使校验消息可以使用 xref:features/internationalization.adoc[应用的消息资源文件]。
+消息参数解析完成后，继续由 Bean Validation 默认插值器完成插值。
+
+若需要定制用于构建 `jakarta.validation.ValidatorFactory` 的 `jakarta.validation.Configuration`，可以定义 `infra.validation.config.ValidationConfigurationCustomizer` Bean。
+定义多个定制器时，按照 `infra.core.annotation.Order` 或 `infra.core.Ordered` 指定的顺序调用。
+目标 `ObjectProvider` 的迭代器本身使用有序流，因此遍历注入的定制器也遵循容器的排序约定。

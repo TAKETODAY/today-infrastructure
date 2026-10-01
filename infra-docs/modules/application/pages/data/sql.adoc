@@ -1,0 +1,85 @@
+// Derived from Spring Boot reference/pages/data/sql.adoc.
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+[[data.sql]]
+= SQL 数据库
+
+TODAY infra 提供 JDBC 访问，包括 `infra.jdbc.core.JdbcTemplate`、`infra.jdbc.core.simple.JdbcClient` 和事务支持。
+应用可以添加 `cn.taketoday:infra-starter-jdbc`，它引入 JDBC 集成及 HikariCP。
+数据库驱动仍需按实际数据库添加运行时依赖。
+基础 API 用法见 xref:ROOT:data-access/jdbc.adoc[JDBC]。
+
+== DataSource 配置
+
+`javax.sql.DataSource` 是 Java 标准连接入口，其包名不因 Jakarta 迁移而改变。
+目标使用 `datasource.*`，不是 `spring.datasource.*`：
+
+[source,yaml]
+----
+datasource:
+  url: jdbc:mysql://localhost/test
+  username: dbuser
+  password: ${DB_PASSWORD}
+----
+
+通常应指定 URL；框架可以从常见 JDBC URL 推断驱动类，也可以通过 `datasource.driver-class-name` 明确指定。
+驱动类必须可加载。
+标准选项由 `infra.jdbc.config.DataSourceProperties` 定义。
+有自己的 `DataSource` 或 `XADataSource` Bean 时，默认数据源配置退让。
+
+=== 嵌入式数据库
+
+存在相应驱动时，可以使用 H2、HSQLDB 或 Derby。
+没有显式 URL 时，自动配置会尝试合适的嵌入式数据库。
+多个嵌入式数据库同时存在时，池化数据源的连接属性可以通过 `datasource.embedded-database-connection` 指定选择。
+目标直接创建 `EmbeddedDatabase` 的分支按类路径重新检测类型，没有使用该选择属性；需要完整控制时显式提供数据源，不把 `none` 描述为全部分支通用的关闭开关。
+内存数据库不提供跨进程持久化，启动时需要准备数据，退出后数据可能丢失。
+
+目标默认 `datasource.generate-unique-name=true`，为数据源生成独立名称；需要固定名称时显式关闭并设置 `datasource.name`。
+手动设置内存数据库 URL 时，H2 可用 `DB_CLOSE_ON_EXIT=FALSE`，HSQLDB 避免设置 `shutdown=true`，让容器管理数据库关闭时机。
+
+=== 连接池
+
+目标优先选择 HikariCP，其次 DBCP2、Oracle UCP，Builder 还具有 C3P0 类型映射。
+可以用 `datasource.type` 指定实现类，也可以用 `infra.jdbc.config.DataSourceBuilder` 手动创建。
+目标没有上游 Tomcat JDBC 连接池的专门自动配置分支，不应照搬 `spring.datasource.tomcat.*`。
+
+专用属性前缀为 `datasource.hikari.*`、`datasource.dbcp2.*` 和 `datasource.oracleucp.*`。
+例如 HikariCP 最大池大小：
+
+[source,properties]
+----
+datasource.hikari.maximum-pool-size=16
+----
+
+具体单位、范围和默认值依连接池实现而定。
+
+=== JNDI 和延迟连接
+
+提供 JNDI 上下文的运行环境可以显式使用 `infra.jdbc.datasource.lookup.JndiDataSourceLookup` 获取已管理的数据源，并将结果注册为 Bean。
+目标 `DataSourceProperties` 虽然声明了 `jndi-name`，但当前没有消费该属性的数据源 JNDI 自动配置；不能只设置该键就期待完成查找。
+
+池化数据源设置 `datasource.connection-fetch=lazy` 时，自动配置使用 `infra.jdbc.datasource.LazyConnectionDataSourceProxy` 尽量延迟获取物理连接。
+事务开始本身可能不需要获取连接，首次创建 JDBC Statement 时才获取。
+需要访问底层对象时使用 `DataSource.unwrap`。
+若再包装 `TransactionAwareDataSourceProxy`，负责该包装的 Bean 后处理器应使用正的排序值，保持代理顺序。
+
+== JdbcTemplate 和 JdbcClient
+
+存在单一候选 `DataSource` 时，可以自动配置 `JdbcTemplate`。
+`NamedParameterJdbcTemplate` 复用同一个底层模板；多个模板且没有主候选时，不自动选择。
+存在单一候选 `NamedParameterJdbcTemplate` 且没有用户的 `JdbcClient` 时，可以自动配置 `JdbcClient`。
+
+[source,properties]
+----
+jdbc.template.max-rows=500
+jdbc.template.query-timeout=10s
+----
+
+模板还提供 `fetch-size` 设置；查询超时没有后缀时按秒解释。
+如果提供唯一的 `infra.jdbc.support.SQLExceptionTranslator` Bean，自动配置将其设置到模板中。
+基于该模板创建的 `JdbcClient` 同样使用模板配置。
+
+== 对象持久化
+
+上游本页中的 Spring Data JPA、JPA Repository 方法名推导、jOOQ 和 R2DBC 自动配置不是这里已核实的 JDBC 能力。
+TODAY infra 自有持久化框架的配置、实体映射和查询 API 见 xref:ROOT:data-access/persistence.adoc[持久化]，不能把它描述为 Spring Data JPA 的包名替换版本。

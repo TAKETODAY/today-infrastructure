@@ -1,0 +1,87 @@
+// Derived from Spring Boot reference/pages/features/profiles.adoc.
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+// The configuration example is adapted from Boot's features/profiles/ProductionConfiguration.java.
+include::partial$upstream-example-license.adoc[]
+[[features.profiles]]
+= Profile
+
+Profile 用于把应用配置分成不同组，仅在指定环境中启用。
+可以在组件、配置类或参与配置属性扫描的配置属性类上使用 `infra.context.annotation.Profile` 限制加载条件。
+
+[source,java]
+----
+import infra.context.annotation.Configuration;
+import infra.context.annotation.Profile;
+
+@Configuration(proxyBeanMethods = false)
+@Profile("production")
+public class ProductionConfiguration {
+}
+----
+
+NOTE: 通过 `EnableConfigurationProperties` 注册配置属性类时，应把 `@Profile` 放在声明该注册注解的配置类上；通过 `ConfigurationPropertiesScan` 扫描时，可以放在配置属性类本身。
+
+使用 `infra.profiles.active` 指定激活的 Profile，可以在 `application.properties` 中设置：
+
+[source,properties]
+----
+infra.profiles.active=dev,hsqldb
+----
+
+也可以通过命令行设置 `--infra.profiles.active=dev,hsqldb`。
+该属性遵循属性源的优先级，命令行值可以替换配置文件中的值。
+
+没有显式激活的 Profile 时，启用默认 Profile，默认名称为 `default`。
+可以通过 `infra.profiles.default` 更改它，例如设置为 `none`，使不声明其他条件的 `default` Profile 配置不再生效。
+
+`infra.profiles.active` 和 `infra.profiles.default` 应放在非 Profile 专用文档中，而不是 `application-prod.properties` 或由 `app.config.activate.on-profile` 激活的文档中。
+
+== Profile 名称
+
+目标配置文件解析器要求 Profile 名称包含文字，只能使用字母、数字、`-` 和 `_`，且不能以 `-` 或 `_` 开头或结尾。
+目标未提供 Spring Boot 的 `spring.profiles.validate` 配置开关，也不采用上游允许 `.`, `+`, `@` 的名称规则。
+
+== 增加激活的 Profile
+
+`infra.profiles.include` 用于增加 Profile，而不是替换 `infra.profiles.active` 指定的 Profile：
+
+[source,yaml]
+----
+infra:
+  profiles:
+    include:
+      - common
+      - local
+----
+
+即使通过 `--infra.profiles.active=production` 启动，`common` 和 `local` 仍会激活，并放在显式激活的 Profile 之前。
+`include` 针对各属性源分别处理，不采用普通列表绑定时的整表替换规则。
+该属性也应放在非 Profile 专用文档中。
+
+== Profile 组
+
+如果 Profile 划分过细，可以使用一个逻辑名称组合多个 Profile：
+
+[source,yaml]
+----
+infra:
+  profiles:
+    group:
+      production:
+        - proddb
+        - prodmq
+----
+
+使用 `--infra.profiles.active=production` 会激活 `production`、`proddb` 和 `prodmq`。
+把组定义放在非 Profile 专用文档中，可以保证配置加载前就能确定组成员。
+
+== 编程方式设置 Profile
+
+可以在启动前调用 `infra.app.Application.setAdditionalProfiles(...)` 增加 Profile。
+也可以使用 `infra.core.env.ConfigurableEnvironment` 的 API 设置激活或默认 Profile。
+
+== Profile 专用配置文件
+
+配置文件支持 `application-\{profile}.properties` 和 YAML 变体。
+例如激活 `prod` 时，会考虑 `application.properties` 和 `application-prod.properties`。
+详细搜索路径和覆盖规则见 xref:features/external-config.adoc[外部化配置]。

@@ -1,0 +1,44 @@
+// Derived from Spring Boot reference/pages/using/configuration-classes.adoc.
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+[[using.configuration-classes]]
+= 配置类
+
+TODAY infra 推荐基于 Java 的配置。
+虽然 `infra.app.Application` 可以加载 XML 配置源，通常仍建议以一个 `infra.context.annotation.Configuration` 配置类作为主配置源。
+包含 `main` 方法的类通常适合作为主配置类；`@InfraApplication` 已包含配置类语义。
+
+TIP: 网上许多配置示例使用 XML。条件允许时，优先寻找等价的 Java 配置；`Enable*` 注解通常是一个好的起点。
+
+== 导入其他配置类
+
+不必把全部配置放在同一个类中。
+使用 `infra.context.annotation.Import` 导入其他配置类，也可以通过 `infra.context.annotation.ComponentScan` 自动发现组件，包括 `@Configuration` 类。
+
+[source,java]
+----
+package com.example.myapplication;
+
+import infra.context.annotation.Configuration;
+import infra.context.annotation.Import;
+
+@Configuration(proxyBeanMethods = false)
+@Import(DatabaseConfiguration.class)
+public class ApplicationConfiguration {
+}
+----
+
+这里的 `DatabaseConfiguration` 是应用自行定义的配置类。
+
+== 导入 XML 配置
+
+如果必须使用 XML，仍建议从 `@Configuration` 类启动，再使用 `infra.context.annotation.ImportResource` 加载 XML 文件。
+
+[source,java]
+----
+@Configuration(proxyBeanMethods = false)
+@ImportResource("classpath:application-context.xml")
+public class XmlConfiguration {
+}
+----
+
+该片段的注解来自 `infra.context.annotation` 包。

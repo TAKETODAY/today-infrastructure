@@ -1,0 +1,79 @@
+// Derived from Spring Boot reference/pages/using/spring-beans-and-dependency-injection.adoc
+// and its singleconstructor and multipleconstructors MyAccountService.java examples.
+// Copyright 2012-present the original author or authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+[[using.beans-and-dependency-injection]]
+= Bean 与依赖注入
+
+可以使用容器支持的标准方式定义 Bean 及其依赖。
+通常推荐构造器注入，并使用 `@ComponentScan` 发现组件。
+
+按照 xref:using/structuring-your-code.adoc[推荐布局]把主类放在根包后，可以使用不带参数的 `@ComponentScan`，或使用已经包含组件扫描的 `@InfraApplication`。
+扫描范围内的 `infra.stereotype.Component`、`Service`、`Repository` 和 `Controller` 等组件注解类会注册为 Bean。
+
+下面的服务通过构造器获得所需的 `RiskAssessor`：
+
+[source,java]
+----
+import infra.stereotype.Service;
+
+@Service
+public class MyAccountService implements AccountService {
+
+  private final RiskAssessor riskAssessor;
+
+  public MyAccountService(RiskAssessor riskAssessor) {
+    this.riskAssessor = riskAssessor;
+  }
+
+  // ...
+}
+----
+
+`AccountService` 和 `RiskAssessor` 是应用定义的类型，`RiskAssessor` 的实现需要注册为 Bean。
+只有一个构造器时，不必添加 `@Autowired`。
+
+如果存在多个构造器，可以用 `infra.beans.factory.annotation.Autowired` 明确指定容器使用的构造器：
+
+[source,java]
+----
+import java.io.PrintStream;
+
+import infra.beans.factory.annotation.Autowired;
+import infra.stereotype.Service;
+
+@Service
+public class MyAccountService implements AccountService {
+
+  private final RiskAssessor riskAssessor;
+  private final PrintStream out;
+
+  @Autowired
+  public MyAccountService(RiskAssessor riskAssessor) {
+    this.riskAssessor = riskAssessor;
+    this.out = System.out;
+  }
+
+  public MyAccountService(RiskAssessor riskAssessor, PrintStream out) {
+    this.riskAssessor = riskAssessor;
+    this.out = out;
+  }
+
+  // ...
+}
+----
+
+TIP: 构造器注入使依赖字段可以声明为 `final`，明确表示它们在构造后不会重新赋值。
