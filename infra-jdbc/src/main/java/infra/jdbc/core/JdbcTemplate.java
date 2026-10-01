@@ -1150,7 +1150,13 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
                 int items = n - ((n % batchSize == 0) ? n / batchSize - 1 : (n / batchSize)) * batchSize;
                 logger.trace("Sending SQL batch update #{} with {} items", batchIdx, items);
               }
-              rowsAffected.add(ps.executeBatch());
+              try {
+                int[] updateCounts = ps.executeBatch();
+                rowsAffected.add(updateCounts);
+              }
+              catch (BatchUpdateException ex) {
+                throw new AggregatedBatchUpdateException(rowsAffected.toArray(new int[0][0]), ex);
+              }
             }
           }
           else {
@@ -1165,8 +1171,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
         return result1;
       }
       finally {
-        if (pss instanceof ParameterDisposer) {
-          ((ParameterDisposer) pss).cleanupParameters();
+        if (pss instanceof ParameterDisposer pd) {
+          pd.cleanupParameters();
         }
       }
     });
