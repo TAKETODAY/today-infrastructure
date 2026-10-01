@@ -170,8 +170,7 @@ public class FormHttpMessageConverter implements SmartHttpMessageConverter<Objec
 
   private Charset charset = Constant.DEFAULT_CHARSET;
 
-  @Nullable
-  private Charset multipartCharset;
+  private @Nullable Charset multipartCharset;
 
   public FormHttpMessageConverter() {
     this.supportedMediaTypes.add(MediaType.APPLICATION_FORM_URLENCODED);
@@ -298,41 +297,12 @@ public class FormHttpMessageConverter implements SmartHttpMessageConverter<Objec
 
   @Override
   public boolean canRead(Class<?> clazz, @Nullable MediaType mediaType) {
-    if (!Map.class.isAssignableFrom(clazz)) {
-      return false;
-    }
-    if (mediaType == null) {
-      return true;
-    }
-    for (MediaType supportedMediaType : getSupportedMediaTypes()) {
-      if (supportedMediaType.isMultipartType()) {
-        // We can't read multipart, so skip this supported media type.
-        continue;
-      }
-      if (supportedMediaType.includes(mediaType)) {
-        return true;
-      }
-    }
-    return false;
+    return canConvert(clazz, mediaType, false);
   }
 
   @Override
   public boolean canWrite(Class<?> clazz, @Nullable MediaType mediaType) {
-    if (!Map.class.isAssignableFrom(clazz)) {
-      return false;
-    }
-    if (mediaType == null || MediaType.ALL.equals(mediaType)) {
-      return true;
-    }
-    for (MediaType supportedMediaType : getSupportedMediaTypes()) {
-      if (!MultiValueMap.class.isAssignableFrom(clazz) && supportedMediaType.isMultipartType()) {
-        continue;
-      }
-      if (supportedMediaType.isCompatibleWith(mediaType)) {
-        return true;
-      }
-    }
-    return false;
+    return canConvert(clazz, mediaType, true);
   }
 
   @Override
@@ -345,10 +315,29 @@ public class FormHttpMessageConverter implements SmartHttpMessageConverter<Objec
     return canWrite(valueClass, mediaType);
   }
 
+  private boolean canConvert(Class<?> targetType, @Nullable MediaType mediaType, boolean writing) {
+    if (!Map.class.isAssignableFrom(targetType)) {
+      return false;
+    }
+    boolean multiValueMap = MultiValueMap.class.isAssignableFrom(targetType);
+    if (mediaType == null || (writing && MediaType.ALL.equals(mediaType))) {
+      return multiValueMap;
+    }
+    for (MediaType supportedMediaType : getSupportedMediaTypes()) {
+      if (supportedMediaType.isMultipartType() && (!writing || !multiValueMap)) {
+        continue;
+      }
+      if (writing && multiValueMap
+              ? supportedMediaType.isCompatibleWith(mediaType) : supportedMediaType.includes(mediaType)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   @Override
-  public Map<String, ?> read(ResolvableType type, HttpInputMessage inputMessage,
-          @Nullable Map<String, Object> hints) throws IOException {
-    return read(type.toClass(), inputMessage);
+  public Map<String, ?> read(ResolvableType type, HttpInputMessage message, @Nullable Map<String, Object> hints) throws IOException {
+    return read(type.toClass(), message);
   }
 
   @Override
@@ -393,7 +382,8 @@ public class FormHttpMessageConverter implements SmartHttpMessageConverter<Objec
   @Override
   @SuppressWarnings("unchecked")
   public void write(Object data, @Nullable MediaType contentType, HttpOutputMessage outputMessage)
-          throws IOException, HttpMessageNotWritableException {
+          throws IOException, HttpMessageNotWritableException //
+  {
     Assert.isInstanceOf(Map.class, data, "data must be of type Map or MultiValueMap");
     Map<String, ?> map = (Map<String, ?>) data;
     if (map instanceof MultiValueMap<?, ?> multiValueMap && isMultipart(multiValueMap, contentType)) {
@@ -425,9 +415,7 @@ public class FormHttpMessageConverter implements SmartHttpMessageConverter<Objec
   }
 
   @SuppressWarnings("unchecked")
-  private void writeForm(Map<String, ?> formData,
-          @Nullable MediaType contentType, HttpOutputMessage outputMessage) throws IOException {
-
+  private void writeForm(Map<String, ?> formData, @Nullable MediaType contentType, HttpOutputMessage outputMessage) throws IOException {
     contentType = getFormContentType(contentType);
     outputMessage.setContentType(contentType);
 
@@ -478,20 +466,22 @@ public class FormHttpMessageConverter implements SmartHttpMessageConverter<Objec
    */
   protected String serializeForm(Map<String, ?> formData, Charset charset) {
     StringBuilder builder = new StringBuilder();
-    formData.forEach((name, value) -> {
+    for (Map.Entry<String, ?> entry : formData.entrySet()) {
+      String name = entry.getKey();
+      Object value = entry.getValue();
       if (name == null) {
         Assert.isTrue(value == null || "".equals(value), "Null name in form data: " + formData);
-        return;
+        continue;
       }
       serializeValue(builder, name, value, charset);
-    });
+    }
     return builder.toString();
   }
 
   protected String serializeForm(MultiValueMap<String, Object> formData, Charset charset) {
     StringBuilder builder = new StringBuilder();
 
-    for (Map.Entry<String, List<Object>> entry : formData.entrySet()) {
+    for (var entry : formData.entrySet()) {
       String name = entry.getKey();
       List<Object> values = entry.getValue();
       if (name == null) {
@@ -582,8 +572,7 @@ public class FormHttpMessageConverter implements SmartHttpMessageConverter<Objec
     }));
   }
 
-  @Nullable
-  private HttpMessageConverter<?> findConverterFor(String name, @Nullable HttpHeaders headers, Object body) {
+  private @Nullable HttpMessageConverter<?> findConverterFor(String name, @Nullable HttpHeaders headers, Object body) {
     Class<?> partType = body.getClass();
     MediaType contentType = headers != null ? headers.getContentType() : null;
     for (HttpMessageConverter<?> converter : this.partConverters) {
@@ -603,8 +592,8 @@ public class FormHttpMessageConverter implements SmartHttpMessageConverter<Objec
     return this.multipartCharset != null;
   }
 
-  private void writeParts(OutputStream os, MultiValueMap<String, Object> parts, byte[] boundary) throws IOException {
-    for (Map.Entry<String, List<Object>> entry : parts.entrySet()) {
+  private void writeParts(OutputStream os, MultiValueMap<String, @Nullable Object> parts, byte[] boundary) throws IOException {
+    for (var entry : parts.entrySet()) {
       String name = entry.getKey();
       for (Object part : entry.getValue()) {
         if (part != null) {
@@ -673,8 +662,7 @@ public class FormHttpMessageConverter implements SmartHttpMessageConverter<Objec
    * @param part the part to determine the file name for
    * @return the filename, or {@code null} if not known
    */
-  @Nullable
-  protected String getFilename(Object part) {
+  protected @Nullable String getFilename(Object part) {
     if (part instanceof Resource resource) {
       return resource.getName();
     }
@@ -774,12 +762,10 @@ public class FormHttpMessageConverter implements SmartHttpMessageConverter<Objec
 
     @Override
     public void flush() {
-
     }
 
     @Override
     public void close() {
-
     }
   }
 

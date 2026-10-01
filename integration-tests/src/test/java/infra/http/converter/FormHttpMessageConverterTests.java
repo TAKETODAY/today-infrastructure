@@ -182,11 +182,21 @@ class FormHttpMessageConverterTests {
 
   @Test
   void legacyMediaTypeDefaultsRemainSupported() {
-    for (Class<?> type : List.of(Map.class, MultiValueMap.class, LinkedMultiValueMap.class)) {
+    for (Class<?> type : List.of(MultiValueMap.class, LinkedMultiValueMap.class)) {
       assertThat(converter.canRead(type, null)).isTrue();
       assertThat(converter.canWrite(type, null)).isTrue();
       assertThat(converter.canWrite(type, MediaType.ALL)).isTrue();
       assertThat(converter.canRead(type, MULTIPART_FORM_DATA)).isFalse();
+    }
+  }
+
+  @Test
+  void plainMapRequiresFormMediaType() {
+    for (MediaType mediaType : new MediaType[] { null, MediaType.ALL, new MediaType("application", "*"), APPLICATION_JSON }) {
+      assertThat(converter.canRead(Map.class, mediaType)).isFalse();
+      assertThat(converter.canRead(ResolvableType.forClass(Map.class), mediaType)).isFalse();
+      assertThat(converter.canWrite(Map.class, mediaType)).isFalse();
+      assertThat(converter.canWrite(ResolvableType.forClass(Map.class), Map.class, mediaType)).isFalse();
     }
   }
 
