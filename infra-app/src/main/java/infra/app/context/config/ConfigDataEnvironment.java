@@ -298,8 +298,8 @@ class ConfigDataEnvironment {
     for (ConfigDataEnvironmentContributor contributor : contributors) {
       ConfigurationPropertySource source = contributor.configurationPropertySource;
       if (source != null && !contributor.hasConfigDataOption(ConfigData.Option.IGNORE_PROFILES)) {
-        new Binder(Collections.singleton(source), placeholdersResolver)
-                .bind(Profiles.INCLUDE_PROFILES, STRING_LIST)
+        Binder binder = new Binder(Collections.singleton(source), placeholdersResolver);
+        binder.bind(Profiles.INCLUDE_PROFILES, STRING_LIST, ProfilesValidator.get(binder))
                 .ifBound(includes -> {
                   if (!contributor.isActive(activationContext)) {
                     throwIfPropertyFound(contributor, Profiles.INCLUDE_PROFILES);

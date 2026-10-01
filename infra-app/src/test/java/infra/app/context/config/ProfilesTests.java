@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import infra.context.properties.bind.Binder;
 import infra.context.properties.source.ConfigurationPropertySource;
@@ -33,6 +34,9 @@ import infra.core.env.Environment;
 import infra.mock.env.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 /**
  * Tests for {@link Profiles}.
@@ -41,6 +45,43 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Madhura Bhave
  */
 class ProfilesTests {
+
+  @Test
+  void validNamesArePermitted() {
+    for (String name : List.of("infra.profiles.active", "infra.profiles.default", "infra.profiles.group.a")) {
+      MockEnvironment environment = new MockEnvironment().withProperty(name, "ok");
+      assertThatNoException().isThrownBy(() -> new Profiles(environment, Binder.get(environment), null));
+    }
+  }
+
+  @Test
+  void invalidNamesAreNotPermitted() {
+    for (String name : List.of("infra.profiles.active", "infra.profiles.default", "infra.profiles.group.a")) {
+      MockEnvironment environment = new MockEnvironment().withProperty(name, "fa!l");
+      assertThatExceptionOfType(RuntimeException.class)
+              .isThrownBy(() -> new Profiles(environment, Binder.get(environment), null));
+    }
+  }
+
+  @Test
+  void invalidNamesWhenValidationDisabledArePermitted() {
+    MockEnvironment environment = new MockEnvironment().withProperty("infra.profiles.validate", "false")
+            .withProperty("infra.profiles.active", "fa!l");
+    assertThat(new Profiles(environment, Binder.get(environment), null).getAccepted()).containsExactly("fa!l");
+  }
+
+  @Test
+  void invalidNameInEnvironment() {
+    MockEnvironment environment = new MockEnvironment().withProperty("infra.profiles.active", "fa!l");
+    assertThatIllegalStateException().isThrownBy(() -> new Profiles(environment, new Binder(), null))
+            .withMessage("Invalid profile property value found in Environment under 'infra.profiles.active'");
+  }
+
+  @Test
+  void invalidNameInActive() {
+    assertThatIllegalStateException().isThrownBy(() -> new Profiles(new MockEnvironment(), new Binder(), Set.of("fa!l")))
+            .withMessage("Invalid profile property value found in additional profiles");
+  }
 
   @Test
   void getActiveWhenNoEnvironmentProfilesAndNoPropertyReturnsEmptyArray() {
