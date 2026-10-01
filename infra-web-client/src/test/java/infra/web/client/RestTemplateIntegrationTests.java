@@ -134,6 +134,15 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
   }
 
   @ParameterizedRestTemplateTest
+  void queryWithRequestBody(ClientHttpRequestFactory factory) {
+    setUpClient(factory);
+    ResponseEntity<String> response = template.exchange(baseUrl + "/query", HttpMethod.QUERY,
+            new HttpEntity<>(helloWorld), String.class);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(response.getBody()).isEqualTo(helloWorld);
+  }
+
+  @ParameterizedRestTemplateTest
   void getString(ClientHttpRequestFactory clientHttpRequestFactory) {
     setUpClient(clientHttpRequestFactory);
 

@@ -61,7 +61,7 @@ class RestTestClientTests {
   class HttpMethods {
 
     @ParameterizedTest
-    @ValueSource(strings = { "GET", "POST", "PUT", "DELETE", "PATCH", "HEAD" })
+    @ValueSource(strings = { "GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "QUERY" })
     void testMethod(String method) {
       RestTestClientTests.this.client.method(HttpMethod.valueOf(method)).uri("/test")
               .exchange()
@@ -122,8 +122,15 @@ class RestTestClientTests {
       RestTestClientTests.this.client.options().uri("/test")
               .exchange()
               .expectStatus().isOk()
-              .expectHeader().valueEquals("Allow", "GET,POST,PUT,DELETE,PATCH,HEAD,OPTIONS,CONNECT")
+              .expectHeader().valueEquals("Allow", "GET,POST,PUT,DELETE,PATCH,HEAD,OPTIONS,CONNECT,QUERY")
               .expectBody().isEmpty();
+    }
+
+    @Test
+    void queryReadsRequestBody() {
+      RestTestClientTests.this.client.method(HttpMethod.QUERY).uri("/query-body")
+              .contentType(MediaType.TEXT_PLAIN).body("query")
+              .exchange().expectStatus().isOk().expectBody(String.class).isEqualTo("query-out");
     }
 
   }
@@ -328,6 +335,11 @@ class RestTestClientTests {
 
   @RestController
   static class TestController {
+
+    @RequestMapping(value = "/query-body", method = HttpMethod.QUERY)
+    public String queryBody(@RequestBody String body) {
+      return body + "-out";
+    }
 
     @RequestMapping(path = { "/test", "/test/*" }, produces = "application/json")
     public Map<String, Object> handle(
