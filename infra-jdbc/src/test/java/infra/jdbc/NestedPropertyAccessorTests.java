@@ -20,9 +20,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
-import infra.core.style.ToStringBuilder;
 import infra.beans.BeanMetadata;
 import infra.beans.InvalidPropertyPathException;
+import infra.core.style.ToStringBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -31,11 +31,11 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/7/30 20:31
  */
-class PropertyPathTests {
+class NestedPropertyAccessorTests {
 
   @Test
   void simplePropertyPath() {
-    PropertyPath path = new PropertyPath(Nested.class, "name");
+    NestedPropertyAccessor path = new NestedPropertyAccessor(Nested.class, "name");
     Nested bean = new Nested();
     path.set(bean, "value");
     assertThat(bean.name).isEqualTo("value");
@@ -47,16 +47,16 @@ class PropertyPathTests {
   void malformedPathsAreRejectedByBothConstructors() {
     for (String path : new String[] { "nested..name", "nested.", "nested[broken" }) {
       assertThatExceptionOfType(InvalidPropertyPathException.class)
-              .isThrownBy(() -> new PropertyPath(Nested.class, path));
+              .isThrownBy(() -> new NestedPropertyAccessor(Nested.class, path));
       assertThatExceptionOfType(InvalidPropertyPathException.class)
-              .isThrownBy(() -> new PropertyPath(path, BeanMetadata.forClass(Nested.class)));
+              .isThrownBy(() -> new NestedPropertyAccessor(path, BeanMetadata.forClass(Nested.class)));
     }
   }
 
   @Test
   void setTraversesEachPropertyOfDifferentIntermediateTypes() {
     Root root = new Root();
-    new PropertyPath(Root.class, "middle.leaf.name").set(root, "value");
+    new NestedPropertyAccessor(Root.class, "middle.leaf.name").set(root, "value");
     assertThat(root.middle.leaf.name).isEqualTo("value");
   }
 
@@ -132,48 +132,48 @@ class PropertyPathTests {
     nested.nested = nested1;
     nested1.nested = nested2;
 
-    PropertyPath propertyPath = new PropertyPath(nested.getClass(), "nested.nested.name");
+    NestedPropertyAccessor propertyAccessor = new NestedPropertyAccessor(nested.getClass(), "nested.nested.name");
 
-    assertThat(propertyPath.next).isNotNull();
-    assertThat(propertyPath.next.next).isNotNull();
-    assertThat(propertyPath.getNestedBeanProperty()).isEqualTo(propertyPath.next.next.beanProperty);
-    Object nestedValue = propertyPath.getNestedObject(nested);
+    assertThat(propertyAccessor.next).isNotNull();
+    assertThat(propertyAccessor.next.next).isNotNull();
+    assertThat(propertyAccessor.getLeafProperty()).isEqualTo(propertyAccessor.next.next.beanProperty);
+    Object nestedValue = propertyAccessor.getOrCreateLeafOwner(nested);
     assertThat(nestedValue).isEqualTo(nested2);
 
-    propertyPath.set(nested, "yhj2-modified");
+    propertyAccessor.set(nested, "yhj2-modified");
     assertThat(nested.nested.nested.name).isEqualTo("yhj2-modified");
 
-    assertThat(propertyPath.toString()).isEqualTo("nested.nested.name");
+    assertThat(propertyAccessor.toString()).isEqualTo("nested.nested.name");
   }
 
   @Test
   void getNestedObjectNull() {
     Nested nested = new Nested("yhj");
-    PropertyPath propertyPath = new PropertyPath(nested.getClass(), "nested.nested.name");
+    NestedPropertyAccessor propertyAccessor = new NestedPropertyAccessor(nested.getClass(), "nested.nested.name");
 
-    assertThat(propertyPath.next).isNotNull();
-    assertThat(propertyPath.next.next).isNotNull();
+    assertThat(propertyAccessor.next).isNotNull();
+    assertThat(propertyAccessor.next.next).isNotNull();
 
-    Object nestedValue = propertyPath.getNestedObject(nested);
+    Object nestedValue = propertyAccessor.getOrCreateLeafOwner(nested);
 
     assertThat(nestedValue).isEqualTo(nested.nested.nested);
-    propertyPath.set(nested, "yhj2-modified");
+    propertyAccessor.set(nested, "yhj2-modified");
     assertThat(nested.nested.nested.name).isEqualTo("yhj2-modified");
 
     // error case
-    PropertyPath propertyPathError = new PropertyPath(nested.getClass(), "nested.nested.names");
-    assertThat(propertyPathError.next).isNotNull();
-    assertThat(propertyPathError.next.next).isNotNull();
-    assertThat(propertyPathError.next.next.next).isNull();
-    assertThat(propertyPathError.next.next.beanProperty).isNull();
-    assertThat(propertyPathError.toString()).isEqualTo("nested.nested." + PropertyPath.emptyPlaceholder);
+    propertyAccessor = new NestedPropertyAccessor(nested.getClass(), "nested.nested.names");
+    assertThat(propertyAccessor.next).isNotNull();
+    assertThat(propertyAccessor.next.next).isNotNull();
+    assertThat(propertyAccessor.next.next.next).isNull();
+    assertThat(propertyAccessor.next.next.beanProperty).isNull();
+    assertThat(propertyAccessor.toString()).isEqualTo("nested.nested." + NestedPropertyAccessor.emptyPlaceholder);
 
     // error case
-    PropertyPath propertyPathnestedsError = new PropertyPath(nested.getClass(), "nested.nesteds.names");
+    NestedPropertyAccessor nestedPropertyPathnestedsError = new NestedPropertyAccessor(nested.getClass(), "nested.nesteds.names");
 
-    assertThat(propertyPathnestedsError.next).isNotNull();
-    assertThat(propertyPathnestedsError.next.next).isNull();
-    assertThat(propertyPathnestedsError.toString()).isEqualTo("nested." + PropertyPath.emptyPlaceholder);
+    assertThat(nestedPropertyPathnestedsError.next).isNotNull();
+    assertThat(nestedPropertyPathnestedsError.next.next).isNull();
+    assertThat(nestedPropertyPathnestedsError.toString()).isEqualTo("nested." + NestedPropertyAccessor.emptyPlaceholder);
   }
 
 }

@@ -22,14 +22,20 @@ import java.util.List;
 
 import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
+import infra.beans.PropertyPath;
 
 /**
- * Represents a path to a nested property within a Java object, allowing traversal
- * and manipulation of nested properties in a structured manner.
+ * A pre-resolved chain of bean properties used for nested JDBC result mapping.
  *
- * <p>This class is immutable and designed to handle property paths that may span
- * multiple levels of nested objects. It provides methods for retrieving, setting,
- * and navigating through the properties defined by the path.
+ * <p>The accessor resolves property metadata at construction time and can be reused
+ * for multiple root objects. Traversal creates and assigns null intermediate
+ * objects through {@link BeanProperty#instantiate()} when necessary.
+ * The accessor structure is immutable, but traversal and assignment mutate the
+ * supplied object graph.
+ *
+ * <p>Paths are parsed by {@link PropertyPath}, but this accessor only navigates
+ * bean properties separated by dots. It does not implement indexed access to
+ * arrays, collections, or maps.
  *
  * <p><strong>Example Usage:</strong>
  *
@@ -46,18 +52,19 @@ import infra.beans.BeanProperty;
  *   // getters and setters
  * }
  *
- * // Create a PropertyPath instance
- * PropertyPath path = new PropertyPath(Person.class, "address.city");
+ * // Resolve the nested property chain
+ * var accessor = new NestedPropertyAccessor(Person.class, "address.city");
  *
- * // Retrieve the nested property value
+ * // Retrieve the object that owns the leaf property
  * Person person = new Person();
  * Address address = new Address();
  * person.setAddress(address);
  * address.setCity("New York");
- * Object city = path.getNestedObject(person); // Returns "New York"
+ * Address owner = (Address) accessor.getOrCreateLeafOwner(person); // Returns address
+ * Object city = accessor.getLeafProperty().getValue(owner); // Returns "New York"
  *
  * // Set a new value for the nested property
- * path.set(person, "San Francisco");
+ * accessor.set(person, "San Francisco");
  * System.out.println(address.getCity()); // Outputs "San Francisco"
  * }</pre>
  *
@@ -65,13 +72,14 @@ import infra.beans.BeanProperty;
  * <ul>
  *   <li>Supports nested property traversal using dot notation (e.g., "address.city").</li>
  *   <li>Handles null intermediate objects by instantiating them when necessary.</li>
- *   <li>Provides methods to retrieve, set, and navigate through nested properties.</li>
+ *   <li>Provides access to the leaf property and its owner, and assigns leaf values.</li>
  * </ul>
  *
  * <p><strong>Notes:</strong>
  * <ul>
  *   <li>If a property in the path does not exist, it is represented by the placeholder
- *       {@link #emptyPlaceholder} in the string representation.</li>
+ *       {@link #emptyPlaceholder} in the string representation. Resolution stops
+ *       at that property; such a chain must not be used for traversal or assignment.</li>
  *   <li>The class uses {@link BeanMetadata} and {@link BeanProperty} internally to
  *       resolve and manipulate properties.</li>
  * </ul>
@@ -81,42 +89,62 @@ import infra.beans.BeanProperty;
  * @see BeanProperty
  * @since 4.0 2022/7/30 20:31
  */
-final class PropertyPath {
+final class NestedPropertyAccessor {
 
   static final String emptyPlaceholder = "<not-found>";
 
-  public final @Nullable PropertyPath next;
-
   public final @Nullable BeanProperty beanProperty;
 
-  public PropertyPath(Class<?> objectType, String propertyPath) {
-    this(infra.beans.PropertyPath.parse(propertyPath).segments(), 0, BeanMetadata.forClass(objectType), true);
+  public final @Nullable NestedPropertyAccessor next;
+
+  /**
+   * Resolve an accessor for the given root type, requiring the first property to exist.
+   * <p>Missing subsequent properties are represented by an unresolved terminal node.
+   *
+   * @param objectType the root bean type
+   * @param propertyPath the dot-separated property path
+   * @throws infra.beans.InvalidPropertyPathException if the path is malformed
+   * @throws infra.beans.NoSuchPropertyException if the first property does not exist
+   */
+  public NestedPropertyAccessor(Class<?> objectType, String propertyPath) {
+    this(PropertyPath.parse(propertyPath).segments(), 0, BeanMetadata.forClass(objectType), true);
   }
 
-  public PropertyPath(String propertyPath, BeanMetadata metadata) {
-    this(infra.beans.PropertyPath.parse(propertyPath).segments(), 0, metadata, false);
+  /**
+   * Resolve an accessor using the given root metadata.
+   * <p>A missing property is represented by an unresolved terminal node rather
+   * than requiring every property to exist.
+   *
+   * @param propertyPath the dot-separated property path
+   * @param metadata the root bean metadata
+   * @throws infra.beans.InvalidPropertyPathException if the path is malformed
+   */
+  public NestedPropertyAccessor(String propertyPath, BeanMetadata metadata) {
+    this(PropertyPath.parse(propertyPath).segments(), 0, metadata, false);
   }
 
-  private PropertyPath(List<infra.beans.PropertyPath.Segment> segments, int index,
-          BeanMetadata metadata, boolean required) {
+  private NestedPropertyAccessor(List<PropertyPath.Segment> segments, int index, BeanMetadata metadata, boolean required) {
     String name = segments.isEmpty() ? "" : segments.get(index).toCanonicalName();
     this.beanProperty = required ? metadata.getRequiredProperty(name) : metadata.getProperty(name);
     this.next = beanProperty != null && index + 1 < segments.size()
-            ? new PropertyPath(segments, index + 1, BeanMetadata.forClass(beanProperty.getType()), false) : null;
+            ? new NestedPropertyAccessor(segments, index + 1, BeanMetadata.forClass(beanProperty.getType()), false) : null;
   }
 
-  public @Nullable BeanProperty getNestedBeanProperty() {
+  /**
+   * Return the property at the end of the resolved chain.
+   *
+   * @return the leaf property, or {@code null} if resolution encountered a missing property
+   */
+  public @Nullable BeanProperty getLeafProperty() {
     if (next != null) {
-      return next.getNestedBeanProperty();
+      return next.getLeafProperty();
     }
     return beanProperty;
   }
 
   /**
-   * Retrieves the nested object from the given parent object by traversing
-   * the property path defined in the current {@code PropertyPath} instance.
-   * If the {@code next} property is not null, the method recursively retrieves
-   * the next nested object until the end of the path is reached.
+   * Return the object that owns the leaf property, creating null intermediate
+   * objects as necessary. This method does not read the leaf property's value.
    *
    * <p>This method relies on the {@link #getProperty(Object)} method to fetch
    * or instantiate intermediate objects if they are null during traversal.
@@ -128,30 +156,32 @@ final class PropertyPath {
    * // class Person { Address address; }
    *
    * Person person = new Person();
-   * PropertyPath propertyPath = new PropertyPath(Person.class, "address.city");
+   * var accessor = new NestedPropertyAccessor(Person.class, "address.city");
    *
-   * // Retrieve the nested 'city' object
-   * Object cityObject = propertyPath.getNestedObject(person);
+   * // Obtain the Address object that owns the city property
+   * Address owner = (Address) accessor.getOrCreateLeafOwner(person);
    *
    * // If 'address' was null, it would be instantiated automatically
-   * System.out.println(cityObject); // Output: null (default value for 'city')
+   * System.out.println(owner == person.address); // Output: true
    * }</pre>
    *
-   * @param parent the root object from which to start retrieving the nested object;
+   * <p>The chain must be fully resolved. Intermediate properties must be readable
+   * and, when null, writable with an instantiable property type.
+   *
+   * @param parent the root object from which to start traversal;
    * must not be {@code null}
-   * @return the nested object at the end of the property path, or the parent
-   * object if the path is empty or fully traversed
+   * @return the owner of the leaf property, or {@code parent} for a single-property chain
    */
-  public Object getNestedObject(Object parent) {
+  public Object getOrCreateLeafOwner(Object parent) {
     if (next != null) {
       Object nextParent = getProperty(parent);
-      return next.getNestedObject(nextParent);
+      return next.getOrCreateLeafOwner(nextParent);
     }
     return parent;
   }
 
   /**
-   * Sets the value of a property in a nested object structure defined by the current {@code PropertyPath}.
+   * Set the leaf property's value in the object graph rooted at {@code obj}.
    * This method traverses the chain of nested properties starting from the given object and sets the
    * specified result value on the final property in the path.
    *
@@ -165,30 +195,34 @@ final class PropertyPath {
    * // class Person { Address address; }
    *
    * Person person = new Person();
-   * PropertyPath propertyPath = new PropertyPath(Person.class, "address.city");
+   * var accessor = new NestedPropertyAccessor(Person.class, "address.city");
    *
    * // Set the value of 'city' in the nested structure
-   * propertyPath.set(person, "New York");
+   * accessor.set(person, "New York");
    *
    * // The 'address' object is automatically instantiated if it was null
-   * System.out.println(person.getAddress().getCity()); // Output: New York
+   * System.out.println(person.address.city); // Output: New York
    * }</pre>
    *
+   * <p>The chain must be fully resolved and the leaf property must be writable.
+   * Intermediate properties must be readable and, when null, writable with an
+   * instantiable property type.
+   *
    * @param obj the root object from which the property path starts; must not be {@code null}
-   * @param result the value to set on the final property in the path; can be {@code null}
+   * @param value the value to set on the final property in the path; can be {@code null}
    * @see #getProperty(Object)
    * @see BeanProperty#setValue(Object, Object)
    */
   @SuppressWarnings("NullAway")
-  public void set(Object obj, @Nullable Object result) {
-    PropertyPath current = this;
+  public void set(Object obj, @Nullable Object value) {
+    NestedPropertyAccessor current = this;
     while (current.next != null) {
       obj = current.getProperty(obj);
       current = current.next;
     }
 
     // set current object's property
-    current.beanProperty.setValue(obj, result);
+    current.beanProperty.setValue(obj, value);
   }
 
   @SuppressWarnings("NullAway")
