@@ -77,7 +77,7 @@ import infra.web.handler.method.RequestBodyAdvice;
 public abstract class AbstractMessageConverterMethodArgumentResolver implements ParameterResolvingStrategy {
 
   private static final EnumSet<HttpMethod> SUPPORTED_METHODS = EnumSet.of(
-          HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH
+          HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH, HttpMethod.QUERY
   );
 
   private static final Object NO_VALUE = new Object();

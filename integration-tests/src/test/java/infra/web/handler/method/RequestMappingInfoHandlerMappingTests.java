@@ -184,9 +184,19 @@ class RequestMappingInfoHandlerMappingTests {
   void getHandlerHttpOptions(TestRequestMappingInfoHandlerMapping mapping) throws Throwable {
     testHttpOptions(mapping, "/foo", "GET,HEAD,OPTIONS", null);
     testHttpOptions(mapping, "/person/1", "PUT,OPTIONS", null);
-    testHttpOptions(mapping, "/persons", "GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS,CONNECT", null);
+    testHttpOptions(mapping, "/persons", "GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS,CONNECT,QUERY", null);
     testHttpOptions(mapping, "/something", "PUT,POST", null);
     testHttpOptions(mapping, "/qux", "PATCH,GET,HEAD,OPTIONS", new MediaType("foo", "bar"));
+    testHttpOptions(mapping, "/quid", "QUERY,HEAD,OPTIONS", null);
+    MockRequest request = new MockRequest("HEAD", "/quid");
+    HandlerMethod handler = getHandler(mapping, request);
+    var context = new MockHttpContext(null, request, new MockResponse());
+    context.setBinding(new BindingContext());
+    Object result = new InvocableHandlerMethod(handler, new HandlerParameterFactory()).invokeForRequest(context, null, null);
+    assertThat(result).isInstanceOf(HttpHeaders.class);
+    HttpHeaders headers = (HttpHeaders) result;
+    assertThat(headers.getAllow()).containsExactlyInAnyOrder(HttpMethod.QUERY, HttpMethod.HEAD, HttpMethod.OPTIONS);
+    assertThat(headers.getAcceptQuery()).containsExactly(MediaType.APPLICATION_JSON);
   }
 
   @PathPatternsParameterizedTest
@@ -612,6 +622,11 @@ class RequestMappingInfoHandlerMappingTests {
 
     @RequestMapping(value = "/qux", method = HttpMethod.PATCH, consumes = "foo/bar")
     public void patchBaz(String value) {
+    }
+
+    @RequestMapping(value = "/quid", method = HttpMethod.QUERY, consumes = "application/json", produces = "application/json")
+    public String query(@RequestBody String body) {
+      return "{}";
     }
   }
 

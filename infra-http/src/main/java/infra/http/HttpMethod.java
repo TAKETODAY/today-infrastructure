@@ -32,10 +32,13 @@ import java.util.Map;
  */
 public enum HttpMethod {
 
-  GET, POST, PUT, DELETE, PATCH, TRACE, HEAD, OPTIONS, CONNECT;
+  GET, POST, PUT, DELETE, PATCH, TRACE, HEAD, OPTIONS, CONNECT,
+  /** HTTP QUERY 请求方法。@since 5.0 */
+  QUERY;
 
   private static final Map<String, HttpMethod> mappings = Map.of(GET.name(), GET, POST.name(), POST, PUT.name(), PUT, DELETE.name(),
-          DELETE, PATCH.name(), PATCH, TRACE.name(), TRACE, HEAD.name(), HEAD, OPTIONS.name(), OPTIONS, CONNECT.name(), CONNECT);
+          DELETE, PATCH.name(), PATCH, TRACE.name(), TRACE, HEAD.name(), HEAD, OPTIONS.name(), OPTIONS, CONNECT.name(), CONNECT,
+          QUERY.name(), QUERY);
 
   /**
    * Determine whether this {@code HttpMethod} matches the given method value.

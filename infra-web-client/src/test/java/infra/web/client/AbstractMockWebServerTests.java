@@ -74,7 +74,7 @@ abstract class AbstractMockWebServerTests {
 
   private MockResponse getRequest(RecordedRequest request, byte[] body, String contentType) {
     if (request.getMethod().equals("OPTIONS")) {
-      return new MockResponse().setResponseCode(200).setHeader("Allow", "GET, OPTIONS, HEAD, TRACE");
+      return new MockResponse().setResponseCode(200).setHeader("Allow", "GET, QUERY, OPTIONS, HEAD, TRACE");
     }
     Buffer buf = new Buffer();
     buf.write(body);

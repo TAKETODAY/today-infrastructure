@@ -119,6 +119,13 @@ public abstract class HttpHeaders implements Serializable {
    * @see <a href="https://tools.ietf.org/html/rfc5789#section-3.1">Section 3.1 of RFC 5789</a>
    */
   public static final String ACCEPT_PATCH = "Accept-Patch";
+
+  /**
+   * HTTP {@code Accept-Query} 头名称。
+   * @since 5.0
+   * @see <a href="https://www.rfc-editor.org/rfc/rfc10008.html#section-3">RFC 10008 第 3 节</a>
+   */
+  public static final String ACCEPT_QUERY = "Accept-Query";
   /**
    * The HTTP {@code Accept-Ranges} header field name.
    *
@@ -703,6 +710,25 @@ public abstract class HttpHeaders implements Serializable {
    */
   public void setAcceptPatch(Collection<MediaType> mediaTypes) {
     setHeader(ACCEPT_PATCH, MediaType.toString(mediaTypes));
+  }
+
+  /**
+   * 设置 QUERY 方法可接受的媒体类型，由 {@code Accept-Query} 头指定。
+   * @param mediaTypes 可接受的媒体类型
+   * @since 5.0
+   */
+  public void setAcceptQuery(Collection<MediaType> mediaTypes) {
+    setHeader(ACCEPT_QUERY, MediaType.toString(mediaTypes));
+  }
+
+  /**
+   * 返回 QUERY 方法可接受的媒体类型，由 {@code Accept-Query} 头指定。
+   * <p>未指定时返回空列表。
+   * @return 可接受的媒体类型
+   * @since 5.0
+   */
+  public List<MediaType> getAcceptQuery() {
+    return MediaType.parseMediaTypes(get(ACCEPT_QUERY));
   }
 
   /**

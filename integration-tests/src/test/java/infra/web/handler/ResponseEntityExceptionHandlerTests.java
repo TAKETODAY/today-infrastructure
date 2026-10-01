@@ -144,6 +144,16 @@ class ResponseEntityExceptionHandlerTests {
   }
 
   @Test
+  void queryHttpMediaTypeNotSupported() {
+    this.mockRequest = new MockRequest("QUERY", "/");
+    this.request = new MockHttpContext(null, this.mockRequest, this.mockResponse);
+    ResponseEntity<Object> entity = testException(new HttpMediaTypeNotSupportedException(
+            MediaType.APPLICATION_JSON, List.of(MediaType.APPLICATION_ATOM_XML, MediaType.APPLICATION_XML), HttpMethod.QUERY));
+    assertThat(entity.headers().getFirst(HttpHeaders.ACCEPT)).isEqualTo("application/atom+xml, application/xml");
+    assertThat(entity.headers().getFirst(HttpHeaders.ACCEPT_QUERY)).isEqualTo("application/atom+xml, application/xml");
+  }
+
+  @Test
   void missingPathVariable() throws NoSuchMethodException {
     testException(new MissingPathVariableException("param",
             new MethodParameter(getClass().getDeclaredMethod("handle", String.class), 0)));
