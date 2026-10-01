@@ -51,10 +51,10 @@ import java.util.StringJoiner;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-import infra.util.Assert;
 import infra.lang.Contract;
 import infra.lang.Modifiable;
 import infra.lang.Unmodifiable;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
@@ -121,9 +121,10 @@ public abstract class HttpHeaders implements Serializable {
   public static final String ACCEPT_PATCH = "Accept-Patch";
 
   /**
-   * HTTP {@code Accept-Query} 头名称。
+   * The HTTP {@code Accept-Query} header field name.
+   *
+   * @see <a href="https://www.rfc-editor.org/rfc/rfc10008.html#section-3">Section 3 of RFC 10008</a>
    * @since 5.0
-   * @see <a href="https://www.rfc-editor.org/rfc/rfc10008.html#section-3">RFC 10008 第 3 节</a>
    */
   public static final String ACCEPT_QUERY = "Accept-Query";
   /**
@@ -713,8 +714,10 @@ public abstract class HttpHeaders implements Serializable {
   }
 
   /**
-   * 设置 QUERY 方法可接受的媒体类型，由 {@code Accept-Query} 头指定。
-   * @param mediaTypes 可接受的媒体类型
+   * Set the acceptable media types for QUERY methods, as specified by
+   * the {@code Accept-Query} header.
+   *
+   * @param mediaTypes the acceptable media types
    * @since 5.0
    */
   public void setAcceptQuery(Collection<MediaType> mediaTypes) {
@@ -722,9 +725,11 @@ public abstract class HttpHeaders implements Serializable {
   }
 
   /**
-   * 返回 QUERY 方法可接受的媒体类型，由 {@code Accept-Query} 头指定。
-   * <p>未指定时返回空列表。
-   * @return 可接受的媒体类型
+   * Return the acceptable media types for QUERY methods, as specified by
+   * the {@code Accept-Query} header.
+   * <p>Returns an empty list when the acceptable media types are unspecified.
+   *
+   * @return the acceptable media types
    * @since 5.0
    */
   public List<MediaType> getAcceptQuery() {

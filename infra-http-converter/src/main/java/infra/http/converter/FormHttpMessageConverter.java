@@ -43,8 +43,8 @@ import infra.http.HttpInputMessage;
 import infra.http.HttpOutputMessage;
 import infra.http.MediaType;
 import infra.http.StreamingHttpOutputMessage;
-import infra.util.Assert;
 import infra.lang.Constant;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MimeTypeUtils;
@@ -62,8 +62,9 @@ import infra.util.StringUtils;
  * write (but not read) the {@code "multipart/form-data"} and
  * {@code "multipart/mixed"} media types as
  * {@link MultiValueMap MultiValueMap&lt;String, Object&gt;}.
- * <p>URL 编码表单也支持 {@code Map<String, String>}；读取为普通 Map 时，
- * 同一名称只保留第一个值。multipart 写入仍使用 MultiValueMap。
+ * <p>URL-encoded forms also support {@code Map<String, String>}. When reading into
+ * a plain Map, only the first value for each name is retained. Multipart writing
+ * continues to use MultiValueMap.
  *
  * <h3>Multipart Data</h3>
  *
@@ -468,10 +469,11 @@ public class FormHttpMessageConverter implements SmartHttpMessageConverter<Objec
   }
 
   /**
-   * 将单值表单编码为 URL 编码字符串。
-   * @param formData 表单名称与值
-   * @param charset 编码字符集
-   * @return URL 编码的表单
+   * Serialize a single-value form as a URL-encoded string.
+   *
+   * @param formData the form names and values
+   * @param charset the character set to use for encoding
+   * @return the URL-encoded form
    * @since 5.0
    */
   protected String serializeForm(Map<String, ?> formData, Charset charset) {

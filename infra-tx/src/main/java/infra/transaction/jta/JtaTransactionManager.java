@@ -33,7 +33,6 @@ import javax.naming.NamingException;
 
 import infra.beans.factory.InitializingBean;
 import infra.jndi.JndiTemplate;
-import infra.util.Assert;
 import infra.transaction.CannotCreateTransactionException;
 import infra.transaction.HeuristicCompletionException;
 import infra.transaction.IllegalTransactionStateException;
@@ -47,6 +46,7 @@ import infra.transaction.UnexpectedRollbackException;
 import infra.transaction.support.AbstractPlatformTransactionManager;
 import infra.transaction.support.DefaultTransactionStatus;
 import infra.transaction.support.TransactionSynchronization;
+import infra.util.Assert;
 import infra.util.StringUtils;
 import jakarta.transaction.HeuristicMixedException;
 import jakarta.transaction.HeuristicRollbackException;
@@ -455,12 +455,15 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
   }
 
   /**
-   * 是否向 JTA 事务管理器传递只读标记，按 JTA 2.1 规范强制资源只读访问。
-   * <p>需要 JTA 2.1，默认 {@code false}。默认情况下，Infra 事务的只读状态
-   * 仅提供给事务同步（例如抑制 Hibernate flush），JTA 事务仍正常提交。
-   * 当事务性 XA 资源支持 JTA 2.1 的 {@code ExtendedXAResource} SPI 时，
-   * 可以开启此标记，以只读模式运行并最终执行回滚。
-   * @param enforceReadOnly 是否强制只读
+   * Set whether a read-only transaction should be exposed to the JTA transaction manager,
+   * enforcing strict read-only access to resources as per the JTA 2.1 specification.
+   * <p>This requires JTA 2.1. The default is {@code false}. By default, the read-only
+   * status of an Infra transaction is only exposed to transaction synchronization
+   * (for example, suppressing a Hibernate flush), while the JTA transaction regularly commits.
+   * Turn this flag on if your transactional XA resources support the JTA 2.1
+   * {@code ExtendedXAResource} SPI, operating in a read-only mode with eventual rollback.
+   *
+   * @param enforceReadOnly whether to enforce read-only access
    * @since 5.0
    */
   public void setEnforceReadOnly(boolean enforceReadOnly) {

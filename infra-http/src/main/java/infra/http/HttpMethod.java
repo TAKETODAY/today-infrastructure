@@ -33,7 +33,12 @@ import java.util.Map;
 public enum HttpMethod {
 
   GET, POST, PUT, DELETE, PATCH, TRACE, HEAD, OPTIONS, CONNECT,
-  /** HTTP QUERY 请求方法。@since 5.0 */
+
+  /**
+   * The HTTP QUERY request method.
+   *
+   * @since 5.0
+   */
   QUERY;
 
   private static final Map<String, HttpMethod> mappings = Map.of(GET.name(), GET, POST.name(), POST, PUT.name(), PUT, DELETE.name(),

@@ -47,7 +47,8 @@ import jakarta.transaction.UserTransaction;
  *
  * <p>Used internally by Framework's {@link JtaTransactionManager} for certain
  * scenarios. Not intended for direct use in application code.
- * <p>自 Infra 5.0 起也支持 JTA 2.1 只读方法，并兼容旧 JTA API。
+ * <p>As of Infra 5.0, this adapter also supports the JTA 2.1 read-only methods,
+ * while remaining compatible with earlier JTA APIs.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -91,10 +92,12 @@ public class UserTransactionAdapter implements UserTransaction {
   }
 
   /**
-   * 使用 JTA 2.1 只读标记开始事务。
-   * @param isReadOnly 是否只读
-   * @throws NotSupportedException 旧 JTA 不支持只读事务，或提供者拒绝开始事务
-   * @throws SystemException 提供者发生系统错误
+   * Begin a transaction with the JTA 2.1 read-only flag.
+   *
+   * @param isReadOnly whether the transaction is read-only
+   * @throws NotSupportedException if an earlier JTA API does not support a read-only
+   * transaction, or the provider rejects the transaction
+   * @throws SystemException if the provider encounters a system error
    * @since 5.0
    */
   public void begin(boolean isReadOnly) throws NotSupportedException, SystemException {
@@ -122,9 +125,11 @@ public class UserTransactionAdapter implements UserTransaction {
   }
 
   /**
-   * 返回 JTA 2.1 当前事务的只读状态；旧 JTA 返回 {@code false}。
-   * @return 是否只读
-   * @throws SystemException 提供者发生系统错误
+   * Return the read-only status of the current JTA 2.1 transaction.
+   * <p>Returns {@code false} with earlier JTA APIs.
+   *
+   * @return whether the transaction is read-only
+   * @throws SystemException if the provider encounters a system error
    * @since 5.0
    */
   public boolean isReadOnly() throws SystemException {
