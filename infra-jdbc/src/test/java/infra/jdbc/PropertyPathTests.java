@@ -21,14 +21,56 @@ import org.junit.jupiter.api.Test;
 import java.util.Objects;
 
 import infra.core.style.ToStringBuilder;
+import infra.beans.BeanMetadata;
+import infra.beans.InvalidPropertyPathException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/7/30 20:31
  */
 class PropertyPathTests {
+
+  @Test
+  void simplePropertyPath() {
+    PropertyPath path = new PropertyPath(Nested.class, "name");
+    Nested bean = new Nested();
+    path.set(bean, "value");
+    assertThat(bean.name).isEqualTo("value");
+    assertThat(path.next).isNull();
+    assertThat(path.toString()).isEqualTo("name");
+  }
+
+  @Test
+  void malformedPathsAreRejectedByBothConstructors() {
+    for (String path : new String[] { "nested..name", "nested.", "nested[broken" }) {
+      assertThatExceptionOfType(InvalidPropertyPathException.class)
+              .isThrownBy(() -> new PropertyPath(Nested.class, path));
+      assertThatExceptionOfType(InvalidPropertyPathException.class)
+              .isThrownBy(() -> new PropertyPath(path, BeanMetadata.forClass(Nested.class)));
+    }
+  }
+
+  @Test
+  void setTraversesEachPropertyOfDifferentIntermediateTypes() {
+    Root root = new Root();
+    new PropertyPath(Root.class, "middle.leaf.name").set(root, "value");
+    assertThat(root.middle.leaf.name).isEqualTo("value");
+  }
+
+  static class Root {
+    public Middle middle;
+  }
+
+  static class Middle {
+    public Leaf leaf;
+  }
+
+  static class Leaf {
+    public String name;
+  }
 
   static class Nested {
 

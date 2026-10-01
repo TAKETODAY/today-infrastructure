@@ -18,9 +18,10 @@ package infra.jdbc;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
+
 import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
-import infra.beans.PropertyAccessorUtils;
 
 /**
  * Represents a path to a nested property within a Java object, allowing traversal
@@ -84,46 +85,27 @@ final class PropertyPath {
 
   static final String emptyPlaceholder = "<not-found>";
 
-  @Nullable
-  public final PropertyPath next;
+  public final @Nullable PropertyPath next;
 
-  // @Nullable check first
-  @Nullable
-  public final BeanProperty beanProperty;
+  public final @Nullable BeanProperty beanProperty;
 
   public PropertyPath(Class<?> objectType, String propertyPath) {
-    BeanMetadata metadata = BeanMetadata.forClass(objectType);
-    int pos = PropertyAccessorUtils.getFirstNestedPropertySeparatorIndex(propertyPath);
-    String name = propertyPath.substring(0, pos);
-    this.beanProperty = metadata.getRequiredProperty(name);
-
-    BeanMetadata nextMetadata = BeanMetadata.forClass(beanProperty.getType());
-    this.next = new PropertyPath(propertyPath.substring(pos + 1), nextMetadata);
+    this(infra.beans.PropertyPath.parse(propertyPath).segments(), 0, BeanMetadata.forClass(objectType), true);
   }
 
   public PropertyPath(String propertyPath, BeanMetadata metadata) {
-    int pos = PropertyAccessorUtils.getFirstNestedPropertySeparatorIndex(propertyPath);
-    if (pos > -1) {
-      // compute next PropertyPath
-      String propertyName = propertyPath.substring(0, pos);
-      this.beanProperty = metadata.getProperty(propertyName);
-      if (beanProperty != null) {
-        BeanMetadata nextMetadata = BeanMetadata.forClass(beanProperty.getType());
-        this.next = new PropertyPath(propertyPath.substring(pos + 1), nextMetadata);
-      }
-      else {
-        this.next = null;
-      }
-    }
-    else {
-      // terminated (last PropertyPath)
-      this.next = null;
-      this.beanProperty = metadata.getProperty(propertyPath); // maybe null
-    }
+    this(infra.beans.PropertyPath.parse(propertyPath).segments(), 0, metadata, false);
   }
 
-  @Nullable
-  public BeanProperty getNestedBeanProperty() {
+  private PropertyPath(List<infra.beans.PropertyPath.Segment> segments, int index,
+          BeanMetadata metadata, boolean required) {
+    String name = segments.isEmpty() ? "" : segments.get(index).toCanonicalName();
+    this.beanProperty = required ? metadata.getRequiredProperty(name) : metadata.getProperty(name);
+    this.next = beanProperty != null && index + 1 < segments.size()
+            ? new PropertyPath(segments, index + 1, BeanMetadata.forClass(beanProperty.getType()), false) : null;
+  }
+
+  public @Nullable BeanProperty getNestedBeanProperty() {
     if (next != null) {
       return next.getNestedBeanProperty();
     }
@@ -201,7 +183,7 @@ final class PropertyPath {
   public void set(Object obj, @Nullable Object result) {
     PropertyPath current = this;
     while (current.next != null) {
-      obj = getProperty(obj);
+      obj = current.getProperty(obj);
       current = current.next;
     }
 
