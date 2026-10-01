@@ -115,17 +115,17 @@ public class ApplicationJsonEnvironmentPostProcessor implements EnvironmentPostP
   }
 
   @SuppressWarnings("unchecked")
-  private void extract(String name, Map<String, Object> result, Object value) {
+  private void extract(String name, Map<String, Object> result, @Nullable Object value) {
     if (value instanceof Map) {
       if (CollectionUtils.isEmpty((Map<?, ?>) value)) {
-        result.put(name, value);
+        result.put(name, "");
         return;
       }
       flatten(name, result, (Map<String, Object>) value);
     }
     else if (value instanceof Collection) {
       if (CollectionUtils.isEmpty((Collection<?>) value)) {
-        result.put(name, value);
+        result.put(name, "");
         return;
       }
       int index = 0;
@@ -135,7 +135,7 @@ public class ApplicationJsonEnvironmentPostProcessor implements EnvironmentPostP
       }
     }
     else {
-      result.put(name, value);
+      result.put(name, value != null ? value : "");
     }
   }
 
