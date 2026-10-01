@@ -305,15 +305,18 @@ final class JavaPluginAction implements PluginApplicationAction {
 
   private void configureDevelopmentOnlyConfiguration(Project project) {
     Configuration developmentOnly = project.getConfigurations().create(InfraApplicationPlugin.DEVELOPMENT_ONLY_CONFIGURATION_NAME);
+    developmentOnly.setCanBeConsumed(false);
     developmentOnly.setDescription("Configuration for development-only dependencies such as Infra DevTools.");
     Configuration runtimeClasspath = project.getConfigurations()
             .getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME);
     runtimeClasspath.extendsFrom(developmentOnly);
+    copyAttributes(project, runtimeClasspath, developmentOnly);
   }
 
   private void configureTestAndDevelopmentOnlyConfiguration(Project project) {
     ConfigurationContainer container = project.getConfigurations();
     Configuration testAndDevelopmentOnly = container.create(InfraApplicationPlugin.TEST_AND_DEVELOPMENT_ONLY_CONFIGURATION_NAME);
+    testAndDevelopmentOnly.setCanBeConsumed(false);
     testAndDevelopmentOnly.setDescription("Configuration for test and development-only dependencies such as Infra DevTools.");
 
     Configuration runtimeClasspath = container.getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME);
@@ -321,6 +324,17 @@ final class JavaPluginAction implements PluginApplicationAction {
 
     runtimeClasspath.extendsFrom(testAndDevelopmentOnly);
     testImplementation.extendsFrom(testAndDevelopmentOnly);
+    copyAttributes(project, runtimeClasspath, testAndDevelopmentOnly);
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private void copyAttributes(Project project, Configuration source, Configuration target) {
+    target.attributes(attributes -> {
+      AttributeContainer sourceAttributes = source.getAttributes();
+      for (Attribute attribute : sourceAttributes.keySet()) {
+        attributes.attributeProvider(attribute, project.getProviders().provider(() -> sourceAttributes.getAttribute(attribute)));
+      }
+    });
   }
 
   /**

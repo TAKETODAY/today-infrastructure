@@ -222,6 +222,22 @@ class JavaPluginActionIntegrationTests {
   }
 
   @TestTemplate
+  void developmentOnlyIsConfiguredWithAttributesThatMatchRuntimeClasspath() {
+    String output = this.gradleBuild.build("build").getOutput();
+    Matcher matcher = Pattern.compile("runtimeClasspath: (\\[.*])").matcher(output);
+    assertThat(matcher.find()).as("%s found in %s", matcher, output).isTrue();
+    assertThat(output).contains("developmentOnly: " + matcher.group(1));
+  }
+
+  @TestTemplate
+  void testAndDevelopmentOnlyIsConfiguredWithAttributesThatMatchRuntimeClasspath() {
+    String output = this.gradleBuild.build("build").getOutput();
+    Matcher matcher = Pattern.compile("runtimeClasspath: (\\[.*])").matcher(output);
+    assertThat(matcher.find()).as("%s found in %s", matcher, output).isTrue();
+    assertThat(output).contains("testAndDevelopmentOnly: " + matcher.group(1));
+  }
+
+  @TestTemplate
   void taskConfigurationIsAvoided() throws IOException {
     BuildResult result = this.gradleBuild.build("help");
     String output = result.getOutput();
