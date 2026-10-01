@@ -79,6 +79,26 @@ import static org.assertj.core.api.Assertions.entry;
  */
 class MergedAnnotationsTests {
 
+  @Test
+  void synthesizeShouldNotSynthesizeMetaAnnotationsWithNonOverriddenAttributes() {
+    PlainAttributeMetaAnnotation annotation = MergedAnnotations.from(ComponentWithPlainAttributeMetaAnnotation.class)
+            .get(PlainAttributeMetaAnnotation.class).synthesize();
+    assertThat(annotation.value()).isEqualTo("enigma");
+    assertNotSynthesized(annotation);
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+  @interface PlainAttributeMetaAnnotation {
+    String value() default "enigma";
+  }
+
+  @PlainAttributeMetaAnnotation
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+  @interface ComposedPlainAttributeAnnotation { }
+
+  @ComposedPlainAttributeAnnotation
+  static class ComponentWithPlainAttributeMetaAnnotation { }
+
   /**
    * Subset (and duplication) of other tests in {@link MergedAnnotationsTests}
    * that verify behavior of the fluent {@link Search} API.
@@ -2082,12 +2102,12 @@ class MergedAnnotationsTests {
     MyRepeatable myRepeatable = MergedAnnotations.from(SingleMyRepeatableClass.class)
             .get(MyRepeatable.class).synthesize();
     assertThat(myRepeatable).asString()
-            .isEqualTo("@%s('meta')", MyRepeatable.class.getCanonicalName());
+            .isEqualTo("@%s(\"meta\")", MyRepeatable.class.getCanonicalName());
 
     ValueAttribute valueAttribute = MergedAnnotations.from(ValueAttributeMetaMetaClass.class)
             .get(ValueAttribute.class).synthesize();
     assertThat(valueAttribute).asString()
-            .isEqualTo("@%s(['FromValueAttributeMeta'])", ValueAttribute.class.getCanonicalName());
+            .isEqualTo("@%s({\"FromValueAttributeMeta\"})", ValueAttribute.class.getCanonicalName());
   }
 
   @Test

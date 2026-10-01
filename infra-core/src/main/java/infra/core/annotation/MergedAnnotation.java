@@ -651,6 +651,8 @@ public interface MergedAnnotation<A extends Annotation> {
    * it has not already been synthesized and one of the following is true.
    * <ul>
    * <li>The annotation declares attributes annotated with {@link AliasFor @AliasFor}.</li>
+   * <li>注解作为元注解使用，且其属性被注解层级中某个组合注解的
+   * {@link AliasFor @AliasFor} 声明覆盖。</li>
    * <li>The annotation is a composed annotation that relies on convention-based
    * annotation attribute overrides in meta-annotations.</li>
    * <li>The annotation declares attributes that are annotations or arrays of
