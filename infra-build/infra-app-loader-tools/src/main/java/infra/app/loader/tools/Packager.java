@@ -271,10 +271,13 @@ public abstract class Packager {
   }
 
   private AbstractJarWriter.EntryTransformer getEntityTransformer() {
+    AbstractJarWriter.EntryTransformer transformer = AbstractJarWriter.EntryTransformer.NONE;
     if (getLayout() instanceof RepackagingLayout repackagingLayout) {
-      return new RepackagingEntryTransformer(repackagingLayout);
+      transformer = new RepackagingEntryTransformer(repackagingLayout);
     }
-    return AbstractJarWriter.EntryTransformer.NONE;
+    AbstractJarWriter.EntryTransformer delegate = transformer;
+    String additionalMetadata = getLayout().getClassesLocation() + "META-INF/additional-infra-configuration-metadata.json";
+    return entry -> entry.getName().equals(additionalMetadata) ? null : delegate.transform(entry);
   }
 
   private boolean isZip(InputStreamSupplier supplier) {
