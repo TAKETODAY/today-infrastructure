@@ -70,7 +70,7 @@ class TestcontainersPropertySourceAutoConfigurationTests {
 
     @Bean
     RedisContainer redisContainer(DynamicPropertyRegistry properties) {
-      RedisContainer container = TestImage.container(RedisContainer.class);
+      RedisContainer container = TestImage.forContainer(RedisContainer.class);
       properties.add("container.port", container::getFirstMappedPort);
       return container;
     }
@@ -84,7 +84,7 @@ class TestcontainersPropertySourceAutoConfigurationTests {
 
     @Bean
     RedisContainer redisContainer() {
-      return TestImage.container(RedisContainer.class);
+      return TestImage.forContainer(RedisContainer.class);
     }
 
     @Bean

@@ -145,7 +145,7 @@ class ServiceConnectionAutoConfigurationTests {
     @Bean
     @ServiceConnection
     PostgreSQLContainer postgresContainer() {
-      return TestImage.container(PostgreSQLContainer.class);
+      return TestImage.forContainer(PostgreSQLContainer.class);
     }
 
   }
@@ -177,7 +177,7 @@ class ServiceConnectionAutoConfigurationTests {
 
   static class TestcontainersRootBeanDefinition extends RootBeanDefinition implements TestcontainerBeanDefinition {
 
-    private final PostgreSQLContainer container = TestImage.container(PostgreSQLContainer.class);
+    private final PostgreSQLContainer container = TestImage.forContainer(PostgreSQLContainer.class);
 
     TestcontainersRootBeanDefinition() {
       setBeanClass(PostgreSQLContainer.class);

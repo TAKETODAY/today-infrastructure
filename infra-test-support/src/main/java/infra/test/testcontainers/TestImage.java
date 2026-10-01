@@ -129,7 +129,11 @@ public enum TestImage {
   /**
    * A container image suitable for testing Elasticsearch 9.
    */
-  ELASTICSEARCH_9("elasticsearch", "9.0.2"),
+  ELASTICSEARCH_9("elasticsearch", "9.0.2", () -> ElasticsearchContainer.class, container -> {
+    ElasticsearchContainer elasticsearch = (ElasticsearchContainer) container;
+    elasticsearch.addEnv("ES_JAVA_OPTS", "-Xms32m -Xmx512m");
+    elasticsearch.addEnv("xpack.security.enabled", "false");
+  }),
 
   /**
    * A container image from Elastic Registry suitable for testing Elasticsearch 9.
@@ -331,11 +335,41 @@ public enum TestImage {
    * @return a generic container for the test image
    */
   public GenericContainer<?> genericContainer() {
-    return createContainer(GenericContainer.class);
+    return createContainer(GenericContainer.class, null);
+  }
+
+  /**
+   * Create a container using the default type for this image.
+   * @param <C> the container type
+   * @return the configured container
+   */
+  public <C extends Container<?>> C container() {
+    return container((Consumer<C>) null);
+  }
+
+  /**
+   * Create a container and apply additional configuration before startup.
+   * @param setup the additional configuration, or {@code null}
+   * @param <C> the container type
+   * @return the configured container
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public <C extends Container<?>> C container(Consumer<C> setup) {
+    return (C) createContainer((Class) (containerClass != null ? containerClass : GenericContainer.class), setup);
+  }
+
+  /**
+   * Create a container of the specified type for this image.
+   * @param containerClass the requested container type
+   * @param <C> the container type
+   * @return the configured container
+   */
+  public <C extends Container<?>> C container(Class<? extends C> containerClass) {
+    return createContainer(containerClass, null);
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  private <C extends Container<?>> C createContainer(Class<C> containerClass) {
+  private <C extends Container<?>> C createContainer(Class<C> containerClass, Consumer<? super C> setup) {
     DockerImageName dockerImageName = DockerImageName.parse(toString());
     try {
       Constructor<C> constructor = containerClass.getDeclaredConstructor(DockerImageName.class);
@@ -343,6 +377,9 @@ public enum TestImage {
       C container = constructor.newInstance(dockerImageName);
       if (this.containerSetup != null) {
         ((Consumer) this.containerSetup).accept(container);
+      }
+      if (setup != null) {
+        setup.accept(container);
       }
       return container;
     }
@@ -362,14 +399,14 @@ public enum TestImage {
 
   /**
    * Factory method to create and configure a {@link Container} using a deduced
-   * {@link TestImage}.
+   * {@link TestImage}. Exactly one image must match the requested container type.
    *
    * @param <C> the container type
    * @param containerClass the container type
    * @return a container instance
    */
-  public static <C extends Container<?>> C container(Class<C> containerClass) {
-    return forContainerClass(containerClass).createContainer(containerClass);
+  public static <C extends Container<?>> C forContainer(Class<C> containerClass) {
+    return forContainerClass(containerClass).createContainer(containerClass, null);
   }
 
   private static TestImage forContainerClass(Class<?> containerClass) {
