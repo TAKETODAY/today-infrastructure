@@ -44,6 +44,7 @@ import infra.format.annotation.DateTimeFormat.ISO;
  *
  * @author Juergen Hoeller
  * @author Phillip Webb
+ * @author Junhwan Choi
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setDateStyle
  * @see #setTimeStyle
@@ -53,7 +54,6 @@ import infra.format.annotation.DateTimeFormat.ISO;
  * @see infra.format.datetime.DateFormatterRegistrar
  * @since 4.0
  */
-@SuppressWarnings("NullAway")
 public class DateTimeFormatterRegistrar implements FormatterRegistrar {
 
   private enum Type {
@@ -83,9 +83,9 @@ public class DateTimeFormatterRegistrar implements FormatterRegistrar {
    * properties are effectively ignored.
    */
   public void setUseIsoFormat(boolean useIsoFormat) {
-    this.factories.get(Type.DATE).setIso(useIsoFormat ? ISO.DATE : ISO.NONE);
-    this.factories.get(Type.TIME).setIso(useIsoFormat ? ISO.TIME : ISO.NONE);
-    this.factories.get(Type.DATE_TIME).setIso(useIsoFormat ? ISO.DATE_TIME : ISO.NONE);
+    getFactory(Type.DATE).setIso(useIsoFormat ? ISO.DATE : ISO.NONE);
+    getFactory(Type.TIME).setIso(useIsoFormat ? ISO.TIME : ISO.NONE);
+    getFactory(Type.DATE_TIME).setIso(useIsoFormat ? ISO.DATE_TIME : ISO.NONE);
   }
 
   /**
@@ -93,7 +93,7 @@ public class DateTimeFormatterRegistrar implements FormatterRegistrar {
    * Default is {@link FormatStyle#SHORT}.
    */
   public void setDateStyle(FormatStyle dateStyle) {
-    this.factories.get(Type.DATE).setDateStyle(dateStyle);
+    getFactory(Type.DATE).setDateStyle(dateStyle);
   }
 
   /**
@@ -101,7 +101,7 @@ public class DateTimeFormatterRegistrar implements FormatterRegistrar {
    * Default is {@link FormatStyle#SHORT}.
    */
   public void setTimeStyle(FormatStyle timeStyle) {
-    this.factories.get(Type.TIME).setTimeStyle(timeStyle);
+    getFactory(Type.TIME).setTimeStyle(timeStyle);
   }
 
   /**
@@ -109,7 +109,7 @@ public class DateTimeFormatterRegistrar implements FormatterRegistrar {
    * Default is {@link FormatStyle#SHORT}.
    */
   public void setDateTimeStyle(FormatStyle dateTimeStyle) {
-    this.factories.get(Type.DATE_TIME).setDateTimeStyle(dateTimeStyle);
+    getFactory(Type.DATE_TIME).setDateTimeStyle(dateTimeStyle);
   }
 
   /**
@@ -210,7 +210,12 @@ public class DateTimeFormatterRegistrar implements FormatterRegistrar {
       return formatter;
     }
     DateTimeFormatter fallbackFormatter = getFallbackFormatter(type);
-    return this.factories.get(type).createDateTimeFormatter(fallbackFormatter);
+    return getFactory(type).createDateTimeFormatter(fallbackFormatter);
+  }
+
+  @SuppressWarnings("NullAway") // Well-known map keys
+  private DateTimeFormatterFactory getFactory(Type type) {
+    return this.factories.get(type);
   }
 
   private DateTimeFormatter getFallbackFormatter(Type type) {
