@@ -1479,6 +1479,23 @@ abstract class AbstractPropertyAccessorTests {
   }
 
   @Test
+  void quotedMapKeysWithUnbalancedBrackets() {
+    IndexedTestBean target = new IndexedTestBean();
+    TestBean closingBracket = new TestBean();
+    TestBean openingBracket = new TestBean();
+    target.getMap().put("a]b", closingBracket);
+    target.getMap().put("a[b", openingBracket);
+    AbstractPropertyAccessor accessor = createAccessor(target);
+
+    accessor.setPropertyValue("map['a]b'].name", "closing");
+    accessor.setPropertyValue("map['a[b'].name", "opening");
+    assertThat(accessor.getPropertyValue("map['a]b'].name")).isEqualTo("closing");
+    assertThat(accessor.getPropertyValue("map['a[b'].name")).isEqualTo("opening");
+    assertThat(closingBracket.getName()).isEqualTo("closing");
+    assertThat(openingBracket.getName()).isEqualTo("opening");
+  }
+
+  @Test
   void getAndSetIndexedPropertiesWithDirectAccess() {
     IndexedTestBean target = new IndexedTestBean();
     AbstractPropertyAccessor accessor = createAccessor(target);

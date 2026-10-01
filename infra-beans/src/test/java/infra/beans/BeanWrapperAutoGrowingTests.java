@@ -244,6 +244,12 @@ class BeanWrapperAutoGrowingTests {
   }
 
   @Test
+  void setPropertyValueAutoGrowMapWithQuotedBracketKey() {
+    wrapper.setPropertyValue("map['a]b'].prop", "grown");
+    assertThat(bean.getMap().get("a]b").getProp()).isEqualTo("grown");
+  }
+
+  @Test
   void setPropertyValueAutoGrowNestedMapWithinMap() {
     wrapper.setPropertyValue("nestedMap[A][B]", new Bean());
     assertThat(bean.getNestedMap().get("A").get("B")).isInstanceOf(Bean.class);
