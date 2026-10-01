@@ -74,6 +74,22 @@ class UserTransactionAdapterTests {
   }
 
   @Test
+  void beginFalseFallsBackToEarlierJtaApi() throws Exception {
+    MockTransactionManager manager = new MockTransactionManager();
+    UserTransactionAdapter adapter = new UserTransactionAdapter(manager);
+    adapter.begin(false);
+    assertThat(manager.beginCalled).isTrue();
+    assertThat(adapter.isReadOnly()).isFalse();
+  }
+
+  @Test
+  void beginTrueRejectsEarlierJtaApi() {
+    UserTransactionAdapter adapter = new UserTransactionAdapter(new MockTransactionManager());
+    assertThatThrownBy(() -> adapter.begin(true)).isInstanceOf(NotSupportedException.class)
+            .hasMessage("begin(true) requires JTA 2.1");
+  }
+
+  @Test
   void commitDelegatesToTransactionManager() throws RollbackException, HeuristicMixedException, HeuristicRollbackException, SecurityException, SystemException {
     MockTransactionManager transactionManager = new MockTransactionManager();
     UserTransactionAdapter adapter = new UserTransactionAdapter(transactionManager);
