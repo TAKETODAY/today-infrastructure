@@ -18,15 +18,11 @@
 
 package infra.app.loader.net.protocol.jar;
 
-import java.lang.ref.SoftReference;
 import java.net.URL;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Objects;
 
 /**
- * Utility to generate a string key from a jar file {@link URL} that can be used as a
- * cache key.
+ * A fast cache key for a jar file {@link URL} that does not trigger DNS lookups.
  *
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -34,68 +30,51 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 final class JarFileUrlKey {
 
-  private static volatile SoftReference<Map<URL, String>> cache;
+  private final String protocol;
 
-  private JarFileUrlKey() {
+  private final String host;
+
+  private final int port;
+
+  private final String file;
+
+  private final boolean runtimeRef;
+
+  JarFileUrlKey(URL url) {
+    this(url.getProtocol(), url.getHost(), url.getPort() != -1 ? url.getPort() : url.getDefaultPort(),
+            url.getFile(), "runtime".equals(url.getRef()));
   }
 
-  /**
-   * Get the {@link JarFileUrlKey} for the given URL.
-   *
-   * @param url the source URL
-   * @return a {@link JarFileUrlKey} instance
-   */
-  static String get(URL url) {
-    if (!isCachableUrl(url)) {
-      return create(url);
+  JarFileUrlKey(String protocol, String host, int port, String file, boolean runtimeRef) {
+    this.protocol = protocol;
+    this.host = host;
+    this.port = port;
+    this.file = file;
+    this.runtimeRef = runtimeRef;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
     }
-    Map<URL, String> cache = (JarFileUrlKey.cache != null) ? JarFileUrlKey.cache.get() : null;
-    if (cache == null) {
-      cache = new ConcurrentHashMap<>();
-      JarFileUrlKey.cache = new SoftReference<>(cache);
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
     }
-    return cache.computeIfAbsent(url, JarFileUrlKey::create);
+    JarFileUrlKey other = (JarFileUrlKey) obj;
+    // Check the case-sensitive file first, since it is most likely to differ.
+    return Objects.equals(this.file, other.file) && equalsIgnoringCase(this.protocol, other.protocol)
+            && equalsIgnoringCase(this.host, other.host) && this.port == other.port
+            && this.runtimeRef == other.runtimeRef;
   }
 
-  private static boolean isCachableUrl(URL url) {
-    // Don't cache URL that have a host since equals() will perform DNS lookup
-    return url.getHost() == null || url.getHost().isEmpty();
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(this.file);
   }
 
-  private static String create(URL url) {
-    String protocol = url.getProtocol();
-    String host = url.getHost();
-    int port = (url.getPort() != -1) ? url.getPort() : url.getDefaultPort();
-    String file = url.getFile();
-    return get(protocol, host, port, file, "runtime".equals(url.getRef()));
-  }
-
-  /**
-   * Generate a cache key from already-parsed URL components.
-   * @param protocol the URL protocol
-   * @param host the URL host
-   * @param port the effective port, or -1
-   * @param file the URL file specification
-   * @param runtimeRef whether the runtime fragment is present
-   * @return the normalized string cache key
-   */
-  static String get(String protocol, String host, int port, String file, boolean runtimeRef) {
-    StringBuilder value = new StringBuilder();
-    value.append(protocol.toLowerCase(Locale.ROOT));
-    value.append(":");
-    if (host != null && !host.isEmpty()) {
-      value.append(host.toLowerCase(Locale.ROOT));
-      value.append((port != -1) ? ":" + port : "");
-    }
-    value.append((file != null) ? file : "");
-    if (runtimeRef) {
-      value.append("#runtime");
-    }
-    return value.toString();
-  }
-
-  static void clearCache() {
-    cache = null;
+  private boolean equalsIgnoringCase(String first, String second) {
+    return first == second || first != null && first.equalsIgnoreCase(second);
   }
 
 }

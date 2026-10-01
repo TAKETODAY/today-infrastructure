@@ -36,24 +36,24 @@ class JarFileUrlKeyTests {
 
   @Test
   void directKeyEqualsUrlKey() throws Exception {
-    String fromUrl = JarFileUrlKey.get(new URL("jar:nested:/my.jar/!mynested.jar!/my/path"));
-    String direct = JarFileUrlKey.get("jar", "", -1, "nested:/my.jar/!mynested.jar!/my/path", false);
+    JarFileUrlKey fromUrl = new JarFileUrlKey(new URL("jar:nested:/my.jar/!mynested.jar!/my/path"));
+    JarFileUrlKey direct = new JarFileUrlKey("jar", "", -1, "nested:/my.jar/!mynested.jar!/my/path", false);
     assertThat(direct).isEqualTo(fromUrl);
     assertThat(direct.hashCode()).isEqualTo(fromUrl.hashCode());
   }
 
   @Test
   void directKeyWithRuntimeRefEqualsUrlKey() throws Exception {
-    String fromUrl = JarFileUrlKey.get(new URL("jar:nested:/my.jar/!mynested.jar!/my/path#runtime"));
-    String direct = JarFileUrlKey.get("jar", "", -1, "nested:/my.jar/!mynested.jar!/my/path", true);
+    JarFileUrlKey fromUrl = new JarFileUrlKey(new URL("jar:nested:/my.jar/!mynested.jar!/my/path#runtime"));
+    JarFileUrlKey direct = new JarFileUrlKey("jar", "", -1, "nested:/my.jar/!mynested.jar!/my/path", true);
     assertThat(direct).isEqualTo(fromUrl);
     assertThat(direct.hashCode()).isEqualTo(fromUrl.hashCode());
   }
 
   @Test
   void directKeyWithRuntimeRefNotEqualToKeyWithout() {
-    String first = JarFileUrlKey.get("jar", "", -1, "nested:/my.jar/!mynested.jar!/my/path", true);
-    String second = JarFileUrlKey.get("jar", "", -1, "nested:/my.jar/!mynested.jar!/my/path", false);
+    JarFileUrlKey first = new JarFileUrlKey("jar", "", -1, "nested:/my.jar/!mynested.jar!/my/path", true);
+    JarFileUrlKey second = new JarFileUrlKey("jar", "", -1, "nested:/my.jar/!mynested.jar!/my/path", false);
     assertThat(first).isNotEqualTo(second);
   }
 
@@ -65,49 +65,52 @@ class JarFileUrlKeyTests {
   @Test
   void getCreatesKey() throws Exception {
     URL url = new URL("jar:nested:/my.jar/!mynested.jar!/my/path");
-    assertThat(JarFileUrlKey.get(url)).isEqualTo("jar:nested:/my.jar/!mynested.jar!/my/path");
+    JarFileUrlKey key = new JarFileUrlKey(url);
+    assertThat(key).isEqualTo(key).isEqualTo(new JarFileUrlKey(url))
+            .isNotEqualTo(new JarFileUrlKey(new URL("jar:nested:/my.jar/!mynested.jar!/my/path2")));
+    assertThat(key.hashCode()).isEqualTo("nested:/my.jar/!mynested.jar!/my/path".hashCode());
   }
 
   @Test
   void getWhenUppercaseProtocolCreatesKey() throws Exception {
     URL url = new URL("JAR:nested:/my.jar/!mynested.jar!/my/path");
-    assertThat(JarFileUrlKey.get(url)).isEqualTo("jar:nested:/my.jar/!mynested.jar!/my/path");
+    assertThat(new JarFileUrlKey(url)).isEqualTo(new JarFileUrlKey(new URL("jar:nested:/my.jar/!mynested.jar!/my/path")));
   }
 
   @Test
   void getWhenHasHostAndPortCreatesKey() throws Exception {
     URL url = new URL("https://example.com:1234/test");
-    assertThat(JarFileUrlKey.get(url)).isEqualTo("https:example.com:1234/test");
+    assertThat(new JarFileUrlKey(url)).isEqualTo(new JarFileUrlKey(new URL("https://example.com:1234/test")));
   }
 
   @Test
   void getWhenHasUppercaseHostCreatesKey() throws Exception {
     URL url = new URL("https://EXAMPLE.com:1234/test");
-    assertThat(JarFileUrlKey.get(url)).isEqualTo("https:example.com:1234/test");
+    assertThat(new JarFileUrlKey(url)).isEqualTo(new JarFileUrlKey(new URL("https://example.com:1234/test")));
   }
 
   @Test
   void getWhenHasNoPortCreatesKeyWithDefaultPort() throws Exception {
     URL url = new URL("https://EXAMPLE.com/test");
-    assertThat(JarFileUrlKey.get(url)).isEqualTo("https:example.com:443/test");
+    assertThat(new JarFileUrlKey(url)).isEqualTo(new JarFileUrlKey(new URL("https://example.com:443/test")));
   }
 
   @Test
   void getWhenHasNoFileCreatesKey() throws Exception {
     URL url = new URL("https://EXAMPLE.com");
-    assertThat(JarFileUrlKey.get(url)).isEqualTo("https:example.com:443");
+    assertThat(new JarFileUrlKey(url)).isEqualTo(new JarFileUrlKey(new URL("https://example.com:443")));
   }
 
   @Test
   void getWhenHasRuntimeRefCreatesKey() throws Exception {
     URL url = new URL("jar:nested:/my.jar/!mynested.jar!/my/path#runtime");
-    assertThat(JarFileUrlKey.get(url)).isEqualTo("jar:nested:/my.jar/!mynested.jar!/my/path#runtime");
+    assertThat(new JarFileUrlKey(url)).isEqualTo(new JarFileUrlKey(new URL("jar:nested:/my.jar/!mynested.jar!/my/path#runtime")));
   }
 
   @Test
   void getWhenHasOtherRefCreatesKeyWithoutRef() throws Exception {
     URL url = new URL("jar:nested:/my.jar/!mynested.jar!/my/path#example");
-    assertThat(JarFileUrlKey.get(url)).isEqualTo("jar:nested:/my.jar/!mynested.jar!/my/path");
+    assertThat(new JarFileUrlKey(url)).isEqualTo(new JarFileUrlKey(new URL("jar:nested:/my.jar/!mynested.jar!/my/path")));
   }
 
 }
