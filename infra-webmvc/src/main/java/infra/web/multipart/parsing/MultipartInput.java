@@ -145,13 +145,13 @@ final class MultipartInput {
 
   /**
    * The index of first valid character in the buffer. <br>
-   * 0 <= head < bufSize
+   * {@code 0 <= head < bufSize}
    */
   private int head;
 
   /**
    * The index of last valid character in the buffer + 1. <br>
-   * 0 <= tail <= bufSize
+   * {@code 0 <= tail <= bufSize}
    */
   private int tail;
 

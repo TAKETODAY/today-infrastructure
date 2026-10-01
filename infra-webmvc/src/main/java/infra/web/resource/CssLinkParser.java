@@ -155,7 +155,7 @@ final class CssLinkParser {
   /**
    * Represents the internal state of the {@link CssLinkParser}, which processes
    * the input one byte at a time. The flow is shown below:
-   * <p><pre>
+   * <pre>{@literal
    *                       no match
    *               +-----------------------+
    *               v                       |
@@ -174,7 +174,7 @@ final class CssLinkParser {
    *   ^  closing quote                                      |
    *   |  or invalid link                ")" or invalid link |
    *   +<----------------------------------------------------+
-   * </pre>
+   * }</pre>
    * Links are invalid if they contain an unescaped newline (quoted links),
    * a quote, a parenthesis or inner whitespace (unquoted links), or if they
    * exceed {@link CssLinkParser#MAX_LINK_LENGTH}. Invalid links are written back
