@@ -324,11 +324,10 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
 
     @Override
     protected void appendClassName(StringBuilder builder) {
-      builder.append('$')
-              .append(field.getName());
+      builder.append('$').append(field.getName());
       if (writeMethod != null) {
-        builder.append("$setter$").append(writeMethod.getName()).append('$')
-                .append(writeMethod.getParameterTypes()[0].getName().replace('.', '_').replace('[', '_').replace(';', '_'));
+        builder.append("$setter");
+        appendClassNameSuffix(builder, writeMethod);
       }
     }
 

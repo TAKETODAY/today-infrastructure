@@ -172,7 +172,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
 
   protected abstract void appendClassName(StringBuilder builder);
 
-  protected void buildClassNameSuffix(StringBuilder builder, Executable target) {
+  protected void appendClassNameSuffix(StringBuilder builder, Executable target) {
     if (target.getParameterCount() != 0) {
       for (Class<?> parameterType : target.getParameterTypes()) {
         builder.append('$');
