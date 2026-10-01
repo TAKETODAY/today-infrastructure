@@ -1,0 +1,45 @@
+= 应用测试支持
+
+`cn.taketoday:infra-starter-test` 提供应用测试常用依赖，应放在测试范围。
+Gradle 使用 `testImplementation`，Maven 使用 `test` scope。
+它包括 JUnit Jupiter、infra 测试设施、AssertJ、Mockito、JSONassert、JsonPath、Awaitility 和 XMLUnit 等。
+Starter 当前也包含 Hamcrest，但本仓库测试约定使用 AssertJ 和 Mockito，示例遵循该约定。
+
+基础上下文测试见 xref:ROOT:testing/testcontext-framework.adoc[TestContext Framework]。
+应用级入口是 `infra.test.app.context.InfraTest`，不是 `SpringBootTest`。
+
+== 按功能划分的测试模块
+
+[cols="1,2",options="header"]
+|===
+|模块 |用途
+|`infra-test` |上下文、应用测试、HTTP 测试和常用测试工具。
+|`infra-test-support` |共享的测试支持设施。
+|`infra-app-jdbc-test` |JDBC 测试切片，提供 `infra.jdbc.test.config.JdbcTest`。
+|`infra-app-restclient-test` |REST 客户端测试切片，提供 `infra.app.restclient.test.config.RestClientTest`。
+|`infra-app-webmvc-test` |MVC 测试切片，提供 `infra.app.webmvc.test.config.WebMvcTest`。
+|`infra-testcontainers` |Testcontainers 集成和服务连接支持。
+|===
+
+切片只加载相关组件，不是完整应用上下文。
+添加模块不等于自动启用全部切片行为，应选择对应测试注解，并按实际依赖和用户配置决定导入内容。
+上游 Spring Data、GraphQL、gRPC 等专用测试切片不能仅通过包名替换用于 infra。
+
+== 加载应用配置数据
+
+`infra.test.app.context.ConfigDataApplicationContextInitializer` 可作为 `@ContextConfiguration` 的初始化器，在不启动完整应用入口时加载 `application.properties` 等配置数据。
+它只负责准备环境，不自行提供 `@Value` 的占位符解析基础设施。
+需要占位符解析时，另外配置 `infra.context.support.PropertySourcesPlaceholderConfigurer`，或使用提供相关应用配置的 `@InfraTest`。
+
+== 快速添加属性
+
+`infra.test.util.TestPropertyValues` 可把 `key=value` 字符串加入 `ConfigurableEnvironment` 或 `ConfigurableApplicationContext`。
+这适合为单个测试提供明确的属性，而不修改共享配置文件。
+自动配置的组合测试也可以使用 xref:features/developing-auto-configuration.adoc[ApplicationContextRunner]。
+
+== 捕获标准输出
+
+JUnit Jupiter 测试可以使用 `@ExtendWith(OutputCaptureExtension.class)` 捕获 `System.out` 和 `System.err`。
+`OutputCaptureExtension` 和 `CapturedOutput` 均位于 `infra.test.stdio`。
+测试构造器、测试方法或生命周期方法可以接收 `CapturedOutput` 参数，再用 AssertJ 检查 `getOut()` 和 `getErr()`。
+日志库如果缓存了原始输出流，捕获结果还取决于其 Appender 设置；不能把标准输出捕获当成全部日志系统的统一事件捕获接口。

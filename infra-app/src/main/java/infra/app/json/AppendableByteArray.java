@@ -30,6 +30,7 @@ import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 
 import infra.util.Assert;
+import infra.util.function.ThrowingConsumer;
 
 /**
  * {@link Appendable} implementation that can be used to return a byte array. Designed to
@@ -37,6 +38,7 @@ import infra.util.Assert;
  * cached buffer scoped to the thread.
  *
  * @author Phillip Webb
+ * @author Stephane Nicoll
  */
 class AppendableByteArray implements Appendable {
 
@@ -55,6 +57,8 @@ class AppendableByteArray implements Appendable {
   private final int expansionSize;
 
   private ByteBuffer out;
+
+  private char highSurrogate;
 
   AppendableByteArray(Charset charset) {
     this(charset, DEFAULT_INITIAL_SIZE, DEFAULT_EXPANSION_SIZE);
@@ -89,8 +93,19 @@ class AppendableByteArray implements Appendable {
   }
 
   private AppendableByteArray append(CharBuffer in) throws IOException {
-    CoderResult result = this.encoder.encode(in, this.out, false);
+    if (this.highSurrogate != 0) {
+      CharBuffer pending = CharBuffer.allocate(in.remaining() + 1);
+      pending.put(this.highSurrogate).put(in).flip();
+      this.highSurrogate = 0;
+      in = pending;
+    }
+    return append(in, false);
+  }
+
+  private AppendableByteArray append(CharBuffer in, boolean endOfInput) throws IOException {
+    CoderResult result = this.encoder.encode(in, this.out, endOfInput);
     if (result.isUnderflow()) {
+      this.highSurrogate = (in.hasRemaining()) ? in.get() : 0;
       return this;
     }
     if (result.isOverflow()) {
@@ -98,13 +113,18 @@ class AppendableByteArray implements Appendable {
       this.out = ByteBuffer.allocate(out.capacity() + this.expansionSize);
       out.flip();
       this.out.put(out);
-      return append(in);
+      return append(in, endOfInput);
     }
     result.throwException();
     return this;
   }
 
-  byte[] toByteArray() {
+  byte[] toByteArray() throws IOException {
+    if (this.highSurrogate != 0) {
+      CharBuffer in = CharBuffer.wrap(new char[] { this.highSurrogate });
+      this.highSurrogate = 0;
+      append(in, true);
+    }
     this.out.flip();
     int limit = this.out.limit();
     int position = this.out.position();
@@ -114,17 +134,39 @@ class AppendableByteArray implements Appendable {
     }
     byte[] result = new byte[size];
     System.arraycopy(this.out.array(), this.out.arrayOffset() + position, result, 0, size);
-    reset();
     return result;
   }
 
   private void reset() {
     this.out.clear();
     this.encoder.reset();
+    this.highSurrogate = 0;
   }
 
-  static AppendableByteArray get(Charset charset) {
-    Assert.notNull(charset, "'charset' must not be null");
+  static byte[] toByteArray(Charset charset, ThrowingConsumer<Appendable> appendable) throws IOException {
+    Assert.notNull(charset, "'charset' is required");
+    Assert.notNull(appendable, "'appendable' is required");
+    AppendableByteArray appendableByteArray = get(charset);
+    try {
+      appendable.acceptWithException(appendableByteArray);
+      return appendableByteArray.toByteArray();
+    }
+    catch (IOException | RuntimeException ex) {
+      throw ex;
+    }
+    catch (Error err) {
+      throw err;
+    }
+    catch (Throwable ex) {
+      throw new IllegalStateException(ex);
+    }
+    finally {
+      appendableByteArray.reset();
+    }
+  }
+
+  private static AppendableByteArray get(Charset charset) {
+    Assert.notNull(charset, "'charset' is required");
     SoftReference<AppendableByteArray> cached = cache.get();
     AppendableByteArray result = (cached != null) ? cached.get() : null;
     if (result == null || !result.charset.equals(charset)) {

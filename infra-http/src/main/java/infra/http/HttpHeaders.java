@@ -33,7 +33,9 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -49,10 +51,10 @@ import java.util.StringJoiner;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-import infra.util.Assert;
 import infra.lang.Contract;
 import infra.lang.Modifiable;
 import infra.lang.Unmodifiable;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
@@ -117,6 +119,14 @@ public abstract class HttpHeaders implements Serializable {
    * @see <a href="https://tools.ietf.org/html/rfc5789#section-3.1">Section 3.1 of RFC 5789</a>
    */
   public static final String ACCEPT_PATCH = "Accept-Patch";
+
+  /**
+   * The HTTP {@code Accept-Query} header field name.
+   *
+   * @see <a href="https://www.rfc-editor.org/rfc/rfc10008.html#section-3">Section 3 of RFC 10008</a>
+   * @since 5.0
+   */
+  public static final String ACCEPT_QUERY = "Accept-Query";
   /**
    * The HTTP {@code Accept-Ranges} header field name.
    *
@@ -545,7 +555,9 @@ public abstract class HttpHeaders implements Serializable {
   public static final DateTimeFormatter[] DATE_PARSERS = new DateTimeFormatter[] {
           DateTimeFormatter.RFC_1123_DATE_TIME,
           ofPattern("EEEE, dd-MMM-yy HH:mm:ss zzz", Locale.US),
-          ofPattern("EEE MMM dd HH:mm:ss yyyy", Locale.US).withZone(GMT)
+          ofPattern("EEE MMM dd HH:mm:ss yyyy", Locale.US).withZone(GMT),
+          // RFC 9651: Structured Field Values for HTTP
+          new DateTimeFormatterBuilder().appendLiteral('@').appendValue(ChronoField.INSTANT_SECONDS).toFormatter(Locale.US).withZone(GMT)
   };
 
   /**
@@ -699,6 +711,29 @@ public abstract class HttpHeaders implements Serializable {
    */
   public void setAcceptPatch(Collection<MediaType> mediaTypes) {
     setHeader(ACCEPT_PATCH, MediaType.toString(mediaTypes));
+  }
+
+  /**
+   * Set the acceptable media types for QUERY methods, as specified by
+   * the {@code Accept-Query} header.
+   *
+   * @param mediaTypes the acceptable media types
+   * @since 5.0
+   */
+  public void setAcceptQuery(Collection<MediaType> mediaTypes) {
+    setHeader(ACCEPT_QUERY, MediaType.toString(mediaTypes));
+  }
+
+  /**
+   * Return the acceptable media types for QUERY methods, as specified by
+   * the {@code Accept-Query} header.
+   * <p>Returns an empty list when the acceptable media types are unspecified.
+   *
+   * @return the acceptable media types
+   * @since 5.0
+   */
+  public List<MediaType> getAcceptQuery() {
+    return MediaType.parseMediaTypes(get(ACCEPT_QUERY));
   }
 
   /**
@@ -1734,7 +1769,7 @@ public abstract class HttpHeaders implements Serializable {
       // No header value sent at all
       return null;
     }
-    if (headerValue.length() >= 3) {
+    if (headerValue.length() >= 3 || headerValue.startsWith("@")) {
       // Short "0" or "-1" like values are never valid HTTP date headers...
       // Let's only bother with DateTimeFormatter parsing for long enough values.
 

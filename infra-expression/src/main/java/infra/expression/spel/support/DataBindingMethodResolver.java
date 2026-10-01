@@ -47,7 +47,6 @@ import infra.expression.MethodResolver;
 public final class DataBindingMethodResolver extends ReflectiveMethodResolver {
 
   private DataBindingMethodResolver() {
-    super();
   }
 
   @Override

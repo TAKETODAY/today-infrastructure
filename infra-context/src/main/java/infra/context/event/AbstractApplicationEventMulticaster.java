@@ -104,8 +104,8 @@ public abstract class AbstractApplicationEventMulticaster implements Application
     synchronized(this.listenerRetriever) {
       // Explicitly remove target for a proxy, if registered already,
       // in order to avoid double invocations of the same listener.
-      Object singletonTarget = AopProxyUtils.getSingletonTarget(listener);
-      if (singletonTarget instanceof ApplicationListener) {
+      Object singletonTarget = AopProxyUtils.ultimateSingletonTarget(listener);
+      if (singletonTarget != listener && singletonTarget instanceof ApplicationListener) {
         this.listenerRetriever.applicationListeners.remove(singletonTarget);
       }
       this.listenerRetriever.applicationListeners.add(listener);
@@ -268,7 +268,7 @@ public abstract class AbstractApplicationEventMulticaster implements Application
             // and replace them by their proxy counterparts, because if both a proxy and its target end up
             // in 'allListeners', listeners will fire twice.
             ApplicationListener<?> unwrappedListener =
-                    (ApplicationListener<?>) AopProxyUtils.getSingletonTarget(listener);
+                    (ApplicationListener<?>) AopProxyUtils.ultimateSingletonTarget(listener);
             if (listener != unwrappedListener) {
               if (filteredListeners != null && filteredListeners.contains(unwrappedListener)) {
                 filteredListeners.remove(unwrappedListener);

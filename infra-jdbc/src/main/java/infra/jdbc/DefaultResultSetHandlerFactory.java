@@ -115,19 +115,19 @@ public class DefaultResultSetHandlerFactory<T extends @Nullable Object> implemen
       return createObjectPropertySetter(null, beanProperty, repositoryManager);
     }
 
-    PropertyPath propertyPath = new PropertyPath(metadata.getObjectType(), colName);
+    NestedPropertyAccessor propertyAccessor = new NestedPropertyAccessor(metadata.getObjectType(), colName);
     // find property-path
-    BeanProperty beanProperty = propertyPath.getNestedBeanProperty();
+    BeanProperty beanProperty = propertyAccessor.getLeafProperty();
     if (beanProperty == null) {
       return null;
     }
 
     // if colName is property-path style just using property-path set
-    return createObjectPropertySetter(propertyPath, beanProperty, repositoryManager);
+    return createObjectPropertySetter(propertyAccessor, beanProperty, repositoryManager);
   }
 
-  private ObjectPropertySetter createObjectPropertySetter(@Nullable PropertyPath propertyPath, BeanProperty beanProperty, RepositoryManager manager) {
-    return new ObjectPropertySetter(propertyPath, beanProperty, manager.getConversionService(),
+  private ObjectPropertySetter createObjectPropertySetter(@Nullable NestedPropertyAccessor propertyAccessor, BeanProperty beanProperty, RepositoryManager manager) {
+    return new ObjectPropertySetter(propertyAccessor, beanProperty, manager.getConversionService(),
             manager.getTypeHandlerManager().getTypeHandler(beanProperty), manager.getPrimitiveTypeNullHandler());
   }
 

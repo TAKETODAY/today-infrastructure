@@ -21,6 +21,7 @@ package infra.beans.factory.support;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,6 +46,7 @@ import infra.beans.factory.SmartFactoryBean;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.ResolvableType;
+import infra.core.ParameterizedTypeReference;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.annotation.RepeatableContainers;
@@ -148,6 +150,17 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
     }
 
     if (requiredType != null && !requiredType.isInstance(bean)) {
+      throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
+    }
+    return (T) bean;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T getBean(String name, ParameterizedTypeReference<T> typeReference) throws BeansException {
+    Object bean = getBean(name);
+    Type requiredType = typeReference.getType();
+    if (!ResolvableType.forType(requiredType).isInstance(bean)) {
       throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
     }
     return (T) bean;

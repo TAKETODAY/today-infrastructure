@@ -327,6 +327,13 @@ final class AnnotationTypeMapping {
       }
     }
 
+    // 属性值来自注解层级中的其他注解时，必须合成以应用覆盖值。
+    for (AnnotationTypeMapping valueSource : this.annotationValueSource) {
+      if (valueSource != null && valueSource != this) {
+        return true;
+      }
+    }
+
     // Has nested annotations or arrays of annotations that are synthesizable?
     if (methods.hasNestedAnnotation) {
       for (Method attribute : methods.attributes) {

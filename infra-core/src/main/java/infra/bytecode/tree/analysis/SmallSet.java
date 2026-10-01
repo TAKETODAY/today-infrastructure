@@ -44,6 +44,9 @@ import java.util.Set;
  */
 final class SmallSet<T> extends AbstractSet<T> {
 
+  /** Size in bytes of a SmallSet (one object header + 2 fields). */
+  static final int SIZE_BYTES = ComputeLimits.OBJECT_HEADER_BYTES + 2 * 4;
+
   /** The first element of this set, maybe {@literal null}. */
   private final T element1;
 

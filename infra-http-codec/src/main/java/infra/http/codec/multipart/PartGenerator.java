@@ -56,6 +56,7 @@ import reactor.util.context.Context;
  * {@link MultipartParser#parse(Flux, byte[], int, Charset)}, and produces a flux of {@link Part} objects.
  *
  * @author Arjen Poutsma
+ * @author Seonghun Lee
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
@@ -437,6 +438,14 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     }
 
     private void switchToFile(DataBuffer current, long byteCount) {
+      if (PartGenerator.this.maxDiskUsagePerPart != -1 && byteCount > PartGenerator.this.maxDiskUsagePerPart) {
+        current.release();
+        this.dispose();
+        emitError(new DataBufferLimitException(
+                "Part exceeded the disk usage limit of " + PartGenerator.this.maxDiskUsagePerPart + " bytes"));
+        return;
+      }
+
       ArrayList<DataBuffer> content = new ArrayList<>(this.content);
       content.add(current);
       this.releaseOnDispose = false;
@@ -542,6 +551,14 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     }
 
     private void fileCreated(WritingFileState newState) {
+      if (PartGenerator.this.maxDiskUsagePerPart != -1
+              && this.byteCount > PartGenerator.this.maxDiskUsagePerPart) {
+        MultipartUtils.closeChannel(newState.channel);
+        MultipartUtils.deleteFile(newState.file);
+        emitError(new DataBufferLimitException("Part exceeded the disk usage limit of "
+                + PartGenerator.this.maxDiskUsagePerPart + " bytes"));
+        return;
+      }
       this.releaseOnDispose = false;
       if (changeState(this, newState)) {
         newState.writeBuffers(this.content);

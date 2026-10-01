@@ -31,6 +31,7 @@ import infra.http.CacheControl;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
+import infra.http.SseUtils;
 import infra.http.converter.HttpMessageConverter;
 import infra.util.Assert;
 import infra.web.HttpContext;
@@ -125,12 +126,14 @@ final class SseServerResponse extends AbstractServerResponse {
     @Override
     public SseBuilder id(String id) {
       Assert.hasLength(id, "Id must not be empty");
+      SseUtils.assertNoLineSeparator(id);
       return field("id", id);
     }
 
     @Override
     public SseBuilder event(String eventName) {
       Assert.hasLength(eventName, "Name must not be empty");
+      SseUtils.assertNoLineSeparator(eventName);
       return field("event", eventName);
     }
 
@@ -143,15 +146,16 @@ final class SseServerResponse extends AbstractServerResponse {
 
     @Override
     public SseBuilder comment(String comment) {
-      String[] lines = comment.split("\n");
-      for (String line : lines) {
-        field("", line);
-      }
-      return this;
+      return field("", comment);
     }
 
     private SseBuilder field(String name, String value) {
-      builder.append(name).append(':').append(value).append('\n');
+      builder.append(name).append(':');
+      if (name.equals("data")) {
+        builder.append(' ');
+      }
+      SseUtils.appendFieldValue(name, value, builder);
+      builder.append('\n');
       return this;
     }
 
@@ -172,16 +176,13 @@ final class SseServerResponse extends AbstractServerResponse {
     }
 
     private void writeString(String string) throws IOException {
-      String[] lines = string.split("\n");
-      for (String line : lines) {
-        field("data", line);
-      }
+      field("data", string);
       send();
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private void writeObject(Object data, @Nullable MediaType mediaType) throws IOException {
-      builder.append("data:");
+      builder.append("data: ");
       try {
         OutputStream body = request.getOutputStream();
         body.write(builderBytes());

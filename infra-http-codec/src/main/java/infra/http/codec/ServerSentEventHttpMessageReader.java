@@ -158,7 +158,10 @@ public class ServerSentEventHttpMessageReader implements HttpMessageReader<Objec
           sseBuilder.event(line.substring(6).trim());
         }
         else if (line.startsWith("retry:")) {
-          sseBuilder.retry(Duration.ofMillis(Long.parseLong(line.substring(6).trim())));
+          Long retry = parseRetry(line.substring(6).trim());
+          if (retry != null) {
+            sseBuilder.retry(Duration.ofMillis(retry));
+          }
         }
         else if (line.startsWith(":")) {
           comment = (comment != null ? comment : new StringBuilder());
@@ -180,6 +183,33 @@ public class ServerSentEventHttpMessageReader implements HttpMessageReader<Objec
     }
     else {
       return decodedData;
+    }
+  }
+
+  /**
+   * Parse a {@code retry} value only when it consists of ASCII digits and fits
+   * into a {@code long}; otherwise ignore the field.
+   *
+   * @return the reconnection time in milliseconds, or {@code null} to ignore it
+   * @see <a href="https://html.spec.whatwg.org/multipage/server-sent-events.html#event-stream-interpretation">
+   * HTML Living Standard: interpreting an event stream</a>
+   */
+  private static @Nullable Long parseRetry(String value) {
+    // Long.parseLong also accepts signs and non-ASCII digits, unlike the SSE specification.
+    if (value.isEmpty()) {
+      return null;
+    }
+    for (int i = 0; i < value.length(); i++) {
+      char ch = value.charAt(i);
+      if (ch < '0' || ch > '9') {
+        return null;
+      }
+    }
+    try {
+      return Long.parseLong(value);
+    }
+    catch (NumberFormatException ex) {
+      return null;
     }
   }
 

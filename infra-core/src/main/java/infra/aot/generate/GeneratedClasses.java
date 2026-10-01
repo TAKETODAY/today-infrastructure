@@ -45,7 +45,7 @@ import infra.util.Assert;
  */
 public class GeneratedClasses {
 
-  private final infra.aot.generate.ClassNameGenerator classNameGenerator;
+  private final NameGenerator nameGenerator;
 
   private final List<GeneratedClass> classes;
 
@@ -54,16 +54,16 @@ public class GeneratedClasses {
   /**
    * Create a new instance using the specified naming conventions.
    *
-   * @param classNameGenerator the class name generator to use
+   * @param nameGenerator the name generator to use
    */
-  GeneratedClasses(ClassNameGenerator classNameGenerator) {
-    this(classNameGenerator, new ArrayList<>(), new ConcurrentHashMap<>());
+  GeneratedClasses(NameGenerator nameGenerator) {
+    this(nameGenerator, new ArrayList<>(), new ConcurrentHashMap<>());
   }
 
-  private GeneratedClasses(ClassNameGenerator classNameGenerator,
+  private GeneratedClasses(NameGenerator nameGenerator,
           List<GeneratedClass> classes, Map<Owner, GeneratedClass> classesByOwner) {
-    Assert.notNull(classNameGenerator, "'classNameGenerator' is required");
-    this.classNameGenerator = classNameGenerator;
+    Assert.notNull(nameGenerator, "'nameGenerator' is required");
+    this.nameGenerator = nameGenerator;
     this.classes = classes;
     this.classesByOwner = classesByOwner;
   }
@@ -84,7 +84,7 @@ public class GeneratedClasses {
 
     Assert.hasLength(featureName, "'featureName' must not be empty");
     Assert.notNull(type, "'type' is required");
-    Owner owner = new Owner(this.classNameGenerator.getFeatureNamePrefix(), featureName, null);
+    Owner owner = new Owner(this.nameGenerator.getFeatureNamePrefix(), featureName, null);
     GeneratedClass generatedClass = this.classesByOwner.computeIfAbsent(owner, key -> createAndAddGeneratedClass(featureName, null, type));
     generatedClass.assertSameType(type);
     return generatedClass;
@@ -109,7 +109,7 @@ public class GeneratedClasses {
     Assert.hasLength(featureName, "'featureName' must not be empty");
     Assert.notNull(targetComponent, "'targetComponent' is required");
     Assert.notNull(type, "'type' is required");
-    Owner owner = new Owner(this.classNameGenerator.getFeatureNamePrefix(), featureName, targetComponent);
+    Owner owner = new Owner(this.nameGenerator.getFeatureNamePrefix(), featureName, targetComponent);
     GeneratedClass generatedClass = this.classesByOwner.computeIfAbsent(owner, key ->
             createAndAddGeneratedClass(featureName, targetComponent, type));
     generatedClass.assertSameType(type);
@@ -188,7 +188,7 @@ public class GeneratedClasses {
   private GeneratedClass createAndAddGeneratedClass(String featureName,
           @Nullable ClassName targetComponent, Consumer<TypeSpec.Builder> type) {
 
-    ClassName className = this.classNameGenerator.generateClassName(featureName, targetComponent);
+    ClassName className = this.nameGenerator.generateClassName(featureName, targetComponent);
     GeneratedClass generatedClass = new GeneratedClass(className, type);
     this.classes.add(generatedClass);
     return generatedClass;
@@ -218,7 +218,7 @@ public class GeneratedClasses {
    * @return a new instance for the specified feature name prefix
    */
   GeneratedClasses withFeatureNamePrefix(String featureNamePrefix) {
-    return new GeneratedClasses(this.classNameGenerator.withFeatureNamePrefix(featureNamePrefix),
+    return new GeneratedClasses(this.nameGenerator.withFeatureNamePrefix(featureNamePrefix),
             this.classes, this.classesByOwner);
   }
 

@@ -95,7 +95,7 @@ class WebContentGeneratorTests {
   void getAllowHeaderWithAllMethods() {
     WebContentGenerator generator = new TestWebContentGenerator(false);
 
-    assertThat(generator.getAllowHeader()).contains("GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS");
+    assertThat(generator.getAllowHeader()).contains("GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "QUERY");
     assertThat(generator.getAllowHeader()).doesNotContain("TRACE");
   }
 

@@ -111,6 +111,19 @@ public final class SignaturesProviders {
             0);
   }
 
+  static StringBuilder buildDeepSignature(final StringBuilder signature, final int depth) {
+    signature.append("LGeneric");
+    if (depth == 0) {
+      signature.append(';');
+    }
+    else {
+      signature.append("<LOpen;");
+      buildDeepSignature(signature, depth - 1);
+      signature.append("LClose;>;");
+    }
+    return signature;
+  }
+
   static Stream<String> classSignatures() {
     return CLASS_SIGNATURES.stream();
   }

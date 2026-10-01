@@ -97,48 +97,6 @@ public class Label {
   static final int LINE_NUMBERS_CAPACITY_INCREMENT = 4;
 
   /**
-   * The number of elements to add to the {@link #forwardReferences} array when it needs to be
-   * resized to store a new forward reference.
-   */
-  static final int FORWARD_REFERENCES_CAPACITY_INCREMENT = 6;
-
-  /**
-   * The bit mask to extract the type of a forward reference to this label. The extracted type is
-   * either {@link #FORWARD_REFERENCE_TYPE_SHORT} or {@link #FORWARD_REFERENCE_TYPE_WIDE}.
-   *
-   * @see #forwardReferences
-   */
-  static final int FORWARD_REFERENCE_TYPE_MASK = 0xF0000000;
-
-  /**
-   * The type of forward references stored with two bytes in the bytecode. This is the case, for
-   * instance, of a forward reference from an ifnull instruction.
-   */
-  static final int FORWARD_REFERENCE_TYPE_SHORT = 0x10000000;
-
-  /**
-   * The type of forward references stored in four bytes in the bytecode. This is the case, for
-   * instance, of a forward reference from a lookupswitch instruction.
-   */
-  static final int FORWARD_REFERENCE_TYPE_WIDE = 0x20000000;
-
-  /**
-   * The type of forward references stored in two bytes in the <i>stack map table</i>. This is the
-   * case of the labels of {@link Frame#ITEM_UNINITIALIZED} stack map frame elements, when the NEW
-   * instruction is after the &lt;init&gt; constructor call (in bytecode offset order).
-   */
-  static final int FORWARD_REFERENCE_TYPE_STACK_MAP = 0x30000000;
-
-  /**
-   * The bit mask to extract the 'handle' of a forward reference to this label. The extracted handle
-   * is the bytecode offset where the forward reference value is stored (using either 2 or 4 bytes,
-   * as indicated by the {@link #FORWARD_REFERENCE_TYPE_MASK}).
-   *
-   * @see #forwardReferences
-   */
-  static final int FORWARD_REFERENCE_HANDLE_MASK = 0x0FFFFFFF;
-
-  /**
    * A sentinel element used to indicate the end of a list of labels.
    *
    * @see #nextListElement
@@ -181,29 +139,38 @@ public class Label {
   int bytecodeOffset;
 
   /**
-   * The forward references to this label. The first element is the number of forward references,
-   * times 2 (this corresponds to the index of the last element actually used in this array). Then,
-   * each forward reference is described with two consecutive integers noted
-   * 'sourceInsnBytecodeOffset' and 'reference':
+   * The offset of the last 2 bytes forward reference to this label in the method's bytecode, or 0
+   * if there is none. The unsigned short at this offset contain the offset of the previous 2 bytes
+   * forward reference, or 0 if there is none. And so on. The instructions containing these forward
+   * references must be 3 bytes instructions (1 opcode byte, 2 bytes argument).
+   *
+   * <p><i>This field must be interpreted as an unsigned int</i> ({@link Short#toUnsignedInt}).
+   */
+  private short lastForwardReference;
+
+  /**
+   * The offset of the last 4 bytes forward reference to this label in the method's bytecode, or 0
+   * if there is none. The 4 bytes at this offset contain two unsigned short values:
    *
    * <ul>
-   *   <li>'sourceInsnBytecodeOffset' is the bytecode offset of the instruction that contains the
-   *       forward reference,
-   *   <li>'reference' contains the type and the offset in the bytecode where the forward reference
-   *       value must be stored, which can be extracted with {@link #FORWARD_REFERENCE_TYPE_MASK}
-   *       and {@link #FORWARD_REFERENCE_HANDLE_MASK}.
+   *   <li>the offset of the previous 4 bytes forward reference, or 0 if there is none,
+   *   <li>the offset of the first byte of the instruction containing this forward reference.
    * </ul>
    *
-   * <p>For instance, for an ifnull instruction at bytecode offset x, 'sourceInsnBytecodeOffset' is
-   * equal to x, and 'reference' is of type {@link #FORWARD_REFERENCE_TYPE_SHORT} with value x + 1
-   * (because the ifnull instruction uses a 2 bytes bytecode offset operand stored one byte after
-   * the start of the instruction itself). For the default case of a lookupswitch instruction at
-   * bytecode offset x, 'sourceInsnBytecodeOffset' is equal to x, and 'reference' is of type {@link
-   * #FORWARD_REFERENCE_TYPE_WIDE} with value between x + 1 and x + 4 (because the lookupswitch
-   * instruction uses a 4 bytes bytecode offset operand stored one to four bytes after the start of
-   * the instruction itself).
+   * <p>And so on.
+   *
+   * <p><i>This field must be interpreted as an unsigned int</i> ({@link Short#toUnsignedInt}).
    */
-  private int @Nullable [] forwardReferences;
+  private short lastWideForwardReference;
+
+  /**
+   * The offset of the last 2 bytes forward reference to this label in the stack map table, or 0 if
+   * there is none. The unsigned short at this offset contain the offset of the previous 2 bytes
+   * forward reference, or 0 if there is none. And so on.
+   *
+   * <p><i>This field must be interpreted as an unsigned int</i> ({@link Short#toUnsignedInt}).
+   */
+  private short lastStackMapForwardReference;
 
   // -----------------------------------------------------------------------------------------------
 
@@ -396,19 +363,21 @@ public class Label {
    *
    * @param code the bytecode of the method. This is where the reference is appended.
    * @param sourceInsnBytecodeOffset the bytecode offset of the instruction that contains the
-   * reference to be appended.
+   * reference to be appended. <i>If wideReference is false, this must be code.length - 1</i>.
    * @param wideReference whether the reference must be stored in 4 bytes (instead of 2 bytes).
    */
   final void put(
           final ByteVector code, final int sourceInsnBytecodeOffset, final boolean wideReference) {
     if ((flags & FLAG_RESOLVED) == 0) {
+      short newLastForwardReference = (short) code.length;
       if (wideReference) {
-        addForwardReference(sourceInsnBytecodeOffset, FORWARD_REFERENCE_TYPE_WIDE, code.length);
-        code.putInt(-1);
+        code.putShort(lastWideForwardReference & 0xFFFF);
+        code.putShort(sourceInsnBytecodeOffset);
+        lastWideForwardReference = newLastForwardReference;
       }
       else {
-        addForwardReference(sourceInsnBytecodeOffset, FORWARD_REFERENCE_TYPE_SHORT, code.length);
-        code.putShort(-1);
+        code.putShort(lastForwardReference & 0xFFFF);
+        lastForwardReference = newLastForwardReference;
       }
     }
     else {
@@ -430,37 +399,13 @@ public class Label {
    */
   final void put(final ByteVector stackMapTableEntries) {
     if ((flags & FLAG_RESOLVED) == 0) {
-      addForwardReference(0, FORWARD_REFERENCE_TYPE_STACK_MAP, stackMapTableEntries.length);
+      short newLastForwardReference = (short) stackMapTableEntries.length;
+      stackMapTableEntries.putShort(lastStackMapForwardReference & 0xFFFF);
+      lastStackMapForwardReference = newLastForwardReference;
     }
-    stackMapTableEntries.putShort(bytecodeOffset);
-  }
-
-  /**
-   * Adds a forward reference to this label. This method must be called only for a true forward
-   * reference, i.e. only if this label is not resolved yet. For backward references, the relative
-   * bytecode offset of the reference can be, and must be, computed and stored directly.
-   *
-   * @param sourceInsnBytecodeOffset the bytecode offset of the instruction that contains the
-   * reference stored at referenceHandle.
-   * @param referenceType either {@link #FORWARD_REFERENCE_TYPE_SHORT} or {@link
-   * #FORWARD_REFERENCE_TYPE_WIDE}.
-   * @param referenceHandle the offset in the bytecode where the forward reference value must be
-   * stored.
-   */
-  private void addForwardReference(
-          final int sourceInsnBytecodeOffset, final int referenceType, final int referenceHandle) {
-    if (forwardReferences == null) {
-      forwardReferences = new int[FORWARD_REFERENCES_CAPACITY_INCREMENT];
+    else {
+      stackMapTableEntries.putShort(bytecodeOffset);
     }
-    int lastElementIndex = forwardReferences[0];
-    if (lastElementIndex + 2 >= forwardReferences.length) {
-      int[] newValues = new int[forwardReferences.length + FORWARD_REFERENCES_CAPACITY_INCREMENT];
-      System.arraycopy(forwardReferences, 0, newValues, 0, forwardReferences.length);
-      forwardReferences = newValues;
-    }
-    forwardReferences[++lastElementIndex] = sourceInsnBytecodeOffset;
-    forwardReferences[++lastElementIndex] = referenceType | referenceHandle;
-    forwardReferences[0] = lastElementIndex;
   }
 
   /**
@@ -483,47 +428,59 @@ public class Label {
   final boolean resolve(final byte[] code, final ByteVector stackMapTableEntries, final int bytecodeOffset) {
     this.flags |= FLAG_RESOLVED;
     this.bytecodeOffset = bytecodeOffset;
-    int[] forwardReferences = this.forwardReferences;
-    if (forwardReferences == null) {
-      return false;
-    }
+
     boolean hasAsmInstructions = false;
-    for (int i = forwardReferences[0]; i > 0; i -= 2) {
-      final int sourceInsnBytecodeOffset = forwardReferences[i - 1];
-      final int reference = forwardReferences[i];
+    int offset = lastForwardReference & 0xFFFF;
+    while (offset != 0) {
+      final int previousOffset = ((code[offset] & 0xFF) << 8) | (code[offset + 1] & 0xFF);
+      final int sourceInsnBytecodeOffset = offset - 1;
       final int relativeOffset = bytecodeOffset - sourceInsnBytecodeOffset;
-      int handle = reference & FORWARD_REFERENCE_HANDLE_MASK;
-      if ((reference & FORWARD_REFERENCE_TYPE_MASK) == FORWARD_REFERENCE_TYPE_SHORT) {
-        if (relativeOffset < Short.MIN_VALUE || relativeOffset > Short.MAX_VALUE) {
-          // Change the opcode of the jump instruction, in order to be able to find it later in
-          // ClassReader. These ASM specific opcodes are similar to jump instruction opcodes, except
-          // that the 2 bytes offset is unsigned (and can therefore represent values from 0 to
-          // 65535, which is sufficient since the size of a method is limited to 65535 bytes).
-          int opcode = code[sourceInsnBytecodeOffset] & 0xFF;
-          if (opcode < Opcodes.IFNULL) {
-            // Change IFEQ ... JSR to ASM_IFEQ ... ASM_JSR.
-            code[sourceInsnBytecodeOffset] = (byte) (opcode + Constants.ASM_OPCODE_DELTA);
-          }
-          else {
-            // Change IFNULL and IFNONNULL to ASM_IFNULL and ASM_IFNONNULL.
-            code[sourceInsnBytecodeOffset] = (byte) (opcode + Constants.ASM_IFNULL_OPCODE_DELTA);
-          }
-          hasAsmInstructions = true;
+      if (relativeOffset < Short.MIN_VALUE || relativeOffset > Short.MAX_VALUE) {
+        // Change the opcode of the jump instruction, in order to be able to find it later in
+        // ClassReader. These ASM specific opcodes are similar to jump instruction opcodes, except
+        // that the 2 bytes offset is unsigned (and can therefore represent values from 0 to
+        // 65535, which is sufficient since the size of a method is limited to 65535 bytes).
+        int opcode = code[sourceInsnBytecodeOffset] & 0xFF;
+        if (opcode < Opcodes.IFNULL) {
+          // Change IFEQ ... JSR to ASM_IFEQ ... ASM_JSR.
+          code[sourceInsnBytecodeOffset] = (byte) (opcode + Constants.ASM_OPCODE_DELTA);
         }
-        code[handle++] = (byte) (relativeOffset >>> 8);
-        code[handle] = (byte) relativeOffset;
+        else {
+          // Change IFNULL and IFNONNULL to ASM_IFNULL and ASM_IFNONNULL.
+          code[sourceInsnBytecodeOffset] = (byte) (opcode + Constants.ASM_IFNULL_OPCODE_DELTA);
+        }
+        hasAsmInstructions = true;
       }
-      else if ((reference & FORWARD_REFERENCE_TYPE_MASK) == FORWARD_REFERENCE_TYPE_WIDE) {
-        code[handle++] = (byte) (relativeOffset >>> 24);
-        code[handle++] = (byte) (relativeOffset >>> 16);
-        code[handle++] = (byte) (relativeOffset >>> 8);
-        code[handle] = (byte) relativeOffset;
-      }
-      else {
-        stackMapTableEntries.data[handle++] = (byte) (bytecodeOffset >>> 8);
-        stackMapTableEntries.data[handle] = (byte) bytecodeOffset;
-      }
+      code[offset++] = (byte) (relativeOffset >>> 8);
+      code[offset] = (byte) relativeOffset;
+      offset = previousOffset;
     }
+
+    offset = lastWideForwardReference & 0xFFFF;
+    while (offset != 0) {
+      final int previousOffset = ((code[offset] & 0xFF) << 8) | (code[offset + 1] & 0xFF);
+      final int sourceInsnBytecodeOffset =
+              ((code[offset + 2] & 0xFF) << 8) | (code[offset + 3] & 0xFF);
+      final int relativeOffset = bytecodeOffset - sourceInsnBytecodeOffset;
+      code[offset++] = (byte) (relativeOffset >>> 24);
+      code[offset++] = (byte) (relativeOffset >>> 16);
+      code[offset++] = (byte) (relativeOffset >>> 8);
+      code[offset] = (byte) relativeOffset;
+      offset = previousOffset;
+    }
+
+    offset = lastStackMapForwardReference & 0xFFFF;
+    while (offset != 0) {
+      final byte[] data = stackMapTableEntries.data;
+      final int previousOffset = ((data[offset] & 0xFF) << 8) | (data[offset + 1] & 0xFF);
+      data[offset++] = (byte) (bytecodeOffset >>> 8);
+      data[offset] = (byte) bytecodeOffset;
+      offset = previousOffset;
+    }
+
+    lastForwardReference = 0;
+    lastWideForwardReference = 0;
+    lastStackMapForwardReference = 0;
     return hasAsmInstructions;
   }
 
@@ -542,8 +499,11 @@ public class Label {
    *
    * @param subroutineId the id of the subroutine starting with the basic block corresponding to
    * this label.
+   * @param firstHandler the first element in the exception handler list. May be {@literal null}.
+   * @param limits the maximum time and space limits for this method.
    */
-  final void markSubroutine(final short subroutineId) {
+  final void markSubroutine(
+          final short subroutineId, final Handler firstHandler, final ComputeLimits limits) {
     // Data flow algorithm: put this basic block in a list of blocks to process (which are blocks
     // belonging to subroutine subroutineId) and, while there are blocks to process, remove one from
     // the list, mark it as belonging to the subroutine, and add its successor basic blocks in the
@@ -560,7 +520,8 @@ public class Label {
       // subroutineId and add its successors to the list of blocks to process (unless already done).
       if (basicBlock.subroutineId == 0) {
         basicBlock.subroutineId = subroutineId;
-        listOfBlocksToProcess = basicBlock.pushSuccessors(listOfBlocksToProcess);
+        listOfBlocksToProcess =
+                basicBlock.pushSuccessors(listOfBlocksToProcess, firstHandler, limits);
       }
     }
   }
@@ -570,15 +531,21 @@ public class Label {
    * this label and, for each one of them, adds an outgoing edge to the basic block following the
    * given subroutine call. In other words, completes the control flow graph by adding the edges
    * corresponding to the return from this subroutine, when called from the given caller basic
-   * block.
+   * block. Throws a RuntimeException if multiple ret instructions are found for this subroutine
+   * (See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.9.2: "The
+   * instruction following each jsr or jsr_w instruction may be returned to only by a single ret
+   * instruction.").
    *
    * <p>Note: a precondition and postcondition of this method is that all labels must have a null
    * {@link #nextListElement}.
    *
    * @param subroutineCaller a basic block that ends with a jsr to the basic block corresponding to
    * this label. This label is supposed to correspond to the start of a subroutine.
+   * @param firstHandler the first element in the exception handler list. May be {@literal null}.
+   * @param limits the maximum time and space limits for this method.
    */
-  final void addSubroutineRetSuccessors(final Label subroutineCaller) {
+  final void addSubroutineRetSuccessors(
+          final Label subroutineCaller, final Handler firstHandler, final ComputeLimits limits) {
     // Data flow algorithm: put this basic block in a list blocks to process (which are blocks
     // belonging to a subroutine starting with this label) and, while there are blocks to process,
     // remove one from the list, put it in a list of blocks that have been processed, add a return
@@ -587,6 +554,7 @@ public class Label {
     Label listOfProcessedBlocks = EMPTY_LIST;
     Label listOfBlocksToProcess = this;
     listOfBlocksToProcess.nextListElement = EMPTY_LIST;
+    boolean retInsnFound = false;
     while (listOfBlocksToProcess != EMPTY_LIST) {
       // Move a basic block from the list of blocks to process to the list of processed blocks.
       Label basicBlock = listOfBlocksToProcess;
@@ -599,6 +567,10 @@ public class Label {
       // subroutine.
       if ((basicBlock.flags & FLAG_SUBROUTINE_END) != 0
               && basicBlock.subroutineId != subroutineCaller.subroutineId) {
+        if (retInsnFound) {
+          throw new RuntimeException("Multiple rets to single jsr");
+        }
+        retInsnFound = true;
         basicBlock.outgoingEdges =
                 new Edge(basicBlock.outputStackSize,
                         // By construction, the first outgoing edge of a basic block that ends with a jsr
@@ -611,7 +583,7 @@ public class Label {
       // not push basic blocks which are already in a list. Here this means either in the list of
       // blocks to process, or in the list of already processed blocks. This second list is
       // important to make sure we don't reprocess an already processed block.
-      listOfBlocksToProcess = basicBlock.pushSuccessors(listOfBlocksToProcess);
+      listOfBlocksToProcess = basicBlock.pushSuccessors(listOfBlocksToProcess, firstHandler, limits);
     }
     // Reset the {@link #nextListElement} of all the basic blocks that have been processed to null,
     // so that this method can be called again with a different subroutine or subroutine caller.
@@ -629,11 +601,15 @@ public class Label {
    *
    * @param listOfLabelsToProcess a list of basic blocks to process, linked together with their
    * {@link #nextListElement} field.
+   * @param firstHandler the first element in the exception handler list. May be {@literal null}.
+   * @param limits the maximum time and space limits for this method.
    * @return the new list of blocks to process.
    */
-  private Label pushSuccessors(final Label listOfLabelsToProcess) {
+  private Label pushSuccessors(
+          final Label listOfLabelsToProcess, final Handler firstHandler, final ComputeLimits limits) {
     Label newListOfLabelsToProcess = listOfLabelsToProcess;
     Edge outgoingEdge = outgoingEdges;
+    int numOperations = 2;
     while (outgoingEdge != null) {
       // By construction, the second outgoing edge of a basic block that ends with a jsr instruction
       // leads to the jsr target (see {@link #FLAG_SUBROUTINE_CALLER}).
@@ -646,7 +622,25 @@ public class Label {
         newListOfLabelsToProcess = outgoingEdge.successor;
       }
       outgoingEdge = outgoingEdge.nextEdge;
+      numOperations += 5;
     }
+    // Also process the implicit successors (the catch block of each covering try/catch).
+    int basicBlockOffset = bytecodeOffset;
+    Handler handler = firstHandler;
+    while (handler != null) {
+      int startOffset = handler.startPc.bytecodeOffset;
+      int endOffset = handler.endPc.bytecodeOffset;
+      if (basicBlockOffset >= startOffset && basicBlockOffset < endOffset) {
+        Label successorBlock = handler.handlerPc;
+        if (successorBlock.nextListElement == null) {
+          successorBlock.nextListElement = newListOfLabelsToProcess;
+          newListOfLabelsToProcess = successorBlock;
+        }
+      }
+      handler = handler.nextHandler;
+      numOperations += 5;
+    }
+    limits.checkNewOperations(numOperations);
     return newListOfLabelsToProcess;
   }
 

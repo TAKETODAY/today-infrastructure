@@ -4,7 +4,7 @@
 
 通过配置 `server.http2.enabled=true` 开启
 
-[source,yaml]
+[configprops,yaml]
 ----
 server:
   netty:

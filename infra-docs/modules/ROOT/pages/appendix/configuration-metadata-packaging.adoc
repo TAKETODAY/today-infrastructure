@@ -1,0 +1,31 @@
+= 配置元数据打包
+
+`META-INF/additional-infra-configuration-metadata.json` 用于向配置注解处理器提供附加信息，
+处理结果会合并到 `META-INF/infra-configuration-metadata.json`。
+附加文件是可选的；没有附加属性时，无需创建该文件。
+
+Infra Maven 重打包工具及 Gradle 应用归档任务会从产物中排除附加文件，保留生成的配置元数据。
+如果使用其他方式构建普通库，应自行配置排除规则。
+
+Maven 的 `maven-jar-plugin` 可以配置为：
+
+[source,xml]
+----
+<plugin>
+  <artifactId>maven-jar-plugin</artifactId>
+  <configuration>
+    <excludes>
+      <exclude>META-INF/additional-infra-configuration-metadata.json</exclude>
+    </excludes>
+  </configuration>
+</plugin>
+----
+
+Gradle 的普通 `jar` 任务可以配置为：
+
+[source,groovy]
+----
+tasks.named('jar') {
+  exclude('META-INF/additional-infra-configuration-metadata.json')
+}
+----

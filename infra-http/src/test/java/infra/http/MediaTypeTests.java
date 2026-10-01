@@ -124,6 +124,12 @@ class MediaTypeTests {
   }
 
   @Test
+  void parseMediaTypeIllegalQualityFactorWithUpperCaseParameterName() {
+    assertThatExceptionOfType(InvalidMediaTypeException.class).isThrownBy(() ->
+            MediaType.parseMediaType("audio/basic;Q=1.1"));
+  }
+
+  @Test
   public void parseMediaTypeIllegalCharset() {
     assertThatExceptionOfType(InvalidMediaTypeException.class).isThrownBy(() -> MediaType.parseMediaType("text/html; charset=foo-bar"));
   }
@@ -277,6 +283,18 @@ class MediaTypeTests {
     // different subtypes
     assertThat(comp.compare(audioBasic, audioWave)).as("Invalid comparison result").isEqualTo(0);
     assertThat(comp.compare(audioWave, audioBasic)).as("Invalid comparison result").isEqualTo(0);
+  }
+
+  @Test
+  void removeQualityValue() {
+    assertThat(MediaType.parseMediaType("audio/basic;q=0.8").removeQualityValue())
+            .isEqualTo(MediaType.parseMediaType("audio/basic"));
+  }
+
+  @Test
+  void removeQualityValueWithUpperCaseParameterName() {
+    assertThat(MediaType.parseMediaType("audio/basic;Q=0.8").removeQualityValue())
+            .isEqualTo(MediaType.parseMediaType("audio/basic"));
   }
 
   @Test

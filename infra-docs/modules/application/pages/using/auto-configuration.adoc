@@ -1,0 +1,40 @@
+[[using.auto-configuration]]
+= 自动配置
+
+自动配置根据应用类路径中的依赖、已有 Bean 和配置属性，尝试提供所需的默认配置。
+例如，存在 Netty 服务器相关依赖且应用没有定义自己的服务器工厂时，对应自动配置可以提供服务器工厂。
+
+在主配置类上使用 `infra.context.annotation.config.EnableAutoConfiguration` 或 `infra.app.InfraApplication` 启用自动配置。
+通常只在主配置类上声明其中一个注解，不要在多个配置类上重复声明。
+
+== 逐步替换自动配置
+
+自动配置允许用户配置替换默认行为。
+可以随时定义自己的 Bean；使用 `@ConditionalOnMissingBean` 的默认配置在发现匹配的用户 Bean 后会退让。
+具体替换条件取决于对应自动配置，不能假定任意同名或任意类型的 Bean 都能关闭整个自动配置。
+
+需要了解某项自动配置是否生效及其原因时，可以用 `--debug` 启动应用，查看条件评估报告。
+
+== 禁用特定自动配置
+
+使用 `@InfraApplication` 的 `exclude` 属性指定要排除的自动配置类。
+如果不能直接引用该类，可以使用 `excludeName` 指定完全限定类名。
+`@EnableAutoConfiguration` 同样提供这两个属性。
+
+也可以通过 `infra.auto-configuration.exclude` 配置排除列表：
+
+[source,properties]
+----
+infra.auto-configuration.exclude=infra.context.config.MessageSourceAutoConfiguration
+----
+
+上述示例禁用消息源自动配置；此时需要自己提供应用所需的消息源。
+注解排除和属性排除可以同时使用。
+
+NOTE: 自动配置类即使是 `public`，通常也只有类名属于供用户排除配置时使用的 API。内部嵌套配置类和 Bean 工厂方法属于实现细节，不建议直接调用。
+
+== 自动配置包
+
+一些自动配置需要默认搜索包。`@EnableAutoConfiguration`（包括通过 `@InfraApplication` 间接使用的情况）默认注册被注解类所在包。
+可以通过 `infra.context.annotation.config.AutoConfigurationPackage` 的 `basePackages` 或 `basePackageClasses` 注册其他包。
+组件扫描范围另由 `@ComponentScan` 控制，不应把这两类设置混为一谈。

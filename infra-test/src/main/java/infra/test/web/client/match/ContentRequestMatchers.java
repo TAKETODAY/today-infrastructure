@@ -180,7 +180,7 @@ public class ContentRequestMatchers {
       MockClientHttpRequest mockRequest = (MockClientHttpRequest) request;
       MockHttpInputMessage message = new MockHttpInputMessage(mockRequest.getBodyAsBytes());
       message.getHeaders().setAll(mockRequest.getHeaders());
-      MultiValueMap<String, String> actualMap = new FormHttpMessageConverter().read(null, message);
+      MultiValueMap<String, String> actualMap = (MultiValueMap<String, String>) new FormHttpMessageConverter().read(MultiValueMap.class, message);
       if (containsExactly) {
         assertEquals("Form data", expectedMap, actualMap);
       }

@@ -168,17 +168,17 @@ public final class ContentDisposition {
       sb.append(this.type);
     }
     if (this.name != null) {
-      sb.append("; name=\"").append(this.name).append('\"');
+      sb.append("; name=\"");
+      appendName(sb, this.name).append('\"');
     }
     if (this.filename != null) {
       if (this.charset == null || StandardCharsets.US_ASCII.equals(this.charset)) {
-        sb.append("; filename=\"")
-                .append(encodeQuotedPairs(this.filename))
-                .append('\"');
+        sb.append("; filename=\"");
+        appendName(sb, this.filename).append('\"');
       }
       else {
         sb.append("; filename=\"")
-                .append(transliterateToAscii(encodeQuotedPairs(this.filename)))
+                .append(transliterateToAscii(appendName(new StringBuilder(), this.filename).toString()))
                 .append("\"; filename*=")
                 .append(encodeRfc5987Filename(this.filename, this.charset));
       }
@@ -247,7 +247,7 @@ public final class ContentDisposition {
                 part.substring(eqIndex + 2, part.length() - 1) :
                 part.substring(eqIndex + 1);
         if (attribute.equals("name")) {
-          name = value;
+          name = value.indexOf('\\') != -1 ? decodeQuotedPairs(value) : value;
         }
         else if (attribute.equals("filename*")) {
           int idx1 = value.indexOf('\'');
@@ -493,19 +493,19 @@ public final class ContentDisposition {
     return sb.toString();
   }
 
-  private static String encodeQuotedPairs(String filename) {
-    if (filename.indexOf('"') == -1 && filename.indexOf('\\') == -1) {
-      return filename;
-    }
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < filename.length(); i++) {
-      char c = filename.charAt(i);
-      if (c == '"' || c == '\\') {
-        sb.append('\\');
+  private static StringBuilder appendName(StringBuilder buffer, String name) {
+    int length = name.length();
+    for (int i = 0; i < length; i++) {
+      char c = name.charAt(i);
+      if (c <= 0x1F || c == 0x7F) {
+        continue;
       }
-      sb.append(c);
+      if (c == '"' || c == '\\') {
+        buffer.append('\\');
+      }
+      buffer.append(c);
     }
-    return sb.toString();
+    return buffer;
   }
 
   private static String decodeQuotedPairs(String filename) {

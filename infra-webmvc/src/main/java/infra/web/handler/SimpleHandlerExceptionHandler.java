@@ -536,6 +536,8 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * <p>The default implementation sends an HTTP 400 error, and returns an empty {@code Object}.
    * Alternatively, a fallback view could be chosen, or the HttpMessageNotReadableException could be
    * rethrown as-is.
+   * <p>If the root cause indicates a lost client connection, handling is delegated to
+   * {@link #handleDisconnectedClientException(Throwable, HttpContext, Object)} instead.
    *
    * @param ex the HttpMessageNotReadableException to be handled
    * @param request current HTTP request
@@ -547,6 +549,9 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
   protected Object handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
           HttpContext request, @Nullable Object handler) throws IOException {
 
+    if (DisconnectedClientHelper.isClientDisconnectedException(ex)) {
+      return handleDisconnectedClientException(ex, request, handler);
+    }
     request.sendError(HttpStatus.BAD_REQUEST);
     return NONE_RETURN_VALUE;
   }
@@ -558,6 +563,8 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * <p>The default implementation sends an HTTP 500 error, and returns an empty {@code Object}.
    * Alternatively, a fallback view could be chosen, or the HttpMessageNotWritableException could
    * be rethrown as-is.
+   * <p>If the root cause indicates a lost client connection, handling is delegated to
+   * {@link #handleDisconnectedClientException(Throwable, HttpContext, Object)} instead.
    *
    * @param ex the HttpMessageNotWritableException to be handled
    * @param request current HTTP request
@@ -569,6 +576,9 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
   protected Object handleHttpMessageNotWritable(HttpMessageNotWritableException ex,
           HttpContext request, @Nullable Object handler) throws IOException {
 
+    if (DisconnectedClientHelper.isClientDisconnectedException(ex)) {
+      return handleDisconnectedClientException(ex, request, handler);
+    }
     sendServerError(ex, request);
     return NONE_RETURN_VALUE;
   }

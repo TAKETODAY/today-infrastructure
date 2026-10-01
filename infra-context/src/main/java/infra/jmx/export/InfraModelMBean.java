@@ -53,7 +53,6 @@ public class InfraModelMBean extends RequiredModelMBean {
    * @see RequiredModelMBean#RequiredModelMBean()
    */
   public InfraModelMBean() throws MBeanException, RuntimeOperationsException {
-    super();
   }
 
   /**

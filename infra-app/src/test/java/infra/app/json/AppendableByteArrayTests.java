@@ -44,11 +44,48 @@ class AppendableByteArrayTests {
 
   @Test
   void writeUsingCache() throws IOException {
-    assertByteArray(StandardCharsets.UTF_8, AppendableByteArray::get, (appendable) -> appendable.append(string));
-    assertByteArray(StandardCharsets.UTF_8, AppendableByteArray::get, (appendable) -> appendable.append(string));
-    assertByteArray(StandardCharsets.UTF_16, AppendableByteArray::get, (appendable) -> appendable.append(string));
-    assertByteArray(StandardCharsets.UTF_16, AppendableByteArray::get, (appendable) -> appendable.append(string));
-    assertByteArray(StandardCharsets.UTF_8, AppendableByteArray::get, (appendable) -> appendable.append(string));
+    testWriteUsingCache(StandardCharsets.UTF_8, (appendable) -> appendable.append(string));
+    testWriteUsingCache(StandardCharsets.UTF_8, (appendable) -> appendable.append(string));
+    testWriteUsingCache(StandardCharsets.UTF_16, (appendable) -> appendable.append(string));
+    testWriteUsingCache(StandardCharsets.UTF_16, (appendable) -> appendable.append(string));
+    testWriteUsingCache(StandardCharsets.UTF_8, (appendable) -> appendable.append(string));
+  }
+
+  private void testWriteUsingCache(Charset charset, ThrowingConsumer<Appendable> action) throws IOException {
+    byte[] baseLine = createFreshByteArray(charset, action);
+    assertThat(AppendableByteArray.toByteArray(charset, action)).isEqualTo(baseLine);
+  }
+
+  @Test
+  void toByteArrayWhenPreviousUseWasAbandonedReturnsCleanInstance() throws IOException {
+    try {
+      AppendableByteArray.toByteArray(StandardCharsets.UTF_8, (appendable) -> {
+        appendable.append("partial content");
+        throw new IllegalStateException("Interrupted");
+      });
+    }
+    catch (IllegalStateException ex) {
+      // Ignore
+    }
+    byte[] reused = AppendableByteArray.toByteArray(StandardCharsets.UTF_8,
+            (appendable) -> appendable.append("clean"));
+    assertThat(reused).isEqualTo("clean".getBytes(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void writesSurrogatePairAppendedAsIndividualChars() throws Exception {
+    assertByteArray(StandardCharsets.UTF_8, (appendable) -> appendable.append('\uD83D').append('\uDE00'));
+    assertByteArray(StandardCharsets.UTF_16, (appendable) -> appendable.append('\uD83D').append('\uDE00'));
+  }
+
+  @Test
+  void writesSurrogatePairSplitAcrossAppendedStrings() throws Exception {
+    assertByteArray(StandardCharsets.UTF_8, (appendable) -> appendable.append("a\uD83D").append("\uDE00b"));
+  }
+
+  @Test
+  void writesUnpairedHighSurrogate() throws Exception {
+    assertByteArray(StandardCharsets.UTF_8, (appendable) -> appendable.append('\uD83D'));
   }
 
   private void assertByteArray(Charset charset, ThrowingConsumer<Appendable> action) throws Exception {
@@ -62,13 +99,18 @@ class AppendableByteArrayTests {
 
   private void assertByteArray(Charset charset, Function<Charset, AppendableByteArray> factory,
           ThrowingConsumer<Appendable> action) throws IOException {
+    byte[] baseline = createFreshByteArray(charset, action);
+    AppendableByteArray appendableByteArray = factory.apply(charset);
+    action.accept(appendableByteArray);
+    assertThat(appendableByteArray.toByteArray()).isEqualTo(baseline);
+  }
+
+  private byte[] createFreshByteArray(Charset charset, ThrowingConsumer<Appendable> action) throws IOException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     try (OutputStreamWriter writer = new OutputStreamWriter(out, charset)) {
       action.accept(writer);
     }
-    AppendableByteArray appendableByteArray = factory.apply(charset);
-    action.accept(appendableByteArray);
-    assertThat(appendableByteArray.toByteArray()).isEqualTo(out.toByteArray());
+    return out.toByteArray();
   }
 
 }

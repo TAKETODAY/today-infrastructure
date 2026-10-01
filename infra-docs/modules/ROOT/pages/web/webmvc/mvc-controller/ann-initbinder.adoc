@@ -54,8 +54,7 @@ public class FormController {
 ----
 
 [[mvc-ann-initbinder-model-design]]
-== Model 设计
+== 安全的模型对象设计
 
 include::partial$web/web-data-binding-model-design.adoc[]
-
 

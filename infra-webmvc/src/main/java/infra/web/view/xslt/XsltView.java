@@ -53,6 +53,7 @@ import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 import infra.util.xml.TransformerUtils;
 import infra.web.HttpContext;
+import infra.web.resource.ResourceHandlerUtils;
 import infra.web.util.WebUtils;
 import infra.web.view.AbstractUrlBasedView;
 
@@ -465,8 +466,12 @@ public class XsltView extends AbstractUrlBasedView {
     if (logger.isDebugEnabled()) {
       logger.debug("Applying stylesheet [{}]", url);
     }
+    String location = ResourceHandlerUtils.normalizeInputPath(url);
+    if (ResourceHandlerUtils.shouldIgnoreInputPath(location)) {
+      throw new ApplicationContextException("Invalid XSLT stylesheet location '" + url + "'");
+    }
     try {
-      Resource resource = applicationContext().getResource(url);
+      Resource resource = applicationContext().getResource(location);
       return new StreamSource(resource.getInputStream(), resource.getURI().toASCIIString());
     }
     catch (IOException ex) {

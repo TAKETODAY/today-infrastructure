@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import infra.core.TypeDescriptor;
+import infra.core.ResolvableType;
 import infra.core.conversion.ConditionalGenericConverter;
 import infra.core.conversion.ConversionService;
 
@@ -52,7 +53,11 @@ final class OptionalToObjectConverter implements ConditionalGenericConverter {
 
   @Override
   public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
-    return ConversionUtils.canConvertElements(sourceType.getElementDescriptor(), targetType, this.conversionService);
+    ResolvableType elementType = sourceType.getResolvableType().getGeneric();
+    if (elementType.resolve() == null) {
+      return true;
+    }
+    return ConversionUtils.canConvertElements(new TypeDescriptor(elementType, null, (java.lang.annotation.Annotation[]) null), targetType, this.conversionService);
   }
 
   @Nullable

@@ -38,6 +38,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
+import java.util.Base64;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -551,6 +552,30 @@ class ClassReaderTests extends AsmTest implements Opcodes {
     classReader.accept(readVersionVisitor, 0);
 
     assertEquals(Opcodes.V_PREVIEW, classVersion.get() & Opcodes.V_PREVIEW);
+  }
+
+  @Test
+  void testTemporarilyNotAccept_V28_previewClass() {
+    byte[] classFile = PrecompiledClass.JDK11_ALL_INSTRUCTIONS.getBytes();
+    // Set the minor version to 65535.
+    classFile[4] = (byte) 0xFF;
+    classFile[5] = (byte) 0xFF;
+    // set major version to 28
+    classFile[6] = (byte) 0x1C;
+    classFile[7] = (byte) 0x00;
+    assertThrows(IllegalArgumentException.class, () -> new ClassReader(classFile));
+  }
+
+  @Test
+  void testAccept_invalidCustomAttribute() {
+    byte[] input = Base64.getDecoder().decode("IftdBAAAAAAAAgEAAAD/AAAAAAAAAAAAAAIBAAF/////");
+    ClassReader reader = new ClassReader(input);
+    ClassVisitor noOpVisitor = new ClassVisitor() {
+    };
+
+    Executable accept = () -> reader.accept(noOpVisitor, ClassReader.EXPAND_FRAMES);
+
+    assertThrows(IllegalArgumentException.class, accept);
   }
 
   private static class EmptyClassVisitor extends ClassVisitor {

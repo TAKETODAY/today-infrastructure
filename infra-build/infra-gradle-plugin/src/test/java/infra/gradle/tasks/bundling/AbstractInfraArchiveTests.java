@@ -266,6 +266,24 @@ abstract class AbstractInfraArchiveTests<T extends Jar & InfraArchive> {
   }
 
   @Test
+  void additionalConfigurationMetadataIsExcluded() throws IOException {
+    this.task.getMainClass().set("com.example.Main");
+    File directory = new File(this.temp, "classes");
+    File additional = new File(directory, "META-INF/additional-infra-configuration-metadata.json");
+    additional.getParentFile().mkdirs();
+    additional.createNewFile();
+    new File(directory, "META-INF/infra-configuration-metadata.json").createNewFile();
+    this.task.classpath(directory);
+    executeTask();
+    try (JarFile jar = new JarFile(this.task.getArchiveFile().get().getAsFile())) {
+      assertThat(jar.stream().map(java.util.jar.JarEntry::getName))
+              .noneMatch(name -> name.endsWith("META-INF/additional-infra-configuration-metadata.json"));
+      assertThat(jar.stream().map(java.util.jar.JarEntry::getName))
+              .anyMatch(name -> name.endsWith("META-INF/infra-configuration-metadata.json"));
+    }
+  }
+
+  @Test
   void loaderIsWrittenToTheRootOfTheJarWhenUsingThePropertiesLauncher() throws IOException {
     this.task.getMainClass().set("com.example.Main");
     executeTask();

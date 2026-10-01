@@ -42,6 +42,31 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 class DataBinderFieldAccessTests {
 
   @Test
+  void directFieldAccessHonorsMaxNestedPathDepth() {
+    TestBean rod = new TestBean("rod", 31);
+    TestBean kerry = new TestBean("kerry", 35);
+    rod.setSpouse(kerry);
+    kerry.setSpouse(rod);
+
+    DataBinder binder = new DataBinder(rod, "rod");
+    binder.setMaxNestedPathDepth(2);
+    binder.initDirectFieldAccess();
+
+    PropertyValues values = new PropertyValues();
+    values.add("spouse.spouse.name", "Jane");
+    binder.bind(values);
+    assertThat(rod.getName()).isEqualTo("Jane");
+
+    PropertyValues tooDeep = new PropertyValues();
+    tooDeep.add("spouse.spouse.spouse.name", "Joe");
+    binder.bind(tooDeep);
+    assertThat(binder.getBindingResult().getFieldErrors("spouse.spouse.spouse.name")).singleElement().satisfies(error -> {
+      assertThat(error.getCode()).isEqualTo(infra.beans.InvalidPropertyPathException.ERROR_CODE);
+      assertThat(error.getRejectedValue()).isEqualTo("Joe");
+    });
+  }
+
+  @Test
   void bindingNoErrors() throws Exception {
     FieldAccessBean rod = new FieldAccessBean();
     DataBinder binder = new DataBinder(rod, "person");

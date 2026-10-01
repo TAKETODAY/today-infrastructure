@@ -43,7 +43,6 @@ import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.InfraStrategies;
 import infra.util.ResourceUtils;
@@ -149,7 +148,6 @@ public class StandardConfigDataLocationResolver implements ConfigDataLocationRes
   @Override
   public List<StandardConfigDataResource> resolveProfileSpecific(
           ConfigDataLocationResolverContext context, ConfigDataLocation location, Profiles profiles) {
-    validateProfiles(profiles);
     return resolve(getProfileSpecificReferences(context, location.split(), profiles));
   }
 
@@ -163,30 +161,6 @@ public class StandardConfigDataLocationResolver implements ConfigDataLocationRes
       }
     }
     return references;
-  }
-
-  private void validateProfiles(Profiles profiles) {
-    for (String profile : profiles) {
-      validateProfile(profile);
-    }
-  }
-
-  private void validateProfile(String profile) {
-    Assert.hasText(profile, "'profile' must contain text");
-    if (profile.startsWith("-") || profile.startsWith("_")) {
-      throw new IllegalStateException("Invalid profile '%s': must not start with '-' or '_'".formatted(profile));
-    }
-
-    if (profile.endsWith("-") || profile.endsWith("_")) {
-      throw new IllegalStateException("Invalid profile '%s': must not end with '-' or '_'".formatted(profile));
-    }
-
-    profile.codePoints().forEach(codePoint -> {
-      if (codePoint == '-' || codePoint == '_' || Character.isLetterOrDigit(codePoint)) {
-        return;
-      }
-      throw new IllegalStateException("Invalid profile '%s': must contain only letters, digits, '-', or '_'".formatted(profile));
-    });
   }
 
   private String getResourceLocation(ConfigDataLocationResolverContext context, ConfigDataLocation configDataLocation) {

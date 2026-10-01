@@ -19,6 +19,7 @@
 package infra.test.context.cache;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,6 +32,7 @@ import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.InstanceOfAssertFactories.map;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -63,6 +65,98 @@ class LruContextCacheTests {
   @Test
   void maxCacheSizeZero() {
     assertThatIllegalArgumentException().isThrownBy(() -> new DefaultContextCache(0));
+  }
+
+  @Test
+  void clearClosesContexts() {
+    DefaultContextCache cache = new DefaultContextCache(4);
+
+    cache.put(fooConfig, fooContext);
+    cache.put(barConfig, barContext);
+    cache.put(bazConfig, bazContext);
+    cache.registerContextUsage(fooConfig, getClass());
+    cache.registerContextUsage(barConfig, getClass());
+    cache.registerContextUsage(bazConfig, getClass());
+    assertCacheContents(cache, "Foo", "Bar", "Baz");
+    assertThat(cache.getContextUsageCount()).isEqualTo(3);
+
+    cache.clear();
+    assertThat(cache.size()).isZero();
+    assertThat(cache.getParentContextCount()).isZero();
+    assertThat(cache.getContextUsageCount()).isZero();
+
+    verify(fooContext, times(1)).close();
+    verify(barContext, times(1)).close();
+    verify(bazContext, times(1)).close();
+    verify(abcContext, never()).close();
+  }
+
+  @Test
+  void resetClosesContexts() {
+    DefaultContextCache cache = new DefaultContextCache(4);
+
+    cache.put(fooConfig, fooContext);
+    cache.put(barConfig, barContext);
+    cache.get(fooConfig);
+    cache.get(abcConfig);
+    assertThat(cache.getHitCount()).isEqualTo(1);
+    assertThat(cache.getMissCount()).isEqualTo(1);
+    assertCacheContents(cache, "Bar", "Foo");
+
+    cache.reset();
+    assertThat(cache.size()).isZero();
+    assertThat(cache.getHitCount()).isZero();
+    assertThat(cache.getMissCount()).isZero();
+    assertThat(cache.getParentContextCount()).isZero();
+    assertThat(cache.getContextUsageCount()).isZero();
+
+    verify(fooContext, times(1)).close();
+    verify(barContext, times(1)).close();
+  }
+
+  @Test
+  void clearClosesContextHierarchyBottomUp() {
+    DefaultContextCache cache = new DefaultContextCache(4);
+
+    MergedContextConfiguration parentConfig = config(Foo.class);
+    MergedContextConfiguration childConfig = config(Bar.class, parentConfig);
+    MergedContextConfiguration grandchildConfig = config(Baz.class, childConfig);
+
+    cache.put(parentConfig, fooContext);
+    cache.put(childConfig, barContext);
+    cache.put(grandchildConfig, bazContext);
+    assertCacheContents(cache, "Foo", "Bar", "Baz");
+    assertThat(cache.getParentContextCount()).isEqualTo(2);
+
+    cache.clear();
+    assertThat(cache.size()).isZero();
+    assertThat(cache.getParentContextCount()).isZero();
+
+    InOrder inOrder = inOrder(bazContext, barContext, fooContext);
+    inOrder.verify(bazContext).close();
+    inOrder.verify(barContext).close();
+    inOrder.verify(fooContext).close();
+  }
+
+  @Test
+  void resetClosesContextHierarchyBottomUp() {
+    DefaultContextCache cache = new DefaultContextCache(4);
+
+    MergedContextConfiguration parentConfig = config(Foo.class);
+    MergedContextConfiguration childConfig = config(Bar.class, parentConfig);
+
+    cache.put(parentConfig, fooContext);
+    cache.put(childConfig, barContext);
+    assertCacheContents(cache, "Foo", "Bar");
+    assertThat(cache.getParentContextCount()).isEqualTo(1);
+
+    cache.reset();
+    assertThat(cache.size()).isZero();
+    assertThat(cache.getParentContextCount()).isZero();
+
+    InOrder inOrder = inOrder(barContext, fooContext);
+    inOrder.verify(barContext).close();
+    inOrder.verify(fooContext).close();
   }
 
   @Test
@@ -152,6 +246,10 @@ class LruContextCacheTests {
 
   private static MergedContextConfiguration config(Class<?> clazz) {
     return new MergedContextConfiguration(null, null, new Class<?>[] { clazz }, null, null);
+  }
+
+  private static MergedContextConfiguration config(Class<?> clazz, MergedContextConfiguration parent) {
+    return new MergedContextConfiguration(null, null, new Class<?>[] { clazz }, null, null, null, null, parent);
   }
 
   @SuppressWarnings("unchecked")

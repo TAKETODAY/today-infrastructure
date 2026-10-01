@@ -134,6 +134,15 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
   }
 
   @ParameterizedRestTemplateTest
+  void queryWithRequestBody(ClientHttpRequestFactory factory) {
+    setUpClient(factory);
+    ResponseEntity<String> response = template.exchange(baseUrl + "/query", HttpMethod.QUERY,
+            new HttpEntity<>(helloWorld), String.class);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(response.getBody()).isEqualTo(helloWorld);
+  }
+
+  @ParameterizedRestTemplateTest
   void getString(ClientHttpRequestFactory clientHttpRequestFactory) {
     setUpClient(clientHttpRequestFactory);
 
@@ -281,7 +290,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
     setUpClient(clientHttpRequestFactory);
 
     Set<HttpMethod> allowed = template.optionsForAllow(URI.create(baseUrl + "/get"));
-    assertThat(allowed).as("Invalid response").isEqualTo(Set.of(HttpMethod.GET, HttpMethod.OPTIONS, HttpMethod.HEAD, HttpMethod.TRACE));
+    assertThat(allowed).as("Invalid response").isEqualTo(Set.of(HttpMethod.GET, HttpMethod.QUERY, HttpMethod.OPTIONS, HttpMethod.HEAD, HttpMethod.TRACE));
   }
 
   @ParameterizedRestTemplateTest

@@ -187,4 +187,16 @@ public interface EvaluationContext {
     return true;
   }
 
+  /**
+   * Determine whether expression compilation is supported by this context.
+   * Both this policy and the parser configuration must permit compilation.
+   * Compiled expressions are evaluated in interpreted mode when this returns {@code false}.
+   *
+   * @return {@code true} if compilation is supported
+   * @since 5.0
+   */
+  default boolean isCompilationSupported() {
+    return true;
+  }
+
 }

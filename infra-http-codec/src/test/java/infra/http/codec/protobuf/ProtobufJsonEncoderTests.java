@@ -89,7 +89,7 @@ class ProtobufJsonEncoderTests extends AbstractEncoderTests<ProtobufJsonEncoder>
   }
 
   @Test
-  void encodeStream() {
+  void encodeNonStream() {
     Flux<Message> input = Flux.just(this.msg1, this.msg2);
     ResolvableType inputType = forClass(Msg.class);
 
@@ -101,7 +101,7 @@ class ProtobufJsonEncoderTests extends AbstractEncoderTests<ProtobufJsonEncoder>
   }
 
   @Test
-  void encodeEmptyFlux() {
+  void encodeNonStreamEmpty() {
     Flux<Message> input = Flux.empty();
     ResolvableType inputType = forClass(Msg.class);
     Flux<DataBuffer> result = this.encoder.encode(input, this.bufferFactory, inputType,
@@ -110,6 +110,17 @@ class ProtobufJsonEncoderTests extends AbstractEncoderTests<ProtobufJsonEncoder>
             .assertNext(buffer -> assertBufferEqualsJson(buffer, "["))
             .assertNext(buffer -> assertBufferEqualsJson(buffer, "]"))
             .verifyComplete();
+  }
+
+  @Test
+  void encodeStream() {
+    Flux<Message> input = Flux.just(this.msg1, this.msg2);
+    ResolvableType inputType = forClass(Msg.class);
+
+    testEncode(input, inputType, MediaType.APPLICATION_NDJSON, null, step -> step
+            .assertNext(buffer -> assertBufferEqualsJson(buffer, "{\"foo\":\"Foo\",\"blah\":{\"blah\":123}}\n"))
+            .assertNext(buffer -> assertBufferEqualsJson(buffer, "{\"foo\":\"Bar\",\"blah\":{\"blah\":456}}\n"))
+            .verifyComplete());
   }
 
   private void assertBufferEqualsJson(DataBuffer actual, String expected) {

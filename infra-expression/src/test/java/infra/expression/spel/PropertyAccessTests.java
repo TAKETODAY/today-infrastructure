@@ -29,6 +29,10 @@ import java.util.List;
 import java.util.Map;
 
 import infra.core.TypeDescriptor;
+import infra.core.conversion.ConditionalGenericConverter;
+import infra.core.conversion.support.GenericConversionService;
+import infra.expression.spel.support.ReflectivePropertyAccessor;
+import infra.expression.spel.support.StandardTypeConverter;
 import infra.expression.AccessException;
 import infra.expression.EvaluationContext;
 import infra.expression.EvaluationException;
@@ -56,6 +60,122 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Sam Brannen
  */
 public class PropertyAccessTests extends AbstractExpressionTests {
+
+  @Test
+  void propertyReadOnlyWithGenuineRecordAccessorEmbeddingPrefix() {
+    EvaluationContext context = SimpleEvaluationContext.forReadOnlyDataBinding().build();
+    Deal deal = new Deal("100", "urgent");
+    Expression budget = parser.parseExpression("budget");
+    Expression issue = parser.parseExpression("issue");
+    assertThat(budget.getValue(context, deal)).isEqualTo("100");
+    assertThat(issue.getValue(context, deal)).isEqualTo("urgent");
+    assertThat(budget.getValueTypeDescriptor(context, deal).getAnnotation(Marker.class).value()).isEqualTo("budget");
+    assertThat(issue.getValueTypeDescriptor(context, deal).getAnnotation(Marker.class).value()).isEqualTo("issue");
+  }
+
+  @Test
+  void propertyReadOnlyWithNonRecordDataClassAccessorEmbeddingPrefix() {
+    EvaluationContext context = SimpleEvaluationContext.forReadOnlyDataBinding().build();
+    IslandDataClass target = new IslandDataClass("Bali", "gizmo");
+    Expression island = parser.parseExpression("island");
+    Expression widget = parser.parseExpression("widget");
+    assertThat(island.getValue(context, target)).isEqualTo("Bali");
+    assertThat(widget.getValue(context, target)).isEqualTo("gizmo");
+    assertThat(island.getValueTypeDescriptor(context, target).getAnnotation(Marker.class).value()).isEqualTo("island");
+    assertThat(widget.getValueTypeDescriptor(context, target).getAnnotation(Marker.class).value()).isEqualTo("widget");
+  }
+
+  @Test
+  void readCallSiteWithoutPriorCanReadResolvesCorrectAnnotation() throws AccessException {
+    TypedValue result = new ReflectivePropertyAccessor().read(new StandardEvaluationContext(),
+            new IslandDataClass("Bali", "gizmo"), "island");
+    assertThat(result.getValue()).isEqualTo("Bali");
+    assertThat(result.getTypeDescriptor().getAnnotation(Marker.class).value()).isEqualTo("island");
+  }
+
+  @Test
+  void propertyReadWriteWithBooleanJavaBeanGetter() {
+    EvaluationContext context = SimpleEvaluationContext.forReadWriteDataBinding().build();
+    Flag target = new Flag();
+    Expression active = parser.parseExpression("active");
+    assertThat(active.getValue(context, target)).isEqualTo(false);
+    active.setValue(context, target, true);
+    assertThat(target.isActive()).isTrue();
+    assertThat(active.getValue(context, target)).isEqualTo(true);
+  }
+
+  @Test
+  void propertyReadResolvesCorrectFieldForAcronymPropertyDespiteSimilarlyNamedField() {
+    EvaluationContext context = SimpleEvaluationContext.forReadOnlyDataBinding().build();
+    UrlHolder target = new UrlHolder();
+    target.setURL("https://example.com");
+    Expression url = parser.parseExpression("URL");
+    assertThat(url.getValue(context, target)).isEqualTo("https://example.com");
+    assertThat(url.getValueTypeDescriptor(context, target).getAnnotation(Marker.class).value()).isEqualTo("right");
+  }
+
+  @Test
+  void propertyWriteAppliesAnnotationDrivenConversionOnlyForCorrectlyResolvedAcronymField() {
+    GenericConversionService service = new GenericConversionService();
+    service.addConverter(new MarkerAwareStringConverter());
+    StandardEvaluationContext context = new StandardEvaluationContext();
+    context.setTypeConverter(new StandardTypeConverter(service));
+    UrlHolder target = new UrlHolder();
+    parser.parseExpression("URL").setValue(context, target, "https://example.com");
+    assertThat(target.getURL()).isEqualTo("[https://example.com]");
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+  @java.lang.annotation.Target(java.lang.annotation.ElementType.FIELD)
+  private @interface Marker {
+    String value();
+  }
+
+  private record Deal(@Marker("budget") String budget, @Marker("issue") String issue) { }
+
+  static class IslandDataClass {
+    @Marker("island")
+    private final String island;
+    @Marker("widget")
+    private final String widget;
+    IslandDataClass(String island, String widget) {
+      this.island = island;
+      this.widget = widget;
+    }
+    public String island() { return island; }
+    public String widget() { return widget; }
+  }
+
+  static class Flag {
+    private boolean active;
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
+  }
+
+  private static class UrlHolder {
+    @Marker("wrong")
+    private String uRL = "decoy";
+    @Marker("right")
+    private String URL;
+    public String getURL() { return URL; }
+    public void setURL(String URL) { this.URL = URL; }
+  }
+
+  private static class MarkerAwareStringConverter implements ConditionalGenericConverter {
+    @Override
+    public java.util.Set<ConvertiblePair> getConvertibleTypes() {
+      return java.util.Set.of(new ConvertiblePair(String.class, String.class));
+    }
+    @Override
+    public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
+      Marker marker = targetType.getAnnotation(Marker.class);
+      return marker != null && marker.value().equals("right");
+    }
+    @Override
+    public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+      return "[" + source + "]";
+    }
+  }
 
   @Test
   void simpleAccess01() {

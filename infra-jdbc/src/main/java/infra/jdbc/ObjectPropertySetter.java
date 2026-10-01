@@ -38,7 +38,7 @@ import infra.util.Assert;
 final class ObjectPropertySetter {
 
   @Nullable
-  private final PropertyPath propertyPath;
+  private final NestedPropertyAccessor propertyAccessor;
 
   private final BeanProperty beanProperty; // cache
 
@@ -49,13 +49,13 @@ final class ObjectPropertySetter {
   @Nullable
   private final PrimitiveTypeNullHandler primitiveTypeNullHandler;
 
-  public ObjectPropertySetter(@Nullable PropertyPath propertyPath, BeanProperty beanProperty,
+  public ObjectPropertySetter(@Nullable NestedPropertyAccessor propertyAccessor, BeanProperty beanProperty,
           ConversionService conversionService, TypeHandler<?> typeHandler, @Nullable PrimitiveTypeNullHandler primitiveTypeNullHandler) {
     Assert.notNull(typeHandler, "TypeHandler is required");
     Assert.notNull(beanProperty, "BeanProperty is required");
     Assert.notNull(conversionService, "ConversionService is required");
     this.typeHandler = typeHandler;
-    this.propertyPath = propertyPath;
+    this.propertyAccessor = propertyAccessor;
     this.beanProperty = beanProperty;
     this.conversionService = conversionService;
     this.primitiveTypeNullHandler = primitiveTypeNullHandler;
@@ -76,15 +76,15 @@ final class ObjectPropertySetter {
       Object result = getResult(resultSet, columnIndex);
       if (result == null && beanProperty.isPrimitive()) {
         if (primitiveTypeNullHandler != null) {
-          if (propertyPath != null) {
-            obj = propertyPath.getNestedObject(obj);
+          if (propertyAccessor != null) {
+            obj = propertyAccessor.getOrCreateLeafOwner(obj);
           }
           primitiveTypeNullHandler.handleNull(beanProperty, obj);
         }
       }
       else {
-        if (propertyPath != null) {
-          propertyPath.set(obj, result);
+        if (propertyAccessor != null) {
+          propertyAccessor.set(obj, result);
         }
         else {
           beanProperty.setValue(obj, result);

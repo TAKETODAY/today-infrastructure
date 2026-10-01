@@ -134,6 +134,24 @@ final class GenericTypeAwarePropertyDescriptor extends PropertyDescriptor {
     return (this.writeMethod != null && this.ambiguousWriteMethods == null);
   }
 
+  public @Nullable Method getWriteMethodFallback(@Nullable Class<?> valueType) {
+    Set<Method> candidates = this.ambiguousWriteMethods;
+    if (candidates != null) {
+      for (Method method : candidates) {
+        Class<?> parameterType = method.getParameterTypes()[0];
+        if (valueType != null ? parameterType.isAssignableFrom(valueType) : !parameterType.isPrimitive()) {
+          return method;
+        }
+      }
+    }
+    return null;
+  }
+
+  public @Nullable Method getUniqueWriteMethodFallback() {
+    Set<Method> candidates = this.ambiguousWriteMethods;
+    return candidates != null && candidates.size() == 1 ? candidates.iterator().next() : null;
+  }
+
   @Nullable
   public MethodParameter getWriteMethodParameter() {
     return this.writeMethodParameter;

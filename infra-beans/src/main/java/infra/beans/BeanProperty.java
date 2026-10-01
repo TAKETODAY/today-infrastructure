@@ -106,6 +106,8 @@ public class BeanProperty extends Property {
 
   private transient @Nullable BeanInstantiator instantiator;
 
+  private transient @Nullable GenericTypeAwarePropertyDescriptor propertyDescriptor;
+
   protected BeanProperty(Field field, @Nullable Method readMethod, @Nullable Method writeMethod) {
     super(field, readMethod, writeMethod);
   }
@@ -119,7 +121,18 @@ public class BeanProperty extends Property {
     super(descriptor.getName(), descriptor.getReadMethod(), descriptor.getWriteMethod(), declaringClass);
     if (writeMethod != null && descriptor instanceof GenericTypeAwarePropertyDescriptor generic) {
       this.writeMethodParameter = generic.getWriteMethodParameter();
+      this.propertyDescriptor = generic;
     }
+  }
+
+  @Nullable Method getWriteMethodFallback(@Nullable Class<?> valueType) {
+    GenericTypeAwarePropertyDescriptor descriptor = this.propertyDescriptor;
+    return descriptor != null ? descriptor.getWriteMethodFallback(valueType) : null;
+  }
+
+  @Nullable Method getUniqueWriteMethodFallback() {
+    GenericTypeAwarePropertyDescriptor descriptor = this.propertyDescriptor;
+    return descriptor != null ? descriptor.getUniqueWriteMethodFallback() : null;
   }
 
   /**

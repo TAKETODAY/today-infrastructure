@@ -78,13 +78,13 @@ public class TransactionInterceptor extends TransactionAspectSupport implements 
   /**
    * Create a new TransactionInterceptor.
    *
-   * @param ptm the default transaction manager to perform the actual transaction management
+   * @param tm the default transaction manager to perform the actual transaction management
    * @param tas the attribute source to be used to find transaction attributes
    * @see #setTransactionManager
    * @see #setTransactionAttributeSource
    */
-  public TransactionInterceptor(TransactionManager ptm, TransactionAttributeSource tas) {
-    setTransactionManager(ptm);
+  public TransactionInterceptor(TransactionManager tm, TransactionAttributeSource tas) {
+    setTransactionManager(tm);
     setTransactionAttributeSource(tas);
   }
 

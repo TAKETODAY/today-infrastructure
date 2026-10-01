@@ -24,6 +24,7 @@ asciidoc:
     tabs-sync-option: '@'
   extensions:
     - '@asciidoctor/tabs'
+    - './extensions/configprops.js'
   sourcemap: true
 urls:
   latest_version_segment: ''

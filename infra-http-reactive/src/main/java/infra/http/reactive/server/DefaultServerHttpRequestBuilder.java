@@ -109,7 +109,7 @@ class DefaultServerHttpRequestBuilder implements ServerHttpRequest.Builder {
   }
 
   @Override
-  public ServerHttpRequest.Builder contextPath(String contextPath) {
+  public ServerHttpRequest.Builder contextPath(@Nullable String contextPath) {
     this.contextPath = contextPath;
     return this;
   }

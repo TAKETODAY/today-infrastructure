@@ -1,0 +1,79 @@
+[[features.application]]
+= Application
+
+`infra.app.Application` 提供从 `main` 方法启动应用的入口。
+简单应用可以直接调用静态 `Application.run(MyApplication.class, args)`，完整示例见 xref:using/using-the-infraapplication-annotation.adoc[]。
+
+== 定制启动过程
+
+需要改变默认设置时，先创建实例，再调用 `run`：
+
+[source,java]
+----
+Application application = new Application(MyApplication.class);
+application.setBannerMode(Banner.Mode.OFF);
+application.setAdditionalProfiles("local");
+application.run(args);
+----
+
+该片段使用 `infra.app.Application` 和 `infra.app.Banner`；`MyApplication` 是应用的主配置类。
+构造器参数是 Bean 配置源，通常为配置类，也可以是组件类。
+`infra.app.builder.ApplicationBuilder` 提供链式 API，可以组合 `parent`、`child` 等操作构建上下文层次。
+创建层次时应核实各上下文的环境与 Web 组件归属，不要把 Web 组件随意放在父上下文中。
+
+== 启动信息和失败诊断
+
+默认输出启动信息及激活的 Profile。`app.main.log-startup-info=false` 可以关闭这部分信息。
+应用启动失败时，已注册的 `infra.app.diagnostics.FailureAnalyzer` 可以提供针对具体错误的描述和处理建议，例如端口已被占用。
+需要更多诊断信息时，使用 `--debug` 查看条件评估报告。
+
+== 延迟初始化
+
+`app.main.lazy-initialization=true` 或 `Application.setLazyInitialization(true)` 可以启用延迟初始化。
+Bean 在需要时创建，而不是全部在启动过程中创建；这可以缩短启动时间，但也会推迟配置错误的暴露。
+Web 应用中的某些 Bean 可能直到收到请求才初始化。
+
+启用前应确保 JVM 内存能容纳应用全部 Bean，而不仅仅是启动时已经创建的部分。
+默认不启用此功能。个别 Bean 可以通过 `infra.context.annotation.Lazy(false)` 明确要求立即初始化。
+
+== Banner
+
+在类路径添加 `banner.txt` 可以替换默认 Banner，也可以通过 `banner.location` 指定资源位置。
+文本编码由 `banner.charset` 设置，默认 UTF-8。
+也可以实现 `infra.app.Banner` 并调用 `setBanner`。
+
+`app.main.banner-mode` 支持 `console`、`log` 和 `off`，分别表示标准输出、日志和关闭。
+未显式指定模式且启用控制台结构化日志时，目标默认关闭 Banner。
+打印的 Banner 以 `applicationBanner` 名称注册为单例。
+
+== 应用参数
+
+可以注入 `infra.app.ApplicationArguments`，访问原始参数以及解析后的选项和非选项参数。
+默认也会把命令行选项加入环境，使 `@Value` 可以读取单个选项；该行为可以通过 `setAddCommandLineProperties(false)` 关闭。
+
+== 启动后的任务
+
+需要在上下文刷新后、`Application.run` 返回前执行代码时，定义 `infra.app.ApplicationRunner` 或 `infra.app.CommandLineRunner` Bean。
+前者接收 `ApplicationArguments`，后者接收原始字符串数组。
+多个 Runner 按 `infra.core.Ordered` 或 `infra.core.annotation.Order` 排序。
+
+NOTE: Runner 执行时上下文已刷新，嵌入式服务器可能已经开始监听。目标未提供上游 Actuator 的就绪状态流量控制保证，不能据此认为 Runner 完成之前一定不会接收 HTTP 请求。
+
+== 应用事件
+
+启动过程可以发布环境准备、上下文初始化、配置加载、启动完成、就绪及失败等事件，类型位于 `infra.app.context.event`。
+有些事件发生在上下文创建之前，不能只通过普通 Bean 注册监听器；可以在启动前调用 `Application.addListeners(...)`，或使用 Builder 的 `listeners(...)`。
+监听器默认同步执行，不适合在回调中运行长期任务。
+上下文层次可能让监听器接收子上下文传播的事件，必要时比较事件所属上下文与自身上下文。
+
+== 应用类型和退出
+
+应用类型由类路径和 `ApplicationType.Resolver` 扩展推断。
+`infra.app.ApplicationType` 提供 `NORMAL`、`WEB` 和 `REACTIVE_WEB`，并非 Spring Boot 的 `NONE`、`SERVLET`、`REACTIVE`。
+可以通过 `setApplicationType` 明确指定类型，或通过 `setApplicationContextFactory` 控制上下文创建。
+
+默认注册 JVM 关闭钩子以关闭上下文，Bean 的销毁回调会参与正常关闭过程。
+需要指定退出码时，可以提供 `infra.app.ExitCodeGenerator`，调用 `Application.exit(...)`，再把返回值传给 `System.exit(...)`。
+
+`app.main.keep-alive=true` 可以增加非守护线程，避免只有守护线程时 JVM 自动退出；上下文关闭时该线程停止。
+虚拟线程也是守护线程，因此使用它们执行后台任务时应关注这一点。

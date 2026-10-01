@@ -696,7 +696,7 @@ class SpelReproTests extends AbstractExpressionTests {
   @Test
   void testCompiledExpressionForProxy_SPR16191() {
     SpelExpressionParser expressionParser =
-            new SpelExpressionParser(new infra.expression.spel.SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, null));
+            new SpelExpressionParser(SpelParserConfiguration.builder().compilerMode(SpelCompilerMode.IMMEDIATE).build());
     Expression expression = expressionParser.parseExpression("#target.process(#root)");
 
     VarargsReceiver receiver = new VarargsReceiver();
@@ -1274,7 +1274,7 @@ class SpelReproTests extends AbstractExpressionTests {
 
   @Test
   void SPR10452() {
-    SpelParserConfiguration configuration = new SpelParserConfiguration(false, false);
+    SpelParserConfiguration configuration = SpelParserConfiguration.withDefaults();
     ExpressionParser parser = new SpelExpressionParser(configuration);
 
     StandardEvaluationContext context = new StandardEvaluationContext();
@@ -1299,7 +1299,7 @@ class SpelReproTests extends AbstractExpressionTests {
 
   @Test
   void SPR9495() {
-    SpelParserConfiguration configuration = new SpelParserConfiguration(false, false);
+    SpelParserConfiguration configuration = SpelParserConfiguration.withDefaults();
     ExpressionParser parser = new SpelExpressionParser(configuration);
 
     StandardEvaluationContext context = new StandardEvaluationContext();

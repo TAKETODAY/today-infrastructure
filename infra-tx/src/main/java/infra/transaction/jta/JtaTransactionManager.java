@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serial;
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Properties;
 
@@ -31,7 +33,6 @@ import javax.naming.NamingException;
 
 import infra.beans.factory.InitializingBean;
 import infra.jndi.JndiTemplate;
-import infra.util.Assert;
 import infra.transaction.CannotCreateTransactionException;
 import infra.transaction.HeuristicCompletionException;
 import infra.transaction.IllegalTransactionStateException;
@@ -45,6 +46,7 @@ import infra.transaction.UnexpectedRollbackException;
 import infra.transaction.support.AbstractPlatformTransactionManager;
 import infra.transaction.support.DefaultTransactionStatus;
 import infra.transaction.support.TransactionSynchronization;
+import infra.util.Assert;
 import infra.util.StringUtils;
 import jakarta.transaction.HeuristicMixedException;
 import jakarta.transaction.HeuristicRollbackException;
@@ -175,6 +177,11 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
   private String transactionSynchronizationRegistryName;
 
   private boolean autodetectTransactionSynchronizationRegistry = true;
+
+  private static final @Nullable Method beginWithReadOnlyMethod =
+          infra.util.ReflectionUtils.getMethodIfAvailable(UserTransaction.class, "begin", boolean.class);
+
+  private boolean enforceReadOnly;
 
   private boolean allowCustomIsolationLevels = false;
 
@@ -445,6 +452,22 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
    */
   public void setAllowCustomIsolationLevels(boolean allowCustomIsolationLevels) {
     this.allowCustomIsolationLevels = allowCustomIsolationLevels;
+  }
+
+  /**
+   * Set whether a read-only transaction should be exposed to the JTA transaction manager,
+   * enforcing strict read-only access to resources as per the JTA 2.1 specification.
+   * <p>This requires JTA 2.1. The default is {@code false}. By default, the read-only
+   * status of an Infra transaction is only exposed to transaction synchronization
+   * (for example, suppressing a Hibernate flush), while the JTA transaction regularly commits.
+   * Turn this flag on if your transactional XA resources support the JTA 2.1
+   * {@code ExtendedXAResource} SPI, operating in a read-only mode with eventual rollback.
+   *
+   * @param enforceReadOnly whether to enforce read-only access
+   * @since 5.0
+   */
+  public void setEnforceReadOnly(boolean enforceReadOnly) {
+    this.enforceReadOnly = enforceReadOnly;
   }
 
   /**
@@ -908,7 +931,28 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
     applyIsolationLevel(txObject, definition.getIsolationLevel());
     int timeout = determineTimeout(definition);
     applyTimeout(txObject, timeout);
-    txObject.getUserTransaction().begin();
+    if (this.enforceReadOnly && definition.isReadOnly()) {
+      if (beginWithReadOnlyMethod == null) {
+        throw new NotSupportedException("enforceReadOnly requires JTA 2.1");
+      }
+      try {
+        beginWithReadOnlyMethod.invoke(txObject.getUserTransaction(), true);
+      }
+      catch (Exception ex) {
+        if (ex instanceof InvocationTargetException ite) {
+          if (ite.getTargetException() instanceof NotSupportedException nse) {
+            throw nse;
+          }
+          if (ite.getTargetException() instanceof SystemException se) {
+            throw se;
+          }
+        }
+        infra.util.ReflectionUtils.handleReflectionException(ex);
+      }
+    }
+    else {
+      txObject.getUserTransaction().begin();
+    }
   }
 
   /**
@@ -1059,7 +1103,12 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
         }
         throw new UnexpectedRollbackException("JTA transaction already rolled back (probably due to a timeout)");
       }
-      txObject.getUserTransaction().commit();
+      if (this.enforceReadOnly && status.isReadOnly()) {
+        txObject.getUserTransaction().rollback();
+      }
+      else {
+        txObject.getUserTransaction().commit();
+      }
     }
     catch (RollbackException ex) {
       throw new UnexpectedRollbackException(

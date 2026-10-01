@@ -35,6 +35,8 @@ import java.util.Optional;
 
 import javax.sql.DataSource;
 
+import infra.jdbc.support.rowset.SqlRowSet;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -44,6 +46,7 @@ import static org.mockito.Mockito.verify;
 
 /**
  * @author Juergen Hoeller
+ * @author Yanming Zhou
  * @since 4.0
  */
 class JdbcClientQueryTests {
@@ -71,6 +74,26 @@ class JdbcClientQueryTests {
   }
 
   // Indexed parameters
+
+  @Test
+  void queryForRowSetWithIndexedParam() throws Exception {
+    given(resultSet.next()).willReturn(true, true, false);
+    given(resultSet.getObject(1)).willReturn(11, 12);
+
+    SqlRowSet rowSet = client.sql("SELECT AGE FROM CUSTMR WHERE ID < ?")
+            .param(3).query().rowSet();
+
+    assertThat(rowSet.next()).isTrue();
+    assertThat(rowSet.getInt("age")).as("First row is Integer").isEqualTo(11);
+    assertThat(rowSet.next()).isTrue();
+    assertThat(rowSet.getInt("age")).as("Second row is Integer").isEqualTo(12);
+
+    verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID < ?");
+    verify(preparedStatement).setObject(1, 3);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
+  }
 
   @Test
   void queryForListWithIndexedParam() throws Exception {
@@ -183,8 +206,7 @@ class JdbcClientQueryTests {
             .param(1, 3)
             .query().optionalValue();
 
-    assertThat(value.isPresent()).isTrue();
-    assertThat(value.get()).isEqualTo(22);
+    assertThat(value).contains(22);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID = ?");
     verify(preparedStatement).setObject(1, 3);
     verify(resultSet).close();
@@ -200,7 +222,7 @@ class JdbcClientQueryTests {
             .param(1, 3)
             .query().optionalValue();
 
-    assertThat(value.isPresent()).isFalse();
+    assertThat(value).isEmpty();
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID = ?");
     verify(preparedStatement).setObject(1, 3);
     verify(resultSet).close();
@@ -236,7 +258,7 @@ class JdbcClientQueryTests {
             .query((rs, rowNum) -> rs.getInt(1))
             .optional();
 
-    assertThat(value.get()).isEqualTo(22);
+    assertThat(value).contains(22);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID = ?");
     verify(preparedStatement).setObject(1, 3);
     verify(resultSet).close();
@@ -285,6 +307,27 @@ class JdbcClientQueryTests {
   }
 
   // Named parameters
+
+  @Test
+  void queryForRowSetWithNamedParam() throws Exception {
+    given(resultSet.next()).willReturn(true, true, false);
+    given(resultSet.getObject(1)).willReturn(11, 12);
+
+    SqlRowSet rowSet = client.sql("SELECT AGE FROM CUSTMR WHERE ID < :id")
+            .param("id", 3)
+            .query().rowSet();
+
+    assertThat(rowSet.next()).isTrue();
+    assertThat(rowSet.getInt("age")).as("First row is Integer").isEqualTo(11);
+    assertThat(rowSet.next()).isTrue();
+    assertThat(rowSet.getInt("age")).as("Second row is Integer").isEqualTo(12);
+
+    verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID < ?");
+    verify(preparedStatement).setObject(1, 3);
+    verify(resultSet).close();
+    verify(preparedStatement).close();
+    verify(connection).close();
+  }
 
   @Test
   void queryForListWithNamedParam() throws Exception {
@@ -419,7 +462,7 @@ class JdbcClientQueryTests {
             .query((rs, rowNum) -> rs.getInt(1))
             .optional();
 
-    assertThat(value.get()).isEqualTo(22);
+    assertThat(value).contains(22);
     verify(connection).prepareStatement("SELECT AGE FROM CUSTMR WHERE ID = ?");
     verify(preparedStatement).setObject(1, 3);
     verify(resultSet).close();

@@ -229,9 +229,11 @@ public class RepeatableContainers {
         Class<?> returnType = method.getReturnType();
         if (returnType.isArray()) {
           Class<?> componentType = returnType.getComponentType();
-          if (Annotation.class.isAssignableFrom(componentType)
-                  && componentType.isAnnotationPresent(Repeatable.class)) {
-            return method;
+          if (Annotation.class.isAssignableFrom(componentType)) {
+            Repeatable repeatable = componentType.getAnnotation(Repeatable.class);
+            if (repeatable != null && repeatable.value() == annotationType) {
+              return method;
+            }
           }
         }
       }

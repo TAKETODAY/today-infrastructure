@@ -681,9 +681,9 @@ public class MimeType implements Comparable<MimeType>, Serializable {
   /**
    * Determine if the parameters in this {@code MimeType} and the supplied
    * {@code MimeType} are equal, performing case-insensitive comparisons
-   * for {@link Charset Charsets} and disregarding quoting of parameter
-   * values, so that, for example, {@code infra="framework"} and
-   * {@code infra=framework} are considered equal.
+   * for parameter names and {@link Charset Charsets}, and disregarding
+   * quoting of parameter values, so that, for example, {@code infra="framework"}
+   * and {@code infra=framework} are considered equal.
    */
   private boolean parametersAreEqual(MimeType other) {
     Map<String, String> op = other.parameters;
@@ -696,7 +696,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
       if (!op.containsKey(key)) {
         return false;
       }
-      if (PARAM_CHARSET.equals(key)) {
+      if (PARAM_CHARSET.equalsIgnoreCase(key)) {
         if (!Objects.equals(getCharset(), other.getCharset())) {
           return false;
         }
@@ -723,15 +723,15 @@ public class MimeType implements Comparable<MimeType>, Serializable {
 
   /**
    * Compute a hash code for the parameters map, consistent with
-   * {@link #parametersAreEqual}: normalizing {@link Charset Charsets} and
-   * disregarding quoting of parameter values.
+   * {@link #parametersAreEqual}: normalizing parameter names and
+   * {@link Charset Charsets}, and disregarding quoting of parameter values.
    */
   private int parametersHashCode() {
     int result = 0;
     for (var entry : parameters.entrySet()) {
       String key = entry.getKey();
-      Object value = PARAM_CHARSET.equals(key) ? getCharset() : unquote(entry.getValue());
-      result += key.hashCode() ^ ObjectUtils.nullSafeHashCode(value);
+      Object value = PARAM_CHARSET.equalsIgnoreCase(key) ? getCharset() : unquote(entry.getValue());
+      result += key.toLowerCase(Locale.ROOT).hashCode() ^ ObjectUtils.nullSafeHashCode(value);
     }
     return result;
   }
@@ -788,17 +788,15 @@ public class MimeType implements Comparable<MimeType>, Serializable {
     thisAttributes.addAll(getParameters().keySet());
     TreeSet<String> otherAttributes = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
     otherAttributes.addAll(other.getParameters().keySet());
-    Iterator<String> thisAttributesIterator = thisAttributes.iterator();
     Iterator<String> otherAttributesIterator = otherAttributes.iterator();
 
-    while (thisAttributesIterator.hasNext()) {
-      String thisAttribute = thisAttributesIterator.next();
+    for (String thisAttribute : thisAttributes) {
       String otherAttribute = otherAttributesIterator.next();
       comp = thisAttribute.compareToIgnoreCase(otherAttribute);
       if (comp != 0) {
         return comp;
       }
-      if (PARAM_CHARSET.equals(thisAttribute)) {
+      if (PARAM_CHARSET.equalsIgnoreCase(thisAttribute)) {
         Charset thisCharset = getCharset();
         Charset otherCharset = other.getCharset();
         if (thisCharset != otherCharset) {

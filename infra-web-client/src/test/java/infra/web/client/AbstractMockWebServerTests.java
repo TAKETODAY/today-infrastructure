@@ -74,7 +74,7 @@ abstract class AbstractMockWebServerTests {
 
   private MockResponse getRequest(RecordedRequest request, byte[] body, String contentType) {
     if (request.getMethod().equals("OPTIONS")) {
-      return new MockResponse().setResponseCode(200).setHeader("Allow", "GET, OPTIONS, HEAD, TRACE");
+      return new MockResponse().setResponseCode(200).setHeader("Allow", "GET, QUERY, OPTIONS, HEAD, TRACE");
     }
     Buffer buf = new Buffer();
     buf.write(body);
@@ -197,6 +197,19 @@ abstract class AbstractMockWebServerTests {
     return new MockResponse().setResponseCode(200);
   }
 
+  private MockResponse queryRequest(RecordedRequest request) {
+    assertThat(request.getMethod()).isEqualTo("QUERY");
+    assertThat(request.getHeaders().values(CONTENT_LENGTH)).hasSize(1);
+    assertThat(Integer.parseInt(request.getHeader(CONTENT_LENGTH))).isGreaterThan(0);
+    String contentType = request.getHeader(CONTENT_TYPE);
+    assertThat(contentType).isNotNull();
+    Charset charset = contentType.contains("charset=")
+            ? Charset.forName(contentType.split("charset=")[1]) : StandardCharsets.ISO_8859_1;
+    assertThat(request.getBody().readString(charset)).isEqualTo(helloWorld);
+    return new MockResponse().setResponseCode(200).setHeader(CONTENT_TYPE, textContentType.toString())
+            .setBody(helloWorld);
+  }
+
   private MockResponse patchRequest(RecordedRequest request, String expectedRequestContent,
           String contentType, byte[] responseBody) {
 
@@ -288,6 +301,9 @@ abstract class AbstractMockWebServerTests {
         }
         else if (request.getPath().equals("/patch")) {
           return patchRequest(request, helloWorld, textContentType.toString(), helloWorldBytes);
+        }
+        else if (request.getPath().equals("/query")) {
+          return queryRequest(request);
         }
         else if (request.getPath().equals("/put")) {
           return putRequest(request, helloWorld);

@@ -1,0 +1,18 @@
+[[features.aop]]
+= 面向切面编程
+
+TODAY INFRA 为 AOP 提供自动配置。关于 AOP 的详细说明，参见 xref:ROOT:core/aop.adoc[AOP]和 xref:ROOT:core/aop-api.adoc[AOP API]。
+
+默认情况下，自动配置使用基于类的 CGLIB 代理。
+如果希望改用 JDK 动态代理，可以设置：
+
+[source,properties]
+----
+infra.aop.proxy-target-class=false
+----
+
+JDK 动态代理基于接口，调用方应通过被代理对象的接口使用 Bean。
+当类路径中存在 AspectJ 的 `org.aspectj.weaver.Advice` 时，自动配置会启用 AspectJ 注解风格的自动代理，无需额外声明 `infra.context.annotation.EnableAspectJAutoProxy`。
+这里的自动代理不是启用 AspectJ 编译期织入或加载期织入。
+
+如果要禁用此项自动配置，可以设置 `infra.aop.auto=false`。

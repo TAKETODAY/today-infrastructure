@@ -429,10 +429,9 @@ public class DefaultContextCache implements ContextCache {
   @Override
   public void clear() {
     synchronized(this.contextMap) {
-      this.contextMap.clear();
-      this.hierarchyMap.clear();
-      this.contextUsageMap.clear();
-      this.unusedContexts.clear();
+      for (MergedContextConfiguration key : new ArrayList<>(this.contextMap.keySet())) {
+        remove(key, HierarchyMode.CURRENT_LEVEL);
+      }
     }
   }
 

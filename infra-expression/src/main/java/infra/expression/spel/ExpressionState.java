@@ -76,7 +76,7 @@ public class ExpressionState {
   private ArrayDeque<TypedValue> scopeRootObjects;
 
   public ExpressionState(EvaluationContext context) {
-    this(context, context.getRootObject(), new SpelParserConfiguration(false, false));
+    this(context, context.getRootObject(), SpelParserConfiguration.withDefaults());
   }
 
   public ExpressionState(EvaluationContext context, SpelParserConfiguration configuration) {
@@ -84,7 +84,7 @@ public class ExpressionState {
   }
 
   public ExpressionState(EvaluationContext context, TypedValue rootObject) {
-    this(context, rootObject, new SpelParserConfiguration(false, false));
+    this(context, rootObject, SpelParserConfiguration.withDefaults());
   }
 
   public ExpressionState(EvaluationContext context, TypedValue rootObject, SpelParserConfiguration configuration) {

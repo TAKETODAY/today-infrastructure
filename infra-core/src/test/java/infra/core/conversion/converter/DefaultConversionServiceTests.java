@@ -82,6 +82,32 @@ import static org.assertj.core.api.Assertions.entry;
  */
 class DefaultConversionServiceTests {
 
+  @Test
+  void optionalApplicabilityReflectsGenericElementType() throws Exception {
+    TypeDescriptor date = TypeDescriptor.valueOf(java.time.LocalDate.class);
+    TypeDescriptor string = TypeDescriptor.valueOf(String.class);
+    TypeDescriptor integer = new TypeDescriptor(ResolvableType.forClassWithGenerics(Optional.class, Integer.class), null, (java.lang.annotation.Annotation[]) null);
+    assertThat(conversionService.canConvert(integer, string)).isTrue();
+    assertThat(conversionService.canConvert(integer, date)).isFalse();
+    assertThatExceptionOfType(ConverterNotFoundException.class)
+            .isThrownBy(() -> conversionService.convert(Optional.of(42), integer, date));
+    assertThat(conversionService.canConvert(TypeDescriptor.valueOf(Optional.class), date)).isTrue();
+    assertThat(conversionService.canConvert(new TypeDescriptor(OptionalTypes.class.getDeclaredField("unbounded")), date)).isTrue();
+    assertThat(conversionService.canConvert(new TypeDescriptor(OptionalTypes.class.getDeclaredField("variable")), date)).isTrue();
+    TypeDescriptor bounded = new TypeDescriptor(OptionalTypes.class.getDeclaredField("bounded"));
+    assertThat(conversionService.canConvert(bounded, string)).isTrue();
+    assertThat(conversionService.convert(Optional.of(42), bounded, string)).isEqualTo("42");
+    assertThat(conversionService.canConvert(bounded, date)).isFalse();
+    assertThatExceptionOfType(ConverterNotFoundException.class)
+            .isThrownBy(() -> conversionService.convert(Optional.of(42), bounded, date));
+  }
+
+  static class OptionalTypes<T> {
+    Optional<?> unbounded;
+    Optional<? extends Number> bounded;
+    Optional<T> variable;
+  }
+
   private final DefaultConversionService conversionService = new DefaultConversionService();
 
   @Test

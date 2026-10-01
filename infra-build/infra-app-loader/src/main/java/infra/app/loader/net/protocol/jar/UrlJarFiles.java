@@ -88,6 +88,20 @@ class UrlJarFiles {
     return this.cache.get(jarFileUrl);
   }
 
+  JarFile getOrCreateAndCache(String jarFileSpec, boolean runtimeRef) throws IOException {
+    JarFileUrlKey urlKey = new JarFileUrlKey("jar", "", -1, jarFileSpec, runtimeRef);
+    JarFile jarFile = this.cache.get(urlKey);
+    if (jarFile == null) {
+      URL jarFileUrl = new URL(jarFileSpec);
+      if (runtimeRef) {
+        jarFileUrl = new URL(jarFileUrl, "#runtime");
+      }
+      jarFile = this.factory.createJarFile(jarFileUrl, this::onClose);
+      this.cache.putIfAbsent(urlKey, jarFile, jarFileUrl);
+    }
+    return jarFile;
+  }
+
   /**
    * Cache the given {@link JarFile} if caching can be used and there is no existing
    * entry.
@@ -154,7 +168,7 @@ class UrlJarFiles {
    */
   private static final class Cache {
 
-    private final Map<String, JarFile> jarFileUrlToJarFile = new HashMap<>();
+    private final Map<JarFileUrlKey, JarFile> jarFileUrlToJarFile = new HashMap<>();
 
     private final Map<JarFile, URL> jarFileToJarFileUrl = new HashMap<>();
 
@@ -165,7 +179,10 @@ class UrlJarFiles {
      * @return the cached {@link JarFile} or {@code null}
      */
     JarFile get(URL jarFileUrl) {
-      String urlKey = JarFileUrlKey.get(jarFileUrl);
+      return get(new JarFileUrlKey(jarFileUrl));
+    }
+
+    JarFile get(JarFileUrlKey urlKey) {
       synchronized(this) {
         return this.jarFileUrlToJarFile.get(urlKey);
       }
@@ -193,7 +210,10 @@ class UrlJarFiles {
      * they were already there
      */
     boolean putIfAbsent(URL jarFileUrl, JarFile jarFile) {
-      String urlKey = JarFileUrlKey.get(jarFileUrl);
+      return putIfAbsent(new JarFileUrlKey(jarFileUrl), jarFile, jarFileUrl);
+    }
+
+    boolean putIfAbsent(JarFileUrlKey urlKey, JarFile jarFile, URL jarFileUrl) {
       synchronized(this) {
         JarFile cached = this.jarFileUrlToJarFile.get(urlKey);
         if (cached == null) {
@@ -214,7 +234,7 @@ class UrlJarFiles {
       synchronized(this) {
         URL removedUrl = this.jarFileToJarFileUrl.remove(jarFile);
         if (removedUrl != null) {
-          this.jarFileUrlToJarFile.remove(JarFileUrlKey.get(removedUrl));
+          this.jarFileUrlToJarFile.remove(new JarFileUrlKey(removedUrl));
         }
       }
     }

@@ -37,6 +37,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.bytecode.AsmTest;
 import infra.bytecode.ClassFile;
@@ -46,6 +47,7 @@ import infra.bytecode.ClassWriter;
 import infra.bytecode.ConstantDynamic;
 import infra.bytecode.Handle;
 import infra.bytecode.Label;
+import infra.bytecode.LimitExceededException;
 import infra.bytecode.MethodVisitor;
 import infra.bytecode.Opcodes;
 import infra.bytecode.Type;
@@ -60,6 +62,7 @@ import static infra.bytecode.commons.MethodNodeBuilder.toText;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for {@link AdviceAdapter}.
@@ -635,6 +638,172 @@ public class AdviceAdapterTests extends AsmTest {
     assertDoesNotThrow(() -> buildClassWithMethod(outputMethod).newInstance());
   }
 
+  @Test
+  public void testAllMethods_uninitThisInLocal1() {
+    // The following constructor breaks the AdviceAdapter assumptions (uninitialized_this always in
+    // local 0 if there are no frames). But in this special case (no jumps), instrumentation should
+    // still work correctly because AdviceAdapter tracks value transfers between the stack and the
+    // local variables in basic blocks.
+    MethodNode inputMethod =
+            new MethodNodeBuilder("<init>", "(I)V", 2, 2)
+                    .aload(0)
+                    .astore(1)
+                    .aload(1)
+                    .methodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false)
+                    // After instrumentation, expect a before advice here, before instruction #4.
+                    // After instrumentation, expect an after advice here, before instruction #4.
+                    .vreturn()
+                    .build();
+
+    MethodNode outputMethod = new MethodNode(Opcodes.ACC_PUBLIC, "<init>", "(I)V", null, null);
+    inputMethod.accept(new BasicAdviceAdapter(outputMethod));
+
+    MethodNode expectedMethod =
+            new ExpectedMethodBuilder(inputMethod).withBeforeAdviceAt(4).withAfterAdviceAt(4).build();
+    assertEquals(toText(expectedMethod), toText(outputMethod));
+    assertDoesNotThrow(() -> buildClassWithMethod(outputMethod).newInstance());
+  }
+
+  @Test
+  public void testAllMethods_backwardJumpWithoutFrames() {
+    // The following constructor breaks an AdviceAdapter assumption (no backward jump while the
+    // stack map frame contains uninitialized_this). In this case the effect is that the before
+    // advice is not inserted at all.
+    Label label1 = new Label();
+    Label label2 = new Label();
+    MethodNode inputMethod =
+            new MethodNodeBuilder("<init>", "(I)V", 2, 2)
+                    .go(label2)
+                    .label(label1)
+                    .aload(0)
+                    .methodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false)
+                    // After instrumentation, expect an after advice here, before instruction #4.
+                    .vreturn()
+                    .label(label2)
+                    .go(label1)
+                    .build();
+
+    MethodNode outputMethod = new MethodNode(Opcodes.ACC_PUBLIC, "<init>", "(I)V", null, null);
+    inputMethod.accept(new BasicAdviceAdapter(outputMethod));
+
+    MethodNode expectedMethod = new ExpectedMethodBuilder(inputMethod).withAfterAdviceAt(4).build();
+    assertEquals(toText(expectedMethod), toText(outputMethod));
+    assertDoesNotThrow(() -> buildClassWithMethod(outputMethod).newInstance());
+  }
+
+  @Test
+  public void testAllMethods_backwardJumpWithFrames() {
+    // The following constructor has a backward jump while the stack map frame contains
+    // uninitialized_this, but this is OK because there are stack map frames.
+    Label label1 = new Label();
+    Label label2 = new Label();
+    MethodNode inputMethod =
+            new MethodNodeBuilder("<init>", "(I)V", 2, 2)
+                    .go(label2)
+                    .frame(new Object[] { Opcodes.UNINITIALIZED_THIS, Opcodes.INTEGER }, null)
+                    .label(label1)
+                    .aload(0)
+                    .methodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false)
+                    // After instrumentation, expect a before advice here, before instruction #5.
+                    // After instrumentation, expect an after advice here, before instruction #5.
+                    .vreturn()
+                    .label(label2)
+                    .go(label1)
+                    .build();
+
+    MethodNode outputMethod = new MethodNode(Opcodes.ACC_PUBLIC, "<init>", "(I)V", null, null);
+    inputMethod.accept(new BasicAdviceAdapter(outputMethod));
+
+    MethodNode expectedMethod =
+            new ExpectedMethodBuilder(inputMethod).withBeforeAdviceAt(5).withAfterAdviceAt(5).build();
+    assertEquals(toText(expectedMethod), toText(outputMethod));
+    assertDoesNotThrow(() -> buildClassWithMethod(outputMethod).newInstance());
+  }
+
+  @Test
+  public void testAllMethods_uninitOtherInLocal0WithoutFrames() {
+    // If there are no stack map frames AdviceAdapter assumes, at the start of each handler block,
+    // that local 0 contains uninitialized_this. This is not the case here (it contains an
+    // uninitialized object, but not "this"). The result is that a wrong additional before advice is
+    // inserted.
+    Label label0 = new Label();
+    Label label1 = new Label();
+    Label label2 = new Label();
+    MethodNode inputMethod =
+            new MethodNodeBuilder("<init>", "(I)V", 3, 2)
+                    .trycatch(label1, label2, label2)
+                    .aload(0)
+                    .methodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false)
+                    // After instrumentation, expect a before advice here, before instruction #2.
+                    .label(label0)
+                    .typeInsn(Opcodes.NEW, "java/lang/Object")
+                    .astore(0)
+                    .label(label1)
+                    // After instrumentation, expect an after advice here, before instruction #6.
+                    .vreturn()
+                    .label(label2)
+                    .aload(0)
+                    .methodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false)
+                    // After instrumentation, expect a WRONG before advice here, before instruction #10.
+                    // After instrumentation, expect an after advice here, before instruction #10.
+                    .vreturn()
+                    .build();
+
+    MethodNode outputMethod = new MethodNode(Opcodes.ACC_PUBLIC, "<init>", "(I)V", null, null);
+    inputMethod.accept(new BasicAdviceAdapter(outputMethod));
+
+    MethodNode expectedMethod =
+            new ExpectedMethodBuilder(inputMethod)
+                    .withBeforeAdviceAt(2)
+                    .withAfterAdviceAt(6)
+                    .withBeforeAdviceAt(10)
+                    .withAfterAdviceAt(10)
+                    .build();
+    assertEquals(toText(expectedMethod), toText(outputMethod));
+    assertDoesNotThrow(() -> buildClassWithMethod(outputMethod).newInstance());
+  }
+
+  @Test
+  public void testAllMethods_uninitOtherInLocal0WithFrames() {
+    // At the start of the handler block local 0 contains an uninitialized object, but not "this".
+    // Thanks to stack map frames, this is correctly handled (no wrong before advice inserted in the
+    // handler block).
+    Label label0 = new Label();
+    Label label1 = new Label();
+    Label label2 = new Label();
+    MethodNode inputMethod =
+            new MethodNodeBuilder("<init>", "(I)V", 3, 2)
+                    .trycatch(label1, label2, label2)
+                    .aload(0)
+                    .methodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false)
+                    // After instrumentation, expect a before advice here, before instruction #2.
+                    .label(label0)
+                    .typeInsn(Opcodes.NEW, "java/lang/Object")
+                    .astore(0)
+                    .label(label1)
+                    // After instrumentation, expect an after advice here, before instruction #6.
+                    .vreturn()
+                    .label(label2)
+                    .frame(new Object[] { label0, Opcodes.INTEGER }, new Object[] { Opcodes.TOP })
+                    .aload(0)
+                    .methodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false)
+                    // After instrumentation, expect an after advice here, before instruction #11.
+                    .vreturn()
+                    .build();
+
+    MethodNode outputMethod = new MethodNode(Opcodes.ACC_PUBLIC, "<init>", "(I)V", null, null);
+    inputMethod.accept(new BasicAdviceAdapter(outputMethod));
+
+    MethodNode expectedMethod =
+            new ExpectedMethodBuilder(inputMethod)
+                    .withBeforeAdviceAt(2)
+                    .withAfterAdviceAt(6)
+                    .withAfterAdviceAt(11)
+                    .build();
+    assertEquals(toText(expectedMethod), toText(outputMethod));
+    assertDoesNotThrow(() -> buildClassWithMethod(outputMethod).newInstance());
+  }
+
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_ALL_APIS)
   public void testAllMethods_precompiledClass(
@@ -654,6 +823,55 @@ public class AdviceAdapterTests extends AsmTest {
     classReader.accept(expectedClassVisitor, ClassReader.EXPAND_FRAMES);
     assertEquals(
             new ClassFile(expectedClassWriter.toByteArray()), new ClassFile(classWriter.toByteArray()));
+  }
+
+  /**
+   * Tests that AdviceAdapter works on all the constructors of all the classes of the JDK17 java.*
+   * modules with a compute limit 100 times lower than its default value.
+   */
+  @Test
+  public void testAllMethods_defaultComputeLimits() {
+    AtomicInteger numClasses = new AtomicInteger();
+    AtomicInteger numErrors = new AtomicInteger();
+    listAllJavaModulesClasses()
+            .forEach(
+                    classFile -> {
+                      numClasses.getAndIncrement();
+                      try {
+                        ConstructorAdviceAdapter adapter =
+                                new ConstructorAdviceAdapter(AdviceAdapter.DEFAULT_MAX_MEMORY_LIMIT / 100);
+                        new ClassReader(classFile).accept(adapter, ClassReader.SKIP_FRAMES);
+                      }
+                      catch (LimitExceededException e) {
+                        numErrors.getAndIncrement();
+                      }
+                    });
+    assertTrue(numClasses.get() > 10000);
+    assertEquals(0, numErrors.get());
+  }
+
+  @Test
+  public void testAllMethods_computeLimitsExceeded() {
+    Label label1 = new Label();
+    Label label2 = new Label();
+    MethodNode inputMethod =
+            new MethodNodeBuilder("<init>", "(I)V", 1, 1)
+                    .go(label2)
+                    .label(label1)
+                    .vreturn()
+                    .label(label2)
+                    .aload(0)
+                    .methodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false)
+                    .go(label1)
+                    .build();
+    AdviceAdapter adviceAdapter =
+            new AdviceAdapter(null, Opcodes.ACC_PUBLIC, "<init>", "(I)V") { };
+
+    adviceAdapter.setComputeLimits(/* maxBytes= */ 32);
+    Executable run = () -> inputMethod.accept(adviceAdapter);
+
+    LimitExceededException exception = assertThrows(LimitExceededException.class, run);
+    assertTrue(exception.getMessage().matches("Too many allocated bytes"));
   }
 
   @Test
@@ -716,7 +934,7 @@ public class AdviceAdapterTests extends AsmTest {
     return insnList;
   }
 
-  private static class BasicAdviceAdapter extends AdviceAdapter {
+  private static final class BasicAdviceAdapter extends AdviceAdapter {
 
     BasicAdviceAdapter(final MethodVisitor methodVisitor) {
       super(
@@ -759,7 +977,7 @@ public class AdviceAdapterTests extends AsmTest {
     }
   }
 
-  private static class ExpectedMethodBuilder {
+  private static final class ExpectedMethodBuilder {
 
     private final MethodNode inputMethod;
     private final ArrayList<Advice> advices;
@@ -818,7 +1036,7 @@ public class AdviceAdapterTests extends AsmTest {
     }
   }
 
-  private static class EmptyAdviceClassAdapter extends ClassVisitor {
+  private static final class EmptyAdviceClassAdapter extends ClassVisitor {
 
     EmptyAdviceClassAdapter(final ClassVisitor classVisitor) {
       super(classVisitor);
@@ -837,6 +1055,31 @@ public class AdviceAdapterTests extends AsmTest {
         return methodVisitor;
       }
       return new AdviceAdapter(methodVisitor, access, name, descriptor) { };
+    }
+  }
+
+  private static final class ConstructorAdviceAdapter extends ClassVisitor {
+
+    private final int maxBytes;
+
+    ConstructorAdviceAdapter(final int maxBytes) {
+      super(null);
+      this.maxBytes = maxBytes;
+    }
+
+    @Override
+    public MethodVisitor visitMethod(
+            final int access,
+            final String name,
+            final String descriptor,
+            final String signature,
+            final String[] exceptions) {
+      if ((access & (Opcodes.ACC_ABSTRACT | Opcodes.ACC_NATIVE)) > 0 || !"<init>".equals(name)) {
+        return null;
+      }
+      AdviceAdapter adapter = new AdviceAdapter(null, access, name, descriptor) { };
+      adapter.setComputeLimits(maxBytes);
+      return adapter;
     }
   }
 }

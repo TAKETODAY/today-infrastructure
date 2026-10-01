@@ -28,14 +28,14 @@ import infra.test.web.mock.client.RestTestClient;
  * result of an exchange performed through {@link RestTestClient}. Intended for
  * further use with AssertJ. For example:
  *
- * <pre class="code">
+ * <pre>{@code
  * ResponseSpec spec = restTestClient.get().uri("/greeting").exchange();
  *
  * RestTestClientResponse response = RestTestClientResponse.from(spec);
  * assertThat(response).hasStatusOk();
  * assertThat(response).contentType().isCompatibleWith(MediaType.APPLICATION_JSON);
  * assertThat(response).bodyJson().extractingPath("$.message").asString().isEqualTo("Hello World");
- * </pre>
+ * }</pre>
  *
  * @author Rossen Stoyanchev
  * @since 5.0

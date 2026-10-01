@@ -1150,6 +1150,16 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     static ClassPathManifestEntry of(File file, @Nullable Boolean useCaches) throws MalformedURLException {
       String path = fixPath(file.getAbsolutePath());
       Resource resource = asJarFileResource(path, useCaches);
+      if (!resource.exists()) {
+        String encodedPath = fixPath(StringUtils.replace(file.getAbsolutePath(), "%", "%25"));
+        if (!encodedPath.equals(path)) {
+          Resource encodedResource = asJarFileResource(encodedPath, useCaches);
+          if (encodedResource.exists()) {
+            path = encodedPath;
+            resource = encodedResource;
+          }
+        }
+      }
       Resource alternative = createAlternative(path, useCaches);
       return new ClassPathManifestEntry(resource, alternative);
     }
@@ -1174,7 +1184,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     @Nullable
     private static Resource createAlternative(String path, @Nullable Boolean useCaches) {
       try {
-        String alternativePath = path.startsWith("/") ? path.substring(1) : "/" + path;
+        String alternativePath = (path.startsWith("/") ? path.substring(1) : "/" + path);
         return asJarFileResource(alternativePath, useCaches);
       }
       catch (MalformedURLException ex) {

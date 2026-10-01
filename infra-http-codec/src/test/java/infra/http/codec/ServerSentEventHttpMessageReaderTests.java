@@ -137,6 +137,32 @@ class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingTests {
   }
 
   @Test
+  @SuppressWarnings("rawtypes")
+  void ignoreInvalidRetry() {
+    MockServerHttpRequest request = MockServerHttpRequest.post("/")
+            .body(Mono.just(stringBuffer(
+                    "retry:none\ndata:foo\n\n" +
+                            "retry:\ndata:bar\n\n" +
+                            "retry:-1\ndata:baz\n\n" +
+                            "retry:+5000\ndata:qux\n\n" +
+                            "retry:\u0665\u0660\u0660\u0660\ndata:quux\n\n" +
+                            "retry:99999999999999999999\ndata:corge\n\n")));
+
+    Flux<infra.http.ServerSentEvent> events = this.reader
+            .read(ResolvableType.forClassWithGenerics(infra.http.ServerSentEvent.class, String.class),
+                    request, Collections.emptyMap()).cast(infra.http.ServerSentEvent.class);
+
+    StepVerifier.create(events)
+            .expectNext(infra.http.ServerSentEvent.builder().data("foo").build())
+            .expectNext(infra.http.ServerSentEvent.builder().data("bar").build())
+            .expectNext(infra.http.ServerSentEvent.builder().data("baz").build())
+            .expectNext(infra.http.ServerSentEvent.builder().data("qux").build())
+            .expectNext(infra.http.ServerSentEvent.builder().data("quux").build())
+            .expectNext(infra.http.ServerSentEvent.builder().data("corge").build())
+            .verifyComplete();
+  }
+
+  @Test
   void emptyLines() {
     MockServerHttpRequest request = MockServerHttpRequest.post("/")
             .body(Mono.just(stringBuffer("id:1\nevent:message\ndata:\ndata:\ndata:\n\n")));

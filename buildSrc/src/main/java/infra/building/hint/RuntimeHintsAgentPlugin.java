@@ -67,7 +67,8 @@ public class RuntimeHintsAgentPlugin implements Plugin<Project> {
         test.getJvmArgumentProviders().add(createRuntimeHintsAgentArgumentProvider(project, agentExtension));
       });
       project.getTasks().getByName("check", task -> task.dependsOn(agentTest));
-      project.getDependencies().add(CONFIGURATION_NAME, project.project(":infra-core-test"));
+      project.getDependencies().add(CONFIGURATION_NAME,
+              project.getDependencyFactory().createProjectDependency(":infra-core-test"));
     });
   }
 

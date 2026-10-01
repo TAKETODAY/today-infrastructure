@@ -28,7 +28,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -62,7 +61,7 @@ public class TypeDescriptor implements Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  private static final HashMap<Class<?>, TypeDescriptor> commonTypesCache = new HashMap<>(32);
+  private static final Map<Class<?>, TypeDescriptor> commonTypesCache;
 
   static {
     final Class<?>[] cachedCommonTypes = {
@@ -70,9 +69,11 @@ public class TypeDescriptor implements Serializable {
             double.class, Double.class, float.class, Float.class, int.class, Integer.class,
             long.class, Long.class, short.class, Short.class, String.class, Object.class
     };
+    Map<Class<?>, TypeDescriptor> commonTypes = CollectionUtils.newHashMap(cachedCommonTypes.length);
     for (Class<?> preCachedClass : cachedCommonTypes) {
-      commonTypesCache.put(preCachedClass, valueOf(preCachedClass));
+      commonTypes.put(preCachedClass, new TypeDescriptor(ResolvableType.forClass(preCachedClass), null, (Annotation[]) null));
     }
+    commonTypesCache = Map.copyOf(commonTypes);
   }
 
   private final Class<?> type;

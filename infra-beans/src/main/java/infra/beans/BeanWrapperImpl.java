@@ -20,10 +20,14 @@ package infra.beans;
 
 import org.jspecify.annotations.Nullable;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
+import infra.core.MethodParameter;
 import infra.core.ResolvableType;
 import infra.core.TypeDescriptor;
+import infra.logging.LoggerFactory;
+import infra.util.ReflectionUtils;
 
 /**
  * Default {@link BeanWrapper} implementation that should be sufficient
@@ -226,9 +230,16 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 
   @Override
   public BeanProperty getBeanProperty(String propertyName) throws InvalidPropertyException {
-    BeanWrapperImpl nestedBw = (BeanWrapperImpl) getPropertyAccessorForPropertyPath(propertyName);
-    String finalPath = getFinalPath(nestedBw, propertyName);
-    BeanProperty property = nestedBw.getMetadata().getProperty(finalPath);
+    ResolvedProperty resolved;
+    try {
+      resolved = resolvePropertyPath(propertyName);
+    }
+    catch (InvalidPropertyPathException ex) {
+      throw new InvalidPropertyException(getRootClass(), getNestedPath() + propertyName,
+              java.util.Objects.requireNonNull(ex.getMessage()), ex);
+    }
+    BeanWrapperImpl nestedBw = (BeanWrapperImpl) resolved.accessor();
+    BeanProperty property = nestedBw.getMetadata().getProperty(resolved.segment().toCanonicalName());
     if (property == null) {
       throw new InvalidPropertyException(getRootClass(), getNestedPath() + propertyName,
               "No property '%s' found".formatted(propertyName));
@@ -283,6 +294,31 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
     @Override
     public void setValue(@Nullable Object value) {
       property.setDirectly(getWrappedInstance(), value);
+    }
+
+    @Override
+    public boolean setValueFallbackIfPossible(@Nullable Object value) {
+      try {
+        Method writeMethod = property.getWriteMethodFallback(value != null ? value.getClass() : null);
+        if (writeMethod == null) {
+          writeMethod = property.getUniqueWriteMethodFallback();
+          if (writeMethod != null) {
+            // The unique alternative requires conversion if it did not match
+            // the original value's type directly.
+            value = convertForProperty(property.getName(), null, value,
+                    new TypeDescriptor(new MethodParameter(writeMethod, 0)));
+          }
+        }
+        if (writeMethod != null) {
+          ReflectionUtils.makeAccessible(writeMethod);
+          writeMethod.invoke(getWrappedInstance(), value);
+          return true;
+        }
+      }
+      catch (Exception ex) {
+        LoggerFactory.getLogger(BeanPropertyHandler.class).debug("Write method fallback failed", ex);
+      }
+      return false;
     }
   }
 

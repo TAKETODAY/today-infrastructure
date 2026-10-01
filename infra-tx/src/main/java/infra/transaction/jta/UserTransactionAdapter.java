@@ -20,12 +20,17 @@ package infra.transaction.jta;
 
 import org.jspecify.annotations.Nullable;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import infra.util.Assert;
+import infra.util.ReflectionUtils;
 import jakarta.transaction.HeuristicMixedException;
 import jakarta.transaction.HeuristicRollbackException;
 import jakarta.transaction.NotSupportedException;
 import jakarta.transaction.RollbackException;
 import jakarta.transaction.SystemException;
+import jakarta.transaction.Transaction;
 import jakarta.transaction.TransactionManager;
 import jakarta.transaction.UserTransaction;
 
@@ -42,12 +47,20 @@ import jakarta.transaction.UserTransaction;
  *
  * <p>Used internally by Framework's {@link JtaTransactionManager} for certain
  * scenarios. Not intended for direct use in application code.
+ * <p>As of Infra 5.0, this adapter also supports the JTA 2.1 read-only methods,
+ * while remaining compatible with earlier JTA APIs.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public class UserTransactionAdapter implements UserTransaction {
+
+  private static final @Nullable Method beginWithReadOnlyMethod =
+          ReflectionUtils.getMethodIfAvailable(TransactionManager.class, "begin", boolean.class);
+
+  private static final @Nullable Method isReadOnlyMethod =
+          ReflectionUtils.getMethodIfAvailable(Transaction.class, "isReadOnly");
 
   private final TransactionManager transactionManager;
 
@@ -76,6 +89,63 @@ public class UserTransactionAdapter implements UserTransaction {
   @Override
   public void begin() throws NotSupportedException, SystemException {
     this.transactionManager.begin();
+  }
+
+  /**
+   * Begin a transaction with the JTA 2.1 read-only flag.
+   *
+   * @param isReadOnly whether the transaction is read-only
+   * @throws NotSupportedException if an earlier JTA API does not support a read-only
+   * transaction, or the provider rejects the transaction
+   * @throws SystemException if the provider encounters a system error
+   * @since 5.0
+   */
+  public void begin(boolean isReadOnly) throws NotSupportedException, SystemException {
+    if (beginWithReadOnlyMethod == null) {
+      if (isReadOnly) {
+        throw new NotSupportedException("begin(true) requires JTA 2.1");
+      }
+      this.transactionManager.begin();
+      return;
+    }
+    try {
+      beginWithReadOnlyMethod.invoke(this.transactionManager, isReadOnly);
+    }
+    catch (Exception ex) {
+      if (ex instanceof InvocationTargetException ite) {
+        if (ite.getTargetException() instanceof NotSupportedException nse) {
+          throw nse;
+        }
+        if (ite.getTargetException() instanceof SystemException se) {
+          throw se;
+        }
+      }
+      ReflectionUtils.handleReflectionException(ex);
+    }
+  }
+
+  /**
+   * Return the read-only status of the current JTA 2.1 transaction.
+   * <p>Returns {@code false} with earlier JTA APIs.
+   *
+   * @return whether the transaction is read-only
+   * @throws SystemException if the provider encounters a system error
+   * @since 5.0
+   */
+  public boolean isReadOnly() throws SystemException {
+    if (isReadOnlyMethod != null) {
+      Transaction transaction = this.transactionManager.getTransaction();
+      try {
+        return (Boolean) isReadOnlyMethod.invoke(transaction);
+      }
+      catch (Exception ex) {
+        if (ex instanceof InvocationTargetException ite && ite.getTargetException() instanceof SystemException se) {
+          throw se;
+        }
+        ReflectionUtils.handleReflectionException(ex);
+      }
+    }
+    return false;
   }
 
   @Override

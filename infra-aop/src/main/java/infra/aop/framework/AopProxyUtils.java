@@ -20,6 +20,7 @@ package infra.aop.framework;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.Closeable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -32,12 +33,16 @@ import infra.aop.TargetSource;
 import infra.aop.support.AopUtils;
 import infra.aop.target.SingletonTargetSource;
 import infra.beans.BeanInstantiationException;
+import infra.beans.factory.Aware;
+import infra.beans.factory.DisposableBean;
+import infra.beans.factory.InitializingBean;
 import infra.beans.support.BeanInstantiator;
 import infra.core.DecoratingProxy;
 import infra.core.NativeDetector;
 import infra.lang.Constant;
 import infra.util.Assert;
 import infra.util.ClassUtils;
+import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 
 /**
@@ -72,6 +77,30 @@ public abstract class AopProxyUtils {
       }
     }
     return null;
+  }
+
+  /**
+   * Obtain the ultimate singleton target object behind the given proxy,
+   * even for a nested proxy scenario where the immediate singleton target
+   * is yet another proxy.
+   *
+   * @param candidate the (potential) proxy to check
+   * @return the singleton target object managed in a {@link SingletonTargetSource},
+   * or the original candidate if not a proxy or not an existing singleton target
+   * @see Advised#getTargetSource()
+   * @see SingletonTargetSource#getTarget()
+   * @since 5.0
+   */
+  public static Object ultimateSingletonTarget(Object candidate) {
+    Object current = candidate;
+    while (current instanceof Advised advised) {
+      TargetSource targetSource = advised.getTargetSource();
+      if (!(targetSource instanceof SingletonTargetSource singleTargetSource)) {
+        break;
+      }
+      current = singleTargetSource.getTarget();
+    }
+    return current;
   }
 
   /**
@@ -287,6 +316,13 @@ public abstract class AopProxyUtils {
       return BeanInstantiator.forUnsafe(proxyClass).instantiate();
     }
     return BeanInstantiator.forSerialization(proxyClass).instantiate();
+  }
+
+  /** Determine whether an interface only exposes container configuration callbacks. */
+  static boolean isConfigurationCallbackInterface(Class<?> ifc) {
+    return InitializingBean.class == ifc || DisposableBean.class == ifc ||
+            Closeable.class == ifc || AutoCloseable.class == ifc ||
+            ObjectUtils.containsElement(ifc.getInterfaces(), Aware.class);
   }
 
 }

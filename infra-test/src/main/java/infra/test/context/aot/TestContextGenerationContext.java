@@ -20,9 +20,9 @@ package infra.test.context.aot;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.aot.generate.ClassNameGenerator;
 import infra.aot.generate.DefaultGenerationContext;
 import infra.aot.generate.GeneratedFiles;
+import infra.aot.generate.NameGenerator;
 import infra.aot.hint.RuntimeHints;
 
 /**
@@ -40,16 +40,17 @@ class TestContextGenerationContext extends DefaultGenerationContext {
 
   /**
    * Create a new {@link TestContextGenerationContext} instance backed by the
-   * specified {@link ClassNameGenerator}, {@link GeneratedFiles}, and
+   * specified {@link NameGenerator}, {@link GeneratedFiles}, and
    * {@link RuntimeHints}.
    *
-   * @param classNameGenerator the naming convention to use for generated class names
+   * @param nameGenerator the naming convention to use for generated classes
+   * and resources
    * @param generatedFiles the generated files
    * @param runtimeHints the runtime hints
    */
-  TestContextGenerationContext(ClassNameGenerator classNameGenerator, GeneratedFiles generatedFiles,
+  TestContextGenerationContext(NameGenerator nameGenerator, GeneratedFiles generatedFiles,
           RuntimeHints runtimeHints) {
-    super(classNameGenerator, generatedFiles, runtimeHints);
+    super(nameGenerator, generatedFiles, runtimeHints);
     this.featureName = null;
   }
 

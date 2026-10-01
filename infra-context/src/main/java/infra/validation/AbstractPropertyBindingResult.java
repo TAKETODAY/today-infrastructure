@@ -25,8 +25,8 @@ import java.beans.PropertyEditor;
 import infra.beans.BeanUtils;
 import infra.beans.ConfigurablePropertyAccessor;
 import infra.beans.PropertyAccessor;
-import infra.beans.PropertyAccessorUtils;
 import infra.beans.PropertyEditorRegistry;
+import infra.beans.PropertyPath;
 import infra.core.TypeDescriptor;
 import infra.core.conversion.ConversionService;
 import infra.core.conversion.support.ConvertingPropertyEditorAdapter;
@@ -82,11 +82,11 @@ public abstract class AbstractPropertyBindingResult extends AbstractBindingResul
   /**
    * Returns the canonical property name.
    *
-   * @see PropertyAccessorUtils#canonicalPropertyName
+   * @see PropertyPath#canonicalNameOrOriginal(String)
    */
   @Override
   protected String canonicalFieldName(String field) {
-    return PropertyAccessorUtils.canonicalPropertyName(field);
+    return PropertyPath.canonicalNameOrOriginal(field);
   }
 
   /**

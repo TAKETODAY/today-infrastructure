@@ -21,6 +21,7 @@ import org.jspecify.annotations.Nullable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 
 import infra.bytecode.ClassVisitor;
 import infra.bytecode.Opcodes;
@@ -297,7 +298,7 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
 
     @Override
     protected Object cacheKey() {
-      return field;
+      return Arrays.asList(field, writeMethod);
     }
 
     @Override
@@ -307,7 +308,7 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
 
     @Override
     protected PropertyAccessor fallbackInstance(@Nullable Throwable exception) {
-      return forReflective(field);
+      return forReflective(field, null, writeMethod);
     }
 
     @Override
@@ -323,8 +324,11 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
 
     @Override
     protected void appendClassName(StringBuilder builder) {
-      builder.append('$')
-              .append(field.getName());
+      builder.append('$').append(field.getName());
+      if (writeMethod != null) {
+        builder.append("$setter");
+        appendClassNameSuffix(builder, writeMethod);
+      }
     }
 
     @Override
@@ -337,7 +341,7 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Ac
       // get method
       generateGetMethod(classEmitter, owner, fieldName, type);
       if (writeMethod != null) {
-        generateSetMethod(classEmitter, owner, writeMethod, type);
+        generateSetMethod(classEmitter, owner, writeMethod, Type.forClass(writeMethod.getParameterTypes()[0]));
       }
       else if (!isFinal) {
         // set method

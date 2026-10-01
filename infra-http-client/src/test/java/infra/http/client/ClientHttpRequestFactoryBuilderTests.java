@@ -56,6 +56,14 @@ class ClientHttpRequestFactoryBuilderTests {
   }
 
   @Test
+  @SuppressWarnings("NullAway") // Test null check
+  void withCustomizerWhenCustomizerIsNullThrowsException() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> ClientHttpRequestFactoryBuilder.jdk().withCustomizer(null))
+            .withMessage("'customizer' is required");
+  }
+
+  @Test
   void httpComponentsReturnsHttpComponentsFactoryBuilder() {
     assertThat(ClientHttpRequestFactoryBuilder.httpComponents())
             .isInstanceOf(HttpComponentsClientHttpRequestFactoryBuilder.class);

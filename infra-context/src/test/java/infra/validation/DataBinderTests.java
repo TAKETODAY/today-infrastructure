@@ -2078,6 +2078,91 @@ class DataBinderTests {
   }
 
   @Test
+  void defaultMaxNestedPathDepthIsAppliedToPropertyAccessor() {
+    DataBinder binder = new DataBinder(new TestBean(), "testBean");
+    int maxDepth = infra.beans.ConfigurablePropertyAccessor.DEFAULT_MAX_NESTED_PATH_DEPTH;
+    assertThat(binder.getMaxNestedPathDepth()).isEqualTo(maxDepth);
+    assertThat(binder.getInternalBindingResult().getPropertyAccessor().getMaxNestedPathDepth()).isEqualTo(maxDepth);
+  }
+
+  @Test
+  void setMaxNestedPathDepth() {
+    TestBean rod = new TestBean("rod", 31);
+    TestBean kerry = new TestBean("kerry", 35);
+    rod.setSpouse(kerry);
+    kerry.setSpouse(rod);
+
+    DataBinder binder = new DataBinder(rod, "rod");
+    binder.setMaxNestedPathDepth(2);
+    PropertyValues values = new PropertyValues();
+    values.add("spouse.spouse.name", "Jane");
+    binder.bind(values);
+    assertThat(rod.getName()).isEqualTo("Jane");
+
+    PropertyValues tooDeep = new PropertyValues();
+    tooDeep.add("spouse.spouse.spouse.name", "Joe");
+    binder.bind(tooDeep);
+    assertThat(binder.getBindingResult().getFieldErrors("spouse.spouse.spouse.name")).singleElement().satisfies(error -> {
+      assertThat(error.getCode()).isEqualTo(infra.beans.InvalidPropertyPathException.ERROR_CODE);
+      assertThat(error.getRejectedValue()).isEqualTo("Joe");
+    });
+  }
+
+  @Test
+  void setMaxNestedPathDepthAfterInitialization() {
+    DataBinder binder = new DataBinder(new TestBean());
+    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+    assertThatIllegalStateException().isThrownBy(() -> binder.setMaxNestedPathDepth(2))
+            .withMessageContaining("DataBinder is already initialized - call setMaxNestedPathDepth before other configuration methods");
+  }
+
+  @Test
+  void bindingWithMalformedFieldNameSurfacesAsFieldErrorRatherThanBeingSilentlyDropped() {
+    TestBean rod = new TestBean();
+    DataBinder binder = new DataBinder(rod, "rod");
+    PropertyValues values = new PropertyValues();
+    values.add("name", "Rod");
+    values.add("map[key1]other", "value");
+
+    binder.bind(values);
+    assertThat(rod.getName()).isEqualTo("Rod");
+    assertThat(binder.getBindingResult().getFieldErrors("map[key1]other")).singleElement().satisfies(error -> {
+      assertThat(error.getCode()).isEqualTo(infra.beans.InvalidPropertyPathException.ERROR_CODE);
+      assertThat(error.getRejectedValue()).isEqualTo("value");
+    });
+    assertThatExceptionOfType(BindException.class).isThrownBy(binder::close);
+  }
+
+  @Test
+  void bindingWithMalformedFieldNameIsNotSuppressedEvenWhenAllowedFieldsAreConfigured() {
+    DataBinder binder = new DataBinder(new TestBean(), "rod");
+    binder.setAllowedFields("name");
+    PropertyValues values = new PropertyValues();
+    values.add("name", "Rod");
+    values.add("map[key1]other", "value");
+
+    binder.bind(values);
+    assertThat(binder.getBindingResult().getSuppressedFields()).isEmpty();
+    assertThat(binder.getBindingResult().getFieldErrors("map[key1]other")).hasSize(1);
+  }
+
+  @Test
+  void isAllowedNeverThrowsForMalformedField() {
+    class ExposingBinder extends DataBinder {
+      ExposingBinder(Object target) {
+        super(target, "target");
+      }
+
+      boolean callIsAllowed(String field) {
+        return isAllowed(field);
+      }
+    }
+    ExposingBinder binder = new ExposingBinder(new TestBean());
+    binder.setAllowedFields("name");
+    assertThat(binder.callIsAllowed("map[key1]other")).isFalse();
+  }
+
+  @Test
   void setCustomMessageCodesResolverBeforeInitializeBindingResultForBeanPropertyAccess() {
     TestBean testBean = new TestBean();
     DataBinder binder = new DataBinder(testBean, "testBean");

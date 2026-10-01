@@ -47,6 +47,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -114,6 +115,7 @@ class ClassWriterTests extends AsmTest {
             "lastRecordComponent",
             "firstAttribute",
             "compute",
+            "limits",
             "classLoader"
     );
     // IMPORTANT: if this fails, update the string list AND update the logic that resets the
@@ -394,6 +396,7 @@ class ClassWriterTests extends AsmTest {
     ClassReader classReader =
             new ClassReader(Files.newInputStream(Paths.get("src/test/resources/" + classFileName)));
     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+    classWriter.setComputeLimits(1024 * 1024, 1000000000);
     classReader.accept(classWriter, attributes(), 0);
 
     Executable toByteArray = () -> classWriter.toByteArray();
@@ -469,6 +472,172 @@ class ClassWriterTests extends AsmTest {
 
     // Check that the merged frame type is correctly computed.
     assertTrue(new ClassFile(classFile).toString().contains("[[[[[[[[Ljava/lang/Number;"));
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = { Opcodes.V1_5, Opcodes.V1_7 })
+  void testToByteArray_completeAsmInsnsInSeveralIterations(final int version) {
+    ClassWriter classWriter =
+            new ClassWriter(
+                    version < Opcodes.V1_7 ? ClassWriter.COMPUTE_MAXS : ClassWriter.COMPUTE_FRAMES);
+    classWriter.visit(version, Opcodes.ACC_PUBLIC, "A", null, "java/lang/Object", null);
+    MethodVisitor constructor =
+            classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+    constructor.visitCode();
+    constructor.visitVarInsn(Opcodes.ALOAD, 0);
+    constructor.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+    constructor.visitInsn(Opcodes.RETURN);
+    constructor.visitMaxs(0, 0);
+    constructor.visitEnd();
+    MethodVisitor methodVisitor =
+            classWriter.visitMethod(Opcodes.ACC_STATIC, "m", "(Ljava/lang/Runnable;)V", null, null);
+    methodVisitor.visitCode();
+    Label l1 = new Label();
+    Label l2 = new Label();
+    Label l3 = new Label();
+    Label l4 = new Label();
+    Label l5 = new Label();
+    Label l6 = new Label();
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l4); // bytecode index 0, jump offset 32764
+    methodVisitor.visitLabel(l1);
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l5); // bytecode index 3, jump offset 32766
+    methodVisitor.visitLabel(l2);
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l6); // bytecode index 6, jump offset 32768
+    methodVisitor.visitLabel(l3);
+    for (int i = 0; i < 32748; ++i) {
+      methodVisitor.visitInsn(Opcodes.NOP);
+    }
+    methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+    methodVisitor.visitMethodInsn(
+            Opcodes.INVOKEINTERFACE, "java/lang/Runnable", "run", "()V", true);
+    methodVisitor.visitInsn(Opcodes.RETURN);
+    methodVisitor.visitLabel(l4);
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l1); // bytecode index 32764
+    methodVisitor.visitInsn(Opcodes.NOP);
+    methodVisitor.visitInsn(Opcodes.NOP);
+    methodVisitor.visitLabel(l5);
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l2); // bytecode index 32769
+    methodVisitor.visitInsn(Opcodes.NOP);
+    methodVisitor.visitInsn(Opcodes.NOP);
+    methodVisitor.visitLabel(l6);
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l3); // bytecode index 32774
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+    classWriter.visitEnd();
+
+    // GOTO l6 jump offset is too large, GOTO must be rewritten to GOTO_W (5 bytes instead of 3).
+    // Then jump offset of GOTO l5 becomes 32766 + 2, too large too.
+    // After that the jump offset of GOTO l4 becomes 32764 + 2 + 2, too large again.
+    byte[] classFile = classWriter.toByteArray();
+
+    assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = { Opcodes.V1_5, Opcodes.V1_7 })
+  void testToByteArray_completeAsmInsnsWithLookupswitch(final int version) {
+    ClassWriter classWriter =
+            new ClassWriter(
+                    version < Opcodes.V1_7 ? ClassWriter.COMPUTE_MAXS : ClassWriter.COMPUTE_FRAMES);
+    classWriter.visit(version, Opcodes.ACC_PUBLIC, "A", null, "java/lang/Object", null);
+    MethodVisitor constructor =
+            classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+    constructor.visitCode();
+    constructor.visitVarInsn(Opcodes.ALOAD, 0);
+    constructor.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+    constructor.visitInsn(Opcodes.RETURN);
+    constructor.visitMaxs(0, 0);
+    constructor.visitEnd();
+    MethodVisitor methodVisitor =
+            classWriter.visitMethod(Opcodes.ACC_STATIC, "m", "(I)V", null, null);
+    methodVisitor.visitCode();
+    Label l1 = new Label();
+    Label l2 = new Label();
+    Label l3 = new Label();
+    Label l4 = new Label();
+    Label l5 = new Label();
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l4); // bytecode index 0, jump offset 32768
+    methodVisitor.visitInsn(Opcodes.NOP);
+    methodVisitor.visitLabel(l1);
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l5); // bytecode index 4, jump offset 32767
+    methodVisitor.visitLabel(l2);
+    methodVisitor.visitLookupSwitchInsn(l3, new int[0], new Label[0]); // 0 padding, total 9 bytes
+    methodVisitor.visitLabel(l3);
+    methodVisitor.visitIincInsn(0, 1);
+    for (int i = 0; i < 32748; ++i) {
+      methodVisitor.visitInsn(Opcodes.NOP);
+    }
+    methodVisitor.visitInsn(Opcodes.RETURN);
+
+    methodVisitor.visitLabel(l4);
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l1); // bytecode index 32768
+    methodVisitor.visitLabel(l5);
+    methodVisitor.visitVarInsn(Opcodes.ILOAD, 0); //  bytecode index 32771
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l2);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+    classWriter.visitEnd();
+
+    // GOTO l4 jump offset is too large, GOTO must be rewritten to GOTO_W (5 bytes instead of 3).
+    // The lookupswitch then starts 2 bytes later, which adds 2 bytes of padding. This makes the
+    // jump offset of GOTO l5 too large. This GOTO must thus be rewritten to a GOTO_W too.
+    byte[] classFile = classWriter.toByteArray();
+
+    assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = { Opcodes.V1_5, Opcodes.V1_7 })
+  void testToByteArray_completeAsmInsnsWithTableswitch(final int version) {
+    ClassWriter classWriter =
+            new ClassWriter(
+                    version < Opcodes.V1_7 ? ClassWriter.COMPUTE_MAXS : ClassWriter.COMPUTE_FRAMES);
+    classWriter.visit(version, Opcodes.ACC_PUBLIC, "A", null, "java/lang/Object", null);
+    MethodVisitor constructor =
+            classWriter.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+    constructor.visitCode();
+    constructor.visitVarInsn(Opcodes.ALOAD, 0);
+    constructor.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+    constructor.visitInsn(Opcodes.RETURN);
+    constructor.visitMaxs(0, 0);
+    constructor.visitEnd();
+    MethodVisitor methodVisitor =
+            classWriter.visitMethod(Opcodes.ACC_STATIC, "m", "(I)V", null, null);
+    methodVisitor.visitCode();
+    Label l1 = new Label();
+    Label l2 = new Label();
+    Label l3 = new Label();
+    Label l4 = new Label();
+    Label l5 = new Label();
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l4); // bytecode index 0, jump offset 32768
+    methodVisitor.visitInsn(Opcodes.NOP);
+    methodVisitor.visitLabel(l1);
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l5); // bytecode index 4, jump offset 32767
+    methodVisitor.visitLabel(l2);
+    methodVisitor.visitTableSwitchInsn(0, 0, l3, l3); // 0 padding, total 17 bytes
+    methodVisitor.visitLabel(l3);
+    for (int i = 0; i < 32738; ++i) {
+      methodVisitor.visitInsn(Opcodes.NOP);
+    }
+    methodVisitor.visitInsn(Opcodes.ICONST_1);
+    methodVisitor.visitMultiANewArrayInsn("[[I", 1);
+    methodVisitor.visitInsn(Opcodes.RETURN);
+
+    methodVisitor.visitLabel(l4);
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l1); // bytecode index 32768
+    methodVisitor.visitLabel(l5);
+    methodVisitor.visitVarInsn(Opcodes.ILOAD, 0); //  bytecode index 32771
+    methodVisitor.visitJumpInsn(Opcodes.GOTO, l2);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+    classWriter.visitEnd();
+
+    // GOTO l4 jump offset is too large, GOTO must be rewritten to GOTO_W (5 bytes instead of 3).
+    // The tableswitch then starts 2 bytes later, which adds 2 bytes of padding. This makes the
+    // jump offset of GOTO l5 too large. This GOTO must thus be rewritten to a GOTO_W too.
+    byte[] classFile = classWriter.toByteArray();
+
+    assertDoesNotThrow(() -> new ClassFile(classFile).newInstance());
   }
 
   @Test
@@ -667,6 +836,94 @@ class ClassWriterTests extends AsmTest {
 
     Exception exception = assertThrows(IllegalArgumentException.class, accept);
     assertEquals("JSR/RET are not supported with computeFrames option", exception.getMessage());
+  }
+
+  /**
+   * Tests that COMPUTE_MAXS and COMPUTE_FRAMES work on all the classes of the JDK17 java.* modules
+   * with compute limits 10 times lower than their default value.
+   */
+  @ParameterizedTest
+  @ValueSource(ints = { ClassWriter.COMPUTE_MAXS, ClassWriter.COMPUTE_FRAMES })
+  void testReadAndWrite_defaultComputeLimits(final int computeFlags) {
+    AtomicInteger numClasses = new AtomicInteger();
+    AtomicInteger numErrors = new AtomicInteger();
+    AsmTest.listAllJavaModulesClasses()
+            .forEach(
+                    classFile -> {
+                      numClasses.getAndIncrement();
+                      try {
+                        ClassReader reader = new ClassReader(classFile);
+                        ClassWriter writer = new ClassWriter(computeFlags);
+                        writer.setComputeLimits(
+                                ClassWriter.DEFAULT_MAX_MEMORY_LIMIT / 10,
+                                ClassWriter.DEFAULT_MAX_OPERATIONS_LIMIT / 10);
+                        if (computeFlags == ClassWriter.COMPUTE_MAXS) {
+                          // Decrease the class version and remove the stack map frames, otherwise max stack
+                          // and locals are computed from them, which is very cheap and is not even tracked
+                          // for limits.
+                          reader.accept(
+                                  new ClassVisitor(writer) {
+
+                                    @Override
+                                    public void visit(
+                                            final int version,
+                                            final int access,
+                                            final String name,
+                                            final String signature,
+                                            final String superName,
+                                            final String[] interfaces) {
+                                      super.visit(Opcodes.V1_5, access, name, signature, superName, interfaces);
+                                    }
+                                  },
+                                  ClassReader.SKIP_FRAMES);
+                        }
+                        else {
+                          reader.accept(writer, 0);
+                        }
+                        writer.toByteArray();
+                      }
+                      catch (LimitExceededException e) {
+                        numErrors.getAndIncrement();
+                      }
+                    });
+    assertTrue(numClasses.get() > 10000);
+    assertEquals(0, numErrors.get());
+  }
+
+  /** Tests that COMPUTE_MAXS throws a LimitExceededException when it exceeds the time limit. */
+  @Test
+  void testReadAndWrite_computeMaxsLimitExceeded() {
+    byte[] classFile = AsmTest.PrecompiledClass.JDK5_ALL_INSTRUCTIONS.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+    classWriter.setComputeLimits(ClassWriter.DEFAULT_MAX_MEMORY_LIMIT, 100);
+
+    Executable accept = () -> classReader.accept(classWriter, 0);
+
+    Exception exception = assertThrows(LimitExceededException.class, accept);
+    assertTrue(exception.getMessage().matches("Too many operations"));
+  }
+
+  /**
+   * Tests that COMPUTE_FRAMES throws a LimitExceededException when it exceeds the time or memory
+   * limit.
+   */
+  @Test
+  void testReadAndWrite_computeFramesLimitExceeded() {
+    byte[] classFile = AsmTest.PrecompiledClass.JDK5_ALL_INSTRUCTIONS.getBytes();
+    ClassReader classReader = new ClassReader(classFile);
+    ClassWriter classWriter1 = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+    classWriter1.setComputeLimits(16, ClassWriter.DEFAULT_MAX_OPERATIONS_LIMIT);
+    ClassWriter classWriter2 = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+    classWriter2.setComputeLimits(ClassWriter.DEFAULT_MAX_MEMORY_LIMIT, 10_000);
+
+    Executable accept1 = () -> classReader.accept(classWriter1, 0);
+    Executable accept2 = () -> classReader.accept(classWriter2, 0);
+
+    Exception exception1 = assertThrows(LimitExceededException.class, accept1);
+    assertTrue(exception1.getMessage().matches("Too many allocated bytes"));
+    Exception exception2 = assertThrows(LimitExceededException.class, accept2);
+    assertTrue(exception2.getMessage().matches("Too many operations"));
   }
 
   /**

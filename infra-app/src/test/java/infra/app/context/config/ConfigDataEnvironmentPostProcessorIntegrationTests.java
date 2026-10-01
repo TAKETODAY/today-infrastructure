@@ -59,6 +59,7 @@ import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.origin.Origin;
+import infra.test.classpath.resources.WithResource;
 import infra.util.FileCopyUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
@@ -589,7 +590,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
   @Test
   void runWhenResolvedIsOptionalDoesNotThrowException() {
     ApplicationContext context = this.application.run("--app.config.location=test:optionalresult");
-    assertThat(context.getEnvironment().containsProperty("spring")).isFalse();
+    assertThat(context.getEnvironment().containsProperty("infra")).isFalse();
   }
 
   @Test
@@ -836,8 +837,38 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
     assertThat(context.getEnvironment().getActiveProfiles()).contains("dev", "other");
   }
 
+  @Test
+  @WithResource(name = "application.properties", content = """
+          infra.profiles.active=fa!l
+          """)
+  void invalidProfileActivePropertyThrowsException() {
+    assertThatExceptionOfType(BindException.class).isThrownBy(() -> this.application.run())
+            .havingCause()
+            .withMessageContaining("must contain a letter");
+  }
+
+  @Test
+  @WithResource(name = "application.properties", content = """
+          infra.profiles.include=fa!l
+          """)
+  void invalidProfileIncludePropertyThrowsException() {
+    assertThatExceptionOfType(BindException.class).isThrownBy(() -> this.application.run())
+            .havingCause()
+            .withMessageContaining("must contain a letter");
+  }
+
+  @Test
+  @WithResource(name = "application.properties", content = """
+          infra.profiles.active=p!1
+          infra.profiles.include=p!2
+          infra.profiles.validate=false
+          """)
+  void unvalidatedProfileProperties() {
+    assertThatNoException().isThrownBy(() -> this.application.run());
+  }
+
   private Condition<ConfigurableEnvironment> matchingPropertySource(final String sourceName) {
-    return new Condition<ConfigurableEnvironment>("environment containing property source " + sourceName) {
+    return new Condition<>("environment containing property source " + sourceName) {
 
       @Override
       public boolean matches(ConfigurableEnvironment value) {
@@ -895,7 +926,7 @@ class ConfigDataEnvironmentPostProcessorIntegrationTests {
       }
       Map<String, Object> map = new LinkedHashMap<>();
       if (!resource.isProfileSpecific()) {
-        map.put("spring", "boot");
+        map.put("infra", "boot");
       }
       String suffix = (!resource.isProfileSpecific()) ? "" : ":ps";
       map.put(resource.toString() + suffix, "true");

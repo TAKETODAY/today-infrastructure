@@ -42,6 +42,6 @@ public interface ConverterFactory<S, R extends @Nullable Object> {
    * @param targetType the target type to convert to
    * @return a converter from S to T
    */
-  <T extends R> Converter<S, T> getConverter(Class<T> targetType);
+  <T extends R> Converter<S, ? extends @Nullable T> getConverter(Class<T> targetType);
 
 }

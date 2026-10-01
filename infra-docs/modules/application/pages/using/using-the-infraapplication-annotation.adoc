@@ -1,0 +1,58 @@
+[[using.using-the-infraapplication-annotation]]
+= 使用 @InfraApplication
+
+许多应用希望同时启用自动配置、组件扫描，并在主应用类中定义额外 Bean。
+`infra.app.InfraApplication` 将这三个功能组合在一个注解中：
+
+* `infra.context.annotation.config.EnableAutoConfiguration`：启用 xref:using/auto-configuration.adoc[自动配置]。
+* `infra.context.annotation.ComponentScan`：默认扫描应用类所在包及其子包中的组件。
+* `infra.app.InfraConfiguration`：提供配置类语义，也用于应用测试的配置识别。
+
+[source,java]
+----
+package com.example.myapplication;
+
+import infra.app.Application;
+import infra.app.InfraApplication;
+
+@InfraApplication
+public class MyApplication {
+
+  public static void main(String[] args) {
+    Application.run(MyApplication.class, args);
+  }
+
+}
+----
+
+`@InfraApplication` 提供 `exclude`、`excludeName`、`scanBasePackages`、`scanBasePackageClasses`、`nameGenerator` 和 `proxyBeanMethods` 等属性。
+`scanBasePackages` 和 `scanBasePackageClasses` 仅调整组件扫描，不调整自动配置包，也不自动启用配置属性扫描。
+需要扫描 `@ConfigurationProperties` 类时，另外使用 `infra.context.properties.ConfigurationPropertiesScan`，或显式使用 `EnableConfigurationProperties` 注册。
+
+== 分别声明所需功能
+
+这些功能不是强制的，可以使用各自的注解组合代替 `@InfraApplication`。
+例如，下面的应用启用自动配置，但不进行组件扫描，而是显式导入用户配置：
+
+[source,java]
+----
+package com.example.myapplication;
+
+import infra.app.Application;
+import infra.app.InfraConfiguration;
+import infra.context.annotation.Import;
+import infra.context.annotation.config.EnableAutoConfiguration;
+
+@InfraConfiguration(proxyBeanMethods = false)
+@EnableAutoConfiguration
+@Import(UserConfiguration.class)
+public class MyApplication {
+
+  public static void main(String[] args) {
+    Application.run(MyApplication.class, args);
+  }
+
+}
+----
+
+`UserConfiguration` 是应用提供的配置类。这种方式不会自动发现应用中的组件注解类或配置属性类。

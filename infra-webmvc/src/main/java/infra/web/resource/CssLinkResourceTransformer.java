@@ -18,20 +18,15 @@
 
 package infra.web.resource;
 
-import org.jspecify.annotations.Nullable;
-
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.StringWriter;
-import java.util.ArrayList;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import infra.core.io.Resource;
 import infra.lang.Constant;
-import infra.logging.Logger;
-import infra.logging.LoggerFactory;
-import infra.util.FileCopyUtils;
+import infra.util.StreamUtils;
 import infra.util.StringUtils;
 import infra.web.HttpContext;
 
@@ -47,19 +42,13 @@ import infra.web.HttpContext;
  * the original link is preserved.
  *
  * @author Rossen Stoyanchev
+ * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class CssLinkResourceTransformer extends ResourceTransformerSupport {
 
-  private static final Logger logger = LoggerFactory.getLogger(CssLinkResourceTransformer.class);
-
-  private final List<LinkParser> linkParsers = new ArrayList<>(2);
-
-  public CssLinkResourceTransformer() {
-    this.linkParsers.add(new ImportStatementLinkParser());
-    this.linkParsers.add(new UrlFunctionLinkParser());
-  }
+  private static final Charset DEFAULT_CHARSET = Constant.DEFAULT_CHARSET;
 
   @Override
   public Resource transform(HttpContext context, Resource resource, ResourceTransformerChain transformerChain)
@@ -68,174 +57,52 @@ public class CssLinkResourceTransformer extends ResourceTransformerSupport {
     resource = transformerChain.transform(context, resource);
 
     String filename = resource.getName();
-    if (!"css".equals(StringUtils.getFilenameExtension(filename))
-            || resource instanceof EncodedResourceResolver.EncodedResource) {
+    if (!"css".equals(StringUtils.getFilenameExtension(filename)) ||
+            resource instanceof EncodedResourceResolver.EncodedResource) {
       return resource;
     }
 
-    byte[] bytes = FileCopyUtils.copyToByteArray(resource.getInputStream());
-    String content = new String(bytes, Constant.DEFAULT_CHARSET);
-
-    SortedSet<ContentChunkInfo> links = new TreeSet<>();
-    for (LinkParser parser : this.linkParsers) {
-      parser.parse(content, links);
-    }
-
-    if (links.isEmpty()) {
-      return resource;
-    }
-
-    int index = 0;
-    StringWriter writer = new StringWriter();
-    for (ContentChunkInfo linkContentChunkInfo : links) {
-      writer.write(content.substring(index, linkContentChunkInfo.getStart()));
-      String link = content.substring(linkContentChunkInfo.getStart(), linkContentChunkInfo.getEnd());
-      String newLink = null;
-      if (!hasScheme(link)) {
-        String absolutePath = toAbsolutePath(link, context);
-        newLink = resolveUrlPath(absolutePath, context, resource, transformerChain);
+    CssLinkParser parser = new CssLinkParser();
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    byte[] buffer = new byte[StreamUtils.BUFFER_SIZE];
+    try (InputStream in = resource.getInputStream()) {
+      int read;
+      while ((read = in.read(buffer)) != -1) {
+        writeTokens(parser.feed(buffer, 0, read), context, resource, transformerChain, output);
       }
-      writer.write(newLink != null ? newLink : link);
-      index = linkContentChunkInfo.getEnd();
     }
-    writer.write(content.substring(index));
+    writeTokens(parser.end(), context, resource, transformerChain, output);
 
-    return new TransformedResource(resource, writer.toString().getBytes(Constant.DEFAULT_CHARSET));
+    if (!parser.hasLinks()) {
+      return resource;
+    }
+    return new TransformedResource(resource, output.toByteArray());
+  }
+
+  private void writeTokens(List<CssLinkParser.Token> tokens, HttpContext context, Resource resource,
+          ResourceTransformerChain transformerChain, ByteArrayOutputStream output) {
+
+    for (CssLinkParser.Token token : tokens) {
+      byte[] bytes = (token.link() ? resolveLink(token.bytes(), context, resource, transformerChain) : token.bytes());
+      output.write(bytes, 0, bytes.length);
+    }
+  }
+
+  private byte[] resolveLink(byte[] linkBytes, HttpContext context, Resource resource,
+          ResourceTransformerChain transformerChain) {
+
+    String link = new String(linkBytes, DEFAULT_CHARSET);
+    String newLink = null;
+    if (!hasScheme(link)) {
+      String absolutePath = toAbsolutePath(link, context);
+      newLink = resolveUrlPath(absolutePath, context, resource, transformerChain);
+    }
+    return (newLink != null ? newLink.getBytes(DEFAULT_CHARSET) : linkBytes);
   }
 
   private boolean hasScheme(String link) {
     int schemeIndex = link.indexOf(':');
     return ((schemeIndex > 0 && !link.substring(0, schemeIndex).contains("/")) || link.indexOf("//") == 0);
-  }
-
-  /**
-   * Extract content chunks that represent links.
-   */
-  @FunctionalInterface
-  protected interface LinkParser {
-
-    void parse(String content, SortedSet<ContentChunkInfo> result);
-
-  }
-
-  /**
-   * Abstract base class for {@link LinkParser} implementations.
-   */
-  protected abstract static class AbstractLinkParser implements LinkParser {
-
-    /** Return the keyword to use to search for links, e.g. "@import", "url(" */
-    protected abstract String getKeyword();
-
-    @Override
-    public void parse(String content, SortedSet<ContentChunkInfo> result) {
-      int position = 0;
-      while (true) {
-        position = content.indexOf(getKeyword(), position);
-        if (position == -1) {
-          return;
-        }
-        position += getKeyword().length();
-        while (Character.isWhitespace(content.charAt(position))) {
-          position++;
-        }
-        if (content.charAt(position) == '\'') {
-          position = extractLink(position, "'", content, result);
-        }
-        else if (content.charAt(position) == '"') {
-          position = extractLink(position, "\"", content, result);
-        }
-        else {
-          position = extractLink(position, content, result);
-        }
-      }
-    }
-
-    protected int extractLink(int index, String endKey, String content, SortedSet<ContentChunkInfo> linksToAdd) {
-      int start = index + 1;
-      int end = content.indexOf(endKey, start);
-      linksToAdd.add(new ContentChunkInfo(start, end));
-      return end + endKey.length();
-    }
-
-    /**
-     * Invoked after a keyword match, after whitespace has been removed, and when
-     * the next char is neither a single nor double quote.
-     */
-    protected abstract int extractLink(int index, String content, SortedSet<ContentChunkInfo> linksToAdd);
-  }
-
-  private static final class ImportStatementLinkParser extends AbstractLinkParser {
-
-    @Override
-    protected String getKeyword() {
-      return "@import";
-    }
-
-    @Override
-    protected int extractLink(int index, String content, SortedSet<ContentChunkInfo> linksToAdd) {
-      if (content.startsWith("url(", index)) {
-        // Ignore: UrlFunctionLinkParser will handle it.
-      }
-      else if (logger.isTraceEnabled()) {
-        logger.trace("Unexpected syntax for @import link at index {}", index);
-      }
-      return index;
-    }
-  }
-
-  private static final class UrlFunctionLinkParser extends AbstractLinkParser {
-
-    @Override
-    protected String getKeyword() {
-      return "url(";
-    }
-
-    @Override
-    protected int extractLink(int index, String content, SortedSet<ContentChunkInfo> linksToAdd) {
-      // A url() function without unquoted
-      return extractLink(index - 1, ")", content, linksToAdd);
-    }
-  }
-
-  private static final class ContentChunkInfo implements Comparable<ContentChunkInfo> {
-
-    private final int start;
-
-    private final int end;
-
-    ContentChunkInfo(int start, int end) {
-      this.start = start;
-      this.end = end;
-    }
-
-    public int getStart() {
-      return this.start;
-    }
-
-    public int getEnd() {
-      return this.end;
-    }
-
-    @Override
-    public int compareTo(ContentChunkInfo other) {
-      return Integer.compare(this.start, other.start);
-    }
-
-    @Override
-    public boolean equals(@Nullable Object other) {
-      if (this == other) {
-        return true;
-      }
-      if (!(other instanceof ContentChunkInfo otherCci)) {
-        return false;
-      }
-      return (this.start == otherCci.start && this.end == otherCci.end);
-    }
-
-    @Override
-    public int hashCode() {
-      return this.start * 31 + this.end;
-    }
   }
 
 }

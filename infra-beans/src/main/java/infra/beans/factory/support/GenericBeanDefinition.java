@@ -63,7 +63,6 @@ public class GenericBeanDefinition extends AbstractBeanDefinition {
    * @see #setPropertyValues
    */
   public GenericBeanDefinition() {
-    super();
   }
 
   /**

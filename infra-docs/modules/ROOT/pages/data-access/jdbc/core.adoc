@@ -549,10 +549,32 @@ this.jdbcClient.sql("insert into t_actor (first_name, last_name) values (:firstN
     .update();
 ----
 
+对于批量更新，可通过 `batch()` 以流式方式累积批次条目：通过 `entry(...)` 定义每个条目——既可以传入一个与单条更新一样绑定位置或命名参数的回调，也可以传入位置参数的 `List` 或命名参数的 `Map`。累积的条目由 `update()` 作为一个 JDBC 批次执行：
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+this.jdbcClient.sql("insert into t_actor (first_name, last_name) values (:firstName, :lastName)")
+    .batch()
+        .entry(entry -> entry.param("firstName", "Leonor").param("lastName", "Watling"))
+        .entry(entry -> entry.param("firstName", "Christian").param("lastName", "Bale"))
+    .update();
+----
+
+也可以通过 `entries(...)` 一次性定义多个条目，其中每个给定的参数源对象（例如 `Actor` 记录）代表一个条目。`entry(...)` 与 `entries(...)` 调用可在同一批次中自由组合：
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+List<Actor> actors = ...;
+this.jdbcClient.sql("insert into t_actor (first_name, last_name) values (:firstName, :lastName)")
+    .batch()
+        .entries(actors)
+    .update();
+----
+
 上述参数以及查询结果的自动 `Actor` 类映射是通过隐式 `SimplePropertySqlParameterSource` 和 `SimplePropertyRowMapper` 策略提供的，这些策略也可供直接使用。它们可以作为 `BeanPropertySqlParameterSource` 和 `BeanPropertyRowMapper`/`DataClassRowMapper` 的通用替代品，也可用于 `JdbcTemplate` 和 `NamedParameterJdbcTemplate` 本身。
 
 NOTE: `JdbcClient` 是 JDBC 查询/更新语句的灵活但简化的外观。
-高级功能（如批量插入和存储过程调用）通常需要额外的自定义：对于 `JdbcClient` 中不可用的任何此类功能，请考虑 Infra `SimpleJdbcInsert` 和 `SimpleJdbcCall` 类或纯直接 `JdbcTemplate` 用法。
+高级功能（如存储过程调用）通常需要额外的自定义：对于 `JdbcClient` 中不可用的任何此类功能，请考虑 Infra `SimpleJdbcInsert` 和 `SimpleJdbcCall` 类或纯直接 `JdbcTemplate` 用法。
 
 
 [[jdbc-SQLExceptionTranslator]]

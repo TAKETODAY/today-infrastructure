@@ -1,0 +1,32 @@
+[[io.caching]]
+= 缓存
+
+TODAY INFRA 的缓存抽象将缓存逻辑应用于方法调用。
+命中缓存时直接返回已有结果，未命中时执行方法并缓存结果，调用者无需自己操作存储。
+详细注解和缓存键规则见 xref:ROOT:integration/cache.adoc[缓存抽象]。
+
+使用 `infra.cache.annotation.EnableCaching` 启用注解缓存，使用 `Cacheable`、`CachePut` 和 `CacheEvict` 分别缓存、更新和清理结果。
+推荐把启用注解放在独立配置类中，避免所有测试都强制启用缓存。
+代理模式下只有经过代理的方法调用才受缓存拦截，同一对象内部的直接调用不会经过缓存代理。
+
+== 配置缓存管理器
+
+目标仓库提供缓存 API 及实现，但没有上游的 `CacheAutoConfiguration`、`CacheProperties` 和按 `spring.cache.type` 自动选择 Provider 的对应机制。
+应显式提供 `infra.cache.CacheManager` Bean，不能仅添加缓存库就假定得到默认管理器。
+
+简单的内存实现为 `infra.cache.concurrent.ConcurrentMapCacheManager`。
+它适合入门和测试，不具备通用的容量限制与淘汰策略。
+需要生产缓存策略时，可以配置 `infra.cache.support.CaffeineCacheManager` 等实际提供的实现，或自行实现管理器。
+底层 Provider 的容量、过期和持久化配置应以其文档为准。
+
+== JCache
+
+`infra-jcache` 模块提供 JSR-107 适配，相关接口仍使用 `javax.cache`，不要误替换成 `jakarta.cache`。
+使用标准注解时避免与 infra 缓存注解混搭。
+Provider 和缓存管理器应按目标 JCache API 显式配置，不采用上游 Boot 的 Provider 检测顺序或 `spring.cache.jcache.*` 设置。
+
+== 测试
+
+测试缓存行为时，应明确配置使用的 `CacheManager`，断言命中、更新和失效行为。
+需要禁用缓存存储而保留拦截配置时，可以使用 `infra.cache.support.NoOpCacheManager`。
+目标不提供上游 `spring.cache.type=none` 或缓存测试切片自动配置的等价承诺。

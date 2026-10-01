@@ -478,6 +478,12 @@ final class MethodWriter extends MethodVisitor {
   private final int compute;
 
   /**
+   * The memory and time limits to compute the maximum stack and locals, or the stack map frames
+   * (depending on {@link #compute}).
+   */
+  private final ComputeLimits limits;
+
+  /**
    * The first basic block of the method. The next ones (in bytecode offset order) can be accessed
    * with the {@link Label#nextBasicBlock} field.
    */
@@ -590,9 +596,11 @@ final class MethodWriter extends MethodVisitor {
    * @param signature the method's signature. May be {@literal null}.
    * @param exceptions the internal names of the method's exceptions. May be {@literal null}.
    * @param compute indicates what must be computed (see #compute).
+   * @param limits the memory and time limits for {@link #visitMaxs}.
    */
   MethodWriter(final SymbolTable symbolTable, final int access, final String name,
-          final String descriptor, final @Nullable String signature, final String @Nullable [] exceptions, final int compute) {
+          final String descriptor, final @Nullable String signature, final String @Nullable [] exceptions,
+          final int compute, final ComputeLimits limits) {
     this.symbolTable = symbolTable;
     this.accessFlags = "<init>".equals(name) ? access | Constants.ACC_CONSTRUCTOR : access;
     this.nameIndex = symbolTable.addConstantUtf8(name);
@@ -612,6 +620,7 @@ final class MethodWriter extends MethodVisitor {
       this.exceptionIndexTable = null;
     }
     this.compute = compute;
+    this.limits = limits;
     if (compute != COMPUTE_NOTHING) {
       // Update maxLocals and currentLocals.
       int argumentsSize = Type.getArgumentsAndReturnSizes(descriptor) >> 2;
@@ -745,7 +754,7 @@ final class MethodWriter extends MethodVisitor {
         // This should happen only once, for the implicit first frame (which is explicitly visited
         // in ClassReader if the EXPAND_ASM_INSNS option is used - and COMPUTE_INSERTED_FRAMES
         // can't be set if EXPAND_ASM_INSNS is not used).
-        currentBasicBlock.frame = new CurrentFrame(currentBasicBlock);
+        currentBasicBlock.frame = new CurrentFrame(currentBasicBlock, limits);
         currentBasicBlock.frame.setInputFrameFromDescriptor(
                 symbolTable, accessFlags, descriptor, numLocal);
         currentBasicBlock.frame.accept(this);
@@ -764,7 +773,7 @@ final class MethodWriter extends MethodVisitor {
     else if (type == Opcodes.F_NEW) {
       if (previousFrame == null) {
         int argumentsSize = Type.getArgumentsAndReturnSizes(descriptor) >> 2;
-        Frame implicitFirstFrame = new Frame(new Label());
+        Frame implicitFirstFrame = new Frame(new Label(), limits);
         implicitFirstFrame.setInputFrameFromDescriptor(
                 symbolTable, accessFlags, descriptor, argumentsSize);
         implicitFirstFrame.accept(this);
@@ -1156,7 +1165,7 @@ final class MethodWriter extends MethodVisitor {
         // Record the fact that 'label' is the target of a jump instruction.
         label.getCanonicalInstance().flags |= Label.FLAG_JUMP_TARGET;
         // Add 'label' as a successor of the current basic block.
-        addSuccessorToCurrentBasicBlock(Edge.JUMP, label);
+        addSuccessorToCurrentBasicBlock(0, label);
         if (baseOpcode != Opcodes.GOTO) {
           // The next instruction starts a new basic block (except for GOTO: by default the code
           // following a goto is unreachable - unless there is an explicit label for it - and we
@@ -1235,7 +1244,7 @@ final class MethodWriter extends MethodVisitor {
           return;
         }
         // End the current basic block (with one new successor).
-        addSuccessorToCurrentBasicBlock(Edge.JUMP, label);
+        addSuccessorToCurrentBasicBlock(0, label);
       }
       // Append 'label' at the end of the basic block list.
       if (lastBasicBlock != null) {
@@ -1253,7 +1262,7 @@ final class MethodWriter extends MethodVisitor {
       // Make it the new current basic block.
       currentBasicBlock = label;
       // Here label.frame should be null.
-      label.frame = new Frame(label);
+      label.frame = new Frame(label, limits);
     }
     else if (compute == COMPUTE_INSERTED_FRAMES) {
       if (currentBasicBlock == null) {
@@ -1385,10 +1394,10 @@ final class MethodWriter extends MethodVisitor {
       if (compute == COMPUTE_ALL_FRAMES) {
         currentBasicBlock.frame.execute(Opcodes.LOOKUPSWITCH, 0, null, null);
         // Add all the labels as successors of the current basic block.
-        addSuccessorToCurrentBasicBlock(Edge.JUMP, dflt);
+        addSuccessorToCurrentBasicBlock(0, dflt);
         dflt.getCanonicalInstance().flags |= Label.FLAG_JUMP_TARGET;
         for (Label label : labels) {
-          addSuccessorToCurrentBasicBlock(Edge.JUMP, label);
+          addSuccessorToCurrentBasicBlock(0, label);
           label.getCanonicalInstance().flags |= Label.FLAG_JUMP_TARGET;
         }
       }
@@ -1576,22 +1585,11 @@ final class MethodWriter extends MethodVisitor {
 
   /** Computes all the stack map frames of the method, from scratch. */
   private void computeAllFrames() {
-    // Complete the control flow graph with exception handler blocks.
+    // Make sure we generate a stack map frame for each exception handler.
     Handler handler = firstHandler;
     while (handler != null) {
-      String catchTypeDescriptor = handler.catchTypeDescriptor == null ? "java/lang/Throwable" : handler.catchTypeDescriptor;
-      int catchType = Frame.getAbstractTypeFromInternalName(symbolTable, catchTypeDescriptor);
-      // Mark handlerBlock as an exception handler.
       Label handlerBlock = handler.handlerPc.getCanonicalInstance();
       handlerBlock.flags |= Label.FLAG_JUMP_TARGET;
-      // Add handlerBlock as a successor of all the basic blocks in the exception handler range.
-      Label handlerRangeBlock = handler.startPc.getCanonicalInstance();
-      Label handlerRangeEnd = handler.endPc.getCanonicalInstance();
-      while (handlerRangeBlock != handlerRangeEnd) {
-        handlerRangeBlock.outgoingEdges =
-                new Edge(catchType, handlerBlock, handlerRangeBlock.outgoingEdges);
-        handlerRangeBlock = handlerRangeBlock.nextBasicBlock;
-      }
       handler = handler.nextHandler;
     }
 
@@ -1622,11 +1620,12 @@ final class MethodWriter extends MethodVisitor {
         maxStackSize = maxBlockStackSize;
       }
       // Update the successor blocks of basicBlock in the control flow graph.
+      int numOperations = 0;
       Edge outgoingEdge = basicBlock.outgoingEdges;
       while (outgoingEdge != null) {
         Label successorBlock = outgoingEdge.successor.getCanonicalInstance();
         boolean successorBlockChanged =
-                basicBlock.frame.merge(symbolTable, successorBlock.frame, outgoingEdge.info);
+                basicBlock.frame.merge(symbolTable, successorBlock.frame, 0);
         if (successorBlockChanged && successorBlock.nextListElement == null) {
           // If successorBlock has changed it must be processed. Thus, if it is not already in the
           // list of blocks to process, add it to this list.
@@ -1634,7 +1633,34 @@ final class MethodWriter extends MethodVisitor {
           listOfBlocksToProcess = successorBlock;
         }
         outgoingEdge = outgoingEdge.nextEdge;
+        numOperations += Frame.NUM_OPERATIONS_PER_MERGE + 5;
       }
+      // Also process the implicit successors (the catch block of each covering try/catch).
+      int basicBlockOffset = basicBlock.bytecodeOffset;
+      handler = firstHandler;
+      while (handler != null) {
+        int startOffset = handler.startPc.bytecodeOffset;
+        int endOffset = handler.endPc.bytecodeOffset;
+        if (basicBlockOffset >= startOffset && basicBlockOffset < endOffset) {
+          String catchTypeDescriptor =
+                  handler.catchTypeDescriptor == null
+                          ? "java/lang/Throwable"
+                          : handler.catchTypeDescriptor;
+          int catchType = Frame.getAbstractTypeFromInternalName(symbolTable, catchTypeDescriptor);
+          Label successorBlock = handler.handlerPc.getCanonicalInstance();
+          boolean successorBlockChanged =
+                  basicBlock.frame.merge(symbolTable, successorBlock.frame, catchType);
+          if (successorBlockChanged && successorBlock.nextListElement == null) {
+            // If successorBlock has changed it must be processed, add it to the list.
+            successorBlock.nextListElement = listOfBlocksToProcess;
+            listOfBlocksToProcess = successorBlock;
+          }
+          numOperations += Frame.NUM_OPERATIONS_PER_MERGE + 5;
+        }
+        numOperations += 3;
+        handler = handler.nextHandler;
+      }
+      limits.checkNewOperations(numOperations);
     }
 
     // Loop over all the basic blocks and visit the stack map frames that must be stored in the
@@ -1677,37 +1703,12 @@ final class MethodWriter extends MethodVisitor {
 
   /** Computes the maximum stack size of the method. */
   private void computeMaxStackAndLocal() {
-    // Complete the control flow graph with exception handler blocks.
-    Handler handler = firstHandler;
-    while (handler != null) {
-      Label handlerBlock = handler.handlerPc;
-      Label handlerRangeBlock = handler.startPc;
-      Label handlerRangeEnd = handler.endPc;
-      // Add handlerBlock as a successor of all the basic blocks in the exception handler range.
-      while (handlerRangeBlock != handlerRangeEnd) {
-        if ((handlerRangeBlock.flags & Label.FLAG_SUBROUTINE_CALLER) == 0) {
-          handlerRangeBlock.outgoingEdges =
-                  new Edge(Edge.EXCEPTION, handlerBlock, handlerRangeBlock.outgoingEdges);
-        }
-        else {
-          // If handlerRangeBlock is a JSR block, add handlerBlock after the first two outgoing
-          // edges to preserve the hypothesis about JSR block successors order (see
-          // {@link #visitJumpInsn}).
-          handlerRangeBlock.outgoingEdges.nextEdge.nextEdge =
-                  new Edge(
-                          Edge.EXCEPTION, handlerBlock, handlerRangeBlock.outgoingEdges.nextEdge.nextEdge);
-        }
-        handlerRangeBlock = handlerRangeBlock.nextBasicBlock;
-      }
-      handler = handler.nextHandler;
-    }
-
     // Complete the control flow graph with the successor blocks of subroutines, if needed.
     if (hasSubroutines) {
       // First step: find the subroutines. This step determines, for each basic block, to which
       // subroutine(s) it belongs. Start with the main "subroutine":
       short numSubroutines = 1;
-      firstBasicBlock.markSubroutine(numSubroutines);
+      firstBasicBlock.markSubroutine(numSubroutines, firstHandler, limits);
       // Then, mark the subroutines called by the main subroutine, then the subroutines called by
       // those called by the main subroutine, etc.
       for (short currentSubroutine = 1; currentSubroutine <= numSubroutines; ++currentSubroutine) {
@@ -1718,7 +1719,7 @@ final class MethodWriter extends MethodVisitor {
             Label jsrTarget = basicBlock.outgoingEdges.nextEdge.successor;
             if (jsrTarget.subroutineId == 0) {
               // If this subroutine has not been marked yet, find its basic blocks.
-              jsrTarget.markSubroutine(++numSubroutines);
+              jsrTarget.markSubroutine(++numSubroutines, firstHandler, limits);
             }
           }
           basicBlock = basicBlock.nextBasicBlock;
@@ -1733,7 +1734,7 @@ final class MethodWriter extends MethodVisitor {
           // By construction, jsr targets are stored in the second outgoing edge of basic blocks
           // that ends with a jsr instruction (see {@link #FLAG_SUBROUTINE_CALLER}).
           Label subroutine = basicBlock.outgoingEdges.nextEdge.successor;
-          subroutine.addSubroutineRetSuccessors(basicBlock);
+          subroutine.addSubroutineRetSuccessors(basicBlock, firstHandler, limits);
         }
         basicBlock = basicBlock.nextBasicBlock;
       }
@@ -1769,16 +1770,38 @@ final class MethodWriter extends MethodVisitor {
         // {@link Label#FLAG_SUBROUTINE_CALLER}).
         outgoingEdge = outgoingEdge.nextEdge;
       }
+      int numOperations = 10;
       while (outgoingEdge != null) {
         Label successorBlock = outgoingEdge.successor;
         if (successorBlock.nextListElement == null) {
           successorBlock.inputStackSize =
-                  (short) (outgoingEdge.info == Edge.EXCEPTION ? 1 : inputStackTop + outgoingEdge.info);
+                  (short)
+                          Math.max(
+                                  successorBlock.inputStackSize, inputStackTop + outgoingEdge.stackSizeDelta);
           successorBlock.nextListElement = listOfBlocksToProcess;
           listOfBlocksToProcess = successorBlock;
         }
         outgoingEdge = outgoingEdge.nextEdge;
+        numOperations += 5;
       }
+      // Also process the implicit successors (the catch block of each covering try/catch).
+      int basicBlockOffset = basicBlock.bytecodeOffset;
+      Handler handler = firstHandler;
+      while (handler != null) {
+        int startOffset = handler.startPc.bytecodeOffset;
+        int endOffset = handler.endPc.bytecodeOffset;
+        if (basicBlockOffset >= startOffset && basicBlockOffset < endOffset) {
+          Label successorBlock = handler.handlerPc;
+          if (successorBlock.nextListElement == null) {
+            successorBlock.inputStackSize = (short) Math.max(successorBlock.inputStackSize, 1);
+            successorBlock.nextListElement = listOfBlocksToProcess;
+            listOfBlocksToProcess = successorBlock;
+          }
+        }
+        handler = handler.nextHandler;
+        numOperations += 10;
+      }
+      limits.checkNewOperations(numOperations);
     }
     this.maxStack = maxStackSize;
   }
@@ -1813,7 +1836,7 @@ final class MethodWriter extends MethodVisitor {
   private void endCurrentBasicBlockWithNoSuccessor() {
     if (compute == COMPUTE_ALL_FRAMES) {
       Label nextBasicBlock = new Label();
-      nextBasicBlock.frame = new Frame(nextBasicBlock);
+      nextBasicBlock.frame = new Frame(nextBasicBlock, limits);
       nextBasicBlock.resolve(code.data, stackMapTableEntries, code.length);
       lastBasicBlock.nextBasicBlock = nextBasicBlock;
       lastBasicBlock = nextBasicBlock;
@@ -1840,7 +1863,7 @@ final class MethodWriter extends MethodVisitor {
   int visitFrameStart(final int offset, final int numLocal, final int numStack) {
     int frameLength = 3 + numLocal + numStack;
     if (currentFrame == null || currentFrame.length < frameLength) {
-      currentFrame = new int[frameLength];
+      currentFrame = limits.checkNewIntArray(frameLength);
     }
     currentFrame[0] = offset;
     currentFrame[1] = numLocal;
@@ -1988,6 +2011,402 @@ final class MethodWriter extends MethodVisitor {
       ((Label) type).put(stackMapTableEntries);
     }
   }
+
+  // -----------------------------------------------------------------------------------------------
+  // Utility methods: ASM specific jump instructions
+  // -----------------------------------------------------------------------------------------------
+
+  /**
+   * Changes some jump instructions to ASM specific ones (see {@link Constants}) when necessary. The
+   * goal is to make sure that the ClassReader -&gt; ClassWriter pass in {@link
+   * ClassWriter#replaceAsmInstructions} will not introduce new ASM instructions while replacing the
+   * existing ones. Indeed, during this pass the current ASM jump instructions, if any, will be
+   * replaced with (longer) sequences of standard instructions by the ClassReader. Doing so can
+   * increase the offset of some current standard jump instructions beyond their 2 bytes limit, in
+   * which case the ClassWriter would encode them with ASM specific instructions. To avoid this
+   * issue this method changes the standard jump instructions into ASM specific ones, until a fix
+   * point is reached (note that it only changes some opcodes, without actually resizing or moving
+   * any instruction).
+   */
+  void completeAsmInstructions() {
+    // All jump instructions (including lookup and table switch) use at least 3 bytes.
+    final int maxNumJumpInsns = code.length / 3;
+    // An unordered list of the ASM jump instructions whose replacement impact on the rest of the
+    // code has not been computed yet. This list also includes the lookupswitch and tableswitch
+    // instructions (the replacement of ASM instructions can change their padding, which in turn can
+    // impact some jump instructions). Each element is a bytecode index.
+    int[] asmInsnIndicesToProcess = new int[maxNumJumpInsns];
+    // The actual number of elements in the above list.
+    int numAsmInsnsToProcess = 0;
+    // An unordered list of (index, target, offset) triples. Each element is a standard jump
+    // instruction which might need to be replaced with an ASM specific one (because its offset will
+    // no longer fit in 2 bytes after the replacement of the ASM instructions):
+    // - index is the *current* bytecode index of the jump instruction,
+    // - target is the *current* bytecode index of the jump's target instruction,
+    // - offset is the *final* value of its jump offset (i.e., the value it will have after the ASM
+    //   instructions are replaced in {@link ClassWriter#replaceAsmInstructions()}).
+    // Index and target never change, but offset, initialized to target - index, is updated each
+    // time an ASM instruction in asmInsnIndicesToProcess is processed.
+    //
+    // Note: no instruction other than the ones considered above can be resized in
+    // replaceAsmInstructions(). In particular, because this method preserves the constant pool, no
+    // additional Constants.WIDE opcode need to be inserted.
+    int[] jumpIndices = new int[maxNumJumpInsns];
+    int[] jumpTargets = new int[maxNumJumpInsns];
+    int[] jumpOffsets = new int[maxNumJumpInsns];
+    // The actual number of triplets in the above list.
+    int numJumpInsns = 0;
+
+    // Step 1. Parse the current bytecode to find the standard and ASM specific jump instructions.
+    final byte[] bytecode = code.data;
+    final int bytecodeLength = code.length;
+    int offset = 0;
+    while (offset < bytecodeLength) {
+      int opcode = bytecode[offset] & 0xFF;
+
+      switch (opcode) {
+        case Opcodes.NOP:
+        case Opcodes.ACONST_NULL:
+        case Opcodes.ICONST_M1:
+        case Opcodes.ICONST_0:
+        case Opcodes.ICONST_1:
+        case Opcodes.ICONST_2:
+        case Opcodes.ICONST_3:
+        case Opcodes.ICONST_4:
+        case Opcodes.ICONST_5:
+        case Opcodes.LCONST_0:
+        case Opcodes.LCONST_1:
+        case Opcodes.FCONST_0:
+        case Opcodes.FCONST_1:
+        case Opcodes.FCONST_2:
+        case Opcodes.DCONST_0:
+        case Opcodes.DCONST_1:
+        case Opcodes.IALOAD:
+        case Opcodes.LALOAD:
+        case Opcodes.FALOAD:
+        case Opcodes.DALOAD:
+        case Opcodes.AALOAD:
+        case Opcodes.BALOAD:
+        case Opcodes.CALOAD:
+        case Opcodes.SALOAD:
+        case Opcodes.IASTORE:
+        case Opcodes.LASTORE:
+        case Opcodes.FASTORE:
+        case Opcodes.DASTORE:
+        case Opcodes.AASTORE:
+        case Opcodes.BASTORE:
+        case Opcodes.CASTORE:
+        case Opcodes.SASTORE:
+        case Opcodes.POP:
+        case Opcodes.POP2:
+        case Opcodes.DUP:
+        case Opcodes.DUP_X1:
+        case Opcodes.DUP_X2:
+        case Opcodes.DUP2:
+        case Opcodes.DUP2_X1:
+        case Opcodes.DUP2_X2:
+        case Opcodes.SWAP:
+        case Opcodes.IADD:
+        case Opcodes.LADD:
+        case Opcodes.FADD:
+        case Opcodes.DADD:
+        case Opcodes.ISUB:
+        case Opcodes.LSUB:
+        case Opcodes.FSUB:
+        case Opcodes.DSUB:
+        case Opcodes.IMUL:
+        case Opcodes.LMUL:
+        case Opcodes.FMUL:
+        case Opcodes.DMUL:
+        case Opcodes.IDIV:
+        case Opcodes.LDIV:
+        case Opcodes.FDIV:
+        case Opcodes.DDIV:
+        case Opcodes.IREM:
+        case Opcodes.LREM:
+        case Opcodes.FREM:
+        case Opcodes.DREM:
+        case Opcodes.INEG:
+        case Opcodes.LNEG:
+        case Opcodes.FNEG:
+        case Opcodes.DNEG:
+        case Opcodes.ISHL:
+        case Opcodes.LSHL:
+        case Opcodes.ISHR:
+        case Opcodes.LSHR:
+        case Opcodes.IUSHR:
+        case Opcodes.LUSHR:
+        case Opcodes.IAND:
+        case Opcodes.LAND:
+        case Opcodes.IOR:
+        case Opcodes.LOR:
+        case Opcodes.IXOR:
+        case Opcodes.LXOR:
+        case Opcodes.I2L:
+        case Opcodes.I2F:
+        case Opcodes.I2D:
+        case Opcodes.L2I:
+        case Opcodes.L2F:
+        case Opcodes.L2D:
+        case Opcodes.F2I:
+        case Opcodes.F2L:
+        case Opcodes.F2D:
+        case Opcodes.D2I:
+        case Opcodes.D2L:
+        case Opcodes.D2F:
+        case Opcodes.I2B:
+        case Opcodes.I2C:
+        case Opcodes.I2S:
+        case Opcodes.LCMP:
+        case Opcodes.FCMPL:
+        case Opcodes.FCMPG:
+        case Opcodes.DCMPL:
+        case Opcodes.DCMPG:
+        case Opcodes.IRETURN:
+        case Opcodes.LRETURN:
+        case Opcodes.FRETURN:
+        case Opcodes.DRETURN:
+        case Opcodes.ARETURN:
+        case Opcodes.RETURN:
+        case Opcodes.ARRAYLENGTH:
+        case Opcodes.ATHROW:
+        case Opcodes.MONITORENTER:
+        case Opcodes.MONITOREXIT:
+        case Constants.ILOAD_0:
+        case Constants.ILOAD_1:
+        case Constants.ILOAD_2:
+        case Constants.ILOAD_3:
+        case Constants.LLOAD_0:
+        case Constants.LLOAD_1:
+        case Constants.LLOAD_2:
+        case Constants.LLOAD_3:
+        case Constants.FLOAD_0:
+        case Constants.FLOAD_1:
+        case Constants.FLOAD_2:
+        case Constants.FLOAD_3:
+        case Constants.DLOAD_0:
+        case Constants.DLOAD_1:
+        case Constants.DLOAD_2:
+        case Constants.DLOAD_3:
+        case Constants.ALOAD_0:
+        case Constants.ALOAD_1:
+        case Constants.ALOAD_2:
+        case Constants.ALOAD_3:
+        case Constants.ISTORE_0:
+        case Constants.ISTORE_1:
+        case Constants.ISTORE_2:
+        case Constants.ISTORE_3:
+        case Constants.LSTORE_0:
+        case Constants.LSTORE_1:
+        case Constants.LSTORE_2:
+        case Constants.LSTORE_3:
+        case Constants.FSTORE_0:
+        case Constants.FSTORE_1:
+        case Constants.FSTORE_2:
+        case Constants.FSTORE_3:
+        case Constants.DSTORE_0:
+        case Constants.DSTORE_1:
+        case Constants.DSTORE_2:
+        case Constants.DSTORE_3:
+        case Constants.ASTORE_0:
+        case Constants.ASTORE_1:
+        case Constants.ASTORE_2:
+        case Constants.ASTORE_3:
+          offset += 1;
+          break;
+        case Opcodes.IFEQ:
+        case Opcodes.IFNE:
+        case Opcodes.IFLT:
+        case Opcodes.IFGE:
+        case Opcodes.IFGT:
+        case Opcodes.IFLE:
+        case Opcodes.IF_ICMPEQ:
+        case Opcodes.IF_ICMPNE:
+        case Opcodes.IF_ICMPLT:
+        case Opcodes.IF_ICMPGE:
+        case Opcodes.IF_ICMPGT:
+        case Opcodes.IF_ICMPLE:
+        case Opcodes.IF_ACMPEQ:
+        case Opcodes.IF_ACMPNE:
+        case Opcodes.GOTO:
+        case Opcodes.JSR:
+        case Opcodes.IFNULL:
+        case Opcodes.IFNONNULL:
+          int jumpOffset = readShort(offset + 1);
+          // There can be at most jumpOffset / 3 standard jump, lookup, or table switch
+          // instructions between this instruction and its target (assuming jumpOffset > 0). At
+          // most 5 bytes can be added to each of them if they are changed to ASM instructions and
+          // eventually replaced (or if padding changes). Hence, if maxFinalJumpOffset fits in a
+          // signed short value, this jump instruction will never need to be replaced. Otherwise
+          // it might, and we thus add it to the list. The reasoning is similar if jumpOffset < 0.
+          int maxFinalJumpOffset = jumpOffset + 5 * (jumpOffset / 3);
+          if (maxFinalJumpOffset < Short.MIN_VALUE || maxFinalJumpOffset > Short.MAX_VALUE) {
+            jumpIndices[numJumpInsns] = offset;
+            jumpTargets[numJumpInsns] = offset + jumpOffset;
+            jumpOffsets[numJumpInsns++] = jumpOffset;
+          }
+          offset += 3;
+          break;
+        case Constants.GOTO_W:
+        case Constants.JSR_W:
+          offset += 5;
+          break;
+        case Constants.ASM_IFEQ:
+        case Constants.ASM_IFNE:
+        case Constants.ASM_IFLT:
+        case Constants.ASM_IFGE:
+        case Constants.ASM_IFGT:
+        case Constants.ASM_IFLE:
+        case Constants.ASM_IF_ICMPEQ:
+        case Constants.ASM_IF_ICMPNE:
+        case Constants.ASM_IF_ICMPLT:
+        case Constants.ASM_IF_ICMPGE:
+        case Constants.ASM_IF_ICMPGT:
+        case Constants.ASM_IF_ICMPLE:
+        case Constants.ASM_IF_ACMPEQ:
+        case Constants.ASM_IF_ACMPNE:
+        case Constants.ASM_GOTO:
+        case Constants.ASM_JSR:
+        case Constants.ASM_IFNULL:
+        case Constants.ASM_IFNONNULL:
+          asmInsnIndicesToProcess[numAsmInsnsToProcess++] = offset;
+          offset += 3;
+          break;
+        case Constants.ASM_GOTO_W:
+          asmInsnIndicesToProcess[numAsmInsnsToProcess++] = offset;
+          offset += 5;
+          break;
+        case Constants.WIDE:
+          offset += (bytecode[offset + 1] & 0xFF) == Opcodes.IINC ? 6 : 4;
+          break;
+        case Opcodes.TABLESWITCH:
+          asmInsnIndicesToProcess[numAsmInsnsToProcess++] = offset;
+          // Skip the opcode, plus 0 to 3 padding bytes.
+          offset += 4 - (offset & 3);
+          // Skip the rest of the instruction.
+          int low = readInt(offset + 4);
+          int high = readInt(offset + 8);
+          offset += 12 + 4 * (high - low + 1);
+          break;
+        case Opcodes.LOOKUPSWITCH:
+          asmInsnIndicesToProcess[numAsmInsnsToProcess++] = offset;
+          // Skip the opcode, plus 0 to 3 padding bytes.
+          offset += 4 - (offset & 3);
+          // Skip the rest of the instruction.
+          int numPairs = readInt(offset + 4);
+          offset += 8 + 8 * numPairs;
+          break;
+        case Opcodes.ILOAD:
+        case Opcodes.LLOAD:
+        case Opcodes.FLOAD:
+        case Opcodes.DLOAD:
+        case Opcodes.ALOAD:
+        case Opcodes.ISTORE:
+        case Opcodes.LSTORE:
+        case Opcodes.FSTORE:
+        case Opcodes.DSTORE:
+        case Opcodes.ASTORE:
+        case Opcodes.RET:
+        case Opcodes.BIPUSH:
+        case Opcodes.NEWARRAY:
+        case Opcodes.LDC:
+          offset += 2;
+          break;
+        case Opcodes.SIPUSH:
+        case Constants.LDC_W:
+        case Constants.LDC2_W:
+        case Opcodes.GETSTATIC:
+        case Opcodes.PUTSTATIC:
+        case Opcodes.GETFIELD:
+        case Opcodes.PUTFIELD:
+        case Opcodes.INVOKEVIRTUAL:
+        case Opcodes.INVOKESPECIAL:
+        case Opcodes.INVOKESTATIC:
+        case Opcodes.NEW:
+        case Opcodes.ANEWARRAY:
+        case Opcodes.CHECKCAST:
+        case Opcodes.INSTANCEOF:
+        case Opcodes.IINC:
+          offset += 3;
+          break;
+        case Opcodes.INVOKEINTERFACE:
+        case Opcodes.INVOKEDYNAMIC:
+          offset += 5;
+          break;
+        case Opcodes.MULTIANEWARRAY:
+          offset += 4;
+          break;
+        default:
+          throw new IllegalArgumentException();
+      }
+    }
+
+    // Step 2. Fix point algorithm: process each ASM instruction by changing the standard jumps to
+    // ASM specific ones when needed (which adds new ASM instructions to the queue), and loop until
+    // all ASM instructions have been processed.
+    while (numAsmInsnsToProcess > 0) {
+      final int asmInsnIndex = asmInsnIndicesToProcess[--numAsmInsnsToProcess];
+      final int asmInsnOpcode = bytecode[asmInsnIndex] & 0xFF;
+      // For a table or lookup switch, the padding can increase by at most 3 minus the current
+      // padding (which is 3 - (asmInsnIndex & 3)).
+      final int insertedBytes =
+          asmInsnOpcode == Opcodes.TABLESWITCH || asmInsnOpcode == Opcodes.LOOKUPSWITCH
+              ? asmInsnIndex & 3
+              : (asmInsnOpcode == Constants.ASM_GOTO || asmInsnOpcode == Constants.ASM_JSR ? 2 : 5);
+      int i = 0;
+      while (i < numJumpInsns) {
+        if (jumpIndices[i] < asmInsnIndex && asmInsnIndex < jumpTargets[i]) {
+          jumpOffsets[i] += insertedBytes;
+        }
+        else if (jumpTargets[i] < asmInsnIndex && asmInsnIndex < jumpIndices[i]) {
+          jumpOffsets[i] -= insertedBytes;
+        }
+        if (jumpOffsets[i] < Short.MIN_VALUE || jumpOffsets[i] > Short.MAX_VALUE) {
+          int opcode = bytecode[jumpIndices[i]] & 0xFF;
+          int asmInsn =
+              opcode
+                  + (opcode < Opcodes.IFNULL
+                      ? Constants.ASM_OPCODE_DELTA
+                      : Constants.ASM_IFNULL_OPCODE_DELTA);
+          bytecode[jumpIndices[i]] = (byte) asmInsn;
+          asmInsnIndicesToProcess[numAsmInsnsToProcess++] = jumpIndices[i];
+          --numJumpInsns;
+          jumpIndices[i] = jumpIndices[numJumpInsns];
+          jumpTargets[i] = jumpTargets[numJumpInsns];
+          jumpOffsets[i] = jumpOffsets[numJumpInsns];
+        }
+        else {
+          ++i;
+        }
+      }
+    }
+  }
+
+  /**
+   * Reads a signed short value in {@link code}.
+   *
+   * @param offset the start offset of the value to read.
+   * @return the read value.
+   */
+  private short readShort(final int offset) {
+    final byte[] bytecode = code.data;
+    return (short) (((bytecode[offset] & 0xFF) << 8) | (bytecode[offset + 1] & 0xFF));
+  }
+
+  /**
+   * Reads a signed integer value in {@link code}.
+   *
+   * @param offset the start offset of the value to read.
+   * @return the read value.
+   */
+  private int readInt(final int offset) {
+    final byte[] bytecode = code.data;
+    return ((bytecode[offset] & 0xFF) << 24)
+        | ((bytecode[offset + 1] & 0xFF) << 16)
+        | ((bytecode[offset + 2] & 0xFF) << 8)
+        | (bytecode[offset + 3] & 0xFF);
+  }
+
 
   // -----------------------------------------------------------------------------------------------
   // Utility methods

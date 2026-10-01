@@ -24,7 +24,6 @@ import java.time.Duration;
 import java.util.Objects;
 
 import infra.core.style.ToStringBuilder;
-import infra.util.Assert;
 import infra.util.ObjectUtils;
 
 /**
@@ -97,7 +96,7 @@ public final class ServerSentEvent<T extends @Nullable Object> {
 
   /**
    * Return a StringBuilder with the id, event, retry, and comment fields fully
-   * serialized, and also appending "data:" if there is data.
+   * serialized, and also appending "data: " if there is data.
    *
    * @since 5.0
    */
@@ -114,41 +113,17 @@ public final class ServerSentEvent<T extends @Nullable Object> {
     }
     if (this.comment != null) {
       sb.append(':');
-      appendEscaped(this.comment, "\n:", sb);
+      SseUtils.appendFieldValue("", this.comment, sb);
       sb.append('\n');
     }
     if (this.data != null) {
-      sb.append("data:");
+      sb.append("data: ");
     }
     return sb.toString();
   }
 
   private void appendAttribute(String fieldName, Object fieldValue, StringBuilder sb) {
     sb.append(fieldName).append(':').append(fieldValue).append('\n');
-  }
-
-  private void appendEscaped(String input, String replacement, StringBuilder sb) {
-    if (input.indexOf('\n') == -1 && input.indexOf('\r') == -1) {
-      sb.append(input);
-    }
-    else {
-      int length = input.length();
-      for (int i = 0; i < length; i++) {
-        char c = input.charAt(i);
-        if (c == '\r') {
-          if (i + 1 < length && input.charAt(i + 1) == '\n') {
-            i++;
-          }
-          sb.append(replacement);
-        }
-        else if (c == '\n') {
-          sb.append(replacement);
-        }
-        else {
-          sb.append(c);
-        }
-      }
-    }
   }
 
   @Override
@@ -274,14 +249,14 @@ public final class ServerSentEvent<T extends @Nullable Object> {
 
     @Override
     public Builder<T> id(String id) {
-      checkEvent(id);
+      SseUtils.assertNoLineSeparator(id);
       this.id = id;
       return this;
     }
 
     @Override
     public Builder<T> event(String event) {
-      checkEvent(event);
+      SseUtils.assertNoLineSeparator(event);
       this.event = event;
       return this;
     }
@@ -309,10 +284,6 @@ public final class ServerSentEvent<T extends @Nullable Object> {
       return new ServerSentEvent<>(this.id, this.event, this.retry, this.comment, this.data);
     }
 
-    private static void checkEvent(String content) {
-      Assert.isTrue(content.indexOf('\n') == -1 && content.indexOf('\r') == -1,
-              "illegal character '\\n' or '\\r' in event content");
-    }
   }
 
 }

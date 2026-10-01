@@ -191,6 +191,12 @@ class Frame {
   private static final int NULL = CONSTANT_KIND | ITEM_NULL;
   private static final int UNINITIALIZED_THIS = CONSTANT_KIND | ITEM_UNINITIALIZED_THIS;
 
+  /**
+   * Approximate number of "operations" done in {@link #merge(SymbolTable, int, int[], int)}, for
+   * {@link ComputeLimits}.
+   */
+  static final int NUM_OPERATIONS_PER_MERGE = 50;
+
   // -----------------------------------------------------------------------------------------------
   // Instance fields
   // -----------------------------------------------------------------------------------------------
@@ -221,9 +227,6 @@ class Frame {
   /** The index of the top stack element in {@link #outputStack}. */
   private short outputStackTop;
 
-  /** The number of types that are initialized in the basic block. See {@link #initializations}. */
-  private int initializationCount;
-
   /**
    * The abstract types that are initialized in the basic block. A constructor invocation on an
    * UNINITIALIZED, FORWARD_UNINITIALIZED or UNINITIALIZED_THIS abstract type must replace <i>every
@@ -233,8 +236,14 @@ class Frame {
    * types of the constructors which are invoked in the basic block, in order to do this replacement
    * during the second step of the algorithm, where the frames are fully computed. Note that this
    * array can contain abstract types that are relative to the input locals or to the input stack.
+   *
+   * <p>The first element is the actual number n of abstract types in this array (at indices 1 to n
+   * included). Maybe {@literal null}.
    */
   private int @Nullable [] initializations;
+
+  /** The memory and time limits to compute the stack map frames. */
+  final ComputeLimits limits;
 
   // -----------------------------------------------------------------------------------------------
   // Constructor
@@ -244,9 +253,11 @@ class Frame {
    * Constructs a new Frame.
    *
    * @param owner the basic block to which these input and output stack map frames correspond.
+   * @param limits the memory and time limits to compute the stack map frames.
    */
-  Frame(final Label owner) {
+  Frame(final Label owner, final ComputeLimits limits) {
     this.owner = owner;
+    this.limits = limits;
   }
 
   /**
@@ -264,7 +275,6 @@ class Frame {
     outputLocals = frame.outputLocals;
     outputStack = frame.outputStack;
     outputStackTop = frame.outputStackTop;
-    initializationCount = frame.initializationCount;
     initializations = frame.initializations;
   }
 
@@ -459,7 +469,7 @@ class Frame {
         ++numStackTop;
       }
     }
-    inputStack = new int[numStack + numStackTop];
+    inputStack = limits.checkNewIntArray(numStack + numStackTop);
     int inputStackIndex = 0;
     for (int i = 0; i < numStack; ++i) {
       inputStack[inputStackIndex++] = getAbstractTypeFromApiFormat(symbolTable, stack[i]);
@@ -468,7 +478,7 @@ class Frame {
       }
     }
     outputStackTop = 0;
-    initializationCount = 0;
+    initializations = null;
   }
 
   final int getInputStackSize() {
@@ -511,11 +521,12 @@ class Frame {
   private void setLocal(final int localIndex, final int abstractType) {
     // Create and/or resize the output local variables array if necessary.
     if (outputLocals == null) {
-      outputLocals = new int[10];
+      outputLocals = limits.checkNewIntArray(10);
     }
     int outputLocalsLength = outputLocals.length;
     if (localIndex >= outputLocalsLength) {
-      int[] newOutputLocals = new int[Math.max(localIndex + 1, 2 * outputLocalsLength)];
+      int[] newOutputLocals =
+              limits.checkNewIntArray(Math.max(localIndex + 1, 2 * outputLocalsLength));
       System.arraycopy(outputLocals, 0, newOutputLocals, 0, outputLocalsLength);
       outputLocals = newOutputLocals;
     }
@@ -531,11 +542,12 @@ class Frame {
   private void push(final int abstractType) {
     // Create and/or resize the output stack array if necessary.
     if (outputStack == null) {
-      outputStack = new int[10];
+      outputStack = limits.checkNewIntArray(10);
     }
     int outputStackLength = outputStack.length;
     if (outputStackTop >= outputStackLength) {
-      int[] newOutputStack = new int[Math.max(outputStackTop + 1, 2 * outputStackLength)];
+      int[] newOutputStack =
+              limits.checkNewIntArray(Math.max(outputStackTop + 1, 2 * outputStackLength));
       System.arraycopy(outputStack, 0, newOutputStack, 0, outputStackLength);
       outputStack = newOutputStack;
     }
@@ -630,17 +642,20 @@ class Frame {
   private void addInitializedType(final int abstractType) {
     // Create and/or resize the initializations array if necessary.
     if (initializations == null) {
-      initializations = new int[2];
+      initializations = limits.checkNewIntArray(3);
     }
-    int initializationsLength = initializations.length;
-    if (initializationCount >= initializationsLength) {
+    int initializationCount = initializations[0];
+    int initializationsCapacity = initializations.length - 1;
+    if (initializationCount >= initializationsCapacity) {
       int[] newInitializations =
-              new int[Math.max(initializationCount + 1, 2 * initializationsLength)];
-      System.arraycopy(initializations, 0, newInitializations, 0, initializationsLength);
+              limits.checkNewIntArray(
+                      Math.max(initializationCount + 2, 2 * initializationsCapacity + 1));
+      System.arraycopy(initializations, 0, newInitializations, 0, initializationsCapacity + 1);
       initializations = newInitializations;
     }
     // Store the abstract type.
-    initializations[initializationCount++] = abstractType;
+    initializations[initializationCount + 1] = abstractType;
+    initializations[0]++;
   }
 
   /**
@@ -654,11 +669,13 @@ class Frame {
    * abstractType.
    */
   private int getInitializedType(final SymbolTable symbolTable, final int abstractType) {
-    if (abstractType == UNINITIALIZED_THIS
+    if (initializations != null
+            && (abstractType == UNINITIALIZED_THIS
             || (abstractType & (DIM_MASK | KIND_MASK)) == UNINITIALIZED_KIND
-            || (abstractType & (DIM_MASK | KIND_MASK)) == FORWARD_UNINITIALIZED_KIND) {
+            || (abstractType & (DIM_MASK | KIND_MASK)) == FORWARD_UNINITIALIZED_KIND)) {
+      int initializationCount = initializations[0];
       for (int i = 0; i < initializationCount; ++i) {
-        int initializedType = initializations[i];
+        int initializedType = initializations[i + 1];
         int dim = initializedType & DIM_MASK;
         int kind = initializedType & KIND_MASK;
         int value = initializedType & VALUE_MASK;
@@ -1192,9 +1209,11 @@ class Frame {
     int numLocal = inputLocals.length;
     int numStack = inputStack.length;
     if (dstFrame.inputLocals == null) {
-      dstFrame.inputLocals = new int[numLocal];
+      dstFrame.inputLocals = limits.checkNewIntArray(numLocal);
       frameChanged = true;
     }
+
+    int numMerges = 0;
     for (int i = 0; i < numLocal; ++i) {
       int concreteOutputType;
       if (outputLocals != null && i < outputLocals.length) {
@@ -1221,6 +1240,7 @@ class Frame {
       }
       frameChanged |= merge(symbolTable, concreteOutputType, dstFrame.inputLocals, i);
     }
+    numMerges += numLocal;
 
     // If dstFrame is an exception handler block, it can be reached from any instruction of the
     // basic block corresponding to this frame, in particular from the first one. Therefore, the
@@ -1232,10 +1252,12 @@ class Frame {
         frameChanged |= merge(symbolTable, inputLocals[i], dstFrame.inputLocals, i);
       }
       if (dstFrame.inputStack == null) {
-        dstFrame.inputStack = new int[1];
+        dstFrame.inputStack = limits.checkNewIntArray(1);
         frameChanged = true;
       }
       frameChanged |= merge(symbolTable, catchTypeIndex, dstFrame.inputStack, 0);
+      numMerges += numLocal + 1;
+      limits.checkNewOperations(numMerges * NUM_OPERATIONS_PER_MERGE);
       return frameChanged;
     }
 
@@ -1244,7 +1266,7 @@ class Frame {
     // those of the stack operands in the input frame of dstFrame.
     int numInputStack = inputStack.length + outputStackStart;
     if (dstFrame.inputStack == null) {
-      dstFrame.inputStack = new int[numInputStack + outputStackTop];
+      dstFrame.inputStack = limits.checkNewIntArray(numInputStack + outputStackTop);
       frameChanged = true;
     }
     // First, do this for the stack operands that have not been popped in the basic block
@@ -1257,6 +1279,7 @@ class Frame {
       }
       frameChanged |= merge(symbolTable, concreteOutputType, dstFrame.inputStack, i);
     }
+    numMerges += numInputStack;
     // Then, do this for the stack operands that have pushed in the basic block (this code is the
     // same as the one above for local variables).
     for (int i = 0; i < outputStackTop; ++i) {
@@ -1268,6 +1291,8 @@ class Frame {
       frameChanged |=
               merge(symbolTable, concreteOutputType, dstFrame.inputStack, numInputStack + i);
     }
+    numMerges += outputStackTop;
+    limits.checkNewOperations(numMerges * NUM_OPERATIONS_PER_MERGE);
     return frameChanged;
   }
 

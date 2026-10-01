@@ -24,6 +24,7 @@ import java.io.Serializable;
 
 import infra.beans.BeanWrapper;
 import infra.beans.ConfigurablePropertyAccessor;
+import infra.util.Assert;
 
 /**
  * Default implementation of the {@link Errors} and {@link BindingResult}
@@ -37,6 +38,7 @@ import infra.beans.ConfigurablePropertyAccessor;
  * {@link DataBinder#getBindingResult()}.
  *
  * @author Juergen Hoeller
+ * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see DataBinder#getBindingResult()
  * @see DataBinder#initBeanPropertyAccess()
@@ -52,6 +54,8 @@ public class BeanPropertyBindingResult extends AbstractPropertyBindingResult imp
   private final boolean autoGrowNestedPaths;
 
   private final int autoGrowCollectionLimit;
+
+  private final int maxNestedPathDepth;
 
   @Nullable
   private transient BeanWrapper beanWrapper;
@@ -77,10 +81,28 @@ public class BeanPropertyBindingResult extends AbstractPropertyBindingResult imp
   public BeanPropertyBindingResult(@Nullable Object target, String objectName,
           boolean autoGrowNestedPaths, int autoGrowCollectionLimit) {
 
+    this(target, objectName, autoGrowNestedPaths, autoGrowCollectionLimit,
+            ConfigurablePropertyAccessor.DEFAULT_MAX_NESTED_PATH_DEPTH);
+  }
+
+  /**
+   * Create a result with a custom nested property path depth limit.
+   * @param target the target bean to bind onto
+   * @param objectName the name of the target object
+   * @param autoGrowNestedPaths whether to auto-grow null nested paths
+   * @param autoGrowCollectionLimit the collection auto-growing limit
+   * @param maxNestedPathDepth the non-negative maximum nesting depth
+   * @since 5.0
+   */
+  public BeanPropertyBindingResult(@Nullable Object target, String objectName,
+          boolean autoGrowNestedPaths, int autoGrowCollectionLimit, int maxNestedPathDepth) {
+
     super(objectName);
+    Assert.isTrue(maxNestedPathDepth >= 0, "'maxNestedPathDepth' must not be negative");
     this.target = target;
     this.autoGrowNestedPaths = autoGrowNestedPaths;
     this.autoGrowCollectionLimit = autoGrowCollectionLimit;
+    this.maxNestedPathDepth = maxNestedPathDepth;
   }
 
   @Override
@@ -102,6 +124,7 @@ public class BeanPropertyBindingResult extends AbstractPropertyBindingResult imp
       this.beanWrapper.setExtractOldValueForEditor(true);
       this.beanWrapper.setAutoGrowNestedPaths(this.autoGrowNestedPaths);
       this.beanWrapper.setAutoGrowCollectionLimit(this.autoGrowCollectionLimit);
+      this.beanWrapper.setMaxNestedPathDepth(this.maxNestedPathDepth);
     }
     return this.beanWrapper;
   }

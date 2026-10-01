@@ -141,7 +141,11 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
       Set<String> methods = helper.getAllowedMethods();
       if (HttpMethod.OPTIONS == request.getMethod()) {
         Set<MediaType> mediaTypes = helper.getConsumablePatchMediaTypes();
-        HttpOptionsHandler handler = new HttpOptionsHandler(methods, mediaTypes);
+        HttpOptionsHandler handler = new HttpOptionsHandler(methods, mediaTypes, helper.getConsumableQueryMediaTypes());
+        return new HandlerMethod(handler, HTTP_OPTIONS_HANDLE_METHOD);
+      }
+      if (request.getMethod() == HttpMethod.HEAD && methods.contains(HttpMethod.QUERY.name())) {
+        HttpOptionsHandler handler = new HttpOptionsHandler(methods, Set.of(), helper.getConsumableQueryMediaTypes());
         return new HandlerMethod(handler, HTTP_OPTIONS_HANDLE_METHOD);
       }
       throw new HttpRequestMethodNotSupportedException(request.getMethodAsString(), methods);
@@ -309,10 +313,18 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
      * PATCH specified, or that have no methods at all.
      */
     public Set<MediaType> getConsumablePatchMediaTypes() {
+      return getConsumableMediaTypes(HttpMethod.PATCH);
+    }
+
+    public Set<MediaType> getConsumableQueryMediaTypes() {
+      return getConsumableMediaTypes(HttpMethod.QUERY);
+    }
+
+    private Set<MediaType> getConsumableMediaTypes(HttpMethod method) {
       LinkedHashSet<MediaType> result = new LinkedHashSet<>();
       for (PartialMatch match : this.partialMatches) {
         Set<HttpMethod> methods = match.info.getMethodsCondition().getMethods();
-        if (methods.isEmpty() || methods.contains(HttpMethod.PATCH)) {
+        if (methods.isEmpty() || methods.contains(method)) {
           result.addAll(match.info.getConsumesCondition().getConsumableMediaTypes());
         }
       }
@@ -374,9 +386,10 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 
     private final HttpHeaders headers = HttpHeaders.forWritable();
 
-    public HttpOptionsHandler(Set<String> declaredMethods, Set<MediaType> acceptPatch) {
+    public HttpOptionsHandler(Set<String> declaredMethods, Set<MediaType> acceptPatch, Set<MediaType> acceptQuery) {
       this.headers.setAllow(initAllowedHttpMethods(declaredMethods));
       this.headers.setAcceptPatch(acceptPatch);
+      this.headers.setAcceptQuery(acceptQuery);
     }
 
     private static Set<HttpMethod> initAllowedHttpMethods(Set<String> declaredMethods) {
@@ -392,7 +405,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
         for (String method : declaredMethods) {
           HttpMethod httpMethod = HttpMethod.valueOf(method);
           result.add(httpMethod);
-          if (httpMethod == HttpMethod.GET) {
+          if (httpMethod == HttpMethod.GET || httpMethod == HttpMethod.QUERY) {
             result.add(HttpMethod.HEAD);
           }
         }

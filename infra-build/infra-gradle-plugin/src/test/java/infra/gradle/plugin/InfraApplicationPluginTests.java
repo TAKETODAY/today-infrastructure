@@ -37,6 +37,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ClassPathExclusions("kotlin-daemon-client-*.jar")
 class InfraApplicationPluginTests {
 
+  @Test
+  void developmentConfigurationsHaveRuntimeAttributesAndCannotBeConsumed() {
+    Project project = GradleProjectBuilder.builder().withProjectDir(this.temp).build();
+    project.getPlugins().apply("java");
+    project.getPlugins().apply(InfraApplicationPlugin.class);
+    Configuration runtime = project.getConfigurations().getByName("runtimeClasspath");
+    for (String name : new String[] { "developmentOnly", "testAndDevelopmentOnly" }) {
+      Configuration configuration = project.getConfigurations().getByName(name);
+      assertThat(configuration.isCanBeConsumed()).isFalse();
+      assertThat(configuration.getAttributes().keySet()).isEqualTo(runtime.getAttributes().keySet());
+      for (var attribute : runtime.getAttributes().keySet()) {
+        assertThat(configuration.getAttributes().getAttribute(attribute)).isEqualTo(runtime.getAttributes().getAttribute(attribute));
+      }
+    }
+  }
+
   @TempDir
   File temp;
 

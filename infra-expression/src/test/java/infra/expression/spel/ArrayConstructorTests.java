@@ -116,6 +116,16 @@ public class ArrayConstructorTests extends AbstractExpressionTests {
     evaluate("new String[3][2][1]",
             "[[Ljava.lang.String;[3]{[2]{[1]{null},[1]{null}},[2]{[1]{null},[1]{null}},[2]{[1]{null},[1]{null}}}",
             String[][][].class);
+    // One root array and 262142 sub-arrays remain below the threshold.
+    evaluate("new int[262142][1].length", 262142, Integer.class);
+  }
+
+  @Test
+  void totalArrayObjectsAreLimited() {
+    int threshold = 256 * 1024;
+    evaluateAndCheckError("new int[262143][1]", SpelMessage.MAX_ARRAY_ELEMENTS_THRESHOLD_EXCEEDED, 0, threshold);
+    evaluateAndCheckError("new int[262143][1][1][1][1][1][1][1][1][1][1]",
+            SpelMessage.MAX_ARRAY_ELEMENTS_THRESHOLD_EXCEEDED, 0, threshold);
   }
 
   @Test

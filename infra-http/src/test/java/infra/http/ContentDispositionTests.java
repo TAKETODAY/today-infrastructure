@@ -189,6 +189,15 @@ class ContentDispositionTests {
     }
 
     @Test
+    void parseBackslashInName() {
+      String value = "form-data; name=\"foo\\\"bar\"; filename=\"foo.txt\"";
+      ContentDisposition disposition = ContentDisposition.parse(value);
+      assertThat(disposition.getName()).isEqualTo("foo\"bar");
+      assertThat(disposition.getFilename()).isEqualTo("foo.txt");
+      assertThat(disposition.toString()).isEqualTo(value);
+    }
+
+    @Test
     void parseBackslashInLastPosition() {
       ContentDisposition cd = ContentDisposition.parse("form-data; name=\"foo\"; filename=\"bar\\\"");
       assertThat(cd.getName()).isEqualTo("foo");

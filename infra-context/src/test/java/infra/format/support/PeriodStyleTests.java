@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  *
  * @author Eddú Meléndez
  * @author Edson Chávez
+ * @author Yingzi Zhang
  */
 class PeriodStyleTests {
 
@@ -219,6 +220,11 @@ class PeriodStyleTests {
   void printSimpleWhenZeroWithUnitShouldPrintInUnit() {
     Period period = Period.ofYears(0);
     assertThat(PeriodStyle.SIMPLE.print(period, ChronoUnit.YEARS)).isEqualTo("0y");
+  }
+
+  @Test
+  void printSimpleWhenZeroWithWeeksUnitShouldPrintInWeeks() {
+    assertThat(PeriodStyle.SIMPLE.print(Period.ZERO, ChronoUnit.WEEKS)).isEqualTo("0w");
   }
 
   @Test

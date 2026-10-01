@@ -24,16 +24,19 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.http.HttpStatus;
 import infra.web.HttpContext;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.RedirectModel;
+import infra.web.server.ResponseStatusException;
 import infra.web.view.ModelAndView;
 import infra.web.view.PathPatternsParameterizedTest;
 import infra.web.view.PathPatternsTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -53,6 +56,24 @@ class UrlFilenameViewControllerTests {
     ModelAndView mv = (ModelAndView) controller.handleRequest(request);
     assertThat(mv.getViewName()).isEqualTo("index");
     assertThat(mv.getModel().isEmpty()).isTrue();
+  }
+
+  @PathPatternsParameterizedTest
+  void withRedirectPrefix(Function<String, HttpContext> requestFactory) {
+    UrlFilenameViewController controller = new UrlFilenameViewController();
+    HttpContext request = requestFactory.apply("/redirect:index");
+    assertThatExceptionOfType(ResponseStatusException.class)
+            .isThrownBy(() -> controller.handleRequest(request))
+            .satisfies(ex -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST));
+  }
+
+  @PathPatternsParameterizedTest
+  void withForwardPrefix(Function<String, HttpContext> requestFactory) {
+    UrlFilenameViewController controller = new UrlFilenameViewController();
+    HttpContext request = requestFactory.apply("/forward:index");
+    assertThatExceptionOfType(ResponseStatusException.class)
+            .isThrownBy(() -> controller.handleRequest(request))
+            .satisfies(ex -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST));
   }
 
   @PathPatternsParameterizedTest

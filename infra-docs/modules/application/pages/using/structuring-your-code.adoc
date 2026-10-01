@@ -1,0 +1,55 @@
+[[using.structuring-your-code]]
+= 组织代码
+
+TODAY INFRA 不要求特定的代码目录布局，但遵循以下实践有助于限制扫描范围并保持结构清晰。
+
+== 避免默认包
+
+没有 `package` 声明的类属于默认包。通常应避免使用默认包。
+对于使用 `@ComponentScan`、`@ConfigurationPropertiesScan` 或 `@InfraApplication` 的应用，默认包可能使扫描范围扩展到依赖 JAR 中的类。
+
+TIP: 遵循 Java 包命名约定，使用反向域名，例如 `com.example.project`。
+
+== 放置主应用类
+
+建议把主应用类放在其他应用类所在包的上层根包中。
+主类通常使用 xref:using/using-the-infraapplication-annotation.adoc[`@InfraApplication`]；其中的组件扫描默认从主类所在包开始。
+根包布局能使组件扫描集中在自己的项目中。
+自动配置包由 `@EnableAutoConfiguration` 注册，供需要默认扫描包的自动配置使用；它与组件扫描包是不同的概念。
+
+如果不使用 `@InfraApplication`，可以单独声明 `@EnableAutoConfiguration` 和 `@ComponentScan`。
+
+[source,text]
+----
+com.example.myapplication
+  MyApplication.java
+  customer/
+    Customer.java
+    CustomerController.java
+    CustomerService.java
+    CustomerRepository.java
+  order/
+    Order.java
+    OrderController.java
+    OrderService.java
+    OrderRepository.java
+----
+
+`MyApplication.java` 声明 `main` 方法和应用注解：
+
+[source,java]
+----
+package com.example.myapplication;
+
+import infra.app.Application;
+import infra.app.InfraApplication;
+
+@InfraApplication
+public class MyApplication {
+
+  public static void main(String[] args) {
+    Application.run(MyApplication.class, args);
+  }
+
+}
+----

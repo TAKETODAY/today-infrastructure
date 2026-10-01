@@ -79,6 +79,26 @@ import static org.assertj.core.api.Assertions.entry;
  */
 class MergedAnnotationsTests {
 
+  @Test
+  void synthesizeShouldNotSynthesizeMetaAnnotationsWithNonOverriddenAttributes() {
+    PlainAttributeMetaAnnotation annotation = MergedAnnotations.from(ComponentWithPlainAttributeMetaAnnotation.class)
+            .get(PlainAttributeMetaAnnotation.class).synthesize();
+    assertThat(annotation.value()).isEqualTo("enigma");
+    assertNotSynthesized(annotation);
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+  @interface PlainAttributeMetaAnnotation {
+    String value() default "enigma";
+  }
+
+  @PlainAttributeMetaAnnotation
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+  @interface ComposedPlainAttributeAnnotation { }
+
+  @ComposedPlainAttributeAnnotation
+  static class ComponentWithPlainAttributeMetaAnnotation { }
+
   /**
    * Subset (and duplication) of other tests in {@link MergedAnnotationsTests}
    * that verify behavior of the fluent {@link Search} API.
@@ -586,6 +606,19 @@ class MergedAnnotationsTests {
     assertThat(annotation.getStringArray("locations")).isEqualTo(expected);
     assertThat(annotation.getStringArray("value")).isEqualTo(expected);
     assertThat(annotation.getClassArray("classes")).isEmpty();
+  }
+
+  @Test
+  void getWithSingleValuePrimitiveAttributesOverridingPrimitiveArraysViaAliasFor() {
+    MergedAnnotation<PrimitiveArrays> annotation = MergedAnnotations.from(ComposedPrimitiveSingleValuesClass.class)
+            .get(PrimitiveArrays.class);
+    assertThat(annotation.isPresent()).isTrue();
+    assertThat(annotation.getIntArray("ints")).containsExactly(42);
+    assertThat(annotation.getLongArray("longs")).containsExactly(42L);
+    assertThat(annotation.getBooleanArray("booleans")).containsExactly(true);
+    assertThat(annotation.getCharArray("chars")).containsExactly('c');
+    assertThat(annotation.getDoubleArray("doubles")).containsExactly(4.2d);
+    assertThat(annotation.synthesize().ints()).containsExactly(42);
   }
 
   @Test
@@ -2041,16 +2074,40 @@ class MergedAnnotationsTests {
   }
 
   @Test
+  void toStringForSynthesizedAnnotationsWithNonFiniteFloatingPointValues() {
+    Map<String, Object> attributes = Map.of(
+            "name", "test",
+            "floatValue", Float.NaN,
+            "doubleValue", Double.NaN);
+    RequestMapping mapping = MergedAnnotation.valueOf(RequestMapping.class, attributes).synthesize();
+    assertThat(mapping).asString().contains("floatValue=0.0f/0.0f", "doubleValue=0.0/0.0");
+
+    attributes = Map.of(
+            "name", "test",
+            "floatValue", Float.POSITIVE_INFINITY,
+            "doubleValue", Double.POSITIVE_INFINITY);
+    mapping = MergedAnnotation.valueOf(RequestMapping.class, attributes).synthesize();
+    assertThat(mapping).asString().contains("floatValue=1.0f/0.0f", "doubleValue=1.0/0.0");
+
+    attributes = Map.of(
+            "name", "test",
+            "floatValue", Float.NEGATIVE_INFINITY,
+            "doubleValue", Double.NEGATIVE_INFINITY);
+    mapping = MergedAnnotation.valueOf(RequestMapping.class, attributes).synthesize();
+    assertThat(mapping).asString().contains("floatValue=-1.0f/0.0f", "doubleValue=-1.0/0.0");
+  }
+
+  @Test
   void toStringForSynthesizedAnnotationsWithSingleValueAttributes() {
     MyRepeatable myRepeatable = MergedAnnotations.from(SingleMyRepeatableClass.class)
             .get(MyRepeatable.class).synthesize();
     assertThat(myRepeatable).asString()
-            .isEqualTo("@%s('meta')", MyRepeatable.class.getCanonicalName());
+            .isEqualTo("@%s(\"meta\")", MyRepeatable.class.getCanonicalName());
 
     ValueAttribute valueAttribute = MergedAnnotations.from(ValueAttributeMetaMetaClass.class)
             .get(ValueAttribute.class).synthesize();
     assertThat(valueAttribute).asString()
-            .isEqualTo("@%s(['FromValueAttributeMeta'])", ValueAttribute.class.getCanonicalName());
+            .isEqualTo("@%s({\"FromValueAttributeMeta\"})", ValueAttribute.class.getCanonicalName());
   }
 
   @Test
@@ -2238,6 +2295,44 @@ class MergedAnnotationsTests {
   @TransactionalComponent
   @Retention(RetentionPolicy.RUNTIME)
   @interface ComposedTransactionalComponent {
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface PrimitiveArrays {
+
+    int[] ints() default {};
+
+    long[] longs() default {};
+
+    boolean[] booleans() default {};
+
+    char[] chars() default {};
+
+    double[] doubles() default {};
+  }
+
+  @PrimitiveArrays
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ComposedPrimitiveSingleValues {
+
+    @AliasFor(annotation = PrimitiveArrays.class, attribute = "ints")
+    int anInt() default 0;
+
+    @AliasFor(annotation = PrimitiveArrays.class, attribute = "longs")
+    long aLong() default 0L;
+
+    @AliasFor(annotation = PrimitiveArrays.class, attribute = "booleans")
+    boolean aBoolean() default false;
+
+    @AliasFor(annotation = PrimitiveArrays.class, attribute = "chars")
+    char aChar() default 'x';
+
+    @AliasFor(annotation = PrimitiveArrays.class, attribute = "doubles")
+    double aDouble() default 0.0d;
+  }
+
+  @ComposedPrimitiveSingleValues(anInt = 42, aLong = 42L, aBoolean = true, aChar = 'c', aDouble = 4.2d)
+  static class ComposedPrimitiveSingleValuesClass {
   }
 
   static class NonAnnotatedClass {

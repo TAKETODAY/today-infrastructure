@@ -86,6 +86,7 @@ class InfraArchiveSupport {
     this.librarySpec = librarySpec;
     this.compressionResolver = compressionResolver;
     this.requiresUnpack.include(Specs.satisfyNone());
+    this.exclusions.exclude("**/META-INF/additional-infra-configuration-metadata.json");
   }
 
   void configureManifest(Manifest manifest, String mainClass, String classes, String lib, String classPathIndex,

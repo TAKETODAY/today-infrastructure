@@ -448,7 +448,7 @@ public final class PropertyMapper {
        * @param consumer the consumer that should accept the value if it's not been
        * filtered
        */
-      public void to(Consumer<@Nullable ? super T> consumer) {
+      public void to(Consumer<? super @Nullable T> consumer) {
         Assert.notNull(consumer, "'consumer' is required");
         T value = getValue();
         if (value == null || test(value)) {

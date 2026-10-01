@@ -21,6 +21,7 @@ package infra.beans.factory.support;
 import org.jspecify.annotations.Nullable;
 
 import java.beans.PropertyEditor;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -74,6 +75,7 @@ import infra.core.AttributeAccessor;
 import infra.core.DecoratingClassLoader;
 import infra.core.NamedThreadLocal;
 import infra.core.ResolvableType;
+import infra.core.ParameterizedTypeReference;
 import infra.core.StringValueResolver;
 import infra.core.conversion.ConversionService;
 import infra.core.metrics.ApplicationStartup;
@@ -204,6 +206,17 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
   @SuppressWarnings("NullAway")
   public <T> T getBean(String name, Class<T> requiredType) {
     return doGetBean(name, requiredType, null, false);
+  }
+
+  @Override
+  @SuppressWarnings({ "unchecked", "NullAway" })
+  public <T> T getBean(String name, ParameterizedTypeReference<T> typeReference) {
+    Object bean = getBean(name);
+    Type requiredType = typeReference.getType();
+    if (!isTypeMatch(name, ResolvableType.forType(requiredType), true)) {
+      throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
+    }
+    return (T) bean;
   }
 
   @Nullable

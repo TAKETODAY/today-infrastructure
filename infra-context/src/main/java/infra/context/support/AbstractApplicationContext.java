@@ -1243,6 +1243,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     return getBeanFactory().getBean(name, requiredType);
   }
 
+  @Override
+  public <T> T getBean(String name, infra.core.ParameterizedTypeReference<T> typeReference) {
+    assertBeanFactoryActive();
+    return getBeanFactory().getBean(name, typeReference);
+  }
+
   @Nullable
   @Override
   public <A extends Annotation> A findSynthesizedAnnotation(String beanName, Class<A> annotationType) {

@@ -30,9 +30,9 @@ import infra.bytecode.core.ClassGenerator;
 import infra.bytecode.core.CodeEmitter;
 import infra.bytecode.core.EmitUtils;
 import infra.bytecode.core.MethodInfo;
-import infra.util.Assert;
 import infra.logging.LoggerFactory;
 import infra.reflect.GeneratorSupport;
+import infra.util.Assert;
 import infra.util.ReflectionUtils;
 
 /**
@@ -141,8 +141,8 @@ class BeanInstantiatorGenerator extends GeneratorSupport<ConstructorAccessor> im
 
   @Override
   protected void appendClassName(StringBuilder builder) {
-    builder.append('$').append("class"); // 使用 'class' 代替<init>
-    buildClassNameSuffix(builder, targetConstructor);
+    builder.append("$class"); // 使用 'class' 代替<init>
+    appendClassNameSuffix(builder, targetConstructor);
   }
 
   @Override

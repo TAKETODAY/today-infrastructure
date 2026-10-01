@@ -227,6 +227,11 @@ class ApplicationContextHolderTests {
     }
 
     @Override
+    public <T> T getBean(String name, infra.core.ParameterizedTypeReference<T> typeReference) throws BeansException {
+      return null;
+    }
+
+    @Override
     public boolean isSingleton(String name) throws NoSuchBeanDefinitionException {
       return false;
     }

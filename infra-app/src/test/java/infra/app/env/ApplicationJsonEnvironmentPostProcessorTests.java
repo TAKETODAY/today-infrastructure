@@ -167,7 +167,17 @@ class ApplicationJsonEnvironmentPostProcessorTests {
     source.setProperty("foo.baz", "bar");
     this.environment.getPropertySources().addLast(source);
     this.processor.postProcessEnvironment(this.environment, null);
-    assertThat(this.environment.getProperty("foo", Map.class)).isEmpty();
+    assertThat(this.environment.getProperty("foo")).isEmpty();
+  }
+
+  @Test
+  void nullValuesAreMappedToEmptyStrings() {
+    TestPropertySourceUtils.addInlinedPropertiesToEnvironment(this.environment,
+            "INFRA_APPLICATION_JSON={\"foo\":null,\"values\":[\"bar\",null]}");
+    this.processor.postProcessEnvironment(this.environment, null);
+    assertThat(this.environment.getProperty("foo")).isEmpty();
+    assertThat(this.environment.getProperty("values[0]")).isEqualTo("bar");
+    assertThat(this.environment.getProperty("values[1]")).isEmpty();
   }
 
 }

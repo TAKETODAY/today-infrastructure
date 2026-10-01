@@ -25,7 +25,8 @@ import infra.expression.EvaluationException;
 import infra.expression.Operation;
 import infra.expression.TypedValue;
 import infra.expression.spel.ExpressionState;
-import infra.util.NumberUtils;
+import infra.expression.spel.SpelEvaluationException;
+import infra.expression.spel.SpelMessage;
 
 /**
  * The power operator.
@@ -49,13 +50,15 @@ public class OperatorPower extends Operator {
     Object rightOperand = rightOp.getValueInternal(state).getValue();
 
     if (leftOperand instanceof Number leftNumber && rightOperand instanceof Number rightNumber) {
-      if (leftNumber instanceof BigDecimal) {
-        BigDecimal leftBigDecimal = NumberUtils.convertNumberToTargetClass(leftNumber, BigDecimal.class);
-        return new TypedValue(leftBigDecimal.pow(rightNumber.intValue()));
+      if (leftNumber instanceof BigDecimal leftBigDecimal) {
+        int exponent = rightNumber.intValue();
+        checkBigNumberPowerBits(state, leftBigDecimal.unscaledValue().bitLength(), exponent);
+        return new TypedValue(leftBigDecimal.pow(exponent));
       }
-      else if (leftNumber instanceof BigInteger) {
-        BigInteger leftBigInteger = NumberUtils.convertNumberToTargetClass(leftNumber, BigInteger.class);
-        return new TypedValue(leftBigInteger.pow(rightNumber.intValue()));
+      else if (leftNumber instanceof BigInteger leftBigInteger) {
+        int exponent = rightNumber.intValue();
+        checkBigNumberPowerBits(state, leftBigInteger.bitLength(), exponent);
+        return new TypedValue(leftBigInteger.pow(exponent));
       }
       else if (leftNumber instanceof Double || rightNumber instanceof Double) {
         return new TypedValue(Math.pow(leftNumber.doubleValue(), rightNumber.doubleValue()));
@@ -74,6 +77,14 @@ public class OperatorPower extends Operator {
     }
 
     return state.operate(Operation.POWER, leftOperand, rightOperand);
+  }
+
+  private void checkBigNumberPowerBits(ExpressionState state, int baseBitLength, int exponent) {
+    int limit = state.getConfiguration().getMaximumBigPowerBits();
+    if ((long) baseBitLength * exponent > limit) {
+      throw new SpelEvaluationException(getStartPosition(), SpelMessage.MAX_BIG_POWER_RESULT_EXCEEDED,
+              baseBitLength, exponent, limit);
+    }
   }
 
 }

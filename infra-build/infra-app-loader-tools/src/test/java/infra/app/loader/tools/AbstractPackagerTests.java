@@ -461,6 +461,28 @@ abstract class AbstractPackagerTests<P extends Packager> {
   }
 
   @Test
+  void additionalConfigurationMetadataIsRemovedFromRepackagedJar() throws Exception {
+    this.testJarFile.addClass("A.class", ClassWithMainMethod.class);
+    this.testJarFile.addFile("META-INF/additional-infra-configuration-metadata.json", new ByteArrayInputStream(new byte[0]));
+    this.testJarFile.addFile("META-INF/infra-configuration-metadata.json", new ByteArrayInputStream(new byte[0]));
+    execute(createPackager(), NO_LIBRARIES);
+    assertThat(getPackagedEntry("META-INF/additional-infra-configuration-metadata.json")).isNull();
+    assertThat(getPackagedEntry("META-INF/infra-configuration-metadata.json")).isNotNull();
+  }
+
+  @Test
+  void additionalConfigurationMetadataIsRemovedFromRepackagedWar() throws Exception {
+    this.testJarFile.addClass("WEB-INF/classes/com/example/Application.class", ClassWithMainMethod.class);
+    this.testJarFile.addFile("WEB-INF/classes/META-INF/additional-infra-configuration-metadata.json", new ByteArrayInputStream(new byte[0]));
+    this.testJarFile.addFile("WEB-INF/classes/META-INF/infra-configuration-metadata.json", new ByteArrayInputStream(new byte[0]));
+    P packager = createPackager(this.testJarFile.getFile("war"));
+    packager.setLayout(new Layouts.War());
+    execute(packager, NO_LIBRARIES);
+    assertThat(getPackagedEntry("WEB-INF/classes/META-INF/additional-infra-configuration-metadata.json")).isNull();
+    assertThat(getPackagedEntry("WEB-INF/classes/META-INF/infra-configuration-metadata.json")).isNotNull();
+  }
+
+  @Test
   void customLayoutFactoryWithoutLayout() throws Exception {
     this.testJarFile.addClass("a/b/C.class", ClassWithMainMethod.class);
     P packager = createPackager();

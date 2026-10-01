@@ -26,7 +26,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 import javax.sql.DataSource;
 
@@ -37,10 +39,22 @@ import infra.logging.LoggerFactory;
 /**
  * Proxy for a target DataSource, fetching actual JDBC Connections lazily,
  * i.e. not until first creation of a Statement. Connection initialization
- * properties like auto-commit mode, transaction isolation and read-only mode
- * will be kept and applied to the actual JDBC Connection as soon as an
- * actual Connection is fetched (if ever). Consequently, commit and rollback
- * calls will be ignored if no Statements have been created.
+ * properties like auto-commit mode, transaction isolation, read-only mode,
+ * catalog, schema, holdability, client info, and network timeout will be kept
+ * and applied to the actual JDBC Connection as soon as an actual Connection
+ * is fetched (if ever). Consequently, commit and rollback calls will be ignored
+ * if no Statements have been created.
+ *
+ * <p>Once a property has been set, its getter returns the set value until the
+ * actual Connection is fetched. Reading an unset property obtains the physical
+ * Connection to determine its default value.
+ *
+ * <p>{@link Connection#getClientInfo()} and {@link Connection#getClientInfo(String)}
+ * always fetch the physical Connection: driver defaults or external changes
+ * make these values unsuitable for caching. Likewise, {@link Connection#setClientInfo(java.util.Properties)}
+ * fetches the Connection immediately because JDBC drivers differ in whether
+ * this operation replaces or merges existing client info. Only
+ * {@link Connection#setClientInfo(String, String)} can be deferred safely.
  *
  * <p>This DataSource proxy allows to avoid fetching JDBC Connections from
  * a pool unless actually necessary. JDBC transaction control can happen
@@ -77,6 +91,7 @@ import infra.logging.LoggerFactory;
  * to retrieve the native JDBC Connection.
  *
  * @author Juergen Hoeller
+ * @author Chengang Guan
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DataSourceTransactionManager
  * @since 4.0
@@ -304,6 +319,12 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
 
     private @Nullable Boolean autoCommit;
 
+    private @Nullable Executor networkTimeoutExecutor;
+
+    private @Nullable Integer networkTimeout;
+
+    private @Nullable Map<String, String> clientInfo;
+
     private boolean closed = false;
 
     private @Nullable Connection target;
@@ -427,6 +448,27 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
             // Ignore: no warnings to expose yet.
             return null;
           }
+          case "setNetworkTimeout" -> {
+            this.networkTimeoutExecutor = (Executor) args[0];
+            this.networkTimeout = (Integer) args[1];
+            return null;
+          }
+          case "getNetworkTimeout" -> {
+            if (this.networkTimeout != null) {
+              return this.networkTimeout;
+            }
+            // Else fetch the physical Connection to obtain its default.
+          }
+          case "setClientInfo" -> {
+            if (args.length == 2) {
+              if (this.clientInfo == null) {
+                this.clientInfo = new LinkedHashMap<>();
+              }
+              this.clientInfo.put((String) args[0], (String) args[1]);
+              return null;
+            }
+            // setClientInfo(Properties) must be invoked on the physical Connection.
+          }
           case "close" -> {
             // Ignore: no target connection yet.
             this.closed = true;
@@ -520,6 +562,14 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
         }
         if (this.autoCommit != null && this.autoCommit != defaultAutoCommit()) {
           target.setAutoCommit(this.autoCommit);
+        }
+        if (this.networkTimeout != null) {
+          target.setNetworkTimeout(this.networkTimeoutExecutor, this.networkTimeout);
+        }
+        if (this.clientInfo != null) {
+          for (Map.Entry<String, String> entry : this.clientInfo.entrySet()) {
+            target.setClientInfo(entry.getKey(), entry.getValue());
+          }
         }
       }
       catch (Throwable settingsEx) {

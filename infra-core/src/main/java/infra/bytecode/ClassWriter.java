@@ -72,6 +72,18 @@ public class ClassWriter extends ClassVisitor {
   public static final int COMPUTE_FRAMES = 2;
 
   /**
+   * The default max memory limit for {@link #setComputeLimits}. Update the comment in {@link
+   * #setComputeLimits} is you change this value.
+   */
+  static final int DEFAULT_MAX_MEMORY_LIMIT = 10 * 1024 * 1024;
+
+  /**
+   * The default max operations limit for {@link #setComputeLimits}. Update the comment in {@link
+   * #setComputeLimits} is you change this value.
+   */
+  static final long DEFAULT_MAX_OPERATIONS_LIMIT = 100_000_000;
+
+  /**
    * The flags passed to the constructor. Must be zero or more of {@link #COMPUTE_MAXS} and {@link
    * #COMPUTE_FRAMES}.
    */
@@ -228,6 +240,13 @@ public class ClassWriter extends ClassVisitor {
   private int compute;
 
   /**
+   * The memory and time limits to compute the maximum stack and locals or the stack map frames
+   * <i>of each method</i>.
+   */
+  private ComputeLimits limits =
+          new ComputeLimits(DEFAULT_MAX_MEMORY_LIMIT, DEFAULT_MAX_OPERATIONS_LIMIT);
+
+  /**
    * the {@link ClassLoader} to be used by the default implementation of {@link
    * #getCommonSuperClass(String, String)}, that of this {@link ClassWriter}'s runtime type by
    * default.
@@ -362,6 +381,28 @@ public class ClassWriter extends ClassVisitor {
    */
   public boolean hasFlags(final int flags) {
     return (this.flags & flags) == flags;
+  }
+
+  /**
+   * Sets the maximum number of bytes which can be allocated, and the maximum number of "operations"
+   * which can be performed, to compute the maximum stack and locals or the stack map frames of each
+   * method. Operations are not formally defined but their total number is deterministic and
+   * approximatively proportional to the computation time.
+   *
+   * <p>The default limits should be sufficient for any "normal" class. You only need to set new
+   * limits if {@link MethodVisitor#visitMaxs} throws a {@link LimitExceededException} on some of
+   * your classes.
+   *
+   * @param maxBytes the maximum number of bytes which can be allocated. Not all object
+   * instantiations are tracked (and garbage collection is ignored), but the most important ones
+   * are. The default value, 10MB, is more than ten times larger than the memory used for any
+   * method in the java.* modules of the JDK.
+   * @param maxOperations the maximum number of "operations" that can be performed. The default
+   * value, 100M, is more than ten times larger than the number of operations used for any
+   * method in the java.* modules of the JDK.
+   */
+  public void setComputeLimits(final int maxBytes, final long maxOperations) {
+    limits = new ComputeLimits(maxBytes, maxOperations);
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -538,7 +579,15 @@ public class ClassWriter extends ClassVisitor {
   public final MethodVisitor visitMethod(final int access, final String name,
           final String descriptor, final @Nullable String signature, final String @Nullable [] exceptions) {
     MethodWriter methodWriter =
-            new MethodWriter(symbolTable, access, name, descriptor, signature, exceptions, compute);
+            new MethodWriter(
+                    symbolTable,
+                    access,
+                    name,
+                    descriptor,
+                    signature,
+                    exceptions,
+                    compute,
+                    new ComputeLimits(limits));
     if (firstMethod == null) {
       firstMethod = methodWriter;
     }
@@ -565,263 +614,271 @@ public class ClassWriter extends ClassVisitor {
    * @throws MethodTooLargeException if the Code attribute of a method is too large.
    */
   public byte[] toByteArray() {
-    // First step: compute the size in bytes of the ClassFile structure.
-    // The magic field uses 4 bytes, 10 mandatory fields (minor_version, major_version,
-    // constant_pool_count, access_flags, this_class, super_class, interfaces_count, fields_count,
-    // methods_count and attributes_count) use 2 bytes each, and each interface uses 2 bytes too.
-    int interfaceCount = this.interfaceCount;
-    int size = 24 + 2 * interfaceCount;
-    int fieldsCount = 0;
-    FieldWriter fieldWriter = firstField;
-    while (fieldWriter != null) {
-      ++fieldsCount;
-      size += fieldWriter.computeFieldInfoSize();
-      fieldWriter = (FieldWriter) fieldWriter.fv;
-    }
-    int methodsCount = 0;
-    MethodWriter methodWriter = firstMethod;
-    while (methodWriter != null) {
-      ++methodsCount;
-      size += methodWriter.computeMethodInfoSize();
-      methodWriter = (MethodWriter) methodWriter.mv;
-    }
-
-    // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
-    int attributesCount = 0;
-    ByteVector innerClasses = this.innerClasses;
-    SymbolTable symbolTable = this.symbolTable;
-    if (innerClasses != null) {
-      ++attributesCount;
-      size += 8 + innerClasses.length;
-      symbolTable.addConstantUtf8(Constants.INNER_CLASSES);
-    }
-    int enclosingClassIndex = this.enclosingClassIndex;
-    if (enclosingClassIndex != 0) {
-      ++attributesCount;
-      size += 10;
-      symbolTable.addConstantUtf8(Constants.ENCLOSING_METHOD);
-    }
-    int version = this.version;
-    int accessFlags = this.accessFlags;
-    if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0 && (version & 0xFFFF) < Opcodes.V1_5) {
-      ++attributesCount;
-      size += 6;
-      symbolTable.addConstantUtf8(Constants.SYNTHETIC);
-    }
-    if (signatureIndex != 0) {
-      ++attributesCount;
-      size += 8;
-      symbolTable.addConstantUtf8(Constants.SIGNATURE);
-    }
-    if (sourceFileIndex != 0) {
-      ++attributesCount;
-      size += 8;
-      symbolTable.addConstantUtf8(Constants.SOURCE_FILE);
-    }
-    if (debugExtension != null) {
-      ++attributesCount;
-      size += 6 + debugExtension.length;
-      symbolTable.addConstantUtf8(Constants.SOURCE_DEBUG_EXTENSION);
-    }
-    if ((accessFlags & Opcodes.ACC_DEPRECATED) != 0) {
-      ++attributesCount;
-      size += 6;
-      symbolTable.addConstantUtf8(Constants.DEPRECATED);
-    }
-    if (lastRuntimeVisibleAnnotation != null) {
-      ++attributesCount;
-      size += lastRuntimeVisibleAnnotation.computeAnnotationsSize(
-              Constants.RUNTIME_VISIBLE_ANNOTATIONS);
-    }
-    if (lastRuntimeInvisibleAnnotation != null) {
-      ++attributesCount;
-      size += lastRuntimeInvisibleAnnotation.computeAnnotationsSize(
-              Constants.RUNTIME_INVISIBLE_ANNOTATIONS);
-    }
-    if (lastRuntimeVisibleTypeAnnotation != null) {
-      ++attributesCount;
-      size += lastRuntimeVisibleTypeAnnotation.computeAnnotationsSize(
-              Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS);
-    }
-    if (lastRuntimeInvisibleTypeAnnotation != null) {
-      ++attributesCount;
-      size += lastRuntimeInvisibleTypeAnnotation.computeAnnotationsSize(
-              Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
-    }
-    if (symbolTable.computeBootstrapMethodsSize() > 0) {
-      ++attributesCount;
-      size += symbolTable.computeBootstrapMethodsSize();
-    }
-    ModuleWriter moduleWriter = this.moduleWriter;
-    if (moduleWriter != null) {
-      attributesCount += moduleWriter.getAttributeCount();
-      size += moduleWriter.computeAttributesSize();
-    }
-    if (nestHostClassIndex != 0) {
-      ++attributesCount;
-      size += 8;
-      symbolTable.addConstantUtf8(Constants.NEST_HOST);
-    }
-    ByteVector nestMemberClasses = this.nestMemberClasses;
-    if (nestMemberClasses != null) {
-      ++attributesCount;
-      size += 8 + nestMemberClasses.length;
-      symbolTable.addConstantUtf8(Constants.NEST_MEMBERS);
-    }
-    ByteVector permittedSubclasses = this.permittedSubclasses;
-    if (permittedSubclasses != null) {
-      ++attributesCount;
-      size += 8 + permittedSubclasses.length;
-      symbolTable.addConstantUtf8(Constants.PERMITTED_SUBCLASSES);
-    }
-    int recordComponentCount = 0;
-    int recordSize = 0;
-    if ((accessFlags & Opcodes.ACC_RECORD) != 0 || firstRecordComponent != null) {
-      RecordComponentWriter recordComponentWriter = firstRecordComponent;
-      while (recordComponentWriter != null) {
-        ++recordComponentCount;
-        recordSize += recordComponentWriter.computeRecordComponentInfoSize();
-        recordComponentWriter = (RecordComponentWriter) recordComponentWriter.delegate;
+    for (int pass = 0; pass < 2; ++pass) {
+      // First step: compute the size in bytes of the ClassFile structure.
+      // The magic field uses 4 bytes, 10 mandatory fields (minor_version, major_version,
+      // constant_pool_count, access_flags, this_class, super_class, interfaces_count, fields_count,
+      // methods_count and attributes_count) use 2 bytes each, and each interface uses 2 bytes too.
+      int interfaceCount = this.interfaceCount;
+      int size = 24 + 2 * interfaceCount;
+      int fieldsCount = 0;
+      FieldWriter fieldWriter = firstField;
+      while (fieldWriter != null) {
+        ++fieldsCount;
+        size += fieldWriter.computeFieldInfoSize();
+        fieldWriter = (FieldWriter) fieldWriter.fv;
       }
-      ++attributesCount;
-      size += 8 + recordSize;
-      symbolTable.addConstantUtf8(Constants.RECORD);
-    }
-    Attribute firstAttribute = this.firstAttribute;
-    if (firstAttribute != null) {
-      attributesCount += firstAttribute.getAttributeCount();
-      size += firstAttribute.computeAttributesSize(symbolTable);
-    }
-    // IMPORTANT: this must be the last part of the ClassFile size computation, because the previous
-    // statements can add attribute names to the constant pool, thereby changing its size!
-    size += symbolTable.getConstantPoolLength();
-    int constantPoolCount = symbolTable.constantPoolCount;
-    if (constantPoolCount > 0xFFFF) {
-      throw new ClassTooLargeException(symbolTable.className, constantPoolCount);
-    }
+      int methodsCount = 0;
+      MethodWriter methodWriter = firstMethod;
+      while (methodWriter != null) {
+        ++methodsCount;
+        size += methodWriter.computeMethodInfoSize();
+        methodWriter = (MethodWriter) methodWriter.mv;
+      }
 
-    // Second step: allocate a ByteVector of the correct size (in order to avoid any array copy in
-    // dynamic resizes) and fill it with the ClassFile content.
-    ByteVector result = new ByteVector(size);
-    result.putInt(0xCAFEBABE).putInt(version);
-    symbolTable.putConstantPool(result);
-    int mask = (version & 0xFFFF) < Opcodes.V1_5 ? Opcodes.ACC_SYNTHETIC : 0;
-    result.putShort(accessFlags & ~mask).putShort(thisClass).putShort(superClass);
-    result.putShort(interfaceCount);
-    int[] interfaces = this.interfaces;
-    for (int i = 0; i < interfaceCount; ++i) {
-      result.putShort(interfaces[i]);
-    }
-    result.putShort(fieldsCount);
-    fieldWriter = firstField;
-    while (fieldWriter != null) {
-      fieldWriter.putFieldInfo(result);
-      fieldWriter = (FieldWriter) fieldWriter.fv;
-    }
-    result.putShort(methodsCount);
-    boolean hasFrames = false;
-    boolean hasAsmInstructions = false;
-    methodWriter = firstMethod;
-    while (methodWriter != null) {
-      hasFrames |= methodWriter.hasFrames();
-      hasAsmInstructions |= methodWriter.hasAsmInstructions();
-      methodWriter.putMethodInfo(result);
-      methodWriter = (MethodWriter) methodWriter.mv;
-    }
-    // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
-    result.putShort(attributesCount);
-    if (innerClasses != null) {
-      result.putShort(symbolTable.addConstantUtf8(Constants.INNER_CLASSES))
-              .putInt(innerClasses.length + 2)
-              .putShort(numberOfInnerClasses)
-              .putByteArray(innerClasses.data, 0, innerClasses.length);
-    }
-    if (enclosingClassIndex != 0) {
-      result.putShort(symbolTable.addConstantUtf8(Constants.ENCLOSING_METHOD))
-              .putInt(4)
-              .putShort(enclosingClassIndex)
-              .putShort(enclosingMethodIndex);
-    }
-    if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0 && (version & 0xFFFF) < Opcodes.V1_5) {
-      result.putShort(symbolTable.addConstantUtf8(Constants.SYNTHETIC)).putInt(0);
-    }
-    if (signatureIndex != 0) {
-      result.putShort(symbolTable.addConstantUtf8(Constants.SIGNATURE))
-              .putInt(2)
-              .putShort(signatureIndex);
-    }
-    if (sourceFileIndex != 0) {
-      result.putShort(symbolTable.addConstantUtf8(Constants.SOURCE_FILE))
-              .putInt(2)
-              .putShort(sourceFileIndex);
-    }
-    if (debugExtension != null) {
-      int length = debugExtension.length;
-      result.putShort(symbolTable.addConstantUtf8(Constants.SOURCE_DEBUG_EXTENSION))
-              .putInt(length)
-              .putByteArray(debugExtension.data, 0, length);
-    }
-    if ((accessFlags & Opcodes.ACC_DEPRECATED) != 0) {
-      result.putShort(symbolTable.addConstantUtf8(Constants.DEPRECATED)).putInt(0);
-    }
-    AnnotationWriter.putAnnotations(symbolTable,
-            lastRuntimeVisibleAnnotation, lastRuntimeInvisibleAnnotation,
-            lastRuntimeVisibleTypeAnnotation, lastRuntimeInvisibleTypeAnnotation, result);
-    symbolTable.putBootstrapMethods(result);
-    if (moduleWriter != null) {
-      moduleWriter.putAttributes(result);
-    }
-    if (nestHostClassIndex != 0) {
-      result.putShort(symbolTable.addConstantUtf8(Constants.NEST_HOST))
-              .putInt(2)
-              .putShort(nestHostClassIndex);
-    }
-    if (nestMemberClasses != null) {
-      result.putShort(symbolTable.addConstantUtf8(Constants.NEST_MEMBERS))
-              .putInt(nestMemberClasses.length + 2)
-              .putShort(numberOfNestMemberClasses)
-              .putByteArray(nestMemberClasses.data, 0, nestMemberClasses.length);
-    }
-    if (permittedSubclasses != null) {
-      result.putShort(symbolTable.addConstantUtf8(Constants.PERMITTED_SUBCLASSES))
-              .putInt(permittedSubclasses.length + 2)
-              .putShort(numberOfPermittedSubclasses)
-              .putByteArray(permittedSubclasses.data, 0, permittedSubclasses.length);
-    }
-    if ((accessFlags & Opcodes.ACC_RECORD) != 0 || firstRecordComponent != null) {
-      result.putShort(symbolTable.addConstantUtf8(Constants.RECORD))
-              .putInt(recordSize + 2)
-              .putShort(recordComponentCount);
-      RecordComponentWriter recordComponentWriter = firstRecordComponent;
-      while (recordComponentWriter != null) {
-        recordComponentWriter.putRecordComponentInfo(result);
-        recordComponentWriter = (RecordComponentWriter) recordComponentWriter.delegate;
+      // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
+      int attributesCount = 0;
+      ByteVector innerClasses = this.innerClasses;
+      SymbolTable symbolTable = this.symbolTable;
+      if (innerClasses != null) {
+        ++attributesCount;
+        size += 8 + innerClasses.length;
+        symbolTable.addConstantUtf8(Constants.INNER_CLASSES);
+      }
+      int enclosingClassIndex = this.enclosingClassIndex;
+      if (enclosingClassIndex != 0) {
+        ++attributesCount;
+        size += 10;
+        symbolTable.addConstantUtf8(Constants.ENCLOSING_METHOD);
+      }
+      int version = this.version;
+      int accessFlags = this.accessFlags;
+      if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0 && (version & 0xFFFF) < Opcodes.V1_5) {
+        ++attributesCount;
+        size += 6;
+        symbolTable.addConstantUtf8(Constants.SYNTHETIC);
+      }
+      if (signatureIndex != 0) {
+        ++attributesCount;
+        size += 8;
+        symbolTable.addConstantUtf8(Constants.SIGNATURE);
+      }
+      if (sourceFileIndex != 0) {
+        ++attributesCount;
+        size += 8;
+        symbolTable.addConstantUtf8(Constants.SOURCE_FILE);
+      }
+      if (debugExtension != null) {
+        ++attributesCount;
+        size += 6 + debugExtension.length;
+        symbolTable.addConstantUtf8(Constants.SOURCE_DEBUG_EXTENSION);
+      }
+      if ((accessFlags & Opcodes.ACC_DEPRECATED) != 0) {
+        ++attributesCount;
+        size += 6;
+        symbolTable.addConstantUtf8(Constants.DEPRECATED);
+      }
+      if (lastRuntimeVisibleAnnotation != null) {
+        ++attributesCount;
+        size += lastRuntimeVisibleAnnotation.computeAnnotationsSize(
+                Constants.RUNTIME_VISIBLE_ANNOTATIONS);
+      }
+      if (lastRuntimeInvisibleAnnotation != null) {
+        ++attributesCount;
+        size += lastRuntimeInvisibleAnnotation.computeAnnotationsSize(
+                Constants.RUNTIME_INVISIBLE_ANNOTATIONS);
+      }
+      if (lastRuntimeVisibleTypeAnnotation != null) {
+        ++attributesCount;
+        size += lastRuntimeVisibleTypeAnnotation.computeAnnotationsSize(
+                Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS);
+      }
+      if (lastRuntimeInvisibleTypeAnnotation != null) {
+        ++attributesCount;
+        size += lastRuntimeInvisibleTypeAnnotation.computeAnnotationsSize(
+                Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
+      }
+      if (symbolTable.computeBootstrapMethodsSize() > 0) {
+        ++attributesCount;
+        size += symbolTable.computeBootstrapMethodsSize();
+      }
+      ModuleWriter moduleWriter = this.moduleWriter;
+      if (moduleWriter != null) {
+        attributesCount += moduleWriter.getAttributeCount();
+        size += moduleWriter.computeAttributesSize();
+      }
+      if (nestHostClassIndex != 0) {
+        ++attributesCount;
+        size += 8;
+        symbolTable.addConstantUtf8(Constants.NEST_HOST);
+      }
+      ByteVector nestMemberClasses = this.nestMemberClasses;
+      if (nestMemberClasses != null) {
+        ++attributesCount;
+        size += 8 + nestMemberClasses.length;
+        symbolTable.addConstantUtf8(Constants.NEST_MEMBERS);
+      }
+      ByteVector permittedSubclasses = this.permittedSubclasses;
+      if (permittedSubclasses != null) {
+        ++attributesCount;
+        size += 8 + permittedSubclasses.length;
+        symbolTable.addConstantUtf8(Constants.PERMITTED_SUBCLASSES);
+      }
+      int recordComponentCount = 0;
+      int recordSize = 0;
+      if ((accessFlags & Opcodes.ACC_RECORD) != 0 || firstRecordComponent != null) {
+        RecordComponentWriter recordComponentWriter = firstRecordComponent;
+        while (recordComponentWriter != null) {
+          ++recordComponentCount;
+          recordSize += recordComponentWriter.computeRecordComponentInfoSize();
+          recordComponentWriter = (RecordComponentWriter) recordComponentWriter.delegate;
+        }
+        ++attributesCount;
+        size += 8 + recordSize;
+        symbolTable.addConstantUtf8(Constants.RECORD);
+      }
+      Attribute firstAttribute = this.firstAttribute;
+      if (firstAttribute != null) {
+        attributesCount += firstAttribute.getAttributeCount();
+        size += firstAttribute.computeAttributesSize(symbolTable);
+      }
+      // IMPORTANT: this must be the last part of the ClassFile size computation, because the previous
+      // statements can add attribute names to the constant pool, thereby changing its size!
+      size += symbolTable.getConstantPoolLength();
+      int constantPoolCount = symbolTable.constantPoolCount;
+      if (constantPoolCount > 0xFFFF) {
+        throw new ClassTooLargeException(symbolTable.className, constantPoolCount);
+      }
+
+      // Second step: allocate a ByteVector of the correct size (in order to avoid any array copy in
+      // dynamic resizes) and fill it with the ClassFile content.
+      ByteVector result = new ByteVector(size);
+      result.putInt(0xCAFEBABE).putInt(version);
+      symbolTable.putConstantPool(result);
+      int mask = (version & 0xFFFF) < Opcodes.V1_5 ? Opcodes.ACC_SYNTHETIC : 0;
+      result.putShort(accessFlags & ~mask).putShort(thisClass).putShort(superClass);
+      result.putShort(interfaceCount);
+      int[] interfaces = this.interfaces;
+      for (int i = 0; i < interfaceCount; ++i) {
+        result.putShort(interfaces[i]);
+      }
+      result.putShort(fieldsCount);
+      fieldWriter = firstField;
+      while (fieldWriter != null) {
+        fieldWriter.putFieldInfo(result);
+        fieldWriter = (FieldWriter) fieldWriter.fv;
+      }
+      result.putShort(methodsCount);
+      boolean hasFrames = false;
+      boolean hasAsmInstructions = false;
+      methodWriter = firstMethod;
+      while (methodWriter != null) {
+        hasFrames |= methodWriter.hasFrames();
+        if (methodWriter.hasAsmInstructions()) {
+          methodWriter.completeAsmInstructions();
+          hasAsmInstructions = true;
+        }
+        methodWriter.putMethodInfo(result);
+        methodWriter = (MethodWriter) methodWriter.mv;
+      }
+      // For ease of reference, we use here the same attribute order as in Section 4.7 of the JVMS.
+      result.putShort(attributesCount);
+      if (innerClasses != null) {
+        result.putShort(symbolTable.addConstantUtf8(Constants.INNER_CLASSES))
+                .putInt(innerClasses.length + 2)
+                .putShort(numberOfInnerClasses)
+                .putByteArray(innerClasses.data, 0, innerClasses.length);
+      }
+      if (enclosingClassIndex != 0) {
+        result.putShort(symbolTable.addConstantUtf8(Constants.ENCLOSING_METHOD))
+                .putInt(4)
+                .putShort(enclosingClassIndex)
+                .putShort(enclosingMethodIndex);
+      }
+      if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0 && (version & 0xFFFF) < Opcodes.V1_5) {
+        result.putShort(symbolTable.addConstantUtf8(Constants.SYNTHETIC)).putInt(0);
+      }
+      if (signatureIndex != 0) {
+        result.putShort(symbolTable.addConstantUtf8(Constants.SIGNATURE))
+                .putInt(2)
+                .putShort(signatureIndex);
+      }
+      if (sourceFileIndex != 0) {
+        result.putShort(symbolTable.addConstantUtf8(Constants.SOURCE_FILE))
+                .putInt(2)
+                .putShort(sourceFileIndex);
+      }
+      if (debugExtension != null) {
+        int length = debugExtension.length;
+        result.putShort(symbolTable.addConstantUtf8(Constants.SOURCE_DEBUG_EXTENSION))
+                .putInt(length)
+                .putByteArray(debugExtension.data, 0, length);
+      }
+      if ((accessFlags & Opcodes.ACC_DEPRECATED) != 0) {
+        result.putShort(symbolTable.addConstantUtf8(Constants.DEPRECATED)).putInt(0);
+      }
+      AnnotationWriter.putAnnotations(symbolTable,
+              lastRuntimeVisibleAnnotation, lastRuntimeInvisibleAnnotation,
+              lastRuntimeVisibleTypeAnnotation, lastRuntimeInvisibleTypeAnnotation, result);
+      symbolTable.putBootstrapMethods(result);
+      if (moduleWriter != null) {
+        moduleWriter.putAttributes(result);
+      }
+      if (nestHostClassIndex != 0) {
+        result.putShort(symbolTable.addConstantUtf8(Constants.NEST_HOST))
+                .putInt(2)
+                .putShort(nestHostClassIndex);
+      }
+      if (nestMemberClasses != null) {
+        result.putShort(symbolTable.addConstantUtf8(Constants.NEST_MEMBERS))
+                .putInt(nestMemberClasses.length + 2)
+                .putShort(numberOfNestMemberClasses)
+                .putByteArray(nestMemberClasses.data, 0, nestMemberClasses.length);
+      }
+      if (permittedSubclasses != null) {
+        result.putShort(symbolTable.addConstantUtf8(Constants.PERMITTED_SUBCLASSES))
+                .putInt(permittedSubclasses.length + 2)
+                .putShort(numberOfPermittedSubclasses)
+                .putByteArray(permittedSubclasses.data, 0, permittedSubclasses.length);
+      }
+      if ((accessFlags & Opcodes.ACC_RECORD) != 0 || firstRecordComponent != null) {
+        result.putShort(symbolTable.addConstantUtf8(Constants.RECORD))
+                .putInt(recordSize + 2)
+                .putShort(recordComponentCount);
+        RecordComponentWriter recordComponentWriter = firstRecordComponent;
+        while (recordComponentWriter != null) {
+          recordComponentWriter.putRecordComponentInfo(result);
+          recordComponentWriter = (RecordComponentWriter) recordComponentWriter.delegate;
+        }
+      }
+      if (firstAttribute != null) {
+        firstAttribute.putAttributes(symbolTable, result);
+      }
+
+      // Third step: replace the ASM specific instructions, if any.
+      if (hasAsmInstructions) {
+        replaceAsmInstructions(result.data, hasFrames);
+        // Do another pass to recompute the byte array. Thanks to the completeAsmInstructions() call
+        // above, replaceAsmInstructions() should not introduce any new ASM specific instructions.
+        // Hence the second pass should take the else branch below and return.
+      }
+      else {
+        return result.data;
       }
     }
-    if (firstAttribute != null) {
-      firstAttribute.putAttributes(symbolTable, result);
-    }
-
-    // Third step: replace the ASM specific instructions, if any.
-    if (hasAsmInstructions) {
-      return replaceAsmInstructions(result.data, hasFrames);
-    }
-    else {
-      return result.data;
-    }
+    // The loop should always return after one or two iterations (see above).
+    throw new AssertionError();
   }
 
   /**
-   * Returns the equivalent of the given class file, with the ASM specific instructions replaced
-   * with standard ones. This is done with a ClassReader -&gt; ClassWriter round trip.
+   * Replaces the ASM specific instructions with standard ones. This is done with a ClassReader
+   * -&gt; ClassWriter round trip.
    *
    * @param classFile a class file containing ASM specific instructions, generated by this
    * ClassWriter.
    * @param hasFrames whether there is at least one stack map frames in 'classFile'.
-   * @return an equivalent of 'classFile', with the ASM specific instructions replaced with standard
-   * ones.
    */
-  private byte[] replaceAsmInstructions(final byte[] classFile, final boolean hasFrames) {
+  private void replaceAsmInstructions(final byte[] classFile, final boolean hasFrames) {
     final Attribute[] attributes = getAttributePrototypes();
     firstField = null;
     lastField = null;
@@ -845,7 +902,6 @@ public class ClassWriter extends ClassVisitor {
             .accept(this,
                     attributes,
                     (hasFrames ? ClassReader.EXPAND_FRAMES : 0) | ClassReader.EXPAND_ASM_INSNS);
-    return toByteArray();
   }
 
   /**

@@ -151,7 +151,7 @@ public class LeakAwareDataBufferFactory extends DataBufferFactory {
   public DataBuffer join(List<? extends DataBuffer> dataBuffers) {
     // Remove LeakAwareDataBuffer wrapper so delegate can find native buffers
     dataBuffers = dataBuffers.stream()
-            .map(o -> o instanceof LeakAwareDataBuffer ? ((LeakAwareDataBuffer) o).dataBuffer() : o)
+            .map(o -> o instanceof LeakAwareDataBuffer leakAwareBuffer ? leakAwareBuffer.dataBuffer() : o)
             .toList();
     return new LeakAwareDataBuffer(this.delegate.join(dataBuffers), this);
   }

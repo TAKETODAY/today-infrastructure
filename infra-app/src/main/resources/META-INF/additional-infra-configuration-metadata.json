@@ -371,6 +371,13 @@
       "description": "Unconditionally activate the specified comma-separated list of profiles (or list of profiles if using YAML)."
     },
     {
+      "name": "infra.profiles.validate",
+      "type": "java.lang.Boolean",
+      "sourceType": "infra.app.context.config.Profiles",
+      "description": "Whether profiles should be validated to ensure sensible names are used.",
+      "defaultValue": true
+    },
+    {
       "name": "infra.auto-configuration.exclude",
       "type": "java.util.List<java.lang.Class>",
       "sourceType": "infra.context.annotation.config.AutoConfigurationImportSelector",

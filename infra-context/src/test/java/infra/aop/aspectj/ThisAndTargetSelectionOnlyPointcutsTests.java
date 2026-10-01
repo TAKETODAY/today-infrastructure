@@ -102,7 +102,7 @@ public class ThisAndTargetSelectionOnlyPointcutsTests {
   @Test
   public void testThisAsInterfaceAndTargetAsClassCounterMatch() {
     testBean.doIt();
-    assertThat(thisAsInterfaceAndTargetAsInterfaceCounter.getCount()).isEqualTo(1);
+    assertThat(thisAsInterfaceAndTargetAsClassCounter.getCount()).isEqualTo(1);
   }
 
 }

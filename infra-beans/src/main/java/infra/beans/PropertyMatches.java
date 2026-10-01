@@ -107,24 +107,26 @@ public abstract class PropertyMatches {
    * @return the distance value
    */
   private static int calculateStringDistance(String s1, String s2) {
+    int l2 = s2.length();
     if (s1.isEmpty()) {
-      return s2.length();
+      return l2;
     }
+    int l1 = s1.length();
     if (s2.isEmpty()) {
-      return s1.length();
+      return l1;
     }
 
-    int[][] d = new int[s1.length() + 1][s2.length() + 1];
-    for (int i = 0; i <= s1.length(); i++) {
+    int[][] d = new int[l1 + 1][l2 + 1];
+    for (int i = 0; i <= l1; i++) {
       d[i][0] = i;
     }
-    for (int j = 0; j <= s2.length(); j++) {
+    for (int j = 0; j <= l2; j++) {
       d[0][j] = j;
     }
 
-    for (int i = 1; i <= s1.length(); i++) {
+    for (int i = 1; i <= l1; i++) {
       char c1 = s1.charAt(i - 1);
-      for (int j = 1; j <= s2.length(); j++) {
+      for (int j = 1; j <= l2; j++) {
         int cost;
         char c2 = s2.charAt(j - 1);
         if (c1 == c2) {
@@ -137,7 +139,7 @@ public abstract class PropertyMatches {
       }
     }
 
-    return d[s1.length()][s2.length()];
+    return d[l1][l2];
   }
 
   // Static factory methods

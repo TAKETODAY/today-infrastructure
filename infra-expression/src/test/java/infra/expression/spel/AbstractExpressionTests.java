@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import infra.expression.Expression;
+import infra.expression.EvaluationContext;
 import infra.expression.ExpressionParser;
 import infra.expression.spel.standard.SpelExpressionParser;
 import infra.expression.spel.support.StandardEvaluationContext;
@@ -189,14 +190,29 @@ public abstract class AbstractExpressionTests {
    */
   protected void evaluateAndCheckError(ExpressionParser parser, String expression,
           @Nullable Class<?> expectedReturnType, SpelMessage expectedMessage, Object... otherProperties) {
+    evaluateAndCheckError(parser, this.context, expression, expectedReturnType, expectedMessage, otherProperties);
+  }
+
+  /**
+   * Evaluate an expression with the supplied context and check its error code and inserts.
+   *
+   * @param parser parser used for the expression
+   * @param evaluationContext context used for evaluation
+   * @param expression expression to evaluate
+   * @param expectedReturnType expected result type, or {@code null}
+   * @param expectedMessage expected error message code
+   * @param otherProperties expected position followed by message inserts
+   */
+  protected void evaluateAndCheckError(ExpressionParser parser, EvaluationContext evaluationContext,
+          String expression, @Nullable Class<?> expectedReturnType, SpelMessage expectedMessage, Object... otherProperties) {
     assertThatExceptionOfType(SpelEvaluationException.class).isThrownBy(() -> {
       Expression expr = parser.parseExpression(expression);
       assertThat(expr).as("expression").isNotNull();
       if (expectedReturnType != null) {
-        expr.getValue(context, expectedReturnType);
+        expr.getValue(evaluationContext, expectedReturnType);
       }
       else {
-        expr.getValue(context);
+        expr.getValue(evaluationContext);
       }
     }).satisfies(ex -> {
       assertThat(ex.getMessageCode()).isEqualTo(expectedMessage);

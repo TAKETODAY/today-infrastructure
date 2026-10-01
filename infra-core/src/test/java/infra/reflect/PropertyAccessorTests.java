@@ -108,6 +108,25 @@ class PropertyAccessorTests implements WithAssertions {
   }
 
   @Test
+  void publicFieldAccessorsDistinguishOverloadedSetters() throws Exception {
+    PublicOverloadedSetter target = new PublicOverloadedSetter();
+    Field field = PublicOverloadedSetter.class.getField("value");
+    PropertyAccessor direct = PropertyAccessor.forField(field);
+    PropertyAccessor integerSetter = PropertyAccessor.forField(field, null,
+            PublicOverloadedSetter.class.getMethod("setValue", int.class));
+    PropertyAccessor stringSetter = PropertyAccessor.forField(field, null,
+            PublicOverloadedSetter.class.getMethod("setValue", String.class));
+
+    direct.set(target, "direct");
+    assertThat(target.value).isEqualTo("direct");
+    integerSetter.set(target, 42);
+    assertThat(target.value).isEqualTo("42i");
+    stringSetter.set(target, "text");
+    assertThat(target.value).isEqualTo("texts");
+    assertThat(PropertyAccessor.forField(field)).isSameAs(direct);
+  }
+
+  @Test
   void forMethod() throws NoSuchMethodException {
     Method getAgeMethod = ForMethod.class.getDeclaredMethod("getAge");
     Method setAgeMethod = ForMethod.class.getDeclaredMethod("setAge", int.class);
@@ -358,6 +377,19 @@ class PropertyAccessorTests implements WithAssertions {
     accessor.set(obj, 30);
     // getter is still reading the original name field
     assertThat(accessor.get(obj)).isEqualTo("name");
+  }
+
+  public static class PublicOverloadedSetter {
+
+    public String value;
+
+    public void setValue(int value) {
+      this.value = value + "i";
+    }
+
+    public void setValue(String value) {
+      this.value = value + "s";
+    }
   }
 
   static class ForMethod {

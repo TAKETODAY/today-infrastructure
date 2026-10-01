@@ -176,6 +176,12 @@ class MimeTypeTests {
               .hasMessageContaining("Invalid mime type \"text/plain;dupe=\"1\";dupe=\"2\"\": duplicate parameter 'dupe=\"2\"'");
     }
 
+    @Test
+    void valueOfDuplicateParameterWithDifferentCase() {
+      assertThatThrownBy(() -> MimeType.valueOf("text/plain;dupe=\"1\";DUPE=\"2\"")).isInstanceOf(InvalidMimeTypeException.class)
+              .hasMessageContaining("Invalid mime type \"text/plain;dupe=\"1\";DUPE=\"2\"\": duplicate parameter 'DUPE=\"2\"'");
+    }
+
   }
 
   @Nested
@@ -536,6 +542,28 @@ class MimeTypeTests {
     MimeType m2 = new MimeType("text", "plain", singletonMap("charset", "utf-8"));
     assertThat(m2).isEqualTo(m1);
     assertThat(m1).isEqualTo(m2);
+    assertThat(m1.compareTo(m2)).isEqualTo(0);
+    assertThat(m2.compareTo(m1)).isEqualTo(0);
+  }
+
+  @Test
+  void equalsIsCaseInsensitiveForParameterNames() {
+    MimeType m1 = new MimeType("text", "plain", singletonMap("Spring", "framework"));
+    MimeType m2 = new MimeType("text", "plain", singletonMap("spring", "framework"));
+    assertThat(m1).isEqualTo(m2);
+    assertThat(m2).isEqualTo(m1);
+    assertThat(m1).hasSameHashCodeAs(m2);
+    assertThat(m1.compareTo(m2)).isEqualTo(0);
+    assertThat(m2.compareTo(m1)).isEqualTo(0);
+  }
+
+  @Test
+  void equalsIsCaseInsensitiveForCharsetParameterName() {
+    MimeType m1 = new MimeType("text", "plain", singletonMap("Charset", "UTF-8"));
+    MimeType m2 = new MimeType("text", "plain", singletonMap("charset", "utf-8"));
+    assertThat(m1).isEqualTo(m2);
+    assertThat(m2).isEqualTo(m1);
+    assertThat(m1).hasSameHashCodeAs(m2);
     assertThat(m1.compareTo(m2)).isEqualTo(0);
     assertThat(m2.compareTo(m1)).isEqualTo(0);
   }

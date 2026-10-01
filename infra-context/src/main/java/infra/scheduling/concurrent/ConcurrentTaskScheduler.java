@@ -100,7 +100,6 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
    * @see java.util.concurrent.Executors#newSingleThreadScheduledExecutor()
    */
   public ConcurrentTaskScheduler() {
-    super();
     this.scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
     this.enterpriseConcurrentScheduler = false;
   }
@@ -204,7 +203,7 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
   }
 
   @Override
-  public <T> Future<T> submit(Callable<T> task) {
+  public <T extends @Nullable Object> Future<T> submit(Callable<T> task) {
     return super.submit(new DelegatingErrorHandlingCallable<>(task, this.errorHandler));
   }
 

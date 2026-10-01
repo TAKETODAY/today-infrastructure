@@ -32,11 +32,15 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.PropertySource;
 import infra.context.annotation.config.AutoConfigurations;
+import infra.context.support.ReloadableResourceBundleMessageSource;
+import infra.context.support.ResourceBundleMessageSource;
 import infra.test.context.assertj.AssertableApplicationContext;
 import infra.test.context.runner.ApplicationContextRunner;
 import infra.test.context.runner.ContextConsumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link infra.context.config.MessageSourceAutoConfiguration}.
@@ -45,6 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Eddú Meléndez
  * @author Stephane Nicoll
  * @author Kedar Joshi
+ * @author Henrique (henriquejsza)
  */
 class MessageSourceAutoConfigurationTests {
 
@@ -55,6 +60,44 @@ class MessageSourceAutoConfigurationTests {
   void testDefaultMessageSource() {
     this.contextRunner.run((context) -> assertThat(context.getMessage("foo", null, "Foo message", Locale.UK))
             .isEqualTo("Foo message"));
+  }
+
+  @Test
+  void resourceBasedMessageSourceConfigurerIsAvailableWithoutResourceBundle() {
+    this.contextRunner
+            .run((context) -> assertThat(context).hasSingleBean(ResourceBasedMessageSourceConfigurer.class)
+                    .doesNotHaveBean(ResourceBundleMessageSource.class));
+  }
+
+  @Test
+  void resourceBasedMessageSourceConfigurerCanConfigureUserDefinedMessageSource() {
+    this.contextRunner.withUserConfiguration(CustomResourceBasedMessageSourceConfiguration.class)
+            .withPropertyValues("infra.messages.cache-duration=10s",
+                    "infra.messages.fallback-to-system-locale=false",
+                    "infra.messages.always-use-message-format=true",
+                    "infra.messages.use-code-as-default-message=true")
+            .run((context) -> {
+              assertThat(context).hasSingleBean(ResourceBasedMessageSourceConfigurer.class)
+                      .hasSingleBean(ReloadableResourceBundleMessageSource.class);
+              assertThat(context.getBean(ReloadableResourceBundleMessageSource.class))
+                      .hasFieldOrPropertyWithValue("cacheMillis", 10_000L)
+                      .hasFieldOrPropertyWithValue("fallbackToSystemLocale", false)
+                      .hasFieldOrPropertyWithValue("alwaysUseMessageFormat", true)
+                      .hasFieldOrPropertyWithValue("useCodeAsDefaultMessage", true);
+            });
+  }
+
+  @Test
+  void autoConfiguredMessageSourceUsesUserDefinedConfigurer() {
+    ResourceBasedMessageSourceConfigurer configurer = mock(ResourceBasedMessageSourceConfigurer.class);
+    this.contextRunner.withBean(ResourceBasedMessageSourceConfigurer.class, () -> configurer)
+            .withPropertyValues("infra.messages.basename=test/messages")
+            .run((context) -> {
+              assertThat(context).hasSingleBean(ResourceBasedMessageSourceConfigurer.class)
+                      .hasSingleBean(ResourceBundleMessageSource.class);
+              assertThat(context.getBean(ResourceBasedMessageSourceConfigurer.class)).isSameAs(configurer);
+              then(configurer).should().configure(context.getBean(ResourceBundleMessageSource.class));
+            });
   }
 
   @Test
@@ -214,6 +257,18 @@ class MessageSourceAutoConfigurationTests {
     @Bean
     MessageSource messageSource() {
       return new TestMessageSource();
+    }
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class CustomResourceBasedMessageSourceConfiguration {
+
+    @Bean
+    ReloadableResourceBundleMessageSource messageSource(ResourceBasedMessageSourceConfigurer configurer) {
+      ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
+      configurer.configure(messageSource);
+      return messageSource;
     }
 
   }

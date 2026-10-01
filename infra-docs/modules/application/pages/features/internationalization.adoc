@@ -1,0 +1,44 @@
+[[features.internationalization]]
+= 国际化
+
+TODAY INFRA 支持本地化消息，使应用能够服务于使用不同语言的用户。
+默认情况下，自动配置在类路径根目录查找名为 `messages` 的资源包。
+
+NOTE: 只有配置的资源包存在默认属性文件（默认是 `messages.properties`）时，消息源自动配置才会生效。如果只有 `messages_zh_CN.properties` 等语言专用文件，仍需要添加默认文件。如果全部配置的基本名称都找不到默认属性文件，就不会自动配置 `MessageSource`。
+
+资源包的基本名称和其他选项通过 `infra.messages` 命名空间配置：
+
+[configprops,yaml]
+----
+infra:
+  messages:
+    basename: "messages, config.i18n.messages"
+    common-messages: "classpath:my-common-messages.properties"
+    fallback-to-system-locale: false
+----
+
+`basename` 支持以逗号分隔的多个基本名称，可以包含包限定名；没有包限定名时从类路径根目录解析。
+`common-messages` 支持多个属性文件资源，用于提供与 Locale 无关的通用消息。
+
+== 其他选项
+
+`infra.context.config.MessageSourceProperties` 定义了以下选项：
+
+[cols="1,1,3",options="header"]
+|===
+|属性（`infra.messages.` 前缀） |默认值 |含义
+|`basename` |`messages` |资源包基本名称。
+|`encoding` |`UTF-8` |消息文件编码。
+|`cache-duration` |未设置 |资源包缓存时长；未设置时永久缓存，没有单位后缀时使用秒。
+|`fallback-to-system-locale` |`true` |找不到请求 Locale 的资源包时是否尝试系统 Locale。设为 `false` 后，仅回退到默认文件。
+|`always-use-message-format` |`false` |是否对没有参数的消息也应用 `MessageFormat` 规则。
+|`use-code-as-default-message` |`false` |找不到消息时是否返回消息编码，而不是抛出 `NoSuchMessageException`。仅建议开发时启用。
+|===
+
+== 自定义资源消息源
+
+如果需要使用其他 `infra.context.support.AbstractResourceBasedMessageSource` 实现，可以注入自动配置提供的 `infra.context.config.ResourceBasedMessageSourceConfigurer`，调用 `configure` 应用相同设置。
+例如，自定义 `ReloadableResourceBundleMessageSource` 时可以复用该配置器。
+定义名为 `messageSource` 的 Bean 后，默认消息源自动配置会退让。
+
+底层消息解析机制见 xref:ROOT:core/beans/context-introduction.adoc[ApplicationContext 的国际化支持]。

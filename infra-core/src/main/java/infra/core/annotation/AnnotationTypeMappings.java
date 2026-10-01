@@ -194,7 +194,7 @@ final class AnnotationTypeMappings implements Iterable<AnnotationTypeMapping> {
    * @return type mappings for the annotation type
    */
   static AnnotationTypeMappings forAnnotationType(Class<? extends Annotation> annotationType) {
-    return forAnnotationType(annotationType, new HashSet<>());
+    return forAnnotationType(annotationType, RepeatableContainers.standard(), AnnotationFilter.PLAIN);
   }
 
   /**
@@ -227,7 +227,9 @@ final class AnnotationTypeMappings implements Iterable<AnnotationTypeMapping> {
    */
   static AnnotationTypeMappings forAnnotationType(Class<? extends Annotation> annotationType,
           RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
-    return forAnnotationType(annotationType, repeatableContainers, annotationFilter, new HashSet<>());
+    Cache cache = getCache(repeatableContainers, annotationFilter);
+    return cache != null ? cache.get(annotationType)
+            : new AnnotationTypeMappings(repeatableContainers, annotationFilter, annotationType, new HashSet<>());
   }
 
   /**
@@ -247,18 +249,21 @@ final class AnnotationTypeMappings implements Iterable<AnnotationTypeMapping> {
   private static AnnotationTypeMappings forAnnotationType(
           Class<? extends Annotation> annotationType, RepeatableContainers repeatableContainers,
           AnnotationFilter annotationFilter, Set<Class<? extends Annotation>> visitedAnnotationTypes) {
+    Cache cache = getCache(repeatableContainers, annotationFilter);
+    return cache != null ? cache.get(annotationType, visitedAnnotationTypes)
+            : new AnnotationTypeMappings(repeatableContainers, annotationFilter, annotationType, visitedAnnotationTypes);
+  }
+
+  private static @Nullable Cache getCache(RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
     if (repeatableContainers == RepeatableContainers.standard()) {
       return standardRepeatablesCache.computeIfAbsent(
-                      annotationFilter, key -> new Cache(repeatableContainers, key))
-              .get(annotationType, visitedAnnotationTypes);
+                      annotationFilter, key -> new Cache(repeatableContainers, key));
     }
     if (repeatableContainers == RepeatableContainers.NONE) {
       return noRepeatablesCache.computeIfAbsent(
-                      annotationFilter, key -> new Cache(repeatableContainers, key))
-              .get(annotationType, visitedAnnotationTypes);
+                      annotationFilter, key -> new Cache(repeatableContainers, key));
     }
-    return new AnnotationTypeMappings(repeatableContainers,
-            annotationFilter, annotationType, visitedAnnotationTypes);
+    return null;
   }
 
   static void clearCache() {
@@ -305,6 +310,11 @@ final class AnnotationTypeMappings implements Iterable<AnnotationTypeMapping> {
       result = createMappings(annotationType, visitedAnnotationTypes);
       AnnotationTypeMappings existing = this.mappings.putIfAbsent(annotationType, result);
       return (existing != null ? existing : result);
+    }
+
+    AnnotationTypeMappings get(Class<? extends Annotation> annotationType) {
+      AnnotationTypeMappings result = this.mappings.get(annotationType);
+      return result != null ? result : get(annotationType, new HashSet<>());
     }
 
     private AnnotationTypeMappings createMappings(Class<? extends Annotation> annotationType,

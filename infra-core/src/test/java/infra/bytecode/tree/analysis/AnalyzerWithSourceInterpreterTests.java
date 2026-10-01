@@ -38,6 +38,7 @@ import java.util.Arrays;
 import infra.bytecode.AsmTest;
 import infra.bytecode.ClassReader;
 import infra.bytecode.Label;
+import infra.bytecode.LimitExceededException;
 import infra.bytecode.Opcodes;
 import infra.bytecode.tree.AbstractInsnNode;
 import infra.bytecode.tree.ClassNode;
@@ -46,6 +47,7 @@ import infra.bytecode.tree.MethodNode;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for {@link Analyzer}, when used with a {@link SourceInterpreter}.
@@ -71,10 +73,37 @@ class AnalyzerWithSourceInterpreterTests extends AsmTest {
     ClassNode classNode = new ClassNode();
     new ClassReader(classParameter.getBytes()).accept(classNode, 0);
     Analyzer<SourceValue> analyzer = new Analyzer<>(new SourceInterpreter());
+    if (classParameter == PrecompiledClass.JDK3_LARGE_METHOD) {
+      analyzer.setComputeLimits(
+              Analyzer.DEFAULT_MAX_MEMORY_LIMIT * 2, Analyzer.DEFAULT_MAX_OPERATIONS_LIMIT);
+    }
 
     for (MethodNode methodNode : classNode.methods) {
       assertDoesNotThrow(() -> analyzer.analyze(classNode.name, methodNode));
     }
+  }
+
+  @Test
+  void testAnalyze_sourceIntepreter_defaultComputeLimits() {
+    int[] numClasses = new int[] { 0 };
+    int[] numErrors = new int[] { 0 };
+    Analyzer<SourceValue> analyzer = new Analyzer<>(new SourceInterpreter());
+    analyzer.setComputeLimits(
+            Analyzer.DEFAULT_MAX_MEMORY_LIMIT / 4, Analyzer.DEFAULT_MAX_OPERATIONS_LIMIT / 10);
+    listAllJavaModulesClasses()
+            .forEach(
+                    classFile -> {
+                      numClasses[0]++;
+                      try {
+                        ClassAnalyzer<SourceValue> classAnalyzer = new ClassAnalyzer<>(analyzer);
+                        new ClassReader(classFile).accept(classAnalyzer, ClassReader.SKIP_FRAMES);
+                      }
+                      catch (LimitExceededException e) {
+                        numErrors[0]++;
+                      }
+                    });
+    assertTrue(numClasses[0] > 10000);
+    assertEquals(0, numErrors[0]);
   }
 
   /** Checks if DUP_X2 producers are correct. */

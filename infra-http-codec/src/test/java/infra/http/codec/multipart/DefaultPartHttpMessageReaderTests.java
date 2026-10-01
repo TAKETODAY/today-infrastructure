@@ -32,6 +32,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -61,6 +62,7 @@ import static org.junit.jupiter.params.provider.Arguments.argumentSet;
 
 /**
  * @author Arjen Poutsma
+ * @author Seonghun Lee
  */
 class DefaultPartHttpMessageReaderTests extends AbstractLeakCheckingTests {
 
@@ -309,10 +311,49 @@ class DefaultPartHttpMessageReaderTests extends AbstractLeakCheckingTests {
             .verify();
   }
 
+  @Test
+  void maxDiskUsageExceededAcrossBufferedPrefix() {
+    String content = "--B\r\n"
+            + "Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
+            + "Content-Type: application/octet-stream\r\n\r\n"
+            + "x".repeat(200) + "\r\n--B--\r\n";
+    byte[] bytes = content.getBytes(UTF_8);
+    Flux<DataBuffer> body = Flux.range(0, (bytes.length + BUFFER_SIZE - 1) / BUFFER_SIZE)
+            .map(index -> bufferFactory.wrap(Arrays.copyOfRange(bytes, index * BUFFER_SIZE,
+                    Math.min(bytes.length, (index + 1) * BUFFER_SIZE))));
+    MediaType contentType = new MediaType("multipart", "form-data", singletonMap("boundary", "B"));
+    MockServerHttpRequest request = MockServerHttpRequest.post("/").contentType(contentType).body(body);
+
+    DefaultPartHttpMessageReader reader = new DefaultPartHttpMessageReader();
+    reader.setMaxInMemorySize(190);
+    reader.setMaxDiskUsagePerPart(195);
+
+    Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
+
+    StepVerifier.create(result)
+            .expectErrorMatches(ex -> ex instanceof DataBufferLimitException
+                    && ex.getMessage().equals("Part exceeded the disk usage limit of 195 bytes"))
+            .verify();
+  }
+
+  @Test
+  void exceedDiskUsageOnSpillOver() {
+    MockServerHttpRequest request = createRequest("files.multipart", "\"----WebKitFormBoundaryG8fJ50opQOML0oGD\"");
+
+    DefaultPartHttpMessageReader reader = new DefaultPartHttpMessageReader();
+    reader.setMaxInMemorySize(90);
+    reader.setMaxDiskUsagePerPart(99);
+    Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
+
+    StepVerifier.create(result)
+            .expectError(DataBufferLimitException.class)
+            .verify();
+  }
+
   @ParameterizedDefaultPartHttpMessageReaderTest
   void emptyLastPart(DefaultPartHttpMessageReader reader) throws InterruptedException {
     MockServerHttpRequest request = createRequest(
-            "empty-part.multipart", "LiG0chJ0k7YtLt-FzTklYFgz50i88xJCW5jD");
+            "empty-part-last.multipart", "LiG0chJ0k7YtLt-FzTklYFgz50i88xJCW5jD");
 
     Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
 
@@ -320,6 +361,21 @@ class DefaultPartHttpMessageReaderTests extends AbstractLeakCheckingTests {
     StepVerifier.create(result)
             .consumeNextWith(part -> testPart(part, null, "", latch))
             .consumeNextWith(part -> testPart(part, null, "", latch))
+            .verifyComplete();
+
+    latch.await();
+  }
+
+  @ParameterizedDefaultPartHttpMessageReaderTest
+  void emptyPartNotLast(DefaultPartHttpMessageReader reader) throws InterruptedException {
+    MockServerHttpRequest request = createRequest("empty-part.multipart", "simple-boundary");
+
+    Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
+
+    CountDownLatch latch = new CountDownLatch(2);
+    StepVerifier.create(result)
+            .consumeNextWith(part -> testPart(part, "file", "", latch)).as("file")
+            .consumeNextWith(part -> testPart(part, "action", "asd", latch)).as("action")
             .verifyComplete();
 
     latch.await();

@@ -23,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
+import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**
@@ -72,6 +73,8 @@ public class CacheControl {
   private boolean noCache = false;
 
   private boolean noStore = false;
+
+  private boolean mustUnderstand = false;
 
   private boolean mustRevalidate = false;
 
@@ -188,6 +191,25 @@ public class CacheControl {
   }
 
   /**
+   * Add a "must-understand" directive.
+   * <p>This directive limits caching of the response to caches that
+   * understand and conform to the requirements for the response status code.
+   * <p>The {@link #noStore()} directive must have been set beforehand, as a
+   * fallback for caches that do not implement the "must-understand" directive.
+   *
+   * @return {@code this}, to facilitate method chaining
+   * @throws IllegalStateException if the "no-store" directive has not been set
+   * @see <a href="https://www.rfc-editor.org/rfc/rfc9111#section-5.2.2.3">rfc9111 section 5.2.2.3</a>
+   * @since 5.0
+   */
+  public CacheControl mustUnderstand() {
+    Assert.state(this.noStore, "The \"no-store\" directive should be set as a fallback, "
+            + "use CacheControl.noStore().mustUnderstand() instead");
+    this.mustUnderstand = true;
+    return this;
+  }
+
+  /**
    * Add a "must-revalidate" directive.
    * <p>This directive indicates that once it has become stale, a cache MUST NOT
    * use the response to satisfy subsequent requests without successful validation
@@ -222,9 +244,14 @@ public class CacheControl {
    * only within a private cache.
    *
    * @return {@code this}, to facilitate method chaining
+   * @throws IllegalStateException if the "private" or "no-store" directive has already been set
    * @see <a href="https://tools.ietf.org/html/rfc7234#section-5.2.2.5">rfc7234 section 5.2.2.5</a>
    */
   public CacheControl cachePublic() {
+    Assert.state(!this.cachePrivate, "The \"private\" directive has already been set, "
+            + "which is mutually exclusive with \"public\"");
+    Assert.state(!this.noStore, "The \"no-store\" directive has already been set, "
+            + "which contradicts \"public\"");
     this.cachePublic = true;
     return this;
   }
@@ -235,9 +262,12 @@ public class CacheControl {
    * for a single user and MUST NOT be stored by a shared cache.
    *
    * @return {@code this}, to facilitate method chaining
+   * @throws IllegalStateException if the "public" directive has already been set
    * @see <a href="https://tools.ietf.org/html/rfc7234#section-5.2.2.6">rfc7234 section 5.2.2.6</a>
    */
   public CacheControl cachePrivate() {
+    Assert.state(!this.cachePublic, "The \"public\" directive has already been set, "
+            + "which is mutually exclusive with \"private\"");
     this.cachePrivate = true;
     return this;
   }
@@ -390,6 +420,9 @@ public class CacheControl {
     }
     if (this.noStore) {
       appendDirective(headerValue, "no-store");
+    }
+    if (this.mustUnderstand) {
+      appendDirective(headerValue, "must-understand");
     }
     if (this.mustRevalidate) {
       appendDirective(headerValue, "must-revalidate");

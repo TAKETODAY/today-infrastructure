@@ -50,23 +50,19 @@ public class PropertyValue extends BeanMetadataAttributeAccessor implements Seri
 
   private final String name;
 
-  @Nullable
-  private final Object value;
-
-  /** Package-visible field for caching the resolved property path tokens. */
-  @Nullable
-  transient volatile Object resolvedTokens;
+  private final @Nullable Object value;
 
   private boolean optional = false;
 
   private boolean converted = false;
 
-  @Nullable
-  private Object convertedValue;
+  private @Nullable Object convertedValue;
 
   /** Package-visible field that indicates whether conversion is necessary. */
-  @Nullable
-  volatile Boolean conversionNecessary;
+  volatile @Nullable Boolean conversionNecessary;
+  /** Package-visible field for caching the resolved property path tokens. */
+
+  transient volatile @Nullable Object resolvedTokens;
 
   /**
    * Create a new PropertyValue instance.
@@ -165,8 +161,7 @@ public class PropertyValue extends BeanMetadataAttributeAccessor implements Seri
    *
    * @since 4.0
    */
-  @Nullable
-  public synchronized Object getConvertedValue() {
+  public synchronized @Nullable Object getConvertedValue() {
     return this.convertedValue;
   }
 
@@ -183,8 +178,7 @@ public class PropertyValue extends BeanMetadataAttributeAccessor implements Seri
    * It is the responsibility of the BeanWrapper implementation to
    * perform type conversion.
    */
-  @Nullable
-  public Object getValue() {
+  public @Nullable Object getValue() {
     return this.value;
   }
 

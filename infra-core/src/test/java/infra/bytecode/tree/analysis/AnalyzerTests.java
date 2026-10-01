@@ -37,6 +37,7 @@ import java.util.List;
 
 import infra.bytecode.AsmTest;
 import infra.bytecode.Label;
+import infra.bytecode.LimitExceededException;
 import infra.bytecode.Opcodes;
 import infra.bytecode.Type;
 import infra.bytecode.tree.AbstractInsnNode;
@@ -1067,6 +1068,40 @@ public class AnalyzerTests extends AsmTest {
     assertDoesNotThrow(() -> MethodNodeBuilder.buildClassWithMethod(methodNode).newInstance());
   }
 
+  @Test
+  public void testAnalyze_tooManyAllocatedBytes() throws AnalyzerException {
+    MethodNodeBuilder methodNodeBuilder = new MethodNodeBuilder(1, 1);
+    for (int i = 0; i < 64; i++) {
+      Label label = new Label();
+      methodNodeBuilder.go(label).label(label);
+    }
+    MethodNode methodNode = methodNodeBuilder.vreturn().build();
+    Analyzer<MockValue> analyzer = newAnalyzer();
+    analyzer.setComputeLimits(1000, Analyzer.DEFAULT_MAX_OPERATIONS_LIMIT);
+
+    Executable analyze = () -> analyzer.analyze(CLASS_NAME, methodNode);
+
+    LimitExceededException e = assertThrows(LimitExceededException.class, analyze);
+    assertEquals(e.getMessage(), "Too many allocated bytes");
+  }
+
+  @Test
+  public void testAnalyze_tooManyOperations() throws AnalyzerException {
+    MethodNodeBuilder methodNodeBuilder = new MethodNodeBuilder(1, 1);
+    for (int i = 0; i < 64; i++) {
+      Label label = new Label();
+      methodNodeBuilder.go(label).label(label);
+    }
+    MethodNode methodNode = methodNodeBuilder.vreturn().build();
+    Analyzer<MockValue> analyzer = newAnalyzer();
+    analyzer.setComputeLimits(Analyzer.DEFAULT_MAX_MEMORY_LIMIT, 100);
+
+    Executable analyze = () -> analyzer.analyze(CLASS_NAME, methodNode);
+
+    LimitExceededException e = assertThrows(LimitExceededException.class, analyze);
+    assertEquals(e.getMessage(), "Too many operations");
+  }
+
   /**
    * Tests an example coming from distilled down version of
    * com/sun/corba/ee/impl/protocol/CorbaClientDelegateImpl from GlassFish 2. See issue #317823.
@@ -1186,6 +1221,7 @@ public class AnalyzerTests extends AsmTest {
 
     @Override
     public MockValue newValue(final Type type) {
+      numOperations++;
       if (type == null) {
         return MockValue.TOP;
       }
@@ -1205,6 +1241,7 @@ public class AnalyzerTests extends AsmTest {
 
     @Override
     public MockValue newOperation(final AbstractInsnNode insn) {
+      numOperations++;
       switch (insn.getOpcode()) {
         case Opcodes.ACONST_NULL:
           return MockValue.REFERENCE;
@@ -1226,6 +1263,7 @@ public class AnalyzerTests extends AsmTest {
 
     @Override
     public MockValue unaryOperation(final AbstractInsnNode insn, final MockValue value) {
+      numOperations++;
       switch (insn.getOpcode()) {
         case Opcodes.IFNE:
         case Opcodes.IFNONNULL:
@@ -1269,6 +1307,7 @@ public class AnalyzerTests extends AsmTest {
 
     @Override
     public MockValue merge(final MockValue value1, final MockValue value2) {
+      numOperations++;
       if (!value1.equals(value2)) {
         return MockValue.TOP;
       }

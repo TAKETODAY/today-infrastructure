@@ -20,15 +20,18 @@ package infra.expression.spel.standard;
 
 import org.assertj.core.api.ThrowableAssert;
 import org.assertj.core.api.ThrowableAssertAlternative;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.Consumer;
 
 import infra.expression.EvaluationContext;
 import infra.expression.ExpressionException;
+import infra.expression.spel.SpelCompilerMode;
 import infra.expression.spel.SpelMessage;
 import infra.expression.spel.SpelNode;
 import infra.expression.spel.SpelParseException;
+import infra.expression.spel.SpelParserConfiguration;
 import infra.expression.spel.ast.OpAnd;
 import infra.expression.spel.ast.OpOr;
 import infra.expression.spel.support.StandardEvaluationContext;
@@ -47,6 +50,7 @@ import static infra.expression.spel.SpelMessage.UNEXPECTED_ESCAPE_CHAR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 /**
  * @author Andy Clement
@@ -55,6 +59,89 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 class SpelParserTests {
 
   private final infra.expression.spel.standard.SpelExpressionParser parser = new SpelExpressionParser();
+
+  @Nested
+  class MaxNestingDepthTests {
+
+    private final int maxNestingDepth = 10;
+
+    private final SpelExpressionParser parser = new SpelExpressionParser(configurationWithMaxNestingDepth(maxNestingDepth));
+
+    @Test
+    void maxNestingDepthWithInlineLists() {
+      assertThatNoException().isThrownBy(() -> parser.parseExpression(nestedInlineList(9)));
+      assertThatNoException().isThrownBy(() -> parser.parseExpression(nestedInlineList(10)));
+      assertNestingDepthExceeded(() -> parser.parseExpression(nestedInlineList(11)), maxNestingDepth);
+      assertNestingDepthExceeded(() -> parser.parseExpression(nestedInlineList(100)), maxNestingDepth);
+    }
+
+    @Test
+    void maxNestingDepthWithParentheses() {
+      assertThatNoException().isThrownBy(() -> parser.parseExpression(nestedParentheses(9)));
+      assertThatNoException().isThrownBy(() -> parser.parseExpression(nestedParentheses(10)));
+      assertNestingDepthExceeded(() -> parser.parseExpression(nestedParentheses(11)), maxNestingDepth);
+      assertNestingDepthExceeded(() -> parser.parseExpression(nestedParentheses(100)), maxNestingDepth);
+    }
+
+    @Test
+    void maxNestingDepthWithChainedUnaryOperators() {
+      assertThatNoException().isThrownBy(() -> parser.parseExpression("!".repeat(9) + "true"));
+      assertThatNoException().isThrownBy(() -> parser.parseExpression("!".repeat(10) + "true"));
+      assertNestingDepthExceeded(() -> parser.parseExpression("!".repeat(11) + "true"), maxNestingDepth);
+      assertNestingDepthExceeded(() -> parser.parseExpression("-".repeat(100) + "1"), maxNestingDepth);
+    }
+
+    @Test
+    void maxNestingDepthProtectsAgainstStackOverflowFromChainedUnaryOperators() {
+      SpelParserConfiguration configuration = SpelParserConfiguration.builder()
+              .compilerMode(SpelCompilerMode.OFF)
+              .maximumExpressionLength(Integer.MAX_VALUE)
+              .build();
+      SpelExpressionParser parser = new SpelExpressionParser(configuration);
+
+      assertParseExceptionThrownBy(() -> parser.parseExpression("!".repeat(100_000) + "true"))
+              .satisfies(ex -> assertThat(ex.getMessageCode()).isEqualTo(SpelMessage.MAX_EXPRESSION_NESTING_DEPTH_EXCEEDED));
+    }
+
+    @Test
+    void maxNestingDepthIsNotExceededBySequentialNonNestedTernaryExpressions() {
+      String siblings = "{" + "(true ? 1 : 2),".repeat(50) + "(true ? 1 : 2)}";
+      assertThatNoException().isThrownBy(() -> parser.parseExpression(siblings));
+    }
+
+    @Test
+    void maxNestingDepthWithNestedTernaryExpressions() {
+      assertThatNoException().isThrownBy(() -> parser.parseExpression(nestedTernaryExpression(2)));
+      assertNestingDepthExceeded(() -> parser.parseExpression(nestedTernaryExpression(50)), maxNestingDepth);
+    }
+
+    private static SpelParserConfiguration configurationWithMaxNestingDepth(int maxNestingDepth) {
+      return SpelParserConfiguration.builder().compilerMode(SpelCompilerMode.OFF)
+              .maximumNestingDepth(maxNestingDepth).build();
+    }
+
+    private static void assertNestingDepthExceeded(ThrowableAssert.ThrowingCallable callable, int maxNestingDepth) {
+      assertParseExceptionThrownBy(callable)
+              .withMessageEndingWith("SpEL expression nesting depth exceeds the threshold of " + maxNestingDepth)
+              .satisfies(ex -> assertThat(ex.getMessageCode()).isEqualTo(SpelMessage.MAX_EXPRESSION_NESTING_DEPTH_EXCEEDED));
+    }
+
+    private static String nestedInlineList(int depth) {
+      return "{".repeat(depth) + "1" + "}".repeat(depth);
+    }
+
+    private static String nestedParentheses(int depth) {
+      return "(".repeat(depth) + "1" + ")".repeat(depth);
+    }
+
+    private static String nestedTernaryExpression(int depth) {
+      String expression = "1";
+      for (int i = 0; i < depth; i++) {
+        expression = "true ? 1 : " + expression;
+      }
+      return expression;
+    }
+  }
 
   @Test
   void nullExpressionIsRejected() {

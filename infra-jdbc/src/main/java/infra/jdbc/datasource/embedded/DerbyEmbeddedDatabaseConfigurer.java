@@ -21,6 +21,7 @@ package infra.jdbc.datasource.embedded;
 import org.apache.derby.jdbc.EmbeddedDriver;
 import org.jspecify.annotations.Nullable;
 
+import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.Properties;
 
@@ -54,7 +55,7 @@ final class DerbyEmbeddedDatabaseConfigurer implements EmbeddedDatabaseConfigure
     if (instance == null) {
       // disable log file
       System.setProperty("derby.stream.error.method",
-              OutputStreamFactory.class.getName() + ".getNoopOutputStream");
+              OutputStream.class.getName() + ".nullOutputStream");
       instance = new DerbyEmbeddedDatabaseConfigurer();
     }
     return instance;

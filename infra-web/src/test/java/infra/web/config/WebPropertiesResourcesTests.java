@@ -24,6 +24,7 @@ import java.time.Duration;
 
 import infra.http.CacheControl;
 import infra.web.config.WebProperties.Resources;
+import infra.web.config.WebProperties.Resources.Cache.Cachecontrol;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -80,10 +81,10 @@ class WebPropertiesResourcesTests {
 
   @Test
   void cacheControlAllPropertiesSet() {
-    Resources.Cache.Cachecontrol properties = this.properties.cache.cachecontrol;
+    Cachecontrol properties = this.properties.cache.cachecontrol;
     properties.maxAge = (Duration.ofSeconds(4));
     properties.cachePrivate = (true);
-    properties.cachePublic = (true);
+//    properties.cachePublic = (true);
     properties.mustRevalidate = (true);
     properties.noTransform = (true);
     properties.proxyRevalidate = (true);
@@ -92,13 +93,22 @@ class WebPropertiesResourcesTests {
     properties.staleWhileRevalidate = (Duration.ofSeconds(7));
     CacheControl cacheControl = this.properties.cache.asHttpCacheControl();
     assertThat(cacheControl.getHeaderValue())
-            .isEqualTo("max-age=4, must-revalidate, no-transform, public, private, proxy-revalidate,"
+            .isEqualTo("max-age=4, must-revalidate, no-transform, private, proxy-revalidate,"
                     + " s-maxage=5, stale-if-error=6, stale-while-revalidate=7");
   }
 
   @Test
+  void cacheControlPublic() {
+    Cachecontrol properties = this.properties.cache.cachecontrol;
+    properties.cachePublic= (true);
+    CacheControl cacheControl = this.properties.cache.asHttpCacheControl();
+    assertThat(cacheControl).isNotNull();
+    assertThat(cacheControl.getHeaderValue()).isEqualTo("public");
+  }
+
+  @Test
   void invalidCacheControlCombination() {
-    Resources.Cache.Cachecontrol properties = this.properties.cache.cachecontrol;
+    Cachecontrol properties = this.properties.cache.cachecontrol;
     properties.maxAge = (Duration.ofSeconds(4));
     properties.noStore = (true);
     CacheControl cacheControl = this.properties.cache.asHttpCacheControl();

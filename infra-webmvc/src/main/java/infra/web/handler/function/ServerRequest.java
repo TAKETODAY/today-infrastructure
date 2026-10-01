@@ -155,6 +155,9 @@ public interface ServerRequest extends ServerResponse.Context {
 
   /**
    * Bind to this request and return an instance of the given type.
+   * <p>Please read the security warning on {@link infra.validation.DataBinder}
+   * and review the guidance on safe model object design in the Infra Web MVC
+   * data binding documentation.
    *
    * @param bindType the type of class to bind this request to
    * @param <T> the type to bind to
@@ -167,10 +170,13 @@ public interface ServerRequest extends ServerResponse.Context {
 
   /**
    * Bind to this request and return an instance of the given type.
+   * <p>Please read the security warning on {@link infra.validation.DataBinder}
+   * and review the guidance on safe model object design in the Infra Web MVC
+   * data binding documentation.
    *
    * @param bindType the type of class to bind this request to
-   * @param dataBinderCustomizer used to customize the data binder, e.g. set
-   * (dis)allowed fields
+   * @param dataBinderCustomizer used to customize the data binder, for example,
+   * set allowed fields if using property (instead of constructor) binding
    * @param <T> the type to bind to
    * @return a constructed and bound instance of {@code bindType}
    * @throws BindException in case of binding errors

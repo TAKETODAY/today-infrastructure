@@ -125,7 +125,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
     if (method != null) {
       // Treat it like a property...
       // The readerCache will only contain gettable properties (let's not worry about setters for now).
-      Property property = new Property(type, method, null);
+      Property property = new Property(name, method, null, type);
       TypeDescriptor typeDescriptor = new TypeDescriptor(property);
       Method methodToInvoke = ReflectionUtils.getPubliclyAccessibleMethodIfPossible(method, type);
       this.readerCache.put(cacheKey, new InvokerPair(methodToInvoke, typeDescriptor));
@@ -169,7 +169,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
         if (method != null) {
           // Treat it like a property...
           // The readerCache will only contain gettable properties (let's not worry about setters for now).
-          Property property = new Property(type, method, null);
+          Property property = new Property(name, method, null, type);
           TypeDescriptor typeDescriptor = new TypeDescriptor(property);
           methodToInvoke = ReflectionUtils.getPubliclyAccessibleMethodIfPossible(method, type);
           invoker = new InvokerPair(methodToInvoke, typeDescriptor);
@@ -227,7 +227,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
     Method method = findSetterForProperty(name, type, target);
     if (method != null) {
       // Treat it like a property
-      Property property = new Property(type, null, method);
+      Property property = new Property(name, null, method, type);
       TypeDescriptor typeDescriptor = new TypeDescriptor(property);
       method = ReflectionUtils.getPubliclyAccessibleMethodIfPossible(method, type);
       this.writerCache.put(cacheKey, method);

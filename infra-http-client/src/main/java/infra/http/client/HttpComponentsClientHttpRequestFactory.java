@@ -325,6 +325,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
       case PATCH -> new HttpPatch(uri);
       case DELETE -> new HttpDelete(uri);
       case OPTIONS -> new HttpOptions(uri);
+      case QUERY -> new org.apache.hc.client5.http.classic.methods.HttpUriRequestBase(httpMethod.name(), uri);
       default -> throw new UnsupportedOperationException("Unsupported httpMethod '%s'".formatted(httpMethod));
     };
   }

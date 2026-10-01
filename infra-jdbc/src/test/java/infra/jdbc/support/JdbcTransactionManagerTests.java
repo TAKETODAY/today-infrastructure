@@ -27,6 +27,7 @@ import javax.sql.DataSource;
 
 import infra.dao.ConcurrencyFailureException;
 import infra.jdbc.datasource.DataSourceTransactionManagerTests;
+import infra.transaction.TransactionStatus;
 import infra.transaction.TransactionSystemException;
 import infra.transaction.support.TransactionSynchronizationManager;
 import infra.transaction.support.TransactionTemplate;
@@ -154,7 +155,7 @@ public class JdbcTransactionManagerTests extends DataSourceTransactionManagerTes
 
     // specific ConcurrencyFailureException
     assertThatExceptionOfType(ConcurrencyFailureException.class).isThrownBy(() ->
-            tt.executeWithoutResult(status -> status.setRollbackOnly()));
+            tt.executeWithoutResult(TransactionStatus::setRollbackOnly));
 
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
     InOrder ordered = inOrder(con);

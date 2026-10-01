@@ -20,19 +20,14 @@ package infra.aop.framework;
 
 import org.jspecify.annotations.Nullable;
 
-import java.io.Closeable;
 import java.io.Serial;
 
 import infra.aop.AopInfrastructureBean;
 import infra.aop.framework.autoproxy.AbstractAutoProxyCreator;
-import infra.beans.factory.Aware;
 import infra.beans.factory.BeanClassLoaderAware;
 import infra.beans.factory.BeanFactory;
-import infra.beans.factory.DisposableBean;
-import infra.beans.factory.InitializingBean;
 import infra.core.Ordered;
 import infra.util.ClassUtils;
-import infra.util.ObjectUtils;
 
 /**
  * Base class with common functionality for proxy processors, in particular
@@ -141,11 +136,7 @@ public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanC
    * @return whether the given interface is just a container callback
    */
   protected boolean isConfigurationCallbackInterface(Class<?> ifc) {
-    return InitializingBean.class == ifc
-            || Closeable.class == ifc
-            || AutoCloseable.class == ifc
-            || DisposableBean.class == ifc
-            || ObjectUtils.containsElement(ifc.getInterfaces(), Aware.class);
+    return AopProxyUtils.isConfigurationCallbackInterface(ifc);
   }
 
   /**
@@ -160,7 +151,8 @@ public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanC
   protected boolean isInternalLanguageInterface(Class<?> ifc) {
     return ifc.getName().equals("groovy.lang.GroovyObject")
             || ifc.getName().endsWith(".bytecode.proxy.Factory")
-            || ifc.getName().endsWith(".bytebuddy.MockAccess");
+            || ifc.getName().endsWith(".bytebuddy.MockAccess")  // Mockito < 5.16.1
+            || ifc.getName().endsWith(".bytebuddy.access.MockAccess");  // Mockito >= 5.16.1
   }
 
 }

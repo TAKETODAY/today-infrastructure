@@ -66,4 +66,18 @@ abstract class ConversionUtils {
             || ClassUtils.isAssignable(sourceElementType.getType(), targetElementType.getType());
   }
 
+  /**
+   * Resolve the enum type for the supplied target type.
+   *
+   * @param targetType the target type for which to resolve the enum type
+   * @return the enum type, or {@code null} if the target is not an enum
+   */
+  public static @Nullable Class<?> resolveEnumType(Class<?> targetType) {
+    Class<?> enumType = targetType;
+    while (enumType != null && !enumType.isEnum()) {
+      enumType = enumType.getSuperclass();
+    }
+    return enumType;
+  }
+
 }

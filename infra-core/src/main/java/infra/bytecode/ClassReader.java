@@ -190,9 +190,15 @@ public class ClassReader {
     this.classFileBuffer = classFileBuffer;
     // Check the class' major_version. This field is after the magic and minor_version fields, which
     // use 4 and 2 bytes respectively.
-    if (checkClassVersion && readShort(classFileOffset + 6) > Opcodes.V26) {
+    short major;
+    if (checkClassVersion
+            && ((major = readShort(classFileOffset + 6)) > Opcodes.V28
+            || (major == Opcodes.V28 && readShort(classFileOffset + 4) != 0))) {
       throw new IllegalArgumentException(
-              "Unsupported class file major version " + readShort(classFileOffset + 6));
+              "Unsupported class file version "
+                      + readShort(classFileOffset + 6)
+                      + "."
+                      + (readShort(classFileOffset + 4) & 0xFFFF));
     }
     // Create the constant pool arrays. The constant_pool_count field is after the magic,
     // minor_version and major_version fields, which use 4, 2 and 2 bytes respectively.
@@ -1500,7 +1506,7 @@ public class ClassReader {
     final int maxLocals = readUnsignedShort(currentOffset + 2);
     final int codeLength = readInt(currentOffset + 4);
     currentOffset += 8;
-    if (codeLength > classBuffer.length - currentOffset) {
+    if (codeLength > 65535 || codeLength > classBuffer.length - currentOffset) {
       throw new IllegalArgumentException();
     }
 
@@ -1562,7 +1568,7 @@ public class ClassReader {
           }
         }
         case Opcodes.TABLESWITCH -> {
-          // Skip 0 to 3 padding bytes.
+          // Skip the opcode, plus 0 to 3 padding bytes.
           currentOffset += 4 - (bytecodeOffset & 3);
           // Read the default label and the number of table entries.
           createLabel(bytecodeOffset + readInt(currentOffset), labels);
@@ -1575,7 +1581,7 @@ public class ClassReader {
           }
         }
         case Opcodes.LOOKUPSWITCH -> {
-          // Skip 0 to 3 padding bytes.
+          // Skip the opcode, plus 0 to 3 padding bytes.
           currentOffset += 4 - (bytecodeOffset & 3);
           // Read the default label and the number of switch cases.
           createLabel(bytecodeOffset + readInt(currentOffset), labels);
@@ -1939,7 +1945,7 @@ public class ClassReader {
           }
         }
         case Opcodes.TABLESWITCH -> {
-          // Skip 0 to 3 padding bytes.
+          // Skip the opcode, plus 0 to 3 padding bytes.
           currentOffset += 4 - (currentBytecodeOffset & 3);
           // Read the instruction.
           Label defaultLabel = labels[currentBytecodeOffset + readInt(currentOffset)];
@@ -1954,7 +1960,7 @@ public class ClassReader {
           methodVisitor.visitTableSwitchInsn(low, high, defaultLabel, table);
         }
         case Opcodes.LOOKUPSWITCH -> {
-          // Skip 0 to 3 padding bytes.
+          // Skip the opcode, plus 0 to 3 padding bytes.
           currentOffset += 4 - (currentBytecodeOffset & 3);
           // Read the instruction.
           Label defaultLabel = labels[currentBytecodeOffset + readInt(currentOffset)];
@@ -2935,6 +2941,9 @@ public class ClassReader {
       int attributeLength = readInt(currentAttributeOffset + 2);
       currentAttributeOffset += 6;
       if (Constants.BOOTSTRAP_METHODS.equals(attributeName)) {
+        if (attributeLength > classFileBuffer.length - currentAttributeOffset) {
+          throw new IllegalArgumentException();
+        }
         // Read the num_bootstrap_methods field and create an array of this size.
         int[] result = new int[readUnsignedShort(currentAttributeOffset)];
         // Compute and store the offset of each 'bootstrap_methods' array field entry.
@@ -2975,6 +2984,9 @@ public class ClassReader {
    */
   private Attribute readAttribute(final Attribute[] attributePrototypes, final String type,
           final int offset, final int length, final char[] charBuffer, final int codeAttributeOffset, final Label[] labels) {
+    if (length > classFileBuffer.length - offset) {
+      throw new IllegalArgumentException();
+    }
     for (Attribute attributePrototype : attributePrototypes) {
       if (attributePrototype.type.equals(type)) {
         return attributePrototype.read(
@@ -3055,7 +3067,7 @@ public class ClassReader {
    * @return the read value.
    */
   public int readUnsignedShort(final int offset) {
-    byte[] classBuffer = classFileBuffer;
+    final byte[] classBuffer = classFileBuffer;
     return ((classBuffer[offset] & 0xFF) << 8) | (classBuffer[offset + 1] & 0xFF);
   }
 
@@ -3067,7 +3079,7 @@ public class ClassReader {
    * @return the read value.
    */
   public short readShort(final int offset) {
-    byte[] classBuffer = classFileBuffer;
+    final byte[] classBuffer = classFileBuffer;
     return (short) (((classBuffer[offset] & 0xFF) << 8) | (classBuffer[offset + 1] & 0xFF));
   }
 
@@ -3079,7 +3091,7 @@ public class ClassReader {
    * @return the read value.
    */
   public int readInt(final int offset) {
-    byte[] classBuffer = classFileBuffer;
+    final byte[] classBuffer = classFileBuffer;
     return ((classBuffer[offset] & 0xFF) << 24)
             | ((classBuffer[offset + 1] & 0xFF) << 16)
             | ((classBuffer[offset + 2] & 0xFF) << 8)
@@ -3152,7 +3164,7 @@ public class ClassReader {
     int currentOffset = utfOffset;
     int endOffset = currentOffset + utfLength;
     int strLength = 0;
-    byte[] classBuffer = classFileBuffer;
+    final byte[] classBuffer = classFileBuffer;
     while (currentOffset < endOffset) {
       int currentByte = classBuffer[currentOffset++];
       if ((currentByte & 0x80) == 0) {

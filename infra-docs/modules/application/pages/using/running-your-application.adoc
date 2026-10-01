@@ -1,0 +1,50 @@
+[[using.running-your-application]]
+= 运行应用
+
+将应用打包成 JAR 并使用嵌入式 HTTP 服务器后，可以像普通 Java 应用一样运行和调试它，无需专用 IDE 插件。
+本节介绍 JAR 应用的本地开发运行方式。
+
+== 从 IDE 运行
+
+先使用 IDE 的 Maven 或 Gradle 项目导入功能导入项目，等待依赖解析完成，再运行主应用类中的 `main` 方法。
+不同 IDE 的导入步骤不同；IntelliJ IDEA 和 Eclipse 均支持常见 Java 构建系统。
+
+TIP: 如果重复运行 Web 应用，通常会出现端口占用错误。先停止已有实例，再启动新的实例。
+
+== 运行打包后的应用
+
+使用 TODAY INFRA 的构建插件生成可执行 JAR 后，可以通过 `java -jar` 运行：
+
+[source,shell]
+----
+java -jar build/libs/myapplication-0.0.1-SNAPSHOT.jar
+----
+
+Maven 项目的产物通常位于 `target/`，应使用实际生成的 JAR 路径。
+也可以为打包后的应用开启远程调试，并从 IDE 连接：
+
+[source,shell]
+----
+java -agentlib:jdwp=server=y,transport=dt_socket,address=localhost:8000,suspend=n \
+  -jar build/libs/myapplication-0.0.1-SNAPSHOT.jar
+----
+
+`suspend=n` 表示启动时不等待调试器连接。
+
+== 使用 Gradle 插件
+
+应用 `infra.application` 和 `java` 插件后，可以使用 `infraRun` 任务从未打包的类目录运行应用：
+
+[source,shell]
+----
+./gradlew infraRun
+----
+
+完整构建示例及 `infraJar` 打包方式见 xref:tutorial:first-application/index.adoc[入门教程]。
+应用 JVM 的参数应配置给运行应用的任务或直接传给 `java`；Gradle 守护进程的参数不等同于应用进程的参数。
+
+== 热替换
+
+TODAY INFRA 应用是普通 Java 应用，可以使用 JVM 和 IDE 提供的调试热替换能力。
+标准 JVM 对可替换的字节码变更有一定限制，例如通常不能任意增加字段或修改类结构。
+需要更完整的热替换能力时，可以评估 https://www.jrebel.com/products/jrebel[JRebel] 等工具。

@@ -82,9 +82,7 @@ public interface WritableJson {
   default byte[] toByteArray(Charset charset) {
     Assert.notNull(charset, "'charset' is required");
     try {
-      AppendableByteArray appendable = AppendableByteArray.get(charset);
-      to(appendable);
-      return appendable.toByteArray();
+      return AppendableByteArray.toByteArray(charset, this::to);
     }
     catch (IOException ex) {
       throw new UncheckedIOException(ex);

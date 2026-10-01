@@ -123,37 +123,52 @@ final class Handler {
     if (firstHandler == null) {
       return null;
     }
-    else {
-      firstHandler.nextHandler = removeRange(firstHandler.nextHandler, start, end);
-    }
-    int handlerStart = firstHandler.startPc.bytecodeOffset;
-    int handlerEnd = firstHandler.endPc.bytecodeOffset;
-    int rangeStart = start.bytecodeOffset;
-    int rangeEnd = end == null ? Integer.MAX_VALUE : end.bytecodeOffset;
-    // Return early if [handlerStart,handlerEnd[ and [rangeStart,rangeEnd[ don't intersect.
-    if (rangeStart >= handlerEnd || rangeEnd <= handlerStart) {
-      return firstHandler;
-    }
-    if (rangeStart <= handlerStart) {
-      if (rangeEnd >= handlerEnd) {
-        // If [handlerStart,handlerEnd[ is included in [rangeStart,rangeEnd[, remove firstHandler.
-        return firstHandler.nextHandler;
+    final int rangeStart = start.bytecodeOffset;
+    final int rangeEnd = end == null ? Integer.MAX_VALUE : end.bytecodeOffset;
+    final Handler sentinel = new Handler(firstHandler, null, null);
+    Handler lastHandler = sentinel;
+    Handler currentHandler = firstHandler;
+
+    while (currentHandler != null) {
+      final int handlerStart = currentHandler.startPc.bytecodeOffset;
+      final int handlerEnd = currentHandler.endPc.bytecodeOffset;
+      Handler nextHandler = currentHandler.nextHandler;
+      currentHandler.nextHandler = null;
+
+      // If [handlerStart,handlerEnd[ and [rangeStart,rangeEnd[ don't intersect keep the current
+      // handler, unchanged.
+      if (rangeStart >= handlerEnd || rangeEnd <= handlerStart) {
+        lastHandler.nextHandler = currentHandler;
+        lastHandler = currentHandler;
+      }
+      else if (rangeStart <= handlerStart) {
+        if (rangeEnd >= handlerEnd) {
+          // If [handlerStart,handlerEnd[ is included in [rangeStart,rangeEnd[, do nothing (this
+          // removes currentHandler).
+        }
+        else {
+          // [handlerStart,handlerEnd[ - [rangeStart,rangeEnd[ = [rangeEnd,handlerEnd[
+          lastHandler.nextHandler = new Handler(currentHandler, end, currentHandler.endPc);
+          lastHandler = lastHandler.nextHandler;
+        }
+      }
+      else if (rangeEnd >= handlerEnd) {
+        // [handlerStart,handlerEnd[ - [rangeStart,rangeEnd[ = [handlerStart,rangeStart[
+        lastHandler.nextHandler = new Handler(currentHandler, currentHandler.startPc, start);
+        lastHandler = lastHandler.nextHandler;
       }
       else {
-        // [handlerStart,handlerEnd[ - [rangeStart,rangeEnd[ = [rangeEnd,handlerEnd[
-        return new Handler(firstHandler, end, firstHandler.endPc);
+        // [handlerStart,handlerEnd[ - [rangeStart,rangeEnd[ =
+        //     [handlerStart,rangeStart[ + [rangeEnd,handlerEnd[
+        // The range is split in two parts.
+        lastHandler.nextHandler = new Handler(currentHandler, currentHandler.startPc, start);
+        lastHandler = lastHandler.nextHandler;
+        lastHandler.nextHandler = new Handler(currentHandler, end, currentHandler.endPc);
+        lastHandler = lastHandler.nextHandler;
       }
+      currentHandler = nextHandler;
     }
-    else if (rangeEnd >= handlerEnd) {
-      // [handlerStart,handlerEnd[ - [rangeStart,rangeEnd[ = [handlerStart,rangeStart[
-      return new Handler(firstHandler, firstHandler.startPc, start);
-    }
-    else {
-      // [handlerStart,handlerEnd[ - [rangeStart,rangeEnd[ =
-      //     [handlerStart,rangeStart[ + [rangeEnd,handerEnd[
-      firstHandler.nextHandler = new Handler(firstHandler, end, firstHandler.endPc);
-      return new Handler(firstHandler, firstHandler.startPc, start);
-    }
+    return sentinel.nextHandler;
   }
 
   /**

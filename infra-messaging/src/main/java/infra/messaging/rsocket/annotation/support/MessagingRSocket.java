@@ -101,8 +101,8 @@ class MessagingRSocket implements RSocket {
    * @return completion handle for success or error
    */
   public Mono<Void> handleConnectionSetupPayload(ConnectionSetupPayload payload) {
-    // frameDecoder does not apply to connectionSetupPayload
-    // so retain here since handle expects it.
+    // RSocket Java releases its own ConnectionSetupPayload reference.
+    // Retain one for the release performed when handling this payload.
     payload.retain();
     return handle(payload, FrameType.SETUP);
   }
@@ -181,33 +181,39 @@ class MessagingRSocket implements RSocket {
 
   private MessageHeaders createHeaders(
           Payload payload, FrameType frameType, @Nullable AtomicReference<Flux<Payload>> responseRef) {
+    try {
+      MessageHeaderAccessor headers = new MessageHeaderAccessor();
+      headers.setLeaveMutable(true);
 
-    MessageHeaderAccessor headers = new MessageHeaderAccessor();
-    headers.setLeaveMutable(true);
-
-    Map<String, Object> metadataValues = this.metadataExtractor.extract(payload, this.metadataMimeType);
-
-    metadataValues.putIfAbsent(MetadataExtractor.ROUTE_KEY, "");
-    for (Map.Entry<String, Object> entry : metadataValues.entrySet()) {
-      if (entry.getKey().equals(MetadataExtractor.ROUTE_KEY)) {
-        RouteMatcher.Route route = this.routeMatcher.parseRoute((String) entry.getValue());
-        headers.setHeader(DestinationPatternsMessageCondition.LOOKUP_DESTINATION_HEADER, route);
+      Map<String, Object> metadataValues = this.metadataExtractor.extract(payload, this.metadataMimeType);
+      metadataValues.putIfAbsent(MetadataExtractor.ROUTE_KEY, "");
+      for (Map.Entry<String, Object> entry : metadataValues.entrySet()) {
+        if (entry.getKey().equals(MetadataExtractor.ROUTE_KEY)) {
+          RouteMatcher.Route route = this.routeMatcher.parseRoute((String) entry.getValue());
+          headers.setHeader(DestinationPatternsMessageCondition.LOOKUP_DESTINATION_HEADER, route);
+        }
+        else {
+          headers.setHeader(entry.getKey(), entry.getValue());
+        }
       }
-      else {
-        headers.setHeader(entry.getKey(), entry.getValue());
+
+      headers.setContentType(this.dataMimeType);
+      headers.setHeader(RSocketFrameTypeMessageCondition.FRAME_TYPE_HEADER, frameType);
+      headers.setHeader(RSocketRequesterMethodArgumentResolver.RSOCKET_REQUESTER_HEADER, this.requester);
+      if (responseRef != null) {
+        headers.setHeader(RSocketPayloadReturnValueHandler.RESPONSE_HEADER, responseRef);
       }
-    }
+      headers.setHeader(HandlerMethodReturnValueHandler.DATA_BUFFER_FACTORY_HEADER,
+              this.strategies.dataBufferFactory());
 
-    headers.setContentType(this.dataMimeType);
-    headers.setHeader(RSocketFrameTypeMessageCondition.FRAME_TYPE_HEADER, frameType);
-    headers.setHeader(RSocketRequesterMethodArgumentResolver.RSOCKET_REQUESTER_HEADER, this.requester);
-    if (responseRef != null) {
-      headers.setHeader(RSocketPayloadReturnValueHandler.RESPONSE_HEADER, responseRef);
+      return headers.getMessageHeaders();
     }
-    headers.setHeader(HandlerMethodReturnValueHandler.DATA_BUFFER_FACTORY_HEADER,
-            this.strategies.dataBufferFactory());
-
-    return headers.getMessageHeaders();
+    catch (Throwable ex) {
+      if (payload.refCnt() > 0) {
+        payload.release();
+      }
+      throw ex;
+    }
   }
 
 }

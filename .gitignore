@@ -40,3 +40,5 @@ AGENTS.md
 .codegraph
 opencode.jsonc
 .claude
+
+package-lock.json

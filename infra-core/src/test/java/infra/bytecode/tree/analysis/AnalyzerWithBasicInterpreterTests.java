@@ -41,6 +41,7 @@ import java.util.ArrayList;
 
 import infra.bytecode.AsmTest;
 import infra.bytecode.ClassReader;
+import infra.bytecode.LimitExceededException;
 import infra.bytecode.Opcodes;
 import infra.bytecode.tree.ClassNode;
 import infra.bytecode.tree.MethodNode;
@@ -103,6 +104,10 @@ public class AnalyzerWithBasicInterpreterTests extends AsmTest {
                 return new CustomFrame(src);
               }
             };
+    if (classParameter == PrecompiledClass.JDK3_LARGE_METHOD) {
+      analyzer.setComputeLimits(
+              Analyzer.DEFAULT_MAX_MEMORY_LIMIT * 2, Analyzer.DEFAULT_MAX_OPERATIONS_LIMIT);
+    }
 
     ArrayList<Frame<? extends BasicValue>[]> methodFrames = new ArrayList<>();
     for (MethodNode methodNode : classNode.methods) {
@@ -135,6 +140,10 @@ public class AnalyzerWithBasicInterpreterTests extends AsmTest {
       methodNode.maxStack = 0;
     }
     Analyzer<BasicValue> analyzer = new Analyzer<BasicValue>(new BasicInterpreter());
+    if (classParameter == PrecompiledClass.JDK3_LARGE_METHOD) {
+      analyzer.setComputeLimits(
+              Analyzer.DEFAULT_MAX_MEMORY_LIMIT * 2, Analyzer.DEFAULT_MAX_OPERATIONS_LIMIT);
+    }
 
     ArrayList<MethodMaxs> analyzedMethodMaxs = new ArrayList<>();
     for (MethodNode methodNode : classNode.methods) {
@@ -208,6 +217,29 @@ public class AnalyzerWithBasicInterpreterTests extends AsmTest {
       }
     }
     return null;
+  }
+
+  @Test
+  public void testAnalyze_basicIntepreter_defaultComputeLimits() {
+    int[] numClasses = new int[] { 0 };
+    int[] numErrors = new int[] { 0 };
+    Analyzer<BasicValue> analyzer = new Analyzer<>(new BasicInterpreter());
+    analyzer.setComputeLimits(
+            Analyzer.DEFAULT_MAX_MEMORY_LIMIT / 20, Analyzer.DEFAULT_MAX_OPERATIONS_LIMIT / 10);
+    listAllJavaModulesClasses()
+            .forEach(
+                    classFile -> {
+                      numClasses[0]++;
+                      try {
+                        ClassAnalyzer<BasicValue> classAnalyzer = new ClassAnalyzer<>(analyzer);
+                        new ClassReader(classFile).accept(classAnalyzer, ClassReader.SKIP_FRAMES);
+                      }
+                      catch (LimitExceededException e) {
+                        numErrors[0]++;
+                      }
+                    });
+    assertTrue(numClasses[0] > 10000);
+    assertEquals(0, numErrors[0]);
   }
 
   private static class CustomFrame extends Frame<BasicValue> {

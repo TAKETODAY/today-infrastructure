@@ -30,6 +30,7 @@
 
 package infra.bytecode.util;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -90,19 +91,17 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
   /** Whether {@link #visitInterface} has been called. */
   private boolean interfaceVisited;
 
-  /**
-   * The stack used to keep track of class types that have arguments. Each element of this stack is
-   * a boolean encoded in one bit. The top of the stack is the least significant bit. Pushing false
-   * = *2, pushing true = *2+1, popping = /2.
-   */
-  private int argumentStack;
+  /** A delayed task to perform when a type or a list of type arguments has been visited. */
+  static enum Task {
+    END_ARRAY_TYPE,
+    END_EMPTY_TYPE_ARGUMENTS,
+    END_NON_EMPTY_TYPE_ARGUMENTS,
+  }
 
   /**
-   * The stack used to keep track of array class types. Each element of this stack is a boolean
-   * encoded in one bit. The top of the stack is the lowest order bit. Pushing false = *2, pushing
-   * true = *2+1, popping = /2.
+   * A stack of pending tasks to perform when a type or a list of type arguments has been visited.
    */
-  private int arrayStack;
+  private ArrayList<Task> pendingTasks = new ArrayList<>();
 
   /** The separator to append before the next visited class or inner class type. */
   private String separator = "";
@@ -132,7 +131,6 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
   @Override
   public SignatureVisitor visitClassBound() {
     separator = EXTENDS_SEPARATOR;
-    startType();
     return this;
   }
 
@@ -140,7 +138,6 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
   public SignatureVisitor visitInterfaceBound() {
     separator = interfaceBoundVisited ? COMMA_SEPARATOR : EXTENDS_SEPARATOR;
     interfaceBoundVisited = true;
-    startType();
     return this;
   }
 
@@ -148,7 +145,6 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
   public SignatureVisitor visitSuperclass() {
     endFormals();
     separator = EXTENDS_SEPARATOR;
-    startType();
     return this;
   }
 
@@ -161,7 +157,6 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
       separator = isInterface ? EXTENDS_SEPARATOR : IMPLEMENTS_SEPARATOR;
       interfaceVisited = true;
     }
-    startType();
     return this;
   }
 
@@ -175,7 +170,6 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
       declaration.append('(');
       parameterTypeVisited = true;
     }
-    startType();
     return this;
   }
 
@@ -223,8 +217,7 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
 
   @Override
   public SignatureVisitor visitArrayType() {
-    startType();
-    arrayStack |= 1;
+    pendingTasks.add(Task.END_ARRAY_TYPE);
     return this;
   }
 
@@ -233,7 +226,10 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
     if ("java/lang/Object".equals(name)) {
       // 'Map<java.lang.Object,java.util.List>' or 'abstract public V get(Object key);' should have
       // Object 'but java.lang.String extends java.lang.Object' is unnecessary.
-      boolean needObjectClass = argumentStack % 2 != 0 || parameterTypeVisited;
+      boolean needObjectClass =
+          (!pendingTasks.isEmpty()
+                  && pendingTasks.get(pendingTasks.size() - 1) == Task.END_NON_EMPTY_TYPE_ARGUMENTS)
+              || parameterTypeVisited;
       if (needObjectClass) {
         declaration.append(separator).append(name.replace('/', '.'));
       }
@@ -242,25 +238,22 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
       declaration.append(separator).append(name.replace('/', '.'));
     }
     separator = "";
-    argumentStack *= 2;
+    pendingTasks.add(Task.END_EMPTY_TYPE_ARGUMENTS);
   }
 
   @Override
   public void visitInnerClassType(final String name) {
-    if (argumentStack % 2 != 0) {
-      declaration.append('>');
-    }
-    argumentStack /= 2;
-    declaration.append('.');
-    declaration.append(separator).append(name.replace('/', '.'));
+    endTypeArguments();
+    declaration.append('.').append(separator).append(name.replace('/', '.'));
+    pendingTasks.add(Task.END_EMPTY_TYPE_ARGUMENTS);
     separator = "";
-    argumentStack *= 2;
   }
 
   @Override
   public void visitTypeArgument() {
-    if (argumentStack % 2 == 0) {
-      ++argumentStack;
+    int lastTaskIndex = pendingTasks.size() - 1;
+    if (pendingTasks.get(lastTaskIndex) == Task.END_EMPTY_TYPE_ARGUMENTS) {
+      pendingTasks.set(lastTaskIndex, Task.END_NON_EMPTY_TYPE_ARGUMENTS);
       declaration.append('<');
     }
     else {
@@ -271,8 +264,9 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
 
   @Override
   public SignatureVisitor visitTypeArgument(final char tag) {
-    if (argumentStack % 2 == 0) {
-      ++argumentStack;
+    int lastTaskIndex = pendingTasks.size() - 1;
+    if (pendingTasks.get(lastTaskIndex) == Task.END_EMPTY_TYPE_ARGUMENTS) {
+      pendingTasks.set(lastTaskIndex, Task.END_NON_EMPTY_TYPE_ARGUMENTS);
       declaration.append('<');
     }
     else {
@@ -286,16 +280,12 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
       declaration.append("? super ");
     }
 
-    startType();
     return this;
   }
 
   @Override
   public void visitEnd() {
-    if (argumentStack % 2 != 0) {
-      declaration.append('>');
-    }
-    argumentStack /= 2;
+    endTypeArguments();
     endType();
   }
 
@@ -337,19 +327,17 @@ public final class TraceSignatureVisitor extends SignatureVisitor {
     }
   }
 
-  private void startType() {
-    arrayStack *= 2;
+  private void endTypeArguments() {
+    if (pendingTasks.remove(pendingTasks.size() - 1) == Task.END_NON_EMPTY_TYPE_ARGUMENTS) {
+      declaration.append('>');
+    }
   }
 
   private void endType() {
-    if (arrayStack % 2 == 0) {
-      arrayStack /= 2;
-    }
-    else {
-      while (arrayStack % 2 != 0) {
-        arrayStack /= 2;
-        declaration.append("[]");
-      }
+    int numTasks = pendingTasks.size();
+    while (numTasks > 0 && pendingTasks.get(--numTasks) == Task.END_ARRAY_TYPE) {
+      declaration.append("[]");
+      pendingTasks.remove(numTasks);
     }
   }
 }

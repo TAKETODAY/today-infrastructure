@@ -171,31 +171,27 @@ class CollectionToCollectionConverterTests {
   @Test
   void convertEmptyVector_shouldReturnEmptyArrayList() {
     Vector<String> vector = new Vector<>();
-    vector.add("Element");
-    testCollectionConversionToArrayList(vector);
+    CollectionToCollectionConverter converter = new CollectionToCollectionConverter(new GenericConversionService());
+    Object convertedValue = converter.convert(vector, TypeDescriptor.forObject(vector), TypeDescriptor.valueOf(ArrayList.class));
+    assertThat(convertedValue).isInstanceOf(ArrayList.class);
+    assertThat((ArrayList<?>) convertedValue).isEmpty();
   }
 
   @Test
   void convertNonEmptyVector_shouldReturnNonEmptyArrayList() {
     Vector<String> vector = new Vector<>();
     vector.add("Element");
-    testCollectionConversionToArrayList(vector);
+    CollectionToCollectionConverter converter = new CollectionToCollectionConverter(new GenericConversionService());
+    Object convertedValue = converter.convert(vector, TypeDescriptor.forObject(vector), TypeDescriptor.valueOf(ArrayList.class));
+    assertThat(convertedValue).isInstanceOf(ArrayList.class);
+    assertThat((ArrayList<?>) convertedValue).isNotEmpty();
   }
 
   @Test
   void collectionsEmptyList() throws Exception {
     CollectionToCollectionConverter converter = new CollectionToCollectionConverter(new GenericConversionService());
     TypeDescriptor type = new TypeDescriptor(getClass().getField("list"));
-    converter.convert(list, type, TypeDescriptor.valueOf(Class.forName("java.util.Collections$EmptyList")));
-  }
-
-  @SuppressWarnings("rawtypes")
-  private void testCollectionConversionToArrayList(Collection<String> aSource) {
-    Object myConverted = (new CollectionToCollectionConverter(new GenericConversionService())).convert(
-            aSource, TypeDescriptor.forObject(aSource), TypeDescriptor.forObject(new ArrayList()));
-    boolean condition = myConverted instanceof ArrayList<?>;
-    assertThat(condition).isTrue();
-    assertThat(((ArrayList<?>) myConverted).size()).isEqualTo(aSource.size());
+    assertThat(converter.convert(list, type, TypeDescriptor.valueOf(Class.forName("java.util.Collections$EmptyList")))).isSameAs(list);
   }
 
   @Test

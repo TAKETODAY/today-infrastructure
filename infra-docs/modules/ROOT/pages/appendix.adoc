@@ -59,6 +59,10 @@ checkpoint/restore at startup] 和
 | `spel.compiler.mode`
 | 全局的 xref:core/expressions/evaluation.adoc#expressions-compiler-configuration[Infra Expression Language] 编译模式.
 
+| `spel.default.max-big-power-bits`
+| xref:core/expressions/evaluation.adoc#expressions-parser-configuration[SpEL 表达式]中，`BigDecimal` 或
+`BigInteger` 幂运算结果允许的默认最大位数。未配置时为 1,000,000 位，也可在解析器配置中显式指定。
+
 | `infra.getenv.ignore`
 | 用于是否忽略系统环境变量的获取，开启之后，将不能获取系统变量，详见：
 {today-framework-api}++/core/env/AbstractEnvironment.html#IGNORE_GETENV_PROPERTY_NAME++[`AbstractEnvironment`]。

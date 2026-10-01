@@ -73,6 +73,9 @@ public class InfraTemplateLoader implements TemplateLoader {
     if (log.isDebugEnabled()) {
       log.debug("Looking for FreeMarker template with name [{}]", name);
     }
+    if (name.indexOf('\\') != -1) {
+      return null;
+    }
     Resource resource = resourceLoader.getResource(this.templateLoaderPath + name);
     return resource.exists() ? resource : null;
   }
@@ -107,4 +110,3 @@ public class InfraTemplateLoader implements TemplateLoader {
   }
 
 }
-

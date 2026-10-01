@@ -955,7 +955,7 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
     };
 
     try {
-      return new FormHttpMessageConverter().read(null, message);
+      return (MultiValueMap<String, String>) new FormHttpMessageConverter().read(MultiValueMap.class, message);
     }
     catch (IOException ex) {
       throw new IllegalStateException("Failed to parse form data in request body", ex);

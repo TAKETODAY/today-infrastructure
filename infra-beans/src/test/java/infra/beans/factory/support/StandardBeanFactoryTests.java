@@ -26,6 +26,7 @@ import org.mockito.ArgumentMatchers;
 import java.io.Closeable;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -55,6 +56,7 @@ import infra.beans.factory.BeanCurrentlyInCreationException;
 import infra.beans.factory.BeanDefinitionStoreException;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryUtils;
+import infra.beans.factory.BeanNotOfRequiredTypeException;
 import infra.beans.factory.BeanNameAware;
 import infra.beans.factory.DisposableBean;
 import infra.beans.factory.FactoryBean;
@@ -87,6 +89,7 @@ import infra.beans.testfixture.beans.factory.DummyFactory;
 import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.MethodParameter;
 import infra.core.Ordered;
+import infra.core.ParameterizedTypeReference;
 import infra.core.ResolvableType;
 import infra.core.StringValueResolver;
 import infra.core.annotation.AnnotationAwareOrderComparator;
@@ -1221,10 +1224,12 @@ class StandardBeanFactoryTests {
     RootBeanDefinition bd1 = new RootBeanDefinition(TestBean.class);
     bd1.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     lbf.registerBeanDefinition("testBean", bd1);
+    assertThat(lbf.getBeanDefinition("testBean").getScope()).isEqualTo(BeanDefinition.SCOPE_PROTOTYPE);
     assertThat(lbf.getBean("testBean")).isInstanceOf(TestBean.class);
     RootBeanDefinition bd2 = new RootBeanDefinition(NestedTestBean.class);
-    bd2.setScope(BeanDefinition.SCOPE_PROTOTYPE);
+    bd2.setScope(BeanDefinition.SCOPE_SINGLETON);
     lbf.registerBeanDefinition("testBean", bd2);
+    assertThat(lbf.getBeanDefinition("testBean").getScope()).isEqualTo(BeanDefinition.SCOPE_SINGLETON);
     assertThat(lbf.getBean("testBean")).isInstanceOf(NestedTestBean.class);
   }
 
@@ -1655,6 +1660,50 @@ class StandardBeanFactoryTests {
     assertThatExceptionOfType(NoUniqueBeanDefinitionException.class).isThrownBy(() ->
             lbf.getBean(TestBean.class));
   }
+
+  @Test
+  void getBeanByNameWithTypeReference() {
+    lbf.registerBeanDefinition("bd1", new RootBeanDefinition(StringTemplate.class));
+    lbf.registerBeanDefinition("bd2", new RootBeanDefinition(NumberTemplate.class));
+
+    Template<String> stringTemplate = lbf.getBean("bd1", new ParameterizedTypeReference<>() { });
+    Template<Number> numberTemplate = lbf.getBean("bd2", new ParameterizedTypeReference<>() { });
+    assertThat(stringTemplate).isInstanceOf(StringTemplate.class);
+    assertThat(numberTemplate).isInstanceOf(NumberTemplate.class);
+
+    assertThatExceptionOfType(BeanNotOfRequiredTypeException.class)
+            .isThrownBy(() -> lbf.getBean("bd2", new ParameterizedTypeReference<Template<String>>() { }))
+            .satisfies(ex -> {
+              assertThat(ex.getBeanName()).isEqualTo("bd2");
+              assertThat(ex.getRequiredType()).isEqualTo(Template.class);
+              assertThat(ex.getActualType()).isEqualTo(NumberTemplate.class);
+              assertThat(ex.getGenericRequiredType().getTypeName()).endsWith("Template<java.lang.String>");
+            });
+  }
+
+  @Test
+  void getBeanByNameWithTypeReferenceMatchingGenericTypeOnAopProxy() {
+    RootBeanDefinition definition = new RootBeanDefinition(ProxiedStringTemplate.class);
+    definition.setTargetType(ResolvableType.forClass(ProxiedStringTemplate.class));
+    lbf.registerBeanDefinition("proxiedTemplate", definition);
+
+    Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(),
+            new Class<?>[] { ProxiedTemplate.class }, (target, method, args) -> null);
+    lbf.registerSingleton("proxiedTemplate", proxy);
+
+    ProxiedTemplate<String> template = lbf.getBean("proxiedTemplate", new ParameterizedTypeReference<>() { });
+    assertThat(template).isSameAs(proxy);
+  }
+
+  private static class Template<T> { }
+
+  private static class StringTemplate extends Template<String> { }
+
+  private static class NumberTemplate extends Template<Number> { }
+
+  private interface ProxiedTemplate<T> { }
+
+  private static class ProxiedStringTemplate implements ProxiedTemplate<String> { }
 
   @Test
   void getBeanByTypeWithPrimary() {

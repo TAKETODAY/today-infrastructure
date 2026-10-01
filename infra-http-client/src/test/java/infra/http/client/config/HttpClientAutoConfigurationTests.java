@@ -28,6 +28,7 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.http.client.HttpClientSettings;
+import infra.http.client.HttpCookieHandling;
 import infra.http.client.HttpRedirects;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,9 +51,11 @@ class HttpClientAutoConfigurationTests {
   @Test
   void createsHttpClientSettingsFromProperties() {
     this.contextRunner
-            .withPropertyValues("http.clients.redirects=dont-follow", "http.clients.connect-timeout=1s", "http.clients.read-timeout=2s")
+            .withPropertyValues("http.clients.redirects=dont-follow", "http.clients.connect-timeout=1s",
+                    "http.clients.read-timeout=2s", "http.clients.cookie-handling=disable")
             .run((context) -> assertThat(context.getBean(HttpClientSettings.class)).isEqualTo(new HttpClientSettings(
-                  null,  HttpRedirects.DONT_FOLLOW, Duration.ofSeconds(1), Duration.ofSeconds(2), null)));
+                    HttpCookieHandling.DISABLE, HttpRedirects.DONT_FOLLOW, Duration.ofSeconds(1), Duration.ofSeconds(2),
+                    null)));
   }
 
   @Test

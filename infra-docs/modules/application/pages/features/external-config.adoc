@@ -1,0 +1,254 @@
+[[features.external-config]]
+= 外部化配置
+
+TODAY INFRA 允许把配置放在应用代码之外，使同一份代码在不同环境中运行。
+配置来源包括 Java Properties、YAML、环境变量、Java 系统属性和命令行参数。
+可以通过 `infra.beans.factory.annotation.Value` 注入单个值，通过 `infra.core.env.Environment` 查询属性，或使用 `infra.context.properties.ConfigurationProperties` 绑定结构化对象。
+
+== 配置文件搜索路径
+
+应用启动时，默认查找 `application.properties` 和支持的 YAML 变体。
+默认位置按以下顺序处理，后面的配置可以覆盖前面的配置：
+
+. 类路径根目录。
+. 类路径的 `/config/` 包。
+. 当前工作目录。
+. 当前工作目录的 `config/` 子目录。
+. `config/` 的直接子目录。
+
+推荐在整个应用中使用同一种格式。同一位置同时存在 Properties 和 YAML 时，Properties 的优先级更高。
+类路径中的配置适合提供默认值，外部配置适合部署时覆盖默认值。
+命令行属性优先于配置文件；Java 系统属性优先于操作系统环境变量，二者优先于默认加载的配置文件。
+通过 `Application.setDefaultProperties(...)` 提供的默认属性位于较低优先级。
+测试框架、自定义环境或属性源后处理器可以进一步调整属性源，不应把这些常见来源的顺序当成所有环境的完整列表。
+
+`@PropertySource` 的属性源直到上下文刷新时才加入，因此不能用它设置在刷新前就读取的启动和日志选项。
+
+== 命令行参数
+
+`Application` 默认把 `--` 开头的选项转换为环境属性，例如 `--server.port=9000`。
+如果不希望这样处理，启动前调用 `setAddCommandLineProperties(false)`。
+
+[source,shell]
+----
+java -jar myapp.jar --my.service.name=production
+----
+
+== JSON 属性
+
+可以用 `infra.application.json` 系统属性或 `INFRA_APPLICATION_JSON` 环境变量提供一段 JSON：
+
+[source,shell]
+----
+INFRA_APPLICATION_JSON='{"my":{"name":"test"}}' java -jar myapp.jar
+java -Dinfra.application.json='{"my":{"name":"test"}}' -jar myapp.jar
+java -jar myapp.jar --infra.application.json='{"my":{"name":"test"}}'
+----
+
+解析后，环境中会出现 `my.name=test`。
+该 JSON 属性源位于系统属性之前；通常仍低于命令行属性。
+目标实现把 JSON 的 `null`、空对象和空数组转换为空字符串。这与上游页面中“`null` 不能覆盖较低优先级属性”的说明不同，不应照搬该说明。
+
+== 更改名称和位置
+
+`app.config.name` 更改配置文件基本名称，不包含扩展名：
+
+[source,shell]
+----
+java -jar myapp.jar --app.config.name=myproject
+----
+
+`app.config.location` 替换默认搜索位置；`app.config.additional-location` 增加位置，新增位置可以覆盖默认位置的值。
+多个位置以逗号分隔，目录位置应以 `/` 结尾。
+位置按声明顺序处理，后面的位置可以覆盖前面的值；分号 `;` 把位置归为同一优先级组。
+
+[source,shell]
+----
+java -jar myapp.jar --app.config.additional-location=optional:file:./custom-config/
+----
+
+这些属性在加载配置文件之前就会读取，必须通过命令行、系统属性或环境变量等早期来源设置。
+不要把 `app.config.name` 放进希望由它决定文件名的配置文件中。
+
+=== 可选位置
+
+指定的位置不存在时，默认会抛出 `ConfigDataLocationNotFoundException`，阻止启动。
+如果允许某个位置不存在，添加 `optional:` 前缀；该前缀可以用于 `location`、`additional-location` 和 `import`。
+`app.config.on-not-found=ignore` 可忽略配置数据位置不存在的错误，应明确了解缺失配置的影响后再使用。
+
+=== 通配符位置
+
+外部目录支持最后一个路径段中的通配符，例如 `file:./config/*/`。
+默认搜索位置已经包含当前目录下的 `config/*/`。
+通配符仅用于外部位置，不能用于 `classpath:`；子目录按绝对路径的字母顺序处理。
+需要不同优先级时，显式列出各个位置。
+
+=== Profile 专用文件
+
+`application-prod.properties` 等 Profile 专用文件覆盖同位置的普通配置。
+多个激活的 Profile 采用后者优先规则，例如 `prod,live` 中 `live` 的值可以覆盖 `prod`。
+此规则作用于位置组：`classpath:/cfg/,classpath:/ext/` 先处理整个 `cfg` 再处理 `ext`，而 `classpath:/cfg/;classpath:/ext/` 把二者放在同一组内按 Profile 处理。
+没有激活的 Profile 时，会考虑默认 Profile（默认是 `default`）对应的文件。
+更多 Profile 设置见 xref:features/profiles.adoc[]。
+
+== 导入配置数据
+
+使用 `app.config.import` 从其他位置导入配置数据：
+
+[source,properties]
+----
+app.config.import=optional:file:./dev.properties
+----
+
+导入文件的值优先于声明导入的文档。
+同一位置只导入一次，单个文档中 `import` 属性的书写位置不会改变优先级。
+多个导入按声明顺序处理，后面的导入优先；适用时也加载 Profile 专用变体。
+
+以 `/` 或 `file:`、`classpath:` 等协议前缀开头的位置是固定位置。
+其他位置相对于声明导入的文件解析，`optional:` 不影响这一判断。
+例如 `/demo/application.properties` 中的 `optional:core/core.properties` 指向 `/demo/core/core.properties`。
+
+=== 无扩展名文件
+
+可以使用扩展名提示加载没有扩展名的文件：
+
+[source,properties]
+----
+app.config.import=file:/etc/config/myconfig[.yaml]
+----
+
+目标解析器支持此形式的扩展名提示。不要照搬上游当前支持的 `[extension=.yaml][encoding=utf-8]` 属性语法；目标当前没有等价的通用文件属性解析能力。
+
+=== 配置树
+
+配置树把目录和文件名组成属性名，把文件内容作为属性值，适合读取挂载到文件系统的配置或 Secret：
+
+[source,properties]
+----
+app.config.import=optional:configtree:/etc/config/
+----
+
+如果目录下有 `myapp/username` 和 `myapp/password`，得到 `myapp.username` 和 `myapp.password`。
+从 `/etc/config/myapp/` 导入则得到 `username` 和 `password`。
+文件名中的点也作为属性名的一部分，值可以绑定为 `String` 或 `byte[]`。
+`configtree:/etc/config/*/` 可以导入直接子目录中的配置树，目录按字母顺序处理。
+Docker Secret 也可以通过 `optional:configtree:/run/secrets/` 导入。
+
+== 占位符与多文档配置
+
+配置值使用时可通过环境解析 `$\{name}` 占位符，也可以指定默认值 `${name:default}`。
+推荐使用小写连字符形式的规范属性名，例如 `${demo.item-price}`。
+
+[source,properties]
+----
+my.name=MyApp
+my.description=${my.name} by ${username:Unknown}
+----
+
+YAML 使用 `---` 分隔多个逻辑文档，Properties 使用 `#---` 或 `!---`。
+Properties 分隔行不能有前导空白，必须恰好含三个连字符，且其前后行不能使用相同的注释前缀。
+后面的活动文档可以覆盖前面的文档。
+
+[source,yaml]
+----
+my:
+  name: MyApp
+---
+app:
+  config:
+    activate:
+      on-profile: "prod | staging"
+my:
+  name: DeployedApp
+----
+
+`app.config.activate.on-profile` 支持 Profile 表达式；`on-cloud-platform` 可以要求检测到指定云平台，例如 `kubernetes`。
+同时指定两个条件时，两者都必须匹配。
+YAML 和多文档 Properties 不能直接依靠普通 `@PropertySource` 或 `@TestPropertySource` 加载；这些注解的默认加载方式不等价于应用配置数据加载器。
+
+== YAML
+
+类路径中存在 SnakeYAML 时，配置数据加载器可以读取 YAML。
+层次结构会展平成点分隔的属性名，列表会变成 `my.servers[0]`、`my.servers[1]` 等索引属性。
+也可以使用 `infra.beans.factory.config.YamlPropertiesFactoryBean`、`YamlMapFactoryBean` 或 `infra.app.env.YamlPropertySourceLoader` 单独加载 YAML。
+
+== 类型安全的配置属性
+
+多个相关属性适合绑定为 `@ConfigurationProperties` 对象，而不是使用大量 `@Value` 字段。
+通过 `EnableConfigurationProperties` 显式注册，或使用 `ConfigurationPropertiesScan` 扫描配置属性类。
+配置属性扫描与普通组件扫描是不同的机制。
+
+=== JavaBean 绑定
+
+JavaBean 绑定通常使用无参构造器、getter 和 setter。
+预先初始化为可变实现的集合、Map，以及预先初始化的嵌套对象，可以省略 setter。
+目标还支持公开字段绑定；静态成员不应作为配置属性。
+嵌套属性名由成员名决定，而不是由嵌套类型名决定。
+
+=== 构造器绑定
+
+单个有参构造器可以隐式启用构造器绑定；有多个构造器时使用 `infra.context.properties.bind.ConstructorBinding` 明确选择。
+record 同样支持构造器绑定。构造器参数名必须保留，编译时使用 `-parameters`。
+通过普通组件、`@Bean` 工厂方法或 `@Import` 创建的对象不采用这种配置属性构造器创建方式。
+
+`infra.context.properties.bind.DefaultValue` 为缺失的构造器参数或 record 组件指定默认值，支持占位符解析和类型转换。
+嵌套对象未提供属性时通常为 `null`；空的 `@DefaultValue` 可以要求为缺失的嵌套属性创建默认对象。
+不推荐把 `Optional` 用作配置属性成员，应根据实际空值语义设计类型。
+
+配置对象中的默认值不会自动写入 `Environment`。
+例如一个布尔成员默认是 `false`，不意味着 `@Value("${my.enabled}")` 在未提供属性时一定能解析；仍应显式提供占位符默认值。
+
+=== 使用和第三方对象
+
+配置属性 Bean 可以像其他 Bean 一样注入。
+通常应只承载环境配置，不在构造器中注入其他业务 Bean。
+也可以在创建第三方对象的 `@Bean` 方法上使用 `@ConfigurationProperties`，为返回的对象绑定指定前缀下的属性。
+
+=== 宽松绑定
+
+绑定时支持连字符、驼峰和下划线等常见命名形式，例如 `first-name`、`firstName`、`first_name`。
+注解的前缀必须使用小写连字符形式。推荐配置文件也使用这一形式。
+环境变量名转换规则是把点换成下划线、删除连字符并转为大写：`app.main.log-startup-info` 对应 `APP_MAIN_LOGSTARTUPINFO`。
+列表索引用下划线包围，例如 `my.service[0].other` 对应 `MY_SERVICE_0_OTHER`。
+环境变量绑定到 Map 时，键名会小写化，但值不变。
+
+Map 的特殊键可以用方括号保留，例如 YAML 中的 `"[/key1]"`。
+没有方括号时，键中的部分非字母数字字符会被删除。
+对于 `Map<String, String>`，点可以保留为键的一部分；对于 `Map<String, Object>`，不加括号的点通常表示嵌套结构。
+宽松绑定默认缓存不可变属性源；需要控制缓存时使用 `infra.context.properties.source.ConfigurationPropertyCaching`。
+
+=== 集合合并规则
+
+多个来源中的列表按最高优先级来源整体替换，不追加元素，也不合并同一索引对象的字段。
+Map 则可以从多个来源合并不同键，同一属性由更高优先级的值覆盖。
+这些规则适用于全部属性源，不限于 Profile 配置文件。
+
+=== 类型转换
+
+绑定器使用转换服务将文本转换为目标类型。
+自定义转换可通过名为 `conversionService` 的转换服务或带 `ConfigurationPropertiesBinding` 的转换器提供。
+用于绑定的转换器会较早创建，应限制其依赖；通过 `@Bean` 注册转换器时推荐使用静态工厂方法。
+
+* `Duration` 支持整数（默认毫秒）、ISO-8601 和 `10s` 等形式；`infra.format.annotation.DurationUnit` 可以调整无单位数值的单位。支持 `ns`、`us`、`ms`、`s`、`m`、`h`、`d`。
+* `Period` 支持整数（默认天）、ISO-8601 和 `1y3d` 等形式；`infra.format.annotation.PeriodUnit` 可调整默认单位。支持 `y`、`m`、`w`、`d`，周会转换成 7 天。
+* `infra.util.DataSize` 支持整数（默认字节）和 `10MB` 等形式；`infra.format.annotation.DataSizeUnit` 可调整默认单位。支持 `B`、`KB`、`MB`、`GB`、`TB`。
+
+迁移已有整数属性为上述类型时，应保留原单位语义，而不是默认假定单位相同。
+
+=== 校验
+
+存在 Jakarta Bean Validation 实现时，可以在配置属性类型上声明 `infra.validation.annotation.Validated`，并为成员添加约束。
+嵌套对象的级联校验使用 `jakarta.validation.Valid`。
+也可以提供名为 `configurationPropertiesValidator` 的 `infra.validation.Validator` Bean；它的工厂方法应是静态的，避免过早创建配置类。
+
+=== 与 @Value 的区别
+
+`@ConfigurationProperties` 支持结构化绑定、宽松命名和配置元数据，不求值 SpEL。
+`@Value` 适合单个值和需要表达式求值的情况，但不提供等价的配置元数据能力。
+应用自定义一组配置键时，推荐把它们归入一个配置属性类。
+
+== 配置值加密
+
+TODAY INFRA 不提供通用的内建配置值加密机制。
+需要在启动前修改环境中的配置值时，可以使用 `infra.app.env.EnvironmentPostProcessor` 扩展点。
+不要把上游 Spring Cloud 的集成方案直接当作 infra 内建能力。

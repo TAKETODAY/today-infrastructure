@@ -22,6 +22,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 import infra.aop.framework.ProxyFactory;
@@ -32,6 +34,7 @@ import infra.core.conversion.ConverterFactory;
 import infra.core.conversion.support.DefaultConversionService;
 import infra.core.i18n.LocaleContextHolder;
 import infra.format.Formatter;
+import infra.format.annotation.DateTimeFormat;
 import infra.format.number.NumberStyleFormatter;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -180,6 +183,28 @@ public class FormattingConversionServiceTests {
     assertThat(formattingService.convert("1", Integer.class)).isEqualTo(Integer.valueOf(1));
   }
 
+  @Test  // gh-36951
+  public void defaultFormattingConversionServiceRegistersLegacyDateConvertersOnlyOnce() {
+    DefaultFormattingConversionService defaultService = new DefaultFormattingConversionService();
+    String convertersDescription = defaultService.toString();
+    assertThat(convertersDescription)
+            .containsOnlyOnce("DateFormatterRegistrar$DateToLongConverter")
+            .containsOnlyOnce("DateFormatterRegistrar$CalendarToDateConverter");
+  }
+
+  @Test  // gh-36951
+  public void defaultFormattingConversionServiceStillAppliesDateTimeFormatAnnotationToLegacyDateAndCalendarFields() throws Exception {
+    DefaultFormattingConversionService defaultService = new DefaultFormattingConversionService();
+    TypeDescriptor dateDescriptor = new TypeDescriptor(AnnotatedDateBean.class.getDeclaredField("date"));
+    TypeDescriptor calendarDescriptor = new TypeDescriptor(AnnotatedDateBean.class.getDeclaredField("calendar"));
+
+    Date date = (Date) defaultService.convert("2026-09-19", TypeDescriptor.valueOf(String.class), dateDescriptor);
+    Calendar calendar = (Calendar) defaultService.convert("2026-09-19", TypeDescriptor.valueOf(String.class), calendarDescriptor);
+
+    assertThat(defaultService.convert(date, dateDescriptor, TypeDescriptor.valueOf(String.class))).isEqualTo("2026-09-19");
+    assertThat(defaultService.convert(calendar, calendarDescriptor, TypeDescriptor.valueOf(String.class))).isEqualTo("2026-09-19");
+  }
+
   public static class NullReturningFormatter implements Formatter<Integer> {
 
     @Override
@@ -213,6 +238,16 @@ public class FormattingConversionServiceTests {
         throw new IllegalStateException();
       }
     }
+  }
+
+
+  private static class AnnotatedDateBean {
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date date;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Calendar calendar;
   }
 
 }

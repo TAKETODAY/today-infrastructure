@@ -206,7 +206,8 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
     @Test
     void failsWhenSettingContextForExpression_SPR12326() {
       SpelExpressionParser parser = new SpelExpressionParser(
-              new SpelParserConfiguration(SpelCompilerMode.OFF, getClass().getClassLoader()));
+              SpelParserConfiguration.builder().compilerMode(SpelCompilerMode.OFF)
+                      .compilerClassLoader(getClass().getClassLoader()).build());
       Person3 person = new Person3("foo", 1);
       SpelExpression expression = parser.parseRaw("#it?.age?.equals([0])");
       StandardEvaluationContext context = new StandardEvaluationContext(new Object[] { 1 });
@@ -1182,8 +1183,9 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 
     @Test
     void opNe_SPR14863() {
-      SpelParserConfiguration configuration =
-              new SpelParserConfiguration(SpelCompilerMode.MIXED, ClassLoader.getSystemClassLoader());
+      SpelParserConfiguration configuration = SpelParserConfiguration.builder()
+              .compilerMode(SpelCompilerMode.MIXED)
+              .compilerClassLoader(ClassLoader.getSystemClassLoader()).build();
       SpelExpressionParser parser = new SpelExpressionParser(configuration);
       Expression expression = parser.parseExpression("data['my-key'] != 'my-value'");
 
@@ -1257,7 +1259,7 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 
     @Test
     void nullComparison_SPR22358() {
-      SpelParserConfiguration configuration = new SpelParserConfiguration(SpelCompilerMode.OFF, null);
+      SpelParserConfiguration configuration = SpelParserConfiguration.builder().compilerMode(SpelCompilerMode.OFF).build();
       SpelExpressionParser parser = new SpelExpressionParser(configuration);
       StandardEvaluationContext ctx = new StandardEvaluationContext();
       ctx.setRootObject(new Reg(1));
@@ -3411,7 +3413,8 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
     @Test
     void compilationOfBasicNullSafeMethodReference() {
       SpelExpressionParser parser = new SpelExpressionParser(
-              new SpelParserConfiguration(SpelCompilerMode.OFF, getClass().getClassLoader()));
+              SpelParserConfiguration.builder().compilerMode(SpelCompilerMode.OFF)
+                      .compilerClassLoader(getClass().getClassLoader()).build());
       SpelExpression expression = parser.parseRaw("#it?.equals(3)");
       StandardEvaluationContext context = new StandardEvaluationContext(new Object[] { 1 });
       context.setVariable("it", 3);
@@ -4083,7 +4086,8 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 
       // Variant of above more like what was in the bug report:
       SpelExpressionParser parser = new SpelExpressionParser(
-              new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, getClass().getClassLoader()));
+              SpelParserConfiguration.builder().compilerMode(SpelCompilerMode.IMMEDIATE)
+                      .compilerClassLoader(getClass().getClassLoader()).build());
 
       SpelExpression ex = parser.parseRaw("#it?.age.equals([0])");
       context = new StandardEvaluationContext(new Object[] { person.getAge() });
@@ -5218,8 +5222,9 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 
     @Test
     void indexIntoMap_SPR12045() {
-      SpelParserConfiguration config = new SpelParserConfiguration(
-              SpelCompilerMode.IMMEDIATE, getClass().getClassLoader());
+      SpelParserConfiguration config = SpelParserConfiguration.builder()
+              .compilerMode(SpelCompilerMode.IMMEDIATE)
+              .compilerClassLoader(getClass().getClassLoader()).build();
       SpelExpressionParser parser = new SpelExpressionParser(config);
       expression = parser.parseExpression("headers[command]");
 
@@ -6019,7 +6024,7 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 
     @Test
     void ternaryWithMapAccess() {
-      SpelParserConfiguration config = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, null);
+      SpelParserConfiguration config = SpelParserConfiguration.builder().compilerMode(SpelCompilerMode.IMMEDIATE).build();
       SpelExpressionParser parser = new SpelExpressionParser(config);
 
       expression = parser.parseExpression(
@@ -6056,7 +6061,7 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 
     @Test
     void ternaryMiscellaneous() {
-      SpelParserConfiguration configuration = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, null);
+      SpelParserConfiguration configuration = SpelParserConfiguration.builder().compilerMode(SpelCompilerMode.IMMEDIATE).build();
       Expression exp;
       StandardEvaluationContext context = new StandardEvaluationContext();
       context.setVariable("map", Map.of("foo", "qux"));
@@ -6175,7 +6180,7 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 
     @Test
     void elvisMiscellaneous() {
-      SpelParserConfiguration configuration = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, null);
+      SpelParserConfiguration configuration = SpelParserConfiguration.builder().compilerMode(SpelCompilerMode.IMMEDIATE).build();
       Expression exp;
 
       exp = new SpelExpressionParser(configuration).parseExpression("bar()");
@@ -6259,7 +6264,7 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 
     @Test
     void elvis_SPR17214() {
-      SpelParserConfiguration spc = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, null);
+      SpelParserConfiguration spc = SpelParserConfiguration.builder().compilerMode(SpelCompilerMode.IMMEDIATE).build();
       SpelExpressionParser sep = new SpelExpressionParser(spc);
 
       RecordHolder rh = null;

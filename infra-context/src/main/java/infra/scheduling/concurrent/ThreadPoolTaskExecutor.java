@@ -405,7 +405,7 @@ public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport impleme
   }
 
   @Override
-  public <T> Future<T> submit(Callable<T> task) {
+  public <T extends @Nullable Object> Future<T> submit(Callable<T> task) {
     ExecutorService executor = getThreadPoolExecutor();
     try {
       return Future.run(task, executor);

@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -183,7 +184,31 @@ class BeanWrapperAutoGrowingTests {
     wrapper.setAutoGrowCollectionLimit(2);
     assertThatExceptionOfType(InvalidPropertyException.class)
             .isThrownBy(() -> wrapper.getPropertyValue("list[4]"))
-            .withRootCauseInstanceOf(IndexOutOfBoundsException.class);
+            .withMessageContainingAll("Invalid property 'list[4]'",
+                    "Cannot get element with index 4 from List of size 0");
+  }
+
+  @Test
+  void getPropertyValueSelfPopulatingListWorksWithinLimit() {
+    bean.setList(new SelfPopulatingList());
+    assertThat(wrapper.getPropertyValue("list[2]")).isInstanceOf(Bean.class);
+    assertThat(bean.getList()).hasSize(3).allSatisfy(entry -> assertThat(entry).isInstanceOf(Bean.class));
+  }
+
+  @Test
+  void getPropertyValueSelfPopulatingListFailsAgainstLimit() {
+    bean.setList(new SelfPopulatingList());
+    wrapper.setAutoGrowCollectionLimit(2);
+    assertThatExceptionOfType(InvalidPropertyException.class)
+            .isThrownBy(() -> wrapper.getPropertyValue("list[4]"));
+  }
+
+  @Test
+  void setPropertyValueSelfPopulatingListFailsAgainstLimitForNestedPath() {
+    bean.setList(new SelfPopulatingList());
+    wrapper.setAutoGrowCollectionLimit(2);
+    assertThatExceptionOfType(InvalidPropertyException.class)
+            .isThrownBy(() -> wrapper.setPropertyValue("list[4].prop", "test"));
   }
 
   @Test
@@ -216,6 +241,12 @@ class BeanWrapperAutoGrowingTests {
   void setPropertyValueAutoGrowMapNestedValue() {
     wrapper.setPropertyValue("map[A].nested", new Bean());
     assertThat(bean.getMap().get("A").getNested()).isInstanceOf(Bean.class);
+  }
+
+  @Test
+  void setPropertyValueAutoGrowMapWithQuotedBracketKey() {
+    wrapper.setPropertyValue("map['a]b'].prop", "grown");
+    assertThat(bean.getMap().get("a]b").getProp()).isEqualTo("grown");
   }
 
   @Test
@@ -373,6 +404,18 @@ class BeanWrapperAutoGrowingTests {
 
     public void setNestedNestedMap(Map<String, Map<String, Map<String, Bean>>> nestedNestedMap) {
       this.nestedNestedMap = nestedNestedMap;
+    }
+  }
+
+  /** List that creates elements on demand when accessed by index. */
+  private static class SelfPopulatingList extends ArrayList<Bean> {
+
+    @Override
+    public Bean get(int index) {
+      while (size() <= index) {
+        add(new Bean());
+      }
+      return super.get(index);
     }
   }
 

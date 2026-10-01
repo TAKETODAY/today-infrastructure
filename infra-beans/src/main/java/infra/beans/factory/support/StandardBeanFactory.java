@@ -218,7 +218,6 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    * Create a new StandardBeanFactory.
    */
   public StandardBeanFactory() {
-    super();
   }
 
   /**

@@ -1,0 +1,11 @@
+= 应用开发
+
+本节介绍使用 TODAY INFRA 开发应用时的代码组织、依赖注入和自动配置，以及配置加载、日志、SSL、JDBC、REST 客户端和应用测试等集成功能。
+从 xref:tutorial:first-application/index.adoc[第一个 Web 应用程序]开始，可以了解应用启动和可执行 JAR 的构建方式。
+
+== 阅读顺序
+
+. xref:using/structuring-your-code.adoc[组织代码]，确定应用入口和组件的包结构。
+. xref:using/configuration-classes.adoc[配置类]和 xref:using/beans-and-dependency-injection.adoc[依赖注入]，了解如何定义应用组件。
+. xref:using/using-the-infraapplication-annotation.adoc[`@InfraApplication`]和 xref:using/auto-configuration.adoc[自动配置]，了解默认配置及其替换方式。
+. xref:using/running-your-application.adoc[运行应用]，了解 IDE、Gradle 和可执行 JAR 的启动方式。

@@ -18,6 +18,8 @@
 
 package infra.core.conversion.support;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.conversion.Converter;
 import infra.core.conversion.ConverterFactory;
 import infra.util.NumberUtils;
@@ -43,7 +45,7 @@ import infra.util.NumberUtils;
 final class CharacterToNumberFactory implements ConverterFactory<Character, Number> {
 
   @Override
-  public <T extends Number> Converter<Character, T> getConverter(Class<T> targetType) {
+  public <T extends Number> Converter<Character, ? extends @Nullable T> getConverter(Class<T> targetType) {
     return new CharacterToNumber<>(targetType);
   }
 

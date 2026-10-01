@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.test.web.mock.client.assertj;
 
 import org.junit.jupiter.api.Test;
@@ -37,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Rossen Stoyanchev
  */
-public class RestTestClientResponseTests {
+class RestTestClientResponseTests {
 
   private final RestTestClient client =
           RestTestClient.bindToController(HelloController.class)

@@ -39,7 +39,7 @@ import infra.util.Assert;
  * @see Comparator#thenComparing(Comparator)
  * @since 4.0
  */
-public class InstanceComparator<T> implements Comparator<T> {
+public class InstanceComparator<T extends @Nullable Object> implements Comparator<T> {
 
   private final Class<?>[] instanceOrder;
 

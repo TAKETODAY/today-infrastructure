@@ -20,12 +20,7 @@ package infra.context.config;
 
 import org.jspecify.annotations.Nullable;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.time.Duration;
 import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
 import infra.aot.hint.RuntimeHints;
@@ -48,11 +43,9 @@ import infra.context.support.AbstractApplicationContext;
 import infra.context.support.ResourceBundleMessageSource;
 import infra.core.Ordered;
 import infra.core.io.PathMatchingPatternResourceLoader;
-import infra.core.io.PropertiesUtils;
 import infra.core.io.Resource;
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.stereotype.Component;
-import infra.util.CollectionUtils;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.StringUtils;
 
@@ -67,52 +60,25 @@ import infra.util.StringUtils;
  */
 @Lazy
 @DisableDIAutoConfiguration
-@ConditionalOnMissingBean(name = AbstractApplicationContext.MESSAGE_SOURCE_BEAN_NAME, search = SearchStrategy.CURRENT)
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
-@Conditional(MessageSourceAutoConfiguration.ResourceBundleCondition.class)
 @EnableConfigurationProperties(MessageSourceProperties.class)
 @ImportRuntimeHints(MessageSourceAutoConfiguration.Hints.class)
 public final class MessageSourceAutoConfiguration {
 
   @Component
-  public static MessageSource messageSource(MessageSourceProperties properties) {
-    ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-    if (StringUtils.hasText(properties.getBasename())) {
-      messageSource.setBasenames(
-              StringUtils.commaDelimitedListToStringArray(
-                      StringUtils.trimAllWhitespace(properties.getBasename())
-              )
-      );
-    }
-    if (properties.getEncoding() != null) {
-      messageSource.setDefaultCharset(properties.getEncoding());
-    }
-    messageSource.setFallbackToSystemLocale(properties.isFallbackToSystemLocale());
-    Duration cacheDuration = properties.getCacheDuration();
-    if (cacheDuration != null) {
-      messageSource.setCacheMillis(cacheDuration.toMillis());
-    }
-    messageSource.setAlwaysUseMessageFormat(properties.isAlwaysUseMessageFormat());
-    messageSource.setUseCodeAsDefaultMessage(properties.isUseCodeAsDefaultMessage());
-    messageSource.setCommonMessages(loadCommonMessages(properties.getCommonMessages()));
-    return messageSource;
+  @ConditionalOnMissingBean(search = SearchStrategy.CURRENT)
+  public static ResourceBasedMessageSourceConfigurer resourceBasedMessageSourceConfigurer(
+          MessageSourceProperties properties) {
+    return new ResourceBasedMessageSourceConfigurer(properties);
   }
 
-  @Nullable
-  private static Properties loadCommonMessages(@Nullable List<Resource> resources) {
-    if (CollectionUtils.isEmpty(resources)) {
-      return null;
-    }
-    Properties properties = CollectionUtils.createSortedProperties(false);
-    for (Resource resource : resources) {
-      try {
-        PropertiesUtils.fillProperties(properties, resource);
-      }
-      catch (IOException ex) {
-        throw new UncheckedIOException("Failed to load common messages from '%s'".formatted(resource), ex);
-      }
-    }
-    return properties;
+  @Component
+  @ConditionalOnMissingBean(name = AbstractApplicationContext.MESSAGE_SOURCE_BEAN_NAME, search = SearchStrategy.CURRENT)
+  @Conditional(MessageSourceAutoConfiguration.ResourceBundleCondition.class)
+  public static MessageSource messageSource(ResourceBasedMessageSourceConfigurer configurer) {
+    ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+    configurer.configure(messageSource);
+    return messageSource;
   }
 
   protected static class ResourceBundleCondition extends InfraCondition {

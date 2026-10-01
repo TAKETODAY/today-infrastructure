@@ -44,35 +44,38 @@ public class DefaultGenerationContext implements infra.aot.generate.GenerationCo
 
   private final GeneratedClasses generatedClasses;
 
+  private final GeneratedResources generatedResources;
+
   private final GeneratedFiles generatedFiles;
 
   private final RuntimeHints runtimeHints;
 
   /**
    * Create a new {@link DefaultGenerationContext} instance backed by the
-   * specified {@link ClassNameGenerator} and {@link GeneratedFiles}.
+   * specified {@link NameGenerator} and {@link GeneratedFiles}.
    *
-   * @param classNameGenerator the naming convention to use for generated
-   * class names
+   * @param nameGenerator the naming convention to use for generated
+   * classes and resources
    * @param generatedFiles the generated files
    */
-  public DefaultGenerationContext(ClassNameGenerator classNameGenerator, GeneratedFiles generatedFiles) {
-    this(classNameGenerator, generatedFiles, new RuntimeHints());
+  public DefaultGenerationContext(NameGenerator nameGenerator, GeneratedFiles generatedFiles) {
+    this(nameGenerator, generatedFiles, new RuntimeHints());
   }
 
   /**
    * Create a new {@link DefaultGenerationContext} instance backed by the
-   * specified {@link ClassNameGenerator}, {@link GeneratedFiles}, and
+   * specified {@link NameGenerator}, {@link GeneratedFiles}, and
    * {@link RuntimeHints}.
    *
-   * @param classNameGenerator the naming convention to use for generated
-   * class names
+   * @param nameGenerator the naming convention to use for generated
+   * classes and resources
    * @param generatedFiles the generated files
    * @param runtimeHints the runtime hints
    */
-  public DefaultGenerationContext(ClassNameGenerator classNameGenerator, GeneratedFiles generatedFiles,
+  public DefaultGenerationContext(NameGenerator nameGenerator, GeneratedFiles generatedFiles,
           RuntimeHints runtimeHints) {
-    this(new GeneratedClasses(classNameGenerator), generatedFiles, runtimeHints);
+    this(new GeneratedClasses(nameGenerator), new GeneratedResources(nameGenerator),
+            generatedFiles, runtimeHints);
   }
 
   /**
@@ -80,17 +83,20 @@ public class DefaultGenerationContext implements infra.aot.generate.GenerationCo
    * specified items.
    *
    * @param generatedClasses the generated classes
+   * @param generatedResources the generated resources
    * @param generatedFiles the generated files
    * @param runtimeHints the runtime hints
    */
-  protected DefaultGenerationContext(GeneratedClasses generatedClasses,
+  protected DefaultGenerationContext(GeneratedClasses generatedClasses, GeneratedResources generatedResources,
           GeneratedFiles generatedFiles, RuntimeHints runtimeHints) {
 
     Assert.notNull(generatedClasses, "'generatedClasses' is required");
+    Assert.notNull(generatedResources, "'generatedResources' is required");
     Assert.notNull(generatedFiles, "'generatedFiles' is required");
     Assert.notNull(runtimeHints, "'runtimeHints' is required");
     this.sequenceGenerator = new ConcurrentHashMap<>();
     this.generatedClasses = generatedClasses;
+    this.generatedResources = generatedResources;
     this.generatedFiles = generatedFiles;
     this.runtimeHints = runtimeHints;
   }
@@ -109,6 +115,7 @@ public class DefaultGenerationContext implements infra.aot.generate.GenerationCo
     }
     this.sequenceGenerator = existing.sequenceGenerator;
     this.generatedClasses = existing.generatedClasses.withFeatureNamePrefix(featureName);
+    this.generatedResources = existing.generatedResources.withFeatureNamePrefix(featureName);
     this.generatedFiles = existing.generatedFiles;
     this.runtimeHints = existing.runtimeHints;
   }
@@ -116,6 +123,11 @@ public class DefaultGenerationContext implements infra.aot.generate.GenerationCo
   @Override
   public GeneratedClasses getGeneratedClasses() {
     return this.generatedClasses;
+  }
+
+  @Override
+  public GeneratedResources getGeneratedResources() {
+    return this.generatedResources;
   }
 
   @Override
@@ -138,6 +150,7 @@ public class DefaultGenerationContext implements infra.aot.generate.GenerationCo
    */
   public void writeGeneratedContent() {
     this.generatedClasses.writeTo(this.generatedFiles);
+    this.generatedResources.writeTo(this.generatedFiles);
   }
 
 }

@@ -49,7 +49,7 @@ class ServiceConnectionStartsConnectionOnceIntegrationTests {
   @Container
   @ServiceConnection
   static final StartCountingPostgreSQLContainer postgres = TestImage
-          .container(StartCountingPostgreSQLContainer.class);
+          .forContainer(StartCountingPostgreSQLContainer.class);
 
   @Test
   void startedOnlyOnce() {
