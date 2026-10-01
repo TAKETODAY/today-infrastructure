@@ -1,7 +1,3 @@
-// Derived from Spring Boot reference/pages/features/spring-application.adoc.
-// Modifications Copyright 2017 - 2026 the TODAY authors.
-// Application customization examples are derived from Boot's SpringApplication examples.
-include::partial$upstream-example-license.adoc[]
 [[features.application]]
 = Application
 

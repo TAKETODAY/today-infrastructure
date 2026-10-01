@@ -1,9 +1,7 @@
-// Derived from Spring Boot reference/pages/io/caching.adoc.
-// Modifications Copyright 2017 - 2026 the TODAY authors.
 [[io.caching]]
 = 缓存
 
-TODAY infra 的缓存抽象将缓存逻辑应用于方法调用。
+TODAY INFRA 的缓存抽象将缓存逻辑应用于方法调用。
 命中缓存时直接返回已有结果，未命中时执行方法并缓存结果，调用者无需自己操作存储。
 详细注解和缓存键规则见 xref:ROOT:integration/cache.adoc[缓存抽象]。
 

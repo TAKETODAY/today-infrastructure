@@ -1,7 +1,3 @@
-// Derived from Spring Boot reference/pages/using/using-the-springbootapplication-annotation.adoc.
-// Modifications Copyright 2017 - 2026 the TODAY authors.
-// Application entry examples are adapted from Boot's using/usingthespringbootapplicationannotation examples.
-include::partial$upstream-example-license.adoc[]
 [[using.using-the-infraapplication-annotation]]
 = 使用 @InfraApplication
 

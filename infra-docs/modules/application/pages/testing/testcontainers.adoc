@@ -1,10 +1,8 @@
-// Derived from Spring Boot reference/pages/testing/testcontainers.adoc.
-// Modifications Copyright 2017 - 2026 the TODAY authors.
 [[testing.testcontainers]]
 = Testcontainers
 
 https://testcontainers.com/[Testcontainers] 可以为集成测试管理 Docker 容器，让测试连接真实后端服务。
-容器库本身提供 JUnit Jupiter 扩展，也可以与 TODAY infra 的应用测试和容器生命周期支持组合使用。
+容器库本身提供 JUnit Jupiter 扩展，也可以与 TODAY INFRA 的应用测试和容器生命周期支持组合使用。
 
 == 生命周期管理
 

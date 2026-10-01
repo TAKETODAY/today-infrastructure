@@ -1,11 +1,7 @@
-// Derived from Spring Boot reference/pages/using/structuring-your-code.adoc.
-// Modifications Copyright 2017 - 2026 the TODAY authors.
-// The application entry example is adapted from Boot's using/structuringyourcode/MyApplication.java.
-include::partial$upstream-example-license.adoc[]
 [[using.structuring-your-code]]
 = 组织代码
 
-TODAY infra 不要求特定的代码目录布局，但遵循以下实践有助于限制扫描范围并保持结构清晰。
+TODAY INFRA 不要求特定的代码目录布局，但遵循以下实践有助于限制扫描范围并保持结构清晰。
 
 == 避免默认包
 

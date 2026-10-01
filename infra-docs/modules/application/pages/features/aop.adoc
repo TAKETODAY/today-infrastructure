@@ -1,9 +1,7 @@
-// Derived from Spring Boot reference/pages/features/aop.adoc.
-// Modifications Copyright 2017 - 2026 the TODAY authors.
 [[features.aop]]
 = 面向切面编程
 
-TODAY infra 为 AOP 提供自动配置。关于 AOP 的详细说明，参见 xref:ROOT:core/aop.adoc[AOP]和 xref:ROOT:core/aop-api.adoc[AOP API]。
+TODAY INFRA 为 AOP 提供自动配置。关于 AOP 的详细说明，参见 xref:ROOT:core/aop.adoc[AOP]和 xref:ROOT:core/aop-api.adoc[AOP API]。
 
 默认情况下，自动配置使用基于类的 CGLIB 代理。
 如果希望改用 JDK 动态代理，可以设置：

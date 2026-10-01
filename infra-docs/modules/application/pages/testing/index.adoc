@@ -1,6 +1,3 @@
-// Derived from Spring Boot reference/pages/testing/test-modules.adoc,
-// testing/test-scope-dependencies.adoc and testing/test-utilities.adoc.
-// Modifications Copyright 2017 - 2026 the TODAY authors.
 = 应用测试支持
 
 `cn.taketoday:infra-starter-test` 提供应用测试常用依赖，应放在测试范围。

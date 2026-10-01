@@ -1,5 +1,3 @@
-// Derived from Spring Boot reference/pages/using/running-your-application.adoc.
-// Modifications Copyright 2017 - 2026 the TODAY authors.
 [[using.running-your-application]]
 = 运行应用
 
@@ -15,7 +13,7 @@ TIP: 如果重复运行 Web 应用，通常会出现端口占用错误。先停�
 
 == 运行打包后的应用
 
-使用 TODAY infra 的构建插件生成可执行 JAR 后，可以通过 `java -jar` 运行：
+使用 TODAY INFRA 的构建插件生成可执行 JAR 后，可以通过 `java -jar` 运行：
 
 [source,shell]
 ----
@@ -47,6 +45,6 @@ java -agentlib:jdwp=server=y,transport=dt_socket,address=localhost:8000,suspend=
 
 == 热替换
 
-TODAY infra 应用是普通 Java 应用，可以使用 JVM 和 IDE 提供的调试热替换能力。
+TODAY INFRA 应用是普通 Java 应用，可以使用 JVM 和 IDE 提供的调试热替换能力。
 标准 JVM 对可替换的字节码变更有一定限制，例如通常不能任意增加字段或修改类结构。
 需要更完整的热替换能力时，可以评估 https://www.jrebel.com/products/jrebel[JRebel] 等工具。

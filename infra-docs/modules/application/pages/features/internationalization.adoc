@@ -1,9 +1,7 @@
-// Derived from Spring Boot reference/pages/features/internationalization.adoc.
-// Modifications Copyright 2017 - 2026 the TODAY authors.
 [[features.internationalization]]
 = 国际化
 
-TODAY infra 支持本地化消息，使应用能够服务于使用不同语言的用户。
+TODAY INFRA 支持本地化消息，使应用能够服务于使用不同语言的用户。
 默认情况下，自动配置在类路径根目录查找名为 `messages` 的资源包。
 
 NOTE: 只有配置的资源包存在默认属性文件（默认是 `messages.properties`）时，消息源自动配置才会生效。如果只有 `messages_zh_CN.properties` 等语言专用文件，仍需要添加默认文件。如果全部配置的基本名称都找不到默认属性文件，就不会自动配置 `MessageSource`。

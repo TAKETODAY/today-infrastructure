@@ -1,5 +1,3 @@
-// Derived from Spring Boot reference/pages/features/ssl.adoc.
-// Modifications Copyright 2017 - 2026 the TODAY authors.
 [[features.ssl]]
 = SSL Bundle
 
@@ -96,4 +94,4 @@ ssl:
 `ssl.bundle.watch.file.quiet-period` 设置确认变更前的静默期，默认 10 秒。
 
 Let's Encrypt 证书也可以作为文件配置，但证书申请和续期应由 Certbot 等外部工具负责。
-TODAY infra 本身不会申请或续期证书。
+TODAY INFRA 本身不会申请或续期证书。

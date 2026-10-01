@@ -1,9 +1,7 @@
-// Derived from Spring Boot reference/pages/features/external-config.adoc.
-// Modifications Copyright 2017 - 2026 the TODAY authors.
 [[features.external-config]]
 = 外部化配置
 
-TODAY infra 允许把配置放在应用代码之外，使同一份代码在不同环境中运行。
+TODAY INFRA 允许把配置放在应用代码之外，使同一份代码在不同环境中运行。
 配置来源包括 Java Properties、YAML、环境变量、Java 系统属性和命令行参数。
 可以通过 `infra.beans.factory.annotation.Value` 注入单个值，通过 `infra.core.env.Environment` 查询属性，或使用 `infra.context.properties.ConfigurationProperties` 绑定结构化对象。
 
@@ -251,6 +249,6 @@ Map 则可以从多个来源合并不同键，同一属性由更高优先级的�
 
 == 配置值加密
 
-TODAY infra 不提供通用的内建配置值加密机制。
+TODAY INFRA 不提供通用的内建配置值加密机制。
 需要在启动前修改环境中的配置值时，可以使用 `infra.app.env.EnvironmentPostProcessor` 扩展点。
 不要把上游 Spring Cloud 的集成方案直接当作 infra 内建能力。

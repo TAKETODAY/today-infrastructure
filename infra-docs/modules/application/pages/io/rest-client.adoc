@@ -1,9 +1,7 @@
-// Derived from Spring Boot reference/pages/io/rest-client.adoc.
-// Modifications Copyright 2017 - 2026 the TODAY authors.
 [[io.rest-client]]
 = 调用 REST 服务
 
-TODAY infra 提供命令式 `infra.web.client.RestClient` 和响应式 `infra.web.reactive.client.WebClient`。
+TODAY INFRA 提供命令式 `infra.web.client.RestClient` 和响应式 `infra.web.reactive.client.WebClient`。
 普通阻塞应用通常选择 `RestClient`；使用 Reactor 的非阻塞应用可以选择 `WebClient`。
 底层 API 的详细说明见 xref:ROOT:integration/rest-clients.adoc[REST 客户端]。
 

@@ -1,9 +1,7 @@
-// Derived from Spring Boot reference/pages/features/json.adoc.
-// Modifications Copyright 2017 - 2026 the TODAY authors.
 [[features.json]]
 = JSON
 
-TODAY infra 提供 Jackson 3、Gson 和 JSON-B 的自动配置。
+TODAY INFRA 提供 Jackson 3、Gson 和 JSON-B 的自动配置。
 各自动配置必须随对应模块进入类路径；仅添加某个底层 JSON 库，并不代表其自动配置模块已经存在。
 
 == Jackson 3

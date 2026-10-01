@@ -1,10 +1,8 @@
-// Derived from Spring Boot reference/pages/features/dev-services.adoc.
-// Modifications Copyright 2017 - 2026 the TODAY authors.
 [[features.dev-services]]
 = 开发期服务
 
 开发期服务为本地开发提供数据库等外部依赖，不应成为部署环境默认启动容器的要求。
-TODAY infra 提供 Docker Compose 与 Testcontainers 集成。
+TODAY INFRA 提供 Docker Compose 与 Testcontainers 集成。
 
 == Docker Compose
 

@@ -1,5 +1,3 @@
-// Derived from Spring Boot reference/pages/features/developing-auto-configuration.adoc.
-// Modifications Copyright 2017 - 2026 the TODAY authors.
 [[features.developing-auto-configuration]]
 = 创建自己的自动配置
 

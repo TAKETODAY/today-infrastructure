@@ -1,9 +1,7 @@
-// Derived from Spring Boot reference/pages/data/sql.adoc.
-// Modifications Copyright 2017 - 2026 the TODAY authors.
 [[data.sql]]
 = SQL 数据库
 
-TODAY infra 提供 JDBC 访问，包括 `infra.jdbc.core.JdbcTemplate`、`infra.jdbc.core.simple.JdbcClient` 和事务支持。
+TODAY INFRA 提供 JDBC 访问，包括 `infra.jdbc.core.JdbcTemplate`、`infra.jdbc.core.simple.JdbcClient` 和事务支持。
 应用可以添加 `cn.taketoday:infra-starter-jdbc`，它引入 JDBC 集成及 HikariCP。
 数据库驱动仍需按实际数据库添加运行时依赖。
 基础 API 用法见 xref:ROOT:data-access/jdbc.adoc[JDBC]。
@@ -82,4 +80,4 @@ jdbc.template.query-timeout=10s
 == 对象持久化
 
 上游本页中的 Spring Data JPA、JPA Repository 方法名推导、jOOQ 和 R2DBC 自动配置不是这里已核实的 JDBC 能力。
-TODAY infra 自有持久化框架的配置、实体映射和查询 API 见 xref:ROOT:data-access/persistence.adoc[持久化]，不能把它描述为 Spring Data JPA 的包名替换版本。
+TODAY INFRA 自有持久化框架的配置、实体映射和查询 API 见 xref:ROOT:data-access/persistence.adoc[持久化]，不能把它描述为 Spring Data JPA 的包名替换版本。

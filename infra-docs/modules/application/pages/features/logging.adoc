@@ -1,9 +1,7 @@
-// Derived from Spring Boot reference/pages/features/logging.adoc.
-// Modifications Copyright 2017 - 2026 the TODAY authors.
 [[features.logging]]
 = 日志
 
-TODAY infra 内部使用 `infra.logging` 日志抽象，底层日志实现可替换。
+TODAY INFRA 内部使用 `infra.logging` 日志抽象，底层日志实现可替换。
 应用日志初始化支持 Logback 和 Java Util Logging。
 添加 `cn.taketoday:infra-starter-logback` 可以获得 Logback 集成；具体桥接依赖应以所选 Starter 的依赖集合为准。
 目标没有与上游同等的 Log4j2 应用日志初始化模块，因此不能直接采用上游 Log4j2 自动配置和扩展说明。

@@ -1,5 +1,3 @@
-// Derived from Spring Boot reference/pages/using/auto-configuration.adoc.
-// Modifications Copyright 2017 - 2026 the TODAY authors.
 [[using.auto-configuration]]
 = 自动配置
 

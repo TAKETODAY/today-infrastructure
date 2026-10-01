@@ -1,9 +1,7 @@
-// Derived from Spring Boot reference/pages/io/email.adoc.
-// Modifications Copyright 2017 - 2026 the TODAY authors.
 [[io.email]]
 = 发送邮件
 
-TODAY infra 使用 `infra.mail.javamail.JavaMailSender` 抽象发送邮件，并提供相应自动配置。
+TODAY INFRA 使用 `infra.mail.javamail.JavaMailSender` 抽象发送邮件，并提供相应自动配置。
 具体邮件 API 用法见 xref:ROOT:integration/email.adoc[邮件集成]。
 应用可以添加 `cn.taketoday:infra-starter-mail`，引入邮件模块及 Jakarta Mail 实现。
 

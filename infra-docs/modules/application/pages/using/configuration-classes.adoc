@@ -1,9 +1,7 @@
-// Derived from Spring Boot reference/pages/using/configuration-classes.adoc.
-// Modifications Copyright 2017 - 2026 the TODAY authors.
 [[using.configuration-classes]]
 = 配置类
 
-TODAY infra 推荐基于 Java 的配置。
+TODAY INFRA 推荐基于 Java 的配置。
 虽然 `infra.app.Application` 可以加载 XML 配置源，通常仍建议以一个 `infra.context.annotation.Configuration` 配置类作为主配置源。
 包含 `main` 方法的类通常适合作为主配置类；`@InfraApplication` 已包含配置类语义。
 
