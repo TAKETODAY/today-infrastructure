@@ -31,7 +31,7 @@ Builder 有状态，对它的修改会影响以后通过该实例构建的客户
 
 通用默认设置使用 `http.clients.*` 前缀：
 
-[source,yaml]
+[configprops,yaml]
 ----
 http:
   clients:

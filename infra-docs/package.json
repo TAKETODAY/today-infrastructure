@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "js-yaml": "4.1.1",
     "antora": "3.2.0-alpha.12",
     "@antora/atlas-extension": "1.0.0-alpha.5",
     "@antora/collector-extension": "1.0.2",

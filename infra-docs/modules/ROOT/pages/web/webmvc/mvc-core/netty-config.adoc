@@ -134,7 +134,7 @@ dependencies {
 
 您可以自定义工作线程和接收线程的名称：
 
-[source,yaml]
+[configprops,yaml]
 ----
 server:
   netty:
@@ -163,7 +163,7 @@ Netty 服务器支持优雅停机，可以通过 `server.netty.shutdown` 配置�
 | SECONDS
 |===
 
-[source,yaml]
+[configprops,yaml]
 ----
 server:
   netty:
@@ -177,7 +177,7 @@ server:
 
 可以通过 `server.http2` 前缀配置 HTTP/2：
 
-[source,yaml]
+[configprops,yaml]
 ----
 server:
   http2:
@@ -188,7 +188,7 @@ server:
 
 可以通过 `server.ssl` 前缀配置 SSL：
 
-[source,yaml]
+[configprops,yaml]
 ----
 server:
   ssl:
@@ -203,7 +203,7 @@ server:
 
 可以通过 `server.compression` 前缀配置响应压缩：
 
-[source,yaml]
+[configprops,yaml]
 ----
 server:
   compression:
@@ -216,7 +216,7 @@ server:
 
 可以通过 `server.multipart` 前缀配置 Multipart 请求处理：
 
-[source,yaml]
+[configprops,yaml]
 ----
 server:
   multipart:

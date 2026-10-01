@@ -9,7 +9,7 @@ SSL Bundle 为可复用的密钥和信任材料提供命名配置。
 `ssl.bundle.jks` 配置 JKS 或 PKCS12 格式的密钥库和信任库。
 为服务器提供证书及私钥时，通常配置密钥库：
 
-[source,yaml]
+[configprops,yaml]
 ----
 ssl:
   bundle:
@@ -25,7 +25,7 @@ ssl:
 
 客户端验证远端证书时，通常配置包含受信任证书的信任库：
 
-[source,yaml]
+[configprops,yaml]
 ----
 ssl:
   bundle:
@@ -43,7 +43,7 @@ ssl:
 
 `ssl.bundle.pem` 支持 PEM 编码的证书链和私钥：
 
-[source,yaml]
+[configprops,yaml]
 ----
 ssl:
   bundle:
@@ -77,7 +77,7 @@ REST 客户端的应用方式见 xref:io/rest-client.adoc[]。
 
 可以设置某个 Bundle 的 `reload-on-update=true`，监控其文件型密钥和信任材料：
 
-[source,yaml]
+[configprops,yaml]
 ----
 ssl:
   bundle:

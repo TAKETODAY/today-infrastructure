@@ -14,7 +14,7 @@ TODAY INFRA 内部使用 `infra.logging` 日志抽象，底层日志实现可替
 
 使用 `logging.level.<logger-name>` 设置具体 Logger 的级别，`logging.level.root` 设置根 Logger：
 
-[source,yaml]
+[configprops,yaml]
 ----
 logging:
   level:
@@ -33,7 +33,7 @@ Logback 没有独立的 `FATAL`，它映射为 `ERROR`。
 
 `logging.group` 可以把多个 Logger 组合为一个逻辑名称：
 
-[source,yaml]
+[configprops,yaml]
 ----
 logging:
   group:
@@ -89,7 +89,7 @@ Logback 可以使用类路径的 `logback.xml`，需要 infra 扩展时推荐使
 Logback 集成支持 ECS、GELF 和 Logstash JSON 格式。
 控制台和文件分别使用 `logging.structured.format.console` 和 `logging.structured.format.file`：
 
-[source,yaml]
+[configprops,yaml]
 ----
 logging:
   structured:
@@ -104,7 +104,7 @@ logging:
 `logging.structured.json.include` 和 `exclude` 控制成员过滤，`rename` 重命名路径，`add` 添加固定成员。
 例如：
 
-[source,yaml]
+[configprops,yaml]
 ----
 logging:
   structured:

@@ -8,7 +8,7 @@ NOTE: 只有配置的资源包存在默认属性文件（默认是 `messages.pro
 
 资源包的基本名称和其他选项通过 `infra.messages` 命名空间配置：
 
-[source,yaml]
+[configprops,yaml]
 ----
 infra:
   messages:

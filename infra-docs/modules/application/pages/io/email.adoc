@@ -9,7 +9,7 @@ TODAY INFRA 使用 `infra.mail.javamail.JavaMailSender` 抽象发送邮件，并
 `mail.jndi-name` 也可以触发自动配置。
 邮件相关选项由 `infra.mail.config.MailProperties` 定义，使用 `mail` 命名空间，而不是 `spring.mail` 或 `infra.mail`。
 
-[source,yaml]
+[configprops,yaml]
 ----
 mail:
   host: smtp.example.com
@@ -28,7 +28,7 @@ TIP: 某些邮件协议超时默认值为无限。显式设置连接、读取和
 
 也可以使用通过 JNDI 获取的 `jakarta.mail.Session`：
 
-[source,yaml]
+[configprops,yaml]
 ----
 mail:
   jndi-name: "mail/Session"

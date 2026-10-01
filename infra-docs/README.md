@@ -2,6 +2,26 @@
 
 本目录包含 TODAY Infrastructure 的参考文档及文档站点构建配置。
 
+## 配置示例
+
+使用 `[configprops,yaml]` 编写配置示例，构建时会自动生成 YAML 和 Properties 两个选项卡：
+
+```asciidoc
+[configprops,yaml]
+----
+infra:
+  profiles:
+    validate: false
+----
+```
+
+Properties 选项卡将嵌套对象展开为点分属性名，将列表展开为 `[0]`、`[1]` 等索引，
+并将多个 YAML 文档转换为使用 `#---` 分隔的 Properties 文档。
+YAML 原文保留；生成的 Properties 不保留 YAML 注释，空对象和空列表不生成属性。
+扩展目前只接受 YAML 输入，不支持自定义 YAML 标签或循环别名。
+
+扩展测试：在本目录运行 `node --test extensions/configprops.test.js`。
+
 ## 文档来源与版权
 
 本目录中的部分文档及示例翻译、改编或移植自 Spring Framework 和 Spring Boot

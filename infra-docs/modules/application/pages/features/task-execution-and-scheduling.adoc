@@ -32,7 +32,7 @@ NOTE: 不同 Web 集成对执行器的名称和类型有各自约定。不要把
 默认核心线程数是 8，允许核心线程超时，空闲存活时间为 60 秒。
 默认队列无界，因此仅提高 `max-size` 不能使线程池扩展；需要同时配置有界队列：
 
-[source,yaml]
+[configprops,yaml]
 ----
 infra:
   task:
@@ -53,7 +53,7 @@ infra:
 存在处理器且没有用户提供的 `TaskScheduler` 或 `ScheduledExecutorService` 时，自动配置创建调度器。
 平台线程模式下使用 `ThreadPoolTaskScheduler`，默认池大小为 1：
 
-[source,yaml]
+[configprops,yaml]
 ----
 infra:
   task:

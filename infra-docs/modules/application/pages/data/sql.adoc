@@ -11,7 +11,7 @@ TODAY INFRA 提供 JDBC 访问，包括 `infra.jdbc.core.JdbcTemplate`、`infra.
 `javax.sql.DataSource` 是 Java 标准连接入口，其包名不因 Jakarta 迁移而改变。
 目标使用 `datasource.*`，不是 `spring.datasource.*`：
 
-[source,yaml]
+[configprops,yaml]
 ----
 datasource:
   url: jdbc:mysql://localhost/test

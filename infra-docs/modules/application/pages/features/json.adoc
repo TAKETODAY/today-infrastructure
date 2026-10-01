@@ -10,7 +10,7 @@ TODAY INFRA 提供 Jackson 3、Gson 和 JSON-B 的自动配置。
 满足自动配置条件且没有用户提供的匹配 Bean 时，会创建 `tools.jackson.databind.json.JsonMapper`。
 设置由 `infra.jackson.config.JacksonProperties` 定义，前缀是 `jackson`：
 
-[source,yaml]
+[configprops,yaml]
 ----
 jackson:
   property-naming-strategy: SNAKE_CASE

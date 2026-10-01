@@ -27,7 +27,7 @@ infra.profiles.active=dev,hsqldb
 
 等价的 `application.yaml` 配置为：
 
-[source,yaml]
+[configprops,yaml]
 ----
 infra:
   profiles:
@@ -46,7 +46,7 @@ infra:
 没有显式激活的 Profile 时，启用默认 Profile，默认名称为 `default`。
 可以通过 `infra.profiles.default` 更改它：
 
-[source,yaml]
+[configprops,yaml]
 ----
 infra:
   profiles:
@@ -63,7 +63,7 @@ infra:
 `infra.profiles.active` 和 `infra.profiles.default` 应放在非 Profile 专用文档中，而不是 `application-prod.properties` 或由 `app.config.activate.on-profile` 激活的文档中。
 例如，下面 YAML 中的第一个文档有效，第二个文档无效：
 
-[source,yaml]
+[configprops,yaml]
 ----
 # 有效：在普通文档中指定激活的 Profile
 infra:
@@ -91,7 +91,7 @@ infra:
 这些限制有助于避免常见的解析问题。
 如果需要更灵活的名称，可以在普通配置文档中关闭此名称校验：
 
-[source,yaml]
+[configprops,yaml]
 ----
 infra:
   profiles:
@@ -106,7 +106,7 @@ infra:
 
 `infra.profiles.include` 用于增加 Profile，而不是替换 `infra.profiles.active` 指定的 Profile：
 
-[source,yaml]
+[configprops,yaml]
 ----
 infra:
   profiles:
@@ -129,7 +129,7 @@ WARNING: `infra.profiles.include` 只能放在非 Profile 专用文档中，不�
 
 如果 Profile 划分过细，可以使用一个逻辑名称组合多个 Profile：
 
-[source,yaml]
+[configprops,yaml]
 ----
 infra:
   profiles:
@@ -185,7 +185,7 @@ public class MyApplication {
 
 也可以在单个 YAML 文件中使用 `---` 分隔文档，并使用 `app.config.activate.on-profile` 控制某段配置：
 
-[source,yaml]
+[configprops,yaml]
 ----
 myapp:
   endpoint: "https://test.example.com"
