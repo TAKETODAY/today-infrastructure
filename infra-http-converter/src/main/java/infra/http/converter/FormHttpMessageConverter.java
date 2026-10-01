@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import infra.core.ResolvableType;
 import infra.core.io.Resource;
 import infra.http.ContentDisposition;
 import infra.http.HttpEntity;
@@ -61,6 +62,8 @@ import infra.util.StringUtils;
  * write (but not read) the {@code "multipart/form-data"} and
  * {@code "multipart/mixed"} media types as
  * {@link MultiValueMap MultiValueMap&lt;String, Object&gt;}.
+ * <p>URL 编码表单也支持 {@code Map<String, String>}；读取为普通 Map 时，
+ * 同一名称只保留第一个值。multipart 写入仍使用 MultiValueMap。
  *
  * <h3>Multipart Data</h3>
  *
@@ -158,7 +161,7 @@ import infra.util.StringUtils;
  * @see MultiValueMap
  * @since 4.0
  */
-public class FormHttpMessageConverter implements HttpMessageConverter<MultiValueMap<String, ?>> {
+public class FormHttpMessageConverter implements SmartHttpMessageConverter<Object> {
 
   private ArrayList<MediaType> supportedMediaTypes = new ArrayList<>();
 
@@ -294,7 +297,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 
   @Override
   public boolean canRead(Class<?> clazz, @Nullable MediaType mediaType) {
-    if (!MultiValueMap.class.isAssignableFrom(clazz)) {
+    if (!Map.class.isAssignableFrom(clazz)) {
       return false;
     }
     if (mediaType == null) {
@@ -314,13 +317,16 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 
   @Override
   public boolean canWrite(Class<?> clazz, @Nullable MediaType mediaType) {
-    if (!MultiValueMap.class.isAssignableFrom(clazz)) {
+    if (!Map.class.isAssignableFrom(clazz)) {
       return false;
     }
     if (mediaType == null || MediaType.ALL.equals(mediaType)) {
       return true;
     }
     for (MediaType supportedMediaType : getSupportedMediaTypes()) {
+      if (!MultiValueMap.class.isAssignableFrom(clazz) && supportedMediaType.isMultipartType()) {
+        continue;
+      }
       if (supportedMediaType.isCompatibleWith(mediaType)) {
         return true;
       }
@@ -329,7 +335,23 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
   }
 
   @Override
-  public MultiValueMap<String, String> read(@Nullable Class<? extends MultiValueMap<String, ?>> clazz, HttpInputMessage inputMessage)
+  public boolean canRead(ResolvableType type, @Nullable MediaType mediaType) {
+    return canRead(type.toClass(), mediaType);
+  }
+
+  @Override
+  public boolean canWrite(ResolvableType type, Class<?> valueClass, @Nullable MediaType mediaType) {
+    return canWrite(valueClass, mediaType);
+  }
+
+  @Override
+  public Map<String, ?> read(ResolvableType type, HttpInputMessage inputMessage,
+          @Nullable Map<String, Object> hints) throws IOException {
+    return read(type.toClass(), inputMessage);
+  }
+
+  @Override
+  public Map<String, ?> read(@Nullable Class<?> clazz, HttpInputMessage inputMessage)
           throws IOException, HttpMessageNotReadableException //
   {
 
@@ -360,7 +382,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
           result.add(name, value);
         }
       }
-      return result;
+      return clazz == null || MultiValueMap.class.isAssignableFrom(clazz) ? result : result.asSingleValueMap();
     }
     catch (IllegalArgumentException ex) {
       throw new HttpMessageNotReadableException("Could not decode HTTP form payload", ex, inputMessage);
@@ -369,18 +391,25 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 
   @Override
   @SuppressWarnings("unchecked")
-  public void write(MultiValueMap<String, ?> map, @Nullable MediaType contentType, HttpOutputMessage outputMessage)
+  public void write(Object data, @Nullable MediaType contentType, HttpOutputMessage outputMessage)
           throws IOException, HttpMessageNotWritableException {
-
-    if (isMultipart(map, contentType)) {
+    Assert.isInstanceOf(Map.class, data, "data must be of type Map or MultiValueMap");
+    Map<String, ?> map = (Map<String, ?>) data;
+    if (map instanceof MultiValueMap<?, ?> multiValueMap && isMultipart(multiValueMap, contentType)) {
       writeMultipart((MultiValueMap<String, Object>) map, contentType, outputMessage);
     }
     else {
-      writeForm((MultiValueMap<String, Object>) map, contentType, outputMessage);
+      writeForm(map, contentType, outputMessage);
     }
   }
 
-  private boolean isMultipart(MultiValueMap<String, ?> map, @Nullable MediaType contentType) {
+  @Override
+  public void write(Object map, ResolvableType type, @Nullable MediaType contentType,
+          HttpOutputMessage outputMessage, @Nullable Map<String, Object> hints) throws IOException {
+    write(map, contentType, outputMessage);
+  }
+
+  private boolean isMultipart(MultiValueMap<?, ?> map, @Nullable MediaType contentType) {
     if (contentType != null) {
       return contentType.isMultipartType();
     }
@@ -394,7 +423,8 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     return false;
   }
 
-  private void writeForm(MultiValueMap<String, Object> formData,
+  @SuppressWarnings("unchecked")
+  private void writeForm(Map<String, ?> formData,
           @Nullable MediaType contentType, HttpOutputMessage outputMessage) throws IOException {
 
     contentType = getFormContentType(contentType);
@@ -405,7 +435,10 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
       charset = this.charset;
     }
 
-    byte[] bytes = serializeForm(formData, charset).getBytes(charset);
+    String serialized = formData instanceof MultiValueMap<?, ?>
+            ? serializeForm((MultiValueMap<String, Object>) formData, charset)
+            : serializeForm(formData, charset);
+    byte[] bytes = serialized.getBytes(charset);
     outputMessage.setContentLength(bytes.length);
 
     StreamingHttpOutputMessage.writeBody(outputMessage, bytes);
@@ -434,6 +467,25 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     return contentType;
   }
 
+  /**
+   * 将单值表单编码为 URL 编码字符串。
+   * @param formData 表单名称与值
+   * @param charset 编码字符集
+   * @return URL 编码的表单
+   * @since 5.0
+   */
+  protected String serializeForm(Map<String, ?> formData, Charset charset) {
+    StringBuilder builder = new StringBuilder();
+    formData.forEach((name, value) -> {
+      if (name == null) {
+        Assert.isTrue(value == null || "".equals(value), "Null name in form data: " + formData);
+        return;
+      }
+      serializeValue(builder, name, value, charset);
+    });
+    return builder.toString();
+  }
+
   protected String serializeForm(MultiValueMap<String, Object> formData, Charset charset) {
     StringBuilder builder = new StringBuilder();
 
@@ -447,18 +499,22 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
         continue;
       }
       for (Object value : values) {
-        if (!builder.isEmpty()) {
-          builder.append('&');
-        }
-        builder.append(URLEncoder.encode(name, charset));
-        if (value != null) {
-          builder.append('=');
-          builder.append(URLEncoder.encode(String.valueOf(value), charset));
-        }
+        serializeValue(builder, name, value, charset);
       }
     }
 
     return builder.toString();
+  }
+
+  private void serializeValue(StringBuilder builder, String name, @Nullable Object value, Charset charset) {
+    if (!builder.isEmpty()) {
+      builder.append('&');
+    }
+    builder.append(URLEncoder.encode(name, charset));
+    if (value != null) {
+      builder.append('=');
+      builder.append(URLEncoder.encode(String.valueOf(value), charset));
+    }
   }
 
   private void writeMultipart(MultiValueMap<String, Object> parts,

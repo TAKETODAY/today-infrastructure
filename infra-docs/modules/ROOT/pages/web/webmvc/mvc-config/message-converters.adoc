@@ -9,6 +9,11 @@
 TIP: 在 Infra App 应用程序中，`WebMvcAutoConfiguration` 除了默认转换器外，还会添加它检测到的任何
 `HttpMessageConverter` Bean。或者，也可以使用 `extendMessageConverters` 在最后修改消息转换器。
 
+`FormHttpMessageConverter` 支持读取和写入 `application/x-www-form-urlencoded` 表单，
+既可以使用 `MultiValueMap<String, String>` 保留同一名称的多个值，也可以使用
+`Map<String, String>`；读取为普通 `Map` 时，同一名称仅保留第一个值。
+multipart 写入继续使用 `MultiValueMap`，由现有的 part 转换器处理。
+
 以下示例添加了 XML 和 Jackson JSON 转换器，并使用自定义的 `ObjectMapper` 替换默认的转换器：
 
 [source,java]
