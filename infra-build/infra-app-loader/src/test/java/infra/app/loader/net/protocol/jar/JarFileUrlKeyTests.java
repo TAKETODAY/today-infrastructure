@@ -34,6 +34,29 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class JarFileUrlKeyTests {
 
+  @Test
+  void directKeyEqualsUrlKey() throws Exception {
+    String fromUrl = JarFileUrlKey.get(new URL("jar:nested:/my.jar/!mynested.jar!/my/path"));
+    String direct = JarFileUrlKey.get("jar", "", -1, "nested:/my.jar/!mynested.jar!/my/path", false);
+    assertThat(direct).isEqualTo(fromUrl);
+    assertThat(direct.hashCode()).isEqualTo(fromUrl.hashCode());
+  }
+
+  @Test
+  void directKeyWithRuntimeRefEqualsUrlKey() throws Exception {
+    String fromUrl = JarFileUrlKey.get(new URL("jar:nested:/my.jar/!mynested.jar!/my/path#runtime"));
+    String direct = JarFileUrlKey.get("jar", "", -1, "nested:/my.jar/!mynested.jar!/my/path", true);
+    assertThat(direct).isEqualTo(fromUrl);
+    assertThat(direct.hashCode()).isEqualTo(fromUrl.hashCode());
+  }
+
+  @Test
+  void directKeyWithRuntimeRefNotEqualToKeyWithout() {
+    String first = JarFileUrlKey.get("jar", "", -1, "nested:/my.jar/!mynested.jar!/my/path", true);
+    String second = JarFileUrlKey.get("jar", "", -1, "nested:/my.jar/!mynested.jar!/my/path", false);
+    assertThat(first).isNotEqualTo(second);
+  }
+
   @BeforeAll
   static void setup() {
     Handlers.register();

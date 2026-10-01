@@ -63,11 +63,24 @@ final class JarFileUrlKey {
   }
 
   private static String create(URL url) {
-    StringBuilder value = new StringBuilder();
     String protocol = url.getProtocol();
     String host = url.getHost();
     int port = (url.getPort() != -1) ? url.getPort() : url.getDefaultPort();
     String file = url.getFile();
+    return get(protocol, host, port, file, "runtime".equals(url.getRef()));
+  }
+
+  /**
+   * Generate a cache key from already-parsed URL components.
+   * @param protocol the URL protocol
+   * @param host the URL host
+   * @param port the effective port, or -1
+   * @param file the URL file specification
+   * @param runtimeRef whether the runtime fragment is present
+   * @return the normalized string cache key
+   */
+  static String get(String protocol, String host, int port, String file, boolean runtimeRef) {
+    StringBuilder value = new StringBuilder();
     value.append(protocol.toLowerCase(Locale.ROOT));
     value.append(":");
     if (host != null && !host.isEmpty()) {
@@ -75,7 +88,7 @@ final class JarFileUrlKey {
       value.append((port != -1) ? ":" + port : "");
     }
     value.append((file != null) ? file : "");
-    if ("runtime".equals(url.getRef())) {
+    if (runtimeRef) {
       value.append("#runtime");
     }
     return value.toString();
