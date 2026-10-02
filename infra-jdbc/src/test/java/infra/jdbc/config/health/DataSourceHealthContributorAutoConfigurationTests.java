@@ -114,7 +114,7 @@ class DataSourceHealthContributorAutoConfigurationTests {
   @Test
   void runWithRoutingAndEmbeddedDataSourceShouldNotIncludeRoutingDataSourceWhenIgnored() {
     this.contextRunner.withUserConfiguration(EmbeddedDataSourceConfiguration.class, RoutingDataSourceConfig.class)
-            .withPropertyValues("app.health.db.ignore-routing-datasources:true")
+            .withPropertyValues("health.db.ignore-routing-datasources:true")
             .run((context) -> {
               assertThat(context).doesNotHaveBean(CompositeHealthContributor.class);
               assertThat(context).hasSingleBean(DataSourceHealthIndicator.class);
@@ -127,7 +127,7 @@ class DataSourceHealthContributorAutoConfigurationTests {
     this.contextRunner
             .withUserConfiguration(ProxyDataSourceBeanPostProcessor.class, EmbeddedDataSourceConfiguration.class,
                     RoutingDataSourceConfig.class)
-            .withPropertyValues("app.health.db.ignore-routing-datasources:true")
+            .withPropertyValues("health.db.ignore-routing-datasources:true")
             .run((context) -> {
               assertThat(context).doesNotHaveBean(CompositeHealthContributor.class);
               assertThat(context).hasSingleBean(DataSourceHealthIndicator.class);
@@ -169,7 +169,7 @@ class DataSourceHealthContributorAutoConfigurationTests {
   @Test
   void runWithOnlyRoutingDataSourceShouldCrashWhenIgnored() {
     this.contextRunner.withUserConfiguration(RoutingDataSourceConfig.class)
-            .withPropertyValues("app.health.db.ignore-routing-datasources:true")
+            .withPropertyValues("health.db.ignore-routing-datasources:true")
             .run((context) -> assertThat(context).hasFailed()
                     .getFailure()
                     .hasRootCauseInstanceOf(IllegalArgumentException.class));
@@ -178,7 +178,7 @@ class DataSourceHealthContributorAutoConfigurationTests {
   @Test
   void runWithProxyBeanPostProcessorAndOnlyRoutingDataSourceShouldCrashWhenIgnored() {
     this.contextRunner.withUserConfiguration(ProxyDataSourceBeanPostProcessor.class, RoutingDataSourceConfig.class)
-            .withPropertyValues("app.health.db.ignore-routing-datasources:true")
+            .withPropertyValues("health.db.ignore-routing-datasources:true")
             .run((context) -> assertThat(context).hasFailed()
                     .getFailure()
                     .hasRootCauseInstanceOf(IllegalArgumentException.class));
@@ -199,7 +199,7 @@ class DataSourceHealthContributorAutoConfigurationTests {
   @Test
   void runWhenDisabledShouldNotCreateIndicator() {
     this.contextRunner.withUserConfiguration(EmbeddedDataSourceConfiguration.class)
-            .withPropertyValues("app.health.db.enabled:false")
+            .withPropertyValues("health.db.enabled:false")
             .run((context) -> assertThat(context).doesNotHaveBean(DataSourceHealthIndicator.class)
                     .doesNotHaveBean(CompositeHealthContributor.class));
   }

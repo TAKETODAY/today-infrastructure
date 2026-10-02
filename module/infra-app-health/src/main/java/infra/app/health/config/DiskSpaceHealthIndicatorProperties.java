@@ -32,7 +32,7 @@ import infra.util.DataSize;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-@ConfigurationProperties("app.health.diskspace")
+@ConfigurationProperties("health.diskspace")
 public class DiskSpaceHealthIndicatorProperties {
 
   /**

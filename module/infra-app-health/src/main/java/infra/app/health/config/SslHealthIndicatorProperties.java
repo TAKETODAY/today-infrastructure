@@ -30,7 +30,7 @@ import infra.context.properties.ConfigurationProperties;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-@ConfigurationProperties("app.health.ssl")
+@ConfigurationProperties("health.ssl")
 public class SslHealthIndicatorProperties {
 
   /**

@@ -45,39 +45,39 @@ class ConditionalOnEnabledHealthIndicatorTests {
 
   @Test
   void whenIndicatorPropertyTrueCreatesBean() {
-    this.contextRunner.withPropertyValues("app.health.custom.enabled=true")
+    this.contextRunner.withPropertyValues("health.custom.enabled=true")
             .run((context) -> assertThat(context).hasSingleBean(HealthIndicator.class));
   }
 
   @Test
   void whenIndicatorPropertyFalseDoesNotCreateBean() {
-    this.contextRunner.withPropertyValues("app.health.custom.enabled=false")
+    this.contextRunner.withPropertyValues("health.custom.enabled=false")
             .run((context) -> assertThat(context).doesNotHaveBean(HealthIndicator.class));
   }
 
   @Test
   void whenDefaultsPropertyTrueCreatesBean() {
-    this.contextRunner.withPropertyValues("app.health.defaults.enabled=true")
+    this.contextRunner.withPropertyValues("health.defaults.enabled=true")
             .run((context) -> assertThat(context).hasSingleBean(HealthIndicator.class));
   }
 
   @Test
   void whenDefaultsPropertyFalseDoesNotCreateBean() {
-    this.contextRunner.withPropertyValues("app.health.defaults.enabled=false")
+    this.contextRunner.withPropertyValues("health.defaults.enabled=false")
             .run((context) -> assertThat(context).doesNotHaveBean(HealthIndicator.class));
   }
 
   @Test
   void whenIndicatorPropertyTrueAndDefaultsPropertyFalseCreatesBean() {
     this.contextRunner
-            .withPropertyValues("app.health.custom.enabled=true", "app.health.defaults.enabled=false")
+            .withPropertyValues("health.custom.enabled=true", "health.defaults.enabled=false")
             .run((context) -> assertThat(context).hasSingleBean(HealthIndicator.class));
   }
 
   @Test
   void whenIndicatorPropertyFalseAndDefaultsPropertyTrueDoesNotCreateBean() {
     this.contextRunner
-            .withPropertyValues("app.health.custom.enabled=false", "app.health.defaults.enabled=true")
+            .withPropertyValues("health.custom.enabled=false", "health.defaults.enabled=true")
             .run((context) -> assertThat(context).doesNotHaveBean(HealthIndicator.class));
   }
 

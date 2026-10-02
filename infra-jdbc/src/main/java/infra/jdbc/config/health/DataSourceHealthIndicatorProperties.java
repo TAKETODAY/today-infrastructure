@@ -28,7 +28,7 @@ import infra.jdbc.health.DataSourceHealthIndicator;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-@ConfigurationProperties("app.health.db")
+@ConfigurationProperties("health.db")
 public class DataSourceHealthIndicatorProperties {
 
   /**

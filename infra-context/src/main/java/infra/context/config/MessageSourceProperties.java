@@ -38,7 +38,7 @@ import infra.format.annotation.DurationUnit;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@ConfigurationProperties(prefix = "infra.messages")
+@ConfigurationProperties(prefix = "messages")
 public class MessageSourceProperties {
 
   /**

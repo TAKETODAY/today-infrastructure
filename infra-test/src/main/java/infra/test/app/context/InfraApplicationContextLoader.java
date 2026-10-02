@@ -311,7 +311,7 @@ public class InfraApplicationContextLoader extends AbstractContextLoader impleme
   protected String[] getInlinedProperties(MergedContextConfiguration config) {
     ArrayList<String> properties = new ArrayList<>();
     // JMX bean names will clash if the same bean is used in multiple contexts
-    properties.add("infra.jmx.enabled=false");
+    properties.add("jmx.enabled=false");
     properties.addAll(Arrays.asList(config.getPropertySourceProperties()));
     return StringUtils.toStringArray(properties);
   }

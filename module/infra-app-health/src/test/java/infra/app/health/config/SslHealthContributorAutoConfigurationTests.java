@@ -57,7 +57,7 @@ class SslHealthContributorAutoConfigurationTests {
 
   @Test
   void beansShouldNotBeConfigured() {
-    this.contextRunner.withPropertyValues("app.health.ssl.enabled=false")
+    this.contextRunner.withPropertyValues("health.ssl.enabled=false")
             .run((context) -> assertThat(context).doesNotHaveBean(HealthIndicator.class)
                     .doesNotHaveBean(SslInfo.class));
   }
@@ -79,7 +79,7 @@ class SslHealthContributorAutoConfigurationTests {
 
   @Test
   void beansShouldBeConfiguredWithWarningThreshold() {
-    this.contextRunner.withPropertyValues("app.health.ssl.certificate-validity-warning-threshold=1d")
+    this.contextRunner.withPropertyValues("health.ssl.certificate-validity-warning-threshold=1d")
             .run((context) -> {
               assertThat(context).hasSingleBean(SslHealthIndicator.class);
               assertThat(context).hasSingleBean(SslInfo.class);

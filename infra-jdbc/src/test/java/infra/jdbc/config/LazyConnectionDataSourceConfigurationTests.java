@@ -49,7 +49,7 @@ class LazyConnectionDataSourceConfigurationTests {
   void autoConfigurationExposeDataSourceMBeanWhenEnabled(String connectionFetchStrategy) {
     String uniqueDomain = UUID.randomUUID().toString();
     this.contextRunner.withConfiguration(AutoConfigurations.of(JmxAutoConfiguration.class))
-            .withPropertyValues("infra.jmx.enabled=true", "infra.jmx.default-domain=" + uniqueDomain,
+            .withPropertyValues("jmx.enabled=true", "jmx.default-domain=" + uniqueDomain,
                     "datasource.type=" + HikariDataSource.class.getName(),
                     "datasource.connection-fetch=" + connectionFetchStrategy)
             .run((context) -> {

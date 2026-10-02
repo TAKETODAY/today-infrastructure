@@ -6,15 +6,14 @@ TODAY INFRA 支持本地化消息，使应用能够服务于使用不同语言�
 
 NOTE: 只有配置的资源包存在默认属性文件（默认是 `messages.properties`）时，消息源自动配置才会生效。如果只有 `messages_zh_CN.properties` 等语言专用文件，仍需要添加默认文件。如果全部配置的基本名称都找不到默认属性文件，就不会自动配置 `MessageSource`。
 
-资源包的基本名称和其他选项通过 `infra.messages` 命名空间配置：
+资源包的基本名称和其他选项通过 `messages` 命名空间配置：
 
 [configprops,yaml]
 ----
-infra:
-  messages:
-    basename: "messages, config.i18n.messages"
-    common-messages: "classpath:my-common-messages.properties"
-    fallback-to-system-locale: false
+messages:
+  basename: "messages, config.i18n.messages"
+  common-messages: "classpath:my-common-messages.properties"
+  fallback-to-system-locale: false
 ----
 
 `basename` 支持以逗号分隔的多个基本名称，可以包含包限定名；没有包限定名时从类路径根目录解析。
@@ -26,7 +25,7 @@ infra:
 
 [cols="1,1,3",options="header"]
 |===
-|属性（`infra.messages.` 前缀） |默认值 |含义
+|属性（`messages.` 前缀） |默认值 |含义
 |`basename` |`messages` |资源包基本名称。
 |`encoding` |`UTF-8` |消息文件编码。
 |`cache-duration` |未设置 |资源包缓存时长；未设置时永久缓存，没有单位后缀时使用秒。

@@ -43,7 +43,7 @@ import infra.context.properties.bind.Binder;
 @ConfigurationProperties(DockerComposeProperties.NAME)
 public class DockerComposeProperties {
 
-  static final String NAME = "infra.docker.compose";
+  static final String NAME = "docker.compose";
 
   /**
    * Whether Docker Compose support is enabled.

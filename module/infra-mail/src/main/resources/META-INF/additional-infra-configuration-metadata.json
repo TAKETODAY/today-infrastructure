@@ -2,7 +2,7 @@
   "groups": [],
   "properties": [
     {
-      "name": "app.health.mail.enabled",
+      "name": "health.mail.enabled",
       "type": "java.lang.Boolean",
       "description": "Whether to enable Mail health check.",
       "defaultValue": true

@@ -30,7 +30,7 @@ import infra.jmx.support.RegistrationPolicy;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/9 18:36
  */
-@ConfigurationProperties(prefix = "infra.jmx")
+@ConfigurationProperties(prefix = "jmx")
 public class JmxProperties {
 
   /**

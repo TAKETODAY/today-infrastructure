@@ -7,7 +7,7 @@
       "defaultValue": "eager"
     },
     {
-      "name": "app.health.db.enabled",
+      "name": "health.db.enabled",
       "type": "java.lang.Boolean",
       "description": "Whether to enable database health check.",
       "defaultValue": true

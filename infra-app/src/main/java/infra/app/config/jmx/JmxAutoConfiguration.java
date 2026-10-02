@@ -43,7 +43,7 @@ import infra.util.StringUtils;
  * {@link EnableMBeanExport @EnableMBeanExport} mechanism based on configuration
  * properties.
  * <p>
- * To enable auto export of annotation beans set {@code infra.jmx.enabled: true}.
+ * To enable auto export of annotation beans set {@code jmx.enabled: true}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Christian Dupuis
@@ -55,7 +55,7 @@ import infra.util.StringUtils;
 @DisableDIAutoConfiguration
 @ConditionalOnClass({ MBeanExporter.class })
 @EnableConfigurationProperties(JmxProperties.class)
-@ConditionalOnBooleanProperty("infra.jmx.enabled")
+@ConditionalOnBooleanProperty("jmx.enabled")
 public final class JmxAutoConfiguration {
 
   @Primary

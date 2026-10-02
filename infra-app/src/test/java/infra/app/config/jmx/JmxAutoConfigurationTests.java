@@ -56,7 +56,7 @@ class JmxAutoConfigurationTests {
 
   @Test
   void testDisabledMBeanExport() {
-    this.contextRunner.withPropertyValues("infra.jmx.enabled=false").run((context) -> {
+    this.contextRunner.withPropertyValues("jmx.enabled=false").run((context) -> {
       assertThat(context).doesNotHaveBean(MBeanExporter.class);
       assertThat(context).doesNotHaveBean(ObjectNamingStrategy.class);
     });
@@ -64,7 +64,7 @@ class JmxAutoConfigurationTests {
 
   @Test
   void testEnabledMBeanExport() {
-    this.contextRunner.withPropertyValues("infra.jmx.enabled=true").run((context) -> {
+    this.contextRunner.withPropertyValues("jmx.enabled=true").run((context) -> {
       assertThat(context).hasSingleBean(MBeanExporter.class);
       assertThat(context).hasSingleBean(ParentAwareNamingStrategy.class);
       MBeanExporter exporter = context.getBean(MBeanExporter.class);
@@ -80,8 +80,8 @@ class JmxAutoConfigurationTests {
   @Test
   void testDefaultDomainConfiguredOnMBeanExport() {
     this.contextRunner.withPropertyValues(
-            "infra.jmx.enabled=true", "infra.jmx.default-domain=my-test-domain",
-            "infra.jmx.unique-names=true", "infra.jmx.registration-policy=IGNORE_EXISTING").run((context) -> {
+            "jmx.enabled=true", "jmx.default-domain=my-test-domain",
+            "jmx.unique-names=true", "jmx.registration-policy=IGNORE_EXISTING").run((context) -> {
       assertThat(context).hasSingleBean(MBeanExporter.class);
       MBeanExporter exporter = context.getBean(MBeanExporter.class);
       assertThat(exporter).hasFieldOrPropertyWithValue(

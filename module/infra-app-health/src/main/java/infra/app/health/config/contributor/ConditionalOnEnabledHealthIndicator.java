@@ -28,9 +28,9 @@ import infra.context.annotation.Conditional;
 
 /**
  * {@link Conditional @Conditional} that checks whether a default health indicator is
- * enabled. Matches if the value of the {@code app.health.<name>.enabled} property
+ * enabled. Matches if the value of the {@code health.<name>.enabled} property
  * is {@code true}. Otherwise, matches if the value of the
- * {@code app.health.defaults.enabled} property is {@code true} or if it is not
+ * {@code health.defaults.enabled} property is {@code true} or if it is not
  * configured.
  *
  * @author Stephane Nicoll

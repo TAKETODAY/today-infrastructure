@@ -38,7 +38,7 @@ import infra.jmx.export.MBeanExporter;
  * @since 4.0
  */
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnBooleanProperty("infra.jmx.enabled")
+@ConditionalOnBooleanProperty("jmx.enabled")
 class DataSourceJmxConfiguration {
 
   @Configuration(proxyBeanMethods = false)

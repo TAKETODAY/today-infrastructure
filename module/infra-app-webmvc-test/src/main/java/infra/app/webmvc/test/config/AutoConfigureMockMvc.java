@@ -47,7 +47,7 @@ import infra.test.web.mock.assertj.MockMvcTester;
 @Documented
 @Inherited
 @ImportAutoConfiguration
-@PropertyMapping("infra.test.mockmvc")
+@PropertyMapping("test.mockmvc")
 public @interface AutoConfigureMockMvc {
 
   /**

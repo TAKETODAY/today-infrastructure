@@ -133,11 +133,11 @@ class DockerComposeTestExtension implements BeforeTestExecutionCallback, AfterTe
   private Application prepareApplication(Path composeFile, Path logFile) {
     Application application = new Application(Config.class);
     Map<String, Object> properties = new LinkedHashMap<>();
-    properties.put("infra.docker.compose.skip.in-tests", "false");
-    properties.put("infra.docker.compose.file", composeFile);
-    properties.put("infra.docker.compose.stop.command", "down");
-    properties.put("infra.docker.compose.start.arguments[0]", "--wait-timeout");
-    properties.put("infra.docker.compose.start.arguments[1]", "120");
+    properties.put("docker.compose.skip.in-tests", "false");
+    properties.put("docker.compose.file", composeFile);
+    properties.put("docker.compose.stop.command", "down");
+    properties.put("docker.compose.start.arguments[0]", "--wait-timeout");
+    properties.put("docker.compose.start.arguments[1]", "120");
     properties.put("logging.file.name", logFile.toString());
     application.setDefaultProperties(properties);
     return application;

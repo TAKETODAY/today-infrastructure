@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Phillip Webb
  */
 @WebMvcTest
-@TestPropertySource(properties = "infra.test.mockmvc.print=NONE")
+@TestPropertySource(properties = "test.mockmvc.print=NONE")
 @ExtendWith(OutputCaptureExtension.class)
 class WebMvcTestPrintDefaultOverrideIntegrationTests {
 

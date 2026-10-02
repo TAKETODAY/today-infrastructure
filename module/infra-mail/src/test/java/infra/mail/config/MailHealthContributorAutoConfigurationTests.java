@@ -44,7 +44,7 @@ class MailHealthContributorAutoConfigurationTests {
 
   @Test
   void runWhenDisabledShouldNotCreateIndicator() {
-    this.contextRunner.withPropertyValues("app.health.mail.enabled:false")
+    this.contextRunner.withPropertyValues("health.mail.enabled:false")
             .run((context) -> assertThat(context).doesNotHaveBean(MailHealthIndicator.class));
   }
 

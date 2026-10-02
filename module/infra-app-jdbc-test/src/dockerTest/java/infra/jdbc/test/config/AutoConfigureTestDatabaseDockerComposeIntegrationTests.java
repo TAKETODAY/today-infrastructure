@@ -85,8 +85,8 @@ class AutoConfigureTestDatabaseDockerComposeIntegrationTests {
                 .replace("{imageName}", TestImage.POSTGRESQL.toString());
         Files.writeString(composeFile, composeFileContent);
         TestPropertySourceUtils.addInlinedPropertiesToEnvironment(applicationContext,
-                "infra.docker.compose.skip.in-tests=false", "infra.docker.compose.stop.command=down",
-                "infra.docker.compose.file=" + composeFile.toAbsolutePath());
+                "docker.compose.skip.in-tests=false", "docker.compose.stop.command=down",
+                "docker.compose.file=" + composeFile.toAbsolutePath());
       }
       catch (IOException ex) {
         throw new UncheckedIOException(ex);

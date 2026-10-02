@@ -59,7 +59,7 @@ class DataSourceJmxConfigurationTests {
   void hikariAutoConfiguredCanUseRegisterMBeans() {
     String poolName = UUID.randomUUID().toString();
     this.contextRunner
-            .withPropertyValues("infra.jmx.enabled=true", "datasource.type=" + HikariDataSource.class.getName(),
+            .withPropertyValues("jmx.enabled=true", "datasource.type=" + HikariDataSource.class.getName(),
                     "datasource.name=" + poolName, "datasource.hikari.register-mbeans=true")
             .run((context) -> {
               assertThat(context).hasSingleBean(HikariDataSource.class);
@@ -98,7 +98,7 @@ class DataSourceJmxConfigurationTests {
   void hikariAutoConfiguredUsesJmxFlag() {
     String poolName = UUID.randomUUID().toString();
     this.contextRunner.withPropertyValues("datasource.type=" + HikariDataSource.class.getName(),
-            "infra.jmx.enabled=false", "datasource.name=" + poolName,
+            "jmx.enabled=false", "datasource.name=" + poolName,
             "datasource.hikari.register-mbeans=true").run((context) -> {
       assertThat(context).hasSingleBean(HikariDataSource.class);
       HikariDataSource hikariDataSource = context.getBean(HikariDataSource.class);
@@ -115,7 +115,7 @@ class DataSourceJmxConfigurationTests {
   void hikariProxiedCanUseRegisterMBeans() {
     String poolName = UUID.randomUUID().toString();
     this.contextRunner.withUserConfiguration(DataSourceProxyConfiguration.class)
-            .withPropertyValues("infra.jmx.enabled=true",
+            .withPropertyValues("jmx.enabled=true",
                     "datasource.type=" + HikariDataSource.class.getName(),
                     "datasource.name=" + poolName, "datasource.hikari.register-mbeans=true")
             .run((context) -> {

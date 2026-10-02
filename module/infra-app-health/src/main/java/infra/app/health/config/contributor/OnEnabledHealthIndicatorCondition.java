@@ -37,7 +37,7 @@ import infra.core.type.AnnotatedTypeMetadata;
  */
 class OnEnabledHealthIndicatorCondition extends InfraCondition {
 
-  private static final String DEFAULTS_PROPERTY_NAME = "app.health.defaults.enabled";
+  private static final String DEFAULTS_PROPERTY_NAME = "health.defaults.enabled";
 
   @Override
   public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
@@ -45,7 +45,7 @@ class OnEnabledHealthIndicatorCondition extends InfraCondition {
     String name = annotation.getString(MergedAnnotation.VALUE);
     Environment environment = context.getEnvironment();
     ConditionMessage.Builder message = ConditionMessage.forCondition(ConditionalOnEnabledHealthIndicator.class);
-    String propertyName = "app.health.%s.enabled".formatted(name);
+    String propertyName = "health.%s.enabled".formatted(name);
     if (environment.containsProperty(propertyName)) {
       boolean match = environment.getFlag(propertyName, true);
       return new ConditionOutcome(match, message.because(propertyName + " is " + match));

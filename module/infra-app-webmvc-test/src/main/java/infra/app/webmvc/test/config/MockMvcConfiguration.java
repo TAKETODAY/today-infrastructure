@@ -53,7 +53,7 @@ class MockMvcConfiguration {
   }
 
   @Bean
-  @ConfigurationProperties("infra.test.mockmvc")
+  @ConfigurationProperties("test.mockmvc")
   static InfraMockMvcBuilderCustomizer infraMockMvcBuilderCustomizer(ApplicationContext context) {
     return new InfraMockMvcBuilderCustomizer(context);
   }

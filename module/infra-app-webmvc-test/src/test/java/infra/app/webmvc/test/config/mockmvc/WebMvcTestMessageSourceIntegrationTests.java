@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Andy Wilkinson
  */
 @WebMvcTest
-@TestPropertySource(properties = "infra.messages.basename=web-test-messages")
+@TestPropertySource(properties = "messages.basename=web-test-messages")
 class WebMvcTestMessageSourceIntegrationTests {
 
   @Autowired

@@ -8,16 +8,16 @@ TODAY INFRA 提供 Docker Compose 与 Testcontainers 集成。
 
 添加 `cn.taketoday:infra-docker-compose` 可以启用 Compose 支持。
 使用应用 Gradle 插件时，把它声明在 `developmentOnly`，避免作为常规生产依赖打包。
-需要在测试中使用时可改为 `testAndDevelopmentOnly`，并设置 `infra.docker.compose.skip.in-tests=false`。
+需要在测试中使用时可改为 `testAndDevelopmentOnly`，并设置 `docker.compose.skip.in-tests=false`。
 
 模块在工作目录查找常见 Compose 文件名，默认执行 `docker compose up`，为支持的服务创建连接详情，并在关闭时执行 `docker compose stop`。
 服务已经运行时，默认跳过启动；生命周期行为还受相关选项控制。
 必须安装可用的 Docker 和 Docker Compose CLI，并提供可访问的 Docker 环境。
 
-`infra.docker.compose.file` 可以指定其他文件位置。
-`infra.docker.compose.enabled=false` 禁用支持，`lifecycle-management` 可设置为 `none`、`start-only` 或 `start-and-stop`。
+`docker.compose.file` 可以指定其他文件位置。
+`docker.compose.enabled=false` 禁用支持，`lifecycle-management` 可设置为 `none`、`start-only` 或 `start-and-stop`。
 `start.command` 和 `stop.command` 调整启动与停止命令，`arguments`、`start.arguments`、`stop.arguments` 分别提供通用及阶段参数。
-这些属性均位于 `infra.docker.compose` 前缀下。
+这些属性均位于 `docker.compose` 前缀下。
 
 == 服务连接
 
@@ -35,9 +35,9 @@ TODAY INFRA 提供 Docker Compose 与 Testcontainers 集成。
 建议在 Compose 文件中配置 `healthcheck`。
 默认还可以通过映射端口上的 TCP 连接检查就绪，但 TCP 可连接并不等于服务的业务初始化完成。
 单个服务可以用 `infra.readiness-check.tcp.disable` 禁用 TCP 检查。
-`infra.docker.compose.readiness.tcp.connect-timeout`、`read-timeout` 和 `infra.docker.compose.readiness.timeout` 控制检查超时。
+`docker.compose.readiness.tcp.connect-timeout`、`read-timeout` 和 `docker.compose.readiness.timeout` 控制检查超时。
 
-`infra.docker.compose.profiles.active` 设置 Compose Profile。
+`docker.compose.profiles.active` 设置 Compose Profile。
 Compose Profile 与 `infra.profiles.active` 是两个独立配置，不能认为激活应用 Profile 会自动激活同名 Compose Profile。
 
 == 开发期 Testcontainers

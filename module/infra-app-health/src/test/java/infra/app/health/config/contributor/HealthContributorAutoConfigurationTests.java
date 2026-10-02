@@ -57,14 +57,14 @@ class HealthContributorAutoConfigurationTests {
   @Test
   void runWhenHasDefaultsDisabledDoesNotCreatePingHealthIndicator() {
     this.contextRunner.withUserConfiguration(CustomHealthIndicatorConfiguration.class)
-            .withPropertyValues("app.health.defaults.enabled:false")
+            .withPropertyValues("health.defaults.enabled:false")
             .run((context) -> assertThat(context).doesNotHaveBean(HealthIndicator.class));
   }
 
   @Test
   void runWhenHasDefaultsDisabledAndPingIndicatorEnabledCreatesPingHealthIndicator() {
     this.contextRunner.withUserConfiguration(CustomHealthIndicatorConfiguration.class)
-            .withPropertyValues("app.health.defaults.enabled:false", "app.health.ping.enabled:true")
+            .withPropertyValues("health.defaults.enabled:false", "health.ping.enabled:true")
             .run((context) -> assertThat(context).hasSingleBean(PingHealthIndicator.class));
   }
 

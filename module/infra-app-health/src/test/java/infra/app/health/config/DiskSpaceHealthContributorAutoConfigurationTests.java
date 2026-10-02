@@ -47,7 +47,7 @@ class DiskSpaceHealthContributorAutoConfigurationTests {
 
   @Test
   void thresholdMustBePositive() {
-    this.contextRunner.withPropertyValues("app.health.diskspace.threshold=-10MB")
+    this.contextRunner.withPropertyValues("health.diskspace.threshold=-10MB")
             .run((context) -> assertThat(context).hasFailed()
                     .getFailure()
                     .rootCause()
@@ -56,7 +56,7 @@ class DiskSpaceHealthContributorAutoConfigurationTests {
 
   @Test
   void thresholdCanBeCustomized() {
-    this.contextRunner.withPropertyValues("app.health.diskspace.threshold=20MB").run((context) -> {
+    this.contextRunner.withPropertyValues("health.diskspace.threshold=20MB").run((context) -> {
       assertThat(context).hasSingleBean(DiskSpaceHealthIndicator.class);
       assertThat(context.getBean(DiskSpaceHealthIndicator.class)).hasFieldOrPropertyWithValue("threshold",
               DataSize.ofMegabytes(20));
@@ -65,13 +65,13 @@ class DiskSpaceHealthContributorAutoConfigurationTests {
 
   @Test
   void runWhenPathDoesNotExistShouldCreateIndicator() {
-    this.contextRunner.withPropertyValues("app.health.diskspace.path=does/not/exist")
+    this.contextRunner.withPropertyValues("health.diskspace.path=does/not/exist")
             .run((context) -> assertThat(context).hasSingleBean(DiskSpaceHealthIndicator.class));
   }
 
   @Test
   void runWhenDisabledShouldNotCreateIndicator() {
-    this.contextRunner.withPropertyValues("app.health.diskspace.enabled:false")
+    this.contextRunner.withPropertyValues("health.diskspace.enabled:false")
             .run((context) -> assertThat(context).doesNotHaveBean(DiskSpaceHealthIndicator.class));
   }
 

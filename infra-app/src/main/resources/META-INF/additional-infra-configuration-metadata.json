@@ -569,7 +569,7 @@
       ]
     },
     {
-      "name": "infra.jmx.server",
+      "name": "jmx.server",
       "providers": [
         {
           "name": "infra-bean-reference",

@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Dave Syer
  */
 @DirtiesContext
-@InfraTest("infra.messages.basename:test/messages")
+@InfraTest("messages.basename:test/messages")
 @ImportAutoConfiguration({
         infra.context.config.MessageSourceAutoConfiguration.class,
         PropertyPlaceholderAutoConfiguration.class

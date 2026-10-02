@@ -65,18 +65,18 @@ class DockerComposePropertiesTests {
   @Test
   void getWhenPropertiesReturnsBound() {
     Map<String, String> source = new LinkedHashMap<>();
-    source.put("infra.docker.compose.arguments", "--project-name=test,--progress=auto");
-    source.put("infra.docker.compose.file", "my-compose.yml");
-    source.put("infra.docker.compose.lifecycle-management", "start-only");
-    source.put("infra.docker.compose.host", "myhost");
-    source.put("infra.docker.compose.start.command", "start");
-    source.put("infra.docker.compose.stop.command", "down");
-    source.put("infra.docker.compose.stop.timeout", "5s");
-    source.put("infra.docker.compose.profiles.active", "myprofile");
-    source.put("infra.docker.compose.readiness.wait", "only-if-started");
-    source.put("infra.docker.compose.readiness.timeout", "10s");
-    source.put("infra.docker.compose.readiness.tcp.connect-timeout", "400ms");
-    source.put("infra.docker.compose.readiness.tcp.read-timeout", "500ms");
+    source.put("docker.compose.arguments", "--project-name=test,--progress=auto");
+    source.put("docker.compose.file", "my-compose.yml");
+    source.put("docker.compose.lifecycle-management", "start-only");
+    source.put("docker.compose.host", "myhost");
+    source.put("docker.compose.start.command", "start");
+    source.put("docker.compose.stop.command", "down");
+    source.put("docker.compose.stop.timeout", "5s");
+    source.put("docker.compose.profiles.active", "myprofile");
+    source.put("docker.compose.readiness.wait", "only-if-started");
+    source.put("docker.compose.readiness.timeout", "10s");
+    source.put("docker.compose.readiness.tcp.connect-timeout", "400ms");
+    source.put("docker.compose.readiness.tcp.read-timeout", "500ms");
     Binder binder = new Binder(new MapConfigurationPropertySource(source));
     DockerComposeProperties properties = DockerComposeProperties.get(binder);
     assertThat(properties.getArguments()).containsExactly("--project-name=test", "--progress=auto");
