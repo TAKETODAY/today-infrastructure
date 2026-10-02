@@ -533,6 +533,11 @@ public class DefaultEntityManager implements EntityManager {
         }
         throw new PersistenceException("Batch persist entities failed", ex);
       }
+      finally {
+        for (PreparedBatch batch : statements.values()) {
+          closeResource(null, batch.stmt);
+        }
+      }
     }
   }
 
@@ -1579,7 +1584,6 @@ public class DefaultEntityManager implements EntityManager {
 
     public int explicitExecuteBatch() throws Throwable {
       executeBatch(stmt, false);
-      closeResource(null, stmt);
       return affectedRows;
     }
 
