@@ -1669,15 +1669,16 @@ public class DefaultEntityManager implements EntityManager, BeanFactoryAware, Di
         if (autoGenerateId) {
           EntityProperty idProperty = entityMetadata.getIdProperty();
           if (idProperty != null) {
-            ResultSet generatedKeys = statement.getGeneratedKeys();
-            for (Object entity : entities) {
-              try {
-                if (generatedKeys.next()) {
-                  idProperty.setProperty(entity, generatedKeys, 1);
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+              for (Object entity : entities) {
+                try {
+                  if (generatedKeys.next()) {
+                    idProperty.setProperty(entity, generatedKeys, 1);
+                  }
                 }
-              }
-              catch (SQLException e) {
-                throw new GeneratedKeysException("Cannot get generated keys", e);
+                catch (SQLException e) {
+                  throw new GeneratedKeysException("Cannot get generated keys", e);
+                }
               }
             }
           }

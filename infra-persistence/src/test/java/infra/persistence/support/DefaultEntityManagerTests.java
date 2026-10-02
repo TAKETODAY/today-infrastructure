@@ -25,6 +25,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -290,6 +291,81 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       try (NamedQuery query = repositoryManager.createNamedQuery("SELECT * from t_user")) {
         query.setAutoDerivingColumns(true);
         assertThat(query.fetch(UserModel.class)).hasSize(10);
+      }
+    }
+
+    @ParameterizedRepositoryManagerTest
+    void batchPersistPopulatesKeysAcrossClosedResultSets(DbType dbType, RepositoryManager repositoryManager) {
+      DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+      if (dbType == DbType.HyperSQL) {
+        entityManager.setPlatform(new HyperSQLPlatform());
+      }
+      entityManager.setMaxBatchRecords(10);
+
+      // HyperSQL rejects empty executeBatch calls, so exercise that boundary only on H2.
+      int[] sizes = dbType == DbType.H2 ? new int[] { 1_000, 1_007 } : new int[] { 1_007 };
+      for (int size : sizes) {
+        List<UserModel> entities = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+          entities.add(UserModel.male("BATCH-" + size + "-" + i, 10 + i));
+        }
+
+        assertThat(entityManager.persist(entities)).isEqualTo(size);
+        assertThat(entities).extracting(entity -> entity.id).doesNotContainNull().doesNotHaveDuplicates();
+        try (NamedQuery query = repositoryManager.createNamedQuery(
+                "SELECT * FROM t_user WHERE name LIKE :prefix ORDER BY id")) {
+          query.addParameter("prefix", "BATCH-" + size + "-%");
+          query.setAutoDerivingColumns(true);
+          assertThat(query.fetch(UserModel.class)).containsExactlyElementsOf(entities);
+        }
+      }
+    }
+
+    @ParameterizedRepositoryManagerTest
+    void generatedKeysCanBeClosedRepeatedlyAndStatementReused(DbType dbType, RepositoryManager repositoryManager)
+            throws Exception {
+      try (Connection connection = DriverManager.getConnection(dbType.url, dbType.user, dbType.pass);
+              PreparedStatement statement = connection.prepareStatement(
+                      "INSERT INTO t_user (name, age) VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS)) {
+        List<Long> ids = new ArrayList<>();
+        int batchCount = 1_000;
+        int batchSize = 10;
+        for (int batch = 0; batch < batchCount; batch++) {
+          for (int row = 0; row < batchSize; row++) {
+            statement.setString(1, "BATCH-" + batch + "-" + row);
+            statement.setInt(2, batch * batchSize + row);
+            statement.addBatch();
+          }
+          assertThat(statement.executeBatch()).hasSize(batchSize);
+          ResultSet keys = statement.getGeneratedKeys();
+          try (keys) {
+            for (int row = 0; row < batchSize; row++) {
+              assertThat(keys.next()).isTrue();
+              ids.add(keys.getLong(1));
+            }
+            assertThat(keys.next()).isFalse();
+            if (dbType == DbType.H2) {
+              assertThat(statement.getGeneratedKeys()).isSameAs(keys);
+            }
+          }
+          assertThat(keys.isClosed()).isTrue();
+          keys.close();
+          assertThat(statement.isClosed()).isFalse();
+        }
+        assertThat(ids).hasSize(batchCount * batchSize).doesNotHaveDuplicates();
+        try (Statement verification = connection.createStatement();
+                ResultSet rows = verification.executeQuery("SELECT id, name, age FROM t_user ORDER BY id")) {
+          for (int i = 0; i < ids.size(); i++) {
+            assertThat(rows.next()).isTrue();
+            assertThat(rows.getLong("id")).isEqualTo(ids.get(i));
+            assertThat(rows.getString("name")).isEqualTo("BATCH-" + i / batchSize + "-" + i % batchSize);
+            assertThat(rows.getInt("age")).isEqualTo(i);
+          }
+          assertThat(rows.next()).isFalse();
+        }
+        // Exercise driver cleanup after explicit result-set closure as well.
+        statement.close();
+        assertThat(statement.isClosed()).isTrue();
       }
     }
 
