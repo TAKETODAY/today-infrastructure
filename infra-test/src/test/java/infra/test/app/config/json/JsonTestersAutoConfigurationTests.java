@@ -41,7 +41,7 @@ class JsonTestersAutoConfigurationTests {
   @Test
   void basicJsonTesterHintsAreContributed() {
     try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
-      TestPropertyValues.of("infra.test.jsontesters.enabled=true").applyTo(context);
+      TestPropertyValues.of("test.jsontesters.enabled=true").applyTo(context);
       context.register(JsonTestersAutoConfiguration.class);
       TestGenerationContext generationContext = new TestGenerationContext();
       new ApplicationContextAotGenerator().processAheadOfTime(context, generationContext);

@@ -32,13 +32,13 @@ import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.http.client.ClientHttpRequest;
 import infra.http.client.ClientHttpResponse;
-import infra.util.Assert;
 import infra.stereotype.Component;
 import infra.test.web.client.ExpectedCount;
 import infra.test.web.client.MockRestServiceServer;
 import infra.test.web.client.RequestExpectationManager;
 import infra.test.web.client.RequestMatcher;
 import infra.test.web.client.ResponseActions;
+import infra.util.Assert;
 import infra.web.client.RestClient;
 import infra.web.client.RestTemplate;
 
@@ -52,7 +52,7 @@ import infra.web.client.RestTemplate;
  */
 @AutoConfiguration
 @ConditionalOnClass(MockServerRestTemplateCustomizer.class)
-@ConditionalOnBooleanProperty("infra.test.restclient.mockrestserviceserver.enabled")
+@ConditionalOnBooleanProperty("test.restclient.mockrestserviceserver.enabled")
 public final class MockRestServiceServerAutoConfiguration {
 
   @Component

@@ -40,7 +40,7 @@ import static org.mockito.Mockito.mock;
 class MockRestServiceServerAutoConfigurationTests {
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-          .withPropertyValues("infra.test.restclient.mockrestserviceserver.enabled=true")
+          .withPropertyValues("test.restclient.mockrestserviceserver.enabled=true")
           .withConfiguration(AutoConfigurations.of(MockRestServiceServerAutoConfiguration.class));
 
   @Test

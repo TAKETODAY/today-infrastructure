@@ -45,7 +45,7 @@ class JacksonTesterAutoConfigurationTests {
 
   @Test
   void hintsAreContributed() {
-    this.runner.withPropertyValues("infra.test.jsontesters.enabled=true").prepare((context) -> {
+    this.runner.withPropertyValues("test.jsontesters.enabled=true").prepare((context) -> {
       TestGenerationContext generationContext = new TestGenerationContext();
       new ApplicationContextAotGenerator().processAheadOfTime(
               (GenericApplicationContext) context.getSourceApplicationContext(), generationContext);

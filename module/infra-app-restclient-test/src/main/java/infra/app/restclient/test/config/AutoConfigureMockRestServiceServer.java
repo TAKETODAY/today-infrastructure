@@ -56,7 +56,7 @@ import infra.web.client.RestTemplateBuilder;
 @Documented
 @Inherited
 @ImportAutoConfiguration
-@PropertyMapping("infra.test.restclient.mockrestserviceserver")
+@PropertyMapping("test.restclient.mockrestserviceserver")
 public @interface AutoConfigureMockRestServiceServer {
 
   /**

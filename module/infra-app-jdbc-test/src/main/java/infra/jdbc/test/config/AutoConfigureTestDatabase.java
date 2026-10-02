@@ -50,7 +50,7 @@ import infra.test.context.PropertyMapping;
 @Documented
 @Inherited
 @ImportAutoConfiguration
-@PropertyMapping("infra.test.database")
+@PropertyMapping("test.database")
 public @interface AutoConfigureTestDatabase {
 
   /**

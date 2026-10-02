@@ -1,7 +1,7 @@
 {
   "properties": [
     {
-      "name": "infra.test.database.replace",
+      "name": "test.database.replace",
       "type": "infra.jdbc.test.config.AutoConfigureTestDatabase$Replace",
       "description": "Type of existing DataSource to replace.",
       "defaultValue": "any"

@@ -181,7 +181,7 @@ class TemplateAvailabilityProvidersTests {
   void getProviderWhenCacheDisabledShouldNotUseCache() {
     given(this.provider.isTemplateAvailable(this.view, this.environment, this.classLoader, this.resourceLoader))
             .willReturn(true);
-    this.environment.setProperty("infra.template.provider.cache", "false");
+    this.environment.setProperty("template.provider.cache", "false");
     this.providers.getProvider(this.view, this.environment, this.classLoader, this.resourceLoader);
     this.providers.getProvider(this.view, this.environment, this.classLoader, this.resourceLoader);
     then(this.provider).should(times(2)).isTemplateAvailable(this.view, this.environment, this.classLoader,

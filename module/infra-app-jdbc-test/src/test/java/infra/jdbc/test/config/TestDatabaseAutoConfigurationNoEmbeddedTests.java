@@ -57,7 +57,7 @@ class TestDatabaseAutoConfigurationNoEmbeddedTests {
 
   @Test
   void applyNoReplace() {
-    this.contextRunner.withPropertyValues("infra.test.database.replace=NONE").run((context) -> {
+    this.contextRunner.withPropertyValues("test.database.replace=NONE").run((context) -> {
       assertThat(context).hasSingleBean(DataSource.class);
       assertThat(context).getBean(DataSource.class).isSameAs(context.getBean("myCustomDataSource"));
     });

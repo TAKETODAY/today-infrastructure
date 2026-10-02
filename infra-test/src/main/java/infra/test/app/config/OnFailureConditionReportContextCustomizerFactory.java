@@ -96,7 +96,7 @@ class OnFailureConditionReportContextCustomizerFactory implements ContextCustomi
     }
 
     private static boolean shouldPrintReport(@Nullable ConfigurableApplicationContext context) {
-      return context == null || context.getEnvironment().getFlag("infra.test.print-condition-evaluation-report", true);
+      return context == null || context.getEnvironment().getFlag("test.print-condition-evaluation-report", true);
     }
 
   }

@@ -85,7 +85,7 @@ public final class TestDatabaseAutoConfiguration {
 
   @Bean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnProperty(name = "infra.test.database.replace", havingValue = "NON_TEST", matchIfMissing = true)
+  @ConditionalOnProperty(name = "test.database.replace", havingValue = "NON_TEST", matchIfMissing = true)
   static EmbeddedDataSourceBeanFactoryPostProcessor nonTestEmbeddedDataSourceBeanFactoryPostProcessor(
           ConfigurableEnvironment environment) {
     return new EmbeddedDataSourceBeanFactoryPostProcessor(environment, Replace.NON_TEST);
@@ -93,14 +93,14 @@ public final class TestDatabaseAutoConfiguration {
 
   @Bean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnProperty(name = "infra.test.database.replace", havingValue = "ANY")
+  @ConditionalOnProperty(name = "test.database.replace", havingValue = "ANY")
   static EmbeddedDataSourceBeanFactoryPostProcessor embeddedDataSourceBeanFactoryPostProcessor(
           ConfigurableEnvironment environment) {
     return new EmbeddedDataSourceBeanFactoryPostProcessor(environment, Replace.ANY);
   }
 
   @Bean
-  @ConditionalOnProperty(name = "infra.test.database.replace", havingValue = "AUTO_CONFIGURED")
+  @ConditionalOnProperty(name = "test.database.replace", havingValue = "AUTO_CONFIGURED")
   @ConditionalOnMissingBean
   DataSource dataSource(Environment environment) {
     return new EmbeddedDataSourceFactory(environment).getEmbeddedDatabase();
@@ -288,7 +288,7 @@ public final class TestDatabaseAutoConfiguration {
     }
 
     EmbeddedDatabase getEmbeddedDatabase() {
-      EmbeddedDatabaseConnection connection = this.environment.getProperty("infra.test.database.connection",
+      EmbeddedDatabaseConnection connection = this.environment.getProperty("test.database.connection",
               EmbeddedDatabaseConnection.class, EmbeddedDatabaseConnection.NONE);
       if (EmbeddedDatabaseConnection.NONE.equals(connection)) {
         connection = EmbeddedDatabaseConnection.get(getClass().getClassLoader());

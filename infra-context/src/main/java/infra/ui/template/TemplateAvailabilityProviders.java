@@ -37,7 +37,7 @@ import infra.lang.VisibleForTesting;
 /**
  * Collection of {@link TemplateAvailabilityProvider} beans that can be used to check
  * which (if any) templating engine supports a given view. Caches responses unless the
- * {@code infra.template.provider.cache} property is set to {@code false}.
+ * {@code template.provider.cache} property is set to {@code false}.
  *
  * @author Phillip Webb
  * @author Madhura Bhave
@@ -141,7 +141,7 @@ public class TemplateAvailabilityProviders {
     Assert.notNull(environment, "Environment is required");
     Assert.notNull(classLoader, "ClassLoader is required");
     Assert.notNull(resourceLoader, "ResourceLoader is required");
-    boolean useCache = environment.getFlag("infra.template.provider.cache", true);
+    boolean useCache = environment.getFlag("template.provider.cache", true);
     if (!useCache) {
       return findProvider(view, environment, classLoader, resourceLoader);
     }

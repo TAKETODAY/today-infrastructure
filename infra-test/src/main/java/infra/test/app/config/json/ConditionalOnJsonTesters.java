@@ -38,7 +38,7 @@ import infra.context.condition.ConditionalOnClass;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Documented
-@ConditionalOnBooleanProperty("infra.test.jsontesters.enabled")
+@ConditionalOnBooleanProperty("test.jsontesters.enabled")
 @ConditionalOnClass(name = "org.assertj.core.api.Assert")
 public @interface ConditionalOnJsonTesters {
 

@@ -46,7 +46,7 @@ import infra.test.context.PropertyMapping;
 @Inherited
 @AutoConfigureJson
 @ImportAutoConfiguration
-@PropertyMapping("infra.test.jsontesters")
+@PropertyMapping("test.jsontesters")
 public @interface AutoConfigureJsonTesters {
 
   /**

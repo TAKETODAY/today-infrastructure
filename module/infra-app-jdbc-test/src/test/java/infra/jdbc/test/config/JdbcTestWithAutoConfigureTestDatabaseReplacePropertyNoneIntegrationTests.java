@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Stephane Nicoll
  */
 @JdbcTest
-@TestPropertySource(properties = "infra.test.database.replace=NONE")
+@TestPropertySource(properties = "test.database.replace=NONE")
 class JdbcTestWithAutoConfigureTestDatabaseReplacePropertyNoneIntegrationTests {
 
   @Autowired

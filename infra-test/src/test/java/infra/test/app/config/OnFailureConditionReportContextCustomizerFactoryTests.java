@@ -72,7 +72,7 @@ class OnFailureConditionReportContextCustomizerFactoryTests {
   }
 
   @Test
-  @WithResource(name = "application.properties", content = "infra.test.print-condition-evaluation-report=false")
+  @WithResource(name = "application.properties", content = "test.print-condition-evaluation-report=false")
   void loadFailureShouldNotPrintReportWhenDisabled(CapturedOutput output) {
     load();
     assertThat(output).doesNotContain("TestAutoConfiguration matched")

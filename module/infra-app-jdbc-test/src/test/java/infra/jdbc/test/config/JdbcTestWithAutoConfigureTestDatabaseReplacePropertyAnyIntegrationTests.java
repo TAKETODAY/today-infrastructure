@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @JdbcTest
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.HSQLDB)
-@TestPropertySource(properties = "infra.test.database.replace=ANY")
+@TestPropertySource(properties = "test.database.replace=ANY")
 class JdbcTestWithAutoConfigureTestDatabaseReplacePropertyAnyIntegrationTests {
 
   @Autowired
