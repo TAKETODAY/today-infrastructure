@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import infra.context.annotation.config.AutoConfigurations;
+import infra.jdbc.RepositoryManager;
 import infra.jdbc.config.DataSourceAutoConfiguration;
 import infra.jdbc.config.DataSourceTransactionManagerAutoConfiguration;
 import infra.jdbc.config.RepositoryManagerAutoConfiguration;
@@ -18,8 +19,11 @@ import infra.jdbc.type.TypeHandlerManager;
 import infra.jdbc.type.UnknownTypeHandler;
 import infra.persistence.EntityManager;
 import infra.persistence.EntityMetadataFactory;
+import infra.persistence.IdGenerator;
 import infra.persistence.PropertyFilter;
 import infra.persistence.VersionIncrementStrategy;
+import infra.persistence.annotation.GeneratedId;
+import infra.persistence.annotation.Table;
 import infra.persistence.query.EntityQueryFactory;
 import infra.persistence.query.PropertyConditionStrategy;
 import infra.persistence.support.DefaultEntityManager;
@@ -57,6 +61,20 @@ class EntityManagerAutoConfigurationTests {
       assertThat(context).hasSingleBean(TypeHandlerManager.class);
       assertThat(context).getBean(TypeHandlerManager.class).isSameAs(TypeHandlerManager.sharedInstance);
     });
+  }
+
+  @Test
+  void namedIdGeneratorUsesApplicationContext() {
+    contextRunner.withBean("customIdGenerator", IdGenerator.class, () -> (object, metadata, id) -> "context-id")
+            .run(context -> {
+              RepositoryManager repository = context.getBean(RepositoryManager.class);
+              repository.createNamedQuery("create table context_entity (id varchar(64) primary key)").executeUpdate();
+              ContextEntity entity = new ContextEntity();
+              context.getBean(EntityManager.class).persist(entity);
+              assertThat(entity.id).isEqualTo("context-id");
+              assertThat(repository.createNamedQuery("select id from context_entity").fetchFirst(String.class))
+                      .isEqualTo("context-id");
+            });
   }
 
   @Test
@@ -200,6 +218,13 @@ class EntityManagerAutoConfigurationTests {
 
   static class MyProperty {
 
+  }
+
+  @Table("context_entity")
+  static class ContextEntity {
+
+    @GeneratedId(generatorName = "customIdGenerator")
+    public String id;
   }
 
 }
