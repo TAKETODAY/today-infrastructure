@@ -27,9 +27,16 @@ import infra.persistence.GenerationType;
 import infra.persistence.IdGenerator;
 
 /**
- * Specifies a generated primary key of an entity.
- * By default the database generates the ID. Application generators run after
- * pre-persist callbacks and preserve existing non-null IDs.
+ * Declares a generated primary key on an entity field or accessor method.
+ *
+ * <p>By default, the database generates the ID and the persistence layer reads
+ * it back through JDBC generated keys. An application generator runs before
+ * insertion, after pre-persist callbacks, and is invoked only when the ID is
+ * {@code null}. Existing non-null IDs are preserved by application generators.
+ *
+ * <p>A custom {@link IdGenerator} can generate local or distributed IDs and
+ * may be selected by {@linkplain #generator() type} or
+ * {@linkplain #generatorName() bean name}.
  *
  * <p>This annotation may be used as a meta-annotation. Composed annotations
  * can override its attributes through {@link infra.core.annotation.AliasFor}.
@@ -70,21 +77,32 @@ import infra.persistence.IdGenerator;
 public @interface GeneratedId {
 
   /**
-   * Built-in strategy, used when no custom generator is specified.
+   * The built-in strategy to use when no custom generator is specified.
+   * <p>Defaults to database-generated {@link GenerationType#IDENTITY IDENTITY}.
    */
   GenerationType strategy() default GenerationType.IDENTITY;
 
   /**
-   * Generator type. An existing bean is preferred; otherwise dependency
-   * injection creates an instance. The interface itself means unspecified.
-   * A custom generator overrides the default IDENTITY strategy and cannot
-   * be combined with another built-in strategy.
+   * The custom generator type, or {@link IdGenerator} itself when unspecified.
+   * <p>Without a {@link #generatorName() bean name}, a matching container bean
+   * is preferred. If none exists, an instance is created through dependency
+   * injection and reused within the entity manager. Ambiguous bean candidates
+   * must be resolved through container configuration or an explicit bean name.
+   * <p>When a bean name is also specified, this type constrains the named bean
+   * instead of selecting or creating another instance.
+   * <p>A custom generator overrides the default {@link GenerationType#IDENTITY
+   * IDENTITY} strategy and cannot be combined with another built-in strategy.
    */
   Class<? extends IdGenerator> generator() default IdGenerator.class;
 
   /**
-   * Name of an existing generator bean. When a generator type is also supplied,
-   * it constrains the bean type. A missing named bean is an error.
+   * The name of an existing {@link IdGenerator} bean, or an empty string when
+   * no bean is selected by name.
+   * <p>A non-empty name takes precedence over type-based lookup. The bean must
+   * implement {@link IdGenerator} and match any explicitly specified
+   * {@link #generator() generator type}. A missing or incompatible bean is an
+   * error; no fallback instance is created. Its scope and lifecycle remain
+   * managed by the container.
    */
   String generatorName() default "";
 

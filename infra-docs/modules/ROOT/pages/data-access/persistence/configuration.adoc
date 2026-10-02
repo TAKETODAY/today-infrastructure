@@ -26,6 +26,11 @@ dependencies {
 |===
 | 属性 | 类型 | 默认值 | 说明
 
+| `persistence.page-size`
+| `int`
+| `10`
+| 未提供分页参数时的默认每页记录数，必须大于 `0`；默认页码为 `1`，显式提供的 `Pageable` 优先生效。
+
 | `persistence.max-batch-records`
 | `int`
 | `0`
@@ -37,6 +42,16 @@ dependencies {
 | 是否自动回填由数据库生成的主键。
 
 |===
+
+例如在 `application.yml` 中设置默认每页 20 条：
+
+[source,yaml]
+----
+persistence:
+  page-size: 20
+----
+
+`EntityManagerCustomizer` 在配置属性应用后执行，可以通过 `setDefaultPageable()` 进一步覆盖默认分页。
 
 == 自定义
 

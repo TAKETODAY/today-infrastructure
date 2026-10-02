@@ -32,6 +32,16 @@
 
 |===
 
+== 主键生成与回调顺序
+
+UUID 和自定义生成器在 `onPrePersist` *之后* 执行，因此前置回调可以填充生成器需要的实体属性，
+也可以自行设置主键。回调结束后已有非空主键时，应用生成器不会执行。
+数据库自增主键在 INSERT 执行后读取；前置回调不能依赖它已经就绪。
+
+`onPostPersist` 在 INSERT 及主键回填处理之后调用，仍处于当前操作的事务上下文中，
+不等同于提交成功通知。需要提交后执行的逻辑应使用事务同步机制。
+更多说明见 xref:data-access/persistence/entity-manager.adoc#persistence-persist-id[主键与插入流程]。
+
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 @Component

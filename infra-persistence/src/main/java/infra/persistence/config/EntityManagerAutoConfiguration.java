@@ -18,6 +18,7 @@ import infra.jdbc.type.TypeHandlerManager;
 import infra.persistence.DefaultEntityMetadataFactory;
 import infra.persistence.EntityManager;
 import infra.persistence.EntityMetadataFactory;
+import infra.persistence.Pageable;
 import infra.persistence.VersionIncrementStrategy;
 import infra.persistence.event.DefaultEntityEventRegistry;
 import infra.persistence.event.EntityEventRegistry;
@@ -28,6 +29,7 @@ import infra.persistence.query.EntityQueryFactory;
 import infra.persistence.query.PropertyConditionStrategy;
 import infra.persistence.support.DefaultEntityManager;
 import infra.stereotype.Component;
+import infra.util.Assert;
 
 /**
  * Auto-configuration class for setting up the {@link EntityManager}.
@@ -51,6 +53,8 @@ public final class EntityManagerAutoConfiguration {
           ObjectProvider<EntityManagerCustomizer> customizers) {
     DefaultEntityManager entityManager = new DefaultEntityManager(manager, platform);
 
+    Assert.isTrue(properties.pageSize > 0, "persistence.page-size must be positive");
+    entityManager.setDefaultPageable(Pageable.of(1, properties.pageSize));
     entityManager.setStatementLogger(sqlStatementLogger);
     entityManager.setEntityMetadataFactory(entityMetadataFactory);
     entityManager.setMaxBatchRecords(properties.maxBatchRecords);

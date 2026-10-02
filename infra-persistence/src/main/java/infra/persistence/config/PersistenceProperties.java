@@ -10,6 +10,12 @@ import infra.context.properties.ConfigurationProperties;
 public class PersistenceProperties {
 
   /**
+   * Default number of rows per page when no explicit Pageable is supplied.
+   * Must be positive.
+   */
+  public int pageSize = 10;
+
+  /**
    * Sets the number of batched commands this Query allows
    * to be added before implicitly calling executeBatch() from addToBatch().
    * <p>

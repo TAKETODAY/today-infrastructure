@@ -18,11 +18,14 @@ package infra.persistence.support;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -168,6 +171,82 @@ class IdGenerationTests {
     manager.persist(entity);
     assertThat(entity.id).isEqualTo("callback-id");
     assertThat(factory.getBean(AtomicInteger.class).get()).isZero();
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = { false, true })
+  void generatesIdAfterAllPrePersistCallbacks(boolean batch) {
+    List<String> events = new ArrayList<>();
+    factory.registerSingleton("named", (IdGenerator) (object, metadata, property) -> {
+      NamedEntity entity = (NamedEntity) object;
+      assertThat(entity.id).isNull();
+      assertThat(entity.name).isEqualTo("prepared-ready");
+      events.add("generate");
+      return "id-" + entity.name;
+    });
+
+    manager.getEntityEventRegistry().addListener(new PersistEventListener<NamedEntity>() {
+      @Override
+      public void onPrePersist(NamedEntity entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+        assertThat(entity.id).isNull();
+        entity.name = "prepared";
+        events.add("pre-first");
+      }
+    });
+
+    manager.getEntityEventRegistry().addListener(new PersistEventListener<NamedEntity>() {
+      @Override
+      public void onPrePersist(NamedEntity entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+        assertThat(entity.id).isNull();
+        entity.name += "-ready";
+        events.add("pre-second");
+      }
+
+      @Override
+      public void onPostPersist(NamedEntity entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+        assertThat(entity.id).isEqualTo("id-prepared-ready");
+        events.add("post");
+      }
+    });
+
+    NamedEntity entity = new NamedEntity();
+    int rows = batch ? manager.persist(List.of(entity), PropertyUpdateStrategy.notId(), false)
+            : manager.persist(entity, PropertyUpdateStrategy.notId(), false);
+
+    assertThat(rows).isEqualTo(1);
+    assertThat(events).containsExactly("pre-first", "pre-second", "generate", "post");
+    assertThat(repository.createNamedQuery("select id from generated_entity").fetchFirst(String.class))
+            .isEqualTo("id-prepared-ready");
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = { false, true })
+  void callbackAssignedIdIsInsertedWithoutInvokingGenerator(boolean batch) {
+    factory.registerSingleton("named", (IdGenerator) (object, metadata, property) -> {
+      throw new AssertionError("Generator must not run for a callback-assigned ID");
+    });
+
+    manager.getEntityEventRegistry().addListener(new PersistEventListener<NamedEntity>() {
+      @Override
+      public void onPrePersist(NamedEntity entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+        assertThat(entity.id).isNull();
+        entity.id = "callback-assigned";
+      }
+
+      @Override
+      public void onPostPersist(NamedEntity entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+        assertThat(entity.id).isEqualTo("callback-assigned");
+      }
+    });
+
+    NamedEntity entity = new NamedEntity();
+    int rows = batch ? manager.persist(List.of(entity), PropertyUpdateStrategy.notId(), false)
+            : manager.persist(entity, PropertyUpdateStrategy.notId(), false);
+
+    assertThat(rows).isEqualTo(1);
+    assertThat(entity.id).isEqualTo("callback-assigned");
+    assertThat(repository.createNamedQuery("select id from generated_entity").fetchFirst(String.class))
+            .isEqualTo("callback-assigned");
   }
 
   @Test

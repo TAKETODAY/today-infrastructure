@@ -48,15 +48,22 @@ import infra.persistence.PropertyUpdateStrategy;
 public interface PersistEventListener<T> extends EntityEventListener<T> {
 
   /**
-   * Invoked before an entity of the observed type is persisted, before the insert
-   * statement is built and executed. Generated identifiers are not yet assigned at
-   * this point.
+   * Invoked before an entity of the observed type is inserted and before
+   * application-generated identifiers are assigned.
+   *
+   * <p>The primary key may not yet be available in this callback. Application ID
+   * generation runs after all pre-persist callbacks and only when the ID property
+   * is still {@code null}. This callback may therefore populate fields required
+   * by an {@link infra.persistence.IdGenerator} or assign an application-generated
+   * ID itself; an existing non-null ID is preserved without invoking the generator.
+   * Database-generated identifiers are read back only after the INSERT executes.
    *
    * <p>The given {@code strategy} is the {@link PropertyUpdateStrategy} that will
-   * decide which properties are written back; a modification made to the entity in
+   * decide which ordinary properties are written back; a modification made to the entity in
    * this callback is only applied when the strategy selects the modified property
    * (with the default {@code noneNull()} strategy, a property is written back once
-   * it is non-null).
+   * it is non-null). Application-generated primary keys are included in the INSERT
+   * independently of this strategy.
    *
    * @param entity the entity to be persisted; must not be {@code null}
    * @param metadata the entity metadata; must not be {@code null}

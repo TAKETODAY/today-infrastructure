@@ -12,6 +12,7 @@
 
 * xref:data-access/persistence/configuration.adoc[自动配置与依赖]：引入即用、配置属性与可定制组件。
 * xref:data-access/persistence/mapping.adoc[实体映射]：表 / 列 / 主键 / 版本映射、`@EntityRef` 引用实体与可插拔元数据工厂。
+* xref:data-access/persistence/mapping.adoc#persistence-id-generation[主键生成策略]：数据库自增、UUID、自定义 / 分布式 ID 生成器、依赖注入与 Meta 注解。
 
 == 运行时 API
 

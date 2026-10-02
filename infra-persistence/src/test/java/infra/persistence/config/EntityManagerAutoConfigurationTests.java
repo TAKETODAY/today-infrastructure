@@ -2,6 +2,8 @@ package infra.persistence.config;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,6 +22,7 @@ import infra.jdbc.type.UnknownTypeHandler;
 import infra.persistence.EntityManager;
 import infra.persistence.EntityMetadataFactory;
 import infra.persistence.IdGenerator;
+import infra.persistence.Pageable;
 import infra.persistence.PropertyFilter;
 import infra.persistence.VersionIncrementStrategy;
 import infra.persistence.annotation.GeneratedId;
@@ -29,6 +32,7 @@ import infra.persistence.query.PropertyConditionStrategy;
 import infra.persistence.support.DefaultEntityManager;
 import infra.persistence.support.DefaultVersionIncrementStrategy;
 import infra.test.context.runner.ApplicationContextRunner;
+import infra.test.util.ReflectionTestUtils;
 import infra.util.function.SupplierUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,6 +64,37 @@ class EntityManagerAutoConfigurationTests {
       assertThat(context).hasSingleBean(EntityManager.class);
       assertThat(context).hasSingleBean(TypeHandlerManager.class);
       assertThat(context).getBean(TypeHandlerManager.class).isSameAs(TypeHandlerManager.sharedInstance);
+    });
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = { 1, 20, 100 })
+  void configuredPageSizeIsApplied(int pageSize) {
+    contextRunner.withPropertyValues("persistence.page-size=" + pageSize).run(context -> {
+      assertThat(context).hasNotFailed();
+      assertThat(context.getBean(PersistenceProperties.class).pageSize).isEqualTo(pageSize);
+      Pageable pageable = (Pageable) ReflectionTestUtils.getField(context.getBean(EntityManager.class), "defaultPageable");
+      assertThat(pageable.pageNumber()).isEqualTo(1);
+      assertThat(pageable.pageSize()).isEqualTo(pageSize);
+    });
+  }
+
+  @Test
+  void defaultPageSizeIsTen() {
+    contextRunner.run(context -> {
+      assertThat(context.getBean(PersistenceProperties.class).pageSize).isEqualTo(10);
+      Pageable pageable = (Pageable) ReflectionTestUtils.getField(context.getBean(EntityManager.class), "defaultPageable");
+      assertThat(pageable.pageSize()).isEqualTo(10);
+    });
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = { 0, -1 })
+  void invalidPageSizeFailsStartup(int pageSize) {
+    contextRunner.withPropertyValues("persistence.page-size=" + pageSize).run(context -> {
+      assertThat(context).hasFailed();
+      assertThat(context.getStartupFailure()).hasRootCauseInstanceOf(IllegalArgumentException.class)
+              .hasRootCauseMessage("persistence.page-size must be positive");
     });
   }
 

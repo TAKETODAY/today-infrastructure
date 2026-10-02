@@ -15,6 +15,30 @@ entityManager.persist(user, PropertyUpdateStrategy.noneNull(), true);
 entityManager.persist(userStream, true);
 ----
 
+[[persistence-persist-id]]
+=== 主键与插入流程
+
+单条插入的执行顺序如下：
+
+. 调用 `onPrePersist`，准备实体属性。
+. 对 UUID 或自定义生成策略，在主键仍为 `null` 时生成并回填 ID。
+. 构建 INSERT，绑定参数并执行。
+. 如果使用数据库自增，读取 JDBC generated keys 并回填主键。
+. 调用 `onPostPersist`。
+
+因此 `onPrePersist` 不保证框架生成的 ID 已就绪，但可以主动设置应用生成型主键，
+或先填充生成器依赖的业务字段。`onPostPersist` 在插入及主键回填处理之后执行，
+不表示外层事务已经提交。声明方式见 xref:data-access/persistence/mapping.adoc#persistence-id-generation[主键生成策略]。
+
+对于单条插入，声明了 `@GeneratedId` 时由该声明决定是否读取 JDBC 主键：
+`IDENTITY` 会读取，UUID 和自定义生成器不会读取；没有声明时使用 `autoGenerateId` 设置或方法参数。
+该布尔参数表示 JDBC 主键回填，不是应用生成器的启用开关。
+
+应用生成的 ID 在插入失败或事务回滚后仍保留在实体上，已分配的 ID 不会被框架回收。
+`saveOrUpdate()` 优先使用 `NewEntityIndicator.isNew()` 判断是否为新实体，否则按主键是否为 `null` 判断，
+不会先查询数据库确认记录是否存在。已经生成 ID 的失败插入应使用 `persist()` 重试，
+或由 `NewEntityIndicator` 明确管理新实体状态。
+
 [[persistence-update]]
 == 更新
 
