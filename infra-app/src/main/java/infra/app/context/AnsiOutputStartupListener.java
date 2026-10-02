@@ -25,7 +25,7 @@ import infra.core.env.ConfigurableEnvironment;
 
 /**
  * An {@link ApplicationStartupListener} that configures {@link AnsiOutput} depending on the
- * value of the property {@code infra.output.ansi.enabled}. See {@link Enabled} for valid
+ * value of the property {@code output.ansi.enabled}. See {@link Enabled} for valid
  * values.
  *
  * @author Raphael von der Grün
@@ -38,10 +38,10 @@ public class AnsiOutputStartupListener implements ApplicationStartupListener {
   @Override
   public void environmentPrepared(ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) {
     Binder.get(environment)
-            .bind("infra.output.ansi.enabled", Enabled.class)
+            .bind("output.ansi.enabled", Enabled.class)
             .ifBound(AnsiOutput::setEnabled);
     AnsiOutput.setConsoleAvailable(
-            environment.getProperty("infra.output.ansi.console-available", Boolean.class));
+            environment.getProperty("output.ansi.console-available", Boolean.class));
   }
 
 }

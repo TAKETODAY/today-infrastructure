@@ -74,7 +74,7 @@ public abstract class InfraRun extends JavaExec {
     }
     if (System.console() != null) {
       // Record that the console is available here for AnsiOutput to detect later
-      getEnvironment().put("infra.output.ansi.console-available", true);
+      getEnvironment().put("output.ansi.console-available", true);
     }
     super.exec();
   }

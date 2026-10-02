@@ -340,7 +340,7 @@
       "description": "Flag to explicitly request a specific type of application. If not set, auto-detected based on the classpath."
     },
     {
-      "name": "infra.output.ansi.enabled",
+      "name": "output.ansi.enabled",
       "type": "infra.core.ansi.AnsiOutput$Enabled",
       "description": "Configures the ANSI output.",
       "defaultValue": "detect"

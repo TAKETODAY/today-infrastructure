@@ -39,14 +39,6 @@ public abstract class AnsiOutput {
 
   private static final String ENCODE_JOIN = ";";
 
-  private static Enabled enabled = Enabled.DETECT;
-
-  @Nullable
-  private static Boolean consoleAvailable;
-
-  @Nullable
-  private static Boolean ansiCapable;
-
   private static final String OPERATING_SYSTEM_NAME = System.getProperty("os.name").toLowerCase(Locale.ROOT);
 
   private static final String ENCODE_START = "\033[";
@@ -54,6 +46,12 @@ public abstract class AnsiOutput {
   private static final String ENCODE_END = "m";
 
   private static final String RESET = "0;" + AnsiColor.DEFAULT;
+
+  private static Enabled enabled = Enabled.DETECT;
+
+  private static @Nullable Boolean consoleAvailable;
+
+  private static @Nullable Boolean ansiCapable;
 
   /**
    * Sets if ANSI output is enabled.
