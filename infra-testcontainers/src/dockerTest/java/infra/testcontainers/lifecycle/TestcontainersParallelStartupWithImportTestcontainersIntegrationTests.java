@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Phillip Webb
  */
 @ExtendWith(InfraExtension.class)
-@TestPropertySource(properties = "infra.testcontainers.beans.startup=parallel")
+@TestPropertySource(properties = "testcontainers.beans.startup=parallel")
 @DisabledIfDockerUnavailable
 @ExtendWith({ OutputCaptureExtension.class, ResetStartablesExtension.class })
 @ImportTestcontainers(Containers.class)

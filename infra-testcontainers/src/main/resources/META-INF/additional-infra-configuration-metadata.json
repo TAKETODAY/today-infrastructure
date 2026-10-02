@@ -1,20 +1,20 @@
 {
   "properties": [
     {
-      "name": "infra.testcontainers.beans.startup",
+      "name": "testcontainers.beans.startup",
       "type": "infra.testcontainers.lifecycle.TestcontainersStartup",
       "description": "Testcontainers startup modes.",
       "defaultValue": "sequential"
     },
     {
-      "name": "infra.testcontainers.dynamic-property-registry-injection",
+      "name": "testcontainers.dynamic-property-registry-injection",
       "description": "How to treat injection of DynamicPropertyRegistry into a @Bean method.",
       "defaultValue": "fail"
     }
   ],
   "hints": [
     {
-      "name": "infra.testcontainers.dynamic-property-registry-injection",
+      "name": "testcontainers.dynamic-property-registry-injection",
       "values": [
         {
           "value": "fail",

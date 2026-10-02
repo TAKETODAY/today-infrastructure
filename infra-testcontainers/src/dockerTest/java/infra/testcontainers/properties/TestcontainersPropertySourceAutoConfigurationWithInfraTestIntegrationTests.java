@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Andy Wilkinson
  */
 @InfraTest(classes = TestConfig.class,
-        properties = "infra.testcontainers.dynamic-property-registry-injection=allow")
+        properties = "testcontainers.dynamic-property-registry-injection=allow")
 class TestcontainersPropertySourceAutoConfigurationWithInfraTestIntegrationTests {
 
   @Autowired
