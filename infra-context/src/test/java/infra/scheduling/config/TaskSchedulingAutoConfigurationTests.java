@@ -96,9 +96,9 @@ class TaskSchedulingAutoConfigurationTests {
   @Test
   void enableSchedulingWithNoTaskExecutorAutoConfiguresOne() {
     this.contextRunner
-            .withPropertyValues("infra.task.scheduling.shutdown.await-termination=true",
-                    "infra.task.scheduling.shutdown.await-termination-period=30s",
-                    "infra.task.scheduling.thread-name-prefix=scheduling-test-")
+            .withPropertyValues("task.scheduling.shutdown.await-termination=true",
+                    "task.scheduling.shutdown.await-termination-period=30s",
+                    "task.scheduling.thread-name-prefix=scheduling-test-")
             .withUserConfiguration(SchedulingConfiguration.class)
             .run((context) -> {
               assertThat(context).hasSingleBean(TaskExecutor.class);
@@ -113,10 +113,10 @@ class TaskSchedulingAutoConfigurationTests {
 
   @Test
   void simpleAsyncTaskSchedulerBuilderShouldReadProperties() {
-    this.contextRunner.withPropertyValues("infra.task.scheduling.simple.concurrency-limit=1",
-                    "infra.task.scheduling.thread-name-prefix=scheduling-test-",
-                    "infra.task.scheduling.shutdown.await-termination=true",
-                    "infra.task.scheduling.shutdown.await-termination-period=30s")
+    this.contextRunner.withPropertyValues("task.scheduling.simple.concurrency-limit=1",
+                    "task.scheduling.thread-name-prefix=scheduling-test-",
+                    "task.scheduling.shutdown.await-termination=true",
+                    "task.scheduling.shutdown.await-termination-period=30s")
             .withUserConfiguration(SchedulingConfiguration.class)
             .run((context) -> {
               assertThat(context).hasSingleBean(SimpleAsyncTaskSchedulerBuilder.class);
@@ -167,7 +167,7 @@ class TaskSchedulingAutoConfigurationTests {
 
   @Test
   void enableSchedulingWithNoTaskExecutorAppliesTaskSchedulerCustomizers() {
-    this.contextRunner.withPropertyValues("infra.task.scheduling.thread-name-prefix=scheduling-test-")
+    this.contextRunner.withPropertyValues("task.scheduling.thread-name-prefix=scheduling-test-")
             .withUserConfiguration(SchedulingConfiguration.class)
             .run((context) -> {
               assertThat(context).hasSingleBean(TaskExecutor.class);
@@ -203,7 +203,7 @@ class TaskSchedulingAutoConfigurationTests {
 
   @Test
   void enableSchedulingWithNoTaskExecutorAppliesCustomizers() {
-    this.contextRunner.withPropertyValues("infra.task.scheduling.thread-name-prefix=scheduling-test-")
+    this.contextRunner.withPropertyValues("task.scheduling.thread-name-prefix=scheduling-test-")
             .withUserConfiguration(SchedulingConfiguration.class, ThreadPoolTaskSchedulerCustomizerConfiguration.class)
             .run((context) -> {
               assertThat(context).hasSingleBean(TaskExecutor.class);
@@ -244,7 +244,7 @@ class TaskSchedulingAutoConfigurationTests {
     new ApplicationContextRunner()
             .withInitializer(
                     (context) -> context.addBeanFactoryPostProcessor(new LazyInitializationBeanFactoryPostProcessor()))
-            .withPropertyValues("infra.task.scheduling.thread-name-prefix=scheduling-test-")
+            .withPropertyValues("task.scheduling.thread-name-prefix=scheduling-test-")
             .withBean(LazyTestBean.class, () -> new LazyTestBean(threadNames))
             .withUserConfiguration(SchedulingConfiguration.class)
             .withConfiguration(AutoConfigurations.of(TaskSchedulingAutoConfiguration.class))

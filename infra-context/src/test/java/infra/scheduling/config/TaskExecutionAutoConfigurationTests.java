@@ -79,10 +79,10 @@ class TaskExecutionAutoConfigurationTests {
   @Test
   void simpleAsyncTaskExecutorBuilderShouldReadProperties() {
     this.contextRunner
-            .withPropertyValues("infra.task.execution.thread-name-prefix=mytest-",
-                    "infra.task.execution.simple.concurrency-limit=1",
-                    "infra.task.execution.shutdown.await-termination=true",
-                    "infra.task.execution.shutdown.await-termination-period=30s")
+            .withPropertyValues("task.execution.thread-name-prefix=mytest-",
+                    "task.execution.simple.concurrency-limit=1",
+                    "task.execution.shutdown.await-termination=true",
+                    "task.execution.shutdown.await-termination-period=30s")
             .run(assertSimpleAsyncTaskExecutor((taskExecutor) -> {
               assertThat(taskExecutor.getConcurrencyLimit()).isEqualTo(1);
               assertThat(taskExecutor.getThreadNamePrefix()).isEqualTo("mytest-");
@@ -92,14 +92,14 @@ class TaskExecutionAutoConfigurationTests {
 
   @Test
   void threadPoolTaskExecutorBuilderShouldApplyCustomSettings() {
-    this.contextRunner.withPropertyValues("infra.task.execution.pool.queue-capacity=10",
-                    "infra.task.execution.pool.core-size=2", "infra.task.execution.pool.max-size=4",
-                    "infra.task.execution.pool.allow-core-thread-timeout=true",
-                    "infra.task.execution.pool.keep-alive=5s",
-                    "infra.task.execution.pool.shutdown.accept-tasks-after-context-close=true",
-                    "infra.task.execution.shutdown.await-termination=true",
-                    "infra.task.execution.shutdown.await-termination-period=30s",
-                    "infra.task.execution.thread-name-prefix=mytest-")
+    this.contextRunner.withPropertyValues("task.execution.pool.queue-capacity=10",
+                    "task.execution.pool.core-size=2", "task.execution.pool.max-size=4",
+                    "task.execution.pool.allow-core-thread-timeout=true",
+                    "task.execution.pool.keep-alive=5s",
+                    "task.execution.pool.shutdown.accept-tasks-after-context-close=true",
+                    "task.execution.shutdown.await-termination=true",
+                    "task.execution.shutdown.await-termination-period=30s",
+                    "task.execution.thread-name-prefix=mytest-")
             .run(assertThreadPoolTaskExecutor((taskExecutor) -> {
               assertThat(taskExecutor).hasFieldOrPropertyWithValue("queueCapacity", 10);
               assertThat(taskExecutor.getCorePoolSize()).isEqualTo(2);
@@ -160,7 +160,7 @@ class TaskExecutionAutoConfigurationTests {
   void whenTaskNamePrefixIsConfiguredThenSimpleAsyncTaskExecutorWithVirtualThreadsUsesIt() {
     this.contextRunner
             .withPropertyValues("infra.threads.virtual.enabled=true",
-                    "infra.task.execution.thread-name-prefix=custom-")
+                    "task.execution.thread-name-prefix=custom-")
             .run((context) -> {
               SimpleAsyncTaskExecutor taskExecutor = context.getBean("applicationTaskExecutor",
                       SimpleAsyncTaskExecutor.class);
@@ -216,7 +216,7 @@ class TaskExecutionAutoConfigurationTests {
   @Test
   void taskExecutorWhenModeIsAutoAndHasCustomTaskExecutorShouldBackOff() {
     this.contextRunner.withBean("customTaskExecutor", Executor.class, SyncTaskExecutor::new)
-            .withPropertyValues("infra.task.execution.mode=auto")
+            .withPropertyValues("task.execution.mode=auto")
             .run((context) -> {
               assertThat(context).hasSingleBean(Executor.class);
               assertThat(context.getBean(Executor.class)).isSameAs(context.getBean("customTaskExecutor"));
@@ -226,7 +226,7 @@ class TaskExecutionAutoConfigurationTests {
   @Test
   void taskExecutorWhenModeIsForceAndHasCustomTaskExecutorShouldCreateApplicationTaskExecutor() {
     this.contextRunner.withBean("customTaskExecutor", Executor.class, SyncTaskExecutor::new)
-            .withPropertyValues("infra.task.execution.mode=force")
+            .withPropertyValues("task.execution.mode=force")
             .run((context) -> assertThat(context.getBeansOfType(Executor.class)).hasSize(2)
                     .containsKeys("customTaskExecutor", "applicationTaskExecutor"));
   }
@@ -234,7 +234,7 @@ class TaskExecutionAutoConfigurationTests {
   @Test
   void taskExecutorWhenModeIsForceAndHasCustomTaskExecutorWithReservedNameShouldThrowException() {
     this.contextRunner.withBean("applicationTaskExecutor", Executor.class, SyncTaskExecutor::new)
-            .withPropertyValues("infra.task.execution.mode=force")
+            .withPropertyValues("task.execution.mode=force")
             .run((context) -> assertThat(context).hasFailed()
                     .getFailure()
                     .isInstanceOf(BeanDefinitionOverrideException.class));
@@ -243,7 +243,7 @@ class TaskExecutionAutoConfigurationTests {
   @Test
   void taskExecutorWhenModeIsForceAndHasCustomBFPPCanRestoreTaskExecutorAlias() {
     this.contextRunner.withBean("customTaskExecutor", Executor.class, SyncTaskExecutor::new)
-            .withPropertyValues("infra.task.execution.mode=force")
+            .withPropertyValues("task.execution.mode=force")
             .withBean(BeanFactoryPostProcessor.class,
                     () -> (beanFactory) -> beanFactory.registerAlias("applicationTaskExecutor", "taskExecutor"))
             .run((context) -> {
@@ -268,7 +268,7 @@ class TaskExecutionAutoConfigurationTests {
 
   @Test
   void enableAsyncUsesAutoConfiguredOneByDefault() {
-    this.contextRunner.withPropertyValues("infra.task.execution.thread-name-prefix=auto-task-")
+    this.contextRunner.withPropertyValues("task.execution.thread-name-prefix=auto-task-")
             .withUserConfiguration(AsyncConfiguration.class, TestBean.class)
             .run((context) -> {
               assertThat(context).hasSingleBean(AsyncConfigurer.class);
@@ -281,7 +281,7 @@ class TaskExecutionAutoConfigurationTests {
 
   @Test
   void enableAsyncUsesCustomExecutorIfPresent() {
-    this.contextRunner.withPropertyValues("infra.task.execution.thread-name-prefix=auto-task-")
+    this.contextRunner.withPropertyValues("task.execution.thread-name-prefix=auto-task-")
             .withBean("customTaskExecutor", Executor.class, () -> createCustomAsyncExecutor("custom-task-"))
             .withUserConfiguration(AsyncConfiguration.class, TestBean.class)
             .run((context) -> {
@@ -296,8 +296,8 @@ class TaskExecutionAutoConfigurationTests {
   @Test
   void enableAsyncUsesAutoConfiguredExecutorWhenModeIsForceAndHasCustomTaskExecutor() {
     this.contextRunner
-            .withPropertyValues("infra.task.execution.thread-name-prefix=auto-task-",
-                    "infra.task.execution.mode=force")
+            .withPropertyValues("task.execution.thread-name-prefix=auto-task-",
+                    "task.execution.mode=force")
             .withBean("customTaskExecutor", Executor.class, () -> createCustomAsyncExecutor("custom-task-"))
             .withUserConfiguration(AsyncConfiguration.class, TestBean.class)
             .run((context) -> {
@@ -312,8 +312,8 @@ class TaskExecutionAutoConfigurationTests {
   @Test
   void enableAsyncUsesAutoConfiguredExecutorWhenModeIsForceAndHasCustomTaskExecutorWithReservedName() {
     this.contextRunner
-            .withPropertyValues("infra.task.execution.thread-name-prefix=auto-task-",
-                    "infra.task.execution.mode=force")
+            .withPropertyValues("task.execution.thread-name-prefix=auto-task-",
+                    "task.execution.mode=force")
             .withBean("taskExecutor", Executor.class, () -> createCustomAsyncExecutor("custom-task-"))
             .withUserConfiguration(AsyncConfiguration.class, TestBean.class)
             .run((context) -> {
@@ -328,8 +328,8 @@ class TaskExecutionAutoConfigurationTests {
   @Test
   void enableAsyncUsesAsyncConfigurerWhenModeIsForce() {
     this.contextRunner
-            .withPropertyValues("infra.task.execution.thread-name-prefix=auto-task-",
-                    "infra.task.execution.mode=force")
+            .withPropertyValues("task.execution.thread-name-prefix=auto-task-",
+                    "task.execution.mode=force")
             .withBean("taskExecutor", Executor.class, () -> createCustomAsyncExecutor("custom-task-"))
             .withBean("customAsyncConfigurer", AsyncConfigurer.class, () -> new AsyncConfigurer() {
               @Override
@@ -351,8 +351,8 @@ class TaskExecutionAutoConfigurationTests {
   @Test
   void enableAsyncUsesAutoConfiguredExecutorWhenModeIsForceAndHasPrimaryCustomTaskExecutor() {
     this.contextRunner
-            .withPropertyValues("infra.task.execution.thread-name-prefix=auto-task-",
-                    "infra.task.execution.mode=force")
+            .withPropertyValues("task.execution.thread-name-prefix=auto-task-",
+                    "task.execution.mode=force")
             .withBean("taskExecutor", Executor.class, () -> createCustomAsyncExecutor("custom-task-"),
                     (bd) -> bd.setPrimary(true))
             .withUserConfiguration(AsyncConfiguration.class, TestBean.class)
@@ -367,7 +367,7 @@ class TaskExecutionAutoConfigurationTests {
 
   @Test
   void enableAsyncUsesAutoConfiguredOneByDefaultEvenThoughSchedulingIsConfigured() {
-    this.contextRunner.withPropertyValues("infra.task.execution.thread-name-prefix=auto-task-")
+    this.contextRunner.withPropertyValues("task.execution.thread-name-prefix=auto-task-")
             .withConfiguration(AutoConfigurations.of(TaskSchedulingAutoConfiguration.class))
             .withUserConfiguration(AsyncConfiguration.class, SchedulingConfiguration.class, TestBean.class)
             .run((context) -> {

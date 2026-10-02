@@ -167,7 +167,7 @@ public final class TaskExecutionAutoConfiguration {
 
     }
 
-    @ConditionalOnProperty(value = "infra.task.execution.mode", havingValue = "force")
+    @ConditionalOnProperty(value = "task.execution.mode", havingValue = "force")
     private static final class ModeCondition {
 
     }

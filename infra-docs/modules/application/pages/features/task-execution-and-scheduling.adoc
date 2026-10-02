@@ -16,7 +16,7 @@ Java 21 及以上且 `infra.threads.virtual.enabled=true` 时，改用支持虚�
 
 [source,properties]
 ----
-infra.task.execution.mode=force
+task.execution.mode=force
 ----
 
 此时即使有其他执行器，自动配置也会创建 `applicationTaskExecutor`。
@@ -34,18 +34,17 @@ NOTE: 不同 Web 集成对执行器的名称和类型有各自约定。不要把
 
 [configprops,yaml]
 ----
-infra:
-  task:
-    execution:
-      pool:
-        max-size: 16
-        queue-capacity: 100
-        keep-alive: 10s
+task:
+  execution:
+    pool:
+      max-size: 16
+      queue-capacity: 100
+      keep-alive: 10s
 ----
 
 队列达到 100 个任务后，线程池可以扩展到最多 16 个线程。
 空闲线程可以在 10 秒后回收；达到最大线程数且队列仍满时，应考虑执行器的拒绝策略，不能假定任务会无限排队。
-虚拟线程执行器不使用这些线程池大小属性，可通过 `infra.task.execution.simple.concurrency-limit` 限制并发。
+虚拟线程执行器不使用这些线程池大小属性，可通过 `task.execution.simple.concurrency-limit` 限制并发。
 
 == 定时任务
 
@@ -55,12 +54,11 @@ infra:
 
 [configprops,yaml]
 ----
-infra:
-  task:
-    scheduling:
-      thread-name-prefix: scheduling-
-      pool:
-        size: 2
+task:
+  scheduling:
+    thread-name-prefix: scheduling-
+    pool:
+      size: 2
 ----
 
 虚拟线程模式下使用 `SimpleAsyncTaskScheduler`，线程池相关设置不生效。

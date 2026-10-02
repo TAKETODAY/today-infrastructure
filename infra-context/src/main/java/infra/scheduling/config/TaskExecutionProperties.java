@@ -32,7 +32,7 @@ import infra.context.properties.ConfigurationProperties;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@ConfigurationProperties("infra.task.execution")
+@ConfigurationProperties("task.execution")
 public class TaskExecutionProperties {
 
   private final Pool pool = new Pool();
