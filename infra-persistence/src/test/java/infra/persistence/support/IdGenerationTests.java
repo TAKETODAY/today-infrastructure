@@ -17,6 +17,7 @@
 package infra.persistence.support;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -48,6 +49,8 @@ import infra.persistence.PropertyUpdateStrategy;
 import infra.persistence.annotation.GeneratedId;
 import infra.persistence.annotation.Table;
 import infra.persistence.event.PersistEventListener;
+import infra.persistence.event.BatchPersistListener;
+import infra.persistence.event.BatchExecution;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -217,6 +220,61 @@ class IdGenerationTests {
     assertThat(events).containsExactly("pre-first", "pre-second", "generate", "post");
     assertThat(repository.createNamedQuery("select id from generated_entity").fetchFirst(String.class))
             .isEqualTo("id-prepared-ready");
+    assertThat(repository.createNamedQuery("select name from generated_entity").fetchFirst(String.class))
+            .isEqualTo("prepared-ready");
+  }
+
+  @Test
+  void batchSelectsColumnsForEachEntityAfterCallbacks() {
+    NamedEntity first = new NamedEntity();
+    NamedEntity second = new NamedEntity();
+    NamedEntity third = new NamedEntity();
+    third.name = "third";
+    factory.registerSingleton("named", (IdGenerator) (object, metadata, property) ->
+            "id-" + factory.getBean(AtomicInteger.class).incrementAndGet());
+    manager.getEntityEventRegistry().addListener(new PersistEventListener<NamedEntity>() {
+      @Override
+      public void onPrePersist(NamedEntity entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+        if (entity == first) {
+          entity.name = null;
+        }
+        else if (entity == second) {
+          entity.name = "second";
+        }
+      }
+    });
+
+    assertThat(manager.persist(List.of(first, second, third), false)).isEqualTo(3);
+    assertThat(repository.createNamedQuery("select name from generated_entity where id = 'id-1'")
+            .fetchFirst(String.class)).isNull();
+    assertThat(repository.createNamedQuery("select name from generated_entity where id = 'id-2'")
+            .fetchFirst(String.class)).isEqualTo("second");
+    assertThat(repository.createNamedQuery("select name from generated_entity where id = 'id-3'")
+            .fetchFirst(String.class)).isEqualTo("third");
+  }
+
+  @Test
+  void batchDoesNotRequestJdbcKeysForApplicationGeneratedIds() {
+    AtomicInteger batches = new AtomicInteger();
+    manager.getEntityEventRegistry().addListener(new BatchPersistListener() {
+      @Override
+      public void preProcessing(BatchExecution execution, boolean implicitExecution) {
+        assertThat(execution.autoGenerateId).isFalse();
+        batches.incrementAndGet();
+      }
+
+      @Override
+      public void postProcessing(BatchExecution execution, boolean implicitExecution, @Nullable Throwable exception) {
+        assertThat(exception).isNull();
+      }
+    });
+
+    UuidEntity first = new UuidEntity();
+    UuidEntity second = new UuidEntity();
+    assertThat(manager.persist(List.of(first, second))).isEqualTo(2);
+    assertThat(batches.get()).isEqualTo(1);
+    assertThat(repository.createNamedQuery("select id from generated_entity").fetch(String.class))
+            .containsExactlyInAnyOrder(first.id, second.id);
   }
 
   @ParameterizedTest

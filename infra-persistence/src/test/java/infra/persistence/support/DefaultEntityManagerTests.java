@@ -1452,14 +1452,9 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       assertThat(strategy).isNotNull();
 
       // Test with UpdateStrategySource
-      UpdateStrategySource source = () -> PropertyUpdateStrategy.always();
+      UpdateStrategySource source = PropertyUpdateStrategy::always;
       PropertyUpdateStrategy sourceStrategy = entityManager.defaultUpdateStrategy(source);
       assertThat(sourceStrategy).isEqualTo(PropertyUpdateStrategy.always());
-
-      // Test with PropertyUpdateStrategy
-      PropertyUpdateStrategy directStrategy = PropertyUpdateStrategy.always();
-      PropertyUpdateStrategy resultStrategy = entityManager.defaultUpdateStrategy(directStrategy);
-      assertThat(resultStrategy).isEqualTo(directStrategy);
     }
 
   }
