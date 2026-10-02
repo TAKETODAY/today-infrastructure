@@ -20,18 +20,16 @@ import infra.lang.Descriptive;
 import infra.logging.LogMessage;
 
 /**
- * An interface that extends {@code Descriptive} and provides additional
- * functionality for generating debug log messages. This interface is typically
- * used in scenarios where descriptive information about an object needs to be
- * logged or displayed for debugging purposes.
+ * Provides a concise operation description and an optional detailed message
+ * for debug logging.
  *
- * <p>The {@link #getDescription()} method provides a human-readable description
- * of the object, while the {@link #getDebugLogMessage()} method generates a
- * formatted log message suitable for debugging.
+ * <p>{@link #getDescription()} identifies the operation for exception context,
+ * while {@link #getDebugLogMessage()} may additionally include runtime details,
+ * such as query parameters. Implementations may return a {@link LogMessage}
+ * to defer formatting until the message is converted to text.
  *
- * <p>This interface is particularly useful in frameworks or libraries where
- * debugging information needs to be dynamically generated based on the state
- * of objects at runtime.
+ * <p>Producing either description should not perform database access or modify
+ * the state of the described object.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/3/31 16:47
@@ -39,68 +37,25 @@ import infra.logging.LogMessage;
 public interface DebugDescriptive extends Descriptive {
 
   /**
-   * Returns a human-readable description of the object.
-   * This method is intended to provide a concise and meaningful
-   * summary of the object's state or purpose, typically used for
-   * debugging or logging purposes.
+   * Return a concise, human-readable operation description suitable for
+   * exception context, for example {@code "Query entities by ID"}.
    *
-   * <p>The description should be brief but informative enough to
-   * help developers understand the context or state of the object
-   * when reviewing logs or debugging information.
-   *
-   * <p><b>Example Usage:</b>
-   * <pre>{@code
-   * DebugDescriptive debugObject = new DebugDescriptive() {
-   *   @Override
-   *   public String getDescription() {
-   *     return "This is a sample description.";
-   *   }
-   * };
-   *
-   * System.out.println(debugObject.getDescription());
-   * }</pre>
-   *
-   * In this example, the output will be:
-   * <pre>{@code
-   * This is a sample description.
-   * }</pre>
-   *
-   * @return a {@link String} representing the human-readable description
-   * of the object
+   * @return the non-null operation description
    */
   @Override
   String getDescription();
 
   /**
-   * Returns a debug log message based on the description of the object.
-   * The message is formatted using {@link LogMessage#format(String, Object...)}
-   * with the result of {@link #getDescription()} as the content.
+   * Return a message object whose {@code toString()} provides the debug text.
+   * <p>The default implementation returns {@link #getDescription()} directly.
+   * Overrides may include runtime details and use
+   * {@link LogMessage#format(String, Object...)} for lazy formatting, for example
+   * {@code LogMessage.format("Query entities by ID: {}", id)}.
    *
-   * <p>This method is particularly useful for generating log messages that
-   * provide detailed information about the state or purpose of an object
-   * during debugging. The returned object is an instance of {@link LogMessage},
-   * which supports lazy evaluation of the message string.
-   *
-   * <p><b>Example Usage:</b>
-   * <pre>{@code
-   * DebugDescriptive debugObject = new DebugDescriptive() {
-   *   @Override
-   *   public String getDescription() {
-   *     return "This is a sample description.";
-   *   }
-   * };
-   *
-   * Object debugLogMessage = debugObject.getDebugLogMessage();
-   * System.out.println(debugLogMessage.toString());
-   * }</pre>
-   *
-   * In this example, the output will be a formatted log message containing
-   * the description "This is a sample description.".
-   *
-   * @return a {@link LogMessage} object containing the formatted debug log message
+   * @return the non-null debug message, such as a String or LogMessage
    */
   default Object getDebugLogMessage() {
-    return LogMessage.format(getDescription());
+    return getDescription();
   }
 
 }

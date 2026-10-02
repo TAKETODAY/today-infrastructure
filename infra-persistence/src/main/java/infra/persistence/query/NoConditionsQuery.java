@@ -20,7 +20,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
-import infra.logging.LogMessage;
 import infra.persistence.DebugDescriptive;
 import infra.persistence.EntityMetadata;
 import infra.persistence.sql.OrderSpec;
@@ -50,11 +49,6 @@ public final class NoConditionsQuery extends SimpleSelectQueryStatement implemen
   @Override
   public String getDescription() {
     return "Query entities without conditions";
-  }
-
-  @Override
-  public Object getDebugLogMessage() {
-    return LogMessage.format(getDescription());
   }
 
   @Override

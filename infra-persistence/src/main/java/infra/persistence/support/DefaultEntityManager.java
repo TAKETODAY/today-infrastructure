@@ -1539,7 +1539,7 @@ public class DefaultEntityManager implements EntityManager, BeanFactoryAware, Di
       return descriptive.getDebugLogMessage();
     }
     else if (handler instanceof Descriptive) {
-      return LogMessage.format(((Descriptive) handler).getDescription());
+      return ((Descriptive) handler).getDescription();
     }
     return NoConditionsQuery.instance.getDebugLogMessage();
   }
