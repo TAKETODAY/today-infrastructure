@@ -53,14 +53,17 @@ class ExampleQueryTests {
 
   @Test
   void shouldGetDebugLogMessage() {
-    Object example = new Object();
-    EntityMetadata exampleMetadata = mock(EntityMetadata.class);
+    Label example = new Label();
+    example.id = 42L;
+    EntityMetadata exampleMetadata = new DefaultEntityMetadataFactory().getEntityMetadata(Label.class);
 
     ExampleQuery query = new ExampleQuery(example, exampleMetadata, List.of());
     Object logMessage = query.getDebugLogMessage();
 
     assertThat(logMessage).isNotNull();
-    assertThat(logMessage.toString()).contains("Query entity using example");
+    assertThat(logMessage.toString())
+            .contains("Query entity using example", "Label", "id = 42")
+            .doesNotContain("name =");
   }
 
   @Test

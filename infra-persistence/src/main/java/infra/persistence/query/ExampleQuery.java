@@ -31,6 +31,7 @@ import java.util.Set;
 
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
+import infra.core.style.ToStringBuilder;
 import infra.logging.LogMessage;
 import infra.persistence.DebugDescriptive;
 import infra.persistence.EntityMetadata;
@@ -207,7 +208,16 @@ final class ExampleQuery extends SimpleSelectQueryStatement
 
   @Override
   public Object getDebugLogMessage() {
-    return LogMessage.format("Query entity using example: {}", example);
+    return LogMessage.from(() -> {
+      ToStringBuilder builder = ToStringBuilder.forInstance(example);
+      for (EntityProperty property : exampleMetadata.getEntityProperties(true)) {
+        Object value = property.getValue(example);
+        if (value != null) {
+          builder.append(property.getName(), value);
+        }
+      }
+      return "Query entity using example: " + builder;
+    });
   }
 
   /**
