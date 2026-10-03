@@ -19,6 +19,8 @@ package infra.persistence.support;
 import java.security.SecureRandom;
 import java.util.UUID;
 
+import infra.util.UuidGenerator;
+
 /**
  * RFC 9562 UUID version 7 generation with a 48-bit Unix millisecond timestamp
  * and 74 random bits. Thread-safe; no counter or strict monotonicity guarantee.
@@ -27,17 +29,13 @@ import java.util.UUID;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-final class UuidV7Generator {
+final class UuidV7Generator implements UuidGenerator {
 
   private static final SecureRandom random = new SecureRandom();
 
-  private UuidV7Generator() {
-  }
-
-  static UUID generate(long timestamp) {
-    if (timestamp < 0 || timestamp > 0xFFFFFFFFFFFFL) {
-      throw new IllegalArgumentException("UUID v7 timestamp must fit in 48 unsigned bits");
-    }
+  @Override
+  public UUID generateId() {
+    long timestamp = System.currentTimeMillis();
     long mostSignificantBits = (timestamp << 16) | 0x7000L | (random.nextLong() & 0xFFFL);
     long leastSignificantBits = (random.nextLong() & 0x3FFFFFFFFFFFFFFFL) | 0x8000000000000000L;
     return new UUID(mostSignificantBits, leastSignificantBits);

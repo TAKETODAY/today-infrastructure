@@ -72,7 +72,7 @@ class IdGenerationTests {
     factory = new StandardBeanFactory();
     factory.registerSingleton("sequence", new AtomicInteger());
     manager = new DefaultEntityManager(repository);
-    manager.setBeanFactory(factory);
+    manager.setIdGeneratorResolver(new IdGeneratorResolver(factory));
   }
 
   @Test
@@ -89,7 +89,7 @@ class IdGenerationTests {
     assertThat(factory.getBean(AtomicInteger.class).get()).isEqualTo(1);
     assertThat(repository.createNamedQuery("select id from generated_entity order by id").fetch(String.class))
             .containsExactly("assigned", "id-1");
-    manager.destroy();
+    manager.getIdGeneratorResolver().destroy();
     assertThat(factory.getBean(AtomicInteger.class).get()).isEqualTo(-1);
   }
 
@@ -115,6 +115,75 @@ class IdGenerationTests {
     assertThat(UUID.fromString(entity.id).version()).isEqualTo(7);
     assertThat(repository.createNamedQuery("select id from generated_entity").fetchFirst(String.class))
             .isEqualTo(entity.id);
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = { false, true })
+  void configuredUuidGeneratorSupportsStringAndUuidProperties(boolean batch) {
+    repository.createNamedQuery("create table uuid_entity (id uuid primary key)").executeUpdate();
+    UUID generated = UUID.fromString("12345678-1234-4234-8234-123456789abc");
+    AtomicInteger calls = new AtomicInteger();
+    manager.getIdGeneratorResolver().setUuidGenerator(() -> {
+      calls.incrementAndGet();
+      return generated;
+    });
+    UuidEntity stringEntity = new UuidEntity();
+    UuidPropertyEntity uuidEntity = new UuidPropertyEntity();
+    UuidEntity assigned = new UuidEntity();
+    assigned.id = "assigned";
+
+    if (batch) {
+      manager.persist(List.of(stringEntity, uuidEntity, assigned), PropertyUpdateStrategy.notId());
+    }
+    else {
+      manager.persist(stringEntity, PropertyUpdateStrategy.notId());
+      manager.persist(uuidEntity, PropertyUpdateStrategy.notId());
+      manager.persist(assigned);
+    }
+
+    assertThat(stringEntity.id).isEqualTo(generated.toString());
+    assertThat(uuidEntity.id).isSameAs(generated);
+    assertThat(calls.get()).isEqualTo(2);
+    assertThat(repository.createNamedQuery("select id from generated_entity").fetch(String.class))
+            .containsExactlyInAnyOrder(generated.toString(), "assigned");
+    assertThat(repository.createNamedQuery("select id from uuid_entity").fetchFirst(UUID.class))
+            .isEqualTo(generated);
+  }
+
+  @Test
+  void nullUuidGeneratorRestoresVersion7() {
+    UUID generated = UUID.fromString("12345678-1234-4234-8234-123456789abc");
+    IdGeneratorResolver resolver = manager.getIdGeneratorResolver();
+    resolver.setUuidGenerator(() -> generated);
+    resolver.setUuidGenerator(null);
+    UuidEntity entity = new UuidEntity();
+    manager.persist(entity);
+    assertThat(UUID.fromString(entity.id).version()).isEqualTo(7);
+  }
+
+  @Test
+  void injectedResolverUsesConfiguredUuidGenerator() {
+    UUID generated = UUID.fromString("12345678-1234-4234-8234-123456789abc");
+    IdGeneratorResolver resolver = new IdGeneratorResolver(factory);
+    resolver.setUuidGenerator(() -> generated);
+    manager.setIdGeneratorResolver(resolver);
+
+    UuidEntity entity = new UuidEntity();
+    manager.persist(entity);
+    assertThat(manager.getIdGeneratorResolver()).isSameAs(resolver);
+    assertThat(entity.id).isEqualTo(generated.toString());
+  }
+
+  @Test
+  void uuidGeneratorFailurePreventsInsert() {
+    IllegalStateException failure = new IllegalStateException("UUID generation failed");
+    manager.getIdGeneratorResolver().setUuidGenerator(() -> {
+      throw failure;
+    });
+    assertThatThrownBy(() -> manager.persist(new UuidEntity()))
+            .isSameAs(failure);
+    assertThat(repository.createNamedQuery("select count(*) from generated_entity").fetchFirst(Integer.class))
+            .isZero();
   }
 
   @Test

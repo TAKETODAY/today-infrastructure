@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.jdbc.RepositoryManager;
 import infra.jdbc.config.DataSourceAutoConfiguration;
@@ -31,6 +32,7 @@ import infra.persistence.query.EntityQueryFactory;
 import infra.persistence.query.PropertyConditionStrategy;
 import infra.persistence.support.DefaultEntityManager;
 import infra.persistence.support.DefaultVersionIncrementStrategy;
+import infra.persistence.support.IdGeneratorResolver;
 import infra.test.context.runner.ApplicationContextRunner;
 import infra.test.util.ReflectionTestUtils;
 import infra.util.function.SupplierUtils;
@@ -62,6 +64,9 @@ class EntityManagerAutoConfigurationTests {
   void entityManager() {
     this.contextRunner.run(context -> {
       assertThat(context).hasSingleBean(EntityManager.class);
+      assertThat(context).hasSingleBean(IdGeneratorResolver.class);
+      assertThat(((DefaultEntityManager) context.getBean(EntityManager.class)).getIdGeneratorResolver())
+              .isSameAs(context.getBean(IdGeneratorResolver.class));
       assertThat(context).hasSingleBean(TypeHandlerManager.class);
       assertThat(context).getBean(TypeHandlerManager.class).isSameAs(TypeHandlerManager.sharedInstance);
     });
@@ -96,6 +101,17 @@ class EntityManagerAutoConfigurationTests {
       assertThat(context.getStartupFailure()).hasRootCauseInstanceOf(IllegalArgumentException.class)
               .hasRootCauseMessage("persistence.page-size must be positive");
     });
+  }
+
+  @Test
+  void customIdGeneratorResolverIsInjected() {
+    IdGeneratorResolver resolver = new IdGeneratorResolver(new StandardBeanFactory());
+    contextRunner.withBean("customResolver", IdGeneratorResolver.class, () -> resolver)
+            .run(context -> {
+              assertThat(context).hasSingleBean(IdGeneratorResolver.class);
+              assertThat(((DefaultEntityManager) context.getBean(EntityManager.class)).getIdGeneratorResolver())
+                      .isSameAs(resolver);
+            });
   }
 
   @Test

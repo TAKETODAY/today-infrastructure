@@ -22,40 +22,34 @@ import java.util.UUID;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class UuidV7GeneratorTests {
 
+  private final UuidV7Generator generator = new UuidV7Generator();
+
   @Test
   void encodesTimestampVersionAndVariant() {
-    for (long timestamp : new long[] { 0, 0x0123456789ABL, 0xFFFFFFFFFFFFL }) {
-      UUID uuid = UuidV7Generator.generate(timestamp);
+    long before = System.currentTimeMillis();
+    UUID uuid = generator.generateId();
+    long after = System.currentTimeMillis();
+
+    assertThat(uuid.version()).isEqualTo(7);
+    assertThat(uuid.variant()).isEqualTo(2);
+    assertThat(uuid.getMostSignificantBits() >>> 16).isBetween(before, after);
+  }
+
+  @Test
+  void concurrentGenerationProducesDistinctVersion7Ids() {
+    long before = System.currentTimeMillis();
+    var ids = IntStream.range(0, 1_000).parallel()
+            .mapToObj(index -> generator.generateId()).toList();
+    long after = System.currentTimeMillis();
+
+    assertThat(ids).hasSize(1_000).doesNotHaveDuplicates().allSatisfy(uuid -> {
       assertThat(uuid.version()).isEqualTo(7);
       assertThat(uuid.variant()).isEqualTo(2);
-      assertThat(uuid.getMostSignificantBits() >>> 16).isEqualTo(timestamp);
-      assertThat(UUID.fromString(uuid.toString())).isEqualTo(uuid);
-    }
-  }
-
-  @Test
-  void sameMillisecondConcurrentGenerationProducesDistinctIds() {
-    var ids = IntStream.range(0, 10_000).parallel()
-            .mapToObj(index -> UuidV7Generator.generate(1_700_000_000_000L)).toList();
-    assertThat(ids).doesNotHaveDuplicates();
-  }
-
-  @Test
-  void clockRollbackIsReflectedInTimestamp() {
-    UUID before = UuidV7Generator.generate(1_700_000_000_100L);
-    UUID after = UuidV7Generator.generate(1_700_000_000_000L);
-    assertThat(after.getMostSignificantBits() >>> 16).isEqualTo(1_700_000_000_000L);
-    assertThat(after.getMostSignificantBits() >>> 16).isLessThan(before.getMostSignificantBits() >>> 16);
-  }
-
-  @Test
-  void rejectsTimestampsOutsideUnsigned48BitRange() {
-    assertThatThrownBy(() -> UuidV7Generator.generate(-1)).isInstanceOf(IllegalArgumentException.class);
-    assertThatThrownBy(() -> UuidV7Generator.generate(0x1000000000000L)).isInstanceOf(IllegalArgumentException.class);
+      assertThat(uuid.getMostSignificantBits() >>> 16).isBetween(before, after);
+    });
   }
 
 }

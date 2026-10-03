@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import infra.beans.factory.BeanFactory;
 import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.condition.ConditionalOnMissingBean;
@@ -28,8 +29,10 @@ import infra.persistence.query.EntityQueryFactories;
 import infra.persistence.query.EntityQueryFactory;
 import infra.persistence.query.PropertyConditionStrategy;
 import infra.persistence.support.DefaultEntityManager;
+import infra.persistence.support.IdGeneratorResolver;
 import infra.stereotype.Component;
 import infra.util.Assert;
+import infra.util.UuidGenerator;
 
 /**
  * Auto-configuration class for setting up the {@link EntityManager}.
@@ -50,6 +53,7 @@ public final class EntityManagerAutoConfiguration {
           EntityMetadataFactory entityMetadataFactory, SqlStatementLogger sqlStatementLogger,
           PersistenceProperties properties, @Nullable VersionIncrementStrategy versionIncrementStrategy,
           EntityEventRegistry entityEventRegistry, EntityQueryFactories entityQueryFactories,
+          IdGeneratorResolver idGeneratorResolver,
           ObjectProvider<EntityManagerCustomizer> customizers) {
     DefaultEntityManager entityManager = new DefaultEntityManager(manager, platform);
 
@@ -61,6 +65,7 @@ public final class EntityManagerAutoConfiguration {
     entityManager.setAutoGenerateId(properties.autoGenerateId);
     entityManager.setEntityEventRegistry(entityEventRegistry);
     entityManager.setEntityQueryFactories(entityQueryFactories);
+    entityManager.setIdGeneratorResolver(idGeneratorResolver);
 
     if (versionIncrementStrategy != null) {
       entityManager.setVersionIncrementStrategy(versionIncrementStrategy);
@@ -70,6 +75,14 @@ public final class EntityManagerAutoConfiguration {
       customizer.customize(entityManager);
     }
     return entityManager;
+  }
+
+  @Component
+  @ConditionalOnMissingBean(IdGeneratorResolver.class)
+  static IdGeneratorResolver idGeneratorResolver(BeanFactory beanFactory, @Nullable UuidGenerator uuidGenerator) {
+    IdGeneratorResolver resolver = new IdGeneratorResolver(beanFactory);
+    resolver.setUuidGenerator(uuidGenerator);
+    return resolver;
   }
 
   @Component

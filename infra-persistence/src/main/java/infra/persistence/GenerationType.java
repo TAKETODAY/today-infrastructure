@@ -28,9 +28,12 @@ public enum GenerationType {
   IDENTITY,
 
   /**
-   * UUID version 7 generated before insertion, for UUID or String properties.
-   * Uses a Unix millisecond timestamp and random bits without guaranteeing
-   * strict monotonicity.
+   * UUID generated before insertion, for UUID or String properties.
+   * Defaults to version 7 using a Unix millisecond timestamp and random bits
+   * without guaranteeing strict monotonicity. A container-provided
+   * {@link infra.util.UuidGenerator} bean overrides the default generator.
+   * An explicit generator can also be configured through
+   * {@link infra.persistence.support.IdGeneratorResolver#setUuidGenerator}.
    */
   UUID
 
