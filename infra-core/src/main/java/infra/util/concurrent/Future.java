@@ -1589,7 +1589,10 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   /**
    * Returns a future that delegates to this future but will finish early (via a {@link
    * TimeoutException}) if the specified duration expires.
-   * <p>This future is interrupted and cancelled if it times out.
+   * <p>On timeout, the returned future fails with {@link TimeoutException}, and
+   * this original future is cancelled via {@link #cancel(boolean) cancel(true)}.
+   * Whether the underlying task is actually interrupted depends on this future's
+   * implementation.
    *
    * <p> use {@link #defaultScheduler} for timeout checking
    *
@@ -1606,7 +1609,10 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   /**
    * Returns a future that delegates to this future but will finish early (via a {@link
    * TimeoutException}) if the specified duration expires.
-   * <p>This future is interrupted and cancelled if it times out.
+   * <p>On timeout, the returned future fails with {@link TimeoutException}, and
+   * this original future is cancelled via {@link #cancel(boolean) cancel(true)}.
+   * Whether the underlying task is actually interrupted depends on this future's
+   * implementation.
    *
    * @param duration timeout duration
    * @param scheduled The executor service to enforce the timeout.
@@ -1622,7 +1628,10 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   /**
    * Returns a future that delegates to this future but will finish early (via a {@link
    * TimeoutException}) if the specified duration expires.
-   * <p>This future is interrupted and canceled if it times out.
+   * <p>On timeout, the returned future fails with {@link TimeoutException}, and
+   * this original future is cancelled via {@link #cancel(boolean) cancel(true)}.
+   * Whether the underlying task is actually interrupted depends on this future's
+   * implementation.
    *
    * @param duration timeout duration
    * @return a timeout future
@@ -1639,7 +1648,10 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   /**
    * Returns a future that delegates to this future but will finish early (via a {@link
    * TimeoutException}) if the specified duration expires.
-   * <p>This future is interrupted and cancelled if it times out.
+   * <p>On timeout, the returned future fails with {@link TimeoutException}, and
+   * this original future is cancelled via {@link #cancel(boolean) cancel(true)}.
+   * Whether the underlying task is actually interrupted depends on this future's
+   * implementation.
    *
    * @param timeout when to time out the future
    * @param unit the time unit of the time parameter
@@ -1654,7 +1666,10 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   /**
    * Returns a future that delegates to this future but will finish early (via a {@link
    * TimeoutException}) if the specified duration expires.
-   * <p>This future is interrupted and cancelled if it times out.
+   * <p>On timeout, the returned future fails with {@link TimeoutException}, and
+   * this original future is cancelled via {@link #cancel(boolean) cancel(true)}.
+   * Whether the underlying task is actually interrupted depends on this future's
+   * implementation.
    *
    * @param timeout when to time out the future
    * @param unit the time unit of the time parameter
@@ -1671,7 +1686,10 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   /**
    * Returns a future that delegates to this future but will finish early (via a {@link
    * TimeoutException}) if the specified duration expires.
-   * <p>This future is interrupted and cancelled if it times out.
+   * <p>On timeout, the returned future fails with {@link TimeoutException}, and
+   * this original future is cancelled via {@link #cancel(boolean) cancel(true)}.
+   * Whether the underlying task is actually interrupted depends on this future's
+   * implementation.
    *
    * @param timeout when to time out the future
    * @param unit the time unit of the time parameter
@@ -1691,8 +1709,10 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    *
    * <p>The listener is submitted to this future's executor. It may complete the
    * returned promise with a fallback value or failure; an exception thrown by the
-   * listener fails that promise if it has not already completed. This future is
-   * cancelled with interruption requested after the listener returns.
+   * listener fails that promise if it has not already completed. This
+   * original future is cancelled via {@link #cancel(boolean) cancel(true)} after
+   * the listener returns. Whether the underlying task is actually interrupted
+   * depends on this future's implementation.
    *
    * @param duration timeout duration
    * @param timeoutListener the listener used to complete the returned promise on timeout
@@ -1711,8 +1731,10 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * <p>The listener is submitted to this future's executor, rather than invoked
    * directly by the supplied scheduled executor. It receives the returned promise
    * and may complete it with a fallback value or failure. An exception thrown by
-   * the listener fails the promise if it has not already completed. This future is
-   * cancelled with interruption requested after the listener returns.
+   * the listener fails the promise if it has not already completed. This
+   * original future is cancelled via {@link #cancel(boolean) cancel(true)} after
+   * the listener returns. Whether the underlying task is actually interrupted
+   * depends on this future's implementation.
    *
    * @param duration timeout duration
    * @param scheduled The executor service to enforce the timeout.
@@ -1735,8 +1757,10 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * scheduler determines its own execution policy. The listener receives the
    * returned promise and may complete it with a fallback value or failure. An
    * exception thrown by the listener fails the promise if it has not already
-   * completed. This future is cancelled with interruption requested after the
-   * listener returns. If submission is rejected, the returned promise fails with
+   * completed. This original future is cancelled via
+   * {@link #cancel(boolean) cancel(true)} after the listener returns. Whether the
+   * underlying task is actually interrupted depends on this future's implementation.
+   * If submission is rejected, the returned promise fails with
    * the rejection exception and this future is cancelled.
    *
    * @param duration timeout duration

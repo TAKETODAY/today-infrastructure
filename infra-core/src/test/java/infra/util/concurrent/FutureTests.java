@@ -1696,7 +1696,12 @@ class FutureTests {
     assertThat(forPromise(directExecutor()).timeout(Duration.ofMillis(500), scheduledService))
             .failsWithin(Duration.ofMillis(1000))
             .withThrowableOfType(ExecutionException.class)
-            .withMessageEndingWith("Timeout, after 0 seconds");
+            .withMessageEndingWith("Timeout, after 500 milliseconds");
+
+    assertThat(forPromise(directExecutor()).timeout(500, TimeUnit.MILLISECONDS, scheduledService))
+            .failsWithin(Duration.ofMillis(1000))
+            .withThrowableOfType(ExecutionException.class)
+            .withMessageEndingWith("Timeout, after 500 milliseconds");
 
     assertThat(Future.run(() -> { }).timeout(Duration.ofSeconds(1), scheduledService))
             .succeedsWithin(Duration.ofMillis(500))
@@ -1765,7 +1770,7 @@ class FutureTests {
             .withThrowableThat()
             .havingRootCause()
             .isInstanceOf(TimeoutException.class)
-            .withMessageEndingWith("Timeout, after 1 seconds");
+            .withMessageEndingWith("Timeout, after 1 second");
 
     assertThat(objectFuture.executor()).isSameAs(scheduler);
 

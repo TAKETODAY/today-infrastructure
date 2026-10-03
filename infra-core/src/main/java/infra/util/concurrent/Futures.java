@@ -18,6 +18,7 @@ package infra.util.concurrent;
 
 import org.jspecify.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledFuture;
@@ -344,7 +345,9 @@ final class Futures {
   /**
    * Returns a future that delegates to this future but will finish early (via a {@link
    * TimeoutException}) if the specified duration expires.
-   * <p>This future is interrupted and cancelled if it times out.
+   * <p>On timeout, the returned future fails with {@link TimeoutException}, and
+   * the delegate is cancelled via {@code cancel(true)}. Whether the underlying
+   * task is actually interrupted depends on the delegate's implementation.
    *
    * @param timeout when to time out the future
    * @param unit the time unit of the time parameter
@@ -355,13 +358,15 @@ final class Futures {
    */
   public static <V> Future<V> timeout(Future<V> delegate, long timeout, TimeUnit unit, Scheduler scheduler) {
     return timeout(delegate, timeout, unit, scheduler, future -> future.tryFailure(
-            new TimeoutException("Timeout, after %s seconds".formatted(unit.toSeconds(timeout)))));
+            new TimeoutException("Timeout, after " + formatTimeout(timeout, unit))));
   }
 
   /**
-   * Returns a future that delegates to this future but will finish early (via a {@link
-   * TimeoutException}) if the specified duration expires.
-   * <p>This future is interrupted and cancelled if it times out.
+   * Returns a future that delegates to the given future and invokes the supplied
+   * listener if the specified duration expires.
+   * <p>After the listener returns, the delegate is cancelled via {@code cancel(true)}.
+   * Whether the underlying task is actually interrupted depends on the delegate's
+   * implementation. The listener determines the returned future's result.
    *
    * @param timeout when to time out the future
    * @param unit the time unit of the time parameter
@@ -419,6 +424,36 @@ final class Futures {
       promise.onCompleted(propagateCancel, delegate);
     }
     return promise;
+  }
+
+  // Normalize both Duration and TimeUnit overloads without saturating long conversions
+  // or rounding away sub-second precision. Only format when a timeout actually occurs.
+  static String formatTimeout(long timeout, TimeUnit unit) {
+    BigDecimal nanos = BigDecimal.valueOf(timeout).multiply(BigDecimal.valueOf(unit.toNanos(1)));
+    BigDecimal magnitude = nanos.abs();
+    int scale;
+    String label;
+    if (magnitude.compareTo(BigDecimal.valueOf(1_000_000_000)) >= 0) {
+      scale = 9;
+      label = "seconds";
+    }
+    else if (magnitude.compareTo(BigDecimal.valueOf(1_000_000)) >= 0) {
+      scale = 6;
+      label = "milliseconds";
+    }
+    else if (magnitude.compareTo(BigDecimal.valueOf(1_000)) >= 0) {
+      scale = 3;
+      label = "microseconds";
+    }
+    else {
+      scale = 0;
+      label = "nanoseconds";
+    }
+    BigDecimal value = nanos.movePointLeft(scale).stripTrailingZeros();
+    if (value.abs().compareTo(BigDecimal.ONE) == 0) {
+      label = label.substring(0, label.length() - 1);
+    }
+    return value.toPlainString() + " " + label;
   }
 
   /**

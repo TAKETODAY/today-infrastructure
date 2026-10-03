@@ -33,6 +33,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 class FutureTimeoutTests {
 
   @Test
+  void timeoutFormattingPreservesPrecisionAndNormalizesUnits() {
+    assertThat(Futures.formatTimeout(500_000_000, TimeUnit.NANOSECONDS)).isEqualTo("500 milliseconds");
+    assertThat(Futures.formatTimeout(500, TimeUnit.MILLISECONDS)).isEqualTo("500 milliseconds");
+    assertThat(Futures.formatTimeout(1500, TimeUnit.MILLISECONDS)).isEqualTo("1.5 seconds");
+    assertThat(Futures.formatTimeout(1_000_000_001, TimeUnit.NANOSECONDS)).isEqualTo("1.000000001 seconds");
+    assertThat(Futures.formatTimeout(1501, TimeUnit.NANOSECONDS)).isEqualTo("1.501 microseconds");
+    assertThat(Futures.formatTimeout(1, TimeUnit.SECONDS)).isEqualTo("1 second");
+    assertThat(Futures.formatTimeout(0, TimeUnit.SECONDS)).isEqualTo("0 nanoseconds");
+    assertThat(Futures.formatTimeout(-1500, TimeUnit.MILLISECONDS)).isEqualTo("-1.5 seconds");
+    assertThat(Futures.formatTimeout(Long.MIN_VALUE, TimeUnit.NANOSECONDS))
+            .isEqualTo("-9223372036.854775808 seconds");
+    assertThat(Futures.formatTimeout(Long.MAX_VALUE, TimeUnit.DAYS))
+            .isEqualTo("796899343984252629724800 seconds");
+  }
+
+  @Test
   void listenerExceptionFailsReturnedFuture() throws Exception {
     Promise<String> source = Future.forPromise();
     IOException failure = new IOException("fallback failed");
