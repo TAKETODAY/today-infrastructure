@@ -47,8 +47,7 @@ import infra.util.concurrent.Future;
  */
 public abstract class WebSocketHandler {
 
-  @Nullable
-  protected final WebSocketHandler delegate;
+  protected final @Nullable WebSocketHandler delegate;
 
   protected WebSocketHandler() {
     this(null);
@@ -84,13 +83,33 @@ public abstract class WebSocketHandler {
   /**
    * Called when the message has been fully received.
    *
+   * <p>The returned future represents completion of message processing as well
+   * as the lifetime of the message payload. An unhandled exception thrown by
+   * this method or propagated through the returned future causes the default
+   * exception handling to close the session with {@link CloseStatus#SERVER_ERROR}.
+   * A cancelled future is also treated as unsuccessful processing by the default
+   * exception handling.
+   *
+   * <p>Handle recoverable application errors before returning the future if the
+   * session should remain open. Return a successfully completed recovery chain,
+   * for example using {@code onErrorResume} to send an application error response.
+   * Merely registering an {@code onFailure} callback to log or observe the error
+   * does not recover the future and does not prevent session closure.
+   *
+   * <p>The payload may be released as soon as the returned future completes,
+   * regardless of success or failure. Return {@code null} only when processing
+   * is complete and the payload is no longer needed. Retain an independent
+   * reference if the payload is needed beyond that point or passed to a send
+   * operation that takes ownership of it.
+   *
+   * @param session the session on which the message was received
    * @param message the message data.
    * @return a {@code Future} which completes when the {@code WebSocketMessage}
    * may be reclaimed; or {@code null} if it may be reclaimed immediately
+   * @see infra.web.socket.handler.ExceptionWebSocketHandler
    * @since 5.0
    */
-  @Nullable
-  public Future<Void> handleMessage(WebSocketSession session, WebSocketMessage message) {
+  public @Nullable Future<Void> handleMessage(WebSocketSession session, WebSocketMessage message) {
     if (delegate != null) {
       return delegate.handleMessage(session, message);
     }
@@ -144,8 +163,7 @@ public abstract class WebSocketHandler {
    * @apiNote Returning a {@code Future} that never completes,
    * effectively disables the reciprocating closure of the output.
    */
-  @Nullable
-  public Future<Void> onClose(WebSocketSession session, CloseStatus status) {
+  public @Nullable Future<Void> onClose(WebSocketSession session, CloseStatus status) {
     if (delegate != null) {
       delegate.onClose(session, status);
     }
@@ -184,8 +202,7 @@ public abstract class WebSocketHandler {
    * @return a {@code Future} which completes when the {@code WebSocketMessage}
    * may be reclaimed; or {@code null} if it may be reclaimed immediately
    */
-  @Nullable
-  protected Future<Void> handlePingMessage(WebSocketSession session, WebSocketMessage message) {
+  protected @Nullable Future<Void> handlePingMessage(WebSocketSession session, WebSocketMessage message) {
     if (delegate != null) {
       return delegate.handlePingMessage(session, message);
     }
@@ -204,8 +221,7 @@ public abstract class WebSocketHandler {
    * @return a {@code Future} which completes when the {@code WebSocketMessage}
    * may be reclaimed; or {@code null} if it may be reclaimed immediately
    */
-  @Nullable
-  protected Future<Void> handlePongMessage(WebSocketSession session, WebSocketMessage message) {
+  protected @Nullable Future<Void> handlePongMessage(WebSocketSession session, WebSocketMessage message) {
     if (delegate != null) {
       delegate.handlePongMessage(session, message);
     }
@@ -226,8 +242,7 @@ public abstract class WebSocketHandler {
    * may be reclaimed; or {@code null} if it may be reclaimed immediately
    * @see WebSocketMessage#getPayloadAsText()
    */
-  @Nullable
-  protected Future<Void> handleTextMessage(WebSocketSession session, WebSocketMessage message) {
+  protected @Nullable Future<Void> handleTextMessage(WebSocketSession session, WebSocketMessage message) {
     if (delegate != null) {
       delegate.handleTextMessage(session, message);
     }
@@ -242,8 +257,7 @@ public abstract class WebSocketHandler {
    * @return a {@code Future} which completes when the {@code WebSocketMessage}
    * may be reclaimed; or {@code null} if it may be reclaimed immediately
    */
-  @Nullable
-  protected Future<Void> handleBinaryMessage(WebSocketSession session, WebSocketMessage message) {
+  protected @Nullable Future<Void> handleBinaryMessage(WebSocketSession session, WebSocketMessage message) {
     if (delegate != null) {
       delegate.handleBinaryMessage(session, message);
     }

@@ -280,6 +280,9 @@ public abstract class WebSocketSession extends DefaultAttributeAccessor implemen
    * frame fails, the implementation still attempts to close the connection and
    * reports the write failure.
    *
+   * <p>Implementations should make closure idempotent and reject new sends once
+   * closure begins. Timeout and concurrent-abort policies are implementation-specific.
+   *
    * @param status the close status code and optional reason to send to the peer
    * @return a future that completes when the close operation completes, or
    * fails if the operation fails

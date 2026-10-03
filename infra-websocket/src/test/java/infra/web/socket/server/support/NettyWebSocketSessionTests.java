@@ -371,6 +371,7 @@ class NettyWebSocketSessionTests {
   @Test
   void closeWithStatus() throws Exception {
     Channel channel = mock(Channel.class);
+    given(channel.isOpen()).willReturn(true);
     NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
             new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
 
@@ -394,6 +395,7 @@ class NettyWebSocketSessionTests {
   @Test
   void closeStillClosesConnectionAfterWriteFailure() {
     Channel channel = mock(Channel.class);
+    given(channel.isOpen()).willReturn(true);
     NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
             new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
     DefaultChannelPromise writePromise = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
@@ -414,6 +416,7 @@ class NettyWebSocketSessionTests {
   @Test
   void closePropagatesConnectionCloseFailure() {
     Channel channel = mock(Channel.class);
+    given(channel.isOpen()).willReturn(true);
     NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
             new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
     DefaultChannelPromise writePromise = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
@@ -494,6 +497,7 @@ class NettyWebSocketSessionTests {
   @Test
   void onCloseWithNormalStatus() {
     Channel channel = mock(Channel.class);
+    given(channel.isOpen()).willReturn(true);
     NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
             new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
 
@@ -516,6 +520,7 @@ class NettyWebSocketSessionTests {
   @Test
   void onCloseWithNoStatusCodeUsesNormal() {
     Channel channel = mock(Channel.class);
+    given(channel.isOpen()).willReturn(true);
     NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
             new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
 
@@ -538,6 +543,7 @@ class NettyWebSocketSessionTests {
   @Test
   void onCloseWithNoCloseFrameUsesNormal() {
     Channel channel = mock(Channel.class);
+    given(channel.isOpen()).willReturn(true);
     NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
             new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
 
@@ -560,6 +566,7 @@ class NettyWebSocketSessionTests {
   @Test
   void onCloseWithFutureReturned() {
     Channel channel = mock(Channel.class);
+    given(channel.isOpen()).willReturn(true);
     NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
             new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
 
