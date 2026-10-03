@@ -66,7 +66,7 @@ public abstract class WebSocketSession extends DefaultAttributeAccessor implemen
 
   protected static final JdkUuidGenerator idGenerator = new JdkUuidGenerator();
 
-  private final String id = idGenerator.generateId().toString();
+  protected final String id = idGenerator.generateId().toString();
 
   /**
    * Return the unique identifier generated for this session.
@@ -276,12 +276,13 @@ public abstract class WebSocketSession extends DefaultAttributeAccessor implemen
    *
    * <p>The returned future completes successfully after the close frame has been
    * written and the underlying local connection has been closed. This does not
-   * indicate that the peer has replied with a close frame. If writing the close
-   * frame fails, the implementation still attempts to close the connection and
-   * reports the write failure.
+   * indicate that the peer has replied with a close frame. A failed write is
+   * reported through the returned future; it does not guarantee that the
+   * connection is closed. Use {@link #abort()} to request abrupt disconnection.
    *
-   * <p>Implementations should make closure idempotent and reject new sends once
-   * closure begins. Timeout and concurrent-abort policies are implementation-specific.
+   * <p>Repeated-close, concurrent-send, and concurrent-abort behavior depends on
+   * the implementation. Applications may apply a timeout to the returned future;
+   * timing out does not necessarily terminate the underlying connection.
    *
    * @param status the close status code and optional reason to send to the peer
    * @return a future that completes when the close operation completes, or
@@ -291,14 +292,28 @@ public abstract class WebSocketSession extends DefaultAttributeAccessor implemen
   public abstract Future<Void> close(CloseStatus status);
 
   /**
+   * Return a future that completes when the underlying connection is closed,
+   * whether closure is initiated locally or remotely.
+   *
+   * <p>This method observes closure without initiating it. Successful completion
+   * does not imply a normal WebSocket closing handshake.
+   *
+   * <p>Cancelling the returned future does not close the connection.
+   * Implementations may return a shared future, in which case cancellation
+   * affects other observers as well. The future is also available after closure.
+   *
+   * @return a future representing connection closure
+   * @since 5.0
+   */
+  public abstract Future<Void> closeFuture();
+
+  /**
    * Return the local address of the underlying connection, if available.
    *
    * @return the local address, or {@code null} if unavailable
    * @since 4.0
    */
-  public @Nullable InetSocketAddress getLocalAddress() {
-    return null;
-  }
+  public abstract @Nullable InetSocketAddress getLocalAddress();
 
   /**
    * Return the address of the remote peer, if available.
@@ -306,9 +321,7 @@ public abstract class WebSocketSession extends DefaultAttributeAccessor implemen
    * @return the remote address, or {@code null} if unavailable
    * @since 4.0
    */
-  public @Nullable InetSocketAddress getRemoteAddress() {
-    return null;
-  }
+  public abstract @Nullable InetSocketAddress getRemoteAddress();
 
   /**
    * Return the subprotocol negotiated during the WebSocket handshake.

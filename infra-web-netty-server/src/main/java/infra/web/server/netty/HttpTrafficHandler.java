@@ -172,7 +172,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
         return;
       }
       if (frame instanceof CloseWebSocketFrame cf) {
-        attr.close(ctx, new CloseStatus(cf.statusCode(), cf.reasonText()), log);
+        attr.close(ctx, CloseStatus.create(cf.statusCode(), cf.reasonText()), log);
         ReferenceCountUtil.safeRelease(frame);
       }
       else {

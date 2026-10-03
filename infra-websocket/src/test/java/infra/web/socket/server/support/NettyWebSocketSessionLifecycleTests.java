@@ -16,314 +16,175 @@
 
 package infra.web.socket.server.support;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.channels.ClosedChannelException;
-import java.time.Duration;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import infra.core.io.buffer.NettyDataBufferFactory;
 import infra.logging.Logger;
 import infra.util.concurrent.Future;
 import infra.util.concurrent.Promise;
-import infra.web.socket.CloseStatus;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketMessage;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.channel.Channel;
-import io.netty.channel.DefaultChannelPromise;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelOutboundHandlerAdapter;
+import io.netty.channel.ChannelPromise;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocket13FrameEncoder;
 import io.netty.util.ReferenceCountUtil;
-import io.netty.util.concurrent.ImmediateEventExecutor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 
 class NettyWebSocketSessionLifecycleTests {
 
-  private NettyWebSocketSession session(Channel channel) {
-    return new NettyWebSocketSession(false, channel,
-            new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
+  private final EmbeddedChannel channel = new EmbeddedChannel();
+
+  private final NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
+          new NettyDataBufferFactory(channel.alloc()), null);
+
+  @AfterEach
+  void releaseChannel() {
+    channel.finishAndReleaseAll();
   }
 
   @Test
-  void closeIsIdempotentAndRejectsSends() throws Exception {
-    EmbeddedChannel channel = new EmbeddedChannel();
-    try {
-      NettyWebSocketSession session = session(channel);
-      Future<Void> close = session.close();
-      assertThat(session.close(CloseStatus.GOING_AWAY)).isSameAs(close);
-      close.get(5, TimeUnit.SECONDS);
-      assertThat(channel.isOpen()).isFalse();
-      CloseWebSocketFrame frame = channel.readOutbound();
-      assertThat(frame.statusCode()).isEqualTo(1000);
-      frame.release();
-      Object extraFrame = channel.readOutbound();
-      assertThat(extraFrame).isNull();
-
-      var payload = session.bufferFactory().copiedBuffer("late");
-      Future<Void> send = session.sendBinary(payload);
-      assertThat(send.getCause()).isInstanceOf(ClosedChannelException.class);
-      assertThat(payload.isAllocated()).isFalse();
-    }
-    finally {
-      channel.finishAndReleaseAll();
-    }
+  void closeFutureObservesClosureWithoutInitiatingIt() throws Exception {
+    Future<Void> result = session.closeFuture();
+    assertThat(result.isDone()).isFalse();
+    assertThat(channel.isOpen()).isTrue();
+    assertThat(session.closeFuture()).isSameAs(result);
+    session.close().get(5, TimeUnit.SECONDS);
+    assertThat(result.get(5, TimeUnit.SECONDS)).isNull();
+    assertThat(channel.isOpen()).isFalse();
+    CloseWebSocketFrame frame = channel.readOutbound();
+    assertThat(frame.statusCode()).isEqualTo(1000);
+    frame.release();
   }
 
   @Test
-  void abortInterruptsPendingClose() throws Exception {
-    Channel channel = mock(Channel.class);
-    given(channel.isOpen()).willReturn(true);
-    DefaultChannelPromise write = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
-    DefaultChannelPromise disconnect = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
-    given(channel.writeAndFlush(any())).willAnswer(invocation -> {
-      ReferenceCountUtil.release(invocation.getArgument(0));
-      return write;
-    });
-    given(channel.close()).willReturn(disconnect);
-    NettyWebSocketSession session = session(channel);
-    Future<Void> close = session.close();
-    Future<Void> abort = session.abort();
-    assertThat(close.isCancelled()).isTrue();
-    assertThat(session.abort()).isSameAs(abort);
-    disconnect.setSuccess();
-    abort.get(5, TimeUnit.SECONDS);
-    write.setFailure(new ClosedChannelException());
-    verify(channel).close();
+  void closeFutureCanBeObtainedAfterRemoteDisconnect() throws Exception {
+    channel.close().sync();
+    assertThat(session.closeFuture().get(5, TimeUnit.SECONDS)).isNull();
   }
 
   @Test
-  void closingAlreadyClosedConnectionDoesNotWrite() {
-    Channel channel = mock(Channel.class);
-    assertThat(session(channel).close().isSuccess()).isTrue();
-    verify(channel, never()).writeAndFlush(any());
-  }
-
-  @Test
-  void closeTimeoutForcesDisconnect() throws Exception {
-    Channel channel = mock(Channel.class);
-    given(channel.isOpen()).willReturn(true);
-    DefaultChannelPromise write = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
-    DefaultChannelPromise disconnect = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
-    disconnect.setSuccess();
-    given(channel.writeAndFlush(any())).willAnswer(invocation -> {
-      ReferenceCountUtil.release(invocation.getArgument(0));
-      return write;
-    });
-    given(channel.close()).willReturn(disconnect);
-    NettyWebSocketSession session = session(channel);
-    session.setCloseTimeout(Duration.ofMillis(20));
-    assertThatThrownBy(() -> session.close().get(5, TimeUnit.SECONDS))
-            .hasCauseInstanceOf(TimeoutException.class);
+  void abortCompletesClosureObservation() throws Exception {
+    Future<Void> result = session.closeFuture();
     session.abort().get(5, TimeUnit.SECONDS);
-    verify(channel).close();
+    assertThat(result.get(5, TimeUnit.SECONDS)).isNull();
+    assertThat(channel.outboundMessages()).isEmpty();
   }
 
   @Test
-  void synchronousWriteAndCloseFailuresArePreserved() {
-    Channel channel = mock(Channel.class);
-    given(channel.isOpen()).willReturn(true);
-    RuntimeException writeFailure = new IllegalStateException("write");
-    RuntimeException closeFailure = new IllegalStateException("close");
-    given(channel.writeAndFlush(any())).willThrow(writeFailure);
-    given(channel.close()).willThrow(closeFailure);
-    Future<Void> result = session(channel).close();
-    assertThat(result.getCause()).isSameAs(writeFailure);
-    assertThat(writeFailure.getSuppressed()).containsExactly(closeFailure);
-  }
-
-  @Test
-  void concurrentCloseCallsSubmitOnlyOneCloseFrame() throws Exception {
-    Channel channel = mock(Channel.class);
-    given(channel.isOpen()).willReturn(true);
-    DefaultChannelPromise write = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
-    DefaultChannelPromise disconnect = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
-    given(channel.writeAndFlush(any())).willAnswer(invocation -> {
-      ReferenceCountUtil.release(invocation.getArgument(0));
-      return write;
-    });
-    given(channel.close()).willReturn(disconnect);
-    NettyWebSocketSession session = session(channel);
-    var executor = Executors.newFixedThreadPool(2);
-    CountDownLatch start = new CountDownLatch(1);
-    try {
-      var first = executor.submit(() -> {
-        start.await();
-        return session.close();
-      });
-      var second = executor.submit(() -> {
-        start.await();
-        return session.close(CloseStatus.GOING_AWAY);
-      });
-      start.countDown();
-      assertThat(first.get(5, TimeUnit.SECONDS)).isSameAs(second.get(5, TimeUnit.SECONDS));
-      verify(channel).writeAndFlush(any());
-      var payload = session.bufferFactory().copiedBuffer("late");
-      assertThat(session.sendBinary(payload).getCause()).isInstanceOf(ClosedChannelException.class);
-      assertThat(payload.isAllocated()).isFalse();
-      write.setSuccess();
-      disconnect.setSuccess();
-    }
-    finally {
-      session.abort();
-      executor.shutdownNow();
-    }
-  }
-
-  @Test
-  void cancellingCloseFutureDoesNotDisableForcedDisconnect() throws Exception {
-    Channel channel = mock(Channel.class);
-    given(channel.isOpen()).willReturn(true);
-    DefaultChannelPromise write = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
-    DefaultChannelPromise disconnect = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
-    CountDownLatch closed = new CountDownLatch(1);
-    given(channel.writeAndFlush(any())).willAnswer(invocation -> {
-      ReferenceCountUtil.release(invocation.getArgument(0));
-      return write;
-    });
-    given(channel.close()).willAnswer(invocation -> {
-      closed.countDown();
-      disconnect.setSuccess();
-      return disconnect;
-    });
-    NettyWebSocketSession session = session(channel);
-    session.setCloseTimeout(Duration.ofMillis(20));
-    Future<Void> result = session.close();
+  void cancellingSharedObservationDoesNotCloseChannel() throws Exception {
+    Future<Void> result = session.closeFuture();
     result.cancel(false);
-    assertThat(closed.await(5, TimeUnit.SECONDS)).isTrue();
+    assertThat(channel.isOpen()).isTrue();
+    assertThat(session.closeFuture()).isSameAs(result);
     session.abort().get(5, TimeUnit.SECONDS);
     assertThat(result.isCancelled()).isTrue();
   }
 
   @Test
-  void successfulSendReleasesPayloadThroughEncoder() throws Exception {
-    EmbeddedChannel channel = new EmbeddedChannel(new WebSocket13FrameEncoder(false));
-    try {
-      NettyWebSocketSession session = session(channel);
-      var payload = session.bufferFactory().copiedBuffer("hello");
-      session.sendBinary(payload).get(5, TimeUnit.SECONDS);
-      Object encoded;
-      while ((encoded = channel.readOutbound()) != null) {
-        ReferenceCountUtil.release(encoded);
+  void failedCloseWriteLeavesConnectionOpen() throws Exception {
+    IllegalStateException failure = new IllegalStateException("write");
+    channel.pipeline().addLast(new ChannelOutboundHandlerAdapter() {
+      @Override
+      public void write(ChannelHandlerContext ctx, Object message, ChannelPromise promise) {
+        ReferenceCountUtil.release(message);
+        promise.setFailure(failure);
       }
-      assertThat(payload.isAllocated()).isFalse();
+    });
+    Future<Void> observation = session.closeFuture();
+    assertThatThrownBy(() -> session.close().get(5, TimeUnit.SECONDS)).hasCause(failure);
+    assertThat(channel.isOpen()).isTrue();
+    assertThat(observation.isDone()).isFalse();
+    session.abort().get(5, TimeUnit.SECONDS);
+    observation.get(5, TimeUnit.SECONDS);
+  }
+
+  @Test
+  void successfulSendReleasesPayloadThroughEncoder() throws Exception {
+    channel.pipeline().addLast(new WebSocket13FrameEncoder(false));
+    var payload = session.bufferFactory().copiedBuffer("hello");
+    session.sendBinary(payload).get(5, TimeUnit.SECONDS);
+    Object encoded;
+    while ((encoded = channel.readOutbound()) != null) {
+      ReferenceCountUtil.release(encoded);
     }
-    finally {
-      channel.finishAndReleaseAll();
-    }
+    assertThat(payload.isAllocated()).isFalse();
   }
 
   @Test
   void failedSendOnClosedChannelReleasesPayload() throws Exception {
-    EmbeddedChannel channel = new EmbeddedChannel();
-    try {
-      channel.close().sync();
-      NettyWebSocketSession session = session(channel);
-      var payload = session.bufferFactory().copiedBuffer("hello");
-      assertThatThrownBy(() -> session.sendBinary(payload).get(5, TimeUnit.SECONDS))
-              .hasCauseInstanceOf(ClosedChannelException.class);
-      assertThat(payload.isAllocated()).isFalse();
-    }
-    finally {
-      channel.finishAndReleaseAll();
-    }
+    channel.close().sync();
+    var payload = session.bufferFactory().copiedBuffer("hello");
+    assertThatThrownBy(() -> session.sendBinary(payload).get(5, TimeUnit.SECONDS))
+            .hasCauseInstanceOf(ClosedChannelException.class);
+    assertThat(payload.isAllocated()).isFalse();
   }
 
   @Test
   void asyncFailureClosesSessionAndReleasesInboundPayload() throws Exception {
-    EmbeddedChannel channel = new EmbeddedChannel();
-    try {
-      NettyWebSocketSession session = session(channel);
-      Promise<Void> handling = Future.forPromise(Runnable::run);
-      TextWebSocketFrame frame = new TextWebSocketFrame("hello");
-      WebSocketHandler handler = mock(WebSocketHandler.class);
-      given(handler.handleMessage(any(), any())).willReturn(handling);
-      session.handleMessage(handler, frame, mock(Logger.class));
-      assertThat(frame.refCnt()).isEqualTo(1);
-      handling.setFailure(new IllegalStateException("handler"));
-      session.close().get(5, TimeUnit.SECONDS);
-      assertThat(frame.refCnt()).isZero();
-      CloseWebSocketFrame close = channel.readOutbound();
-      assertThat(close.statusCode()).isEqualTo(1011);
-      close.release();
-    }
-    finally {
-      channel.finishAndReleaseAll();
-    }
+    Promise<Void> handling = Future.forPromise(Runnable::run);
+    TextWebSocketFrame frame = new TextWebSocketFrame("hello");
+    WebSocketHandler handler = mock(WebSocketHandler.class);
+    given(handler.handleMessage(any(), any())).willReturn(handling);
+    session.handleMessage(handler, frame, mock(Logger.class));
+    assertThat(frame.refCnt()).isEqualTo(1);
+    handling.setFailure(new IllegalStateException("handler"));
+    session.closeFuture().get(5, TimeUnit.SECONDS);
+    assertThat(frame.refCnt()).isZero();
+    CloseWebSocketFrame close = channel.readOutbound();
+    assertThat(close.statusCode()).isEqualTo(1011);
+    close.release();
   }
 
   @Test
-  void retainedEchoSurvivesInboundCompletion() throws Exception {
-    EmbeddedChannel channel = new EmbeddedChannel();
-    try {
-      NettyWebSocketSession session = session(channel);
-      BinaryWebSocketFrame frame = new BinaryWebSocketFrame(ByteBufAllocator.DEFAULT.buffer().writeByte(1));
-      WebSocketHandler handler = mock(WebSocketHandler.class);
-      given(handler.handleMessage(any(), any())).willAnswer(invocation -> {
-        WebSocketMessage message = invocation.getArgument(1);
-        session.send(message.retainedDuplicate());
-        Promise<Void> completed = Future.forPromise(Runnable::run);
-        completed.setSuccess(null);
-        return completed;
-      });
-      session.handleMessage(handler, frame, mock(Logger.class));
-      BinaryWebSocketFrame echo = channel.readOutbound();
-      assertThat(echo.content().readByte()).isEqualTo((byte) 1);
-      echo.release();
-      assertThat(frame.refCnt()).isZero();
-    }
-    finally {
-      channel.finishAndReleaseAll();
-    }
+  void retainedEchoSurvivesInboundCompletion() {
+    BinaryWebSocketFrame frame = new BinaryWebSocketFrame(channel.alloc().buffer().writeByte(1));
+    WebSocketHandler handler = mock(WebSocketHandler.class);
+    given(handler.handleMessage(any(), any())).willAnswer(invocation -> {
+      WebSocketMessage message = invocation.getArgument(1);
+      session.send(message.retainedDuplicate());
+      return null;
+    });
+    session.handleMessage(handler, frame, mock(Logger.class));
+    BinaryWebSocketFrame echo = channel.readOutbound();
+    assertThat(echo.content().readByte()).isEqualTo((byte) 1);
+    echo.release();
+    assertThat(frame.refCnt()).isZero();
   }
 
   @Test
   void asyncSuccessReleasesInboundPayloadOnlyAfterCompletion() {
-    EmbeddedChannel channel = new EmbeddedChannel();
-    try {
-      NettyWebSocketSession session = session(channel);
-      Promise<Void> handling = Future.forPromise(Runnable::run);
-      TextWebSocketFrame frame = new TextWebSocketFrame("hello");
-      WebSocketHandler handler = mock(WebSocketHandler.class);
-      given(handler.handleMessage(any(), any())).willReturn(handling);
-      session.handleMessage(handler, frame, mock(Logger.class));
-      assertThat(frame.refCnt()).isEqualTo(1);
-      handling.setSuccess(null);
-      assertThat(frame.refCnt()).isZero();
-      assertThat(channel.isOpen()).isTrue();
-    }
-    finally {
-      channel.finishAndReleaseAll();
-    }
+    Promise<Void> handling = Future.forPromise(Runnable::run);
+    TextWebSocketFrame frame = new TextWebSocketFrame("hello");
+    WebSocketHandler handler = mock(WebSocketHandler.class);
+    given(handler.handleMessage(any(), any())).willReturn(handling);
+    session.handleMessage(handler, frame, mock(Logger.class));
+    assertThat(frame.refCnt()).isEqualTo(1);
+    handling.setSuccess(null);
+    assertThat(frame.refCnt()).isZero();
+    assertThat(channel.isOpen()).isTrue();
   }
 
   @Test
   void synchronousHandlerFailureReleasesInboundPayload() throws Exception {
-    EmbeddedChannel channel = new EmbeddedChannel();
-    try {
-      NettyWebSocketSession session = session(channel);
-      TextWebSocketFrame frame = new TextWebSocketFrame("hello");
-      WebSocketHandler handler = mock(WebSocketHandler.class);
-      given(handler.handleMessage(any(), any())).willThrow(new IllegalStateException("handler"));
-      session.handleMessage(handler, frame, mock(Logger.class));
-      session.close().get(5, TimeUnit.SECONDS);
-      assertThat(frame.refCnt()).isZero();
-    }
-    finally {
-      channel.finishAndReleaseAll();
-    }
+    TextWebSocketFrame frame = new TextWebSocketFrame("hello");
+    WebSocketHandler handler = mock(WebSocketHandler.class);
+    given(handler.handleMessage(any(), any())).willThrow(new IllegalStateException("handler"));
+    session.handleMessage(handler, frame, mock(Logger.class));
+    session.closeFuture().get(5, TimeUnit.SECONDS);
+    assertThat(frame.refCnt()).isZero();
   }
 }

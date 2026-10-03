@@ -475,7 +475,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
       if (session != null) {
         if (msg instanceof CloseWebSocketFrame cf) {
-          CloseStatus closeStatus = new CloseStatus(cf.statusCode(), cf.reasonText());
+          CloseStatus closeStatus = CloseStatus.create(cf.statusCode(), cf.reasonText());
           session.onClose(handler, closeStatus, logger);
           session = null;
           ReferenceCountUtil.safeRelease(msg);

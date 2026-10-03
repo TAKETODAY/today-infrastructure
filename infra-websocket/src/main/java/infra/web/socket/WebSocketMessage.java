@@ -42,8 +42,7 @@ public class WebSocketMessage {
 
   private final DataBuffer payload;
 
-  @Nullable
-  private final Object nativeMessage;
+  private final @Nullable Object nativeMessage;
 
   private final boolean last;
 
@@ -104,9 +103,8 @@ public class WebSocketMessage {
    * @param <T> the type to cast the underlying message to
    * @return the underlying message, or {@code null}
    */
-  @Nullable
   @SuppressWarnings("unchecked")
-  public <T> T getNativeMessage() {
+  public <T> @Nullable T getNativeMessage() {
     return (T) this.nativeMessage;
   }
 

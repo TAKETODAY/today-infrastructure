@@ -23,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Objects;
 
 import infra.util.Assert;
+import infra.util.StringUtils;
 
 /**
  * Represents a WebSocket close status code and reason. Status codes in the 1xxx range are
@@ -148,19 +149,9 @@ public final class CloseStatus {
    */
   public static final CloseStatus TLS_HANDSHAKE_FAILURE = new CloseStatus(1015);
 
-  /**
-   * A status code for use within the framework the indicate a session has
-   * become unreliable (e.g. timed out while sending a message) and extra
-   * care should be exercised, e.g. avoid sending any further data to the
-   * client that may be done during normal shutdown.
-   */
-  public static final CloseStatus SESSION_NOT_RELIABLE = new CloseStatus(4500)
-          .withReason("Failed to send message within the configured send limit");
-
   private final int code;
 
-  @Nullable
-  private final String reason;
+  private final @Nullable String reason;
 
   /**
    * Create a new {@link CloseStatus} instance.
@@ -193,8 +184,7 @@ public final class CloseStatus {
   /**
    * Return the reason, or {@code null} if none.
    */
-  @Nullable
-  public String getReason() {
+  public @Nullable String getReason() {
     return this.reason;
   }
 
@@ -213,8 +203,36 @@ public final class CloseStatus {
     return this.code == other.code;
   }
 
+  /**
+   * Return a constant for the given code, or create a new instance if the
+   * code does not match or there is a reason.
+   *
+   * @since 5.0
+   */
+  public static CloseStatus create(int code, @Nullable String reason) {
+    if (StringUtils.isBlank(reason)) {
+      return switch (code) {
+        case 1000 -> NORMAL;
+        case 1001 -> GOING_AWAY;
+        case 1002 -> PROTOCOL_ERROR;
+        case 1003 -> NOT_ACCEPTABLE;
+        case 1005, -1 -> NO_STATUS_CODE;
+        case 1006 -> NO_CLOSE_FRAME;
+        case 1007 -> BAD_DATA;
+        case 1008 -> POLICY_VIOLATION;
+        case 1009 -> TOO_BIG_TO_PROCESS;
+        case 1010 -> REQUIRED_EXTENSION;
+        case 1011 -> SERVER_ERROR;
+        case 1012 -> SERVICE_RESTARTED;
+        case 1013 -> SERVICE_OVERLOAD;
+        default -> new CloseStatus(code, reason);
+      };
+    }
+    return new CloseStatus(code, reason);
+  }
+
   @Override
-  public boolean equals(Object other) {
+  public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
     }

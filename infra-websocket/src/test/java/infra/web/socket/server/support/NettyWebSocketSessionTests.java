@@ -393,7 +393,7 @@ class NettyWebSocketSessionTests {
   }
 
   @Test
-  void closeStillClosesConnectionAfterWriteFailure() {
+  void closeReportsWriteFailureWithoutClosingTransport() {
     Channel channel = mock(Channel.class);
     given(channel.isOpen()).willReturn(true);
     NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
@@ -407,9 +407,8 @@ class NettyWebSocketSessionTests {
     IllegalStateException failure = new IllegalStateException("Write failed");
     writePromise.setFailure(failure);
 
-    verify(channel).close();
-    assertThat(result.isDone()).isFalse();
-    closePromise.setSuccess();
+    verify(channel, never()).close();
+    assertThat(result.isFailure()).isTrue();
     assertThat(result.getCause()).isSameAs(failure);
   }
 

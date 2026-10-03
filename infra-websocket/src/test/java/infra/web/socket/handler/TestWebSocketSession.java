@@ -29,6 +29,7 @@ import infra.core.io.buffer.DataBufferFactory;
 import infra.core.io.buffer.DefaultDataBufferFactory;
 import infra.http.HttpHeaders;
 import infra.util.concurrent.Future;
+import infra.util.concurrent.Promise;
 import infra.web.socket.CloseStatus;
 import infra.web.socket.WebSocketExtension;
 import infra.web.socket.WebSocketMessage;
@@ -62,6 +63,13 @@ public class TestWebSocketSession extends WebSocketSession {
   private CloseStatus status;
 
   private HttpHeaders headers;
+
+  private final Promise<Void> termination = Future.forPromise();
+
+  @Override
+  public Future<Void> closeFuture() {
+    return termination;
+  }
 
   public TestWebSocketSession() {
   }
@@ -179,12 +187,7 @@ public class TestWebSocketSession extends WebSocketSession {
   @Override
   public Future<Void> abort() {
     this.open = false;
-    return Future.ok();
-  }
-
-  @Override
-  public Future<Void> close() {
-    this.open = false;
+    termination.trySuccess(null);
     return Future.ok();
   }
 
@@ -192,6 +195,7 @@ public class TestWebSocketSession extends WebSocketSession {
   public Future<Void> close(CloseStatus status) {
     this.open = false;
     this.status = status;
+    termination.trySuccess(null);
     return Future.ok();
   }
 

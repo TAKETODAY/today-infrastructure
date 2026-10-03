@@ -46,9 +46,8 @@ public class TextWebSocketHandler extends WebSocketHandler {
     super(delegate);
   }
 
-  @Nullable
   @Override
-  protected final Future<Void> handleBinaryMessage(WebSocketSession session, WebSocketMessage message) {
+  protected final @Nullable Future<Void> handleBinaryMessage(WebSocketSession session, WebSocketMessage message) {
     session.close(CloseStatus.NOT_ACCEPTABLE.withReason("Binary messages not supported"));
     return null;
   }

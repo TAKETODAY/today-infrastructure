@@ -19,20 +19,15 @@ package infra.web.socket.server.support;
 import org.jspecify.annotations.Nullable;
 
 import java.net.InetSocketAddress;
-import java.nio.channels.ClosedChannelException;
-import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.NettyDataBuffer;
 import infra.core.io.buffer.NettyDataBufferFactory;
 import infra.logging.Logger;
 import infra.util.Assert;
+import infra.util.StringUtils;
 import infra.util.concurrent.Future;
 import infra.util.concurrent.Promise;
 import infra.web.socket.CloseStatus;
@@ -50,7 +45,6 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
-import io.netty.util.concurrent.GlobalEventExecutor;
 
 import static infra.web.socket.CloseStatus.NO_CLOSE_FRAME;
 import static infra.web.socket.CloseStatus.NO_STATUS_CODE;
@@ -69,12 +63,11 @@ import static infra.web.socket.handler.ExceptionWebSocketHandler.tryCloseWithErr
  * <p>Returned futures use the default infrastructure notification executor.
  * Cancelling them does not cancel the underlying channel operation.
  *
- * <p>Send submission and initiation of closure are serialized. Once closure
- * begins, new sends are rejected and their frames released. Repeated close calls
- * reuse the first close result and status. An abort during closure cancels the
- * graceful-close result and immediately initiates transport closure. Repeated
- * aborts reuse the transport-close result. Closing an already closed connection
- * succeeds without writing another close frame.
+ * <p>Each close call submits a close frame and closes the transport after a
+ * successful write. A failed or cancelled write is reported without initiating
+ * transport closure; use {@link #abort()} if immediate disconnection is required.
+ * Closure observation is provided by a lazily initialized, shared
+ * {@link #closeFuture()}; cancelling it affects all observers but not the channel.
  *
  * <p>Inbound payloads remain valid until the handler's returned future completes,
  * or until the handler returns if it provides no future. Retain an independent
@@ -100,27 +93,7 @@ public class NettyWebSocketSession extends WebSocketSession {
 
   private final @Nullable String acceptedProtocol;
 
-  private Duration closeTimeout = Duration.ofSeconds(10);
-
-  private @Nullable Promise<Void> closeResult;
-
-  private @Nullable Promise<Void> abortResult;
-
-  private @Nullable ScheduledFuture<?> closeTimeoutTask;
-
-  /**
-   * Set the maximum duration of an initiated close operation. The default is
-   * ten seconds. On timeout the close future fails and the connection is aborted.
-   * Cancellation of the returned close future does not disable this timeout.
-   *
-   * @param timeout a positive close timeout, configured before closing
-   */
-  public synchronized void setCloseTimeout(Duration timeout) {
-    Assert.isTrue(!timeout.isNegative() && !timeout.isZero(), "Close timeout must be positive");
-    Assert.state(closeResult == null && abortResult == null, "Session is already closing");
-    timeout.toNanos();
-    closeTimeout = timeout;
-  }
+  private volatile @Nullable Promise<Void> closeStatus;
 
   public NettyWebSocketSession(boolean secure, Channel channel,
           NettyDataBufferFactory allocator, @Nullable String acceptedProtocol) {
@@ -137,10 +110,8 @@ public class NettyWebSocketSession extends WebSocketSession {
 
   @Override
   public Future<Void> sendText(CharSequence text) {
-    if (text.isEmpty()) {
-      return send(new TextWebSocketFrame(Unpooled.EMPTY_BUFFER));
-    }
-    return send(new TextWebSocketFrame(Unpooled.copiedBuffer(text, CharsetUtil.UTF_8)));
+    return send(new TextWebSocketFrame(StringUtils.isEmpty(text) ? Unpooled.EMPTY_BUFFER
+            : Unpooled.copiedBuffer(text, CharsetUtil.UTF_8)));
   }
 
   @Override
@@ -163,18 +134,8 @@ public class NettyWebSocketSession extends WebSocketSession {
     return send(createFrame(message));
   }
 
-  public synchronized Future<Void> send(WebSocketFrame message) {
-    if (closeResult != null || abortResult != null) {
-      ReferenceCountUtil.safeRelease(message);
-      return Future.failed(new ClosedChannelException());
-    }
-    try {
-      return adapt(channel.writeAndFlush(message));
-    }
-    catch (Throwable ex) {
-      ReferenceCountUtil.safeRelease(message);
-      return Future.failed(ex);
-    }
+  public Future<Void> send(WebSocketFrame message) {
+    return adapt(channel.writeAndFlush(message));
   }
 
   protected WebSocketFrame createFrame(WebSocketMessage message) {
@@ -207,104 +168,52 @@ public class NettyWebSocketSession extends WebSocketSession {
   }
 
   @Override
-  public synchronized Future<Void> abort() {
-    if (closeResult != null && !closeResult.isDone()) {
-      closeResult.cancel(false);
-    }
-    cancelCloseTimeout();
-    return closeConnection(null);
+  public Future<Void> abort() {
+    return adapt(channel.close());
   }
 
   @Override
-  public synchronized Future<Void> close(CloseStatus status) {
-    if (closeResult != null) {
-      return closeResult;
-    }
-    if (abortResult != null) {
-      return abortResult;
-    }
-    CloseWebSocketFrame frame = new CloseWebSocketFrame(status.getCode(), status.getReason());
-    Promise<Void> result = Future.forPromise();
-    closeResult = result;
-    if (!channel.isOpen()) {
-      frame.release();
-      result.trySuccess(null);
-      return result;
-    }
-    try {
-      closeTimeoutTask = GlobalEventExecutor.INSTANCE.schedule(() -> {
-        synchronized (this) {
-          if (abortResult == null || !abortResult.isDone()) {
-            result.tryFailure(new TimeoutException("WebSocket close timed out"));
-            closeConnection(null);
-          }
-        }
-      }, closeTimeout.toNanos(), TimeUnit.NANOSECONDS);
-      channel.writeAndFlush(frame).addListener(writeFuture -> closeConnection(writeFuture.cause()));
-    }
-    catch (Throwable ex) {
-      ReferenceCountUtil.safeRelease(frame);
-      closeConnection(ex);
-    }
-    return result;
+  public Future<Void> close(CloseStatus status) {
+    Promise<Void> promise = Future.forPromise();
+    channel.writeAndFlush(new CloseWebSocketFrame(status.getCode(), status.getReason()))
+            .addListener(writeFuture -> {
+              if (writeFuture.isCancelled()) {
+                promise.cancel(writeFuture.cause(), false);
+              }
+              else if (writeFuture.cause() != null) {
+                promise.tryFailure(writeFuture.cause());
+              }
+              else {
+                channel.close().addListener(closeFuture -> {
+                  if (closeFuture.isCancelled()) {
+                    promise.cancel(closeFuture.cause(), false);
+                  }
+                  else if (closeFuture.cause() != null) {
+                    promise.tryFailure(closeFuture.cause());
+                  }
+                  else {
+                    promise.trySuccess(null);
+                  }
+                });
+              }
+            });
+    return promise;
   }
 
-  private synchronized Future<Void> closeConnection(@Nullable Throwable writeFailure) {
-    if (abortResult != null) {
-      return abortResult;
-    }
-    Promise<Void> result = Future.forPromise();
-    abortResult = result;
-    try {
-      channel.close().addListener(future -> finishClose(result, writeFailure, future.cause()));
-    }
-    catch (Throwable ex) {
-      finishClose(result, writeFailure, ex);
-    }
-    return result;
-  }
-
-  private synchronized void finishClose(Promise<Void> result,
-          @Nullable Throwable writeFailure, @Nullable Throwable closeFailure) {
-    cancelCloseTimeout();
-    if (closeFailure instanceof CancellationException) {
-      result.cancel(closeFailure, false);
-    }
-    else if (closeFailure != null) {
-      result.tryFailure(closeFailure);
-    }
-    else {
-      result.trySuccess(null);
-    }
-    if (closeResult != null) {
-      if (writeFailure != null) {
-        if (closeFailure != null && closeFailure != writeFailure) {
-          writeFailure.addSuppressed(closeFailure);
-        }
-        if (writeFailure instanceof CancellationException) {
-          closeResult.cancel(writeFailure, false);
-        }
-        else {
-          closeResult.tryFailure(writeFailure);
+  @Override
+  public Future<Void> closeFuture() {
+    Promise<Void> closeStatus = this.closeStatus;
+    if (closeStatus == null) {
+      synchronized(this) {
+        closeStatus = this.closeStatus;
+        if (closeStatus == null) {
+          Promise<Void> result = Future.forPromise();
+          this.closeStatus = closeStatus = result;
+          channel.closeFuture().addListener(ignored -> result.trySuccess(null));
         }
       }
-      else if (closeFailure instanceof CancellationException) {
-        closeResult.cancel(closeFailure, false);
-      }
-      else if (closeFailure != null) {
-        closeResult.tryFailure(closeFailure);
-      }
-      else {
-        closeResult.trySuccess(null);
-      }
     }
-  }
-
-  private void cancelCloseTimeout() {
-    if (closeTimeoutTask != null) {
-      closeTimeoutTask.cancel(false);
-      closeTimeoutTask = null;
-    }
+    return closeStatus;
   }
 
   @Override
@@ -354,6 +263,7 @@ public class NettyWebSocketSession extends WebSocketSession {
       }
     }
     catch (Throwable ex) {
+      channel.close();
       logger.warn("Unhandled on-close exception for {}", this, ex);
     }
   }
