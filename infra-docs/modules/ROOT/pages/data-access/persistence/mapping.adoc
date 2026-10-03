@@ -71,7 +71,7 @@
 
 | UUID
 | `@GeneratedId(strategy = GenerationType.UUID)`
-| INSERT 前生成 UUID v4，支持 `UUID` 或 `String` 属性；字符串为标准带连字符格式。
+| INSERT 前生成 UUID v7，支持 `UUID` 或 `String` 属性；字符串为标准带连字符格式。
 
 | 自定义生成器
 | `@GeneratedId(generator = OrderIdGenerator.class)` 或 `@GeneratedId(generatorName = "orderIdGenerator")`
@@ -100,6 +100,10 @@ class Document {
 ----
 
 UUID 与自定义生成器仅在主键为 `null` 时执行，已有非空主键会保留。
+`GenerationType.UUID` 固定采用 RFC 9562 UUID v7，包含 48 位 Unix 毫秒时间戳和 74 位安全随机数据。
+其时间前缀有利于支持相应排序的数据库索引局部性，但不保证同毫秒内或跨节点严格递增；
+时钟回拨会反映在时间戳中。生成时间可从 ID 中解析。
+已有 v4 与新增 v7 可以共存。需要随机 UUID v4 或其他算法时，使用自定义 `IdGenerator`。
 使用 `Long` 等包装类型表示尚未分配的数字主键；基本类型 `long` 的默认值 `0` 不为 `null`，不会触发应用生成器。
 应用生成型主键始终参与 INSERT，不会被 `PropertyUpdateStrategy.notId()` 等普通属性策略排除。
 数据库自增策略则始终排除主键列，因此不应对这种实体预先赋值主键。
@@ -154,7 +158,7 @@ class Order {
 === 分布式 ID
 
 `IdGenerator` 可以接入本地雪花算法、UUID v7、ULID、数据库号段、Redis 递增或远程 ID 服务。
-当前内置策略只有 `IDENTITY` 与 UUID v4，其他算法通过自定义生成器接入。
+当前内置策略为 `IDENTITY` 与 `UUID`（固定 v7），其他算法通过自定义生成器接入。
 多节点唯一性、节点编号、时钟回拨处理和号段分配由生成器及其依赖服务负责。
 
 对雪花或号段等有状态生成器，建议注册为线程安全的单例 Bean，通过名称引用：

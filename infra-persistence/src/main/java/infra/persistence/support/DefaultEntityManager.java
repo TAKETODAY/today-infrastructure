@@ -1465,7 +1465,7 @@ public class DefaultEntityManager implements EntityManager, BeanFactoryAware, Di
     }
     Object id;
     if (declaration.strategy() == GenerationType.UUID) {
-      UUID uuid = UUID.randomUUID();
+      UUID uuid = UuidV7Generator.generate(System.currentTimeMillis());
       id = property.getType() == String.class ? uuid.toString() : uuid;
     }
     else {

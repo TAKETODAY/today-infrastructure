@@ -112,7 +112,7 @@ class IdGenerationTests {
   void uuidIsInsertedEvenWhenPropertyStrategyExcludesId() {
     UuidEntity entity = new UuidEntity();
     manager.persist(entity, PropertyUpdateStrategy.notId());
-    assertThat(UUID.fromString(entity.id)).isNotNull();
+    assertThat(UUID.fromString(entity.id).version()).isEqualTo(7);
     assertThat(repository.createNamedQuery("select id from generated_entity").fetchFirst(String.class))
             .isEqualTo(entity.id);
   }
@@ -124,6 +124,21 @@ class IdGenerationTests {
             .isInstanceOf(IllegalEntityException.class).hasMessageContaining("incompatible");
     assertThat(repository.createNamedQuery("select count(*) from generated_entity").fetchFirst(Integer.class))
             .isZero();
+  }
+
+  @Test
+  void uuidPropertyUsesVersion7AndPreservesExistingValue() {
+    repository.createNamedQuery("create table uuid_entity (id uuid primary key)").executeUpdate();
+    UuidPropertyEntity first = new UuidPropertyEntity();
+    manager.persist(first);
+    assertThat(first.id.version()).isEqualTo(7);
+    UuidPropertyEntity second = new UuidPropertyEntity();
+    UUID assigned = UUID.randomUUID();
+    second.id = assigned;
+    manager.persist(second);
+    assertThat(second.id).isSameAs(assigned);
+    assertThat(repository.createNamedQuery("select id from uuid_entity").fetch(UUID.class))
+            .containsExactlyInAnyOrder(first.id, assigned);
   }
 
   @Test
@@ -367,6 +382,12 @@ class IdGenerationTests {
   static class IdentityEntity {
     @GeneratedId
     public Long id;
+  }
+
+  @Table("uuid_entity")
+  static class UuidPropertyEntity {
+    @GeneratedId(strategy = GenerationType.UUID)
+    public UUID id;
   }
 
   static class InjectedGenerator implements IdGenerator, DisposableBean {

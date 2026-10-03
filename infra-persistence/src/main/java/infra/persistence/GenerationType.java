@@ -27,7 +27,11 @@ public enum GenerationType {
   /** Database-generated identity, read back through JDBC generated keys. */
   IDENTITY,
 
-  /** Random UUID generated before insertion, for UUID or String properties. */
+  /**
+   * UUID version 7 generated before insertion, for UUID or String properties.
+   * Uses a Unix millisecond timestamp and random bits without guaranteeing
+   * strict monotonicity.
+   */
   UUID
 
 }
