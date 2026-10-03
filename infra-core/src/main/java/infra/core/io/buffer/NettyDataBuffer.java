@@ -431,7 +431,6 @@ public class NettyDataBuffer extends DataBuffer {
 
     @Override
     public void close() {
-
     }
   }
 

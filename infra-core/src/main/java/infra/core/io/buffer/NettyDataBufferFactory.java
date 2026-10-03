@@ -76,8 +76,8 @@ public class NettyDataBufferFactory extends DataBufferFactory {
 
   @Override
   public DataBuffer copiedBuffer(CharSequence string, Charset charset) {
-    ByteBuf byteBuf = Unpooled.copiedBuffer(string, charset);
-    return new NettyDataBuffer(byteBuf, this);
+    return new NettyDataBuffer(string.isEmpty() ? Unpooled.EMPTY_BUFFER
+            : Unpooled.copiedBuffer(string, charset), this);
   }
 
   @Override
