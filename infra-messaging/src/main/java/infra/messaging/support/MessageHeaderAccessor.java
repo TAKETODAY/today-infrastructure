@@ -29,15 +29,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import infra.util.Assert;
 import infra.messaging.Message;
 import infra.messaging.MessageChannel;
 import infra.messaging.MessageHeaders;
-import infra.util.IdGenerator;
+import infra.util.Assert;
 import infra.util.MimeType;
 import infra.util.ObjectUtils;
 import infra.util.PatternMatchUtils;
 import infra.util.StringUtils;
+import infra.util.UuidGenerator;
 
 /**
  * Wrapper around {@link MessageHeaders} that provides extra features such as
@@ -122,7 +122,7 @@ public class MessageHeaderAccessor {
 
   private boolean enableTimestamp = false;
 
-  private @Nullable IdGenerator idGenerator;
+  private @Nullable UuidGenerator uuidGenerator;
 
   /**
    * A constructor to create new headers.
@@ -236,8 +236,8 @@ public class MessageHeaderAccessor {
    *
    * @see IdTimestampMessageHeaderInitializer
    */
-  void setIdGenerator(IdGenerator idGenerator) {
-    this.idGenerator = idGenerator;
+  void setIdGenerator(UuidGenerator uuidGenerator) {
+    this.uuidGenerator = uuidGenerator;
   }
 
   // Accessors for the resulting MessageHeaders
@@ -675,9 +675,9 @@ public class MessageHeaderAccessor {
       }
 
       if (getId() == null) {
-        IdGenerator idGenerator = (MessageHeaderAccessor.this.idGenerator != null ?
-                MessageHeaderAccessor.this.idGenerator : MessageHeaders.getIdGenerator());
-        UUID id = idGenerator.generateId();
+        UuidGenerator uuidGenerator = (MessageHeaderAccessor.this.uuidGenerator != null ?
+                MessageHeaderAccessor.this.uuidGenerator : MessageHeaders.getIdGenerator());
+        UUID id = uuidGenerator.generateId();
         if (id != MessageHeaders.ID_VALUE_NONE) {
           getRawHeaders().put(ID, id);
         }

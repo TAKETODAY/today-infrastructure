@@ -28,11 +28,11 @@ class SimpleIdGeneratorTests {
 
   @Test
   void test() {
-    SimpleIdGenerator generator = new SimpleIdGenerator();
+    SimpleUuidGenerator generator = new SimpleUuidGenerator();
     assertThat(generator.getMostSigBits()).isZero();
     assertThat(generator.generateId()).isNotEqualTo(generator.generateId());
 
-    assertThat(new SimpleIdGenerator(10).getMostSigBits()).isEqualTo(10);
+    assertThat(new SimpleUuidGenerator(10).getMostSigBits()).isEqualTo(10);
 
   }
 }

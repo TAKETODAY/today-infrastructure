@@ -36,9 +36,9 @@ import infra.logging.LoggerFactory;
 import infra.messaging.support.GenericMessage;
 import infra.messaging.support.MessageBuilder;
 import infra.messaging.support.MessageHeaderAccessor;
-import infra.util.AlternativeJdkIdGenerator;
+import infra.util.AlternativeJdkUuidGenerator;
 import infra.util.CollectionUtils;
-import infra.util.IdGenerator;
+import infra.util.UuidGenerator;
 
 /**
  * The headers for a {@link Message}.
@@ -114,9 +114,9 @@ public class MessageHeaders implements Map<String, Object>, Serializable {
 
   private static final Logger logger = LoggerFactory.getLogger(MessageHeaders.class);
 
-  private static final IdGenerator defaultIdGenerator = new AlternativeJdkIdGenerator();
+  private static final UuidGenerator DEFAULT_UUID_GENERATOR = new AlternativeJdkUuidGenerator();
 
-  private static volatile @Nullable IdGenerator idGenerator;
+  private static volatile @Nullable UuidGenerator uuidGenerator;
 
   @SuppressWarnings("serial")
   private final Map<String, Object> headers;
@@ -182,9 +182,9 @@ public class MessageHeaders implements Map<String, Object>, Serializable {
     return this.headers;
   }
 
-  protected static IdGenerator getIdGenerator() {
-    IdGenerator generator = idGenerator;
-    return (generator != null ? generator : defaultIdGenerator);
+  protected static UuidGenerator getIdGenerator() {
+    UuidGenerator generator = uuidGenerator;
+    return (generator != null ? generator : DEFAULT_UUID_GENERATOR);
   }
 
   public @Nullable UUID getId() {

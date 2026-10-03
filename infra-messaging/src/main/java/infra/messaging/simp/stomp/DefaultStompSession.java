@@ -46,8 +46,8 @@ import infra.messaging.support.MessageBuilder;
 import infra.messaging.support.MessageHeaderAccessor;
 import infra.messaging.tcp.TcpConnection;
 import infra.scheduling.TaskScheduler;
-import infra.util.AlternativeJdkIdGenerator;
-import infra.util.IdGenerator;
+import infra.util.AlternativeJdkUuidGenerator;
+import infra.util.UuidGenerator;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 
@@ -61,7 +61,7 @@ public class DefaultStompSession implements ConnectionHandlingStompSession {
 
   private static final Logger logger = SimpLogging.forLogName(DefaultStompSession.class);
 
-  private static final IdGenerator idGenerator = new AlternativeJdkIdGenerator();
+  private static final UuidGenerator UUID_GENERATOR = new AlternativeJdkUuidGenerator();
 
   /**
    * An empty payload.
@@ -117,7 +117,7 @@ public class DefaultStompSession implements ConnectionHandlingStompSession {
   public DefaultStompSession(StompSessionHandler sessionHandler, StompHeaders connectHeaders) {
     Assert.notNull(sessionHandler, "StompSessionHandler is required");
     Assert.notNull(connectHeaders, "StompHeaders is required");
-    this.sessionId = idGenerator.generateId().toString();
+    this.sessionId = UUID_GENERATOR.generateId().toString();
     this.sessionHandler = sessionHandler;
     this.connectHeaders = connectHeaders;
   }

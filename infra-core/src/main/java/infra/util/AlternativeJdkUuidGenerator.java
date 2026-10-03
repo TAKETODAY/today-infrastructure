@@ -24,9 +24,9 @@ import java.util.Random;
 import java.util.UUID;
 
 /**
- * An {@link IdGenerator} that uses {@link SecureRandom} for the initial seed and
+ * An {@link UuidGenerator} that uses {@link SecureRandom} for the initial seed and
  * {@link Random} thereafter, instead of calling {@link UUID#randomUUID()} every
- * time as {@link JdkIdGenerator JdkIdGenerator} does.
+ * time as {@link JdkUuidGenerator JdkIdGenerator} does.
  * This provides a better balance between securely random ids and performance.
  *
  * @author Rossen Stoyanchev
@@ -34,11 +34,11 @@ import java.util.UUID;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0 2021/9/11 17:51
  */
-public class AlternativeJdkIdGenerator implements IdGenerator {
+public class AlternativeJdkUuidGenerator implements UuidGenerator {
 
   private final Random random;
 
-  public AlternativeJdkIdGenerator() {
+  public AlternativeJdkUuidGenerator() {
     SecureRandom secureRandom = new SecureRandom();
     byte[] seed = new byte[8];
     secureRandom.nextBytes(seed);

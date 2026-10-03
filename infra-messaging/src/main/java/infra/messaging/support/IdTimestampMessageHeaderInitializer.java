@@ -19,7 +19,7 @@ package infra.messaging.support;
 import org.jspecify.annotations.Nullable;
 
 import infra.messaging.MessageHeaders;
-import infra.util.IdGenerator;
+import infra.util.UuidGenerator;
 
 /**
  * A {@link MessageHeaderInitializer MessageHeaderInitializer}
@@ -30,9 +30,9 @@ import infra.util.IdGenerator;
  */
 public class IdTimestampMessageHeaderInitializer implements MessageHeaderInitializer {
 
-  private static final IdGenerator ID_VALUE_NONE_GENERATOR = () -> MessageHeaders.ID_VALUE_NONE;
+  private static final UuidGenerator ID_VALUE_NONE_GENERATOR = () -> MessageHeaders.ID_VALUE_NONE;
 
-  private @Nullable IdGenerator idGenerator;
+  private @Nullable UuidGenerator uuidGenerator;
 
   private boolean enableTimestamp;
 
@@ -43,15 +43,15 @@ public class IdTimestampMessageHeaderInitializer implements MessageHeaderInitial
    * IdGenerator of {@link MessageHeaders} is used.
    * <p>To have no ids generated at all, see {@link #setDisableIdGeneration()}.
    */
-  public void setIdGenerator(@Nullable IdGenerator idGenerator) {
-    this.idGenerator = idGenerator;
+  public void setIdGenerator(@Nullable UuidGenerator uuidGenerator) {
+    this.uuidGenerator = uuidGenerator;
   }
 
   /**
    * Return the configured {@code IdGenerator}, if any.
    */
-  public @Nullable IdGenerator getIdGenerator() {
-    return this.idGenerator;
+  public @Nullable UuidGenerator getIdGenerator() {
+    return this.uuidGenerator;
   }
 
   /**
@@ -59,7 +59,7 @@ public class IdTimestampMessageHeaderInitializer implements MessageHeaderInitial
    * to disable id generation completely.
    */
   public void setDisableIdGeneration() {
-    this.idGenerator = ID_VALUE_NONE_GENERATOR;
+    this.uuidGenerator = ID_VALUE_NONE_GENERATOR;
   }
 
   /**
@@ -81,9 +81,9 @@ public class IdTimestampMessageHeaderInitializer implements MessageHeaderInitial
 
   @Override
   public void initHeaders(MessageHeaderAccessor headerAccessor) {
-    IdGenerator idGenerator = getIdGenerator();
-    if (idGenerator != null) {
-      headerAccessor.setIdGenerator(idGenerator);
+    UuidGenerator uuidGenerator = getIdGenerator();
+    if (uuidGenerator != null) {
+      headerAccessor.setIdGenerator(uuidGenerator);
     }
     headerAccessor.setEnableTimestamp(isEnableTimestamp());
   }

@@ -30,7 +30,7 @@ class JdkIdGeneratorTests {
 
   @Test
   void generateIdCreatesNewUUIDEachTime() {
-    JdkIdGenerator generator = new JdkIdGenerator();
+    JdkUuidGenerator generator = new JdkUuidGenerator();
 
     UUID id1 = generator.generateId();
     UUID id2 = generator.generateId();
@@ -42,8 +42,8 @@ class JdkIdGeneratorTests {
 
   @Test
   void multipleInstancesGenerateDifferentUUIDs() {
-    JdkIdGenerator generator1 = new JdkIdGenerator();
-    JdkIdGenerator generator2 = new JdkIdGenerator();
+    JdkUuidGenerator generator1 = new JdkUuidGenerator();
+    JdkUuidGenerator generator2 = new JdkUuidGenerator();
 
     UUID id1 = generator1.generateId();
     UUID id2 = generator2.generateId();
@@ -53,7 +53,7 @@ class JdkIdGeneratorTests {
 
   @Test
   void generatedUUIDsAreRandomVersion4() {
-    JdkIdGenerator generator = new JdkIdGenerator();
+    JdkUuidGenerator generator = new JdkUuidGenerator();
     UUID id = generator.generateId();
 
     // Version 4 UUID has version bits set to 0100 (4)

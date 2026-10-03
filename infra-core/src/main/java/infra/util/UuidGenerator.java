@@ -19,37 +19,22 @@
 package infra.util;
 
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * A simple {@link IdGenerator} that starts at 1, increments up to
- * {@link Long#MAX_VALUE}, and then rolls over.
+ * Contract for generating universally unique identifiers ({@link UUID UUIDs}).
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @since 4.0 2021/9/11 17:52
+ * @since 4.0 2021/9/11 17:49
  */
-public class SimpleIdGenerator implements IdGenerator {
+@FunctionalInterface
+public interface UuidGenerator {
 
-  private final long mostSigBits;
-
-  private final AtomicLong leastSigBits = new AtomicLong();
-
-  public SimpleIdGenerator() {
-    this(0);
-  }
-
-  public SimpleIdGenerator(long mostSigBits) {
-    this.mostSigBits = mostSigBits;
-  }
-
-  @Override
-  public UUID generateId() {
-    return new UUID(mostSigBits, this.leastSigBits.incrementAndGet());
-  }
-
-  public long getMostSigBits() {
-    return mostSigBits;
-  }
+  /**
+   * Generate a new UUID.
+   *
+   * @return the generated UUID
+   */
+  UUID generateId();
 
 }

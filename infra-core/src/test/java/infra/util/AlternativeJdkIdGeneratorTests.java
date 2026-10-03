@@ -32,7 +32,7 @@ class AlternativeJdkIdGeneratorTests {
 
   @Test
   void generateIdCreatesNewUUIDEachTime() {
-    AlternativeJdkIdGenerator generator = new AlternativeJdkIdGenerator();
+    AlternativeJdkUuidGenerator generator = new AlternativeJdkUuidGenerator();
 
     UUID id1 = generator.generateId();
     UUID id2 = generator.generateId();
@@ -44,8 +44,8 @@ class AlternativeJdkIdGeneratorTests {
 
   @Test
   void multipleInstancesGenerateDifferentUUIDs() {
-    AlternativeJdkIdGenerator generator1 = new AlternativeJdkIdGenerator();
-    AlternativeJdkIdGenerator generator2 = new AlternativeJdkIdGenerator();
+    AlternativeJdkUuidGenerator generator1 = new AlternativeJdkUuidGenerator();
+    AlternativeJdkUuidGenerator generator2 = new AlternativeJdkUuidGenerator();
 
     UUID id1 = generator1.generateId();
     UUID id2 = generator2.generateId();
@@ -55,7 +55,7 @@ class AlternativeJdkIdGeneratorTests {
 
   @Test
   void generatedUUIDsAreUnique() {
-    AlternativeJdkIdGenerator generator = new AlternativeJdkIdGenerator();
+    AlternativeJdkUuidGenerator generator = new AlternativeJdkUuidGenerator();
     Set<UUID> ids = new HashSet<>();
 
     for (int i = 0; i < 1000; i++) {
@@ -65,7 +65,7 @@ class AlternativeJdkIdGeneratorTests {
 
   @Test
   void uuidBitsAreRandomlyDistributed() {
-    AlternativeJdkIdGenerator generator = new AlternativeJdkIdGenerator();
+    AlternativeJdkUuidGenerator generator = new AlternativeJdkUuidGenerator();
     UUID uuid = generator.generateId();
 
     assertThat(uuid.getMostSignificantBits()).isNotZero();

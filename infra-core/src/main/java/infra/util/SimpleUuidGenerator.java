@@ -19,19 +19,37 @@
 package infra.util;
 
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * An {@link IdGenerator} that calls {@link java.util.UUID#randomUUID()}.
+ * A simple {@link UuidGenerator} that starts at 1, increments up to
+ * {@link Long#MAX_VALUE}, and then rolls over.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @since 4.0 2021/9/11 17:50
+ * @since 4.0 2021/9/11 17:52
  */
-public class JdkIdGenerator implements IdGenerator {
+public class SimpleUuidGenerator implements UuidGenerator {
+
+  private final long mostSigBits;
+
+  private final AtomicLong leastSigBits = new AtomicLong();
+
+  public SimpleUuidGenerator() {
+    this(0);
+  }
+
+  public SimpleUuidGenerator(long mostSigBits) {
+    this.mostSigBits = mostSigBits;
+  }
 
   @Override
   public UUID generateId() {
-    return UUID.randomUUID();
+    return new UUID(mostSigBits, this.leastSigBits.incrementAndGet());
+  }
+
+  public long getMostSigBits() {
+    return mostSigBits;
   }
 
 }

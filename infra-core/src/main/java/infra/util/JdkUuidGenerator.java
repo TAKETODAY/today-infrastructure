@@ -21,20 +21,17 @@ package infra.util;
 import java.util.UUID;
 
 /**
- * Contract for generating universally unique identifiers ({@link UUID UUIDs}).
+ * An {@link UuidGenerator} that calls {@link java.util.UUID#randomUUID()}.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @since 4.0 2021/9/11 17:49
+ * @since 4.0 2021/9/11 17:50
  */
-@FunctionalInterface
-public interface IdGenerator {
+public class JdkUuidGenerator implements UuidGenerator {
 
-  /**
-   * Generate a new identifier.
-   *
-   * @return the generated identifier
-   */
-  UUID generateId();
+  @Override
+  public UUID generateId() {
+    return UUID.randomUUID();
+  }
 
 }

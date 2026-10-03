@@ -29,7 +29,7 @@ import infra.messaging.simp.SimpMessageType;
 import infra.messaging.support.IdTimestampMessageHeaderInitializer;
 import infra.messaging.support.MessageBuilder;
 import infra.messaging.support.MessageHeaderAccessor;
-import infra.util.AlternativeJdkIdGenerator;
+import infra.util.AlternativeJdkUuidGenerator;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MimeType;
 import infra.util.MultiValueMap;
@@ -210,7 +210,7 @@ class StompHeaderAccessorTests {
   @Test
   void messageIdAndTimestampEnabled() {
     IdTimestampMessageHeaderInitializer headerInitializer = new IdTimestampMessageHeaderInitializer();
-    headerInitializer.setIdGenerator(new AlternativeJdkIdGenerator());
+    headerInitializer.setIdGenerator(new AlternativeJdkUuidGenerator());
     headerInitializer.setEnableTimestamp(true);
 
     StompHeaderAccessor headerAccessor = StompHeaderAccessor.create(StompCommand.SEND);
