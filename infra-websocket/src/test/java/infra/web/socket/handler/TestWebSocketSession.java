@@ -177,8 +177,9 @@ public class TestWebSocketSession extends WebSocketSession {
   }
 
   @Override
-  public void abort() {
+  public Future<Void> abort() {
     this.open = false;
+    return Future.ok();
   }
 
   @Override

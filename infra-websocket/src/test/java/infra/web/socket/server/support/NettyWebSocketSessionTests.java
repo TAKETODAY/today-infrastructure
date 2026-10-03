@@ -19,6 +19,7 @@ package infra.web.socket.server.support;
 import org.junit.jupiter.api.Test;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
 
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.NettyDataBufferFactory;
@@ -40,6 +41,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -330,14 +332,37 @@ class NettyWebSocketSessionTests {
   }
 
   @Test
-  void abortClosesChannel() {
+  void abortClosesChannel() throws Exception {
     Channel channel = mock(Channel.class);
     NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
             new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
+    DefaultChannelPromise promise = new DefaultChannelPromise(channel, GlobalEventExecutor.INSTANCE);
+    given(channel.close()).willReturn(promise);
 
-    session.abort();
+    Future<Void> result = session.abort();
 
     verify(channel).close();
+    assertThat(result.isDone()).isFalse();
+    promise.setSuccess();
+    assertThat(result.get(5, TimeUnit.SECONDS)).isNull();
+    assertThat(result.isSuccess()).isTrue();
+    verify(channel, never()).writeAndFlush(any());
+  }
+
+  @Test
+  void abortPropagatesCloseFailure() {
+    Channel channel = mock(Channel.class);
+    NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
+            new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
+    DefaultChannelPromise promise = new DefaultChannelPromise(channel, GlobalEventExecutor.INSTANCE);
+    given(channel.close()).willReturn(promise);
+
+    Future<Void> result = session.abort();
+
+    IllegalStateException failure = new IllegalStateException("Close failed");
+    promise.setFailure(failure);
+    assertThatThrownBy(() -> result.get(5, TimeUnit.SECONDS)).hasCause(failure);
+    assertThat(result.getCause()).isSameAs(failure);
   }
 
   @Test

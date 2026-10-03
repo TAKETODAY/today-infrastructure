@@ -25,8 +25,8 @@ import java.util.Objects;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.NettyDataBuffer;
 import infra.core.io.buffer.NettyDataBufferFactory;
-import infra.util.Assert;
 import infra.logging.Logger;
+import infra.util.Assert;
 import infra.util.concurrent.Future;
 import infra.web.socket.CloseStatus;
 import infra.web.socket.WebSocketHandler;
@@ -147,8 +147,8 @@ public class NettyWebSocketSession extends WebSocketSession {
   }
 
   @Override
-  public void abort() {
-    channel.close();
+  public Future<Void> abort() {
+    return adapt(channel.close());
   }
 
   @Override
@@ -234,7 +234,7 @@ public class NettyWebSocketSession extends WebSocketSession {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o)
       return true;
     if (!(o instanceof final NettyWebSocketSession that))

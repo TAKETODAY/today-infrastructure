@@ -30,17 +30,22 @@ import infra.util.JdkUuidGenerator;
 import infra.util.concurrent.Future;
 
 /**
- * A WebSocket session abstraction. Allows sending messages over a WebSocket
- * connection and closing it.
+ * Abstract base class for a WebSocket connection, providing a session identifier,
+ * attributes, connection metadata, and asynchronous send and close operations.
  *
- * <p> A send method is any of the {@code sendText}, {@code sendBinary},
- * {@code sendPing}, {@code sendPong} and {@code close} methods of
- * {@code WebSocketSession}. A send method initiates a send operation and returns a
- * {@code Future} which completes once the operation has completed.
- * If the {@code Future} completes normally the operation is
- * considered succeeded. If the {@code Future} completes
- * exceptionally, the operation is considered failed. An operation that has been
- * initiated but not yet completed is considered pending.
+ * <p>Send methods return a {@link Future} that completes successfully when the
+ * underlying transport has completed the write, or fails if the operation fails.
+ * Successful completion does not imply that the peer has received or processed
+ * the message. Use the returned future to observe completion or compose
+ * subsequent operations.
+ *
+ * <p>Message factory methods use the session's {@link #bufferFactory()} to create
+ * payloads compatible with the underlying transport. They create messages without
+ * sending them. Sending order, concurrent-send support, and payload ownership
+ * depend on the concrete implementation.
+ *
+ * <p>Use {@link #close(CloseStatus)} to initiate closure with a WebSocket close
+ * frame, or {@link #abort()} to terminate the underlying connection abruptly.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0 2021/4/5 14:16
@@ -52,14 +57,17 @@ public abstract class WebSocketSession extends DefaultAttributeAccessor implemen
   private final String id = idGenerator.generateId().toString();
 
   /**
-   * Session ID
+   * Return the unique identifier generated for this session.
+   *
+   * @return the session identifier, stable for the lifetime of this instance
    */
   public String getId() {
     return id;
   }
 
   /**
-   * Return a {@code DataBuffer} Factory to create message payloads.
+   * Return the buffer factory for creating message payloads compatible with
+   * this session's underlying transport.
    *
    * @return the buffer factory for the session
    * @since 5.0
@@ -67,17 +75,24 @@ public abstract class WebSocketSession extends DefaultAttributeAccessor implemen
   public abstract DataBufferFactory bufferFactory();
 
   /**
-   * write the messages and return a {@code Future<Void>} that
-   * completes when the source completes and writing is done.
+   * Send the given WebSocket message asynchronously.
    *
+   * @param message the message to send
+   * @return a future that completes when the write completes, or fails if
+   * the write fails
    * @since 5.0
    */
   public abstract Future<Void> send(WebSocketMessage message);
 
   /**
-   * write the messages and return a {@code Future<Void>} that
-   * completes when the source completes and writing is done.
+   * Send the message supplied by the given future once it completes successfully.
    *
+   * <p>If the supplied future fails, no message is sent and the returned future
+   * propagates that failure.
+   *
+   * @param message a future supplying the message to send
+   * @return a future that completes when the message write completes, or fails
+   * if obtaining or sending the message fails
    * @since 5.0
    */
   public Future<Void> send(Future<WebSocketMessage> message) {
@@ -85,18 +100,22 @@ public abstract class WebSocketSession extends DefaultAttributeAccessor implemen
   }
 
   /**
-   * Send a text message, blocking until all of the message has been transmitted.
+   * Send the given text asynchronously, encoded as UTF-8.
    *
-   * @param text the message to be sent.
+   * @param text the text to send
+   * @return a future that completes when the write completes, or fails if
+   * the write fails
    */
   public Future<Void> sendText(CharSequence text) {
     return send(textMessage(text));
   }
 
   /**
-   * Send a binary message, returning when all of the message has been transmitted.
+   * Send the given payload asynchronously as a binary message.
    *
-   * @param payload the message to be sent.
+   * @param payload the binary payload to send
+   * @return a future that completes when the write completes, or fails if
+   * the write fails
    * @since 5.0
    */
   public Future<Void> sendBinary(DataBuffer payload) {
@@ -104,9 +123,14 @@ public abstract class WebSocketSession extends DefaultAttributeAccessor implemen
   }
 
   /**
-   * Send a binary message, returning when all of the message has been transmitted.
+   * Create a binary payload with the session's {@link #bufferFactory()} and
+   * send it asynchronously.
    *
-   * @param payloadFactory the message factory to be sent.
+   * <p>The factory is invoked synchronously when this method is called.
+   *
+   * @param payloadFactory a function that creates the binary payload
+   * @return a future that completes when the write completes, or fails if
+   * the write fails
    * @since 5.0
    */
   public Future<Void> sendBinary(Function<DataBufferFactory, DataBuffer> payloadFactory) {
@@ -114,9 +138,15 @@ public abstract class WebSocketSession extends DefaultAttributeAccessor implemen
   }
 
   /**
-   * Send a binary message, returning when all of the message has been transmitted.
+   * Create a WebSocket message with the session's {@link #bufferFactory()} and
+   * send it asynchronously.
    *
-   * @param payloadFactory the message factory to be sent.
+   * <p>The factory is invoked synchronously when this method is called. The
+   * returned message determines the message type.
+   *
+   * @param payloadFactory a function that creates the message to send
+   * @return a future that completes when the write completes, or fails if
+   * the write fails
    * @since 5.0
    */
   public Future<Void> send(Function<DataBufferFactory, WebSocketMessage> payloadFactory) {
@@ -124,8 +154,10 @@ public abstract class WebSocketSession extends DefaultAttributeAccessor implemen
   }
 
   /**
-   * Send ping message
+   * Send a ping control frame with an empty payload asynchronously.
    *
+   * @return a future that completes when the write completes, or fails if
+   * the write fails; completion does not indicate receipt of a pong response
    * @since 5.0
    */
   public Future<Void> sendPing() {
@@ -133,8 +165,10 @@ public abstract class WebSocketSession extends DefaultAttributeAccessor implemen
   }
 
   /**
-   * Send pong message
+   * Send a pong control frame with an empty payload asynchronously.
    *
+   * @return a future that completes when the write completes, or fails if
+   * the write fails
    * @since 5.0
    */
   public Future<Void> sendPong() {
@@ -142,9 +176,11 @@ public abstract class WebSocketSession extends DefaultAttributeAccessor implemen
   }
 
   /**
-   * Factory method to create a text {@link WebSocketMessage} using the
-   * {@link #bufferFactory()} for the session.
+   * Create a text message by copying the given text into a UTF-8 encoded buffer
+   * from the session's {@link #bufferFactory()}.
    *
+   * @param payload the text content
+   * @return the text message, without sending it
    * @since 5.0
    */
   public WebSocketMessage textMessage(CharSequence payload) {
@@ -153,9 +189,11 @@ public abstract class WebSocketSession extends DefaultAttributeAccessor implemen
   }
 
   /**
-   * Factory method to create a binary WebSocketMessage using the
-   * {@link #bufferFactory()} for the session.
+   * Create a binary message using the session's {@link #bufferFactory()}.
    *
+   * @param payloadFactory a function that creates the binary payload, invoked
+   * synchronously by this method
+   * @return the binary message, without sending it
    * @since 5.0
    */
   public WebSocketMessage binaryMessage(Function<DataBufferFactory, DataBuffer> payloadFactory) {
@@ -164,18 +202,29 @@ public abstract class WebSocketSession extends DefaultAttributeAccessor implemen
   }
 
   /**
-   * is WSS ?
+   * Return whether this session uses a secure WebSocket connection (WSS).
+   *
+   * @return {@code true} if the underlying transport is secured with TLS
    */
   public abstract boolean isSecure();
 
   /**
-   * Returns {@code true} if the channel is open and may get active later
+   * Return whether the underlying connection is open.
+   *
+   * <p>An open connection is not necessarily active or ready to send messages.
+   *
+   * @return {@code true} if the connection has not been closed
+   * @see #isActive()
    */
   public abstract boolean isOpen();
 
   /**
-   * return {@code true} if the channel is active and so connected.
+   * Return whether the underlying connection is active and connected.
    *
+   * <p>The default implementation delegates to {@link #isOpen()}. Subclasses
+   * may distinguish an open connection from an active connection.
+   *
+   * @return {@code true} if the connection is active
    * @since 5.0
    */
   public boolean isActive() {
@@ -183,64 +232,74 @@ public abstract class WebSocketSession extends DefaultAttributeAccessor implemen
   }
 
   /**
-   * Closes this WebSocket's input and output abruptly.
+   * Initiate abrupt termination of the underlying connection without sending
+   * a WebSocket close frame.
    *
-   * <p> When this method returns both the input and the output will have been
-   * closed. Any pending send operations will fail with {@code IOException}.
-   * Subsequent invocations of {@code abort} will have no effect.
+   * <p>Termination may complete asynchronously after this method returns.
+   * Pending send operations may fail as a result.
+   *
+   * @return a future that completes when the underlying connection is closed,
+   * or fails if termination fails
+   * @see #close(CloseStatus)
    */
-  public abstract void abort();
+  public abstract Future<Void> abort();
 
   /**
-   * Close the current conversation with a normal status code and no reason phrase.
+   * Initiate closure with {@link CloseStatus#NORMAL} and no reason phrase.
+   *
+   * @return a future representing the close operation
+   * @see #close(CloseStatus)
    */
   public Future<Void> close() {
     return close(CloseStatus.NORMAL);
   }
 
   /**
-   * Close the current conversation, giving a reason for the closure. The close
-   * call causes the implementation to attempt notify the client of the close as
-   * soon as it can. This may cause the sending of unsent messages immediately
-   * prior to the close notification. After the close notification has been sent
-   * the implementation notifies the endpoint's onClose method. Note the websocket
-   * specification defines the
-   * acceptable uses of status codes and reason phrases. If the application cannot
-   * determine a suitable close code to use for the closeReason, it is recommended
-   * to use {@link CloseStatus#NO_STATUS_CODE}.
+   * Initiate closure by sending a WebSocket close frame with the given status
+   * code and optional reason.
    *
-   * @param status the reason for the closure.
+   * <p>The status code and reason must be valid for transmission according to
+   * the WebSocket protocol. Reserved codes such as
+   * {@link CloseStatus#NO_STATUS_CODE} must not be sent in a close frame.
+   *
+   * <p>The returned future represents the implementation's close operation.
+   * Its successful completion does not necessarily indicate that the peer has
+   * replied with a close frame or that the underlying connection is fully closed.
+   *
+   * @param status the close status code and optional reason to send to the peer
+   * @return a future that completes when the close operation completes, or
+   * fails if the operation fails
+   * @see #abort()
    */
   public abstract Future<Void> close(CloseStatus status);
 
   /**
-   * Return the address on which the request was received.
+   * Return the local address of the underlying connection, if available.
    *
+   * @return the local address, or {@code null} if unavailable
    * @since 4.0
    */
-  @Nullable
-  public InetSocketAddress getLocalAddress() {
+  public @Nullable InetSocketAddress getLocalAddress() {
     return null;
   }
 
   /**
-   * Return the address of the remote client.
+   * Return the address of the remote peer, if available.
    *
+   * @return the remote address, or {@code null} if unavailable
    * @since 4.0
    */
-  @Nullable
-  public InetSocketAddress getRemoteAddress() {
+  public @Nullable InetSocketAddress getRemoteAddress() {
     return null;
   }
 
   /**
-   * Return the negotiated sub-protocol.
+   * Return the subprotocol negotiated during the WebSocket handshake.
    *
    * @return the protocol identifier, or {@code null} if no protocol
-   * was specified or negotiated successfully
+   * was negotiated
    * @since 4.0
    */
-  @Nullable
-  public abstract String getAcceptedProtocol();
+  public abstract @Nullable String getAcceptedProtocol();
 
 }
