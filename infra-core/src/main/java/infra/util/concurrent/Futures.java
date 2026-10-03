@@ -379,9 +379,25 @@ final class Futures {
     Promise<V> promise = Future.forPromise(scheduler);
     ScheduledFuture<?> timeoutFuture = scheduler.schedule(() -> {
       if (!delegate.isDone()) {
-        // timeout
-        Future.notifyListener(promise, timeoutListener);
-        delegate.cancel(true);
+        try {
+          scheduler.execute(() -> {
+            try {
+              if (!promise.isDone() && !delegate.isDone()) {
+                timeoutListener.operationComplete(promise);
+              }
+            }
+            catch (Throwable ex) {
+              tryFailure(promise, ex, logger);
+            }
+            finally {
+              delegate.cancel(true);
+            }
+          });
+        }
+        catch (Throwable ex) {
+          tryFailure(promise, ex, logger);
+          delegate.cancel(true);
+        }
       }
     }, timeout, unit);
 

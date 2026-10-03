@@ -1686,13 +1686,18 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   }
 
   /**
-   * Returns a future that delegates to this future but will finish early (via a {@link
-   * TimeoutException}) if the specified duration expires.
-   * <p>This future is interrupted and cancelled if it times out.
+   * Returns a future that delegates to this future and invokes the given listener
+   * if the specified duration expires.
+   *
+   * <p>The listener is submitted to this future's executor. It may complete the
+   * returned promise with a fallback value or failure; an exception thrown by the
+   * listener fails that promise if it has not already completed. This future is
+   * cancelled with interruption requested after the listener returns.
    *
    * @param duration timeout duration
+   * @param timeoutListener the listener used to complete the returned promise on timeout
    * @return a timeout future
-   * @see TimeoutException
+   * @see #timeout(Duration, Scheduler, FutureListener)
    * @since 5.0
    */
   public final Future<V> timeout(Duration duration, FutureListener<Promise<V>> timeoutListener) {
@@ -1700,12 +1705,18 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   }
 
   /**
-   * Returns a future that delegates to this future but will finish early (via a {@link
-   * TimeoutException}) if the specified duration expires.
-   * <p>This future is interrupted and cancelled if it times out.
+   * Returns a future that delegates to this future and invokes the given listener
+   * if the specified duration expires.
+   *
+   * <p>The listener is submitted to this future's executor, rather than invoked
+   * directly by the supplied scheduled executor. It receives the returned promise
+   * and may complete it with a fallback value or failure. An exception thrown by
+   * the listener fails the promise if it has not already completed. This future is
+   * cancelled with interruption requested after the listener returns.
    *
    * @param duration timeout duration
    * @param scheduled The executor service to enforce the timeout.
+   * @param timeoutListener the listener used to complete the returned promise on timeout
    * @return a timeout future
    * @see TimeoutException
    * @since 5.0
@@ -1716,12 +1727,21 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   }
 
   /**
-   * Returns a future that delegates to this future but will finish early (via a {@link
-   * TimeoutException}) if the specified duration expires.
-   * <p>This future is interrupted and cancelled if it times out.
+   * Returns a future that delegates to this future and invokes the given listener
+   * if the specified duration expires.
+   *
+   * <p>The listener is submitted through {@link Scheduler#execute(Runnable)}.
+   * The built-in scheduler runs it separately from the timer thread; a custom
+   * scheduler determines its own execution policy. The listener receives the
+   * returned promise and may complete it with a fallback value or failure. An
+   * exception thrown by the listener fails the promise if it has not already
+   * completed. This future is cancelled with interruption requested after the
+   * listener returns. If submission is rejected, the returned promise fails with
+   * the rejection exception and this future is cancelled.
    *
    * @param duration timeout duration
    * @param scheduler for timeout checking
+   * @param timeoutListener the listener used to complete the returned promise on timeout
    * @return a timeout future
    * @see TimeoutException
    * @since 5.0

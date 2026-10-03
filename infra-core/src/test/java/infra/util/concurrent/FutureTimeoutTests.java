@@ -1,0 +1,115 @@
+/*
+ * Copyright 2017 - 2026 the TODAY authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package infra.util.concurrent;
+
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.time.Duration;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class FutureTimeoutTests {
+
+  @Test
+  void listenerExceptionFailsReturnedFuture() throws Exception {
+    Promise<String> source = Future.forPromise();
+    IOException failure = new IOException("fallback failed");
+    Future<String> result = source.timeout(Duration.ZERO, promise -> {
+      throw failure;
+    });
+
+    assertThat(result.await(5, TimeUnit.SECONDS)).isTrue();
+    assertThat(result.getCause()).isSameAs(failure);
+    assertThat(source.await(5, TimeUnit.SECONDS)).isTrue();
+    assertThat(source.isCancelled()).isTrue();
+  }
+
+  @Test
+  void blockingListenerDoesNotBlockTimerThread() throws Exception {
+    ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
+    ExecutorService callbacks = Executors.newSingleThreadExecutor();
+    CountDownLatch started = new CountDownLatch(1);
+    CountDownLatch release = new CountDownLatch(1);
+    try {
+      Promise<String> source = Future.forPromise();
+      Future<String> result = source.timeout(Duration.ZERO, scheduler(callbacks, timer), promise -> {
+        started.countDown();
+        if (!release.await(5, TimeUnit.SECONDS)) {
+          throw new IllegalStateException("Listener was not released");
+        }
+        promise.setSuccess("fallback");
+      });
+
+      assertThat(started.await(5, TimeUnit.SECONDS)).isTrue();
+      assertThat(timer.schedule(() -> "timer available", 0, TimeUnit.NANOSECONDS)
+              .get(5, TimeUnit.SECONDS)).isEqualTo("timer available");
+      assertThat(result.isDone()).isFalse();
+      release.countDown();
+      assertThat(result.get(5, TimeUnit.SECONDS)).isEqualTo("fallback");
+      assertThat(source.await(5, TimeUnit.SECONDS)).isTrue();
+      assertThat(source.isCancelled()).isTrue();
+    }
+    finally {
+      release.countDown();
+      callbacks.shutdownNow();
+      timer.shutdownNow();
+    }
+  }
+
+  @Test
+  void rejectedListenerSubmissionFailsReturnedFuture() throws Exception {
+    ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
+    ExecutorService callbacks = Executors.newSingleThreadExecutor();
+    callbacks.shutdown();
+    try {
+      Promise<String> source = Future.forPromise();
+      Future<String> result = source.timeout(Duration.ZERO, scheduler(callbacks, timer),
+              promise -> promise.setSuccess("fallback"));
+
+      assertThat(result.await(5, TimeUnit.SECONDS)).isTrue();
+      assertThat(result.getCause()).isInstanceOf(RejectedExecutionException.class);
+      assertThat(source.await(5, TimeUnit.SECONDS)).isTrue();
+      assertThat(source.isCancelled()).isTrue();
+    }
+    finally {
+      timer.shutdownNow();
+    }
+  }
+
+  private static Scheduler scheduler(ExecutorService callbacks, ScheduledExecutorService timer) {
+    return new Scheduler() {
+      @Override
+      public void execute(Runnable command) {
+        callbacks.execute(command);
+      }
+
+      @Override
+      public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
+        return timer.schedule(command, delay, unit);
+      }
+    };
+  }
+
+}
