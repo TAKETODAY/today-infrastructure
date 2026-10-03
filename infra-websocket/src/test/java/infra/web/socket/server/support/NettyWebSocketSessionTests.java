@@ -39,6 +39,7 @@ import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import io.netty.util.concurrent.ImmediateEventExecutor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -57,7 +58,7 @@ import static org.mockito.Mockito.verify;
 class NettyWebSocketSessionTests {
 
   @Test
-  void close() throws InterruptedException {
+  void close() throws Exception {
     Channel channel = mock(Channel.class);
     NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
             new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
@@ -65,6 +66,9 @@ class NettyWebSocketSessionTests {
     DefaultChannelPromise promise = new DefaultChannelPromise(channel, GlobalEventExecutor.INSTANCE);
     promise.setSuccess();
     given(channel.writeAndFlush(any())).willReturn(promise);
+    DefaultChannelPromise closePromise = new DefaultChannelPromise(channel, GlobalEventExecutor.INSTANCE);
+    closePromise.setSuccess();
+    given(channel.close()).willReturn(closePromise);
     given(channel.isActive()).willReturn(true);
     given(channel.isOpen()).willReturn(true);
     given(channel.localAddress()).willReturn(InetSocketAddress.createUnresolved("localhost", 1234));
@@ -79,10 +83,9 @@ class NettyWebSocketSessionTests {
     assertThat(session.getLocalAddress()).isEqualTo(channel.localAddress()).isEqualTo(InetSocketAddress.createUnresolved("localhost", 1234));
     assertThat(session.getRemoteAddress()).isEqualTo(channel.remoteAddress()).isEqualTo(InetSocketAddress.createUnresolved("localhost", 1234));
 
-    session.close();
+    session.close().get(5, TimeUnit.SECONDS);
 
     verify(channel).writeAndFlush(new CloseWebSocketFrame(CloseStatus.NORMAL.getCode(), CloseStatus.NORMAL.getReason()));
-    Thread.sleep(1000);
     verify(channel).close();
   }
 
@@ -366,20 +369,64 @@ class NettyWebSocketSessionTests {
   }
 
   @Test
-  void closeWithStatus() {
+  void closeWithStatus() throws Exception {
     Channel channel = mock(Channel.class);
     NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
             new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
 
-    DefaultChannelPromise promise = new DefaultChannelPromise(channel, GlobalEventExecutor.INSTANCE);
+    DefaultChannelPromise promise = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
+    DefaultChannelPromise closePromise = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
     given(channel.writeAndFlush(any())).willReturn(promise);
-    promise.setSuccess();
+    given(channel.close()).willReturn(closePromise);
 
     CloseStatus status = CloseStatus.GOING_AWAY;
     Future<Void> result = session.close(status);
 
     verify(channel).writeAndFlush(new CloseWebSocketFrame(status.getCode(), status.getReason()));
-    assertThat(result).isNotNull();
+    assertThat(result.isDone()).isFalse();
+    promise.setSuccess();
+    verify(channel).close();
+    assertThat(result.isDone()).isFalse();
+    closePromise.setSuccess();
+    assertThat(result.get(5, TimeUnit.SECONDS)).isNull();
+  }
+
+  @Test
+  void closeStillClosesConnectionAfterWriteFailure() {
+    Channel channel = mock(Channel.class);
+    NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
+            new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
+    DefaultChannelPromise writePromise = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
+    DefaultChannelPromise closePromise = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
+    given(channel.writeAndFlush(any())).willReturn(writePromise);
+    given(channel.close()).willReturn(closePromise);
+
+    Future<Void> result = session.close();
+    IllegalStateException failure = new IllegalStateException("Write failed");
+    writePromise.setFailure(failure);
+
+    verify(channel).close();
+    assertThat(result.isDone()).isFalse();
+    closePromise.setSuccess();
+    assertThat(result.getCause()).isSameAs(failure);
+  }
+
+  @Test
+  void closePropagatesConnectionCloseFailure() {
+    Channel channel = mock(Channel.class);
+    NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
+            new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
+    DefaultChannelPromise writePromise = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
+    DefaultChannelPromise closePromise = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
+    given(channel.writeAndFlush(any())).willReturn(writePromise);
+    given(channel.close()).willReturn(closePromise);
+
+    Future<Void> result = session.close();
+    writePromise.setSuccess();
+    IllegalStateException failure = new IllegalStateException("Close failed");
+    closePromise.setFailure(failure);
+
+    assertThat(result.getCause()).isSameAs(failure);
   }
 
   @Test

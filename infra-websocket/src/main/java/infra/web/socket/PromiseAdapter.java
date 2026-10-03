@@ -21,6 +21,11 @@ import infra.util.concurrent.Promise;
 import io.netty.util.concurrent.GenericFutureListener;
 
 /**
+ * Adapt the completion state of a Netty future to an infrastructure future.
+ *
+ * <p>Success, failure, and cancellation are propagated from the source.
+ * Cancelling the adapted future does not cancel the source operation.
+ *
  * @param <V> value type
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
@@ -35,6 +40,10 @@ public class PromiseAdapter<V> implements GenericFutureListener<io.netty.util.co
 
   @Override
   public void operationComplete(io.netty.util.concurrent.Future<V> future) {
+    if (future.isCancelled()) {
+      promise.cancel(future.cause(), false);
+      return;
+    }
     Throwable cause = future.cause();
     if (cause != null) {
       promise.tryFailure(cause);
@@ -44,10 +53,26 @@ public class PromiseAdapter<V> implements GenericFutureListener<io.netty.util.co
     }
   }
 
+  /**
+   * Adapt a Netty future using the default infrastructure notification executor.
+   *
+   * @param future the source future
+   * @param <T> the result type
+   * @return a future representing the source completion state
+   */
   public static <T> Future<T> adapt(io.netty.util.concurrent.Future<T> future) {
     return adapt(future, Future.forPromise());
   }
 
+  /**
+   * Propagate the source completion state to the given promise. Notifications
+   * use the promise's executor rather than the source's executor.
+   *
+   * @param future the source future
+   * @param settable the target promise
+   * @param <T> the result type
+   * @return the target promise
+   */
   public static <T> Future<T> adapt(io.netty.util.concurrent.Future<T> future, Promise<T> settable) {
     future.addListener(new PromiseAdapter<>(settable));
     return settable;

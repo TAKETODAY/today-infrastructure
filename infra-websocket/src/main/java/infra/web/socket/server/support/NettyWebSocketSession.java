@@ -28,6 +28,7 @@ import infra.core.io.buffer.NettyDataBufferFactory;
 import infra.logging.Logger;
 import infra.util.Assert;
 import infra.util.concurrent.Future;
+import infra.util.concurrent.Promise;
 import infra.web.socket.CloseStatus;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketMessage;
@@ -35,7 +36,6 @@ import infra.web.socket.WebSocketSession;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
@@ -52,6 +52,15 @@ import static infra.web.socket.handler.ExceptionWebSocketHandler.tryCloseWithErr
 
 /**
  * Netty websocket session
+ *
+ * <p>Writes are submitted through the channel pipeline. Netty-backed outbound
+ * payloads are passed to the pipeline without retaining them; ownership of that
+ * reference transfers to Netty, which releases it after processing the write.
+ * Retain a separate reference before sending if the payload is needed afterwards.
+ * Other buffer implementations are copied when converted to Netty buffers.
+ *
+ * <p>Returned futures use the default infrastructure notification executor.
+ * Cancelling them does not cancel the underlying channel operation.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/5/24 21:03
@@ -153,8 +162,26 @@ public class NettyWebSocketSession extends WebSocketSession {
 
   @Override
   public Future<Void> close(CloseStatus status) {
-    return adapt(channel.writeAndFlush(new CloseWebSocketFrame(status.getCode(), status.getReason()))
-            .addListener(ChannelFutureListener.CLOSE));
+    Promise<Void> result = Future.forPromise();
+    channel.writeAndFlush(new CloseWebSocketFrame(status.getCode(), status.getReason()))
+            .addListener(writeFuture -> channel.close().addListener(closeFuture -> {
+              if (writeFuture.isCancelled()) {
+                result.cancel(writeFuture.cause(), false);
+              }
+              else if (writeFuture.cause() != null) {
+                result.tryFailure(writeFuture.cause());
+              }
+              else if (closeFuture.isCancelled()) {
+                result.cancel(closeFuture.cause(), false);
+              }
+              else if (closeFuture.cause() != null) {
+                result.tryFailure(closeFuture.cause());
+              }
+              else {
+                result.trySuccess(null);
+              }
+            }));
+    return result;
   }
 
   @Override

@@ -39,6 +39,18 @@ import infra.util.concurrent.Future;
  * the message. Use the returned future to observe completion or compose
  * subsequent operations.
  *
+ * <p>Message creation, encoding, and factory invocation take place on the calling
+ * thread and may throw synchronously. Transport failures are reported through the
+ * returned future. Callback execution follows the future's executor; use
+ * {@link Future#publishOn(java.util.concurrent.Executor)} to select another
+ * executor. Do not block an I/O event-loop thread while waiting for completion.
+ *
+ * <p>A send future provides completion notification, not automatic backpressure.
+ * Applications should bound outstanding sends, for example by composing successive
+ * sends with {@code flatMap} rather than submitting an unbounded number of writes.
+ * Cancelling an operation's future does not guarantee that the transport operation
+ * is cancelled or that an already submitted message is withdrawn.
+ *
  * <p>Message factory methods use the session's {@link #bufferFactory()} to create
  * payloads compatible with the underlying transport. They create messages without
  * sending them. Sending order, concurrent-send support, and payload ownership
@@ -262,9 +274,11 @@ public abstract class WebSocketSession extends DefaultAttributeAccessor implemen
    * the WebSocket protocol. Reserved codes such as
    * {@link CloseStatus#NO_STATUS_CODE} must not be sent in a close frame.
    *
-   * <p>The returned future represents the implementation's close operation.
-   * Its successful completion does not necessarily indicate that the peer has
-   * replied with a close frame or that the underlying connection is fully closed.
+   * <p>The returned future completes successfully after the close frame has been
+   * written and the underlying local connection has been closed. This does not
+   * indicate that the peer has replied with a close frame. If writing the close
+   * frame fails, the implementation still attempts to close the connection and
+   * reports the write failure.
    *
    * @param status the close status code and optional reason to send to the peer
    * @return a future that completes when the close operation completes, or
