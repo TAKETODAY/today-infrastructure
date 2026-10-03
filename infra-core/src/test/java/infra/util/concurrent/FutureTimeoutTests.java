@@ -29,8 +29,43 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 class FutureTimeoutTests {
+
+  @Test
+  void durationTimeoutSaturatesAtNanosecondLimits() {
+    assertScheduledDelay(Duration.ofSeconds(Long.MAX_VALUE), Long.MAX_VALUE);
+    assertScheduledDelay(Duration.ofSeconds(Long.MIN_VALUE), Long.MIN_VALUE);
+    assertScheduledDelay(Duration.ofNanos(Long.MAX_VALUE), Long.MAX_VALUE);
+    assertScheduledDelay(Duration.ofNanos(Long.MIN_VALUE), Long.MIN_VALUE);
+    assertScheduledDelay(Duration.ofNanos(Long.MAX_VALUE).plusNanos(1), Long.MAX_VALUE);
+    assertScheduledDelay(Duration.ofNanos(Long.MIN_VALUE).minusNanos(1), Long.MIN_VALUE);
+    assertScheduledDelay(Duration.ofNanos(1501), 1501);
+    assertScheduledDelay(Duration.ofNanos(-1501), -1501);
+    assertScheduledDelay(Duration.ZERO, 0);
+  }
+
+  private static void assertScheduledDelay(Duration duration, long expectedDelay) {
+    int[] scheduled = { 0 };
+    Scheduler scheduler = new Scheduler() {
+      @Override
+      public void execute(Runnable command) {
+        command.run();
+      }
+
+      @Override
+      public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
+        assertThat(delay).isEqualTo(expectedDelay);
+        assertThat(unit).isSameAs(TimeUnit.NANOSECONDS);
+        scheduled[0]++;
+        return mock(ScheduledFuture.class);
+      }
+    };
+    Future.forPromise().timeout(duration, scheduler);
+    Future.forPromise().timeout(duration, scheduler, promise -> promise.trySuccess(null));
+    assertThat(scheduled[0]).isEqualTo(2);
+  }
 
   @Test
   void timeoutFormattingPreservesPrecisionAndNormalizesUnits() {

@@ -1633,7 +1633,11 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * Whether the underlying task is actually interrupted depends on this future's
    * implementation.
    *
+   * <p>The duration is converted to nanoseconds with saturation at
+   * {@link Long#MIN_VALUE} and {@link Long#MAX_VALUE} if it exceeds that range.
+   *
    * @param duration timeout duration
+   * @param scheduler for timeout checking
    * @return a timeout future
    * @see TimeoutException
    * @see Scheduler
@@ -1642,7 +1646,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
   public final Future<V> timeout(Duration duration, Scheduler scheduler) {
     Assert.notNull(duration, "Duration is required");
     Assert.notNull(scheduler, "Scheduler is required");
-    return Futures.timeout(this, duration.toNanos(), NANOSECONDS, scheduler);
+    return Futures.timeout(this, NANOSECONDS.convert(duration), NANOSECONDS, scheduler);
   }
 
   /**
@@ -1763,6 +1767,9 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
    * If submission is rejected, the returned promise fails with
    * the rejection exception and this future is cancelled.
    *
+   * <p>The duration is converted to nanoseconds with saturation at
+   * {@link Long#MIN_VALUE} and {@link Long#MAX_VALUE} if it exceeds that range.
+   *
    * @param duration timeout duration
    * @param scheduler for timeout checking
    * @param timeoutListener the listener used to complete the returned promise on timeout
@@ -1774,7 +1781,7 @@ public abstract class Future<V extends @Nullable Object> implements java.util.co
     Assert.notNull(duration, "Duration is required");
     Assert.notNull(scheduler, "Scheduler is required");
     Assert.notNull(timeoutListener, "timeoutListener is required");
-    return Futures.timeout(this, duration.toNanos(), NANOSECONDS, scheduler, timeoutListener);
+    return Futures.timeout(this, NANOSECONDS.convert(duration), NANOSECONDS, scheduler, timeoutListener);
   }
 
   /**
