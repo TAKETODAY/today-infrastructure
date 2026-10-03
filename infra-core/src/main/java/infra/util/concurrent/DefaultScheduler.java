@@ -22,6 +22,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import infra.util.Assert;
 import infra.util.InfraStrategies;
 
 /**
@@ -30,16 +31,20 @@ import infra.util.InfraStrategies;
  * {@link ForkJoinPool} and a {@link ScheduledExecutorService}.
  *
  * <p>This class uses the common {@link ForkJoinPool} for immediate task execution
- * and a {@link ScheduledThreadPoolExecutor} for delayed task scheduling. The maximum
+ * and a {@link ScheduledThreadPoolExecutor} for delayed task scheduling. The core
  * pool size for the scheduled thread pool can be configured via the system property
  * {@code infra.util.concurrent.Scheduler.poolSize}.
  *
+ * <p>Delayed tasks execute directly on the scheduled thread pool and should avoid
+ * long-running or blocking operations. The returned {@link ScheduledFuture}
+ * tracks completion of the task itself, including failures and cancellation.
  *
  * <p><b>Configuration:</b>
  *
  * <p>The scheduled thread pool size can be customized by setting
  * the system property {@code infra.util.concurrent.Scheduler.poolSize}. If not
- * specified, the default value is {@code 1}.
+ * specified, the default value is {@code 1}. The value must be greater than zero
+ * and is read when the scheduler is created.
  *
  * <p><b>Note:</b> This class is final and cannot be extended. It is designed to provide
  * a simple and efficient default implementation of the {@code Scheduler} interface.
@@ -65,7 +70,7 @@ final class DefaultScheduler implements Scheduler {
    * <p>To configure the scheduled thread pool size, you can set the system property before
    * initializing the scheduler:
    * <pre>{@code
-   * System.setProperty(MaximumPoolSize, "5");
+   * System.setProperty(PoolSize, "5");
    * Scheduler scheduler = new DefaultScheduler();
    * }</pre>
    *
@@ -80,6 +85,7 @@ final class DefaultScheduler implements Scheduler {
 
   DefaultScheduler() {
     int poolSize = InfraStrategies.getInt(PoolSize, 1);
+    Assert.isTrue(poolSize > 0, "Scheduler pool size must be greater than zero: " + poolSize);
     var threadFactory = new CustomizableThreadFactory("infra-scheduler-");
     threadFactory.setDaemon(true);
     var executor = new ScheduledThreadPoolExecutor(poolSize, threadFactory);

@@ -24,67 +24,21 @@ import java.util.concurrent.TimeUnit;
 import infra.util.InfraStrategies;
 
 /**
- * An interface representing a scheduler capable of executing tasks asynchronously
- * or after a specified delay. It extends the {@link Executor} interface to provide
- * additional scheduling capabilities.
+ * An {@link Executor} with support for one-shot delayed tasks.
  *
- * <p>The {@code Scheduler} interface allows tasks to be executed either immediately
- * or after a delay using a thread pool or other execution mechanisms. Implementations
- * of this interface can define their own strategies for task execution and thread
- * management.
+ * <p>{@link #execute(Runnable)} submits a task without an explicit delay, while
+ * {@link #schedule(Runnable, long, TimeUnit)} returns a {@link ScheduledFuture}
+ * that tracks completion of a delayed task. Implementations determine the
+ * execution threads and may use separate executors for these operations.
  *
- * <p><b>Usage Examples:</b>
- *
- * <p>1. Creating a custom scheduler implementation:
+ * <p>Use {@link #lookup()} to resolve a scheduler through configured strategies,
+ * or {@link Future#defaultScheduler} to reuse the shared scheduler used by
+ * {@link Future}:
  * <pre>{@code
- * static class MyScheduler implements Scheduler {
- *   private final ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1);
- *
- *   @Override
- *   public void execute(Runnable command) {
- *     scheduledThreadPool.execute(command);
- *   }
- *
- *   @Override
- *   public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
- *     return scheduledThreadPool.schedule(command, delay, unit);
- *   }
- * }
- * }</pre>
- *
- * <p>2. Using the default scheduler:
- * <pre>{@code
- * Scheduler scheduler = Scheduler.lookup();
+ * Scheduler scheduler = Future.defaultScheduler;
  * scheduler.execute(() -> System.out.println("Task executed"));
- * }</pre>
- *
- * <p>3. Scheduling a task with a delay:
- * <pre>{@code
- * Scheduler scheduler = Scheduler.lookup();
  * scheduler.schedule(() -> System.out.println("Delayed task executed"), 5, TimeUnit.SECONDS);
  * }</pre>
- *
- * <p>4. Combining with a ForkJoinPool for task execution:
- * <pre>{@code
- * static class CombinedScheduler implements Scheduler {
- *   private final ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
- *   private final ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1);
- *
- *   @Override
- *   public void execute(Runnable command) {
- *     forkJoinPool.execute(command);
- *   }
- *
- *   @Override
- *   public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
- *     return scheduledThreadPool.schedule(command, delay, unit);
- *   }
- * }
- * }</pre>
- *
- * <p><b>Note:</b> The {@link #lookup()} method provides a convenient way to obtain
- * an instance of a {@code Scheduler}. It uses a strategy pattern to locate an
- * appropriate implementation, falling back to a default implementation if none is found.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see Future#timeout
@@ -95,14 +49,14 @@ import infra.util.InfraStrategies;
 public interface Scheduler extends Executor {
 
   /**
-   * Executes the given command at some time in the future.  The command
+   * Executes the given command at some time in the future. The command
    * may execute in a new thread, in a pooled thread, or in the calling
    * thread, at the discretion of the {@code Executor} implementation.
    *
    * @param command the runnable task
    * @throws RejectedExecutionException if this task cannot be
    * accepted for execution
-   * @throws NullPointerException if command is null
+   * @throws NullPointerException if {@code command} is {@code null}
    */
   @Override
   void execute(Runnable command);
@@ -110,40 +64,40 @@ public interface Scheduler extends Executor {
   /**
    * Submits a one-shot task that becomes enabled after the given delay.
    *
+   * <p>A zero or negative delay enables immediate execution. Becoming enabled
+   * does not guarantee that the task starts immediately: execution depends on
+   * the availability of the implementation's execution resources.
+   *
+   * <p>The returned future tracks the task itself, rather than its submission
+   * to another executor. Its {@code get()} method returns {@code null} on
+   * successful completion and reports task failures via
+   * {@link java.util.concurrent.ExecutionException}.
+   *
    * @param command the task to execute
    * @param delay the time from now to delay execution
    * @param unit the time unit of the delay parameter
-   * @return a ScheduledFuture representing pending completion of
-   * the task and whose {@code get()} method will return
-   * {@code null} upon completion
+   * @return a future representing completion of the task
    * @throws RejectedExecutionException if the task cannot be
    * scheduled for execution
-   * @throws NullPointerException if command or unit is null
+   * @throws NullPointerException if {@code command} or {@code unit} is {@code null}
    */
   ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit);
 
   /**
-   * Looks up and returns an instance of {@code Scheduler} using a predefined strategy.
+   * Resolves a scheduler through {@link InfraStrategies} in the following order:
+   * <ol>
+   * <li>Create a scheduler using the first available {@link SchedulerFactory}.</li>
+   * <li>Load the first available {@code Scheduler} strategy.</li>
+   * <li>Create a {@link DefaultScheduler} if neither strategy is available.</li>
+   * </ol>
    *
-   * <p>The method first attempts to find a {@code SchedulerFactory} instance. If found,
-   * it uses the factory to create and return a {@code Scheduler}. If no factory is found,
-   * it then looks for a direct {@code Scheduler} instance. If neither a factory nor a
-   * scheduler is found, a default scheduler implementation ({@code DefaultScheduler}) is
-   * returned.
+   * <p>This method does not cache its result. In particular, each fallback lookup
+   * creates a new default scheduler with its own scheduled thread pool. Use
+   * {@link Future#defaultScheduler} when a shared scheduler is required.
    *
-   * <p>Example usage:
-   * <pre>{@code
-   *   Scheduler scheduler = Scheduler.lookup();
-   *   scheduler.execute(() -> {
-   *     System.out.println("Task executed by the scheduler.");
-   *   });
-   * }</pre>
-   *
-   * <p>This method is useful in scenarios where a scheduler needs to be dynamically
-   * resolved based on available implementations or fallback strategies.
-   *
-   * @return an instance of {@code Scheduler}, either created by a factory, retrieved
-   * directly, or as a default implementation if no other options are available
+   * @return the resolved scheduler
+   * @see SchedulerFactory#create()
+   * @see Future#defaultScheduler
    */
   static Scheduler lookup() {
     var factory = InfraStrategies.findFirst(SchedulerFactory.class, null);
