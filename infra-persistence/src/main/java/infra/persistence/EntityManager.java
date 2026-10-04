@@ -74,9 +74,10 @@ public interface EntityManager {
 
   /**
    * Persists the given entity to the underlying data store.
-   * This method is typically used to save a new entity or update
-   * an existing one, depending on the implementation and the state
-   * of the entity.
+   * Inserts a new row. ID generation and database-generated key backfill are
+   * determined by the entity's {@link infra.persistence.annotation.GeneratedId}
+   * declaration, including composed annotations. Assigned IDs are not generated
+   * or replaced by JDBC generated keys.
    *
    * <p>Example usage:
    * <pre>{@code
@@ -132,69 +133,6 @@ public interface EntityManager {
           throws DataAccessException;
 
   /**
-   * Persists the given entity to the data store. If the {@code autoGenerateId}
-   * parameter is set to true, the method will automatically generate an ID for
-   * the entity if it does not already have one. Otherwise, the provided ID will
-   * be used as-is.
-   *
-   * <p>Example usage:</p>
-   * <pre>{@code
-   *   // Persist an entity with automatic ID generation
-   *   MyEntity entity = new MyEntity();
-   *   entity.setName("Sample Entity");
-   *   int rowsAffected = entityManager.persist(entity, true);
-   *
-   *   // Persist an entity with a manually assigned ID
-   *   MyEntity entityWithId = new MyEntity();
-   *   entityWithId.setId(123);
-   *   entityWithId.setName("Another Entity");
-   *   int rowsAffected = entityManager.persist(entityWithId, false);
-   * }</pre>
-   *
-   * @param entity the entity object to be persisted; must not be null
-   * @param autoGenerateId whether to automatically generate an ID for the entity
-   * if it does not already have one
-   * @return the number of rows affected in the data store as a result of the
-   * persistence operation
-   * @throws DataAccessException if an error occurs while accessing the data store
-   */
-  int persist(Object entity, boolean autoGenerateId) throws DataAccessException;
-
-  /**
-   * Persists the given entity to the underlying data store using the specified
-   * persistence strategy and ID generation option.
-   * <p>
-   * This method allows fine-grained control over how the entity is persisted.
-   * The {@code strategy} parameter determines how properties of the entity are
-   * updated, while the {@code autoGenerateId} flag specifies whether an ID should
-   * be automatically generated for the entity if it does not already have one.
-   * <p>
-   * Example usage:
-   * <pre>{@code
-   *   User user = new User();
-   *   user.setName("John Doe");
-   *   user.setEmail("john.doe@example.com");
-   *
-   *   // Persist the user with auto-generated ID and default update strategy
-   *   int rowsAffected = entityManager.persist(user, null, true);
-   *
-   *   System.out.println("Rows affected: " + rowsAffected);
-   *   System.out.println("User id: " + user.getId());
-   * }</pre>
-   *
-   * @param entity the entity to be persisted; must not be null
-   * @param strategy the strategy to use for updating properties of the entity;
-   * can be null to indicate the default strategy should be used
-   * @param autoGenerateId a boolean flag indicating whether an ID should be
-   * automatically generated for the entity if it lacks one
-   * @return the number of rows affected by the persistence operation
-   * @throws DataAccessException if there is an issue accessing the data store
-   * during the persistence process
-   */
-  int persist(Object entity, @Nullable PropertyUpdateStrategy strategy, boolean autoGenerateId)
-          throws DataAccessException;
-
-  /**
    * Persists the given collection of entities into the underlying data store.
    * This method is typically used to save multiple objects in a single operation,
    * ensuring efficient batch processing where applicable.
@@ -222,41 +160,6 @@ public interface EntityManager {
    * underlying data store during the persist operation.
    */
   int persist(Iterable<?> entities) throws DataAccessException;
-
-  /**
-   * Persists the given entities to the underlying data store.
-   * This method allows specifying whether the IDs of the entities
-   * should be auto-generated or not.
-   *
-   * <p>If {@code autoGenerateId} is set to {@code true}, the data store
-   * will generate unique identifiers for each entity that does not already
-   * have an ID assigned. Otherwise, the existing IDs will be used.
-   *
-   * <p><strong>Example Usage:</strong>
-   * <pre>{@code
-   * List<MyEntity> entities = Arrays.asList(
-   *   new MyEntity("entity1"),
-   *   new MyEntity("entity2")
-   * );
-   * try {
-   *   entityManager.persist(entities, true);
-   *   System.out.println("Entities persisted successfully.");
-   * }
-   * catch (DataAccessException e) {
-   *   System.err.println("Failed to persist entities: " + e.getMessage());
-   * }
-   * }</pre>
-   *
-   * @param entities an iterable collection of entities to be persisted;
-   * must not be null
-   * @param autoGenerateId a boolean flag indicating whether IDs should be
-   * auto-generated for entities that do not have them
-   * @return the total number of rows affected by the persistence operation
-   * @throws DataAccessException if an error occurs while accessing or writing
-   * to the data store
-   */
-  int persist(Iterable<?> entities, boolean autoGenerateId)
-          throws DataAccessException;
 
   /**
    * Persists the given entities into the underlying data store using the specified
@@ -294,43 +197,6 @@ public interface EntityManager {
           throws DataAccessException;
 
   /**
-   * Persists the given entities into the data store using the specified strategy and settings.
-   * This method allows batch persistence of entities, making it suitable for scenarios where
-   * multiple records need to be saved efficiently.
-   *
-   * <p>If {@code autoGenerateId} is set to true, the method will automatically generate unique
-   * identifiers for entities that do not already have one. Otherwise, the existing identifiers
-   * will be used.</p>
-   *
-   * <p>The {@code strategy} parameter defines how properties of the entities are updated during
-   * persistence. If null, a default strategy will be applied.</p>
-   *
-   * <p><b>Example Usage:</b></p>
-   *
-   * <pre>{@code
-   * List<MyEntity> entities = Arrays.asList(
-   *   new MyEntity("entity1"),
-   *   new MyEntity("entity2")
-   * );
-   *
-   * try {
-   *   entityManager.persist(entities, PropertyUpdateStrategy.always(), true);
-   * }
-   * catch (DataAccessException e) {
-   *   logger.error("Failed to persist entities", e);
-   * }
-   * }</pre>
-   *
-   * @param entities the collection of entities to be persisted; must not be null
-   * @param strategy the strategy to use for property updates; can be null to use the default
-   * @param autoGenerateId whether to automatically generate IDs for entities without one
-   * @return the total number of rows affected by the persistence operation
-   * @throws DataAccessException if an error occurs while accessing the data store
-   */
-  int persist(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean autoGenerateId)
-          throws DataAccessException;
-
-  /**
    * Persists a stream of entities into the underlying data store.
    * This method takes a stream of entities and delegates the persistence
    * operation to an overloaded {@code persist} method that accepts an
@@ -353,36 +219,6 @@ public interface EntityManager {
    */
   default int persist(Stream<?> entities) throws DataAccessException {
     return persist(new StreamIterable<>(entities));
-  }
-
-  /**
-   * Persists a stream of entities into the data store. If {@code autoGenerateId} is set to true,
-   * the method will automatically generate identifiers for entities that do not already have them.
-   * This method wraps the provided stream into an {@link Iterable} and delegates the persistence
-   * operation to the overloaded {@link #persist(Iterable, boolean)} method.
-   *
-   * <p>Example usage:
-   * <pre>{@code
-   *   Stream<MyEntity> entityStream = Stream.of(new MyEntity("data1"), new MyEntity("data2"));
-   *
-   *   try {
-   *     entityManager.persist(entityStream, true);
-   *     System.out.println("Entities persisted successfully.");
-   *   }
-   *   catch (DataAccessException e) {
-   *     System.err.println("Failed to persist entities: " + e.getMessage());
-   *   }
-   * }</pre>
-   *
-   * @param entities a stream of entities to be persisted; must not be null
-   * @param autoGenerateId a flag indicating whether to automatically generate IDs for entities
-   * without identifiers; if true, ID generation is enabled
-   * @return the total number of rows affected by the persistence operation
-   * @throws DataAccessException if an error occurs during the persistence process, such as
-   * database connectivity issues or constraint violations
-   */
-  default int persist(Stream<?> entities, boolean autoGenerateId) throws DataAccessException {
-    return persist(new StreamIterable<>(entities), autoGenerateId);
   }
 
   /**
@@ -415,34 +251,6 @@ public interface EntityManager {
    */
   default int persist(Stream<?> entities, @Nullable PropertyUpdateStrategy strategy) throws DataAccessException {
     return persist(new StreamIterable<>(entities), strategy);
-  }
-
-  /**
-   * Persists a stream of entities into the underlying data store using the specified
-   * persistence strategy and auto-generation setting for entity IDs.
-   * <p>
-   * This method wraps the provided stream into an {@link Iterable} and delegates the
-   * persistence operation to the overloaded {@link #persist(Iterable, PropertyUpdateStrategy, boolean)}
-   * method. If the stream is null or empty, no action will be taken.
-   * <p>
-   * Example usage:
-   * <pre>{@code
-   *   Stream<MyEntity> entities = Stream.of(new MyEntity("entity1"), new MyEntity("entity2"));
-   *
-   *   // Persist entities with auto-generated IDs and a custom update strategy
-   *   entityManager.persist(entities, PropertyUpdateStrategy.MERGE, true);
-   * }</pre>
-   *
-   * @param entities a stream of entities to be persisted; must not be null
-   * @param strategy the strategy to use for updating properties during persistence;
-   * can be null if no specific strategy is required
-   * @param autoGenerateId indicates whether IDs should be automatically generated for
-   * entities that do not already have one
-   * @return the total number of rows affected by the persistence operation
-   * @throws DataAccessException if an error occurs during the persistence process
-   */
-  default int persist(Stream<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean autoGenerateId) throws DataAccessException {
-    return persist(new StreamIterable<>(entities), strategy, autoGenerateId);
   }
 
   /**

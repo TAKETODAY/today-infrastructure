@@ -8,11 +8,11 @@
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
-// 插入：支持单个实体、集合或 Stream；可指定更新策略与是否回填自增主键
+// 插入：支持单个实体、集合或 Stream；可指定属性写入策略
 int rows = entityManager.persist(user);
 entityManager.persist(users);
-entityManager.persist(user, PropertyUpdateStrategy.noneNull(), true);
-entityManager.persist(userStream, true);
+entityManager.persist(user, PropertyUpdateStrategy.noneNull());
+entityManager.persist(userStream);
 ----
 
 [[persistence-persist-id]]
@@ -30,9 +30,10 @@ entityManager.persist(userStream, true);
 或先填充生成器依赖的业务字段。`onPostPersist` 在插入及主键回填处理之后执行，
 不表示外层事务已经提交。声明方式见 xref:data-access/persistence/mapping.adoc#persistence-id-generation[主键生成策略]。
 
-对于单条插入，声明了 `@GeneratedId` 时由该声明决定是否读取 JDBC 主键：
-`IDENTITY` 会读取，UUID 和自定义生成器不会读取；没有声明时使用 `autoGenerateId` 设置或方法参数。
-该布尔参数表示 JDBC 主键回填，不是应用生成器的启用开关。
+单条与批量插入均由主键生成声明决定是否读取 JDBC 主键：
+数据库 `IDENTITY` 策略会读取，UUID、自定义生成器和没有生成声明的模型不会读取。
+`persist` 不再接受布尔主键开关。原先仅使用 `@Id` 并依靠开关回填自增 ID 的实体，
+应改用 `@GeneratedId`；手动赋值主键继续使用 `@Id`。
 
 应用生成的 ID 在插入失败或事务回滚后仍保留在实体上，已分配的 ID 不会被框架回收。
 `saveOrUpdate()` 优先使用 `NewEntityIndicator.isNew()` 判断是否为新实体，否则按主键是否为 `null` 判断，

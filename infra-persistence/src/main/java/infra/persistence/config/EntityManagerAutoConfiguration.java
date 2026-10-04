@@ -62,7 +62,6 @@ public final class EntityManagerAutoConfiguration {
     entityManager.setStatementLogger(sqlStatementLogger);
     entityManager.setEntityMetadataFactory(entityMetadataFactory);
     entityManager.setMaxBatchRecords(properties.maxBatchRecords);
-    entityManager.setAutoGenerateId(properties.autoGenerateId);
     entityManager.setEntityEventRegistry(entityEventRegistry);
     entityManager.setEntityQueryFactories(entityQueryFactories);
     entityManager.setIdGeneratorResolver(idGeneratorResolver);

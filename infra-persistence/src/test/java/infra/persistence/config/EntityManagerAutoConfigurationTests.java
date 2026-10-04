@@ -162,11 +162,11 @@ class EntityManagerAutoConfigurationTests {
   @Test
   void entityManagerCustomizers() {
     contextRunner.withBean("entityManagerCustomizer", EntityManagerCustomizer.class,
-                    () -> manager -> manager.setAutoGenerateId(false))
+                    () -> manager -> manager.setMaxBatchRecords(25))
             .run(context -> {
               assertThat(context).hasSingleBean(EntityManager.class);
               assertThat(context.getBean(EntityManager.class))
-                      .extracting("autoGenerateId").isEqualTo(false);
+                      .extracting("maxBatchRecords").isEqualTo(25);
             });
   }
 

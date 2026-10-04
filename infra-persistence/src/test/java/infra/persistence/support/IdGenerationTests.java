@@ -16,8 +16,8 @@
 
 package infra.persistence.support;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -48,11 +48,11 @@ import infra.persistence.IdGenerator;
 import infra.persistence.IllegalEntityException;
 import infra.persistence.PropertyUpdateStrategy;
 import infra.persistence.annotation.GeneratedId;
-import infra.persistence.annotation.Table;
 import infra.persistence.annotation.GeneratedUuid;
-import infra.persistence.event.PersistEventListener;
-import infra.persistence.event.BatchPersistListener;
+import infra.persistence.annotation.Table;
 import infra.persistence.event.BatchExecution;
+import infra.persistence.event.BatchPersistListener;
+import infra.persistence.event.PersistEventListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -65,6 +65,8 @@ class IdGenerationTests {
 
   StandardBeanFactory factory;
 
+  IdGeneratorResolver idGeneratorResolver;
+
   @BeforeEach
   void setup() {
     repository = new RepositoryManager(new DriverManagerDataSource(
@@ -74,7 +76,8 @@ class IdGenerationTests {
     factory = new StandardBeanFactory();
     factory.registerSingleton("sequence", new AtomicInteger());
     manager = new DefaultEntityManager(repository);
-    manager.setIdGeneratorResolver(new IdGeneratorResolver(factory));
+    idGeneratorResolver = new IdGeneratorResolver(factory);
+    manager.setIdGeneratorResolver(idGeneratorResolver);
   }
 
   @Test
@@ -91,7 +94,7 @@ class IdGenerationTests {
     assertThat(factory.getBean(AtomicInteger.class).get()).isEqualTo(1);
     assertThat(repository.createNamedQuery("select id from generated_entity order by id").fetch(String.class))
             .containsExactly("assigned", "id-1");
-    manager.getIdGeneratorResolver().destroy();
+    idGeneratorResolver.destroy();
     assertThat(factory.getBean(AtomicInteger.class).get()).isEqualTo(-1);
   }
 
@@ -125,7 +128,7 @@ class IdGenerationTests {
     repository.createNamedQuery("create table uuid_entity (id uuid primary key)").executeUpdate();
     UUID generated = UUID.fromString("12345678-1234-4234-8234-123456789abc");
     AtomicInteger calls = new AtomicInteger();
-    manager.getIdGeneratorResolver().setUuidGenerator(() -> {
+    idGeneratorResolver.setUuidGenerator(() -> {
       calls.incrementAndGet();
       return generated;
     });
@@ -155,9 +158,8 @@ class IdGenerationTests {
   @Test
   void nullUuidGeneratorRestoresVersion7() {
     UUID generated = UUID.fromString("12345678-1234-4234-8234-123456789abc");
-    IdGeneratorResolver resolver = manager.getIdGeneratorResolver();
-    resolver.setUuidGenerator(() -> generated);
-    resolver.setUuidGenerator(null);
+    idGeneratorResolver.setUuidGenerator(() -> generated);
+    idGeneratorResolver.setUuidGenerator(null);
     UuidEntity entity = new UuidEntity();
     manager.persist(entity);
     assertThat(UUID.fromString(entity.id).version()).isEqualTo(7);
@@ -172,14 +174,14 @@ class IdGenerationTests {
 
     UuidEntity entity = new UuidEntity();
     manager.persist(entity);
-    assertThat(manager.getIdGeneratorResolver()).isSameAs(resolver);
+    assertThat(manager).extracting("idGeneratorResolver").isSameAs(resolver);
     assertThat(entity.id).isEqualTo(generated.toString());
   }
 
   @Test
   void uuidGeneratorFailurePreventsInsert() {
     IllegalStateException failure = new IllegalStateException("UUID generation failed");
-    manager.getIdGeneratorResolver().setUuidGenerator(() -> {
+    idGeneratorResolver.setUuidGenerator(() -> {
       throw failure;
     });
     assertThatThrownBy(() -> manager.persist(new UuidEntity()))
@@ -302,8 +304,8 @@ class IdGenerationTests {
     });
 
     NamedEntity entity = new NamedEntity();
-    int rows = batch ? manager.persist(List.of(entity), PropertyUpdateStrategy.notId(), false)
-            : manager.persist(entity, PropertyUpdateStrategy.notId(), false);
+    int rows = batch ? manager.persist(List.of(entity), PropertyUpdateStrategy.notId())
+            : manager.persist(entity, PropertyUpdateStrategy.notId());
 
     assertThat(rows).isEqualTo(1);
     assertThat(events).containsExactly("pre-first", "pre-second", "generate", "post");
@@ -333,7 +335,7 @@ class IdGenerationTests {
       }
     });
 
-    assertThat(manager.persist(List.of(first, second, third), false)).isEqualTo(3);
+    assertThat(manager.persist(List.of(first, second, third))).isEqualTo(3);
     assertThat(repository.createNamedQuery("select name from generated_entity where id = 'id-1'")
             .fetchFirst(String.class)).isNull();
     assertThat(repository.createNamedQuery("select name from generated_entity where id = 'id-2'")
@@ -387,8 +389,8 @@ class IdGenerationTests {
     });
 
     NamedEntity entity = new NamedEntity();
-    int rows = batch ? manager.persist(List.of(entity), PropertyUpdateStrategy.notId(), false)
-            : manager.persist(entity, PropertyUpdateStrategy.notId(), false);
+    int rows = batch ? manager.persist(List.of(entity), PropertyUpdateStrategy.notId())
+            : manager.persist(entity, PropertyUpdateStrategy.notId());
 
     assertThat(rows).isEqualTo(1);
     assertThat(entity.id).isEqualTo("callback-assigned");

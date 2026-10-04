@@ -285,7 +285,7 @@ class VersionTests extends AbstractRepositoryManagerTests {
     model.name = "test-entity";
     model.version = 0;
 
-    entityManager.persist(model, true);
+    entityManager.persist(model);
 
     assertThat(model.id).isNotNull();
     assertThat(model.version).isEqualTo(0);
@@ -305,7 +305,7 @@ class VersionTests extends AbstractRepositoryManagerTests {
     model.name = "test-entity";
     model.version = 5;
 
-    entityManager.persist(model, true);
+    entityManager.persist(model);
 
     assertThat(model.id).isNotNull();
     assertThat(model.version).isEqualTo(5);
@@ -322,7 +322,7 @@ class VersionTests extends AbstractRepositoryManagerTests {
     VersionedModel model = new VersionedModel();
     model.name = "update-test";
     model.version = 0;
-    entityManager.persist(model, true);
+    entityManager.persist(model);
 
     int initialVersion = model.version;
 
@@ -354,7 +354,7 @@ class VersionTests extends AbstractRepositoryManagerTests {
     VersionedShortModel model = new VersionedShortModel();
     model.name = "short-version";
     model.version = (short) 0;
-    entityManager.persist(model, true);
+    entityManager.persist(model);
 
     model.name = "short-updated";
     entityManager.updateById(model);
@@ -372,7 +372,7 @@ class VersionTests extends AbstractRepositoryManagerTests {
     model.name = "versioned";
     model.version = 0;
 
-    entityManager.persist(model, true);
+    entityManager.persist(model);
     assertThat(model.id).isNotNull();
     assertThat(model.version).isEqualTo(0);
 
@@ -394,7 +394,7 @@ class VersionTests extends AbstractRepositoryManagerTests {
     MetaVersionedModel model = new MetaVersionedModel();
     model.name = "meta-version";
     model.version = 0;
-    entityManager.persist(model, true);
+    entityManager.persist(model);
 
     model.name = "meta-updated";
     entityManager.updateById(model);
@@ -418,7 +418,7 @@ class VersionTests extends AbstractRepositoryManagerTests {
     MetaVersionedModel model = new MetaVersionedModel();
     model.name = "meta-conflict";
     model.version = 0;
-    entityManager.persist(model, true);
+    entityManager.persist(model);
 
     // simulate concurrent modification via a second entityManager
     DefaultEntityManager entityManager2 = new DefaultEntityManager(repositoryManager);
@@ -526,7 +526,7 @@ class VersionTests extends AbstractRepositoryManagerTests {
     VersionedModel model = new VersionedModel();
     model.name = "conflict-test";
     model.version = 0;
-    entityManager.persist(model, true);
+    entityManager.persist(model);
 
     DefaultEntityManager entityManager2 = new DefaultEntityManager(repositoryManager);
     VersionedModel copy = entityManager2.findById(VersionedModel.class, model.id);
@@ -546,7 +546,7 @@ class VersionTests extends AbstractRepositoryManagerTests {
     VersionedModel model = new VersionedModel();
     model.name = "delete-me";
     model.version = 0;
-    entityManager.persist(model, true);
+    entityManager.persist(model);
 
     int modelId = model.id;
     int deletedRows = entityManager.delete(model);
@@ -563,7 +563,7 @@ class VersionTests extends AbstractRepositoryManagerTests {
     VersionedModel model = new VersionedModel();
     model.name = "conflict-delete";
     model.version = 0;
-    entityManager.persist(model, true);
+    entityManager.persist(model);
 
     int modelId = model.id;
 
@@ -588,7 +588,7 @@ class VersionTests extends AbstractRepositoryManagerTests {
     VersionedLongModel model = new VersionedLongModel();
     model.name = "long-version";
     model.version = 0L;
-    entityManager.persist(model, true);
+    entityManager.persist(model);
 
     model.name = "long-updated";
     entityManager.updateById(model);
@@ -607,7 +607,7 @@ class VersionTests extends AbstractRepositoryManagerTests {
     VersionedModel model = new VersionedModel();
     model.name = "no-change-test";
     model.version = 0;
-    entityManager.persist(model, true);
+    entityManager.persist(model);
 
     int updatedRows = entityManager.updateById(model);
 

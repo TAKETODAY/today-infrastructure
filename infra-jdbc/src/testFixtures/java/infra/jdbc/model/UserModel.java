@@ -19,7 +19,7 @@ package infra.jdbc.model;
 import java.util.Objects;
 
 import infra.core.style.ToStringBuilder;
-import infra.persistence.annotation.Id;
+import infra.persistence.annotation.GeneratedId;
 import infra.persistence.annotation.Table;
 
 /**
@@ -29,7 +29,7 @@ import infra.persistence.annotation.Table;
 @Table("t_user")
 public class UserModel {
 
-  @Id
+  @GeneratedId
   public Integer id;
 
   public Integer age;

@@ -76,6 +76,7 @@ import infra.persistence.UpdateStrategySource;
 import infra.persistence.annotation.Column;
 import infra.persistence.annotation.EntityRef;
 import infra.persistence.annotation.Id;
+import infra.persistence.annotation.Table;
 import infra.persistence.annotation.OrderBy;
 import infra.persistence.annotation.OrderByClause;
 import infra.persistence.annotation.Transient;
@@ -225,7 +226,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       userModel.gender = Gender.MALE;
       userModel.age = 10;
 
-      entityManager.persist(userModel, true);
+      entityManager.persist(userModel);
 
       assertThat(userModel.id).isNotNull();
 
@@ -430,7 +431,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       });
 
       UserModel user = UserModel.male("TODAY", 10);
-      entityManager.persist(user, true);
+      entityManager.persist(user);
       assertThat(user.id).isNotNull();
       assertThat(entityManager.findById(UserModel.class, user.id).age).isEqualTo(99);
 
@@ -461,7 +462,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       });
 
       UserModel user = UserModel.male("TODAY", 10);
-      entityManager.persist(user, true);
+      entityManager.persist(user);
 
       UserModel loaded = entityManager.findById(UserModel.class, user.id);
       assertThat(loaded.name).isEqualTo("TODAY");
@@ -484,7 +485,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
         }
       });
 
-      entityManager.persist(UserModel.male("TODAY", 10), true);
+      entityManager.persist(UserModel.male("TODAY", 10));
       assertThat(entityManager.count(UserModel.class).intValue()).isEqualTo(1);
 
       entityManager.truncate(UserModel.class);
@@ -1050,16 +1051,14 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     }
 
     @ParameterizedRepositoryManagerTest
-    void persistWithAutoGenerateIdFalse(DbType dbType, RepositoryManager repositoryManager) {
+    void persistWithAssignedId(DbType dbType, RepositoryManager repositoryManager) {
       DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
-      entityManager.setAutoGenerateId(false);
-      UserModel entity = new UserModel();
+      AssignedUser entity = new AssignedUser();
       entity.id = 999;
-      entity.setName("NO-AUTO-ID");
-      entity.setAge(30);
-      entity.setGender(Gender.MALE);
+      entity.name = "ASSIGNED-ID";
       int rows = entityManager.persist(entity);
       assertThat(rows).isEqualTo(1);
+      assertThat(entity.id).isEqualTo(999);
       assertThat(entityManager.findById(UserModel.class, 999)).isNotNull();
     }
 
@@ -1306,19 +1305,6 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
     }
 
     @Test
-    void shouldSetAutoGenerateId() {
-      RepositoryManager repositoryManager = mock(RepositoryManager.class);
-      DataSource dataSource = mock(DataSource.class);
-      when(repositoryManager.getDataSource()).thenReturn(dataSource);
-
-      DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
-
-      // Should accept both true and false values
-      assertThatCode(() -> entityManager.setAutoGenerateId(true)).doesNotThrowAnyException();
-      assertThatCode(() -> entityManager.setAutoGenerateId(false)).doesNotThrowAnyException();
-    }
-
-    @Test
     void shouldSetMaxBatchRecords() {
       RepositoryManager repositoryManager = mock(RepositoryManager.class);
       DataSource dataSource = mock(DataSource.class);
@@ -1457,6 +1443,13 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       assertThat(sourceStrategy).isEqualTo(PropertyUpdateStrategy.always());
     }
 
+  }
+
+  @Table("t_user")
+  static class AssignedUser {
+    @Id
+    public Integer id;
+    public String name;
   }
 
   @Nested

@@ -36,11 +36,6 @@ dependencies {
 | `0`
 | 单次批处理允许累积的记录数；达到该值后 `addToBatch()` 会隐式调用 `executeBatch()`。为 `0` 时不隐式执行批处理。
 
-| `persistence.auto-generate-id`
-| `boolean`
-| `true`
-| 是否自动回填由数据库生成的主键。
-
 |===
 
 例如在 `application.yml` 中设置默认每页 20 条：
@@ -68,7 +63,6 @@ class MyEntityManagerCustomizer implements EntityManagerCustomizer {
 
   @Override
   public void customize(DefaultEntityManager manager) {
-    manager.setAutoGenerateId(false);
     manager.setDefaultPageable(Pageable.of(1, 20));
   }
 }
