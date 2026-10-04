@@ -453,7 +453,11 @@ public class EntityMetadata {
       var strategy = generatedId.getEnum("strategy", GenerationType.class);
 
       IdGeneration idGeneration = new IdGeneration(strategy, generator, generatorName);
-      if (!idGeneration.hasCustomGenerator() && strategy == GenerationType.UUID
+      boolean custom = idGeneration.hasCustomGenerator();
+      if (custom && strategy != GenerationType.IDENTITY) {
+        throw new IllegalEntityException("Custom ID generator cannot be combined with " + strategy);
+      }
+      if (!custom && strategy == GenerationType.UUID
               && idProperty.getType() != UUID.class && idProperty.getType() != String.class) {
         throw new IllegalEntityException("UUID generation requires a UUID or String ID property");
       }
@@ -514,16 +518,17 @@ public class EntityMetadata {
     return result;
   }
 
+  /**
+   * Immutable ID generation declaration resolved from merged entity-property
+   * annotations. Contains configuration only, not a generator instance.
+   *
+   * @param strategy the declared built-in strategy
+   * @param generator the custom generator type, or IdGenerator.class if unspecified
+   * @param generatorName the bean name, or an empty string if unspecified
+   * @since 5.0
+   */
   public record IdGeneration(GenerationType strategy,
           Class<? extends IdGenerator> generator, String generatorName) {
-
-    public IdGeneration {
-      boolean custom = generator != IdGenerator.class || !generatorName.isEmpty();
-      if (custom && strategy != GenerationType.IDENTITY) {
-        throw new IllegalEntityException(
-                "Custom ID generator cannot be combined with " + strategy);
-      }
-    }
 
     public boolean hasCustomGenerator() {
       return generator != IdGenerator.class || !generatorName.isEmpty();
