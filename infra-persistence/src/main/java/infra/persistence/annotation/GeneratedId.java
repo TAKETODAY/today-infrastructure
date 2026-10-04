@@ -101,8 +101,9 @@ public @interface GeneratedId {
    * <p>A non-empty name takes precedence over type-based lookup. The bean must
    * implement {@link IdGenerator} and match any explicitly specified
    * {@link #generator() generator type}. A missing or incompatible bean is an
-   * error; no fallback instance is created. Its scope and lifecycle remain
-   * managed by the container.
+   * error; no fallback instance is created. The resolved instance is cached per
+   * generator type and bean name within the resolver, even for prototype beans,
+   * and must be thread-safe. Existing beans are not destroyed by the resolver.
    */
   String generatorName() default "";
 

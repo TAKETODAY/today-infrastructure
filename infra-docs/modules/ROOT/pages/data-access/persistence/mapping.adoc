@@ -151,7 +151,9 @@ class Order {
 * 未指定自定义生成器：使用 `strategy`。指定自定义生成器时覆盖默认 `IDENTITY`，不能同时配置 `UUID`。
 
 自动创建的生成器按 Class 在当前 EntityManager 内复用，并在 EntityManager 销毁时执行销毁回调。
-已有 Bean 的作用域和生命周期由容器管理，自动创建的实例不会额外注册成容器单例。
+按类型或名称查到的 Bean 按“生成器类型 + Bean 名称”在 Resolver 内缓存，后续解析复用首次获得的实例，
+即使 Bean 声明为 prototype 也不会每次重新获取，因此生成器必须线程安全。
+已有 Bean 不由 Resolver 销毁；自动创建的实例不会额外注册成容器单例。
 通过容器创建的 `DefaultEntityManager` 会自动接收 BeanFactory；手动创建时，可以调用 `setBeanFactory(beanFactory)`
 提供生成器的依赖，并在使用结束后调用 `destroy()` 释放自动创建的生成器。
 

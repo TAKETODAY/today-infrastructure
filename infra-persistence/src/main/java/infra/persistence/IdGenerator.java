@@ -31,9 +31,19 @@ package infra.persistence;
  *
  * <p>Generators may be selected by type or bean name through
  * {@link infra.persistence.annotation.GeneratedId @GeneratedId}, including
- * composed annotations. Shared instances must be thread-safe; stateful
- * generators that need to share node configuration or allocated ID ranges
- * should be registered as container-managed singleton beans.
+ * composed annotations.
+ *
+ * <p>{@link infra.persistence.support.IdGeneratorResolver} caches the first
+ * successfully resolved instance for each generator type and bean-name
+ * combination. Subsequent resolutions reuse that instance, even when the bean
+ * is declared with prototype scope. This reuse is scoped to the resolver, not
+ * a global singleton. Implementations must be thread-safe and must not retain
+ * per-invocation entity state in instance fields.
+ *
+ * <p>Only generators created on demand are destroyed by the resolver; existing
+ * beans are not destroyed by it. Generators that need to share node configuration
+ * or allocated ID ranges across resolvers should be registered as
+ * container-managed singleton beans.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
