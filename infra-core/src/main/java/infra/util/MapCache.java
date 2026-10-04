@@ -19,8 +19,8 @@ package infra.util;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import infra.lang.NullValue;
@@ -49,7 +49,7 @@ public class MapCache<K, V extends @Nullable Object, P extends @Nullable Object>
    * Constructs a new instance with default initial capacity and load factor.
    */
   public MapCache() {
-    this(new HashMap<>());
+    this(new ConcurrentHashMap<>());
   }
 
   /**
@@ -58,7 +58,7 @@ public class MapCache<K, V extends @Nullable Object, P extends @Nullable Object>
    * @param initialCapacity the initial capacity of the underlying map
    */
   public MapCache(int initialCapacity) {
-    this(new HashMap<>(initialCapacity));
+    this(new ConcurrentHashMap<>(initialCapacity));
   }
 
   /**
@@ -77,7 +77,7 @@ public class MapCache<K, V extends @Nullable Object, P extends @Nullable Object>
    * @param mappingFunction the default function to compute values when keys are not present
    */
   public MapCache(Function<K, V> mappingFunction) {
-    this(new HashMap<>(), mappingFunction);
+    this(new ConcurrentHashMap<>(), mappingFunction);
   }
 
   /**
@@ -103,6 +103,8 @@ public class MapCache<K, V extends @Nullable Object, P extends @Nullable Object>
    * @param p createValue's param
    * @return the current (existing or computed) value associated with
    * the specified key, should never {@code null}
+   * @throws IllegalStateException if creation returns {@code null} or the key
+   * is associated with a cached {@code null} value
    * @see #createValue
    */
   public final @NonNull V get(K k, P p) {
@@ -117,13 +119,14 @@ public class MapCache<K, V extends @Nullable Object, P extends @Nullable Object>
         }
       }
     }
+    Assert.state(v != NullValue.INSTANCE, "Cached value is null");
     return v;
   }
 
   /**
    * If the specified key is not already associated with a value (or is mapped
    * to {@code null}), attempts to compute its value using the given mapping
-   * function and enters it into this map unless {@code null}.
+   * function and caches the result, including {@code null} values.
    *
    * @param k key with which the specified value is to be associated
    * @return the current (existing or computed) value associated with
@@ -136,7 +139,7 @@ public class MapCache<K, V extends @Nullable Object, P extends @Nullable Object>
   /**
    * If the specified key is not already associated with a value (or is mapped
    * to {@code null}), attempts to compute its value using the given mapping
-   * function and enters it into this map unless {@code null}.
+   * function and caches the result, including {@code null} values.
    *
    * @param k key with which the specified value is to be associated
    * @param mappingFunction the function to compute a value, can be null,
@@ -144,7 +147,6 @@ public class MapCache<K, V extends @Nullable Object, P extends @Nullable Object>
    * @return the current (existing or computed) value associated with
    * the specified key, or null if the computed value is null
    */
-  @SuppressWarnings("unchecked")
   public final V get(K k, @Nullable Function<K, V> mappingFunction) {
     V v = mapping.get(k);
     if (v == null) {
@@ -161,10 +163,7 @@ public class MapCache<K, V extends @Nullable Object, P extends @Nullable Object>
             // fallback to #createValue()
             v = createValue(k, null);
           }
-          if (v == null) {
-            v = (V) NullValue.INSTANCE;
-          }
-          mapping.put(k, v);
+          mapping.put(k, wrap(v));
         }
       }
     }
@@ -175,9 +174,17 @@ public class MapCache<K, V extends @Nullable Object, P extends @Nullable Object>
     return null;
   }
 
+  /**
+   * Associate the given value with the key, caching {@code null} values through
+   * an internal placeholder without triggering value computation on retrieval.
+   *
+   * @param k the cache key
+   * @param v the value to cache, possibly {@code null}
+   * @return the previous value, or {@code null} if absent or previously cached as {@code null}
+   */
   public @Nullable V put(K k, @Nullable V v) {
     synchronized(mapping) {
-      return unwrap(mapping.put(k, v));
+      return unwrap(mapping.put(k, wrap(v)));
     }
   }
 
@@ -191,6 +198,11 @@ public class MapCache<K, V extends @Nullable Object, P extends @Nullable Object>
     synchronized(mapping) {
       return unwrap(mapping.remove(k));
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <V extends @Nullable Object> @NonNull V wrap(@Nullable V value) {
+    return value != null ? value : (V) NullValue.INSTANCE;
   }
 
   private static <V extends @Nullable Object> @Nullable V unwrap(@Nullable V ret) {

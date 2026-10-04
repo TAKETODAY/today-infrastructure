@@ -33,6 +33,32 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MapCacheTests {
 
   @Test
+  void putNullCachesValueUntilRemoved() {
+    MapCache<String, String, Object> cache = new MapCache<>(key -> "computed");
+
+    assertThat(cache.put("key", null)).isNull();
+    assertThat(cache.get("key")).isNull();
+    assertThat(cache.get("key", key -> {
+      throw new AssertionError("Cached null must not trigger computation");
+    })).isNull();
+    assertThat(cache.put("key", "value")).isNull();
+    assertThat(cache.put("key", null)).isEqualTo("value");
+    assertThat(cache.remove("key")).isNull();
+    assertThat(cache.get("key")).isEqualTo("computed");
+  }
+
+  @Test
+  void computedNullIsCached() {
+    MapCache<String, String, Object> cache = new MapCache<>(key -> null);
+
+    assertThat(cache.get("key")).isNull();
+    assertThat(cache.get("key", key -> {
+      throw new AssertionError("Cached null must not trigger computation");
+    })).isNull();
+    assertThat(cache.remove("key")).isNull();
+  }
+
+  @Test
   @SuppressWarnings({ "rawtypes", "unchecked" })
   void mappingFunction() {
     HashMap map = new HashMap<>();

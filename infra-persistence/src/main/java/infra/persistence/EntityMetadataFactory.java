@@ -19,41 +19,19 @@ package infra.persistence;
 import infra.util.MapCache;
 
 /**
- * An abstract factory class for creating and caching {@link EntityMetadata} instances.
- * This class provides a mechanism to retrieve or create metadata for entity classes,
- * ensuring that metadata is cached for efficient reuse.
+ * Factory for creating and caching {@link EntityMetadata} by entity class.
  *
- * <p>Subclasses must implement the {@link #createEntityMetadata(Class)} method to define
- * how metadata is created for a given entity class.</p>
+ * <p>The cache is scoped to each factory instance, allowing different factories
+ * to use different mapping configurations for the same entity class. Metadata
+ * is reused across persistence operations through {@link #getEntityMetadata(Class)}.
  *
- * <p><b>Usage Example:</b></p>
- * <pre>{@code
- *  // Create a custom implementation of EntityMetadataFactory
- *  DefaultEntityMetadataFactory factory = new DefaultEntityMetadataFactory();
- *
- *  // Configure the factory with necessary components
- *  factory.setTableNameGenerator(new CustomTableNameGenerator());
- *  factory.setIdPropertyDiscover(new CustomIdPropertyDiscover());
- *  factory.setPropertyFilter(new CustomPropertyFilter());
- *  factory.setColumnNameDiscover(new CustomColumnNameDiscover());
- *  factory.setTypeHandlerManager(new CustomTypeHandlerManager());
- *
- *  // Retrieve metadata for an entity class
- *  try {
- *    Class<?> entityClass = MyEntity.class;
- *    EntityMetadata metadata = factory.getEntityMetadata(entityClass);
- *    System.out.println("Entity Metadata: " + metadata);
- *  } catch (IllegalEntityException e) {
- *    System.err.println("Failed to retrieve entity metadata: " + e.getMessage());
- *  }
- * }</pre>
- *
- * <p>The above example demonstrates how to use a custom implementation of
- * {@code EntityMetadataFactory} to retrieve metadata for an entity class. The factory
- * is configured with various components that define how metadata is generated.</p>
+ * <p>Subclasses implement {@link #createEntityMetadata(Class)} to define the mapping
+ * strategy. Configure the factory before retrieving cached metadata: subsequent
+ * configuration changes do not invalidate existing cache entries.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see EntityMetadata
+ * @see DefaultEntityMetadataFactory
  * @see IllegalEntityException
  * @since 4.0 2022/8/16 23:28
  */
@@ -62,76 +40,38 @@ public abstract class EntityMetadataFactory {
   final MapCache<Class<?>, EntityMetadata, EntityMetadataFactory> entityCache = new MapCache<>() {
 
     @Override
-    protected EntityMetadata createValue(Class<?> entityClass, EntityMetadataFactory entityMetadataFactory) {
-      return entityMetadataFactory.createEntityMetadata(entityClass);
+    protected EntityMetadata createValue(Class<?> entityClass, EntityMetadataFactory factory) {
+      return factory.createEntityMetadata(entityClass);
     }
   };
 
   /**
-   * Retrieves the metadata for a given entity class from the cache. If the metadata is not already
-   * cached, it will be generated using the {@link #createEntityMetadata(Class)} method and then stored
-   * in the cache for future use.
+   * Return cached metadata for the given entity class, creating it if necessary.
    *
-   * <p><b>Usage Example:</b></p>
-   * <pre>{@code
-   *   EntityMetadataFactory factory = new CustomEntityMetadataFactory();
+   * <p>On a cache miss, delegates to {@link #createEntityMetadata(Class)} and caches
+   * the result. Subsequent calls on this factory for the same class return the
+   * cached instance. Failed creation attempts are not cached.
    *
-   *   try {
-   *     Class<?> entityClass = MyEntity.class;
-   *     EntityMetadata metadata = factory.getEntityMetadata(entityClass);
-   *
-   *     // Use the retrieved metadata
-   *     System.out.println("Table Name: " + metadata.getTableName());
-   *   }
-   *   catch (IllegalEntityException e) {
-   *     System.err.println("Failed to retrieve entity metadata: " + e.getMessage());
-   *   }
-   * }</pre>
-   *
-   * <p>In the example above, the {@code getEntityMetadata} method is used to retrieve metadata for
-   * the {@code MyEntity} class. If the metadata is not already cached, it will be generated and
-   * cached automatically.</p>
-   *
-   * @param entityClass the entity class for which metadata is to be retrieved
-   * @return the {@link EntityMetadata} instance representing the metadata for the given entity class
-   * @throws IllegalEntityException if the entity class is invalid or does not meet the requirements
-   * for metadata generation
+   * @param entityClass the entity class to resolve
+   * @return the cached or newly created entity metadata
+   * @throws IllegalEntityException if a valid entity mapping cannot be determined
+   * @see #createEntityMetadata(Class)
    */
   public EntityMetadata getEntityMetadata(Class<?> entityClass) throws IllegalEntityException {
     return entityCache.get(entityClass, this);
   }
 
   /**
-   * Creates a new {@link EntityMetadata} instance for the given entity class.
-   * This method is responsible for defining how metadata is generated for a specific
-   * entity class. It is invoked by the caching mechanism when no cached metadata exists
-   * for the provided entity class.
+   * Create metadata for the given entity class using this factory's mapping strategy.
    *
-   * <p><b>Usage Example:</b></p>
-   * <pre>{@code
-   *  // Implement the createEntityMetadata method in a subclass
-   *  public class CustomEntityMetadataFactory extends EntityMetadataFactory {
-   *    @Override
-   *    public EntityMetadata createEntityMetadata(Class<?> entityClass) throws IllegalEntityException {
-   *      if (!isValidEntity(entityClass)) {
-   *        throw new IllegalEntityException("Invalid entity class: " + entityClass.getName());
-   *      }
-   *      // Generate metadata based on the entity class
-   *      String tableName = generateTableName(entityClass);
-   *      List<PropertyMetadata> properties = discoverProperties(entityClass);
-   *      return new EntityMetadata(...);
-   *    }
-   *  }
-   * }</pre>
+   * <p>Called by {@link #getEntityMetadata(Class)} on a cache miss. Calling this
+   * method directly bypasses the factory's cache lookup and does not add the
+   * returned metadata to the cache.
    *
-   * <p>In the example above, a custom implementation of {@code createEntityMetadata} is provided.
-   * The method validates the entity class, generates a table name, and discovers properties to
-   * construct an {@code EntityMetadata} instance.</p>
-   *
-   * @param entityClass the entity class for which metadata is to be created
-   * @return a new {@link EntityMetadata} instance representing the metadata for the given entity class
-   * @throws IllegalEntityException if the entity class is invalid or does not meet the requirements
-   * for metadata generation
+   * @param entityClass the entity class to map
+   * @return the newly created entity metadata, never {@code null}
+   * @throws IllegalEntityException if a valid entity mapping cannot be determined
+   * @see #getEntityMetadata(Class)
    */
   public abstract EntityMetadata createEntityMetadata(Class<?> entityClass) throws IllegalEntityException;
 
