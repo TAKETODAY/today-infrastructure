@@ -19,6 +19,10 @@
 | 字段 / 方法
 | 声明生成型主键，默认由数据库生成，也支持 UUID、自定义生成器和组合注解，详见 <<persistence-id-generation>>。
 
+| `@GeneratedUuid`
+| 字段 / 方法
+| UUID 生成型主键的快捷声明，等价于 `@GeneratedId(strategy = GenerationType.UUID)`；支持 `UUID` 与 `String`。
+
 | `@Column`
 | 字段 / 方法
 | 指定属性映射的列名；缺省时使用 `camelCase` 转下划线的策略。`value` 与 `name` 互为别名。
@@ -70,8 +74,8 @@
 | INSERT 排除主键列，执行后通过 JDBC generated keys 回填。
 
 | UUID
-| `@GeneratedId(strategy = GenerationType.UUID)`
-| INSERT 前生成 UUID v7，支持 `UUID` 或 `String` 属性；字符串为标准带连字符格式。
+| `@GeneratedUuid` 或 `@GeneratedId(strategy = GenerationType.UUID)`
+| INSERT 前生成 UUID，支持 `UUID` 或 `String` 属性；字符串为标准带连字符格式。
 
 | 自定义生成器
 | `@GeneratedId(generator = OrderIdGenerator.class)` 或 `@GeneratedId(generatorName = "orderIdGenerator")`
@@ -92,7 +96,7 @@ class User {
 @Table("t_document")
 class Document {
 
-  @GeneratedId(strategy = GenerationType.UUID)
+  @GeneratedUuid
   String id;
 
   String title;
@@ -100,6 +104,8 @@ class Document {
 ----
 
 UUID 与自定义生成器仅在主键为 `null` 时执行，已有非空主键会保留。
+`@GeneratedUuid` 已包含主键映射，无需同时标注 `@Id` 或 `@GeneratedId`，也可用于创建更深层的组合注解。
+例如 `@GeneratedUuid UUID id` 和 `@GeneratedUuid String id` 都使用 UUID 策略；裸 `@GeneratedId` 仍保持默认数据库生成行为。
 `GenerationType.UUID` 固定采用 RFC 9562 UUID v7，包含 48 位 Unix 毫秒时间戳和 74 位安全随机数据。
 其时间前缀有利于支持相应排序的数据库索引局部性，但不保证同毫秒内或跨节点严格递增；
 时钟回拨会反映在时间戳中。生成时间可从 ID 中解析。
