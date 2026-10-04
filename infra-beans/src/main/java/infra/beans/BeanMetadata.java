@@ -75,7 +75,7 @@ public final class BeanMetadata {
   /**
    * @since 4.0
    */
-  private @Nullable BeanPropertiesHolder propertyHolder;
+  private volatile @Nullable BeanPropertiesHolder propertyHolder;
 
   /**
    * Constructs a new {@code BeanMetadata} instance for the specified bean class.
@@ -253,8 +253,13 @@ public final class BeanMetadata {
   private BeanPropertiesHolder propertyHolder() {
     BeanPropertiesHolder propertyHolder = this.propertyHolder;
     if (propertyHolder == null) {
-      propertyHolder = BeanPropertiesMapCache.computeProperties(this);
-      this.propertyHolder = propertyHolder;
+      synchronized(this) {
+        propertyHolder = this.propertyHolder;
+        if (propertyHolder == null) {
+          propertyHolder = new BeanPropertiesHolder(createBeanProperties());
+          this.propertyHolder = propertyHolder;
+        }
+      }
     }
     return propertyHolder;
   }
@@ -382,28 +387,6 @@ public final class BeanMetadata {
       this.mapping = Map.copyOf(mapping);
       this.beanProperties = List.copyOf(mapping.values());
     }
-  }
-
-  /**
-   * Mapping cache
-   */
-  static class BeanPropertiesMapCache extends MapCache<BeanMetadata, BeanPropertiesHolder, BeanMetadata> {
-    private static final BeanPropertiesMapCache beanPropertiesMappings = new BeanPropertiesMapCache();
-
-    BeanPropertiesMapCache() {
-      super(new ConcurrentReferenceHashMap<>());
-    }
-
-    static BeanPropertiesHolder computeProperties(BeanMetadata metadata) {
-      return beanPropertiesMappings.get(metadata);
-    }
-
-    @Override
-    protected BeanPropertiesHolder createValue(BeanMetadata key, BeanMetadata param) {
-      HashMap<String, BeanProperty> propertyMap = key.createBeanProperties();
-      return new BeanPropertiesHolder(propertyMap);
-    }
-
   }
 
 }
