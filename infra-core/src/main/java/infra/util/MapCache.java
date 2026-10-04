@@ -103,8 +103,7 @@ public class MapCache<K, V extends @Nullable Object, P extends @Nullable Object>
    * @param p createValue's param
    * @return the current (existing or computed) value associated with
    * the specified key, should never {@code null}
-   * @throws IllegalStateException if creation returns {@code null} or the key
-   * is associated with a cached {@code null} value
+   * @throws IllegalStateException if creation returns {@code null}
    * @see #createValue
    */
   public final @NonNull V get(K k, P p) {
@@ -119,7 +118,6 @@ public class MapCache<K, V extends @Nullable Object, P extends @Nullable Object>
         }
       }
     }
-    Assert.state(v != NullValue.INSTANCE, "Cached value is null");
     return v;
   }
 
