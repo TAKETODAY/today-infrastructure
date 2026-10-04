@@ -32,6 +32,7 @@ import infra.persistence.IllegalEntityException;
 import infra.persistence.annotation.GeneratedId;
 import infra.util.ClassUtils;
 import infra.util.UuidGenerator;
+import infra.util.UuidV7Generator;
 
 /**
  * Resolves generator beans, owning and caching only instances created on demand.
