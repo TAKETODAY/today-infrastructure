@@ -18,8 +18,8 @@ package infra.persistence.support;
 
 import org.jspecify.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.DisposableBean;
@@ -51,7 +51,7 @@ public final class IdGeneratorResolver implements DisposableBean {
 
   private final BeanFactory beanFactory;
 
-  private final HashMap<IdGeneration, ResolvedGenerator> resolved = new HashMap<>();
+  private final ConcurrentHashMap<IdGeneration, ResolvedGenerator> resolved = new ConcurrentHashMap<>();
 
   private UuidGenerator uuidGenerator = new UuidV7Generator();
 
