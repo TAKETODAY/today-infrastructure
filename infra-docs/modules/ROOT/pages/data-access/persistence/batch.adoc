@@ -5,7 +5,7 @@
 会隐式执行一次 `executeBatch()`；为 `0` 时不自动执行，由显式的刷新触发。
 
 `BatchPersistListener` 会在每个批次执行前后收到通知，`BatchExecution` 暴露了 SQL 语句 `statement`、实体元数据
-`entityMetadata`、更新策略 `strategy`、是否处理自增主键 `autoGenerateId` 以及当前批次收集到的实体集合 `entities`，
+`entityMetadata`、实际插入属性列表 `properties`、是否处理自增主键 `autoGenerateId` 以及当前批次收集到的实体集合 `entities`，
 并通过 `getAffectedRows()` 返回该批次累计受影响的行数。监听器可通过 `@Order` / `Ordered` 排序。
 
 == 主键生成与属性选择
@@ -15,7 +15,7 @@
 UUID 或自定义生成型主键始终包含在 INSERT 中；数据库自增主键在批次执行后尝试逐实体回填。
 
 每个实体完成前置回调与主键生成后，再依据当前属性值和更新策略选择 INSERT 列。
-实体类型、有序属性列表、更新策略和 JDBC 主键回填模式一致的记录复用 PreparedStatement；
+实体类型和有序属性列表一致的记录复用 PreparedStatement；
 仅在首次创建对应批次时生成 SQL。
 不同列集合分别进入对应批次，不会因首个实体的空值状态而遗漏后续实体的属性。
 
@@ -43,3 +43,30 @@ class LoggingBatchListener implements BatchPersistListener {
   }
 }
 ----
+
+== 按主键批量更新
+
+`batchUpdateById` 为每个实体写入不同值，返回与输入顺序对应的 JDBC 更新计数：
+
+[source,java]
+----
+int[] counts = entityManager.batchUpdateById(entities);
+int[] selectedCounts = entityManager.batchUpdateById(entities, strategy);
+----
+
+每个实体必须具有非空主键。主键仅用于 WHERE，不参与 SET；不支持按 `@UpdateBy` 条件批量更新。
+策略为 `null` 时使用各实体的默认策略，包括 `UpdateStrategySource`。
+每个实体执行更新前置监听器，审计填充与返回策略均生效，再选择并绑定属性。
+连续的同类型、同更新列记录使用 JDBC batch；SQL 结构变化时先刷新已有批次，保持输入执行顺序，
+同一 SQL 的 PreparedStatement 可以复用。`maxBatchRecords` 控制单批上限，为 `0` 时在结构变化或输入结束时刷新。
+
+带 `@Version` 的实体使用复用语句的逐条 `executeUpdate()`，确保影响行数恰好为 1，
+不依赖驱动可能返回的未知批量计数。非版本更新保留 `Statement.SUCCESS_NO_INFO`（`-2`），
+表示成功但具体影响行数未知；未匹配的非版本更新返回 `0`。空输入返回空数组。
+
+所有更新在同一事务中执行，失败会回滚；事务传播配置与批量插入一致。
+实体上的审计值和递增版本，以及已发送的回调不会随数据库回滚恢复。
+更新成功后逐实体调用 `onPostUpdate`，执行失败调用相应的 `onUpdateFailed`；
+后置回调不表示事务提交。`BatchPersistListener` 仅适用于插入，不接收批量更新通知。
+
+若多行统一写入相同值，应优先使用一条带条件的 UPDATE，而非构造多个实体。

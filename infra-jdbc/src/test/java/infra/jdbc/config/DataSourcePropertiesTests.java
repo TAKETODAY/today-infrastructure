@@ -67,7 +67,7 @@ class DataSourcePropertiesTests {
   @Test
   void determineUrlWithNoEmbeddedSupport() throws Exception {
     DataSourceProperties properties = new DataSourceProperties();
-    properties.setBeanClassLoader(new FilteredClassLoader("org.h2", "org.apache.derby", "org.hsqldb"));
+    properties.setBeanClassLoader(new FilteredClassLoader("org.h2", "org.hsqldb"));
     properties.afterPropertiesSet();
     assertThatExceptionOfType(DataSourceProperties.DataSourceBeanCreationException.class)
             .isThrownBy(properties::determineUrl).withMessageContaining("Failed to determine suitable jdbc url");

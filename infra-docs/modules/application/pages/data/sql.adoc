@@ -26,7 +26,7 @@ datasource:
 
 === 嵌入式数据库
 
-存在相应驱动时，可以使用 H2、HSQLDB 或 Derby。
+存在相应驱动时，可以使用 H2 或 HSQLDB。
 没有显式 URL 时，自动配置会尝试合适的嵌入式数据库。
 多个嵌入式数据库同时存在时，池化数据源的连接属性可以通过 `datasource.embedded-database-connection` 指定选择。
 目标直接创建 `EmbeddedDatabase` 的分支按类路径重新检测类型，没有使用该选择属性；需要完整控制时显式提供数据源，不把 `none` 描述为全部分支通用的关闭开关。

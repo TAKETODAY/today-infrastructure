@@ -12,9 +12,6 @@ dependencies {
   optional(project(":infra-context"))  // for JndiDataSourceLookup
   optional("org.hsqldb:hsqldb")
   optional("com.h2database:h2")
-  optional("org.apache.derby:derby")
-  optional("org.apache.derby:derbyclient")
-  optional("org.apache.derby:derbytools")
   optional 'com.zaxxer:HikariCP'
 
   optional 'org.apache.commons:commons-dbcp2'
@@ -69,8 +66,6 @@ dependencies {
   testFixturesImplementation("org.junit.jupiter:junit-jupiter-api")
   testFixturesImplementation("org.junit.jupiter:junit-jupiter-params")
 
-  testRuntimeOnly 'org.apache.derby:derby'
-  testRuntimeOnly 'org.apache.derby:derbytools'
   testRuntimeOnly 'org.xerial:sqlite-jdbc'
   testRuntimeOnly 'com.ibm.db2:jcc:11.5.7.0'
   testRuntimeOnly 'org.testcontainers:testcontainers-jdbc'

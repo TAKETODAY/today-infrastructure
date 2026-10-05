@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/31 14:02
  */
-@ClassPathExclusions({ "h2-*.jar", "hsqldb-*.jar", "derby*.jar" })
+@ClassPathExclusions({ "h2-*.jar", "hsqldb-*.jar" })
 class DataSourceBeanCreationFailureAnalyzerTests {
 
   private final MockEnvironment environment = new MockEnvironment();
@@ -45,7 +45,7 @@ class DataSourceBeanCreationFailureAnalyzerTests {
     assertThat(failureAnalysis.getDescription()).contains("'url' attribute is not specified",
             "no embedded datasource could be configured", "Failed to determine a suitable driver class");
     assertThat(failureAnalysis.getAction()).contains(
-            "If you want an embedded database (H2, HSQL or Derby), please put it on the classpath",
+            "If you want an embedded database (H2 or HSQL), please put it on the classpath",
             "If you have database settings to be loaded from a particular profile you may need to activate it",
             "(no profiles are currently active)");
   }

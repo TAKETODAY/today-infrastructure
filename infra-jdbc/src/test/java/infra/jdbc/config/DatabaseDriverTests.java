@@ -65,7 +65,6 @@ class DatabaseDriverTests {
   @Test
   void databaseProductNameLookups() {
     assertThat(DatabaseDriver.fromProductName("newone")).isEqualTo(DatabaseDriver.UNKNOWN);
-    assertThat(DatabaseDriver.fromProductName("Apache Derby")).isEqualTo(DatabaseDriver.DERBY);
     assertThat(DatabaseDriver.fromProductName("H2")).isEqualTo(DatabaseDriver.H2);
     assertThat(DatabaseDriver.fromProductName("HDB")).isEqualTo(DatabaseDriver.HANA);
     assertThat(DatabaseDriver.fromProductName("HSQL Database Engine")).isEqualTo(DatabaseDriver.HSQLDB);
@@ -91,7 +90,6 @@ class DatabaseDriverTests {
   @Test
   void databaseJdbcUrlLookups() {
     assertThat(DatabaseDriver.fromJdbcUrl("jdbc:newone://localhost")).isEqualTo(DatabaseDriver.UNKNOWN);
-    assertThat(DatabaseDriver.fromJdbcUrl("jdbc:derby:sample")).isEqualTo(DatabaseDriver.DERBY);
     assertThat(DatabaseDriver.fromJdbcUrl("jdbc:h2:~/sample")).isEqualTo(DatabaseDriver.H2);
     assertThat(DatabaseDriver.fromJdbcUrl("jdbc:hsqldb:hsql://localhost")).isEqualTo(DatabaseDriver.HSQLDB);
     assertThat(DatabaseDriver.fromJdbcUrl("jdbc:sqlite:sample.db")).isEqualTo(DatabaseDriver.SQLITE);

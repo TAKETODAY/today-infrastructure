@@ -5,7 +5,7 @@ TODAY Framework 的 JDBC 抽象框架由四个不同的包组成：
 
 * `core`: `infra.jdbc.core` 包包含 `JdbcTemplate` 类及其各种回调接口，以及各种相关类。名为 `infra.jdbc.core.simple` 的子包包含 `SimpleJdbcInsert` 和 `SimpleJdbcCall` 类。另一个名为 `infra.jdbc.core.namedparam` 的子包包含 `NamedParameterJdbcTemplate` 类和相关的支持类。请参阅 xref:data-access/jdbc/core.adoc[使用 JDBC 核心类控制基本 JDBC 处理和错误处理]、xref:data-access/jdbc/advanced.adoc[JDBC 批量操作] 和 xref:data-access/jdbc/simple.adoc[使用 `SimpleJdbc` 类简化 JDBC 操作]。
 
-* `datasource`: `infra.jdbc.datasource` 包包含用于轻松访问 `DataSource` 的实用程序类，以及可用于在 Jakarta EE 容器之外测试和运行未修改的 JDBC 代码的各种简单 `DataSource` 实现。名为 `infra.jdbc.datasource.embedded` 的子包提供了对使用 Java 数据库引擎（如 HSQL、H2 和 Derby）创建嵌入式数据库的支持。请参阅 xref:data-access/jdbc/connections.adoc[控制数据库连接] 和 xref:data-access/jdbc/embedded-database-support.adoc[嵌入式数据库支持]。
+* `datasource`: `infra.jdbc.datasource` 包包含用于轻松访问 `DataSource` 的实用程序类，以及可用于在 Jakarta EE 容器之外测试和运行未修改的 JDBC 代码的各种简单 `DataSource` 实现。名为 `infra.jdbc.datasource.embedded` 的子包提供了对使用 Java 数据库引擎（如 HSQL 和 H2）创建嵌入式数据库的支持。请参阅 xref:data-access/jdbc/connections.adoc[控制数据库连接] 和 xref:data-access/jdbc/embedded-database-support.adoc[嵌入式数据库支持]。
 
 * `object`: `infra.jdbc.object` 包包含将 RDBMS 查询、更新和存储过程表示为线程安全、可重用对象的类。请参阅 xref:data-access/jdbc/object.adoc[将 JDBC 操作建模为 Java 对象]。这种风格产生了一种更面向对象的方法，尽管查询返回的对象自然与数据库断开连接。这种更高级别的 JDBC 抽象依赖于 `infra.jdbc.core` 包中的低级别抽象。
 

@@ -55,13 +55,12 @@ class JdbcNamespaceIntegrationTests {
 
   @Test
   void createEmbeddedDatabase() throws Exception {
-    assertCorrectSetup("jdbc-config.xml", "dataSource", "h2DataSource", "derbyDataSource");
+    assertCorrectSetup("jdbc-config.xml", "dataSource", "h2DataSource");
   }
 
   @Test
   void createEmbeddedDatabaseAgain() throws Exception {
-    // If Derby isn't cleaned up properly this will fail...
-    assertCorrectSetup("jdbc-config.xml", "derbyDataSource");
+    assertCorrectSetup("jdbc-config.xml", "dataSource", "h2DataSource");
   }
 
   @Test

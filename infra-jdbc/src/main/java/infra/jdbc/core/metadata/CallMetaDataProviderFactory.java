@@ -40,7 +40,6 @@ import infra.logging.LoggerFactory;
 public final class CallMetaDataProviderFactory {
 
   private static final String DB2 = "DB2";
-  private static final String DERBY = "Apache Derby";
   private static final String HANA = "HDB";
   private static final String INFORMIX = "Informix Dynamic Server";
   private static final String MARIA = "MariaDB";
@@ -52,7 +51,6 @@ public final class CallMetaDataProviderFactory {
 
   /** List of supported database products for procedure calls. */
   public static final List<String> supportedDatabaseProductsForProcedures = List.of(
-          DERBY,
           DB2,
           INFORMIX,
           MARIA,
@@ -120,7 +118,6 @@ public final class CallMetaDataProviderFactory {
         CallMetaDataProvider provider = switch (databaseProductName) {
           case ORACLE -> new OracleCallMetaDataProvider(databaseMetaData);
           case POSTGRES -> new PostgresCallMetaDataProvider(databaseMetaData);
-          case DERBY -> new DerbyCallMetaDataProvider(databaseMetaData);
           case DB2 -> new Db2CallMetaDataProvider(databaseMetaData);
           case HANA -> new HanaCallMetaDataProvider(databaseMetaData);
           case MS_SQL_SERVER -> new SqlServerCallMetaDataProvider(databaseMetaData);

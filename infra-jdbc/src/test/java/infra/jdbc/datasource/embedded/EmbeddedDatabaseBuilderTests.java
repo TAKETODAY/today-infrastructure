@@ -148,18 +148,6 @@ public class EmbeddedDatabaseBuilderTests {
   }
 
   @Test
-  @SuppressWarnings("removal")
-  public void setTypeToDerbyAndIgnoreFailedDrops() throws Exception {
-    doTwice(() -> {
-      EmbeddedDatabase db = builder//
-              .setType(EmbeddedDatabaseType.DERBY)//
-              .ignoreFailedDrops(true)//
-              .addScripts("db-schema-derby-with-drop.sql", "db-test-data.sql").build();
-      assertDatabaseCreatedAndShutdown(db);
-    });
-  }
-
-  @Test
   public void createSameSchemaTwiceWithoutUniqueDbNames() throws Exception {
     EmbeddedDatabase db1 = new EmbeddedDatabaseBuilder(new ClassRelativeResourceLoader(getClass()))
             .addScripts("db-schema-without-dropping.sql").build();

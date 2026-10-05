@@ -187,9 +187,6 @@ public interface TableMetaDataProvider {
         else if ("PostgreSQL".equals(databaseProductName)) {
           provider = new PostgresTableMetaDataProvider(databaseMetaData);
         }
-        else if ("Apache Derby".equals(databaseProductName)) {
-          provider = new DerbyTableMetaDataProvider(databaseMetaData);
-        }
         else if ("HSQL Database Engine".equals(databaseProductName)) {
           provider = new HsqlTableMetaDataProvider(databaseMetaData);
         }

@@ -19,9 +19,6 @@ dependencies {
 
   testImplementation("org.hsqldb:hsqldb")
   testImplementation("com.h2database:h2")
-  testImplementation("org.apache.derby:derby")
-  testImplementation("org.apache.derby:derbyclient")
-  testImplementation("org.apache.derby:derbytools")
   testImplementation 'com.zaxxer:HikariCP'
 
   testImplementation project(':infra-test-support')

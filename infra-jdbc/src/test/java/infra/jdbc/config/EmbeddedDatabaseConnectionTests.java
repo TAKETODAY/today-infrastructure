@@ -52,12 +52,6 @@ class EmbeddedDatabaseConnectionTests {
   }
 
   @Test
-  void derbyCustomDatabaseName() {
-    assertThat(EmbeddedDatabaseConnection.DERBY.getUrl("myderbydb"))
-            .isEqualTo("jdbc:derby:memory:myderbydb;create=true");
-  }
-
-  @Test
   void hsqldbCustomDatabaseName() {
     assertThat(EmbeddedDatabaseConnection.HSQLDB.getUrl("myhsqldb")).isEqualTo("jdbc:hsqldb:mem:myhsqldb");
   }
@@ -90,8 +84,6 @@ class EmbeddedDatabaseConnectionTests {
                     false },
             new Object[] { EmbeddedDatabaseConnection.HSQLDB.getDriverClassName(), "jdbc:hsqldb:mem:test", true },
             new Object[] { EmbeddedDatabaseConnection.HSQLDB.getDriverClassName(), null, true },
-            new Object[] { EmbeddedDatabaseConnection.DERBY.getDriverClassName(), "jdbc:derby:memory:test", true },
-            new Object[] { EmbeddedDatabaseConnection.DERBY.getDriverClassName(), null, true },
             new Object[] { "com.mysql.cj.jdbc.Driver", "jdbc:mysql:mem:test", false },
             new Object[] { "com.mysql.cj.jdbc.Driver", null, false },
             new Object[] { null, "jdbc:none:mem:test", false }, new Object[] { null, null, false } };
@@ -105,11 +97,6 @@ class EmbeddedDatabaseConnectionTests {
   @Test
   void isEmbeddedWithHsqlDataSource() {
     testEmbeddedDatabase(new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.HSQL).build());
-  }
-
-  @Test
-  void isEmbeddedWithDerbyDataSource() {
-    testEmbeddedDatabase(new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.DERBY).build());
   }
 
   void testEmbeddedDatabase(EmbeddedDatabase database) {

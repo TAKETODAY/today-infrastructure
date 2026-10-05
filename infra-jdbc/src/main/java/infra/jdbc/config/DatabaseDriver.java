@@ -46,14 +46,6 @@ public enum DatabaseDriver {
   UNKNOWN(null, null),
 
   /**
-   * Apache Derby.
-   */
-  DERBY("Apache Derby",
-          "org.apache.derby.jdbc.EmbeddedDriver",
-          "org.apache.derby.jdbc.EmbeddedXADataSource",
-          "SELECT 1 FROM SYSIBM.SYSDUMMY1"),
-
-  /**
    * H2.
    */
   H2("H2",

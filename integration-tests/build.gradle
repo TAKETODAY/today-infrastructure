@@ -76,8 +76,6 @@ dependencies {
   testImplementation 'ch.qos.logback:logback-classic'
   testImplementation("org.codehaus.janino:janino")
 
-  testImplementation 'org.apache.derby:derby'
-  testImplementation 'org.apache.derby:derbytools'
 
   testImplementation 'jakarta.persistence:jakarta.persistence-api'
 

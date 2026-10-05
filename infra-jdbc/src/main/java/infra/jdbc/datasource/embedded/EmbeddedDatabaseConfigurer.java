@@ -27,7 +27,7 @@ import infra.util.Assert;
 /**
  * {@code EmbeddedDatabaseConfigurer} encapsulates the configuration required to
  * create, connect to, and shut down a specific type of embedded database such as
- * HSQL, H2, or Derby.
+ * HSQL or H2.
  *
  * @author Keith Donald
  * @author Sam Brannen
@@ -55,7 +55,7 @@ public interface EmbeddedDatabaseConfigurer {
   /**
    * Return a configurer instance for the given embedded database type.
    *
-   * @param type the embedded database type (HSQL, H2 or Derby)
+   * @param type the embedded database type (HSQL or H2)
    * @return the configurer instance
    * @throws IllegalStateException if the driver for the specified database type is not available
    */
@@ -65,7 +65,6 @@ public interface EmbeddedDatabaseConfigurer {
       return switch (type) {
         case HSQL -> HsqlEmbeddedDatabaseConfigurer.getInstance();
         case H2 -> H2EmbeddedDatabaseConfigurer.getInstance();
-        case DERBY -> DerbyEmbeddedDatabaseConfigurer.getInstance();
       };
     }
     catch (ClassNotFoundException | NoClassDefFoundError ex) {

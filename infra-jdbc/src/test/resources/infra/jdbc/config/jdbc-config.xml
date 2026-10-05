@@ -14,9 +14,4 @@
     <jdbc:script location="classpath:infra/jdbc/config/db-test-data.sql" />
   </jdbc:embedded-database>
 
-  <jdbc:embedded-database id="derbyDataSource" type="DERBY">
-    <jdbc:script location="classpath:infra/jdbc/config/db-schema-derby.sql" />
-    <jdbc:script location="classpath:infra/jdbc/config/db-test-data.sql" />
-  </jdbc:embedded-database>
-
 </beans>

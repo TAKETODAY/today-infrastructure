@@ -127,18 +127,6 @@ bom {
       ]
     }
   }
-  library("Derby", "10.16.1.1") {
-    group("org.apache.derby") {
-      modules = [
-          "derby",
-          "derbyclient",
-          "derbynet",
-          "derbyoptionaltools",
-          "derbyshared",
-          "derbytools"
-      ]
-    }
-  }
   library("Ehcache3", "3.10.8") {
     group("org.ehcache") {
       modules = [
@@ -594,7 +582,6 @@ bom {
           "flyway-core",
           "flyway-database-cassandra",
           "flyway-database-db2",
-          "flyway-database-derby",
           "flyway-database-hsqldb",
           "flyway-database-informix",
           "flyway-database-nc-couchbase",

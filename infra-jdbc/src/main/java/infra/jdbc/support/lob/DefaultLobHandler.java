@@ -121,7 +121,7 @@ public class DefaultLobHandler extends AbstractLobHandler {
    * <p>Default is "false", using the common JDBC 2.0 {@code setBinaryStream}
    * / {@code setCharacterStream} method for setting the content.
    * Switch this to "true" for explicit JDBC 4.0 streaming, provided that your
-   * JDBC driver actually supports those JDBC 4.0 operations (e.g. Derby's).
+   * JDBC driver actually supports those JDBC 4.0 operations.
    * <p>This setting affects stream arguments as well as byte array / String
    * arguments, requiring JDBC 4.0 support. For supporting LOB content against
    * JDBC 3.0, check out the {@link #setWrapAsLob "wrapAsLob"} setting.

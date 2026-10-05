@@ -36,7 +36,6 @@ import infra.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import static infra.jdbc.datasource.init.ScriptUtils.executeSqlScript;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assumptions.assumeThat;
 
 /**
  * Integration tests for {@link ScriptUtils}.
@@ -77,8 +76,6 @@ class ScriptUtilsIntegrationTests extends AbstractDatabaseInitializationTests {
   @Test
   @SuppressWarnings({ "unchecked", "removal" })
   void statementWithMultipleResultSets() throws SQLException {
-    // Derby does not support multiple statements/ResultSets within a single Statement.
-    assumeThat(this.databaseType).isNotSameAs(EmbeddedDatabaseType.DERBY);
 
     EncodedResource resource = encodedResource(resource("users-data.sql"));
     executeSqlScript(db.getConnection(), resource, false, true, "--", null, "/*", "*/");

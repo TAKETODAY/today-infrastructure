@@ -313,7 +313,7 @@ public class JdbcActorDao implements ActorDao {
 有关如何定义 `SqlParameter` 的详细信息，请参阅 xref:data-access/jdbc/simple.adoc#jdbc-params[下一节]。
 
 NOTE: 如果您使用的数据库不是 Infra 支持的数据库，则必须进行显式声明。
-目前，Infra 支持对以下数据库的存储过程调用进行元数据查找：Apache Derby、DB2、MySQL、Microsoft SQL Server、Oracle 和 Sybase。
+目前，Infra 支持对以下数据库的存储过程调用进行元数据查找：DB2、MySQL、Microsoft SQL Server、Oracle 和 Sybase。
 我们还支持 MySQL、Microsoft SQL Server 和 Oracle 的存储函数元数据查找。
 
 您可以选择显式声明一个、部分或全部参数。在您未显式声明参数的地方，仍会使用参数元数据。

@@ -25,7 +25,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -75,8 +74,7 @@ public class GenericTableMetaDataProvider implements TableMetaDataProvider {
   private boolean generatedKeysColumnNameArraySupported = true;
 
   /** database products we know not supporting the use of a String[] for generated keys. */
-  private final List<String> productsNotSupportingGeneratedKeysColumnNameArray =
-          Arrays.asList("Apache Derby", "HSQL Database Engine");
+  private final List<String> productsNotSupportingGeneratedKeysColumnNameArray = List.of("HSQL Database Engine");
 
   /** Collection of TableParameterMetaData objects. */
   private final List<TableParameterMetaData> tableParameterMetaData = new ArrayList<>();

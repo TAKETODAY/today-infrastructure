@@ -186,7 +186,7 @@ class GenericTableMetaDataProviderTests {
     DatabaseMetaData databaseMetaData = mock(DatabaseMetaData.class);
     when(databaseMetaData.getUserName()).thenReturn("testuser");
     when(databaseMetaData.supportsGetGeneratedKeys()).thenReturn(true);
-    when(databaseMetaData.getDatabaseProductName()).thenReturn("Apache Derby");
+    when(databaseMetaData.getDatabaseProductName()).thenReturn("HSQL Database Engine");
 
     GenericTableMetaDataProvider provider = new GenericTableMetaDataProvider(databaseMetaData);
     provider.initializeWithMetaData(databaseMetaData);

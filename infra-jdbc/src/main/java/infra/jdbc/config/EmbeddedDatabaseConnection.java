@@ -61,12 +61,6 @@ public enum EmbeddedDatabaseConnection {
           "jdbc:h2:mem:%s;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE", (url) -> url.contains(":h2:mem")),
 
   /**
-   * Derby Database Connection.
-   */
-  DERBY(EmbeddedDatabaseType.DERBY, DatabaseDriver.DERBY.getDriverClassName(), "jdbc:derby:memory:%s;create=true",
-          (url) -> true),
-
-  /**
    * HSQL Database Connection.
    */
   HSQLDB(EmbeddedDatabaseType.HSQL, DatabaseDriver.HSQLDB.getDriverClassName(), "org.hsqldb.jdbcDriver",
@@ -160,7 +154,7 @@ public enum EmbeddedDatabaseConnection {
   }
 
   private static EmbeddedDatabaseConnection getEmbeddedDatabaseConnection(String driverClass) {
-    return Stream.of(H2, HSQLDB, DERBY).filter((connection) -> connection.isDriverCompatible(driverClass))
+    return Stream.of(H2, HSQLDB).filter((connection) -> connection.isDriverCompatible(driverClass))
             .findFirst().orElse(NONE);
   }
 
@@ -223,4 +217,3 @@ public enum EmbeddedDatabaseConnection {
   }
 
 }
-

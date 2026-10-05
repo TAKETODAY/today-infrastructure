@@ -1,7 +1,7 @@
 [[jdbc-embedded-database-support]]
 = 嵌入式数据库支持
 
-`infra.jdbc.datasource.embedded` 包提供了对嵌入式 Java 数据库引擎的支持。原生支持 https://www.hsqldb.org[HSQL]、https://www.h2database.com[H2] 和 https://db.apache.org/derby[Derby]。您还可以使用可扩展的 API 插入新的嵌入式数据库类型和 `DataSource` 实现。
+`infra.jdbc.datasource.embedded` 包提供了对嵌入式 Java 数据库引擎的支持。原生支持 https://www.hsqldb.org[HSQL] 和 https://www.h2database.com[H2]。您还可以使用可扩展的 API 插入新的嵌入式数据库类型和 `DataSource` 实现。
 
 [[jdbc-why-embedded-database]]
 == 为什么要使用嵌入式数据库？
@@ -41,11 +41,10 @@ public class JdbcEmbeddedDatabaseConfiguration {
 [[jdbc-embedded-database-types]]
 == 选择嵌入式数据库类型
 
-本节介绍如何选择 Infra 支持的三种嵌入式数据库之一。它包括以下主题：
+本节介绍如何选择 Infra 支持的两种嵌入式数据库之一。它包括以下主题：
 
 * xref:data-access/jdbc/embedded-database-support.adoc#jdbc-embedded-database-using-HSQL[使用 HSQL]
 * xref:data-access/jdbc/embedded-database-support.adoc#jdbc-embedded-database-using-H2[使用 H2]
-* xref:data-access/jdbc/embedded-database-support.adoc#jdbc-embedded-database-using-Derby[使用 Derby]
 
 [[jdbc-embedded-database-using-HSQL]]
 === 使用 HSQL
@@ -56,12 +55,6 @@ Infra 支持 HSQL 1.8.0 及更高版本。如果未显式指定类型，则 HSQL
 === 使用 H2
 
 Infra 支持 H2 数据库。要启用 H2，请将 `embedded-database` 标签的 `type` 属性设置为 `H2`。如果您使用构建器 API，请使用 `EmbeddedDatabaseType.H2` 调用 `setType(EmbeddedDatabaseType)` 方法。
-
-[[jdbc-embedded-database-using-Derby]]
-=== 使用 Derby
-
-Infra 支持 Apache Derby 10.5 及更高版本。要启用 Derby，请将 `embedded-database` 标签的 `type` 属性设置为 `DERBY`。如果您使用构建器 API，请使用 `EmbeddedDatabaseType.DERBY` 调用 `setType(EmbeddedDatabaseType)` 方法。
-
 
 [[jdbc-embedded-database-types-custom]]
 == 自定义嵌入式数据库类型
