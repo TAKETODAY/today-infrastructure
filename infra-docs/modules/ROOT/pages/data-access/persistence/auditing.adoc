@@ -1,0 +1,118 @@
+[[persistence-auditing]]
+= 实体审计
+
+`infra.persistence.auditing` 包提供审计 API、监听器和四个审计注解，自动填充创建时间、创建人、最后修改时间和最后修改人。
+审计支持单条插入、批量插入、按主键更新、按条件更新，以及 `saveOrUpdate` 对应的插入或更新操作。
+
+== 启用审计
+
+使用 `EntityManager` 自动配置时，审计默认关闭，通过以下配置启用：
+
+[source,properties]
+----
+persistence.auditing-enabled=true
+----
+
+注册一个 `AuditorAware<T>` Bean，提供当前用户或系统身份。
+操作者值直接赋给审计属性，类型必须与目标属性兼容；返回 `null` 时保留实体上的原值。
+时间默认使用 UTC 系统时钟，可以注册 `Clock` Bean 替换。
+自定义 `AuditingEntityListener` Bean 会替代自动配置创建的默认监听器。
+
+手动创建 `DefaultEntityManager` 时，注册监听器即可启用审计：
+
+[source,java]
+----
+entityManager.getEntityEventRegistry().addListener(
+    new AuditingEntityListener(Clock.systemUTC(), () -> currentUserId()));
+----
+
+只需要时间字段时，可以注册 `new AuditingEntityListener()`，无需提供操作者。
+
+== 声明审计属性
+
+[source,java]
+----
+@Table("orders")
+public class Order {
+  public Long id;
+
+  @CreatedDate
+  public Instant createdAt;
+
+  @CreatedBy
+  public Long createdBy;
+
+  @LastModifiedDate
+  public Instant updatedAt;
+
+  @LastModifiedBy
+  public Long updatedBy;
+}
+----
+
+注解支持字段、访问方法及组合注解：
+
+* `@CreatedDate`：创建时间，仅在插入时填充。
+* `@CreatedBy`：创建人，仅在插入时填充。
+* `@LastModifiedDate`：最后修改时间，在插入和更新时填充。
+* `@LastModifiedBy`：最后修改人，在插入和更新时填充。
+
+时间属性支持 `Instant`、`LocalDateTime`、`OffsetDateTime`、`ZonedDateTime`。
+后三者使用所配置时钟的时区。每个实体操作按需采样一次时间、获取一次操作者；
+没有审计属性的实体不会读取这些提供器，也不会改变原有属性选择策略。
+
+== 同时记录操作者 ID 和姓名
+
+`AuditorAware` 可以返回完整用户对象，不同字段通过注解参数选择不同的属性：
+
+[source,java]
+----
+@CreatedBy("id")
+public Long creatorId;
+
+@CreatedBy("name")
+public String creatorName;
+
+@LastModifiedBy("id")
+public Long editorId;
+
+@LastModifiedBy("name")
+public String editorName;
+----
+
+例如，`AuditorAware<User>` 返回具有 `id` 和 `name` 属性的用户对象。
+参数支持 Bean 属性路径（如 `profile.name`）和 record 属性；留空则使用整个操作者值。
+所选属性值直接赋给目标字段，不进行类型转换。需要转换时，由业务代码在操作者提供器中完成。
+所选属性值为 `null` 时保留实体原值；不存在或不可读的属性路径会在 SQL 执行前报错。
+
+== 填充与写入规则
+
+审计字段填充与属性选择都由 `AuditingEntityListener` 实现。
+持久化核心通过通用的 `PersistEventListener.onPrePersist` 和 `UpdateEventListener.onPreUpdate`
+前置回调获取有效策略，不识别审计注解或具体审计监听器类型。
+
+审计监听器返回的策略遵循以下规则：
+
+* 插入时填充创建和修改字段，覆盖传入的时间与非空操作者值；操作者不可用时保留原值。
+* 更新时只填充修改字段，创建字段不进入更新 SQL。
+* 非空审计字段参与 SQL，不受传入的 `PropertyUpdateStrategy` 排除规则影响。
+  修改人属性为 `null` 时不写入该列，避免局部更新清除数据库已有身份。
+* 没有注册审计监听器时，仍按普通属性选择策略写入。
+
+前置回调按注册顺序执行，返回的策略传给下一个监听器；全部回调完成后才选择写入属性。
+依赖实体值的规则应延迟到策略求值时判断。后续监听器可以替换审计监听器返回的策略，并覆盖上述选择规则。
+详见 xref:data-access/persistence/events.adoc[生命周期事件]。
+
+不允许同一属性标记多个审计角色，也不允许审计属性同时用作主键、`@Version` 或 `@UpdateBy`。
+注解冲突或不支持的时间类型会在 SQL 执行前抛出 `IllegalEntityException`；
+操作者值类型不兼容时在 SQL 执行前赋值失败。
+
+== 事务与审计范围
+
+审计监听器是同步前置回调，异常会传给调用方。
+失败或事务回滚不会恢复内存实体上已填充的值。
+审计字段与业务数据在同一条 SQL 中写入，其数据库回滚行为一致。
+
+这些字段记录创建及最近一次修改的身份和时间，不提供逐次变更历史、旧值快照或删除历史。
+需要完整历史时，可以通过事务内历史表或数据库变更捕获实现。
+生命周期后置回调表示 SQL 完成，并不表示事务已经提交。

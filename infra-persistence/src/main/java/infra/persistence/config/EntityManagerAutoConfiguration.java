@@ -2,6 +2,7 @@ package infra.persistence.config;
 
 import org.jspecify.annotations.Nullable;
 
+import java.time.Clock;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -9,6 +10,7 @@ import javax.sql.DataSource;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.config.DisableDIAutoConfiguration;
+import infra.context.condition.ConditionalOnBooleanProperty;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnSingleCandidate;
 import infra.context.properties.EnableConfigurationProperties;
@@ -16,6 +18,7 @@ import infra.jdbc.RepositoryManager;
 import infra.jdbc.config.RepositoryManagerAutoConfiguration;
 import infra.jdbc.format.SqlStatementLogger;
 import infra.jdbc.type.TypeHandlerManager;
+import infra.persistence.auditing.AuditorAware;
 import infra.persistence.DefaultEntityMetadataFactory;
 import infra.persistence.EntityManager;
 import infra.persistence.EntityMetadataFactory;
@@ -28,6 +31,7 @@ import infra.persistence.platform.Platform;
 import infra.persistence.query.EntityQueryFactories;
 import infra.persistence.query.EntityQueryFactory;
 import infra.persistence.query.PropertyConditionStrategy;
+import infra.persistence.auditing.AuditingEntityListener;
 import infra.persistence.support.DefaultEntityManager;
 import infra.persistence.support.IdGeneratorResolver;
 import infra.stereotype.Component;
@@ -107,6 +111,14 @@ public final class EntityManagerAutoConfiguration {
     DefaultEntityEventRegistry registry = new DefaultEntityEventRegistry();
     registry.setListeners(listeners);
     return registry;
+  }
+
+  @Component
+  @ConditionalOnMissingBean(AuditingEntityListener.class)
+  @ConditionalOnBooleanProperty(prefix = "persistence", name = "auditing-enabled")
+  static AuditingEntityListener auditingEntityListener(@Nullable Clock clock, @Nullable AuditorAware<?> auditorAware) {
+    return new AuditingEntityListener(clock != null ? clock : Clock.systemUTC(),
+            auditorAware != null ? auditorAware : () -> null);
   }
 
   @Component

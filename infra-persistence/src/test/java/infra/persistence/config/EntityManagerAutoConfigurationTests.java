@@ -8,6 +8,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.annotation.config.AutoConfigurations;
@@ -20,6 +23,7 @@ import infra.jdbc.type.MappedTypes;
 import infra.jdbc.type.TypeHandler;
 import infra.jdbc.type.TypeHandlerManager;
 import infra.jdbc.type.UnknownTypeHandler;
+import infra.persistence.auditing.AuditorAware;
 import infra.persistence.EntityManager;
 import infra.persistence.EntityMetadataFactory;
 import infra.persistence.IdGenerator;
@@ -27,10 +31,13 @@ import infra.persistence.Pageable;
 import infra.persistence.PropertyFilter;
 import infra.persistence.VersionIncrementStrategy;
 import infra.persistence.annotation.GeneratedId;
+import infra.persistence.auditing.CreatedBy;
+import infra.persistence.auditing.CreatedDate;
 import infra.persistence.annotation.Table;
 import infra.persistence.query.EntityQueryFactory;
 import infra.persistence.query.PropertyConditionStrategy;
 import infra.persistence.support.DefaultEntityManager;
+import infra.persistence.auditing.AuditingEntityListener;
 import infra.persistence.support.DefaultVersionIncrementStrategy;
 import infra.persistence.support.IdGeneratorResolver;
 import infra.test.context.runner.ApplicationContextRunner;
@@ -58,6 +65,47 @@ class EntityManagerAutoConfigurationTests {
     ApplicationContextRunner.forDefault()
             .withConfiguration(AutoConfigurations.of(DataSourceAutoConfiguration.class))
             .run(context -> assertThat(context).doesNotHaveBean(EntityManager.class));
+  }
+
+  @Test
+  void auditingIsOptInAndUsesConfiguredProviders() {
+    contextRunner.run(context -> assertThat(context)
+            .doesNotHaveBean(AuditingEntityListener.class));
+    Instant now = Instant.parse("2026-10-05T12:00:00Z");
+    contextRunner.withPropertyValues("persistence.auditing-enabled=true")
+            .withBean(Clock.class, () -> Clock.fixed(now, ZoneOffset.UTC))
+            .withBean(AuditorAware.class, () -> () -> "user")
+            .run(context -> {
+              assertThat(context).hasSingleBean(AuditingEntityListener.class);
+              RepositoryManager repository = context.getBean(RepositoryManager.class);
+              repository.createNamedQuery("create table auto_audit (id bigint primary key, "
+                      + "created_at timestamp with time zone, created_by varchar(64))").executeUpdate();
+              AutoAuditEntity entity = new AutoAuditEntity();
+              entity.id = 1L;
+              context.getBean(EntityManager.class).persist(entity);
+              assertThat(entity.createdAt).isEqualTo(now);
+              assertThat(entity.createdBy).isEqualTo("user");
+            });
+  }
+
+  @Table("auto_audit")
+  static class AutoAuditEntity {
+    public Long id;
+    @CreatedDate
+    public Instant createdAt;
+    @CreatedBy
+    public String createdBy;
+  }
+
+  @Test
+  void customAuditingListenerIsUsedInsteadOfDefault() {
+    AuditingEntityListener listener = new AuditingEntityListener();
+    contextRunner.withPropertyValues("persistence.auditing-enabled=true")
+            .withBean("customAuditingListener", AuditingEntityListener.class, () -> listener)
+            .run(context -> {
+              assertThat(context).hasSingleBean(AuditingEntityListener.class);
+              assertThat(context.getBean(AuditingEntityListener.class)).isSameAs(listener);
+            });
   }
 
   @Test

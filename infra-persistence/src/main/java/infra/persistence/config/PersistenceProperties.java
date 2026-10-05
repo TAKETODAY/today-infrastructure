@@ -31,4 +31,11 @@ public class PersistenceProperties {
    */
   public int maxBatchRecords = 0;
 
+  /**
+   * Enable annotation-based entity auditing. Defaults to {@code false}.
+   * Uses a {@code Clock} bean when available, otherwise the UTC system clock;
+   * an optional {@code AuditorAware} bean supplies the current auditor.
+   */
+  public boolean auditingEnabled = false;
+
 }

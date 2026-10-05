@@ -25,6 +25,7 @@
 == 事件与批处理
 
 * xref:data-access/persistence/events.adoc[生命周期事件]：持久化前后的监听回调。
+* xref:data-access/persistence/auditing.adoc[实体审计]：自动填充创建与修改时间、操作者身份。
 * xref:data-access/persistence/batch.adoc[批量持久化]：自动批处理与批次监听。
 
 == 底层构件

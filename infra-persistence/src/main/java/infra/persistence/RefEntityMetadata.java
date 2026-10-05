@@ -48,11 +48,14 @@ final class RefEntityMetadata extends EntityMetadata {
   /** The metadata of the referenced entity whose primary table is shared. */
   private final EntityMetadata refMetadata;
 
+  private final int hashCode;
+
   RefEntityMetadata(EntityMetadata refMetadata, BeanMetadata root, Class<?> entityClass,
           Identifier tableName, @Nullable EntityProperty idProperty, @Nullable EntityProperty versionProperty,
           List<Identifier> columnNames, List<EntityProperty> entityProperties) {
     super(root, entityClass, tableName, idProperty, versionProperty, columnNames, entityProperties);
     this.refMetadata = refMetadata;
+    this.hashCode = 31 * super.hashCode() + Objects.hashCode(refMetadata);
   }
 
   /**
@@ -100,7 +103,7 @@ final class RefEntityMetadata extends EntityMetadata {
 
   @Override
   public int hashCode() {
-    return 31 * super.hashCode() + Objects.hashCode(refMetadata);
+    return hashCode;
   }
 
 }
