@@ -16,7 +16,10 @@
 
 package infra.persistence.event;
 
+import java.util.List;
+
 import infra.persistence.EntityMetadata;
+import infra.persistence.EntityProperty;
 import infra.persistence.PropertyUpdateStrategy;
 
 /**
@@ -25,7 +28,7 @@ import infra.persistence.PropertyUpdateStrategy;
  * <p>This interface extends {@link EntityEventListener} — the common base contract
  * shared by the entity lifecycle listeners — and models only the persist concern via
  * {@link #onPrePersist(Object, EntityMetadata, PropertyUpdateStrategy)},
- * {@link #onPostPersist(Object, EntityMetadata, PropertyUpdateStrategy)}, and
+ * {@link #onPostPersist(Object, EntityMetadata, List)}, and
  * {@link #onPersistFailed(Object, EntityMetadata, PropertyUpdateStrategy, Throwable)}. To
  * observe other lifecycle operations, implement the corresponding contract, e.g.
  * {@link UpdateEventListener} or {@link DeleteEventListener}.
@@ -58,7 +61,12 @@ public interface PersistEventListener<T> extends EntityEventListener<T> {
    * ID itself; an existing non-null ID is preserved without invoking the generator.
    * Database-generated identifiers are read back only after the INSERT executes.
    *
-   * <p>The given {@code strategy} is the {@link PropertyUpdateStrategy} that will
+   * <p>Listeners run in registration order. The returned strategy is passed to
+   * the next listener, and the final strategy is evaluated after all callbacks
+   * and ID generation. Return the supplied strategy when only modifying or
+   * validating the entity. Value-dependent rules should be evaluated lazily.
+   *
+   * <p>The effective {@code strategy} is the {@link PropertyUpdateStrategy} that will
    * decide which ordinary properties are written back; a modification made to the entity in
    * this callback is only applied when the strategy selects the modified property
    * (with the default {@code noneNull()} strategy, a property is written back once
@@ -69,8 +77,10 @@ public interface PersistEventListener<T> extends EntityEventListener<T> {
    * @param metadata the entity metadata; must not be {@code null}
    * @param strategy the property update strategy used to select the persisted
    * properties; must not be {@code null}
+   * @return the effective selection strategy, never {@code null}
    */
-  default void onPrePersist(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+  default PropertyUpdateStrategy onPrePersist(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+    return strategy;
   }
 
   /**
@@ -80,17 +90,16 @@ public interface PersistEventListener<T> extends EntityEventListener<T> {
    * auto-generated identifiers (if any) have already been written back onto the
    * entity.
    *
-   * <p>The given {@code strategy} is the same {@link PropertyUpdateStrategy} that
-   * drove the insert. It describes the selection rule, not a snapshot of the
-   * written columns: generated identifiers or other entity changes may affect
-   * the result of evaluating the strategy again after execution.
+   * <p>The given properties are the actual INSERT columns in SQL parameter order,
+   * exposed as an immutable list. Database-generated IDs are not included, even
+   * though their values have been written back to the entity. This callback does
+   * not imply that the surrounding transaction has committed.
    *
    * @param entity the fully populated entity; must not be {@code null}
    * @param metadata the entity metadata; must not be {@code null}
-   * @param strategy the property update strategy that selected the persisted
-   * properties; must not be {@code null}
+   * @param properties the immutable list of inserted properties in SQL parameter order
    */
-  default void onPostPersist(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+  default void onPostPersist(T entity, EntityMetadata metadata, List<EntityProperty> properties) {
   }
 
   /**

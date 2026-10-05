@@ -256,9 +256,10 @@ class IdGenerationTests {
   void prePersistAssignmentTakesPrecedenceOverGeneration() {
     manager.getEntityEventRegistry().addListener(new PersistEventListener<ClassEntity>() {
       @Override
-      public void onPrePersist(ClassEntity entity, infra.persistence.EntityMetadata metadata,
+      public PropertyUpdateStrategy onPrePersist(ClassEntity entity, infra.persistence.EntityMetadata metadata,
               PropertyUpdateStrategy strategy) {
         entity.id = "callback-id";
+        return strategy;
       }
     });
     ClassEntity entity = new ClassEntity();
@@ -281,23 +282,25 @@ class IdGenerationTests {
 
     manager.getEntityEventRegistry().addListener(new PersistEventListener<NamedEntity>() {
       @Override
-      public void onPrePersist(NamedEntity entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+      public PropertyUpdateStrategy onPrePersist(NamedEntity entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
         assertThat(entity.id).isNull();
         entity.name = "prepared";
         events.add("pre-first");
+        return strategy;
       }
     });
 
     manager.getEntityEventRegistry().addListener(new PersistEventListener<NamedEntity>() {
       @Override
-      public void onPrePersist(NamedEntity entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+      public PropertyUpdateStrategy onPrePersist(NamedEntity entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
         assertThat(entity.id).isNull();
         entity.name += "-ready";
         events.add("pre-second");
+        return strategy;
       }
 
       @Override
-      public void onPostPersist(NamedEntity entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+      public void onPostPersist(NamedEntity entity, EntityMetadata metadata, List<EntityProperty> properties) {
         assertThat(entity.id).isEqualTo("id-prepared-ready");
         events.add("post");
       }
@@ -325,13 +328,14 @@ class IdGenerationTests {
             "id-" + factory.getBean(AtomicInteger.class).incrementAndGet());
     manager.getEntityEventRegistry().addListener(new PersistEventListener<NamedEntity>() {
       @Override
-      public void onPrePersist(NamedEntity entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+      public PropertyUpdateStrategy onPrePersist(NamedEntity entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
         if (entity == first) {
           entity.name = null;
         }
         else if (entity == second) {
           entity.name = "second";
         }
+        return strategy;
       }
     });
 
@@ -377,13 +381,14 @@ class IdGenerationTests {
 
     manager.getEntityEventRegistry().addListener(new PersistEventListener<NamedEntity>() {
       @Override
-      public void onPrePersist(NamedEntity entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+      public PropertyUpdateStrategy onPrePersist(NamedEntity entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
         assertThat(entity.id).isNull();
         entity.id = "callback-assigned";
+        return strategy;
       }
 
       @Override
-      public void onPostPersist(NamedEntity entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+      public void onPostPersist(NamedEntity entity, EntityMetadata metadata, List<EntityProperty> properties) {
         assertThat(entity.id).isEqualTo("callback-assigned");
       }
     });

@@ -17,15 +17,16 @@
 package infra.persistence.event;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import infra.persistence.EntityMetadata;
-import infra.persistence.PropertyUpdateStrategy;
+import infra.persistence.EntityProperty;
 
 /**
  * Holds the context of a single batch persistence operation.
  *
- * <p>It exposes the SQL statement, the entity metadata, the property update
- * strategy and whether auto-generated IDs are handled, together with the
+ * <p>It exposes the SQL statement, the entity metadata, the selected properties
+ * and whether auto-generated IDs are handled, together with the
  * {@link #entities} collected for the batch. Instances are created by the
  * persistence infrastructure; the constructor is {@code protected} and is not
  * intended for application use.
@@ -39,14 +40,14 @@ import infra.persistence.PropertyUpdateStrategy;
  * <ul>
  *   <li>Encapsulates the SQL statement and entity metadata for batch operations.</li>
  *   <li>Reports whether auto-generated IDs are handled for the batch.</li>
- *   <li>Exposes the {@link PropertyUpdateStrategy} used for property updates.</li>
+ *   <li>Exposes the selected properties in SQL parameter order.</li>
  *   <li>Collects the entities to be processed via the {@link #entities} list.</li>
  * </ul>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see BatchPersistListener
  * @see EntityMetadata
- * @see PropertyUpdateStrategy
+ * @see EntityProperty
  * @since 4.0 2024/2/20 23:25
  */
 public abstract class BatchExecution {
@@ -57,14 +58,18 @@ public abstract class BatchExecution {
 
   public final EntityMetadata entityMetadata;
 
-  public final PropertyUpdateStrategy strategy;
+  /**
+   * The immutable selected property list, in SQL parameter order, shared by
+   * every entity in this batch.
+   */
+  public final List<EntityProperty> properties;
 
   public final ArrayList<Object> entities = new ArrayList<>();
 
-  protected BatchExecution(String statement, PropertyUpdateStrategy strategy,
-          EntityMetadata entityMetadata, boolean autoGenerateId) {
+  protected BatchExecution(String statement, EntityMetadata entityMetadata,
+          List<EntityProperty> properties, boolean autoGenerateId) {
     this.statement = statement;
-    this.strategy = strategy;
+    this.properties = List.copyOf(properties);
     this.entityMetadata = entityMetadata;
     this.autoGenerateId = autoGenerateId;
   }

@@ -18,7 +18,10 @@ package infra.persistence.support;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
+
 import infra.persistence.EntityMetadata;
+import infra.persistence.EntityProperty;
 import infra.persistence.PropertyUpdateStrategy;
 import infra.persistence.event.BatchExecution;
 import infra.persistence.event.BatchPersistListener;
@@ -54,15 +57,17 @@ final class EntityEventMulticaster {
     this.registry = registry;
   }
 
-  public void onPrePersist(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
-    for (var listener : registry.listeners(PersistEventListener.class).listenersFor(entity.getClass())) {
-      listener.onPrePersist(entity, metadata, strategy);
+  public PropertyUpdateStrategy onPrePersist(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+    var listeners = registry.listeners(PersistEventListener.class).listenersFor(entity.getClass());
+    for (var listener : listeners) {
+      strategy = listener.onPrePersist(entity, metadata, strategy);
     }
+    return strategy;
   }
 
-  public void onPostPersist(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+  public void onPostPersist(Object entity, EntityMetadata metadata, List<EntityProperty> properties) {
     for (var listener : registry.listeners(PersistEventListener.class).listenersFor(entity.getClass())) {
-      listener.onPostPersist(entity, metadata, strategy);
+      listener.onPostPersist(entity, metadata, properties);
     }
   }
 
@@ -72,10 +77,12 @@ final class EntityEventMulticaster {
     }
   }
 
-  public void onPreUpdate(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
-    for (var listener : registry.listeners(UpdateEventListener.class).listenersFor(entity.getClass())) {
-      listener.onPreUpdate(entity, metadata, strategy);
+  public PropertyUpdateStrategy onPreUpdate(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+    var listeners = registry.listeners(UpdateEventListener.class).listenersFor(entity.getClass());
+    for (var listener : listeners) {
+      strategy = listener.onPreUpdate(entity, metadata, strategy);
     }
+    return strategy;
   }
 
   public void onPostUpdate(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, int affectedRows) {

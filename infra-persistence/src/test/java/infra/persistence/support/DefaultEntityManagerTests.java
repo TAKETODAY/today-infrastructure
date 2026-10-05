@@ -390,25 +390,27 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       entityManager.getEntityEventRegistry().addListener(new PersistEventListener<UserModel>() {
 
         @Override
-        public void onPrePersist(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+        public PropertyUpdateStrategy onPrePersist(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
           persistStrategies.add(strategy);
           // modification performed in a before callback must be picked up
           entity.age = 99;
           received.add("beforePersist");
+          return strategy;
         }
 
         @Override
-        public void onPostPersist(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
-          persistStrategies.add(strategy);
+        public void onPostPersist(UserModel entity, EntityMetadata metadata, List<EntityProperty> properties) {
+          assertThat(properties).extracting(EntityProperty::getName).contains("age").doesNotContain("id");
           received.add("afterPersist:" + entity.age);
         }
       });
       entityManager.getEntityEventRegistry().addListener(new UpdateEventListener<UserModel>() {
 
         @Override
-        public void onPreUpdate(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+        public PropertyUpdateStrategy onPreUpdate(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
           updateStrategies.add(strategy);
           received.add("beforeUpdate");
+          return strategy;
         }
 
         @Override
@@ -442,8 +444,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
 
       assertThat(received).containsExactly("beforePersist", "afterPersist:99",
               "beforeUpdate", "afterUpdate", "beforeDelete", "afterDelete:" + user.id);
-      assertThat(persistStrategies).hasSize(2);
-      assertThat(persistStrategies.get(1)).isSameAs(persistStrategies.get(0));
+      assertThat(persistStrategies).hasSize(1);
       assertThat(updateStrategies).hasSize(2);
       assertThat(updateStrategies.get(1)).isSameAs(updateStrategies.get(0));
     }

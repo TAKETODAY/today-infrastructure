@@ -52,18 +52,25 @@ public interface UpdateEventListener<T> extends EntityEventListener<T> {
    * statement is built and executed.
    *
    * <p>Whether a modification made to the entity in this callback is applied
-   * depends on the given {@link PropertyUpdateStrategy}: with the default
+   * depends on the effective {@link PropertyUpdateStrategy}: with the default
    * {@code noneNull()} strategy only non-null properties are written back, and a
    * {@code @Version} property is always overwritten by the framework's own version
-   * increment. This callback is therefore best used for observation, validation, or
-   * auditing rather than for reliably mutating the entity.
+   * increment.
+   *
+   * <p>Listeners run in registration order, passing the returned strategy to
+   * the next listener. The final strategy is evaluated after all callbacks.
+   * Return the supplied strategy when only modifying or validating the entity.
+   * Value-dependent rules should be evaluated lazily. Version handling and
+   * condition properties retain their framework semantics.
    *
    * @param entity the entity to be updated; must not be {@code null}
    * @param metadata the entity metadata; must not be {@code null}
    * @param strategy the property update strategy used to select the updated
    * properties; must not be {@code null}
+   * @return the effective selection strategy, never {@code null}
    */
-  default void onPreUpdate(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+  default PropertyUpdateStrategy onPreUpdate(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+    return strategy;
   }
 
   /**
