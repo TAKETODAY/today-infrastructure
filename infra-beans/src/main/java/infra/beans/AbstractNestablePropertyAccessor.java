@@ -231,7 +231,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
       throw new NotWritablePropertyException(getRootClass(), this.nestedPath + propertyName,
               "Nested property in path '%s' does not exist".formatted(propertyName), ex);
     }
-    resolved.accessor().setPropertyValue(resolved.segment(), new PropertyValue(propertyName, value));
+    resolved.accessor.setPropertyValue(resolved.segment, new PropertyValue(propertyName, value));
   }
 
   @Override
@@ -252,10 +252,10 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
         throw new NotWritablePropertyException(getRootClass(), this.nestedPath + propertyName,
                 "Nested property in path '%s' does not exist".formatted(propertyName), ex);
       }
-      if (resolved.accessor() == this) {
-        pv.getOriginalPropertyValue().resolvedTokens = resolved.segment();
+      if (resolved.accessor == this) {
+        pv.getOriginalPropertyValue().resolvedTokens = resolved.segment;
       }
-      resolved.accessor().setPropertyValue(resolved.segment(), pv);
+      resolved.accessor.setPropertyValue(resolved.segment, pv);
     }
   }
 
@@ -499,8 +499,8 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
   public @Nullable TypeDescriptor getPropertyTypeDescriptor(String propertyName) throws BeansException {
     try {
       ResolvedProperty resolved = resolvePropertyPath(propertyName);
-      PropertyPath.Segment segment = resolved.segment();
-      PropertyHandler handler = resolved.accessor().getLocalPropertyHandler(segment.name());
+      PropertyPath.Segment segment = resolved.segment;
+      PropertyHandler handler = resolved.accessor.getLocalPropertyHandler(segment.name());
       if (handler != null) {
         if (!segment.keys().isEmpty()) {
           if (handler.readable || handler.writable) {
@@ -585,7 +585,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
   @Override
   public @Nullable Object getPropertyValue(String propertyName) throws BeansException {
     ResolvedProperty resolved = resolvePropertyPath(propertyName);
-    return resolved.accessor().getPropertyValue(resolved.segment());
+    return resolved.accessor.getPropertyValue(resolved.segment);
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -710,7 +710,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
   protected @Nullable PropertyHandler getPropertyHandler(String propertyName) throws BeansException {
     Assert.notNull(propertyName, "Property name is required");
     ResolvedProperty resolved = resolvePropertyPath(propertyName);
-    return resolved.accessor().getLocalPropertyHandler(resolved.segment().toCanonicalName());
+    return resolved.accessor.getLocalPropertyHandler(resolved.segment.toCanonicalName());
   }
 
   /**
@@ -948,33 +948,6 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
       this.writable = writable;
     }
 
-    /**
-     * Return the declared type of the property.
-     *
-     * @return the property type
-     */
-    public Class<?> getPropertyType() {
-      return this.propertyType;
-    }
-
-    /**
-     * Return whether the property can be read.
-     *
-     * @return whether the property is readable
-     */
-    public boolean isReadable() {
-      return this.readable;
-    }
-
-    /**
-     * Return whether the property can be written.
-     *
-     * @return whether the property is writable
-     */
-    public boolean isWritable() {
-      return this.writable;
-    }
-
     public abstract TypeDescriptor toTypeDescriptor();
 
     public abstract ResolvableType getResolvableType();
@@ -1013,11 +986,23 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
   /**
    * The accessor that owns the final property and its parsed segment.
    *
-   * @param accessor the accessor for the target bean
-   * @param segment the final segment of the resolved path
    * @since 5.0
    */
-  protected record ResolvedProperty(AbstractNestablePropertyAccessor accessor, PropertyPath.Segment segment) {
+  protected static class ResolvedProperty {
+
+    public final AbstractNestablePropertyAccessor accessor;
+
+    public final PropertyPath.Segment segment;
+
+    /**
+     * @param accessor the accessor for the target bean
+     * @param segment the final segment of the resolved path
+     */
+    protected ResolvedProperty(AbstractNestablePropertyAccessor accessor, PropertyPath.Segment segment) {
+      this.accessor = accessor;
+      this.segment = segment;
+    }
+
   }
 
 }
