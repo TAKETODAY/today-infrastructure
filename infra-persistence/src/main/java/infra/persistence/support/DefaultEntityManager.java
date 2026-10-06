@@ -42,6 +42,7 @@ import infra.dao.OptimisticLockingFailureException;
 import infra.jdbc.DefaultResultSetHandlerFactory;
 import infra.jdbc.GeneratedKeysException;
 import infra.jdbc.JdbcBeanMetadata;
+import infra.jdbc.JdbcConnection;
 import infra.jdbc.JdbcUpdateAffectedIncorrectNumberOfRowsException;
 import infra.jdbc.PersistenceException;
 import infra.jdbc.RepositoryManager;
@@ -515,7 +516,7 @@ public class DefaultEntityManager implements EntityManager {
         return updateCount;
       }
       catch (Throwable ex) {
-        transaction.rollback(false);
+        rollbackAfterFailure(transaction, ex);
         if (ex instanceof DataAccessException dae) {
           throw dae;
         }
@@ -769,7 +770,7 @@ public class DefaultEntityManager implements EntityManager {
         return updateCount;
       }
       catch (Throwable ex) {
-        transaction.rollback(false);
+        rollbackAfterFailure(transaction, ex);
         if (ex instanceof DataAccessException dae) {
           throw dae;
         }
@@ -1597,6 +1598,20 @@ public class DefaultEntityManager implements EntityManager {
       throw new InvalidDataAccessApiUsageException("Updating an entity, There is no update properties");
     }
     return properties;
+  }
+
+  private static void rollbackAfterFailure(JdbcConnection transaction, Throwable exception) {
+    try {
+      var status = transaction.getTransaction();
+      if (status != null && !status.isCompleted()) {
+        transaction.rollback(false);
+      }
+    }
+    catch (Throwable rollbackFailure) {
+      if (rollbackFailure != exception) {
+        exception.addSuppressed(rollbackFailure);
+      }
+    }
   }
 
   private static int computeUpdateRows(int updateCount, int count) {
