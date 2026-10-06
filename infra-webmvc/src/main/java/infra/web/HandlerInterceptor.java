@@ -23,152 +23,64 @@ import org.jspecify.annotations.Nullable;
 import infra.web.handler.method.HandlerMethod;
 
 /**
- * A HandlerInterceptor provides callback methods for pre-processing and post-processing
- * web requests in a web application. It is typically used to apply cross-cutting
- * concerns such as logging, security checks, modifying request/response data,
- * or handling CORS (Cross-Origin Resource Sharing).
+ * Intercepts HTTP request processing before and after a target handler is invoked.
+ * Typical uses include logging, request validation, and updating the request or
+ * response context.
  *
- * <p>Implementations of this interface can intercept requests before and after the
- * execution of a handler (e.g., a controller method) and optionally modify the
- * behavior of the handler or its result.
+ * <p>The default {@link #intercept(HttpContext, InterceptorChain)} implementation
+ * invokes {@link #preProcessing(HttpContext, Object)}, proceeds with the remaining
+ * interceptor chain if allowed, and invokes
+ * {@link #postProcessing(HttpContext, Object, Object)} when the chain returns
+ * normally. Pre-processing callbacks run in chain order; post-processing callbacks
+ * run in reverse order for interceptors that proceeded with the chain.
  *
- * <h3>Usage Examples</h3>
+ * <p>Returning {@code false} from {@code preProcessing} skips the remaining
+ * interceptors and the target handler, and returns {@link #NONE_RETURN_VALUE}.
+ * The interceptor is then responsible for handling the response.
  *
- * <p>Here are some examples of how to implement and use a {@code HandlerInterceptor}:
+ * <p>Override {@code intercept} to replace the result, handle exceptions, or perform
+ * cleanup in a {@code finally} block. {@code postProcessing} is not a completion
+ * callback and is not invoked when pre-processing rejects the request or the
+ * remaining chain throws an exception.
  *
- * <h4>Example 1: CORS Interceptor</h4>
- * <pre>{@code
- * public class CorsInterceptor implements HandlerInterceptor {
- *   private final CorsConfigurationSource configSource;
- *   private CorsProcessor processor = new DefaultCorsProcessor();
- *
- *   public CorsInterceptor(CorsConfigurationSource configSource) {
- *     Assert.notNull(configSource, "CorsConfigurationSource is required");
- *     this.configSource = configSource;
- *   }
- *
- *   @Override
- *   public boolean preProcessing(HttpContext request, Object handler) throws Exception {
- *     CorsConfiguration corsConfiguration = configSource.getCorsConfiguration(request);
- *     return processor.process(corsConfiguration, request)
- *             && !request.isPreFlightRequest();
- *   }
- * }
- * }</pre>
- *
- * <h4>Example 2: Modifying Response Data</h4>
- * <pre>{@code
- * static class ModifyResult implements HandlerInterceptor {
- *
- *   @Override
- *   public void postProcessing(HttpContext request, Object handler, Object result) {
- *     if (result instanceof List list) {
- *       list.add(new TestBean("add"));
- *     }
- *   }
- * }
- * }</pre>
- *
- * <h4>Example 3: Locale Change Interceptor</h4>
- * <pre>{@code
- * public class LocaleChangeInterceptor implements HandlerInterceptor {
- *
- *   private String paramName = "locale";
- *
- *   @Override
- *   public boolean preProcessing(HttpContext request, Object handler) {
- *     String localeValue = request.getParameter(paramName);
- *     if (localeValue != null) {
- *       Locale locale = parseLocaleValue(localeValue);
- *       if (locale != null) {
- *         LocaleResolver localeResolver = getLocaleResolver();
- *         if (localeResolver != null) {
- *           localeResolver.setLocale(request, locale);
- *         }
- *       }
- *     }
- *     return true;
- *   }
- *
- *   protected Locale parseLocaleValue(String localeValue) {
- *     return StringUtils.parseLocale(localeValue);
- *   }
- * }
- * }</pre>
- *
- * <h3>Key Methods</h3>
- *
- * <p>{@link #preProcessing(HttpContext, Object)}: Called before the handler processes
- * the request. Return {@code true} to allow the handler to execute, or {@code false}
- * to prevent further processing.
- *
- * <p>{@link #postProcessing(HttpContext, Object, Object)}: Called after the handler has
- * processed the request. Use this method to modify the result or perform cleanup.
- *
- * <p>{@link #intercept(HttpContext, InterceptorChain)}: Provides a hook for
- * implementing custom interception logic around the handler execution.
- *
- * <h3>Constants</h3>
- *
- * <p>{@link #EMPTY_ARRAY}: An empty array of {@code HandlerInterceptor}, useful for
- * initializing interceptor chains.
- *
- * <p>{@link #NONE_RETURN_VALUE}: A constant representing a "no-op" return value,
- * typically used when a handler should not proceed further.
- *
- * <h3>Integration with Framework</h3>
- *
- * <p>{@code HandlerInterceptor} is often used in conjunction with other components
- * like {@code MappedInterceptor} to apply interceptors conditionally based on URL
- * patterns or other criteria.
+ * <p>Use {@link infra.web.handler.MappedInterceptor} to apply an interceptor
+ * conditionally based on request path patterns.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see HandlerMethod#resolve(Object)
+ * @see InterceptorChain
  * @since 2018-06-25 20:06:11
  */
 public interface HandlerInterceptor {
 
   /**
-   * empty HandlerInterceptor array
+   * An empty array of handler interceptors.
    */
   HandlerInterceptor[] EMPTY_ARRAY = {};
 
   /**
-   * NONE_RETURN_VALUE
+   * Sentinel indicating that no further return value handling is required.
+   * This is the same instance as {@link HttpRequestHandler#NONE_RETURN_VALUE}.
    */
   Object NONE_RETURN_VALUE = HttpRequestHandler.NONE_RETURN_VALUE;
 
   /**
-   * Executes custom logic before the request is processed by the handler.
-   * This method can be used to perform pre-processing tasks such as validation,
-   * logging, or modifying the request context.
+   * Apply pre-processing before the remaining interceptor chain and target handler.
    *
-   * <p>Example usage:
-   * <pre>{@code
-   * public class CustomInterceptor implements HandlerInterceptor {
-   *   @Override
-   *   public boolean preProcessing(HttpContext request, Object handler) throws Exception {
-   *     // Log the incoming request
-   *     System.out.println("Processing request: " + request.getRequestURI());
+   * <p>With the default {@link #intercept(HttpContext, InterceptorChain)}
+   * implementation, returning {@code false} skips the remaining chain and this
+   * interceptor's post-processing callback. In that case, this interceptor is
+   * responsible for handling the response.
    *
-   *     // Perform custom validation
-   *     if (handler instanceof HandlerMethod) {
-   *       HandlerMethod handlerMethod = (HandlerMethod) handler;
-   *       System.out.println("Handler method: " + handlerMethod.getMethod().getName());
-   *     }
+   * <p>The default implementation returns {@code true}.
    *
-   *     // Return true to continue processing, or false to stop
-   *     return true;
-   *   }
-   * }
-   * }</pre>
-   *
-   * @param context Current HTTP context containing details about the request
-   * @param handler The handler object that will process the request. This could
-   * be a {@link HandlerMethod} or another
-   * type of handler
-   * @return true if the request should proceed to the handler, false otherwise
-   * @throws Exception If any exception occurs during the execution of this method
+   * @param context the current HTTP request and response context
+   * @param handler the target handler from {@link InterceptorChain#getHandler()},
+   * potentially wrapped; use {@link HandlerMethod#resolve(Object)} to resolve a
+   * handler method if applicable
+   * @return {@code true} to proceed with the remaining chain, or {@code false}
+   * to short-circuit processing
+   * @throws Exception if pre-processing fails
    * @see HandlerMethod#resolve(Object)
    */
   default boolean preProcessing(HttpContext context, Object handler) throws Exception {
@@ -176,80 +88,50 @@ public interface HandlerInterceptor {
   }
 
   /**
-   * Executes custom logic after the request has been processed by the handler.
-   * This method can be used to perform post-processing tasks such as logging,
-   * modifying the result, or cleaning up resources.
+   * Apply post-processing after the remaining interceptor chain returns normally.
    *
-   * <p>Example usage:
-   * <pre>{@code
-   * public class CustomInterceptor implements HandlerInterceptor {
-   *   @Override
-   *   public void postProcessing(HttpContext request, Object handler,
-   *                            @Nullable Object result) throws Exception {
-   *     // Log the result of the request processing
-   *     System.out.println("Request processed with result: " + result);
+   * <p>The result may originate from the target handler or a downstream interceptor,
+   * including one that short-circuited the chain. This callback can update the
+   * context or mutate a mutable result, but cannot replace the returned result.
+   * Override {@link #intercept(HttpContext, InterceptorChain)} to return a different
+   * result.
    *
-   *     // Perform additional operations based on the result
-   *     if (result instanceof String) {
-   *       System.out.println("Result is a String: " + result);
-   *     }
+   * <p>This callback is not invoked if this interceptor's pre-processing returns
+   * {@code false} or the remaining chain throws an exception. For guaranteed
+   * cleanup, override {@code intercept} and use a {@code finally} block.
    *
-   *     // Modify the result if necessary
-   *     if (result != null) {
-   *       request.setAttribute("modifiedResult", result.toString().toUpperCase());
-   *     }
-   *   }
-   * }
-   * }</pre>
+   * <p>The default implementation does nothing.
    *
-   * @param context Current HTTP context containing details about the request
-   * @param handler The handler object that processed the request. This could
-   * be a {@link HandlerMethod} or another type of handler
-   * @param result The result returned by the handler after processing the request.
-   * This may be {@code null} if the handler does not return a value
-   * @throws Exception If any exception occurs during the execution of this method
+   * @param context the current HTTP request and response context
+   * @param handler the target handler from {@link InterceptorChain#getHandler()},
+   * which may not have been invoked if a downstream interceptor short-circuited
+   * @param result the result returned by the remaining chain, possibly {@code null}
+   * or {@link #NONE_RETURN_VALUE}
+   * @throws Exception if post-processing fails
    */
   default void postProcessing(HttpContext context, Object handler, @Nullable Object result) throws Exception {
   }
 
   /**
-   * Intercepts the processing of a request by executing custom logic before and after
-   * the request is handled. This method allows for pre-processing, modifying, or stopping
-   * the request flow, as well as post-processing the result returned by the handler.
+   * Intercept request processing around the remaining chain and target handler.
    *
-   * <p>Example usage:
-   * <pre>{@code
-   * public class CustomInterceptor implements HandlerInterceptor {
-   *   @Override
-   *   public boolean preProcessing(HttpContext context, Object handler) throws Exception {
-   *     System.out.println("Pre-processing request: " + context.getRequestURI());
-   *     return true; // Continue processing
-   *   }
+   * <p>The default implementation obtains the target handler from the chain and
+   * invokes {@link #preProcessing(HttpContext, Object)}. If it returns {@code true},
+   * the implementation calls {@link InterceptorChain#proceed(HttpContext)}, invokes
+   * {@link #postProcessing(HttpContext, Object, Object)} with the returned result,
+   * and returns that result. Otherwise, it returns {@link #NONE_RETURN_VALUE}.
+   * Exceptions propagate to the caller.
    *
-   *   @Override
-   *   public void postProcessing(HttpContext context, Object handler,
-   *                             @Nullable Object result) throws Exception {
-   *     if (result instanceof String) {
-   *       System.out.println("Post-processing result: " + result);
-   *     }
-   *   }
+   * <p>Custom implementations can delegate to {@code chain.proceed(context)} to
+   * continue processing, or return a result directly to short-circuit the chain.
+   * They can also replace the result, handle exceptions, or release resources in
+   * a {@code finally} block.
    *
-   *   @Override
-   *   @Nullable
-   *   public Object intercept(HttpContext context, InterceptorChain chain) throws Exception {
-   *     return HandlerInterceptor.super.intercept(context, chain);
-   *   }
-   * }
-   * }</pre>
-   *
-   * @param context The current HTTP context containing details about the request
-   * @param chain The interceptor chain that allows proceeding to the next interceptor
-   * or the final handler
-   * @return The result of the request processing if {@link #preProcessing} returns true;
-   * otherwise, {@link HandlerInterceptor#NONE_RETURN_VALUE}. May be {@code null}
-   * if the handler does not return a value
-   * @throws Exception If any exception occurs during the execution of this method or
-   * within the interceptor chain
+   * @param context the current HTTP request and response context
+   * @param chain the chain used to invoke the next interceptor or target handler
+   * @return the processing result, possibly {@code null}, or {@link #NONE_RETURN_VALUE}
+   * if no further return value handling is required
+   * @throws Exception if pre-processing, the remaining chain, or post-processing fails
    */
   default @Nullable Object intercept(HttpContext context, InterceptorChain chain) throws Exception {
     Object handler = chain.getHandler();
