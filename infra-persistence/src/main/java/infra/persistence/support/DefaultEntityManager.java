@@ -75,6 +75,8 @@ import infra.persistence.VersionIncrementStrategy;
 import infra.persistence.annotation.UpdateBy;
 import infra.persistence.annotation.Version;
 import infra.persistence.event.BatchExecution;
+import infra.persistence.event.BatchExecutionListener;
+import infra.persistence.event.BatchOperation;
 import infra.persistence.event.DefaultEntityEventRegistry;
 import infra.persistence.event.EntityEventRegistry;
 import infra.persistence.platform.Platform;
@@ -336,7 +338,7 @@ public class DefaultEntityManager implements EntityManager {
   /**
    * Return the {@link EntityEventRegistry} used to register
    * {@link infra.persistence.event.EntityEventListener entity lifecycle listeners}
-   * and {@link infra.persistence.event.BatchPersistListener batch persist
+   * and {@link BatchExecutionListener batch persist
    * listeners}. Listener mutations are picked up by the dispatcher immediately.
    *
    * @since 5.0
@@ -1580,6 +1582,11 @@ public class DefaultEntityManager implements EntityManager {
             List<EntityProperty> properties, boolean autoGenerateId) throws SQLException {
       super(sql, entityMetadata, properties, autoGenerateId);
       this.stmt = prepareStatement(connection, sql, autoGenerateId);
+    }
+
+    @Override
+    public BatchOperation getOperation() {
+      return BatchOperation.INSERT;
     }
 
     public void addBatchUpdate(Object entity, int maxBatchRecords) throws Throwable {

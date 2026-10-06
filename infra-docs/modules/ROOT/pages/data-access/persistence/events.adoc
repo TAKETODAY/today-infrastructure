@@ -27,7 +27,7 @@
 | `PostTruncateEventListener`
 | `onPostTruncate`，清空表后触发（无实体实例，只有实体类与元数据）。
 
-| `BatchPersistListener`
+| `BatchExecutionListener`
 | `preProcessing` / `postProcessing`，见 xref:data-access/persistence/batch.adoc[批量持久化]。
 
 |===

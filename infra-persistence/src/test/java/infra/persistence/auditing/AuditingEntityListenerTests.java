@@ -49,7 +49,7 @@ import infra.persistence.annotation.Column;
 import infra.persistence.annotation.Table;
 import infra.persistence.annotation.UpdateBy;
 import infra.persistence.event.PersistEventListener;
-import infra.persistence.event.BatchPersistListener;
+import infra.persistence.event.BatchExecutionListener;
 import infra.persistence.event.BatchExecution;
 import infra.persistence.event.UpdateEventListener;
 import infra.persistence.support.DefaultEntityManager;
@@ -131,7 +131,7 @@ class AuditingEntityListenerTests {
     List<Long> persistedIds = new ArrayList<>();
     manager.setMaxBatchRecords(2);
     PropertyUpdateStrategy original = (object, property) -> property.isIdProperty();
-    manager.getEntityEventRegistry().addListener(new BatchPersistListener() {
+    manager.getEntityEventRegistry().addListener(new BatchExecutionListener() {
       @Override
       public void preProcessing(BatchExecution execution, boolean implicitExecution) {
         assertThat(execution.properties).extracting(property -> property.getName())

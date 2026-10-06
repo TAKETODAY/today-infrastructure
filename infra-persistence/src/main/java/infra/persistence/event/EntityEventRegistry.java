@@ -41,7 +41,7 @@ import java.util.Collection;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see infra.persistence.event.Listener
  * @see infra.persistence.event.EntityEventListener
- * @see infra.persistence.event.BatchPersistListener
+ * @see BatchExecutionListener
  * @see infra.persistence.event.EventListenerGroup
  * @see infra.persistence.support.DefaultEntityManager#getEntityEventRegistry()
  * @since 5.0
@@ -50,7 +50,7 @@ public interface EntityEventRegistry {
 
   /**
    * Register a persistence {@link Listener}. Both {@link EntityEventListener} and
-   * {@link BatchPersistListener} instances are accepted and grouped by their
+   * {@link BatchExecutionListener} instances are accepted and grouped by their
    * contract type for dispatch.
    *
    * <p>The entity type an {@link EntityEventListener} is interested in is derived
@@ -114,7 +114,7 @@ public interface EntityEventRegistry {
    * allows a caller to dispatch events directly. For an {@link EntityEventListener}
    * contract the returned group is entity-class aware, so {@link
    * EventListenerGroup#listenersFor(Class)} resolves the listeners observing a
-   * concrete entity class; a flat contract such as {@link BatchPersistListener} does
+   * concrete entity class; a flat contract such as {@link BatchExecutionListener} does
    * not support entity-class lookup and rejects it with
    * {@link UnsupportedOperationException}.
    *

@@ -23,39 +23,44 @@ import infra.persistence.EntityMetadata;
 import infra.persistence.EntityProperty;
 
 /**
- * Holds the context of a single batch persistence operation.
+ * Holds the execution context for batch save and batch update operations.
  *
- * <p>It exposes the SQL statement, the entity metadata, the selected properties
- * and whether auto-generated IDs are handled, together with the
- * {@link #entities} collected for the batch. Instances are created by the
- * persistence infrastructure; the constructor is {@code protected} and is not
- * intended for application use.
+ * <p>Both operations share this context: {@link #statement} identifies the SQL to
+ * execute, {@link #entityMetadata} describes the entity type, and
+ * {@link #properties} exposes the selected properties in SQL parameter order.
+ * {@link #autoGenerateId} indicates whether auto-generated IDs are handled.
+ * Use {@link #getOperation()} to determine the operation type.
  *
- * <p>The metadata fields are read-only, while {@link #entities} is mutable and
- * accumulates the entities to be processed. A {@code BatchExecution} is passed to
- * {@link BatchPersistListener} callbacks so that listeners can inspect the batch
- * before and after it is executed.
+ * <p>The metadata references are fixed for the lifetime of the context, and the
+ * selected property list is immutable. The mutable {@link #entities} list collects
+ * the entities to be saved or updated. {@link BatchExecutionListener} callbacks
+ * receive this context before and after batch execution to inspect the SQL,
+ * entities, and cumulative {@linkplain #getAffectedRows() affected row count}.
  *
- * <p><b>Key Features:</b>
- * <ul>
- *   <li>Encapsulates the SQL statement and entity metadata for batch operations.</li>
- *   <li>Reports whether auto-generated IDs are handled for the batch.</li>
- *   <li>Exposes the selected properties in SQL parameter order.</li>
- *   <li>Collects the entities to be processed via the {@link #entities} list.</li>
- * </ul>
+ * <p>Instances are created by the persistence infrastructure and are not intended
+ * to be constructed by application code.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see BatchPersistListener
+ * @see BatchExecutionListener
  * @see EntityMetadata
  * @see EntityProperty
  * @since 4.0 2024/2/20 23:25
  */
 public abstract class BatchExecution {
 
+  /**
+   * The SQL statement used for the batch save or update operation.
+   */
   public final String statement;
 
+  /**
+   * Whether auto-generated IDs are handled for this batch.
+   */
   public final boolean autoGenerateId;
 
+  /**
+   * The metadata describing the entities saved or updated by this batch.
+   */
   public final EntityMetadata entityMetadata;
 
   /**
@@ -64,8 +69,20 @@ public abstract class BatchExecution {
    */
   public final List<EntityProperty> properties;
 
+  /**
+   * The mutable list of entities collected for batch saving or updating.
+   */
   public final ArrayList<Object> entities = new ArrayList<>();
 
+  /**
+   * Create an execution context for a batch save or update operation.
+   *
+   * @param statement the SQL statement to execute
+   * @param entityMetadata the metadata describing the entity type
+   * @param properties the selected properties in SQL parameter order; copied to
+   * an immutable list
+   * @param autoGenerateId whether auto-generated IDs are handled for this batch
+   */
   protected BatchExecution(String statement, EntityMetadata entityMetadata,
           List<EntityProperty> properties, boolean autoGenerateId) {
     this.statement = statement;
@@ -75,12 +92,50 @@ public abstract class BatchExecution {
   }
 
   /**
+   * Return the type of persistence operation performed by this batch.
+   *
+   * @return the batch operation type
+   * @since 5.0
+   */
+  public abstract BatchOperation getOperation();
+
+  /**
+   * Return whether this context represents a batch insert operation.
+   *
+   * @return {@code true} if the operation is {@link BatchOperation#INSERT}
+   * @since 5.0
+   */
+  public final boolean isInsert() {
+    return getOperation() == BatchOperation.INSERT;
+  }
+
+  /**
+   * Return whether this context represents a batch update operation.
+   *
+   * @return {@code true} if the operation is {@link BatchOperation#UPDATE}
+   * @since 5.0
+   */
+  public final boolean isUpdate() {
+    return getOperation() == BatchOperation.UPDATE;
+  }
+
+  /**
+   * Return whether this context represents a batch delete operation.
+   *
+   * @return {@code true} if the operation is {@link BatchOperation#DELETE}
+   * @since 5.0
+   */
+  public final boolean isDelete() {
+    return getOperation() == BatchOperation.DELETE;
+  }
+
+  /**
    * Return the total number of rows affected by this batch execution so far.
    *
    * <p>The count accumulates across every execution of the same batch, whether
    * triggered implicitly when the configured batch size is reached or explicitly
    * when the pending batch is flushed. It is available to
-   * {@link BatchPersistListener} callbacks.
+   * {@link BatchExecutionListener} callbacks.
    *
    * @return the total number of rows affected by the batch execution
    */

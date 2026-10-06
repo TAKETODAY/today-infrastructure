@@ -36,7 +36,7 @@ import org.jspecify.annotations.Nullable;
  *
  * <p><strong>Usage Example:</strong>
  * <pre>{@code
- * public class LoggingBatchPersistListener implements BatchPersistListener {
+ * public class LoggingBatchExecutionListener implements BatchExecutionListener {
  *
  *   @Override
  *   public void preProcessing(BatchExecution execution, boolean implicitExecution) {
@@ -61,7 +61,7 @@ import org.jspecify.annotations.Nullable;
  * @see infra.core.Ordered
  * @since 4.0 2022/9/20 12:47
  */
-public interface BatchPersistListener extends Listener {
+public interface BatchExecutionListener extends Listener {
 
   /**
    * Called before a batch is executed.

@@ -4,7 +4,7 @@
 批量写入通过 `PersistenceProperties.maxBatchRecords` 控制：当累积的记录数达到该值时，
 会隐式执行一次 `executeBatch()`；为 `0` 时不自动执行，由显式的刷新触发。
 
-`BatchPersistListener` 会在每个批次执行前后收到通知，`BatchExecution` 暴露了 SQL 语句 `statement`、实体元数据
+`BatchExecutionListener` 会在每个批次执行前后收到通知，`BatchExecution` 暴露了 SQL 语句 `statement`、实体元数据
 `entityMetadata`、实际插入属性列表 `properties`、是否处理自增主键 `autoGenerateId` 以及当前批次收集到的实体集合 `entities`，
 并通过 `getAffectedRows()` 返回该批次累计受影响的行数。监听器可通过 `@Order` / `Ordered` 排序。
 
@@ -28,7 +28,7 @@ UUID 和自定义生成器不请求；未声明生成策略的模型也不请求
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
-class LoggingBatchListener implements BatchPersistListener {
+class LoggingBatchListener implements BatchExecutionListener {
 
   @Override
   public void preProcessing(BatchExecution execution, boolean implicitExecution) {
@@ -67,6 +67,6 @@ int[] selectedCounts = entityManager.batchUpdateById(entities, strategy);
 所有更新在同一事务中执行，失败会回滚；事务传播配置与批量插入一致。
 实体上的审计值和递增版本，以及已发送的回调不会随数据库回滚恢复。
 更新成功后逐实体调用 `onPostUpdate`，执行失败调用相应的 `onUpdateFailed`；
-后置回调不表示事务提交。`BatchPersistListener` 仅适用于插入，不接收批量更新通知。
+后置回调不表示事务提交。`BatchExecutionListener` 仅适用于插入，不接收批量更新通知。
 
 若多行统一写入相同值，应优先使用一条带条件的 UPDATE，而非构造多个实体。

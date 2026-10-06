@@ -24,7 +24,7 @@ import infra.persistence.EntityMetadata;
 import infra.persistence.EntityProperty;
 import infra.persistence.PropertyUpdateStrategy;
 import infra.persistence.event.BatchExecution;
-import infra.persistence.event.BatchPersistListener;
+import infra.persistence.event.BatchExecutionListener;
 import infra.persistence.event.DefaultEntityEventRegistry;
 import infra.persistence.event.DeleteEventListener;
 import infra.persistence.event.EntityEventRegistry;
@@ -129,13 +129,13 @@ final class EntityEventMulticaster {
   }
 
   public void preProcessing(BatchExecution execution, boolean implicitExecution) {
-    for (BatchPersistListener listener : registry.listeners(BatchPersistListener.class)) {
+    for (BatchExecutionListener listener : registry.listeners(BatchExecutionListener.class)) {
       listener.preProcessing(execution, implicitExecution);
     }
   }
 
   public void postProcessing(BatchExecution execution, boolean implicitExecution, @Nullable Throwable exception) {
-    for (BatchPersistListener listener : registry.listeners(BatchPersistListener.class)) {
+    for (BatchExecutionListener listener : registry.listeners(BatchExecutionListener.class)) {
       listener.postProcessing(execution, implicitExecution, exception);
     }
   }

@@ -82,7 +82,7 @@ import infra.persistence.annotation.OrderByClause;
 import infra.persistence.annotation.Transient;
 import infra.persistence.annotation.UpdateBy;
 import infra.persistence.annotation.Where;
-import infra.persistence.event.BatchPersistListener;
+import infra.persistence.event.BatchExecutionListener;
 import infra.persistence.event.DeleteEventListener;
 import infra.persistence.event.PersistEventListener;
 import infra.persistence.event.PostLoadEventListener;
@@ -795,7 +795,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       EntityMetadataFactory entityMetadataFactory = ReflectionTestUtils.getField(entityManager, "entityMetadataFactory");
       assertThat(entityMetadataFactory).isNotNull();
 
-      entityManager.getEntityEventRegistry().<BatchPersistListener>addListener((execution, implicitExecution, e) -> {
+      entityManager.getEntityEventRegistry().<BatchExecutionListener>addListener((execution, implicitExecution, e) -> {
         assertThat(implicitExecution).isFalse();
         assertThat(execution.entityMetadata).isEqualTo(entityMetadataFactory.getEntityMetadata(UserModel.class));
         assertThat(execution.entities).hasSize(11);
@@ -1346,8 +1346,8 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
 
       DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
 
-      BatchPersistListener listener1 = mock(BatchPersistListener.class);
-      BatchPersistListener listener2 = mock(BatchPersistListener.class);
+      BatchExecutionListener listener1 = mock(BatchExecutionListener.class);
+      BatchExecutionListener listener2 = mock(BatchExecutionListener.class);
 
       // Should accept varargs listeners
       assertThatCode(() -> entityManager.getEntityEventRegistry().addListeners(List.of(listener1, listener2))).doesNotThrowAnyException();
@@ -1365,9 +1365,9 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
 
       DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
 
-      List<BatchPersistListener> listeners = new ArrayList<>();
-      listeners.add(mock(BatchPersistListener.class));
-      listeners.add(mock(BatchPersistListener.class));
+      List<BatchExecutionListener> listeners = new ArrayList<>();
+      listeners.add(mock(BatchExecutionListener.class));
+      listeners.add(mock(BatchExecutionListener.class));
 
       // Should accept non-null collection
       assertThatCode(() -> entityManager.getEntityEventRegistry().addListeners(listeners)).doesNotThrowAnyException();

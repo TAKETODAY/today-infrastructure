@@ -31,7 +31,7 @@ import infra.util.Assert;
  * {@code isInstance} comparison against that type instead of a map lookup. An
  * {@link EntityEventListener} contract gets an entity-class aware
  * {@link EntityListenerGroup} (owning the per-entity-class match cache) while other
- * contracts such as {@link BatchPersistListener} get a plain {@link EventListenerGroup}.
+ * contracts such as {@link BatchExecutionListener} get a plain {@link EventListenerGroup}.
  *
  * <p>Dispatch of entity lifecycle events is performed separately by the entity
  * manager.
@@ -58,7 +58,7 @@ public class DefaultEntityEventRegistry implements EntityEventRegistry {
             new EntityListenerGroup<>(PersistEventListener.class),
             new EntityListenerGroup<>(UpdateEventListener.class),
             new EntityListenerGroup<>(DeleteEventListener.class),
-            new EventListenerGroup<>(BatchPersistListener.class),
+            new EventListenerGroup<>(BatchExecutionListener.class),
             new EventListenerGroup<>(PostTruncateEventListener.class),
     };
   }

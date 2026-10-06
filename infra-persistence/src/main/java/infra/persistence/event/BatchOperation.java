@@ -16,22 +16,28 @@
 
 package infra.persistence.event;
 
-import java.util.EventListener;
-
 /**
- * Marker interface for all persistence listeners that can be registered with an
- * {@link EntityEventRegistry}.
- *
- * <p>Known listener types:
- * <ul>
- *   <li>{@link EntityEventListener} — observes entity lifecycle events
- *   (persist / update / delete).</li>
- *   <li>{@link BatchExecutionListener} — observes batch persist operations.</li>
- * </ul>
+ * The type of persistence operation performed by a batch.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see EntityEventRegistry
+ * @see BatchExecution#getOperation()
  * @since 5.0
  */
-public interface Listener extends EventListener {
+public enum BatchOperation {
+
+  /**
+   * Insert new entities.
+   */
+  INSERT,
+
+  /**
+   * Update existing entities.
+   */
+  UPDATE,
+
+  /**
+   * Delete existing entities.
+   */
+  DELETE
+
 }

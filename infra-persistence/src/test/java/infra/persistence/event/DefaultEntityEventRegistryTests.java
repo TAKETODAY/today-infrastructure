@@ -68,14 +68,14 @@ class DefaultEntityEventRegistryTests {
   @Test
   void listenersAreStoredByContract() {
     PersistEventListener<UserModel> entityListener = new UserEventListening();
-    BatchPersistListener batchListener = (execution, implicitExecution, exception) -> {
+    BatchExecutionListener batchListener = (execution, implicitExecution, exception) -> {
     };
 
     registry.addListener(entityListener);
     registry.addListener(batchListener);
 
     assertThat(registry.listeners(PersistEventListener.class)).containsExactly(entityListener);
-    assertThat(registry.listeners(BatchPersistListener.class)).containsExactly(batchListener);
+    assertThat(registry.listeners(BatchExecutionListener.class)).containsExactly(batchListener);
   }
 
   @Test
@@ -85,13 +85,13 @@ class DefaultEntityEventRegistryTests {
     registry.addListener(hybrid);
 
     assertThat(registry.listeners(PersistEventListener.class)).containsExactly(hybrid);
-    assertThat(registry.listeners(BatchPersistListener.class)).containsExactly(hybrid);
+    assertThat(registry.listeners(BatchExecutionListener.class)).containsExactly(hybrid);
   }
 
   @Test
   void getListenersReturnsEmptyForUnknownContract() {
     assertThat(registry.listeners(PersistEventListener.class)).isEmpty();
-    assertThat(registry.listeners(BatchPersistListener.class)).isEmpty();
+    assertThat(registry.listeners(BatchExecutionListener.class)).isEmpty();
   }
 
   @Test
@@ -106,17 +106,17 @@ class DefaultEntityEventRegistryTests {
 
   @Test
   void batchPersistListenersAreManagedByRegistry() {
-    BatchPersistListener listener = (execution, implicitExecution, exception) -> {
+    BatchExecutionListener listener = (execution, implicitExecution, exception) -> {
     };
 
     registry.addListener(listener);
-    assertThat(registry.listeners(BatchPersistListener.class)).containsExactly(listener);
+    assertThat(registry.listeners(BatchExecutionListener.class)).containsExactly(listener);
 
     registry.setListeners(List.of(listener));
-    assertThat(registry.listeners(BatchPersistListener.class)).containsExactly(listener);
+    assertThat(registry.listeners(BatchExecutionListener.class)).containsExactly(listener);
 
     registry.setListeners(null);
-    assertThat(registry.listeners(BatchPersistListener.class)).isEmpty();
+    assertThat(registry.listeners(BatchExecutionListener.class)).isEmpty();
   }
 
   @Test
@@ -151,14 +151,14 @@ class DefaultEntityEventRegistryTests {
   @Test
   void clearRemovesAllListenersAcrossContracts() {
     registry.addListener(new UserEventListening());
-    registry.<BatchPersistListener>addListener((execution, implicitExecution, exception) -> {
+    registry.<BatchExecutionListener>addListener((execution, implicitExecution, exception) -> {
       assertThat(execution.getAffectedRows()).isZero();
     });
 
     registry.clear();
 
     assertThat(registry.listeners(PersistEventListener.class)).isEmpty();
-    assertThat(registry.listeners(BatchPersistListener.class)).isEmpty();
+    assertThat(registry.listeners(BatchExecutionListener.class)).isEmpty();
   }
 
   @Test
@@ -235,7 +235,7 @@ class DefaultEntityEventRegistryTests {
 
   }
 
-  static class HybridListener implements PersistEventListener<UserModel>, BatchPersistListener {
+  static class HybridListener implements PersistEventListener<UserModel>, BatchExecutionListener {
 
     @Override
     public void postProcessing(BatchExecution execution, boolean implicitExecution, @Nullable Throwable exception) {

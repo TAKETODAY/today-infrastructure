@@ -51,7 +51,7 @@ import infra.persistence.annotation.GeneratedId;
 import infra.persistence.annotation.GeneratedUuid;
 import infra.persistence.annotation.Table;
 import infra.persistence.event.BatchExecution;
-import infra.persistence.event.BatchPersistListener;
+import infra.persistence.event.BatchExecutionListener;
 import infra.persistence.event.PersistEventListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -351,7 +351,7 @@ class IdGenerationTests {
   @Test
   void batchDoesNotRequestJdbcKeysForApplicationGeneratedIds() {
     AtomicInteger batches = new AtomicInteger();
-    manager.getEntityEventRegistry().addListener(new BatchPersistListener() {
+    manager.getEntityEventRegistry().addListener(new BatchExecutionListener() {
       @Override
       public void preProcessing(BatchExecution execution, boolean implicitExecution) {
         assertThat(execution.autoGenerateId).isFalse();
