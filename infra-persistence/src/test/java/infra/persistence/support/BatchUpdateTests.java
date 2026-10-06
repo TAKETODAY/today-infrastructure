@@ -152,7 +152,7 @@ class BatchUpdateTests {
     assertThatThrownBy(() -> manager.updateById(List.of(item(1L, "changed"), stale)))
             .isInstanceOf(OptimisticLockingFailureException.class);
     verify(manager.statements.get(0)).executeBatch();
-    verify(manager.statements.get(1)).executeUpdate();
+    verify(manager.statements.get(1)).executeBatch();
     assertThat(manager.findById(Item.class, 1L).name).isEqualTo("old");
     assertThat(stale.version).isEqualTo(6);
   }
@@ -164,8 +164,40 @@ class BatchUpdateTests {
     entity.name = "new";
     entity.version = 0;
     assertThat(manager.updateById(List.of(entity))).isEqualTo(1);
-    verify(manager.statements.get(0)).executeUpdate();
+    verify(manager.statements.get(0)).executeBatch();
     assertThat(manager.findById(VersionedItem.class, 1L).version).isEqualTo(1);
+  }
+
+  @Test
+  void versionConflictDoesNotNotifySuccessfulUpdatesInTheSameBatch() {
+    var updated = new ArrayList<Long>();
+    var failed = new ArrayList<Long>();
+    manager.getEntityEventRegistry().addListener(new UpdateEventListener<VersionedItem>() {
+      @Override
+      public void onPostUpdate(VersionedItem entity, EntityMetadata metadata, List<EntityProperty> properties, int count) {
+        updated.add(entity.id);
+      }
+
+      @Override
+      public void onUpdateFailed(VersionedItem entity, EntityMetadata metadata, List<EntityProperty> properties, Throwable exception) {
+        failed.add(entity.id);
+      }
+    });
+    VersionedItem first = new VersionedItem();
+    first.id = 1L;
+    first.name = "changed";
+    first.version = 0;
+    VersionedItem stale = new VersionedItem();
+    stale.id = 2L;
+    stale.name = "conflict";
+    stale.version = 5;
+
+    assertThatThrownBy(() -> manager.updateById(List.of(first, stale)))
+            .isInstanceOf(OptimisticLockingFailureException.class);
+    assertThat(updated).isEmpty();
+    assertThat(failed).containsExactly(1L, 2L);
+    assertThat(manager.findById(VersionedItem.class, 1L).version).isZero();
+    assertThat(manager.findById(Item.class, 1L).name).isEqualTo("old");
   }
 
   @Test

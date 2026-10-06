@@ -1710,14 +1710,12 @@ public class DefaultEntityManager implements EntityManager {
         int[] results = statement.executeBatch();
         assertUpdateCount(this.statement, results.length, batchSize);
 
-        int idx = 0;
+        EntityProperty versionProperty = entityMetadata.getVersionProperty();
         int count = 0;
-        for (Object entity : entities) {
-          int updateCount = results[idx++];
+        for (int updateCount : results) {
           if (updateCount < 0 && updateCount != Statement.SUCCESS_NO_INFO) {
             throw new SQLException("Batch update failed with count " + updateCount);
           }
-          EntityProperty versionProperty = entityMetadata.getVersionProperty();
           if (versionProperty != null) {
             if (updateCount == Statement.SUCCESS_NO_INFO) {
               throw new InvalidDataAccessApiUsageException(
@@ -1731,13 +1729,14 @@ public class DefaultEntityManager implements EntityManager {
             }
           }
 
-          // FIXME event
-          eventMulticaster.onPostUpdate(entity, entityMetadata, properties, updateCount);
-
           count = computeUpdateRows(count, updateCount);
         }
 
         this.affectedRows = computeUpdateRows(this.affectedRows, count);
+
+        for (int i = 0; i < batchSize; i++) {
+          eventMulticaster.onPostUpdate(entities.get(i), entityMetadata, properties, results[i]);
+        }
       }
       catch (Throwable e) {
         exception = e;
@@ -1751,14 +1750,7 @@ public class DefaultEntityManager implements EntityManager {
 
     private void onUpdateFailed(Throwable e) {
       for (Object entity : entities) {
-        try {
-          eventMulticaster.onUpdateFailed(entity, entityMetadata, properties, e);
-        }
-        catch (Throwable ex) {
-          if (e != ex) {
-            e.addSuppressed(ex);
-          }
-        }
+        eventMulticaster.onUpdateFailed(entity, entityMetadata, properties, e);
       }
     }
 
@@ -1881,14 +1873,7 @@ public class DefaultEntityManager implements EntityManager {
 
     private void onPersistFailed(Throwable e) {
       for (Object entity : entities) {
-        try {
-          eventMulticaster.onPersistFailed(entity, entityMetadata, properties, e);
-        }
-        catch (Throwable ex) {
-          if (e != ex) {
-            e.addSuppressed(ex);
-          }
-        }
+        eventMulticaster.onPersistFailed(entity, entityMetadata, properties, e);
       }
     }
 
