@@ -137,6 +137,12 @@ public interface EntityManager {
    * This method is typically used to save multiple objects in a single operation,
    * ensuring efficient batch processing where applicable.
    *
+   * <p>The total affected row count depends on the JDBC driver's batch counts.
+   * If any result is {@link java.sql.Statement#SUCCESS_NO_INFO}, the total is
+   * also {@code SUCCESS_NO_INFO} ({@code -2}), even if other counts are known.
+   * This indicates successful execution with an unknown total, not failure or
+   * the number of input entities. Empty input returns {@code 0}.
+   *
    * <p>Example usage:</p>
    * <pre><code>
    *   List&lt;User&gt; users = Arrays.asList(
@@ -155,7 +161,9 @@ public interface EntityManager {
    * @param entities an {@link Iterable} of entities to be persisted. Each entity
    * must not be null and should conform to the data model structure
    * expected by the data store.
-   * @return the total number of rows affected by the persistence operation
+   * @return the total number of affected rows, {@code 0} for empty input, or
+   * {@link java.sql.Statement#SUCCESS_NO_INFO} if any JDBC batch result cannot
+   * report an exact count
    * @throws DataAccessException if there is an issue while interacting with the
    * underlying data store during the persist operation.
    */
@@ -166,6 +174,13 @@ public interface EntityManager {
    * property update strategy. If no strategy is provided, a default strategy will be
    * applied. This method is typically used for batch operations where multiple entities
    * need to be saved or updated in a single call.
+   *
+   * <p>The total affected row count depends on the JDBC driver's batch counts.
+   * If any result is {@link java.sql.Statement#SUCCESS_NO_INFO}, the total is
+   * also {@code SUCCESS_NO_INFO} ({@code -2}). The unknown count propagates across
+   * executions and SQL batches; it is not treated as one affected row. This
+   * indicates successful execution with an unknown total. Empty input returns
+   * {@code 0}.
    *
    * <p>Example usage:
    * <pre>{@code
@@ -189,7 +204,9 @@ public interface EntityManager {
    * @param strategy the strategy to use for updating properties of existing entities
    * in the data store. If null, a default strategy defined by the
    * implementation will be used.
-   * @return the total number of rows affected by the persistence operation
+   * @return the total number of affected rows, {@code 0} for empty input, or
+   * {@link java.sql.Statement#SUCCESS_NO_INFO} if any JDBC batch result cannot
+   * report an exact count
    * @throws DataAccessException if there is any issue accessing the data store during
    * the persistence operation.
    */
@@ -214,7 +231,9 @@ public interface EntityManager {
    * }</pre>
    *
    * @param entities the stream of entities to be persisted; must not be null
-   * @return the total number of rows affected by the persistence operation
+   * @return the total number of affected rows, {@code 0} for an empty stream, or
+   * {@link java.sql.Statement#SUCCESS_NO_INFO} if any JDBC batch result cannot
+   * report an exact count
    * @throws DataAccessException if there is an issue during the persistence process
    */
   default int persist(Stream<?> entities) throws DataAccessException {
@@ -246,7 +265,9 @@ public interface EntityManager {
    * @param entities a stream of entities to be persisted; must not be null
    * @param strategy the strategy to use for property updates during persistence;
    * can be null, in which case a default strategy will be applied
-   * @return the total number of rows affected by the persistence operation
+   * @return the total number of affected rows, {@code 0} for an empty stream, or
+   * {@link java.sql.Statement#SUCCESS_NO_INFO} if any JDBC batch result cannot
+   * report an exact count
    * @throws DataAccessException if an error occurs during the persistence process
    */
   default int persist(Stream<?> entities, @Nullable PropertyUpdateStrategy strategy) throws DataAccessException {
@@ -448,7 +469,9 @@ public interface EntityManager {
    * Update entities by their own IDs using each entity's default property strategy.
    *
    * @param entities the entities to update, with non-null IDs
-   * @return JDBC update counts in input order, or an empty array for empty input
+   * @return the total number of affected rows, {@code 0} for empty input, or
+   * {@link java.sql.Statement#SUCCESS_NO_INFO} if any JDBC batch result cannot
+   * report an exact count
    * @throws DataAccessException on update failure
    * @see #updateById(Iterable, PropertyUpdateStrategy)
    * @since 5.0
@@ -458,21 +481,32 @@ public interface EntityManager {
   }
 
   /**
-   * Update entities by their own IDs in a transaction. Compatible consecutive
-   * updates use JDBC batching; versioned entities execute individually to verify
-   * optimistic locking. IDs are excluded from assignments. Entity update listeners
-   * run for each entity, including auditing and strategy customization.
+   * Update entities by their own IDs in a transaction. Updates with the same entity
+   * type and selected properties use JDBC batching. IDs are excluded from assignments.
+   * Entity update listeners run for each entity, including auditing and strategy customization.
    *
-   * <p>Counts retain JDBC {@link java.sql.Statement#SUCCESS_NO_INFO} when the
-   * driver cannot report an exact count. Failures roll back the transaction;
+   * <p>The total affected row count depends on the JDBC driver's batch update
+   * counts. If any result is {@link java.sql.Statement#SUCCESS_NO_INFO}, the total
+   * is also {@code SUCCESS_NO_INFO} ({@code -2}), even if other results have known
+   * counts. This indicates successful execution with an unknown total, not failure
+   * or the number of input entities. Empty input returns {@code 0}.
+   *
+   * <p>Entities with {@link infra.persistence.annotation.Version @Version} require
+   * an exact count of one for each update. An unknown count causes the operation
+   * to fail because optimistic locking cannot be verified; update such entities
+   * individually when the driver cannot provide exact batch counts.
+   *
+   * <p>Failures roll back the transaction;
    * entity mutations and already delivered callbacks are not undone. Post-update
-   * callbacks report execution, not transaction commit. Batch-persist listeners
-   * are not invoked.
+   * callbacks report execution, not transaction commit. Batch execution listeners
+   * are invoked for each non-empty batch.
    *
    * @param entities the entities to update; neither the iterable nor its elements
    * may be null, and each entity must have a non-null ID
    * @param strategy the selection strategy, or null to use each entity's default
-   * @return JDBC update counts in input order, or an empty array for empty input
+   * @return the total number of affected rows, {@code 0} for empty input, or
+   * {@link java.sql.Statement#SUCCESS_NO_INFO} if any JDBC batch result cannot
+   * report an exact count
    * @throws DataAccessException on SQL, validation, or optimistic-lock failure
    * @since 5.0
    */

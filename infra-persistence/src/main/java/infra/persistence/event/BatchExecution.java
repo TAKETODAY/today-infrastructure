@@ -161,8 +161,9 @@ public abstract class BatchExecution {
    * {@link BatchExecutionListener} callbacks.
    *
    * @return the total number of rows affected by the batch execution
-   * (or {@link java.sql.Statement#SUCCESS_NO_INFO} for an insert batch if any
-   * execution cannot report an exact count)
+   * (or {@link java.sql.Statement#SUCCESS_NO_INFO} if any insert or update batch
+   * execution cannot report an exact count; once unknown, the cumulative count
+   * remains unknown)
    */
   public abstract int getAffectedRows();
 

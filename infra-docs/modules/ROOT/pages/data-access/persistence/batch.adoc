@@ -7,8 +7,12 @@
 `BatchExecutionListener` 会在每个批次执行前后收到通知，`BatchExecution` 暴露了 SQL 语句 `statement`、实体元数据
 `entityMetadata`、实际插入属性列表 `properties`、是否处理自增主键 `autoGenerateId` 以及当前批次收集到的实体集合 `entities`，
 并通过 `getAffectedRows()` 返回该批次累计受影响的行数。监听器可通过 `@Order` / `Ordered` 排序。
-批量插入按 JDBC 返回的影响行数累加；任一计数为 `Statement.SUCCESS_NO_INFO` 时，
-累计计数和 `persist` 返回值也为 `SUCCESS_NO_INFO`。没有待执行记录时不会执行空批次或触发批次回调。
+批量插入的准确影响行数取决于 JDBC 驱动。所有计数已知时按实际影响行数累加；
+任一计数为 `Statement.SUCCESS_NO_INFO`（`-2`）时，累计计数和 `persist` 返回值也为 `SUCCESS_NO_INFO`，
+即使其他结果的行数已知也不例外。该值表示执行成功但总影响行数未知，不表示失败或输入实体数量，
+不能将每个未知结果按 1 行计算。未知状态会跨分批执行和不同 SQL 批次传播。
+此规则适用于 `persist` 的 `Iterable` 和 `Stream` 重载；空输入返回 `0`。
+没有待执行记录时不会执行空批次或触发批次回调。
 监听器可查看实体集合，但不能增删或重排已绑定参数的实体。
 
 == 主键生成与属性选择
@@ -50,27 +54,34 @@ class LoggingBatchListener implements BatchExecutionListener {
 
 == 按主键批量更新
 
-`batchUpdateById` 为每个实体写入不同值，返回与输入顺序对应的 JDBC 更新计数：
+`updateById(Iterable<?>)` 为每个实体写入不同值，返回累计受影响行数：
 
 [source,java]
 ----
-int[] counts = entityManager.batchUpdateById(entities);
-int[] selectedCounts = entityManager.batchUpdateById(entities, strategy);
+int count = entityManager.updateById(entities);
+int selectedCount = entityManager.updateById(entities, strategy);
 ----
 
 每个实体必须具有非空主键。主键仅用于 WHERE，不参与 SET；不支持按 `@UpdateBy` 条件批量更新。
 策略为 `null` 时使用各实体的默认策略，包括 `UpdateStrategySource`。
 每个实体执行更新前置监听器，审计填充与返回策略均生效，再选择并绑定属性。
-连续的同类型、同更新列记录使用 JDBC batch；SQL 结构变化时先刷新已有批次，保持输入执行顺序，
-同一 SQL 的 PreparedStatement 可以复用。`maxBatchRecords` 控制单批上限，为 `0` 时在结构变化或输入结束时刷新。
+同类型、同更新列的记录归入同一 JDBC batch，复用 PreparedStatement；不同 SQL 结构分别收集，
+不保证按输入顺序执行。`maxBatchRecords` 控制单批上限，为 `0` 时在输入结束后显式执行各批次。
 
-带 `@Version` 的实体复用单条 `updateById` 路径，逐条执行并确保影响行数恰好为 1，
-不依赖驱动可能返回的未知批量计数。非版本更新保留 `Statement.SUCCESS_NO_INFO`（`-2`），
-表示成功但具体影响行数未知；未匹配的非版本更新返回 `0`。空输入返回空数组。
+批量更新的准确影响行数取决于 JDBC 驱动。所有计数已知时返回其总和；
+任一结果为 `Statement.SUCCESS_NO_INFO`（`-2`）时，累计计数和方法返回值均为 `SUCCESS_NO_INFO`，
+即使其他结果的行数已知也不例外。该值表示执行成功但总影响行数未知，不表示失败，
+也不能按每个未知结果更新了 1 行来计算。未知状态会跨分批执行和不同 SQL 批次传播。
+未匹配的非版本更新计为 `0`；空输入返回 `0`。
+
+带 `@Version` 的实体也使用 JDBC batch，但要求每条更新的影响行数恰好为 1。
+返回 `0` 等非预期行数时触发乐观锁异常；返回 `SUCCESS_NO_INFO` 时，由于无法验证乐观锁，
+操作会报错并回滚，而不是返回未知总行数。如果驱动不能提供准确的批量计数，应改用逐条更新带版本的实体。
 
 所有更新在同一事务中执行，失败会回滚；事务传播配置与批量插入一致。
 实体上的审计值和递增版本，以及已发送的回调不会随数据库回滚恢复。
 更新成功后逐实体调用 `onPostUpdate`，执行失败调用相应的 `onUpdateFailed`；
-后置回调不表示事务提交。`BatchExecutionListener` 仅适用于插入，不接收批量更新通知。
+后置回调不表示事务提交。`BatchExecutionListener` 接收批量更新通知，
+其 `BatchExecution.getAffectedRows()` 同样可能返回 `SUCCESS_NO_INFO`。
 
 若多行统一写入相同值，应优先使用一条带条件的 UPDATE，而非构造多个实体。
