@@ -16,7 +16,10 @@
 
 package infra.persistence.event;
 
+import java.util.List;
+
 import infra.persistence.EntityMetadata;
+import infra.persistence.EntityProperty;
 import infra.persistence.PropertyUpdateStrategy;
 
 /**
@@ -25,7 +28,7 @@ import infra.persistence.PropertyUpdateStrategy;
  * <p>This interface extends {@link EntityEventListener} — the common base contract
  * shared by the entity lifecycle listeners — and models only the update concern via
  * {@link #onPreUpdate(Object, EntityMetadata, PropertyUpdateStrategy)},
- * {@link #onPostUpdate(Object, EntityMetadata, PropertyUpdateStrategy, int)}, and
+ * {@link #onPostUpdate(Object, EntityMetadata, List, int)}, and
  * {@link #onUpdateFailed(Object, EntityMetadata, PropertyUpdateStrategy, Throwable)}. To
  * observe other lifecycle operations, implement the corresponding contract, e.g.
  * {@link PersistEventListener} or {@link DeleteEventListener}.
@@ -76,19 +79,18 @@ public interface UpdateEventListener<T> extends EntityEventListener<T> {
   /**
    * Invoked after an entity of the observed type was successfully updated.
    *
-   * <p>The given {@code strategy} is the same {@link PropertyUpdateStrategy} that
-   * drove the update. It describes the selection rule, not a snapshot of the
-   * written columns: version handling or other entity changes may affect the
-   * result of evaluating the strategy again after execution.
+   * <p>The properties are the actual SET columns in SQL parameter order, exposed
+   * as an immutable list. They include the updated version property, but exclude
+   * properties used only in WHERE conditions. The list is available even when
+   * no rows matched. This callback does not imply transaction commit.
    *
-   * @param entity the updated entity, reflecting the state before the update was
-   * applied; must not be {@code null}
+   * @param entity the current entity, including audit values and the incremented
+   * version when applicable; must not be {@code null}
    * @param metadata the entity metadata; must not be {@code null}
-   * @param strategy the property update strategy that selected the updated
-   * properties; must not be {@code null}
-   * @param affectedRows the number of rows affected by the update statement
+   * @param properties the immutable list of SET properties in SQL parameter order
+   * @param affectedRows the affected row count, or JDBC SUCCESS_NO_INFO for a batch
    */
-  default void onPostUpdate(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, int affectedRows) {
+  default void onPostUpdate(T entity, EntityMetadata metadata, List<EntityProperty> properties, int affectedRows) {
   }
 
   /**

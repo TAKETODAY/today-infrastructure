@@ -614,7 +614,7 @@ public class DefaultEntityManager implements EntityManager {
                 "Optimistic locking failure updating entity [%s], expected version: %s, but %d row(s) were updated"
                         .formatted(metadata.getTableName(), oldVersion, updateCount));
       }
-      eventMulticaster.onPostUpdate(entity, metadata, strategy, updateCount);
+      eventMulticaster.onPostUpdate(entity, metadata, properties, updateCount);
       return updateCount;
     }
     catch (SQLException ex) {
@@ -731,7 +731,7 @@ public class DefaultEntityManager implements EntityManager {
                 "Optimistic locking failure updating entity [%s] with ID: %s, expected version: %s, but %d row(s) were updated"
                         .formatted(metadata.getTableName(), id, oldVersion, updateCount));
       }
-      eventMulticaster.onPostUpdate(entity, metadata, strategy, updateCount);
+      eventMulticaster.onPostUpdate(entity, metadata, properties, updateCount);
       return updateCount;
     }
     catch (SQLException ex) {

@@ -414,8 +414,9 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
         }
 
         @Override
-        public void onPostUpdate(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, int affectedRows) {
-          updateStrategies.add(strategy);
+        public void onPostUpdate(UserModel entity, EntityMetadata metadata, List<EntityProperty> properties, int affectedRows) {
+          assertThat(properties).extracting(EntityProperty::getName).doesNotContain("id");
+          assertThatThrownBy(properties::clear).isInstanceOf(UnsupportedOperationException.class);
           received.add("afterUpdate");
         }
       });
@@ -445,8 +446,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
       assertThat(received).containsExactly("beforePersist", "afterPersist:99",
               "beforeUpdate", "afterUpdate", "beforeDelete", "afterDelete:" + user.id);
       assertThat(persistStrategies).hasSize(1);
-      assertThat(updateStrategies).hasSize(2);
-      assertThat(updateStrategies.get(1)).isSameAs(updateStrategies.get(0));
+      assertThat(updateStrategies).hasSize(1);
     }
 
     @ParameterizedRepositoryManagerTest
