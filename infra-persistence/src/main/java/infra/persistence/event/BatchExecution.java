@@ -17,6 +17,7 @@
 package infra.persistence.event;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import infra.persistence.EntityMetadata;
@@ -48,31 +49,15 @@ import infra.persistence.EntityProperty;
  */
 public abstract class BatchExecution {
 
-  /**
-   * The SQL statement used for the batch save or update operation.
-   */
-  public final String statement;
+  protected final String statement;
 
-  /**
-   * Whether auto-generated IDs are handled for this batch.
-   */
-  public final boolean autoGenerateId;
+  protected final boolean autoGenerateId;
 
-  /**
-   * The metadata describing the entities saved or updated by this batch.
-   */
-  public final EntityMetadata entityMetadata;
+  protected final EntityMetadata entityMetadata;
 
-  /**
-   * The immutable selected property list, in SQL parameter order, shared by
-   * every entity in this batch.
-   */
-  public final List<EntityProperty> properties;
+  protected final List<EntityProperty> properties;
 
-  /**
-   * The mutable list of entities collected for batch saving or updating.
-   */
-  public final ArrayList<Object> entities = new ArrayList<>();
+  protected final ArrayList<Object> entities = new ArrayList<>();
 
   /**
    * Create an execution context for a batch save or update operation.
@@ -90,14 +75,6 @@ public abstract class BatchExecution {
     this.entityMetadata = entityMetadata;
     this.autoGenerateId = autoGenerateId;
   }
-
-  /**
-   * Return the type of persistence operation performed by this batch.
-   *
-   * @return the batch operation type
-   * @since 5.0
-   */
-  public abstract BatchOperation getOperation();
 
   /**
    * Return whether this context represents a batch insert operation.
@@ -130,6 +107,52 @@ public abstract class BatchExecution {
   }
 
   /**
+   * The SQL statement used for the batch save or update operation.
+   *
+   * @since 5.0
+   */
+  public String getStatement() {
+    return statement;
+  }
+
+  /**
+   * Whether auto-generated IDs are handled for this batch.
+   *
+   * @since 5.0
+   */
+  public boolean isAutoGenerateId() {
+    return autoGenerateId;
+  }
+
+  /**
+   * The mutable list of entities collected for batch saving or updating.
+   *
+   * @since 5.0
+   */
+  public List<Object> getEntities() {
+    return Collections.unmodifiableList(entities);
+  }
+
+  /**
+   * The immutable selected property list, in SQL parameter order, shared by
+   * every entity in this batch.
+   *
+   * @since 5.0
+   */
+  public List<EntityProperty> getProperties() {
+    return properties;
+  }
+
+  /**
+   * The metadata describing the entities saved or updated by this batch.
+   *
+   * @since 5.0
+   */
+  public EntityMetadata getEntityMetadata() {
+    return entityMetadata;
+  }
+
+  /**
    * Return the total number of rows affected by this batch execution so far.
    *
    * <p>The count accumulates across every execution of the same batch, whether
@@ -138,7 +161,17 @@ public abstract class BatchExecution {
    * {@link BatchExecutionListener} callbacks.
    *
    * @return the total number of rows affected by the batch execution
+   * (or {@link java.sql.Statement#SUCCESS_NO_INFO} for an insert batch if any
+   * execution cannot report an exact count)
    */
   public abstract int getAffectedRows();
+
+  /**
+   * Return the type of persistence operation performed by this batch.
+   *
+   * @return the batch operation type
+   * @since 5.0
+   */
+  public abstract BatchOperation getOperation();
 
 }

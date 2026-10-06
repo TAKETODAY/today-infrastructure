@@ -7,12 +7,16 @@
 `BatchExecutionListener` 会在每个批次执行前后收到通知，`BatchExecution` 暴露了 SQL 语句 `statement`、实体元数据
 `entityMetadata`、实际插入属性列表 `properties`、是否处理自增主键 `autoGenerateId` 以及当前批次收集到的实体集合 `entities`，
 并通过 `getAffectedRows()` 返回该批次累计受影响的行数。监听器可通过 `@Order` / `Ordered` 排序。
+批量插入按 JDBC 返回的影响行数累加；任一计数为 `Statement.SUCCESS_NO_INFO` 时，
+累计计数和 `persist` 返回值也为 `SUCCESS_NO_INFO`。没有待执行记录时不会执行空批次或触发批次回调。
+监听器可查看实体集合，但不能增删或重排已绑定参数的实体。
 
 == 主键生成与属性选择
 
 批量插入为每个实体调用 `onPrePersist`，随后生成尚未赋值的应用主键，再绑定参数并加入 JDBC 批次。
 自定义 `IdGenerator` 每个实体调用一次，不会自动合并成一次远程 ID 服务请求。
-UUID 或自定义生成型主键始终包含在 INSERT 中；数据库自增主键在批次执行后尝试逐实体回填。
+UUID 或自定义生成型主键始终包含在 INSERT 中；数据库自增主键在批次执行后逐实体回填，
+返回主键不足时操作失败并回滚，不发送实体插入成功回调。
 
 每个实体完成前置回调与主键生成后，再依据当前属性值和更新策略选择 INSERT 列。
 实体类型和有序属性列表一致的记录复用 PreparedStatement；

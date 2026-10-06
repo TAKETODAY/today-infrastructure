@@ -798,9 +798,9 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
 
       entityManager.getEntityEventRegistry().<BatchExecutionListener>addListener((execution, implicitExecution, e) -> {
         assertThat(implicitExecution).isFalse();
-        assertThat(execution.entityMetadata).isEqualTo(entityMetadataFactory.getEntityMetadata(UserModel.class));
-        assertThat(execution.entities).hasSize(11);
-        assertThat(execution.autoGenerateId).isTrue();
+        assertThat(execution.getEntityMetadata()).isEqualTo(entityMetadataFactory.getEntityMetadata(UserModel.class));
+        assertThat(execution.getEntities()).hasSize(11);
+        assertThat(execution.isAutoGenerateId()).isTrue();
         assertThat(e).isNull();
       });
 

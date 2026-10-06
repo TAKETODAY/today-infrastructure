@@ -354,7 +354,7 @@ class IdGenerationTests {
     manager.getEntityEventRegistry().addListener(new BatchExecutionListener() {
       @Override
       public void preProcessing(BatchExecution execution, boolean implicitExecution) {
-        assertThat(execution.autoGenerateId).isFalse();
+        assertThat(execution.isAutoGenerateId()).isFalse();
         batches.incrementAndGet();
       }
 

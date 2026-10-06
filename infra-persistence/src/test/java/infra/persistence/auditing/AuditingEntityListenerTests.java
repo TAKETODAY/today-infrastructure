@@ -134,10 +134,10 @@ class AuditingEntityListenerTests {
     manager.getEntityEventRegistry().addListener(new BatchExecutionListener() {
       @Override
       public void preProcessing(BatchExecution execution, boolean implicitExecution) {
-        assertThat(execution.properties).extracting(property -> property.getName())
+        assertThat(execution.getProperties()).extracting(EntityProperty::getName)
                 .contains("id", "createdAt", "createdBy", "modifiedAt", "modifiedBy");
-        if (!execution.entities.isEmpty()) {
-          batchSizes.add(execution.entities.size());
+        if (!execution.getEntities().isEmpty()) {
+          batchSizes.add(execution.getEntities().size());
         }
       }
 
@@ -149,8 +149,7 @@ class AuditingEntityListenerTests {
       @Override
       public PropertyUpdateStrategy onPrePersist(AuditedEntity entity, EntityMetadata metadata,
               PropertyUpdateStrategy strategy) {
-        PropertyUpdateStrategy effective = (target, property) -> strategy.shouldUpdate(target, property);
-        return effective;
+        return (target, property) -> strategy.shouldUpdate(target, property);
       }
 
       @Override
