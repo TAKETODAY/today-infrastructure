@@ -445,6 +445,41 @@ public interface EntityManager {
           throws DataAccessException;
 
   /**
+   * Update entities by their own IDs using each entity's default property strategy.
+   *
+   * @param entities the entities to update, with non-null IDs
+   * @return JDBC update counts in input order, or an empty array for empty input
+   * @throws DataAccessException on update failure
+   * @see #updateById(Iterable, PropertyUpdateStrategy)
+   * @since 5.0
+   */
+  default int updateById(Iterable<?> entities) throws DataAccessException {
+    return updateById(entities, null);
+  }
+
+  /**
+   * Update entities by their own IDs in a transaction. Compatible consecutive
+   * updates use JDBC batching; versioned entities execute individually to verify
+   * optimistic locking. IDs are excluded from assignments. Entity update listeners
+   * run for each entity, including auditing and strategy customization.
+   *
+   * <p>Counts retain JDBC {@link java.sql.Statement#SUCCESS_NO_INFO} when the
+   * driver cannot report an exact count. Failures roll back the transaction;
+   * entity mutations and already delivered callbacks are not undone. Post-update
+   * callbacks report execution, not transaction commit. Batch-persist listeners
+   * are not invoked.
+   *
+   * @param entities the entities to update; neither the iterable nor its elements
+   * may be null, and each entity must have a non-null ID
+   * @param strategy the selection strategy, or null to use each entity's default
+   * @return JDBC update counts in input order, or an empty array for empty input
+   * @throws DataAccessException on SQL, validation, or optimistic-lock failure
+   * @since 5.0
+   */
+  int updateById(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy)
+          throws DataAccessException;
+
+  /**
    * Saves a new entity or updates an existing one in the data store.
    * If the entity already exists (typically determined by its unique identifier),
    * it will be updated. Otherwise, a new entity will be created.

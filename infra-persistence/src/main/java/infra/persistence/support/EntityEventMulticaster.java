@@ -86,7 +86,6 @@ final class EntityEventMulticaster {
   }
 
   public void onPostUpdate(Object entity, EntityMetadata metadata, List<EntityProperty> properties, int affectedRows) {
-    properties = List.copyOf(properties);
     for (var listener : registry.listeners(UpdateEventListener.class).listenersFor(entity.getClass())) {
       listener.onPostUpdate(entity, metadata, properties, affectedRows);
     }

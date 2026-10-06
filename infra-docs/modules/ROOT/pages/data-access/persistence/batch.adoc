@@ -60,7 +60,7 @@ int[] selectedCounts = entityManager.batchUpdateById(entities, strategy);
 连续的同类型、同更新列记录使用 JDBC batch；SQL 结构变化时先刷新已有批次，保持输入执行顺序，
 同一 SQL 的 PreparedStatement 可以复用。`maxBatchRecords` 控制单批上限，为 `0` 时在结构变化或输入结束时刷新。
 
-带 `@Version` 的实体使用复用语句的逐条 `executeUpdate()`，确保影响行数恰好为 1，
+带 `@Version` 的实体复用单条 `updateById` 路径，逐条执行并确保影响行数恰好为 1，
 不依赖驱动可能返回的未知批量计数。非版本更新保留 `Statement.SUCCESS_NO_INFO`（`-2`），
 表示成功但具体影响行数未知；未匹配的非版本更新返回 `0`。空输入返回空数组。
 

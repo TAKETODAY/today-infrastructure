@@ -420,6 +420,7 @@ class DefaultEntityManagerTests extends AbstractRepositoryManagerTests {
           received.add("afterUpdate");
         }
       });
+
       entityManager.getEntityEventRegistry().addListener(new DeleteEventListener<UserModel>() {
 
         @Override

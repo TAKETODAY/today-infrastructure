@@ -552,15 +552,10 @@ public class DefaultEntityManager implements EntityManager {
 
     strategy = eventMulticaster.onPreUpdate(entity, metadata, strategy);
 
+    Object oldVersion = incrementVersion(entity, metadata);
     EntityProperty versionProperty = metadata.getVersionProperty();
-    Object oldVersion = null;
-    if (versionProperty != null) {
-      oldVersion = versionProperty.getValue(entity);
-      versionProperty.setValue(entity, incrementVersion(oldVersion));
-    }
 
     Update updateStmt = new Update(metadata.getTableName());
-
     ArrayList<EntityProperty> properties = new ArrayList<>(4);
     ArrayList<EntityProperty> updateByProperties = new ArrayList<>(2);
     for (EntityProperty property : metadata.getEntityProperties(false)) {
@@ -685,33 +680,9 @@ public class DefaultEntityManager implements EntityManager {
   private int doUpdateById(Object entity, Object id, EntityProperty idProperty, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
     strategy = eventMulticaster.onPreUpdate(entity, metadata, strategy);
 
-    EntityProperty versionProperty = metadata.getVersionProperty();
-    Object oldVersion = null;
-    if (versionProperty != null) {
-      oldVersion = versionProperty.getValue(entity);
-      versionProperty.setValue(entity, incrementVersion(oldVersion));
-    }
-
-    Update updateStmt = new Update(metadata.getTableName());
-    updateStmt.addRestriction(idProperty.getColumnName());
-
-    ArrayList<EntityProperty> properties = new ArrayList<>();
-    for (EntityProperty property : metadata.getEntityProperties(true)) {
-      if (property == versionProperty || strategy.shouldUpdate(entity, property)) {
-        updateStmt.addAssignment(property.getColumnName());
-        properties.add(property);
-      }
-    }
-
-    if (versionProperty != null) {
-      updateStmt.addRestriction(versionProperty.getColumnName());
-    }
-
-    if (properties.isEmpty()) {
-      throw new InvalidDataAccessApiUsageException("Updating an entity, There is no update properties");
-    }
-
-    String sql = updateStmt.toStatementString(platform);
+    Object oldVersion = incrementVersion(entity, metadata);
+    var properties = selectUpdateProperties(entity, metadata, strategy);
+    String sql = updateStatement(metadata, properties, idProperty);
 
     if (stmtLogger.isDebugEnabled()) {
       stmtLogger.logStatement(LogMessage.format("Updating entity using ID: '{}'", id), sql);
@@ -724,6 +695,8 @@ public class DefaultEntityManager implements EntityManager {
       int idx = setParameters(entity, properties, statement);
       // last one is ID
       idProperty.setParameter(statement, idx, id);
+
+      EntityProperty versionProperty = metadata.getVersionProperty();
       if (versionProperty != null) {
         versionProperty.setParameter(statement, idx + 1, oldVersion);
       }
@@ -752,6 +725,62 @@ public class DefaultEntityManager implements EntityManager {
   @Override
   public int saveOrUpdate(Object entity) throws DataAccessException {
     return saveOrUpdate(entity, null);
+  }
+
+  @Override
+  public int updateById(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy) {
+    Assert.notNull(entities, "Entities are required");
+    try (var transaction = repositoryManager.beginTransaction(transactionConfig)) {
+      var statements = new HashMap<UpdateBatchKey, UpdatePreparedBatch>();
+      try {
+        for (Object entity : entities) {
+          EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entity.getClass());
+          EntityProperty idProperty = idProperty(metadata, "Updating an entity, Id property not found");
+          Object id = idProperty.getValue(entity);
+          if (id == null) {
+            throw new InvalidDataAccessApiUsageException("Updating an entity, ID value is required");
+          }
+
+          var strategyToUse = eventMulticaster.onPreUpdate(entity, metadata,
+                  updateExcludeId(strategy != null ? strategy : defaultUpdateStrategy(entity)));
+
+          Object oldVersion = incrementVersion(entity, metadata);
+
+          var properties = selectUpdateProperties(entity, metadata, strategyToUse);
+          var key = new UpdateBatchKey(metadata.getEntityClass(), properties);
+          UpdatePreparedBatch batch = statements.get(key);
+          if (batch == null) {
+            String sql = updateStatement(metadata, properties, idProperty);
+            batch = new UpdatePreparedBatch(transaction.getJdbcConnection(), sql,
+                    properties, metadata, idProperty);
+            statements.put(key, batch);
+          }
+          batch.addBatchUpdate(entity, id, oldVersion);
+        }
+
+        int updateCount = 0;
+        for (UpdatePreparedBatch preparedBatch : statements.values()) {
+          updateCount += preparedBatch.explicitExecuteBatch();
+        }
+        transaction.commit(false);
+        return updateCount;
+      }
+      catch (Throwable ex) {
+        transaction.rollback(false);
+        if (ex instanceof DataAccessException dae) {
+          throw dae;
+        }
+        if (ex instanceof SQLException se) {
+          throw translateException("Batch updating entities Running in transaction", null, se);
+        }
+        throw new PersistenceException("Batch updating entities failed", ex);
+      }
+      finally {
+        for (UpdatePreparedBatch batch : statements.values()) {
+          closeResource(null, batch.stmt);
+        }
+      }
+    }
   }
 
   @Override
@@ -1503,7 +1532,17 @@ public class DefaultEntityManager implements EntityManager {
 
   //
 
-  private Object incrementVersion(@Nullable Object currentVersion) {
+  private @Nullable Object incrementVersion(Object entity, EntityMetadata metadata) {
+    EntityProperty versionProperty = metadata.getVersionProperty();
+    Object oldVersion = null;
+    if (versionProperty != null) {
+      oldVersion = versionProperty.getValue(entity);
+      versionProperty.setValue(entity, nextVersion(oldVersion));
+    }
+    return oldVersion;
+  }
+
+  private Object nextVersion(@Nullable Object currentVersion) {
     Assert.notNull(currentVersion, "Entity version not set");
     Object next = versionIncrementStrategy.nextVersion(currentVersion);
     if (next == null) {
@@ -1525,6 +1564,36 @@ public class DefaultEntityManager implements EntityManager {
     if (actualCount != expectCount) {
       throw new JdbcUpdateAffectedIncorrectNumberOfRowsException(sql, expectCount, actualCount);
     }
+  }
+
+  private String updateStatement(EntityMetadata metadata, ArrayList<EntityProperty> properties, EntityProperty idProperty) {
+
+    EntityProperty versionProperty = metadata.getVersionProperty();
+
+    Update updateStmt = new Update(metadata.getTableName());
+    for (EntityProperty property : properties) {
+      updateStmt.addAssignment(property.getColumnName());
+    }
+    updateStmt.addRestriction(idProperty.getColumnName());
+    if (versionProperty != null) {
+      updateStmt.addRestriction(versionProperty.getColumnName());
+    }
+    return updateStmt.toStatementString(platform);
+  }
+
+  private ArrayList<EntityProperty> selectUpdateProperties(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+    EntityProperty versionProperty = metadata.getVersionProperty();
+    var properties = new ArrayList<EntityProperty>();
+    for (EntityProperty property : metadata.getEntityProperties(false)) {
+      if (property == versionProperty || strategy.shouldUpdate(entity, property)) {
+        properties.add(property);
+      }
+    }
+
+    if (properties.isEmpty()) {
+      throw new InvalidDataAccessApiUsageException("Updating an entity, There is no update properties");
+    }
+    return properties;
   }
 
   private final class DefaultEntityIterator<T> extends EntityIterator<T> {
@@ -1566,6 +1635,94 @@ public class DefaultEntityManager implements EntityManager {
     @Override
     public void close() {
       closeResource(connection, statement, resultSet);
+    }
+
+  }
+
+  private final class UpdatePreparedBatch extends BatchExecution {
+
+    private final PreparedStatement stmt;
+
+    private final EntityProperty idProperty;
+
+    private int currentBatchRecords = 0;
+
+    private int affectedRows = 0;
+
+    UpdatePreparedBatch(Connection connection, String sql, List<EntityProperty> properties,
+            EntityMetadata entityMetadata, EntityProperty idProperty) throws SQLException {
+      super(sql, entityMetadata, properties, false);
+      this.stmt = prepareStatement(connection, sql, false);
+      this.idProperty = idProperty;
+    }
+
+    @Override
+    public BatchOperation getOperation() {
+      return BatchOperation.UPDATE;
+    }
+
+    void addBatchUpdate(Object entity, Object id, @Nullable Object oldVersion) throws Throwable {
+      entities.add(entity);
+
+      int index = setParameters(entity, properties, stmt);
+      idProperty.setParameter(stmt, index, id);
+      EntityProperty versionProperty = entityMetadata.getVersionProperty();
+      if (versionProperty != null) {
+        versionProperty.setParameter(stmt, index + 1, oldVersion);
+      }
+
+      stmt.addBatch();
+      if (maxBatchRecords > 0 && ++currentBatchRecords % maxBatchRecords == 0) {
+        executeBatch(stmt, true);
+      }
+    }
+
+    public int explicitExecuteBatch() throws Throwable {
+      executeBatch(stmt, false);
+      return affectedRows;
+    }
+
+    private void executeBatch(PreparedStatement statement, boolean implicitExecution) throws Throwable {
+      eventMulticaster.preProcessing(this, implicitExecution);
+      int batchSize = entities.size();
+      if (stmtLogger.isDebugEnabled()) {
+        stmtLogger.logStatement(LogMessage.format("Executing batch size: {}", batchSize), this.statement);
+      }
+
+      Throwable exception = null;
+      try {
+        int[] results = statement.executeBatch();
+        assertUpdateCount(this.statement, results.length, batchSize);
+
+        int idx = 0;
+        for (Object entity : entities) {
+          int result = results[idx++];
+          if (result < 0 && result != Statement.SUCCESS_NO_INFO) {
+            throw new SQLException("Batch update failed with count " + result);
+          }
+          EntityProperty versionProperty = entityMetadata.getVersionProperty();
+          if (versionProperty != null && result != 1) {
+            throw new OptimisticLockingFailureException("Batch update failed due to a version conflict");
+          }
+          eventMulticaster.onPostUpdate(entity, entityMetadata, properties, result);
+        }
+
+        this.affectedRows += batchSize;
+      }
+      catch (Throwable e) {
+        exception = e;
+        throw e;
+      }
+      finally {
+        eventMulticaster.postProcessing(this, implicitExecution, exception);
+        currentBatchRecords = 0;
+        entities.clear();
+      }
+    }
+
+    @Override
+    public int getAffectedRows() {
+      return affectedRows;
     }
 
   }
@@ -1655,10 +1812,13 @@ public class DefaultEntityManager implements EntityManager {
 
   }
 
-  private record KeysetSort(EntityProperty property, Order direction) {
+  private record UpdateBatchKey(Class<?> entityClass, List<EntityProperty> properties) {
   }
 
   private record InsertBatchKey(Class<?> entityClass, List<EntityProperty> properties) {
+  }
+
+  private record KeysetSort(EntityProperty property, Order direction) {
   }
 
   private record KeysetOrder(List<KeysetSort> keys) {
