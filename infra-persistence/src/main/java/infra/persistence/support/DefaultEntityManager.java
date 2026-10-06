@@ -467,11 +467,11 @@ public class DefaultEntityManager implements EntityManager {
       return updateCount;
     }
     catch (SQLException ex) {
-      eventMulticaster.onPersistFailed(entity, entityMetadata, strategy, ex);
+      eventMulticaster.onPersistFailed(entity, entityMetadata, properties, ex);
       throw translateException("Persisting entity", sql, ex);
     }
     catch (RuntimeException | Error ex) {
-      eventMulticaster.onPersistFailed(entity, entityMetadata, strategy, ex);
+      eventMulticaster.onPersistFailed(entity, entityMetadata, properties, ex);
       throw ex;
     }
     finally {
@@ -503,7 +503,7 @@ public class DefaultEntityManager implements EntityManager {
             batch = new PreparedBatch(transaction.getJdbcConnection(), sql, entityMetadata, properties, generatedKeys);
             statements.put(key, batch);
           }
-          batch.addBatchUpdate(entity, strategyToUse, maxBatchRecords);
+          batch.addBatchUpdate(entity, maxBatchRecords);
         }
 
         int updateCount = 0;
@@ -617,11 +617,11 @@ public class DefaultEntityManager implements EntityManager {
       return updateCount;
     }
     catch (SQLException ex) {
-      eventMulticaster.onUpdateFailed(entity, metadata, strategy, ex);
+      eventMulticaster.onUpdateFailed(entity, metadata, properties, ex);
       throw translateException("Updating entity", sql, ex);
     }
     catch (RuntimeException | Error ex) {
-      eventMulticaster.onUpdateFailed(entity, metadata, strategy, ex);
+      eventMulticaster.onUpdateFailed(entity, metadata, properties, ex);
       throw ex;
     }
     finally {
@@ -712,11 +712,11 @@ public class DefaultEntityManager implements EntityManager {
       return updateCount;
     }
     catch (SQLException ex) {
-      eventMulticaster.onUpdateFailed(entity, metadata, strategy, ex);
+      eventMulticaster.onUpdateFailed(entity, metadata, properties, ex);
       throw translateException("Updating entity By ID", sql, ex);
     }
     catch (RuntimeException | Error ex) {
-      eventMulticaster.onUpdateFailed(entity, metadata, strategy, ex);
+      eventMulticaster.onUpdateFailed(entity, metadata, properties, ex);
       throw ex;
     }
     finally {
@@ -761,9 +761,14 @@ public class DefaultEntityManager implements EntityManager {
         }
 
         int updateCount = 0;
-        for (UpdatePreparedBatch preparedBatch : statements.values()) {
-          updateCount += preparedBatch.explicitExecuteBatch();
+        for (var preparedBatch : statements.values()) {
+          int count = preparedBatch.explicitExecuteBatch();
+          updateCount = updateCount == Statement.SUCCESS_NO_INFO
+                  || count == Statement.SUCCESS_NO_INFO
+                  ? Statement.SUCCESS_NO_INFO
+                  : updateCount + count;
         }
+
         transaction.commit(false);
         return updateCount;
       }
@@ -1441,7 +1446,7 @@ public class DefaultEntityManager implements EntityManager {
       idGeneratorResolver.generateId(entity, metadata);
     }
     catch (RuntimeException | Error ex) {
-      eventMulticaster.onPersistFailed(entity, metadata, strategy, ex);
+      eventMulticaster.onPersistFailed(entity, metadata, null, ex);
       throw ex;
     }
     return strategy;
@@ -1647,8 +1652,6 @@ public class DefaultEntityManager implements EntityManager {
 
     private final EntityProperty idProperty;
 
-    private int currentBatchRecords = 0;
-
     private int affectedRows = 0;
 
     UpdatePreparedBatch(Connection connection, String sql, List<EntityProperty> properties,
@@ -1665,16 +1668,21 @@ public class DefaultEntityManager implements EntityManager {
 
     void addBatchUpdate(Object entity, Object id, @Nullable Object oldVersion) throws Throwable {
       entities.add(entity);
-
-      int index = setParameters(entity, properties, stmt);
-      idProperty.setParameter(stmt, index, id);
-      EntityProperty versionProperty = entityMetadata.getVersionProperty();
-      if (versionProperty != null) {
-        versionProperty.setParameter(stmt, index + 1, oldVersion);
+      try {
+        int index = setParameters(entity, properties, stmt);
+        idProperty.setParameter(stmt, index, id);
+        EntityProperty versionProperty = entityMetadata.getVersionProperty();
+        if (versionProperty != null) {
+          versionProperty.setParameter(stmt, index + 1, oldVersion);
+        }
+        stmt.addBatch();
+      }
+      catch (Throwable ex) {
+        onUpdateFailed(ex);
+        throw ex;
       }
 
-      stmt.addBatch();
-      if (maxBatchRecords > 0 && ++currentBatchRecords % maxBatchRecords == 0) {
+      if (maxBatchRecords > 0 && entities.size() >= maxBatchRecords) {
         executeBatch(stmt, true);
       }
     }
@@ -1685,7 +1693,9 @@ public class DefaultEntityManager implements EntityManager {
     }
 
     private void executeBatch(PreparedStatement statement, boolean implicitExecution) throws Throwable {
-      eventMulticaster.preProcessing(this, implicitExecution);
+      if (entities.isEmpty()) {
+        return;
+      }
       int batchSize = entities.size();
       if (stmtLogger.isDebugEnabled()) {
         stmtLogger.logStatement(LogMessage.format("Executing batch size: {}", batchSize), this.statement);
@@ -1693,31 +1703,82 @@ public class DefaultEntityManager implements EntityManager {
 
       Throwable exception = null;
       try {
+        eventMulticaster.preProcessing(this, implicitExecution);
         int[] results = statement.executeBatch();
         assertUpdateCount(this.statement, results.length, batchSize);
 
         int idx = 0;
+        int count = 0;
         for (Object entity : entities) {
-          int result = results[idx++];
-          if (result < 0 && result != Statement.SUCCESS_NO_INFO) {
-            throw new SQLException("Batch update failed with count " + result);
+          int updateCount = results[idx++];
+          if (updateCount < 0 && updateCount != Statement.SUCCESS_NO_INFO) {
+            throw new SQLException("Batch update failed with count " + updateCount);
           }
           EntityProperty versionProperty = entityMetadata.getVersionProperty();
-          if (versionProperty != null && result != 1) {
-            throw new OptimisticLockingFailureException("Batch update failed due to a version conflict");
+          if (versionProperty != null) {
+            if (updateCount == Statement.SUCCESS_NO_INFO) {
+              throw new InvalidDataAccessApiUsageException(
+                      "Cannot verify optimistic locking: JDBC driver returned SUCCESS_NO_INFO. "
+                              + "Do not batch-update entities with @Version when exact update counts are unavailable; "
+                              + "update them individually instead.");
+            }
+            if (updateCount != 1) {
+              throw new OptimisticLockingFailureException(
+                      "Batch update affected an unexpected number of rows: " + updateCount);
+            }
           }
-          eventMulticaster.onPostUpdate(entity, entityMetadata, properties, result);
+
+          // FIXME event
+          eventMulticaster.onPostUpdate(entity, entityMetadata, properties, updateCount);
+
+          count = count == Statement.SUCCESS_NO_INFO
+                  || updateCount == Statement.SUCCESS_NO_INFO
+                  ? Statement.SUCCESS_NO_INFO
+                  : count + updateCount;
         }
 
-        this.affectedRows += batchSize;
+        this.affectedRows = affectedRows == Statement.SUCCESS_NO_INFO
+                || count == Statement.SUCCESS_NO_INFO
+                ? Statement.SUCCESS_NO_INFO
+                : affectedRows + count;
+
       }
       catch (Throwable e) {
         exception = e;
+        onUpdateFailed(e);
         throw e;
       }
       finally {
+        postProcessing(implicitExecution, exception);
+      }
+    }
+
+    private void onUpdateFailed(Throwable e) {
+      for (Object entity : entities) {
+        try {
+          eventMulticaster.onUpdateFailed(entity, entityMetadata, properties, e);
+        }
+        catch (Throwable ex) {
+          if (e != ex) {
+            e.addSuppressed(ex);
+          }
+        }
+      }
+    }
+
+    private void postProcessing(boolean implicitExecution, @Nullable Throwable exception) {
+      try {
         eventMulticaster.postProcessing(this, implicitExecution, exception);
-        currentBatchRecords = 0;
+      }
+      catch (Throwable ex) {
+        if (exception == null) {
+          throw ex;
+        }
+        if (exception != ex) {
+          exception.addSuppressed(ex);
+        }
+      }
+      finally {
         entities.clear();
       }
     }
@@ -1733,8 +1794,6 @@ public class DefaultEntityManager implements EntityManager {
 
     public final PreparedStatement stmt;
 
-    private final ArrayList<PropertyUpdateStrategy> strategies = new ArrayList<>();
-
     private int affectedRows = 0;
 
     PreparedBatch(Connection connection, String sql, EntityMetadata entityMetadata,
@@ -1748,20 +1807,16 @@ public class DefaultEntityManager implements EntityManager {
       return BatchOperation.INSERT;
     }
 
-    public void addBatchUpdate(Object entity, PropertyUpdateStrategy strategy, int maxBatchRecords) throws Throwable {
+    public void addBatchUpdate(Object entity, int maxBatchRecords) throws Throwable {
+      entities.add(entity);
       try {
         setParameters(entity, properties, stmt);
         stmt.addBatch();
       }
       catch (Throwable ex) {
-        notifyPersistFailed(entity, strategy, ex);
-        for (int i = 0; i < entities.size(); i++) {
-          notifyPersistFailed(entities.get(i), strategies.get(i), ex);
-        }
+        onPersistFailed(ex);
         throw ex;
       }
-      entities.add(entity);
-      strategies.add(strategy);
       if (maxBatchRecords > 0 && entities.size() >= maxBatchRecords) {
         executeBatch(stmt, true);
       }
@@ -1776,19 +1831,10 @@ public class DefaultEntityManager implements EntityManager {
       if (entities.isEmpty()) {
         return;
       }
-      List<Object> batchEntities = List.copyOf(entities);
       Throwable exception = null;
       try {
         eventMulticaster.preProcessing(this, implicitExecution);
-        if (entities.size() != batchEntities.size()) {
-          throw new InvalidDataAccessApiUsageException("Batch listeners must not change the collected entities");
-        }
-        for (int i = 0; i < batchEntities.size(); i++) {
-          if (entities.get(i) != batchEntities.get(i)) {
-            throw new InvalidDataAccessApiUsageException("Batch listeners must not change the collected entities");
-          }
-        }
-        int batchSize = batchEntities.size();
+        int batchSize = entities.size();
         if (stmtLogger.isDebugEnabled()) {
           stmtLogger.logStatement(LogMessage.format("Executing batch size: {}", batchSize), this.statement);
         }
@@ -1797,17 +1843,20 @@ public class DefaultEntityManager implements EntityManager {
         int count = 0;
         for (int updateCount : updateCounts) {
           if (updateCount < 0 && updateCount != Statement.SUCCESS_NO_INFO) {
-            throw new SQLException("Batch insert failed with count " + updateCount);
+            throw new SQLException("Batch execution failed with count " + updateCount);
           }
-          count = count == Statement.SUCCESS_NO_INFO || updateCount == Statement.SUCCESS_NO_INFO
-                  ? Statement.SUCCESS_NO_INFO : count + updateCount;
+
+          count = count == Statement.SUCCESS_NO_INFO
+                  || updateCount == Statement.SUCCESS_NO_INFO
+                  ? Statement.SUCCESS_NO_INFO
+                  : count + updateCount;
         }
 
         if (autoGenerateId) {
           EntityProperty idProperty = entityMetadata.getIdProperty();
           if (idProperty != null) {
             try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-              for (Object entity : batchEntities) {
+              for (Object entity : entities) {
                 try {
                   if (!generatedKeys.next()) {
                     throw new GeneratedKeysException("Missing generated key for batch entity");
@@ -1821,47 +1870,55 @@ public class DefaultEntityManager implements EntityManager {
             }
           }
         }
-        this.affectedRows = affectedRows == Statement.SUCCESS_NO_INFO || count == Statement.SUCCESS_NO_INFO
-                ? Statement.SUCCESS_NO_INFO : affectedRows + count;
-        for (Object entity : batchEntities) {
+
+        this.affectedRows = affectedRows == Statement.SUCCESS_NO_INFO
+                || count == Statement.SUCCESS_NO_INFO
+                ? Statement.SUCCESS_NO_INFO
+                : affectedRows + count;
+
+        for (Object entity : entities) {
           eventMulticaster.onPostPersist(entity, entityMetadata, properties);
         }
       }
       catch (Throwable e) {
         exception = e;
-        for (int i = 0; i < batchEntities.size(); i++) {
-          notifyPersistFailed(batchEntities.get(i), strategies.get(i), e);
-        }
+        onPersistFailed(e);
         throw e;
       }
       finally {
+        postProcessing(implicitExecution, exception);
+      }
+    }
+
+    private void onPersistFailed(Throwable e) {
+      for (Object entity : entities) {
         try {
-          eventMulticaster.postProcessing(this, implicitExecution, exception);
+          eventMulticaster.onPersistFailed(entity, entityMetadata, properties, e);
         }
         catch (Throwable ex) {
-          if (exception == null) {
-            throw ex;
+          if (e != ex) {
+            e.addSuppressed(ex);
           }
-          if (exception != ex) {
-            exception.addSuppressed(ex);
-          }
-        }
-        finally {
-          this.entities.clear();
-          this.strategies.clear();
         }
       }
     }
 
-    private void notifyPersistFailed(Object entity, PropertyUpdateStrategy strategy, Throwable exception) {
+    private void postProcessing(boolean implicitExecution, @Nullable Throwable exception) {
       try {
-        eventMulticaster.onPersistFailed(entity, entityMetadata, strategy, exception);
+        eventMulticaster.postProcessing(this, implicitExecution, exception);
       }
       catch (Throwable ex) {
+        if (exception == null) {
+          throw ex;
+        }
         if (exception != ex) {
           exception.addSuppressed(ex);
         }
       }
+      finally {
+        entities.clear();
+      }
+
     }
 
     @Override

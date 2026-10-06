@@ -192,7 +192,7 @@ class BatchUpdateTests {
     List<Long> failed = new ArrayList<>();
     manager.getEntityEventRegistry().addListener(new UpdateEventListener<Item>() {
       @Override
-      public void onUpdateFailed(Item entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, Throwable exception) {
+      public void onUpdateFailed(Item entity, EntityMetadata metadata, List<EntityProperty> properties, Throwable exception) {
         failed.add(entity.id);
       }
     });

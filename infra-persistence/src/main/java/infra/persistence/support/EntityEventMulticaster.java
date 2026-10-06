@@ -71,9 +71,9 @@ final class EntityEventMulticaster {
     }
   }
 
-  public void onPersistFailed(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, Throwable exception) {
+  public void onPersistFailed(Object entity, EntityMetadata metadata, @Nullable List<EntityProperty> properties, Throwable exception) {
     for (var listener : registry.listeners(PersistEventListener.class).listenersFor(entity.getClass())) {
-      listener.onPersistFailed(entity, metadata, strategy, exception);
+      listener.onPersistFailed(entity, metadata, properties, exception);
     }
   }
 
@@ -91,9 +91,16 @@ final class EntityEventMulticaster {
     }
   }
 
-  public void onUpdateFailed(Object entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, Throwable exception) {
+  public void onUpdateFailed(Object entity, EntityMetadata metadata, @Nullable List<EntityProperty> properties, Throwable exception) {
     for (var listener : registry.listeners(UpdateEventListener.class).listenersFor(entity.getClass())) {
-      listener.onUpdateFailed(entity, metadata, strategy, exception);
+      try {
+        listener.onUpdateFailed(entity, metadata, properties, exception);
+      }
+      catch (Throwable ex) {
+        if (ex != exception) {
+          exception.addSuppressed(ex);
+        }
+      }
     }
   }
 

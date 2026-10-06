@@ -16,6 +16,8 @@
 
 package infra.persistence.event;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 import infra.persistence.EntityMetadata;
@@ -29,7 +31,7 @@ import infra.persistence.PropertyUpdateStrategy;
  * shared by the entity lifecycle listeners — and models only the persist concern via
  * {@link #onPrePersist(Object, EntityMetadata, PropertyUpdateStrategy)},
  * {@link #onPostPersist(Object, EntityMetadata, List)}, and
- * {@link #onPersistFailed(Object, EntityMetadata, PropertyUpdateStrategy, Throwable)}. To
+ * {@link #onPersistFailed(Object, EntityMetadata, List, Throwable)}. To
  * observe other lifecycle operations, implement the corresponding contract, e.g.
  * {@link UpdateEventListener} or {@link DeleteEventListener}.
  *
@@ -40,7 +42,8 @@ import infra.persistence.PropertyUpdateStrategy;
  *
  * <p>Listeners are invoked <strong>synchronously</strong> by the
  * {@link infra.persistence.EntityManager}; an exception thrown by a listener
- * therefore propagates to the caller.
+ * therefore propagates to the caller, except that failure callback exceptions
+ * are suppressed on the original failure.
  *
  * @param <T> the entity type to observe
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -109,14 +112,15 @@ public interface PersistEventListener<T> extends EntityEventListener<T> {
    * entity, before the exception is propagated to the caller. Unlike
    * {@link #onPostPersist}, the entity may only be partially populated (e.g. an
    * auto-generated identifier is not written back when the insert failed).
+   * Exceptions thrown by failure listeners are suppressed on the original failure.
    *
    * @param entity the entity that failed to be persisted; must not be {@code null}
    * @param metadata the entity metadata; must not be {@code null}
-   * @param strategy the property update strategy used for the failed persistence;
-   * must not be {@code null}
+   * @param properties the immutable selected INSERT properties in SQL parameter order,
+   * or {@code null} if property selection did not complete; never a partial list
    * @param exception the exception that caused the failure; must not be {@code null}
    */
-  default void onPersistFailed(T entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, Throwable exception) {
+  default void onPersistFailed(T entity, EntityMetadata metadata, @Nullable List<EntityProperty> properties, Throwable exception) {
   }
 
 }

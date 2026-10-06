@@ -469,14 +469,14 @@ class EntityEventMulticasterTests {
     registry.addListener(new PersistEventListener<UserModel>() {
 
       @Override
-      public void onPersistFailed(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, Throwable exception) {
+      public void onPersistFailed(UserModel entity, EntityMetadata metadata, List<EntityProperty> properties, Throwable exception) {
         received.add("persist:" + exception.getMessage());
       }
     });
     registry.addListener(new UpdateEventListener<UserModel>() {
 
       @Override
-      public void onUpdateFailed(UserModel entity, EntityMetadata metadata, PropertyUpdateStrategy strategy, Throwable exception) {
+      public void onUpdateFailed(UserModel entity, EntityMetadata metadata, List<EntityProperty> properties, Throwable exception) {
         received.add("update:" + exception.getMessage());
       }
     });
@@ -488,8 +488,8 @@ class EntityEventMulticasterTests {
       }
     });
 
-    multicaster.onPersistFailed(UserModel.male("TODAY", 10), metadata, PropertyUpdateStrategy.noneNull(), failure);
-    multicaster.onUpdateFailed(UserModel.male("TODAY", 10), metadata, PropertyUpdateStrategy.noneNull(), failure);
+    multicaster.onPersistFailed(UserModel.male("TODAY", 10), metadata, null, failure);
+    multicaster.onUpdateFailed(UserModel.male("TODAY", 10), metadata, List.of(), failure);
     multicaster.onDeleteFailed(null, 42, metadata, failure);
 
     assertThat(received).containsExactly("persist:boom", "update:boom", "delete:boom");
