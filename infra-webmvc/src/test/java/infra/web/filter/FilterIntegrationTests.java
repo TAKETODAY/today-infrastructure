@@ -18,14 +18,18 @@ package infra.web.filter;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.stereotype.Component;
 import infra.web.DispatcherHandler;
 import infra.web.Filter;
+import infra.web.FilterChain;
 import infra.web.HandlerAdapter;
 import infra.web.HandlerMapping;
 import infra.web.HttpContext;
+import infra.web.HttpRequestHandler;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.mock.MockHttpContext;
 
@@ -94,6 +98,67 @@ class FilterIntegrationTests {
     handler.handleRequest(request);
 
     assertThat(order.toString()).isEqualTo("AB");
+  }
+
+  @Test
+  void filterChainIsReusedAcrossRequests() throws Throwable {
+    var chains = new ArrayList<FilterChain>();
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.register(BaseConfig.class);
+      context.registerBean("filter", Filter.class, () -> (request, chain) -> {
+        chains.add(chain);
+        request.setAttribute("filterCalled", Boolean.TRUE);
+        chain.doFilter(request);
+      });
+      context.refresh();
+
+      DispatcherHandler handler = new DispatcherHandler(context);
+      handler.setHandlerMapping(mockHandlerMapping());
+      handler.setHandlerAdapter(mockHandlerAdapter());
+      handler.start();
+
+      for (int i = 0; i < 2; i++) {
+        MockHttpContext request = new MockHttpContext();
+        handler.handleRequest(request);
+        assertThat(request.getAttribute("filterCalled")).isEqualTo(Boolean.TRUE);
+        assertThat(request.getAttribute("handlerInvoked")).isEqualTo(Boolean.TRUE);
+      }
+
+      assertThat(chains).hasSize(2);
+      assertThat(chains.get(0)).isSameAs(chains.get(1));
+    }
+  }
+
+  @Test
+  void repeatedContinuationInvokesAllRemainingFilters() throws Throwable {
+    var order = new StringBuilder();
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.register(BaseConfig.class);
+      context.registerBean("firstFilter", Filter.class, () -> (request, chain) -> {
+        order.append("A");
+        chain.doFilter(request);
+        chain.doFilter(request);
+      });
+      context.registerBean("secondFilter", Filter.class, () -> (request, chain) -> {
+        order.append("B");
+        chain.doFilter(request);
+        order.append("b");
+      });
+      context.refresh();
+
+      DispatcherHandler handler = new DispatcherHandler(context);
+      HttpRequestHandler terminalHandler = request -> {
+        order.append("H");
+        return HttpRequestHandler.NONE_RETURN_VALUE;
+      };
+      handler.setHandlerMapping(request -> terminalHandler);
+      handler.setHandlerAdapter(mockHandlerAdapter());
+      handler.start();
+
+      handler.handleRequest(new MockHttpContext());
+
+      assertThat(order.toString()).isEqualTo("ABHbBHb");
+    }
   }
 
   @Test

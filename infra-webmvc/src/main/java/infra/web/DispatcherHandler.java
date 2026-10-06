@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -129,7 +130,7 @@ public class DispatcherHandler extends WebLifecycleManager {
   private @Nullable RequestToViewNameTranslator viewNameTranslator;
 
   /** @since 5.0 */
-  private Filter @Nullable [] filters;
+  private @Nullable DefaultFilterChain filterChain;
 
   /** @since 5.0 */
   private @Nullable ApiVersionStrategy apiVersionStrategy;
@@ -464,7 +465,7 @@ public class DispatcherHandler extends WebLifecycleManager {
     if (!matchingBeans.isEmpty()) {
       var filters = new ArrayList<>(matchingBeans.values());
       AnnotationAwareOrderComparator.sort(filters);
-      this.filters = filters.toArray(new Filter[0]);
+      this.filterChain = DefaultFilterChain.initChain(filters, this);
       if (log.isDebugEnabled()) {
         log.debug("Detected {} Filter(s): {}", filters.size(), filters);
       }
@@ -591,12 +592,12 @@ public class DispatcherHandler extends WebLifecycleManager {
    */
   public void handleRequest(HttpContext context) throws Exception {
     logRequest(context);
-    var filters = this.filters;
-    if (filters == null) {
+    var filterChain = this.filterChain;
+    if (filterChain == null) {
       handleRequestInternal(context);
     }
     else {
-      new DefaultFilterChain(filters, this).doFilter(context);
+      filterChain.doFilter(context);
     }
   }
 
@@ -1065,21 +1066,35 @@ public class DispatcherHandler extends WebLifecycleManager {
 
   private static final class DefaultFilterChain implements FilterChain {
 
-    private int index;
-
-    private final Filter[] filters;
-
     private final DispatcherHandler dispatcherHandler;
 
+    private final @Nullable Filter filter;
+
+    private final @Nullable DefaultFilterChain chain;
+
     /**
-     * Create a new {@code FilterChain} with the given filters and terminal handler.
+     * Create an immutable chain with the given filters and terminal handler.
      *
      * @param filters the list of web filters to apply; must not be null
      * @param dispatcherHandler the handler to invoke when all filters have completed
      */
-    DefaultFilterChain(Filter[] filters, DispatcherHandler dispatcherHandler) {
-      this.filters = filters;
+    static DefaultFilterChain initChain(List<Filter> filters, DispatcherHandler dispatcherHandler) {
+      DefaultFilterChain chain = new DefaultFilterChain(dispatcherHandler, null, null);
+      var iterator = filters.listIterator(filters.size());
+      while (iterator.hasPrevious()) {
+        chain = new DefaultFilterChain(dispatcherHandler, iterator.previous(), chain);
+      }
+      return chain;
+    }
+
+    /**
+     * Create one immutable link in the chain.
+     */
+    private DefaultFilterChain(DispatcherHandler dispatcherHandler,
+            @Nullable Filter currentFilter, @Nullable DefaultFilterChain chain) {
       this.dispatcherHandler = dispatcherHandler;
+      this.filter = currentFilter;
+      this.chain = chain;
     }
 
     /**
@@ -1091,9 +1106,8 @@ public class DispatcherHandler extends WebLifecycleManager {
      */
     @Override
     public void doFilter(HttpContext context) throws Exception {
-      final Filter[] filters = this.filters;
-      if (index < filters.length) {
-        filters[index++].doFilter(context, this);
+      if (filter != null && chain != null) {
+        filter.doFilter(context, chain);
       }
       else {
         dispatcherHandler.handleRequestInternal(context);
