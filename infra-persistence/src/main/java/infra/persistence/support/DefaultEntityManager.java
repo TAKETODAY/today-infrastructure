@@ -509,8 +509,7 @@ public class DefaultEntityManager implements EntityManager {
         int updateCount = 0;
         for (PreparedBatch preparedBatch : statements.values()) {
           int count = preparedBatch.explicitExecuteBatch();
-          updateCount = updateCount == Statement.SUCCESS_NO_INFO || count == Statement.SUCCESS_NO_INFO
-                  ? Statement.SUCCESS_NO_INFO : updateCount + count;
+          updateCount = computeUpdateRows(updateCount, count);
         }
         transaction.commit(false);
         return updateCount;
@@ -763,10 +762,7 @@ public class DefaultEntityManager implements EntityManager {
         int updateCount = 0;
         for (var preparedBatch : statements.values()) {
           int count = preparedBatch.explicitExecuteBatch();
-          updateCount = updateCount == Statement.SUCCESS_NO_INFO
-                  || count == Statement.SUCCESS_NO_INFO
-                  ? Statement.SUCCESS_NO_INFO
-                  : updateCount + count;
+          updateCount = computeUpdateRows(updateCount, count);
         }
 
         transaction.commit(false);
@@ -1603,6 +1599,13 @@ public class DefaultEntityManager implements EntityManager {
     return properties;
   }
 
+  private static int computeUpdateRows(int updateCount, int count) {
+    return updateCount == Statement.SUCCESS_NO_INFO
+            || count == Statement.SUCCESS_NO_INFO
+            ? Statement.SUCCESS_NO_INFO
+            : updateCount + count;
+  }
+
   private final class DefaultEntityIterator<T> extends EntityIterator<T> {
 
     private final Connection connection;
@@ -1731,17 +1734,10 @@ public class DefaultEntityManager implements EntityManager {
           // FIXME event
           eventMulticaster.onPostUpdate(entity, entityMetadata, properties, updateCount);
 
-          count = count == Statement.SUCCESS_NO_INFO
-                  || updateCount == Statement.SUCCESS_NO_INFO
-                  ? Statement.SUCCESS_NO_INFO
-                  : count + updateCount;
+          count = computeUpdateRows(count, updateCount);
         }
 
-        this.affectedRows = affectedRows == Statement.SUCCESS_NO_INFO
-                || count == Statement.SUCCESS_NO_INFO
-                ? Statement.SUCCESS_NO_INFO
-                : affectedRows + count;
-
+        this.affectedRows = computeUpdateRows(this.affectedRows, count);
       }
       catch (Throwable e) {
         exception = e;
@@ -1846,10 +1842,7 @@ public class DefaultEntityManager implements EntityManager {
             throw new SQLException("Batch execution failed with count " + updateCount);
           }
 
-          count = count == Statement.SUCCESS_NO_INFO
-                  || updateCount == Statement.SUCCESS_NO_INFO
-                  ? Statement.SUCCESS_NO_INFO
-                  : count + updateCount;
+          count = computeUpdateRows(count, updateCount);
         }
 
         if (autoGenerateId) {
@@ -1871,11 +1864,7 @@ public class DefaultEntityManager implements EntityManager {
           }
         }
 
-        this.affectedRows = affectedRows == Statement.SUCCESS_NO_INFO
-                || count == Statement.SUCCESS_NO_INFO
-                ? Statement.SUCCESS_NO_INFO
-                : affectedRows + count;
-
+        this.affectedRows = computeUpdateRows(this.affectedRows, count);
         for (Object entity : entities) {
           eventMulticaster.onPostPersist(entity, entityMetadata, properties);
         }
