@@ -41,6 +41,9 @@ import infra.persistence.annotation.UpdateBy;
 import infra.persistence.annotation.Version;
 import infra.persistence.event.BatchExecution;
 import infra.persistence.event.BatchExecutionListener;
+import infra.persistence.event.DeleteEventListener;
+import infra.persistence.event.EntityFailureContext;
+import infra.persistence.event.EntityOperationPhase;
 import infra.persistence.event.PersistEventListener;
 import infra.persistence.event.UpdateEventListener;
 
@@ -71,14 +74,20 @@ class BatchPersistTests {
     var failures = new ArrayList<Throwable>();
     manager.getEntityEventRegistry().addListener(new PersistEventListener<Item>() {
       @Override
-      public void onPersistFailed(Item entity, EntityMetadata metadata, List<EntityProperty> properties, Throwable exception) {
+      public void onPersistFailed(Item entity, EntityFailureContext context) {
+        var properties = context.getProperties();
+        var exception = context.getException();
+        assertThat(context.getPhase()).isEqualTo(EntityOperationPhase.PREPARATION);
         assertThat(properties).isNull();
         failures.add(exception);
       }
     });
     manager.getEntityEventRegistry().addListener(new UpdateEventListener<Item>() {
       @Override
-      public void onUpdateFailed(Item entity, EntityMetadata metadata, List<EntityProperty> properties, Throwable exception) {
+      public void onUpdateFailed(Item entity, EntityFailureContext context) {
+        var properties = context.getProperties();
+        var exception = context.getException();
+        assertThat(context.getPhase()).isEqualTo(EntityOperationPhase.PREPARATION);
         assertThat(properties).isNull();
         failures.add(exception);
       }
@@ -110,7 +119,10 @@ class BatchPersistTests {
       }
 
       @Override
-      public void onPersistFailed(Item entity, EntityMetadata metadata, List<EntityProperty> properties, Throwable exception) {
+      public void onPersistFailed(Item entity, EntityFailureContext context) {
+        var properties = context.getProperties();
+        var exception = context.getException();
+        assertThat(context.getPhase()).isEqualTo(EntityOperationPhase.PRE_PROCESSING);
         assertThat(properties).isNull();
         failures.add(exception);
       }
@@ -122,7 +134,10 @@ class BatchPersistTests {
       }
 
       @Override
-      public void onUpdateFailed(Item entity, EntityMetadata metadata, List<EntityProperty> properties, Throwable exception) {
+      public void onUpdateFailed(Item entity, EntityFailureContext context) {
+        var properties = context.getProperties();
+        var exception = context.getException();
+        assertThat(context.getPhase()).isEqualTo(EntityOperationPhase.PRE_PROCESSING);
         assertThat(properties).isNull();
         failures.add(exception);
       }
@@ -141,7 +156,10 @@ class BatchPersistTests {
     var failures = new ArrayList<Throwable>();
     manager.getEntityEventRegistry().addListener(new UpdateEventListener<Object>() {
       @Override
-      public void onUpdateFailed(Object entity, EntityMetadata metadata, List<EntityProperty> properties, Throwable exception) {
+      public void onUpdateFailed(Object entity, EntityFailureContext context) {
+        var properties = context.getProperties();
+        var exception = context.getException();
+        assertThat(context.getPhase()).isEqualTo(EntityOperationPhase.PREPARATION);
         assertThat(properties).isNull();
         failures.add(exception);
       }
@@ -164,7 +182,10 @@ class BatchPersistTests {
     var failures = new ArrayList<Throwable>();
     manager.getEntityEventRegistry().addListener(new UpdateEventListener<Item>() {
       @Override
-      public void onUpdateFailed(Item entity, EntityMetadata metadata, List<EntityProperty> properties, Throwable exception) {
+      public void onUpdateFailed(Item entity, EntityFailureContext context) {
+        var properties = context.getProperties();
+        var exception = context.getException();
+        assertThat(context.getPhase()).isEqualTo(EntityOperationPhase.EXECUTION);
         assertThat(properties).extracting(EntityProperty::getName).containsExactly("name");
         assertThatThrownBy(properties::clear).isInstanceOf(UnsupportedOperationException.class);
         failures.add(exception);
@@ -223,7 +244,9 @@ class BatchPersistTests {
     PropertyUpdateStrategy strategy = PropertyUpdateStrategy.noneNull();
     manager.getEntityEventRegistry().addListener(new PersistEventListener<Item>() {
       @Override
-      public void onPersistFailed(Item entity, EntityMetadata metadata, List<EntityProperty> properties, Throwable exception) {
+      public void onPersistFailed(Item entity, EntityFailureContext context) {
+        var properties = context.getProperties();
+        assertThat(context.getPhase()).isEqualTo(EntityOperationPhase.EXECUTION);
         assertThat(properties).extracting(EntityProperty::getName).containsExactly("name");
         assertThatThrownBy(properties::clear).isInstanceOf(UnsupportedOperationException.class);
         failed.add(entity);
@@ -273,7 +296,7 @@ class BatchPersistTests {
     var failed = new ArrayList<Item>();
     manager.getEntityEventRegistry().addListener(new PersistEventListener<Item>() {
       @Override
-      public void onPersistFailed(Item entity, EntityMetadata metadata, List<EntityProperty> properties, Throwable exception) {
+      public void onPersistFailed(Item entity, EntityFailureContext context) {
         failed.add(entity);
         throw callbackFailure;
       }
@@ -291,7 +314,13 @@ class BatchPersistTests {
   void missingGeneratedKeysRollBackWithoutSuccessCallbacks() {
     manager.keys = mock(ResultSet.class);
     var successful = new ArrayList<IdentityItem>();
+    var failures = new ArrayList<EntityFailureContext>();
     manager.getEntityEventRegistry().addListener(new PersistEventListener<IdentityItem>() {
+      @Override
+      public void onPersistFailed(IdentityItem entity, EntityFailureContext context) {
+        failures.add(context);
+      }
+
       @Override
       public void onPostPersist(IdentityItem entity, EntityMetadata metadata, List<EntityProperty> properties) {
         successful.add(entity);
@@ -300,7 +329,95 @@ class BatchPersistTests {
     assertThatThrownBy(() -> manager.persist(List.of(new IdentityItem())))
             .isInstanceOf(GeneratedKeysException.class).hasMessageContaining("Missing generated key");
     assertThat(successful).isEmpty();
+    assertThat(failures).singleElement().satisfies(context -> {
+      assertThat(context.getPhase()).isEqualTo(EntityOperationPhase.POST_PROCESSING);
+      assertThat(context.getException()).isInstanceOf(GeneratedKeysException.class);
+    });
     assertThat(repository.createNamedQuery("select count(*) from batch_insert").fetchFirst(Integer.class)).isZero();
+  }
+
+  @Test
+  void postCallbackFailureCarriesContextForSingleAndBatch() {
+    IllegalStateException failure = new IllegalStateException("post failed");
+    var failures = new ArrayList<EntityFailureContext>();
+    manager.getEntityEventRegistry().addListener(new PersistEventListener<Item>() {
+      @Override
+      public void onPostPersist(Item entity, EntityMetadata metadata, List<EntityProperty> properties) {
+        throw failure;
+      }
+
+      @Override
+      public void onPersistFailed(Item entity, EntityFailureContext context) {
+        failures.add(context);
+      }
+    });
+    assertThatThrownBy(() -> manager.persist(item("single"))).isSameAs(failure);
+    assertThatThrownBy(() -> manager.persist(List.of(item("batch")))).hasCause(failure);
+    assertThat(failures).hasSize(2).allSatisfy(context -> {
+      assertThat(context.getPhase()).isEqualTo(EntityOperationPhase.POST_PROCESSING);
+      assertThat(context.getException()).isSameAs(failure);
+      assertThat(context.getProperties()).extracting(EntityProperty::getName).containsExactly("name");
+    });
+  }
+
+  @Test
+  void explicitUpdateIdIsRetainedWhenPostCallbackChangesEntityId() {
+    repository.createNamedQuery("insert into batch_insert(id,name) values(42,'old')").executeUpdate();
+    IllegalStateException failure = new IllegalStateException("post failed");
+    var failures = new ArrayList<EntityFailureContext>();
+    manager.getEntityEventRegistry().addListener(new UpdateEventListener<Item>() {
+      @Override
+      public void onPostUpdate(Item entity, EntityMetadata metadata, List<EntityProperty> properties, int count) {
+        entity.id = 99L;
+        throw failure;
+      }
+
+      @Override
+      public void onUpdateFailed(Item entity, EntityFailureContext context) {
+        failures.add(context);
+      }
+    });
+    assertThatThrownBy(() -> manager.updateById(item("new"), 42L)).isSameAs(failure);
+    assertThat(failures).singleElement().satisfies(context -> {
+      assertThat(context.getId()).isEqualTo(42L);
+      assertThat(context.getPhase()).isEqualTo(EntityOperationPhase.POST_PROCESSING);
+    });
+  }
+
+  @Test
+  void deletePreFailuresPreserveOriginalExceptionAndContinueFailureNotifications() {
+    IllegalStateException failure = new IllegalStateException("pre delete failed");
+    IllegalStateException secondary = new IllegalStateException("failure listener failed");
+    var failures = new ArrayList<EntityFailureContext>();
+    manager.getEntityEventRegistry().addListener(new DeleteEventListener<Item>() {
+      @Override
+      public void onPreDelete(Item entity, Object id, EntityMetadata metadata) {
+        throw failure;
+      }
+
+      @Override
+      public void onDeleteFailed(Item entity, EntityFailureContext context) {
+        throw secondary;
+      }
+    });
+    manager.getEntityEventRegistry().addListener(new DeleteEventListener<Item>() {
+      @Override
+      public void onDeleteFailed(Item entity, EntityFailureContext context) {
+        failures.add(context);
+      }
+    });
+    Item entity = item("one");
+    entity.id = 42L;
+    assertThatThrownBy(() -> manager.delete(Item.class, 42L)).isSameAs(failure);
+    assertThatThrownBy(() -> manager.delete(entity)).isSameAs(failure);
+    assertThat(failures).hasSize(2).allSatisfy(context -> {
+      assertThat(context.getId()).isEqualTo(42L);
+      assertThat(context.getPhase()).isEqualTo(EntityOperationPhase.PRE_PROCESSING);
+      assertThat(context.getProperties()).isNull();
+      assertThat(context.getException()).isSameAs(failure);
+    });
+    assertThat(failure.getSuppressed()).containsExactly(secondary, secondary);
+    assertThat(manager.statement).isNull();
   }
 
   private static Item item(String name) {

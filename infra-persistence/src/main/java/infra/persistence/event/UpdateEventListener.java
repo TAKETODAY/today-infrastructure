@@ -16,8 +16,6 @@
 
 package infra.persistence.event;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.List;
 
 import infra.persistence.EntityMetadata;
@@ -31,7 +29,7 @@ import infra.persistence.PropertyUpdateStrategy;
  * shared by the entity lifecycle listeners — and models only the update concern via
  * {@link #onPreUpdate(Object, EntityMetadata, PropertyUpdateStrategy)},
  * {@link #onPostUpdate(Object, EntityMetadata, List, int)}, and
- * {@link #onUpdateFailed(Object, EntityMetadata, List, Throwable)}. To
+ * {@link #onUpdateFailed(Object, EntityFailureContext)}. To
  * observe other lifecycle operations, implement the corresponding contract, e.g.
  * {@link PersistEventListener} or {@link DeleteEventListener}.
  *
@@ -101,17 +99,15 @@ public interface UpdateEventListener<T> extends EntityEventListener<T> {
    *
    * <p>This callback is invoked after any failure raised while updating the entity,
    * before the exception is propagated to the caller. Besides database errors this
-   * also covers an optimistic locking failure, in which case the entity already
-   * carries the incremented version.
+   * also covers preparation and listener failures. For an optimistic locking
+   * failure, the entity already carries the incremented version.
    * Exceptions thrown by failure listeners are suppressed on the original failure.
    *
    * @param entity the entity that failed to be updated; must not be {@code null}
-   * @param metadata the entity metadata; must not be {@code null}
-   * @param properties the immutable selected SET properties in SQL parameter order,
-   * or {@code null} if property selection did not complete; never a partial list
-   * @param exception the exception that caused the failure; must not be {@code null}
+   * @param context the failure snapshot, including phase and original exception;
+   * does not imply rollback or absence of database changes
    */
-  default void onUpdateFailed(T entity, EntityMetadata metadata, @Nullable List<EntityProperty> properties, Throwable exception) {
+  default void onUpdateFailed(T entity, EntityFailureContext context) {
   }
 
 }

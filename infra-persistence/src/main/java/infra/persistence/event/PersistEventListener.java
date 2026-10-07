@@ -16,8 +16,6 @@
 
 package infra.persistence.event;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.List;
 
 import infra.persistence.EntityMetadata;
@@ -31,7 +29,7 @@ import infra.persistence.PropertyUpdateStrategy;
  * shared by the entity lifecycle listeners — and models only the persist concern via
  * {@link #onPrePersist(Object, EntityMetadata, PropertyUpdateStrategy)},
  * {@link #onPostPersist(Object, EntityMetadata, List)}, and
- * {@link #onPersistFailed(Object, EntityMetadata, List, Throwable)}. To
+ * {@link #onPersistFailed(Object, EntityFailureContext)}. To
  * observe other lifecycle operations, implement the corresponding contract, e.g.
  * {@link UpdateEventListener} or {@link DeleteEventListener}.
  *
@@ -115,12 +113,10 @@ public interface PersistEventListener<T> extends EntityEventListener<T> {
    * Exceptions thrown by failure listeners are suppressed on the original failure.
    *
    * @param entity the entity that failed to be persisted; must not be {@code null}
-   * @param metadata the entity metadata; must not be {@code null}
-   * @param properties the immutable selected INSERT properties in SQL parameter order,
-   * or {@code null} if property selection did not complete; never a partial list
-   * @param exception the exception that caused the failure; must not be {@code null}
+   * @param context the failure snapshot, including phase and original exception;
+   * does not imply rollback or absence of database changes
    */
-  default void onPersistFailed(T entity, EntityMetadata metadata, @Nullable List<EntityProperty> properties, Throwable exception) {
+  default void onPersistFailed(T entity, EntityFailureContext context) {
   }
 
 }

@@ -32,6 +32,8 @@ import infra.persistence.event.DeleteEventListener;
 import infra.persistence.event.PersistEventListener;
 import infra.persistence.event.PostLoadEventListener;
 import infra.persistence.event.PostTruncateEventListener;
+import infra.persistence.event.EntityFailureContext;
+import infra.persistence.event.EntityOperationPhase;
 import infra.persistence.event.UpdateEventListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -469,28 +471,32 @@ class EntityEventMulticasterTests {
     registry.addListener(new PersistEventListener<UserModel>() {
 
       @Override
-      public void onPersistFailed(UserModel entity, EntityMetadata metadata, List<EntityProperty> properties, Throwable exception) {
-        received.add("persist:" + exception.getMessage());
+      public void onPersistFailed(UserModel entity, EntityFailureContext context) {
+        received.add("persist:" + context.getException().getMessage());
       }
     });
     registry.addListener(new UpdateEventListener<UserModel>() {
 
       @Override
-      public void onUpdateFailed(UserModel entity, EntityMetadata metadata, List<EntityProperty> properties, Throwable exception) {
-        received.add("update:" + exception.getMessage());
+      public void onUpdateFailed(UserModel entity, EntityFailureContext context) {
+        received.add("update:" + context.getException().getMessage());
       }
     });
     registry.addListener(new DeleteEventListener<UserModel>() {
 
       @Override
-      public void onDeleteFailed(UserModel entity, Object id, EntityMetadata metadata, Throwable exception) {
-        received.add("delete:" + exception.getMessage());
+      public void onDeleteFailed(UserModel entity, EntityFailureContext context) {
+        assertThat(context.getId()).isEqualTo(42);
+        received.add("delete:" + context.getException().getMessage());
       }
     });
 
-    multicaster.onPersistFailed(UserModel.male("TODAY", 10), metadata, null, failure);
-    multicaster.onUpdateFailed(UserModel.male("TODAY", 10), metadata, List.of(), failure);
-    multicaster.onDeleteFailed(null, 42, metadata, failure);
+    multicaster.onPersistFailed(UserModel.male("TODAY", 10),
+            new EntityFailureContext(metadata, EntityOperationPhase.PRE_PROCESSING, null, null, failure));
+    multicaster.onUpdateFailed(UserModel.male("TODAY", 10),
+            new EntityFailureContext(metadata, EntityOperationPhase.EXECUTION, List.of(), null, failure));
+    multicaster.onDeleteFailed(null,
+            new EntityFailureContext(metadata, EntityOperationPhase.EXECUTION, null, 42, failure));
 
     assertThat(received).containsExactly("persist:boom", "update:boom", "delete:boom");
   }

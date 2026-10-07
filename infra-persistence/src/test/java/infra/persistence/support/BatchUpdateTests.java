@@ -42,6 +42,8 @@ import infra.persistence.auditing.LastModifiedBy;
 import infra.persistence.event.BatchExecution;
 import infra.persistence.event.BatchExecutionListener;
 import infra.persistence.event.BatchOperation;
+import infra.persistence.event.EntityFailureContext;
+import infra.persistence.event.EntityOperationPhase;
 import infra.persistence.event.UpdateEventListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -145,6 +147,7 @@ class BatchUpdateTests {
 
   @Test
   void versionConflictRollsBackEarlierBatch() throws SQLException {
+    manager.setMaxBatchRecords(1);
     VersionedItem stale = new VersionedItem();
     stale.id = 2L;
     stale.name = "conflict";
@@ -179,7 +182,9 @@ class BatchUpdateTests {
       }
 
       @Override
-      public void onUpdateFailed(VersionedItem entity, EntityMetadata metadata, List<EntityProperty> properties, Throwable exception) {
+      public void onUpdateFailed(VersionedItem entity, EntityFailureContext context) {
+        assertThat(context.getPhase()).isEqualTo(EntityOperationPhase.EXECUTION);
+        assertThat(context.getId()).isEqualTo(entity.id);
         failed.add(entity.id);
       }
     });
@@ -224,7 +229,8 @@ class BatchUpdateTests {
     List<Long> failed = new ArrayList<>();
     manager.getEntityEventRegistry().addListener(new UpdateEventListener<Item>() {
       @Override
-      public void onUpdateFailed(Item entity, EntityMetadata metadata, List<EntityProperty> properties, Throwable exception) {
+      public void onUpdateFailed(Item entity, EntityFailureContext context) {
+        assertThat(context.getPhase()).isEqualTo(EntityOperationPhase.EXECUTION);
         failed.add(entity.id);
       }
     });

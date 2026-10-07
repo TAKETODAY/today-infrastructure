@@ -27,7 +27,7 @@ import infra.persistence.EntityMetadata;
  * shared by the entity lifecycle listeners — and models only the delete concern via
  * {@link #onPreDelete(Object, Object, EntityMetadata)},
  * {@link #onPostDelete(Object, Object, EntityMetadata, int)}, and
- * {@link #onDeleteFailed(Object, Object, EntityMetadata, Throwable)}. To observe other
+ * {@link #onDeleteFailed(Object, EntityFailureContext)}. To observe other
  * lifecycle operations, implement the corresponding contract, e.g.
  * {@link PersistEventListener} or {@link UpdateEventListener}.
  *
@@ -38,7 +38,8 @@ import infra.persistence.EntityMetadata;
  *
  * <p>Listeners are invoked <strong>synchronously</strong> by the
  * {@link infra.persistence.EntityManager}; an exception thrown by a listener
- * therefore propagates to the caller.
+ * therefore propagates to the caller, except that failure callback exceptions
+ * are suppressed on the original failure.
  *
  * @param <T> the entity type to observe
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -78,16 +79,15 @@ public interface DeleteEventListener<T> extends EntityEventListener<T> {
    * Invoked when deleting an entity of the observed type failed.
    *
    * <p>This callback is invoked after any failure raised while deleting the entity,
-   * before the exception is propagated to the caller.
+   * before the exception is propagated to the caller. Failure listener exceptions
+   * are suppressed on the original failure.
    *
    * @param entity the entity that failed to be deleted, or {@code null} if the
    * entity was deleted by id and no instance is available
-   * @param id the id of the entity that failed to be deleted, or {@code null} if not
-   * available (e.g. when deleting by example)
-   * @param metadata the entity metadata; must not be {@code null}
-   * @param exception the exception that caused the failure; must not be {@code null}
+   * @param context the failure snapshot, including operation ID, phase and original
+   * exception; does not imply rollback or absence of database changes
    */
-  default void onDeleteFailed(@Nullable T entity, @Nullable Object id, EntityMetadata metadata, Throwable exception) {
+  default void onDeleteFailed(@Nullable T entity, EntityFailureContext context) {
   }
 
 }
