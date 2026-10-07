@@ -1952,7 +1952,7 @@ public class DefaultEntityManager implements EntityManager {
       if (keys.isEmpty()) {
         throw new IllegalArgumentException("Keyset pagination requires an entity ID or explicit unique ordering");
       }
-      return new KeysetOrder(List.copyOf(keys));
+      return new KeysetOrder(Collections.unmodifiableList(keys));
     }
 
     void validateCursor(List<ScrollPosition.Entry> cursor) {
@@ -2030,7 +2030,7 @@ public class DefaultEntityManager implements EntityManager {
     private final Function<T, ScrollPosition> positionExtractor;
 
     private ListScroll(List<T> rows, boolean last, Function<T, ScrollPosition> positionExtractor) {
-      this.rows = List.copyOf(rows);
+      this.rows = rows;
       this.last = last;
       this.positionExtractor = positionExtractor;
     }
