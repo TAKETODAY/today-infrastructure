@@ -1737,7 +1737,7 @@ public class DefaultEntityManager implements EntityManager {
         }
         int[] updateCounts = statement.executeBatch();
         assertUpdateCount(this.statement, updateCounts.length, batchSize);
-        int count = computeUpdateRows(updateCounts);
+        int count = computeUpdateStatus(updateCounts);
 
         if (autoGenerateId) {
           EntityProperty idProperty = entityMetadata.getIdProperty();
@@ -1758,7 +1758,7 @@ public class DefaultEntityManager implements EntityManager {
           }
         }
 
-        this.affectedRows = DefaultEntityManager.computeUpdateRows(this.affectedRows, count);
+        this.affectedRows = computeUpdateRows(this.affectedRows, count);
         for (int i = 0; i < batchSize; i++) {
           Object entity = entities.get(i);
           if (operation == BatchOperation.UPDATE) {
@@ -1779,7 +1779,7 @@ public class DefaultEntityManager implements EntityManager {
       }
     }
 
-    private int computeUpdateRows(int[] updateCounts) throws SQLException {
+    private int computeUpdateStatus(int[] updateCounts) throws SQLException {
       EntityProperty versionProperty = operation == BatchOperation.UPDATE ? entityMetadata.getVersionProperty() : null;
       int count = 0;
       for (int updateCount : updateCounts) {
@@ -1800,7 +1800,7 @@ public class DefaultEntityManager implements EntityManager {
           }
         }
 
-        count = DefaultEntityManager.computeUpdateRows(count, updateCount);
+        count = computeUpdateRows(count, updateCount);
       }
       return count;
     }
