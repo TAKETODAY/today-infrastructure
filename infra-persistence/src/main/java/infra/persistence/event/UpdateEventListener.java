@@ -95,7 +95,9 @@ public interface UpdateEventListener<T> extends EntityEventListener<T> {
   }
 
   /**
-   * Invoked when updating an entity of the observed type failed.
+   * Invoked when a single-entity update operation of the observed type failed.
+   * Batch update operations do not invoke this callback; execution failures
+   * are reported to {@link BatchExecutionListener} and propagated to the caller.
    *
    * <p>This callback is invoked after any failure raised while updating the entity,
    * before the exception is propagated to the caller. Besides database errors this

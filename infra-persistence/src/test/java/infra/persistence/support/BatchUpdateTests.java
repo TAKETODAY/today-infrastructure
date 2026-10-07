@@ -200,7 +200,7 @@ class BatchUpdateTests {
     assertThatThrownBy(() -> manager.updateById(List.of(first, stale)))
             .isInstanceOf(OptimisticLockingFailureException.class);
     assertThat(updated).isEmpty();
-    assertThat(failed).containsExactly(1L, 2L);
+    assertThat(failed).isEmpty();
     assertThat(manager.findById(VersionedItem.class, 1L).version).isZero();
     assertThat(manager.findById(Item.class, 1L).name).isEqualTo("old");
   }
@@ -236,7 +236,7 @@ class BatchUpdateTests {
     });
     assertThatThrownBy(() -> manager.updateById(List.of(item(1L, "new"), item(2L, "x".repeat(100)))))
             .isInstanceOf(infra.dao.DataAccessException.class);
-    assertThat(failed).containsExactly(1L, 2L);
+    assertThat(failed).isEmpty();
     assertThat(manager.findById(Item.class, 1L).name).isEqualTo("old");
   }
 
@@ -254,6 +254,74 @@ class BatchUpdateTests {
     });
     manager.updateById(List.of(first, item(2L, "second")));
     assertThat(manager.findById(Item.class, 1L).name).isEqualTo("bound");
+  }
+
+  @Test
+  void missingIdDoesNotNotifyEntityFailureListeners() {
+    var failed = new ArrayList<Item>();
+    var contexts = new ArrayList<EntityFailureContext>();
+    manager.getEntityEventRegistry().addListener(new UpdateEventListener<Item>() {
+      @Override
+      public void onUpdateFailed(Item entity, EntityFailureContext context) {
+        failed.add(entity);
+        contexts.add(context);
+      }
+    });
+    Item pending = item(1L, "pending");
+    Item missingId = new Item();
+    assertThatThrownBy(() -> manager.updateById(List.of(pending, missingId)))
+            .isInstanceOf(InvalidDataAccessApiUsageException.class);
+    assertThat(failed).isEmpty();
+    assertThat(contexts).isEmpty();
+    assertThat(manager.findById(Item.class, 1L).name).isEqualTo("old");
+  }
+
+  @Test
+  void executionFailureDoesNotNotifyEntityFailureListenersAcrossPropertyGroups() {
+    manager.batchResult = new int[] { Statement.EXECUTE_FAILED };
+    var phases = new ArrayList<EntityOperationPhase>();
+    var failed = new ArrayList<Item>();
+    manager.getEntityEventRegistry().addListener(new UpdateEventListener<Item>() {
+      @Override
+      public void onUpdateFailed(Item entity, EntityFailureContext context) {
+        failed.add(entity);
+        phases.add(context.getPhase());
+      }
+    });
+    Item first = item(1L, "first");
+    Item second = item(2L, "second");
+    second.age = 25;
+    assertThatThrownBy(() -> manager.updateById(List.of(first, second)))
+            .isInstanceOf(infra.dao.DataAccessException.class);
+    assertThat(failed).isEmpty();
+    assertThat(phases).isEmpty();
+  }
+
+  @Test
+  void batchCollectionFailureDoesNotNotifyEntityFailureListeners() {
+    IllegalStateException failure = new IllegalStateException("addBatch failed");
+    var collectingManager = new DefaultEntityManager(repository) {
+      @Override
+      protected PreparedStatement prepareStatement(Connection connection, String sql, boolean generatedKeys) throws SQLException {
+        PreparedStatement statement = spy(connection.prepareStatement(sql));
+        org.mockito.Mockito.doNothing().doThrow(failure).when(statement).addBatch();
+        return statement;
+      }
+    };
+    var failed = new ArrayList<Item>();
+    var phases = new ArrayList<EntityOperationPhase>();
+    collectingManager.getEntityEventRegistry().addListener(new UpdateEventListener<Item>() {
+      @Override
+      public void onUpdateFailed(Item entity, EntityFailureContext context) {
+        failed.add(entity);
+        phases.add(context.getPhase());
+      }
+    });
+    Item pending = item(1L, "first");
+    Item rejected = item(2L, "second");
+    assertThatThrownBy(() -> collectingManager.updateById(List.of(pending, rejected))).hasCause(failure);
+    assertThat(failed).isEmpty();
+    assertThat(phases).isEmpty();
   }
 
   private static Item item(Long id, String name) {

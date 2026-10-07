@@ -26,6 +26,18 @@ import org.jspecify.annotations.Nullable;
  * implicitly once the configured batch size is reached, or explicitly when the
  * pending batch is flushed.
  *
+ * <p>Entity pre/post callbacks still participate in batch operations, but entity
+ * failure callbacks are not invoked. Failures during execution (including
+ * generated ID assignment and entity post callbacks) are reported here.
+ * Preparation failures before execution begins are propagated to the caller
+ * without a batch execution notification.
+ *
+ * <p>Batch completion is not transaction completion: an earlier successful
+ * batch may subsequently be rolled back. Use
+ * {@link infra.transaction.support.TransactionSynchronization#afterCommit()}
+ * or {@link infra.transaction.support.TransactionSynchronization#afterCompletion(int)}
+ * to observe the final transaction outcome, including an enclosing transaction.
+ *
  * <p>The callback methods are:
  * <ul>
  *   <li>{@link #preProcessing(BatchExecution, boolean)}: invoked before batch
@@ -77,7 +89,11 @@ public interface BatchExecutionListener extends Listener {
 
   /**
    * Called after a batch execution has completed, whether successfully or with an
-   * exception.
+   * exception. All registered post-processing listeners are invoked even if
+   * a listener throws. Listener exceptions are suppressed on the execution
+   * failure, or on the first listener failure when execution succeeded. In
+   * the latter case that first failure is propagated after all listeners run.
+   * Each listener receives the original execution exception (or {@code null}).
    *
    * @param execution the batch execution metadata, including the SQL statement and
    * the entities collected for the batch

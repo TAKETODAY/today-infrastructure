@@ -46,6 +46,8 @@ import infra.persistence.event.EntityFailureContext;
 import infra.persistence.event.EntityOperationPhase;
 import infra.persistence.event.PersistEventListener;
 import infra.persistence.event.UpdateEventListener;
+import infra.transaction.support.TransactionSynchronization;
+import infra.transaction.support.TransactionSynchronizationManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -105,7 +107,7 @@ class BatchPersistTests {
     assertThatThrownBy(() -> manager.persist(List.of(entity), strategy)).hasCause(failure);
     assertThatThrownBy(() -> manager.updateById(entity, strategy)).isSameAs(failure);
     assertThatThrownBy(() -> manager.updateById(List.of(entity), strategy)).hasCause(failure);
-    assertThat(failures).containsExactly(failure, failure, failure, failure);
+    assertThat(failures).containsExactly(failure, failure);
   }
 
   @Test
@@ -148,7 +150,7 @@ class BatchPersistTests {
     assertThatThrownBy(() -> manager.persist(List.of(entity))).hasCause(failure);
     assertThatThrownBy(() -> manager.updateById(entity)).isSameAs(failure);
     assertThatThrownBy(() -> manager.updateById(List.of(entity))).hasCause(failure);
-    assertThat(failures).containsExactly(failure, failure, failure, failure);
+    assertThat(failures).containsExactly(failure, failure);
   }
 
   @Test
@@ -173,7 +175,7 @@ class BatchPersistTests {
     assertThatThrownBy(() -> manager.update(conditional, (entity, property) -> {
       throw new IllegalStateException("selection failed");
     })).hasMessage("selection failed");
-    assertThat(failures).hasSize(3);
+    assertThat(failures).hasSize(2);
   }
 
   @Test
@@ -195,7 +197,7 @@ class BatchPersistTests {
     entity.id = 1L;
     assertThatThrownBy(() -> manager.updateById(entity)).isInstanceOf(DataAccessException.class);
     assertThatThrownBy(() -> manager.updateById(List.of(entity))).isInstanceOf(DataAccessException.class);
-    assertThat(failures).hasSize(2);
+    assertThat(failures).hasSize(1);
   }
 
   @Test
@@ -237,10 +239,17 @@ class BatchPersistTests {
   }
 
   @Test
-  void failedCountsNotifyEntitiesWithoutSuccessCallbacks() {
+  void failedCountsOnlyNotifyBatchListenerWithoutSuccessCallbacks() {
     manager.results = new int[] { 1, Statement.EXECUTE_FAILED };
     var failed = new ArrayList<Item>();
     var successful = new ArrayList<Item>();
+    var batchFailures = new ArrayList<Throwable>();
+    manager.getEntityEventRegistry().addListener(new BatchExecutionListener() {
+      @Override
+      public void postProcessing(BatchExecution execution, boolean implicitExecution, Throwable exception) {
+        batchFailures.add(exception);
+      }
+    });
     PropertyUpdateStrategy strategy = PropertyUpdateStrategy.noneNull();
     manager.getEntityEventRegistry().addListener(new PersistEventListener<Item>() {
       @Override
@@ -260,7 +269,8 @@ class BatchPersistTests {
     Item first = item("one");
     Item second = item("two");
     assertThatThrownBy(() -> manager.persist(List.of(first, second), strategy)).isInstanceOf(DataAccessException.class);
-    assertThat(failed).containsExactly(first, second);
+    assertThat(failed).isEmpty();
+    assertThat(batchFailures).singleElement().isInstanceOf(SQLException.class);
     assertThat(successful).isEmpty();
     assertThat(repository.createNamedQuery("select count(*) from batch_insert").fetchFirst(Integer.class)).isZero();
   }
@@ -291,7 +301,7 @@ class BatchPersistTests {
   }
 
   @Test
-  void sqlFailureSurvivesFailureListenersAndRollsBack() {
+  void sqlFailureBypassesEntityFailureListenersAndRollsBack() {
     IllegalStateException callbackFailure = new IllegalStateException("failure listener failed");
     var failed = new ArrayList<Item>();
     manager.getEntityEventRegistry().addListener(new PersistEventListener<Item>() {
@@ -305,8 +315,8 @@ class BatchPersistTests {
     Item second = item("x".repeat(100));
     assertThatThrownBy(() -> manager.persist(List.of(first, second)))
             .isInstanceOf(DataAccessException.class)
-            .satisfies(ex -> assertThat(ex.getCause().getSuppressed()).contains(callbackFailure));
-    assertThat(failed).containsExactly(first, second);
+            .satisfies(ex -> assertThat(ex.getCause().getSuppressed()).doesNotContain(callbackFailure));
+    assertThat(failed).isEmpty();
     assertThat(repository.createNamedQuery("select count(*) from batch_insert").fetchFirst(Integer.class)).isZero();
   }
 
@@ -329,10 +339,7 @@ class BatchPersistTests {
     assertThatThrownBy(() -> manager.persist(List.of(new IdentityItem())))
             .isInstanceOf(GeneratedKeysException.class).hasMessageContaining("Missing generated key");
     assertThat(successful).isEmpty();
-    assertThat(failures).singleElement().satisfies(context -> {
-      assertThat(context.getPhase()).isEqualTo(EntityOperationPhase.POST_PROCESSING);
-      assertThat(context.getException()).isInstanceOf(GeneratedKeysException.class);
-    });
+    assertThat(failures).isEmpty();
     assertThat(repository.createNamedQuery("select count(*) from batch_insert").fetchFirst(Integer.class)).isZero();
   }
 
@@ -353,7 +360,7 @@ class BatchPersistTests {
     });
     assertThatThrownBy(() -> manager.persist(item("single"))).isSameAs(failure);
     assertThatThrownBy(() -> manager.persist(List.of(item("batch")))).hasCause(failure);
-    assertThat(failures).hasSize(2).allSatisfy(context -> {
+    assertThat(failures).hasSize(1).allSatisfy(context -> {
       assertThat(context.getPhase()).isEqualTo(EntityOperationPhase.POST_PROCESSING);
       assertThat(context.getException()).isSameAs(failure);
       assertThat(context.getProperties()).extracting(EntityProperty::getName).containsExactly("name");
@@ -424,6 +431,124 @@ class BatchPersistTests {
     Item entity = new Item();
     entity.name = name;
     return entity;
+  }
+
+  @Test
+  void preFailureStopsBatchWithoutEntityFailureNotifications() {
+    var failed = new ArrayList<Item>();
+    var phases = new ArrayList<EntityOperationPhase>();
+    IllegalStateException failure = new IllegalStateException("pre failed");
+    Item pending = item("pending");
+    Item rejected = item("rejected");
+    manager.getEntityEventRegistry().addListener(new PersistEventListener<Item>() {
+      @Override
+      public PropertyUpdateStrategy onPrePersist(Item entity, EntityMetadata metadata, PropertyUpdateStrategy strategy) {
+        if (entity == rejected) {
+          throw failure;
+        }
+        return strategy;
+      }
+
+      @Override
+      public void onPersistFailed(Item entity, EntityFailureContext context) {
+        assertThat(context.getException()).isSameAs(failure);
+        failed.add(entity);
+        phases.add(context.getPhase());
+      }
+    });
+    assertThatThrownBy(() -> manager.persist(List.of(pending, rejected, item("unvisited")))).hasCause(failure);
+    assertThat(failed).isEmpty();
+    assertThat(phases).isEmpty();
+    assertThat(repository.createNamedQuery("select count(*) from batch_insert").fetchFirst(Integer.class)).isZero();
+  }
+
+  @Test
+  void allPostListenersRunAndAggregateFailuresAfterSuccessfulExecution() {
+    IllegalStateException firstFailure = new IllegalStateException("first");
+    AssertionError secondFailure = new AssertionError("second");
+    var notified = new ArrayList<Integer>();
+    for (int index = 0; index < 3; index++) {
+      int listenerIndex = index;
+      manager.getEntityEventRegistry().addListener(new BatchExecutionListener() {
+        @Override
+        public void postProcessing(BatchExecution execution, boolean implicitExecution, Throwable exception) {
+          assertThat(exception).isNull();
+          notified.add(listenerIndex);
+          if (listenerIndex == 0) {
+            throw firstFailure;
+          }
+          if (listenerIndex == 1) {
+            throw secondFailure;
+          }
+        }
+      });
+    }
+    assertThatThrownBy(() -> manager.persist(List.of(item("one")))).hasCause(firstFailure);
+    assertThat(notified).containsExactly(0, 1, 2);
+    assertThat(firstFailure.getSuppressed()).containsExactly(secondFailure);
+    assertThat(repository.createNamedQuery("select count(*) from batch_insert").fetchFirst(Integer.class)).isZero();
+  }
+
+  @Test
+  void allPostListenersReceiveOriginalExecutionFailure() {
+    IllegalStateException failure = new IllegalStateException("execution pre failed");
+    IllegalStateException secondary = new IllegalStateException("post failed");
+    var notified = new ArrayList<Integer>();
+    manager.getEntityEventRegistry().addListener(new BatchExecutionListener() {
+      @Override
+      public void preProcessing(BatchExecution execution, boolean implicitExecution) {
+        throw failure;
+      }
+
+      @Override
+      public void postProcessing(BatchExecution execution, boolean implicitExecution, Throwable exception) {
+        assertThat(exception).isSameAs(failure);
+        notified.add(0);
+        throw secondary;
+      }
+    });
+    manager.getEntityEventRegistry().addListener(new BatchExecutionListener() {
+      @Override
+      public void postProcessing(BatchExecution execution, boolean implicitExecution, Throwable exception) {
+        assertThat(exception).isSameAs(failure);
+        notified.add(1);
+        throw failure;
+      }
+    });
+    assertThatThrownBy(() -> manager.persist(List.of(item("one")))).hasCause(failure);
+    assertThat(notified).containsExactly(0, 1);
+    assertThat(failure.getSuppressed()).containsExactly(secondary);
+  }
+
+  @Test
+  void transactionCompletionReportsRollbackAfterEarlierSuccessfulBatch() {
+    manager.setMaxBatchRecords(1);
+    var completedBatches = new ArrayList<String>();
+    var outcomes = new ArrayList<Integer>();
+    manager.getEntityEventRegistry().addListener(new BatchExecutionListener() {
+      @Override
+      public void preProcessing(BatchExecution execution, boolean implicitExecution) {
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+          @Override
+          public void afterCompletion(int status) {
+            outcomes.add(status);
+          }
+        });
+      }
+
+      @Override
+      public void postProcessing(BatchExecution execution, boolean implicitExecution, Throwable exception) {
+        if (exception == null) {
+          completedBatches.add(((Item) execution.getEntities().get(0)).name);
+        }
+      }
+    });
+    assertThatThrownBy(() -> manager.persist(List.of(item("first"), item("x".repeat(100)))))
+            .isInstanceOf(DataAccessException.class);
+    assertThat(completedBatches).containsExactly("first");
+    assertThat(outcomes).containsExactly(TransactionSynchronization.STATUS_ROLLED_BACK,
+            TransactionSynchronization.STATUS_ROLLED_BACK);
+    assertThat(repository.createNamedQuery("select count(*) from batch_insert").fetchFirst(Integer.class)).isZero();
   }
 
   @Table("batch_insert")

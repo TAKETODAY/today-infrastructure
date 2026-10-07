@@ -104,7 +104,9 @@ public interface PersistEventListener<T> extends EntityEventListener<T> {
   }
 
   /**
-   * Invoked when persisting an entity of the observed type failed.
+   * Invoked when a single-entity persist operation of the observed type failed.
+   * Batch persist operations do not invoke this callback; execution failures
+   * are reported to {@link BatchExecutionListener} and propagated to the caller.
    *
    * <p>This callback is invoked after any failure raised while persisting the
    * entity, before the exception is propagated to the caller. Unlike

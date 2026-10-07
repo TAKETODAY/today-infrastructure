@@ -29,8 +29,9 @@ import infra.util.Assert;
  *
  * <p>The selected properties are snapshotted, while metadata, ID and exception
  * retain their original references. This context does not imply rollback or
- * absence of database changes. For batch notifications, the phase and exception
- * describe the shared batch failure, not necessarily a failure of each entity.
+ * absence of database changes. Entity failure callbacks apply to single-entity
+ * operations; batch execution failures are observed through
+ * {@link BatchExecutionListener}.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0

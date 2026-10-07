@@ -159,8 +159,27 @@ final class EntityEventMulticaster {
   }
 
   public void postProcessing(BatchExecution execution, boolean implicitExecution, @Nullable Throwable exception) {
+    Throwable failure = exception;
     for (BatchExecutionListener listener : registry.listeners(BatchExecutionListener.class)) {
-      listener.postProcessing(execution, implicitExecution, exception);
+      try {
+        listener.postProcessing(execution, implicitExecution, exception);
+      }
+      catch (RuntimeException | Error ex) {
+        if (failure == null) {
+          failure = ex;
+        }
+        else if (failure != ex) {
+          failure.addSuppressed(ex);
+        }
+      }
+    }
+    if (exception == null) {
+      if (failure instanceof RuntimeException ex) {
+        throw ex;
+      }
+      if (failure instanceof Error ex) {
+        throw ex;
+      }
     }
   }
 
