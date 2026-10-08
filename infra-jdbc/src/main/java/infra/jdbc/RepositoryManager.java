@@ -268,10 +268,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * @param failure the resource close failure
    */
   public void reportResourceCloseFailure(ResourceCloseFailure failure) {
-    Throwable exception = failure.exception();
-    if (exception instanceof Error error) {
-      throw error;
-    }
+    Exception exception = failure.exception();
     if (exception instanceof InterruptedException) {
       Thread.currentThread().interrupt();
     }

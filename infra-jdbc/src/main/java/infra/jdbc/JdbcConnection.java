@@ -471,19 +471,17 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     try {
       DataSourceUtils.doReleaseConnection(root, dataSource);
     }
-    catch (Throwable ex) {
-      if (ex instanceof Error) {
-        failure = aggregate(failure, ex);
+    catch (Exception ex) {
+      try {
+        manager.reportResourceCloseFailure(new ResourceCloseFailure(
+                ResourceCloseFailure.ResourceType.CONNECTION, null, ex, operationFailure));
       }
-      else {
-        try {
-          manager.reportResourceCloseFailure(new ResourceCloseFailure(
-                  ResourceCloseFailure.ResourceType.CONNECTION, null, ex, operationFailure));
-        }
-        catch (Error error) {
-          failure = aggregate(failure, error);
-        }
+      catch (Error error) {
+        failure = aggregate(failure, error);
       }
+    }
+    catch (Error error) {
+      failure = aggregate(failure, error);
     }
     finally {
       if (status == null || status.isCompleted()) {

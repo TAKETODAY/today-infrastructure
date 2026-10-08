@@ -32,7 +32,7 @@ import infra.util.Assert;
  * @since 5.0
  */
 public record ResourceCloseFailure(ResourceType resourceType, @Nullable String sql,
-        Throwable exception, @Nullable Throwable operationFailure) {
+        Exception exception, @Nullable Throwable operationFailure) {
 
   /**
    * Validate required context values.

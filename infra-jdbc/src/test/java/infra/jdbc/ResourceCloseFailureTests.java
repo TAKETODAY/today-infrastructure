@@ -100,7 +100,7 @@ class ResourceCloseFailureTests {
   void observerFailureDoesNotReplaceOperationFailure() {
     RepositoryManager manager = new RepositoryManager(mock(DataSource.class));
     Throwable operationFailure = new IllegalStateException("operation failed");
-    Throwable closeFailure = new SQLException("close failed");
+    Exception closeFailure = new SQLException("close failed");
     RuntimeException listenerFailure = new IllegalStateException("listener failed");
     var context = new ResourceCloseFailure(ResourceCloseFailure.ResourceType.RESULT_SET,
             "select 1", closeFailure, operationFailure);
