@@ -39,6 +39,8 @@ import infra.transaction.TransactionStatus;
 import infra.transaction.TransactionSystemException;
 import infra.transaction.UnexpectedRollbackException;
 
+import static infra.util.ExceptionUtils.aggregate;
+
 /**
  * Manages a JDBC connection and optional transaction scope. Transactions started
  * by this instance are completed through the repository's transaction manager.
@@ -274,8 +276,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     }
   }
 
-  @Nullable
-  public TransactionStatus getTransaction() {
+  public @Nullable TransactionStatus getTransaction() {
     return transaction;
   }
 
@@ -489,16 +490,6 @@ public final class JdbcConnection implements Closeable, QueryProducer {
         throw ex;
       }
     }
-  }
-
-  private static Throwable aggregate(@Nullable Throwable failure, Throwable ex) {
-    if (failure == null) {
-      return ex;
-    }
-    if (failure != ex) {
-      failure.addSuppressed(ex);
-    }
-    return failure;
   }
 
   /**

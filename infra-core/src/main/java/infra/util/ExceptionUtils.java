@@ -60,6 +60,28 @@ public abstract class ExceptionUtils {
   }
 
   /**
+   * Aggregate a failure while preserving the first failure as the primary one.
+   * If no primary failure exists, the additional failure is returned. Otherwise,
+   * the additional failure is added as suppressed unless it is the same instance.
+   * No wrapping, flattening or duplicate detection is performed.
+   *
+   * @param failure the primary failure, or {@code null}
+   * @param additionalFailure the additional failure (never {@code null})
+   * @return the primary failure, or the additional failure if no primary exists
+   * @since 5.0
+   */
+  public static Throwable aggregate(@Nullable Throwable failure, Throwable additionalFailure) {
+    Assert.notNull(additionalFailure, "Additional failure is required");
+    if (failure == null) {
+      return additionalFailure;
+    }
+    if (failure != additionalFailure) {
+      failure.addSuppressed(additionalFailure);
+    }
+    return failure;
+  }
+
+  /**
    * Build a message for the given base message and root cause.
    *
    * @param message the base message

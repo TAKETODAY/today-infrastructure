@@ -36,6 +36,26 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class ExceptionUtilsTests {
 
   @Test
+  void aggregatePreservesPrimaryIdentityAndSuppressedOrder() {
+    Throwable first = new IOException("first");
+    Throwable second = new IllegalStateException("second");
+    Throwable third = new AssertionError("third");
+    Throwable failure = ExceptionUtils.aggregate(null, first);
+    assertThat(failure).isSameAs(first);
+    failure = ExceptionUtils.aggregate(failure, second);
+    failure = ExceptionUtils.aggregate(failure, third);
+    assertThat(failure).isSameAs(first);
+    assertThat(first.getSuppressed()).containsExactly(second, third);
+  }
+
+  @Test
+  void aggregateIgnoresSelfSuppression() {
+    Throwable failure = new AssertionError("failure");
+    assertThat(ExceptionUtils.aggregate(failure, failure)).isSameAs(failure);
+    assertThat(failure.getSuppressed()).isEmpty();
+  }
+
+  @Test
   void sneakyThrow() {
     Exception exception = new Exception();
     assertThatThrownBy(() -> {
