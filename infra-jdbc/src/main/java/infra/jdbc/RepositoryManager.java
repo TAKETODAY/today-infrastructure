@@ -246,6 +246,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * Set the close failure observer. The default observer logs a warning.
    *
    * @param listener the thread-safe observer
+   * @since 5.0
    */
   public void setResourceCloseFailureListener(ResourceCloseFailureListener listener) {
     Assert.notNull(listener, "ResourceCloseFailureListener is required");
@@ -254,6 +255,8 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
 
   /**
    * Return the configured resource close failure observer.
+   *
+   * @since 5.0
    */
   public ResourceCloseFailureListener getResourceCloseFailureListener() {
     return resourceCloseFailureListener;
@@ -266,6 +269,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * as fallback. Errors are propagated.
    *
    * @param failure the resource close failure
+   * @since 5.0
    */
   public void reportResourceCloseFailure(ResourceCloseFailure failure) {
     Exception exception = failure.exception();
@@ -297,6 +301,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * @param resource the resource, or {@code null}
    * @param sql the associated SQL, if available
    * @param operationFailure an existing operation failure, if available
+   * @since 5.0
    */
   public void closeResource(@Nullable AutoCloseable resource,
           @Nullable String sql, @Nullable Throwable operationFailure) {
@@ -324,6 +329,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * @param dataSource the data source used to acquire the connection
    * @param sql the associated SQL, if available
    * @param operationFailure an existing operation failure, if available
+   * @since 5.0
    */
   public void releaseConnection(@Nullable Connection connection, @Nullable DataSource dataSource,
           @Nullable String sql, @Nullable Throwable operationFailure) {

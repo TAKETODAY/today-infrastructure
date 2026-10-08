@@ -22,8 +22,8 @@ import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.HashSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -38,7 +38,6 @@ import infra.transaction.TransactionException;
 import infra.transaction.TransactionStatus;
 import infra.transaction.TransactionSystemException;
 import infra.transaction.UnexpectedRollbackException;
-import infra.util.ExceptionUtils;
 
 /**
  * Manages a JDBC connection and optional transaction scope. Transactions started
@@ -54,17 +53,17 @@ public final class JdbcConnection implements Closeable, QueryProducer {
 
   private final DataSource dataSource;
 
-  private @Nullable Connection root;
-
   final boolean autoClose;
+
+  private final HashSet<Statement> statements = new HashSet<>();
+
+  private final Map<Statement, String> statementSql = new HashMap<>();
 
   private boolean rollbackOnClose = true;
 
   private boolean rollbackOnException = true;
 
-  private final HashSet<Statement> statements = new HashSet<>();
-
-  private final Map<Statement, String> statementSql = new HashMap<>();
+  private @Nullable Connection root;
 
   private @Nullable TransactionStatus transaction;
 
@@ -449,10 +448,10 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     if (!rollbackOnClose && transaction != null && !transaction.isCompleted()) {
       throw new IllegalTransactionStateException("Complete the transaction before closing when rollbackOnClose is disabled");
     }
-    Throwable failure = null;
+    Throwable failure = operationFailure;
     for (Statement statement : statements) {
       try {
-        manager.closeResource(statement, statementSql.get(statement), operationFailure);
+        manager.closeResource(statement, statementSql.get(statement), failure);
       }
       catch (Error error) {
         failure = aggregate(failure, error);
@@ -470,7 +469,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
       }
     }
     try {
-      manager.releaseConnection(root, dataSource, null, operationFailure);
+      manager.releaseConnection(root, dataSource, null, failure);
     }
     catch (Error error) {
       failure = aggregate(failure, error);
@@ -481,11 +480,14 @@ public final class JdbcConnection implements Closeable, QueryProducer {
       }
       closed = true;
     }
-    if (failure instanceof RuntimeException ex) {
-      throw ex;
-    }
-    if (failure instanceof Error ex) {
-      throw ex;
+    // The caller remains responsible for propagating an existing operation failure.
+    if (operationFailure == null) {
+      if (failure instanceof RuntimeException ex) {
+        throw ex;
+      }
+      if (failure instanceof Error ex) {
+        throw ex;
+      }
     }
   }
 
