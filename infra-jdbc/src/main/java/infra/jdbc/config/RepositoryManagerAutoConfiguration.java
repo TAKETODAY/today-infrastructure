@@ -44,7 +44,6 @@ public final class RepositoryManagerAutoConfiguration {
     manager.setDefaultCaseSensitive(properties.defaultCaseSensitive);
     manager.setDefaultColumnMappings(properties.defaultColumnMappings);
     manager.setCatchResourceCloseErrors(properties.catchResourceCloseErrors);
-    manager.setGeneratedKeys(properties.generatedKeys);
     manager.setPrimitiveTypeNullHandler(primitiveTypeNullHandler);
     return manager;
   }

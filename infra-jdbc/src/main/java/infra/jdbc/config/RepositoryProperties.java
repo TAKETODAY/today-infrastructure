@@ -22,12 +22,6 @@ public class RepositoryProperties {
   public boolean defaultCaseSensitive = false;
 
   /**
-   * Whether queries should return generated keys by default.
-   * Set to true to enable returning generated keys, false otherwise.
-   */
-  public boolean generatedKeys = true;
-
-  /**
    * Whether cleanup paths that honor this setting translate and propagate
    * resource close SQL exceptions. When true, close failures are translated into
    * data access exceptions. When false (default), they are logged without propagation.

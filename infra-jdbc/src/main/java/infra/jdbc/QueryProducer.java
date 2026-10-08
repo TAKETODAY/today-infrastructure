@@ -30,7 +30,7 @@ package infra.jdbc;
  * <pre>{@code
  * try (Connection con = repositoryManager.open()) {
  *   // Create a query and fetch results
- *   return repositoryManager.createQuery("SELECT * FROM users", true)
+ *   return repositoryManager.createQuery("SELECT * FROM users")
  *                            .fetch(User.class);
  * }
  * }</pre>
@@ -76,7 +76,8 @@ public interface QueryProducer {
   Query createQuery(String query, boolean returnGeneratedKeys);
 
   /**
-   * Creates a {@link Query}
+   * Creates a {@link Query} without requesting generated keys.
+   * Use {@link #createQuery(String, boolean)} to explicitly request them.
    *
    * better to use :
    * create queries with {@link JdbcConnection} class instead,
@@ -115,7 +116,8 @@ public interface QueryProducer {
   NamedQuery createNamedQuery(String query, boolean returnGeneratedKeys);
 
   /**
-   * Creates a {@link NamedQuery}
+   * Creates a {@link NamedQuery} without requesting generated keys.
+   * Use {@link #createNamedQuery(String, boolean)} to explicitly request them.
    *
    * better to use :
    * create queries with {@link JdbcConnection} class instead,

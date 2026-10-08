@@ -21,10 +21,12 @@ import org.mockito.ArgumentMatchers;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 
 import javax.sql.DataSource;
 
 import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -39,6 +41,37 @@ import static org.mockito.Mockito.when;
 class ConnectionTests {
 
   @Test
+  void generatedKeysAreRequestedOnlyWhenExplicitlyEnabled() throws Exception {
+    DataSource dataSource = mock(DataSource.class);
+    Connection jdbcConnection = mock(Connection.class);
+    PreparedStatement statement = mock(PreparedStatement.class);
+    when(dataSource.getConnection()).thenReturn(jdbcConnection);
+    String sql = "insert into items(name) values ('item')";
+    when(jdbcConnection.prepareStatement(sql)).thenReturn(statement);
+    when(jdbcConnection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)).thenReturn(statement);
+
+    RepositoryManager repository = new RepositoryManager(dataSource);
+    try (JdbcConnection connection = repository.open()) {
+      Query query = connection.createQuery(sql);
+      NamedQuery namedQuery = connection.createNamedQuery(sql);
+      assertThat(query.isReturnGeneratedKeys()).isFalse();
+      assertThat(namedQuery.isReturnGeneratedKeys()).isFalse();
+      query.executeUpdate();
+      namedQuery.executeUpdate();
+      verify(statement, never()).getGeneratedKeys();
+
+      Query withKeys = connection.createQuery(sql, true);
+      NamedQuery namedWithKeys = connection.createNamedQuery(sql, true);
+      assertThat(withKeys.isReturnGeneratedKeys()).isTrue();
+      assertThat(namedWithKeys.isReturnGeneratedKeys()).isTrue();
+      withKeys.buildStatement();
+      namedWithKeys.buildStatement();
+      verify(jdbcConnection, times(2)).prepareStatement(sql);
+      verify(jdbcConnection, times(2)).prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+    }
+  }
+
+  @Test
   void createQueryWithParams() throws Throwable {
     DataSource dataSource = mock(DataSource.class);
     Connection jdbcConnection = mock(Connection.class);
@@ -49,7 +82,6 @@ class ConnectionTests {
 
     RepositoryManager operations = new RepositoryManager(dataSource);
 
-    operations.setGeneratedKeys(false);
     JdbcConnection cn = new JdbcConnection(operations, operations.getDataSource(), false);
     cn.createNamedQueryWithParams("select :p1 name, :p2 age", "Dmitry Alexandrov", 35).buildStatement();
 
@@ -78,7 +110,6 @@ class ConnectionTests {
     when(jdbcConnection.prepareStatement(ArgumentMatchers.anyString())).thenReturn(ps);
 
     RepositoryManager manager = new RepositoryManager(dataSource);
-    manager.setGeneratedKeys(false);
     try (JdbcConnection cn = manager.open()) {
       cn.createNamedQueryWithParams("select :p1 name, :p2 age", "Dmitry Alexandrov", 35).buildStatement();
       fail("exception not thrown");

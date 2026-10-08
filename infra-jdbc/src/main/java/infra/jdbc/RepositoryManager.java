@@ -36,10 +36,10 @@ import infra.jdbc.parsing.SqlParameterParser;
 import infra.jdbc.support.JdbcAccessor;
 import infra.jdbc.support.JdbcTransactionManager;
 import infra.jdbc.type.TypeHandlerManager;
-import infra.util.Assert;
 import infra.transaction.PlatformTransactionManager;
 import infra.transaction.TransactionDefinition;
 import infra.transaction.annotation.Isolation;
+import infra.util.Assert;
 
 /**
  * RepositoryManager is the main class for the infra-jdbc library.
@@ -65,8 +65,6 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
   private final PlatformTransactionManager transactionManager;
 
   private boolean defaultCaseSensitive;
-
-  private boolean generatedKeys = true;
 
   private boolean catchResourceCloseErrors = false;
 
@@ -157,23 +155,6 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    */
   public void setDefaultCaseSensitive(boolean defaultCaseSensitive) {
     this.defaultCaseSensitive = defaultCaseSensitive;
-  }
-
-  /**
-   * Sets whether generated keys should be returned by default for queries executed through this RepositoryManager.
-   *
-   * @param generatedKeys true if queries should return generated keys by default, false otherwise
-   */
-  public void setGeneratedKeys(boolean generatedKeys) {
-    this.generatedKeys = generatedKeys;
-  }
-
-  /**
-   * @return true if queries should return generated keys by default, false
-   * otherwise
-   */
-  public boolean isGeneratedKeys() {
-    return generatedKeys;
   }
 
   /**

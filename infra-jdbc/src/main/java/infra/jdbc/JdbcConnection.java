@@ -43,23 +43,23 @@ import infra.transaction.UnexpectedRollbackException;
  * Represents a connection to the database with a transaction.
  */
 public final class JdbcConnection implements Closeable, QueryProducer {
+
   private static final Logger log = LoggerFactory.getLogger(JdbcConnection.class);
 
   private final RepositoryManager manager;
   private final DataSource dataSource;
 
-  @Nullable
-  private Connection root;
+  private @Nullable Connection root;
 
   final boolean autoClose;
 
   private boolean rollbackOnClose = true;
+
   private boolean rollbackOnException = true;
 
   private final HashSet<Statement> statements = new HashSet<>();
 
-  @Nullable
-  private TransactionStatus transaction;
+  private @Nullable TransactionStatus transaction;
 
   public JdbcConnection(RepositoryManager manager, DataSource dataSource, boolean autoClose) {
     this.manager = manager;
@@ -87,8 +87,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    */
   @Override
   public Query createQuery(String queryText) {
-    boolean returnGeneratedKeys = manager.isGeneratedKeys();
-    return createQuery(queryText, returnGeneratedKeys);
+    return createQuery(queryText, false);
   }
 
   /**
@@ -118,8 +117,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    */
   @Override
   public NamedQuery createNamedQuery(String queryText) {
-    boolean returnGeneratedKeys = manager.isGeneratedKeys();
-    return createNamedQuery(queryText, returnGeneratedKeys);
+    return createNamedQuery(queryText, false);
   }
 
   /**
