@@ -471,7 +471,7 @@ public class DefaultEntityManager implements EntityManager {
     }
     catch (Throwable ex) {
       eventMulticaster.onPersistFailed(entity, entityMetadata, phase, properties, ex);
-      throw translateException("Persist entity", sql, ex);
+      throw handleEntityException("Persist entity", entityMetadata, phase, sql, ex);
     }
     finally {
       closeResource(con, statement, generatedKeys);
@@ -614,7 +614,7 @@ public class DefaultEntityManager implements EntityManager {
     }
     catch (Throwable ex) {
       eventMulticaster.onUpdateFailed(entity, metadata, phase, selectedProperties, null, ex);
-      throw translateException("Update entity", sql, ex);
+      throw handleEntityException("Update entity using @UpdateBy properties", metadata, phase, sql, ex);
     }
     finally {
       closeResource(con, statement);
@@ -711,7 +711,7 @@ public class DefaultEntityManager implements EntityManager {
     }
     catch (Throwable ex) {
       eventMulticaster.onUpdateFailed(entity, metadata, phase, properties, id, ex);
-      throw translateException("Update entity by ID", sql, ex);
+      throw handleEntityException("Update entity by ID", metadata, phase, sql, ex);
     }
     finally {
       closeResource(con, statement);
@@ -808,7 +808,7 @@ public class DefaultEntityManager implements EntityManager {
     }
     catch (Throwable ex) {
       eventMulticaster.onDeleteFailed(null, metadata, phase, id, ex);
-      throw translateException("Delete entity by ID", sql.toString(), ex);
+      throw handleEntityException("Delete entity by ID", metadata, phase, sql.toString(), ex);
     }
     finally {
       closeResource(con, statement);
@@ -885,7 +885,8 @@ public class DefaultEntityManager implements EntityManager {
     }
     catch (Throwable ex) {
       eventMulticaster.onDeleteFailed(entityOrExample, metadata, phase, id, ex);
-      throw translateException("Delete entity", sql.toString(), ex);
+      throw handleEntityException(id != null ? "Delete entity by ID" : "Delete entity by example",
+              metadata, phase, sql.toString(), ex);
     }
     finally {
       closeResource(con, statement);
@@ -1384,7 +1385,10 @@ public class DefaultEntityManager implements EntityManager {
     return repositoryManager.translateException(task, sql, ex);
   }
 
-  private RuntimeException translateException(String task, @Nullable String sql, Throwable ex) {
+  private RuntimeException handleEntityException(String operation, EntityMetadata metadata,
+          EntityOperationPhase phase, @Nullable String sql, Throwable ex) {
+    String task = "%s [entity type: '%s', phase: %s]"
+            .formatted(operation, metadata.getEntityClass().getName(), phase);
     if (ex instanceof SQLException sqlException) {
       return translateException(task, sql, sqlException);
     }
