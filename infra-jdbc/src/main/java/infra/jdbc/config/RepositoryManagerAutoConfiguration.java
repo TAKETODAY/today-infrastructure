@@ -11,6 +11,7 @@ import infra.context.condition.ConditionalOnSingleCandidate;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.jdbc.PrimitiveTypeNullHandler;
 import infra.jdbc.RepositoryManager;
+import infra.jdbc.ResourceCloseFailureListener;
 import infra.jdbc.type.TypeHandler;
 import infra.jdbc.type.TypeHandlerManager;
 import infra.logging.Logger;
@@ -38,12 +39,15 @@ public final class RepositoryManagerAutoConfiguration {
   @ConditionalOnMissingBean(RepositoryManager.class)
   public static RepositoryManager repositoryManager(DataSource dataSource,
           PlatformTransactionManager transactionManager, TypeHandlerManager typeHandlerManager,
-          @Nullable PrimitiveTypeNullHandler primitiveTypeNullHandler, RepositoryProperties properties) {
+          @Nullable PrimitiveTypeNullHandler primitiveTypeNullHandler, RepositoryProperties properties,
+          @Nullable ResourceCloseFailureListener resourceCloseFailureListener) {
     RepositoryManager manager = new RepositoryManager(dataSource, transactionManager);
     manager.setTypeHandlerManager(typeHandlerManager);
     manager.setDefaultCaseSensitive(properties.defaultCaseSensitive);
     manager.setDefaultColumnMappings(properties.defaultColumnMappings);
-    manager.setCatchResourceCloseErrors(properties.catchResourceCloseErrors);
+    if (resourceCloseFailureListener != null) {
+      manager.setResourceCloseFailureListener(resourceCloseFailureListener);
+    }
     manager.setPrimitiveTypeNullHandler(primitiveTypeNullHandler);
     return manager;
   }

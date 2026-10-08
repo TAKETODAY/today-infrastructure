@@ -46,6 +46,7 @@ import infra.jdbc.JdbcConnection;
 import infra.jdbc.JdbcUpdateAffectedIncorrectNumberOfRowsException;
 import infra.jdbc.PersistenceException;
 import infra.jdbc.RepositoryManager;
+import infra.jdbc.ResourceCloseFailure;
 import infra.jdbc.core.ResultSetExtractor;
 import infra.jdbc.datasource.DataSourceUtils;
 import infra.jdbc.format.LoggingPreparedStatement;
@@ -1475,81 +1476,48 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   private void closeResource(@Nullable Connection connection, @Nullable Statement stmt) {
-    try {
-      DataSourceUtils.doReleaseConnection(connection, dataSource);
-    }
-    catch (SQLException e) {
-      if (repositoryManager.isCatchResourceCloseErrors()) {
-        throw translateException("Closing Connection", null, e);
-      }
-      else {
-        logger.debug("Could not close JDBC Connection", e);
-      }
-    }
-
     if (stmt != null) {
       try {
         stmt.close();
       }
-      catch (SQLException e) {
-        if (repositoryManager.isCatchResourceCloseErrors()) {
-          throw translateException("Closing Statement", null, e);
-        }
-        else {
-          logger.debug("Could not close JDBC Statement", e);
-        }
+      catch (Throwable e) {
+        repositoryManager.reportResourceCloseFailure(new ResourceCloseFailure(
+                ResourceCloseFailure.ResourceType.STATEMENT, null, e, null));
       }
+    }
+    try {
+      DataSourceUtils.doReleaseConnection(connection, dataSource);
+    }
+    catch (Throwable e) {
+      repositoryManager.reportResourceCloseFailure(new ResourceCloseFailure(
+              ResourceCloseFailure.ResourceType.CONNECTION, null, e, null));
     }
   }
 
   private void closeResource(@Nullable Connection connection, @Nullable PreparedStatement statement, @Nullable ResultSet resultSet) {
-    closeResource(connection, statement);
     if (resultSet != null) {
       try {
         resultSet.close();
       }
-      catch (SQLException e) {
-        if (repositoryManager.isCatchResourceCloseErrors()) {
-          throw translateException("Closing ResultSet", null, e);
-        }
-        else {
-          logger.debug("Could not close JDBC ResultSet", e);
-        }
+      catch (Throwable e) {
+        repositoryManager.reportResourceCloseFailure(new ResourceCloseFailure(
+                ResourceCloseFailure.ResourceType.RESULT_SET, null, e, null));
       }
     }
+    closeResource(connection, statement);
   }
 
   private void closeBatchStatements(Map<BatchKey, PreparedBatch> statements, @Nullable Throwable exception) {
-    Throwable failure = exception;
     for (PreparedBatch batch : statements.values()) {
       try {
         batch.stmt.close();
       }
       catch (Throwable ex) {
-        if (failure != null) {
-          if (failure != ex) {
-            failure.addSuppressed(ex);
-          }
-        }
-        else if (!repositoryManager.isCatchResourceCloseErrors()) {
-          logger.debug("Could not close JDBC Statement", ex);
-        }
-        else {
-          failure = ex instanceof SQLException sqlException
-                  ? translateException("Closing Statement", null, sqlException) : ex;
-        }
+        repositoryManager.reportResourceCloseFailure(new ResourceCloseFailure(
+                ResourceCloseFailure.ResourceType.STATEMENT, batch.getStatement(), ex, exception));
       }
     }
     statements.clear();
-    if (exception == null && failure != null) {
-      if (failure instanceof RuntimeException runtimeException) {
-        throw runtimeException;
-      }
-      if (failure instanceof Error error) {
-        throw error;
-      }
-      throw new PersistenceException("Closing batch statements failed", failure);
-    }
   }
 
   private static void rollbackAfterFailure(JdbcConnection transaction, Throwable exception) {
@@ -1787,7 +1755,9 @@ public class DefaultEntityManager implements EntityManager {
         if (autoGenerateId) {
           EntityProperty idProperty = entityMetadata.getIdProperty();
           if (idProperty != null) {
-            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            Throwable keyFailure = null;
+            try {
               for (Object entity : entities) {
                 try {
                   if (!generatedKeys.next()) {
@@ -1799,6 +1769,14 @@ public class DefaultEntityManager implements EntityManager {
                   throw new GeneratedKeysException("Cannot get generated keys", e);
                 }
               }
+            }
+            catch (RuntimeException | Error ex) {
+              keyFailure = ex;
+              throw ex;
+            }
+            finally {
+              repositoryManager.closeResource(generatedKeys, ResourceCloseFailure.ResourceType.RESULT_SET,
+                      this.statement, keyFailure);
             }
           }
         }

@@ -74,7 +74,8 @@ class JdbcConnectionTests {
     TransactionStatus status = mock(TransactionStatus.class);
     given(transactionManager.getTransaction(org.mockito.ArgumentMatchers.any())).willReturn(status);
     RepositoryManager repository = new RepositoryManager(dataSource, transactionManager);
-    repository.setCatchResourceCloseErrors(true);
+    var failures = new java.util.ArrayList<ResourceCloseFailure>();
+    repository.setResourceCloseFailureListener(failures::add);
     JdbcConnection connection = repository.beginTransaction();
     Statement first = mock(Statement.class);
     Statement second = mock(Statement.class);
@@ -82,8 +83,9 @@ class JdbcConnectionTests {
     willThrow(new SQLException("second close failed")).given(second).close();
     connection.registerStatement(first);
     connection.registerStatement(second);
-    assertThatThrownBy(connection::close).isInstanceOf(infra.dao.DataAccessException.class)
-            .satisfies(ex -> assertThat(ex.getSuppressed()).hasSize(1));
+    connection.close();
+    assertThat(failures).hasSize(2).allSatisfy(failure ->
+            assertThat(failure.resourceType()).isEqualTo(ResourceCloseFailure.ResourceType.STATEMENT));
     verify(first).close();
     verify(second).close();
     verify(transactionManager).rollback(status);

@@ -96,31 +96,34 @@ public class BatchResult extends ExecutionResult {
       keys = new ArrayList<>();
       this.generatedKeys = keys;
     }
-    try (rs) {
+    Throwable failure = null;
+    try {
       while (rs.next()) {
         T generatedKey = handler.getResult(rs, 1);
         keys.add(generatedKey);
       }
     }
     catch (SQLException e) {
+      failure = e;
       throw translateException("Getting generated keys.", e);
+    }
+    catch (RuntimeException | Error ex) {
+      failure = ex;
+      throw ex;
+    }
+    finally {
+      try {
+        rs.close();
+      }
+      catch (Throwable ex) {
+        getManager().reportResourceCloseFailure(new ResourceCloseFailure(
+                ResourceCloseFailure.ResourceType.RESULT_SET, null, ex, failure));
+      }
     }
   }
 
   void addKeys(ResultSet rs) {
-    ArrayList<Object> keys = this.generatedKeys;
-    if (keys == null) {
-      keys = new ArrayList<>();
-      this.generatedKeys = keys;
-    }
-    try {
-      while (rs.next()) {
-        keys.add(rs.getObject(1));
-      }
-    }
-    catch (SQLException e) {
-      throw translateException("Getting generated keys.", e);
-    }
+    addKeys(rs, infra.jdbc.type.ObjectTypeHandler.sharedInstance);
   }
 
   @Nullable

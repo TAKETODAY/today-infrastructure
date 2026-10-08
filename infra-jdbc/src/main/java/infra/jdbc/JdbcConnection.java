@@ -23,14 +23,14 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
 import infra.dao.DataAccessException;
 import infra.dao.InvalidDataAccessApiUsageException;
 import infra.jdbc.datasource.DataSourceUtils;
-import infra.logging.Logger;
-import infra.logging.LoggerFactory;
 import infra.transaction.HeuristicCompletionException;
 import infra.transaction.IllegalTransactionStateException;
 import infra.transaction.TransactionDefinition;
@@ -49,8 +49,6 @@ import infra.transaction.UnexpectedRollbackException;
  */
 public final class JdbcConnection implements Closeable, QueryProducer {
 
-  private static final Logger log = LoggerFactory.getLogger(JdbcConnection.class);
-
   private final RepositoryManager manager;
 
   private final DataSource dataSource;
@@ -64,6 +62,8 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   private boolean rollbackOnException = true;
 
   private final HashSet<Statement> statements = new HashSet<>();
+
+  private final Map<Statement, String> statementSql = new HashMap<>();
 
   private @Nullable TransactionStatus transaction;
 
@@ -95,7 +95,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     }
     if (autoClose) {
       try {
-        close();
+        close(failure);
       }
       catch (Throwable ex) {
         if (ex != failure) {
@@ -369,7 +369,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     catch (RuntimeException | Error failure) {
       if (closeConnection) {
         try {
-          close();
+          close(failure);
         }
         catch (Throwable ex) {
           if (failure != ex) {
@@ -416,8 +416,14 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     statements.add(statement);
   }
 
+  void registerStatement(Statement statement, String sql) {
+    registerStatement(statement);
+    statementSql.put(statement, sql);
+  }
+
   void removeStatement(Statement statement) {
     statements.remove(statement);
+    statementSql.remove(statement);
   }
 
   // Closeable
@@ -432,6 +438,10 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    */
   @Override
   public void close() {
+    close(null);
+  }
+
+  private void close(@Nullable Throwable operationFailure) {
     if (closed) {
       return;
     }
@@ -444,10 +454,12 @@ public final class JdbcConnection implements Closeable, QueryProducer {
         statement.close();
       }
       catch (Throwable ex) {
-        failure = cleanupFailure(failure, "Closing Statement", ex);
+        manager.reportResourceCloseFailure(new ResourceCloseFailure(
+                ResourceCloseFailure.ResourceType.STATEMENT, statementSql.get(statement), ex, operationFailure));
       }
     }
     statements.clear();
+    statementSql.clear();
     TransactionStatus status = transaction;
     if (status != null && !status.isCompleted()) {
       try {
@@ -461,7 +473,8 @@ public final class JdbcConnection implements Closeable, QueryProducer {
       DataSourceUtils.doReleaseConnection(root, dataSource);
     }
     catch (Throwable ex) {
-      failure = cleanupFailure(failure, "Closing Connection", ex);
+      manager.reportResourceCloseFailure(new ResourceCloseFailure(
+              ResourceCloseFailure.ResourceType.CONNECTION, null, ex, operationFailure));
     }
     finally {
       if (status == null || status.isCompleted()) {
@@ -475,17 +488,6 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     if (failure instanceof Error ex) {
       throw ex;
     }
-  }
-
-  private @Nullable Throwable cleanupFailure(@Nullable Throwable failure, String task, Throwable ex) {
-    if (ex instanceof SQLException sqlException) {
-      if (!manager.isCatchResourceCloseErrors()) {
-        log.debug(task, ex);
-        return failure;
-      }
-      ex = translateException(task, sqlException);
-    }
-    return aggregate(failure, ex);
   }
 
   private static Throwable aggregate(@Nullable Throwable failure, Throwable ex) {

@@ -22,13 +22,6 @@ public class RepositoryProperties {
   public boolean defaultCaseSensitive = false;
 
   /**
-   * Whether cleanup paths that honor this setting translate and propagate
-   * resource close SQL exceptions. When true, close failures are translated into
-   * data access exceptions. When false (default), they are logged without propagation.
-   */
-  public boolean catchResourceCloseErrors = false;
-
-  /**
    * Default column mappings used across repositories.
    * Key-value pairs where key is the entity property name and value is the corresponding column name.
    */

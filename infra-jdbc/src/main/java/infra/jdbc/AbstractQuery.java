@@ -323,8 +323,9 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
       try {
         prepared.close();
       }
-      catch (SQLException ex) {
-        log.warn("Could not close statement.", ex);
+      catch (Throwable ex) {
+        connection.getManager().reportResourceCloseFailure(new ResourceCloseFailure(
+                ResourceCloseFailure.ResourceType.STATEMENT, querySQL, ex, null));
       }
     }
   }
@@ -360,7 +361,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
       statement = preparedStatement(connection.getJdbcConnection(), allowArrayParameters);
       statement = LoggingPreparedStatement.wrap(statement, stmtLogger);
       this.preparedStatement = statement; // update
-      connection.registerStatement(statement);
+      connection.registerStatement(statement, querySQL);
     }
 
     postProcessStatement(statement);
@@ -1025,10 +1026,14 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * translated using the {@link #translateException(String, SQLException)} method.
    */
   public <T extends @Nullable Object> T scalar(TypeHandler<T> typeHandler) {
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+    Throwable failure = null;
     logStatement();
     long start = System.currentTimeMillis();
-    try (PreparedStatement ps = buildStatement();
-            ResultSet rs = ps.executeQuery()) {
+    try {
+      ps = buildStatement();
+      rs = ps.executeQuery();
 
       if (rs.next()) {
         T ret = typeHandler.getResult(rs, 1);
@@ -1042,10 +1047,20 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
       }
     }
     catch (SQLException e) {
+      failure = e;
       connection.onException(e);
       throw translateException("Execute scalar", e);
     }
+    catch (RuntimeException | Error ex) {
+      failure = ex;
+      throw ex;
+    }
     finally {
+      connection.getManager().closeResource(rs, ResourceCloseFailure.ResourceType.RESULT_SET, querySQL, failure);
+      if (ps != null) {
+        connection.removeStatement(ps);
+        connection.getManager().closeResource(ps, ResourceCloseFailure.ResourceType.STATEMENT, querySQL, failure);
+      }
       closeConnectionIfNecessary();
     }
   }
@@ -1504,13 +1519,9 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
       try {
         resultSet.close();
       }
-      catch (SQLException ex) {
-        if (connection.getManager().isCatchResourceCloseErrors()) {
-          throw translateException("Closing ResultSet", ex);
-        }
-        else {
-          log.debug("ResultSet close failed", ex);
-        }
+      catch (Throwable ex) {
+        connection.getManager().reportResourceCloseFailure(new ResourceCloseFailure(
+                ResourceCloseFailure.ResourceType.RESULT_SET, querySQL, ex, null));
       }
       finally {
         closeConnectionIfNecessary();

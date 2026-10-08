@@ -101,7 +101,8 @@ public class UpdateResult<T extends @Nullable Object> extends ExecutionResult {
   // ------------------------------------------------
 
   void setKeys(ResultSet rs, TypeHandler<T> generatedKeyHandler) {
-    try (rs) {
+    Throwable failure = null;
+    try {
       ArrayList<T> keys = new ArrayList<>();
       while (rs.next()) {
         keys.add(generatedKeyHandler.getResult(rs, 1));
@@ -109,7 +110,21 @@ public class UpdateResult<T extends @Nullable Object> extends ExecutionResult {
       this.generatedKeys = keys;
     }
     catch (SQLException e) {
+      failure = e;
       throw translateException("Getting generated keys.", e);
+    }
+    catch (RuntimeException | Error ex) {
+      failure = ex;
+      throw ex;
+    }
+    finally {
+      try {
+        rs.close();
+      }
+      catch (Throwable ex) {
+        getManager().reportResourceCloseFailure(new ResourceCloseFailure(
+                ResourceCloseFailure.ResourceType.RESULT_SET, null, ex, failure));
+      }
     }
   }
 

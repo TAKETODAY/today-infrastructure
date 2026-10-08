@@ -329,29 +329,32 @@ class BatchUpdateTests {
 
   @ParameterizedTest
   @ValueSource(booleans = { true, false })
-  void strictStatementCloseFailureRollsBackAndClosesEveryBatch(boolean insert) throws SQLException {
-    repository.setCatchResourceCloseErrors(true);
+  void statementCloseFailuresAreReportedWithoutPreventingCommit(boolean insert) throws SQLException {
+    var failures = new ArrayList<infra.jdbc.ResourceCloseFailure>();
+    repository.setResourceCloseFailureListener(failures::add);
     var closingManager = new CloseFailingManager(repository);
     Item first = item(insert ? 3L : 1L, "first");
     Item second = item(insert ? 4L : 2L, "second");
     second.age = 30;
 
-    assertThatThrownBy(() -> executeBatch(closingManager, insert, List.of(first, second)))
-            .isInstanceOf(infra.dao.DataAccessException.class)
-            .hasCause(closingManager.closeFailure)
-            .satisfies(ex -> assertThat(ex.getSuppressed()).containsExactly(closingManager.closeFailure));
+    assertThat(executeBatch(closingManager, insert, List.of(first, second))).isEqualTo(2);
+    assertThat(failures).hasSize(2).allSatisfy(failure -> {
+      assertThat(failure.exception()).isSameAs(closingManager.closeFailure);
+      assertThat(failure.sql()).isNotNull();
+      assertThat(failure.operationFailure()).isNull();
+    });
     assertThat(closingManager.statements).hasSize(2);
     for (PreparedStatement statement : closingManager.statements) {
       verify(statement).close();
     }
     assertThat(repository.createNamedQuery("select count(*) from batch_item where name <> 'old'")
-            .fetchFirst(Integer.class)).isZero();
+            .fetchFirst(Integer.class)).isEqualTo(2);
   }
 
   @ParameterizedTest
   @ValueSource(booleans = { true, false })
   void suppressedStatementCloseFailureAllowsCommit(boolean insert) throws SQLException {
-    repository.setCatchResourceCloseErrors(false);
+    repository.setResourceCloseFailureListener(failure -> { throw new IllegalStateException("observer failed"); });
     var closingManager = new CloseFailingManager(repository);
     Item first = item(insert ? 3L : 1L, "first");
     Item second = item(insert ? 4L : 2L, "second");
@@ -369,8 +372,14 @@ class BatchUpdateTests {
   @ParameterizedTest
   @ValueSource(booleans = { true, false })
   void statementCloseFailuresDoNotReplaceExecutionFailure(boolean insert) throws SQLException {
-    for (boolean catchCloseErrors : new boolean[] { true, false }) {
-      repository.setCatchResourceCloseErrors(catchCloseErrors);
+    for (boolean observerThrows : new boolean[] { true, false }) {
+      var closeFailures = new ArrayList<infra.jdbc.ResourceCloseFailure>();
+      repository.setResourceCloseFailureListener(context -> {
+        closeFailures.add(context);
+        if (observerThrows) {
+          throw new IllegalStateException("observer failed");
+        }
+      });
       var closingManager = new CloseFailingManager(repository);
       var failure = new InvalidDataAccessApiUsageException("execution failed");
       closingManager.getEntityEventRegistry().addListener(new BatchExecutionListener() {
@@ -393,6 +402,8 @@ class BatchUpdateTests {
               .satisfies(ex -> assertThat(ex.getSuppressed())
                       .containsExactly(closingManager.closeFailure, closingManager.closeFailure));
       assertThat(closingManager.statements).hasSize(2);
+      assertThat(closeFailures).hasSize(2).allSatisfy(context ->
+              assertThat(context.operationFailure()).isSameAs(failure));
       for (PreparedStatement statement : closingManager.statements) {
         verify(statement).close();
       }

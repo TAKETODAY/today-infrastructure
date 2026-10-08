@@ -66,7 +66,8 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
 
   private boolean defaultCaseSensitive;
 
-  private boolean catchResourceCloseErrors = false;
+  private ResourceCloseFailureListener resourceCloseFailureListener = failure ->
+          logger.warn("Could not close JDBC resource: {}", failure.resourceType(), failure.exception());
 
   private SqlParameterParser sqlParameterParser = new SqlParameterParser();
 
@@ -240,27 +241,64 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
   }
 
   /**
-   * Sets whether resource close SQL exceptions are translated and propagated by
-   * cleanup paths that honor this setting. When {@code true}, close failures are
-   * translated into {@link DataAccessException}. When {@code false} (default),
-   * they are logged without being propagated.
+   * Set the close failure observer. The default observer logs a warning.
    *
-   * @param catchResourceCloseErrors {@code true} to translate and propagate resource
-   * close SQL exceptions, {@code false} to log them without propagation
+   * @param listener the thread-safe observer
    */
-  public void setCatchResourceCloseErrors(boolean catchResourceCloseErrors) {
-    this.catchResourceCloseErrors = catchResourceCloseErrors;
+  public void setResourceCloseFailureListener(ResourceCloseFailureListener listener) {
+    Assert.notNull(listener, "ResourceCloseFailureListener is required");
+    this.resourceCloseFailureListener = listener;
   }
 
   /**
-   * Returns whether cleanup paths that honor this setting translate and propagate
-   * resource close SQL exceptions.
-   *
-   * @return {@code true} to translate and propagate close SQL exceptions,
-   * {@code false} to log them without propagation
+   * Return the configured resource close failure observer.
    */
-  public boolean isCatchResourceCloseErrors() {
-    return catchResourceCloseErrors;
+  public ResourceCloseFailureListener getResourceCloseFailureListener() {
+    return resourceCloseFailureListener;
+  }
+
+  /**
+   * Report a close failure without changing the operation result. If an existing
+   * operation failure is supplied, the close failure is added as suppressed.
+   * Observer failures are suppressed on the close failure and logged as fallback.
+   *
+   * @param failure the resource close failure
+   */
+  public void reportResourceCloseFailure(ResourceCloseFailure failure) {
+    Throwable exception = failure.exception();
+    Throwable operationFailure = failure.operationFailure();
+    if (operationFailure != null && operationFailure != exception) {
+      operationFailure.addSuppressed(exception);
+    }
+    try {
+      resourceCloseFailureListener.onCloseFailure(failure);
+    }
+    catch (Throwable listenerFailure) {
+      if (listenerFailure != exception) {
+        exception.addSuppressed(listenerFailure);
+      }
+      logger.warn("Resource close failure listener failed", exception);
+    }
+  }
+
+  /**
+   * Close a resource and report failures without throwing them.
+   *
+   * @param resource the resource, or {@code null}
+   * @param type the resource category
+   * @param sql the associated SQL, if available
+   * @param operationFailure an existing operation failure, if available
+   */
+  public void closeResource(@Nullable AutoCloseable resource, ResourceCloseFailure.ResourceType type,
+          @Nullable String sql, @Nullable Throwable operationFailure) {
+    if (resource != null) {
+      try {
+        resource.close();
+      }
+      catch (Throwable ex) {
+        reportResourceCloseFailure(new ResourceCloseFailure(type, sql, ex, operationFailure));
+      }
+    }
   }
 
   /**
@@ -573,6 +611,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
     connection.beginTransaction(definition);
     return connection;
   }
+
   /**
    * Calls the {@link StatementRunnable#run(JdbcConnection, Object)} method on the
    * {@link StatementRunnable} parameter. All statements run on the
