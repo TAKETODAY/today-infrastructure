@@ -1272,25 +1272,25 @@ class RepositoryManagerTests extends AbstractRepositoryManagerTests {
     try (JdbcConnection globalConnection = repositoryManager.beginTransaction()) {
       Connection globalTransaction = globalConnection.getJdbcConnection();
 
-      JdbcConnection connection = repositoryManager.beginTransaction(globalTransaction);
+      JdbcConnection connection = repositoryManager.open(globalTransaction);
       String sql = "insert into testExternalTransactionCommit(id, val) values (:id, :val);";
       connection.createNamedQuery(sql)
               .addParameter("id", 1)
               .addParameter("val", "foo")
               .executeUpdate();
-      connection.commit();
+      connection.close();
 
       int count = globalConnection.createNamedQuery("select count(*) from testExternalTransactionCommit")
               .fetchFirst(Integer.class);
       assertThat(count).isEqualTo(1);
 
-      JdbcConnection connection3 = repositoryManager.beginTransaction(globalTransaction);
+      JdbcConnection connection3 = repositoryManager.open(globalTransaction);
       String sql1 = "insert into testExternalTransactionCommit(id, val) values (:id, :val);";
       connection3.createNamedQuery(sql1)
               .addParameter("id", 2)
               .addParameter("val", "bar")
               .executeUpdate();
-      connection3.commit();
+      connection3.close();
 
       int count1 = globalConnection.createNamedQuery("select count(*) from testExternalTransactionCommit")
               .fetchFirst(Integer.class);
@@ -1319,23 +1319,23 @@ class RepositoryManagerTests extends AbstractRepositoryManagerTests {
     try (JdbcConnection globalConnection = repositoryManager.beginTransaction(Connection.TRANSACTION_SERIALIZABLE)) {
       Connection globalTransaction = globalConnection.getJdbcConnection();
 
-      JdbcConnection connection = repositoryManager.beginTransaction(globalTransaction);
+      JdbcConnection connection = repositoryManager.open(globalTransaction);
       String sql = "insert into testExternalTransactionRollback(id, val) values (:id, :val);";
       connection.createNamedQuery(sql).addParameter("id", 1).addParameter("val", "foo").executeUpdate();
-      connection.commit();
+      connection.close();
 
       JdbcConnection connection2 = repositoryManager.open(globalTransaction);
       int count = connection2.createNamedQuery("select count(*) from testExternalTransactionRollback")
               .fetchFirst(Integer.class);
       assertThat(count).isEqualTo(1);
 
-      JdbcConnection connection3 = repositoryManager.beginTransaction(globalTransaction);
+      JdbcConnection connection3 = repositoryManager.open(globalTransaction);
       String sql2 = "insert into testExternalTransactionRollback(id, val) values (:id, :val);";
       connection3.createNamedQuery(sql2)
               .addParameter("id", 2)
               .addParameter("val", "bar")
               .executeUpdate();
-      connection3.commit();
+      connection3.close();
 
       JdbcConnection connection4 = repositoryManager.open(globalTransaction);
       int count1 = connection4.createNamedQuery("select count(*) from testExternalTransactionRollback")

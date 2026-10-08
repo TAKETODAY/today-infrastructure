@@ -113,25 +113,25 @@ class ExecutionResultTests {
 
   @Test
   void shouldCommitTransaction() {
-    ExecutionResult executionResult = new TestExecutionResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource(), true));
+    ExecutionResult executionResult = new TestExecutionResult(repositoryManager.beginTransaction());
     assertThatNoException().isThrownBy(executionResult::commit);
   }
 
   @Test
   void shouldCommitTransactionWithCloseConnectionFlag() {
-    ExecutionResult executionResult = new TestExecutionResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource(), true));
+    ExecutionResult executionResult = new TestExecutionResult(repositoryManager.beginTransaction());
     assertThatNoException().isThrownBy(() -> executionResult.commit(true));
   }
 
   @Test
   void shouldRollbackTransaction() {
-    ExecutionResult executionResult = new TestExecutionResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource(), true));
+    ExecutionResult executionResult = new TestExecutionResult(repositoryManager.beginTransaction());
     assertThatNoException().isThrownBy(executionResult::rollback);
   }
 
   @Test
   void shouldRollbackTransactionWithCloseConnectionFlag() {
-    ExecutionResult executionResult = new TestExecutionResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource(), true));
+    ExecutionResult executionResult = new TestExecutionResult(repositoryManager.beginTransaction());
 
     assertThatNoException().isThrownBy(() -> executionResult.rollback(true));
   }

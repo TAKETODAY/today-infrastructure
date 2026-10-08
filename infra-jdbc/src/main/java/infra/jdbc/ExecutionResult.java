@@ -51,17 +51,17 @@ public abstract class ExecutionResult implements QueryProducer {
    * @see DataSource#getConnection()
    */
   public NamedQuery createNamedQuery(String queryText) {
-    return connection.createNamedQuery(queryText);
+    return queryProducer().createNamedQuery(queryText);
   }
 
   @Override
   public Query createQuery(String query, boolean returnGeneratedKeys) {
-    return connection.createQuery(query, returnGeneratedKeys);
+    return queryProducer().createQuery(query, returnGeneratedKeys);
   }
 
   @Override
   public Query createQuery(String query) {
-    return connection.createQuery(query);
+    return queryProducer().createQuery(query);
   }
 
   /**
@@ -69,7 +69,7 @@ public abstract class ExecutionResult implements QueryProducer {
    * @see DataSource#getConnection()
    */
   public NamedQuery createNamedQuery(String queryText, boolean returnGeneratedKeys) {
-    return connection.createNamedQuery(queryText, returnGeneratedKeys);
+    return queryProducer().createNamedQuery(queryText, returnGeneratedKeys);
   }
 
   /**
@@ -77,7 +77,14 @@ public abstract class ExecutionResult implements QueryProducer {
    * @see DataSource#getConnection()
    */
   public NamedQuery createNamedQuery(String queryText, String... columnNames) {
+    if (connection.autoClose) {
+      return connection.getManager().open(true).createNamedQuery(queryText, columnNames);
+    }
     return connection.createNamedQuery(queryText, columnNames);
+  }
+
+  private QueryProducer queryProducer() {
+    return connection.autoClose ? connection.getManager() : connection;
   }
 
   /**

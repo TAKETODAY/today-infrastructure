@@ -874,7 +874,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
       return ret;
     }
     catch (SQLException ex) {
-      connection.onException();
+      connection.onException(ex);
       throw translateException("Execute update", ex);
     }
     finally {
@@ -1042,7 +1042,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
       }
     }
     catch (SQLException e) {
-      connection.onException();
+      connection.onException(e);
       throw translateException("Execute scalar", e);
     }
     finally {
@@ -1291,7 +1291,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
       }
     }
     catch (SQLException e) {
-      connection.onException();
+      connection.onException(e);
       throw translateException("Executing batch operation", e);
     }
     finally {
@@ -1360,7 +1360,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
       }
     }
     catch (SQLException e) {
-      connection.onException();
+      connection.onException(e);
       throw translateException("Executing batch operation", e);
     }
     finally {

@@ -392,7 +392,9 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
   }
 
   /**
-   * Opens a connection to the database
+   * Borrows an existing connection without taking ownership of its transaction
+   * or physical connection. Closing the returned wrapper closes its statements
+   * but does not commit, roll back, or close the supplied connection.
    *
    * @param connection the {@link Connection}
    * @return instance of the {@link JdbcConnection} class.
@@ -566,45 +568,11 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction(DataSource source, @Nullable TransactionDefinition definition) {
+    Assert.isTrue(source == obtainDataSource(), "Transaction DataSource must match the RepositoryManager DataSource");
     JdbcConnection connection = new JdbcConnection(this, source);
     connection.beginTransaction(definition);
-    connection.createConnection();
     return connection;
   }
-
-  /**
-   * Begins a transaction with isolation level
-   * {@link Connection#TRANSACTION_READ_COMMITTED}. Every statement
-   * executed on the return {@link JdbcConnection} instance, will be executed in the
-   * transaction. It is very important to always call either the
-   * {@link JdbcConnection#commit()} method or the
-   * {@link JdbcConnection#rollback()} method to close the transaction. Use
-   * proper try-catch logic.
-   *
-   * @param root the {@link Connection}
-   * @return the {@link JdbcConnection} instance to use to run statements in the
-   * transaction.
-   */
-  public JdbcConnection beginTransaction(Connection root) {
-    JdbcConnection connection = open(root);
-    boolean success = false;
-    try {
-      root.setAutoCommit(false);
-      root.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-      success = true;
-    }
-    catch (SQLException e) {
-      throw translateException("Setting transaction options", null, e);
-    }
-    finally {
-      if (!success) {
-        connection.close();
-      }
-    }
-
-    return connection;
-  }
-
   /**
    * Calls the {@link StatementRunnable#run(JdbcConnection, Object)} method on the
    * {@link StatementRunnable} parameter. All statements run on the
@@ -667,14 +635,15 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public <T extends @Nullable Object> void runInTransaction(StatementRunnable<T> runnable, T argument, int isolationLevel) {
-    JdbcConnection connection = beginTransaction(isolationLevel);
-    connection.setRollbackOnException(false);
-
-    try {
+    try (JdbcConnection connection = beginTransaction(isolationLevel)) {
+      connection.setRollbackOnException(false);
       runnable.run(connection, argument);
+      connection.commit(false);
     }
     catch (Throwable throwable) {
-      connection.rollback();
+      if (throwable instanceof Error error) {
+        throw error;
+      }
       if (throwable instanceof DataAccessException e) {
         throw e;
       }
@@ -683,7 +652,6 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
       }
       throw new PersistenceException("An error occurred while executing StatementRunnable. Transaction is rolled back.", throwable);
     }
-    connection.commit();
   }
 
   /**
@@ -767,13 +735,16 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    */
   public <V extends @Nullable Object, P extends @Nullable Object> V runInTransaction(ResultStatementRunnable<V, P> runnable,
           P argument, @Nullable TransactionDefinition definition) {
-    JdbcConnection connection = beginTransaction(definition);
-    V result;
-    try {
-      result = runnable.run(connection, argument);
+    try (JdbcConnection connection = beginTransaction(definition)) {
+      connection.setRollbackOnException(false);
+      V result = runnable.run(connection, argument);
+      connection.commit(false);
+      return result;
     }
     catch (Throwable ex) {
-      connection.rollback();
+      if (ex instanceof Error error) {
+        throw error;
+      }
       if (ex instanceof DataAccessException e) {
         throw e;
       }
@@ -783,8 +754,6 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
       throw new PersistenceException(
               "An error occurred while executing ResultStatementRunnable. Transaction rolled back.", ex);
     }
-    connection.commit();
-    return result;
   }
 
 }
