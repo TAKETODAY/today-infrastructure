@@ -121,7 +121,7 @@ public class UpdateResult<T extends @Nullable Object> extends ExecutionResult {
       try {
         rs.close();
       }
-      catch (Throwable ex) {
+      catch (Exception ex) {
         getManager().reportResourceCloseFailure(new ResourceCloseFailure(
                 ResourceCloseFailure.ResourceType.RESULT_SET, null, ex, failure));
       }

@@ -57,7 +57,11 @@ public record ResourceCloseFailure(ResourceType resourceType, @Nullable String s
     /**
      * A JDBC result set.
      */
-    RESULT_SET
+    RESULT_SET,
+    /**
+     * Another closeable resource.
+     */
+    OTHER
   }
 
 }

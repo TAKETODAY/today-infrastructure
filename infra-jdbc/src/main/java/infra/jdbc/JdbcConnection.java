@@ -454,8 +454,18 @@ public final class JdbcConnection implements Closeable, QueryProducer {
         statement.close();
       }
       catch (Throwable ex) {
-        manager.reportResourceCloseFailure(new ResourceCloseFailure(
-                ResourceCloseFailure.ResourceType.STATEMENT, statementSql.get(statement), ex, operationFailure));
+        if (ex instanceof Error) {
+          failure = aggregate(failure, ex);
+        }
+        else {
+          try {
+            manager.reportResourceCloseFailure(new ResourceCloseFailure(
+                    ResourceCloseFailure.ResourceType.STATEMENT, statementSql.get(statement), ex, operationFailure));
+          }
+          catch (Error error) {
+            failure = aggregate(failure, error);
+          }
+        }
       }
     }
     statements.clear();
@@ -473,8 +483,18 @@ public final class JdbcConnection implements Closeable, QueryProducer {
       DataSourceUtils.doReleaseConnection(root, dataSource);
     }
     catch (Throwable ex) {
-      manager.reportResourceCloseFailure(new ResourceCloseFailure(
-              ResourceCloseFailure.ResourceType.CONNECTION, null, ex, operationFailure));
+      if (ex instanceof Error) {
+        failure = aggregate(failure, ex);
+      }
+      else {
+        try {
+          manager.reportResourceCloseFailure(new ResourceCloseFailure(
+                  ResourceCloseFailure.ResourceType.CONNECTION, null, ex, operationFailure));
+        }
+        catch (Error error) {
+          failure = aggregate(failure, error);
+        }
+      }
     }
     finally {
       if (status == null || status.isCompleted()) {

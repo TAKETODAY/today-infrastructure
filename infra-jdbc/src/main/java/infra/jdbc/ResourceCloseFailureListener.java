@@ -19,8 +19,9 @@ package infra.jdbc;
 /**
  * Records JDBC resource close failures, for example in logs, metrics or an
  * error collector. Implementations must be thread-safe and should not block.
- * Listener failures are isolated and do not interrupt cleanup or alter the
- * operation result. Transaction completion failures are not reported here.
+ * Listener runtime exceptions are isolated and do not interrupt cleanup or alter
+ * the operation result. Errors are propagated. Transaction completion failures
+ * are not reported here.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0

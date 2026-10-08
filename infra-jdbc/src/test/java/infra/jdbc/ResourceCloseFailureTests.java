@@ -40,6 +40,63 @@ import static org.mockito.Mockito.verify;
 class ResourceCloseFailureTests {
 
   @Test
+  void closeErrorIsPropagatedWithoutNotifyingObserver() {
+    RepositoryManager manager = new RepositoryManager(mock(DataSource.class));
+    var failures = new ArrayList<ResourceCloseFailure>();
+    manager.setResourceCloseFailureListener(failures::add);
+    Error error = new AssertionError("close error");
+    AutoCloseable resource = () -> { throw error; };
+    org.assertj.core.api.Assertions.assertThatThrownBy(() -> manager.closeResource(resource, null, null))
+            .isSameAs(error);
+    assertThat(failures).isEmpty();
+  }
+
+  @Test
+  void observerErrorIsPropagated() {
+    RepositoryManager manager = new RepositoryManager(mock(DataSource.class));
+    Error error = new AssertionError("observer error");
+    manager.setResourceCloseFailureListener(failure -> { throw error; });
+    AutoCloseable resource = () -> { throw new SQLException("close failed"); };
+    org.assertj.core.api.Assertions.assertThatThrownBy(() -> manager.closeResource(resource, null, null))
+            .isSameAs(error);
+  }
+
+  @Test
+  void interruptedCloseRestoresInterruptFlagAndReportsOtherResource() {
+    RepositoryManager manager = new RepositoryManager(mock(DataSource.class));
+    var failures = new ArrayList<ResourceCloseFailure>();
+    manager.setResourceCloseFailureListener(failures::add);
+    InterruptedException interruption = new InterruptedException("close interrupted");
+    AutoCloseable resource = () -> { throw interruption; };
+    try {
+      manager.closeResource(resource, null, null);
+      assertThat(Thread.currentThread().isInterrupted()).isTrue();
+      assertThat(failures).singleElement().satisfies(failure -> {
+        assertThat(failure.resourceType()).isEqualTo(ResourceCloseFailure.ResourceType.OTHER);
+        assertThat(failure.exception()).isSameAs(interruption);
+      });
+    }
+    finally {
+      Thread.interrupted();
+    }
+  }
+
+  @Test
+  void connectionCleanupContinuesAfterStatementErrorAndPropagatesIt() throws SQLException {
+    DataSource dataSource = mock(DataSource.class);
+    Connection root = mock(Connection.class);
+    given(dataSource.getConnection()).willReturn(root);
+    RepositoryManager manager = new RepositoryManager(dataSource);
+    PreparedStatement statement = mock(PreparedStatement.class);
+    Error error = new AssertionError("statement close error");
+    willThrow(error).given(statement).close();
+    JdbcConnection connection = manager.open();
+    connection.registerStatement(statement);
+    org.assertj.core.api.Assertions.assertThatThrownBy(connection::close).isSameAs(error);
+    verify(root).close();
+  }
+
+  @Test
   void observerFailureDoesNotReplaceOperationFailure() {
     RepositoryManager manager = new RepositoryManager(mock(DataSource.class));
     Throwable operationFailure = new IllegalStateException("operation failed");

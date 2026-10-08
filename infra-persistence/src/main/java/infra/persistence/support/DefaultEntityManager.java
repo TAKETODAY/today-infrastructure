@@ -534,6 +534,9 @@ public class DefaultEntityManager implements EntityManager {
         if (ex instanceof SQLException se) {
           throw translateException("Batch persist entities Running in transaction", null, se);
         }
+        if (ex instanceof Error error) {
+          throw error;
+        }
         throw new PersistenceException("Batch persist entities failed", ex);
       }
     }
@@ -795,6 +798,9 @@ public class DefaultEntityManager implements EntityManager {
         }
         if (ex instanceof SQLException se) {
           throw translateException("Batch updating entities Running in transaction", null, se);
+        }
+        if (ex instanceof Error error) {
+          throw error;
         }
         throw new PersistenceException("Batch updating entities failed", ex);
       }
@@ -1480,7 +1486,7 @@ public class DefaultEntityManager implements EntityManager {
       try {
         stmt.close();
       }
-      catch (Throwable e) {
+      catch (Exception e) {
         repositoryManager.reportResourceCloseFailure(new ResourceCloseFailure(
                 ResourceCloseFailure.ResourceType.STATEMENT, null, e, null));
       }
@@ -1488,7 +1494,7 @@ public class DefaultEntityManager implements EntityManager {
     try {
       DataSourceUtils.doReleaseConnection(connection, dataSource);
     }
-    catch (Throwable e) {
+    catch (Exception e) {
       repositoryManager.reportResourceCloseFailure(new ResourceCloseFailure(
               ResourceCloseFailure.ResourceType.CONNECTION, null, e, null));
     }
@@ -1499,7 +1505,7 @@ public class DefaultEntityManager implements EntityManager {
       try {
         resultSet.close();
       }
-      catch (Throwable e) {
+      catch (Exception e) {
         repositoryManager.reportResourceCloseFailure(new ResourceCloseFailure(
                 ResourceCloseFailure.ResourceType.RESULT_SET, null, e, null));
       }
@@ -1512,7 +1518,7 @@ public class DefaultEntityManager implements EntityManager {
       try {
         batch.stmt.close();
       }
-      catch (Throwable ex) {
+      catch (Exception ex) {
         repositoryManager.reportResourceCloseFailure(new ResourceCloseFailure(
                 ResourceCloseFailure.ResourceType.STATEMENT, batch.getStatement(), ex, exception));
       }
@@ -1775,8 +1781,7 @@ public class DefaultEntityManager implements EntityManager {
               throw ex;
             }
             finally {
-              repositoryManager.closeResource(generatedKeys, ResourceCloseFailure.ResourceType.RESULT_SET,
-                      this.statement, keyFailure);
+              repositoryManager.closeResource(generatedKeys, this.statement, keyFailure);
             }
           }
         }

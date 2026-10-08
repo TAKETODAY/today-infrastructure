@@ -19,7 +19,9 @@ package infra.jdbc;
 import org.jspecify.annotations.Nullable;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -260,12 +262,19 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
   /**
    * Report a close failure without changing the operation result. If an existing
    * operation failure is supplied, the close failure is added as suppressed.
-   * Observer failures are suppressed on the close failure and logged as fallback.
+   * Observer runtime exceptions are suppressed on the close failure and logged
+   * as fallback. Errors are propagated.
    *
    * @param failure the resource close failure
    */
   public void reportResourceCloseFailure(ResourceCloseFailure failure) {
     Throwable exception = failure.exception();
+    if (exception instanceof Error error) {
+      throw error;
+    }
+    if (exception instanceof InterruptedException) {
+      Thread.currentThread().interrupt();
+    }
     Throwable operationFailure = failure.operationFailure();
     if (operationFailure != null && operationFailure != exception) {
       operationFailure.addSuppressed(exception);
@@ -273,7 +282,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
     try {
       resourceCloseFailureListener.onCloseFailure(failure);
     }
-    catch (Throwable listenerFailure) {
+    catch (RuntimeException listenerFailure) {
       if (listenerFailure != exception) {
         exception.addSuppressed(listenerFailure);
       }
@@ -282,20 +291,28 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
   }
 
   /**
-   * Close a resource and report failures without throwing them.
+   * Close a resource and report exceptions without throwing them. Errors are
+   * propagated. Interrupted exceptions restore the thread's interrupt status.
+   *
+   * <p>The resource category is inferred from JDBC interfaces; other closeable
+   * resources are reported as {@link ResourceCloseFailure.ResourceType#OTHER}.
    *
    * @param resource the resource, or {@code null}
-   * @param type the resource category
    * @param sql the associated SQL, if available
    * @param operationFailure an existing operation failure, if available
    */
-  public void closeResource(@Nullable AutoCloseable resource, ResourceCloseFailure.ResourceType type,
+  public void closeResource(@Nullable AutoCloseable resource,
           @Nullable String sql, @Nullable Throwable operationFailure) {
     if (resource != null) {
       try {
         resource.close();
       }
-      catch (Throwable ex) {
+      catch (Exception ex) {
+        ResourceCloseFailure.ResourceType type = resource instanceof Connection
+                ? ResourceCloseFailure.ResourceType.CONNECTION
+                : resource instanceof Statement ? ResourceCloseFailure.ResourceType.STATEMENT
+                        : resource instanceof ResultSet ? ResourceCloseFailure.ResourceType.RESULT_SET
+                                : ResourceCloseFailure.ResourceType.OTHER;
         reportResourceCloseFailure(new ResourceCloseFailure(type, sql, ex, operationFailure));
       }
     }
