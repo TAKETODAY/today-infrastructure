@@ -22,6 +22,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import infra.core.conversion.ConversionException;
 import infra.core.conversion.ConversionService;
 import infra.jdbc.type.TypeHandler;
@@ -38,9 +40,14 @@ import static org.mockito.Mockito.when;
  */
 class UpdateResultTests {
 
+  private static JdbcConnection connection() {
+    DataSource dataSource = mock(DataSource.class);
+    return new JdbcConnection(new RepositoryManager(dataSource), dataSource);
+  }
+
   @Test
   void getKeys_ReturnsCorrectKeys_WhenKeysAreGenerated() throws SQLException {
-    JdbcConnection connection = mock(JdbcConnection.class);
+    JdbcConnection connection = connection();
     UpdateResult<Integer> updateResult = new UpdateResult<>(1, connection);
 
     ResultSet resultSet = mock(ResultSet.class);
@@ -58,7 +65,7 @@ class UpdateResultTests {
 
   @Test
   void getKeys_ThrowsGeneratedKeysException_WhenKeysNotFetched() {
-    UpdateResult<Integer> updateResult = new UpdateResult<>(1, mock(JdbcConnection.class));
+    UpdateResult<Integer> updateResult = new UpdateResult<>(1, connection());
 
     assertThatThrownBy(updateResult::getKeys)
             .isInstanceOf(GeneratedKeysException.class)
@@ -67,7 +74,7 @@ class UpdateResultTests {
 
   @Test
   void getFirstKeyWithType_ReturnsConvertedValue() throws SQLException {
-    UpdateResult<Integer> updateResult = new UpdateResult<>(1, mock(JdbcConnection.class));
+    UpdateResult<Integer> updateResult = new UpdateResult<>(1, connection());
     ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.next()).thenReturn(true, false);
 
@@ -85,7 +92,7 @@ class UpdateResultTests {
 
   @Test
   void getFirstKeyWithType_ThrowsException_WhenConversionFails() throws SQLException {
-    UpdateResult<Integer> updateResult = new UpdateResult<>(1, mock(JdbcConnection.class));
+    UpdateResult<Integer> updateResult = new UpdateResult<>(1, connection());
     ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.next()).thenReturn(true, false);
 
@@ -104,7 +111,7 @@ class UpdateResultTests {
 
   @Test
   void getKeysArray_ReturnsTypedArray() throws SQLException {
-    UpdateResult<Integer> updateResult = new UpdateResult<>(1, mock(JdbcConnection.class));
+    UpdateResult<Integer> updateResult = new UpdateResult<>(1, connection());
     ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.next()).thenReturn(true, true, false);
 
@@ -119,7 +126,7 @@ class UpdateResultTests {
 
   @Test
   void getKeys_ConvertsAllValues() throws SQLException {
-    UpdateResult<Integer> updateResult = new UpdateResult<>(1, mock(JdbcConnection.class));
+    UpdateResult<Integer> updateResult = new UpdateResult<>(1, connection());
     ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.next()).thenReturn(true, true, false);
 
@@ -147,7 +154,7 @@ class UpdateResultTests {
 
   @Test
   void getKeys_ReturnEmptyArray_WhenNoKeysPresent() throws SQLException {
-    UpdateResult<Integer> updateResult = new UpdateResult<>(1, mock(JdbcConnection.class));
+    UpdateResult<Integer> updateResult = new UpdateResult<>(1, connection());
     ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.next()).thenReturn(false);
 
@@ -160,7 +167,7 @@ class UpdateResultTests {
 
   @Test
   void getKeysArray_ReturnEmptyArray_WhenNoKeysPresent() throws SQLException {
-    UpdateResult<Integer> updateResult = new UpdateResult<>(1, mock(JdbcConnection.class));
+    UpdateResult<Integer> updateResult = new UpdateResult<>(1, connection());
     ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.next()).thenReturn(false);
 
@@ -173,7 +180,7 @@ class UpdateResultTests {
 
   @Test
   void getKeys_WithType_ReturnEmptyList_WhenNoKeysPresent() throws SQLException {
-    UpdateResult<Integer> updateResult = new UpdateResult<>(1, mock(JdbcConnection.class));
+    UpdateResult<Integer> updateResult = new UpdateResult<>(1, connection());
     ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.next()).thenReturn(false);
 
@@ -188,7 +195,7 @@ class UpdateResultTests {
 
   @Test
   void setKeys_CloseResultSet_AfterReading() throws SQLException {
-    UpdateResult<Integer> updateResult = new UpdateResult<>(1, mock(JdbcConnection.class));
+    UpdateResult<Integer> updateResult = new UpdateResult<>(1, connection());
     ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.next()).thenReturn(false);
 
@@ -206,7 +213,7 @@ class UpdateResultTests {
 
   @Test
   void getFirstKey_ReturnsNull_WhenKeysListIsEmpty() throws SQLException {
-    UpdateResult<Integer> updateResult = new UpdateResult<>(1, mock(JdbcConnection.class));
+    UpdateResult<Integer> updateResult = new UpdateResult<>(1, connection());
     ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.next()).thenReturn(false);
 

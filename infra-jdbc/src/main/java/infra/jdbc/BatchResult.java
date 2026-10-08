@@ -112,13 +112,7 @@ public class BatchResult extends ExecutionResult {
       throw ex;
     }
     finally {
-      try {
-        rs.close();
-      }
-      catch (Exception ex) {
-        getManager().reportResourceCloseFailure(new ResourceCloseFailure(
-                ResourceCloseFailure.ResourceType.RESULT_SET, null, ex, failure));
-      }
+      getManager().closeResource(rs, null, failure);
     }
   }
 

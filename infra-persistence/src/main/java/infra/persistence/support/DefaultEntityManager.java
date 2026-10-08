@@ -1482,15 +1482,7 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   private void closeResource(@Nullable Connection connection, @Nullable Statement stmt) {
-    if (stmt != null) {
-      try {
-        stmt.close();
-      }
-      catch (Exception e) {
-        repositoryManager.reportResourceCloseFailure(new ResourceCloseFailure(
-                ResourceCloseFailure.ResourceType.STATEMENT, null, e, null));
-      }
-    }
+    repositoryManager.closeResource(stmt, null, null);
     try {
       DataSourceUtils.doReleaseConnection(connection, dataSource);
     }
@@ -1501,27 +1493,13 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   private void closeResource(@Nullable Connection connection, @Nullable PreparedStatement statement, @Nullable ResultSet resultSet) {
-    if (resultSet != null) {
-      try {
-        resultSet.close();
-      }
-      catch (Exception e) {
-        repositoryManager.reportResourceCloseFailure(new ResourceCloseFailure(
-                ResourceCloseFailure.ResourceType.RESULT_SET, null, e, null));
-      }
-    }
     closeResource(connection, statement);
+    repositoryManager.closeResource(resultSet, null, null);
   }
 
   private void closeBatchStatements(Map<BatchKey, PreparedBatch> statements, @Nullable Throwable exception) {
     for (PreparedBatch batch : statements.values()) {
-      try {
-        batch.stmt.close();
-      }
-      catch (Exception ex) {
-        repositoryManager.reportResourceCloseFailure(new ResourceCloseFailure(
-                ResourceCloseFailure.ResourceType.STATEMENT, batch.getStatement(), ex, exception));
-      }
+      repositoryManager.closeResource(batch.stmt, batch.getStatement(), exception);
     }
     statements.clear();
   }

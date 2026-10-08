@@ -64,6 +64,10 @@ class BatchTransactionFailureTests {
     given(transaction.getJdbcConnection()).willReturn(connection);
     given(connection.prepareStatement(anyString())).willReturn(statement);
     given(statement.executeBatch()).willReturn(new int[] { 1 });
+    org.mockito.BDDMockito.willCallRealMethod().given(repository)
+            .closeResource(any(AutoCloseable.class), anyString(), isNull());
+    org.mockito.BDDMockito.willCallRealMethod().given(repository)
+            .closeResource(any(AutoCloseable.class), anyString(), any(Throwable.class));
     manager = new DefaultEntityManager(repository) {
       @Override
       protected PreparedStatement prepareStatement(Connection connection, String sql, boolean generatedKeys) {

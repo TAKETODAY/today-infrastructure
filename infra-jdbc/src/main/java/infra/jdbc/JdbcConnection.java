@@ -451,21 +451,10 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     Throwable failure = null;
     for (Statement statement : statements) {
       try {
-        statement.close();
+        manager.closeResource(statement, statementSql.get(statement), operationFailure);
       }
-      catch (Throwable ex) {
-        if (ex instanceof Error) {
-          failure = aggregate(failure, ex);
-        }
-        else {
-          try {
-            manager.reportResourceCloseFailure(new ResourceCloseFailure(
-                    ResourceCloseFailure.ResourceType.STATEMENT, statementSql.get(statement), ex, operationFailure));
-          }
-          catch (Error error) {
-            failure = aggregate(failure, error);
-          }
-        }
+      catch (Error error) {
+        failure = aggregate(failure, error);
       }
     }
     statements.clear();
