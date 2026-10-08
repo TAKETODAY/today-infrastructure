@@ -469,13 +469,9 @@ public class DefaultEntityManager implements EntityManager {
       eventMulticaster.onPostPersist(entity, entityMetadata, properties);
       return updateCount;
     }
-    catch (SQLException ex) {
+    catch (Throwable ex) {
       eventMulticaster.onPersistFailed(entity, entityMetadata, phase, properties, ex);
       throw translateException("Persisting entity", sql, ex);
-    }
-    catch (RuntimeException | Error ex) {
-      eventMulticaster.onPersistFailed(entity, entityMetadata, phase, properties, ex);
-      throw ex;
     }
     finally {
       closeResource(con, statement, generatedKeys);
@@ -627,13 +623,9 @@ public class DefaultEntityManager implements EntityManager {
       eventMulticaster.onPostUpdate(entity, metadata, selectedProperties, updateCount);
       return updateCount;
     }
-    catch (SQLException ex) {
+    catch (Throwable ex) {
       eventMulticaster.onUpdateFailed(entity, metadata, phase, selectedProperties, null, ex);
       throw translateException("Updating entity", sql, ex);
-    }
-    catch (RuntimeException | Error ex) {
-      eventMulticaster.onUpdateFailed(entity, metadata, phase, selectedProperties, null, ex);
-      throw ex;
     }
     finally {
       closeResource(con, statement);
@@ -728,13 +720,9 @@ public class DefaultEntityManager implements EntityManager {
       eventMulticaster.onPostUpdate(entity, metadata, properties, updateCount);
       return updateCount;
     }
-    catch (SQLException ex) {
+    catch (Throwable ex) {
       eventMulticaster.onUpdateFailed(entity, metadata, phase, properties, id, ex);
       throw translateException("Updating entity By ID", sql, ex);
-    }
-    catch (RuntimeException | Error ex) {
-      eventMulticaster.onUpdateFailed(entity, metadata, phase, properties, id, ex);
-      throw ex;
     }
     finally {
       closeResource(con, statement);
@@ -840,13 +828,9 @@ public class DefaultEntityManager implements EntityManager {
       eventMulticaster.onPostDelete(null, id, metadata, updateCount);
       return updateCount;
     }
-    catch (SQLException ex) {
+    catch (Throwable ex) {
       eventMulticaster.onDeleteFailed(null, metadata, phase, id, ex);
       throw translateException("Deleting entity using ID", sql.toString(), ex);
-    }
-    catch (RuntimeException | Error ex) {
-      eventMulticaster.onDeleteFailed(null, metadata, phase, id, ex);
-      throw ex;
     }
     finally {
       closeResource(con, statement);
@@ -923,13 +907,9 @@ public class DefaultEntityManager implements EntityManager {
       eventMulticaster.onPostDelete(entityOrExample, id, metadata, updateCount);
       return updateCount;
     }
-    catch (SQLException ex) {
+    catch (Throwable ex) {
       eventMulticaster.onDeleteFailed(entityOrExample, metadata, phase, id, ex);
       throw translateException("Deleting entity", sql.toString(), ex);
-    }
-    catch (RuntimeException | Error ex) {
-      eventMulticaster.onDeleteFailed(entityOrExample, metadata, phase, id, ex);
-      throw ex;
     }
     finally {
       closeResource(con, statement);
@@ -1426,6 +1406,19 @@ public class DefaultEntityManager implements EntityManager {
 
   private DataAccessException translateException(String task, @Nullable String sql, SQLException ex) {
     return repositoryManager.translateException(task, sql, ex);
+  }
+
+  private RuntimeException translateException(String task, @Nullable String sql, Throwable ex) {
+    if (ex instanceof SQLException sqlException) {
+      return translateException(task, sql, sqlException);
+    }
+    if (ex instanceof RuntimeException runtimeException) {
+      return runtimeException;
+    }
+    if (ex instanceof Error error) {
+      throw error;
+    }
+    throw new PersistenceException(task, ex);
   }
 
   /**
