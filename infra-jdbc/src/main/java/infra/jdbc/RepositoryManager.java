@@ -30,6 +30,7 @@ import infra.core.conversion.ConversionService;
 import infra.core.conversion.support.DefaultConversionService;
 import infra.dao.DataAccessException;
 import infra.format.support.ApplicationConversionService;
+import infra.jdbc.ResourceCloseFailure.ResourceType;
 import infra.jdbc.datasource.DataSourceUtils;
 import infra.jdbc.datasource.DriverManagerDataSource;
 import infra.jdbc.datasource.SingleConnectionDataSource;
@@ -296,7 +297,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * propagated. Interrupted exceptions restore the thread's interrupt status.
    *
    * <p>The resource category is inferred from JDBC interfaces; other closeable
-   * resources are reported as {@link ResourceCloseFailure.ResourceType#OTHER}.
+   * resources are reported as {@link ResourceType#OTHER}.
    *
    * @param resource the resource, or {@code null}
    * @param sql the associated SQL, if available
@@ -310,11 +311,10 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
         resource.close();
       }
       catch (Exception ex) {
-        ResourceCloseFailure.ResourceType type = resource instanceof Connection
-                ? ResourceCloseFailure.ResourceType.CONNECTION
-                : resource instanceof Statement ? ResourceCloseFailure.ResourceType.STATEMENT
-                        : resource instanceof ResultSet ? ResourceCloseFailure.ResourceType.RESULT_SET
-                                : ResourceCloseFailure.ResourceType.OTHER;
+        var type = resource instanceof Connection
+                ? ResourceType.CONNECTION : resource instanceof Statement
+                ? ResourceType.STATEMENT : resource instanceof ResultSet
+                ? ResourceType.RESULT_SET : ResourceType.OTHER;
         reportResourceCloseFailure(new ResourceCloseFailure(type, sql, ex, operationFailure));
       }
     }
@@ -338,7 +338,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
     }
     catch (Exception ex) {
       reportResourceCloseFailure(new ResourceCloseFailure(
-              ResourceCloseFailure.ResourceType.CONNECTION, sql, ex, operationFailure));
+              ResourceType.CONNECTION, sql, ex, operationFailure));
     }
   }
 

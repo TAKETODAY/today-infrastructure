@@ -874,9 +874,7 @@ public class DefaultEntityManager implements EntityManager {
       }
       else {
         conditionStmt = entityQueryFactories.createCondition(entityOrExample);
-        if (conditionStmt != null) {
-          conditionStmt.appendWhereClause(platform, metadata, sql);
-        }
+        conditionStmt.appendWhereClause(platform, metadata, sql);
       }
 
       if (stmtLogger.isDebugEnabled()) {
@@ -892,7 +890,7 @@ public class DefaultEntityManager implements EntityManager {
           versionProperty.setParameter(statement, paramIdx, versionValue);
         }
       }
-      else if (conditionStmt != null) {
+      else {
         conditionStmt.setParameter(metadata, statement);
       }
 
