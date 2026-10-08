@@ -78,7 +78,6 @@ import infra.persistence.event.BatchExecutionListener;
 import infra.persistence.event.BatchOperation;
 import infra.persistence.event.DefaultEntityEventRegistry;
 import infra.persistence.event.EntityEventRegistry;
-import infra.persistence.event.EntityFailureContext;
 import infra.persistence.event.EntityOperationPhase;
 import infra.persistence.platform.Platform;
 import infra.persistence.query.EntityQueryFactories;
@@ -471,11 +470,11 @@ public class DefaultEntityManager implements EntityManager {
       return updateCount;
     }
     catch (SQLException ex) {
-      eventMulticaster.onPersistFailed(entity, failureContext(entity, entityMetadata, phase, properties, ex));
+      eventMulticaster.onPersistFailed(entity, entityMetadata, phase, properties, ex);
       throw translateException("Persisting entity", sql, ex);
     }
     catch (RuntimeException | Error ex) {
-      eventMulticaster.onPersistFailed(entity, failureContext(entity, entityMetadata, phase, properties, ex));
+      eventMulticaster.onPersistFailed(entity, entityMetadata, phase, properties, ex);
       throw ex;
     }
     finally {
@@ -629,11 +628,11 @@ public class DefaultEntityManager implements EntityManager {
       return updateCount;
     }
     catch (SQLException ex) {
-      eventMulticaster.onUpdateFailed(entity, new EntityFailureContext(metadata, phase, selectedProperties, null, ex));
+      eventMulticaster.onUpdateFailed(entity, metadata, phase, selectedProperties, null, ex);
       throw translateException("Updating entity", sql, ex);
     }
     catch (RuntimeException | Error ex) {
-      eventMulticaster.onUpdateFailed(entity, new EntityFailureContext(metadata, phase, selectedProperties, null, ex));
+      eventMulticaster.onUpdateFailed(entity, metadata, phase, selectedProperties, null, ex);
       throw ex;
     }
     finally {
@@ -730,11 +729,11 @@ public class DefaultEntityManager implements EntityManager {
       return updateCount;
     }
     catch (SQLException ex) {
-      eventMulticaster.onUpdateFailed(entity, new EntityFailureContext(metadata, phase, properties, id, ex));
+      eventMulticaster.onUpdateFailed(entity, metadata, phase, properties, id, ex);
       throw translateException("Updating entity By ID", sql, ex);
     }
     catch (RuntimeException | Error ex) {
-      eventMulticaster.onUpdateFailed(entity, new EntityFailureContext(metadata, phase, properties, id, ex));
+      eventMulticaster.onUpdateFailed(entity, metadata, phase, properties, id, ex);
       throw ex;
     }
     finally {
@@ -842,11 +841,11 @@ public class DefaultEntityManager implements EntityManager {
       return updateCount;
     }
     catch (SQLException ex) {
-      eventMulticaster.onDeleteFailed(null, new EntityFailureContext(metadata, phase, null, id, ex));
+      eventMulticaster.onDeleteFailed(null, metadata, phase, id, ex);
       throw translateException("Deleting entity using ID", sql.toString(), ex);
     }
     catch (RuntimeException | Error ex) {
-      eventMulticaster.onDeleteFailed(null, new EntityFailureContext(metadata, phase, null, id, ex));
+      eventMulticaster.onDeleteFailed(null, metadata, phase, id, ex);
       throw ex;
     }
     finally {
@@ -925,11 +924,11 @@ public class DefaultEntityManager implements EntityManager {
       return updateCount;
     }
     catch (SQLException ex) {
-      eventMulticaster.onDeleteFailed(entityOrExample, new EntityFailureContext(metadata, phase, null, id, ex));
+      eventMulticaster.onDeleteFailed(entityOrExample, metadata, phase, id, ex);
       throw translateException("Deleting entity", sql.toString(), ex);
     }
     catch (RuntimeException | Error ex) {
-      eventMulticaster.onDeleteFailed(entityOrExample, new EntityFailureContext(metadata, phase, null, id, ex));
+      eventMulticaster.onDeleteFailed(entityOrExample, metadata, phase, id, ex);
       throw ex;
     }
     finally {
@@ -1457,23 +1456,6 @@ public class DefaultEntityManager implements EntityManager {
       insert.addColumn(property.getColumnName());
     }
     return insert.toStatementString(platform);
-  }
-
-  private EntityFailureContext failureContext(Object entity, EntityMetadata metadata,
-          EntityOperationPhase phase, @Nullable List<EntityProperty> properties, Throwable exception) {
-    Object id = null;
-    try {
-      EntityProperty idProperty = metadata.getIdProperty();
-      if (idProperty != null) {
-        id = idProperty.getValue(entity);
-      }
-    }
-    catch (RuntimeException | Error ex) {
-      if (ex != exception) {
-        exception.addSuppressed(ex);
-      }
-    }
-    return new EntityFailureContext(metadata, phase, properties, id, exception);
   }
 
   private void closeResource(@Nullable Connection connection, @Nullable Statement stmt) {

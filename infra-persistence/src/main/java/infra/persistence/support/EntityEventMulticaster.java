@@ -29,6 +29,7 @@ import infra.persistence.event.DefaultEntityEventRegistry;
 import infra.persistence.event.DeleteEventListener;
 import infra.persistence.event.EntityEventRegistry;
 import infra.persistence.event.EntityFailureContext;
+import infra.persistence.event.EntityOperationPhase;
 import infra.persistence.event.PersistEventListener;
 import infra.persistence.event.PostLoadEventListener;
 import infra.persistence.event.PostTruncateEventListener;
@@ -72,6 +73,23 @@ final class EntityEventMulticaster {
     }
   }
 
+  public void onPersistFailed(Object entity, EntityMetadata metadata,
+          EntityOperationPhase phase, @Nullable List<EntityProperty> properties, Throwable exception) {
+    Object id = null;
+    try {
+      EntityProperty idProperty = metadata.getIdProperty();
+      if (idProperty != null) {
+        id = idProperty.getValue(entity);
+      }
+    }
+    catch (Throwable ex) {
+      if (ex != exception) {
+        exception.addSuppressed(ex);
+      }
+    }
+    onPersistFailed(entity, new EntityFailureContext(metadata, phase, properties, id, exception));
+  }
+
   public void onPersistFailed(Object entity, EntityFailureContext context) {
     Throwable exception = context.getException();
     for (var listener : registry.listeners(PersistEventListener.class).listenersFor(entity.getClass())) {
@@ -100,6 +118,11 @@ final class EntityEventMulticaster {
     }
   }
 
+  public void onUpdateFailed(Object entity, EntityMetadata metadata,
+          EntityOperationPhase phase, @Nullable List<EntityProperty> properties, @Nullable Object id, Throwable exception) {
+    onUpdateFailed(entity, new EntityFailureContext(metadata, phase, properties, id, exception));
+  }
+
   public void onUpdateFailed(Object entity, EntityFailureContext context) {
     Throwable exception = context.getException();
     for (var listener : registry.listeners(UpdateEventListener.class).listenersFor(entity.getClass())) {
@@ -124,6 +147,11 @@ final class EntityEventMulticaster {
     for (var listener : registry.listeners(DeleteEventListener.class).listenersFor(metadata.getEntityClass())) {
       listener.onPostDelete(entity, id, metadata, affectedRows);
     }
+  }
+
+  public void onDeleteFailed(@Nullable Object entity, EntityMetadata metadata,
+          EntityOperationPhase phase, @Nullable Object id, Throwable exception) {
+    onDeleteFailed(entity, new EntityFailureContext(metadata, phase, null, id, exception));
   }
 
   public void onDeleteFailed(@Nullable Object entity, EntityFailureContext context) {
