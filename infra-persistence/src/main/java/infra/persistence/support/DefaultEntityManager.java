@@ -471,7 +471,7 @@ public class DefaultEntityManager implements EntityManager {
     }
     catch (Throwable ex) {
       eventMulticaster.onPersistFailed(entity, entityMetadata, phase, properties, ex);
-      throw translateException("Persisting entity", sql, ex);
+      throw translateException("Persist entity", sql, ex);
     }
     finally {
       closeResource(con, statement, generatedKeys);
@@ -516,18 +516,7 @@ public class DefaultEntityManager implements EntityManager {
         return updateCount;
       }
       catch (Throwable ex) {
-        closeBatchStatements(statements, ex);
-        rollbackAfterFailure(transaction, ex);
-        if (ex instanceof DataAccessException dae) {
-          throw dae;
-        }
-        if (ex instanceof SQLException se) {
-          throw translateException("Batch persist entities Running in transaction", null, se);
-        }
-        if (ex instanceof Error error) {
-          throw error;
-        }
-        throw new PersistenceException("Batch persist entities failed", ex);
+        throw handleBatchFailure("Batch persist entities", statements, transaction, ex);
       }
     }
   }
@@ -625,7 +614,7 @@ public class DefaultEntityManager implements EntityManager {
     }
     catch (Throwable ex) {
       eventMulticaster.onUpdateFailed(entity, metadata, phase, selectedProperties, null, ex);
-      throw translateException("Updating entity", sql, ex);
+      throw translateException("Update entity", sql, ex);
     }
     finally {
       closeResource(con, statement);
@@ -722,7 +711,7 @@ public class DefaultEntityManager implements EntityManager {
     }
     catch (Throwable ex) {
       eventMulticaster.onUpdateFailed(entity, metadata, phase, properties, id, ex);
-      throw translateException("Updating entity By ID", sql, ex);
+      throw translateException("Update entity by ID", sql, ex);
     }
     finally {
       closeResource(con, statement);
@@ -773,18 +762,7 @@ public class DefaultEntityManager implements EntityManager {
         return updateCount;
       }
       catch (Throwable ex) {
-        closeBatchStatements(statements, ex);
-        rollbackAfterFailure(transaction, ex);
-        if (ex instanceof DataAccessException dae) {
-          throw dae;
-        }
-        if (ex instanceof SQLException se) {
-          throw translateException("Batch updating entities Running in transaction", null, se);
-        }
-        if (ex instanceof Error error) {
-          throw error;
-        }
-        throw new PersistenceException("Batch updating entities failed", ex);
+        throw handleBatchFailure("Batch update entities", statements, transaction, ex);
       }
     }
   }
@@ -830,7 +808,7 @@ public class DefaultEntityManager implements EntityManager {
     }
     catch (Throwable ex) {
       eventMulticaster.onDeleteFailed(null, metadata, phase, id, ex);
-      throw translateException("Deleting entity using ID", sql.toString(), ex);
+      throw translateException("Delete entity by ID", sql.toString(), ex);
     }
     finally {
       closeResource(con, statement);
@@ -907,7 +885,7 @@ public class DefaultEntityManager implements EntityManager {
     }
     catch (Throwable ex) {
       eventMulticaster.onDeleteFailed(entityOrExample, metadata, phase, id, ex);
-      throw translateException("Deleting entity", sql.toString(), ex);
+      throw translateException("Delete entity", sql.toString(), ex);
     }
     finally {
       closeResource(con, statement);
@@ -1417,6 +1395,22 @@ public class DefaultEntityManager implements EntityManager {
       throw error;
     }
     throw new PersistenceException(task, ex);
+  }
+
+  private DataAccessException handleBatchFailure(String task,
+          Map<BatchKey, PreparedBatch> statements, JdbcConnection transaction, Throwable ex) {
+    closeBatchStatements(statements, ex);
+    rollbackAfterFailure(transaction, ex);
+    if (ex instanceof DataAccessException dae) {
+      return dae;
+    }
+    if (ex instanceof SQLException sqlException) {
+      return translateException(task, null, sqlException);
+    }
+    if (ex instanceof Error error) {
+      throw error;
+    }
+    return new PersistenceException(task + " failed", ex);
   }
 
   /**
