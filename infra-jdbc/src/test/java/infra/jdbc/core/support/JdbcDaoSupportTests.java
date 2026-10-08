@@ -55,7 +55,7 @@ public class JdbcDaoSupportTests {
 
   @Test
   public void testJdbcDaoSupportWithJdbcTemplate() throws Exception {
-    JdbcTemplate template = new JdbcTemplate();
+    JdbcTemplate template = new JdbcTemplate(mock(DataSource.class));
     final List<String> test = new ArrayList<>();
     JdbcDataAccessObjectSupport dao = new JdbcDataAccessObjectSupport() {
       @Override

@@ -116,8 +116,8 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * acquire connections to the database.
    */
   public RepositoryManager(DataSource dataSource, PlatformTransactionManager transactionManager) {
+    super(dataSource);
     Assert.notNull(transactionManager, "transactionManager is required");
-    setDataSource(dataSource);
     this.transactionManager = transactionManager;
   }
 
@@ -467,7 +467,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection open(boolean autoClose) {
-    return new JdbcConnection(this, obtainDataSource(), autoClose);
+    return new JdbcConnection(this, getDataSource(), autoClose);
   }
 
   /**
@@ -592,7 +592,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction(int isolationLevel) {
-    return beginTransaction(obtainDataSource(), TransactionDefinition.forIsolationLevel(isolationLevel));
+    return beginTransaction(getDataSource(), TransactionDefinition.forIsolationLevel(isolationLevel));
   }
 
   /**
@@ -609,7 +609,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction(Isolation isolationLevel) {
-    return beginTransaction(obtainDataSource(), TransactionDefinition.forIsolationLevel(isolationLevel));
+    return beginTransaction(getDataSource(), TransactionDefinition.forIsolationLevel(isolationLevel));
   }
 
   /**
@@ -627,7 +627,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction(@Nullable TransactionDefinition definition) {
-    return beginTransaction(obtainDataSource(), definition);
+    return beginTransaction(getDataSource(), definition);
   }
 
   /**
@@ -647,7 +647,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction(DataSource source, @Nullable TransactionDefinition definition) {
-    Assert.isTrue(source == obtainDataSource(), "Transaction DataSource must match the RepositoryManager DataSource");
+    Assert.isTrue(source == getDataSource(), "Transaction DataSource must match the RepositoryManager DataSource");
     JdbcConnection connection = new JdbcConnection(this, source);
     connection.beginTransaction(definition);
     return connection;

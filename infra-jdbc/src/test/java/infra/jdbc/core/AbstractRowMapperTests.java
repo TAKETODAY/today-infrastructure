@@ -170,8 +170,7 @@ public abstract class AbstractRowMapperTests {
       given(resultSet.findColumn("balance")).willReturn(4);
       given(resultSet.findColumn("e_mail")).willReturn(5);
 
-      jdbcTemplate = new JdbcTemplate();
-      jdbcTemplate.setDataSource(new SingleConnectionDataSource(connection, false));
+      jdbcTemplate = new JdbcTemplate(new SingleConnectionDataSource(connection, false));
       jdbcTemplate.setExceptionTranslator(new SQLStateSQLExceptionTranslator());
       jdbcTemplate.afterPropertiesSet();
     }

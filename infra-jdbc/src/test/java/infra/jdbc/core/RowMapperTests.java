@@ -55,7 +55,7 @@ public class RowMapperTests {
 
   private final ResultSet resultSet = mock(ResultSet.class);
 
-  private final JdbcTemplate template = new JdbcTemplate();
+  private JdbcTemplate template;
 
   private final RowMapper<TestBean> testRowMapper =
           (rs, rowNum) -> new TestBean(rs.getString(1), rs.getInt(2));
@@ -72,7 +72,7 @@ public class RowMapperTests {
     given(resultSet.getString(1)).willReturn("tb1", "tb2");
     given(resultSet.getInt(2)).willReturn(1, 2);
 
-    template.setDataSource(new SingleConnectionDataSource(connection, false));
+    template = new JdbcTemplate(new SingleConnectionDataSource(connection, false));
     template.setExceptionTranslator(new SQLStateSQLExceptionTranslator());
     template.afterPropertiesSet();
   }

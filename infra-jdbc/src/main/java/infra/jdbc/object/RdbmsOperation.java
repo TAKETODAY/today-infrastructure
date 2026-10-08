@@ -35,9 +35,9 @@ import infra.dao.InvalidDataAccessApiUsageException;
 import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.core.SqlParameter;
 import infra.jdbc.support.SQLExceptionTranslator;
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 
 /**
  * An "RDBMS operation" is a multi-threaded, reusable object representing a query,
@@ -69,7 +69,13 @@ public abstract class RdbmsOperation implements InitializingBean {
   private static final Logger log = LoggerFactory.getLogger(RdbmsOperation.class);
 
   /** Lower-level class used to execute SQL. */
-  private JdbcTemplate jdbcTemplate = new JdbcTemplate();
+  private @Nullable JdbcTemplate jdbcTemplate;
+
+  private int fetchSize = -1;
+
+  private int maxRows = -1;
+
+  private int queryTimeout = -1;
 
   private int resultSetType = ResultSet.TYPE_FORWARD_ONLY;
 
@@ -79,8 +85,7 @@ public abstract class RdbmsOperation implements InitializingBean {
 
   private String @Nullable [] generatedKeysColumnNames;
 
-  @Nullable
-  private String sql;
+  private @Nullable String sql;
 
   private final ArrayList<SqlParameter> declaredParameters = new ArrayList<>();
 
@@ -98,6 +103,7 @@ public abstract class RdbmsOperation implements InitializingBean {
    * {@link SQLExceptionTranslator} to be reused.
    */
   public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+    Assert.notNull(jdbcTemplate, "JdbcTemplate is required");
     this.jdbcTemplate = jdbcTemplate;
   }
 
@@ -105,16 +111,29 @@ public abstract class RdbmsOperation implements InitializingBean {
    * Return the {@link JdbcTemplate} used by this operation object.
    */
   public JdbcTemplate getJdbcTemplate() {
+    Assert.state(this.jdbcTemplate != null, "DataSource or JdbcTemplate is required");
     return this.jdbcTemplate;
   }
 
   /**
    * Set the JDBC {@link DataSource} to obtain connections from.
    *
-   * @see JdbcTemplate#setDataSource
+   * <p>Creates a new template retaining the existing template configuration.
+   *
+   * @see JdbcTemplate#JdbcTemplate(infra.jdbc.support.JdbcAccessor, DataSource)
    */
   public void setDataSource(DataSource dataSource) {
-    this.jdbcTemplate.setDataSource(dataSource);
+    Assert.notNull(dataSource, "dataSource is required");
+    if (this.jdbcTemplate != null) {
+      this.jdbcTemplate = new JdbcTemplate(this.jdbcTemplate, dataSource);
+    }
+    else {
+      JdbcTemplate template = new JdbcTemplate(dataSource);
+      template.setFetchSize(fetchSize);
+      template.setMaxRows(maxRows);
+      template.setQueryTimeout(queryTimeout);
+      this.jdbcTemplate = template;
+    }
   }
 
   /**
@@ -127,7 +146,10 @@ public abstract class RdbmsOperation implements InitializingBean {
    * @see JdbcTemplate#setFetchSize
    */
   public void setFetchSize(int fetchSize) {
-    this.jdbcTemplate.setFetchSize(fetchSize);
+    this.fetchSize = fetchSize;
+    if (this.jdbcTemplate != null) {
+      this.jdbcTemplate.setFetchSize(fetchSize);
+    }
   }
 
   /**
@@ -139,7 +161,10 @@ public abstract class RdbmsOperation implements InitializingBean {
    * @see JdbcTemplate#setMaxRows
    */
   public void setMaxRows(int maxRows) {
-    this.jdbcTemplate.setMaxRows(maxRows);
+    this.maxRows = maxRows;
+    if (this.jdbcTemplate != null) {
+      this.jdbcTemplate.setMaxRows(maxRows);
+    }
   }
 
   /**
@@ -150,7 +175,10 @@ public abstract class RdbmsOperation implements InitializingBean {
    * timeout specified at the transaction level.
    */
   public void setQueryTimeout(int queryTimeout) {
-    this.jdbcTemplate.setQueryTimeout(queryTimeout);
+    this.queryTimeout = queryTimeout;
+    if (this.jdbcTemplate != null) {
+      this.jdbcTemplate.setQueryTimeout(queryTimeout);
+    }
   }
 
   /**
@@ -247,8 +275,7 @@ public abstract class RdbmsOperation implements InitializingBean {
    * Subclasses can override this to supply dynamic SQL if they wish, but SQL is
    * normally set by calling the {@link #setSql} method or in a subclass constructor.
    */
-  @Nullable
-  public String getSql() {
+  public @Nullable String getSql() {
     return this.sql;
   }
 
@@ -355,9 +382,12 @@ public abstract class RdbmsOperation implements InitializingBean {
       if (getSql() == null) {
         throw new InvalidDataAccessApiUsageException("Property 'sql' is required");
       }
+      if (this.jdbcTemplate == null) {
+        throw new InvalidDataAccessApiUsageException("Property 'dataSource' or 'jdbcTemplate' is required");
+      }
 
       try {
-        this.jdbcTemplate.afterPropertiesSet();
+        getJdbcTemplate().afterPropertiesSet();
       }
       catch (IllegalArgumentException ex) {
         throw new InvalidDataAccessApiUsageException(ex.getMessage());

@@ -160,22 +160,13 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
   private boolean lazyInit = true;
 
   /**
-   * Construct a new JdbcTemplate for bean usage.
-   * <p>Note: The DataSource has to be set before using the instance.
-   *
-   * @see #setDataSource
-   */
-  public JdbcTemplate() {
-  }
-
-  /**
    * Construct a new JdbcTemplate, given a DataSource to obtain connections from.
    * <p>Note: This will not trigger initialization of the exception translator.
    *
    * @param dataSource the JDBC DataSource to obtain connections from
    */
   public JdbcTemplate(DataSource dataSource) {
-    setDataSource(dataSource);
+    super(dataSource);
     afterPropertiesSet();
   }
 
@@ -188,7 +179,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
    * @param lazyInit whether to lazily initialize the SQLExceptionTranslator
    */
   public JdbcTemplate(DataSource dataSource, boolean lazyInit) {
-    setDataSource(dataSource);
+    super(dataSource);
     setLazyInit(lazyInit);
     afterPropertiesSet();
   }
@@ -200,8 +191,18 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
    * @since 5.0
    */
   public JdbcTemplate(JdbcAccessor original) {
-    setDataSource(original.getDataSource());
-    setExceptionTranslator(original.getExceptionTranslator());
+    this(original, original.getDataSource());
+  }
+
+  /**
+   * Copy the configuration of an accessor using the given fixed DataSource.
+   *
+   * @param original the accessor to copy configuration from
+   * @param dataSource the non-null DataSource to use
+   * @since 5.0
+   */
+  public JdbcTemplate(JdbcAccessor original, DataSource dataSource) {
+    super(original, dataSource);
     if (original instanceof JdbcTemplate ot) {
       setLazyInit(ot.isLazyInit());
       setIgnoreWarnings(ot.isIgnoreWarnings());
@@ -357,9 +358,6 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
    */
   @Override
   public void afterPropertiesSet() {
-    if (getDataSource() == null) {
-      throw new IllegalArgumentException("Property 'dataSource' is required");
-    }
     if (!isLazyInit()) {
       getExceptionTranslator();
     }
@@ -372,7 +370,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
   public <T extends @Nullable Object> T execute(ConnectionCallback<T> action) throws DataAccessException {
     Assert.notNull(action, "Callback object is required");
 
-    DataSource dataSource = obtainDataSource();
+    DataSource dataSource = getDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
     try {
       // Create close-suppressing Connection proxy, also preparing returned Statements.
@@ -415,7 +413,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
   private <T extends @Nullable Object> T execute(StatementCallback<T> action, boolean closeResources) throws DataAccessException {
     Assert.notNull(action, "Callback object is required");
 
-    Connection con = DataSourceUtils.getConnection(obtainDataSource());
+    Connection con = DataSourceUtils.getConnection(getDataSource());
     Statement stmt = null;
     try {
       stmt = con.createStatement();
@@ -689,7 +687,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
       stmtLogger.logStatement("Executing prepared SQL statement", (sql != null ? sql : ""));
     }
 
-    Connection con = DataSourceUtils.getConnection(obtainDataSource());
+    Connection con = DataSourceUtils.getConnection(getDataSource());
     PreparedStatement ps = null;
     try {
       ps = LoggingPreparedStatement.wrap(psc.createPreparedStatement(con), stmtLogger);
@@ -1197,7 +1195,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
       stmtLogger.logStatement("Calling stored procedure", sql != null ? sql : "");
     }
 
-    Connection con = DataSourceUtils.getConnection(obtainDataSource());
+    Connection con = DataSourceUtils.getConnection(getDataSource());
     CallableStatement cs = null;
     try {
       cs = csc.createCallableStatement(con);

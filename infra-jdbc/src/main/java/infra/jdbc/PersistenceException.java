@@ -21,17 +21,32 @@ import org.jspecify.annotations.Nullable;
 import infra.dao.DataAccessException;
 
 /**
- * Represents an exception thrown by infra-jdbc.
+ * General-purpose exception for failures during JDBC or entity persistence operations.
+ *
+ * <p>Used when a failure cannot be represented by a more specific
+ * {@link DataAccessException}. An underlying cause, when supplied, is retained
+ * for diagnostic purposes.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class PersistenceException extends DataAccessException {
 
+  /**
+   * Create a new persistence exception with the given detail message.
+   *
+   * @param message the detail message, or {@code null} if none
+   */
   public PersistenceException(@Nullable String message) {
     super(message);
   }
 
+  /**
+   * Create a new persistence exception with the given detail message and cause.
+   *
+   * @param message the detail message, or {@code null} if none
+   * @param cause the underlying cause, or {@code null} if none
+   */
   public PersistenceException(@Nullable String message, @Nullable Throwable cause) {
     super(message, cause);
   }

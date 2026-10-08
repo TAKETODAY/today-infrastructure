@@ -182,6 +182,10 @@ public class StoredProcedureTests {
 
       int calls;
 
+      TestJdbcTemplate(DataSource dataSource) {
+        super(dataSource);
+      }
+
       @Override
       public Map<String, Object> call(CallableStatementCreator csc,
               List<SqlParameter> declaredParameters) throws DataAccessException {
@@ -189,8 +193,7 @@ public class StoredProcedureTests {
         return super.call(csc, declaredParameters);
       }
     }
-    TestJdbcTemplate t = new TestJdbcTemplate();
-    t.setDataSource(dataSource);
+    TestJdbcTemplate t = new TestJdbcTemplate(dataSource);
     // Will fail without the following, because we're not able to get a connection
     // from the DataSource here if we need to create an ExceptionTranslator
     t.setExceptionTranslator(new SQLStateSQLExceptionTranslator());
@@ -213,8 +216,7 @@ public class StoredProcedureTests {
     given(callableStatement.getObject(2)).willReturn(4);
     given(connection.prepareCall("{call " + StoredProcedureConfiguredViaJdbcTemplate.SQL + "(?, ?)}")
     ).willReturn(callableStatement);
-    JdbcTemplate t = new JdbcTemplate();
-    t.setDataSource(dataSource);
+    JdbcTemplate t = new JdbcTemplate(dataSource);
     StoredProcedureConfiguredViaJdbcTemplate sp = new StoredProcedureConfiguredViaJdbcTemplate(t);
     assertThat(sp.execute(1106)).isEqualTo(4);
     verify(callableStatement).setObject(1, 1106, Types.INTEGER);

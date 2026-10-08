@@ -32,17 +32,20 @@ import infra.jdbc.UncategorizedSQLException;
 import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.core.SqlProvider;
 import infra.jdbc.format.SqlStatementLogger;
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 
 /**
- * Base class for {@link JdbcTemplate} and
- * other JDBC-accessing DAO helpers, defining common properties such as
- * DataSource and exception translator.
+ * Base class for {@link JdbcTemplate} and other JDBC-accessing helpers,
+ * providing a DataSource, exception translation, statement logging, and
+ * SQL warning handling.
  *
- * <p>Not intended to be used directly.
- * See {@link JdbcTemplate}.
+ * <p>A non-null {@link DataSource} is required at construction time, and its
+ * reference remains fixed for the lifetime of the accessor. Other configuration
+ * properties can be customized independently.
+ *
+ * <p>The exception translator is initialized lazily unless explicitly supplied.
  *
  * @author Juergen Hoeller
  * @author Sebastien Deleuze
@@ -56,46 +59,56 @@ public abstract class JdbcAccessor {
 
   protected SqlStatementLogger stmtLogger = SqlStatementLogger.sharedInstance;
 
-  @Nullable
-  private DataSource dataSource;
+  protected final DataSource dataSource;
 
-  @Nullable
-  private volatile SQLExceptionTranslator exceptionTranslator;
+  private volatile @Nullable SQLExceptionTranslator exceptionTranslator;
 
   /** If this variable is false, we will throw exceptions on SQL warnings. */
   private boolean ignoreWarnings = true;
 
   /**
-   * Set the JDBC DataSource to obtain connections from.
+   * Create an accessor with a fixed JDBC DataSource.
+   *
+   * @param dataSource the DataSource to obtain connections from (never {@code null})
+   * @throws IllegalArgumentException if {@code dataSource} is {@code null}
    */
-  public void setDataSource(@Nullable DataSource dataSource) {
+  protected JdbcAccessor(DataSource dataSource) {
+    Assert.notNull(dataSource, "dataSource is required");
     this.dataSource = dataSource;
   }
 
   /**
-   * Return the DataSource used by this template.
+   * Create an accessor with the given DataSource and a snapshot of the original
+   * accessor's configuration.
+   * <p>Copies the statement logger, warning policy, and current exception
+   * translator reference without triggering translator initialization.
+   *
+   * @param original the accessor to copy from
+   * @param dataSource the DataSource to use (never {@code null})
+   * @throws IllegalArgumentException if {@code dataSource} is {@code null}
    */
-  @Nullable
+  protected JdbcAccessor(JdbcAccessor original, DataSource dataSource) {
+    this(dataSource);
+    this.stmtLogger = original.stmtLogger;
+    this.ignoreWarnings = original.ignoreWarnings;
+    this.exceptionTranslator = original.exceptionTranslator;
+  }
+
+  /**
+   * Return the DataSource supplied at construction time.
+   *
+   * @return the DataSource used to obtain connections (never {@code null})
+   */
   public DataSource getDataSource() {
     return this.dataSource;
   }
 
   /**
-   * Obtain the DataSource for actual use.
-   *
-   * @return the DataSource (never {@code null})
-   * @throws IllegalStateException in case of no DataSource set
-   */
-  public DataSource obtainDataSource() {
-    DataSource dataSource = getDataSource();
-    Assert.state(dataSource != null, "No DataSource set");
-    return dataSource;
-  }
-
-  /**
-   * Specify the database product name for the DataSource that this accessor uses.
-   * This allows to initialize an SQLErrorCodeSQLExceptionTranslator without
-   * obtaining a Connection from the DataSource to get the meta-data.
+   * Configure exception translation using the given database product name.
+   * <p>When user-provided error codes are available, creates an
+   * {@link SQLErrorCodeSQLExceptionTranslator} without obtaining a connection
+   * for database metadata. Otherwise, uses an {@link SQLExceptionSubclassTranslator}.
+   * Any previously configured translator is replaced.
    *
    * @param dbName the database product name that identifies the error codes entry
    * @see SQLErrorCodeSQLExceptionTranslator#setDatabaseProductName
@@ -111,11 +124,10 @@ public abstract class JdbcAccessor {
   }
 
   /**
-   * Set the exception translator for this instance.
-   * <p>If no custom translator is provided, a default
-   * {@link SQLErrorCodeSQLExceptionTranslator} is used
-   * which examines the SQLException's vendor-specific error code.
+   * Set the exception translator to use instead of the lazily initialized default.
    *
+   * @param exceptionTranslator the translator to use
+   * @see #getExceptionTranslator()
    * @see SQLErrorCodeSQLExceptionTranslator
    * @see SQLStateSQLExceptionTranslator
    */
@@ -125,10 +137,11 @@ public abstract class JdbcAccessor {
 
   /**
    * Return the exception translator for this instance.
-   * <p>Creates a default {@link SQLErrorCodeSQLExceptionTranslator}
-   * for the specified DataSource if none set, or a
-   * {@link SQLStateSQLExceptionTranslator} in case of no DataSource.
+   * <p>If none is set, creates an {@link SQLErrorCodeSQLExceptionTranslator}
+   * for the DataSource when user-provided error codes are available, or an
+   * {@link SQLExceptionSubclassTranslator} otherwise.
    *
+   * @return the configured or lazily initialized translator (never {@code null})
    * @see #getDataSource()
    */
   public SQLExceptionTranslator getExceptionTranslator() {
@@ -140,7 +153,7 @@ public abstract class JdbcAccessor {
       exceptionTranslator = this.exceptionTranslator;
       if (exceptionTranslator == null) {
         if (SQLErrorCodeSQLExceptionTranslator.hasUserProvidedErrorCodesFile()) {
-          exceptionTranslator = new SQLErrorCodeSQLExceptionTranslator(obtainDataSource());
+          exceptionTranslator = new SQLErrorCodeSQLExceptionTranslator(getDataSource());
         }
         else {
           exceptionTranslator = new SQLExceptionSubclassTranslator();
@@ -152,11 +165,12 @@ public abstract class JdbcAccessor {
   }
 
   /**
-   * Set whether we want to ignore JDBC statement warnings ({@link SQLWarning}).
-   * <p>Default is {@code true}, swallowing and logging all warnings. Switch this flag to
-   * {@code false} to make this JdbcTemplate throw a {@link SQLWarningException} instead
+   * Set whether JDBC statement warnings should be ignored.
+   * <p>Defaults to {@code true}: warnings are logged when debug logging is enabled.
+   * Set to {@code false} to raise a {@link SQLWarningException} instead
    * (or chain the {@link SQLWarning} into the primary {@link SQLException}, if any).
    *
+   * @param ignoreWarnings whether to ignore statement warnings
    * @see Statement#getWarnings()
    * @see java.sql.SQLWarning
    * @see SQLWarningException
@@ -167,12 +181,20 @@ public abstract class JdbcAccessor {
   }
 
   /**
-   * Return whether or not we ignore SQLWarnings.
+   * Return whether JDBC statement warnings are ignored.
+   *
+   * @return {@code true} if warnings are ignored; {@code false} if they are raised
    */
   public boolean isIgnoreWarnings() {
     return this.ignoreWarnings;
   }
 
+  /**
+   * Set the logger used for SQL statements.
+   *
+   * @param stmtLogger the statement logger (never {@code null})
+   * @throws IllegalArgumentException if {@code stmtLogger} is {@code null}
+   */
   public void setStatementLogger(SqlStatementLogger stmtLogger) {
     Assert.notNull(stmtLogger, "SqlStatementLogger is required");
     this.stmtLogger = stmtLogger;
@@ -184,6 +206,8 @@ public abstract class JdbcAccessor {
    * <p>Calls regular {@link #handleWarnings(Statement)} but catches
    * {@link SQLWarningException} in order to chain the {@link SQLWarning}
    * into the primary exception instead.
+   * Other failures during warning retrieval or processing are logged at debug
+   * level so that the primary exception can still be propagated.
    *
    * @param stmt the current JDBC statement
    * @param ex the primary exception after failed statement execution
@@ -248,7 +272,9 @@ public abstract class JdbcAccessor {
   }
 
   /**
-   * Translate the given {@link SQLException} into a generic {@link DataAccessException}.
+   * Translate the given {@link SQLException} into a {@link DataAccessException}.
+   * <p>Uses the configured exception translator, falling back to an
+   * {@link UncategorizedSQLException} if the translator cannot classify the failure.
    *
    * @param task readable text describing the task being attempted
    * @param sql the SQL query or update that caused the problem (may be {@code null})
@@ -268,8 +294,7 @@ public abstract class JdbcAccessor {
    * @return the SQL string, or {@code null} if not known
    * @see SqlProvider
    */
-  @Nullable
-  protected static String getSql(Object sqlProvider) {
+  protected static @Nullable String getSql(Object sqlProvider) {
     if (sqlProvider instanceof SqlProvider) {
       return ((SqlProvider) sqlProvider).getSql();
     }

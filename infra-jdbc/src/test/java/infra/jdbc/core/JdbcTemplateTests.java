@@ -210,8 +210,7 @@ public class JdbcTemplateTests {
     given(this.connection.createStatement()).willReturn(this.preparedStatement);
 
     StringHandler sh = new StringHandler();
-    JdbcTemplate template = new JdbcTemplate();
-    template.setDataSource(this.dataSource);
+    JdbcTemplate template = new JdbcTemplate(this.dataSource);
     if (fetchSize != null) {
       template.setFetchSize(fetchSize);
     }
@@ -874,8 +873,7 @@ public class JdbcTemplateTests {
   void couldNotGetConnectionForOperationWithLazyExceptionTranslator() throws SQLException {
     SQLException sqlException = new SQLException("foo", "07xxx");
     given(this.dataSource.getConnection()).willThrow(sqlException);
-    this.template = new JdbcTemplate();
-    this.template.setDataSource(this.dataSource);
+    this.template = new JdbcTemplate(this.dataSource);
     this.template.afterPropertiesSet();
     RowCountCallbackHandler rcch = new RowCountCallbackHandler();
 
@@ -907,8 +905,7 @@ public class JdbcTemplateTests {
 
     SQLException sqlException = new SQLException("foo", "07xxx");
     given(this.dataSource.getConnection()).willThrow(sqlException);
-    this.template = new JdbcTemplate();
-    this.template.setDataSource(this.dataSource);
+    this.template = new JdbcTemplate(this.dataSource);
     this.template.setLazyInit(false);
     if (beanProperty) {
       // This will get a connection.
@@ -1069,8 +1066,7 @@ public class JdbcTemplateTests {
     given(this.resultSet.next()).willReturn(true);
     given(this.connection.createStatement()).willReturn(this.preparedStatement);
 
-    JdbcTemplate template = new JdbcTemplate();
-    template.setDataSource(this.dataSource);
+    JdbcTemplate template = new JdbcTemplate(this.dataSource);
     // Set custom exception translator
     template.setExceptionTranslator(new SQLStateSQLExceptionTranslator());
     template.afterPropertiesSet();

@@ -71,7 +71,7 @@ public class SimpleJdbcCall extends AbstractJdbcCall implements SimpleJdbcCallOp
    * creating the underlying JdbcTemplate.
    *
    * @param dataSource the {@code DataSource} to use
-   * @see JdbcTemplate#setDataSource
+   * @see JdbcTemplate#JdbcTemplate(DataSource)
    */
   public SimpleJdbcCall(DataSource dataSource) {
     super(dataSource);
@@ -81,7 +81,7 @@ public class SimpleJdbcCall extends AbstractJdbcCall implements SimpleJdbcCallOp
    * Alternative Constructor that takes one parameter with the JdbcTemplate to be used.
    *
    * @param jdbcTemplate the {@code JdbcTemplate} to use
-   * @see JdbcTemplate#setDataSource
+   * @see JdbcTemplate#JdbcTemplate(DataSource)
    */
   public SimpleJdbcCall(JdbcTemplate jdbcTemplate) {
     super(jdbcTemplate);

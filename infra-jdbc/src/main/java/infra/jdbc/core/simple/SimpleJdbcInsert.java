@@ -58,7 +58,7 @@ public class SimpleJdbcInsert extends AbstractJdbcInsert implements SimpleJdbcIn
    * the {@link JdbcTemplate}.
    *
    * @param dataSource the {@code DataSource} to use
-   * @see JdbcTemplate#setDataSource
+   * @see JdbcTemplate#JdbcTemplate(DataSource)
    */
   public SimpleJdbcInsert(DataSource dataSource) {
     super(dataSource);
@@ -68,7 +68,7 @@ public class SimpleJdbcInsert extends AbstractJdbcInsert implements SimpleJdbcIn
    * Alternative constructor that accepts the {@link JdbcTemplate} to be used.
    *
    * @param jdbcTemplate the {@code JdbcTemplate} to use
-   * @see JdbcTemplate#setDataSource
+   * @see JdbcTemplate#JdbcTemplate(DataSource)
    */
   public SimpleJdbcInsert(JdbcTemplate jdbcTemplate) {
     super(jdbcTemplate);

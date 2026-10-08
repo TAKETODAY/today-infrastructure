@@ -35,7 +35,7 @@ class BatchResultTests {
 
   @Test
   void shouldReturnLastBatchResultWhenSet() {
-    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource()));
+    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
     int[] expectedResult = { 1, 2, 3 };
     batchResult.setBatchResult(expectedResult);
 
@@ -46,7 +46,7 @@ class BatchResultTests {
 
   @Test
   void shouldThrowExceptionWhenGetLastBatchResultNotSet() {
-    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource()));
+    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
 
     assertThatThrownBy(() -> batchResult.getLastBatchResult())
             .isInstanceOf(PersistenceException.class)
@@ -55,7 +55,7 @@ class BatchResultTests {
 
   @Test
   void shouldCalculateAffectedRowsCorrectly() {
-    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource()));
+    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
 
     batchResult.setBatchResult(new int[] { 1, 1 });
     batchResult.setBatchResult(new int[] { 1, 1, 1 });
@@ -67,7 +67,7 @@ class BatchResultTests {
 
   @Test
   void shouldThrowExceptionWhenGetAffectedRowsNotSet() {
-    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource()));
+    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
 
     assertThatThrownBy(() -> batchResult.getAffectedRows())
             .isInstanceOf(PersistenceException.class)
@@ -76,7 +76,7 @@ class BatchResultTests {
 
   @Test
   void shouldGetFirstGeneratedKey() throws Exception {
-    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource()));
+    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
 
     setGeneratedKeys(batchResult, new Object[] { 1L, 2L, 3L });
 
@@ -87,7 +87,7 @@ class BatchResultTests {
 
   @Test
   void shouldReturnNullWhenNoGeneratedKeys() throws Exception {
-    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource()));
+    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
 
     setGeneratedKeys(batchResult, new Object[] {});
 
@@ -98,7 +98,7 @@ class BatchResultTests {
 
   @Test
   void shouldThrowExceptionWhenGetKeyWithoutGeneratedKeys() {
-    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource()));
+    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
 
     assertThatThrownBy(() -> batchResult.getKey())
             .isInstanceOf(GeneratedKeysException.class)
@@ -107,7 +107,7 @@ class BatchResultTests {
 
   @Test
   void shouldGetGeneratedKeyWithReturnType() throws Exception {
-    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource()));
+    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
 
     setGeneratedKeys(batchResult, new Object[] { 42L });
 
@@ -118,7 +118,7 @@ class BatchResultTests {
 
   @Test
   void shouldGetAllGeneratedKeys() throws Exception {
-    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource()));
+    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
 
     Object[] keys = { 1L, 2L, 3L };
     setGeneratedKeys(batchResult, keys);
@@ -130,7 +130,7 @@ class BatchResultTests {
 
   @Test
   void shouldThrowExceptionWhenGetKeysWithoutGeneratedKeys() {
-    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource()));
+    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
 
     assertThatThrownBy(() -> batchResult.getKeys())
             .isInstanceOf(GeneratedKeysException.class)
@@ -139,7 +139,7 @@ class BatchResultTests {
 
   @Test
   void shouldGetGeneratedKeysWithReturnType() throws Exception {
-    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource()));
+    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
 
     Object[] keys = { 1L, 2L, 3L };
     setGeneratedKeys(batchResult, keys);
@@ -151,7 +151,7 @@ class BatchResultTests {
 
   @Test
   void shouldReturnNullWhenGetKeysWithNoGeneratedKeys() throws Exception {
-    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource()));
+    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
     setGeneratedKeys(batchResult, new Object[] {});
 
     Object[] keys = batchResult.getKeys();
@@ -161,7 +161,7 @@ class BatchResultTests {
 
   @Test
   void shouldReturnNullWhenGetKeysWithReturnTypeAndNoGeneratedKeys() throws Exception {
-    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource()));
+    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
     setGeneratedKeys(batchResult, new Object[] {});
 
     List<Long> keys = batchResult.getKeys(Long.class);
@@ -171,7 +171,7 @@ class BatchResultTests {
 
   @Test
   void shouldThrowExceptionWhenGetKeyWithReturnTypeAndInvalidConversion() throws Exception {
-    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource()));
+    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
     setGeneratedKeys(batchResult, new Object[] { "invalid" });
 
     assertThatThrownBy(() -> batchResult.getKey(Long.class))
@@ -181,7 +181,7 @@ class BatchResultTests {
 
   @Test
   void shouldThrowExceptionWhenGetKeysWithReturnTypeAndInvalidConversion() throws Exception {
-    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource()));
+    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
     setGeneratedKeys(batchResult, new Object[] { "invalid" });
 
     assertThatThrownBy(() -> batchResult.getKeys(Long.class))
@@ -191,7 +191,7 @@ class BatchResultTests {
 
   @Test
   void shouldThrowExceptionWhenGetKeyWithNullConversionService() throws Exception {
-    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource()));
+    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
     setGeneratedKeys(batchResult, new Object[] { 1L });
 
     assertThatThrownBy(() -> batchResult.getKey(Long.class, null))
@@ -201,7 +201,7 @@ class BatchResultTests {
 
   @Test
   void shouldThrowExceptionWhenGetKeysWithNullConversionService() throws Exception {
-    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource()));
+    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
     setGeneratedKeys(batchResult, new Object[] { 1L });
 
     assertThatThrownBy(() -> batchResult.getKeys(Long.class, null))
@@ -211,7 +211,7 @@ class BatchResultTests {
 
   @Test
   void shouldHandleEmptyBatchResult() {
-    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource()));
+    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
     batchResult.setBatchResult(new int[] {});
 
     int[] result = batchResult.getLastBatchResult();
@@ -223,7 +223,7 @@ class BatchResultTests {
 
   @Test
   void shouldAccumulateAffectedRowsCorrectly() {
-    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.obtainDataSource()));
+    BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
 
     batchResult.setBatchResult(new int[] { 1 });
     assertThat(batchResult.getAffectedRows()).isEqualTo(1);
