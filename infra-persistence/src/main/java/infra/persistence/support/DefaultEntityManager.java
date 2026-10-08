@@ -46,15 +46,12 @@ import infra.jdbc.JdbcConnection;
 import infra.jdbc.JdbcUpdateAffectedIncorrectNumberOfRowsException;
 import infra.jdbc.PersistenceException;
 import infra.jdbc.RepositoryManager;
-import infra.jdbc.ResourceCloseFailure;
 import infra.jdbc.core.ResultSetExtractor;
 import infra.jdbc.datasource.DataSourceUtils;
 import infra.jdbc.format.LoggingPreparedStatement;
 import infra.jdbc.format.SqlStatementLogger;
 import infra.lang.Descriptive;
 import infra.logging.LogMessage;
-import infra.logging.Logger;
-import infra.logging.LoggerFactory;
 import infra.persistence.DebugDescriptive;
 import infra.persistence.DefaultEntityMetadataFactory;
 import infra.persistence.EntityIterator;
@@ -132,8 +129,6 @@ import infra.util.Assert;
  * @since 4.0 2022/9/10 22:28
  */
 public class DefaultEntityManager implements EntityManager {
-
-  private static final Logger logger = LoggerFactory.getLogger(DefaultEntityManager.class);
 
   private final DataSource dataSource;
 
@@ -1170,7 +1165,7 @@ public class DefaultEntityManager implements EntityManager {
       return new DefaultEntityIterator<>(con, stmt, entityClass, metadata);
     }
     catch (SQLException ex) {
-      DataSourceUtils.releaseConnection(con, dataSource);
+      repositoryManager.releaseConnection(con, dataSource, statement, ex);
       throw translateException(getDescription(handler), statement, ex);
     }
   }
@@ -1188,7 +1183,7 @@ public class DefaultEntityManager implements EntityManager {
       return doQueryCount(metadata, condition, restrictions, con);
     }
     finally {
-      DataSourceUtils.releaseConnection(con, dataSource);
+      repositoryManager.releaseConnection(con, dataSource, null, null);
     }
   }
 
@@ -1212,7 +1207,7 @@ public class DefaultEntityManager implements EntityManager {
       Number count = doQueryCount(metadata, condition, restrictions, con);
       if (count.intValue() < 1) {
         // no record
-        DataSourceUtils.releaseConnection(con, dataSource);
+        repositoryManager.releaseConnection(con, dataSource, null, null);
         return new Page<>(pageable, 0, Collections.emptyList());
       }
 
@@ -1483,13 +1478,7 @@ public class DefaultEntityManager implements EntityManager {
 
   private void closeResource(@Nullable Connection connection, @Nullable Statement stmt) {
     repositoryManager.closeResource(stmt, null, null);
-    try {
-      DataSourceUtils.doReleaseConnection(connection, dataSource);
-    }
-    catch (Exception e) {
-      repositoryManager.reportResourceCloseFailure(new ResourceCloseFailure(
-              ResourceCloseFailure.ResourceType.CONNECTION, null, e, null));
-    }
+    repositoryManager.releaseConnection(connection, dataSource, null, null);
   }
 
   private void closeResource(@Nullable Connection connection, @Nullable PreparedStatement statement, @Nullable ResultSet resultSet) {

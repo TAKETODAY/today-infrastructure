@@ -38,6 +38,7 @@ import infra.transaction.TransactionException;
 import infra.transaction.TransactionStatus;
 import infra.transaction.TransactionSystemException;
 import infra.transaction.UnexpectedRollbackException;
+import infra.util.ExceptionUtils;
 
 /**
  * Manages a JDBC connection and optional transaction scope. Transactions started
@@ -469,16 +470,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
       }
     }
     try {
-      DataSourceUtils.doReleaseConnection(root, dataSource);
-    }
-    catch (Exception ex) {
-      try {
-        manager.reportResourceCloseFailure(new ResourceCloseFailure(
-                ResourceCloseFailure.ResourceType.CONNECTION, null, ex, operationFailure));
-      }
-      catch (Error error) {
-        failure = aggregate(failure, error);
-      }
+      manager.releaseConnection(root, dataSource, null, operationFailure);
     }
     catch (Error error) {
       failure = aggregate(failure, error);

@@ -316,6 +316,27 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
   }
 
   /**
+   * Release a connection according to transaction and SmartDataSource ownership
+   * rules, reporting release exceptions to the configured observer. Errors are
+   * propagated.
+   *
+   * @param connection the connection, or {@code null}
+   * @param dataSource the data source used to acquire the connection
+   * @param sql the associated SQL, if available
+   * @param operationFailure an existing operation failure, if available
+   */
+  public void releaseConnection(@Nullable Connection connection, @Nullable DataSource dataSource,
+          @Nullable String sql, @Nullable Throwable operationFailure) {
+    try {
+      DataSourceUtils.doReleaseConnection(connection, dataSource);
+    }
+    catch (Exception ex) {
+      reportResourceCloseFailure(new ResourceCloseFailure(
+              ResourceCloseFailure.ResourceType.CONNECTION, sql, ex, operationFailure));
+    }
+  }
+
+  /**
    * Return the transaction management strategy to be used.
    */
   public PlatformTransactionManager getTransactionManager() {
