@@ -18,6 +18,8 @@ package infra.persistence.support;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -49,6 +51,7 @@ import infra.persistence.event.UpdateEventListener;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
@@ -322,6 +325,102 @@ class BatchUpdateTests {
     assertThatThrownBy(() -> collectingManager.updateById(List.of(pending, rejected))).hasCause(failure);
     assertThat(failed).isEmpty();
     assertThat(phases).isEmpty();
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = { true, false })
+  void strictStatementCloseFailureRollsBackAndClosesEveryBatch(boolean insert) throws SQLException {
+    repository.setCatchResourceCloseErrors(true);
+    var closingManager = new CloseFailingManager(repository);
+    Item first = item(insert ? 3L : 1L, "first");
+    Item second = item(insert ? 4L : 2L, "second");
+    second.age = 30;
+
+    assertThatThrownBy(() -> executeBatch(closingManager, insert, List.of(first, second)))
+            .isInstanceOf(infra.dao.DataAccessException.class)
+            .hasCause(closingManager.closeFailure)
+            .satisfies(ex -> assertThat(ex.getSuppressed()).containsExactly(closingManager.closeFailure));
+    assertThat(closingManager.statements).hasSize(2);
+    for (PreparedStatement statement : closingManager.statements) {
+      verify(statement).close();
+    }
+    assertThat(repository.createNamedQuery("select count(*) from batch_item where name <> 'old'")
+            .fetchFirst(Integer.class)).isZero();
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = { true, false })
+  void suppressedStatementCloseFailureAllowsCommit(boolean insert) throws SQLException {
+    repository.setCatchResourceCloseErrors(false);
+    var closingManager = new CloseFailingManager(repository);
+    Item first = item(insert ? 3L : 1L, "first");
+    Item second = item(insert ? 4L : 2L, "second");
+    second.age = 30;
+
+    assertThat(executeBatch(closingManager, insert, List.of(first, second))).isEqualTo(2);
+    assertThat(closingManager.statements).hasSize(2);
+    for (PreparedStatement statement : closingManager.statements) {
+      verify(statement).close();
+    }
+    assertThat(repository.createNamedQuery("select count(*) from batch_item where name <> 'old'")
+            .fetchFirst(Integer.class)).isEqualTo(2);
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = { true, false })
+  void statementCloseFailuresDoNotReplaceExecutionFailure(boolean insert) throws SQLException {
+    for (boolean catchCloseErrors : new boolean[] { true, false }) {
+      repository.setCatchResourceCloseErrors(catchCloseErrors);
+      var closingManager = new CloseFailingManager(repository);
+      var failure = new InvalidDataAccessApiUsageException("execution failed");
+      closingManager.getEntityEventRegistry().addListener(new BatchExecutionListener() {
+        @Override
+        public void preProcessing(BatchExecution execution, boolean implicitExecution) {
+          throw failure;
+        }
+
+        @Override
+        public void postProcessing(BatchExecution execution, boolean implicitExecution, Throwable exception) {
+          assertThat(exception).isSameAs(failure);
+        }
+      });
+      Item first = item(insert ? 3L : 1L, "first");
+      Item second = item(insert ? 4L : 2L, "second");
+      second.age = 30;
+
+      assertThatThrownBy(() -> executeBatch(closingManager, insert, List.of(first, second)))
+              .isSameAs(failure)
+              .satisfies(ex -> assertThat(ex.getSuppressed())
+                      .containsExactly(closingManager.closeFailure, closingManager.closeFailure));
+      assertThat(closingManager.statements).hasSize(2);
+      for (PreparedStatement statement : closingManager.statements) {
+        verify(statement).close();
+      }
+    }
+  }
+
+  private static int executeBatch(DefaultEntityManager manager, boolean insert, List<Item> entities) {
+    return insert ? manager.persist(entities) : manager.updateById(entities);
+  }
+
+  static class CloseFailingManager extends DefaultEntityManager {
+    final List<PreparedStatement> statements = new ArrayList<>();
+    final SQLException closeFailure = new SQLException("close failed");
+
+    CloseFailingManager(RepositoryManager repository) {
+      super(repository);
+    }
+
+    @Override
+    protected PreparedStatement prepareStatement(Connection connection, String sql, boolean generatedKeys) throws SQLException {
+      PreparedStatement statement = spy(connection.prepareStatement(sql));
+      willAnswer(invocation -> {
+        invocation.callRealMethod();
+        throw closeFailure;
+      }).given(statement).close();
+      statements.add(statement);
+      return statement;
+    }
   }
 
   private static Item item(Long id, String name) {

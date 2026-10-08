@@ -520,10 +520,12 @@ public class DefaultEntityManager implements EntityManager {
           int count = preparedBatch.explicitExecuteBatch();
           updateCount = computeUpdateRows(updateCount, count);
         }
+        closeBatchStatements(statements, null);
         transaction.commit(false);
         return updateCount;
       }
       catch (Throwable ex) {
+        closeBatchStatements(statements, ex);
         rollbackAfterFailure(transaction, ex);
         if (ex instanceof DataAccessException dae) {
           throw dae;
@@ -532,11 +534,6 @@ public class DefaultEntityManager implements EntityManager {
           throw translateException("Batch persist entities Running in transaction", null, se);
         }
         throw new PersistenceException("Batch persist entities failed", ex);
-      }
-      finally {
-        for (PreparedBatch batch : statements.values()) {
-          closeResource(null, batch.stmt);
-        }
       }
     }
   }
@@ -785,10 +782,12 @@ public class DefaultEntityManager implements EntityManager {
           updateCount = computeUpdateRows(updateCount, count);
         }
 
+        closeBatchStatements(statements, null);
         transaction.commit(false);
         return updateCount;
       }
       catch (Throwable ex) {
+        closeBatchStatements(statements, ex);
         rollbackAfterFailure(transaction, ex);
         if (ex instanceof DataAccessException dae) {
           throw dae;
@@ -797,11 +796,6 @@ public class DefaultEntityManager implements EntityManager {
           throw translateException("Batch updating entities Running in transaction", null, se);
         }
         throw new PersistenceException("Batch updating entities failed", ex);
-      }
-      finally {
-        for (PreparedBatch batch : statements.values()) {
-          closeResource(null, batch.stmt);
-        }
       }
     }
   }
@@ -1525,6 +1519,53 @@ public class DefaultEntityManager implements EntityManager {
     }
   }
 
+  private void closeBatchStatements(Map<BatchKey, PreparedBatch> statements, @Nullable Throwable exception) {
+    Throwable failure = exception;
+    for (PreparedBatch batch : statements.values()) {
+      try {
+        batch.stmt.close();
+      }
+      catch (Throwable ex) {
+        if (failure != null) {
+          if (failure != ex) {
+            failure.addSuppressed(ex);
+          }
+        }
+        else if (!repositoryManager.isCatchResourceCloseErrors()) {
+          logger.debug("Could not close JDBC Statement", ex);
+        }
+        else {
+          failure = ex instanceof SQLException sqlException
+                  ? translateException("Closing Statement", null, sqlException) : ex;
+        }
+      }
+    }
+    statements.clear();
+    if (exception == null && failure != null) {
+      if (failure instanceof RuntimeException runtimeException) {
+        throw runtimeException;
+      }
+      if (failure instanceof Error error) {
+        throw error;
+      }
+      throw new PersistenceException("Closing batch statements failed", failure);
+    }
+  }
+
+  private static void rollbackAfterFailure(JdbcConnection transaction, Throwable exception) {
+    try {
+      var status = transaction.getTransaction();
+      if (status != null && !status.isCompleted()) {
+        transaction.rollback(false);
+      }
+    }
+    catch (Throwable rollbackFailure) {
+      if (rollbackFailure != exception) {
+        exception.addSuppressed(rollbackFailure);
+      }
+    }
+  }
+
   String getDescription(Object handler) {
     Descriptive descriptive = null;
     if (handler instanceof Descriptive) {
@@ -1628,20 +1669,6 @@ public class DefaultEntityManager implements EntityManager {
       throw new InvalidDataAccessApiUsageException("Updating an entity, There is no update properties");
     }
     return Collections.unmodifiableList(properties);
-  }
-
-  private static void rollbackAfterFailure(JdbcConnection transaction, Throwable exception) {
-    try {
-      var status = transaction.getTransaction();
-      if (status != null && !status.isCompleted()) {
-        transaction.rollback(false);
-      }
-    }
-    catch (Throwable rollbackFailure) {
-      if (rollbackFailure != exception) {
-        exception.addSuppressed(rollbackFailure);
-      }
-    }
   }
 
   private static int computeUpdateRows(int updateCount, int count) {

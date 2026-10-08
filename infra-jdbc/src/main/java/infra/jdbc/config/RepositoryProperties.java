@@ -28,9 +28,9 @@ public class RepositoryProperties {
   public boolean generatedKeys = true;
 
   /**
-   * Whether to catch and handle resource close errors silently.
-   * When set to true, errors during resource closing will be caught and logged,
-   * preventing them from propagating. Defaults to false.
+   * Whether cleanup paths that honor this setting translate and propagate
+   * resource close SQL exceptions. When true, close failures are translated into
+   * data access exceptions. When false (default), they are logged without propagation.
    */
   public boolean catchResourceCloseErrors = false;
 

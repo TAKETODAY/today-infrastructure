@@ -259,21 +259,24 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
   }
 
   /**
-   * Sets whether to catch and ignore errors when closing resources such as connections, statements,
-   * and result sets. When set to {@code true}, any exceptions thrown during resource cleanup
-   * will be silently ignored. When {@code false} (default), such exceptions will be propagated.
+   * Sets whether resource close SQL exceptions are translated and propagated by
+   * cleanup paths that honor this setting. When {@code true}, close failures are
+   * translated into {@link DataAccessException}. When {@code false} (default),
+   * they are logged without being propagated.
    *
-   * @param catchResourceCloseErrors {@code true} to suppress resource closing errors, {@code false} otherwise
+   * @param catchResourceCloseErrors {@code true} to translate and propagate resource
+   * close SQL exceptions, {@code false} to log them without propagation
    */
   public void setCatchResourceCloseErrors(boolean catchResourceCloseErrors) {
     this.catchResourceCloseErrors = catchResourceCloseErrors;
   }
 
   /**
-   * Returns whether to catch and ignore errors when closing resources such as connections, statements,
-   * and result sets.
+   * Returns whether cleanup paths that honor this setting translate and propagate
+   * resource close SQL exceptions.
    *
-   * @return {@code true} if resource closing errors are suppressed, {@code false} otherwise
+   * @return {@code true} to translate and propagate close SQL exceptions,
+   * {@code false} to log them without propagation
    */
   public boolean isCatchResourceCloseErrors() {
     return catchResourceCloseErrors;
