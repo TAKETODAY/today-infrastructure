@@ -1646,7 +1646,7 @@ public class DefaultEntityManager implements EntityManager {
 
   private final class PreparedBatch extends BatchExecution {
 
-    public final PreparedStatement stmt;
+    private final PreparedStatement stmt;
 
     private final BatchOperation operation;
 
