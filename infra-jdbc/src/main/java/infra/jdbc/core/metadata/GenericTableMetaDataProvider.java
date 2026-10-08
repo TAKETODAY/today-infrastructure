@@ -25,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -54,12 +55,10 @@ public class GenericTableMetaDataProvider implements TableMetaDataProvider {
   private boolean tableColumnMetaDataUsed = false;
 
   /** the version of the database. */
-  @Nullable
-  private String databaseVersion;
+  private @Nullable String databaseVersion;
 
   /** the name of the user currently connected. */
-  @Nullable
-  private final String userName;
+  private final @Nullable String userName;
 
   /** indicates whether the identifiers are uppercased. */
   private boolean storesUpperCaseIdentifiers = true;
@@ -74,7 +73,7 @@ public class GenericTableMetaDataProvider implements TableMetaDataProvider {
   private boolean generatedKeysColumnNameArraySupported = true;
 
   /** database products we know not supporting the use of a String[] for generated keys. */
-  private final List<String> productsNotSupportingGeneratedKeysColumnNameArray = List.of("HSQL Database Engine");
+  private final List<String> productsNotSupportingGeneratedKeysColumnNameArray = Collections.singletonList("HSQL Database Engine");
 
   /** Collection of TableParameterMetaData objects. */
   private final List<TableParameterMetaData> tableParameterMetaData = new ArrayList<>();
