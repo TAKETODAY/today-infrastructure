@@ -82,7 +82,7 @@ class ConnectionTests {
 
     RepositoryManager operations = new RepositoryManager(dataSource);
 
-    JdbcConnection cn = new JdbcConnection(operations, operations.getDataSource(), false);
+    JdbcConnection cn = new JdbcConnection(operations, false);
     cn.createNamedQueryWithParams("select :p1 name, :p2 age", "Dmitry Alexandrov", 35).buildStatement();
 
     verify(dataSource, times(1)).getConnection();

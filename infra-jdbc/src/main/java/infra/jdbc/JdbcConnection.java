@@ -59,13 +59,11 @@ public final class JdbcConnection implements Closeable, QueryProducer {
 
   private final RepositoryManager manager;
 
-  private final DataSource dataSource;
-
-  final boolean autoClose;
-
   private final boolean borrowed;
 
   private final HashSet<Statement> statements = new HashSet<>();
+
+  final boolean autoClose;
 
   private boolean rollbackOnException = true;
 
@@ -79,17 +77,15 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    * Create a wrapper and immediately acquire a JDBC connection.
    *
    * @param manager the repository providing query configuration and transaction management
-   * @param dataSource the data source from which to acquire the connection
    * @param autoClose whether query operations automatically close this wrapper
    * when their resource lifecycle ends
    * @throws CannotGetJdbcConnectionException if connection acquisition fails
    * @see RepositoryManager#open(boolean)
    */
-  public JdbcConnection(RepositoryManager manager, DataSource dataSource, boolean autoClose) {
+  public JdbcConnection(RepositoryManager manager, boolean autoClose) {
     this.manager = manager;
     this.autoClose = autoClose;
     this.borrowed = false;
-    this.dataSource = dataSource;
     createConnection();
   }
 
@@ -105,7 +101,6 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     this.manager = manager;
     this.autoClose = false;
     this.borrowed = false;
-    this.dataSource = manager.getDataSource();
   }
 
   /**
@@ -118,7 +113,6 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    */
   JdbcConnection(RepositoryManager manager, Connection connection) {
     this.manager = manager;
-    this.dataSource = manager.getDataSource();
     this.autoClose = false;
     this.borrowed = true;
     this.root = connection;
@@ -334,9 +328,6 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    */
   public TransactionStatus beginTransaction(@Nullable TransactionDefinition definition) {
     assertOpen();
-    if (dataSource != manager.getDataSource()) {
-      throw new InvalidDataAccessApiUsageException("Transaction DataSource must match the RepositoryManager DataSource");
-    }
     if (transaction != null) {
       throw new InvalidDataAccessApiUsageException("Transaction require commit or rollback");
     }
@@ -548,7 +539,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     }
     closed = true;
     if (!borrowed) {
-      manager.releaseConnection(root, dataSource, null, failure);
+      manager.releaseConnection(root, manager.getDataSource(), null, failure);
     }
     // The caller remains responsible for propagating an existing operation failure.
     if (operationFailure == null) {
@@ -566,7 +557,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    */
   void createConnection() {
     assertOpen();
-    this.root = DataSourceUtils.getConnection(dataSource);
+    this.root = DataSourceUtils.getConnection(manager.getDataSource());
   }
 
   /**

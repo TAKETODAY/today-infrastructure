@@ -464,19 +464,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection open(boolean autoClose) {
-    return new JdbcConnection(this, getDataSource(), autoClose);
-  }
-
-  /**
-   * Opens a connection to the database
-   *
-   * @param dataSource the {@link DataSource} implementation substitution, that
-   * will be used instead of one from {@link RepositoryManager} instance.
-   * @return instance of the {@link JdbcConnection} class.
-   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
-   */
-  public JdbcConnection open(DataSource dataSource) {
-    return new JdbcConnection(this, dataSource, false);
+    return new JdbcConnection(this, autoClose);
   }
 
   /**
