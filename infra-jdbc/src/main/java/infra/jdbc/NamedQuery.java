@@ -33,9 +33,9 @@ import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
 import infra.jdbc.parsing.QueryParameter;
 import infra.jdbc.type.TypeHandler;
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 
 /**
  * A {@code NamedQuery} represents a parameterized SQL query with named parameters.
@@ -137,9 +137,7 @@ public final class NamedQuery extends AbstractQuery {
 
   private NamedQuery(JdbcConnection connection, String queryText, boolean generatedKeys, String @Nullable [] columnNames) {
     super(connection, queryText, generatedKeys, columnNames);
-    RepositoryManager manager = connection.getManager();
-    setColumnMappings(manager.getDefaultColumnMappings());
-    this.parsedQuery = manager.parse(queryText, queryParameters);
+    this.parsedQuery = connection.getManager().parse(queryText, queryParameters);
   }
 
   @Override
