@@ -590,7 +590,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction(int isolationLevel) {
-    return beginTransaction(getDataSource(), TransactionDefinition.forIsolationLevel(isolationLevel));
+    return beginTransaction(TransactionDefinition.forIsolationLevel(isolationLevel));
   }
 
   /**
@@ -607,7 +607,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction(Isolation isolationLevel) {
-    return beginTransaction(getDataSource(), TransactionDefinition.forIsolationLevel(isolationLevel));
+    return beginTransaction(TransactionDefinition.forIsolationLevel(isolationLevel));
   }
 
   /**
@@ -625,28 +625,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction(@Nullable TransactionDefinition definition) {
-    return beginTransaction(getDataSource(), definition);
-  }
-
-  /**
-   * Begins a transaction with the {@link TransactionDefinition}. Every statement executed
-   * on the return {@link JdbcConnection} instance, will be executed in the
-   * transaction. It is very important to always call either the
-   * {@link JdbcConnection#commit()} method or the
-   * {@link JdbcConnection#rollback()} method to close the transaction. Use
-   * proper try-catch logic.
-   *
-   * @param source the {@link DataSource} implementation substitution, that
-   * will be used instead of one from {@link RepositoryManager} instance.
-   * @param definition the TransactionDefinition instance (can be {@code null} for defaults),
-   * describing propagation behavior, isolation level, timeout etc.
-   * @return the {@link JdbcConnection} instance to use to run statements in the
-   * transaction.
-   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
-   */
-  public JdbcConnection beginTransaction(DataSource source, @Nullable TransactionDefinition definition) {
-    Assert.isTrue(source == getDataSource(), "Transaction DataSource must match the RepositoryManager DataSource");
-    JdbcConnection connection = new JdbcConnection(this, source);
+    JdbcConnection connection = new JdbcConnection(this, getDataSource());
     connection.beginTransaction(definition);
     return connection;
   }
