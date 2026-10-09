@@ -65,8 +65,6 @@ public final class JdbcConnection implements Closeable, QueryProducer {
 
   final boolean autoClose;
 
-  private boolean rollbackOnException = true;
-
   private @Nullable Connection root;
 
   private @Nullable TransactionStatus transaction;
@@ -116,29 +114,6 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     this.autoClose = false;
     this.borrowed = true;
     this.root = connection;
-  }
-
-  void onException(Throwable failure) {
-    if (rollbackOnException && transaction != null && !transaction.isCompleted()) {
-      try {
-        completeTransaction(false);
-      }
-      catch (Throwable ex) {
-        if (ex != failure) {
-          failure.addSuppressed(ex);
-        }
-      }
-    }
-    if (autoClose) {
-      try {
-        close(failure);
-      }
-      catch (Throwable ex) {
-        if (ex != failure) {
-          failure.addSuppressed(ex);
-        }
-      }
-    }
   }
 
   /**
@@ -516,7 +491,15 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     close(null);
   }
 
-  private void close(@Nullable Throwable operationFailure) {
+  /**
+   * Close this wrapper, associating cleanup failures with an existing operation
+   * failure. The caller owning the operation failure remains responsible for
+   * propagating it; cleanup failures are added as suppressed.
+   *
+   * @param operationFailure an existing operation failure to suppress cleanup
+   * failures onto, or {@code null} if there is none
+   */
+  void close(@Nullable Throwable operationFailure) {
     if (closed) {
       return;
     }
@@ -558,33 +541,6 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   void createConnection() {
     assertOpen();
     this.root = DataSourceUtils.getConnection(manager.getDataSource());
-  }
-
-  /**
-   * Return whether query failures reported to this wrapper trigger immediate
-   * rollback of its active transaction scope. Defaults to {@code true}.
-   *
-   * @return whether immediate rollback on reported query failures is enabled
-   */
-  public boolean isRollbackOnException() {
-    return rollbackOnException;
-  }
-
-  /**
-   * Configure immediate rollback for query failures reported to this wrapper.
-   * A successful rollback completes and clears the current transaction scope;
-   * rollback failures are suppressed on the original query failure.
-   *
-   * <p>Disabling this option leaves transaction completion to the caller. It does
-   * not disable rollback of an unfinished scope on {@link #close()}, or guarantee
-   * that the database permits further work after a failed statement.
-   * This option does not affect an external transaction merely borrowed by this
-   * wrapper and is not a general exception policy for arbitrary application code.
-   *
-   * @param rollbackOnException whether to attempt immediate rollback
-   */
-  public void setRollbackOnException(boolean rollbackOnException) {
-    this.rollbackOnException = rollbackOnException;
   }
 
   /**

@@ -858,6 +858,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * @throws DataAccessException if an SQL exception occurs during the execution of the update
    */
   public <T extends @Nullable Object> UpdateResult<T> executeUpdate(@Nullable TypeHandler<T> generatedKeyHandler) {
+    Throwable failure = null;
     logStatement();
     long start = System.currentTimeMillis();
     try {
@@ -874,11 +875,11 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
       return ret;
     }
     catch (SQLException ex) {
-      connection.onException(ex);
+      failure = ex;
       throw translateException("Execute update", ex);
     }
     finally {
-      closeConnectionIfNecessary();
+      closeConnectionIfNecessary(failure);
     }
   }
 
@@ -1047,7 +1048,6 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
     }
     catch (SQLException e) {
       failure = e;
-      connection.onException(e);
       throw translateException("Execute scalar", e);
     }
     catch (RuntimeException | Error ex) {
@@ -1060,7 +1060,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
         connection.removeStatement(ps);
         closeResource(ps, failure);
       }
-      closeConnectionIfNecessary();
+      closeConnectionIfNecessary(failure);
     }
   }
 
@@ -1273,6 +1273,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * @throws DataAccessException if a SQL exception occurs during the batch execution.
    */
   public BatchResult executeBatch(boolean generatedKeys) {
+    Throwable failure = null;
     logStatement();
     long start = System.currentTimeMillis();
     try {
@@ -1305,11 +1306,11 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
       }
     }
     catch (SQLException e) {
-      connection.onException(e);
+      failure = e;
       throw translateException("Executing batch operation", e);
     }
     finally {
-      closeConnectionIfNecessary();
+      closeConnectionIfNecessary(failure);
     }
   }
 
@@ -1342,6 +1343,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * @throws DataAccessException if a SQL exception occurs during the batch execution
    */
   public <T extends @Nullable Object> BatchResult executeBatch(@Nullable TypeHandler<T> handler) {
+    Throwable failure = null;
     logStatement();
     long start = System.currentTimeMillis();
     try {
@@ -1374,11 +1376,11 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
       }
     }
     catch (SQLException e) {
-      connection.onException(e);
+      failure = e;
       throw translateException("Executing batch operation", e);
     }
     finally {
-      closeConnectionIfNecessary();
+      closeConnectionIfNecessary(failure);
     }
   }
 
@@ -1436,9 +1438,9 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
   // private stuff
   //---------------------------------------------------------------------
 
-  private void closeConnectionIfNecessary() {
+  private void closeConnectionIfNecessary(@Nullable Throwable failure) {
     if (connection.autoClose) {
-      connection.close();
+      connection.close(failure);
     }
   }
 
@@ -1495,7 +1497,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
           connection.close();
         }
         else {
-          closeConnectionIfNecessary();
+          closeConnectionIfNecessary(null);
         }
       }
     }
@@ -1523,7 +1525,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
         closeResource(resultSet, null);
       }
       finally {
-        closeConnectionIfNecessary();
+        closeConnectionIfNecessary(null);
       }
     }
   }

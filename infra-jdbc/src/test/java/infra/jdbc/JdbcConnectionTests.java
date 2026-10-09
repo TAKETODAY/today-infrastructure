@@ -25,18 +25,19 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
+import infra.dao.DataAccessException;
 import infra.jdbc.datasource.DriverManagerDataSource;
-import infra.transaction.support.TransactionTemplate;
 import infra.transaction.PlatformTransactionManager;
 import infra.transaction.TransactionStatus;
+import infra.transaction.support.TransactionTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -94,7 +95,7 @@ class JdbcConnectionTests {
   }
 
   @Test
-  void rollbackFailureIsSuppressedOnOriginalQueryFailure() throws SQLException {
+  void cleanupFailureIsSuppressedOnOriginalFailure() throws SQLException {
     DataSource dataSource = mock(DataSource.class);
     given(dataSource.getConnection()).willReturn(mock(Connection.class));
     PlatformTransactionManager transactionManager = mock(PlatformTransactionManager.class);
@@ -104,10 +105,8 @@ class JdbcConnectionTests {
     willThrow(rollbackFailure).given(transactionManager).rollback(status);
     JdbcConnection connection = new RepositoryManager(dataSource, transactionManager).beginTransaction();
     SQLException failure = new SQLException("SQL failed");
-    connection.onException(failure);
+    connection.close(failure);
     assertThat(failure.getSuppressed()).containsExactly(rollbackFailure);
-    given(status.isCompleted()).willReturn(true);
-    connection.close();
   }
 
   @Test
@@ -133,18 +132,43 @@ class JdbcConnectionTests {
   }
 
   @Test
-  void managedTransactionRollsBackOnExecutionFailure() throws SQLException {
+  void managedTransactionRollsBackOnCloseAfterExecutionFailure() {
     RepositoryManager repository = new RepositoryManager(new DriverManagerDataSource(
             "jdbc:h2:mem:" + UUID.randomUUID() + ";DB_CLOSE_DELAY=-1", "sa", ""));
     repository.createQuery("create table native_transaction (id integer primary key)").executeUpdate();
+
     try (JdbcConnection connection = repository.beginTransaction()) {
       connection.createQuery("insert into native_transaction values (1)").executeUpdate();
       assertThatThrownBy(() -> connection.createQuery("insert into native_transaction values (1)").executeUpdate())
-              .isInstanceOf(infra.dao.DataAccessException.class);
-      assertThatThrownBy(() -> connection.commit(false))
-              .isInstanceOf(infra.transaction.IllegalTransactionStateException.class);
+              .isInstanceOf(DataAccessException.class);
     }
     assertThat(repository.createQuery("select count(*) from native_transaction").fetchFirst(Integer.class)).isZero();
+  }
+
+  @Test
+  void managedTransactionDoesNotAutoRollbackOnExecutionFailure() {
+    RepositoryManager repository = new RepositoryManager(new DriverManagerDataSource(
+            "jdbc:h2:mem:" + UUID.randomUUID() + ";DB_CLOSE_DELAY=-1", "sa", ""));
+    repository.createQuery("create table native_transaction (id integer primary key)").executeUpdate();
+
+    try (JdbcConnection connection = repository.beginTransaction()) {
+      connection.createQuery("insert into native_transaction values (1)").executeUpdate();
+      assertThatThrownBy(() -> connection.createQuery("insert into native_transaction values (1)").executeUpdate())
+              .isInstanceOf(DataAccessException.class);
+      // A failed statement no longer triggers an implicit rollback: the scope is still active.
+      connection.rollback(false);
+    }
+    assertThat(repository.createQuery("select count(*) from native_transaction").fetchFirst(Integer.class)).isZero();
+  }
+
+  @Test
+  void autoCloseConnectionIsReleasedWhenQueryFails() throws SQLException {
+    RepositoryManager repository = new RepositoryManager(new DriverManagerDataSource(
+            "jdbc:h2:mem:" + UUID.randomUUID() + ";DB_CLOSE_DELAY=-1", "sa", ""));
+    JdbcConnection connection = repository.open(true);
+    assertThatThrownBy(() -> connection.createQuery("insert into missing_table values (1)").executeUpdate())
+            .isInstanceOf(DataAccessException.class);
+    assertThat(connection.getNativeConnection().isClosed()).isTrue();
   }
 
   @Test
@@ -218,36 +242,6 @@ class JdbcConnectionTests {
     JdbcConnection connection = new JdbcConnection(manager);
 
     assertThat(connection.getManager()).isEqualTo(manager);
-  }
-
-  @Test
-  void shouldSetAndGetRollbackOnException() {
-    RepositoryManager manager = mock(RepositoryManager.class);
-    given(manager.getDataSource()).willReturn(mock(DataSource.class));
-
-    JdbcConnection connection = new JdbcConnection(manager);
-
-    assertThat(connection.isRollbackOnException()).isTrue();
-
-    connection.setRollbackOnException(false);
-    assertThat(connection.isRollbackOnException()).isFalse();
-
-    connection.setRollbackOnException(true);
-    assertThat(connection.isRollbackOnException()).isTrue();
-  }
-
-  @Test
-  void shouldHandleOnExceptionWithRollback() {
-    RepositoryManager manager = mock(RepositoryManager.class);
-    given(manager.getDataSource()).willReturn(mock(DataSource.class));
-
-    JdbcConnection connection = new JdbcConnection(manager);
-    connection.setRollbackOnException(true);
-
-    connection.onException(new SQLException("query failed"));
-
-    // Should not throw exception
-    assertThat(true).isTrue();
   }
 
 }

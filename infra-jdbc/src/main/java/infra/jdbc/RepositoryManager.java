@@ -692,7 +692,6 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    */
   public <T extends @Nullable Object> void runInTransaction(StatementRunnable<T> runnable, T argument, int isolationLevel) {
     try (JdbcConnection connection = beginTransaction(isolationLevel)) {
-      connection.setRollbackOnException(false);
       runnable.run(connection, argument);
       connection.commit(false);
     }
@@ -792,7 +791,6 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
   public <V extends @Nullable Object, P extends @Nullable Object> V runInTransaction(ResultStatementRunnable<V, P> runnable,
           P argument, @Nullable TransactionDefinition definition) {
     try (JdbcConnection connection = beginTransaction(definition)) {
-      connection.setRollbackOnException(false);
       V result = runnable.run(connection, argument);
       connection.commit(false);
       return result;
