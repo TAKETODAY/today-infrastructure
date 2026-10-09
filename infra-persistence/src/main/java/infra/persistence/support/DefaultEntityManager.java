@@ -546,10 +546,11 @@ public class DefaultEntityManager implements EntityManager {
     String sql = null;
     Connection con = null;
     PreparedStatement statement = null;
+    Object oldVersion = null;
     try {
       strategy = eventMulticaster.onPreUpdate(entity, metadata, strategy);
       phase = EntityOperationPhase.PREPARATION;
-      Object oldVersion = incrementVersion(entity, metadata);
+      oldVersion = incrementVersion(entity, metadata);
       EntityProperty versionProperty = metadata.getVersionProperty();
 
       Update updateStmt = new Update(metadata.getTableName());
@@ -613,6 +614,7 @@ public class DefaultEntityManager implements EntityManager {
       return updateCount;
     }
     catch (Throwable ex) {
+      restoreVersion(entity, metadata, oldVersion);
       eventMulticaster.onUpdateFailed(entity, metadata, phase, selectedProperties, null, ex);
       throw handleEntityException("Update entity using @UpdateBy properties", metadata, phase, sql, ex);
     }
@@ -677,10 +679,11 @@ public class DefaultEntityManager implements EntityManager {
     String sql = null;
     Connection con = null;
     PreparedStatement statement = null;
+    Object oldVersion = null;
     try {
       strategy = eventMulticaster.onPreUpdate(entity, metadata, strategy);
       phase = EntityOperationPhase.PREPARATION;
-      Object oldVersion = incrementVersion(entity, metadata);
+      oldVersion = incrementVersion(entity, metadata);
       properties = selectUpdateProperties(entity, metadata, strategy);
       sql = updateStatement(metadata, properties, idProperty);
 
@@ -710,6 +713,7 @@ public class DefaultEntityManager implements EntityManager {
       return updateCount;
     }
     catch (Throwable ex) {
+      restoreVersion(entity, metadata, oldVersion);
       eventMulticaster.onUpdateFailed(entity, metadata, phase, properties, id, ex);
       throw handleEntityException("Update entity by ID", metadata, phase, sql, ex);
     }
@@ -728,6 +732,7 @@ public class DefaultEntityManager implements EntityManager {
     Assert.notNull(entities, "Entities are required");
     try (var transaction = repositoryManager.beginTransaction(transactionConfig)) {
       var statements = new HashMap<BatchKey, PreparedBatch>();
+      var appliedVersions = new ArrayList<VersionSnapshot>();
       try {
         for (Object entity : entities) {
           EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entity.getClass());
@@ -739,6 +744,9 @@ public class DefaultEntityManager implements EntityManager {
           var strategyToUse = eventMulticaster.onPreUpdate(entity, metadata,
                   updateExcludeId(strategy != null ? strategy : defaultUpdateStrategy(entity)));
           Object oldVersion = incrementVersion(entity, metadata);
+          if (oldVersion != null) {
+            appliedVersions.add(new VersionSnapshot(entity, metadata, oldVersion));
+          }
           var properties = selectUpdateProperties(entity, metadata, strategyToUse);
           var key = new BatchKey(metadata.getEntityClass(), properties);
           PreparedBatch batch = statements.get(key);
@@ -762,6 +770,7 @@ public class DefaultEntityManager implements EntityManager {
         return updateCount;
       }
       catch (Throwable ex) {
+        restoreVersions(appliedVersions);
         throw handleBatchFailure("Batch update entities", statements, transaction, ex);
       }
     }
@@ -909,8 +918,8 @@ public class DefaultEntityManager implements EntityManager {
       statement.executeUpdate();
       eventMulticaster.onPostTruncate(entityClass, metadata);
     }
-    catch (SQLException ex) {
-      throw translateException("Truncate table", sql, ex);
+    catch (Throwable ex) {
+      throw handleFailure("Truncate table", sql, ex, true, e -> new PersistenceException("Truncate table", e));
     }
     finally {
       closeResource(con, statement);
@@ -1110,8 +1119,9 @@ public class DefaultEntityManager implements EntityManager {
     String statement = handler.render(metadata).toStatementString(platform);
 
     Connection con = DataSourceUtils.getConnection(dataSource);
+    PreparedStatement stmt = null;
     try {
-      PreparedStatement stmt = prepareStatement(con, statement, false);
+      stmt = prepareStatement(con, statement, false);
       handler.setParameter(metadata, stmt);
 
       if (stmtLogger.isDebugEnabled()) {
@@ -1120,9 +1130,11 @@ public class DefaultEntityManager implements EntityManager {
 
       return new DefaultEntityIterator<>(con, stmt, entityClass, metadata);
     }
-    catch (SQLException ex) {
+    catch (Throwable ex) {
+      repositoryManager.closeResource(stmt, statement, ex);
       repositoryManager.releaseConnection(con, dataSource, statement, ex);
-      throw translateException(getDescription(handler), statement, ex);
+      throw handleFailure(getDescription(handler), statement, ex, true,
+              e -> new DataRetrievalFailureException("Unable to iterate entities", e));
     }
   }
 
@@ -1185,13 +1197,8 @@ public class DefaultEntityManager implements EntityManager {
     }
     catch (Throwable ex) {
       closeResource(con, stmt);
-      if (ex instanceof DataAccessException dae) {
-        throw dae;
-      }
-      if (ex instanceof SQLException) {
-        throw translateException(getDescription(condition), statement, (SQLException) ex);
-      }
-      throw new DataRetrievalFailureException("Unable to retrieve the pageable data ", ex);
+      throw handleFailure(getDescription(condition), statement, ex, true,
+              e -> new DataRetrievalFailureException("Unable to retrieve the pageable data", e));
     }
   }
 
@@ -1243,13 +1250,8 @@ public class DefaultEntityManager implements EntityManager {
     }
     catch (Throwable ex) {
       closeResource(con, stmt);
-      if (ex instanceof DataAccessException dae) {
-        throw dae;
-      }
-      if (ex instanceof SQLException sqlException) {
-        throw translateException(getDescription(condition), statement, sqlException);
-      }
-      throw new DataRetrievalFailureException("Unable to retrieve the slice", ex);
+      throw handleFailure(getDescription(condition), statement, ex, true,
+              e -> new DataRetrievalFailureException("Unable to retrieve the slice", e));
     }
   }
 
@@ -1316,13 +1318,8 @@ public class DefaultEntityManager implements EntityManager {
     }
     catch (Throwable ex) {
       closeResource(con, stmt);
-      if (ex instanceof DataAccessException dae) {
-        throw dae;
-      }
-      if (ex instanceof SQLException sqlException) {
-        throw translateException(getDescription(condition), statement, sqlException);
-      }
-      throw new DataRetrievalFailureException("Unable to scroll the query result", ex);
+      throw handleFailure(getDescription(condition), statement, ex, true,
+              e -> new DataRetrievalFailureException("Unable to scroll the query result", e));
     }
   }
 
@@ -1385,36 +1382,42 @@ public class DefaultEntityManager implements EntityManager {
     return repositoryManager.translateException(task, sql, ex);
   }
 
+  /**
+   * Translate a captured failure into a data-access exception while preserving
+   * its semantics: {@link Error} is rethrown, {@link SQLException} is translated,
+   * an existing {@link DataAccessException} is propagated unchanged. When
+   * {@code propagateRuntime} is {@code true} any other runtime exception is also
+   * propagated unchanged; otherwise it is wrapped by the supplied {@code wrapper}.
+   */
+  private RuntimeException handleFailure(String task, @Nullable String sql, Throwable ex,
+          boolean propagateRuntime, Function<Throwable, RuntimeException> wrapper) {
+    if (ex instanceof Error error) {
+      throw error;
+    }
+    if (ex instanceof SQLException sqlException) {
+      return translateException(task, sql, sqlException);
+    }
+    if (ex instanceof DataAccessException dataAccessException) {
+      return dataAccessException;
+    }
+    if (propagateRuntime && ex instanceof RuntimeException runtimeException) {
+      return runtimeException;
+    }
+    return wrapper.apply(ex);
+  }
+
   private RuntimeException handleEntityException(String operation, EntityMetadata metadata,
           EntityOperationPhase phase, @Nullable String sql, Throwable ex) {
     String task = "%s [entity type: '%s', phase: %s]"
             .formatted(operation, metadata.getEntityClass().getName(), phase);
-    if (ex instanceof SQLException sqlException) {
-      return translateException(task, sql, sqlException);
-    }
-    if (ex instanceof RuntimeException runtimeException) {
-      return runtimeException;
-    }
-    if (ex instanceof Error error) {
-      throw error;
-    }
-    throw new PersistenceException(task, ex);
+    return handleFailure(task, sql, ex, true, e -> new PersistenceException(task, e));
   }
 
-  private DataAccessException handleBatchFailure(String task,
+  private RuntimeException handleBatchFailure(String task,
           Map<BatchKey, PreparedBatch> statements, JdbcConnection transaction, Throwable ex) {
     closeBatchStatements(statements, ex);
     rollbackAfterFailure(transaction, ex);
-    if (ex instanceof DataAccessException dae) {
-      return dae;
-    }
-    if (ex instanceof SQLException sqlException) {
-      return translateException(task, null, sqlException);
-    }
-    if (ex instanceof Error error) {
-      throw error;
-    }
-    return new PersistenceException(task + " failed", ex);
+    return handleFailure(task, null, ex, false, e -> new PersistenceException(task + " failed", e));
   }
 
   /**
@@ -1540,6 +1543,19 @@ public class DefaultEntityManager implements EntityManager {
     return next;
   }
 
+  private static void restoreVersion(Object entity, EntityMetadata metadata, @Nullable Object oldVersion) {
+    EntityProperty versionProperty = metadata.getVersionProperty();
+    if (versionProperty != null && oldVersion != null) {
+      versionProperty.setValue(entity, oldVersion);
+    }
+  }
+
+  private static void restoreVersions(List<VersionSnapshot> snapshots) {
+    for (VersionSnapshot snapshot : snapshots) {
+      restoreVersion(snapshot.entity(), snapshot.metadata(), snapshot.oldVersion());
+    }
+  }
+
   static int setParameters(Object entity, List<EntityProperty> properties, PreparedStatement statement) throws SQLException {
     int idx = 1;
     for (EntityProperty property : properties) {
@@ -1608,7 +1624,12 @@ public class DefaultEntityManager implements EntityManager {
         this.handler = factory.getResultSetHandler(resultSet.getMetaData());
       }
       catch (SQLException e) {
+        repositoryManager.closeResource(resultSet, null, e);
         throw translateException("Get ResultSetHandler", null, e);
+      }
+      catch (RuntimeException | Error e) {
+        repositoryManager.closeResource(resultSet, null, e);
+        throw e;
       }
     }
 
@@ -1796,6 +1817,9 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   private record BatchKey(Class<?> entityClass, List<EntityProperty> properties) {
+  }
+
+  private record VersionSnapshot(Object entity, EntityMetadata metadata, Object oldVersion) {
   }
 
   private record KeysetSort(EntityProperty property, Order direction) {

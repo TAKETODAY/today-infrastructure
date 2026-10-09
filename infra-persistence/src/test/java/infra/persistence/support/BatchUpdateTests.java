@@ -160,7 +160,8 @@ class BatchUpdateTests {
     verify(manager.statements.get(0)).executeBatch();
     verify(manager.statements.get(1)).executeBatch();
     assertThat(manager.findById(Item.class, 1L).name).isEqualTo("old");
-    assertThat(stale.version).isEqualTo(6);
+    // the in-memory version is restored when the batch fails, so a retry can succeed
+    assertThat(stale.version).isEqualTo(5);
   }
 
   @Test
