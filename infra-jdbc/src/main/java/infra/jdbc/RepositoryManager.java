@@ -33,7 +33,6 @@ import infra.format.support.ApplicationConversionService;
 import infra.jdbc.ResourceCloseFailure.ResourceType;
 import infra.jdbc.datasource.DataSourceUtils;
 import infra.jdbc.datasource.DriverManagerDataSource;
-import infra.jdbc.datasource.SingleConnectionDataSource;
 import infra.jdbc.parsing.QueryParameter;
 import infra.jdbc.parsing.SqlParameterParser;
 import infra.jdbc.support.JdbcAccessor;
@@ -469,19 +468,6 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
   }
 
   /**
-   * Borrows an existing connection without taking ownership of its transaction
-   * or physical connection. Closing the returned wrapper closes its statements
-   * but does not commit, roll back, or close the supplied connection.
-   *
-   * @param connection the {@link Connection}
-   * @return instance of the {@link JdbcConnection} class.
-   */
-  public JdbcConnection open(Connection connection) {
-    NestedConnection nested = new NestedConnection(connection);
-    return new JdbcConnection(this, new SingleConnectionDataSource(nested, false), false);
-  }
-
-  /**
    * Opens a connection to the database
    *
    * @param dataSource the {@link DataSource} implementation substitution, that
@@ -491,6 +477,19 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    */
   public JdbcConnection open(DataSource dataSource) {
     return new JdbcConnection(this, dataSource, false);
+  }
+
+  /**
+   * Borrows an existing connection without taking ownership of its transaction
+   * or physical connection. Closing the returned wrapper closes its statements
+   * but does not commit, roll back, or close the supplied connection.
+   *
+   * @param connection the {@link Connection}
+   * @return instance of the {@link JdbcConnection} class.
+   */
+  public JdbcConnection wrap(Connection connection) {
+    Assert.notNull(connection, "Connection is required");
+    return new JdbcConnection(this, connection);
   }
 
   /**

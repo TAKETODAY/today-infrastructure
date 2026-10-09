@@ -18,8 +18,6 @@ package infra.jdbc;
 
 import com.google.common.collect.ImmutableList;
 
-import org.junit.jupiter.api.Disabled;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -1271,7 +1269,7 @@ class RepositoryManagerTests extends AbstractRepositoryManagerTests {
     try (JdbcConnection globalConnection = repositoryManager.beginTransaction()) {
       Connection globalTransaction = globalConnection.getNativeConnection();
 
-      JdbcConnection connection = repositoryManager.open(globalTransaction);
+      JdbcConnection connection = repositoryManager.wrap(globalTransaction);
       String sql = "insert into testExternalTransactionCommit(id, val) values (:id, :val);";
       connection.createNamedQuery(sql)
               .addParameter("id", 1)
@@ -1283,7 +1281,7 @@ class RepositoryManagerTests extends AbstractRepositoryManagerTests {
               .fetchFirst(Integer.class);
       assertThat(count).isEqualTo(1);
 
-      JdbcConnection connection3 = repositoryManager.open(globalTransaction);
+      JdbcConnection connection3 = repositoryManager.wrap(globalTransaction);
       String sql1 = "insert into testExternalTransactionCommit(id, val) values (:id, :val);";
       connection3.createNamedQuery(sql1)
               .addParameter("id", 2)
@@ -1307,7 +1305,6 @@ class RepositoryManagerTests extends AbstractRepositoryManagerTests {
 
   }
 
-  @Disabled
   @ParameterizedRepositoryManagerTest
   public void testExternalTransactionRollback(DbType dbType, RepositoryManager repositoryManager) {
     try (JdbcConnection connection1 = repositoryManager.open()) {
@@ -1318,17 +1315,17 @@ class RepositoryManagerTests extends AbstractRepositoryManagerTests {
     try (JdbcConnection globalConnection = repositoryManager.beginTransaction(Connection.TRANSACTION_SERIALIZABLE)) {
       Connection globalTransaction = globalConnection.getNativeConnection();
 
-      JdbcConnection connection = repositoryManager.open(globalTransaction);
+      JdbcConnection connection = repositoryManager.wrap(globalTransaction);
       String sql = "insert into testExternalTransactionRollback(id, val) values (:id, :val);";
       connection.createNamedQuery(sql).addParameter("id", 1).addParameter("val", "foo").executeUpdate();
       connection.close();
 
-      JdbcConnection connection2 = repositoryManager.open(globalTransaction);
+      JdbcConnection connection2 = repositoryManager.wrap(globalTransaction);
       int count = connection2.createNamedQuery("select count(*) from testExternalTransactionRollback")
               .fetchFirst(Integer.class);
       assertThat(count).isEqualTo(1);
 
-      JdbcConnection connection3 = repositoryManager.open(globalTransaction);
+      JdbcConnection connection3 = repositoryManager.wrap(globalTransaction);
       String sql2 = "insert into testExternalTransactionRollback(id, val) values (:id, :val);";
       connection3.createNamedQuery(sql2)
               .addParameter("id", 2)
@@ -1336,7 +1333,7 @@ class RepositoryManagerTests extends AbstractRepositoryManagerTests {
               .executeUpdate();
       connection3.close();
 
-      JdbcConnection connection4 = repositoryManager.open(globalTransaction);
+      JdbcConnection connection4 = repositoryManager.wrap(globalTransaction);
       int count1 = connection4.createNamedQuery("select count(*) from testExternalTransactionRollback")
               .fetchFirst(Integer.class);
       assertThat(count1).isEqualTo(2);

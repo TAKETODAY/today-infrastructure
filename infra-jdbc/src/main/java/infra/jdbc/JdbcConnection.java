@@ -63,6 +63,8 @@ public final class JdbcConnection implements Closeable, QueryProducer {
 
   final boolean autoClose;
 
+  private final boolean borrowed;
+
   private final HashSet<Statement> statements = new HashSet<>();
 
   private boolean rollbackOnException = true;
@@ -86,6 +88,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   public JdbcConnection(RepositoryManager manager, DataSource dataSource, boolean autoClose) {
     this.manager = manager;
     this.autoClose = autoClose;
+    this.borrowed = false;
     this.dataSource = dataSource;
     createConnection();
   }
@@ -101,7 +104,24 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   public JdbcConnection(RepositoryManager manager) {
     this.manager = manager;
     this.autoClose = false;
+    this.borrowed = false;
     this.dataSource = manager.getDataSource();
+  }
+
+  /**
+   * Create a wrapper borrowing an existing connection. Only statements registered
+   * with this wrapper are cleaned up on close; the caller retains responsibility
+   * for the supplied connection and its transaction lifecycle.
+   *
+   * @param manager the repository providing query configuration
+   * @param connection the existing connection to borrow
+   */
+  JdbcConnection(RepositoryManager manager, Connection connection) {
+    this.manager = manager;
+    this.dataSource = manager.getDataSource();
+    this.autoClose = false;
+    this.borrowed = true;
+    this.root = connection;
   }
 
   void onException(Throwable failure) {
@@ -523,14 +543,12 @@ public final class JdbcConnection implements Closeable, QueryProducer {
         failure = aggregate(failure, ex);
       }
     }
-    try {
-      manager.releaseConnection(root, dataSource, null, failure);
+    if (status == null || status.isCompleted()) {
+      transaction = null;
     }
-    finally {
-      if (status == null || status.isCompleted()) {
-        transaction = null;
-      }
-      closed = true;
+    closed = true;
+    if (!borrowed) {
+      manager.releaseConnection(root, dataSource, null, failure);
     }
     // The caller remains responsible for propagating an existing operation failure.
     if (operationFailure == null) {
@@ -584,8 +602,10 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    * driver connection. Acquiring it prevents a subsequent {@link #beginTransaction()}.
    *
    * <p>After this wrapper is closed, an already acquired connection is still
-   * returned for inspection, but has been released and must not be used for
-   * further work. It may remain physically open if owned by an external transaction.
+   * returned for inspection, but must not be used for further work through this
+   * wrapper. Acquired connections have been released; borrowed connections remain
+   * under the caller's ownership. A released connection may remain physically open
+   * if owned by an external transaction.
    * If no connection was acquired before closing, this method rejects acquisition.
    *
    * @return the acquired connection

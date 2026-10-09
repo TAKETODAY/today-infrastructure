@@ -40,10 +40,32 @@ import static org.mockito.Mockito.verify;
 class ResourceCloseFailureTests {
 
   @Test
+  void borrowedWrapperPreservesConnectionStateAndOwnership() throws SQLException {
+    Connection root = mock(Connection.class);
+    given(root.getAutoCommit()).willReturn(false);
+    given(root.getTransactionIsolation()).willReturn(Connection.TRANSACTION_SERIALIZABLE);
+    DataSource dataSource = mock(DataSource.class);
+    RepositoryManager manager = new RepositoryManager(dataSource);
+    JdbcConnection connection = manager.wrap(root);
+    assertThat(connection.getNativeConnection()).isSameAs(root);
+    assertThat(connection.getNativeConnection().getAutoCommit()).isFalse();
+    assertThat(connection.getNativeConnection().getTransactionIsolation())
+            .isEqualTo(Connection.TRANSACTION_SERIALIZABLE);
+    org.assertj.core.api.Assertions.assertThatThrownBy(connection::beginTransaction)
+            .isInstanceOf(infra.dao.InvalidDataAccessApiUsageException.class);
+    connection.close();
+    connection.close();
+    org.mockito.Mockito.verify(dataSource, org.mockito.Mockito.never()).getConnection();
+    org.mockito.Mockito.verify(root, org.mockito.Mockito.never()).close();
+    org.mockito.Mockito.verify(root, org.mockito.Mockito.never()).commit();
+    org.mockito.Mockito.verify(root, org.mockito.Mockito.never()).rollback();
+  }
+
+  @Test
   void borrowedWrapperRejectsExistingQueryAfterClose() throws SQLException {
     Connection root = mock(Connection.class);
     RepositoryManager manager = new RepositoryManager(mock(DataSource.class));
-    JdbcConnection connection = manager.open(root);
+    JdbcConnection connection = manager.wrap(root);
     Query query = connection.createQuery("select 1");
     NamedQuery namedQuery = connection.createNamedQuery("update items set id = 1");
     connection.close();
@@ -64,7 +86,7 @@ class ResourceCloseFailureTests {
     PreparedStatement statement = mock(PreparedStatement.class);
     given(root.prepareStatement("update items set id = 1")).willReturn(statement);
     RepositoryManager manager = new RepositoryManager(mock(DataSource.class));
-    JdbcConnection connection = manager.open(root);
+    JdbcConnection connection = manager.wrap(root);
     Query query = connection.createQuery("update items set id = 1");
     query.buildStatement();
     connection.close();
