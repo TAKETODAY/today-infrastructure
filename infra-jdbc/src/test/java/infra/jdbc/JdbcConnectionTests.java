@@ -47,7 +47,7 @@ class JdbcConnectionTests {
   @Test
   void closeIsIdempotentAndDoesNotAcquireAnUnusedConnection() throws SQLException {
     DataSource dataSource = mock(DataSource.class);
-    JdbcConnection connection = new JdbcConnection(new RepositoryManager(dataSource), dataSource);
+    JdbcConnection connection = new JdbcConnection(new RepositoryManager(dataSource));
     connection.close();
     connection.close();
     verify(dataSource, never()).getConnection();
@@ -202,9 +202,9 @@ class JdbcConnectionTests {
   @Test
   void shouldCreateJdbcConnectionWithoutAutoClose() {
     RepositoryManager manager = mock(RepositoryManager.class);
-    DataSource dataSource = mock(DataSource.class);
+    given(manager.getDataSource()).willReturn(mock(DataSource.class));
 
-    JdbcConnection connection = new JdbcConnection(manager, dataSource);
+    JdbcConnection connection = new JdbcConnection(manager);
 
     assertThat(connection).isNotNull();
     assertThat(connection.autoClose).isFalse();
@@ -213,9 +213,9 @@ class JdbcConnectionTests {
   @Test
   void shouldGetManager() {
     RepositoryManager manager = mock(RepositoryManager.class);
-    DataSource dataSource = mock(DataSource.class);
+    given(manager.getDataSource()).willReturn(mock(DataSource.class));
 
-    JdbcConnection connection = new JdbcConnection(manager, dataSource);
+    JdbcConnection connection = new JdbcConnection(manager);
 
     assertThat(connection.getManager()).isEqualTo(manager);
   }
@@ -223,9 +223,9 @@ class JdbcConnectionTests {
   @Test
   void shouldSetAndGetRollbackOnException() {
     RepositoryManager manager = mock(RepositoryManager.class);
-    DataSource dataSource = mock(DataSource.class);
+    given(manager.getDataSource()).willReturn(mock(DataSource.class));
 
-    JdbcConnection connection = new JdbcConnection(manager, dataSource);
+    JdbcConnection connection = new JdbcConnection(manager);
 
     assertThat(connection.isRollbackOnException()).isTrue();
 
@@ -239,9 +239,9 @@ class JdbcConnectionTests {
   @Test
   void shouldHandleOnExceptionWithRollback() {
     RepositoryManager manager = mock(RepositoryManager.class);
-    DataSource dataSource = mock(DataSource.class);
+    given(manager.getDataSource()).willReturn(mock(DataSource.class));
 
-    JdbcConnection connection = new JdbcConnection(manager, dataSource);
+    JdbcConnection connection = new JdbcConnection(manager);
     connection.setRollbackOnException(true);
 
     connection.onException(new SQLException("query failed"));

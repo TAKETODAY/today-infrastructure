@@ -42,7 +42,7 @@ class UpdateResultTests {
 
   private static JdbcConnection connection() {
     DataSource dataSource = mock(DataSource.class);
-    return new JdbcConnection(new RepositoryManager(dataSource), dataSource);
+    return new JdbcConnection(new RepositoryManager(dataSource));
   }
 
   @Test

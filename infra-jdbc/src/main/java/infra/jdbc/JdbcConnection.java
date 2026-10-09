@@ -92,16 +92,16 @@ public final class JdbcConnection implements Closeable, QueryProducer {
 
   /**
    * Create a wrapper with lazy connection acquisition and automatic closing disabled.
+   * Uses the repository manager's data source.
    * Use this constructor to start a transaction before acquiring its connection.
    *
    * @param manager the repository providing query configuration and transaction management
-   * @param dataSource the data source from which to acquire the connection
    * @see #beginTransaction(TransactionDefinition)
    */
-  public JdbcConnection(RepositoryManager manager, DataSource dataSource) {
+  public JdbcConnection(RepositoryManager manager) {
     this.manager = manager;
     this.autoClose = false;
-    this.dataSource = dataSource;
+    this.dataSource = manager.getDataSource();
   }
 
   void onException(Throwable failure) {

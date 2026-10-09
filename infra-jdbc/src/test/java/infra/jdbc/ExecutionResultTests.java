@@ -35,7 +35,7 @@ class ExecutionResultTests {
 
   @Test
   void shouldCreateNamedQuery() {
-    ExecutionResult executionResult = new TestExecutionResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
+    ExecutionResult executionResult = new TestExecutionResult(new JdbcConnection(repositoryManager));
 
     NamedQuery query = executionResult.createNamedQuery("SELECT * FROM users");
 
@@ -45,7 +45,7 @@ class ExecutionResultTests {
 
   @Test
   void shouldCreateNamedQueryWithGeneratedKeys() {
-    ExecutionResult executionResult = new TestExecutionResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
+    ExecutionResult executionResult = new TestExecutionResult(new JdbcConnection(repositoryManager));
 
     NamedQuery query = executionResult.createNamedQuery("INSERT INTO users (name) VALUES (:name)", true);
 
@@ -55,7 +55,7 @@ class ExecutionResultTests {
 
   @Test
   void shouldCreateNamedQueryWithColumnNames() {
-    ExecutionResult executionResult = new TestExecutionResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
+    ExecutionResult executionResult = new TestExecutionResult(new JdbcConnection(repositoryManager));
 
     NamedQuery query = executionResult.createNamedQuery("INSERT INTO users (name) VALUES (:name)", "id", "created_at");
 
@@ -65,7 +65,7 @@ class ExecutionResultTests {
 
   @Test
   void shouldGetRepositoryManager() {
-    ExecutionResult executionResult = new TestExecutionResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
+    ExecutionResult executionResult = new TestExecutionResult(new JdbcConnection(repositoryManager));
 
     RepositoryManager result = executionResult.getManager();
 
@@ -74,7 +74,7 @@ class ExecutionResultTests {
 
   @Test
   void shouldGetConnection() {
-    JdbcConnection connection = new JdbcConnection(repositoryManager, repositoryManager.getDataSource());
+    JdbcConnection connection = new JdbcConnection(repositoryManager);
     ExecutionResult executionResult = new TestExecutionResult(connection);
 
     JdbcConnection result = executionResult.getConnection();
@@ -84,7 +84,7 @@ class ExecutionResultTests {
 
   @Test
   void shouldTranslateException() throws SQLException {
-    ExecutionResult executionResult = new TestExecutionResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
+    ExecutionResult executionResult = new TestExecutionResult(new JdbcConnection(repositoryManager));
     SQLException sqlException = new SQLException("Test SQL exception");
 
     DataAccessException translatedException = executionResult.translateException("Test task", sqlException);
@@ -96,7 +96,7 @@ class ExecutionResultTests {
 
   @Test
   void shouldCreateQueryWithoutGeneratedKeys() {
-    ExecutionResult executionResult = new TestExecutionResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
+    ExecutionResult executionResult = new TestExecutionResult(new JdbcConnection(repositoryManager));
 
     Query query = executionResult.createQuery("SELECT * FROM users");
     assertThat(query).isNotNull();
@@ -104,7 +104,7 @@ class ExecutionResultTests {
 
   @Test
   void shouldCreateQueryWithGeneratedKeysFlag() {
-    ExecutionResult executionResult = new TestExecutionResult(new JdbcConnection(repositoryManager, repositoryManager.getDataSource()));
+    ExecutionResult executionResult = new TestExecutionResult(new JdbcConnection(repositoryManager));
 
     Query query = executionResult.createQuery("INSERT INTO users (name) VALUES (?)", true);
 
