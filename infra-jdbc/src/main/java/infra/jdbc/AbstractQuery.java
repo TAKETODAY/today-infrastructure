@@ -320,7 +320,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
     PreparedStatement prepared = this.preparedStatement;
     if (prepared != null) {
       connection.removeStatement(prepared);
-      connection.getManager().closeResource(prepared, querySQL, null);
+      closeResource(prepared, null);
     }
   }
 
@@ -1051,10 +1051,10 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
       throw ex;
     }
     finally {
-      connection.getManager().closeResource(rs, querySQL, failure);
+      closeResource(rs, failure);
       if (ps != null) {
         connection.removeStatement(ps);
-        connection.getManager().closeResource(ps, querySQL, failure);
+        closeResource(ps, failure);
       }
       closeConnectionIfNecessary();
     }
@@ -1444,6 +1444,10 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
     }
   }
 
+  private void closeResource(@Nullable AutoCloseable rs, @Nullable Throwable failure) {
+    connection.getManager().closeResource(rs, querySQL, failure);
+  }
+
   @Override
   public String toString() {
     return querySQL;
@@ -1512,7 +1516,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
     @Override
     public void close() {
       try {
-        connection.getManager().closeResource(resultSet, querySQL, null);
+        closeResource(resultSet, null);
       }
       finally {
         closeConnectionIfNecessary();

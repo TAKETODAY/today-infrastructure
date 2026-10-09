@@ -44,8 +44,16 @@ import static infra.util.ExceptionUtils.aggregate;
  * by this instance are completed through the repository's transaction manager.
  * Borrowed connections retain their owner's transaction lifecycle.
  *
+ * <p>Start a transaction through {@link #beginTransaction()} before acquiring
+ * the connection or creating queries. An unfinished transaction scope is rolled
+ * back on {@link #close()}; successful completion requires an explicit commit.
+ * Transaction propagation and physical connection ownership are handled by the
+ * configured transaction manager and {@link DataSourceUtils}.
+ *
  * <p>Instances are not thread-safe. Closing is idempotent; a closed instance
- * cannot create new queries or start transactions.
+ * cannot create or execute queries or start transactions.
+ *
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  */
 public final class JdbcConnection implements Closeable, QueryProducer {
 
@@ -65,6 +73,16 @@ public final class JdbcConnection implements Closeable, QueryProducer {
 
   private boolean closed;
 
+  /**
+   * Create a wrapper and immediately acquire a JDBC connection.
+   *
+   * @param manager the repository providing query configuration and transaction management
+   * @param dataSource the data source from which to acquire the connection
+   * @param autoClose whether query operations automatically close this wrapper
+   * when their resource lifecycle ends
+   * @throws CannotGetJdbcConnectionException if connection acquisition fails
+   * @see RepositoryManager#open(boolean)
+   */
   public JdbcConnection(RepositoryManager manager, DataSource dataSource, boolean autoClose) {
     this.manager = manager;
     this.autoClose = autoClose;
@@ -72,6 +90,14 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     createConnection();
   }
 
+  /**
+   * Create a wrapper with lazy connection acquisition and automatic closing disabled.
+   * Use this constructor to start a transaction before acquiring its connection.
+   *
+   * @param manager the repository providing query configuration and transaction management
+   * @param dataSource the data source from which to acquire the connection
+   * @see #beginTransaction(TransactionDefinition)
+   */
   public JdbcConnection(RepositoryManager manager, DataSource dataSource) {
     this.manager = manager;
     this.autoClose = false;
@@ -102,7 +128,12 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   }
 
   /**
-   * @throws DataAccessException Could not acquire a connection from data-source
+   * Create a query using JDBC positional parameters, without requesting generated keys.
+   *
+   * @param queryText the SQL to execute, using {@code ?} placeholders
+   * @return a query associated with this wrapper
+   * @throws InvalidDataAccessApiUsageException if this wrapper or its connection is closed
+   * @throws CannotGetJdbcConnectionException if connection acquisition fails
    * @see DataSource#getConnection()
    * @since 4.0
    */
@@ -112,7 +143,14 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   }
 
   /**
-   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
+   * Create a positional query, acquiring the connection if necessary.
+   * The prepared statement is created lazily when the query needs it.
+   *
+   * @param queryText the SQL to execute, using {@code ?} placeholders
+   * @param returnGeneratedKeys whether to request generated keys
+   * @return a query associated with this wrapper
+   * @throws InvalidDataAccessApiUsageException if this wrapper or its connection is closed
+   * @throws CannotGetJdbcConnectionException if connection acquisition fails
    * @see DataSource#getConnection()
    * @since 4.0
    */
@@ -123,7 +161,13 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   }
 
   /**
-   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
+   * Create a positional query requesting generated keys for the specified columns.
+   *
+   * @param queryText the SQL to execute, using {@code ?} placeholders
+   * @param columnNames the generated-key columns to request
+   * @return a query associated with this wrapper
+   * @throws InvalidDataAccessApiUsageException if this wrapper or its connection is closed
+   * @throws CannotGetJdbcConnectionException if connection acquisition fails
    * @see DataSource#getConnection()
    * @since 4.0
    */
@@ -133,7 +177,12 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   }
 
   /**
-   * @throws DataAccessException Could not acquire a connection from data-source
+   * Create a named-parameter query without requesting generated keys.
+   *
+   * @param queryText the SQL to execute, using named placeholders such as {@code :id}
+   * @return a named query associated with this wrapper
+   * @throws InvalidDataAccessApiUsageException if this wrapper or its connection is closed
+   * @throws CannotGetJdbcConnectionException if connection acquisition fails
    * @see DataSource#getConnection()
    */
   @Override
@@ -142,7 +191,14 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   }
 
   /**
-   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
+   * Create a named-parameter query, acquiring the connection if necessary.
+   * The prepared statement is created lazily when the query needs it.
+   *
+   * @param queryText the SQL to execute, using named placeholders such as {@code :id}
+   * @param returnGeneratedKeys whether to request generated keys
+   * @return a named query associated with this wrapper
+   * @throws InvalidDataAccessApiUsageException if this wrapper or its connection is closed
+   * @throws CannotGetJdbcConnectionException if connection acquisition fails
    * @see DataSource#getConnection()
    */
   @Override
@@ -152,7 +208,13 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   }
 
   /**
-   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
+   * Create a named-parameter query requesting generated keys for the specified columns.
+   *
+   * @param queryText the SQL to execute, using named placeholders such as {@code :id}
+   * @param columnNames the generated-key columns to request
+   * @return a named query associated with this wrapper
+   * @throws InvalidDataAccessApiUsageException if this wrapper or its connection is closed
+   * @throws CannotGetJdbcConnectionException if connection acquisition fails
    * @see DataSource#getConnection()
    */
   public NamedQuery createNamedQuery(String queryText, String... columnNames) {
@@ -180,7 +242,15 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   }
 
   /**
-   * use :p1, :p2, :p3 as the parameter name
+   * Create a named query and bind values to {@code :p1}, {@code :p2}, etc.
+   * Generated keys are not requested.
+   *
+   * @param queryText the SQL containing sequentially named parameters
+   * @param paramValues the values in parameter-name order, starting with {@code p1}
+   * @return the configured named query
+   * @throws InvalidDataAccessApiUsageException if this wrapper or its connection is closed
+   * @throws CannotGetJdbcConnectionException if connection acquisition fails
+   * @see NamedQuery#withParams(Object...)
    */
   public NamedQuery createNamedQueryWithParams(String queryText, Object... paramValues) {
     // due to #146, creating a query will not create a statement anymore
@@ -191,18 +261,13 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   }
 
   /**
-   * Start a transaction scope before acquiring the JDBC connection, according to
-   * the specified propagation behavior.
-   * <p>Note that parameters like isolation level or timeout will only be applied
-   * to new transactions, and thus be ignored when participating in active ones.
-   * <p>Furthermore, not all transaction definition settings will be supported
-   * by every transaction manager: A proper transaction manager implementation
-   * should throw an exception when unsupported settings are encountered.
-   * <p>An exception to the above rule is the read-only flag, which should be
-   * ignored if no explicit read-only mode is supported. Essentially, the
-   * read-only flag is just a hint for potential optimization.
+   * Start a transaction scope using the default transaction definition, then
+   * acquire its JDBC connection. May participate in an existing transaction.
    *
    * @return transaction status object representing the new or current transaction
+   * @throws InvalidDataAccessApiUsageException if this wrapper is closed, a scope
+   * already exists, the connection has been acquired, or the data sources differ
+   * @throws CannotGetJdbcConnectionException if connection acquisition fails
    * @throws TransactionException in case of lookup, creation, or system errors
    * @throws IllegalTransactionStateException if the given transaction definition
    * cannot be executed (for example, if a currently active transaction is in
@@ -211,14 +276,18 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    * @see TransactionDefinition#getIsolationLevel
    * @see TransactionDefinition#getTimeout
    * @see TransactionDefinition#isReadOnly
+   * @see #beginTransaction(TransactionDefinition)
    */
   public TransactionStatus beginTransaction() {
     return beginTransaction(TransactionDefinition.withDefaults());
   }
 
   /**
-   * Start a transaction scope before acquiring the JDBC connection, according to
-   * the specified propagation behavior.
+   * Start a transaction scope according to the specified propagation behavior,
+   * then acquire its JDBC connection. Requires an open wrapper with no existing
+   * scope or acquired connection, using the repository manager's data source.
+   * If connection acquisition fails, rollback is attempted and any rollback
+   * failure is suppressed on the acquisition failure.
    * <p>Note that parameters like isolation level or timeout will only be applied
    * to new transactions, and thus be ignored when participating in active ones.
    * <p>Furthermore, not all transaction definition settings will be supported
@@ -231,6 +300,9 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    * @param definition the TransactionDefinition instance (can be {@code null} for defaults),
    * describing propagation behavior, isolation level, timeout etc.
    * @return transaction status object representing the new or current transaction
+   * @throws InvalidDataAccessApiUsageException if this wrapper is closed, a scope
+   * already exists, the connection has been acquired, or the data sources differ
+   * @throws CannotGetJdbcConnectionException if connection acquisition fails
    * @throws TransactionException in case of lookup, creation, or system errors
    * @throws IllegalTransactionStateException if the given transaction definition
    * cannot be executed (for example, if a currently active transaction is in
@@ -270,23 +342,26 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     }
   }
 
+  /**
+   * Return the transaction status retained by this wrapper.
+   * Normally cleared after completion; may remain available after a failed
+   * completion if the transaction manager has not marked it completed.
+   *
+   * @return the retained status, or {@code null} if no scope is retained
+   */
   public @Nullable TransactionStatus getTransaction() {
     return transaction;
   }
 
   /**
-   * Undoes all changes made in the current transaction
-   * and releases any database locks currently held
-   * by this <code>Connection</code> object. This method should be
-   * used only when auto-commit mode has been disabled.
+   * Roll back this wrapper's transaction scope and close the wrapper.
    *
-   * @throws DataAccessException if a database access error occurs,
-   * this method is called while participating in a distributed transaction,
-   * this method is called on a closed connection or this
-   * <code>Connection</code> object is in auto-commit mode
+   * @return the associated repository manager
+   * @throws InvalidDataAccessApiUsageException if this wrapper is closed
    * @throws TransactionSystemException in case of rollback or system errors
    * (typically caused by fundamental resource failures)
    * @throws IllegalTransactionStateException if no active transaction scope exists
+   * @see #rollback(boolean)
    */
   public RepositoryManager rollback() {
     rollback(true);
@@ -294,15 +369,17 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   }
 
   /**
-   * Undoes all changes made in the current transaction
-   * and releases any database locks currently held
-   * by this <code>Connection</code> object. This method should be
-   * used only when auto-commit mode has been disabled.
+   * Roll back an active transaction scope started through this wrapper.
+   * Delegates to the transaction manager: a participating scope may mark the
+   * enclosing transaction rollback-only, and a nested scope may roll back to
+   * its savepoint, according to the manager's semantics.
    *
-   * @throws DataAccessException if a database access error occurs,
-   * this method is called while participating in a distributed transaction,
-   * this method is called on a closed connection or this
-   * <code>Connection</code> object is in auto-commit mode
+   * <p>If requested, closing is attempted even when rollback fails. Cleanup
+   * failures are suppressed on the rollback failure.
+   *
+   * @param closeConnection whether to close this wrapper after completion
+   * @return this wrapper
+   * @throws InvalidDataAccessApiUsageException if this wrapper is closed
    * @throws TransactionSystemException in case of rollback or system errors
    * (typically caused by fundamental resource failures)
    * @throws IllegalTransactionStateException if no active transaction scope exists
@@ -313,37 +390,28 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   }
 
   /**
-   * Makes all changes made since the previous
-   * commit/rollback permanent and releases any database locks
-   * currently held by this <code>Connection</code> object.
-   * This method should be
-   * used only when auto-commit mode has been disabled.
+   * Commit this wrapper's transaction scope and close the wrapper.
    *
-   * @throws DataAccessException if a database access error occurs,
-   * this method is called while participating in a distributed transaction,
-   * if this method is called on a closed connection or this
-   * <code>Connection</code> object is in auto-commit mode
+   * @throws InvalidDataAccessApiUsageException if this wrapper is closed
+   * @throws IllegalTransactionStateException if no active transaction scope exists
+   * @throws TransactionException if transaction completion fails
+   * @see #commit(boolean)
    */
   public void commit() {
     commit(true);
   }
 
   /**
-   * Makes all changes made since the previous
-   * commit/rollback permanent and releases any database locks
-   * currently held by this <code>Connection</code> object.
-   * This method should be
-   * used only when auto-commit mode has been disabled.
+   * Commit an active transaction scope started through this wrapper.
+   * Delegates to the configured transaction manager; completing a participating
+   * scope does not necessarily physically commit the enclosing transaction.
+   * A rollback-only scope may be rolled back instead of committed.
    *
-   * <p>Requires an active transaction scope started by this instance. Transaction
-   * completion is delegated to the configured transaction manager, including
-   * participation in an enclosing transaction.
+   * <p>If requested, closing is attempted even when commit fails. Cleanup
+   * failures are suppressed on the commit failure.
    *
-   * @param closeConnection close connection
-   * @throws DataAccessException if a database access error occurs,
-   * this method is called while participating in a distributed transaction,
-   * if this method is called on a closed connection or this
-   * <code>Connection</code> object is in auto-commit mode
+   * @param closeConnection whether to close this wrapper after completion
+   * @throws InvalidDataAccessApiUsageException if this wrapper is closed
    * @throws UnexpectedRollbackException in case of an unexpected rollback
    * that the transaction coordinator initiated
    * @throws HeuristicCompletionException in case of a transaction failure
@@ -420,8 +488,17 @@ public final class JdbcConnection implements Closeable, QueryProducer {
 
   /**
    * Close all registered statements, roll back this instance's unfinished
-   * transaction scope, and release the connection. Cleanup continues after
-   * failures and aggregates subsequent exceptions as suppressed exceptions.
+   * transaction scope, and release the connection. Resource close failures are
+   * reported through the repository manager. Transaction rollback failures are
+   * propagated, or suppressed on an existing operation failure.
+   *
+   * <p>Repeated calls have no effect. Releasing a connection respects external
+   * transaction ownership and data source close policies; it does not necessarily
+   * close the physical connection. Merely borrowing an external transaction's
+   * connection does not cause that transaction to be rolled back.
+   *
+   * @throws TransactionException if rollback of an unfinished scope fails
+   * @see RepositoryManager#getResourceCloseFailureListener()
    */
   @Override
   public void close() {
@@ -434,12 +511,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     }
     Throwable failure = operationFailure;
     for (Statement statement : statements) {
-      try {
-        manager.closeResource(statement, null, failure);
-      }
-      catch (Error error) {
-        failure = aggregate(failure, error);
-      }
+      manager.closeResource(statement, null, failure);
     }
     statements.clear();
     TransactionStatus status = transaction;
@@ -453,9 +525,6 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     }
     try {
       manager.releaseConnection(root, dataSource, null, failure);
-    }
-    catch (Error error) {
-      failure = aggregate(failure, error);
     }
     finally {
       if (status == null || status.isCompleted()) {
@@ -482,15 +551,48 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     this.root = DataSourceUtils.getConnection(dataSource);
   }
 
-  //
+  /**
+   * Return whether query failures reported to this wrapper trigger immediate
+   * rollback of its active transaction scope. Defaults to {@code true}.
+   *
+   * @return whether immediate rollback on reported query failures is enabled
+   */
   public boolean isRollbackOnException() {
     return rollbackOnException;
   }
 
+  /**
+   * Configure immediate rollback for query failures reported to this wrapper.
+   * A successful rollback completes and clears the current transaction scope;
+   * rollback failures are suppressed on the original query failure.
+   *
+   * <p>Disabling this option leaves transaction completion to the caller. It does
+   * not disable rollback of an unfinished scope on {@link #close()}, or guarantee
+   * that the database permits further work after a failed statement.
+   * This option does not affect an external transaction merely borrowed by this
+   * wrapper and is not a general exception policy for arbitrary application code.
+   *
+   * @param rollbackOnException whether to attempt immediate rollback
+   */
   public void setRollbackOnException(boolean rollbackOnException) {
     this.rollbackOnException = rollbackOnException;
   }
 
+  /**
+   * Return the acquired JDBC connection, acquiring it lazily if necessary.
+   * The returned connection may be a data source proxy rather than an unwrapped
+   * driver connection. Acquiring it prevents a subsequent {@link #beginTransaction()}.
+   *
+   * <p>After this wrapper is closed, an already acquired connection is still
+   * returned for inspection, but has been released and must not be used for
+   * further work. It may remain physically open if owned by an external transaction.
+   * If no connection was acquired before closing, this method rejects acquisition.
+   *
+   * @return the acquired connection
+   * @throws CannotGetJdbcConnectionException if connection acquisition fails
+   * @throws InvalidDataAccessApiUsageException if acquisition is required and
+   * this wrapper is closed
+   */
   public Connection getNativeConnection() {
     Connection connection = root;
     if (connection == null) {
@@ -503,6 +605,11 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     return connection;
   }
 
+  /**
+   * Return the repository manager associated with this wrapper.
+   *
+   * @return the repository manager
+   */
   public RepositoryManager getManager() {
     return manager;
   }
