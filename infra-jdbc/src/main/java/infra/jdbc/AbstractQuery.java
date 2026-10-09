@@ -356,7 +356,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
       statement = preparedStatement(connection.getNativeConnection(), allowArrayParameters);
       statement = LoggingPreparedStatement.wrap(statement, stmtLogger);
       this.preparedStatement = statement; // update
-      connection.registerStatement(statement, querySQL);
+      connection.registerStatement(statement);
     }
 
     postProcessStatement(statement);

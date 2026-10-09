@@ -22,9 +22,7 @@ import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -58,8 +56,6 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   final boolean autoClose;
 
   private final HashSet<Statement> statements = new HashSet<>();
-
-  private final Map<Statement, String> statementSql = new HashMap<>();
 
   private boolean rollbackOnException = true;
 
@@ -416,14 +412,8 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     statements.add(statement);
   }
 
-  void registerStatement(Statement statement, String sql) {
-    registerStatement(statement);
-    statementSql.put(statement, sql);
-  }
-
   void removeStatement(Statement statement) {
     statements.remove(statement);
-    statementSql.remove(statement);
   }
 
   // Closeable
@@ -445,14 +435,13 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     Throwable failure = operationFailure;
     for (Statement statement : statements) {
       try {
-        manager.closeResource(statement, statementSql.get(statement), failure);
+        manager.closeResource(statement, null, failure);
       }
       catch (Error error) {
         failure = aggregate(failure, error);
       }
     }
     statements.clear();
-    statementSql.clear();
     TransactionStatus status = transaction;
     if (status != null && !status.isCompleted()) {
       try {
