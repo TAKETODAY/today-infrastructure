@@ -67,6 +67,72 @@ class JdbcConnectionTests {
   }
 
   @Test
+  void createQueryDoesNotAcquireConnection() throws SQLException {
+    DataSource dataSource = mock(DataSource.class);
+    JdbcConnection connection = new JdbcConnection(new RepositoryManager(dataSource));
+    connection.createQuery("select 1");
+    connection.createNamedQuery("select :id");
+    verify(dataSource, never()).getConnection();
+    connection.close();
+  }
+
+  @Test
+  void createQueryDoesNotPreventBeginTransaction() throws SQLException {
+    DataSource dataSource = mock(DataSource.class);
+    given(dataSource.getConnection()).willReturn(mock(Connection.class));
+    PlatformTransactionManager transactionManager = mock(PlatformTransactionManager.class);
+    given(transactionManager.getTransaction(org.mockito.ArgumentMatchers.any()))
+            .willReturn(mock(TransactionStatus.class));
+    try (JdbcConnection connection = new JdbcConnection(new RepositoryManager(dataSource, transactionManager))) {
+      connection.createQuery("select 1");
+      assertThat(connection.beginTransaction()).isNotNull();
+    }
+  }
+
+  @Test
+  void getNativeConnectionLazilyAcquiresConnection() throws SQLException {
+    DataSource dataSource = mock(DataSource.class);
+    Connection root = mock(Connection.class);
+    given(dataSource.getConnection()).willReturn(root);
+    JdbcConnection connection = new JdbcConnection(new RepositoryManager(dataSource));
+    verify(dataSource, never()).getConnection();
+    assertThat(connection.getNativeConnection()).isSameAs(root);
+    verify(dataSource).getConnection();
+    connection.close();
+  }
+
+  @Test
+  void getNativeConnectionRejectsClosedConnection() throws SQLException {
+    DataSource dataSource = mock(DataSource.class);
+    Connection root = mock(Connection.class);
+    given(dataSource.getConnection()).willReturn(root);
+    given(root.isClosed()).willReturn(true);
+    JdbcConnection connection = new JdbcConnection(new RepositoryManager(dataSource), false);
+    assertThatThrownBy(connection::getNativeConnection)
+            .isInstanceOf(infra.dao.InvalidDataAccessApiUsageException.class);
+  }
+
+  @Test
+  void getNativeConnectionReturnsAcquiredConnectionAfterClose() throws SQLException {
+    DataSource dataSource = mock(DataSource.class);
+    Connection root = mock(Connection.class);
+    given(dataSource.getConnection()).willReturn(root);
+    JdbcConnection connection = new JdbcConnection(new RepositoryManager(dataSource), false);
+    connection.close();
+    assertThat(connection.getNativeConnection()).isSameAs(root);
+  }
+
+  @Test
+  void getNativeConnectionRejectsAcquisitionWhenClosedWithoutConnection() throws SQLException {
+    DataSource dataSource = mock(DataSource.class);
+    JdbcConnection connection = new JdbcConnection(new RepositoryManager(dataSource));
+    connection.close();
+    assertThatThrownBy(connection::getNativeConnection)
+            .isInstanceOf(infra.dao.InvalidDataAccessApiUsageException.class);
+    verify(dataSource, never()).getConnection();
+  }
+
+  @Test
   void closeAttemptsAllStatementsRollbackAndConnectionRelease() throws SQLException {
     DataSource dataSource = mock(DataSource.class);
     Connection root = mock(Connection.class);

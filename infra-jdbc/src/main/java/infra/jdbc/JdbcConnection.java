@@ -121,8 +121,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    *
    * @param queryText the SQL to execute, using {@code ?} placeholders
    * @return a query associated with this wrapper
-   * @throws InvalidDataAccessApiUsageException if this wrapper or its connection is closed
-   * @throws CannotGetJdbcConnectionException if connection acquisition fails
+   * @throws InvalidDataAccessApiUsageException if this wrapper is closed
    * @see DataSource#getConnection()
    * @since 4.0
    */
@@ -132,20 +131,19 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   }
 
   /**
-   * Create a positional query, acquiring the connection if necessary.
-   * The prepared statement is created lazily when the query needs it.
+   * Create a positional query. The prepared statement is created lazily when
+   * the query needs it.
    *
    * @param queryText the SQL to execute, using {@code ?} placeholders
    * @param returnGeneratedKeys whether to request generated keys
    * @return a query associated with this wrapper
-   * @throws InvalidDataAccessApiUsageException if this wrapper or its connection is closed
-   * @throws CannotGetJdbcConnectionException if connection acquisition fails
+   * @throws InvalidDataAccessApiUsageException if this wrapper is closed
    * @see DataSource#getConnection()
    * @since 4.0
    */
   @Override
   public Query createQuery(String queryText, boolean returnGeneratedKeys) {
-    createConnectionIfNecessary();
+    assertOpen();
     return new Query(this, queryText, returnGeneratedKeys);
   }
 
@@ -155,13 +153,12 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    * @param queryText the SQL to execute, using {@code ?} placeholders
    * @param columnNames the generated-key columns to request
    * @return a query associated with this wrapper
-   * @throws InvalidDataAccessApiUsageException if this wrapper or its connection is closed
-   * @throws CannotGetJdbcConnectionException if connection acquisition fails
+   * @throws InvalidDataAccessApiUsageException if this wrapper is closed
    * @see DataSource#getConnection()
    * @since 4.0
    */
   public Query createQuery(String queryText, String... columnNames) {
-    createConnectionIfNecessary();
+    assertOpen();
     return new Query(this, queryText, columnNames);
   }
 
@@ -170,8 +167,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    *
    * @param queryText the SQL to execute, using named placeholders such as {@code :id}
    * @return a named query associated with this wrapper
-   * @throws InvalidDataAccessApiUsageException if this wrapper or its connection is closed
-   * @throws CannotGetJdbcConnectionException if connection acquisition fails
+   * @throws InvalidDataAccessApiUsageException if this wrapper is closed
    * @see DataSource#getConnection()
    */
   @Override
@@ -180,19 +176,18 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   }
 
   /**
-   * Create a named-parameter query, acquiring the connection if necessary.
-   * The prepared statement is created lazily when the query needs it.
+   * Create a named-parameter query. The prepared statement is created lazily
+   * when the query needs it.
    *
    * @param queryText the SQL to execute, using named placeholders such as {@code :id}
    * @param returnGeneratedKeys whether to request generated keys
    * @return a named query associated with this wrapper
-   * @throws InvalidDataAccessApiUsageException if this wrapper or its connection is closed
-   * @throws CannotGetJdbcConnectionException if connection acquisition fails
+   * @throws InvalidDataAccessApiUsageException if this wrapper is closed
    * @see DataSource#getConnection()
    */
   @Override
   public NamedQuery createNamedQuery(String queryText, boolean returnGeneratedKeys) {
-    createConnectionIfNecessary();
+    assertOpen();
     return new NamedQuery(this, queryText, returnGeneratedKeys);
   }
 
@@ -202,26 +197,15 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    * @param queryText the SQL to execute, using named placeholders such as {@code :id}
    * @param columnNames the generated-key columns to request
    * @return a named query associated with this wrapper
-   * @throws InvalidDataAccessApiUsageException if this wrapper or its connection is closed
-   * @throws CannotGetJdbcConnectionException if connection acquisition fails
+   * @throws InvalidDataAccessApiUsageException if this wrapper is closed
    * @see DataSource#getConnection()
    */
   public NamedQuery createNamedQuery(String queryText, String... columnNames) {
-    createConnectionIfNecessary();
+    assertOpen();
     return new NamedQuery(this, queryText, columnNames);
   }
 
-  /**
-   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
-   * @see DataSource#getConnection()
-   */
-  private void createConnectionIfNecessary() {
-    assertOpen();
-    Connection connection = root;
-    if (connection == null) {
-      createConnection();
-      return;
-    }
+  private void assertUsable(Connection connection) {
     try {
       if (connection.isClosed()) {
         throw new InvalidDataAccessApiUsageException("JDBC connection is closed");
@@ -239,8 +223,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    * @param queryText the SQL containing sequentially named parameters
    * @param paramValues the values in parameter-name order, starting with {@code p1}
    * @return the configured named query
-   * @throws InvalidDataAccessApiUsageException if this wrapper or its connection is closed
-   * @throws CannotGetJdbcConnectionException if connection acquisition fails
+   * @throws InvalidDataAccessApiUsageException if this wrapper is closed
    * @see NamedQuery#withParams(Object...)
    */
   public NamedQuery createNamedQueryWithParams(String queryText, Object... paramValues) {
@@ -533,9 +516,11 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   /**
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
-  void createConnection() {
+  Connection createConnection() {
     assertOpen();
-    this.root = DataSourceUtils.getConnection(manager.getDataSource());
+    Connection connection = DataSourceUtils.getConnection(manager.getDataSource());
+    this.root = connection;
+    return connection;
   }
 
   /**
@@ -553,17 +538,15 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    * @return the acquired connection
    * @throws CannotGetJdbcConnectionException if connection acquisition fails
    * @throws InvalidDataAccessApiUsageException if acquisition is required and
-   * this wrapper is closed
+   * this wrapper is closed, or the acquired connection is closed
    */
   public Connection getNativeConnection() {
     Connection connection = root;
-    if (connection != null) {
-      return connection;
-    }
-    createConnectionIfNecessary();
-    connection = root;
     if (connection == null) {
-      throw new CannotGetJdbcConnectionException("JDBC connection has not been acquired");
+      return createConnection();
+    }
+    if (!closed) {
+      assertUsable(connection);
     }
     return connection;
   }
