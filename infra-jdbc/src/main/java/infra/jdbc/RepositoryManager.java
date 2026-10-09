@@ -31,8 +31,10 @@ import infra.core.conversion.support.DefaultConversionService;
 import infra.dao.DataAccessException;
 import infra.format.support.ApplicationConversionService;
 import infra.jdbc.ResourceCloseFailure.ResourceType;
+import infra.jdbc.datasource.DataSourceTransactionManager;
 import infra.jdbc.datasource.DataSourceUtils;
 import infra.jdbc.datasource.DriverManagerDataSource;
+import infra.jdbc.datasource.TransactionAwareDataSourceProxy;
 import infra.jdbc.parsing.QueryParameter;
 import infra.jdbc.parsing.SqlParameterParser;
 import infra.jdbc.support.JdbcAccessor;
@@ -114,10 +116,20 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    *
    * @param dataSource The DataSource RepositoryManager uses to
    * acquire connections to the database.
+   * @param transactionManager the transaction manager coordinating this data source
+   * @throws IllegalArgumentException if a JDBC transaction manager uses a different data source
    */
   public RepositoryManager(DataSource dataSource, PlatformTransactionManager transactionManager) {
     super(dataSource);
     Assert.notNull(transactionManager, "transactionManager is required");
+    DataSource transactionDataSource = dataSource;
+    if (transactionDataSource instanceof TransactionAwareDataSourceProxy proxy) {
+      transactionDataSource = proxy.getTargetDataSource();
+    }
+    if (transactionManager instanceof DataSourceTransactionManager jdbcManager) {
+      Assert.isTrue(jdbcManager.getDataSource() == transactionDataSource,
+              "Repository and transaction manager must use the same DataSource");
+    }
     this.transactionManager = transactionManager;
   }
 
