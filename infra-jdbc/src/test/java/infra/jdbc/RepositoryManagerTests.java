@@ -1230,7 +1230,6 @@ class RepositoryManagerTests extends AbstractRepositoryManagerTests {
     JdbcConnection connection = null;
     try {
       connection = repositoryManager.beginTransaction();
-      //connection.setRollbackOnClose(true);
       String sql = "insert into testTransactionAutoClosable(id, val) values (:id, :val);";
       connection.createNamedQuery(sql).addParameter("id", 1).addParameter("val", "foo")
               .executeUpdate();

@@ -61,8 +61,6 @@ public final class JdbcConnection implements Closeable, QueryProducer {
 
   private final Map<Statement, String> statementSql = new HashMap<>();
 
-  private boolean rollbackOnClose = true;
-
   private boolean rollbackOnException = true;
 
   private @Nullable Connection root;
@@ -434,9 +432,6 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    * Close all registered statements, roll back this instance's unfinished
    * transaction scope, and release the connection. Cleanup continues after
    * failures and aggregates subsequent exceptions as suppressed exceptions.
-   *
-   * @throws IllegalTransactionStateException if a transaction remains active and
-   * automatic rollback on close is disabled
    */
   @Override
   public void close() {
@@ -446,9 +441,6 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   private void close(@Nullable Throwable operationFailure) {
     if (closed) {
       return;
-    }
-    if (!rollbackOnClose && transaction != null && !transaction.isCompleted()) {
-      throw new IllegalTransactionStateException("Complete the transaction before closing when rollbackOnClose is disabled");
     }
     Throwable failure = operationFailure;
     for (Statement statement : statements) {
@@ -508,14 +500,6 @@ public final class JdbcConnection implements Closeable, QueryProducer {
 
   public void setRollbackOnException(boolean rollbackOnException) {
     this.rollbackOnException = rollbackOnException;
-  }
-
-  public boolean isRollbackOnClose() {
-    return rollbackOnClose;
-  }
-
-  public void setRollbackOnClose(boolean rollbackOnClose) {
-    this.rollbackOnClose = rollbackOnClose;
   }
 
   public Connection getNativeConnection() {

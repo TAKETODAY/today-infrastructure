@@ -196,7 +196,6 @@ class JdbcConnectionTests {
             .isInstanceOf(infra.transaction.TransactionException.class).hasCause(failure);
     assertThatThrownBy(() -> connection.rollback(false))
             .isInstanceOf(infra.transaction.IllegalTransactionStateException.class);
-    connection.setRollbackOnClose(false);
     connection.close();
   }
 
@@ -235,22 +234,6 @@ class JdbcConnectionTests {
 
     connection.setRollbackOnException(true);
     assertThat(connection.isRollbackOnException()).isTrue();
-  }
-
-  @Test
-  void shouldSetAndGetRollbackOnClose() {
-    RepositoryManager manager = mock(RepositoryManager.class);
-    DataSource dataSource = mock(DataSource.class);
-
-    JdbcConnection connection = new JdbcConnection(manager, dataSource);
-
-    assertThat(connection.isRollbackOnClose()).isTrue();
-
-    connection.setRollbackOnClose(false);
-    assertThat(connection.isRollbackOnClose()).isFalse();
-
-    connection.setRollbackOnClose(true);
-    assertThat(connection.isRollbackOnClose()).isTrue();
   }
 
   @Test
