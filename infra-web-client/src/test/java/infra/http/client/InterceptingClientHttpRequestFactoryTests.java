@@ -30,7 +30,7 @@ import java.util.List;
 
 import infra.http.HttpMethod;
 import infra.http.HttpRequest;
-import infra.http.client.support.DecoratingHttpRequest;
+import infra.http.client.support.DelegatingHttpRequest;
 import infra.web.testfixture.http.MockClientHttpRequest;
 import infra.web.testfixture.http.MockClientHttpResponse;
 
@@ -95,7 +95,7 @@ class InterceptingClientHttpRequestFactoryTests {
     final String otherValue = "Baz";
 
     ClientHttpRequestInterceptor interceptor = (request, body, execution) -> {
-      DecoratingHttpRequest wrapper = new DecoratingHttpRequest(request);
+      DelegatingHttpRequest wrapper = new DelegatingHttpRequest(request);
       wrapper.getHeaders().add(headerName, otherValue);
       return execution.execute(wrapper, body);
     };
@@ -141,7 +141,7 @@ class InterceptingClientHttpRequestFactoryTests {
   void updateRequestURI() throws Exception {
     final URI changedUri = URI.create("https://example.com/2");
 
-    ClientHttpRequestInterceptor interceptor = (request, body, execution) -> execution.execute(new DecoratingHttpRequest(request) {
+    ClientHttpRequestInterceptor interceptor = (request, body, execution) -> execution.execute(new DelegatingHttpRequest(request) {
       @Override
       public URI getURI() {
         return changedUri;
@@ -165,7 +165,7 @@ class InterceptingClientHttpRequestFactoryTests {
   void updateRequestMethod() throws Exception {
     final HttpMethod changedMethod = HttpMethod.POST;
 
-    ClientHttpRequestInterceptor interceptor = (request, body, execution) -> execution.execute(new DecoratingHttpRequest(request) {
+    ClientHttpRequestInterceptor interceptor = (request, body, execution) -> execution.execute(new DelegatingHttpRequest(request) {
       @Override
       public HttpMethod getMethod() {
         return changedMethod;

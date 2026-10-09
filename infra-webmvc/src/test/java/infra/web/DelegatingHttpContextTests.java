@@ -57,12 +57,12 @@ import static org.mockito.Mockito.when;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/10/9 16:21
  */
-class DecoratingHttpContextTests {
+class DelegatingHttpContextTests {
 
   @Test
   void getDelegate_ShouldReturnDelegateInstance() {
     HttpContext delegate = mock(HttpContext.class);
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     assertThat(wrapper.delegate()).isSameAs(delegate);
   }
@@ -70,8 +70,8 @@ class DecoratingHttpContextTests {
   @Test
   void equals_ShouldReturnTrue_ForSameDelegate() {
     HttpContext delegate = mock(HttpContext.class);
-    DecoratingHttpContext wrapper1 = new DecoratingHttpContext(delegate);
-    DecoratingHttpContext wrapper2 = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper1 = new DelegatingHttpContext(delegate);
+    DelegatingHttpContext wrapper2 = new DelegatingHttpContext(delegate);
 
     assertThat(wrapper1).isEqualTo(wrapper2);
   }
@@ -80,30 +80,30 @@ class DecoratingHttpContextTests {
   void equals_ShouldReturnFalse_ForDifferentDelegate() {
     HttpContext delegate1 = mock(HttpContext.class);
     HttpContext delegate2 = mock(HttpContext.class);
-    DecoratingHttpContext wrapper1 = new DecoratingHttpContext(delegate1);
-    DecoratingHttpContext wrapper2 = new DecoratingHttpContext(delegate2);
+    DelegatingHttpContext wrapper1 = new DelegatingHttpContext(delegate1);
+    DelegatingHttpContext wrapper2 = new DelegatingHttpContext(delegate2);
 
     assertThat(wrapper1).isNotEqualTo(wrapper2);
   }
 
   @Test
-  void equals_ShouldReturnFalse_ForNonDecoratingHttpContext() {
+  void equals_ShouldReturnFalse_ForNonDelegatingHttpContext() {
     HttpContext delegate = mock(HttpContext.class);
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     assertThat(wrapper).isNotEqualTo(delegate);
   }
 
   @Test
   void equals_ShouldReturnTrue_ForSameInstance() {
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(mock());
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(mock());
 
     assertThat(wrapper).isEqualTo(wrapper);
   }
 
   @Test
   void hashCode_ShouldReturnIdentityHashCode() {
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(mock(HttpContext.class));
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(mock(HttpContext.class));
 
     assertThat(wrapper.hashCode()).isEqualTo(System.identityHashCode(wrapper));
   }
@@ -113,7 +113,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.toString()).thenReturn("MockDelegate");
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     assertThat(wrapper.toString()).isEqualTo("Wrapper for MockDelegate");
   }
@@ -121,7 +121,7 @@ class DecoratingHttpContextTests {
   @Test
   void allMethodsShouldDelegateToWrappedInstance() throws IOException {
     HttpContext delegate = mock(HttpContext.class);
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     // Test a few representative methods
     wrapper.getRequestURI();
@@ -142,7 +142,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.getRequestTimeMillis()).thenReturn(12345L);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     long result = wrapper.getRequestTimeMillis();
 
@@ -156,7 +156,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.getApplicationContext()).thenReturn(applicationContext);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     ApplicationContext result = wrapper.getApplicationContext();
 
@@ -171,7 +171,7 @@ class DecoratingHttpContextTests {
     Charset charset = Charset.defaultCharset();
     when(delegate.getReader(charset)).thenReturn(reader);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     Reader result = wrapper.getReader(charset);
 
@@ -185,7 +185,7 @@ class DecoratingHttpContextTests {
     ReadableByteChannel channel = mock(ReadableByteChannel.class);
     when(delegate.readableChannel()).thenReturn(channel);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     ReadableByteChannel result = wrapper.readableChannel();
 
@@ -199,7 +199,7 @@ class DecoratingHttpContextTests {
     WritableByteChannel channel = mock(WritableByteChannel.class);
     when(delegate.writableChannel()).thenReturn(channel);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     WritableByteChannel result = wrapper.writableChannel();
 
@@ -212,7 +212,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.getScheme()).thenReturn("https");
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     String result = wrapper.getScheme();
 
@@ -225,7 +225,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.getServerPort()).thenReturn(8080);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     int result = wrapper.getServerPort();
 
@@ -238,7 +238,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.getServerName()).thenReturn("localhost");
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     String result = wrapper.getServerName();
 
@@ -252,7 +252,7 @@ class DecoratingHttpContextTests {
     URI uri = URI.create("http://localhost:8080/test");
     when(delegate.getURI()).thenReturn(uri);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     URI result = wrapper.getURI();
 
@@ -265,7 +265,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.isPreFlightRequest()).thenReturn(true);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     boolean result = wrapper.isPreFlightRequest();
 
@@ -278,7 +278,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.isCorsRequest()).thenReturn(true);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     boolean result = wrapper.isCorsRequest();
 
@@ -292,7 +292,7 @@ class DecoratingHttpContextTests {
     RequestPath requestPath = mock(RequestPath.class);
     when(delegate.getRequestPath()).thenReturn(requestPath);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     RequestPath result = wrapper.getRequestPath();
 
@@ -305,7 +305,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.getRequestURL()).thenReturn("http://localhost:8080/test");
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     String result = wrapper.getRequestURL();
 
@@ -318,7 +318,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.getQueryString()).thenReturn("param=value");
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     String result = wrapper.getQueryString();
 
@@ -332,7 +332,7 @@ class DecoratingHttpContextTests {
     HttpCookie[] cookies = new HttpCookie[0];
     when(delegate.getCookies()).thenReturn(cookies);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     HttpCookie[] result = wrapper.getCookies();
 
@@ -346,7 +346,7 @@ class DecoratingHttpContextTests {
     HttpCookie cookie = mock(HttpCookie.class);
     when(delegate.getCookie("test")).thenReturn(cookie);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     HttpCookie result = wrapper.getCookie("test");
 
@@ -359,7 +359,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     ResponseCookie cookie = mock(ResponseCookie.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.addCookie(cookie);
 
@@ -370,7 +370,7 @@ class DecoratingHttpContextTests {
   void addCookieWithNameAndValue_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.addCookie("name", "value");
 
@@ -383,7 +383,7 @@ class DecoratingHttpContextTests {
     List<ResponseCookie> cookies = new ArrayList<>();
     when(delegate.removeCookie("name")).thenReturn(cookies);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     List<ResponseCookie> result = wrapper.removeCookie("name");
 
@@ -396,7 +396,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.hasResponseCookie()).thenReturn(true);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     boolean result = wrapper.hasResponseCookie();
 
@@ -410,7 +410,7 @@ class DecoratingHttpContextTests {
     ArrayList<ResponseCookie> cookies = new ArrayList<>();
     when(delegate.responseCookies()).thenReturn(cookies);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     List<ResponseCookie> result = wrapper.responseCookies();
 
@@ -424,7 +424,7 @@ class DecoratingHttpContextTests {
     MultiValueMap<String, String> parameters = mock(MultiValueMap.class);
     when(delegate.getParameters()).thenReturn(parameters);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     MultiValueMap<String, String> result = wrapper.getParameters();
 
@@ -438,7 +438,7 @@ class DecoratingHttpContextTests {
     Set<String> parameterNames = Set.of("param1", "param2");
     when(delegate.getParameterNames()).thenReturn(parameterNames);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     Set<String> result = wrapper.getParameterNames();
 
@@ -452,7 +452,7 @@ class DecoratingHttpContextTests {
     String[] values = { "value1", "value2" };
     when(delegate.getParameters("param")).thenReturn(values);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     String[] result = wrapper.getParameters("param");
 
@@ -465,7 +465,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.getParameter("param")).thenReturn("value");
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     String result = wrapper.getParameter("param");
 
@@ -478,7 +478,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.getRemoteAddress()).thenReturn("192.168.1.1");
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     String result = wrapper.getRemoteAddress();
 
@@ -491,7 +491,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.getRemotePort()).thenReturn(12345);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     int result = wrapper.getRemotePort();
 
@@ -505,7 +505,7 @@ class DecoratingHttpContextTests {
     SocketAddress address = mock(SocketAddress.class);
     when(delegate.localAddress()).thenReturn(address);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     SocketAddress result = wrapper.localAddress();
 
@@ -519,7 +519,7 @@ class DecoratingHttpContextTests {
     InetSocketAddress address = mock(InetSocketAddress.class);
     when(delegate.remoteAddress()).thenReturn(address);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     InetSocketAddress result = wrapper.remoteAddress();
 
@@ -532,7 +532,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.getContentLength()).thenReturn(1024L);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     long result = wrapper.getContentLength();
 
@@ -546,7 +546,7 @@ class DecoratingHttpContextTests {
     InputStream body = mock(InputStream.class);
     when(delegate.getBody()).thenReturn(body);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     InputStream result = wrapper.getBody();
 
@@ -560,7 +560,7 @@ class DecoratingHttpContextTests {
     HttpHeaders headers = mock(HttpHeaders.class);
     when(delegate.getHeaders()).thenReturn(headers);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     HttpHeaders result = wrapper.getHeaders();
 
@@ -574,7 +574,7 @@ class DecoratingHttpContextTests {
     InputStream inputStream = mock(InputStream.class);
     when(delegate.getInputStream()).thenReturn(inputStream);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     InputStream result = wrapper.getInputStream();
 
@@ -588,7 +588,7 @@ class DecoratingHttpContextTests {
     java.io.BufferedReader reader = mock(java.io.BufferedReader.class);
     when(delegate.getReader()).thenReturn(reader);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     java.io.BufferedReader result = wrapper.getReader();
 
@@ -601,7 +601,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.isMultipart()).thenReturn(true);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     boolean result = wrapper.isMultipart();
 
@@ -614,7 +614,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.getContentTypeAsString()).thenReturn("application/json");
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     String result = wrapper.getContentTypeAsString();
 
@@ -628,7 +628,7 @@ class DecoratingHttpContextTests {
     HttpHeaders headers = mock(HttpHeaders.class);
     when(delegate.requestHeaders()).thenReturn(headers);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     HttpHeaders result = wrapper.requestHeaders();
 
@@ -642,7 +642,7 @@ class DecoratingHttpContextTests {
     Locale locale = Locale.ENGLISH;
     when(delegate.getLocale()).thenReturn(locale);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     Locale result = wrapper.getLocale();
 
@@ -655,7 +655,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.checkNotModified(12345L)).thenReturn(true);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     boolean result = wrapper.checkNotModified(12345L);
 
@@ -668,7 +668,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.checkNotModified("etag-value")).thenReturn(true);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     boolean result = wrapper.checkNotModified("etag-value");
 
@@ -681,7 +681,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.checkNotModified("etag-value", 12345L)).thenReturn(true);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     boolean result = wrapper.checkNotModified("etag-value", 12345L);
 
@@ -694,7 +694,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.isNotModified()).thenReturn(true);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     boolean result = wrapper.isNotModified();
 
@@ -706,7 +706,7 @@ class DecoratingHttpContextTests {
   void setContentLength_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.setContentLength(1024L);
 
@@ -718,7 +718,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.isCommitted()).thenReturn(true);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     boolean result = wrapper.isCommitted();
 
@@ -730,7 +730,7 @@ class DecoratingHttpContextTests {
   void reset_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.reset();
 
@@ -741,7 +741,7 @@ class DecoratingHttpContextTests {
   void sendRedirect_ShouldDelegateToDelegate() throws IOException {
     HttpContext delegate = mock(HttpContext.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.sendRedirect("http://example.com");
 
@@ -752,7 +752,7 @@ class DecoratingHttpContextTests {
   void setStatusWithInt_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.setStatus(200);
 
@@ -763,7 +763,7 @@ class DecoratingHttpContextTests {
   void setStatusWithHttpStatusCode_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.setStatus(HttpStatusCode.valueOf(200));
 
@@ -775,7 +775,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.getStatus()).thenReturn(200);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     int result = wrapper.getStatus();
 
@@ -787,7 +787,7 @@ class DecoratingHttpContextTests {
   void sendErrorWithHttpStatusCode_ShouldDelegateToDelegate() throws IOException {
     HttpContext delegate = mock(HttpContext.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.sendError(HttpStatus.NOT_FOUND);
 
@@ -798,7 +798,7 @@ class DecoratingHttpContextTests {
   void sendErrorWithHttpStatusCodeAndMessage_ShouldDelegateToDelegate() throws IOException {
     HttpContext delegate = mock(HttpContext.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.sendError(HttpStatus.NOT_FOUND, "Not found");
 
@@ -809,7 +809,7 @@ class DecoratingHttpContextTests {
   void sendErrorWithInt_ShouldDelegateToDelegate() throws IOException {
     HttpContext delegate = mock(HttpContext.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.sendError(404);
 
@@ -820,7 +820,7 @@ class DecoratingHttpContextTests {
   void sendErrorWithIntAndMessage_ShouldDelegateToDelegate() throws IOException {
     HttpContext delegate = mock(HttpContext.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.sendError(404, "Not found");
 
@@ -833,7 +833,7 @@ class DecoratingHttpContextTests {
     java.io.OutputStream outputStream = mock(java.io.OutputStream.class);
     when(delegate.getOutputStream()).thenReturn(outputStream);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     java.io.OutputStream result = wrapper.getOutputStream();
 
@@ -847,7 +847,7 @@ class DecoratingHttpContextTests {
     java.io.PrintWriter writer = mock(java.io.PrintWriter.class);
     when(delegate.getWriter()).thenReturn(writer);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     java.io.PrintWriter result = wrapper.getWriter();
 
@@ -859,7 +859,7 @@ class DecoratingHttpContextTests {
   void setContentTypeWithString_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.setContentType("text/html");
 
@@ -870,7 +870,7 @@ class DecoratingHttpContextTests {
   void setContentTypeWithMediaType_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.setContentType(MediaType.TEXT_HTML);
 
@@ -882,7 +882,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.getResponseContentType()).thenReturn("text/html");
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     String result = wrapper.getResponseContentType();
 
@@ -894,7 +894,7 @@ class DecoratingHttpContextTests {
   void setHeader_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.setHeader("Content-Type", "application/json");
 
@@ -905,7 +905,7 @@ class DecoratingHttpContextTests {
   void addHeader_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.addHeader("Cache-Control", "no-cache");
 
@@ -916,7 +916,7 @@ class DecoratingHttpContextTests {
   void removeHeader_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.removeHeader("Cache-Control");
 
@@ -928,7 +928,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.containsResponseHeader("Content-Type")).thenReturn(true);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     boolean result = wrapper.containsResponseHeader("Content-Type");
 
@@ -942,7 +942,7 @@ class DecoratingHttpContextTests {
     HttpHeaders headers = mock(HttpHeaders.class);
     when(delegate.responseHeaders()).thenReturn(headers);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     HttpHeaders result = wrapper.responseHeaders();
 
@@ -955,7 +955,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     HttpHeaders headers = mock(HttpHeaders.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.addHeaders(headers);
 
@@ -968,7 +968,7 @@ class DecoratingHttpContextTests {
     ServerHttpResponse response = mock(ServerHttpResponse.class);
     when(delegate.asHttpOutputMessage()).thenReturn(response);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     ServerHttpResponse result = wrapper.asHttpOutputMessage();
 
@@ -982,7 +982,7 @@ class DecoratingHttpContextTests {
     HandlerMatchingMetadata metadata = mock(HandlerMatchingMetadata.class);
     when(delegate.getMatchingMetadata()).thenReturn(metadata);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     HandlerMatchingMetadata result = wrapper.getMatchingMetadata();
 
@@ -995,7 +995,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     HandlerMatchingMetadata metadata = mock(HandlerMatchingMetadata.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.setMatchingMetadata(metadata);
 
@@ -1007,7 +1007,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.hasMatchingMetadata()).thenReturn(true);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     boolean result = wrapper.hasMatchingMetadata();
 
@@ -1020,7 +1020,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.getAttribute("key")).thenReturn("value");
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     Object result = wrapper.getAttribute("key");
 
@@ -1032,7 +1032,7 @@ class DecoratingHttpContextTests {
   void setAttribute_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.setAttribute("key", "value");
 
@@ -1044,7 +1044,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.removeAttribute("key")).thenReturn("value");
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     Object result = wrapper.removeAttribute("key");
 
@@ -1056,7 +1056,7 @@ class DecoratingHttpContextTests {
   void clearAttributes_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.clearAttributes();
 
@@ -1069,7 +1069,7 @@ class DecoratingHttpContextTests {
     String[] attributeNames = { "attr1", "attr2" };
     when(delegate.getAttributeNames()).thenReturn(attributeNames);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     String[] result = wrapper.getAttributeNames();
 
@@ -1081,7 +1081,7 @@ class DecoratingHttpContextTests {
   void flush_ShouldDelegateToDelegate() throws IOException {
     HttpContext delegate = mock(HttpContext.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.flush();
 
@@ -1094,7 +1094,7 @@ class DecoratingHttpContextTests {
     AsyncWebRequest asyncWebRequest = mock(AsyncWebRequest.class);
     when(delegate.asyncWebRequest()).thenReturn(asyncWebRequest);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     AsyncWebRequest result = wrapper.asyncWebRequest();
 
@@ -1107,7 +1107,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.isConcurrentHandlingStarted()).thenReturn(true);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     boolean result = wrapper.isConcurrentHandlingStarted();
 
@@ -1121,7 +1121,7 @@ class DecoratingHttpContextTests {
     MultipartRequest multipartRequest = mock(MultipartRequest.class);
     when(delegate.asMultipartRequest()).thenReturn(multipartRequest);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     MultipartRequest result = wrapper.asMultipartRequest();
 
@@ -1134,7 +1134,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     BindingContext bindingContext = mock(BindingContext.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.setBinding(bindingContext);
 
@@ -1147,7 +1147,7 @@ class DecoratingHttpContextTests {
     BindingContext bindingContext = mock(BindingContext.class);
     when(delegate.getBinding()).thenReturn(bindingContext);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     BindingContext result = wrapper.getBinding();
 
@@ -1161,7 +1161,7 @@ class DecoratingHttpContextTests {
     BindingContext bindingContext = mock(BindingContext.class);
     when(delegate.binding()).thenReturn(bindingContext);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     BindingContext result = wrapper.binding();
 
@@ -1174,7 +1174,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.hasBinding()).thenReturn(true);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     boolean result = wrapper.hasBinding();
 
@@ -1188,7 +1188,7 @@ class DecoratingHttpContextTests {
     RedirectModel redirectModel = mock(RedirectModel.class);
     when(delegate.getInputRedirectModel()).thenReturn(redirectModel);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     RedirectModel result = wrapper.getInputRedirectModel();
 
@@ -1203,7 +1203,7 @@ class DecoratingHttpContextTests {
     RedirectModelManager manager = mock(RedirectModelManager.class);
     when(delegate.getInputRedirectModel(manager)).thenReturn(redirectModel);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     RedirectModel result = wrapper.getInputRedirectModel(manager);
 
@@ -1216,7 +1216,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.hasAttribute("key")).thenReturn(true);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     boolean result = wrapper.hasAttribute("key");
 
@@ -1230,7 +1230,7 @@ class DecoratingHttpContextTests {
     Iterable<String> names = List.of("attr1", "attr2");
     when(delegate.attributeNames()).thenReturn(names);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     Iterable<String> result = wrapper.attributeNames();
 
@@ -1243,7 +1243,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     AttributeAccessor source = mock(AttributeAccessor.class);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     wrapper.copyAttributeFrom(source);
 
@@ -1255,7 +1255,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.hasAttributes()).thenReturn(true);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     boolean result = wrapper.hasAttributes();
 
@@ -1270,7 +1270,7 @@ class DecoratingHttpContextTests {
     attributes.put("key", "value");
     when(delegate.getAttributes()).thenReturn(attributes);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     java.util.Map<String, Object> result = wrapper.getAttributes();
 
@@ -1283,7 +1283,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.getMethod()).thenReturn(HttpMethod.GET);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     HttpMethod result = wrapper.getMethod();
 
@@ -1296,7 +1296,7 @@ class DecoratingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.getMethodAsString()).thenReturn("GET");
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     String result = wrapper.getMethodAsString();
 
@@ -1310,7 +1310,7 @@ class DecoratingHttpContextTests {
     HandlerMatchingMetadata metadata = mock(HandlerMatchingMetadata.class);
     when(delegate.matchingMetadata()).thenReturn(metadata);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     HandlerMatchingMetadata result = wrapper.matchingMetadata();
 
@@ -1324,7 +1324,7 @@ class DecoratingHttpContextTests {
     WebAsyncManager asyncManager = mock(WebAsyncManager.class);
     when(delegate.asyncManager()).thenReturn(asyncManager);
 
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     WebAsyncManager result = wrapper.asyncManager();
 

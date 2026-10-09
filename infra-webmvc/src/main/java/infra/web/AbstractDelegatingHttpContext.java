@@ -58,10 +58,8 @@ import infra.web.async.WebAsyncManager;
 import infra.web.multipart.MultipartRequest;
 
 /**
- * Abstract base class for {@link HttpContext} implementations that can be decorated
- * with additional functionality. This class delegates all method calls to an underlying
- * {@link HttpContext} instance, allowing for flexible extension and customization
- * of request processing behavior.
+ * Abstract base class that delegates all {@link HttpContext} calls to an
+ * underlying {@link HttpContext} instance.
  *
  * <p>Subclasses should implement the {@link #delegate()} method to provide the actual
  * {@link HttpContext} instance that will handle the delegated calls.
@@ -69,7 +67,7 @@ import infra.web.multipart.MultipartRequest;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2026/2/28 12:53
  */
-public abstract class DecorableHttpContext implements HttpContext {
+public abstract class AbstractDelegatingHttpContext implements HttpContext {
 
   @Override
   public long getRequestTimeMillis() {
@@ -690,7 +688,7 @@ public abstract class DecorableHttpContext implements HttpContext {
     if (this == o)
       return true;
 
-    return o instanceof DecorableHttpContext that
+    return o instanceof AbstractDelegatingHttpContext that
             && Objects.equals(delegate(), that.delegate());
   }
 

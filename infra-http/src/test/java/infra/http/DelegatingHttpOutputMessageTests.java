@@ -17,14 +17,14 @@ import static org.mockito.Mockito.when;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2026/2/1 10:08
  */
-class DecoratingHttpOutputMessageTests {
+class DelegatingHttpOutputMessageTests {
 
   @Test
   void shouldDelegateSupportsZeroCopy() {
     HttpOutputMessage mockDelegate = Mockito.mock(HttpOutputMessage.class);
     when(mockDelegate.supportsZeroCopy()).thenReturn(true);
 
-    DecoratingHttpOutputMessage message = new DecoratingHttpOutputMessage(mockDelegate);
+    DelegatingHttpOutputMessage message = new DelegatingHttpOutputMessage(mockDelegate);
 
     assertTrue(message.supportsZeroCopy());
     verify(mockDelegate).supportsZeroCopy();
@@ -35,7 +35,7 @@ class DecoratingHttpOutputMessageTests {
     HttpOutputMessage mockDelegate = Mockito.mock(HttpOutputMessage.class);
     HttpHeaders headers = Mockito.mock(HttpHeaders.class);
 
-    DecoratingHttpOutputMessage message = new DecoratingHttpOutputMessage(mockDelegate);
+    DelegatingHttpOutputMessage message = new DelegatingHttpOutputMessage(mockDelegate);
     message.setHeaders(headers);
 
     verify(mockDelegate).setHeaders(headers);
@@ -45,7 +45,7 @@ class DecoratingHttpOutputMessageTests {
   void shouldDelegateSetHeader() {
     HttpOutputMessage mockDelegate = Mockito.mock(HttpOutputMessage.class);
 
-    DecoratingHttpOutputMessage message = new DecoratingHttpOutputMessage(mockDelegate);
+    DelegatingHttpOutputMessage message = new DelegatingHttpOutputMessage(mockDelegate);
     message.setHeader("Content-Type", "application/json");
 
     verify(mockDelegate).setHeader("Content-Type", "application/json");
@@ -56,7 +56,7 @@ class DecoratingHttpOutputMessageTests {
     HttpOutputMessage mockDelegate = Mockito.mock(HttpOutputMessage.class);
     MediaType mediaType = Mockito.mock(MediaType.class);
 
-    DecoratingHttpOutputMessage message = new DecoratingHttpOutputMessage(mockDelegate);
+    DelegatingHttpOutputMessage message = new DelegatingHttpOutputMessage(mockDelegate);
     message.setContentType(mediaType);
 
     verify(mockDelegate).setContentType(mediaType);
@@ -66,7 +66,7 @@ class DecoratingHttpOutputMessageTests {
   void shouldDelegateSetContentLength() {
     HttpOutputMessage mockDelegate = Mockito.mock(HttpOutputMessage.class);
 
-    DecoratingHttpOutputMessage message = new DecoratingHttpOutputMessage(mockDelegate);
+    DelegatingHttpOutputMessage message = new DelegatingHttpOutputMessage(mockDelegate);
     message.setContentLength(1024L);
 
     verify(mockDelegate).setContentLength(1024L);
@@ -77,7 +77,7 @@ class DecoratingHttpOutputMessageTests {
     HttpOutputMessage mockDelegate = Mockito.mock(HttpOutputMessage.class);
     Path path = Mockito.mock(Path.class);
 
-    DecoratingHttpOutputMessage message = new DecoratingHttpOutputMessage(mockDelegate);
+    DelegatingHttpOutputMessage message = new DelegatingHttpOutputMessage(mockDelegate);
     message.sendFile(path, 0L, 100L);
 
     verify(mockDelegate).sendFile(path, 0L, 100L);
@@ -88,7 +88,7 @@ class DecoratingHttpOutputMessageTests {
     HttpOutputMessage mockDelegate = Mockito.mock(HttpOutputMessage.class);
     File file = Mockito.mock(File.class);
 
-    DecoratingHttpOutputMessage message = new DecoratingHttpOutputMessage(mockDelegate);
+    DelegatingHttpOutputMessage message = new DelegatingHttpOutputMessage(mockDelegate);
     message.sendFile(file, 0L, 100L);
 
     verify(mockDelegate).sendFile(file, 0L, 100L);
@@ -99,7 +99,7 @@ class DecoratingHttpOutputMessageTests {
     HttpOutputMessage mockDelegate = Mockito.mock(HttpOutputMessage.class);
     File file = Mockito.mock(File.class);
 
-    DecoratingHttpOutputMessage message = new DecoratingHttpOutputMessage(mockDelegate);
+    DelegatingHttpOutputMessage message = new DelegatingHttpOutputMessage(mockDelegate);
     message.sendFile(file);
 
     verify(mockDelegate).sendFile(file);
@@ -110,7 +110,7 @@ class DecoratingHttpOutputMessageTests {
     HttpOutputMessage mockDelegate = Mockito.mock(HttpOutputMessage.class);
     when(mockDelegate.removeHeader("Content-Type")).thenReturn(true);
 
-    DecoratingHttpOutputMessage message = new DecoratingHttpOutputMessage(mockDelegate);
+    DelegatingHttpOutputMessage message = new DelegatingHttpOutputMessage(mockDelegate);
     boolean result = message.removeHeader("Content-Type");
 
     assertTrue(result);
@@ -123,7 +123,7 @@ class DecoratingHttpOutputMessageTests {
     OutputStream outputStream = Mockito.mock(OutputStream.class);
     when(mockDelegate.getBody()).thenReturn(outputStream);
 
-    DecoratingHttpOutputMessage message = new DecoratingHttpOutputMessage(mockDelegate);
+    DelegatingHttpOutputMessage message = new DelegatingHttpOutputMessage(mockDelegate);
     OutputStream result = message.getBody();
 
     assertSame(outputStream, result);
@@ -135,7 +135,7 @@ class DecoratingHttpOutputMessageTests {
     HttpOutputMessage mockDelegate = Mockito.mock(HttpOutputMessage.class);
     HttpHeaders headers = Mockito.mock(HttpHeaders.class);
 
-    DecoratingHttpOutputMessage message = new DecoratingHttpOutputMessage(mockDelegate);
+    DelegatingHttpOutputMessage message = new DelegatingHttpOutputMessage(mockDelegate);
     message.addHeaders(headers);
 
     verify(mockDelegate).addHeaders(headers);
@@ -145,7 +145,7 @@ class DecoratingHttpOutputMessageTests {
   void shouldDelegateAddHeader() {
     HttpOutputMessage mockDelegate = Mockito.mock(HttpOutputMessage.class);
 
-    DecoratingHttpOutputMessage message = new DecoratingHttpOutputMessage(mockDelegate);
+    DelegatingHttpOutputMessage message = new DelegatingHttpOutputMessage(mockDelegate);
     message.addHeader("Authorization", "Bearer token");
 
     verify(mockDelegate).addHeader("Authorization", "Bearer token");

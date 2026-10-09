@@ -34,8 +34,8 @@ import infra.http.HttpMethod;
 import infra.http.reactive.client.ClientHttpConnector;
 import infra.http.reactive.client.ClientHttpRequest;
 import infra.http.reactive.client.ClientHttpResponse;
-import infra.http.reactive.client.DecoratingClientHttpRequest;
-import infra.http.reactive.client.DecoratingClientHttpResponse;
+import infra.http.reactive.client.DelegatingClientHttpRequest;
+import infra.http.reactive.client.DelegatingClientHttpResponse;
 import infra.util.Assert;
 import reactor.core.Scannable;
 import reactor.core.publisher.Flux;
@@ -212,9 +212,9 @@ class WiretapConnector implements ClientHttpConnector {
   }
 
   /**
-   * ClientHttpRequestDecorator that intercepts and saves the request body.
+   * DelegatingClientHttpRequest that intercepts and saves the request body.
    */
-  private static class WiretapClientHttpRequest extends DecoratingClientHttpRequest {
+  private static class WiretapClientHttpRequest extends DelegatingClientHttpRequest {
 
     @Nullable
     private WiretapRecorder recorder;
@@ -248,9 +248,9 @@ class WiretapConnector implements ClientHttpConnector {
   }
 
   /**
-   * ClientHttpResponseDecorator that intercepts and saves the response body.
+   * DelegatingClientHttpResponse that intercepts and saves the response body.
    */
-  private static class WiretapClientHttpResponse extends DecoratingClientHttpResponse {
+  private static class WiretapClientHttpResponse extends DelegatingClientHttpResponse {
 
     private final WiretapRecorder recorder;
 

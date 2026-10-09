@@ -24,8 +24,8 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 
 /**
- * A decorating implementation of {@link HttpOutputMessage} that delegates all
- * calls to a given {@link HttpOutputMessage} instance.
+ * A {@link HttpOutputMessage} implementation that delegates all calls to an
+ * underlying {@link HttpOutputMessage} instance.
  * <p>
  * This class follows the decorator pattern, allowing additional functionality
  * to be added to HTTP output messages without modifying their structure.
@@ -33,11 +33,11 @@ import java.nio.file.Path;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2026/1/12 16:21
  */
-public class DecoratingHttpOutputMessage extends DecoratingHttpMessage implements HttpOutputMessage {
+public class DelegatingHttpOutputMessage extends DelegatingHttpMessage implements HttpOutputMessage {
 
   private final HttpOutputMessage delegate;
 
-  protected DecoratingHttpOutputMessage(HttpOutputMessage delegate) {
+  protected DelegatingHttpOutputMessage(HttpOutputMessage delegate) {
     super(delegate);
     this.delegate = delegate;
   }

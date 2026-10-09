@@ -34,7 +34,7 @@ import infra.util.StreamUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-final class BufferingClientHttpResponseWrapper extends DecoratingClientHttpResponse {
+final class BufferingClientHttpResponseWrapper extends DelegatingClientHttpResponse {
 
   private volatile byte @Nullable [] body;
 

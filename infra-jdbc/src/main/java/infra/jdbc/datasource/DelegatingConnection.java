@@ -37,15 +37,19 @@ import java.util.Properties;
 import java.util.concurrent.Executor;
 
 /**
- * Simple {@link Connection wrapper}
+ * A {@link Connection} implementation that delegates all calls to an
+ * underlying connection.
+ *
+ * <p>Subclasses can override individual methods to customize behavior.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class WrappedConnection implements Connection {
+public class DelegatingConnection implements Connection {
+
   protected final Connection delegate;
 
-  public WrappedConnection(Connection delegate) {
+  public DelegatingConnection(Connection delegate) {
     this.delegate = delegate;
   }
 

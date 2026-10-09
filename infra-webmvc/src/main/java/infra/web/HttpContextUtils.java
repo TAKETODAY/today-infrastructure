@@ -924,7 +924,7 @@ public final class HttpContextUtils {
   /**
    * Factory that exposes the current request-context object on demand.
    */
-  private static final class InjectableHttpContext extends DecorableHttpContext {
+  private static final class InjectableHttpContext extends AbstractDelegatingHttpContext {
 
     @Override
     public HttpContext delegate() {

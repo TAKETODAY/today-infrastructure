@@ -26,7 +26,7 @@ import java.io.Writer;
 import java.nio.channels.WritableByteChannel;
 import java.util.Objects;
 
-import infra.core.io.DecoratingResource;
+import infra.core.io.DelegatingResource;
 import infra.core.io.Resource;
 import infra.core.io.WritableResource;
 
@@ -41,7 +41,7 @@ import infra.core.io.WritableResource;
  * @see OriginProvider
  * @since 4.0
  */
-public class OriginTrackedResource extends DecoratingResource implements Resource, OriginProvider {
+public class OriginTrackedResource extends DelegatingResource implements Resource, OriginProvider {
 
   @Nullable
   private final Origin origin;

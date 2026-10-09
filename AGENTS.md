@@ -42,7 +42,7 @@ Java 基础设施库，移植/演进自 Spring Framework（group `cn.taketoday`�
 
 ## 架构要点
 
-- `HttpContext` 是请求/响应总接口；`AbstractHttpContext` 是带字段缓存的骨架实现；`DecorableHttpContext` 无字段，纯委托给 `delegate()`
+- `HttpContext` 是请求/响应总接口；`AbstractHttpContext` 是带字段缓存的骨架实现；`AbstractDelegatingHttpContext` 无字段，纯委托给 `delegate()`
 - `BindingContext` 管理数据绑定与校验，`getErrors()` 在其上
 - CodeGraph 已索引（`.codegraph/`），**优先用 `codegraph_explore`**，其次才是 grep/Read
 

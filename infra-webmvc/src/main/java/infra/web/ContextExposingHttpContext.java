@@ -34,7 +34,7 @@ import infra.util.Assert;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/5 14:27
  */
-public class ContextExposingHttpContext extends DecoratingHttpContext {
+public class ContextExposingHttpContext extends DelegatingHttpContext {
 
   private final @Nullable Set<String> exposedContextBeanNames;
 

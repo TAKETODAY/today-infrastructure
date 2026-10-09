@@ -49,7 +49,7 @@ import infra.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import infra.jdbc.core.simple.JdbcClient;
 import infra.jdbc.datasource.ConnectionProxy;
 import infra.jdbc.datasource.DataSourceUtils;
-import infra.jdbc.datasource.WrappedConnection;
+import infra.jdbc.datasource.DelegatingConnection;
 import infra.jdbc.format.LoggingPreparedStatement;
 import infra.jdbc.support.JdbcAccessor;
 import infra.jdbc.support.JdbcUtils;
@@ -1595,7 +1595,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
    *
    * @see Connection#close()
    */
-  class CloseSuppressingConnectionProxy extends WrappedConnection implements ConnectionProxy {
+  class CloseSuppressingConnectionProxy extends DelegatingConnection implements ConnectionProxy {
 
     public CloseSuppressingConnectionProxy(Connection source) {
       super(source);

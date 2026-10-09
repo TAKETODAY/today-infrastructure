@@ -28,7 +28,7 @@ import java.net.URI;
 
 import infra.test.web.client.RootUriRequestExpectationManager;
 import infra.http.client.ClientHttpRequest;
-import infra.http.client.support.DecoratingHttpRequest;
+import infra.http.client.support.DelegatingHttpRequest;
 import infra.test.web.client.ExpectedCount;
 import infra.test.web.client.MockRestServiceServer;
 import infra.test.web.client.RequestExpectationManager;
@@ -104,7 +104,7 @@ class RootUriRequestExpectationManagerTests {
     given(request.getURI()).willReturn(new URI(this.uri + "/hello"));
     this.manager.validateRequest(request);
     URI expectedURI = new URI("/hello");
-    then(this.delegate).should().validateRequest(assertArg((actual) -> assertThat(actual).isInstanceOfSatisfying(DecoratingHttpRequest.class,
+    then(this.delegate).should().validateRequest(assertArg((actual) -> assertThat(actual).isInstanceOfSatisfying(DelegatingHttpRequest.class,
             (requestWrapper) -> {
               assertThat(requestWrapper.delegate()).isSameAs(request);
               assertThat(requestWrapper.getURI()).isEqualTo(expectedURI);

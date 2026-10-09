@@ -10,7 +10,8 @@ import java.util.Set;
 import infra.util.Assert;
 
 /**
- * A decorator for {@link HttpHeaders} that delegates all operations to an underlying instance.
+ * An {@link HttpHeaders} implementation that delegates all operations to an
+ * underlying {@link HttpHeaders} instance.
  * <p>This class allows for adding custom behavior to HTTP headers while maintaining the
  * original interface contract. Subclasses can override specific methods to intercept
  * or modify header operations.
@@ -18,11 +19,11 @@ import infra.util.Assert;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2026/6/1 15:04
  */
-public class DecoratingHttpHeaders extends HttpHeaders {
+public class DelegatingHttpHeaders extends HttpHeaders {
 
   protected final HttpHeaders delegate;
 
-  public DecoratingHttpHeaders(HttpHeaders delegate) {
+  public DelegatingHttpHeaders(HttpHeaders delegate) {
     Assert.notNull(delegate, "delegate is required");
     this.delegate = delegate;
   }

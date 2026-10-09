@@ -38,19 +38,19 @@ import static org.mockito.Mockito.when;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/10/6 13:52
  */
-class HttpRequestDecoratorTests {
+class DelegatingHttpRequestTests {
 
   @Test
   void constructorWithValidRequest() {
     HttpRequest request = mock(HttpRequest.class);
-    DecoratingHttpRequest decorator = new DecoratingHttpRequest(request);
+    DelegatingHttpRequest decorator = new DelegatingHttpRequest(request);
     assertThat(decorator.delegate()).isSameAs(request);
   }
 
   @Test
   void constructorWithNullRequestThrowsException() {
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> new DecoratingHttpRequest(null))
+            .isThrownBy(() -> new DelegatingHttpRequest(null))
             .withMessage("delegate is required");
   }
 
@@ -58,7 +58,7 @@ class HttpRequestDecoratorTests {
   void getMethodDelegatesToWrappedRequest() {
     HttpRequest request = mock(HttpRequest.class);
     when(request.getMethod()).thenReturn(HttpMethod.POST);
-    DecoratingHttpRequest decorator = new DecoratingHttpRequest(request);
+    DelegatingHttpRequest decorator = new DelegatingHttpRequest(request);
     assertThat(decorator.getMethod()).isEqualTo(HttpMethod.POST);
   }
 
@@ -66,7 +66,7 @@ class HttpRequestDecoratorTests {
   void getMethodAsStringDelegatesToWrappedRequest() {
     HttpRequest request = mock(HttpRequest.class);
     when(request.getMethodAsString()).thenReturn("POST");
-    DecoratingHttpRequest decorator = new DecoratingHttpRequest(request);
+    DelegatingHttpRequest decorator = new DelegatingHttpRequest(request);
     assertThat(decorator.getMethodAsString()).isEqualTo("POST");
   }
 
@@ -75,7 +75,7 @@ class HttpRequestDecoratorTests {
     HttpRequest request = mock(HttpRequest.class);
     URI uri = URI.create("http://example.com");
     when(request.getURI()).thenReturn(uri);
-    DecoratingHttpRequest decorator = new DecoratingHttpRequest(request);
+    DelegatingHttpRequest decorator = new DelegatingHttpRequest(request);
     assertThat(decorator.getURI()).isSameAs(uri);
   }
 
@@ -84,7 +84,7 @@ class HttpRequestDecoratorTests {
     HttpRequest request = mock(HttpRequest.class);
     HttpHeaders headers = HttpHeaders.forWritable();
     when(request.getHeaders()).thenReturn(headers);
-    DecoratingHttpRequest decorator = new DecoratingHttpRequest(request);
+    DelegatingHttpRequest decorator = new DelegatingHttpRequest(request);
     assertThat(decorator.getHeaders()).isSameAs(headers);
   }
 
@@ -93,7 +93,7 @@ class HttpRequestDecoratorTests {
     HttpRequest request = mock(HttpRequest.class);
     Map<String, Object> attributes = Map.of("key", "value");
     when(request.getAttributes()).thenReturn(attributes);
-    DecoratingHttpRequest decorator = new DecoratingHttpRequest(request);
+    DelegatingHttpRequest decorator = new DelegatingHttpRequest(request);
     assertThat(decorator.getAttributes()).isSameAs(attributes);
   }
 
@@ -101,7 +101,7 @@ class HttpRequestDecoratorTests {
   void setAttributesDelegatesToWrappedRequest() {
     HttpRequest request = mock(HttpRequest.class);
     Map<String, Object> attributes = Map.of("key", "value");
-    DecoratingHttpRequest decorator = new DecoratingHttpRequest(request);
+    DelegatingHttpRequest decorator = new DelegatingHttpRequest(request);
     decorator.setAttributes(attributes);
     verify(request).setAttributes(attributes);
   }
@@ -111,14 +111,14 @@ class HttpRequestDecoratorTests {
     HttpRequest request = mock(HttpRequest.class);
     Iterable<String> attributeNames = List.of("attr1", "attr2");
     when(request.attributeNames()).thenReturn(attributeNames);
-    DecoratingHttpRequest decorator = new DecoratingHttpRequest(request);
+    DelegatingHttpRequest decorator = new DelegatingHttpRequest(request);
     assertThat(decorator.attributeNames()).isSameAs(attributeNames);
   }
 
   @Test
   void clearAttributesDelegatesToWrappedRequest() {
     HttpRequest request = mock(HttpRequest.class);
-    DecoratingHttpRequest decorator = new DecoratingHttpRequest(request);
+    DelegatingHttpRequest decorator = new DelegatingHttpRequest(request);
     decorator.clearAttributes();
     verify(request).clearAttributes();
   }
@@ -128,7 +128,7 @@ class HttpRequestDecoratorTests {
     HttpRequest request = mock(HttpRequest.class);
     Function<String, String> computeFunction = s -> "computed";
     when(request.computeAttribute("name", computeFunction)).thenReturn("computed");
-    DecoratingHttpRequest decorator = new DecoratingHttpRequest(request);
+    DelegatingHttpRequest decorator = new DelegatingHttpRequest(request);
     assertThat(decorator.computeAttribute("name", computeFunction)).isEqualTo("computed");
   }
 
@@ -136,7 +136,7 @@ class HttpRequestDecoratorTests {
   void copyFromDelegatesToWrappedRequest() {
     HttpRequest request = mock(HttpRequest.class);
     AttributeAccessor source = mock(AttributeAccessor.class);
-    DecoratingHttpRequest decorator = new DecoratingHttpRequest(request);
+    DelegatingHttpRequest decorator = new DelegatingHttpRequest(request);
     decorator.copyAttributeFrom(source);
     verify(request).copyAttributeFrom(source);
   }
@@ -145,7 +145,7 @@ class HttpRequestDecoratorTests {
   void getAttributeDelegatesToWrappedRequest() {
     HttpRequest request = mock(HttpRequest.class);
     when(request.getAttribute("name")).thenReturn("value");
-    DecoratingHttpRequest decorator = new DecoratingHttpRequest(request);
+    DelegatingHttpRequest decorator = new DelegatingHttpRequest(request);
     assertThat(decorator.getAttribute("name")).isEqualTo("value");
   }
 
@@ -154,7 +154,7 @@ class HttpRequestDecoratorTests {
     HttpRequest request = mock(HttpRequest.class);
     String[] attributeNames = { "attr1", "attr2" };
     when(request.getAttributeNames()).thenReturn(attributeNames);
-    DecoratingHttpRequest decorator = new DecoratingHttpRequest(request);
+    DelegatingHttpRequest decorator = new DelegatingHttpRequest(request);
     assertThat(decorator.getAttributeNames()).isSameAs(attributeNames);
   }
 
@@ -162,7 +162,7 @@ class HttpRequestDecoratorTests {
   void hasAttributeDelegatesToWrappedRequest() {
     HttpRequest request = mock(HttpRequest.class);
     when(request.hasAttribute("name")).thenReturn(true);
-    DecoratingHttpRequest decorator = new DecoratingHttpRequest(request);
+    DelegatingHttpRequest decorator = new DelegatingHttpRequest(request);
     assertThat(decorator.hasAttribute("name")).isTrue();
   }
 
@@ -170,7 +170,7 @@ class HttpRequestDecoratorTests {
   void hasAttributesDelegatesToWrappedRequest() {
     HttpRequest request = mock(HttpRequest.class);
     when(request.hasAttributes()).thenReturn(true);
-    DecoratingHttpRequest decorator = new DecoratingHttpRequest(request);
+    DelegatingHttpRequest decorator = new DelegatingHttpRequest(request);
     assertThat(decorator.hasAttributes()).isTrue();
   }
 
@@ -178,14 +178,14 @@ class HttpRequestDecoratorTests {
   void removeAttributeDelegatesToWrappedRequest() {
     HttpRequest request = mock(HttpRequest.class);
     when(request.removeAttribute("name")).thenReturn("value");
-    DecoratingHttpRequest decorator = new DecoratingHttpRequest(request);
+    DelegatingHttpRequest decorator = new DelegatingHttpRequest(request);
     assertThat(decorator.removeAttribute("name")).isEqualTo("value");
   }
 
   @Test
   void setAttributeDelegatesToWrappedRequest() {
     HttpRequest request = mock(HttpRequest.class);
-    DecoratingHttpRequest decorator = new DecoratingHttpRequest(request);
+    DelegatingHttpRequest decorator = new DelegatingHttpRequest(request);
     decorator.setAttribute("name", "value");
     verify(request).setAttribute("name", "value");
   }

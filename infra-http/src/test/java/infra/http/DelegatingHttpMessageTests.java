@@ -30,12 +30,12 @@ import static org.mockito.Mockito.when;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/12/10 22:13
  */
-class DecoratingHttpMessageTests {
+class DelegatingHttpMessageTests {
 
   @Test
   void delegateReturnsWrappedHttpMessage() {
     HttpMessage mockHttpMessage = mock(HttpMessage.class);
-    DecoratingHttpMessage decorator = new DecoratingHttpMessage(mockHttpMessage);
+    DelegatingHttpMessage decorator = new DelegatingHttpMessage(mockHttpMessage);
 
     assertThat(decorator.delegate()).isEqualTo(mockHttpMessage);
   }
@@ -46,7 +46,7 @@ class DecoratingHttpMessageTests {
     HttpHeaders mockHeaders = HttpHeaders.forWritable();
     when(mockHttpMessage.getHeaders()).thenReturn(mockHeaders);
 
-    DecoratingHttpMessage decorator = new DecoratingHttpMessage(mockHttpMessage);
+    DelegatingHttpMessage decorator = new DelegatingHttpMessage(mockHttpMessage);
 
     assertThat(decorator.getHeaders()).isEqualTo(mockHeaders);
     verify(mockHttpMessage).getHeaders();
@@ -58,7 +58,7 @@ class DecoratingHttpMessageTests {
     when(mockHttpMessage.getHeader("Test-Header")).thenReturn("test-value");
     when(mockHttpMessage.getHeader("Non-Existent")).thenReturn(null);
 
-    DecoratingHttpMessage decorator = new DecoratingHttpMessage(mockHttpMessage);
+    DelegatingHttpMessage decorator = new DelegatingHttpMessage(mockHttpMessage);
 
     assertThat(decorator.getHeader("Test-Header")).isEqualTo("test-value");
     assertThat(decorator.getHeader("Non-Existent")).isNull();
@@ -73,7 +73,7 @@ class DecoratingHttpMessageTests {
     when(mockHttpMessage.getHeaders("Test-Header")).thenReturn(testHeaders);
     when(mockHttpMessage.getHeaders("Non-Existent")).thenReturn(List.of());
 
-    DecoratingHttpMessage decorator = new DecoratingHttpMessage(mockHttpMessage);
+    DelegatingHttpMessage decorator = new DelegatingHttpMessage(mockHttpMessage);
 
     assertThat(decorator.getHeaders("Test-Header")).containsExactly("value1", "value2");
     assertThat(decorator.getHeaders("Non-Existent")).isEmpty();
@@ -87,7 +87,7 @@ class DecoratingHttpMessageTests {
     Collection<String> headerNames = List.of("Header-One", "Header-Two");
     when(mockHttpMessage.getHeaderNames()).thenReturn(headerNames);
 
-    DecoratingHttpMessage decorator = new DecoratingHttpMessage(mockHttpMessage);
+    DelegatingHttpMessage decorator = new DelegatingHttpMessage(mockHttpMessage);
 
     assertThat(decorator.getHeaderNames()).containsExactlyInAnyOrder("Header-One", "Header-Two");
     verify(mockHttpMessage).getHeaderNames();
@@ -99,7 +99,7 @@ class DecoratingHttpMessageTests {
     MediaType testMediaType = MediaType.APPLICATION_JSON;
     when(mockHttpMessage.getContentType()).thenReturn(testMediaType);
 
-    DecoratingHttpMessage decorator = new DecoratingHttpMessage(mockHttpMessage);
+    DelegatingHttpMessage decorator = new DelegatingHttpMessage(mockHttpMessage);
 
     assertThat(decorator.getContentType()).isEqualTo(testMediaType);
     verify(mockHttpMessage).getContentType();
@@ -110,7 +110,7 @@ class DecoratingHttpMessageTests {
     HttpMessage mockHttpMessage = mock(HttpMessage.class);
     when(mockHttpMessage.getContentTypeAsString()).thenReturn("application/json;charset=UTF-8");
 
-    DecoratingHttpMessage decorator = new DecoratingHttpMessage(mockHttpMessage);
+    DelegatingHttpMessage decorator = new DelegatingHttpMessage(mockHttpMessage);
 
     assertThat(decorator.getContentTypeAsString()).isEqualTo("application/json;charset=UTF-8");
     verify(mockHttpMessage).getContentTypeAsString();
@@ -121,7 +121,7 @@ class DecoratingHttpMessageTests {
     HttpMessage mockHttpMessage = mock(HttpMessage.class);
     when(mockHttpMessage.getContentLength()).thenReturn(1024L);
 
-    DecoratingHttpMessage decorator = new DecoratingHttpMessage(mockHttpMessage);
+    DelegatingHttpMessage decorator = new DelegatingHttpMessage(mockHttpMessage);
 
     assertThat(decorator.getContentLength()).isEqualTo(1024L);
     verify(mockHttpMessage).getContentLength();
@@ -131,7 +131,7 @@ class DecoratingHttpMessageTests {
   void containsHeader() {
     HttpMessage mockHttpMessage = mock(HttpMessage.class);
     when(mockHttpMessage.containsHeader("name")).thenReturn(true);
-    DecoratingHttpMessage decorator = new DecoratingHttpMessage(mockHttpMessage);
+    DelegatingHttpMessage decorator = new DelegatingHttpMessage(mockHttpMessage);
 
     assertThat(decorator.containsHeader("name")).isEqualTo(true);
     verify(mockHttpMessage).containsHeader("name");
@@ -141,7 +141,7 @@ class DecoratingHttpMessageTests {
   void containsHeaderValue() {
     HttpMessage mockHttpMessage = mock(HttpMessage.class);
     when(mockHttpMessage.containsHeaderValue("name", "value")).thenReturn(true);
-    DecoratingHttpMessage decorator = new DecoratingHttpMessage(mockHttpMessage);
+    DelegatingHttpMessage decorator = new DelegatingHttpMessage(mockHttpMessage);
 
     assertThat(decorator.containsHeaderValue("name", "value")).isEqualTo(true);
     verify(mockHttpMessage).containsHeaderValue("name", "value");
@@ -151,9 +151,9 @@ class DecoratingHttpMessageTests {
   void toString_() {
     HttpMessage mockHttpMessage = mock(HttpMessage.class);
     when(mockHttpMessage.toString()).thenReturn("string");
-    DecoratingHttpMessage decorator = new DecoratingHttpMessage(mockHttpMessage);
+    DelegatingHttpMessage decorator = new DelegatingHttpMessage(mockHttpMessage);
 
-    assertThat(decorator.toString()).isEqualTo("DecoratingHttpMessage [delegate=string]");
+    assertThat(decorator.toString()).isEqualTo("DelegatingHttpMessage [delegate=string]");
   }
 
 }

@@ -254,7 +254,7 @@ class DefaultServerHttpRequestBuilder implements ServerHttpRequest.Builder {
 
     @Override
     public <T> T getNativeRequest() {
-      return DecoratingServerHttpRequest.getNativeRequest(this.originalRequest);
+      return DelegatingServerHttpRequest.getNativeRequest(this.originalRequest);
     }
 
     @Override

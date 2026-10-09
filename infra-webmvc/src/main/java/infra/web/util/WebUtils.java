@@ -32,7 +32,7 @@ import infra.session.Session;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
-import infra.web.DecorableHttpContext;
+import infra.web.AbstractDelegatingHttpContext;
 import infra.web.HttpContext;
 import infra.web.multipart.Part;
 
@@ -141,7 +141,7 @@ public abstract class WebUtils {
       if (requiredType.isInstance(request)) {
         return (T) request;
       }
-      else if (request instanceof DecorableHttpContext wrapper) {
+      else if (request instanceof AbstractDelegatingHttpContext wrapper) {
         return getNativeContext(wrapper.delegate(), requiredType);
       }
     }

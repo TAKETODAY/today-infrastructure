@@ -17,7 +17,8 @@
 package infra.web;
 
 /**
- * A {@link HttpContext} implementation that decorates another {@link HttpContext}.
+ * A {@link HttpContext} implementation that delegates all calls to an
+ * underlying {@link HttpContext} instance.
  *
  * <p>This class provides a base for request context decorators that wrap an existing
  * {@link HttpContext} instance and potentially enhance or modify its behavior.
@@ -25,11 +26,11 @@ package infra.web;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/6/13 23:38
  */
-public class DecoratingHttpContext extends DecorableHttpContext {
+public class DelegatingHttpContext extends AbstractDelegatingHttpContext {
 
   protected final HttpContext delegate;
 
-  public DecoratingHttpContext(HttpContext delegate) {
+  public DelegatingHttpContext(HttpContext delegate) {
     this.delegate = delegate;
   }
 

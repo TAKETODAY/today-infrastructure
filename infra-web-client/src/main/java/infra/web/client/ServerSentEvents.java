@@ -22,7 +22,7 @@ import java.util.function.Function;
 
 import infra.http.ServerSentEvent;
 import infra.http.client.ClientHttpResponse;
-import infra.http.client.DecoratingClientHttpResponse;
+import infra.http.client.DelegatingClientHttpResponse;
 
 /**
  * A container for {@link ServerSentEvent} instances that supports iteration.
@@ -33,7 +33,7 @@ import infra.http.client.DecoratingClientHttpResponse;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2026/5/10 15:00
  */
-public class ServerSentEvents<T extends @Nullable Object> extends DecoratingClientHttpResponse
+public class ServerSentEvents<T extends @Nullable Object> extends DelegatingClientHttpResponse
         implements Iterable<ServerSentEvent<T>> {
 
   private final ServerSentEventIterator<T> iterator;

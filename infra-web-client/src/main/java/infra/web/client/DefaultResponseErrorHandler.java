@@ -35,7 +35,7 @@ import infra.http.HttpRequest;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.client.ClientHttpResponse;
-import infra.http.client.DecoratingClientHttpResponse;
+import infra.http.client.DelegatingClientHttpResponse;
 import infra.http.converter.HttpMessageConverter;
 import infra.util.CollectionUtils;
 import infra.util.LogFormatUtils;
@@ -157,7 +157,7 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
     return resolvable -> {
       try {
         var extractor = new HttpMessageConverterExtractor<>(resolvable.getType(), messageConverters);
-        return extractor.extractData(new DecoratingClientHttpResponse(response) {
+        return extractor.extractData(new DelegatingClientHttpResponse(response) {
 
           @Override
           public InputStream getBody() {

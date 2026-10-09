@@ -93,7 +93,7 @@ class AuthHttpContextTests {
   @Test
   void getNativeContextUnwrapsDecoratorToFindAuthHttpContext() {
     HttpContext delegate = mock(HttpContext.class, withSettings().extraInterfaces(AuthHttpContext.class));
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     AuthHttpContext found = WebUtils.getNativeContext(wrapper, AuthHttpContext.class);
 
@@ -104,7 +104,7 @@ class AuthHttpContextTests {
   @Test
   void getNativeContextReturnsNullForPlainHttpContext() {
     HttpContext delegate = mock(HttpContext.class);
-    DecoratingHttpContext wrapper = new DecoratingHttpContext(delegate);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     AuthHttpContext found = WebUtils.getNativeContext(wrapper, AuthHttpContext.class);
 

@@ -22,19 +22,19 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * A decorating {@link HttpMessage} implementation that delegates
- * all calls to another {@link HttpMessage}.
+ * A {@link HttpMessage} implementation that delegates all calls to an
+ * underlying {@link HttpMessage} instance.
  * <p>Provides a convenient base for wrapping {@link HttpMessage} instances,
  * delegating all method calls to the wrapped instance by default.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/12/10 21:58
  */
-public class DecoratingHttpMessage implements HttpMessage {
+public class DelegatingHttpMessage implements HttpMessage {
 
   private final HttpMessage delegate;
 
-  protected DecoratingHttpMessage(HttpMessage delegate) {
+  protected DelegatingHttpMessage(HttpMessage delegate) {
     this.delegate = delegate;
   }
 

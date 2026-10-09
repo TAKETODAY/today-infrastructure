@@ -34,16 +34,19 @@ import infra.util.Assert;
 import infra.util.function.IOConsumer;
 
 /**
- * This class implements the Wrapper or Decorator pattern.
+ * A {@link Resource} implementation that delegates operations to an
+ * underlying {@link Resource} instance.
+ *
+ * <p>Subclasses can override individual methods to customize resource behavior.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/2 9:06
  */
-public class DecoratingResource implements Resource {
+public class DelegatingResource implements Resource {
 
   protected Resource delegate;
 
-  public DecoratingResource(Resource delegate) {
+  public DelegatingResource(Resource delegate) {
     Assert.notNull(delegate, "Resource delegate is required");
     this.delegate = delegate;
   }
@@ -182,7 +185,7 @@ public class DecoratingResource implements Resource {
     if (this == obj) {
       return true;
     }
-    if (obj instanceof DecoratingResource decorator) {
+    if (obj instanceof DelegatingResource decorator) {
       return Objects.equals(decorator.delegate, delegate);
     }
     return false;

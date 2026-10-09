@@ -350,7 +350,7 @@ public class SingleConnectionDataSource extends DriverManagerDataSource
   /**
    * Proxy that suppresses close calls on JDBC Connections.
    */
-  static class CloseSuppressingConnectionProxy extends WrappedConnection implements ConnectionProxy {
+  static class CloseSuppressingConnectionProxy extends DelegatingConnection implements ConnectionProxy {
 
     public CloseSuppressingConnectionProxy(Connection delegate) {
       super(delegate);

@@ -19,14 +19,14 @@ package infra.http.converter;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import infra.http.DecoratingHttpOutputMessage;
+import infra.http.DelegatingHttpOutputMessage;
 import infra.http.HttpOutputMessage;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2026/1/12 16:24
  */
-final class BodyHttpOutputMessage extends DecoratingHttpOutputMessage {
+final class BodyHttpOutputMessage extends DelegatingHttpOutputMessage {
 
   private final OutputStream body;
 

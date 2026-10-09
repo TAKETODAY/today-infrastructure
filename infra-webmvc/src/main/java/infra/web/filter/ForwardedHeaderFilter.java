@@ -37,7 +37,7 @@ import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.StringUtils;
-import infra.web.DecoratingHttpContext;
+import infra.web.DelegatingHttpContext;
 import infra.web.Filter;
 import infra.web.FilterChain;
 import infra.web.HttpContext;
@@ -229,7 +229,7 @@ public class ForwardedHeaderFilter implements Filter {
   /**
    * Hide "Forwarded" or "X-Forwarded-*" headers.
    */
-  private static class ForwardedHeaderRemovingRequest extends DecoratingHttpContext {
+  private static class ForwardedHeaderRemovingRequest extends DelegatingHttpContext {
 
     private final Set<String> headerNames;
 
@@ -434,7 +434,7 @@ public class ForwardedHeaderFilter implements Filter {
      * Constructor with required information.
      *
      * @param delegate supplier for the current
-     * {@link DecoratingHttpContext#delegate() delegate request} which
+     * {@link DelegatingHttpContext#delegate() delegate request} which
      * may change during a forward (for example, Tomcat.
      * @param baseUrl the host, scheme, and port based on forwarded headers
      * @param useForwardedPrefix whether to use "X-Forwarded-Prefix"

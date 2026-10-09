@@ -17,11 +17,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2026/6/1 15:23
  */
-class DecoratingHttpHeadersTests {
+class DelegatingHttpHeadersTests {
 
   @Test
   void constructor_withNullDelegate_shouldThrowException() {
-    assertThatThrownBy(() -> new DecoratingHttpHeaders(null))
+    assertThatThrownBy(() -> new DelegatingHttpHeaders(null))
             .isInstanceOf(IllegalArgumentException.class);
   }
 
@@ -31,7 +31,7 @@ class DecoratingHttpHeadersTests {
     delegate.add("Test-Header", "value1");
     delegate.add("Test-Header", "value2");
 
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     assertThat(headers.getFirst("Test-Header")).isEqualTo("value1");
   }
@@ -41,7 +41,7 @@ class DecoratingHttpHeadersTests {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
     delegate.add("Content-Type", "application/json");
 
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     assertThat(headers.getFirst("content-type")).isEqualTo("application/json");
     assertThat(headers.getFirst("CONTENT-TYPE")).isEqualTo("application/json");
@@ -50,7 +50,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void getFirst_withNonExistentHeader_shouldReturnNull() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     assertThat(headers.getFirst("Non-Existent")).isNull();
   }
@@ -58,7 +58,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void add_shouldDelegateToUnderlyingHeaders() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     headers.add("Test-Header", "value1");
     headers.add("Test-Header", "value2");
@@ -70,7 +70,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void add_withNullValue_shouldDelegateCorrectly() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     headers.add("Test-Header", (String) null);
 
@@ -81,7 +81,7 @@ class DecoratingHttpHeadersTests {
   void setHeader_withSingleValue_shouldDelegateToUnderlyingHeaders() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
     delegate.add("Test-Header", "old-value");
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     List<String> oldValues = headers.setHeader("Test-Header", "new-value");
 
@@ -93,7 +93,7 @@ class DecoratingHttpHeadersTests {
   void setHeader_withCollection_shouldDelegateToUnderlyingHeaders() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
     delegate.add("Test-Header", "old-value");
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     List<String> newValues = new ArrayList<>();
     newValues.add("new-value1");
@@ -108,7 +108,7 @@ class DecoratingHttpHeadersTests {
   void setHeader_withNullCollection_shouldRemoveHeader() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
     delegate.add("Test-Header", "value");
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     List<String> oldValues = headers.setHeader("Test-Header", (Collection<String>) null);
 
@@ -121,7 +121,7 @@ class DecoratingHttpHeadersTests {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
     delegate.add("Header-1", "value1");
     delegate.add("Header-2", "value2");
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     headers.clear();
 
@@ -134,7 +134,7 @@ class DecoratingHttpHeadersTests {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
     delegate.add("Header-1", "value");
     delegate.add("Header-2", "value");
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     assertThat(headers.size()).isEqualTo(2);
   }
@@ -142,7 +142,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void isEmpty_shouldReturnTrueWhenNoHeaders() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     assertThat(headers.isEmpty()).isTrue();
   }
@@ -151,7 +151,7 @@ class DecoratingHttpHeadersTests {
   void isEmpty_shouldReturnFalseWhenHasHeaders() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
     delegate.add("Test-Header", "value");
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     assertThat(headers.isEmpty()).isFalse();
   }
@@ -161,7 +161,7 @@ class DecoratingHttpHeadersTests {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
     delegate.add("Test-Header", "value1");
     delegate.add("Test-Header", "value2");
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     List<String> values = headers.get("Test-Header");
 
@@ -172,7 +172,7 @@ class DecoratingHttpHeadersTests {
   void get_withCaseInsensitiveName_shouldDelegateCorrectly() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
     delegate.add("Content-Type", "application/json");
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     assertThat(headers.get("content-type")).containsExactly("application/json");
     assertThat(headers.get("CONTENT-TYPE")).containsExactly("application/json");
@@ -181,7 +181,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void get_withNonExistentHeader_shouldReturnNull() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     assertThat(headers.get("Non-Existent")).isNull();
   }
@@ -191,7 +191,7 @@ class DecoratingHttpHeadersTests {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
     delegate.add("Test-Header", "value1");
     delegate.add("Test-Header", "value2");
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     List<String> removedValues = headers.remove("Test-Header");
 
@@ -203,7 +203,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void remove_withNonExistentHeader_shouldReturnNull() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     List<String> removedValues = headers.remove("Non-Existent");
 
@@ -215,7 +215,7 @@ class DecoratingHttpHeadersTests {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
     delegate.add("Header-1", "value");
     delegate.add("Header-2", "value");
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     Set<String> names = headers.names();
 
@@ -227,7 +227,7 @@ class DecoratingHttpHeadersTests {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
     delegate.add("Header-1", "value1");
     delegate.add("Header-2", "value2");
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     Set<Map.Entry<String, List<String>>> entries = headers.entries();
 
@@ -240,18 +240,18 @@ class DecoratingHttpHeadersTests {
   void toString_shouldIncludeClassNameAndDelegate() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
     delegate.add("Test-Header", "value");
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     String result = headers.toString();
 
-    assertThat(result).startsWith("DecoratingHttpHeaders [delegate=");
+    assertThat(result).startsWith("DelegatingHttpHeaders [delegate=");
     assertThat(result).endsWith("]");
   }
 
   @Test
   void toString_withSubclass_shouldIncludeSubclassName() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate) {
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate) {
       // Anonymous subclass
     };
 
@@ -263,7 +263,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void modificationsToDelegate_shouldReflectInDecorator() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     delegate.add("Test-Header", "value");
 
@@ -273,7 +273,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void modificationsThroughDecorator_shouldReflectInDelegate() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     headers.add("Test-Header", "value");
 
@@ -283,7 +283,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void multipleOperations_shouldMaintainConsistency() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     headers.add("Header-1", "value1");
     headers.add("Header-2", "value2");
@@ -298,7 +298,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void caseInsensitivity_shouldBePreserved() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     headers.add("Content-Type", "application/json");
 
@@ -310,7 +310,7 @@ class DecoratingHttpHeadersTests {
   void setHeader_caseInsensitive_shouldReplaceExisting() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
     delegate.add("Test-Header", "old-value");
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     List<String> oldValues = headers.setHeader("test-header", "new-value");
 
@@ -322,7 +322,7 @@ class DecoratingHttpHeadersTests {
   void remove_caseInsensitive_shouldRemoveHeader() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
     delegate.add("Test-Header", "value");
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     List<String> removedValues = headers.remove("test-header");
 
@@ -333,7 +333,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void emptyDecorator_shouldHaveZeroSize() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     assertThat(headers.size()).isEqualTo(0);
     assertThat(headers.isEmpty()).isTrue();
@@ -348,7 +348,7 @@ class DecoratingHttpHeadersTests {
     delegate.add("Header-2", "value2");
     delegate.add("Header-2", "value3");
 
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     assertThat(headers.size()).isEqualTo(2);
     assertThat(headers.get("Header-1")).containsExactly("value1");
@@ -358,7 +358,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void clear_onEmptyDecorator_shouldNotThrowException() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     assertThatNoException().isThrownBy(headers::clear);
     assertThat(headers.isEmpty()).isTrue();
@@ -367,7 +367,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void sequentialOperations_shouldMaintainState() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     headers.add("Header", "value1");
     headers.add("Header", "value2");
@@ -383,7 +383,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void names_shouldReturnLiveView() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     headers.add("Header-1", "value");
     Set<String> names1 = headers.names();
@@ -396,7 +396,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void entries_shouldReturnLiveView() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     headers.add("Header-1", "value1");
     Set<Map.Entry<String, List<String>>> entries1 = headers.entries();
@@ -410,7 +410,7 @@ class DecoratingHttpHeadersTests {
   void setHeader_withEmptyCollection_shouldRemoveHeader() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
     delegate.add("Test-Header", "value");
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     List<String> oldValues = headers.setHeader("Test-Header", new ArrayList<>());
 
@@ -422,7 +422,7 @@ class DecoratingHttpHeadersTests {
   void get_afterClear_shouldReturnNull() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
     delegate.add("Test-Header", "value");
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     headers.clear();
 
@@ -433,7 +433,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void size_afterAddAndRemove_shouldBeZero() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     headers.add("Header", "value");
     assertThat(headers.size()).isEqualTo(1);
@@ -445,7 +445,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void containsKey_shouldWorkThroughGet() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     headers.add("Test-Header", "value");
 
@@ -456,7 +456,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void multipleValues_shouldMaintainOrder() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     headers.add("Test-Header", "first");
     headers.add("Test-Header", "second");
@@ -470,7 +470,7 @@ class DecoratingHttpHeadersTests {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
     delegate.add("Test-Header", "value1");
     delegate.add("Test-Header", "value2");
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     List<String> oldValues = headers.setHeader("Test-Header", "single-value");
 
@@ -481,7 +481,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void delegateIdentity_shouldBePreserved() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     assertThat(headers.toString()).contains(delegate.toString());
   }
@@ -489,7 +489,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void concurrentModifications_shouldBeReflected() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     headers.add("Header-1", "value1");
     delegate.add("Header-2", "value2");
@@ -502,7 +502,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void nullHandling_inAdd_shouldBePreserved() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     headers.add("Header", (String) null);
 
@@ -513,7 +513,7 @@ class DecoratingHttpHeadersTests {
   void isEmpty_afterClear_shouldReturnTrue() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
     delegate.add("Header", "value");
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     headers.clear();
 
@@ -525,7 +525,7 @@ class DecoratingHttpHeadersTests {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
     delegate.add("Header-1", "value1");
     delegate.add("Header-2", "value2");
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     headers.setHeader("Header-1", "new-value");
 
@@ -535,7 +535,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void getFirst_withMultipleValues_shouldReturnFirstOnly() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     headers.add("Test-Header", "first");
     headers.add("Test-Header", "second");
@@ -547,7 +547,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void entries_iteration_shouldProvideAllData() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     headers.add("Header-1", "value1");
     headers.add("Header-2", "value2");
@@ -566,7 +566,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void names_iteration_shouldProvideAllNames() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     headers.add("Header-1", "value");
     headers.add("Header-2", "value");
@@ -582,7 +582,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void complexScenario_addRemoveAdd_shouldWorkCorrectly() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     headers.add("Header", "value1");
     assertThat(headers.get("Header")).containsExactly("value1");
@@ -598,7 +598,7 @@ class DecoratingHttpHeadersTests {
   void setHeader_withSameValue_shouldStillReturnOldValues() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
     delegate.add("Test-Header", "value");
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     List<String> oldValues = headers.setHeader("Test-Header", "value");
 
@@ -610,7 +610,7 @@ class DecoratingHttpHeadersTests {
   void toString_multipleTimes_shouldBeConsistent() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
     delegate.add("Header", "value");
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     String toString1 = headers.toString();
     String toString2 = headers.toString();
@@ -621,7 +621,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void delegateChanges_shouldAffectDecoratorImmediately() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     delegate.add("Header", "value1");
     assertThat(headers.getFirst("Header")).isEqualTo("value1");
@@ -636,7 +636,7 @@ class DecoratingHttpHeadersTests {
   @Test
   void allMethods_shouldWorkAfterMultipleOperations() {
     DefaultHttpHeaders delegate = new DefaultHttpHeaders();
-    DecoratingHttpHeaders headers = new DecoratingHttpHeaders(delegate);
+    DelegatingHttpHeaders headers = new DelegatingHttpHeaders(delegate);
 
     headers.add("H1", "v1");
     headers.add("H2", "v2");

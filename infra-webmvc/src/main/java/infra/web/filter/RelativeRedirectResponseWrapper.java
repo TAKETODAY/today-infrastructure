@@ -23,7 +23,7 @@ import java.io.IOException;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
 import infra.util.Assert;
-import infra.web.DecoratingHttpContext;
+import infra.web.DelegatingHttpContext;
 import infra.web.HttpContext;
 
 /**
@@ -34,7 +34,7 @@ import infra.web.HttpContext;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-final class RelativeRedirectResponseWrapper extends DecoratingHttpContext {
+final class RelativeRedirectResponseWrapper extends DelegatingHttpContext {
 
   private final HttpStatusCode redirectStatus;
 

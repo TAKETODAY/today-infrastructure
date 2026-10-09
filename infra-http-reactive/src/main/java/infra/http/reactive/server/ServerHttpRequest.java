@@ -100,7 +100,7 @@ public interface ServerHttpRequest extends HttpRequest, ReactiveHttpInputMessage
 
   /**
    * Return a builder to mutate properties of this request by wrapping it
-   * with {@link DecoratingServerHttpRequest} and returning either mutated
+   * with {@link DelegatingServerHttpRequest} and returning either mutated
    * values or delegating back to this instance.
    */
   default Builder mutate() {

@@ -6,7 +6,7 @@ import org.mockito.Mockito;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
-import infra.web.DecoratingHttpContext;
+import infra.web.DelegatingHttpContext;
 import infra.web.HttpContext;
 import infra.web.mock.MockFilterChain;
 import infra.web.mock.MockHttpContext;
@@ -82,7 +82,7 @@ class RelativeRedirectFilterTests {
     assertThat(current).isSameAs(wrapped1);
 
     chain.reset();
-    HttpContext wrapped2 = new DecoratingHttpContext(wrapped1);
+    HttpContext wrapped2 = new DelegatingHttpContext(wrapped1);
     this.filter.doFilter(wrapped2, chain);
     current = chain.getContext();
     assertThat(current).isSameAs(wrapped2);
