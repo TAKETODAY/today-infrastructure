@@ -353,7 +353,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
     PreparedStatement statement = this.preparedStatement;
     if (statement == null) {
       JdbcConnection connection = getConnection();
-      statement = preparedStatement(connection.getJdbcConnection(), allowArrayParameters);
+      statement = preparedStatement(connection.getNativeConnection(), allowArrayParameters);
       statement = LoggingPreparedStatement.wrap(statement, stmtLogger);
       this.preparedStatement = statement; // update
       connection.registerStatement(statement, querySQL);

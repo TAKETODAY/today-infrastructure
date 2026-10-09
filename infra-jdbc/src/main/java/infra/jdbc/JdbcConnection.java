@@ -518,7 +518,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     this.rollbackOnClose = rollbackOnClose;
   }
 
-  public Connection getJdbcConnection() {
+  public Connection getNativeConnection() {
     Connection connection = root;
     if (connection == null) {
       createConnectionIfNecessary();

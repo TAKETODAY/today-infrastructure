@@ -499,7 +499,7 @@ public class DefaultEntityManager implements EntityManager {
           PreparedBatch batch = statements.get(key);
           if (batch == null) {
             String sql = insertStatement(entityMetadata, properties);
-            batch = new PreparedBatch(transaction.getJdbcConnection(), sql, entityMetadata,
+            batch = new PreparedBatch(transaction.getNativeConnection(), sql, entityMetadata,
                     properties, generatedKeys, BatchOperation.INSERT);
             statements.put(key, batch);
           }
@@ -744,7 +744,7 @@ public class DefaultEntityManager implements EntityManager {
           PreparedBatch batch = statements.get(key);
           if (batch == null) {
             String sql = updateStatement(metadata, properties, idProperty);
-            batch = new PreparedBatch(transaction.getJdbcConnection(), sql, metadata,
+            batch = new PreparedBatch(transaction.getNativeConnection(), sql, metadata,
                     properties, false, BatchOperation.UPDATE);
             statements.put(key, batch);
           }

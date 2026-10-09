@@ -417,7 +417,7 @@ class RepositoryManagerTests extends AbstractRepositoryManagerTests {
                     .executeUpdate()
                     .getConnection();
 
-    assertThat(connection.getJdbcConnection().isClosed()).isTrue();
+    assertThat(connection.getNativeConnection().isClosed()).isTrue();
 
     String insQuery = "insert into testUpdateNoTransaction(id, val) values (:id, :value)";
     repositoryManager.createNamedQuery(insQuery)
@@ -429,7 +429,7 @@ class RepositoryManagerTests extends AbstractRepositoryManagerTests {
             .addParameter("value", "val2")
             .executeUpdate();
 
-    assertThat(connection.getJdbcConnection().isClosed()).isTrue();
+    assertThat(connection.getNativeConnection().isClosed()).isTrue();
   }
 
   @ParameterizedRepositoryManagerTest
@@ -1199,7 +1199,7 @@ class RepositoryManagerTests extends AbstractRepositoryManagerTests {
       }
     }
 
-    assertThat(con.getJdbcConnection().isClosed()).isTrue();
+    assertThat(con.getNativeConnection().isClosed()).isTrue();
   }
 
   @ParameterizedRepositoryManagerTest
@@ -1215,11 +1215,11 @@ class RepositoryManagerTests extends AbstractRepositoryManagerTests {
       }
 
       // still in autoClosable scope. Expecting connection to be open.
-      assertThat(q.getConnection().getJdbcConnection().isClosed()).isFalse();
+      assertThat(q.getConnection().getNativeConnection().isClosed()).isFalse();
     }
     // simulate autoClose.
     // simulated autoClosable scope exited. Expecting connection to be closed.
-    assertThat(q.getConnection().getJdbcConnection().isClosed()).isTrue();
+    assertThat(q.getConnection().getNativeConnection().isClosed()).isTrue();
   }
 
   @ParameterizedRepositoryManagerTest
@@ -1270,7 +1270,7 @@ class RepositoryManagerTests extends AbstractRepositoryManagerTests {
     }
 
     try (JdbcConnection globalConnection = repositoryManager.beginTransaction()) {
-      Connection globalTransaction = globalConnection.getJdbcConnection();
+      Connection globalTransaction = globalConnection.getNativeConnection();
 
       JdbcConnection connection = repositoryManager.open(globalTransaction);
       String sql = "insert into testExternalTransactionCommit(id, val) values (:id, :val);";
@@ -1317,7 +1317,7 @@ class RepositoryManagerTests extends AbstractRepositoryManagerTests {
     }
 
     try (JdbcConnection globalConnection = repositoryManager.beginTransaction(Connection.TRANSACTION_SERIALIZABLE)) {
-      Connection globalTransaction = globalConnection.getJdbcConnection();
+      Connection globalTransaction = globalConnection.getNativeConnection();
 
       JdbcConnection connection = repositoryManager.open(globalTransaction);
       String sql = "insert into testExternalTransactionRollback(id, val) values (:id, :val);";
@@ -1359,16 +1359,16 @@ class RepositoryManagerTests extends AbstractRepositoryManagerTests {
 
     createAndFillUserTable(connection);
 
-    assertThat(connection.getJdbcConnection().isClosed()).isFalse();
+    assertThat(connection.getNativeConnection().isClosed()).isFalse();
 
     List<User> users = connection.createNamedQuery("select * from t_user").fetch(User.class);
 
     assertThat(users.size()).isEqualTo(NUMBER_OF_USERS_IN_THE_TEST);
-    assertThat(connection.getJdbcConnection().isClosed()).isFalse();
+    assertThat(connection.getNativeConnection().isClosed()).isFalse();
 
     connection.close();
 
-    assertThat(connection.getJdbcConnection().isClosed()).isTrue();
+    assertThat(connection.getNativeConnection().isClosed()).isTrue();
   }
 
   @ParameterizedRepositoryManagerTest

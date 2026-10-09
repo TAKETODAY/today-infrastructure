@@ -61,7 +61,7 @@ class BatchTransactionFailureTests {
     given(repository.beginTransaction(any(TransactionDefinition.class))).willReturn(transaction);
     given(transaction.getTransaction()).willReturn(status);
     Connection connection = mock(Connection.class);
-    given(transaction.getJdbcConnection()).willReturn(connection);
+    given(transaction.getNativeConnection()).willReturn(connection);
     given(connection.prepareStatement(anyString())).willReturn(statement);
     given(statement.executeBatch()).willReturn(new int[] { 1 });
     org.mockito.BDDMockito.willCallRealMethod().given(repository)
