@@ -407,13 +407,14 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     }
   }
 
-  private void assertOpen() {
+  void assertOpen() {
     if (closed) {
       throw new InvalidDataAccessApiUsageException("JdbcConnection is closed");
     }
   }
 
   void registerStatement(Statement statement) {
+    assertOpen();
     statements.add(statement);
   }
 

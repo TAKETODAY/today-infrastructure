@@ -348,6 +348,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * @throws ArrayParameterBindFailedException array parameter bind failed
    */
   protected PreparedStatement buildStatement(boolean allowArrayParameters) {
+    connection.assertOpen();
     // prepare statement creation
     PreparedStatement statement = this.preparedStatement;
     if (statement == null) {

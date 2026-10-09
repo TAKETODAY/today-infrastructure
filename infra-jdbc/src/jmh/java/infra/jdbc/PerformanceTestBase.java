@@ -19,24 +19,36 @@ package infra.jdbc;
 import java.sql.SQLException;
 
 /**
- * Basically a {@link Runnable} with an Integer input.
+ * A thread-confined single-row query with cyclic identifiers and trial resources.
  */
 public abstract class PerformanceTestBase implements AutoCloseable {
 
+  /** Initialize the implementation before validation and measurement. */
   public void initialize() throws Exception {
     init();
   }
 
+  /** Acquire this worker's query resources. */
   public abstract void init() throws Exception;
 
   int input = 1;
 
+  /** Execute a query using the next identifier in the fixture's range. */
   public Object run() throws SQLException {
-    return run(input++);
+    int id = input;
+    input = input == SelectBenchmark.ROW_COUNT ? 1 : input + 1;
+    return run(id);
   }
 
+  /**
+   * Execute a single-row query.
+   * @param input the row identifier
+   * @return the mapped row, or {@code null} when absent
+   */
   public abstract Object run(int input) throws SQLException;
 
+  /** Release resources, including those acquired by a partially completed initialization. */
+  @Override
   public abstract void close() throws Exception;
 
   String getName() {

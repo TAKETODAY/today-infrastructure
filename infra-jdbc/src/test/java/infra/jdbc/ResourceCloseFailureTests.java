@@ -40,6 +40,41 @@ import static org.mockito.Mockito.verify;
 class ResourceCloseFailureTests {
 
   @Test
+  void borrowedWrapperRejectsExistingQueryAfterClose() throws SQLException {
+    Connection root = mock(Connection.class);
+    RepositoryManager manager = new RepositoryManager(mock(DataSource.class));
+    JdbcConnection connection = manager.open(root);
+    Query query = connection.createQuery("select 1");
+    NamedQuery namedQuery = connection.createNamedQuery("update items set id = 1");
+    connection.close();
+
+    org.assertj.core.api.Assertions.assertThatThrownBy(() -> query.fetchFirst(Integer.class))
+            .isInstanceOf(infra.dao.InvalidDataAccessApiUsageException.class);
+    org.assertj.core.api.Assertions.assertThatThrownBy(namedQuery::executeUpdate)
+            .isInstanceOf(infra.dao.InvalidDataAccessApiUsageException.class);
+    org.assertj.core.api.Assertions.assertThatThrownBy(() -> connection.registerStatement(mock(PreparedStatement.class)))
+            .isInstanceOf(infra.dao.InvalidDataAccessApiUsageException.class);
+    org.mockito.Mockito.verify(root, org.mockito.Mockito.never()).prepareStatement(org.mockito.ArgumentMatchers.anyString());
+    org.mockito.Mockito.verify(root, org.mockito.Mockito.never()).close();
+  }
+
+  @Test
+  void closedWrapperRejectsQueryWithCachedStatement() throws SQLException {
+    Connection root = mock(Connection.class);
+    PreparedStatement statement = mock(PreparedStatement.class);
+    given(root.prepareStatement("update items set id = 1")).willReturn(statement);
+    RepositoryManager manager = new RepositoryManager(mock(DataSource.class));
+    JdbcConnection connection = manager.open(root);
+    Query query = connection.createQuery("update items set id = 1");
+    query.buildStatement();
+    connection.close();
+    org.assertj.core.api.Assertions.assertThatThrownBy(query::executeUpdate)
+            .isInstanceOf(infra.dao.InvalidDataAccessApiUsageException.class);
+    org.mockito.Mockito.verify(statement, org.mockito.Mockito.never()).executeUpdate();
+    verify(statement).close();
+  }
+
+  @Test
   void closeErrorIsPropagatedWithoutNotifyingObserver() {
     RepositoryManager manager = new RepositoryManager(mock(DataSource.class));
     var failures = new ArrayList<ResourceCloseFailure>();
