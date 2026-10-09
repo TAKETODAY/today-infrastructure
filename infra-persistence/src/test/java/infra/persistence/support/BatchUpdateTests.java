@@ -323,7 +323,7 @@ class BatchUpdateTests {
     });
     Item pending = item(1L, "first");
     Item rejected = item(2L, "second");
-    assertThatThrownBy(() -> collectingManager.updateById(List.of(pending, rejected))).hasCause(failure);
+    assertThatThrownBy(() -> collectingManager.updateById(List.of(pending, rejected))).isSameAs(failure);
     assertThat(failed).isEmpty();
     assertThat(phases).isEmpty();
   }

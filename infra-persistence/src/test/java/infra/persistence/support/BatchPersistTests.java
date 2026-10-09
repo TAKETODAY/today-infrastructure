@@ -104,9 +104,9 @@ class BatchPersistTests {
     Item entity = item("one");
     entity.id = 1L;
     assertThatThrownBy(() -> manager.persist(entity, strategy)).isSameAs(failure);
-    assertThatThrownBy(() -> manager.persist(List.of(entity), strategy)).hasCause(failure);
+    assertThatThrownBy(() -> manager.persist(List.of(entity), strategy)).isSameAs(failure);
     assertThatThrownBy(() -> manager.updateById(entity, strategy)).isSameAs(failure);
-    assertThatThrownBy(() -> manager.updateById(List.of(entity), strategy)).hasCause(failure);
+    assertThatThrownBy(() -> manager.updateById(List.of(entity), strategy)).isSameAs(failure);
     assertThat(failures).containsExactly(failure, failure);
   }
 
@@ -147,9 +147,9 @@ class BatchPersistTests {
     Item entity = item("one");
     entity.id = 1L;
     assertThatThrownBy(() -> manager.persist(entity)).isSameAs(failure);
-    assertThatThrownBy(() -> manager.persist(List.of(entity))).hasCause(failure);
+    assertThatThrownBy(() -> manager.persist(List.of(entity))).isSameAs(failure);
     assertThatThrownBy(() -> manager.updateById(entity)).isSameAs(failure);
-    assertThatThrownBy(() -> manager.updateById(List.of(entity))).hasCause(failure);
+    assertThatThrownBy(() -> manager.updateById(List.of(entity))).isSameAs(failure);
     assertThat(failures).containsExactly(failure, failure);
   }
 
@@ -169,7 +169,8 @@ class BatchPersistTests {
     VersionedItem versioned = new VersionedItem();
     versioned.id = 1L;
     assertThatThrownBy(() -> manager.updateById(versioned)).hasMessageContaining("version not set");
-    assertThatThrownBy(() -> manager.updateById(List.of(versioned))).isInstanceOf(DataAccessException.class);
+    assertThatThrownBy(() -> manager.updateById(List.of(versioned)))
+            .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("version not set");
     ConditionalItem conditional = new ConditionalItem();
     conditional.key = 1L;
     assertThatThrownBy(() -> manager.update(conditional, (entity, property) -> {
@@ -293,7 +294,7 @@ class BatchPersistTests {
         throw postFailure;
       }
     });
-    assertThatThrownBy(() -> manager.persist(List.of(item("one")))).hasCause(failure);
+    assertThatThrownBy(() -> manager.persist(List.of(item("one")))).isSameAs(failure);
     assertThat(failure.getSuppressed()).containsExactly(postFailure);
     assertThat(executions).hasSize(1);
     assertThat(executions.get(0).getEntities()).isEmpty();
@@ -359,7 +360,7 @@ class BatchPersistTests {
       }
     });
     assertThatThrownBy(() -> manager.persist(item("single"))).isSameAs(failure);
-    assertThatThrownBy(() -> manager.persist(List.of(item("batch")))).hasCause(failure);
+    assertThatThrownBy(() -> manager.persist(List.of(item("batch")))).isSameAs(failure);
     assertThat(failures).hasSize(1).allSatisfy(context -> {
       assertThat(context.getPhase()).isEqualTo(EntityOperationPhase.POST_PROCESSING);
       assertThat(context.getException()).isSameAs(failure);
@@ -456,7 +457,7 @@ class BatchPersistTests {
         phases.add(context.getPhase());
       }
     });
-    assertThatThrownBy(() -> manager.persist(List.of(pending, rejected, item("unvisited")))).hasCause(failure);
+    assertThatThrownBy(() -> manager.persist(List.of(pending, rejected, item("unvisited")))).isSameAs(failure);
     assertThat(failed).isEmpty();
     assertThat(phases).isEmpty();
     assertThat(repository.createNamedQuery("select count(*) from batch_insert").fetchFirst(Integer.class)).isZero();
@@ -483,7 +484,7 @@ class BatchPersistTests {
         }
       });
     }
-    assertThatThrownBy(() -> manager.persist(List.of(item("one")))).hasCause(firstFailure);
+    assertThatThrownBy(() -> manager.persist(List.of(item("one")))).isSameAs(firstFailure);
     assertThat(notified).containsExactly(0, 1, 2);
     assertThat(firstFailure.getSuppressed()).containsExactly(secondFailure);
     assertThat(repository.createNamedQuery("select count(*) from batch_insert").fetchFirst(Integer.class)).isZero();
@@ -515,7 +516,7 @@ class BatchPersistTests {
         throw failure;
       }
     });
-    assertThatThrownBy(() -> manager.persist(List.of(item("one")))).hasCause(failure);
+    assertThatThrownBy(() -> manager.persist(List.of(item("one")))).isSameAs(failure);
     assertThat(notified).containsExactly(0, 1);
     assertThat(failure.getSuppressed()).containsExactly(secondary);
   }

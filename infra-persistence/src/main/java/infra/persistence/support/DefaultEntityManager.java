@@ -919,7 +919,7 @@ public class DefaultEntityManager implements EntityManager {
       eventMulticaster.onPostTruncate(entityClass, metadata);
     }
     catch (Throwable ex) {
-      throw handleFailure("Truncate table", sql, ex, true, e -> new PersistenceException("Truncate table", e));
+      throw handleFailure("Truncate table", sql, ex, e -> new PersistenceException("Truncate table", e));
     }
     finally {
       closeResource(con, statement);
@@ -1133,7 +1133,7 @@ public class DefaultEntityManager implements EntityManager {
     catch (Throwable ex) {
       repositoryManager.closeResource(stmt, statement, ex);
       repositoryManager.releaseConnection(con, dataSource, statement, ex);
-      throw handleFailure(getDescription(handler), statement, ex, true,
+      throw handleFailure(getDescription(handler), statement, ex,
               e -> new DataRetrievalFailureException("Unable to iterate entities", e));
     }
   }
@@ -1197,7 +1197,7 @@ public class DefaultEntityManager implements EntityManager {
     }
     catch (Throwable ex) {
       closeResource(con, stmt);
-      throw handleFailure(getDescription(condition), statement, ex, true,
+      throw handleFailure(getDescription(condition), statement, ex,
               e -> new DataRetrievalFailureException("Unable to retrieve the pageable data", e));
     }
   }
@@ -1250,7 +1250,7 @@ public class DefaultEntityManager implements EntityManager {
     }
     catch (Throwable ex) {
       closeResource(con, stmt);
-      throw handleFailure(getDescription(condition), statement, ex, true,
+      throw handleFailure(getDescription(condition), statement, ex,
               e -> new DataRetrievalFailureException("Unable to retrieve the slice", e));
     }
   }
@@ -1318,7 +1318,7 @@ public class DefaultEntityManager implements EntityManager {
     }
     catch (Throwable ex) {
       closeResource(con, stmt);
-      throw handleFailure(getDescription(condition), statement, ex, true,
+      throw handleFailure(getDescription(condition), statement, ex,
               e -> new DataRetrievalFailureException("Unable to scroll the query result", e));
     }
   }
@@ -1383,24 +1383,23 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   /**
-   * Translate a captured failure into a data-access exception while preserving
-   * its semantics: {@link Error} is rethrown, {@link SQLException} is translated,
-   * an existing {@link DataAccessException} is propagated unchanged. When
-   * {@code propagateRuntime} is {@code true} any other runtime exception is also
-   * propagated unchanged; otherwise it is wrapped by the supplied {@code wrapper}.
+   * Translate a captured failure into the exception to rethrow. Only
+   * infrastructure failures are translated: {@link Error} is rethrown as-is, an
+   * {@link SQLException} is translated to a {@link DataAccessException}, and any
+   * other runtime exception (an {@link DataAccessException} or an application
+   * exception thrown by a listener/callback) is propagated unchanged so callers
+   * keep the original exception type. Remaining checked throwables are wrapped by
+   * the supplied {@code wrapper}.
    */
   private RuntimeException handleFailure(String task, @Nullable String sql, Throwable ex,
-          boolean propagateRuntime, Function<Throwable, RuntimeException> wrapper) {
+          Function<Throwable, RuntimeException> wrapper) {
     if (ex instanceof Error error) {
       throw error;
     }
     if (ex instanceof SQLException sqlException) {
       return translateException(task, sql, sqlException);
     }
-    if (ex instanceof DataAccessException dataAccessException) {
-      return dataAccessException;
-    }
-    if (propagateRuntime && ex instanceof RuntimeException runtimeException) {
+    if (ex instanceof RuntimeException runtimeException) {
       return runtimeException;
     }
     return wrapper.apply(ex);
@@ -1410,14 +1409,14 @@ public class DefaultEntityManager implements EntityManager {
           EntityOperationPhase phase, @Nullable String sql, Throwable ex) {
     String task = "%s [entity type: '%s', phase: %s]"
             .formatted(operation, metadata.getEntityClass().getName(), phase);
-    return handleFailure(task, sql, ex, true, e -> new PersistenceException(task, e));
+    return handleFailure(task, sql, ex, e -> new PersistenceException(task, e));
   }
 
   private RuntimeException handleBatchFailure(String task,
           Map<BatchKey, PreparedBatch> statements, JdbcConnection transaction, Throwable ex) {
     closeBatchStatements(statements, ex);
     rollbackAfterFailure(transaction, ex);
-    return handleFailure(task, null, ex, false, e -> new PersistenceException(task + " failed", e));
+    return handleFailure(task, null, ex, e -> new PersistenceException(task + " failed", e));
   }
 
   /**
