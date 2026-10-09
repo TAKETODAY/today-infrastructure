@@ -557,7 +557,7 @@ public class SelectBenchmark {
     }
   }
 
-  class HandCodedSelect extends PerformanceTestBase {
+  static class HandCodedSelect extends PerformanceTestBase {
     private Connection conn = null;
 
     @Override
@@ -565,8 +565,8 @@ public class SelectBenchmark {
       conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
     }
 
-    private Integer getNullableInt(ResultSet rs, String colName) throws SQLException {
-      Object obj = rs.getObject(colName);
+    private Integer getNullableInt(ResultSet rs, int columnIndex) throws SQLException {
+      Object obj = rs.getObject(columnIndex);
       return obj == null ? null : (Integer) obj;
     }
 
@@ -577,19 +577,19 @@ public class SelectBenchmark {
         try (ResultSet rs = stmt.executeQuery()) {
           if (rs.next()) {
             Post p = new Post();
-            p.setId(rs.getInt("id"));
-            p.setText(rs.getString("text"));
-            p.setCreationDate(rs.getTimestamp("creation_date"));
-            p.setLastChangeDate(rs.getTimestamp("last_change_date"));
-            p.setCounter1(getNullableInt(rs, "counter1"));
-            p.setCounter2(getNullableInt(rs, "counter2"));
-            p.setCounter3(getNullableInt(rs, "counter3"));
-            p.setCounter4(getNullableInt(rs, "counter4"));
-            p.setCounter5(getNullableInt(rs, "counter5"));
-            p.setCounter6(getNullableInt(rs, "counter6"));
-            p.setCounter7(getNullableInt(rs, "counter7"));
-            p.setCounter8(getNullableInt(rs, "counter8"));
-            p.setCounter9(getNullableInt(rs, "counter9"));
+            p.setId(rs.getInt(1));
+            p.setText(rs.getString(2));
+            p.setCreationDate(rs.getTimestamp(3));
+            p.setLastChangeDate(rs.getTimestamp(4));
+            p.setCounter1(getNullableInt(rs, 5));
+            p.setCounter2(getNullableInt(rs, 6));
+            p.setCounter3(getNullableInt(rs, 7));
+            p.setCounter4(getNullableInt(rs, 8));
+            p.setCounter5(getNullableInt(rs, 9));
+            p.setCounter6(getNullableInt(rs, 10));
+            p.setCounter7(getNullableInt(rs, 11));
+            p.setCounter8(getNullableInt(rs, 12));
+            p.setCounter9(getNullableInt(rs, 13));
             return p;
           }
         }
@@ -604,7 +604,7 @@ public class SelectBenchmark {
     }
   }
 
-  class ApacheDbUtilsTypicalSelect extends PerformanceTestBase {
+  static class ApacheDbUtilsTypicalSelect extends PerformanceTestBase {
     private QueryRunner runner;
     private org.apache.commons.dbutils.ResultSetHandler<Post> rsHandler;
     private Connection conn;
@@ -615,7 +615,7 @@ public class SelectBenchmark {
      * {@link org.apache.commons.dbutils.BeanProcessor} and many people complain
      * online that this isn't built in to Apache DbUtils yet.
      */
-    class IgnoreUnderscoreBeanProcessor extends BeanProcessor {
+    static class IgnoreUnderscoreBeanProcessor extends BeanProcessor {
       @Override
       protected int[] mapColumnsToProperties(ResultSetMetaData md, PropertyDescriptor[] props) throws SQLException {
         int cols = md.getColumnCount();
@@ -643,7 +643,7 @@ public class SelectBenchmark {
     @Override
     public void init() throws SQLException {
       runner = new QueryRunner();
-      rsHandler = new BeanHandler<>(Post.class, new BasicRowProcessor(new ApacheDbUtilsTypicalSelect.IgnoreUnderscoreBeanProcessor()));
+      rsHandler = new BeanHandler<>(Post.class, new BasicRowProcessor(new IgnoreUnderscoreBeanProcessor()));
       conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
     }
 
