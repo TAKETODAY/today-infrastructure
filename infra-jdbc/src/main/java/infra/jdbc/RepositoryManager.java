@@ -266,14 +266,13 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
   /**
    * Report a close failure without changing the operation result. If an existing
    * operation failure is supplied, the close failure is added as suppressed.
-   * Observer runtime exceptions are suppressed on the close failure and logged
-   * as fallback. Errors are propagated.
+   * Observer failures are suppressed on the close failure and logged as fallback.
    *
    * @param failure the resource close failure
    * @since 5.0
    */
   public void reportResourceCloseFailure(ResourceCloseFailure failure) {
-    Exception exception = failure.exception();
+    Throwable exception = failure.exception();
     if (exception instanceof InterruptedException) {
       Thread.currentThread().interrupt();
     }
@@ -284,7 +283,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
     try {
       resourceCloseFailureListener.onCloseFailure(failure);
     }
-    catch (RuntimeException listenerFailure) {
+    catch (Throwable listenerFailure) {
       if (listenerFailure != exception) {
         exception.addSuppressed(listenerFailure);
       }
@@ -293,8 +292,8 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
   }
 
   /**
-   * Close a resource and report exceptions without throwing them. Errors are
-   * propagated. Interrupted exceptions restore the thread's interrupt status.
+   * Close a resource and report failures without throwing them.
+   * Interrupted exceptions restore the thread's interrupt status.
    *
    * <p>The resource category is inferred from JDBC interfaces; other closeable
    * resources are reported as {@link ResourceType#OTHER}.
@@ -310,7 +309,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
       try {
         resource.close();
       }
-      catch (Exception ex) {
+      catch (Throwable ex) {
         var type = resource instanceof Connection
                 ? ResourceType.CONNECTION : resource instanceof Statement
                 ? ResourceType.STATEMENT : resource instanceof ResultSet
@@ -322,8 +321,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
 
   /**
    * Release a connection according to transaction and SmartDataSource ownership
-   * rules, reporting release exceptions to the configured observer. Errors are
-   * propagated.
+   * rules, reporting release failures to the configured observer without throwing them.
    *
    * @param connection the connection, or {@code null}
    * @param dataSource the data source used to acquire the connection
@@ -336,7 +334,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
     try {
       DataSourceUtils.doReleaseConnection(connection, dataSource);
     }
-    catch (Exception ex) {
+    catch (Throwable ex) {
       reportResourceCloseFailure(new ResourceCloseFailure(
               ResourceType.CONNECTION, sql, ex, operationFailure));
     }

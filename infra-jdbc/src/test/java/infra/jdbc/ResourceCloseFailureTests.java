@@ -75,25 +75,31 @@ class ResourceCloseFailureTests {
   }
 
   @Test
-  void closeErrorIsPropagatedWithoutNotifyingObserver() {
+  void closeErrorIsReportedAndSuppressedOnOperationFailure() {
     RepositoryManager manager = new RepositoryManager(mock(DataSource.class));
     var failures = new ArrayList<ResourceCloseFailure>();
     manager.setResourceCloseFailureListener(failures::add);
     Error error = new AssertionError("close error");
+    Throwable operationFailure = new IllegalStateException("operation failed");
     AutoCloseable resource = () -> { throw error; };
-    org.assertj.core.api.Assertions.assertThatThrownBy(() -> manager.closeResource(resource, null, null))
-            .isSameAs(error);
-    assertThat(failures).isEmpty();
+    manager.closeResource(resource, "select 1", operationFailure);
+    assertThat(operationFailure.getSuppressed()).containsExactly(error);
+    assertThat(failures).singleElement().satisfies(failure -> {
+      assertThat(failure.exception()).isSameAs(error);
+      assertThat(failure.operationFailure()).isSameAs(operationFailure);
+      assertThat(failure.sql()).isEqualTo("select 1");
+    });
   }
 
   @Test
-  void observerErrorIsPropagated() {
+  void observerErrorIsSuppressedOnCloseFailure() {
     RepositoryManager manager = new RepositoryManager(mock(DataSource.class));
     Error error = new AssertionError("observer error");
     manager.setResourceCloseFailureListener(failure -> { throw error; });
-    AutoCloseable resource = () -> { throw new SQLException("close failed"); };
-    org.assertj.core.api.Assertions.assertThatThrownBy(() -> manager.closeResource(resource, null, null))
-            .isSameAs(error);
+    SQLException closeFailure = new SQLException("close failed");
+    AutoCloseable resource = () -> { throw closeFailure; };
+    manager.closeResource(resource, null, null);
+    assertThat(closeFailure.getSuppressed()).containsExactly(error);
   }
 
   @Test
@@ -117,17 +123,23 @@ class ResourceCloseFailureTests {
   }
 
   @Test
-  void connectionCleanupContinuesAfterStatementErrorAndPropagatesIt() throws SQLException {
+  void connectionCleanupContinuesAfterStatementErrorAndReportsIt() throws SQLException {
     DataSource dataSource = mock(DataSource.class);
     Connection root = mock(Connection.class);
     given(dataSource.getConnection()).willReturn(root);
     RepositoryManager manager = new RepositoryManager(dataSource);
+    var failures = new ArrayList<ResourceCloseFailure>();
+    manager.setResourceCloseFailureListener(failures::add);
     PreparedStatement statement = mock(PreparedStatement.class);
     Error error = new AssertionError("statement close error");
     willThrow(error).given(statement).close();
     JdbcConnection connection = manager.open();
     connection.registerStatement(statement);
-    org.assertj.core.api.Assertions.assertThatThrownBy(connection::close).isSameAs(error);
+    connection.close();
+    assertThat(failures).singleElement().satisfies(failure -> {
+      assertThat(failure.resourceType()).isEqualTo(ResourceCloseFailure.ResourceType.STATEMENT);
+      assertThat(failure.exception()).isSameAs(error);
+    });
     verify(root).close();
   }
 
@@ -156,9 +168,9 @@ class ResourceCloseFailureTests {
     given(statement.executeQuery()).willReturn(resultSet);
     given(resultSet.next()).willReturn(true);
     given(resultSet.getInt(1)).willReturn(1);
-    willThrow(new SQLException("result set close failed")).given(resultSet).close();
-    willThrow(new SQLException("statement close failed")).given(statement).close();
-    willThrow(new SQLException("connection close failed")).given(connection).close();
+    willThrow(new AssertionError("result set close failed")).given(resultSet).close();
+    willThrow(new AssertionError("statement close failed")).given(statement).close();
+    willThrow(new AssertionError("connection close failed")).given(connection).close();
     RepositoryManager manager = new RepositoryManager(dataSource);
     var failures = new ArrayList<ResourceCloseFailure>();
     manager.setResourceCloseFailureListener(failures::add);
