@@ -252,13 +252,12 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   }
 
   /**
-   * Start a transaction scope using the default transaction definition, then
-   * acquire its JDBC connection. May participate in an existing transaction.
+   * Start a transaction scope using the default transaction definition.
+   * May participate in an existing transaction.
    *
    * @return transaction status object representing the new or current transaction
    * @throws InvalidDataAccessApiUsageException if this wrapper is closed, a scope
    * already exists, the connection has been acquired, or the data sources differ
-   * @throws CannotGetJdbcConnectionException if connection acquisition fails
    * @throws TransactionException in case of lookup, creation, or system errors
    * @throws IllegalTransactionStateException if the given transaction definition
    * cannot be executed (for example, if a currently active transaction is in
@@ -274,11 +273,10 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   }
 
   /**
-   * Start a transaction scope according to the specified propagation behavior,
-   * then acquire its JDBC connection. Requires an open wrapper with no existing
-   * scope or acquired connection, using the repository manager's data source.
-   * If connection acquisition fails, rollback is attempted and any rollback
-   * failure is suppressed on the acquisition failure.
+   * Start a transaction scope according to the specified propagation behavior.
+   * Requires an open wrapper with no existing scope or acquired connection,
+   * using the repository manager's data source. The JDBC connection is acquired
+   * lazily when first needed.
    * <p>Note that parameters like isolation level or timeout will only be applied
    * to new transactions, and thus be ignored when participating in active ones.
    * <p>Furthermore, not all transaction definition settings will be supported
@@ -293,7 +291,6 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    * @return transaction status object representing the new or current transaction
    * @throws InvalidDataAccessApiUsageException if this wrapper is closed, a scope
    * already exists, the connection has been acquired, or the data sources differ
-   * @throws CannotGetJdbcConnectionException if connection acquisition fails
    * @throws TransactionException in case of lookup, creation, or system errors
    * @throws IllegalTransactionStateException if the given transaction definition
    * cannot be executed (for example, if a currently active transaction is in
@@ -311,21 +308,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     if (root != null) {
       throw new InvalidDataAccessApiUsageException("Start the transaction before acquiring a JDBC connection");
     }
-    TransactionStatus status = manager.getTransactionManager().getTransaction(definition);
-    this.transaction = status;
-    try {
-      createConnection();
-      return status;
-    }
-    catch (RuntimeException | Error ex) {
-      try {
-        completeTransaction(false);
-      }
-      catch (Throwable rollbackFailure) {
-        suppress(ex, rollbackFailure);
-      }
-      throw ex;
-    }
+    return this.transaction = manager.getTransactionManager().getTransaction(definition);
   }
 
   /**
@@ -371,8 +354,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    * @throws IllegalTransactionStateException if no active transaction scope exists
    */
   public JdbcConnection rollback(boolean closeConnection) {
-    finishTransaction(false, closeConnection);
-    return this;
+    return finish(false, closeConnection);
   }
 
   /**
@@ -410,28 +392,24 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    * @see TransactionStatus#setRollbackOnly
    */
   public JdbcConnection commit(boolean closeConnection) {
-    finishTransaction(true, closeConnection);
-    return this;
+    return finish(true, closeConnection);
   }
 
-  private void finishTransaction(boolean commit, boolean closeConnection) {
+  private JdbcConnection finish(boolean commit, boolean closeConnection) {
+    Throwable failure = null;
     try {
       completeTransaction(commit);
     }
-    catch (RuntimeException | Error failure) {
+    catch (RuntimeException | Error ex) {
+      failure = ex;
+      throw ex;
+    }
+    finally {
       if (closeConnection) {
-        try {
-          close(failure);
-        }
-        catch (Throwable ex) {
-          suppress(failure, ex);
-        }
+        close(failure);
       }
-      throw failure;
     }
-    if (closeConnection) {
-      close();
-    }
+    return this;
   }
 
   private void completeTransaction(boolean commit) {
@@ -452,12 +430,6 @@ public final class JdbcConnection implements Closeable, QueryProducer {
       if (status.isCompleted()) {
         transaction = null;
       }
-    }
-  }
-
-  private static void suppress(Throwable failure, Throwable additional) {
-    if (failure != additional) {
-      failure.addSuppressed(additional);
     }
   }
 
@@ -526,18 +498,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
       manager.closeResource(statement, null, failure);
     }
     statements.clear();
-    TransactionStatus status = transaction;
-    if (status != null && !status.isCompleted()) {
-      try {
-        completeTransaction(false);
-      }
-      catch (Throwable ex) {
-        failure = aggregate(failure, ex);
-      }
-    }
-    if (status == null || status.isCompleted()) {
-      transaction = null;
-    }
+    failure = rollbackIfActive(failure);
     closed = true;
     if (!borrowed) {
       manager.releaseConnection(root, manager.getDataSource(), null, failure);
@@ -551,6 +512,22 @@ public final class JdbcConnection implements Closeable, QueryProducer {
         throw ex;
       }
     }
+  }
+
+  private @Nullable Throwable rollbackIfActive(@Nullable Throwable failure) {
+    TransactionStatus status = transaction;
+    if (status != null && !status.isCompleted()) {
+      try {
+        completeTransaction(false);
+      }
+      catch (Throwable ex) {
+        failure = aggregate(failure, ex);
+      }
+    }
+    if (status == null || status.isCompleted()) {
+      transaction = null;
+    }
+    return failure;
   }
 
   /**

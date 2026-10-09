@@ -78,6 +78,7 @@ class JdbcConnectionTests {
     var failures = new java.util.ArrayList<ResourceCloseFailure>();
     repository.setResourceCloseFailureListener(failures::add);
     JdbcConnection connection = repository.beginTransaction();
+    connection.getNativeConnection();
     Statement first = mock(Statement.class);
     Statement second = mock(Statement.class);
     willThrow(new SQLException("first close failed")).given(first).close();
