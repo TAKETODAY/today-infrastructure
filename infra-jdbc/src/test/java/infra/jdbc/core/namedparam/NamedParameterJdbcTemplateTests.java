@@ -19,7 +19,6 @@
 package infra.jdbc.core.namedparam;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
@@ -158,7 +157,6 @@ public class NamedParameterJdbcTemplateTests {
     verify(connection).close();
   }
 
-  @Disabled
   @Test
   public void testExecuteArray() throws SQLException {
     given(preparedStatement.executeUpdate()).willReturn(1);
