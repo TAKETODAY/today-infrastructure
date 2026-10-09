@@ -63,7 +63,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
 
   private final HashSet<Statement> statements = new HashSet<>();
 
-  final boolean autoClose;
+  private final boolean autoClose;
 
   private @Nullable Connection root;
 
@@ -217,16 +217,18 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    */
   private void createConnectionIfNecessary() {
     assertOpen();
+    Connection connection = root;
+    if (connection == null) {
+      createConnection();
+      return;
+    }
     try {
-      if (root == null) {
-        createConnection();
-      }
-      else if (root.isClosed()) {
+      if (connection.isClosed()) {
         throw new InvalidDataAccessApiUsageException("JDBC connection is closed");
       }
     }
     catch (SQLException e) {
-      throw translateException("Retrieves Connection status is closed", e);
+      throw translateException("Check whether JDBC connection is closed", e);
     }
   }
 
@@ -320,9 +322,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
         completeTransaction(false);
       }
       catch (Throwable rollbackFailure) {
-        if (rollbackFailure != ex) {
-          ex.addSuppressed(rollbackFailure);
-        }
+        suppress(ex, rollbackFailure);
       }
       throw ex;
     }
@@ -342,16 +342,16 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   /**
    * Roll back this wrapper's transaction scope and close the wrapper.
    *
-   * @return the associated repository manager
+   * @return this wrapper
    * @throws InvalidDataAccessApiUsageException if this wrapper is closed
    * @throws TransactionSystemException in case of rollback or system errors
    * (typically caused by fundamental resource failures)
    * @throws IllegalTransactionStateException if no active transaction scope exists
    * @see #rollback(boolean)
    */
-  public RepositoryManager rollback() {
+  public JdbcConnection rollback() {
     rollback(true);
-    return manager;
+    return this;
   }
 
   /**
@@ -378,13 +378,14 @@ public final class JdbcConnection implements Closeable, QueryProducer {
   /**
    * Commit this wrapper's transaction scope and close the wrapper.
    *
+   * @return this wrapper
    * @throws InvalidDataAccessApiUsageException if this wrapper is closed
    * @throws IllegalTransactionStateException if no active transaction scope exists
    * @throws TransactionException if transaction completion fails
    * @see #commit(boolean)
    */
-  public void commit() {
-    commit(true);
+  public JdbcConnection commit() {
+    return commit(true);
   }
 
   /**
@@ -397,6 +398,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    * failures are suppressed on the commit failure.
    *
    * @param closeConnection whether to close this wrapper after completion
+   * @return this wrapper
    * @throws InvalidDataAccessApiUsageException if this wrapper is closed
    * @throws UnexpectedRollbackException in case of an unexpected rollback
    * that the transaction coordinator initiated
@@ -407,8 +409,9 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    * @throws IllegalTransactionStateException if no active transaction scope exists
    * @see TransactionStatus#setRollbackOnly
    */
-  public void commit(boolean closeConnection) {
+  public JdbcConnection commit(boolean closeConnection) {
     finishTransaction(true, closeConnection);
+    return this;
   }
 
   private void finishTransaction(boolean commit, boolean closeConnection) {
@@ -421,9 +424,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
           close(failure);
         }
         catch (Throwable ex) {
-          if (failure != ex) {
-            failure.addSuppressed(ex);
-          }
+          suppress(failure, ex);
         }
       }
       throw failure;
@@ -446,13 +447,28 @@ public final class JdbcConnection implements Closeable, QueryProducer {
       else {
         manager.getTransactionManager().rollback(status);
       }
-      transaction = null;
     }
     finally {
       if (status.isCompleted()) {
         transaction = null;
       }
     }
+  }
+
+  private static void suppress(Throwable failure, Throwable additional) {
+    if (failure != additional) {
+      failure.addSuppressed(additional);
+    }
+  }
+
+  /**
+   * Return whether query execution automatically closes this wrapper when its
+   * resource lifecycle ends.
+   *
+   * @return whether automatic closing is enabled
+   */
+  boolean isAutoClose() {
+    return autoClose;
   }
 
   void assertOpen() {
@@ -493,8 +509,10 @@ public final class JdbcConnection implements Closeable, QueryProducer {
 
   /**
    * Close this wrapper, associating cleanup failures with an existing operation
-   * failure. The caller owning the operation failure remains responsible for
-   * propagating it; cleanup failures are added as suppressed.
+   * failure. When an operation failure is supplied, this method does not throw:
+   * the caller owning the failure remains responsible for propagating it, with
+   * cleanup failures added as suppressed. Without an operation failure, cleanup
+   * failures are thrown.
    *
    * @param operationFailure an existing operation failure to suppress cleanup
    * failures onto, or {@code null} if there is none
@@ -562,12 +580,13 @@ public final class JdbcConnection implements Closeable, QueryProducer {
    */
   public Connection getNativeConnection() {
     Connection connection = root;
+    if (connection != null) {
+      return connection;
+    }
+    createConnectionIfNecessary();
+    connection = root;
     if (connection == null) {
-      createConnectionIfNecessary();
-      connection = root;
-      if (connection == null) {
-        throw new IllegalStateException("JDBC connection has not been acquired");
-      }
+      throw new CannotGetJdbcConnectionException("JDBC connection has not been acquired");
     }
     return connection;
   }

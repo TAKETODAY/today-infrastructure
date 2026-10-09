@@ -1439,7 +1439,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
   //---------------------------------------------------------------------
 
   private void closeConnectionIfNecessary(@Nullable Throwable failure) {
-    if (connection.autoClose) {
+    if (connection.isAutoClose()) {
       connection.close(failure);
     }
   }

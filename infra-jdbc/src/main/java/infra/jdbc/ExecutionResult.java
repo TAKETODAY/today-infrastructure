@@ -77,14 +77,14 @@ public abstract class ExecutionResult implements QueryProducer {
    * @see DataSource#getConnection()
    */
   public NamedQuery createNamedQuery(String queryText, String... columnNames) {
-    if (connection.autoClose) {
+    if (connection.isAutoClose()) {
       return connection.getManager().open(true).createNamedQuery(queryText, columnNames);
     }
     return connection.createNamedQuery(queryText, columnNames);
   }
 
   private QueryProducer queryProducer() {
-    return connection.autoClose ? connection.getManager() : connection;
+    return connection.isAutoClose() ? connection.getManager() : connection;
   }
 
   /**

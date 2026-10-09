@@ -231,7 +231,7 @@ class JdbcConnectionTests {
     JdbcConnection connection = new JdbcConnection(manager);
 
     assertThat(connection).isNotNull();
-    assertThat(connection.autoClose).isFalse();
+    assertThat(connection.isAutoClose()).isFalse();
   }
 
   @Test
