@@ -6,7 +6,8 @@
 
 	<jdbc:embedded-database id="dataSource" generate-name="true" />
 
-	<bean id="transactionManager" class="infra.jdbc.datasource.DataSourceTransactionManager"
-		p:data-source-ref="dataSource" />
+	<bean id="transactionManager" class="infra.jdbc.datasource.DataSourceTransactionManager">
+		<constructor-arg ref="dataSource" />
+	</bean>
 
 </beans>

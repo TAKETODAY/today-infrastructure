@@ -91,7 +91,7 @@ public interface TransactionStatus extends TransactionExecution, SavepointManage
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
 <bean id="txManager" class="infra.jdbc.datasource.DataSourceTransactionManager">
-  <property name="dataSource" ref="dataSource"/>
+  <constructor-arg ref="dataSource"/>
 </bean>
 ----
 
@@ -125,4 +125,3 @@ NOTE: `dataSource` bean 的上述定义使用了 `jee` 命名空间中的 `<jndi
 NOTE: 如果您使用 JTA，无论您使用什么数据访问技术，无论是 JDBC、Hibernate JPA 还是任何其他支持的技术，您的事务管理器定义都应该看起来相同。这是因为 JTA 事务是全局事务，可以征用任何事务资源。
 
 在所有 Infra 事务设置中，应用程序代码无需更改。您只需更改配置即可更改事务的管理方式，即使该更改意味着从本地事务转移到全局事务，反之亦然。
-

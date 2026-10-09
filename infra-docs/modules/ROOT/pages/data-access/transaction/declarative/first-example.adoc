@@ -117,7 +117,7 @@ public class DefaultFooService implements FooService {
 
   <!-- 同样，别忘了 TransactionManager -->
   <bean id="txManager" class="infra.jdbc.datasource.DataSourceTransactionManager">
-    <property name="dataSource" ref="dataSource"/>
+    <constructor-arg ref="dataSource"/>
   </bean>
 
   <!-- 此处有其他 <bean/> 定义 -->

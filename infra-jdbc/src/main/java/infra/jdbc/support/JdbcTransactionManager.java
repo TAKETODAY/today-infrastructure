@@ -25,6 +25,7 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import infra.beans.factory.InitializingBean;
 import infra.dao.DataAccessException;
 import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.datasource.DataSourceTransactionManager;
@@ -51,28 +52,18 @@ import infra.jdbc.datasource.DataSourceTransactionManager;
  * @author Sebastien Deleuze
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DataSourceTransactionManager
- * @see #setDataSource
+ * @see #JdbcTransactionManager(DataSource)
  * @see #setExceptionTranslator
  * @since 4.0
  */
-public class JdbcTransactionManager extends DataSourceTransactionManager {
+public class JdbcTransactionManager extends DataSourceTransactionManager implements InitializingBean {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
-  @Nullable
-  private volatile SQLExceptionTranslator exceptionTranslator;
+  private volatile @Nullable SQLExceptionTranslator exceptionTranslator;
 
   private boolean lazyInit = true;
-
-  /**
-   * Create a new JdbcTransactionManager instance.
-   * A DataSource has to be set to be able to use it.
-   *
-   * @see #setDataSource
-   */
-  public JdbcTransactionManager() {
-  }
 
   /**
    * Create a new JdbcTransactionManager instance.
@@ -80,9 +71,7 @@ public class JdbcTransactionManager extends DataSourceTransactionManager {
    * @param dataSource the JDBC DataSource to manage transactions for
    */
   public JdbcTransactionManager(DataSource dataSource) {
-    this();
-    setDataSource(dataSource);
-    afterPropertiesSet();
+    super(dataSource);
   }
 
   /**
@@ -133,7 +122,7 @@ public class JdbcTransactionManager extends DataSourceTransactionManager {
       exceptionTranslator = this.exceptionTranslator;
       if (exceptionTranslator == null) {
         if (SQLErrorCodeSQLExceptionTranslator.hasUserProvidedErrorCodesFile()) {
-          exceptionTranslator = new SQLErrorCodeSQLExceptionTranslator(obtainDataSource());
+          exceptionTranslator = new SQLErrorCodeSQLExceptionTranslator(getDataSource());
         }
         else {
           exceptionTranslator = new SQLExceptionSubclassTranslator();
@@ -172,7 +161,6 @@ public class JdbcTransactionManager extends DataSourceTransactionManager {
    */
   @Override
   public void afterPropertiesSet() {
-    super.afterPropertiesSet();
     if (!isLazyInit()) {
       getExceptionTranslator();
     }

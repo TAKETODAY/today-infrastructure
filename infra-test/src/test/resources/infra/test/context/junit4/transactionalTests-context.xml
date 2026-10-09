@@ -12,11 +12,12 @@
 		<jdbc:script location="classpath:/infra/test/jdbc/schema.sql"/>
 	</jdbc:embedded-database>
 
-	<bean id="transactionManager" class="infra.jdbc.datasource.DataSourceTransactionManager"
-		p:dataSource-ref="dataSource" />
+	<bean id="transactionManager" class="infra.jdbc.datasource.DataSourceTransactionManager">
+		<constructor-arg ref="dataSource" />
+	</bean>
 
-	<bean id="transactionManager2" class="infra.jdbc.datasource.DataSourceTransactionManager"
-		p:dataSource-ref="dataSource2">
+	<bean id="transactionManager2" class="infra.jdbc.datasource.DataSourceTransactionManager">
+		<constructor-arg ref="dataSource2" />
 	</bean>
 
 </beans>

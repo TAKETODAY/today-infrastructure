@@ -27,10 +27,8 @@ import java.sql.Statement;
 
 import javax.sql.DataSource;
 
-import infra.beans.factory.InitializingBean;
 import infra.jdbc.core.JdbcTemplate;
 import infra.jdbc.support.JdbcTransactionManager;
-import infra.util.Assert;
 import infra.transaction.CannotCreateTransactionException;
 import infra.transaction.TransactionDefinition;
 import infra.transaction.TransactionSystemException;
@@ -39,6 +37,7 @@ import infra.transaction.support.DefaultTransactionStatus;
 import infra.transaction.support.ResourceTransactionManager;
 import infra.transaction.support.TransactionSynchronizationManager;
 import infra.transaction.support.TransactionSynchronizationUtils;
+import infra.util.Assert;
 
 /**
  * {@link infra.transaction.PlatformTransactionManager} implementation
@@ -125,41 +124,19 @@ import infra.transaction.support.TransactionSynchronizationUtils;
  * @since 4.0 2021/12/10 21:05
  */
 public class DataSourceTransactionManager extends AbstractPlatformTransactionManager
-        implements ResourceTransactionManager, InitializingBean {
+        implements ResourceTransactionManager {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
-  @Nullable
-  private DataSource dataSource;
+  private final DataSource dataSource;
 
   private boolean enforceReadOnly = false;
 
   private volatile @Nullable Boolean defaultReadOnly;
 
   /**
-   * Create a new {@code DataSourceTransactionManager} instance.
-   * A {@code DataSource} has to be set to be able to use it.
-   *
-   * @see #setDataSource
-   */
-  public DataSourceTransactionManager() {
-    setNestedTransactionAllowed(true);
-  }
-
-  /**
-   * Create a new {@code DataSourceTransactionManager} instance.
-   *
-   * @param dataSource the JDBC DataSource to manage transactions for
-   */
-  public DataSourceTransactionManager(DataSource dataSource) {
-    this();
-    setDataSource(dataSource);
-    afterPropertiesSet();
-  }
-
-  /**
-   * Set the JDBC DataSource that this instance should manage transactions for.
+   * Create a new instance with a fixed JDBC DataSource to manage transactions for.
    * <p>This will typically be a locally defined DataSource, for example an
    * Apache Commons DBCP connection pool. Alternatively, you can also drive
    * transactions for a non-XA J2EE DataSource fetched from JNDI. For an XA
@@ -174,39 +151,29 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
    * The Connections may come from a pool (the typical case), but the DataSource
    * must not return thread-scoped / request-scoped Connections or the like.
    *
+   * @param dataSource the JDBC DataSource to manage transactions for (never {@code null})
+   * @throws IllegalArgumentException if the DataSource or its proxy target is null
    * @see TransactionAwareDataSourceProxy
    * @see infra.transaction.jta.JtaTransactionManager
    */
-  public void setDataSource(@Nullable DataSource dataSource) {
-    if (dataSource instanceof TransactionAwareDataSourceProxy) {
+  public DataSourceTransactionManager(DataSource dataSource) {
+    Assert.notNull(dataSource, "DataSource is required");
+    if (dataSource instanceof TransactionAwareDataSourceProxy proxy) {
       // If we got a TransactionAwareDataSourceProxy, we need to perform transactions
       // for its underlying target DataSource, else data access code won't see
       // properly exposed transactions (i.e. transactions for the target DataSource).
-      this.dataSource = ((TransactionAwareDataSourceProxy) dataSource).getTargetDataSource();
+      dataSource = proxy.getTargetDataSource();
+      Assert.notNull(dataSource, "Target DataSource is required");
     }
-    else {
-      this.dataSource = dataSource;
-    }
+    this.dataSource = dataSource;
+    setNestedTransactionAllowed(true);
   }
 
   /**
    * Return the JDBC DataSource that this instance manages transactions for.
    */
-  @Nullable
   public DataSource getDataSource() {
     return this.dataSource;
-  }
-
-  /**
-   * Obtain the DataSource for actual use.
-   *
-   * @return the DataSource (never {@code null})
-   * @throws IllegalStateException in case of no DataSource set
-   */
-  protected DataSource obtainDataSource() {
-    DataSource dataSource = getDataSource();
-    Assert.state(dataSource != null, "No DataSource set");
-    return dataSource;
   }
 
   /**
@@ -242,22 +209,15 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
   }
 
   @Override
-  public void afterPropertiesSet() {
-    if (getDataSource() == null) {
-      throw new IllegalArgumentException("Property 'dataSource' is required");
-    }
-  }
-
-  @Override
   public Object getResourceFactory() {
-    return obtainDataSource();
+    return getDataSource();
   }
 
   @Override
   protected Object doGetTransaction() {
     DataSourceTransactionObject txObject = new DataSourceTransactionObject();
     txObject.setSavepointAllowed(isNestedTransactionAllowed());
-    ConnectionHolder conHolder = TransactionSynchronizationManager.getResource(obtainDataSource());
+    ConnectionHolder conHolder = TransactionSynchronizationManager.getResource(getDataSource());
     txObject.setConnectionHolder(conHolder, false);
     return txObject;
   }
@@ -275,7 +235,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 
     try {
       if (!txObject.hasConnectionHolder() || txObject.getConnectionHolder().isSynchronizedWithTransaction()) {
-        Connection newCon = obtainDataSource().getConnection();
+        Connection newCon = getDataSource().getConnection();
         if (logger.isDebugEnabled()) {
           logger.debug("Acquired Connection [{}] for JDBC transaction", newCon);
         }
@@ -316,12 +276,12 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 
       // Bind the connection holder to the thread.
       if (txObject.newConnectionHolder) {
-        TransactionSynchronizationManager.bindResource(obtainDataSource(), connectionHolder);
+        TransactionSynchronizationManager.bindResource(getDataSource(), connectionHolder);
       }
     }
     catch (Throwable ex) {
       if (txObject.newConnectionHolder) {
-        DataSourceUtils.releaseConnection(con, obtainDataSource());
+        DataSourceUtils.releaseConnection(con, getDataSource());
         txObject.setConnectionHolder(null, false);
       }
       throw new CannotCreateTransactionException("Could not open JDBC Connection for transaction", ex);
@@ -332,12 +292,12 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
   protected Object doSuspend(Object transaction) {
     DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;
     txObject.setConnectionHolder(null);
-    return TransactionSynchronizationManager.unbindResource(obtainDataSource());
+    return TransactionSynchronizationManager.unbindResource(getDataSource());
   }
 
   @Override
   protected void doResume(@Nullable Object transaction, Object suspendedResources) {
-    TransactionSynchronizationManager.bindResource(obtainDataSource(), suspendedResources);
+    TransactionSynchronizationManager.bindResource(getDataSource(), suspendedResources);
   }
 
   @Override
@@ -385,7 +345,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 
     // Remove the connection holder from the thread, if exposed.
     if (txObject.newConnectionHolder) {
-      TransactionSynchronizationManager.unbindResource(obtainDataSource());
+      TransactionSynchronizationManager.unbindResource(getDataSource());
     }
 
     // Reset connection.
