@@ -2,10 +2,16 @@ name: CI
 
 on:
   push:
+    paths-ignore:
+      - 'infra-samples/**'
+
     branches:
       - master
 
   pull_request:
+    paths-ignore:
+      - 'infra-samples/**'
+
     branches:
       - master
       - 'dev/**'

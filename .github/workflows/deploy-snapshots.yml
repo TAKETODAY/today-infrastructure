@@ -2,6 +2,8 @@ name: Deploy
 
 on:
   push:
+    paths-ignore:
+      - 'infra-samples/**'
     branches: [ master ]
 
 concurrency:
