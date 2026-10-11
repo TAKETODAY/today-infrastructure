@@ -34,7 +34,7 @@ class ResourceNotFoundHandler implements NotFoundHandler {
 
   @Nullable
   @Override
-  public Object handleNotFound(HttpContext request) throws Throwable {
+  public Object handleNotFound(HttpContext request) {
     request.setStatus(HttpStatus.NOT_FOUND);
 
     SimpleNotFoundHandler.logNotFound(request);

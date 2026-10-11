@@ -8,11 +8,12 @@ app:
   name: netty-app-demo
 
 infra:
-  output:
-    ansi:
-      enabled: always
   profiles:
     active: dev
+
+output:
+  ansi:
+    enabled: always
 
 logging:
   level:
