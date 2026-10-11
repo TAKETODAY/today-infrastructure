@@ -1571,6 +1571,20 @@ class AnnotatedElementUtilsTests {
   class AliasForValueAndAttributeLengthTests {
 
     @Test
+    void onlyBlankValue() {
+      org.assertj.core.api.Assertions.assertThatExceptionOfType(AnnotationConfigurationException.class)
+              .isThrownBy(() -> MergedAnnotations.from(WithOnlyBlankValue.class).get(AliasedAnnotation.class))
+              .withMessageContaining("is declared as an @AliasFor nonexistent attribute ' '");
+    }
+
+    @Test
+    void onlyBlankAttribute() {
+      org.assertj.core.api.Assertions.assertThatExceptionOfType(AnnotationConfigurationException.class)
+              .isThrownBy(() -> MergedAnnotations.from(WithOnlyBlankAttribute.class).get(AliasedAnnotation.class))
+              .withMessageContaining("is declared as an @AliasFor nonexistent attribute ' '");
+    }
+
+    @Test
     void getMergedAnnotationWithBothNonBlankValueAndAttribute() {
       org.assertj.core.api.Assertions.assertThatThrownBy(() -> getMergedAnnotation(WithBothNonBlank.class, AliasedAnnotation.class))
               .isInstanceOf(AnnotationConfigurationException.class).hasMessageContaining("but only one is permitted");
@@ -1673,6 +1687,26 @@ class AnnotatedElementUtilsTests {
 
   @BothNonBlank
   static class WithBothNonBlank { }
+
+  @AliasedAnnotation
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface OnlyBlankValue {
+    @AliasFor(annotation = AliasedAnnotation.class, value = " ")
+    String bar() default "onlyBlankValue";
+  }
+
+  @AliasedAnnotation
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface OnlyBlankAttribute {
+    @AliasFor(annotation = AliasedAnnotation.class, attribute = " ")
+    String bar() default "onlyBlankAttribute";
+  }
+
+  @OnlyBlankValue
+  static class WithOnlyBlankValue { }
+
+  @OnlyBlankAttribute
+  static class WithOnlyBlankAttribute { }
 
   @BothBlank
   static class WithBothBlank { }
