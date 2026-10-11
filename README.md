@@ -56,7 +56,7 @@ TODAY Infrastructure 与 Spring 的关系可以概括为：**受其设计启发�
 - 项目使用独立的包命名空间、模块坐标、应用启动模型和构建工具；
 - 它不是 Spring Framework 或 Spring Boot 的二进制兼容替代品，Spring 生态组件不能因此默认直接兼容；
 - 涉及第三方源码的文件保留原始版权和许可证声明，并在修改后追加 TODAY authors 的修改声明；
-- 对 Spring 和 Spring Boot 的感谢及许可证说明见 [NOTICE](NOTICE) 和 [许可证与致谢](#许可证与致谢)。
+- 对 Spring 和 Spring Boot 的感谢及许可证说明见 [NOTICE](NOTICE)。
 
 因此，本项目最适合被看作一个独立的 Java 应用框架实践和基础设施项目，而不是“另一个 Spring Boot 发行版”。
 
@@ -227,26 +227,25 @@ dependencies {
 
 具体工程可以参见 [infra-samples](./infra-samples)
 
-### Maven
 
-```xml
-<dependency>
-  <groupId>cn.taketoday</groupId>
-  <artifactId>infra-starter-webmvc</artifactId>
-  <version>${infraVersion}</version>
-</dependency>
+## 快速开始
 
-<dependency>
-  <groupId>cn.taketoday</groupId>
-  <artifactId>infra-starter-netty-server</artifactId>
-  <version>${infraVersion}</version>
-</dependency>
-```
+下面创建一个最小的 HTTP 接口，完成「编写应用 → 启动服务 → 验证响应」。
+请先按照上面的 [安装](#️-安装) 部分配置依赖；本示例使用 `infra-starter-webmvc` 和
+`infra-starter-netty-server`，运行环境为 JDK 17+。
 
-## 开始
+### 1. 创建应用
+
+在 `src/main/java/example/DemoApplication.java` 中添加以下代码：
 
 ```java
-@Slf4j
+package example;
+
+import infra.app.Application;
+import infra.app.InfraApplication;
+import infra.web.annotation.GET;
+import infra.web.annotation.RestController;
+
 @RestController
 @InfraApplication
 public class DemoApplication {
@@ -255,55 +254,59 @@ public class DemoApplication {
     Application.run(DemoApplication.class, args);
   }
 
-  @GET("/index")
-  public String index() {
-    return "Hello";
+  @GET("/hello")
+  public String hello() {
+    return "Hello, TODAY!";
   }
-
-  @GET("/body/{name}/{age}")
-  public Body body(String name, int age) {
-    return new Body(name, age);
-  }
-
-  @GET("/publish-event")
-  public void index(String name, @Autowired ApplicationEventPublisher publisher) {
-    publisher.publishEvent(new MyEvent(name));
-  }
-
-  @GET("/request-context")
-  public String context(HttpContext http) {
-    String requestURL = http.getRequestURL();
-    String queryString = http.getQueryString();
-    System.out.println(requestURL);
-    System.out.println(queryString);
-
-    return queryString;
-  }
-
-  record Body(String name, int age) {
-
-  }
-
-  @Configuration
-  static class AppConfig {
-
-    @EventListener(MyEvent.class)
-    public void event(MyEvent event) {
-      log.info("event :{}", event);
-    }
-  }
-
-  record MyEvent(String name) {
-    
-  }
-
-  @ExceptionHandler(Throwable.class)
-  public void throwable(Throwable throwable) {
-    throwable.printStackTrace();
-  }
-
 }
 ```
+
+- `@InfraApplication`：声明应用配置入口，启用组件扫描和自动配置。
+- `@RestController`：声明返回响应内容的控制器。
+- `@GET("/hello")`：将 GET 请求映射到 `hello()` 方法。
+- `Application.run(...)`：启动应用上下文和配置的 Web 服务。
+
+入门示例将入口和控制器放在同一个类中。实际项目可以拆分为独立的控制器，
+放在应用入口所在包或其子包中，便于组件扫描。
+
+### 2. 启动服务
+
+在你的应用工程根目录执行以下命令（需要已配置 Gradle Wrapper 和 `infra.application` 插件）：
+
+```bash
+./gradlew infraRun --args='--server.port=8080'
+```
+
+Windows 下使用 `gradlew.bat` 替代 `./gradlew`。
+也可以在 IDE 中直接运行 `DemoApplication.main()`，并将 `--server.port=8080` 设置为程序参数。
+
+### 3. 验证接口
+
+服务启动后，在另一个终端执行：
+
+```bash
+curl http://localhost:8080/hello
+```
+
+预期响应：
+
+```text
+Hello, TODAY!
+```
+
+也可以直接在浏览器中访问 <http://localhost:8080/hello>。
+如果 8080 端口被占用，可修改启动参数中的 `server.port`，并使用对应端口访问。
+
+### 继续探索
+
+跑通第一个接口后，可以通过以下示例了解更多功能：
+
+| 内容                               | 示例入口                                                     |
+|------------------------------------|--------------------------------------------------------------|
+| 请求参数、响应对象、SSE 等 Web API | [web-api](infra-samples/web-api)                             |
+| Netty 应用启动与工程配置           | [netty-app](infra-samples/netty-app)                         |
+| 完整业务应用与框架使用实践         | [today-blog](https://github.com/TAKETODAY/today-blog)        |
+| 模块用法与 API 文档                | [在线文档](https://docs.today-tech.cn/today-infrastructure/) |
 
 ## 参与项目
 
@@ -396,4 +399,3 @@ wrk -t20 -c5000 -d1m http://127.0.0.1:8080/api/articles?size=1
 如果这个项目对你有帮助，欢迎 Star、提出 Issue、参与讨论或提交 Pull Request。
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure?ref=badge_large)
-
