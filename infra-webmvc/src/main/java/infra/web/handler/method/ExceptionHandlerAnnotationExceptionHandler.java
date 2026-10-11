@@ -24,6 +24,7 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
 import infra.aop.support.AopUtils;
@@ -66,6 +67,33 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
   private HandlerParameterFactory parameterFactory;
 
   private ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager();
+
+  private boolean renderUnhandledExceptionsAsProblemDetails;
+
+  private @Nullable InvocableHandlerMethod problemDetailHandlerMethod;
+
+  /**
+   * Enable rendering exceptions not handled by application exception handlers as
+   * RFC 9457 problem details. The fallback runs after local and controller advice
+   * methods, including when such a method rethrows or fails. Its return value uses
+   * the normal content negotiation and error response interceptor infrastructure.
+   * <p>Already committed responses are not rendered. The default is {@code false}.
+   * @param enabled whether to render unhandled exceptions as problem details
+   * @since 5.0
+   * @see ProblemDetailExceptionHandler
+   */
+  public void setRenderUnhandledExceptionsAsProblemDetails(boolean enabled) {
+    this.renderUnhandledExceptionsAsProblemDetails = enabled;
+  }
+
+  /**
+   * Return whether unhandled exceptions are rendered as problem details.
+   * @since 5.0
+   * @see #setRenderUnhandledExceptionsAsProblemDetails(boolean)
+   */
+  public boolean isRenderUnhandledExceptionsAsProblemDetails() {
+    return this.renderUnhandledExceptionsAsProblemDetails;
+  }
 
   /**
    * @since 5.0
@@ -134,6 +162,22 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
         }
       }
       // Continue with default processing of the original exception...
+      if (exHandler != this.problemDetailHandlerMethod) {
+        var fallback = getProblemDetailHandlerMethod(context);
+        if (fallback != null && target instanceof Exception exception) {
+          var metadata = context.getMatchingMetadata();
+          if (metadata != null) {
+            metadata.setProducibleMediaTypes(null);
+            metadata.setHandler(fallback);
+          }
+          try {
+            return fallback.invokeAndHandle(context, null, new Object[] { exception, context.getLocale() });
+          }
+          catch (Exception fallbackFailure) {
+            logger.warn("Failure in problem detail handler", fallbackFailure);
+          }
+        }
+      }
       return null;
     }
   }
@@ -196,7 +240,11 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
       }
     }
 
-    return null;
+    return exception instanceof Exception ? getProblemDetailHandlerMethod(context) : null;
+  }
+
+  private @Nullable InvocableHandlerMethod getProblemDetailHandlerMethod(HttpContext context) {
+    return context.isCommitted() ? null : this.problemDetailHandlerMethod;
   }
 
   private InvocableHandlerMethod createHandlerMethod(ExceptionHandlerMappingInfo mappingInfo, HttpContext context, Object advice) {
@@ -211,11 +259,14 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
 
   @Override
   protected boolean hasGlobalExceptionHandlers() {
-    return !this.exceptionHandlerAdviceCache.isEmpty();
+    return !this.exceptionHandlerAdviceCache.isEmpty() || this.problemDetailHandlerMethod != null;
   }
 
   @Override
   protected boolean shouldApplyTo(HttpContext request, @Nullable Object handler) {
+    if (this.problemDetailHandlerMethod != null && !hasHandlerMappings()) {
+      return true;
+    }
     return (handler instanceof ResourceHttpRequestHandler ?
             hasGlobalExceptionHandlers() : super.shouldApplyTo(request, handler));
   }
@@ -236,6 +287,19 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
       }
     }
     initExceptionHandlerAdviceCache(context);
+    if (this.renderUnhandledExceptionsAsProblemDetails) {
+      try {
+        this.problemDetailHandlerMethod = new InvocableHandlerMethod(new ProblemDetailExceptionHandler(context),
+                ProblemDetailExceptionHandler.class.getMethod("handleException", Exception.class, Locale.class),
+                context, this.parameterFactory);
+      }
+      catch (NoSuchMethodException ex) {
+        throw new IllegalStateException("Problem detail handler method not found", ex);
+      }
+    }
+    else {
+      this.problemDetailHandlerMethod = null;
+    }
   }
 
   private void initExceptionHandlerAdviceCache(ApplicationContext applicationContext) {

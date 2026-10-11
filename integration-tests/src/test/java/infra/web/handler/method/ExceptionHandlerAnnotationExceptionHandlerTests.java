@@ -71,6 +71,120 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ExceptionHandlerAnnotationExceptionHandlerTests {
 
+  @Test
+  void problemDetailsDisabledByDefault() throws Exception {
+    try (var application = new AnnotationConfigApplicationContext(Config.class)) {
+      handler.setApplicationContext(application);
+      handler.afterPropertiesSet();
+      assertThat(handler.isRenderUnhandledExceptionsAsProblemDetails()).isFalse();
+      assertThat(handler.handleException(new MockHttpContext(application, request, response),
+              new IllegalStateException("Secret internal state"), null)).isNull();
+    }
+  }
+
+  @Test
+  void unknownExceptionAsProblemDetail() throws Exception {
+    try (var application = new AnnotationConfigApplicationContext(Config.class)) {
+      handler.setApplicationContext(application);
+      handler.setRenderUnhandledExceptionsAsProblemDetails(true);
+      handler.afterPropertiesSet();
+      Object result = handler.handleException(new MockHttpContext(application, request, response),
+              new IllegalStateException("Secret internal state"), null);
+      assertThat(result).isInstanceOf(infra.web.ErrorResponse.class);
+      var body = ((infra.web.ErrorResponse) result).getBody();
+      assertThat(body.getStatus()).isEqualTo(500);
+      assertThat(body.getDetail()).isNull();
+    }
+  }
+
+  @Test
+  void problemDetailsAfterLocalHandlerRethrows() throws Exception {
+    try (var application = new AnnotationConfigApplicationContext(Config.class)) {
+      handler.setApplicationContext(application);
+      handler.setRenderUnhandledExceptionsAsProblemDetails(true);
+      handler.afterPropertiesSet();
+      Object result = handler.handleException(new MockHttpContext(application, request, response),
+              new IllegalStateException("Secret"), new HandlerMethod(new RethrowingProblemController(), "handle"));
+      assertThat(result).isInstanceOf(infra.web.ErrorResponse.class);
+      assertThat(((infra.web.ErrorResponse) result).getBody().getStatus()).isEqualTo(500);
+    }
+  }
+
+  @Test
+  void problemDetailsAfterLocalHandlerFails() throws Exception {
+    try (var application = new AnnotationConfigApplicationContext(Config.class)) {
+      handler.setApplicationContext(application);
+      handler.setRenderUnhandledExceptionsAsProblemDetails(true);
+      handler.afterPropertiesSet();
+      Object result = handler.handleException(new MockHttpContext(application, request, response),
+              new IllegalStateException("Secret"), new HandlerMethod(new FailingProblemController(), "handle"));
+      assertThat(result).isInstanceOf(infra.web.ErrorResponse.class);
+      assertThat(((infra.web.ErrorResponse) result).getBody().getStatus()).isEqualTo(500);
+    }
+  }
+
+  @Test
+  void problemDetailsForAnyHandler() throws Exception {
+    try (var application = new AnnotationConfigApplicationContext(Config.class)) {
+      handler.setApplicationContext(application);
+      handler.setRenderUnhandledExceptionsAsProblemDetails(true);
+      handler.afterPropertiesSet();
+      assertThat(handler.handleException(new MockHttpContext(application, request, response),
+              new IllegalStateException(), new Object())).isInstanceOf(infra.web.ErrorResponse.class);
+    }
+  }
+
+  @Test
+  void problemDetailsDoNotApplyToUnmappedHandler() throws Exception {
+    try (var application = new AnnotationConfigApplicationContext(Config.class)) {
+      handler.setApplicationContext(application);
+      handler.setRenderUnhandledExceptionsAsProblemDetails(true);
+      handler.setMappedHandlerClasses(RethrowingProblemController.class);
+      handler.afterPropertiesSet();
+      assertThat(handler.handleException(new MockHttpContext(application, request, response),
+              new IllegalStateException(), new Object())).isNull();
+    }
+  }
+
+  @Test
+  void problemDetailsDoNotWriteCommittedResponse() throws Exception {
+    try (var application = new AnnotationConfigApplicationContext(Config.class)) {
+      handler.setApplicationContext(application);
+      handler.setRenderUnhandledExceptionsAsProblemDetails(true);
+      handler.afterPropertiesSet();
+      response.flushBuffer();
+      assertThat(handler.handleException(new MockHttpContext(application, request, response),
+              new IllegalStateException(), null)).isNull();
+    }
+  }
+
+  @Test
+  void problemDetailsPreserveClientErrorHeaders() throws Exception {
+    try (var application = new AnnotationConfigApplicationContext(Config.class)) {
+      handler.setApplicationContext(application);
+      handler.setRenderUnhandledExceptionsAsProblemDetails(true);
+      handler.afterPropertiesSet();
+      Object result = handler.handleException(new MockHttpContext(application, request, response),
+              new infra.web.HttpRequestMethodNotSupportedException("POST", java.util.List.of("GET")), null);
+      assertThat(result).isInstanceOf(infra.web.ErrorResponse.class);
+      var error = (infra.web.ErrorResponse) result;
+      assertThat(error.getStatusCode().value()).isEqualTo(405);
+      assertThat(error.getHeaders().getFirst("Allow")).isEqualTo("GET");
+    }
+  }
+
+  static class RethrowingProblemController {
+    public void handle() { }
+    @ExceptionHandler
+    public Object error(IllegalStateException ex) { throw ex; }
+  }
+
+  static class FailingProblemController {
+    public void handle() { }
+    @ExceptionHandler
+    public Object error(IllegalStateException ex) { throw new IllegalArgumentException("Handler failure"); }
+  }
+
   private ExceptionHandlerAnnotationExceptionHandler handler;
 
   private MockRequest request;
