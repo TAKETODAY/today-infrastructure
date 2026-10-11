@@ -318,7 +318,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
     }
     try {
       for (var interceptor : this.errorResponseInterceptors) {
-        interceptor.handleError(detail, error);
+        interceptor.handleError(detail, error, context);
       }
     }
     catch (Throwable ignored) {

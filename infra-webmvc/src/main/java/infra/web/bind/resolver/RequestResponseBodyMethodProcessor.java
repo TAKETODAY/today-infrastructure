@@ -162,7 +162,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
   public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof ProblemDetail detail) {
       context.setStatus(detail.getStatus());
-      invokeErrorResponseInterceptors(detail, null);
+      invokeErrorResponseInterceptors(detail, null, context);
     }
 
     // Try even with null return value. ResponseBodyAdvice could get involved.

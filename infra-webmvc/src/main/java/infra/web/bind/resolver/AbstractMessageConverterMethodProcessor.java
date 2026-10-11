@@ -441,6 +441,27 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
     }
   }
 
+  /**
+   * Invoke error response interceptors with access to the current request.
+   * @param detail the problem detail to render
+   * @param errorResponse the originating response, if any
+   * @param request the current request
+   * @since 5.0
+   */
+  protected void invokeErrorResponseInterceptors(ProblemDetail detail, @Nullable ErrorResponse errorResponse,
+          infra.http.HttpRequest request) {
+    if (errorResponseInterceptors != null) {
+      try {
+        for (ErrorResponse.Interceptor interceptor : errorResponseInterceptors) {
+          interceptor.handleError(detail, errorResponse, request);
+        }
+      }
+      catch (Throwable ignored) {
+        // Rendering must continue after interceptor failures.
+      }
+    }
+  }
+
   private List<MediaType> getAcceptableMediaTypes(HttpContext request) throws HttpMediaTypeNotAcceptableException {
     return this.contentNegotiationManager.resolveMediaTypes(request);
   }

@@ -209,7 +209,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
           }
         }
       }
-      invokeErrorResponseInterceptors(detail, returnValue instanceof ErrorResponse response ? response : null);
+      invokeErrorResponseInterceptors(detail, returnValue instanceof ErrorResponse response ? response : null, context);
     }
 
     if (httpEntity.hasHeaders()) {

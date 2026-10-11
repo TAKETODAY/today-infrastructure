@@ -51,6 +51,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 /** Adapted problem-detail rendering scenarios from the upstream exception resolver tests. */
 class ProblemDetailRenderingTests {
 
+  @Test
+  void errorResponseInterceptorsWithRequest() throws Exception {
+    try (var application = new StaticApplicationContext()) {
+      application.refresh();
+      var request = new MockRequest("GET", "/orders/42?trace=on");
+      var response = new MockResponse();
+      var context = new MockHttpContext(application, request, response);
+      ErrorResponse.Interceptor interceptor = new ErrorResponse.Interceptor() {
+        @Override
+        public void handleError(ProblemDetail detail, ErrorResponse error) {
+          throw new AssertionError("Request-aware overload must be invoked");
+        }
+
+        @Override
+        public void handleError(ProblemDetail detail, ErrorResponse error, infra.http.HttpRequest current) {
+          assertThat(current).isSameAs(context);
+          detail.setProperty("trace", "on");
+        }
+      };
+      var processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()),
+              null, List.of(), null, List.of(interceptor));
+      processor.handleReturnValue(context, null, new infra.web.ErrorResponseException(HttpStatus.BAD_REQUEST, null));
+      context.flush();
+      assertThat(response.getContentAsString()).contains("\"trace\":\"on\"");
+    }
+  }
+
   @ParameterizedTest
   @NullSource
   @ValueSource(strings = { "*/*", "application/json", "text/html;q=0.5,application/json" })
