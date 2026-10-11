@@ -25,11 +25,12 @@ import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.StringJoiner;
 
 import infra.core.type.AnnotatedTypeMetadata;
 import infra.core.type.AnnotationMetadata;
 import infra.util.Assert;
-import infra.util.StringUtils;
+import infra.util.ClassUtils;
 
 /**
  * {@link LinkedHashMap} subclass representing annotation attribute
@@ -414,12 +415,23 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
     return sb.toString();
   }
 
-  private String valueToString(Object value) {
+  private String valueToString(@Nullable Object value) {
     if (value == this) {
       return "(this Map)";
     }
-    if (value instanceof Object[]) {
-      return "[" + StringUtils.arrayToDelimitedString((Object[]) value, ", ") + "]";
+    if (value instanceof Class<?> clazz) {
+      return ClassUtils.getCanonicalName(clazz) + ".class";
+    }
+    if (value instanceof Enum<?> enumValue) {
+      return enumValue.name();
+    }
+    if (value != null && value.getClass().isArray()) {
+      int length = Array.getLength(value);
+      StringJoiner sj = new StringJoiner(", ", "[", "]");
+      for (int i = 0; i < length; i++) {
+        sj.add(valueToString(Array.get(value, i)));
+      }
+      return sj.toString();
     }
     return String.valueOf(value);
   }
