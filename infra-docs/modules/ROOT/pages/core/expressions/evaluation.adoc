@@ -65,7 +65,7 @@ byte[] bytes = (byte[]) exp.getValue();
 SpEL 还支持通过使用标准点符号（例如 `prop1.prop2.prop3`）访问嵌套属性以及相应的属性值设置。
 也可以访问公共字段。
 
-下例显示了如何使用点符号来获取字符串字面量的长度。
+下例显示了如何使用点符号来获取字符串字面量按平台默认字符集编码后的字节数。
 
 [tabs]
 ======
@@ -79,7 +79,7 @@ ExpressionParser parser = new SpelExpressionParser();
 Expression exp = parser.parseExpression("'Hello World'.bytes.length"); // <1>
 int length = (Integer) exp.getValue();
 ----
-<1> `'Hello World'.bytes.length` 给出字面量的长度。
+<1> `'Hello World'.bytes.length` 给出字面量对应字节数组中的字节数。
 
 ======
 
