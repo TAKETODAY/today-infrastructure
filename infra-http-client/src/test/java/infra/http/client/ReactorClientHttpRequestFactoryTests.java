@@ -19,12 +19,15 @@
 package infra.http.client;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.URI;
 import java.time.Duration;
 import java.util.function.Function;
 
 import infra.http.HttpMethod;
+import io.netty.channel.ChannelOption;
 import infra.http.support.ReactorResourceFactory;
 import reactor.netty.http.client.HttpClient;
 
@@ -40,6 +43,39 @@ class ReactorClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTes
   @Override
   protected ClientHttpRequestFactory createRequestFactory() {
     return new ReactorClientHttpRequestFactory();
+  }
+
+  @Test
+  void durationConnectTimeout() {
+    HttpClient client = mockHttpClient();
+    new ReactorClientHttpRequestFactory(client).setConnectTimeout(Duration.ofSeconds(5));
+    org.mockito.Mockito.verify(client).option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5_000);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = { "P25D", "P50D", "PT9223372036854775807S" })
+  void durationConnectTimeoutExceedingIntegerMaxValueIsLimited(Duration timeout) {
+    HttpClient client = mockHttpClient();
+    new ReactorClientHttpRequestFactory(client).setConnectTimeout(timeout);
+    org.mockito.Mockito.verify(client).option(ChannelOption.CONNECT_TIMEOUT_MILLIS, Integer.MAX_VALUE);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = { "PT-0.001S", "P-25D", "P-50D" })
+  void negativeDurationConnectTimeoutIsRejected(Duration timeout) {
+    HttpClient client = mockHttpClient();
+    var factory = new ReactorClientHttpRequestFactory(client);
+    assertThatIllegalArgumentException().isThrownBy(() -> factory.setConnectTimeout(timeout))
+            .withMessage("Timeout must be a non-negative value");
+    org.mockito.Mockito.verify(client, org.mockito.Mockito.never())
+            .option(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+  }
+
+  private static HttpClient mockHttpClient() {
+    HttpClient client = org.mockito.Mockito.mock(HttpClient.class);
+    org.mockito.BDDMockito.given(client.option(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any()))
+            .willReturn(client);
+    return client;
   }
 
   @Override
