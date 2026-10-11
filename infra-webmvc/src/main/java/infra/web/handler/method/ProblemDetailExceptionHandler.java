@@ -47,13 +47,21 @@ import infra.web.util.DisconnectedClientHelper;
  * application {@link ExceptionHandler @ExceptionHandler} methods, local or declared
  * in a {@code @ControllerAdvice}. It is not intended to be declared as an application bean.
  *
- * <p>{@link ErrorResponse} exceptions are used as is. Exceptions resembling a client
- * disconnect result in a 500 status, since the lost connection may be to another host.
- * {@link ResponseStatusException} and {@link ResponseStatus @ResponseStatus}, including
- * on causes, determine the status and localized reason. Conversion, message conversion,
- * and method validation failures use the same status and detail as
- * {@code ResponseEntityExceptionHandler}. Other exceptions produce a 500 response
- * without exposing their message.
+ * <p>Exceptions are translated as follows:
+ * <ul>
+ * <li>{@link ErrorResponse} exceptions are used as is, preserving their headers and body.
+ * <li>Exceptions resembling a client disconnect, as determined by
+ * {@link DisconnectedClientHelper}, produce a 500 status, since the lost connection
+ * may be to another remote host rather than to the client.
+ * <li>{@link ResponseStatusException} and exceptions annotated with
+ * {@link ResponseStatus @ResponseStatus}, including causes, use the declared status.
+ * Their reason becomes the detail and is resolved through the message source if possible.
+ * <li>{@link TypeMismatchException}, {@link ConversionNotSupportedException},
+ * {@link HttpMessageNotReadableException}, {@link HttpMessageNotWritableException},
+ * and {@link MethodValidationException} use the same status and detail as
+ * {@link infra.web.handler.ResponseEntityExceptionHandler}.
+ * <li>Other exceptions produce a 500 response without exposing their message.
+ * </ul>
  *
  * <p>The type, title, and detail can be customized through
  * {@link ErrorResponse#updateAndGetBody(MessageSource, Locale)}. Unexpected 5xx errors
@@ -73,7 +81,8 @@ public final class ProblemDetailExceptionHandler {
 
   /**
    * Create a new instance.
-   * @param messageSource the source for problem type, title, detail, and response status reasons
+   * @param messageSource the source used to resolve the type, title, and detail
+   * of problem details and response status reasons, or {@code null} to use defaults
    */
   public ProblemDetailExceptionHandler(@Nullable MessageSource messageSource) {
     this.messageSource = messageSource;
