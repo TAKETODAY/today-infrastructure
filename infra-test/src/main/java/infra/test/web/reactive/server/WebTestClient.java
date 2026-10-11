@@ -365,6 +365,8 @@ public interface WebTestClient {
 
     /**
      * Max amount of time to wait for responses.
+     * <p>A timeout value of 0 specifies an infinite timeout.
+     * <p>Negative values are not permitted.
      * <p>By default 5 seconds.
      *
      * @param timeout the response timeout value

@@ -77,6 +77,14 @@ import reactor.core.publisher.Flux;
  */
 class DefaultWebTestClient implements WebTestClient {
 
+  private static final Duration DEFAULT_RESPONSE_TIMEOUT = Duration.ofSeconds(5);
+
+  /**
+   * Effectively infinite timeout which can still be converted to nanoseconds,
+   * as required by {@link reactor.core.publisher.Mono#block(Duration)}.
+   */
+  private static final Duration INFINITE_RESPONSE_TIMEOUT = Duration.ofNanos(Long.MAX_VALUE);
+
   private final WiretapConnector wiretapConnector;
 
   @Nullable
@@ -114,7 +122,8 @@ class DefaultWebTestClient implements WebTestClient {
     this.defaultHeaders = headers;
     this.defaultCookies = cookies;
     this.entityResultConsumer = entityResultConsumer;
-    this.responseTimeout = (responseTimeout != null ? responseTimeout : Duration.ofSeconds(5));
+    this.responseTimeout = responseTimeout == null ? DEFAULT_RESPONSE_TIMEOUT
+            : responseTimeout.isZero() ? INFINITE_RESPONSE_TIMEOUT : responseTimeout;
     this.builder = clientBuilder;
   }
 
