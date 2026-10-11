@@ -18,10 +18,6 @@
 
 package infra.http.client;
 
-import org.jspecify.annotations.Nullable;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
@@ -36,7 +32,6 @@ import java.time.Duration;
 
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
-import infra.http.HttpStatusCode;
 import infra.util.StreamUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,24 +43,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Order(0)
 class JdkClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTests {
 
-  private static @Nullable String originalPropertyValue;
-
-  @BeforeAll
-  static void setProperty() {
-    originalPropertyValue = System.getProperty("jdk.httpclient.allowRestrictedHeaders");
-    System.setProperty("jdk.httpclient.allowRestrictedHeaders", "expect");
-  }
-
-  @AfterAll
-  static void restoreProperty() {
-    if (originalPropertyValue != null) {
-      System.setProperty("jdk.httpclient.allowRestrictedHeaders", originalPropertyValue);
-    }
-    else {
-      System.clearProperty("jdk.httpclient.allowRestrictedHeaders");
-    }
-  }
-
   @Override
   protected ClientHttpRequestFactory createRequestFactory() {
     return new JdkClientHttpRequestFactory();
@@ -76,19 +53,6 @@ class JdkClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTests {
   void httpMethods() throws Exception {
     super.httpMethods();
     assertHttpMethod("patch", HttpMethod.PATCH);
-  }
-
-  @Test
-  @Disabled
-  void customizeDisallowedHeaders() throws IOException {
-    URI uri = URI.create(this.baseUrl + "/status/299");
-    ClientHttpRequest request = this.factory.createRequest(uri, HttpMethod.PUT);
-    request.getHeaders().set("Expect", "299");
-
-    try (ClientHttpResponse response = request.execute()) {
-      assertThat(response.getStatusCode())
-              .as("Invalid status code").isEqualTo(HttpStatusCode.valueOf(299));
-    }
   }
 
   @Test
