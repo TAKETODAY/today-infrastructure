@@ -117,6 +117,8 @@ public interface MvcResult {
    * {@link MockAsyncContext#setTimeout
    * MockAsyncContext#setTimeout}. Alternatively, use
    * {@link #getAsyncResult(long)} to specify the amount of time to wait.
+   * <p>An async request timeout of zero or less specifies no timeout, in which
+   * case this method waits indefinitely.
    *
    * @throws IllegalStateException if the async result was not set
    */

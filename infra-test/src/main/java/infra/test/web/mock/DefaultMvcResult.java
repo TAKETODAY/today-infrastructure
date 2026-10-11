@@ -194,7 +194,7 @@ class DefaultMvcResult implements MvcResult {
   public Object getAsyncResult(long timeToWait) {
     if (this.mockRequest.getAsyncContext() != null && timeToWait == -1) {
       long requestTimeout = this.mockRequest.getAsyncContext().getTimeout();
-      timeToWait = requestTimeout == -1 ? Long.MAX_VALUE : requestTimeout;
+      timeToWait = requestTimeout > 0 ? requestTimeout : Long.MAX_VALUE;
     }
     if (!awaitAsyncDispatch(timeToWait)) {
       throw new IllegalStateException("Async result for handler [" + this.handler + "]" +

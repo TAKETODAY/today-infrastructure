@@ -36,6 +36,45 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  */
 public class DefaultMvcResultTests {
 
+  @org.junit.jupiter.params.ParameterizedTest
+  @org.junit.jupiter.api.Timeout(5)
+  @org.junit.jupiter.params.provider.ValueSource(longs = { -5, -1, 0 })
+  void getAsyncResultWithInfiniteAsyncRequestTimeout(long timeout) {
+    DefaultMvcResult result = createMvcResultWithAsyncRequestTimeout(timeout);
+    CountDownLatch latch = new CountDownLatch(1);
+    result.setAsyncDispatchLatch(latch);
+    java.util.concurrent.CompletableFuture.runAsync(() -> {
+      result.setAsyncResult("Foo");
+      latch.countDown();
+    }, java.util.concurrent.CompletableFuture.delayedExecutor(100, java.util.concurrent.TimeUnit.MILLISECONDS));
+    assertThat(result.getAsyncResult()).isEqualTo("Foo");
+  }
+
+  @Test
+  @org.junit.jupiter.api.Timeout(5)
+  void getAsyncResultWithExplicitTimeToWaitOfZeroDoesNotWait() {
+    DefaultMvcResult result = createMvcResultWithAsyncRequestTimeout(0);
+    result.setAsyncDispatchLatch(new CountDownLatch(1));
+    assertThatIllegalStateException().isThrownBy(() -> result.getAsyncResult(0))
+            .withMessageEndingWith("was not set during the specified timeToWait=0");
+  }
+
+  @Test
+  void getAsyncResultWithAsyncRequestTimeoutExceeded() {
+    DefaultMvcResult result = createMvcResultWithAsyncRequestTimeout(50);
+    result.setAsyncDispatchLatch(new CountDownLatch(1));
+    assertThatIllegalStateException().isThrownBy(result::getAsyncResult)
+            .withMessageEndingWith("was not set during the specified timeToWait=50");
+  }
+
+  private static DefaultMvcResult createMvcResultWithAsyncRequestTimeout(long timeout) {
+    MockRequest request = new MockRequest();
+    request.setAsyncSupported(true);
+    request.startAsync().setTimeout(timeout);
+    MockResponse response = new MockResponse();
+    return new DefaultMvcResult(request, response, new MockHttpContext(request, response));
+  }
+
   MockRequest request = new MockRequest();
 
   MockResponse response = new MockResponse();

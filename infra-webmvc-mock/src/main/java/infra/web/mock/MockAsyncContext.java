@@ -152,6 +152,8 @@ public class MockAsyncContext implements AsyncContext {
    * or on
    * {@link SseEmitter SseEmitter}.
    *
+   * <p>A timeout of zero or less specifies no timeout.
+   *
    * @param timeout the timeout value to use.
    * @see AsyncContext#setTimeout(long)
    */
