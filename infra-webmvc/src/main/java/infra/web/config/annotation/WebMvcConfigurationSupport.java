@@ -1022,7 +1022,12 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
     return this.errorResponseInterceptors;
   }
 
-  /** Return the lazily customized problem detail configuration. */
+  /**
+   * Return the {@link ProblemDetailsConfigurer}, as prepared by
+   * {@link #customizeProblemDetails(ProblemDetailsConfigurer)}.
+   *
+   * @since 5.0
+   */
   protected final ProblemDetailsConfigurer getProblemDetailsConfigurer() {
     if (this.problemDetailsConfigurer == null) {
       this.problemDetailsConfigurer = new ProblemDetailsConfigurer();
@@ -1031,7 +1036,14 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
     return this.problemDetailsConfigurer;
   }
 
-  /** Customize problem detail production and rendering. */
+  /**
+   * Override this method to configure how RFC 9457 problem details are
+   * produced and rendered by the default
+   * {@code ExceptionHandlerAnnotationExceptionHandler}.
+   *
+   * @since 5.0
+   * @see ProblemDetailsConfigurer
+   */
   protected void customizeProblemDetails(ProblemDetailsConfigurer configurer) {
   }
 

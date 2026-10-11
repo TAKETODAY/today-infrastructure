@@ -272,7 +272,17 @@ public interface WebMvcConfigurer {
   default void addErrorResponseInterceptors(List<ErrorResponse.Interceptor> interceptors) {
   }
 
-  /** Configure how problem details are produced and rendered. */
+  /**
+   * Configure how RFC 9457 problem details are produced and rendered, for
+   * example to render exceptions that are not handled by any
+   * {@code @ExceptionHandler} method as problem details.
+   * <p>Note that this applies to the default
+   * {@code ExceptionHandlerAnnotationExceptionHandler}. It does not apply if
+   * {@link #configureExceptionHandlers(List)} is used to replace the default handlers.
+   *
+   * @see #addErrorResponseInterceptors(List)
+   * @since 5.0
+   */
   default void configureProblemDetails(ProblemDetailsConfigurer configurer) {
   }
 

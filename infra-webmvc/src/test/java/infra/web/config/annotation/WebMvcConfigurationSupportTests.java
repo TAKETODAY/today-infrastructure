@@ -31,6 +31,7 @@ import java.util.Map;
 import infra.beans.DirectFieldAccessor;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.context.annotation.Configuration;
 import infra.core.Ordered;
 import infra.format.FormatterRegistry;
 import infra.http.HttpStatus;
@@ -38,7 +39,6 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
-import infra.web.mock.MockRequest;
 import infra.scheduling.concurrent.ConcurrentTaskExecutor;
 import infra.stereotype.Controller;
 import infra.validation.BeanPropertyBindingResult;
@@ -47,6 +47,7 @@ import infra.validation.Errors;
 import infra.validation.MessageCodesResolver;
 import infra.validation.Validator;
 import infra.web.ErrorResponse;
+import infra.web.ErrorResponseViewResolver;
 import infra.web.HandlerExceptionHandler;
 import infra.web.HandlerInterceptor;
 import infra.web.RedirectModelManager;
@@ -67,6 +68,7 @@ import infra.web.handler.ResponseStatusExceptionHandler;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.handler.SimpleMappingExceptionHandler;
 import infra.web.handler.SimpleUrlHandlerMapping;
+import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.HandlerTypePredicate;
 import infra.web.handler.method.ModelAttributeMethodProcessor;
@@ -75,6 +77,8 @@ import infra.web.handler.method.RequestMappingHandlerMapping;
 import infra.web.handler.method.RequestMappingInfo;
 import infra.web.i18n.LocaleChangeInterceptor;
 import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.web.view.ContentNegotiatingViewResolver;
 import infra.web.view.View;
 import infra.web.view.ViewResolver;
@@ -84,7 +88,9 @@ import infra.web.view.json.JacksonJsonView;
 
 import static infra.http.MediaType.APPLICATION_JSON;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -280,6 +286,113 @@ class WebMvcConfigurationSupportTests {
             config.mvcContentNegotiationManager());
 
     assertThat(returnValueHandlerManager.getErrorResponseInterceptors()).containsExactly(interceptor);
+  }
+
+  @Test
+  void problemDetailsAreNotConfiguredByDefault() {
+    WebMvcConfigurer configurer = mock(WebMvcConfigurer.class);
+    var configuration = new DelegatingWebMvcConfiguration(List.of(configurer));
+    var handler = exceptionHandler(configuration);
+
+    verify(configurer).configureProblemDetails(any(ProblemDetailsConfigurer.class));
+    assertThat(handler.isRenderUnhandledExceptionsAsProblemDetails()).isFalse();
+    assertThat(handler.getErrorResponseViewResolver()).isNull();
+  }
+
+  @Test
+  void configureProblemDetails() {
+    ErrorResponseViewResolver viewResolver = (request, problemDetail, errorResponse) -> null;
+    WebMvcConfigurer configurer = new WebMvcConfigurer() {
+      @Override
+      public void configureProblemDetails(ProblemDetailsConfigurer configurer) {
+        configurer.renderUnhandledExceptions(true).viewResolver(viewResolver);
+      }
+    };
+    var handler = exceptionHandler(new DelegatingWebMvcConfiguration(List.of(configurer)));
+
+    assertThat(handler.isRenderUnhandledExceptionsAsProblemDetails()).isTrue();
+    assertThat(handler.getErrorResponseViewResolver()).isSameAs(viewResolver);
+  }
+
+  @Test
+  void configureProblemDetailsWithMultipleConfigurers() {
+    ErrorResponseViewResolver viewResolver = (request, problemDetail, errorResponse) -> null;
+    WebMvcConfigurer first = new WebMvcConfigurer() {
+      @Override
+      public void configureProblemDetails(ProblemDetailsConfigurer configurer) {
+        configurer.renderUnhandledExceptions(true);
+      }
+    };
+    WebMvcConfigurer second = new WebMvcConfigurer() {
+      @Override
+      public void configureProblemDetails(ProblemDetailsConfigurer configurer) {
+        configurer.viewResolver(viewResolver);
+      }
+    };
+    var handler = exceptionHandler(new DelegatingWebMvcConfiguration(List.of(first, second)));
+
+    assertThat(handler.isRenderUnhandledExceptionsAsProblemDetails()).isTrue();
+    assertThat(handler.getErrorResponseViewResolver()).isSameAs(viewResolver);
+  }
+
+  @Test
+  void problemDetailsDisabledByDefault() throws Exception {
+    try (var application = new AnnotationConfigApplicationContext(DefaultProblemDetailsConfig.class)) {
+      var handler = configuredExceptionHandler(application);
+      assertThat(handler.isRenderUnhandledExceptionsAsProblemDetails()).isFalse();
+      assertThat(handler.getErrorResponseViewResolver()).isNull();
+
+      var request = new MockHttpContext(application, new MockRequest("GET", "/"), new MockResponse());
+      assertThat(handler.handleException(request, new IllegalStateException(), null)).isNull();
+    }
+  }
+
+  @Test
+  void problemDetailsConfiguration() throws Exception {
+    try (var application = new AnnotationConfigApplicationContext(ProblemDetailsConfig.class, TestController.class)) {
+      var handler = configuredExceptionHandler(application);
+      assertThat(handler.isRenderUnhandledExceptionsAsProblemDetails()).isTrue();
+      assertThat(handler.getErrorResponseViewResolver()).isNotNull();
+
+      var response = new MockResponse();
+      var request = new MockHttpContext(application, new MockRequest("GET", "/"), response);
+      var method = new HandlerMethod(application.getBean(TestController.class), TestController.class.getMethod("handle"));
+      Object value = handler.handleException(request, new IllegalStateException(), method);
+      assertThat(value).isNotNull();
+      // Infra renders exception-handler return values in a separate processing stage.
+      application.getBean(ReturnValueHandlerManager.class).handleReturnValue(request, method, value);
+      request.flush();
+      assertThat(response.getStatus()).isEqualTo(500);
+      assertThat(response.getContentType()).isEqualTo("application/problem+json");
+    }
+  }
+
+  private ExceptionHandlerAnnotationExceptionHandler exceptionHandler(WebMvcConfigurationSupport configuration) {
+    configuration.setApplicationContext(this.context);
+    var composite = (CompositeHandlerExceptionHandler) configuration.handlerExceptionHandler(
+            ParameterResolvingRegistry.get(this.context), configuration.mvcContentNegotiationManager());
+    return (ExceptionHandlerAnnotationExceptionHandler) composite.getExceptionHandlers().get(0);
+  }
+
+  private ExceptionHandlerAnnotationExceptionHandler configuredExceptionHandler(AnnotationConfigApplicationContext application) {
+    var composite = (CompositeHandlerExceptionHandler) application.getBean("handlerExceptionHandler");
+    return (ExceptionHandlerAnnotationExceptionHandler) composite.getExceptionHandlers().get(0);
+  }
+
+  @EnableWebMvc
+  @Configuration(proxyBeanMethods = false)
+  static class DefaultProblemDetailsConfig {
+  }
+
+  @EnableWebMvc
+  @Configuration(proxyBeanMethods = false)
+  static class ProblemDetailsConfig implements WebMvcConfigurer {
+
+    @Override
+    public void configureProblemDetails(ProblemDetailsConfigurer configurer) {
+      configurer.renderUnhandledExceptions(true)
+              .viewResolver((request, problemDetail, errorResponse) -> null);
+    }
   }
 
   @Controller
