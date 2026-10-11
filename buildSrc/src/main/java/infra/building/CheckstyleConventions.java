@@ -44,8 +44,8 @@ public class CheckstyleConventions {
       project.getPlugins().apply(CheckstylePlugin.class);
       project.getTasks().withType(Checkstyle.class).forEach(checkstyle -> checkstyle.getMaxHeapSize().set("1g"));
       CheckstyleExtension checkstyle = project.getExtensions().getByType(CheckstyleExtension.class);
-      checkstyle.setToolVersion("13.3.0");
-      checkstyle.getConfigDirectory().set(project.getRootProject().file("checkstyle"));
+      checkstyle.setToolVersion("14.3.0");
+      checkstyle.getConfigDirectory().set(project.getRootProject().file("src/checkstyle"));
     });
   }
 

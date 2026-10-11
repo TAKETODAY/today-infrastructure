@@ -38,7 +38,7 @@ Java 基础设施库，移植/演进自 Spring Framework（group `cn.taketoday`�
 - NullAway 空值校验生效：`@SuppressWarnings("NullAway")` 是合法且常见的写法，留意 JSpecify 空值注解
 - 修改第三方源码（Spring/ASM 等）：**必须保留原始版权头**，在其后追加 `// Modifications Copyright 2017 - 2026 the TODAY authors.`
 - 公共 API 必须写 JavaDoc，每个包必须有 `package-info.java`
-- Checkstyle 配置在 `checkstyle/checkstyle.xml`（tool version 13.3.0），由 `check` 触发
+- Checkstyle 配置在 `src/checkstyle/checkstyle.xml`（tool version 13.3.0），由 `check` 触发
 
 ## 架构要点
 
