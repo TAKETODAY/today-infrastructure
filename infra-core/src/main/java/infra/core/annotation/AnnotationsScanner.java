@@ -348,13 +348,42 @@ abstract class AnnotationsScanner {
     return methods;
   }
 
-  private static boolean isOverride(Method rootMethod, Method candidateMethod) {
+  static boolean isOverride(Method rootMethod, Method candidateMethod) {
     return !Modifier.isPrivate(candidateMethod.getModifiers())
             && !Modifier.isStatic(rootMethod.getModifiers())
             && !Modifier.isStatic(candidateMethod.getModifiers())
             && candidateMethod.getParameterCount() == rootMethod.getParameterCount()
             && candidateMethod.getName().equals(rootMethod.getName())
-            && hasSameParameterTypes(rootMethod, candidateMethod);
+            && hasSameParameterTypes(rootMethod, candidateMethod)
+            && isOverridable(rootMethod, candidateMethod);
+  }
+
+  private static boolean isOverridable(Method rootMethod, Method candidateMethod) {
+    if (Modifier.isPublic(candidateMethod.getModifiers()) || Modifier.isProtected(candidateMethod.getModifiers())) {
+      return true;
+    }
+    Class<?> rootClass = rootMethod.getDeclaringClass();
+    Class<?> candidateClass = candidateMethod.getDeclaringClass();
+    String packageName = candidateClass.getPackageName();
+    if (rootClass.getPackageName().equals(packageName)) {
+      return true;
+    }
+    for (Class<?> type = rootClass.getSuperclass(); type != null && type != candidateClass;
+         type = type.getSuperclass()) {
+      if (type.getPackageName().equals(packageName)) {
+        for (Method method : type.getDeclaredMethods()) {
+          int modifiers = method.getModifiers();
+          if ((Modifier.isPublic(modifiers) || Modifier.isProtected(modifiers))
+                  && !Modifier.isStatic(modifiers)
+                  && method.getParameterCount() == rootMethod.getParameterCount()
+                  && method.getName().equals(rootMethod.getName())
+                  && hasSameParameterTypes(rootMethod, method)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   private static boolean hasSameParameterTypes(Method rootMethod, Method candidateMethod) {
