@@ -66,6 +66,8 @@ import infra.util.Assert;
  */
 public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequestFactory, DisposableBean {
 
+  private static final Duration ONE_MILLISECOND = Duration.ofMillis(1);
+
   private HttpClient httpClient;
 
   private long connectTimeout = -1;
@@ -114,7 +116,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
 
   /**
    * Set the connection timeout for the underlying {@link RequestConfig}.
-   * A timeout value of 0 specifies an infinite timeout.
+   * <p>A timeout value of 0 specifies an infinite timeout.
    * <p>Additional properties can be configured by specifying a
    * {@link RequestConfig} instance on a custom {@link HttpClient}.
    * <p>This options does not affect connection timeouts for SSL
@@ -133,7 +135,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
 
   /**
    * Set the connection timeout for the underlying {@link RequestConfig}.
-   * A timeout value of 0 specifies an infinite timeout.
+   * <p>A timeout value of 0 specifies an infinite timeout.
    * <p>Additional properties can be configured by specifying a
    * {@link RequestConfig} instance on a custom {@link HttpClient}.
    * <p>This options does not affect connection timeouts for SSL
@@ -154,7 +156,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
   /**
    * Set the timeout in milliseconds used when requesting a connection
    * from the connection manager using the underlying {@link RequestConfig}.
-   * A timeout value of 0 specifies an infinite timeout.
+   * <p>A timeout value of 0 specifies an infinite timeout.
    * <p>Additional properties can be configured by specifying a
    * {@link RequestConfig} instance on a custom {@link HttpClient}.
    *
@@ -170,23 +172,25 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
   /**
    * Set the timeout used when requesting a connection from the connection
    * manager using the underlying {@link RequestConfig}.
-   * A timeout value of 0 specifies an infinite timeout.
+   * <p>A timeout value of 0 specifies an infinite timeout.
    * <p>Additional properties can be configured by specifying a
    * {@link RequestConfig} instance on a custom {@link HttpClient}.
    *
    * @param connectionRequestTimeout the timeout value to request a connection
-   * as a {@code Duration}.
+   * as a {@code Duration}; must be 0 or at least one millisecond
    * @see RequestConfig#getConnectionRequestTimeout()
    */
   public void setConnectionRequestTimeout(Duration connectionRequestTimeout) {
     Assert.notNull(connectionRequestTimeout, "ConnectionRequestTimeout is required");
     Assert.isTrue(!connectionRequestTimeout.isNegative(), "Timeout must be a non-negative value");
+    Assert.isTrue(connectionRequestTimeout.isZero() || connectionRequestTimeout.compareTo(ONE_MILLISECOND) >= 0,
+            "Timeout must be zero or at least one millisecond");
     this.connectionRequestTimeout = connectionRequestTimeout.toMillis();
   }
 
   /**
    * Set the response timeout for the underlying {@link RequestConfig}.
-   * A timeout value of 0 specifies an infinite timeout.
+   * <p>A timeout value of 0 specifies an infinite timeout.
    * <p>Additional properties can be configured by specifying a
    * {@link RequestConfig} instance on a custom {@link HttpClient}.
    *
@@ -201,17 +205,20 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
 
   /**
    * Set the response timeout for the underlying {@link RequestConfig}.
-   * A timeout value of 0 specifies an infinite timeout.
+   * <p>A timeout value of 0 specifies an infinite timeout.
    * <p>Additional properties can be configured by specifying a
    * {@link RequestConfig} instance on a custom {@link HttpClient}.
    *
-   * @param readTimeout the timeout as a {@code Duration}.
+   * @param readTimeout the timeout as a {@code Duration}; must be 0 or at
+   * least one millisecond
    * @see RequestConfig#getResponseTimeout()
    * @since 5.0
    */
   public void setReadTimeout(Duration readTimeout) {
     Assert.notNull(readTimeout, "ReadTimeout is required");
     Assert.isTrue(!readTimeout.isNegative(), "Timeout must be a non-negative value");
+    Assert.isTrue(readTimeout.isZero() || readTimeout.compareTo(ONE_MILLISECOND) >= 0,
+            "Timeout must be zero or at least one millisecond");
     this.readTimeout = readTimeout.toMillis();
   }
 

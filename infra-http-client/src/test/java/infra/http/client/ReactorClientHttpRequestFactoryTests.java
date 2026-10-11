@@ -75,7 +75,82 @@ class ReactorClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTes
     HttpClient client = org.mockito.Mockito.mock(HttpClient.class);
     org.mockito.BDDMockito.given(client.option(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any()))
             .willReturn(client);
+    org.mockito.BDDMockito.given(client.responseTimeout(org.mockito.ArgumentMatchers.any())).willReturn(client);
+    org.mockito.BDDMockito.given(client.runOn(org.mockito.ArgumentMatchers.any(reactor.netty.resources.LoopResources.class)))
+            .willReturn(client);
     return client;
+  }
+
+  @Test
+  void durationConnectTimeoutZero() {
+    HttpClient client = mockHttpClient();
+    new ReactorClientHttpRequestFactory(client).setConnectTimeout(Duration.ZERO);
+    org.mockito.Mockito.verify(client).option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 0);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = { "PT0.000000001S", "PT0.000999999S" })
+  void subMillisecondConnectTimeoutIsRejected(Duration timeout) {
+    HttpClient client = mockHttpClient();
+    var factory = new ReactorClientHttpRequestFactory(client);
+    assertThatIllegalArgumentException().isThrownBy(() -> factory.setConnectTimeout(timeout))
+            .withMessage("Timeout must be zero or at least one millisecond");
+    org.mockito.Mockito.verify(client, org.mockito.Mockito.never())
+            .option(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+  }
+
+  @Test
+  void readTimeout() {
+    HttpClient client = mockHttpClient();
+    new ReactorClientHttpRequestFactory(client).setReadTimeout(Duration.ofSeconds(5));
+    org.mockito.Mockito.verify(client).responseTimeout(Duration.ofSeconds(5));
+  }
+
+  @Test
+  void readTimeoutZeroDisablesResponseTimeout() {
+    HttpClient client = mockHttpClient();
+    var factory = new ReactorClientHttpRequestFactory(client);
+    factory.setReadTimeout(Duration.ZERO);
+    factory.setReadTimeout(0);
+    org.mockito.Mockito.verify(client, org.mockito.Mockito.times(2)).responseTimeout(null);
+  }
+
+  @Test
+  void readTimeoutZeroDisablesResponseTimeoutWithExternalResourceFactory() {
+    var resources = new ReactorResourceFactory();
+    resources.afterPropertiesSet();
+    try {
+      HttpClient client = mockHttpClient();
+      var factory = new ReactorClientHttpRequestFactory(resources, ignored -> client);
+      factory.stop();
+      factory.setReadTimeout(Duration.ZERO);
+      org.mockito.Mockito.verify(client, org.mockito.Mockito.never()).responseTimeout(org.mockito.ArgumentMatchers.any());
+      factory.start();
+      org.mockito.Mockito.verify(client).responseTimeout(null);
+    }
+    finally {
+      resources.destroy();
+    }
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = { "PT-0.001S", "P-1D" })
+  void negativeReadTimeoutIsRejected(Duration timeout) {
+    HttpClient client = mockHttpClient();
+    var factory = new ReactorClientHttpRequestFactory(client);
+    assertThatIllegalArgumentException().isThrownBy(() -> factory.setReadTimeout(timeout))
+            .withMessage("Timeout must be a non-negative value");
+    org.mockito.Mockito.verify(client, org.mockito.Mockito.never()).responseTimeout(org.mockito.ArgumentMatchers.any());
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = { "PT0.000000001S", "PT0.000999999S" })
+  void subMillisecondReadTimeoutIsRejected(Duration timeout) {
+    HttpClient client = mockHttpClient();
+    var factory = new ReactorClientHttpRequestFactory(client);
+    assertThatIllegalArgumentException().isThrownBy(() -> factory.setReadTimeout(timeout))
+            .withMessage("Timeout must be zero or at least one millisecond");
+    org.mockito.Mockito.verify(client, org.mockito.Mockito.never()).responseTimeout(org.mockito.ArgumentMatchers.any());
   }
 
   @Override
@@ -222,11 +297,9 @@ class ReactorClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTes
   }
 
   @Test
-  void setReadTimeoutWithZeroValueThrowsException() {
+  void setReadTimeoutWithZeroValue() {
     ReactorClientHttpRequestFactory factory = new ReactorClientHttpRequestFactory();
-    assertThatIllegalArgumentException()
-            .isThrownBy(() -> factory.setReadTimeout(0L))
-            .withMessage("Timeout must be a positive value");
+    factory.setReadTimeout(0L);
   }
 
   @Test
@@ -234,7 +307,7 @@ class ReactorClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTes
     ReactorClientHttpRequestFactory factory = new ReactorClientHttpRequestFactory();
     assertThatIllegalArgumentException()
             .isThrownBy(() -> factory.setReadTimeout(-1L))
-            .withMessage("Timeout must be a positive value");
+            .withMessage("Timeout must be a non-negative value");
   }
 
   @Test

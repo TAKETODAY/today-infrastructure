@@ -254,6 +254,14 @@ class ClientHttpConnectorTests {
             .verifyComplete();
   }
 
+  @Test
+  void negativeReadTimeoutIsRejectedWithJdk() {
+    var connector = new JdkClientHttpConnector();
+    org.assertj.core.api.Assertions.assertThatIllegalArgumentException()
+            .isThrownBy(() -> connector.setReadTimeout(Duration.ofMillis(-1)))
+            .withMessage("Timeout must be a non-negative value");
+  }
+
   private Buffer randomBody(int size) {
     Buffer responseBody = new Buffer();
     Random rnd = new Random();

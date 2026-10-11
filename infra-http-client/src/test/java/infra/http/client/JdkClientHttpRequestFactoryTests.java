@@ -48,6 +48,17 @@ class JdkClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryTests {
     return new JdkClientHttpRequestFactory();
   }
 
+  @Test
+  void negativeReadTimeoutIsRejected() {
+    var factory = new JdkClientHttpRequestFactory();
+    org.assertj.core.api.Assertions.assertThatIllegalArgumentException()
+            .isThrownBy(() -> factory.setReadTimeout(-1))
+            .withMessage("Timeout must be a non-negative value");
+    org.assertj.core.api.Assertions.assertThatIllegalArgumentException()
+            .isThrownBy(() -> factory.setReadTimeout(Duration.ofMillis(-1)))
+            .withMessage("Timeout must be a non-negative value");
+  }
+
   @Override
   @Test
   void httpMethods() throws Exception {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2026 the TODAY authors.
+ * Copyright 2002-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
 
 package infra.http.service.invoker;
 
@@ -36,6 +38,21 @@ import static org.mockito.Mockito.mock;
  * @since 5.0 2025/10/11 22:24
  */
 class AbstractReactorHttpExchangeAdapterTests {
+
+  @Test
+  void blockTimeoutZeroSpecifiesInfiniteTimeout() {
+    var adapter = new TestReactorHttpExchangeAdapter();
+    adapter.setBlockTimeout(Duration.ZERO);
+    assertThat(adapter.getBlockTimeout()).isNull();
+  }
+
+  @Test
+  void negativeBlockTimeoutIsRejected() {
+    var adapter = new TestReactorHttpExchangeAdapter();
+    org.assertj.core.api.Assertions.assertThatIllegalArgumentException()
+            .isThrownBy(() -> adapter.setBlockTimeout(Duration.ofMillis(-1)))
+            .withMessage("Timeout must be a non-negative value");
+  }
 
   @Test
   void shouldSetAndGetReactiveAdapterRegistry() {
