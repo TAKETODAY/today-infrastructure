@@ -45,6 +45,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class StringUtilsTests {
 
   @ParameterizedTest
+  @org.junit.jupiter.params.provider.CsvSource(delimiter = '|', textBlock = """
+          a\uD83D\uDE00  | 3 | a\uD83D\uDE00
+          a\uD83D\uDE00b | 4 | a\uD83D\uDE00b
+          a\uD83D\uDE00b | 3 | a\uD83D\uDE00 (truncated)...
+          a\uD83D\uDE00b | 2 | a (truncated)...
+          \uD83D\uDE00b  | 1 | ' (truncated)...'
+          a\uD83Db       | 2 | a\uD83D (truncated)...
+          a\uDE00b       | 2 | a\uDE00 (truncated)...
+          a\uDE00b       | 1 | a (truncated)...
+          """)
+  void truncateSurrogatePairs(String text, int threshold, String truncated) {
+    assertThat(StringUtils.truncate(text, threshold)).isEqualTo(truncated);
+    assertThat(StringUtils.truncate(new StringBuilder(text), threshold)).isEqualTo(truncated);
+  }
+
+  @ParameterizedTest
   @ValueSource(strings = { "text", "  text  ", "  ", "\t", "\n text" })
   void hasLengthForValidValues(String value) {
     assertThat(StringUtils.isNotEmpty(value)).isTrue();
