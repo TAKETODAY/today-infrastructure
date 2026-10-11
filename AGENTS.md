@@ -77,3 +77,17 @@ Java 基础设施库，移植/演进自 Spring Framework（group `cn.taketoday`�
   BeanWrapperAutoGrowingTests 的……；infra-beans 对应测试全类通过”一类测试报告。
 - 若上游原测试或文档与代码一同提交，以生产行为为主题；仅测试或仅文档的独立提交才分别用 `:white_check_mark:` 或 `:memo:`。测试映射、运行命令及结果集中写入批末归档，不塞进每个提交正文。代码、原测试及适用中文文档优先放在同一个目标提交，不人为拆分凑数。
 - 提交信息可以按照上游的来，但是要保证中文
+
+## Agent skills
+
+### Issue tracker
+
+任务与规格使用 `TAKETODAY/today-infrastructure` 的 GitHub Issues；读写任务前参阅 `src/docs/agents/issue-tracker.md`。
+
+### Triage labels
+
+使用五个默认分诊标签；执行分诊或设置分诊状态前参阅 `src/docs/agents/triage-labels.md`。
+
+### Domain docs
+
+采用 single-context 布局，领域文档集中在 `src/docs/`；探索领域概念与架构决策前参阅 `src/docs/agents/domain.md`。
