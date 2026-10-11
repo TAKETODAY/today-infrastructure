@@ -5,6 +5,7 @@ on:
     paths-ignore:
       - 'infra-samples/**'
       - '**/README.md'
+      - '**/README.en.md'
       - 'CHANGELOG.md'
       - 'CONTRIBUTING.md'
       - 'AGENTS.md'
