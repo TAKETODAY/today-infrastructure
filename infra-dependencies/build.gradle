@@ -716,7 +716,7 @@ dependencies {
      api("org.htmlunit:htmlunit:5.5.0")
      api("org.seleniumhq.selenium:htmlunit3-driver:4.48.0")
      api("org.seleniumhq.selenium:selenium-java:4.50.0")
-    api("org.seleniumhq.selenium:selenium-bom:4.8.3")
+     api("org.seleniumhq.selenium:selenium-bom:4.50.0")
     api("org.reactivestreams:reactive-streams:1.0.4")
     api 'com.zaxxer:HikariCP:5.1.0'
     api 'org.postgresql:postgresql:42.4.1'
