@@ -200,11 +200,6 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 
     Object body = httpEntity.getBody();
     if (body instanceof ProblemDetail detail) {
-      if (detail.getInstance() == null) {
-        URI path = URI.create(context.getRequestURI());
-        detail.setInstance(path);
-      }
-
       if (logger.isWarnEnabled() && httpEntity instanceof ResponseEntity<?> responseEntity) {
         if (responseEntity.getStatusCode().value() != detail.getStatus()) {
           HandlerMethod handlerMethod = HandlerMethod.resolve(handler);

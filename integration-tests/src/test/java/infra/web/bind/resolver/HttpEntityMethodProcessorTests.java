@@ -498,7 +498,7 @@ class HttpEntityMethodProcessorTests {
     HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
     processor.handleReturnValue(webRequest, null, problemDetail);
 
-    assertThat(problemDetail.getInstance()).isEqualTo(URI.create("/test-path"));
+    assertThat(problemDetail.getInstance()).isNull();
   }
 
   @Test

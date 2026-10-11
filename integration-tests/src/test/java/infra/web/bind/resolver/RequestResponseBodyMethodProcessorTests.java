@@ -435,7 +435,6 @@ class RequestResponseBodyMethodProcessorTests {
     if (expectedContentType.equals(MediaType.APPLICATION_PROBLEM_XML_VALUE)) {
       XmlAssert.assertThat(this.mockResponse.getContentAsString()).and("""
                       <problem xmlns="urn:ietf:rfc:7807">
-                        <instance>/path</instance>
                         <status>400</status>
                         <title>Bad Request</title>
                       </problem>""")
@@ -446,8 +445,7 @@ class RequestResponseBodyMethodProcessorTests {
       JSONAssert.assertEquals("""
               {
               	"title":    "Bad Request",
-              	"status":   400,
-              	"instance": "/path"
+                "status":   400
               }""", this.mockResponse.getContentAsString(), false);
     }
   }

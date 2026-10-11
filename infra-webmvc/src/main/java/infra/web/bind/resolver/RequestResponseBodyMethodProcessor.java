@@ -22,7 +22,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.net.URI;
 import java.util.List;
 
 import infra.core.MethodParameter;
@@ -163,11 +162,6 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
   public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof ProblemDetail detail) {
       context.setStatus(detail.getStatus());
-      if (detail.getInstance() == null) {
-        URI path = URI.create(context.getRequestURI());
-        detail.setInstance(path);
-      }
-
       invokeErrorResponseInterceptors(detail, null);
     }
 
