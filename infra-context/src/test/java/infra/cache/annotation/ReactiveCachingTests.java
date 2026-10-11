@@ -18,6 +18,11 @@
 
 package infra.cache.annotation;
 
+import java.time.Duration;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import infra.aop.framework.AopProxyUtils;
+
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -55,6 +60,76 @@ import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
  * @author Juergen Hoeller
  */
 class ReactiveCachingTests {
+
+  @Test
+  void cacheableFluxCanBeResubscribedAfterError() {
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
+            EarlyCacheHitDeterminationConfig.class, ReactiveResubscriptionService.class);
+    ReactiveResubscriptionService service = ctx.getBean(ReactiveResubscriptionService.class);
+    ReactiveResubscriptionService target = (ReactiveResubscriptionService) AopProxyUtils.getSingletonTarget(service);
+    StepVerifier.create(service.cacheable("key").retry(1))
+            .expectNext("a", "b").expectComplete().verify(Duration.ofSeconds(1));
+    assertThat(target.cacheableSubscriptions).hasValue(2);
+    assertThat(ctx.getBean(CacheManager.class).getCache("first").get("key").get())
+            .isEqualTo(List.of("a", "b"));
+    ctx.close();
+  }
+
+  @Test
+  void cachePutFluxCanBeResubscribedAfterError() {
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
+            EarlyCacheHitDeterminationConfig.class, ReactiveResubscriptionService.class);
+    ReactiveResubscriptionService service = ctx.getBean(ReactiveResubscriptionService.class);
+    ReactiveResubscriptionService target = (ReactiveResubscriptionService) AopProxyUtils.getSingletonTarget(service);
+    StepVerifier.create(service.cachePut("key").retry(1))
+            .expectNext("a", "b").expectComplete().verify(Duration.ofSeconds(1));
+    assertThat(target.cachePutSubscriptions).hasValue(2);
+    assertThat(ctx.getBean(CacheManager.class).getCache("first").get("key").get())
+            .isEqualTo(List.of("a", "b"));
+    ctx.close();
+  }
+
+  @Test
+  void cacheEvictFluxCanBeResubscribedAfterError() {
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
+            EarlyCacheHitDeterminationConfig.class, ReactiveResubscriptionService.class);
+    ReactiveResubscriptionService service = ctx.getBean(ReactiveResubscriptionService.class);
+    ReactiveResubscriptionService target = (ReactiveResubscriptionService) AopProxyUtils.getSingletonTarget(service);
+    Cache cache = ctx.getBean(CacheManager.class).getCache("first");
+    cache.put("key", List.of("a", "b"));
+    StepVerifier.create(service.cacheEvict("key").retry(1))
+            .expectNext("a", "b").expectComplete().verify(Duration.ofSeconds(1));
+    assertThat(target.cacheEvictSubscriptions).hasValue(2);
+    assertThat(cache.get("key")).isNull();
+    ctx.close();
+  }
+
+  @CacheConfig("first")
+  static class ReactiveResubscriptionService {
+    final AtomicInteger cacheableSubscriptions = new AtomicInteger();
+    final AtomicInteger cachePutSubscriptions = new AtomicInteger();
+    final AtomicInteger cacheEvictSubscriptions = new AtomicInteger();
+
+    @Cacheable
+    Flux<String> cacheable(String key) {
+      return failOnFirstSubscription(cacheableSubscriptions);
+    }
+
+    @CachePut
+    Flux<String> cachePut(String key) {
+      return failOnFirstSubscription(cachePutSubscriptions);
+    }
+
+    @CacheEvict
+    Flux<String> cacheEvict(String key) {
+      return failOnFirstSubscription(cacheEvictSubscriptions);
+    }
+
+    private static Flux<String> failOnFirstSubscription(AtomicInteger subscriptions) {
+      return Flux.defer(() -> subscriptions.incrementAndGet() == 1
+              ? Flux.error(new IllegalStateException("1st subscription fails")) : Flux.just("a", "b"));
+    }
+  }
 
   @ParameterizedTest
   @ValueSource(classes = { EarlyCacheHitDeterminationConfig.class,
