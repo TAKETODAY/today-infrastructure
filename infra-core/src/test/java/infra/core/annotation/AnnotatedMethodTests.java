@@ -39,6 +39,32 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AnnotatedMethodTests {
 
   @Test
+  void shouldNotInheritAnnotationsFromPackagePrivateMethodInDifferentPackage() {
+    assertCrossPackageAnnotations(AnnotationsScannerTests.PackagePrivateMethodChild.class, false);
+  }
+
+  @Test
+  void shouldInheritAnnotationsFromPackagePrivateMethodInDifferentPackageOverriddenTransitively() {
+    assertCrossPackageAnnotations(AnnotationsScannerTests.PublicMethodOverridingChild.class, true);
+  }
+
+  @Test
+  void shouldNotInheritAnnotationsFromPackagePrivateMethodInDifferentPackageViaPackagePrivateOverride() {
+    assertCrossPackageAnnotations(AnnotationsScannerTests.PackagePrivateMethodOverridingChild.class, false);
+  }
+
+  private void assertCrossPackageAnnotations(Class<?> type, boolean inherited) {
+    Method method = ReflectionUtils.findMethod(type, "process", String.class);
+    assertThat(method).isNotNull();
+    AnnotatedMethod annotatedMethod = new AnnotatedMethod(method);
+    assertThat(annotatedMethod.isAnnotationPresent(
+            infra.core.annotation.subpackage.PackagePrivateMethodSuperclass.Marker.class)).isEqualTo(inherited);
+    assertThat(annotatedMethod.getParameters()).hasSize(1);
+    assertThat(annotatedMethod.getParameters()[0].hasParameterAnnotation(
+            infra.core.annotation.subpackage.PackagePrivateMethodSuperclass.Marker.class)).isEqualTo(inherited);
+  }
+
+  @Test
   void shouldNotInheritParameterAnnotationsFromStaticMethods() {
     Method method = ReflectionUtils.findMethod(StaticMethodChild.class, "process", String.class);
     assertThat(method).isNotNull();

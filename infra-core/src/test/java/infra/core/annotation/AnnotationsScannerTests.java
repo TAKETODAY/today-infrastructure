@@ -51,6 +51,43 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AnnotationsScannerTests {
 
   @Test
+  void typeHierarchyStrategyOnMethodDoesNotScanPackagePrivateMethodInDifferentPackage() {
+    Method source = ReflectionUtils.findMethod(PackagePrivateMethodChild.class, "process", String.class);
+    assertThat(scan(source, SearchStrategy.TYPE_HIERARCHY)).isEmpty();
+  }
+
+  @Test
+  void typeHierarchyStrategyOnMethodScansPackagePrivateMethodInDifferentPackageOverriddenTransitively() {
+    Method source = ReflectionUtils.findMethod(PublicMethodOverridingChild.class, "process", String.class);
+    assertThat(scan(source, SearchStrategy.TYPE_HIERARCHY)).containsExactly("1:Marker");
+  }
+
+  @Test
+  void typeHierarchyStrategyOnMethodDoesNotScanPackagePrivateMethodInDifferentPackageViaPackagePrivateOverride() {
+    Method source = ReflectionUtils.findMethod(PackagePrivateMethodOverridingChild.class, "process", String.class);
+    assertThat(scan(source, SearchStrategy.TYPE_HIERARCHY)).isEmpty();
+  }
+
+  static class PackagePrivateMethodChild
+          extends infra.core.annotation.subpackage.PackagePrivateMethodSuperclass {
+    public void process(String value) {
+    }
+  }
+
+  static class PublicMethodOverridingChild
+          extends infra.core.annotation.subpackage.PublicMethodOverridingSubclass {
+    @Override
+    public void process(String value) {
+    }
+  }
+
+  static class PackagePrivateMethodOverridingChild
+          extends infra.core.annotation.subpackage.PackagePrivateMethodOverridingSubclass {
+    public void process(String value) {
+    }
+  }
+
+  @Test
   void superclassStrategyOnMethodWithStaticMethodDoesNotScanSuperclassStaticMethod() {
     Method source = methodFrom(StaticMethodChild.class);
     assertThat(scan(source, SearchStrategy.SUPERCLASS)).isEmpty();
