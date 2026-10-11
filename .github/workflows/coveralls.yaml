@@ -4,13 +4,11 @@ on:
   push:
     paths-ignore:
       - 'infra-samples/**'
-      - 'README.md'
+      - '**/README.md'
       - 'CHANGELOG.md'
       - 'CONTRIBUTING.md'
       - 'AGENTS.md'
-      - 'buildSrc/README.md'
       - 'infra-docs/**'
-      - 'infra-jdbc/README.md'
       - 'logo.svg'
       - '.run/**'
       - '.idea/**'
@@ -23,13 +21,11 @@ on:
   pull_request:
     paths-ignore:
       - 'infra-samples/**'
-      - 'README.md'
+      - '**/README.md'
       - 'CHANGELOG.md'
       - 'CONTRIBUTING.md'
       - 'AGENTS.md'
-      - 'buildSrc/README.md'
       - 'infra-docs/**'
-      - 'infra-jdbc/README.md'
       - 'logo.svg'
       - '.run/**'
       - '.idea/**'
