@@ -13,6 +13,8 @@
 [![Coverage Status](https://coveralls.io/repos/github/TAKETODAY/today-infrastructure/badge.svg)](https://coveralls.io/github/TAKETODAY/today-infrastructure)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure?ref=badge_shield)
 
+[快速开始](#快速开始) · [安装配置](#installation) · [真实应用](#today-blog) · [在线文档](https://docs.today-tech.cn/today-infrastructure/) · [示例工程](infra-samples) · [贡献指南](CONTRIBUTING.md) · [交流讨论](https://github.com/TAKETODAY/today-infrastructure/discussions)
+
 ## 概述
 
 该项目起源于 2017 年。主要用于构建高性能 Web 应用程序和普通应用程序的 Java 库。
@@ -60,6 +62,22 @@ TODAY Infrastructure 与 Spring 的关系可以概括为：**受其设计启发�
 
 因此，本项目最适合被看作一个独立的 Java 应用框架实践和基础设施项目，而不是“另一个 Spring Boot 发行版”。
 
+
+<a id="today-blog"></a>
+
+## 真实应用：TODAY BLOG
+
+[TODAY BLOG](https://github.com/TAKETODAY/today-blog) 是作者使用 TODAY Infrastructure 构建的开源博客应用，也是框架在真实业务中的实践案例。
+
+| 项目     | 说明                                                                                                       |
+|----------|------------------------------------------------------------------------------------------------------------|
+| 在线网站 | [taketoday.cn](https://taketoday.cn)                                                                       |
+| 应用源码 | [TAKETODAY/today-blog](https://github.com/TAKETODAY/today-blog)                                            |
+| 后端     | Java + TODAY Infrastructure，源码见 [blog-api](https://github.com/TAKETODAY/today-blog/tree/main/blog-api) |
+| 前端     | PC 端使用 React，移动端使用 Vue，后台管理使用 React + Ant Design                                           |
+
+可以通过该项目了解框架如何用于业务工程：从后端依赖和应用配置，到接口实现及前后端协作。
+项目介绍见 [today-blog README](https://github.com/TAKETODAY/today-blog#readme)，本地运行前请结合源码准备所需配置和外部依赖。
 
 ## 主要目的
 
@@ -156,6 +174,8 @@ SUM:                                  11400         241178         462464       
 ```
 
 </details>
+
+<a id="installation"></a>
 
 ## 🛠️ 安装
 
@@ -263,10 +283,10 @@ Hello
 ### 创建自己的应用
 
 下面创建一个最小的 HTTP 接口，完成「编写应用 → 启动服务 → 验证响应」。
-请先按照上面的 [安装](#️-安装) 部分配置依赖；本示例使用 `infra-starter-webmvc` 和
+请先按照上面的 [安装](#installation) 部分配置依赖；本示例使用 `infra-starter-webmvc` 和
 `infra-starter-netty-server`，运行环境为 JDK 17+。
 
-### 1. 创建应用
+#### 1. 创建应用
 
 在 `src/main/java/example/DemoApplication.java` 中添加以下代码：
 
@@ -301,7 +321,7 @@ public class DemoApplication {
 入门示例将入口和控制器放在同一个类中。实际项目可以拆分为独立的控制器，
 放在应用入口所在包或其子包中，便于组件扫描。
 
-### 2. 启动服务
+#### 2. 启动服务
 
 在你的应用工程根目录执行以下命令（需要已配置 Gradle Wrapper 和 `infra.application` 插件）：
 
@@ -312,7 +332,7 @@ public class DemoApplication {
 Windows 下使用 `gradlew.bat` 替代 `./gradlew`。
 也可以在 IDE 中直接运行 `DemoApplication.main()`，并将 `--server.port=8080` 设置为程序参数。
 
-### 3. 验证接口
+#### 3. 验证接口
 
 服务启动后，在另一个终端执行：
 
@@ -337,8 +357,8 @@ Hello, TODAY!
 |------------------------------------|--------------------------------------------------------------|
 | 请求参数、响应对象、SSE 等 Web API | [web-api](infra-samples/web-api)                             |
 | Netty 应用启动与工程配置           | [netty-app](infra-samples/netty-app)                         |
-| 完整业务应用与框架使用实践         | [today-blog](https://github.com/TAKETODAY/today-blog)        |
-| 模块用法与 API 文档                | [在线文档](https://docs.today-tech.cn/today-infrastructure/) |
+| 完整业务应用与框架使用实践         | [真实应用：TODAY BLOG](#today-blog)                          |
+| 模块用法与 API 文档                | [在线文档](https://docs.today-tech.cn/today-infrastructure)  |
 
 ## 参与项目
 
