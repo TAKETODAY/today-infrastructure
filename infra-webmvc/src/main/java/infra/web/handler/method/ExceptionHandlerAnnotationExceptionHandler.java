@@ -34,6 +34,10 @@ import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
+import infra.http.ProblemDetail;
+import infra.http.ResponseEntity;
+import infra.web.ErrorResponse;
+import infra.web.ErrorResponseViewResolver;
 import infra.util.Assert;
 import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotAcceptableException;
@@ -71,6 +75,36 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
   private boolean renderUnhandledExceptionsAsProblemDetails;
 
   private @Nullable InvocableHandlerMethod problemDetailHandlerMethod;
+
+  private @Nullable ErrorResponseViewResolver errorResponseViewResolver;
+
+  private List<ErrorResponse.Interceptor> errorResponseInterceptors = List.of();
+
+  /**
+   * Configure interceptors to apply before resolving an error response view.
+   * @param interceptors the interceptors to invoke
+   * @since 5.0
+   */
+  public void setErrorResponseInterceptors(List<ErrorResponse.Interceptor> interceptors) {
+    this.errorResponseInterceptors = List.copyOf(interceptors);
+  }
+
+  /**
+   * Configure a resolver for problem detail views when the client prefers HTML.
+   * @param resolver the resolver, or {@code null} to use message converters
+   * @since 5.0
+   */
+  public void setErrorResponseViewResolver(@Nullable ErrorResponseViewResolver resolver) {
+    this.errorResponseViewResolver = resolver;
+  }
+
+  /**
+   * Return the configured problem detail view resolver, if any.
+   * @since 5.0
+   */
+  public @Nullable ErrorResponseViewResolver getErrorResponseViewResolver() {
+    return this.errorResponseViewResolver;
+  }
 
   /**
    * Enable rendering exceptions not handled by application exception handlers as
@@ -151,7 +185,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
         metadata.setHandler(exHandler);
       }
 
-      return exHandler.invokeAndHandle(context, null, arguments);
+      return resolveErrorView(context, exHandler.invokeAndHandle(context, null, arguments));
     }
     catch (Throwable invocationEx) {
       if (!disconnectedClientHelper.checkAndLogClientDisconnectedException(invocationEx)) {
@@ -171,7 +205,8 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
             metadata.setHandler(fallback);
           }
           try {
-            return fallback.invokeAndHandle(context, null, new Object[] { exception, context.getLocale() });
+            return resolveErrorView(context,
+                    fallback.invokeAndHandle(context, null, new Object[] { exception, context.getLocale() }));
           }
           catch (Exception fallbackFailure) {
             logger.warn("Failure in problem detail handler", fallbackFailure);
@@ -245,6 +280,53 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
 
   private @Nullable InvocableHandlerMethod getProblemDetailHandlerMethod(HttpContext context) {
     return context.isCommitted() ? null : this.problemDetailHandlerMethod;
+  }
+
+  private @Nullable Object resolveErrorView(HttpContext context, @Nullable Object value) throws Exception {
+    if (this.errorResponseViewResolver == null || context.getResponseContentType() != null) {
+      return value;
+    }
+    ErrorResponse error = value instanceof ErrorResponse response ? response : null;
+    Object body = error != null ? error.getBody() :
+            value instanceof ResponseEntity<?> entity ? entity.getBody() : value;
+    if (!(body instanceof ProblemDetail detail)) {
+      return value;
+    }
+    var metadata = context.getMatchingMetadata();
+    if (metadata != null && metadata.getProducibleMediaTypes() != null
+            && !metadata.getProducibleMediaTypes().isEmpty()
+            && metadata.getProducibleMediaTypes().stream().noneMatch(MediaType.TEXT_HTML::isCompatibleWith)) {
+      return value;
+    }
+    boolean html = false;
+    for (MediaType type : this.contentNegotiationManager.resolveMediaTypes(context)) {
+      if (type.isConcrete()) {
+        html = MediaType.TEXT_HTML.isCompatibleWith(type);
+        break;
+      }
+    }
+    if (!html) {
+      return value;
+    }
+    for (var interceptor : this.errorResponseInterceptors) {
+      interceptor.handleError(detail, error);
+    }
+    var view = this.errorResponseViewResolver.resolveErrorView(context, detail, error);
+    if (view == null) {
+      return value;
+    }
+    if (value instanceof ResponseEntity<?> entity) {
+      context.addHeaders(entity.getHeaders());
+    }
+    else if (error != null) {
+      context.addHeaders(error.getHeaders());
+    }
+    if (view.getStatus() == null) {
+      view.setStatus(value instanceof ResponseEntity<?> entity ? entity.getStatusCode() :
+              infra.http.HttpStatusCode.valueOf(detail.getStatus()));
+    }
+    context.setStatus(view.getStatus());
+    return view;
   }
 
   private InvocableHandlerMethod createHandlerMethod(ExceptionHandlerMappingInfo mappingInfo, HttpContext context, Object advice) {
