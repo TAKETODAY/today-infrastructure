@@ -30,6 +30,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import java.util.stream.Collector;
 
 import infra.core.annotation.MergedAnnotation.Adapt;
 import infra.util.LinkedMultiValueMap;
@@ -43,6 +44,20 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Phillip Webb
  */
 class MergedAnnotationCollectorsTests {
+
+  @Test
+  void toMultiValueMapDeclaresIdentityFinish() {
+    assertThat(MergedAnnotationCollectors.toMultiValueMap().characteristics())
+            .contains(Collector.Characteristics.IDENTITY_FINISH);
+  }
+
+  @Test
+  void toMultiValueMapWithExplicitFinisherDoesNotDeclareIdentityFinish() {
+    assertThat(MergedAnnotationCollectors.toMultiValueMap(Function.identity()).characteristics())
+            .doesNotContain(Collector.Characteristics.IDENTITY_FINISH);
+    assertThat(MergedAnnotationCollectors.toMultiValueMap(value -> value).characteristics())
+            .doesNotContain(Collector.Characteristics.IDENTITY_FINISH);
+  }
 
   @Test
   void toAnnotationSetCollectsLinkedHashSetWithSynthesizedAnnotations() {
