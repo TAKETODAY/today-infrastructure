@@ -192,6 +192,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
 
   private @Nullable AsyncSupportConfigurer asyncSupportConfigurer;
 
+  private @Nullable ProblemDetailsConfigurer problemDetailsConfigurer;
+
   private @Nullable List<ErrorResponse.Interceptor> errorResponseInterceptors;
 
   private @Nullable ApiVersionStrategy apiVersionStrategy;
@@ -631,6 +633,9 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
     handler.setContentNegotiationManager(contentNegotiationManager);
     handler.setParameterResolvingRegistry(registry);
     handler.setErrorResponseInterceptors(getErrorResponseInterceptors());
+    ProblemDetailsConfigurer problemDetails = getProblemDetailsConfigurer();
+    handler.setRenderUnhandledExceptionsAsProblemDetails(problemDetails.isRenderUnhandledExceptions());
+    handler.setErrorResponseViewResolver(problemDetails.getViewResolver());
     handler.afterPropertiesSet();
     handlers.add(handler);
 
@@ -1015,6 +1020,19 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
       configureErrorResponseInterceptors(this.errorResponseInterceptors);
     }
     return this.errorResponseInterceptors;
+  }
+
+  /** Return the lazily customized problem detail configuration. */
+  protected final ProblemDetailsConfigurer getProblemDetailsConfigurer() {
+    if (this.problemDetailsConfigurer == null) {
+      this.problemDetailsConfigurer = new ProblemDetailsConfigurer();
+      customizeProblemDetails(this.problemDetailsConfigurer);
+    }
+    return this.problemDetailsConfigurer;
+  }
+
+  /** Customize problem detail production and rendering. */
+  protected void customizeProblemDetails(ProblemDetailsConfigurer configurer) {
   }
 
   /**

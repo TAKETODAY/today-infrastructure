@@ -170,6 +170,13 @@ public class CompositeWebMvcConfigurer implements WebMvcConfigurer {
   }
 
   @Override
+  public void configureProblemDetails(ProblemDetailsConfigurer configurer) {
+    for (WebMvcConfigurer delegate : getWebMvcConfigurers()) {
+      delegate.configureProblemDetails(configurer);
+    }
+  }
+
+  @Override
   public void addInterceptors(InterceptorRegistry registry) {
     for (WebMvcConfigurer delegate : getWebMvcConfigurers()) {
       delegate.addInterceptors(registry);

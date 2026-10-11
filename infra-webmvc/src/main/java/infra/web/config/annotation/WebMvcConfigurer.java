@@ -272,6 +272,10 @@ public interface WebMvcConfigurer {
   default void addErrorResponseInterceptors(List<ErrorResponse.Interceptor> interceptors) {
   }
 
+  /** Configure how problem details are produced and rendered. */
+  default void configureProblemDetails(ProblemDetailsConfigurer configurer) {
+  }
+
   /**
    * Configure asynchronous request handling options.
    *
