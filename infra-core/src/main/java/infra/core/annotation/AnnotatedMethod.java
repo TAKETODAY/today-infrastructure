@@ -267,6 +267,8 @@ public class AnnotatedMethod {
 
   private boolean isOverrideFor(Method candidate) {
     if (Modifier.isPrivate(candidate.getModifiers())
+            || Modifier.isStatic(candidate.getModifiers())
+            || Modifier.isStatic(this.method.getModifiers())
             || (candidate.getParameterCount() != this.method.getParameterCount())
             || !candidate.getName().equals(this.method.getName())) {
       return false;
