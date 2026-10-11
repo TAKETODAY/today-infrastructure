@@ -2,8 +2,9 @@ name: Docs
 
 on:
   push:
-    paths-ignore:
-      - 'infra-samples/**'
+    paths:
+      - 'infra-docs/**'
+
     branches:
       - master
 

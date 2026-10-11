@@ -4,6 +4,19 @@ on:
   push:
     paths-ignore:
       - 'infra-samples/**'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - 'CONTRIBUTING.md'
+      - 'AGENTS.md'
+      - 'buildSrc/README.md'
+      - 'infra-docs/**'
+      - 'infra-jdbc/README.md'
+      - 'logo.svg'
+      - '.run/**'
+      - '.idea/**'
+      - '.gitignore'
+      - '.editorconfig'
+      - '.codacy.yaml'
     branches: [ master ]
 
 concurrency:
