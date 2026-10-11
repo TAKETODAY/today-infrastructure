@@ -3,8 +3,10 @@ on:
   push:
     tags:
       - '*'
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
+
 jobs:
   build-and-stage-release:
     name: Build and Stage Release
@@ -12,7 +14,7 @@ jobs:
     runs-on: 'ubuntu-latest'
     steps:
       - name: Checkout project sources
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Build and Publish
         id: build-and-publish
@@ -40,7 +42,7 @@ jobs:
     runs-on: 'ubuntu-latest'
     steps:
       - name: Checkout project sources
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Await Sync to Maven Central
         uses: ./.github/actions/await-http-resource
@@ -56,7 +58,7 @@ jobs:
     runs-on: 'ubuntu-latest'
     steps:
       - name: Check Out Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Publish
         uses: ./.github/actions/publish-gradle-plugin
         with:
