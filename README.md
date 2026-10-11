@@ -1,6 +1,6 @@
 # TODAY Infrastructure
 
-![Logo](./logo.svg) A Java library for applications software infrastructure.
+![Logo](./logo.svg) A modular Java application framework with dependency injection, auto-configuration, Web MVC, Netty and DATA Access support.
 
 ![Java17](https://img.shields.io/badge/JDK-17+-success.svg)
 [![Apache License 2.0](https://img.shields.io/github/license/TAKETODAY/today-infrastructure?color=blue)](./LICENSE)
@@ -102,7 +102,7 @@ TODAY Infrastructure 与 Spring 的关系可以概括为：**受其设计启发�
 这个过程持续了 2 年多（可以从 Git 提交记录看到）。后续的 Spring 主分支更新我也一直在同步（BUG 修复，新功能）。
 在这期间我发现了 Spring 的一些问题，针对其中的一部分我还给 [Spring](https://github.com/spring-projects/spring-framework) 提交过多次优化改进的 PR。
 
-这个库目前只有我在自己的生产环境使用，移植的模块是根据我自己的一些项目使用情况来的，例如没有移植 JMS, Messaging, R2dbc, Web Flux。
+这个库目前只有我在自己的生产环境使用，移植的模块是根据我自己的一些项目使用情况来的，例如没有移植 JMS, R2dbc, Web Flux。
 有些是我觉得没必要封装有的功能是我还没使用上。
 
 ```text
@@ -229,6 +229,38 @@ dependencies {
 
 
 ## 快速开始
+
+### 直接运行示例
+
+首次体验可以直接运行 [infra-samples](infra-samples)，无需手动创建工程或配置依赖。
+准备好 Git 和 JDK，首次运行时 Gradle 会下载所需依赖。
+
+```bash
+git clone https://github.com/TAKETODAY/today-infrastructure.git
+cd today-infrastructure/infra-samples
+./gradlew infraRun --args='--server.port=8080'
+```
+
+Windows 下使用 `gradlew.bat` 替代 `./gradlew`。
+示例使用的框架版本从仓库根目录的 `gradle.properties` 读取，依赖通过配置的 Maven 仓库解析。
+
+服务启动后，在另一个终端执行：
+
+```bash
+curl http://localhost:8080/index
+```
+
+预期响应：
+
+```text
+Hello
+```
+
+应用入口见 [NettyDemoApplication.java](infra-samples/netty-app/src/main/java/infra/samples/NettyDemoApplication.java)，
+接口实现见 [DemoController.java](infra-samples/web-api/src/main/java/infra/samples/DemoController.java)。
+可以修改控制器代码，停止服务后重新运行上述命令，观察响应变化。
+
+### 创建自己的应用
 
 下面创建一个最小的 HTTP 接口，完成「编写应用 → 启动服务 → 验证响应」。
 请先按照上面的 [安装](#️-安装) 部分配置依赖；本示例使用 `infra-starter-webmvc` 和
