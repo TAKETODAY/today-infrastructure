@@ -1278,7 +1278,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             pvs.add(propertyName, autowiredArgument);
           }
           for (String autowiredBeanName : autowiredBeanNames) {
-            registerDependentBean(autowiredBeanName, beanName);
+            if (containsBean(autowiredBeanName)) {
+              registerDependentBean(autowiredBeanName, beanName);
+            }
             if (log.isTraceEnabled()) {
               log.trace("Autowiring by type from bean name '{}' via property '{}' to bean named '{}'",
                       beanName, propertyName, autowiredBeanName);
