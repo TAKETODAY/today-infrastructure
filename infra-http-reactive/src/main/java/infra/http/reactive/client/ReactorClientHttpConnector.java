@@ -66,7 +66,8 @@ public class ReactorClientHttpConnector implements ClientHttpConnector, SmartLif
 
   private static final Logger logger = LoggerFactory.getLogger(ReactorClientHttpConnector.class);
 
-  private static final Function<HttpClient, HttpClient> defaultInitializer = client -> client.compress(true);
+  private static final Function<HttpClient, HttpClient> defaultInitializer =
+          client -> client.compress(true).proxyWithSystemProperties();
 
   @Nullable
   private final ReactorResourceFactory resourceFactory;
@@ -83,7 +84,7 @@ public class ReactorClientHttpConnector implements ClientHttpConnector, SmartLif
 
   /**
    * Default constructor. Initializes {@link HttpClient} via:
-   * <pre class="code">HttpClient.create().compress(true)</pre>
+   * <pre class="code">HttpClient.create().compress(true).proxyWithSystemProperties()</pre>
    */
   public ReactorClientHttpConnector() {
     this.httpClient = defaultInitializer.apply(HttpClient.create());
