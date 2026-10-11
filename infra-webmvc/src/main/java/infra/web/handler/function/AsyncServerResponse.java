@@ -45,7 +45,10 @@ import static infra.util.FeatureDetector.isPresent;
 public interface AsyncServerResponse extends ServerResponse {
 
   /**
-   * Blocks indefinitely until the future response is obtained.
+   * Block until the future response is obtained.
+   * <p>If this response was created with a timeout of at least one
+   * millisecond, this method waits at most for that timeout; otherwise,
+   * it blocks indefinitely.
    */
   ServerResponse block();
 
@@ -75,7 +78,11 @@ public interface AsyncServerResponse extends ServerResponse {
    * asynchronous producer of a single {@code ServerResponse} that can be
    * adapted via the {@link ReactiveAdapterRegistry}).
    *
-   * @param asyncResponse a {@code Completable/Future<ServerResponse>},
+   * <p>A timeout value of zero or less specifies an infinite timeout. Since
+   * the timeout is applied with millisecond precision, a value of less than
+   * one millisecond also specifies an infinite timeout.
+   *
+   * @param asyncResponse a {@code CompletableFuture<ServerResponse>},
    * {@code Future<ServerResponse>} or {@code Publisher<ServerResponse>}
    * @param timeout maximum time period to wait for before timing out
    * @return the asynchronous response
@@ -122,4 +129,3 @@ public interface AsyncServerResponse extends ServerResponse {
   }
 
 }
-

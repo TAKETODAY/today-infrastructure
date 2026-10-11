@@ -33,6 +33,25 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class DefaultAsyncServerResponseTests {
 
+  @org.junit.jupiter.params.ParameterizedTest
+  @org.junit.jupiter.api.Timeout(5)
+  @org.junit.jupiter.params.provider.ValueSource(strings = { "PT0S", "PT-1S", "PT0.000001S" })
+  void blockNotCompletedWithInfiniteTimeout(Duration timeout) {
+    ServerResponse wrappee = ServerResponse.ok().build();
+    CompletableFuture<ServerResponse> future = CompletableFuture.supplyAsync(() -> wrappee,
+            CompletableFuture.delayedExecutor(100, java.util.concurrent.TimeUnit.MILLISECONDS));
+    AsyncServerResponse response = AsyncServerResponse.create(future, timeout);
+    assertThat(response.block()).isSameAs(wrappee);
+  }
+
+  @Test
+  void blockNotCompletedWithTimeoutExceeded() {
+    CompletableFuture<ServerResponse> future = new CompletableFuture<>();
+    AsyncServerResponse response = AsyncServerResponse.create(future, Duration.ofMillis(50));
+    org.assertj.core.api.Assertions.assertThatIllegalStateException()
+            .isThrownBy(response::block).withCauseInstanceOf(java.util.concurrent.TimeoutException.class);
+  }
+
   @Test
   void blockCompleted() {
     ServerResponse wrappee = ServerResponse.ok().build();
