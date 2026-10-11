@@ -404,15 +404,14 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
 
   List<HttpMessageConverter<?>> initMessageConverters() {
     HttpMessageConverters.ClientBuilder builder = HttpMessageConverters.forClient();
-    if (this.messageConverters == null && this.convertersConfigurer == null) {
-      builder.registerDefaults();
+    if (this.messageConverters != null) {
+      builder.addCustomConverters(this.messageConverters);
     }
     else {
-      builder.addCustomConverters(messageConverters);
-
-      if (this.convertersConfigurer != null) {
-        this.convertersConfigurer.accept(builder);
-      }
+      builder.registerDefaults();
+    }
+    if (this.convertersConfigurer != null) {
+      this.convertersConfigurer.accept(builder);
     }
     List<HttpMessageConverter<?>> result = new ArrayList<>();
     builder.build().forEach(result::add);
