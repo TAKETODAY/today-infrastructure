@@ -17,6 +17,50 @@
 
 该项目起源于 2017 年。主要用于构建高性能 Web 应用程序和普通应用程序的 Java 库。
 
+## 适合谁
+
+这个项目特别适合：
+
+- 想深入理解 Spring、IoC、AOP、Bean 生命周期和 Web MVC 的 Java 开发者；
+- 对 Java 框架设计、源码研究、字节码、动态代理和模块边界感兴趣的人；
+- 希望研究 Netty 与应用框架如何结合的开发者；
+- 想尝试轻量、可读、可修改的应用基础设施的小型项目或个人开发者；
+- 愿意通过文档、测试、示例和设计讨论参与开源项目的人。
+
+如果你的首要需求是成熟生态、广泛的第三方 Starter、商业支持或现成的企业级集成，Spring Boot 仍然是更稳妥的选择。
+
+
+## 能做什么
+
+主要能力包括：
+
+| 领域         | 能力                                                                         |
+|--------------|------------------------------------------------------------------------------|
+| 应用启动     | `@InfraApplication`、`Application`、`ApplicationBuilder`、环境和应用生命周期 |
+| IoC 容器     | Bean 定义、依赖注入、组件扫描、配置类、事件和生命周期回调                    |
+| AOP          | Advisor、代理创建、方法拦截和自动代理基础设施                                |
+| Web          | MVC 请求映射、参数绑定、异常处理、响应写入、WebSocket                        |
+| HTTP 服务    | Netty Web Server、Web 抽象、HTTP 客户端和声明式 HTTP 服务                    |
+| 数据访问     | JDBC、事务、持久化、数据库测试支持                                           |
+| 序列化与集成 | Jackson、Gson、JSON-B、Protobuf、模板和邮件等可选模块                        |
+| 工程工具     | BOM、Starter、Gradle 插件、配置处理器、测试模块和应用打包支持                |
+
+模块是可选的，可以按应用需要选择 `infra-starter-*`，也可以直接使用更底层的 `infra-*` 模块。
+
+
+## 和 Spring 的关系
+
+TODAY Infrastructure 与 Spring 的关系可以概括为：**受其设计启发，研究其实现，并结合自身工程体系进行适配和演进。**
+
+- 一些模块的设计思想和部分实现来自对 Spring Framework、Spring Boot 源码的学习与重构；
+- 项目使用独立的包命名空间、模块坐标、应用启动模型和构建工具；
+- 它不是 Spring Framework 或 Spring Boot 的二进制兼容替代品，Spring 生态组件不能因此默认直接兼容；
+- 涉及第三方源码的文件保留原始版权和许可证声明，并在修改后追加 TODAY authors 的修改声明；
+- 对 Spring 和 Spring Boot 的感谢及许可证说明见 [NOTICE](NOTICE) 和 [许可证与致谢](#许可证与致谢)。
+
+因此，本项目最适合被看作一个独立的 Java 应用框架实践和基础设施项目，而不是“另一个 Spring Boot 发行版”。
+
+
 ## 主要目的
 
 主要为了学习技术，顺便给自己的博客网站 https://taketoday.cn
@@ -261,6 +305,20 @@ public class DemoApplication {
 }
 ```
 
+## 参与项目
+
+欢迎通过以下方式参与：
+
+- 使用示例并报告可复现的问题；
+- 改进快速开始、模块文档和英文翻译；
+- 增加测试和真实场景示例；
+- 复现性能测试并补充环境信息；
+- 讨论 Web 和模块设计；
+- 提交 Bug 修复或功能改进。
+
+开始贡献前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。建议先查看带有 [`good first issue`](https://github.com/TAKETODAY/today-infrastructure/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) 标签的 Issue。
+
+
 ## ⚡ 性能表现
 
 TODAY 框架在真实业务场景（带缓存的分页查询API）下，使用 `wrk` 工具进行了全面的压力测试。测试环境：Mac mini M4 Pro，48GB 内存，Java 25。
@@ -269,12 +327,12 @@ TODAY 框架在真实业务场景（带缓存的分页查询API）下，使用 `
 
 模拟常规流量（10个并发连接），框架展现出**微秒级**的响应能力：
 
-| 指标 | 数值 |
-|:---|:---|
-| **平均延迟** | **88.39 微秒 (µs)** |
-| **P99 延迟** | **136 微秒 (µs)** |
-| **吞吐量 (QPS)** | **116,481** |
-| **测试命令** | `wrk -t2 -c10 -d30s --latency` |
+| 指标             | 数值                           |
+|:-----------------|:-------------------------------|
+| **平均延迟**     | **88.39 微秒 (µs)**            |
+| **P99 延迟**     | **136 微秒 (µs)**              |
+| **吞吐量 (QPS)** | **116,481**                    |
+| **测试命令**     | `wrk -t2 -c10 -d30s --latency` |
 
 > 99.9% 的请求在 0.2 毫秒内完成，无任何连接错误。
 
@@ -282,10 +340,10 @@ TODAY 框架在真实业务场景（带缓存的分页查询API）下，使用 `
 
 模拟极端流量（5000个并发连接），框架依然保持稳定：
 
-| 运行模式 | QPS (吞吐量) | 平均延迟 | P99 延迟 | 测试参数 |
-|:---|:---|:---|:---|:---|
-| **传统 JVM** | **155,293** | 1.44 ms | ~5 ms | `-t20 -c5000 -d1m` |
-| **Native Image** | **145,599** | 1.57 ms | ~6 ms | `-t20 -c5000 -d1m` |
+| 运行模式         | QPS (吞吐量) | 平均延迟 | P99 延迟 | 测试参数           |
+|:-----------------|:-------------|:---------|:---------|:-------------------|
+| **传统 JVM**     | **155,293**  | 1.44 ms  | ~5 ms    | `-t20 -c5000 -d1m` |
+| **Native Image** | **145,599**  | 1.57 ms  | ~6 ms    | `-t20 -c5000 -d1m` |
 
 > 在 5000 并发、百万级请求的压力下，平均延迟仍控制在 1.5 毫秒左右，错误率极低（<0.1%）。
 
@@ -321,11 +379,11 @@ wrk -t20 -c5000 -d1m http://127.0.0.1:8080/api/articles?size=1
 * [Spring Framework](https://github.com/spring-projects/spring-framework)
 * [Spring Boot](https://github.com/spring-projects/spring-boot)
 * [ASM Bytecode Manipulation Framework](https://asm.ow2.io/)
-* [JetBrains](https://www.jetbrains.com/?from=https://github.com/TAKETODAY/today-infrastructure): 感谢 JetBrains 提供免费开源授权
+* [JetBrains](https://www.jetbrains.com/?from=https://github.com/TAKETODAY/today-infrastructure): 感谢 JetBrains 提供免费 IDE 开源授权
 
 ## 📄 开源协议
 
-使用 [Apache License 2.0](https://github.com/TAKETODAY/today-infrastructure/blob/master/LICENSE) 开源协议
+本项目使用 [Apache License 2.0](LICENSE) 开源。
 
 * **Spring Framework & Spring Boot**: 项目部分模块的设计思想与代码实现，源于对 Spring 生态的深度研究与现代化重构。我们严格遵守其 Apache License
   2.0许可证，并在源码文件中保留了所有原始版权声明。
@@ -333,11 +391,9 @@ wrk -t20 -c5000 -d1m http://127.0.0.1:8080/api/articles?size=1
 
 由衷感谢上述团队和社区的开创性工作。本项目的所有修改与创新部分，均在上述原始许可证的条款下开源。
 
-详细的法律声明，请参阅根目录的 [NOTICE](NOTICE) 文件。
+涉及第三方源码时，项目遵守其原始许可证并保留版权声明。详细信息请参阅 [NOTICE](NOTICE)。
 
-
-如果这个项目对你有帮助，请给我们一个 ⭐️！你的认可是我们持续前进的动力。
-
+如果这个项目对你有帮助，欢迎 Star、提出 Issue、参与讨论或提交 Pull Request。
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure?ref=badge_large)
 
