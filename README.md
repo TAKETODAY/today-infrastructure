@@ -1,5 +1,7 @@
 # TODAY Infrastructure
 
+简体中文 | [English](README.en.md)
+
 ![Logo](./logo.svg) A modular Java application framework with dependency injection, auto-configuration, Web MVC, Netty and DATA Access support.
 
 ![Java17](https://img.shields.io/badge/JDK-17+-success.svg)
