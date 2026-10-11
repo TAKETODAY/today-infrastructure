@@ -42,6 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests for {@link MergedAnnotationCollectors}.
  *
  * @author Phillip Webb
+ * @author Chengang Guan
  */
 class MergedAnnotationCollectorsTests {
 
@@ -51,11 +52,18 @@ class MergedAnnotationCollectorsTests {
             .contains(Collector.Characteristics.IDENTITY_FINISH);
   }
 
+  /**
+   * We cannot reliably determine at runtime whether an arbitrary finisher
+   * is the identity function, so the public overload that accepts a custom
+   * finisher conservatively omits IDENTITY_FINISH.
+   */
   @Test
   void toMultiValueMapWithExplicitFinisherDoesNotDeclareIdentityFinish() {
     assertThat(MergedAnnotationCollectors.toMultiValueMap(Function.identity()).characteristics())
+            .as("Function.identity() as finisher")
             .doesNotContain(Collector.Characteristics.IDENTITY_FINISH);
     assertThat(MergedAnnotationCollectors.toMultiValueMap(value -> value).characteristics())
+            .as("lambda t -> t as finisher")
             .doesNotContain(Collector.Characteristics.IDENTITY_FINISH);
   }
 
