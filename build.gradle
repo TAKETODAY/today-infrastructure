@@ -119,8 +119,8 @@ configure([rootProject] + javaProjects) {
   ext.javadocLinks = [
       "https://docs.oracle.com/en/java/javase/17/docs/api/",
       "https://hc.apache.org/httpcomponents-client-5.5.x/current/httpclient5/apidocs/",
-      "https://projectreactor.io/docs/core/release/api/",
-      "https://projectreactor.io/docs/test/release/api/",
+      // "https://projectreactor.io/docs/core/release/api/",
+      // "https://projectreactor.io/docs/test/release/api/",
       "https://junit.org/junit4/javadoc/4.13.2/",
       "https://docs.junit.org/6.1.0/api/",
       "https://www.reactive-streams.org/reactive-streams-1.0.4-javadoc/",
