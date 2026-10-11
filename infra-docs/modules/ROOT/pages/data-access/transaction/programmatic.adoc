@@ -204,8 +204,7 @@ transactionalOperator.execute(new TransactionCallback<>() {
 
   public Mono<Object> doInTransaction(ReactiveTransaction status) {
     return updateOperation1().then(updateOperation2)
-          .doOnError(SomeBusinessException.class, e -> status.setRollbackOnly());
-    }
+           .doOnError(SomeBusinessException.class, e -> status.setRollbackOnly());
   }
 });
 ----

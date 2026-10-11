@@ -256,7 +256,7 @@ Infra 容器还支持合并集合。应用程序开发人员可以定义父 `<li
       </props>
     </property>
   </bean>
-<beans>
+</beans>
 ----
 
 请注意 `child` bean 定义的 `adminEmails` 属性的 `<props/>` 元素上使用了 `merge=true` 属性。
