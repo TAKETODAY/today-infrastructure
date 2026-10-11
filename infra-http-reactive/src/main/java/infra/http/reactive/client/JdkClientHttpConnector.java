@@ -101,6 +101,7 @@ public class JdkClientHttpConnector implements ClientHttpConnector {
 
   /**
    * Set the underlying {@code HttpClient}'s read timeout as a {@code Duration}.
+   * <p>A timeout value of 0 specifies an infinite timeout.
    * <p>Default is the system's default timeout.
    *
    * @see java.net.http.HttpRequest.Builder#timeout
@@ -108,7 +109,8 @@ public class JdkClientHttpConnector implements ClientHttpConnector {
    */
   public void setReadTimeout(Duration readTimeout) {
     Assert.notNull(readTimeout, "readTimeout is required");
-    this.readTimeout = readTimeout;
+    Assert.isTrue(!readTimeout.isNegative(), "Timeout must be a non-negative value");
+    this.readTimeout = readTimeout.isZero() ? null : readTimeout;
   }
 
   /**
