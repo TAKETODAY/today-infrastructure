@@ -175,7 +175,7 @@ public class ReactorClientHttpRequestFactory implements ClientHttpRequestFactory
    * Effectively, a shortcut for {@link HttpClient#responseTimeout(Duration)}.
    * <p>By default, set to 10 seconds.
    *
-   * @param timeout the read timeout value in millis; must be > 0.
+   * @param timeout the read timeout; must be at least one millisecond
    */
   public void setReadTimeout(Duration timeout) {
     Assert.notNull(timeout, "ReadTimeout is required");
@@ -189,6 +189,8 @@ public class ReactorClientHttpRequestFactory implements ClientHttpRequestFactory
 
   /**
    * Variant of {@link #setReadTimeout(Duration)} with a long value.
+   *
+   * @param readTimeout the read timeout in milliseconds; must be > 0
    */
   public void setReadTimeout(long readTimeout) {
     setReadTimeout(Duration.ofMillis(readTimeout));
