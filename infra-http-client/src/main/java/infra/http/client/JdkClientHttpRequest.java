@@ -229,6 +229,9 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
    * {@code Content-Length}, {@code Expect}, {@code Host}, or {@code Upgrade}
    * headers to be set, but this can be overriden with the
    * {@code jdk.httpclient.allowRestrictedHeaders} system property.
+   * <p>Note that only the system property is consulted. In contrast to the
+   * JDK, a value configured in {@code $JAVA_HOME/conf/net.properties} is
+   * not taken into account.
    *
    * @see jdk.internal.net.http.common.Utils#getDisallowedHeaders()
    */
@@ -238,8 +241,9 @@ class JdkClientHttpRequest extends AbstractStreamingClientHttpRequest {
 
     String headersToAllow = System.getProperty("jdk.httpclient.allowRestrictedHeaders");
     if (headersToAllow != null) {
-      Set<String> toAllow = StringUtils.commaDelimitedListToSet(headersToAllow);
-      headers.removeAll(toAllow);
+      for (String header : StringUtils.commaDelimitedListToStringArray(headersToAllow.trim())) {
+        headers.remove(header);
+      }
     }
     return Collections.unmodifiableSet(headers);
   }

@@ -24,7 +24,9 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** Tests for restricted header filtering in {@link JdkClientHttpRequest}. */
+/**
+ * Tests for restricted header filtering in {@link JdkClientHttpRequest}.
+ */
 class JdkClientHttpRequestTests {
 
   @Test
@@ -42,6 +44,42 @@ class JdkClientHttpRequestTests {
       }
       else {
         System.setProperty("jdk.httpclient.allowRestrictedHeaders", original);
+      }
+    }
+  }
+
+  @Test
+  void disallowedHeadersWithManyMixedCaseHeadersAllowed() {
+    assertThat(disallowedHeaders("Expect,Host,Connection,Upgrade,Content-Length")).isEmpty();
+  }
+
+  @Test
+  void disallowedHeadersWithWhitespaceAroundPropertyValue() {
+    assertThat(disallowedHeaders(" expect,host "))
+            .containsExactlyInAnyOrder("connection", "content-length", "upgrade");
+  }
+
+  @Test
+  void disallowedHeadersWithWhitespaceAroundIndividualHeaders() {
+    assertThat(disallowedHeaders("expect, host"))
+            .containsExactlyInAnyOrder("connection", "content-length", "host", "upgrade");
+    assertThat(disallowedHeaders("expect ,host"))
+            .containsExactlyInAnyOrder("connection", "content-length", "expect", "upgrade");
+  }
+
+  private static Set<String> disallowedHeaders(String value) {
+    String key = "jdk.httpclient.allowRestrictedHeaders";
+    String original = System.getProperty(key);
+    try {
+      System.setProperty(key, value);
+      return JdkClientHttpRequest.disallowedHeaders();
+    }
+    finally {
+      if (original == null) {
+        System.clearProperty(key);
+      }
+      else {
+        System.setProperty(key, original);
       }
     }
   }
