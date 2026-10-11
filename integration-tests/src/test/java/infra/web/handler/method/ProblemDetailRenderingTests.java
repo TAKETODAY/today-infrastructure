@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.support.StaticApplicationContext;
 import infra.http.HttpStatus;
+import infra.http.HttpRequest;
 import infra.http.MediaType;
 import infra.http.ProblemDetail;
 import infra.http.ResponseEntity;
@@ -41,6 +42,8 @@ import infra.web.HttpRequestMethodNotSupportedException;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.annotation.ExceptionHandler;
 import infra.web.bind.resolver.HttpEntityMethodProcessor;
+import infra.web.bind.resolver.RequestResponseBodyMethodProcessor;
+import infra.web.util.UriComponentsBuilder;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
@@ -50,6 +53,32 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /** Adapted problem-detail rendering scenarios from the upstream exception resolver tests. */
 class ProblemDetailRenderingTests {
+
+  @Test
+  void viewResolverReturnsNullWithoutRepeatingInterceptors() throws Exception {
+    try (var application = new StaticApplicationContext()) {
+      application.refresh();
+      var resolver = resolver(application);
+      var invocations = new AtomicInteger();
+      List<ErrorResponse.Interceptor> interceptors = List.of((detail, error) -> {
+        invocations.incrementAndGet();
+        detail.setProperty("traceId", "123");
+      });
+      resolver.setErrorResponseInterceptors(interceptors);
+      resolver.setErrorResponseViewResolver((request, detail, error) -> null);
+      var request = new MockRequest("GET", "/orders/42");
+      request.addHeader("Accept", "text/html");
+      var response = new MockResponse();
+      var context = new MockHttpContext(application, request, response);
+      Object value = resolver.handleException(context, new IllegalStateException(), null);
+      var processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()),
+              null, List.of(), null, interceptors);
+      processor.handleReturnValue(context, null, value);
+      context.flush();
+      assertThat(invocations).hasValue(1);
+      assertThat(response.getContentAsString()).contains("\"traceId\":\"123\"");
+    }
+  }
 
   @Test
   void errorResponseInterceptorsWithRequest() throws Exception {
@@ -67,14 +96,41 @@ class ProblemDetailRenderingTests {
         @Override
         public void handleError(ProblemDetail detail, ErrorResponse error, infra.http.HttpRequest current) {
           assertThat(current).isSameAs(context);
-          detail.setProperty("trace", "on");
+          detail.setProperty("trace", UriComponentsBuilder.forURI(current.getURI()).build().getQueryParams().getFirst("trace"));
         }
       };
       var processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()),
-              null, List.of(), null, List.of(interceptor));
+              null, List.of(), null, List.of(
+                      (detail, error) -> detail.setProperty("errorResponse", error != null), interceptor));
       processor.handleReturnValue(context, null, new infra.web.ErrorResponseException(HttpStatus.BAD_REQUEST, null));
       context.flush();
-      assertThat(response.getContentAsString()).contains("\"trace\":\"on\"");
+      assertThat(response.getContentAsString()).contains("\"trace\":\"on\"", "\"errorResponse\":true");
+    }
+  }
+
+  @Test
+  void responseBodyInterceptorsReadQueryParameters() throws Exception {
+    try (var application = new StaticApplicationContext()) {
+      application.refresh();
+      var request = new MockRequest("GET", "/orders/42?trace=on");
+      var response = new MockResponse();
+      var context = new MockHttpContext(application, request, response);
+      ErrorResponse.Interceptor interceptor = new ErrorResponse.Interceptor() {
+        @Override
+        public void handleError(ProblemDetail detail, ErrorResponse error) {
+        }
+
+        @Override
+        public void handleError(ProblemDetail detail, ErrorResponse error, HttpRequest current) {
+          detail.setProperty("trace", UriComponentsBuilder.forURI(current.getURI()).build().getQueryParams().getFirst("trace"));
+        }
+      };
+      var processor = new RequestResponseBodyMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()),
+              null, List.of(), List.of(
+                      (detail, error) -> detail.setProperty("errorResponse", error != null), interceptor));
+      processor.handleReturnValue(context, null, ProblemDetail.forStatus(HttpStatus.BAD_REQUEST));
+      context.flush();
+      assertThat(response.getContentAsString()).contains("\"trace\":\"on\"", "\"errorResponse\":false");
     }
   }
 

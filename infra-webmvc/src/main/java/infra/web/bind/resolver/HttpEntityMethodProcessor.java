@@ -47,6 +47,7 @@ import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.RedirectModelManager;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.handler.method.HandlerMethod;
+import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
 
@@ -209,7 +210,9 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
           }
         }
       }
-      invokeErrorResponseInterceptors(detail, returnValue instanceof ErrorResponse response ? response : null, context);
+      if (context.getAttribute(ExceptionHandlerAnnotationExceptionHandler.INTERCEPTED_PROBLEM_DETAIL_ATTRIBUTE) != detail) {
+        invokeErrorResponseInterceptors(detail, returnValue instanceof ErrorResponse response ? response : null, context);
+      }
     }
 
     if (httpEntity.hasHeaders()) {

@@ -60,6 +60,10 @@ import infra.web.resource.ResourceHttpRequestHandler;
 public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerMethodExceptionHandler
         implements ApplicationContextAware, InitializingBean {
 
+  /** Request attribute for a problem detail intercepted before error view resolution. */
+  public static final String INTERCEPTED_PROBLEM_DETAIL_ATTRIBUTE =
+          ExceptionHandlerAnnotationExceptionHandler.class.getName() + ".interceptedProblemDetail";
+
   private final ConcurrentHashMap<Class<?>, ExceptionHandlerMethodResolver> exceptionHandlerCache =
           new ConcurrentHashMap<>(64);
 
@@ -323,6 +327,9 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
     }
     catch (Throwable ignored) {
       // Match message-converter interceptor handling: rendering must continue.
+    }
+    if (!this.errorResponseInterceptors.isEmpty()) {
+      context.setAttribute(INTERCEPTED_PROBLEM_DETAIL_ATTRIBUTE, detail);
     }
     var view = this.errorResponseViewResolver.resolveErrorView(context, detail, error);
     if (view == null) {

@@ -43,6 +43,7 @@ import infra.core.io.ResourceRegion;
 import infra.http.HttpEntity;
 import infra.http.HttpHeaders;
 import infra.http.HttpRange;
+import infra.http.HttpRequest;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.ProblemDetail;
@@ -50,8 +51,8 @@ import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotWritableException;
 import infra.http.converter.SmartHttpMessageConverter;
-import infra.util.InfraStrategies;
 import infra.util.CollectionUtils;
+import infra.util.InfraStrategies;
 import infra.util.LogFormatUtils;
 import infra.util.MimeTypeUtils;
 import infra.util.ObjectUtils;
@@ -424,32 +425,14 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
   }
 
   /**
-   * Invoke the configured {@link ErrorResponse.Interceptor}'s.
-   *
-   * @since 5.0
-   */
-  protected void invokeErrorResponseInterceptors(ProblemDetail detail, @Nullable ErrorResponse errorResponse) {
-    if (errorResponseInterceptors != null) {
-      try {
-        for (ErrorResponse.Interceptor handler : errorResponseInterceptors) {
-          handler.handleError(detail, errorResponse);
-        }
-      }
-      catch (Throwable ex) {
-        // ignore
-      }
-    }
-  }
-
-  /**
    * Invoke error response interceptors with access to the current request.
+   *
    * @param detail the problem detail to render
    * @param errorResponse the originating response, if any
    * @param request the current request
    * @since 5.0
    */
-  protected void invokeErrorResponseInterceptors(ProblemDetail detail, @Nullable ErrorResponse errorResponse,
-          infra.http.HttpRequest request) {
+  protected void invokeErrorResponseInterceptors(ProblemDetail detail, @Nullable ErrorResponse errorResponse, HttpRequest request) {
     if (errorResponseInterceptors != null) {
       try {
         for (ErrorResponse.Interceptor interceptor : errorResponseInterceptors) {

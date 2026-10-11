@@ -34,6 +34,7 @@ import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.annotation.RequestBody;
 import infra.web.handler.method.HandlerMethod;
+import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
 import infra.web.view.ModelAndView;
@@ -162,7 +163,9 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
   public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof ProblemDetail detail) {
       context.setStatus(detail.getStatus());
-      invokeErrorResponseInterceptors(detail, null, context);
+      if (context.getAttribute(ExceptionHandlerAnnotationExceptionHandler.INTERCEPTED_PROBLEM_DETAIL_ATTRIBUTE) != detail) {
+        invokeErrorResponseInterceptors(detail, null, context);
+      }
     }
 
     // Try even with null return value. ResponseBodyAdvice could get involved.

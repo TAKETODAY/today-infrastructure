@@ -630,6 +630,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
 
     handler.setContentNegotiationManager(contentNegotiationManager);
     handler.setParameterResolvingRegistry(registry);
+    handler.setErrorResponseInterceptors(getErrorResponseInterceptors());
     handler.afterPropertiesSet();
     handlers.add(handler);
 
