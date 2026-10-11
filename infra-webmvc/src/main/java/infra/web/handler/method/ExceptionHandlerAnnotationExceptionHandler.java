@@ -185,6 +185,10 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
         metadata.setHandler(exHandler);
       }
 
+      if (exHandler == this.problemDetailHandlerMethod && target instanceof Exception exception) {
+        return resolveErrorView(context, exHandler.invokeAndHandle(context, null,
+                new Object[] { exception, context.getLocale() }));
+      }
       return resolveErrorView(context, exHandler.invokeAndHandle(context, null, arguments));
     }
     catch (Throwable invocationEx) {
@@ -292,6 +296,10 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
     if (!(body instanceof ProblemDetail detail)) {
       return value;
     }
+    if ((value instanceof ResponseEntity<?> entity && entity.getHeaders().getContentType() != null)
+            || (error != null && error.getHeaders().getContentType() != null)) {
+      return value;
+    }
     var metadata = context.getMatchingMetadata();
     if (metadata != null && metadata.getProducibleMediaTypes() != null
             && !metadata.getProducibleMediaTypes().isEmpty()
@@ -308,8 +316,13 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
     if (!html) {
       return value;
     }
-    for (var interceptor : this.errorResponseInterceptors) {
-      interceptor.handleError(detail, error);
+    try {
+      for (var interceptor : this.errorResponseInterceptors) {
+        interceptor.handleError(detail, error);
+      }
+    }
+    catch (Throwable ignored) {
+      // Match message-converter interceptor handling: rendering must continue.
     }
     var view = this.errorResponseViewResolver.resolveErrorView(context, detail, error);
     if (view == null) {
