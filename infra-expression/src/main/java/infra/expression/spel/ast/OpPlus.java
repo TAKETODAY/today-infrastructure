@@ -20,10 +20,13 @@ package infra.expression.spel.ast;
 
 import org.jspecify.annotations.Nullable;
 
+import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import infra.bytecode.Label;
 import infra.bytecode.MethodVisitor;
+import infra.bytecode.Type;
 import infra.core.TypeDescriptor;
 import infra.expression.EvaluationException;
 import infra.expression.Operation;
@@ -31,6 +34,7 @@ import infra.expression.TypeConverter;
 import infra.expression.TypedValue;
 import infra.expression.spel.CodeFlow;
 import infra.expression.spel.ExpressionState;
+import infra.expression.spel.SpelCompilerMode;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
 import infra.util.Assert;
@@ -60,6 +64,43 @@ public class OpPlus extends Operator {
    * Maximum number of characters permitted in a concatenated string.
    */
   private static final int MAX_CONCATENATED_STRING_LENGTH = 100_000;
+
+  /**
+   * The non-String operand of the most recent String concatenation, or
+   * {@code null} if the most recent evaluation was not such a concatenation.
+   *
+   * @since 5.0
+   */
+  private volatile @Nullable SpelNodeImpl nonStringOperand;
+
+  /**
+   * The type of the most recent non-null value converted to a String.
+   * <p>Unless the operand descriptor guarantees this type, compiled code
+   * verifies that subsequent non-null values have exactly this type.
+   *
+   * @since 5.0
+   */
+  private volatile @Nullable Class<?> nonStringOperandType;
+
+  /**
+   * The type of the converter that most recently converted a non-null operand.
+   * <p>Tracking the type avoids retaining a converter instance. Switching between
+   * instances of the same type that convert differently is detected only when
+   * the expression may be compiled automatically.
+   *
+   * @since 5.0
+   */
+  private volatile @Nullable Class<?> nonStringOperandTypeConverterType;
+
+  /**
+   * Whether conversion differs from {@link String#valueOf(Object)} or the
+   * operand descriptor carries annotations that may affect formatting.
+   * <p>This one-way latch prevents compilation once set, since compiled code
+   * uses StringBuilder append overloads rather than the configured converter.
+   *
+   * @since 5.0
+   */
+  private volatile boolean typeConversionDiffersFromToString;
 
   public OpPlus(int startPos, int endPos, SpelNodeImpl... operands) {
     super("+", startPos, endPos, operands);
@@ -130,6 +171,9 @@ public class OpPlus extends Operator {
 
     if (leftOperand instanceof String leftString && rightOperand instanceof String rightString) {
       this.exitTypeDescriptor = "Ljava/lang/String";
+      if (this.nonStringOperand != null) {
+        this.nonStringOperand = null;
+      }
       checkStringLength(leftString);
       checkStringLength(rightString);
       return concatenate(leftString, rightString);
@@ -137,15 +181,24 @@ public class OpPlus extends Operator {
 
     if (leftOperand instanceof String leftString) {
       checkStringLength(leftString);
-      String rightString = (rightOperand == null ? "null" : convertTypedValueToString(operandTwoValue, state));
+      String rightString = convertNonStringOperandToString(operandTwoValue, state);
       checkStringLength(rightString);
+      this.exitTypeDescriptor = "Ljava/lang/String";
+      SpelNodeImpl rightOp = getRightOperand();
+      if (this.nonStringOperand != rightOp) {
+        this.nonStringOperand = rightOp;
+      }
       return concatenate(leftString, rightString);
     }
 
     if (rightOperand instanceof String rightString) {
       checkStringLength(rightString);
-      String leftString = (leftOperand == null ? "null" : convertTypedValueToString(operandOneValue, state));
+      String leftString = convertNonStringOperandToString(operandOneValue, state);
       checkStringLength(leftString);
+      this.exitTypeDescriptor = "Ljava/lang/String";
+      if (this.nonStringOperand != leftOp) {
+        this.nonStringOperand = leftOp;
+      }
       return concatenate(leftString, rightString);
     }
 
@@ -185,21 +238,58 @@ public class OpPlus extends Operator {
   }
 
   /**
-   * Convert operand value to string using registered converter or using
-   * {@code toString} method.
+   * Convert a non-String operand using the registered {@link TypeConverter}
+   * if supported, and {@link String#valueOf(Object)} otherwise.
+   * <p>Track the value and converter types and compare the conversion result
+   * against String.valueOf() to determine whether compilation is safe.
+   * When automatic compilation is enabled, compare every evaluation; otherwise
+   * compare only when either tracked type changes, avoiding redundant conversion
+   * in interpreted mode while supporting explicit compilation.
    *
-   * @param value typed value to be converted
-   * @param state expression state
-   * @return {@code TypedValue} instance converted to {@code String}
+   * @since 5.0
    */
-  private static String convertTypedValueToString(TypedValue value, ExpressionState state) {
-    TypeConverter typeConverter = state.getEvaluationContext().getTypeConverter();
-    TypeDescriptor typeDescriptor = TypeDescriptor.valueOf(String.class);
-    if (typeConverter.canConvert(value.getTypeDescriptor(), typeDescriptor)) {
-      return String.valueOf(typeConverter.convertValue(value.getValue(),
-              value.getTypeDescriptor(), typeDescriptor));
+  private String convertNonStringOperandToString(TypedValue typedValue, ExpressionState state) {
+    Object value = typedValue.getValue();
+    if (value == null) {
+      return "null";
     }
-    return String.valueOf(value.getValue());
+    Class<?> type = value.getClass();
+    TypeConverter typeConverter = state.getEvaluationContext().getTypeConverter();
+    Class<?> converterType = typeConverter.getClass();
+    boolean compare = !this.typeConversionDiffersFromToString &&
+            (isCompilationEnabled(state) || type != this.nonStringOperandType ||
+                    converterType != this.nonStringOperandTypeConverterType);
+    TypeDescriptor sourceType = typedValue.getTypeDescriptor();
+    TypeDescriptor targetType = TypeDescriptor.valueOf(String.class);
+    String result;
+    if (typeConverter.canConvert(sourceType, targetType)) {
+      result = String.valueOf(typeConverter.convertValue(value, sourceType, targetType));
+      if (compare && ((sourceType != null && sourceType.getAnnotations().length > 0)
+              || !result.equals(String.valueOf(value)))) {
+        this.typeConversionDiffersFromToString = true;
+      }
+    }
+    else {
+      result = String.valueOf(value);
+    }
+    if (type != this.nonStringOperandType) {
+      this.nonStringOperandType = type;
+    }
+    if (converterType != this.nonStringOperandTypeConverterType) {
+      this.nonStringOperandTypeConverterType = converterType;
+    }
+    return result;
+  }
+
+  /**
+   * Determine whether the configured compiler mode and evaluation context
+   * permit automatic compilation.
+   *
+   * @since 5.0
+   */
+  private static boolean isCompilationEnabled(ExpressionState state) {
+    return state.getConfiguration().getCompilerMode() != SpelCompilerMode.OFF
+            && state.getEvaluationContext().isCompilationSupported();
   }
 
   @Override
@@ -212,26 +302,52 @@ public class OpPlus extends Operator {
         return false;
       }
     }
-    return (this.exitTypeDescriptor != null);
+    String exitDesc = this.exitTypeDescriptor;
+    if (exitDesc == null) {
+      return false;
+    }
+    SpelNodeImpl operand = this.nonStringOperand;
+    if ("Ljava/lang/String".equals(exitDesc) && operand != null) {
+      String descriptor = operand.exitTypeDescriptor;
+      Class<?> type = this.nonStringOperandType;
+      return !this.typeConversionDiffersFromToString && type != null && descriptor != null
+              && !"V".equals(descriptor) && (CodeFlow.isPrimitive(descriptor) || isAccessible(type));
+    }
+    return true;
+  }
+
+  /**
+   * Determine whether a type is public and unconditionally exported by its module.
+   *
+   * @since 5.0
+   */
+  private static boolean isAccessible(Class<?> type) {
+    return Modifier.isPublic(type.getModifiers()) && type.getModule().isExported(type.getPackageName());
   }
 
   /**
    * Walk through a possible tree of nodes that combine strings and append
    * them all to the same (on stack) StringBuilder.
    */
-  private void walk(MethodVisitor mv, CodeFlow cf, @Nullable SpelNodeImpl operand) {
-    if (operand instanceof OpPlus plus) {
-      walk(mv, cf, plus.getLeftOperand());
-      walk(mv, cf, plus.getRightOperand());
+  private static void walk(MethodVisitor mv, CodeFlow cf, OpPlus concatenation, @Nullable SpelNodeImpl operand) {
+    if (operand instanceof OpPlus plus && "Ljava/lang/String".equals(plus.exitTypeDescriptor)) {
+      walk(mv, cf, plus, plus.getLeftOperand());
+      walk(mv, cf, plus, plus.getRightOperand());
     }
     else if (operand != null) {
       cf.enterCompilationScope();
       operand.generateCode(mv, cf);
-      if (!"Ljava/lang/String".equals(cf.lastDescriptor())) {
-        mv.visitTypeInsn(CHECKCAST, "java/lang/String");
-      }
+      String descriptor = cf.lastDescriptor();
       cf.exitCompilationScope();
-      mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+      if (operand == concatenation.nonStringOperand) {
+        concatenation.appendNonStringOperand(mv, descriptor);
+      }
+      else {
+        if (!"Ljava/lang/String".equals(descriptor)) {
+          mv.visitTypeInsn(CHECKCAST, "java/lang/String");
+        }
+        mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+      }
     }
   }
 
@@ -241,8 +357,8 @@ public class OpPlus extends Operator {
       mv.visitTypeInsn(NEW, "java/lang/StringBuilder");
       mv.visitInsn(DUP);
       mv.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "()V", false);
-      walk(mv, cf, getLeftOperand());
-      walk(mv, cf, getRightOperand());
+      walk(mv, cf, this, getLeftOperand());
+      walk(mv, cf, this, getRightOperand());
       mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false);
     }
     else {
@@ -269,6 +385,51 @@ public class OpPlus extends Operator {
       }
     }
     cf.pushDescriptor(this.exitTypeDescriptor);
+  }
+
+  /**
+   * Emit the appropriate StringBuilder append overload for a non-String operand.
+   * <p>Primitive operands use dedicated overloads; references use append(Object)
+   * for null-safe String.valueOf() semantics. Unless a final static descriptor
+   * guarantees the tracked type, verify exact runtime type equality and throw
+   * IllegalStateException on a change, allowing MIXED mode to resume interpretation.
+   *
+   * @since 5.0
+   */
+  private void appendNonStringOperand(MethodVisitor mv, @Nullable String descriptor) {
+    if (CodeFlow.isPrimitive(descriptor)) {
+      String appendDescriptor = switch (descriptor.charAt(0)) {
+        case 'B', 'S', 'I' -> "I";
+        case 'J' -> "J";
+        case 'F' -> "F";
+        case 'D' -> "D";
+        case 'Z' -> "Z";
+        case 'C' -> "C";
+        default -> throw new IllegalStateException("Unexpected primitive descriptor '" + descriptor + "'");
+      };
+      mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append",
+              "(" + appendDescriptor + ")Ljava/lang/StringBuilder;", false);
+      return;
+    }
+    Class<?> type = this.nonStringOperandType;
+    Assert.state(type != null, "No type available for non-String operand");
+    if (!Modifier.isFinal(type.getModifiers()) || !CodeFlow.toDescriptor(type).equals(descriptor)) {
+      Label verified = new Label();
+      mv.visitInsn(DUP);
+      mv.visitJumpInsn(IFNULL, verified);
+      mv.visitInsn(DUP);
+      mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false);
+      mv.visitLdcInsn(Type.forClass(type));
+      mv.visitJumpInsn(IF_ACMPEQ, verified);
+      mv.visitTypeInsn(NEW, "java/lang/IllegalStateException");
+      mv.visitInsn(DUP);
+      mv.visitLdcInsn("Operand of compiled String concatenation is not of type " + type.getName());
+      mv.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalStateException", "<init>", "(Ljava/lang/String;)V", false);
+      mv.visitInsn(ATHROW);
+      mv.visitLabel(verified);
+    }
+    mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append",
+            "(Ljava/lang/Object;)Ljava/lang/StringBuilder;", false);
   }
 
 }
