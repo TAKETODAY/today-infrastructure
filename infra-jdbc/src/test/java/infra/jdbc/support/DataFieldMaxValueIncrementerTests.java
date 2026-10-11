@@ -28,6 +28,7 @@ import java.sql.Statement;
 
 import javax.sql.DataSource;
 
+import infra.dao.DataAccessResourceFailureException;
 import infra.jdbc.support.incrementer.DataFieldMaxValueIncrementer;
 import infra.jdbc.support.incrementer.HanaSequenceMaxValueIncrementer;
 import infra.jdbc.support.incrementer.HsqlMaxValueIncrementer;
@@ -37,7 +38,9 @@ import infra.jdbc.support.incrementer.OracleSequenceMaxValueIncrementer;
 import infra.jdbc.support.incrementer.PostgresSequenceMaxValueIncrementer;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -193,6 +196,84 @@ class DataFieldMaxValueIncrementerTests {
     verify(resultSet, times(2)).close();
     verify(statement, times(2)).close();
     verify(connection, times(2)).close();
+  }
+
+  @Test
+  void mySQLMaxValueIncrementerClosesConnectionOnCommitFailure() throws SQLException {
+    given(dataSource.getConnection()).willReturn(connection);
+    given(connection.createStatement()).willReturn(statement);
+    given(statement.executeQuery("select last_insert_id()")).willReturn(resultSet);
+    given(resultSet.next()).willReturn(true);
+    given(resultSet.getLong(1)).willReturn(1L);
+    SQLException commitFailure = new SQLException("commit failed");
+    willThrow(commitFailure).given(connection).commit();
+
+    MySQLMaxValueIncrementer incrementer = new MySQLMaxValueIncrementer();
+    incrementer.setDataSource(dataSource);
+    incrementer.setIncrementerName("myseq");
+    incrementer.setColumnName("seq");
+    incrementer.afterPropertiesSet();
+
+    assertThatExceptionOfType(DataAccessResourceFailureException.class)
+            .isThrownBy(incrementer::nextLongValue)
+            .withCause(commitFailure);
+
+    verify(connection).commit();
+    verify(connection).close();
+  }
+
+  @Test
+  void mySQLMaxValueIncrementerClosesConnectionOnAutoCommitRestoreFailure() throws SQLException {
+    given(dataSource.getConnection()).willReturn(connection);
+    given(connection.getAutoCommit()).willReturn(true);
+    given(connection.createStatement()).willReturn(statement);
+    given(statement.executeQuery("select last_insert_id()")).willReturn(resultSet);
+    given(resultSet.next()).willReturn(true);
+    given(resultSet.getLong(1)).willReturn(1L);
+    SQLException autoCommitFailure = new SQLException("autoCommit restore failed");
+    willThrow(autoCommitFailure).given(connection).setAutoCommit(true);
+
+    MySQLMaxValueIncrementer incrementer = new MySQLMaxValueIncrementer();
+    incrementer.setDataSource(dataSource);
+    incrementer.setIncrementerName("myseq");
+    incrementer.setColumnName("seq");
+    incrementer.afterPropertiesSet();
+
+    assertThatExceptionOfType(DataAccessResourceFailureException.class)
+            .isThrownBy(incrementer::nextLongValue)
+            .withCause(autoCommitFailure);
+
+    verify(connection).commit();
+    verify(connection).setAutoCommit(true);
+    verify(connection).close();
+  }
+
+  @Test
+  void mySQLMaxValueIncrementerWithCommitFailure() throws SQLException {
+    given(dataSource.getConnection()).willReturn(connection);
+    given(connection.createStatement()).willReturn(statement);
+    given(statement.executeQuery("select last_insert_id()")).willReturn(resultSet);
+    given(resultSet.next()).willReturn(true);
+    given(resultSet.getLong(1)).willReturn(2L, 2L, 4L);
+    willThrow(new SQLException("Cannot commit")).willDoNothing().given(connection).commit();
+
+    MySQLMaxValueIncrementer incrementer = new MySQLMaxValueIncrementer();
+    incrementer.setDataSource(dataSource);
+    incrementer.setIncrementerName("myseq");
+    incrementer.setColumnName("seq");
+    incrementer.setCacheSize(2);
+    incrementer.afterPropertiesSet();
+
+    assertThatExceptionOfType(DataAccessResourceFailureException.class)
+            .isThrownBy(incrementer::nextLongValue);
+    assertThat(incrementer.nextLongValue()).isEqualTo(1);
+    assertThat(incrementer.nextLongValue()).isEqualTo(2);
+    assertThat(incrementer.nextLongValue()).isEqualTo(3);
+    assertThat(incrementer.nextLongValue()).isEqualTo(4);
+
+    verify(dataSource, times(3)).getConnection();
+    verify(statement, times(3)).executeUpdate("update myseq set seq = last_insert_id(seq + 2) limit 1");
+    verify(connection, times(3)).commit();
   }
 
   @Test
