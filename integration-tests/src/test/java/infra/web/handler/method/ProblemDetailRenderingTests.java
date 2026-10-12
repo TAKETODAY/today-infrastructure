@@ -44,6 +44,8 @@ import infra.web.handler.ResponseEntityExceptionHandler;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.annotation.ExceptionHandler;
 import infra.web.annotation.ResponseBody;
+import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandlerTests.FailingProblemController;
+import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandlerTests.RethrowingProblemController;
 import infra.web.bind.resolver.HttpEntityMethodProcessor;
 import infra.web.bind.resolver.RequestResponseBodyMethodProcessor;
 import infra.web.util.UriComponentsBuilder;
@@ -56,6 +58,42 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /** Adapted problem-detail rendering scenarios from the upstream exception resolver tests. */
 class ProblemDetailRenderingTests {
+
+  @Test
+  void jsonOnlyAdviceBypassesHtmlView() throws Exception {
+    try (var application = new AnnotationConfigApplicationContext(JsonOnlyAdvice.class)) {
+      var resolver = resolver(application);
+      resolver.setErrorResponseViewResolver((request, detail, error) -> {
+        throw new AssertionError("JSON-only advice must not resolve an HTML view");
+      });
+      var request = new MockRequest("GET", "/orders/42");
+      request.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
+      var context = new MockHttpContext(application, request, new MockResponse());
+      context.setMatchingMetadata(new infra.web.HandlerMatchingMetadata(context));
+      assertThat(resolver.handleException(context, new IllegalStateException(), null))
+              .isInstanceOf(ProblemDetail.class);
+    }
+  }
+
+  @ParameterizedTest
+  @ValueSource(classes = { RethrowingProblemController.class, FailingProblemController.class })
+  void localHandlerFailureWritesOriginalExceptionAsProblemDetail(Class<?> controllerType) throws Exception {
+    try (var application = new StaticApplicationContext()) {
+      application.refresh();
+      var request = new MockRequest("GET", "/orders/42");
+      request.addHeader("Accept", "application/json");
+      var response = new MockResponse();
+      var context = new MockHttpContext(application, request, response);
+      var handler = new HandlerMethod(controllerType.getDeclaredConstructor().newInstance(), "handle");
+      Object value = resolver(application).handleException(context, new IllegalStateException("Secret internal state"), handler);
+      new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null)
+              .handleReturnValue(context, null, value);
+      context.flush();
+      assertThat(response.getStatus()).isEqualTo(500);
+      assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+      assertThat(response.getContentAsString()).contains("\"status\":500").doesNotContain("Secret");
+    }
+  }
 
   @ParameterizedTest
   @ValueSource(classes = { InstanceAdvice.class, ResponseEntityAdvice.class, ResponseBodyAdvice.class })
@@ -304,6 +342,15 @@ class ProblemDetailRenderingTests {
     resolver.setRenderUnhandledExceptionsAsProblemDetails(true);
     resolver.afterPropertiesSet();
     return resolver;
+  }
+
+  @ControllerAdvice
+  static class JsonOnlyAdvice {
+
+    @ExceptionHandler(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ProblemDetail handle(IllegalStateException exception) {
+      return ProblemDetail.forStatus(HttpStatus.CONFLICT);
+    }
   }
 
   @ControllerAdvice
