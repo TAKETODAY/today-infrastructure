@@ -24,6 +24,7 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.URI;
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -58,6 +59,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /** Adapted problem-detail rendering scenarios from the upstream exception resolver tests. */
 class ProblemDetailRenderingTests {
+
+  @Test
+  void disconnectedClientProducesServerErrorFallback() throws Exception {
+    try (var application = new StaticApplicationContext()) {
+      application.refresh();
+      var response = new MockResponse();
+      var context = new MockHttpContext(application, new MockRequest("GET", "/orders/42"), response);
+      Object value = resolver(application).handleException(context, new IOException("Broken pipe"), null);
+      assertThat(value).isInstanceOf(ErrorResponse.class);
+      assertThat(((ErrorResponse) value).getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+      assertThat(response.getContentAsString()).isEmpty();
+    }
+  }
 
   @Test
   void jsonOnlyAdviceBypassesHtmlView() throws Exception {
