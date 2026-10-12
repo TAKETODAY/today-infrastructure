@@ -348,6 +348,22 @@ abstract class AnnotationsScanner {
     return methods;
   }
 
+  /**
+   * Determine if the supplied root method overrides the supplied candidate
+   * method declared in a supertype of the root method's declaring class.
+   * <p>Static methods never override or get overridden, and private candidate
+   * methods cannot be overridden. A package-private candidate method can only
+   * be overridden by a method declared in the same package or transitively via
+   * a {@code public} or {@code protected} overriding method declared in an
+   * intermediate superclass in that package (see JLS §8.4.8.1). Generic
+   * parameter types of the candidate method are resolved against the root
+   * method's declaring class.
+   *
+   * @param rootMethod the potentially overriding method
+   * @param candidateMethod the potentially overridden method
+   * @return {@code true} if the root method overrides the candidate method
+   * @since 5.0
+   */
   static boolean isOverride(Method rootMethod, Method candidateMethod) {
     return !Modifier.isPrivate(candidateMethod.getModifiers())
             && !Modifier.isStatic(rootMethod.getModifiers())
