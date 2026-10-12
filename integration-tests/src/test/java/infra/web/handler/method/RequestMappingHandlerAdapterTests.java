@@ -394,7 +394,12 @@ class RequestMappingHandlerAdapterTests {
    * and {@link RequestBodyAdvice} does not get registered twice.
    */
   @ControllerAdvice
-  private static class ResponseCodeSuppressingAdvice extends AbstractJacksonResponseBodyAdvice implements RequestBodyAdvice {
+  private static class ResponseCodeSuppressingAdvice implements ResponseBodyAdvice<Object>, RequestBodyAdvice {
+
+    @Override
+    public boolean supports(@Nullable Object body, @Nullable MethodParameter returnType, HttpMessageConverter<?> converter) {
+      return converter instanceof JacksonJsonHttpMessageConverter;
+    }
 
     @Override
     public boolean supports(MethodParameter methodParameter, Type targetType,
