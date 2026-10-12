@@ -166,7 +166,12 @@ public class BasicJsonParser extends AbstractJsonParser {
         build.setLength(0);
       }
       else if (current == '\\') {
-        inEscape = true;
+        if (inObject > 0 || inList > 0) {
+          build.append(current);
+        }
+        else {
+          inEscape = true;
+        }
       }
       else {
         build.append(current);
