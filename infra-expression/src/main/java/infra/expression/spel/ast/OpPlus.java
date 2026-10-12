@@ -287,8 +287,8 @@ public class OpPlus extends Operator {
   }
 
   /**
-   * Determine whether the configured compiler mode and evaluation context
-   * permit automatic compilation.
+   * Determine if the expression may be compiled automatically, based on the
+   * configured {@link SpelCompilerMode} and the {@code EvaluationContext}.
    *
    * @since 5.0
    */
@@ -322,7 +322,9 @@ public class OpPlus extends Operator {
   }
 
   /**
-   * Determine whether a type is public and unconditionally exported by its module.
+   * Determine if the supplied type is accessible from a compiled expression,
+   * which requires the type to be {@code public} and its package to be exported
+   * unconditionally by its module.
    *
    * @since 5.0
    */
@@ -393,11 +395,17 @@ public class OpPlus extends Operator {
   }
 
   /**
-   * Emit the appropriate StringBuilder append overload for a non-String operand.
-   * <p>Primitive operands use dedicated overloads; references use append(Object)
-   * for null-safe String.valueOf() semantics. Unless a final static descriptor
-   * guarantees the tracked type, verify exact runtime type equality and throw
-   * IllegalStateException on a change, allowing MIXED mode to resume interpretation.
+   * Emit the appropriate {@code StringBuilder.append(T)} call for the
+   * non-{@code String} operand, whose type is described by the supplied descriptor.
+   * <p>Primitive types use the dedicated {@code append} overloads directly.
+   * Reference types use {@code append(Object)}, which delegates to
+   * {@link String#valueOf(Object)} and therefore handles {@code null} safely
+   * (producing {@code "null"}).
+   * <p>Unless the descriptor denotes a {@code final} type which is identical to
+   * the {@linkplain #nonStringOperandType tracked type}, the emitted code verifies
+   * that a non-{@code null} value is an instance of exactly the tracked type and
+   * throws an {@link IllegalStateException} otherwise, which allows a compiled
+   * expression to revert to interpreted mode in {@code SpelCompilerMode.MIXED}.
    *
    * @since 5.0
    */
