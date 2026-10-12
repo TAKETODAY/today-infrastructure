@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.context.annotation.Configuration;
 import infra.core.io.ClassPathResource;
 import infra.core.io.FileSystemResource;
 import infra.core.io.UrlResource;
@@ -108,14 +109,9 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     handler.service(request, response);
 
     assertThat(response.getStatus()).isEqualTo(404);
-//    assertThat(response.getContentType()).isEqualTo("application/problem+json");
-//    assertThat(response.getContentAsString()).isEqualTo("""
-//        {"type":"about:blank",\
-//        "title":"Not Found",\
-//        "status":404,\
-//        "detail":"No static resource non-existing.",\
-//        "instance":"/cp/non-existing"}\
-//        """);
+    // The default not-found handler returns an empty 404 instead of raising an ErrorResponse.
+    assertThat(response.getContentType()).isNull();
+    assertThat(response.getContentAsString()).isEmpty();
   }
 
   private MockDispatcherHandler initDispatcher(Class<?>... configClasses) {
@@ -135,6 +131,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     return request;
   }
 
+  @Configuration(proxyBeanMethods = false)
   @EnableWebMvc
   static class WebConfig implements WebMvcConfigurer {
 
