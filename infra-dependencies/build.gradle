@@ -163,7 +163,7 @@ bom {
       ]
     }
   }
-  library("Hibernate", "6.4.1.Final") {
+  library("Hibernate", "7.2.25.Final") {
     group("org.hibernate.orm") {
       modules = [
           "hibernate-agroal",
@@ -690,7 +690,7 @@ dependencies {
     api("org.codehaus.jettison:jettison:1.5.4")
     api("org.crac:crac:1.4.0")
     api("org.dom4j:dom4j:2.1.4")
-    api("org.eclipse.persistence:org.eclipse.persistence.jpa:3.0.4")
+    api("org.eclipse.persistence:org.eclipse.persistence.jpa:5.0.2")
      api("org.eclipse:yasson:3.0.5")
     api("org.ehcache:jcache:1.0.1")
      api("org.freemarker:freemarker:2.3.35")
