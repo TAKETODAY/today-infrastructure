@@ -23,6 +23,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.stream.Stream;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.core.TypeDescriptor;
 import infra.core.annotation.AnnotationUtils;
@@ -54,6 +55,8 @@ class NumberToDataSizeConverterTests {
     assertThat(conversionService.convert(-10.0, DataSize.class)).isEqualTo(DataSize.ofBytes(-10));
     assertThat(conversionService.convert(new BigDecimal("10.0"), DataSize.class))
             .isEqualTo(DataSize.ofBytes(10));
+    assertThat(conversionService.convert(new AtomicInteger(1000), DataSize.class))
+            .isEqualTo(DataSize.ofBytes(1000));
   }
 
   @ConversionServiceTest
