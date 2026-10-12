@@ -179,10 +179,10 @@ abstract class AbstractJsonParserTests {
   @Test
   void escapeBackslash() {
     String input = """
-        {
-          "a": "alpha\\\\"
-        }
-        """;
+            {
+              "a": "alpha\\\\"
+            }
+            """;
     Map<String, Object> map = this.parser.parseMap(input);
     assertThat(map).containsEntry("a", "alpha\\");
   }
@@ -190,10 +190,10 @@ abstract class AbstractJsonParserTests {
   @Test
   void escapeDoubleQuote() {
     String input = """
-        {
-          "a": "alpha\\\""
-        }
-        """;
+            {
+              "a": "alpha\\\""
+            }
+            """;
     Map<String, Object> map = this.parser.parseMap(input);
     assertThat(map).containsEntry("a", "alpha\"");
   }
@@ -201,57 +201,84 @@ abstract class AbstractJsonParserTests {
   @Test
   void escapeBackslashInNestedMap() {
     String input = """
-        {
-          "outer": {
-            "a": "alpha\\\\"
-          }
-        }
-        """;
+            {
+              "outer": {
+                "a": "alpha\\\\"
+              }
+            }
+            """;
     Map<String, Object> map = this.parser.parseMap(input);
-    assertThat(map).extractingByKey("outer", InstanceOfAssertFactories.MAP)
-        .containsEntry("a", "alpha\\");
+    assertThat(map).extractingByKey("outer", InstanceOfAssertFactories.MAP).containsEntry("a", "alpha\\");
   }
 
   @Test
   void escapeDoubleQuoteInNestedMap() {
     String input = """
-        {
-          "outer": {
-            "a": "alpha\\\""
-          }
-        }
-        """;
+            {
+              "outer": {
+                "a": "alpha\\\""
+              }
+            }
+            """;
     Map<String, Object> map = this.parser.parseMap(input);
-    assertThat(map).extractingByKey("outer", InstanceOfAssertFactories.MAP)
-        .containsEntry("a", "alpha\"");
+    assertThat(map).extractingByKey("outer", InstanceOfAssertFactories.MAP).containsEntry("a", "alpha\"");
   }
 
   @Test
   void escapeBackslashInNestedList() {
     String input = """
-        {
-          "list": [
-            "alpha\\\\"
-          ]
-        }
-        """;
+            {
+              "list": [
+                "alpha\\\\"
+              ]
+            }
+            """;
     Map<String, Object> map = this.parser.parseMap(input);
-    assertThat(map).extractingByKey("list", InstanceOfAssertFactories.LIST)
-        .containsExactly("alpha\\");
+    assertThat(map).extractingByKey("list", InstanceOfAssertFactories.LIST).containsExactly("alpha\\");
   }
 
   @Test
   void escapeDoubleQuoteInNestedList() {
     String input = """
-        {
-          "list": [
-            "alpha\\\""
-          ]
-        }
-        """;
+            {
+              "list": [
+                "alpha\\\""
+              ]
+            }
+            """;
     Map<String, Object> map = this.parser.parseMap(input);
-    assertThat(map).extractingByKey("list", InstanceOfAssertFactories.LIST)
-        .containsExactly("alpha\"");
+    assertThat(map).extractingByKey("list", InstanceOfAssertFactories.LIST).containsExactly("alpha\"");
+  }
+
+  @Test
+  void escapeDoubleQuoteInNestedMapWithSiblingEntry() {
+    String input = """
+            {
+              "a": {
+                "x\\"y": "v"
+              },
+              "c": "d"
+            }
+            """;
+    Map<String, Object> map = this.parser.parseMap(input);
+    assertThat(map).extractingByKey("a", InstanceOfAssertFactories.MAP).containsEntry("x\"y", "v");
+    assertThat(map).containsEntry("c", "d");
+  }
+
+  @Test
+  void escapeDoubleQuoteInNestedListWithSiblingEntry() {
+    String input = """
+            {
+              "a": [
+                "x\\"y",
+                "z"
+              ],
+              "c": "d"
+            }
+            """;
+    Map<String, Object> map = this.parser.parseMap(input);
+    assertThat(map).extractingByKey("a", InstanceOfAssertFactories.LIST).containsExactly("x\"y", "z");
+    assertThat(map).containsEntry("c", "d");
   }
 
   @Test

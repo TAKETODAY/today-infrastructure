@@ -18,6 +18,8 @@
 
 package infra.app.json;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +47,7 @@ public interface JsonParser {
    * @return the parsed JSON as a map
    * @throws JsonParseException if the JSON cannot be parsed
    */
-  Map<String, Object> parseMap(String json) throws JsonParseException;
+  Map<String, Object> parseMap(@Nullable String json) throws JsonParseException;
 
   /**
    * Parse the specified JSON string into a List.
@@ -54,7 +56,7 @@ public interface JsonParser {
    * @return the parsed JSON as a list
    * @throws JsonParseException if the JSON cannot be parsed
    */
-  List<Object> parseList(String json) throws JsonParseException;
+  List<Object> parseList(@Nullable String json) throws JsonParseException;
 
   /**
    * Static factory for the "best" JSON parser available on the classpath. Tries
