@@ -18,7 +18,14 @@
 
 package infra.core.annotation.subpackage;
 
-/** Keeps the overriding method package-private, preventing cross-package overriding. */
+/**
+ * Subclass of {@link PackagePrivateMethodSuperclass} in the same package which
+ * overrides the package-private method with another package-private method,
+ * which therefore cannot be overridden by subclasses in different packages.
+ *
+ * @author Sam Brannen
+ * @since 5.0
+ */
 public class PackagePrivateMethodOverridingSubclass extends PackagePrivateMethodSuperclass {
   @Override
   void process(String value) {

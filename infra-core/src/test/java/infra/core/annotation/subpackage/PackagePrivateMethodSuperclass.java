@@ -23,7 +23,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/** Declares a package-private annotated method for cross-package override tests. */
+/**
+ * Class that declares an annotated package-private method which cannot be
+ * overridden directly by a subclass in a different package.
+ *
+ * @author Sam Brannen
+ * @since 5.0
+ */
 public class PackagePrivateMethodSuperclass {
   @Marker
   void process(@Marker String value) {

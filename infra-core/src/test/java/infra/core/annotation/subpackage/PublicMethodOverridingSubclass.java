@@ -18,7 +18,15 @@
 
 package infra.core.annotation.subpackage;
 
-/** Widens the package-private method to public to allow transitive overriding. */
+/**
+ * Subclass of {@link PackagePrivateMethodSuperclass} in the same package which
+ * overrides the package-private method with a {@code public} method, thereby
+ * increasing the visibility of the method and allowing it to be overridden by
+ * subclasses in different packages.
+ *
+ * @author Sam Brannen
+ * @since 5.0
+ */
 public class PublicMethodOverridingSubclass extends PackagePrivateMethodSuperclass {
   @Override
   public void process(String value) {
