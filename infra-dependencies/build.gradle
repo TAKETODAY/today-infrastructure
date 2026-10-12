@@ -75,7 +75,7 @@ bom {
       ]
     }
   }
-  library("Caffeine", "3.2.3") {
+  library("Caffeine", "3.3.0") {
     group("com.github.ben-manes.caffeine") {
       modules = [
           "caffeine",
@@ -184,7 +184,7 @@ bom {
       ]
     }
   }
-  library("Hibernate Validator", "9.1.0.Final") {
+  library("Hibernate Validator", "9.1.4.Final") {
     group("org.hibernate.validator") {
       modules = [
           "hibernate-validator",
