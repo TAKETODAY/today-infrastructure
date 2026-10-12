@@ -68,10 +68,15 @@ class ProblemDetailRenderingTests {
       });
       var request = new MockRequest("GET", "/orders/42");
       request.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
-      var context = new MockHttpContext(application, request, new MockResponse());
+      var response = new MockResponse();
+      var context = new MockHttpContext(application, request, response);
       context.setMatchingMetadata(new infra.web.HandlerMatchingMetadata(context));
-      assertThat(resolver.handleException(context, new IllegalStateException(), null))
-              .isInstanceOf(ProblemDetail.class);
+      Object value = resolver.handleException(context, new IllegalStateException(), null);
+      assertThat(value).isInstanceOf(ProblemDetail.class);
+      new RequestResponseBodyMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null, List.of(), List.of())
+              .handleReturnValue(context, null, value);
+      context.flush();
+      assertThat(response.getContentAsString()).contains("\"status\":409");
     }
   }
 
@@ -96,7 +101,7 @@ class ProblemDetailRenderingTests {
   }
 
   @ParameterizedTest
-  @ValueSource(classes = { InstanceAdvice.class, ResponseEntityAdvice.class, ResponseBodyAdvice.class })
+  @ValueSource(classes = { InstanceAdvice.class, ProblemDetailAdvice.class, ResponseEntityAdvice.class, ResponseBodyAdvice.class })
   void applicationAdviceValuesAreResolvedAsViews(Class<?> adviceType) throws Exception {
     try (var application = new AnnotationConfigApplicationContext(adviceType)) {
       var resolver = resolver(application);
@@ -120,6 +125,7 @@ class ProblemDetailRenderingTests {
       assertThat(value.getViewName()).isEqualTo("error/" + status);
       assertThat(value.getStatus()).isEqualTo(HttpStatus.valueOf(status));
       assertThat(response.getStatus()).isEqualTo(status);
+      assertThat(value.getModel()).containsKey("problem");
       if (adviceType == ResponseEntityAdvice.class) {
         assertThat(response.getHeader("X-Error")).isEqualTo("true");
       }
@@ -179,6 +185,7 @@ class ProblemDetailRenderingTests {
       processor.handleReturnValue(context, null, value);
       context.flush();
       assertThat(invocations).hasValue(1);
+      assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
       assertThat(response.getContentAsString()).contains("\"traceId\":\"123\"");
     }
   }
@@ -207,6 +214,7 @@ class ProblemDetailRenderingTests {
                       (detail, error) -> detail.setProperty("errorResponse", error != null), interceptor));
       processor.handleReturnValue(context, null, new infra.web.ErrorResponseException(HttpStatus.BAD_REQUEST, null));
       context.flush();
+      assertThat(response.getStatus()).isEqualTo(400);
       assertThat(response.getContentAsString()).contains("\"trace\":\"on\"", "\"errorResponse\":true");
     }
   }
@@ -325,10 +333,18 @@ class ProblemDetailRenderingTests {
       request.addHeader("Accept", "*/*;q=0.8,text/html");
       var response = new MockResponse();
       var context = new MockHttpContext(application, request, response);
-      Object value = resolver.handleException(context,
-              new HttpRequestMethodNotSupportedException("POST", List.of("GET")), null);
+      var exception = new HttpRequestMethodNotSupportedException("POST", List.of("GET"));
+      resolver.setErrorResponseViewResolver((current, detail, error) -> {
+        assertThat(error).isSameAs(exception);
+        assertThat(detail.getInstance()).isEqualTo(URI.create("/orders/42/errors/unique"));
+        assertThat(detail.getProperties()).containsEntry("traceId", "123");
+        return new ModelAndView("error/405", Map.of("problem", detail));
+      });
+      Object value = resolver.handleException(context, exception, null);
       context.flush();
       assertThat(value).isInstanceOf(ModelAndView.class);
+      assertThat(((ModelAndView) value).getViewName()).isEqualTo("error/405");
+      assertThat(((ModelAndView) value).getStatus()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
       assertThat(response.getStatus()).isEqualTo(405);
       assertThat(response.getHeader("Allow")).isEqualTo("GET");
       assertThat(invocations).hasValue(1);
@@ -342,6 +358,15 @@ class ProblemDetailRenderingTests {
     resolver.setRenderUnhandledExceptionsAsProblemDetails(true);
     resolver.afterPropertiesSet();
     return resolver;
+  }
+
+  @ControllerAdvice
+  static class ProblemDetailAdvice {
+
+    @ExceptionHandler
+    public ProblemDetail handle(IllegalStateException exception) {
+      return ProblemDetail.forStatus(HttpStatus.CONFLICT);
+    }
   }
 
   @ControllerAdvice
