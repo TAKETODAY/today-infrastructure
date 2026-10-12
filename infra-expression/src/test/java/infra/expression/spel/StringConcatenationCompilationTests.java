@@ -83,6 +83,7 @@ class StringConcatenationCompilationTests {
     operands.boxedInteger = 42;
     assertThat(expression.getValue(operands)).isEqualTo("value: 42");
     assertThat(expression.compileExpression()).isTrue();
+    assertThat(expression.getValue(operands)).isEqualTo("value: 42");
     operands.boxedInteger = null;
     assertThat(expression.getValue(operands)).isEqualTo("value: null");
   }
@@ -148,8 +149,14 @@ class StringConcatenationCompilationTests {
     var operands = new Operands();
     for (String property : List.of("boxedDouble", "localDate", "bigDecimal")) {
       var expression = new SpelExpressionParser().parseRaw("'value: ' + " + property);
-      expression.getValue(operands);
+      String expected = switch (property) {
+        case "boxedDouble" -> "value: 3.5";
+        case "localDate" -> "value: 2026-10-09";
+        default -> "value: 1.50";
+      };
+      assertThat(expression.getValue(operands)).isEqualTo(expected);
       assertThat(expression.compileExpression()).isTrue();
+      assertThat(expression.getValue(operands)).isEqualTo(expected);
       try {
         Operands.class.getField(property).set(operands, null);
       }
@@ -345,7 +352,7 @@ class StringConcatenationCompilationTests {
     assertThat(expression.compileExpression()).isTrue();
     assertThat(expression.getValue(operands)).isEqualTo("[42]");
     expression = new SpelExpressionParser().parseRaw("'[' + object + ']'");
-    expression.getValue(operands);
+    assertThat(expression.getValue(operands)).isEqualTo("[42]");
     operands.object = "text";
     assertThat(expression.getValue(operands)).isEqualTo("[text]");
     assertThat(expression.compileExpression()).isTrue();
