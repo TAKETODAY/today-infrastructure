@@ -23,6 +23,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -132,6 +134,8 @@ class StringConcatenationCompilationTests {
     @Grouped
     public Integer groupedNumber = 42;
     public Label label = new Label();
+    public Charset charset = StandardCharsets.UTF_8;
+    public List<Integer> list;
   }
 
   public static class Label {
@@ -238,6 +242,7 @@ class StringConcatenationCompilationTests {
     var expression = new SpelExpressionParser().parseRaw("'value: ' + mood");
     assertThat(expression.getValue(operands)).isEqualTo("value: HAPPY");
     assertThat(expression.compileExpression()).isTrue();
+    assertThat(expression.getValue(operands)).isEqualTo("value: HAPPY");
     operands.mood = Mood.SAD;
     var compiled = expression;
     assertThatExceptionOfType(SpelEvaluationException.class).isThrownBy(() -> compiled.getValue(operands))
@@ -317,12 +322,17 @@ class StringConcatenationCompilationTests {
   @Test
   void inaccessibleAndDifferingReferenceConversionsCannotCompile() {
     var operands = new Operands();
-    for (Object value : List.of(List.of(1, 2), java.nio.charset.StandardCharsets.UTF_8)) {
-      operands.object = value;
-      var expression = new SpelExpressionParser().parseRaw("'value: ' + object");
-      expression.getValue(operands);
-      assertThat(expression.compileExpression()).isFalse();
-    }
+    var expression = new SpelExpressionParser().parseRaw("'value: ' + list");
+    assertThat(expression.getValue(operands)).isEqualTo("value: null");
+    assertThat(expression.compileExpression()).isFalse();
+    operands.list = List.of(1, 2);
+    assertThat(expression.getValue(operands)).isEqualTo("value: 1,2");
+    assertThat(expression.compileExpression()).isFalse();
+
+    assertThat(operands.charset.getClass().getPackageName()).isEqualTo("sun.nio.cs");
+    expression = new SpelExpressionParser().parseRaw("'value: ' + charset");
+    assertThat(expression.getValue(operands)).isEqualTo("value: UTF-8");
+    assertThat(expression.compileExpression()).isFalse();
   }
 
   @Test
@@ -340,6 +350,11 @@ class StringConcatenationCompilationTests {
     assertThat(expression.getValue(operands)).isEqualTo("[text]");
     assertThat(expression.compileExpression()).isTrue();
     assertThat(expression.getValue(operands)).isEqualTo("[text]");
+
+    expression = new SpelExpressionParser().parseRaw("'value: ' + object");
+    assertThat(expression.getValue(operands)).isEqualTo("value: text");
+    assertThat(expression.compileExpression()).isTrue();
+    assertThat(expression.getValue(operands)).isEqualTo("value: text");
   }
 
   @Test
