@@ -36,9 +36,9 @@ import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.http.ProblemDetail;
 import infra.http.ResponseEntity;
+import infra.util.Assert;
 import infra.web.ErrorResponse;
 import infra.web.ErrorResponseViewResolver;
-import infra.util.Assert;
 import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.accept.ContentNegotiationManager;
@@ -86,6 +86,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
 
   /**
    * Configure interceptors to apply before resolving an error response view.
+   *
    * @param interceptors the interceptors to invoke
    * @since 5.0
    */
@@ -95,6 +96,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
 
   /**
    * Configure a resolver for problem detail views when the client prefers HTML.
+   *
    * @param resolver the resolver, or {@code null} to use message converters
    * @since 5.0
    */
@@ -104,6 +106,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
 
   /**
    * Return the configured problem detail view resolver, if any.
+   *
    * @since 5.0
    */
   public @Nullable ErrorResponseViewResolver getErrorResponseViewResolver() {
@@ -116,9 +119,10 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
    * methods, including when such a method rethrows or fails. Its return value uses
    * the normal content negotiation and error response interceptor infrastructure.
    * <p>Already committed responses are not rendered. The default is {@code false}.
+   *
    * @param enabled whether to render unhandled exceptions as problem details
-   * @since 5.0
    * @see ProblemDetailExceptionHandler
+   * @since 5.0
    */
   public void setRenderUnhandledExceptionsAsProblemDetails(boolean enabled) {
     this.renderUnhandledExceptionsAsProblemDetails = enabled;
@@ -126,8 +130,9 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
 
   /**
    * Return whether unhandled exceptions are rendered as problem details.
-   * @since 5.0
+   *
    * @see #setRenderUnhandledExceptionsAsProblemDetails(boolean)
+   * @since 5.0
    */
   public boolean isRenderUnhandledExceptionsAsProblemDetails() {
     return this.renderUnhandledExceptionsAsProblemDetails;

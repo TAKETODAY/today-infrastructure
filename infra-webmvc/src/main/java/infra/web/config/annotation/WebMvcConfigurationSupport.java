@@ -1041,8 +1041,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
    * produced and rendered by the default
    * {@code ExceptionHandlerAnnotationExceptionHandler}.
    *
-   * @since 5.0
    * @see ProblemDetailsConfigurer
+   * @since 5.0
    */
   protected void customizeProblemDetails(ProblemDetailsConfigurer configurer) {
   }

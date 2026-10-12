@@ -23,7 +23,6 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,8 +45,8 @@ import infra.web.HttpContextUtils;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.RedirectModelManager;
 import infra.web.accept.ContentNegotiationManager;
-import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
+import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
 
