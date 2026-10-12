@@ -228,7 +228,7 @@ public class XpathAssertionTests {
               <feed xmlns="http://www.w3.org/2005/Atom">
               	<title>Test Feed</title>
               	<icon>https://www.example.com/favicon.ico</icon>
-              </feed>""".replaceAll("\n", "\r\n");
+              </feed>""".replace("\n", "\r\n");
     }
   }
 
