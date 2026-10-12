@@ -496,21 +496,21 @@ public class AntPathMatcher implements PathMatcher {
    * <p>
    * For example:
    * <ul>
-   * <li>'{@code /docs/cvs/commit.html}' and '{@code /docs/cvs/commit.html} ->
+   * <li>'{@code /docs/cvs/commit.html}' and '{@code /docs/cvs/commit.html}' ->
    * ''</li>
-   * <li>'{@code /docs/*}' and '{@code /docs/cvs/commit} ->
+   * <li>'{@code /docs/*}' and '{@code /docs/cvs/commit}' ->
    * '{@code cvs/commit}'</li>
-   * <li>'{@code /docs/cvs/*.html}' and '{@code /docs/cvs/commit.html} ->
+   * <li>'{@code /docs/cvs/*.html}' and '{@code /docs/cvs/commit.html}' ->
    * '{@code commit.html}'</li>
-   * <li>'{@code /docs/**}' and '{@code /docs/cvs/commit} ->
+   * <li>'{@code /docs/**}' and '{@code /docs/cvs/commit}' ->
    * '{@code cvs/commit}'</li>
-   * <li>'{@code /docs/**\/*.html}' and '{@code /docs/cvs/commit.html} ->
+   * <li>'{@code /docs/**\/*.html}' and '{@code /docs/cvs/commit.html}' ->
    * '{@code cvs/commit.html}'</li>
-   * <li>'{@code /*.html}' and '{@code /docs/cvs/commit.html} ->
+   * <li>'{@code /*.html}' and '{@code /docs/cvs/commit.html}' ->
    * '{@code docs/cvs/commit.html}'</li>
-   * <li>'{@code *.html}' and '{@code /docs/cvs/commit.html} ->
+   * <li>'{@code *.html}' and '{@code /docs/cvs/commit.html}' ->
    * '{@code /docs/cvs/commit.html}'</li>
-   * <li>'{@code *}' and '{@code /docs/cvs/commit.html} ->
+   * <li>'{@code *}' and '{@code /docs/cvs/commit.html}' ->
    * '{@code /docs/cvs/commit.html}'</li>
    * </ul>
    * <p>
