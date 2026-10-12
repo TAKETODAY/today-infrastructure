@@ -33,7 +33,9 @@ import infra.util.DataSize;
  * {@link Converter} to convert from a {@link Number} to a {@link DataSize}.
  *
  * @author Stephane Nicoll
+ * @author Yanming Zhou
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see DataSize#ofBytes(long)
  * @see DataSizeUnit
  * @since 4.0
  */
@@ -49,8 +51,17 @@ final class NumberToDataSizeConverter implements GenericConverter {
   @Nullable
   @Override
   public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
-    return this.delegate.convert((source != null) ? source.toString() : null, TypeDescriptor.valueOf(String.class),
-            targetType);
+    if (source == null || targetType.getAnnotation(DataSizeUnit.class) != null) {
+      return this.delegate.convert((source != null) ? source.toString() : null,
+              TypeDescriptor.valueOf(String.class), targetType);
+    }
+    Number number = (Number) source;
+    long bytes = number.longValue();
+    // Ensure Number is a whole number.
+    if (number.doubleValue() - bytes != 0) {
+      throw new IllegalArgumentException("'%s' is not a valid data size".formatted(source));
+    }
+    return DataSize.ofBytes(bytes);
   }
 
 }
