@@ -238,13 +238,18 @@ public class OpPlus extends Operator {
   }
 
   /**
-   * Convert a non-String operand using the registered {@link TypeConverter}
-   * if supported, and {@link String#valueOf(Object)} otherwise.
-   * <p>Track the value and converter types and compare the conversion result
-   * against String.valueOf() to determine whether compilation is safe.
-   * When automatic compilation is enabled, compare every evaluation; otherwise
-   * compare only when either tracked type changes, avoiding redundant conversion
-   * in interpreted mode while supporting explicit compilation.
+   * Convert the value of a non-{@code String} operand to a {@code String} for use
+   * in a {@code String + non-String} (or {@code non-String + String}) concatenation,
+   * using the registered {@link TypeConverter} if it can convert the value and
+   * {@link String#valueOf(Object)} otherwise.
+   * <p>In order to determine whether this node can be compiled, this method also
+   * tracks the type of the value and whether the {@code TypeConverter} produced a
+   * result that differs from {@code String.valueOf()}.
+   * <p>If the expression may be compiled automatically, the result is compared
+   * for every evaluation. Otherwise, the result is only compared if the type of
+   * the value or the type of the {@code TypeConverter} changes, in order to avoid
+   * converting the value to a {@code String} twice for every evaluation in
+   * interpreted mode, while still supporting explicit compilation.
    *
    * @since 5.0
    */
