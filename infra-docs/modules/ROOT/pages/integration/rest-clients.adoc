@@ -288,12 +288,12 @@ Pet result = restClient.get()
 
 [source,java,indent=0,subs="verbatim"]
 ----
-MappingJacksonValue value = new MappingJacksonValue(new User("eric", "7!jd#h23"));
-value.setSerializationView(User.WithoutPasswordView.class);
+User user = new User("eric", "7!jd#h23");
 
-ResponseEntity<Void> response = restClient.post() // or RestTemplate.postForEntity
+ResponseEntity<Void> response = restClient.post()
   .contentType(APPLICATION_JSON)
-  .body(value)
+  .body(user)
+  .hint(JsonView.class.getName(), User.WithoutPasswordView.class)
   .retrieve()
   .toBodilessEntity();
 
@@ -966,4 +966,3 @@ HttpServiceProxyFactory factory = HttpServiceProxyFactory.builder(adapter).build
   RestTemplateAdapter adapter = RestTemplateAdapter.create(restTemplate);
   HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
 ----
-
