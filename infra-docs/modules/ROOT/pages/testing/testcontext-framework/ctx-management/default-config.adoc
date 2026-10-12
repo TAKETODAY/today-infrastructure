@@ -1,0 +1,39 @@
+[[testcontext-ctx-management-default-config]]
+= 默认上下文配置
+
+如 xref:testing/testcontext-framework/ctx-management/javaconfig.adoc[组件类]、
+xref:testing/testcontext-framework/ctx-management/xml.adoc[XML 资源]和
+xref:testing/testcontext-framework/ctx-management/groovy.adoc[Groovy 脚本]各节所述，
+如果没有显式指定用于加载测试 `ApplicationContext` 的 `@Configuration` 类、XML 配置文件或
+Groovy 脚本，TestContext 框架会尝试查找_默认_上下文配置。
+
+在 Infra 5.0 中，即使测试类的类型层级或封闭类层级中没有声明 `@ContextConfiguration`，
+TestContext 框架也会检测这些层级中位于当前测试类之上的**所有**_默认_上下文配置。
+封闭类层级的检测适用于 `@Nested` 测试类，并遵循其封闭配置继承设置。
+
+旧的检测算法在这些层级中没有声明 `@ContextConfiguration` 时，会忽略超类或封闭类的默认上下文配置。
+因此，升级后可能需要调整已有测试。例如，以前被忽略的超类或封闭类中的静态嵌套
+`@Configuration` 类现在会被处理，这可能使最终的 `ApplicationContext` 包含非预期的 Bean，
+甚至导致测试失败。
+
+如果测试原先依赖被忽略的默认配置，应检查相关类和资源，并显式说明哪些配置需要参与上下文加载。
+以下建议可以帮助你处理这些问题。
+
+[TIP]
+====
+在受影响的子类或 `@Nested` 类上声明 `@ContextConfiguration`，可以明确指定层级中哪些类
+实际需要贡献上下文配置。
+====
+
+如果不希望处理静态嵌套的 `@Configuration` 类，可以：
+
+* 移除 `@Configuration` 声明。
+* 仅在确实希望处理这些类的位置声明 `@ContextConfiguration`。
+* 将静态嵌套的 `@Configuration` 类移至独立的顶层类，避免它们被意外识别为_默认_配置类。
+
+类似地，如果默认 XML 配置文件或 Groovy 脚本被检测到，但你不希望加载它们，可以：
+
+* 仅在确实希望处理这些资源的位置声明 `@ContextConfiguration`。
+* 重命名资源文件，使其不再匹配默认命名约定（例如 XML 配置的 `*-context.xml`），
+  避免它们被意外识别为_默认_配置文件。
+* 将受影响的资源文件移至项目中的其他包或文件系统位置。

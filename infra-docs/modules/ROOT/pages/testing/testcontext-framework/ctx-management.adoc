@@ -65,6 +65,7 @@ class MyWebAppTest {
 * xref:testing/testcontext-framework/ctx-management/xml.adoc[使用 XML 资源的上下文配置]
 * xref:testing/testcontext-framework/ctx-management/groovy.adoc[使用 Groovy 脚本的上下文配置]
 * xref:testing/testcontext-framework/ctx-management/javaconfig.adoc[使用组件类的上下文配置]
+* xref:testing/testcontext-framework/ctx-management/default-config.adoc[默认上下文配置]
 * xref:testing/testcontext-framework/ctx-management/mixed-config.adoc[混合使用 XML、Groovy 脚本和组件类]
 * xref:testing/testcontext-framework/ctx-management/context-customizers.adoc[使用上下文定制器的上下文配置]
 * xref:testing/testcontext-framework/ctx-management/initializers.adoc[使用上下文初始化器的上下文配置]
