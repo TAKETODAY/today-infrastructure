@@ -311,9 +311,16 @@ class ProblemDetailRenderingTests {
       });
       var request = new MockRequest();
       request.addHeader("Accept", "text/html");
-      Object value = resolver.handleException(new MockHttpContext(application, request, new MockResponse()),
-              new IllegalStateException(), null);
+      var response = new MockResponse();
+      var context = new MockHttpContext(application, request, response);
+      Object value = resolver.handleException(context, new IllegalStateException(), null);
       assertThat(value).isInstanceOf(ResponseEntity.class);
+      new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null)
+              .handleReturnValue(context, null, value);
+      context.flush();
+      assertThat(response.getStatus()).isEqualTo(409);
+      assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+      assertThat(response.getContentAsString()).contains("\"status\":409");
     }
   }
 
@@ -338,11 +345,6 @@ class ProblemDetailRenderingTests {
         detail.setInstance(URI.create("/orders/42/errors/unique"));
         detail.setProperty("traceId", "123");
       }));
-      resolver.setErrorResponseViewResolver((request, detail, error) -> {
-        assertThat(detail.getInstance()).isEqualTo(URI.create("/orders/42/errors/unique"));
-        assertThat(detail.getProperties()).containsEntry("traceId", "123");
-        return new ModelAndView("error/405", Map.of("problem", detail));
-      });
       var request = new MockRequest();
       request.addHeader("Accept", "*/*;q=0.8,text/html");
       var response = new MockResponse();
