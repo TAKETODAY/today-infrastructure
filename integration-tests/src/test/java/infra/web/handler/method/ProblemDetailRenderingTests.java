@@ -39,8 +39,11 @@ import infra.http.ResponseEntity;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.web.ErrorResponse;
 import infra.web.HttpRequestMethodNotSupportedException;
+import infra.web.bind.MissingRequestParameterException;
+import infra.web.handler.ResponseEntityExceptionHandler;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.annotation.ExceptionHandler;
+import infra.web.annotation.ResponseBody;
 import infra.web.bind.resolver.HttpEntityMethodProcessor;
 import infra.web.bind.resolver.RequestResponseBodyMethodProcessor;
 import infra.web.util.UriComponentsBuilder;
@@ -53,6 +56,68 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /** Adapted problem-detail rendering scenarios from the upstream exception resolver tests. */
 class ProblemDetailRenderingTests {
+
+  @ParameterizedTest
+  @ValueSource(classes = { InstanceAdvice.class, ResponseEntityAdvice.class, ResponseBodyAdvice.class })
+  void applicationAdviceValuesAreResolvedAsViews(Class<?> adviceType) throws Exception {
+    try (var application = new AnnotationConfigApplicationContext(adviceType)) {
+      var resolver = resolver(application);
+      var response = new MockResponse();
+      var request = new MockRequest("GET", "/orders/42");
+      request.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
+      var context = new MockHttpContext(application, request, response);
+      resolver.setErrorResponseViewResolver((current, detail, error) -> {
+        if (adviceType == InstanceAdvice.class) {
+          assertThat(detail.getInstance()).isEqualTo(URI.create("/orders/42/errors/7f3c2a91"));
+        }
+        if (adviceType == ResponseBodyAdvice.class) {
+          assertThat(error).isNull();
+        }
+        return new ModelAndView("error/" + detail.getStatus(), Map.of("problem", detail));
+      });
+      var value = (ModelAndView) resolver.handleException(context, new IllegalStateException(), null);
+      context.flush();
+      int status = adviceType == ResponseEntityAdvice.class ? 422 :
+              adviceType == ResponseBodyAdvice.class ? 400 : 409;
+      assertThat(value.getViewName()).isEqualTo("error/" + status);
+      assertThat(value.getStatus()).isEqualTo(HttpStatus.valueOf(status));
+      assertThat(response.getStatus()).isEqualTo(status);
+      if (adviceType == ResponseEntityAdvice.class) {
+        assertThat(response.getHeader("X-Error")).isEqualTo("true");
+      }
+    }
+  }
+
+  @Test
+  void responseEntityExceptionHandlerCoexists() throws Exception {
+    try (var application = new AnnotationConfigApplicationContext(ProblemDetailsAdvice.class)) {
+      var response = new MockResponse();
+      var context = new MockHttpContext(application, new MockRequest("GET", "/orders/42"), response);
+      Object value = resolver(application).handleException(context,
+              new MissingRequestParameterException("id", "int"), null);
+      new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null)
+              .handleReturnValue(context, null, value);
+      context.flush();
+      assertThat(response.getStatus()).isEqualTo(400);
+      assertThat(response.getContentAsString()).contains("Required parameter 'id' is not present.");
+    }
+  }
+
+  @Test
+  void responseEntityExceptionHandlerThatRethrowsWrappedException() throws Exception {
+    try (var application = new AnnotationConfigApplicationContext(ProblemDetailsAdvice.class)) {
+      var response = new MockResponse();
+      var context = new MockHttpContext(application, new MockRequest("GET", "/orders/42"), response);
+      Object value = resolver(application).handleException(context,
+              new IllegalStateException(new MissingRequestParameterException("id", "int")), null);
+      assertThat(value).isNotNull();
+      new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null)
+              .handleReturnValue(context, null, value);
+      context.flush();
+      assertThat(response.getStatus()).isEqualTo(500);
+      assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+    }
+  }
 
   @Test
   void viewResolverReturnsNullWithoutRepeatingInterceptors() throws Exception {
@@ -239,6 +304,43 @@ class ProblemDetailRenderingTests {
     resolver.setRenderUnhandledExceptionsAsProblemDetails(true);
     resolver.afterPropertiesSet();
     return resolver;
+  }
+
+  @ControllerAdvice
+  static class InstanceAdvice {
+
+    @ExceptionHandler
+    public ProblemDetail handle(IllegalStateException exception) {
+      ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, "Order 42 is already cancelled");
+      detail.setType(URI.create("https://example.org/problems/order-already-cancelled"));
+      detail.setTitle("Order already cancelled");
+      detail.setInstance(URI.create("/orders/42/errors/7f3c2a91"));
+      return detail;
+    }
+  }
+
+  @ControllerAdvice
+  static class ResponseEntityAdvice {
+
+    @ExceptionHandler
+    public ResponseEntity<ProblemDetail> handle(IllegalStateException exception) {
+      return ResponseEntity.status(422).header("X-Error", "true")
+              .body(ProblemDetail.forStatus(HttpStatus.valueOf(422)));
+    }
+  }
+
+  @ControllerAdvice
+  static class ResponseBodyAdvice {
+
+    @ExceptionHandler
+    @ResponseBody
+    public Object handle(IllegalStateException exception) {
+      return ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @ControllerAdvice
+  static class ProblemDetailsAdvice extends ResponseEntityExceptionHandler {
   }
 
   @ControllerAdvice
