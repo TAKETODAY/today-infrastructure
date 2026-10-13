@@ -53,8 +53,8 @@ import infra.web.config.ErrorMvcAutoConfiguration;
 import infra.web.multipart.MultipartParser;
 import infra.web.multipart.parsing.DefaultMultipartParser;
 import infra.web.multipart.parsing.ProgressListener;
-import infra.web.server.ServiceExecutor;
-import infra.web.server.SimpleServiceExecutor;
+import infra.web.server.HttpRequestExecutor;
+import infra.web.server.SimpleHttpRequestExecutor;
 import infra.web.server.Ssl;
 import infra.web.server.config.ServerProperties;
 import infra.web.server.config.WebServerConfiguration;
@@ -91,13 +91,13 @@ public final class NettyWebServerFactoryAutoConfiguration {
 
   private static final String NETTY_SERVICE_TASK_EXECUTOR_BEAN_NAME = "nettyServiceTaskExecutor";
 
-  private static final String VirtualThreadServiceExecutorClassName = "infra.web.server.support.VirtualThreadServiceExecutor";
+  private static final String VirtualThreadHttpRequestExecutorClassName = "infra.web.server.support.VirtualThreadHttpRequestExecutor";
 
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public static ChannelHandler httpTrafficHandler(ApplicationContext context,
-          NettyRequestConfig requestConfig, DispatcherHandler dispatcherHandler, ServiceExecutor executor) {
+          NettyRequestConfig requestConfig, DispatcherHandler dispatcherHandler, HttpRequestExecutor executor) {
     return new HttpTrafficHandler(requestConfig, context, dispatcherHandler, executor);
   }
 
@@ -105,28 +105,28 @@ public final class NettyWebServerFactoryAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public static ServiceExecutor serviceExecutor(ServerProperties serverProperties,
+  public static HttpRequestExecutor httpRequestExecutor(ServerProperties serverProperties,
           @Qualifier(APPLICATION_TASK_EXECUTOR_BEAN_NAME) @Nullable Executor executor,
           @Qualifier(NETTY_SERVICE_TASK_EXECUTOR_BEAN_NAME) @Nullable ThreadPoolTaskExecutor defaultTaskExecutor) {
-    if (serverProperties.useVirtualThreadServiceExecutor) {
-      return BeanUtils.newInstance(VirtualThreadServiceExecutorClassName, ClassUtils.getDefaultClassLoader());
+    if (serverProperties.useVirtualThreads) {
+      return BeanUtils.newInstance(VirtualThreadHttpRequestExecutorClassName, ClassUtils.getDefaultClassLoader());
     }
     if (executor == null) {
       executor = defaultTaskExecutor;
     }
-    return new SimpleServiceExecutor(executor);
+    return new SimpleHttpRequestExecutor(executor);
   }
 
   @Component(NETTY_SERVICE_TASK_EXECUTOR_BEAN_NAME)
   @ConditionalOnMissingBean(name = APPLICATION_TASK_EXECUTOR_BEAN_NAME)
-  @ConditionalOnBooleanProperty(prefix = "server", name = "use-virtual-thread-service-executor",
+  @ConditionalOnBooleanProperty(prefix = "server", name = "use-virtual-threads",
           havingValue = false, matchIfMissing = true)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public static ThreadPoolTaskExecutor nettyServiceTaskExecutor(NettyServerProperties nettyServerProperties) {
-    return createDefaultTaskExecutor(nettyServerProperties.serviceExecutor);
+    return createDefaultTaskExecutor(nettyServerProperties.httpRequestExecutor);
   }
 
-  private static ThreadPoolTaskExecutor createDefaultTaskExecutor(NettyServerProperties.ServiceExecutor config) {
+  private static ThreadPoolTaskExecutor createDefaultTaskExecutor(NettyServerProperties.HttpRequestExecutor config) {
     ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
     taskExecutor.setQueueCapacity(config.queueCapacity);
     taskExecutor.setCorePoolSize(config.coreSize);
@@ -226,7 +226,7 @@ public final class NettyWebServerFactoryAutoConfiguration {
 
     @Override
     public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
-      hints.reflection().registerTypeIfPresent(classLoader, VirtualThreadServiceExecutorClassName, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS);
+      hints.reflection().registerTypeIfPresent(classLoader, VirtualThreadHttpRequestExecutorClassName, MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS);
     }
   }
 

@@ -17,16 +17,16 @@
 package infra.web.server.support;
 
 import infra.web.HttpContext;
-import infra.web.server.ServiceExecutor;
+import infra.web.server.HttpRequestExecutor;
 
 /**
- * {@link ServiceExecutor} implementation that executes service methods
- * using virtual threads.
+ * {@link HttpRequestExecutor} implementation that executes the http
+ * request handling logic using virtual threads.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/12/17 15:59
  */
-public class VirtualThreadServiceExecutor implements ServiceExecutor {
+public class VirtualThreadHttpRequestExecutor implements HttpRequestExecutor {
 
   /**
    * Execute the given command using a virtual thread.

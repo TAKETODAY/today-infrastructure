@@ -25,21 +25,21 @@ import infra.util.Assert;
 import infra.web.HttpContext;
 
 /**
- * Simple {@link ServiceExecutor} implementation that delegates to an {@link Executor}.
+ * Simple {@link HttpRequestExecutor} implementation that delegates to an {@link Executor}.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/9/18 15:59
  */
-public class SimpleServiceExecutor implements ServiceExecutor {
+public class SimpleHttpRequestExecutor implements HttpRequestExecutor {
 
   private final Executor executor;
 
   /**
-   * Create a new SimpleServiceExecutor instance.
+   * Create a new SimpleHttpRequestExecutor instance.
    *
    * @param executor the executor to delegate to
    */
-  public SimpleServiceExecutor(Executor executor) {
+  public SimpleHttpRequestExecutor(Executor executor) {
     Assert.notNull(executor, "Executor is required");
     this.executor = executor;
   }

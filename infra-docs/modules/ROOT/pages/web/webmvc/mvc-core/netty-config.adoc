@@ -117,8 +117,8 @@ dependencies {
 | 服务器绑定的网络地址。
 | 0.0.0.0 (所有接口)
 
-| `server.use-virtual-thread-service-executor`
-| 是否使用虚拟线程作为服务执行器 (Java 21+)。
+| `server.use-virtual-threads`
+| 是否使用虚拟线程处理 HTTP 请求 (Java 21+)。
 | false
 
 | `server.forward-headers-strategy`

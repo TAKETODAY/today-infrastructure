@@ -256,7 +256,7 @@ public class NettyServerProperties {
   public Duration http2GracefulShutdownTimeout = Duration.ofSeconds(30);
 
   /**
-   * Default service executor settings.
+   * Default http request executor settings.
    * <p>
    * These settings are used when no {@code applicationTaskExecutor} bean is
    * available and virtual threads are not enabled.
@@ -264,7 +264,7 @@ public class NettyServerProperties {
    * @since 5.0
    */
   @NestedConfigurationProperty
-  public final ServiceExecutor serviceExecutor = new ServiceExecutor();
+  public final HttpRequestExecutor httpRequestExecutor = new HttpRequestExecutor();
 
   /**
    * shutdown details
@@ -295,7 +295,7 @@ public class NettyServerProperties {
 
   }
 
-  public static class ServiceExecutor {
+  public static class HttpRequestExecutor {
 
     /**
      * Core number of threads.

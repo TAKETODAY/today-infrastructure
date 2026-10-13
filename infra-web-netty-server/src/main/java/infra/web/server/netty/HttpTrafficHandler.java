@@ -27,7 +27,7 @@ import infra.util.Assert;
 import infra.util.Feature;
 import infra.web.DispatcherHandler;
 import infra.web.HttpStatusProvider;
-import infra.web.server.ServiceExecutor;
+import infra.web.server.HttpRequestExecutor;
 import infra.web.socket.CloseStatus;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -71,11 +71,11 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
 
   protected final DispatcherHandler dispatcherHandler;
 
-  protected final ServiceExecutor executor;
+  protected final HttpRequestExecutor executor;
 
   public HttpTrafficHandler(NettyRequestConfig requestConfig, ApplicationContext context,
-          DispatcherHandler dispatcherHandler, ServiceExecutor executor) {
-    Assert.notNull(executor, "ServiceExecutor is required");
+          DispatcherHandler dispatcherHandler, HttpRequestExecutor executor) {
+    Assert.notNull(executor, "HttpRequestExecutor is required");
     Assert.notNull(context, "ApplicationContext is required");
     Assert.notNull(requestConfig, "NettyRequestConfig is required");
     Assert.notNull(dispatcherHandler, "DispatcherHandler is required");

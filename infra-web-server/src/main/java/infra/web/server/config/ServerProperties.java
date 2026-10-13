@@ -81,7 +81,7 @@ public class ServerProperties {
   public @Nullable InetAddress address;
 
   /**
-   * Whether to use virtual threads for the service executor.
+   * Whether to use virtual threads for the http request executor.
    * <p>
    * When set to {@code true}, the server will use virtual threads instead of
    * platform threads for handling requests. This can significantly improve
@@ -91,7 +91,7 @@ public class ServerProperties {
    *
    * @since 5.0
    */
-  public boolean useVirtualThreadServiceExecutor = false;
+  public boolean useVirtualThreads = false;
 
   @NestedConfigurationProperty
   public final Multipart multipart = new Multipart();

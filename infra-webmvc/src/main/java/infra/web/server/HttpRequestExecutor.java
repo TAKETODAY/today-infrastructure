@@ -21,23 +21,21 @@ import java.io.IOException;
 import infra.web.HttpContext;
 
 /**
- * ServiceExecutor is a dedicated independent thread pool within the framework
- * designed to execute blocking business logic.
+ * Executes HTTP request handling tasks dispatched from I/O worker threads.
  *
- * <p> It receives tasks dispatched from
- * Netty I/O Worker threads and handles all core business operations, such as database access,
- * remote service calls, and complex computations. Its purpose is to isolate potentially
- * blocking business operations from high-performance I/O processing threads, preventing
- * I/O threads from becoming blocked and thereby impacting the framework's overall
- * throughput and responsiveness. It is recommended to use Netty's DefaultEventExecutorGroup
- * implementation for seamless integration with the Pipeline and to ensure task sequencing.
- * Additionally, comprehensive thread pool parameter configuration, exception handling,
- * and monitoring mechanisms must be implemented to guarantee stable and efficient business processing.
+ * <p> Netty I/O worker threads delegate the blocking request handling logic, such as
+ * database access, remote service calls, and complex computations, to this executor,
+ * isolating it from high-performance I/O processing so that I/O threads are never
+ * blocked and the framework's overall throughput and responsiveness stay unaffected.
+ *
+ * <p> The framework provides the {@link SimpleHttpRequestExecutor} which delegates
+ * to a regular {@link java.util.concurrent.Executor}, and, on Java 21+, a virtual
+ * thread based implementation.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/9/18 15:58
  */
-public interface ServiceExecutor {
+public interface HttpRequestExecutor {
 
   /**
    * Executes the given command at some time in the future. The command
