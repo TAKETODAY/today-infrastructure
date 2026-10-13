@@ -54,6 +54,19 @@ TODAY Infrastructure studies, adapts and evolves designs and implementations fro
 
 See [NOTICE](NOTICE) for attribution and third-party license information.
 
+### Contributing back upstream
+
+While maintaining TODAY Infrastructure and studying and adapting upstream code, I have also found issues and submitted some of the fixes upstream. The following Spring Framework changes have been integrated into the upstream repository:
+
+- [Implement DefaultErrorResponseBuilder.headers(Consumer), #33156](https://github.com/spring-projects/spring-framework/pull/33156).
+- [Optimize InlineMap and InlineList in SpEL, #30251](https://github.com/spring-projects/spring-framework/pull/30251).
+- [Optimize array creation in SpEL ConstructorReference, #30189](https://github.com/spring-projects/spring-framework/pull/30189).
+- [Copy methodAnnotations in the MethodParameter copy constructor, #36342](https://github.com/spring-projects/spring-framework/pull/36342).
+
+I have also contributed merged changes to [MyBatis, #2340](https://github.com/mybatis/mybatis-3/pull/2340) and [Halo, #9888](https://github.com/halo-dev/halo/pull/9888). Some contributions grew out of maintaining this project; others came from studying source code and working on other software.
+
+These contributions are part of the same learning process: understand an implementation, investigate problems, and contribute applicable changes back to the original project.
+
 ## Real-world application: TODAY BLOG
 
 [TODAY BLOG](https://github.com/TAKETODAY/today-blog) is an open-source blog application built by the author using TODAY Infrastructure.

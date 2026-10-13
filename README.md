@@ -64,6 +64,19 @@ TODAY Infrastructure 与 Spring 的关系可以概括为：**受其设计启发�
 
 因此，本项目最适合被看作一个独立的 Java 应用框架实践和基础设施项目，而不是“另一个 Spring Boot 发行版”。
 
+### 向上游反馈问题
+
+在维护 TODAY Infrastructure、阅读和适配上游源码的过程中，我也发现过一些问题，并将其中一部分整理成 PR 反馈给上游。例如，以下 Spring Framework 改进已进入上游仓库：
+
+- [补齐 DefaultErrorResponseBuilder 的 headers(Consumer) 实现 #33156](https://github.com/spring-projects/spring-framework/pull/33156)；
+- [优化 SpEL 的 InlineMap 和 InlineList #30251](https://github.com/spring-projects/spring-framework/pull/30251)；
+- [优化 SpEL ConstructorReference 中的数组创建 #30189](https://github.com/spring-projects/spring-framework/pull/30189)；
+- [修复 MethodParameter 复制构造器遗漏 methodAnnotations #36342](https://github.com/spring-projects/spring-framework/pull/36342)。
+
+我也向 [MyBatis #2340](https://github.com/mybatis/mybatis-3/pull/2340) 和 [Halo #9888](https://github.com/halo-dev/halo/pull/9888) 提交过已合并的代码贡献。部分贡献来自本项目的维护过程，另一些来自其他源码阅读和开发实践。
+
+这些经历也是我持续维护这个项目的一部分：理解已有实现，遇到问题时定位原因，再把适用的修改反馈给原项目。
+
 
 <a id="today-blog"></a>
 
