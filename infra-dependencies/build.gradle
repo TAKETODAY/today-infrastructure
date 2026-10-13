@@ -512,7 +512,7 @@ bom {
     }
   }
 
-  library("SLF4J", "2.0.17") {
+  library("SLF4J", "2.0.20") {
     prohibit {
       contains "-alpha"
       because "we don't want alphas"
