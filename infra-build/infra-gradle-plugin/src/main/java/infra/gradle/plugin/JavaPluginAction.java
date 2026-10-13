@@ -99,7 +99,7 @@ final class JavaPluginAction implements PluginApplicationAction {
     configureInfraTestRunTask(project, resolveMainTestClassName);
     project.afterEvaluate(this::configureUtf8Encoding);
     configureParametersCompilerArg(project);
-    configureAdditionalMetadataLocations(project);
+    configureConfigurationProcessorCompilerArgs(project);
   }
 
   private void classifyJarTask(Project project) {
@@ -247,13 +247,13 @@ final class JavaPluginAction implements PluginApplicationAction {
     });
   }
 
-  private void configureAdditionalMetadataLocations(Project project) {
+  private void configureConfigurationProcessorCompilerArgs(Project project) {
     project.afterEvaluate(evaluated -> evaluated.getTasks()
             .withType(JavaCompile.class)
-            .configureEach(this::configureAdditionalMetadataLocations));
+            .configureEach(this::configureConfigurationProcessorCompilerArgs));
   }
 
-  private void configureAdditionalMetadataLocations(JavaCompile compile) {
+  private void configureConfigurationProcessorCompilerArgs(JavaCompile compile) {
     SourceSetContainer sourceSets = compile.getProject()
             .getExtensions()
             .getByType(JavaPluginExtension.class)
@@ -266,7 +266,7 @@ final class JavaPluginAction implements PluginApplicationAction {
               File descriptionCache = new File(compile.getTemporaryDir(),
                       "previous-infra-configuration-metadata.json");
               compile.getOutputs().file(descriptionCache);
-              compile.doFirst(new AdditionalMetadataLocationsConfigurer(locations, descriptionCache));
+              compile.doFirst(new ConfigurationProcessorCompilerArgsConfigurer(locations, descriptionCache));
             });
   }
 
@@ -343,17 +343,18 @@ final class JavaPluginAction implements PluginApplicationAction {
   }
 
   /**
-   * Task {@link Action} to add additional meta-data locations. We need to use an
+   * Task {@link Action} to add compiler args used by
+   * {@code infra-configuration-processor}. We need to use an
    * inner-class rather than a lambda due to
    * <a href="https://github.com/gradle/gradle/issues/5510">issues/5510</a>.
    */
-  private static final class AdditionalMetadataLocationsConfigurer implements Action<Task> {
+  private static final class ConfigurationProcessorCompilerArgsConfigurer implements Action<Task> {
 
     private final Set<File> locations;
 
     private final File descriptionCache;
 
-    private AdditionalMetadataLocationsConfigurer(Set<File> locations, File descriptionCache) {
+    private ConfigurationProcessorCompilerArgsConfigurer(Set<File> locations, File descriptionCache) {
       this.locations = locations;
       this.descriptionCache = descriptionCache;
     }

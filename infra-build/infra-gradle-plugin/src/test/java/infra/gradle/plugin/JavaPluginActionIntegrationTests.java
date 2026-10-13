@@ -133,7 +133,7 @@ class JavaPluginActionIntegrationTests {
   }
 
   @TestTemplate
-  void additionalMetadataLocationsConfiguredWhenProcessorIsPresent() throws IOException {
+  void configurationPropertiesCompilerArgumentsConfiguredWhenProcessorIsPresent() throws IOException {
     createMinimalMainSource();
     File libs = new File(this.gradleBuild.getProjectDir(), "libs");
     libs.mkdirs();
@@ -151,6 +151,14 @@ class JavaPluginActionIntegrationTests {
   }
 
   @TestTemplate
+  void configurationPropertiesCompilerArgumentsNotConfiguredWhenProcessorIsAbsent() throws IOException {
+    createMinimalMainSource();
+    BuildResult result = this.gradleBuild.build("compileJava");
+    assertThat(result.task(":compileJava").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+    assertThat(result.getOutput()).contains("compileJava compiler args: [-parameters]");
+  }
+
+  @TestTemplate
   void descriptionCacheLocationIsAnOutputOfCompileJava() throws IOException {
     createMinimalMainSource();
     BuildResult result = this.gradleBuild.build("compileJava");
@@ -162,11 +170,12 @@ class JavaPluginActionIntegrationTests {
   }
 
   @TestTemplate
-  void additionalMetadataLocationsNotConfiguredWhenProcessorIsAbsent() throws IOException {
+  void compileJavaIsUpToDateOnSecondInvocation() throws IOException {
     createMinimalMainSource();
     BuildResult result = this.gradleBuild.build("compileJava");
     assertThat(result.task(":compileJava").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
-    assertThat(result.getOutput()).contains("compileJava compiler args: [-parameters]");
+    result = this.gradleBuild.build("compileJava");
+    assertThat(result.task(":compileJava").getOutcome()).isEqualTo(TaskOutcome.UP_TO_DATE);
   }
 
   @TestTemplate
