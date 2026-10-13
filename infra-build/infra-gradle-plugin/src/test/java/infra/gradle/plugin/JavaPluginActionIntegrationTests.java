@@ -142,7 +142,23 @@ class JavaPluginActionIntegrationTests {
     BuildResult result = this.gradleBuild.build("compileJava");
     assertThat(result.task(":compileJava").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
     assertThat(result.getOutput()).contains("compileJava compiler args: [-parameters, -Ainfra.context.properties.additionalMetadataLocations="
-            + new File(this.gradleBuild.getProjectDir(), "src/main/resources").getCanonicalPath());
+            + new File(this.gradleBuild.getProjectDir(), "src/main/resources").getCanonicalPath()
+            + ", -Ainfra.context.properties.descriptionCacheLocation="
+            + new File(this.gradleBuild.getProjectDir(),
+                    "build/tmp/compileJava/previous-infra-configuration-metadata.json")
+                    .getCanonicalPath()
+            + "]");
+  }
+
+  @TestTemplate
+  void descriptionCacheLocationIsAnOutputOfCompileJava() throws IOException {
+    createMinimalMainSource();
+    BuildResult result = this.gradleBuild.build("compileJava");
+    assertThat(result.task(":compileJava").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+    assertThat(result.getOutput()).contains("compileJava outputs: ")
+            .contains(new File(this.gradleBuild.getProjectDir(),
+                    "build/tmp/compileJava/previous-infra-configuration-metadata.json")
+                    .getCanonicalPath());
   }
 
   @TestTemplate

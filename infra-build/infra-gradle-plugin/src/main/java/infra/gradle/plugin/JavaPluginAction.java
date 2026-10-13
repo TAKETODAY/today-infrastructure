@@ -262,7 +262,12 @@ final class JavaPluginAction implements PluginApplicationAction {
             .filter(candidate -> candidate.getCompileJavaTaskName().equals(compile.getName()))
             .map(match -> match.getResources().getSrcDirs())
             .findFirst()
-            .ifPresent(locations -> compile.doFirst(new AdditionalMetadataLocationsConfigurer(locations)));
+            .ifPresent(locations -> {
+              File descriptionCache = new File(compile.getTemporaryDir(),
+                      "previous-infra-configuration-metadata.json");
+              compile.getOutputs().file(descriptionCache);
+              compile.doFirst(new AdditionalMetadataLocationsConfigurer(locations, descriptionCache));
+            });
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -346,8 +351,11 @@ final class JavaPluginAction implements PluginApplicationAction {
 
     private final Set<File> locations;
 
-    private AdditionalMetadataLocationsConfigurer(Set<File> locations) {
+    private final File descriptionCache;
+
+    private AdditionalMetadataLocationsConfigurer(Set<File> locations, File descriptionCache) {
       this.locations = locations;
+      this.descriptionCache = descriptionCache;
     }
 
     @Override
@@ -357,6 +365,7 @@ final class JavaPluginAction implements PluginApplicationAction {
       }
       if (hasConfigurationProcessorOnClasspath(compile)) {
         configureAdditionalMetadataLocations(compile);
+        configureDescriptionCacheLocation(compile);
       }
     }
 
@@ -373,6 +382,12 @@ final class JavaPluginAction implements PluginApplicationAction {
               .getCompilerArgs()
               .add("-Ainfra.context.properties.additionalMetadataLocations="
                       + StringUtils.collectionToCommaDelimitedString(this.locations));
+    }
+
+    private void configureDescriptionCacheLocation(JavaCompile compile) {
+      compile.getOptions()
+              .getCompilerArgs()
+              .add("-Ainfra.context.properties.descriptionCacheLocation=" + this.descriptionCache.getAbsolutePath());
     }
 
   }
