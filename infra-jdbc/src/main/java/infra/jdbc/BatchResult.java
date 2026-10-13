@@ -44,6 +44,11 @@ public class BatchResult extends ExecutionResult {
 
   private @Nullable Integer affectedRows;
 
+  /**
+   * Creates a new {@code BatchResult} associated with the given connection.
+   *
+   * @param connection the {@link JdbcConnection} used to access the database
+   */
   public BatchResult(JdbcConnection connection) {
     super(connection);
   }
@@ -116,12 +121,14 @@ public class BatchResult extends ExecutionResult {
     }
   }
 
-  void addKeys(ResultSet rs) {
-    addKeys(rs, infra.jdbc.type.ObjectTypeHandler.sharedInstance);
-  }
-
-  @Nullable
-  public Object getKey() {
+  /**
+   * Returns the first generated key of the last batch execution, or {@code null}
+   * if no generated keys were fetched.
+   *
+   * @return the first generated key, or {@code null} if none is available
+   * @throws GeneratedKeysException if no generated keys were fetched from the database
+   */
+  public @Nullable Object getKey() {
     assertCanGetKeys();
     List<Object> keys = this.generatedKeys;
     if (CollectionUtils.isNotEmpty(keys)) {
@@ -131,6 +138,12 @@ public class BatchResult extends ExecutionResult {
   }
 
   /**
+   * Returns the first generated key of the last batch execution, converted to the
+   * specified return type using the default conversion service.
+   *
+   * @param <V> the type of the generated key
+   * @param returnType the target type of the generated key, must not be {@code null}
+   * @return the converted first generated key
    * @throws GeneratedKeysConversionException Generated Keys conversion failed
    * @throws IllegalArgumentException If conversionService is null
    */
@@ -139,6 +152,13 @@ public class BatchResult extends ExecutionResult {
   }
 
   /**
+   * Returns the first generated key of the last batch execution, converted to the
+   * specified return type using the provided conversion service.
+   *
+   * @param <V> the type of the generated key
+   * @param returnType the target type of the generated key, must not be {@code null}
+   * @param conversionService the {@link ConversionService} used to convert the key, must not be {@code null}
+   * @return the converted first generated key
    * @throws GeneratedKeysConversionException Generated Keys conversion failed
    * @throws IllegalArgumentException If conversionService is null
    */
@@ -154,6 +174,13 @@ public class BatchResult extends ExecutionResult {
     }
   }
 
+  /**
+   * Returns all generated keys of the last batch execution, or {@code null} if no
+   * generated keys were fetched.
+   *
+   * @return an array containing all generated keys, or {@code null} if none is available
+   * @throws GeneratedKeysException if no generated keys were fetched from the database
+   */
   public Object @Nullable [] getKeys() {
     assertCanGetKeys();
     if (generatedKeys != null) {
@@ -163,6 +190,13 @@ public class BatchResult extends ExecutionResult {
   }
 
   /**
+   * Returns all generated keys of the last batch execution, converted to the specified
+   * return type using the default conversion service.
+   *
+   * @param <V> the type of the generated keys
+   * @param returnType the target type of the generated keys, must not be {@code null}
+   * @return a list containing all converted generated keys, or {@code null} if no
+   * generated keys were fetched
    * @throws GeneratedKeysConversionException cannot converting value from database
    * @throws IllegalArgumentException If conversionService is null
    */
@@ -171,6 +205,14 @@ public class BatchResult extends ExecutionResult {
   }
 
   /**
+   * Returns all generated keys of the last batch execution, converted to the specified
+   * return type using the provided conversion service.
+   *
+   * @param <V> the type of the generated keys
+   * @param returnType the target type of the generated keys, must not be {@code null}
+   * @param conversionService the {@link ConversionService} used to convert the keys, must not be {@code null}
+   * @return a list containing all converted generated keys, or {@code null} if no
+   * generated keys were fetched
    * @throws GeneratedKeysConversionException cannot converting value from database
    * @throws IllegalArgumentException If conversionService is null
    */
