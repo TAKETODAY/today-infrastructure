@@ -20,8 +20,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.sql.PreparedStatement;
 
-import infra.core.conversion.ConversionService;
-
 /**
  * Batch execution result
  *
@@ -83,43 +81,6 @@ public class BatchResult extends AbstractKeyResult<Object> {
               "It is required to call executeBatch() method before calling getAffectedRows().");
     }
     return affectedRows;
-  }
-
-  /**
-   * @return the first generated key, or {@code null} if no keys are available
-   * @throws GeneratedKeysException if no generated keys were fetched from the database
-   * @deprecated use {@link #getFirstKey()} instead
-   */
-  @Deprecated
-  public @Nullable Object getKey() {
-    return getFirstKey();
-  }
-
-  /**
-   * @param <V> the type of the return value
-   * @param returnType the class object representing the desired return type
-   * @return the first generated key, converted to the specified return type
-   * @throws GeneratedKeysConversionException if the conversion of the generated key fails
-   * @throws IllegalArgumentException if the conversion service is null
-   * @deprecated use {@link #getFirstKey(Class)} instead
-   */
-  @Deprecated
-  public <V extends @Nullable Object> V getKey(Class<V> returnType) {
-    return getFirstKey(returnType);
-  }
-
-  /**
-   * @param <V> the type of the return value
-   * @param returnType the class object representing the desired return type
-   * @param conversionService the {@link ConversionService} used to convert the generated key
-   * @return the first generated key, converted to the specified return type
-   * @throws GeneratedKeysConversionException if the conversion of the generated key fails
-   * @throws IllegalArgumentException if the {@code conversionService} is {@code null}
-   * @deprecated use {@link #getFirstKey(Class, ConversionService)} instead
-   */
-  @Deprecated
-  public <V extends @Nullable Object> V getKey(Class<V> returnType, ConversionService conversionService) {
-    return getFirstKey(returnType, conversionService);
   }
 
 }
