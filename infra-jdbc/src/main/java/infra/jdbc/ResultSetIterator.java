@@ -309,18 +309,7 @@ public abstract class ResultSetIterator<T extends @Nullable Object> implements I
    * @since 4.0
    */
   public void consume(Consumer<T> consumer) {
-    final ResultSet rows = this.resultSet;
-    try {
-      while (rows.next()) {
-        consumer.accept(readNext(rows));
-      }
-    }
-    catch (SQLException ex) {
-      throw handleReadError(ex);
-    }
-    finally {
-      close();
-    }
+    forEachRemaining(consumer);
   }
 
   /**

@@ -1273,45 +1273,7 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
    * @throws DataAccessException if a SQL exception occurs during the batch execution.
    */
   public BatchResult executeBatch(boolean generatedKeys) {
-    Throwable failure = null;
-    logStatement();
-    long start = System.currentTimeMillis();
-    try {
-      PreparedStatement statement = buildStatement();
-
-      BatchResult batchResult = this.batchResult;
-      if (batchResult == null) {
-        batchResult = new BatchResult(connection);
-        this.batchResult = batchResult;
-      }
-      batchResult.setBatchResult(statement.executeBatch());
-      try {
-        if (generatedKeys) {
-          batchResult.addKeys(statement.getGeneratedKeys());
-        }
-
-        if (log.isDebugEnabled()) {
-          log.debug("total: {} ms; executed batch [{}]", System.currentTimeMillis() - start, obtainName());
-        }
-        // reset currentBatchRecords to 0
-        this.currentBatchRecords = 0;
-        return batchResult;
-      }
-      catch (SQLException e) {
-        throw new GeneratedKeysException(
-                "Error while trying to fetch generated keys from database. " +
-                        "If you are not expecting any generated keys, fix this" +
-                        " error by setting the fetchGeneratedKeys parameter in" +
-                        " the createQuery() method to 'false'", e);
-      }
-    }
-    catch (SQLException e) {
-      failure = e;
-      throw translateException("Executing batch operation", e);
-    }
-    finally {
-      closeConnectionIfNecessary(failure);
-    }
+    return executeBatch(generatedKeys ? ObjectTypeHandler.sharedInstance : null);
   }
 
   /**
