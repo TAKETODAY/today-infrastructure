@@ -504,6 +504,11 @@ public class LoggingApplicationListener implements GenericApplicationListener {
       return Integer.MIN_VALUE + 1;
     }
 
+    @Override
+    public boolean isPausable() {
+      return false;
+    }
+
   }
 
 }
