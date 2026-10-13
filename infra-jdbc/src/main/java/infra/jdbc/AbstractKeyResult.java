@@ -28,7 +28,6 @@ import infra.core.conversion.ConversionException;
 import infra.core.conversion.ConversionService;
 import infra.dao.DataAccessException;
 import infra.jdbc.type.TypeHandler;
-import infra.util.Assert;
 import infra.util.CollectionUtils;
 
 /**
@@ -133,17 +132,16 @@ public abstract class AbstractKeyResult<T extends @Nullable Object> extends Exec
    * Retrieves the first generated key, converted to the specified return type.
    *
    * <p>This method retrieves the first generated key using {@link #getFirstKey()} and converts it
-   * to the desired type using a {@link ConversionService} obtained from the manager. If no keys
-   * are available, or if the conversion fails, appropriate exceptions are thrown.
+   * to the desired type using the manager's {@link ConversionService}. If no keys are available,
+   * or if the conversion fails, appropriate exceptions are thrown.
    *
    * @param <V> the type of the return value
    * @param returnType the class object representing the desired return type
    * @return the first generated key, converted to the specified return type
    * @throws GeneratedKeysConversionException if the conversion of the generated key fails
-   * @throws IllegalArgumentException if the conversion service is null
    */
   public <V extends @Nullable Object> V getFirstKey(Class<V> returnType) {
-    return getFirstKey(returnType, getManager().getConversionService());
+    return getFirstKey(returnType, null);
   }
 
   /**
@@ -151,18 +149,21 @@ public abstract class AbstractKeyResult<T extends @Nullable Object> extends Exec
    * {@link ConversionService}.
    *
    * <p>This method retrieves the first generated key using {@link #getFirstKey()} and converts it
-   * to the desired type using the given {@link ConversionService}. If no keys are available, or
-   * if the conversion fails, appropriate exceptions are thrown.
+   * to the desired type using the given {@link ConversionService}. If the {@code conversionService}
+   * is {@code null}, the manager's conversion service is used instead. If no keys are available,
+   * or if the conversion fails, appropriate exceptions are thrown.
    *
    * @param <V> the type of the return value
    * @param returnType the class object representing the desired return type
-   * @param conversionService the {@link ConversionService} used to convert the generated key
+   * @param conversionService the {@link ConversionService} used to convert the generated key,
+   * or {@code null} to use the default conversion service
    * @return the first generated key, converted to the specified return type
    * @throws GeneratedKeysConversionException if the conversion of the generated key fails
-   * @throws IllegalArgumentException if the {@code conversionService} is {@code null}
    */
-  public <V extends @Nullable Object> V getFirstKey(Class<V> returnType, ConversionService conversionService) {
-    Assert.notNull(conversionService, "conversionService is required");
+  public <V extends @Nullable Object> V getFirstKey(Class<V> returnType, @Nullable ConversionService conversionService) {
+    if (conversionService == null) {
+      conversionService = getManager().getConversionService();
+    }
     Object key = getFirstKey();
     try {
       return conversionService.convert(key, returnType);
@@ -213,17 +214,16 @@ public abstract class AbstractKeyResult<T extends @Nullable Object> extends Exec
    * Retrieves all generated keys, converted to the specified return type.
    *
    * <p>This method retrieves all generated keys stored in the internal collection and converts
-   * each key to the desired type using a {@link ConversionService} obtained from the manager.
-   * If no keys are available, or if the conversion fails, appropriate exceptions are thrown.
+   * each key to the desired type using the manager's {@link ConversionService}. If no keys are
+   * available, or if the conversion fails, appropriate exceptions are thrown.
    *
    * @param <V> the type of the return value
    * @param returnType the class object representing the desired return type for the keys
    * @return a list containing all generated keys, converted to the specified return type
    * @throws GeneratedKeysConversionException if the conversion of any generated key fails
-   * @throws IllegalArgumentException if the conversion service is null
    */
   public <V> List<V> getKeys(Class<V> returnType) {
-    return getKeys(returnType, getManager().getConversionService());
+    return getKeys(returnType, null);
   }
 
   /**
@@ -231,19 +231,22 @@ public abstract class AbstractKeyResult<T extends @Nullable Object> extends Exec
    * {@link ConversionService}.
    *
    * <p>This method retrieves all generated keys stored in the internal collection and converts
-   * each key to the desired type using the given {@link ConversionService}. If no keys are
-   * available, or if the conversion fails, appropriate exceptions are thrown.
+   * each key to the desired type using the given {@link ConversionService}. If the
+   * {@code conversionService} is {@code null}, the manager's conversion service is used instead.
+   * If no keys are available, or if the conversion fails, appropriate exceptions are thrown.
    *
    * @param <V> the type of the return value
    * @param returnType the class object representing the desired return type for the keys
-   * @param conversionService the {@link ConversionService} used to convert the generated keys
+   * @param conversionService the {@link ConversionService} used to convert the generated keys,
+   * or {@code null} to use the default conversion service
    * @return a list containing all generated keys, converted to the specified return type
    * @throws GeneratedKeysConversionException if the conversion of any generated key fails
-   * @throws IllegalArgumentException if the {@code conversionService} is {@code null}
    */
-  public <V> List<V> getKeys(Class<V> returnType, ConversionService conversionService) {
+  public <V> List<V> getKeys(Class<V> returnType, @Nullable ConversionService conversionService) {
+    if (conversionService == null) {
+      conversionService = getManager().getConversionService();
+    }
     ArrayList<T> generatedKeys = generatedKeys();
-    Assert.notNull(conversionService, "conversionService is required");
     try {
       ArrayList<V> convertedKeys = new ArrayList<>(generatedKeys.size());
       for (Object key : generatedKeys) {

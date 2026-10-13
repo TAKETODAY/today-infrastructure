@@ -190,23 +190,23 @@ class BatchResultTests {
   }
 
   @Test
-  void shouldThrowExceptionWhenGetKeyWithNullConversionService() throws Exception {
+  void shouldUseDefaultConversionServiceWhenGetKeyWithNullConversionService() throws Exception {
     BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager));
     setGeneratedKeys(batchResult, new Object[] { 1L });
 
-    assertThatThrownBy(() -> batchResult.getFirstKey(Long.class, null))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("conversionService is required");
+    Long key = batchResult.getFirstKey(Long.class, null);
+
+    assertThat(key).isEqualTo(1L);
   }
 
   @Test
-  void shouldThrowExceptionWhenGetKeysWithNullConversionService() throws Exception {
+  void shouldUseDefaultConversionServiceWhenGetKeysWithNullConversionService() throws Exception {
     BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager));
     setGeneratedKeys(batchResult, new Object[] { 1L });
 
-    assertThatThrownBy(() -> batchResult.getKeys(Long.class, null))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("conversionService is required");
+    List<Long> keys = batchResult.getKeys(Long.class, null);
+
+    assertThat(keys).containsExactly(1L);
   }
 
   @Test
