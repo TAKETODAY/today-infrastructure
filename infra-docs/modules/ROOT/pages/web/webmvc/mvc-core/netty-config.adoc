@@ -31,9 +31,21 @@ dependencies {
 | 用于接收连接的线程数 (Parent EventLoopGroup)。
 | 1
 
+| `server.netty.worker-pool-name`
+| 工作线程池名称。
+| 无
+
+| `server.netty.acceptor-pool-name`
+| 接收线程池名称。
+| 无
+
 | `server.netty.max-connection`
 | 允许的最大连接数 (SOMAXCONN)。
 | 系统默认值 (Windows: 200, 其他: 128)
+
+| `server.netty.socket-channel`
+| 用于接受连接的 `ServerChannel` 实现类。
+| 平台默认 (NIO)
 
 | `server.netty.max-content-length`
 | 请求体的最大长度。超过此限制将返回错误。
@@ -54,6 +66,10 @@ dependencies {
 | `server.netty.max-initial-line-length`
 | HTTP 请求行（第一行）的最大长度。
 | 4096
+
+| `server.netty.logging-level`
+| Netty 日志级别 (TRACE, DEBUG, INFO, WARN, ERROR)。配置后注册 LoggingHandler。
+| 无
 
 | `server.netty.validate-headers`
 | 是否启用头验证，以防止请求/响应拆分攻击。
@@ -140,6 +156,66 @@ server:
   netty:
     worker-pool-name: "infra-netty-worker"
     acceptor-pool-name: "infra-netty-acceptor"
+----
+
+=== HTTP 请求执行器配置
+
+Netty I/O 工作线程会将请求处理任务（如数据库访问、远程服务调用等阻塞逻辑）委托给 `HttpRequestExecutor` 执行，
+从而避免阻塞高吞吐的 I/O 线程。框架内置两种实现：
+
+* `SimpleHttpRequestExecutor`：委托给一个 `Executor`（默认线程池），适用于平台线程模式
+* `VirtualThreadHttpRequestExecutor`：基于虚拟线程（Java 21+），适用于 I/O 密集型应用
+
+使用 `server.use-virtual-threads` 即可切换为虚拟线程实现：
+
+[configprops,yaml]
+----
+server:
+  use-virtual-threads: true # 使用虚拟线程处理请求 (Java 21+)
+----
+
+在平台线程模式下，请求执行器优先复用 `applicationTaskExecutor` bean；当该 bean 不存在时，
+才会使用 `server.netty.http-request-executor` 配置创建的默认线程池：
+
+|===
+| 属性名 | 描述 | 默认值
+
+| `server.netty.http-request-executor.core-size`
+| 核心线程数。
+| 8
+
+| `server.netty.http-request-executor.max-size`
+| 最大线程数。队列排满时线程池可扩展至此大小。
+| Integer.MAX_VALUE
+
+| `server.netty.http-request-executor.queue-capacity`
+| 队列容量。无界队列不会扩容线程池，此时 `max-size` 不生效。
+| Integer.MAX_VALUE
+
+| `server.netty.http-request-executor.allow-core-thread-time-out`
+| 是否允许核心线程超时回收，启用后线程池可动态伸缩。
+| true
+
+| `server.netty.http-request-executor.keep-alive`
+| 空闲线程存活时间。
+| 60s
+
+| `server.netty.http-request-executor.thread-name-prefix`
+| 新创建线程的名称前缀。
+| task-
+|===
+
+[configprops,yaml]
+----
+server:
+  netty:
+    http-request-executor:
+      core-size: 16
+      max-size: 64
+      queue-capacity: 1024
+      allow-core-thread-time-out: true
+      keep-alive: 30s
+      thread-name-prefix: "http-"
 ----
 
 === 优雅停机
