@@ -45,6 +45,7 @@ import java.util.zip.ZipEntry;
 
 import infra.util.Assert;
 import infra.util.InfraStrategies;
+import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 
 /**
@@ -69,6 +70,8 @@ public abstract class Packager {
   private static final String INFRA_CLASSES_ATTRIBUTE = "Infra-App-Classes";
 
   private static final String INFRA_LIB_ATTRIBUTE = "Infra-App-Lib";
+
+  private static final String INFRA_LIB_PROVIDED_ATTRIBUTE = "Infra-App-Lib-Provided";
 
   private static final String INFRA_CLASSPATH_INDEX_ATTRIBUTE = "Infra-App-Classpath-Index";
 
@@ -410,7 +413,12 @@ public abstract class Packager {
     else {
       attributes.putValue(INFRA_CLASSES_ATTRIBUTE, layout.getClassesLocation());
     }
-    putIfHasLength(attributes, INFRA_LIB_ATTRIBUTE, layout.getLibraryLocation("", LibraryScope.COMPILE));
+    String libraryLocation = layout.getLibraryLocation("", LibraryScope.COMPILE);
+    putIfHasLength(attributes, INFRA_LIB_ATTRIBUTE, libraryLocation);
+    String providedLibraryLocation = layout.getLibraryLocation("", LibraryScope.PROVIDED);
+    if (!ObjectUtils.nullSafeEquals(providedLibraryLocation, libraryLocation)) {
+      putIfHasLength(attributes, INFRA_LIB_PROVIDED_ATTRIBUTE, providedLibraryLocation);
+    }
     putIfHasLength(attributes, INFRA_CLASSPATH_INDEX_ATTRIBUTE, layout.getClasspathIndexFileLocation());
     if (isLayered()) {
       putIfHasLength(attributes, INFRA_LAYERS_INDEX_ATTRIBUTE, layout.getLayersIndexFileLocation());

@@ -107,7 +107,7 @@ public abstract class InfraWar extends War implements InfraArchive {
   @Override
   public void copy() {
     this.support.configureManifest(getManifest(), getMainClass().get(), CLASSES_DIRECTORY, LIB_DIRECTORY,
-            CLASSPATH_INDEX, (isLayeredDisabled()) ? null : LAYERS_INDEX,
+            LIB_PROVIDED_DIRECTORY, CLASSPATH_INDEX, (isLayeredDisabled()) ? null : LAYERS_INDEX,
             this.getTargetJavaVersion().get().getMajorVersion(), this.projectName.get(), this.projectVersion.get());
     super.copy();
   }

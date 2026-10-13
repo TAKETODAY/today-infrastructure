@@ -21,6 +21,7 @@ package infra.gradle.tasks.bundling;
 import org.gradle.api.GradleException;
 import org.gradle.api.file.CopySpec;
 import org.gradle.api.file.FileCopyDetails;
+import org.jspecify.annotations.Nullable;
 import org.gradle.api.file.FileTreeElement;
 import org.gradle.api.file.RelativePath;
 import org.gradle.api.internal.file.copy.CopyAction;
@@ -89,14 +90,18 @@ class InfraArchiveSupport {
     this.exclusions.exclude("**/META-INF/additional-infra-configuration-metadata.json");
   }
 
-  void configureManifest(Manifest manifest, String mainClass, String classes, String lib, String classPathIndex,
-          String layersIndex, String jdkVersion, String implementationTitle, Object implementationVersion) {
+  void configureManifest(Manifest manifest, String mainClass, String classes, String lib, @Nullable String libProvided,
+          String classPathIndex, String layersIndex, String jdkVersion, String implementationTitle,
+          Object implementationVersion) {
     Attributes attributes = manifest.getAttributes();
     attributes.putIfAbsent("Main-Class", this.loaderMainClass);
     attributes.putIfAbsent("Start-Class", mainClass);
     attributes.computeIfAbsent("Infra-Version", (name) -> determineInfraVersion());
     attributes.putIfAbsent("Infra-App-Classes", classes);
     attributes.putIfAbsent("Infra-App-Lib", lib);
+    if (libProvided != null) {
+      attributes.putIfAbsent("Infra-App-Lib-Provided", libProvided);
+    }
     if (classPathIndex != null) {
       attributes.putIfAbsent("Infra-App-Classpath-Index", classPathIndex);
     }
