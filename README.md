@@ -257,6 +257,12 @@ dependencies {
 首次体验可以直接运行 [infra-samples](infra-samples)，无需手动创建工程或配置依赖。
 准备好 Git 和 JDK，首次运行时 Gradle 会下载所需依赖。
 
+环境要求：
+
+- **应用运行 JDK**：框架目标为 Java 17+。默认 Netty 示例路径已实测可在 JDK 17.0.16 与 JDK 25.0.3 下运行（`GET /index` 返回 HTTP 200 / `Hello`）；未测试更早 JDK，也不把该结果扩展为所有模块和可选功能的最低要求。
+- **示例 Gradle 运行 JDK**：示例自带 Gradle Wrapper（9.8.0）。本次验证使用 JDK 25.0.3 构建发行包；Gradle 运行 JDK 通常需要比应用目标版本更新的 JDK，请按 [Gradle 兼容表](https://docs.gradle.org/current/userguide/compatibility.html) 选择。
+- **框架源码构建 toolchain**：与示例应用运行环境不同，完整源码构建的 JDK 要求见项目构建配置，不在快速开始中推导。
+
 ```bash
 git clone https://github.com/TAKETODAY/today-infrastructure.git
 cd today-infrastructure/infra-samples

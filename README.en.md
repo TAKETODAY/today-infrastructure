@@ -73,6 +73,12 @@ Explore the application for examples of dependencies, configuration, HTTP endpoi
 
 The [infra-samples](infra-samples) project includes build configuration and a Gradle Wrapper. Prepare Git and a JDK compatible with the sample's Gradle version. The framework targets Java 17+, but the Gradle runtime may require a newer JDK; check [the wrapper configuration](infra-samples/gradle/wrapper/gradle-wrapper.properties) when selecting your environment.
 
+Runtime requirements:
+
+- **Application runtime JDK**: the framework targets Java 17+. The default Netty sample has been verified on JDK 17.0.16 and JDK 25.0.3 (`GET /index` returns HTTP 200 with the body `Hello`). Older JDKs were not tested, and this does not establish a minimum for every module or optional feature.
+- **Gradle runtime JDK**: the sample ships a Gradle Wrapper (9.8.0). The verified build used JDK 25.0.3; the Gradle runtime usually needs a newer JDK than the application target, so follow the [Gradle compatibility matrix](https://docs.gradle.org/current/userguide/compatibility.html).
+- **Framework source build toolchain**: building the full source tree has its own JDK requirements and is separate from running the sample; see the project build configuration rather than the quick start.
+
 ```bash
 git clone https://github.com/TAKETODAY/today-infrastructure.git
 cd today-infrastructure/infra-samples
