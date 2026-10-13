@@ -174,8 +174,6 @@ client.get().uri("/persons/1")
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-import infra.test.web.reactive.server.expectBody
-
 client.get().uri("/persons/1")
   .exchange()
   .expectStatus().isOk()

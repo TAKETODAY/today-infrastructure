@@ -108,19 +108,19 @@ configure([rootProject] + javaProjects) {
     // 去除 测试警告
     testRuntimeOnly("com.google.code.findbugs:jsr305")
     testRuntimeOnly("com.google.code.findbugs:findbugs")
-    testRuntimeOnly('org.jboss.logging:jboss-logging:3.5.3.Final')
+    testRuntimeOnly('org.jboss.logging:jboss-logging:3.6.3.Final')
 
     // JSR-305 only used for non-required meta-annotations
     compileOnly("com.google.code.findbugs:jsr305")
     compileOnly("com.google.code.findbugs:findbugs")
-    compileOnly('org.jboss.logging:jboss-logging:3.5.3.Final')
+    compileOnly('org.jboss.logging:jboss-logging:3.6.3.Final')
   }
 
   ext.javadocLinks = [
       "https://docs.oracle.com/en/java/javase/17/docs/api/",
       "https://hc.apache.org/httpcomponents-client-5.5.x/current/httpclient5/apidocs/",
-      "https://projectreactor.io/docs/core/release/api/",
-      "https://projectreactor.io/docs/test/release/api/",
+      // "https://projectreactor.io/docs/core/release/api/",
+      // "https://projectreactor.io/docs/test/release/api/",
       "https://junit.org/junit4/javadoc/4.13.2/",
       "https://docs.junit.org/6.1.0/api/",
       "https://www.reactive-streams.org/reactive-streams-1.0.4-javadoc/",

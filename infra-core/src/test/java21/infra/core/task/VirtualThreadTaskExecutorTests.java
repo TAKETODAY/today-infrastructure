@@ -87,14 +87,6 @@ class VirtualThreadTaskExecutorTests {
     }
   }
 
-  private static final class NoOpRunnable implements Runnable {
-
-    @Override
-    public void run() {
-      // no-op
-    }
-  }
-
   private static abstract class AbstractNotifyingRunnable implements Runnable {
 
     private final Object monitor;

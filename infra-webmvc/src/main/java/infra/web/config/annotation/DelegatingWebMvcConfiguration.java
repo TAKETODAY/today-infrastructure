@@ -139,6 +139,11 @@ public class DelegatingWebMvcConfiguration extends WebMvcConfigurationSupport {
   }
 
   @Override
+  protected void customizeProblemDetails(ProblemDetailsConfigurer configurer) {
+    configurers.configureProblemDetails(configurer);
+  }
+
+  @Override
   protected void configureApiVersioning(ApiVersionConfigurer configurer) {
     configurers.configureApiVersioning(configurer);
   }

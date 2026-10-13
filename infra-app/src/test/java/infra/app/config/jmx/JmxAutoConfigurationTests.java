@@ -100,7 +100,7 @@ class JmxAutoConfigurationTests {
     AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext();
     parent.register(infra.app.config.jmx.JmxAutoConfiguration.class);
     parent.refresh();
-    this.contextRunner.withParent(parent).run((context) -> assertThat(context.isRunning()));
+    this.contextRunner.withParent(parent).run((context) -> assertThat(context.isRunning()).isTrue());
 
     parent.close();
   }
@@ -111,7 +111,7 @@ class JmxAutoConfigurationTests {
     parent.register(infra.app.config.jmx.JmxAutoConfiguration.class, TestConfiguration.class);
     parent.refresh();
     this.contextRunner.withParent(parent).withConfiguration(UserConfigurations.of(TestConfiguration.class))
-            .run((context) -> assertThat(context.isRunning()));
+            .run((context) -> assertThat(context.isRunning()).isTrue());
     parent.close();
   }
 

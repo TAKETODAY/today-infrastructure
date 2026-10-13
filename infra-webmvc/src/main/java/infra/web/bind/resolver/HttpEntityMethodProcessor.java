@@ -23,7 +23,6 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,6 +45,7 @@ import infra.web.HttpContextUtils;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.RedirectModelManager;
 import infra.web.accept.ContentNegotiationManager;
+import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
@@ -200,11 +200,6 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 
     Object body = httpEntity.getBody();
     if (body instanceof ProblemDetail detail) {
-      if (detail.getInstance() == null) {
-        URI path = URI.create(context.getRequestURI());
-        detail.setInstance(path);
-      }
-
       if (logger.isWarnEnabled() && httpEntity instanceof ResponseEntity<?> responseEntity) {
         if (responseEntity.getStatusCode().value() != detail.getStatus()) {
           HandlerMethod handlerMethod = HandlerMethod.resolve(handler);
@@ -214,7 +209,9 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
           }
         }
       }
-      invokeErrorResponseInterceptors(detail, returnValue instanceof ErrorResponse response ? response : null);
+      if (context.getAttribute(ExceptionHandlerAnnotationExceptionHandler.INTERCEPTED_PROBLEM_DETAIL_ATTRIBUTE) != detail) {
+        invokeErrorResponseInterceptors(detail, returnValue instanceof ErrorResponse response ? response : null, context);
+      }
     }
 
     if (httpEntity.hasHeaders()) {

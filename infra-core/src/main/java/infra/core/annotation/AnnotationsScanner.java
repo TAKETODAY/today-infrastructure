@@ -290,7 +290,7 @@ abstract class AnnotationsScanner {
           }
         }
       }
-      if (Modifier.isPrivate(rootMethod.getModifiers())) {
+      if (Modifier.isPrivate(rootMethod.getModifiers()) || Modifier.isStatic(rootMethod.getModifiers())) {
         return null;
       }
       if (calledProcessor) {
@@ -348,11 +348,58 @@ abstract class AnnotationsScanner {
     return methods;
   }
 
-  private static boolean isOverride(Method rootMethod, Method candidateMethod) {
+  /**
+   * Determine if the supplied root method overrides the supplied candidate
+   * method declared in a supertype of the root method's declaring class.
+   * <p>Static methods never override or get overridden, and private candidate
+   * methods cannot be overridden. A package-private candidate method can only
+   * be overridden by a method declared in the same package or transitively via
+   * a {@code public} or {@code protected} overriding method declared in an
+   * intermediate superclass in that package (see JLS §8.4.8.1). Generic
+   * parameter types of the candidate method are resolved against the root
+   * method's declaring class.
+   *
+   * @param rootMethod the potentially overriding method
+   * @param candidateMethod the potentially overridden method
+   * @return {@code true} if the root method overrides the candidate method
+   * @since 5.0
+   */
+  static boolean isOverride(Method rootMethod, Method candidateMethod) {
     return !Modifier.isPrivate(candidateMethod.getModifiers())
+            && !Modifier.isStatic(rootMethod.getModifiers())
+            && !Modifier.isStatic(candidateMethod.getModifiers())
             && candidateMethod.getParameterCount() == rootMethod.getParameterCount()
             && candidateMethod.getName().equals(rootMethod.getName())
-            && hasSameParameterTypes(rootMethod, candidateMethod);
+            && hasSameParameterTypes(rootMethod, candidateMethod)
+            && isOverridable(rootMethod, candidateMethod);
+  }
+
+  private static boolean isOverridable(Method rootMethod, Method candidateMethod) {
+    if (Modifier.isPublic(candidateMethod.getModifiers()) || Modifier.isProtected(candidateMethod.getModifiers())) {
+      return true;
+    }
+    Class<?> rootClass = rootMethod.getDeclaringClass();
+    Class<?> candidateClass = candidateMethod.getDeclaringClass();
+    String packageName = candidateClass.getPackageName();
+    if (rootClass.getPackageName().equals(packageName)) {
+      return true;
+    }
+    for (Class<?> type = rootClass.getSuperclass(); type != null && type != candidateClass;
+         type = type.getSuperclass()) {
+      if (type.getPackageName().equals(packageName)) {
+        for (Method method : type.getDeclaredMethods()) {
+          int modifiers = method.getModifiers();
+          if ((Modifier.isPublic(modifiers) || Modifier.isProtected(modifiers))
+                  && !Modifier.isStatic(modifiers)
+                  && method.getParameterCount() == rootMethod.getParameterCount()
+                  && method.getName().equals(rootMethod.getName())
+                  && hasSameParameterTypes(rootMethod, method)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   private static boolean hasSameParameterTypes(Method rootMethod, Method candidateMethod) {

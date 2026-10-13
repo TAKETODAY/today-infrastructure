@@ -20,17 +20,21 @@ package infra.format.support;
 
 import org.junit.jupiter.params.provider.Arguments;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.stream.Stream;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.core.TypeDescriptor;
 import infra.core.annotation.AnnotationUtils;
+import infra.core.conversion.ConversionFailedException;
 import infra.core.conversion.ConversionService;
 import infra.format.annotation.DataSizeUnit;
 import infra.util.DataSize;
 import infra.util.DataUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -38,6 +42,7 @@ import static org.mockito.Mockito.mock;
  * Tests for {@link NumberToDataSizeConverter}.
  *
  * @author Stephane Nicoll
+ * @author Yanming Zhou
  */
 class NumberToDataSizeConverterTests {
 
@@ -46,6 +51,26 @@ class NumberToDataSizeConverterTests {
     assertThat(convert(conversionService, 10)).isEqualTo(DataSize.ofBytes(10));
     assertThat(convert(conversionService, +10)).isEqualTo(DataSize.ofBytes(10));
     assertThat(convert(conversionService, -10)).isEqualTo(DataSize.ofBytes(-10));
+    assertThat(conversionService.convert(10.0, DataSize.class)).isEqualTo(DataSize.ofBytes(10));
+    assertThat(conversionService.convert(-10.0, DataSize.class)).isEqualTo(DataSize.ofBytes(-10));
+    assertThat(conversionService.convert(new BigDecimal("10.0"), DataSize.class))
+            .isEqualTo(DataSize.ofBytes(10));
+    assertThat(conversionService.convert(new AtomicInteger(1000), DataSize.class))
+            .isEqualTo(DataSize.ofBytes(1000));
+  }
+
+  @ConversionServiceTest
+  void convertRejectsNumberWithFractionalPart(ConversionService conversionService) {
+    assertThatThrownBy(() -> conversionService.convert(-10.5, DataSize.class))
+            .isInstanceOf(ConversionFailedException.class)
+            .rootCause()
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("'-10.5' is not a valid data size");
+    assertThatThrownBy(() -> conversionService.convert(new BigDecimal("10.5"), DataSize.class))
+            .isInstanceOf(ConversionFailedException.class)
+            .rootCause()
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("'10.5' is not a valid data size");
   }
 
   @ConversionServiceTest

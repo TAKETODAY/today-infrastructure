@@ -162,6 +162,32 @@ public class DefaultRenderingResponseTests {
   }
 
   @Test
+  void from() throws Throwable {
+    ResponseCookie cookie = ResponseCookie.builder("currency", "USD").build();
+    RenderingResponse other = RenderingResponse.create("foo")
+            .status(HttpStatus.CREATED)
+            .header("foo", "bar")
+            .cookie(cookie)
+            .modelAttribute("model", "value")
+            .build();
+    RenderingResponse result = RenderingResponse.from(other).build();
+
+    MockRequest request = new MockRequest();
+    MockResponse response = new MockResponse();
+    ModelAndView mav = getModelAndView(result, request, response);
+
+    assertThat(mav).isNotNull();
+    assertThat(mav.getViewName()).isEqualTo("foo");
+    assertThat(mav.getModel()).containsEntry("model", "value");
+    assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED.value());
+    assertThat(response.getHeader("foo")).isEqualTo("bar");
+    assertThat(response.getCookies()).singleElement().satisfies(actual -> {
+      assertThat(actual.getName()).isEqualTo(cookie.getName());
+      assertThat(actual.getValue()).isEqualTo(cookie.getValue());
+    });
+  }
+
+  @Test
   public void notModifiedEtag() throws Throwable {
     String etag = "\"foo\"";
     RenderingResponse result = RenderingResponse.create("bar")

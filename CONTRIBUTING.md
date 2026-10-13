@@ -35,7 +35,8 @@
 
 ### 3. 提交更改
 - **进行代码审查**：在提交PR前，请自行审查代码，确保符合项目的代码风格和结构。
-- todo
+- 为行为变更增加或更新回归测试，执行受影响模块的定向测试，并说明验证结果。
+- 提交信息使用 Gitmoji 短代码及中文动宾主题，例如 `:bug: 修复响应复制时的 Cookie 丢失`；正文说明动机与兼容取舍。
 
 ### 4. 发起拉取请求 (Pull Request)
 1.  将你的分支推送到你Fork的仓库。
@@ -46,6 +47,8 @@
 ## ⚙️ 开发环境设置
 
 本项目使用 **Gradle** 进行构建。
+
+构建工具链使用 JDK 25，发布制品兼容 Java 17 及以上版本。使用仓库中的 Gradle Wrapper，优先构建受影响模块；常规增量开发无需运行 `clean`。
 
 ```bash
 # 1. 克隆你的Fork仓库
@@ -60,3 +63,36 @@ cd today-infrastructure
 ```
 
 **重要配置**：为避免自动覆盖版权头，请在IDE中检查并**禁用**“自动更新版权”
+
+### 定向构建与测试
+
+```bash
+# 编译全部模块，不运行测试
+./gradlew assemble
+
+# 构建受影响模块
+./gradlew :infra-core:build
+
+# 运行指定测试类或方法
+./gradlew :infra-core:test --tests '*StringUtilsTests'
+./gradlew :infra-core:test --tests '*StringUtilsTests.hasText'
+
+# 发布到本地 Maven 仓库
+./gradlew publishToMavenLocal
+```
+
+全量 `check` 包含测试和 Checkstyle，由 CI 执行；本地优先使用单模块任务。
+
+## 代码风格与测试
+
+- 遵循修改文件的现有风格，避免无关格式调整；使用 UTF-8、LF、两空格缩进，不保留行尾空白。
+- 禁止通配符导入；测试类以 `Tests` 结尾，使用 JUnit Jupiter、AssertJ 和 Mockito，优先使用 BDDMockito。
+- 编译期间启用 NullAway，使用 JSpecify 空值注解准确表达契约；合理的局部抑制遵循现有代码约定。
+- 公共 API 提供英文 JavaDoc，每个包提供 `package-info.java`；新增 API 的 `@since` 使用项目实际版本。
+- 字符串大小写转换显式指定 `Locale`。
+- 自主编写且非第三方派生的文件使用 TODAY 原创版权头；派生文件完整保留原版权与许可证，并追加修改声明。
+- 更多仓库约定见 [AGENTS.md](AGENTS.md)，Checkstyle 配置见 [checkstyle/checkstyle.xml](checkstyle/checkstyle.xml)。
+
+## 参考文档
+
+参考文档使用 AsciiDoc，位于 `infra-docs/modules/ROOT`。正文使用简体中文，示例需适配实际 infra API、配置键及章节链接。

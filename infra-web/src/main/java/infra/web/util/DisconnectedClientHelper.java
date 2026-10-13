@@ -20,7 +20,6 @@ package infra.web.util;
 
 import org.jspecify.annotations.Nullable;
 
-import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
 
@@ -28,6 +27,7 @@ import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
+import infra.util.CollectionUtils;
 import infra.util.ExceptionUtils;
 
 /**
@@ -52,7 +52,7 @@ public class DisconnectedClientHelper {
   private static final Set<Class<?>> EXCLUDED_EXCEPTION_TYPES;
 
   static {
-    Set<Class<?>> types = new LinkedHashSet<>(2);
+    Set<Class<?>> types = CollectionUtils.newLinkedHashSet(3);
     addExcludedExceptionType(types, "infra.web.client.RestClientException");
     addExcludedExceptionType(types, "infra.web.reactive.client.WebClientException");
     addExcludedExceptionType(types, "infra.dao.DataAccessException");

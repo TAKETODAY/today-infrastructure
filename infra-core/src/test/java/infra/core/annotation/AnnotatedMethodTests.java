@@ -1,3 +1,21 @@
+/*
+ * Copyright 2002-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.core.annotation;
 
 import org.junit.jupiter.api.Test;
@@ -19,6 +37,62 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 5.0 2026/2/24 22:11
  */
 class AnnotatedMethodTests {
+
+  @Test
+  void shouldNotInheritAnnotationsFromPackagePrivateMethodInDifferentPackage() {
+    assertCrossPackageAnnotations(AnnotationsScannerTests.PackagePrivateMethodChild.class, false);
+  }
+
+  @Test
+  void shouldInheritAnnotationsFromPackagePrivateMethodInDifferentPackageOverriddenTransitively() {
+    assertCrossPackageAnnotations(AnnotationsScannerTests.PublicMethodOverridingChild.class, true);
+  }
+
+  @Test
+  void shouldNotInheritAnnotationsFromPackagePrivateMethodInDifferentPackageViaPackagePrivateOverride() {
+    assertCrossPackageAnnotations(AnnotationsScannerTests.PackagePrivateMethodOverridingChild.class, false);
+  }
+
+  private void assertCrossPackageAnnotations(Class<?> type, boolean inherited) {
+    Method method = ReflectionUtils.findMethod(type, "process", String.class);
+    assertThat(method).isNotNull();
+    AnnotatedMethod annotatedMethod = new AnnotatedMethod(method);
+    assertThat(annotatedMethod.isAnnotationPresent(
+            infra.core.annotation.subpackage.PackagePrivateMethodSuperclass.Marker.class)).isEqualTo(inherited);
+    assertThat(annotatedMethod.getParameters()).hasSize(1);
+    assertThat(annotatedMethod.getParameters()[0].hasParameterAnnotation(
+            infra.core.annotation.subpackage.PackagePrivateMethodSuperclass.Marker.class)).isEqualTo(inherited);
+  }
+
+  @Test
+  void shouldNotInheritParameterAnnotationsFromStaticMethods() {
+    Method method = ReflectionUtils.findMethod(StaticMethodChild.class, "process", String.class);
+    assertThat(method).isNotNull();
+
+    AnnotatedMethod annotatedMethod = new AnnotatedMethod(method);
+    MethodParameter[] methodParameters = annotatedMethod.getParameters();
+
+    assertThat(methodParameters).hasSize(1);
+    assertThat(methodParameters[0].hasParameterAnnotation(Param.class)).isFalse();
+  }
+
+  static class StaticMethodSuperclass {
+
+    static void process(@Param String value) {
+    }
+  }
+
+  interface StaticMethodInterface {
+
+    static void process(@Param String value) {
+    }
+  }
+
+  static class StaticMethodChild extends StaticMethodSuperclass implements StaticMethodInterface {
+
+    static void process(String value) {
+    }
+  }
 
   @Test
   void shouldFindAnnotationOnMethodInGenericAbstractSuperclass() {

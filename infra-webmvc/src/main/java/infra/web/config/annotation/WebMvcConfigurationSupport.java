@@ -192,6 +192,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
 
   private @Nullable AsyncSupportConfigurer asyncSupportConfigurer;
 
+  private @Nullable ProblemDetailsConfigurer problemDetailsConfigurer;
+
   private @Nullable List<ErrorResponse.Interceptor> errorResponseInterceptors;
 
   private @Nullable ApiVersionStrategy apiVersionStrategy;
@@ -630,6 +632,10 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
 
     handler.setContentNegotiationManager(contentNegotiationManager);
     handler.setParameterResolvingRegistry(registry);
+    handler.setErrorResponseInterceptors(getErrorResponseInterceptors());
+    ProblemDetailsConfigurer problemDetails = getProblemDetailsConfigurer();
+    handler.setRenderUnhandledExceptionsAsProblemDetails(problemDetails.isRenderUnhandledExceptions());
+    handler.setErrorResponseViewResolver(problemDetails.getViewResolver());
     handler.afterPropertiesSet();
     handlers.add(handler);
 
@@ -1014,6 +1020,31 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
       configureErrorResponseInterceptors(this.errorResponseInterceptors);
     }
     return this.errorResponseInterceptors;
+  }
+
+  /**
+   * Return the {@link ProblemDetailsConfigurer}, as prepared by
+   * {@link #customizeProblemDetails(ProblemDetailsConfigurer)}.
+   *
+   * @since 5.0
+   */
+  protected final ProblemDetailsConfigurer getProblemDetailsConfigurer() {
+    if (this.problemDetailsConfigurer == null) {
+      this.problemDetailsConfigurer = new ProblemDetailsConfigurer();
+      customizeProblemDetails(this.problemDetailsConfigurer);
+    }
+    return this.problemDetailsConfigurer;
+  }
+
+  /**
+   * Override this method to configure how RFC 9457 problem details are
+   * produced and rendered by the default
+   * {@code ExceptionHandlerAnnotationExceptionHandler}.
+   *
+   * @see ProblemDetailsConfigurer
+   * @since 5.0
+   */
+  protected void customizeProblemDetails(ProblemDetailsConfigurer configurer) {
   }
 
   /**

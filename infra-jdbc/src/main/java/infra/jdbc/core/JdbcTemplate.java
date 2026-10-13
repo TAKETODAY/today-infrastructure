@@ -1085,12 +1085,12 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
   }
 
   @Override
-  public int[] batchUpdate(String sql, List<Object[]> batchArgs) throws DataAccessException {
+  public int[] batchUpdate(String sql, List<? extends @Nullable Object[]> batchArgs) throws DataAccessException {
     return batchUpdate(sql, batchArgs, new int[0]);
   }
 
   @Override
-  public int[] batchUpdate(String sql, List<Object[]> batchArgs, final int[] argTypes) throws DataAccessException {
+  public int[] batchUpdate(String sql, List<? extends @Nullable Object[]> batchArgs, final int[] argTypes) throws DataAccessException {
     if (batchArgs.isEmpty()) {
       return new int[0];
     }
@@ -1100,7 +1100,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
       public void setValues(PreparedStatement ps, int i) throws SQLException {
         @Nullable Object[] values = batchArgs.get(i);
         int colIndex = 0;
-        for (Object value : values) {
+        for (@Nullable Object value : values) {
           colIndex++;
           if (value instanceof SqlParameterValue paramValue) {
             StatementCreatorUtils.setParameterValue(ps, colIndex, paramValue, paramValue.getValue());

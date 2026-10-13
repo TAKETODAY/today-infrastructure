@@ -75,7 +75,7 @@ bom {
       ]
     }
   }
-  library("Caffeine", "3.2.3") {
+  library("Caffeine", "3.3.0") {
     group("com.github.ben-manes.caffeine") {
       modules = [
           "caffeine",
@@ -163,7 +163,7 @@ bom {
       ]
     }
   }
-  library("Hibernate", "6.4.1.Final") {
+  library("Hibernate", "7.2.25.Final") {
     group("org.hibernate.orm") {
       modules = [
           "hibernate-agroal",
@@ -184,7 +184,7 @@ bom {
       ]
     }
   }
-  library("Hibernate Validator", "9.1.0.Final") {
+  library("Hibernate Validator", "9.1.4.Final") {
     group("org.hibernate.validator") {
       modules = [
           "hibernate-validator",
@@ -512,7 +512,7 @@ bom {
     }
   }
 
-  library("SLF4J", "2.0.17") {
+  library("SLF4J", "2.0.20") {
     prohibit {
       contains "-alpha"
       because "we don't want alphas"
@@ -547,7 +547,7 @@ bom {
       ]
     }
   }
-  library("XmlUnit2", "2.9.1") {
+  library("XmlUnit2", "2.14.0") {
     group("org.xmlunit") {
       modules = [
           "xmlunit-assertj",
@@ -625,14 +625,14 @@ dependencies {
   api(platform("org.apache.logging.log4j:log4j-bom:2.21.1"))
   api(platform("org.junit:junit-bom:6.1.0"))
   api(platform("org.assertj:assertj-bom:3.27.7"))
-  api(platform("org.mockito:mockito-bom:5.22.0"))
+  api(platform("org.mockito:mockito-bom:5.24.0"))
   api(platform("org.testcontainers:testcontainers-bom:2.0.5"))
   api(platform("tools.jackson:jackson-bom:3.1.2"))
   api(platform("com.google.protobuf:protobuf-bom:$protobufVersion"))
   api(platform(project(":infra-bom")))
 
   constraints {
-    api("org.jspecify:jspecify:1.0.0")
+    api("org.jspecify:jspecify:1.0.1")
     api("com.fasterxml:aalto-xml:1.3.2")
     api("com.fasterxml.woodstox:woodstox-core:6.5.1")
     api("com.github.librepdf:openpdf:1.3.30")
@@ -690,16 +690,16 @@ dependencies {
     api("org.codehaus.jettison:jettison:1.5.4")
     api("org.crac:crac:1.4.0")
     api("org.dom4j:dom4j:2.1.4")
-    api("org.eclipse.persistence:org.eclipse.persistence.jpa:3.0.4")
-    api("org.eclipse:yasson:2.0.4")
+    api("org.eclipse.persistence:org.eclipse.persistence.jpa:5.0.2")
+     api("org.eclipse:yasson:3.0.5")
     api("org.ehcache:jcache:1.0.1")
-    api("org.freemarker:freemarker:2.3.34")
+     api("org.freemarker:freemarker:2.3.35")
     api("org.glassfish:jakarta.el:4.0.2")
     api("org.graalvm.sdk:graal-sdk:22.3.1")
     api("org.hibernate:hibernate-core-jakarta:5.6.15.Final")
     api("org.javamoney:moneta:1.4.2")
     api('org.javamoney.moneta:moneta-core:1.4.2')
-    api("org.jruby:jruby:9.4.3.0")
+     api("org.jruby:jruby:10.1.2.0")
     api("org.junit.support:testng-engine:1.0.4")
     api("org.mozilla:rhino:1.7.14")
     api("org.ogce:xpp3:1.1.6")
@@ -710,13 +710,13 @@ dependencies {
     api("org.webjars:momentjs:2.29.4")
     api("org.webjars:underscorejs:1.8.3")
     api("org.webjars:webjars-locator-core:0.55")
-    api("org.webjars:webjars-locator-lite:1.0.0")
-    api("org.yaml:snakeyaml:2.6")
+     api("org.webjars:webjars-locator-lite:1.1.5")
+     api("org.yaml:snakeyaml:2.7")
     api("org.projectlombok:lombok:1.18.42")
-    api("org.htmlunit:htmlunit:3.1.0")
-    api("org.seleniumhq.selenium:htmlunit-driver:4.8.1")
-    api("org.seleniumhq.selenium:selenium-java:3.141.59")
-    api("org.seleniumhq.selenium:selenium-bom:4.8.3")
+     api("org.htmlunit:htmlunit:5.5.0")
+     api("org.seleniumhq.selenium:htmlunit3-driver:4.48.0")
+     api("org.seleniumhq.selenium:selenium-java:4.50.0")
+     api("org.seleniumhq.selenium:selenium-bom:4.50.0")
     api("org.reactivestreams:reactive-streams:1.0.4")
     api 'com.zaxxer:HikariCP:5.1.0'
     api 'org.postgresql:postgresql:42.4.1'

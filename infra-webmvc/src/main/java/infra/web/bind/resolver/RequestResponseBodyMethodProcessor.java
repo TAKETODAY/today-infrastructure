@@ -22,7 +22,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.net.URI;
 import java.util.List;
 
 import infra.core.MethodParameter;
@@ -35,6 +34,7 @@ import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.annotation.RequestBody;
 import infra.web.handler.method.HandlerMethod;
+import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
 import infra.web.view.ModelAndView;
@@ -163,12 +163,9 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
   public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof ProblemDetail detail) {
       context.setStatus(detail.getStatus());
-      if (detail.getInstance() == null) {
-        URI path = URI.create(context.getRequestURI());
-        detail.setInstance(path);
+      if (context.getAttribute(ExceptionHandlerAnnotationExceptionHandler.INTERCEPTED_PROBLEM_DETAIL_ATTRIBUTE) != detail) {
+        invokeErrorResponseInterceptors(detail, null, context);
       }
-
-      invokeErrorResponseInterceptors(detail, null);
     }
 
     // Try even with null return value. ResponseBodyAdvice could get involved.

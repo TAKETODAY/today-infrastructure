@@ -64,6 +64,19 @@ import infra.util.StreamUtils;
  * Implementation of {@link HttpMessageConverter}
  * that can read and write {@link Source} objects.
  *
+ * <p>Security considerations: {@link #setSupportDtd supportDtd} and
+ * {@link #setProcessExternalEntities processExternalEntities} apply only when
+ * reading request content as {@code DOMSource}, {@code SAXSource}, or
+ * {@code StAXSource}. They do not apply when writing application-controlled XML.
+ * Only parsing untrusted input through these source types is protected against XXE.
+ *
+ * <p>Declaring {@code StreamSource}, or plain {@code Source} which resolves to it,
+ * opts in to receiving the raw, unparsed request body. The application is
+ * responsible for subsequent processing, including writing it in a response.
+ * Before echoing untrusted XML, parse or sanitize it safely, for example by
+ * declaring {@code DOMSource}. Write-path processing and raw source pass-through
+ * do not provide the read-path XXE protections.
+ *
  * @param <T> the converted object type
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
@@ -105,7 +118,9 @@ public class SourceHttpMessageConverter<T extends Source> extends AbstractHttpMe
   }
 
   /**
-   * Indicate whether DTD parsing should be supported.
+   * Indicate whether DTD parsing should be supported when reading DOM, SAX,
+   * or StAX source request content.
+   * <p>This setting does not apply to raw {@code StreamSource} content or writing.
    * <p>Default is {@code false} meaning that DTD is disabled.
    */
   public void setSupportDtd(boolean supportDtd) {
@@ -124,6 +139,7 @@ public class SourceHttpMessageConverter<T extends Source> extends AbstractHttpMe
 
   /**
    * Indicate whether external XML entities are processed when converting to a Source.
+   * <p>This setting does not apply to raw {@code StreamSource} content or writing.
    * <p>Default is {@code false}, meaning that external entities are not resolved.
    * <p><strong>Note:</strong> setting this option to {@code true} also
    * automatically sets {@link #setSupportDtd} to {@code true}.

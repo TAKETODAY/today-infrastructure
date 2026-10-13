@@ -46,8 +46,97 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Phillip Webb
  * @author Sam Brannen
+ * @author Chengang Guan
  */
 class AnnotationsScannerTests {
+
+  @Test
+  void typeHierarchyStrategyOnMethodDoesNotScanPackagePrivateMethodInDifferentPackage() {
+    Method source = ReflectionUtils.findMethod(PackagePrivateMethodChild.class, "process", String.class);
+    assertThat(scan(source, SearchStrategy.TYPE_HIERARCHY)).isEmpty();
+  }
+
+  @Test
+  void typeHierarchyStrategyOnMethodScansPackagePrivateMethodInDifferentPackageOverriddenTransitively() {
+    Method source = ReflectionUtils.findMethod(PublicMethodOverridingChild.class, "process", String.class);
+    assertThat(scan(source, SearchStrategy.TYPE_HIERARCHY)).containsExactly("1:Marker");
+  }
+
+  @Test
+  void typeHierarchyStrategyOnMethodDoesNotScanPackagePrivateMethodInDifferentPackageViaPackagePrivateOverride() {
+    Method source = ReflectionUtils.findMethod(PackagePrivateMethodOverridingChild.class, "process", String.class);
+    assertThat(scan(source, SearchStrategy.TYPE_HIERARCHY)).isEmpty();
+  }
+
+  static class PackagePrivateMethodChild
+          extends infra.core.annotation.subpackage.PackagePrivateMethodSuperclass {
+    public void process(String value) {
+    }
+  }
+
+  static class PublicMethodOverridingChild
+          extends infra.core.annotation.subpackage.PublicMethodOverridingSubclass {
+    @Override
+    public void process(String value) {
+    }
+  }
+
+  static class PackagePrivateMethodOverridingChild
+          extends infra.core.annotation.subpackage.PackagePrivateMethodOverridingSubclass {
+    public void process(String value) {
+    }
+  }
+
+  @Test
+  void superclassStrategyOnMethodWithStaticMethodDoesNotScanSuperclassStaticMethod() {
+    Method source = methodFrom(StaticMethodChild.class);
+    assertThat(scan(source, SearchStrategy.SUPERCLASS)).isEmpty();
+  }
+
+  @Test
+  void superclassStrategyOnAnnotatedStaticMethodScansOnlyDeclaredAnnotations() {
+    Method source = methodFrom(AnnotatedStaticMethodChild.class);
+    assertThat(scan(source, SearchStrategy.SUPERCLASS)).containsExactly("0:TestAnnotation3");
+  }
+
+  @Test
+  void typeHierarchyStrategyOnMethodWithStaticMethodDoesNotScanSuperclassOrInterfaceStaticMethod() {
+    Method source = methodFrom(StaticMethodChild.class);
+    assertThat(scan(source, SearchStrategy.TYPE_HIERARCHY)).isEmpty();
+  }
+
+  @Test
+  void typeHierarchyStrategyOnAnnotatedStaticMethodScansOnlyDeclaredAnnotations() {
+    Method source = methodFrom(AnnotatedStaticMethodChild.class);
+    assertThat(scan(source, SearchStrategy.TYPE_HIERARCHY)).containsExactly("0:TestAnnotation3");
+  }
+
+  static class StaticMethodSuperClass {
+
+    @TestAnnotation1
+    public static void method() {
+    }
+  }
+
+  interface StaticMethodInterface {
+
+    @TestAnnotation2
+    static void method() {
+    }
+  }
+
+  static class StaticMethodChild extends StaticMethodSuperClass implements StaticMethodInterface {
+
+    public static void method() {
+    }
+  }
+
+  static class AnnotatedStaticMethodChild extends StaticMethodSuperClass implements StaticMethodInterface {
+
+    @TestAnnotation3
+    public static void method() {
+    }
+  }
 
   @Test
   void directStrategyOnClassWhenNotAnnotatedScansNone() {

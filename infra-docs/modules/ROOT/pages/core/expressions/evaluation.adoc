@@ -65,7 +65,7 @@ byte[] bytes = (byte[]) exp.getValue();
 SpEL 还支持通过使用标准点符号（例如 `prop1.prop2.prop3`）访问嵌套属性以及相应的属性值设置。
 也可以访问公共字段。
 
-下例显示了如何使用点符号来获取字符串字面量的长度。
+下例显示了如何使用点符号来获取字符串字面量按平台默认字符集编码后的字节数。
 
 [tabs]
 ======
@@ -79,7 +79,7 @@ ExpressionParser parser = new SpelExpressionParser();
 Expression exp = parser.parseExpression("'Hello World'.bytes.length"); // <1>
 int length = (Integer) exp.getValue();
 ----
-<1> `'Hello World'.bytes.length` 给出字面量的长度。
+<1> `'Hello World'.bytes.length` 给出字面量对应字节数组中的字节数。
 
 ======
 
@@ -365,10 +365,25 @@ Infra 不支持编译每种类型的表达式。主要关注点是可能在性�
 以下类型的表达式无法编译。
 
 * 涉及赋值的表达式
-* 依赖转换服务的表达式
+* 依赖转换服务的表达式（下文介绍的字符串拼接除外）
 * 使用自定义解析器的表达式
 * 使用重载运算符的表达式
 * 使用数组构造语法的表达式
 * 使用选择或投影的表达式
 
 将来可能会支持编译更多类型的表达式。
+
+[NOTE]
+====
+包含非字符串操作数的字符串拼接（例如 `'Total: ' + order.total`）会使用
+`EvaluationContext` 中配置的 `TypeConverter` 将该操作数转换为 `String`。
+在解释执行期间，转换器将一个非空值转换为与 `String.valueOf()` 相同的字符串后，
+表达式便可以编译。但是，如果操作数带有任何注解（例如字段或 getter 上的
+`@NumberFormat`、`@Column` 或 `@JsonProperty`），表达式不会编译，因为转换器可能
+应用依赖当前值的注解驱动格式化。操作数一直为 `null` 时也不能编译；反复遇到
+`null` 后，编译器可能最终停止尝试编译该表达式。
+
+编译后的表达式使用 `String.valueOf()` 而非 `TypeConverter` 转换操作数，通常对
+相同类型的其他值产生相同结果。如果操作数随后变为不同类型，编译后的求值会失败，
+并按配置的编译器模式处理（见 <<expressions-compiler-configuration>>）。
+====

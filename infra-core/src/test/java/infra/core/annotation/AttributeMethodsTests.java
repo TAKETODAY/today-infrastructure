@@ -43,6 +43,64 @@ import static org.mockito.Mockito.mock;
 class AttributeMethodsTests {
 
   @Test
+  void canThrowTypeNotPresentExceptionWhenHasEnumArrayAttributeReturnsTrue() {
+    AttributeMethods methods = AttributeMethods.forAnnotationType(EnumArrayValue.class);
+    assertThat(methods.canThrowTypeNotPresentException(0)).isTrue();
+  }
+
+  @Test
+  void canThrowTypeNotPresentExceptionWhenHasNonEnumArrayAttributeReturnsFalse() {
+    AttributeMethods methods = AttributeMethods.forAnnotationType(StringArrayValue.class);
+    assertThat(methods.canThrowTypeNotPresentException(0)).isFalse();
+  }
+
+  @Test
+  void isValidWhenHasEnumConstantNotPresentExceptionReturnsFalse() {
+    EnumArrayValue annotation = mockAnnotation(EnumArrayValue.class);
+    given(annotation.value()).willThrow(new EnumConstantNotPresentException(ExampleEnum.class, "MISSING"));
+    AttributeMethods attributes = AttributeMethods.forAnnotationType(annotation.annotationType());
+    assertThat(attributes.canLoad(annotation, getClass())).isFalse();
+  }
+
+  @Test
+  void isValidWhenDoesNotHaveEnumConstantNotPresentExceptionReturnsTrue() {
+    EnumArrayValue annotation = mockAnnotation(EnumArrayValue.class);
+    given(annotation.value()).willReturn(new ExampleEnum[] { ExampleEnum.ONE });
+    AttributeMethods attributes = AttributeMethods.forAnnotationType(annotation.annotationType());
+    assertThat(attributes.canLoad(annotation, getClass())).isTrue();
+  }
+
+  @Test
+  void validateWhenHasEnumConstantNotPresentExceptionThrowsException() {
+    EnumArrayValue annotation = mockAnnotation(EnumArrayValue.class);
+    given(annotation.value()).willThrow(new EnumConstantNotPresentException(ExampleEnum.class, "MISSING"));
+    AttributeMethods attributes = AttributeMethods.forAnnotationType(annotation.annotationType());
+    assertThatIllegalStateException().isThrownBy(() -> attributes.validate(annotation));
+  }
+
+  @Test
+  void validateWhenDoesNotHaveEnumConstantNotPresentExceptionThrowsNothing() {
+    EnumArrayValue annotation = mockAnnotation(EnumArrayValue.class);
+    given(annotation.value()).willReturn(new ExampleEnum[] { ExampleEnum.ONE });
+    AttributeMethods attributes = AttributeMethods.forAnnotationType(annotation.annotationType());
+    attributes.validate(annotation);
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface EnumArrayValue {
+    ExampleEnum[] value();
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface StringArrayValue {
+    String[] value();
+  }
+
+  enum ExampleEnum {
+    ONE
+  }
+
+  @Test
   void forAnnotationTypeWhenNullReturnsNone() {
     AttributeMethods methods = AttributeMethods.forAnnotationType(null);
     assertThat(methods).isSameAs(AttributeMethods.NONE);

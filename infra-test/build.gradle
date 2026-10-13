@@ -35,7 +35,7 @@ dependencies {
   optional 'org.xmlunit:xmlunit-core'
   optional 'org.htmlunit:htmlunit'
   optional 'org.seleniumhq.selenium:selenium-api'
-  optional("org.seleniumhq.selenium:htmlunit-driver") {
+  optional("org.seleniumhq.selenium:htmlunit3-driver") {
     exclude group: "commons-logging", module: "commons-logging"
     exclude group: "net.bytebuddy", module: "byte-buddy"
   }

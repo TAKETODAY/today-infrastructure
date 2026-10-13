@@ -569,7 +569,15 @@ public interface RestClient {
      * Multiple consumers are composed together and applied to a single
      * {@link HttpMessageConverters.ClientBuilder} instance.
      *
-     * @param configurer the configurer to apply on an empty {@link HttpMessageConverters.ClientBuilder}.
+     * <p>As of 5.0, the builder is initialized with
+     * {@link HttpMessageConverters.ClientBuilder#registerDefaults() default
+     * converters}, unless converters were provided via the
+     * {@link #messageConverters(List)} methods. Use
+     * {@link HttpMessageConverters.ClientBuilder#disableDefaults()} to only
+     * use the converters configured explicitly.
+     *
+     * @param configurer the configurer to apply on the
+     * {@link HttpMessageConverters.ClientBuilder}
      * @return this builder
      * @since 5.0
      */

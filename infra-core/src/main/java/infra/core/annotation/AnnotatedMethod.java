@@ -22,16 +22,13 @@ import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import infra.core.BridgeMethodResolver;
 import infra.core.MethodParameter;
-import infra.core.ResolvableType;
 import infra.lang.Constant;
 import infra.lang.NullValue;
 import infra.util.Assert;
@@ -243,7 +240,7 @@ public class AnnotatedMethod {
       while (clazz != null) {
         for (Class<?> ifc : clazz.getInterfaces()) {
           for (Method candidate : ifc.getMethods()) {
-            if (isOverrideFor(candidate)) {
+            if (AnnotationsScanner.isOverride(this.method, candidate)) {
               parameterAnnotations.add(candidate.getParameterAnnotations());
             }
           }
@@ -254,7 +251,7 @@ public class AnnotatedMethod {
         }
         if (clazz != null) {
           for (Method candidate : clazz.getDeclaredMethods()) {
-            if (isOverrideFor(candidate)) {
+            if (AnnotationsScanner.isOverride(this.method, candidate)) {
               parameterAnnotations.add(candidate.getParameterAnnotations());
             }
           }
@@ -263,25 +260,6 @@ public class AnnotatedMethod {
       this.inheritedParameterAnnotations = parameterAnnotations;
     }
     return parameterAnnotations;
-  }
-
-  private boolean isOverrideFor(Method candidate) {
-    if (Modifier.isPrivate(candidate.getModifiers())
-            || (candidate.getParameterCount() != this.method.getParameterCount())
-            || !candidate.getName().equals(this.method.getName())) {
-      return false;
-    }
-    Class<?>[] paramTypes = this.method.getParameterTypes();
-    if (Arrays.equals(candidate.getParameterTypes(), paramTypes)) {
-      return true;
-    }
-    for (int i = 0; i < paramTypes.length; i++) {
-      if (paramTypes[i] !=
-              ResolvableType.forMethodParameter(candidate, i, this.method.getDeclaringClass()).toClass()) {
-        return false;
-      }
-    }
-    return true;
   }
 
   @Override

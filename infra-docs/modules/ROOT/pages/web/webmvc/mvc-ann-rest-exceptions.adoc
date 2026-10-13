@@ -16,7 +16,6 @@ REST服务的一个常见需求是在错误响应的正文中包含详细信息�
 
 你可以从任何 `@ExceptionHandler` 或任何 `@RequestMapping` 方法返回 `ProblemDetail` 或 `ErrorResponse` ，以渲染RFC 7807响应。处理过程如下：
 - `ProblemDetail` 的 `status` 属性确定HTTP状态。
-- 如果尚未设置，`ProblemDetail` 的 `instance` 属性将从当前URL路径设置。
 - 对于内容协商，Jackson 的 `HttpMessageConverter` 在渲染 `ProblemDetail` 时优先选择 "application/problem+json"
 而不是 "application/json"，并在找不到兼容的媒体类型时回退到它。
 
@@ -26,6 +25,10 @@ REST服务的一个常见需求是在错误响应的正文中包含详细信息�
 并使用一个受保护的方法将任何异常映射到 `ProblemDetail`。
 
 你可以通过使用 `WebMvcConfigurer` 在 xref:web/webmvc/mvc-config.adoc[MVC Config] 中注册 `ErrorResponse` 拦截器。使用它来拦截任何 RFC 7807 响应并采取一些行动。
+
+NOTE: 从 5.0 开始，框架不再将请求路径自动设置为 `ProblemDetail.instance`。
+规范要求此字段标识问题的某一次具体发生；如果该 URI 可以解引用，则应提供这次问题的相关信息。
+应用程序显式设置的值仍会保留。
 
 [[mvc-ann-rest-exceptions-non-standard]]
 == 非标准字段

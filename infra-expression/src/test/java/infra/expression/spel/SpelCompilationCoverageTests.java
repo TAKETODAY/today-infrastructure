@@ -2284,7 +2284,7 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
       assertCanCompile(expression);
       assertThat(expression.getValue(new Greeter())).isEqualTo("worldhello");
 
-      // Three strings, optimal bytecode would only use one StringBuilder
+      // String + int + String
       expression = parse("'hello' + getWorld() + ' spring'");
       assertThat(expression.getValue(new Greeter())).isEqualTo("helloworld spring");
       assertCanCompile(expression);
@@ -2293,7 +2293,8 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
       // Three strings, optimal bytecode would only use one StringBuilder
       expression = parse("'hello' + 3 + ' spring'");
       assertThat(expression.getValue(new Greeter())).isEqualTo("hello3 spring");
-      assertCannotCompile(expression);
+      assertCanCompile(expression);
+      assertThat(expression.getValue()).isEqualTo("hello3 spring");
 
       expression = parse("object + 'a'");
       assertThat(expression.getValue(new Greeter())).isEqualTo("objecta");

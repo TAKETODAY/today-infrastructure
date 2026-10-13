@@ -287,4 +287,19 @@ class LinkedCaseInsensitiveMapTests {
     iterator.remove();
   }
 
+  @Test
+  void containsValue() {
+    assertThat(map.containsValue("value")).isFalse();
+    map.put("key", "value");
+    assertThat(map.containsValue("value")).isTrue();
+    assertThat(map.containsValue("VALUE")).isFalse();
+  }
+
+  @Test
+  void containsNullValue() {
+    assertThat(map.containsValue(null)).isFalse();
+    map.put("key", null);
+    assertThat(map.containsValue(null)).isTrue();
+  }
+
 }

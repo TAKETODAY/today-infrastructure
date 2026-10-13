@@ -115,7 +115,8 @@ public abstract class MergedAnnotationCollectors {
   public static <A extends Annotation>
   Collector<MergedAnnotation<A>, ? extends @Nullable Object, @Nullable MultiValueMap<String, @Nullable Object>> toMultiValueMap(Adapt... adaptations) {
 
-    return toMultiValueMap((MultiValueMap<String, @Nullable Object> t) -> t, adaptations);
+    return toMultiValueMap((MultiValueMap<String, @Nullable Object> t) -> t,
+            IDENTITY_FINISH_CHARACTERISTICS, adaptations);
   }
 
   /**
@@ -134,8 +135,13 @@ public abstract class MergedAnnotationCollectors {
   public static <A extends Annotation> Collector<MergedAnnotation<A>, ? extends @Nullable Object, @Nullable MultiValueMap<String, @Nullable Object>>
   toMultiValueMap(Function<MultiValueMap<String, @Nullable Object>, @Nullable MultiValueMap<String, @Nullable Object>> finisher, Adapt... adaptations) {
 
-    Characteristics[] characteristics = (Object) finisher == Function.identity() ?
-            IDENTITY_FINISH_CHARACTERISTICS : NO_CHARACTERISTICS;
+    return toMultiValueMap(finisher, NO_CHARACTERISTICS, adaptations);
+  }
+
+  private static <A extends Annotation> Collector<MergedAnnotation<A>, ? extends @Nullable Object,
+          @Nullable MultiValueMap<String, @Nullable Object>> toMultiValueMap(
+          Function<MultiValueMap<String, @Nullable Object>, @Nullable MultiValueMap<String, @Nullable Object>> finisher,
+          Characteristics[] characteristics, Adapt... adaptations) {
     return Collector.of(LinkedMultiValueMap::new,
             (MultiValueMap<String, @Nullable Object> map, MergedAnnotation<A> annotation) -> annotation.asMap(adaptations).forEach(map::add),
             MergedAnnotationCollectors::combiner, finisher, characteristics);

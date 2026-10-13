@@ -84,24 +84,27 @@ public class JdkClientHttpRequestFactory implements ClientHttpRequestFactory {
 
   /**
    * Set the underlying {@code HttpClient}'s read timeout (in milliseconds).
-   * A timeout value of 0 specifies an infinite timeout.
+   * <p>A timeout value of 0 specifies an infinite timeout.
    * <p>Default is the system's default timeout.
    *
    * @see java.net.http.HttpRequest.Builder#timeout
    */
   public void setReadTimeout(int readTimeout) {
+    Assert.isTrue(readTimeout >= 0, "Timeout must be a non-negative value");
     this.readTimeout = readTimeout == 0 ? null : Duration.ofMillis(readTimeout);
   }
 
   /**
    * Set the underlying {@code HttpClient}'s read timeout as a
    * {@code Duration}.
+   * <p>A timeout value of 0 specifies an infinite timeout.
    * <p>Default is the system's default timeout.
    *
    * @see java.net.http.HttpRequest.Builder#timeout
    */
   public void setReadTimeout(Duration readTimeout) {
     Assert.notNull(readTimeout, "ReadTimeout is required");
+    Assert.isTrue(!readTimeout.isNegative(), "Timeout must be a non-negative value");
     this.readTimeout = Duration.ZERO.equals(readTimeout) ? null : readTimeout;
   }
 

@@ -180,7 +180,7 @@ import jakarta.validation.ConstraintValidator;
 
 public class MyConstraintValidator implements ConstraintValidator {
 
-  @Autowired;
+  @Autowired
   private Foo aDependency;
 
   // ...

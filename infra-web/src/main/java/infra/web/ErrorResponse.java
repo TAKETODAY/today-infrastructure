@@ -402,6 +402,19 @@ public interface ErrorResponse extends HttpStatusProvider {
      */
     void handleError(ProblemDetail detail, @Nullable ErrorResponse errorResponse);
 
+    /**
+     * Handle a problem detail with access to the current request.
+     * <p>The default implementation delegates to the two-argument variant.
+     * @param detail the problem detail to render
+     * @param errorResponse the originating response, if any
+     * @param request the current HTTP request
+     * @since 5.0
+     */
+    default void handleError(ProblemDetail detail, @Nullable ErrorResponse errorResponse,
+            infra.http.HttpRequest request) {
+      handleError(detail, errorResponse);
+    }
+
   }
 
 }

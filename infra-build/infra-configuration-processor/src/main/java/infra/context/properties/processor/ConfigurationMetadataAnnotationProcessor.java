@@ -22,7 +22,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Duration;
 import java.util.ArrayDeque;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -74,6 +73,8 @@ public class ConfigurationMetadataAnnotationProcessor extends AbstractProcessor 
 
   static final String ADDITIONAL_METADATA_LOCATIONS_OPTION = "infra.context.properties.additionalMetadataLocations";
 
+  static final String DESCRIPTION_CACHE_LOCATION_OPTION = "infra.context.properties.descriptionCacheLocation";
+
   static final String CONFIGURATION_PROPERTIES_ANNOTATION = "infra.context.properties.ConfigurationProperties";
 
   static final String CONFIGURATION_PROPERTIES_SOURCE_ANNOTATION = "infra.context.properties.ConfigurationPropertiesSource";
@@ -94,7 +95,8 @@ public class ConfigurationMetadataAnnotationProcessor extends AbstractProcessor 
 
   static final String DisableDIAUTO_CONFIGURATION_ANNOTATION = "infra.context.annotation.config.DisableDIAutoConfiguration";
 
-  private static final Set<String> SUPPORTED_OPTIONS = Collections.singleton(ADDITIONAL_METADATA_LOCATIONS_OPTION);
+  private static final Set<String> SUPPORTED_OPTIONS = Set.of(ADDITIONAL_METADATA_LOCATIONS_OPTION,
+            DESCRIPTION_CACHE_LOCATION_OPTION);
 
   private MetadataStore metadataStore;
 
@@ -103,6 +105,10 @@ public class ConfigurationMetadataAnnotationProcessor extends AbstractProcessor 
   private MetadataCollectors metadataCollectors;
 
   private MetadataGenerationEnvironment metadataEnv;
+
+  private DescriptionCache descriptionCache;
+
+  private final Set<String> classFileBackedTypes = new HashSet<>();
 
   protected String configurationPropertiesAnnotation() {
     return CONFIGURATION_PROPERTIES_ANNOTATION;
@@ -165,6 +171,10 @@ public class ConfigurationMetadataAnnotationProcessor extends AbstractProcessor 
             configurationPropertiesSourceAnnotation(), nestedConfigurationPropertyAnnotation(), deprecatedConfigurationPropertyAnnotation(),
             constructorBindingAnnotation(), autowiredAnnotation(), defaultValueAnnotation(), endpointAnnotations(),
             readOperationAnnotation(), nameAnnotation());
+    String cacheLocation = env.getOptions().get(DESCRIPTION_CACHE_LOCATION_OPTION);
+    if (cacheLocation != null) {
+      this.descriptionCache = new DescriptionCache(cacheLocation);
+    }
   }
 
   @Override
@@ -277,6 +287,9 @@ public class ConfigurationMetadataAnnotationProcessor extends AbstractProcessor 
           Deque<TypeElement> seen) {
     if (!seen.contains(element)) {
       seen.push(element);
+      if (this.descriptionCache != null && !this.metadataEnv.hasSourceTree(element)) {
+        this.classFileBackedTypes.add(this.metadataEnv.getTypeUtils().getQualifiedName(element));
+      }
       new PropertyDescriptorResolver(this.metadataEnv).resolve(element, source).forEach((descriptor) -> {
         this.metadataCollector.add(descriptor.resolveItemMetadata(prefix, this.metadataEnv));
         ItemHint itemHint = descriptor.resolveItemHint(prefix, this.metadataEnv);
@@ -373,12 +386,36 @@ public class ConfigurationMetadataAnnotationProcessor extends AbstractProcessor 
   protected ConfigurationMetadata writeMetadata() throws Exception {
     ConfigurationMetadata metadata = this.metadataCollector.getMetadata();
     metadata = mergeAdditionalMetadata(metadata, () -> this.metadataStore.readAdditionalMetadata());
+    fillCachedDescriptions(metadata);
     removeIgnored(metadata);
     if (!metadata.getItems().isEmpty()) {
       this.metadataStore.writeMetadata(metadata);
+      updateDescriptionCache(metadata);
       return metadata;
     }
     return null;
+  }
+
+  private void fillCachedDescriptions(ConfigurationMetadata metadata) {
+    if (this.descriptionCache == null) {
+      return;
+    }
+    for (ItemMetadata item : metadata.getItems()) {
+      if (item.isOfItemType(ItemMetadata.ItemType.PROPERTY) && item.getDescription() == null
+              && item.getSourceType() != null && this.classFileBackedTypes.contains(item.getSourceType())) {
+        String cached = this.descriptionCache.getDescription(item.getName());
+        if (cached != null) {
+          item.setDescription(cached);
+        }
+      }
+    }
+  }
+
+  private void updateDescriptionCache(ConfigurationMetadata metadata) {
+    if (this.descriptionCache == null) {
+      return;
+    }
+    this.descriptionCache.update(metadata);
   }
 
   private ConfigurationMetadata mergeAdditionalMetadata(ConfigurationMetadata metadata,

@@ -24,6 +24,7 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
 import infra.aop.support.AopUtils;
@@ -33,7 +34,11 @@ import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
+import infra.http.ProblemDetail;
+import infra.http.ResponseEntity;
 import infra.util.Assert;
+import infra.web.ErrorResponse;
+import infra.web.ErrorResponseViewResolver;
 import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.accept.ContentNegotiationManager;
@@ -55,6 +60,10 @@ import infra.web.resource.ResourceHttpRequestHandler;
 public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerMethodExceptionHandler
         implements ApplicationContextAware, InitializingBean {
 
+  /** Request attribute for a problem detail intercepted before error view resolution. */
+  public static final String INTERCEPTED_PROBLEM_DETAIL_ATTRIBUTE =
+          ExceptionHandlerAnnotationExceptionHandler.class.getName() + ".interceptedProblemDetail";
+
   private final ConcurrentHashMap<Class<?>, ExceptionHandlerMethodResolver> exceptionHandlerCache =
           new ConcurrentHashMap<>(64);
 
@@ -66,6 +75,68 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
   private HandlerParameterFactory parameterFactory;
 
   private ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager();
+
+  private boolean renderUnhandledExceptionsAsProblemDetails;
+
+  private @Nullable InvocableHandlerMethod problemDetailHandlerMethod;
+
+  private @Nullable ErrorResponseViewResolver errorResponseViewResolver;
+
+  private List<ErrorResponse.Interceptor> errorResponseInterceptors = List.of();
+
+  /**
+   * Configure interceptors to apply before resolving an error response view.
+   *
+   * @param interceptors the interceptors to invoke
+   * @since 5.0
+   */
+  public void setErrorResponseInterceptors(List<ErrorResponse.Interceptor> interceptors) {
+    this.errorResponseInterceptors = List.copyOf(interceptors);
+  }
+
+  /**
+   * Configure a resolver for problem detail views when the client prefers HTML.
+   *
+   * @param resolver the resolver, or {@code null} to use message converters
+   * @since 5.0
+   */
+  public void setErrorResponseViewResolver(@Nullable ErrorResponseViewResolver resolver) {
+    this.errorResponseViewResolver = resolver;
+  }
+
+  /**
+   * Return the configured problem detail view resolver, if any.
+   *
+   * @since 5.0
+   */
+  public @Nullable ErrorResponseViewResolver getErrorResponseViewResolver() {
+    return this.errorResponseViewResolver;
+  }
+
+  /**
+   * Enable rendering exceptions not handled by application exception handlers as
+   * RFC 9457 problem details. The fallback runs after local and controller advice
+   * methods, including when such a method rethrows or fails. Its return value uses
+   * the normal content negotiation and error response interceptor infrastructure.
+   * <p>Already committed responses are not rendered. The default is {@code false}.
+   *
+   * @param enabled whether to render unhandled exceptions as problem details
+   * @see ProblemDetailExceptionHandler
+   * @since 5.0
+   */
+  public void setRenderUnhandledExceptionsAsProblemDetails(boolean enabled) {
+    this.renderUnhandledExceptionsAsProblemDetails = enabled;
+  }
+
+  /**
+   * Return whether unhandled exceptions are rendered as problem details.
+   *
+   * @see #setRenderUnhandledExceptionsAsProblemDetails(boolean)
+   * @since 5.0
+   */
+  public boolean isRenderUnhandledExceptionsAsProblemDetails() {
+    return this.renderUnhandledExceptionsAsProblemDetails;
+  }
 
   /**
    * @since 5.0
@@ -123,7 +194,11 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
         metadata.setHandler(exHandler);
       }
 
-      return exHandler.invokeAndHandle(context, null, arguments);
+      if (exHandler == this.problemDetailHandlerMethod && target instanceof Exception exception) {
+        return resolveErrorView(context, exHandler.invokeAndHandle(context, null,
+                new Object[] { exception, context.getLocale() }));
+      }
+      return resolveErrorView(context, exHandler.invokeAndHandle(context, null, arguments));
     }
     catch (Throwable invocationEx) {
       if (!disconnectedClientHelper.checkAndLogClientDisconnectedException(invocationEx)) {
@@ -134,6 +209,23 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
         }
       }
       // Continue with default processing of the original exception...
+      if (exHandler != this.problemDetailHandlerMethod) {
+        var fallback = getProblemDetailHandlerMethod(context);
+        if (fallback != null && target instanceof Exception exception) {
+          var metadata = context.getMatchingMetadata();
+          if (metadata != null) {
+            metadata.setProducibleMediaTypes(null);
+            metadata.setHandler(fallback);
+          }
+          try {
+            return resolveErrorView(context,
+                    fallback.invokeAndHandle(context, null, new Object[] { exception, context.getLocale() }));
+          }
+          catch (Exception fallbackFailure) {
+            logger.warn("Failure in problem detail handler", fallbackFailure);
+          }
+        }
+      }
       return null;
     }
   }
@@ -196,7 +288,70 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
       }
     }
 
-    return null;
+    return exception instanceof Exception ? getProblemDetailHandlerMethod(context) : null;
+  }
+
+  private @Nullable InvocableHandlerMethod getProblemDetailHandlerMethod(HttpContext context) {
+    return context.isCommitted() ? null : this.problemDetailHandlerMethod;
+  }
+
+  private @Nullable Object resolveErrorView(HttpContext context, @Nullable Object value) throws Exception {
+    if (this.errorResponseViewResolver == null || context.getResponseContentType() != null) {
+      return value;
+    }
+    ErrorResponse error = value instanceof ErrorResponse response ? response : null;
+    Object body = error != null ? error.getBody() :
+            value instanceof ResponseEntity<?> entity ? entity.getBody() : value;
+    if (!(body instanceof ProblemDetail detail)) {
+      return value;
+    }
+    if ((value instanceof ResponseEntity<?> entity && entity.getHeaders().getContentType() != null)
+            || (error != null && error.getHeaders().getContentType() != null)) {
+      return value;
+    }
+    var metadata = context.getMatchingMetadata();
+    if (metadata != null && metadata.getProducibleMediaTypes() != null
+            && !metadata.getProducibleMediaTypes().isEmpty()
+            && metadata.getProducibleMediaTypes().stream().noneMatch(MediaType.TEXT_HTML::isCompatibleWith)) {
+      return value;
+    }
+    boolean html = false;
+    for (MediaType type : this.contentNegotiationManager.resolveMediaTypes(context)) {
+      if (type.isConcrete()) {
+        html = MediaType.TEXT_HTML.isCompatibleWith(type);
+        break;
+      }
+    }
+    if (!html) {
+      return value;
+    }
+    try {
+      for (var interceptor : this.errorResponseInterceptors) {
+        interceptor.handleError(detail, error, context);
+      }
+    }
+    catch (Throwable ignored) {
+      // Match message-converter interceptor handling: rendering must continue.
+    }
+    if (!this.errorResponseInterceptors.isEmpty()) {
+      context.setAttribute(INTERCEPTED_PROBLEM_DETAIL_ATTRIBUTE, detail);
+    }
+    var view = this.errorResponseViewResolver.resolveErrorView(context, detail, error);
+    if (view == null) {
+      return value;
+    }
+    if (value instanceof ResponseEntity<?> entity) {
+      context.addHeaders(entity.getHeaders());
+    }
+    else if (error != null) {
+      context.addHeaders(error.getHeaders());
+    }
+    if (view.getStatus() == null) {
+      view.setStatus(value instanceof ResponseEntity<?> entity ? entity.getStatusCode() :
+              infra.http.HttpStatusCode.valueOf(detail.getStatus()));
+    }
+    context.setStatus(view.getStatus());
+    return view;
   }
 
   private InvocableHandlerMethod createHandlerMethod(ExceptionHandlerMappingInfo mappingInfo, HttpContext context, Object advice) {
@@ -211,11 +366,14 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
 
   @Override
   protected boolean hasGlobalExceptionHandlers() {
-    return !this.exceptionHandlerAdviceCache.isEmpty();
+    return !this.exceptionHandlerAdviceCache.isEmpty() || this.problemDetailHandlerMethod != null;
   }
 
   @Override
   protected boolean shouldApplyTo(HttpContext request, @Nullable Object handler) {
+    if (this.problemDetailHandlerMethod != null && !hasHandlerMappings()) {
+      return true;
+    }
     return (handler instanceof ResourceHttpRequestHandler ?
             hasGlobalExceptionHandlers() : super.shouldApplyTo(request, handler));
   }
@@ -236,6 +394,19 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
       }
     }
     initExceptionHandlerAdviceCache(context);
+    if (this.renderUnhandledExceptionsAsProblemDetails) {
+      try {
+        this.problemDetailHandlerMethod = new InvocableHandlerMethod(new ProblemDetailExceptionHandler(context),
+                ProblemDetailExceptionHandler.class.getMethod("handleException", Exception.class, Locale.class),
+                context, this.parameterFactory);
+      }
+      catch (NoSuchMethodException ex) {
+        throw new IllegalStateException("Problem detail handler method not found", ex);
+      }
+    }
+    else {
+      this.problemDetailHandlerMethod = null;
+    }
   }
 
   private void initExceptionHandlerAdviceCache(ApplicationContext applicationContext) {

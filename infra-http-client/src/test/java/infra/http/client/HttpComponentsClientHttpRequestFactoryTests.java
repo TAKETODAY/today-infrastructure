@@ -208,6 +208,46 @@ class HttpComponentsClientHttpRequestFactoryTests extends AbstractHttpRequestFac
   }
 
   @SuppressWarnings("deprecation")
+  @org.junit.jupiter.api.Test
+  void readTimeoutZero() {
+    var factory = new HttpComponentsClientHttpRequestFactory();
+    factory.setReadTimeout(0);
+    assertThat(retrieveRequestConfig(factory).getResponseTimeout())
+            .isEqualTo(org.apache.hc.core5.util.Timeout.ofMilliseconds(0));
+    factory = new HttpComponentsClientHttpRequestFactory();
+    factory.setReadTimeout(Duration.ZERO);
+    assertThat(retrieveRequestConfig(factory).getResponseTimeout())
+            .isEqualTo(org.apache.hc.core5.util.Timeout.ofMilliseconds(0));
+  }
+
+  @org.junit.jupiter.params.ParameterizedTest
+  @org.junit.jupiter.params.provider.ValueSource(strings = { "PT0.000000001S", "PT0.000999999S" })
+  void subMillisecondReadTimeoutIsRejected(Duration timeout) {
+    var factory = new HttpComponentsClientHttpRequestFactory();
+    assertThatIllegalArgumentException().isThrownBy(() -> factory.setReadTimeout(timeout))
+            .withMessage("Timeout must be zero or at least one millisecond");
+  }
+
+  @org.junit.jupiter.api.Test
+  void connectionRequestTimeoutZero() {
+    var factory = new HttpComponentsClientHttpRequestFactory();
+    factory.setConnectionRequestTimeout(0);
+    assertThat(retrieveRequestConfig(factory).getConnectionRequestTimeout())
+            .isEqualTo(org.apache.hc.core5.util.Timeout.ofMilliseconds(0));
+    factory = new HttpComponentsClientHttpRequestFactory();
+    factory.setConnectionRequestTimeout(Duration.ZERO);
+    assertThat(retrieveRequestConfig(factory).getConnectionRequestTimeout())
+            .isEqualTo(org.apache.hc.core5.util.Timeout.ofMilliseconds(0));
+  }
+
+  @org.junit.jupiter.params.ParameterizedTest
+  @org.junit.jupiter.params.provider.ValueSource(strings = { "PT0.000000001S", "PT0.000999999S" })
+  void subMillisecondConnectionRequestTimeoutIsRejected(Duration timeout) {
+    var factory = new HttpComponentsClientHttpRequestFactory();
+    assertThatIllegalArgumentException().isThrownBy(() -> factory.setConnectionRequestTimeout(timeout))
+            .withMessage("Timeout must be zero or at least one millisecond");
+  }
+
   private RequestConfig retrieveRequestConfig(HttpComponentsClientHttpRequestFactory factory) {
     URI uri = URI.create(baseUrl + "/status/ok");
     HttpComponentsClientHttpRequest request = (HttpComponentsClientHttpRequest)
