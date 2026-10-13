@@ -80,7 +80,7 @@ class BatchResultTests {
 
     setGeneratedKeys(batchResult, new Object[] { 1L, 2L, 3L });
 
-    Object key = batchResult.getKey();
+    Object key = batchResult.getFirstKey();
 
     assertThat(key).isEqualTo(1L);
   }
@@ -91,7 +91,7 @@ class BatchResultTests {
 
     setGeneratedKeys(batchResult, new Object[] {});
 
-    Object key = batchResult.getKey();
+    Object key = batchResult.getFirstKey();
 
     assertThat(key).isNull();
   }
@@ -100,7 +100,7 @@ class BatchResultTests {
   void shouldThrowExceptionWhenGetKeyWithoutGeneratedKeys() {
     BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager));
 
-    assertThatThrownBy(() -> batchResult.getKey())
+    assertThatThrownBy(() -> batchResult.getFirstKey())
             .isInstanceOf(GeneratedKeysException.class)
             .hasMessageContaining("Keys where not fetched from database");
   }
@@ -111,7 +111,7 @@ class BatchResultTests {
 
     setGeneratedKeys(batchResult, new Object[] { 42L });
 
-    Long key = batchResult.getKey(Long.class);
+    Long key = batchResult.getFirstKey(Long.class);
 
     assertThat(key).isEqualTo(42L);
   }
@@ -174,7 +174,7 @@ class BatchResultTests {
     BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager));
     setGeneratedKeys(batchResult, new Object[] { "invalid" });
 
-    assertThatThrownBy(() -> batchResult.getKey(Long.class))
+    assertThatThrownBy(() -> batchResult.getFirstKey(Long.class))
             .isInstanceOf(GeneratedKeysConversionException.class)
             .hasMessageContaining("Exception occurred while converting value from database to type class java.lang.Long");
   }
@@ -194,7 +194,7 @@ class BatchResultTests {
     BatchResult batchResult = new BatchResult(new JdbcConnection(repositoryManager));
     setGeneratedKeys(batchResult, new Object[] { 1L });
 
-    assertThatThrownBy(() -> batchResult.getKey(Long.class, null))
+    assertThatThrownBy(() -> batchResult.getFirstKey(Long.class, null))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("conversionService is required");
   }
@@ -236,7 +236,7 @@ class BatchResultTests {
   }
 
   private void setGeneratedKeys(BatchResult batchResult, Object[] keys) throws Exception {
-    var field = BatchResult.class.getDeclaredField("generatedKeys");
+    var field = AbstractKeyResult.class.getDeclaredField("generatedKeys");
     field.setAccessible(true);
     ArrayList<Object> keysList = new ArrayList<>();
     Collections.addAll(keysList, keys);

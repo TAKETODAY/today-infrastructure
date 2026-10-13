@@ -19,28 +19,21 @@ package infra.jdbc;
 import org.jspecify.annotations.Nullable;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
-import infra.core.conversion.ConversionException;
 import infra.core.conversion.ConversionService;
-import infra.jdbc.type.TypeHandler;
-import infra.util.Assert;
-import infra.util.CollectionUtils;
 
 /**
  * Batch execution result
  *
+ * <p>Generated keys of a batch execution can be accessed through the inherited
+ * {@link AbstractKeyResult} API, such as {@link #getFirstKey()} and {@link #getKeys()}.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/1/17 11:25
  */
-public class BatchResult extends ExecutionResult {
+public class BatchResult extends AbstractKeyResult<Object> {
 
   private int @Nullable [] batchResult;
-
-  private @Nullable ArrayList<Object> generatedKeys;
 
   private @Nullable Integer affectedRows;
 
@@ -82,6 +75,7 @@ public class BatchResult extends ExecutionResult {
 
   /**
    * @return the number of rows updated or deleted
+   * @throws PersistenceException if the batch has not been executed yet
    */
   public int getAffectedRows() {
     if (affectedRows == null) {
@@ -91,158 +85,41 @@ public class BatchResult extends ExecutionResult {
     return affectedRows;
   }
 
-  // ------------------------------------------------
-  // -------------------- Keys ----------------------
-  // ------------------------------------------------
-
-  <T> void addKeys(ResultSet rs, TypeHandler<T> handler) {
-    ArrayList<Object> keys = this.generatedKeys;
-    if (keys == null) {
-      keys = new ArrayList<>();
-      this.generatedKeys = keys;
-    }
-    Throwable failure = null;
-    try {
-      while (rs.next()) {
-        T generatedKey = handler.getResult(rs, 1);
-        keys.add(generatedKey);
-      }
-    }
-    catch (SQLException e) {
-      failure = e;
-      throw translateException("Getting generated keys.", e);
-    }
-    catch (RuntimeException | Error ex) {
-      failure = ex;
-      throw ex;
-    }
-    finally {
-      getManager().closeResource(rs, null, failure);
-    }
-  }
-
   /**
-   * Returns the first generated key of the last batch execution, or {@code null}
-   * if no generated keys were fetched.
-   *
-   * @return the first generated key, or {@code null} if none is available
+   * @return the first generated key, or {@code null} if no keys are available
    * @throws GeneratedKeysException if no generated keys were fetched from the database
+   * @deprecated use {@link #getFirstKey()} instead
    */
+  @Deprecated
   public @Nullable Object getKey() {
-    assertCanGetKeys();
-    List<Object> keys = this.generatedKeys;
-    if (CollectionUtils.isNotEmpty(keys)) {
-      return keys.get(0);
-    }
-    return null;
+    return getFirstKey();
   }
 
   /**
-   * Returns the first generated key of the last batch execution, converted to the
-   * specified return type using the default conversion service.
-   *
-   * @param <V> the type of the generated key
-   * @param returnType the target type of the generated key, must not be {@code null}
-   * @return the converted first generated key
-   * @throws GeneratedKeysConversionException Generated Keys conversion failed
-   * @throws IllegalArgumentException If conversionService is null
+   * @param <V> the type of the return value
+   * @param returnType the class object representing the desired return type
+   * @return the first generated key, converted to the specified return type
+   * @throws GeneratedKeysConversionException if the conversion of the generated key fails
+   * @throws IllegalArgumentException if the conversion service is null
+   * @deprecated use {@link #getFirstKey(Class)} instead
    */
+  @Deprecated
   public <V extends @Nullable Object> V getKey(Class<V> returnType) {
-    return getKey(returnType, getManager().getConversionService());
+    return getFirstKey(returnType);
   }
 
   /**
-   * Returns the first generated key of the last batch execution, converted to the
-   * specified return type using the provided conversion service.
-   *
-   * @param <V> the type of the generated key
-   * @param returnType the target type of the generated key, must not be {@code null}
-   * @param conversionService the {@link ConversionService} used to convert the key, must not be {@code null}
-   * @return the converted first generated key
-   * @throws GeneratedKeysConversionException Generated Keys conversion failed
-   * @throws IllegalArgumentException If conversionService is null
+   * @param <V> the type of the return value
+   * @param returnType the class object representing the desired return type
+   * @param conversionService the {@link ConversionService} used to convert the generated key
+   * @return the first generated key, converted to the specified return type
+   * @throws GeneratedKeysConversionException if the conversion of the generated key fails
+   * @throws IllegalArgumentException if the {@code conversionService} is {@code null}
+   * @deprecated use {@link #getFirstKey(Class, ConversionService)} instead
    */
+  @Deprecated
   public <V extends @Nullable Object> V getKey(Class<V> returnType, ConversionService conversionService) {
-    Assert.notNull(conversionService, "conversionService is required");
-    Object key = getKey();
-    try {
-      return conversionService.convert(key, returnType);
-    }
-    catch (ConversionException e) {
-      throw new GeneratedKeysConversionException(
-              "Exception occurred while converting value from database to type " + returnType.toString(), e);
-    }
-  }
-
-  /**
-   * Returns all generated keys of the last batch execution, or {@code null} if no
-   * generated keys were fetched.
-   *
-   * @return an array containing all generated keys, or {@code null} if none is available
-   * @throws GeneratedKeysException if no generated keys were fetched from the database
-   */
-  public Object @Nullable [] getKeys() {
-    assertCanGetKeys();
-    if (generatedKeys != null) {
-      return generatedKeys.toArray();
-    }
-    return null;
-  }
-
-  /**
-   * Returns all generated keys of the last batch execution, converted to the specified
-   * return type using the default conversion service.
-   *
-   * @param <V> the type of the generated keys
-   * @param returnType the target type of the generated keys, must not be {@code null}
-   * @return a list containing all converted generated keys, or {@code null} if no
-   * generated keys were fetched
-   * @throws GeneratedKeysConversionException cannot converting value from database
-   * @throws IllegalArgumentException If conversionService is null
-   */
-  public <V> @Nullable List<V> getKeys(Class<V> returnType) {
-    return getKeys(returnType, getManager().getConversionService());
-  }
-
-  /**
-   * Returns all generated keys of the last batch execution, converted to the specified
-   * return type using the provided conversion service.
-   *
-   * @param <V> the type of the generated keys
-   * @param returnType the target type of the generated keys, must not be {@code null}
-   * @param conversionService the {@link ConversionService} used to convert the keys, must not be {@code null}
-   * @return a list containing all converted generated keys, or {@code null} if no
-   * generated keys were fetched
-   * @throws GeneratedKeysConversionException cannot converting value from database
-   * @throws IllegalArgumentException If conversionService is null
-   */
-  public <V> @Nullable List<V> getKeys(Class<V> returnType, ConversionService conversionService) {
-    assertCanGetKeys();
-    if (generatedKeys != null) {
-      Assert.notNull(conversionService, "conversionService is required");
-      try {
-        ArrayList<V> convertedKeys = new ArrayList<>(generatedKeys.size());
-        for (Object key : generatedKeys) {
-          convertedKeys.add(conversionService.convert(key, returnType));
-        }
-        return convertedKeys;
-      }
-      catch (ConversionException e) {
-        throw new GeneratedKeysConversionException(
-                "Exception occurred while converting value from database to type " + returnType, e);
-      }
-    }
-    return null;
-  }
-
-  private void assertCanGetKeys() {
-    if (generatedKeys == null) {
-      throw new GeneratedKeysException(
-              "Keys where not fetched from database." +
-                      " Please set the returnGeneratedKeys parameter " +
-                      "in the createQuery() method to enable fetching of generated keys.");
-    }
-
+    return getFirstKey(returnType, conversionService);
   }
 
 }

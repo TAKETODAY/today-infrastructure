@@ -1319,7 +1319,9 @@ public abstract sealed class AbstractQuery implements AutoCloseable permits Name
       batchResult.setBatchResult(statement.executeBatch());
       try {
         if (handler != null) {
-          batchResult.addKeys(statement.getGeneratedKeys(), handler);
+          @SuppressWarnings("unchecked")
+          TypeHandler<Object> keyHandler = (TypeHandler<Object>) handler;
+          batchResult.addKeys(statement.getGeneratedKeys(), keyHandler);
         }
 
         if (log.isDebugEnabled()) {
