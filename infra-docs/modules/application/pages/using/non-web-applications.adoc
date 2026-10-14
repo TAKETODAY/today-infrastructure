@@ -33,7 +33,9 @@ rootProject.name = 'hello-cli'
 
 仓库中的 `infra-samples` 已通过 `buildSrc/build.gradle` 将 `infra-gradle-plugin` 加入构建类路径，
 各子项目直接应用 `infra.application` 即可。
-创建没有这套 `buildSrc` 配置的独立项目时，需要先配置插件依赖。
+`infra.application` 未发布到 Gradle Plugin Portal，不能直接通过
+`plugins { id 'infra.application' version '...' }` 从该门户解析插件。
+创建没有这套 `buildSrc` 配置的独立项目时，需要通过 Maven 坐标配置插件依赖。
 下面在 `build.gradle` 中使用 `buildscript` 显式加载插件，再添加基础应用 Starter：
 
 [source,groovy,subs="verbatim,attributes"]
@@ -76,8 +78,8 @@ dependencies {
 
 `buildscript.dependencies.classpath` 提供构建插件依赖，`repositories` 则提供应用依赖的解析仓库；
 两者用途不同，因此这里分别配置仓库。
-如果使用带版本的 `plugins { id 'infra.application' version '...' }` 写法，
-则需要在 `settings.gradle` 的 `pluginManagement` 中配置能够解析插件标记及其实现的插件仓库。
+通过 `buildSrc` 或上面的 `buildscript` 将 `cn.taketoday:infra-gradle-plugin` 加入构建类路径后，
+即可使用 `apply plugin: 'infra.application'` 应用插件。
 
 加载并应用 `infra.application` 后，插件默认会自动应用 `io.spring.dependency-management`，并导入对应版本的依赖管理 BOM，
 因此不需要再显式配置 `apply plugin: 'io.spring.dependency-management'`，Starter 也不必单独声明版本。
