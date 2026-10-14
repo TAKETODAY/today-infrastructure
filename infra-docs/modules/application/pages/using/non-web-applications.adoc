@@ -31,16 +31,27 @@ hello-cli/
 rootProject.name = 'hello-cli'
 ----
 
-在 `build.gradle` 中添加应用插件和基础应用 Starter：
+仓库中的 `infra-samples` 已通过 `buildSrc/build.gradle` 将 `infra-gradle-plugin` 加入构建类路径，
+各子项目直接应用 `infra.application` 即可。
+创建没有这套 `buildSrc` 配置的独立项目时，需要先配置插件依赖。
+下面在 `build.gradle` 中使用 `buildscript` 显式加载插件，再添加基础应用 Starter：
 
 [source,groovy,subs="verbatim,attributes"]
 ----
-plugins {
-  id 'java'
-  id 'infra.application' version '{infra-version}'
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url = uri('https://central.sonatype.com/repository/maven-snapshots/') }
+  }
+
+  dependencies {
+    classpath 'cn.taketoday:infra-gradle-plugin:{infra-version}'
+  }
 }
 
-apply plugin: 'io.spring.dependency-management'
+apply plugin: 'java'
+apply plugin: 'infra.application'
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
@@ -63,7 +74,14 @@ dependencies {
 }
 ----
 
-依赖管理插件会结合 `infra.application` 插件导入对应版本的依赖管理配置，因此 Starter 不必单独声明版本。
+`buildscript.dependencies.classpath` 提供构建插件依赖，`repositories` 则提供应用依赖的解析仓库；
+两者用途不同，因此这里分别配置仓库。
+如果使用带版本的 `plugins { id 'infra.application' version '...' }` 写法，
+则需要在 `settings.gradle` 的 `pluginManagement` 中配置能够解析插件标记及其实现的插件仓库。
+
+加载并应用 `infra.application` 后，插件默认会自动应用 `io.spring.dependency-management`，并导入对应版本的依赖管理 BOM，
+因此不需要再显式配置 `apply plugin: 'io.spring.dependency-management'`，Starter 也不必单独声明版本。
+如果设置了 Gradle 项目属性 `skipAutoApplyPlugins`，则会关闭插件的自动应用，需要自行配置依赖管理。
 `infra-starter-application` 提供应用启动所需的基础依赖，并包含 YAML 和 Jakarta 注解支持；
 `infra-starter-logback` 提供 Logback 日志支持。
 这里不需要添加 Web Starter 或嵌入式 HTTP 服务器。
@@ -82,16 +100,13 @@ package com.example.cli;
 import infra.app.Application;
 import infra.app.ApplicationRunner;
 import infra.app.InfraApplication;
-import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.Bean;
 
 @InfraApplication
 public class CliApplication {
 
   public static void main(String[] args) {
-    try (ConfigurableApplicationContext context = Application
-        .forNormalApplication(CliApplication.class)
-        .run(args)) {
+    try (var context = Application.forNormalApplication(CliApplication.class).run(args)) {
       // 启动任务已经执行完成，离开作用域时关闭应用上下文。
     }
   }
@@ -161,7 +176,12 @@ public class GreetingService {
 ----
 app.main.banner-mode=off
 cli.greeting=Hello
+
+output.ansi.enabled=always
 ----
+
+`output.ansi.enabled=always` 与仓库示例一致，表示始终启用 ANSI 彩色输出。
+如果运行环境不支持 ANSI 转义序列，可以省略该配置，让框架自动判断。
 
 运行时可以用命令行选项覆盖配置文件：
 
@@ -231,6 +251,7 @@ NOTE: `Application.run(...)` 返回并不表示 JVM 必然退出。线程池等�
 === 返回进程退出码
 
 需要把执行结果交给 Shell 或调度平台时，可以用以下方式替换 `main` 方法：
+该片段需要额外导入 `infra.context.ConfigurableApplicationContext`。
 
 [source,java]
 ----
