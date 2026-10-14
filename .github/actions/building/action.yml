@@ -99,9 +99,13 @@ runs:
       id: publish
       if: ${{ inputs.publish == 'true' }}
       shell: bash
-      run: ./gradlew --no-daemon --no-parallel publishMavenPublicationToSonatypeRepository closeAndReleaseStagingRepositories 
-            -PrepoUsername=${{ inputs.token-username }} -PrepoPassword=${{ inputs.token-password }} -Psigning.key="${{ inputs.gpg-private-key }}"
-            -Psigning.keyId=${{ inputs.signing-keyId }} -Psigning.password=${{ inputs.signing-password }}
+      env:
+        ORG_GRADLE_PROJECT_repoUsername: ${{ inputs.token-username }}
+        ORG_GRADLE_PROJECT_repoPassword: ${{ inputs.token-password }}
+        ORG_GRADLE_PROJECT_signing.key: ${{ inputs.gpg-private-key }}
+        ORG_GRADLE_PROJECT_signing.keyId: ${{ inputs.signing-keyId }}
+        ORG_GRADLE_PROJECT_signing.password: ${{ inputs.signing-password }}
+      run: ./gradlew --no-daemon --no-parallel publishMavenPublicationToSonatypeRepository closeAndReleaseStagingRepositories
 
     - name: Read Version From gradle.properties
       id: read-version

@@ -9,12 +9,14 @@ runs:
   steps:
     - name: Await HTTP resource
       shell: bash
+      env:
+        RESOURCE_URL: ${{ inputs.url }}
       run: |
-        url=${{ inputs.url }}
-        echo "Waiting for $url"
-        until curl --fail --head --silent ${{ inputs.url }} > /dev/null
+        echo "Waiting for $RESOURCE_URL"
+        until curl --fail --head --location --silent --show-error \
+          --connect-timeout 10 --max-time 30 "$RESOURCE_URL" > /dev/null
         do
           echo "."
           sleep 60
         done
-        echo "$url is available"
+        echo "$RESOURCE_URL is available"

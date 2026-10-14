@@ -7,6 +7,9 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
 
+permissions:
+  contents: read
+
 jobs:
   build-and-stage-release:
     name: Build and Stage Release
@@ -15,6 +18,20 @@ jobs:
     steps:
       - name: Checkout project sources
         uses: actions/checkout@v7
+
+      - name: Read Release Version
+        id: release-version
+        uses: ./.github/actions/read-version
+
+      - name: Validate Release Version
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ steps.release-version.outputs.version }}
+        run: |
+          if [[ -z "$RELEASE_VERSION" || "$RELEASE_VERSION" == *SNAPSHOT ]]; then
+            echo 'Release requires a non-empty, non-SNAPSHOT version in gradle.properties.' >&2
+            exit 1
+          fi
 
       - name: Build and Publish
         id: build-and-publish
@@ -52,12 +69,12 @@ jobs:
       - name: Await Application Loader
         uses: ./.github/actions/await-http-resource
         with:
-          url: ${{ format('https://repo.maven.apache.org/maven2/cn/taketoday/infra-app-loader/{0}/infra-app-loader-{0}.pom', needs.build-and-stage-release.outputs.version) }}
+          url: ${{ format('https://repo.maven.apache.org/maven2/cn/taketoday/infra-app-loader/{0}/infra-app-loader-{0}.jar', needs.build-and-stage-release.outputs.version) }}
 
       - name: Await Plugin Dependencies
         uses: ./.github/actions/await-http-resource
         with:
-          url: ${{ format('https://repo.maven.apache.org/maven2/cn/taketoday/infra-app-loader-tools/{0}/infra-app-loader-tools-{0}.pom', needs.build-and-stage-release.outputs.version) }}
+          url: ${{ format('https://repo.maven.apache.org/maven2/cn/taketoday/infra-app-loader-tools/{0}/infra-app-loader-tools-{0}.jar', needs.build-and-stage-release.outputs.version) }}
 
       - name: Await Dependency BOM
         uses: ./.github/actions/await-http-resource
