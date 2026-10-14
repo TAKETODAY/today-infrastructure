@@ -125,7 +125,7 @@ if ! $resume; then
   # Keep the Gradle result even when tee succeeds; capture the ID on upload failure too.
   upload_result=0
   ./gradlew --console=plain --no-daemon --no-parallel publishMavenPublicationToSonatypeRepository \
-    -Psigning.key="$SIGNING_KEY" -Psigning.keyId="$SIGNING_KEY_ID" -Psigning.password="$SIGNING_PASSWORD" \
+    -PsigningKey="$SIGNING_KEY" -PsigningKeyId="$SIGNING_KEY_ID" -PsigningPassword="$SIGNING_PASSWORD" \
     2>&1 | tee "$temporary/upload.log" || upload_result=$?
   repository_key=$(sed -n "s/.*Created staging repository '\([^']*\)'.*/\1/p" "$temporary/upload.log")
   [[ -n "$repository_key" && "$repository_key" != *$'\n'* ]] || fail 'Could not capture a unique staging repository ID; inspect Gradle logs'
