@@ -1,7 +1,7 @@
 
 plugins {
   id "java-gradle-plugin"
-//  id "com.gradle.plugin-publish" version "1.3.1"
+  id "com.gradle.plugin-publish" version "2.2.1"
 }
 
 description = "TODAY Infrastructure Applications Gradle Plugins"
@@ -41,24 +41,48 @@ dependencies {
   testImplementation 'com.github.openjson:openjson:1.0.13'
 }
 
+def portalPublishing = providers.gradleProperty('portalPublishing').map { it.toBoolean() }.getOrElse(false)
+
 gradlePlugin {
   automatedPublishing = true
   website = "https://github.com/TAKETODAY/today-infrastructure"
   vcsUrl = "https://github.com/TAKETODAY/today-infrastructure"
   plugins {
     infraPlugin {
-      id = "infra.application"
+      id = portalPublishing ? "cn.taketoday.application" : "infra.application"
       tags.set(['web', 'application'])
       displayName = "TODAY Infrastructure Applications Gradle Plugin"
       description = "TODAY Infrastructure Applications Gradle Plugin"
       implementationClass = "infra.gradle.plugin.InfraApplicationPlugin"
+      compatibility(it) {
+        features {
+          configurationCache = false
+        }
+      }
     }
     infraAotPlugin {
-      id = "infra.application.aot"
+      id = portalPublishing ? "cn.taketoday.application.aot" : "infra.application.aot"
       tags.set(['web', 'application', 'aot'])
       displayName = "TODAY Infrastructure Applications AOT Gradle Plugin"
       description = "TODAY Infrastructure Applications AOT Gradle Plugin"
       implementationClass = "infra.gradle.plugin.InfraApplicationAotPlugin"
+      compatibility(it) {
+        features {
+          configurationCache = false
+        }
+      }
+    }
+  }
+}
+
+if (portalPublishing) {
+  sourceSets.main.resources.srcDir('src/portal/resources')
+}
+
+tasks.named('publishPlugins') {
+  doFirst {
+    if (!portalPublishing) {
+      throw new GradleException('Portal publishing requires -PportalPublishing=true')
     }
   }
 }
@@ -66,4 +90,3 @@ gradlePlugin {
 tasks.named('test') {
   inputs.dir('src/docs/gradle').withPathSensitivity(PathSensitivity.RELATIVE).withPropertyName('buildScripts')
 }
-

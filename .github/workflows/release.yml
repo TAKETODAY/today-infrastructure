@@ -36,7 +36,7 @@ jobs:
 
   sync-to-maven-central:
     name: Sync to Maven Central
-    if: false
+    if: github.repository_owner == 'TAKETODAY'
     needs:
       - build-and-stage-release
     runs-on: 'ubuntu-latest'
@@ -49,9 +49,24 @@ jobs:
         with:
           url: ${{ format('https://repo.maven.apache.org/maven2/cn/taketoday/infra-core/{0}/infra-core-{0}.jar', needs.build-and-stage-release.outputs.version) }}
 
+      - name: Await Application Loader
+        uses: ./.github/actions/await-http-resource
+        with:
+          url: ${{ format('https://repo.maven.apache.org/maven2/cn/taketoday/infra-app-loader/{0}/infra-app-loader-{0}.pom', needs.build-and-stage-release.outputs.version) }}
+
+      - name: Await Plugin Dependencies
+        uses: ./.github/actions/await-http-resource
+        with:
+          url: ${{ format('https://repo.maven.apache.org/maven2/cn/taketoday/infra-app-loader-tools/{0}/infra-app-loader-tools-{0}.pom', needs.build-and-stage-release.outputs.version) }}
+
+      - name: Await Dependency BOM
+        uses: ./.github/actions/await-http-resource
+        with:
+          url: ${{ format('https://repo.maven.apache.org/maven2/cn/taketoday/infra-dependencies/{0}/infra-dependencies-{0}.pom', needs.build-and-stage-release.outputs.version) }}
+
   publish-gradle-plugin:
     name: Publish Gradle Plugin
-    if: false
+    if: github.repository_owner == 'TAKETODAY'
     needs:
       - build-and-stage-release
       - sync-to-maven-central
@@ -65,4 +80,6 @@ jobs:
           gradle-plugin-publish-key: ${{ secrets.GRADLE_PLUGIN_PUBLISH_KEY }}
           gradle-plugin-publish-secret: ${{ secrets.GRADLE_PLUGIN_PUBLISH_SECRET }}
           plugin-version: ${{ needs.build-and-stage-release.outputs.version }}
-
+          signing-keyId: ${{ secrets.SIGNID }}
+          signing-password: ${{ secrets.SIGNPWD }}
+          signing-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
