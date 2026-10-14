@@ -74,6 +74,12 @@ jq -e '.published and .upload_complete and .submission_attempted and .publish_at
 [[ $(grep -c '/deployment/' "$temporary/http-calls") == 1 ]]
 echo 'Actual curl command path, 524 reconciliation and publication: PASS'
 
+if ! grep -q '/manual/upload/repository/' "$temporary/http-calls"; then
+  echo 'Portal submission was not attempted when deployment ID was initially absent' >&2
+  exit 1
+fi
+echo 'Repository without initial deployment ID is submitted: PASS'
+
 before=$(wc -l < "$temporary/gradle-calls")
 bash "$script_dir/publish-central.sh" --resume
 [[ $(wc -l < "$temporary/gradle-calls") == "$before" ]]

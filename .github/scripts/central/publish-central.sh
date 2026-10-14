@@ -117,7 +117,8 @@ encode() { jq -rn --arg value "$1" '$value|@uri'; }
 find_deployment() {
   observe GET "$staging_url/manual/search/repositories?ip=any&profile_id=cn.taketoday"
   jq -e --arg key "$repository_key" '[.repositories[]|select(.key==$key)]|length==1' "$temporary/response" >/dev/null || fail "Staging repository not uniquely found: $repository_key"
-  deployment_id=$(jq -er --arg key "$repository_key" '.repositories[]|select(.key==$key)|(.portal_deployment_id // "")|select(type=="string")' "$temporary/response") || fail 'Invalid deployment ID in repository response'
+  deployment_id=$(jq -r --arg key "$repository_key" '.repositories[]|select(.key==$key)|.portal_deployment_id // ""' "$temporary/response")
+  [[ "$deployment_id" == "" || "$deployment_id" != *[[:space:]]* ]] || fail 'Invalid deployment ID in repository response'
   [[ -z "$deployment_id" ]] || save_state
 }
 
