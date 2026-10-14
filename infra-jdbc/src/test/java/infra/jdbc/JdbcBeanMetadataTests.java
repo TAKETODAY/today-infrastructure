@@ -104,6 +104,15 @@ class JdbcBeanMetadataTests {
   }
 
   @Test
+  void shouldMatchQuotedAnnotatedColumnName() {
+    JdbcBeanMetadata metadata = new JdbcBeanMetadata(QuotedColumnBean.class, true, false, true);
+    BeanProperty property = metadata.getBeanProperty("order", null);
+
+    assertThat(property).isNotNull();
+    assertThat(property.getName()).isEqualTo("order");
+  }
+
+  @Test
   void shouldEqualsAndHashCode() {
     JdbcBeanMetadata metadata1 = new JdbcBeanMetadata(TestBean.class, true, false, true);
     JdbcBeanMetadata metadata2 = new JdbcBeanMetadata(TestBean.class, true, false, true);
@@ -296,6 +305,20 @@ class JdbcBeanMetadataTests {
 
     public void setAnnotatedField(String annotatedField) {
       this.annotatedField = annotatedField;
+    }
+  }
+
+  static class QuotedColumnBean {
+
+    @Column("`order`")
+    private Integer order;
+
+    public Integer getOrder() {
+      return order;
+    }
+
+    public void setOrder(Integer order) {
+      this.order = order;
     }
   }
 

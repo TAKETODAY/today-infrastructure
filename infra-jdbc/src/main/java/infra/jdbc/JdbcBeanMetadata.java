@@ -28,6 +28,7 @@ import java.util.Objects;
 import infra.beans.BeanMetadata;
 import infra.beans.BeanProperty;
 import infra.core.annotation.MergedAnnotations;
+import infra.jdbc.support.JdbcUtils;
 import infra.util.ConcurrentReferenceHashMap;
 import infra.util.MapCache;
 import infra.util.StringUtils;
@@ -135,7 +136,7 @@ public class JdbcBeanMetadata {
     if (propertyName == null) {
       propertyName = property.getName();
     }
-    return propertyName;
+    return JdbcUtils.unquoteIdentifier(propertyName);
   }
 
   static @Nullable String getAnnotatedPropertyName(AnnotatedElement propertyElement) {

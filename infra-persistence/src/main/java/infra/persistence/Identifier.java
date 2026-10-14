@@ -21,6 +21,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
+import infra.jdbc.support.JdbcUtils;
 import infra.persistence.platform.Platform;
 import infra.util.InfraStrategies;
 import infra.util.StringUtils;
@@ -248,14 +249,7 @@ public class Identifier implements Comparable<Identifier> {
    * @return {@code true} if the range is a quoted form
    */
   public static boolean isQuoted(String name, int start, int end) {
-    if (end - start < 3) {
-      return false;
-    }
-    char open = name.charAt(start);
-    char close = name.charAt(end - 1);
-    return (open == '`' && close == '`')
-            || (open == '"' && close == '"')
-            || (open == '[' && close == ']');
+    return JdbcUtils.isQuotedIdentifier(name, start, end);
   }
 
   /**
@@ -269,7 +263,7 @@ public class Identifier implements Comparable<Identifier> {
     if (!isQuoted(name)) {
       throw new IllegalArgumentException("Not a quoted identifier: " + name);
     }
-    return name.substring(1, name.length() - 1);
+    return JdbcUtils.unquoteIdentifier(name);
   }
 
 }

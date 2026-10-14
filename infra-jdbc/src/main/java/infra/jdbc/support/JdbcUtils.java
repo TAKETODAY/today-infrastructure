@@ -481,6 +481,38 @@ public abstract class JdbcUtils {
   }
 
   /**
+   * Determine whether the given range is surrounded by matching SQL identifier
+   * quote markers (backticks, double quotes, or brackets), with a non-empty name.
+   *
+   * @param name the identifier text
+   * @param start the start index, inclusive
+   * @param end the end index, exclusive
+   * @return whether the range is quoted
+   * @since 5.0
+   */
+  public static boolean isQuotedIdentifier(String name, int start, int end) {
+    if (end - start < 3) {
+      return false;
+    }
+    char open = name.charAt(start);
+    char close = name.charAt(end - 1);
+    return (open == '`' && close == '`')
+            || (open == '"' && close == '"')
+            || (open == '[' && close == ']');
+  }
+
+  /**
+   * Remove matching SQL identifier quote markers, leaving unquoted text unchanged.
+   *
+   * @param name the identifier text
+   * @return the bare identifier name
+   * @since 5.0
+   */
+  public static String unquoteIdentifier(String name) {
+    return isQuotedIdentifier(name, 0, name.length()) ? name.substring(1, name.length() - 1) : name;
+  }
+
+  /**
    * Convert a property name using "camelCase" to a corresponding column name with underscores.
    * A name like "customerNumber" would match a "customer_number" column name.
    *
