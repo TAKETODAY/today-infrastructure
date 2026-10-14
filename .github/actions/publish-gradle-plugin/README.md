@@ -59,6 +59,7 @@ plugins {
 
 发布实现位于 `infra-build/infra-gradle-plugin/build.gradle`。
 默认在 `gradlePlugin.plugins` 中声明 `infra.application` 和 `infra.application.aot`，保持正常构建和 Maven 发布的插件 ID。
+`com.gradle.plugin-publish` 仅在 Portal 发布模式下应用，避免为普通 SNAPSHOT 构建创建需要密钥的 Portal 签名任务。
 Release Action 传入 `-PportalPublishing=true`，仅在 Portal 发布构建中将声明切换为带 `cn.taketoday` 命名空间的两个 ID。
 Portal 构建同时加入 `src/portal/resources/META-INF/gradle-plugins/` 中的短 ID 描述符，保留原有入口。
 配置缓存暂按未支持声明，确认兼容并测试后再修改该声明。
