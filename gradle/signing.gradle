@@ -3,9 +3,9 @@ if (isReleaseVersion) {
   apply plugin: "signing"
 
   signing {
-    def signingKey = findProperty("signing.key")
-    def signingKeyId = findProperty("signing.keyId")
-    def signingPassword = findProperty("signing.password")
+    def signingKey = findProperty("signingKey")
+    def signingKeyId = findProperty("signingKeyId")
+    def signingPassword = findProperty("signingPassword")
     useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
 
 //    useGpgCmd()
