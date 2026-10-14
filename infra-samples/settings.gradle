@@ -2,3 +2,4 @@ rootProject.name = 'infra-samples'
 
 include 'web-api'
 include 'netty-app'
+include 'hello-cli'
