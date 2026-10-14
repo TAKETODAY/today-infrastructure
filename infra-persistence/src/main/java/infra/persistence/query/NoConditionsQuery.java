@@ -38,7 +38,7 @@ public final class NoConditionsQuery extends SimpleSelectQueryStatement implemen
 
   @Override
   protected void renderInternal(EntityMetadata metadata, SimpleSelect select) {
-    // noop
+    select.orderBy(resolveOrderByClause(metadata));
   }
 
   @Override

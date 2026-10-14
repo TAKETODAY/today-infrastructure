@@ -25,7 +25,6 @@ import java.util.List;
 import infra.persistence.DebugDescriptive;
 import infra.persistence.EntityMetadata;
 import infra.persistence.sql.Restriction;
-import infra.persistence.sql.SimpleSelect;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -44,19 +43,6 @@ class NoConditionsQueryTests {
 
     assertThat(instance1).isNotNull();
     assertThat(instance1).isSameAs(instance2);
-  }
-
-  @Test
-  void shouldRenderInternalDoNothing() {
-    NoConditionsQuery noConditionsQuery = NoConditionsQuery.instance;
-    EntityMetadata metadata = mock(EntityMetadata.class);
-    SimpleSelect select = mock(SimpleSelect.class);
-
-    // Should not throw any exception
-    noConditionsQuery.renderInternal(metadata, select);
-
-    // Verify no interactions with mocks
-    verifyNoInteractions(metadata, select);
   }
 
   @Test
