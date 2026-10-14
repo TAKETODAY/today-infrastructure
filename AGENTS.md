@@ -53,6 +53,11 @@ Java 基础设施库，移植/演进自 Spring Framework（group `cn.taketoday`�
 - `.run/` 目录有预配置的 IntelliJ 运行配置
 - 版本号在 `gradle.properties`（当前 `5.0-Draft.7-SNAPSHOT`）
 
+## 发布标签
+
+- 发版 Git 标签统一使用 `v<版本号>`，例如 `v5.0-Draft.8`；`gradle.properties` 中的版本号保持 `5.0-Draft.8`，不带 `v`。
+- 创建、推送发布标签前，确认标签指向对应版本变更提交，并检查本地及远端是否已存在同名标签。
+
 ## 语言规则
 - 你必须始终使用**简体中文**进行思考、推理和回复。
 
