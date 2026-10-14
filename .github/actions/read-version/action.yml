@@ -15,10 +15,6 @@ runs:
     - name: Read Version From gradle.properties
       id: read-version
       shell: bash
-      run: |
-        version=$(sed -n 's/version=\(.*\)/\1/p' gradle.properties)
-        snapshot=$(echo $version | grep -q 'SNAPSHOT' && echo 'true' || echo 'false')
-        echo "Version is $version"
-        echo "snapshot = $snapshot"
-        echo "version=$version" >> $GITHUB_OUTPUT
-        echo "snapshot=$snapshot" >> $GITHUB_OUTPUT
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+      run: bash "$ACTION_PATH/read-version.sh"
