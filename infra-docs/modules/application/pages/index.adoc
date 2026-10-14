@@ -1,7 +1,9 @@
 = 应用开发
 
 本节介绍使用 TODAY INFRA 开发应用时的代码组织、依赖注入和自动配置，以及配置加载、日志、SSL、JDBC、REST 客户端和应用测试等集成功能。
-从 xref:tutorial:first-application/index.adoc[第一个 Web 应用程序]开始，可以了解应用启动和可执行 JAR 的构建方式。
+开发命令行工具、定时任务或后台工作进程，可以从 xref:using/non-web-applications.adoc[开发普通应用（非 Web）]开始。
+开发 Web 服务，可以从 xref:tutorial:first-application/index.adoc[第一个 Web 应用程序]开始。
+这两个入门示例都介绍了应用启动和可执行 JAR 的构建方式。
 
 == 阅读顺序
 

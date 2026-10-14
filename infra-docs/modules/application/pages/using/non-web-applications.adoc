@@ -1,0 +1,349 @@
+[[using.non-web-applications]]
+= 开发普通应用（非 Web）
+
+TODAY INFRA 可以用于开发命令行工具、数据处理程序、定时任务和后台工作进程。
+这些应用通过 `main` 方法启动，同样可以使用依赖注入、自动配置、外部化配置和日志等能力。
+本节从一个运行后退出的命令行应用开始，再介绍如何改为持续运行的后台应用。
+完整命令行示例位于仓库的 `infra-samples/hello-cli` 目录。
+在 `infra-samples` 中执行 `./gradlew :hello-cli:infraRun` 即可运行；参数传递和打包命令见该示例的 `README.md`。
+
+== 创建项目
+
+准备 JDK 17 或更高版本，在项目根目录创建以下文件：
+
+[source,text]
+----
+hello-cli/
+├── settings.gradle
+├── build.gradle
+└── src/main/
+    ├── java/com/example/cli/
+    │   ├── CliApplication.java
+    │   └── GreetingService.java
+    └── resources/
+        └── application.properties
+----
+
+在 `settings.gradle` 中指定项目名称：
+
+[source,groovy]
+----
+rootProject.name = 'hello-cli'
+----
+
+在 `build.gradle` 中添加应用插件和基础应用 Starter：
+
+[source,groovy,subs="verbatim,attributes"]
+----
+plugins {
+  id 'java'
+  id 'infra.application' version '{infra-version}'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(17)
+  }
+}
+
+repositories {
+  mavenLocal()
+  mavenCentral()
+  maven { url = uri('https://central.sonatype.com/repository/maven-snapshots/') }
+}
+
+dependencies {
+  implementation 'cn.taketoday:infra-starter-application'
+  implementation 'cn.taketoday:infra-starter-logback'
+}
+----
+
+依赖管理插件会结合 `infra.application` 插件导入对应版本的依赖管理配置，因此 Starter 不必单独声明版本。
+`infra-starter-application` 提供应用启动所需的基础依赖，并包含 YAML 和 Jakarta 注解支持；
+`infra-starter-logback` 提供 Logback 日志支持。
+这里不需要添加 Web Starter 或嵌入式 HTTP 服务器。
+
+如果尚未创建 Gradle Wrapper，可以在已安装 Gradle 的环境中执行 `gradle wrapper`。
+后续示例使用 `./gradlew`；Windows 下使用 `gradlew.bat`。
+
+== 编写应用入口
+
+创建 `src/main/java/com/example/cli/CliApplication.java`：
+
+[source,java]
+----
+package com.example.cli;
+
+import infra.app.Application;
+import infra.app.ApplicationRunner;
+import infra.app.InfraApplication;
+import infra.context.ConfigurableApplicationContext;
+import infra.context.annotation.Bean;
+
+@InfraApplication
+public class CliApplication {
+
+  public static void main(String[] args) {
+    try (ConfigurableApplicationContext context = Application
+        .forNormalApplication(CliApplication.class)
+        .run(args)) {
+      // 启动任务已经执行完成，离开作用域时关闭应用上下文。
+    }
+  }
+
+  @Bean
+  ApplicationRunner greet(GreetingService greetingService) {
+    return args -> {
+      if (args.getNonOptionArgs().isEmpty()) {
+        greetingService.greet("World");
+      }
+      else {
+        for (String name : args.getNonOptionArgs()) {
+          greetingService.greet(name);
+        }
+      }
+    };
+  }
+}
+----
+
+`@InfraApplication` 组合了配置类、组件扫描和自动配置功能。
+把入口类放在应用的根包中，框架便可以扫描该包及其子包下的组件。
+
+`Application.forNormalApplication(...)` 返回已经指定 `ApplicationType.NORMAL` 的 `ApplicationBuilder`。
+这会创建普通应用上下文，不启动嵌入式 Web 服务器。
+如果使用 `new Application(...)`，也可以在 `run(args)` 之前调用
+`setApplicationType(ApplicationType.NORMAL)`，相关类型位于 `infra.app` 包。
+
+普通应用可以直接使用 `Application.run(...)` 让框架推断应用类型。
+对于明确不需要 Web 功能的工具程序，显式选择普通应用类型，可以避免后续增加依赖时改变启动类型。
+
+=== 添加业务组件
+
+创建 `src/main/java/com/example/cli/GreetingService.java`：
+
+[source,java]
+----
+package com.example.cli;
+
+import infra.beans.factory.annotation.Value;
+import infra.stereotype.Service;
+
+@Service
+public class GreetingService {
+
+  private final String greeting;
+
+  public GreetingService(@Value("${cli.greeting:Hello}") String greeting) {
+    this.greeting = greeting;
+  }
+
+  public void greet(String name) {
+    System.out.println(greeting + ", " + name + "!");
+  }
+}
+----
+
+`GreetingService` 由容器创建，通过构造器读取配置，并作为参数注入 `greet` Bean 方法。
+业务逻辑放在独立组件中，Runner 负责把命令行输入转换为业务调用。
+更多组件组织方式见 xref:using/beans-and-dependency-injection.adoc[]。
+
+== 读取配置和命令行参数
+
+在 `src/main/resources/application.properties` 中添加默认配置：
+
+[source,properties]
+----
+app.main.banner-mode=off
+cli.greeting=Hello
+----
+
+运行时可以用命令行选项覆盖配置文件：
+
+[source,shell]
+----
+./gradlew infraRun --args='--cli.greeting=你好 Alice Bob'
+----
+
+除了启动日志，还会输出：
+
+[source,text]
+----
+你好, Alice!
+你好, Bob!
+----
+
+本例中的 `--cli.greeting=你好` 是选项参数，默认会加入应用环境，供 `@Value` 读取。
+`Alice` 和 `Bob` 是非选项参数，由 `ApplicationArguments.getNonOptionArgs()` 获取。
+未指定姓名时，程序输出 `Hello, World!`。
+
+`ApplicationRunner` 接收的 `infra.app.ApplicationArguments` 还提供以下方法：
+
+[cols="1,2",options="header"]
+|===
+|方法 |用途
+|`getSourceArgs()` |取得原始参数数组。
+|`getOptionNames()` |取得所有选项名称。
+|`containsOption("dry-run")` |判断是否传入 `--dry-run` 选项。
+|`getOptionValues("input")` |取得 `--input=...` 的值；重复选项返回多个值。
+|`getNonOptionArgs()` |取得姓名、文件名等非选项参数。
+|===
+
+`getOptionValues(...)` 在选项缺失时返回 `null`，只有选项名称而没有值时返回空列表。
+因此读取必需选项时，应同时校验选项是否存在以及值的数量。
+传值使用 `--input=data.csv` 形式；`--input data.csv` 中的 `data.csv` 会被当作非选项参数。
+
+只需要原始参数时，可以把 Runner 改为 `infra.app.CommandLineRunner`：
+
+[source,java]
+----
+@Bean
+CommandLineRunner printArguments() {
+  return args -> {
+    for (String arg : args) {
+      System.out.println(arg);
+    }
+  };
+}
+----
+
+该片段需要导入 `infra.app.CommandLineRunner` 和 `infra.context.annotation.Bean`。
+两种 Runner 都必须注册为 Bean，才能在启动时执行。
+配置项较多时可以使用 `@ConfigurationProperties` 绑定对象，详见 xref:features/external-config.adoc[]。
+
+== 启动任务与一次性应用
+
+Runner 在应用上下文刷新完成后执行，此时可以使用已经初始化的业务 Bean。
+`Application.run(...)` 会等待同步 Runner 返回，再返回应用上下文；Runner 抛出异常会使启动失败。
+需要控制多个 Runner 的顺序时，可以使用 `infra.core.annotation.Order` 或实现 `infra.core.Ordered`。
+
+上面的 `try`-with-resources 适合一次性工具：启动、执行任务，然后关闭上下文并释放资源。
+如果 Runner 提交了异步任务，应在 Runner 返回前等待这些任务完成，例如等待对应的 `Future`；
+否则入口方法可能在后台工作结束前关闭上下文。
+
+NOTE: `Application.run(...)` 返回并不表示 JVM 必然退出。线程池等组件可能持有非守护线程；一次性程序应主动关闭上下文，并结束自己创建的线程。
+
+=== 返回进程退出码
+
+需要把执行结果交给 Shell 或调度平台时，可以用以下方式替换 `main` 方法：
+
+[source,java]
+----
+public static void main(String[] args) {
+  ConfigurableApplicationContext context = Application
+      .forNormalApplication(CliApplication.class)
+      .run(args);
+  int exitCode = Application.exit(context, () -> 0);
+  System.exit(exitCode);
+}
+----
+
+`Application.exit(...)` 会汇总传入的 `ExitCodeGenerator` 和容器中的同类型 Bean，关闭上下文并返回退出码。
+示例中的 `() -> 0` 表示成功；业务组件也可以实现 `infra.app.ExitCodeGenerator`，返回自己的执行结果。
+`System.exit(...)` 将最终退出码交给操作系统。
+上述代码在启动成功后执行；启动或 Runner 失败时，异常会从 `run(...)` 抛出。
+
+== 开发常驻后台应用
+
+定时任务、消息消费等应用需要在启动后持续运行。
+此时应保留应用上下文，并根据需要启用保活，而不是在 `main` 方法返回前关闭上下文：
+
+[source,java]
+----
+public static void main(String[] args) {
+  Application.forNormalApplication(CliApplication.class)
+      .properties("app.main.keep-alive=true")
+      .run(args);
+}
+----
+
+Builder 的 `properties(...)` 设置低优先级默认值，配置文件或命令行可以覆盖它。
+也可以直接在 `application.properties` 中设置 `app.main.keep-alive=true`。
+启用后，框架创建一个非守护保活线程，并在应用上下文关闭时停止该线程。
+这对于只使用守护线程或虚拟线程执行工作的应用尤其重要。
+
+=== 添加定时任务
+
+为 `CliApplication` 添加 `infra.scheduling.annotation.EnableScheduling` 注解：
+
+[source,java]
+----
+@EnableScheduling
+@InfraApplication
+public class CliApplication {
+  // 使用上面的常驻应用 main 方法。
+}
+----
+
+然后在 `com.example.cli` 包中创建组件：
+
+[source,java]
+----
+package com.example.cli;
+
+import infra.scheduling.annotation.Scheduled;
+import infra.stereotype.Component;
+
+@Component
+public class HeartbeatTask {
+
+  @Scheduled(fixedDelayString = "${worker.delay-ms:5000}")
+  public void heartbeat() {
+    System.out.println("后台任务执行中");
+  }
+}
+----
+
+本例在每次执行完成后等待 5000 毫秒再执行下一次；可通过 `worker.delay-ms` 更改间隔。
+`@Scheduled` 方法由容器调度，不需要再从 Runner 手动调用。
+默认平台线程调度器的线程池大小为 1，耗时任务会影响同一调度器中的其他任务。
+线程池、自定义调度器和虚拟线程设置见 xref:features/task-execution-and-scheduling.adoc[]。
+
+=== 关闭与资源释放
+
+`Application` 默认注册 JVM 关闭钩子。
+在终端按 `Ctrl+C` 或收到正常终止信号时，上下文关闭，受容器管理的 Bean 执行销毁回调。
+可以使用 `jakarta.annotation.PreDestroy`、`infra.beans.factory.DisposableBean` 或 `@Bean` 的销毁方法释放资源。
+自行创建的线程、连接和执行器也应有对应的停止与关闭逻辑。
+
+保活只负责维持进程存活，不负责等待业务任务完成。
+任务需要在关闭时收尾的，应根据业务设置执行器或调度器的关闭等待时间，并让任务能够响应中断或停止请求。
+
+== 打包与部署
+
+使用应用插件生成包含运行依赖的可执行 JAR：
+
+[source,shell]
+----
+./gradlew infraJar
+java -jar build/libs/hello-cli-0.0.1-SNAPSHOT.jar --cli.greeting=你好 Alice
+----
+
+部署时可以在 JAR 外提供配置文件：
+
+[source,shell]
+----
+java -jar build/libs/hello-cli-0.0.1-SNAPSHOT.jar \
+  --app.config.additional-location=file:./config/
+----
+
+该命令要求 `./config/` 位置存在；允许配置位置缺失时使用 `optional:file:./config/`。
+一次性工具可以由 Shell、系统定时器或作业平台启动，并根据退出码判断执行结果。
+常驻应用可以交给操作系统服务管理器或容器平台管理其启动、终止和重启。
+
+== 按需扩展
+
+普通应用同样可以使用以下能力：
+
+* xref:features/profiles.adoc[Profile]：区分开发、测试和生产配置。
+* xref:features/logging.adoc[日志]：配置日志级别和输出方式。
+* xref:data/sql.adoc[SQL 数据访问]：访问数据库和执行数据处理任务。
+* xref:io/rest-client.adoc[REST 客户端]：调用外部 HTTP 服务。
+* xref:testing/index.adoc[应用测试]：测试业务组件及应用上下文。
+
+继续阅读 xref:features/application.adoc[]，可以了解更多启动定制、应用事件和失败诊断功能。

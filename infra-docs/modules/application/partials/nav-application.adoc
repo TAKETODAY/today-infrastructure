@@ -1,4 +1,5 @@
 * xref:application:index.adoc[应用开发]
+** xref:application:using/non-web-applications.adoc[]
 ** xref:application:using/structuring-your-code.adoc[]
 ** xref:application:using/configuration-classes.adoc[]
 ** xref:application:using/auto-configuration.adoc[]

@@ -1,8 +1,9 @@
 [[using.running-your-application]]
 = 运行应用
 
-将应用打包成 JAR 并使用嵌入式 HTTP 服务器后，可以像普通 Java 应用一样运行和调试它，无需专用 IDE 插件。
+TODAY INFRA 应用可以像普通 Java 应用一样运行和调试，无需专用 IDE 插件。
 本节介绍 JAR 应用的本地开发运行方式。
+命令行工具、定时任务和后台工作进程的完整示例见 xref:using/non-web-applications.adoc[]。
 
 == 从 IDE 运行
 
