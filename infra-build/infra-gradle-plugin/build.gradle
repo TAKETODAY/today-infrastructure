@@ -44,6 +44,7 @@ def portalPublishing = providers.gradleProperty('portalPublishing').map { it.toB
 
 if (portalPublishing) {
   apply plugin: 'com.gradle.plugin-publish'
+  sourceSets.main.resources.srcDir('src/portal/resources')
 }
 
 gradlePlugin {
@@ -77,18 +78,6 @@ gradlePlugin {
             configurationCache = false
           }
         }
-      }
-    }
-  }
-}
-
-if (portalPublishing) {
-  sourceSets.main.resources.srcDir('src/portal/resources')
-
-  tasks.named('publishPlugins') {
-    doFirst {
-      if (!portalPublishing) {
-        throw new GradleException('Portal publishing requires -PportalPublishing=true')
       }
     }
   }
