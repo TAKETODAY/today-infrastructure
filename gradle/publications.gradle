@@ -2,6 +2,10 @@ apply plugin: "signing"
 apply plugin: "maven-publish"
 
 publishing.publications.withType(MavenPublication.class) {
+  // Test fixture capabilities are preserved in Gradle module metadata, not Maven POMs.
+  suppressPomMetadataWarningsFor('testFixturesApiElements')
+  suppressPomMetadataWarningsFor('testFixturesRuntimeElements')
+
   pom {
     afterEvaluate {
       name = project.name
