@@ -97,9 +97,3 @@ publishing {
 }
 
 apply from: "$rootDir/gradle/signing.gradle"
-
-// Disable publication of test fixture artifacts.
-if (configurations.findByName("testFixturesApiElements") != null) {
-  components.java.withVariantsFromConfiguration(configurations.testFixturesApiElements) { skip() }
-  components.java.withVariantsFromConfiguration(configurations.testFixturesRuntimeElements) { skip() }
-}
