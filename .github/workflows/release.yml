@@ -19,6 +19,20 @@ jobs:
       - name: Checkout project sources
         uses: actions/checkout@v7
 
+      - name: Set Up Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: liberica
+          java-version: '25'
+          gpg-passphrase: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          server-id: release
+          server-username: ${{ secrets.SNAPSHOTS_USERNAME }}
+          server-password: ${{ secrets.SNAPSHOTS_TOKEN }}
+
+      - name: Set Up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
       - name: Read Release Version
         id: release-version
         uses: ./.github/actions/read-version
@@ -35,21 +49,29 @@ jobs:
 
       - name: Build and Publish
         id: build-and-publish
-        uses: ./.github/actions/building
+        shell: bash
+        env:
+          ORG_GRADLE_PROJECT_repoUsername: ${{ secrets.SNAPSHOTS_USERNAME }}
+          ORG_GRADLE_PROJECT_repoPassword: ${{ secrets.SNAPSHOTS_TOKEN }}
+          SIGNING_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          SIGNING_KEY_ID: ${{ secrets.SIGNID }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNPWD }}
+          PUBLISH_SCRIPT: ${{ github.workspace }}/.github/scripts/central/publish-central.sh
+          TEST_SCRIPT: ${{ github.workspace }}/.github/scripts/central/test-publish-central.sh
+        run: |
+          bash "$TEST_SCRIPT"
+          bash "$PUBLISH_SCRIPT"
+
+      - name: Preserve Central Publication State
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
         with:
-          publish: true
-          signing-keyId: ${{ secrets.SIGNID }}
-          signing-password: ${{ secrets.SIGNPWD }}
-          token-username: ${{ secrets.SNAPSHOTS_USERNAME }}
-          token-password: ${{ secrets.SNAPSHOTS_TOKEN }}
-          gpg-passphrase: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
-          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
-          server-id: release
-          server-username: ${{ secrets.SNAPSHOTS_USERNAME }}
-          server-password: ${{ secrets.SNAPSHOTS_TOKEN }}
+          name: central-publish-state-${{ github.run_id }}-${{ github.run_attempt }}
+          path: build/central-publish-state.json
+          if-no-files-found: ignore
 
     outputs:
-      version: ${{ steps.build-and-publish.outputs.version }}
+      version: ${{ steps.release-version.outputs.version }}
 
   sync-to-maven-central:
     name: Sync to Maven Central
