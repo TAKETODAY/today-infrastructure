@@ -1,4 +1,6 @@
 import java.time.Duration
+import cn.taketoday.publishing.BundleFormat
+import cn.taketoday.publishing.PublishingType
 
 plugins {
   id 'com.gradleup.shadow' version "9.1.0" apply false
@@ -8,7 +10,7 @@ plugins {
   id 'me.champeau.jmh' version '0.7.2' apply false
   id "io.github.gradle-nexus.publish-plugin" version "2.0.0"
   id "com.google.protobuf" version "0.9.6" apply false
-  id "cn.taketoday.publishing" version "0.0.3"
+  id "cn.taketoday.publishing" version "0.0.4"
 }
 
 ext {
@@ -175,4 +177,13 @@ nexusPublishing {
 
   connectTimeout.set(Duration.ofMinutes(5))
   clientTimeout.set(Duration.ofMinutes(10))
+}
+
+mavenCentral {
+  bundle {
+    format = BundleFormat.TAR_GZ
+  }
+
+  maxStatusRetries = 5
+  publishingType = PublishingType.AUTOMATIC
 }
