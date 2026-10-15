@@ -24,11 +24,6 @@ jobs:
         with:
           distribution: liberica
           java-version: '25'
-          gpg-passphrase: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
-          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
-          server-id: release
-          server-username: ${{ secrets.SNAPSHOTS_USERNAME }}
-          server-password: ${{ secrets.SNAPSHOTS_TOKEN }}
 
       - name: Set Up Gradle
         uses: gradle/actions/setup-gradle@v6
@@ -47,28 +42,17 @@ jobs:
             exit 1
           fi
 
+      # 聚合一次上传：所有模块发布到根聚合 staging，私有插件打包后上传成一个 deployment。
       - name: Build and Publish
         id: build-and-publish
         shell: bash
         env:
-          ORG_GRADLE_PROJECT_repoUsername: ${{ secrets.SNAPSHOTS_USERNAME }}
-          ORG_GRADLE_PROJECT_repoPassword: ${{ secrets.SNAPSHOTS_TOKEN }}
-          SIGNING_KEY: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
-          SIGNING_KEY_ID: ${{ secrets.SIGNID }}
-          SIGNING_PASSWORD: ${{ secrets.SIGNPWD }}
-          PUBLISH_SCRIPT: ${{ github.workspace }}/.github/scripts/central/publish-central.sh
-          TEST_SCRIPT: ${{ github.workspace }}/.github/scripts/central/test-publish-central.sh
-        run: |
-          bash "$TEST_SCRIPT"
-          bash "$PUBLISH_SCRIPT"
-
-      - name: Preserve Central Publication State
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: central-publish-state-${{ github.run_id }}-${{ github.run_attempt }}
-          path: build/central-publish-state.json
-          if-no-files-found: ignore
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SNAPSHOTS_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SNAPSHOTS_TOKEN }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.SIGNID }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNPWD }}
+        run: ./gradlew --no-daemon --no-parallel publishToMavenCentral -PbuildSrc.skipTests=true
 
     outputs:
       version: ${{ steps.release-version.outputs.version }}

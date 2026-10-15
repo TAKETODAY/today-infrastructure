@@ -8,6 +8,7 @@ plugins {
   id 'me.champeau.jmh' version '0.7.2' apply false
   id "io.github.gradle-nexus.publish-plugin" version "2.0.0"
   id "com.google.protobuf" version "0.9.6" apply false
+  id "cn.taketoday.maven-central-publishing" version "0.0.1-SNAPSHOT"
 }
 
 ext {
@@ -141,9 +142,24 @@ configure(moduleProjects) {
 configure(rootProject) {
   description = "TODAY Infrastructure"
   apply plugin: 'infra.building.api-diff'
+
+  // 聚合发布：所有子模块先发布到统一 staging 目录，再一次性打包上传到 Maven Central。
+  def stagingPublishTasks = subprojects.findAll { it.pluginManager.hasPlugin('maven-publish') }
+      .collect { it.tasks.named('publishAllPublicationsToMavenCentralStagingRepository') }
+
+  tasks.named('publishAllPublicationsToMavenCentralStagingRepository').configure {
+    dependsOn stagingPublishTasks
+  }
+  tasks.named('uploadMavenCentralBundle').configure {
+    dependsOn stagingPublishTasks
+  }
+  tasks.named('publishToMavenCentral').configure {
+    dependsOn stagingPublishTasks
+  }
 }
 
 
+// SNAPSHOT 发布使用 gradle-nexus 的 snapshots 仓库；正式版由 cn.taketoday.maven-central-publishing 聚合一次上传。
 nexusPublishing {
   String repoUsername = project.properties["repoUsername"] ?: System.getenv("SNAPSHOTS_USERNAME")
   String repoPassword = project.properties["repoPassword"] ?: System.getenv("SNAPSHOTS_TOKEN")
@@ -159,10 +175,4 @@ nexusPublishing {
 
   connectTimeout.set(Duration.ofMinutes(5))
   clientTimeout.set(Duration.ofMinutes(10))
-
-  // 增加关闭/发布仓库的轮询重试策略
-  transitionCheckOptions {
-    maxRetries = 100
-    delayBetween = Duration.ofSeconds(5)
-  }
 }
