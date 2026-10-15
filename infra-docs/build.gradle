@@ -6,7 +6,7 @@ plugins {
 
 description = "Infrastructure Docs"
 
-apply from: "${rootDir}/gradle/publications.gradle"
+//apply from: "${rootDir}/gradle/publications.gradle"
 
 antora {
   options = [clean: true, fetch: !project.gradle.startParameter.offline, stacktrace: true]
