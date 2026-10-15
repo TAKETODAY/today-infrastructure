@@ -51,8 +51,9 @@ gradlePlugin {
   automatedPublishing = true
   website = "https://github.com/TAKETODAY/today-infrastructure"
   vcsUrl = "https://github.com/TAKETODAY/today-infrastructure"
+
   plugins {
-    infraPlugin {
+    create("infraPlugin") {
       id = portalPublishing ? "cn.taketoday.application" : "infra.application"
       tags.set(['today-infrastructure', 'web', 'application', 'executable-jar', 'dependency-management'])
       displayName = "TODAY Infrastructure Applications Gradle Plugin"
@@ -66,7 +67,8 @@ gradlePlugin {
         }
       }
     }
-    infraAotPlugin {
+
+    create("infraAotPlugin") {
       id = portalPublishing ? "cn.taketoday.application.aot" : "infra.application.aot"
       tags.set(['today-infrastructure', 'web', 'application', 'aot', 'native-image', 'graalvm'])
       displayName = "TODAY Infrastructure Applications AOT Gradle Plugin"
