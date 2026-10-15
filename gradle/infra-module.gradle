@@ -88,10 +88,14 @@ tasks.named('sourcesJar', Jar).configure {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-publishing {
-  publications {
-    maven(MavenPublication) {
-      from components.java
+afterEvaluate {
+  if (!plugins.hasPlugin('java-gradle-plugin')) {
+    publishing {
+      publications {
+        maven(MavenPublication) {
+          from components.java
+        }
+      }
     }
   }
 }
