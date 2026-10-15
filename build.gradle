@@ -8,7 +8,7 @@ plugins {
   id 'me.champeau.jmh' version '0.7.2' apply false
   id "io.github.gradle-nexus.publish-plugin" version "2.0.0"
   id "com.google.protobuf" version "0.9.6" apply false
-  id "cn.taketoday.maven-central-publishing" version "0.0.1-SNAPSHOT"
+  id "cn.taketoday.publishing" version "0.0.3"
 }
 
 ext {

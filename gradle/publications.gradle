@@ -5,7 +5,7 @@ apply plugin: "maven-publish"
 publishing.repositories {
   maven {
     name = "mavenCentralStaging"
-    url = rootProject.layout.buildDirectory.dir("maven-central-publishing/staging-repository")
+    url = rootProject.layout.buildDirectory.dir("publishing/staging-repository")
   }
 }
 
