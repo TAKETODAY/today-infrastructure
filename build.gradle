@@ -161,7 +161,7 @@ configure(rootProject) {
 }
 
 
-// SNAPSHOT 发布使用 gradle-nexus 的 snapshots 仓库；正式版由 cn.taketoday.maven-central-publishing 聚合一次上传。
+// SNAPSHOT 发布使用 gradle-nexus 的 snapshots 仓库；正式版由 cn.taketoday.publishing 聚合一次上传。
 nexusPublishing {
   String repoUsername = project.properties["repoUsername"] ?: System.getenv("SNAPSHOTS_USERNAME")
   String repoPassword = project.properties["repoPassword"] ?: System.getenv("SNAPSHOTS_TOKEN")
