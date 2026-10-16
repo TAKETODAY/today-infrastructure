@@ -143,6 +143,14 @@ configure(rootProject) {
   description = "TODAY Infrastructure"
   apply plugin: 'infra.building.api-diff'
   apply plugin: "cn.taketoday.publishing"
+
+  mavenCentral {
+    bundle {
+      format = BundleFormat.TAR_GZ
+    }
+    maxStatusRetries = 5
+    publishingType = PublishingType.AUTOMATIC
+  }
 }
 
 // SNAPSHOT 发布使用 gradle-nexus 的 snapshots 仓库；正式版由 cn.taketoday.publishing 聚合一次上传。
@@ -159,13 +167,4 @@ nexusPublishing {
     }
   }
 
-}
-
-mavenCentral {
-  bundle {
-    format = BundleFormat.TAR_GZ
-  }
-
-  maxStatusRetries = 5
-  publishingType = PublishingType.AUTOMATIC
 }
