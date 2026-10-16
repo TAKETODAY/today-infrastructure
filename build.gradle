@@ -144,7 +144,9 @@ configure(moduleProjects) {
 configure(rootProject) {
   description = "TODAY Infrastructure"
   apply plugin: 'infra.building.api-diff'
+}
 
+gradle.projectsEvaluated {
   // 聚合发布：所有子模块先发布到统一 staging 目录，再一次性打包上传到 Maven Central。
   def stagingPublishTasks = subprojects.findAll { it.pluginManager.hasPlugin('maven-publish') }
       .collect { it.tasks.named('publishAllPublicationsToMavenCentralStagingRepository') }
@@ -159,7 +161,6 @@ configure(rootProject) {
     dependsOn stagingPublishTasks
   }
 }
-
 
 // SNAPSHOT 发布使用 gradle-nexus 的 snapshots 仓库；正式版由 cn.taketoday.publishing 聚合一次上传。
 nexusPublishing {
