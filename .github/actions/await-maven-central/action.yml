@@ -1,0 +1,78 @@
+name: Await Maven Central Sync
+description: "Waits until every staged artifact of a release version is available on
+  Maven Central. The artifact list is derived from the aggregate staging
+  repository uploaded by the release job, so module coordinates never need
+  to be hard-coded in the workflow."
+
+inputs:
+  version:
+    description: 'Release version to await'
+    required: true
+
+  staging-root:
+    description: 'Directory (relative to the workspace) containing the aggregate staging repository'
+    required: true
+
+  base-url:
+    description: 'Base URL of the Maven Central repository'
+    required: false
+    default: 'https://repo.maven.apache.org/maven2/'
+
+runs:
+  using: composite
+  steps:
+    - name: Await Maven Central sync
+      shell: bash
+      env:
+        VERSION: ${{ inputs.version }}
+        STAGING_ROOT: ${{ inputs.staging-root }}
+        BASE_URL: ${{ inputs.base-url }}
+      run: |
+        set -euo pipefail
+
+        staging_dir="$(find "${STAGING_ROOT}" -type d -name staging-repository 2>/dev/null | head -n 1 || true)"
+        if [[ -z "${staging_dir}" ]]; then
+          echo "No staging-repository found under ${STAGING_ROOT}" >&2
+          exit 1
+        fi
+
+        # 从 staging 目录动态派生该版本的工件清单，避免硬编码模块坐标。
+        # 只等待主 jar 与 pom；sources/javadoc 等派生产物随同步一并可见。
+        mapfile -t relative_paths < <(
+          find "${staging_dir}" -type f -path "*/${VERSION}/*" \
+            \( -name '*.jar' -o -name '*.pom' \) \
+            ! -name '*-sources.jar' ! -name '*-javadoc.jar' \
+            | sed "s#^${staging_dir}/##" \
+            | sort
+        )
+
+        if [[ ${#relative_paths[@]} -eq 0 ]]; then
+          echo "No artifacts found for version ${VERSION} under ${staging_dir}" >&2
+          exit 1
+        fi
+
+        base_url="${BASE_URL%/}"
+        echo "Awaiting ${#relative_paths[@]} artifacts for version ${VERSION} on Maven Central"
+
+        pending=("${relative_paths[@]}")
+        while (( ${#pending[@]} > 0 )); do
+          next=()
+          for relative in "${pending[@]}"; do
+            url="${base_url}/${relative}"
+            if curl --fail --head --location --silent --show-error \
+                --connect-timeout 10 --max-time 30 "${url}" > /dev/null 2>&1; then
+              echo "available: ${relative}"
+            else
+              next+=("${relative}")
+            fi
+          done
+          if (( ${#next[@]} > 0 )); then
+            pending=("${next[@]}")
+            echo "${#pending[@]} artifact(s) pending, retrying in 60s..."
+            sleep 60
+          else
+            pending=()
+          fi
+        done
+
+        echo "All ${#relative_paths[@]} artifacts for version ${VERSION} are available on Maven Central"
