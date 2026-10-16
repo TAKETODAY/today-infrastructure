@@ -64,28 +64,47 @@ jobs:
     outputs:
       version: ${{ steps.release-version.outputs.version }}
 
-  sync-to-maven-central:
-    name: Sync to Maven Central
+  await-release-sync:
+    name: Await Release Sync
+    timeout-minutes: 60
     if: github.repository_owner == 'TAKETODAY'
     needs:
       - build-and-stage-release
       - publish-gradle-plugin
     runs-on: 'ubuntu-latest'
+    strategy:
+      matrix:
+        check:
+          - name: maven-central
+            staging-root: release-reports
+          - name: plugin-application
+            url: ${{ format('https://plugins.gradle.org/m2/cn/taketoday/application/cn.taketoday.application.gradle.plugin/{0}/cn.taketoday.application.gradle.plugin-{0}.pom', needs.build-and-stage-release.outputs.version) }}
+          - name: plugin-aot
+            url: ${{ format('https://plugins.gradle.org/m2/cn/taketoday/application/aot/cn.taketoday.application.aot.gradle.plugin/{0}/cn.taketoday.application.aot.gradle.plugin-{0}.pom', needs.build-and-stage-release.outputs.version) }}
     steps:
       - name: Checkout project sources
         uses: actions/checkout@v7
 
       - name: Download release reports
+        if: matrix.check.name == 'maven-central'
         uses: actions/download-artifact@v8
         with:
           name: release reports
           path: release-reports
 
-      - name: Await Sync to Maven Central
+      - name: Await Maven Central Sync
+        if: matrix.check.name == 'maven-central'
         uses: ./.github/actions/await-maven-central
         with:
           version: ${{ needs.build-and-stage-release.outputs.version }}
-          staging-root: release-reports
+          staging-root: ${{ matrix.check.staging-root }}
+
+      # 实现 jar 会经 CDN 重定向，不适用 HEAD 判定，故等待各 plugin marker 的 pom。
+      - name: Await Plugin Portal (${{ matrix.check.name }})
+        if: matrix.check.name != 'maven-central'
+        uses: ./.github/actions/await-http-resource
+        with:
+          url: ${{ matrix.check.url }}
 
   publish-gradle-plugin:
     name: Publish Gradle Plugin
@@ -93,6 +112,7 @@ jobs:
     needs:
       - build-and-stage-release
     runs-on: 'ubuntu-latest'
+    timeout-minutes: 60
     steps:
       - name: Check Out Code
         uses: actions/checkout@v7
@@ -105,3 +125,4 @@ jobs:
           signing-keyId: ${{ secrets.SIGNID }}
           signing-password: ${{ secrets.SIGNPWD }}
           signing-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+
