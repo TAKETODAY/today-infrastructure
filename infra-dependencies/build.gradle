@@ -691,15 +691,15 @@ dependencies {
     api("org.crac:crac:1.4.0")
     api("org.dom4j:dom4j:2.1.4")
     api("org.eclipse.persistence:org.eclipse.persistence.jpa:5.0.2")
-     api("org.eclipse:yasson:3.0.5")
+    api("org.eclipse:yasson:3.0.5")
     api("org.ehcache:jcache:1.0.1")
-     api("org.freemarker:freemarker:2.3.35")
+    api("org.freemarker:freemarker:2.3.35")
     api("org.glassfish:jakarta.el:4.0.2")
     api("org.graalvm.sdk:graal-sdk:22.3.1")
     api("org.hibernate:hibernate-core-jakarta:5.6.15.Final")
     api("org.javamoney:moneta:1.4.2")
     api('org.javamoney.moneta:moneta-core:1.4.2')
-     api("org.jruby:jruby:10.1.2.0")
+    api("org.jruby:jruby:10.1.2.0")
     api("org.junit.support:testng-engine:1.0.4")
     api("org.mozilla:rhino:1.7.14")
     api("org.ogce:xpp3:1.1.6")
@@ -710,13 +710,13 @@ dependencies {
     api("org.webjars:momentjs:2.29.4")
     api("org.webjars:underscorejs:1.8.3")
     api("org.webjars:webjars-locator-core:0.55")
-     api("org.webjars:webjars-locator-lite:1.1.5")
-     api("org.yaml:snakeyaml:2.7")
+    api("org.webjars:webjars-locator-lite:1.1.5")
+    api("org.yaml:snakeyaml:2.7")
     api("org.projectlombok:lombok:1.18.42")
-     api("org.htmlunit:htmlunit:5.5.0")
-     api("org.seleniumhq.selenium:htmlunit3-driver:4.48.0")
-     api("org.seleniumhq.selenium:selenium-java:4.50.0")
-     api("org.seleniumhq.selenium:selenium-bom:4.50.0")
+    api("org.htmlunit:htmlunit:5.5.0")
+    api("org.seleniumhq.selenium:htmlunit3-driver:4.48.0")
+    api("org.seleniumhq.selenium:selenium-java:4.50.0")
+    api("org.seleniumhq.selenium:selenium-bom:4.50.0")
     api("org.reactivestreams:reactive-streams:1.0.4")
     api 'com.zaxxer:HikariCP:5.1.0'
     api 'org.postgresql:postgresql:42.4.1'
@@ -748,7 +748,7 @@ dependencies {
 
 publishing {
   publications {
-    maven(MavenPublication) {
+    create("maven", MavenPublication) {
       from components.javaPlatform
     }
   }

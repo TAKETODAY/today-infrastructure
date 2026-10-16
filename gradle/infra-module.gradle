@@ -92,7 +92,7 @@ afterEvaluate {
   if (!plugins.hasPlugin('java-gradle-plugin')) {
     publishing {
       publications {
-        maven(MavenPublication) {
+        create("maven", MavenPublication) {
           from components.java
         }
       }

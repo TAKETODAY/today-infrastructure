@@ -14,7 +14,7 @@ jar {
 
 publishing {
   publications {
-    maven(MavenPublication) {
+    create("maven", MavenPublication) {
       from components.java
     }
   }
