@@ -54,6 +54,12 @@ jobs:
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNPWD }}
         run: ./gradlew --no-daemon --no-parallel publishToMavenCentral -PportalPublishing=true -PbuildSrc.skipTests=true
 
+      - name: Upload release reports
+        uses: actions/upload-artifact@v7
+        with:
+          name: release reports
+          path: "**/build/publishing/"
+
     outputs:
       version: ${{ steps.release-version.outputs.version }}
 
@@ -87,6 +93,11 @@ jobs:
         uses: ./.github/actions/await-http-resource
         with:
           url: ${{ format('https://repo.maven.apache.org/maven2/cn/taketoday/infra-dependencies/{0}/infra-dependencies-{0}.pom', needs.build-and-stage-release.outputs.version) }}
+
+      - name: Await Bill of Materials
+        uses: ./.github/actions/await-http-resource
+        with:
+          url: ${{ format('https://repo.maven.apache.org/maven2/cn/taketoday/infra-bom/{0}/infra-bom-{0}.pom', needs.build-and-stage-release.outputs.version) }}
 
   publish-gradle-plugin:
     name: Publish Gradle Plugin
