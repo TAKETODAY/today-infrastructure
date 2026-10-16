@@ -52,7 +52,8 @@ jobs:
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
           ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.SIGNID }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNPWD }}
-        run: ./gradlew --no-daemon --no-parallel publishToMavenCentral -PportalPublishing=true -PbuildSrc.skipTests=true
+          ORG_GRADLE_PROJECT_portalPublishing: true
+        run: ./gradlew --no-daemon --no-parallel publishToMavenCentral -PbuildSrc.skipTests=true
 
       - name: Upload release reports
         uses: actions/upload-artifact@v7
