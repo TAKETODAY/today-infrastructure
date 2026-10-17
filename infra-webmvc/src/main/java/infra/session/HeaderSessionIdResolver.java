@@ -70,9 +70,8 @@ public class HeaderSessionIdResolver implements SessionIdResolver {
     this.headerName = headerName;
   }
 
-  @Nullable
   @Override
-  public String getSessionId(HttpContext exchange) {
+  public @Nullable String getSessionId(HttpContext exchange) {
     // find in request attribute
     Object attribute = exchange.getAttribute(WRITTEN_SESSION_ID_ATTR);
     if (attribute instanceof String sessionId) {

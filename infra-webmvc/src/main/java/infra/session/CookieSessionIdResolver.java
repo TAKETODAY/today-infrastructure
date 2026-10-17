@@ -20,8 +20,8 @@ import org.jspecify.annotations.Nullable;
 
 import infra.http.HttpCookie;
 import infra.http.ResponseCookie;
-import infra.util.Assert;
 import infra.session.config.CookieProperties;
+import infra.util.Assert;
 import infra.web.HttpContext;
 
 /**
@@ -76,9 +76,8 @@ public class CookieSessionIdResolver implements SessionIdResolver {
     this.cookieName = config.getName();
   }
 
-  @Nullable
   @Override
-  public String getSessionId(HttpContext exchange) {
+  public @Nullable String getSessionId(HttpContext exchange) {
     // find in request attribute
     Object attribute = exchange.getAttribute(WRITTEN_SESSION_ID_ATTR);
     if (attribute instanceof String sessionId) {

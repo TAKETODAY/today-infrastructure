@@ -49,9 +49,8 @@ public class SessionProperties {
   /**
    * session timeout
    */
-  @Nullable
   @DurationUnit(ChronoUnit.SECONDS)
-  private Duration timeout = Duration.ofMinutes(30);
+  private @Nullable Duration timeout = Duration.ofMinutes(30);
 
   /**
    * Whether to persist session data between restarts.
@@ -61,8 +60,7 @@ public class SessionProperties {
   /**
    * Directory used to store session data.
    */
-  @Nullable
-  private File storeDir;
+  private @Nullable File storeDir;
 
   /**
    * Session cookie config
@@ -138,8 +136,7 @@ public class SessionProperties {
    *
    * @return the session data store directory
    */
-  @Nullable
-  public File getStoreDir() {
+  public @Nullable File getStoreDir() {
     return this.storeDir;
   }
 

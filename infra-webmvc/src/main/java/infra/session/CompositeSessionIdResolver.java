@@ -34,9 +34,8 @@ final class CompositeSessionIdResolver implements SessionIdResolver {
     this.resolvers = resolvers;
   }
 
-  @Nullable
   @Override
-  public String getSessionId(HttpContext exchange) {
+  public @Nullable String getSessionId(HttpContext exchange) {
     for (SessionIdResolver resolver : resolvers) {
       String token = resolver.getSessionId(exchange);
       if (token != null) {

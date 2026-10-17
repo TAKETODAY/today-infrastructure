@@ -48,9 +48,8 @@ public class SessionAttributeParameterResolver extends AbstractNamedValueResolvi
     return parameter.hasParameterAnnotation(SessionAttribute.class);
   }
 
-  @Nullable
   @Override
-  protected Object resolveName(String name, HandlerParameter resolvable, HttpContext context) throws Exception {
+  protected @Nullable Object resolveName(String name, HandlerParameter resolvable, HttpContext context) throws Exception {
     Session session = sessionManager.getSession(context, false);
     if (session == null) {
       return null;

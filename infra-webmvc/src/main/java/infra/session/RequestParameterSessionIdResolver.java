@@ -28,6 +28,7 @@ import infra.web.HttpContext;
  * @since 4.0
  */
 public class RequestParameterSessionIdResolver implements SessionIdResolver {
+
   private final String parameterName;
 
   public RequestParameterSessionIdResolver(String parameterName) {
@@ -35,9 +36,8 @@ public class RequestParameterSessionIdResolver implements SessionIdResolver {
     this.parameterName = parameterName;
   }
 
-  @Nullable
   @Override
-  public String getSessionId(HttpContext exchange) {
+  public @Nullable String getSessionId(HttpContext exchange) {
     // find in request attribute
     Object attribute = exchange.getAttribute(WRITTEN_SESSION_ID_ATTR);
     if (attribute instanceof String sessionId) {
