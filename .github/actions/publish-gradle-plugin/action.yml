@@ -22,13 +22,8 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Set Up Java
-      uses: actions/setup-java@v6
-      with:
-        distribution: 'liberica'
-        java-version: '25'
-    - name: Set Up Gradle
-      uses: gradle/actions/setup-gradle@v6
+    - name: Set Up Java and Gradle
+      uses: ./.github/actions/setup-java-gradle
     - name: Publish
       shell: bash
       working-directory: ${{ github.workspace }}

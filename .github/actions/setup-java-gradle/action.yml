@@ -1,0 +1,13 @@
+name: Set Up Java and Gradle
+description: Set up Java 25 and Gradle for the project
+runs:
+  using: composite
+  steps:
+    - name: Set Up Java
+      uses: actions/setup-java@v6
+      with:
+        distribution: liberica
+        java-version: '25'
+
+    - name: Set Up Gradle
+      uses: gradle/actions/setup-gradle@v6

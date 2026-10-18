@@ -19,14 +19,8 @@ jobs:
       - name: Checkout project sources
         uses: actions/checkout@v7
 
-      - name: Set Up Java
-        uses: actions/setup-java@v6
-        with:
-          distribution: liberica
-          java-version: '25'
-
-      - name: Set Up Gradle
-        uses: gradle/actions/setup-gradle@v6
+      - name: Set Up Java and Gradle
+        uses: ./.github/actions/setup-java-gradle
 
       - name: Read Release Version
         id: release-version
@@ -126,4 +120,3 @@ jobs:
           signing-keyId: ${{ secrets.SIGNID }}
           signing-password: ${{ secrets.SIGNPWD }}
           signing-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
-
