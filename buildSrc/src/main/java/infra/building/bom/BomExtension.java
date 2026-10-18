@@ -32,6 +32,7 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.publish.maven.tasks.GenerateMavenPom;
 import org.gradle.api.tasks.Sync;
 import org.gradle.api.tasks.TaskExecutionException;
+import org.jspecify.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -60,7 +61,6 @@ import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
 import infra.building.bom.version.DependencyVersion;
 import infra.building.maven.MavenExec;
-import org.jspecify.annotations.Nullable;
 import infra.util.FileCopyUtils;
 
 import static org.gradle.api.plugins.JavaPlatformPlugin.API_CONFIGURATION_NAME;
@@ -85,9 +85,9 @@ public class BomExtension {
 
   private final ArrayList<Library> libraries = new ArrayList<>();
 
-  private final DependencyHandler dependencyHandler;
+  private transient final DependencyHandler dependencyHandler;
 
-  private final Project project;
+  private transient final Project project;
 
   private final ObjectFactory objectFactory;
 

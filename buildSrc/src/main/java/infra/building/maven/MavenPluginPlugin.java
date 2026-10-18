@@ -22,6 +22,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.CopySpec;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.JavaPlugin;
@@ -112,7 +113,7 @@ public class MavenPluginPlugin implements Plugin<Project> {
     Sync task = project.getTasks().create("syncHelpMojoInputs", Sync.class);
     task.setDestinationDir(helpMojoDir);
     File pomFile = new File(project.getProjectDir(), "src/maven/resources/pom.xml");
-    task.from(pomFile, copy -> replaceVersionPlaceholder(copy, project));
+    task.from(pomFile, copy -> replaceVersionPlaceholder(copy, project.getVersion().toString()));
     return task;
   }
 
@@ -164,7 +165,7 @@ public class MavenPluginPlugin implements Plugin<Project> {
     Sync pluginDescriptorInputs = project.getTasks().create("syncPluginDescriptorInputs", Sync.class);
     pluginDescriptorInputs.setDestinationDir(destination);
     File pomFile = new File(project.getProjectDir(), "src/maven/resources/pom.xml");
-    pluginDescriptorInputs.from(pomFile, copy -> replaceVersionPlaceholder(copy, project));
+    pluginDescriptorInputs.from(pomFile, copy -> replaceVersionPlaceholder(copy, project.getVersion().toString()));
     pluginDescriptorInputs.from(sourceSet.getOutput().getClassesDirs(), (sync) -> sync.into("target/classes"));
     pluginDescriptorInputs.from(sourceSet.getAllJava().getSrcDirs(), (sync) -> sync.into("src/main/java"));
     pluginDescriptorInputs.getInputs().property("version", project.getVersion());
@@ -188,23 +189,26 @@ public class MavenPluginPlugin implements Plugin<Project> {
     jar.dependsOn(generatePluginDescriptorTask);
   }
 
-  private void replaceVersionPlaceholder(CopySpec copy, Project project) {
-    copy.filter(input -> replaceVersionPlaceholder(project, input));
+  private void replaceVersionPlaceholder(CopySpec copy, String version) {
+    copy.filter(input -> replaceVersionPlaceholder(version, input));
   }
 
-  private String replaceVersionPlaceholder(Project project, String input) {
-    return input.replace("{{version}}", project.getVersion().toString());
+  private String replaceVersionPlaceholder(String version, String input) {
+    return input.replace("{{version}}", version);
   }
 
   public static class FormatHelpMojoSource extends DefaultTask {
 
-    private Task generator;
+    private final ConfigurableFileCollection generatedSource = getProject().files();
+
+    private File generatedSourceDir;
 
     private File outputDir;
 
     void setGenerator(Task generator) {
-      this.generator = generator;
-      getInputs().files(this.generator)
+      this.generatedSource.from(generator.getOutputs());
+      this.generatedSourceDir = generator.getOutputs().getFiles().getSingleFile();
+      getInputs().files(this.generatedSource)
               .withPathSensitivity(PathSensitivity.RELATIVE)
               .withPropertyName("generated source");
     }
@@ -221,14 +225,12 @@ public class MavenPluginPlugin implements Plugin<Project> {
     @TaskAction
     void syncAndFormat() {
       FileFormatter formatter = new FileFormatter();
-      for (File output : this.generator.getOutputs().getFiles()) {
-        formatter.formatFiles(getProject().fileTree(output), StandardCharsets.UTF_8)
-                .forEach(edit -> save(output, edit));
-      }
+      formatter.formatFiles(this.generatedSource.getAsFileTree(), StandardCharsets.UTF_8)
+              .forEach(edit -> save(edit));
     }
 
-    private void save(File output, FileEdit edit) {
-      Path relativePath = output.toPath().relativize(edit.getFile().toPath());
+    private void save(FileEdit edit) {
+      Path relativePath = this.generatedSourceDir.toPath().relativize(edit.getFile().toPath());
       Path outputLocation = this.outputDir.toPath().resolve(relativePath);
       try {
         Files.createDirectories(outputLocation.getParent());

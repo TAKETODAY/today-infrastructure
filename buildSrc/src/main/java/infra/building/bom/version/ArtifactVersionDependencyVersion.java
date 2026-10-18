@@ -34,16 +34,27 @@ import java.util.Optional;
  */
 class ArtifactVersionDependencyVersion extends AbstractDependencyVersion {
 
-  private final ArtifactVersion artifactVersion;
+  private transient ArtifactVersion artifactVersion;
+
+  private final String artifactVersionText;
 
   protected ArtifactVersionDependencyVersion(ArtifactVersion artifactVersion) {
     super(new ComparableVersion(artifactVersion.toString()));
     this.artifactVersion = artifactVersion;
+    this.artifactVersionText = artifactVersion.toString();
   }
 
   protected ArtifactVersionDependencyVersion(ArtifactVersion artifactVersion, ComparableVersion comparableVersion) {
     super(comparableVersion);
     this.artifactVersion = artifactVersion;
+    this.artifactVersionText = artifactVersion.toString();
+  }
+
+  private ArtifactVersion artifactVersion() {
+    if (this.artifactVersion == null) {
+      this.artifactVersion = new DefaultArtifactVersion(this.artifactVersionText);
+    }
+    return this.artifactVersion;
   }
 
   @Override
@@ -63,7 +74,7 @@ class ArtifactVersionDependencyVersion extends AbstractDependencyVersion {
   }
 
   private boolean isSameMajorAndNewerThan(ArtifactVersionDependencyVersion other) {
-    return this.artifactVersion.getMajorVersion() == other.artifactVersion.getMajorVersion() && isNewerThan(other);
+    return artifactVersion().getMajorVersion() == other.artifactVersion().getMajorVersion() && isNewerThan(other);
   }
 
   @Override
@@ -75,20 +86,20 @@ class ArtifactVersionDependencyVersion extends AbstractDependencyVersion {
   }
 
   private boolean isSameMinorAndNewerThan(ArtifactVersionDependencyVersion other) {
-    return this.artifactVersion.getMajorVersion() == other.artifactVersion.getMajorVersion()
-            && this.artifactVersion.getMinorVersion() == other.artifactVersion.getMinorVersion()
+    return artifactVersion().getMajorVersion() == other.artifactVersion().getMajorVersion()
+            && artifactVersion().getMinorVersion() == other.artifactVersion().getMinorVersion()
             && isNewerThan(other);
   }
 
   @Override
   public int compareTo(DependencyVersion other) {
     if (other instanceof ArtifactVersionDependencyVersion otherArtifactDependencyVersion) {
-      ArtifactVersion otherArtifactVersion = otherArtifactDependencyVersion.artifactVersion;
-      if ((!Objects.equals(this.artifactVersion.getQualifier(), otherArtifactVersion.getQualifier()))
+      ArtifactVersion otherArtifactVersion = otherArtifactDependencyVersion.artifactVersion();
+      if ((!Objects.equals(artifactVersion().getQualifier(), otherArtifactVersion.getQualifier()))
               && "snapshot".equalsIgnoreCase(otherArtifactVersion.getQualifier())
-              && otherArtifactVersion.getMajorVersion() == this.artifactVersion.getMajorVersion()
-              && otherArtifactVersion.getMinorVersion() == this.artifactVersion.getMinorVersion()
-              && otherArtifactVersion.getIncrementalVersion() == this.artifactVersion.getIncrementalVersion()) {
+              && otherArtifactVersion.getMajorVersion() == artifactVersion().getMajorVersion()
+              && otherArtifactVersion.getMinorVersion() == artifactVersion().getMinorVersion()
+              && otherArtifactVersion.getIncrementalVersion() == artifactVersion().getIncrementalVersion()) {
         return 1;
       }
     }
@@ -97,7 +108,7 @@ class ArtifactVersionDependencyVersion extends AbstractDependencyVersion {
 
   @Override
   public String toString() {
-    return this.artifactVersion.toString();
+    return this.artifactVersionText;
   }
 
   protected Optional<ArtifactVersionDependencyVersion> extractArtifactVersionDependencyVersion(

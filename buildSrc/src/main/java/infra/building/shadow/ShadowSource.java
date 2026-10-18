@@ -29,6 +29,7 @@ import org.gradle.api.artifacts.result.ResolutionResult;
 import org.gradle.api.artifacts.result.ResolvedArtifactResult;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileCopyDetails;
+import org.gradle.api.file.FileSystemOperations;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
@@ -45,6 +46,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 /**
  * Gradle task to add source from shadowed jars into our own source jars.
  *
@@ -55,18 +58,37 @@ public class ShadowSource extends DefaultTask {
 
   private final DirectoryProperty outputDirectory = getProject().getObjects().directoryProperty();
 
-  private List<Configuration> configurations = new ArrayList<>();
+  private List<File> sourceJarFiles = new ArrayList<>();
+
+  private List<FileTree> sourceTrees = new ArrayList<>();
+
+  @Inject
+  protected FileSystemOperations getFileSystemOperations() {
+    throw new UnsupportedOperationException();
+  }
 
   private final List<Relocation> relocations = new ArrayList<>();
 
-  @Classpath
-  @Optional
-  public List<Configuration> getConfigurations() {
-    return this.configurations;
+  public void setConfigurations(List<Configuration> configurations) {
+    List<File> sourceJarFiles = new ArrayList<>();
+    for (Configuration configuration : configurations) {
+      ResolutionResult resolutionResult = configuration.getIncoming().getResolutionResult();
+      resolutionResult.getRootComponent().get().getDependencies().forEach(dependency -> {
+        Set<ComponentArtifactsResult> artifactsResults = resolveSourceArtifacts(dependency);
+        for (ComponentArtifactsResult artifactResult : artifactsResults) {
+          artifactResult.getArtifacts(SourcesArtifact.class).forEach(sourceArtifact ->
+                  sourceJarFiles.add(((ResolvedArtifactResult) sourceArtifact).getFile()));
+        }
+      });
+    }
+    this.sourceJarFiles = Collections.unmodifiableList(sourceJarFiles);
+    this.sourceTrees = sourceJarFiles.stream().map(this::zipTree).toList();
   }
 
-  public void setConfigurations(List<Configuration> configurations) {
-    this.configurations = configurations;
+  @Classpath
+  @Optional
+  public List<File> getSourceJarFiles() {
+    return this.sourceJarFiles;
   }
 
   @Nested
@@ -85,23 +107,7 @@ public class ShadowSource extends DefaultTask {
 
   @TaskAction
   void syncSourceJarFiles() {
-    sync(getSourceJarFiles());
-  }
-
-  private List<File> getSourceJarFiles() {
-    List<File> sourceJarFiles = new ArrayList<>();
-    for (Configuration configuration : this.configurations) {
-      ResolutionResult resolutionResult = configuration.getIncoming().getResolutionResult();
-      resolutionResult.getRootComponent().get().getDependencies().forEach(dependency -> {
-        Set<ComponentArtifactsResult> artifactsResults = resolveSourceArtifacts(dependency);
-        for (ComponentArtifactsResult artifactResult : artifactsResults) {
-          artifactResult.getArtifacts(SourcesArtifact.class).forEach(sourceArtifact -> {
-            sourceJarFiles.add(((ResolvedArtifactResult) sourceArtifact).getFile());
-          });
-        }
-      });
-    }
-    return Collections.unmodifiableList(sourceJarFiles);
+    sync(this.sourceJarFiles);
   }
 
   private Set<ComponentArtifactsResult> resolveSourceArtifacts(DependencyResult dependency) {
@@ -117,14 +123,18 @@ public class ShadowSource extends DefaultTask {
   }
 
   private void sync(List<File> sourceJarFiles) {
-    getProject().sync(spec -> {
+    getFileSystemOperations().sync(spec -> {
       spec.into(this.outputDirectory);
       spec.eachFile(this::relocateFile);
       spec.filter(this::transformContent);
       spec.exclude("META-INF/**");
       spec.setIncludeEmptyDirs(false);
-      sourceJarFiles.forEach(sourceJar -> spec.from(zipTree(sourceJar)));
+      this.sourceTrees.forEach(spec::from);
     });
+  }
+
+  private FileTree zipTree(File sourceJar) {
+    return getProject().zipTree(sourceJar);
   }
 
   private void relocateFile(FileCopyDetails details) {
@@ -140,10 +150,6 @@ public class ShadowSource extends DefaultTask {
       content = relocation.transformContent(content);
     }
     return content;
-  }
-
-  private FileTree zipTree(File sourceJar) {
-    return getProject().zipTree(sourceJar);
   }
 
   /**

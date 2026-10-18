@@ -27,6 +27,7 @@ import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.MavenPom;
 import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.jspecify.annotations.Nullable;
 import groovy.namespace.QName;
 import groovy.util.Node;
 
@@ -59,7 +59,7 @@ public class BomPlugin implements Plugin<Project> {
     createApiEnforcedConfiguration(project);
     BomExtension bom = project.getExtensions().create("bom", BomExtension.class, project.getDependencies(), project);
     project.getTasks().register("bomrCheck", CheckBom.class, bom);
-    new PublishingCustomizer(project, bom).customize();
+    new PublishingCustomizer(bom).customize(project.getExtensions().getByType(PublishingExtension.class));
   }
 
   private void createApiEnforcedConfiguration(Project project) {
@@ -78,17 +78,13 @@ public class BomPlugin implements Plugin<Project> {
 
   private static final class PublishingCustomizer {
 
-    private final Project project;
-
     private final BomExtension bom;
 
-    private PublishingCustomizer(Project project, BomExtension bom) {
-      this.project = project;
+    private PublishingCustomizer(BomExtension bom) {
       this.bom = bom;
     }
 
-    private void customize() {
-      PublishingExtension publishing = this.project.getExtensions().getByType(PublishingExtension.class);
+    private void customize(PublishingExtension publishing) {
       publishing.getPublications().withType(MavenPublication.class).all(this::configurePublication);
     }
 

@@ -15,15 +15,15 @@ publishing {
 }
 
 publishing.publications.withType(MavenPublication.class).configureEach {
+  def publicationName = project.name
+  def publicationDescription = project.description
   // Test fixture capabilities are preserved in Gradle module metadata, not Maven POMs.
   suppressPomMetadataWarningsFor('testFixturesApiElements')
   suppressPomMetadataWarningsFor('testFixturesRuntimeElements')
 
   pom {
-    afterEvaluate {
-      name = project.name
-      description = project.description
-    }
+    name = publicationName
+    description = publicationDescription
     url = "https://github.com/TAKETODAY/today-infrastructure"
     organization {
       name = "TODAY Tech"

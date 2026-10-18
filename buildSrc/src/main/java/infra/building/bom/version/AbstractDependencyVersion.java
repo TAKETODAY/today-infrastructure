@@ -29,17 +29,27 @@ import org.apache.maven.artifact.versioning.ComparableVersion;
  */
 abstract class AbstractDependencyVersion implements DependencyVersion {
 
-  private final ComparableVersion comparableVersion;
+  private final String version;
+
+  private transient ComparableVersion comparableVersion;
 
   protected AbstractDependencyVersion(ComparableVersion comparableVersion) {
+    this.version = comparableVersion.toString();
     this.comparableVersion = comparableVersion;
+  }
+
+  private ComparableVersion comparableVersion() {
+    if (this.comparableVersion == null) {
+      this.comparableVersion = new ComparableVersion(this.version);
+    }
+    return this.comparableVersion;
   }
 
   @Override
   public int compareTo(DependencyVersion other) {
     ComparableVersion otherComparable = (other instanceof AbstractDependencyVersion otherVersion)
             ? otherVersion.comparableVersion : new ComparableVersion(other.toString());
-    return this.comparableVersion.compareTo(otherComparable);
+    return comparableVersion().compareTo(otherComparable);
   }
 
   @Override
@@ -54,17 +64,17 @@ abstract class AbstractDependencyVersion implements DependencyVersion {
       return false;
     }
     AbstractDependencyVersion other = (AbstractDependencyVersion) obj;
-    return this.comparableVersion.equals(other.comparableVersion);
+    return comparableVersion().equals(other.comparableVersion());
   }
 
   @Override
   public int hashCode() {
-    return this.comparableVersion.hashCode();
+    return comparableVersion().hashCode();
   }
 
   @Override
   public String toString() {
-    return this.comparableVersion.toString();
+    return this.version;
   }
 
 }
