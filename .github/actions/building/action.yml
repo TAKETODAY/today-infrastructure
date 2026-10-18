@@ -100,8 +100,8 @@ runs:
       if: ${{ inputs.publish == 'true' }}
       shell: bash
       env:
-        ORG_GRADLE_PROJECT_repoUsername: ${{ inputs.token-username }}
-        ORG_GRADLE_PROJECT_repoPassword: ${{ inputs.token-password }}
+        ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ inputs.token-username }}
+        ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ inputs.token-password }}
         ORG_GRADLE_PROJECT_signingKey: ${{ inputs.gpg-private-key }}
         ORG_GRADLE_PROJECT_signingKeyId: ${{ inputs.signing-keyId }}
         ORG_GRADLE_PROJECT_signingPassword: ${{ inputs.signing-password }}
