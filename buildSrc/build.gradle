@@ -18,7 +18,7 @@ dependencies {
   implementation "io.spring.javaformat:spring-javaformat-gradle-plugin:${javaFormatVersion}"
   implementation("org.apache.maven:maven-artifact:3.9.16")
   implementation 'cn.taketoday:infra-core:5.0-Draft.9'
-  implementation 'cn.taketoday:maven-central-publishing-gradle-plugin:1.0'
+  implementation 'cn.taketoday:maven-central-publishing-gradle-plugin:1.0.1'
 
   implementation("net.ltgt.gradle:gradle-errorprone-plugin:4.3.0")
 }
