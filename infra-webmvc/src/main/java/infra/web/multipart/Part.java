@@ -207,7 +207,9 @@ public interface Part extends InputStreamSource, HttpInputMessage {
    * Transfer the received file to the given destination file.
    * <p>This may either move the file in the filesystem, copy the file in the
    * filesystem, or save memory-held contents to the destination file. If the
-   * destination file already exists, it will be deleted first.
+   * destination file already exists, it will be deleted first. If it does not
+   * exist yet, it will be created automatically, but its parent directory must
+   * already exist.
    * <p>If the target file has been moved in the filesystem, this operation
    * cannot be invoked again afterwards. Therefore, call this method just once
    * in order to work with any storage mechanism.
@@ -227,6 +229,9 @@ public interface Part extends InputStreamSource, HttpInputMessage {
   /**
    * Transfer the received file to the given destination file.
    * <p>The default implementation simply copies the file input stream.
+   * If the destination file already exists, it will be replaced. If it does not
+   * exist yet, it will be created automatically, but its parent directory must
+   * already exist.
    *
    * @throws IllegalArgumentException If the preconditions on the parameters do not hold
    * @throws NonReadableChannelException If the source channel was not opened for reading

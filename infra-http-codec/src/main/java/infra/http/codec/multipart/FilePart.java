@@ -53,7 +53,8 @@ public interface FilePart extends Part {
   /**
    * Convenience method to copy the content of the file in this part to the
    * given destination file. If the destination file already exists, it will
-   * be truncated first.
+   * be truncated first. If it does not exist yet, it will be created
+   * automatically, but its parent directory must already exist.
    * <p>The default implementation delegates to {@link #transferTo(Path)}.
    *
    * @param dest the target file
@@ -68,7 +69,8 @@ public interface FilePart extends Part {
   /**
    * Convenience method to copy the content of the file in this part to the
    * given destination file. If the destination file already exists, it will
-   * be truncated first.
+   * be truncated first. If it does not exist yet, it will be created
+   * automatically, but its parent directory must already exist.
    *
    * @param dest the target file
    * @return completion {@code Mono} with the result of the file transfer,
