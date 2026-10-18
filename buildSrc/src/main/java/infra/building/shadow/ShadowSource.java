@@ -105,11 +105,6 @@ public class ShadowSource extends DefaultTask {
     return this.outputDirectory;
   }
 
-  @TaskAction
-  void syncSourceJarFiles() {
-    sync(this.sourceJarFiles);
-  }
-
   private Set<ComponentArtifactsResult> resolveSourceArtifacts(DependencyResult dependency) {
     ModuleComponentSelector componentSelector = (ModuleComponentSelector) dependency.getRequested();
     ArtifactResolutionQuery query = getProject().getDependencies().createArtifactResolutionQuery()
@@ -122,7 +117,12 @@ public class ShadowSource extends DefaultTask {
     return query.withArtifacts(JvmLibrary.class, SourcesArtifact.class).execute();
   }
 
-  private void sync(List<File> sourceJarFiles) {
+  @TaskAction
+  void syncSourceJarFiles() {
+    sync();
+  }
+
+  private void sync() {
     getFileSystemOperations().sync(spec -> {
       spec.into(this.outputDirectory);
       spec.eachFile(this::relocateFile);
