@@ -1,5 +1,5 @@
 name: 'Build'
-description: 'Builds the project, optionally publishing it to a local deployment repository'
+description: 'Builds the project'
 inputs:
   java-distribution:
     description: 'Java distribution to use'
@@ -17,16 +17,6 @@ inputs:
     description: 'Java version to compile and test with'
     required: false
     default: '25'
-  publish:
-    description: 'Whether to publish artifacts ready for deployment to Artifactory'
-    required: false
-    default: 'false'
-  token-password:
-    description: 'Password for authentication with central.sonatype.com'
-    required: false
-  token-username:
-    description: 'Username for authentication with central.sonatype.com'
-    required: false
   signing-keyId:
     description: 'signing keyId'
     required: false
@@ -54,7 +44,7 @@ inputs:
 outputs:
   build-scan-url:
     description: 'URL, if any, of the build scan produced by the build'
-    value: ${{ (inputs.publish == 'true' && steps.publish.outputs.build-scan-url) || steps.build.outputs.build-scan-url }}
+    value: ${{ steps.build.outputs.build-scan-url }}
   version:
     description: 'Version that was built'
     value: ${{ steps.read-version.outputs.version }}
@@ -91,21 +81,8 @@ runs:
 
     - name: Build
       id: build
-      if: ${{ inputs.publish == 'false' }}
       shell: bash
       run: ./gradlew -DCI=true --no-daemon --no-parallel check --scan
-
-    - name: Publish
-      id: publish
-      if: ${{ inputs.publish == 'true' }}
-      shell: bash
-      env:
-        ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ inputs.token-username }}
-        ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ inputs.token-password }}
-        ORG_GRADLE_PROJECT_signingKey: ${{ inputs.gpg-private-key }}
-        ORG_GRADLE_PROJECT_signingKeyId: ${{ inputs.signing-keyId }}
-        ORG_GRADLE_PROJECT_signingPassword: ${{ inputs.signing-password }}
-      run: ./gradlew --no-daemon --no-parallel publish
 
     - name: Read Version From gradle.properties
       id: read-version
