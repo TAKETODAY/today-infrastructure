@@ -1,6 +1,19 @@
 apply plugin: "signing"
 apply plugin: "maven-publish"
 
+publishing {
+  repositories {
+    maven {
+      name = "GitHubPackages"
+      url = "https://maven.pkg.github.com/TAKETODAY/today-infrastructure"
+      credentials {
+        username = System.getenv("GITHUB_ACTOR")
+        password = System.getenv("GITHUB_TOKEN")
+      }
+    }
+  }
+}
+
 publishing.publications.withType(MavenPublication.class).configureEach {
   // Test fixture capabilities are preserved in Gradle module metadata, not Maven POMs.
   suppressPomMetadataWarningsFor('testFixturesApiElements')

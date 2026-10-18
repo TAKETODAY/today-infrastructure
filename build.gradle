@@ -7,7 +7,6 @@ plugins {
   id 'io.freefair.aspectj' version '8.13.1' apply false
   id 'me.champeau.mrjar' version '0.1.1'
   id 'me.champeau.jmh' version '0.7.2' apply false
-  id "io.github.gradle-nexus.publish-plugin" version "2.0.0"
   id "com.google.protobuf" version "0.9.6" apply false
 }
 
@@ -142,7 +141,7 @@ configure(moduleProjects) {
 configure(rootProject) {
   description = "TODAY Infrastructure"
   apply plugin: 'infra.building.api-diff'
-  apply plugin: "cn.taketoday.publishing"
+  apply plugin: "cn.taketoday.maven-central-publishing"
 
   mavenCentral {
     bundle {
@@ -151,20 +150,4 @@ configure(rootProject) {
     maxStatusRetries = 5
     publishingType = PublishingType.AUTOMATIC
   }
-}
-
-// SNAPSHOT 发布使用 gradle-nexus 的 snapshots 仓库；正式版由 cn.taketoday.publishing 聚合一次上传。
-nexusPublishing {
-  String repoUsername = project.properties["repoUsername"] ?: System.getenv("SNAPSHOTS_USERNAME")
-  String repoPassword = project.properties["repoPassword"] ?: System.getenv("SNAPSHOTS_TOKEN")
-
-  repositories {
-    sonatype {
-      username.set(repoUsername)
-      password.set(repoPassword)
-      nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
-      snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
-    }
-  }
-
 }

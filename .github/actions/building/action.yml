@@ -105,7 +105,7 @@ runs:
         ORG_GRADLE_PROJECT_signingKey: ${{ inputs.gpg-private-key }}
         ORG_GRADLE_PROJECT_signingKeyId: ${{ inputs.signing-keyId }}
         ORG_GRADLE_PROJECT_signingPassword: ${{ inputs.signing-password }}
-      run: ./gradlew --no-daemon --no-parallel publishMavenPublicationToSonatypeRepository closeAndReleaseStagingRepositories
+      run: ./gradlew --no-daemon --no-parallel publish
 
     - name: Read Version From gradle.properties
       id: read-version

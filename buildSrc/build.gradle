@@ -17,55 +17,55 @@ dependencies {
   // implementation("org.asciidoctor:asciidoctor-gradle-jvm:3.3.2")
   implementation "io.spring.javaformat:spring-javaformat-gradle-plugin:${javaFormatVersion}"
   implementation("org.apache.maven:maven-artifact:3.9.16")
-  implementation 'cn.taketoday:infra-core:5.0-Draft.8'
-  implementation 'cn.taketoday:gradle-publishing-plugin:0.0.5'
+  implementation 'cn.taketoday:infra-core:5.0-Draft.9'
+  implementation 'cn.taketoday:maven-central-publishing-gradle-plugin:1.0'
 
   implementation("net.ltgt.gradle:gradle-errorprone-plugin:4.3.0")
 }
 
 gradlePlugin {
   plugins {
-    apiDiffPlugin {
+    create("apiDiffPlugin") {
       id = "infra.building.api-diff"
       implementationClass = "infra.building.api.ApiDiffPlugin"
     }
-    bomPlugin {
+    create("bomPlugin") {
       id = "infra.bom"
       implementationClass = "infra.building.bom.BomPlugin"
     }
-    conventionsPlugin {
+    create("conventionsPlugin") {
       id = "infra.building.conventions"
       implementationClass = "infra.building.ConventionsPlugin"
     }
-    multiReleasePlugin {
+    create("multiReleasePlugin") {
       id = "infra.building.multiReleaseJar"
       implementationClass = "infra.building.multirelease.MultiReleaseJarPlugin"
     }
-    optionalDependenciesPlugin {
+    create("optionalDependenciesPlugin") {
       id = "infra.building.optional-dependencies"
       implementationClass = "infra.building.optional.OptionalDependenciesPlugin"
     }
-    dockerTestPlugin {
+    create("dockerTestPlugin") {
       id = "infra.building.docker-test"
       implementationClass = "infra.building.test.DockerTestPlugin"
     }
-    integrationTestPlugin {
+    create("integrationTestPlugin") {
       id = "infra.building.integration-test"
       implementationClass = "infra.building.test.IntegrationTestPlugin"
     }
-    runtimeHintsAgentPlugin {
+    create("runtimeHintsAgentPlugin") {
       id = "infra.building.runtimehints-agent"
       implementationClass = "infra.building.hint.RuntimeHintsAgentPlugin"
     }
-    mavenPluginPlugin {
+    create("mavenPluginPlugin") {
       id = "infra.maven-plugin"
       implementationClass = "infra.building.maven.MavenPluginPlugin"
     }
-    generateAntoraYml {
+    create("generateAntoraYml") {
       id = 'infra.generate-antora-yml'
       implementationClass = 'infra.building.antora.GenerateAntoraYmlPlugin'
     }
-    nullability {
+    create("nullability") {
       id = "infra.nullability"
       implementationClass = "infra.building.nullability.NullabilityPlugin"
     }
