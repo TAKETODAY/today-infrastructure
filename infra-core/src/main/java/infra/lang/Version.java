@@ -52,7 +52,7 @@ import java.util.Objects;
  * @since 4.0
  */
 public record Version(int major, int minor, int patch, String type, int step,
-                      @Nullable String extension, String implementationVersion) implements Comparable<Version> {
+        @Nullable String extension, String implementationVersion) implements Comparable<Version> {
 
   /**
    * The {@code Draft} version type.
@@ -362,7 +362,7 @@ public record Version(int major, int minor, int patch, String type, int step,
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o)
       return true;
     if (!(o instanceof Version version))
