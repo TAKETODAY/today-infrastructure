@@ -39,6 +39,17 @@ jobs:
       - name: Build Docs 🔧
         run: ./gradlew -DCI=true --no-daemon --max-workers=4 :infra-docs:antora
 
+      - name: Inspect generated documentation
+        run: |
+          echo "Generated HTML files:"
+          find infra-docs/build -type f -name '*.html' | head -40
+          echo "Site directory:"
+          ls -la infra-docs/build/site
+          echo "HTML count:"
+          find infra-docs/build/site -type f -name '*.html' | wc -l
+          test -s infra-docs/build/site/index.html
+          test -d infra-docs/build/site/gradle-plugin
+
       - name: Setup Pages
         uses: actions/configure-pages@v6
 

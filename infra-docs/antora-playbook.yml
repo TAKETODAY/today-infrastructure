@@ -9,6 +9,8 @@ antora:
       root_component_name: 'framework'
 site:
   title: TODAY 框架文档手册
+output:
+  dir: ./build/site
 content:
   sources:
     - url: ./..
