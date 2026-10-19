@@ -43,13 +43,13 @@ tasks.register("generateAntoraResources") {
   dependsOn 'generateAntoraYml', 'generateGradlePluginExamples'
 }
 
+def copyArchitectureDiagram = tasks.register('copyArchitectureDiagram', Copy) {
+  from 'src/docs/architecture/architecture-diagram.html'
+  into layout.buildDirectory.dir('site')
+}
+
 tasks.named('antora') {
-  doLast {
-    copy {
-      from 'src/docs/architecture/architecture-diagram.html'
-      into layout.buildDirectory.dir('site')
-    }
-  }
+  finalizedBy copyArchitectureDiagram
 }
 
 /**
