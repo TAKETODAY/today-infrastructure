@@ -37,7 +37,7 @@ jobs:
         uses: gradle/gradle-build-action@v3.1.0
 
       - name: Build Docs 🔧
-        run: ./gradlew -DCI=true --no-daemon --max-workers=4 :infra-docs:antora
+        run: ./gradlew -DCI=true --no-daemon --no-configuration-cache --max-workers=4 :infra-docs:antora
 
       - name: Inspect generated documentation
         run: |
