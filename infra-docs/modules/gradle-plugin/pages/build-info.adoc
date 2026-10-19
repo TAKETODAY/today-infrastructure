@@ -1,0 +1,74 @@
+[[integrating-with-actuator]]
+= 构建信息
+include::partial$attributes.adoc[]
+
+
+
+[[integrating-with-actuator.build-info]]
+== 生成构建信息
+插件提供了 {build-info-javadoc}[`BuildInfo`] 任务，用于生成 `META-INF/build-info.properties` 文件，记录应用的构建信息。
+该文件可供应用或其他工具读取；生成此文件本身不会提供用于查询构建信息的 HTTP 端点。
+使用该任务最简单的方式是通过插件的 DSL：
+
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
+----
+include::example$integrating-with-actuator/build-info-basic.gradle[tags=build-info]
+----
+
+这会配置一个名为 `infraBuildInfo` 的 {build-info-javadoc}[`BuildInfo`] 任务，并在 Java 插件的 `classes` 任务存在时，使其依赖于 `infraBuildInfo`。
+该任务的目标目录为主源集资源输出目录（通常为 `build/resources/main`）下的 `META-INF` 目录。
+
+默认情况下，生成的构建信息取自项目本身：
+
+|===
+| 属性 | 默认值
+
+| `build.artifact`
+| `infraJar` 或 `infraWar` 任务的归档基本名称
+
+| `build.group`
+| 项目的 group
+
+| `build.name`
+| 项目名称
+
+| `build.version`
+| 项目版本
+
+| `build.time`
+| 项目构建时的时间
+
+|===
+
+可以使用 DSL 自定义这些属性：
+
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
+----
+include::example$integrating-with-actuator/build-info-custom-values.gradle[tags=custom-values]
+----
+
+要从生成的构建信息中排除某个默认属性，请将其名称添加到排除集合中。
+例如，可以按如下方式排除 `time` 属性：
+
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
+----
+include::example$integrating-with-actuator/build-info-exclude-time.gradle[tags=exclude-time]
+----
+
+
+`build.time` 的默认值是项目构建时的时刻。
+这带来的一个副作用是，该任务永远不会被判定为最新（up-to-date）。
+因此，包括项目测试在内的更多任务都必须执行，导致构建耗时增加。
+另一个副作用是，该任务的输出始终会发生变化，因此构建无法真正做到可重复。
+如果你更看重构建性能或可重复性，而不是 `build.time` 属性的准确性，请按前面的示例排除 `time` 属性。
+
+还可以向构建信息中添加额外的属性：
+
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
+----
+include::example$integrating-with-actuator/build-info-additional.gradle[tags=additional]
+----

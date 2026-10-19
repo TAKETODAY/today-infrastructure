@@ -1,84 +1,82 @@
 [[reacting-to-other-plugins]]
-= Reacting to Other Plugins
+= 与其他插件协作
 include::partial$attributes.adoc[]
-When another plugin is applied the Infra plugin reacts by making various changes to the project's configuration.
-This section describes those changes.
+应用其他插件时，Infra 插件会相应地调整项目配置。
+本节介绍这些配置变化。
 
 
 
 [[reacting-to-other-plugins.java]]
-== Reacting to the Java Plugin
-When Gradle's {java-plugin}[`java` plugin] is applied to a project, the Infra plugin:
+== 与 java 插件协作
+在项目中应用 Gradle 的 {java-plugin}[`java` 插件]后，Infra 插件会：
 
-1. Creates a {infra-jar-javadoc}[`InfraJar`] task named `infraJar` that will create an executable, fat jar for the project.
-   The jar will contain everything on the runtime classpath of the main source set; classes are packaged in `APP-INF/classes` and jars are packaged in `APP-INF/lib`
-2. Configures the `assemble` task to depend on the `infraJar` task.
-3. Configures the `jar` task to use `plain` as the convention for its archive classifier.
-4. Creates a {infra-run-javadoc}[`InfraRun`] task named `infraRun` that can be used to run your application using the `main` source set to find its main method and provide its runtime classpath.
-5. Creates a {infra-run-javadoc}['InfraRun`] task named `infraTestRun` that can be used to run your application using the `test` source set to find its main method and provide its runtime classpath.
-6. Creates a configuration named `infraArchives` that contains the artifact produced by the `infraJar` task.
-7. Creates a configuration named `developmentOnly` for dependencies that are only required at development time, such as Infra's Devtools, and should not be packaged in executable jars and wars.
-8. Creates a configuration named `productionRuntimeClasspath`. It is equivalent to `runtimeClasspath` minus any dependencies that only appear in the `developmentOnly` configuration.
-9. Configures any `JavaCompile` tasks with no configured encoding to use `UTF-8`.
-10. Configures any `JavaCompile` tasks to use the `-parameters` compiler argument.
+1. 创建名为 `infraJar` 的 {infra-jar-javadoc}[`InfraJar`] 任务，为项目构建包含依赖的可执行 jar（fat jar）。
+   该 jar 包含主源集运行时类路径中的内容；类打包到 `APP-INF/classes`，jar 依赖打包到 `APP-INF/lib`。
+2. 配置 `assemble` 任务，使其依赖 `infraJar` 任务。
+3. 如果项目设置了 `classifyJar` 属性，则将 `jar` 任务的归档分类标识约定为 `plain`。
+4. 创建名为 `infraRun` 的 {infra-run-javadoc}[`InfraRun`] 任务，使用 `main` 源集查找 main 方法并提供运行时类路径，以运行应用。
+5. 创建名为 `infraTestRun` 的 {infra-run-javadoc}[`InfraRun`] 任务，使用 `test` 源集查找 main 方法并提供运行时类路径，以运行应用。
+6. 将 `infraJar` 任务生成的构件作为可执行 jar 的发布候选。
+7. 创建名为 `developmentOnly` 的依赖配置，用于仅在开发时需要、且不应打包进可执行 jar 和 war 的依赖。
+8. 创建名为 `productionRuntimeClasspath` 的依赖配置，用于生产环境的运行时类路径，不包含仅用于开发的依赖。
+9. 将尚未设置编码的所有 `JavaCompile` 任务配置为使用 `UTF-8`。
+10. 为所有 `JavaCompile` 任务配置 `-parameters` 编译器参数。
 
 
 
 [[reacting-to-other-plugins.kotlin]]
-== Reacting to the Kotlin Plugin
-When {kotlin-plugin}[Kotlin's Gradle plugin] is applied to a project, the Infra plugin:
+== 与 Kotlin 插件协作
+在项目中应用 {kotlin-plugin}[Kotlin Gradle 插件]后，Infra 插件会：
 
-1. Aligns the Kotlin version used in Infra's dependency management with the version of the plugin.
-   This is achieved by setting the `kotlin.version` property with a value that matches the version of the Kotlin plugin.
-2. Configures any `KotlinCompile` tasks to use the `-java-parameters` compiler argument.
+1. 将 Infra 依赖管理中使用的 Kotlin 版本与 Kotlin 插件版本保持一致。
+   具体方式是将 `kotlin.version` 属性设置为 Kotlin 插件的版本。
+2. 为所有 `KotlinCompile` 任务配置 `-java-parameters` 编译器参数。
 
 
 
 [[reacting-to-other-plugins.war]]
-== Reacting to the War Plugin
-When Gradle's {war-plugin}[`war` plugin] is applied to a project, the Infra plugin:
+== 与 war 插件协作
+在项目中应用 Gradle 的 {war-plugin}[`war` 插件]后，Infra 插件会：
 
-1. Creates a {infra-war-javadoc}[`InfraWar`] task named `infraWar` that will create an executable, fat war for the project.
-   In addition to the standard packaging, everything in the `providedRuntime` configuration will be packaged in `WEB-INF/lib-provided`.
-2. Configures the `assemble` task to depend on the `infraWar` task.
-3. Configures the `war` task to use `plain` as the convention for its archive classifier.
-4. Configures the `infraArchives` configuration to contain the artifact produced by the `infraWar` task.
+1. 创建名为 `infraWar` 的 {infra-war-javadoc}[`InfraWar`] 任务，为项目构建包含依赖的可执行 war（fat war）。
+   除标准打包内容外，`providedRuntime` 配置中的所有内容也会被打包到 `WEB-INF/lib-provided` 中。
+2. 配置 `assemble` 任务，使其依赖 `infraWar` 任务。
+3. 将 `war` 任务的归档分类标识约定为 `plain`。
+4. 将 `infraWar` 任务生成的构件作为可执行 war 的发布候选。
 
 
 
 [[reacting-to-other-plugins.dependency-management]]
-== Reacting to the Dependency Management Plugin
-When the {dependency-management-plugin}[`io.spring.dependency-management` plugin] is applied to a project, the Infra plugin will automatically import the `infra-dependencies` bom.
+== 与依赖管理插件协作
+在项目中应用 {dependency-management-plugin}[`io.spring.dependency-management` 插件]后，Infra 插件会自动导入 `infra-dependencies` BOM。
 
 
 
 [[reacting-to-other-plugins.application]]
-== Reacting to the Application Plugin
-When Gradle's {application-plugin}[`application` plugin] is applied to a project, the Infra plugin:
+== 与 application 插件协作
+在项目中应用 Gradle 的 {application-plugin}[`application` 插件]后，Infra 插件会：
 
-1. Creates a `CreateStartScripts` task named `infraStartScripts` that will create scripts that launch the artifact in the `infraArchives` configuration using `java -jar`.
-   The task is configured to use the `applicationDefaultJvmArgs` property as a convention for its `defaultJvmOpts` property.
-2. Creates a new distribution named `infra` and configures it to contain the artifact in the `infraArchives` configuration in its `lib` directory and the start scripts in its `bin` directory.
-3. Configures the `infraRun` task to use the `mainClassName` property as a convention for its `main` property.
-4. Configures the `infraRun` and `infraTestRun` tasks to use the `applicationDefaultJvmArgs` property as a convention for their `jvmArgs` property.
-5. Configures the `infraJar` task to use the `mainClassName` property as a convention for the `Start-Class` entry in its manifest.
-6. Configures the `infraWar` task to use the `mainClassName` property as a convention for the `Start-Class` entry in its manifest.
+1. 创建名为 `infraStartScripts` 的 `CreateStartScripts` 任务，生成通过 `java -jar` 启动应用归档的脚本。
+   该任务以 `applicationDefaultJvmArgs` 属性的值作为其 `defaultJvmOpts` 属性的约定值。
+2. 创建名为 `infra` 的分发包，将应用归档放在其 `lib` 目录中，将启动脚本放在其 `bin` 目录中。
+3. 使用 `application` 插件的 `mainClass` 属性为应用主类提供默认值。
+4. 将 `applicationDefaultJvmArgs` 属性的值作为 `infraRun` 和 `infraTestRun` 任务的 `jvmArgs` 属性的约定值。
+5. 使用配置的应用主类设置 `infraJar` 归档清单中的 `Start-Class` 条目。
+6. 使用配置的应用主类设置 `infraWar` 归档清单中的 `Start-Class` 条目。
 
 
 
 [[reacting-to-other-plugins.nbt]]
-== Reacting to the GraalVM Native Image Plugin
-When the {nbt-gradle-plugin}[GraalVM Native Image plugin] is applied to a project, the Infra plugin:
+== 与 GraalVM Native Image 插件协作
+在项目中应用 {nbt-gradle-plugin}[GraalVM Native Image 插件]后，Infra 插件会：
 
-. Applies the `infra.application.aot` plugin that:
-.. Registers `aot` and `aotTest` source sets.
-.. Registers a `ProcessAot` task named `processAot` that will generate AOT-optimized source for the application in the `aot` source set.
-.. Configures the Java compilation and process resources tasks for the `aot` source set to depend upon `processAot`.
-.. Registers a `ProcessTestAot` task named `processTestAot` that will generated AOT-optimized source for the application's tests in the `aotTest` source set.
-.. Configures the Java compilation and process resources tasks for the `aotTest` source set to depend upon `processTestAot`.
-. Adds the output of the `aot` source set to the classpath of the `main` GraalVM native binary.
-. Adds the output of the `aotTest` source set to the classpath of the `test` GraalVM native binary.
-. Configures the GraalVM extension to disable Toolchain detection.
-. Configures each GraalVM native binary to require GraalVM 22.3 or later.
-. Configures the `infraJar` task to include the reachability metadata produced by the `collectReachabilityMetadata` task in its jar.
-
+. 应用 `infra.application.aot` 插件，该插件会：
+.. 注册 `aot` 和 `aotTest` 源集。
+.. 注册名为 `processAot` 的 `ProcessAot` 任务，为应用生成经过 AOT 优化的源代码，并将其纳入 `aot` 源集。
+.. 将 `aot` 源集的 Java 编译任务和资源处理任务配置为依赖 `processAot`。
+.. 注册名为 `processTestAot` 的 `ProcessTestAot` 任务，为应用测试生成经过 AOT 优化的源代码，并将其纳入 `aotTest` 源集。
+.. 将 `aotTest` 源集的 Java 编译任务和资源处理任务配置为依赖 `processTestAot`。
+. 将 `aot` 源集的输出添加到 `main` GraalVM 原生二进制构建的类路径中。
+. 将 `aotTest` 源集的输出添加到 `test` GraalVM 原生二进制构建的类路径中。
+. 配置 GraalVM 扩展，禁用工具链自动检测。
+. 配置 `infraJar` 任务，将 `collectReachabilityMetadata` 任务生成的可达性元数据包含在 jar 中。

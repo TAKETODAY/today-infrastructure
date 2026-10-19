@@ -1,10 +1,10 @@
 [[getting-started]]
-= Getting Started
+= 快速入门
 include::partial$attributes.adoc[]
-To get started with the plugin it needs to be applied to your project.
+要开始使用此插件，需要先将其应用到项目中。
 
 ifeval::["{artifact-release-type}" == "release"]
-After the version has been published and approved on the https://plugins.gradle.org/plugin/cn.taketoday.application[Gradle Plugin Portal], the plugin can be applied using the `plugins` block:
+相应版本在 https://plugins.gradle.org/plugin/cn.taketoday.application[Gradle 插件门户]发布并通过审核后，即可使用 `plugins` 块应用此插件：
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
@@ -13,13 +13,13 @@ include::example$getting-started/apply-plugin-release.gradle[]
 
 endif::[]
 
-The Plugin Portal IDs are `cn.taketoday.application` and `cn.taketoday.application.aot`.
-When loading `cn.taketoday:infra-gradle-plugin` through `buildscript` or `buildSrc`,
-the compatibility IDs `infra.application` and `infra.application.aot` remain available.
+插件门户中的 ID 为 `cn.taketoday.application` 和 `cn.taketoday.application.aot`。
+通过 `buildscript` 或 `buildSrc` 加载 `cn.taketoday:infra-gradle-plugin` 时，
+仍可使用兼容 ID `infra.application` 和 `infra.application.aot`。
 ifeval::["{artifact-release-type}" == "milestone"]
-The plugin is published to the Infra milestones repository.
-Gradle can be configured to use the milestones repository and the plugin can then be applied using the `plugins` block.
-To configure Gradle to use the milestones repository, add the following to your `settings.gradle` (Groovy) or `settings.gradle.kts` (Kotlin):
+此插件发布在 Infra 里程碑版本仓库中。
+可以先配置 Gradle 使用该仓库，再通过 `plugins` 块应用插件。
+要配置 Gradle 使用里程碑版本仓库，请在 `settings.gradle`（Groovy）或 `settings.gradle.kts`（Kotlin）中添加以下内容：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -27,7 +27,7 @@ To configure Gradle to use the milestones repository, add the following to your 
 include::example$getting-started/milestone-settings.gradle[]
 ----
 
-The plugin can then be applied using the `plugins` block:
+随后即可使用 `plugins` 块应用插件：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -37,9 +37,9 @@ include::example$getting-started/apply-plugin-release.gradle[]
 
 endif::[]
 ifeval::["{artifact-release-type}" == "snapshot"]
-The plugin is published to the Infra snapshots repository.
-Gradle can be configured to use the snapshots repository and the plugin can then be applied using the `plugins` block.
-To configure Gradle to use the snapshots repository, add the following to your `settings.gradle` (Groovy) or `settings.gradle.kts` (Kotlin):
+此插件发布在 Infra 快照版本仓库中。
+可以先配置 Gradle 使用该仓库，再通过 `plugins` 块应用插件。
+要配置 Gradle 使用快照版本仓库，请在 `settings.gradle`（Groovy）或 `settings.gradle.kts`（Kotlin）中添加以下内容：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -47,7 +47,7 @@ To configure Gradle to use the snapshots repository, add the following to your `
 include::example$getting-started/snapshot-settings.gradle[]
 ----
 
-The plugin can then be applied using the `plugins` block:
+随后即可使用 `plugins` 块应用插件：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -57,11 +57,11 @@ include::example$getting-started/apply-plugin-snapshot.gradle[]
 
 endif::[]
 
-Applied in isolation the plugin makes few changes to a project.
-Instead, the plugin detects when certain other plugins are applied and reacts accordingly.
-For example, when the `java` plugin is applied a task for building an executable jar is automatically configured.
-A typical Infra project will apply the {groovy-plugin}[`groovy`], {java-plugin}[`java`], or {kotlin-plugin}[`org.jetbrains.kotlin.jvm`] plugin as a minimum and also use the {dependency-management-plugin}[`io.spring.dependency-management`] plugin or Gradle's native bom support for dependency management.
-For example:
+单独应用此插件时，它对项目所做的改动很少。
+插件会检测某些其他插件的应用情况，并据此进行相应配置。
+例如，应用 `java` 插件后，会自动配置用于构建可执行 jar 的任务。
+典型的 Infra 项目至少会应用 {groovy-plugin}[`groovy`]、{java-plugin}[`java`] 或 {kotlin-plugin}[`org.jetbrains.kotlin.jvm`] 插件之一，并使用 {dependency-management-plugin}[`io.spring.dependency-management`] 插件或 Gradle 原生的 BOM 支持来管理依赖。
+例如：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -69,4 +69,4 @@ For example:
 include::example$getting-started/typical-plugins.gradle[tags=apply]
 ----
 
-To learn more about how the Infra plugin behaves when other plugins are applied please see the section on xref:reacting.adoc[reacting to other plugins].
+有关应用其他插件时 Infra 插件的具体行为，请参阅 xref:reacting.adoc[与其他插件协作]。

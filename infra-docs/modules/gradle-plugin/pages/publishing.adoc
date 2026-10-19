@@ -1,13 +1,13 @@
 [[publishing-your-application]]
-= Publishing your Application
+= 发布应用
 include::partial$attributes.adoc[]
 
 [[publishing-your-application.maven-publish]]
-== Publishing with the Maven-publish Plugin
+== 使用 maven-publish 插件发布
 
-To publish your Infra jar or war, add it to the publication using the `artifact` method on `MavenPublication`.
-Pass the task that produces that artifact that you wish to publish to the `artifact` method.
-For example, to publish the artifact produced by the default `infraJar` task:
+要发布 Infra jar 或 war，请使用 `MavenPublication` 的 `artifact` 方法将其添加到发布配置（publication）中。
+将生成待发布构件的任务传递给 `artifact` 方法。
+例如，要发布默认的 `infraJar` 任务生成的构件：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -16,9 +16,9 @@ include::example$publishing/maven-publish.gradle[tags=publishing]
 ----
 
 [[publishing-your-application.distribution]]
-== Distributing with the Application Plugin
+== 使用 application 插件分发
 
-When the {application-plugin}[`application` plugin] is applied a distribution named `infra` is created.
-This distribution contains the archive produced by the `infraJar` or `infraWar` task and scripts to launch it on Unix-like platforms and Windows.
-Zip and tar distributions can be built by the `infraDistZip` and `infraDistTar` tasks respectively.
-To use the `application` plugin, its `mainClassName` property must be configured with the name of your application's main class.
+应用 {application-plugin}[`application` 插件]后，会创建一个名为 `infra` 的分发包。
+此分发包包含 `infraJar` 或 `infraWar` 任务生成的归档，以及用于在类 Unix 平台和 Windows 上启动该归档的脚本。
+可以分别通过 `infraDistZip` 和 `infraDistTar` 任务构建 ZIP 和 TAR 格式的分发包。
+要使用 `application` 插件，必须将其 `mainClass` 属性配置为应用主类的名称。

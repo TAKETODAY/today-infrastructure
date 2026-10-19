@@ -1,30 +1,30 @@
 [[packaging-executable]]
-= Packaging Executable Archives
+= 打包可执行归档
 include::partial$attributes.adoc[]
-The plugin can create executable archives (jar files and war files) that contain all of an application's dependencies and can then be run with `java -jar`.
+此插件可以创建包含应用所有依赖的可执行归档（jar 文件和 war 文件），并通过 `java -jar` 运行。
 
 
 
 [[packaging-executable.jars]]
-== Packaging Executable Jars
-Executable jars can be built using the `infraJar` task.
-The task is automatically created when the `java` plugin is applied and is an instance of {infra-jar-javadoc}[`InfraJar`].
-The `assemble` task is automatically configured to depend upon the `infraJar` task so running `assemble` (or `build`) will also run the `infraJar` task.
+== 打包可执行 jar
+可以使用 `infraJar` 任务构建可执行 jar。
+应用 `java` 插件时，会自动创建此任务，其类型为 {infra-jar-javadoc}[`InfraJar`]。
+`assemble` 任务会自动配置为依赖 `infraJar`，因此运行 `assemble`（或 `build`）时也会运行 `infraJar`。
 
 
 
 [[packaging-executable.wars]]
-== Packaging Executable Wars
-Executable wars can be built using the `infraWar` task.
-The task is automatically created when the `war` plugin is applied and is an instance of {infra-war-javadoc}[`InfraWar`].
-The `assemble` task is automatically configured to depend upon the `infraWar` task so running `assemble` (or `build`) will also run the `infraWar` task.
+== 打包可执行 war
+可以使用 `infraWar` 任务构建可执行 war。
+应用 `war` 插件时，会自动创建此任务，其类型为 {infra-war-javadoc}[`InfraWar`]。
+`assemble` 任务会自动配置为依赖 `infraWar`，因此运行 `assemble`（或 `build`）时也会运行 `infraWar`。
 
 
 
 [[packaging-executable.wars.deployable]]
-=== Packaging Executable and Deployable Wars
-A war file can be packaged such that it can be executed using `java -jar` and deployed to an external container.
-To do so, the embedded container dependencies should be added to the `providedRuntime` configuration, for example:
+=== 打包既可执行又可部署的 war
+可以将 war 文件打包为既能通过 `java -jar` 执行，又能部署到外部容器的形式。
+为此，应将嵌入式容器依赖添加到 `providedRuntime` 依赖配置中，例如：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -32,18 +32,18 @@ To do so, the embedded container dependencies should be added to the `providedRu
 include::example$packaging/war-container-dependency.gradle[tags=dependencies]
 ----
 
-This ensures that they are package in the war file's `WEB-INF/lib-provided` directory from where they will not conflict with the external container's own classes.
+这可以确保这些依赖被打包到 war 文件的 `WEB-INF/lib-provided` 目录中，从而不会与外部容器自身的类发生冲突。
 
-NOTE: `providedRuntime` is preferred to Gradle's `compileOnly` configuration as, among other limitations, `compileOnly` dependencies are not on the test classpath so any web-based integration tests will fail.
+NOTE: 应优先使用 `providedRuntime`，而不是 Gradle 的 `compileOnly` 配置。除了其他限制外，`compileOnly` 依赖不会出现在测试类路径中，因此依赖这些容器类的 Web 集成测试会失败。
 
 
 
 [[packaging-executable.and-plain-archives]]
-== Packaging Executable and Plain Archives
-By default, when the `infraJar` or `infraWar` tasks are configured, the `jar` or `war` tasks are configured to use `plain` as the convention for their archive classifier.
-This ensures that `infraJar` and `jar` or `infraWar` and `war` have different output locations, allowing both the executable archive and the plain archive to be built at the same time.
+== 同时打包可执行归档与普通归档
+配置 `infraWar` 任务时，会将 `war` 任务的归档分类标识（classifier）约定为 `plain`；对于 `jar` 任务，仅在项目设置了 `classifyJar` 属性时才会使用此约定。
+这确保了 `infraJar` 与 `jar`、`infraWar` 与 `war` 使用不同的输出位置，从而可以同时构建可执行归档和普通归档。
 
-If you prefer that the executable archive, rather than the plain archive, uses a classifier, configure the classifiers as shown in the following example for the `jar` and `infraJar` tasks:
+如果希望由可执行归档而非普通归档使用分类标识，可以按以下 `jar` 和 `infraJar` 任务的示例进行配置：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -52,7 +52,7 @@ include::example$packaging/infra-jar-and-jar-classifiers.gradle[tags=classifiers
 ----
 
 
-Alternatively, if you prefer that the plain archive isn't built at all, disable its task as shown in the following example for the `jar` task:
+如果完全不需要构建普通归档，也可以禁用对应任务，以下以 `jar` 任务为例：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -60,22 +60,22 @@ Alternatively, if you prefer that the plain archive isn't built at all, disable 
 include::example$packaging/only-infra-jar.gradle[tags=disable-jar]
 ----
 
-WARNING: Do not disable the `jar` task when creating native images.
+WARNING: 创建原生镜像时，不要禁用 `jar` 任务。
 
 
 [[packaging-executable.configuring]]
-== Configuring Executable Archive Packaging
-The {infra-jar-javadoc}[`InfraJar`] and {infra-war-javadoc}[`InfraWar`] tasks are subclasses of Gradle's `Jar` and `War` tasks respectively.
-As a result, all of the standard configuration options that are available when packaging a jar or war are also available when packaging an executable jar or war.
-A number of configuration options that are specific to executable jars and wars are also provided.
+== 配置可执行归档的打包方式
+{infra-jar-javadoc}[`InfraJar`] 和 {infra-war-javadoc}[`InfraWar`] 任务分别是 Gradle 的 `Jar` 和 `War` 任务的子类。
+因此，打包普通 jar 或 war 时可用的所有标准配置选项，也同样适用于可执行 jar 或 war。
+此外，还提供了一些专用于可执行 jar 和 war 的配置选项。
 
 
 
 [[packaging-executable.configuring.main-class]]
-=== Configuring the Main Class
-By default, the executable archive's main class will be configured automatically by looking for a class with a `public static void main(String[])` method in the main source set's output.
+=== 配置主类
+默认情况下，插件会在主源集的输出中查找包含 `public static void main(String[])` 方法的类，并将其自动配置为可执行归档的主类。
 
-The main class can also be configured explicitly using the task's `mainClass` property:
+也可以通过任务的 `mainClass` 属性显式配置主类：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -84,7 +84,7 @@ include::example$packaging/infra-jar-main-class.gradle[tags=main-class]
 ----
 
 
-Alternatively, the main class name can be configured project-wide using the `mainClass` property of the Infra DSL:
+或者，通过 Infra DSL 的 `mainClass` 属性为整个项目配置主类名称：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -92,7 +92,7 @@ Alternatively, the main class name can be configured project-wide using the `mai
 include::example$packaging/infra-application-dsl-main-class.gradle[tags=main-class]
 ----
 
-If the {application-plugin}[`application` plugin] has been applied its `mainClass` property must be configured and can be used for the same purpose:
+如果应用了 {application-plugin}[`application` 插件]，则必须配置它的 `mainClass` 属性，该属性同样可用于指定主类：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -100,7 +100,7 @@ If the {application-plugin}[`application` plugin] has been applied its `mainClas
 include::example$packaging/application-plugin-main-class.gradle[tags=main-class]
 ----
 
-Lastly, the `Start-Class` attribute can be configured on the task's manifest:
+最后，也可以在任务的清单（manifest）中配置 `Start-Class` 属性：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -108,18 +108,18 @@ Lastly, the `Start-Class` attribute can be configured on the task's manifest:
 include::example$packaging/infra-jar-manifest-main-class.gradle[tags=main-class]
 ----
 
-NOTE: If the main class is written in Kotlin, the name of the generated Java class should be used.
-By default, this is the name of the Kotlin class with the `Kt` suffix added.
-For example, `ExampleApplication` becomes `ExampleApplicationKt`.
-If another name is defined using `@JvmName` then that name should be used.
+NOTE: 如果入口代码使用 Kotlin 编写，应使用编译后生成的 Java 类名。
+对于顶层 `main` 函数，默认类名是在 Kotlin 文件名（不含扩展名）后添加 `Kt` 后缀。
+例如，`ExampleApplication.kt` 对应 `ExampleApplicationKt`。
+如果通过 `@JvmName` 指定了其他名称，则应使用该名称。
 
 
 
 [[packaging-executable.configuring.including-development-only-dependencies]]
-=== Including Development-only Dependencies
-By default all dependencies declared in the `developmentOnly` configuration will be excluded from an executable jar or war.
+=== 包含仅用于开发的依赖
+默认情况下，`developmentOnly` 配置中声明的所有依赖都会从可执行 jar 或 war 中排除。
 
-If you want to include dependencies declared in the `developmentOnly` configuration in your archive, configure the classpath of its task to include the configuration, as shown in the following example for the `infraWar` task:
+如果希望在归档中包含 `developmentOnly` 配置中声明的依赖，请将该配置加入对应任务的类路径，以下以 `infraWar` 任务为例：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -130,12 +130,12 @@ include::example$packaging/infra-war-include-devtools.gradle[tags=include-devtoo
 
 
 [[packaging-executable.configuring.unpacking]]
-=== Configuring Libraries that Require Unpacking
-Most libraries can be used directly when nested in an executable archive, however certain libraries can have problems.
-For example, JRuby includes its own nested jar support which assumes that `jruby-complete.jar` is always directly available on the file system.
+=== 配置需要解包的库
+大多数库嵌套在可执行归档中时可以直接使用，但某些库可能会出现问题。
+例如，JRuby 自带对嵌套 jar 的支持，并假定 `jruby-complete.jar` 始终可以作为文件系统中的文件直接访问。
 
-To deal with any problematic libraries, an executable archive can be configured to unpack specific nested jars to a temporary directory when the executable archive is run.
-Libraries can be identified as requiring unpacking using Ant-style patterns that match against the absolute path of the source jar file:
+对于这类库，可以配置可执行归档，使其在运行时将指定的嵌套 jar 解包到临时目录。
+可以使用 Ant 风格的模式匹配源 jar 文件的绝对路径，以指定需要解包的库：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -144,22 +144,22 @@ include::example$packaging/infra-jar-requires-unpack.gradle[tags=requires-unpack
 ----
 
 
-For more control a closure can also be used.
-The closure is passed a `FileTreeElement` and should return a `boolean` indicating whether or not unpacking is required.
+如果需要更精细的控制，也可以使用闭包。
+闭包接收一个 `FileTreeElement`，并应返回一个表示是否需要解包的 `boolean` 值。
 
 
 
 [[packaging-executable.configuring.launch-script]]
-=== Making an Archive Fully Executable
-Infra provides support for fully executable archives.
-An archive is made fully executable by prepending a shell script that knows how to launch the application.
-On Unix-like platforms, this launch script allows the archive to be run directly like any other executable or to be installed as a service.
+=== 创建可直接执行的归档
+Infra 支持可直接执行的归档（fully executable archive）。
+通过在归档前添加用于启动应用的 shell 脚本，即可使归档具备直接执行的能力。
+在类 Unix 平台上，此启动脚本允许归档像其他可执行文件一样直接运行，也可以将其安装为服务。
 
-NOTE: Currently, some tools do not accept this format so you may not always be able to use this technique.
-For example, `jar -xf` may silently fail to extract a jar or war that has been made fully-executable.
-It is recommended that you only enable this option if you intend to execute it directly, rather than running it with `java -jar` or deploying it to a mockHandler container.
+NOTE: 目前某些工具不支持这种格式，因此这种方式并非始终适用。
+例如，`jar -xf` 可能无法解压这种可直接执行的 jar 或 war，且不报告错误。
+建议仅在打算直接执行归档时启用此选项；如果使用 `java -jar` 运行归档或将其部署到 Servlet 容器，则不建议启用。
 
-To use this feature, the inclusion of the launch script must be enabled:
+要使用此功能，必须启用启动脚本的添加功能：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -167,9 +167,9 @@ To use this feature, the inclusion of the launch script must be enabled:
 include::example$packaging/infra-jar-include-launch-script.gradle[tags=include-launch-script]
 ----
 
-This will add Infra's default launch script to the archive.
-The default launch script includes several properties with sensible default values.
-The values can be customized using the `properties` property:
+这会将 Infra 的默认启动脚本添加到归档中。
+默认启动脚本包含多个属性，并为它们提供了合理的默认值。
+可以通过 `properties` 属性自定义这些值：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -177,7 +177,7 @@ The values can be customized using the `properties` property:
 include::example$packaging/infra-jar-launch-script-properties.gradle[tags=launch-script-properties]
 ----
 
-If the default launch script does not meet your needs, the `script` property can be used to provide a custom launch script:
+如果默认启动脚本无法满足需求，可以通过 `script` 属性提供自定义启动脚本：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -188,8 +188,8 @@ include::example$packaging/infra-jar-custom-launch-script.gradle[tags=custom-lau
 
 
 [[packaging-executable.configuring.properties-launcher]]
-=== Using the PropertiesLauncher
-To use the `PropertiesLauncher` to launch an executable jar or war, configure the task's manifest to set the `Main-Class` attribute:
+=== 使用 PropertiesLauncher
+要使用 `PropertiesLauncher` 启动可执行 jar 或 war，请在任务的清单中设置 `Main-Class` 属性：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -200,25 +200,25 @@ include::example$packaging/infra-war-properties-launcher.gradle[tags=properties-
 
 
 [[packaging-executable.configuring.layered-archives]]
-=== Packaging Layered Jar or War
-By default, the `infraJar` task builds an archive that contains the application's classes and dependencies in `APP-INF/classes` and `APP-INF/lib` respectively.
-Similarly, `infraWar` builds an archive that contains the application's classes in `WEB-INF/classes` and dependencies in `WEB-INF/lib` and `WEB-INF/lib-provided`.
-For cases where a docker image needs to be built from the contents of the jar, it's useful to be able to separate these directories further so that they can be written into distinct layers.
+=== 打包分层 jar 或 war
+默认情况下，`infraJar` 任务构建的归档将应用类和依赖分别放在 `APP-INF/classes` 和 `APP-INF/lib` 中。
+类似地，`infraWar` 构建的归档将应用类放在 `WEB-INF/classes` 中，将依赖放在 `WEB-INF/lib` 和 `WEB-INF/lib-provided` 中。
+如果需要根据 jar 的内容构建 Docker 镜像，进一步划分这些目录的内容，使其能够写入不同的镜像层，会很有帮助。
 
-Layered jars use the same layout as regular infra packaged jars, but include an additional meta-data file that describes each layer.
+分层 jar 与 Infra 打包的普通可执行 jar 使用相同的布局，但额外包含一个描述各层的元数据文件。
 
-By default, the following layers are defined:
+默认定义了以下层：
 
-* `dependencies` for any non-project dependency whose version does not contain `SNAPSHOT`.
-* `infra-app-loader` for the jar loader classes.
-* `snapshot-dependencies` for any non-project dependency whose version contains `SNAPSHOT`.
-* `application` for project dependencies, application classes, and resources.
+* `dependencies`：版本中不包含 `SNAPSHOT` 的所有非项目依赖。
+* `infra-app-loader`：jar 加载器类。
+* `snapshot-dependencies`：版本中包含 `SNAPSHOT` 的所有非项目依赖。
+* `application`：项目依赖、应用类和资源。
 
-The layers order is important as it determines how likely previous layers can be cached when part of the application changes.
-The default order is `dependencies`, `infra-app-loader`, `snapshot-dependencies`, `application`.
-Content that is least likely to change should be added first, followed by layers that are more likely to change.
+层的顺序非常重要，因为它决定了应用的部分内容发生变化时，前面的层有多大可能被缓存复用。
+默认顺序为 `dependencies`、`infra-app-loader`、`snapshot-dependencies`、`application`。
+应先添加最不容易变化的内容，再添加更容易变化的层。
 
-To disable this feature, you can do so in the following manner:
+可以按如下方式禁用此功能：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -226,9 +226,9 @@ To disable this feature, you can do so in the following manner:
 include::example$packaging/infra-jar-layered-disabled.gradle[tags=layered]
 ----
 
-When a layered jar or war is created, the `infra-jarmode-layertools` jar will be added as a dependency to your archive.
-With this jar on the classpath, you can launch your application in a special mode which allows the bootstrap code to run something entirely different from your application, for example, something that extracts the layers.
-If you wish to exclude this dependency, you can do so in the following manner:
+创建分层 jar 或 war 时，`infra-jarmode-layertools` jar 会作为依赖添加到归档中。
+类路径中包含此 jar 后，可以通过一种特殊模式启动，使引导代码执行与应用本身完全不同的操作，例如提取各层。
+如果希望排除此依赖，可以按如下方式配置：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -238,11 +238,11 @@ include::example$packaging/infra-jar-layered-exclude-tools.gradle[tags=layered]
 
 
 [[packaging-executable.configuring.layered-archives.configuration]]
-==== Custom Layers Configuration
-Depending on your application, you may want to tune how layers are created and add new ones.
+==== 自定义分层配置
+根据应用的需要，你可能希望调整层的创建方式，或添加新的层。
 
-This can be done using configuration that describes how the jar or war can be separated into layers, and the order of those layers.
-The following example shows how the default ordering described above can be defined explicitly:
+为此，可以配置 jar 或 war 的分层规则以及各层的顺序。
+以下示例展示了如何显式定义前面介绍的默认顺序：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -250,32 +250,32 @@ The following example shows how the default ordering described above can be defi
 include::example$packaging/infra-jar-layered-custom.gradle[tags=layered]
 ----
 
-The `layered` DSL is defined using three parts:
+`layered` DSL 由三个部分组成：
 
-* The `application` closure defines how the application classes and resources should be layered.
-* The `dependencies` closure defines how dependencies should be layered.
-* The `layerOrder` method defines the order that the layers should be written.
+* `application` 闭包定义应用类和资源的分层方式。
+* `dependencies` 闭包定义依赖的分层方式。
+* `layerOrder` 方法定义各层的写入顺序。
 
-Nested `intoLayer` closures are used within `application` and `dependencies` sections to claim content for a layer.
-These closures are evaluated in the order that they are defined, from top to bottom.
-Any content not claimed by an earlier `intoLayer` closure remains available for subsequent ones to consider.
+在 `application` 和 `dependencies` 中，通过嵌套的 `intoLayer` 闭包将内容归入指定层。
+这些闭包按照定义顺序从上到下求值。
+尚未被前面的 `intoLayer` 闭包归入某一层的内容，仍可由后续闭包处理。
 
-The `intoLayer` closure claims content using nested `include` and `exclude` calls.
-The `application` closure uses Ant-style path matching for include/exclude parameters.
-The `dependencies` section uses `group:artifact[:version]` patterns.
-It also provides `includeProjectDependencies()` and `excludeProjectDependencies()` methods that can be used to include or exclude project dependencies.
+`intoLayer` 闭包通过嵌套的 `include` 和 `exclude` 调用选择内容。
+`application` 闭包的包含和排除参数使用 Ant 风格的路径匹配。
+`dependencies` 部分使用 `group:artifact[:version]` 模式。
+它还提供了 `includeProjectDependencies()` 和 `excludeProjectDependencies()` 方法，用于包含或排除项目依赖。
 
-If no `include` call is made, then all content (not claimed by an earlier closure) is considered.
+如果没有调用 `include`，则会考虑所有尚未被前面的闭包分配的内容。
 
-If no `exclude` call is made, then no exclusions are applied.
+如果没有调用 `exclude`，则不排除任何内容。
 
-Looking at the `dependencies` closure in the example above, we can see that the first `intoLayer` will claim all project dependencies for the `application` layer.
-The next `intoLayer` will claim all SNAPSHOT dependencies for the `snapshot-dependencies` layer.
-The third and final `intoLayer` will claim anything left (in this case, any dependency that is not a project dependency or a SNAPSHOT) for the `dependencies` layer.
+在上例的 `dependencies` 闭包中，第一个 `intoLayer` 会将所有项目依赖归入 `application` 层。
+下一个 `intoLayer` 会将剩余的所有 SNAPSHOT 依赖归入 `snapshot-dependencies` 层。
+第三个也是最后一个 `intoLayer` 会将剩余的所有依赖（此处即既不是项目依赖也不是 SNAPSHOT 的依赖）归入 `dependencies` 层。
 
-The `application` closure has similar rules.
-First claiming `infra/app/loader/**` content for the `infra-app-loader` layer.
-Then claiming any remaining classes and resources for the `application` layer.
+`application` 闭包也采用类似规则。
+首先将 `infra/app/loader/**` 匹配的内容归入 `infra-app-loader` 层。
+然后将剩余的所有类和资源归入 `application` 层。
 
-NOTE: The order that `intoLayer` closures are added is often different from the order that the layers are written.
-For this reason the `layerOrder` method must always be called and _must_ cover all layers referenced by the `intoLayer` calls.
+NOTE: `intoLayer` 闭包的添加顺序通常不同于各层的写入顺序。
+因此，必须始终调用 `layerOrder` 方法，并且其参数_必须_涵盖 `intoLayer` 调用中引用的所有层。

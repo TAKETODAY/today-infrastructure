@@ -1,8 +1,8 @@
 [[introduction]]
-= Introduction
+= 简介
 include::partial$attributes.adoc[]
-The Infra Gradle Plugin provides Infra support in https://gradle.org[Gradle].
-It allows you to package executable jar or war archives, run Infra applications, and use the dependency management provided by `infra-dependencies`.
-Configuration Cache support is not currently declared as supported.
+Infra Gradle 插件为 https://gradle.org[Gradle] 提供 Infra 支持。
+它允许你打包可执行 jar 或 war 归档、运行 Infra 应用，以及使用 `infra-dependencies` 提供的依赖管理。
+目前尚未声明支持配置缓存（Configuration Cache）。
 
-In addition to this user guide, {api-documentation}[API documentation] is also available.
+除本用户指南外，还提供了 {api-documentation}[API 文档]。

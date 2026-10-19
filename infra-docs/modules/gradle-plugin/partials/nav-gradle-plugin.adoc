@@ -6,5 +6,5 @@
 ** xref:gradle-plugin:publishing.adoc[发布应用]
 ** xref:gradle-plugin:running.adoc[运行应用]
 ** xref:gradle-plugin:aot.adoc[AOT 处理]
-** xref:gradle-plugin:integrating-with-actuator.adoc[构建信息与 Actuator 集成]
+** xref:gradle-plugin:build-info.adoc[构建信息]
 ** xref:gradle-plugin:reacting.adoc[与其他插件协作]

@@ -11,5 +11,5 @@ TODAY Infrastructure Gradle 插件用于构建、运行和发布应用，并提�
 * xref:publishing.adoc[发布应用]
 * xref:running.adoc[运行应用]
 * xref:aot.adoc[AOT 处理]
-* xref:integrating-with-actuator.adoc[构建信息与 Actuator 集成]
+* xref:build-info.adoc[构建信息]
 * xref:reacting.adoc[与其他插件协作]

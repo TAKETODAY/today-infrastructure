@@ -1,20 +1,20 @@
 [[running-your-application]]
-= Running your Application with Gradle
+= 使用 Gradle 运行应用
 include::partial$attributes.adoc[]
-To run your application without first building an archive use the `infraRun` task:
+要在不预先构建归档的情况下运行应用，请使用 `infraRun` 任务：
 
 [source,bash,indent=0,subs="verbatim"]
 ----
 ./gradlew infraRun
 ----
 
-The `infraRun` task is an instance of {infra-run-javadoc}[`InfraRun`] which is a `JavaExec` subclass.
-As such, all of the {gradle-dsl}/org.gradle.api.tasks.JavaExec.html[usual configuration options] for executing a Java process in Gradle are available to you.
-The task is automatically configured to use the runtime classpath of the main source set.
+`infraRun` 任务的类型为 {infra-run-javadoc}[`InfraRun`]，它是 `JavaExec` 的子类。
+因此，Gradle 中用于执行 Java 进程的所有{gradle-dsl}/org.gradle.api.tasks.JavaExec.html[常规配置选项]都可用于该任务。
+该任务会自动配置为使用主源集的运行时类路径。
 
-By default, the main class will be configured automatically by looking for a class with a `public static void main(String[])` method in the main source set's output.
+默认情况下，插件会在主源集的输出中查找包含 `public static void main(String[])` 方法的类，并将其自动配置为主类。
 
-The main class can also be configured explicitly using the task's `main` property:
+也可以通过任务的 `mainClass` 属性显式配置主类：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -22,7 +22,7 @@ The main class can also be configured explicitly using the task's `main` propert
 include::example$running/infra-run-main.gradle[tags=main]
 ----
 
-Alternatively, the main class name can be configured project-wide using the `mainClass` property of the Infra DSL:
+或者，通过 Infra DSL 的 `mainClass` 属性为整个项目配置主类名称：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -31,8 +31,8 @@ include::example$running/infra-app-dsl-main-class-name.gradle[tags=main-class]
 ----
 
 
-By default, `infraRun` will configure the JVM to optimize its launch for faster startup during development.
-This behavior can be disabled by using the `optimizedLaunch` property, as shown in the following example:
+默认情况下，`infraRun` 会配置 JVM 的启动优化选项，以加快开发期间的启动速度。
+可以通过 `optimizedLaunch` 属性禁用此行为，如下例所示：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -40,7 +40,7 @@ This behavior can be disabled by using the `optimizedLaunch` property, as shown 
 include::example$running/infra-run-disable-optimized-launch.gradle[tags=launch]
 ----
 
-If the {application-plugin}[`application` plugin] has been applied, its `mainClass` property must be configured and can be used for the same purpose:
+如果应用了 {application-plugin}[`application` 插件]，则必须配置它的 `mainClass` 属性，该属性同样可用于指定主类：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -51,25 +51,25 @@ include::example$running/application-plugin-main-class-name.gradle[tags=main-cla
 
 
 [[running-your-application.passing-arguments]]
-== Passing Arguments to your Application
-Like all `JavaExec` tasks, arguments can be passed into `infraRun` from the command line using `--args='<arguments>'` when using Gradle 4.9 or later.
-For example, to run your application with a profile named `dev` active the following command can be used:
+== 向应用传递参数
+与所有 `JavaExec` 任务一样，在 Gradle 4.9 及更高版本中，可以在命令行中使用 `--args='<arguments>'` 向 `infraRun` 传递参数。
+例如，可以使用以下命令运行应用并激活名为 `dev` 的 profile（环境配置）：
 
 [source,bash,indent=0,subs="verbatim"]
 ----
 ./gradlew infraRun --args='--infra.profiles.active=dev'
 ----
 
-See {gradle-api}/org/gradle/api/tasks/JavaExec.html#setArgsString-java.lang.String-[the javadoc for `JavaExec.setArgsString`] for further details.
+更多详情请参阅 {gradle-api}/org/gradle/api/tasks/JavaExec.html#setArgsString-java.lang.String-[`JavaExec.setArgsString` 的 Javadoc]。
 
 
 
 [[running-your-application.passing-system-properties]]
-== Passing System properties to your application
-Since `infraRun` is a standard `JavaExec` task, system properties can be passed to the application's JVM by specifying them in the build script.
-To make that value of a system property to be configurable set its value using a {gradle-dsl}/org.gradle.api.Project.html#N14FE1[project property].
-To allow a project property to be optional, reference it using `findProperty`.
-Doing so also allows a default value to be provided using the `?:` Elvis operator, as shown in the following example:
+== 向应用传递系统属性
+由于 `infraRun` 是标准的 `JavaExec` 任务，因此可以在构建脚本中指定系统属性，将其传递给应用的 JVM。
+要使系统属性的值可配置，可以通过{gradle-dsl}/org.gradle.api.Project.html#N14FE1[项目属性]设置它。
+如果项目属性是可选的，请使用 `findProperty` 获取其值。
+这样还可以通过 `?:` Elvis 运算符提供默认值，如下例所示：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -78,28 +78,24 @@ include::example$running/infra-run-system-property.gradle[tags=system-property]
 ----
 
 
-The preceding example sets that `com.example.property` system property to the value of the `example` project property.
-If the `example` project property has not been set, the value of the system property will be `default`.
+上例将 `com.example.property` 系统属性设置为 `example` 项目属性的值。
+如果未设置 `example` 项目属性，则系统属性的值为 `default`。
 
-Gradle allows project properties to be set in a variety of ways, including on the command line using the `-P` flag, as shown in the following example:
+Gradle 支持多种设置项目属性的方式，包括在命令行中使用 `-P` 选项，如下例所示：
 
 [source,bash,indent=0,subs="verbatim,attributes"]
 ----
 ./gradlew infraRun -Pexample=custom
 ----
 
-The preceding example sets the value of the `example` project property to `custom`.
-`infraRun` will then use this as the value of the `com.example.property` system property.
+上例将 `example` 项目属性的值设置为 `custom`。
+随后，`infraRun` 会将此值用作 `com.example.property` 系统属性的值。
 
 
 
 [[running-your-application.reloading-resources]]
-== Reloading Resources
-If devtools has been added to your project it will automatically monitor your application's classpath for changes.
-Note that modified files need to be recompiled for the classpath to update in order to trigger reloading with devtools.
-For more details on using devtools, refer to {infra-reference}#using.devtools.restart[this section of the reference documentation].
-
-Alternatively, you can configure `infraRun` such that your application's static resources are loaded from their source location:
+== 从源目录加载资源
+可以配置 `infraRun`，使应用的资源直接从源目录加载，而不是使用构建输出目录中的资源副本：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -107,12 +103,14 @@ Alternatively, you can configure `infraRun` such that your application's static 
 include::example$running/infra-run-source-resources.gradle[tags=source-resources]
 ----
 
-This makes them reloadable in the live application which can be helpful at development time.
+这样可以在开发期间避免为了更新资源副本而重新执行资源处理任务。
+此配置只调整资源的类路径，不提供文件变化监视、应用自动重启或类的热重载功能。
+资源修改能否在运行中的应用中立即生效，取决于应用读取资源的方式及其缓存策略。
 
 
 [[running-your-application.using-a-test-main-class]]
-== Using a Test Main Class
-In addition to `infraRun` a `infraTestRun` task is also registered.
-Like `infraRun`, `infraTestRun` is an instance of `InfraRun` but it's configured to use a main class found in the output of the test source set rather than the main source set.
-It also uses the test source set's runtime classpath rather than the main source set's runtime classpath.
-As `infraTestRun` is an instance of `InfraRun`, all of the configuration options described above for `infraRun` can also be used with `infraTestRun`.
+== 使用测试主类
+除 `infraRun` 外，插件还会注册 `infraTestRun` 任务。
+与 `infraRun` 一样，`infraTestRun` 的类型也是 `InfraRun`，但它会从测试源集的输出中查找主类，而不是使用主源集中的主类。
+它使用的也是测试源集的运行时类路径，而非主源集的运行时类路径。
+由于 `infraTestRun` 的类型为 `InfraRun`，因此前面介绍的 `infraRun` 配置选项也都适用于 `infraTestRun`。

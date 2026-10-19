@@ -1,17 +1,17 @@
 [[managing-dependencies]]
-= Managing Dependencies
+= 依赖管理
 include::partial$attributes.adoc[]
-To manage dependencies in your Infra application, you can either apply the {dependency-management-plugin}[`io.spring.dependency-management`] plugin or use Gradle's native bom support.
-The primary benefit of the former is that it offers property-based customization of managed versions, while using the latter will likely result in faster builds.
+要管理 Infra 应用中的依赖，可以应用 {dependency-management-plugin}[`io.spring.dependency-management`] 插件，也可以使用 Gradle 原生的 BOM 支持。
+前者的主要优势在于可以通过属性自定义受管理的版本，而后者通常能带来更快的构建速度。
 
 
 
 [[managing-dependencies.dependency-management-plugin]]
-== Managing Dependencies with the Dependency Management Plugin
-When you apply the {dependency-management-plugin}[`io.spring.dependency-management`] plugin, Infra's plugin will automatically xref:reacting.adoc#reacting-to-other-plugins.dependency-management[import the `infra-dependencies` bom] from the version of Infra that you are using.
-This provides a similar dependency management experience to the one that's enjoyed by Maven users.
-For example, it allows you to omit version numbers when declaring dependencies that are managed in the bom.
-To make use of this functionality, declare dependencies in the usual way but omit the version number:
+== 使用依赖管理插件管理依赖
+应用 {dependency-management-plugin}[`io.spring.dependency-management`] 插件后，Infra 插件会自动 xref:reacting.adoc#reacting-to-other-plugins.dependency-management[导入与你所用 Infra 版本对应的 `infra-dependencies` BOM]。
+这提供了与 Maven 类似的依赖管理体验。
+例如，声明 BOM 所管理的依赖时，可以省略版本号。
+要使用此功能，只需按常规方式声明依赖，但不指定版本号：
 
 [source,groovy,indent=0,subs="verbatim",role="primary"]
 .Groovy
@@ -21,12 +21,12 @@ include::example$managing-dependencies/dependencies.gradle[tags=dependencies]
 
 
 [[managing-dependencies.dependency-management-plugin.customizing]]
-=== Customizing Managed Versions
-The `infra-dependencies` bom that is automatically imported when the dependency management plugin is applied uses properties to control the versions of the dependencies that it manages.
-Browse the {version-properties-appendix}[`Dependency versions Appendix`] in the Infra reference for a complete list of these properties.
+=== 自定义受管理的版本
+应用依赖管理插件时自动导入的 `infra-dependencies` BOM 使用属性来控制其所管理的依赖版本。
+这些属性的完整列表见 Infra 参考文档的{version-properties-appendix}[依赖版本附录]。
 
-To customize a managed version you set its corresponding property.
-For example, to customize the version of SLF4J which is controlled by the `slf4j.version` property:
+要自定义受管理的版本，请设置对应的属性。
+例如，SLF4J 的版本由 `slf4j.version` 属性控制，可以按如下方式自定义：
 
 [source,groovy,indent=0,subs="verbatim",role="primary"]
 .Groovy
@@ -34,16 +34,16 @@ For example, to customize the version of SLF4J which is controlled by the `slf4j
 include::example$managing-dependencies/custom-version.gradle[tags=custom-version]
 ----
 
-WARNING: Each Infra release is designed and tested against a specific set of third-party dependencies.
-Overriding versions may cause compatibility issues and should be done with care.
+WARNING: 每个 Infra 版本都基于一组特定的第三方依赖进行设计和测试。
+覆盖依赖版本可能导致兼容性问题，请谨慎操作。
 
 
 [[managing-dependencies.dependency-management-plugin.using-in-isolation]]
-=== Using Infra Dependency Management in Isolation
-Infra's dependency management can be used in a project without applying Infra's plugin to that project.
-The `InfraApplicationPlugin` class provides a `BOM_COORDINATES` constant that can be used to import the bom without having to know its group ID, artifact ID, or version.
+=== 单独使用 Infra 的依赖管理
+即使不在项目中应用 Infra 插件，也可以使用 Infra 的依赖管理。
+`InfraApplicationPlugin` 类提供了 `BOM_COORDINATES` 常量，可用于导入 BOM，无需自行指定其 group ID、artifact ID 或版本。
 
-First, configure the project to depend on the Infra plugin but do not apply it:
+首先，将 Infra 插件声明为项目的依赖，但不要应用它：
 
 ifeval::["{artifact-release-type}" == "release"]
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
@@ -70,10 +70,10 @@ include::example$managing-dependencies/depend-on-plugin-snapshot.gradle[]
 
 endif::[]
 
-The Infra plugin's dependency on the dependency management plugin means that you can use the dependency management plugin without having to declare a dependency on it.
-This also means that you will automatically use the same version of the dependency management plugin as Infra uses.
+由于 Infra 插件依赖于依赖管理插件，因此无需另行声明对依赖管理插件的依赖，即可使用它。
+这也意味着你会自动使用与 Infra 所用版本一致的依赖管理插件。
 
-Apply the dependency management plugin and then configure it to import Infra's bom:
+应用依赖管理插件，然后配置它以导入 Infra 的 BOM：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -81,24 +81,23 @@ Apply the dependency management plugin and then configure it to import Infra's b
 include::example$managing-dependencies/configure-bom.gradle[tags=configure-bom]
 ----
 
-The Kotlin code above is a bit awkward.
-That's because we're using the imperative way of applying the dependency management plugin.
+在 Kotlin DSL 中，以这种命令式方式应用依赖管理插件时，配置会稍显繁琐。
 
-We can make the code less awkward by applying the plugin from the root parent project, or by using the `plugins` block as we're doing for the Infra plugin.
-A downside of this method is that it forces us to specify the version of the dependency management plugin:
+可以在根项目中应用该插件，或者像应用 Infra 插件一样使用 `plugins` 块，使代码更加简洁。
+后一种方式的不足在于必须显式指定依赖管理插件的版本。
 
 [[managing-dependencies.dependency-management-plugin.learning-more]]
-=== Learning More
-To learn more about the capabilities of the dependency management plugin, please refer to its {dependency-management-plugin-documentation}[documentation].
+=== 了解更多
+有关依赖管理插件的更多功能，请参阅其{dependency-management-plugin-documentation}[文档]。
 
 
 [[managing-dependencies.gradle-bom-support]]
-== Managing Dependencies with Gradle's Bom Support
-Gradle allows a bom to be used to manage a project's versions by declaring it as a `platform` or `enforcedPlatform` dependency.
-A `platform` dependency treats the versions in the bom as recommendations and other versions and constraints in the dependency graph may cause a version of a dependency other than that declared in the bom to be used.
-An `enforcedPlatform` dependency treats the versions in the bom as requirements and they will override any other version found in the dependency graph.
+== 使用 Gradle 的 BOM 支持管理依赖
+Gradle 允许将 BOM 声明为 `platform` 或 `enforcedPlatform` 依赖，以管理项目的依赖版本。
+`platform` 依赖将 BOM 中的版本视为建议；依赖图中的其他版本和约束可能使最终采用的依赖版本不同于 BOM 中声明的版本。
+`enforcedPlatform` 依赖则将 BOM 中的版本视为强制要求，并覆盖依赖图中出现的任何其他版本。
 
-The `InfraApplicationPlugin` class provides a `BOM_COORDINATES` constant that can be used to declare a dependency upon Infra bom without having to know its group ID, artifact ID, or version, as shown in the following example:
+`InfraApplicationPlugin` 类提供了 `BOM_COORDINATES` 常量，可用于声明对 Infra BOM 的依赖，无需自行指定其 group ID、artifact ID 或版本，如下例所示：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -106,16 +105,16 @@ The `InfraApplicationPlugin` class provides a `BOM_COORDINATES` constant that ca
 include::example$managing-dependencies/configure-platform.gradle[tags=configure-platform]
 ----
 
-A platform or enforced platform will only constrain the versions of the configuration in which it has been declared or that extend from the configuration in which it has been declared.
-As a result, in may be necessary to declare the same dependency in more than one configuration.
+平台依赖或强制平台依赖只会约束声明它的依赖配置（configuration）以及继承该配置的其他配置中的版本。
+因此，可能需要在多个依赖配置中声明同一个平台依赖。
 
 
 [[managing-dependencies.gradle-bom-support.customizing]]
-=== Customizing Managed Versions
-When using Gradle's bom support, you cannot use the properties from `infra-dependencies` to control the versions of the dependencies that it manages.
-Instead, you must use one of the mechanisms that Gradle provides.
-One such mechanism is a resolution strategy.
-SLF4J's modules are all in the `org.slf4j` group so their version can be controlled by configuring every dependency in that group to use a particular version, as shown in the following example:
+=== 自定义受管理的版本
+使用 Gradle 的 BOM 支持时，不能通过 `infra-dependencies` 中的属性控制其所管理的依赖版本。
+此时必须使用 Gradle 提供的机制。
+解析策略（resolution strategy）就是其中一种。
+SLF4J 的所有模块都属于 `org.slf4j` 组，因此可以将该组中的每个依赖配置为使用指定版本，从而控制它们的版本，如下例所示：
 
 [source,groovy,indent=0,subs="verbatim",role="primary"]
 .Groovy
@@ -123,5 +122,5 @@ SLF4J's modules are all in the `org.slf4j` group so their version can be control
 include::example$managing-dependencies/custom-version-with-platform.gradle[tags=custom-version]
 ----
 
-WARNING: Each Infra release is designed and tested against a specific set of third-party dependencies.
-Overriding versions may cause compatibility issues and should be done with care.
+WARNING: 每个 Infra 版本都基于一组特定的第三方依赖进行设计和测试。
+覆盖依赖版本可能导致兼容性问题，请谨慎操作。
