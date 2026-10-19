@@ -4,10 +4,12 @@ on:
   push:
     paths:
       - 'infra-docs/**'
+      - '.github/workflows/docs.yaml'
       - '!**/README.md'
 
     branches:
       - master
+  workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
