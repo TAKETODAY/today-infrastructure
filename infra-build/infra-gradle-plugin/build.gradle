@@ -85,5 +85,7 @@ gradlePlugin {
 }
 
 tasks.named('test') {
-  inputs.dir('src/docs/gradle').withPathSensitivity(PathSensitivity.RELATIVE).withPropertyName('buildScripts')
+  def examplesDirectory = rootProject.layout.projectDirectory.dir('infra-docs/modules/gradle-plugin/examples')
+  inputs.dir(examplesDirectory).withPathSensitivity(PathSensitivity.RELATIVE).withPropertyName('buildScripts')
+  systemProperty 'infra.gradle.docs.examples', examplesDirectory.asFile.absolutePath
 }

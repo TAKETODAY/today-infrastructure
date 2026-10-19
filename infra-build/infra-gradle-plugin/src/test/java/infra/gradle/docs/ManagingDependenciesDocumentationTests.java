@@ -39,33 +39,33 @@ class ManagingDependenciesDocumentationTests {
 
   @TestTemplate
   void dependenciesExampleEvaluatesSuccessfully() {
-    this.gradleBuild.script("src/docs/gradle/managing-dependencies/dependencies").build();
+    this.gradleBuild.documentationScript("managing-dependencies/dependencies").build();
   }
 
   @TestTemplate
   void customManagedVersions() {
-    assertThat(this.gradleBuild.script("src/docs/gradle/managing-dependencies/custom-version")
+    assertThat(this.gradleBuild.documentationScript("managing-dependencies/custom-version")
             .build("slf4jVersion")
             .getOutput()).contains("1.7.20");
   }
 
   @TestTemplate
   void dependencyManagementInIsolation() {
-    assertThat(this.gradleBuild.script("src/docs/gradle/managing-dependencies/configure-bom")
+    assertThat(this.gradleBuild.documentationScript("managing-dependencies/configure-bom")
             .build("dependencyManagement")
             .getOutput()).contains("cn.taketoday:infra-starter ");
   }
 
   @TestTemplate
   void configurePlatform() {
-    assertThat(this.gradleBuild.script("src/docs/gradle/managing-dependencies/configure-platform")
+    assertThat(this.gradleBuild.documentationScript("managing-dependencies/configure-platform")
             .build("dependencies", "--configuration", "compileClasspath")
             .getOutput()).contains("cn.taketoday:infra-starter ");
   }
 
   @TestTemplate
   void customManagedVersionsWithPlatform() {
-    assertThat(this.gradleBuild.script("src/docs/gradle/managing-dependencies/custom-version-with-platform")
+    assertThat(this.gradleBuild.documentationScript("managing-dependencies/custom-version-with-platform")
             .build("dependencies", "--configuration", "compileClasspath")
             .getOutput()).contains("1.7.20");
   }

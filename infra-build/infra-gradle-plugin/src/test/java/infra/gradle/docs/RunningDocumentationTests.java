@@ -45,14 +45,14 @@ class RunningDocumentationTests {
   @TestTemplate
   void infraRunMain() throws IOException {
     writeMainClass();
-    assertThat(this.gradleBuild.script("src/docs/gradle/running/infra-run-main").build("infraRun").getOutput())
+    assertThat(this.gradleBuild.documentationScript("running/infra-run-main").build("infraRun").getOutput())
             .contains("com.example.ExampleApplication");
   }
 
   @TestTemplate
   void applicationPluginMainClassName() throws IOException {
     writeMainClass();
-    assertThat(this.gradleBuild.script("src/docs/gradle/running/application-plugin-main-class-name")
+    assertThat(this.gradleBuild.documentationScript("running/application-plugin-main-class-name")
             .build("infraRun")
             .getOutput()).contains("com.example.ExampleApplication");
   }
@@ -60,35 +60,35 @@ class RunningDocumentationTests {
   @TestTemplate
   void infraApplicationDslMainClassName() throws IOException {
     writeMainClass();
-    assertThat(this.gradleBuild.script("src/docs/gradle/running/infra-app-dsl-main-class-name")
+    assertThat(this.gradleBuild.documentationScript("running/infra-app-dsl-main-class-name")
             .build("infraRun")
             .getOutput()).contains("com.example.ExampleApplication");
   }
 
   @TestTemplate
   void infraRunSourceResources() {
-    assertThat(this.gradleBuild.script("src/docs/gradle/running/infra-run-source-resources")
+    assertThat(this.gradleBuild.documentationScript("running/infra-run-source-resources")
             .build("configuredClasspath")
             .getOutput()).contains(new File("src/main/resources").getPath());
   }
 
   @TestTemplate
   void infraRunDisableOptimizedLaunch() {
-    assertThat(this.gradleBuild.script("src/docs/gradle/running/infra-run-disable-optimized-launch")
+    assertThat(this.gradleBuild.documentationScript("running/infra-run-disable-optimized-launch")
             .build("optimizedLaunch")
             .getOutput()).contains("false");
   }
 
   @TestTemplate
   void infraRunSystemPropertyDefaultValue() {
-    assertThat(this.gradleBuild.script("src/docs/gradle/running/infra-run-system-property")
+    assertThat(this.gradleBuild.documentationScript("running/infra-run-system-property")
             .build("configuredSystemProperties")
             .getOutput()).contains("com.example.property = default");
   }
 
   @TestTemplate
   void infraRunSystemProperty() {
-    assertThat(this.gradleBuild.script("src/docs/gradle/running/infra-run-system-property")
+    assertThat(this.gradleBuild.documentationScript("running/infra-run-system-property")
             .build("-Pexample=custom", "configuredSystemProperties")
             .getOutput()).contains("com.example.property = custom");
   }

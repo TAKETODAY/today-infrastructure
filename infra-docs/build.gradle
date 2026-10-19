@@ -34,13 +34,8 @@ generateAntoraYml {
   })
 }
 
-tasks.register('generateGradlePluginExamples', Sync) {
-  from project(':infra-build:infra-gradle-plugin').file('src/docs/gradle')
-  into layout.buildDirectory.dir('generated-antora-resources/modules/gradle-plugin/examples')
-}
-
 tasks.register("generateAntoraResources") {
-  dependsOn 'generateAntoraYml', 'generateGradlePluginExamples'
+  dependsOn 'generateAntoraYml'
 }
 
 def copyArchitectureDiagram = tasks.register('copyArchitectureDiagram', Copy) {

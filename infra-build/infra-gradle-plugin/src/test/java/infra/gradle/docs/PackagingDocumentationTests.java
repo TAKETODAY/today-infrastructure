@@ -53,12 +53,12 @@ class PackagingDocumentationTests {
 
   @TestTemplate
   void warContainerDependencyEvaluatesSuccessfully() {
-    this.gradleBuild.script("src/docs/gradle/packaging/war-container-dependency").build();
+    this.gradleBuild.documentationScript("packaging/war-container-dependency").build();
   }
 
   @TestTemplate
   void infraJarMainClass() throws IOException {
-    this.gradleBuild.script("src/docs/gradle/packaging/infra-jar-main-class").build("infraJar");
+    this.gradleBuild.documentationScript("packaging/infra-jar-main-class").build("infraJar");
     File file = new File(this.gradleBuild.getProjectDir(),
             "build/libs/" + this.gradleBuild.getProjectDir().getName() + ".jar");
     assertThat(file).isFile();
@@ -70,7 +70,7 @@ class PackagingDocumentationTests {
 
   @TestTemplate
   void infraJarManifestMainClass() throws IOException {
-    this.gradleBuild.script("src/docs/gradle/packaging/infra-jar-manifest-main-class").build("infraJar");
+    this.gradleBuild.documentationScript("packaging/infra-jar-manifest-main-class").build("infraJar");
     File file = new File(this.gradleBuild.getProjectDir(),
             "build/libs/" + this.gradleBuild.getProjectDir().getName() + ".jar");
     assertThat(file).isFile();
@@ -82,7 +82,7 @@ class PackagingDocumentationTests {
 
   @TestTemplate
   void applicationPluginMainClass() throws IOException {
-    this.gradleBuild.script("src/docs/gradle/packaging/application-plugin-main-class").build("infraJar");
+    this.gradleBuild.documentationScript("packaging/application-plugin-main-class").build("infraJar");
     File file = new File(this.gradleBuild.getProjectDir(),
             "build/libs/" + this.gradleBuild.getProjectDir().getName() + ".jar");
     assertThat(file).isFile();
@@ -94,7 +94,7 @@ class PackagingDocumentationTests {
 
   @TestTemplate
   void infraApplicationDslMainClass() throws IOException {
-    this.gradleBuild.script("src/docs/gradle/packaging/infra-application-dsl-main-class").build("infraJar");
+    this.gradleBuild.documentationScript("packaging/infra-application-dsl-main-class").build("infraJar");
     File file = new File(this.gradleBuild.getProjectDir(),
             "build/libs/" + this.gradleBuild.getProjectDir().getName() + ".jar");
     assertThat(file).isFile();
@@ -107,7 +107,7 @@ class PackagingDocumentationTests {
   @TestTemplate
   void infraWarIncludeDevtools() throws IOException {
     jarFile(new File(this.gradleBuild.getProjectDir(), "spring-boot-devtools-1.2.3.RELEASE.jar"));
-    this.gradleBuild.script("src/docs/gradle/packaging/infra-war-include-devtools").build("infraWar");
+    this.gradleBuild.documentationScript("packaging/infra-war-include-devtools").build("infraWar");
     File file = new File(this.gradleBuild.getProjectDir(),
             "build/libs/" + this.gradleBuild.getProjectDir().getName() + ".war");
     assertThat(file).isFile();
@@ -118,7 +118,7 @@ class PackagingDocumentationTests {
 
   @TestTemplate
   void infraJarRequiresUnpack() throws IOException {
-    this.gradleBuild.script("src/docs/gradle/packaging/infra-jar-requires-unpack").build("infraJar");
+    this.gradleBuild.documentationScript("packaging/infra-jar-requires-unpack").build("infraJar");
     File file = new File(this.gradleBuild.getProjectDir(),
             "build/libs/" + this.gradleBuild.getProjectDir().getName() + ".jar");
     assertThat(file).isFile();
@@ -131,7 +131,7 @@ class PackagingDocumentationTests {
 
   @TestTemplate
   void infraJarIncludeLaunchScript() throws IOException {
-    this.gradleBuild.script("src/docs/gradle/packaging/infra-jar-include-launch-script").build("infraJar");
+    this.gradleBuild.documentationScript("packaging/infra-jar-include-launch-script").build("infraJar");
     File file = new File(this.gradleBuild.getProjectDir(),
             "build/libs/" + this.gradleBuild.getProjectDir().getName() + ".jar");
     assertThat(file).isFile();
@@ -140,7 +140,7 @@ class PackagingDocumentationTests {
 
   @TestTemplate
   void infraJarLaunchScriptProperties() throws IOException {
-    this.gradleBuild.script("src/docs/gradle/packaging/infra-jar-launch-script-properties").build("infraJar");
+    this.gradleBuild.documentationScript("packaging/infra-jar-launch-script-properties").build("infraJar");
     File file = new File(this.gradleBuild.getProjectDir(),
             "build/libs/" + this.gradleBuild.getProjectDir().getName() + ".jar");
     assertThat(file).isFile();
@@ -152,7 +152,7 @@ class PackagingDocumentationTests {
     File customScriptFile = new File(this.gradleBuild.getProjectDir(), "src/custom.script");
     customScriptFile.getParentFile().mkdirs();
     FileCopyUtils.copy("custom", new FileWriter(customScriptFile));
-    this.gradleBuild.script("src/docs/gradle/packaging/infra-jar-custom-launch-script").build("infraJar");
+    this.gradleBuild.documentationScript("packaging/infra-jar-custom-launch-script").build("infraJar");
     File file = new File(this.gradleBuild.getProjectDir(),
             "build/libs/" + this.gradleBuild.getProjectDir().getName() + ".jar");
     assertThat(file).isFile();
@@ -161,7 +161,7 @@ class PackagingDocumentationTests {
 
   @TestTemplate
   void infraWarPropertiesLauncher() throws IOException {
-    this.gradleBuild.script("src/docs/gradle/packaging/infra-war-properties-launcher").build("infraWar");
+    this.gradleBuild.documentationScript("packaging/infra-war-properties-launcher").build("infraWar");
     File file = new File(this.gradleBuild.getProjectDir(),
             "build/libs/" + this.gradleBuild.getProjectDir().getName() + ".war");
     assertThat(file).isFile();
@@ -173,7 +173,7 @@ class PackagingDocumentationTests {
 
   @TestTemplate
   void onlyInfraJar() throws IOException {
-    this.gradleBuild.script("src/docs/gradle/packaging/only-infra-jar").build("assemble");
+    this.gradleBuild.documentationScript("packaging/only-infra-jar").build("assemble");
     File plainJar = new File(this.gradleBuild.getProjectDir(),
             "build/libs/" + this.gradleBuild.getProjectDir().getName() + "-plain.jar");
     assertThat(plainJar).doesNotExist();
@@ -187,7 +187,7 @@ class PackagingDocumentationTests {
 
   @TestTemplate
   void classifiedInfraJar() throws IOException {
-    this.gradleBuild.script("src/docs/gradle/packaging/infra-jar-and-jar-classifiers").build("assemble");
+    this.gradleBuild.documentationScript("packaging/infra-jar-and-jar-classifiers").build("assemble");
     File plainJar = new File(this.gradleBuild.getProjectDir(),
             "build/libs/" + this.gradleBuild.getProjectDir().getName() + ".jar");
     assertThat(plainJar).isFile();
@@ -204,7 +204,7 @@ class PackagingDocumentationTests {
 
   @TestTemplate
   void infraJarLayeredDisabled() throws IOException {
-    this.gradleBuild.script("src/docs/gradle/packaging/infra-jar-layered-disabled").build("infraJar");
+    this.gradleBuild.documentationScript("packaging/infra-jar-layered-disabled").build("infraJar");
     File file = new File(this.gradleBuild.getProjectDir(),
             "build/libs/" + this.gradleBuild.getProjectDir().getName() + ".jar");
     assertThat(file).isFile();
@@ -216,7 +216,7 @@ class PackagingDocumentationTests {
 
   @TestTemplate
   void infraJarLayeredCustom() throws IOException {
-    this.gradleBuild.script("src/docs/gradle/packaging/infra-jar-layered-custom").build("infraJar");
+    this.gradleBuild.documentationScript("packaging/infra-jar-layered-custom").build("infraJar");
     File file = new File(this.gradleBuild.getProjectDir(),
             "build/libs/" + this.gradleBuild.getProjectDir().getName() + ".jar");
     assertThat(file).isFile();
@@ -232,7 +232,7 @@ class PackagingDocumentationTests {
 
   @TestTemplate
   void infraJarLayeredExcludeTools() throws IOException {
-    this.gradleBuild.script("src/docs/gradle/packaging/infra-jar-layered-exclude-tools").build("infraJar");
+    this.gradleBuild.documentationScript("packaging/infra-jar-layered-exclude-tools").build("infraJar");
     File file = new File(this.gradleBuild.getProjectDir(),
             "build/libs/" + this.gradleBuild.getProjectDir().getName() + ".jar");
     assertThat(file).isFile();

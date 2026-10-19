@@ -155,6 +155,17 @@ public class GradleBuild {
     return this;
   }
 
+  /**
+   * Selects a script from the Gradle plugin documentation examples.
+   * @param script the path relative to the examples directory
+   * @return this build
+   */
+  public GradleBuild documentationScript(String script) {
+    File examplesDirectory = new File(System.getProperty("infra.gradle.docs.examples",
+            "../../infra-docs/modules/gradle-plugin/examples"));
+    return script(new File(examplesDirectory, script).getPath());
+  }
+
   public void settings(String settings) {
     this.settings = settings;
   }

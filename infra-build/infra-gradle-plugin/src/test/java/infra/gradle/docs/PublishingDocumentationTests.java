@@ -39,7 +39,7 @@ class PublishingDocumentationTests {
 
   @TestTemplate
   void mavenPublish() {
-    assertThat(this.gradleBuild.script("src/docs/gradle/publishing/maven-publish")
+    assertThat(this.gradleBuild.documentationScript("publishing/maven-publish")
             .build("publishingConfiguration")
             .getOutput()).contains("MavenPublication").contains("https://repo.example.com");
   }

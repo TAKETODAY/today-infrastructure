@@ -5,9 +5,9 @@
 ## Gradle 插件文档
 
 插件参考手册统一维护在 `modules/gradle-plugin`，通过站点的「Gradle 插件」导航访问。
-示例脚本保留在 `../infra-build/infra-gradle-plugin/src/docs/gradle`，继续由插件模块的文档测试验证。
-`generateGradlePluginExamples` 将其收集为 Antora examples，页面通过 `include::example$...[]` 引用，
-不另外维护副本。`./gradlew :infra-docs:generateAntoraResources` 生成文档属性和示例资源，
+示例脚本统一维护在 `modules/gradle-plugin/examples`，继续由插件模块的文档测试验证。
+Antora 直接读取此目录，页面通过 `include::example$...[]` 引用，不另外维护副本。
+`./gradlew :infra-docs:generateAntoraResources` 生成文档属性，
 `./gradlew :infra-docs:antora` 构建统一文档站点。
 
 ## 配置示例
