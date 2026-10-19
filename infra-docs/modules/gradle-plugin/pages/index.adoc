@@ -1,0 +1,15 @@
+[[infra-application-gradle-plugin-documentation]]
+= Gradle 插件
+
+TODAY Infrastructure Gradle 插件用于构建、运行和发布应用，并提供依赖管理和 AOT 处理支持。
+本手册由 Andy Wilkinson、Scott Frederick 和 Harry Yang 编写，现统一纳入框架参考文档。
+
+* xref:introduction.adoc[简介]
+* xref:getting-started.adoc[快速入门]
+* xref:managing-dependencies.adoc[依赖管理]
+* xref:packaging.adoc[打包可执行归档]
+* xref:publishing.adoc[发布应用]
+* xref:running.adoc[运行应用]
+* xref:aot.adoc[AOT 处理]
+* xref:integrating-with-actuator.adoc[构建信息与 Actuator 集成]
+* xref:reacting.adoc[与其他插件协作]

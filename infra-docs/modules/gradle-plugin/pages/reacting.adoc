@@ -1,5 +1,6 @@
 [[reacting-to-other-plugins]]
 = Reacting to Other Plugins
+include::partial$attributes.adoc[]
 When another plugin is applied the Infra plugin reacts by making various changes to the project's configuration.
 This section describes those changes.
 
@@ -80,5 +81,4 @@ When the {nbt-gradle-plugin}[GraalVM Native Image plugin] is applied to a projec
 . Configures the GraalVM extension to disable Toolchain detection.
 . Configures each GraalVM native binary to require GraalVM 22.3 or later.
 . Configures the `infraJar` task to include the reachability metadata produced by the `collectReachabilityMetadata` task in its jar.
-
 

@@ -1,5 +1,6 @@
 [[publishing-your-application]]
 = Publishing your Application
+include::partial$attributes.adoc[]
 
 [[publishing-your-application.maven-publish]]
 == Publishing with the Maven-publish Plugin
@@ -11,7 +12,7 @@ For example, to publish the artifact produced by the default `infraJar` task:
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/publishing/maven-publish.gradle[tags=publishing]
+include::example$publishing/maven-publish.gradle[tags=publishing]
 ----
 
 [[publishing-your-application.distribution]]

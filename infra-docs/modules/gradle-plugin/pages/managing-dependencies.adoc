@@ -1,5 +1,6 @@
 [[managing-dependencies]]
 = Managing Dependencies
+include::partial$attributes.adoc[]
 To manage dependencies in your Infra application, you can either apply the {dependency-management-plugin}[`io.spring.dependency-management`] plugin or use Gradle's native bom support.
 The primary benefit of the former is that it offers property-based customization of managed versions, while using the latter will likely result in faster builds.
 
@@ -7,7 +8,7 @@ The primary benefit of the former is that it offers property-based customization
 
 [[managing-dependencies.dependency-management-plugin]]
 == Managing Dependencies with the Dependency Management Plugin
-When you apply the {dependency-management-plugin}[`io.spring.dependency-management`] plugin, Infra's plugin will automatically <<reacting-to-other-plugins.dependency-management,import the `infra-dependencies` bom>> from the version of Infra that you are using.
+When you apply the {dependency-management-plugin}[`io.spring.dependency-management`] plugin, Infra's plugin will automatically xref:reacting.adoc#reacting-to-other-plugins.dependency-management[import the `infra-dependencies` bom] from the version of Infra that you are using.
 This provides a similar dependency management experience to the one that's enjoyed by Maven users.
 For example, it allows you to omit version numbers when declaring dependencies that are managed in the bom.
 To make use of this functionality, declare dependencies in the usual way but omit the version number:
@@ -15,7 +16,7 @@ To make use of this functionality, declare dependencies in the usual way but omi
 [source,groovy,indent=0,subs="verbatim",role="primary"]
 .Groovy
 ----
-include::../gradle/managing-dependencies/dependencies.gradle[tags=dependencies]
+include::example$managing-dependencies/dependencies.gradle[tags=dependencies]
 ----
 
 
@@ -30,7 +31,7 @@ For example, to customize the version of SLF4J which is controlled by the `slf4j
 [source,groovy,indent=0,subs="verbatim",role="primary"]
 .Groovy
 ----
-include::../gradle/managing-dependencies/custom-version.gradle[tags=custom-version]
+include::example$managing-dependencies/custom-version.gradle[tags=custom-version]
 ----
 
 WARNING: Each Infra release is designed and tested against a specific set of third-party dependencies.
@@ -48,7 +49,7 @@ ifeval::["{artifact-release-type}" == "release"]
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/managing-dependencies/depend-on-plugin-release.gradle[]
+include::example$managing-dependencies/depend-on-plugin-release.gradle[]
 ----
 
 endif::[]
@@ -56,7 +57,7 @@ ifeval::["{artifact-release-type}" == "milestone"]
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/managing-dependencies/depend-on-plugin-milestone.gradle[]
+include::example$managing-dependencies/depend-on-plugin-milestone.gradle[]
 ----
 
 endif::[]
@@ -64,7 +65,7 @@ ifeval::["{artifact-release-type}" == "snapshot"]
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/managing-dependencies/depend-on-plugin-snapshot.gradle[]
+include::example$managing-dependencies/depend-on-plugin-snapshot.gradle[]
 ----
 
 endif::[]
@@ -77,7 +78,7 @@ Apply the dependency management plugin and then configure it to import Infra's b
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/managing-dependencies/configure-bom.gradle[tags=configure-bom]
+include::example$managing-dependencies/configure-bom.gradle[tags=configure-bom]
 ----
 
 The Kotlin code above is a bit awkward.
@@ -102,7 +103,7 @@ The `InfraApplicationPlugin` class provides a `BOM_COORDINATES` constant that ca
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/managing-dependencies/configure-platform.gradle[tags=configure-platform]
+include::example$managing-dependencies/configure-platform.gradle[tags=configure-platform]
 ----
 
 A platform or enforced platform will only constrain the versions of the configuration in which it has been declared or that extend from the configuration in which it has been declared.
@@ -119,7 +120,7 @@ SLF4J's modules are all in the `org.slf4j` group so their version can be control
 [source,groovy,indent=0,subs="verbatim",role="primary"]
 .Groovy
 ----
-include::../gradle/managing-dependencies/custom-version-with-platform.gradle[tags=custom-version]
+include::example$managing-dependencies/custom-version-with-platform.gradle[tags=custom-version]
 ----
 
 WARNING: Each Infra release is designed and tested against a specific set of third-party dependencies.

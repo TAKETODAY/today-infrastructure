@@ -1,5 +1,6 @@
 [[aot]]
 = Ahead-of-Time Processing
+include::partial$attributes.adoc[]
 Infra AOT is a process that analyzes your code at build-time in order to generate an optimized version of it.
 It is most often used to help generate GraalVM native images.
 
@@ -9,7 +10,7 @@ The tasks are configured automatically when the {nbt-gradle-plugin}[GraalVM Nati
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/aot/apply-native-image-plugin.gradle[]
+include::example$aot/apply-native-image-plugin.gradle[]
 ----
 
 

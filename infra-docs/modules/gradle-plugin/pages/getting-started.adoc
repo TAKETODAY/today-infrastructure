@@ -1,16 +1,21 @@
 [[getting-started]]
 = Getting Started
+include::partial$attributes.adoc[]
 To get started with the plugin it needs to be applied to your project.
 
 ifeval::["{artifact-release-type}" == "release"]
-The plugin is https://plugins.gradle.org/plugin/infra.application[published to Gradle's plugin portal] and can be applied using the `plugins` block:
+After the version has been published and approved on the https://plugins.gradle.org/plugin/cn.taketoday.application[Gradle Plugin Portal], the plugin can be applied using the `plugins` block:
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/getting-started/apply-plugin-release.gradle[]
+include::example$getting-started/apply-plugin-release.gradle[]
 ----
 
 endif::[]
+
+The Plugin Portal IDs are `cn.taketoday.application` and `cn.taketoday.application.aot`.
+When loading `cn.taketoday:infra-gradle-plugin` through `buildscript` or `buildSrc`,
+the compatibility IDs `infra.application` and `infra.application.aot` remain available.
 ifeval::["{artifact-release-type}" == "milestone"]
 The plugin is published to the Infra milestones repository.
 Gradle can be configured to use the milestones repository and the plugin can then be applied using the `plugins` block.
@@ -19,7 +24,7 @@ To configure Gradle to use the milestones repository, add the following to your 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/getting-started/milestone-settings.gradle[]
+include::example$getting-started/milestone-settings.gradle[]
 ----
 
 The plugin can then be applied using the `plugins` block:
@@ -27,7 +32,7 @@ The plugin can then be applied using the `plugins` block:
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/getting-started/apply-plugin-release.gradle[]
+include::example$getting-started/apply-plugin-release.gradle[]
 ----
 
 endif::[]
@@ -39,7 +44,7 @@ To configure Gradle to use the snapshots repository, add the following to your `
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/getting-started/snapshot-settings.gradle[]
+include::example$getting-started/snapshot-settings.gradle[]
 ----
 
 The plugin can then be applied using the `plugins` block:
@@ -47,7 +52,7 @@ The plugin can then be applied using the `plugins` block:
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/getting-started/apply-plugin-release.gradle[]
+include::example$getting-started/apply-plugin-snapshot.gradle[]
 ----
 
 endif::[]
@@ -61,7 +66,7 @@ For example:
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/getting-started/typical-plugins.gradle[tags=apply]
+include::example$getting-started/typical-plugins.gradle[tags=apply]
 ----
 
-To learn more about how the Infra plugin behaves when other plugins are applied please see the section on <<reacting-to-other-plugins, reacting to other plugins>>.
+To learn more about how the Infra plugin behaves when other plugins are applied please see the section on xref:reacting.adoc[reacting to other plugins].

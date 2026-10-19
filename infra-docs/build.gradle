@@ -26,12 +26,21 @@ javadoc {
 
 generateAntoraYml {
   asciidocAttributes = project.provider({
-    return ["infra-version": project.version]
+    String version = project.version.toString()
+    return ["infra-version": version,
+        "artifact-release-type": version.endsWith('-SNAPSHOT') ? 'snapshot' :
+            (version.contains('-') ? 'milestone' : 'release'),
+        "native-build-tools-version": project.property('nativeBuildToolsVersion')]
   })
 }
 
+tasks.register('generateGradlePluginExamples', Sync) {
+  from project(':infra-build:infra-gradle-plugin').file('src/docs/gradle')
+  into layout.buildDirectory.dir('generated-antora-resources/modules/gradle-plugin/examples')
+}
+
 tasks.register("generateAntoraResources") {
-  dependsOn 'generateAntoraYml'
+  dependsOn 'generateAntoraYml', 'generateGradlePluginExamples'
 }
 
 tasks.named('antora') {

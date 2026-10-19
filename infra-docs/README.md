@@ -2,6 +2,14 @@
 
 本目录包含 TODAY Infrastructure 的参考文档及文档站点构建配置。
 
+## Gradle 插件文档
+
+插件参考手册统一维护在 `modules/gradle-plugin`，通过站点的「Gradle 插件」导航访问。
+示例脚本保留在 `../infra-build/infra-gradle-plugin/src/docs/gradle`，继续由插件模块的文档测试验证。
+`generateGradlePluginExamples` 将其收集为 Antora examples，页面通过 `include::example$...[]` 引用，
+不另外维护副本。`./gradlew :infra-docs:generateAntoraResources` 生成文档属性和示例资源，
+`./gradlew :infra-docs:antora` 构建统一文档站点。
+
 ## 配置示例
 
 使用 `[configprops,yaml]` 编写配置示例，构建时会自动生成 YAML 和 Properties 两个选项卡：

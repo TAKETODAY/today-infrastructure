@@ -28,5 +28,6 @@ The application plugin provides `infraRun` and `infraJar` tasks and automaticall
 applies dependency management with the matching Infrastructure BOM.
 Configuration Cache support is not currently declared as supported.
 
-See the [application documentation](../../infra-docs/modules/application/pages/using/non-web-applications.adoc)
+See the [Gradle plugin reference guide](../../infra-docs/modules/gradle-plugin/pages/index.adoc),
+the [application documentation](../../infra-docs/modules/application/pages/using/non-web-applications.adoc),
 and the [release publishing guide](../../.github/actions/publish-gradle-plugin/README.md).

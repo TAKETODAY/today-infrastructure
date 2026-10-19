@@ -1,5 +1,6 @@
 [[packaging-executable]]
 = Packaging Executable Archives
+include::partial$attributes.adoc[]
 The plugin can create executable archives (jar files and war files) that contain all of an application's dependencies and can then be run with `java -jar`.
 
 
@@ -28,7 +29,7 @@ To do so, the embedded container dependencies should be added to the `providedRu
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/packaging/war-container-dependency.gradle[tags=dependencies]
+include::example$packaging/war-container-dependency.gradle[tags=dependencies]
 ----
 
 This ensures that they are package in the war file's `WEB-INF/lib-provided` directory from where they will not conflict with the external container's own classes.
@@ -47,7 +48,7 @@ If you prefer that the executable archive, rather than the plain archive, uses a
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/packaging/infra-jar-and-jar-classifiers.gradle[tags=classifiers]
+include::example$packaging/infra-jar-and-jar-classifiers.gradle[tags=classifiers]
 ----
 
 
@@ -56,7 +57,7 @@ Alternatively, if you prefer that the plain archive isn't built at all, disable 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/packaging/only-infra-jar.gradle[tags=disable-jar]
+include::example$packaging/only-infra-jar.gradle[tags=disable-jar]
 ----
 
 WARNING: Do not disable the `jar` task when creating native images.
@@ -79,7 +80,7 @@ The main class can also be configured explicitly using the task's `mainClass` pr
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/packaging/infra-jar-main-class.gradle[tags=main-class]
+include::example$packaging/infra-jar-main-class.gradle[tags=main-class]
 ----
 
 
@@ -88,7 +89,7 @@ Alternatively, the main class name can be configured project-wide using the `mai
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/packaging/infra-application-dsl-main-class.gradle[tags=main-class]
+include::example$packaging/infra-application-dsl-main-class.gradle[tags=main-class]
 ----
 
 If the {application-plugin}[`application` plugin] has been applied its `mainClass` property must be configured and can be used for the same purpose:
@@ -96,7 +97,7 @@ If the {application-plugin}[`application` plugin] has been applied its `mainClas
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/packaging/application-plugin-main-class.gradle[tags=main-class]
+include::example$packaging/application-plugin-main-class.gradle[tags=main-class]
 ----
 
 Lastly, the `Start-Class` attribute can be configured on the task's manifest:
@@ -104,7 +105,7 @@ Lastly, the `Start-Class` attribute can be configured on the task's manifest:
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/packaging/infra-jar-manifest-main-class.gradle[tags=main-class]
+include::example$packaging/infra-jar-manifest-main-class.gradle[tags=main-class]
 ----
 
 NOTE: If the main class is written in Kotlin, the name of the generated Java class should be used.
@@ -123,7 +124,7 @@ If you want to include dependencies declared in the `developmentOnly` configurat
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/packaging/infra-war-include-devtools.gradle[tags=include-devtools]
+include::example$packaging/infra-war-include-devtools.gradle[tags=include-devtools]
 ----
 
 
@@ -139,7 +140,7 @@ Libraries can be identified as requiring unpacking using Ant-style patterns that
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/packaging/infra-jar-requires-unpack.gradle[tags=requires-unpack]
+include::example$packaging/infra-jar-requires-unpack.gradle[tags=requires-unpack]
 ----
 
 
@@ -163,7 +164,7 @@ To use this feature, the inclusion of the launch script must be enabled:
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/packaging/infra-jar-include-launch-script.gradle[tags=include-launch-script]
+include::example$packaging/infra-jar-include-launch-script.gradle[tags=include-launch-script]
 ----
 
 This will add Infra's default launch script to the archive.
@@ -173,7 +174,7 @@ The values can be customized using the `properties` property:
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/packaging/infra-jar-launch-script-properties.gradle[tags=launch-script-properties]
+include::example$packaging/infra-jar-launch-script-properties.gradle[tags=launch-script-properties]
 ----
 
 If the default launch script does not meet your needs, the `script` property can be used to provide a custom launch script:
@@ -181,7 +182,7 @@ If the default launch script does not meet your needs, the `script` property can
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/packaging/infra-jar-custom-launch-script.gradle[tags=custom-launch-script]
+include::example$packaging/infra-jar-custom-launch-script.gradle[tags=custom-launch-script]
 ----
 
 
@@ -193,7 +194,7 @@ To use the `PropertiesLauncher` to launch an executable jar or war, configure th
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/packaging/infra-war-properties-launcher.gradle[tags=properties-launcher]
+include::example$packaging/infra-war-properties-launcher.gradle[tags=properties-launcher]
 ----
 
 
@@ -222,7 +223,7 @@ To disable this feature, you can do so in the following manner:
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/packaging/infra-jar-layered-disabled.gradle[tags=layered]
+include::example$packaging/infra-jar-layered-disabled.gradle[tags=layered]
 ----
 
 When a layered jar or war is created, the `infra-jarmode-layertools` jar will be added as a dependency to your archive.
@@ -232,7 +233,7 @@ If you wish to exclude this dependency, you can do so in the following manner:
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/packaging/infra-jar-layered-exclude-tools.gradle[tags=layered]
+include::example$packaging/infra-jar-layered-exclude-tools.gradle[tags=layered]
 ----
 
 
@@ -246,7 +247,7 @@ The following example shows how the default ordering described above can be defi
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::../gradle/packaging/infra-jar-layered-custom.gradle[tags=layered]
+include::example$packaging/infra-jar-layered-custom.gradle[tags=layered]
 ----
 
 The `layered` DSL is defined using three parts:
