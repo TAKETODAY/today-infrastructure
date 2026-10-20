@@ -42,9 +42,24 @@ tasks.register("generateAntoraResources") {
   dependsOn 'generateAntoraYml'
 }
 
-def copyArchitectureDiagram = tasks.register('copyArchitectureDiagram', Copy) {
-  from 'src/docs/architecture/architecture-diagram.html'
-  into layout.buildDirectory.dir('site')
+/*
+ * 只声明这一个输出文件，不要用 Copy 任务把整个 build/site 当成输出目录。
+ * build/site 归 Antora 所有，Copy 任务的输出目录会在任务执行前被 Gradle 的
+ * stale output 清理整目录删除（CI 每次都从干净检出构建，没有历史记录），
+ * 结果只剩这张架构图，Antora 刚生成的整站被抹掉。
+ */
+def copyArchitectureDiagram = tasks.register('copyArchitectureDiagram') {
+  group = 'Documentation'
+  description = 'Copies the interactive architecture diagram to the root of the generated site.'
+  def sourceFile = layout.projectDirectory.file('src/docs/architecture/architecture-diagram.html').asFile
+  def targetFile = layout.buildDirectory.file('site/architecture-diagram.html').get().asFile
+  inputs.file(sourceFile)
+  outputs.file(targetFile)
+  outputs.cacheIf { false }
+  doLast {
+    targetFile.parentFile.mkdirs()
+    targetFile.bytes = sourceFile.bytes
+  }
 }
 
 tasks.named('antora') {
