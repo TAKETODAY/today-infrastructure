@@ -27,6 +27,7 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.jspecify.annotations.Nullable;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -39,6 +40,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import infra.lang.Version;
 
 @SuppressWarnings("unchecked")
 public abstract class GenerateAntoraYmlTask extends DefaultTask {
@@ -103,7 +106,7 @@ public abstract class GenerateAntoraYmlTask extends DefaultTask {
     return result;
   }
 
-  private static Map<String, Object> fromMapGetNestedMap(Map<String, Object> map, String... keys) {
+  private static Map<String, Object> fromMapGetNestedMap(@Nullable Map<String, Object> map, String... keys) {
     if (map == null) {
       return new LinkedHashMap<>();
     }
@@ -151,22 +154,12 @@ public abstract class GenerateAntoraYmlTask extends DefaultTask {
     if (configuredVersion == null) {
       return Collections.emptyMap();
     }
-    String antoraVersion = configuredVersion;
-    Object prerelease = null;
-    String[] versionComponents = configuredVersion.split("(?=-)");
-    if (versionComponents.length > 1) {
-      if ("-SNAPSHOT".equals(versionComponents[1])) {
-        antoraVersion = versionComponents[0];
-        prerelease = "-SNAPSHOT";
-      }
-      else {
-        prerelease = Boolean.TRUE;
-      }
-    }
+    Version version = Version.parse(configuredVersion);
+
     Map<String, Object> result = new LinkedHashMap<>(2);
-    result.put("version", antoraVersion);
-    if (prerelease != null) {
-      result.put("prerelease", prerelease);
+    result.put("version", configuredVersion);
+    if (version.isPreRelease()) {
+      result.put("prerelease", version.type());
     }
     return result;
   }
