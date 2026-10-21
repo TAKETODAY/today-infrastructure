@@ -26,7 +26,7 @@ import infra.util.InfraStrategies;
  */
 public class BasicSQLFormatter implements SQLFormatter {
 
-  private static final boolean SKIP_DDL = InfraStrategies.getFlag("sql.BasicSQLFormatter.skip-ddl", true);
+  private static final boolean SKIP_DDL = InfraStrategies.getFlag("infra.sql.BasicSQLFormatter.skip-ddl", true);
 
   private static final HashSet<String> BEGIN_CLAUSES = new HashSet<>();
   private static final HashSet<String> END_CLAUSES = new HashSet<>();
