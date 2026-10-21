@@ -18,9 +18,9 @@ package infra.util.concurrent;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assumptions.assumeThat;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -131,31 +132,20 @@ class SpinSingleThreadAwaiterTests {
   }
 
   @Test
-  @DisabledOnOs(OS.MAC)
-  void successiveSpinsOptimizePerformance() throws InterruptedException {
+  void successfulAwaitsIncreaseSpinCountUpToMaximum() throws ReflectiveOperationException {
     assumeThat(Runtime.getRuntime().availableProcessors()).isGreaterThan(1);
 
     SpinSingleThreadAwaiter awaiter = new SpinSingleThreadAwaiter();
-    int warmupRounds = 1000;
+    AtomicInteger successiveSpins = successiveSpins(awaiter);
+    successiveSpins.set(-2);
+    assertThat(calculateSpinCount(awaiter)).isEqualTo(980);
 
-    // Warm up spins
-    for (int i = 0; i < warmupRounds; i++) {
-      Thread waiter = new Thread(awaiter::await);
-      waiter.start();
+    for (int expected : new int[] { 990, 1000, 1000 }) {
       awaiter.resume();
-      waiter.join(50);
+      awaiter.await();
+      assertThat(calculateSpinCount(awaiter)).isEqualTo(expected);
+      assertThat(awaiter.parkedThread).hasNullValue();
     }
-
-    // Measure optimized performance
-    long start = System.nanoTime();
-    Thread waiter = new Thread(awaiter::await);
-    waiter.start();
-    awaiter.resume();
-    waiter.join(50);
-    long duration = System.nanoTime() - start;
-
-    // Optimized case should be faster than parking
-    assertThat(duration).isLessThan(TimeUnit.MILLISECONDS.toNanos(1));
   }
 
   @Test
@@ -219,35 +209,35 @@ class SpinSingleThreadAwaiterTests {
   }
 
   @Test
-  void spinningAdaptsToSystemLoad() throws InterruptedException {
+  void exhaustedSpinsReduceNextSpinCount() throws ReflectiveOperationException, InterruptedException {
     assumeThat(Runtime.getRuntime().availableProcessors()).isGreaterThan(1);
 
     SpinSingleThreadAwaiter awaiter = new SpinSingleThreadAwaiter();
-    int iterations = 1000;
-    AtomicLong totalDuration = new AtomicLong();
-
-    // Create background load
-    Thread load = new Thread(() -> {
-      while (!Thread.interrupted()) {
-        Math.random();
-      }
+    AtomicInteger successiveSpins = successiveSpins(awaiter);
+    assertThat(calculateSpinCount(awaiter)).isEqualTo(1000);
+    AtomicBoolean completed = new AtomicBoolean();
+    Thread waiter = new Thread(() -> {
+      awaiter.await();
+      completed.set(true);
     });
-    load.start();
+    waiter.setDaemon(true);
+    waiter.start();
 
-    for (int i = 0; i < iterations; i++) {
-      long start = System.nanoTime();
-      Thread waiter = new Thread(awaiter::await);
-      waiter.start();
+    try {
+      // Registration happens only after the spin budget has been exhausted.
+      await().atMost(10, TimeUnit.SECONDS).until(() -> awaiter.parkedThread.get() == waiter);
+      assertThat(completed).isFalse();
+      assertThat(successiveSpins).hasValue(-1);
+      assertThat(calculateSpinCount(awaiter)).isEqualTo(990);
+    }
+    finally {
       awaiter.resume();
-      waiter.join(50);
-      totalDuration.addAndGet(System.nanoTime() - start);
+      waiter.join(TimeUnit.SECONDS.toMillis(10));
     }
 
-    load.interrupt();
-    load.join(1000);
-
-    double avgDuration = totalDuration.get() / (double) iterations;
-    assertThat(avgDuration).isLessThan(TimeUnit.MILLISECONDS.toNanos(1));
+    assertThat(waiter.isAlive()).isFalse();
+    assertThat(completed).isTrue();
+    assertThat(awaiter.parkedThread).hasNullValue();
   }
 
   @Test
@@ -377,6 +367,18 @@ class SpinSingleThreadAwaiterTests {
     awaiter.resume();
 
     assertThat(latch.await(2, TimeUnit.SECONDS)).isTrue();
+  }
+
+  private static AtomicInteger successiveSpins(SpinSingleThreadAwaiter awaiter) throws ReflectiveOperationException {
+    Field field = SpinSingleThreadAwaiter.class.getDeclaredField("successiveSpins");
+    field.setAccessible(true);
+    return (AtomicInteger) field.get(awaiter);
+  }
+
+  private static int calculateSpinCount(SpinSingleThreadAwaiter awaiter) throws ReflectiveOperationException {
+    Method method = SpinSingleThreadAwaiter.class.getDeclaredMethod("calculateSpinCount");
+    method.setAccessible(true);
+    return (int) method.invoke(awaiter);
   }
 
 }
