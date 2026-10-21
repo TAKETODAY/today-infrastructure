@@ -24,7 +24,7 @@ package infra.logging;
  */
 public abstract class LoggerFactory {
 
-  public static final String LOG_TYPE_SYSTEM_PROPERTY = "logger.factory";
+  public static final String LOG_TYPE_SYSTEM_PROPERTY = "infra.logger.factory";
 
   private static final LoggerFactory factory = createFactory();
 

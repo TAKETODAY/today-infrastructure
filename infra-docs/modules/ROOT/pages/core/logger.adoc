@@ -12,7 +12,7 @@ public class MyBean {
 }
 ----
 
-可以使用 `-Dlogger.factory` 参数替换 `infra.logging.LoggerFactory` 实现
+可以使用 `-Dinfra.logger.factory` 参数替换 `infra.logging.LoggerFactory` 实现
 
 [source,java]
 ----
@@ -26,7 +26,7 @@ class MyLoggerFactory extends LoggerFactory {
 
 ----
 
-`-Dlogger.factory=xx.x.MyLoggerFactory`
+`-Dinfra.logger.factory=xx.x.MyLoggerFactory`
 
 替换 所有的 `LoggerFactory.getLogger()` 返回的 `Logger`
 

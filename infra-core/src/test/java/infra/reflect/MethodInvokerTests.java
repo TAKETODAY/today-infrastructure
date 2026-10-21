@@ -25,7 +25,7 @@ class MethodInvokerTests {
 
 //  @Test
 //  void test() {
-//    System.setProperty("bytecode.debugLocation", "D:/dev/temp/debug");
+//    System.setProperty("infra.bytecode.debugLocation", "D:/dev/temp/debug");
 //
 //    TestHandlerInvoker.Access access = new TestHandlerInvoker.Access();
 //    access.invoke();

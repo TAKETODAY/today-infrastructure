@@ -53,7 +53,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
   private static final ThreadLocal<AbstractClassGenerator> CURRENT = new ThreadLocal<>();
 
   private static final boolean DEFAULT_USE_CACHE =
-          InfraStrategies.getFlag("bytecode.useCache", true);
+          InfraStrategies.getFlag("infra.bytecode.useCache", true);
 
   private static final boolean inNativeImage = NativeDetector.inNativeImage(Context.RUN, Context.BUILD);
 

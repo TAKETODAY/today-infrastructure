@@ -48,7 +48,7 @@ import infra.util.InfraStrategies;
  */
 public class SimpleSingleThreadAwaiter implements Awaiter {
 
-  protected static final long threadParkNanos = InfraStrategies.getLong("awaiter.thread.pack-nanos", TimeUnit.SECONDS.toNanos(3));
+  protected static final long threadParkNanos = InfraStrategies.getLong("infra.awaiter.thread.park-nanos", TimeUnit.SECONDS.toNanos(3));
 
   protected static final Object READY = new Object();
 

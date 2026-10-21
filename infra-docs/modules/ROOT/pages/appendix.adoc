@@ -108,6 +108,18 @@ xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-anno
 | `infra.bytecode.classes.defined.limit`
 | `BytecodeCompiler` 最大生成个数，超过之后会重新使用新的类加载器。默认值：`100`
 
+| `infra.bytecode.useCache`
+| 是否默认缓存生成的字节码类，默认值：`true`。
+
+| `infra.bytecode.stressHashCodes`
+| 是否固定生成类名中的哈希值，以测试哈希冲突处理，默认值：`false`。
+
+| `infra.awaiter.thread.park-nanos`
+| `SimpleSingleThreadAwaiter` 启用定时等待时的单次等待时长，单位为纳秒，默认值：`3000000000`。
+
+| `infra.logger.factory`
+| 自定义 `LoggerFactory` 实现的全限定类名，仅通过 JVM 系统属性设置；未指定时自动选择日志实现。
+
 | `infra.jdbc.type-handler.enum-value-property-name`
 | `EnumerationValueTypeHandler` JDBC 中枚举值字段名称。在没有使用注解 `EnumerationValue` 的情况下，会使用该字段获取字段值。默认值：`value`
 

@@ -45,7 +45,7 @@ public class DefaultNamingPolicy implements NamingPolicy {
   /**
    * This allows to test collisions of {@code key.hashCode()}.
    */
-  private static final boolean STRESS_HASH_CODE = InfraStrategies.getFlag("bytecode.stressHashCodes");
+  private static final boolean STRESS_HASH_CODE = InfraStrategies.getFlag("infra.bytecode.stressHashCodes");
 
   @Override
   public String getClassName(@Nullable String prefix, String source, Object key, Predicate<String> names) {
