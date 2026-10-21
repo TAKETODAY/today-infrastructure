@@ -182,7 +182,6 @@ class SpelCompilerTests {
   }
 
   @Test
-    // gh-28043
   void changingRegisteredVariableTypeDoesNotResultInFailureInMixedMode() {
     SpelParserConfiguration config = SpelParserConfiguration.builder().compilerMode(SpelCompilerMode.MIXED).build();
     SpelExpressionParser parser = new SpelExpressionParser(config);
