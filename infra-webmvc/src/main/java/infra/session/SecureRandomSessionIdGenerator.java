@@ -38,7 +38,7 @@ public class SecureRandomSessionIdGenerator implements SessionIdGenerator {
   private int length = 15;
 
   private static final char[] SESSION_ID_ALPHABET;
-  private static final String ALPHABET_PROPERTY = "server.session.id.source";
+  private static final String ALPHABET_PROPERTY = "infra.server.session.id.source";
 
   static {
     String alphabet = InfraStrategies.getProperty(

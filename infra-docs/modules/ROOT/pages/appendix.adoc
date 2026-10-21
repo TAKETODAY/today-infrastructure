@@ -49,17 +49,17 @@ checkpoint/restore at startup] 和
 | 用于在上下文到达特定阶段时终止JVM。详细信息请参见 xref:integration/checkpoint-restore.adoc#_automatic_checkpointrestore_at_startup[Automatic checkpoint/restore at startup]
 和 {today-framework-api}++/context/support/DefaultLifecycleProcessor.html#EXIT_PROPERTY_NAME++[`DefaultLifecycleProcessor`]。
 
-| `spel.default.max-length`
+| `infra.spel.default.max-length`
 | xref:core/expressions/evaluation.adoc#expressions-parser-configuration[Infra Expression Language] 全局 SpEL 表达式长度最大值
 
-| `spel.context.max-length`
+| `infra.spel.context.max-length`
 | IoC 容器内 xref:core/expressions/evaluation.adoc#expressions-parser-configuration[Infra Expression Language] 的最大长度，
 该值将应用到 XML bean, `@Value`, etc.
 
-| `spel.compiler.mode`
+| `infra.spel.compiler.mode`
 | 全局的 xref:core/expressions/evaluation.adoc#expressions-compiler-configuration[Infra Expression Language] 编译模式.
 
-| `spel.default.max-big-power-bits`
+| `infra.spel.default.max-big-power-bits`
 | xref:core/expressions/evaluation.adoc#expressions-parser-configuration[SpEL 表达式]中，`BigDecimal` 或
 `BigInteger` 幂运算结果允许的默认最大位数。未配置时为 1,000,000 位，也可在解析器配置中显式指定。
 
@@ -96,26 +96,26 @@ xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-anno
 | `infra.app.sub-temp-dir`
 | 全局 ApplicationTemp 的 _默认的临时目录（根目录）_，统一的临时目录更好管理应用产生的临时文件, 默认值：`${java.io.tmpdir}/infra.core.ApplicationTemp/`
 
-| `template.default.loader.path`
+| `infra.template.default.loader.path`
 | 全局的 _模板默认加载路径_ 默认值：`classpath:templates/`
 
-| `template.default.freemarker.prefix`
+| `infra.freemarker.default.prefix`
 | 全局的 _Freemarker 模板默认前缀_ 默认值：`""`
 
-| `template.default.freemarker.suffix`
+| `infra.freemarker.default.suffix`
 | 全局的 _Freemarker 模板默认后缀_ 默认值：`.ftl`
 
-| `bytecode.classes.defined.limit`
+| `infra.bytecode.classes.defined.limit`
 | `BytecodeCompiler` 最大生成个数，超过之后会重新使用新的类加载器。默认值：`100`
 
-| `jdbc.type-handler.enum-value-property-name`
+| `infra.jdbc.type-handler.enum-value-property-name`
 | `EnumerationValueTypeHandler` JDBC 中枚举值字段名称。在没有使用注解 `EnumerationValue` 的情况下，会使用该字段获取字段值。默认值：`value`
 
-| `jdbc.getParameterType.ignore`
+| `infra.jdbc.getParameterType.ignore`
 | 用于 是否需要忽略完全 `java.sql.ParameterMetaData.getParameterType`。 详见：
 xref:data-access/jdbc/advanced.adoc#jdbc-batch-list[对对象列表进行批量操作].
 
-| `jdbc.type-handler.duration-storage-format`
+| `infra.jdbc.type-handler.duration-storage-format`
 | 用于 DurationTypeHandler 配置 JVM 级别的 duration 存储格式.
 
 | `infra.sql.logging.stdout`
@@ -139,10 +139,10 @@ xref:data-access/jdbc/advanced.adoc#jdbc-batch-list[对对象列表进行批量�
 | `infra.sql.logging.slow-query-threshold-millis`
 | `infra.SQL_SLOW` Logger 记录超过该值的 `慢SQL` 默认值：`0` 不记录。详见 `SqlStatementLogger`
 
-| `server.session.temp-dir`
+| `infra.server.session.temp-dir`
 | `SessionProperties` 使用的 默认的会话持久化子目录。该目录父级目录 取决于 `ApplicationTemp`。默认值：`server-sessions`
 
-| `server.session.id.source`
+| `infra.server.session.id.source`
 | `SecureRandomSessionIdGenerator` 使用该字段配置生成 ID 的源。默认值：`ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_`
 
 

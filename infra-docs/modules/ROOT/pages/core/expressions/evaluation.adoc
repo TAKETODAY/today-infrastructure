@@ -259,7 +259,7 @@ Object o = expression.getValue(demo);
 大约相当于 300,000 位十进制数字。较大的底数或指数可能使计算消耗大量资源，因此可以在创建
 `SpelParserConfiguration` 时通过 `builder().maximumBigPowerBits(...)` 指定更合适的上限；若需要实际上
 不限制结果位数，可以传入 `Integer.MAX_VALUE`。如果无法显式配置解析器，可以通过 JVM 系统属性或
-`InfraStrategies` 属性 `spel.default.max-big-power-bits` 设置默认上限（参见
+`InfraStrategies` 属性 `infra.spel.default.max-big-power-bits` 设置默认上限（参见
 xref:appendix.adoc#appendix-infra-properties[支持的 Infra 属性]）。
 
 SpEL 表达式的结构嵌套深度（例如嵌套列表、映射、括号、三元或 Elvis 表达式，以及连续的一元运算符）
@@ -354,7 +354,7 @@ Object payload = expr.getValue(message);
 
 配置编译器的第二种方法是在 SpEL 嵌入在其他组件内部且可能无法通过配置对象对其进行配置时使用。
 在这种情况下，可以通过 JVM 系统属性（或通过
-xref:appendix.adoc#appendix-infra-properties[`InfraProperties`] 机制）将 `spel.compiler.mode`
+xref:appendix.adoc#appendix-infra-properties[`InfraProperties`] 机制）将 `infra.spel.compiler.mode`
 属性设置为 `SpelCompilerMode` 枚举值之一（`off`、`immediate` 或 `mixed`）。
 
 

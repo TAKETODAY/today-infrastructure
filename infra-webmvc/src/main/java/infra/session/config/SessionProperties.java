@@ -44,7 +44,7 @@ import infra.util.InfraStrategies;
 public class SessionProperties {
 
   private static final String SESSION_TEMP_DIR = InfraStrategies.getProperty(
-          "server.session.temp-dir", "server-sessions");
+          "infra.server.session.temp-dir", "server-sessions");
 
   /**
    * session timeout

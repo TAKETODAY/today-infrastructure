@@ -70,7 +70,7 @@ import infra.util.ReflectionUtils;
  */
 public abstract class BytecodeCompiler {
 
-  private static final int CLASSES_DEFINED_LIMIT = InfraStrategies.getInt("bytecode.classes.defined.limit", 100);
+  private static final int CLASSES_DEFINED_LIMIT = InfraStrategies.getInt("infra.bytecode.classes.defined.limit", 100);
 
   private static final @Nullable Method classLoaderDefineClassMethod;
 

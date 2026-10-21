@@ -34,7 +34,7 @@ import infra.util.InfraStrategies;
 public interface TemplateAvailabilityProvider {
 
   String DEFAULT_TEMPLATE_LOADER_PATH = InfraStrategies.getProperty(
-          "template.default.loader.path", "classpath:templates/");
+          "infra.template.default.loader.path", "classpath:templates/");
 
   /**
    * Returns {@code true} if a template is available for the given {@code view}.

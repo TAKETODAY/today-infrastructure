@@ -65,7 +65,7 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver, P
    *
    * @see SpelParserConfiguration#getMaximumExpressionLength()
    */
-  public static final String MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME = "spel.context.max-length";
+  public static final String MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME = "infra.spel.context.max-length";
 
   /** Default expression prefix: "#{". */
   public static final String DEFAULT_EXPRESSION_PREFIX = "#{";

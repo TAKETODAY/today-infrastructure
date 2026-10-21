@@ -42,9 +42,9 @@ public class FreeMarkerTemplateAvailabilityProvider extends PathBasedTemplateAva
 
   private static final String REQUIRED_CLASS_NAME = "freemarker.template.Configuration";
 
-  public static final String DEFAULT_PREFIX = InfraStrategies.getProperty("template.freemarker.default.prefix", "");
+  public static final String DEFAULT_PREFIX = InfraStrategies.getProperty("infra.freemarker.default.prefix", "");
 
-  public static final String DEFAULT_SUFFIX = InfraStrategies.getProperty("template.freemarker.default.suffix", ".ftl");
+  public static final String DEFAULT_SUFFIX = InfraStrategies.getProperty("infra.freemarker.default.suffix", ".ftl");
 
   public FreeMarkerTemplateAvailabilityProvider() {
     super(REQUIRED_CLASS_NAME, FreeMarkerTemplateAvailabilityProperties.class, "freemarker");

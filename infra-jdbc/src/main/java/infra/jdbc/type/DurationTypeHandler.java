@@ -52,7 +52,7 @@ import infra.util.InfraStrategies;
  */
 public class DurationTypeHandler extends BasicTypeHandler<Duration> {
 
-  public static final String DEFAULT_FORMAT_KEY = "jdbc.type-handler.duration-storage-format";
+  public static final String DEFAULT_FORMAT_KEY = "infra.jdbc.type-handler.duration-storage-format";
 
   private static final StorageFormat defaultFormat = findDefaultFormat();
 

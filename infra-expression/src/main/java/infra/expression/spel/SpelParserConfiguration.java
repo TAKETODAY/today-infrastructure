@@ -60,7 +60,7 @@ public class SpelParserConfiguration {
    *
    * @see #getCompilerMode()
    */
-  public static final String EXPRESSION_COMPILER_MODE_PROPERTY_NAME = "spel.compiler.mode";
+  public static final String EXPRESSION_COMPILER_MODE_PROPERTY_NAME = "infra.spel.compiler.mode";
 
   /**
    * System property to configure the maximum length for SpEL expressions: {@value}.
@@ -69,7 +69,7 @@ public class SpelParserConfiguration {
    *
    * @see SpelParserConfiguration#getMaximumExpressionLength()
    */
-  public static final String MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME = "spel.default.max-length";
+  public static final String MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME = "infra.spel.default.max-length";
 
   /**
    * Default maximum number of bits in a {@link java.math.BigDecimal} or
@@ -101,7 +101,7 @@ public class SpelParserConfiguration {
    *
    * @see #DEFAULT_MAX_BIG_POWER_BITS
    */
-  public static final String EXPRESSION_MAX_BIG_POWER_BITS_PROPERTY_NAME = "spel.default.max-big-power-bits";
+  public static final String EXPRESSION_MAX_BIG_POWER_BITS_PROPERTY_NAME = "infra.spel.default.max-big-power-bits";
 
   private static final SpelCompilerMode defaultCompilerMode;
 
