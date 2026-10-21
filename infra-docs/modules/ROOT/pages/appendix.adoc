@@ -17,11 +17,17 @@
 |===
 | 字段名称 | 描述
 
-| `infra.web.prevent-RFD-exploits`
-| 阻止 RFD 攻击开关，默认开启。
-
 | `infra.beans.fields.ignore`
 | 忽略扫描 bean 字段，只扫描 getter,setter. 默认关闭
+
+| `infra.beans.fields.prefixes`
+| Bean 字段名称前缀列表，以逗号分隔；默认未配置。
+
+| `infra.beaninfo.ignore`
+| 是否在 JavaBeans 内省时忽略自定义 `BeanInfo` 类，默认值：`false`。
+
+| `infra.locking.strict`
+| 是否在 Bean 创建期间强制严格锁定。未设置时根据启动线程名称推断；显式设置为 `false` 可关闭该推断，设置为 `true` 可恢复整个单例预实例化阶段的严格锁定。
 
 | `infra.aop.ajc.ignore`
 | 在同时启用了编织（weaving）和 AspectJ 自动代理的情况下，Infra 忽略 ajc 编译的 aspects，以便在 Infra AOP 代理中恢复传统的 Infra 行为。详见
@@ -39,6 +45,12 @@ xref:core/aot.adoc[Ahead of Time Optimizations] 和
 | `infra.classformat.ignore`
 | 在类路径扫描期间忽略类格式异常，特别是对于不受支持的类文件版本。详情请参见
 {today-framework-api}++/context/annotation/ClassPathScanningCandidateComponentProvider.html#IGNORE_CLASSFORMAT_PROPERTY_NAME++[`ClassPathScanningCandidateComponentProvider`]。
+
+| `infra.components-index.ignore`
+| 是否忽略 `META-INF/infra.components` 组件索引并回退到常规类路径扫描，默认值：`false`。
+
+| `infra.placeholder.escapeCharacter.default`
+| 属性占位符的默认转义字符，默认值为反斜杠。设置为单个字符可替换默认值，设置为空字符串可禁用转义。
 
 | `infra.context.checkpoint`
 | 该属性指定公共上下文检查点。详细信息请参见 xref:integration/checkpoint-restore.adoc#_automatic_checkpointrestore_at_startup[Automatic
@@ -85,6 +97,12 @@ xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-anno
 | 单元测试上下文缓存的最大大小 _Infra TestContext Framework_. 详见：
 xref:testing/testcontext-framework/ctx-management/caching.adoc[上下文缓存].
 
+| `infra.test.context.cache.pause`
+| 缓存中非活动应用上下文的暂停模式：`ALWAYS`、`ON_CONTEXT_SWITCH` 或 `NEVER`，忽略大小写。默认值：`ON_CONTEXT_SWITCH`，仅在切换到其他上下文时暂停。
+
+| `infra.test.extension.context.scope`
+| `InfraExtension` 使用的 JUnit Jupiter 扩展上下文作用域：`TEST_METHOD` 或 `TEST_CLASS`，默认值：`TEST_METHOD`。也可通过 JUnit 配置参数设置，`InfraStrategies` 配置优先。
+
 | `infra.test.context.failure.threshold`
 | 尝试加载 `ApplicationContext` 时遇到的错误的失败阈值在里面 _Infra TestContext Framework_. 详见：
 xref:testing/testcontext-framework/ctx-management/failure-threshold.adoc[失败阈值].
@@ -117,6 +135,9 @@ xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-anno
 | `infra.awaiter.thread.park-nanos`
 | `SimpleSingleThreadAwaiter` 启用定时等待时的单次等待时长，单位为纳秒，默认值：`3000000000`。
 
+| `infra.util.concurrent.Scheduler.poolSize`
+| 默认调度器处理延迟任务的线程池大小，默认值：`1`，必须大于零；在调度器创建时读取。
+
 | `infra.logger.factory`
 | 自定义 `LoggerFactory` 实现的全限定类名，仅通过 JVM 系统属性设置；未指定时自动选择日志实现。
 
@@ -129,6 +150,15 @@ xref:data-access/jdbc/advanced.adoc#jdbc-batch-list[对对象列表进行批量�
 
 | `infra.jdbc.type-handler.duration-storage-format`
 | 用于 DurationTypeHandler 配置 JVM 级别的 duration 存储格式.
+
+| `infra.persistence.identifier.quote`
+| 是否默认为解析的 SQL 标识符添加引用标记，默认值：`false`。
+
+| `infra.persistence.identifier.autoquote`
+| 是否自动为不符合普通 SQL 名称格式的标识符添加引用标记，默认值：`true`。
+
+| `infra.sql.BasicSQLFormatter.skip-ddl`
+| 是否跳过基本 SQL 格式化器对 `CREATE`、`ALTER TABLE` 和 `COMMENT ON` 语句的格式化，默认值：`true`。
 
 | `infra.sql.logging.stdout`
 | 是否额外输出 SQL 到标准输出，默认值：`false`。
@@ -156,6 +186,27 @@ xref:data-access/jdbc/advanced.adoc#jdbc-batch-list[对对象列表进行批量�
 
 | `infra.server.session.id.source`
 | `SecureRandomSessionIdGenerator` 使用该字段配置生成 ID 的源。默认值：`ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_`
+
+| `infra.web.prevent-RFD-exploits`
+| 阻止 RFD 攻击开关，默认开启。
+
+| `infra.web.default-html-escape`
+| `HttpContext` 默认是否对 HTML 输出转义，默认值：`false`。
+
+| `infra.web.ssl.nio-file-chunked-size`
+| Netty HTTP 上下文启用 SSL 时，分块发送文件使用的缓冲区大小，单位为字节，默认值：`4096`。
+
+| `infra.web.htmlQueryDecoding`
+| Netty HTTP 上下文解析查询参数时是否使用 HTML 表单解码规则，默认值：`true`。
+
+| `infra.web.maxQueryParams`
+| Netty HTTP 上下文允许解析的最大查询参数数量，默认值：`1024`。
+
+| `infra.web.semicolonAsNormalChar`
+| Netty HTTP 上下文解析查询参数时是否将分号视为普通字符，默认值：`false`。
+
+| `infra.condition-evaluation-report.destroyBeanOnRefreshed`
+| 条件评估报告日志监听器完成报告输出后是否销毁条件评估报告单例，默认值：`false`。
 
 
 |===
