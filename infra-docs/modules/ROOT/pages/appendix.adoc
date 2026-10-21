@@ -118,19 +118,25 @@ xref:data-access/jdbc/advanced.adoc#jdbc-batch-list[对对象列表进行批量�
 | `jdbc.type-handler.duration-storage-format`
 | 用于 DurationTypeHandler 配置 JVM 级别的 duration 存储格式.
 
-| `sql.logToStdout`
-| SQL 调式打印 是否使用 _STDOUT_ ，如果对应的 Logger（`infra.SQL`） 调试级别开启会使用 Logger 记录。默认值：`false`。 详见 `SqlStatementLogger`
+| `infra.sql.logging.stdout`
+| 是否额外输出 SQL 到标准输出，默认值：`false`。
 
-| `sql.format`
+| `infra.sql.logging.stdout-only`
+| 是否仅输出到标准输出，默认值：`false`。
+
+| `infra.sql.logging.stdout-prefix`
+| 标准输出前缀，默认值：`today-infrastructure`。
+
+| `infra.sql.logging.format`
 | SQL 调式打印 是否 _格式化_  默认值：`true`  详见 `SqlStatementLogger`
 
-| `sql.highlight`
+| `infra.sql.logging.highlight`
 | SQL 调式打印 是否开启 _SQL 高亮_  默认值：`true` 详见 `SqlStatementLogger`
 
-| `sql.stdoutOnly`
-| SQL 调式打印 是否仅仅使用 _STDOUT_  禁用 Logger（`infra.SQL`） 记录，即使日志级别打开，默认值：`false` 详见 `SqlStatementLogger`
+| `infra.sql.logging.string-preview-length`
+| 参数字符串预览长度，默认值：`10`，非正数禁用截断。
 
-| `sql.logSlowQuery`
+| `infra.sql.logging.slow-query-threshold-millis`
 | `infra.SQL_SLOW` Logger 记录超过该值的 `慢SQL` 默认值：`0` 不记录。详见 `SqlStatementLogger`
 
 | `server.session.temp-dir`

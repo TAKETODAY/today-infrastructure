@@ -22,8 +22,9 @@ import infra.util.StringUtils;
 
 /**
  * A utility class for logging SQL statements and slow queries with various
- * formatting and highlighting options. It supports logging to both internal
- * loggers and standard output (stdout) based on configuration.
+ * formatting and highlighting options. SQL statements and execution details are
+ * logged through {@code infra.SQL}, and slow queries through {@code infra.SQL_SLOW}.
+ * Standard output can optionally be enabled in addition to or instead of the loggers.
  *
  * <p>This class provides methods to log SQL statements, format them, highlight
  * syntax, and track slow queries. It is designed to be configurable through
@@ -85,13 +86,13 @@ public class SqlStatementLogger {
   public static final int DEFAULT_STRING_PREVIEW_LENGTH = 10;
 
   public static final SqlStatementLogger sharedInstance = new SqlStatementLogger(
-          InfraStrategies.getFlag("sql.logToStdout", false),
-          InfraStrategies.getFlag("sql.format", true),
-          InfraStrategies.getFlag("sql.highlight", true),
-          InfraStrategies.getFlag("sql.stdoutOnly", false),
-          InfraStrategies.getLong("sql.logSlowQuery", 0),
-          InfraStrategies.getProperty("sql.stdoutOnlyPrefix", DEFAULT_LOG_PREFIX),
-          InfraStrategies.getInt("sql.stringPreviewLength", DEFAULT_STRING_PREVIEW_LENGTH)
+          InfraStrategies.getFlag("infra.sql.logging.stdout", false),
+          InfraStrategies.getFlag("infra.sql.logging.format", true),
+          InfraStrategies.getFlag("infra.sql.logging.highlight", true),
+          InfraStrategies.getFlag("infra.sql.logging.stdout-only", false),
+          InfraStrategies.getLong("infra.sql.logging.slow-query-threshold-millis", 0),
+          InfraStrategies.getProperty("infra.sql.logging.stdout-prefix", DEFAULT_LOG_PREFIX),
+          InfraStrategies.getInt("infra.sql.logging.string-preview-length", DEFAULT_STRING_PREVIEW_LENGTH)
   );
 
   private final boolean format;
@@ -123,7 +124,7 @@ public class SqlStatementLogger {
   /**
    * Constructs a new SqlStatementLogger instance.
    *
-   * @param logToStdout Should we log to STDOUT in addition to our internal logger.
+   * @param logToStdout whether to also log to standard output
    * @param format Should we format the statements in the console and log
    * @param highlight Should we highlight the statements in the console
    * @param logSlowQuery Should we logs query which executed slower than specified milliseconds. 0 - disabled.
@@ -135,27 +136,27 @@ public class SqlStatementLogger {
   /**
    * Constructs a new SqlStatementLogger instance.
    *
-   * @param logToStdout Should we log to STDOUT in addition to our internal logger
-   * @param format Should we format the statements in the console and log
-   * @param highlight Should we highlight the statements in the console
-   * @param stdoutOnly just log to std out
-   * @param logSlowQuery Should we logs query which executed slower than specified milliseconds, 0 - disabled
-   * @param stdoutOnlyPrefix stdout-only log prefix
+   * @param logToStdout whether to also log to standard output
+   * @param format whether to format SQL statements
+   * @param highlight whether to highlight SQL statements
+   * @param stdoutOnly whether to log only to standard output
+   * @param logSlowQuery slow query threshold in milliseconds; 0 disables logging
+   * @param stdoutOnlyPrefix prefix for standard output
    */
-  public SqlStatementLogger(boolean logToStdout, boolean format,
-          boolean highlight, boolean stdoutOnly, long logSlowQuery, @Nullable String stdoutOnlyPrefix) {
+  public SqlStatementLogger(boolean logToStdout, boolean format, boolean highlight, boolean stdoutOnly,
+          long logSlowQuery, @Nullable String stdoutOnlyPrefix) {
     this(logToStdout, format, highlight, stdoutOnly, logSlowQuery, stdoutOnlyPrefix, DEFAULT_STRING_PREVIEW_LENGTH);
   }
 
   /**
    * Constructs a new SqlStatementLogger instance.
    *
-   * @param logToStdout Should we log to STDOUT in addition to our internal logger
+   * @param logToStdout whether to also log to standard output
+   * @param stdoutOnly whether to log only to standard output
+   * @param stdoutOnlyPrefix prefix for standard output
    * @param format Should we format the statements in the console and log
    * @param highlight Should we highlight the statements in the console
-   * @param stdoutOnly just log to std out
    * @param logSlowQuery Should we logs query which executed slower than specified milliseconds, 0 - disabled
-   * @param stdoutOnlyPrefix stdout-only log prefix
    * @param stringPreviewLength maximum number of characters logged for a
    * {@code CharSequence} parameter value; a non-positive value disables truncation
    * @since 5.0
@@ -163,11 +164,11 @@ public class SqlStatementLogger {
   public SqlStatementLogger(boolean logToStdout, boolean format, boolean highlight, boolean stdoutOnly,
           long logSlowQuery, @Nullable String stdoutOnlyPrefix, int stringPreviewLength) {
     this.logToStdout = logToStdout;
+    this.stdoutOnly = stdoutOnly;
+    this.stdoutOnlyPrefix = Objects.requireNonNullElse(stdoutOnlyPrefix, DEFAULT_LOG_PREFIX);
     this.format = format;
     this.highlight = highlight;
-    this.stdoutOnly = stdoutOnly;
     this.logSlowQuery = logSlowQuery;
-    this.stdoutOnlyPrefix = Objects.requireNonNullElse(stdoutOnlyPrefix, DEFAULT_LOG_PREFIX);
     this.stringPreviewLength = stringPreviewLength;
   }
 
@@ -178,6 +179,16 @@ public class SqlStatementLogger {
    */
   public boolean isDebugEnabled() {
     return sqlLogger.isDebugEnabled() || logToStdout || stdoutOnly;
+  }
+
+  /**
+   * Whether detailed parameter and result logging is enabled at TRACE level.
+   *
+   * @return whether statement parameters and results should be logged
+   * @since 5.0
+   */
+  public boolean isTraceEnabled() {
+    return sqlLogger.isTraceEnabled();
   }
 
   /**
@@ -262,13 +273,7 @@ public class SqlStatementLogger {
       return;
     }
     String text = "==> Parameters: " + formatParameters(parameters);
-    if (!stdoutOnly) {
-      sqlLogger.debug(text);
-    }
-    if (stdoutOnly || logToStdout) {
-      String prefix = highlight ? "\u001b[35m[" + this.stdoutOnlyPrefix + "]\u001b[0m " : this.stdoutOnlyPrefix + ": ";
-      System.out.println(prefix + text);
-    }
+    logOutcome(text);
   }
 
   /**

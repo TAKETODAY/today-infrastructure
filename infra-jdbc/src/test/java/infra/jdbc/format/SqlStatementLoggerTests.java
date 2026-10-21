@@ -21,6 +21,8 @@ import org.junit.jupiter.api.Test;
 import java.sql.Statement;
 import java.util.concurrent.TimeUnit;
 
+import infra.logging.LoggerFactory;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -45,16 +47,17 @@ class SqlStatementLoggerTests {
 
   @Test
   void shouldCreateSqlStatementLoggerWithAllParameters() {
-    SqlStatementLogger logger = new SqlStatementLogger(true, true, true, true, 1000, "test-prefix");
+    SqlStatementLogger logger = new SqlStatementLogger(true, true, true, true, 1000, "test-prefix", 20);
 
     assertThat(logger).isNotNull();
   }
 
   @Test
-  void shouldCreateSqlStatementLoggerWithDefaultPrefix() {
+  void shouldCreateSqlStatementLoggerWithDefaultStringPreviewLength() {
     SqlStatementLogger logger = new SqlStatementLogger(true, true, true, 1000);
 
-    assertThat(logger).isNotNull();
+    assertThat(logger.formatParameters(new Object[] { "12345678901" }))
+            .isEqualTo("[1234567890 (truncated)...(String)]");
   }
 
   @Test
@@ -170,12 +173,11 @@ class SqlStatementLoggerTests {
   }
 
   @Test
-  void shouldLogToStdoutOnly() {
-    SqlStatementLogger logger = new SqlStatementLogger(true, false, false, true, 0, "test-prefix");
-
-    // Should not throw exception
-    logger.logStatement("SELECT * FROM users");
-    assertThat(true).isTrue();
+  void shouldCheckIfTraceEnabled() {
+    boolean traceEnabled = LoggerFactory.getLogger("infra.SQL").isTraceEnabled();
+    assertThat(new SqlStatementLogger(false, false, false, 0).isTraceEnabled()).isEqualTo(traceEnabled);
+    assertThat(new SqlStatementLogger(true, false, false, 0).isTraceEnabled()).isEqualTo(traceEnabled);
+    assertThat(new SqlStatementLogger(false, false, false, true, 0, null).isTraceEnabled()).isEqualTo(traceEnabled);
   }
 
   @Test

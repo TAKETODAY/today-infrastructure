@@ -32,7 +32,7 @@ import java.util.TreeMap;
  * bound parameter values and logs them (MyBatis style) around execution, along with
  * the update count or the number of rows read.
  *
- * <p>The wrapper is only installed when SQL logging is enabled; otherwise
+ * <p>The wrapper is only installed when TRACE logging is enabled; otherwise
  * {@link #wrap} returns the original statement so the normal path has no overhead.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -52,14 +52,15 @@ public final class LoggingPreparedStatement implements InvocationHandler {
   }
 
   /**
-   * Wrap the given statement when SQL logging is enabled; otherwise return it as-is.
+   * Wrap the given statement when TRACE logging is enabled;
+   * otherwise return it as-is.
    *
    * @param statement the statement to wrap
    * @param logger the SQL logger to report parameters and results to
    * @return a logging proxy, or the original statement when logging is disabled
    */
   public static PreparedStatement wrap(PreparedStatement statement, SqlStatementLogger logger) {
-    if (!logger.isDebugEnabled()) {
+    if (!logger.isTraceEnabled()) {
       return statement;
     }
     return (PreparedStatement) Proxy.newProxyInstance(

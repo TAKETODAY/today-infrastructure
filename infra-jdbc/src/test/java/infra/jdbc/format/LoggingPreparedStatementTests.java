@@ -128,9 +128,27 @@ class LoggingPreparedStatementTests {
   @Test
   void returnsOriginalStatementWhenLoggingDisabled() {
     PreparedStatement delegate = mock(PreparedStatement.class);
-    SqlStatementLogger logger = new SqlStatementLogger(false, false, false, 0);
+    SqlStatementLogger logger = mock(SqlStatementLogger.class);
 
     assertThat(LoggingPreparedStatement.wrap(delegate, logger)).isSameAs(delegate);
+  }
+
+  @Test
+  void returnsOriginalStatementWhenOnlyDebugEnabled() {
+    PreparedStatement delegate = mock(PreparedStatement.class);
+    SqlStatementLogger logger = mock(SqlStatementLogger.class);
+    given(logger.isDebugEnabled()).willReturn(true);
+
+    assertThat(LoggingPreparedStatement.wrap(delegate, logger)).isSameAs(delegate);
+  }
+
+  @Test
+  void wrapsStatementWhenTraceLoggingEnabled() {
+    PreparedStatement delegate = mock(PreparedStatement.class);
+    SqlStatementLogger logger = mock(SqlStatementLogger.class);
+    given(logger.isTraceEnabled()).willReturn(true);
+
+    assertThat(LoggingPreparedStatement.wrap(delegate, logger)).isNotSameAs(delegate);
   }
 
   @Test
@@ -159,7 +177,7 @@ class LoggingPreparedStatementTests {
     return new SqlStatementLogger(false, false, false, 0) {
 
       @Override
-      public boolean isDebugEnabled() {
+      public boolean isTraceEnabled() {
         return true;
       }
 
