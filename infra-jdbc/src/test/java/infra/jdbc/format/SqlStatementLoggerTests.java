@@ -189,7 +189,40 @@ class SqlStatementLoggerTests {
     assertThat(result).contains("format = true");
     assertThat(result).contains("logToStdout = true");
     assertThat(result).contains("highlight = true");
+    assertThat(result).contains("trace = false");
     assertThat(result).contains("logSlowQuery = 1000");
+  }
+
+  @Test
+  void shouldEnableExplicitTraceWithStandardOutput() {
+    assertThat(new SqlStatementLogger(true, false, false, false, 0, null, 10, true)
+            .isTraceEnabled()).isTrue();
+    assertThat(new SqlStatementLogger(false, false, false, true, 0, null, 10, true)
+            .isTraceEnabled()).isTrue();
+  }
+
+  @Test
+  void shouldEnableExplicitTraceWithDebugOutput() {
+    SqlStatementLogger logger = new SqlStatementLogger(false, false, false, false, 0, null, 10, true) {
+      @Override
+      public boolean isDebugEnabled() {
+        return true;
+      }
+    };
+
+    assertThat(logger.isTraceEnabled()).isTrue();
+  }
+
+  @Test
+  void shouldNotForceTraceWithoutOutput() {
+    SqlStatementLogger logger = new SqlStatementLogger(false, false, false, false, 0, null, 10, true) {
+      @Override
+      public boolean isDebugEnabled() {
+        return false;
+      }
+    };
+
+    assertThat(logger.isTraceEnabled()).isEqualTo(LoggerFactory.getLogger("infra.SQL").isTraceEnabled());
   }
 
   static class MockStatement implements Statement {

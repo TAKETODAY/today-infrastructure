@@ -28,6 +28,8 @@ import infra.util.StringUtils;
  * DEBUG level. {@link #isTraceEnabled()} controls whether callers should collect
  * detailed parameter and result information; enabling standard output alone does
  * not enable this collection. Slow queries use {@code infra.SQL_SLOW} at INFO level.
+ * Detail collection can also be explicitly enabled through the {@code trace}
+ * option when DEBUG logging or standard output is enabled.
  * The {@code stdoutOnly} option bypasses {@code infra.SQL}, but does not suppress
  * the slow-query logger. Slow queries are additionally written to standard output
  * only when {@code logToStdout} is enabled.
@@ -50,6 +52,9 @@ import infra.util.StringUtils;
  * {@link InfraStrategies} properties once, when this class is initialized:
  * <ul>
  * <li>{@code infra.sql.logging.stdout}: also write to standard output (default: {@code false}).
+ * <li>{@code infra.sql.logging.trace}: collect parameter and result details when
+ * DEBUG logging or standard output is enabled, even without TRACE logging
+ * (default: {@code false}). Does not change the underlying logger's level.
  * <li>{@code infra.sql.logging.format}: format SQL statements (default: {@code true}).
  * <li>{@code infra.sql.logging.highlight}: apply ANSI highlighting (default: {@code true}).
  * <li>{@code infra.sql.logging.stdout-only}: write SQL statements and execution
@@ -102,7 +107,8 @@ public class SqlStatementLogger {
           InfraStrategies.getFlag("infra.sql.logging.stdout-only", false),
           InfraStrategies.getLong("infra.sql.logging.slow-query-threshold-millis", 0),
           InfraStrategies.getProperty("infra.sql.logging.stdout-prefix", DEFAULT_LOG_PREFIX),
-          InfraStrategies.getInt("infra.sql.logging.string-preview-length", DEFAULT_STRING_PREVIEW_LENGTH)
+          InfraStrategies.getInt("infra.sql.logging.string-preview-length", DEFAULT_STRING_PREVIEW_LENGTH),
+          InfraStrategies.getFlag("infra.sql.logging.trace", false)
   );
 
   private final boolean format;
@@ -112,6 +118,8 @@ public class SqlStatementLogger {
   private final boolean stdoutOnly;
 
   private final boolean highlight;
+
+  private final boolean trace;
 
   /**
    * Slow-query threshold in milliseconds; non-positive values disable logging.
@@ -178,6 +186,30 @@ public class SqlStatementLogger {
    */
   public SqlStatementLogger(boolean logToStdout, boolean format, boolean highlight, boolean stdoutOnly,
           long logSlowQuery, @Nullable String stdoutOnlyPrefix, int stringPreviewLength) {
+    this(logToStdout, format, highlight, stdoutOnly, logSlowQuery, stdoutOnlyPrefix, stringPreviewLength, false);
+  }
+
+  /**
+   * Create a logger with explicit output, formatting, parameter preview, and detail
+   * collection options.
+   *
+   * @param logToStdout whether to also log to standard output
+   * @param format whether to format SQL statements
+   * @param highlight whether to apply ANSI highlighting to SQL statements
+   * @param stdoutOnly whether to bypass the SQL logger and write statements and
+   * execution details only to standard output; does not affect the slow-query logger
+   * @param logSlowQuery slow-query threshold in milliseconds; non-positive values disable logging
+   * @param stdoutOnlyPrefix prefix for statements and execution details on standard
+   * output, or {@code null} to use {@link #DEFAULT_LOG_PREFIX}
+   * @param stringPreviewLength maximum number of characters logged for a
+   * {@code CharSequence} parameter value; a non-positive value disables truncation
+   * @param trace whether to collect parameter and result details when DEBUG logging
+   * or standard output is enabled, even if the SQL logger is not enabled at TRACE
+   * level; does not change the underlying logger's level
+   * @since 5.0
+   */
+  public SqlStatementLogger(boolean logToStdout, boolean format, boolean highlight, boolean stdoutOnly,
+          long logSlowQuery, @Nullable String stdoutOnlyPrefix, int stringPreviewLength, boolean trace) {
     this.logToStdout = logToStdout;
     this.stdoutOnly = stdoutOnly;
     this.stdoutOnlyPrefix = Objects.requireNonNullElse(stdoutOnlyPrefix, DEFAULT_LOG_PREFIX);
@@ -185,6 +217,7 @@ public class SqlStatementLogger {
     this.highlight = highlight;
     this.logSlowQuery = logSlowQuery;
     this.stringPreviewLength = stringPreviewLength;
+    this.trace = trace;
   }
 
   /**
@@ -199,14 +232,15 @@ public class SqlStatementLogger {
 
   /**
    * Return whether callers should collect detailed parameter and result information.
-   * Only the TRACE level of {@code infra.SQL} is considered; standard-output
-   * options do not enable detail collection.
+   * Enabled when {@code infra.SQL} is enabled at TRACE level, or when the explicit
+   * {@code trace} option is enabled and {@link #isDebugEnabled()} reports an available
+   * output. Standard-output options alone do not enable detail collection.
    *
    * @return whether statement parameters and results should be logged
    * @since 5.0
    */
   public boolean isTraceEnabled() {
-    return sqlLogger.isTraceEnabled();
+    return sqlLogger.isTraceEnabled() || (trace && isDebugEnabled());
   }
 
   /**
@@ -421,6 +455,7 @@ public class SqlStatementLogger {
             .append("format", format)
             .append("logToStdout", logToStdout)
             .append("highlight", highlight)
+            .append("trace", trace)
             .append("logSlowQuery", logSlowQuery)
             .toString();
   }

@@ -163,6 +163,9 @@ xref:data-access/jdbc/advanced.adoc#jdbc-batch-list[对对象列表进行批量�
 | `infra.sql.logging.stdout`
 | 是否额外输出 SQL 到标准输出，默认值：`false`。
 
+| `infra.sql.logging.trace`
+| 是否在 DEBUG 日志或标准输出已启用时显式开启 SQL 参数和结果明细采集，默认值：`false`。不改变底层日志级别；`infra.SQL` 开启 TRACE 时仍自动采集明细。仅开启标准输出不会自动采集明细。
+
 | `infra.sql.logging.stdout-only`
 | 是否仅输出到标准输出，默认值：`false`。
 

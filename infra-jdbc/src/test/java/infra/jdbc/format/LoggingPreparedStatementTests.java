@@ -158,6 +158,14 @@ class LoggingPreparedStatementTests {
   }
 
   @Test
+  void wrapsStatementWhenExplicitTraceAndStandardOutputEnabled() {
+    PreparedStatement delegate = mock(PreparedStatement.class);
+    SqlStatementLogger logger = new SqlStatementLogger(false, false, false, true, 0, null, 10, true);
+
+    assertThat(LoggingPreparedStatement.wrap(delegate, logger)).isNotSameAs(delegate);
+  }
+
+  @Test
   void truncatesCharSequenceByConfiguredLength() {
     SqlStatementLogger logger = new SqlStatementLogger(false, false, false, false, 0, null, 3);
     assertThat(logger.formatParameters(new Object[] { "TODAY" })).isEqualTo("[TOD (truncated)...(String)]");
