@@ -112,6 +112,7 @@ public interface Part extends InputStreamSource, HttpInputMessage {
    * If an array of the required size cannot be allocated, for example the file is larger
    * than {@code 2GB}. If so, you should use {@link #getInputStream()}.
    */
+  @Override
   byte[] getContentAsByteArray() throws IOException;
 
   /**
@@ -123,6 +124,7 @@ public interface Part extends InputStreamSource, HttpInputMessage {
    * file is larger than {@code 2GB}. If so, you should use {@link #getReader()}.
    * @since 5.0
    */
+  @Override
   String getContentAsString() throws IOException;
 
   /**
@@ -137,6 +139,7 @@ public interface Part extends InputStreamSource, HttpInputMessage {
    * @throws IOException if an I/O error occurs
    * @since 5.0
    */
+  @Override
   String getContentAsString(@Nullable Charset charset) throws IOException;
 
   /**
