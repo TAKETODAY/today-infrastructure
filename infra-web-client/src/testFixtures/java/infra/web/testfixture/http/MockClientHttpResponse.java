@@ -111,13 +111,13 @@ public class MockClientHttpResponse extends MockHttpInputMessage implements Clie
 
   @Nullable
   @Override
-  public <T> T bodyTo(Class<T> bodyType) {
+  public <T> T getContentAs(Class<T> bodyType) {
     return null;
   }
 
   @Nullable
   @Override
-  public <T> T bodyTo(ParameterizedTypeReference<T> bodyType) {
+  public <T> T getContentAs(ParameterizedTypeReference<T> bodyType) {
     return null;
   }
 

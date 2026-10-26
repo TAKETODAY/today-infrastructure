@@ -330,33 +330,33 @@ class DefaultRestTestClient implements RestTestClient {
 
     @Override
     public <B> BodySpec<B, ?> expectBody(Class<B> bodyType) {
-      B body = this.exchangeResult.getClientResponse().bodyTo(bodyType);
+      B body = this.exchangeResult.getClientResponse().getContentAs(bodyType);
       EntityExchangeResult<B> result = new EntityExchangeResult<>(this.exchangeResult, body);
       return new DefaultBodySpec<>(result);
     }
 
     @Override
     public <B> BodySpec<B, ?> expectBody(ParameterizedTypeReference<B> bodyType) {
-      B body = this.exchangeResult.getClientResponse().bodyTo(bodyType);
+      B body = this.exchangeResult.getClientResponse().getContentAs(bodyType);
       EntityExchangeResult<B> result = initExchangeResult(body);
       return new DefaultBodySpec<>(result);
     }
 
     @Override
     public BodyContentSpec expectBody() {
-      byte[] body = this.exchangeResult.getClientResponse().bodyTo(byte[].class);
+      byte[] body = this.exchangeResult.getClientResponse().getContentAs(byte[].class);
       EntityExchangeResult<byte[]> result = initExchangeResult(body);
       return new DefaultBodyContentSpec(result);
     }
 
     @Override
     public <T> EntityExchangeResult<T> returnResult(Class<T> elementClass) {
-      return initExchangeResult(this.exchangeResult.getClientResponse().bodyTo(elementClass));
+      return initExchangeResult(this.exchangeResult.getClientResponse().getContentAs(elementClass));
     }
 
     @Override
     public <T> EntityExchangeResult<T> returnResult(ParameterizedTypeReference<T> elementTypeRef) {
-      return initExchangeResult(this.exchangeResult.getClientResponse().bodyTo(elementTypeRef));
+      return initExchangeResult(this.exchangeResult.getClientResponse().getContentAs(elementTypeRef));
     }
 
     private <B> EntityExchangeResult<B> initExchangeResult(@Nullable B body) {

@@ -745,7 +745,7 @@ class RestClientIntegrationTests {
     Pojo result = this.restClient.get()
             .uri("/pojo")
             .accept(MediaType.APPLICATION_JSON)
-            .exchange((request, response) -> response.bodyTo(Pojo.class));
+            .exchange((request, response) -> response.getContentAs(Pojo.class));
 
     assertThat(result.getFoo()).isEqualTo("foofoo");
     assertThat(result.getBar()).isEqualTo("barbar");
@@ -768,7 +768,7 @@ class RestClientIntegrationTests {
     List<Pojo> result = this.restClient.get()
             .uri("/pojo")
             .accept(MediaType.APPLICATION_JSON)
-            .exchange((request, response) -> response.bodyTo(new ParameterizedTypeReference<>() { }));
+            .exchange((request, response) -> response.getContentAs(new ParameterizedTypeReference<>() { }));
 
     assertThat(result).hasSize(2);
     assertThat(result.get(0).getFoo()).isEqualTo("foo1");
@@ -1214,7 +1214,7 @@ class RestClientIntegrationTests {
 
     try (var response = future.join()) {
       assertThat(response).isNotNull();
-      Map<String, String> body = response.bodyTo(new ParameterizedTypeReference<>() {
+      Map<String, String> body = response.getContentAs(new ParameterizedTypeReference<>() {
 
       });
       assertThat(body).contains(Pair.of("bar", "barbar"), Pair.of("foo", "foofoo"));
@@ -1246,7 +1246,7 @@ class RestClientIntegrationTests {
     try (var response = future.block().orElse(null)) {
       assertThat(response).isNotNull();
 
-      Map<String, String> body = response.bodyTo(Map.class);
+      Map<String, String> body = response.getContentAs(Map.class);
       assertThat(body).contains(Pair.of("bar", "barbar"), Pair.of("foo", "foofoo"));
 
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

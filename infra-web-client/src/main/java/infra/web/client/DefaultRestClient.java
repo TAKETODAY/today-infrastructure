@@ -1119,12 +1119,12 @@ final class DefaultRestClient implements RestClient {
     }
 
     @Override
-    public <T> @Nullable T bodyTo(Class<T> bodyType) {
+    public <T> @Nullable T getContentAs(Class<T> bodyType) {
       return readWithMessageConverters(this.delegate, null, bodyType, bodyType, hints);
     }
 
     @Override
-    public <T> @Nullable T bodyTo(ParameterizedTypeReference<T> bodyType) {
+    public <T> @Nullable T getContentAs(ParameterizedTypeReference<T> bodyType) {
       Type type = bodyType.getType();
       Class<T> bodyClass = bodyClass(type);
       return readWithMessageConverters(this.delegate, null, type, bodyClass, hints);
