@@ -18,16 +18,20 @@
 
 package infra.web.testfixture.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import infra.core.ParameterizedTypeReference;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.MockHttpInputMessage;
 import infra.util.Assert;
-import org.jspecify.annotations.Nullable;
 import infra.web.client.ClientResponse;
+import infra.web.client.RestClientException;
 
 /**
  * Mock implementation of {@link infra.http.client.ClientHttpResponse}.
@@ -115,6 +119,31 @@ public class MockClientHttpResponse extends MockHttpInputMessage implements Clie
   @Override
   public <T> T bodyTo(ParameterizedTypeReference<T> bodyType) {
     return null;
+  }
+
+  @Override
+  public byte[] getContentAsByteArray() {
+    try {
+      return super.getContentAsByteArray();
+    }
+    catch (IOException ex) {
+      throw new RestClientException("Failed to read response body", ex);
+    }
+  }
+
+  @Override
+  public String getContentAsString() {
+    return getContentAsString(StandardCharsets.UTF_8);
+  }
+
+  @Override
+  public String getContentAsString(@Nullable Charset charset) {
+    try {
+      return super.getContentAsString(charset);
+    }
+    catch (IOException ex) {
+      throw new RestClientException("Failed to read response body", ex);
+    }
   }
 
 }

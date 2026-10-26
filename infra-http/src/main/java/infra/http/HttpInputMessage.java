@@ -18,8 +18,14 @@
 
 package infra.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
+import infra.util.StreamUtils;
 
 /**
  * Represents an HTTP input message, consisting of {@linkplain #getHeaders() headers}
@@ -27,6 +33,12 @@ import java.io.InputStream;
  *
  * <p>Typically implemented by an HTTP request handle on the server side,
  * or an HTTP response handle on the client side.
+ *
+ * <p>Content access methods may consume the underlying stream; repeated reads
+ * are not guaranteed. Their default implementations read the remaining body
+ * without closing the stream. The message owner is responsible for resource
+ * cleanup, including when reading fails. Implementations that open independent
+ * streams must manage those streams themselves.
  *
  * @author Arjen Poutsma
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -41,5 +53,44 @@ public interface HttpInputMessage extends HttpMessage {
    * @throws IOException in case of I/O errors
    */
   InputStream getBody() throws IOException;
+
+  /**
+   * Read the remaining message body as a byte array.
+   * <p>The default implementation consumes the body without closing the stream.
+   *
+   * @return the remaining body content, or an empty array if no content remains
+   * @throws IOException if reading the message body fails
+   * @since 5.0
+   */
+  default byte[] getContentAsByteArray() throws IOException {
+    return StreamUtils.copyToByteArray(getBody());
+  }
+
+  /**
+   * Read the remaining message body as a UTF-8 string.
+   * <p>The default implementation consumes the body without closing the stream.
+   *
+   * @return the remaining body content, or an empty string if no content remains
+   * @throws IOException if reading the message body fails
+   * @since 5.0
+   */
+  default String getContentAsString() throws IOException {
+    return getContentAsString(StandardCharsets.UTF_8);
+  }
+
+  /**
+   * Read the remaining message body as a string using the given charset,
+   * regardless of the charset declared in the message headers.
+   * <p>The default implementation consumes the body without closing the stream.
+   *
+   * @param charset the charset to use to decode the message body,
+   * or {@code null} to use UTF-8 in the default implementation
+   * @return the remaining body content, or an empty string if no content remains
+   * @throws IOException if reading the message body fails
+   * @since 5.0
+   */
+  default String getContentAsString(@Nullable Charset charset) throws IOException {
+    return StreamUtils.copyToString(getBody(), charset != null ? charset : StandardCharsets.UTF_8);
+  }
 
 }

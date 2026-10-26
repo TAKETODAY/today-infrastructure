@@ -64,11 +64,11 @@ import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.SmartHttpMessageConverter;
-import infra.util.Assert;
-import infra.util.InfraStrategies;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
+import infra.util.InfraStrategies;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.util.concurrent.Future;
@@ -1133,6 +1133,31 @@ final class DefaultRestClient implements RestClient {
     @Override
     public InputStream getBody() throws IOException {
       return this.delegate.getBody();
+    }
+
+    @Override
+    public byte[] getContentAsByteArray() {
+      try {
+        return this.delegate.getContentAsByteArray();
+      }
+      catch (IOException ex) {
+        throw new RestClientException("Failed to read response body", ex);
+      }
+    }
+
+    @Override
+    public String getContentAsString() {
+      return getContentAsString(StandardCharsets.UTF_8);
+    }
+
+    @Override
+    public String getContentAsString(@Nullable Charset charset) {
+      try {
+        return this.delegate.getContentAsString(charset);
+      }
+      catch (IOException ex) {
+        throw new RestClientException("Failed to read response body", ex);
+      }
     }
 
     @Override
