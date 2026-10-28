@@ -14,53 +14,38 @@ include::example$getting-started/apply-plugin-release.gradle[]
 endif::[]
 
 插件门户中的 ID 为 `cn.taketoday.application` 和 `cn.taketoday.application.aot`。
+Gradle 插件门户仅接收非快照版本，不提供 `cn.taketoday.application` 的快照版本。
 通过 `buildscript` 或 `buildSrc` 加载 `cn.taketoday:infra-gradle-plugin` 时，
 仍可使用兼容 ID `infra.application` 和 `infra.application.aot`。
-ifeval::["{artifact-release-type}" == "milestone"]
-此插件发布在 Infra 里程碑版本仓库中。
-可以先配置 Gradle 使用该仓库，再通过 `plugins` 块应用插件。
-要配置 Gradle 使用里程碑版本仓库，请在 `settings.gradle`（Groovy）或 `settings.gradle.kts`（Kotlin）中添加以下内容：
 
-[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
-.Groovy
-----
-include::example$getting-started/milestone-settings.gradle[]
-----
-
-随后即可使用 `plugins` 块应用插件：
-
-[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
-.Groovy
-----
-include::example$getting-started/apply-plugin-release.gradle[]
-----
-
-endif::[]
 ifeval::["{artifact-release-type}" == "snapshot"]
-此插件发布在 Infra 快照版本仓库中。
-可以先配置 Gradle 使用该仓库，再通过 `plugins` 块应用插件。
-要配置 Gradle 使用快照版本仓库，请在 `settings.gradle`（Groovy）或 `settings.gradle.kts`（Kotlin）中添加以下内容：
+如需使用快照版本，请改用 `buildscript` 方式，在 `build.gradle` 中配置快照仓库和插件依赖，
+其中插件依赖的版本号需指定为所需的 `-SNAPSHOT` 版本：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::example$getting-started/snapshot-settings.gradle[]
-----
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url = uri('https://central.sonatype.com/repository/maven-snapshots/') }
+  }
 
-随后即可使用 `plugins` 块应用插件：
+  dependencies {
+    classpath 'cn.taketoday:infra-gradle-plugin:{infra-version}'
+  }
+}
 
-[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
-.Groovy
-----
-include::example$getting-started/apply-plugin-snapshot.gradle[]
+apply plugin: 'cn.taketoday.application'
 ----
 
 endif::[]
 
-单独应用此插件时，它对项目所做的改动很少。
-插件会检测某些其他插件的应用情况，并据此进行相应配置。
-例如，应用 `java` 插件后，会自动配置用于构建可执行 jar 的任务。
-典型的 Infra 项目至少会应用 {groovy-plugin}[`groovy`]、{java-plugin}[`java`] 或 {kotlin-plugin}[`org.jetbrains.kotlin.jvm`] 插件之一，并使用 {dependency-management-plugin}[`io.spring.dependency-management`] 插件或 Gradle 原生的 BOM 支持来管理依赖。
+默认情况下，Infra 插件会自动应用 {java-plugin}[`java`] 和 {dependency-management-plugin}[`io.spring.dependency-management`] 插件，
+创建用于构建可执行 jar 的任务，并导入与当前 Infra 版本对应的 `infra-dependencies` BOM。
+无需重复应用依赖管理插件或手动导入同一个 BOM。
+使用 Groovy 或 Kotlin 时，还需按需应用 {groovy-plugin}[`groovy`] 或 {kotlin-plugin}[`org.jetbrains.kotlin.jvm`] 插件。
 例如：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
@@ -68,5 +53,10 @@ endif::[]
 ----
 include::example$getting-started/typical-plugins.gradle[tags=apply]
 ----
+
+如果需要自行控制插件的应用，可以在 `gradle.properties` 中设置 `skipAutoApplyPlugins=true`。
+插件根据该项目属性是否存在来判断是否跳过自动应用；即使将值设为 `false`，也会跳过自动应用。
+此时应显式应用所需的 Java、Groovy 或 Kotlin 插件，并自行选择依赖管理插件或 Gradle 原生的 BOM 支持。
+`war`、`application` 和 GraalVM Native Image 插件不会自动应用。
 
 有关应用其他插件时 Infra 插件的具体行为，请参阅 xref:reacting.adoc[与其他插件协作]。

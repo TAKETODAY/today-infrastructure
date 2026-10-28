@@ -1,10 +1,9 @@
 // tag::apply[]
 plugins {
   id 'java'
-  id 'infra.application' version '{gradle-project-version}'
+  id 'cn.taketoday.application' version '{gradle-project-version}'
 }
 
-apply plugin: 'io.spring.dependency-management'
 // end::apply[]
 
 task verify {

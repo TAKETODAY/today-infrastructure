@@ -1,14 +1,17 @@
 [[managing-dependencies]]
 = 依赖管理
 include::partial$attributes.adoc[]
-要管理 Infra 应用中的依赖，可以应用 {dependency-management-plugin}[`io.spring.dependency-management`] 插件，也可以使用 Gradle 原生的 BOM 支持。
+Infra 插件默认自动应用 {dependency-management-plugin}[`io.spring.dependency-management`] 插件并导入 Infra BOM，无需额外声明该插件的依赖、应用它或重复导入 BOM。
+也可以关闭插件自动应用后，使用 Gradle 原生的 BOM 支持。
 前者的主要优势在于可以通过属性自定义受管理的版本，而后者通常能带来更快的构建速度。
 
 
 
 [[managing-dependencies.dependency-management-plugin]]
 == 使用依赖管理插件管理依赖
-应用 {dependency-management-plugin}[`io.spring.dependency-management`] 插件后，Infra 插件会自动 xref:reacting.adoc#reacting-to-other-plugins.dependency-management[导入与你所用 Infra 版本对应的 `infra-dependencies` BOM]。
+默认情况下，Infra 插件会自动应用 {dependency-management-plugin}[`io.spring.dependency-management`] 插件，
+并 xref:reacting.adoc#reacting-to-other-plugins.dependency-management[导入与你所用 Infra 版本对应的 `infra-dependencies` BOM]。
+如果设置了项目属性 `skipAutoApplyPlugins`，则需显式应用依赖管理插件；应用后仍会自动导入 BOM。
 这提供了与 Maven 类似的依赖管理体验。
 例如，声明 BOM 所管理的依赖时，可以省略版本号。
 要使用此功能，只需按常规方式声明依赖，但不指定版本号：
@@ -73,7 +76,7 @@ endif::[]
 由于 Infra 插件依赖于依赖管理插件，因此无需另行声明对依赖管理插件的依赖，即可使用它。
 这也意味着你会自动使用与 Infra 所用版本一致的依赖管理插件。
 
-应用依赖管理插件，然后配置它以导入 Infra 的 BOM：
+由于此处没有应用 Infra 插件，不会执行其自动配置，因此需要显式应用依赖管理插件，然后配置它以导入 Infra 的 BOM：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -93,6 +96,10 @@ include::example$managing-dependencies/configure-bom.gradle[tags=configure-bom]
 
 [[managing-dependencies.gradle-bom-support]]
 == 使用 Gradle 的 BOM 支持管理依赖
+如果同时应用 Infra 插件，请先在 `gradle.properties` 中设置 `skipAutoApplyPlugins=true`，
+并显式应用所需的 Java、Groovy 或 Kotlin 插件，以避免自动应用依赖管理插件并重复管理依赖。
+`skipAutoApplyPlugins` 根据项目属性是否存在生效，而不是根据其布尔值生效。
+
 Gradle 允许将 BOM 声明为 `platform` 或 `enforcedPlatform` 依赖，以管理项目的依赖版本。
 `platform` 依赖将 BOM 中的版本视为建议；依赖图中的其他版本和约束可能使最终采用的依赖版本不同于 BOM 中声明的版本。
 `enforcedPlatform` 依赖则将 BOM 中的版本视为强制要求，并覆盖依赖图中出现的任何其他版本。

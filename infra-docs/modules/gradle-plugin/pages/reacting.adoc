@@ -2,6 +2,9 @@
 = 与其他插件协作
 include::partial$attributes.adoc[]
 应用其他插件时，Infra 插件会相应地调整项目配置。
+默认情况下，Infra 插件会自动应用 `java` 和 `io.spring.dependency-management` 插件。
+如果项目中存在 `skipAutoApplyPlugins` 属性，则不自动应用它们，而是在这些插件被显式应用时执行相应配置。
+`war`、`application` 和 GraalVM Native Image 插件始终需要显式应用。
 本节介绍这些配置变化。
 
 
@@ -49,6 +52,8 @@ include::partial$attributes.adoc[]
 [[reacting-to-other-plugins.dependency-management]]
 == 与依赖管理插件协作
 在项目中应用 {dependency-management-plugin}[`io.spring.dependency-management` 插件]后，Infra 插件会自动导入 `infra-dependencies` BOM。
+默认情况下，依赖管理插件本身也由 Infra 插件自动应用，无需重复配置。
+如果需要覆盖自动导入的 BOM 坐标，请在应用 Infra 插件之前设置项目属性 `infra.dependencies`；默认坐标为 `InfraApplicationPlugin.BOM_COORDINATES`。
 
 
 
