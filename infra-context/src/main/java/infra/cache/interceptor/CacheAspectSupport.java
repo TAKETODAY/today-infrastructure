@@ -147,8 +147,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
    * Configure this aspect with the given error handler, key generator and cache resolver/manager
    * suppliers, applying the corresponding default if a supplier is not resolvable.
    */
-  public void configure(@Nullable Supplier<CacheErrorHandler> errorHandler, @Nullable Supplier<KeyGenerator> keyGenerator,
-          @Nullable Supplier<CacheResolver> cacheResolver, @Nullable Supplier<CacheManager> cacheManager) {
+  public void configure(@Nullable Supplier<@Nullable CacheErrorHandler> errorHandler, @Nullable Supplier<@Nullable KeyGenerator> keyGenerator,
+          @Nullable Supplier<@Nullable CacheResolver> cacheResolver, @Nullable Supplier<@Nullable CacheManager> cacheManager) {
 
     this.keyGenerator = new SingletonSupplier<>(keyGenerator, SimpleKeyGenerator::new);
     this.errorHandler = new SingletonSupplier<>(errorHandler, SimpleCacheErrorHandler::new);

@@ -85,8 +85,8 @@ public class DefaultJCacheOperationSource extends AnnotationJCacheOperationSourc
    * cache resolver and key generator suppliers, applying the corresponding default
    * if a supplier is not resolvable.
    */
-  public DefaultJCacheOperationSource(@Nullable Supplier<CacheManager> cacheManager, @Nullable Supplier<CacheResolver> cacheResolver,
-          @Nullable Supplier<CacheResolver> exceptionCacheResolver, @Nullable Supplier<KeyGenerator> keyGenerator) {
+  public DefaultJCacheOperationSource(@Nullable Supplier<@Nullable CacheManager> cacheManager, @Nullable Supplier<@Nullable CacheResolver> cacheResolver,
+          @Nullable Supplier<@Nullable CacheResolver> exceptionCacheResolver, @Nullable Supplier<@Nullable KeyGenerator> keyGenerator) {
 
     this.cacheManager = SingletonSupplier.ofNullable(cacheManager);
     this.cacheResolver = SingletonSupplier.ofNullable(cacheResolver);

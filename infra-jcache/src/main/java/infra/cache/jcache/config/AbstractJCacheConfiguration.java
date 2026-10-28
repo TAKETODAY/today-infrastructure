@@ -45,9 +45,8 @@ import infra.stereotype.Component;
 public abstract class AbstractJCacheConfiguration extends AbstractCachingConfiguration {
 
   @Nullable
-  protected Supplier<CacheResolver> exceptionCacheResolver;
+  protected Supplier<@Nullable CacheResolver> exceptionCacheResolver;
 
-  @SuppressWarnings("NullAway")
   @Override
   protected void useCachingConfigurer(CachingConfigurerSupplier supplier) {
     super.useCachingConfigurer(supplier);
