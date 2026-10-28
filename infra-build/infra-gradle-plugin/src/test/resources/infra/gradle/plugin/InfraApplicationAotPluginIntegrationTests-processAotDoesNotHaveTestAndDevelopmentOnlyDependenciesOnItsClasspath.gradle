@@ -6,7 +6,7 @@ plugins {
 
 }
 
-apply plugin: 'infra.application.aot'
+infraApplication.enableAheadOfTimeProcessing()
 
 repositories {
   mavenCentral()

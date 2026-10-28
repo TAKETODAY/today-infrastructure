@@ -2,9 +2,10 @@
 
 plugins {
 	id 'infra.application'
-	id 'infra.application.aot'
 	id 'java'
 }
+
+infraApplication.enableAheadOfTimeProcessing()
 
 task('taskExists') {
 	doFirst {

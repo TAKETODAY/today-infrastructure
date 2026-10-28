@@ -18,9 +18,10 @@ plugins {
 The implementation artifact uses Maven coordinates
 `cn.taketoday:infra-gradle-plugin:<version>`.
 For builds loading that artifact through `buildscript` or `buildSrc`, the legacy
-IDs `infra.application` and `infra.application.aot` remain available.
-Only the application ID is declared for publication; the short IDs remain
-compatibility descriptors in the published jar. The release workflow passes
+ID `infra.application` remains available. The separate `infra.application.aot` ID
+has been removed; use `infraApplication.enableAheadOfTimeProcessing()` instead.
+Only the application ID is declared for publication; the short application ID remains
+a compatibility descriptor in the published jar. The release workflow passes
 `-PportalPublishing=true` to enable Portal publishing.
 
 Enable AOT through the application plugin without applying a separate plugin ID:

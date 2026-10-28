@@ -9,7 +9,7 @@ configure(subprojects) {
 
   apply plugin: 'java'
   apply plugin: "infra.application"
-//  apply plugin: "infra.application.aot"
+//  infraApplication.enableAheadOfTimeProcessing()
   apply plugin: 'org.graalvm.buildtools.native'
 
   java {
