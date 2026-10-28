@@ -209,7 +209,6 @@ class FileNativeConfigurationWriterTests {
             			}
             		}
             	]
-            }
             }""".formatted(Version.instance.implementationVersion()));
   }
 
