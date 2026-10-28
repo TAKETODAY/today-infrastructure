@@ -19,6 +19,8 @@
 package infra.http;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -38,6 +40,70 @@ import static org.mockito.Mockito.mock;
  * @author TODAY 2021/11/6 23:49
  */
 class HttpRangeTests {
+
+  private static final long LAST_MODIFIED = 1660000000000L;
+
+  @Test
+  void resolveRangesWithoutIfRange() {
+    assertThat(HttpRange.resolveRanges(rangeRequestHeaders(), HttpHeaders.forWritable())).hasSize(1);
+  }
+
+  @Test
+  void resolveRangesWithMatchingIfRangeETag() {
+    assertThat(resolveWithIfRange("\"current\"", "\"current\"")).hasSize(1);
+  }
+
+  @ParameterizedTest
+  @CsvSource(delimiter = '|', textBlock = """
+          "stale"       | "current"
+          W/"current"   | W/"current"
+          "current"     | W/"current"
+          """)
+  void resolveRangesWithNonMatchingIfRangeETag(String ifRange, String eTag) {
+    assertThat(resolveWithIfRange(ifRange, eTag)).isEmpty();
+  }
+
+  @Test
+  void resolveRangesWithMatchingIfRangeDate() {
+    HttpHeaders requestHeaders = rangeRequestHeaders();
+    requestHeaders.setDate(HttpHeaders.IF_RANGE, LAST_MODIFIED);
+    HttpHeaders responseHeaders = HttpHeaders.forWritable();
+    responseHeaders.setLastModified(LAST_MODIFIED);
+    assertThat(HttpRange.resolveRanges(requestHeaders, responseHeaders)).hasSize(1);
+  }
+
+  @Test
+  void resolveRangesWithNonMatchingIfRangeDate() {
+    HttpHeaders requestHeaders = rangeRequestHeaders();
+    requestHeaders.setDate(HttpHeaders.IF_RANGE, LAST_MODIFIED - 1000);
+    HttpHeaders responseHeaders = HttpHeaders.forWritable();
+    responseHeaders.setLastModified(LAST_MODIFIED);
+    assertThat(HttpRange.resolveRanges(requestHeaders, responseHeaders)).isEmpty();
+  }
+
+  @Test
+  void resolveRangesIgnoresInvalidRangeWhenIfRangeDoesNotMatch() {
+    HttpHeaders requestHeaders = HttpHeaders.forWritable();
+    requestHeaders.set(HttpHeaders.RANGE, "invalid");
+    requestHeaders.set(HttpHeaders.IF_RANGE, "\"stale\"");
+    HttpHeaders responseHeaders = HttpHeaders.forWritable();
+    responseHeaders.setETag("\"current\"");
+    assertThat(HttpRange.resolveRanges(requestHeaders, responseHeaders)).isEmpty();
+  }
+
+  private static HttpHeaders rangeRequestHeaders() {
+    HttpHeaders requestHeaders = HttpHeaders.forWritable();
+    requestHeaders.setRange(List.of(HttpRange.createByteRange(0, 1)));
+    return requestHeaders;
+  }
+
+  private static List<HttpRange> resolveWithIfRange(String ifRange, String eTag) {
+    HttpHeaders requestHeaders = rangeRequestHeaders();
+    requestHeaders.set(HttpHeaders.IF_RANGE, ifRange);
+    HttpHeaders responseHeaders = HttpHeaders.forWritable();
+    responseHeaders.setETag(eTag);
+    return HttpRange.resolveRanges(requestHeaders, responseHeaders);
+  }
 
   @Test
   public void invalidFirstPosition() {
