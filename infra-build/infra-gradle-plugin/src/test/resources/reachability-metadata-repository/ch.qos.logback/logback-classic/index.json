@@ -2,7 +2,9 @@
   {
     "latest": true,
     "metadata-version": "1.2.11",
-    "module": "ch.qos.logback:logback-classic",
+    "allowed-packages": [
+      "ch.qos.logback"
+    ],
     "tested-versions": [
       "1.2.11"
     ]

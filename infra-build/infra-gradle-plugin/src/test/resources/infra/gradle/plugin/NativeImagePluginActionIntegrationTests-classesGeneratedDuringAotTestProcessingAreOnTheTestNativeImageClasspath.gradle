@@ -11,6 +11,10 @@ repositories {
 	mavenCentral()
 }
 
+dependencies {
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
+}
+
 task('checkTestNativeImageClasspath') {
 	doFirst {
 		tasks.nativeTestCompile.options.get().classpath.each { println it }

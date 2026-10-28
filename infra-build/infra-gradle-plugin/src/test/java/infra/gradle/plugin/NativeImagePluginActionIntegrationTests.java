@@ -65,11 +65,8 @@ class NativeImagePluginActionIntegrationTests {
     File jarFile = new File(buildLibs, this.gradleBuild.getProjectDir().getName() + ".jar");
     assertThat(buildLibs.listFiles()).contains(jarFile);
     assertThat(getEntryNames(jarFile)).contains(
-            "META-INF/native-image/ch.qos.logback/logback-classic/1.2.11/reflect-config.json",
-            "META-INF/native-image/org.jline/jline/3.21.0/jni-config.json",
-            "META-INF/native-image/org.jline/jline/3.21.0/proxy-config.json",
-            "META-INF/native-image/org.jline/jline/3.21.0/reflect-config.json",
-            "META-INF/native-image/org.jline/jline/3.21.0/resource-config.json");
+            "META-INF/native-image/ch.qos.logback/logback-classic/1.2.11/reachability-metadata.json",
+            "META-INF/native-image/org.jline/jline/3.21.0/reachability-metadata.json");
   }
 
   @TestTemplate
@@ -120,9 +117,10 @@ class NativeImagePluginActionIntegrationTests {
     BuildResult result = this.gradleBuild.expectDeprecationWarningsWithAtLeastVersion("8.2-rc-1").build("infraJar");
     assertThat(result.task(":infraJar").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
     File buildLibs = new File(this.gradleBuild.getProjectDir(), "build/libs");
-    JarFile jarFile = new JarFile(new File(buildLibs, this.gradleBuild.getProjectDir().getName() + ".jar"));
-    Manifest manifest = jarFile.getManifest();
-    assertThat(manifest.getMainAttributes().getValue("Infra-App-Native-Processed")).isEqualTo("true");
+    try (JarFile jarFile = new JarFile(new File(buildLibs, this.gradleBuild.getProjectDir().getName() + ".jar"))) {
+      Manifest manifest = jarFile.getManifest();
+      assertThat(manifest.getMainAttributes().getValue("Infra-App-Native-Processed")).isEqualTo("true");
+    }
   }
 
   private String projectPath(String path) {
