@@ -155,9 +155,9 @@ public class PropertyPathFactoryBean implements FactoryBean<Object>, BeanNameAwa
   }
 
   @Override
-  @SuppressWarnings("NullAway")
   public void setBeanFactory(BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
+    String targetBeanName = this.targetBeanName;
 
     if (targetBeanWrapper != null && targetBeanName != null) {
       throw new IllegalArgumentException("Specify either 'targetObject' or 'targetBeanName', not both");
@@ -170,13 +170,14 @@ public class PropertyPathFactoryBean implements FactoryBean<Object>, BeanNameAwa
       }
 
       // No other properties specified: check bean name.
-      int dotIndex = beanName != null ? beanName.indexOf('.') : -1;
-      if (dotIndex == -1) {
+      int dotIndex;
+      if (beanName == null || (dotIndex = beanName.indexOf('.')) <= 0) {
         throw new IllegalArgumentException(
                 "Neither 'targetObject' nor 'targetBeanName' specified, and PropertyPathFactoryBean " +
                         "bean name '" + beanName + "' does not follow 'beanName.property' syntax");
       }
-      this.targetBeanName = beanName.substring(0, dotIndex);
+      targetBeanName = beanName.substring(0, dotIndex);
+      this.targetBeanName = targetBeanName;
       this.propertyPath = beanName.substring(dotIndex + 1);
     }
     else if (propertyPath == null) {
@@ -184,7 +185,7 @@ public class PropertyPathFactoryBean implements FactoryBean<Object>, BeanNameAwa
       throw new IllegalArgumentException("'propertyPath' is required");
     }
 
-    if (targetBeanWrapper == null && beanFactory.isSingleton(targetBeanName)) {
+    if (targetBeanWrapper == null && StringUtils.isNotEmpty(targetBeanName) && beanFactory.isSingleton(targetBeanName)) {
       // Eagerly fetch singleton target bean, and determine result type.
       Object bean = beanFactory.getBean(targetBeanName);
       this.targetBeanWrapper = BeanWrapper.forBeanPropertyAccess(bean);
