@@ -53,7 +53,7 @@ class NativeImagePluginActionIntegrationTests {
   @TestTemplate
   void applyingNativeImagePluginAppliesAotPlugin() {
     assertThat(this.gradleBuild.build("aotPluginApplied").getOutput())
-            .contains("infra.application.aot applied = true");
+            .contains("AOT plugin applied = true");
   }
 
   @TestTemplate

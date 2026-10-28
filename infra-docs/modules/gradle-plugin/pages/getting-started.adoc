@@ -16,8 +16,8 @@ endif::[]
 插件门户中的 ID 为 `cn.taketoday.application`，包含可按需启用的 AOT 支持，不单独发布 AOT 插件 ID。
 Gradle 插件门户仅接收非快照版本，不提供 `cn.taketoday.application` 的快照版本。
 通过 `buildscript` 或 `buildSrc` 加载 `cn.taketoday:infra-gradle-plugin` 时，
-仍可使用兼容 ID `infra.application`；旧的 `infra.application.aot` ID 也保留用于兼容已有构建。
-新项目请通过 xref:aot.adoc[AOT 配置入口]启用 AOT。
+仍可使用兼容 ID `infra.application`；独立的 `infra.application.aot` ID 已移除。
+请通过 `infraApplication.enableAheadOfTimeProcessing()` 启用 AOT，详见 xref:aot.adoc[AOT 配置入口]。
 
 ifeval::["{artifact-release-type}" == "snapshot"]
 如需使用快照版本，请改用 `buildscript` 方式，在 `build.gradle` 中配置快照仓库和插件依赖，

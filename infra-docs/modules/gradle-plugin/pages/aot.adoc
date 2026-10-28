@@ -11,15 +11,15 @@ Infra Gradle 插件内置对应用代码和测试代码执行 AOT 处理的支�
 .Groovy
 ----
 infraApplication {
-  aot()
+  enableAheadOfTimeProcessing()
 }
 ----
 
-`aot()` 在项目配置阶段接入 AOT 源集和处理任务，重复调用不会重复注册。
+`enableAheadOfTimeProcessing()` 在项目配置阶段接入 AOT 源集和处理任务，重复调用不会重复注册。
 启用后，AOT 输出会加入主源集和测试源集的运行时类路径，消费这些输出的运行、测试或打包任务可能触发 AOT 处理。
 此配置不要求应用 GraalVM Native Image 插件；AOT 处理与运行时使用 AOT 初始化是不同的步骤。
 
-应用 {nbt-gradle-plugin}[GraalVM Native Image 插件]后，会自动启用 AOT，无需再调用 `aot()`：
+应用 {nbt-gradle-plugin}[GraalVM Native Image 插件]后，会自动启用 AOT，无需再调用 `enableAheadOfTimeProcessing()`：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy

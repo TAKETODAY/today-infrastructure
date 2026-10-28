@@ -7,11 +7,12 @@ Release 工作流先发布 Maven 工件，再等待 Maven Central 上的框架�
 
 - Maven 实现坐标：`cn.taketoday:infra-gradle-plugin:<version>`。
 - Portal 应用插件 ID：`cn.taketoday.application`。
-- AOT 内置于应用插件，通过 `infraApplication { aot() }` 或 Native Image 集成启用，不单独发布 AOT 插件 ID。
+- AOT 内置于应用插件，通过 `infraApplication { enableAheadOfTimeProcessing() }` 或 Native Image 集成启用，不单独发布 AOT 插件 ID。
 
 插件 ID 和 Maven group 使用共同的 `cn.taketoday` 命名空间。
-已有的 `infra.application`、`infra.application.aot` 保留为 JAR 内的兼容描述符，
-通过 `buildSrc` 或 `buildscript` 加载插件实现后仍可使用；这两个短 ID 不发布到 Portal。
+已有的 `infra.application` 保留为 JAR 内的兼容描述符，
+通过 `buildSrc` 或 `buildscript` 加载插件实现后仍可使用；该短 ID 不发布到 Portal。
+独立的 `infra.application.aot` ID 已移除，请使用 `infraApplication.enableAheadOfTimeProcessing()`。
 
 首次发布前，在 [Plugin Portal](https://plugins.gradle.org/user/login) 注册账号并创建 API Key。
 Portal 可能要求通过 `taketoday.cn` 的 DNS TXT 记录验证域名所有权，具体记录由 Portal 提供。

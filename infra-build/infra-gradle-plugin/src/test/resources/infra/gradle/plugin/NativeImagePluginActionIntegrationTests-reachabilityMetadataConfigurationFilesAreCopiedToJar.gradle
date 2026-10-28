@@ -3,7 +3,6 @@
 plugins {
 	id 'java'
 	id 'infra.application'
-	id 'infra.application.aot'
 }
 
 apply plugin: 'org.graalvm.buildtools.native'

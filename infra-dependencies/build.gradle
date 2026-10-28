@@ -421,10 +421,13 @@ bom {
       ]
     }
   }
-  library("Native Build Tools Plugin", "${nativeBuildToolsVersion}") {
+  library("Native Build Tools Plugin", nativeBuildToolsVersion) {
     group("org.graalvm.buildtools") {
       plugins = [
           "native-maven-plugin"
+      ]
+      modules = [
+          "native-gradle-plugin"
       ]
     }
   }
@@ -724,7 +727,6 @@ dependencies {
     api 'net.java.dev.jna:jna-platform:5.13.0'
     api("com.networknt:json-schema-validator:1.5.3")
     api 'io.spring.gradle:dependency-management-plugin:1.1.7'
-    api "org.graalvm.buildtools:native-gradle-plugin:$nativeBuildToolsVersion"
     api 'org.apache.tomcat.embed:tomcat-embed-el:11.0.15'
 
     api 'ch.vorburger.mariaDB4j:mariaDB4j-db-macos-arm64:11.4.5'

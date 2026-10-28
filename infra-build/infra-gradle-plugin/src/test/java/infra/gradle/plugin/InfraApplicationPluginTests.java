@@ -51,8 +51,8 @@ class InfraApplicationPluginTests {
     Project project = GradleProjectBuilder.builder().withProjectDir(this.temp).build();
     project.getPlugins().apply(InfraApplicationPlugin.class);
     InfraApplicationExtension extension = project.getExtensions().getByType(InfraApplicationExtension.class);
-    extension.aot();
-    extension.aot();
+    extension.enableAheadOfTimeProcessing();
+    extension.enableAheadOfTimeProcessing();
     assertThat(project.getPlugins().hasPlugin(InfraApplicationAotPlugin.class)).isTrue();
     assertThat(project.getTasks().getNames()).contains("processAot", "processTestAot");
   }
@@ -62,7 +62,7 @@ class InfraApplicationPluginTests {
     Project project = GradleProjectBuilder.builder().withProjectDir(this.temp).build();
     project.getExtensions().getExtraProperties().set("skipAutoApplyPlugins", true);
     project.getPlugins().apply(InfraApplicationPlugin.class);
-    project.getExtensions().getByType(InfraApplicationExtension.class).aot();
+    project.getExtensions().getByType(InfraApplicationExtension.class).enableAheadOfTimeProcessing();
     assertThat(project.getTasks().getNames()).doesNotContain("processAot", "processTestAot");
     project.getPlugins().apply("java");
     assertThat(project.getTasks().getNames()).contains("processAot", "processTestAot");
