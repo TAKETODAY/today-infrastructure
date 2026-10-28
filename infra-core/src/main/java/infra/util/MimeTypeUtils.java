@@ -100,8 +100,8 @@ public abstract class MimeTypeUtils {
   }
 
   /**
-   * Parse the given String into a single {@code MimeType}. Recently parsed
-   * {@code MimeType} are cached for further retrieval.
+   * Parse the given String into a single {@code MimeType}.
+   * <p>Recently parsed {@code MimeType} values are cached for future retrieval.
    *
    * @param mimeType the string to parse
    * @return the mime type
