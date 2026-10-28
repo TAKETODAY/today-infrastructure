@@ -179,6 +179,10 @@ public abstract class AbstractRowMapperTests {
       return jdbcTemplate;
     }
 
+    public ResultSet getResultSet() {
+      return resultSet;
+    }
+
     public void verifyClosed() throws Exception {
       verify(resultSet).close();
       verify(statement).close();
