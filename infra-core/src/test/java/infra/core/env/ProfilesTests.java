@@ -40,6 +40,41 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 class ProfilesTests {
 
   @Test
+  void ofOrExpressionWithDoubledOperator() {
+    assertOrExpression(Profiles.parse("(infra || framework)"));
+  }
+
+  @Test
+  void ofAndExpressionWithDoubledOperator() {
+    assertAndExpression(Profiles.parse("(infra && framework)"));
+  }
+
+  @Test
+  void malformedExpressionsWithMissingOperator() {
+    assertMalformed(() -> Profiles.parse("dev !prod"));
+    assertMalformed(() -> Profiles.parse("dev (prod)"));
+    assertMalformed(() -> Profiles.parse("(dev) prod"));
+    assertMalformed(() -> Profiles.parse("(dev) (prod)"));
+    assertMalformed(() -> Profiles.parse("(dev) !prod"));
+    assertMalformed(() -> Profiles.parse("!dev (prod)"));
+  }
+
+  @Test
+  void malformedExpressionsWithMissingOperand() {
+    assertMalformed(() -> Profiles.parse("dev &"));
+    assertMalformed(() -> Profiles.parse("dev |"));
+    assertMalformed(() -> Profiles.parse("& dev"));
+    assertMalformed(() -> Profiles.parse("| dev"));
+    assertMalformed(() -> Profiles.parse("&& dev"));
+    assertMalformed(() -> Profiles.parse("|| dev"));
+    assertMalformed(() -> Profiles.parse("(dev &)"));
+    assertMalformed(() -> Profiles.parse("(| dev)"));
+    assertMalformed(() -> Profiles.parse("(dev) &"));
+    assertMalformed(() -> Profiles.parse("dev & ()"));
+    assertMalformed(() -> Profiles.parse("dev & !"));
+  }
+
+  @Test
   void ofWhenNullThrowsException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> Profiles.parse((String[]) null))

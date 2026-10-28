@@ -68,6 +68,8 @@ abstract class ProfilesParser {
   private static Profiles parseTokens(String expression, StringTokenizer tokens, Context context) {
     List<Profiles> elements = new ArrayList<>();
     Operator operator = null;
+    // Tracks whether an operand (rather than an operator) is expected next
+    boolean operandExpected = true;
     while (tokens.hasMoreTokens()) {
       String token = tokens.nextToken().trim();
       if (token.isEmpty()) {
@@ -75,44 +77,53 @@ abstract class ProfilesParser {
       }
       switch (token) {
         case "(" -> {
+          assertWellFormed(expression, operandExpected);
           Profiles contents = parseTokens(expression, tokens, Context.PARENTHESIS);
           if (context == Context.NEGATE) {
             return contents;
           }
           elements.add(contents);
+          operandExpected = false;
         }
         case "&" -> {
-          assertWellFormed(expression, operator == null || operator == Operator.AND);
+          assertWellFormed(expression, operator == Operator.AND || (operator == null && !operandExpected));
           operator = Operator.AND;
+          operandExpected = true;
         }
         case "|" -> {
-          assertWellFormed(expression, operator == null || operator == Operator.OR);
+          assertWellFormed(expression, operator == Operator.OR || (operator == null && !operandExpected));
           operator = Operator.OR;
+          operandExpected = true;
         }
         case "!" -> {
+          assertWellFormed(expression, operandExpected);
           Profiles negated = not(parseTokens(expression, tokens, Context.NEGATE));
           if (context == Context.NEGATE) {
             return negated;
           }
           elements.add(negated);
+          operandExpected = false;
         }
         case ")" -> {
           if (context == Context.PARENTHESIS) {
+            assertWellFormed(expression, !operandExpected);
             return merge(expression, elements, operator);
           }
           assertWellFormed(expression, false);
         }
         default -> {
+          assertWellFormed(expression, operandExpected);
           assertWellFormed(expression, !StringUtils.containsWhitespace(token));
           Profiles value = equals(token);
           if (context == Context.NEGATE) {
             return value;
           }
           elements.add(value);
+          operandExpected = false;
         }
       }
     }
-    assertWellFormed(expression, context != Context.PARENTHESIS);
+    assertWellFormed(expression, context != Context.PARENTHESIS && !operandExpected);
     return merge(expression, elements, operator);
   }
 
