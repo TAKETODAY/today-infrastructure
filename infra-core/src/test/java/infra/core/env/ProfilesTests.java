@@ -328,6 +328,16 @@ class ProfilesTests {
   }
 
   @Test
+  void malformedExpressionsWithWhitespaceSeparatedProfiles() {
+    assertMalformed(() -> Profiles.parse("dev prod"));
+    assertMalformed(() -> Profiles.parse("dev\tprod"));
+    assertMalformed(() -> Profiles.parse("!dev prod"));
+    assertMalformed(() -> Profiles.parse("(dev prod)"));
+    assertMalformed(() -> Profiles.parse("dev prod & test"));
+    assertMalformed(() -> Profiles.parse("test | dev prod"));
+  }
+
+  @Test
   void toStringGeneratesValidCompositeProfileExpression() {
     assertThatToStringGeneratesValidCompositeProfileExpression("infra");
     assertThatToStringGeneratesValidCompositeProfileExpression("(infra & kotlin) | (infra & java)");

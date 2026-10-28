@@ -103,6 +103,7 @@ abstract class ProfilesParser {
           assertWellFormed(expression, false);
         }
         default -> {
+          assertWellFormed(expression, !StringUtils.containsWhitespace(token));
           Profiles value = equals(token);
           if (context == Context.NEGATE) {
             return value;
