@@ -27,7 +27,7 @@ Enable AOT through the application plugin without applying a separate plugin ID:
 
 ```groovy
 infraApplication {
-  aot()
+  enableAheadOfTimeProcessing()
 }
 ```
 

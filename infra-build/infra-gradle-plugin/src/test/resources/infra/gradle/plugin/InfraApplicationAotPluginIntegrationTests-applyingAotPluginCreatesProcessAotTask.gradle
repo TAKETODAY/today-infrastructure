@@ -6,8 +6,8 @@ plugins {
 }
 
 infraApplication {
-  aot()
-  aot()
+  enableAheadOfTimeProcessing()
+  enableAheadOfTimeProcessing()
 }
 
 task('taskExists') {

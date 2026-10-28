@@ -75,7 +75,7 @@ include::partial$attributes.adoc[]
 == 与 GraalVM Native Image 插件协作
 在项目中应用 {nbt-gradle-plugin}[GraalVM Native Image 插件]后，Infra 插件会：
 
-. 启用内置的 AOT 支持（与调用 `infraApplication { aot() }` 相同），内部实现会：
+. 启用内置的 AOT 支持（与调用 `infraApplication { enableAheadOfTimeProcessing() }` 相同），内部实现会：
 .. 注册 `aot` 和 `aotTest` 源集。
 .. 注册名为 `processAot` 的 `ProcessAot` 任务，为应用生成经过 AOT 优化的源代码，并将其纳入 `aot` 源集。
 .. 将 `aot` 源集的 Java 编译任务和资源处理任务配置为依赖 `processAot`。

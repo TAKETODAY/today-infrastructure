@@ -79,7 +79,7 @@ public class InfraApplicationExtension {
    *
    * @since 5.0
    */
-  public void aot() {
+  public void enableAheadOfTimeProcessing() {
     this.project.getPluginManager().apply(InfraApplicationAotPlugin.class);
   }
 
