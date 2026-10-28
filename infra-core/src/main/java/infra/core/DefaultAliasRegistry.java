@@ -196,6 +196,7 @@ public class DefaultAliasRegistry implements AliasRegistry {
             aliasNames.add(resolvedAlias);
           }
           else if (!registeredName.equals(resolvedName)) {
+            checkForAliasCircle(resolvedName, alias);
             aliasMap.put(alias, resolvedName);
             aliasNames.add(alias);
           }

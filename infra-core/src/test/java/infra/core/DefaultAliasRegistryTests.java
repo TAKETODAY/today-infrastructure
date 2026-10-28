@@ -216,6 +216,18 @@ class DefaultAliasRegistryTests {
                     "It is already registered for name '%s'.", ALIAS2, ALIAS1, NAME1, NAME2);
   }
 
+  @Test
+  void resolveAliasesWithPlaceholderReplacementCircularReference() {
+    StringValueResolver valueResolver = new StubStringValueResolver(Map.of(NAME1, ALIAS2));
+    registerAlias(NAME1, ALIAS1);
+    registerAlias(ALIAS1, ALIAS2);
+
+    // Resolving ALIAS1's target to ALIAS2 creates a circle: ALIAS2 already points to ALIAS1.
+    assertThatIllegalStateException()
+            .isThrownBy(() -> registry.resolveAliases(valueResolver))
+            .withMessageContaining("'%s' is a direct or indirect alias for '%s'", ALIAS2, ALIAS1);
+  }
+
   @ParameterizedTest
   @ValueSource(strings = { "alias4", "test", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" })
   void resolveAliasesWithComplexPlaceholderReplacementWithAliasSwitching(String aliasX) {
