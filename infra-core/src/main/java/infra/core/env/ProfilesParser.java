@@ -89,7 +89,13 @@ abstract class ProfilesParser {
           assertWellFormed(expression, operator == null || operator == Operator.OR);
           operator = Operator.OR;
         }
-        case "!" -> elements.add(not(parseTokens(expression, tokens, Context.NEGATE)));
+        case "!" -> {
+          Profiles negated = not(parseTokens(expression, tokens, Context.NEGATE));
+          if (context == Context.NEGATE) {
+            return negated;
+          }
+          elements.add(negated);
+        }
         case ")" -> {
           if (context == Context.PARENTHESIS) {
             return merge(expression, elements, operator);

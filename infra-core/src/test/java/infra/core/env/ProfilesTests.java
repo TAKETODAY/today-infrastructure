@@ -268,6 +268,21 @@ class ProfilesTests {
   }
 
   @Test
+  void ofAndExpressionWithDoubleInvertedSingleElement() {
+    assertAndExpression(Profiles.parse("!!infra & framework"));
+  }
+
+  @Test
+  void ofOrExpressionWithDoubleInvertedSingleElement() {
+    assertOrExpression(Profiles.parse("!!infra | framework"));
+  }
+
+  @Test
+  void ofAndExpressionWithTripleInvertedSingleElement() {
+    assertOfAndExpressionWithInvertedSingleElement(Profiles.parse("!!!infra & framework"));
+  }
+
+  @Test
   void ofComplexExpressionWithoutSpaces() {
     Profiles profiles = Profiles.parse("(infra&framework)|(infra&java)");
     assertComplexExpression(profiles);
