@@ -3,7 +3,8 @@ plugins {
   id "com.gradle.plugin-publish" version "2.2.1" apply false
 }
 
-description = "TODAY Infrastructure Applications Gradle Plugins"
+description = "Run and package TODAY Infrastructure applications as executable jars or wars, " +
+    "with automatic dependency management, opt-in AOT processing and GraalVM native-image integration."
 
 
 dependencies {
@@ -54,32 +55,10 @@ gradlePlugin {
   plugins {
     create("infraPlugin") {
       id = "cn.taketoday.application"
-      tags.set(['today-infrastructure', 'web', 'application', 'executable-jar', 'dependency-management'])
+      tags.set(['today-infrastructure', 'web', 'application', 'executable-jar', 'dependency-management', 'aot', 'native-image', 'graalvm'])
       displayName = "Infra Application Gradle Plugin"
-      description = "Run and package TODAY Infrastructure applications as executable jars or wars, with automatic dependency management."
+      description = project.description
       implementationClass = "infra.gradle.plugin.InfraApplicationPlugin"
-      if (portalPublishing) {
-        compatibility(it) {
-          features {
-            configurationCache = false
-          }
-        }
-      }
-    }
-
-    create("infraAotPlugin") {
-      id = "cn.taketoday.application.aot"
-      tags.set(['today-infrastructure', 'web', 'application', 'aot', 'native-image', 'graalvm'])
-      displayName = "Infra Application AOT Gradle Plugin"
-      description = "Add ahead-of-time (AOT) processing to TODAY Infrastructure applications for faster startup and GraalVM native-image builds."
-      implementationClass = "infra.gradle.plugin.InfraApplicationAotPlugin"
-      if (portalPublishing) {
-        compatibility(it) {
-          features {
-            configurationCache = false
-          }
-        }
-      }
     }
   }
 }

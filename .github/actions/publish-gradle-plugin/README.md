@@ -7,7 +7,7 @@ Release 工作流先发布 Maven 工件，再等待 Maven Central 上的框架�
 
 - Maven 实现坐标：`cn.taketoday:infra-gradle-plugin:<version>`。
 - Portal 应用插件 ID：`cn.taketoday.application`。
-- Portal AOT 插件 ID：`cn.taketoday.application.aot`。
+- AOT 内置于应用插件，通过 `infraApplication { aot() }` 或 Native Image 集成启用，不单独发布 AOT 插件 ID。
 
 插件 ID 和 Maven group 使用共同的 `cn.taketoday` 命名空间。
 已有的 `infra.application`、`infra.application.aot` 保留为 JAR 内的兼容描述符，
@@ -58,10 +58,10 @@ plugins {
 ```
 
 发布实现位于 `infra-build/infra-gradle-plugin/build.gradle`。
-默认在 `gradlePlugin.plugins` 中声明 `infra.application` 和 `infra.application.aot`，保持正常构建和 Maven 发布的插件 ID。
+`gradlePlugin.plugins` 仅声明 `cn.taketoday.application`，正常构建和 Portal 发布使用相同的插件 ID。
 `com.gradle.plugin-publish` 仅在 Portal 发布模式下应用，避免为普通 SNAPSHOT 构建创建需要密钥的 Portal 签名任务。
-Release Action 传入 `-PportalPublishing=true`，仅在 Portal 发布构建中将声明切换为带 `cn.taketoday` 命名空间的两个 ID。
-Portal 构建同时加入 `src/portal/resources/META-INF/gradle-plugins/` 中的短 ID 描述符，保留原有入口。
+Release Action 传入 `-PportalPublishing=true`，启用 Portal 发布。
+`src/main/resources/META-INF/gradle-plugins/` 中的短 ID 描述符保留原有入口，不生成对应的 Portal 插件标记。
 配置缓存暂按未支持声明，确认兼容并测试后再修改该声明。
 
 官方发布和审核规则：<https://plugins.gradle.org/docs/publish-plugin>。

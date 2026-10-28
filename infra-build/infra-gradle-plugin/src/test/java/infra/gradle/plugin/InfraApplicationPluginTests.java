@@ -23,6 +23,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 
+import infra.gradle.dsl.InfraApplicationExtension;
 import infra.gradle.junit.GradleProjectBuilder;
 import infra.test.classpath.ClassPathExclusions;
 
@@ -36,6 +37,36 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @ClassPathExclusions("kotlin-daemon-client-*.jar")
 class InfraApplicationPluginTests {
+
+  @Test
+  void aotIsNotEnabledByDefault() {
+    Project project = GradleProjectBuilder.builder().withProjectDir(this.temp).build();
+    project.getPlugins().apply(InfraApplicationPlugin.class);
+    assertThat(project.getPlugins().hasPlugin(InfraApplicationAotPlugin.class)).isFalse();
+    assertThat(project.getTasks().getNames()).doesNotContain("processAot", "processTestAot");
+  }
+
+  @Test
+  void aotCanBeEnabledRepeatedlyThroughExtension() {
+    Project project = GradleProjectBuilder.builder().withProjectDir(this.temp).build();
+    project.getPlugins().apply(InfraApplicationPlugin.class);
+    InfraApplicationExtension extension = project.getExtensions().getByType(InfraApplicationExtension.class);
+    extension.aot();
+    extension.aot();
+    assertThat(project.getPlugins().hasPlugin(InfraApplicationAotPlugin.class)).isTrue();
+    assertThat(project.getTasks().getNames()).contains("processAot", "processTestAot");
+  }
+
+  @Test
+  void aotCanBeEnabledBeforeJavaPluginIsApplied() {
+    Project project = GradleProjectBuilder.builder().withProjectDir(this.temp).build();
+    project.getExtensions().getExtraProperties().set("skipAutoApplyPlugins", true);
+    project.getPlugins().apply(InfraApplicationPlugin.class);
+    project.getExtensions().getByType(InfraApplicationExtension.class).aot();
+    assertThat(project.getTasks().getNames()).doesNotContain("processAot", "processTestAot");
+    project.getPlugins().apply("java");
+    assertThat(project.getTasks().getNames()).contains("processAot", "processTestAot");
+  }
 
   @Test
   void developmentConfigurationsHaveRuntimeAttributesAndCannotBeConsumed() {

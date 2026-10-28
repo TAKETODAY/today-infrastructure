@@ -31,6 +31,7 @@ import org.gradle.api.tasks.bundling.Jar;
 
 import java.io.File;
 
+import infra.gradle.plugin.InfraApplicationAotPlugin;
 import infra.gradle.tasks.buildinfo.BuildInfo;
 import org.jspecify.annotations.Nullable;
 
@@ -66,6 +67,20 @@ public class InfraApplicationExtension {
    */
   public Property<String> getMainClass() {
     return this.mainClass;
+  }
+
+  /**
+   * Enables ahead-of-time processing for the application and its tests.
+   * <p>This method applies the internal AOT plugin during project configuration.
+   * Repeated calls have no additional effect. AOT outputs are added to the main
+   * and test runtime classpaths, so tasks consuming them may trigger AOT processing.
+   * GraalVM Native Image integration enables AOT automatically without requiring
+   * this method to be called.
+   *
+   * @since 5.0
+   */
+  public void aot() {
+    this.project.getPluginManager().apply(InfraApplicationAotPlugin.class);
   }
 
   /**

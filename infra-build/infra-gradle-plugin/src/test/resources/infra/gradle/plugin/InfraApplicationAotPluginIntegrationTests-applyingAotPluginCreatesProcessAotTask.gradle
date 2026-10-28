@@ -2,8 +2,12 @@
 
 plugins {
 	id 'infra.application'
-	id 'infra.application.aot'
 	id 'java'
+}
+
+infraApplication {
+  aot()
+  aot()
 }
 
 task('taskExists') {
