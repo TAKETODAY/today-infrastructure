@@ -28,12 +28,12 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.Jar;
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 
 import infra.gradle.plugin.InfraApplicationAotPlugin;
 import infra.gradle.tasks.buildinfo.BuildInfo;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Entry point to Infra Gradle DSL.
@@ -84,27 +84,34 @@ public class InfraApplicationExtension {
   }
 
   /**
-   * Creates a new {@link BuildInfo} task named {@code infraBuildInfo} and configures the
-   * Java plugin's {@code classes} task to depend upon it.
-   * <p>
-   * By default, the task's destination dir will be a directory named {@code META-INF}
-   * beneath the main source set's resources output directory, and the task's project
-   * artifact will be the base name of the {@code infraWar} or {@code infraJar} task.
+   * Enables build information generation with default settings.
+   * <p>Registers an {@link BuildInfo} task named {@code infraBuildInfo} and,
+   * when the Java plugin is applied, configures its {@code classes} task to
+   * depend upon it. The build information file is generated when the task executes.
+   * <p>By default, the task writes to the {@code META-INF} directory beneath
+   * the main source set's resources output directory. The artifact name defaults
+   * to the archive base name of the {@code infraWar} or {@code infraJar} task.
+   * <p>Call either this method or {@link #buildInfo(Action)} once per project;
+   * repeated calls attempt to register the same task and fail.
+   *
+   * @see #buildInfo(Action)
+   * @since 5.0
    */
-  public void buildInfo() {
+  public void enableBuildInfo() {
     buildInfo(null);
   }
 
   /**
-   * Creates a new {@link BuildInfo} task named {@code infraBuildInfo} and configures the
-   * Java plugin's {@code classes} task to depend upon it. The task is passed to the
-   * given {@code configurer} for further configuration.
-   * <p>
-   * By default, the task's destination dir will be a directory named {@code META-INF}
-   * beneath the main source set's resources output directory, and the task's project
-   * artifact will be the base name of the {@code infraWar} or {@code infraJar} task.
+   * Enables build information generation and configures the task using the
+   * given action.
+   * <p>Registers an {@link BuildInfo} task named {@code infraBuildInfo} with
+   * the same defaults and Java plugin integration as {@link #enableBuildInfo()}.
+   * The action is applied during task configuration, not task execution.
+   * <p>Call either this method or {@link #enableBuildInfo()} once per project;
+   * repeated calls attempt to register the same task and fail.
    *
-   * @param configurer the task configurer
+   * @param configurer the task configurer, or {@code null} to use default settings
+   * @see #enableBuildInfo()
    */
   public void buildInfo(@Nullable Action<BuildInfo> configurer) {
     TaskContainer tasks = project.getTasks();

@@ -18,5 +18,5 @@ infraWar {
 }
 
 infraApplication {
-	buildInfo()
+	enableBuildInfo()
 }

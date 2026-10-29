@@ -5,6 +5,6 @@ plugins {
 
 // tag::build-info[]
 infraApplication {
-  buildInfo()
+  enableBuildInfo()
 }
 // end::build-info[]
