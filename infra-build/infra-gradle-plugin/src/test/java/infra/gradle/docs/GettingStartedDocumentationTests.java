@@ -39,8 +39,8 @@ class GettingStartedDocumentationTests {
   // jar won't be there
 
   @TestTemplate
-  void typicalPluginsAppliesExceptedPlugins() {
-    this.gradleBuild.documentationScript("getting-started/typical-plugins").build("verify");
+  void typicalPluginsAppliesExpectedPlugins() {
+    this.gradleBuild.autoApplyPlugins().documentationScript("getting-started/typical-plugins").build("verify");
   }
 
 }

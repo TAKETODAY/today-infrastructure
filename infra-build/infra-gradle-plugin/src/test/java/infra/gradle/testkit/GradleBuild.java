@@ -88,6 +88,8 @@ public class GradleBuild {
 
   private boolean configurationCache = false;
 
+  private boolean autoApplyPlugins = false;
+
   private final Map<String, String> scriptProperties = new HashMap<>();
 
   public GradleBuild() {
@@ -185,6 +187,15 @@ public class GradleBuild {
     return this;
   }
 
+  /**
+   * Enables the application's default automatic plugin application.
+   * @return this build
+   */
+  public GradleBuild autoApplyPlugins() {
+    this.autoApplyPlugins = true;
+    return this;
+  }
+
   public boolean isConfigurationCache() {
     return this.configurationCache;
   }
@@ -262,7 +273,9 @@ public class GradleBuild {
     gradleRunner.withTestKitDir(getTestKitDir());
     List<String> allArguments = new ArrayList<>();
     allArguments.add("-PinfraVersion=" + getInfraVersion());
-    allArguments.add("-PskipAutoApplyPlugins");
+    if (!this.autoApplyPlugins) {
+      allArguments.add("-PskipAutoApplyPlugins");
+    }
     allArguments.add("-Pinfra.dependencies=cn.taketoday:infra-dependencies:" + getInfraVersion());
     allArguments.add("--stacktrace");
     allArguments.addAll(Arrays.asList(arguments));
