@@ -16,6 +16,7 @@
 
 package infra.gradle.plugin;
 
+import org.graalvm.buildtools.gradle.NativeImagePlugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.junit.jupiter.api.Test;
@@ -66,6 +67,18 @@ class InfraApplicationPluginTests {
     assertThat(project.getTasks().getNames()).doesNotContain("processAot", "processTestAot");
     project.getPlugins().apply("java");
     assertThat(project.getTasks().getNames()).contains("processAot", "processTestAot");
+  }
+
+  @Test
+  void nativeImageCanBeEnabledThroughExtension() {
+    Project project = GradleProjectBuilder.builder().withProjectDir(this.temp).build();
+    project.getPlugins().apply(InfraApplicationPlugin.class);
+    InfraApplicationExtension extension = project.getExtensions().getByType(InfraApplicationExtension.class);
+    extension.enableNativeImage();
+    extension.enableNativeImage();
+    assertThat(project.getPlugins().hasPlugin(NativeImagePlugin.class)).isTrue();
+    assertThat(project.getPlugins().hasPlugin(InfraApplicationAotPlugin.class)).isTrue();
+    assertThat(project.getTasks().getNames()).contains("nativeCompile", "processAot", "processTestAot");
   }
 
   @Test

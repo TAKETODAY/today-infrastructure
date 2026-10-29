@@ -73,7 +73,8 @@ include::partial$attributes.adoc[]
 
 [[reacting-to-other-plugins.nbt]]
 == 与 GraalVM Native Image 插件协作
-在项目中应用 {nbt-gradle-plugin}[GraalVM Native Image 插件]后，Infra 插件会：
+可以通过 `infraApplication { enableNativeImage() }` 让 Infra 应用 {nbt-gradle-plugin}[GraalVM Native Image 插件]，无需在 `plugins` 块中手动声明 `org.graalvm.buildtools.native`。
+在项目中应用该插件（无论手动应用还是通过 `enableNativeImage()`）后，Infra 插件会：
 
 . 启用内置的 AOT 支持（与调用 `infraApplication { enableAheadOfTimeProcessing() }` 相同），内部实现会：
 .. 注册 `aot` 和 `aotTest` 源集。

@@ -1,5 +1,8 @@
 plugins {
   id 'java'
   id 'infra.application' version '{gradle-project-version}'
-  id 'org.graalvm.buildtools.native' version '{native-build-tools-version}'
+}
+
+infraApplication {
+  enableNativeImage()
 }

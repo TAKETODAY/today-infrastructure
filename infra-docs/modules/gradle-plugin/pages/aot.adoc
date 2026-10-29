@@ -19,13 +19,17 @@ infraApplication {
 启用后，AOT 输出会加入主源集和测试源集的运行时类路径，消费这些输出的运行、测试或打包任务可能触发 AOT 处理。
 此配置不要求应用 GraalVM Native Image 插件；AOT 处理与运行时使用 AOT 初始化是不同的步骤。
 
-应用 {nbt-gradle-plugin}[GraalVM Native Image 插件]后，会自动启用 AOT，无需再调用 `enableAheadOfTimeProcessing()`：
+应用 {nbt-gradle-plugin}[GraalVM Native Image 插件]后，会自动启用 AOT，无需再调用 `enableAheadOfTimeProcessing()`。
+也可以不手动应用该插件，改用 Infra 提供的入口：
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
 ----
-include::example$aot/apply-native-image-plugin.gradle[]
+include::example$aot/enable-native-image.gradle[]
 ----
+
+`enableNativeImage()` 会应用 `org.graalvm.buildtools.native`，并自动启用 AOT、配置原生二进制使用 AOT 输出。
+继续在 `plugins` 块中手动应用该插件也同样受支持；无论使用哪种方式，都无需再单独声明 Native Build Tools 版本。
 
 
 [[aot.processing-applications]]

@@ -12,7 +12,7 @@ dependencies {
   implementation(project(":infra-build:infra-app-loader"))
   implementation(project(":infra-build:infra-app-loader-tools"))
 
-  optional "org.graalvm.buildtools:native-gradle-plugin"
+  implementation "org.graalvm.buildtools:native-gradle-plugin"
   implementation 'org.apache.commons:commons-compress'
   implementation 'io.spring.gradle:dependency-management-plugin'
 

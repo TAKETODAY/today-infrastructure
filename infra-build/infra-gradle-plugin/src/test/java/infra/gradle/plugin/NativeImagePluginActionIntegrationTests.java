@@ -57,6 +57,12 @@ class NativeImagePluginActionIntegrationTests {
   }
 
   @TestTemplate
+  void enablingNativeImageThroughExtensionAppliesAotPlugin() {
+    assertThat(this.gradleBuild.build("aotPluginApplied").getOutput())
+            .contains("AOT plugin applied = true");
+  }
+
+  @TestTemplate
   void reachabilityMetadataConfigurationFilesAreCopiedToJar() throws IOException {
     writeDummyApplicationAotProcessorMainClass();
     BuildResult result = this.gradleBuild.expectDeprecationWarningsWithAtLeastVersion("8.2-rc-1").build("infraJar");

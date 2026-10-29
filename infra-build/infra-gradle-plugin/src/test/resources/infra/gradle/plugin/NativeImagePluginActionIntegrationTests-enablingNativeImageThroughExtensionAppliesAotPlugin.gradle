@@ -1,0 +1,14 @@
+
+plugins {
+	id 'infra.application' version '{version}'
+}
+
+infraApplication {
+	enableNativeImage()
+}
+
+task('aotPluginApplied') {
+	doFirst {
+		println "AOT plugin applied = ${plugins.hasPlugin(infra.gradle.plugin.InfraApplicationAotPlugin)}"
+	}
+}

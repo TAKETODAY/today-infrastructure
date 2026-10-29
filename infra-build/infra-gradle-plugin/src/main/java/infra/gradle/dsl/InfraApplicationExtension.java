@@ -18,6 +18,7 @@
 
 package infra.gradle.dsl;
 
+import org.graalvm.buildtools.gradle.NativeImagePlugin;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.BasePlugin;
@@ -84,6 +85,22 @@ public class InfraApplicationExtension {
   }
 
   /**
+   * Enables GraalVM Native Image support for the application.
+   * <p>Applies the GraalVM Native Image Gradle plugin
+   * ({@code org.graalvm.buildtools.native}) during project configuration, so the
+   * build does not need to apply that plugin itself. Applying the plugin also
+   * enables AOT processing and configures the native binaries to use the AOT
+   * output, as described in {@link #enableAheadOfTimeProcessing()}.
+   * <p>Repeated calls have no additional effect.
+   *
+   * @see #enableAheadOfTimeProcessing()
+   * @since 5.0
+   */
+  public void enableNativeImage() {
+    this.project.getPluginManager().apply(NativeImagePlugin.class);
+  }
+
+  /**
    * Enables build information generation with default settings.
    * <p>Registers an {@link BuildInfo} task named {@code infraBuildInfo} and,
    * when the Java plugin is applied, configures its {@code classes} task to
@@ -145,14 +162,12 @@ public class InfraApplicationExtension {
             .getResourcesDir();
   }
 
-  @Nullable
-  private String determineArtifactBaseName() {
+  private @Nullable String determineArtifactBaseName() {
     Jar artifactTask = findArtifactTask();
     return artifactTask != null ? artifactTask.getArchiveBaseName().get() : null;
   }
 
-  @Nullable
-  private Jar findArtifactTask() {
+  private @Nullable Jar findArtifactTask() {
     Jar artifactTask = (Jar) this.project.getTasks().findByName("infraWar");
     if (artifactTask != null) {
       return artifactTask;

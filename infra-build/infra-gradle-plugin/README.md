@@ -36,6 +36,18 @@ AOT is disabled by default and is enabled automatically when the GraalVM Native
 Image plugin is applied. Enabling AOT adds generated outputs to the main and test
 runtime classpaths, so tasks consuming them may trigger AOT processing.
 
+GraalVM Native Image support can also be enabled without applying
+`org.graalvm.buildtools.native` yourself:
+
+```groovy
+infraApplication {
+  enableNativeImage()
+}
+```
+
+The Native Build Tools version is provided by the plugin, so the build does not
+need to declare it.
+
 The application plugin provides `infraRun` and `infraJar` tasks and automatically
 applies dependency management with the matching Infrastructure BOM.
 Configuration Cache support is not currently declared as supported.
