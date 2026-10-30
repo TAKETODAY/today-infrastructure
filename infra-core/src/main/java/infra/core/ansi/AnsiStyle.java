@@ -34,7 +34,12 @@ public enum AnsiStyle implements AnsiElement {
 
   ITALIC("3"),
 
-  UNDERLINE("4");
+  UNDERLINE("4"),
+
+  /**
+   * Swap foreground and background colors.
+   */
+  REVERSE("7");
 
   private final String code;
 
