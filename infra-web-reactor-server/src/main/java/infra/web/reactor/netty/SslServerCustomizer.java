@@ -63,7 +63,7 @@ final class SslServerCustomizer implements ReactorNettyServerCustomizer {
 
   private volatile SslProvider sslProvider;
 
-  private final Map<String, SslProvider> serverNameSslProviders;
+  private final ConcurrentSkipListMap<String, SslProvider> serverNameSslProviders;
 
   public SslServerCustomizer(boolean http2Enabled, Ssl ssl,
           SslBundle sslBundle, Map<String, SslBundle> serverNameSslBundles) {
@@ -100,10 +100,11 @@ final class SslServerCustomizer implements ReactorNettyServerCustomizer {
     }
   }
 
-  private Map<String, SslProvider> createServerNameSslProviders(Map<String, SslBundle> serverNameSslBundles) {
-    Map<String, SslProvider> serverNameSslProviders = new ConcurrentSkipListMap<>(String.CASE_INSENSITIVE_ORDER);
-    serverNameSslBundles
-            .forEach((serverName, sslBundle) -> serverNameSslProviders.put(serverName, createSslProvider(sslBundle)));
+  private ConcurrentSkipListMap<String, SslProvider> createServerNameSslProviders(Map<String, SslBundle> serverNameSslBundles) {
+    ConcurrentSkipListMap<String, SslProvider> serverNameSslProviders = new ConcurrentSkipListMap<>(String.CASE_INSENSITIVE_ORDER);
+    for (Map.Entry<String, SslBundle> entry : serverNameSslBundles.entrySet()) {
+      serverNameSslProviders.put(entry.getKey(), createSslProvider(entry.getValue()));
+    }
     return serverNameSslProviders;
   }
 

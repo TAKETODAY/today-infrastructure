@@ -242,7 +242,7 @@ class ConfigurationPropertyNameTests {
   @Test
   void adaptWhenNameIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> ConfigurationPropertyName.adapt(null, '.'))
-            .withMessageContaining("Name must not be null");
+            .withMessageContaining("Name is required");
   }
 
   @Test

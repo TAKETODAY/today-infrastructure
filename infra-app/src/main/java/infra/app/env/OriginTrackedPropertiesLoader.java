@@ -61,7 +61,7 @@ class OriginTrackedPropertiesLoader {
    * @param resource the resource of the {@code .properties} data
    */
   OriginTrackedPropertiesLoader(Resource resource) {
-    Assert.notNull(resource, "'resource' must not be null");
+    Assert.notNull(resource, "Resource is required");
     this.resource = resource;
   }
 
@@ -95,7 +95,7 @@ class OriginTrackedPropertiesLoader {
    * @throws IOException on read error
    */
   List<Document> load(@Nullable Charset encoding, boolean expandLists) throws IOException {
-    List<Document> documents = new ArrayList<>();
+    ArrayList<Document> documents = new ArrayList<>();
     Document document = new Document();
     StringBuilder buffer = new StringBuilder();
     try (CharacterReader reader = new CharacterReader(this.resource, encoding)) {
@@ -351,7 +351,7 @@ class OriginTrackedPropertiesLoader {
    */
   static class Document {
 
-    private final Map<String, OriginTrackedValue> values = new LinkedHashMap<>();
+    private final LinkedHashMap<String, OriginTrackedValue> values = new LinkedHashMap<>();
 
     void put(String key, OriginTrackedValue value) {
       if (!key.isEmpty()) {
