@@ -59,6 +59,8 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
 
   private boolean useForwardHeaders;
 
+  private boolean useForwardedPrefix;
+
   @Nullable
   private ReactorResourceFactory resourceFactory;
 
@@ -144,6 +146,18 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
   }
 
   /**
+   * Set if the "X-Forwarded-Prefix" header should be processed when forwarded headers
+   * support is enabled.
+   *
+   * @param useForwardedPrefix if the "X-Forwarded-Prefix" header should be used
+   * @see #setUseForwardHeaders(boolean)
+   * @since 5.0
+   */
+  public void setUseForwardedPrefix(boolean useForwardedPrefix) {
+    this.useForwardedPrefix = useForwardedPrefix;
+  }
+
+  /**
    * Set the {@link ReactorResourceFactory} to get the shared resources from.
    *
    * @param resourceFactory the server resources
@@ -162,8 +176,15 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
     if (Compression.isEnabled(compression)) {
       server = new CompressionCustomizer(compression).apply(server);
     }
-    server = server.protocol(listProtocols()).forwarded(this.useForwardHeaders);
+    server = configureForwardedHeaders(server.protocol(listProtocols()));
     return applyCustomizers(server);
+  }
+
+  private HttpServer configureForwardedHeaders(HttpServer server) {
+    if (this.useForwardHeaders) {
+      return server.forwarded(false, this.useForwardedPrefix);
+    }
+    return server.noForwarded();
   }
 
   private HttpServer customizeSslConfiguration(Ssl ssl, HttpServer httpServer) {

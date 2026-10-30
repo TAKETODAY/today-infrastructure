@@ -61,7 +61,11 @@ public class ReactorNettyWebServerFactoryCustomizer
 
   @Override
   public void customize(ReactorNettyReactiveWebServerFactory factory) {
-    factory.setUseForwardHeaders(getOrDeduceUseForwardHeaders());
+    boolean useForwardHeaders = getOrDeduceUseForwardHeaders();
+    factory.setUseForwardHeaders(useForwardHeaders);
+    if (useForwardHeaders) {
+      factory.setUseForwardedPrefix(reactor.forwardedHeaders.useForwardedPrefix);
+    }
     PropertyMapper map = PropertyMapper.get();
 
     map.from(reactor.idleTimeout).to(idleTimeout -> customizeIdleTimeout(factory, idleTimeout));
