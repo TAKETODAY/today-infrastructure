@@ -53,6 +53,7 @@ import infra.util.ReflectionUtils;
  *
  * @author Christoph Strobl
  * @author Andy Wilkinson
+ * @author Moritz Halbritter
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
@@ -64,9 +65,10 @@ public class HikariCheckpointRestoreLifecycle implements Lifecycle {
 
   static {
     Field closeConnectionExecutor = ReflectionUtils.findField(HikariPool.class, "closeConnectionExecutor");
-    Assert.notNull(closeConnectionExecutor, "Unable to locate closeConnectionExecutor for HikariPool");
-    Assert.isAssignable(ThreadPoolExecutor.class, closeConnectionExecutor.getType(),
-            "Expected ThreadPoolExecutor for closeConnectionExecutor but found %s".formatted(closeConnectionExecutor.getType()));
+    Assert.state(closeConnectionExecutor != null, "Unable to locate closeConnectionExecutor for HikariPool");
+    Assert.state(ThreadPoolExecutor.class.isAssignableFrom(closeConnectionExecutor.getType()),
+            () -> "Expected ThreadPoolExecutor for closeConnectionExecutor but found %s"
+                    .formatted(closeConnectionExecutor.getType()));
     ReflectionUtils.makeAccessible(closeConnectionExecutor);
     CLOSE_CONNECTION_EXECUTOR = closeConnectionExecutor;
   }
@@ -94,7 +96,7 @@ public class HikariCheckpointRestoreLifecycle implements Lifecycle {
     this.hasOpenConnections = (pool) -> {
       ThreadPoolExecutor closeConnectionExecutor = (ThreadPoolExecutor) ReflectionUtils
               .getField(CLOSE_CONNECTION_EXECUTOR, pool);
-      Assert.notNull(closeConnectionExecutor, "CloseConnectionExecutor was null");
+    Assert.state(closeConnectionExecutor != null, "'closeConnectionExecutor' was null");
       return closeConnectionExecutor.getActiveCount() > 0;
     };
   }
@@ -113,7 +115,8 @@ public class HikariCheckpointRestoreLifecycle implements Lifecycle {
 
   @Override
   public void stop() {
-    if (this.dataSource == null || !this.dataSource.isRunning()) {
+    if (this.dataSource == null || !this.dataSource.isRunning()
+            || (this.applicationContext != null && this.applicationContext.isClosed())) {
       return;
     }
     if (this.dataSource.isAllowPoolSuspension()) {
@@ -121,11 +124,9 @@ public class HikariCheckpointRestoreLifecycle implements Lifecycle {
       this.dataSource.getHikariPoolMXBean().suspendPool();
     }
     else {
-      if (this.applicationContext != null && !this.applicationContext.isClosed()) {
-        logger.warn("{} is not configured to allow pool suspension. "
-                + "This will cause problems when the application is check-pointed. "
-                + "Please configure allow-pool-suspension to fix this!", dataSource);
-      }
+      logger.warn("{} is not configured to allow pool suspension. "
+              + "This will cause problems when the application is checkpointed. "
+              + "Please configure allow-pool-suspension to fix this!", dataSource);
     }
     closeConnections(dataSource, Duration.ofMillis(this.dataSource.getConnectionTimeout() + 250));
   }
