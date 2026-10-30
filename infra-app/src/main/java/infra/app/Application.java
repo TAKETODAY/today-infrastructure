@@ -118,7 +118,7 @@ import infra.util.function.ThrowingSupplier;
  *
  * <pre>{@code
  * @Configuration
- * public class MyApplication  {
+ * public class MyApplication {
  *
  *   // ... Bean definitions
  *
