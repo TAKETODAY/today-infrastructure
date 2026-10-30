@@ -21,6 +21,7 @@
 
   <!-- JMH benchmarks -->
   <suppress files="[\\/]src[\\/]jmh[\\/]java[\\/]infra[\\/]" checks="JavadocVariable|JavadocStyle|InnerTypeLast" />
+  <suppress files="[\\/]src[\\/]jmh[\\/]java[\\/]infra[\\/]" checks="RegexpSinglelineJava" id="systemOutErrPrint" />
 
   <!-- Framework docs -->
   <suppress files="infra[\\/]docs[\\/].+" checks="IllegalImport" id="bannedJUnitJupiterImports" />
