@@ -30,7 +30,6 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,9 +41,7 @@ import java.util.concurrent.TimeUnit;
 
 import infra.context.ApplicationContext;
 import infra.context.support.GenericApplicationContext;
-import infra.http.MediaType;
 import infra.web.DispatcherHandler;
-import infra.web.HttpContext;
 import infra.web.multipart.parsing.DefaultMultipartParser;
 import infra.web.server.Http2;
 import infra.web.server.HttpRequestExecutor;
@@ -97,7 +94,7 @@ public class Http2ServerBenchmark {
     }
 
     ApplicationContext applicationContext = new GenericApplicationContext();
-    DispatcherHandler dispatcher = new BenchmarkDispatcher(applicationContext);
+    DispatcherHandler dispatcher = new BenchmarkHandler(applicationContext);
 
     NettyRequestConfig requestConfig = NettyRequestConfig.forBuilder(false)
             .multipartParser(new DefaultMultipartParser())
@@ -198,24 +195,6 @@ public class Http2ServerBenchmark {
   private static double percentileMillis(List<Long> sortedNanos, int percentile) {
     int index = (int) Math.ceil(sortedNanos.size() * percentile / 100.0) - 1;
     return sortedNanos.get(Math.max(0, Math.min(index, sortedNanos.size() - 1))) / 1_000_000.0;
-  }
-
-  private static final class BenchmarkDispatcher extends DispatcherHandler {
-
-    private static final byte[] BODY = "hello".getBytes(StandardCharsets.UTF_8);
-
-    private BenchmarkDispatcher(ApplicationContext context) {
-      super(context);
-    }
-
-    @Override
-    public void handleRequest(HttpContext context) throws Exception {
-      context.setContentType(MediaType.TEXT_PLAIN);
-      context.setContentLength(BODY.length);
-      context.getOutputStream().write(BODY);
-      requestCompleted(context, null);
-    }
-
   }
 
 }
