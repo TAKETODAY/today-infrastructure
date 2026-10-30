@@ -173,6 +173,83 @@ class ColorConverterTests {
   }
 
   @Test
+  void bold() {
+    startWithOptions("bold");
+    String out = this.converter.transform(this.event, this.in);
+    assertThat(out).isEqualTo("\033[1min\033[0;39m");
+  }
+
+  @Test
+  void italic() {
+    startWithOptions("italic");
+    String out = this.converter.transform(this.event, this.in);
+    assertThat(out).isEqualTo("\033[3min\033[0;39m");
+  }
+
+  @Test
+  void underline() {
+    startWithOptions("underline");
+    String out = this.converter.transform(this.event, this.in);
+    assertThat(out).isEqualTo("\033[4min\033[0;39m");
+  }
+
+  @Test
+  void reverse() {
+    startWithOptions("reverse");
+    String out = this.converter.transform(this.event, this.in);
+    assertThat(out).isEqualTo("\033[7min\033[0;39m");
+  }
+
+  @Test
+  void bgRed() {
+    startWithOptions("bg_red");
+    String out = this.converter.transform(this.event, this.in);
+    assertThat(out).isEqualTo("\033[41min\033[0;39m");
+  }
+
+  @Test
+  void bgGreen() {
+    startWithOptions("bg_green");
+    String out = this.converter.transform(this.event, this.in);
+    assertThat(out).isEqualTo("\033[42min\033[0;39m");
+  }
+
+  @Test
+  void bgYellow() {
+    startWithOptions("bg_yellow");
+    String out = this.converter.transform(this.event, this.in);
+    assertThat(out).isEqualTo("\033[43min\033[0;39m");
+  }
+
+  @Test
+  void bgBlue() {
+    startWithOptions("bg_blue");
+    String out = this.converter.transform(this.event, this.in);
+    assertThat(out).isEqualTo("\033[44min\033[0;39m");
+  }
+
+  @Test
+  void bgBrightRed() {
+    startWithOptions("bg_bright_red");
+    String out = this.converter.transform(this.event, this.in);
+    assertThat(out).isEqualTo("\033[101min\033[0;39m");
+  }
+
+  @Test
+  void multipleStylesCommaSeparated() {
+    startWithOptions("bold, red");
+    String out = this.converter.transform(this.event, this.in);
+    assertThat(out).isEqualTo("\033[1;31min\033[0;39m");
+  }
+
+  @Test
+  void multipleStyles() {
+    startWithOptions("bold", "red");
+    String out = this.converter.transform(this.event, this.in);
+    assertThat(out).isEqualTo("\033[1;31min\033[0;39m");
+  }
+
+  @Test
   void highlightError() {
     this.event.setLevel(Level.ERROR);
     String out = this.converter.transform(this.event, this.in);
@@ -198,72 +275,6 @@ class ColorConverterTests {
     this.event.setLevel(Level.TRACE);
     String out = this.converter.transform(this.event, this.in);
     assertThat(out).isEqualTo("\033[32min\033[0;39m");
-  }
-
-  @Test
-  void bold() {
-    startWithOptions("bold");
-    assertThat(this.converter.transform(this.event, this.in)).isEqualTo("\033[1min\033[0;39m");
-  }
-
-  @Test
-  void italic() {
-    startWithOptions("italic");
-    assertThat(this.converter.transform(this.event, this.in)).isEqualTo("\033[3min\033[0;39m");
-  }
-
-  @Test
-  void underline() {
-    startWithOptions("underline");
-    assertThat(this.converter.transform(this.event, this.in)).isEqualTo("\033[4min\033[0;39m");
-  }
-
-  @Test
-  void reverse() {
-    startWithOptions("reverse");
-    assertThat(this.converter.transform(this.event, this.in)).isEqualTo("\033[7min\033[0;39m");
-  }
-
-  @Test
-  void bgRed() {
-    startWithOptions("bg_red");
-    assertThat(this.converter.transform(this.event, this.in)).isEqualTo("\033[41min\033[0;39m");
-  }
-
-  @Test
-  void bgGreen() {
-    startWithOptions("bg_green");
-    assertThat(this.converter.transform(this.event, this.in)).isEqualTo("\033[42min\033[0;39m");
-  }
-
-  @Test
-  void bgYellow() {
-    startWithOptions("bg_yellow");
-    assertThat(this.converter.transform(this.event, this.in)).isEqualTo("\033[43min\033[0;39m");
-  }
-
-  @Test
-  void bgBlue() {
-    startWithOptions("bg_blue");
-    assertThat(this.converter.transform(this.event, this.in)).isEqualTo("\033[44min\033[0;39m");
-  }
-
-  @Test
-  void bgBrightRed() {
-    startWithOptions("bg_bright_red");
-    assertThat(this.converter.transform(this.event, this.in)).isEqualTo("\033[101min\033[0;39m");
-  }
-
-  @Test
-  void multipleStylesCommaSeparated() {
-    startWithOptions("bold, red");
-    assertThat(this.converter.transform(this.event, this.in)).isEqualTo("\033[1;31min\033[0;39m");
-  }
-
-  @Test
-  void multipleStyles() {
-    startWithOptions("bold", "red");
-    assertThat(this.converter.transform(this.event, this.in)).isEqualTo("\033[1;31min\033[0;39m");
   }
 
   private void startWithOptions(String... options) {
