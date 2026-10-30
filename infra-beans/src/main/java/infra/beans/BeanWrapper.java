@@ -54,7 +54,7 @@ import infra.beans.factory.BeanFactory;
 public interface BeanWrapper extends ConfigurablePropertyAccessor {
 
   /**
-   * Specify a limit for array and collection auto-growing.
+   * Specify a limit for array and collection/set/list auto-growing.
    * <p>Default is unlimited on a plain BeanWrapper.
    */
   void setAutoGrowCollectionLimit(int autoGrowCollectionLimit);

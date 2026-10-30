@@ -503,9 +503,8 @@ public abstract class AbstractReactiveWebServerFactoryTests {
       // Continue
     }
     System.out.println("Stopped");
-    Awaitility.await()
-            .atMost(Duration.ofSeconds(5))
-            .until(() -> GracefulShutdownResult.REQUESTS_ACTIVE == result.get());
+    Awaitility.await().atMost(Duration.ofSeconds(30)).until(() -> result.get() != null);
+    assertThat(result).hasValue(GracefulShutdownResult.REQUESTS_ACTIVE);
     blockingHandler.completeOne();
   }
 
@@ -530,10 +529,21 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     AtomicReference<GracefulShutdownResult> result = new AtomicReference<>();
     this.webServer.shutdownGracefully(result::set);
     this.webServer.stop();
-    Awaitility.await()
-            .atMost(Duration.ofSeconds(30))
-            .until(() -> GracefulShutdownResult.REQUESTS_ACTIVE == result.get());
+    Awaitility.await().atMost(Duration.ofSeconds(30)).until(() -> result.get() != null);
+    assertThat(result).hasValue(GracefulShutdownResult.REQUESTS_ACTIVE);
     blockingHandler.completeOne();
+  }
+
+  @Test
+  void whenThereAreNoInflightRequestsStopCompletesWhenItRacesWithGracefulShutdown() throws Exception {
+    AbstractReactiveWebServerFactory factory = getFactory();
+    factory.setShutdown(Shutdown.GRACEFUL);
+    this.webServer = factory.createWebServer((request, response) -> response.setComplete());
+    this.webServer.start();
+    AtomicReference<GracefulShutdownResult> result = new AtomicReference<>();
+    this.webServer.shutdownGracefully(result::set);
+    this.webServer.stop();
+    Awaitility.await().atMost(Duration.ofSeconds(30)).until(() -> GracefulShutdownResult.IDLE == result.get());
   }
 
   @Test

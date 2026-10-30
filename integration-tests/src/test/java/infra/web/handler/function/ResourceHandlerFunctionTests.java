@@ -53,6 +53,45 @@ class ResourceHandlerFunctionTests {
 
   private final Resource resource = new ClassPathResource("response.txt", getClass());
 
+  @Test
+  void ignoreRangeWhenIfRangeETagDoesNotMatch() throws Throwable {
+    ResourceHandlerFunction handlerFunction = new ResourceHandlerFunction(
+            this.resource, (resource, headers) -> headers.setETag("\"current\""));
+    MockRequest mockRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
+    mockRequest.addHeader(HttpHeaders.RANGE, "bytes=0-5");
+    mockRequest.addHeader(HttpHeaders.IF_RANGE, "\"stale\"");
+    MockResponse mockResponse = new MockResponse();
+    MockHttpContext httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(this.messageConverter));
+    ServerResponse response = handlerFunction.handle(request);
+    response.writeTo(httpContext, this.context);
+
+    assertThat(mockResponse.getStatus()).isEqualTo(200);
+    assertThat(mockResponse.getHeader(HttpHeaders.ETAG)).isEqualTo("\"current\"");
+    assertThat(mockResponse.getHeader(HttpHeaders.CONTENT_RANGE)).isNull();
+    assertThat(mockResponse.getContentAsByteArray()).isEqualTo(Files.readAllBytes(this.resource.getFile().toPath()));
+  }
+
+  @Test
+  void getRangeWhenIfRangeETagMatches() throws Throwable {
+    ResourceHandlerFunction handlerFunction = new ResourceHandlerFunction(
+            this.resource, (resource, headers) -> headers.setETag("\"current\""));
+    MockRequest mockRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
+    mockRequest.addHeader(HttpHeaders.RANGE, "bytes=0-5");
+    mockRequest.addHeader(HttpHeaders.IF_RANGE, "\"current\"");
+    MockResponse mockResponse = new MockResponse();
+    MockHttpContext httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(this.messageConverter));
+    ServerResponse response = handlerFunction.handle(request);
+    response.writeTo(httpContext, this.context);
+
+    assertThat(mockResponse.getStatus()).isEqualTo(206);
+    assertThat(mockResponse.getHeader(HttpHeaders.ETAG)).isEqualTo("\"current\"");
+    assertThat(mockResponse.getHeader(HttpHeaders.CONTENT_RANGE))
+            .isEqualTo("bytes 0-5/" + this.resource.contentLength());
+    assertThat(mockResponse.getContentAsByteArray()).hasSize(6);
+  }
+
   private final ResourceHandlerFunction handlerFunction = new ResourceHandlerFunction(this.resource, (r, h) -> { });
 
   private ServerResponse.Context context;

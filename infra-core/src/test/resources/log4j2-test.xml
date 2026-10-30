@@ -9,6 +9,7 @@
   <Loggers>
 
     <Logger name="infra" level="warn" />
+    <Logger name="infra.core.env.PropertySource" level="debug" />
     <Logger name="infra.logging" level="trace" />
     <Root level="error">
       <AppenderRef ref="Console" />

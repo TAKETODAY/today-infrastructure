@@ -64,8 +64,8 @@ class ReactorServerHttpRequest extends AbstractServerHttpRequest {
   private final NettyDataBufferFactory bufferFactory;
 
   public ReactorServerHttpRequest(HttpServerRequest request, NettyDataBufferFactory bufferFactory) throws URISyntaxException {
-    super(HttpMethod.valueOf(request.method().name()), ReactorUriHelper.createUri(request), null,
-            new Netty4HttpHeaders(request.requestHeaders()));
+    super(HttpMethod.valueOf(request.method().name()), ReactorUriHelper.createUri(request),
+            request.forwardedPrefix(), new Netty4HttpHeaders(request.requestHeaders()));
     this.request = request;
     this.bufferFactory = bufferFactory;
   }

@@ -487,7 +487,8 @@ public final class ZipContent implements Closeable {
       this.nameHashLookups = new int[maxSize];
       this.relativeCentralDirectoryOffsetLookups = new int[maxSize];
       this.nameOffsetLookups = (directoryEntry != null)
-              ? new NameOffsetLookups(directoryEntry.getName().length(), maxSize) : NameOffsetLookups.NONE;
+              ? new NameOffsetLookups(directoryEntry.getName().getBytes(StandardCharsets.UTF_8).length, maxSize)
+              : NameOffsetLookups.NONE;
     }
 
     private void add(ZipCentralDirectoryFileHeaderRecord centralRecord, long pos, boolean enableNameOffset)
@@ -605,7 +606,9 @@ public final class ZipContent implements Closeable {
       long eocdPos = locatedEocd.pos();
       Zip64EndOfCentralDirectoryLocator zip64Locator = Zip64EndOfCentralDirectoryLocator.find(data, eocdPos);
       Zip64EndOfCentralDirectoryRecord zip64Eocd = Zip64EndOfCentralDirectoryRecord.load(data, zip64Locator);
-      data = data.slice(getStartOfZipContent(data, eocd, zip64Eocd));
+      long startOfZipContent = getStartOfZipContent(eocdPos, eocd, zip64Eocd);
+      data = data.slice(startOfZipContent);
+      eocdPos -= startOfZipContent;
       long centralDirectoryPos = (zip64Eocd != null) ? zip64Eocd.offsetToStartOfCentralDirectory()
               : Integer.toUnsignedLong(eocd.offsetToStartOfCentralDirectory());
       long numberOfEntries = (zip64Eocd != null) ? zip64Eocd.totalNumberOfCentralDirectoryEntries()
@@ -625,7 +628,7 @@ public final class ZipContent implements Closeable {
         loader.add(centralRecord, pos, false);
         pos += centralRecord.size();
       }
-      long commentPos = locatedEocd.pos() + ZipEndOfCentralDirectoryRecord.COMMENT_OFFSET;
+      long commentPos = eocdPos + ZipEndOfCentralDirectoryRecord.COMMENT_OFFSET;
       return loader.finish(kind, commentPos, eocd.commentLength(), signatureFiles.detected());
     }
 
@@ -633,20 +636,21 @@ public final class ZipContent implements Closeable {
      * Returns the location in the data that the archive actually starts. For most
      * files the archive data will start at 0, however, it is possible to have
      * prefixed bytes (often used for startup scripts) at the beginning of the data.
+     * The end of the end of central directory record is used as the end of the
+     * archive so that trailing bytes after the record are also supported.
      *
-     * @param data the source data
+     * @param eocdPos the position of the end of central directory record
      * @param eocd the end of central directory record
      * @param zip64Eocd the zip64 end of central directory record or {@code null}
      * @return the offset within the data where the archive begins
-     * @throws IOException on I/O error
      */
-    private static long getStartOfZipContent(FileDataBlock data, ZipEndOfCentralDirectoryRecord eocd,
-            @Nullable Zip64EndOfCentralDirectoryRecord zip64Eocd) throws IOException {
+    private static long getStartOfZipContent(long eocdPos, ZipEndOfCentralDirectoryRecord eocd,
+            @Nullable Zip64EndOfCentralDirectoryRecord zip64Eocd) {
       long specifiedOffsetToStartOfCentralDirectory = (zip64Eocd != null)
               ? zip64Eocd.offsetToStartOfCentralDirectory()
               : Integer.toUnsignedLong(eocd.offsetToStartOfCentralDirectory());
       long sizeOfCentralDirectoryAndEndRecords = getSizeOfCentralDirectoryAndEndRecords(eocd, zip64Eocd);
-      long actualOffsetToStartOfCentralDirectory = data.size() - sizeOfCentralDirectoryAndEndRecords;
+      long actualOffsetToStartOfCentralDirectory = eocdPos + eocd.size() - sizeOfCentralDirectoryAndEndRecords;
       return actualOffsetToStartOfCentralDirectory - specifiedOffsetToStartOfCentralDirectory;
     }
 
@@ -716,10 +720,10 @@ public final class ZipContent implements Closeable {
     }
 
     void detect(ZipCentralDirectoryFileHeaderRecord centralRecord, FileDataBlock data,
-            long pos, ByteBuffer loadeBuffer) throws IOException {
+            long pos, ByteBuffer loadedBuffer) throws IOException {
       if (!this.detected) {
         long filenamePos = pos + ZipCentralDirectoryFileHeaderRecord.FILE_NAME_OFFSET;
-        if (centralRecord.fileNameLength() > this.buffer.capacity() && ZipString.startsWith(loadeBuffer, data,
+        if (centralRecord.fileNameLength() > this.buffer.capacity() && ZipString.startsWith(loadedBuffer, data,
                 filenamePos, centralRecord.fileNameLength(), META_INF) >= 0) {
           this.buffer.clear();
           data.readFully(this.buffer, filenamePos + centralRecord.fileNameLength() - this.buffer.capacity());
@@ -799,9 +803,10 @@ public final class ZipContent implements Closeable {
       if (name != null) {
         return name.startsWith(prefix.toString());
       }
+      int offset = ZipContent.this.nameOffsetLookups.get(this.lookupIndex);
       long pos = getCentralDirectoryFileHeaderRecordPos(this.lookupIndex)
-              + ZipCentralDirectoryFileHeaderRecord.FILE_NAME_OFFSET;
-      return ZipString.startsWith(null, ZipContent.this.data, pos, this.centralRecord.fileNameLength(),
+              + ZipCentralDirectoryFileHeaderRecord.FILE_NAME_OFFSET + offset;
+      return ZipString.startsWith(null, ZipContent.this.data, pos, this.centralRecord.fileNameLength() - offset,
               prefix) != -1;
     }
 
@@ -861,10 +866,10 @@ public final class ZipContent implements Closeable {
     private FileDataBlock getContent() throws IOException {
       FileDataBlock content = this.content;
       if (content == null) {
-        int pos = this.centralRecord.offsetToLocalHeader();
+        long pos = Integer.toUnsignedLong(this.centralRecord.offsetToLocalHeader());
         checkNotZip64Extended(pos);
         ZipLocalFileHeaderRecord localHeader = ZipLocalFileHeaderRecord.load(ZipContent.this.data, pos);
-        int size = this.centralRecord.compressedSize();
+        long size = Integer.toUnsignedLong(this.centralRecord.compressedSize());
         checkNotZip64Extended(size);
         content = ZipContent.this.data.slice(pos + localHeader.size(), size);
         this.content = content;
@@ -872,7 +877,7 @@ public final class ZipContent implements Closeable {
       return content;
     }
 
-    private void checkNotZip64Extended(int value) throws IOException {
+    private void checkNotZip64Extended(long value) throws IOException {
       if (value == 0xFFFFFFFF) {
         throw new IOException("Zip64 extended information extra fields are not supported");
       }

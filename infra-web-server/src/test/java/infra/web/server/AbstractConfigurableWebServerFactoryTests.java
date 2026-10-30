@@ -252,9 +252,8 @@ class AbstractConfigurableWebServerFactoryTests {
   void getServerNameSslBundlesShouldThrowExceptionWhenSslBundlesIsNull() {
     AbstractConfigurableWebServerFactory factory = new AbstractConfigurableWebServerFactory() { };
     Ssl ssl = new Ssl();
-    Ssl.ServerNameSslBundle serverNameBundle = new Ssl.ServerNameSslBundle();
-    serverNameBundle.setServerName("example.com");
-    serverNameBundle.setBundle("test-bundle");
+    Ssl.ServerNameSslBundle serverNameBundle = new Ssl.ServerNameSslBundle(
+            "example.com", "test-bundle");
     ssl.serverNameBundles.add(serverNameBundle);
     factory.setSsl(ssl);
     factory.setSslBundles(null);

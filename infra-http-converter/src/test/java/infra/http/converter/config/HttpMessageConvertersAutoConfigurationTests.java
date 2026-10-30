@@ -228,6 +228,12 @@ class HttpMessageConvertersAutoConfigurationTests {
   }
 
   @Test
+  void stringCustomConverterWithCustomizer() {
+    this.contextRunner.withUserConfiguration(CustomStringConverterConfig.class)
+            .run((context) -> assertConverterIsRegistered(context, CustomStringConverter.class));
+  }
+
+  @Test
   void jacksonIsPreferredByDefault() {
     allOptionsRunner().run((context) -> {
       assertBeanExists(context, JacksonJsonHttpMessageConvertersCustomizer.class,
@@ -300,6 +306,12 @@ class HttpMessageConvertersAutoConfigurationTests {
   @Test
   void defaultConvertersCustomizerHasOrderZero() {
     defaultConvertersCustomizerHasOrderZero(DefaultHttpMessageConvertersCustomizer.class);
+  }
+
+  @Test
+  void stringConvertersCustomizerHasOrderZero() {
+    defaultConvertersCustomizerHasOrderZero(
+            HttpMessageConvertersAutoConfiguration.StringHttpMessageConvertersCustomizer.class);
   }
 
   private <T> void defaultConvertersCustomizerHasOrderZero(Class<T> customizerType) {
@@ -493,6 +505,25 @@ class HttpMessageConvertersAutoConfigurationTests {
     StringHttpMessageConverter customStringMessageConverter() {
       return new StringHttpMessageConverter();
     }
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class CustomStringConverterConfig {
+
+    @Bean
+    ServerHttpMessageConvertersCustomizer stringServerCustomizer() {
+      return (configurer) -> configurer.withStringConverter(new CustomStringConverter());
+    }
+
+    @Bean
+    ClientHttpMessageConvertersCustomizer stringClientCustomizer() {
+      return (configurer) -> configurer.withStringConverter(new CustomStringConverter());
+    }
+
+  }
+
+  static class CustomStringConverter extends StringHttpMessageConverter {
 
   }
 

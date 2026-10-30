@@ -197,8 +197,8 @@ class FlywayAutoConfigurationTests {
     this.contextRunner
             .withUserConfiguration(EmbeddedDataSourceConfiguration.class, JdbcConnectionDetailsConfiguration.class,
                     MockFlywayMigrationStrategy.class)
-            .withPropertyValues("datasource.url=jdbc:hsqldb:mem:flywaytest", "datasource.user=some-user",
-                    "datasource.password=some-password",
+            .withPropertyValues("datasource.url=jdbc:hsqldb:mem:flywaytest",
+                    "datasource.username=some-user", "datasource.password=some-password",
                     "datasource.driver-class-name=org.hsqldb.jdbc.JDBCDriver")
             .run((context) -> {
               Flyway flyway = context.getBean(Flyway.class);

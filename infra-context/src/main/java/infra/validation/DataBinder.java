@@ -278,11 +278,12 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   }
 
   /**
-   * Specify the limit for array and collection auto-growing.
+   * Specify the limit for array and collection/set/list auto-growing.
    * <p>Default is 256, preventing OutOfMemoryErrors in case of large indexes.
    * Raise this limit if your auto-growing needs are unusually high.
-   * <p>Used for setter/field injection via {@link #bind(PropertyValues)}, and not
-   * applicable to constructor initialization via {@link #construct(ValueResolver)}.
+   * <p>Used for setter/field injection via {@link #bind(PropertyValues)};
+   * not applicable to map properties or to constructor initialization
+   * via {@link #construct(ValueResolver)}.
    *
    * @see #initBeanPropertyAccess()
    * @see BeanWrapper#setAutoGrowCollectionLimit
@@ -361,6 +362,8 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   /**
    * Initialize direct field access for this DataBinder,
    * as alternative to the default bean property access.
+   * <p><b>NOTE: This is an advanced option for trusted scenarios.</b>
+   * Do not use direct field access for data binding from untrusted sources.
    *
    * @see #initBeanPropertyAccess()
    * @see #createDirectFieldBindingResult()

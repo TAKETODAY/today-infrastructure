@@ -133,6 +133,7 @@ public abstract class HttpRange {
    * @return the list of ranges
    * @throws IllegalArgumentException if the string cannot be parsed
    * or if the number of ranges is greater than 100
+   * @see #resolveRanges(HttpHeaders, HttpHeaders)
    */
   public static List<HttpRange> parseRanges(@Nullable String ranges) {
     if (StringUtils.isEmpty(ranges)) {
@@ -152,6 +153,47 @@ public abstract class HttpRange {
       result.add(parseRange(token));
     }
     return result;
+  }
+
+  /**
+   * Resolve the ranges to serve from the given request headers, taking the
+   * {@code "If-Range"} header into account.
+   * <p>If the request has no {@code "If-Range"} header, or if its value exactly
+   * matches the strong {@code "ETag"} or the {@code "Last-Modified"} response
+   * header, this delegates to {@link #parseRanges(String)}. Otherwise, the
+   * {@code Range} header must be ignored and an empty list is returned.
+   *
+   * @param requestHeaders the request headers
+   * @param responseHeaders the response headers for the selected representation
+   * @return the ranges to serve, or an empty list if there is none or if
+   * the {@code Range} header should be ignored
+   * @throws IllegalArgumentException if the ranges cannot be parsed
+   * @see <a href="https://www.rfc-editor.org/rfc/rfc9110.html#section-13.1.5">RFC 9110, Section 13.1.5</a>
+   * @since 5.0
+   */
+  public static List<HttpRange> resolveRanges(HttpHeaders requestHeaders, HttpHeaders responseHeaders) {
+    Assert.notNull(requestHeaders, "Request headers must not be null");
+    Assert.notNull(responseHeaders, "Response headers must not be null");
+
+    List<String> ifRange = requestHeaders.get(HttpHeaders.IF_RANGE);
+    if (ifRange != null) {
+      // Multiple If-Range values are invalid, ignore the Range header.
+      if (ifRange.size() != 1) {
+        return Collections.emptyList();
+      }
+      if (!matchesIfRange(ifRange.get(0), responseHeaders)) {
+        return Collections.emptyList();
+      }
+    }
+    return parseRanges(requestHeaders.getFirst(HttpHeaders.RANGE));
+  }
+
+  private static boolean matchesIfRange(String ifRange, HttpHeaders responseHeaders) {
+    ifRange = ifRange.trim();
+    // Entity tags require a strong comparison: a weak "W/" value is never
+    // an entity tag match and can't match a date either.
+    return ifRange.startsWith("\"") ? ifRange.equals(responseHeaders.getETag()) :
+            ifRange.equals(responseHeaders.getFirst(HttpHeaders.LAST_MODIFIED));
   }
 
   private static HttpRange parseRange(String range) {

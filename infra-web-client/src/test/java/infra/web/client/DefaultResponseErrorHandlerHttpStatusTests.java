@@ -38,6 +38,7 @@ import static infra.http.HttpStatus.BAD_REQUEST;
 import static infra.http.HttpStatus.CONFLICT;
 import static infra.http.HttpStatus.FORBIDDEN;
 import static infra.http.HttpStatus.GATEWAY_TIMEOUT;
+import static infra.http.HttpStatus.GONE;
 import static infra.http.HttpStatus.HTTP_VERSION_NOT_SUPPORTED;
 import static infra.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static infra.http.HttpStatus.I_AM_A_TEAPOT;
@@ -45,10 +46,12 @@ import static infra.http.HttpStatus.METHOD_NOT_ALLOWED;
 import static infra.http.HttpStatus.NOT_ACCEPTABLE;
 import static infra.http.HttpStatus.NOT_FOUND;
 import static infra.http.HttpStatus.NOT_IMPLEMENTED;
+import static infra.http.HttpStatus.PRECONDITION_FAILED;
 import static infra.http.HttpStatus.SERVICE_UNAVAILABLE;
 import static infra.http.HttpStatus.TOO_MANY_REQUESTS;
 import static infra.http.HttpStatus.UNAUTHORIZED;
 import static infra.http.HttpStatus.UNPROCESSABLE_ENTITY;
+import static infra.http.HttpStatus.UNSUPPORTED_MEDIA_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
@@ -109,6 +112,9 @@ class DefaultResponseErrorHandlerHttpStatusTests {
             { METHOD_NOT_ALLOWED, HttpClientErrorException.MethodNotAllowed.class },
             { NOT_ACCEPTABLE, HttpClientErrorException.NotAcceptable.class },
             { CONFLICT, HttpClientErrorException.Conflict.class },
+            { GONE, HttpClientErrorException.Gone.class },
+            { PRECONDITION_FAILED, HttpClientErrorException.PreconditionFailed.class },
+            { UNSUPPORTED_MEDIA_TYPE, HttpClientErrorException.UnsupportedMediaType.class },
             { TOO_MANY_REQUESTS, HttpClientErrorException.TooManyRequests.class },
             { UNPROCESSABLE_ENTITY, HttpClientErrorException.UnprocessableEntity.class },
             { I_AM_A_TEAPOT, HttpClientErrorException.class },

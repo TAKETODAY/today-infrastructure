@@ -58,10 +58,10 @@ public class VersionedConfiguration implements WebMvcConfigurer {
 
 对于 WebJars，推荐且最有效的使用方式是使用版本化的 URL，如 `/webjars/jquery/1.2.0/jquery.min.js`。
 相关的资源位置在 Infra App 中已经配置好了（或者可以通过 `ResourceHandlerRegistry` 手动配置），
-并且不需要添加 `org.webjars:webjars-locator-core` 依赖项。
+并且不需要添加 `org.webjars:webjars-locator-lite` 依赖项。
 
-通过 `WebJarsResourceResolver` 支持无版本 URL，如 `/webjars/jquery/jquery.min.js`，
-该解析器在类路径上存在 `org.webjars:webjars-locator-core` 库时会自动注册，但代价是可能会减慢应用程序启动的类路径扫描。
+通过 `LiteWebJarsResourceResolver` 支持无版本 URL，如 `/webjars/jquery/jquery.min.js`，
+该解析器在类路径上存在 `org.webjars:webjars-locator-lite` 库时会自动注册。
 解析器可以重写 URL 以包含 jar 的版本，并且也可以匹配没有版本的传入 URL -- 例如，从 `/webjars/jquery/jquery.min.js`
 到 `/webjars/jquery/1.2.0/jquery.min.js`。
 

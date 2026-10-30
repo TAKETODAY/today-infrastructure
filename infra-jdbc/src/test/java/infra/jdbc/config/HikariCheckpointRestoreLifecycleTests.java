@@ -32,9 +32,14 @@ import infra.context.ConfigurableApplicationContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
+ * Tests for {@link HikariCheckpointRestoreLifecycle}.
+ *
+ * @author Christoph Strobl
+ * @author Andy Wilkinson
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/8/13 11:44
  */
@@ -44,13 +49,16 @@ class HikariCheckpointRestoreLifecycleTests {
 
   private final HikariDataSource dataSource;
 
+  private final ConfigurableApplicationContext applicationContext;
+
   HikariCheckpointRestoreLifecycleTests() {
     HikariConfig config = new HikariConfig();
     config.setAllowPoolSuspension(true);
     config.setJdbcUrl("jdbc:hsqldb:mem:test-" + UUID.randomUUID());
     config.setPoolName("lifecycle-tests");
     this.dataSource = new HikariDataSource(config);
-    this.lifecycle = new HikariCheckpointRestoreLifecycle(this.dataSource, mock(ConfigurableApplicationContext.class));
+    this.applicationContext = mock(ConfigurableApplicationContext.class);
+    this.lifecycle = new HikariCheckpointRestoreLifecycle(this.dataSource, this.applicationContext);
   }
 
   @Test
@@ -86,6 +94,14 @@ class HikariCheckpointRestoreLifecycleTests {
   void whenDataSourceIsClosedThenStartShouldThrow() {
     this.dataSource.close();
     assertThatExceptionOfType(RuntimeException.class).isThrownBy(this.lifecycle::start);
+  }
+
+  @Test
+  void whenApplicationContextIsClosedThenStopShouldNotSuspendPool() {
+    given(this.applicationContext.isClosed()).willReturn(true);
+    assertThat(this.lifecycle.isRunning()).isTrue();
+    this.lifecycle.stop();
+    assertThat(this.dataSource.isRunning()).isTrue();
   }
 
   @Test

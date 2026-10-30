@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,6 +33,7 @@ import infra.core.io.ClassPathResource;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
 import infra.mock.env.MockEnvironment;
+import infra.test.classpath.resources.WithResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -255,6 +257,17 @@ class StandardConfigDataLocationResolverTests {
     assertThat(locations).hasSize(1);
     assertThat(locations).extracting(Object::toString)
             .containsExactly("class path resource [configdata/properties/application-dev.properties]");
+  }
+
+  @Test
+  @WithResource(name = "config[a]/application.properties", content = "brackets=test")
+  void resolveWhenLocationContainsBracketsResolves() throws IOException {
+    ConfigDataLocation location = ConfigDataLocation.valueOf("classpath:config[a]/application.properties");
+    List<StandardConfigDataResource> locations = this.resolver.resolve(this.context, location);
+    assertThat(locations).hasSize(1);
+    ConfigData loaded = new StandardConfigDataLoader().load(mock(ConfigDataLoaderContext.class), locations.get(0));
+    PropertySource<?> propertySource = loaded.getPropertySources().get(0);
+    assertThat(propertySource.getProperty("brackets")).isEqualTo("test");
   }
 
   @Test

@@ -281,11 +281,13 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
         if (rangeHeader != null) {
           Resource resource = (Resource) entity;
           try {
-            List<HttpRange> httpRanges = HttpRange.parseRanges(rangeHeader);
-            request.setStatus(HttpStatus.PARTIAL_CONTENT.value());
-            entity = HttpRange.toResourceRegions(httpRanges, resource);
-            entityClass = entity.getClass();
-            entityType = RESOURCE_REGION_LIST_TYPE;
+            List<HttpRange> httpRanges = HttpRange.resolveRanges(request.requestHeaders(), request.responseHeaders());
+            if (!httpRanges.isEmpty()) {
+              request.setStatus(HttpStatus.PARTIAL_CONTENT.value());
+              entity = HttpRange.toResourceRegions(httpRanges, resource);
+              entityClass = entity.getClass();
+              entityType = RESOURCE_REGION_LIST_TYPE;
+            }
           }
           catch (IllegalArgumentException ex) {
             request.setHeader(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());

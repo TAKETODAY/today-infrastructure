@@ -30,6 +30,7 @@ import java.util.zip.InflaterInputStream;
  * available() results.
  *
  * @author Phillip Webb
+ * @author Jan Mohr
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
@@ -54,6 +55,18 @@ class ZipInflaterInputStream extends InflaterInputStream {
   @Override
   public int available() throws IOException {
     return (this.available >= 0) ? this.available : super.available();
+  }
+
+  @Override
+  public byte[] readAllBytes() throws IOException {
+    if (this.available < 0) {
+      return super.readAllBytes();
+    }
+    byte[] bytes = new byte[this.available];
+    if (readNBytes(bytes, 0, bytes.length) != bytes.length) {
+      throw new EOFException("Unexpected end of ZLIB input stream");
+    }
+    return bytes;
   }
 
   @Override

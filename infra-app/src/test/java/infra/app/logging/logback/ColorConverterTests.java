@@ -22,7 +22,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
+import java.util.Arrays;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.LoggingEvent;
@@ -55,121 +55,198 @@ class ColorConverterTests {
 
   @Test
   void black() {
-    this.converter.setOptionList(Collections.singletonList("black"));
+    startWithOptions("black");
     String out = this.converter.transform(this.event, this.in);
     assertThat(out).isEqualTo("\033[30min\033[0;39m");
   }
 
   @Test
   void white() {
-    this.converter.setOptionList(Collections.singletonList("white"));
+    startWithOptions("white");
     String out = this.converter.transform(this.event, this.in);
     assertThat(out).isEqualTo("\033[37min\033[0;39m");
   }
 
   @Test
   void faint() {
-    this.converter.setOptionList(Collections.singletonList("faint"));
+    startWithOptions("faint");
     String out = this.converter.transform(this.event, this.in);
     assertThat(out).isEqualTo("\033[2min\033[0;39m");
   }
 
   @Test
   void red() {
-    this.converter.setOptionList(Collections.singletonList("red"));
+    startWithOptions("red");
     String out = this.converter.transform(this.event, this.in);
     assertThat(out).isEqualTo("\033[31min\033[0;39m");
   }
 
   @Test
   void green() {
-    this.converter.setOptionList(Collections.singletonList("green"));
+    startWithOptions("green");
     String out = this.converter.transform(this.event, this.in);
     assertThat(out).isEqualTo("\033[32min\033[0;39m");
   }
 
   @Test
   void yellow() {
-    this.converter.setOptionList(Collections.singletonList("yellow"));
+    startWithOptions("yellow");
     String out = this.converter.transform(this.event, this.in);
     assertThat(out).isEqualTo("\033[33min\033[0;39m");
   }
 
   @Test
   void blue() {
-    this.converter.setOptionList(Collections.singletonList("blue"));
+    startWithOptions("blue");
     String out = this.converter.transform(this.event, this.in);
     assertThat(out).isEqualTo("\033[34min\033[0;39m");
   }
 
   @Test
   void magenta() {
-    this.converter.setOptionList(Collections.singletonList("magenta"));
+    startWithOptions("magenta");
     String out = this.converter.transform(this.event, this.in);
     assertThat(out).isEqualTo("\033[35min\033[0;39m");
   }
 
   @Test
   void cyan() {
-    this.converter.setOptionList(Collections.singletonList("cyan"));
+    startWithOptions("cyan");
     String out = this.converter.transform(this.event, this.in);
     assertThat(out).isEqualTo("\033[36min\033[0;39m");
   }
 
   @Test
   void brightBlack() {
-    this.converter.setOptionList(Collections.singletonList("bright_black"));
+    startWithOptions("bright_black");
     String out = this.converter.transform(this.event, this.in);
     assertThat(out).isEqualTo("\033[90min\033[0;39m");
   }
 
   @Test
   void brightWhite() {
-    this.converter.setOptionList(Collections.singletonList("bright_white"));
+    startWithOptions("bright_white");
     String out = this.converter.transform(this.event, this.in);
     assertThat(out).isEqualTo("\033[97min\033[0;39m");
   }
 
   @Test
   void brightRed() {
-    this.converter.setOptionList(Collections.singletonList("bright_red"));
+    startWithOptions("bright_red");
     String out = this.converter.transform(this.event, this.in);
     assertThat(out).isEqualTo("\033[91min\033[0;39m");
   }
 
   @Test
   void brightGreen() {
-    this.converter.setOptionList(Collections.singletonList("bright_green"));
+    startWithOptions("bright_green");
     String out = this.converter.transform(this.event, this.in);
     assertThat(out).isEqualTo("\033[92min\033[0;39m");
   }
 
   @Test
   void brightYellow() {
-    this.converter.setOptionList(Collections.singletonList("bright_yellow"));
+    startWithOptions("bright_yellow");
     String out = this.converter.transform(this.event, this.in);
     assertThat(out).isEqualTo("\033[93min\033[0;39m");
   }
 
   @Test
   void brightBlue() {
-    this.converter.setOptionList(Collections.singletonList("bright_blue"));
+    startWithOptions("bright_blue");
     String out = this.converter.transform(this.event, this.in);
     assertThat(out).isEqualTo("\033[94min\033[0;39m");
   }
 
   @Test
   void brightMagenta() {
-    this.converter.setOptionList(Collections.singletonList("bright_magenta"));
+    startWithOptions("bright_magenta");
     String out = this.converter.transform(this.event, this.in);
     assertThat(out).isEqualTo("\033[95min\033[0;39m");
   }
 
   @Test
   void brightCyan() {
-    this.converter.setOptionList(Collections.singletonList("bright_cyan"));
+    startWithOptions("bright_cyan");
     String out = this.converter.transform(this.event, this.in);
     assertThat(out).isEqualTo("\033[96min\033[0;39m");
+  }
+
+  @Test
+  void bold() {
+    startWithOptions("bold");
+    String out = this.converter.transform(this.event, this.in);
+    assertThat(out).isEqualTo("\033[1min\033[0;39m");
+  }
+
+  @Test
+  void italic() {
+    startWithOptions("italic");
+    String out = this.converter.transform(this.event, this.in);
+    assertThat(out).isEqualTo("\033[3min\033[0;39m");
+  }
+
+  @Test
+  void underline() {
+    startWithOptions("underline");
+    String out = this.converter.transform(this.event, this.in);
+    assertThat(out).isEqualTo("\033[4min\033[0;39m");
+  }
+
+  @Test
+  void reverse() {
+    startWithOptions("reverse");
+    String out = this.converter.transform(this.event, this.in);
+    assertThat(out).isEqualTo("\033[7min\033[0;39m");
+  }
+
+  @Test
+  void bgRed() {
+    startWithOptions("bg_red");
+    String out = this.converter.transform(this.event, this.in);
+    assertThat(out).isEqualTo("\033[41min\033[0;39m");
+  }
+
+  @Test
+  void bgGreen() {
+    startWithOptions("bg_green");
+    String out = this.converter.transform(this.event, this.in);
+    assertThat(out).isEqualTo("\033[42min\033[0;39m");
+  }
+
+  @Test
+  void bgYellow() {
+    startWithOptions("bg_yellow");
+    String out = this.converter.transform(this.event, this.in);
+    assertThat(out).isEqualTo("\033[43min\033[0;39m");
+  }
+
+  @Test
+  void bgBlue() {
+    startWithOptions("bg_blue");
+    String out = this.converter.transform(this.event, this.in);
+    assertThat(out).isEqualTo("\033[44min\033[0;39m");
+  }
+
+  @Test
+  void bgBrightRed() {
+    startWithOptions("bg_bright_red");
+    String out = this.converter.transform(this.event, this.in);
+    assertThat(out).isEqualTo("\033[101min\033[0;39m");
+  }
+
+  @Test
+  void multipleStylesCommaSeparated() {
+    startWithOptions("bold, red");
+    String out = this.converter.transform(this.event, this.in);
+    assertThat(out).isEqualTo("\033[1;31min\033[0;39m");
+  }
+
+  @Test
+  void multipleStyles() {
+    startWithOptions("bold", "red");
+    String out = this.converter.transform(this.event, this.in);
+    assertThat(out).isEqualTo("\033[1;31min\033[0;39m");
   }
 
   @Test
@@ -198,6 +275,11 @@ class ColorConverterTests {
     this.event.setLevel(Level.TRACE);
     String out = this.converter.transform(this.event, this.in);
     assertThat(out).isEqualTo("\033[32min\033[0;39m");
+  }
+
+  private void startWithOptions(String... options) {
+    this.converter.setOptionList(Arrays.asList(options));
+    this.converter.start();
   }
 
 }

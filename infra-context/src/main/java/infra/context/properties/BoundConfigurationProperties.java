@@ -21,8 +21,8 @@ package infra.context.properties;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.BeanDefinitionBuilder;
@@ -42,7 +42,7 @@ import infra.util.Assert;
  */
 public class BoundConfigurationProperties {
 
-  private final LinkedHashMap<ConfigurationPropertyName, ConfigurationProperty> properties = new LinkedHashMap<>();
+  private final ConcurrentHashMap<ConfigurationPropertyName, ConfigurationProperty> properties = new ConcurrentHashMap<>();
 
   /**
    * The bean name that this class is registered with.

@@ -109,15 +109,9 @@ class DefaultWebTestClientBuilder implements WebTestClient.Builder {
 
     this.baseUrl = other.baseUrl;
     this.uriBuilderFactory = other.uriBuilderFactory;
-    if (other.defaultHeaders != null) {
-      this.defaultHeaders = HttpHeaders.forWritable();
-      this.defaultHeaders.setAll(other.defaultHeaders);
-    }
-    else {
-      this.defaultHeaders = null;
-    }
+    this.defaultHeaders = other.defaultHeaders != null ? HttpHeaders.copyOf(other.defaultHeaders) : null;
     this.defaultCookies = (other.defaultCookies != null ?
-            new LinkedMultiValueMap<>(other.defaultCookies) : null);
+            MultiValueMap.copyOf(other.defaultCookies).deepCopy() : null);
     this.filters = (other.filters != null ? new ArrayList<>(other.filters) : null);
     this.entityResultConsumer = other.entityResultConsumer;
     this.strategies = other.strategies;
@@ -265,8 +259,8 @@ class DefaultWebTestClientBuilder implements WebTestClient.Builder {
 
     };
     return new DefaultWebTestClient(connectorToUse, exchangeStrategies, exchangeFactory, initUriBuilderFactory(),
-            this.defaultHeaders != null ? defaultHeaders.asReadOnly() : null,
-            this.defaultCookies != null ? defaultCookies.asReadOnly() : null,
+            this.defaultHeaders != null ? HttpHeaders.copyOf(this.defaultHeaders).asReadOnly() : null,
+            this.defaultCookies != null ? MultiValueMap.copyOf(this.defaultCookies).deepCopy().asReadOnly() : null,
             this.entityResultConsumer, this.responseTimeout, new DefaultWebTestClientBuilder(this));
   }
 

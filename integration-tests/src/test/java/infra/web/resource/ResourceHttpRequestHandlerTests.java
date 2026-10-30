@@ -18,6 +18,8 @@
 
 package infra.web.resource;
 
+import infra.http.HttpHeaders;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -482,6 +484,34 @@ public class ResourceHttpRequestHandlerTests {
       assertThat(this.response.getContentAsString()).isEqualTo(".");
       assertThat(this.response.getHeader("Accept-Ranges")).isEqualTo("bytes");
       assertThat(this.response.getHeaders("Accept-Ranges")).hasSize(1);
+    }
+
+    @Test
+    void ignoreRangeWhenIfRangeETagDoesNotMatch() throws Throwable {
+      this.handler.setEtagGenerator(resource -> "\"current\"");
+      this.request.addHeader(HttpHeaders.RANGE, "bytes=0-1");
+      this.request.addHeader(HttpHeaders.IF_RANGE, "\"stale\"");
+      this.request.setRequestURI("foo.txt");
+      this.handler.handleRequest(httpContext);
+
+      assertThat(this.response.getStatus()).isEqualTo(200);
+      assertThat(this.response.getHeader(HttpHeaders.ETAG)).isEqualTo("\"current\"");
+      assertThat(this.response.getHeader(HttpHeaders.CONTENT_RANGE)).isNull();
+      assertThat(this.response.getContentAsString()).isEqualTo("Some text.");
+    }
+
+    @Test
+    void partialContentWhenIfRangeETagMatches() throws Throwable {
+      this.handler.setEtagGenerator(resource -> "\"current\"");
+      this.request.addHeader(HttpHeaders.RANGE, "bytes=0-1");
+      this.request.addHeader(HttpHeaders.IF_RANGE, "\"current\"");
+      this.request.setRequestURI("foo.txt");
+      this.handler.handleRequest(httpContext);
+
+      assertThat(this.response.getStatus()).isEqualTo(206);
+      assertThat(this.response.getHeader(HttpHeaders.ETAG)).isEqualTo("\"current\"");
+      assertThat(this.response.getHeader(HttpHeaders.CONTENT_RANGE)).isEqualTo("bytes 0-1/10");
+      assertThat(this.response.getContentAsString()).isEqualTo("So");
     }
 
     @Test

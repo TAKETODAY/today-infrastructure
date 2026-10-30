@@ -135,22 +135,34 @@ public final class ConcurrentLruCache<K, V> {
   }
 
   private void processWrite(Runnable task) {
-    this.writeOperations.add(task);
+    boolean backlogged = this.writeOperations.add(task);
     this.drainStatus.lazySet(DrainStatus.REQUIRED);
-    drainOperations();
+    if (backlogged) {
+      // Apply back-pressure instead of letting pending writes pile up.
+      this.evictionLock.lock();
+      drainOperationsAndUnlock();
+    }
+    else {
+      drainOperations();
+    }
   }
 
   private void drainOperations() {
     if (this.evictionLock.tryLock()) {
-      try {
-        this.drainStatus.lazySet(DrainStatus.PROCESSING);
-        this.readOperations.drain();
-        this.writeOperations.drain();
-      }
-      finally {
-        this.drainStatus.compareAndSet(DrainStatus.PROCESSING, DrainStatus.IDLE);
-        this.evictionLock.unlock();
-      }
+      drainOperationsAndUnlock();
+    }
+  }
+
+  /* Drain pending operations, then release the lock held by the current thread. */
+  private void drainOperationsAndUnlock() {
+    try {
+      this.drainStatus.lazySet(DrainStatus.PROCESSING);
+      this.readOperations.drain();
+      this.writeOperations.drain();
+    }
+    finally {
+      this.drainStatus.compareAndSet(DrainStatus.PROCESSING, DrainStatus.IDLE);
+      this.evictionLock.unlock();
     }
   }
 
@@ -452,26 +464,50 @@ public final class ConcurrentLruCache<K, V> {
 
     private static final int DRAIN_THRESHOLD = 16;
 
+    private static final int MAX_PENDING_OPERATIONS = 64 * DRAIN_THRESHOLD;
+
     private final Queue<Runnable> operations = new ConcurrentLinkedQueue<>();
 
-    public void add(Runnable task) {
+    private final AtomicInteger pendingCount = new AtomicInteger();
+
+    /**
+     * Record the given write operation.
+     * @return {@code true} if too many operations are pending and the
+     * caller must wait for them to be drained, {@code false} otherwise
+     */
+    public boolean add(Runnable task) {
       this.operations.add(task);
+      return this.pendingCount.incrementAndGet() > MAX_PENDING_OPERATIONS;
     }
 
     public void drain() {
-      for (int i = 0; i < DRAIN_THRESHOLD; i++) {
-        final Runnable task = this.operations.poll();
-        if (task == null) {
-          break;
+      int drained = 0;
+      try {
+        while (drained < DRAIN_THRESHOLD) {
+          final Runnable task = this.operations.poll();
+          if (task == null) {
+            break;
+          }
+          drained++;
+          task.run();
         }
-        task.run();
+      }
+      finally {
+        this.pendingCount.addAndGet(-drained);
       }
     }
 
     public void drainAll() {
-      Runnable task;
-      while ((task = this.operations.poll()) != null) {
-        task.run();
+      int drained = 0;
+      try {
+        Runnable task;
+        while ((task = this.operations.poll()) != null) {
+          drained++;
+          task.run();
+        }
+      }
+      finally {
+        this.pendingCount.addAndGet(-drained);
       }
     }
 

@@ -646,6 +646,61 @@ class ApplicationTests {
   }
 
   @Test
+  void runnersAreCalledOnceWhenContextIsRefreshed() {
+    Application application = new Application(ExampleConfig.class);
+    application.setApplicationType(ApplicationType.NORMAL);
+    AtomicInteger runnerCalls = registerCountingRunner(application);
+    this.context = application.run();
+    assertThat(this.context.isActive()).isTrue();
+    assertThat(runnerCalls).hasValue(1);
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void runnersAreNotCalledWhenContextIsClosedImmediatelyAfterRefresh() {
+    Application application = new Application(ExampleConfig.class) {
+
+      @Override
+      protected void afterRefresh(ConfigurableApplicationContext context, ApplicationArguments args) {
+        // As the shutdown hook does when the JVM stops during refresh
+        context.close();
+      }
+
+    };
+    application.setApplicationType(ApplicationType.NORMAL);
+    ApplicationListener<ApplicationEvent> listener = mock(ApplicationListener.class);
+    application.addListeners(listener);
+    AtomicInteger runnerCalls = registerCountingRunner(application);
+    this.context = application.run();
+    assertThat(this.context.isActive()).isFalse();
+    assertThat(runnerCalls).hasValue(0);
+    then(listener).should(never()).onApplicationEvent(isA(ApplicationStartedEvent.class));
+    then(listener).should(never()).onApplicationEvent(isA(ApplicationReadyEvent.class));
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void runnersAreNotCalledWhenContextIsClosedWhileHandlingApplicationStartedEvent() {
+    Application application = new Application(ExampleConfig.class);
+    application.addListeners((ApplicationStartedEvent event) -> event.getApplicationContext().close());
+    application.setApplicationType(ApplicationType.NORMAL);
+    ApplicationListener<ApplicationEvent> listener = mock(ApplicationListener.class);
+    application.addListeners(listener);
+    AtomicInteger runnerCalls = registerCountingRunner(application);
+    this.context = application.run();
+    assertThat(this.context.isActive()).isFalse();
+    assertThat(runnerCalls).hasValue(0);
+    then(listener).should(never()).onApplicationEvent(isA(ApplicationReadyEvent.class));
+  }
+
+  private AtomicInteger registerCountingRunner(Application application) {
+    AtomicInteger calls = new AtomicInteger();
+    ApplicationRunner runner = (args) -> calls.incrementAndGet();
+    application.addInitializers((context) -> context.getBeanFactory().registerSingleton("runner", runner));
+    return calls;
+  }
+
+  @Test
   void applicationRunnerFailureCausesApplicationFailedEventToBePublished() throws Exception {
     Application application = new Application(ExampleConfig.class);
     application.setApplicationType(ApplicationType.NORMAL);
@@ -1388,6 +1443,24 @@ class ApplicationTests {
             .atMost(Duration.ofSeconds(30))
             .untilAsserted(() -> assertThat(getCurrentThreads())
                     .filteredOn((thread) -> thread.getName().equals("keep-alive")));
+  }
+
+  @Test
+  void shouldNotStopKeepAliveThreadIfChildContextIsClosed() throws InterruptedException {
+    Application application = new Application(ExampleConfig.class);
+    application.setApplicationType(ApplicationType.NORMAL);
+    application.setKeepAlive(true);
+    this.context = application.run();
+    Thread keepAlive = getCurrentThreads().stream()
+            .filter((thread) -> thread.getName().equals("keep-alive"))
+            .findFirst()
+            .orElseThrow();
+    AnnotationConfigApplicationContext child = new AnnotationConfigApplicationContext();
+    child.setParent(this.context);
+    child.refresh();
+    child.close();
+    keepAlive.join(250);
+    assertThat(keepAlive.isAlive()).isTrue();
   }
 
   @Test

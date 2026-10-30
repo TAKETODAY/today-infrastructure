@@ -71,6 +71,31 @@ class MetadataCollector {
     add(metadata);
   }
 
+  public void addOrKeepEarliest(ItemMetadata metadata) {
+    addOrKeepEarliest(metadata, null);
+  }
+
+  public void addOrKeepEarliest(ItemMetadata metadata, Consumer<ItemMetadata> onConflict) {
+    ItemMetadata existing = find(metadata.getName());
+    if (existing == null) {
+      add(metadata);
+    }
+    else {
+      if (onConflict != null) {
+        onConflict.accept(existing);
+      }
+      keepEarliest(existing, metadata);
+    }
+  }
+
+  private void keepEarliest(ItemMetadata existing, ItemMetadata candidate) {
+    if (candidate.getSourceType() != null && (existing.getSourceType() == null
+            || existing.getSourceType().compareTo(candidate.getSourceType()) > 0)) {
+      this.metadataItems.remove(existing);
+      this.metadataItems.add(candidate);
+    }
+  }
+
   public boolean addIfAbsent(ItemMetadata metadata) {
     ItemMetadata existing = find(metadata.getName());
     if (existing != null) {

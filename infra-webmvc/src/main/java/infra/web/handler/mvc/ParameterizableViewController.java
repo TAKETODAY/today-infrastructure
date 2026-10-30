@@ -127,7 +127,7 @@ public class ParameterizableViewController extends AbstractController {
    * The property can be used to indicate the request is considered fully
    * handled within the controller and that no view should be used for rendering.
    * Useful in combination with {@link #setStatusCode}.
-   * <p>By default this is set to {@code false}.
+   * <p>By default, this is set to {@code false}.
    */
   public void setStatusOnly(boolean statusOnly) {
     this.statusOnly = statusOnly;

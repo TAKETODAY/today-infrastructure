@@ -22,6 +22,7 @@ import com.google.protobuf.Message;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -190,6 +191,24 @@ public class ProtobufDecoderTests extends AbstractDecoderTests<ProtobufDecoder> 
             .expectNext(bigMessage)
             .expectNext(bigMessage)
             .verifyComplete());
+  }
+
+  @Test
+  void decodeCancelWhileMessageIncomplete() throws IOException {
+    ByteArrayOutputStream secondMessage = new ByteArrayOutputStream();
+    this.testMsg2.writeDelimitedTo(secondMessage);
+    byte[] secondMessageBytes = secondMessage.toByteArray();
+
+    DataBuffer buffer = this.bufferFactory.allocateBuffer();
+    this.testMsg1.writeDelimitedTo(buffer.asOutputStream());
+    buffer.write(secondMessageBytes, 0, secondMessageBytes.length / 2);
+
+    Flux<DataBuffer> input = Flux.concat(Mono.just(buffer), Flux.never());
+
+    StepVerifier.create(this.decoder.decode(input, forClass(Msg.class), null, emptyMap()))
+            .expectNext(this.testMsg1)
+            .thenCancel()
+            .verify();
   }
 
   @Test

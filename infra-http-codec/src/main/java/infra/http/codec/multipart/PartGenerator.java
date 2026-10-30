@@ -476,7 +476,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
         buffer.release();
       }
       content.clear();
-      Flux<DataBuffer> content = Flux.just(DefaultDataBufferFactory.sharedInstance.wrap(bytes));
+      Flux<DataBuffer> content = Flux.defer(() -> Flux.just(DefaultDataBufferFactory.sharedInstance.wrap(bytes)));
       emitPart(DefaultParts.part(headers, content));
     }
 

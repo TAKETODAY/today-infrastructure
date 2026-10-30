@@ -29,6 +29,7 @@ import infra.context.condition.ConditionalOnBooleanProperty;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnSingleCandidate;
 import infra.jmx.export.MBeanExporter;
+import infra.util.ClassUtils;
 
 /**
  * Configures DataSource related MBeans.
@@ -40,6 +41,20 @@ import infra.jmx.export.MBeanExporter;
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnBooleanProperty("jmx.enabled")
 class DataSourceJmxConfiguration {
+
+  private static final boolean HIKARI_PRESENT = ClassUtils.isPresent("com.zaxxer.hikari.HikariDataSource",
+          DataSourceJmxConfiguration.class.getClassLoader());
+
+  /**
+   * Return whether the given {@link DataSource} registers its own MBeans, in which case
+   * it should not be exposed by the {@link MBeanExporter}.
+   *
+   * @param dataSource the data source to check
+   * @return {@code true} if the data source registers its own MBeans
+   */
+  static boolean registersItsOwnMBeans(DataSource dataSource) {
+    return HIKARI_PRESENT && Hikari.registersItsOwnMBeans(dataSource);
+  }
 
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass(HikariDataSource.class)
@@ -57,11 +72,15 @@ class DataSourceJmxConfiguration {
     }
 
     private void validateMBeans() {
-      HikariDataSource hikariDataSource = DataSourceUnwrapper.unwrap(
-              dataSource, HikariConfigMXBean.class, HikariDataSource.class);
-      if (hikariDataSource != null && hikariDataSource.isRegisterMbeans()) {
+      if (registersItsOwnMBeans(dataSource)) {
         mBeanExporter.ifUnique(exporter -> exporter.addExcludedBean("dataSource"));
       }
+    }
+
+    static boolean registersItsOwnMBeans(DataSource dataSource) {
+      HikariDataSource hikariDataSource = DataSourceUnwrapper.unwrap(
+              dataSource, HikariConfigMXBean.class, HikariDataSource.class);
+      return hikariDataSource != null && hikariDataSource.isRegisterMbeans();
     }
 
   }

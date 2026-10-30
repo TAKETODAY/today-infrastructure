@@ -51,9 +51,12 @@ class NumberToDataSizeConverterTests {
     assertThat(convert(conversionService, 10)).isEqualTo(DataSize.ofBytes(10));
     assertThat(convert(conversionService, +10)).isEqualTo(DataSize.ofBytes(10));
     assertThat(convert(conversionService, -10)).isEqualTo(DataSize.ofBytes(-10));
+    assertThat(conversionService.convert(-10L, DataSize.class)).isEqualTo(DataSize.ofBytes(-10));
     assertThat(conversionService.convert(10.0, DataSize.class)).isEqualTo(DataSize.ofBytes(10));
     assertThat(conversionService.convert(-10.0, DataSize.class)).isEqualTo(DataSize.ofBytes(-10));
     assertThat(conversionService.convert(new BigDecimal("10.0"), DataSize.class))
+            .isEqualTo(DataSize.ofBytes(10));
+    assertThat(conversionService.convert(new BigDecimal("10"), DataSize.class))
             .isEqualTo(DataSize.ofBytes(10));
     assertThat(conversionService.convert(new AtomicInteger(1000), DataSize.class))
             .isEqualTo(DataSize.ofBytes(1000));

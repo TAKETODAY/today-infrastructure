@@ -45,7 +45,7 @@ class ConfigurationPropertyNameTests {
   @Test
   void ofNameShouldNotBeNull() {
     assertThatIllegalArgumentException().isThrownBy(() -> ConfigurationPropertyName.of(null))
-            .withMessageContaining("Name is required");
+            .withMessageContaining("'name' must not be null");
   }
 
   @Test
@@ -152,6 +152,20 @@ class ConfigurationPropertyNameTests {
     assertThat(name.isIndexed(0)).isFalse();
     assertThat(name.isIndexed(1)).isTrue();
     assertThat(name.isIndexed(2)).isFalse();
+  }
+
+  @Test
+  void ofNameWhenMissingCloseBracketAtEndOfName() {
+    assertThatExceptionOfType(InvalidConfigurationPropertyNameException.class)
+            .isThrownBy(() -> ConfigurationPropertyName.of("foo["))
+            .withMessageContaining("is not valid");
+  }
+
+  @Test
+  void ofNameWhenOnlyMissingCloseBracket() {
+    assertThatExceptionOfType(InvalidConfigurationPropertyNameException.class)
+            .isThrownBy(() -> ConfigurationPropertyName.of("["))
+            .withMessageContaining("is not valid");
   }
 
   @Test
@@ -298,6 +312,18 @@ class ConfigurationPropertyNameTests {
     name = ConfigurationPropertyName.adapt("foo.[bar].baz", '.');
     assertThat(name.toString()).isEqualTo("foo[bar].baz");
     assertThat(name.getNumberOfElements()).isEqualTo(3);
+  }
+
+  @Test
+  void adaptWhenNameEndsWithOpenBracketShouldNotAddEmptyElement() {
+    ConfigurationPropertyName name = ConfigurationPropertyName.adapt("foo[", '.');
+    assertThat(name.getNumberOfElements()).isEqualTo(1);
+    assertThat(name.getElement(0, Form.ORIGINAL)).isEqualTo("foo");
+  }
+
+  @Test
+  void adaptWhenNameIsOnlyAnOpenBracketShouldReturnEmpty() {
+    assertThat(ConfigurationPropertyName.adapt("[", '.').isEmpty()).isTrue();
   }
 
   @Test
@@ -738,6 +764,7 @@ class ConfigurationPropertyNameTests {
     assertThat(ConfigurationPropertyName.isValid("-foo")).isFalse();
     assertThat(ConfigurationPropertyName.isValid("FooBar")).isFalse();
     assertThat(ConfigurationPropertyName.isValid("foo!bar")).isFalse();
+    assertThat(ConfigurationPropertyName.isValid("foo[")).isFalse();
   }
 
   @Test

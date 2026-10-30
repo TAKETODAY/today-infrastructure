@@ -39,6 +39,8 @@ import jakarta.validation.MessageInterpolator;
  */
 class MessageSourceMessageInterpolator implements MessageInterpolator {
 
+  private static final String DEFAULT_MESSAGE = MessageSourceMessageInterpolator.class.getName();
+
   private static final char PREFIX = '{';
 
   private static final char SUFFIX = '}';
@@ -94,10 +96,8 @@ class MessageSourceMessageInterpolator implements MessageInterpolator {
         }
         parentheses++;
       }
-      else if (buf.charAt(i) == SUFFIX) {
-        if (parentheses > 0) {
-          parentheses--;
-        }
+      else if (buf.charAt(i) == SUFFIX && parentheses > 0) {
+        parentheses--;
         endIndex = i;
       }
       if (parentheses == 0 && startIndex < endIndex) {
@@ -122,13 +122,11 @@ class MessageSourceMessageInterpolator implements MessageInterpolator {
   @Nullable
   private String replaceParameter(String parameter, Locale locale, Set<String> visitedParameters) {
     parameter = replaceParameters(parameter, locale, visitedParameters);
-    String value = this.messageSource.getMessage(parameter, null, null, locale);
-    return (value != null && !isUsingCodeAsDefaultMessage(value, parameter))
-            ? replaceParameters(value, locale, visitedParameters) : null;
-  }
-
-  private boolean isUsingCodeAsDefaultMessage(String value, String parameter) {
-    return value.equals(parameter);
+    String value = this.messageSource.getMessage(parameter, null, DEFAULT_MESSAGE, locale);
+    if (value == null || value.equals(DEFAULT_MESSAGE)) {
+      return null;
+    }
+    return replaceParameters(value, locale, visitedParameters);
   }
 
 }

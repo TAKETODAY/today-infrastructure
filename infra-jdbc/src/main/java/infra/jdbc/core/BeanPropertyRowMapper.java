@@ -268,6 +268,18 @@ public class BeanPropertyRowMapper<T extends @Nullable Object> implements RowMap
       this.mappedFields.remove(lowerCaseName(propertyName));
       this.mappedFields.remove(underscoreName(propertyName));
     }
+    if (this.mappedProperties != null) {
+      this.mappedProperties.remove(propertyName);
+    }
+  }
+
+  /**
+   * Determine whether there are any mapped properties to check.
+   * @since 5.0
+   */
+  protected boolean hasMappedProperties() {
+    return (this.mappedFields != null && !this.mappedFields.isEmpty())
+            || (isCheckFullyPopulated() && this.mappedProperties != null && !this.mappedProperties.isEmpty());
   }
 
   /**
@@ -304,6 +316,10 @@ public class BeanPropertyRowMapper<T extends @Nullable Object> implements RowMap
     BeanWrapperImpl beanWrapper = this.beanWrapper;
 
     T mappedObject = constructMappedInstance(rs, beanWrapper);
+    if (!hasMappedProperties()) {
+      // Nothing left to populate via setters (for example, a record mapped through its constructor)
+      return mappedObject;
+    }
     beanWrapper.setBeanInstance(mappedObject);
 
     ResultSetMetaData rsmd = rs.getMetaData();

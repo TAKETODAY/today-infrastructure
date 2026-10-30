@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2010 The Android Open Source Project
  * Copyright 2012-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

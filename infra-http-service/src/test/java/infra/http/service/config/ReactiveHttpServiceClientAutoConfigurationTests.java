@@ -135,7 +135,7 @@ class ReactiveHttpServiceClientAutoConfigurationTests {
 
   @Test
   void whenHasUserDefinedHttpConnectorBuilder() {
-    this.contextRunner.withPropertyValues("http.reactiveclient.service.base-uri=https://example.com")
+    this.contextRunner.withPropertyValues("http.service-client.one.base-uri=https://example.com")
             .withUserConfiguration(HttpClientConfiguration.class, HttpConnectorBuilderConfiguration.class)
             .run((context) -> {
               TestClientOne clientOne = context.getBean(TestClientOne.class);

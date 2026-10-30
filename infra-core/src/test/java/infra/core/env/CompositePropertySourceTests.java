@@ -33,6 +33,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CompositePropertySourceTests {
 
   @Test
+  void toStringUsesConciseFormatForNestedPropertySources() {
+    CompositePropertySource composite = new CompositePropertySource("c");
+    composite.addPropertySource(new MapPropertySource("p1", Map.of("p1.property", "value")));
+    composite.addPropertySource(new MapPropertySource("p2", Map.of("p2.property", "value")));
+    assertThat(composite).hasToString("CompositePropertySource {name='c', propertySources=" +
+            "[MapPropertySource {name='p1'}, MapPropertySource {name='p2'}]}");
+  }
+
+  @Test
   void addFirst() {
     PropertySource<?> p1 = new MapPropertySource("p1", Collections.emptyMap());
     PropertySource<?> p2 = new MapPropertySource("p2", Collections.emptyMap());

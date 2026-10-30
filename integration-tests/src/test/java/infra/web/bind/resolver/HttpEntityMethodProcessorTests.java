@@ -33,6 +33,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import infra.core.MethodParameter;
+import infra.core.io.ByteArrayResource;
+import infra.http.converter.ResourceHttpMessageConverter;
+import infra.http.converter.ResourceRegionHttpMessageConverter;
 import infra.http.HttpEntity;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
@@ -62,6 +65,34 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 4.0 2022/5/27 10:36
  */
 class HttpEntityMethodProcessorTests {
+
+  @Test
+  void shouldIgnoreRangeWhenIfRangeETagDoesNotMatch() throws Exception {
+    verifyResourceIfRange("\"stale\"", 200);
+  }
+
+  @Test
+  void shouldHandleRangeWhenIfRangeETagMatches() throws Exception {
+    verifyResourceIfRange("\"current\"", 206);
+  }
+
+  private void verifyResourceIfRange(String ifRange, int expectedStatus) throws Exception {
+    this.mockRequest.setMethod("GET");
+    this.mockRequest.addHeader(HttpHeaders.RANGE, "bytes=0-5");
+    this.mockRequest.addHeader(HttpHeaders.IF_RANGE, ifRange);
+    ByteArrayResource resource = new ByteArrayResource("Spring Framework".getBytes(StandardCharsets.UTF_8));
+    HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(
+            List.of(new ResourceHttpMessageConverter(), new ResourceRegionHttpMessageConverter()), null);
+    processor.handleReturnValue(webRequest, null, ResponseEntity.ok().eTag("\"current\"").body(resource));
+    assertThat(this.mockResponse.getStatus()).isEqualTo(expectedStatus);
+    if (expectedStatus == 200) {
+      assertThat(this.mockResponse.getHeader(HttpHeaders.CONTENT_RANGE)).isNull();
+      assertThat(this.mockResponse.getContentAsByteArray()).isEqualTo(resource.getByteArray());
+    }
+    else {
+      assertThat(this.mockResponse.getHeader(HttpHeaders.CONTENT_RANGE)).isEqualTo("bytes 0-5/16");
+    }
+  }
 
   private HandlerParameter paramList;
 

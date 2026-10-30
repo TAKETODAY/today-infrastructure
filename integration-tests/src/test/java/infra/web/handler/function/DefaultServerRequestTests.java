@@ -180,6 +180,20 @@ class DefaultServerRequestTests {
   }
 
   @Test
+  void paramsEntrySetPreservesOrder() {
+    MockRequest mockRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
+    mockRequest.setParameter("charlie", "3");
+    mockRequest.setParameter("alpha", "1");
+    mockRequest.setParameter("bravo", "2");
+
+    DefaultServerRequest request = getRequest(mockRequest);
+
+    assertThat(request.params().entrySet())
+            .extracting(Map.Entry::getKey)
+            .containsExactly("charlie", "alpha", "bravo");
+  }
+
+  @Test
   void parts() throws Exception {
     MockMemoryPart formPart = new MockMemoryPart("form", "foo".getBytes(UTF_8));
     MockMemoryPart filePart = new MockMemoryPart("file", "foo.txt", "foo".getBytes(UTF_8));

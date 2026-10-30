@@ -40,6 +40,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
@@ -101,6 +102,41 @@ class ExtractCommandTests {
     assertThat(new File(this.extract, "c/c/c.jar")).exists().satisfies(this::timeAttributes);
     assertThat(new File(this.extract, "d")).isDirectory();
     assertThat(new File(this.extract.getParentFile(), "e.jar")).doesNotExist();
+  }
+
+  @Test
+  void appliesFileTimesToCreatedDirectories() {
+    given(this.context.getArchiveFile()).willReturn(this.jarFile);
+    File destination = new File(this.extract, "out");
+    this.command.run(Collections.singletonMap(ExtractCommand.DESTINATION_OPTION, destination.getAbsolutePath()),
+            Collections.emptyList());
+    for (String directory : List.of("out", "out/a", "out/a/a", "out/b", "out/b/b", "out/c", "out/c/c",
+            "out/c/META-INF", "out/d")) {
+      assertThat(new File(this.extract, directory)).isDirectory().satisfies(this::fileTimeAttributes);
+    }
+  }
+
+  @Test
+  void doesNotApplyFileTimesToExistingDirectories() throws IOException {
+    given(this.context.getArchiveFile()).willReturn(this.jarFile);
+    File destination = new File(this.extract, "out");
+    Files.createDirectories(destination.toPath());
+    this.command.run(Collections.singletonMap(ExtractCommand.DESTINATION_OPTION, destination.getAbsolutePath()),
+            Collections.emptyList());
+    assertThat(Files.getLastModifiedTime(destination.toPath()).toInstant().truncatedTo(ChronoUnit.SECONDS))
+            .isNotEqualTo(LAST_MODIFIED_TIME.toInstant().truncatedTo(ChronoUnit.SECONDS));
+    assertThat(new File(destination, "a")).isDirectory().satisfies(this::fileTimeAttributes);
+  }
+
+  private void fileTimeAttributes(File file) {
+    try {
+      assertThat(Files.getLastModifiedTime(file.toPath()).toInstant().truncatedTo(ChronoUnit.SECONDS))
+              .as("last modified time")
+              .isEqualTo(LAST_MODIFIED_TIME.toInstant().truncatedTo(ChronoUnit.SECONDS));
+    }
+    catch (IOException ex) {
+      throw new RuntimeException(ex);
+    }
   }
 
   private void timeAttributes(File file) {

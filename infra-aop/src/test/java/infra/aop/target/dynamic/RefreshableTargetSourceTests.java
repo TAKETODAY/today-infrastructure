@@ -31,6 +31,17 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class RefreshableTargetSourceTests {
 
+  @Test
+  void targetClassIsNullWhenRefreshProvidesNoTarget() {
+    AbstractRefreshableTargetSource source = new AbstractRefreshableTargetSource() {
+      @Override
+      protected Object freshTarget() {
+        return null;
+      }
+    };
+    assertThat(source.getTargetClass()).isNull();
+  }
+
   /**
    * Test what happens when checking for refresh but not refreshing object.
    */

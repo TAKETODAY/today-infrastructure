@@ -18,6 +18,7 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -32,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * @author TODAY 2021/10/1 14:51
+ * @author Yanming Zhou
  */
 class CompositeIteratorTests {
 
@@ -96,6 +98,16 @@ class CompositeIteratorTests {
     it.add(list.iterator());
     assertThatIllegalArgumentException()
             .isThrownBy(() -> it.add(iterator));
+  }
+
+  @Test
+  void nullable() {
+    List<@Nullable String> first = Arrays.asList("1", null);
+    List<@Nullable String> second = Arrays.asList("2", null);
+    CompositeIterator<@Nullable String> it = new CompositeIterator<>();
+    it.add(first.iterator());
+    it.add(second.iterator());
+    assertThat(it).toIterable().containsExactly("1", null, "2", null);
   }
 
 }

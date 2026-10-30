@@ -93,6 +93,11 @@ class StringToDataSizeConverterTests {
             .isThrownBy(() -> convert(conversionService, "10WB"))
             .havingCause()
             .withMessage("'10WB' is not a valid data size");
+    assertThatExceptionOfType(ConversionFailedException.class)
+            .isThrownBy(() -> convert(conversionService, "10WB"))
+            .havingRootCause()
+            .isInstanceOf(IllegalArgumentException.class)
+            .withMessage("Unknown unit 'WB'");
   }
 
   @ConversionServiceTest

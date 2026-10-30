@@ -19,15 +19,24 @@
 package infra.jdbc.core;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.Date;
 
 import infra.jdbc.core.test.ConstructorPerson;
 import infra.jdbc.core.test.ConstructorPersonWithGenerics;
 import infra.jdbc.core.test.ConstructorPersonWithSetters;
+import infra.dao.DataAccessException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Juergen Hoeller
@@ -59,12 +68,15 @@ public class DataClassRowMapperTests extends AbstractRowMapperTests {
     mock.verifyClosed();
   }
 
-  @Test
-  void staticQueryWithDataClassAndSetters() throws Exception {
+  @ParameterizedTest
+  @ValueSource(booleans = { true, false })
+  void staticQueryWithDataClassAndSetters(boolean checkFullyPopulated) throws Exception {
+    DataClassRowMapper<ConstructorPersonWithSetters> mapper = new DataClassRowMapper<>(ConstructorPersonWithSetters.class);
+    mapper.setCheckFullyPopulated(checkFullyPopulated);
     Mock mock = new Mock(MockType.FOUR);
     ConstructorPersonWithSetters person = mock.getJdbcTemplate().queryForObject(
             "select name, age, birthdate, balance from people",
-            RowMapper.forDataClass(ConstructorPersonWithSetters.class));
+            mapper);
     assertThat(person.name()).isEqualTo("BUBBA");
     assertThat(person.age()).isEqualTo(22L);
     assertThat(person.birthDate()).usingComparator(Date::compareTo).isEqualTo(new Date(1221222L));
@@ -84,6 +96,42 @@ public class DataClassRowMapperTests extends AbstractRowMapperTests {
     mock.verifyClosed();
   }
 
+  @Test
+  void staticQueryWithDataClassResolvesColumnsViaMetaData() throws Exception {
+    Mock mock = new Mock();
+    ConstructorPersonWithGenerics person = mock.getJdbcTemplate().queryForObject(
+            "select name, age, birth_date, balance from people",
+            new DataClassRowMapper<>(ConstructorPersonWithGenerics.class));
+    assertThat(person.birthDate()).usingComparator(Date::compareTo).isEqualTo(new Date(1221222L));
+    verify(mock.getResultSet(), never()).findColumn(anyString());
+    mock.verifyClosed();
+  }
+
+  @Test
+  void staticQueryWithDataRecordSkipsSetterPopulation() throws Exception {
+    Mock mock = new Mock();
+    DataClassRowMapper<RecordPerson> rowMapper = new DataClassRowMapper<>(RecordPerson.class);
+    rowMapper.setCheckFullyPopulated(true);
+    RecordPerson person = mock.getJdbcTemplate().queryForObject(
+            "select name, age, birth_date, balance from people", rowMapper);
+    verifyPerson(person);
+    verify(mock.getResultSet()).getMetaData();
+    mock.verifyClosed();
+  }
+
+  @Test
+  void staticQueryWithDataRecordAndMissingColumn() throws Exception {
+    Mock mock = new Mock();
+    SQLException ex = new SQLException("No such column");
+    given(mock.getResultSet().findColumn("email")).willThrow(ex);
+    assertThatExceptionOfType(DataAccessException.class).isThrownBy(() ->
+            mock.getJdbcTemplate().queryForObject(
+                    "select name, age, birth_date, balance, e_mail from people",
+                    new DataClassRowMapper<>(EmailRecordPerson.class)))
+            .withCause(ex);
+    mock.verifyClosed();
+  }
+
   protected void verifyPerson(RecordPerson person) {
     assertThat(person.name()).isEqualTo("Bubba");
     assertThat(person.age()).isEqualTo(22L);
@@ -93,6 +141,9 @@ public class DataClassRowMapperTests extends AbstractRowMapperTests {
   }
 
   record RecordPerson(String name, long age, Date birth_date, BigDecimal balance) {
+  }
+
+  record EmailRecordPerson(String name, String email) {
   }
 
 }

@@ -104,6 +104,16 @@ import infra.test.context.bean.override.BeanOverride;
  * &#64;Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)}. Any attempt to do so will
  * fail with an exception.
  *
+ * <p><strong>WARNING</strong>: If the original bean would be wrapped in an AOP proxy
+ * &mdash; for example, due to {@code @Transactional} or {@code @Cacheable} &mdash; that
+ * proxy is still created around the spy, so the bean injected into the
+ * {@code ApplicationContext} is the proxy rather than the spy. Verification via
+ * Mockito's {@code verify()} API is unaffected, but stubbing via the proxy is only
+ * safe for AOP advice that does not retain state between invocations; whereas, advice
+ * that caches or otherwise memoizes the outcome of an invocation can permanently mask
+ * the spy's configured answers. See the reference documentation section on
+ * {@code @MockitoSpyBean} and AOP proxies for details.
+ *
  * <p>There are no restrictions on the visibility of a {@code @MockitoSpyBean} field.
  * Such fields can therefore be {@code public}, {@code protected}, package-private
  * (default visibility), or {@code private} depending on the needs or coding
