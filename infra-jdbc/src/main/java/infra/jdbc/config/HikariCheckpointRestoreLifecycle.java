@@ -96,7 +96,7 @@ public class HikariCheckpointRestoreLifecycle implements Lifecycle {
     this.hasOpenConnections = (pool) -> {
       ThreadPoolExecutor closeConnectionExecutor = (ThreadPoolExecutor) ReflectionUtils
               .getField(CLOSE_CONNECTION_EXECUTOR, pool);
-    Assert.state(closeConnectionExecutor != null, "'closeConnectionExecutor' was null");
+      Assert.state(closeConnectionExecutor != null, "'closeConnectionExecutor' was null");
       return closeConnectionExecutor.getActiveCount() > 0;
     };
   }
