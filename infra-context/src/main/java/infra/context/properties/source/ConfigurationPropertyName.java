@@ -29,14 +29,15 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
+import infra.lang.Contract;
 import infra.util.Assert;
 import infra.util.StringUtils;
 
 /**
  * A configuration property name composed of elements separated by dots. User created
- * names may contain the characters "{@code a-z}" "{@code 0-9}") and "{@code -}", they
- * must be lower-case and must start with an alpha-numeric character. The "{@code -}" is
- * used purely for formatting, i.e. "{@code foo-bar}" and "{@code foobar}" are considered
+ * names may contain the characters "{@code a-z}" "{@code 0-9}" and "{@code -}", they must
+ * be lower-case and must start with an alphanumeric character. The "{@code -}" is used
+ * purely for formatting, i.e. "{@code foo-bar}" and "{@code foobar}" are considered
  * equivalent.
  * <p>
  * The "{@code [}" and "{@code ]}" characters may be used to indicate an associative
@@ -69,21 +70,19 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
 
   private final Elements elements;
 
-  private final CharSequence[] uniformElements;
+  private final @Nullable CharSequence[] uniformElements;
 
   private int hashCode;
 
-  private final @Nullable String[] string = new String[ToStringFormat.values().length];
+  private @Nullable String[] string = new String[ToStringFormat.values().length];
 
-  @Nullable
-  private Boolean hasDashedElement;
+  private @Nullable Boolean hasDashedElement;
 
-  @Nullable
-  private ConfigurationPropertyName systemEnvironmentLegacyName;
+  private @Nullable ConfigurationPropertyName systemEnvironmentLegacyName;
 
   private ConfigurationPropertyName(Elements elements) {
     this.elements = elements;
-    this.uniformElements = new CharSequence[elements.size];
+    this.uniformElements = new CharSequence[elements.getSize()];
   }
 
   /**
@@ -92,7 +91,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    * @return {@code true} if the name is empty
    */
   public boolean isEmpty() {
-    return this.elements.size == 0;
+    return this.elements.getSize() == 0;
   }
 
   /**
@@ -198,9 +197,8 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
   }
 
   private CharSequence convertElement(CharSequence element, boolean lowercase, ElementCharPredicate filter) {
-    int length = element.length();
-    StringBuilder result = new StringBuilder(length);
-    for (int i = 0; i < length; i++) {
+    StringBuilder result = new StringBuilder(element.length());
+    for (int i = 0; i < element.length(); i++) {
       char ch = lowercase ? Character.toLowerCase(element.charAt(i)) : element.charAt(i);
       if (filter.test(ch, i)) {
         result.append(ch);
@@ -215,7 +213,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    * @return the number of elements
    */
   public int getNumberOfElements() {
-    return this.elements.size;
+    return this.elements.getSize();
   }
 
   /**
@@ -225,7 +223,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    * @return a new {@link ConfigurationPropertyName}
    * @throws InvalidConfigurationPropertyNameException if the result is not valid
    */
-  public ConfigurationPropertyName append(String suffix) {
+  public ConfigurationPropertyName append(@Nullable String suffix) {
     if (StringUtils.isEmpty(suffix)) {
       return this;
     }
@@ -274,7 +272,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
 
   /**
    * Return a new {@link ConfigurationPropertyName} by based on this name offset by
-   * specific element index. For example, {@code chop(1)} on the name {@code foo.bar}
+   * specific element index. For example, {@code subName(1)} on the name {@code foo.bar}
    * will return {@code bar}.
    *
    * @param offset the element offset
@@ -300,7 +298,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    * @return {@code true} if this name is an ancestor
    */
   public boolean isParentOf(ConfigurationPropertyName name) {
-    Assert.notNull(name, "Name is required");
+    Assert.notNull(name, "'name' must not be null");
     if (getNumberOfElements() != name.getNumberOfElements() - 1) {
       return false;
     }
@@ -315,7 +313,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    * @return {@code true} if this name is an ancestor
    */
   public boolean isAncestorOf(ConfigurationPropertyName name) {
-    Assert.notNull(name, "Name is required");
+    Assert.notNull(name, "'name' must not be null");
     if (getNumberOfElements() >= name.getNumberOfElements()) {
       return false;
     }
@@ -333,25 +331,33 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
     int i1 = 0;
     int i2 = 0;
     while (i1 < l1 || i2 < l2) {
-      ElementType type1 = (i1 < l1) ? n1.elements.getType(i1) : null;
-      ElementType type2 = (i2 < l2) ? n2.elements.getType(i2) : null;
-      String e1 = (i1 < l1) ? n1.getElement(i1++, Form.UNIFORM) : null;
-      String e2 = (i2 < l2) ? n2.getElement(i2++, Form.UNIFORM) : null;
-      int result = compare(e1, type1, e2, type2);
-      if (result != 0) {
-        return result;
+      try {
+        ElementType type1 = (i1 < l1) ? n1.elements.getType(i1) : null;
+        ElementType type2 = (i2 < l2) ? n2.elements.getType(i2) : null;
+        String e1 = (i1 < l1) ? n1.getElement(i1++, Form.UNIFORM) : null;
+        String e2 = (i2 < l2) ? n2.getElement(i2++, Form.UNIFORM) : null;
+        int result = compare(e1, type1, e2, type2);
+        if (result != 0) {
+          return result;
+        }
+      }
+      catch (ArrayIndexOutOfBoundsException ex) {
+        throw new RuntimeException(ex);
       }
     }
     return 0;
   }
 
-  private int compare(@Nullable String e1, ElementType type1, @Nullable String e2, ElementType type2) {
+  private int compare(@Nullable String e1, @Nullable ElementType type1, @Nullable String e2,
+          @Nullable ElementType type2) {
     if (e1 == null) {
       return -1;
     }
     if (e2 == null) {
       return 1;
     }
+    Assert.state(type1 != null, "'type1' must not be null");
+    Assert.state(type2 != null, "'type2' must not be null");
     int result = Boolean.compare(type2.isIndexed(), type1.isIndexed());
     if (result != 0) {
       return result;
@@ -394,7 +400,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
   }
 
   private boolean endsWithElementsEqualTo(ConfigurationPropertyName name) {
-    for (int i = this.elements.size - 1; i >= 0; i--) {
+    for (int i = this.elements.getSize() - 1; i >= 0; i--) {
       if (elementDiffers(this.elements, name.elements, i)) {
         return false;
       }
@@ -539,8 +545,8 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
   public int hashCode() {
     int hashCode = this.hashCode;
     Elements elements = this.elements;
-    if (hashCode == 0 && elements.size != 0) {
-      for (int elementIndex = 0; elementIndex < elements.size; elementIndex++) {
+    if (hashCode == 0 && elements.getSize() != 0) {
+      for (int elementIndex = 0; elementIndex < elements.getSize(); elementIndex++) {
         hashCode = 31 * hashCode + elements.hashCode(elementIndex);
       }
       this.hashCode = hashCode;
@@ -583,7 +589,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
 
   private String buildDefaultToString() {
     if (this.elements.canShortcutWithSource(ElementType.UNIFORM, ElementType.DASHED)) {
-      return this.elements.source.toString();
+      return this.elements.getSource().toString();
     }
     int elements = getNumberOfElements();
     StringBuilder result = new StringBuilder(elements * 8);
@@ -637,7 +643,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    * @param name the name to test
    * @return {@code true} if the name is valid
    */
-  public static boolean isValid(CharSequence name) {
+  public static boolean isValid(@Nullable CharSequence name) {
     return of(name, true) != null;
   }
 
@@ -649,7 +655,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    * @throws InvalidConfigurationPropertyNameException if the name is not valid
    */
   @SuppressWarnings("NullAway")
-  public static ConfigurationPropertyName of(CharSequence name) {
+  public static ConfigurationPropertyName of(@Nullable CharSequence name) {
     return of(name, false);
   }
 
@@ -661,7 +667,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    * @return a {@link ConfigurationPropertyName} instance
    */
   @Nullable
-  public static ConfigurationPropertyName ofIfValid(CharSequence name) {
+  public static ConfigurationPropertyName ofIfValid(@Nullable CharSequence name) {
     return of(name, true);
   }
 
@@ -675,8 +681,9 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    * {@code returnNullIfInvalid} is {@code false}
    */
   @Nullable
+  @Contract("_, false -> !null")
   static ConfigurationPropertyName of(@Nullable CharSequence name, boolean returnNullIfInvalid) {
-    Elements elements = elementsOf(name, returnNullIfInvalid);
+    Elements elements = elementsOf(name, returnNullIfInvalid, ElementsParser.DEFAULT_CAPACITY);
     return (elements != null) ? new ConfigurationPropertyName(elements) : null;
   }
 
@@ -686,14 +693,10 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
   }
 
   @Nullable
-  private static Elements elementsOf(@Nullable CharSequence name, boolean returnNullIfInvalid) {
-    return elementsOf(name, returnNullIfInvalid, ElementsParser.DEFAULT_CAPACITY);
-  }
-
-  @Nullable
+  @Contract("_, false, _ -> !null")
   private static Elements elementsOf(@Nullable CharSequence name, boolean returnNullIfInvalid, int parserCapacity) {
     if (name == null) {
-      Assert.isTrue(returnNullIfInvalid, "Name is required");
+      Assert.isTrue(returnNullIfInvalid, "'name' must not be null");
       return null;
     }
     if (name.isEmpty()) {
@@ -705,8 +708,14 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
       }
       throw new InvalidConfigurationPropertyNameException(name, Collections.singletonList('.'));
     }
+    if (name.charAt(name.length() - 1) == '[') {
+      if (returnNullIfInvalid) {
+        return null;
+      }
+      throw new InvalidConfigurationPropertyNameException(name, Collections.singletonList('['));
+    }
     Elements elements = new ElementsParser(name, '.', parserCapacity).parse();
-    for (int i = 0; i < elements.size; i++) {
+    for (int i = 0; i < elements.getSize(); i++) {
       if (elements.getType(i) == ElementType.NON_UNIFORM) {
         if (returnNullIfInvalid) {
           return null;
@@ -718,9 +727,8 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
   }
 
   private static List<Character> getInvalidChars(Elements elements, int index) {
-    int length = elements.getLength(index);
-    var invalidChars = new ArrayList<Character>();
-    for (int charIndex = 0; charIndex < length; charIndex++) {
+    List<Character> invalidChars = new ArrayList<>();
+    for (int charIndex = 0; charIndex < elements.getLength(index); charIndex++) {
       char ch = elements.charAt(index, charIndex);
       if (!ElementsParser.isValidChar(ch, charIndex)) {
         invalidChars.add(ch);
@@ -757,12 +765,12 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    */
   static ConfigurationPropertyName adapt(CharSequence name, char separator,
           @Nullable Function<CharSequence, CharSequence> elementValueProcessor) {
-    Assert.notNull(name, "Name is required");
+    Assert.notNull(name, "Name must not be null");
     if (name.isEmpty()) {
       return EMPTY;
     }
     Elements elements = new ElementsParser(name, separator).parse(elementValueProcessor);
-    if (elements.size == 0) {
+    if (elements.getSize() == 0) {
       return EMPTY;
     }
     return new ConfigurationPropertyName(elements);
@@ -823,7 +831,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
 
     public static final Elements EMPTY = new Elements("", 0, NO_POSITION, NO_POSITION, NO_TYPE, null, null);
 
-    public final CharSequence source;
+    private final CharSequence source;
 
     private final int size;
 
@@ -845,8 +853,8 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
      */
     private final @Nullable CharSequence @Nullable [] resolved;
 
-    Elements(CharSequence source, int size, int[] start, int[] end,
-            ElementType[] type, int @Nullable [] hashCode, @Nullable CharSequence @Nullable [] resolved) {
+    Elements(CharSequence source, int size, int[] start, int[] end, ElementType[] type, int @Nullable [] hashCode,
+            CharSequence @Nullable [] resolved) {
       this.source = source;
       this.size = size;
       this.start = start;
@@ -898,11 +906,19 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
       return resolved;
     }
 
+    int getSize() {
+      return this.size;
+    }
+
+    CharSequence getSource() {
+      return this.source;
+    }
+
     CharSequence get(int index) {
       if (this.resolved != null) {
-        CharSequence sequence = resolved[index];
-        if (sequence != null) {
-          return sequence;
+        CharSequence element = this.resolved[index];
+        if (element != null) {
+          return element;
         }
       }
       int start = this.start[index];
@@ -912,9 +928,9 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
 
     int getLength(int index) {
       if (this.resolved != null) {
-        CharSequence sequence = this.resolved[index];
-        if (sequence != null) {
-          return sequence.length();
+        CharSequence element = this.resolved[index];
+        if (element != null) {
+          return element.length();
         }
       }
       int start = this.start[index];
@@ -924,9 +940,9 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
 
     char charAt(int index, int charIndex) {
       if (this.resolved != null) {
-        CharSequence sequence = this.resolved[index];
-        if (sequence != null) {
-          return sequence.charAt(charIndex);
+        CharSequence element = this.resolved[index];
+        if (element != null) {
+          return element.charAt(charIndex);
         }
       }
       int start = this.start[index];
@@ -979,16 +995,12 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
       if (this.resolved != null) {
         return false;
       }
-      int size = this.size;
-      int[] end = this.end;
-      int[] start = this.start;
-      ElementType[] thisTypes = this.type;
-      for (int i = 0; i < size; i++) {
-        ElementType type = thisTypes[i];
+      for (int i = 0; i < this.size; i++) {
+        ElementType type = this.type[i];
         if (type != requiredType && type != alternativeType) {
           return false;
         }
-        if (i > 0 && end[i - 1] + 1 != start[i]) {
+        if (i > 0 && this.end[i - 1] + 1 != this.start[i]) {
           return false;
         }
       }
@@ -1112,7 +1124,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
         }
         CharSequence resolved = valueProcessor.apply(this.source.subSequence(start, end));
         Elements resolvedElements = new ElementsParser(resolved, '.').parse();
-        Assert.state(resolvedElements.size == 1, "Resolved element must not contain multiple elements");
+        Assert.state(resolvedElements.getSize() == 1, "Resolved element must not contain multiple elements");
         this.resolved[this.size] = resolvedElements.get(0);
         type = resolvedElements.getType(0);
       }
@@ -1134,8 +1146,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
       return dest;
     }
 
-    @Nullable
-    private CharSequence[] expand(@Nullable CharSequence[] src) {
+    private CharSequence @Nullable [] expand(CharSequence @Nullable [] src) {
       if (src == null) {
         return null;
       }
