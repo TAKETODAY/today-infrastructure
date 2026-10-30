@@ -119,6 +119,10 @@ app.config.import=file:/etc/config/myconfig[.yaml]
 
 目标解析器支持此形式的扩展名提示。不要照搬上游当前支持的 `[extension=.yaml][encoding=utf-8]` 属性语法；目标当前没有等价的通用文件属性解析能力。
 
+NOTE: 扩展名提示必须位于位置字符串的末尾。
+其他位置的方括号视为路径的一部分。
+例如，`file:/etc/config[prod]/myconfig[.yaml]` 会将 `/etc/config[prod]/myconfig` 作为 YAML 文件导入。
+
 === 配置树
 
 配置树把目录和文件名组成属性名，把文件内容作为属性值，适合读取挂载到文件系统的配置或 Secret：
