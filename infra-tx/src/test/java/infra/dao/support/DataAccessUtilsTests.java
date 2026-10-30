@@ -164,6 +164,20 @@ public class DataAccessUtilsTests {
             .isThrownBy(() -> DataAccessUtils.longResult(col));
   }
 
+  @Test  // gh-37438
+  void optionalResultWithSupertypeTargetType() {
+    Collection<String> col = List.of("foo");
+
+    // CharSequence is a supertype of String.
+    Optional<CharSequence> fromCollection = DataAccessUtils.optionalResult(col);
+    Optional<CharSequence> fromStream = DataAccessUtils.optionalResult(col.stream());
+    Optional<CharSequence> fromIterator = DataAccessUtils.optionalResult(col.iterator());
+
+    assertThat(fromCollection).contains("foo");
+    assertThat(fromStream).contains("foo");
+    assertThat(fromIterator).contains("foo");
+  }
+
   @Test
   void withInteger() {
     Collection<Integer> col = new HashSet<>(1);
