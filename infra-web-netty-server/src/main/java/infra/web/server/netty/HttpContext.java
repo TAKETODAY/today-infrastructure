@@ -66,9 +66,9 @@ final class HttpContext extends NettyHttpContext implements Runnable {
 
   private volatile boolean continueExpected = false;
 
-  public HttpContext(Channel channel, HttpRequest request, NettyRequestConfig config,
+  public HttpContext(Channel channel, HttpRequest request, HttpProtocol protocol, NettyRequestConfig config,
           ApplicationContext context, DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler) {
-    super(context, channel, request, config, dispatcherHandler);
+    super(context, channel, request, protocol, config, dispatcherHandler);
     this.httpTrafficHandler = httpTrafficHandler;
     long contentLength = getContentLength(request);
     this.requestBody = (contentLength == 0L || (contentLength == -1L && (request.method() == GET || request.method() == HEAD))) ? null : createRequestBody();

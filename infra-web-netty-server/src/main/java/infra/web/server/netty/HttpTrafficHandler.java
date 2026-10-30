@@ -94,7 +94,12 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
   public final void channelRead(final ChannelHandlerContext ctx, final Object msg) throws IOException {
     if (msg instanceof HttpRequest request) {
       Channel channel = ctx.channel();
-      HttpContext httpContext = new HttpContext(channel, request, requestConfig, context, dispatcherHandler, this);
+      HttpProtocol protocol = channel.attr(HttpChannelInitializer.PROTOCOL).get();
+      if (protocol == null) {
+        protocol = HttpProtocol.HTTP_1_1;
+      }
+      HttpContext httpContext = new HttpContext(channel, request, protocol, requestConfig,
+              context, dispatcherHandler, this);
       channel.attr(KEY).set(httpContext);
       executor.execute(httpContext, httpContext);
     }

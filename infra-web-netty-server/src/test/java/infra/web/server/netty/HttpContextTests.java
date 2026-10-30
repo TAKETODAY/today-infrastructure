@@ -61,7 +61,7 @@ class HttpContextTests {
     when(request.headers()).thenReturn(new DefaultHttpHeaders().set(HttpHeaderNames.CONTENT_LENGTH, "150"));
 
     // When
-    HttpContext contextUnderTest = new HttpContext(channel, request, config, context, dispatcherHandler, channelHandler);
+    HttpContext contextUnderTest = new HttpContext(channel, request, HttpProtocol.HTTP_1_1, config, context, dispatcherHandler, channelHandler);
 
     // Then
     assertThat(contextUnderTest.getContentLength()).isEqualTo(150L);
@@ -80,7 +80,7 @@ class HttpContextTests {
     when(request.headers()).thenReturn(new DefaultHttpHeaders().set(HttpHeaderNames.CONTENT_LENGTH, "150"));
 
     // When
-    HttpContext contextUnderTest = new HttpContext(channel, request, config, context, dispatcherHandler, channelHandler);
+    HttpContext contextUnderTest = new HttpContext(channel, request, HttpProtocol.HTTP_1_1, config, context, dispatcherHandler, channelHandler);
 
     // Then
     assertThat(contextUnderTest.getContentLength()).isEqualTo(150L);
@@ -108,7 +108,7 @@ class HttpContextTests {
     when(request.headers()).thenReturn(new DefaultHttpHeaders()
             .set(HttpHeaderNames.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
 
-    HttpContext contextUnderTest = new HttpContext(channel, request, config, context, dispatcherHandler, channelHandler);
+    HttpContext contextUnderTest = new HttpContext(channel, request, HttpProtocol.HTTP_1_1, config, context, dispatcherHandler, channelHandler);
 
     // When
     contextUnderTest.onDataReceived(httpContent);
@@ -139,7 +139,7 @@ class HttpContextTests {
     when(request.headers()).thenReturn(new DefaultHttpHeaders()
             .set(HttpHeaderNames.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
 
-    HttpContext contextUnderTest = new HttpContext(channel, request, config, context, dispatcherHandler, channelHandler);
+    HttpContext contextUnderTest = new HttpContext(channel, request, HttpProtocol.HTTP_1_1, config, context, dispatcherHandler, channelHandler);
 
     // When
     contextUnderTest.onDataReceived(lastHttpContent);

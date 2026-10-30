@@ -261,7 +261,6 @@ class Http2ServerTests {
     NettyRequestConfig requestConfig = NettyRequestConfig.forBuilder(secure)
             .multipartParser(mock())
             .sendErrorHandler(noopSendErrorHandler())
-            .dataReceivedQueueCapacity(256)
             .build();
 
     HttpTrafficHandler trafficHandler = new HttpTrafficHandler(requestConfig, applicationContext,

@@ -152,8 +152,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    */
   private static final String CHUNKED_WRITER_NAME = "chunkedWriter";
 
-  private static final HttpVersion H2 = HttpVersion.valueOf("HTTP/2.0");
-
   // UNSAFE fields
   public final NettyRequestConfig config;
 
@@ -171,7 +169,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   private final AtomicBoolean committed = new AtomicBoolean();
 
-  private final boolean http2;
+  private final HttpProtocol protocol;
 
   private HttpResponseStatus status = HttpResponseStatus.OK;
 
@@ -187,10 +185,10 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   private @Nullable ServerHttpResponse outputMessage;
 
-  protected NettyHttpContext(ApplicationContext context, Channel channel,
-          HttpRequest request, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
+  protected NettyHttpContext(ApplicationContext context, Channel channel, HttpRequest request,
+          HttpProtocol protocol, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
     super(context, dispatcherHandler);
-    this.http2 = channel.pipeline().context(HttpChannelInitializer.H2ToHttp11Codec) != null;
+    this.protocol = protocol;
     this.config = config;
     this.request = request;
     this.channel = channel;
@@ -203,10 +201,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   }
 
   public HttpVersion version() {
-    if (http2) {
-      return H2;
-    }
-    return HttpVersion.HTTP_1_1;
+    return protocol.version();
   }
 
   @Override
@@ -588,7 +583,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     ByteBuf responseBody = this.responseBody;
     if (responseBody != null) {
       this.responseBody = null;
-      channel.writeAndFlush(http2 ? new DefaultHttpContent(responseBody) : responseBody);
+      channel.writeAndFlush(protocol.isHttp2() ? new DefaultHttpContent(responseBody) : responseBody);
     }
     else if ((fileToSend = this.fileToSend) != null) {
       channel.writeAndFlush(fileToSend);
@@ -1137,7 +1132,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
         }
         ChunkedNioFile nioFile = new ChunkedNioFile(FileChannel.open(file.toPath(), StandardOpenOption.READ),
                 position, count, nioFileChunkSize);
-        if (http2) {
+        if (protocol.isHttp2()) {
           fileToSend = new Http2DataChunkedInput(nioFile, ((Http2StreamChannel) channel).stream());
         }
         else {
