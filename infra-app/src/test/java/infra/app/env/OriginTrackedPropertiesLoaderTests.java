@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -59,7 +60,7 @@ class OriginTrackedPropertiesLoaderTests {
   void compareToJavaProperties() throws Exception {
     Properties java = PropertiesUtils.loadProperties(this.resource);
     Properties ours = new Properties();
-    new OriginTrackedPropertiesLoader(this.resource).load(false)
+    new OriginTrackedPropertiesLoader(this.resource).load(null, false)
             .get(0)
             .asMap()
             .forEach((k, v) -> ours.put(k, v.getValue()));
@@ -268,6 +269,41 @@ class OriginTrackedPropertiesLoaderTests {
     OriginTrackedValue value = getFromFirst("bar");
     assertThat(getValue(value)).isEqualTo("foo=baz");
     assertThat(getLocation(value)).isEqualTo("3:7");
+  }
+
+  @Test
+  void loadWhenCommentEndsWithBackslashLoadsFollowingProperties() throws IOException {
+    String content = "#\\\nkey=value";
+    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load(null);
+    assertThat(loaded).hasSize(1);
+    Map<String, OriginTrackedValue> map = loaded.get(0).asMap();
+    assertThat(map).containsOnlyKeys("key");
+    assertThat(getValue(map.get("key"))).isEqualTo("value");
+  }
+
+  @Test
+  void loadWhenCommentWithExclamationPrefixEndsWithBackslashLoadsFollowingProperties() throws IOException {
+    String content = "!\\\nkey=value";
+    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load(null);
+    assertThat(loaded).hasSize(1);
+    assertThat(loaded.get(0).asMap()).containsOnlyKeys("key");
+  }
+
+  @Test
+  void loadWhenDocumentSeparatorEndsWithBackslashLoadsSingleDocument() throws IOException {
+    String content = "a=a\n#---\\\nb=b";
+    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load(null);
+    assertThat(loaded).hasSize(1);
+    assertThat(loaded.get(0).asMap()).containsOnlyKeys("a", "b");
+  }
+
+  @Test
+  void shouldRespectEncoding() throws IOException {
+    ByteArrayResource resource = new ByteArrayResource("smiley=😃".getBytes(StandardCharsets.UTF_8));
+    List<Document> documents = new OriginTrackedPropertiesLoader(resource).load(StandardCharsets.UTF_8);
+    OriginTrackedValue value = documents.get(0).asMap().get("smiley");
+    assertThat(value).isNotNull();
+    assertThat(value.getValue()).isEqualTo("😃");
   }
 
   @Test

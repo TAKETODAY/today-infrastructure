@@ -22,12 +22,15 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
+
+import org.jspecify.annotations.Nullable;
 
 import infra.core.io.Resource;
 import infra.util.Assert;
@@ -44,6 +47,8 @@ import infra.origin.TextResourceOrigin.Location;
  * @author Madhura Bhave
  * @author Phillip Webb
  * @author Thiago Hirata
+ * @author Guirong Hu
+ * @author Moritz Halbritter
  * @since 4.0
  */
 class OriginTrackedPropertiesLoader {
@@ -56,7 +61,7 @@ class OriginTrackedPropertiesLoader {
    * @param resource the resource of the {@code .properties} data
    */
   OriginTrackedPropertiesLoader(Resource resource) {
-    Assert.notNull(resource, "Resource is required");
+    Assert.notNull(resource, "'resource' must not be null");
     this.resource = resource;
   }
 
@@ -67,22 +72,33 @@ class OriginTrackedPropertiesLoader {
    * @throws IOException on read error
    */
   List<Document> load() throws IOException {
-    return load(true);
+    return load(null);
+  }
+
+  /**
+   * Load {@code .properties} data and return a list of documents.
+   * @param encoding the resource encoding. Uses ISO-8859-1 if {@code null}
+   * @return the loaded properties
+   * @throws IOException on read error
+   */
+  List<Document> load(@Nullable Charset encoding) throws IOException {
+    return load(encoding, true);
   }
 
   /**
    * Load {@code .properties} data and return a map of {@code String} ->
    * {@link OriginTrackedValue}.
    *
+   * @param encoding the resource encoding. Uses ISO-8859-1 if {@code null}
    * @param expandLists if list {@code name[]=a,b,c} shortcuts should be expanded
    * @return the loaded properties
    * @throws IOException on read error
    */
-  List<Document> load(boolean expandLists) throws IOException {
-    ArrayList<Document> documents = new ArrayList<>();
+  List<Document> load(@Nullable Charset encoding, boolean expandLists) throws IOException {
+    List<Document> documents = new ArrayList<>();
     Document document = new Document();
     StringBuilder buffer = new StringBuilder();
-    try (CharacterReader reader = new CharacterReader(this.resource)) {
+    try (CharacterReader reader = new CharacterReader(this.resource, encoding)) {
       while (reader.read()) {
         if (reader.isCommentPrefixCharacter()) {
           char commentPrefixCharacter = reader.getCharacter();
@@ -176,14 +192,14 @@ class OriginTrackedPropertiesLoader {
     result = result && readAndExpect(reader, reader::isHyphenCharacter);
     result = result && readAndExpect(reader, reader::isHyphenCharacter);
     if (!reader.isEndOfLine()) {
-      reader.read();
+      reader.read(false);
       reader.skipWhitespace();
     }
     return result && reader.isEndOfLine();
   }
 
   private boolean readAndExpect(CharacterReader reader, BooleanSupplier check) throws IOException {
-    reader.read();
+    reader.read(false);
     return check.getAsBoolean();
   }
 
@@ -205,9 +221,9 @@ class OriginTrackedPropertiesLoader {
 
     private int lastLineCommentPrefixCharacter;
 
-    CharacterReader(Resource resource) throws IOException {
-      this.reader = new LineNumberReader(
-              new InputStreamReader(resource.getInputStream(), StandardCharsets.ISO_8859_1));
+    CharacterReader(Resource resource, @Nullable Charset encoding) throws IOException {
+      this.reader = new LineNumberReader(new InputStreamReader(resource.getInputStream(),
+              encoding != null ? encoding : StandardCharsets.ISO_8859_1));
     }
 
     @Override
@@ -216,13 +232,17 @@ class OriginTrackedPropertiesLoader {
     }
 
     boolean read() throws IOException {
+      return read(true);
+    }
+
+    boolean read(boolean readEscaped) throws IOException {
       this.escaped = false;
       this.character = this.reader.read();
       this.columnNumber++;
       if (this.columnNumber == 0) {
         skipWhitespace();
       }
-      if (this.character == '\\') {
+      if (readEscaped && this.character == '\\') {
         this.escaped = true;
         readEscaped();
       }
@@ -331,7 +351,7 @@ class OriginTrackedPropertiesLoader {
    */
   static class Document {
 
-    private final LinkedHashMap<String, OriginTrackedValue> values = new LinkedHashMap<>();
+    private final Map<String, OriginTrackedValue> values = new LinkedHashMap<>();
 
     void put(String key, OriginTrackedValue value) {
       if (!key.isEmpty()) {
