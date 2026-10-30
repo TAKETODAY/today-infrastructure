@@ -560,6 +560,8 @@ this.jdbcClient.sql("insert into t_actor (first_name, last_name) values (:firstN
     .update();
 ----
 
+NOTE: 当位置参数 `List` 中的条目包含 `null` 值时，请使用允许 `null` 元素的列表（例如 `Arrays.asList(...)` 而不是 `List.of(...)`），或者通过回调逐个绑定参数。
+
 也可以通过 `entries(...)` 一次性定义多个条目，其中每个给定的参数源对象（例如 `Actor` 记录）代表一个条目。`entry(...)` 与 `entries(...)` 调用可在同一批次中自由组合：
 
 [source,java,indent=0,subs="verbatim,quotes"]
