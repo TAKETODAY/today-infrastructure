@@ -21,8 +21,8 @@ package infra.web.reactor.netty;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import infra.core.ssl.SslBundle;
 import infra.core.ssl.SslOptions;
@@ -63,7 +63,7 @@ final class SslServerCustomizer implements ReactorNettyServerCustomizer {
 
   private volatile SslProvider sslProvider;
 
-  private final HashMap<String, SslProvider> serverNameSslProviders;
+  private final Map<String, SslProvider> serverNameSslProviders;
 
   public SslServerCustomizer(boolean http2Enabled, Ssl ssl,
           SslBundle sslBundle, Map<String, SslBundle> serverNameSslBundles) {
@@ -100,11 +100,10 @@ final class SslServerCustomizer implements ReactorNettyServerCustomizer {
     }
   }
 
-  private HashMap<String, SslProvider> createServerNameSslProviders(Map<String, SslBundle> serverNameSslBundles) {
-    HashMap<String, SslProvider> serverNameSslProviders = new HashMap<>();
-    for (Map.Entry<String, SslBundle> entry : serverNameSslBundles.entrySet()) {
-      serverNameSslProviders.put(entry.getKey(), createSslProvider(entry.getValue()));
-    }
+  private Map<String, SslProvider> createServerNameSslProviders(Map<String, SslBundle> serverNameSslBundles) {
+    Map<String, SslProvider> serverNameSslProviders = new ConcurrentSkipListMap<>(String.CASE_INSENSITIVE_ORDER);
+    serverNameSslBundles
+            .forEach((serverName, sslBundle) -> serverNameSslProviders.put(serverName, createSslProvider(sslBundle)));
     return serverNameSslProviders;
   }
 
