@@ -17,21 +17,31 @@
 package infra.web.server.netty;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.handler.codec.http.DefaultHttpContent;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.codec.http2.DefaultHttp2DataFrame;
+import io.netty.handler.codec.http2.DefaultHttp2Headers;
+import io.netty.handler.codec.http2.DefaultHttp2HeadersFrame;
+import io.netty.handler.codec.http2.Http2Headers;
+import io.netty.handler.codec.http2.HttpConversionUtil;
+
+import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
 
 /**
  * Response writer for the current exchange.
  * <p>
  * Response contexts depend on this abstraction instead of constructing Netty
- * HTTP/1.x response objects directly, so the HTTP/2 implementation can later
- * write native frames without changing the context implementation.
+ * HTTP/1.x response objects directly. The HTTP/1.1 implementation writes the
+ * HTTP/1.x object model, while the HTTP/2 implementation writes native frames.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
@@ -59,6 +69,16 @@ interface NettyResponse {
    * Write and flush a file or chunked input.
    */
   void writeFile(Object file);
+
+  /**
+   * Write an informational {@code 100 Continue} response without ending the stream.
+   */
+  void writeContinue();
+
+  /**
+   * Write an error response, optionally closing the connection or stream.
+   */
+  void writeError(HttpResponseStatus status, boolean close);
 
   /**
    * Complete the response, closing the connection when it is not kept alive.
@@ -92,6 +112,23 @@ interface NettyResponse {
     }
 
     @Override
+    public void writeContinue() {
+      channel.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE,
+              Unpooled.EMPTY_BUFFER, io.netty.handler.codec.http.DefaultHttpHeadersFactory.headersFactory(), trailersFactory()));
+    }
+
+    @Override
+    public void writeError(HttpResponseStatus status, boolean close) {
+      DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status,
+              Unpooled.EMPTY_BUFFER, io.netty.handler.codec.http.DefaultHttpHeadersFactory.headersFactory(), trailersFactory());
+      response.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
+      ChannelFuture future = channel.writeAndFlush(response);
+      if (close) {
+        future.addListener(ChannelFutureListener.CLOSE);
+      }
+    }
+
+    @Override
     public void end(boolean keepAlive) {
       if (keepAlive) {
         channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
@@ -105,7 +142,7 @@ interface NettyResponse {
   }
 
   /**
-   * HTTP/2 response writer. Still delegates to the HTTP/1.x stream codec for now.
+   * HTTP/2 response writer that emits native frames.
    */
   final class Http2NettyResponse implements NettyResponse {
 
@@ -117,12 +154,14 @@ interface NettyResponse {
 
     @Override
     public void writeHead(HttpVersion version, HttpResponseStatus status, HttpHeaders headers) {
-      channel.write(new DefaultHttpResponse(version, status, headers));
+      Http2Headers http2Headers = toHttp2Headers(headers);
+      http2Headers.status(status.codeAsText());
+      channel.write(new DefaultHttp2HeadersFrame(http2Headers, false));
     }
 
     @Override
     public void writeBody(ByteBuf body) {
-      channel.writeAndFlush(new DefaultHttpContent(body));
+      channel.writeAndFlush(new DefaultHttp2DataFrame(body, false));
     }
 
     @Override
@@ -131,14 +170,32 @@ interface NettyResponse {
     }
 
     @Override
+    public void writeContinue() {
+      Http2Headers headers = new DefaultHttp2Headers().status(HttpResponseStatus.CONTINUE.codeAsText());
+      channel.writeAndFlush(new DefaultHttp2HeadersFrame(headers, false));
+    }
+
+    @Override
+    public void writeError(HttpResponseStatus status, boolean close) {
+      Http2Headers headers = new DefaultHttp2Headers()
+              .status(status.codeAsText())
+              .setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
+      ChannelFuture future = channel.writeAndFlush(new DefaultHttp2HeadersFrame(headers, true));
+      if (close) {
+        future.addListener(ChannelFutureListener.CLOSE);
+      }
+    }
+
+    @Override
     public void end(boolean keepAlive) {
-      if (keepAlive) {
-        channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+      ChannelFuture future = channel.writeAndFlush(new DefaultHttp2DataFrame(Unpooled.EMPTY_BUFFER, true));
+      if (!keepAlive) {
+        future.addListener(ChannelFutureListener.CLOSE);
       }
-      else {
-        channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
-                .addListener(ChannelFutureListener.CLOSE);
-      }
+    }
+
+    private static Http2Headers toHttp2Headers(HttpHeaders headers) {
+      return HttpConversionUtil.toHttp2Headers(headers, false);
     }
 
   }

@@ -33,7 +33,6 @@ import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.handler.codec.http2.Http2FrameCodec;
 import io.netty.handler.codec.http2.Http2MultiplexHandler;
 import io.netty.handler.codec.http2.Http2ServerUpgradeCodec;
-import io.netty.handler.codec.http2.Http2StreamFrameToHttpObjectCodec;
 import io.netty.util.AsciiString;
 import io.netty.util.AttributeKey;
 
@@ -48,7 +47,6 @@ sealed class HttpChannelInitializer extends ChannelInitializer<Channel> permits 
   protected static final String HttpCodec = "HttpServerCodec";
   protected static final String HttpTrafficHandler = "HttpTrafficHandler";
   protected static final String H2CUpgradeHandler = "H2CUpgradeHandler";
-  protected static final String H2ToHttp11Codec = "H2ToHttp11Codec";
   protected static final String H2MultiplexHandler = "H2MultiplexHandler";
 
   /**
@@ -56,15 +54,6 @@ sealed class HttpChannelInitializer extends ChannelInitializer<Channel> permits 
    * so request contexts do not need to inspect the pipeline.
    */
   static final AttributeKey<HttpProtocol> PROTOCOL = AttributeKey.valueOf(HttpProtocol.class, "PROTOCOL");
-
-  private static final Http2StreamFrameToHttpObjectCodec HTTP2_STREAM_FRAME_TO_HTTP_OBJECT =
-          new Http2StreamFrameToHttpObjectCodec(true, false) {
-
-            @Override
-            public boolean isSharable() {
-              return true;
-            }
-          };
 
   protected final boolean http2Enabled;
 
@@ -134,9 +123,7 @@ sealed class HttpChannelInitializer extends ChannelInitializer<Channel> permits 
 
   protected final void addH2StreamHandlers(Channel ch) {
     ch.attr(PROTOCOL).set(HttpProtocol.HTTP_2);
-    ch.pipeline()
-            .addLast(H2ToHttp11Codec, HTTP2_STREAM_FRAME_TO_HTTP_OBJECT)
-            .addLast(HttpTrafficHandler, httpTrafficHandler);
+    ch.pipeline().addLast(HttpTrafficHandler, httpTrafficHandler);
   }
 
   @Override

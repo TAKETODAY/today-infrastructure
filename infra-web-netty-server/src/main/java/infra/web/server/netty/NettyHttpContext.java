@@ -160,13 +160,13 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   protected final NettyRequest request;
 
-  private final NettyResponse response;
+  protected final NettyResponse response;
+
+  protected final HttpProtocol protocol;
 
   private final long requestTimeMillis = System.currentTimeMillis();
 
   private final AtomicBoolean committed = new AtomicBoolean();
-
-  private final HttpProtocol protocol;
 
   private HttpResponseStatus status = HttpResponseStatus.OK;
 
@@ -184,11 +184,16 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   protected NettyHttpContext(ApplicationContext context, Channel channel, HttpRequest request,
           HttpProtocol protocol, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
+    this(context, channel, NettyRequest.of(request), protocol, config, dispatcherHandler);
+  }
+
+  protected NettyHttpContext(ApplicationContext context, Channel channel, NettyRequest request,
+          HttpProtocol protocol, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
     super(context, dispatcherHandler);
     this.protocol = protocol;
     this.config = config;
     this.channel = channel;
-    this.request = NettyRequest.of(request);
+    this.request = request;
     this.response = NettyResponse.of(channel, protocol);
     this.nettyResponseHeaders = config.httpHeadersFactory.newHeaders();
   }

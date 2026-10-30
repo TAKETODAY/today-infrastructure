@@ -31,23 +31,23 @@ import infra.web.server.HttpRequestExecutor;
 import infra.web.socket.CloseStatus;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.handler.codec.http2.Http2DataFrame;
+import io.netty.handler.codec.http2.Http2Headers;
+import io.netty.handler.codec.http2.Http2HeadersFrame;
+import io.netty.handler.codec.http2.Http2ResetFrame;
+import io.netty.handler.codec.http2.Http2StreamChannel;
 import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
 
 import static infra.util.FeatureDetector.isPresent;
 import static infra.web.socket.handler.ExceptionWebSocketHandler.tryCloseWithError;
-import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
 
 /**
  * Handles HTTP traffic in Netty server, processing incoming requests and managing HTTP context.
@@ -94,14 +94,26 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
   public final void channelRead(final ChannelHandlerContext ctx, final Object msg) throws IOException {
     if (msg instanceof HttpRequest request) {
       Channel channel = ctx.channel();
-      HttpProtocol protocol = channel.attr(HttpChannelInitializer.PROTOCOL).get();
-      if (protocol == null) {
-        protocol = HttpProtocol.HTTP_1_1;
-      }
-      HttpContext httpContext = new HttpContext(channel, request, protocol, requestConfig,
+      HttpContext httpContext = new HttpContext(channel, request, protocol(channel), requestConfig,
               context, dispatcherHandler, this);
       channel.attr(KEY).set(httpContext);
       executor.execute(httpContext, httpContext);
+    }
+    else if (msg instanceof Http2HeadersFrame frame) {
+      handleHttp2Headers(ctx, frame);
+    }
+    else if (msg instanceof Http2DataFrame frame) {
+      HttpContext httpContext = ctx.channel().attr(KEY).get();
+      if (httpContext != null) {
+        httpContext.onDataReceived(frame.content().retain(), frame.isEndStream());
+      }
+      frame.release();
+    }
+    else if (msg instanceof Http2ResetFrame frame) {
+      HttpContext httpContext = ctx.channel().attr(KEY).getAndSet(null);
+      if (httpContext != null) {
+        httpContext.onError(new IOException("HTTP/2 stream reset: " + frame.errorCode()));
+      }
     }
     else if (msg instanceof HttpContent content) {
       HttpContext httpContext = ctx.channel().attr(KEY).get();
@@ -118,6 +130,33 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
     else {
       ctx.fireChannelRead(msg);
     }
+  }
+
+  private void handleHttp2Headers(ChannelHandlerContext ctx, Http2HeadersFrame frame) throws IOException {
+    Http2Headers headers = frame.headers();
+    if (headers.method() == null) {
+      // trailing headers of an already started request
+      HttpContext httpContext = ctx.channel().attr(KEY).get();
+      if (httpContext != null) {
+        httpContext.onDataReceived(Unpooled.EMPTY_BUFFER, true);
+      }
+      return;
+    }
+
+    Channel channel = ctx.channel();
+    int streamId = channel instanceof Http2StreamChannel streamChannel ? streamChannel.stream().id() : -1;
+    HttpContext httpContext = new HttpContext(channel, new Http2NettyRequest(headers, streamId), protocol(channel),
+            requestConfig, context, dispatcherHandler, this);
+    channel.attr(KEY).set(httpContext);
+    executor.execute(httpContext, httpContext);
+    if (frame.isEndStream()) {
+      httpContext.onDataReceived(Unpooled.EMPTY_BUFFER, true);
+    }
+  }
+
+  private static HttpProtocol protocol(Channel channel) {
+    HttpProtocol protocol = channel.attr(HttpChannelInitializer.PROTOCOL).get();
+    return protocol != null ? protocol : HttpProtocol.HTTP_1_1;
   }
 
   protected void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
@@ -140,17 +179,9 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
   }
 
   void handleException(Channel channel, Throwable cause) {
-    HttpResponse response = createErrorResponse(cause);
-    if (response != null) {
-      channel.writeAndFlush(response)
-              .addListener(ChannelFutureListener.CLOSE);
-    }
-  }
-
-  protected @Nullable HttpResponse createErrorResponse(Throwable cause) {
     var statusCode = HttpStatusProvider.getStatusCode(cause);
-    return new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(statusCode.first.value()),
-            Unpooled.EMPTY_BUFFER, requestConfig.httpHeadersFactory, trailersFactory());
+    NettyResponse.of(channel, protocol(channel))
+            .writeError(HttpResponseStatus.valueOf(statusCode.first.value()), true);
   }
 
   //

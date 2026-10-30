@@ -27,20 +27,15 @@ import infra.util.concurrent.Awaiter;
 import infra.web.DispatcherHandler;
 import infra.web.HttpContextHolder;
 import infra.web.server.RequestBodySizeExceededException;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
 
-import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
-import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpMethod.HEAD;
 
@@ -67,11 +62,16 @@ final class HttpContext extends NettyHttpContext implements Runnable {
 
   public HttpContext(Channel channel, HttpRequest request, HttpProtocol protocol, NettyRequestConfig config,
           ApplicationContext context, DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler) {
+    this(channel, NettyRequest.of(request), protocol, config, context, dispatcherHandler, httpTrafficHandler);
+  }
+
+  public HttpContext(Channel channel, NettyRequest request, HttpProtocol protocol, NettyRequestConfig config,
+          ApplicationContext context, DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler) {
     super(context, channel, request, protocol, config, dispatcherHandler);
     this.httpTrafficHandler = httpTrafficHandler;
     long contentLength = this.request.contentLength();
     this.requestBody = (contentLength == 0L || (contentLength == -1L && (request.method() == GET || request.method() == HEAD))) ? null : createRequestBody();
-    if (request instanceof HttpContent content) {
+    if (request.unwrap() instanceof HttpContent content) {
       onDataReceived(content);
     }
     this.contentLength = contentLength;
@@ -87,11 +87,22 @@ final class HttpContext extends NettyHttpContext implements Runnable {
   }
 
   public void onDataReceived(HttpContent httpContent) {
-    final int chunkSize = httpContent.content().readableBytes();
+    onDataReceived(httpContent.content(), httpContent instanceof LastHttpContent);
+  }
+
+  /**
+   * Consume a request body chunk. Ownership of {@code data} is transferred to the
+   * request body stream, or released when the chunk is rejected or empty.
+   *
+   * @param data the body bytes
+   * @param last whether this is the final chunk of the request body
+   */
+  public void onDataReceived(ByteBuf data, boolean last) {
+    final int chunkSize = data.readableBytes();
     final long received = receivedBytes + chunkSize;
 
     if (received > config.maxContentLength && !continueExpected) {
-      httpContent.release();
+      data.release();
       if (requestBody != null) {
         requestBody.onError(new IOException(new RequestBodySizeExceededException(config.maxContentLength)));
       }
@@ -100,18 +111,28 @@ final class HttpContext extends NettyHttpContext implements Runnable {
 
     receivedBytes = received;
 
-    if (httpContent instanceof LastHttpContent) {
-      if (requestBody != null) {
-        if (chunkSize > 0) {
-          requestBody.onDataReceived(httpContent.content());
-        }
+    if (requestBody != null) {
+      if (chunkSize > 0) {
+        requestBody.onDataReceived(data);
+      }
+      else {
+        data.release();
+      }
+      if (last) {
         requestBody.onComplete();
       }
     }
     else {
-      if (requestBody != null) {
-        requestBody.onDataReceived(httpContent.content());
-      }
+      data.release();
+    }
+  }
+
+  /**
+   * Signal a stream-level failure to the request body reader.
+   */
+  public void onError(IOException error) {
+    if (requestBody != null) {
+      requestBody.onError(error);
     }
   }
 
@@ -140,17 +161,14 @@ final class HttpContext extends NettyHttpContext implements Runnable {
 
     try {
       if (request.is100ContinueExpected()) {
-        HttpResponse accept = acceptMessage();
-        if (accept == null) {
+        if (!acceptContinue()) {
           // the expectation failed so we refuse the request.
-          channel.writeAndFlush(rejectResponse())
-                  .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+          response.writeError(HttpResponseStatus.EXPECTATION_FAILED, false);
           return;
         }
 
         continueExpected = true;
-        channel.writeAndFlush(accept)
-                .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+        response.writeContinue();
         request.headers().remove(HttpHeaderNames.EXPECT);
       }
       else if (contentLength != -1 && contentLength > config.maxContentLength) {
@@ -188,33 +206,15 @@ final class HttpContext extends NettyHttpContext implements Runnable {
   }
 
   /**
-   * Produces a {@link HttpResponse} for {@link HttpRequest}s which define an expectation.
-   * Returns {@code null} if the request should be rejected. See {@link #rejectResponse()}.
+   * Determine whether the request expecting {@code 100 Continue} should be accepted.
    */
-  private @Nullable HttpResponse acceptMessage() {
+  private boolean acceptContinue() {
     Boolean continueExpected = dispatcherHandler.requestContinueExpected(this);
     if (continueExpected != null) {
-      if (!continueExpected) {
-        return null;
-      }
+      return continueExpected;
     }
     // fallback to default max content-length check
-    else if (contentLength > config.maxContentLength) {
-      return null;
-    }
-
-    return new DefaultFullHttpResponse(version(), HttpResponseStatus.CONTINUE, Unpooled.EMPTY_BUFFER,
-            config.httpHeadersFactory, trailersFactory());
-  }
-
-  /**
-   * Returns the appropriate 4XX {@link HttpResponse} for the given {@link HttpRequest}.
-   */
-  private HttpResponse rejectResponse() {
-    DefaultFullHttpResponse response = new DefaultFullHttpResponse(version(), HttpResponseStatus.EXPECTATION_FAILED, Unpooled.EMPTY_BUFFER,
-            config.httpHeadersFactory, trailersFactory());
-    response.headers().set(CONTENT_LENGTH, 0);
-    return response;
+    return contentLength <= config.maxContentLength;
   }
 
   /**
