@@ -20,6 +20,7 @@ package infra.app.loader.jar;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -723,6 +724,15 @@ public class NestedJarFile extends JarFile {
       this.uncompressedSize = entry.getUncompressedSize();
       this.content = entry.openContent();
       this.remaining = this.uncompressedSize;
+    }
+
+    @Override
+    public byte[] readAllBytes() throws IOException {
+      byte[] bytes = new byte[available()];
+      if (readNBytes(bytes, 0, bytes.length) != bytes.length) {
+        throw new EOFException("Unexpected end of input stream");
+      }
+      return bytes;
     }
 
     @Override
