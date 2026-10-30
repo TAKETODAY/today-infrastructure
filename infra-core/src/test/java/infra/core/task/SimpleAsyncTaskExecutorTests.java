@@ -30,6 +30,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import infra.core.testfixture.DisabledIfInContinuousIntegration;
 import infra.util.ConcurrencyThrottleSupport;
@@ -167,17 +168,18 @@ class SimpleAsyncTaskExecutorTests {
   @Test
   @DisabledIfInContinuousIntegration
   void taskTerminationTimeoutWithImmediateCancel() {
-    AtomicBoolean finished = new AtomicBoolean();
+    AtomicReference<Runnable> captured = new AtomicReference<>();
     Future<?> future;
-    try (SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor()) {
+    try (SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor() {
+      @Override
+      protected void doExecute(Runnable task) {
+        captured.set(task);
+      }
+    }) {
       executor.setTaskTerminationTimeout(100);
-      future = executor.submit(() -> {
-        if (finished.get()) {
-          throw new IllegalStateException();
-        }
-      });
+      future = executor.submit(() -> {});
     }
-    finished.set(true);
+    assertThatExceptionOfType(CancellationException.class).isThrownBy(captured.get()::run);
     assertThatExceptionOfType(CancellationException.class).isThrownBy(future::get);
   }
 
