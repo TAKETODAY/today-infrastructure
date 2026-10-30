@@ -82,7 +82,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
 
   private ConfigurationPropertyName(Elements elements) {
     this.elements = elements;
-    this.uniformElements = new CharSequence[elements.getSize()];
+    this.uniformElements = new CharSequence[elements.size];
   }
 
   /**
@@ -91,7 +91,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    * @return {@code true} if the name is empty
    */
   public boolean isEmpty() {
-    return this.elements.getSize() == 0;
+    return this.elements.size == 0;
   }
 
   /**
@@ -125,7 +125,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    * @return {@code true} if the element is indexed
    */
   boolean isIndexed(int elementIndex) {
-    return this.elements.getType(elementIndex).isIndexed();
+    return this.elements.getType(elementIndex).indexed;
   }
 
   /**
@@ -160,7 +160,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
   public String getElement(int elementIndex, Form form) {
     CharSequence element = this.elements.get(elementIndex);
     ElementType type = this.elements.getType(elementIndex);
-    if (type.isIndexed()) {
+    if (type.indexed) {
       return element.toString();
     }
     if (form == Form.ORIGINAL) {
@@ -213,7 +213,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
    * @return the number of elements
    */
   public int getNumberOfElements() {
-    return this.elements.getSize();
+    return this.elements.size;
   }
 
   /**
@@ -358,7 +358,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
     }
     Assert.state(type1 != null, "'type1' must not be null");
     Assert.state(type2 != null, "'type2' must not be null");
-    int result = Boolean.compare(type2.isIndexed(), type1.isIndexed());
+    int result = Boolean.compare(type2.indexed, type1.indexed);
     if (result != 0) {
       return result;
     }
@@ -400,7 +400,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
   }
 
   private boolean endsWithElementsEqualTo(ConfigurationPropertyName name) {
-    for (int i = this.elements.getSize() - 1; i >= 0; i--) {
+    for (int i = this.elements.size - 1; i >= 0; i--) {
       if (elementDiffers(this.elements, name.elements, i)) {
         return false;
       }
@@ -464,7 +464,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
       }
     }
     if (i2 < l2) {
-      if (e2.getType(i).isIndexed()) {
+      if (e2.getType(i).indexed) {
         return false;
       }
       do {
@@ -481,8 +481,8 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
   private boolean defaultElementEquals(Elements e1, Elements e2, int i) {
     int l1 = e1.getLength(i);
     int l2 = e2.getLength(i);
-    boolean indexed1 = e1.getType(i).isIndexed();
-    boolean indexed2 = e2.getType(i).isIndexed();
+    boolean indexed1 = e1.getType(i).indexed;
+    boolean indexed2 = e2.getType(i).indexed;
     int i1 = 0;
     int i2 = 0;
     while (i1 < l1) {
@@ -512,7 +512,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
   }
 
   private boolean remainderIsNotAlphanumeric(Elements elements, int element, int index) {
-    if (elements.getType(element).isIndexed()) {
+    if (elements.getType(element).indexed) {
       return false;
     }
     int length = elements.getLength(element);
@@ -527,7 +527,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
   }
 
   private boolean remainderIsDashes(Elements elements, int element, int index) {
-    if (elements.getType(element).isIndexed()) {
+    if (elements.getType(element).indexed) {
       return false;
     }
     int length = elements.getLength(element);
@@ -545,8 +545,8 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
   public int hashCode() {
     int hashCode = this.hashCode;
     Elements elements = this.elements;
-    if (hashCode == 0 && elements.getSize() != 0) {
-      for (int elementIndex = 0; elementIndex < elements.getSize(); elementIndex++) {
+    if (hashCode == 0 && elements.size != 0) {
+      for (int elementIndex = 0; elementIndex < elements.size; elementIndex++) {
         hashCode = 31 * hashCode + elements.hashCode(elementIndex);
       }
       this.hashCode = hashCode;
@@ -589,7 +589,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
 
   private String buildDefaultToString() {
     if (this.elements.canShortcutWithSource(ElementType.UNIFORM, ElementType.DASHED)) {
-      return this.elements.getSource().toString();
+      return this.elements.source.toString();
     }
     int elements = getNumberOfElements();
     StringBuilder result = new StringBuilder(elements * 8);
@@ -715,7 +715,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
       throw new InvalidConfigurationPropertyNameException(name, Collections.singletonList('['));
     }
     Elements elements = new ElementsParser(name, '.', parserCapacity).parse();
-    for (int i = 0; i < elements.getSize(); i++) {
+    for (int i = 0; i < elements.size; i++) {
       if (elements.getType(i) == ElementType.NON_UNIFORM) {
         if (returnNullIfInvalid) {
           return null;
@@ -770,7 +770,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
       return EMPTY;
     }
     Elements elements = new ElementsParser(name, separator).parse(elementValueProcessor);
-    if (elements.getSize() == 0) {
+    if (elements.size == 0) {
       return EMPTY;
     }
     return new ConfigurationPropertyName(elements);
@@ -831,9 +831,9 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
 
     public static final Elements EMPTY = new Elements("", 0, NO_POSITION, NO_POSITION, NO_TYPE, null, null);
 
-    private final CharSequence source;
+    public final CharSequence source;
 
-    private final int size;
+    public final int size;
 
     private final int[] start;
 
@@ -906,14 +906,6 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
       return resolved;
     }
 
-    int getSize() {
-      return this.size;
-    }
-
-    CharSequence getSource() {
-      return this.source;
-    }
-
     CharSequence get(int index) {
       if (this.resolved != null) {
         CharSequence element = this.resolved[index];
@@ -956,7 +948,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
     int hashCode(int index) {
       int hashCode = this.hashCode[index];
       if (hashCode == 0) {
-        boolean indexed = getType(index).isIndexed();
+        boolean indexed = getType(index).indexed;
         int length = getLength(index);
         for (int i = 0; i < length; i++) {
           char ch = charAt(index, i);
@@ -1069,7 +1061,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
             type = ElementType.EMPTY;
           }
         }
-        else if (!type.isIndexed() && ch == this.separator) {
+        else if (!type.indexed && ch == this.separator) {
           add(start, i, type, valueProcessor);
           start = i + 1;
           type = ElementType.EMPTY;
@@ -1086,7 +1078,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
     }
 
     private ElementType updateType(ElementType existingType, char ch, int index) {
-      if (existingType.isIndexed()) {
+      if (existingType.indexed) {
         if (existingType == ElementType.NUMERICALLY_INDEXED && !isNumeric(ch)) {
           return ElementType.INDEXED;
         }
@@ -1124,7 +1116,7 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
         }
         CharSequence resolved = valueProcessor.apply(this.source.subSequence(start, end));
         Elements resolvedElements = new ElementsParser(resolved, '.').parse();
-        Assert.state(resolvedElements.getSize() == 1, "Resolved element must not contain multiple elements");
+        Assert.state(resolvedElements.size == 1, "Resolved element must not contain multiple elements");
         this.resolved[this.size] = resolvedElements.get(0);
         type = resolvedElements.getType(0);
       }
@@ -1209,14 +1201,10 @@ public final class ConfigurationPropertyName implements Comparable<Configuration
      */
     NUMERICALLY_INDEXED(true);
 
-    private final boolean indexed;
+    public final boolean indexed;
 
     ElementType(boolean indexed) {
       this.indexed = indexed;
-    }
-
-    public boolean isIndexed() {
-      return this.indexed;
     }
 
     public boolean allowsFastEqualityCheck() {
