@@ -1391,6 +1391,24 @@ class ApplicationTests {
   }
 
   @Test
+  void shouldNotStopKeepAliveThreadIfChildContextIsClosed() throws InterruptedException {
+    Application application = new Application(ExampleConfig.class);
+    application.setApplicationType(ApplicationType.NORMAL);
+    application.setKeepAlive(true);
+    this.context = application.run();
+    Thread keepAlive = getCurrentThreads().stream()
+            .filter((thread) -> thread.getName().equals("keep-alive"))
+            .findFirst()
+            .orElseThrow();
+    AnnotationConfigApplicationContext child = new AnnotationConfigApplicationContext();
+    child.setParent(this.context);
+    child.refresh();
+    child.close();
+    keepAlive.join(250);
+    assertThat(keepAlive.isAlive()).isTrue();
+  }
+
+  @Test
   void shouldReportFriendlyErrorIfAotInitializerNotFound() {
     Application application = new Application(TestApplication.class);
     application.setApplicationType(ApplicationType.NORMAL);
