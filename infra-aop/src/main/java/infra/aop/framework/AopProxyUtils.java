@@ -318,7 +318,13 @@ public abstract class AopProxyUtils {
     return BeanInstantiator.forSerialization(proxyClass).instantiate();
   }
 
-  /** Determine whether an interface only exposes container configuration callbacks. */
+  /**
+   * Determine whether the given interface is a configuration callback interface
+   * (i.e. {@link InitializingBean}, {@link DisposableBean},
+   * {@link Closeable}/{@link AutoCloseable}, or an {@link Aware} sub-interface).
+   *
+   * @since 5.0
+   */
   static boolean isConfigurationCallbackInterface(Class<?> ifc) {
     return InitializingBean.class == ifc || DisposableBean.class == ifc ||
             Closeable.class == ifc || AutoCloseable.class == ifc ||
