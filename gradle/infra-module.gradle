@@ -23,6 +23,10 @@ if (file('src/jmh').isDirectory()) {
     duplicateClassesStrategy = DuplicatesStrategy.EXCLUDE
   }
 
+  tasks.named('compileJmhJava', JavaCompile).configure {
+    options.release = 21
+  }
+
   tasks.named('jmhJar', Jar).configure {
     zip64 = true
   }

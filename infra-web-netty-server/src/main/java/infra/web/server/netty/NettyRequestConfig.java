@@ -22,8 +22,8 @@ import java.nio.charset.Charset;
 import java.util.function.Function;
 
 import infra.http.HttpRequest;
-import infra.util.Assert;
 import infra.lang.Constant;
+import infra.util.Assert;
 import infra.util.DataSize;
 import infra.util.concurrent.Awaiter;
 import infra.util.concurrent.SimpleSingleThreadAwaiter;
@@ -213,14 +213,11 @@ public final class NettyRequestConfig {
      */
     private int responseBodyInitialCapacity = 128;
 
-    @Nullable
-    private Function<HttpContext, ByteBuf> responseBodyFactory;
+    private @Nullable Function<HttpContext, ByteBuf> responseBodyFactory;
 
-    @Nullable
-    private Charset postRequestDecoderCharset = Constant.DEFAULT_CHARSET;
+    private @Nullable Charset postRequestDecoderCharset = Constant.DEFAULT_CHARSET;
 
-    @Nullable
-    private Charset writerCharset = Constant.DEFAULT_CHARSET;
+    private @Nullable Charset writerCharset = Constant.DEFAULT_CHARSET;
 
     private boolean writerAutoFlush = false;
 
@@ -232,7 +229,7 @@ public final class NettyRequestConfig {
 
     private @Nullable MultipartParser multipartParser;
 
-    private int dataReceivedQueueCapacity;
+    private int dataReceivedQueueCapacity = 256;
 
     private boolean autoRead = true;
 

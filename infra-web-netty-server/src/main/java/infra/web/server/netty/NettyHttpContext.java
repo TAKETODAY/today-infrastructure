@@ -59,19 +59,14 @@ import infra.web.multipart.MultipartRequest;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
-import io.netty.handler.codec.http.DefaultHttpContent;
-import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.CookieHeaderNames;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
@@ -152,8 +147,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    */
   private static final String CHUNKED_WRITER_NAME = "chunkedWriter";
 
-  private static final HttpVersion H2 = HttpVersion.valueOf("HTTP/2.0");
-
   // UNSAFE fields
   public final NettyRequestConfig config;
 
@@ -165,13 +158,15 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   public final HttpHeaders nettyResponseHeaders;
   // UNSAFE fields END
 
-  protected final HttpRequest request;
+  protected final NettyRequest request;
+
+  protected final NettyResponse response;
+
+  protected final HttpProtocol protocol;
 
   private final long requestTimeMillis = System.currentTimeMillis();
 
   private final AtomicBoolean committed = new AtomicBoolean();
-
-  private final boolean http2;
 
   private HttpResponseStatus status = HttpResponseStatus.OK;
 
@@ -187,13 +182,19 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   private @Nullable ServerHttpResponse outputMessage;
 
-  protected NettyHttpContext(ApplicationContext context, Channel channel,
-          HttpRequest request, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
+  protected NettyHttpContext(ApplicationContext context, Channel channel, HttpRequest request,
+          HttpProtocol protocol, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
+    this(context, channel, NettyRequest.of(request), protocol, config, dispatcherHandler);
+  }
+
+  protected NettyHttpContext(ApplicationContext context, Channel channel, NettyRequest request,
+          HttpProtocol protocol, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
     super(context, dispatcherHandler);
-    this.http2 = channel.pipeline().context(HttpChannelInitializer.H2ToHttp11Codec) != null;
+    this.protocol = protocol;
     this.config = config;
-    this.request = request;
     this.channel = channel;
+    this.request = request;
+    this.response = NettyResponse.of(channel, protocol);
     this.nettyResponseHeaders = config.httpHeadersFactory.newHeaders();
   }
 
@@ -203,10 +204,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   }
 
   public HttpVersion version() {
-    if (http2) {
-      return H2;
-    }
-    return HttpVersion.HTTP_1_1;
+    return protocol.version();
   }
 
   @Override
@@ -539,7 +537,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   private boolean isKeepAlive() {
     Boolean keepAlive = this.keepAlive;
     if (keepAlive == null) {
-      keepAlive = HttpUtil.isKeepAlive(request);
+      keepAlive = request.isKeepAlive();
       this.keepAlive = keepAlive;
     }
     return keepAlive;
@@ -588,10 +586,10 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     ByteBuf responseBody = this.responseBody;
     if (responseBody != null) {
       this.responseBody = null;
-      channel.writeAndFlush(http2 ? new DefaultHttpContent(responseBody) : responseBody);
+      response.writeBody(responseBody);
     }
     else if ((fileToSend = this.fileToSend) != null) {
-      channel.writeAndFlush(fileToSend);
+      response.writeFile(fileToSend);
     }
   }
 
@@ -608,13 +606,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
     flush();
 
-    if (isKeepAlive()) {
-      channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-    }
-    else {
-      channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
-              .addListener(ChannelFutureListener.CLOSE);
-    }
+    response.end(isKeepAlive());
   }
 
   /**
@@ -679,7 +671,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
         }
       }
 
-      channel.write(new DefaultHttpResponse(version(), status, headers));
+      response.writeHead(version(), status, headers);
       onCommitted();
     }
   }
@@ -1137,7 +1129,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
         }
         ChunkedNioFile nioFile = new ChunkedNioFile(FileChannel.open(file.toPath(), StandardOpenOption.READ),
                 position, count, nioFileChunkSize);
-        if (http2) {
+        if (protocol.isHttp2()) {
           fileToSend = new Http2DataChunkedInput(nioFile, ((Http2StreamChannel) channel).stream());
         }
         else {

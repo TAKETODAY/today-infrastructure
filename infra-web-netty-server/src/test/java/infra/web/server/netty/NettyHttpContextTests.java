@@ -696,6 +696,7 @@ class NettyHttpContextTests {
       super(mock(ApplicationContext.class),
               channel != null ? channel : mockChannel(),
               request,
+              HttpProtocol.HTTP_1_1,
               configBuilder
                       .sendErrorHandler((req, msg) -> { })
                       .multipartParser(mock(infra.web.multipart.MultipartParser.class))
