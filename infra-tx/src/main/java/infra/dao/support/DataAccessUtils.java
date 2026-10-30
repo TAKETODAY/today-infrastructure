@@ -18,6 +18,7 @@
 
 package infra.dao.support;
 
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
@@ -55,7 +56,8 @@ public abstract class DataAccessUtils {
    * element has been found in the given Collection
    */
   @Nullable
-  public static <T> T singleResult(@Nullable Collection<T> results) throws IncorrectResultSizeDataAccessException {
+  public static <T extends @Nullable Object> T singleResult(@Nullable Collection<T> results)
+          throws IncorrectResultSizeDataAccessException {
     if (CollectionUtils.isEmpty(results)) {
       return null;
     }
@@ -76,7 +78,8 @@ public abstract class DataAccessUtils {
    * element has been found in the given Stream
    */
   @Nullable
-  public static <T> T singleResult(@Nullable Stream<T> results) throws IncorrectResultSizeDataAccessException {
+  public static <T extends @Nullable Object> T singleResult(@Nullable Stream<T> results)
+          throws IncorrectResultSizeDataAccessException {
     if (results == null) {
       return null;
     }
@@ -100,7 +103,8 @@ public abstract class DataAccessUtils {
    * element has been found in the given Iterator
    */
   @Nullable
-  public static <T> T singleResult(@Nullable Iterator<T> results) throws IncorrectResultSizeDataAccessException {
+  public static <T extends @Nullable Object> T singleResult(@Nullable Iterator<T> results)
+          throws IncorrectResultSizeDataAccessException {
     if (results == null) {
       return null;
     }
@@ -121,7 +125,8 @@ public abstract class DataAccessUtils {
    * @throws IncorrectResultSizeDataAccessException if more than one
    * element has been found in the given Collection
    */
-  public static <T> Optional<T> optionalResult(@Nullable Collection<T> results) throws IncorrectResultSizeDataAccessException {
+  public static <T> Optional<T> optionalResult(@Nullable Collection<? extends @Nullable T> results)
+          throws IncorrectResultSizeDataAccessException {
     return Optional.ofNullable(singleResult(results));
   }
 
@@ -135,7 +140,8 @@ public abstract class DataAccessUtils {
    * @throws IncorrectResultSizeDataAccessException if more than one
    * element has been found in the given Stream
    */
-  public static <T> Optional<T> optionalResult(@Nullable Stream<T> results) throws IncorrectResultSizeDataAccessException {
+  public static <T> Optional<T> optionalResult(@Nullable Stream<? extends @Nullable T> results)
+          throws IncorrectResultSizeDataAccessException {
     return Optional.ofNullable(singleResult(results));
   }
 
@@ -149,7 +155,8 @@ public abstract class DataAccessUtils {
    * @throws IncorrectResultSizeDataAccessException if more than one
    * element has been found in the given Iterator
    */
-  public static <T> Optional<T> optionalResult(@Nullable Iterator<T> results) throws IncorrectResultSizeDataAccessException {
+  public static <T> Optional<T> optionalResult(@Nullable Iterator<? extends @Nullable T> results)
+          throws IncorrectResultSizeDataAccessException {
     return Optional.ofNullable(singleResult(results));
   }
 
@@ -165,7 +172,9 @@ public abstract class DataAccessUtils {
    * @throws EmptyResultDataAccessException if no element at all
    * has been found in the given Collection
    */
-  public static <T> T requiredSingleResult(@Nullable Collection<T> results) throws IncorrectResultSizeDataAccessException {
+  @NonNull
+  public static <T extends @Nullable Object> T requiredSingleResult(@Nullable Collection<T> results)
+          throws IncorrectResultSizeDataAccessException {
     if (CollectionUtils.isEmpty(results)) {
       throw new EmptyResultDataAccessException(1);
     }
@@ -192,7 +201,8 @@ public abstract class DataAccessUtils {
    * has been found in the given Collection
    */
   @Nullable
-  public static <T> T nullableSingleResult(@Nullable Collection<T> results) throws IncorrectResultSizeDataAccessException {
+  public static <T extends @Nullable Object> T nullableSingleResult(@Nullable Collection<T> results)
+          throws IncorrectResultSizeDataAccessException {
     // This is identical to the requiredSingleResult implementation but differs in the
     // semantics of the incoming Collection (which we currently can't formally express)
     if (CollectionUtils.isEmpty(results)) {
@@ -216,7 +226,8 @@ public abstract class DataAccessUtils {
    * @see CollectionUtils#hasUniqueObject
    */
   @Nullable
-  public static <T> T uniqueResult(@Nullable Collection<T> results) throws IncorrectResultSizeDataAccessException {
+  public static <T extends @Nullable Object> T uniqueResult(@Nullable Collection<T> results)
+          throws IncorrectResultSizeDataAccessException {
     if (CollectionUtils.isEmpty(results)) {
       return null;
     }
@@ -240,7 +251,9 @@ public abstract class DataAccessUtils {
    * @see CollectionUtils#hasUniqueObject
    */
   @SuppressWarnings("NullAway")
-  public static <T> T requiredUniqueResult(@Nullable Collection<T> results) throws IncorrectResultSizeDataAccessException {
+  @NonNull
+  public static <T extends @Nullable Object> T requiredUniqueResult(@Nullable Collection<T> results)
+          throws IncorrectResultSizeDataAccessException {
     if (CollectionUtils.isEmpty(results)) {
       throw new EmptyResultDataAccessException(1);
     }
