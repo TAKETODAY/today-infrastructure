@@ -43,6 +43,7 @@ import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2HeadersFrame;
 import io.netty.handler.codec.http2.Http2ResetFrame;
 import io.netty.handler.codec.http2.Http2StreamChannel;
+import io.netty.handler.codec.http2.Http2StreamFrame;
 import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
 
@@ -99,22 +100,6 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
       channel.attr(KEY).set(httpContext);
       executor.execute(httpContext, httpContext);
     }
-    else if (msg instanceof Http2HeadersFrame frame) {
-      handleHttp2Headers(ctx, frame);
-    }
-    else if (msg instanceof Http2DataFrame frame) {
-      HttpContext httpContext = ctx.channel().attr(KEY).get();
-      if (httpContext != null) {
-        httpContext.onDataReceived(frame.content().retain(), frame.isEndStream());
-      }
-      frame.release();
-    }
-    else if (msg instanceof Http2ResetFrame frame) {
-      HttpContext httpContext = ctx.channel().attr(KEY).getAndSet(null);
-      if (httpContext != null) {
-        httpContext.onError(new IOException("HTTP/2 stream reset: " + frame.errorCode()));
-      }
-    }
     else if (msg instanceof HttpContent content) {
       HttpContext httpContext = ctx.channel().attr(KEY).get();
       if (httpContext != null) {
@@ -124,11 +109,38 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
         content.release();
       }
     }
-    else if (msg instanceof WebSocketFrame) {
-      handleWebSocketFrame(ctx, (WebSocketFrame) msg);
+    else if (msg instanceof Http2StreamFrame frame) {
+      handleHttp2StreamFrame(ctx, frame);
+    }
+    else if (msg instanceof WebSocketFrame frame) {
+      handleWebSocketFrame(ctx, frame);
     }
     else {
       ctx.fireChannelRead(msg);
+    }
+  }
+
+  private void handleHttp2StreamFrame(ChannelHandlerContext ctx, Http2StreamFrame frame) throws IOException {
+    if (frame instanceof Http2HeadersFrame headersFrame) {
+      handleHttp2Headers(ctx, headersFrame);
+    }
+    else if (frame instanceof Http2DataFrame dataFrame) {
+      HttpContext httpContext = ctx.channel().attr(KEY).get();
+      if (httpContext != null) {
+        httpContext.onDataReceived(dataFrame.content(), dataFrame.isEndStream());
+      }
+      else {
+        dataFrame.release();
+      }
+    }
+    else if (frame instanceof Http2ResetFrame resetFrame) {
+      HttpContext httpContext = ctx.channel().attr(KEY).getAndSet(null);
+      if (httpContext != null) {
+        httpContext.onError(new IOException("HTTP/2 stream reset: " + resetFrame.errorCode()));
+      }
+    }
+    else {
+      ctx.fireChannelRead(frame);
     }
   }
 
