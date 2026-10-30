@@ -116,15 +116,12 @@ class SslTests {
 
   @Test
   void serverNameSslBundleGettersAndSettersWorkCorrectly() {
-    Ssl.ServerNameSslBundle serverNameBundle = new Ssl.ServerNameSslBundle();
     String serverName = "example.com";
     String bundle = "test-bundle";
+    Ssl.ServerNameSslBundle serverNameBundle = new Ssl.ServerNameSslBundle(serverName, bundle);
 
-    serverNameBundle.setServerName(serverName);
-    serverNameBundle.setBundle(bundle);
-
-    assertThat(serverNameBundle.getServerName()).isEqualTo(serverName);
-    assertThat(serverNameBundle.getBundle()).isEqualTo(bundle);
+    assertThat(serverNameBundle.serverName()).isEqualTo(serverName);
+    assertThat(serverNameBundle.bundle()).isEqualTo(bundle);
   }
 
 }

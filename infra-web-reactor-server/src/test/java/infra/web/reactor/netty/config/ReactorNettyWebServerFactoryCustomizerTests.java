@@ -29,6 +29,7 @@ import java.util.Map;
 import infra.context.properties.source.ConfigurationPropertySources;
 import infra.mock.env.MockEnvironment;
 import infra.util.DataSize;
+import infra.web.config.WebProperties;
 import infra.web.reactor.netty.ReactorNettyReactiveWebServerFactory;
 import infra.web.reactor.netty.ReactorNettyServerCustomizer;
 import infra.web.reactor.netty.ReactorServerProperties;
@@ -60,6 +61,8 @@ class ReactorNettyWebServerFactoryCustomizerTests {
 
   private ServerProperties serverProperties;
 
+  private WebProperties webProperties;
+
   private ReactorServerProperties reactorProperties;
 
   private ReactorNettyWebServerFactoryCustomizer customizer;
@@ -71,9 +74,10 @@ class ReactorNettyWebServerFactoryCustomizerTests {
   void setup() {
     this.environment = new MockEnvironment();
     this.serverProperties = new ServerProperties();
+    this.webProperties = new WebProperties();
     reactorProperties = new ReactorServerProperties();
     ConfigurationPropertySources.attach(this.environment);
-    this.customizer = new ReactorNettyWebServerFactoryCustomizer(this.environment, this.serverProperties, reactorProperties);
+    this.customizer = new ReactorNettyWebServerFactoryCustomizer(this.environment, this.serverProperties, this.webProperties, reactorProperties);
   }
 
   @Test
@@ -119,7 +123,7 @@ class ReactorNettyWebServerFactoryCustomizerTests {
   @Test
   void useForwardedPrefixConfiguresFactory() {
     this.serverProperties.forwardHeadersStrategy = (ServerProperties.ForwardHeadersStrategy.NATIVE);
-    reactorProperties.forwardedHeaders.useForwardedPrefix = (true);
+    webProperties.forwardedHeaders.useForwardedPrefix = (true);
     ReactorNettyReactiveWebServerFactory factory = mock(ReactorNettyReactiveWebServerFactory.class);
     this.customizer.customize(factory);
     then(factory).should().setUseForwardedPrefix(true);
@@ -128,7 +132,7 @@ class ReactorNettyWebServerFactoryCustomizerTests {
   @Test
   void useForwardedPrefixWhenStrategyIsNoneShouldNotConfigureFactory() {
     this.serverProperties.forwardHeadersStrategy = (ServerProperties.ForwardHeadersStrategy.NONE);
-    reactorProperties.forwardedHeaders.useForwardedPrefix = (true);
+    webProperties.forwardedHeaders.useForwardedPrefix = (true);
     ReactorNettyReactiveWebServerFactory factory = mock(ReactorNettyReactiveWebServerFactory.class);
     this.customizer.customize(factory);
     then(factory).should(never()).setUseForwardedPrefix(anyBoolean());

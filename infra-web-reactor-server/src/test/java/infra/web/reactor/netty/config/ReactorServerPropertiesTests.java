@@ -72,17 +72,6 @@ class ReactorServerPropertiesTests {
             .isEqualTo(HttpDecoderSpec.DEFAULT_INITIAL_BUFFER_SIZE);
   }
 
-  @Test
-  void forwardedPrefixIsDisabledByDefault() {
-    assertThat(this.properties.forwardedHeaders.useForwardedPrefix).isFalse();
-  }
-
-  @Test
-  void testCustomizeNettyForwardedHeadersUseForwardedPrefix() {
-    bind("server.reactor-netty.forwarded-headers.use-forwarded-prefix", "true");
-    assertThat(this.properties.forwardedHeaders.useForwardedPrefix).isTrue();
-  }
-
   private void bind(String name, String value) {
     bind(Collections.singletonMap(name, value));
   }

@@ -81,21 +81,4 @@ public class ReactorServerProperties {
    */
   public @Nullable Duration idleTimeout;
 
-  /**
-   * Forwarded headers configuration.
-   */
-  public final ForwardedHeaders forwardedHeaders = new ForwardedHeaders();
-
-  /**
-   * Forwarded headers.
-   */
-  public static class ForwardedHeaders {
-
-    /**
-     * Whether to use the "X-Forwarded-Prefix" header to determine the context path.
-     */
-    public boolean useForwardedPrefix;
-
-  }
-
 }
