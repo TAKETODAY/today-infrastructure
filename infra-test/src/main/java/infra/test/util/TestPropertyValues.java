@@ -411,7 +411,7 @@ public final class TestPropertyValues {
       this.previous = apply(TestPropertyValues.this.properties);
     }
 
-    private Map<String, String> apply(Map<String, ?> properties) {
+    private static Map<String, String> apply(Map<String, ?> properties) {
       Map<String, String> previous = new LinkedHashMap<>();
       properties.forEach((name, value) -> previous.put(name, setOrClear(name, (String) value)));
       return previous;
@@ -419,15 +419,24 @@ public final class TestPropertyValues {
 
     @Override
     public void close() {
-      this.previous.forEach(this::setOrClear);
+      this.previous.forEach(this::restore);
     }
 
-    private String setOrClear(String name, String value) {
+    private static String setOrClear(String name, String value) {
       Assert.notNull(name, "Name is required");
       if (StringUtils.isEmpty(value)) {
         return (String) System.getProperties().remove(name);
       }
       return (String) System.getProperties().setProperty(name, value);
+    }
+
+    private void restore(String name, @Nullable String value) {
+      if (value != null) {
+        System.setProperty(name, value);
+      }
+      else {
+        System.clearProperty(name);
+      }
     }
 
   }
