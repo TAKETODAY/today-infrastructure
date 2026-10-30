@@ -162,13 +162,14 @@ public abstract class HttpRange {
    * matches the strong {@code "ETag"} or the {@code "Last-Modified"} response
    * header, this delegates to {@link #parseRanges(String)}. Otherwise, the
    * {@code Range} header must be ignored and an empty list is returned.
+   *
    * @param requestHeaders the request headers
    * @param responseHeaders the response headers for the selected representation
    * @return the ranges to serve, or an empty list if there is none or if
    * the {@code Range} header should be ignored
    * @throws IllegalArgumentException if the ranges cannot be parsed
-   * @since 5.0
    * @see <a href="https://www.rfc-editor.org/rfc/rfc9110.html#section-13.1.5">RFC 9110, Section 13.1.5</a>
+   * @since 5.0
    */
   public static List<HttpRange> resolveRanges(HttpHeaders requestHeaders, HttpHeaders responseHeaders) {
     Assert.notNull(requestHeaders, "Request headers must not be null");
