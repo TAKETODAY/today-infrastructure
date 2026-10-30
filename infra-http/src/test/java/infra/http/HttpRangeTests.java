@@ -91,6 +91,15 @@ class HttpRangeTests {
     assertThat(HttpRange.resolveRanges(requestHeaders, responseHeaders)).isEmpty();
   }
 
+  @Test
+  void resolveRangesWithMultipleIfRangeValuesIgnoresRange() {
+    HttpHeaders requestHeaders = rangeRequestHeaders();
+    requestHeaders.set(HttpHeaders.IF_RANGE, List.of("\"current\"", "\"other\""));
+    HttpHeaders responseHeaders = HttpHeaders.forWritable();
+    responseHeaders.setETag("\"current\"");
+    assertThat(HttpRange.resolveRanges(requestHeaders, responseHeaders)).isEmpty();
+  }
+
   private static HttpHeaders rangeRequestHeaders() {
     HttpHeaders requestHeaders = HttpHeaders.forWritable();
     requestHeaders.setRange(List.of(HttpRange.createByteRange(0, 1)));
