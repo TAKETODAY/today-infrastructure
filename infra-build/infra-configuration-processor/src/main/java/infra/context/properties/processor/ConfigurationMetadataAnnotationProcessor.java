@@ -329,12 +329,12 @@ public class ConfigurationMetadataAnnotationProcessor extends AbstractProcessor 
     String endpointKey = ItemMetadata.newItemMetadataPrefix("management.endpoint.", endpointId);
     Boolean enabledByDefault = (Boolean) elementValues.get("enableByDefault");
     String type = this.metadataEnv.getTypeUtils().getQualifiedName(element);
-    this.metadataCollector.add(ItemMetadata.newGroup(endpointKey, type, type, null));
-    this.metadataCollector.add(ItemMetadata.newProperty(endpointKey, "enabled", Boolean.class.getName(), type, null,
+    this.metadataCollector.addOrKeepEarliest(ItemMetadata.newGroup(endpointKey, type, type, null));
+    this.metadataCollector.addOrKeepEarliest(ItemMetadata.newProperty(endpointKey, "enabled", Boolean.class.getName(), type, null,
             String.format("Whether to enable the %s endpoint.", endpointId),
             (enabledByDefault != null) ? enabledByDefault : true, null));
     if (hasMainReadOperation(element)) {
-      this.metadataCollector.add(ItemMetadata.newProperty(endpointKey, "cache.time-to-live",
+      this.metadataCollector.addOrKeepEarliest(ItemMetadata.newProperty(endpointKey, "cache.time-to-live",
               Duration.class.getName(), type, null, "Maximum time that a response can be cached.", "0ms", null));
     }
   }
