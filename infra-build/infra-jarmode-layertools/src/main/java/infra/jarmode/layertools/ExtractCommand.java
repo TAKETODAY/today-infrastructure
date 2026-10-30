@@ -25,10 +25,17 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.FileTime;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import org.jspecify.annotations.Nullable;
 
 import infra.util.Assert;
 import infra.util.StreamUtils;
@@ -48,6 +55,8 @@ class ExtractCommand extends Command {
 
   private final Layers layers;
 
+  private final Directories directories = new Directories();
+
   ExtractCommand(Context context) {
     this(context, Layers.get(context));
   }
@@ -66,7 +75,7 @@ class ExtractCommand extends Command {
                                                                  : this.context.getWorkingDir();
       for (String layer : this.layers) {
         if (parameters.isEmpty() || parameters.contains(layer)) {
-          mkDirs(new File(destination, layer));
+          this.directories.create(new File(destination, layer));
         }
       }
       try (ZipInputStream zip = new ZipInputStream(new FileInputStream(this.context.getArchiveFile()))) {
@@ -83,6 +92,7 @@ class ExtractCommand extends Command {
           entry = zip.getNextEntry();
         }
       }
+      this.directories.applyTimeAttributes(getManifestEntry());
     }
     catch (IOException ex) {
       throw new IllegalStateException(ex);
@@ -97,27 +107,72 @@ class ExtractCommand extends Command {
             () -> "Entry '" + entry.getName() + "' would be written to '" + canonicalEntryPath
                     + "'. This is outside the output location of '" + canonicalOutputPath
                     + "'. Verify the contents of your archive.");
-    mkParentDirs(file);
+    this.directories.create(file.getParentFile());
     try (OutputStream out = new FileOutputStream(file)) {
       StreamUtils.copy(zip, out);
     }
+    copyTimeAttributes(entry, file);
+  }
+
+  private static void copyTimeAttributes(ZipEntry entry, File file) {
     try {
       Files.getFileAttributeView(file.toPath(), BasicFileAttributeView.class)
-              .setTimes(entry.getLastModifiedTime(), entry.getLastAccessTime(), entry.getCreationTime());
+              .setTimes(getLastModifiedTime(entry), getLastAccessTime(entry), getCreationTime(entry));
     }
     catch (IOException ex) {
       // File system does not support setting time attributes. Continue.
     }
   }
 
-  private void mkParentDirs(File file) throws IOException {
-    mkDirs(file.getParentFile());
+  private @Nullable ZipEntry getManifestEntry() throws IOException {
+    try (JarFile jarFile = new JarFile(this.context.getArchiveFile())) {
+      return jarFile.getJarEntry(JarFile.MANIFEST_NAME);
+    }
   }
 
-  private void mkDirs(File file) throws IOException {
-    if (!file.exists() && !file.mkdirs()) {
-      throw new IOException("Unable to create directory " + file);
+  private static @Nullable FileTime getCreationTime(ZipEntry entry) {
+    return entry.getCreationTime() != null ? entry.getCreationTime() : entry.getLastModifiedTime();
+  }
+
+  private static @Nullable FileTime getLastAccessTime(ZipEntry entry) {
+    return entry.getLastAccessTime() != null ? entry.getLastAccessTime() : getLastModifiedTime(entry);
+  }
+
+  private static @Nullable FileTime getLastModifiedTime(ZipEntry entry) {
+    return entry.getLastModifiedTime() != null ? entry.getLastModifiedTime() : entry.getCreationTime();
+  }
+
+  /**
+   * Keep track of directories that have been created.
+   */
+  private static final class Directories {
+
+    private final Set<File> created = new LinkedHashSet<>();
+
+    void create(File directory) throws IOException {
+      if (directory.exists()) {
+        return;
+      }
+      List<File> missing = new ArrayList<>();
+      File candidate = directory;
+      while (candidate != null && !candidate.exists()) {
+        missing.add(candidate);
+        candidate = candidate.getParentFile();
+      }
+      if (!directory.mkdirs()) {
+        throw new IOException("Unable to create directory " + directory);
+      }
+      this.created.addAll(missing);
     }
+
+    void applyTimeAttributes(@Nullable ZipEntry entry) {
+      if (entry != null) {
+        for (File directory : this.created) {
+          copyTimeAttributes(entry, directory);
+        }
+      }
+    }
+
   }
 
 }
