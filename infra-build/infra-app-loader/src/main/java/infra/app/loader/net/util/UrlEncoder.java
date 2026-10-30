@@ -56,6 +56,7 @@ public final class UrlEncoder {
 
   /**
    * Encode the given path for use in a URL.
+   *
    * @param path the path to encode
    * @return the encoded path
    */
