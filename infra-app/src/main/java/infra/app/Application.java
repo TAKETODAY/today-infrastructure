@@ -375,9 +375,7 @@ public class Application {
       throw handleRunFailure(context, e, listeners);
     }
     try {
-      if (context.isRunning()) {
-        listeners.ready(context, startup.ready());
-      }
+      listeners.ready(context, startup.ready());
       return context;
     }
     catch (Throwable ex) {
@@ -1400,7 +1398,10 @@ public class Application {
     return getExitCodeFromExitCodeGeneratorException(exception.getCause());
   }
 
-  private void callRunners(ApplicationContext context, ApplicationArguments args) {
+  private void callRunners(ConfigurableApplicationContext context, ApplicationArguments args) {
+    if (!context.isRunning()) {
+      return;
+    }
     HashSet<ApplicationRunner> called = new HashSet<>(16);
     for (ApplicationRunner runner : context.getBeanProvider(ApplicationRunner.class)) {
       if (called.add(runner)) {
