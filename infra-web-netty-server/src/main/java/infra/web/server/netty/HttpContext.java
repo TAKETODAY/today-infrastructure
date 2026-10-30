@@ -37,7 +37,6 @@ import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.LastHttpContent;
 
 import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
@@ -70,7 +69,7 @@ final class HttpContext extends NettyHttpContext implements Runnable {
           ApplicationContext context, DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler) {
     super(context, channel, request, protocol, config, dispatcherHandler);
     this.httpTrafficHandler = httpTrafficHandler;
-    long contentLength = getContentLength(request);
+    long contentLength = this.request.contentLength();
     this.requestBody = (contentLength == 0L || (contentLength == -1L && (request.method() == GET || request.method() == HEAD))) ? null : createRequestBody();
     if (request instanceof HttpContent content) {
       onDataReceived(content);
@@ -140,7 +139,7 @@ final class HttpContext extends NettyHttpContext implements Runnable {
     HttpContextHolder.set(this);
 
     try {
-      if (HttpUtil.is100ContinueExpected(request)) {
+      if (request.is100ContinueExpected()) {
         HttpResponse accept = acceptMessage();
         if (accept == null) {
           // the expectation failed so we refuse the request.
@@ -159,8 +158,9 @@ final class HttpContext extends NettyHttpContext implements Runnable {
         return;
       }
 
-      if (request.decoderResult().cause() != null) {
-        processException(request.decoderResult().cause());
+      Throwable decoderFailure = request.decoderFailure();
+      if (decoderFailure != null) {
+        processException(decoderFailure);
       }
       else {
         dispatcherHandler.handleRequest(this); // handling HTTP request

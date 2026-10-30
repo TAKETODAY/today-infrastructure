@@ -59,19 +59,14 @@ import infra.web.multipart.MultipartRequest;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
-import io.netty.handler.codec.http.DefaultHttpContent;
-import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.CookieHeaderNames;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
@@ -163,7 +158,9 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   public final HttpHeaders nettyResponseHeaders;
   // UNSAFE fields END
 
-  protected final HttpRequest request;
+  protected final NettyRequest request;
+
+  private final NettyResponse response;
 
   private final long requestTimeMillis = System.currentTimeMillis();
 
@@ -190,8 +187,9 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     super(context, dispatcherHandler);
     this.protocol = protocol;
     this.config = config;
-    this.request = request;
     this.channel = channel;
+    this.request = NettyRequest.of(request);
+    this.response = NettyResponse.of(channel, protocol);
     this.nettyResponseHeaders = config.httpHeadersFactory.newHeaders();
   }
 
@@ -534,7 +532,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   private boolean isKeepAlive() {
     Boolean keepAlive = this.keepAlive;
     if (keepAlive == null) {
-      keepAlive = HttpUtil.isKeepAlive(request);
+      keepAlive = request.isKeepAlive();
       this.keepAlive = keepAlive;
     }
     return keepAlive;
@@ -583,10 +581,10 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     ByteBuf responseBody = this.responseBody;
     if (responseBody != null) {
       this.responseBody = null;
-      channel.writeAndFlush(protocol.isHttp2() ? new DefaultHttpContent(responseBody) : responseBody);
+      response.writeBody(responseBody);
     }
     else if ((fileToSend = this.fileToSend) != null) {
-      channel.writeAndFlush(fileToSend);
+      response.writeFile(fileToSend);
     }
   }
 
@@ -603,13 +601,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
     flush();
 
-    if (isKeepAlive()) {
-      channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-    }
-    else {
-      channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
-              .addListener(ChannelFutureListener.CLOSE);
-    }
+    response.end(isKeepAlive());
   }
 
   /**
@@ -674,7 +666,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
         }
       }
 
-      channel.write(new DefaultHttpResponse(version(), status, headers));
+      response.writeHead(version(), status, headers);
       onCommitted();
     }
   }

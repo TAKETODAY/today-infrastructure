@@ -97,7 +97,10 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     if (nettyContext == null) {
       throw new IllegalStateException("not running in netty");
     }
-    HttpRequest request = nettyContext.request;
+    HttpRequest request = nettyContext.request.unwrap();
+    if (request == null) {
+      throw new IllegalStateException("WebSocket upgrade requires an HTTP/1.x request");
+    }
     var handshaker = createHandshakeFactory(request, selectedExtensions).newHandshaker(request);
     Channel channel = nettyContext.channel;
     if (handshaker == null) {
