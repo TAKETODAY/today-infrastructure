@@ -23,12 +23,14 @@ import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,6 +48,7 @@ import infra.web.DispatcherHandler;
 import infra.web.HttpContext;
 import infra.web.multipart.parsing.DefaultMultipartParser;
 import infra.web.server.Http2;
+import infra.web.server.HttpRequestExecutor;
 import infra.web.server.SimpleHttpRequestExecutor;
 import infra.web.server.WebServer;
 
@@ -74,6 +77,9 @@ public class Http2ServerBenchmark {
 
   private static final int CONCURRENCY = 8;
 
+  @Param({ "platform", "virtual" })
+  public String executorType;
+
   private WebServer server;
 
   private ExecutorService executor;
@@ -82,7 +88,15 @@ public class Http2ServerBenchmark {
 
   @Setup(Level.Trial)
   public void setup() throws Exception {
-    executor = Executors.newFixedThreadPool(4);
+    HttpRequestExecutor requestExecutor;
+    if ("virtual".equals(executorType)) {
+      requestExecutor = newVirtualThreadExecutor();
+    }
+    else {
+      executor = Executors.newFixedThreadPool(4);
+      requestExecutor = new SimpleHttpRequestExecutor(executor);
+    }
+
     ApplicationContext applicationContext = new GenericApplicationContext();
     DispatcherHandler dispatcher = new BenchmarkDispatcher(applicationContext);
 
@@ -93,7 +107,7 @@ public class Http2ServerBenchmark {
             .build();
 
     HttpTrafficHandler trafficHandler = new HttpTrafficHandler(requestConfig, applicationContext,
-            dispatcher, new SimpleHttpRequestExecutor(executor));
+            dispatcher, requestExecutor);
 
     Http2 http2 = new Http2();
     http2.setEnabled(true);
@@ -131,6 +145,7 @@ public class Http2ServerBenchmark {
 
   public static void main(String[] args) throws Exception {
     Http2ServerBenchmark benchmark = new Http2ServerBenchmark();
+    benchmark.executorType = args.length > 0 ? args[0] : "platform";
     benchmark.setup();
     try {
       for (int i = 0; i < WARMUP_REQUESTS; i++) {
@@ -174,6 +189,23 @@ public class Http2ServerBenchmark {
     }
     finally {
       benchmark.tearDown();
+    }
+  }
+
+  private static HttpRequestExecutor newVirtualThreadExecutor() {
+    try {
+      Method startVirtualThread = Thread.class.getMethod("startVirtualThread", Runnable.class);
+      return (context, command) -> {
+        try {
+          startVirtualThread.invoke(null, command);
+        }
+        catch (ReflectiveOperationException ex) {
+          throw new IllegalStateException("Failed to start a virtual thread", ex);
+        }
+      };
+    }
+    catch (NoSuchMethodException ex) {
+      throw new IllegalStateException("Virtual threads are unavailable", ex);
     }
   }
 
