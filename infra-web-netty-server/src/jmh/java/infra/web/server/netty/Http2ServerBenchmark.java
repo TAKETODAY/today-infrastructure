@@ -30,7 +30,6 @@ import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.TearDown;
 import org.openjdk.jmh.annotations.Warmup;
 
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -193,20 +192,7 @@ public class Http2ServerBenchmark {
   }
 
   private static HttpRequestExecutor newVirtualThreadExecutor() {
-    try {
-      Method startVirtualThread = Thread.class.getMethod("startVirtualThread", Runnable.class);
-      return (context, command) -> {
-        try {
-          startVirtualThread.invoke(null, command);
-        }
-        catch (ReflectiveOperationException ex) {
-          throw new IllegalStateException("Failed to start a virtual thread", ex);
-        }
-      };
-    }
-    catch (NoSuchMethodException ex) {
-      throw new IllegalStateException("Virtual threads are unavailable", ex);
-    }
+    return (context, command) -> Thread.startVirtualThread(command);
   }
 
   private static double percentileMillis(List<Long> sortedNanos, int percentile) {
