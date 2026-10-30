@@ -34,6 +34,7 @@ import infra.http.MediaType;
 import infra.web.DispatcherHandler;
 import infra.web.HttpContext;
 import infra.web.server.Http2;
+import infra.web.server.HttpRequestExecutor;
 import infra.web.server.SimpleHttpRequestExecutor;
 import infra.web.server.Ssl;
 import infra.web.server.WebServer;
@@ -237,6 +238,19 @@ class Http2ServerTests {
   }
 
   @Test
+  void virtualThreadExecutorServesRequests() throws Exception {
+    startWithVirtualThreads();
+
+    Http2TestClient.Response getResponse = client.get("/hello");
+    assertThat(getResponse.status()).isEqualTo(200);
+    assertThat(getResponse.bodyAsString()).isEqualTo("hello");
+
+    Http2TestClient.Response postResponse = client.post("/echo", "virtual".getBytes(StandardCharsets.UTF_8));
+    assertThat(postResponse.status()).isEqualTo(200);
+    assertThat(postResponse.bodyAsString()).isEqualTo("virtual");
+  }
+
+  @Test
   void secureGetNegotiatedWithAlpn() throws Exception {
     start(true);
 
@@ -251,10 +265,26 @@ class Http2ServerTests {
     client = secure ? Http2TestClient.secure(port) : Http2TestClient.cleartext(port);
   }
 
+  private void startWithVirtualThreads() throws Exception {
+    int port = startServer(false, true);
+    client = Http2TestClient.cleartext(port);
+  }
+
   private int startServer(boolean secure) throws InterruptedException {
+    return startServer(secure, false);
+  }
+
+  private int startServer(boolean secure, boolean virtualThreads) throws InterruptedException {
     ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.PARANOID);
 
-    executor = Executors.newFixedThreadPool(4);
+    HttpRequestExecutor requestExecutor;
+    if (virtualThreads) {
+      requestExecutor = virtualThreadExecutor();
+    }
+    else {
+      executor = Executors.newFixedThreadPool(4);
+      requestExecutor = new SimpleHttpRequestExecutor(executor);
+    }
     ApplicationContext applicationContext = mock(ApplicationContext.class);
     DispatcherHandler dispatcher = new TestDispatcherHandler(applicationContext);
 
@@ -264,7 +294,7 @@ class Http2ServerTests {
             .build();
 
     HttpTrafficHandler trafficHandler = new HttpTrafficHandler(requestConfig, applicationContext,
-            dispatcher, new SimpleHttpRequestExecutor(executor));
+            dispatcher, requestExecutor);
 
     NettyWebServerFactory factory = new NettyWebServerFactory();
     factory.setPort(0);
@@ -277,6 +307,23 @@ class Http2ServerTests {
     server = factory.createWebServer();
     server.start();
     return server.getPort();
+  }
+
+  private static HttpRequestExecutor virtualThreadExecutor() {
+    try {
+      java.lang.reflect.Method startVirtualThread = Thread.class.getMethod("startVirtualThread", Runnable.class);
+      return (context, command) -> {
+        try {
+          startVirtualThread.invoke(null, command);
+        }
+        catch (ReflectiveOperationException ex) {
+          throw new IllegalStateException("Failed to start a virtual thread", ex);
+        }
+      };
+    }
+    catch (NoSuchMethodException ex) {
+      throw new IllegalStateException("Virtual threads are unavailable", ex);
+    }
   }
 
   private static Http2 newHttp2() {
