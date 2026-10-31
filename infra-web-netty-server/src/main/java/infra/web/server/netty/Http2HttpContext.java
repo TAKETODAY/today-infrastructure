@@ -29,13 +29,19 @@ import infra.web.DispatcherHandler;
 import infra.web.HttpContextHolder;
 import infra.web.server.RequestBodySizeExceededException;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http2.DefaultHttp2DataFrame;
+import io.netty.handler.codec.http2.DefaultHttp2Headers;
+import io.netty.handler.codec.http2.DefaultHttp2HeadersFrame;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2StreamChannel;
@@ -180,6 +186,43 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
   }
 
   @Override
+  protected void writeResponseHead(HttpResponseStatus status, HttpHeaders headers) {
+    Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(headers, false);
+    http2Headers.status(status.codeAsText());
+    channel.write(new DefaultHttp2HeadersFrame(http2Headers, false));
+  }
+
+  @Override
+  protected void writeResponseBody(ByteBuf body) {
+    channel.writeAndFlush(new DefaultHttp2DataFrame(body, false));
+  }
+
+  @Override
+  protected void writeResponseContinue() {
+    Http2Headers headers = new DefaultHttp2Headers().status(HttpResponseStatus.CONTINUE.codeAsText());
+    channel.writeAndFlush(new DefaultHttp2HeadersFrame(headers, false));
+  }
+
+  @Override
+  protected void writeResponseError(HttpResponseStatus status, boolean close) {
+    Http2Headers headers = new DefaultHttp2Headers()
+            .status(status.codeAsText())
+            .setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
+    ChannelFuture future = channel.writeAndFlush(new DefaultHttp2HeadersFrame(headers, true));
+    if (close) {
+      future.addListener(ChannelFutureListener.CLOSE);
+    }
+  }
+
+  @Override
+  protected void endResponse(boolean keepAlive) {
+    ChannelFuture future = channel.writeAndFlush(new DefaultHttp2DataFrame(Unpooled.EMPTY_BUFFER, true));
+    if (!keepAlive) {
+      future.addListener(ChannelFutureListener.CLOSE);
+    }
+  }
+
+  @Override
   protected void requestCompletedInternal(@Nullable Throwable notHandled) {
     if (!config.autoRead) {
       channel.config().setAutoRead(true);
@@ -195,12 +238,12 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
     try {
       if (is100ContinueExpected()) {
         if (!acceptContinue()) {
-          response.writeError(HttpResponseStatus.EXPECTATION_FAILED, false);
+          writeResponseError(HttpResponseStatus.EXPECTATION_FAILED, false);
           return;
         }
 
         continueExpected = true;
-        response.writeContinue();
+        writeResponseContinue();
         headers.remove(HttpHeaderNames.EXPECT);
       }
       else if (contentLength != -1 && contentLength > config.maxContentLength) {

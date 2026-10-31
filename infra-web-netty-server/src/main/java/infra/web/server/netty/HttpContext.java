@@ -153,12 +153,12 @@ final class HttpContext extends NettyHttpContext implements Runnable {
       if (HttpUtil.is100ContinueExpected(Objects.requireNonNull(request))) {
         if (!acceptContinue()) {
           // the expectation failed so we refuse the request.
-          response.writeError(HttpResponseStatus.EXPECTATION_FAILED, false);
+          writeResponseError(HttpResponseStatus.EXPECTATION_FAILED, false);
           return;
         }
 
         continueExpected = true;
-        response.writeContinue();
+        writeResponseContinue();
         Objects.requireNonNull(request).headers().remove(HttpHeaderNames.EXPECT);
       }
       else if (contentLength != -1 && contentLength > config.maxContentLength) {

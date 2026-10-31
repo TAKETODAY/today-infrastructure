@@ -31,13 +31,19 @@ import infra.web.server.HttpRequestExecutor;
 import infra.web.socket.CloseStatus;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.handler.codec.http2.DefaultHttp2Headers;
+import io.netty.handler.codec.http2.DefaultHttp2HeadersFrame;
 import io.netty.handler.codec.http2.Http2DataFrame;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2HeadersFrame;
@@ -47,6 +53,7 @@ import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
 
 import static infra.util.FeatureDetector.isPresent;
+import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
 import static infra.web.socket.handler.ExceptionWebSocketHandler.tryCloseWithError;
 
 /**
@@ -190,8 +197,21 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
 
   void handleException(Channel channel, Throwable cause) {
     var statusCode = HttpStatusProvider.getStatusCode(cause);
-    NettyResponse.of(channel, protocol(channel))
-            .writeError(HttpResponseStatus.valueOf(statusCode.first.value()), true);
+    HttpResponseStatus status = HttpResponseStatus.valueOf(statusCode.first.value());
+    if (protocol(channel).isHttp2()) {
+      Http2Headers headers = new DefaultHttp2Headers()
+              .status(status.codeAsText())
+              .setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
+      channel.writeAndFlush(new DefaultHttp2HeadersFrame(headers, true))
+              .addListener(ChannelFutureListener.CLOSE);
+    }
+    else {
+      DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status,
+              Unpooled.EMPTY_BUFFER, requestConfig.httpHeadersFactory, trailersFactory());
+      response.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
+      channel.writeAndFlush(response)
+              .addListener(ChannelFutureListener.CLOSE);
+    }
   }
 
   //

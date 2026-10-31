@@ -59,9 +59,14 @@ import infra.web.async.WebAsyncManager;
 import infra.web.multipart.MultipartRequest;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -82,6 +87,7 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.internal.PlatformDependent;
 
 import static infra.http.HttpHeaders.HOST;
+import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
 import static infra.http.HttpHeaders.isNotEmpty;
 import static io.netty.util.internal.StringUtil.decodeHexByte;
 
@@ -164,8 +170,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   protected final @Nullable HttpRequest request;
 
-  protected final NettyResponse response;
-
   protected final HttpProtocol protocol;
 
   private final long requestTimeMillis = System.currentTimeMillis();
@@ -193,7 +197,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     this.config = config;
     this.channel = channel;
     this.request = request;
-    this.response = NettyResponse.of(channel, protocol);
     this.nettyResponseHeaders = config.httpHeadersFactory.newHeaders();
   }
 
@@ -608,10 +611,10 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     ByteBuf responseBody = this.responseBody;
     if (responseBody != null) {
       this.responseBody = null;
-      response.writeBody(responseBody);
+      writeResponseBody(responseBody);
     }
     else if ((fileToSend = this.fileToSend) != null) {
-      response.writeFile(fileToSend);
+      writeResponseFile(fileToSend);
     }
   }
 
@@ -628,7 +631,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
     flush();
 
-    response.end(isKeepAlive());
+    endResponse(isKeepAlive());
   }
 
   /**
@@ -693,8 +696,63 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
         }
       }
 
-      response.writeHead(version(), status, headers);
+      writeResponseHead(status, headers);
       onCommitted();
+    }
+  }
+
+  /**
+   * Write the response head using the transport specific representation.
+   */
+  protected void writeResponseHead(HttpResponseStatus status, HttpHeaders headers) {
+    channel.write(new DefaultHttpResponse(version(), status, headers));
+  }
+
+  /**
+   * Write and flush a response body chunk.
+   */
+  protected void writeResponseBody(ByteBuf body) {
+    channel.writeAndFlush(body);
+  }
+
+  /**
+   * Write and flush a file or chunked input.
+   */
+  protected void writeResponseFile(Object file) {
+    channel.writeAndFlush(file);
+  }
+
+  /**
+   * Write an informational {@code 100 Continue} response without ending the exchange.
+   */
+  protected void writeResponseContinue() {
+    channel.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE,
+            Unpooled.EMPTY_BUFFER, config.httpHeadersFactory, trailersFactory()));
+  }
+
+  /**
+   * Write an error response, optionally closing the connection or stream.
+   */
+  protected void writeResponseError(HttpResponseStatus status, boolean close) {
+    DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status,
+            Unpooled.EMPTY_BUFFER, config.httpHeadersFactory, trailersFactory());
+    response.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
+    ChannelFuture future = channel.writeAndFlush(response);
+    if (close) {
+      future.addListener(ChannelFutureListener.CLOSE);
+    }
+  }
+
+  /**
+   * Complete the response, closing the connection when it is not kept alive.
+   */
+  protected void endResponse(boolean keepAlive) {
+    if (keepAlive) {
+      channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+    }
+    else {
+      channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
+              .addListener(ChannelFutureListener.CLOSE);
     }
   }
 
