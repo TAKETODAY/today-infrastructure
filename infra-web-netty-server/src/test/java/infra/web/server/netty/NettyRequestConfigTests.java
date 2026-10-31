@@ -29,8 +29,6 @@ import infra.web.multipart.MultipartParser;
 import infra.web.multipart.parsing.DefaultMultipartParser;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
-import io.netty.handler.codec.http.HttpHeadersFactory;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 
@@ -149,24 +147,6 @@ class NettyRequestConfigTests {
   }
 
   @Test
-  void shouldSetHeadersFactory() {
-    // given
-    SendErrorHandler sendErrorHandler = new NettyRequestConfigTests.SendErrorHandler0();
-    MultipartParser multipartParser = mock(MultipartParser.class);
-    HttpHeadersFactory headersFactory = mock(HttpHeadersFactory.class);
-
-    // when
-    NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
-            .sendErrorHandler(sendErrorHandler)
-            .multipartParser(multipartParser)
-            .headersFactory(headersFactory)
-            .build();
-
-    // then
-    assertThat(config.httpHeadersFactory).isEqualTo(headersFactory);
-  }
-
-  @Test
   void shouldSetSecureFlag() {
     // given
     SendErrorHandler sendErrorHandler = new NettyRequestConfigTests.SendErrorHandler0();
@@ -198,7 +178,6 @@ class NettyRequestConfigTests {
     assertThat(config.cookieEncoder).isEqualTo(ServerCookieEncoder.STRICT);
     assertThat(config.cookieDecoder).isEqualTo(ServerCookieDecoder.STRICT);
     assertThat(config.responseBodyInitialCapacity).isEqualTo(128);
-    assertThat(config.httpHeadersFactory).isNotNull();
     assertThat(config.postRequestDecoderCharset).isEqualTo(Constant.DEFAULT_CHARSET);
     assertThat(config.writerCharset).isEqualTo(Constant.DEFAULT_CHARSET);
     assertThat(config.secure).isFalse();
@@ -301,24 +280,6 @@ class NettyRequestConfigTests {
     // then
     assertThat(config.cookieEncoder).isEqualTo(ServerCookieEncoder.STRICT);
     assertThat(config.cookieDecoder).isEqualTo(ServerCookieDecoder.STRICT);
-  }
-
-  @Test
-  void shouldUseDefaultHeadersFactoryWhenNullProvided() {
-    // given
-    SendErrorHandler sendErrorHandler = new NettyRequestConfigTests.SendErrorHandler0();
-    MultipartParser multipartParser = mock(MultipartParser.class);
-
-    // when
-    NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
-            .sendErrorHandler(sendErrorHandler)
-            .multipartParser(multipartParser)
-            .headersFactory(null)
-            .build();
-
-    // then
-    assertThat(config.httpHeadersFactory).isNotNull();
-    assertThat(config.httpHeadersFactory).isEqualTo(DefaultHttpHeadersFactory.headersFactory());
   }
 
   static class SendErrorHandler0 implements SendErrorHandler {

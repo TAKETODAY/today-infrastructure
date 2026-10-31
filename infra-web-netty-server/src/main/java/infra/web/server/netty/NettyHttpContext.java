@@ -29,9 +29,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
-import java.util.Objects;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -66,6 +66,7 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -87,7 +88,6 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.internal.PlatformDependent;
 
 import static infra.http.HttpHeaders.HOST;
-import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
 import static infra.http.HttpHeaders.isNotEmpty;
 import static io.netty.util.internal.StringUtil.decodeHexByte;
 
@@ -197,7 +197,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     this.config = config;
     this.channel = channel;
     this.request = request;
-    this.nettyResponseHeaders = config.httpHeadersFactory.newHeaders();
+    this.nettyResponseHeaders = DefaultHttpHeadersFactory.headersFactory().newHeaders();
   }
 
   @Override
@@ -727,7 +727,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    */
   protected void writeResponseContinue() {
     channel.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE,
-            Unpooled.EMPTY_BUFFER, config.httpHeadersFactory, trailersFactory()));
+            Unpooled.EMPTY_BUFFER));
   }
 
   /**
@@ -735,7 +735,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    */
   protected void writeResponseError(HttpResponseStatus status, boolean close) {
     DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status,
-            Unpooled.EMPTY_BUFFER, config.httpHeadersFactory, trailersFactory());
+            Unpooled.EMPTY_BUFFER);
     response.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
     ChannelFuture future = channel.writeAndFlush(response);
     if (close) {

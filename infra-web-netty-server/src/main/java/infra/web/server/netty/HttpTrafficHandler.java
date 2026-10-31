@@ -53,7 +53,6 @@ import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
 
 import static infra.util.FeatureDetector.isPresent;
-import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
 import static infra.web.socket.handler.ExceptionWebSocketHandler.tryCloseWithError;
 
 /**
@@ -207,7 +206,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
     }
     else {
       DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status,
-              Unpooled.EMPTY_BUFFER, requestConfig.httpHeadersFactory, trailersFactory());
+              Unpooled.EMPTY_BUFFER);
       response.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
       channel.writeAndFlush(response)
               .addListener(ChannelFutureListener.CLOSE);

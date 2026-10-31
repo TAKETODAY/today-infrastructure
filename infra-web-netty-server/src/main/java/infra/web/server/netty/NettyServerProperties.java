@@ -139,7 +139,10 @@ public class NettyServerProperties {
   public int maxInitialLineLength = 4096;
 
   /**
-   * Whether header validation should be enabled or not.
+   * Whether header validation should be enabled or not for incoming requests.
+   * <p>
+   * This applies to the HTTP request decoder only, response headers are always
+   * written with the default Netty validation enabled.
    * <p>
    * You usually want header validation enabled (which is the default)
    * in order to prevent request-/response-splitting attacks.
