@@ -17,6 +17,7 @@
 package infra.web.server.netty;
 
 import java.net.URI;
+import java.time.Duration;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -37,7 +38,9 @@ final class Http1BenchmarkClient {
 
   Http1BenchmarkClient(HttpClient client, int port) {
     this.client = client;
-    this.request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/bench")).build();
+    this.request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/bench"))
+            .timeout(Duration.ofSeconds(5))
+            .build();
   }
 
   int get() throws Exception {
