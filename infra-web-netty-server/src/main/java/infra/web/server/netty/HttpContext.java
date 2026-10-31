@@ -21,6 +21,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.ClosedChannelException;
+import java.util.Objects;
 
 import infra.context.ApplicationContext;
 import infra.util.concurrent.Awaiter;
@@ -28,12 +29,12 @@ import infra.web.DispatcherHandler;
 import infra.web.HttpContextHolder;
 import infra.web.server.RequestBodySizeExceededException;
 import io.netty.channel.Channel;
-import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.LastHttpContent;
 
 import static io.netty.handler.codec.http.HttpMethod.GET;
@@ -62,16 +63,11 @@ final class HttpContext extends NettyHttpContext implements Runnable {
 
   public HttpContext(Channel channel, HttpRequest request, HttpProtocol protocol, NettyRequestConfig config,
           ApplicationContext context, DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler) {
-    this(channel, NettyRequest.of(request), protocol, config, context, dispatcherHandler, httpTrafficHandler);
-  }
-
-  public HttpContext(Channel channel, NettyRequest request, HttpProtocol protocol, NettyRequestConfig config,
-          ApplicationContext context, DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler) {
     super(context, channel, request, protocol, config, dispatcherHandler);
     this.httpTrafficHandler = httpTrafficHandler;
-    long contentLength = this.request.contentLength();
+    long contentLength = getContentLength(request);
     this.requestBody = (contentLength == 0L || (contentLength == -1L && (request.method() == GET || request.method() == HEAD))) ? null : createRequestBody();
-    if (request.unwrap() instanceof HttpContent content) {
+    if (request instanceof HttpContent content) {
       onDataReceived(content);
     }
     this.contentLength = contentLength;
@@ -86,23 +82,16 @@ final class HttpContext extends NettyHttpContext implements Runnable {
     return new ManualReadingBodyInputStream(awaiter, config.dataReceivedQueueCapacity);
   }
 
-  public void onDataReceived(HttpContent httpContent) {
-    onDataReceived(httpContent.content(), httpContent instanceof LastHttpContent);
-  }
-
   /**
-   * Consume a request body chunk. Ownership of {@code data} is transferred to the
-   * request body stream, or released when the chunk is rejected or empty.
-   *
-   * @param data the body bytes
-   * @param last whether this is the final chunk of the request body
+   * Consume an HTTP/1.x request body chunk. Ownership of the chunk is transferred
+   * to this method, which either forwards it to the request body stream or releases it.
    */
-  public void onDataReceived(ByteBuf data, boolean last) {
-    final int chunkSize = data.readableBytes();
+  public void onDataReceived(HttpContent httpContent) {
+    final int chunkSize = httpContent.content().readableBytes();
     final long received = receivedBytes + chunkSize;
 
     if (received > config.maxContentLength && !continueExpected) {
-      data.release();
+      httpContent.release();
       if (requestBody != null) {
         requestBody.onError(new IOException(new RequestBodySizeExceededException(config.maxContentLength)));
       }
@@ -111,19 +100,20 @@ final class HttpContext extends NettyHttpContext implements Runnable {
 
     receivedBytes = received;
 
+    boolean last = httpContent instanceof LastHttpContent;
     if (requestBody != null) {
       if (chunkSize > 0) {
-        requestBody.onDataReceived(data);
+        requestBody.onDataReceived(httpContent.content());
       }
       else {
-        data.release();
+        httpContent.release();
       }
       if (last) {
         requestBody.onComplete();
       }
     }
     else {
-      data.release();
+      httpContent.release();
     }
   }
 
@@ -160,7 +150,7 @@ final class HttpContext extends NettyHttpContext implements Runnable {
     HttpContextHolder.set(this);
 
     try {
-      if (request.is100ContinueExpected()) {
+      if (HttpUtil.is100ContinueExpected(Objects.requireNonNull(request))) {
         if (!acceptContinue()) {
           // the expectation failed so we refuse the request.
           response.writeError(HttpResponseStatus.EXPECTATION_FAILED, false);
@@ -169,14 +159,14 @@ final class HttpContext extends NettyHttpContext implements Runnable {
 
         continueExpected = true;
         response.writeContinue();
-        request.headers().remove(HttpHeaderNames.EXPECT);
+        Objects.requireNonNull(request).headers().remove(HttpHeaderNames.EXPECT);
       }
       else if (contentLength != -1 && contentLength > config.maxContentLength) {
         processException(new RequestBodySizeExceededException(config.maxContentLength));
         return;
       }
 
-      Throwable decoderFailure = request.decoderFailure();
+      Throwable decoderFailure = Objects.requireNonNull(request).decoderResult().cause();
       if (decoderFailure != null) {
         processException(decoderFailure);
       }

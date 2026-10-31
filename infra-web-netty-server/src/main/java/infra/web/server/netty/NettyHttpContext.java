@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
@@ -61,12 +62,15 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.CookieHeaderNames;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
@@ -158,7 +162,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   public final HttpHeaders nettyResponseHeaders;
   // UNSAFE fields END
 
-  protected final NettyRequest request;
+  protected final @Nullable HttpRequest request;
 
   protected final NettyResponse response;
 
@@ -182,12 +186,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   private @Nullable ServerHttpResponse outputMessage;
 
-  protected NettyHttpContext(ApplicationContext context, Channel channel, HttpRequest request,
-          HttpProtocol protocol, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
-    this(context, channel, NettyRequest.of(request), protocol, config, dispatcherHandler);
-  }
-
-  protected NettyHttpContext(ApplicationContext context, Channel channel, NettyRequest request,
+  protected NettyHttpContext(ApplicationContext context, Channel channel, @Nullable HttpRequest request,
           HttpProtocol protocol, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
     super(context, dispatcherHandler);
     this.protocol = protocol;
@@ -302,9 +301,32 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     return channel.localAddress();
   }
 
-  @Override
+  /**
+   * Return the request target, including the query string.
+   * <p>Subclasses backed by native HTTP/2 headers override this method.
+   */
+  protected String requestUri() {
+    return Objects.requireNonNull(request).uri();
+  }
+
+  /**
+   * Return the request method name.
+   * <p>Subclasses backed by native HTTP/2 headers override this method.
+   */
+  protected String requestMethod() {
+    return Objects.requireNonNull(request).method().name();
+  }
+
+  /**
+   * Return the mutable request headers.
+   * <p>Subclasses backed by native HTTP/2 headers override this method.
+   */
+  protected HttpHeaders nettyRequestHeaders() {
+    return Objects.requireNonNull(request).headers();
+  }
+
   protected final String readRequestURI() {
-    String uri = request.uri();
+    String uri = requestUri();
     int index = queryStringIndex(uri);
     if (index == -1) {
       return uri;
@@ -316,7 +338,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   @Override
   public final @Nullable String readQueryString() {
-    String uri = request.uri();
+    String uri = requestUri();
     int index = queryStringIndex(uri);
     if (index == -1) {
       return null;
@@ -337,7 +359,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   @Override
   public final String readMethod() {
-    return request.method().name();
+    return requestMethod();
   }
 
   @Override
@@ -347,17 +369,17 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   @Override
   protected infra.http.HttpHeaders createRequestHeaders() {
-    return new Netty4HttpHeaders(request.headers());
+    return new Netty4HttpHeaders(nettyRequestHeaders());
   }
 
   @Override
   public boolean containsHeader(String name) {
-    return request.headers().contains(name);
+    return nettyRequestHeaders().contains(name);
   }
 
   @Override
   public boolean containsHeaderValue(String headerName, String value) {
-    return request.headers().containsValue(headerName, value, true);
+    return nettyRequestHeaders().containsValue(headerName, value, true);
   }
 
   /**
@@ -372,7 +394,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    */
   @Override
   public @Nullable String getHeader(String name) {
-    return request.headers().get(name);
+    return nettyRequestHeaders().get(name);
   }
 
   /**
@@ -387,7 +409,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    */
   @Override
   public List<String> getHeaders(String name) {
-    return request.headers().getAll(name);
+    return nettyRequestHeaders().getAll(name);
   }
 
   /**
@@ -398,12 +420,12 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    */
   @Override
   public Collection<String> getHeaderNames() {
-    return request.headers().names();
+    return nettyRequestHeaders().names();
   }
 
   @Override
   public @Nullable String getContentTypeAsString() {
-    return request.headers().get(DefaultHttpHeaders.CONTENT_TYPE);
+    return nettyRequestHeaders().get(DefaultHttpHeaders.CONTENT_TYPE);
   }
 
   @Override
@@ -468,7 +490,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   @Override
   public HttpCookie[] readCookies() {
-    List<String> allCookie = request.headers().getAll(DefaultHttpHeaders.COOKIE);
+    List<String> allCookie = nettyRequestHeaders().getAll(DefaultHttpHeaders.COOKIE);
     if (CollectionUtils.isEmpty(allCookie)) {
       return EMPTY_COOKIES;
     }
@@ -534,10 +556,10 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     commit();
   }
 
-  private boolean isKeepAlive() {
+  protected boolean isKeepAlive() {
     Boolean keepAlive = this.keepAlive;
     if (keepAlive == null) {
-      keepAlive = request.isKeepAlive();
+      keepAlive = HttpUtil.isKeepAlive(Objects.requireNonNull(request));
       this.keepAlive = keepAlive;
     }
     return keepAlive;
@@ -787,6 +809,33 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   @Override
   protected AsyncWebRequest createAsyncWebRequest() {
     return new NettyAsyncWebRequest(this);
+  }
+
+  /**
+   * Consume an HTTP/1.x request body chunk.
+   */
+  public void onDataReceived(HttpContent content) {
+    onDataReceived(content.content(), content instanceof LastHttpContent);
+  }
+
+  /**
+   * Consume a native body chunk. The base implementation only releases the
+   * buffer; protocol specific contexts override it.
+   */
+  public void onDataReceived(ByteBuf data, boolean last) {
+    data.release();
+  }
+
+  /**
+   * Signal a stream-level failure to the request body reader.
+   */
+  public void onError(IOException error) {
+  }
+
+  /**
+   * Release resources when the underlying channel or stream becomes inactive.
+   */
+  public void channelInactive() {
   }
 
   @Override

@@ -42,7 +42,6 @@ import io.netty.handler.codec.http2.Http2DataFrame;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2HeadersFrame;
 import io.netty.handler.codec.http2.Http2ResetFrame;
-import io.netty.handler.codec.http2.Http2StreamChannel;
 import io.netty.handler.codec.http2.Http2StreamFrame;
 import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
@@ -62,7 +61,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
 
   private static final Logger log = LoggerFactory.getLogger(HttpTrafficHandler.class);
 
-  private static final AttributeKey<@Nullable HttpContext> KEY = AttributeKey.valueOf(HttpContext.class, "KEY");
+  private static final AttributeKey<@Nullable NettyHttpContext> KEY = AttributeKey.valueOf(NettyHttpContext.class, "KEY");
 
   private static final boolean webSocketPresent = isPresent(Feature.WEBSOCKET);
 
@@ -101,7 +100,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
       executor.execute(httpContext, httpContext);
     }
     else if (msg instanceof HttpContent content) {
-      HttpContext httpContext = ctx.channel().attr(KEY).get();
+      NettyHttpContext httpContext = ctx.channel().attr(KEY).get();
       if (httpContext != null) {
         httpContext.onDataReceived(content);
       }
@@ -125,7 +124,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
       handleHttp2Headers(ctx, headersFrame);
     }
     else if (frame instanceof Http2DataFrame dataFrame) {
-      HttpContext httpContext = ctx.channel().attr(KEY).get();
+      NettyHttpContext httpContext = ctx.channel().attr(KEY).get();
       if (httpContext != null) {
         httpContext.onDataReceived(dataFrame.content(), dataFrame.isEndStream());
       }
@@ -134,7 +133,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
       }
     }
     else if (frame instanceof Http2ResetFrame resetFrame) {
-      HttpContext httpContext = ctx.channel().attr(KEY).getAndSet(null);
+      NettyHttpContext httpContext = ctx.channel().attr(KEY).getAndSet(null);
       if (httpContext != null) {
         httpContext.onError(new IOException("HTTP/2 stream reset: " + resetFrame.errorCode()));
       }
@@ -148,7 +147,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
     Http2Headers headers = frame.headers();
     if (headers.method() == null) {
       // trailing headers of an already started request
-      HttpContext httpContext = ctx.channel().attr(KEY).get();
+      NettyHttpContext httpContext = ctx.channel().attr(KEY).get();
       if (httpContext != null) {
         httpContext.onDataReceived(Unpooled.EMPTY_BUFFER, true);
       }
@@ -156,8 +155,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
     }
 
     Channel channel = ctx.channel();
-    int streamId = channel instanceof Http2StreamChannel streamChannel ? streamChannel.stream().id() : -1;
-    HttpContext httpContext = new HttpContext(channel, new Http2NettyRequest(headers, streamId), protocol(channel),
+    Http2HttpContext httpContext = new Http2HttpContext(channel, headers, protocol(channel),
             requestConfig, context, dispatcherHandler, this);
     channel.attr(KEY).set(httpContext);
     executor.execute(httpContext, httpContext);
@@ -204,7 +202,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
       Ws.channelInactive(ctx);
     }
 
-    HttpContext context = ctx.channel().attr(KEY).getAndSet(null);
+    NettyHttpContext context = ctx.channel().attr(KEY).getAndSet(null);
     if (context != null) {
       context.channelInactive();
     }
