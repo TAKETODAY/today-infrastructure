@@ -61,7 +61,6 @@ import infra.web.server.RequestBodySizeExceededException;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
@@ -553,14 +552,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   }
 
   /**
-   * Determine whether the connection or stream should be kept open after the
-   * current exchange completes.
-   *
-   * @return {@code true} if the response may reuse the underlying connection
-   */
-  protected abstract boolean isKeepAlive();
-
-  /**
    * HTTP response body
    *
    * @return HTTP response body
@@ -623,7 +614,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
     flush();
 
-    endResponse(isKeepAlive());
+    endResponse();
   }
 
   /**
@@ -717,14 +708,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   /**
    * Complete the response, closing the connection when it is not kept alive.
    */
-  protected void endResponse(boolean keepAlive) {
-    if (keepAlive) {
-      channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-    }
-    else {
-      channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
-              .addListener(ChannelFutureListener.CLOSE);
-    }
+  protected void endResponse() {
   }
 
   @Override

@@ -28,6 +28,7 @@ import infra.web.DispatcherHandler;
 import infra.web.server.RequestBodySizeExceededException;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -153,11 +154,6 @@ final class HttpContext extends NettyHttpContext implements Runnable {
   }
 
   @Override
-  protected boolean isKeepAlive() {
-    return HttpUtil.isKeepAlive(request);
-  }
-
-  @Override
   protected boolean is100ContinueExpected() {
     return HttpUtil.is100ContinueExpected(request);
   }
@@ -193,6 +189,20 @@ final class HttpContext extends NettyHttpContext implements Runnable {
   @Override
   protected void onChannelInactive() {
     cleanup(new ClosedChannelException());
+  }
+
+  /**
+   * Complete the response, closing the connection when it is not kept alive.
+   */
+  @Override
+  protected void endResponse() {
+    if (HttpUtil.isKeepAlive(request)) {
+      channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+    }
+    else {
+      channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
+              .addListener(ChannelFutureListener.CLOSE);
+    }
   }
 
   /**

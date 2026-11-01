@@ -861,6 +861,19 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     fireCallbacks(Lifecycle.COMPLETED);
   }
 
+  /**
+   * Invoked from {@link #requestCompleted(Throwable)} after request-scoped
+   * resources have been released, and immediately before the
+   * {@link HttpContext.Lifecycle#COMPLETED} callbacks are fired.
+   * <p>Subclasses override this to finish transport-specific work, such as
+   * flushing the response body, completing the underlying exchange, or
+   * releasing native buffers. The base implementation does nothing, since not
+   * every context owns transport resources.
+   *
+   * @param notHandled the exception left unhandled during request processing,
+   * or {@code null} if the request was processed without an error
+   * @see #requestCompleted(Throwable)
+   */
   protected void requestCompletedInternal(@Nullable Throwable notHandled) {
   }
 

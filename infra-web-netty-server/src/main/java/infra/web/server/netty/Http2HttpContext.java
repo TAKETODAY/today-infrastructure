@@ -32,7 +32,6 @@ import infra.web.DispatcherHandler;
 import infra.web.server.RequestBodySizeExceededException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.HeadersUtils;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
@@ -210,11 +209,6 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
   }
 
   @Override
-  protected boolean isKeepAlive() {
-    return true;
-  }
-
-  @Override
   public long getContentLength() {
     return contentLength;
   }
@@ -279,11 +273,8 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
   }
 
   @Override
-  protected void endResponse(boolean keepAlive) {
-    ChannelFuture future = channel.writeAndFlush(new DefaultHttp2DataFrame(Unpooled.EMPTY_BUFFER, true));
-    if (!keepAlive) {
-      future.addListener(ChannelFutureListener.CLOSE);
-    }
+  protected void endResponse() {
+    channel.writeAndFlush(new DefaultHttp2DataFrame(Unpooled.EMPTY_BUFFER, true));
   }
 
   @Override
