@@ -149,7 +149,7 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
   @Override
   protected infra.http.HttpHeaders createRequestHeaders() {
-    return new NettyHttp2Headers(http2Headers);
+    return new NettyHeaders(http2Headers, true);
   }
 
   /**
