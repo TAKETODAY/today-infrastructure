@@ -23,13 +23,11 @@ import java.util.Collection;
 import java.util.List;
 
 import infra.context.ApplicationContext;
-import infra.http.support.Netty4HttpHeaders;
 import infra.web.DispatcherHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.HeadersUtils;
-import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
@@ -75,8 +73,6 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
   private final Http2Headers http2Headers;
 
-  private volatile @Nullable HttpHeaders headers;
-
   private final String uri;
 
   Http2HttpContext(Http2StreamChannel channel, Http2Headers http2Headers,
@@ -108,25 +104,6 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
   @Override
   protected String requestUri() {
     return uri;
-  }
-
-  /**
-   * Copy regular headers lazily, only needed when the generic
-   * {@code requestHeaders()} view is requested.
-   */
-  private HttpHeaders createHeaders() {
-    HttpHeaders headers = this.headers;
-    if (headers == null) {
-      headers = new DefaultHttpHeaders(false);
-      for (var entry : http2Headers) {
-        CharSequence name = entry.getKey();
-        if (!Http2Headers.PseudoHeaderName.isPseudoHeader(name)) {
-          headers.add(name, entry.getValue());
-        }
-      }
-      this.headers = headers;
-    }
-    return headers;
   }
 
   @Override
@@ -165,7 +142,7 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
   @Override
   protected infra.http.HttpHeaders createRequestHeaders() {
-    return new Netty4HttpHeaders(createHeaders());
+    return new NettyHttp2Headers(http2Headers);
   }
 
   @Override
