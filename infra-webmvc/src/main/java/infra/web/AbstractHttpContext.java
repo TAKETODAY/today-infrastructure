@@ -1007,6 +1007,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * @return a <code>String</code> containing the name of the MIME type of the
    * request, or null if the type is not known
    */
+  @Override
   public abstract @Nullable String getContentTypeAsString();
 
   /**

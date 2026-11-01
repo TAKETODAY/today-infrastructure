@@ -48,6 +48,7 @@ import io.netty.handler.codec.http2.Http2DataFrame;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2HeadersFrame;
 import io.netty.handler.codec.http2.Http2ResetFrame;
+import io.netty.handler.codec.http2.Http2StreamChannel;
 import io.netty.handler.codec.http2.Http2StreamFrame;
 import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
@@ -160,7 +161,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
       return;
     }
 
-    Channel channel = ctx.channel();
+    Http2StreamChannel channel = (Http2StreamChannel) ctx.channel();
     Http2HttpContext httpContext = new Http2HttpContext(channel, headers, protocol(channel),
             requestConfig, context, dispatcherHandler, this);
     channel.attr(KEY).set(httpContext);

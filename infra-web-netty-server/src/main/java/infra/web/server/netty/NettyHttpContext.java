@@ -428,7 +428,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   @Override
   public @Nullable String getContentTypeAsString() {
-    return nettyRequestHeaders().get(DefaultHttpHeaders.CONTENT_TYPE);
+    return getHeader(DefaultHttpHeaders.CONTENT_TYPE);
   }
 
   @Override
@@ -493,7 +493,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   @Override
   public HttpCookie[] readCookies() {
-    List<String> allCookie = nettyRequestHeaders().getAll(DefaultHttpHeaders.COOKIE);
+    List<String> allCookie = getHeaders(DefaultHttpHeaders.COOKIE);
     if (CollectionUtils.isEmpty(allCookie)) {
       return EMPTY_COOKIES;
     }

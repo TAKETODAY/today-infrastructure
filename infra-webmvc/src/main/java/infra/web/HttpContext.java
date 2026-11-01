@@ -861,6 +861,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return a <code>String</code> containing the name of the MIME type of the
    * request, or null if the type is not known
    */
+  @Override
   @Nullable
   String getContentTypeAsString();
 

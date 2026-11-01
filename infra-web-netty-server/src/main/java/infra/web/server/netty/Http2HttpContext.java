@@ -21,28 +21,29 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.ClosedChannelException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import infra.context.ApplicationContext;
-import infra.util.ExceptionUtils;
+import infra.http.support.Netty4HttpHeaders;
 import infra.util.concurrent.Awaiter;
 import infra.web.DispatcherHandler;
 import infra.web.HttpContextHolder;
 import infra.web.server.RequestBodySizeExceededException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.handler.codec.HeadersUtils;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http2.DefaultHttp2DataFrame;
 import io.netty.handler.codec.http2.DefaultHttp2Headers;
 import io.netty.handler.codec.http2.DefaultHttp2HeadersFrame;
-import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2StreamChannel;
 import io.netty.handler.codec.http2.HttpConversionUtil;
@@ -64,9 +65,24 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
   private static final CharSequence CONTINUE_TOKEN = "100-continue";
 
+  /**
+   * Connection-specific headers are forbidden in HTTP/2 and must not be exposed
+   * as request headers.
+   */
+  @SuppressWarnings("deprecation")
+  private static final CharSequence[] CONNECTION_SPECIFIC_HEADERS = {
+          HttpHeaderNames.CONNECTION,
+          HttpHeaderNames.KEEP_ALIVE,
+          HttpHeaderNames.PROXY_CONNECTION,
+          HttpHeaderNames.TRANSFER_ENCODING,
+          HttpHeaderNames.UPGRADE
+  };
+
   private final HttpTrafficHandler httpTrafficHandler;
 
-  private final HttpHeaders headers;
+  private final Http2Headers http2Headers;
+
+  private volatile @Nullable HttpHeaders headers;
 
   private final String uri;
 
@@ -80,26 +96,28 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
   private volatile boolean continueExpected = false;
 
-  Http2HttpContext(Channel channel, Http2Headers http2Headers, HttpProtocol protocol,
+  Http2HttpContext(Http2StreamChannel channel, Http2Headers http2Headers, HttpProtocol protocol,
           NettyRequestConfig config, ApplicationContext context, DispatcherHandler dispatcherHandler,
           HttpTrafficHandler httpTrafficHandler) {
     super(context, channel, null, protocol, config, dispatcherHandler);
     this.httpTrafficHandler = httpTrafficHandler;
+    this.http2Headers = http2Headers;
 
-    this.headers = new DefaultHttpHeaders(false);
-    try {
-      int streamId = channel instanceof Http2StreamChannel streamChannel ? streamChannel.stream().id() : -1;
-      HttpConversionUtil.addHttp2ToHttpHeaders(streamId, http2Headers, headers, HttpVersion.HTTP_1_1, false, false);
+    // expose :authority as the regular host header
+    CharSequence authority = http2Headers.authority();
+    if (authority != null) {
+      http2Headers.set(HttpHeaderNames.HOST, authority);
     }
-    catch (Http2Exception ex) {
-      throw ExceptionUtils.sneakyThrow(ex);
+    // connection-specific headers are forbidden in HTTP/2
+    for (CharSequence name : CONNECTION_SPECIFIC_HEADERS) {
+      http2Headers.remove(name);
     }
 
     CharSequence path = http2Headers.path();
     this.uri = path != null ? path.toString() : "/";
     CharSequence method = http2Headers.method();
     this.method = method != null ? HttpMethod.valueOf(method.toString()) : HttpMethod.GET;
-    this.contentLength = contentLength(headers);
+    this.contentLength = contentLength(http2Headers);
     this.requestBody = (contentLength == 0L || (contentLength == -1L && (this.method == GET || this.method == HEAD)))
             ? null : createRequestBody();
   }
@@ -125,7 +143,66 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
   @Override
   protected HttpHeaders nettyRequestHeaders() {
+    HttpHeaders headers = this.headers;
+    if (headers == null) {
+      headers = createHeaders();
+      this.headers = headers;
+    }
     return headers;
+  }
+
+  /**
+   * Copy regular headers lazily, only needed when the generic
+   * {@code requestHeaders()} view is requested.
+   */
+  private HttpHeaders createHeaders() {
+    HttpHeaders headers = new DefaultHttpHeaders(false);
+    for (var entry : http2Headers) {
+      CharSequence name = entry.getKey();
+      if (!Http2Headers.PseudoHeaderName.isPseudoHeader(name)) {
+        headers.add(name, entry.getValue());
+      }
+    }
+    return headers;
+  }
+
+  @Override
+  public @Nullable String getHeader(String name) {
+    CharSequence value = http2Headers.get(name);
+    return value != null ? value.toString() : null;
+  }
+
+  @Override
+  public List<String> getHeaders(String name) {
+    List<CharSequence> values = http2Headers.getAll(name);
+    if (values.isEmpty()) {
+      return List.of();
+    }
+    List<String> result = new ArrayList<>(values.size());
+    for (CharSequence value : values) {
+      result.add(value.toString());
+    }
+    return result;
+  }
+
+  @Override
+  public boolean containsHeader(String name) {
+    return http2Headers.contains(name);
+  }
+
+  @Override
+  public boolean containsHeaderValue(String headerName, String value) {
+    return http2Headers.contains(headerName, value, true);
+  }
+
+  @Override
+  public Collection<String> getHeaderNames() {
+    return HeadersUtils.namesAsString(http2Headers);
+  }
+
+  @Override
+  protected infra.http.HttpHeaders createRequestHeaders() {
+    return new Netty4HttpHeaders(nettyRequestHeaders());
   }
 
   @Override
@@ -244,7 +321,7 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
         continueExpected = true;
         writeResponseContinue();
-        headers.remove(HttpHeaderNames.EXPECT);
+        http2Headers.remove(HttpHeaderNames.EXPECT);
       }
       else if (contentLength != -1 && contentLength > config.maxContentLength) {
         processException(new RequestBodySizeExceededException(config.maxContentLength));
@@ -262,7 +339,7 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
   }
 
   private boolean is100ContinueExpected() {
-    return headers.contains(HttpHeaderNames.EXPECT, CONTINUE_TOKEN, true);
+    return http2Headers.contains(HttpHeaderNames.EXPECT, CONTINUE_TOKEN, true);
   }
 
   private boolean acceptContinue() {
@@ -287,7 +364,7 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
     }
   }
 
-  private static long contentLength(HttpHeaders headers) {
+  private static long contentLength(Http2Headers headers) {
     CharSequence value = headers.get(HttpHeaderNames.CONTENT_LENGTH);
     if (value != null) {
       return Long.parseLong(value.toString());
