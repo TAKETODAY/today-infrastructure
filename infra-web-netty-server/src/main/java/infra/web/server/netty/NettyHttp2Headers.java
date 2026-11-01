@@ -25,7 +25,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -35,9 +34,8 @@ import io.netty.handler.codec.http2.Http2Headers;
 
 /**
  * {@link HttpHeaders} adapter for native Netty HTTP/2 headers.
- * <p>Pseudo headers are filtered out of this view. Request metadata such as
- * {@code :method} or {@code :path} is exposed through the context accessors,
- * and {@code :authority} is mirrored as a regular {@code Host} header.
+ * <p>Pseudo headers are removed by {@link Http2HttpContext} once the request
+ * metadata has been extracted, so this view only exposes regular headers.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
@@ -52,44 +50,32 @@ final class NettyHttp2Headers extends HttpHeaders {
 
   @Override
   public int size() {
-    int size = 0;
-    for (CharSequence name : headers.names()) {
-      if (!isPseudoHeader(name)) {
-        size++;
-      }
-    }
-    return size;
+    return headers.names().size();
   }
 
   @Override
   public boolean isEmpty() {
-    return size() == 0;
+    return headers.isEmpty();
   }
 
   @Override
   public boolean contains(String name) {
-    return !isPseudoHeader(name) && headers.contains(name);
+    return headers.contains(name);
   }
 
   @Override
   public boolean contains(String name, String value) {
-    return !isPseudoHeader(name) && headers.contains(name, value, true);
+    return headers.contains(name, value, true);
   }
 
   @Override
   public @Nullable String getFirst(String name) {
-    if (isPseudoHeader(name)) {
-      return null;
-    }
     CharSequence value = headers.get(name);
     return value != null ? value.toString() : null;
   }
 
   @Override
   public @Nullable List<String> get(String name) {
-    if (isPseudoHeader(name)) {
-      return null;
-    }
     List<CharSequence> values = headers.getAll(name);
     if (values.isEmpty()) {
       return null;
@@ -138,9 +124,7 @@ final class NettyHttp2Headers extends HttpHeaders {
   public Set<String> names() {
     Set<String> names = new LinkedHashSet<>();
     for (CharSequence name : headers.names()) {
-      if (!isPseudoHeader(name)) {
-        names.add(name.toString());
-      }
+      names.add(name.toString());
     }
     return names;
   }
@@ -156,7 +140,7 @@ final class NettyHttp2Headers extends HttpHeaders {
 
       @Override
       public int size() {
-        return NettyHttp2Headers.this.size();
+        return headers.names().size();
       }
     };
   }
@@ -164,46 +148,23 @@ final class NettyHttp2Headers extends HttpHeaders {
   @Override
   public void forEach(BiConsumer<? super String, ? super List<String>> action) {
     for (CharSequence name : headers.names()) {
-      if (!isPseudoHeader(name)) {
-        String headerName = name.toString();
-        action.accept(headerName, get(headerName));
-      }
+      String headerName = name.toString();
+      action.accept(headerName, get(headerName));
     }
-  }
-
-  private static boolean isPseudoHeader(CharSequence name) {
-    return Http2Headers.PseudoHeaderName.isPseudoHeader(name);
   }
 
   private final class EntryIterator implements Iterator<Map.Entry<String, List<String>>> {
 
     private final Iterator<CharSequence> names = headers.names().iterator();
 
-    private @Nullable String nextName;
-
     @Override
     public boolean hasNext() {
-      if (nextName != null) {
-        return true;
-      }
-      while (names.hasNext()) {
-        CharSequence name = names.next();
-        if (!isPseudoHeader(name)) {
-          nextName = name.toString();
-          return true;
-        }
-      }
-      return false;
+      return names.hasNext();
     }
 
     @Override
     public Map.Entry<String, List<String>> next() {
-      if (!hasNext()) {
-        throw new NoSuchElementException();
-      }
-      String name = nextName;
-      nextName = null;
-      return new HeaderEntry(name);
+      return new HeaderEntry(names.next().toString());
     }
   }
 
@@ -239,7 +200,7 @@ final class NettyHttp2Headers extends HttpHeaders {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
       if (o == this) {
         return true;
       }

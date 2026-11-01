@@ -94,6 +94,13 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
     CharSequence path = http2Headers.path();
     this.uri = path != null ? path.toString() : "/";
+
+    // request metadata is cached above; pseudo headers are not exposed as regular headers
+    for (CharSequence name : new ArrayList<>(http2Headers.names())) {
+      if (Http2Headers.PseudoHeaderName.isPseudoHeader(name)) {
+        http2Headers.remove(name);
+      }
+    }
   }
 
   @Override
