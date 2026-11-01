@@ -16,16 +16,8 @@
 
 package infra.web.server.netty;
 
-import org.jspecify.annotations.Nullable;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.channels.ClosedChannelException;
-
 import infra.context.ApplicationContext;
-import infra.util.concurrent.Awaiter;
 import infra.web.DispatcherHandler;
-import infra.web.server.RequestBodySizeExceededException;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
@@ -40,9 +32,6 @@ import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 
-import static io.netty.handler.codec.http.HttpMethod.GET;
-import static io.netty.handler.codec.http.HttpMethod.HEAD;
-
 /**
  * Internal {@link NettyHttpContext} implementation that handles the lifecycle of an HTTP request
  * within the Netty transport layer. This class manages request body streaming, content length validation,
@@ -56,75 +45,13 @@ final class HttpContext extends NettyHttpContext implements Runnable {
 
   public final HttpRequest request;
 
-  private final @Nullable BodyInputStream requestBody;
-
-  private final long contentLength;
-
-  private long receivedBytes = 0;
-
   public HttpContext(Channel channel, HttpRequest request, NettyRequestConfig config,
           ApplicationContext context, DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler) {
-    super(context, channel, config, dispatcherHandler, httpTrafficHandler);
+    super(context, channel, config, dispatcherHandler, httpTrafficHandler,
+            getContentLength(request), request.method());
     this.request = request;
-    long contentLength = getContentLength(request);
-    this.requestBody = (contentLength == 0L || (contentLength == -1L && (request.method() == GET || request.method() == HEAD))) ? null : createRequestBody();
     if (request instanceof HttpContent content) {
       onDataReceived(content);
-    }
-    this.contentLength = contentLength;
-  }
-
-  private BodyInputStream createRequestBody() {
-    Awaiter awaiter = config.awaiterFactory.apply(this);
-    if (config.autoRead) {
-      return new BodyInputStream(awaiter, config.dataReceivedQueueCapacity);
-    }
-    channel.config().setAutoRead(false);
-    return new ManualReadingBodyInputStream(awaiter, config.dataReceivedQueueCapacity);
-  }
-
-  /**
-   * Consume an HTTP/1.x request body chunk. Ownership of the chunk is transferred
-   * to this method, which either forwards it to the request body stream or releases it.
-   */
-  @Override
-  protected void onDataReceived(HttpContent httpContent) {
-    final int chunkSize = httpContent.content().readableBytes();
-    final long received = receivedBytes + chunkSize;
-
-    if (received > config.maxContentLength && !continueExpected) {
-      httpContent.release();
-      if (requestBody != null) {
-        requestBody.onError(new IOException(new RequestBodySizeExceededException(config.maxContentLength)));
-      }
-      return;
-    }
-
-    receivedBytes = received;
-
-    boolean last = httpContent instanceof LastHttpContent;
-    if (requestBody != null) {
-      if (chunkSize > 0) {
-        requestBody.onDataReceived(httpContent.content());
-      }
-      else {
-        httpContent.release();
-      }
-      if (last) {
-        requestBody.onComplete();
-      }
-    }
-    else {
-      httpContent.release();
-    }
-  }
-
-  /**
-   * Signal a stream-level failure to the request body reader.
-   */
-  public void onError(IOException error) {
-    if (requestBody != null) {
-      requestBody.onError(error);
     }
   }
 
@@ -139,18 +66,8 @@ final class HttpContext extends NettyHttpContext implements Runnable {
   }
 
   @Override
-  public String readMethod() {
-    return request.method().name();
-  }
-
-  @Override
   protected HttpHeaders nettyRequestHeaders() {
     return request.headers();
-  }
-
-  @Override
-  public long getContentLength() {
-    return contentLength;
   }
 
   @Override
@@ -161,34 +78,6 @@ final class HttpContext extends NettyHttpContext implements Runnable {
   @Override
   protected void removeExpectHeader() {
     request.headers().remove(HttpHeaderNames.EXPECT);
-  }
-
-  @Override
-  protected InputStream createInputStream() {
-    return requestBody != null ? requestBody : InputStream.nullInputStream();
-  }
-
-  @Override
-  protected void requestCompletedInternal(@Nullable Throwable notHandled) {
-    if (!config.autoRead) {
-      channel.config().setAutoRead(true);
-    }
-    cleanup(null);
-    super.requestCompletedInternal(notHandled);
-  }
-
-  private void cleanup(@Nullable IOException error) {
-    if (requestBody != null) {
-      if (error != null) {
-        requestBody.onError(error);
-      }
-      requestBody.close();
-    }
-  }
-
-  @Override
-  protected void onChannelInactive() {
-    cleanup(new ClosedChannelException());
   }
 
   /**
@@ -247,19 +136,6 @@ final class HttpContext extends NettyHttpContext implements Runnable {
       return Long.parseLong(value);
     }
     return -1L;
-  }
-
-  private final class ManualReadingBodyInputStream extends BodyInputStream {
-
-    private ManualReadingBodyInputStream(Awaiter awaiter, int capacity) {
-      super(awaiter, capacity);
-    }
-
-    @Override
-    protected void requestNext() {
-      channel.read();
-    }
-
   }
 
 }

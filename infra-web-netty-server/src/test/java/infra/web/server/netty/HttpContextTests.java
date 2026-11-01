@@ -58,6 +58,7 @@ class HttpContextTests {
     DispatcherHandler dispatcherHandler = mock(DispatcherHandler.class);
     HttpTrafficHandler channelHandler = mock(HttpTrafficHandler.class);
 
+    when(request.method()).thenReturn(HttpMethod.POST);
     when(request.headers()).thenReturn(new DefaultHttpHeaders().set(HttpHeaderNames.CONTENT_LENGTH, "150"));
 
     // When
@@ -77,6 +78,7 @@ class HttpContextTests {
     DispatcherHandler dispatcherHandler = mock(DispatcherHandler.class);
     HttpTrafficHandler channelHandler = mock(HttpTrafficHandler.class);
 
+    when(request.method()).thenReturn(HttpMethod.POST);
     when(request.headers()).thenReturn(new DefaultHttpHeaders().set(HttpHeaderNames.CONTENT_LENGTH, "150"));
 
     // When

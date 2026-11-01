@@ -19,7 +19,6 @@ package infra.web.server.netty;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.util.List;
 
@@ -703,7 +702,9 @@ class NettyHttpContextTests {
                       .multipartParser(mock(infra.web.multipart.MultipartParser.class))
                       .build(),
               mock(DispatcherHandler.class),
-              mock(HttpTrafficHandler.class));
+              mock(HttpTrafficHandler.class),
+              0,
+              request.method());
       this.request = request;
     }
 
@@ -718,18 +719,8 @@ class NettyHttpContextTests {
     }
 
     @Override
-    protected String readMethod() {
-      return request.method().name();
-    }
-
-    @Override
     protected io.netty.handler.codec.http.HttpHeaders nettyRequestHeaders() {
       return request.headers();
-    }
-
-    @Override
-    protected boolean isKeepAlive() {
-      return HttpUtil.isKeepAlive(request);
     }
 
     @Override
@@ -743,16 +734,6 @@ class NettyHttpContextTests {
 
     @Override
     protected void writeRejectResponseContinue() {
-    }
-
-    @Override
-    public long getContentLength() {
-      return 0;
-    }
-
-    @Override
-    protected InputStream createInputStream() throws IOException {
-      return InputStream.nullInputStream();
     }
   }
 

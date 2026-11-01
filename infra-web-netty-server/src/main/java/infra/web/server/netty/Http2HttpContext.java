@@ -18,18 +18,13 @@ package infra.web.server.netty;
 
 import org.jspecify.annotations.Nullable;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import infra.context.ApplicationContext;
 import infra.http.support.Netty4HttpHeaders;
-import infra.util.concurrent.Awaiter;
 import infra.web.DispatcherHandler;
-import infra.web.server.RequestBodySizeExceededException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -48,9 +43,6 @@ import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2StreamChannel;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.handler.stream.ChunkedInput;
-
-import static io.netty.handler.codec.http.HttpMethod.GET;
-import static io.netty.handler.codec.http.HttpMethod.HEAD;
 
 /**
  * {@link NettyHttpContext} backed by native HTTP/2 frames.
@@ -87,18 +79,11 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
   private final String uri;
 
-  private final HttpMethod method;
-
-  private final long contentLength;
-
-  private final @Nullable BodyInputStream requestBody;
-
-  private long receivedBytes = 0;
-
   Http2HttpContext(Http2StreamChannel channel, Http2Headers http2Headers,
           NettyRequestConfig config, ApplicationContext context, DispatcherHandler dispatcherHandler,
           HttpTrafficHandler httpTrafficHandler) {
-    super(context, channel, config, dispatcherHandler, httpTrafficHandler);
+    super(context, channel, config, dispatcherHandler, httpTrafficHandler,
+            contentLength(http2Headers), method(http2Headers));
     this.http2Headers = http2Headers;
 
     // expose :authority as the regular host header
@@ -113,20 +98,6 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
     CharSequence path = http2Headers.path();
     this.uri = path != null ? path.toString() : "/";
-    CharSequence method = http2Headers.method();
-    this.method = method != null ? HttpMethod.valueOf(method.toString()) : HttpMethod.GET;
-    this.contentLength = contentLength(http2Headers);
-    this.requestBody = (contentLength == 0L || (contentLength == -1L && (this.method == GET || this.method == HEAD)))
-            ? null : createRequestBody();
-  }
-
-  private BodyInputStream createRequestBody() {
-    Awaiter awaiter = config.awaiterFactory.apply(this);
-    if (config.autoRead) {
-      return new BodyInputStream(awaiter, config.dataReceivedQueueCapacity);
-    }
-    channel.config().setAutoRead(false);
-    return new ManualReadingBodyInputStream(awaiter, config.dataReceivedQueueCapacity);
   }
 
   @Override
@@ -137,11 +108,6 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
   @Override
   protected String requestUri() {
     return uri;
-  }
-
-  @Override
-  protected String readMethod() {
-    return method.name();
   }
 
   @Override
@@ -209,58 +175,6 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
   }
 
   @Override
-  public long getContentLength() {
-    return contentLength;
-  }
-
-  @Override
-  protected InputStream createInputStream() {
-    return requestBody != null ? requestBody : InputStream.nullInputStream();
-  }
-
-  /**
-   * Consume a request body chunk. Ownership of {@code data} is transferred to the
-   * request body stream, or released when the chunk is rejected or empty.
-   */
-  @Override
-  protected void onDataReceived(ByteBuf data, boolean last) {
-    final int chunkSize = data.readableBytes();
-    final long received = receivedBytes + chunkSize;
-
-    if (received > config.maxContentLength && !continueExpected) {
-      data.release();
-      if (requestBody != null) {
-        requestBody.onError(new IOException(new RequestBodySizeExceededException(config.maxContentLength)));
-      }
-      return;
-    }
-
-    receivedBytes = received;
-
-    if (requestBody != null) {
-      if (chunkSize > 0) {
-        requestBody.onDataReceived(data);
-      }
-      else {
-        data.release();
-      }
-      if (last) {
-        requestBody.onComplete();
-      }
-    }
-    else {
-      data.release();
-    }
-  }
-
-  @Override
-  public void onError(IOException error) {
-    if (requestBody != null) {
-      requestBody.onError(error);
-    }
-  }
-
-  @Override
   protected void writeResponseHead(HttpResponseStatus status, HttpHeaders headers) {
     Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(headers, false);
     http2Headers.status(status.codeAsText());
@@ -275,15 +189,6 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
   @Override
   protected void endResponse() {
     channel.writeAndFlush(new DefaultHttp2DataFrame(Unpooled.EMPTY_BUFFER, true));
-  }
-
-  @Override
-  protected void requestCompletedInternal(@Nullable Throwable notHandled) {
-    if (!config.autoRead) {
-      channel.config().setAutoRead(true);
-    }
-    cleanup(null);
-    super.requestCompletedInternal(notHandled);
   }
 
   @Override
@@ -316,18 +221,9 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
     return new Http2DataChunkedInput(input, ((Http2StreamChannel) channel).stream());
   }
 
-  @Override
-  protected void onChannelInactive() {
-    cleanup(new ClosedChannelException());
-  }
-
-  private void cleanup(@Nullable IOException error) {
-    if (requestBody != null) {
-      if (error != null) {
-        requestBody.onError(error);
-      }
-      requestBody.close();
-    }
+  private static HttpMethod method(Http2Headers headers) {
+    CharSequence method = headers.method();
+    return method != null ? HttpMethod.valueOf(method.toString()) : HttpMethod.GET;
   }
 
   private static long contentLength(Http2Headers headers) {
@@ -336,19 +232,6 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
       return Long.parseLong(value.toString());
     }
     return -1L;
-  }
-
-  private final class ManualReadingBodyInputStream extends BodyInputStream {
-
-    private ManualReadingBodyInputStream(Awaiter awaiter, int capacity) {
-      super(awaiter, capacity);
-    }
-
-    @Override
-    protected void requestNext() {
-      channel.read();
-    }
-
   }
 
 }

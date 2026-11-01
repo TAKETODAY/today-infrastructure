@@ -20,10 +20,12 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -50,6 +52,7 @@ import infra.util.CollectionUtils;
 import infra.util.InfraStrategies;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
+import infra.util.concurrent.Awaiter;
 import infra.web.AbstractHttpContext;
 import infra.web.DispatcherHandler;
 import infra.web.HttpContext;
@@ -84,6 +87,8 @@ import io.netty.util.internal.PlatformDependent;
 
 import static infra.http.HttpHeaders.HOST;
 import static infra.http.HttpHeaders.isNotEmpty;
+import static io.netty.handler.codec.http.HttpMethod.GET;
+import static io.netty.handler.codec.http.HttpMethod.HEAD;
 import static io.netty.util.internal.StringUtil.decodeHexByte;
 
 /**
@@ -181,6 +186,14 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   private @Nullable ServerHttpResponse outputMessage;
 
+  private final @Nullable BodyInputStream requestBody;
+
+  private final String method;
+
+  private final long contentLength;
+
+  private long receivedBytes;
+
   /**
    * Whether a {@code 100 Continue} interim response has been accepted for this
    * request.
@@ -191,17 +204,57 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   protected volatile boolean continueExpected = false;
 
   protected NettyHttpContext(ApplicationContext context, Channel channel, NettyRequestConfig config,
-          DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler) {
+          DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler,
+          long contentLength, io.netty.handler.codec.http.HttpMethod method) {
     super(context, dispatcherHandler);
     this.config = config;
     this.channel = channel;
     this.httpTrafficHandler = httpTrafficHandler;
     this.nettyResponseHeaders = DefaultHttpHeadersFactory.headersFactory().newHeaders();
+    this.contentLength = contentLength;
+    this.method = method.name();
+    this.requestBody = createRequestBody(contentLength, method);
+  }
+
+  /**
+   * Create the request body stream for this exchange.
+   * <p>A zero-length body, or an unknown length for a method that carries no body,
+   * leaves the stream unset so reads return an empty input stream. When
+   * {@link NettyRequestConfig#autoRead} is disabled, the channel stops reading
+   * automatically and the body stream requests more data on demand.
+   *
+   * @param contentLength the declared request content length
+   * @param method the request method
+   */
+  private @Nullable BodyInputStream createRequestBody(long contentLength, io.netty.handler.codec.http.HttpMethod method) {
+    boolean methodWithoutBody = method == GET || method == HEAD;
+    return (contentLength == 0L || (contentLength == -1L && methodWithoutBody))
+            ? null
+            : createRequestBody();
+  }
+
+  private BodyInputStream createRequestBody() {
+    Awaiter awaiter = config.awaiterFactory.apply(this);
+    if (config.autoRead) {
+      return new BodyInputStream(awaiter, config.dataReceivedQueueCapacity);
+    }
+    channel.config().setAutoRead(false);
+    return new ManualReadingBodyInputStream(awaiter, config.dataReceivedQueueCapacity);
   }
 
   @Override
   public long getRequestTimeMillis() {
     return requestTimeMillis;
+  }
+
+  @Override
+  protected final String readMethod() {
+    return method;
+  }
+
+  @Override
+  public final long getContentLength() {
+    return contentLength;
   }
 
   /**
@@ -607,14 +660,33 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   }
 
   @Override
+  protected InputStream createInputStream() {
+    return requestBody != null ? requestBody : InputStream.nullInputStream();
+  }
+
+  @Override
   protected void requestCompletedInternal(@Nullable Throwable notHandled) {
-    if (notHandled != null) {
-      return;
+    restoreAutoRead();
+    cleanup(null);
+    if (notHandled == null) {
+      flush();
+      endResponse();
     }
+  }
 
-    flush();
+  private void restoreAutoRead() {
+    if (!config.autoRead) {
+      channel.config().setAutoRead(true);
+    }
+  }
 
-    endResponse();
+  private void cleanup(@Nullable IOException error) {
+    if (requestBody != null) {
+      if (error != null) {
+        requestBody.onError(error);
+      }
+      requestBody.close();
+    }
   }
 
   /**
@@ -836,33 +908,61 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   /**
    * Consume a raw request body chunk.
-   * <p>The base implementation only releases the buffer. Protocol contexts that
-   * expose a request body override this method to buffer or forward the data.
-   * Ownership of {@code data} is always transferred to this method.
+   * <p>The chunk is forwarded to the request body stream, or released when it is
+   * rejected or there is no body to read. Ownership of {@code data} is always
+   * transferred to this method.
    *
    * @param data the body chunk to consume
    * @param last whether this chunk completes the request body
    */
   protected void onDataReceived(ByteBuf data, boolean last) {
-    data.release();
+    final int chunkSize = data.readableBytes();
+    final long received = receivedBytes + chunkSize;
+
+    if (received > config.maxContentLength && !continueExpected) {
+      data.release();
+      if (requestBody != null) {
+        requestBody.onError(new IOException(new RequestBodySizeExceededException(config.maxContentLength)));
+      }
+      return;
+    }
+
+    receivedBytes = received;
+
+    if (requestBody != null) {
+      if (chunkSize > 0) {
+        requestBody.onDataReceived(data);
+      }
+      else {
+        data.release();
+      }
+      if (last) {
+        requestBody.onComplete();
+      }
+    }
+    else {
+      data.release();
+    }
   }
 
   /**
    * Signal a stream-level failure to the request body reader, so pending or
    * subsequent reads fail instead of blocking.
-   * <p>The base implementation ignores the error.
    *
    * @param error the failure to propagate
    */
   public void onError(IOException error) {
+    if (requestBody != null) {
+      requestBody.onError(error);
+    }
   }
 
   /**
    * Release request resources after the underlying channel or HTTP/2 stream
    * becomes inactive.
-   * <p>The base implementation does nothing.
    */
   protected void onChannelInactive() {
+    cleanup(new ClosedChannelException());
   }
 
   /**
@@ -1154,6 +1254,19 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       }
 
       contentLength += len;
+    }
+
+  }
+
+  final class ManualReadingBodyInputStream extends BodyInputStream {
+
+    private ManualReadingBodyInputStream(Awaiter awaiter, int capacity) {
+      super(awaiter, capacity);
+    }
+
+    @Override
+    protected void requestNext() {
+      channel.read();
     }
 
   }
