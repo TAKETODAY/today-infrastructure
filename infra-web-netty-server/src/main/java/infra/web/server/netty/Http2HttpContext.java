@@ -75,9 +75,8 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
   private final String uri;
 
-  Http2HttpContext(Http2StreamChannel channel, Http2Headers http2Headers,
-          NettyRequestConfig config, ApplicationContext context, DispatcherHandler dispatcherHandler,
-          HttpTrafficHandler httpTrafficHandler) {
+  Http2HttpContext(Http2StreamChannel channel, Http2Headers http2Headers, NettyRequestConfig config,
+          ApplicationContext context, DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler) {
     super(context, channel, config, dispatcherHandler, httpTrafficHandler,
             contentLength(http2Headers), method(http2Headers));
     this.http2Headers = http2Headers;
