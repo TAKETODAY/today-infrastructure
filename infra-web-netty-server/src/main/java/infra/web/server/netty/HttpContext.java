@@ -26,12 +26,15 @@ import infra.context.ApplicationContext;
 import infra.util.concurrent.Awaiter;
 import infra.web.DispatcherHandler;
 import infra.web.server.RequestBodySizeExceededException;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
@@ -57,8 +60,6 @@ final class HttpContext extends NettyHttpContext implements Runnable {
   private final long contentLength;
 
   private long receivedBytes = 0;
-
-  private @Nullable Boolean keepAlive;
 
   public HttpContext(Channel channel, HttpRequest request, NettyRequestConfig config,
           ApplicationContext context, DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler) {
@@ -86,7 +87,7 @@ final class HttpContext extends NettyHttpContext implements Runnable {
    * to this method, which either forwards it to the request body stream or releases it.
    */
   @Override
-  public void onDataReceived(HttpContent httpContent) {
+  protected void onDataReceived(HttpContent httpContent) {
     final int chunkSize = httpContent.content().readableBytes();
     final long received = receivedBytes + chunkSize;
 
@@ -137,7 +138,7 @@ final class HttpContext extends NettyHttpContext implements Runnable {
   }
 
   @Override
-  protected String requestMethod() {
+  public String readMethod() {
     return request.method().name();
   }
 
@@ -153,12 +154,7 @@ final class HttpContext extends NettyHttpContext implements Runnable {
 
   @Override
   protected boolean isKeepAlive() {
-    Boolean keepAlive = this.keepAlive;
-    if (keepAlive == null) {
-      keepAlive = HttpUtil.isKeepAlive(request);
-      this.keepAlive = keepAlive;
-    }
-    return keepAlive;
+    return HttpUtil.isKeepAlive(request);
   }
 
   @Override
@@ -169,11 +165,6 @@ final class HttpContext extends NettyHttpContext implements Runnable {
   @Override
   protected void removeExpectHeader() {
     request.headers().remove(HttpHeaderNames.EXPECT);
-  }
-
-  @Override
-  protected @Nullable Throwable requestDecoderFailure() {
-    return request.decoderResult().cause();
   }
 
   @Override
@@ -199,8 +190,36 @@ final class HttpContext extends NettyHttpContext implements Runnable {
     }
   }
 
-  public void channelInactive() {
+  @Override
+  protected void onChannelInactive() {
     cleanup(new ClosedChannelException());
+  }
+
+  /**
+   * Write an informational {@code 100 Continue} response without ending the exchange.
+   */
+  @Override
+  protected void writeResponseContinue() {
+    channel.writeAndFlush(new DefaultFullHttpResponse(version(), HttpResponseStatus.CONTINUE,
+            Unpooled.EMPTY_BUFFER));
+  }
+
+  @Override
+  protected void writeRejectResponseContinue() {
+    DefaultFullHttpResponse response = new DefaultFullHttpResponse(version(),
+            HttpResponseStatus.EXPECTATION_FAILED, Unpooled.EMPTY_BUFFER);
+    response.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
+    channel.writeAndFlush(response);
+  }
+
+  @Override
+  protected void processRequest() throws Exception {
+    if (request.decoderResult().cause() != null) {
+      processException(request.decoderResult().cause());
+    }
+    else {
+      dispatcherHandler.handleRequest(this);
+    }
   }
 
   /**

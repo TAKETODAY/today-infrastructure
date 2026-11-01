@@ -60,13 +60,10 @@ import infra.web.multipart.MultipartRequest;
 import infra.web.server.RequestBodySizeExceededException;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
@@ -186,7 +183,11 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   private @Nullable ServerHttpResponse outputMessage;
 
   /**
-   * Whether the request expects a {@code 100 Continue} response.
+   * Whether a {@code 100 Continue} interim response has been accepted for this
+   * request.
+   * <p>Once set, the request body is accepted even when it exceeds
+   * {@link NettyRequestConfig#maxContentLength}, because the client has already
+   * been told to send it.
    */
   protected volatile boolean continueExpected = false;
 
@@ -204,6 +205,11 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     return requestTimeMillis;
   }
 
+  /**
+   * Return the HTTP protocol version of the current request.
+   *
+   * @return the request protocol version, for example {@code HTTP/1.1} or {@code HTTP/2.0}
+   */
   public abstract HttpVersion version();
 
   @Override
@@ -302,17 +308,11 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   }
 
   /**
-   * Return the request target, including the query string.
-   */
-  protected abstract String requestUri();
-
-  /**
-   * Return the request method name.
-   */
-  protected abstract String requestMethod();
-
-  /**
-   * Return the mutable request headers.
+   * Return the mutable request headers in their native transport form.
+   * <p>The returned headers back the request header accessors of this context,
+   * so mutations are visible to subsequent reads.
+   *
+   * @return the request headers, never {@code null}
    */
   protected abstract HttpHeaders nettyRequestHeaders();
 
@@ -349,10 +349,14 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     return index;
   }
 
-  @Override
-  public final String readMethod() {
-    return requestMethod();
-  }
+  /**
+   * Return the request target, including the query string.
+   * <p>The raw target is returned as received; path and query string are split
+   * lazily by {@link #readRequestURI()} and {@link #readQueryString()}.
+   *
+   * @return the raw request target, never {@code null}
+   */
+  protected abstract String requestUri();
 
   @Override
   protected PrintWriter createWriter() throws IOException {
@@ -548,6 +552,12 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     commit();
   }
 
+  /**
+   * Determine whether the connection or stream should be kept open after the
+   * current exchange completes.
+   *
+   * @return {@code true} if the response may reuse the underlying connection
+   */
   protected abstract boolean isKeepAlive();
 
   /**
@@ -614,83 +624,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     flush();
 
     endResponse(isKeepAlive());
-  }
-
-  /**
-   * Handle the request on the request executor thread.
-   * <p>
-   * Protocol specific behavior is supplied by the {@code 100 Continue} and
-   * request decoder hooks, so subclasses only provide transport details.
-   */
-  public final void run() {
-    HttpContextHolder.set(this);
-
-    try {
-      if (is100ContinueExpected()) {
-        if (!acceptContinue()) {
-          // the expectation failed so we refuse the request.
-          writeResponseError(HttpResponseStatus.EXPECTATION_FAILED, false);
-          return;
-        }
-
-        continueExpected = true;
-        writeResponseContinue();
-        removeExpectHeader();
-      }
-      else {
-        long contentLength = getContentLength();
-        if (contentLength != -1 && contentLength > config.maxContentLength) {
-          processException(new RequestBodySizeExceededException(config.maxContentLength));
-          return;
-        }
-      }
-
-      Throwable decoderFailure = requestDecoderFailure();
-      if (decoderFailure != null) {
-        processException(decoderFailure);
-      }
-      else {
-        dispatcherHandler.handleRequest(this);
-      }
-    }
-    catch (Throwable e) {
-      httpTrafficHandler.handleException(channel, e);
-    }
-    finally {
-      HttpContextHolder.cleanup();
-    }
-  }
-
-  /**
-   * Determine whether the request expects a {@code 100 Continue} response.
-   */
-  protected abstract boolean is100ContinueExpected();
-
-  /**
-   * Remove the {@code Expect} request header once {@code 100 Continue} is accepted.
-   */
-  protected void removeExpectHeader() {
-  }
-
-  /**
-   * Return the request decoding failure, or {@code null} when the request is well-formed.
-   * <p>
-   * Native frame based contexts may not have a decoding result to report.
-   */
-  protected @Nullable Throwable requestDecoderFailure() {
-    return null;
-  }
-
-  /**
-   * Determine whether the request expecting {@code 100 Continue} should be accepted.
-   */
-  private boolean acceptContinue() {
-    Boolean continueExpected = dispatcherHandler.requestContinueExpected(this);
-    if (continueExpected != null) {
-      return continueExpected;
-    }
-    // fallback to default max content-length check
-    return getContentLength() <= config.maxContentLength;
   }
 
   /**
@@ -779,27 +712,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    */
   protected void writeResponseFile(Object file) {
     channel.writeAndFlush(file);
-  }
-
-  /**
-   * Write an informational {@code 100 Continue} response without ending the exchange.
-   */
-  protected void writeResponseContinue() {
-    channel.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE,
-            Unpooled.EMPTY_BUFFER));
-  }
-
-  /**
-   * Write an error response, optionally closing the connection or stream.
-   */
-  protected void writeResponseError(HttpResponseStatus status, boolean close) {
-    DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status,
-            Unpooled.EMPTY_BUFFER);
-    response.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
-    ChannelFuture future = channel.writeAndFlush(response);
-    if (close) {
-      future.addListener(ChannelFutureListener.CLOSE);
-    }
   }
 
   /**
@@ -929,35 +841,168 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   }
 
   /**
-   * Consume an HTTP/1.x request body chunk.
+   * Consume a request body chunk decoded by the HTTP/1.x codec.
+   * <p>Ownership of {@code content} is transferred to this method.
+   *
+   * @param content the decoded chunk, possibly the last chunk
    */
-  public void onDataReceived(HttpContent content) {
+  protected void onDataReceived(HttpContent content) {
     onDataReceived(content.content(), content instanceof LastHttpContent);
   }
 
   /**
-   * Consume a native body chunk. The base implementation only releases the
-   * buffer; protocol specific contexts override it.
+   * Consume a raw request body chunk.
+   * <p>The base implementation only releases the buffer. Protocol contexts that
+   * expose a request body override this method to buffer or forward the data.
+   * Ownership of {@code data} is always transferred to this method.
+   *
+   * @param data the body chunk to consume
+   * @param last whether this chunk completes the request body
    */
-  public void onDataReceived(ByteBuf data, boolean last) {
+  protected void onDataReceived(ByteBuf data, boolean last) {
     data.release();
   }
 
   /**
-   * Signal a stream-level failure to the request body reader.
+   * Signal a stream-level failure to the request body reader, so pending or
+   * subsequent reads fail instead of blocking.
+   * <p>The base implementation ignores the error.
+   *
+   * @param error the failure to propagate
    */
   public void onError(IOException error) {
   }
 
   /**
-   * Release resources when the underlying channel or stream becomes inactive.
+   * Release request resources after the underlying channel or HTTP/2 stream
+   * becomes inactive.
+   * <p>The base implementation does nothing.
    */
-  public void channelInactive() {
+  protected void onChannelInactive() {
   }
 
+  /**
+   * Adapt a chunked file input to the transport that writes it.
+   * <p>Invoked when a file is sent over SSL/TLS, where zero-copy transfer is not
+   * possible and the response is written through a {@link ChunkedWriteHandler}.
+   * HTTP/2 contexts wrap the input so that it emits {@code DATA} frames.
+   *
+   * @param nioFile the chunked file input to adapt
+   * @return the object written to the channel, by default {@code nioFile} itself
+   */
   protected Object modifyChunkedFile(ChunkedInput<ByteBuf> nioFile) {
     return nioFile;
   }
+
+  //
+
+  /**
+   * Dispatch the request on the request executor thread.
+   * <p>Negotiates {@code 100 Continue} and enforces the configured maximum
+   * content length before delegating to {@link #processRequest()}. Unhandled
+   * failures are reported through {@link HttpTrafficHandler}, and the context is
+   * removed from {@link HttpContextHolder} when the exchange completes.
+   * <p>Protocol specific behavior is supplied by the {@code 100 Continue} and
+   * request dispatch hooks, so subclasses only provide transport details.
+   */
+  public final void run() {
+    HttpContextHolder.set(this);
+
+    try {
+      if (is100ContinueExpected()) {
+        if (tryWriteResponseContinue()) {
+          continueExpected = true;
+          removeExpectHeader();
+        }
+        else {
+          writeRejectResponseContinue();
+          return;
+        }
+      }
+      else {
+        long contentLength = getContentLength();
+        if (contentLength != -1 && contentLength > config.maxContentLength) {
+          processException(new RequestBodySizeExceededException(config.maxContentLength));
+          return;
+        }
+      }
+
+      processRequest();
+    }
+    catch (Throwable e) {
+      httpTrafficHandler.handleException(channel, e);
+    }
+    finally {
+      HttpContextHolder.cleanup();
+    }
+  }
+
+  /**
+   * Dispatch the request to the {@link DispatcherHandler}.
+   * <p>Subclasses may override this to inspect protocol state before dispatching,
+   * for example to report a request decoding failure.
+   *
+   * @throws Exception if request handling fails
+   */
+  protected void processRequest() throws Exception {
+    dispatcherHandler.handleRequest(this);
+  }
+
+  /**
+   * Determine whether the request carries a {@code 100-continue} expectation.
+   *
+   * @return {@code true} if the client expects an interim {@code 100 Continue} response
+   */
+  protected abstract boolean is100ContinueExpected();
+
+  /**
+   * Remove the {@code Expect} request header once {@code 100 Continue} has been
+   * accepted, so a later read does not negotiate the interim response again.
+   * <p>The base implementation does nothing.
+   */
+  protected void removeExpectHeader() {
+  }
+
+  /**
+   * Decide whether to accept the {@code 100-continue} expectation and, if so,
+   * write the interim response.
+   * <p>The decision is delegated to {@link DispatcherHandler#requestContinueExpected}.
+   * When that returns {@code null}, the expectation is accepted only if the
+   * request content length fits within {@link NettyRequestConfig#maxContentLength}.
+   *
+   * @return {@code true} if the interim response was written and the request body
+   * may be read, {@code false} if the expectation must be rejected
+   */
+  protected boolean tryWriteResponseContinue() {
+    Boolean continueExpected = dispatcherHandler.requestContinueExpected(this);
+    if (continueExpected != null) {
+      if (!continueExpected) {
+        return false;
+      }
+    }
+    // fallback to default max content-length check
+    else if (getContentLength() > config.maxContentLength) {
+      return false;
+    }
+
+    writeResponseContinue();
+    return true;
+  }
+
+  /**
+   * Write the informational {@code 100 Continue} response without ending the
+   * exchange, so the client can start sending the request body.
+   * <p>Implementations must use the transport specific representation.
+   */
+  protected abstract void writeResponseContinue();
+
+  /**
+   * Write a {@code 417 Expectation Failed} response after the {@code 100-continue}
+   * expectation was rejected.
+   * <p>Implementations must use the transport specific representation and must
+   * not read the request body afterwards.
+   */
+  protected abstract void writeRejectResponseContinue();
 
   @Override
   public String toString() {

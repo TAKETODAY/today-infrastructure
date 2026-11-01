@@ -141,7 +141,7 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
   }
 
   @Override
-  protected String requestMethod() {
+  protected String readMethod() {
     return method.name();
   }
 
@@ -229,7 +229,7 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
    * request body stream, or released when the chunk is rejected or empty.
    */
   @Override
-  public void onDataReceived(ByteBuf data, boolean last) {
+  protected void onDataReceived(ByteBuf data, boolean last) {
     final int chunkSize = data.readableBytes();
     final long received = receivedBytes + chunkSize;
 
@@ -279,23 +279,6 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
   }
 
   @Override
-  protected void writeResponseContinue() {
-    Http2Headers headers = new DefaultHttp2Headers().status(HttpResponseStatus.CONTINUE.codeAsText());
-    channel.writeAndFlush(new DefaultHttp2HeadersFrame(headers, false));
-  }
-
-  @Override
-  protected void writeResponseError(HttpResponseStatus status, boolean close) {
-    Http2Headers headers = new DefaultHttp2Headers()
-            .status(status.codeAsText())
-            .setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
-    ChannelFuture future = channel.writeAndFlush(new DefaultHttp2HeadersFrame(headers, true));
-    if (close) {
-      future.addListener(ChannelFutureListener.CLOSE);
-    }
-  }
-
-  @Override
   protected void endResponse(boolean keepAlive) {
     ChannelFuture future = channel.writeAndFlush(new DefaultHttp2DataFrame(Unpooled.EMPTY_BUFFER, true));
     if (!keepAlive) {
@@ -323,12 +306,27 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
   }
 
   @Override
+  protected void writeResponseContinue() {
+    Http2Headers headers = new DefaultHttp2Headers(false, 1).status(HttpResponseStatus.CONTINUE.codeAsText());
+    channel.writeAndFlush(new DefaultHttp2HeadersFrame(headers, false));
+  }
+
+  @Override
+  protected void writeRejectResponseContinue() {
+    Http2Headers headers = new DefaultHttp2Headers()
+            .status(HttpResponseStatus.EXPECTATION_FAILED.codeAsText())
+            .setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
+    channel.writeAndFlush(new DefaultHttp2HeadersFrame(headers, true))
+            .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+  }
+
+  @Override
   protected Object modifyChunkedFile(ChunkedInput<ByteBuf> input) {
     return new Http2DataChunkedInput(input, ((Http2StreamChannel) channel).stream());
   }
 
   @Override
-  public void channelInactive() {
+  protected void onChannelInactive() {
     cleanup(new ClosedChannelException());
   }
 

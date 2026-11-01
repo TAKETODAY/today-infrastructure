@@ -718,7 +718,7 @@ class NettyHttpContextTests {
     }
 
     @Override
-    protected String requestMethod() {
+    protected String readMethod() {
       return request.method().name();
     }
 
@@ -735,6 +735,14 @@ class NettyHttpContextTests {
     @Override
     protected boolean is100ContinueExpected() {
       return HttpUtil.is100ContinueExpected(request);
+    }
+
+    @Override
+    protected void writeResponseContinue() {
+    }
+
+    @Override
+    protected void writeRejectResponseContinue() {
     }
 
     @Override

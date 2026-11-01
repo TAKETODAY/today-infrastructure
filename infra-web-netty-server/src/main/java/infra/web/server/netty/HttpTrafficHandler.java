@@ -201,7 +201,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
               .addListener(ChannelFutureListener.CLOSE);
     }
     else {
-      DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, Unpooled.EMPTY_BUFFER);
+      var response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, Unpooled.EMPTY_BUFFER);
       response.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
       channel.writeAndFlush(response)
               .addListener(ChannelFutureListener.CLOSE);
@@ -218,7 +218,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
 
     NettyHttpContext context = ctx.channel().attr(KEY).getAndSet(null);
     if (context != null) {
-      context.channelInactive();
+      context.onChannelInactive();
     }
     ctx.fireChannelInactive();
   }
