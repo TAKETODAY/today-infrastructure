@@ -584,6 +584,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * @return a long containing the length of the request body or -1L if the length
    * is not known
    */
+  @Override
   public abstract long getContentLength();
 
   /**

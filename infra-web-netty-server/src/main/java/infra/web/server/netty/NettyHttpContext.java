@@ -31,7 +31,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -54,9 +53,11 @@ import infra.util.StringUtils;
 import infra.web.AbstractHttpContext;
 import infra.web.DispatcherHandler;
 import infra.web.HttpContext;
+import infra.web.HttpContextHolder;
 import infra.web.async.AsyncWebRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.multipart.MultipartRequest;
+import infra.web.server.RequestBodySizeExceededException;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -74,15 +75,13 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.CookieHeaderNames;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
-import io.netty.handler.codec.http2.Http2DataChunkedInput;
-import io.netty.handler.codec.http2.Http2StreamChannel;
+import io.netty.handler.stream.ChunkedInput;
 import io.netty.handler.stream.ChunkedNioFile;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.internal.PlatformDependent;
@@ -168,9 +167,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   public final HttpHeaders nettyResponseHeaders;
   // UNSAFE fields END
 
-  protected final @Nullable HttpRequest request;
-
-  protected final HttpProtocol protocol;
+  protected final HttpTrafficHandler httpTrafficHandler;
 
   private final long requestTimeMillis = System.currentTimeMillis();
 
@@ -180,8 +177,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   private @Nullable String remoteAddress;
 
-  private @Nullable Boolean keepAlive;
-
   private @Nullable ByteBuf responseBody;
 
   private @Nullable Object fileToSend;
@@ -190,13 +185,17 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   private @Nullable ServerHttpResponse outputMessage;
 
-  protected NettyHttpContext(ApplicationContext context, Channel channel, @Nullable HttpRequest request,
-          HttpProtocol protocol, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
+  /**
+   * Whether the request expects a {@code 100 Continue} response.
+   */
+  protected volatile boolean continueExpected = false;
+
+  protected NettyHttpContext(ApplicationContext context, Channel channel, NettyRequestConfig config,
+          DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler) {
     super(context, dispatcherHandler);
-    this.protocol = protocol;
     this.config = config;
     this.channel = channel;
-    this.request = request;
+    this.httpTrafficHandler = httpTrafficHandler;
     this.nettyResponseHeaders = DefaultHttpHeadersFactory.headersFactory().newHeaders();
   }
 
@@ -205,9 +204,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     return requestTimeMillis;
   }
 
-  public HttpVersion version() {
-    return protocol.version();
-  }
+  public abstract HttpVersion version();
 
   @Override
   public boolean isSecure() {
@@ -306,28 +303,20 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   /**
    * Return the request target, including the query string.
-   * <p>Subclasses backed by native HTTP/2 headers override this method.
    */
-  protected String requestUri() {
-    return Objects.requireNonNull(request).uri();
-  }
+  protected abstract String requestUri();
 
   /**
    * Return the request method name.
-   * <p>Subclasses backed by native HTTP/2 headers override this method.
    */
-  protected String requestMethod() {
-    return Objects.requireNonNull(request).method().name();
-  }
+  protected abstract String requestMethod();
 
   /**
    * Return the mutable request headers.
-   * <p>Subclasses backed by native HTTP/2 headers override this method.
    */
-  protected HttpHeaders nettyRequestHeaders() {
-    return Objects.requireNonNull(request).headers();
-  }
+  protected abstract HttpHeaders nettyRequestHeaders();
 
+  @Override
   protected final String readRequestURI() {
     String uri = requestUri();
     int index = queryStringIndex(uri);
@@ -559,14 +548,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     commit();
   }
 
-  protected boolean isKeepAlive() {
-    Boolean keepAlive = this.keepAlive;
-    if (keepAlive == null) {
-      keepAlive = HttpUtil.isKeepAlive(Objects.requireNonNull(request));
-      this.keepAlive = keepAlive;
-    }
-    return keepAlive;
-  }
+  protected abstract boolean isKeepAlive();
 
   /**
    * HTTP response body
@@ -632,6 +614,83 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     flush();
 
     endResponse(isKeepAlive());
+  }
+
+  /**
+   * Handle the request on the request executor thread.
+   * <p>
+   * Protocol specific behavior is supplied by the {@code 100 Continue} and
+   * request decoder hooks, so subclasses only provide transport details.
+   */
+  public final void run() {
+    HttpContextHolder.set(this);
+
+    try {
+      if (is100ContinueExpected()) {
+        if (!acceptContinue()) {
+          // the expectation failed so we refuse the request.
+          writeResponseError(HttpResponseStatus.EXPECTATION_FAILED, false);
+          return;
+        }
+
+        continueExpected = true;
+        writeResponseContinue();
+        removeExpectHeader();
+      }
+      else {
+        long contentLength = getContentLength();
+        if (contentLength != -1 && contentLength > config.maxContentLength) {
+          processException(new RequestBodySizeExceededException(config.maxContentLength));
+          return;
+        }
+      }
+
+      Throwable decoderFailure = requestDecoderFailure();
+      if (decoderFailure != null) {
+        processException(decoderFailure);
+      }
+      else {
+        dispatcherHandler.handleRequest(this);
+      }
+    }
+    catch (Throwable e) {
+      httpTrafficHandler.handleException(channel, e);
+    }
+    finally {
+      HttpContextHolder.cleanup();
+    }
+  }
+
+  /**
+   * Determine whether the request expects a {@code 100 Continue} response.
+   */
+  protected abstract boolean is100ContinueExpected();
+
+  /**
+   * Remove the {@code Expect} request header once {@code 100 Continue} is accepted.
+   */
+  protected void removeExpectHeader() {
+  }
+
+  /**
+   * Return the request decoding failure, or {@code null} when the request is well-formed.
+   * <p>
+   * Native frame based contexts may not have a decoding result to report.
+   */
+  protected @Nullable Throwable requestDecoderFailure() {
+    return null;
+  }
+
+  /**
+   * Determine whether the request expecting {@code 100 Continue} should be accepted.
+   */
+  private boolean acceptContinue() {
+    Boolean continueExpected = dispatcherHandler.requestContinueExpected(this);
+    if (continueExpected != null) {
+      return continueExpected;
+    }
+    // fallback to default max content-length check
+    return getContentLength() <= config.maxContentLength;
   }
 
   /**
@@ -894,6 +953,10 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * Release resources when the underlying channel or stream becomes inactive.
    */
   public void channelInactive() {
+  }
+
+  protected Object modifyChunkedFile(ChunkedInput<ByteBuf> nioFile) {
+    return nioFile;
   }
 
   @Override
@@ -1236,12 +1299,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
         }
         ChunkedNioFile nioFile = new ChunkedNioFile(FileChannel.open(file.toPath(), StandardOpenOption.READ),
                 position, count, nioFileChunkSize);
-        if (protocol.isHttp2()) {
-          fileToSend = new Http2DataChunkedInput(nioFile, ((Http2StreamChannel) channel).stream());
-        }
-        else {
-          fileToSend = nioFile;
-        }
+        fileToSend = modifyChunkedFile(nioFile);
       }
       else {
         fileToSend = new DefaultFileRegion(file, position, count);

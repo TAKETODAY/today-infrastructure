@@ -30,6 +30,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.QueryStringEncoder;
 
@@ -688,6 +689,8 @@ class NettyHttpContextTests {
 
   private static class NettyHttpContextStub extends NettyHttpContext {
 
+    private final io.netty.handler.codec.http.HttpRequest request;
+
     NettyHttpContextStub(io.netty.handler.codec.http.HttpRequest request, Channel channel) {
       this(request, channel, NettyRequestConfig.forBuilder(false));
     }
@@ -695,13 +698,43 @@ class NettyHttpContextTests {
     NettyHttpContextStub(io.netty.handler.codec.http.HttpRequest request, Channel channel, NettyRequestConfig.Builder configBuilder) {
       super(mock(ApplicationContext.class),
               channel != null ? channel : mockChannel(),
-              request,
-              HttpProtocol.HTTP_1_1,
               configBuilder
                       .sendErrorHandler((req, msg) -> { })
                       .multipartParser(mock(infra.web.multipart.MultipartParser.class))
                       .build(),
-              mock(DispatcherHandler.class));
+              mock(DispatcherHandler.class),
+              mock(HttpTrafficHandler.class));
+      this.request = request;
+    }
+
+    @Override
+    public HttpVersion version() {
+      return request.protocolVersion();
+    }
+
+    @Override
+    protected String requestUri() {
+      return request.uri();
+    }
+
+    @Override
+    protected String requestMethod() {
+      return request.method().name();
+    }
+
+    @Override
+    protected io.netty.handler.codec.http.HttpHeaders nettyRequestHeaders() {
+      return request.headers();
+    }
+
+    @Override
+    protected boolean isKeepAlive() {
+      return HttpUtil.isKeepAlive(request);
+    }
+
+    @Override
+    protected boolean is100ContinueExpected() {
+      return HttpUtil.is100ContinueExpected(request);
     }
 
     @Override

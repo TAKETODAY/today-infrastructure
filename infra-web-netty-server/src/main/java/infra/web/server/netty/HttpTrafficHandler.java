@@ -101,7 +101,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
   public final void channelRead(final ChannelHandlerContext ctx, final Object msg) throws IOException {
     if (msg instanceof HttpRequest request) {
       Channel channel = ctx.channel();
-      HttpContext httpContext = new HttpContext(channel, request, protocol(channel), requestConfig,
+      HttpContext httpContext = new HttpContext(channel, request, requestConfig,
               context, dispatcherHandler, this);
       channel.attr(KEY).set(httpContext);
       executor.execute(httpContext, httpContext);
@@ -162,18 +162,13 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
     }
 
     Http2StreamChannel channel = (Http2StreamChannel) ctx.channel();
-    Http2HttpContext httpContext = new Http2HttpContext(channel, headers, protocol(channel),
+    Http2HttpContext httpContext = new Http2HttpContext(channel, headers,
             requestConfig, context, dispatcherHandler, this);
     channel.attr(KEY).set(httpContext);
     executor.execute(httpContext, httpContext);
     if (frame.isEndStream()) {
       httpContext.onDataReceived(Unpooled.EMPTY_BUFFER, true);
     }
-  }
-
-  private static HttpProtocol protocol(Channel channel) {
-    HttpProtocol protocol = channel.attr(HttpChannelInitializer.PROTOCOL).get();
-    return protocol != null ? protocol : HttpProtocol.HTTP_1_1;
   }
 
   protected void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
@@ -198,7 +193,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
   void handleException(Channel channel, Throwable cause) {
     var statusCode = HttpStatusProvider.getStatusCode(cause);
     HttpResponseStatus status = HttpResponseStatus.valueOf(statusCode.first.value());
-    if (protocol(channel).isHttp2()) {
+    if (channel instanceof Http2StreamChannel) {
       Http2Headers headers = new DefaultHttp2Headers()
               .status(status.codeAsText())
               .setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
@@ -206,8 +201,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
               .addListener(ChannelFutureListener.CLOSE);
     }
     else {
-      DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status,
-              Unpooled.EMPTY_BUFFER);
+      DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, Unpooled.EMPTY_BUFFER);
       response.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
       channel.writeAndFlush(response)
               .addListener(ChannelFutureListener.CLOSE);

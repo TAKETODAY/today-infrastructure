@@ -29,7 +29,6 @@ import infra.context.ApplicationContext;
 import infra.http.support.Netty4HttpHeaders;
 import infra.util.concurrent.Awaiter;
 import infra.web.DispatcherHandler;
-import infra.web.HttpContextHolder;
 import infra.web.server.RequestBodySizeExceededException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -41,12 +40,15 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http2.DefaultHttp2DataFrame;
 import io.netty.handler.codec.http2.DefaultHttp2Headers;
 import io.netty.handler.codec.http2.DefaultHttp2HeadersFrame;
+import io.netty.handler.codec.http2.Http2DataChunkedInput;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2StreamChannel;
 import io.netty.handler.codec.http2.HttpConversionUtil;
+import io.netty.handler.stream.ChunkedInput;
 
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpMethod.HEAD;
@@ -65,6 +67,8 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
   private static final CharSequence CONTINUE_TOKEN = "100-continue";
 
+  private static final HttpVersion HTTP2 = HttpVersion.valueOf("HTTP/2.0");
+
   /**
    * Connection-specific headers are forbidden in HTTP/2 and must not be exposed
    * as request headers.
@@ -77,8 +81,6 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
           HttpHeaderNames.TRANSFER_ENCODING,
           HttpHeaderNames.UPGRADE
   };
-
-  private final HttpTrafficHandler httpTrafficHandler;
 
   private final Http2Headers http2Headers;
 
@@ -94,13 +96,10 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
   private long receivedBytes = 0;
 
-  private volatile boolean continueExpected = false;
-
-  Http2HttpContext(Http2StreamChannel channel, Http2Headers http2Headers, HttpProtocol protocol,
+  Http2HttpContext(Http2StreamChannel channel, Http2Headers http2Headers,
           NettyRequestConfig config, ApplicationContext context, DispatcherHandler dispatcherHandler,
           HttpTrafficHandler httpTrafficHandler) {
-    super(context, channel, null, protocol, config, dispatcherHandler);
-    this.httpTrafficHandler = httpTrafficHandler;
+    super(context, channel, config, dispatcherHandler, httpTrafficHandler);
     this.http2Headers = http2Headers;
 
     // expose :authority as the regular host header
@@ -129,6 +128,11 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
     }
     channel.config().setAutoRead(false);
     return new ManualReadingBodyInputStream(awaiter, config.dataReceivedQueueCapacity);
+  }
+
+  @Override
+  public HttpVersion version() {
+    return HTTP2;
   }
 
   @Override
@@ -309,45 +313,18 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
   }
 
   @Override
-  public void run() {
-    HttpContextHolder.set(this);
-
-    try {
-      if (is100ContinueExpected()) {
-        if (!acceptContinue()) {
-          writeResponseError(HttpResponseStatus.EXPECTATION_FAILED, false);
-          return;
-        }
-
-        continueExpected = true;
-        writeResponseContinue();
-        http2Headers.remove(HttpHeaderNames.EXPECT);
-      }
-      else if (contentLength != -1 && contentLength > config.maxContentLength) {
-        processException(new RequestBodySizeExceededException(config.maxContentLength));
-        return;
-      }
-
-      dispatcherHandler.handleRequest(this);
-    }
-    catch (Throwable e) {
-      httpTrafficHandler.handleException(channel, e);
-    }
-    finally {
-      HttpContextHolder.cleanup();
-    }
-  }
-
-  private boolean is100ContinueExpected() {
+  protected boolean is100ContinueExpected() {
     return http2Headers.contains(HttpHeaderNames.EXPECT, CONTINUE_TOKEN, true);
   }
 
-  private boolean acceptContinue() {
-    Boolean continueExpected = dispatcherHandler.requestContinueExpected(this);
-    if (continueExpected != null) {
-      return continueExpected;
-    }
-    return contentLength <= config.maxContentLength;
+  @Override
+  protected void removeExpectHeader() {
+    http2Headers.remove(HttpHeaderNames.EXPECT);
+  }
+
+  @Override
+  protected Object modifyChunkedFile(ChunkedInput<ByteBuf> input) {
+    return new Http2DataChunkedInput(input, ((Http2StreamChannel) channel).stream());
   }
 
   @Override

@@ -21,20 +21,19 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.ClosedChannelException;
-import java.util.Objects;
 
 import infra.context.ApplicationContext;
 import infra.util.concurrent.Awaiter;
 import infra.web.DispatcherHandler;
-import infra.web.HttpContextHolder;
 import infra.web.server.RequestBodySizeExceededException;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 
 import static io.netty.handler.codec.http.HttpMethod.GET;
@@ -51,7 +50,7 @@ import static io.netty.handler.codec.http.HttpMethod.HEAD;
  */
 final class HttpContext extends NettyHttpContext implements Runnable {
 
-  private final HttpTrafficHandler httpTrafficHandler;
+  public final HttpRequest request;
 
   private final @Nullable BodyInputStream requestBody;
 
@@ -59,12 +58,12 @@ final class HttpContext extends NettyHttpContext implements Runnable {
 
   private long receivedBytes = 0;
 
-  private volatile boolean continueExpected = false;
+  private @Nullable Boolean keepAlive;
 
-  public HttpContext(Channel channel, HttpRequest request, HttpProtocol protocol, NettyRequestConfig config,
+  public HttpContext(Channel channel, HttpRequest request, NettyRequestConfig config,
           ApplicationContext context, DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler) {
-    super(context, channel, request, protocol, config, dispatcherHandler);
-    this.httpTrafficHandler = httpTrafficHandler;
+    super(context, channel, config, dispatcherHandler, httpTrafficHandler);
+    this.request = request;
     long contentLength = getContentLength(request);
     this.requestBody = (contentLength == 0L || (contentLength == -1L && (request.method() == GET || request.method() == HEAD))) ? null : createRequestBody();
     if (request instanceof HttpContent content) {
@@ -86,6 +85,7 @@ final class HttpContext extends NettyHttpContext implements Runnable {
    * Consume an HTTP/1.x request body chunk. Ownership of the chunk is transferred
    * to this method, which either forwards it to the request body stream or releases it.
    */
+  @Override
   public void onDataReceived(HttpContent httpContent) {
     final int chunkSize = httpContent.content().readableBytes();
     final long received = receivedBytes + chunkSize;
@@ -127,8 +127,53 @@ final class HttpContext extends NettyHttpContext implements Runnable {
   }
 
   @Override
+  public HttpVersion version() {
+    return request.protocolVersion();
+  }
+
+  @Override
+  protected String requestUri() {
+    return request.uri();
+  }
+
+  @Override
+  protected String requestMethod() {
+    return request.method().name();
+  }
+
+  @Override
+  protected HttpHeaders nettyRequestHeaders() {
+    return request.headers();
+  }
+
+  @Override
   public long getContentLength() {
     return contentLength;
+  }
+
+  @Override
+  protected boolean isKeepAlive() {
+    Boolean keepAlive = this.keepAlive;
+    if (keepAlive == null) {
+      keepAlive = HttpUtil.isKeepAlive(request);
+      this.keepAlive = keepAlive;
+    }
+    return keepAlive;
+  }
+
+  @Override
+  protected boolean is100ContinueExpected() {
+    return HttpUtil.is100ContinueExpected(request);
+  }
+
+  @Override
+  protected void removeExpectHeader() {
+    request.headers().remove(HttpHeaderNames.EXPECT);
+  }
+
+  @Override
+  protected @Nullable Throwable requestDecoderFailure() {
+    return request.decoderResult().cause();
   }
 
   @Override
@@ -145,43 +190,6 @@ final class HttpContext extends NettyHttpContext implements Runnable {
     super.requestCompletedInternal(notHandled);
   }
 
-  @Override
-  public void run() {
-    HttpContextHolder.set(this);
-
-    try {
-      if (HttpUtil.is100ContinueExpected(Objects.requireNonNull(request))) {
-        if (!acceptContinue()) {
-          // the expectation failed so we refuse the request.
-          writeResponseError(HttpResponseStatus.EXPECTATION_FAILED, false);
-          return;
-        }
-
-        continueExpected = true;
-        writeResponseContinue();
-        Objects.requireNonNull(request).headers().remove(HttpHeaderNames.EXPECT);
-      }
-      else if (contentLength != -1 && contentLength > config.maxContentLength) {
-        processException(new RequestBodySizeExceededException(config.maxContentLength));
-        return;
-      }
-
-      Throwable decoderFailure = Objects.requireNonNull(request).decoderResult().cause();
-      if (decoderFailure != null) {
-        processException(decoderFailure);
-      }
-      else {
-        dispatcherHandler.handleRequest(this); // handling HTTP request
-      }
-    }
-    catch (Throwable e) {
-      httpTrafficHandler.handleException(channel, e);
-    }
-    finally {
-      HttpContextHolder.cleanup();
-    }
-  }
-
   private void cleanup(@Nullable IOException error) {
     if (requestBody != null) {
       if (error != null) {
@@ -193,18 +201,6 @@ final class HttpContext extends NettyHttpContext implements Runnable {
 
   public void channelInactive() {
     cleanup(new ClosedChannelException());
-  }
-
-  /**
-   * Determine whether the request expecting {@code 100 Continue} should be accepted.
-   */
-  private boolean acceptContinue() {
-    Boolean continueExpected = dispatcherHandler.requestContinueExpected(this);
-    if (continueExpected != null) {
-      return continueExpected;
-    }
-    // fallback to default max content-length check
-    return contentLength <= config.maxContentLength;
   }
 
   /**

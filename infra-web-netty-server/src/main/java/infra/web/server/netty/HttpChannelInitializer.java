@@ -34,7 +34,6 @@ import io.netty.handler.codec.http2.Http2FrameCodec;
 import io.netty.handler.codec.http2.Http2MultiplexHandler;
 import io.netty.handler.codec.http2.Http2ServerUpgradeCodec;
 import io.netty.util.AsciiString;
-import io.netty.util.AttributeKey;
 
 /**
  * Netty channel initializer for HTTP/HTTP2 support
@@ -48,12 +47,6 @@ sealed class HttpChannelInitializer extends ChannelInitializer<Channel> permits 
   protected static final String HttpTrafficHandler = "HttpTrafficHandler";
   protected static final String H2CUpgradeHandler = "H2CUpgradeHandler";
   protected static final String H2MultiplexHandler = "H2MultiplexHandler";
-
-  /**
-   * Protocol resolved for the current channel. Set when the pipeline is configured
-   * so request contexts do not need to inspect the pipeline.
-   */
-  static final AttributeKey<HttpProtocol> PROTOCOL = AttributeKey.valueOf(HttpProtocol.class, "PROTOCOL");
 
   protected final boolean http2Enabled;
 
@@ -97,7 +90,6 @@ sealed class HttpChannelInitializer extends ChannelInitializer<Channel> permits 
   }
 
   protected void configureHttp11Channel(Channel ch) {
-    ch.attr(PROTOCOL).set(HttpProtocol.HTTP_1_1);
     ch.pipeline()
             .addLast(HttpCodec, new HttpServerCodec(httpDecoderConfig))
             .addLast(HttpTrafficHandler, httpTrafficHandler);
@@ -108,10 +100,9 @@ sealed class HttpChannelInitializer extends ChannelInitializer<Channel> permits 
     Http11OrH2CleartextCodec upgrader = new Http11OrH2CleartextCodec();
     ChannelHandler http2ServerHandler = new H2CleartextCodec(upgrader, true);
 
-    CleartextHttp2ServerUpgradeHandler h2cUpgradeHandler = new CleartextHttp2ServerUpgradeHandler(
+    var h2cUpgradeHandler = new CleartextHttp2ServerUpgradeHandler(
             httpServerCodec, new HttpServerUpgradeHandler(httpServerCodec, upgrader), http2ServerHandler);
 
-    channel.attr(PROTOCOL).set(HttpProtocol.HTTP_1_1);
     channel.pipeline()
             .addLast(H2CUpgradeHandler, h2cUpgradeHandler)
             .addLast(HttpTrafficHandler, httpTrafficHandler);
@@ -122,7 +113,6 @@ sealed class HttpChannelInitializer extends ChannelInitializer<Channel> permits 
   }
 
   protected final void addH2StreamHandlers(Channel ch) {
-    ch.attr(PROTOCOL).set(HttpProtocol.HTTP_2);
     ch.pipeline().addLast(HttpTrafficHandler, httpTrafficHandler);
   }
 
