@@ -30,8 +30,10 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -46,7 +48,7 @@ import infra.http.MediaType;
 import infra.http.ResponseCookie;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.server.ServerHttpResponse;
-import infra.http.support.Netty4HttpHeaders;
+import infra.http.support.NettyHeaders;
 import infra.lang.Constant;
 import infra.util.CollectionUtils;
 import infra.util.InfraStrategies;
@@ -66,12 +68,15 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
+import io.netty.handler.codec.CharSequenceValueConverter;
+import io.netty.handler.codec.DefaultHeaders;
+import io.netty.handler.codec.DefaultHeadersImpl;
+import io.netty.handler.codec.Headers;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
@@ -83,9 +88,9 @@ import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.stream.ChunkedInput;
 import io.netty.handler.stream.ChunkedNioFile;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.util.AsciiString;
 import io.netty.util.internal.PlatformDependent;
 
-import static infra.http.HttpHeaders.HOST;
 import static infra.http.HttpHeaders.isNotEmpty;
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpMethod.HEAD;
@@ -157,6 +162,11 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    */
   private static final String CHUNKED_WRITER_NAME = "chunkedWriter";
 
+  /**
+   * Lower-case host header name, compatible with native HTTP/2 request headers.
+   */
+  private static final String HOST_HEADER = HttpHeaderNames.HOST.toString();
+
   // UNSAFE fields
   public final NettyRequestConfig config;
 
@@ -165,7 +175,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   /**
    * response headers
    */
-  public final HttpHeaders nettyResponseHeaders;
+  public final DefaultHeaders<CharSequence, @Nullable CharSequence, ?> nettyResponseHeaders;
   // UNSAFE fields END
 
   protected final HttpTrafficHandler httpTrafficHandler;
@@ -206,14 +216,63 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   protected NettyHttpContext(ApplicationContext context, Channel channel, NettyRequestConfig config,
           DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler,
           long contentLength, io.netty.handler.codec.http.HttpMethod method) {
+    this(context, channel, config, dispatcherHandler, httpTrafficHandler,
+            contentLength, method, newResponseHeaders());
+  }
+
+  /**
+   * Create a context with the given response headers container.
+   * <p>Subclasses that use a protocol-specific container, such as HTTP/2
+   * {@code Http2Headers}, can supply it through this constructor.
+   *
+   * @param nettyResponseHeaders the response headers container
+   */
+  protected NettyHttpContext(ApplicationContext context, Channel channel, NettyRequestConfig config,
+          DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler,
+          long contentLength, io.netty.handler.codec.http.HttpMethod method,
+          DefaultHeaders<CharSequence, CharSequence, ?> nettyResponseHeaders) {
     super(context, dispatcherHandler);
     this.config = config;
     this.channel = channel;
     this.httpTrafficHandler = httpTrafficHandler;
-    this.nettyResponseHeaders = DefaultHttpHeadersFactory.headersFactory().newHeaders();
+    this.nettyResponseHeaders = nettyResponseHeaders;
     this.contentLength = contentLength;
     this.method = method;
     this.requestBody = createRequestBody(contentLength, method);
+  }
+
+  /**
+   * Normalize a response header name before accessing the response headers.
+   * <p>HTTP/2 requires lower-case field names, so the HTTP/2 context overrides
+   * this method to lower-case names.
+   */
+  protected CharSequence normalizeHeaderName(String name) {
+    return name;
+  }
+
+  /**
+   * Whether this protocol supports the {@code Transfer-Encoding} response header.
+   * <p>HTTP/2 forbids connection-specific headers, so the HTTP/2 context
+   * overrides this method to return {@code false}.
+   */
+  protected boolean supportsTransferEncoding() {
+    return true;
+  }
+
+  /**
+   * Create the response headers container.
+   * <p>A Netty {@link Headers} implementation is used so HTTP/1 and HTTP/2
+   * can share the same header store. Header name and value validation is
+   * inherited from {@link DefaultHttpHeadersFactory#headersFactory()}.
+   */
+  private static DefaultHeaders<CharSequence, CharSequence, ?> newResponseHeaders() {
+    DefaultHttpHeadersFactory factory = DefaultHttpHeadersFactory.headersFactory();
+    return new DefaultHeadersImpl<>(
+            AsciiString.CASE_INSENSITIVE_HASHER,
+            CharSequenceValueConverter.INSTANCE,
+            factory.getNameValidator(),
+            16,
+            factory.getValueValidator());
   }
 
   /**
@@ -276,7 +335,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     if (socketAddress instanceof InetSocketAddress) {
       return ((InetSocketAddress) socketAddress).getPort();
     }
-    String hostHeader = getHeader(HOST);
+    String hostHeader = getHeader(HOST_HEADER);
     if (hostHeader != null) {
       int port = parsePortFromHostHeader(hostHeader);
       if (port > 0) {
@@ -311,7 +370,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   @Override
   public String getServerName() {
-    String host = getHeader(HOST);
+    String host = getHeader(HOST_HEADER);
     if (host != null) {
       if (host.charAt(0) == '[') {
         int closingBracket = host.indexOf(']');
@@ -404,50 +463,63 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   @Override
   public @Nullable String getContentTypeAsString() {
-    return getHeader(DefaultHttpHeaders.CONTENT_TYPE);
+    return getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
   }
 
   @Override
   public @Nullable String getResponseContentType() {
     String contentType = this.responseContentType;
     if (contentType == null) {
-      contentType = nettyResponseHeaders.get(DefaultHttpHeaders.CONTENT_TYPE);
-      if (contentType != null) {
+      CharSequence value = nettyResponseHeaders.get(HttpHeaderNames.CONTENT_TYPE);
+      if (value != null) {
+        contentType = value.toString();
         this.responseContentType = contentType;
       }
     }
     return contentType;
   }
 
+  /**
+   * Adapt the Netty response headers to the framework {@link infra.http.HttpHeaders}.
+   * <p>The returned adapter is a live view over {@link #nettyResponseHeaders}, so
+   * header writes performed directly on this context remain visible through
+   * {@link #responseHeaders()}.
+   */
   @Override
   protected infra.http.HttpHeaders createResponseHeaders() {
-    return new Netty4HttpHeaders(nettyResponseHeaders);
+    return new NettyHeaders(nettyResponseHeaders);
   }
 
   @Override
   public void setHeader(String name, @Nullable String value) {
-    nettyResponseHeaders.set(name, value);
+    CharSequence headerName = normalizeHeaderName(name);
+    if (value == null) {
+      nettyResponseHeaders.remove(headerName);
+    }
+    else {
+      nettyResponseHeaders.set(headerName, value);
+    }
   }
 
   @Override
   public void setHeaders(infra.http.@Nullable HttpHeaders headers) {
     if (isNotEmpty(headers)) {
       for (var entry : headers.entries()) {
-        nettyResponseHeaders.set(entry.getKey(), entry.getValue());
+        nettyResponseHeaders.set(normalizeHeaderName(entry.getKey()), entry.getValue());
       }
     }
   }
 
   @Override
   public void addHeader(String name, @Nullable String value) {
-    nettyResponseHeaders.add(name, value);
+    nettyResponseHeaders.add(normalizeHeaderName(name), value);
   }
 
   @Override
   public void addHeaders(infra.http.@Nullable HttpHeaders headers) {
     if (isNotEmpty(headers)) {
       for (var entry : headers.entries()) {
-        nettyResponseHeaders.add(entry.getKey(), entry.getValue());
+        nettyResponseHeaders.add(normalizeHeaderName(entry.getKey()), entry.getValue());
       }
     }
   }
@@ -455,8 +527,9 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   @Override
   public boolean removeHeader(String name) {
     if (!super.removeHeader(name)) {
-      boolean contains = nettyResponseHeaders.contains(name);
-      nettyResponseHeaders.remove(name);
+      CharSequence headerName = normalizeHeaderName(name);
+      boolean contains = nettyResponseHeaders.contains(headerName);
+      nettyResponseHeaders.remove(headerName);
       return contains;
     }
     return true;
@@ -464,12 +537,12 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   @Override
   public boolean containsResponseHeader(String name) {
-    return nettyResponseHeaders.contains(name);
+    return nettyResponseHeaders.contains(normalizeHeaderName(name));
   }
 
   @Override
   public HttpCookie[] readCookies() {
-    List<String> allCookie = getHeaders(DefaultHttpHeaders.COOKIE);
+    List<String> allCookie = getHeaders(HttpHeaderNames.COOKIE.toString());
     if (CollectionUtils.isEmpty(allCookie)) {
       return EMPTY_COOKIES;
     }
@@ -531,7 +604,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   @Override
   public void sendRedirect(String location) {
     this.status = HttpResponseStatus.FOUND;
-    nettyResponseHeaders.set(DefaultHttpHeaders.LOCATION, location);
+    nettyResponseHeaders.set(HttpHeaderNames.LOCATION, location);
     commit();
   }
 
@@ -637,26 +710,28 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       // ---------------------------------------------
       // apply Status code and headers
       // ---------------------------------------------
-      HttpHeaders headers = nettyResponseHeaders;
+      var headers = nettyResponseHeaders;
       if (status != HttpResponseStatus.SWITCHING_PROTOCOLS) {
         // set Content-Length header
         if (MediaType.TEXT_EVENT_STREAM_VALUE.equals(getResponseContentType())) {
-          headers.set(DefaultHttpHeaders.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
-          headers.remove(DefaultHttpHeaders.CONTENT_LENGTH);
+          if (supportsTransferEncoding()) {
+            headers.set(HttpHeaderNames.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
+            headers.remove(HttpHeaderNames.CONTENT_LENGTH);
+          }
         }
         else if (!isTransferEncodingChunked(headers)) {
           if (!headers.contains(HttpHeaderNames.CONTENT_LENGTH)) {
             ByteBuf responseBody = this.responseBody;
             if (responseBody == null) {
               if (getMethod() == HttpMethod.HEAD && outputStream instanceof NoBodyOutputStream nbStream) {
-                headers.set(DefaultHttpHeaders.CONTENT_LENGTH, nbStream.contentLength);
+                headers.setInt(HttpHeaderNames.CONTENT_LENGTH, nbStream.contentLength);
               }
               else {
-                headers.setInt(DefaultHttpHeaders.CONTENT_LENGTH, 0);
+                headers.setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
               }
             }
             else {
-              headers.setInt(DefaultHttpHeaders.CONTENT_LENGTH, responseBody.readableBytes());
+              headers.setInt(HttpHeaderNames.CONTENT_LENGTH, responseBody.readableBytes());
             }
           }
         }
@@ -678,7 +753,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
             nc.setPartitioned(rc.isPartitioned());
           }
 
-          headers.add(DefaultHttpHeaders.SET_COOKIE, cookieEncoder.encode(nc));
+          headers.add(HttpHeaderNames.SET_COOKIE, cookieEncoder.encode(nc));
         }
       }
 
@@ -690,8 +765,22 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   /**
    * Write the response head using the transport specific representation.
    */
-  protected void writeResponseHead(HttpResponseStatus status, HttpHeaders headers) {
-    channel.write(new DefaultHttpResponse(version(), status, headers));
+  protected void writeResponseHead(HttpResponseStatus status, Headers<CharSequence, @Nullable CharSequence, ?> headers) {
+    channel.write(new DefaultHttpResponse(version(), status, toHttpHeaders(headers)));
+  }
+
+  /**
+   * Adapt response headers to a Netty HTTP/1 {@link HttpHeaders} view.
+   * <p>The response headers are copied because Netty 4.2's HTTP/1
+   * {@code HttpHeaders} type is independent of the generic {@link Headers}
+   * interface.
+   */
+  static HttpHeaders toHttpHeaders(Headers<CharSequence, CharSequence, ?> headers) {
+    HttpHeaders httpHeaders = DefaultHttpHeadersFactory.headersFactory().newHeaders();
+    for (var entry : headers) {
+      httpHeaders.add(entry.getKey(), entry.getValue());
+    }
+    return httpHeaders;
   }
 
   /**
@@ -717,7 +806,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   @Override
   public void setContentLength(long length) {
     responseContentLength = length;
-    nettyResponseHeaders.set(DefaultHttpHeaders.CONTENT_LENGTH, length);
+    nettyResponseHeaders.setLong(HttpHeaderNames.CONTENT_LENGTH, length);
   }
 
   @Override
@@ -1053,13 +1142,17 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   }
 
   /**
-   * Checks to see if the transfer encoding in a specified {@link HttpMessage} is chunked
+   * Checks to see if the transfer encoding in the specified headers is chunked
    *
    * @return True if transfer encoding is chunked, otherwise false
    */
-  private static boolean isTransferEncodingChunked(HttpHeaders responseHeaders) {
-    return responseHeaders.containsValue(
-            DefaultHttpHeaders.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED, true);
+  private static boolean isTransferEncodingChunked(Headers<CharSequence, CharSequence, ?> responseHeaders) {
+    for (CharSequence value : responseHeaders.getAll(HttpHeaderNames.TRANSFER_ENCODING)) {
+      if (AsciiString.contentEqualsIgnoreCase(value, DefaultHttpHeaders.CHUNKED)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   static void parseParameters(MultiValueMap<String, String> params, String s) {
@@ -1272,9 +1365,9 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     public @Nullable MediaType getContentType() {
       MediaType contentType = this.contentType;
       if (contentType == null) {
-        String string = nettyResponseHeaders.get(HttpHeaderNames.CONTENT_TYPE);
-        if (string != null) {
-          contentType = MediaType.parseMediaType(string);
+        CharSequence value = nettyResponseHeaders.get(HttpHeaderNames.CONTENT_TYPE);
+        if (value != null) {
+          contentType = MediaType.parseMediaType(value.toString());
           this.contentType = contentType;
         }
       }
@@ -1283,7 +1376,12 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
     @Override
     public boolean containsHeaderValue(String headerName, String value) {
-      return nettyResponseHeaders.containsValue(headerName, value, true);
+      for (CharSequence each : nettyResponseHeaders.getAll(normalizeHeaderName(headerName))) {
+        if (AsciiString.contentEqualsIgnoreCase(each, value)) {
+          return true;
+        }
+      }
+      return false;
     }
 
     @Override
@@ -1313,17 +1411,28 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
     @Override
     public @Nullable String getHeader(String name) {
-      return nettyResponseHeaders.get(name);
+      CharSequence value = nettyResponseHeaders.get(normalizeHeaderName(name));
+      return value != null ? value.toString() : null;
     }
 
     @Override
     public List<String> getHeaders(String name) {
-      return nettyResponseHeaders.getAll(name);
+      List<CharSequence> values = nettyResponseHeaders.getAll(normalizeHeaderName(name));
+      List<String> result = new ArrayList<>(values.size());
+      for (CharSequence value : values) {
+        result.add(value.toString());
+      }
+      return result;
     }
 
     @Override
     public Collection<String> getHeaderNames() {
-      return nettyResponseHeaders.names();
+      Set<CharSequence> names = nettyResponseHeaders.names();
+      Set<String> result = new LinkedHashSet<>(names.size());
+      for (CharSequence name : names) {
+        result.add(name.toString());
+      }
+      return result;
     }
 
     @Override
@@ -1335,9 +1444,9 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     public long getContentLength() {
       long contentLength = responseContentLength;
       if (contentLength == -1L) {
-        String value = nettyResponseHeaders.get(HttpHeaderNames.CONTENT_LENGTH);
+        CharSequence value = nettyResponseHeaders.get(HttpHeaderNames.CONTENT_LENGTH);
         if (value != null) {
-          contentLength = parseLong(value);
+          contentLength = parseLong(value.toString());
           responseContentLength = contentLength;
         }
       }

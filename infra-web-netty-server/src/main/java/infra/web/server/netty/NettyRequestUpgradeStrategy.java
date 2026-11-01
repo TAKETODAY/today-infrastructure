@@ -124,7 +124,9 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     Assert.state(response != null, "Handshake failed");
 
     nettyContext.setStatus(response.status());
-    nettyContext.nettyResponseHeaders.add(response.headers());
+    for (var entry : response.headers()) {
+      nettyContext.nettyResponseHeaders.add(entry.getKey(), entry.getValue());
+    }
     nettyContext.registerCompletedCallback(handshakeChannel);
 
     if (selectedProtocol != null) {

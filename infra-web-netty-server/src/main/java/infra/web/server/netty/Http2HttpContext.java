@@ -21,15 +21,17 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 import infra.context.ApplicationContext;
+import infra.http.support.NettyHeaders;
 import infra.web.DispatcherHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.handler.codec.Headers;
 import io.netty.handler.codec.HeadersUtils;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
@@ -39,7 +41,6 @@ import io.netty.handler.codec.http2.DefaultHttp2HeadersFrame;
 import io.netty.handler.codec.http2.Http2DataChunkedInput;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2StreamChannel;
-import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.handler.stream.ChunkedInput;
 
 /**
@@ -77,8 +78,8 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
   Http2HttpContext(Http2StreamChannel channel, Http2Headers http2Headers, NettyRequestConfig config,
           ApplicationContext context, DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler) {
-    super(context, channel, config, dispatcherHandler, httpTrafficHandler,
-            contentLength(http2Headers), method(http2Headers));
+    super(context, channel, config, dispatcherHandler, httpTrafficHandler, contentLength(http2Headers), method(http2Headers),
+            new DefaultHttp2Headers(true, true, 16));
     this.http2Headers = http2Headers;
 
     // expose :authority as the regular host header
@@ -151,9 +152,34 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
     return new NettyHttp2Headers(http2Headers);
   }
 
+  /**
+   * HTTP/2 requires lower-case header field names.
+   */
   @Override
-  protected void writeResponseHead(HttpResponseStatus status, HttpHeaders headers) {
-    Http2Headers http2Headers = HttpConversionUtil.toHttp2Headers(headers, false);
+  protected CharSequence normalizeHeaderName(String name) {
+    return name.toLowerCase(Locale.ROOT);
+  }
+
+  /**
+   * HTTP/2 forbids connection-specific headers such as {@code Transfer-Encoding}.
+   */
+  @Override
+  protected boolean supportsTransferEncoding() {
+    return false;
+  }
+
+  @Override
+  protected infra.http.HttpHeaders createResponseHeaders() {
+    return new NettyHeaders(nettyResponseHeaders, true);
+  }
+
+  @Override
+  protected void writeResponseHead(HttpResponseStatus status, Headers<CharSequence, @Nullable CharSequence, ?> headers) {
+    Http2Headers http2Headers = (Http2Headers) headers;
+    // connection-specific headers are forbidden in HTTP/2
+    for (CharSequence name : CONNECTION_SPECIFIC_HEADERS) {
+      http2Headers.remove(name);
+    }
     http2Headers.status(status.codeAsText());
     channel.write(new DefaultHttp2HeadersFrame(http2Headers, false));
   }
