@@ -188,7 +188,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   private final @Nullable BodyInputStream requestBody;
 
-  private final String method;
+  private final io.netty.handler.codec.http.HttpMethod method;
 
   private final long contentLength;
 
@@ -212,7 +212,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     this.httpTrafficHandler = httpTrafficHandler;
     this.nettyResponseHeaders = DefaultHttpHeadersFactory.headersFactory().newHeaders();
     this.contentLength = contentLength;
-    this.method = method.name();
+    this.method = method;
     this.requestBody = createRequestBody(contentLength, method);
   }
 
@@ -227,13 +227,9 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * @param method the request method
    */
   private @Nullable BodyInputStream createRequestBody(long contentLength, io.netty.handler.codec.http.HttpMethod method) {
-    boolean methodWithoutBody = method == GET || method == HEAD;
-    return (contentLength == 0L || (contentLength == -1L && methodWithoutBody))
-            ? null
-            : createRequestBody();
-  }
-
-  private BodyInputStream createRequestBody() {
+    if (contentLength == 0L || (contentLength == -1L && (method == GET || method == HEAD))) {
+      return null;
+    }
     Awaiter awaiter = config.awaiterFactory.apply(this);
     if (config.autoRead) {
       return new BodyInputStream(awaiter, config.dataReceivedQueueCapacity);
@@ -249,7 +245,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   @Override
   protected final String readMethod() {
-    return method;
+    return method.name();
   }
 
   @Override
@@ -359,15 +355,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     return channel.localAddress();
   }
 
-  /**
-   * Return the mutable request headers in their native transport form.
-   * <p>The returned headers back the request header accessors of this context,
-   * so mutations are visible to subsequent reads.
-   *
-   * @return the request headers, never {@code null}
-   */
-  protected abstract HttpHeaders nettyRequestHeaders();
-
   @Override
   protected final String readRequestURI() {
     String uri = requestUri();
@@ -413,62 +400,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   @Override
   protected PrintWriter createWriter() throws IOException {
     return new PrintWriter(getOutputStream(), config.writerAutoFlush, config.writerCharset);
-  }
-
-  @Override
-  protected infra.http.HttpHeaders createRequestHeaders() {
-    return new Netty4HttpHeaders(nettyRequestHeaders());
-  }
-
-  @Override
-  public boolean containsHeader(String name) {
-    return nettyRequestHeaders().contains(name);
-  }
-
-  @Override
-  public boolean containsHeaderValue(String headerName, String value) {
-    return nettyRequestHeaders().containsValue(headerName, value, true);
-  }
-
-  /**
-   * Returns the value of the specified request header as a {@code String}.
-   * If the request does not have a header with the specified name,
-   * this method returns {@code null}.
-   *
-   * @param name the name of the request header
-   * @return the value of the specified request header, or {@code null}
-   * if the header does not exist
-   * @since 5.0
-   */
-  @Override
-  public @Nullable String getHeader(String name) {
-    return nettyRequestHeaders().get(name);
-  }
-
-  /**
-   * Returns the values of the specified request header as a {@code List<String>}.
-   * If the request does not have a header with the specified name,
-   * this method returns an empty list.
-   *
-   * @param name the name of the request header
-   * @return the values of the specified request header, or an empty
-   * list if the header does not exist
-   * @since 5.0
-   */
-  @Override
-  public List<String> getHeaders(String name) {
-    return nettyRequestHeaders().getAll(name);
-  }
-
-  /**
-   * Get the header names provided for this request.
-   *
-   * @return a Collection of all the header names provided for this request.
-   * @since 5.0
-   */
-  @Override
-  public Collection<String> getHeaderNames() {
-    return nettyRequestHeaders().names();
   }
 
   @Override

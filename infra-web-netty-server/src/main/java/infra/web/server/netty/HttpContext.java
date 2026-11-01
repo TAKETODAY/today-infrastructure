@@ -16,7 +16,13 @@
 
 package infra.web.server.netty;
 
+import org.jspecify.annotations.Nullable;
+
+import java.util.Collection;
+import java.util.List;
+
 import infra.context.ApplicationContext;
+import infra.http.support.Netty4HttpHeaders;
 import infra.web.DispatcherHandler;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -24,7 +30,6 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -66,8 +71,56 @@ final class HttpContext extends NettyHttpContext implements Runnable {
   }
 
   @Override
-  protected HttpHeaders nettyRequestHeaders() {
-    return request.headers();
+  protected infra.http.HttpHeaders createRequestHeaders() {
+    return new Netty4HttpHeaders(request.headers());
+  }
+
+  @Override
+  public boolean containsHeader(String name) {
+    return request.headers().contains(name);
+  }
+
+  @Override
+  public boolean containsHeaderValue(String headerName, String value) {
+    return request.headers().containsValue(headerName, value, true);
+  }
+
+  /**
+   * Returns the value of the specified request header as a {@code String}.
+   * If the request does not have a header with the specified name,
+   * this method returns {@code null}.
+   *
+   * @param name the name of the request header
+   * @return the value of the specified request header, or {@code null}
+   * if the header does not exist
+   */
+  @Override
+  public @Nullable String getHeader(String name) {
+    return request.headers().get(name);
+  }
+
+  /**
+   * Returns the values of the specified request header as a {@code List<String>}.
+   * If the request does not have a header with the specified name,
+   * this method returns an empty list.
+   *
+   * @param name the name of the request header
+   * @return the values of the specified request header, or an empty
+   * list if the header does not exist
+   */
+  @Override
+  public List<String> getHeaders(String name) {
+    return request.headers().getAll(name);
+  }
+
+  /**
+   * Get the header names provided for this request.
+   *
+   * @return a Collection of all the header names provided for this request.
+   */
+  @Override
+  public Collection<String> getHeaderNames() {
+    return request.headers().names();
   }
 
   @Override

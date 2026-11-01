@@ -110,27 +110,21 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
     return uri;
   }
 
-  @Override
-  protected HttpHeaders nettyRequestHeaders() {
-    HttpHeaders headers = this.headers;
-    if (headers == null) {
-      headers = createHeaders();
-      this.headers = headers;
-    }
-    return headers;
-  }
-
   /**
    * Copy regular headers lazily, only needed when the generic
    * {@code requestHeaders()} view is requested.
    */
   private HttpHeaders createHeaders() {
-    HttpHeaders headers = new DefaultHttpHeaders(false);
-    for (var entry : http2Headers) {
-      CharSequence name = entry.getKey();
-      if (!Http2Headers.PseudoHeaderName.isPseudoHeader(name)) {
-        headers.add(name, entry.getValue());
+    HttpHeaders headers = this.headers;
+    if (headers == null) {
+      headers = new DefaultHttpHeaders(false);
+      for (var entry : http2Headers) {
+        CharSequence name = entry.getKey();
+        if (!Http2Headers.PseudoHeaderName.isPseudoHeader(name)) {
+          headers.add(name, entry.getValue());
+        }
       }
+      this.headers = headers;
     }
     return headers;
   }
@@ -171,7 +165,7 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
   @Override
   protected infra.http.HttpHeaders createRequestHeaders() {
-    return new Netty4HttpHeaders(nettyRequestHeaders());
+    return new Netty4HttpHeaders(createHeaders());
   }
 
   @Override

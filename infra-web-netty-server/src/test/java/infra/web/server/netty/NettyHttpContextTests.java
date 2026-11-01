@@ -24,6 +24,7 @@ import java.util.List;
 
 import infra.context.ApplicationContext;
 import infra.util.MultiValueMap;
+import infra.http.support.Netty4HttpHeaders;
 import infra.web.DispatcherHandler;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
@@ -719,8 +720,8 @@ class NettyHttpContextTests {
     }
 
     @Override
-    protected io.netty.handler.codec.http.HttpHeaders nettyRequestHeaders() {
-      return request.headers();
+    protected infra.http.HttpHeaders createRequestHeaders() {
+      return new Netty4HttpHeaders(request.headers());
     }
 
     @Override
