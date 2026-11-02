@@ -116,22 +116,22 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
   @Override
   public @Nullable String getHeader(String name) {
-    return HeadersUtils.getAsString(http2Headers, name);
+    return HeadersUtils.getAsString(http2Headers, normalizeHeaderName(name));
   }
 
   @Override
   public List<String> getHeaders(String name) {
-    return HeadersUtils.getAllAsString(http2Headers, name);
+    return HeadersUtils.getAllAsString(http2Headers, normalizeHeaderName(name));
   }
 
   @Override
   public boolean containsHeader(String name) {
-    return http2Headers.contains(name);
+    return http2Headers.contains(normalizeHeaderName(name));
   }
 
   @Override
   public boolean containsHeaderValue(String headerName, String value) {
-    return http2Headers.contains(headerName, value, true);
+    return http2Headers.contains(normalizeHeaderName(headerName), value, true);
   }
 
   @Override

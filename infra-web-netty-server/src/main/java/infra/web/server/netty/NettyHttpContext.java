@@ -30,10 +30,8 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -42,6 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import infra.context.ApplicationContext;
 import infra.http.DefaultHttpHeaders;
 import infra.http.HttpCookie;
+import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
@@ -72,6 +71,7 @@ import io.netty.handler.codec.CharSequenceValueConverter;
 import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.DefaultHeadersImpl;
 import io.netty.handler.codec.Headers;
+import io.netty.handler.codec.HeadersUtils;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
@@ -161,10 +161,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    */
   private static final String CHUNKED_WRITER_NAME = "chunkedWriter";
 
-  /**
-   * Lower-case host header name, compatible with native HTTP/2 request headers.
-   */
-  private static final String HOST_HEADER = HttpHeaderNames.HOST.toString();
+  private static final CookieHeaderNames.SameSite[] SAME_SITES = CookieHeaderNames.SameSite.values();
 
   protected final Channel channel;
 
@@ -268,7 +265,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
             AsciiString.CASE_INSENSITIVE_HASHER,
             CharSequenceValueConverter.INSTANCE,
             factory.getNameValidator(),
-            16,
+            8,
             factory.getValueValidator());
   }
 
@@ -332,7 +329,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     if (socketAddress instanceof InetSocketAddress) {
       return ((InetSocketAddress) socketAddress).getPort();
     }
-    String hostHeader = getHeader(HOST_HEADER);
+    String hostHeader = getHeader(HttpHeaders.HOST);
     if (hostHeader != null) {
       int port = parsePortFromHostHeader(hostHeader);
       if (port > 0) {
@@ -367,7 +364,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   @Override
   public String getServerName() {
-    String host = getHeader(HOST_HEADER);
+    String host = getHeader(HttpHeaders.HOST);
     if (host != null) {
       if (host.charAt(0) == '[') {
         int closingBracket = host.indexOf(']');
@@ -460,7 +457,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   @Override
   public @Nullable String getContentTypeAsString() {
-    return getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
+    return getHeader(DefaultHttpHeaders.CONTENT_TYPE);
   }
 
   @Override
@@ -539,7 +536,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   @Override
   public HttpCookie[] readCookies() {
-    List<String> allCookie = getHeaders(HttpHeaderNames.COOKIE.toString());
+    List<String> allCookie = getHeaders(HttpHeaders.COOKIE);
     if (CollectionUtils.isEmpty(allCookie)) {
       return EMPTY_COOKIES;
     }
@@ -1115,7 +1112,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    */
   static CookieHeaderNames.@Nullable SameSite forSameSite(@Nullable String name) {
     if (name != null) {
-      for (var each : CookieHeaderNames.SameSite.class.getEnumConstants()) {
+      for (var each : SAME_SITES) {
         if (each.name().equalsIgnoreCase(name)) {
           return each;
         }
@@ -1129,13 +1126,9 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    *
    * @return True if transfer encoding is chunked, otherwise false
    */
-  private static boolean isTransferEncodingChunked(Headers<CharSequence, CharSequence, ?> responseHeaders) {
-    for (CharSequence value : responseHeaders.getAll(HttpHeaderNames.TRANSFER_ENCODING)) {
-      if (AsciiString.contentEqualsIgnoreCase(value, DefaultHttpHeaders.CHUNKED)) {
-        return true;
-      }
-    }
-    return false;
+  private static boolean isTransferEncodingChunked(DefaultHeaders<CharSequence, @Nullable CharSequence, ?> responseHeaders) {
+    return responseHeaders.contains(
+            HttpHeaderNames.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED, AsciiString.CASE_INSENSITIVE_HASHER);
   }
 
   static void parseParameters(MultiValueMap<String, String> params, String s) {
@@ -1359,12 +1352,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
     @Override
     public boolean containsHeaderValue(String headerName, String value) {
-      for (CharSequence each : nettyResponseHeaders.getAll(normalizeHeaderName(headerName))) {
-        if (AsciiString.contentEqualsIgnoreCase(each, value)) {
-          return true;
-        }
-      }
-      return false;
+      return nettyResponseHeaders.contains(normalizeHeaderName(headerName), value, AsciiString.CASE_INSENSITIVE_HASHER);
     }
 
     @Override
@@ -1394,28 +1382,17 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
     @Override
     public @Nullable String getHeader(String name) {
-      CharSequence value = nettyResponseHeaders.get(normalizeHeaderName(name));
-      return value != null ? value.toString() : null;
+      return HeadersUtils.getAsString(nettyResponseHeaders, normalizeHeaderName(name));
     }
 
     @Override
     public List<String> getHeaders(String name) {
-      List<CharSequence> values = nettyResponseHeaders.getAll(normalizeHeaderName(name));
-      List<String> result = new ArrayList<>(values.size());
-      for (CharSequence value : values) {
-        result.add(value.toString());
-      }
-      return result;
+      return HeadersUtils.getAllAsString(nettyResponseHeaders, normalizeHeaderName(name));
     }
 
     @Override
     public Collection<String> getHeaderNames() {
-      Set<CharSequence> names = nettyResponseHeaders.names();
-      Set<String> result = new LinkedHashSet<>(names.size());
-      for (CharSequence name : names) {
-        result.add(name.toString());
-      }
-      return result;
+      return HeadersUtils.namesAsString(nettyResponseHeaders);
     }
 
     @Override
