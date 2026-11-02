@@ -115,21 +115,12 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
   @Override
   public @Nullable String getHeader(String name) {
-    CharSequence value = http2Headers.get(name);
-    return value != null ? value.toString() : null;
+    return HeadersUtils.getAsString(http2Headers, name);
   }
 
   @Override
   public List<String> getHeaders(String name) {
-    List<CharSequence> values = http2Headers.getAll(name);
-    if (values.isEmpty()) {
-      return List.of();
-    }
-    List<String> result = new ArrayList<>(values.size());
-    for (CharSequence value : values) {
-      result.add(value.toString());
-    }
-    return result;
+    return HeadersUtils.getAllAsString(http2Headers, name);
   }
 
   @Override
