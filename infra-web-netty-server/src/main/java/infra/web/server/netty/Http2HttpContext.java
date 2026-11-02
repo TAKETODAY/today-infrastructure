@@ -29,6 +29,7 @@ import infra.web.DispatcherHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.Headers;
 import io.netty.handler.codec.HeadersUtils;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -165,8 +166,8 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
   }
 
   @Override
-  protected void writeResponseHead(HttpResponseStatus status, Headers<CharSequence, @Nullable CharSequence, ?> headers) {
-    Http2Headers http2Headers = (Http2Headers) headers;
+  protected void writeResponseHead(HttpResponseStatus status, DefaultHeaders<CharSequence, @Nullable CharSequence, ?> headers) {
+    Http2Headers http2Headers = (Http2Headers) (Headers<CharSequence, CharSequence, ?>) headers;
     // connection-specific headers are forbidden in HTTP/2
     for (CharSequence name : CONNECTION_SPECIFIC_HEADERS) {
       http2Headers.remove(name);

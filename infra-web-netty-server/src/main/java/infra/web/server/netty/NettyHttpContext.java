@@ -76,7 +76,6 @@ import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
@@ -167,16 +166,14 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    */
   private static final String HOST_HEADER = HttpHeaderNames.HOST.toString();
 
-  // UNSAFE fields
-  public final NettyRequestConfig config;
+  protected final Channel channel;
 
-  public final Channel channel;
+  protected final NettyRequestConfig config;
 
   /**
    * response headers
    */
-  public final DefaultHeaders<CharSequence, @Nullable CharSequence, ?> nettyResponseHeaders;
-  // UNSAFE fields END
+  protected final DefaultHeaders<CharSequence, @Nullable CharSequence, ?> nettyResponseHeaders;
 
   protected final HttpTrafficHandler httpTrafficHandler;
 
@@ -765,22 +762,8 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   /**
    * Write the response head using the transport specific representation.
    */
-  protected void writeResponseHead(HttpResponseStatus status, Headers<CharSequence, @Nullable CharSequence, ?> headers) {
-    channel.write(new DefaultHttpResponse(version(), status, toHttpHeaders(headers)));
-  }
-
-  /**
-   * Adapt response headers to a Netty HTTP/1 {@link HttpHeaders} view.
-   * <p>The response headers are copied because Netty 4.2's HTTP/1
-   * {@code HttpHeaders} type is independent of the generic {@link Headers}
-   * interface.
-   */
-  static HttpHeaders toHttpHeaders(Headers<CharSequence, CharSequence, ?> headers) {
-    HttpHeaders httpHeaders = DefaultHttpHeadersFactory.headersFactory().newHeaders();
-    for (var entry : headers) {
-      httpHeaders.add(entry.getKey(), entry.getValue());
-    }
-    return httpHeaders;
+  protected void writeResponseHead(HttpResponseStatus status, DefaultHeaders<CharSequence, @Nullable CharSequence, ?> headers) {
+    channel.write(new DefaultHttpResponse(version(), status, new Http1Headers(headers)));
   }
 
   /**
