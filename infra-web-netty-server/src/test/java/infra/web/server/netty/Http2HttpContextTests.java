@@ -21,6 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 
+import java.io.IOException;
 import java.util.List;
 
 import infra.context.ApplicationContext;
@@ -31,6 +32,7 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http2.DefaultHttp2DataFrame;
 import io.netty.handler.codec.http2.DefaultHttp2Headers;
@@ -43,6 +45,7 @@ import io.netty.handler.stream.ChunkedInput;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
@@ -293,12 +296,53 @@ class Http2HttpContextTests {
     then(channel).should().close();
   }
 
+  @Test
+  void continueExpectationDoesNotBypassMaxContentLength() throws Exception {
+    Http2Headers headers = new DefaultHttp2Headers()
+            .method("POST").scheme("https").path("/upload")
+            .set(HttpHeaderNames.EXPECT, HttpHeaders.CONTINUE);
+    DispatcherHandler dispatcher = mock();
+    when(dispatcher.requestContinueExpected(any())).thenReturn(true);
+    Http2HttpContext context = createContext(dispatcher, config(10), headers);
+
+    context.run();
+
+    ByteBuf data = Unpooled.buffer(11).writeZero(11);
+    context.onDataReceived(data, false);
+
+    assertThatThrownBy(() -> context.getInputStream().read())
+            .isInstanceOf(IOException.class);
+  }
+
+  @Test
+  void oversizedContentLengthRejectsContinue() {
+    Http2Headers headers = new DefaultHttp2Headers()
+            .method("POST").scheme("https").path("/upload")
+            .set(HttpHeaderNames.CONTENT_LENGTH, "11")
+            .set(HttpHeaderNames.EXPECT, HttpHeaders.CONTINUE);
+    DispatcherHandler dispatcher = mock();
+    when(dispatcher.requestContinueExpected(any())).thenReturn(true);
+    Http2HttpContext context = createContext(dispatcher, config(10), headers);
+
+    assertThat(context.tryWriteResponseContinue()).isFalse();
+  }
+
   private Http2HttpContext createContext() {
     ApplicationContext applicationContext = mock();
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .multipartParser(mock()).sendErrorHandler(mock()).build();
     return new Http2HttpContext(channel, requestHeaders, config, applicationContext,
             new DispatcherHandler(applicationContext), httpTrafficHandler);
+  }
+
+  private Http2HttpContext createContext(DispatcherHandler dispatcher, NettyRequestConfig config, Http2Headers headers) {
+    return new Http2HttpContext(channel, headers, config, mock(ApplicationContext.class), dispatcher, httpTrafficHandler);
+  }
+
+  private static NettyRequestConfig config(long maxContentLength) {
+    return NettyRequestConfig.forBuilder(false)
+            .maxContentLength(maxContentLength)
+            .multipartParser(mock()).sendErrorHandler(mock()).build();
   }
 
 }

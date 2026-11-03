@@ -195,15 +195,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   private long receivedBytes;
 
   /**
-   * Whether a {@code 100 Continue} interim response has been accepted for this
-   * request.
-   * <p>Once set, the request body is accepted even when it exceeds
-   * {@link NettyRequestConfig#maxContentLength}, because the client has already
-   * been told to send it.
-   */
-  protected volatile boolean continueExpected = false;
-
-  /**
    * Create a context with the given response headers container.
    * <p>Subclasses that use a protocol-specific container, such as HTTP/2
    * {@code Http2Headers}, can supply it through this constructor.
@@ -890,7 +881,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     final int chunkSize = data.readableBytes();
     final long received = receivedBytes + chunkSize;
 
-    if (received > config.maxContentLength && !continueExpected) {
+    if (received > config.maxContentLength) {
       data.release();
       if (requestBody != null) {
         requestBody.onError(new IOException(new RequestBodySizeExceededException(config.maxContentLength)));
@@ -964,20 +955,18 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     HttpContextHolder.set(this);
 
     try {
+      long contentLength = getContentLength();
+      if (contentLength != -1 && contentLength > config.maxContentLength) {
+        processException(new RequestBodySizeExceededException(config.maxContentLength));
+        return;
+      }
+
       if (is100ContinueExpected()) {
         if (tryWriteResponseContinue()) {
-          continueExpected = true;
           removeExpectHeader();
         }
         else {
           writeRejectResponseContinue();
-          return;
-        }
-      }
-      else {
-        long contentLength = getContentLength();
-        if (contentLength != -1 && contentLength > config.maxContentLength) {
-          processException(new RequestBodySizeExceededException(config.maxContentLength));
           return;
         }
       }
@@ -1021,22 +1010,19 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   /**
    * Decide whether to accept the {@code 100-continue} expectation and, if so,
    * write the interim response.
-   * <p>The decision is delegated to {@link DispatcherHandler#requestContinueExpected}.
-   * When that returns {@code null}, the expectation is accepted only if the
-   * request content length fits within {@link NettyRequestConfig#maxContentLength}.
+   * <p>The expectation is rejected when the declared content length exceeds
+   * {@link NettyRequestConfig#maxContentLength}, or when
+   * {@link DispatcherHandler#requestContinueExpected} explicitly rejects it.
    *
    * @return {@code true} if the interim response was written and the request body
    * may be read, {@code false} if the expectation must be rejected
    */
   protected boolean tryWriteResponseContinue() {
-    Boolean continueExpected = dispatcherHandler.requestContinueExpected(this);
-    if (continueExpected != null) {
-      if (!continueExpected) {
-        return false;
-      }
+    if (getContentLength() > config.maxContentLength) {
+      return false;
     }
-    // fallback to default max content-length check
-    else if (getContentLength() > config.maxContentLength) {
+    Boolean continueExpected = dispatcherHandler.requestContinueExpected(this);
+    if (continueExpected != null && !continueExpected) {
       return false;
     }
 
