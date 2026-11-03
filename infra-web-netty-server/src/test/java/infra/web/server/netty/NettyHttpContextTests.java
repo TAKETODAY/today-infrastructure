@@ -34,6 +34,7 @@ import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.QueryStringEncoder;
 
+import static infra.web.server.netty.HttpContext.newResponseHeaders;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -705,7 +706,8 @@ class NettyHttpContextTests {
               mock(DispatcherHandler.class),
               mock(HttpTrafficHandler.class),
               0,
-              request.method());
+              request.method(),
+              newResponseHeaders());
       this.request = request;
     }
 

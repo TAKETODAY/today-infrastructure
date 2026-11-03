@@ -67,12 +67,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
-import io.netty.handler.codec.CharSequenceValueConverter;
 import io.netty.handler.codec.DefaultHeaders;
-import io.netty.handler.codec.DefaultHeadersImpl;
-import io.netty.handler.codec.Headers;
 import io.netty.handler.codec.HeadersUtils;
-import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -207,13 +203,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    */
   protected volatile boolean continueExpected = false;
 
-  protected NettyHttpContext(ApplicationContext context, Channel channel, NettyRequestConfig config,
-          DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler,
-          long contentLength, io.netty.handler.codec.http.HttpMethod method) {
-    this(context, channel, config, dispatcherHandler, httpTrafficHandler,
-            contentLength, method, newResponseHeaders());
-  }
-
   /**
    * Create a context with the given response headers container.
    * <p>Subclasses that use a protocol-specific container, such as HTTP/2
@@ -251,22 +240,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    */
   protected boolean supportsTransferEncoding() {
     return true;
-  }
-
-  /**
-   * Create the response headers container.
-   * <p>A Netty {@link Headers} implementation is used so HTTP/1 and HTTP/2
-   * can share the same header store. Header name and value validation is
-   * inherited from {@link DefaultHttpHeadersFactory#headersFactory()}.
-   */
-  private static DefaultHeaders<CharSequence, CharSequence, ?> newResponseHeaders() {
-    DefaultHttpHeadersFactory factory = DefaultHttpHeadersFactory.headersFactory();
-    return new DefaultHeadersImpl<>(
-            AsciiString.CASE_INSENSITIVE_HASHER,
-            CharSequenceValueConverter.INSTANCE,
-            factory.getNameValidator(),
-            8,
-            factory.getValueValidator());
   }
 
   /**

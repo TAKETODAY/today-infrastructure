@@ -27,7 +27,12 @@ import infra.web.DispatcherHandler;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.handler.codec.CharSequenceValueConverter;
+import io.netty.handler.codec.DefaultHeaders;
+import io.netty.handler.codec.DefaultHeadersImpl;
+import io.netty.handler.codec.Headers;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMessage;
@@ -36,6 +41,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.util.AsciiString;
 
 /**
  * Internal {@link NettyHttpContext} implementation that handles the lifecycle of an HTTP request
@@ -52,7 +58,8 @@ final class HttpContext extends NettyHttpContext implements Runnable {
 
   public HttpContext(Channel channel, HttpRequest request, NettyRequestConfig config,
           ApplicationContext context, DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler) {
-    super(context, channel, config, dispatcherHandler, httpTrafficHandler, getContentLength(request), request.method());
+    super(context, channel, config, dispatcherHandler, httpTrafficHandler, getContentLength(request),
+            request.method(), newResponseHeaders());
     this.request = request;
     if (request instanceof HttpContent content) {
       onDataReceived(content);
@@ -182,12 +189,28 @@ final class HttpContext extends NettyHttpContext implements Runnable {
    * @return the content length or the specified default value
    * @throws NumberFormatException if the {@code "Content-Length"} header does not parse as a long
    */
-  static long getContentLength(HttpMessage message) {
+  public static long getContentLength(HttpMessage message) {
     String value = message.headers().get(HttpHeaderNames.CONTENT_LENGTH);
     if (value != null) {
       return Long.parseLong(value);
     }
     return -1L;
+  }
+
+  /**
+   * Create the response headers container.
+   * <p>A Netty {@link Headers} implementation is used so HTTP/1 and HTTP/2
+   * can share the same header store. Header name and value validation is
+   * inherited from {@link DefaultHttpHeadersFactory#headersFactory()}.
+   */
+  public static DefaultHeaders<CharSequence, CharSequence, ?> newResponseHeaders() {
+    DefaultHttpHeadersFactory factory = DefaultHttpHeadersFactory.headersFactory();
+    return new DefaultHeadersImpl<>(
+            AsciiString.CASE_INSENSITIVE_HASHER,
+            CharSequenceValueConverter.INSTANCE,
+            factory.getNameValidator(),
+            8,
+            factory.getValueValidator());
   }
 
 }
