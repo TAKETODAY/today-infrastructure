@@ -168,6 +168,54 @@ class SimpleAsyncTaskSchedulerTests extends AbstractSchedulingTaskExecutorTests 
   }
 
   @Test
+  void scheduleFixedRateTask() throws Exception {
+    TestTask task = new TestTask(this.testName, 1);
+    Future<?> future = scheduler.scheduleAtFixedRate(task, 1000);
+    Thread.sleep(100);
+    future.cancel(true);
+    await(task);
+    assertThat(taskRun.get()).isTrue();
+    assertThreadNamePrefix(task);
+  }
+
+  @Test
+  void scheduleFixedRateTaskWithErrorHandler() throws Exception {
+    TestTask task = new TestTask(this.testName, 0);
+    TestErrorHandler errorHandler = new TestErrorHandler(1);
+    scheduler.setErrorHandler(errorHandler);
+    Future<?> future = scheduler.scheduleAtFixedRate(task, 1000);
+    Thread.sleep(100);
+    future.cancel(true);
+    await(errorHandler);
+    assertThat(errorHandler.lastError).isNotNull();
+    assertThat(taskRun.get()).isTrue();
+  }
+
+  @Test
+  void scheduleFixedDelayTask() throws Exception {
+    TestTask task = new TestTask(this.testName, 1);
+    Future<?> future = scheduler.scheduleWithFixedDelay(task, 1000);
+    Thread.sleep(100);
+    future.cancel(true);
+    await(task);
+    assertThat(taskRun.get()).isTrue();
+    assertThreadNamePrefix(task);
+  }
+
+  @Test
+  void scheduleFixedDelayTaskWithErrorHandler() throws Exception {
+    TestTask task = new TestTask(this.testName, 0);
+    TestErrorHandler errorHandler = new TestErrorHandler(1);
+    scheduler.setErrorHandler(errorHandler);
+    Future<?> future = scheduler.scheduleWithFixedDelay(task, 1000);
+    Thread.sleep(100);
+    future.cancel(true);
+    await(errorHandler);
+    assertThat(errorHandler.lastError).isNotNull();
+    assertThat(taskRun.get()).isTrue();
+  }
+
+  @Test
   void fixedRateTaskExecutesMultipleTimes() throws Exception {
     TestTask task = new TestTask(testName, 3);
     Future<?> future = scheduler.scheduleAtFixedRate(task, Duration.ofMillis(10));

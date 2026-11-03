@@ -286,16 +286,12 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implement
       throw new TaskRejectedException(getClass().getSimpleName() + " is not active");
     }
 
-    TaskDecorator taskDecorator = this.taskDecorator;
-    if (taskDecorator != null) {
-      task = taskDecorator.decorate(task);
-    }
-
     var future = task instanceof java.util.concurrent.Future<?> f ? f : null;
+    Runnable taskToUse = decorateTaskIfNecessary(task);
     if (isThrottleActive() && startTimeout > TIMEOUT_IMMEDIATE) {
       this.concurrencyThrottle.beforeAccess();
       try {
-        doExecute(new TaskTrackingRunnable(task, future));
+        doExecute(new TaskTrackingRunnable(taskToUse, future));
       }
       catch (Throwable ex) {
         // Release concurrency permit if thread creation fails
@@ -305,10 +301,10 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implement
       }
     }
     else if (this.activeThreads != null) {
-      doExecute(new TaskTrackingRunnable(task, future));
+      doExecute(new TaskTrackingRunnable(taskToUse, future));
     }
     else {
-      doExecute(task);
+      doExecute(taskToUse);
     }
   }
 
@@ -336,6 +332,20 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implement
    */
   protected void doExecute(Runnable task) {
     newThread(task).start();
+  }
+
+  /**
+   * Decorate the given task if necessary.
+   * <p>The default implementation applies the configured
+   * {@link #setTaskDecorator TaskDecorator}, if any.
+   * @param task the original task
+   * @return the decorated task if applicable, or the original task as-is
+   * @since 5.0
+   * @see #setTaskDecorator
+   */
+  protected Runnable decorateTaskIfNecessary(Runnable task) {
+    TaskDecorator taskDecorator = this.taskDecorator;
+    return (taskDecorator != null ? taskDecorator.decorate(task) : task);
   }
 
   /**
