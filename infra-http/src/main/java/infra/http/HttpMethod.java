@@ -20,6 +20,7 @@ package infra.http;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -57,13 +58,19 @@ public enum HttpMethod {
 
   /**
    * Resolve the given method value to an {@code HttpMethod}.
+   * <p>Lookup of predefined constants such as {@link HttpMethod#GET GET} is
+   * case-insensitive.
    *
    * @param method the method value as a String
    * @return the corresponding {@code HttpMethod}, or {@code null} if not found
    * @since 4.0
    */
   public static @Nullable HttpMethod resolve(@Nullable String method) {
-    return method != null ? mappings.get(method) : null;
+    if (method == null) {
+      return null;
+    }
+    HttpMethod resolved = mappings.get(method);
+    return resolved != null ? resolved : mappings.get(method.toUpperCase(Locale.ROOT));
   }
 
 }
