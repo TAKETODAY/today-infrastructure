@@ -18,11 +18,10 @@ package infra.http.support;
 
 import org.jspecify.annotations.Nullable;
 
+import java.util.AbstractList;
 import java.util.AbstractSet;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -31,6 +30,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 import io.netty.handler.codec.Headers;
+import io.netty.handler.codec.HeadersUtils;
 
 /**
  * {@code HttpHeaders} implementation for wrapping Netty {@link Headers}.
@@ -63,7 +63,7 @@ public final class NettyHeaders extends infra.http.HttpHeaders {
     this.lowercaseNames = lowercaseNames;
   }
 
-  private CharSequence normalizeHeaderName(String name) {
+  private String normalizeHeaderName(String name) {
     return lowercaseNames ? name.toLowerCase(Locale.ROOT) : name;
   }
 
@@ -95,8 +95,7 @@ public final class NettyHeaders extends infra.http.HttpHeaders {
 
   @Override
   public @Nullable List<String> get(String name) {
-    List<@Nullable CharSequence> values = headers.getAll(normalizeHeaderName(name));
-    return values.isEmpty() ? null : toStringList(values);
+    return find(normalizeHeaderName(name));
   }
 
   @Override
@@ -108,24 +107,25 @@ public final class NettyHeaders extends infra.http.HttpHeaders {
 
   @Override
   protected @Nullable List<String> setHeader(String name, String value) {
-    CharSequence headerName = normalizeHeaderName(name);
-    List<String> previous = get(name);
-    headers.set(headerName, value);
+    name = normalizeHeaderName(name);
+    List<String> previous = find(name);
+    headers.set(name, value);
     return previous;
   }
 
   @Override
   protected @Nullable List<String> setHeader(String name, @Nullable Collection<String> value) {
-    CharSequence headerName = normalizeHeaderName(name);
-    List<String> previous = get(name);
-    headers.set(headerName, value);
+    name = normalizeHeaderName(name);
+    List<String> previous = find(name);
+    headers.set(name, value);
     return previous;
   }
 
   @Override
   public @Nullable List<String> remove(String name) {
-    List<String> previous = get(name);
-    headers.remove(normalizeHeaderName(name));
+    name = normalizeHeaderName(name);
+    List<String> previous = find(name);
+    headers.remove(name);
     return previous;
   }
 
@@ -136,12 +136,7 @@ public final class NettyHeaders extends infra.http.HttpHeaders {
 
   @Override
   public Set<String> names() {
-    Set<CharSequence> names = headers.names();
-    Set<String> result = new LinkedHashSet<>(names.size());
-    for (CharSequence name : names) {
-      result.add(name.toString());
-    }
-    return result;
+    return HeadersUtils.namesAsString(headers);
   }
 
   @Override
@@ -164,16 +159,29 @@ public final class NettyHeaders extends infra.http.HttpHeaders {
   public void forEach(BiConsumer<? super String, ? super List<String>> action) {
     var headers = this.headers;
     for (CharSequence name : headers.names()) {
-      action.accept(name.toString(), toStringList(headers.getAll(name)));
+      action.accept(name.toString(), HeadersUtils.getAllAsString(headers, name));
     }
   }
 
-  private static List<String> toStringList(List<? extends CharSequence> values) {
-    List<String> result = new ArrayList<>(values.size());
-    for (CharSequence value : values) {
-      result.add(value.toString());
+  private @Nullable List<String> find(String name) {
+    List<@Nullable CharSequence> list = headers.getAll(name);
+    if (list.isEmpty()) {
+      return null;
     }
-    return result;
+    return new AbstractList<>() {
+
+      @Override
+      public @Nullable String get(int index) {
+        CharSequence value = list.get(index);
+        return value != null ? value.toString() : null;
+      }
+
+      @Override
+      public int size() {
+        return list.size();
+      }
+
+    };
   }
 
   private final class EntryIterator implements Iterator<Map.Entry<String, List<String>>> {
@@ -187,7 +195,7 @@ public final class NettyHeaders extends infra.http.HttpHeaders {
 
     @Override
     public Map.Entry<String, List<String>> next() {
-      return new HeaderEntry(this.names.next());
+      return new HeaderEntry(names.next());
     }
   }
 
@@ -206,13 +214,13 @@ public final class NettyHeaders extends infra.http.HttpHeaders {
 
     @Override
     public List<String> getValue() {
-      return toStringList(headers.getAll(this.key));
+      return HeadersUtils.getAllAsString(headers, key);
     }
 
     @Override
-    public List<String> setValue(List<String> value) {
-      List<String> previousValues = toStringList(headers.getAll(this.key));
-      headers.set(this.key, value);
+    public @Nullable List<String> setValue(List<String> value) {
+      List<String> previousValues = find(key);
+      headers.set(key, value);
       return previousValues;
     }
 
