@@ -24,6 +24,7 @@ import java.lang.annotation.Annotation;
 import java.util.NoSuchElementException;
 import java.util.function.Predicate;
 
+import infra.util.ClassUtils;
 import infra.util.Assert;
 
 /**
@@ -226,7 +227,7 @@ abstract class AbstractMergedAnnotation<A extends Annotation> implements MergedA
     T value = getAttributeValue(attributeName, type);
     if (value == null) {
       throw new NoSuchElementException("No attribute named '%s' present in merged annotation %s"
-              .formatted(attributeName, getType().getName()));
+              .formatted(attributeName, ClassUtils.getCanonicalName(getType())));
     }
     return value;
   }

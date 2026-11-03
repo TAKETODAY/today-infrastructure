@@ -698,8 +698,8 @@ class AnnotationUtilsTests {
     assertThatExceptionOfType(AnnotationConfigurationException.class).isThrownBy(() ->
                     synthesizeAnnotation(config, clazz))
             .withMessageStartingWith("Misconfigured aliases:")
-            .withMessageContaining("attribute 'location1' in annotation [" + annotationType.getName() + "]")
-            .withMessageContaining("attribute 'location2' in annotation [" + annotationType.getName() + "]")
+            .withMessageContaining("attribute 'location1' in annotation [" + annotationType.getCanonicalName() + "]")
+            .withMessageContaining("attribute 'location2' in annotation [" + annotationType.getCanonicalName() + "]")
             .withMessageContaining("default values");
   }
 
@@ -713,8 +713,8 @@ class AnnotationUtilsTests {
     assertThatExceptionOfType(AnnotationConfigurationException.class).isThrownBy(() ->
                     synthesizeAnnotation(config, clazz))
             .withMessageStartingWith("Misconfigured aliases:")
-            .withMessageContaining("attribute 'location1' in annotation [" + annotationType.getName() + "]")
-            .withMessageContaining("attribute 'location2' in annotation [" + annotationType.getName() + "]")
+            .withMessageContaining("attribute 'location1' in annotation [" + annotationType.getCanonicalName() + "]")
+            .withMessageContaining("attribute 'location2' in annotation [" + annotationType.getCanonicalName() + "]")
             .withMessageContaining("same default value");
   }
 
