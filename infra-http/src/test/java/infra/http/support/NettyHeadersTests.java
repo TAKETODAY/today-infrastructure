@@ -19,6 +19,7 @@ package infra.http.support;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,6 +35,7 @@ import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.util.AsciiString;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -179,6 +181,70 @@ class NettyHeadersTests {
   }
 
   @Test
+  void valueLists_shouldBeUnmodifiableSnapshotsAcrossAccessPaths() {
+    underlyingHeaders.add("Header1", "first");
+    underlyingHeaders.add("Header1", "second");
+    List<List<String>> snapshots = new ArrayList<>();
+    List<String> values = nettyHeaders.get("Header1");
+    assertThat(values).isNotNull();
+    snapshots.add(values);
+    Map.Entry<String, List<String>> entry = nettyHeaders.entries().iterator().next();
+    snapshots.add(entry.getValue());
+    nettyHeaders.forEach((name, list) -> snapshots.add(list));
+    snapshots.add(nettyHeaders.set("Header1", "replacement"));
+    snapshots.add(nettyHeaders.set("Header1", List.of("next")));
+    snapshots.add(entry.setValue(List.of("last")));
+    snapshots.add(nettyHeaders.remove("Header1"));
+
+    assertThat(snapshots).containsExactly(
+            List.of("first", "second"), List.of("first", "second"),
+            List.of("first", "second"), List.of("first", "second"),
+            List.of("replacement"), List.of("next"), List.of("last"));
+    for (List<String> snapshot : snapshots) {
+      assertThatExceptionOfType(UnsupportedOperationException.class)
+              .isThrownBy(() -> snapshot.add("changed"));
+      assertThatExceptionOfType(UnsupportedOperationException.class)
+              .isThrownBy(() -> snapshot.set(0, "changed"));
+      assertThatExceptionOfType(UnsupportedOperationException.class)
+              .isThrownBy(() -> snapshot.remove(0));
+      assertThatExceptionOfType(UnsupportedOperationException.class)
+              .isThrownBy(snapshot::clear);
+    }
+    assertThat(nettyHeaders.get("Header1")).isNull();
+    assertThat(entry.getValue()).isEmpty();
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> entry.getValue().add("value"));
+  }
+
+  @Test
+  void valueSnapshot_shouldConvertMutableCharSequencesLazily() {
+    StringBuilder value = new StringBuilder("first");
+    underlyingHeaders.add("Header1", value);
+    List<String> snapshot = nettyHeaders.get("Header1");
+
+    assertThat(snapshot).containsExactly("first");
+    value.append("-changed");
+    underlyingHeaders.remove("Header1");
+
+    assertThat(snapshot).containsExactly("first-changed");
+  }
+
+  @Test
+  void entryValue_shouldReadCurrentValuesWithoutChangingPreviousSnapshots() {
+    nettyHeaders.add("Header1", "first");
+    Map.Entry<String, List<String>> entry = nettyHeaders.entries().iterator().next();
+    List<String> snapshot = entry.getValue();
+
+    underlyingHeaders.add("Header1", "second");
+    assertThat(snapshot).containsExactly("first");
+    assertThat(entry.getValue()).containsExactly("first", "second");
+
+    underlyingHeaders.clear();
+    assertThat(snapshot).containsExactly("first");
+    assertThat(entry.getValue()).isEmpty();
+  }
+
+  @Test
   void get_withNonExistentHeader_shouldReturnNull() {
     assertThat(nettyHeaders.get("Non-Existent")).isNull();
   }
@@ -264,6 +330,39 @@ class NettyHeadersTests {
 
     assertThat(foundHeader1).isTrue();
     assertThat(foundHeader2).isTrue();
+  }
+
+  @Test
+  void entries_sizeShouldCountUniqueHeaderNamesRatherThanValues() {
+    underlyingHeaders.add("Header1", "value1");
+    underlyingHeaders.add("Header1", "value2");
+    underlyingHeaders.add("Header2", "value3");
+
+    Set<Map.Entry<String, List<String>>> entries = nettyHeaders.entries();
+
+    assertThat(entries.size()).isEqualTo(2);
+    assertThat(entries.size()).isEqualTo(nettyHeaders.size());
+    assertThat(entries.stream().count()).isEqualTo(2);
+    assertThat(entries.toArray()).hasSize(2);
+  }
+
+  @Test
+  void entries_sizeShouldReflectUnderlyingHeaderChanges() {
+    Set<Map.Entry<String, List<String>>> entries = nettyHeaders.entries();
+    assertThat(entries.size()).isZero();
+
+    underlyingHeaders.add("Header1", "value1");
+    underlyingHeaders.add("Header1", "value2");
+    assertThat(entries.size()).isEqualTo(1);
+
+    underlyingHeaders.add("Header2", "value3");
+    assertThat(entries.size()).isEqualTo(2);
+
+    underlyingHeaders.remove("Header1");
+    assertThat(entries.size()).isEqualTo(1);
+
+    underlyingHeaders.clear();
+    assertThat(entries.size()).isZero();
   }
 
   @Test

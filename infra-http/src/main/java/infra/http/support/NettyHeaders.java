@@ -21,6 +21,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.AbstractList;
 import java.util.AbstractSet;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -37,6 +38,16 @@ import io.netty.handler.codec.HeadersUtils;
  * <p>Unlike {@link Netty4HttpHeaders}, which wraps the Netty HTTP/1
  * {@code HttpHeaders} type, this adapter accepts any Netty {@code Headers}
  * implementation, including HTTP/2 native headers.
+ * <p>This adapter shares the underlying headers. Value lists returned by
+ * {@link #get(String)}, mutation methods returning previous values, entry value
+ * access, and {@link #forEach(BiConsumer)} are unmodifiable snapshots of the
+ * value references: subsequent header additions, replacements, and removals do
+ * not affect them. Strings are converted lazily, so mutable {@link CharSequence}
+ * values are not deep-copied. Modify headers through this adapter or
+ * {@link Map.Entry#setValue(Object)}, not through the returned lists.
+ * Each call to an entry's {@code getValue()} obtains a new snapshot of the
+ * current values; a removed header yields an empty list there, while
+ * {@code get(String)} returns {@code null} for an absent header.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
@@ -150,7 +161,7 @@ public final class NettyHeaders extends infra.http.HttpHeaders {
 
       @Override
       public int size() {
-        return headers.size();
+        return NettyHeaders.this.size();
       }
     };
   }
