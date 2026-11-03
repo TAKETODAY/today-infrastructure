@@ -20,6 +20,9 @@ package infra.format.support;
 
 import org.jspecify.annotations.Nullable;
 
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
 import java.util.Set;
 
@@ -27,6 +30,7 @@ import infra.core.TypeDescriptor;
 import infra.core.conversion.ConditionalGenericConverter;
 import infra.core.conversion.ConversionService;
 import infra.core.conversion.GenericConverter;
+import infra.util.ObjectUtils;
 
 /**
  * {@link ConditionalGenericConverter} to convert {@link CharSequence} type by delegating
@@ -43,8 +47,6 @@ class CharSequenceToObjectConverter implements ConditionalGenericConverter {
   private static final TypeDescriptor BYTE_ARRAY = TypeDescriptor.valueOf(byte[].class);
 
   private static final Set<GenericConverter.ConvertiblePair> TYPES;
-
-  private final ThreadLocal<Boolean> disable = new ThreadLocal<>();
 
   static {
     TYPES = Collections.singleton(new ConvertiblePair(CharSequence.class, Object.class));
@@ -63,20 +65,15 @@ class CharSequenceToObjectConverter implements ConditionalGenericConverter {
 
   @Override
   public boolean matches(TypeDescriptor sourceType, TypeDescriptor targetType) {
-    if (sourceType.getType() == String.class || this.disable.get() == Boolean.TRUE) {
+    if (sourceType.getType() == String.class || sourceType instanceof ProtectedTypeDescriptor) {
       return false;
     }
-    this.disable.set(Boolean.TRUE);
-    try {
-      boolean canDirectlyConvertCharSequence = this.conversionService.canConvert(sourceType, targetType);
-      if (canDirectlyConvertCharSequence && !isStringConversionBetter(sourceType, targetType)) {
-        return false;
-      }
-      return this.conversionService.canConvert(STRING, targetType);
+    sourceType = new ProtectedTypeDescriptor(sourceType);
+    boolean canDirectlyConvertCharSequence = this.conversionService.canConvert(sourceType, targetType);
+    if (canDirectlyConvertCharSequence && !isStringConversionBetter(sourceType, targetType)) {
+      return false;
     }
-    finally {
-      this.disable.remove();
-    }
+    return this.conversionService.canConvert(STRING, targetType);
   }
 
   /**
@@ -95,15 +92,46 @@ class CharSequenceToObjectConverter implements ConditionalGenericConverter {
         return true;
       }
     }
-    // StringToArrayConverter / StringToCollectionConverter are better than
-    // ObjectToArrayConverter / ObjectToCollectionConverter
-    return (targetType.isArray() || targetType.isCollection()) && !targetType.equals(BYTE_ARRAY);
+    if ((targetType.isArray() || targetType.isCollection()) && !targetType.equals(BYTE_ARRAY)) {
+      // StringToArrayConverter / StringToCollectionConverter are better than
+      // ObjectToArrayConverter / ObjectToCollectionConverter
+      return true;
+    }
+    return false;
   }
 
   @Nullable
   @Override
   public Object convert(@Nullable Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
     return this.conversionService.convert(source != null ? source.toString() : null, STRING, targetType);
+  }
+
+  /**
+   * Wrapper for {@link TypeDescriptor} used to protect against infinite recursion and
+   * cache pollution.
+   */
+  @CacheProtected
+  static class ProtectedTypeDescriptor extends TypeDescriptor {
+
+    ProtectedTypeDescriptor(TypeDescriptor typeDescriptor) {
+      super(typeDescriptor.getResolvableType(), null, withCacheDisabled(typeDescriptor.getAnnotations()));
+    }
+
+    private static Annotation[] withCacheDisabled(Annotation[] annotations) {
+      Annotation[] disabledAnnotations = ProtectedTypeDescriptor.class.getDeclaredAnnotations();
+      return (annotations.length == 0) ? disabledAnnotations
+              : ObjectUtils.addObjectToArray(annotations, disabledAnnotations[0]);
+    }
+
+  }
+
+  /**
+   * Annotation added to {@link ProtectedTypeDescriptor} to ensure a different cache key
+   * is used.
+   */
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface CacheProtected {
+
   }
 
 }
