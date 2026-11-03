@@ -191,6 +191,12 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
   }
 
   void handleException(Channel channel, Throwable cause) {
+    NettyHttpContext context = channel.attr(KEY).get();
+    if (context != null && context.isCommitted()) {
+      handleCommittedException(channel, cause);
+      return;
+    }
+
     var statusCode = HttpStatusProvider.getStatusCode(cause);
     HttpResponseStatus status = HttpResponseStatus.valueOf(statusCode.first.value());
     if (channel instanceof Http2StreamChannel) {
@@ -206,6 +212,19 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
       channel.writeAndFlush(response)
               .addListener(ChannelFutureListener.CLOSE);
     }
+  }
+
+  /**
+   * Handle a failure after the response has been committed. The response head
+   * can no longer be replaced, so the connection or HTTP/2 stream is closed to
+   * signal an incomplete response.
+   */
+  private static void handleCommittedException(Channel channel, Throwable cause) {
+    if (!channel.isActive()) {
+      return;
+    }
+    log.error("Failed to complete response", cause);
+    channel.close();
   }
 
   //
