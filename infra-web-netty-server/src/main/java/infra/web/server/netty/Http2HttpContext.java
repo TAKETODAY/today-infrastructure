@@ -79,7 +79,7 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
   Http2HttpContext(Http2StreamChannel channel, Http2Headers http2Headers, NettyRequestConfig config,
           ApplicationContext context, DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler) {
     super(context, channel, config, dispatcherHandler, httpTrafficHandler, contentLength(http2Headers), method(http2Headers),
-            new DefaultHttp2Headers(true, true, 16));
+            new DefaultHttp2Headers(true, true, 8));
     this.http2Headers = http2Headers;
 
     // expose :authority as the regular host header
