@@ -18,7 +18,6 @@ package infra.web.server.netty;
 
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -73,6 +72,13 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
           HttpHeaderNames.UPGRADE
   };
 
+  /**
+   * All pseudo headers known to Netty. Cached to avoid cloning the array returned
+   * by {@link Http2Headers.PseudoHeaderName#values()} for every request.
+   */
+  private static final Http2Headers.PseudoHeaderName[] PSEUDO_HEADERS =
+          Http2Headers.PseudoHeaderName.values();
+
   private final Http2Headers http2Headers;
 
   private final String uri;
@@ -97,10 +103,8 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
     this.uri = path != null ? path.toString() : "/";
 
     // request metadata is cached above; pseudo headers are not exposed as regular headers
-    for (CharSequence name : new ArrayList<>(http2Headers.names())) {
-      if (Http2Headers.PseudoHeaderName.isPseudoHeader(name)) {
-        http2Headers.remove(name);
-      }
+    for (Http2Headers.PseudoHeaderName pseudoHeader : PSEUDO_HEADERS) {
+      http2Headers.remove(pseudoHeader.value());
     }
   }
 
