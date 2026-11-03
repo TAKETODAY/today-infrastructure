@@ -23,7 +23,6 @@ import org.jspecify.annotations.Nullable;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Locale;
 
 import infra.core.io.ClassPathResource;
 import infra.core.io.ContextResource;
@@ -76,6 +75,9 @@ public abstract class ResourceHandlerUtils {
       }
       else if (location instanceof ContextResource contextResource) {
         path = contextResource.getPathWithinContext();
+        Assert.isTrue(!"/".equals(path),
+                () -> "Resource location '" + location + "' is considered unsafe " +
+                        "and cannot be used as it provides access to the root servlet context.");
       }
       else if (location instanceof UrlResource) {
         path = location.getURL().toExternalForm();
@@ -173,7 +175,6 @@ public abstract class ResourceHandlerUtils {
   /**
    * Checks for invalid resource input paths rejecting the following:
    * <ul>
-   * <li>Paths that contain "WEB-INF" or "META-INF"
    * <li>Paths that contain "../" after a call to
    * {@link StringUtils#cleanPath}.
    * <li>Paths that represent a {@link ResourceUtils#isUrl
@@ -187,14 +188,6 @@ public abstract class ResourceHandlerUtils {
    * @return {@code true} if the path is invalid, {@code false} otherwise
    */
   public static boolean isInvalidPath(String path) {
-    String s = path.toLowerCase(Locale.ROOT);
-    if (s.contains("web-inf") || s.contains("meta-inf")) {
-      if (logger.isWarnEnabled()) {
-        logger.warn(LogFormatUtils.formatValue(
-                "Path with \"WEB-INF\" or \"META-INF\": [%s]".formatted(path), -1, true));
-      }
-      return true;
-    }
     if (path.contains(":/")) {
       String relativePath = (path.charAt(0) == '/' ? path.substring(1) : path);
       if (ResourceUtils.isUrl(relativePath) || relativePath.startsWith("url:")) {
