@@ -86,6 +86,8 @@ import io.netty.handler.stream.ChunkedInput;
 import io.netty.handler.stream.ChunkedNioFile;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.AsciiString;
+import io.netty.util.AttributeKey;
+import io.netty.util.AttributeMap;
 import io.netty.util.internal.PlatformDependent;
 
 import static infra.http.HttpHeaders.isNotEmpty;
@@ -158,6 +160,8 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * @since 5.0
    */
   private static final String CHUNKED_WRITER_NAME = "chunkedWriter";
+
+  private static final AttributeKey<@Nullable NettyHttpContext> KEY = AttributeKey.valueOf(NettyHttpContext.class, "KEY");
 
   private static final CookieHeaderNames.SameSite[] SAME_SITES = CookieHeaderNames.SameSite.values();
 
@@ -1048,6 +1052,23 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   @Override
   public String toString() {
     return super.toString() + " " + version();
+  }
+
+  static @Nullable NettyHttpContext lookup(AttributeMap map) {
+    return map.attr(KEY).get();
+  }
+
+  /**
+   * Attach this context to its channel so subsequent body frames can find it.
+   * <p>Must be called after construction is complete; the constructor itself
+   * must not publish {@code this}.
+   */
+  final void attach() {
+    channel.attr(KEY).set(this);
+  }
+
+  static @Nullable NettyHttpContext getAndRemove(AttributeMap map) {
+    return map.attr(KEY).getAndSet(null);
   }
 
   /**
