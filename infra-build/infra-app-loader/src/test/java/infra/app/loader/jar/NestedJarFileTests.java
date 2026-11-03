@@ -196,7 +196,7 @@ class NestedJarFileTests {
 
   @Test
   void getEntryWhenMultiReleaseEntryReturnsEntry() throws IOException {
-    File multiReleaseFile = new File(this.tempDir, "mutli.zip");
+    File multiReleaseFile = new File(this.tempDir, "multi.zip");
     try (ZipContent zip = ZipContent.open(this.file.toPath(), "multi-release.jar")) {
       try (InputStream in = zip.openRawZipData().asInputStream()) {
         try (FileOutputStream out = new FileOutputStream(multiReleaseFile)) {
@@ -281,7 +281,7 @@ class NestedJarFileTests {
     try (NestedJarFile jar = new NestedJarFile(this.file)) {
       try (JarFile jdkJar = new JarFile(this.file)) {
         assertThat(jar.getEntry("META-INF/MANIFEST.MF").getTime())
-                .isEqualTo(jar.getEntry("META-INF/MANIFEST.MF").getTime());
+                .isEqualTo(jdkJar.getEntry("META-INF/MANIFEST.MF").getTime());
       }
     }
   }
