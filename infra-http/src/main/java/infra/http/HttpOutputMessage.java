@@ -129,17 +129,6 @@ public interface HttpOutputMessage extends HttpMessage {
   }
 
   /**
-   * Whether this message supports zero-copy file transfers.
-   * <p>Default implementation returns {@code false}.
-   *
-   * @return {@code true} if this message supports zero-copy
-   * file transfers, {@code false} otherwise
-   */
-  default boolean supportsZeroCopy() {
-    return false;
-  }
-
-  /**
    * Use the given {@link File} to write the body of the message to the underlying
    * HTTP layer.
    *
@@ -171,8 +160,11 @@ public interface HttpOutputMessage extends HttpMessage {
    * @param count the number of bytes to be transferred
    */
   default void sendFile(Path file, long position, long count) throws IOException {
+    if (count <= 0) {
+      return;
+    }
     try (InputStream inputStream = Files.newInputStream(file)) {
-      StreamUtils.copyRange(inputStream, getBody(), position, count);
+      StreamUtils.copyRange(inputStream, getBody(), position, position + count - 1);
     }
   }
 

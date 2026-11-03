@@ -72,13 +72,14 @@ class HttpOutputMessageTests {
   }
 
   @Test
-  void supportsZeroCopy_shouldReturnFalseByDefault() {
-    HttpOutputMessage outputMessage = mock(HttpOutputMessage.class);
-    doCallRealMethod().when(outputMessage).supportsZeroCopy();
+  void sendFile_withRange_shouldCopyExactlyRequestedBytes(@TempDir Path tempDir) throws IOException {
+    Path tempFile = tempDir.resolve("range.txt");
+    Files.writeString(tempFile, "0123456789");
+    MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
 
-    boolean result = outputMessage.supportsZeroCopy();
+    outputMessage.sendFile(tempFile, 2, 4);
 
-    assertThat(result).isFalse();
+    assertThat(outputMessage.getBodyAsString()).isEqualTo("2345");
   }
 
   @Test

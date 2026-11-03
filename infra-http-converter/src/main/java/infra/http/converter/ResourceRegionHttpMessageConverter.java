@@ -151,7 +151,7 @@ public class ResourceRegionHttpMessageConverter extends AbstractGenericHttpMessa
     headers.add(HttpHeaders.CONTENT_RANGE, "bytes " + start + '-' + end + '/' + resourceLength);
     headers.setContentLength(rangeLength);
 
-    if (outputMessage.supportsZeroCopy() && resource.isFile()) {
+    if (resource.isFile()) {
       outputMessage.sendFile(resource.getFile(), region.getPosition(), region.getCount());
     }
     else {

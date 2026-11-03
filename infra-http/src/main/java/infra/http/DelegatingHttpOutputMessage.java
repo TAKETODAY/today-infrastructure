@@ -43,11 +43,6 @@ public class DelegatingHttpOutputMessage extends DelegatingHttpMessage implement
   }
 
   @Override
-  public boolean supportsZeroCopy() {
-    return delegate.supportsZeroCopy();
-  }
-
-  @Override
   public void setHeaders(@Nullable HttpHeaders headers) {
     delegate.setHeaders(headers);
   }

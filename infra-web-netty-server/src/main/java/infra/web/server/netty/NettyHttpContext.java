@@ -1392,11 +1392,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     }
 
     @Override
-    public boolean supportsZeroCopy() {
-      return true;
-    }
-
-    @Override
     public void sendFile(Path file, long position, long count) throws IOException {
       sendFile(file.toFile(), position, count);
     }

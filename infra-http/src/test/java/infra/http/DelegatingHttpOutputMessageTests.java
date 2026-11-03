@@ -20,17 +20,6 @@ import static org.mockito.Mockito.when;
 class DelegatingHttpOutputMessageTests {
 
   @Test
-  void shouldDelegateSupportsZeroCopy() {
-    HttpOutputMessage mockDelegate = Mockito.mock(HttpOutputMessage.class);
-    when(mockDelegate.supportsZeroCopy()).thenReturn(true);
-
-    DelegatingHttpOutputMessage message = new DelegatingHttpOutputMessage(mockDelegate);
-
-    assertTrue(message.supportsZeroCopy());
-    verify(mockDelegate).supportsZeroCopy();
-  }
-
-  @Test
   void shouldDelegateSetHeaders() {
     HttpOutputMessage mockDelegate = Mockito.mock(HttpOutputMessage.class);
     HttpHeaders headers = Mockito.mock(HttpHeaders.class);

@@ -133,7 +133,7 @@ public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<R
 
   @Override
   protected void writeInternal(Resource resource, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
-    if (outputMessage.supportsZeroCopy() && resource.isFile()) {
+    if (resource.isFile()) {
       File file = resource.getFile();
       outputMessage.sendFile(file);
     }
