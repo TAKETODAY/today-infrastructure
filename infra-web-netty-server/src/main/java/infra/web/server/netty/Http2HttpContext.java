@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Locale;
 
 import infra.context.ApplicationContext;
+import infra.http.HttpHeaders;
 import infra.http.support.NettyHeaders;
 import infra.web.DispatcherHandler;
 import io.netty.buffer.ByteBuf;
@@ -55,8 +56,6 @@ import io.netty.handler.stream.ChunkedInput;
  * @since 5.0
  */
 final class Http2HttpContext extends NettyHttpContext implements Runnable {
-
-  private static final CharSequence CONTINUE_TOKEN = "100-continue";
 
   private static final HttpVersion HTTP2 = HttpVersion.valueOf("HTTP/2.0");
 
@@ -166,14 +165,15 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
   }
 
   @Override
-  protected void writeResponseHead(HttpResponseStatus status, DefaultHeaders<CharSequence, @Nullable CharSequence, ?> headers) {
-    Http2Headers http2Headers = (Http2Headers) (Headers<CharSequence, CharSequence, ?>) headers;
+  protected <T extends Headers<CharSequence, CharSequence, T>>
+  void writeResponseHead(HttpResponseStatus status, DefaultHeaders<CharSequence, @Nullable CharSequence, T> headers) {
     // connection-specific headers are forbidden in HTTP/2
     for (CharSequence name : CONNECTION_SPECIFIC_HEADERS) {
-      http2Headers.remove(name);
+      headers.remove(name);
     }
-    http2Headers.status(status.codeAsText());
-    channel.write(new DefaultHttp2HeadersFrame(http2Headers, false));
+
+    headers.set(Http2Headers.PseudoHeaderName.STATUS.value(), status.codeAsText());
+    channel.write(new DefaultHttp2HeadersFrame((Http2Headers) headers, false));
   }
 
   @Override
@@ -188,7 +188,7 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
   @Override
   protected boolean is100ContinueExpected() {
-    return http2Headers.contains(HttpHeaderNames.EXPECT, CONTINUE_TOKEN, true);
+    return http2Headers.contains(HttpHeaderNames.EXPECT, HttpHeaders.CONTINUE, true);
   }
 
   @Override

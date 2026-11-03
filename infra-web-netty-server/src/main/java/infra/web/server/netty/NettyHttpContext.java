@@ -68,6 +68,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.DefaultHeaders;
+import io.netty.handler.codec.Headers;
 import io.netty.handler.codec.HeadersUtils;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
@@ -732,7 +733,8 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   /**
    * Write the response head using the transport specific representation.
    */
-  protected void writeResponseHead(HttpResponseStatus status, DefaultHeaders<CharSequence, @Nullable CharSequence, ?> headers) {
+  protected <T extends Headers<CharSequence, CharSequence, T>>
+  void writeResponseHead(HttpResponseStatus status, DefaultHeaders<CharSequence, @Nullable CharSequence, T> headers) {
     channel.write(new DefaultHttpResponse(version(), status, new Http1Headers(headers)));
   }
 
