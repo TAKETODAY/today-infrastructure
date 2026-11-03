@@ -302,12 +302,15 @@ public abstract class BeanUtils {
    */
   @SuppressWarnings("NullAway")
   public static MethodParameter getWriteMethodParameter(PropertyDescriptor pd) {
-    if (pd instanceof GenericTypeAwarePropertyDescriptor) {
-      return new MethodParameter(((GenericTypeAwarePropertyDescriptor) pd).getWriteMethodParameter());
+    if (pd instanceof GenericTypeAwarePropertyDescriptor generic) {
+      MethodParameter writeMethodParameter = generic.getWriteMethodParameter();
+      Assert.state(writeMethodParameter != null, "No write method available for property '" +
+              pd.getName() + "' of bean class [" + generic.getBeanClass().getName() + "]");
+      return new MethodParameter(writeMethodParameter);
     }
     else {
       Method writeMethod = pd.getWriteMethod();
-      Assert.state(writeMethod != null, "No write method available");
+      Assert.state(writeMethod != null, "No write method available for property '" + pd.getName() + "'");
       return new MethodParameter(writeMethod, 0);
     }
   }
