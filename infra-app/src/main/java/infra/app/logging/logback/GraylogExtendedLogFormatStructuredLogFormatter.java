@@ -78,8 +78,7 @@ class GraylogExtendedLogFormatStructuredLogFormatter extends JsonWriterStructure
   private static void jsonMembers(ConfigurableEnvironment environment, ThrowableProxyConverter throwableProxyConverter,
           Members<ILoggingEvent> members) {
     members.add("version", "1.1");
-    members.add("short_message", ILoggingEvent::getFormattedMessage)
-            .as(GraylogExtendedLogFormatStructuredLogFormatter::getMessageText);
+    members.add("short_message", GraylogExtendedLogFormatStructuredLogFormatter::getMessageText);
     members.add("timestamp", ILoggingEvent::getTimeStamp)
             .as(GraylogExtendedLogFormatStructuredLogFormatter::formatTimeStamp);
     members.add("level", LevelToSyslogSeverity::convert);
@@ -100,8 +99,9 @@ class GraylogExtendedLogFormatStructuredLogFormatter extends JsonWriterStructure
             .usingMembers((throwableMembers) -> throwableMembers(throwableMembers, throwableProxyConverter));
   }
 
-  private static String getMessageText(String formattedMessage) {
+  private static String getMessageText(ILoggingEvent event) {
     // Always return text as a blank message will lead to a error as of Graylog v6
+    String formattedMessage = event.getFormattedMessage();
     return (!StringUtils.hasText(formattedMessage)) ? "(blank)" : formattedMessage;
   }
 
