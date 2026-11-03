@@ -72,6 +72,13 @@ public class SpelParserConfiguration {
   public static final String MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME = "infra.spel.default.max-length";
 
   /**
+   * Default maximum number of operations permitted during SpEL expression evaluation: {@value}.
+   *
+   * @see #EXPRESSION_MAX_OPERATIONS_PROPERTY_NAME
+   */
+  public static final int DEFAULT_MAX_OPERATIONS = 10_000;
+
+  /**
    * Default maximum number of bits in a {@link java.math.BigDecimal} or
    * {@link java.math.BigInteger} power result: {@value}.
    * <p>Approximately equivalent to a decimal number with 300,000 digits.
@@ -92,6 +99,16 @@ public class SpelParserConfiguration {
    * @see Builder#maximumNestingDepth(int)
    */
   public static final int DEFAULT_MAX_EXPRESSION_NESTING_DEPTH = 1_000;
+
+  /**
+   * Property configuring the default maximum number of operations permitted
+   * during SpEL expression evaluation: {@value}.
+   * <p>Can also be configured via {@link InfraStrategies}. Prefer
+   * {@link Builder#maximumOperations(int)} for individual parsers.
+   *
+   * @see #DEFAULT_MAX_OPERATIONS
+   */
+  public static final String EXPRESSION_MAX_OPERATIONS_PROPERTY_NAME = "infra.spel.default.max-operations";
 
   /**
    * Property configuring the default maximum bit length of big-number power
@@ -130,12 +147,15 @@ public class SpelParserConfiguration {
 
   private final int maximumExpressionLength;
 
+  private final int maximumOperations;
+
   private final int maximumBigPowerBits;
 
   private final int maximumNestingDepth;
 
   /**
-   * Internal constructor with explicit limits on big-number powers and expression nesting.
+   * Internal constructor with explicit limits on operations, big-number powers
+   * and expression nesting.
    *
    * @param compilerMode compiler mode; must not be {@code null}
    * @param compilerClassLoader class loader for compilation
@@ -143,18 +163,20 @@ public class SpelParserConfiguration {
    * @param autoGrowCollections whether to grow collections
    * @param maximumAutoGrowSize maximum auto-grow size
    * @param maximumExpressionLength maximum expression length
+   * @param maximumOperations maximum number of operations; must be positive
    * @param maximumBigPowerBits maximum bits in a big-number power result
    * @param maximumNestingDepth maximum structural nesting depth; must be positive
    */
   SpelParserConfiguration(SpelCompilerMode compilerMode, @Nullable ClassLoader compilerClassLoader,
           boolean autoGrowNullReferences, boolean autoGrowCollections, int maximumAutoGrowSize,
-          int maximumExpressionLength, int maximumBigPowerBits, int maximumNestingDepth) {
+          int maximumExpressionLength, int maximumOperations, int maximumBigPowerBits, int maximumNestingDepth) {
     this.compilerMode = compilerMode;
     this.compilerClassLoader = compilerClassLoader;
     this.autoGrowNullReferences = autoGrowNullReferences;
     this.autoGrowCollections = autoGrowCollections;
     this.maximumAutoGrowSize = maximumAutoGrowSize;
     this.maximumExpressionLength = maximumExpressionLength;
+    this.maximumOperations = maximumOperations;
     this.maximumBigPowerBits = maximumBigPowerBits;
     this.maximumNestingDepth = maximumNestingDepth;
   }
@@ -204,6 +226,17 @@ public class SpelParserConfiguration {
   }
 
   /**
+   * Return the maximum number of operations permitted during SpEL expression
+   * evaluation.
+   *
+   * @see #DEFAULT_MAX_OPERATIONS
+   * @since 5.0
+   */
+  public int getMaximumOperations() {
+    return this.maximumOperations;
+  }
+
+  /**
    * Return the maximum number of bits in a {@link java.math.BigDecimal} or
    * {@link java.math.BigInteger} power result.
    *
@@ -220,6 +253,24 @@ public class SpelParserConfiguration {
    */
   public int getMaximumNestingDepth() {
     return this.maximumNestingDepth;
+  }
+
+  private static int retrieveMaxOperations() {
+    String value = InfraStrategies.getProperty(EXPRESSION_MAX_OPERATIONS_PROPERTY_NAME);
+    if (value == null || value.isBlank()) {
+      return DEFAULT_MAX_OPERATIONS;
+    }
+    try {
+      int maxOperations = Integer.parseInt(value.trim());
+      if (maxOperations <= 0) {
+        throw new IllegalArgumentException("Value [%d] for property [%s] must be positive".formatted(maxOperations, EXPRESSION_MAX_OPERATIONS_PROPERTY_NAME));
+      }
+      return maxOperations;
+    }
+    catch (NumberFormatException ex) {
+      throw new IllegalArgumentException("Failed to parse value for property [%s]: %s"
+              .formatted(EXPRESSION_MAX_OPERATIONS_PROPERTY_NAME, ex.getMessage()), ex);
+    }
   }
 
   private static int retrieveMaxBigPowerBits() {
@@ -287,6 +338,8 @@ public class SpelParserConfiguration {
     private int maximumAutoGrowSize = DEFAULT_MAX_AUTO_GROW_SIZE;
 
     private int maximumExpressionLength = DEFAULT_MAX_EXPRESSION_LENGTH;
+
+    private @Nullable Integer maximumOperations;
 
     private @Nullable Integer maximumBigPowerBits;
 
@@ -374,6 +427,22 @@ public class SpelParserConfiguration {
     }
 
     /**
+     * Set the maximum number of operations permitted during SpEL expression
+     * evaluation.
+     * <p>Defaults to the value of
+     * {@value SpelParserConfiguration#EXPRESSION_MAX_OPERATIONS_PROPERTY_NAME},
+     * or {@link SpelParserConfiguration#DEFAULT_MAX_OPERATIONS} when unset.
+     *
+     * @param maximumOperations the maximum operation count; must be positive
+     * @return this builder
+     */
+    public Builder maximumOperations(int maximumOperations) {
+      Assert.isTrue(maximumOperations > 0, "'maximumOperations' must be a positive number");
+      this.maximumOperations = maximumOperations;
+      return this;
+    }
+
+    /**
      * Set the maximum number of bits in a {@link java.math.BigDecimal} or
      * {@link java.math.BigInteger} power result.
      * <p>Defaults to the value of
@@ -410,10 +479,11 @@ public class SpelParserConfiguration {
      * @return a configuration with the specified overrides
      */
     public SpelParserConfiguration build() {
+      int maximumOperations = this.maximumOperations != null ? this.maximumOperations : retrieveMaxOperations();
       int maximumBigPowerBits = this.maximumBigPowerBits != null ? this.maximumBigPowerBits : retrieveMaxBigPowerBits();
       return new SpelParserConfiguration(this.compilerMode, this.compilerClassLoader,
               this.autoGrowNullReferences, this.autoGrowCollections, this.maximumAutoGrowSize,
-              this.maximumExpressionLength, maximumBigPowerBits, this.maximumNestingDepth);
+              this.maximumExpressionLength, maximumOperations, maximumBigPowerBits, this.maximumNestingDepth);
     }
   }
 

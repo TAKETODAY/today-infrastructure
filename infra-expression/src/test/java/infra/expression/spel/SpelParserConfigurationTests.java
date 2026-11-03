@@ -184,10 +184,17 @@ class SpelParserConfigurationTests {
 
     @Test
     void canonicalConstructorAppliesAllValues() {
-      SpelParserConfiguration configuration = new SpelParserConfiguration(SpelCompilerMode.IMMEDIATE, null,
-              true, true, 99, 100, 102, 103);
+      ClassLoader classLoader = getClass().getClassLoader();
+      SpelParserConfiguration configuration = new SpelParserConfiguration(
+              SpelCompilerMode.IMMEDIATE, classLoader, true, true, 99, 100, 101, 102, 103);
+
+      assertThat(configuration.getCompilerMode()).isEqualTo(SpelCompilerMode.IMMEDIATE);
+      assertThat(configuration.getCompilerClassLoader()).isSameAs(classLoader);
+      assertThat(configuration.isAutoGrowNullReferences()).isTrue();
+      assertThat(configuration.isAutoGrowCollections()).isTrue();
       assertThat(configuration.getMaximumAutoGrowSize()).isEqualTo(99);
       assertThat(configuration.getMaximumExpressionLength()).isEqualTo(100);
+      assertThat(configuration.getMaximumOperations()).isEqualTo(101);
       assertThat(configuration.getMaximumBigPowerBits()).isEqualTo(102);
       assertThat(configuration.getMaximumNestingDepth()).isEqualTo(103);
     }

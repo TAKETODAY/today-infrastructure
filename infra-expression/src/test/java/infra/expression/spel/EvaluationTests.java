@@ -43,6 +43,7 @@ import infra.expression.spel.support.SimpleEvaluationContext;
 import infra.expression.spel.support.StandardEvaluationContext;
 import infra.expression.spel.support.StandardTypeLocator;
 import infra.expression.spel.testresources.TestPerson;
+import infra.util.InfraStrategies;
 
 import static infra.expression.spel.SpelMessage.BETWEEN_RIGHT_OPERAND_MUST_BE_TWO_ELEMENT_LIST;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -96,6 +97,106 @@ class EvaluationTests extends AbstractExpressionTests {
       expression = "'%s'".formatted("Y".repeat(25_000));
       assertThat(expression).hasSize(25_002);
       evaluateAndCheckError(parser, expression, String.class, SpelMessage.MAX_EXPRESSION_LENGTH_EXCEEDED);
+    }
+
+    @Test
+    void maxOperationsIsConfigurableViaSpelParserConfiguration() {
+      int maxLength = 100;
+      int maxOperations = 10;
+
+      ExpressionParser parser = new SpelExpressionParser();
+
+      // The following expression contains 10 tracked operations:
+      String expression = "('foo' + 'bar').length >= 6 && {1, 1 + 1, 3}.contains(3)";
+      Expression expr1 = parser.parseExpression(expression);
+      assertThat(expr1.getValue(Boolean.class)).isTrue();
+
+      SpelParserConfiguration configuration = SpelParserConfiguration.builder()
+              .maximumAutoGrowSize(0)
+              .maximumExpressionLength(maxLength)
+              .maximumOperations(maxOperations)
+              .build();
+      parser = new SpelExpressionParser(configuration);
+      Expression expr2 = parser.parseExpression(expression);
+      assertThatExceptionOfType(SpelEvaluationException.class)
+              .isThrownBy(() -> expr2.getValue(Boolean.class))
+              .satisfies(ex -> {
+                assertThat(ex.getMessageCode()).isEqualTo(SpelMessage.MAX_OPERATIONS_EXCEEDED);
+                assertThat(ex.getInserts()).as("inserts").containsExactly(maxOperations);
+              });
+    }
+
+    @Test
+    void maxOperationsIsConfigurableViaInfraProperty() {
+      int maxOperations = 10;
+
+      ExpressionParser parser = new SpelExpressionParser();
+
+      // The following expression contains 10 tracked operations:
+      String expression = "('foo' + 'bar').length >= 6 && {1, 1 + 1, 3}.contains(3)";
+      Expression expr1 = parser.parseExpression(expression);
+      assertThat(expr1.getValue(Boolean.class)).isTrue();
+
+      try {
+        InfraStrategies.setProperty(SpelParserConfiguration.EXPRESSION_MAX_OPERATIONS_PROPERTY_NAME, "" + maxOperations);
+
+        parser = new SpelExpressionParser();
+        Expression expr2 = parser.parseExpression(expression);
+        assertThatExceptionOfType(SpelEvaluationException.class)
+                .isThrownBy(() -> expr2.getValue(Boolean.class))
+                .satisfies(ex -> {
+                  assertThat(ex.getMessageCode()).isEqualTo(SpelMessage.MAX_OPERATIONS_EXCEEDED);
+                  assertThat(ex.getInserts()).as("inserts").containsExactly(maxOperations);
+                });
+      }
+      finally {
+        InfraStrategies.setProperty(SpelParserConfiguration.EXPRESSION_MAX_OPERATIONS_PROPERTY_NAME, null);
+      }
+    }
+
+    @Test
+    void maxOperationsConfiguredViaSpelParserConfigurationOverridesInfraProperty() {
+      int maxLength = 100;
+      int maxOperations = 10;
+
+      ExpressionParser parser = new SpelExpressionParser();
+
+      // The following expression contains 10 tracked operations:
+      String expression = "('foo' + 'bar').length >= 6 && {1, 1 + 1, 3}.contains(3)";
+      Expression expr1 = parser.parseExpression(expression);
+      assertThat(expr1.getValue(Boolean.class)).isTrue();
+
+      try {
+        InfraStrategies.setProperty(SpelParserConfiguration.EXPRESSION_MAX_OPERATIONS_PROPERTY_NAME, "" + maxOperations / 2);
+
+        // maxOperations + 1 should override maxOperations / 2
+        SpelParserConfiguration configuration = SpelParserConfiguration.builder()
+                .maximumAutoGrowSize(0)
+                .maximumExpressionLength(maxLength)
+                .maximumOperations(maxOperations + 1)
+                .build();
+        parser = new SpelExpressionParser(configuration);
+        expr1 = parser.parseExpression(expression);
+        assertThat(expr1.getValue(Boolean.class)).isTrue();
+
+        configuration = SpelParserConfiguration.builder()
+                .maximumAutoGrowSize(0)
+                .maximumExpressionLength(maxLength)
+                .maximumOperations(maxOperations)
+                .build();
+        parser = new SpelExpressionParser(configuration);
+        Expression expr2 = parser.parseExpression(expression);
+        assertThatExceptionOfType(SpelEvaluationException.class)
+                .isThrownBy(() -> expr2.getValue(Boolean.class))
+                .satisfies(ex -> {
+                  assertThat(ex.getMessageCode()).isEqualTo(SpelMessage.MAX_OPERATIONS_EXCEEDED);
+                  // Should fail due to maxOperations, not maxOperations / 2
+                  assertThat(ex.getInserts()).as("inserts").containsExactly(maxOperations);
+                });
+      }
+      finally {
+        InfraStrategies.setProperty(SpelParserConfiguration.EXPRESSION_MAX_OPERATIONS_PROPERTY_NAME, null);
+      }
     }
 
     @Test

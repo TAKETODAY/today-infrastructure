@@ -50,6 +50,7 @@ public class OperatorPower extends Operator {
     Object rightOperand = rightOp.getValueInternal(state).getValue();
 
     if (leftOperand instanceof Number leftNumber && rightOperand instanceof Number rightNumber) {
+      state.trackOperation();
       if (leftNumber instanceof BigDecimal leftBigDecimal) {
         int exponent = rightNumber.intValue();
         checkBigNumberPowerBits(state, leftBigDecimal.unscaledValue().bitLength(), exponent);
