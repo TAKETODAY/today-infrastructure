@@ -183,8 +183,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   private @Nullable Object fileToSend;
 
-  private @Nullable Integer queryStringIndex;
-
   private @Nullable ServerHttpResponse outputMessage;
 
   private final @Nullable BodyInputStream requestBody;
@@ -385,34 +383,15 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   @Override
   protected final String readRequestURI() {
     String uri = requestUri();
-    int index = queryStringIndex(uri);
-    if (index == -1) {
-      return uri;
-    }
-    else {
-      return uri.substring(0, index);
-    }
+    int index = uri.indexOf('?');
+    return index == -1 ? uri : uri.substring(0, index);
   }
 
   @Override
   public final @Nullable String readQueryString() {
     String uri = requestUri();
-    int index = queryStringIndex(uri);
-    if (index == -1) {
-      return null;
-    }
-    else {
-      return uri.substring(index + 1);
-    }
-  }
-
-  private int queryStringIndex(String uri) {
-    Integer index = queryStringIndex;
-    if (index == null) {
-      index = uri.indexOf('?');
-      this.queryStringIndex = index;
-    }
-    return index;
+    int index = uri.indexOf('?');
+    return index == -1 ? null : uri.substring(index + 1);
   }
 
   /**

@@ -404,6 +404,43 @@ class NettyHttpContextTests {
 
   }
 
+  // -- request URI and query string tests --
+
+  @Test
+  void requestUriIsReadBeforeQueryString() {
+    var ctx = newContext("/path/to?name=value&x=1");
+    assertThat(ctx.getRequestURI()).isEqualTo("/path/to");
+    assertThat(ctx.getQueryString()).isEqualTo("name=value&x=1");
+  }
+
+  @Test
+  void queryStringIsReadBeforeRequestUri() {
+    var ctx = newContext("/path/to?name=value&x=1");
+    assertThat(ctx.getQueryString()).isEqualTo("name=value&x=1");
+    assertThat(ctx.getRequestURI()).isEqualTo("/path/to");
+  }
+
+  @Test
+  void requestUriWithoutQueryString() {
+    var ctx = newContext("/path/to");
+    assertThat(ctx.getRequestURI()).isEqualTo("/path/to");
+    assertThat(ctx.getQueryString()).isNull();
+  }
+
+  @Test
+  void requestUriWithEmptyQueryString() {
+    var ctx = newContext("/path/to?");
+    assertThat(ctx.getRequestURI()).isEqualTo("/path/to");
+    // an empty query string is normalized to null by AbstractHttpContext
+    assertThat(ctx.getQueryString()).isNull();
+  }
+
+  private static NettyHttpContextStub newContext(String uri) {
+    var request = new DefaultHttpRequest(
+            HttpVersion.HTTP_1_1, io.netty.handler.codec.http.HttpMethod.GET, uri);
+    return new NettyHttpContextStub(request, null);
+  }
+
   // -- getServerName tests --
 
   @Test
