@@ -27,8 +27,10 @@ import infra.http.HttpHeaders;
 import infra.http.support.NettyHeaders;
 import infra.web.DispatcherHandler;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.Headers;
 import io.netty.handler.codec.HeadersUtils;
@@ -39,7 +41,8 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http2.DefaultHttp2DataFrame;
 import io.netty.handler.codec.http2.DefaultHttp2Headers;
 import io.netty.handler.codec.http2.DefaultHttp2HeadersFrame;
-import io.netty.handler.codec.http2.Http2DataChunkedInput;
+import io.netty.handler.codec.http2.Http2DataFrame;
+import io.netty.handler.codec.http2.Http2FrameStream;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2StreamChannel;
 import io.netty.handler.stream.ChunkedInput;
@@ -166,8 +169,7 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
   /**
    * HTTP/2 stream channels only accept {@code Http2StreamFrame} writes, so files
-   * must be sent through a {@link ChunkedWriteHandler} and wrapped into
-   * {@link Http2DataChunkedInput}.
+   * must be sent through a {@link ChunkedWriteHandler} and wrapped into DATA frames.
    */
   @Override
   protected boolean supportsFileRegion() {
@@ -228,7 +230,7 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
   @Override
   protected Object modifyChunkedFile(ChunkedInput<ByteBuf> input) {
-    return new Http2DataChunkedInput(input, ((Http2StreamChannel) channel).stream());
+    return new Http2DataFrameChunkedInput(input, ((Http2StreamChannel) channel).stream());
   }
 
   private static HttpMethod method(Http2Headers headers) {
@@ -242,6 +244,57 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
       return Long.parseLong(value.toString());
     }
     return -1L;
+  }
+
+  /**
+   * Adapts file chunks to HTTP/2 DATA frames without ending the stream.
+   * <p>Netty's {@code Http2DataChunkedInput} marks the last DATA frame with
+   * {@code endStream=true}, which would require {@link #endResponse()} to skip
+   * its own terminator. Keeping the terminator in {@code endResponse()} lets
+   * file and in-memory responses complete through the same path.
+   */
+  private static final class Http2DataFrameChunkedInput implements ChunkedInput<Http2DataFrame> {
+
+    private final ChunkedInput<@Nullable ByteBuf> input;
+
+    private final Http2FrameStream stream;
+
+    Http2DataFrameChunkedInput(ChunkedInput<ByteBuf> input, Http2FrameStream stream) {
+      this.input = input;
+      this.stream = stream;
+    }
+
+    @Override
+    public boolean isEndOfInput() throws Exception {
+      return input.isEndOfInput();
+    }
+
+    @Override
+    public void close() throws Exception {
+      input.close();
+    }
+
+    @Override
+    @Deprecated
+    public @Nullable Http2DataFrame readChunk(ChannelHandlerContext ctx) throws Exception {
+      return readChunk(ctx.alloc());
+    }
+
+    @Override
+    public @Nullable Http2DataFrame readChunk(ByteBufAllocator allocator) throws Exception {
+      ByteBuf buffer = input.readChunk(allocator);
+      return buffer != null ? new DefaultHttp2DataFrame(buffer, false).stream(stream) : null;
+    }
+
+    @Override
+    public long length() {
+      return input.length();
+    }
+
+    @Override
+    public long progress() {
+      return input.progress();
+    }
   }
 
 }

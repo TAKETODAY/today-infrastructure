@@ -26,16 +26,27 @@ import java.util.List;
 import infra.context.ApplicationContext;
 import infra.http.HttpHeaders;
 import infra.web.DispatcherHandler;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http2.DefaultHttp2DataFrame;
 import io.netty.handler.codec.http2.DefaultHttp2Headers;
+import io.netty.handler.codec.http2.Http2DataFrame;
+import io.netty.handler.codec.http2.Http2FrameStream;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2HeadersFrame;
 import io.netty.handler.codec.http2.Http2StreamChannel;
+import io.netty.handler.stream.ChunkedInput;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for native HTTP/2 header access and response handling.
@@ -43,6 +54,8 @@ import static org.mockito.Mockito.mock;
 class Http2HttpContextTests {
 
   private final Http2StreamChannel channel = mock();
+
+  private final HttpTrafficHandler httpTrafficHandler = mock();
 
   private final Http2Headers requestHeaders = new DefaultHttp2Headers()
           .method("GET").scheme("https").authority("example.org:8443").path("/test?q=1");
@@ -53,7 +66,7 @@ class Http2HttpContextTests {
     requestHeaders.add("x-custom", "First").add("x-custom", "Second");
     Http2HttpContext context = createContext();
 
-    assertThat(context.getHeader(name)).isEqualTo("First")          ;
+    assertThat(context.getHeader(name)).isEqualTo("First");
     assertThat(context.getHeaders(name)).containsExactly("First", "Second");
     assertThat(context.containsHeader(name)).isTrue();
     assertThat(context.containsHeaderValue(name, "FIRST")).isTrue();
@@ -234,12 +247,58 @@ class Http2HttpContextTests {
             .isThrownBy(() -> headers.set("Content-Type", "text/plain"));
   }
 
+  @Test
+  void fileChunksDoNotEndStream() throws Exception {
+    Http2FrameStream stream = mock();
+    when(channel.stream()).thenReturn(stream);
+    ChunkedInput<ByteBuf> input = mock();
+    when(input.readChunk(any(ByteBufAllocator.class))).thenReturn(Unpooled.buffer().writeByte(1));
+
+    Http2HttpContext context = createContext();
+
+    @SuppressWarnings("unchecked")
+    ChunkedInput<Http2DataFrame> file = (ChunkedInput<Http2DataFrame>) context.modifyChunkedFile(input);
+    Http2DataFrame frame = file.readChunk(mock(ByteBufAllocator.class));
+
+    assertThat(frame).isNotNull();
+    assertThat(frame.isEndStream()).isFalse();
+    assertThat(frame.stream()).isSameAs(stream);
+  }
+
+  @Test
+  void regularResponseWritesEndStreamFrame() {
+    Http2HttpContext context = createContext();
+
+    context.endResponse();
+
+    then(channel).should().writeAndFlush(any(DefaultHttp2DataFrame.class));
+  }
+
+  @Test
+  void fileWriteFailureClosesChannel() throws Exception {
+    ChannelFuture future = mock();
+    when(channel.writeAndFlush(any())).thenReturn(future);
+    when(future.addListener(any(ChannelFutureListener.class))).thenReturn(future);
+
+    Http2HttpContext context = createContext();
+    context.writeResponseFile(mock(ByteBuf.class));
+
+    ArgumentCaptor<ChannelFutureListener> listener = ArgumentCaptor.forClass(ChannelFutureListener.class);
+    then(future).should().addListener(listener.capture());
+
+    when(future.isSuccess()).thenReturn(false);
+    when(future.channel()).thenReturn(channel);
+    listener.getValue().operationComplete(future);
+
+    then(channel).should().close();
+  }
+
   private Http2HttpContext createContext() {
     ApplicationContext applicationContext = mock();
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .multipartParser(mock()).sendErrorHandler(mock()).build();
     return new Http2HttpContext(channel, requestHeaders, config, applicationContext,
-            new DispatcherHandler(applicationContext), mock(HttpTrafficHandler.class));
+            new DispatcherHandler(applicationContext), httpTrafficHandler);
   }
 
 }

@@ -65,6 +65,7 @@ import infra.web.server.RequestBodySizeExceededException;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.DefaultHeaders;
@@ -743,7 +744,8 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * Write and flush a file or chunked input.
    */
   protected void writeResponseFile(Object file) {
-    channel.writeAndFlush(file);
+    channel.writeAndFlush(file)
+            .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
   }
 
   /**
