@@ -61,7 +61,8 @@ class ProtobufJsonEncoderTests extends AbstractEncoderTests<ProtobufJsonEncoder>
   protected void canEncode() throws Exception {
     assertThat(this.encoder.canEncode(forClass(Msg.class), null)).isFalse();
     assertThat(this.encoder.canEncode(forClass(Msg.class), MediaType.APPLICATION_JSON)).isTrue();
-    assertThat(this.encoder.canEncode(forClass(Msg.class), MediaType.APPLICATION_NDJSON)).isFalse();
+    assertThat(this.encoder.canEncode(forClass(Msg.class), MediaType.APPLICATION_NDJSON)).isTrue();
+    assertThat(this.encoder.canEncode(forClass(Msg.class), MediaType.APPLICATION_JSONL)).isTrue();
     assertThat(this.encoder.canEncode(forClass(Object.class), MediaType.APPLICATION_JSON)).isFalse();
   }
 
@@ -118,6 +119,17 @@ class ProtobufJsonEncoderTests extends AbstractEncoderTests<ProtobufJsonEncoder>
     ResolvableType inputType = forClass(Msg.class);
 
     testEncode(input, inputType, MediaType.APPLICATION_NDJSON, null, step -> step
+            .assertNext(buffer -> assertBufferEqualsJson(buffer, "{\"foo\":\"Foo\",\"blah\":{\"blah\":123}}\n"))
+            .assertNext(buffer -> assertBufferEqualsJson(buffer, "{\"foo\":\"Bar\",\"blah\":{\"blah\":456}}\n"))
+            .verifyComplete());
+  }
+
+  @Test
+  void encodeJsonLinesStream() {
+    Flux<Message> input = Flux.just(this.msg1, this.msg2);
+    ResolvableType inputType = forClass(Msg.class);
+
+    testEncode(input, inputType, MediaType.APPLICATION_JSONL, null, step -> step
             .assertNext(buffer -> assertBufferEqualsJson(buffer, "{\"foo\":\"Foo\",\"blah\":{\"blah\":123}}\n"))
             .assertNext(buffer -> assertBufferEqualsJson(buffer, "{\"foo\":\"Bar\",\"blah\":{\"blah\":456}}\n"))
             .verifyComplete());
