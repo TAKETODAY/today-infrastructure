@@ -98,7 +98,13 @@ class MergedAnnotationReadingVisitor<A extends Annotation> extends AnnotationVis
 
   public <E extends Enum<E>> void visitEnum(String descriptor, String value, Consumer<E> consumer) {
     String className = Type.forDescriptor(descriptor).getClassName();
-    Class<E> type = ClassUtils.resolveClassName(className, this.classLoader);
+    Class<E> type = null;
+    try {
+      type = ClassUtils.forName(className, this.classLoader);
+    }
+    catch (ClassNotFoundException | LinkageError ex) {
+      throw new TypeNotPresentException(className, ex);
+    }
     consumer.accept(Enum.valueOf(type, value));
   }
 
@@ -110,7 +116,13 @@ class MergedAnnotationReadingVisitor<A extends Annotation> extends AnnotationVis
     if (AnnotationFilter.PLAIN.matches(className)) {
       return null;
     }
-    Class<T> type = ClassUtils.resolveClassName(className, this.classLoader);
+    Class<T> type = null;
+    try {
+      type = ClassUtils.forName(className, this.classLoader);
+    }
+    catch (ClassNotFoundException | LinkageError ex) {
+      throw new TypeNotPresentException(className, ex);
+    }
     return new MergedAnnotationReadingVisitor<>(this.classLoader, this.source, type, consumer);
   }
 

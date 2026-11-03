@@ -30,7 +30,7 @@ import infra.core.type.AbstractAnnotationMetadataTests;
 import infra.core.type.AnnotationMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link SimpleAnnotationMetadata} and
@@ -56,7 +56,8 @@ class DefaultAnnotationMetadataTests extends AbstractAnnotationMetadataTests {
   void getClassAttributeWhenUnknownClass() {
     var annotation = get(WithClassMissingFromClasspath.class).getAnnotations().get(ClassAttributes.class);
     assertThat(annotation.getStringArray("types")).contains("com.github.benmanes.caffeine.cache.Caffeine");
-    assertThatIllegalArgumentException().isThrownBy(() -> annotation.getClassArray("types"));
+    assertThatExceptionOfType(TypeNotPresentException.class)
+            .isThrownBy(() -> annotation.getClassArray("types"));
   }
 
   @ClassAttributes(types = { Caffeine.class })
