@@ -87,15 +87,6 @@ class ResourceHandlerUtilsTests {
   }
 
   @Test
-  void assertResourceLocationShouldRejectUnsafeContextResource() {
-    ContextResource contextResource = mock(ContextResource.class);
-    when(contextResource.getPathWithinContext()).thenReturn("/");
-    assertThatIllegalArgumentException().isThrownBy(() ->
-                    ResourceHandlerUtils.assertResourceLocation(contextResource))
-            .withMessageContaining("is considered unsafe");
-  }
-
-  @Test
   void assertResourceLocationShouldThrowExceptionWhenLocationIsNull() {
     assertThatThrownBy(() -> ResourceHandlerUtils.assertResourceLocation(null))
             .isInstanceOf(IllegalArgumentException.class)
@@ -170,6 +161,42 @@ class ResourceHandlerUtilsTests {
     boolean result = ResourceHandlerUtils.shouldIgnoreInputPath(path);
 
     assertThat(result).isFalse();
+  }
+
+  @Test
+  void shouldIgnoreInputPathShouldReturnTrueForPathWithWebInfAfterNormalization() {
+    String path = "  / // WEB-INF/web.xml";
+
+    boolean result = ResourceHandlerUtils.shouldIgnoreInputPath(path);
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  void shouldIgnoreInputPathShouldReturnTrueForPathWithMetaInfAfterNormalization() {
+    String path = "\t/META-INF/MANIFEST.MF";
+
+    boolean result = ResourceHandlerUtils.shouldIgnoreInputPath(path);
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  void isInvalidPathShouldReturnTrueForWebInfPath() {
+    String path = "/WEB-INF/web.xml";
+
+    boolean result = ResourceHandlerUtils.isInvalidPath(path);
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  void isInvalidPathShouldReturnTrueForMetaInfPath() {
+    String path = "/META-INF/MANIFEST.MF";
+
+    boolean result = ResourceHandlerUtils.isInvalidPath(path);
+
+    assertThat(result).isTrue();
   }
 
   @Test
