@@ -110,6 +110,14 @@ class ZipContentTests {
   }
 
   @Test
+  void getCommentWhenNoCommentReturnsNull() throws Exception {
+    File file = createZipWithoutComment();
+    try (ZipContent zip = ZipContent.open(file.toPath())) {
+      assertThat(zip.getComment()).isNull();
+    }
+  }
+
+  @Test
   void getEntryWhenPresentReturnsEntry() {
     Entry entry = this.zipContent.getEntry("1.dat");
     assertThat(entry).isNotNull();
@@ -588,6 +596,16 @@ class ZipContentTests {
     dataBlock.readFully(buffer, 0);
     Files.write(file.toPath(), buffer.array());
     dataBlock.close();
+  }
+
+  private File createZipWithoutComment() throws IOException {
+    File file = new File(this.tempDir, "no-comment.zip");
+    try (ZipOutputStream zipOutput = new ZipOutputStream(new FileOutputStream(file))) {
+      zipOutput.putNextEntry(new ZipEntry("1.dat"));
+      zipOutput.write(new byte[] { (byte) 1 });
+      zipOutput.closeEntry();
+    }
+    return file;
   }
 
   private static class ZipInfo {
