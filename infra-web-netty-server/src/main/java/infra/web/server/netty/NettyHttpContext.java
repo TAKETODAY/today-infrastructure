@@ -242,6 +242,20 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   }
 
   /**
+   * Whether this transport supports writing a file as a zero-copy
+   * {@link DefaultFileRegion}.
+   * <p>HTTP/2 stream channels only accept
+   * {@link io.netty.handler.codec.http2.Http2StreamFrame} outbound messages,
+   * so {@link Http2HttpContext} overrides this method to return {@code false};
+   * files are then always sent through a {@link ChunkedWriteHandler}.
+   *
+   * @since 5.0
+   */
+  protected boolean supportsFileRegion() {
+    return true;
+  }
+
+  /**
    * Create the request body stream for this exchange.
    * <p>A zero-length body, or an unknown length for a method that carries no body,
    * leaves the stream unset so reads return an empty input stream. When
@@ -601,6 +615,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       writeResponseBody(responseBody);
     }
     else if ((fileToSend = this.fileToSend) != null) {
+      this.fileToSend = null;
       writeResponseFile(fileToSend);
     }
   }
@@ -1388,7 +1403,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
     @Override
     public void sendFile(File file, long position, long count) throws IOException {
-      if (config.secure) {
+      if (config.secure || !supportsFileRegion()) {
         ChannelPipeline pipeline = channel.pipeline();
         if (pipeline.context(CHUNKED_WRITER_NAME) == null) {
           pipeline.addLast(CHUNKED_WRITER_NAME, new ChunkedWriteHandler());

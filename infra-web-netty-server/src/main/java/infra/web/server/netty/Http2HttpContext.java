@@ -44,6 +44,7 @@ import io.netty.handler.codec.http2.Http2DataChunkedInput;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2StreamChannel;
 import io.netty.handler.stream.ChunkedInput;
+import io.netty.handler.stream.ChunkedWriteHandler;
 
 /**
  * {@link NettyHttpContext} backed by native HTTP/2 frames.
@@ -156,6 +157,16 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
    */
   @Override
   protected boolean supportsTransferEncoding() {
+    return false;
+  }
+
+  /**
+   * HTTP/2 stream channels only accept {@code Http2StreamFrame} writes, so files
+   * must be sent through a {@link ChunkedWriteHandler} and wrapped into
+   * {@link Http2DataChunkedInput}.
+   */
+  @Override
+  protected boolean supportsFileRegion() {
     return false;
   }
 

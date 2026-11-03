@@ -22,6 +22,8 @@ import org.junit.jupiter.api.Test;
 import java.io.InputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -60,8 +62,10 @@ class Http2ServerTests {
 
   private Http2TestClient client;
 
+  private Path file;
+
   @AfterEach
-  void tearDown() {
+  void tearDown() throws Exception {
     if (client != null) {
       client.close();
       client = null;
@@ -73,6 +77,10 @@ class Http2ServerTests {
     if (executor != null) {
       executor.shutdownNow();
       executor = null;
+    }
+    if (file != null) {
+      Files.deleteIfExists(file);
+      file = null;
     }
   }
 
@@ -260,6 +268,30 @@ class Http2ServerTests {
     assertThat(response.bodyAsString()).isEqualTo("hello");
   }
 
+  @Test
+  void cleartextFileResponseIsDelivered() throws Exception {
+    file = Files.createTempFile("h2-file", ".txt");
+    Files.writeString(file, "file-content-".repeat(1024));
+    start(false);
+
+    Http2TestClient.Response response = client.get("/file");
+
+    assertThat(response.status()).isEqualTo(200);
+    assertThat(response.bodyAsString()).isEqualTo(Files.readString(file));
+  }
+
+  @Test
+  void secureFileResponseIsDelivered() throws Exception {
+    file = Files.createTempFile("h2-file", ".txt");
+    Files.writeString(file, "file-content-".repeat(1024));
+    start(true);
+
+    Http2TestClient.Response response = client.get("/file");
+
+    assertThat(response.status()).isEqualTo(200);
+    assertThat(response.bodyAsString()).isEqualTo(Files.readString(file));
+  }
+
   private void start(boolean secure) throws Exception {
     int port = startServer(secure);
     client = secure ? Http2TestClient.secure(port) : Http2TestClient.cleartext(port);
@@ -345,7 +377,7 @@ class Http2ServerTests {
     };
   }
 
-  private static final class TestDispatcherHandler extends DispatcherHandler {
+  private final class TestDispatcherHandler extends DispatcherHandler {
 
     private TestDispatcherHandler(ApplicationContext context) {
       super(context);
@@ -360,6 +392,12 @@ class Http2ServerTests {
       }
       else if ("/large".equals(path)) {
         writeResponse(context, new byte[256 * 1024]);
+      }
+      else if ("/file".equals(path)) {
+        long length = Files.size(file);
+        context.setContentType(MediaType.TEXT_PLAIN);
+        context.setContentLength(length);
+        context.asHttpOutputMessage().sendFile(file, 0, length);
       }
       else if ("/error".equals(path)) {
         throw new IllegalStateException("boom");
