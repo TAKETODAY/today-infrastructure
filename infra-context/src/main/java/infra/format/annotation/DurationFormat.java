@@ -107,7 +107,7 @@ public @interface DurationFormat {
     /**
      * Microseconds ({@code "us"}).
      */
-    MICROS(ChronoUnit.MICROS, "us", duration -> duration.toNanos() / 1000L),
+    MICROS(ChronoUnit.MICROS, "us", duration -> duration.dividedBy(Duration.ofNanos(1000))),
 
     /**
      * Milliseconds ({@code "ms"}).
