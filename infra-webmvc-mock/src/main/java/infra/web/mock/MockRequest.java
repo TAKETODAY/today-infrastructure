@@ -51,6 +51,7 @@ import infra.core.DefaultAttributeAccessor;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Constant;
+import infra.lang.Contract;
 import infra.session.Session;
 import infra.util.Assert;
 import infra.util.LinkedCaseInsensitiveMap;
@@ -1114,6 +1115,7 @@ public class MockRequest extends DefaultAttributeAccessor {
     }
   }
 
+  @Contract("true -> !null")
   public @Nullable Session getSession(boolean create) {
     checkActive();
     // Reset session if invalidated.
