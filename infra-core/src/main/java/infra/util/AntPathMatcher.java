@@ -836,7 +836,7 @@ public class AntPathMatcher implements PathMatcher {
 
     public String @Nullable [] extractVariables(String str) {
       if (pattern != null) {
-        Matcher matcher = this.pattern.matcher(str);
+        Matcher matcher = this.pattern.matcher(new MaxAttemptsCharSequence(str));
         if (matcher.matches()) {
           final int groupCount = matcher.groupCount();
           if (variableNames.size() != groupCount) {

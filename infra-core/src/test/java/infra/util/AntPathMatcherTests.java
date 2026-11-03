@@ -725,6 +725,20 @@ class AntPathMatcherTests {
   }
 
   @Test
+  void extractVariablesLimitsCharacterAccessAttempts() {
+    AntPathMatcher.AntPathStringMatcher matcher =
+            new AntPathMatcher.AntPathStringMatcher("{value:a+}", "/", true);
+
+    assertThat(matcher.extractVariables("aaa")).containsExactly("aaa");
+    assertThat(matcher.extractVariables("bbb")).isNull();
+    String input = "a".repeat(1_000_001);
+    assertThatThrownBy(() -> matcher.extractVariables(input))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage("Too many character access attempts encountered during pattern matching");
+    assertThat(matcher.extractVariables("a")).containsExactly("a");
+  }
+
+  @Test
   void extractVariableNames() {
     assertThat(pathMatcher.extractVariableNames("/")).isEmpty();
     assertThat(pathMatcher.extractVariableNames("/*/foo")).isEmpty();
