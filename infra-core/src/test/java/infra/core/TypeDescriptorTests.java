@@ -1175,7 +1175,7 @@ class TypeDescriptorTests {
     void setListProperty(List<T> t);
   }
 
-  public class IntegerType implements GenericType<Integer> {
+  public static class IntegerType implements GenericType<Integer> {
 
     @Override
     public Integer getProperty() {
@@ -1196,7 +1196,7 @@ class TypeDescriptorTests {
     }
   }
 
-  public class NumberType implements GenericType<Number> {
+  public static class NumberType implements GenericType<Number> {
 
     @Override
     public Integer getProperty() {

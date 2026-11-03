@@ -3056,7 +3056,7 @@ class MergedAnnotationsTests {
     void doIt();
   }
 
-  class TransactionalServiceImpl implements TransactionalService {
+  static class TransactionalServiceImpl implements TransactionalService {
 
     @Override
     public void doIt() {
@@ -3551,8 +3551,7 @@ class MergedAnnotationsTests {
   @interface DoublyComposedRootAnnotation {
   }
 
-  class DomainType {
-
+  static class DomainType {
     @RootAnnotation
     Object directlyAnnotated;
 

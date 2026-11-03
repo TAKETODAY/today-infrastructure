@@ -385,7 +385,7 @@ public abstract class AbstractReactiveTransactionAspectTests {
     Mono<Void> exceptional(Throwable t);
   }
 
-  public class DefaultTestBean implements TestBean {
+  public static class DefaultTestBean implements TestBean {
 
     private String name;
 

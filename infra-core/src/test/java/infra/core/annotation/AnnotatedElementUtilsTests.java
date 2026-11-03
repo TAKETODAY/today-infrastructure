@@ -1506,7 +1506,7 @@ class AnnotatedElementUtilsTests {
     Object doIt();
   }
 
-  class TransactionalServiceImpl implements TransactionalService {
+  static class TransactionalServiceImpl implements TransactionalService {
 
     @Override
     public @Nullable Object doIt() {
