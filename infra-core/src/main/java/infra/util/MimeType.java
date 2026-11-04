@@ -42,7 +42,7 @@ import java.util.TreeSet;
  * <p>
  * This class, however, does not contain support for the q-parameters used in
  * HTTP content negotiation. Those can be found in the subclass
- * {@code MediaType} in the {@code infra-web} module.
+   * {@code infra.http.MediaType} in the {@code infra-http} module.
  *
  * <p>
  * Consists of a {@linkplain #getType() type} and a {@linkplain #getSubtype()
@@ -273,7 +273,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    *
    * @param type the primary type
    * @param subtype the subtype
-   * @param parameters the parameters (maybe {@code null})
+   * @param parameters the parameters (may be {@code null})
    * @throws IllegalArgumentException if any of the parameters contains illegal characters
    */
   public MimeType(String type, String subtype, @Nullable Map<String, String> parameters) {
@@ -295,7 +295,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * {@code MimeType}, and allows to set the specified character set.
    *
    * @param other the other MimeType
-   * @param charset the character set
+   * @param charset the character set, or {@code null} to remove the charset parameter
    * @throws IllegalArgumentException if any of the parameters contains illegal characters
    * @see #withCharset(Charset)
    */
@@ -536,7 +536,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * Copy that copies the type, subtype, parameters of the given
    * {@code MimeType}, and allows to set the specified character set.
    *
-   * @param charset the character set
+   * @param charset the character set, or {@code null} to remove the charset parameter
    * @throws IllegalArgumentException if any of the parameters contains illegal characters
    */
   public MimeType withCharset(@Nullable Charset charset) {
@@ -645,7 +645,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
     if (other == null) {
       return false;
     }
-    return this.type.equals(other.type) && this.subtype.equals(other.subtype);
+    return this.type.equalsIgnoreCase(other.type) && this.subtype.equalsIgnoreCase(other.subtype);
   }
 
   /**
@@ -815,9 +815,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
       else {
         String thisValue = getParameters().get(thisAttribute);
         String otherValue = other.getParameters().get(otherAttribute);
-        if (thisValue == null) {
-          throw new IllegalArgumentException("Parameter for %s must not be null".formatted(thisAttribute));
-        }
+        Assert.notNull(thisValue, "Parameter for " + thisAttribute + " is required");
         if (otherValue == null) {
           otherValue = "";
         }
@@ -932,7 +930,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
   /**
    * Parse the given String value into a {@code MimeType} object,
    * with this method name following the 'valueOf' naming convention
-   * (as supported by {@link infra.core.convert.ConversionService}).
+   * (as supported by {@link infra.core.conversion.ConversionService}).
    *
    * @see MimeTypeUtils#parseMimeType(String)
    */
