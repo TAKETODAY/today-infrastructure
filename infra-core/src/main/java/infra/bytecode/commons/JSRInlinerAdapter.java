@@ -76,12 +76,6 @@ public class JSRInlinerAdapter extends MethodNode implements Opcodes {
   static final long DEFAULT_MAX_OPERATIONS_LIMIT = 100_000_000L;
 
   /**
-   * The size of a LabelNode and of its nested Label, in bytes. Two object headers + (1 field + 6
-   * inherited fields + padding) for LabelNode + 12 "equivalent int" fields for Label.
-   */
-  private static final int LABEL_NODE_SIZE = (8 * 2) + ((1 + 6) * 4 + 4) + (12 * 4);
-
-  /**
    * The size of a TryCatchBlockNode in bytes. One object header + (6 fields + 6 inherited fields).
    */
   private static final int TRY_CATCH_BLOCK_NODE_SIZE = 8 + ((6 + 6) * 4);
