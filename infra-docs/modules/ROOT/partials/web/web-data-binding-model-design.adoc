@@ -1,68 +1,39 @@
+// Copyright 2002-present the original author or authors.
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+// Licensed under the Apache License, Version 2.0.
 
-WEB 请求的 xref:core/validation/beans-beans.adoc#beans-binding[数据绑定] 涉及将请求参数绑定到模型对象。
-默认情况下，请求参数可以绑定到模型对象的任何公共属性，这意味着恶意客户端可以为模型对象图中存在的属性提供额外的值，
-但这些属性并不期望被设置。这就是为什么模型对象设计需要仔细考虑。
+数据绑定会将不可信的输入绑定到应用对象。出于安全考虑，必须将输入严格限制在预期字段内。
+本节介绍安全绑定的设计建议。
 
+首先，Web 数据绑定应优先采用**不可变对象设计**。构造函数天然将绑定限制在预期输入范围内，
+因此这种设计是安全的。可以使用 Java record 或具有主构造函数的类，两者都可以包含嵌套对象。
+详情参见 xref:core/validation/beans-beans.adoc#beans-constructor-binding[构造函数绑定]。
 
-TIP: 模型对象及其嵌套对象图有时也被称为 _命令对象_、_表单支持对象_ 或 _POJO_（Plain Old Java Object，普通旧Java对象）。
+另一种安全的选择是为预期输入设计**专用对象**。即使这些对象可变，
+它们也能通过只暴露预期输入来约束绑定范围。
 
-一个好做法是使用 _专用模型对象_，而不是将您的领域模型（如 JPA 或 Hibernate 实体）暴露给web数据绑定。
-例如，在更改电子邮件地址的表单中，创建一个只声明输入所需属性的 `ChangeEmailForm` 模型对象：
-
-[source,java,indent=0,subs="verbatim,quotes"]
-----
-public class ChangeEmailForm {
-
-  private String oldEmailAddress;
-  private String newEmailAddress;
-
-  public void setOldEmailAddress(String oldEmailAddress) {
-    this.oldEmailAddress = oldEmailAddress;
-  }
-
-  public String getOldEmailAddress() {
-    return this.oldEmailAddress;
-  }
-
-  public void setNewEmailAddress(String newEmailAddress) {
-    this.newEmailAddress = newEmailAddress;
-  }
-
-  public String getNewEmailAddress() {
-    return this.newEmailAddress;
-  }
-
-}
-----
-
-另一个好做法是应用 xref:core/validation/beans-beans.adoc#beans-constructor-binding[构造函数绑定]，
-它只使用请求参数中它需要的构造函数参数，其他任何输入都被忽略。这与属性绑定形成对比，属性绑定默认情况下会绑定每个有匹配属性的请求参数。
-
-如果既没有专用模型对象也没有构造函数绑定足够，并且您必须使用属性绑定，我们强烈推荐在 `WebDataBinder`
-上注册 `allowedFields` 模式（区分大小写），以防止意外设置属性。
-
-例如：
+JPA 或 Hibernate 实体等领域对象通常不适合直接用于 Web 数据绑定，
+因为它们包含的属性往往多于预期输入。对于这类对象，必须声明允许绑定的属性，例如：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 @Controller
-public class ChangeEmailController {
+public class PersonController {
 
   @InitBinder
   void initBinder(WebDataBinder binder) {
-    binder.setAllowedFields("oldEmailAddress", "newEmailAddress");
+    // 支持的模式语法参见 JavaDoc
+    binder.setAllowedFields("firstName", "lastName", "*Address");
   }
-
-  // @RequestMapping methods, etc.
-
 }
 ----
 
-您也可以注册 `disallowedFields` 模式（不区分大小写）。然而，"允许" 配置比 "不允许" 配置更受青睐，因为它更明确，也更不容易出错。
+NOTE: 也可以配置 `disallowedFields`，但排除列表容易遗漏字段，
+并且容易随对象属性的演变而失效。目标 API 目前仍保留此配置，推荐优先使用明确的 `allowedFields`。
 
-传给 `allowedFields` 和 `disallowedFields` 的模式并不限于顶层字段名。它们是属性路径，
-使用与框架其他位置读写 bean 属性相同的语法，并且支持使用 `*` 作为通配符。
-因此，您可以更精确地约束数据绑定：
+传给 `allowedFields` 和 `disallowedFields` 的模式并不限于顶层字段名。
+它们是属性路径，使用与框架其他位置读写 bean 属性相同的语法，并支持 `*` 通配符。
+因此，可以更精确地约束数据绑定：
 
 * `"address"` 匹配 `address` 属性。
 * `"person.address.city"` 匹配 `person` 的嵌套 `address` 属性中的 `city` 属性。
@@ -74,23 +45,20 @@ public class ChangeEmailController {
 有关支持的模式语法的更多信息，请参阅
 {today-framework-api}/validation/DataBinder.html#setAllowedFields(java.lang.String...)[`DataBinder#setAllowedFields` JavaDoc]。
 
-默认情况下，构造函数绑定和属性绑定都被使用。如果您只想使用构造函数绑定，您可以通过 `@InitBinder`
-方法在 `WebDataBinder` 上设置 `declarativeBinding` 标志，这可以局部地在控制器内进行，也可以通过
-`@ControllerAdvice` 全局进行。打开此标志确保只使用构造函数绑定，并且除非配置了 `allowedFields` 模式，否则不使用属性绑定。
-
-例如：
+默认情况下，`DataBinder` 同时应用构造函数绑定和 setter 绑定。
+对于不可变对象和专用对象，这通常没有问题；对于领域对象，则必须记得设置 `allowedFields`。
+要确保数据绑定仅以显式声明预期输入的方式进行，可以在 `DataBinder` 上启用 `declarativeBinding`。
+启用后仍会执行构造函数绑定，但只有配置了 `allowedFields` 才会执行 setter 绑定。
+以下示例全局启用该标志，也可以通过 `ControllerAdvice` 的属性缩小适用范围：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
-@Controller
-public class MyController {
+@ControllerAdvice
+public class ControllerConfig {
 
   @InitBinder
   void initBinder(WebDataBinder binder) {
     binder.setDeclarativeBinding(true);
   }
-
-  // @RequestMapping methods, etc.
-
 }
 ----
