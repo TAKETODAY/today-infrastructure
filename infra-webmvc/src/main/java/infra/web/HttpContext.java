@@ -121,7 +121,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
   /**
    * Flag indicating whether HTML escaping is enabled by default for message resolution.
    * This value is retrieved from the application's configuration using the key
-   * "infra.web.default-html-escape". If the key is not found, the default value is {@code true}.
+   * "infra.web.default-html-escape". If the key is not found, the default value is {@code false}.
    *
    * @since 5.0
    */
