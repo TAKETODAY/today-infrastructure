@@ -70,11 +70,11 @@ import infra.stereotype.Component;
  *     }
  * }</pre>
  *
- * <h3>Profile, Scope, Lazy, DependsOn, Primary, Order</h3>
+ * <h3>Profile, Scope, Lazy, DependsOn, Primary, Fallback, Order</h3>
  *
  * <p>Note that the {@code @Bean} annotation does not provide attributes for profile,
- * scope, lazy, depends-on or primary. Rather, it should be used in conjunction with
- * {@link Scope @Scope}, {@link Lazy @Lazy}, {@link DependsOn @DependsOn} and
+ * scope, lazy, depends-on, or primary. Rather, it should be used in conjunction with
+ * {@link Scope @Scope}, {@link Lazy @Lazy}, {@link DependsOn @DependsOn}, and
  * {@link Primary @Primary} annotations to declare those semantics. For example:
  *
  * <pre>{@code
@@ -96,6 +96,9 @@ import infra.stereotype.Component;
  * through direct references, which is typically helpful for singleton startup.
  * {@code @Primary} is a mechanism to resolve ambiguity at the injection point level
  * if a single target component needs to be injected but several beans match by type.
+ * {@link Fallback @Fallback} marks a bean as a fallback candidate in such scenarios;
+ * if all beans but one among multiple matching candidates are marked as fallback, the
+ * remaining bean will be selected.
  *
  * <p>Additionally, {@code @Bean} methods may also declare qualifier annotations
  * and {@link Order @Order} values, to be
@@ -111,8 +114,8 @@ import infra.stereotype.Component;
  * orthogonal concern determined by dependency relationships and {@code @DependsOn}
  * declarations as mentioned above. Also, {@link jakarta.annotation.Priority} is not
  * available at this level since it cannot be declared on methods; its semantics can
- * be modeled through {@code @Order} values in combination with {@code @Primary} on
- * a single bean per type.
+ * be modeled through {@code @Order} values in combination with {@code @Primary} or
+ * {@code @Fallback} on a single bean per type.
  *
  * <h3>{@code @Bean} Methods in {@code @Configuration} Classes</h3>
  *
@@ -244,6 +247,7 @@ import infra.stereotype.Component;
  * @see DependsOn
  * @see Lazy
  * @see Primary
+ * @see Fallback
  * @see Component
  * @see Autowired
  * @see Value
