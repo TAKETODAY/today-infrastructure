@@ -53,7 +53,7 @@ URI uri = UriComponentsBuilder
 [[uribuilder]]
 == UriBuilder
 
-<<web-uricomponents, `UriComponentsBuilder`>> 实现了 `UriBuilder`。您可以创建一个 `UriBuilder`，
+<<uricomponents, `UriComponentsBuilder`>> 实现了 `UriBuilder`。您可以创建一个 `UriBuilder`，
 进而使用 `UriBuilderFactory`。`UriBuilderFactory` 和 `UriBuilder` 一起提供了一个可插拔的机制，
 用于根据共享配置（如基础 URL、编码偏好和其他详细信息）从 URI 模板构建 URI。
 
@@ -157,14 +157,14 @@ URI uri = UriComponentsBuilder.fromUriString("/hotel list/{city}?q={q}")
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 String baseUrl = "https://example.com";
-DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(baseUrl)
+DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(baseUrl);
 factory.setEncodingMode(EncodingMode.TEMPLATE_AND_VALUES);
 
-// Customize the RestTemplate..
+// Customize the RestTemplate.
 RestTemplate restTemplate = new RestTemplate();
 restTemplate.setUriTemplateHandler(factory);
 
-// Customize the WebClient..
+// Customize the WebClient.
 WebClient client = WebClient.builder().uriBuilderFactory(factory).build();
 ----
 
