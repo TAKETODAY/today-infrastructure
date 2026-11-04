@@ -76,13 +76,12 @@ final class ApplicationListenerDetector
 
   @Override
   public Object postProcessAfterInitialization(Object bean, String beanName) {
-    // FIXME 优化 singletonNames
-    if (bean instanceof ApplicationListener) {
+    if (bean instanceof ApplicationListener<?> applicationListener) {
       // potentially not detected as a listener by getBeanNamesForType retrieval
       Boolean flag = singletonNames.get(beanName);
       if (Boolean.TRUE.equals(flag)) {
         // singleton bean (top-level or inner): register on the fly
-        applicationContext.addApplicationListener((ApplicationListener<?>) bean);
+        applicationContext.addApplicationListener(applicationListener);
       }
       else if (Boolean.FALSE.equals(flag)) {
         if (logger.isWarnEnabled() && !applicationContext.containsBean(beanName)) {
@@ -100,10 +99,10 @@ final class ApplicationListenerDetector
 
   @Override
   public void postProcessBeforeDestruction(Object bean, String beanName) {
-    if (bean instanceof ApplicationListener) {
+    if (bean instanceof ApplicationListener<?> applicationListener) {
       try {
         ApplicationEventMulticaster multicaster = this.applicationContext.getApplicationEventMulticaster();
-        multicaster.removeApplicationListener((ApplicationListener<?>) bean);
+        multicaster.removeApplicationListener(applicationListener);
         multicaster.removeApplicationListenerBean(
                 bean instanceof FactoryBean ? BeanFactory.FACTORY_BEAN_PREFIX + beanName : beanName);
       }
@@ -120,8 +119,8 @@ final class ApplicationListenerDetector
 
   @Override
   public boolean equals(@Nullable Object other) {
-    return (this == other || (other instanceof ApplicationListenerDetector &&
-            this.applicationContext == ((ApplicationListenerDetector) other).applicationContext));
+    return (this == other || (other instanceof ApplicationListenerDetector that &&
+            this.applicationContext == that.applicationContext));
   }
 
   @Override
