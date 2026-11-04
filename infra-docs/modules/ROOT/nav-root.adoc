@@ -167,6 +167,7 @@ include::gradle-plugin:partial$nav-gradle-plugin.adoc[]
 
 * xref:web.adoc[]
 ** xref:web/webmvc.adoc[]
+*** xref:web/webmvc-versioning.adoc[]
 *** xref:web/webmvc/mvc-core.adoc[]
 **** xref:web/webmvc/mvc-core/special-bean-types.adoc[]
 **** xref:web/webmvc/mvc-core/config.adoc[]
