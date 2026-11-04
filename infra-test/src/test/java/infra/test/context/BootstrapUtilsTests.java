@@ -155,6 +155,7 @@ class BootstrapUtilsTests {
     TestContextBootstrapper bootstrapper = BootstrapUtils.resolveTestContextBootstrapper(bootstrapContext);
     assertThat(bootstrapper).isNotNull();
     assertThat(bootstrapper.getClass()).isEqualTo(expectedBootstrapper);
+    assertThat(bootstrapper).isExactlyInstanceOf(expectedBootstrapper);
   }
 
   // -------------------------------------------------------------------
