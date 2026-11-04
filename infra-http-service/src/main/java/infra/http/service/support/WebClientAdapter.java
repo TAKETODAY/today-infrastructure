@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 
 import java.lang.reflect.Method;
+import java.net.URI;
 
 import infra.core.MethodParameter;
 import infra.core.ParameterizedTypeReference;
@@ -126,57 +127,67 @@ public final class WebClientAdapter extends AbstractReactorHttpExchangeAdapter {
     return newRequest(requestValues).exchange();
   }
 
-  @SuppressWarnings({ "rawtypes", "unchecked", "ReactiveStreamsUnusedPublisher" })
-  private WebClient.RequestBodySpec newRequest(HttpRequestValues values) {
+  /**
+   * Build a request from the given {@code HttpRequestValues}.
+   * @param values the values to use
+   * @return the request spec
+   * @since 5.0
+   */
+  public WebClient.RequestBodySpec newRequest(HttpRequestValues values) {
     HttpMethod httpMethod = values.getHttpMethod();
     Assert.notNull(httpMethod, "HttpMethod is required");
 
     WebClient.RequestBodyUriSpec uriSpec = this.webClient.method(httpMethod);
 
-    WebClient.RequestBodySpec bodySpec;
-    if (values.getURI() != null) {
-      bodySpec = uriSpec.uri(values.getURI());
-    }
-    else if (values.getUriTemplate() != null) {
-      UriBuilderFactory uriBuilderFactory = values.getUriBuilderFactory();
-      if (uriBuilderFactory != null) {
-        bodySpec = uriSpec.uri(uriBuilderFactory.expand(values.getUriTemplate(), values.getUriVariables()));
-      }
-      else {
-        bodySpec = uriSpec.uri(values.getUriTemplate(), values.getUriVariables());
-      }
-    }
-    else {
-      throw new IllegalStateException("Neither full URL nor URI template");
-    }
-
-    bodySpec.headers(values.getHeaders())
-            .cookies(values.getCookies())
-            .attributes(values.getAttributes());
-
+    WebClient.RequestBodySpec bodySpec = setUri(uriSpec, values);
+    bodySpec.headers(values.getHeaders());
+    bodySpec.cookies(values.getCookies());
     if (values.getApiVersion() != null) {
       bodySpec.apiVersion(values.getApiVersion());
     }
+    bodySpec.attributes(values.getAttributes());
+    setBody(bodySpec, values);
+    return bodySpec;
+  }
 
-    if (values.getBodyValue() != null) {
-      if (values.getBodyValueType() != null) {
-        var body = values.getBodyValue();
-        bodySpec.bodyValue(body, (ParameterizedTypeReference) values.getBodyValueType());
+  private static WebClient.RequestBodySpec setUri(WebClient.RequestBodyUriSpec spec, HttpRequestValues values) {
+    if (values.getURI() != null) {
+      return spec.uri(values.getURI());
+    }
+
+    if (values.getUriTemplate() != null) {
+      UriBuilderFactory uriBuilderFactory = values.getUriBuilderFactory();
+      if (uriBuilderFactory != null) {
+        URI uri = uriBuilderFactory.expand(values.getUriTemplate(), values.getUriVariables());
+        return spec.uri(uri);
       }
       else {
-        bodySpec.bodyValue(values.getBodyValue());
+        return spec.uri(values.getUriTemplate(), values.getUriVariables());
       }
     }
-    else if (values instanceof ReactiveHttpRequestValues rrv) {
-      Publisher<?> body = rrv.getBodyPublisher();
+    throw new IllegalStateException("Neither full URL nor URI template");
+  }
+
+  @SuppressWarnings({ "ReactiveStreamsUnusedPublisher", "unchecked" })
+  private <B> void setBody(WebClient.RequestBodySpec spec, HttpRequestValues values) {
+    if (values.getBodyValue() != null) {
+      if (values.getBodyValueType() != null) {
+        B body = (B) values.getBodyValue();
+        spec.bodyValue(body, (ParameterizedTypeReference<B>) values.getBodyValueType());
+      }
+      else {
+        spec.bodyValue(values.getBodyValue());
+      }
+    }
+    else if (values instanceof ReactiveHttpRequestValues rhrv) {
+      Publisher<?> body = rhrv.getBodyPublisher();
       if (body != null) {
-        ParameterizedTypeReference<?> elementType = rrv.getBodyPublisherElementType();
+        ParameterizedTypeReference<?> elementType = rhrv.getBodyPublisherElementType();
         Assert.notNull(elementType, "Publisher body element type is required");
-        bodySpec.body(body, elementType);
+        spec.body(body, elementType);
       }
     }
 
-    return bodySpec;
   }
 
   /**

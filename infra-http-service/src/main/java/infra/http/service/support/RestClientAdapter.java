@@ -119,34 +119,46 @@ public final class RestClientAdapter implements HttpExchangeAdapter {
     return newRequest(values).async(asyncExecutor).toEntity(bodyType);
   }
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  private RestClient.RequestBodySpec newRequest(HttpRequestValues values) {
-    HttpMethod httpMethod = values.getHttpMethod();
-    Assert.notNull(httpMethod, "HttpMethod is required");
-
-    RestClient.RequestBodyUriSpec uriSpec = this.restClient.method(httpMethod);
-
-    RestClient.RequestBodySpec bodySpec;
-    if (values.getURI() != null) {
-      bodySpec = uriSpec.uri(values.getURI());
+  /**
+   * Build a request from the given {@code HttpRequestValues}.
+   * @param values the values to use
+   * @return the request spec
+   * @since 5.0
+   */
+  public RestClient.RequestBodySpec newRequest(HttpRequestValues values) {
+    HttpMethod method = values.getHttpMethod();
+    Assert.notNull(method, "HttpMethod is required");
+    RestClient.RequestBodyUriSpec uriSpec = this.restClient.method(method);
+    RestClient.RequestBodySpec spec = setUri(uriSpec, values);
+    spec.headers(values.getHeaders());
+    setCookieHeader(spec, values);
+    if (values.getApiVersion() != null) {
+      spec.apiVersion(values.getApiVersion());
     }
-    else if (values.getUriTemplate() != null) {
+    spec.attributes(values.getAttributes());
+    setBody(spec, values);
+    return spec;
+  }
+
+  private static RestClient.RequestBodySpec setUri(RestClient.RequestBodyUriSpec spec, HttpRequestValues values) {
+    if (values.getURI() != null) {
+      return spec.uri(values.getURI());
+    }
+
+    if (values.getUriTemplate() != null) {
       UriBuilderFactory uriBuilderFactory = values.getUriBuilderFactory();
       if (uriBuilderFactory != null) {
         URI uri = uriBuilderFactory.expand(values.getUriTemplate(), values.getUriVariables());
-        bodySpec = uriSpec.uri(uri);
+        return spec.uri(uri);
       }
       else {
-        bodySpec = uriSpec.uri(values.getUriTemplate(), values.getUriVariables());
+        return spec.uri(values.getUriTemplate(), values.getUriVariables());
       }
     }
-    else {
-      throw new IllegalStateException("Neither full URL nor URI template");
-    }
+    throw new IllegalStateException("Neither full URL nor URI template");
+  }
 
-    bodySpec.headers(values.getHeaders())
-            .attributes(values.getAttributes());
-
+  private static void setCookieHeader(RestClient.RequestBodySpec spec, HttpRequestValues values) {
     if (!values.getCookies().isEmpty()) {
       ArrayList<String> cookies = new ArrayList<>();
       for (var entry : values.getCookies().entrySet()) {
@@ -156,27 +168,25 @@ public final class RestClientAdapter implements HttpExchangeAdapter {
           cookies.add(cookie.toString());
         }
       }
-      bodySpec.header(HttpHeaders.COOKIE, String.join("; ", cookies));
+      spec.header(HttpHeaders.COOKIE, String.join("; ", cookies));
     }
+  }
 
-    var body = values.getBodyValue();
+  @SuppressWarnings("unchecked")
+  private <B> void setBody(RestClient.RequestBodySpec spec, HttpRequestValues values) {
+    Object body = values.getBodyValue();
     if (body != null) {
-      if (body instanceof StreamingHttpOutputMessage.Body sb) {
-        bodySpec.body(sb);
+      if (body instanceof StreamingHttpOutputMessage.Body streamingBody) {
+        spec.body(streamingBody);
       }
       else if (values.getBodyValueType() != null) {
-        bodySpec.body(body, (ParameterizedTypeReference) values.getBodyValueType());
+        spec.body((B) body, (ParameterizedTypeReference<? super B>) values.getBodyValueType());
       }
       else {
-        bodySpec.body(body);
+        spec.body(body);
       }
     }
 
-    if (values.getApiVersion() != null) {
-      bodySpec.apiVersion(values.getApiVersion());
-    }
-
-    return bodySpec;
   }
 
   /**
