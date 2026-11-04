@@ -37,8 +37,8 @@ import java.util.Properties;
  * <p>Loading from and storing to a stream delegates to {@code Properties.load}
  * and {@code Properties.store}, respectively, to be fully compatible with
  * the Unicode conversion as implemented by the JDK Properties class. As of JDK 6,
- * {@code Properties.load/store} will also be used for readers/writers,
- * effectively turning this class into a plain backwards compatibility adapter.
+ * {@code Properties.load/store} is also used for readers/writers, effectively
+ * turning this class into a plain backwards compatibility adapter.
  *
  * <p>The persistence code that works with Reader/Writer follows the JDK's parsing
  * strategy but does not implement Unicode conversion, because the Reader/Writer
@@ -48,6 +48,7 @@ import java.util.Properties;
  * "defaultCharset" and "fileEncodings" properties).
  *
  * @author Juergen Hoeller
+ * @author Sebastien Deleuze
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see java.util.Properties
  * @see java.util.Properties#load
