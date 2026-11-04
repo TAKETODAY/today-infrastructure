@@ -115,8 +115,8 @@ class RuntimeHintsWriterTests {
               			],
               			"methods": [
               				{ "name": "setDefaultCharset", "parameterTypes": [ "java.nio.charset.Charset" ] }
-              			],
-              			"serializable": true
+                    ],
+                    "serializable": true
               		}
               	]
               }
