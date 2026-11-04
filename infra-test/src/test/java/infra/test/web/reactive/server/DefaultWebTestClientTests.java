@@ -23,10 +23,13 @@ import org.junit.jupiter.api.Timeout;
 
 import java.time.Duration;
 
+import infra.http.HttpHeaders;
+
 import infra.http.reactive.client.ClientHttpConnector;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
@@ -36,6 +39,35 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * @since 5.0
  */
 class DefaultWebTestClientTests {
+
+  @Test
+  void mutateDoesNotShareDefaultHeaderAndCookieValues() {
+    WebTestClient client = WebTestClient.bindToServer(
+            new HttpHandlerConnector((request, response) -> response.setComplete()))
+            .defaultHeaders(headers -> headers.add("foo", "bar"))
+            .defaultCookie("foo", "bar").build();
+    client.mutate().defaultHeaders(headers -> headers.add("foo", "baz"))
+            .defaultCookie("foo", "baz").build();
+    assertDefaultHeaderAndCookie(client, "bar");
+    assertDefaultHeaderAndCookie(client.mutate().build(), "bar");
+  }
+
+  @Test
+  void buildDoesNotShareDefaultHeaderAndCookieValues() {
+    WebTestClient.Builder builder = WebTestClient.bindToServer(
+            new HttpHandlerConnector((request, response) -> response.setComplete()))
+            .defaultHeader("foo", "bar").defaultCookie("foo", "bar");
+    WebTestClient client = builder.build();
+    builder.defaultHeaders(headers -> headers.add("foo", "baz"));
+    builder.defaultCookie("foo", "baz");
+    assertDefaultHeaderAndCookie(client, "bar");
+  }
+
+  private void assertDefaultHeaderAndCookie(WebTestClient client, String value) {
+    ExchangeResult result = client.get().uri("/").exchange().expectBody().isEmpty();
+    assertThat(result.getRequestHeaders().get("foo")).containsExactly(value);
+    assertThat(result.getRequestHeaders().get(HttpHeaders.COOKIE)).containsExactly("foo=" + value);
+  }
 
   private final ClientHttpConnector connector = new HttpHandlerConnector((request, response) -> {
     response.getHeaders().setContentType(infra.http.MediaType.TEXT_PLAIN);

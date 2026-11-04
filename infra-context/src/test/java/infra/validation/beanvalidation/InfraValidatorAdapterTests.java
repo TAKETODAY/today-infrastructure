@@ -518,7 +518,7 @@ public class InfraValidatorAdapterTests {
     }
   }
 
-  public class BeanWithListElementConstraint {
+  public static class BeanWithListElementConstraint {
 
     @Valid
     private List<@NotNull String> property;
@@ -532,7 +532,7 @@ public class InfraValidatorAdapterTests {
     }
   }
 
-  public class BeanWithMapEntryConstraint {
+  public static class BeanWithMapEntryConstraint {
 
     @Valid
     private Map<@NotNull String, @NotNull String> property;

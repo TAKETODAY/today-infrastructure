@@ -958,6 +958,10 @@ public abstract class DataBufferUtils {
 
     @Override
     public void completed(Integer read, Attachment attachment) {
+      if (!attachment.markHandled()) {
+        return;
+      }
+
       attachment.iterator().close();
       DataBuffer dataBuffer = attachment.dataBuffer();
 
@@ -993,6 +997,10 @@ public abstract class DataBufferUtils {
 
     @Override
     public void failed(Throwable exc, Attachment attachment) {
+      if (!attachment.markHandled()) {
+        return;
+      }
+
       attachment.iterator().close();
       attachment.dataBuffer().release();
 
@@ -1005,8 +1013,22 @@ public abstract class DataBufferUtils {
       IDLE, READING, DISPOSED
     }
 
-    private record Attachment(DataBuffer dataBuffer, ByteBufferIterator iterator) {
+    private record Attachment(DataBuffer dataBuffer, ByteBufferIterator iterator, AtomicBoolean handled) {
 
+      Attachment(DataBuffer dataBuffer, ByteBufferIterator iterator) {
+        this(dataBuffer, iterator, new AtomicBoolean());
+      }
+
+      /**
+       * Mark this read operation as handled.
+       * <p>Guards against the {@link CompletionHandler} being invoked more than
+       * once for the same read, as happens on Windows when the end of the file
+       * is reported synchronously, see
+       * <a href="https://bugs.openjdk.org/browse/JDK-8351404">JDK-8351404</a>.
+       */
+      boolean markHandled() {
+        return this.handled.compareAndSet(false, true);
+      }
     }
   }
 
@@ -1129,7 +1151,6 @@ public abstract class DataBufferUtils {
     @Override
     public void completed(Integer written, Attachment attachment) {
       ByteBufferIterator iterator = attachment.iterator();
-      iterator.close();
 
       long pos = this.position.addAndGet(written);
       ByteBuffer byteBuffer = attachment.byteBuffer();
@@ -1139,9 +1160,11 @@ public abstract class DataBufferUtils {
       }
       else if (iterator.hasNext()) {
         ByteBuffer next = iterator.next();
-        this.channel.write(next, pos, attachment, this);
+        Attachment nextAttachment = new Attachment(next, attachment.dataBuffer(), iterator);
+        this.channel.write(next, pos, nextAttachment, this);
       }
       else {
+        iterator.close();
         this.sink.next(attachment.dataBuffer());
         this.writing.set(false);
 

@@ -191,21 +191,19 @@ final class InstantiationModelAwarePointcutAdvisorImpl
   }
 
   @Override
-  @SuppressWarnings("NullAway")
   public boolean isBeforeAdvice() {
     if (this.isBeforeAdvice == null) {
       determineAdviceType();
     }
-    return this.isBeforeAdvice;
+    return this.isBeforeAdvice == Boolean.TRUE;
   }
 
   @Override
-  @SuppressWarnings("NullAway")
   public boolean isAfterAdvice() {
     if (this.isAfterAdvice == null) {
       determineAdviceType();
     }
-    return this.isAfterAdvice;
+    return this.isAfterAdvice == Boolean.TRUE;
   }
 
   /**

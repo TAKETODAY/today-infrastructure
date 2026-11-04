@@ -24,6 +24,7 @@ import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Optional;
+import org.jspecify.annotations.Nullable;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -60,7 +61,7 @@ public abstract class LayeredSpec {
 
   private DependenciesSpec dependencies;
 
-  private Layers layers;
+  private @Nullable Layers layers;
 
   @Inject
   public LayeredSpec(ObjectFactory objects) {
@@ -262,7 +263,7 @@ public abstract class LayeredSpec {
      * @param patterns the patterns to be excluded
      */
     public void exclude(String... patterns) {
-      this.includes.addAll(Arrays.asList(patterns));
+      this.excludes.addAll(Arrays.asList(patterns));
     }
 
     <T> ContentSelector<T> asSelector(Function<String, ContentFilter<T>> filterFactory) {

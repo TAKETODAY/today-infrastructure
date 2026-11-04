@@ -542,29 +542,31 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
 
     // Content phase
     ServerHttpResponse outputMessage = context.asHttpOutputMessage();
-    if (context.requestHeaders().get(HttpHeaders.RANGE) == null) {
-      ResourceHttpMessageConverter converter = this.resourceHttpMessageConverter;
-      Assert.state(converter != null, "Not initialized");
-
-      if (HttpMethod.HEAD == context.getMethod()) {
-        converter.addDefaultHeaders(outputMessage, resource, mediaType);
-      }
-      else {
-        converter.write(resource, mediaType, outputMessage);
-      }
-    }
-    else {
-      ResourceRegionHttpMessageConverter converter = this.resourceRegionHttpMessageConverter;
-      Assert.state(converter != null, "Not initialized");
+    if (context.requestHeaders().get(HttpHeaders.RANGE) != null) {
       try {
-        List<HttpRange> httpRanges = context.getHeaders().getRange();
-        context.setStatus(HttpStatus.PARTIAL_CONTENT);
-        converter.write(HttpRange.toResourceRegions(httpRanges, resource), mediaType, outputMessage);
+        List<HttpRange> httpRanges = HttpRange.resolveRanges(context.requestHeaders(), context.responseHeaders());
+        if (!httpRanges.isEmpty()) {
+          ResourceRegionHttpMessageConverter converter = this.resourceRegionHttpMessageConverter;
+          Assert.state(converter != null, "Not initialized");
+          context.setStatus(HttpStatus.PARTIAL_CONTENT);
+          converter.write(HttpRange.toResourceRegions(httpRanges, resource), mediaType, outputMessage);
+          return NONE_RETURN_VALUE;
+        }
       }
       catch (IllegalArgumentException ex) {
         context.setHeader(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
         context.sendError(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
+        return NONE_RETURN_VALUE;
       }
+    }
+
+    ResourceHttpMessageConverter converter = this.resourceHttpMessageConverter;
+    Assert.state(converter != null, "Not initialized");
+    if (HttpMethod.HEAD == context.getMethod()) {
+      converter.addDefaultHeaders(outputMessage, resource, mediaType);
+    }
+    else {
+      converter.write(resource, mediaType, outputMessage);
     }
 
     return NONE_RETURN_VALUE;

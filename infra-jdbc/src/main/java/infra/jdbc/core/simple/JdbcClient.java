@@ -269,7 +269,8 @@ public interface JdbcClient {
      * Bind named statement parameters for ":x" placeholder resolution.
      * <p>The given parameter object will define all named parameters
      * based on its JavaBean properties, record components, or raw fields.
-     * A Map instance can be provided as a complete parameter source as well.
+     * A {@link Map} or an {@link SqlParameterSource} instance can be provided
+     * as a complete parameter source as well.
      *
      * @param namedParamObject a custom parameter object (for example, a JavaBean,
      * record class, or field holder) with named properties serving as
@@ -443,6 +444,10 @@ public interface JdbcClient {
      * with a corresponding JDBC index (i.e. list index + 1).
      * <p>Note that the given list represents the parameters of a <em>single</em>
      * entry; see {@link #entries(List)} for defining several entries at once.
+     * <p>{@code null} elements are bound as SQL {@code NULL} values. Since
+     * {@link List#of} rejects {@code null} elements, use a list which permits
+     * them &mdash; for example, {@link java.util.Arrays#asList} &mdash; or bind
+     * each parameter individually via {@link #entry(Consumer)}.
      *
      * @param values the parameter values to bind
      * @return this batch specification (for chaining)
@@ -469,7 +474,7 @@ public interface JdbcClient {
      * defining the named parameters for one entry.
      * <p>Each parameter object is resolved in the same fashion as for
      * {@link BatchEntry#paramSource(Object)}: based on its JavaBean properties,
-     * record components, or raw fields. A {@link Map} or a
+     * record components, or raw fields. A {@link Map} or an
      * {@link SqlParameterSource} instance is supported as well.
      *
      * @param namedParamObjects the parameter objects, one per batch entry
@@ -485,7 +490,7 @@ public interface JdbcClient {
      * list defining the named parameters for one entry.
      * <p>Each parameter object is resolved in the same fashion as for
      * {@link BatchEntry#paramSource(Object)}: based on its JavaBean properties,
-     * record components, or raw fields. A {@link Map} or a
+     * record components, or raw fields. A {@link Map} or an
      * {@link SqlParameterSource} instance is supported as well.
      * <p>Note that each element of the given list represents a <em>separate</em>
      * entry; see {@link #entry(List)} for defining a single entry with
@@ -617,8 +622,8 @@ public interface JdbcClient {
      * Bind named statement parameters for ":x" placeholder resolution.
      * <p>The given parameter object will define all named parameters for
      * this entry, based on its JavaBean properties, record components, or
-     * raw fields. A Map instance can be provided as a complete parameter
-     * source as well.
+     * raw fields. A {@link Map} or an {@link SqlParameterSource} instance
+     * can be provided as a complete parameter source as well.
      *
      * @param namedParamObject a custom parameter object
      * @return this batch entry (for chaining)

@@ -120,10 +120,11 @@ class JsonValueWriter {
    * <li>A {@link WritableJson} instance</li>
    * <li>Any {@link Iterable} or Array (written as a JSON array)</li>
    * <li>A {@link Map} (written as a JSON object)</li>
-   * <li>Any {@link Number}</li>
+   * <li>Any finite {@link Number}</li>
    * <li>A {@link Boolean}</li>
    * </ul>
-   * All other values are written as JSON strings.
+   * All other values, including {@code NaN} and infinite {@link Double} or
+   * {@link Float} values, are written as JSON strings.
    *
    * @param <V> the value type
    * @param value the value to write
@@ -150,12 +151,22 @@ class JsonValueWriter {
     else if (value instanceof Map<?, ?> map) {
       writeObject(map::forEach);
     }
-    else if (value instanceof Number || value instanceof Boolean) {
+    else if ((value instanceof Number number && isFinite(number)) || value instanceof Boolean) {
       append(value.toString());
     }
     else {
       writeString(value);
     }
+  }
+
+  private boolean isFinite(Number number) {
+    if (number instanceof Double doubleValue) {
+      return Double.isFinite(doubleValue);
+    }
+    if (number instanceof Float floatValue) {
+      return Float.isFinite(floatValue);
+    }
+    return true;
   }
 
   private boolean canWriteAsArray(Iterable<?> iterable) {

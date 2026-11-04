@@ -29,6 +29,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import infra.http.HttpHeaders;
+
 import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.ClientHttpRequestInitializer;
 import infra.http.client.ClientHttpRequestInterceptor;
@@ -262,6 +264,8 @@ class RestClientBuilderTests {
 
     sourceBuilder.defaultCookie("thirdCookie", "thirdValue");
 
+    sourceBuilder.defaultCookies(cookies -> cookies.add("firstCookie", "fourthValue"));
+
     assertThat(fieldValue("defaultCookies", copiedBuilder))
             .asInstanceOf(InstanceOfAssertFactories.MAP)
             .containsExactly(
@@ -284,6 +288,18 @@ class RestClientBuilderTests {
                     Map.entry("firstCookie", List.of("firstValue")),
                     Map.entry("secondCookie", List.of("secondValue"))
             );
+  }
+
+  @Test
+  void copyConstructorCopiesDefaultHeadersImmutable() {
+    DefaultRestClientBuilder sourceBuilder = new DefaultRestClientBuilder();
+    sourceBuilder.defaultHeaders(headers -> headers.add("firstHeader", "firstValue"));
+    DefaultRestClientBuilder copiedBuilder = new DefaultRestClientBuilder(sourceBuilder);
+    sourceBuilder.defaultHeaders(headers -> headers.add("firstHeader", "secondValue"));
+    assertThat(fieldValue("defaultHeaders", copiedBuilder))
+            .asInstanceOf(InstanceOfAssertFactories.type(HttpHeaders.class))
+            .extracting(headers -> headers.get("firstHeader"), InstanceOfAssertFactories.LIST)
+            .containsExactly("firstValue");
   }
 
   @Test

@@ -22,8 +22,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
-import infra.logging.Logger;
-import infra.logging.LoggerFactory;
 import infra.util.Assert;
 import infra.util.ObjectUtils;
 
@@ -54,8 +52,6 @@ import infra.util.ObjectUtils;
  * @since 4.0
  */
 public abstract class PropertySource<T> {
-
-  private static final Logger log = LoggerFactory.getLogger(PropertySource.class);
 
   protected final String name;
 
@@ -144,24 +140,16 @@ public abstract class PropertySource<T> {
   }
 
   /**
-   * Produce concise output (type and name) if the current log level does not include
-   * debug. If debug is enabled, produce verbose output including the hash code of the
-   * PropertySource instance and every name/value property pair.
-   * <p>This variable verbosity is useful as a property source such as system properties
-   * or environment variables may contain an arbitrary number of property pairs,
-   * potentially leading too difficult to read exception and log messages.
-   *
-   * @see Logger#isDebugEnabled()
+   * Produce concise output consisting of the simple class name and the
+   * {@linkplain #getName() name} of this {@code PropertySource}.
+   * <p>The {@linkplain #getSource() source object} is not included, since a
+   * property source such as system properties or environment variables may
+   * contain an arbitrary number of properties, potentially leading to
+   * difficulties reading exception and log messages.
    */
   @Override
   public String toString() {
-    if (log.isDebugEnabled()) {
-      return getClass().getSimpleName() + "@" + System.identityHashCode(this)
-              + " {name='" + getName() + "', properties=" + getSource() + "}";
-    }
-    else {
-      return getClass().getSimpleName() + " {name='" + getName() + "'}";
-    }
+    return getClass().getSimpleName() + " {name='" + getName() + "'}";
   }
 
   /**

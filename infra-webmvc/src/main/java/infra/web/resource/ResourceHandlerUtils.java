@@ -187,8 +187,8 @@ public abstract class ResourceHandlerUtils {
    * @return {@code true} if the path is invalid, {@code false} otherwise
    */
   public static boolean isInvalidPath(String path) {
-    String s = path.toLowerCase(Locale.ROOT);
-    if (s.contains("web-inf") || s.contains("meta-inf")) {
+    String pathLowerCase = path.toLowerCase(Locale.ROOT);
+    if (pathLowerCase.contains("web-inf") || pathLowerCase.contains("meta-inf")) {
       if (logger.isWarnEnabled()) {
         logger.warn(LogFormatUtils.formatValue(
                 "Path with \"WEB-INF\" or \"META-INF\": [%s]".formatted(path), -1, true));

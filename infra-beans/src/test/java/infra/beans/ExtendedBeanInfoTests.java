@@ -1007,7 +1007,7 @@ public class ExtendedBeanInfoTests {
     TextBook getBook();
   }
 
-  abstract class Library {
+  abstract static class Library {
 
     public Book getBook() {
       return null;
@@ -1017,7 +1017,7 @@ public class ExtendedBeanInfoTests {
     }
   }
 
-  class LawLibrary extends Library implements TextBookOperations {
+  static class LawLibrary extends Library implements TextBookOperations {
 
     @Override
     public LawBook getBook() {

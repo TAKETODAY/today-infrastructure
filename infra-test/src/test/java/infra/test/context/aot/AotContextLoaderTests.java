@@ -39,8 +39,9 @@ import static org.mockito.BDDMockito.then;
 class AotContextLoaderTests {
 
   /**
-   * Verifies that a legacy {@link AotContextLoader} which only overrides
-   * is still supported.
+   * Verifies that an {@link AotContextLoader} which overrides
+   * {@link AotContextLoader#loadContextForAotProcessing(MergedContextConfiguration, RuntimeHints)}
+   * with an {@link ApplicationContext} return type is supported.
    */
   @Test
   void legacyAotContextLoader() throws Exception {
@@ -58,7 +59,7 @@ class AotContextLoaderTests {
 
   /**
    * Verifies that a modern {@link AotContextLoader} which only overrides
-   * {@link AotContextLoader#loadContextForAotProcessing(MergedContextConfiguration, RuntimeHints)
+   * {@link AotContextLoader#loadContextForAotProcessing(MergedContextConfiguration, RuntimeHints)}
    * is supported.
    */
   @Test

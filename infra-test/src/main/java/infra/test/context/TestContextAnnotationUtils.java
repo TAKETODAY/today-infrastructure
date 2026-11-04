@@ -573,6 +573,10 @@ public abstract class TestContextAnnotationUtils {
      * that are present or meta-present on the {@linkplain #getRootDeclaringClass()
      * root declaring class} of this descriptor or on any interfaces that the
      * root declaring class implements.
+     * <p>Annotations are returned in the order they are discovered: annotations
+     * on the root declaring class appear first, followed by annotations on
+     * implemented interfaces in the order they are declared in the
+     * {@code implements} clause.
      *
      * @return the set of all merged, synthesized {@code Annotations} found,
      * or an empty set if none were found

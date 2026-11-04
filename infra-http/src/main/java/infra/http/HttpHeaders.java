@@ -1630,6 +1630,8 @@ public abstract class HttpHeaders implements Serializable {
   /**
    * Return the value of the {@code Range} header.
    * <p>Returns an empty list when the range is unknown.
+   * <p>This ignores any {@code If-Range} header, see
+   * {@link HttpRange#resolveRanges(HttpHeaders, HttpHeaders)}.
    */
   public List<HttpRange> getRange() {
     String value = getFirst(RANGE);

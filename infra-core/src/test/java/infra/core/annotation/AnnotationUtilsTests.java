@@ -66,6 +66,14 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
+ * Tests for {@link AnnotationUtils}.
+ *
+ * @author Rod Johnson
+ * @author Juergen Hoeller
+ * @author Sam Brannen
+ * @author Chris Beams
+ * @author Phillip Webb
+ * @author Oleg Zhurakousky
  * @author TODAY 2021/7/28 21:41
  */
 class AnnotationUtilsTests {
@@ -698,8 +706,8 @@ class AnnotationUtilsTests {
     assertThatExceptionOfType(AnnotationConfigurationException.class).isThrownBy(() ->
                     synthesizeAnnotation(config, clazz))
             .withMessageStartingWith("Misconfigured aliases:")
-            .withMessageContaining("attribute 'location1' in annotation [" + annotationType.getName() + "]")
-            .withMessageContaining("attribute 'location2' in annotation [" + annotationType.getName() + "]")
+            .withMessageContaining("attribute 'location1' in annotation [" + annotationType.getCanonicalName() + "]")
+            .withMessageContaining("attribute 'location2' in annotation [" + annotationType.getCanonicalName() + "]")
             .withMessageContaining("default values");
   }
 
@@ -713,8 +721,8 @@ class AnnotationUtilsTests {
     assertThatExceptionOfType(AnnotationConfigurationException.class).isThrownBy(() ->
                     synthesizeAnnotation(config, clazz))
             .withMessageStartingWith("Misconfigured aliases:")
-            .withMessageContaining("attribute 'location1' in annotation [" + annotationType.getName() + "]")
-            .withMessageContaining("attribute 'location2' in annotation [" + annotationType.getName() + "]")
+            .withMessageContaining("attribute 'location1' in annotation [" + annotationType.getCanonicalName() + "]")
+            .withMessageContaining("attribute 'location2' in annotation [" + annotationType.getCanonicalName() + "]")
             .withMessageContaining("same default value");
   }
 
@@ -898,6 +906,15 @@ class AnnotationUtilsTests {
                     synthesizeAnnotation(map, Component.class, null).value())
             .withMessageContaining("Attribute 'value' in annotation infra.core.testfixture.stereotype.Component " +
                     "should be compatible with java.lang.String but a java.lang.Long value was returned");
+  }
+
+  @Test
+  void synthesizeAnnotationFromMapWithAttributeOfIncorrectArrayType() {
+    Map<String, Object> map = Collections.singletonMap(VALUE, new int[] { 42 });
+    assertThatIllegalStateException().isThrownBy(() ->
+                    synthesizeAnnotation(map, CharsContainer.class, null).chars())
+            .withMessageContaining("Attribute 'chars' in annotation %s should be compatible with " +
+                    "char[] but a int[] value was returned", CharsContainer.class.getCanonicalName());
   }
 
   @Test

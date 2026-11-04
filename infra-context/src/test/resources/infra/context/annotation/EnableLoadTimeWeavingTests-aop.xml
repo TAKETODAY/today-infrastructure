@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<aspectj>
+  <weaver>
+    <include within="infra.context.annotation.EnableLoadTimeWeavingTests.*"/>
+  </weaver>
+  <aspects>
+    <aspect name="infra.context.annotation.EnableLoadTimeWeavingTests.GreeterAspect"/>
+  </aspects>
+</aspectj>

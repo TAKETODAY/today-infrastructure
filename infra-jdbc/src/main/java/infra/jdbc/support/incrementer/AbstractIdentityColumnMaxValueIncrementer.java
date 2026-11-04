@@ -18,6 +18,8 @@
 
 package infra.jdbc.support.incrementer;
 
+import org.jspecify.annotations.Nullable;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,6 +31,7 @@ import infra.dao.DataAccessException;
 import infra.dao.DataAccessResourceFailureException;
 import infra.jdbc.datasource.DataSourceUtils;
 import infra.jdbc.support.JdbcUtils;
+import infra.util.Assert;
 
 /**
  * Abstract base class for {@link DataFieldMaxValueIncrementer} implementations
@@ -43,8 +46,7 @@ public abstract class AbstractIdentityColumnMaxValueIncrementer extends Abstract
   private boolean deleteSpecificValues = false;
 
   /** The current cache of values. */
-  @SuppressWarnings("NullAway.Init")
-  private long[] valueCache;
+  private long @Nullable [] valueCache;
 
   /** The next id to serve from the value cache. */
   private int nextValueIndex = -1;
@@ -121,6 +123,7 @@ public abstract class AbstractIdentityColumnMaxValueIncrementer extends Abstract
         DataSourceUtils.releaseConnection(con, dataSource);
       }
     }
+    Assert.state(this.valueCache != null, "The cache of values can't be null");
     return this.valueCache[this.nextValueIndex++];
   }
 

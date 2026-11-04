@@ -66,6 +66,23 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class DefaultWebClientTests {
 
+  @Test
+  void mutateDoesNotShareDefaultHeaderAndCookieValues() {
+    WebClient client = this.builder
+            .defaultHeaders(headers -> headers.add("foo", "bar"))
+            .defaultCookie("foo", "bar")
+            .build();
+    client.mutate()
+            .defaultHeaders(headers -> headers.add("foo", "baz"))
+            .defaultCookies(cookies -> cookies.add("foo", "baz"))
+            .build();
+    client.mutate().build().get().uri("/path")
+            .retrieve().bodyToMono(Void.class).block(Duration.ofSeconds(10));
+    ClientRequest request = verifyAndGetRequest();
+    assertThat(request.headers().get("foo")).containsExactly("bar");
+    assertThat(request.cookies().get("foo")).containsExactly("bar");
+  }
+
   @Mock
   private ExchangeFunction exchangeFunction;
 

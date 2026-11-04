@@ -20,6 +20,8 @@ package infra.aot.agent;
 
 import org.jspecify.annotations.Nullable;
 
+import infra.util.ClassUtils;
+
 import java.util.Objects;
 
 /**
@@ -45,7 +47,7 @@ public final class MethodReference {
   }
 
   public static MethodReference of(Class<?> klass, String methodName) {
-    return new MethodReference(klass.getCanonicalName(), methodName);
+    return new MethodReference(ClassUtils.getCanonicalName(klass), methodName);
   }
 
   /**

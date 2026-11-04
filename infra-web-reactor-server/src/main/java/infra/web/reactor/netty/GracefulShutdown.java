@@ -25,6 +25,7 @@ import java.util.function.Supplier;
 
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.web.server.GracefulShutdownCallback;
 import infra.web.server.GracefulShutdownResult;
 import reactor.netty.DisposableServer;
@@ -43,9 +44,7 @@ final class GracefulShutdown {
   private final Supplier<DisposableServer> disposableServer;
 
   @Nullable
-  private volatile Thread shutdownThread;
-
-  private volatile boolean shuttingDown;
+  private volatile ShutdownState state;
 
   GracefulShutdown(Supplier<DisposableServer> disposableServer) {
     this.disposableServer = disposableServer;
@@ -58,34 +57,37 @@ final class GracefulShutdown {
     }
     logger.info("Commencing graceful shutdown. Waiting for active requests to complete");
     Thread thread = new Thread(() -> doShutdown(callback, server), "netty-shutdown");
-    this.shutdownThread = thread;
+    this.state = new ShutdownState(thread);
     thread.start();
   }
 
   private void doShutdown(GracefulShutdownCallback callback, DisposableServer server) {
-    this.shuttingDown = true;
+    ShutdownState state = this.state;
+    Assert.notNull(state, "No Shutdown state available");
+    state.shuttingDown = true;
     try {
       server.disposeNow(Duration.ofNanos(Long.MAX_VALUE));
       logger.info("Graceful shutdown complete");
-      callback.shutdownComplete(GracefulShutdownResult.IDLE);
+      shutdownComplete(callback, GracefulShutdownResult.IDLE);
     }
     catch (Exception ex) {
       logger.info("Graceful shutdown aborted with one or more requests still active");
-      callback.shutdownComplete(GracefulShutdownResult.REQUESTS_ACTIVE);
-    }
-    finally {
-      this.shutdownThread = null;
-      this.shuttingDown = false;
+      shutdownComplete(callback, GracefulShutdownResult.REQUESTS_ACTIVE);
     }
   }
 
+  private void shutdownComplete(GracefulShutdownCallback callback, GracefulShutdownResult result) {
+    this.state = null;
+    callback.shutdownComplete(result);
+  }
+
   void abort() {
-    Thread shutdownThread = this.shutdownThread;
-    if (shutdownThread != null) {
-      while (!this.shuttingDown) {
+    ShutdownState state = this.state;
+    if (state != null) {
+      while (!state.shuttingDown) {
         sleep(50);
       }
-      shutdownThread.interrupt();
+      state.thread.interrupt();
     }
   }
 
@@ -96,6 +98,18 @@ final class GracefulShutdown {
     catch (InterruptedException ex) {
       Thread.currentThread().interrupt();
     }
+  }
+
+  private final class ShutdownState {
+
+    private final Thread thread;
+
+    private volatile boolean shuttingDown;
+
+    private ShutdownState(Thread thread) {
+      this.thread = thread;
+    }
+
   }
 
 }

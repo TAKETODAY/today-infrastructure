@@ -20,9 +20,11 @@ package infra.http.codec.multipart;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.reactivestreams.Subscription;
 
 import java.io.IOException;
@@ -71,6 +73,43 @@ class DefaultPartHttpMessageReaderTests extends AbstractLeakCheckingTests {
   private static final String MUSPI_MEROL = new StringBuilder(LOREM_IPSUM).reverse().toString();
 
   private static final int BUFFER_SIZE = 64;
+
+  @ParameterizedTest
+  @ValueSource(ints = {256 * 1024, 1})
+  void readMultipartFileContentMoreThanOnce(int maxInMemorySize, @TempDir Path tempDir) {
+    MockServerHttpRequest request = createRequest(
+            "files.multipart", "----WebKitFormBoundaryG8fJ50opQOML0oGD");
+    DefaultPartHttpMessageReader reader = new DefaultPartHttpMessageReader();
+    reader.setMaxInMemorySize(maxInMemorySize);
+    var parts = reader.read(forClass(Part.class), request, emptyMap()).collectList().block();
+    assertThat(parts).isNotNull();
+    FilePart filePart = (FilePart) parts.stream().filter(part -> part.name().equals("file2"))
+            .findFirst().orElseThrow();
+    assertThat(filePart).isNotNull();
+    try {
+      assertThat(readContent(filePart)).isEqualTo(LOREM_IPSUM);
+      assertThat(readContent(filePart)).isEqualTo(LOREM_IPSUM);
+      Path dest = tempDir.resolve("a.txt");
+      filePart.transferTo(dest).block();
+      assertThat(dest).hasContent(LOREM_IPSUM);
+    }
+    finally {
+      parts.forEach(part -> part.delete().block());
+    }
+  }
+
+  private String readContent(Part part) {
+    return part.content().map(buffer -> {
+      try {
+        byte[] bytes = new byte[buffer.readableBytes()];
+        buffer.read(bytes);
+        return new String(bytes, UTF_8);
+      }
+      finally {
+        buffer.release();
+      }
+    }).collectList().map(strings -> String.join("", strings)).block();
+  }
 
   @ParameterizedDefaultPartHttpMessageReaderTest
   void canRead(DefaultPartHttpMessageReader reader) {

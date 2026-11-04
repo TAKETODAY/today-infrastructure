@@ -6,7 +6,7 @@
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 UriComponents uriComponents = UriComponentsBuilder
-    .fromUriString("https://example.com/hotels/{hotel}") // <1>
+    .forURIString("https://example.com/hotels/{hotel}") // <1>
     .queryParam("q", "{q}") // <2>
     .encode() // <3>
     .build(); // <4>
@@ -24,7 +24,7 @@ URI uri = uriComponents.expand("Westin", "123").toUri(); // <5>
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 URI uri = UriComponentsBuilder
-    .fromUriString("https://example.com/hotels/{hotel}")
+    .forURIString("https://example.com/hotels/{hotel}")
     .queryParam("q", "{q}")
     .encode()
     .buildAndExpand("Westin", "123")
@@ -36,7 +36,7 @@ URI uri = UriComponentsBuilder
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 URI uri = UriComponentsBuilder
-    .fromUriString("https://example.com/hotels/{hotel}")
+    .forURIString("https://example.com/hotels/{hotel}")
     .queryParam("q", "{q}")
     .build("Westin", "123");
 ----
@@ -46,14 +46,14 @@ URI uri = UriComponentsBuilder
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 URI uri = UriComponentsBuilder
-  .fromUriString("https://example.com/hotels/{hotel}?q={q}")
+  .forURIString("https://example.com/hotels/{hotel}?q={q}")
   .build("Westin", "123");
 ----
 
 [[uribuilder]]
 == UriBuilder
 
-<<web-uricomponents, `UriComponentsBuilder`>> 实现了 `UriBuilder`。您可以创建一个 `UriBuilder`，
+<<uricomponents, `UriComponentsBuilder`>> 实现了 `UriBuilder`。您可以创建一个 `UriBuilder`，
 进而使用 `UriBuilderFactory`。`UriBuilderFactory` 和 `UriBuilder` 一起提供了一个可插拔的机制，
 用于根据共享配置（如基础 URL、编码偏好和其他详细信息）从 URI 模板构建 URI。
 
@@ -101,6 +101,24 @@ URI uri = uriBuilderFactory.uriString("/hotels/{hotel}")
 ----
 
 
+[[uri-parsing]]
+== URI 解析
+
+`UriComponentsBuilder` 支持两种 URI 解析器：
+
+. RFC 解析器：要求 URI 字符串符合 RFC 3986 语法，偏离该语法的输入会被视为非法。
+. WhatWG 解析器：基于 https://url.spec.whatwg.org[WhatWG URL Living Standard] 的
+URL 解析算法，能够宽松处理各种非预期输入。浏览器使用该算法处理用户输入的 URL；
+更多细节可参阅标准和 https://github.com/web-platform-tests/wpt/tree/master/url[URL 解析测试用例]。
+
+默认情况下，`RestClient`、`WebClient` 和 `RestTemplate` 使用 RFC 解析器，要求应用提供符合 RFC 语法的 URL 模板。
+可以通过自定义客户端的 `UriBuilderFactory` 改变该行为；`DefaultUriBuilderFactory#setParserType`
+用于设置解析器类型。
+
+应用和框架也可以直接使用 `UriComponentsBuilder.forURIString(String, ParserType)` 解析用户提供的 URL，
+以检查并校验协议、主机、端口、路径和查询等 URI 组件。当需要宽松处理 URL，或者在重定向到输入 URL、
+将其包含在浏览器响应中时希望与浏览器的解析行为一致，可以选择 WhatWG 解析器。
+
 [[uri-encoding]]
 == URI Encoding
 
@@ -124,7 +142,7 @@ URI 模板中的 ";"。相比之下，第二个选项从不替换 ";"，因为�
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-URI uri = UriComponentsBuilder.fromPath("/hotel list/{city}")
+URI uri = UriComponentsBuilder.forPath("/hotel list/{city}")
     .queryParam("q", "{q}")
     .encode()
     .buildAndExpand("New York", "foo+bar")
@@ -137,7 +155,7 @@ URI uri = UriComponentsBuilder.fromPath("/hotel list/{city}")
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-URI uri = UriComponentsBuilder.fromPath("/hotel list/{city}")
+URI uri = UriComponentsBuilder.forPath("/hotel list/{city}")
   .queryParam("q", "{q}")
   .build("New York", "foo+bar");
 ----
@@ -147,7 +165,7 @@ URI uri = UriComponentsBuilder.fromPath("/hotel list/{city}")
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-URI uri = UriComponentsBuilder.fromUriString("/hotel list/{city}?q={q}")
+URI uri = UriComponentsBuilder.forURIString("/hotel list/{city}?q={q}")
   .build("New York", "foo+bar");
 ----
 
@@ -157,14 +175,14 @@ URI uri = UriComponentsBuilder.fromUriString("/hotel list/{city}?q={q}")
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 String baseUrl = "https://example.com";
-DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(baseUrl)
+DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory(baseUrl);
 factory.setEncodingMode(EncodingMode.TEMPLATE_AND_VALUES);
 
-// Customize the RestTemplate..
+// Customize the RestTemplate.
 RestTemplate restTemplate = new RestTemplate();
 restTemplate.setUriTemplateHandler(factory);
 
-// Customize the WebClient..
+// Customize the WebClient.
 WebClient client = WebClient.builder().uriBuilderFactory(factory).build();
 ----
 

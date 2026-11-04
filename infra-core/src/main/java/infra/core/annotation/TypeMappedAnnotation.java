@@ -441,7 +441,12 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
       value = ((Class<?>) value).getName();
     }
     else if (value instanceof String && type == Class.class) {
-      value = ClassUtils.resolveClassName((String) value, getClassLoader());
+      try {
+        value = ClassUtils.forName((String) value, getClassLoader());
+      }
+      catch (ClassNotFoundException | LinkageError ex) {
+        throw new TypeNotPresentException((String) value, ex);
+      }
     }
     else if (value instanceof Class[] && type == String[].class) {
       Class<?>[] classes = (Class<?>[]) value;
@@ -453,8 +458,14 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
     }
     else if (value instanceof String[] names && type == Class[].class) {
       Class<?>[] classes = new Class<?>[names.length];
+      ClassLoader classLoader = getClassLoader();
       for (int i = 0; i < names.length; i++) {
-        classes[i] = ClassUtils.resolveClassName(names[i], getClassLoader());
+        try {
+          classes[i] = ClassUtils.forName(names[i], classLoader);
+        }
+        catch (ClassNotFoundException | LinkageError ex) {
+          throw new TypeNotPresentException(names[i], ex);
+        }
       }
       value = classes;
     }
@@ -482,13 +493,13 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
       else {
         throw new IllegalArgumentException(
                 "Unable to adapt value of type %s to %s cause incorrect array length: %d"
-                        .formatted(value.getClass().getName(), type.getName(), length));
+                        .formatted(ClassUtils.getCanonicalName(value.getClass()), ClassUtils.getCanonicalName(type), length));
       }
     }
 
     if (!ClassUtils.isAssignableValue(type, value)) {
       throw new IllegalArgumentException("Unable to adapt value of type %s to %s"
-              .formatted(value.getClass().getName(), type.getName()));
+              .formatted(ClassUtils.getCanonicalName(value.getClass()), ClassUtils.getCanonicalName(type)));
     }
     return (T) value;
   }
@@ -526,7 +537,8 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
     }
     if (!attributeType.isInstance(value)) {
       throw new IllegalStateException("Attribute '%s' in annotation %s should be compatible with %s but a %s value was returned"
-              .formatted(attribute.getName(), getType().getName(), attributeType.getName(), value.getClass().getName()));
+              .formatted(attribute.getName(), ClassUtils.getCanonicalName(getType()),
+                      ClassUtils.getCanonicalName(attributeType), ClassUtils.getCanonicalName(value.getClass())));
     }
     return value;
   }
@@ -582,7 +594,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
     int attributeIndex = isFiltered(attributeName) ? -1 : mapping.methods.indexOf(attributeName);
     if (attributeIndex == -1 && required) {
       throw new NoSuchElementException("No attribute named '%s' present in merged annotation %s"
-              .formatted(attributeName, getType().getName()));
+              .formatted(attributeName, ClassUtils.getCanonicalName(getType())));
     }
     return attributeIndex;
   }
@@ -657,9 +669,9 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
     catch (Exception ex) {
       AnnotationUtils.rethrowAnnotationConfigurationException(ex);
       if (logger.isEnabled()) {
-        String type = mapping.annotationType.getName();
+        String type = ClassUtils.getCanonicalName(mapping.annotationType);
         String item = (mapping.distance == 0 ? "annotation " + type :
-                "meta-annotation %s from %s".formatted(type, mapping.root.annotationType.getName()));
+                "meta-annotation %s from %s".formatted(type, ClassUtils.getCanonicalName(mapping.root.annotationType)));
         logger.log("Failed to introspect " + item, source, ex);
       }
       return null;

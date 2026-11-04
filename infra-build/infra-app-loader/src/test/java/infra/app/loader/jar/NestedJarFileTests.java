@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.lang.ref.Cleaner.Cleanable;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.UUID;
@@ -195,7 +196,7 @@ class NestedJarFileTests {
 
   @Test
   void getEntryWhenMultiReleaseEntryReturnsEntry() throws IOException {
-    File multiReleaseFile = new File(this.tempDir, "mutli.zip");
+    File multiReleaseFile = new File(this.tempDir, "multi.zip");
     try (ZipContent zip = ZipContent.open(this.file.toPath(), "multi-release.jar")) {
       try (InputStream in = zip.openRawZipData().asInputStream()) {
         try (FileOutputStream out = new FileOutputStream(multiReleaseFile)) {
@@ -280,7 +281,7 @@ class NestedJarFileTests {
     try (NestedJarFile jar = new NestedJarFile(this.file)) {
       try (JarFile jdkJar = new JarFile(this.file)) {
         assertThat(jar.getEntry("META-INF/MANIFEST.MF").getTime())
-                .isEqualTo(jar.getEntry("META-INF/MANIFEST.MF").getTime());
+                .isEqualTo(jdkJar.getEntry("META-INF/MANIFEST.MF").getTime());
       }
     }
   }
@@ -394,8 +395,7 @@ class NestedJarFileTests {
   }
 
   @Test
-    // gh-39166
-  void getCommentAlignsWithJdkJar() throws Exception {
+  void entryGetCommentAlignsWithJdkJarEntry() throws Exception {
     File file = new File(this.tempDir, "testcomments.jar");
     try (JarOutputStream jar = new JarOutputStream(new FileOutputStream(file))) {
       jar.putNextEntry(new ZipEntry("APP-INF/"));
@@ -413,6 +413,20 @@ class NestedJarFileTests {
     List<String> jdk = collectComments(new JarFile(file));
     List<String> nested = collectComments(new NestedJarFile(file, "APP-INF/classes/"));
     assertThat(nested).isEqualTo(jdk);
+  }
+
+  @Test
+  void jarGetCommentWhenHasNoCommentAlignsWithJdkJar() throws IOException {
+    File file = new File(this.tempDir, "no-comment.jar");
+    try (JarOutputStream out = new JarOutputStream(new FileOutputStream(file))) {
+      out.putNextEntry(new ZipEntry("1.dat"));
+      out.write(1);
+      out.closeEntry();
+    }
+    try (NestedJarFile jar = new NestedJarFile(file); JarFile jdkJar = new JarFile(file)) {
+      assertThat(jar.getComment()).isNull();
+      assertThat(jdkJar.getComment()).isNull();
+    }
   }
 
   @Test
@@ -479,6 +493,31 @@ class NestedJarFileTests {
         assertThat(input.available()).isGreaterThan(0);
         long skipped = input.skip(1000);
         assertThat(skipped).isLessThan(1000);
+        assertThat(input.available()).isZero();
+      }
+    }
+  }
+
+  @Test
+  void readAllBytesAfterReadingStoredContentReturnsRemainingContent() throws IOException {
+    assertReadAllBytesAfterReadingReturnsRemainingContent("nested.jar");
+  }
+
+  @Test
+  void readAllBytesAfterReadingDeflatedContentReturnsRemainingContent() throws IOException {
+    assertReadAllBytesAfterReadingReturnsRemainingContent("META-INF/MANIFEST.MF");
+  }
+
+  private void assertReadAllBytesAfterReadingReturnsRemainingContent(String name) throws IOException {
+    byte[] expected;
+    try (JarFile jarFile = new JarFile(this.file);
+            InputStream input = jarFile.getInputStream(jarFile.getEntry(name))) {
+      expected = input.readAllBytes();
+    }
+    try (NestedJarFile jar = new NestedJarFile(this.file)) {
+      try (InputStream input = jar.getInputStream(jar.getEntry(name))) {
+        assertThat(input.read()).isEqualTo(expected[0] & 0xFF);
+        assertThat(input.readAllBytes()).isEqualTo(Arrays.copyOfRange(expected, 1, expected.length));
         assertThat(input.available()).isZero();
       }
     }

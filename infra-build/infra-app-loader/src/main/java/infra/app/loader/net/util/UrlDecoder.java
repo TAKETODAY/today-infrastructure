@@ -26,6 +26,7 @@ import java.util.HexFormat;
  * Utility to decode URL strings.
  *
  * @author Phillip Webb
+ * @author Stephane Nicoll
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
  */
@@ -69,34 +70,30 @@ public final class UrlDecoder {
     int i = firstPercentIndex;
     while (i < length) {
       char ch = source.charAt(i);
-      if (ch == '%') {
-        try {
-          if (bytes == null) {
-            bytes = new byte[(length - i) / 3];
-          }
-
-          int pos = 0;
-          while (i + 2 < length && ch == '%') {
-            bytes[pos++] = (byte) HexFormat.fromHexDigits(source, i + 1, i + 3);
-            i += 3;
-            if (i < length) {
-              ch = source.charAt(i);
-            }
-          }
-
-          if (i < length && ch == '%') {
-            throw new IllegalArgumentException("Incomplete trailing escape (%) pattern");
-          }
-
-          output.append(new String(bytes, 0, pos, charset));
-        }
-        catch (NumberFormatException ex) {
-          throw new IllegalArgumentException("Invalid encoded sequence \"" + source.substring(i) + "\"");
-        }
-      }
-      else {
+      if (ch != '%') {
         output.append(ch);
         i++;
+        continue;
+      }
+      try {
+        if (bytes == null) {
+          bytes = new byte[(length - i) / 3];
+        }
+        int pos = 0;
+        while (i + 2 < length && ch == '%') {
+          bytes[pos++] = (byte) HexFormat.fromHexDigits(source, i + 1, i + 3);
+          i += 3;
+          if (i < length) {
+            ch = source.charAt(i);
+          }
+        }
+        if (i < length && ch == '%') {
+          throw new IllegalArgumentException("Incomplete trailing escape (%) pattern");
+        }
+        output.append(new String(bytes, 0, pos, charset));
+      }
+      catch (NumberFormatException ex) {
+        throw new IllegalArgumentException("Invalid encoded sequence \"" + source.substring(i) + "\"");
       }
     }
     return output.toString();

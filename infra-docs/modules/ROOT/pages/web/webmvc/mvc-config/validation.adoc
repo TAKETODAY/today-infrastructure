@@ -47,5 +47,4 @@ public class MyController {
 }
 ----
 
-TIP: 如果您需要在某个地方注入 `LocalValidatorFactoryBean`，请创建一个 Bean 并用 `@Primary` 标记它，以避免与 MVC 配置中声明的 Bean 发生冲突。
-
+TIP: 如果您需要在某个地方注入 `LocalValidatorFactoryBean`，请创建一个 Bean 并用 `@Primary` 标记它，或者将 MVC 配置中声明的 Bean 标记为 `@Fallback`，以避免冲突。

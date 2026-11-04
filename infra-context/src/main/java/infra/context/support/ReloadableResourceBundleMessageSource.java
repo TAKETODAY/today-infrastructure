@@ -87,6 +87,8 @@ import infra.util.StringUtils;
  * this message source!
  *
  * @author Juergen Hoeller
+ * @author Sebastien Deleuze
+ * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setCacheSeconds
  * @see #setBasenames
@@ -101,9 +103,11 @@ import infra.util.StringUtils;
  */
 public class ReloadableResourceBundleMessageSource extends AbstractResourceBasedMessageSource implements ResourceLoaderAware {
 
+  private static final String PROPERTIES_EXTENSION = ".properties";
+
   private static final String XML_EXTENSION = ".xml";
 
-  private List<String> fileExtensions = List.of(".properties", XML_EXTENSION);
+  private List<String> fileExtensions = List.of(PROPERTIES_EXTENSION, XML_EXTENSION);
 
   private @Nullable Properties fileEncodings;
 
@@ -528,7 +532,7 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
     else {
       // Resource does not exist.
       if (logger.isDebugEnabled()) {
-        logger.debug("No properties file found for [{}] - neither plain properties nor XML", filename);
+        logger.debug("No properties file found for [{}]", filename);
       }
       // Empty holder representing "not found".
       propHolder = new PropertiesHolder();

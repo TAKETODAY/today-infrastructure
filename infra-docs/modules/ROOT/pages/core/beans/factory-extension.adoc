@@ -8,7 +8,7 @@
 [[beans-factory-extension-bpp]]
 == 使用 `BeanPostProcessor` 自定义 Bean
 
-`BeanPostProcessor` 接口定义了回调方法，您可以实现这些方法来提供您自己的（或覆盖容器默认的）实例化逻辑、依赖项解析逻辑等。
+`BeanPostProcessor` 是后处理器的标记接口，其子接口定义了回调方法，您可以实现这些方法来提供您自己的（或覆盖容器默认的）实例化逻辑、依赖项解析逻辑等。
 如果您想在 Infra 容器完成实例化、配置和初始化 bean 之后实现一些自定义逻辑，您可以插入一个或多个自定义 `BeanPostProcessor` 实现。
 
 您可以配置多个 `BeanPostProcessor` 实例，并且可以通过设置 `order` 属性来控制这些 `BeanPostProcessor` 实例的运行顺序。
@@ -31,7 +31,7 @@
 xref:core/beans/factory-extension.adoc#beans-factory-extension-factory-postprocessors[使用 `BeanFactoryPostProcessor` 自定义配置元数据] 中所述。
 ====
 
-`infra.beans.factory.config.BeanPostProcessor` 接口恰好由两个回调方法组成。
+`infra.beans.factory.InitializationBeanPostProcessor` 接口扩展了 `BeanPostProcessor`，提供初始化前后的两个回调方法。
 当这样一个类作为后处理器注册到容器时，对于容器创建的每个 bean 实例，后处理器都会在容器初始化方法（如 `InitializingBean.afterPropertiesSet()` 或任何声明的 `init` 方法）被调用之前，以及在任何 bean 初始化回调之后，从容器获得回调。
 后处理器可以对 bean 实例采取任何操作，包括完全忽略回调。
 Bean 后处理器通常检查回调接口，或者它可以用代理包装 bean。
@@ -45,6 +45,11 @@ Bean 后处理器可以像任何其他 bean 一样部署在容器中。
 否则，`ApplicationContext` 无法在完全创建它之前按类型自动检测它。
 由于 `BeanPostProcessor` 需要尽早实例化以便应用于上下文中其他 bean 的初始化，因此这种早期类型检测至关重要。
 
+此外，通过 `@Bean` 工厂方法注册 `BeanPostProcessor` 时，应将方法声明为 `static`，并尽可能不声明任何依赖项。
+这样可以避免配置类及其他 bean 提前初始化，否则它们将无法接受完整的后处理（例如自动代理）。
+详情请参阅 {today-framework-api}/context/annotation/Bean.html[`@Bean`] javadoc 中的
+“BeanPostProcessor-returning `@Bean` methods” 一节。
+
 [[beans-factory-programmatically-registering-beanpostprocessors]]
 .以编程方式注册 `BeanPostProcessor` 实例
 NOTE: 虽然推荐的 `BeanPostProcessor` 注册方法是通过 `ApplicationContext` 自动检测（如前所述），但您可以使用 `addBeanPostProcessor` 方法以编程方式针对 `ConfigurableBeanFactory` 注册它们。
@@ -53,16 +58,22 @@ NOTE: 虽然推荐的 `BeanPostProcessor` 注册方法是通过 `ApplicationCont
 在这里，注册的顺序决定了执行的顺序。
 还要注意，无论是否有任何显式排序，以编程方式注册的 `BeanPostProcessor` 实例总是在通过自动检测注册的实例之前进行处理。
 
-.`BeanPostProcessor` 实例和 AOP 自动代理
+.`BeanPostProcessor` 实例和早期初始化
 [NOTE]
 ====
 实现 `BeanPostProcessor` 接口的类是特殊的，容器对它们的处理方式不同。
 所有 `BeanPostProcessor` 实例以及它们直接引用的 bean 都会在启动时实例化，作为 `ApplicationContext` 特殊启动阶段的一部分。
 接下来，所有 `BeanPostProcessor` 实例都以排序的方式注册，并应用于容器中的所有其他 bean。
 因为 AOP 自动代理本身是作为 `BeanPostProcessor` 实现的，所以 `BeanPostProcessor` 实例及其直接引用的 bean 都不符合自动代理的条件，因此没有将切面编织到它们中。
+更一般地，在此早期阶段实例化的任何 bean 都无法接受所有 `BeanPostProcessor` 实例的完整后处理。
 
-对于任何此类 bean，您应该会看到一条信息性日志消息：`Bean someBean is not eligible for getting processed by all BeanPostProcessor interfaces (for example: not eligible for auto-proxying)`。
+对于任何此类 bean，您应该会看到类似以下内容的 WARN 级别日志消息。
 
+[quote]
+Bean 'someBean' of type [org.example.SomeType] is not eligible for getting processed by
+all BeanPostProcessors (for example: not eligible for auto-proxying).
+
+为了尽量减少受影响的 bean，应使用不声明依赖项的 `static` `@Bean` 方法注册 `BeanPostProcessor`（参见上文）。
 如果您使用自动装配或 `@Resource`（可能会回退到自动装配）将 bean 连接到您的 `BeanPostProcessor` 中，Infra 在搜索类型匹配的依赖项候选者时可能会访问意想不到的 bean，从而使它们不符合自动代理或其他类型的 bean 后处理的条件。
 例如，如果您有一个用 `@Resource` 标记的依赖项，其中字段或 setter 名称与 bean 的声明名称不直接对应，并且没有使用名称属性，则 Infra 会访问其他 bean 以按类型匹配它们。
 ====
@@ -85,9 +96,9 @@ Java::
 ----
 package scripting;
 
-import infra.beans.factory.config.BeanPostProcessor;
+import infra.beans.factory.InitializationBeanPostProcessor;
 
-public class InstantiationTracingBeanPostProcessor implements BeanPostProcessor {
+public class InstantiationTracingBeanPostProcessor implements InitializationBeanPostProcessor {
 
   // 简单地按原样返回实例化的 bean
   public Object postProcessBeforeInitialization(Object bean, String beanName) {
@@ -95,7 +106,7 @@ public class InstantiationTracingBeanPostProcessor implements BeanPostProcessor 
   }
 
   public Object postProcessAfterInitialization(Object bean, String beanName) {
-    System.out.println("Bean '" + beanName + "' created : " + bean.toString());
+    System.out.println("Bean '" + beanName + "' created : " + bean);
     return bean;
   }
 }
@@ -103,7 +114,24 @@ public class InstantiationTracingBeanPostProcessor implements BeanPostProcessor 
 
 ======
 
-以下 `beans` 元素使用了 `InstantiationTracingBeanPostProcessor`：
+可以使用 `static` `@Bean` 方法，通过 Java 配置注册 `InstantiationTracingBeanPostProcessor`
+（推荐此方式，以避免配置类和其他 bean 提前初始化）：
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+@Configuration
+public class AppConfig {
+
+  @Bean
+  public static InstantiationTracingBeanPostProcessor instantiationTracingBeanPostProcessor() {
+    return new InstantiationTracingBeanPostProcessor();
+  }
+
+  // ... 其他 bean 定义
+}
+----
+
+也可以通过 XML 配置中的 `bean` 元素注册 `InstantiationTracingBeanPostProcessor`：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -204,6 +232,21 @@ Infra 包括许多预定义的 bean 工厂后处理器，例如 `PropertyOverrid
 `ApplicationContext` 会自动检测部署在其中的任何实现了 `BeanFactoryPostProcessor` 接口的 bean。
 它会在适当的时候将这些 bean 用作 bean 工厂后处理器。
 您可以像部署任何其他 bean 一样部署这些后处理器 bean。
+
+在 `@Configuration` 类中通过 `@Bean` 工厂方法注册 `BeanFactoryPostProcessor` 时，应将方法声明为 `static`，
+以避免与配置类中的注解处理（例如 `@Autowired`、`@Value` 和 `@PostConstruct`）发生生命周期冲突。
+详情和示例请参阅 {today-framework-api}/context/annotation/Bean.html[`@Bean`] javadoc 中的
+“BeanFactoryPostProcessor-returning `@Bean` methods” 一节。
+
+对于返回类型为 `BeanFactoryPostProcessor` 的非静态 `@Bean` 工厂方法，您应该会看到类似以下内容的 INFO 级别日志消息
+（目标容器的工厂方法日志使用 `@Component` 名称）：
+
+[quote]
+@Component method MyConfig.myBfpp is non-static and returns an object assignable to Framework's
+BeanFactoryPostProcessor interface. This will result in a failure to process annotations
+such as @Autowired, @Resource and @PostConstruct within the method's declaring
+@Configuration class. Add the 'static' modifier to this method to avoid these container
+lifecycle issues; see @Component javadoc for complete details.
 
 NOTE: 与 ``BeanPostProcessor`` 一样，您通常不希望将 ``BeanFactoryPostProcessor`` 配置为延迟初始化。
 如果没有其他 bean 引用 `Bean(Factory)PostProcessor`，该后处理器根本不会被实例化。

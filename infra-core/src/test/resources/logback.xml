@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
   <contextName>TODAY Framework</contextName>
+  <logger name="infra.core.env.PropertySource" level="DEBUG" />
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
@@ -29,6 +30,5 @@
   </root>
 
 </configuration>
-
 
 

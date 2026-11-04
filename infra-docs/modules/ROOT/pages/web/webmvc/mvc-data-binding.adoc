@@ -1,0 +1,32 @@
+// Copyright 2002-present the original author or authors.
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+// Licensed under the Apache License, Version 2.0.
+
+[[mvc-data-binding]]
+= 数据绑定
+:page-section-summary-toc: 1
+
+数据绑定将字符串参数绑定到对象图，并在此过程中进行类型转换。
+这是框架用于应用配置的核心机制之一。在 Web 应用中，它让应用能够通过具有丰富类型的对象
+访问查询参数和表单数据，而不必直接操作字符串值的映射。
+
+有关构造函数绑定、setter 绑定、属性名称语法和类型转换等机制的详细介绍，
+请参阅核心技术部分的 xref:core/validation/beans-beans.adoc[数据绑定]。
+
+对于注解控制器，数据绑定应用于
+xref:web/webmvc/mvc-controller/ann-methods/modelattrib-method-args.adoc[@ModelAttribute 方法参数]。
+对于函数式端点，使用 xref:web/webmvc-functional.adoc#webmvc-fn-request[ServerRequest] 的 `bind` 方法。
+
+TIP: 对于采用注解控制器的浏览器应用，可以使用
+xref:web/webmvc/mvc-controller/ann-modelattrib-methods.adoc[@ModelAttribute 方法]
+初始化供视图渲染使用的其他模型属性。
+
+每个请求使用独立的 `WebDataBinder` 实例。对于注解控制器，可以通过控制器内的
+xref:web/webmvc/mvc-controller/ann-initbinder.adoc[@InitBinder 方法]自定义该实例，
+也可以通过 xref:web/webmvc/mvc-controller/ann-advice.adoc[Controller Advice] 跨控制器自定义。
+对于函数式端点，使用接受 `Consumer<WebDataBinder>` 的 `ServerRequest.bind` 重载。
+
+[[mvc-data-binding-design]]
+== 模型设计
+
+include::partial$web/web-data-binding-model-design.adoc[]

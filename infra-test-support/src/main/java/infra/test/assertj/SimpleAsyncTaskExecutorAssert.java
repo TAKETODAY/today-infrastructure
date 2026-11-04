@@ -24,6 +24,7 @@ import org.assertj.core.api.Assert;
 import java.lang.reflect.Field;
 
 import infra.core.task.SimpleAsyncTaskExecutor;
+import infra.lang.CheckReturnValue;
 import infra.util.ReflectionUtils;
 
 /**
@@ -84,6 +85,7 @@ public final class SimpleAsyncTaskExecutorAssert
    * @param actual the {@link SimpleAsyncTaskExecutor}
    * @return the assertion class
    */
+  @CheckReturnValue
   public static SimpleAsyncTaskExecutorAssert assertThat(SimpleAsyncTaskExecutor actual) {
     return new SimpleAsyncTaskExecutorAssert(actual);
   }

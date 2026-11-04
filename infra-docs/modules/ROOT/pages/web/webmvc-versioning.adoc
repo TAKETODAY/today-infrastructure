@@ -1,0 +1,80 @@
+// Copyright 2002-present the original author or authors.
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+// Licensed under the Apache License, Version 2.0.
+
+[[mvc-versioning]]
+= API 版本管理
+:page-section-summary-toc: 1
+
+Web MVC 支持 API 版本管理。本节介绍相关策略及其职责。
+服务端通过 `infra.web.config.annotation.WebMvcConfigurer` 的
+`configureApiVersioning(ApiVersionConfigurer)` 方法配置版本管理，
+通过 `@RequestMapping` 的 `version` 属性声明控制器映射所需的版本。
+客户端的版本传递配置参见 xref:integration/rest-clients.adoc[REST 客户端]。
+
+[[mvc-versioning-strategy]]
+== ApiVersionStrategy
+
+`ApiVersionStrategy` 集中保存 API 版本管理的配置，并负责：
+
+* 通过 <<mvc-versioning-resolver,ApiVersionResolver>> 从请求中提取版本。
+* 通过 <<mvc-versioning-parser,ApiVersionParser>> 将原始版本转换为 `Comparable<?>`。
+* <<mvc-versioning-validation,校验>> 请求版本。
+* 在响应中发送版本弃用提示。
+
+该策略由 MVC 配置初始化，协助将请求映射到 `@RequestMapping` 控制器方法。
+应用通常不需要直接调用它。
+
+[[mvc-versioning-resolver]]
+== ApiVersionResolver
+
+该策略从请求中提取 API 版本。`ApiVersionConfigurer` 提供从请求头、查询参数、
+媒体类型参数或 URL 路径提取版本的内置配置，也支持自定义 `ApiVersionResolver`。
+多个解析器按配置顺序执行，第一个非 `null` 的结果作为请求版本。
+
+路径解析器按索引选择路径段作为版本；如果指定路径段不存在，则抛出
+`InvalidApiVersionException`。因此，只指定索引时，它不会返回 `null`（未提供版本），
+也不会回退到后续解析器。可以额外提供 `Predicate<RequestPath>` 判断路径是否包含版本；
+谓词返回 `false` 时，解析器返回 `null`，后续解析器才有机会执行。
+
+例如，`usePathSegment(0)` 从 `/{version}/...` 提取版本，
+`usePathSegment(1)` 从 `/api/{version}/...` 提取版本。
+谓词通过 `usePathSegment(int, Predicate<RequestPath>)` 配置，
+其中 `RequestPath` 为 `infra.http.server.RequestPath`。
+
+[[mvc-versioning-parser]]
+== ApiVersionParser
+
+该策略将原始版本转换为 `Comparable<?>`，以便比较、排序和选择版本。
+默认的 `SemanticApiVersionParser` 将版本解析为主版本号（`major`）、
+次版本号（`minor`）和补丁号（`patch`）；缺省的次版本号和补丁号为 0。
+
+[[mvc-versioning-validation]]
+== 版本校验
+
+请求版本不受支持时，框架抛出 `InvalidApiVersionException`，返回 HTTP 400。
+默认从注解控制器映射中检测受支持的版本。可以通过
+`detectSupportedVersions(false)` 关闭检测，仅使用 `addSupportedVersions(...)`
+显式配置的版本，也可以通过 `setSupportedVersionPredicate(...)` 接管受支持版本的校验。
+
+启用版本管理后，默认要求请求提供版本。缺少版本时抛出
+`MissingApiVersionException`，返回 HTTP 400。通过 `setVersionRequired(false)`
+可允许请求不指定版本，此时请求可接受任意版本，由映射比较选择匹配项。
+也可以通过 `setDefaultVersion(...)` 为未指定版本的请求设置默认值；
+设置默认版本后，不能同时将版本设为必填。
+
+[[mvc-versioning-deprecation-handler]]
+== ApiVersionDeprecationHandler
+
+该策略通过响应头向客户端发送版本弃用信息。
+内置的 `StandardApiVersionDeprecationHandler` 支持
+https://datatracker.ietf.org/doc/html/rfc9745[RFC 9745] 和
+https://datatracker.ietf.org/doc/html/rfc8594[RFC 8594] 定义的
+`Deprecation`、`Sunset` 和 `Link` 响应头。
+通过 `setDeprecationHandler(...)` 也可以配置自定义处理器。
+
+[[mvc-versioning-mapping]]
+== 请求映射
+
+`ApiVersionStrategy` 支持按版本选择注解控制器方法。
+使用 `@RequestMapping(version = "1.2")` 为映射声明版本，并在 MVC 配置中添加版本解析器。

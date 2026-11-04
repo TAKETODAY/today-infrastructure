@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import infra.core.io.ClassPathResource;
+import infra.core.io.ContextResource;
 import infra.core.io.FileSystemResource;
 import infra.core.io.PathResource;
 import infra.core.io.Resource;
@@ -52,6 +53,11 @@ class ResourceHandlerUtilsTests {
 
     assertThatNoException().isThrownBy(() ->
             ResourceHandlerUtils.assertResourceLocation(new UrlResource("file:/test/")));
+
+    ContextResource contextResource = mock(ContextResource.class);
+    when(contextResource.getPathWithinContext()).thenReturn("/test/");
+    assertThatNoException().isThrownBy(() ->
+            ResourceHandlerUtils.assertResourceLocation(contextResource));
 
   }
 
@@ -155,6 +161,24 @@ class ResourceHandlerUtilsTests {
     boolean result = ResourceHandlerUtils.shouldIgnoreInputPath(path);
 
     assertThat(result).isFalse();
+  }
+
+  @Test
+  void shouldIgnoreInputPathShouldReturnTrueForPathWithWebInfAfterNormalization() {
+    String path = "  / // WEB-INF/web.xml";
+
+    boolean result = ResourceHandlerUtils.shouldIgnoreInputPath(path);
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  void shouldIgnoreInputPathShouldReturnTrueForPathWithMetaInfAfterNormalization() {
+    String path = "\t/META-INF/MANIFEST.MF";
+
+    boolean result = ResourceHandlerUtils.shouldIgnoreInputPath(path);
+
+    assertThat(result).isTrue();
   }
 
   @Test
@@ -465,24 +489,6 @@ class ResourceHandlerUtilsTests {
     String result = ResourceHandlerUtils.normalizeInputPath(path);
 
     assertThat(result).isEqualTo("");
-  }
-
-  @Test
-  void shouldIgnoreInputPathShouldReturnTrueForPathWithWebInfAfterNormalization() {
-    String path = "  / // WEB-INF/web.xml";
-
-    boolean result = ResourceHandlerUtils.shouldIgnoreInputPath(path);
-
-    assertThat(result).isTrue();
-  }
-
-  @Test
-  void shouldIgnoreInputPathShouldReturnTrueForPathWithMetaInfAfterNormalization() {
-    String path = "\t/META-INF/MANIFEST.MF";
-
-    boolean result = ResourceHandlerUtils.shouldIgnoreInputPath(path);
-
-    assertThat(result).isTrue();
   }
 
   @Test

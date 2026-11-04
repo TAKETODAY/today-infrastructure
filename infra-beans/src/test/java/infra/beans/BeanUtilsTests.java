@@ -55,6 +55,7 @@ import infra.core.io.ResourceEditor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * Unit tests for {@link BeanUtils}.
@@ -67,6 +68,34 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @since 19.05.2003
  */
 class BeanUtilsTests {
+
+  @Test
+  void getWriteMethodParameterForReadOnlyProperty() {
+    PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(ReadOnlyAndWriteOnlyBean.class, "readOnly");
+    assertThatIllegalStateException()
+            .isThrownBy(() -> BeanUtils.getWriteMethodParameter(pd))
+            .withMessage("No write method available for property 'readOnly' of bean class [%s]",
+                    ReadOnlyAndWriteOnlyBean.class.getName());
+  }
+
+  @Test
+  void getWriteMethodParameterForReadOnlyPropertyWithStandardPropertyDescriptor() throws Exception {
+    PropertyDescriptor pd = new PropertyDescriptor("readOnly",
+            ReadOnlyAndWriteOnlyBean.class.getMethod("getReadOnly"), null);
+    assertThatIllegalStateException()
+            .isThrownBy(() -> BeanUtils.getWriteMethodParameter(pd))
+            .withMessage("No write method available for property 'readOnly'");
+  }
+
+  static class ReadOnlyAndWriteOnlyBean {
+
+    public String getReadOnly() {
+      return "readOnly";
+    }
+
+    public void setWriteOnly(String writeOnly) {
+    }
+  }
 
   @Test
   void newInstanceGivenInterface() {
@@ -671,7 +700,7 @@ class BeanUtilsTests {
     }
   }
 
-  private static class BeanWithNullableTypes {
+  static class BeanWithNullableTypes {
 
     private final Integer counter;
 

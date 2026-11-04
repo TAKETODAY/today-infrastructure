@@ -290,7 +290,7 @@ class WebMvcAutoConfigurationTests {
                     "web.resources.chain.strategy.fixed.enabled:true",
                     "web.resources.chain.strategy.fixed.version:test",
                     "web.resources.chain.strategy.fixed.paths:/**/*.js",
-                    "web.resources.chain.html-application-cache:true", "web.resources.chain.compressed:true")
+                    "web.resources.chain.compressed:true")
             .run((context) -> {
               assertThat(getResourceResolvers(context, "/webjars/**")).hasSize(3);
               assertThat(getResourceTransformers(context, "/webjars/**")).hasSize(1);

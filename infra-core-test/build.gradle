@@ -13,8 +13,8 @@ dependencies {
 jar {
   manifest {
     attributes(
-            'Premain-Class': 'infra.aot.agent.RuntimeHintsAgent',
-            'Can-Redefine-Classes': 'true'
+        'Premain-Class': 'infra.aot.agent.RuntimeHintsAgent',
+        'Can-Redefine-Classes': 'true'
     )
   }
 }

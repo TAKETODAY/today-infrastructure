@@ -40,6 +40,41 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 class ProfilesTests {
 
   @Test
+  void ofOrExpressionWithDoubledOperator() {
+    assertOrExpression(Profiles.parse("(infra || framework)"));
+  }
+
+  @Test
+  void ofAndExpressionWithDoubledOperator() {
+    assertAndExpression(Profiles.parse("(infra && framework)"));
+  }
+
+  @Test
+  void malformedExpressionsWithMissingOperator() {
+    assertMalformed(() -> Profiles.parse("dev !prod"));
+    assertMalformed(() -> Profiles.parse("dev (prod)"));
+    assertMalformed(() -> Profiles.parse("(dev) prod"));
+    assertMalformed(() -> Profiles.parse("(dev) (prod)"));
+    assertMalformed(() -> Profiles.parse("(dev) !prod"));
+    assertMalformed(() -> Profiles.parse("!dev (prod)"));
+  }
+
+  @Test
+  void malformedExpressionsWithMissingOperand() {
+    assertMalformed(() -> Profiles.parse("dev &"));
+    assertMalformed(() -> Profiles.parse("dev |"));
+    assertMalformed(() -> Profiles.parse("& dev"));
+    assertMalformed(() -> Profiles.parse("| dev"));
+    assertMalformed(() -> Profiles.parse("&& dev"));
+    assertMalformed(() -> Profiles.parse("|| dev"));
+    assertMalformed(() -> Profiles.parse("(dev &)"));
+    assertMalformed(() -> Profiles.parse("(| dev)"));
+    assertMalformed(() -> Profiles.parse("(dev) &"));
+    assertMalformed(() -> Profiles.parse("dev & ()"));
+    assertMalformed(() -> Profiles.parse("dev & !"));
+  }
+
+  @Test
   void ofWhenNullThrowsException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> Profiles.parse((String[]) null))
@@ -268,6 +303,21 @@ class ProfilesTests {
   }
 
   @Test
+  void ofAndExpressionWithDoubleInvertedSingleElement() {
+    assertAndExpression(Profiles.parse("!!infra & framework"));
+  }
+
+  @Test
+  void ofOrExpressionWithDoubleInvertedSingleElement() {
+    assertOrExpression(Profiles.parse("!!infra | framework"));
+  }
+
+  @Test
+  void ofAndExpressionWithTripleInvertedSingleElement() {
+    assertOfAndExpressionWithInvertedSingleElement(Profiles.parse("!!!infra & framework"));
+  }
+
+  @Test
   void ofComplexExpressionWithoutSpaces() {
     Profiles profiles = Profiles.parse("(infra&framework)|(infra&java)");
     assertComplexExpression(profiles);
@@ -310,6 +360,16 @@ class ProfilesTests {
     assertThat(Profiles.parse("infra & framework", "java | kotlin")).hasToString("(infra & framework) | (java | kotlin)");
     assertThat(Profiles.parse("java | kotlin", "infra & framework")).hasToString("(java | kotlin) | (infra & framework)");
     assertThat(Profiles.parse("java | kotlin", "infra & framework", "cat | dog")).hasToString("(java | kotlin) | (infra & framework) | (cat | dog)");
+  }
+
+  @Test
+  void malformedExpressionsWithWhitespaceSeparatedProfiles() {
+    assertMalformed(() -> Profiles.parse("dev prod"));
+    assertMalformed(() -> Profiles.parse("dev\tprod"));
+    assertMalformed(() -> Profiles.parse("!dev prod"));
+    assertMalformed(() -> Profiles.parse("(dev prod)"));
+    assertMalformed(() -> Profiles.parse("dev prod & test"));
+    assertMalformed(() -> Profiles.parse("test | dev prod"));
   }
 
   @Test

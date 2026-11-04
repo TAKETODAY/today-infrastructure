@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2026 the TODAY authors.
+ * Copyright 2012-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
 
 package infra.app.context;
 
@@ -28,6 +30,7 @@ import infra.util.ReflectionUtils;
 /**
  * Cleanup caches once the context is loaded.
  *
+ * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2024/11/26 12:38
  */
@@ -44,8 +47,10 @@ class ClearCachesStartupListener implements ApplicationStartupListener {
       return;
     }
     try {
-      Method clearCacheMethod = classLoader.getClass().getDeclaredMethod("clearCache");
-      clearCacheMethod.invoke(classLoader);
+      Method clearCacheMethod = ReflectionUtils.findMethod(classLoader.getClass(), "clearCache");
+      if (clearCacheMethod != null) {
+        clearCacheMethod.invoke(classLoader);
+      }
     }
     catch (Exception ex) {
       // Ignore

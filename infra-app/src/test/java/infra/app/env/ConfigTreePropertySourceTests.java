@@ -23,12 +23,16 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 
 import infra.app.env.ConfigTreePropertySource.Option;
 import infra.app.env.ConfigTreePropertySource.Value;
+import infra.core.ResolvableType;
+import infra.core.TypeDescriptor;
 import infra.core.conversion.ConversionService;
 import infra.core.conversion.support.ConfigurableConversionService;
 import infra.core.env.StandardEnvironment;
@@ -233,6 +237,30 @@ class ConfigTreePropertySourceTests {
     ConfigTreePropertySource propertySource = new ConfigTreePropertySource("test", this.directory,
             Option.AUTO_TRIM_TRAILING_NEW_LINE);
     assertThat(propertySource.getProperty("a")).hasToString("a");
+  }
+
+  @Test
+  void convertScalarThenSet() throws IOException {
+    addProperty("scalar.timeout", "10000");
+    Object value = new ConfigTreePropertySource("test", this.directory).getProperty("scalar.timeout");
+    TypeDescriptor source = TypeDescriptor.forObject(value);
+    TypeDescriptor setOfInteger = new TypeDescriptor(ResolvableType.forClassWithGenerics(Set.class, Integer.class),
+            null, (Annotation[]) null);
+    ApplicationConversionService conversionService = new ApplicationConversionService();
+    assertThat(conversionService.canConvert(source, TypeDescriptor.valueOf(Integer.class))).isTrue();
+    assertThat(conversionService.canConvert(source, setOfInteger)).isTrue();
+  }
+
+  @Test
+  void convertSetThenScalar() throws IOException {
+    addProperty("scalar.timeout", "10000");
+    Object value = new ConfigTreePropertySource("test", this.directory).getProperty("scalar.timeout");
+    TypeDescriptor source = TypeDescriptor.forObject(value);
+    TypeDescriptor setOfInteger = new TypeDescriptor(ResolvableType.forClassWithGenerics(Set.class, Integer.class),
+            null, (Annotation[]) null);
+    ApplicationConversionService conversionService = new ApplicationConversionService();
+    assertThat(conversionService.canConvert(source, setOfInteger)).isTrue();
+    assertThat(conversionService.canConvert(source, TypeDescriptor.valueOf(Integer.class))).isTrue();
   }
 
   private ConfigTreePropertySource getFlatPropertySource() throws IOException {

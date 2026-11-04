@@ -67,6 +67,7 @@ public final class HttpMessageConvertersAutoConfiguration {
   }
 
   @Component
+  @Order(0)
   @ConditionalOnMissingBean(StringHttpMessageConverter.class)
   static StringHttpMessageConvertersCustomizer stringHttpMessageConvertersCustomizer(HttpMessageConvertersProperties properties) {
     return new StringHttpMessageConvertersCustomizer(properties);

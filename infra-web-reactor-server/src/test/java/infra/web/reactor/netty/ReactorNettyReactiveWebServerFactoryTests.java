@@ -19,12 +19,14 @@
 package infra.web.reactor.netty;
 
 import org.awaitility.Awaitility;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
 import java.net.ConnectException;
 import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
 
@@ -35,7 +37,10 @@ import infra.core.ssl.pem.PemSslStoreBundle;
 import infra.core.ssl.pem.PemSslStoreDetails;
 import infra.http.MediaType;
 import infra.http.reactive.client.ReactorClientHttpConnector;
+import infra.http.reactive.server.HttpHandler;
 import infra.http.reactive.server.ReactorHttpHandlerAdapter;
+import infra.http.reactive.server.ServerHttpRequest;
+import infra.http.reactive.server.ServerHttpResponse;
 import infra.http.support.ReactorResourceFactory;
 import infra.test.classpath.resources.WithPackageResources;
 import infra.web.reactive.BodyInserters;
@@ -135,6 +140,28 @@ class ReactorNettyReactiveWebServerFactoryTests extends AbstractReactiveWebServe
   }
 
   @Test
+  void forwardedPrefixIsIgnoredByDefault() {
+    ReactorNettyReactiveWebServerFactory factory = getFactory();
+    factory.setUseForwardHeaders(true);
+    assertThat(echoContextPath(factory, "/api")).isEmpty();
+  }
+
+  @Test
+  void useForwardedPrefixWithForwardHeaders() {
+    ReactorNettyReactiveWebServerFactory factory = getFactory();
+    factory.setUseForwardHeaders(true);
+    factory.setUseForwardedPrefix(true);
+    assertThat(echoContextPath(factory, "/api")).isEqualTo("/api");
+  }
+
+  @Test
+  void useForwardedPrefixHasNoEffectWhenForwardHeadersAreDisabled() {
+    ReactorNettyReactiveWebServerFactory factory = getFactory();
+    factory.setUseForwardedPrefix(true);
+    assertThat(echoContextPath(factory, "/api")).isEmpty();
+  }
+
+  @Test
   void whenSslIsConfiguredWithAValidAliasARequestSucceeds() {
     Mono<String> result = testSslWithAlias("test-alias");
     StepVerifier.create(result).expectNext("Hello World").expectComplete().verify(Duration.ofSeconds(30));
@@ -215,6 +242,18 @@ class ReactorNettyReactiveWebServerFactoryTests extends AbstractReactiveWebServe
             .body(BodyInserters.fromValue("Hello World"))
             .retrieve()
             .bodyToMono(String.class);
+  }
+
+  private @Nullable String echoContextPath(ReactorNettyReactiveWebServerFactory factory, String xForwardedPrefix) {
+    this.webServer = factory.createWebServer(new ContextPathHandler());
+    this.webServer.start();
+    WebClient webClient = getWebClient(this.webServer.getPort()).build();
+    return webClient.get()
+            .header("X-Forwarded-Prefix", xForwardedPrefix)
+            .retrieve()
+            .bodyToMono(String.class)
+            .defaultIfEmpty("")
+            .block(Duration.ofSeconds(30));
   }
 
   @Override
@@ -326,6 +365,16 @@ class ReactorNettyReactiveWebServerFactoryTests extends AbstractReactiveWebServe
     @Override
     public DisposableChannel onDispose(Disposable onDispose) {
       return this.delegate.onDispose(onDispose);
+    }
+
+  }
+
+  static class ContextPathHandler implements HttpHandler {
+
+    @Override
+    public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
+      byte[] contextPath = request.getPath().contextPath().value().getBytes(StandardCharsets.UTF_8);
+      return response.writeWith(Mono.just(response.bufferFactory().wrap(contextPath)));
     }
 
   }

@@ -80,8 +80,9 @@ public final class ReactorNettyWebServerFactoryAutoConfiguration {
 
   @Component
   static ReactorNettyWebServerFactoryCustomizer nettyWebServerFactoryCustomizer(
-          Environment environment, ServerProperties serverProperties, ReactorServerProperties reactorProperties) {
-    return new ReactorNettyWebServerFactoryCustomizer(environment, serverProperties, reactorProperties);
+          Environment environment, ServerProperties serverProperties,
+          WebProperties webProperties, ReactorServerProperties reactorProperties) {
+    return new ReactorNettyWebServerFactoryCustomizer(environment, serverProperties, webProperties, reactorProperties);
   }
 
   @Component

@@ -31,6 +31,8 @@ import infra.context.properties.processor.metadata.ItemHint.ValueHint;
 import infra.context.properties.processor.metadata.ItemMetadata;
 import infra.context.properties.processor.metadata.JsonMarshaller;
 import infra.context.properties.processor.metadata.Metadata;
+import infra.context.properties.sample.endpoint.SimpleEndpoint;
+import infra.context.properties.sample.endpoint.SimpleEndpoint2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -83,21 +85,57 @@ class MetadataCollectorTests {
 
   @Test
   @SuppressWarnings("unchecked")
-  void addNewMetadataDoesNotInvokeConflictResolution() {
+  void addOrKeepEarliestWithNoExistingInstanceAdds() {
+    MetadataCollector collector = createSimpleCollector();
+    collector.addOrKeepEarliest(SINGLE_ITEM_METADATA.getItems().get(0));
+    ConfigurationMetadata metadata = collector.getMetadata();
+    assertThat(metadata).has(Metadata.withProperty("name", String.class));
+    assertThat(metadata.getItems()).hasSize(1);
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void addOrKeepEarliestWithEarlierExistingInstanceKeepsExisting() {
+    MetadataCollector collector = createSimpleCollector();
+    collector.add(
+            ItemMetadata.newGroup("example", SimpleEndpoint.class.getName(), SimpleEndpoint.class.getName(), null));
+    collector.addOrKeepEarliest(ItemMetadata.newGroup("example", SimpleEndpoint2.class.getName(),
+            SimpleEndpoint2.class.getName(), null));
+    ConfigurationMetadata metadata = collector.getMetadata();
+    assertThat(metadata).has(Metadata.withGroup("example").fromSource(SimpleEndpoint.class));
+    assertThat(metadata.getItems()).hasSize(1);
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void addOrKeepEarliestWithLaterExistingInstanceKeepsEarlier() {
+    MetadataCollector collector = createSimpleCollector();
+    collector.add(ItemMetadata.newGroup("example", SimpleEndpoint2.class.getName(), SimpleEndpoint2.class.getName(),
+            null));
+    collector.addOrKeepEarliest(
+            ItemMetadata.newGroup("example", SimpleEndpoint.class.getName(), SimpleEndpoint.class.getName(), null));
+    ConfigurationMetadata metadata = collector.getMetadata();
+    assertThat(metadata).has(Metadata.withGroup("example").fromSource(SimpleEndpoint.class));
+    assertThat(metadata.getItems()).hasSize(1);
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void addOrKeepEarliestWithNoExistingInstanceDoesNotInvokeConflictResolution() {
     MetadataCollector collector = createSimpleCollector();
     Consumer<ItemMetadata> conflictResolution = mock(Consumer.class);
-    collector.add(SINGLE_ITEM_METADATA.getItems().get(0), conflictResolution);
+    collector.addOrKeepEarliest(SINGLE_ITEM_METADATA.getItems().get(0), conflictResolution);
     then(conflictResolution).shouldHaveNoInteractions();
   }
 
   @SuppressWarnings("unchecked")
   @Test
-  void addMetadataWithExistingInstanceInvokesConflictResolution() {
+  void addOrKeepEarliestWithExistingInstanceInvokesConflictResolution() {
     MetadataCollector collector = createSimpleCollector();
     ItemMetadata metadata = SINGLE_ITEM_METADATA.getItems().get(0);
     collector.add(metadata);
     Consumer<ItemMetadata> conflictResolution = mock(Consumer.class);
-    collector.add(metadata, conflictResolution);
+    collector.addOrKeepEarliest(metadata, conflictResolution);
     then(conflictResolution).should().accept(metadata);
   }
 

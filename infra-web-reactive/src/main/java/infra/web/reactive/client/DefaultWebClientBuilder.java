@@ -121,18 +121,12 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
             new LinkedHashMap<>(other.defaultUriVariables) : null);
     this.uriBuilderFactory = other.uriBuilderFactory;
 
-    if (other.defaultHeaders != null) {
-      this.defaultHeaders = HttpHeaders.forWritable();
-      this.defaultHeaders.setAll(other.defaultHeaders);
-    }
-    else {
-      this.defaultHeaders = null;
-    }
+    this.defaultHeaders = other.defaultHeaders != null ? HttpHeaders.copyOf(other.defaultHeaders) : null;
 
     this.defaultRequest = other.defaultRequest;
     this.defaultApiVersion = other.defaultApiVersion;
     this.apiVersionInserter = other.apiVersionInserter;
-    this.defaultCookies = (other.defaultCookies != null ? new LinkedMultiValueMap<>(other.defaultCookies) : null);
+    this.defaultCookies = (other.defaultCookies != null ? MultiValueMap.copyOf(other.defaultCookies).deepCopy() : null);
     this.statusHandlers = (other.statusHandlers != null ? new LinkedHashMap<>(other.statusHandlers) : null);
     this.filters = (other.filters != null ? new ArrayList<>(other.filters) : null);
 
@@ -334,7 +328,7 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
     exchange = filterExchangeFunction(exchange);
 
     var defaultHeaders = this.defaultHeaders != null ? HttpHeaders.copyOf(this.defaultHeaders).asReadOnly() : null;
-    var defaultCookies = this.defaultCookies != null ? MultiValueMap.copyOf(this.defaultCookies).asReadOnly() : null;
+    var defaultCookies = this.defaultCookies != null ? MultiValueMap.copyOf(this.defaultCookies).deepCopy().asReadOnly() : null;
 
     return new DefaultWebClient(exchange, initUriBuilderFactory(), defaultHeaders, defaultCookies,
             this.defaultRequest, this.statusHandlers, new DefaultWebClientBuilder(this),

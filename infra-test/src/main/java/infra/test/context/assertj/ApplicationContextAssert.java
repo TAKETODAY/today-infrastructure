@@ -22,7 +22,6 @@ import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.AbstractObjectArrayAssert;
 import org.assertj.core.api.AbstractObjectAssert;
 import org.assertj.core.api.AbstractThrowableAssert;
-import org.assertj.core.api.Assertions;
 import org.assertj.core.api.MapAssert;
 import org.assertj.core.error.BasicErrorMessageFactory;
 import org.jspecify.annotations.Nullable;
@@ -39,6 +38,7 @@ import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
+import infra.lang.CheckReturnValue;
 import infra.util.Assert;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -231,12 +231,13 @@ public class ApplicationContextAssert<C extends ApplicationContext>
    * @return array assertions for the bean names
    * @throws AssertionError if the application context did not start
    */
+  @CheckReturnValue
   public <T> AbstractObjectArrayAssert<?, String> getBeanNames(Class<T> type) {
     if (this.startupFailure != null) {
       throwAssertionError(contextFailedToStartWhenExpecting("to get beans names with type:%n <%s>", type));
     }
-    return Assertions.assertThat(getApplicationContext().getBeanNamesForType(type))
-            .as("Bean names of type <%s> from <%s>", type, getApplicationContext());
+    return assertThat(getApplicationContext().getBeanNamesForType(type)).as("Bean names of type <%s> from <%s>",
+            type, getApplicationContext());
   }
 
   /**
@@ -256,6 +257,7 @@ public class ApplicationContextAssert<C extends ApplicationContext>
    * @throws AssertionError if the application context contains multiple beans of the
    * given type
    */
+  @CheckReturnValue
   public <T> AbstractObjectAssert<?, T> getBean(Class<T> type) {
     return getBean(type, Scope.INCLUDE_ANCESTORS);
   }
@@ -278,6 +280,7 @@ public class ApplicationContextAssert<C extends ApplicationContext>
    * @throws AssertionError if the application context contains multiple beans of the
    * given type
    */
+  @CheckReturnValue
   public <T> AbstractObjectAssert<?, T> getBean(Class<T> type, Scope scope) {
     Assert.notNull(scope, "Scope is required");
     if (this.startupFailure != null) {
@@ -291,7 +294,7 @@ public class ApplicationContextAssert<C extends ApplicationContext>
                       getApplicationContext(), type, names));
     }
     T bean = (name != null) ? getApplicationContext().getBean(name, type) : null;
-    return Assertions.assertThat(bean).as("Bean of type <%s> from <%s>", type, getApplicationContext());
+    return assertThat(bean).as("Bean of type <%s> from <%s>", type, getApplicationContext());
   }
 
   @Nullable
@@ -339,12 +342,13 @@ public class ApplicationContextAssert<C extends ApplicationContext>
    * is found
    * @throws AssertionError if the application context did not start
    */
+  @CheckReturnValue
   public AbstractObjectAssert<?, Object> getBean(String name) {
     if (this.startupFailure != null) {
       throwAssertionError(contextFailedToStartWhenExpecting("to contain a bean of name:%n <%s>", name));
     }
     Object bean = findBean(name);
-    return Assertions.assertThat(bean).as("Bean of name <%s> from <%s>", name, getApplicationContext());
+    return assertThat(bean).as("Bean of name <%s> from <%s>", name, getApplicationContext());
   }
 
   /**
@@ -366,6 +370,7 @@ public class ApplicationContextAssert<C extends ApplicationContext>
    * name but a different type
    */
   @SuppressWarnings("unchecked")
+  @CheckReturnValue
   public <T> AbstractObjectAssert<?, T> getBean(String name, Class<T> type) {
     if (this.startupFailure != null) {
       throwAssertionError(
@@ -377,7 +382,7 @@ public class ApplicationContextAssert<C extends ApplicationContext>
               "%nExpecting:%n <%s>%nto contain a bean of name:%n <%s> (%s)%nbut found:%n <%s> of type <%s>",
               getApplicationContext(), name, type, bean, bean.getClass()));
     }
-    return Assertions.assertThat((T) bean).as("Bean of name <%s> and type <%s> from <%s>", name, type,
+    return assertThat((T) bean).as("Bean of name <%s> and type <%s> from <%s>", name, type,
             getApplicationContext());
   }
 
@@ -406,6 +411,7 @@ public class ApplicationContextAssert<C extends ApplicationContext>
    * no beans are found
    * @throws AssertionError if the application context did not start
    */
+  @CheckReturnValue
   public <T> MapAssert<String, T> getBeans(Class<T> type) {
     return getBeans(type, Scope.INCLUDE_ANCESTORS);
   }
@@ -426,13 +432,14 @@ public class ApplicationContextAssert<C extends ApplicationContext>
    * no beans are found
    * @throws AssertionError if the application context did not start
    */
+  @CheckReturnValue
   public <T> MapAssert<String, T> getBeans(Class<T> type, Scope scope) {
     Assert.notNull(scope, "Scope is required");
     if (this.startupFailure != null) {
       throwAssertionError(contextFailedToStartWhenExpecting("to get beans of type:%n <%s>", type));
     }
-    return Assertions.assertThat(scope.getBeansOfType(getApplicationContext(), type))
-            .as("Beans of type <%s> from <%s>", type, getApplicationContext());
+    return assertThat(scope.getBeansOfType(getApplicationContext(), type)).as("Beans of type <%s> from <%s>", type,
+            getApplicationContext());
   }
 
   /**
@@ -446,6 +453,7 @@ public class ApplicationContextAssert<C extends ApplicationContext>
    * @return assertions on the cause of the failure
    * @throws AssertionError if the application context started without a failure
    */
+  @CheckReturnValue
   public AbstractThrowableAssert<?, ? extends Throwable> getFailure() {
     hasFailed();
     return assertThat(this.startupFailure);

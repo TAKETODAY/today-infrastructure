@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import infra.core.TypeDescriptor;
@@ -35,6 +36,10 @@ import infra.format.support.FormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
+ * Tests for {@link ConfigurationPropertiesCharSequenceToObjectConverter}.
+ *
+ * @author Phillip Webb
+ * @author Andy Wilkinson
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/2/23 22:56
  */
@@ -74,6 +79,21 @@ class ConfigurationPropertiesCharSequenceToObjectConverterTests {
     TypeDescriptor targetType = TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(String.class));
     List<String> converted = (List<String>) conversionService.convert(source, sourceType, targetType);
     assertThat(converted).containsExactly("1", "2", "3");
+  }
+
+  @Test
+  void convertWhenRecursiveCallIsNeededDoesNotPolluteCache() {
+    TypeDescriptor sourceType = TypeDescriptor.valueOf(StringBuilder.class);
+    TypeDescriptor integerType = TypeDescriptor.valueOf(Integer.class);
+    TypeDescriptor setOfIntegerType = TypeDescriptor.collection(Set.class, TypeDescriptor.valueOf(Integer.class));
+    FormattingConversionService conversionService = new DefaultFormattingConversionService();
+    conversionService.addConverter(new ConfigurationPropertiesCharSequenceToObjectConverter(conversionService));
+    assertThat(conversionService.canConvert(sourceType, integerType)).isTrue();
+    assertThat(conversionService.canConvert(sourceType, setOfIntegerType)).isTrue();
+    conversionService = new DefaultFormattingConversionService();
+    conversionService.addConverter(new ConfigurationPropertiesCharSequenceToObjectConverter(conversionService));
+    assertThat(conversionService.canConvert(sourceType, setOfIntegerType)).isTrue();
+    assertThat(conversionService.canConvert(sourceType, integerType)).isTrue();
   }
 
   static Stream<? extends Arguments> conversionServices() {

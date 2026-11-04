@@ -27,6 +27,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.stream.Stream;
 
+import infra.core.annotation.AliasFor;
 import infra.test.context.support.DefaultTestContextBootstrapper;
 import infra.test.context.web.WebAppConfiguration;
 import infra.test.context.web.WebTestContextBootstrapper;
@@ -134,11 +135,27 @@ class BootstrapUtilsTests {
     assertBootstrapper(LocalDeclarationAndMetaAnnotatedBootstrapWithAnnotationClass.class, EnigmaBootstrapper.class);
   }
 
+  @Test
+  void resolveTestContextBootstrapperWithMetaBootstrapWithAnnotationThatOverridesMetaMetaBootstrapWithAnnotation() {
+    assertBootstrapper(MetaAndMetaMetaBootstrapWithAnnotationsClass.class, BarBootstrapper.class);
+  }
+
+  @Test
+  void resolveTestContextBootstrapperWithComposedBootstrapWithAnnotationThatOverridesMetaMetaBootstrapWithAnnotation() {
+    assertBootstrapper(ConfigurableAndMetaMetaBootstrapWithAnnotationsClass.class, BarBootstrapper.class);
+  }
+
+  @Test
+  void resolveTestContextBootstrapperWithCustomizedComposedBootstrapWithAnnotationThatOverridesMetaMetaBootstrapWithAnnotation() {
+    assertBootstrapper(CustomizedConfigurableAndMetaMetaBootstrapWithAnnotationsClass.class, EnigmaBootstrapper.class);
+  }
+
   private void assertBootstrapper(Class<?> testClass, Class<?> expectedBootstrapper) {
     BootstrapContext bootstrapContext = BootstrapTestUtils.buildBootstrapContext(testClass, delegate);
     TestContextBootstrapper bootstrapper = BootstrapUtils.resolveTestContextBootstrapper(bootstrapContext);
     assertThat(bootstrapper).isNotNull();
     assertThat(bootstrapper.getClass()).isEqualTo(expectedBootstrapper);
+    assertThat(bootstrapper).isExactlyInstanceOf(expectedBootstrapper);
   }
 
   // -------------------------------------------------------------------
@@ -160,6 +177,23 @@ class BootstrapUtilsTests {
   @BootstrapWith(BarBootstrapper.class)
   @Retention(RetentionPolicy.RUNTIME)
   @interface BootWithBar { }
+
+  /**
+   * Emulates overriding a bootstrap meta-annotation while retaining the
+   * remaining configuration of a composed test annotation.
+   */
+  @BootWithFoo
+  @BootstrapWith(BarBootstrapper.class)
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface BootWithBarInsteadOfFoo { }
+
+  @BootWithFoo
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface BootWithConfigurableBootstrapperInsteadOfFoo {
+
+    @AliasFor(annotation = BootstrapWith.class, attribute = "value")
+    Class<? extends TestContextBootstrapper> bootstrapWith() default BarBootstrapper.class;
+  }
 
   // Invalid
   @BootstrapWith
@@ -188,6 +222,15 @@ class BootstrapUtilsTests {
   @BootWithBar
   @BootstrapWith(EnigmaBootstrapper.class)
   static class LocalDeclarationAndMetaAnnotatedBootstrapWithAnnotationClass { }
+
+  @BootWithBarInsteadOfFoo
+  static class MetaAndMetaMetaBootstrapWithAnnotationsClass { }
+
+  @BootWithConfigurableBootstrapperInsteadOfFoo
+  static class ConfigurableAndMetaMetaBootstrapWithAnnotationsClass { }
+
+  @BootWithConfigurableBootstrapperInsteadOfFoo(bootstrapWith = EnigmaBootstrapper.class)
+  static class CustomizedConfigurableAndMetaMetaBootstrapWithAnnotationsClass { }
 
   @WebAppConfiguration
   static class WebAppConfigClass {

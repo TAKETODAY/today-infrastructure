@@ -18,6 +18,8 @@
 
 package infra.core.type.classreading;
 
+import java.io.IOException;
+
 import infra.core.type.AbstractMethodMetadataTests;
 import infra.core.type.AnnotationMetadata;
 
@@ -27,17 +29,17 @@ import infra.core.type.AnnotationMetadata;
  * and for the ClassFile API variant on Java >= 24.
  *
  * @author Phillip Webb
+ * @author Brian Clozel
  */
 class DefaultMethodMetadataTests extends AbstractMethodMetadataTests {
 
   @Override
   protected AnnotationMetadata get(Class<?> source) {
     try {
-      return new SimpleMetadataReaderFactory(
-              source.getClassLoader()).getMetadataReader(
-              source.getName()).getAnnotationMetadata();
+      return MetadataReaderFactory.create(source.getClassLoader())
+              .getMetadataReader(source.getName()).getAnnotationMetadata();
     }
-    catch (Exception ex) {
+    catch (IOException ex) {
       throw new IllegalStateException(ex);
     }
   }

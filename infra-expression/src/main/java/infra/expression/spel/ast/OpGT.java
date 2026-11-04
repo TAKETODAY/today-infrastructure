@@ -47,6 +47,7 @@ public class OpGT extends Operator {
   public BooleanTypedValue getValueInternal(ExpressionState state) throws EvaluationException {
     Object left = getLeftOperand().getValueInternal(state).getValue();
     Object right = getRightOperand().getValueInternal(state).getValue();
+    state.trackOperation();
 
     this.leftActualDescriptor = CodeFlow.toDescriptorFromObject(left);
     this.rightActualDescriptor = CodeFlow.toDescriptorFromObject(right);

@@ -306,7 +306,8 @@ class AttributeMethodsTests {
   void describeMethodReturnsCorrectDescription() throws Exception {
     Method method = MultipleAttributes.class.getDeclaredMethod("intValue");
     String description = AttributeMethods.describe(method);
-    assertThat(description).isEqualTo("attribute 'intValue' in annotation [infra.core.annotation.AttributeMethodsTests$MultipleAttributes]");
+    assertThat(description).isEqualTo(
+            "attribute 'intValue' in annotation [infra.core.annotation.AttributeMethodsTests.MultipleAttributes]");
   }
 
   @Test

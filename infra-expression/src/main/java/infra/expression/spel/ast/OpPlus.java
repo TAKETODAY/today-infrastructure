@@ -114,6 +114,7 @@ public class OpPlus extends Operator {
     if (this.children.length < 2) {  // if only one operand, then this is unary plus
       Object operandOne = leftOp.getValueInternal(state).getValue();
       if (operandOne instanceof Number) {
+        state.trackOperation();
         if (operandOne instanceof Double) {
           this.exitTypeDescriptor = "D";
         }
@@ -137,6 +138,7 @@ public class OpPlus extends Operator {
     Object rightOperand = operandTwoValue.getValue();
 
     if (leftOperand instanceof Number leftNumber && rightOperand instanceof Number rightNumber) {
+      state.trackOperation();
       if (leftNumber instanceof BigDecimal || rightNumber instanceof BigDecimal) {
         BigDecimal leftBigDecimal = NumberUtils.convertNumberToTargetClass(leftNumber, BigDecimal.class);
         BigDecimal rightBigDecimal = NumberUtils.convertNumberToTargetClass(rightNumber, BigDecimal.class);
@@ -176,7 +178,7 @@ public class OpPlus extends Operator {
       }
       checkStringLength(leftString);
       checkStringLength(rightString);
-      return concatenate(leftString, rightString);
+      return concatenate(state, leftString, rightString);
     }
 
     if (leftOperand instanceof String leftString) {
@@ -188,7 +190,7 @@ public class OpPlus extends Operator {
       if (this.nonStringOperand != rightOp) {
         this.nonStringOperand = rightOp;
       }
-      return concatenate(leftString, rightString);
+      return concatenate(state, leftString, rightString);
     }
 
     if (rightOperand instanceof String rightString) {
@@ -199,7 +201,7 @@ public class OpPlus extends Operator {
       if (this.nonStringOperand != leftOp) {
         this.nonStringOperand = leftOp;
       }
-      return concatenate(leftString, rightString);
+      return concatenate(state, leftString, rightString);
     }
 
     return state.operate(Operation.ADD, leftOperand, rightOperand);
@@ -216,8 +218,9 @@ public class OpPlus extends Operator {
     }
   }
 
-  private TypedValue concatenate(String leftString, String rightString) {
+  private TypedValue concatenate(ExpressionState state, String leftString, String rightString) {
     checkStringLength(leftString.length() + rightString.length());
+    state.trackOperation();
     return new TypedValue(leftString + rightString);
   }
 

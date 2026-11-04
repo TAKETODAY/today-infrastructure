@@ -64,7 +64,10 @@ public interface Profiles {
    * <p>Please note that the {@code &} and {@code |} operators may not be mixed
    * without using parentheses. For example, {@code "a & b | c"} is not a valid
    * expression: it must be expressed as {@code "(a & b) | c"} or
-   * {@code "a & (b | c)"}.
+    * {@code "a & (b | c)"}.
+    * <p>Profile names within a profile expression must not contain whitespace.
+    * For example, {@code "a b"} is not a valid expression: it must be expressed
+    * as {@code "a & b"} or {@code "a | b"}.
    * <p>Two {@code Profiles} instances returned
    * by this method are considered equivalent to each other (in terms of
    * {@code equals()} and {@code hashCode()} semantics) if they are created

@@ -127,8 +127,7 @@ public abstract class MergedAnnotationPredicates {
 
     private boolean hasLastValue;
 
-    @SuppressWarnings("NullAway.Init")
-    private Object lastValue;
+    private @Nullable Object lastValue;
 
     FirstRunOfPredicate(Function<? super MergedAnnotation<A>, ?> valueExtractor) {
       Assert.notNull(valueExtractor, "Value extractor is required");

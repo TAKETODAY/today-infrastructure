@@ -82,8 +82,9 @@ public final class HttpServiceProxyFactory {
     this.requestExecutionFactory = requestExecutionFactory;
     this.argumentResolvers = argumentResolvers;
     this.embeddedValueResolver = embeddedValueResolver;
-    this.requestValuesProcessor = new CompositeHttpRequestValuesProcessor(requestValuesProcessors);
-    this.proxyFactoryCustomizers = proxyFactoryCustomizers;
+    // Defensive copies, since the Builder's lists may be modified after build().
+    this.requestValuesProcessor = new CompositeHttpRequestValuesProcessor(List.copyOf(requestValuesProcessors));
+    this.proxyFactoryCustomizers = List.copyOf(proxyFactoryCustomizers);
   }
 
   /**
@@ -404,7 +405,7 @@ public final class HttpServiceProxyFactory {
 
   /**
    * Callback mechanism to customize the {@link ProxyFactory} used to create the
-   * proxy for each HTTP service interface, e.g. to add AOP interceptors.
+   * proxy for each HTTP service interface &mdash; for example, to add AOP interceptors.
    *
    * @since 5.0
    */
@@ -413,7 +414,7 @@ public final class HttpServiceProxyFactory {
     /**
      * Customize the {@link ProxyFactory} for the given HTTP service type.
      *
-     * @param proxyFactory will never be {@literal null}.
+     * @param proxyFactory the proxy factory to customize
      * @param serviceType the HTTP service interface type
      */
     void customize(ProxyFactory proxyFactory, Class<?> serviceType);

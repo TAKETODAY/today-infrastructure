@@ -37,6 +37,32 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class PropertySourceTests {
 
   @Test
+  void toStringUsesConciseFormat() {
+    Properties props = new Properties();
+    props.setProperty("a", "b");
+    assertThat(new MapPropertySource("mps", Map.of("a", "b")))
+            .hasToString("MapPropertySource {name='mps'}");
+    assertThat(new PropertiesPropertySource("pps", props))
+            .hasToString("PropertiesPropertySource {name='pps'}");
+    assertThat(new SystemEnvironmentPropertySource("seps", Map.of("A", "b")))
+            .hasToString("SystemEnvironmentPropertySource {name='seps'}");
+  }
+
+  @Test
+  void toStringDoesNotDependOnLogLevel() {
+    PropertySource<?> propertySource = new DebugLoggingPropertySource("dlps", Map.of("a", "b"));
+    assertThat(infra.logging.LoggerFactory.getLogger(PropertySource.class).isDebugEnabled()).isTrue();
+    assertThat(propertySource).hasToString("DebugLoggingPropertySource {name='dlps'}");
+  }
+
+  static class DebugLoggingPropertySource extends MapPropertySource {
+
+    DebugLoggingPropertySource(String name, Map<String, Object> source) {
+      super(name, source);
+    }
+  }
+
+  @Test
   @SuppressWarnings("serial")
   void equals() {
     Map<String, Object> map1 = new HashMap<String, Object>() {{

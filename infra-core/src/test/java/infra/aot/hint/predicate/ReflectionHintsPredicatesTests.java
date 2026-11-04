@@ -409,6 +409,14 @@ class ReflectionHintsPredicatesTests {
   class JavaSerialization {
 
     @Test
+    void factoryUsesJavaSerializationHintPredicate() {
+      assertThat(reflection.onJavaSerialization(SampleClass.class, true))
+              .isExactlyInstanceOf(ReflectionHintsPredicates.JavaSerializationHintPredicate.class);
+      assertThat(reflection.onJavaSerialization(TypeReference.of(SampleClass.class), false))
+              .isExactlyInstanceOf(ReflectionHintsPredicates.JavaSerializationHintPredicate.class);
+    }
+
+    @Test
     void javaSerializationMatchesRegisteredClass() {
       runtimeHints.reflection().registerJavaSerialization(SampleClass.class);
       assertPredicateMatches(reflection.onJavaSerialization(SampleClass.class, true));

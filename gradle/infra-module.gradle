@@ -74,6 +74,8 @@ javadoc {
   // Check for syntax during linting. 'none' doesn't seem to work in suppressing
   // all linting warnings all the time (see/link references most notably).
   options.addStringOption("Xdoclint:syntax", "-quiet")
+  // Do not ship web fonts for individual modules.
+  options.addBooleanOption("-no-fonts", true)
 
   failOnError = false
   // Suppress warnings due to cross-module @see and @link references.

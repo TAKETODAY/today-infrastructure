@@ -209,7 +209,7 @@ public class MessageHeaders implements Map<String, Object>, Serializable {
     if (value == null) {
       return null;
     }
-    if (!type.isAssignableFrom(value.getClass())) {
+    if (!type.isInstance(value)) {
       throw new IllegalArgumentException("Incorrect type specified for header '%s'. Expected [%s] but actual type is [%s]"
               .formatted(key, type, value.getClass()));
     }

@@ -398,7 +398,7 @@ class JdbcClientNamedParameterTests {
 
 	@ParameterizedTest
 	@ValueSource(booleans = {true, false})
-	void batchUpdateSingleRow(boolean supportsBatchUpdates) throws SQLException {
+		void batchUpdateSingleRow(boolean supportsBatchUpdates) throws SQLException {
 		if (supportsBatchUpdates) {
 			given(connection.getMetaData()).willReturn(databaseMetaData);
 			given(preparedStatement.executeBatch()).willReturn(new int[] {1});
@@ -456,8 +456,23 @@ class JdbcClientNamedParameterTests {
 		inOrder.verify(connection).close();
 	}
 
-	@Test
-	void updateWithTypedParameters() throws SQLException {
+  @Test
+  void updateWithParameterSourceSuppliedAsObject() throws SQLException {
+    given(preparedStatement.executeUpdate()).willReturn(1);
+
+    Object namedParamObject = new MapSqlParameterSource("perfId", 1).addValue("priceId", 2);
+    int rowsAffected = client.sql(UPDATE_NAMED_PARAMETERS).paramSource(namedParamObject).update();
+
+    assertThat(rowsAffected).isEqualTo(1);
+    verify(connection).prepareStatement(UPDATE_NAMED_PARAMETERS_PARSED);
+    verify(preparedStatement).setObject(1, 1);
+    verify(preparedStatement).setObject(2, 2);
+    verify(preparedStatement).close();
+    verify(connection).close();
+  }
+
+		@Test
+		void updateWithTypedParameters() throws SQLException {
 		given(preparedStatement.executeUpdate()).willReturn(1);
 
 		params.put("perfId", new SqlParameterValue(Types.DECIMAL, 1));

@@ -39,4 +39,11 @@ class HttpMethodTests {
       assertThat(HttpMethod.resolve(method.name())).isSameAs(method);
     }
   }
+
+  @Test
+  void resolveIsCaseInsensitiveForPredefinedMethods() {
+    assertThat(HttpMethod.resolve("Get")).isSameAs(HttpMethod.GET);
+    assertThat(HttpMethod.resolve("get")).isSameAs(HttpMethod.GET);
+    assertThat(HttpMethod.resolve("foo")).isNull();
+  }
 }

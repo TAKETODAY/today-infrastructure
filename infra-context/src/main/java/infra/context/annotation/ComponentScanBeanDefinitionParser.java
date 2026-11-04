@@ -267,7 +267,7 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
               .formatted(className, strategyType.getName()), ex);
     }
 
-    if (!strategyType.isAssignableFrom(result.getClass())) {
+    if (!strategyType.isInstance(result)) {
       throw new IllegalArgumentException("Provided class name must be an implementation of " + strategyType);
     }
     return result;

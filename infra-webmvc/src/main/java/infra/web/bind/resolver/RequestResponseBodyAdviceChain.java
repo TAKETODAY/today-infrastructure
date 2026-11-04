@@ -196,7 +196,7 @@ public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, Respon
         }
         advice = adviceBean.resolveBean();
       }
-      if (adviceType.isAssignableFrom(advice.getClass())) {
+      if (adviceType.isInstance(advice)) {
         result.add(advice);
       }
     }
@@ -204,4 +204,3 @@ public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, Respon
   }
 
 }
-

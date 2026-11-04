@@ -92,6 +92,8 @@ public class ConfigurableWebBindingInitializer implements WebBindingInitializer 
    * Set whether to use direct field access instead of bean property access.
    * <p>Default is {@code false}, using bean property access.
    * Switch this to {@code true} in order to enforce direct field access.
+   * <p><b>NOTE: This is an advanced option for trusted scenarios.</b>
+   * Do not use direct field access for data binding from untrusted sources.
    *
    * @see DataBinder#initDirectFieldAccess()
    * @see DataBinder#initBeanPropertyAccess()

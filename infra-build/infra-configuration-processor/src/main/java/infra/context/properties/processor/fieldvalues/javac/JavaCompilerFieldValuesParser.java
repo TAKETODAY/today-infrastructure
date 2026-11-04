@@ -18,6 +18,9 @@
 
 package infra.context.properties.processor.fieldvalues.javac;
 
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Period;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -55,7 +58,7 @@ public class JavaCompilerFieldValuesParser implements FieldValuesParser {
     if (tree != null) {
       FieldCollector fieldCollector = new FieldCollector();
       tree.accept(fieldCollector);
-      return fieldCollector.getFieldValues();
+      return fieldCollector.fieldValues;
     }
     return Collections.emptyMap();
   }
@@ -100,48 +103,27 @@ public class JavaCompilerFieldValuesParser implements FieldValuesParser {
       DEFAULT_TYPE_VALUES = Collections.unmodifiableMap(values);
     }
 
-    private static final Map<String, Object> WELL_KNOWN_STATIC_FINALS = Map.of(
-            "Boolean.TRUE", true,
-            "Boolean.FALSE", false,
-            "StandardCharsets.ISO_8859_1", "ISO-8859-1",
-            "StandardCharsets.UTF_8", "UTF-8",
-            "StandardCharsets.UTF_16", "UTF-16",
-            "StandardCharsets.US_ASCII", "US-ASCII",
-            "Duration.ZERO", 0,
-            "Period.ZERO", 0
-    );
+    private static final KnownType BOOLEAN = KnownType.of(Boolean.class);
 
-    private static final String DURATION_OF = "Duration.of";
+    private static final KnownType STANDARD_CHARSETS = KnownType.of(StandardCharsets.class);
 
-    private static final Map<String, String> DURATION_SUFFIX = Map.of(
-            "Nanos", "ns",
-            "Millis", "ms",
-            "Seconds", "s",
-            "Minutes", "m",
-            "Hours", "h",
-            "Days", "d"
-    );
+    private static final KnownType DURATION = KnownType.of(Duration.class);
 
-    private static final String PERIOD_OF = "Period.of";
+    private static final KnownType PERIOD = KnownType.of(Period.class);
 
-    private static final Map<String, String> PERIOD_SUFFIX = Map.of(
-            "Days", "d",
-            "Weeks", "w",
-            "Months", "m",
-            "Years", "y"
-    );
+    private static final KnownType DATA_SIZE = new KnownType("infra.util", "DataSize");
 
-    private static final String DATA_SIZE_OF = "DataSize.of";
+    private static final Map<KnownType, Map<String, Object>> WELL_KNOWN_STATIC_FINALS = Map.of(
+            BOOLEAN, Map.of("TRUE", true, "FALSE", false),
+            STANDARD_CHARSETS, Map.of("ISO_8859_1", "ISO-8859-1", "UTF_8", "UTF-8", "UTF_16", "UTF-16", "US_ASCII", "US-ASCII"),
+            DURATION, Map.of("ZERO", 0), PERIOD, Map.of("ZERO", 0));
 
-    private static final Map<String, String> DATA_SIZE_SUFFIX = Map.of(
-            "Bytes", "B",
-            "Kilobytes", "KB",
-            "Megabytes", "MB",
-            "Gigabytes", "GB",
-            "Terabytes", "TB"
-    );
+    private static final Map<KnownType, Map<String, String>> FACTORY_SUFFIXES = Map.of(
+            DURATION, Map.of("ofNanos", "ns", "ofMillis", "ms", "ofSeconds", "s", "ofMinutes", "m", "ofHours", "h", "ofDays", "d"),
+            PERIOD, Map.of("ofDays", "d", "ofWeeks", "w", "ofMonths", "m", "ofYears", "y"),
+            DATA_SIZE, Map.of("ofBytes", "B", "ofKilobytes", "KB", "ofMegabytes", "MB", "ofGigabytes", "GB", "ofTerabytes", "TB"));
 
-    private final Map<String, Object> fieldValues = new HashMap<>();
+    public final Map<String, Object> fieldValues = new HashMap<>();
 
     private final Map<String, Object> staticFinals = new HashMap<>();
 
@@ -191,7 +173,7 @@ public class JavaCompilerFieldValuesParser implements FieldValuesParser {
         return this.staticFinals.get(expression.toString());
       }
       if (expression.getKind().equals("MEMBER_SELECT")) {
-        Object value = WELL_KNOWN_STATIC_FINALS.get(expression.toString());
+        Object value = getWellKnownStaticFinal(expression.toString());
         if (value != null) {
           return value;
         }
@@ -205,36 +187,65 @@ public class JavaCompilerFieldValuesParser implements FieldValuesParser {
       return null;
     }
 
-    private Object getFactoryValue(ExpressionTree expression, Object factoryValue) {
-      Object durationValue = getFactoryValue(expression, factoryValue, DURATION_OF, DURATION_SUFFIX);
-      if (durationValue != null) {
-        return durationValue;
-      }
-      Object dataSizeValue = getFactoryValue(expression, factoryValue, DATA_SIZE_OF, DATA_SIZE_SUFFIX);
-      if (dataSizeValue != null) {
-        return dataSizeValue;
-      }
-      Object periodValue = getFactoryValue(expression, factoryValue, PERIOD_OF, PERIOD_SUFFIX);
-      if (periodValue != null) {
-        return periodValue;
-      }
-      return factoryValue;
-    }
-
-    private Object getFactoryValue(ExpressionTree expression, Object factoryValue, String prefix,
-            Map<String, String> suffixMapping) {
-      Object instance = expression.getInstance();
-      if (instance != null && instance.toString().startsWith(prefix)) {
-        String type = instance.toString();
-        type = type.substring(prefix.length(), type.indexOf('('));
-        String suffix = suffixMapping.get(type);
-        return (suffix != null) ? factoryValue + suffix : null;
+    private Object getWellKnownStaticFinal(String expression) {
+      for (Map.Entry<KnownType, Map<String, Object>> entry : WELL_KNOWN_STATIC_FINALS.entrySet()) {
+        String member = entry.getKey().getMember(expression);
+        if (member != null && entry.getValue().containsKey(member)) {
+          return entry.getValue().get(member);
+        }
       }
       return null;
     }
 
-    Map<String, Object> getFieldValues() {
-      return this.fieldValues;
+    private Object getFactoryValue(ExpressionTree expression, Object factoryValue) {
+      Object instance = expression.getInstance();
+      if (instance != null) {
+        for (Map.Entry<KnownType, Map<String, String>> entry : FACTORY_SUFFIXES.entrySet()) {
+          String call = entry.getKey().getMember(instance.toString());
+          String suffix = call != null ? entry.getValue().get(call.substring(0, call.indexOf('('))) : null;
+          if (suffix != null) {
+            return factoryValue + suffix;
+          }
+        }
+      }
+      return factoryValue;
+    }
+
+  }
+
+  /**
+   * A well-known type that can be referenced by its simple name or by its fully
+   * qualified name.
+   */
+  static final class KnownType {
+
+    private final String simplePrefix;
+
+    private final String qualifiedPrefix;
+
+    KnownType(String packageName, String simpleName) {
+      this.simplePrefix = simpleName + ".";
+      this.qualifiedPrefix = packageName + "." + simpleName + ".";
+    }
+
+    static KnownType of(Class<?> type) {
+      return new KnownType(type.getPackageName(), type.getSimpleName());
+    }
+
+    /**
+     * Return the member that the given expression selects on this type, or
+     * {@code null} if the expression does not select a member of this type.
+     * @param expression the expression to check
+     * @return the selected member or {@code null}
+     */
+    String getMember(String expression) {
+      if (expression.startsWith(this.qualifiedPrefix)) {
+        return expression.substring(this.qualifiedPrefix.length());
+      }
+      if (expression.startsWith(this.simplePrefix)) {
+        return expression.substring(this.simplePrefix.length());
+      }
+      return null;
     }
 
   }

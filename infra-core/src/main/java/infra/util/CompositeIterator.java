@@ -18,6 +18,8 @@
 
 package infra.util;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
@@ -32,10 +34,11 @@ import java.util.NoSuchElementException;
  * @param <E> the element type
  * @author Erwin Vervaet
  * @author Juergen Hoeller
+ * @author Yanming Zhou
  * @author TODAY 2021/10/1 14:48
  * @since 4.0
  */
-public class CompositeIterator<E> implements Iterator<E> {
+public class CompositeIterator<E extends @Nullable Object> implements Iterator<E> {
 
   private final LinkedHashSet<Iterator<E>> iterators = new LinkedHashSet<>();
 

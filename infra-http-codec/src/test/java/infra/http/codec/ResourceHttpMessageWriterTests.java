@@ -51,6 +51,15 @@ public class ResourceHttpMessageWriterTests {
 
   private static final Map<String, Object> HINTS = Collections.emptyMap();
 
+  @Test
+  void ignoreRangeWhenIfRangeDoesNotMatch() {
+    this.response.getHeaders().setETag("\"current\"");
+    testWrite(get("/").range(of(0, 5)).header(HttpHeaders.IF_RANGE, "\"stale\"").build());
+    assertThat(this.response.getHeaders().getFirst(HttpHeaders.CONTENT_RANGE)).isNull();
+    StepVerifier.create(this.response.getBodyAsString())
+            .expectNext("Infra  Framework test resource content.").expectComplete().verify();
+  }
+
   private final ResourceHttpMessageWriter writer = new ResourceHttpMessageWriter();
 
   private final MockServerHttpResponse response = new MockServerHttpResponse();

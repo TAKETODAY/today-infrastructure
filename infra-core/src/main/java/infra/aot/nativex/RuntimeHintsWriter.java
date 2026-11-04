@@ -30,6 +30,7 @@ import infra.lang.Version;
  * GraalVM {@code native-image} compiler, typically named {@code reachability-metadata.json}.
  *
  * @author Brian Clozel
+ * @author Stephane Nicoll
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see <a href="https://www.graalvm.org/jdk25/reference-manual/native-image/metadata">GraalVM Reachability Metadata</a>
  * @since 5.0

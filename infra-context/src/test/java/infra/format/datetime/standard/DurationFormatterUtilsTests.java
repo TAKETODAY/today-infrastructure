@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.Duration;
 import java.time.format.DateTimeParseException;
@@ -36,6 +37,7 @@ import static infra.format.annotation.DurationFormat.Style.SIMPLE;
 import static infra.format.annotation.DurationFormat.Unit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
@@ -58,6 +60,30 @@ class DurationFormatterUtilsTests {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> DurationFormatterUtils.parse(null, style))
             .withMessage("Value must not be empty");
+  }
+
+  @ParameterizedTest
+  @ValueSource(longs = { Long.MIN_VALUE, Long.MAX_VALUE })
+  void printSimpleWithMicrosUnitShouldSupportFullLongRange(long micros) {
+    Duration duration = Duration.of(micros, ChronoUnit.MICROS);
+    assertThat(DurationFormatterUtils.print(duration, SIMPLE, Unit.MICROS)).isEqualTo(micros + "us");
+    Duration withFraction = duration.plusNanos((micros < 0) ? -999 : 999);
+    assertThat(DurationFormatterUtils.print(withFraction, SIMPLE, Unit.MICROS)).isEqualTo(micros + "us");
+  }
+
+  @ParameterizedTest
+  @ValueSource(longs = { Long.MIN_VALUE, Long.MAX_VALUE })
+  void printSimpleWithMicrosUnitWhenResultOverflowsShouldThrowException(long micros) {
+    Duration duration = Duration.of(micros, ChronoUnit.MICROS).plusNanos((micros < 0) ? -1000 : 1000);
+    assertThatExceptionOfType(ArithmeticException.class)
+            .isThrownBy(() -> DurationFormatterUtils.print(duration, SIMPLE, Unit.MICROS));
+  }
+
+  @ParameterizedTest
+  @ValueSource(longs = { -1999, -1001, -999, 0, 999, 1001, 1999 })
+  void printSimpleWithMicrosUnitShouldTruncateTowardsZero(long nanos) {
+    Duration duration = Duration.ofNanos(nanos);
+    assertThat(DurationFormatterUtils.print(duration, SIMPLE, Unit.MICROS)).isEqualTo(nanos / 1000 + "us");
   }
 
   @Test
