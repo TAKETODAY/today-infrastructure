@@ -93,7 +93,8 @@ class RuntimeHintsWriterTests {
               .withField("DEFAULT_CHARSET")
               .withField("defaultCharset")
               .withField("aScore")
-              .withMethod("setDefaultCharset", List.of(TypeReference.of(Charset.class)), ExecutableMode.INVOKE));
+              .withMethod("setDefaultCharset", List.of(TypeReference.of(Charset.class)), ExecutableMode.INVOKE)
+              .withJavaSerialization(true));
       assertEquals("""
               {
               	"reflection": [
@@ -114,7 +115,8 @@ class RuntimeHintsWriterTests {
               			],
               			"methods": [
               				{ "name": "setDefaultCharset", "parameterTypes": [ "java.nio.charset.Charset" ] }
-              			]
+              			],
+              			"serializable": true
               		}
               	]
               }
@@ -221,6 +223,22 @@ class RuntimeHintsWriterTests {
               			"serializable": true
               		}
               	]
+              }
+              """, hints);
+    }
+
+    @Test
+    void javaSerializationDisabled() throws JSONException {
+      RuntimeHints hints = new RuntimeHints();
+      hints.reflection().registerType(Integer.class, builder -> builder.withJavaSerialization(false));
+
+      assertEquals("""
+              {
+                "reflection": [
+                  {
+                    "type": "java.lang.Integer"
+                  }
+                ]
               }
               """, hints);
     }
