@@ -281,11 +281,13 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
         if (rangeHeader != null) {
           Resource resource = (Resource) entity;
           try {
-            List<HttpRange> httpRanges = HttpRange.parseRanges(rangeHeader);
-            request.setStatus(HttpStatus.PARTIAL_CONTENT.value());
-            entity = HttpRange.toResourceRegions(httpRanges, resource);
-            entityClass = entity.getClass();
-            entityType = RESOURCE_REGION_LIST_TYPE;
+            List<HttpRange> httpRanges = HttpRange.resolveRanges(request.requestHeaders(), request.responseHeaders());
+            if (!httpRanges.isEmpty()) {
+              request.setStatus(HttpStatus.PARTIAL_CONTENT.value());
+              entity = HttpRange.toResourceRegions(httpRanges, resource);
+              entityClass = entity.getClass();
+              entityType = RESOURCE_REGION_LIST_TYPE;
+            }
           }
           catch (IllegalArgumentException ex) {
             request.setHeader(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
@@ -427,14 +429,16 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
     private class DeferredResultSubscriber implements Subscriber<T> {
 
       private final Context context;
-      @Nullable
-      private Subscription subscription;
-      private final HttpContext request;
+
+      private @Nullable Subscription subscription;
+
+      private final HttpContext httpContext;
+
       private final DeferredResult<?> deferredResult;
 
-      public DeferredResultSubscriber(HttpContext request,
+      public DeferredResultSubscriber(HttpContext httpContext,
               Context context, DeferredResult<?> deferredResult) {
-        this.request = request;
+        this.httpContext = httpContext;
         this.context = context;
         this.deferredResult = deferredResult;
       }
@@ -454,8 +458,8 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
       public void onNext(T t) {
         Assert.state(this.subscription != null, "No subscription");
         try {
-          tryWriteEntityWithMessageConverters(t, request, context);
-          request.getOutputStream().flush();
+          tryWriteEntityWithMessageConverters(t, httpContext, context);
+          httpContext.flush();
           this.subscription.request(1);
         }
         catch (Throwable ex) {
@@ -467,7 +471,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
       @Override
       public void onError(Throwable t) {
         try {
-          handleError(t, this.request, this.context);
+          handleError(t, this.httpContext, this.context);
         }
         catch (Throwable handlingThrowable) {
           this.deferredResult.setErrorResult(handlingThrowable);
@@ -477,7 +481,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
       @Override
       public void onComplete() {
         try {
-          request.getOutputStream().flush();
+          httpContext.flush();
           this.deferredResult.setResult(null);
         }
         catch (IOException ex) {

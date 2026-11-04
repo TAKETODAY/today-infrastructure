@@ -24,4 +24,4 @@
 * `@Qualifier` 注解和使用 `CustomAutowireConfigurer` 注册的任何自定义注解的存在
 
 当多个 bean 符合自动装配候选者的条件时，“`primary`”的确定如下：
-如果候选者中恰好有一个 bean 定义将 `primary` 属性设置为 `true`，则选择它。
+如果候选者中恰好有一个 bean 定义将 `primary` 属性设置为 `true`，则选择它。对于基于注解的配置，请参阅 xref:core/beans/annotation-config/autowired-primary.adoc[使用 `@Primary` 或 `@Fallback` 微调自动装配]。

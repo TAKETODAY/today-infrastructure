@@ -176,7 +176,7 @@ public class MovieRecommender {
 `@Order` 值可能会影响注入点的优先级，但请注意，它们不会影响单例启动顺序，这是由依赖关系和 `@DependsOn` 声明确定的正交关注点。
 
 请注意，标准 `jakarta.annotation.Priority` 注解在 `@Bean` 级别不可用，因为它不能在方法上声明。
-它的语义可以通过 `@Order` 值与每种类型的单个 bean 上的 `@Primary` 结合来建模。
+它的语义可以通过 `@Order` 值与每种类型的单个 bean 上的 `@Primary` 或 `@Fallback` 结合来建模。
 ====
 
 只要预期的键类型为 `String`，即使是类型化的 `Map` 实例也可以自动装配。

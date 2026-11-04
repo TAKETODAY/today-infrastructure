@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.TypeReference;
 import infra.util.Assert;
+import infra.util.ClassUtils;
 
 /**
  * Record of an invocation of a method relevant to {@link infra.aot.hint.RuntimeHints}.
@@ -200,7 +201,7 @@ public final class RecordedInvocation {
     else {
       Class<?> instanceType = (getInstance() instanceof Class<?> clazz) ? clazz : getInstance().getClass();
       return "<%s> invocation of <%s> on type <%s> with arguments %s".formatted(
-              getHintType().hintClassName(), getMethodReference(), instanceType.getCanonicalName(), getArguments());
+              getHintType().hintClassName(), getMethodReference(), ClassUtils.getCanonicalName(instanceType), getArguments());
     }
   }
 

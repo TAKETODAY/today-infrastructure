@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.function.Consumer;
 
-import infra.core.io.Resource;
-
 /**
  * Common functional interface for I/O content consumption, for example
  * consuming an {@link java.io.InputStream} or a {@link java.io.Reader}.
@@ -31,7 +29,7 @@ import infra.core.io.Resource;
  * @param <C> the type of stream/reader
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @see Resource#consumeContent
+ * @see infra.core.io.Resource#consumeContent
  * @see infra.core.io.EncodedResource#consumeContent
  * @see ThrowingConsumer
  * @since 5.0

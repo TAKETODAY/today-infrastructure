@@ -147,8 +147,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
    * Configure this aspect with the given error handler, key generator and cache resolver/manager
    * suppliers, applying the corresponding default if a supplier is not resolvable.
    */
-  public void configure(@Nullable Supplier<CacheErrorHandler> errorHandler, @Nullable Supplier<KeyGenerator> keyGenerator,
-          @Nullable Supplier<CacheResolver> cacheResolver, @Nullable Supplier<CacheManager> cacheManager) {
+  public void configure(@Nullable Supplier<@Nullable CacheErrorHandler> errorHandler, @Nullable Supplier<@Nullable KeyGenerator> keyGenerator,
+          @Nullable Supplier<@Nullable CacheResolver> cacheResolver, @Nullable Supplier<@Nullable CacheManager> cacheManager) {
 
     this.keyGenerator = new SingletonSupplier<>(keyGenerator, SimpleKeyGenerator::new);
     this.errorHandler = new SingletonSupplier<>(errorHandler, SimpleCacheErrorHandler::new);
@@ -1186,12 +1186,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
       ReactiveAdapter adapter = (result != null ? registry.getAdapter(result.getClass()) : null);
       if (adapter != null) {
         if (adapter.isMultiValue()) {
-          Flux<?> deferred = Flux.defer(() -> {
-            Flux<?> source = Flux.from(adapter.toPublisher(result)).publish().refCount(2);
-            source.subscribe(new CacheEvictListSubscriber(contexts));
-            return source;
-          });
-          return adapter.fromPublisher(deferred);
+          return shareWithCollectingSubscriber(adapter, result,
+                  () -> new CacheEvictListSubscriber(contexts));
         }
         else {
           return adapter.fromPublisher(Mono.from(adapter.toPublisher(result))
@@ -1255,12 +1251,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
       ReactiveAdapter adapter = (result != null ? registry.getAdapter(result.getClass()) : null);
       if (adapter != null) {
         if (adapter.isMultiValue()) {
-          Flux<?> deferred = Flux.defer(() -> {
-            Flux<?> source = Flux.from(adapter.toPublisher(result)).publish().refCount(2);
-            source.subscribe(new CachePutListSubscriber(request));
-            return source;
-          });
-          return adapter.fromPublisher(deferred);
+          return shareWithCollectingSubscriber(adapter, result,
+                  () -> new CachePutListSubscriber(request));
         }
         else {
           return adapter.fromPublisher(Mono.from(adapter.toPublisher(result))
@@ -1268,6 +1260,28 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
         }
       }
       return NOT_HANDLED;
+    }
+
+    /**
+     * Share the multi-value result between the caller and a collecting subscriber
+     * which exhausts it for a cache put or eviction, subscribing to the result
+     * only once per caller subscription.
+     */
+    private Object shareWithCollectingSubscriber(ReactiveAdapter adapter, @Nullable Object result,
+            Supplier<Subscriber<Object>> collectingSubscriberSupplier) {
+
+      // Create a new shared Flux and collecting subscriber for each subscription,
+      // including resubscriptions such as retries. The caller's Context must be
+      // written onto the shared Flux since it would otherwise see the empty Context
+      // of the collecting subscriber, which subscribes first.
+      Flux<?> deferred = Flux.deferContextual(contextView -> {
+        Flux<?> source = Flux.from(adapter.toPublisher(result))
+                .contextWrite(contextView)
+                .publish().refCount(2);
+        source.subscribe(collectingSubscriberSupplier.get());
+        return source;
+      });
+      return adapter.fromPublisher(deferred);
     }
   }
 

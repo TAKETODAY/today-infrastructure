@@ -29,6 +29,7 @@ import infra.context.properties.sample.endpoint.CustomPropertiesEndpoint;
 import infra.context.properties.sample.endpoint.DisabledEndpoint;
 import infra.context.properties.sample.endpoint.EnabledEndpoint;
 import infra.context.properties.sample.endpoint.SimpleEndpoint;
+import infra.context.properties.sample.endpoint.SimpleEndpoint2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -85,6 +86,19 @@ class EndpointMetadataGenerationTests extends AbstractMetadataGenerationTests {
             .has(Metadata.withGroup("management.endpoint.pascal-case").fromSource(CamelCaseEndpoint.class));
     assertThat(metadata).has(enabledFlag("PascalCase", "pascal-case", true));
     assertThat(metadata.getItems()).hasSize(2);
+  }
+
+  @Test
+  void shouldTolerateEndpointWithSameId() {
+    shouldTolerateEndpointWithSameId(SimpleEndpoint.class, SimpleEndpoint2.class);
+    shouldTolerateEndpointWithSameId(SimpleEndpoint2.class, SimpleEndpoint.class);
+  }
+
+  private void shouldTolerateEndpointWithSameId(Class<?> endpoint1, Class<?> endpoint2) {
+    ConfigurationMetadata metadata = compile(endpoint1, endpoint2);
+    assertThat(metadata).has(Metadata.withGroup("management.endpoint.simple").fromSource(SimpleEndpoint.class));
+    assertThat(metadata).has(cacheTtl("simple"));
+    assertThat(metadata.getItems()).hasSize(3);
   }
 
   private Metadata.MetadataItemCondition enabledFlag(String endpointId, String endpointSuffix, Boolean defaultValue) {

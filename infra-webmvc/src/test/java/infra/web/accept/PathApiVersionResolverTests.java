@@ -32,6 +32,10 @@ import infra.web.mock.MockRequest;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
+ * Unit tests for {@link PathApiVersionResolver}.
+ *
+ * @author Rossen Stoyanchev
+ * @author Martin Mois
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/3/13 11:24
  */

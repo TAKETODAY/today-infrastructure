@@ -386,12 +386,12 @@ class ConfigurationClassEnhancer {
         // create the bean instance.
         if (log.isInfoEnabled() &&
                 BeanFactoryPostProcessor.class.isAssignableFrom(beanMethod.getReturnType())) {
-          log.info("@Component method {}.{} is non-static and returns an object " +
-                          "assignable to Framework's BeanFactoryPostProcessor interface. This will " +
-                          "result in a failure to process annotations such as @Autowired, " +
-                          "@Resource and @PostConstruct within the method's declaring " +
-                          "@Configuration class. Add the 'static' modifier to this method to avoid " +
-                          "these container lifecycle issues; see @Component javadoc for complete details.",
+          log.info("""
+                  @Component method {}.{} is non-static and returns an object assignable to Framework's \
+                  BeanFactoryPostProcessor interface. This will result in a failure to process \
+                  annotations such as @Autowired, @Resource, and @PostConstruct within the method's \
+                  declaring @Configuration class. Add the 'static' modifier to this method to avoid \
+                  these container lifecycle issues; see @Component javadoc for complete details.""",
                   beanMethod.getDeclaringClass().getSimpleName(), beanMethod.getName());
         }
         return cglibMethodProxy.invokeSuper(enhancedConfigInstance, beanMethodArgs);

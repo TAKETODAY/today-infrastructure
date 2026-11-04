@@ -19,6 +19,7 @@
 package infra.util;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.locks.Lock;
@@ -31,6 +32,34 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ConcurrentLruCacheTests {
 
   private final ConcurrentLruCache<String, String> cache = new ConcurrentLruCache<>(2, key -> key + "value");
+
+  @Test
+  @Timeout(10)
+  void writerWaitsForEvictionLockWhenTooManyWriteOperationsArePending() throws Exception {
+    int writes = 5_000;
+    Field evictionLockField = ConcurrentLruCache.class.getDeclaredField("evictionLock");
+    evictionLockField.setAccessible(true);
+    Lock evictionLock = (Lock) evictionLockField.get(this.cache);
+    Thread writer = new Thread(() -> {
+      for (int i = 0; i < writes; i++) {
+        this.cache.get("k" + i);
+      }
+    });
+    evictionLock.lock();
+    try {
+      writer.start();
+      while (writer.isAlive() && writer.getState() != Thread.State.WAITING) {
+        Thread.sleep(10);
+      }
+      assertThat(writer.getState()).as("writer state").isEqualTo(Thread.State.WAITING);
+      assertThat(this.cache.size()).as("cache size").isLessThan(writes);
+    }
+    finally {
+      evictionLock.unlock();
+    }
+    writer.join();
+    assertThat(this.cache.size()).as("cache size").isEqualTo(this.cache.capacity());
+  }
 
   @Test
   void zeroCapacity() {

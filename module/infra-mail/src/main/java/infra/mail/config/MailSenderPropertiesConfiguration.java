@@ -30,6 +30,7 @@ import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.condition.ConditionalOnProperty;
 import infra.core.ssl.SslBundle;
 import infra.core.ssl.SslBundles;
+import infra.core.ssl.SslOptions;
 import infra.util.Assert;
 import infra.mail.MailSender;
 import infra.mail.config.MailProperties.Ssl;
@@ -84,6 +85,15 @@ class MailSenderPropertiesConfiguration {
         Assert.state(sslBundles != null, "'sslBundles' is required");
         SslBundle sslBundle = sslBundles.getBundle(ssl.bundle);
         javaMailProperties.put("mail." + protocol + ".ssl.socketFactory", sslBundle.createSslContext().getSocketFactory());
+        SslOptions options = sslBundle.getOptions();
+        String[] enabledProtocols = options.getEnabledProtocols();
+        if (enabledProtocols != null) {
+          javaMailProperties.setProperty("mail." + protocol + ".ssl.protocols", String.join(" ", enabledProtocols));
+        }
+        String[] ciphers = options.getCiphers();
+        if (ciphers != null) {
+          javaMailProperties.setProperty("mail." + protocol + ".ssl.ciphersuites", String.join(" ", ciphers));
+        }
       }
     }
 

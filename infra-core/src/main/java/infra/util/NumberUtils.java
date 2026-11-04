@@ -43,6 +43,12 @@ public abstract class NumberUtils {
 
   private static final BigInteger LONG_MAX = BigInteger.valueOf(Long.MAX_VALUE);
 
+  // -2^63: exactly Long.MIN_VALUE, an inclusive lower bound
+  private static final double LONG_MIN_AS_DOUBLE = -0x1p63;
+
+  // 2^63: Long.MAX_VALUE + 1, an exclusive upper bound
+  private static final double LONG_MAX_PLUS_ONE_AS_DOUBLE = 0x1p63;
+
   /**
    * Standard number types (all immutable):
    * Byte, Short, Integer, Long, BigInteger, Float, Double, BigDecimal.
@@ -74,7 +80,9 @@ public abstract class NumberUtils {
    * @param targetClass the target class to convert to
    * @return the converted number
    * @throws IllegalArgumentException if the target class is not supported
-   * (i.e. not a standard Number subclass as included in the JDK)
+   * (i.e. not a standard Number subclass as included in the JDK), or if the
+   * number cannot be converted to an integral target class without overflow
+   * (including {@code NaN} and infinite floating-point values)
    * @see java.lang.Byte
    * @see java.lang.Short
    * @see java.lang.Integer
@@ -120,14 +128,22 @@ public abstract class NumberUtils {
       return (T) Long.valueOf(value);
     }
     else if (BigInteger.class == targetClass) {
-      if (number instanceof BigDecimal) {
+      if (number instanceof BigDecimal bigDecimal) {
         // do not lose precision - use BigDecimal's own conversion
-        return (T) ((BigDecimal) number).toBigInteger();
+        return (T) bigDecimal.toBigInteger();
       }
-      else {
-        // original value is not a Big* number - use standard long conversion
-        return (T) BigInteger.valueOf(number.longValue());
+      if (number instanceof Double || number instanceof Float) {
+        double value = number.doubleValue();
+        if (!Double.isFinite(value)) {
+          raiseOverflowException(number, targetClass);
+        }
+        // do not lose precision - use the exact BigDecimal representation; in contrast
+        // to the BigDecimal target below, BigDecimal(double) is safe here since the
+        // fractional part gets truncated anyway
+        return (T) new BigDecimal(value).toBigInteger();
       }
+      // original value is not a Big* or floating-point number - use standard long conversion
+      return (T) BigInteger.valueOf(number.longValue());
     }
     else if (Float.class == targetClass) {
       return (T) Float.valueOf(number.floatValue());
@@ -147,8 +163,8 @@ public abstract class NumberUtils {
   }
 
   /**
-   * Check for a {@code BigInteger}/{@code BigDecimal} long overflow
-   * before returning the given number as a long value.
+   * Check for a {@code BigInteger}/{@code BigDecimal}/{@code Double}/{@code Float}
+   * long overflow before returning the given number as a long value.
    *
    * @param number the number to convert
    * @param targetClass the target class to convert to
@@ -158,13 +174,20 @@ public abstract class NumberUtils {
    */
   private static long checkedLongValue(Number number, Class<? extends Number> targetClass) {
     BigInteger bigInt = null;
-    if (number instanceof BigInteger) {
-      bigInt = (BigInteger) number;
+    if (number instanceof BigInteger bigInteger) {
+      bigInt = bigInteger;
     }
-    else if (number instanceof BigDecimal) {
-      bigInt = ((BigDecimal) number).toBigInteger();
+    else if (number instanceof BigDecimal bigDecimal) {
+      bigInt = bigDecimal.toBigInteger();
     }
-    // Effectively analogous to JDK 8's BigInteger.longValueExact()
+    else if (number instanceof Double || number instanceof Float) {
+      double value = number.doubleValue();
+      // Also rejecting NaN and infinite values
+      if (!(value >= LONG_MIN_AS_DOUBLE && value < LONG_MAX_PLUS_ONE_AS_DOUBLE)) {
+        raiseOverflowException(number, targetClass);
+      }
+    }
+    // Effectively analogous to Java's BigInteger.longValueExact()
     if (bigInt != null && (bigInt.compareTo(LONG_MIN) < 0 || bigInt.compareTo(LONG_MAX) > 0)) {
       raiseOverflowException(number, targetClass);
     }
@@ -264,8 +287,8 @@ public abstract class NumberUtils {
       Assert.notNull(targetClass, "Target class is required");
       DecimalFormat decimalFormat = null;
       boolean resetBigDecimal = false;
-      if (numberFormat instanceof DecimalFormat) {
-        decimalFormat = (DecimalFormat) numberFormat;
+      if (numberFormat instanceof DecimalFormat dc) {
+        decimalFormat = dc;
         if (BigDecimal.class == targetClass && !decimalFormat.isParseBigDecimal()) {
           decimalFormat.setParseBigDecimal(true);
           resetBigDecimal = true;

@@ -155,6 +155,27 @@ public class HandlerMethodMappingTests {
     assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS)).isNull();
   }
 
+  @Test
+  public void ambiguousMatchOnPreFlightRequestWithMixedCorsConfig() throws Throwable {
+    this.mapping.registerMapping("/foo", this.handler, this.method1);
+    this.mapping.registerMapping("/f??", this.handler, this.handler.getClass().getMethod("corsHandlerMethod1"));
+
+    MockRequest request = new MockRequest("OPTIONS", "/foo");
+    request.addHeader(HttpHeaders.ORIGIN, "https://domain.com");
+    request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET");
+    MockResponse response = new MockResponse();
+    MockHttpContext context = new MockHttpContext(null, request, response);
+
+    HandlerExecutionChain chain = getHandler(context);
+    assertThat(chain.getRawHandler()).isInstanceOf(HttpRequestHandler.class);
+    if (chain.getRawHandler() instanceof HttpRequestHandler httpRequestHandler) {
+      httpRequestHandler.handleRequest(context);
+    }
+
+    assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isNull();
+    assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS)).isNull();
+  }
+
   private HandlerExecutionChain getHandler(MockHttpContext context) throws Exception {
     Object mappingHandler = this.mapping.getHandler(context);
     if (mappingHandler instanceof HandlerExecutionChain chain) {

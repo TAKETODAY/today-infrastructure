@@ -23,10 +23,16 @@ import org.junit.jupiter.api.Test;
 import org.reactivestreams.Subscription;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.util.ConcurrentModificationException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
@@ -387,6 +393,60 @@ class SubscriberInputStreamTests {
 
     assertThatThrownBy(() -> stream.read(null, 0, 1))
             .isInstanceOf(NullPointerException.class);
+  }
+
+  @Test
+  void interruptWhileAwaitingData() throws InterruptedException {
+    var stream = new SubscriberInputStream(1);
+    var reading = new CountDownLatch(1);
+    var savedEx = new AtomicReference<Throwable>();
+    var interruptStatus = new AtomicBoolean();
+
+    var reader = new Thread(() -> {
+      try {
+        stream.onSubscribe(new TestSubscription());
+        reading.countDown();
+        stream.read();
+      }
+      catch (Throwable ex) {
+        savedEx.set(ex);
+        interruptStatus.set(Thread.currentThread().isInterrupted());
+      }
+    });
+    reader.start();
+
+    reading.await();
+    for (int i = 0; i < 100 && reader.getState() != Thread.State.WAITING; i++) {
+      Thread.sleep(20);
+    }
+    assertThat(reader.getState()).isEqualTo(Thread.State.WAITING);
+    reader.interrupt();
+    reader.join(5000);
+
+    assertThat(reader.isAlive()).as("read() did not return after interrupt").isFalse();
+    assertThat(savedEx.get()).isInstanceOf(InterruptedIOException.class)
+            .hasMessage("Interrupted while awaiting data");
+    assertThat(interruptStatus).as("interrupt status restored").isTrue();
+  }
+
+  @Test
+  void interruptAfterPartialRead() throws IOException {
+    var stream = new SubscriberInputStream(1);
+    stream.onSubscribe(new TestSubscription());
+    stream.onNext(DefaultDataBufferFactory.sharedInstance.wrap("foo".getBytes(UTF_8)));
+
+    try {
+      Thread.currentThread().interrupt();
+      byte[] chunk = new byte[6];
+      assertThat(stream.read(chunk)).as("bytes read before interruption").isEqualTo(3);
+      assertThat(chunk).startsWith("foo".getBytes(UTF_8));
+      assertThatExceptionOfType(InterruptedIOException.class)
+              .isThrownBy(stream::read).withMessage("Interrupted while awaiting data");
+      assertThat(Thread.currentThread().isInterrupted()).as("interrupt status restored").isTrue();
+    }
+    finally {
+      Thread.interrupted();
+    }
   }
 
   private static class TestSubscription implements Subscription {

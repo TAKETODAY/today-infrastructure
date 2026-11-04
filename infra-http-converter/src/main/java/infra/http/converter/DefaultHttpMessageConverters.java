@@ -76,7 +76,7 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
 
   abstract static class DefaultBuilder {
 
-    private static final boolean JAXB_2_PRESENT;
+    static final boolean JAXB_2_PRESENT;
 
     private static final boolean JACKSON_XML_PRESENT;
 
@@ -243,9 +243,6 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
         if (JACKSON_XML_PRESENT) {
           this.xmlConverter = new JacksonXmlHttpMessageConverter();
         }
-        else if (JAXB_2_PRESENT) {
-          this.xmlConverter = new Jaxb2RootElementHttpMessageConverter();
-        }
       }
 
       if (this.smileConverter == null) {
@@ -351,6 +348,15 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
     }
 
     @Override
+    void detectMessageConverters() {
+      super.detectMessageConverters();
+      // client-specific detection behavior
+      if (this.xmlConverter == null && JAXB_2_PRESENT) {
+        this.xmlConverter = new Jaxb2RootElementHttpMessageConverter();
+      }
+    }
+
+    @Override
     public HttpMessageConverters build() {
       if (registerDefaults) {
         this.resourceConverter = new ResourceHttpMessageConverter(false);
@@ -448,6 +454,12 @@ class DefaultHttpMessageConverters implements HttpMessageConverters {
     public ServerBuilder configureMessageConverters(Consumer<HttpMessageConverter<?>> configurer) {
       addMessageConverterConfigurer(configurer);
       return this;
+    }
+
+    @Override
+    void detectMessageConverters() {
+      super.detectMessageConverters();
+      // server-specific detection behavior: JAXB is intentionally not auto-detected
     }
 
     @Override

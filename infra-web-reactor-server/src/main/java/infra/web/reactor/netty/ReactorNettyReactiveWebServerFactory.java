@@ -54,13 +54,15 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
 
   private final List<NettyRouteProvider> routeProviders = new ArrayList<>();
 
-  @Nullable
-  private Duration lifecycleTimeout;
+  private @Nullable Duration lifecycleTimeout;
 
   private boolean useForwardHeaders;
 
-  @Nullable
-  private ReactorResourceFactory resourceFactory;
+  private boolean useRfcForwardHeader;
+
+  private boolean useForwardedPrefix;
+
+  private @Nullable ReactorResourceFactory resourceFactory;
 
   public ReactorNettyReactiveWebServerFactory() {
   }
@@ -110,17 +112,17 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
    *
    * @param serverCustomizers the customizers to add
    */
-  public void addServerCustomizers(ReactorNettyServerCustomizer... serverCustomizers) {
+  public void addServerCustomizers(ReactorNettyServerCustomizer @Nullable ... serverCustomizers) {
     CollectionUtils.addAll(this.serverCustomizers, serverCustomizers);
   }
 
   /**
    * Add {@link NettyRouteProvider}s that should be applied, in order, before the
-   * handler for the Framework application.
+   * handler for the Infra application.
    *
    * @param routeProviders the route providers to add
    */
-  public void addRouteProviders(NettyRouteProvider... routeProviders) {
+  public void addRouteProviders(NettyRouteProvider @Nullable ... routeProviders) {
     CollectionUtils.addAll(this.routeProviders, routeProviders);
   }
 
@@ -130,7 +132,7 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
    *
    * @param lifecycleTimeout the lifecycle timeout
    */
-  public void setLifecycleTimeout(Duration lifecycleTimeout) {
+  public void setLifecycleTimeout(@Nullable Duration lifecycleTimeout) {
     this.lifecycleTimeout = lifecycleTimeout;
   }
 
@@ -144,11 +146,36 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
   }
 
   /**
+   * Set if the RFC "Forwarded" header should be processed.
+   * <p>
+   * {@link #setUseForwardHeaders(boolean)} will take precedence if enabled.
+   *
+   * @param useRfcForwardHeader if the "Forwarded" header should be used
+   * @since 5.0
+   */
+  public void setUseRfcForwardHeader(boolean useRfcForwardHeader) {
+    this.useRfcForwardHeader = useRfcForwardHeader;
+  }
+
+  /**
+   * Set if the "X-Forwarded-Prefix" header should be processed when forwarded headers
+   * support is enabled.
+   *
+   * @param useForwardedPrefix if the "X-Forwarded-Prefix" header should be used
+   * @see #setUseForwardHeaders(boolean)
+   * @see #setUseRfcForwardHeader(boolean)
+   * @since 5.0
+   */
+  public void setUseForwardedPrefix(boolean useForwardedPrefix) {
+    this.useForwardedPrefix = useForwardedPrefix;
+  }
+
+  /**
    * Set the {@link ReactorResourceFactory} to get the shared resources from.
    *
    * @param resourceFactory the server resources
    */
-  public void setResourceFactory(ReactorResourceFactory resourceFactory) {
+  public void setResourceFactory(@Nullable ReactorResourceFactory resourceFactory) {
     this.resourceFactory = resourceFactory;
   }
 
@@ -162,8 +189,18 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
     if (Compression.isEnabled(compression)) {
       server = new CompressionCustomizer(compression).apply(server);
     }
-    server = server.protocol(listProtocols()).forwarded(this.useForwardHeaders);
+    server = configureForwardedHeaders(server.protocol(listProtocols()));
     return applyCustomizers(server);
+  }
+
+  private HttpServer configureForwardedHeaders(HttpServer server) {
+    if (this.useForwardHeaders) {
+      return server.forwarded(false, this.useForwardedPrefix);
+    }
+    if (this.useRfcForwardHeader) {
+      return server.forwarded(true, this.useForwardedPrefix);
+    }
+    return server.noForwarded();
   }
 
   private HttpServer customizeSslConfiguration(Ssl ssl, HttpServer httpServer) {

@@ -127,7 +127,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     this.interceptors = other.interceptors != null ? new ArrayList<>(other.interceptors) : null;
     this.initializers = other.initializers != null ? new ArrayList<>(other.initializers) : null;
     this.defaultHeaders = other.defaultHeaders != null ? HttpHeaders.copyOf(other.defaultHeaders) : null;
-    this.defaultCookies = other.defaultCookies != null ? MultiValueMap.copyOf(other.defaultCookies) : null;
+    this.defaultCookies = other.defaultCookies != null ? MultiValueMap.copyOf(other.defaultCookies).deepCopy() : null;
     this.statusHandlers = other.statusHandlers != null ? new ArrayList<>(other.statusHandlers) : null;
     this.messageConverters = other.messageConverters != null ? new ArrayList<>(other.messageConverters) : null;
     this.defaultUriVariables = other.defaultUriVariables != null ? new LinkedHashMap<>(other.defaultUriVariables) : null;
@@ -434,7 +434,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     UriBuilderFactory uriBuilderFactory = initUriBuilderFactory();
 
     var defaultHeaders = this.defaultHeaders != null ? HttpHeaders.copyOf(this.defaultHeaders).asReadOnly() : null;
-    var defaultCookies = this.defaultCookies != null ? MultiValueMap.copyOf(this.defaultCookies).asReadOnly() : null;
+    var defaultCookies = this.defaultCookies != null ? MultiValueMap.copyOf(this.defaultCookies).deepCopy().asReadOnly() : null;
 
     List<HttpMessageConverter<?>> messageConverters = initMessageConverters();
 

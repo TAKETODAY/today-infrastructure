@@ -6,10 +6,10 @@ apply from: "$rootDir/gradle/publications.gradle"
 dependencies {
   constraints {
     parent.moduleProjects.sort { "$it.name" }.each {
-      api it
+      api project(it.path)
     }
     parent.starterProjects.sort { "$it.name" }.each {
-      api it
+      api project(it.path)
     }
   }
 }

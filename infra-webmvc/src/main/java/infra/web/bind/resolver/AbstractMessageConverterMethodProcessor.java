@@ -209,11 +209,13 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
           if (headerRange != null && context.getStatus() == 200) {
             Resource resource = (Resource) value;
             try {
-              List<HttpRange> httpRanges = HttpRange.parseRanges(headerRange);
-              context.setStatus(HttpStatus.PARTIAL_CONTENT);
-              body = HttpRange.toResourceRegions(httpRanges, resource);
-              valueType = body.getClass();
-              targetType = RESOURCE_REGION_LIST_TYPE;
+              List<HttpRange> httpRanges = HttpRange.resolveRanges(context.requestHeaders(), context.responseHeaders());
+              if (!httpRanges.isEmpty()) {
+                context.setStatus(HttpStatus.PARTIAL_CONTENT);
+                body = HttpRange.toResourceRegions(httpRanges, resource);
+                valueType = body.getClass();
+                targetType = RESOURCE_REGION_LIST_TYPE;
+              }
             }
             catch (IllegalArgumentException ex) {
               context.setHeader(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());

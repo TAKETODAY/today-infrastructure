@@ -32,6 +32,19 @@ import infra.core.NamedThreadLocal;
  * by any child threads spawned by the current thread if the
  * {@code inheritable} flag is set to {@code true}.
  *
+ * <p>Note, the {@code inheritable} flag relies on JDK
+ * {@link java.lang.InheritableThreadLocal} semantics, which only propagates
+ * the context value to <em>newly created</em> child threads at the time of
+ * their creation. In thread pool environments where threads are reused across
+ * tasks, the context is not refreshed per task submission; reused threads
+ * retain whatever value was inherited when they were originally created.
+ * This mechanism is therefore not suitable for per-task context propagation
+ * in thread pool environments. Instead, consider using a
+ * {@link infra.core.task.TaskDecorator} that captures the
+ * locale context in the caller thread, applies it around each task execution,
+ * and resets it afterward. The {@code inheritable} flag works as expected
+ * with virtual threads, since those are newly created for every task.
+ *
  * <p>Used as a central holder for the current Locale in Framework,
  * wherever necessary: for example, in MessageSourceAccessor.
  * DispatcherHandler automatically exposes its current Locale here.
@@ -42,6 +55,7 @@ import infra.core.NamedThreadLocal;
  * @author Nicholas Williams
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see LocaleContext
+ * @see infra.core.task.TaskDecorator
  * @since 4.0
  */
 public final class LocaleContextHolder {
@@ -95,7 +109,9 @@ public final class LocaleContextHolder {
    * @param localeContext the current LocaleContext,
    * or {@code null} to reset the thread-bound context
    * @param inheritable whether to expose the LocaleContext as inheritable
-   * for child threads (using an {@link InheritableThreadLocal})
+   * for child threads (using an {@link InheritableThreadLocal}); note that
+   * this only propagates to newly created threads, not to threads reused
+   * in a thread pool (see the class-level note for details)
    * @see SimpleLocaleContext
    * @see SimpleTimeZoneAwareLocaleContext
    */

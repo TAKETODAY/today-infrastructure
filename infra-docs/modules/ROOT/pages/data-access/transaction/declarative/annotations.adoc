@@ -46,6 +46,26 @@ public class DefaultFooService implements FooService {
 
 当像上面这样的 POJO 类在 Infra 上下文中定义为 bean 时，您可以通过 `@Configuration` 类中的 `@EnableTransactionManagement` 注解使 bean 实例具有事务性。有关完整详细信息，请参阅 {today-framework-api}/transaction/annotation/EnableTransactionManagement.html[javadoc]。
 
+以下示例展示了启用注解驱动事务管理所需的编程式配置：
+
+[source,java]
+----
+@Configuration
+@EnableTransactionManagement
+public class AppConfig {
+
+  @Bean
+  public FooService fooService() {
+    return new DefaultFooService();
+  }
+
+  @Bean
+  public PlatformTransactionManager txManager(DataSource dataSource) {
+    return new DataSourceTransactionManager(dataSource);
+  }
+}
+----
+
 在 XML 配置中，`<tx:annotation-driven/>` 标签提供了类似的便利：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
@@ -82,7 +102,7 @@ public class DefaultFooService implements FooService {
 ----
 <1> 使 bean 实例具有事务性的行。
 
-TIP: 如果您要注入的 `TransactionManager` 的 bean 名称为 `transactionManager`，则可以省略 `<tx:annotation-driven/>` 标签中的 `transaction-manager` 属性。如果您要进行依赖注入的 `TransactionManager` bean 具有任何其他名称，则必须使用 `transaction-manager` 属性，如前面的示例所示。
+TIP: 在编程式配置中，`@EnableTransactionManagement` 注解可以使用上下文中的任意 `TransactionManager` bean。在 XML 配置中，如果您要注入的 `TransactionManager` 的 bean 名称为 `transactionManager`，则可以省略 `<tx:annotation-driven/>` 标签中的 `transaction-manager` 属性。如果该 bean 具有任何其他名称，则必须显式使用 `transaction-manager` 属性，如前面的示例所示。
 
 反应式事务方法使用反应式返回类型，这与命令式编程安排相反，如下面的清单所示：
 
@@ -146,7 +166,7 @@ public class DefaultFooService implements FooService {
 _Infra TestContext Framework_ 默认也支持非私有的 `@Transactional` 测试方法。有关示例，请参阅测试章节中的 xref:testing/testcontext-framework/tx.adoc[事务管理]。
 ====
 
-您可以将 `@Transactional` 注解应用于接口定义、接口上的方法、类定义或类上的方法。但是，仅存在 `@Transactional` 注解不足以激活事务行为。`@Transactional` 注解仅仅是元数据，可以由相应的运行时基础设施使用，该基础设施使用该元数据来配置具有事务行为的适当 bean。在前面的示例中，`<tx:annotation-driven/>` 元素在运行时开启实际的事务管理。
+您可以将 `@Transactional` 注解应用于接口定义、接口上的方法、类定义或类上的方法。但是，仅存在 `@Transactional` 注解不足以激活事务行为。`@Transactional` 注解仅仅是元数据，可以由相应的运行时基础设施使用，该基础设施使用该元数据来配置具有事务行为的适当 bean。在前面的编程式配置示例中，`@EnableTransactionManagement` 注解在运行时开启实际的事务管理；在 XML 配置示例中，则由 `<tx:annotation-driven/>` 元素开启。
 
 TIP: Infra 团队建议您使用 `@Transactional` 注解具体类的方法，而不是依赖于接口中的注解方法，即使后者在 5.0 版本中对基于接口和目标类的代理均有效。由于 Java 注解不会从接口继承，因此在使用 AspectJ 模式时，编织基础设施仍然无法识别接口声明的注解，因此切面不会被应用。结果，您的事务注解可能会被静默忽略：您的代码可能看起来“正常工作”，直到您测试回滚场景。
 

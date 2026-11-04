@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
@@ -652,7 +653,7 @@ final class AnnotationTypeMapping {
             throw new AnnotationConfigurationException(String.format(
                     "Different @AliasFor mirror values for annotation [%s]%s; attribute '%s' " +
                             "and its alias '%s' are declared with values of [%s] and [%s].",
-                    annotationType.getName(), on,
+                    ClassUtils.getCanonicalName(annotationType), on,
                     attributes[result].getName(),
                     attribute.getName(),
                     ObjectUtils.nullSafeToString(lastValue),

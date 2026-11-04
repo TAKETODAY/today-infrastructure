@@ -57,16 +57,16 @@ public abstract class AbstractCachingConfiguration implements ImportAware, BeanF
   protected AnnotationAttributes enableCaching;
 
   @Nullable
-  protected Supplier<CacheManager> cacheManager;
+  protected Supplier<@Nullable CacheManager> cacheManager;
 
   @Nullable
-  protected Supplier<CacheResolver> cacheResolver;
+  protected Supplier<@Nullable CacheResolver> cacheResolver;
 
   @Nullable
-  protected Supplier<KeyGenerator> keyGenerator;
+  protected Supplier<@Nullable KeyGenerator> keyGenerator;
 
   @Nullable
-  protected Supplier<CacheErrorHandler> errorHandler;
+  protected Supplier<@Nullable CacheErrorHandler> errorHandler;
 
   @Override
   public void setImportMetadata(AnnotationMetadata importMetadata) {
@@ -98,7 +98,6 @@ public abstract class AbstractCachingConfiguration implements ImportAware, BeanF
   /**
    * Extract the configuration from the nominated {@link CachingConfigurer}.
    */
-  @SuppressWarnings("NullAway") // https://github.com/uber/NullAway/issues/1128
   protected void useCachingConfigurer(CachingConfigurerSupplier supplier) {
     this.cacheManager = supplier.adapt(CachingConfigurer::cacheManager);
     this.cacheResolver = supplier.adapt(CachingConfigurer::cacheResolver);
@@ -108,9 +107,8 @@ public abstract class AbstractCachingConfiguration implements ImportAware, BeanF
 
   protected static class CachingConfigurerSupplier {
 
-    private final SingletonSupplier<CachingConfigurer> supplier;
+    private final SingletonSupplier<@Nullable CachingConfigurer> supplier;
 
-    @SuppressWarnings("NullAway")
     public CachingConfigurerSupplier(Supplier<@Nullable CachingConfigurer> supplier) {
       this.supplier = SingletonSupplier.ofNullable(supplier);
     }

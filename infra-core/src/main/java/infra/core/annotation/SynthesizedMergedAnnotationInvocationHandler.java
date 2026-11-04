@@ -179,7 +179,7 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
   private String toString(Object value) {
     Class<?> type = value.getClass();
     if (type.isArray()) {
-      StringBuilder builder = new StringBuilder("[");
+      StringBuilder builder = new StringBuilder("{");
       int length = Array.getLength(value);
       for (int i = 0; i < length; i++) {
         if (i > 0) {
@@ -187,11 +187,11 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
         }
         builder.append(toString(Array.get(value, i)));
       }
-      builder.append(']');
+      builder.append('}');
       return builder.toString();
     }
     if (type == String.class) {
-      return '\'' + ((String) value) + '\'';
+      return '"' + ((String) value) + '"';
     }
     if (type == Character.class) {
       return '\'' + value.toString() + '\'';

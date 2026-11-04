@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2026 the TODAY authors.
+ * Copyright 2002-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
 
 package infra.http;
 
@@ -503,6 +505,18 @@ class DefaultHttpHeadersTests {
     headers.setHeader("Test-Header", "single-value");
 
     assertThat(headers.get("Test-Header")).containsExactly("single-value");
+  }
+
+  @Test
+  void caseSensitiveOverride() {
+    DefaultHttpHeaders headers = new DefaultHttpHeaders();
+    headers.add("foo", "value");
+    headers.setHeader("Foo", "override value");
+
+    assertThat(headers.size()).isEqualTo(1);
+    assertThat(headers.names()).containsExactly("Foo");
+    assertThat(headers.getFirst("foo")).isEqualTo("override value");
+    assertThat(headers.get("foo")).containsExactly("override value");
   }
 
   @Test

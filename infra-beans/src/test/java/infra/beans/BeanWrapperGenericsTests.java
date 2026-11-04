@@ -695,7 +695,7 @@ class BeanWrapperGenericsTests {
     Number getVersion();
   }
 
-  public class Bar implements Foo {
+  public static class Bar implements Foo {
 
     private double version;
 
@@ -716,7 +716,7 @@ class BeanWrapperGenericsTests {
     void setId(T aId);
   }
 
-  public class Promotion implements ObjectWithId<Long> {
+  public static class Promotion implements ObjectWithId<Long> {
 
     private Long id;
 

@@ -696,13 +696,23 @@ public interface JsonWriter<T> {
     }
 
     private Object getValueToWrite(T extracted, JsonValueWriter valueWriter) {
-      if (this.pairs != null) {
-        return WritableJson.of((out) -> valueWriter.writePairs((pairs) -> this.pairs.accept(extracted, pairs)));
+      WritableJson writableJson = getWritableJsonToWrite(extracted, valueWriter);
+      return (writableJson != null) ? WritableJson.of(writableJson) : extracted;
+    }
+
+    private @Nullable WritableJson getWritableJsonToWrite(T extracted, JsonValueWriter valueWriter) {
+      BiConsumer<T, BiConsumer<?, ?>> pairs = this.pairs;
+      if (pairs != null) {
+        if (this.name != null) {
+          return (out) -> valueWriter.writeObject((outPairs) -> pairs.accept(extracted, outPairs));
+        }
+        return (out) -> valueWriter.writePairs((outPairs) -> pairs.accept(extracted, outPairs));
       }
-      if (this.members != null) {
-        return WritableJson.of((out) -> this.members.write(extracted, valueWriter));
+      Members<T> members = this.members;
+      if (members != null) {
+        return (out) -> members.write(extracted, valueWriter);
       }
-      return extracted;
+      return null;
     }
 
     /**

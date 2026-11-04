@@ -34,12 +34,9 @@ import infra.core.type.MethodMetadata;
  * {@code @Bean} methods (which uses the plain method name), primarily for use
  * in large applications with potential bean name overlaps. Favor this bean
  * naming strategy over {@code FullyQualifiedAnnotationBeanNameGenerator} if
- * you expect such naming conflicts for {@code @Bean} methods, as long as the
- * application does not depend on {@code @Bean} method names as bean names.
- * Where the name does matter, make sure to declare {@code @Bean("myBeanName")}
- * in such a scenario, even if it repeats the method name as the bean name.
+ * you expect such naming conflicts for {@code @Bean} methods.
  *
- *  <p>the original {@code @Bean} method name will be registered
+ * <p>The original {@code @Bean} method name will be registered
  * as an alias if that name has not been taken already: effectively on first
  * occurrence, whereas any later {@code @Bean} methods of the same name will
  * not have aliases applied. This preserves the availability of common beans

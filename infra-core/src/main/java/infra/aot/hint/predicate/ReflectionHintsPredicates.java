@@ -188,7 +188,7 @@ public class ReflectionHintsPredicates {
   }
 
   /**
-   * Return a predicate that checks whether an invocation hint is registered for the field.
+   * Return a predicate that checks whether a reflective field access hint is registered for the field.
    * This looks up a field on the given type with the expected name, if present.
    *
    * @param className the name of the class holding the field
@@ -205,7 +205,8 @@ public class ReflectionHintsPredicates {
   }
 
   /**
-   * Return a predicate that checks whether an invocation hint is registered for the given field.
+   * Return a predicate that checks whether a reflective field access hint is
+   * registered for the given field.
    *
    * @param field the field
    * @return the {@link RuntimeHints} predicate
@@ -221,13 +222,13 @@ public class ReflectionHintsPredicates {
    * for the type according to the given flag.
    *
    * @param type the type to check
-   * @param serializable whether the type is expected to be registered for Java serialization
+   * @param javaSerialization whether the type is expected to be registered for Java serialization
    * @return the {@link RuntimeHints} predicate
    * @since 5.0
    */
-  public Predicate<RuntimeHints> onJavaSerialization(Class<?> type, boolean serializable) {
+  public Predicate<RuntimeHints> onJavaSerialization(Class<?> type, boolean javaSerialization) {
     Assert.notNull(type, "'type' is required");
-    return new SerializationdHintPredicate(TypeReference.of(type), serializable);
+    return new JavaSerializationHintPredicate(TypeReference.of(type), javaSerialization);
   }
 
   /**
@@ -235,13 +236,13 @@ public class ReflectionHintsPredicates {
    * for the type according to the given flag.
    *
    * @param typeReference the type reference to check
-   * @param serializable whether the type is expected to be registered for Java serialization
+   * @param javaSerialization whether the type is expected to be registered for Java serialization
    * @return the {@link RuntimeHints} predicate
    * @since 5.0
    */
-  public Predicate<RuntimeHints> onJavaSerialization(TypeReference typeReference, boolean serializable) {
+  public Predicate<RuntimeHints> onJavaSerialization(TypeReference typeReference, boolean javaSerialization) {
     Assert.notNull(typeReference, "'typeReference' is required");
-    return new SerializationdHintPredicate(typeReference, serializable);
+    return new JavaSerializationHintPredicate(typeReference, javaSerialization);
   }
 
   public static class TypeHintPredicate implements Predicate<RuntimeHints> {
@@ -449,13 +450,18 @@ public class ReflectionHintsPredicates {
     }
   }
 
-  public static class SerializationdHintPredicate implements Predicate<RuntimeHints> {
+  /**
+   * Predicate for checking whether a type is registered for Java serialization.
+   *
+   * @since 5.0
+   */
+  public static class JavaSerializationHintPredicate implements Predicate<RuntimeHints> {
 
     private final TypeReference typeReference;
 
     private final boolean javaSerialization;
 
-    SerializationdHintPredicate(TypeReference typeReference, boolean javaSerialization) {
+    JavaSerializationHintPredicate(TypeReference typeReference, boolean javaSerialization) {
       this.typeReference = typeReference;
       this.javaSerialization = javaSerialization;
     }

@@ -35,6 +35,16 @@ class ExceptionTypeFilterTests {
   ExceptionTypeFilter filter;
 
   @Test
+  void constructorAcceptsSubtypeClassCollections() {
+    List<Class<? extends RuntimeException>> includes = List.of(RuntimeException.class);
+    List<Class<? extends RuntimeException>> excludes = List.of(IllegalStateException.class);
+    filter = new ExceptionTypeFilter(includes, excludes);
+    assertMatches(new IllegalArgumentException());
+    assertDoesNotMatch(new IllegalStateException());
+    assertDoesNotMatch(new Exception());
+  }
+
+  @Test
   void emptyFilter() {
     filter = new ExceptionTypeFilter(null, null);
 

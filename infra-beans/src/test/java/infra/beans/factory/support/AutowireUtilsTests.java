@@ -83,7 +83,7 @@ public class AutowireUtilsTests {
   public interface MyInterfaceType<T> {
   }
 
-  public class MySimpleInterfaceType implements MyInterfaceType<String> {
+  public static class MySimpleInterfaceType implements MyInterfaceType<String> {
   }
 
   public static class MyTypeWithMethods<T> {

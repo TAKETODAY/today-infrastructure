@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
+import infra.util.ClassUtils;
 import infra.lang.Contract;
 import infra.util.ConcurrentReferenceHashMap;
 
@@ -124,7 +125,8 @@ final class AnnotationTypeMappings implements Iterable<AnnotationTypeMapping> {
       AnnotationUtils.rethrowAnnotationConfigurationException(ex);
       if (failureLogger.isEnabled()) {
         failureLogger.log("Failed to introspect " + (meta ? "meta-annotation @" : "annotation @") +
-                annotationType.getName(), (source != null ? source.getAnnotationType() : null), ex);
+                ClassUtils.getCanonicalName(annotationType),
+                        (source != null ? ClassUtils.getCanonicalName(source.getAnnotationType()) : null), ex);
       }
     }
   }

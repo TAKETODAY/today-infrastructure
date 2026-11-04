@@ -63,7 +63,10 @@ public class ProtobufJsonEncoder implements HttpMessageEncoder<Message> {
   private static final ResolvableType MESSAGE_TYPE = ResolvableType.forClass(Message.class);
 
   private static final List<MimeType> defaultMimeTypes = List.of(
-          MediaType.APPLICATION_JSON, new MediaType("application", "*+json"));
+          MediaType.APPLICATION_JSON,
+          new MediaType("application", "*+json"),
+          MediaType.APPLICATION_NDJSON,
+          MediaType.APPLICATION_JSONL);
 
   private final JsonFormat.Printer printer;
 
@@ -157,7 +160,13 @@ public class ProtobufJsonEncoder implements HttpMessageEncoder<Message> {
     }
   }
 
-  /** Return a newline for streaming media types, or {@code null} for JSON arrays. */
+  /**
+   * Return the separator to use for the given mime type.
+   * <p>By default, this method returns new line {@code "\n"} if the given
+   * mime type is one of the configured {@link #getStreamingMediaTypes
+   * streaming} mime types.
+   * @since 5.0
+   */
   protected byte @Nullable [] getStreamingMediaTypeSeparator(@Nullable MimeType mimeType) {
     for (MediaType streamingMediaType : getStreamingMediaTypes()) {
       if (streamingMediaType.isCompatibleWith(mimeType)) {

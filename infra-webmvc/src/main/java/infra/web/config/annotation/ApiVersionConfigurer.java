@@ -88,9 +88,11 @@ public class ApiVersionConfigurer {
 
   /**
    * Add resolver to extract the version from a path segment.
+   * <p>Note that this resolver never returns {@code null}, and therefore
+   * cannot yield to other resolvers, see {@link PathApiVersionResolver}.
    *
-   * @param index the index of the path segment to check; e.g. for URL's like
-   * "/{version}/..." use index 0, for "/api/{version}/..." index 1.
+   * @param index the index of the path segment to check; e.g. for URLs like
+   * {@code "/{version}/..."} use index 0, for {@code "/api/{version}/..."} index 1.
    */
   public ApiVersionConfigurer usePathSegment(int index) {
     return usePathSegment(index, null);
@@ -101,7 +103,7 @@ public class ApiVersionConfigurer {
    * to determine whether a given path is versioned, providing additional
    * flexibility, and the option to resolve the version to {@code null}.
    *
-   * @param index the index of the path segment to check; e.g. for URL's like
+   * @param index the index of the path segment to check; e.g. for URLs like
    * {@code "/{version}/..."} use index 0, for {@code "/api/{version}/..."} index 1.
    * @param versionPathPredicate used to decide if a path is versioned (true)
    * or not (false).

@@ -118,7 +118,7 @@ import infra.util.function.ThrowingSupplier;
  *
  * <pre>{@code
  * @Configuration
- * public class MyApplication  {
+ * public class MyApplication {
  *
  *   // ... Bean definitions
  *
@@ -375,9 +375,7 @@ public class Application {
       throw handleRunFailure(context, e, listeners);
     }
     try {
-      if (context.isRunning()) {
-        listeners.ready(context, startup.ready());
-      }
+      listeners.ready(context, startup.ready());
       return context;
     }
     catch (Throwable ex) {
@@ -599,7 +597,7 @@ public class Application {
     }
 
     if (keepAlive) {
-      context.addApplicationListener(new KeepAlive());
+      context.addApplicationListener(new KeepAlive(context));
     }
 
     if (CollectionUtils.isNotEmpty(defaultProperties)) {
@@ -1400,7 +1398,10 @@ public class Application {
     return getExitCodeFromExitCodeGeneratorException(exception.getCause());
   }
 
-  private void callRunners(ApplicationContext context, ApplicationArguments args) {
+  private void callRunners(ConfigurableApplicationContext context, ApplicationArguments args) {
+    if (!context.isRunning()) {
+      return;
+    }
     HashSet<ApplicationRunner> called = new HashSet<>(16);
     for (ApplicationRunner runner : context.getBeanProvider(ApplicationRunner.class)) {
       if (called.add(runner)) {
@@ -1809,10 +1810,19 @@ public class Application {
    */
   private static final class KeepAlive implements ApplicationListener<ApplicationContextEvent> {
 
+    private final ApplicationContext applicationContext;
+
     private final AtomicReference<@Nullable Thread> thread = new AtomicReference<>();
+
+    KeepAlive(ApplicationContext applicationContext) {
+      this.applicationContext = applicationContext;
+    }
 
     @Override
     public void onApplicationEvent(ApplicationContextEvent event) {
+      if (event.getApplicationContext() != this.applicationContext) {
+        return;
+      }
       if (event instanceof ContextRefreshedEvent) {
         startKeepAliveThread();
       }

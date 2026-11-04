@@ -23,6 +23,8 @@ import infra.core.Ordered;
 import infra.core.env.Environment;
 import infra.util.DataSize;
 import infra.util.PropertyMapper;
+import infra.web.config.WebProperties;
+import infra.web.config.WebProperties.ForwardedHeaders;
 import infra.web.reactor.netty.ReactorNettyReactiveWebServerFactory;
 import infra.web.reactor.netty.ReactorServerProperties;
 import infra.web.server.Http2;
@@ -39,18 +41,21 @@ import io.netty.channel.ChannelOption;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ReactorNettyWebServerFactoryCustomizer
-        implements WebServerFactoryCustomizer<ReactorNettyReactiveWebServerFactory>, Ordered {
+public class ReactorNettyWebServerFactoryCustomizer implements WebServerFactoryCustomizer<ReactorNettyReactiveWebServerFactory>, Ordered {
 
   private final Environment environment;
 
   private final ServerProperties serverProperties;
 
+  private final WebProperties webProperties;
+
   private final ReactorServerProperties reactor;
 
-  public ReactorNettyWebServerFactoryCustomizer(Environment environment, ServerProperties serverProperties, ReactorServerProperties reactorProperties) {
+  public ReactorNettyWebServerFactoryCustomizer(Environment environment, ServerProperties serverProperties,
+          WebProperties webProperties, ReactorServerProperties reactorProperties) {
     this.environment = environment;
     this.serverProperties = serverProperties;
+    this.webProperties = webProperties;
     this.reactor = reactorProperties;
   }
 
@@ -61,7 +66,10 @@ public class ReactorNettyWebServerFactoryCustomizer
 
   @Override
   public void customize(ReactorNettyReactiveWebServerFactory factory) {
-    factory.setUseForwardHeaders(getOrDeduceUseForwardHeaders());
+    if (getOrDeduceUseForwardHeaders()) {
+      configureForwardedSupport(factory);
+    }
+
     PropertyMapper map = PropertyMapper.get();
 
     map.from(reactor.idleTimeout).to(idleTimeout -> customizeIdleTimeout(factory, idleTimeout));
@@ -88,6 +96,15 @@ public class ReactorNettyWebServerFactoryCustomizer
       return platform != null && platform.isUsingForwardHeaders();
     }
     return this.serverProperties.forwardHeadersStrategy.equals(ServerProperties.ForwardHeadersStrategy.NATIVE);
+  }
+
+  private void configureForwardedSupport(ReactorNettyReactiveWebServerFactory factory) {
+    ForwardedHeaders forwardedHeaders = webProperties.forwardedHeaders;
+    switch (forwardedHeaders.headerFormat) {
+      case X_FORWARDED -> factory.setUseForwardHeaders(true);
+      case STANDARD -> factory.setUseRfcForwardHeader(true);
+    }
+    factory.setUseForwardedPrefix(forwardedHeaders.useForwardedPrefix);
   }
 
   private void customizeConnectionTimeout(ReactorNettyReactiveWebServerFactory factory, Duration connectionTimeout) {

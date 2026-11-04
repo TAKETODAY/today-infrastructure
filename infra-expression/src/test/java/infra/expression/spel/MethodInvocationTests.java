@@ -20,7 +20,6 @@ package infra.expression.spel;
 
 import org.junit.jupiter.api.Test;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
@@ -211,7 +210,7 @@ class MethodInvocationTests extends AbstractExpressionTests {
 
     // check de-registration works
     filter.filterCalled = false;
-    context.registerMethodFilter(TestObject.class, null);//clear filter
+    context.registerMethodFilter(TestObject.class, null); // clear filter
     context.setRootObject(new TestObject());
     expr = (SpelExpression) parser.parseExpression("doit(1)");
     result = expr.getValue(context, String.class);
@@ -450,32 +449,20 @@ class MethodInvocationTests extends AbstractExpressionTests {
   // Simple filter
   static class LocalFilter implements MethodFilter {
 
-    public boolean removeIfNotAnnotated = false;
+    boolean removeIfNotAnnotated = false;
 
-    public boolean filterCalled = false;
+    boolean filterCalled = false;
 
     private boolean isAnnotated(Method method) {
-      Annotation[] anns = method.getAnnotations();
-      if (anns == null) {
-        return false;
-      }
-      for (Annotation ann : anns) {
-        String name = ann.annotationType().getName();
-        if (name.endsWith("Anno")) {
-          return true;
-        }
-      }
-      return false;
+      return method.isAnnotationPresent(Anno.class);
     }
 
     @Override
     public List<Method> filter(List<Method> methods) {
-      filterCalled = true;
+      this.filterCalled = true;
       List<Method> forRemoval = new ArrayList<>();
-      for (Method method : methods) {
-        if (removeIfNotAnnotated && !isAnnotated(method)) {
-          forRemoval.add(method);
-        }
+      if (this.removeIfNotAnnotated) {
+        methods.stream().filter(method -> !isAnnotated(method)).forEach(forRemoval::add);
       }
       for (Method method : forRemoval) {
         methods.remove(method);

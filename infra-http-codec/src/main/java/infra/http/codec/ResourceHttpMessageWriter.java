@@ -218,7 +218,7 @@ public class ResourceHttpMessageWriter implements HttpMessageWriter<Resource> {
 
     List<HttpRange> ranges;
     try {
-      ranges = request.getHeaders().getRange();
+      ranges = HttpRange.resolveRanges(request.getHeaders(), response.getHeaders());
     }
     catch (IllegalArgumentException ex) {
       return handleInvalidRange(response);

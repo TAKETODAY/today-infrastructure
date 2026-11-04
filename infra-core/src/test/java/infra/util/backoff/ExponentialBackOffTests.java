@@ -26,8 +26,13 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 /**
+ * Tests for {@link ExponentialBackOff}.
+ *
+ * @author Stephane Nicoll
+ * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/27 11:33
  */
@@ -112,6 +117,53 @@ class ExponentialBackOffTests {
     ExponentialBackOff backOff = new ExponentialBackOff();
     assertThatIllegalArgumentException().isThrownBy(() ->
             backOff.setMultiplier(0.9));
+  }
+
+  @Test
+  void jitterWithZeroInitialInterval() {
+    ExponentialBackOff backOff = new ExponentialBackOff();
+    backOff.setInitialInterval(0);
+    backOff.setJitter(100);
+    BackOffExecution execution = backOff.start();
+
+    // 'initialInterval = 0' and 'jitter > 0' are both individually accepted
+    // configurations, so their combination must not throw.
+    assertThatNoException().isThrownBy(execution::nextBackOff);
+  }
+
+  @Test
+  void jitterScalesProportionallyWithInterval() {
+    ExponentialBackOff backOff = new ExponentialBackOff();
+    backOff.setJitter(100);
+    BackOffExecution execution = backOff.start();
+
+    // Default: initialInterval=2000, multiplier=1.5
+    // Attempt 1: interval=2000, scale=1.0, applicableJitter=100
+    assertThat(execution.nextBackOff()).isBetween(2000L, 2099L);
+    // Attempt 2: interval=3000, scale=1.5, applicableJitter=150
+    assertThat(execution.nextBackOff()).isBetween(2850L, 3149L);
+    // Attempt 3: interval=4500, scale=2.25, applicableJitter=225
+    assertThat(execution.nextBackOff()).isBetween(4275L, 4724L);
+  }
+
+  @Test
+  void jitterDefaultsToZeroAndRejectsNegativeValues() {
+    ExponentialBackOff backOff = new ExponentialBackOff();
+    assertThat(backOff.getJitter()).isZero();
+    assertThatIllegalArgumentException().isThrownBy(() -> backOff.setJitter(-1))
+            .withMessage("Invalid jitter '-1': must be >= 0.");
+  }
+
+  @Test
+  void jitterRemainsWithinMaximumInterval() {
+    ExponentialBackOff backOff = new ExponentialBackOff(100, 2);
+    backOff.setJitter(50);
+    backOff.setMaxInterval(200);
+    BackOffExecution execution = backOff.start();
+    assertThat(execution.nextBackOff()).isBetween(100L, 149L);
+    for (int i = 0; i < 20; i++) {
+      assertThat(execution.nextBackOff()).isBetween(100L, 199L);
+    }
   }
 
   @Test

@@ -273,7 +273,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   @Override
   public void start() {
     this.stoppedBeans = null;
-    startBeans(false);
+    startBeans(StartMode.ALL);
     // If any bean failed to explicitly start, the exception propagates here.
     // The caller may choose to subsequently call stop() if appropriate.
     this.running = true;
@@ -289,7 +289,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
    */
   @Override
   public void stop() {
-    stopBeans(false);
+    stopBeans(StopMode.ALL);
     this.running = false;
   }
 
@@ -305,12 +305,12 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 
     this.stoppedBeans = null;
     try {
-      startBeans(true);
+      startBeans(StartMode.REFRESH);
     }
     catch (ApplicationContextException ex) {
       // Some bean failed to auto-start within context refresh:
       // stop already started beans on context refresh failure.
-      stopBeans(false);
+      stopBeans(StopMode.ALL);
       throw ex;
     }
     this.running = true;
@@ -318,7 +318,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 
   @Override
   public void onClose() {
-    stopBeans(false);
+    stopBeans(StopMode.ALL);
     this.running = false;
   }
 
@@ -326,16 +326,16 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   public void onRestart() {
     this.stoppedBeans = null;
     if (this.running) {
-      stopBeans(true);
+      stopBeans(StopMode.PAUSE);
     }
-    startBeans(true);
+    startBeans(StartMode.RESTART);
     this.running = true;
   }
 
   @Override
   public void onPause() {
     if (this.running) {
-      stopBeans(true);
+      stopBeans(StopMode.PAUSE);
       this.running = false;
     }
   }
@@ -350,29 +350,29 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   void stopForRestart() {
     if (this.running) {
       this.stoppedBeans = ConcurrentHashMap.newKeySet();
-      stopBeans(false);
+      stopBeans(StopMode.ALL);
       this.running = false;
     }
   }
 
   void restartAfterStop() {
     if (this.stoppedBeans != null) {
-      startBeans(true);
+      startBeans(StartMode.RESTART);
       this.stoppedBeans = null;
       this.running = true;
     }
   }
 
-  private void startBeans(boolean autoStartupOnly) {
+  private void startBeans(StartMode startMode) {
     var lifecycleBeans = getLifecycleBeans();
     var phases = new TreeMap<Integer, LifecycleGroup>();
 
     for (var entry : lifecycleBeans.entrySet()) {
       String beanName = entry.getKey();
       Lifecycle bean = entry.getValue();
-      if (!autoStartupOnly || isAutoStartupCandidate(beanName, bean)) {
+      if (startMode == StartMode.ALL || isAutoStartupCandidate(beanName, bean)) {
         int startupPhase = getPhase(bean);
-        phases.computeIfAbsent(startupPhase, phase -> new LifecycleGroup(phase, lifecycleBeans, autoStartupOnly, false))
+        phases.computeIfAbsent(startupPhase, phase -> new LifecycleGroup(phase, lifecycleBeans, startMode))
                 .add(beanName, bean);
       }
     }
@@ -398,32 +398,37 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
    * @param beanName the name of the bean to start
    */
   private void doStart(Map<String, ? extends Lifecycle> lifecycleBeans, String beanName,
-          boolean autoStartupOnly, @Nullable List<Future<?>> futures) {
+          StartMode startMode, @Nullable List<Future<?>> futures) {
 
     Lifecycle bean = lifecycleBeans.remove(beanName);
     if (bean != null && bean != this) {
       String[] dependenciesForBean = getBeanFactory().getDependenciesForBean(beanName);
       for (String dependency : dependenciesForBean) {
-        doStart(lifecycleBeans, dependency, autoStartupOnly, futures);
+        doStart(lifecycleBeans, dependency, startMode, futures);
       }
 
-      if (!bean.isRunning() && (!autoStartupOnly || toBeStarted(beanName, bean))) {
+      if (!bean.isRunning() && (startMode == StartMode.ALL || toBeStarted(beanName, bean))) {
         if (futures != null) {
-          futures.add(Future.run(() -> doStart(beanName, bean), getBootstrapExecutor()));
+          futures.add(Future.run(() -> doStart(beanName, bean, startMode), getBootstrapExecutor()));
         }
         else {
-          doStart(beanName, bean);
+          doStart(beanName, bean, startMode);
         }
       }
     }
   }
 
-  private void doStart(String beanName, Lifecycle bean) {
+  private void doStart(String beanName, Lifecycle bean, StartMode startMode) {
     if (log.isTraceEnabled()) {
       log.trace("Starting bean '{}' of type [{}]", beanName, bean.getClass().getName());
     }
     try {
-      bean.start();
+      if (startMode == StartMode.RESTART && bean instanceof SmartLifecycle smartLifecycle) {
+        smartLifecycle.restart();
+      }
+      else {
+        bean.start();
+      }
     }
     catch (Throwable ex) {
       throw new ApplicationContextException("Failed to start bean '%s'".formatted(beanName), ex);
@@ -438,13 +443,13 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
             (!(bean instanceof SmartLifecycle smartLifecycle) || smartLifecycle.isAutoStartup()));
   }
 
-  private void stopBeans(boolean pausableOnly) {
+  private void stopBeans(StopMode stopMode) {
     Map<String, Lifecycle> lifecycleBeans = getLifecycleBeans();
     Map<Integer, LifecycleGroup> phases = new TreeMap<>(Comparator.reverseOrder());
 
     lifecycleBeans.forEach((beanName, bean) -> {
       int shutdownPhase = getPhase(bean);
-      phases.computeIfAbsent(shutdownPhase, phase -> new LifecycleGroup(phase, lifecycleBeans, false, pausableOnly))
+      phases.computeIfAbsent(shutdownPhase, phase -> new LifecycleGroup(phase, lifecycleBeans, stopMode))
               .add(beanName, bean);
     });
 
@@ -461,13 +466,13 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
    * @param beanName the name of the bean to stop
    */
   private void doStop(Map<String, ? extends Lifecycle> lifecycleBeans, final String beanName,
-          final CountDownLatch latch, final Set<String> countDownBeanNames, boolean pausableOnly) {
+          StopMode stopMode, final CountDownLatch latch, final Set<String> countDownBeanNames) {
 
     Lifecycle bean = lifecycleBeans.remove(beanName);
     if (bean != null) {
       String[] dependentBeans = getBeanFactory().getDependentBeans(beanName);
       for (String dependentBean : dependentBeans) {
-        doStop(lifecycleBeans, dependentBean, latch, countDownBeanNames, pausableOnly);
+        doStop(lifecycleBeans, dependentBean, stopMode, latch, countDownBeanNames);
       }
       try {
         if (bean.isRunning()) {
@@ -476,25 +481,31 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
             stoppedBeans.add(beanName);
           }
           if (bean instanceof SmartLifecycle smartLifecycle) {
-            if (!pausableOnly || smartLifecycle.isPausable()) {
+            if (stopMode == StopMode.ALL || smartLifecycle.isPausable()) {
               if (log.isTraceEnabled()) {
                 log.trace("Asking bean '{}' of type [{}] to stop", beanName, bean.getClass().getName());
               }
               countDownBeanNames.add(beanName);
-              smartLifecycle.stop(() -> {
+              Runnable callback = () -> {
                 latch.countDown();
                 countDownBeanNames.remove(beanName);
                 if (log.isDebugEnabled()) {
                   log.debug("Bean '{}' completed its stop procedure", beanName);
                 }
-              });
+              };
+              if (stopMode == StopMode.PAUSE) {
+                smartLifecycle.pause(callback);
+              }
+              else {
+                smartLifecycle.stop(callback);
+              }
             }
             else {
               // Don't wait for beans that aren't pauseable...
               latch.countDown();
             }
           }
-          else if (!pausableOnly) {
+          else if (stopMode == StopMode.ALL) {
             if (log.isTraceEnabled()) {
               log.trace("Stopping bean '{}' of type [{}]", beanName, bean.getClass().getName());
             }
@@ -565,6 +576,12 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
     return bean instanceof Phased phased ? phased.getPhase() : 0;
   }
 
+  // Enums for internal start/stop delegation.
+
+  private enum StartMode { ALL, REFRESH, RESTART }
+
+  private enum StopMode { ALL, PAUSE }
+
   /**
    * Helper class for maintaining a group of Lifecycle beans that should be started
    * and stopped together based on their 'phase' value (or the default value of 0).
@@ -577,20 +594,26 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 
     private final Map<String, ? extends Lifecycle> lifecycleBeans;
 
-    private final boolean autoStartupOnly;
+    private final StartMode startMode;
 
-    private final boolean pausableOnly;
+    private final StopMode stopMode;
 
     private final ArrayList<LifecycleGroupMember> members = new ArrayList<>();
 
     private int smartMemberCount;
 
-    public LifecycleGroup(int phase, Map<String, ? extends Lifecycle> lifecycleBeans,
-            boolean autoStartupOnly, boolean pausableOnly) {
+    public LifecycleGroup(int phase, Map<String, ? extends Lifecycle> lifecycleBeans, StartMode startMode) {
       this.phase = phase;
       this.lifecycleBeans = lifecycleBeans;
-      this.autoStartupOnly = autoStartupOnly;
-      this.pausableOnly = pausableOnly;
+      this.startMode = startMode;
+      this.stopMode = StopMode.ALL;
+    }
+
+    public LifecycleGroup(int phase, Map<String, ? extends Lifecycle> lifecycleBeans, StopMode stopMode) {
+      this.phase = phase;
+      this.lifecycleBeans = lifecycleBeans;
+      this.startMode = StartMode.ALL;
+      this.stopMode = stopMode;
     }
 
     public void add(String name, Lifecycle bean) {
@@ -609,7 +632,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
       Long concurrentStartup = determineConcurrentStartup(phase);
       List<Future<?>> futures = concurrentStartup != null ? new ArrayList<>() : null;
       for (LifecycleGroupMember member : members) {
-        doStart(lifecycleBeans, member.name, autoStartupOnly, futures);
+        doStart(lifecycleBeans, member.name, startMode, futures);
       }
       if (concurrentStartup != null && CollectionUtils.isNotEmpty(futures)) {
         try {
@@ -639,7 +662,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
       HashSet<String> lifecycleBeanNames = new HashSet<>(lifecycleBeans.keySet());
       for (LifecycleGroupMember member : members) {
         if (lifecycleBeanNames.contains(member.name)) {
-          doStop(lifecycleBeans, member.name, latch, countDownBeanNames, pausableOnly);
+          doStop(lifecycleBeans, member.name, stopMode, latch, countDownBeanNames);
         }
         else if (member.bean instanceof SmartLifecycle) {
           // Already removed: must have been a dependent bean from another phase

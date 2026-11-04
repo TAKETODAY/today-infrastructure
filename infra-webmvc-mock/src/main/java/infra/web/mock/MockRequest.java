@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2026 the TODAY authors.
+ * Copyright 2002-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
 
 package infra.web.mock;
 
@@ -49,6 +51,7 @@ import infra.core.DefaultAttributeAccessor;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.lang.Constant;
+import infra.lang.Contract;
 import infra.session.Session;
 import infra.util.Assert;
 import infra.util.LinkedCaseInsensitiveMap;
@@ -543,7 +546,7 @@ public class MockRequest extends DefaultAttributeAccessor {
     return Collections.enumeration(this.parameters.keySet());
   }
 
-  public String[] getParameterValues(String name) {
+  public String @Nullable [] getParameterValues(String name) {
     Assert.notNull(name, "Parameter name is required");
     return this.parameters.get(name);
   }
@@ -847,7 +850,7 @@ public class MockRequest extends DefaultAttributeAccessor {
     return this.authType;
   }
 
-  public void setCookies(@Nullable Cookie... cookies) {
+  public void setCookies(Cookie @Nullable ... cookies) {
     this.cookies = (ObjectUtils.isEmpty(cookies) ? null : cookies);
     if (this.cookies == null) {
       removeHeader(HttpHeaders.COOKIE);
@@ -1112,6 +1115,7 @@ public class MockRequest extends DefaultAttributeAccessor {
     }
   }
 
+  @Contract("true -> !null")
   public @Nullable Session getSession(boolean create) {
     checkActive();
     // Reset session if invalidated.

@@ -248,7 +248,7 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
       Assert.state(this.sslBundles != null, "sslBundles is required");
       HashMap<String, SslBundle> ret = new HashMap<>();
       for (var pair : ssl.serverNameBundles) {
-        ret.put(pair.getServerName(), sslBundles.getBundle(pair.getBundle()));
+        ret.put(pair.serverName(), sslBundles.getBundle(pair.bundle()));
       }
       return ret;
     }
@@ -262,7 +262,7 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
     if (sslBundles != null) {
       addBundleUpdateHandler(sslBundles, null, ssl.bundle, updateHandler);
       for (var pair : ssl.serverNameBundles) {
-        addBundleUpdateHandler(sslBundles, pair.getServerName(), pair.getBundle(), updateHandler);
+        addBundleUpdateHandler(sslBundles, pair.serverName(), pair.bundle(), updateHandler);
       }
     }
   }

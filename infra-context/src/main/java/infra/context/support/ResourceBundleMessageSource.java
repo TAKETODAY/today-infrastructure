@@ -65,7 +65,7 @@ import infra.util.ClassUtils;
  * this to UTF-8, or to {@code null} for the platform default encoding. On the JDK 9+
  * module path where locally provided {@code ResourceBundle.Control} handles are not
  * supported, this MessageSource always falls back to {@link ResourceBundle#getBundle}
- * retrieval with the platform default encoding: UTF-8 with a ISO-8859-1 fallback on
+ * retrieval with the platform default encoding: UTF-8 with an ISO-8859-1 fallback on
  * JDK 9+ (configurable through the "java.util.PropertyResourceBundle.encoding" system
  * property). Note that {@link #loadBundle(Reader)}/{@link #loadBundle(InputStream)}
  * won't be called in this case either, effectively ignoring overrides in subclasses.

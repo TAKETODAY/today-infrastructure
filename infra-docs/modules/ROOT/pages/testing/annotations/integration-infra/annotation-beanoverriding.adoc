@@ -14,7 +14,7 @@ Infra 测试框架提供了下面介绍的两组注解。一组纯粹依赖于 I
 
 默认情况下，bean 名称和关联的静态方法名称派生自被注解的字段名称，但该注解允许提供特定值。
 
-`@TestBean` 注解使用 `REPLACE_DEFINITION` xref:#infra-testing-annotation-beanoverriding-extending[测试 bean 覆盖策略]。
+`@TestBean` 注解使用 `REPLACE` xref:#infra-testing-annotation-beanoverriding-extending[测试 bean 覆盖策略]。
 
 以下示例展示了如何完全配置 `@TestBean` 注解，使用等同于默认值的显式值：
 
@@ -41,6 +41,11 @@ class OverrideBeanTests {
 
 注意：要调用的方法会在测试类及其可能拥有的任何封闭类以及其层次结构中搜索。这通常允许嵌套测试类依赖于根测试类中使用的方法。
 
+[NOTE]
+====
+`@TestBean` 使用 `REPLACE` xref:#infra-testing-annotation-beanoverriding-extending[测试 bean 覆盖策略]，该策略将工厂方法返回的值直接注册为 bean，绕过容器的常规 bean 后处理。因此，原本可能应用于原始 bean 的 AOP 通知（例如 `@Transactional` 或 `@Cacheable`）不会出现在覆盖实例上。详情参见 <<infra-testing-annotation-beanoverriding-aop-proxies,Bean 覆盖与 AOP 代理>>。
+====
+
 [[infra-testing-annotation-beanoverriding-mockitobean]]
 == `@MockitoBean` 和 `@MockitoSpyBean`
 
@@ -48,9 +53,9 @@ class OverrideBeanTests {
 
 默认情况下，要覆盖的 bean 名称派生自被注解的字段名称，但这两种注解都允许提供特定的 `name`。每个注解还定义了 Mockito 特定的属性以微调 mock 细节。
 
-`@MockitoBean` 注解使用 `CREATE_OR_REPLACE_DEFINITION` xref:#infra-testing-annotation-beanoverriding-extending[测试 bean 覆盖策略]。
+`@MockitoBean` 注解使用 `REPLACE_OR_CREATE` xref:#infra-testing-annotation-beanoverriding-extending[测试 bean 覆盖策略]。
 
-`@MockitoSpyBean` 注解使用 `WRAP_EARLY_BEAN` xref:#infra-testing-annotation-beanoverriding-extending[策略]，并且原始实例被包装在 Mockito spy 中。
+`@MockitoSpyBean` 注解使用 `WRAP` xref:#infra-testing-annotation-beanoverriding-extending[策略]，并且原始实例被包装在 Mockito spy 中。如果原始 bean 会被 AOP 代理包装，则该代理仍会围绕 spy 创建，注入到测试类和 `ApplicationContext` 中其他 bean 的是代理而不是 spy。详见 <<infra-testing-annotation-beanoverriding-mockitospybean-aop-proxies,`@MockitoSpyBean` 与 AOP 代理>>。
 
 以下示例展示了如何为 `@MockitoBean` 和 `@MockitoSpyBean` 注解配置 bean 名称：
 
@@ -94,9 +99,121 @@ Infra TestContext 框架包含支持 bean 覆盖的基础设施类：`BeanFactor
 
 然后，`BeanOverrideBeanFactoryPostProcessor` 将使用该信息来更改上下文，根据每个元数据 `BeanOverrideStrategy` 的定义注册和替换 bean 定义：
 
- - `REPLACE_DEFINITION`：替换 bean 定义。如果上下文中不存在，则抛出异常。
- - `CREATE_OR_REPLACE_DEFINITION`：如果 bean 定义不存在则替换 bean 定义，或者如果不存在则创建一个。
- - `WRAP_BEAN`：尽早获取原始实例以便将其包装。
+ - `REPLACE`：替换 bean 定义。如果上下文中不存在，则抛出异常。
+ - `REPLACE_OR_CREATE`：如果 bean 定义不存在则替换 bean 定义，或者如果不存在则创建一个。
+ - `WRAP`：尽早获取原始实例以便将其包装。
 
 注意：Bean 覆盖基础设施不包含任何 bean 解析步骤，这与 `@Autowired` 注解的字段不同。因此，要覆盖的 bean 的名称必须以某种方式提供给 `BeanOverrideProcessor` 或由其计算。
 通常，用户以某种方式提供名称。
+
+[[infra-testing-annotation-beanoverriding-aop-proxies]]
+== Bean 覆盖与 AOP 代理
+
+`ApplicationContext` 中的 bean 经常被 AOP 代理包装——例如为了支持 `@Transactional` 或 `@Cacheable` 语义。覆盖后的 bean 是否保留此类代理，取决于创建覆盖时使用的 `BeanOverrideStrategy`。
+
+- 使用 `REPLACE` 或 `REPLACE_OR_CREATE` 策略的覆盖（例如 `@TestBean` 和 `@MockitoBean`）将覆盖实例直接注册为手动单例，绕过容器的常规 bean 后处理。因此覆盖实例是裸对象：原本会应用于原始 bean 的 AOP 通知（`@Transactional`、`@Cacheable`、方法安全等）都不存在。
+- 使用 `WRAP` 策略的覆盖（例如 `@MockitoSpyBean`）会提前获取原始 bean 的引用，并在容器其余后处理器（包括负责创建 AOP 代理的后处理器）运行之前将其包装。因此，如果原始 bean 会被代理，该代理仍会创建，但目标变成覆盖实例而不是原始 bean。最终进入 `ApplicationContext` 并注入协作 bean 和测试类的，是包装覆盖实例的代理，而不是裸覆盖实例本身。
+
+将 bean 覆盖与 Mockito 的打桩和验证 API 结合时，这一区别会产生实际影响。详见 <<infra-testing-annotation-beanoverriding-mockitospybean-aop-proxies,`@MockitoSpyBean` 与 AOP 代理>>。
+
+[[infra-testing-annotation-beanoverriding-mockitospybean-aop-proxies]]
+== `@MockitoSpyBean` 与 AOP 代理
+
+如 <<infra-testing-annotation-beanoverriding-aop-proxies,Bean 覆盖与 AOP 代理>> 所述，如果被 spy 的 bean 通常会被 AOP 代理包装——例如由于 `@Transactional` 或 `@Cacheable`——该代理仍会创建，并以 spy 作为其目标。因此注入到测试类以及 `ApplicationContext` 中其他 bean 的是代理，而不是 spy 本身。
+
+Mockito 的 `verify()` API 不受影响：无论对代理还是底层 spy 调用，验证都透明进行。
+
+[[infra-testing-annotation-beanoverriding-mockitospybean-aop-proxies-stubbing]]
+=== 通过代理打桩
+
+打桩比验证更需要小心，因为在代理上调用 `Mockito.doReturn(...).when(...)`、`Mockito.doThrow(...).when(...)` 及类似方法时，行为会因所涉及的 AOP 通知类型而异。
+
+在调用之间不保留状态的通知（例如事务通知）不会对打桩产生不利影响。以下打桩序列在代理上调用时，与直接在底层 spy 上调用完全一致。
+
+[tabs]
+======
+Java::
++
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+  doReturn("ok")
+      .doThrow(new RuntimeException("Message delivery failed"))
+      .doReturn("ok again")
+      .when(clientService).sendMessage(any()); // <1>
+----
+<1> `clientService` 是注入的代理。由于事务通知是无状态透传，每次调用（包括抛出异常的那次）都直接到达 spy。
+======
+
+会缓存或以其他方式记忆调用结果的通知（例如 `@Cacheable`）则不然。在记录 `doReturn(...)`、`doThrow(...)` 或类似声明时，Mockito 不会调用 spy 的真实行为或先前打桩的行为；用于声明打桩的那次调用会返回空值（例如 `null`）。如果该调用发生在代理上，缓存通知会把这个空值缓存起来，从而针对该参数组合永久遮蔽 spy——包括本应用于配置打桩的那次调用。
+
+[tabs]
+======
+Java::
++
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+  doReturn(1L).when(dateService).getDate(false); // <1>
+  dateService.getDate(false); // <2>
+----
+<1> `dateService` 是注入的代理。该调用在到达 spy 之前被 Mockito 的打桩基础设施拦截，因此缓存通知为参数 `false` 缓存了一个空值。
+<2> 由于缓存已被填充，这里返回前一次调用缓存的空值，而不是 `1L`。
+======
+
+要避免这种情况，应直接对 spy 打桩，而不是对代理打桩，可通过
+{today-framework-api}/test/util/AopTestUtils.html#getUltimateTargetObject(java.lang.Object)[`AopTestUtils.getUltimateTargetObject(...)`]
+解开代理：
+
+[tabs]
+======
+Java::
++
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+  DateService spy = AopTestUtils.getUltimateTargetObject(dateService);
+  doReturn(1L).when(spy).getDate(false);
+----
+======
+
+[[infra-testing-annotation-beanoverriding-mockitospybean-aop-proxies-disabling]]
+=== 在测试中禁用 AOP 通知
+
+除了按上述方式绕过代理，你也可以在测试期间禁用底层 AOP 通知，同时在生产代码中保留 `@Cacheable` 或类似注解。常见原因包括完全避免缓存，使每次调用都直接到达 spy——这也会绕过上面描述的打桩陷阱，而无需解开代理。
+
+通用做法是把控制通知实际行为的内容外部化——例如支撑 `@Cacheable` 的 `CacheManager`——并仅在测试中覆盖该配置，通常通过 bean 覆盖或测试专用属性实现。代理及其通知仍会创建，只是其行为在测试中被设为无操作或纯透传。
+
+对于 `@Cacheable`，Infra 提供
+{today-framework-api}/cache/support/NoOpCacheManager.html[`NoOpCacheManager`]——一个接受缓存条目但从不真正存储它们的 `CacheManager`，因此每次调用都会缓存未命中并调用目标方法。用 `NoOpCacheManager` 覆盖 `CacheManager` bean——例如通过 <<infra-testing-annotation-beanoverriding-testbean,`@TestBean`>>——即可在不改动生产代码中 `@Cacheable` 注解的情况下为测试禁用缓存。
+
+[tabs]
+======
+Java::
++
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+  @JUnitConfig
+  class DateServiceTests {
+
+    @MockitoSpyBean
+    DateService dateService;
+
+    @TestBean // <1>
+    CacheManager cacheManager;
+
+    static CacheManager cacheManager() { // <2>
+      return new NoOpCacheManager();
+    }
+
+    @Test
+    void test() {
+      doReturn(1L).when(dateService).getDate(false);
+      assertThat(dateService.getDate(false)).isEqualTo(1L);
+
+      doReturn(2L).when(dateService).getDate(false);
+      assertThat(dateService.getDate(false)).isEqualTo(2L); // <3>
+    }
+  }
+----
+<1> 为该测试覆盖 `CacheManager` bean。
+<2> 替换为 `NoOpCacheManager`，这样 `@Cacheable` 不会真正缓存任何内容。
+<3> 不再被过期的缓存条目遮蔽，因为每次调用都到达 spy。
+======

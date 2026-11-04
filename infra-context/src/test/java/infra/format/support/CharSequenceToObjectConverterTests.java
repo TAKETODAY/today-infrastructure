@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import infra.core.TypeDescriptor;
@@ -71,6 +72,19 @@ class CharSequenceToObjectConverterTests {
     TypeDescriptor targetType = TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(String.class));
     List<String> conveted = (List<String>) conversionService.convert(source, sourceType, targetType);
     assertThat(conveted).containsExactly("1", "2", "3");
+  }
+
+  @Test
+  void convertWhenRecursiveCallIsNeededDoesNotPolluteCache() {
+    TypeDescriptor sourceType = TypeDescriptor.valueOf(StringBuilder.class);
+    TypeDescriptor integerType = TypeDescriptor.valueOf(Integer.class);
+    TypeDescriptor setOfIntegerType = TypeDescriptor.collection(Set.class, TypeDescriptor.valueOf(Integer.class));
+    ConversionService conversionService = new ApplicationConversionService();
+    assertThat(conversionService.canConvert(sourceType, integerType)).isTrue();
+    assertThat(conversionService.canConvert(sourceType, setOfIntegerType)).isTrue();
+    conversionService = new ApplicationConversionService();
+    assertThat(conversionService.canConvert(sourceType, setOfIntegerType)).isTrue();
+    assertThat(conversionService.canConvert(sourceType, integerType)).isTrue();
   }
 
   static Stream<? extends Arguments> conversionServices() {

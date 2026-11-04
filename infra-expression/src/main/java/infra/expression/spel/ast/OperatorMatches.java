@@ -104,6 +104,7 @@ public class OperatorMatches extends Operator {
     }
 
     try {
+      state.trackOperation();
       Pattern pattern = this.patternCache.get(regex);
       Matcher matcher = pattern.matcher(new MatcherInput(input, new AccessCount()));
       return BooleanTypedValue.forValue(matcher.matches());

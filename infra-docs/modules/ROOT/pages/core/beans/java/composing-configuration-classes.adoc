@@ -357,6 +357,15 @@ public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata)
 
 有关更多详细信息，请参阅 {today-framework-api}/context/annotation/Conditional.html[`@Conditional`] javadoc。
 
+[NOTE]
+====
+声明在外层 `@Configuration` 类上的 `@Conditional`，只有在嵌套的 `@Configuration`
+类经由解析器从其外层类递归到达，或通过 `@Import` 引入时，才会限制该嵌套类的注册。
+如果嵌套类独立于其外层类被发现，例如通过 `@ComponentScan` 或直接将嵌套类注册到
+应用上下文，则仅使用其自身的 `@Conditional` 注解进行处理。此时，如果希望施加相同的
+门控条件，需要在嵌套类上重新声明相关条件，或将它们提取为同时应用于两者的组合注解。
+====
+
 [[beans-java-combining]]
 == 结合 Java 和 XML 配置
 

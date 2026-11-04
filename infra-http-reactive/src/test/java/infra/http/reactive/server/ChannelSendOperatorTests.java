@@ -30,6 +30,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import infra.core.io.buffer.DataBuffer;
 import infra.core.testfixture.io.buffer.LeakAwareDataBufferFactory;
@@ -37,6 +39,7 @@ import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Signal;
+import reactor.core.publisher.SignalType;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,6 +51,68 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ChannelSendOperatorTests {
 
   private final OneByOneAsyncWriter writer = new OneByOneAsyncWriter();
+
+  @Test
+  void sourceCancelledWhenWriteFunctionResultErrorsWhileItemCached() {
+    AtomicReference<SignalType> sourceSignal = new AtomicReference<>();
+    Flux<String> source = Flux.just("one").concatWith(Flux.never()).doFinally(sourceSignal::set);
+    ChannelSendOperator<String> operator = new ChannelSendOperator<>(source,
+            publisher -> Mono.error(new IllegalStateException("boom")));
+
+    StepVerifier.create(operator).expectErrorMessage("boom").verify(Duration.ofSeconds(5));
+    assertThat(sourceSignal.get()).isEqualTo(SignalType.CANCEL);
+  }
+
+  @Test
+  void sourceCancelledWhenWriteFunctionThrowsWhileItemCached() {
+    AtomicReference<SignalType> sourceSignal = new AtomicReference<>();
+    Flux<String> source = Flux.just("one").concatWith(Flux.never()).doFinally(sourceSignal::set);
+    ChannelSendOperator<String> operator = new ChannelSendOperator<>(source, publisher -> {
+      throw new IllegalStateException("boom");
+    });
+
+    StepVerifier.create(operator).expectErrorMessage("boom").verify(Duration.ofSeconds(5));
+    assertThat(sourceSignal.get()).isEqualTo(SignalType.CANCEL);
+  }
+
+  @Test
+  void sourceCancelledAndCachedItemReleasedWhenWriteFunctionResultErrors() {
+    LeakAwareDataBufferFactory bufferFactory = new LeakAwareDataBufferFactory();
+    AtomicReference<SignalType> sourceSignal = new AtomicReference<>();
+    ChannelSendOperator<DataBuffer> operator = new ChannelSendOperator<>(
+            Flux.<DataBuffer>create(sink -> {
+              DataBuffer dataBuffer = bufferFactory.allocateBuffer(256);
+              dataBuffer.write("foo", StandardCharsets.UTF_8);
+              sink.next(dataBuffer);
+            }).doFinally(sourceSignal::set),
+            publisher -> Mono.error(new IllegalStateException("boom")));
+
+    StepVerifier.create(operator).expectErrorMessage("boom").verify(Duration.ofSeconds(5));
+    assertThat(sourceSignal.get()).isEqualTo(SignalType.CANCEL);
+    bufferFactory.checkForLeaks();
+  }
+
+  @Test
+  void writeFunctionNotInvokedUnderLockOnFirstItem() {
+    verifyWriteFunctionNotInvokedUnderLock(Mono.just("one"));
+  }
+
+  @Test
+  void writeFunctionNotInvokedUnderLockOnEmptyCompletion() {
+    verifyWriteFunctionNotInvokedUnderLock(Mono.empty());
+  }
+
+  private void verifyWriteFunctionNotInvokedUnderLock(Publisher<String> source) {
+    AtomicBoolean holdsLock = new AtomicBoolean(true);
+    ChannelSendOperator<String> operator = new ChannelSendOperator<>(source,
+            publisher -> {
+              holdsLock.set(Thread.holdsLock(publisher));
+              return Mono.empty();
+            });
+
+    StepVerifier.create(operator).expectComplete().verify(Duration.ofSeconds(5));
+    assertThat(holdsLock).isFalse();
+  }
 
   @Test
   public void errorBeforeFirstItem() throws Exception {

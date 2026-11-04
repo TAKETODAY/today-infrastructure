@@ -27,6 +27,8 @@ import org.assertj.core.internal.Objects;
 
 import java.util.Map;
 
+import infra.lang.CheckReturnValue;
+
 /**
  * AssertJ {@link Assert} for {@link ObjectContent}.
  *
@@ -46,6 +48,7 @@ public class ObjectContentAssert<A> extends AbstractObjectAssert<ObjectContentAs
    *
    * @return an array assertion object
    */
+  @CheckReturnValue
   public AbstractObjectArrayAssert<?, Object> asArray() {
     Objects.instance().assertIsInstanceOf(this.info, this.actual, Object[].class);
     return Assertions.assertThat((Object[]) this.actual);
@@ -58,6 +61,7 @@ public class ObjectContentAssert<A> extends AbstractObjectAssert<ObjectContentAs
    * @return a map assertion object
    */
   @SuppressWarnings("unchecked")
+  @CheckReturnValue
   public AbstractMapAssert<?, ?, Object, Object> asMap() {
     Objects.instance().assertIsInstanceOf(this.info, this.actual, Map.class);
     return Assertions.assertThat((Map<Object, Object>) this.actual);

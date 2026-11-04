@@ -421,7 +421,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
       return null;
     }
 
-    return doTask(key, new Task<V>(TaskOption.RESTRUCTURE_BEFORE, TaskOption.RESIZE) {
+    return doTask(key, new Task<V>(TaskOption.RESTRUCTURE_BEFORE, TaskOption.RESTRUCTURE_AFTER, TaskOption.RESIZE) {
 
       @Override
       protected @Nullable V execute(@Nullable Reference<K, V> ref, @Nullable Entry<K, V> entry, @Nullable Entries<V> entries) {
@@ -447,7 +447,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
   @Override
   public @Nullable V compute(@Nullable K key, BiFunction<? super @Nullable K, ? super @Nullable V, ? extends @Nullable V> remappingFunction) {
-    return doTask(key, new Task<V>(TaskOption.RESTRUCTURE_BEFORE, TaskOption.RESIZE) {
+    return doTask(key, new Task<V>(TaskOption.RESTRUCTURE_BEFORE, TaskOption.RESTRUCTURE_AFTER, TaskOption.RESIZE) {
       @Override
       protected @Nullable V execute(@Nullable Reference<K, V> ref, @Nullable Entry<K, V> entry, @Nullable Entries<V> entries) {
         V oldValue = null;
@@ -480,7 +480,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
 
   @Override
   public @Nullable V merge(@Nullable K key, @Nullable V value, BiFunction<? super @Nullable V, ? super @Nullable V, ? extends @Nullable V> remappingFunction) {
-    return doTask(key, new Task<V>(TaskOption.RESTRUCTURE_BEFORE, TaskOption.RESIZE) {
+    return doTask(key, new Task<V>(TaskOption.RESTRUCTURE_BEFORE, TaskOption.RESTRUCTURE_AFTER, TaskOption.RESIZE) {
       @Override
       protected @Nullable V execute(@Nullable Reference<K, V> ref, @Nullable Entry<K, V> entry, @Nullable Entries<V> entries) {
         if (entry != null) {
@@ -952,14 +952,20 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
   private abstract class Task<T> {
     public final TaskOption option1;
     public final TaskOption option2;
+    public final @Nullable TaskOption option3;
 
     public Task(TaskOption option1, TaskOption option2) {
+      this(option1, option2, null);
+    }
+
+    public Task(TaskOption option1, TaskOption option2, @Nullable TaskOption option3) {
       this.option1 = option1;
       this.option2 = option2;
+      this.option3 = option3;
     }
 
     public final boolean hasOption(TaskOption option) {
-      return option2 == option || option1 == option;
+      return option2 == option || option1 == option || option3 == option;
     }
 
     /**

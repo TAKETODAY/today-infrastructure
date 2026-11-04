@@ -814,7 +814,7 @@ class AnnotatedElementUtilsTests {
   }
 
   @Test
-  void javaxAnnotationTypeViaFindMergedAnnotation() {
+  void jakartaAnnotationTypeViaFindMergedAnnotation() {
     assertThat(findMergedAnnotation(ResourceHolder.class, Resource.class)).isEqualTo(ResourceHolder.class.getAnnotation(Resource.class));
     assertThat(findMergedAnnotation(InfraAppConfigClass.class, Resource.class)).isEqualTo(InfraAppConfigClass.class.getAnnotation(Resource.class));
   }
@@ -1506,7 +1506,7 @@ class AnnotatedElementUtilsTests {
     Object doIt();
   }
 
-  class TransactionalServiceImpl implements TransactionalService {
+  static class TransactionalServiceImpl implements TransactionalService {
 
     @Override
     public @Nullable Object doIt() {

@@ -70,7 +70,7 @@ class TestConventions {
     ));
 
     if (project.hasProperty("testGroups")) {
-      test.systemProperty("testGroups", project.getProperties().get("testGroups"));
+      test.systemProperty("testGroups", project.findProperty("testGroups"));
     }
 
     test.jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED",

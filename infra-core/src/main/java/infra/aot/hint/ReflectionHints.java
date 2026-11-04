@@ -265,6 +265,7 @@ public class ReflectionHints {
    *
    * @param type the type that should be serializable
    * @return {@code this}, to facilitate method chaining
+   * @since 5.0
    */
   public ReflectionHints registerJavaSerialization(Class<?> type) {
     return registerJavaSerialization(type, null);
@@ -274,7 +275,9 @@ public class ReflectionHints {
    * Register the need for Java Serialization on the specified type.
    *
    * @param type the type that should be serializable
+   * @param serializationHint a builder to further customize the serialization hint, or {@code null}
    * @return {@code this}, to facilitate method chaining
+   * @since 5.0
    */
   public ReflectionHints registerJavaSerialization(Class<?> type, @Nullable Consumer<TypeHint.Builder> serializationHint) {
     return registerType(TypeReference.of(type), typeHint -> {

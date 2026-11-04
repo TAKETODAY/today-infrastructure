@@ -31,7 +31,7 @@ import infra.expression.TypedValue;
 import infra.expression.spel.CodeFlow;
 import infra.expression.spel.ExpressionState;
 import infra.expression.spel.SpelNode;
-import infra.expression.spel.support.StandardEvaluationContext;
+import infra.expression.spel.support.SimpleEvaluationContext;
 import infra.util.Assert;
 
 /**
@@ -44,67 +44,60 @@ import infra.util.Assert;
  */
 public class InlineList extends SpelNodeImpl {
 
-  @Nullable
-  private final TypedValue constant;
+  private final boolean isConstant;
+
+  private volatile @Nullable TypedValue constant;
 
   public InlineList(int startPos, int endPos, SpelNodeImpl... args) {
     super(startPos, endPos, args);
-    this.constant = computeConstant();
+    this.isConstant = determineIfConstant();
   }
 
   /**
-   * If all the components of the list are constants, or lists
-   * that themselves contain constants, then a constant list
-   * can be built to represent this node. This will speed up
-   * later getValue calls and reduce the amount of garbage
-   * created.
+   * Determine whether this list is structurally eligible to be a constant
+   * value: whether all of its components are themselves constants or lists
+   * that contain only constants.
+   * <p>The actual constant value is created lazily on the first call to
+   * {@link #getValueInternal(ExpressionState)}.
    */
-  @Nullable
-  private TypedValue computeConstant() {
-    for (int c = 0, max = getChildCount(); c < max; c++) {
-      SpelNode child = getChild(c);
-      if (!(child instanceof Literal)) {
-        if (child instanceof InlineList inlineList) {
-          if (!inlineList.isConstant()) {
-            return null;
-          }
-        }
-        else if (!(child instanceof OpMinus opMinus) || !opMinus.isNegativeNumberLiteral()) {
-          return null;
-        }
+  private boolean determineIfConstant() {
+    for (SpelNode child : this.children) {
+      if (child instanceof Literal) {
+        continue;
       }
+      if (child instanceof InlineList inlineList && inlineList.isConstant()) {
+        continue;
+      }
+      if (child instanceof OpMinus opMinus && opMinus.isNegativeNumberLiteral()) {
+        continue;
+      }
+      return false;
     }
-
-    ArrayList<Object> constantList = new ArrayList<>();
-    int childcount = getChildCount();
-    ExpressionState expressionState = new ExpressionState(new StandardEvaluationContext());
-    for (int c = 0; c < childcount; c++) {
-      SpelNode child = getChild(c);
-      if (child instanceof Literal literal) {
-        constantList.add(literal.getLiteralValue().getValue());
-      }
-      else if (child instanceof InlineList inlineList) {
-        constantList.add(inlineList.getConstantValue());
-      }
-      else if (child instanceof OpMinus) {
-        constantList.add(child.getValue(expressionState));
-      }
-    }
-    return new TypedValue(Collections.unmodifiableList(constantList));
+    return true;
   }
 
   @Override
   public TypedValue getValueInternal(ExpressionState expressionState) throws EvaluationException {
-    if (this.constant != null) {
-      return this.constant;
+    TypedValue result = this.constant;
+    if (result != null) {
+      return result;
     }
-    else {
-      ArrayList<Object> returnValue = new ArrayList<>(getChildCount());
-      for (SpelNodeImpl child : children) {
-        returnValue.add(child.getValue(expressionState));
-      }
-      return new TypedValue(returnValue);
+    result = createList(expressionState);
+    if (this.isConstant) {
+      this.constant = result;
     }
+    return result;
+  }
+
+  private TypedValue createList(ExpressionState expressionState) throws EvaluationException {
+    int childCount = getChildCount();
+    expressionState.trackOperation();
+    ArrayList<Object> list = new ArrayList<>(childCount);
+    for (SpelNodeImpl child : this.children) {
+      expressionState.trackOperation();
+      list.add(child.getValue(expressionState));
+    }
+    return new TypedValue(this.isConstant ? Collections.unmodifiableList(list) : list);
   }
 
   @Override
@@ -118,22 +111,37 @@ public class InlineList extends SpelNodeImpl {
   }
 
   /**
-   * Return whether this list is a constant value.
+   * Return whether this list is structurally a constant value.
+   * <p>Note that the resulting constant value is created lazily on the
+   * first call to {@link #getValueInternal(ExpressionState)} or
+   * {@link #getConstantValue()}.
    */
   public boolean isConstant() {
-    return constant != null;
+    return this.isConstant;
   }
 
+  /**
+   * Return the cached constant {@link List} value for this inline list,
+   * lazily creating it on first access.
+   *
+   * @see #isConstant()
+   * @deprecated as of 5.0; this method was only intended for testing purposes
+   */
   @SuppressWarnings("unchecked")
-  @Nullable
-  public List<Object> getConstantValue() {
-    Assert.state(constant != null, "No constant");
-    return (List<Object>) constant.getValue();
+  @Deprecated(since = "5.0")
+  public @Nullable List<Object> getConstantValue() {
+    Assert.state(this.isConstant, "Not a constant");
+    TypedValue result = this.constant;
+    if (result == null) {
+      result = createList(new ExpressionState(SimpleEvaluationContext.forReadOnlyDataBinding().build()));
+      this.constant = result;
+    }
+    return (List<Object>) result.getValue();
   }
 
   @Override
   public boolean isCompilable() {
-    return isConstant();
+    return this.isConstant;
   }
 
   @Override

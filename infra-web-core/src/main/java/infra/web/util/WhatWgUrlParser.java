@@ -41,9 +41,9 @@ import infra.logging.LoggerFactory;
  * Implementation of the
  * <a href="https://url.spec.whatwg.org/#url-parsing">URL parsing</a> algorithm
  * of the WhatWG URL Living standard. Browsers use this algorithm to align on
- * lenient parsing of user typed URL's that may deviate from RFC syntax.
+ * lenient parsing of user typed URLs that may deviate from RFC syntax.
  * Use this, via {@link UriComponentsBuilder.ParserType#WHAT_WG}, if you need to
- * leniently handle URL's that don't confirm to RFC syntax, or for alignment
+ * leniently handle URLs that don't confirm to RFC syntax, or for alignment
  * with browser behavior.
  *
  * <p>Comments in this class correlate to the parsing algorithm.

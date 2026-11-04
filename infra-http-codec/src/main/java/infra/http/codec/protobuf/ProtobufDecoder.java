@@ -50,7 +50,7 @@ import reactor.core.publisher.Mono;
  * A {@code Decoder} that reads {@link com.google.protobuf.Message}s using
  * <a href="https://developers.google.com/protocol-buffers/">Google Protocol Buffers</a>.
  *
- * <p>Flux deserialized via
+ * <p>Flux values deserialized via
  * {@link #decode(Publisher, ResolvableType, MimeType, Map)} are expected to use
  * <a href="https://developers.google.com/protocol-buffers/docs/techniques?hl=en#streaming">
  * delimited Protobuf messages</a> with the size of each message specified before
@@ -59,7 +59,7 @@ import reactor.core.publisher.Mono;
  * to use regular Protobuf message format (without the size prepended before
  * the message).
  *
- * <p>Notice that default instance of Protobuf message produces empty byte
+ * <p>Notice that the default instance of a Protobuf message produces an empty byte
  * array, so {@code Mono.just(Msg.getDefaultInstance())} sent over the network
  * will be deserialized as an empty {@link Mono}.
  *
@@ -135,7 +135,7 @@ public class ProtobufDecoder extends ProtobufCodecSupport implements Decoder<Mes
 
     return Flux.from(inputStream)
             .flatMapIterable(decoderFunction)
-            .doOnTerminate(decoderFunction::discard);
+            .doFinally(signalType -> decoderFunction.discard());
   }
 
   @Override

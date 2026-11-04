@@ -43,6 +43,7 @@ import infra.jdbc.support.JdbcUtils;
 import infra.util.Assert;
 import infra.lang.Constant;
 import infra.lang.NullValue;
+import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 
 /**
@@ -182,11 +183,11 @@ public class SimplePropertyRowMapper<T extends @Nullable Object> implements RowM
       // Try direct match first
       PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(this.mappedClass, name);
       if (pd != null && pd.getWriteMethod() != null) {
-        return BeanUtils.getWriteMethodParameter(pd);
+        return (isMappedViaConstructor(pd.getName()) ? NullValue.INSTANCE : BeanUtils.getWriteMethodParameter(pd));
       }
       Field field = ReflectionUtils.findField(this.mappedClass, name);
       if (field != null) {
-        return field;
+        return (isMappedViaConstructor(field.getName()) ? NullValue.INSTANCE : field);
       }
 
       // Try de-underscored match instead
@@ -194,28 +195,38 @@ public class SimplePropertyRowMapper<T extends @Nullable Object> implements RowM
       if (!adaptedName.equals(name)) {
         pd = BeanUtils.getPropertyDescriptor(this.mappedClass, adaptedName);
         if (pd != null && pd.getWriteMethod() != null) {
-          return BeanUtils.getWriteMethodParameter(pd);
+          return (isMappedViaConstructor(pd.getName()) ? NullValue.INSTANCE : BeanUtils.getWriteMethodParameter(pd));
         }
         field = ReflectionUtils.findField(this.mappedClass, adaptedName);
         if (field != null) {
-          return field;
+          return (isMappedViaConstructor(field.getName()) ? NullValue.INSTANCE : field);
         }
       }
 
       // Fallback: case-insensitive match
       PropertyDescriptor[] pds = BeanUtils.getPropertyDescriptors(this.mappedClass);
       for (PropertyDescriptor candidate : pds) {
-        if (name.equalsIgnoreCase(candidate.getName())) {
-          return BeanUtils.getWriteMethodParameter(candidate);
+        if (name.equalsIgnoreCase(candidate.getName()) && candidate.getWriteMethod() != null) {
+          return (isMappedViaConstructor(candidate.getName()) ? NullValue.INSTANCE :
+                  BeanUtils.getWriteMethodParameter(candidate));
         }
       }
       field = ReflectionUtils.findFieldIgnoreCase(this.mappedClass, name);
       if (field != null) {
-        return field;
+        return (isMappedViaConstructor(field.getName()) ? NullValue.INSTANCE : field);
       }
 
       return NullValue.INSTANCE;
     });
+  }
+
+  /**
+   * Determine whether the given property has been mapped via a constructor
+   * argument already, for example when a column label occurs more than once
+   * in the result set.
+   */
+  private boolean isMappedViaConstructor(String propertyName) {
+    return ObjectUtils.containsElement(this.constructorParameterNames, propertyName);
   }
 
 }

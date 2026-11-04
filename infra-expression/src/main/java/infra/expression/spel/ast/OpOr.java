@@ -47,6 +47,7 @@ public class OpOr extends Operator {
 
   @Override
   public BooleanTypedValue getValueInternal(ExpressionState state) throws EvaluationException {
+    state.trackOperation();
     if (getBooleanValue(state, getLeftOperand())) {
       // no need to evaluate right operand
       return BooleanTypedValue.TRUE;

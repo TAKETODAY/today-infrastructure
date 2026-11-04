@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.function.Function;
 
+import infra.util.ClassUtils;
 import infra.lang.NullValue;
 import infra.util.Assert;
 import infra.util.ConcurrentReferenceHashMap;
@@ -268,7 +269,7 @@ public class RepeatableContainers {
         if (returnType.componentType() != repeatable) {
           throw new AnnotationConfigurationException(
                   "Container type [%s] must declare a 'value' attribute for an array of type [%s]"
-                          .formatted(container.getName(), repeatable.getName()));
+                          .formatted(ClassUtils.getCanonicalName(container), ClassUtils.getCanonicalName(repeatable)));
         }
       }
       catch (AnnotationConfigurationException ex) {
@@ -277,7 +278,7 @@ public class RepeatableContainers {
       catch (Throwable ex) {
         throw new AnnotationConfigurationException(
                 "Invalid declaration of container type [%s] for repeatable annotation [%s]"
-                        .formatted(container.getName(), repeatable.getName()), ex);
+                        .formatted(ClassUtils.getCanonicalName(container), ClassUtils.getCanonicalName(repeatable)), ex);
       }
       this.container = container;
       this.repeatable = repeatable;
@@ -289,7 +290,7 @@ public class RepeatableContainers {
       if (annotation == null) {
         throw new IllegalArgumentException(
                 "Annotation type must be a repeatable annotation: failed to resolve container type for "
-                        + repeatable.getName());
+                        + ClassUtils.getCanonicalName(repeatable));
       }
       return annotation.value();
     }

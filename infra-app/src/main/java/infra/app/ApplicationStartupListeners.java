@@ -80,6 +80,9 @@ final class ApplicationStartupListeners implements ApplicationStartupListener {
 
   @Override
   public void started(ConfigurableApplicationContext context, @Nullable Duration timeTaken) {
+    if (!context.isRunning()) {
+      return;
+    }
     for (ApplicationStartupListener listener : listeners) {
       listener.started(context, timeTaken);
     }
@@ -87,6 +90,9 @@ final class ApplicationStartupListeners implements ApplicationStartupListener {
 
   @Override
   public void ready(ConfigurableApplicationContext context, @Nullable Duration timeTaken) {
+    if (!context.isRunning()) {
+      return;
+    }
     for (ApplicationStartupListener listener : listeners) {
       listener.ready(context, timeTaken);
     }

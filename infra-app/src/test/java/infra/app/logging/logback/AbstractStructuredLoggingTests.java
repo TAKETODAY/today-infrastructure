@@ -19,6 +19,7 @@
 package infra.app.logging.logback;
 
 import org.assertj.core.api.Assertions;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Marker;
@@ -34,6 +35,7 @@ import java.util.Map;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.pattern.ThrowableProxyConverter;
 import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.classic.spi.ThrowableProxy;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
@@ -94,12 +96,27 @@ abstract class AbstractStructuredLoggingTests {
   }
 
   protected static LoggingEvent createEvent() {
+    return createEvent("message");
+  }
+
+  protected static LoggingEvent createEvent(@Nullable String message) {
+    return createEvent(message, null);
+  }
+
+  protected static LoggingEvent createEvent(Throwable thrown) {
+    return createEvent("message", thrown);
+  }
+
+  protected static LoggingEvent createEvent(@Nullable String message, @Nullable Throwable thrown) {
     LoggingEvent event = new LoggingEvent();
     event.setInstant(EVENT_TIME);
     event.setLevel(Level.INFO);
     event.setThreadName("main");
     event.setLoggerName("org.example.Test");
-    event.setMessage("message");
+    event.setMessage(message);
+    if (thrown != null) {
+      event.setThrowableProxy(new ThrowableProxy(thrown));
+    }
     return event;
   }
 

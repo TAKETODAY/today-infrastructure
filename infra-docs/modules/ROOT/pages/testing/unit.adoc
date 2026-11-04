@@ -67,6 +67,9 @@ Infra 代理背后的底层目标对象的引用。例如，如果你使用 Easy
 你可能需要直接访问底层 mock 以对其配置期望并执行验证。有关 Infra 核心 AOP 工具，请参见 {today-framework-api}/aop/support/AopUtils.html[`AopUtils`]
 和 {today-framework-api}/aop/framework/AopProxyUtils.html[`AopProxyUtils`]。
 
+TIP: 当被 spy 的 bean 被包装在 Infra AOP 代理中时，关于如何将 `AopTestUtils` 与 `@MockitoSpyBean` 结合使用，请参见
+xref:testing/annotations/integration-infra/annotation-beanoverriding.adoc#infra-testing-annotation-beanoverriding-mockitospybean-aop-proxies[`@MockitoSpyBean` 与 AOP 代理]。
+
 {today-framework-api}/test/util/ReflectionTestUtils.html[`ReflectionTestUtils`] 是一个基于反射的工具方法的集合。在测试应用程序代码时，
 如果你需要更改常量的值、设置非 `public` 字段、调用非 `public` setter 方法，或调用非 `public` 配置或生命周期回调方法，可以使用这些方法。适用场景包括：
 

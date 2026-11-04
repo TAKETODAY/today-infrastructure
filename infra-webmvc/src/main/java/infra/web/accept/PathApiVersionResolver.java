@@ -30,7 +30,16 @@ import infra.web.HttpContext;
 /**
  * {@link ApiVersionResolver} that extract the version from a path segment.
  *
+ * <p>If the resolver is created with a path index only, it will always return
+ * a version, or raise an {@link InvalidApiVersionException}, but never
+ * return {@code null}.
+ *
+ * <p>The resolver can also be created with an additional
+ * {@code Predicate<RequestPath>} that provides more flexibility in deciding
+ * whether a given path is versioned or not, possibly resolving to {@code null}.
+ *
  * @author Rossen Stoyanchev
+ * @author Martin Mois
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */

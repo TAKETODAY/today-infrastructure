@@ -255,6 +255,14 @@ Object o = expression.getValue(demo);
 的 JVM 系统属性或 Infra 属性设置为应用程序所需的最大表达式长度
 （请参阅 xref:appendix.adoc#appendix-infra-properties[支持的 Infra 属性]）。
 
+此外，SpEL 表达式求值期间执行的操作数默认不能超过 10,000 次；但是，`maxOperations` 是可配置的。
+如果你以编程方式创建 `SpelExpressionParser`（推荐做法），则可以在创建传给
+`SpelExpressionParser` 的 `SpelParserConfiguration` 时，通过
+`SpelParserConfiguration.builder().maximumOperations(...)` 指定自定义的操作数上限。
+如果无法通过 `SpelParserConfiguration` 显式配置 `maxOperations`，你可以将名为
+`infra.spel.default.max-operations` 的 JVM 系统属性或 Infra 属性设置为应用程序所需的
+最大操作数（请参阅 xref:appendix.adoc#appendix-infra-properties[支持的 Infra 属性]）。
+
 此外，SpEL 表达式中的 `BigDecimal` 或 `BigInteger` 幂运算结果默认不能超过 1,000,000 位，
 大约相当于 300,000 位十进制数字。较大的底数或指数可能使计算消耗大量资源，因此可以在创建
 `SpelParserConfiguration` 时通过 `builder().maximumBigPowerBits(...)` 指定更合适的上限；若需要实际上

@@ -18,6 +18,8 @@
 
 package infra.util.backoff;
 
+import infra.util.Assert;
+
 /**
  * Implementation of {@link BackOff} that increases the back off period for each
  * retry attempt. When the interval has reached the {@linkplain #setMaxInterval(long)
@@ -64,6 +66,12 @@ public class ExponentialBackOff implements BackOff {
   public static final long DEFAULT_INITIAL_INTERVAL = 2000L;
 
   /**
+   * The default jitter value for each interval: {@value} ms.
+   * @since 5.0
+   */
+  public static final long DEFAULT_JITTER = 0;
+
+  /**
    * The default multiplier (increases the interval by 50%).
    */
   public static final double DEFAULT_MULTIPLIER = 1.5;
@@ -85,6 +93,8 @@ public class ExponentialBackOff implements BackOff {
 
   private long initialInterval = DEFAULT_INITIAL_INTERVAL;
 
+  private long jitter = DEFAULT_JITTER;
+
   private double multiplier = DEFAULT_MULTIPLIER;
 
   private long maxInterval = DEFAULT_MAX_INTERVAL;
@@ -97,6 +107,7 @@ public class ExponentialBackOff implements BackOff {
    * Create an instance with the default settings.
    *
    * @see #DEFAULT_INITIAL_INTERVAL
+   * @see #DEFAULT_JITTER
    * @see #DEFAULT_MULTIPLIER
    * @see #DEFAULT_MAX_INTERVAL
    * @see #DEFAULT_MAX_ELAPSED_TIME
@@ -133,7 +144,37 @@ public class ExponentialBackOff implements BackOff {
   }
 
   /**
-   * The value to multiply the current interval by for each retry attempt.
+   * Set the jitter value to apply for each interval, leading to random
+   * milliseconds to be subtracted or added and resulting in a value between
+   * {@code interval - jitter} and {@code interval + jitter} but never below
+   * {@code initialInterval} or above {@code maxInterval}.
+   * <p>If a {@code multiplier} is specified, it is applied to the jitter value
+   * as well.
+   * <p>When {@code initialInterval} is {@code 0} combined with a positive
+   * jitter, the interval never grows regardless of any configured multiplier,
+   * so the full configured jitter is applied directly as a random interval in
+   * the range from {@code 0} to {@code min(jitter, maxInterval)}.
+   * @param jitter the jitter value in milliseconds
+   * @since 5.0
+   */
+  public void setJitter(long jitter) {
+    Assert.isTrue(jitter >= 0, () -> "Invalid jitter '" + jitter + "': must be >= 0.");
+    this.jitter = jitter;
+  }
+
+  /**
+   * Return the jitter value to apply for each interval in milliseconds.
+   * @since 5.0
+   */
+  public long getJitter() {
+    return this.jitter;
+  }
+
+  /**
+   * Set the value to multiply the current interval by for each attempt.
+   * <p>This applies to the {@linkplain #setInitialInterval initial interval}
+   * as well as the {@linkplain #setJitter jitter range}.
+   * @param multiplier the multiplier (must be greater than or equal to 1)
    */
   public void setMultiplier(double multiplier) {
     checkMultiplier(multiplier);
@@ -240,22 +281,31 @@ public class ExponentialBackOff implements BackOff {
 
     private long computeNextInterval() {
       long maxInterval = getMaxInterval();
-      if (this.currentInterval >= maxInterval) {
-        return maxInterval;
+      long nextInterval;
+      if (this.currentInterval < 0) {
+        nextInterval = getInitialInterval();
       }
-      else if (this.currentInterval < 0) {
-        long initialInterval = getInitialInterval();
-        this.currentInterval = Math.min(initialInterval, maxInterval);
+      else if (this.currentInterval >= maxInterval) {
+        nextInterval = maxInterval;
       }
       else {
-        this.currentInterval = multiplyInterval(maxInterval);
+        nextInterval = Math.min((long) (this.currentInterval * getMultiplier()), maxInterval);
       }
-      return this.currentInterval;
+      this.currentInterval = nextInterval;
+      return Math.min(applyJitter(nextInterval), maxInterval);
     }
 
-    private long multiplyInterval(long maxInterval) {
-      long i = (long) (this.currentInterval * getMultiplier());
-      return Math.min(i, maxInterval);
+    private long applyJitter(long interval) {
+      long jitter = getJitter();
+      if (jitter > 0) {
+        long initialInterval = getInitialInterval();
+        // With a zero initial interval, keep the scale at its baseline of 1.
+        long applicableJitter = (long) (jitter * (initialInterval > 0 ? ((double) interval / initialInterval) : 1));
+        long min = Math.max(interval - applicableJitter, initialInterval);
+        long max = Math.min(interval + applicableJitter, getMaxInterval());
+        return min + (long) (Math.random() * (max - min));
+      }
+      return interval;
     }
 
     @Override

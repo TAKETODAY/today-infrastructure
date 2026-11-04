@@ -57,6 +57,16 @@ class DurationToNumberConverterTests {
     assertThat(converted).isEqualTo((byte) 1);
   }
 
+  @ConversionServiceTest
+  void convertWithMicrosUnitShouldSupportFullLongRange(ConversionService conversionService) {
+    for (long micros : new long[] { Long.MIN_VALUE, Long.MAX_VALUE }) {
+      Duration duration = Duration.of(micros, ChronoUnit.MICROS);
+      Long converted = (Long) conversionService.convert(duration,
+              MockDurationTypeDescriptor.get(ChronoUnit.MICROS, null), TypeDescriptor.valueOf(Long.class));
+      assertThat(converted).isEqualTo(micros);
+    }
+  }
+
   static Stream<? extends Arguments> conversionServices() {
     return ConversionServiceArguments.with(new DurationToNumberConverter());
   }

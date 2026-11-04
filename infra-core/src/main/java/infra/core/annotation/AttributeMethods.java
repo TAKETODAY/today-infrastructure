@@ -318,7 +318,9 @@ final class AttributeMethods {
     if (attributeName == null) {
       return "(none)";
     }
-    String in = (annotationType != null ? " in annotation [" + annotationType.getName() + "]" : "");
+    String in = (annotationType != null
+            ? " in annotation [" + ClassUtils.getCanonicalName(annotationType) + "]"
+            : "");
     return "attribute '" + attributeName + "'" + in;
   }
 

@@ -72,9 +72,9 @@ public class RuntimeHints {
   }
 
   /**
-   * Provide access to jni-based hints.
+   * Provide access to JNI-based hints.
    *
-   * @return jni hints
+   * @return JNI hints
    */
   public ReflectionHints jni() {
     return this.jni;

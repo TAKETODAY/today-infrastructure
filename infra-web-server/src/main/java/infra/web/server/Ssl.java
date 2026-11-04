@@ -191,27 +191,7 @@ public class Ssl {
   /**
    * @since 5.0
    */
-  public static class ServerNameSslBundle {
-
-    private String serverName;
-
-    private String bundle;
-
-    public void setBundle(String bundle) {
-      this.bundle = bundle;
-    }
-
-    public void setServerName(String serverName) {
-      this.serverName = serverName;
-    }
-
-    public String getBundle() {
-      return bundle;
-    }
-
-    public String getServerName() {
-      return serverName;
-    }
+  public record ServerNameSslBundle(String serverName, String bundle) {
   }
 
   /**

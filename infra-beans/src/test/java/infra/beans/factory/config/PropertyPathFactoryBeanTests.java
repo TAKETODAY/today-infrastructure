@@ -28,6 +28,7 @@ import infra.core.io.Resource;
 
 import static infra.core.testfixture.io.ResourceTestUtils.qualifiedResource;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -36,6 +37,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 class PropertyPathFactoryBeanTests {
 
   private static final Resource CONTEXT = qualifiedResource(PropertyPathFactoryBeanTests.class, "context.xml");
+
+  @Test
+  void rejectsBeanNameWithoutTargetName() {
+    PropertyPathFactoryBean factory = new PropertyPathFactoryBean();
+    factory.setBeanName(".age");
+    assertThatIllegalArgumentException().isThrownBy(() -> factory.setBeanFactory(new StandardBeanFactory()))
+            .withMessageContaining("does not follow 'beanName.property' syntax");
+  }
 
   @Test
   public void testPropertyPathFactoryBeanWithSingletonResult() {

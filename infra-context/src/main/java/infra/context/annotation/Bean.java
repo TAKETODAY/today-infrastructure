@@ -45,12 +45,11 @@ import infra.stereotype.Component;
  * example:
  *
  * <pre>{@code
- *     @Bean
- *     public MyBean myBean() {
- *         // instantiate and configure MyBean obj
- *         return obj;
- *     }
- * }</pre>
+ * @Bean
+ * public MyBean myBean() {
+ *   // instantiate and configure MyBean obj
+ *   return obj;
+ * }}</pre>
  *
  * <h3>Bean Names</h3>
  *
@@ -62,32 +61,29 @@ import infra.stereotype.Component;
  * (i.e. a primary bean name plus one or more aliases) for a single bean.
  *
  * <pre>{@code
- *     // bean available as 'b1' and 'b2', but not 'myBean'
- *     @Bean({"b1", "b2"})
- *     public MyBean myBean() {
- *         // instantiate and configure MyBean obj
- *         return obj;
- *     }
- * }</pre>
+ * @Bean({"b1", "b2"}) // bean available as 'b1' and 'b2', but not 'myBean'
+ * public MyBean myBean() {
+ *   // instantiate and configure MyBean obj
+ *   return obj;
+ * }}</pre>
  *
- * <h3>Profile, Scope, Lazy, DependsOn, Primary, Order</h3>
+ * <h3>Profile, Scope, Lazy, DependsOn, Primary, Fallback, Order</h3>
  *
  * <p>Note that the {@code @Bean} annotation does not provide attributes for profile,
- * scope, lazy, depends-on or primary. Rather, it should be used in conjunction with
- * {@link Scope @Scope}, {@link Lazy @Lazy}, {@link DependsOn @DependsOn} and
+ * scope, lazy, depends-on, or primary. Rather, it should be used in conjunction with
+ * {@link Scope @Scope}, {@link Lazy @Lazy}, {@link DependsOn @DependsOn}, and
  * {@link Primary @Primary} annotations to declare those semantics. For example:
  *
  * <pre>{@code
- *     @Bean
- *     @Profile("production")
- *     @Scope("prototype")
- *     public MyBean myBean() {
- *         // instantiate and configure MyBean obj
- *         return obj;
- *     }
- * }</pre>
+ * @Bean
+ * @Profile("production")
+ * @Scope("prototype")
+ * public MyBean myBean() {
+ *   // instantiate and configure MyBean obj
+ *   return obj;
+ * }}</pre>
  *
- * The semantics of the above-mentioned annotations match their use at the component
+ * The semantics of the aforementioned annotations match their use at the component
  * class level: {@code @Profile} allows for selective inclusion of certain beans.
  * {@code @Scope} changes the bean's scope from singleton to the specified scope.
  * {@code @Lazy} only has an actual effect in case of the default singleton scope.
@@ -96,6 +92,9 @@ import infra.stereotype.Component;
  * through direct references, which is typically helpful for singleton startup.
  * {@code @Primary} is a mechanism to resolve ambiguity at the injection point level
  * if a single target component needs to be injected but several beans match by type.
+ * {@link Fallback @Fallback} marks a bean as a fallback candidate in such scenarios;
+ * if all beans but one among multiple matching candidates are marked as fallback, the
+ * remaining bean will be selected.
  *
  * <p>Additionally, {@code @Bean} methods may also declare qualifier annotations
  * and {@link Order @Order} values, to be
@@ -111,8 +110,8 @@ import infra.stereotype.Component;
  * orthogonal concern determined by dependency relationships and {@code @DependsOn}
  * declarations as mentioned above. Also, {@link jakarta.annotation.Priority} is not
  * available at this level since it cannot be declared on methods; its semantics can
- * be modeled through {@code @Order} values in combination with {@code @Primary} on
- * a single bean per type.
+ * be modeled through {@code @Order} values in combination with {@code @Primary} or
+ * {@code @Fallback} on a single bean per type.
  *
  * <h3>{@code @Bean} Methods in {@code @Configuration} Classes</h3>
  *
@@ -130,17 +129,17 @@ import infra.stereotype.Component;
  * @Configuration
  * public class AppConfig {
  *
- *     @Bean
- *     public FooService fooService() {
- *         return new FooService(fooRepository());
- *     }
+ *   @Bean
+ *   public FooService fooService() {
+ *     return new FooService(fooRepository());
+ *   }
  *
- *     @Bean
- *     public FooRepository fooRepository() {
- *         return new JdbcFooRepository(dataSource());
- *     }
+ *   @Bean
+ *   public FooRepository fooRepository() {
+ *     return new JdbcFooRepository(dataSource());
+ *   }
  *
- *     // ...
+ *   // ...
  * }}</pre>
  *
  * <h3>{@code @Bean} <em>Lite</em> Mode</h3>
@@ -169,20 +168,21 @@ import infra.stereotype.Component;
  * <pre>{@code
  * @Component
  * public class Calculator {
- *     public int sum(int a, int b) {
- *         return a+b;
- *     }
+ *   public int sum(int a, int b) {
+ *     return a+b;
+ *   }
  *
- *     @Bean
- *     public MyBean myBean() {
- *         return new MyBean();
- *     }
+ *   @Bean
+ *   public MyBean myBean() {
+ *     return new MyBean();
+ *   }
  * }}</pre>
  *
  * <h3>Bootstrapping</h3>
  *
- * <p>See the @{@link Configuration} javadoc for further details including how to bootstrap
- * the container using {@link AnnotationConfigApplicationContext} and friends.
+ * <p>See the {@link Configuration @Configuration} javadoc for further details
+ * including how to bootstrap the container using
+ * {@link AnnotationConfigApplicationContext} and friends.
  *
  * <h3>{@code BeanFactoryPostProcessor}-returning {@code @Bean} methods</h3>
  *
@@ -194,14 +194,13 @@ import infra.stereotype.Component;
  * lifecycle issues, mark {@code BFPP}-returning {@code @Bean} methods as {@code static}. For example:
  *
  * <pre>{@code
- *     @Bean
- *     public static PropertySourcesPlaceholderConfigurer pspc() {
- *         // instantiate, configure and return pspc ...
- *     }
- * }</pre>
+ * @Bean
+ * public static PropertySourcesPlaceholderConfigurer pspc() {
+ *   // instantiate, configure and return pspc ...
+ * }}</pre>
  *
  * By marking this method as {@code static}, it can be invoked without causing instantiation of its
- * declaring {@code @Configuration} class, thus avoiding the above-mentioned lifecycle conflicts.
+ * declaring {@code @Configuration} class, thus avoiding the aforementioned lifecycle conflicts.
  * Note however that {@code static} {@code @Bean} methods will not be enhanced for scoping and AOP
  * semantics as mentioned above. This works out in {@code BFPP} cases, as they are not typically
  * referenced by other {@code @Bean} methods. As a reminder, an INFO-level log message will be
@@ -215,7 +214,7 @@ import infra.stereotype.Component;
  * ({@code BPP}) types. Because {@code BPP} objects must be instantiated early in the container
  * lifecycle, a non-static {@code @Bean} method that returns a {@code BPP} will cause eager
  * initialization of its declaring {@code @Configuration} class, which can make other beans in the
- * {@code @Configuration} class (as well as depencencies of those beans) ineligible for full
+ * {@code @Configuration} class (as well as dependencies of those beans) ineligible for full
  * post-processing. To avoid these lifecycle issues, mark {@code BPP}-returning {@code @Bean}
  * methods as {@code static}. For example:
  *
@@ -244,6 +243,7 @@ import infra.stereotype.Component;
  * @see DependsOn
  * @see Lazy
  * @see Primary
+ * @see Fallback
  * @see Component
  * @see Autowired
  * @see Value

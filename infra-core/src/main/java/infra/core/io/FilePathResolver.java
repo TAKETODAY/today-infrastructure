@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2026 the TODAY authors.
+ * Copyright 2012-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
 
 package infra.core.io;
 
@@ -35,11 +37,10 @@ public interface FilePathResolver {
    *
    * @param location the location used to create the resource
    * @param resource the resource to check
-   * @return the file path of the resource or {@code null} if the it is not possible
-   * to represent the resource as a {@link FileSystemResource}.
+   * @return the file path of the resource or {@code null} if it is not possible to
+   * represent the resource as a {@link FileSystemResource}.
    */
   @Nullable
   String resolveFilePath(String location, Resource resource);
 
 }
-

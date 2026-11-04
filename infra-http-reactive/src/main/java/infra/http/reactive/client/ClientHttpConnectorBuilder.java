@@ -123,7 +123,7 @@ public interface ClientHttpConnectorBuilder<T extends ClientHttpConnector> {
 
   /**
    * Return a new {@link ClientHttpConnectorBuilder} for the given
-   * {@code requestFactoryType}. The following implementations are supported:
+   * {@code clientHttpConnectorType}. The following implementations are supported:
    * <ul>
    * <li>{@link ReactorClientHttpConnector}</li>
    * <li>{@link HttpComponentsClientHttpConnector}</li>

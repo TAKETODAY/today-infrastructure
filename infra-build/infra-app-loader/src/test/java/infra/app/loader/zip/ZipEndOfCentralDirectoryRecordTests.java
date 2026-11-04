@@ -40,7 +40,31 @@ class ZipEndOfCentralDirectoryRecordTests {
             0x04, 0x00, //
             0x05, 0x00, 0x00, 0x00, //
             0x06, 0x00, 0x00, 0x00, //
-            0x07, 0x00 }); //
+            0x00, 0x00 });
+    ZipEndOfCentralDirectoryRecord.Located located = ZipEndOfCentralDirectoryRecord.load(dataBlock);
+    assertThat(located.pos()).isEqualTo(0L);
+    ZipEndOfCentralDirectoryRecord record = located.endOfCentralDirectoryRecord();
+    assertThat(record.numberOfThisDisk()).isEqualTo((short) 1);
+    assertThat(record.diskWhereCentralDirectoryStarts()).isEqualTo((short) 2);
+    assertThat(record.numberOfCentralDirectoryEntriesOnThisDisk()).isEqualTo((short) 3);
+    assertThat(record.totalNumberOfCentralDirectoryEntries()).isEqualTo((short) 4);
+    assertThat(record.sizeOfCentralDirectory()).isEqualTo(5);
+    assertThat(record.offsetToStartOfCentralDirectory()).isEqualTo(6);
+    assertThat(record.commentLength()).isEqualTo((short) 0);
+  }
+
+  @Test
+  void loadWithZipFileCommentLocatesAndLoadsData() throws Exception {
+    DataBlock dataBlock = new ByteArrayDataBlock(new byte[] { //
+            0x50, 0x4b, 0x05, 0x06, //
+            0x01, 0x00, //
+            0x02, 0x00, //
+            0x03, 0x00, //
+            0x04, 0x00, //
+            0x05, 0x00, 0x00, 0x00, //
+            0x06, 0x00, 0x00, 0x00, //
+            0x07, 0x00, //
+            0x63, 0x6f, 0x6d, 0x6d, 0x65, 0x6e, 0x74 }); // "comment"
     ZipEndOfCentralDirectoryRecord.Located located = ZipEndOfCentralDirectoryRecord.load(dataBlock);
     assertThat(located.pos()).isEqualTo(0L);
     ZipEndOfCentralDirectoryRecord record = located.endOfCentralDirectoryRecord();
@@ -54,6 +78,27 @@ class ZipEndOfCentralDirectoryRecordTests {
   }
 
   @Test
+  void loadWhenZipFileCommentContainsSignatureLoadsData() throws Exception {
+    DataBlock dataBlock = new ByteArrayDataBlock(new byte[] { //
+            0x50, 0x4b, 0x05, 0x06, //
+            0x01, 0x00, //
+            0x02, 0x00, //
+            0x03, 0x00, //
+            0x04, 0x00, //
+            0x05, 0x00, 0x00, 0x00, //
+            0x06, 0x00, 0x00, 0x00, //
+            0x04, 0x00, //
+            0x50, 0x4b, 0x05, 0x06 });
+    ZipEndOfCentralDirectoryRecord.Located located = ZipEndOfCentralDirectoryRecord.load(dataBlock);
+    assertThat(located.pos()).isEqualTo(0L);
+    ZipEndOfCentralDirectoryRecord record = located.endOfCentralDirectoryRecord();
+    assertThat(record.numberOfThisDisk()).isEqualTo((short) 1);
+    assertThat(record.sizeOfCentralDirectory()).isEqualTo(5);
+    assertThat(record.offsetToStartOfCentralDirectory()).isEqualTo(6);
+    assertThat(record.commentLength()).isEqualTo((short) 4);
+  }
+
+  @Test
   void loadWhenMultipleBuffersBackLoadsData() throws Exception {
     byte[] bytes = new byte[ZipEndOfCentralDirectoryRecord.BUFFER_SIZE * 4];
     byte[] data = new byte[] { //
@@ -64,7 +109,7 @@ class ZipEndOfCentralDirectoryRecordTests {
             0x04, 0x00, //
             0x05, 0x00, 0x00, 0x00, //
             0x06, 0x00, 0x00, 0x00, //
-            0x07, 0x00 }; //
+            0x00, 0x00 }; //
     System.arraycopy(data, 0, bytes, 4, data.length);
     ZipEndOfCentralDirectoryRecord.Located located = ZipEndOfCentralDirectoryRecord
             .load(new ByteArrayDataBlock(bytes));
@@ -81,7 +126,7 @@ class ZipEndOfCentralDirectoryRecordTests {
             0x04, 0x00, //
             0x05, 0x00, 0x00, 0x00, //
             0x06, 0x00, 0x00, 0x00, //
-            0x07, 0x00 }); //
+            0x00, 0x00 }); //
     assertThatIOException().isThrownBy(() -> ZipEndOfCentralDirectoryRecord.load(dataBlock))
             .withMessageContaining("'End Of Central Directory Record' not found");
   }
@@ -96,7 +141,7 @@ class ZipEndOfCentralDirectoryRecordTests {
             0x04, 0x00, //
             0x05, 0x00, 0x00, 0x00, //
             0x06, 0x00, 0x00, 0x00, //
-            0x07, 0x00 }; //
+            0x00, 0x00 }; //
     ZipEndOfCentralDirectoryRecord.Located located = ZipEndOfCentralDirectoryRecord
             .load(new ByteArrayDataBlock(bytes));
     assertThat(located.endOfCentralDirectoryRecord().asByteArray()).isEqualTo(bytes);
