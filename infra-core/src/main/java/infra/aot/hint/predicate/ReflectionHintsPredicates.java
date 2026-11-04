@@ -476,17 +476,4 @@ public class ReflectionHintsPredicates {
     }
   }
 
-  /**
-   * Compatibility alias for the original misspelled predicate type.
-   *
-   * @deprecated in favor of {@link JavaSerializationHintPredicate}
-   */
-  @Deprecated(since = "5.0")
-  public static class SerializationdHintPredicate extends JavaSerializationHintPredicate {
-
-    SerializationdHintPredicate(TypeReference typeReference, boolean javaSerialization) {
-      super(typeReference, javaSerialization);
-    }
-  }
-
 }
