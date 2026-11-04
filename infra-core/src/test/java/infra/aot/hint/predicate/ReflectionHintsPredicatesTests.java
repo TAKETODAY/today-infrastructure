@@ -409,6 +409,25 @@ class ReflectionHintsPredicatesTests {
   class JavaSerialization {
 
     @Test
+    void factoryUsesJavaSerializationHintPredicate() {
+      assertThat(reflection.onJavaSerialization(SampleClass.class, true))
+              .isExactlyInstanceOf(ReflectionHintsPredicates.JavaSerializationHintPredicate.class);
+      assertThat(reflection.onJavaSerialization(TypeReference.of(SampleClass.class), false))
+              .isExactlyInstanceOf(ReflectionHintsPredicates.JavaSerializationHintPredicate.class);
+    }
+
+    @Test
+    @SuppressWarnings("deprecation")
+    void legacyPredicateRetainsSerializationChecks() {
+      runtimeHints.reflection().registerJavaSerialization(SampleClass.class);
+      TypeReference type = TypeReference.of(SampleClass.class);
+      assertPredicateMatches(new ReflectionHintsPredicates.SerializationdHintPredicate(type, true));
+      assertPredicateDoesNotMatch(new ReflectionHintsPredicates.SerializationdHintPredicate(type, false));
+      assertPredicateDoesNotMatch(new ReflectionHintsPredicates.SerializationdHintPredicate(
+              TypeReference.of(Integer.class), false));
+    }
+
+    @Test
     void javaSerializationMatchesRegisteredClass() {
       runtimeHints.reflection().registerJavaSerialization(SampleClass.class);
       assertPredicateMatches(reflection.onJavaSerialization(SampleClass.class, true));
