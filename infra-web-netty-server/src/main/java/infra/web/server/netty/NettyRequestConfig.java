@@ -22,8 +22,8 @@ import java.nio.charset.Charset;
 import java.util.function.Function;
 
 import infra.http.HttpRequest;
-import infra.util.Assert;
 import infra.lang.Constant;
+import infra.util.Assert;
 import infra.util.DataSize;
 import infra.util.concurrent.Awaiter;
 import infra.util.concurrent.SimpleSingleThreadAwaiter;
@@ -31,8 +31,6 @@ import infra.web.HttpContext;
 import infra.web.multipart.MultipartParser;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
-import io.netty.handler.codec.http.HttpHeadersFactory;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
@@ -68,7 +66,7 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
  *   <li>Customizable cookie encoding and decoding strategies.</li>
  *   <li>Support for specifying initial capacity of response bodies.</li>
  *   <li>Flexible handling of character sets for POST request decoding and writers.</li>
- *   <li>Integration with Netty's {@link HttpHeadersFactory} and {@link HttpDataFactory}.</li>
+ *   <li>Integration with Netty's {@link HttpDataFactory}.</li>
  *   <li>Error handling for send operations via {@link SendErrorHandler}.</li>
  *   <li>Optional support for SSL/TLS through the {@code secure} flag.</li>
  * </ul>
@@ -80,7 +78,6 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
  * @see io.netty.buffer.ByteBufAllocator
  * @see ServerCookieEncoder
  * @see ServerCookieDecoder
- * @see HttpHeadersFactory
  * @see HttpDataFactory
  * @see SendErrorHandler
  * @since 2021/3/30 17:46
@@ -98,8 +95,7 @@ public final class NettyRequestConfig {
    */
   public final int responseBodyInitialCapacity;
 
-  @Nullable
-  public final Function<HttpContext, ByteBuf> responseBodyFactory;
+  public final @Nullable Function<HttpContext, ByteBuf> responseBodyFactory;
 
   /**
    * @see InterfaceHttpPostRequestDecoder
@@ -112,11 +108,6 @@ public final class NettyRequestConfig {
   public final Charset writerCharset;
 
   public final boolean writerAutoFlush;
-
-  /**
-   * Response headers factory
-   */
-  public final HttpHeadersFactory httpHeadersFactory;
 
   public final SendErrorHandler sendErrorHandler;
 
@@ -166,7 +157,6 @@ public final class NettyRequestConfig {
     this.maxContentLength = builder.maxContentLength;
     this.writerAutoFlush = builder.writerAutoFlush;
     this.sendErrorHandler = builder.sendErrorHandler;
-    this.httpHeadersFactory = builder.httpHeadersFactory;
     this.responseBodyFactory = builder.responseBodyFactory;
     this.dataReceivedQueueCapacity = builder.dataReceivedQueueCapacity;
     this.responseBodyInitialCapacity = builder.responseBodyInitialCapacity;
@@ -213,26 +203,21 @@ public final class NettyRequestConfig {
      */
     private int responseBodyInitialCapacity = 128;
 
-    @Nullable
-    private Function<HttpContext, ByteBuf> responseBodyFactory;
+    private @Nullable Function<HttpContext, ByteBuf> responseBodyFactory;
 
-    @Nullable
-    private Charset postRequestDecoderCharset = Constant.DEFAULT_CHARSET;
+    private @Nullable Charset postRequestDecoderCharset = Constant.DEFAULT_CHARSET;
 
-    @Nullable
-    private Charset writerCharset = Constant.DEFAULT_CHARSET;
+    private @Nullable Charset writerCharset = Constant.DEFAULT_CHARSET;
 
     private boolean writerAutoFlush = false;
 
     private long maxContentLength = DataSize.BYTES_PER_GB;
 
-    private HttpHeadersFactory httpHeadersFactory = DefaultHttpHeadersFactory.headersFactory();
-
     private @Nullable SendErrorHandler sendErrorHandler;
 
     private @Nullable MultipartParser multipartParser;
 
-    private int dataReceivedQueueCapacity;
+    private int dataReceivedQueueCapacity = 256;
 
     private boolean autoRead = true;
 
@@ -424,18 +409,6 @@ public final class NettyRequestConfig {
      */
     public Builder writerAutoFlush(boolean writerAutoFlush) {
       this.writerAutoFlush = writerAutoFlush;
-      return this;
-    }
-
-    /**
-     * A builder of {@link HttpHeadersFactory} instances, that itself implements {@link HttpHeadersFactory}.
-     * The builder is immutable, and every {@code with-} method produce a new, modified instance.
-     * <p>
-     * The default builder you most likely want to start with is {@link DefaultHttpHeadersFactory#headersFactory()}.
-     */
-    public Builder headersFactory(@Nullable HttpHeadersFactory headersFactory) {
-      this.httpHeadersFactory = headersFactory == null ? DefaultHttpHeadersFactory.headersFactory()
-              : headersFactory;
       return this;
     }
 

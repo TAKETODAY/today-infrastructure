@@ -187,7 +187,7 @@ public final class Netty4HttpHeaders extends infra.http.HttpHeaders {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
       if (o == this)
         return true;
 

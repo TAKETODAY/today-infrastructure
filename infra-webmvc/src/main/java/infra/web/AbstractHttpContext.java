@@ -584,6 +584,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * @return a long containing the length of the request body or -1L if the length
    * is not known
    */
+  @Override
   public abstract long getContentLength();
 
   /**
@@ -860,6 +861,19 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     fireCallbacks(Lifecycle.COMPLETED);
   }
 
+  /**
+   * Invoked from {@link #requestCompleted(Throwable)} after request-scoped
+   * resources have been released, and immediately before the
+   * {@link HttpContext.Lifecycle#COMPLETED} callbacks are fired.
+   * <p>Subclasses override this to finish transport-specific work, such as
+   * flushing the response body, completing the underlying exchange, or
+   * releasing native buffers. The base implementation does nothing, since not
+   * every context owns transport resources.
+   *
+   * @param notHandled the exception left unhandled during request processing,
+   * or {@code null} if the request was processed without an error
+   * @see #requestCompleted(Throwable)
+   */
   protected void requestCompletedInternal(@Nullable Throwable notHandled) {
   }
 
@@ -1007,6 +1021,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * @return a <code>String</code> containing the name of the MIME type of the
    * request, or null if the type is not known
    */
+  @Override
   public abstract @Nullable String getContentTypeAsString();
 
   /**

@@ -18,32 +18,30 @@ package infra.web.server.netty;
 
 import org.jspecify.annotations.Nullable;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.channels.ClosedChannelException;
+import java.util.Collection;
+import java.util.List;
 
 import infra.context.ApplicationContext;
-import infra.util.concurrent.Awaiter;
+import infra.http.support.Netty4HttpHeaders;
 import infra.web.DispatcherHandler;
-import infra.web.HttpContextHolder;
-import infra.web.server.RequestBodySizeExceededException;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.handler.codec.CharSequenceValueConverter;
+import io.netty.handler.codec.DefaultHeaders;
+import io.netty.handler.codec.DefaultHeadersImpl;
+import io.netty.handler.codec.Headers;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
-
-import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
-import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
-import static io.netty.handler.codec.http.HttpMethod.GET;
-import static io.netty.handler.codec.http.HttpMethod.HEAD;
+import io.netty.util.AsciiString;
 
 /**
  * Internal {@link NettyHttpContext} implementation that handles the lifecycle of an HTTP request
@@ -56,165 +54,130 @@ import static io.netty.handler.codec.http.HttpMethod.HEAD;
  */
 final class HttpContext extends NettyHttpContext implements Runnable {
 
-  private final HttpTrafficHandler httpTrafficHandler;
-
-  private final @Nullable BodyInputStream requestBody;
-
-  private final long contentLength;
-
-  private long receivedBytes = 0;
-
-  private volatile boolean continueExpected = false;
+  public final HttpRequest request;
 
   public HttpContext(Channel channel, HttpRequest request, NettyRequestConfig config,
           ApplicationContext context, DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler) {
-    super(context, channel, request, config, dispatcherHandler);
-    this.httpTrafficHandler = httpTrafficHandler;
-    long contentLength = getContentLength(request);
-    this.requestBody = (contentLength == 0L || (contentLength == -1L && (request.method() == GET || request.method() == HEAD))) ? null : createRequestBody();
+    super(context, channel, config, dispatcherHandler, httpTrafficHandler, getContentLength(request),
+            request.method(), newResponseHeaders());
+    this.request = request;
     if (request instanceof HttpContent content) {
       onDataReceived(content);
     }
-    this.contentLength = contentLength;
   }
 
-  private BodyInputStream createRequestBody() {
-    Awaiter awaiter = config.awaiterFactory.apply(this);
-    if (config.autoRead) {
-      return new BodyInputStream(awaiter, config.dataReceivedQueueCapacity);
-    }
-    channel.config().setAutoRead(false);
-    return new ManualReadingBodyInputStream(awaiter, config.dataReceivedQueueCapacity);
+  @Override
+  public HttpVersion version() {
+    return request.protocolVersion();
   }
 
-  public void onDataReceived(HttpContent httpContent) {
-    final int chunkSize = httpContent.content().readableBytes();
-    final long received = receivedBytes + chunkSize;
+  @Override
+  protected String requestUri() {
+    return request.uri();
+  }
 
-    if (received > config.maxContentLength && !continueExpected) {
-      httpContent.release();
-      if (requestBody != null) {
-        requestBody.onError(new IOException(new RequestBodySizeExceededException(config.maxContentLength)));
-      }
-      return;
-    }
+  @Override
+  protected infra.http.HttpHeaders createRequestHeaders() {
+    return new Netty4HttpHeaders(request.headers());
+  }
 
-    receivedBytes = received;
+  @Override
+  public boolean containsHeader(String name) {
+    return request.headers().contains(name);
+  }
 
-    if (httpContent instanceof LastHttpContent) {
-      if (requestBody != null) {
-        if (chunkSize > 0) {
-          requestBody.onDataReceived(httpContent.content());
-        }
-        requestBody.onComplete();
-      }
+  @Override
+  public boolean containsHeaderValue(String headerName, String value) {
+    return request.headers().containsValue(headerName, value, true);
+  }
+
+  /**
+   * Returns the value of the specified request header as a {@code String}.
+   * If the request does not have a header with the specified name,
+   * this method returns {@code null}.
+   *
+   * @param name the name of the request header
+   * @return the value of the specified request header, or {@code null}
+   * if the header does not exist
+   */
+  @Override
+  public @Nullable String getHeader(String name) {
+    return request.headers().get(name);
+  }
+
+  /**
+   * Returns the values of the specified request header as a {@code List<String>}.
+   * If the request does not have a header with the specified name,
+   * this method returns an empty list.
+   *
+   * @param name the name of the request header
+   * @return the values of the specified request header, or an empty
+   * list if the header does not exist
+   */
+  @Override
+  public List<String> getHeaders(String name) {
+    return request.headers().getAll(name);
+  }
+
+  /**
+   * Get the header names provided for this request.
+   *
+   * @return a Collection of all the header names provided for this request.
+   */
+  @Override
+  public Collection<String> getHeaderNames() {
+    return request.headers().names();
+  }
+
+  @Override
+  protected boolean is100ContinueExpected() {
+    return HttpUtil.is100ContinueExpected(request);
+  }
+
+  @Override
+  protected void removeExpectHeader() {
+    request.headers().remove(HttpHeaderNames.EXPECT);
+  }
+
+  /**
+   * Complete the response, closing the connection when it is not kept alive.
+   */
+  @Override
+  protected void endResponse() {
+    if (HttpUtil.isKeepAlive(request)) {
+      channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
     }
     else {
-      if (requestBody != null) {
-        requestBody.onDataReceived(httpContent.content());
-      }
+      channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
+              .addListener(ChannelFutureListener.CLOSE);
     }
-  }
-
-  @Override
-  public long getContentLength() {
-    return contentLength;
-  }
-
-  @Override
-  protected InputStream createInputStream() {
-    return requestBody != null ? requestBody : InputStream.nullInputStream();
-  }
-
-  @Override
-  protected void requestCompletedInternal(@Nullable Throwable notHandled) {
-    if (!config.autoRead) {
-      channel.config().setAutoRead(true);
-    }
-    cleanup(null);
-    super.requestCompletedInternal(notHandled);
-  }
-
-  @Override
-  public void run() {
-    HttpContextHolder.set(this);
-
-    try {
-      if (HttpUtil.is100ContinueExpected(request)) {
-        HttpResponse accept = acceptMessage();
-        if (accept == null) {
-          // the expectation failed so we refuse the request.
-          channel.writeAndFlush(rejectResponse())
-                  .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
-          return;
-        }
-
-        continueExpected = true;
-        channel.writeAndFlush(accept)
-                .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
-        request.headers().remove(HttpHeaderNames.EXPECT);
-      }
-      else if (contentLength != -1 && contentLength > config.maxContentLength) {
-        processException(new RequestBodySizeExceededException(config.maxContentLength));
-        return;
-      }
-
-      if (request.decoderResult().cause() != null) {
-        processException(request.decoderResult().cause());
-      }
-      else {
-        dispatcherHandler.handleRequest(this); // handling HTTP request
-      }
-    }
-    catch (Throwable e) {
-      httpTrafficHandler.handleException(channel, e);
-    }
-    finally {
-      HttpContextHolder.cleanup();
-    }
-  }
-
-  private void cleanup(@Nullable IOException error) {
-    if (requestBody != null) {
-      if (error != null) {
-        requestBody.onError(error);
-      }
-      requestBody.close();
-    }
-  }
-
-  public void channelInactive() {
-    cleanup(new ClosedChannelException());
   }
 
   /**
-   * Produces a {@link HttpResponse} for {@link HttpRequest}s which define an expectation.
-   * Returns {@code null} if the request should be rejected. See {@link #rejectResponse()}.
+   * Write an informational {@code 100 Continue} response without ending the exchange.
    */
-  private @Nullable HttpResponse acceptMessage() {
-    Boolean continueExpected = dispatcherHandler.requestContinueExpected(this);
-    if (continueExpected != null) {
-      if (!continueExpected) {
-        return null;
-      }
-    }
-    // fallback to default max content-length check
-    else if (contentLength > config.maxContentLength) {
-      return null;
-    }
-
-    return new DefaultFullHttpResponse(version(), HttpResponseStatus.CONTINUE, Unpooled.EMPTY_BUFFER,
-            config.httpHeadersFactory, trailersFactory());
+  @Override
+  protected void writeResponseContinue() {
+    channel.writeAndFlush(new DefaultFullHttpResponse(version(), HttpResponseStatus.CONTINUE,
+            Unpooled.EMPTY_BUFFER));
   }
 
-  /**
-   * Returns the appropriate 4XX {@link HttpResponse} for the given {@link HttpRequest}.
-   */
-  private HttpResponse rejectResponse() {
-    DefaultFullHttpResponse response = new DefaultFullHttpResponse(version(), HttpResponseStatus.EXPECTATION_FAILED, Unpooled.EMPTY_BUFFER,
-            config.httpHeadersFactory, trailersFactory());
-    response.headers().set(CONTENT_LENGTH, 0);
-    return response;
+  @Override
+  protected void writeRejectResponseContinue() {
+    DefaultFullHttpResponse response = new DefaultFullHttpResponse(version(),
+            HttpResponseStatus.EXPECTATION_FAILED, Unpooled.EMPTY_BUFFER);
+    response.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
+    channel.writeAndFlush(response);
+  }
+
+  @Override
+  protected void processRequest() throws Exception {
+    if (request.decoderResult().cause() != null) {
+      processException(request.decoderResult().cause());
+    }
+    else {
+      dispatcherHandler.handleRequest(this);
+    }
   }
 
   /**
@@ -226,7 +189,7 @@ final class HttpContext extends NettyHttpContext implements Runnable {
    * @return the content length or the specified default value
    * @throws NumberFormatException if the {@code "Content-Length"} header does not parse as a long
    */
-  static long getContentLength(HttpMessage message) {
+  public static long getContentLength(HttpMessage message) {
     String value = message.headers().get(HttpHeaderNames.CONTENT_LENGTH);
     if (value != null) {
       return Long.parseLong(value);
@@ -234,17 +197,20 @@ final class HttpContext extends NettyHttpContext implements Runnable {
     return -1L;
   }
 
-  private final class ManualReadingBodyInputStream extends BodyInputStream {
-
-    private ManualReadingBodyInputStream(Awaiter awaiter, int capacity) {
-      super(awaiter, capacity);
-    }
-
-    @Override
-    protected void requestNext() {
-      channel.read();
-    }
-
+  /**
+   * Create the response headers container.
+   * <p>A Netty {@link Headers} implementation is used so HTTP/1 and HTTP/2
+   * can share the same header store. Header name and value validation is
+   * inherited from {@link DefaultHttpHeadersFactory#headersFactory()}.
+   */
+  public static DefaultHeaders<CharSequence, CharSequence, ?> newResponseHeaders() {
+    DefaultHttpHeadersFactory factory = DefaultHttpHeadersFactory.headersFactory();
+    return new DefaultHeadersImpl<>(
+            AsciiString.CASE_INSENSITIVE_HASHER,
+            CharSequenceValueConverter.INSTANCE,
+            factory.getNameValidator(),
+            8,
+            factory.getValueValidator());
   }
 
 }

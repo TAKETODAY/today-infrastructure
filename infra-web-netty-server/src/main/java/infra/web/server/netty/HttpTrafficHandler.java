@@ -16,8 +16,6 @@
 
 package infra.web.server.netty;
 
-import org.jspecify.annotations.Nullable;
-
 import java.io.IOException;
 
 import infra.context.ApplicationContext;
@@ -36,18 +34,24 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-import io.netty.util.AttributeKey;
+import io.netty.handler.codec.http2.DefaultHttp2Headers;
+import io.netty.handler.codec.http2.DefaultHttp2HeadersFrame;
+import io.netty.handler.codec.http2.Http2DataFrame;
+import io.netty.handler.codec.http2.Http2Headers;
+import io.netty.handler.codec.http2.Http2HeadersFrame;
+import io.netty.handler.codec.http2.Http2ResetFrame;
+import io.netty.handler.codec.http2.Http2StreamChannel;
+import io.netty.handler.codec.http2.Http2StreamFrame;
 import io.netty.util.ReferenceCountUtil;
 
 import static infra.util.FeatureDetector.isPresent;
 import static infra.web.socket.handler.ExceptionWebSocketHandler.tryCloseWithError;
-import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
 
 /**
  * Handles HTTP traffic in Netty server, processing incoming requests and managing HTTP context.
@@ -60,8 +64,6 @@ import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFact
 public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
 
   private static final Logger log = LoggerFactory.getLogger(HttpTrafficHandler.class);
-
-  private static final AttributeKey<@Nullable HttpContext> KEY = AttributeKey.valueOf(HttpContext.class, "KEY");
 
   private static final boolean webSocketPresent = isPresent(Feature.WEBSOCKET);
 
@@ -94,12 +96,13 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
   public final void channelRead(final ChannelHandlerContext ctx, final Object msg) throws IOException {
     if (msg instanceof HttpRequest request) {
       Channel channel = ctx.channel();
-      HttpContext httpContext = new HttpContext(channel, request, requestConfig, context, dispatcherHandler, this);
-      channel.attr(KEY).set(httpContext);
+      HttpContext httpContext = new HttpContext(channel, request, requestConfig,
+              context, dispatcherHandler, this);
+      httpContext.attach();
       executor.execute(httpContext, httpContext);
     }
     else if (msg instanceof HttpContent content) {
-      HttpContext httpContext = ctx.channel().attr(KEY).get();
+      NettyHttpContext httpContext = NettyHttpContext.lookup(ctx);
       if (httpContext != null) {
         httpContext.onDataReceived(content);
       }
@@ -107,11 +110,59 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
         content.release();
       }
     }
-    else if (msg instanceof WebSocketFrame) {
-      handleWebSocketFrame(ctx, (WebSocketFrame) msg);
+    else if (msg instanceof Http2StreamFrame frame) {
+      handleHttp2StreamFrame(ctx, frame);
+    }
+    else if (msg instanceof WebSocketFrame frame) {
+      handleWebSocketFrame(ctx, frame);
     }
     else {
       ctx.fireChannelRead(msg);
+    }
+  }
+
+  private void handleHttp2StreamFrame(ChannelHandlerContext ctx, Http2StreamFrame frame) throws IOException {
+    if (frame instanceof Http2HeadersFrame headersFrame) {
+      handleHttp2Headers(ctx, headersFrame);
+    }
+    else if (frame instanceof Http2DataFrame dataFrame) {
+      NettyHttpContext httpContext = NettyHttpContext.lookup(ctx);
+      if (httpContext != null) {
+        httpContext.onDataReceived(dataFrame.content(), dataFrame.isEndStream());
+      }
+      else {
+        dataFrame.release();
+      }
+    }
+    else if (frame instanceof Http2ResetFrame resetFrame) {
+      NettyHttpContext httpContext = NettyHttpContext.getAndRemove(ctx);
+      if (httpContext != null) {
+        httpContext.onError(new IOException("HTTP/2 stream reset: " + resetFrame.errorCode()));
+      }
+    }
+    else {
+      ctx.fireChannelRead(frame);
+    }
+  }
+
+  private void handleHttp2Headers(ChannelHandlerContext ctx, Http2HeadersFrame frame) throws IOException {
+    Http2Headers headers = frame.headers();
+    if (headers.method() == null) {
+      // trailing headers of an already started request
+      NettyHttpContext httpContext = NettyHttpContext.lookup(ctx);
+      if (httpContext != null) {
+        httpContext.onDataReceived(Unpooled.EMPTY_BUFFER, true);
+      }
+      return;
+    }
+
+    Http2StreamChannel channel = (Http2StreamChannel) ctx.channel();
+    Http2HttpContext httpContext = new Http2HttpContext(channel, headers,
+            requestConfig, context, dispatcherHandler, this);
+    httpContext.attach();
+    executor.execute(httpContext, httpContext);
+    if (frame.isEndStream()) {
+      httpContext.onDataReceived(Unpooled.EMPTY_BUFFER, true);
     }
   }
 
@@ -135,17 +186,40 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
   }
 
   void handleException(Channel channel, Throwable cause) {
-    HttpResponse response = createErrorResponse(cause);
-    if (response != null) {
+    NettyHttpContext context = NettyHttpContext.lookup(channel);
+    if (context != null && context.isCommitted()) {
+      handleCommittedException(channel, cause);
+      return;
+    }
+
+    var statusCode = HttpStatusProvider.getStatusCode(cause);
+    HttpResponseStatus status = HttpResponseStatus.valueOf(statusCode.first.value());
+    if (channel instanceof Http2StreamChannel) {
+      Http2Headers headers = new DefaultHttp2Headers()
+              .status(status.codeAsText())
+              .setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
+      channel.writeAndFlush(new DefaultHttp2HeadersFrame(headers, true))
+              .addListener(ChannelFutureListener.CLOSE);
+    }
+    else {
+      var response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, Unpooled.EMPTY_BUFFER);
+      response.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
       channel.writeAndFlush(response)
               .addListener(ChannelFutureListener.CLOSE);
     }
   }
 
-  protected @Nullable HttpResponse createErrorResponse(Throwable cause) {
-    var statusCode = HttpStatusProvider.getStatusCode(cause);
-    return new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(statusCode.first.value()),
-            Unpooled.EMPTY_BUFFER, requestConfig.httpHeadersFactory, trailersFactory());
+  /**
+   * Handle a failure after the response has been committed. The response head
+   * can no longer be replaced, so the connection or HTTP/2 stream is closed to
+   * signal an incomplete response.
+   */
+  private static void handleCommittedException(Channel channel, Throwable cause) {
+    if (!channel.isActive()) {
+      return;
+    }
+    log.error("Failed to complete response", cause);
+    channel.close();
   }
 
   //
@@ -156,9 +230,9 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
       Ws.channelInactive(ctx);
     }
 
-    HttpContext context = ctx.channel().attr(KEY).getAndSet(null);
+    NettyHttpContext context = NettyHttpContext.getAndRemove(ctx);
     if (context != null) {
-      context.channelInactive();
+      context.onChannelInactive();
     }
     ctx.fireChannelInactive();
   }

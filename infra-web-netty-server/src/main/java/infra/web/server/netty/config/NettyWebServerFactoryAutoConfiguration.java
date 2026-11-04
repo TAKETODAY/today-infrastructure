@@ -68,7 +68,6 @@ import infra.web.server.netty.NettyWebServerFactory;
 import infra.web.server.netty.ServerBootstrapCustomizer;
 import infra.web.socket.server.RequestUpgradeStrategy;
 import io.netty.channel.ChannelHandler;
-import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
 
 import static infra.scheduling.config.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
@@ -165,8 +164,6 @@ public final class NettyWebServerFactoryAutoConfiguration {
     var builder = NettyRequestConfig.forBuilder(Ssl.isEnabled(server.ssl))
             .multipartParser(multipartParser)
             .writerAutoFlush(netty.writerAutoFlush)
-            .headersFactory(DefaultHttpHeadersFactory.headersFactory()
-                    .withValidation(netty.validateHeaders))
             .sendErrorHandler(sendErrorHandler)
             .maxContentLength(netty.maxContentLength.toBytes())
             .dataReceivedQueueCapacity(netty.dataReceivedQueueCapacity)

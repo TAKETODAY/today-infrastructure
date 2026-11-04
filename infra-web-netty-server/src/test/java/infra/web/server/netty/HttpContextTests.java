@@ -26,10 +26,12 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.DecoderResult;
+import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
@@ -58,6 +60,7 @@ class HttpContextTests {
     DispatcherHandler dispatcherHandler = mock(DispatcherHandler.class);
     HttpTrafficHandler channelHandler = mock(HttpTrafficHandler.class);
 
+    when(request.method()).thenReturn(HttpMethod.POST);
     when(request.headers()).thenReturn(new DefaultHttpHeaders().set(HttpHeaderNames.CONTENT_LENGTH, "150"));
 
     // When
@@ -77,6 +80,7 @@ class HttpContextTests {
     DispatcherHandler dispatcherHandler = mock(DispatcherHandler.class);
     HttpTrafficHandler channelHandler = mock(HttpTrafficHandler.class);
 
+    when(request.method()).thenReturn(HttpMethod.POST);
     when(request.headers()).thenReturn(new DefaultHttpHeaders().set(HttpHeaderNames.CONTENT_LENGTH, "150"));
 
     // When
@@ -158,6 +162,22 @@ class HttpContextTests {
 
     message.headers().remove(HttpHeaderNames.CONTENT_LENGTH);
     assertThat(HttpContext.getContentLength(message)).isEqualTo(-1L);
+  }
+
+  @Test
+  void http1HeadersShouldShareUnderlyingHeadersStore() {
+    DefaultHttpHeaders source = new DefaultHttpHeaders();
+    source.add("X-Test", "value");
+    DefaultHeaders<CharSequence, CharSequence, ?> headers =
+            (DefaultHeaders<CharSequence, CharSequence, ?>) source.unwrap();
+
+    HttpHeaders view = new Http1Headers(headers);
+
+    assertThat(view).isInstanceOf(Http1Headers.class);
+    assertThat(view.get("X-Test")).isEqualTo("value");
+
+    source.add("X-Added", "later");
+    assertThat(view.get("X-Added")).isEqualTo("later");
   }
 
   private static NettyRequestConfig createRequestConfig() {

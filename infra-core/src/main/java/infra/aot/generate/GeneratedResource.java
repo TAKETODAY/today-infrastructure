@@ -260,7 +260,7 @@ public final class GeneratedResource {
         return input2.read() == -1;
       }
       catch (IOException ex) {
-        throw new RuntimeException("Failed to validate content for generated resource at '%s'"
+        throw new IllegalStateException("Failed to validate content for generated resource at '%s'"
                 .formatted(getPath()), ex);
       }
 

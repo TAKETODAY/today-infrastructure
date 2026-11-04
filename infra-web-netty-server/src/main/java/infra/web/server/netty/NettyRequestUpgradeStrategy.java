@@ -93,9 +93,9 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
   public @Nullable WebSocketSession upgrade(HttpContext context, @Nullable String selectedProtocol, List<WebSocketExtension> selectedExtensions,
           WebSocketHandler wsHandler, Map<String, Object> attributes) throws HandshakeFailureException //
   {
-    NettyHttpContext nettyContext = context.getNativeContext(NettyHttpContext.class);
+    var nettyContext = context.getNativeContext(infra.web.server.netty.HttpContext.class);
     if (nettyContext == null) {
-      throw new IllegalStateException("not running in netty");
+      throw new IllegalStateException("WebSocket upgrade requires an HTTP/1.x Netty request context");
     }
     HttpRequest request = nettyContext.request;
     var handshaker = createHandshakeFactory(request, selectedExtensions).newHandshaker(request);
@@ -124,7 +124,9 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     Assert.state(response != null, "Handshake failed");
 
     nettyContext.setStatus(response.status());
-    nettyContext.nettyResponseHeaders.add(response.headers());
+    for (var entry : response.headers()) {
+      nettyContext.nettyResponseHeaders.add(entry.getKey(), entry.getValue());
+    }
     nettyContext.registerCompletedCallback(handshakeChannel);
 
     if (selectedProtocol != null) {

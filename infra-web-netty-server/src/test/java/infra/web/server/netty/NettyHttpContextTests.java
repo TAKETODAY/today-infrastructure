@@ -19,20 +19,22 @@ package infra.web.server.netty;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.util.List;
 
 import infra.context.ApplicationContext;
+import infra.http.support.Netty4HttpHeaders;
 import infra.util.MultiValueMap;
 import infra.web.DispatcherHandler;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.QueryStringEncoder;
 
+import static infra.web.server.netty.HttpContext.newResponseHeaders;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
@@ -402,6 +404,43 @@ class NettyHttpContextTests {
 
   }
 
+  // -- request URI and query string tests --
+
+  @Test
+  void requestUriIsReadBeforeQueryString() {
+    var ctx = newContext("/path/to?name=value&x=1");
+    assertThat(ctx.getRequestURI()).isEqualTo("/path/to");
+    assertThat(ctx.getQueryString()).isEqualTo("name=value&x=1");
+  }
+
+  @Test
+  void queryStringIsReadBeforeRequestUri() {
+    var ctx = newContext("/path/to?name=value&x=1");
+    assertThat(ctx.getQueryString()).isEqualTo("name=value&x=1");
+    assertThat(ctx.getRequestURI()).isEqualTo("/path/to");
+  }
+
+  @Test
+  void requestUriWithoutQueryString() {
+    var ctx = newContext("/path/to");
+    assertThat(ctx.getRequestURI()).isEqualTo("/path/to");
+    assertThat(ctx.getQueryString()).isNull();
+  }
+
+  @Test
+  void requestUriWithEmptyQueryString() {
+    var ctx = newContext("/path/to?");
+    assertThat(ctx.getRequestURI()).isEqualTo("/path/to");
+    // an empty query string is normalized to null by AbstractHttpContext
+    assertThat(ctx.getQueryString()).isNull();
+  }
+
+  private static NettyHttpContextStub newContext(String uri) {
+    var request = new DefaultHttpRequest(
+            HttpVersion.HTTP_1_1, io.netty.handler.codec.http.HttpMethod.GET, uri);
+    return new NettyHttpContextStub(request, null);
+  }
+
   // -- getServerName tests --
 
   @Test
@@ -688,6 +727,8 @@ class NettyHttpContextTests {
 
   private static class NettyHttpContextStub extends NettyHttpContext {
 
+    private final io.netty.handler.codec.http.HttpRequest request;
+
     NettyHttpContextStub(io.netty.handler.codec.http.HttpRequest request, Channel channel) {
       this(request, channel, NettyRequestConfig.forBuilder(false));
     }
@@ -695,22 +736,44 @@ class NettyHttpContextTests {
     NettyHttpContextStub(io.netty.handler.codec.http.HttpRequest request, Channel channel, NettyRequestConfig.Builder configBuilder) {
       super(mock(ApplicationContext.class),
               channel != null ? channel : mockChannel(),
-              request,
               configBuilder
                       .sendErrorHandler((req, msg) -> { })
                       .multipartParser(mock(infra.web.multipart.MultipartParser.class))
                       .build(),
-              mock(DispatcherHandler.class));
+              mock(DispatcherHandler.class),
+              mock(HttpTrafficHandler.class),
+              0,
+              request.method(),
+              newResponseHeaders());
+      this.request = request;
     }
 
     @Override
-    public long getContentLength() {
-      return 0;
+    public HttpVersion version() {
+      return request.protocolVersion();
     }
 
     @Override
-    protected InputStream createInputStream() throws IOException {
-      return InputStream.nullInputStream();
+    protected String requestUri() {
+      return request.uri();
+    }
+
+    @Override
+    protected infra.http.HttpHeaders createRequestHeaders() {
+      return new Netty4HttpHeaders(request.headers());
+    }
+
+    @Override
+    protected boolean is100ContinueExpected() {
+      return HttpUtil.is100ContinueExpected(request);
+    }
+
+    @Override
+    protected void writeResponseContinue() {
+    }
+
+    @Override
+    protected void writeRejectResponseContinue() {
     }
   }
 

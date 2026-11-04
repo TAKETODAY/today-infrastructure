@@ -568,7 +568,7 @@ public class Label {
       if ((basicBlock.flags & FLAG_SUBROUTINE_END) != 0
               && basicBlock.subroutineId != subroutineCaller.subroutineId) {
         if (retInsnFound) {
-          throw new RuntimeException("Multiple rets to single jsr");
+          throw new IllegalStateException("Multiple rets to single jsr");
         }
         retInsnFound = true;
         basicBlock.outgoingEdges =
