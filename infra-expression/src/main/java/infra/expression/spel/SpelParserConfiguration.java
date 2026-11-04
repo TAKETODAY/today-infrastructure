@@ -25,6 +25,7 @@ import java.util.Locale;
 import infra.expression.spel.standard.SpelExpressionParser;
 import infra.util.Assert;
 import infra.util.InfraStrategies;
+import infra.util.StringUtils;
 
 /**
  * Configuration object for the SpEL expression parser.
@@ -256,38 +257,28 @@ public class SpelParserConfiguration {
   }
 
   private static int retrieveMaxOperations() {
-    String value = InfraStrategies.getProperty(EXPRESSION_MAX_OPERATIONS_PROPERTY_NAME);
-    if (value == null || value.isBlank()) {
-      return DEFAULT_MAX_OPERATIONS;
-    }
-    try {
-      int maxOperations = Integer.parseInt(value.trim());
-      if (maxOperations <= 0) {
-        throw new IllegalArgumentException("Value [%d] for property [%s] must be positive".formatted(maxOperations, EXPRESSION_MAX_OPERATIONS_PROPERTY_NAME));
-      }
-      return maxOperations;
-    }
-    catch (NumberFormatException ex) {
-      throw new IllegalArgumentException("Failed to parse value for property [%s]: %s"
-              .formatted(EXPRESSION_MAX_OPERATIONS_PROPERTY_NAME, ex.getMessage()), ex);
-    }
+    return retrieveConfig(EXPRESSION_MAX_OPERATIONS_PROPERTY_NAME, DEFAULT_MAX_OPERATIONS);
   }
 
   private static int retrieveMaxBigPowerBits() {
-    String value = InfraStrategies.getProperty(EXPRESSION_MAX_BIG_POWER_BITS_PROPERTY_NAME);
-    if (value == null || value.isBlank()) {
-      return DEFAULT_MAX_BIG_POWER_BITS;
+    return retrieveConfig(EXPRESSION_MAX_BIG_POWER_BITS_PROPERTY_NAME, DEFAULT_MAX_BIG_POWER_BITS);
+  }
+
+  private static int retrieveConfig(String propertyName, int defaultValue) {
+    String value = InfraStrategies.getProperty(propertyName);
+    if (StringUtils.isBlank(value)) {
+      return defaultValue;
     }
     try {
-      int maxBits = Integer.parseInt(value.trim());
-      if (maxBits <= 0) {
-        throw new IllegalArgumentException("Value [%d] for property [%s] must be positive".formatted(maxBits, EXPRESSION_MAX_BIG_POWER_BITS_PROPERTY_NAME));
+      int val = Integer.parseInt(value.trim());
+      if (val <= 0) {
+        throw new IllegalArgumentException("Value [%d] for property [%s] must be positive".formatted(val, propertyName));
       }
-      return maxBits;
+      return val;
     }
     catch (NumberFormatException ex) {
       throw new IllegalArgumentException("Failed to parse value for property [%s]: %s"
-              .formatted(EXPRESSION_MAX_BIG_POWER_BITS_PROPERTY_NAME, ex.getMessage()), ex);
+              .formatted(propertyName, ex.getMessage()), ex);
     }
   }
 
