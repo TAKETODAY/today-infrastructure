@@ -2218,9 +2218,9 @@ class MergedAnnotationsTests {
 
     // The unsynthesized annotation for handleMappedWithSamePathAndValueAttributes()
     // should produce almost the same toString() results as synthesized annotations for
-    // handleMappedWithPathAttribute() on Java 9 or higher; however, due to multiple changes
-    // in the JDK's toString() implementation for annotations in JDK 9, 14, and 19,
-    // we do not test the JDK implementation.
+    // handleMappedWithPathAttribute(); however, due to multiple changes in the JDK's
+    // toString() implementation for annotations in JDK 19 and higher, we do not test
+    // the JDK implementation.
     // assertToStringForWebMappingWithPathAndValue(webMappingWithPathAndValue);
 
     assertToStringForWebMappingWithPathAndValue(synthesizedWebMapping1);
@@ -2232,24 +2232,24 @@ class MergedAnnotationsTests {
             .startsWith("@infra.core.annotation.MergedAnnotationsTests.RequestMapping(")
             .contains(
                     // Strings
-                    "value=['/test']", "path=['/test']", "name='bar'",
+                    "value={\"/test\"}", "path={\"/test\"}", "name=\"bar\"",
                     // Characters
-                    "ch='X'", "chars=['X']",
+                    "ch='X'", "chars={'X'}",
                     // Enums
-                    "method=[GET, POST]",
+                    "method={GET, POST}",
                     // Classes
                     "clazz=infra.core.annotation.MergedAnnotationsTests.RequestMethod.class",
-                    "classes=[int[][].class, infra.core.annotation.MergedAnnotationsTests.RequestMethod[].class]",
+                    "classes={int[][].class, infra.core.annotation.MergedAnnotationsTests.RequestMethod[].class}",
                     // Bytes
-                    "byteValue=(byte)0xff", "bytes=[(byte)0xff]",
+                    "byteValue=(byte)0xff", "bytes={(byte)0xff}",
                     // Shorts
-                    "shortValue=9876", "shorts=[9876]",
+                    "shortValue=9876", "shorts={9876}",
                     // Longs
-                    "longValue=42L", "longs=[42L]",
+                    "longValue=42L", "longs={42L}",
                     // Floats
-                    "floatValue=3.14f", "floats=[3.14f]",
+                    "floatValue=3.14f", "floats={3.14f}",
                     // Doubles
-                    "doubleValue=99.999", "doubles=[99.999]"
+                    "doubleValue=99.999", "doubles={99.999}"
             )
             .endsWith(")");
   }
