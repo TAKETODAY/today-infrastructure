@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ResourceRegionEncoderTests extends AbstractLeakCheckingTests {
 
-  private ResourceRegionEncoder encoder = new ResourceRegionEncoder();
+  private final ResourceRegionEncoder encoder = new ResourceRegionEncoder();
 
   @Test
   void canEncode() {
@@ -62,7 +62,7 @@ class ResourceRegionEncoderTests extends AbstractLeakCheckingTests {
   }
 
   @Test
-  void shouldEncodeResourceRegionFileResource() throws Exception {
+  void shouldEncodeResourceRegionFileResource() {
     ResourceRegion region = new ResourceRegion(
             new ClassPathResource("ResourceRegionEncoderTests.txt", getClass()), 0, 6);
     Flux<DataBuffer> result = this.encoder.encode(Mono.just(region), this.bufferFactory,
