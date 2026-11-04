@@ -887,7 +887,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
   }
 
   /**
-   * Indicates whether this {@code MimeType} is more less than the given type.
+   * Indicates whether this {@code MimeType} is less specific than the given type.
    * <ol>
    * <li>if this mime type has a {@linkplain #isWildcardType() wildcard type},
    * and the other does not, then this method returns {@code true}.</li>
@@ -930,6 +930,10 @@ public class MimeType implements Comparable<MimeType>, Serializable {
   // static
 
   /**
+   * Parse the given String value into a {@code MimeType} object,
+   * with this method name following the 'valueOf' naming convention
+   * (as supported by {@link infra.core.convert.ConversionService}).
+   *
    * @see MimeTypeUtils#parseMimeType(String)
    */
   public static MimeType valueOf(String value) {
