@@ -43,6 +43,13 @@ import infra.test.context.aot.AotTestContextInitializers;
 public class DependencyInjectionTestExecutionListener extends AbstractTestExecutionListener {
 
   /**
+   * The {@link #getOrder() order} value for this listener: {@value}.
+   *
+   * @since 5.0
+   */
+  public static final int ORDER = 2000;
+
+  /**
    * Attribute name for a {@link TestContext} attribute which indicates
    * whether the dependencies of a test instance should be
    * <em>reinjected</em> in
@@ -65,11 +72,12 @@ public class DependencyInjectionTestExecutionListener extends AbstractTestExecut
   private final AotTestContextInitializers aotTestContextInitializers = new AotTestContextInitializers();
 
   /**
-   * Returns {@code 2000}.
+   * Returns {@value #ORDER}, ordering dependency injection after context cleanup
+   * before test execution and before context cleanup after test execution.
    */
   @Override
   public final int getOrder() {
-    return 2000;
+    return ORDER;
   }
 
   /**
@@ -141,10 +149,11 @@ public class DependencyInjectionTestExecutionListener extends AbstractTestExecut
    */
   protected void injectDependencies(TestContext testContext) throws Exception {
     Object bean = testContext.getTestInstance();
-    Class<?> clazz = testContext.getTestClass();
+    String beanName = testContext.getTestClass().getName() + AutowireCapableBeanFactory.ORIGINAL_INSTANCE_SUFFIX;
+
     AutowireCapableBeanFactory beanFactory = testContext.getApplicationContext().getAutowireCapableBeanFactory();
     beanFactory.autowireBeanProperties(bean, AutowireCapableBeanFactory.AUTOWIRE_NO, false);
-    beanFactory.initializeBean(bean, clazz.getName() + AutowireCapableBeanFactory.ORIGINAL_INSTANCE_SUFFIX);
+    beanFactory.initializeBean(bean, beanName);
     testContext.removeAttribute(REINJECT_DEPENDENCIES_ATTRIBUTE);
   }
 
