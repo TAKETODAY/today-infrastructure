@@ -294,6 +294,7 @@ public final class TypeHint implements ConditionalHint {
      *
      * @param javaSerialization whether to register this type for Java serialization.
      * @return {@code this}, to facilitate method chaining
+     * @since 5.0
      */
     public Builder withJavaSerialization(boolean javaSerialization) {
       this.javaSerialization = javaSerialization;

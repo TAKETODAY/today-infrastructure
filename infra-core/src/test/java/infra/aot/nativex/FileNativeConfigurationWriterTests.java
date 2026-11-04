@@ -50,6 +50,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sebastien Deleuze
  * @author Janne Valkealahti
  * @author Sam Brannen
+ * @author Stephane Nicoll
  */
 class FileNativeConfigurationWriterTests {
 

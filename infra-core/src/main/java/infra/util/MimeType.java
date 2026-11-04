@@ -42,7 +42,7 @@ import java.util.TreeSet;
  * <p>
  * This class, however, does not contain support for the q-parameters used in
  * HTTP content negotiation. Those can be found in the subclass
-   * {@code infra.http.MediaType} in the {@code infra-http} module.
+ * {@code infra.http.MediaType} in the {@code infra-http} module.
  *
  * <p>
  * Consists of a {@linkplain #getType() type} and a {@linkplain #getSubtype()

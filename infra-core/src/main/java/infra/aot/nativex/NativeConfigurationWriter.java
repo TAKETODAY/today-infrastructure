@@ -28,8 +28,9 @@ import infra.aot.hint.RuntimeHints;
  * @author Sebastien Deleuze
  * @author Stephane Nicoll
  * @author Janne Valkealahti
+ * @author Brian Clozel
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see <a href="https://www.graalvm.org/22.1/reference-manual/native-image/BuildConfiguration/">Native Image Build Configuration</a>
+ * @see <a href="https://www.graalvm.org/jdk23/reference-manual/native-image/overview/BuildConfiguration/">Native Image Build Configuration</a>
  * @since 4.0
  */
 public abstract class NativeConfigurationWriter {
