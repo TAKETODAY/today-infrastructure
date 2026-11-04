@@ -29,7 +29,7 @@ import infra.logging.Logger;
 import infra.util.StringUtils;
 
 /**
- * Parser for URI's based on RFC 3986 syntax.
+ * Parser for URIs based on RFC 3986 syntax.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
