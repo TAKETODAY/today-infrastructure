@@ -429,14 +429,16 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
     private class DeferredResultSubscriber implements Subscriber<T> {
 
       private final Context context;
-      @Nullable
-      private Subscription subscription;
-      private final HttpContext request;
+
+      private @Nullable Subscription subscription;
+
+      private final HttpContext httpContext;
+
       private final DeferredResult<?> deferredResult;
 
-      public DeferredResultSubscriber(HttpContext request,
+      public DeferredResultSubscriber(HttpContext httpContext,
               Context context, DeferredResult<?> deferredResult) {
-        this.request = request;
+        this.httpContext = httpContext;
         this.context = context;
         this.deferredResult = deferredResult;
       }
@@ -456,8 +458,8 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
       public void onNext(T t) {
         Assert.state(this.subscription != null, "No subscription");
         try {
-          tryWriteEntityWithMessageConverters(t, request, context);
-          request.getOutputStream().flush();
+          tryWriteEntityWithMessageConverters(t, httpContext, context);
+          httpContext.flush();
           this.subscription.request(1);
         }
         catch (Throwable ex) {
@@ -469,7 +471,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
       @Override
       public void onError(Throwable t) {
         try {
-          handleError(t, this.request, this.context);
+          handleError(t, this.httpContext, this.context);
         }
         catch (Throwable handlingThrowable) {
           this.deferredResult.setErrorResult(handlingThrowable);
@@ -479,7 +481,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
       @Override
       public void onComplete() {
         try {
-          request.getOutputStream().flush();
+          httpContext.flush();
           this.deferredResult.setResult(null);
         }
         catch (IOException ex) {
