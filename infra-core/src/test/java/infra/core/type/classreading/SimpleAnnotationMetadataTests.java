@@ -18,14 +18,13 @@
 
 package infra.core.type.classreading;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
-
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import infra.core.OverridingClassLoader;
 import infra.core.type.AbstractAnnotationMetadataTests;
 import infra.core.type.AnnotationMetadata;
 
@@ -37,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * {@link SimpleAnnotationMetadataReadingVisitor}.
  *
  * @author Phillip Webb
+ * @author Brian Clozel
  */
 class SimpleAnnotationMetadataTests extends AbstractAnnotationMetadataTests {
 
@@ -53,19 +53,43 @@ class SimpleAnnotationMetadataTests extends AbstractAnnotationMetadataTests {
   }
 
   @Test
-  void getClassAttributeWhenUnknownClass() {
-    var annotation = get(WithClassMissingFromClasspath.class).getAnnotations().get(ClassAttributes.class);
-    assertThat(annotation.getStringArray("types")).contains("com.github.benmanes.caffeine.cache.Caffeine");
+  void getClassAttributeWhenUnknownClass() throws IOException {
+    var classLoader = new FilteringClassLoader(getClass().getClassLoader());
+    var mergedAnnotation = new SimpleMetadataReaderFactory(classLoader)
+            .getMetadataReader(WithClassMissingFromClasspath.class.getName())
+            .getAnnotationMetadata()
+            .getAnnotations()
+            .get(ClassAttributes.class);
+    assertThat(mergedAnnotation.getStringArray("types")).contains("javax.annotation.meta.When");
     assertThatExceptionOfType(TypeNotPresentException.class)
-            .isThrownBy(() -> annotation.getClassArray("types"));
+            .isThrownBy(() -> mergedAnnotation.getClassArray("types"))
+            .withMessageContaining("javax.annotation.meta.When");
   }
 
-  @ClassAttributes(types = { Caffeine.class })
-  public static class WithClassMissingFromClasspath {
+  private static class FilteringClassLoader extends OverridingClassLoader {
+
+    FilteringClassLoader(ClassLoader parent) {
+      super(parent);
+    }
+
+    @Override
+    protected boolean isEligibleForOverriding(String className) {
+      return className.startsWith("javax.annotation.");
+    }
+
+    @Override
+    protected Class<?> loadClassForOverriding(String name) throws ClassNotFoundException {
+      throw new ClassNotFoundException(name);
+    }
+  }
+
+  @ClassAttributes(types = { javax.annotation.meta.When.class })
+  @javax.annotation.Nonnull(when = javax.annotation.meta.When.MAYBE)
+  static class WithClassMissingFromClasspath {
   }
 
   @Retention(RetentionPolicy.RUNTIME)
-  public @interface ClassAttributes {
+  @interface ClassAttributes {
     Class<?>[] types();
   }
 
