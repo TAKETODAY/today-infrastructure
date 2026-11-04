@@ -246,6 +246,7 @@ class FormHttpMessageConverterTests {
     parts.add("name 3", null);
 
     Resource logo = new ClassPathResource("/infra/http/converter/logo.jpg");
+    assertThat(logo.contentLength()).isPositive();
     parts.add("logo", logo);
 
     Resource utf8 = new ClassPathResource("/infra/http/converter/logo.jpg") {
@@ -330,6 +331,7 @@ class FormHttpMessageConverterTests {
     parts.add("name 3", null);
 
     Resource logo = new ClassPathResource("/infra/http/converter/logo.jpg");
+    assertThat(logo.contentLength()).isPositive();
     parts.add("logo", logo);
 
     Resource utf8 = new ClassPathResource("/infra/http/converter/logo.jpg") {
