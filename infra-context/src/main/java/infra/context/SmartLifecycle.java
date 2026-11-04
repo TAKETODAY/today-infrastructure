@@ -92,6 +92,7 @@ public interface SmartLifecycle extends Lifecycle, Phased {
    * <p>The default implementation returns {@link #DEFAULT_PHASE} in order to
    * let {@code stop()} callbacks execute before regular {@code Lifecycle}
    * implementations.
+   *
    * @see #isAutoStartup()
    * @see #start()
    * @see #stop(Runnable)
@@ -172,10 +173,11 @@ public interface SmartLifecycle extends Lifecycle, Phased {
    * <p>This is a variant of {@link #stop(Runnable)} with an explicit indication for
    * a pause step. The default implementation delegates to {@link #stop(Runnable)};
    * implementations may override this to specifically react to the pause indication.
-   * @since 5.0
+   *
    * @see #stop(Runnable)
    * @see #isPausable()
    * @see ConfigurableApplicationContext#pause()
+   * @since 5.0
    */
   default void pause(Runnable callback) {
     stop(callback);
@@ -186,10 +188,11 @@ public interface SmartLifecycle extends Lifecycle, Phased {
    * <p>This is a variant of {@link #start()} with an explicit indication for a
    * restart after pause. The default implementation delegates to {@link #start()};
    * implementations may override this to specifically react to the paused state.
-   * @since 5.0
+   *
    * @see #start()
    * @see #isPausable()
    * @see ConfigurableApplicationContext#restart()
+   * @since 5.0
    */
   default void restart() {
     start();

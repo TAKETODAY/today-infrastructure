@@ -338,10 +338,11 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implement
    * Decorate the given task if necessary.
    * <p>The default implementation applies the configured
    * {@link #setTaskDecorator TaskDecorator}, if any.
+   *
    * @param task the original task
    * @return the decorated task if applicable, or the original task as-is
-   * @since 5.0
    * @see #setTaskDecorator
+   * @since 5.0
    */
   protected Runnable decorateTaskIfNecessary(Runnable task) {
     TaskDecorator taskDecorator = this.taskDecorator;

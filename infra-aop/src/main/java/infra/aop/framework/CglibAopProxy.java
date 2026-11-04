@@ -315,8 +315,8 @@ class CglibAopProxy implements AopProxy, Serializable {
    * Check whether every interface that declares the given method is a
    * configuration callback interface.
    *
-   * @since 5.0
    * @see AopProxyUtils#isConfigurationCallbackInterface(Class)
+   * @since 5.0
    */
   static boolean implementsOnlyConfigurationCallbackInterfaces(Method method, Set<Class<?>> ifcs) {
     boolean matched = false;
