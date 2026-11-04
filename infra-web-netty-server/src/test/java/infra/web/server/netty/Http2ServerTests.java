@@ -33,6 +33,7 @@ import java.util.concurrent.Executors;
 
 import infra.context.ApplicationContext;
 import infra.http.MediaType;
+import infra.http.ResponseTrailer;
 import infra.web.DispatcherHandler;
 import infra.web.HttpContext;
 import infra.web.server.Http2;
@@ -185,6 +186,52 @@ class Http2ServerTests {
 
     assertThat(response.status()).isEqualTo(200);
     assertThat(response.bodyAsString()).isEqualTo("with-trailers");
+  }
+
+  @Test
+  void responseTrailersAreSentAsTrailingHeadersFrame() throws Exception {
+    start(false);
+
+    Http2TestClient.Response response = client.get("/trailers");
+
+    assertThat(response.status()).isEqualTo(200);
+    assertThat(response.bodyAsString()).isEqualTo("hello-trailers");
+    assertThat(response.headers()).containsEntry("trailer", "Content-Digest");
+    assertThat(response.headers()).doesNotContainKey("content-length");
+    assertThat(response.headers()).doesNotContainKey("transfer-encoding");
+    assertThat(response.trailers()).containsEntry("content-digest", "sha-256=:abc:");
+    assertThat(response.trailers().keySet()).allMatch(name -> !name.startsWith(":"));
+    assertThat(response.dataEndStream()).isFalse();
+    assertThat(response.trailersEndStream()).isTrue();
+  }
+
+  @Test
+  void emptyTrailerResultEndsWithAnEmptyDataFrame() throws Exception {
+    start(false);
+
+    Http2TestClient.Response response = client.get("/trailers/empty");
+
+    assertThat(response.status()).isEqualTo(200);
+    assertThat(response.bodyAsString()).isEqualTo("hello-empty");
+    assertThat(response.headers()).containsEntry("trailer", "Content-Digest");
+    assertThat(response.trailers()).isEmpty();
+    assertThat(response.dataEndStream()).isTrue();
+    assertThat(response.trailersEndStream()).isFalse();
+  }
+
+  @Test
+  void fileResponseEndsWithTrailingHeaders() throws Exception {
+    file = Files.createTempFile("h2-trailer", ".txt");
+    Files.writeString(file, "file-trailer-".repeat(128));
+    start(false);
+
+    Http2TestClient.Response response = client.get("/trailers/file");
+
+    assertThat(response.status()).isEqualTo(200);
+    assertThat(response.bodyAsString()).isEqualTo(Files.readString(file));
+    assertThat(response.trailers()).containsEntry("content-digest", "sha-256=:file:");
+    assertThat(response.dataEndStream()).isFalse();
+    assertThat(response.trailersEndStream()).isTrue();
   }
 
   @Test
@@ -397,6 +444,24 @@ class Http2ServerTests {
         long length = Files.size(file);
         context.setContentType(MediaType.TEXT_PLAIN);
         context.setContentLength(length);
+        context.asHttpOutputMessage().sendFile(file, 0, length);
+      }
+      else if ("/trailers".equals(path)) {
+        context.setResponseTrailers(
+                ResponseTrailer.of("Content-Digest", () -> "sha-256=:abc:"));
+        writeResponse(context, "hello-trailers".getBytes(StandardCharsets.UTF_8));
+      }
+      else if ("/trailers/empty".equals(path)) {
+        context.setResponseTrailers(
+                ResponseTrailer.of("Content-Digest", () -> null));
+        writeResponse(context, "hello-empty".getBytes(StandardCharsets.UTF_8));
+      }
+      else if ("/trailers/file".equals(path)) {
+        long length = Files.size(file);
+        context.setContentType(MediaType.TEXT_PLAIN);
+        context.setContentLength(length);
+        context.setResponseTrailers(
+                ResponseTrailer.of("Content-Digest", () -> "sha-256=:file:"));
         context.asHttpOutputMessage().sendFile(file, 0, length);
       }
       else if ("/error".equals(path)) {

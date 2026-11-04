@@ -37,7 +37,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TimeZone;
+import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 import infra.beans.factory.BeanFactoryUtils;
 import infra.context.ApplicationContext;
@@ -53,6 +56,7 @@ import infra.http.HttpStatusCode;
 import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
+import infra.http.ResponseTrailer;
 import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
 import infra.lang.Constant;
@@ -129,6 +133,23 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
 
   private static final TimeZone GMT = TimeZone.getTimeZone("GMT");
 
+  /**
+   * An HTTP field name must be a token, as defined by RFC 9110, Section 5.1.
+   */
+  private static final Pattern TRAILER_NAME_PATTERN =
+          Pattern.compile("[!#$%&'*+\\-.^_`|~0-9A-Za-z]+");
+
+  /**
+   * Field names that must not appear in trailers, based on RFC 9110,
+   * Section 6.5.1. They either control framing, routing, authentication, or
+   * response semantics and therefore have to be known before the body.
+   */
+  private static final Set<String> FORBIDDEN_TRAILER_NAMES = Set.of(
+          "content-length", "transfer-encoding", "connection", "keep-alive", "te", "upgrade",
+          "proxy-connection", "trailer", "host", "authorization", "www-authenticate",
+          "proxy-authenticate", "proxy-authorization", "content-encoding", "content-type",
+          "content-range", "content-location", "set-cookie", "cache-control", "expires", "vary");
+
   protected long responseContentLength = -1L;
 
   protected boolean notModified = false;
@@ -195,6 +216,8 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   private long requestCompletedTimeMillis;
 
   private @Nullable EnumMap<Lifecycle, LinkedHashMap<String, Runnable>> lifecycleCallbacks;
+
+  private @Nullable ResponseTrailerConfig responseTrailers;
 
   protected AbstractHttpContext(ApplicationContext context, DispatcherHandler dispatcherHandler) {
     this.applicationContext = context;
@@ -1604,6 +1627,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     assertNotCommitted();
     responseContentLength = -1L;
     responseContentType = null;
+    responseTrailers = null;
     if (responseHeaders != null) {
       responseHeaders.clear();
     }
@@ -1880,6 +1904,131 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   }
 
   /**
+   * Whether this adapter is able to send trailer fields on the current
+   * exchange. The skeletal implementation does not claim that the transport
+   * can send trailers; concrete adapters must opt in once their
+   * response-completion path is able to emit trailing fields.
+   *
+   * @since 5.0
+   */
+  protected boolean isResponseTrailersSupported() {
+    return false;
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * @since 5.0
+   */
+  @Override
+  public void setResponseTrailers(ResponseTrailer... trailers) {
+    Assert.notEmpty(trailers, "Trailer fields are required");
+    assertNotCommitted();
+    if (!isResponseTrailersSupported()) {
+      throw new UnsupportedOperationException("Response trailers are not supported");
+    }
+
+    if (getMethod() == HttpMethod.HEAD) {
+      throw new IllegalStateException("Response trailers are not supported for HEAD requests");
+    }
+    int status = getStatus();
+    if (status < 200 || status == 204 || status == 304) {
+      throw new IllegalStateException("Response trailers are not supported for status " + status);
+    }
+    if (getMethod() == HttpMethod.CONNECT && status < 300) {
+      throw new IllegalStateException("Response trailers are not supported for successful CONNECT");
+    }
+
+    Set<String> validated = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+    for (ResponseTrailer trailer : trailers) {
+      Assert.notNull(trailer, "Trailer field is required");
+      String name = trailer.name();
+      if (!TRAILER_NAME_PATTERN.matcher(name).matches()) {
+        throw new IllegalArgumentException("Invalid trailer field name: '" + name + "'");
+      }
+      if (FORBIDDEN_TRAILER_NAMES.contains(name.toLowerCase(Locale.ROOT))) {
+        throw new IllegalArgumentException("Trailer field is not allowed: '" + name + "'");
+      }
+      validated.add(name);
+    }
+
+    this.responseTrailers = new ResponseTrailerConfig(List.of(trailers), validated);
+    // the body length is unknown until the trailer suppliers have run
+    this.responseContentLength = -1L;
+  }
+
+  /**
+   * Return the declared trailer field names, or {@code null} if no trailers
+   * were registered.
+   * <p>Adapters use this to emit the {@code Trailer} declaration header and to
+   * choose a framing that can carry trailers.
+   *
+   * @return the declared field names, or {@code null}
+   * @since 5.0
+   */
+  protected final @Nullable Set<String> getResponseTrailerNames() {
+    ResponseTrailerConfig trailers = this.responseTrailers;
+    return trailers != null ? trailers.names : null;
+  }
+
+  /**
+   * Discard the current trailer registration without touching the rest of the
+   * response state. Adapters use this on paths that must not emit trailers even
+   * though they do not perform a full {@link #reset()}.
+   *
+   * @since 5.0
+   */
+  protected final void clearResponseTrailers() {
+    this.responseTrailers = null;
+    this.responseContentLength = -1L;
+  }
+
+  /**
+   * Evaluate the registered trailer fields.
+   * <p>Each supplier is invoked at most once. A second invocation returns
+   * {@code null} instead of evaluating them again, which keeps retries and
+   * multiple completion paths from producing duplicate or partial trailers.
+   * <p>Callers must treat an exception as a failed response: no trailer fields
+   * may be sent afterwards.
+   *
+   * @return the trailer fields, or {@code null} if none were registered,
+   * the suppliers were already evaluated, or every supplier returned
+   * {@code null}
+   * @throws IllegalStateException if a supplier produces an invalid value
+   * @since 5.0
+   */
+  protected final @Nullable HttpHeaders evaluateResponseTrailers() {
+    ResponseTrailerConfig config = this.responseTrailers;
+    if (config == null || config.evaluated) {
+      return null;
+    }
+    config.evaluated = true;
+
+    HttpHeaders trailers = HttpHeaders.forWritable();
+    for (ResponseTrailer trailer : config.trailers) {
+      String value = trailer.supplier().get();
+      if (value != null) {
+        String name = trailer.name();
+        validateTrailerValue(name, value);
+        trailers.add(name, value);
+      }
+    }
+    return trailers.isEmpty() ? null : trailers;
+  }
+
+  private static void validateTrailerValue(String name, @Nullable String value) {
+    if (value == null) {
+      return;
+    }
+    for (int i = 0; i < value.length(); i++) {
+      char c = value.charAt(i);
+      if (c == '\r' || c == '\n' || c == '\0') {
+        throw new IllegalStateException("Invalid trailer value for field '" + name + "'");
+      }
+    }
+  }
+
+  /**
    * create a new response http-header
    *
    * @since 3.0
@@ -2049,6 +2198,27 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     @Override
     public void setContentType(@Nullable MediaType mediaType) {
       AbstractHttpContext.this.setContentType(mediaType);
+    }
+  }
+
+  /**
+   * Immutable trailer registration. The {@code evaluated} flag makes the
+   * suppliers run at most once, regardless of how many completion paths reach
+   * them.
+   *
+   * @since 5.0
+   */
+  private static final class ResponseTrailerConfig {
+
+    public final List<ResponseTrailer> trailers;
+
+    public final Set<String> names;
+
+    public boolean evaluated;
+
+    ResponseTrailerConfig(List<ResponseTrailer> trailers, Set<String> names) {
+      this.trailers = trailers;
+      this.names = names;
     }
   }
 

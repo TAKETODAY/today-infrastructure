@@ -49,6 +49,8 @@ import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.server.ServerHttpResponse;
 import infra.http.support.NettyHeaders;
 import infra.lang.Constant;
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
 import infra.util.CollectionUtils;
 import infra.util.InfraStrategies;
 import infra.util.MultiValueMap;
@@ -164,6 +166,11 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   private static final AttributeKey<@Nullable NettyHttpContext> KEY = AttributeKey.valueOf(NettyHttpContext.class, "KEY");
 
   private static final CookieHeaderNames.SameSite[] SAME_SITES = CookieHeaderNames.SameSite.values();
+
+  /**
+   * Shared logger for transport-level diagnostics.
+   */
+  protected static final Logger log = LoggerFactory.getLogger(NettyHttpContext.class);
 
   protected final Channel channel;
 
@@ -294,6 +301,17 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * @return the request protocol version, for example {@code HTTP/1.1} or {@code HTTP/2.0}
    */
   public abstract HttpVersion version();
+
+  /**
+   * Trailers require chunked framing in HTTP/1.1, which was introduced in
+   * HTTP/1.1. HTTP/2 always supports trailers.
+   *
+   * @since 5.0
+   */
+  @Override
+  protected boolean isResponseTrailersSupported() {
+    return version().compareTo(HttpVersion.HTTP_1_1) >= 0;
+  }
 
   @Override
   public boolean isSecure() {
@@ -671,7 +689,17 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       var headers = nettyResponseHeaders;
       if (status != HttpResponseStatus.SWITCHING_PROTOCOLS) {
         // set Content-Length header
-        if (MediaType.TEXT_EVENT_STREAM_VALUE.equals(getResponseContentType())) {
+        Set<String> trailerNames = getResponseTrailerNames();
+        if (trailerNames != null) {
+          // trailers require a framing that postpones the end of the message
+          if (supportsTransferEncoding()) {
+            headers.set(HttpHeaderNames.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
+          }
+          headers.remove(HttpHeaderNames.CONTENT_LENGTH);
+          headers.set(HttpHeaderNames.TRAILER, String.join(", ", trailerNames));
+          responseContentLength = -1L;
+        }
+        else if (MediaType.TEXT_EVENT_STREAM_VALUE.equals(getResponseContentType())) {
           if (supportsTransferEncoding()) {
             headers.set(HttpHeaderNames.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
             headers.remove(HttpHeaderNames.CONTENT_LENGTH);
@@ -763,6 +791,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   @Override
   public void reset() {
     assertNotCommitted();
+    clearResponseTrailers();
     nettyResponseHeaders.clear();
 
     ByteBuf responseBody = this.responseBody;
@@ -771,7 +800,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     }
     writer = null;
     responseContentType = null;
-    responseContentLength = -1L;
     status = HttpResponseStatus.OK;
   }
 
@@ -1407,7 +1435,9 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
     @Override
     public void sendFile(File file, long position, long count) throws IOException {
-      if (config.secure || !supportsFileRegion()) {
+      // chunked framing is required when trailers were registered, so a
+      // zero-copy file region cannot be used
+      if (config.secure || !supportsFileRegion() || getResponseTrailerNames() != null) {
         ChannelPipeline pipeline = channel.pipeline();
         if (pipeline.context(CHUNKED_WRITER_NAME) == null) {
           pipeline.addLast(CHUNKED_WRITER_NAME, new ChunkedWriteHandler());

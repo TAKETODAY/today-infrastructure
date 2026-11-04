@@ -80,6 +80,8 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
   private boolean bodyUsed = false;
   private boolean headersWritten = false;
 
+  private @Nullable HttpHeaders responseTrailers;
+
   private @Nullable String forwardedUrl;
 
   private boolean useForward;
@@ -332,6 +334,11 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
   }
 
   @Override
+  protected boolean isResponseTrailersSupported() {
+    return true;
+  }
+
+  @Override
   public boolean isCommitted() {
     return response.isCommitted();
   }
@@ -346,6 +353,7 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
     super.reset();
     response.reset();
     this.headersWritten = false;
+    this.responseTrailers = null;
   }
 
   @Override
@@ -442,11 +450,15 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
 
   @Override
   public void sendError(int sc) throws IOException {
+    assertNotCommitted();
+    clearResponseTrailers();
     response.sendError(sc);
   }
 
   @Override
   public void sendError(int sc, @Nullable String msg) throws IOException {
+    assertNotCommitted();
+    clearResponseTrailers();
     response.sendError(sc, msg);
   }
 
@@ -512,7 +524,24 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
   protected void requestCompletedInternal(@Nullable Throwable notHandled) {
     if (notHandled == null) {
       flush();
+      HttpHeaders trailers = evaluateResponseTrailers();
+      if (trailers != null) {
+        this.responseTrailers = trailers;
+      }
     }
+  }
+
+  /**
+   * Return the trailer fields evaluated when the response completed.
+   * <p>This mirrors what a real transport would send, so tests can assert the
+   * contract without inspecting protocol frames.
+   *
+   * @return the evaluated trailer fields, or {@code null} if none were
+   * registered or the request failed
+   * @since 5.0
+   */
+  public @Nullable HttpHeaders getResponseTrailers() {
+    return this.responseTrailers;
   }
 
   // attributes

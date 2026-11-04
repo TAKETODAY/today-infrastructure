@@ -36,6 +36,7 @@ import infra.context.ApplicationContext;
 import infra.core.AttributeAccessor;
 import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
+import infra.http.ResponseTrailer;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
@@ -65,6 +66,17 @@ class DelegatingHttpContextTests {
     DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
     assertThat(wrapper.delegate()).isSameAs(delegate);
+  }
+
+  @Test
+  void trailerRegistrationIsDelegated() {
+    HttpContext delegate = mock(HttpContext.class);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
+    ResponseTrailer trailer = ResponseTrailer.of("Content-Digest", () -> "sha-256=:abc:");
+
+    wrapper.setResponseTrailers(trailer);
+
+    verify(delegate).setResponseTrailers(trailer);
   }
 
   @Test

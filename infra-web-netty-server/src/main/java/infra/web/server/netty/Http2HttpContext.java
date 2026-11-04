@@ -200,7 +200,20 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
   @Override
   protected void endResponse() {
-    channel.writeAndFlush(new DefaultHttp2DataFrame(Unpooled.EMPTY_BUFFER, true));
+    HttpHeaders trailers = evaluateResponseTrailers();
+    if (trailers == null) {
+      channel.writeAndFlush(new DefaultHttp2DataFrame(Unpooled.EMPTY_BUFFER, true));
+      return;
+    }
+
+    Http2Headers http2Trailers = new DefaultHttp2Headers();
+    for (var entry : trailers.entries()) {
+      for (String value : entry.getValue()) {
+        http2Trailers.add(entry.getKey(), value);
+      }
+    }
+    // trailer HEADERS carry no pseudo headers and end the stream
+    channel.writeAndFlush(new DefaultHttp2HeadersFrame(http2Trailers, true));
   }
 
   @Override

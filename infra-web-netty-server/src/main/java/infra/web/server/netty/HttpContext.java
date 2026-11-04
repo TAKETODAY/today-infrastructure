@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.List;
 
 import infra.context.ApplicationContext;
+import infra.http.HttpHeaders;
 import infra.http.support.Netty4HttpHeaders;
 import infra.web.DispatcherHandler;
 import io.netty.buffer.Unpooled;
@@ -33,6 +34,7 @@ import io.netty.handler.codec.DefaultHeadersImpl;
 import io.netty.handler.codec.Headers;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMessage;
@@ -141,14 +143,27 @@ final class HttpContext extends NettyHttpContext implements Runnable {
 
   /**
    * Complete the response, closing the connection when it is not kept alive.
+   * <p>When trailer fields were registered, they are evaluated here, after the
+   * body has been written and right before the terminating chunk. A failure
+   * closes the connection instead of sending a partial trailer section.
    */
   @Override
   protected void endResponse() {
+    HttpHeaders trailers = evaluateResponseTrailers();
+    LastHttpContent lastContent = LastHttpContent.EMPTY_LAST_CONTENT;
+    if (trailers != null) {
+      lastContent = new DefaultLastHttpContent(Unpooled.EMPTY_BUFFER);
+      for (var entry : trailers.entries()) {
+        for (String value : entry.getValue()) {
+          lastContent.trailingHeaders().add(entry.getKey(), value);
+        }
+      }
+    }
     if (HttpUtil.isKeepAlive(request)) {
-      channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+      channel.writeAndFlush(lastContent);
     }
     else {
-      channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
+      channel.writeAndFlush(lastContent)
               .addListener(ChannelFutureListener.CLOSE);
     }
   }

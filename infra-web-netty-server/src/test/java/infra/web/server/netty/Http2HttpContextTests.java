@@ -26,6 +26,7 @@ import java.util.List;
 
 import infra.context.ApplicationContext;
 import infra.http.HttpHeaders;
+import infra.http.ResponseTrailer;
 import infra.web.DispatcherHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -49,6 +50,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
 /**
@@ -275,6 +277,51 @@ class Http2HttpContextTests {
     context.endResponse();
 
     then(channel).should().writeAndFlush(any(DefaultHttp2DataFrame.class));
+  }
+
+  @Test
+  void trailersAreSentAsTrailingHeadersFrame() {
+    Http2HttpContext context = createContext();
+    context.setResponseTrailers(
+            ResponseTrailer.of("Content-Digest", () -> "sha-256=:abc:"));
+
+    context.endResponse();
+
+    ArgumentCaptor<Http2HeadersFrame> captor = ArgumentCaptor.forClass(Http2HeadersFrame.class);
+    then(channel).should().writeAndFlush(captor.capture());
+    Http2HeadersFrame frame = captor.getValue();
+    assertThat(frame.isEndStream()).isTrue();
+    assertThat(frame.headers().get("content-digest")).isEqualTo("sha-256=:abc:");
+    assertThat(frame.headers().contains(Http2Headers.PseudoHeaderName.STATUS.value())).isFalse();
+  }
+
+  @Test
+  void trailersSkipContentLengthAndTransferEncoding() {
+    Http2HttpContext context = createContext();
+    context.setResponseTrailers(
+            ResponseTrailer.of("Content-Digest", () -> "sha-256=:abc:"));
+
+    context.flush();
+
+    ArgumentCaptor<Http2HeadersFrame> captor = ArgumentCaptor.forClass(Http2HeadersFrame.class);
+    then(channel).should().write(captor.capture());
+    Http2Headers headers = captor.getValue().headers();
+    assertThat(headers.contains(HttpHeaderNames.CONTENT_LENGTH)).isFalse();
+    assertThat(headers.contains(HttpHeaderNames.TRANSFER_ENCODING)).isFalse();
+    assertThat(headers.get("trailer")).isEqualTo("Content-Digest");
+  }
+
+  @Test
+  void trailerFailureClosesStream() {
+    Http2HttpContext context = createContext();
+    context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> {
+      throw new IllegalStateException("boom");
+    }));
+
+    context.endResponse();
+
+    then(channel).should().close();
+    then(channel).should(never()).writeAndFlush(any());
   }
 
   @Test

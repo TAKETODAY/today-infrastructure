@@ -255,7 +255,8 @@ final class Http2TestClient implements AutoCloseable {
     group.shutdownGracefully(0, 1, TimeUnit.SECONDS).awaitUninterruptibly();
   }
 
-  record Response(int status, Map<String, String> headers, byte[] body) {
+  record Response(int status, Map<String, String> headers, Map<String, String> trailers,
+          byte[] body, boolean dataEndStream, boolean trailersEndStream) {
 
     String bodyAsString() {
       return new String(body, StandardCharsets.UTF_8);
@@ -284,9 +285,17 @@ final class Http2TestClient implements AutoCloseable {
 
     private final Map<String, String> headers = new LinkedHashMap<>();
 
+    private final Map<String, String> trailers = new LinkedHashMap<>();
+
     private ByteBuf body = Unpooled.buffer();
 
     private int status = -1;
+
+    private boolean headersReceived;
+
+    private boolean dataEndStream;
+
+    private boolean trailersEndStream;
 
     private boolean completed;
 
@@ -302,28 +311,42 @@ final class Http2TestClient implements AutoCloseable {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
       if (msg instanceof Http2HeadersFrame frame) {
-        int code = Integer.parseInt(frame.headers().status().toString());
-        if (code == 100) {
-          if (continueFuture != null) {
+        if (!headersReceived) {
+          headersReceived = true;
+          int code = Integer.parseInt(frame.headers().status().toString());
+          if (code == 100) {
+            headersReceived = false;
+            if (continueFuture != null) {
+              continueFuture.complete(code);
+            }
+            return;
+          }
+          status = code;
+          for (Map.Entry<CharSequence, CharSequence> entry : frame.headers()) {
+            headers.put(entry.getKey().toString(), entry.getValue().toString());
+          }
+          if (continueFuture != null && !continueFuture.isDone()) {
             continueFuture.complete(code);
           }
-          return;
+          if (frame.isEndStream()) {
+            complete();
+          }
         }
-        status = code;
-        for (Map.Entry<CharSequence, CharSequence> entry : frame.headers()) {
-          headers.put(entry.getKey().toString(), entry.getValue().toString());
-        }
-        if (continueFuture != null && !continueFuture.isDone()) {
-          continueFuture.complete(code);
-        }
-        if (frame.isEndStream()) {
-          complete();
+        else {
+          for (Map.Entry<CharSequence, CharSequence> entry : frame.headers()) {
+            trailers.put(entry.getKey().toString(), entry.getValue().toString());
+          }
+          trailersEndStream = frame.isEndStream();
+          if (frame.isEndStream()) {
+            complete();
+          }
         }
       }
       else if (msg instanceof Http2DataFrame frame) {
         try {
           body.writeBytes(frame.content());
           if (frame.isEndStream()) {
+            dataEndStream = true;
             complete();
           }
         }
@@ -345,7 +368,8 @@ final class Http2TestClient implements AutoCloseable {
       body.readBytes(bytes);
       body.release();
       body = Unpooled.EMPTY_BUFFER;
-      future.complete(new Response(status, Map.copyOf(headers), bytes));
+      future.complete(new Response(status, Map.copyOf(headers), Map.copyOf(trailers),
+              bytes, dataEndStream, trailersEndStream));
     }
 
     @Override

@@ -49,6 +49,7 @@ import infra.http.HttpMethod;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
+import infra.http.ResponseTrailer;
 import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
 import infra.session.Session;
@@ -452,6 +453,11 @@ public abstract class AbstractDelegatingHttpContext implements HttpContext {
   @Override
   public HttpHeaders responseHeaders() {
     return delegate().responseHeaders();
+  }
+
+  @Override
+  public void setResponseTrailers(ResponseTrailer... trailers) {
+    delegate().setResponseTrailers(trailers);
   }
 
   @Override

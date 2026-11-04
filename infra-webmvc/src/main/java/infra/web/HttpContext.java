@@ -51,6 +51,7 @@ import infra.http.HttpStatusCode;
 import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
+import infra.http.ResponseTrailer;
 import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
 import infra.session.Session;
@@ -1576,6 +1577,34 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * This will never be {@code null}.
    */
   HttpHeaders responseHeaders();
+
+  /**
+   * Register trailer fields that are evaluated after the response body has
+   * been produced, but before the terminating message is sent.
+   * <p>Each {@link ResponseTrailer} declares its field name and the supplier
+   * that produces the value. Names must be registered before the response
+   * headers are committed, are copied defensively, and are compared
+   * case-insensitively. A later registration replaces the previous one instead
+   * of merging with it. Registering multiple trailers with the same name
+   * produces multiple values for that field.
+   * <p>Suppliers are invoked at most once, after the body has been produced
+   * and only when the exchange completes normally. They must not perform
+   * blocking I/O and run on the thread that completes the request. Returning
+   * {@code null} skips that field for the current response. An invalid value
+   * or an exception aborts the response instead of sending partial trailers.
+   * <p>Trailers are sent on a best-effort basis: proxies may strip them and
+   * clients may ignore them. This is not a general-purpose streaming
+   * completion signal.
+   *
+   * @param trailers the trailer fields to register; must not be empty
+   * @throws IllegalStateException if the response has already been committed
+   * @throws IllegalArgumentException if a name is empty, invalid, or forbidden
+   * @throws UnsupportedOperationException if this response does not support trailers
+   * @since 5.0
+   */
+  default void setResponseTrailers(ResponseTrailer... trailers) {
+    throw new UnsupportedOperationException("Response trailers are not supported");
+  }
 
   /**
    * Return this context as a {@link ServerHttpResponse}, suitable for use
