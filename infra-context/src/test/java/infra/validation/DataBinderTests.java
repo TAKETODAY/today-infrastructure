@@ -2102,10 +2102,15 @@ class DataBinderTests {
     PropertyValues tooDeep = new PropertyValues();
     tooDeep.add("spouse.spouse.spouse.name", "Joe");
     binder.bind(tooDeep);
-    assertThat(binder.getBindingResult().getFieldErrors("spouse.spouse.spouse.name")).singleElement().satisfies(error -> {
-      assertThat(error.getCode()).isEqualTo(infra.beans.InvalidPropertyPathException.ERROR_CODE);
-      assertThat(error.getRejectedValue()).isEqualTo("Joe");
-    });
+    assertThat(kerry.getName()).isEqualTo("kerry");
+    assertThat(binder.getBindingResult().hasErrors()).isFalse();
+    binder.setIgnoreUnknownFields(false);
+    PropertyValues tooDeepAgain = new PropertyValues();
+    tooDeepAgain.add("spouse.spouse.spouse.name", "Joe");
+    assertThatExceptionOfType(NotWritablePropertyException.class)
+            .isThrownBy(() -> binder.bind(tooDeepAgain))
+            .withCauseInstanceOf(infra.beans.InvalidPropertyPathException.class);
+    assertThat(kerry.getName()).isEqualTo("kerry");
   }
 
   @Test
@@ -2117,7 +2122,7 @@ class DataBinderTests {
   }
 
   @Test
-  void bindingWithMalformedFieldNameSurfacesAsFieldErrorRatherThanBeingSilentlyDropped() {
+  void bindingWithMalformedFieldNameIgnoresFieldByDefault() throws BindException {
     TestBean rod = new TestBean();
     DataBinder binder = new DataBinder(rod, "rod");
     PropertyValues values = new PropertyValues();
@@ -2126,16 +2131,16 @@ class DataBinderTests {
 
     binder.bind(values);
     assertThat(rod.getName()).isEqualTo("Rod");
-    assertThat(binder.getBindingResult().getFieldErrors("map[key1]other")).singleElement().satisfies(error -> {
-      assertThat(error.getCode()).isEqualTo(infra.beans.InvalidPropertyPathException.ERROR_CODE);
-      assertThat(error.getRejectedValue()).isEqualTo("value");
-    });
-    assertThatExceptionOfType(BindException.class).isThrownBy(binder::close);
+    assertThat(binder.getBindingResult().hasErrors()).isFalse();
+    assertThat(binder.getBindingResult().getSuppressedFields()).isEmpty();
+    binder.close();
   }
 
   @Test
-  void bindingWithMalformedFieldNameIsNotSuppressedEvenWhenAllowedFieldsAreConfigured() {
-    DataBinder binder = new DataBinder(new TestBean(), "rod");
+  void bindingWithMalformedFieldNameIgnoresFieldWithoutSuppressingItWhenAllowedFieldsAreConfigured()
+          throws BindException {
+    TestBean rod = new TestBean();
+    DataBinder binder = new DataBinder(rod, "rod");
     binder.setAllowedFields("name");
     PropertyValues values = new PropertyValues();
     values.add("name", "Rod");
@@ -2143,7 +2148,51 @@ class DataBinderTests {
 
     binder.bind(values);
     assertThat(binder.getBindingResult().getSuppressedFields()).isEmpty();
-    assertThat(binder.getBindingResult().getFieldErrors("map[key1]other")).hasSize(1);
+    assertThat(rod.getName()).isEqualTo("Rod");
+    assertThat(binder.getBindingResult().hasErrors()).isFalse();
+    binder.close();
+  }
+
+  @Test
+  void bindingWithMalformedFieldNameRejectsFieldWhenUnknownFieldsAreNotIgnored() {
+    DataBinder binder = new DataBinder(new TestBean(), "rod");
+    binder.setIgnoreUnknownFields(false);
+    PropertyValues values = new PropertyValues();
+    values.add("name", "Rod");
+    values.add("map[key1]other", "value");
+    assertThatExceptionOfType(NotWritablePropertyException.class)
+            .isThrownBy(() -> binder.bind(values))
+            .withCauseInstanceOf(infra.beans.InvalidPropertyPathException.class)
+            .satisfies(ex -> assertThat(ex.getPropertyName()).isEqualTo("map[key1]other"));
+    assertThat(binder.getBindingResult().hasErrors()).isFalse();
+  }
+
+  @Test
+  void bindingWithMalformedFieldNameRejectsFieldWhenUnknownFieldsAreNotIgnoredAndAllowedFieldsAreConfigured() {
+    DataBinder binder = new DataBinder(new TestBean(), "rod");
+    binder.setIgnoreUnknownFields(false);
+    binder.setAllowedFields("name");
+    PropertyValues values = new PropertyValues();
+    values.add("name", "Rod");
+    values.add("map[key1]other", "value");
+    assertThatExceptionOfType(NotWritablePropertyException.class)
+            .isThrownBy(() -> binder.bind(values))
+            .withCauseInstanceOf(infra.beans.InvalidPropertyPathException.class);
+    assertThat(binder.getBindingResult().getSuppressedFields()).isEmpty();
+  }
+
+  @Test
+  void bindingWithMalformedFieldNameWithManyKeysRecordsNoFieldError() {
+    String field = "name" + "[0]".repeat(1000) + "]";
+    DataBinder binder = new DataBinder(new TestBean(), "rod");
+    binder.bind(new PropertyValues(Map.of(field, "value")));
+    assertThat(binder.getBindingResult().getErrorCount()).isZero();
+    assertThat(binder.getBindingResult().getSuppressedFields()).isEmpty();
+    DataBinder strictBinder = new DataBinder(new TestBean(), "rod");
+    strictBinder.setIgnoreUnknownFields(false);
+    assertThatExceptionOfType(NotWritablePropertyException.class)
+            .isThrownBy(() -> strictBinder.bind(new PropertyValues(Map.of(field, "value"))));
+    assertThat(strictBinder.getBindingResult().getErrorCount()).isZero();
   }
 
   @Test

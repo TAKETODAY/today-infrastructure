@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
@@ -44,6 +45,7 @@ import infra.beans.BeanWrapper;
 import infra.beans.ConfigurablePropertyAccessor;
 import infra.beans.InvalidPropertyException;
 import infra.beans.InvalidPropertyPathException;
+import infra.beans.NotWritablePropertyException;
 import infra.beans.PropertyAccessException;
 import infra.beans.PropertyBatchUpdateException;
 import infra.beans.PropertyEditorRegistrar;
@@ -496,6 +498,11 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * parameters that do not have corresponding fields in the target object.
    * <p>Default is "true". Turn this off to enforce that all bind parameters
    * must have a matching field in the target object.
+   * <p>This setting also applies to bind parameters whose names are not
+   * well-formed {@linkplain PropertyPath property paths} or exceed the
+   * {@linkplain #setMaxNestedPathDepth maximum nesting depth}: such
+   * parameters are ignored by default, and rejected with a
+   * {@link NotWritablePropertyException} otherwise.
    * <p>Note that this setting only applies to <i>binding</i> operations
    * on this DataBinder, not to <i>retrieving</i> values via its
    * {@link #getBindingResult() BindingResult}.
@@ -1281,14 +1288,6 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
     applyPropertyValues(values);
   }
 
-  /**
-   * Check the given property values against the allowed fields,
-   * removing values for fields that are not allowed.
-   *
-   * @param fields the property values to be bound (can be modified)
-   * @see #getAllowedFields
-   * @see #isAllowed(String)
-   */
   private static String @Nullable [] canonicalPropertyNames(String @Nullable [] fields) {
     if (fields == null) {
       return null;
@@ -1300,6 +1299,22 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
     return result;
   }
 
+  /**
+   * Check the given property values against the allowed fields,
+   * removing values for fields that are not allowed.
+   * <p>Values whose names are not well-formed {@linkplain PropertyPath property
+   * paths}, or exceed the {@linkplain #setMaxNestedPathDepth maximum nesting
+   * depth}, are treated as unknown fields: they are removed if
+   * {@link #isIgnoreUnknownFields() ignoreUnknownFields} is enabled (the
+   * default), and rejected with a {@link NotWritablePropertyException} otherwise.
+   *
+   * @param mpvs the property values to be bound (can be modified)
+   * @throws NotWritablePropertyException if a property value name is not a
+   * valid property path and unknown fields are not ignored
+   * @see #getAllowedFields
+   * @see #isAllowed(String)
+   * @see #setIgnoreUnknownFields
+   */
   protected void checkAllowedFields(PropertyValues mpvs) {
     PropertyPath.Options options = PropertyPath.Options.withMaxNestedPathDepth(getMaxNestedPathDepth());
     for (PropertyValue pv : mpvs.toArray()) {
@@ -1308,11 +1323,17 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
         parsed = PropertyPath.parse(pv.getName(), options);
       }
       catch (InvalidPropertyPathException ex) {
+        if (!isIgnoreUnknownFields()) {
+          Object target = getTarget();
+          Class<?> beanClass = (target != null ? target.getClass() : Object.class);
+          throw new NotWritablePropertyException(beanClass, pv.getName(),
+                  Objects.requireNonNull(ex.getMessage()), ex);
+        }
         mpvs.remove(pv);
-        Object target = getTarget();
-        getBindingErrorProcessor().processPropertyAccessException(
-                new InvalidPropertyPathException(target != null ? target : this, pv.getName(), pv.getValue(), ex),
-                getInternalBindingResult());
+        if (logger.isDebugEnabled()) {
+          logger.debug("Field [{}] has been removed from PropertyValues and will not be bound: {}",
+                  pv.getName(), ex.getMessage());
+        }
         continue;
       }
       String field = parsed.canonicalName();
