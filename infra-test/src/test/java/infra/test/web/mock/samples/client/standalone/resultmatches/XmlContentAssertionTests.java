@@ -25,6 +25,7 @@ import java.util.List;
 
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
+import infra.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import infra.stereotype.Controller;
 import infra.test.web.Person;
 import infra.test.web.mock.client.MockMvcWebTestClient;
@@ -59,6 +60,7 @@ public class XmlContentAssertionTests {
 
   private final WebTestClient testClient =
           MockMvcWebTestClient.bindToController(new MusicController())
+                  .messageConverters(new Jaxb2RootElementHttpMessageConverter())
                   .alwaysExpect(status().isOk())
                   .alwaysExpect(content().contentType(MediaType.parseMediaType("application/xml;charset=UTF-8")))
                   .configureClient()

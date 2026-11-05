@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.test.web.mock.client.samples;
 
 import org.hamcrest.MatcherAssert;
@@ -27,6 +29,7 @@ import java.util.List;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
+import infra.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import infra.test.web.mock.client.RestTestClient;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.PathVariable;
@@ -58,7 +61,9 @@ class XmlContentTests {
           </persons>
           """;
 
-  private final RestTestClient client = RestTestClient.bindToController(new PersonController()).build();
+  private final RestTestClient client = RestTestClient.bindToController(new PersonController())
+          .configureServer(builder -> builder.setMessageConverters(new Jaxb2RootElementHttpMessageConverter()))
+          .build();
 
   @Test
   void xmlContent() {
