@@ -22,14 +22,10 @@ import org.jspecify.annotations.Nullable;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.util.Collections;
-import java.util.Locale;
-import java.util.Set;
 import java.util.function.Function;
 
 import infra.http.HttpHeaders;
 import infra.http.reactive.server.ServerHttpRequest;
-import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.StringUtils;
 import infra.web.util.ForwardedHeaderUtils;
 
@@ -52,19 +48,6 @@ import infra.web.util.ForwardedHeaderUtils;
  * @since 4.0 2022/10/21 12:19
  */
 public class ForwardedHeaderTransformer implements Function<ServerHttpRequest, ServerHttpRequest> {
-
-  static final Set<String> FORWARDED_HEADER_NAMES =
-          Collections.newSetFromMap(new LinkedCaseInsensitiveMap<>(10, Locale.ROOT));
-
-  static {
-    FORWARDED_HEADER_NAMES.add("Forwarded");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-Proto");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-Ssl");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-Host");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-Port");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-For");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-Prefix");
-  }
 
   private final boolean useStandardHeader;
 
@@ -162,7 +145,7 @@ public class ForwardedHeaderTransformer implements Function<ServerHttpRequest, S
    * @param request the request
    */
   protected boolean hasForwardedHeaders(ServerHttpRequest request) {
-    for (String name : FORWARDED_HEADER_NAMES) {
+    for (String name : ForwardedHeaderUtils.FORWARDED_HEADER_NAMES) {
       if (request.containsHeader(name)) {
         return true;
       }
@@ -180,7 +163,7 @@ public class ForwardedHeaderTransformer implements Function<ServerHttpRequest, S
   }
 
   private void removeForwardedHeaders(ServerHttpRequest.Builder builder) {
-    builder.headers(map -> FORWARDED_HEADER_NAMES.forEach(map::remove));
+    builder.headers(map -> ForwardedHeaderUtils.FORWARDED_HEADER_NAMES.forEach(map::remove));
   }
 
   private static @Nullable String getForwardedPrefix(ServerHttpRequest request) {

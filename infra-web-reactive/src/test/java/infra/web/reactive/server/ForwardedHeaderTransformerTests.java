@@ -27,6 +27,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.reactive.server.ServerHttpRequest;
 import infra.web.testfixture.http.server.reactive.MockServerHttpRequest;
+import infra.web.util.ForwardedHeaderUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -310,7 +311,7 @@ class ForwardedHeaderTransformerTests {
   }
 
   private void assertForwardedHeadersRemoved(ServerHttpRequest request) {
-    ForwardedHeaderTransformer.FORWARDED_HEADER_NAMES
+    ForwardedHeaderUtils.FORWARDED_HEADER_NAMES
             .forEach(name -> assertThat(request.containsHeader(name)).isFalse());
   }
 

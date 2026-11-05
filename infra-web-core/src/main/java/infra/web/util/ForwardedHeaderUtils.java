@@ -24,6 +24,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -49,6 +50,21 @@ import infra.util.StringUtils;
  * @since 4.0
  */
 public abstract class ForwardedHeaderUtils {
+
+  /**
+   * Names of the headers that carry forwarded request information.
+   * <p>These headers are removed before a request is exposed to the application.
+   *
+   * @since 5.0
+   */
+  public static final List<String> FORWARDED_HEADER_NAMES = List.of(
+          "Forwarded",
+          "X-Forwarded-Proto",
+          "X-Forwarded-Ssl",
+          "X-Forwarded-Host",
+          "X-Forwarded-Port",
+          "X-Forwarded-For",
+          "X-Forwarded-Prefix");
 
   /**
    * Parse the "Forwarded" header.

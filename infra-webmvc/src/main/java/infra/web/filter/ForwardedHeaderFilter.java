@@ -26,10 +26,7 @@ import java.net.SocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import infra.http.HttpHeaders;
@@ -37,7 +34,6 @@ import infra.http.HttpStatus;
 import infra.http.server.RequestPath;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.StringUtils;
 import infra.web.DelegatingHttpContext;
 import infra.web.Filter;
@@ -81,19 +77,6 @@ import infra.web.util.UriComponentsBuilder;
 public class ForwardedHeaderFilter implements Filter {
 
   private static final Logger logger = LoggerFactory.getLogger(ForwardedHeaderFilter.class);
-
-  private static final Set<String> FORWARDED_HEADER_NAMES =
-          Collections.newSetFromMap(new LinkedCaseInsensitiveMap<>(10, Locale.ROOT));
-
-  static {
-    FORWARDED_HEADER_NAMES.add("Forwarded");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-Proto");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-Ssl");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-Host");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-Port");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-For");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-Prefix");
-  }
 
   private final boolean useStandardHeader;
 
@@ -149,7 +132,7 @@ public class ForwardedHeaderFilter implements Filter {
   }
 
   protected boolean shouldNotFilter(HttpContext request) {
-    for (String headerName : FORWARDED_HEADER_NAMES) {
+    for (String headerName : ForwardedHeaderUtils.FORWARDED_HEADER_NAMES) {
       if (request.containsHeader(headerName)) {
         return false;
       }
@@ -216,7 +199,7 @@ public class ForwardedHeaderFilter implements Filter {
     public ForwardedHeaderRemovingRequest(HttpContext delegate) {
       super(delegate);
       HttpHeaders headers = HttpHeaders.copyOf(delegate.getHeaders());
-      for (String name : FORWARDED_HEADER_NAMES) {
+      for (String name : ForwardedHeaderUtils.FORWARDED_HEADER_NAMES) {
         headers.remove(name);
       }
       this.headers = headers.asReadOnly();
