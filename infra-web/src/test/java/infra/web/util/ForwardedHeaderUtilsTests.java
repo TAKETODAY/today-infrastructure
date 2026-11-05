@@ -546,6 +546,17 @@ class ForwardedHeaderUtilsTests {
   }
 
   @Test
+  void parseXForwardedHeadersUppercaseSchemeUsesHttpsDefaultPort() {
+    HttpHeaders headers = HttpHeaders.forWritable();
+    headers.add("X-Forwarded-For", "203.0.113.195");
+
+    InetSocketAddress address = ForwardedHeaderUtils.parseXForwardedHeaders(
+            URI.create("HTTPS://example.com"), headers, null, null).forAddress();
+
+    assertThat(address.getPort()).isEqualTo(443);
+  }
+
+  @Test
   void fromHttpRequestXForwardedHeaderForIpv6Formatting() {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("X-Forwarded-For", "fd00:fefe:1::4, 192.168.0.1");

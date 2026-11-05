@@ -108,6 +108,22 @@ class ForwardedHeaderFilterTests {
   }
 
   @Test
+  void forwardedRequestWithUppercaseProtocol() throws Exception {
+    this.request.setRequestURI("/mvc-showcase");
+    this.request.addHeader(X_FORWARDED_PROTO, "HTTPS");
+    this.request.addHeader(X_FORWARDED_HOST, "84.198.58.199");
+
+    ForwardedHeaderFilter filter = new ForwardedHeaderFilter(false);
+    filter.doFilter(new MockHttpContext(request), this.filterChain);
+    HttpContext actual = this.filterChain.getContext();
+
+    assertThat(actual.getScheme()).isEqualTo("HTTPS");
+    assertThat(actual.getServerPort()).isEqualTo(443);
+    assertThat(actual.isSecure()).isTrue();
+    assertThat(actual.getRequestURL()).isEqualTo("HTTPS://84.198.58.199/mvc-showcase");
+  }
+
+  @Test
   void forwardedRequestInRemoveOnlyMode() throws Exception {
     this.request.setRequestURI("/mvc-showcase");
     this.request.addHeader(X_FORWARDED_PROTO, "https");
@@ -412,6 +428,16 @@ class ForwardedHeaderFilterTests {
     }
 
     @Test
+    void requestUriWithPrefixWithoutLeadingSlash() throws Exception {
+      request.addHeader(X_FORWARDED_PREFIX, "prefix");
+      request.setRequestURI("/mvc-showcase");
+
+      HttpContext actual = filterAndGetWrappedRequest(false);
+      assertThat(actual.getRequestURI()).isEqualTo("/prefix/mvc-showcase");
+      assertThat(actual.getRequestURL()).isEqualTo("http://localhost/prefix/mvc-showcase");
+    }
+
+    @Test
     void requestUriWithForwardedPrefixTrailingSlash() throws Exception {
       request.addHeader(X_FORWARDED_PREFIX, "/prefix/");
       request.setRequestURI("/mvc-showcase");
@@ -701,6 +727,19 @@ class ForwardedHeaderFilterTests {
     void sendRedirectWithNoXForwardedAndDotDotPath() throws Exception {
       String redirectedUrl = sendRedirect("../foo/bar");
       assertThat(redirectedUrl).isEqualTo("../foo/bar");
+    }
+
+    @Test
+    void sendRedirectWithUnencodedForwardedPrefix() throws Exception {
+      request.addHeader(X_FORWARDED_PROTO, "https");
+      request.addHeader(X_FORWARDED_HOST, "example.com");
+      request.addHeader(X_FORWARDED_PREFIX, "/edge app");
+      request.setRequestURI("/parent/");
+      this.filter = new ForwardedHeaderFilter(false);
+      this.filter.setUseForwardedPrefix(true);
+
+      String redirectedUrl = sendRedirect("foo/bar");
+      assertThat(redirectedUrl).isEqualTo("https://example.com/edge app/parent/foo/bar");
     }
 
     @Test

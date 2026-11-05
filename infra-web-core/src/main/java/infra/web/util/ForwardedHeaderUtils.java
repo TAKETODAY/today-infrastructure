@@ -207,7 +207,7 @@ public abstract class ForwardedHeaderUtils {
   }
 
   private static int getPortToUse(@Nullable InetSocketAddress address, URI uri) {
-    return (address != null ? address.getPort() : "https".equals(uri.getScheme()) ? 443 : 80);
+    return (address != null ? address.getPort() : "https".equalsIgnoreCase(uri.getScheme()) ? 443 : 80);
   }
 
   private static InetSocketAddress parseInetSocketAddress(String value, int port) {

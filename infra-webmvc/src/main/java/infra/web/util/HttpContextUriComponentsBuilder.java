@@ -108,7 +108,8 @@ public class HttpContextUriComponentsBuilder extends UriComponentsBuilder {
     HttpContextUriComponentsBuilder builder = new HttpContextUriComponentsBuilder();
     builder.scheme(scheme);
     builder.host(host);
-    if (("http".equals(scheme) && port != 80) || ("https".equals(scheme) && port != 443)) {
+    if (("http".equalsIgnoreCase(scheme) && port != 80)
+            || ("https".equalsIgnoreCase(scheme) && port != 443)) {
       builder.port(port);
     }
     return builder;

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -43,6 +44,7 @@ import infra.web.Filter;
 import infra.web.FilterChain;
 import infra.web.HttpContext;
 import infra.web.util.ForwardedHeaderUtils;
+import infra.web.util.HttpContextUriComponentsBuilder;
 import infra.web.util.UriComponents;
 import infra.web.util.UriComponentsBuilder;
 
@@ -173,7 +175,7 @@ public class ForwardedHeaderFilter implements Filter {
             wrappedRequest = RelativeRedirectResponseWrapper.wrapIfNecessary(wrappedRequest, HttpStatus.SEE_OTHER);
           }
         }
-        catch (Throwable ex) {
+        catch (Exception ex) {
           if (logger.isDebugEnabled()) {
             logger.debug("Failed to apply forwarded headers to {}", formatRequest(context), ex);
           }
@@ -288,10 +290,12 @@ public class ForwardedHeaderFilter implements Filter {
 
       UriComponents uriComponents = info.uriComponentsBuilder().build();
       int port = uriComponents.getPort();
+      String scheme = uriComponents.getScheme();
+      String host = uriComponents.getHost();
 
-      this.scheme = uriComponents.getScheme();
-      this.secure = "https".equals(this.scheme) || "wss".equals(this.scheme);
-      this.host = uriComponents.getHost();
+      this.scheme = scheme;
+      this.secure = "https".equalsIgnoreCase(scheme) || "wss".equalsIgnoreCase(scheme);
+      this.host = host;
       this.port = (port == -1 ? (this.secure ? 443 : 80) : port);
 
       this.remoteAddress = info.forAddress();
@@ -300,9 +304,11 @@ public class ForwardedHeaderFilter implements Filter {
       // Use Supplier as Tomcat updates delegate request on FORWARD
       Supplier<HttpContext> requestSupplier = this::delegate;
 
+      String baseUrl = (scheme != null ? scheme : context.getScheme()) + "://"
+              + (host != null ? host : context.getServerName())
+              + (port == -1 ? "" : ":" + port);
       this.forwardedPrefixExtractor = new ForwardedPrefixExtractor(
-              requestSupplier, (this.scheme + "://" + this.host + (port == -1 ? "" : ":" + port)),
-              useForwardedPrefix);
+              requestSupplier, baseUrl, useForwardedPrefix);
     }
 
     @Override
@@ -341,13 +347,18 @@ public class ForwardedHeaderFilter implements Filter {
       String query = getQueryString();
       if (query != null) {
         try {
-          return URI.create(url + '?' + query);
+          return new URI(url + '?' + query);
         }
-        catch (IllegalArgumentException ex) {
-          // Ignore a malformed query, as in AbstractHttpContext.
+        catch (URISyntaxException ex) {
+          // Maybe a malformed query string... try the plain request URL
         }
       }
-      return URI.create(url);
+      try {
+        return new URI(url);
+      }
+      catch (URISyntaxException ex) {
+        throw new IllegalStateException("Could not resolve HttpContext as URI: " + url, ex);
+      }
     }
 
     @Override
@@ -406,7 +417,7 @@ public class ForwardedHeaderFilter implements Filter {
                 StringUtils.applyRelativePath(getRequestURI(), path));
       }
 
-      String result = UriComponentsBuilder.forURI(getURI())
+      String result = HttpContextUriComponentsBuilder.fromRequest(this)
               .replacePath(path)
               .replaceQuery(uriComponents.getQuery())
               .fragment(uriComponents.getFragment())
@@ -472,7 +483,14 @@ public class ForwardedHeaderFilter implements Filter {
           while (endIndex > 0 && rawPrefix.charAt(endIndex - 1) == '/') {
             endIndex--;
           }
-          prefix.append((endIndex != rawPrefix.length() ? rawPrefix.substring(0, endIndex) : rawPrefix));
+          if (endIndex == 0) {
+            continue;
+          }
+          String segment = rawPrefix.substring(0, endIndex);
+          if (segment.charAt(0) != '/') {
+            prefix.append('/');
+          }
+          prefix.append(segment);
         }
         return prefix.toString();
       }

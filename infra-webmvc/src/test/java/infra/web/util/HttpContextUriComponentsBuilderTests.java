@@ -67,6 +67,15 @@ class HttpContextUriComponentsBuilderTests {
   }
 
   @Test
+  void requestPortWithUppercaseScheme() {
+    this.request.setScheme("HTTPS");
+    this.request.setServerPort(443);
+    this.request.setRequestURI("/app");
+    assertThat(HttpContextUriComponentsBuilder.fromRequest(context()).build().toUriString())
+            .isEqualTo("HTTPS://localhost/app");
+  }
+
+  @Test
   void fromRequestUri() {
     this.request.setRequestURI("/app/data");
     this.request.setQueryString("foo=123");
