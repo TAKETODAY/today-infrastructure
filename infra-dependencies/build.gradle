@@ -163,7 +163,7 @@ bom {
       ]
     }
   }
-  library("Hibernate", "7.2.25.Final") {
+  library("Hibernate", "7.4.14.Final") {
     group("org.hibernate.orm") {
       modules = [
           "hibernate-agroal",
@@ -630,7 +630,7 @@ dependencies {
   api(platform("org.assertj:assertj-bom:3.27.7"))
   api(platform("org.mockito:mockito-bom:5.24.0"))
   api(platform("org.testcontainers:testcontainers-bom:2.0.5"))
-  api(platform("tools.jackson:jackson-bom:3.1.6"))
+  api(platform("tools.jackson:jackson-bom:3.1.8"))
   api(platform("com.google.protobuf:protobuf-bom:$protobufVersion"))
   api(platform(project(":infra-bom")))
 
@@ -717,9 +717,9 @@ dependencies {
     api("org.yaml:snakeyaml:2.7")
     api("org.projectlombok:lombok:1.18.42")
     api("org.htmlunit:htmlunit:5.5.0")
-    api("org.seleniumhq.selenium:htmlunit3-driver:4.48.0")
-    api("org.seleniumhq.selenium:selenium-java:4.50.0")
-    api("org.seleniumhq.selenium:selenium-bom:4.50.0")
+    api("org.seleniumhq.selenium:htmlunit3-driver:4.52.0")
+    api("org.seleniumhq.selenium:selenium-java:4.52.0")
+    api("org.seleniumhq.selenium:selenium-bom:4.52.0")
     api("org.reactivestreams:reactive-streams:1.0.4")
     api 'com.zaxxer:HikariCP:5.1.0'
     api 'org.postgresql:postgresql:42.4.1'
