@@ -179,6 +179,29 @@ Float salary = (Float) company.getPropertyValue("managingDirector.salary");
 绑定不可信输入时，还应按 xref:web/webmvc/mvc-controller/ann-initbinder.adoc#mvc-ann-initbinder-model-design[模型设计]中的建议限制允许绑定的字段。
 ====
 
+[[data-binding-auto-grow]]
+=== 自动增长嵌套路径和集合
+
+启用自动增长后，嵌套属性路径中的 `null` 值会由相应属性类型的新实例填充，而不会抛出
+`NullValueInNestedPathException`。例如，访问 `managingDirector.salary` 时，框架会为
+`managingDirector` 创建一个新的 `Employee`。自动增长也适用于数组和列表：如果路径中的索引
+超出数组或 `List` 的当前大小（例如 `accounts[2].name`），框架会相应扩展数组或列表，并按需创建元素。
+
+`DataBinder`（因而也包括 `WebDataBinder`）默认启用自动增长，普通 `BeanWrapperImpl` 默认禁用。
+可以在 `BeanWrapperImpl` 等 `ConfigurablePropertyAccessor` 或 `DataBinder` 上通过
+`setAutoGrowNestedPaths(...)` 启用或禁用，例如在 `@InitBinder` 方法中配置。
+
+启用自动增长后，`DataBinder` 默认不会将数组或 `List` 自动扩展到超过 256 个元素
+（参见 `DataBinder.DEFAULT_AUTO_GROW_COLLECTION_LIMIT`）。可以通过 `DataBinder` 或
+`BeanWrapper` 的 `setAutoGrowCollectionLimit(...)` 自定义上限；普通 `BeanWrapperImpl`
+默认不限制集合增长。如果索引同时超出当前大小和配置上限，则抛出 `InvalidPropertyException`。
+该集合上限也适用于 xref:beans-constructor-binding[构造函数绑定]中的列表和数组参数，
+但不适用于映射属性。`autoGrowNestedPaths` 开关不控制构造函数绑定。
+
+TIP: 不要依赖 Apache Commons Collections 的 `LazyList` 等自动填充列表实现来实现数据绑定；
+优先使用上述可禁用、可限制的内置自动增长支持。
+
+
 [[beans-beans-conversion]]
 == ``PropertyEditor``
 

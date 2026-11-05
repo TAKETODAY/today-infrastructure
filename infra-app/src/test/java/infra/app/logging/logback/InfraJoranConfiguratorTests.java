@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2026 the TODAY authors.
+ * Copyright 2012-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// Modifications Copyright 2017 - 2026 the TODAY authors.
 
 package infra.app.logging.logback;
 
@@ -339,7 +340,8 @@ class InfraJoranConfiguratorTests {
           <configuration>
           	<include resource="infra/app/logging/logback/base.xml"/>
           	<infra-property scope="context" name="MINE" source="my.example-property"/>
-          	<if condition='property("MINE").contains("true")'>
+            <condition class="infra.app.logging.logback.TestPropertyCondition"/>
+            <if>
           		<then>
           			<variable scope="context" name="MYCHECK" value="i-was-included"/>
           		</then>

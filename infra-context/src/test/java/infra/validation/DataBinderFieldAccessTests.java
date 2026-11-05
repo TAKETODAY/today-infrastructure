@@ -60,10 +60,15 @@ class DataBinderFieldAccessTests {
     PropertyValues tooDeep = new PropertyValues();
     tooDeep.add("spouse.spouse.spouse.name", "Joe");
     binder.bind(tooDeep);
-    assertThat(binder.getBindingResult().getFieldErrors("spouse.spouse.spouse.name")).singleElement().satisfies(error -> {
-      assertThat(error.getCode()).isEqualTo(infra.beans.InvalidPropertyPathException.ERROR_CODE);
-      assertThat(error.getRejectedValue()).isEqualTo("Joe");
-    });
+    assertThat(kerry.getName()).isEqualTo("kerry");
+    assertThat(binder.getBindingResult().hasErrors()).isFalse();
+    binder.setIgnoreUnknownFields(false);
+    PropertyValues tooDeepAgain = new PropertyValues();
+    tooDeepAgain.add("spouse.spouse.spouse.name", "Joe");
+    assertThatExceptionOfType(NotWritablePropertyException.class)
+            .isThrownBy(() -> binder.bind(tooDeepAgain))
+            .withCauseInstanceOf(infra.beans.InvalidPropertyPathException.class);
+    assertThat(kerry.getName()).isEqualTo("kerry");
   }
 
   @Test

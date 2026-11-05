@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
@@ -44,6 +45,7 @@ import infra.beans.BeanWrapper;
 import infra.beans.ConfigurablePropertyAccessor;
 import infra.beans.InvalidPropertyException;
 import infra.beans.InvalidPropertyPathException;
+import infra.beans.NotWritablePropertyException;
 import infra.beans.PropertyAccessException;
 import infra.beans.PropertyBatchUpdateException;
 import infra.beans.PropertyEditorRegistrar;
@@ -136,7 +138,11 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   /** Default object name used for binding: "target". */
   public static final String DEFAULT_OBJECT_NAME = "target";
 
-  /** Default limit for array and collection growing: 256. */
+  /**
+   * Default limit for array and collection growing: 256.
+   *
+   * @since 4.0
+   */
   public static final int DEFAULT_AUTO_GROW_COLLECTION_LIMIT = 256;
 
   /**
@@ -259,10 +265,11 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * <p>Default is "true" on a standard DataBinder. Note that since 4.0 this feature is supported
    * for bean property access (DataBinder's default mode) and field access.
    * <p>Used for setter/field injection via {@link #bind(PropertyValues)}, and not
-   * applicable to constructor initialization via {@link #construct(ValueResolver)}.
+   * applicable to constructor binding via {@link #construct(ValueResolver)}.
    *
    * @see #initBeanPropertyAccess()
    * @see BeanWrapper#setAutoGrowNestedPaths
+   * @since 4.0
    */
   public void setAutoGrowNestedPaths(boolean autoGrowNestedPaths) {
     Assert.state(this.bindingResult == null,
@@ -272,6 +279,8 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 
   /**
    * Return whether "auto-growing" of nested paths has been activated.
+   *
+   * @since 4.0
    */
   public boolean isAutoGrowNestedPaths() {
     return this.autoGrowNestedPaths;
@@ -281,12 +290,13 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * Specify the limit for array and collection/set/list auto-growing.
    * <p>Default is 256, preventing OutOfMemoryErrors in case of large indexes.
    * Raise this limit if your auto-growing needs are unusually high.
-   * <p>Used for setter/field injection via {@link #bind(PropertyValues)};
-   * not applicable to map properties or to constructor initialization
-   * via {@link #construct(ValueResolver)}.
+   * <p>Used for setter and field injection via {@link #bind(PropertyValues)}
+   * as well as for list and array arguments in constructor binding via
+   * {@link #construct(ValueResolver)}; not applicable to map properties.
    *
    * @see #initBeanPropertyAccess()
    * @see BeanWrapper#setAutoGrowCollectionLimit
+   * @since 4.0
    */
   public void setAutoGrowCollectionLimit(int autoGrowCollectionLimit) {
     Assert.state(this.bindingResult == null,
@@ -296,6 +306,8 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 
   /**
    * Return the current limit for array and collection auto-growing.
+   *
+   * @since 4.0
    */
   public int getAutoGrowCollectionLimit() {
     return this.autoGrowCollectionLimit;
@@ -489,6 +501,11 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * parameters that do not have corresponding fields in the target object.
    * <p>Default is "true". Turn this off to enforce that all bind parameters
    * must have a matching field in the target object.
+   * <p>This setting also applies to bind parameters whose names are not
+   * well-formed {@linkplain PropertyPath property paths} or exceed the
+   * {@linkplain #setMaxNestedPathDepth maximum nesting depth}: such
+   * parameters are ignored by default, and rejected with a
+   * {@link NotWritablePropertyException} otherwise.
    * <p>Note that this setting only applies to <i>binding</i> operations
    * on this DataBinder, not to <i>retrieving</i> values via its
    * {@link #getBindingResult() BindingResult}.
@@ -1274,14 +1291,6 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
     applyPropertyValues(values);
   }
 
-  /**
-   * Check the given property values against the allowed fields,
-   * removing values for fields that are not allowed.
-   *
-   * @param fields the property values to be bound (can be modified)
-   * @see #getAllowedFields
-   * @see #isAllowed(String)
-   */
   private static String @Nullable [] canonicalPropertyNames(String @Nullable [] fields) {
     if (fields == null) {
       return null;
@@ -1293,6 +1302,22 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
     return result;
   }
 
+  /**
+   * Check the given property values against the allowed fields,
+   * removing values for fields that are not allowed.
+   * <p>Values whose names are not well-formed {@linkplain PropertyPath property
+   * paths}, or exceed the {@linkplain #setMaxNestedPathDepth maximum nesting
+   * depth}, are treated as unknown fields: they are removed if
+   * {@link #isIgnoreUnknownFields() ignoreUnknownFields} is enabled (the
+   * default), and rejected with a {@link NotWritablePropertyException} otherwise.
+   *
+   * @param mpvs the property values to be bound (can be modified)
+   * @throws NotWritablePropertyException if a property value name is not a
+   * valid property path and unknown fields are not ignored
+   * @see #getAllowedFields
+   * @see #isAllowed(String)
+   * @see #setIgnoreUnknownFields
+   */
   protected void checkAllowedFields(PropertyValues mpvs) {
     PropertyPath.Options options = PropertyPath.Options.withMaxNestedPathDepth(getMaxNestedPathDepth());
     for (PropertyValue pv : mpvs.toArray()) {
@@ -1301,11 +1326,17 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
         parsed = PropertyPath.parse(pv.getName(), options);
       }
       catch (InvalidPropertyPathException ex) {
+        if (!isIgnoreUnknownFields()) {
+          Object target = getTarget();
+          Class<?> beanClass = (target != null ? target.getClass() : Object.class);
+          throw new NotWritablePropertyException(beanClass, pv.getName(),
+                  Objects.requireNonNull(ex.getMessage()), ex);
+        }
         mpvs.remove(pv);
-        Object target = getTarget();
-        getBindingErrorProcessor().processPropertyAccessException(
-                new InvalidPropertyPathException(target != null ? target : this, pv.getName(), pv.getValue(), ex),
-                getInternalBindingResult());
+        if (logger.isDebugEnabled()) {
+          logger.debug("Field [{}] has been removed from PropertyValues and will not be bound: {}",
+                  pv.getName(), ex.getMessage());
+        }
         continue;
       }
       String field = parsed.canonicalName();
