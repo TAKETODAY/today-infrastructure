@@ -240,7 +240,8 @@ Object o = expression.getValue(demo);
 
 ======
 
-启用集合自动增长后，集合默认最多自动增长到 256 个元素，与数据绑定的默认集合增长上限一致。
+启用集合自动增长后，集合默认最多自动增长到 256 个元素，与
+xref:core/validation/beans-beans.adoc#data-binding-auto-grow[数据绑定的默认集合增长上限]一致。
 旧构造器和配置构建器使用相同的默认上限；需要自定义上限时请显式配置 `maximumAutoGrowSize`。
 通过编程方式创建 `SpelExpressionParser` 时，可以在 `SpelParserConfiguration` 中指定
 `maximumAutoGrowSize` 来调整该上限。
