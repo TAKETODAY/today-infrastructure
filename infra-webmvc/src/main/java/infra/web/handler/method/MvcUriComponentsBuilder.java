@@ -59,6 +59,7 @@ import infra.web.annotation.RequestMapping;
 import infra.web.bind.resolver.PathVariableMethodArgumentResolver;
 import infra.web.bind.resolver.RequestParamMethodArgumentResolver;
 import infra.web.handler.method.support.CompositeUriComponentsContributor;
+import infra.web.util.HttpContextUriComponentsBuilder;
 import infra.web.util.UriComponentsBuilder;
 
 /**
@@ -521,7 +522,7 @@ public class MvcUriComponentsBuilder {
 
   private static UriComponentsBuilder getBaseUrlToUse(@Nullable UriComponentsBuilder baseUrl) {
     return baseUrl == null ?
-            UriComponentsBuilder.forURI(HttpContextHolder.required().getURI()) :
+            HttpContextUriComponentsBuilder.fromCurrentRequest() :
             baseUrl.cloneBuilder();
   }
 
@@ -819,7 +820,7 @@ public class MvcUriComponentsBuilder {
 
     @Deprecated
     private static String getPath() {
-      UriComponentsBuilder builder = UriComponentsBuilder.forURI(HttpContextHolder.required().getURI());
+      UriComponentsBuilder builder = HttpContextUriComponentsBuilder.fromCurrentRequest();
       String path = builder.build().getPath();
       return path != null ? path : "";
     }
