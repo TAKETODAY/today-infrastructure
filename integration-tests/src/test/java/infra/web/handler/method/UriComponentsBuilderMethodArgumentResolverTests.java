@@ -31,6 +31,7 @@ import infra.web.mock.MockResponse;
 import infra.web.bind.resolver.UriComponentsBuilderParameterStrategy;
 import infra.web.mock.MockHttpContext;
 import infra.web.util.UriComponentsBuilder;
+import infra.web.util.HttpContextUriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -57,7 +58,7 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
             null, this.mockRequest, new MockResponse());
 
     Method method = this.getClass().getDeclaredMethod(
-            "handle", UriComponentsBuilder.class, UriComponentsBuilder.class, int.class);
+            "handle", UriComponentsBuilder.class, HttpContextUriComponentsBuilder.class, int.class);
     this.builderParam = new HandlerParameter(new MethodParameter(method, 0));
     this.mockBuilderParam = new HandlerParameter(new MethodParameter(method, 1));
     this.intParam = new HandlerParameter(new MethodParameter(method, 2));
@@ -75,11 +76,24 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
     Object actual = this.resolver.resolveArgument(webRequest, builderParam);
 
     assertThat(actual).isNotNull();
-    assertThat(actual.getClass()).isEqualTo(UriComponentsBuilder.class);
+    assertThat(actual.getClass()).isEqualTo(HttpContextUriComponentsBuilder.class);
     assertThat(((UriComponentsBuilder) actual).build().toUriString()).isEqualTo("http://localhost");
   }
 
-  void handle(UriComponentsBuilder builder, UriComponentsBuilder servletBuilder, int value) {
+  void handle(UriComponentsBuilder builder, HttpContextUriComponentsBuilder contextBuilder, int value) {
+  }
+
+  @Test
+  void resolveContextBuilderWithPathAndQuery() {
+    this.mockRequest.setScheme("https");
+    this.mockRequest.setServerPort(443);
+    this.mockRequest.setRequestURI("/items/a%2Fb.json");
+    this.mockRequest.setQueryString("q=a%2Bb");
+
+    HttpContextUriComponentsBuilder builder = this.resolver.resolveArgument(this.webRequest, this.mockBuilderParam);
+
+    assertThat(builder.build().toUriString()).isEqualTo("https://localhost/items/a%2Fb.json?q=a%2Bb");
+    assertThat(builder.removePathExtension()).isEqualTo("json");
   }
 
   @Test
