@@ -66,25 +66,11 @@ public class ForwardedHeaderTransformer implements Function<ServerHttpRequest, S
     FORWARDED_HEADER_NAMES.add("X-Forwarded-Prefix");
   }
 
-  private final @Nullable Boolean useStandardHeader;
+  private final boolean useStandardHeader;
 
   private boolean useForwardedPrefix;
 
   private boolean removeOnly;
-
-  /**
-   * A default constructor with the historic behavior so far, which is to check
-   * both the standard "Forwarded" header and the "X-Forwarded-*" alternative
-   * headers in that order, also with "X-Forwarded-Prefix" enabled by default.
-   * <p>This behavior depends on proxies being configured correctly
-   * to clear both standard "Forwarded" and "X-Forwarded-*" header values coming
-   * from the outside. Going forward, applications must explicitly declare which
-   * forwarded headers are expected.
-   */
-  public ForwardedHeaderTransformer() {
-    this.useStandardHeader = null;
-    this.useForwardedPrefix = true;
-  }
 
   /**
    * Create an instance of the transformer and specify whether it should use the
@@ -184,22 +170,13 @@ public class ForwardedHeaderTransformer implements Function<ServerHttpRequest, S
     return false;
   }
 
-  @SuppressWarnings("removal")
   private static ForwardedHeaderUtils.ForwardedInfo getForwardedInfo(
-          @Nullable Boolean useStandardHeader, URI uri, HttpHeaders headers,
+          boolean useStandardHeader, URI uri, HttpHeaders headers,
           @Nullable InetSocketAddress remoteAddress, @Nullable InetSocketAddress localAddress) {
 
-    if (useStandardHeader == null) {
-      return new ForwardedHeaderUtils.ForwardedInfo(
-              ForwardedHeaderUtils.adaptFromForwardedHeaders(uri, headers),
-              ForwardedHeaderUtils.parseForwardedFor(uri, headers, remoteAddress),
-              ForwardedHeaderUtils.parseForwardedBy(uri, headers, localAddress));
-    }
-    else {
-      return (useStandardHeader ?
-              ForwardedHeaderUtils.parseStandardHeader(uri, headers, remoteAddress, localAddress) :
-              ForwardedHeaderUtils.parseXForwardedHeaders(uri, headers, remoteAddress, localAddress));
-    }
+    return useStandardHeader ?
+            ForwardedHeaderUtils.parseStandardHeader(uri, headers, remoteAddress, localAddress) :
+            ForwardedHeaderUtils.parseXForwardedHeaders(uri, headers, remoteAddress, localAddress);
   }
 
   private void removeForwardedHeaders(ServerHttpRequest.Builder builder) {

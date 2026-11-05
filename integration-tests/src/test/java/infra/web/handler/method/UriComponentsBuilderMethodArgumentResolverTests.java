@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 
 import infra.core.MethodParameter;
 import infra.web.HttpContext;
+import infra.web.filter.ForwardedHeaderFilter;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.bind.resolver.UriComponentsBuilderParameterStrategy;
@@ -79,6 +80,20 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
   }
 
   void handle(UriComponentsBuilder builder, UriComponentsBuilder servletBuilder, int value) {
+  }
+
+  @Test
+  void resolveArgumentAfterForwardedHeaderFilter() throws Exception {
+    this.mockRequest.setRequestURI("/items/a%2Fb");
+    this.mockRequest.setQueryString("q=a%2Bb");
+    this.mockRequest.addHeader("Forwarded", "proto=https;host=example.org");
+    this.mockRequest.addHeader("X-Forwarded-Prefix", "/edge");
+    ForwardedHeaderFilter filter = new ForwardedHeaderFilter(true);
+    filter.setUseForwardedPrefix(true);
+    filter.doFilter(this.webRequest, context -> {
+      UriComponentsBuilder builder = (UriComponentsBuilder) this.resolver.resolveArgument(context, this.builderParam);
+      assertThat(builder.build().toUriString()).isEqualTo("https://example.org/edge/items/a%2Fb?q=a%2Bb");
+    });
   }
 
 }

@@ -116,7 +116,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	UriComponentsBuilder base = UriComponentsBuilder.forHttpRequest(req).path("/en");
+	UriComponentsBuilder base = UriComponentsBuilder.forURI(req.getURI()).path("/en");
 	MvcUriComponentsBuilder builder = MvcUriComponentsBuilder.relativeTo(base);
 	builder.withMethodCall(on(BookingController.class).getBooking(21)).buildAndExpand(42);
 

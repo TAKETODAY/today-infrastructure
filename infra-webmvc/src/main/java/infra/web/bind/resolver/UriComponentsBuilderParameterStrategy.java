@@ -20,16 +20,16 @@ package infra.web.bind.resolver;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.http.HttpRequest;
 import infra.web.HttpContext;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.util.UriComponentsBuilder;
 
 /**
- * Resolvers argument values of type {@link UriComponentsBuilder}.
+ * Resolves argument values of type {@link UriComponentsBuilder}.
  *
  * <p>The returned instance is initialized via
- * {@link UriComponentsBuilder#forHttpRequest(HttpRequest)}
+ * {@link UriComponentsBuilder#forURI(java.net.URI)} using the current request URI.
+ * Forwarded headers must be processed before argument resolution.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -45,7 +45,7 @@ public class UriComponentsBuilderParameterStrategy implements ParameterResolving
   @Nullable
   @Override
   public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
-    return UriComponentsBuilder.forHttpRequest(context);
+    return UriComponentsBuilder.forURI(context.getURI());
   }
 
 }

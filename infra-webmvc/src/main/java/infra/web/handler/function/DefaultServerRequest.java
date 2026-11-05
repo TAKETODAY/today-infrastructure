@@ -127,7 +127,7 @@ class DefaultServerRequest implements ServerRequest {
 
   @Override
   public UriBuilder uriBuilder() {
-    return UriComponentsBuilder.forHttpRequest(httpContext);
+    return UriComponentsBuilder.forURI(httpContext.getURI());
   }
 
   @Override

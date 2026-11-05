@@ -263,7 +263,7 @@ class ReactorNettyWebServerFactoryAutoConfigurationTests {
 
     @Bean
     ForwardedHeaderTransformer testForwardedHeaderTransformer() {
-      return new ForwardedHeaderTransformer();
+      return new ForwardedHeaderTransformer(false);
     }
 
   }

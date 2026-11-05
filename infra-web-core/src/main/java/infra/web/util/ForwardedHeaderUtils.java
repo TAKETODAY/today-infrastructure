@@ -26,8 +26,6 @@ import java.net.URISyntaxException;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import infra.http.HttpHeaders;
 import infra.util.StringUtils;
@@ -51,16 +49,6 @@ import infra.util.StringUtils;
  * @since 4.0
  */
 public abstract class ForwardedHeaderUtils {
-
-  private static final String FORWARDED_VALUE = "\"?([^;,\"]+)\"?";
-
-  private static final Pattern FORWARDED_HOST_PATTERN = Pattern.compile("(?i:host)=" + FORWARDED_VALUE);
-
-  private static final Pattern FORWARDED_PROTO_PATTERN = Pattern.compile("(?i:proto)=" + FORWARDED_VALUE);
-
-  private static final Pattern FORWARDED_FOR_PATTERN = Pattern.compile("(?i:for)=" + FORWARDED_VALUE);
-
-  private static final Pattern FORWARDED_BY_PATTERN = Pattern.compile("(?i:by)=" + FORWARDED_VALUE);
 
   /**
    * Parse the "Forwarded" header.
@@ -309,137 +297,6 @@ public abstract class ForwardedHeaderUtils {
   }
 
   /**
-   * Adapt the scheme+host+port of the given {@link URI} from the "Forwarded" header
-   * (see <a href="https://tools.ietf.org/html/rfc7239">RFC 7239</a>) or from the
-   * "X-Forwarded-Host", "X-Forwarded-Port", and "X-Forwarded-Proto" headers if
-   * "Forwarded" is not present.
-   *
-   * @param uri the request {@code URI}
-   * @param headers the HTTP headers to consider
-   * @return a {@link UriComponentsBuilder} that reflects the request URI and
-   * additional updates from forwarded headers
-   * @deprecated as of 5.0 in favor of {@link #parseStandardHeader} and
-   * {@link #parseXForwardedHeaders}
-   */
-  @Deprecated(since = "5.0", forRemoval = true)
-  public static UriComponentsBuilder adaptFromForwardedHeaders(URI uri, HttpHeaders headers) {
-    UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.forURI(uri);
-    try {
-      String forwardedHeader = headers.getFirst("Forwarded");
-      if (StringUtils.hasText(forwardedHeader)) {
-        Matcher matcher = FORWARDED_PROTO_PATTERN.matcher(forwardedHeader);
-        if (matcher.find()) {
-          uriComponentsBuilder.scheme(matcher.group(1).trim());
-          uriComponentsBuilder.port(null);
-        }
-        else if (isForwardedSslOn(headers)) {
-          uriComponentsBuilder.scheme("https");
-          uriComponentsBuilder.port(null);
-        }
-        matcher = FORWARDED_HOST_PATTERN.matcher(forwardedHeader);
-        if (matcher.find()) {
-          adaptForwardedHost(uriComponentsBuilder, matcher.group(1).trim());
-        }
-      }
-      else {
-        String protocolHeader = headers.getFirst("X-Forwarded-Proto");
-        if (StringUtils.hasText(protocolHeader)) {
-          uriComponentsBuilder.scheme(getLeftMostValue(protocolHeader));
-          uriComponentsBuilder.port(null);
-        }
-        else if (isForwardedSslOn(headers)) {
-          uriComponentsBuilder.scheme("https");
-          uriComponentsBuilder.port(null);
-        }
-        String hostHeader = headers.getFirst("X-Forwarded-Host");
-        if (StringUtils.hasText(hostHeader)) {
-          adaptForwardedHost(uriComponentsBuilder, getLeftMostValue(hostHeader));
-        }
-        String portHeader = headers.getFirst("X-Forwarded-Port");
-        if (StringUtils.hasText(portHeader)) {
-          uriComponentsBuilder.port(Integer.parseInt(getLeftMostValue(portHeader)));
-        }
-      }
-    }
-    catch (NumberFormatException ex) {
-      throw new IllegalArgumentException("Failed to parse a port from \"forwarded\"-type headers. " +
-              "If not behind a trusted proxy, consider using ForwardedHeaderFilter " +
-              "with removeOnly=true. Request headers: " + headers);
-    }
-
-    uriComponentsBuilder.resetPortIfDefaultForScheme();
-
-    return uriComponentsBuilder;
-  }
-
-  /**
-   * Parse the first "Forwarded: for=..." or "X-Forwarded-For" header value to
-   * an {@code InetSocketAddress} representing the address of the client.
-   *
-   * @param uri the request {@code URI}
-   * @param headers the request headers that may contain forwarded headers
-   * @param remoteAddress the current remote address
-   * @return an {@code InetSocketAddress} with the extracted host and port, or
-   * {@code null} if the headers are not present
-   * @deprecated as of 5.0 in favor of {@link #parseStandardHeader} and
-   * {@link #parseXForwardedHeaders}
-   */
-  @Deprecated(since = "5.0", forRemoval = true)
-  public static @Nullable InetSocketAddress parseForwardedFor(
-          URI uri, HttpHeaders headers, @Nullable InetSocketAddress remoteAddress) {
-
-    String forwardedHeader = headers.getFirst("Forwarded");
-    if (StringUtils.hasText(forwardedHeader)) {
-      String forwardedToUse = getLeftMostValue(forwardedHeader);
-      Matcher matcher = FORWARDED_FOR_PATTERN.matcher(forwardedToUse);
-      if (matcher.find()) {
-        String value = matcher.group(1).trim();
-        return parseInetSocketAddress(value, getPortToUse(remoteAddress, uri));
-      }
-    }
-
-    String forHeader = headers.getFirst("X-Forwarded-For");
-    if (StringUtils.hasText(forHeader)) {
-      String host = getLeftMostValue(forHeader);
-      boolean ipv6 = (host.indexOf(':') != -1);
-      host = (ipv6 && !host.startsWith("[") && !host.endsWith("]") ? "[" + host + "]" : host);
-      return InetSocketAddress.createUnresolved(host, getPortToUse(remoteAddress, uri));
-    }
-
-    return null;
-  }
-
-  /**
-   * Parse the first "Forwarded: by=..." header value to
-   * an {@code InetSocketAddress} representing the address of the server.
-   *
-   * @param uri the request {@code URI}
-   * @param headers the request headers that may contain forwarded headers
-   * @param localAddress the current local address
-   * @return an {@code InetSocketAddress} with the extracted host and port, or
-   * {@code null} if the headers are not present
-   * @since 7.0
-   * @deprecated as of 5.0 in favor of {@link #parseStandardHeader} and
-   * {@link #parseXForwardedHeaders}
-   */
-  @Deprecated(since = "5.0", forRemoval = true)
-  public static @Nullable InetSocketAddress parseForwardedBy(
-          URI uri, HttpHeaders headers, @Nullable InetSocketAddress localAddress) {
-
-    String forwardedHeader = headers.getFirst("Forwarded");
-    if (StringUtils.hasText(forwardedHeader)) {
-      String forwardedToUse = getLeftMostValue(forwardedHeader);
-      Matcher matcher = FORWARDED_BY_PATTERN.matcher(forwardedToUse);
-      if (matcher.find()) {
-        String value = matcher.group(1).trim();
-        return parseInetSocketAddress(value, getPortToUse(localAddress, uri));
-      }
-    }
-
-    return null;
-  }
-
-  /**
    * Container for the combined results of parsing either the "Forwarded"
    * header or the "X-Forwarded-*" alternative headers.
    *
@@ -453,7 +310,7 @@ public abstract class ForwardedHeaderUtils {
    * @since 5.0
    */
   public record ForwardedInfo(UriComponentsBuilder uriComponentsBuilder,
-                              @Nullable InetSocketAddress forAddress, @Nullable InetSocketAddress byAddress) {
+          @Nullable InetSocketAddress forAddress, @Nullable InetSocketAddress byAddress) {
 
     /**
      * Return a {@link URI} initialized from {@link #uriComponentsBuilder()}.
