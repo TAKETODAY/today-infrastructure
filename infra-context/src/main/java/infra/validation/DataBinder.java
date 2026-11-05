@@ -136,7 +136,10 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   /** Default object name used for binding: "target". */
   public static final String DEFAULT_OBJECT_NAME = "target";
 
-  /** Default limit for array and collection growing: 256. */
+  /**
+   * Default limit for array and collection growing: 256.
+   * @since 4.0
+   */
   public static final int DEFAULT_AUTO_GROW_COLLECTION_LIMIT = 256;
 
   /**
@@ -259,8 +262,9 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * <p>Default is "true" on a standard DataBinder. Note that since 4.0 this feature is supported
    * for bean property access (DataBinder's default mode) and field access.
    * <p>Used for setter/field injection via {@link #bind(PropertyValues)}, and not
-   * applicable to constructor initialization via {@link #construct(ValueResolver)}.
+   * applicable to constructor binding via {@link #construct(ValueResolver)}.
    *
+   * @since 4.0
    * @see #initBeanPropertyAccess()
    * @see BeanWrapper#setAutoGrowNestedPaths
    */
@@ -272,6 +276,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 
   /**
    * Return whether "auto-growing" of nested paths has been activated.
+   * @since 4.0
    */
   public boolean isAutoGrowNestedPaths() {
     return this.autoGrowNestedPaths;
@@ -281,10 +286,11 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * Specify the limit for array and collection/set/list auto-growing.
    * <p>Default is 256, preventing OutOfMemoryErrors in case of large indexes.
    * Raise this limit if your auto-growing needs are unusually high.
-   * <p>Used for setter/field injection via {@link #bind(PropertyValues)};
-   * not applicable to map properties or to constructor initialization
-   * via {@link #construct(ValueResolver)}.
+   * <p>Used for setter and field injection via {@link #bind(PropertyValues)}
+   * as well as for list and array arguments in constructor binding via
+   * {@link #construct(ValueResolver)}; not applicable to map properties.
    *
+   * @since 4.0
    * @see #initBeanPropertyAccess()
    * @see BeanWrapper#setAutoGrowCollectionLimit
    */
@@ -296,6 +302,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 
   /**
    * Return the current limit for array and collection auto-growing.
+   * @since 4.0
    */
   public int getAutoGrowCollectionLimit() {
     return this.autoGrowCollectionLimit;
