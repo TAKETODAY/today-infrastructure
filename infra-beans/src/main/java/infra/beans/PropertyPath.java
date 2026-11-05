@@ -72,6 +72,7 @@ public final class PropertyPath {
    * configured field names. Use {@link #parse(String, Options)} with a
    * {@linkplain Options#withMaxNestedPathDepth maximum nesting depth} for
    * paths from external input, such as request parameter names.
+   *
    * @param path the property path to parse; an empty string is a valid path
    * with no segments
    * @return the parsed property path
@@ -89,6 +90,7 @@ public final class PropertyPath {
    * <p>The maximum nesting depth is enforced while parsing: a path that
    * exceeds it is rejected once the first segment beyond that depth has
    * been read, without parsing the remainder of the path.
+   *
    * @param path the property path to parse; an empty string is a valid path
    * with no segments
    * @param options the parsing options to apply
@@ -115,6 +117,7 @@ public final class PropertyPath {
    * for display, comparison, or configuration matching, as opposed to
    * {@link #parse(String)} itself, whose non-throwing behavior would be the
    * wrong default for a caller that is about to navigate an object graph.
+   *
    * @param path the property path to canonicalize, possibly {@code null}
    * @return the canonical form of {@code path}, or {@code path} unchanged
    * (or an empty string, if {@code path} is {@code null}) if it is not a
@@ -153,6 +156,7 @@ public final class PropertyPath {
    * Return the sub-path made up of this path's segments from the given
    * index to the end, such as the {@code "country.name"} sub-path of
    * {@code "address.country.name"} from index 1.
+   *
    * @param fromIndex the index of the first segment to include (inclusive)
    * @return the sub-path starting at {@code fromIndex}
    * @throws IndexOutOfBoundsException if {@code fromIndex} is negative
@@ -196,6 +200,7 @@ public final class PropertyPath {
    * target property is an indexed collection.
    * <p>For example, the path {@code "map[key].name"} has two segments:
    * {@code Segment["map", ["key"]]} and {@code Segment["name", []]}.
+   *
    * @param name the property name, which is empty only for a root-level
    * indexed access such as {@code "[user]"}
    * @param keys the keys of the indexes applied to the property, with any
@@ -301,6 +306,7 @@ public final class PropertyPath {
     /**
      * Create an {@link Options} instance that rejects a path whose nesting
      * depth exceeds the given maximum.
+     *
      * @param maxNestedPathDepth the non-negative maximum nesting depth
      * @return parsing options enforcing the limit
      */

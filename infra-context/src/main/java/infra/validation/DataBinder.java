@@ -140,6 +140,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 
   /**
    * Default limit for array and collection growing: 256.
+   *
    * @since 4.0
    */
   public static final int DEFAULT_AUTO_GROW_COLLECTION_LIMIT = 256;
@@ -266,9 +267,9 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * <p>Used for setter/field injection via {@link #bind(PropertyValues)}, and not
    * applicable to constructor binding via {@link #construct(ValueResolver)}.
    *
-   * @since 4.0
    * @see #initBeanPropertyAccess()
    * @see BeanWrapper#setAutoGrowNestedPaths
+   * @since 4.0
    */
   public void setAutoGrowNestedPaths(boolean autoGrowNestedPaths) {
     Assert.state(this.bindingResult == null,
@@ -278,6 +279,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 
   /**
    * Return whether "auto-growing" of nested paths has been activated.
+   *
    * @since 4.0
    */
   public boolean isAutoGrowNestedPaths() {
@@ -292,9 +294,9 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * as well as for list and array arguments in constructor binding via
    * {@link #construct(ValueResolver)}; not applicable to map properties.
    *
-   * @since 4.0
    * @see #initBeanPropertyAccess()
    * @see BeanWrapper#setAutoGrowCollectionLimit
+   * @since 4.0
    */
   public void setAutoGrowCollectionLimit(int autoGrowCollectionLimit) {
     Assert.state(this.bindingResult == null,
@@ -304,6 +306,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 
   /**
    * Return the current limit for array and collection auto-growing.
+   *
    * @since 4.0
    */
   public int getAutoGrowCollectionLimit() {
