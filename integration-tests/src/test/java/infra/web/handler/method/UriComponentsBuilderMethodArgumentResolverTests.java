@@ -25,11 +25,13 @@ import java.lang.reflect.Method;
 
 import infra.core.MethodParameter;
 import infra.web.HttpContext;
+import infra.web.filter.ForwardedHeaderFilter;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.bind.resolver.UriComponentsBuilderParameterStrategy;
 import infra.web.mock.MockHttpContext;
 import infra.web.util.UriComponentsBuilder;
+import infra.web.util.HttpContextUriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,7 +58,7 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
             null, this.mockRequest, new MockResponse());
 
     Method method = this.getClass().getDeclaredMethod(
-            "handle", UriComponentsBuilder.class, UriComponentsBuilder.class, int.class);
+            "handle", UriComponentsBuilder.class, HttpContextUriComponentsBuilder.class, int.class);
     this.builderParam = new HandlerParameter(new MethodParameter(method, 0));
     this.mockBuilderParam = new HandlerParameter(new MethodParameter(method, 1));
     this.intParam = new HandlerParameter(new MethodParameter(method, 2));
@@ -74,11 +76,38 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
     Object actual = this.resolver.resolveArgument(webRequest, builderParam);
 
     assertThat(actual).isNotNull();
-    assertThat(actual.getClass()).isEqualTo(UriComponentsBuilder.class);
+    assertThat(actual.getClass()).isEqualTo(HttpContextUriComponentsBuilder.class);
     assertThat(((UriComponentsBuilder) actual).build().toUriString()).isEqualTo("http://localhost");
   }
 
-  void handle(UriComponentsBuilder builder, UriComponentsBuilder servletBuilder, int value) {
+  void handle(UriComponentsBuilder builder, HttpContextUriComponentsBuilder contextBuilder, int value) {
+  }
+
+  @Test
+  void resolveContextBuilderWithPathAndQuery() {
+    this.mockRequest.setScheme("https");
+    this.mockRequest.setServerPort(443);
+    this.mockRequest.setRequestURI("/items/a%2Fb.json");
+    this.mockRequest.setQueryString("q=a%2Bb");
+
+    HttpContextUriComponentsBuilder builder = this.resolver.resolveArgument(this.webRequest, this.mockBuilderParam);
+
+    assertThat(builder.build().toUriString()).isEqualTo("https://localhost/items/a%2Fb.json?q=a%2Bb");
+    assertThat(builder.removePathExtension()).isEqualTo("json");
+  }
+
+  @Test
+  void resolveArgumentAfterForwardedHeaderFilter() throws Exception {
+    this.mockRequest.setRequestURI("/items/a%2Fb");
+    this.mockRequest.setQueryString("q=a%2Bb");
+    this.mockRequest.addHeader("Forwarded", "proto=https;host=example.org");
+    this.mockRequest.addHeader("X-Forwarded-Prefix", "/edge");
+    ForwardedHeaderFilter filter = new ForwardedHeaderFilter(true);
+    filter.setUseForwardedPrefix(true);
+    filter.doFilter(this.webRequest, context -> {
+      UriComponentsBuilder builder = (UriComponentsBuilder) this.resolver.resolveArgument(context, this.builderParam);
+      assertThat(builder.build().toUriString()).isEqualTo("https://example.org/edge/items/a%2Fb?q=a%2Bb");
+    });
   }
 
 }

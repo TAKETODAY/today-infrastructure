@@ -24,24 +24,23 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
+import infra.http.server.RequestPath;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.StringUtils;
 import infra.web.DelegatingHttpContext;
 import infra.web.Filter;
 import infra.web.FilterChain;
 import infra.web.HttpContext;
 import infra.web.util.ForwardedHeaderUtils;
+import infra.web.util.HttpContextUriComponentsBuilder;
 import infra.web.util.UriComponents;
 import infra.web.util.UriComponentsBuilder;
 
@@ -79,40 +78,13 @@ public class ForwardedHeaderFilter implements Filter {
 
   private static final Logger logger = LoggerFactory.getLogger(ForwardedHeaderFilter.class);
 
-  private static final Set<String> FORWARDED_HEADER_NAMES =
-          Collections.newSetFromMap(new LinkedCaseInsensitiveMap<>(10, Locale.ROOT));
-
-  static {
-    FORWARDED_HEADER_NAMES.add("Forwarded");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-Proto");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-Ssl");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-Host");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-Port");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-For");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-Prefix");
-  }
-
-  private final @Nullable Boolean useStandardHeader;
+  private final boolean useStandardHeader;
 
   private boolean useForwardedPrefix;
 
   private boolean removeOnly;
 
   private boolean relativeRedirects;
-
-  /**
-   * A default constructor with the historic behavior so far, which is to check
-   * both the standard "Forwarded" header and the "X-Forwarded-*" alternative
-   * headers in that order, also with "X-Forwarded-Prefix" enabled by default.
-   * <p>This behavior depends on proxies being configured correctly
-   * to clear both standard "Forwarded" and "X-Forwarded-*" header values coming
-   * from the outside. Going forward, applications must explicitly declare which
-   * forwarded headers are expected.
-   */
-  public ForwardedHeaderFilter() {
-    this.useStandardHeader = null;
-    this.useForwardedPrefix = true;
-  }
 
   /**
    * Create an instance of the filter and specify whether it should use the
@@ -160,7 +132,7 @@ public class ForwardedHeaderFilter implements Filter {
   }
 
   protected boolean shouldNotFilter(HttpContext request) {
-    for (String headerName : FORWARDED_HEADER_NAMES) {
+    for (String headerName : ForwardedHeaderUtils.FORWARDED_HEADER_NAMES) {
       if (request.containsHeader(headerName)) {
         return false;
       }
@@ -186,7 +158,7 @@ public class ForwardedHeaderFilter implements Filter {
             wrappedRequest = RelativeRedirectResponseWrapper.wrapIfNecessary(wrappedRequest, HttpStatus.SEE_OTHER);
           }
         }
-        catch (Throwable ex) {
+        catch (Exception ex) {
           if (logger.isDebugEnabled()) {
             logger.debug("Failed to apply forwarded headers to {}", formatRequest(context), ex);
           }
@@ -208,22 +180,13 @@ public class ForwardedHeaderFilter implements Filter {
     return "HTTP " + request.getMethod() + " \"" + request.getRequestURI() + "\"";
   }
 
-  @SuppressWarnings("removal")
   private static ForwardedHeaderUtils.ForwardedInfo getForwardedInfo(
-          @Nullable Boolean useStandardHeader, URI uri, HttpHeaders headers,
+          boolean useStandardHeader, URI uri, HttpHeaders headers,
           @Nullable InetSocketAddress remoteAddress, @Nullable InetSocketAddress localAddress) {
 
-    if (useStandardHeader == null) {
-      return new ForwardedHeaderUtils.ForwardedInfo(
-              ForwardedHeaderUtils.adaptFromForwardedHeaders(uri, headers),
-              ForwardedHeaderUtils.parseForwardedFor(uri, headers, remoteAddress),
-              ForwardedHeaderUtils.parseForwardedBy(uri, headers, localAddress));
-    }
-    else {
-      return (useStandardHeader ?
-              ForwardedHeaderUtils.parseStandardHeader(uri, headers, remoteAddress, localAddress) :
-              ForwardedHeaderUtils.parseXForwardedHeaders(uri, headers, remoteAddress, localAddress));
-    }
+    return useStandardHeader ?
+            ForwardedHeaderUtils.parseStandardHeader(uri, headers, remoteAddress, localAddress) :
+            ForwardedHeaderUtils.parseXForwardedHeaders(uri, headers, remoteAddress, localAddress);
   }
 
   /**
@@ -231,44 +194,52 @@ public class ForwardedHeaderFilter implements Filter {
    */
   private static class ForwardedHeaderRemovingRequest extends DelegatingHttpContext {
 
-    private final Set<String> headerNames;
+    private final HttpHeaders headers;
 
     public ForwardedHeaderRemovingRequest(HttpContext delegate) {
       super(delegate);
-      this.headerNames = headerNames(delegate);
-    }
-
-    private static Set<String> headerNames(HttpContext request) {
-      Set<String> headerNames = Collections.newSetFromMap(new LinkedCaseInsensitiveMap<>(Locale.ROOT));
-      for (String name : request.getHeaderNames()) {
-        if (!FORWARDED_HEADER_NAMES.contains(name)) {
-          headerNames.add(name);
-        }
+      HttpHeaders headers = HttpHeaders.copyOf(delegate.getHeaders());
+      for (String name : ForwardedHeaderUtils.FORWARDED_HEADER_NAMES) {
+        headers.remove(name);
       }
-      return Collections.unmodifiableSet(headerNames);
+      this.headers = headers.asReadOnly();
     }
 
     // Override header accessors to not expose forwarded headers
 
     @Override
     public @Nullable String getHeader(String name) {
-      if (FORWARDED_HEADER_NAMES.contains(name)) {
-        return null;
-      }
-      return super.getHeader(name);
+      return this.headers.getFirst(name);
     }
 
     @Override
     public List<String> getHeaders(String name) {
-      if (FORWARDED_HEADER_NAMES.contains(name)) {
-        return Collections.emptyList();
-      }
-      return super.getHeaders(name);
+      return this.headers.getOrEmpty(name);
     }
 
     @Override
     public Collection<String> getHeaderNames() {
-      return this.headerNames;
+      return this.headers.names();
+    }
+
+    @Override
+    public HttpHeaders getHeaders() {
+      return this.headers;
+    }
+
+    @Override
+    public HttpHeaders requestHeaders() {
+      return this.headers;
+    }
+
+    @Override
+    public boolean containsHeader(String name) {
+      return this.headers.contains(name);
+    }
+
+    @Override
+    public boolean containsHeaderValue(String headerName, String value) {
+      return this.headers.contains(headerName, value);
     }
   }
 
@@ -293,20 +264,21 @@ public class ForwardedHeaderFilter implements Filter {
 
     private final ForwardedPrefixExtractor forwardedPrefixExtractor;
 
-    private final @Nullable Boolean useStandardHeader;
+    private @Nullable RequestPath requestPath;
 
-    ForwardedHeaderExtractingContext(HttpContext context, @Nullable Boolean useStandardHeader, boolean useForwardedPrefix) {
+    ForwardedHeaderExtractingContext(HttpContext context, boolean useStandardHeader, boolean useForwardedPrefix) {
       super(context);
-      this.useStandardHeader = useStandardHeader;
       var info = getForwardedInfo(useStandardHeader, context.getURI(), context.getHeaders(),
-              context.remoteAddress(), (InetSocketAddress) context.localAddress());
+              context.remoteAddress(), context.localAddress() instanceof InetSocketAddress address ? address : null);
 
       UriComponents uriComponents = info.uriComponentsBuilder().build();
       int port = uriComponents.getPort();
+      String scheme = uriComponents.getScheme();
+      String host = uriComponents.getHost();
 
-      this.scheme = uriComponents.getScheme();
-      this.secure = "https".equals(this.scheme) || "wss".equals(this.scheme);
-      this.host = uriComponents.getHost();
+      this.scheme = scheme;
+      this.secure = "https".equalsIgnoreCase(scheme) || "wss".equalsIgnoreCase(scheme);
+      this.host = host;
       this.port = (port == -1 ? (this.secure ? 443 : 80) : port);
 
       this.remoteAddress = info.forAddress();
@@ -315,9 +287,11 @@ public class ForwardedHeaderFilter implements Filter {
       // Use Supplier as Tomcat updates delegate request on FORWARD
       Supplier<HttpContext> requestSupplier = this::delegate;
 
+      String baseUrl = (scheme != null ? scheme : context.getScheme()) + "://"
+              + (host != null ? host : context.getServerName())
+              + (port == -1 ? "" : ":" + port);
       this.forwardedPrefixExtractor = new ForwardedPrefixExtractor(
-              requestSupplier, (this.scheme + "://" + this.host + (port == -1 ? "" : ":" + port)),
-              useForwardedPrefix);
+              requestSupplier, baseUrl, useForwardedPrefix);
     }
 
     @Override
@@ -348,6 +322,37 @@ public class ForwardedHeaderFilter implements Filter {
     @Override
     public String getRequestURL() {
       return this.forwardedPrefixExtractor.getRequestUrl();
+    }
+
+    @Override
+    public URI getURI() {
+      String url = getRequestURL();
+      String query = getQueryString();
+      if (query != null) {
+        try {
+          return new URI(url + '?' + query);
+        }
+        catch (URISyntaxException ex) {
+          // Maybe a malformed query string... try the plain request URL
+        }
+      }
+      try {
+        return new URI(url);
+      }
+      catch (URISyntaxException ex) {
+        throw new IllegalStateException("Could not resolve HttpContext as URI: " + url, ex);
+      }
+    }
+
+    @Override
+    public RequestPath getRequestPath() {
+      String path = getRequestURI();
+      RequestPath requestPath = this.requestPath;
+      if (requestPath == null || !requestPath.value().equals(path)) {
+        requestPath = RequestPath.parse(path, this.forwardedPrefixExtractor.forwardedPrefix);
+        this.requestPath = requestPath;
+      }
+      return requestPath;
     }
 
     @Override
@@ -395,12 +400,7 @@ public class ForwardedHeaderFilter implements Filter {
                 StringUtils.applyRelativePath(getRequestURI(), path));
       }
 
-      URI uri = getURI();
-      HttpHeaders headers = getHeaders();
-
-      var info = getForwardedInfo(useStandardHeader, uri, headers, null, null);
-
-      String result = info.uriComponentsBuilder()
+      String result = HttpContextUriComponentsBuilder.fromRequest(this)
               .replacePath(path)
               .replaceQuery(uriComponents.getQuery())
               .fragment(uriComponents.getFragment())
@@ -466,7 +466,14 @@ public class ForwardedHeaderFilter implements Filter {
           while (endIndex > 0 && rawPrefix.charAt(endIndex - 1) == '/') {
             endIndex--;
           }
-          prefix.append((endIndex != rawPrefix.length() ? rawPrefix.substring(0, endIndex) : rawPrefix));
+          if (endIndex == 0) {
+            continue;
+          }
+          String segment = rawPrefix.substring(0, endIndex);
+          if (segment.charAt(0) != '/') {
+            prefix.append('/');
+          }
+          prefix.append(segment);
         }
         return prefix.toString();
       }

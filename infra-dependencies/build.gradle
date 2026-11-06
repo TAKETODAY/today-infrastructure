@@ -25,7 +25,7 @@ bom {
       ]
     }
   }
-  library("AspectJ", "1.9.26") {
+  library("AspectJ", "1.9.27") {
     group("org.aspectj") {
       modules = [
           "aspectjrt",
@@ -56,7 +56,7 @@ bom {
       ]
     }
   }
-  library("Byte Buddy", "1.17.6") {
+  library("Byte Buddy", "1.18.17") {
     group("net.bytebuddy") {
       modules = [
           "byte-buddy",
@@ -163,7 +163,7 @@ bom {
       ]
     }
   }
-  library("Hibernate", "7.2.25.Final") {
+  library("Hibernate", "7.4.14.Final") {
     group("org.hibernate.orm") {
       modules = [
           "hibernate-agroal",
@@ -184,7 +184,7 @@ bom {
       ]
     }
   }
-  library("Hibernate Validator", "9.1.4.Final") {
+  library("Hibernate Validator", "9.1.6.Final") {
     group("org.hibernate.validator") {
       modules = [
           "hibernate-validator",
@@ -250,7 +250,7 @@ bom {
       ]
     }
   }
-  library("Logback", "1.5.29") {
+  library("Logback", "1.6.6") {
     group("ch.qos.logback") {
       modules = [
           "logback-access",
@@ -317,7 +317,7 @@ bom {
       ]
     }
   }
-  library("Maven Failsafe Plugin", "3.1.2") {
+  library("Maven Failsafe Plugin", "3.6.1") {
     group("org.apache.maven.plugins") {
       plugins = [
           "maven-failsafe-plugin"
@@ -380,7 +380,7 @@ bom {
       ]
     }
   }
-  library("Maven Surefire Plugin", "3.1.2") {
+  library("Maven Surefire Plugin", "3.6.1") {
     group("org.apache.maven.plugins") {
       plugins = [
           "maven-surefire-plugin"
@@ -476,7 +476,7 @@ bom {
       ]
     }
   }
-  library("MSSQL JDBC", "13.2.1.jre11") {
+  library("MSSQL JDBC", "13.6.2.jre11") {
     prohibit {
       endsWith(".jre8")
       because "we want to use the jre11 version"
@@ -491,7 +491,7 @@ bom {
       ]
     }
   }
-  library("MySQL", "9.6.0") {
+  library("MySQL", "26.10.0") {
     group("com.mysql") {
       modules = [
           "mysql-connector-j" {
@@ -500,7 +500,7 @@ bom {
       ]
     }
   }
-  library("MariaDB", "3.5.7") {
+  library("MariaDB", "3.5.11") {
     group("org.mariadb.jdbc") {
       modules = [
           "mariadb-java-client"
@@ -621,7 +621,7 @@ bom {
 
 dependencies {
   api(platform("io.micrometer:micrometer-bom:1.16.8"))
-  api(platform('io.netty:netty-bom:4.2.19.Final'))
+  api(platform('io.netty:netty-bom:4.2.20.Final'))
   api(platform("io.projectreactor:reactor-bom:2025.0.8"))
   api(platform("io.rsocket:rsocket-bom:1.1.5"))
   api(platform("org.apache.groovy:groovy-bom:5.0.4"))
@@ -630,7 +630,7 @@ dependencies {
   api(platform("org.assertj:assertj-bom:3.27.7"))
   api(platform("org.mockito:mockito-bom:5.24.0"))
   api(platform("org.testcontainers:testcontainers-bom:2.0.5"))
-  api(platform("tools.jackson:jackson-bom:3.1.6"))
+  api(platform("tools.jackson:jackson-bom:3.1.8"))
   api(platform("com.google.protobuf:protobuf-bom:$protobufVersion"))
   api(platform(project(":infra-bom")))
 
@@ -717,13 +717,13 @@ dependencies {
     api("org.yaml:snakeyaml:2.7")
     api("org.projectlombok:lombok:1.18.42")
     api("org.htmlunit:htmlunit:5.5.0")
-    api("org.seleniumhq.selenium:htmlunit3-driver:4.48.0")
-    api("org.seleniumhq.selenium:selenium-java:4.50.0")
-    api("org.seleniumhq.selenium:selenium-bom:4.50.0")
+    api("org.seleniumhq.selenium:htmlunit3-driver:4.52.0")
+    api("org.seleniumhq.selenium:selenium-java:4.52.0")
+    api("org.seleniumhq.selenium:selenium-bom:4.52.0")
     api("org.reactivestreams:reactive-streams:1.0.4")
     api 'com.zaxxer:HikariCP:5.1.0'
     api 'org.postgresql:postgresql:42.4.1'
-    api("net.minidev:json-smart:2.4.10")
+    api("net.minidev:json-smart:2.6.1")
     api 'net.java.dev.jna:jna-platform:5.13.0'
     api("com.networknt:json-schema-validator:1.5.3")
     api 'io.spring.gradle:dependency-management-plugin:1.1.7'
@@ -739,9 +739,9 @@ dependencies {
 
     api("com.redis:testcontainers-redis:2.2.4")
 
-    api("org.apache.activemq:activemq-broker:5.17.7")
-    api("org.apache.activemq:activemq-kahadb-store:5.17.7")
-    api("org.apache.activemq:activemq-stomp:5.17.7")
+    api("org.apache.activemq:activemq-broker:6.3.3")
+    api("org.apache.activemq:activemq-kahadb-store:6.3.3")
+    api("org.apache.activemq:activemq-stomp:6.3.3")
     api("org.apache.activemq:artemis-jakarta-client:2.42.0")
     api("org.apache.activemq:artemis-junit-5:2.42.0")
     api 'org.apache.commons:commons-fileupload2-core:2.0.0-M5'

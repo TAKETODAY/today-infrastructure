@@ -649,9 +649,14 @@ public class MethodParameter implements AnnotatedElement {
    * <p>This method does not actually try to retrieve the parameter name at
    * this point; it just allows discovery to happen when the application calls
    * {@link #getParameterName()} (if ever).
+   * <p>Passing {@code null} suppresses discovery. Once a parameter name has
+   * been discovered, this init call is a no-op, avoiding unnecessary
+   * rediscovery attempts.
    */
   public void initParameterNameDiscovery(@Nullable ParameterNameDiscoverer parameterNameDiscoverer) {
-    this.parameterNameDiscoverer = parameterNameDiscoverer;
+    if (this.parameterName == null) {
+      this.parameterNameDiscoverer = parameterNameDiscoverer;
+    }
   }
 
   /**
@@ -667,16 +672,17 @@ public class MethodParameter implements AnnotatedElement {
       return null;
     }
     String parameterName = this.parameterName;
-    if (parameterName == null) {
-      ParameterNameDiscoverer discoverer = this.parameterNameDiscoverer;
-      if (discoverer != null) {
-        String[] parameterNames = discoverer.getParameterNames(this.executable);
-        if (parameterNames != null) {
-          parameterName = parameterNames[this.parameterIndex];
-          this.parameterName = parameterName;
-        }
-        this.parameterNameDiscoverer = null;
+    if (parameterName != null) {
+      return parameterName;
+    }
+    ParameterNameDiscoverer discoverer = this.parameterNameDiscoverer;
+    if (discoverer != null) {
+      String[] parameterNames = discoverer.getParameterNames(this.executable);
+      if (parameterNames != null && this.parameterIndex < parameterNames.length) {
+        parameterName = parameterNames[this.parameterIndex];
+        this.parameterName = parameterName;
       }
+      this.parameterNameDiscoverer = null;
     }
     return parameterName;
   }

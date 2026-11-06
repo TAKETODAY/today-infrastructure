@@ -26,15 +26,33 @@ import java.util.List;
 import infra.util.Assert;
 
 /**
- * A parsed bean property path, such as {@code person.addresses[1].city}.
- * <p>The grammar is {@code Segment ('.' Segment)*}, where a segment has a
- * name followed by zero or more {@code [key]} indexes. A name may be empty
- * only when followed by an index. Keys may be quoted with single or double
- * quotes, or unquoted with balanced nested brackets and no quote characters.
- * The {@linkplain #canonicalName() canonical name} is suitable for policy
- * matching, and the {@linkplain #segments() segments} for navigation.
+ * A parsed bean property path, such as {@code "person.addresses[1].city"}.
+ *
+ * <p>Parses bean property paths for property access: it decides whether a given
+ * string is a well-formed property path (see grammar) and where each path
+ * segment begins and ends. The {@linkplain #canonicalName() canonical form}
+ * is used for policy matching and error reporting.
+ * The {@linkplain #segments() structured segment list} is used for property
+ * navigation within beans.
+ *
+ * <p>The grammar is:
+ * <pre>
+ * PropertyPath := Segment ('.' Segment)*
+ * Segment      := Name Index*                  -- Name may be empty only if at least one Index follows
+ * Name         := char* excluding '.', '[', ']'
+ * Index        := '[' Key ']'
+ * Key          := QuotedKey | RawKey
+ * QuotedKey    := "'" [^']* "'"  |  '"' [^"]* '"'
+ * RawKey       := char* excluding quote characters, with balanced '[' / ']' nesting
+ * </pre>
+ *
+ * <p>The {@code parse} methods reject a path that does not match this grammar,
+ * or whose nesting depth exceeds the
+ * {@linkplain Options#withMaxNestedPathDepth configured maximum}, with an
+ * {@link InvalidPropertyPathException}.
  *
  * @author Brian Clozel
+ * @author Sam Brannen
  * @since 5.0
  */
 public final class PropertyPath {
@@ -49,23 +67,37 @@ public final class PropertyPath {
   }
 
   /**
-   * Parse a property path; an empty path has no segments.
+   * Parse the given property path, without any limit on its nesting depth.
+   * <p>Intended for paths supplied by the application itself, such as
+   * configured field names. Use {@link #parse(String, Options)} with a
+   * {@linkplain Options#withMaxNestedPathDepth maximum nesting depth} for
+   * paths from external input, such as request parameter names.
    *
-   * @param path the path to parse
-   * @return the parsed path
-   * @throws InvalidPropertyPathException if the path is malformed
+   * @param path the property path to parse; an empty string is a valid path
+   * with no segments
+   * @return the parsed property path
+   * @throws InvalidPropertyPathException if the given path is not a
+   * well-formed property path
+   * @see Options#UNLIMITED
    */
   public static PropertyPath parse(String path) {
     return parse(path, Options.UNLIMITED);
   }
 
   /**
-   * Parse a property path subject to a maximum nesting depth.
+   * Parse the given property path, rejecting it if its nesting depth exceeds
+   * the maximum configured in the given {@code options}.
+   * <p>The maximum nesting depth is enforced while parsing: a path that
+   * exceeds it is rejected once the first segment beyond that depth has
+   * been read, without parsing the remainder of the path.
    *
-   * @param path the path to parse
-   * @param options parsing options
-   * @return the parsed path
-   * @throws InvalidPropertyPathException if malformed or too deep
+   * @param path the property path to parse; an empty string is a valid path
+   * with no segments
+   * @param options the parsing options to apply
+   * @return the parsed property path
+   * @throws InvalidPropertyPathException if the given path is not a
+   * well-formed property path, or if its nesting depth exceeds the maximum
+   * configured in the given {@code options}
    */
   public static PropertyPath parse(String path, Options options) {
     Assert.notNull(path, "Property path is required");
@@ -73,21 +105,23 @@ public final class PropertyPath {
     if (path.isEmpty()) {
       return new PropertyPath("", List.of());
     }
-    PropertyPath parsed = new Parser(path).parse();
-    if (parsed.segments.size() - 1 > options.maxNestedPathDepth) {
-      throw new InvalidPropertyPathException(path,
-              "nesting depth exceeds the maximum of " + options.maxNestedPathDepth);
-    }
-    return parsed;
+    return new Parser(path, options).parse();
   }
 
   /**
-   * Return a canonical path or the original text if malformed (empty for null).
-   * Intended for displaying or matching user-supplied names; navigation should
-   * instead use {@link #parse(String)} and reject malformed paths.
+   * {@code path}'s canonical form, or {@code path} itself if it is not a
+   * well-formed property path (including a {@code null} path, for which
+   * this returns an empty string).
+   * <p>A convenience for callers with nothing better to fall back to than
+   * the original string, such as canonicalizing a user-supplied field name
+   * for display, comparison, or configuration matching, as opposed to
+   * {@link #parse(String)} itself, whose non-throwing behavior would be the
+   * wrong default for a caller that is about to navigate an object graph.
    *
-   * @param path a possibly null path
-   * @return its canonical or original form
+   * @param path the property path to canonicalize, possibly {@code null}
+   * @return the canonical form of {@code path}, or {@code path} unchanged
+   * (or an empty string, if {@code path} is {@code null}) if it is not a
+   * well-formed property path
    * @since 5.0
    */
   public static String canonicalNameOrOriginal(@Nullable String path) {
@@ -102,38 +136,47 @@ public final class PropertyPath {
     }
   }
 
-  /** Return the canonical path, stripping unnecessary quotes from keys. */
+  /**
+   * Return the canonical string form of this path.
+   * <p>Unnecessary surrounding quotes are removed from keys:
+   * {@code map['key'].name} &rarr; {@code map[key].name}.
+   */
   public String canonicalName() {
     return this.canonicalName;
   }
 
-  /** Return an unmodifiable list of segments in order. */
+  /**
+   * Return the segments of this path, in order, as an unmodifiable list.
+   */
   public List<Segment> segments() {
     return this.segments;
   }
 
   /**
-   * Return a path starting at the specified segment index.
+   * Return the sub-path made up of this path's segments from the given
+   * index to the end, such as the {@code "country.name"} sub-path of
+   * {@code "address.country.name"} from index 1.
    *
-   * @param fromIndex the inclusive start index
-   * @return the suffix, or this path for index zero
-   * @throws IndexOutOfBoundsException if the index is negative
-   * @throws IllegalArgumentException if it exceeds the number of segments
+   * @param fromIndex the index of the first segment to include (inclusive)
+   * @return the sub-path starting at {@code fromIndex}
+   * @throws IndexOutOfBoundsException if {@code fromIndex} is negative
+   * @throws IllegalArgumentException if {@code fromIndex} is greater than
+   * {@link #segments()}{@code .size()}
    */
   public PropertyPath subPath(int fromIndex) {
     if (fromIndex == 0) {
       return this;
     }
     Assert.isTrue(fromIndex <= this.segments.size(), "Index exceeds segment count");
-    List<Segment> suffix = this.segments.subList(fromIndex, this.segments.size());
-    StringBuilder canonical = new StringBuilder();
-    for (Segment segment : suffix) {
-      if (!canonical.isEmpty()) {
-        canonical.append('.');
+    List<Segment> subSegments = this.segments.subList(fromIndex, this.segments.size());
+    StringBuilder subCanonicalName = new StringBuilder();
+    for (int i = 0; i < subSegments.size(); i++) {
+      if (i > 0) {
+        subCanonicalName.append(PropertyAccessor.NESTED_PROPERTY_SEPARATOR_CHAR);
       }
-      canonical.append(segment.toCanonicalName());
+      subCanonicalName.append(subSegments.get(i).toCanonicalName());
     }
-    return new PropertyPath(canonical.toString(), suffix);
+    return new PropertyPath(subCanonicalName.toString(), subSegments);
   }
 
   @Override
@@ -152,71 +195,106 @@ public final class PropertyPath {
   }
 
   /**
-   * A dot-separated path segment with zero or more index keys.
+   * A dot-separated segment of a property path. It consists of a
+   * property name and the keys of any indexes applied to it, if the
+   * target property is an indexed collection.
+   * <p>For example, the path {@code "map[key].name"} has two segments:
+   * {@code Segment["map", ["key"]]} and {@code Segment["name", []]}.
    *
-   * @param name the property name, empty only for a root-level index
-   * @param keys the unquoted keys, possibly empty but never null
+   * @param name the property name, which is empty only for a root-level
+   * indexed access such as {@code "[user]"}
+   * @param keys the keys of the indexes applied to the property, with any
+   * surrounding quotes removed; never {@code null}, possibly empty
    */
   public record Segment(String name, List<String> keys) {
 
-    public Segment {
+    public Segment(String name, List<String> keys) {
       Assert.notNull(name, "Segment name is required");
       Assert.notNull(keys, "Segment keys is required");
-      keys = List.copyOf(keys);
+      this.name = name;
+      this.keys = List.copyOf(keys);
     }
 
-    /** Return the canonical form of this segment. */
+    /**
+     * The canonical format of this segment alone: its name, followed by each
+     * key wrapped in brackets, quoted only when necessary.
+     */
     public String toCanonicalName() {
-      StringBuilder canonical = new StringBuilder(this.name);
+      StringBuilder canonicalNameBuilder = new StringBuilder();
+      canonicalNameBuilder.append(this.name);
       for (String key : this.keys) {
-        char quote = canonicalQuoteChar(key);
-        canonical.append('[');
-        if (quote != 0) {
-          canonical.append(quote);
-        }
-        canonical.append(key);
-        if (quote != 0) {
-          canonical.append(quote);
-        }
-        canonical.append(']');
+        appendCanonicalKey(canonicalNameBuilder, key);
       }
-      return canonical.toString();
+      return canonicalNameBuilder.toString();
     }
 
-    /** Return a segment with its last key removed, or this when it has none. */
+    /**
+     * Return a new segment instance with the same name, but dropping the last key.
+     */
     public Segment withoutLastKey() {
-      return this.keys.isEmpty() ? this : new Segment(this.name, this.keys.subList(0, this.keys.size() - 1));
+      if (this.keys.isEmpty()) {
+        return this;
+      }
+      return new Segment(this.name, this.keys.subList(0, this.keys.size() - 1));
     }
 
+    /**
+     * Append the canonical form of the given key, which is the key
+     * unquoted, or the key re-quoted if it contains illegal raw chars,
+     * such as {@code map['a]b']}.
+     */
+    private void appendCanonicalKey(StringBuilder canonicalNameBuilder, String key) {
+      char quoteChar = canonicalQuoteChar(key);
+      canonicalNameBuilder.append(PropertyAccessor.PROPERTY_KEY_PREFIX_CHAR);
+      if (quoteChar != 0) {
+        canonicalNameBuilder.append(quoteChar);
+      }
+      canonicalNameBuilder.append(key);
+      if (quoteChar != 0) {
+        canonicalNameBuilder.append(quoteChar);
+      }
+      canonicalNameBuilder.append(PropertyAccessor.PROPERTY_KEY_SUFFIX_CHAR);
+    }
+
+    /**
+     * Determine the quote character to surround the given key with in the
+     * canonical name, or {@code 0} if the key needs no quoting.
+     */
     private static char canonicalQuoteChar(String key) {
       int depth = 0;
       boolean balanced = true;
-      boolean single = false;
-      boolean doubleQuote = false;
+      boolean containsSingleQuote = false;
+      boolean containsDoubleQuote = false;
       for (int i = 0; i < key.length(); i++) {
         switch (key.charAt(i)) {
-          case '[' -> depth++;
-          case ']' -> {
+          case PropertyAccessor.PROPERTY_KEY_PREFIX_CHAR -> depth++;
+          case PropertyAccessor.PROPERTY_KEY_SUFFIX_CHAR -> {
             if (--depth < 0) {
               balanced = false;
             }
           }
-          case '\'' -> single = true;
-          case '"' -> doubleQuote = true;
-          default -> { }
+          case '\'' -> containsSingleQuote = true;
+          case '"' -> containsDoubleQuote = true;
+          default -> {
+            // Ordinary key character.
+          }
         }
       }
-      if (balanced && depth == 0 && !single && !doubleQuote) {
+      if (balanced && depth == 0 && !containsSingleQuote && !containsDoubleQuote) {
         return 0;
       }
-      return single && !doubleQuote ? '"' : '\'';
+      return containsSingleQuote && !containsDoubleQuote ? '"' : '\'';
     }
   }
 
-  /** Parsing options for property paths. */
+  /**
+   * Options to customize the parsing for {@link PropertyPath}.
+   */
   public static final class Options {
 
-    /** No limit on nested segments. */
+    /**
+     * Options with no limit on nesting depth.
+     */
     public static final Options UNLIMITED = new Options(Integer.MAX_VALUE);
 
     private final int maxNestedPathDepth;
@@ -226,9 +304,10 @@ public final class PropertyPath {
     }
 
     /**
-     * Limit the number of intermediate properties in a path.
+     * Create an {@link Options} instance that rejects a path whose nesting
+     * depth exceeds the given maximum.
      *
-     * @param maxNestedPathDepth the non-negative maximum
+     * @param maxNestedPathDepth the non-negative maximum nesting depth
      * @return parsing options enforcing the limit
      */
     public static Options withMaxNestedPathDepth(int maxNestedPathDepth) {
@@ -237,105 +316,240 @@ public final class PropertyPath {
     }
   }
 
+  /**
+   * Parser for a property path string.
+   * <p>Each stage of the enforced grammar is modeled by a separate {@link State}.
+   */
   private static final class Parser {
 
     private final String path;
 
-    private final List<Segment> segments = new ArrayList<>(2);
+    private final int maxNestedPathDepth;
 
+    private final ArrayList<Segment> segments = new ArrayList<>(2);
+
+    private final StringBuilder canonicalName;
+
+    // Offset of the character currently being processed.
     private int pos;
 
-    private int start;
+    // Offset at which the current segment's name starts.
+    private int segmentStart;
 
-    Parser(String path) {
+    // Offset at which the current segment's name ends, or -1 if not yet known.
+    private int segmentNameEnd = -1;
+
+    // Keys collected for the current segment.
+    private @Nullable ArrayList<String> keys;
+
+    // Offset at which the current key starts.
+    private int keyStart;
+
+    // Bracket nesting depth within the current raw key.
+    private int depth;
+
+    // The quote character that opened the current quoted key.
+    private char quoteChar;
+
+    Parser(String path, Options options) {
       this.path = path;
+      this.maxNestedPathDepth = options.maxNestedPathDepth;
+      this.canonicalName = new StringBuilder(path.length());
     }
 
     PropertyPath parse() {
-      while (this.pos < this.path.length()) {
-        List<String> keys = new ArrayList<>(2);
-        while (this.pos < this.path.length() && this.path.charAt(this.pos) != '.'
-                && this.path.charAt(this.pos) != '[') {
-          if (this.path.charAt(this.pos) == ']') {
-            throw error("unexpected ']' without a matching '['");
-          }
-          this.pos++;
-        }
-        String name = this.path.substring(this.start, this.pos);
-        while (this.pos < this.path.length() && this.path.charAt(this.pos) == '[') {
-          this.pos++;
-          keys.add(parseKey());
-        }
-        if (name.isEmpty() && keys.isEmpty()) {
-          throw error("empty path segment");
-        }
-        this.segments.add(new Segment(name, keys));
-        if (this.pos < this.path.length()) {
-          if (this.path.charAt(this.pos) != '.') {
-            throw error("unexpected '" + this.path.charAt(this.pos) + "' after an index; expected '.', '[', or the end of the path");
-          }
-          this.pos++;
-          this.start = this.pos;
-          if (this.pos == this.path.length()) {
-            throw error("empty path segment");
-          }
-        }
+      State state = State.NAME;
+      for (; this.pos < this.path.length(); this.pos++) {
+        state = state.process(this.path.charAt(this.pos), this);
       }
-      StringBuilder canonical = new StringBuilder(this.path.length());
-      for (Segment segment : this.segments) {
-        if (!canonical.isEmpty()) {
-          canonical.append('.');
-        }
-        canonical.append(segment.toCanonicalName());
-      }
-      return new PropertyPath(canonical.toString(), List.copyOf(this.segments));
+      state.onEof(this);
+      return new PropertyPath(this.canonicalName.toString(), List.copyOf(this.segments));
     }
 
-    private String parseKey() {
-      if (this.pos == this.path.length()) {
-        throw error("unclosed '['");
+    private void addKey(String key) {
+      ArrayList<String> keys = this.keys;
+      if (keys == null) {
+        keys = new ArrayList<>(2);
+        this.keys = keys;
       }
-      char first = this.path.charAt(this.pos);
-      if (first == '\'' || first == '"') {
-        int keyStart = ++this.pos;
-        while (this.pos < this.path.length() && this.path.charAt(this.pos) != first) {
-          this.pos++;
-        }
-        if (this.pos == this.path.length()) {
-          throw error("unterminated quote '" + first + "'");
-        }
-        String key = this.path.substring(keyStart, this.pos++);
-        if (this.pos == this.path.length()) {
-          throw error("unclosed '['");
-        }
-        if (this.path.charAt(this.pos) != ']') {
-          throw error("unexpected '" + this.path.charAt(this.pos) + "' after a closing quote; expected ']'");
-        }
-        this.pos++;
-        return key;
+      keys.add(key);
+    }
+
+    private void endSegment() {
+      // The nesting depth of the segment being ended is the number of segments preceding it.
+      if (this.segments.size() > this.maxNestedPathDepth) {
+        throw new InvalidPropertyPathException(this.path,
+                "nesting depth exceeds the maximum of " + this.maxNestedPathDepth);
       }
-      int keyStart = this.pos;
-      int depth = 0;
-      while (this.pos < this.path.length()) {
-        char ch = this.path.charAt(this.pos++);
-        if (ch == '[') {
-          depth++;
-        }
-        else if (ch == ']') {
-          if (depth == 0) {
-            return this.path.substring(keyStart, this.pos - 1);
-          }
-          depth--;
-        }
-        else if (ch == '\'' || ch == '"') {
-          throw error("unexpected quote '" + ch + "' in an unquoted key; quote the whole key");
-        }
+      String name = this.path.substring(this.segmentStart, this.segmentNameEnd);
+      List<String> keys = this.keys != null ? this.keys : List.of();
+      if (name.isEmpty() && keys.isEmpty()) {
+        throw new InvalidPropertyPathException(this.path,
+                "empty path segment (at position " + this.segmentStart + ")");
       }
-      throw error("unclosed '['");
+      if (!this.segments.isEmpty()) {
+        this.canonicalName.append(PropertyAccessor.NESTED_PROPERTY_SEPARATOR_CHAR);
+      }
+      Segment segment = new Segment(name, keys);
+      this.segments.add(segment);
+      this.canonicalName.append(segment.toCanonicalName());
+      this.keys = null;
+      this.segmentNameEnd = -1;
     }
 
     private InvalidPropertyPathException error(String reason) {
       return new InvalidPropertyPathException(this.path, reason + " (at position " + this.pos + ")");
     }
+
+    private InvalidPropertyPathException unclosedIndex() {
+      return error("unclosed '" + PropertyAccessor.PROPERTY_KEY_PREFIX_CHAR + "'");
+    }
+  }
+
+  private enum State {
+
+    // Reading a segment name, before any index of that segment.
+    NAME {
+      @Override
+      State process(char ch, Parser parser) {
+        if (ch == PropertyAccessor.NESTED_PROPERTY_SEPARATOR_CHAR) {
+          parser.segmentNameEnd = parser.pos;
+          parser.endSegment();
+          parser.segmentStart = parser.pos + 1;
+          return this;
+        }
+        if (ch == PropertyAccessor.PROPERTY_KEY_PREFIX_CHAR) {
+          parser.segmentNameEnd = parser.pos;
+          return INDEX_OPEN;
+        }
+        if (ch == PropertyAccessor.PROPERTY_KEY_SUFFIX_CHAR) {
+          throw parser.error("unexpected '" + PropertyAccessor.PROPERTY_KEY_SUFFIX_CHAR +
+                  "' without a matching '" + PropertyAccessor.PROPERTY_KEY_PREFIX_CHAR + "'");
+        }
+        return this;
+      }
+
+      @Override
+      void onEof(Parser parser) {
+        parser.segmentNameEnd = parser.path.length();
+        parser.endSegment();
+      }
+    },
+
+    // Immediately after the "[" that opens an index.
+    INDEX_OPEN {
+      @Override
+      State process(char ch, Parser parser) {
+        if (ch == PropertyAccessor.PROPERTY_KEY_SUFFIX_CHAR) {
+          // An empty key, as in "map[]".
+          parser.addKey("");
+          return AFTER_INDEX;
+        }
+        if (ch == '\'' || ch == '"') {
+          parser.quoteChar = ch;
+          parser.keyStart = parser.pos + 1;
+          return QUOTED_KEY;
+        }
+        parser.keyStart = parser.pos;
+        // A key that itself opens a bracket level, as in "map[[a]]".
+        parser.depth = ch == PropertyAccessor.PROPERTY_KEY_PREFIX_CHAR ? 1 : 0;
+        return RAW_KEY;
+      }
+
+      @Override
+      void onEof(Parser parser) {
+        throw parser.unclosedIndex();
+      }
+    },
+
+    // Inside an unquoted key, tracking the depth of bracket nesting.
+    RAW_KEY {
+      @Override
+      State process(char ch, Parser parser) {
+        if (ch == PropertyAccessor.PROPERTY_KEY_PREFIX_CHAR) {
+          parser.depth++;
+          return this;
+        }
+        if (ch == PropertyAccessor.PROPERTY_KEY_SUFFIX_CHAR) {
+          if (parser.depth == 0) {
+            parser.addKey(parser.path.substring(parser.keyStart, parser.pos));
+            return AFTER_INDEX;
+          }
+          parser.depth--;
+          return this;
+        }
+        if (ch == '\'' || ch == '"') {
+          throw parser.error("unexpected quote '" + ch + "' in an unquoted key; " +
+                  "quote the whole key to use quote characters within it");
+        }
+        return this;
+      }
+
+      @Override
+      void onEof(Parser parser) {
+        throw parser.unclosedIndex();
+      }
+    },
+
+    // Inside a quoted key, looking for the closing quote.
+    QUOTED_KEY {
+      @Override
+      State process(char ch, Parser parser) {
+        if (ch == parser.quoteChar) {
+          parser.addKey(parser.path.substring(parser.keyStart, parser.pos));
+          return QUOTE_CLOSED;
+        }
+        return this;
+      }
+
+      @Override
+      void onEof(Parser parser) {
+        throw parser.error("unterminated quote '" + parser.quoteChar + "'");
+      }
+    },
+
+    // Immediately after a closing quote, only "]" is legal.
+    QUOTE_CLOSED {
+      @Override
+      State process(char ch, Parser parser) {
+        if (ch != PropertyAccessor.PROPERTY_KEY_SUFFIX_CHAR) {
+          throw parser.error("unexpected '" + ch + "' after a closing quote; expected '" +
+                  PropertyAccessor.PROPERTY_KEY_SUFFIX_CHAR + "'");
+        }
+        return AFTER_INDEX;
+      }
+
+      @Override
+      void onEof(Parser parser) {
+        throw parser.unclosedIndex();
+      }
+    },
+
+    // Immediately after an index's "]", only "." or "[" are legal.
+    AFTER_INDEX {
+      @Override
+      State process(char ch, Parser parser) {
+        if (ch == PropertyAccessor.NESTED_PROPERTY_SEPARATOR_CHAR) {
+          parser.endSegment();
+          parser.segmentStart = parser.pos + 1;
+          return NAME;
+        }
+        if (ch == PropertyAccessor.PROPERTY_KEY_PREFIX_CHAR) {
+          return INDEX_OPEN;
+        }
+        throw parser.error("unexpected '" + ch + "' after an index; expected '" +
+                PropertyAccessor.NESTED_PROPERTY_SEPARATOR_CHAR + "', '" +
+                PropertyAccessor.PROPERTY_KEY_PREFIX_CHAR + "', or the end of the path");
+      }
+
+      @Override
+      void onEof(Parser parser) {
+        parser.endSegment();
+      }
+    };
+
+    abstract State process(char ch, Parser parser);
+
+    abstract void onEof(Parser parser);
   }
 }

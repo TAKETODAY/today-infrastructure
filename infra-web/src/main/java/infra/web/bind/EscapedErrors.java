@@ -40,7 +40,7 @@ import infra.web.util.HtmlUtils;
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @see infra.web.HttpContext#getErrors
+ * @see infra.web.BindStatus#getErrors
  * @since 5.0
  */
 public class EscapedErrors implements Errors {

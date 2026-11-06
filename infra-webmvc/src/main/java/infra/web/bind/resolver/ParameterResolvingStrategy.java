@@ -23,18 +23,23 @@ import infra.web.bind.MethodParameterResolvingException;
 import infra.web.handler.method.HandlerParameter;
 
 /**
- * Strategy interface for resolving method parameters in the context of a web request.
- * <p>
- * Implementations of this interface are responsible for determining whether they can
- * handle a specific method parameter and resolving the value of that parameter based on
- * the current request context.
- * </p>
+ * Strategy for resolving a handler method parameter to an argument value for
+ * the current request.
  *
- * <h3>Usage Example:</h3>
- * Below is an example implementation of {@code ParameterResolvingStrategy} that resolves
- * a method parameter annotated with {@code @SessionAttribute}:
+ * <p>Implementations first declare applicability in
+ * {@link #supportsParameter(HandlerParameter)} and then perform the actual
+ * resolution in {@link #resolveArgument(HttpContext, HandlerParameter)}.
+ * A {@link ParameterResolvingRegistry} consults registered strategies in order
+ * and delegates to the first one that supports the parameter.
+ *
+ * <p>Strategies may read from request parameters, path variables, headers,
+ * cookies, the request body, or the model. They are also responsible for
+ * converting the resolved value to the declared parameter type and may perform
+ * data binding and validation before returning it.
+ *
+ * <h3>Example</h3>
  * <pre>{@code
- * static class ForHttpSessionAttribute implements ParameterResolvingStrategy {
+ * class SessionAttributeResolver implements ParameterResolvingStrategy {
  *
  *   @Override
  *   public boolean supportsParameter(HandlerParameter parameter) {
@@ -42,77 +47,54 @@ import infra.web.handler.method.HandlerParameter;
  *   }
  *
  *   @Override
- *   public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
- *     HttpSession httpSession = getHttpSession(context, false);
- *     if (httpSession == null) {
- *       return null;
- *     }
- *     return httpSession.getAttribute(resolvable.getName());
+ *   public @Nullable Object resolveArgument(HttpContext context, HandlerParameter parameter) {
+ *     Session session = context.getSession(false);
+ *     return session != null ? session.getAttribute(parameter.getName()) : null;
  *   }
  * }
  * }</pre>
  *
- * Another example is the {@code ModelAttributeMethodProcessor}, which handles parameters
- * annotated with {@code @ModelAttribute} or non-simple types in default resolution mode.
- * It resolves the parameter by binding request values to the model attribute and optionally
- * validating it.
+ * <p>See {@link infra.web.handler.method.ModelAttributeMethodProcessor} for a
+ * built-in strategy that binds request values to model attributes and optionally
+ * validates them.
  *
  * @author TODAY 2019-07-07 23:24
  * @see HandlerParameter
+ * @see ParameterResolvingRegistry
  * @see MethodParameterResolvingException
+ * @since 3.0
  */
 public interface ParameterResolvingStrategy {
 
   /**
-   * Determines whether this resolver supports the given method parameter.
-   * <p>
-   * This method is typically used to check if the resolver can handle a specific
-   * parameter based on its annotations, type, or other attributes. For example,
-   * a resolver might support parameters annotated with a specific annotation or
-   * parameters of a certain type.
-   * </p>
+   * Determine whether this strategy can resolve the given parameter.
    *
-   * <h3>Usage Example:</h3>
-   * Below is an example of how this method might be implemented to support
-   * parameters annotated with {@code @SessionAttribute}:
-   * <pre>{@code
-   * static class ForHttpSessionAttribute implements ParameterResolvingStrategy {
+   * <p>This method is called while selecting a strategy for a parameter and
+   * should have no side effects. Implementations typically inspect the
+   * parameter's annotations, type, or other metadata. Returning {@code true}
+   * means that {@link #resolveArgument(HttpContext, HandlerParameter)} can
+   * handle the parameter; it does not guarantee that resolution will succeed.
    *
-   *   @Override
-   *   public boolean supportsParameter(HandlerParameter parameter) {
-   *     return parameter.hasParameterAnnotation(SessionAttribute.class);
-   *   }
-   * }
-   * }</pre>
-   *
-   * Another example could involve supporting non-annotated parameters of a specific type:
-   * <pre>{@code
-   * static class ForCustomType implements ParameterResolvingStrategy {
-   *
-   *   @Override
-   *   public boolean supportsParameter(HandlerParameter parameter) {
-   *     return CustomType.class.isAssignableFrom(parameter.getParameterType());
-   *   }
-   * }
-   * }</pre>
-   *
-   * @param parameter the method parameter to check
-   * @return {@code true} if this resolver supports the parameter; {@code false} otherwise
+   * @param parameter the parameter to inspect
+   * @return {@code true} if this strategy supports the parameter,
+   * {@code false} otherwise
    */
   boolean supportsParameter(HandlerParameter parameter);
 
   /**
-   * Resolves the argument for the given method parameter within the context of a request.
-   * <p>
-   * This method is invoked when the {@link #supportsParameter(HandlerParameter)}
-   * method has determined that this resolver supports the specified parameter. It is
-   * responsible for providing the actual value to be injected into the method parameter.
-   * </p>
+   * Resolve the argument value for the given parameter.
    *
-   * @param context the request context containing information about the current request
-   * @param parameter the method parameter to resolve
-   * @return the resolved argument value, or {@code null} if the value cannot be resolved
-   * @throws Exception if an error occurs during argument resolution
+   * <p>This method is invoked only after
+   * {@link #supportsParameter(HandlerParameter)} has returned {@code true} for
+   * the parameter. Implementations obtain the value from the current request or
+   * model context, convert it to the declared parameter type if necessary, and
+   * return the value to be passed to the handler method.
+   *
+   * @param context the current request context
+   * @param parameter the parameter to resolve
+   * @return the resolved argument value, or {@code null} if the value is
+   * absent or resolves to {@code null}
+   * @throws Exception if the argument cannot be resolved
    */
   @Nullable
   Object resolveArgument(HttpContext context, HandlerParameter parameter) throws Exception;

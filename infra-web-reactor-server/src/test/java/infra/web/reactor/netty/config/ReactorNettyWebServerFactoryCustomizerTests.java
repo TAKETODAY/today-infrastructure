@@ -92,7 +92,9 @@ class ReactorNettyWebServerFactoryCustomizerTests {
   void defaultUseForwardHeaders() {
     ReactorNettyReactiveWebServerFactory factory = mock(ReactorNettyReactiveWebServerFactory.class);
     this.customizer.customize(factory);
-    then(factory).should().setUseForwardHeaders(false);
+    then(factory).should(never()).setUseForwardHeaders(anyBoolean());
+    then(factory).should(never()).setUseRfcForwardHeader(anyBoolean());
+    then(factory).should(never()).setUseForwardedPrefix(anyBoolean());
   }
 
   @Test
@@ -109,7 +111,9 @@ class ReactorNettyWebServerFactoryCustomizerTests {
     this.serverProperties.forwardHeadersStrategy = (ServerProperties.ForwardHeadersStrategy.NONE);
     ReactorNettyReactiveWebServerFactory factory = mock(ReactorNettyReactiveWebServerFactory.class);
     this.customizer.customize(factory);
-    then(factory).should().setUseForwardHeaders(false);
+    then(factory).should(never()).setUseForwardHeaders(anyBoolean());
+    then(factory).should(never()).setUseRfcForwardHeader(anyBoolean());
+    then(factory).should(never()).setUseForwardedPrefix(anyBoolean());
   }
 
   @Test

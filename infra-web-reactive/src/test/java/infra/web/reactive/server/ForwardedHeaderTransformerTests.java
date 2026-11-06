@@ -27,6 +27,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.reactive.server.ServerHttpRequest;
 import infra.web.testfixture.http.server.reactive.MockServerHttpRequest;
+import infra.web.util.ForwardedHeaderUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -90,6 +91,47 @@ class ForwardedHeaderTransformerTests {
 
     assertThat(request.getURI()).isEqualTo(URI.create("https://example.com/prefix/path"));
     assertThat(request.getPath().value()).isEqualTo("/prefix/path");
+    assertForwardedHeadersRemoved(request);
+  }
+
+  @Test
+  void standardModeIgnoresXForwardedHeaders() {
+    HttpHeaders headers = HttpHeaders.forWritable();
+    headers.add("Forwarded", "host=standard.example;proto=http");
+    headers.add("X-Forwarded-Host", "other.example");
+    headers.add("X-Forwarded-Proto", "https");
+    headers.add("X-Forwarded-For", "203.0.113.10");
+    headers.add("X-Forwarded-Prefix", "/untrusted");
+
+    ServerHttpRequest request = new ForwardedHeaderTransformer(true).apply(getRequest(headers));
+
+    assertThat(request.getURI()).isEqualTo(URI.create("http://standard.example/path"));
+    assertThat(request.getRemoteAddress()).isNull();
+    assertForwardedHeadersRemoved(request);
+  }
+
+  @Test
+  void standardModeDoesNotFallBackToXForwardedHeaders() {
+    HttpHeaders headers = HttpHeaders.forWritable();
+    headers.add("X-Forwarded-Host", "other.example");
+    headers.add("X-Forwarded-Proto", "http");
+
+    ServerHttpRequest request = new ForwardedHeaderTransformer(true).apply(getRequest(headers));
+
+    assertThat(request.getURI()).isEqualTo(URI.create(BASE_URL));
+    assertForwardedHeadersRemoved(request);
+  }
+
+  @Test
+  void xForwardedModeIgnoresStandardHeader() {
+    HttpHeaders headers = HttpHeaders.forWritable();
+    headers.add("Forwarded", "host=standard.example;proto=http;for=203.0.113.10");
+    headers.add("X-Forwarded-Host", "other.example");
+
+    ServerHttpRequest request = new ForwardedHeaderTransformer(false).apply(getRequest(headers));
+
+    assertThat(request.getURI()).isEqualTo(URI.create("https://other.example/path"));
+    assertThat(request.getRemoteAddress()).isNull();
     assertForwardedHeadersRemoved(request);
   }
 
@@ -269,7 +311,7 @@ class ForwardedHeaderTransformerTests {
   }
 
   private void assertForwardedHeadersRemoved(ServerHttpRequest request) {
-    ForwardedHeaderTransformer.FORWARDED_HEADER_NAMES
+    ForwardedHeaderUtils.FORWARDED_HEADER_NAMES
             .forEach(name -> assertThat(request.containsHeader(name)).isFalse());
   }
 

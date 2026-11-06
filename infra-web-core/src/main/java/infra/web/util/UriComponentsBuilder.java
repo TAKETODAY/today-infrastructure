@@ -34,7 +34,6 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import infra.http.HttpRequest;
 import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
@@ -229,20 +228,6 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
         yield builder.whatWgUrlRecord(record);
       }
     };
-  }
-
-  /**
-   * Create a new {@code UriComponents} object from the URI associated with
-   * the given HttpRequest while also overlaying with values from the headers
-   * "Forwarded" (<a href="https://tools.ietf.org/html/rfc7239">RFC 7239</a>),
-   * or "X-Forwarded-Host", "X-Forwarded-Port", and "X-Forwarded-Proto" if
-   * "Forwarded" is not found.
-   *
-   * @param request the source request
-   * @return the URI components of the URI
-   */
-  public static UriComponentsBuilder forHttpRequest(HttpRequest request) {
-    return ForwardedHeaderUtils.adaptFromForwardedHeaders(request.getURI(), request.getHeaders());
   }
 
   /**

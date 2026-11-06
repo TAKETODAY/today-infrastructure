@@ -22,14 +22,10 @@ import org.jspecify.annotations.Nullable;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.util.Collections;
-import java.util.Locale;
-import java.util.Set;
 import java.util.function.Function;
 
 import infra.http.HttpHeaders;
 import infra.http.reactive.server.ServerHttpRequest;
-import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.StringUtils;
 import infra.web.util.ForwardedHeaderUtils;
 
@@ -53,38 +49,11 @@ import infra.web.util.ForwardedHeaderUtils;
  */
 public class ForwardedHeaderTransformer implements Function<ServerHttpRequest, ServerHttpRequest> {
 
-  static final Set<String> FORWARDED_HEADER_NAMES =
-          Collections.newSetFromMap(new LinkedCaseInsensitiveMap<>(10, Locale.ROOT));
-
-  static {
-    FORWARDED_HEADER_NAMES.add("Forwarded");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-Proto");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-Ssl");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-Host");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-Port");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-For");
-    FORWARDED_HEADER_NAMES.add("X-Forwarded-Prefix");
-  }
-
-  private final @Nullable Boolean useStandardHeader;
+  private final boolean useStandardHeader;
 
   private boolean useForwardedPrefix;
 
   private boolean removeOnly;
-
-  /**
-   * A default constructor with the historic behavior so far, which is to check
-   * both the standard "Forwarded" header and the "X-Forwarded-*" alternative
-   * headers in that order, also with "X-Forwarded-Prefix" enabled by default.
-   * <p>This behavior depends on proxies being configured correctly
-   * to clear both standard "Forwarded" and "X-Forwarded-*" header values coming
-   * from the outside. Going forward, applications must explicitly declare which
-   * forwarded headers are expected.
-   */
-  public ForwardedHeaderTransformer() {
-    this.useStandardHeader = null;
-    this.useForwardedPrefix = true;
-  }
 
   /**
    * Create an instance of the transformer and specify whether it should use the
@@ -176,7 +145,7 @@ public class ForwardedHeaderTransformer implements Function<ServerHttpRequest, S
    * @param request the request
    */
   protected boolean hasForwardedHeaders(ServerHttpRequest request) {
-    for (String name : FORWARDED_HEADER_NAMES) {
+    for (String name : ForwardedHeaderUtils.FORWARDED_HEADER_NAMES) {
       if (request.containsHeader(name)) {
         return true;
       }
@@ -184,26 +153,17 @@ public class ForwardedHeaderTransformer implements Function<ServerHttpRequest, S
     return false;
   }
 
-  @SuppressWarnings("removal")
   private static ForwardedHeaderUtils.ForwardedInfo getForwardedInfo(
-          @Nullable Boolean useStandardHeader, URI uri, HttpHeaders headers,
+          boolean useStandardHeader, URI uri, HttpHeaders headers,
           @Nullable InetSocketAddress remoteAddress, @Nullable InetSocketAddress localAddress) {
 
-    if (useStandardHeader == null) {
-      return new ForwardedHeaderUtils.ForwardedInfo(
-              ForwardedHeaderUtils.adaptFromForwardedHeaders(uri, headers),
-              ForwardedHeaderUtils.parseForwardedFor(uri, headers, remoteAddress),
-              ForwardedHeaderUtils.parseForwardedBy(uri, headers, localAddress));
-    }
-    else {
-      return (useStandardHeader ?
-              ForwardedHeaderUtils.parseStandardHeader(uri, headers, remoteAddress, localAddress) :
-              ForwardedHeaderUtils.parseXForwardedHeaders(uri, headers, remoteAddress, localAddress));
-    }
+    return useStandardHeader ?
+            ForwardedHeaderUtils.parseStandardHeader(uri, headers, remoteAddress, localAddress) :
+            ForwardedHeaderUtils.parseXForwardedHeaders(uri, headers, remoteAddress, localAddress);
   }
 
   private void removeForwardedHeaders(ServerHttpRequest.Builder builder) {
-    builder.headers(map -> FORWARDED_HEADER_NAMES.forEach(map::remove));
+    builder.headers(map -> ForwardedHeaderUtils.FORWARDED_HEADER_NAMES.forEach(map::remove));
   }
 
   private static @Nullable String getForwardedPrefix(ServerHttpRequest request) {

@@ -7,6 +7,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.net.UnixDomainSocketAddress;
 import java.util.Enumeration;
 
 import infra.http.HttpStatus;
@@ -20,6 +22,7 @@ import infra.web.mock.MockResponse;
 import infra.web.mock.api.DispatcherType;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -105,6 +108,22 @@ class ForwardedHeaderFilterTests {
   }
 
   @Test
+  void forwardedRequestWithUppercaseProtocol() throws Exception {
+    this.request.setRequestURI("/mvc-showcase");
+    this.request.addHeader(X_FORWARDED_PROTO, "HTTPS");
+    this.request.addHeader(X_FORWARDED_HOST, "84.198.58.199");
+
+    ForwardedHeaderFilter filter = new ForwardedHeaderFilter(false);
+    filter.doFilter(new MockHttpContext(request), this.filterChain);
+    HttpContext actual = this.filterChain.getContext();
+
+    assertThat(actual.getScheme()).isEqualTo("HTTPS");
+    assertThat(actual.getServerPort()).isEqualTo(443);
+    assertThat(actual.isSecure()).isTrue();
+    assertThat(actual.getRequestURL()).isEqualTo("HTTPS://84.198.58.199/mvc-showcase");
+  }
+
+  @Test
   void forwardedRequestInRemoveOnlyMode() throws Exception {
     this.request.setRequestURI("/mvc-showcase");
     this.request.addHeader(X_FORWARDED_PROTO, "https");
@@ -161,6 +180,105 @@ class ForwardedHeaderFilterTests {
     assertThat(context.getHeader(X_FORWARDED_HOST)).isNull();
     assertThat(context.getHeader(X_FORWARDED_PORT)).isNull();
     assertThat(context.getHeader("foo")).isEqualTo("bar");
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = { false, true })
+  void hidesForwardedHeadersFromAllAccessors(boolean removeOnly) throws Exception {
+    this.request.addHeader(X_FORWARDED_PROTO, "https");
+    this.request.addHeader(FORWARDED, "proto=https");
+    this.request.addHeader("foo", "bar");
+    MockHttpContext original = new MockHttpContext(this.request);
+    ForwardedHeaderFilter filter = new ForwardedHeaderFilter(false);
+    filter.setRemoveOnly(removeOnly);
+    filter.doFilter(original, this.filterChain);
+    HttpContext actual = this.filterChain.getContext();
+
+    for (String name : new String[] { FORWARDED, X_FORWARDED_PROTO }) {
+      assertThat(actual.getHeader(name)).isNull();
+      assertThat(actual.getHeaders(name)).isEmpty();
+      assertThat(actual.getHeaderNames()).doesNotContain(name);
+      assertThat(actual.getHeaders().contains(name)).isFalse();
+      assertThat(actual.requestHeaders().contains(name)).isFalse();
+      assertThat(actual.containsHeader(name)).isFalse();
+      assertThat(actual.containsHeaderValue(name, original.getHeader(name))).isFalse();
+      assertThat(original.containsHeader(name)).isTrue();
+    }
+    assertThat(actual.getHeaders().getFirst("foo")).isEqualTo("bar");
+    assertThat(actual.containsHeaderValue("foo", "bar")).isTrue();
+    assertThatThrownBy(() -> actual.getHeaders().add("foo", "baz"))
+            .isInstanceOf(UnsupportedOperationException.class);
+    assertThat(original.getHeaders("foo")).containsExactly("bar");
+  }
+
+  @Test
+  void uriAndRequestPathUseForwardedOriginAndPrefix() throws Exception {
+    this.request.setRequestURI("/items/a%2Fb");
+    this.request.setQueryString("q=a%2Bb&next=%2Fhome");
+    this.request.addHeader(X_FORWARDED_PROTO, "https");
+    this.request.addHeader(X_FORWARDED_HOST, "example.org");
+    this.request.addHeader(X_FORWARDED_PREFIX, "/edge%20app");
+    ForwardedHeaderFilter filter = new ForwardedHeaderFilter(false);
+    filter.setUseForwardedPrefix(true);
+    filter.doFilter(new MockHttpContext(this.request), this.filterChain);
+    HttpContext actual = this.filterChain.getContext();
+
+    assertThat(actual.getURI().toString())
+            .isEqualTo("https://example.org/edge%20app/items/a%2Fb?q=a%2Bb&next=%2Fhome");
+    assertThat(actual.getRequestPath().value()).isEqualTo("/edge%20app/items/a%2Fb");
+    assertThat(actual.getRequestPath().contextPath().value()).isEqualTo("/edge%20app");
+    assertThat(actual.getRequestPath().pathWithinApplication().value()).isEqualTo("/items/a%2Fb");
+  }
+
+  @Test
+  void supportsNonInetLocalAddress() throws Exception {
+    this.request.addHeader(X_FORWARDED_PROTO, "https");
+    var localAddress = UnixDomainSocketAddress.of("infra.sock");
+    MockHttpContext original = new MockHttpContext(this.request) {
+      @Override
+      public SocketAddress localAddress() {
+        return localAddress;
+      }
+    };
+    new ForwardedHeaderFilter(false).doFilter(original, this.filterChain);
+
+    assertThat(this.filterChain.getContext()).isNotNull();
+    assertThat(this.filterChain.getContext().localAddress()).isEqualTo(localAddress);
+  }
+
+  @Test
+  void uriAndRequestPathTrackForwardDispatch() throws Exception {
+    this.request.setRequestURI("/before");
+    this.request.addHeader(X_FORWARDED_PROTO, "https");
+    this.request.addHeader(X_FORWARDED_PREFIX, "/edge");
+    MockHttpContext original = new MockHttpContext(this.request) {
+      @Override
+      public String getRequestURI() {
+        return request.getRequestURI();
+      }
+    };
+    ForwardedHeaderFilter filter = new ForwardedHeaderFilter(false);
+    filter.setUseForwardedPrefix(true);
+    filter.doFilter(original, this.filterChain);
+    HttpContext actual = this.filterChain.getContext();
+    assertThat(actual.getURI().getRawPath()).isEqualTo("/edge/before");
+    assertThat(actual.getRequestPath().pathWithinApplication().value()).isEqualTo("/before");
+
+    this.request.setRequestURI("/after%20forward");
+
+    assertThat(actual.getURI().toString()).isEqualTo("https://localhost/edge/after%20forward");
+    assertThat(actual.getRequestPath().value()).isEqualTo("/edge/after%20forward");
+    assertThat(actual.getRequestPath().pathWithinApplication().value()).isEqualTo("/after%20forward");
+  }
+
+  @Test
+  void uriIgnoresMalformedQuery() throws Exception {
+    this.request.setRequestURI("/path%20name");
+    this.request.setQueryString("q=bad%query");
+    this.request.addHeader(X_FORWARDED_PROTO, "https");
+    new ForwardedHeaderFilter(false).doFilter(new MockHttpContext(this.request), this.filterChain);
+
+    assertThat(this.filterChain.getContext().getURI().toString()).isEqualTo("https://localhost/path%20name");
   }
 
   @Test
@@ -306,6 +424,16 @@ class ForwardedHeaderFilterTests {
       request.setRequestURI("/mvc-showcase");
 
       HttpContext actual = filterAndGetWrappedRequest(false);
+      assertThat(actual.getRequestURL()).isEqualTo("http://localhost/prefix/mvc-showcase");
+    }
+
+    @Test
+    void requestUriWithPrefixWithoutLeadingSlash() throws Exception {
+      request.addHeader(X_FORWARDED_PREFIX, "prefix");
+      request.setRequestURI("/mvc-showcase");
+
+      HttpContext actual = filterAndGetWrappedRequest(false);
+      assertThat(actual.getRequestURI()).isEqualTo("/prefix/mvc-showcase");
       assertThat(actual.getRequestURL()).isEqualTo("http://localhost/prefix/mvc-showcase");
     }
 
@@ -599,6 +727,19 @@ class ForwardedHeaderFilterTests {
     void sendRedirectWithNoXForwardedAndDotDotPath() throws Exception {
       String redirectedUrl = sendRedirect("../foo/bar");
       assertThat(redirectedUrl).isEqualTo("../foo/bar");
+    }
+
+    @Test
+    void sendRedirectWithUnencodedForwardedPrefix() throws Exception {
+      request.addHeader(X_FORWARDED_PROTO, "https");
+      request.addHeader(X_FORWARDED_HOST, "example.com");
+      request.addHeader(X_FORWARDED_PREFIX, "/edge app");
+      request.setRequestURI("/parent/");
+      this.filter = new ForwardedHeaderFilter(false);
+      this.filter.setUseForwardedPrefix(true);
+
+      String redirectedUrl = sendRedirect("foo/bar");
+      assertThat(redirectedUrl).isEqualTo("https://example.com/edge app/parent/foo/bar");
     }
 
     @Test

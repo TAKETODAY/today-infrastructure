@@ -66,8 +66,8 @@ import infra.web.bind.HttpContextDataBinder;
 import infra.web.bind.WebDataBinder;
 import infra.web.multipart.MultipartRequest;
 import infra.web.multipart.Part;
+import infra.web.util.HttpContextUriComponentsBuilder;
 import infra.web.util.UriBuilder;
-import infra.web.util.UriComponentsBuilder;
 
 /**
  * {@code ServerRequest} implementation based on a {@link HttpContext}.
@@ -127,7 +127,7 @@ class DefaultServerRequest implements ServerRequest {
 
   @Override
   public UriBuilder uriBuilder() {
-    return UriComponentsBuilder.forHttpRequest(httpContext);
+    return HttpContextUriComponentsBuilder.fromRequest(httpContext);
   }
 
   @Override
