@@ -1549,7 +1549,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       Assert.notNull(file, "File is required");
       Assert.isTrue(position >= 0, "Position must not be negative");
       Assert.isTrue(count >= 0, "Count must not be negative");
-      Assert.isTrue(count <= Long.MAX_VALUE - position, "File range is too large");
       if (file.isFile()) {
         long fileLength = file.length();
         Assert.isTrue(position <= fileLength, "Position exceeds file length");
