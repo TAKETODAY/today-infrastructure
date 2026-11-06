@@ -149,22 +149,27 @@ final class HttpContext extends NettyHttpContext implements Runnable {
    */
   @Override
   protected void endResponse() {
-    HttpHeaders trailers = evaluateResponseTrailers();
-    LastHttpContent lastContent = LastHttpContent.EMPTY_LAST_CONTENT;
-    if (trailers != null) {
-      lastContent = new DefaultLastHttpContent(Unpooled.EMPTY_BUFFER);
-      for (var entry : trailers.entries()) {
-        for (String value : entry.getValue()) {
-          lastContent.trailingHeaders().add(entry.getKey(), value);
+    try {
+      HttpHeaders trailers = evaluateResponseTrailers();
+      LastHttpContent lastContent = LastHttpContent.EMPTY_LAST_CONTENT;
+      if (trailers != null) {
+        lastContent = new DefaultLastHttpContent(Unpooled.EMPTY_BUFFER);
+        for (var entry : trailers.entries()) {
+          for (String value : entry.getValue()) {
+            lastContent.trailingHeaders().add(entry.getKey(), value);
+          }
         }
       }
+      if (HttpUtil.isKeepAlive(request)) {
+        channel.writeAndFlush(lastContent);
+      }
+      else {
+        channel.writeAndFlush(lastContent)
+                .addListener(ChannelFutureListener.CLOSE);
+      }
     }
-    if (HttpUtil.isKeepAlive(request)) {
-      channel.writeAndFlush(lastContent);
-    }
-    else {
-      channel.writeAndFlush(lastContent)
-              .addListener(ChannelFutureListener.CLOSE);
+    catch (Throwable failure) {
+      abortResponse(failure);
     }
   }
 

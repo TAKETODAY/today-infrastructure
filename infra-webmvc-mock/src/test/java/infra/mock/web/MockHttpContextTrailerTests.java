@@ -17,18 +17,28 @@
 package infra.mock.web;
 
 import org.junit.jupiter.api.Test;
+import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.http.HttpHeaders;
 import infra.http.ResponseTrailer;
+import infra.web.HttpContext;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Contract tests for response trailer registration, run against
@@ -124,10 +134,23 @@ class MockHttpContextTrailerTests {
   }
 
   @Test
-  void rejectsEmptyRegistration() {
+  void emptyRegistrationClearsTrailersWithoutResettingResponse() {
     MockHttpContext context = new MockHttpContext();
-    assertThatIllegalArgumentException()
-            .isThrownBy(context::setResponseTrailers);
+    AtomicInteger calls = new AtomicInteger();
+    context.setStatus(202);
+    context.responseHeaders().set("X-Preserved", "value");
+    context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> {
+      calls.incrementAndGet();
+      return "v1";
+    }));
+
+    context.setResponseTrailers();
+    context.requestCompleted();
+
+    assertThat(context.getStatus()).isEqualTo(202);
+    assertThat(context.responseHeaders().getFirst("X-Preserved")).isEqualTo("value");
+    assertThat(context.getResponseTrailers()).isNull();
+    assertThat(calls).hasValue(0);
   }
 
   @Test
@@ -225,6 +248,214 @@ class MockHttpContextTrailerTests {
 
     assertThat(calls).hasValue(0);
     assertThat(context.getResponseTrailers()).isNull();
+  }
+
+  @Test
+  void finalNoContentOrUpgradeStatusDiscardsTrailers() {
+    for (int status : new int[] { 100, 101, 199, 204, 304 }) {
+      InspectableMockHttpContext context = new InspectableMockHttpContext();
+      AtomicInteger calls = new AtomicInteger();
+      context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> {
+        calls.incrementAndGet();
+        return "v1";
+      }));
+      context.setStatus(status);
+
+      context.validateTrailers();
+
+      assertThat(context.trailerNames()).isNull();
+      context.requestCompleted();
+      assertThat(context.getResponseTrailers()).isNull();
+      assertThat(calls).hasValue(0);
+    }
+  }
+
+  @Test
+  void committingCallbackCanChangeStatusAndDiscardTrailers() {
+    InspectableMockHttpContext context = new InspectableMockHttpContext();
+    AtomicInteger calls = new AtomicInteger();
+    context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> {
+      calls.incrementAndGet();
+      return "v1";
+    }));
+    context.registerCallback(HttpContext.Lifecycle.COMMITTING, "no-content", () -> context.setStatus(204));
+
+    context.flush();
+
+    assertThat(context.trailerNames()).isNull();
+    context.requestCompleted();
+    assertThat(context.getStatus()).isEqualTo(204);
+    assertThat(context.getResponseTrailers()).isNull();
+    assertThat(calls).hasValue(0);
+  }
+
+  @Test
+  void finalSuccessfulConnectDiscardsTrailers() {
+    InspectableMockHttpContext context = new InspectableMockHttpContext();
+    context.request.setMethod("CONNECT");
+    context.setStatus(400);
+    AtomicInteger calls = new AtomicInteger();
+    context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> {
+      calls.incrementAndGet();
+      return "v1";
+    }));
+    context.setStatus(200);
+
+    context.requestCompleted();
+
+    assertThat(context.getResponseTrailers()).isNull();
+    assertThat(calls).hasValue(0);
+  }
+
+  @Test
+  void declaredNamesAreImmutableAndCaseInsensitive() {
+    InspectableMockHttpContext context = new InspectableMockHttpContext();
+    context.setResponseTrailers(
+            ResponseTrailer.of("X-Checksum", () -> "v1"),
+            ResponseTrailer.of("x-checksum", () -> "v2"));
+
+    Set<String> names = context.trailerNames();
+    assertThat(names).isNotNull().containsExactly("X-Checksum");
+    assertThat(names.contains("x-CHECKSUM")).isTrue();
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(names::clear);
+    context.requestCompleted();
+    HttpHeaders trailers = context.getResponseTrailers();
+    assertThat(trailers).isNotNull();
+    assertThat(trailers.get("X-Checksum")).containsExactly("v1", "v2");
+  }
+
+  @Test
+  void rejectsEveryControlCharacterExceptHorizontalTab() {
+    for (char c = 0; c <= 0x7f; c++) {
+      if ((c >= 0x20 && c != 0x7f) || c == '\t') {
+        continue;
+      }
+      MockHttpContext context = new MockHttpContext();
+      String value = "before" + c + "after";
+      context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> value));
+      assertThatIllegalStateException().isThrownBy(context::requestCompleted)
+              .withMessageContaining("Invalid trailer value");
+      assertThat(context.getResponseTrailers()).isNull();
+    }
+    MockHttpContext context = new MockHttpContext();
+    context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> "before\tafter"));
+    context.requestCompleted();
+    HttpHeaders trailers = context.getResponseTrailers();
+    assertThat(trailers).isNotNull();
+    assertThat(trailers.getFirst("X-Checksum")).isEqualTo("before\tafter");
+  }
+
+  @Test
+  void defaultCompletionFiresCallbacksSynchronouslyAfterTrailerEvaluation() {
+    MockHttpContext context = new MockHttpContext();
+    List<String> events = new ArrayList<>();
+    context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> {
+      events.add("trailer");
+      return "v1";
+    }));
+    context.registerCallback(HttpContext.Lifecycle.COMPLETED, "cleanup", () -> events.add("completed"));
+
+    context.requestCompleted();
+
+    assertThat(events).containsExactly("trailer", "completed");
+  }
+
+  @Test
+  void completionHookCanDeferLifecycleCallbacks() {
+    DeferredCompletingMockHttpContext context = new DeferredCompletingMockHttpContext();
+    AtomicInteger callbacks = new AtomicInteger();
+    context.registerCallback(HttpContext.Lifecycle.COMPLETED, "cleanup", callbacks::incrementAndGet);
+
+    context.requestCompleted();
+
+    assertThat(callbacks).hasValue(0);
+    context.finishCompletion();
+    assertThat(callbacks).hasValue(1);
+    context.finishCompletion();
+    assertThat(callbacks).hasValue(1);
+  }
+
+  @Test
+  void supplierFailureStillFiresCompletedCallbackAndPreservesOriginalFailure() {
+    MockHttpContext context = new MockHttpContext();
+    IllegalStateException supplierFailure = new IllegalStateException("supplier");
+    IllegalArgumentException callbackFailure = new IllegalArgumentException("callback");
+    AtomicInteger callbacks = new AtomicInteger();
+    context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> {
+      throw supplierFailure;
+    }));
+    context.registerCallback(HttpContext.Lifecycle.COMPLETED, "cleanup", () -> {
+      callbacks.incrementAndGet();
+      throw callbackFailure;
+    });
+
+    assertThatThrownBy(context::requestCompleted).isSameAs(supplierFailure)
+            .hasSuppressedException(callbackFailure);
+    assertThat(callbacks).hasValue(1);
+    assertThat(context.getResponseTrailers()).isNull();
+  }
+
+  @Test
+  void concurrentEvaluationDoesNotInvokeSupplierAgain() throws Exception {
+    InspectableMockHttpContext context = new InspectableMockHttpContext();
+    CountDownLatch entered = new CountDownLatch(1);
+    CountDownLatch release = new CountDownLatch(1);
+    AtomicInteger calls = new AtomicInteger();
+    context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> {
+      calls.incrementAndGet();
+      entered.countDown();
+      try {
+        if (!release.await(5, TimeUnit.SECONDS)) {
+          throw new IllegalStateException("Timed out waiting for concurrent evaluation");
+        }
+      }
+      catch (InterruptedException ex) {
+        Thread.currentThread().interrupt();
+        throw new IllegalStateException(ex);
+      }
+      return "v1";
+    }));
+    var executor = Executors.newSingleThreadExecutor();
+    try {
+      var first = executor.submit(context::evaluateTrailers);
+      assertThat(entered.await(5, TimeUnit.SECONDS)).isTrue();
+      assertThat(context.evaluateTrailers()).isNull();
+      release.countDown();
+      HttpHeaders trailers = first.get(5, TimeUnit.SECONDS);
+      assertThat(trailers).isNotNull();
+      assertThat(trailers.getFirst("X-Checksum")).isEqualTo("v1");
+      assertThat(calls).hasValue(1);
+    }
+    finally {
+      release.countDown();
+      executor.shutdownNow();
+    }
+  }
+
+  static final class DeferredCompletingMockHttpContext extends MockHttpContext {
+
+    @Override
+    protected void onRequestCompleted() {
+    }
+
+    void finishCompletion() {
+      super.onRequestCompleted();
+    }
+  }
+
+  static final class InspectableMockHttpContext extends MockHttpContext {
+
+    @Nullable Set<String> trailerNames() {
+      return getResponseTrailerNames();
+    }
+
+    void validateTrailers() {
+      validateResponseTrailersBeforeCommit();
+    }
+
+    @Nullable HttpHeaders evaluateTrailers() {
+      return evaluateResponseTrailers();
+    }
   }
 
   /**

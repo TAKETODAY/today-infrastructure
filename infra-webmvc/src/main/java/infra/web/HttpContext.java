@@ -1586,19 +1586,28 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * headers are committed, are copied defensively, and are compared
    * case-insensitively. A later registration replaces the previous one instead
    * of merging with it. Registering multiple trailers with the same name
-   * produces multiple values for that field.
+   * produces multiple values for that field. An empty array clears the
+   * registration without resetting other response state.
+   * <p>Registration is rejected for HEAD requests, informational responses,
+   * status 204 or 304, and successful CONNECT responses. If the final response
+   * later changes to one of these states (including a protocol upgrade), the
+   * registration is discarded without evaluating its suppliers.
    * <p>Suppliers are invoked at most once, after the body has been produced
    * and only when the exchange completes normally. They must not perform
-   * blocking I/O and run on the thread that completes the request. Returning
-   * {@code null} skips that field for the current response. An invalid value
+   * blocking I/O and run on the response-completion or body-write-completion
+   * thread. Returning {@code null} skips that field for the current response. An invalid value
    * or an exception aborts the response instead of sending partial trailers.
+   * Values must not contain control characters other than HTAB, or DEL.
    * <p>Trailers are sent on a best-effort basis: proxies may strip them and
    * clients may ignore them. This is not a general-purpose streaming
    * completion signal.
    *
-   * @param trailers the trailer fields to register; must not be empty
-   * @throws IllegalStateException if the response has already been committed
-   * @throws IllegalArgumentException if a name is empty, invalid, or forbidden
+   * @param trailers the trailer fields to register, or an empty array to clear them
+   * @throws IllegalStateException if the response has already been committed,
+   * or a nonempty registration is attempted for HEAD, an informational response,
+   * status 204 or 304, or a successful CONNECT response
+   * @throws IllegalArgumentException if the array or an element is {@code null},
+   * or a name is empty, invalid, or forbidden
    * @throws UnsupportedOperationException if this response does not support trailers
    * @since 5.0
    */

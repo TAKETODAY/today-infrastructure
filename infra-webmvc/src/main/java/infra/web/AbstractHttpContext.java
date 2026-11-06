@@ -32,6 +32,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,6 +41,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 import infra.beans.factory.BeanFactoryUtils;
@@ -217,7 +219,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
 
   private @Nullable EnumMap<Lifecycle, LinkedHashMap<String, Runnable>> lifecycleCallbacks;
 
-  private @Nullable ResponseTrailerConfig responseTrailers;
+  private volatile @Nullable ResponseTrailerConfig responseTrailers;
 
   protected AbstractHttpContext(ApplicationContext context, DispatcherHandler dispatcherHandler) {
     this.applicationContext = context;
@@ -879,15 +881,33 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
       multipartRequest.cleanup();
     }
 
-    requestCompletedInternal(notHandled);
-
-    fireCallbacks(Lifecycle.COMPLETED);
+    Throwable failure = null;
+    try {
+      requestCompletedInternal(notHandled);
+    }
+    catch (RuntimeException | Error ex) {
+      failure = ex;
+      throw ex;
+    }
+    finally {
+      try {
+        onRequestCompleted();
+      }
+      catch (RuntimeException | Error ex) {
+        if (failure == null) {
+          throw ex;
+        }
+        if (failure != ex) {
+          failure.addSuppressed(ex);
+        }
+      }
+    }
   }
 
   /**
    * Invoked from {@link #requestCompleted(Throwable)} after request-scoped
-   * resources have been released, and immediately before the
-   * {@link HttpContext.Lifecycle#COMPLETED} callbacks are fired.
+   * resources have been released, and before {@link #onRequestCompleted()}
+   * is invoked.
    * <p>Subclasses override this to finish transport-specific work, such as
    * flushing the response body, completing the underlying exchange, or
    * releasing native buffers. The base implementation does nothing, since not
@@ -898,6 +918,25 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * @see #requestCompleted(Throwable)
    */
   protected void requestCompletedInternal(@Nullable Throwable notHandled) {
+  }
+
+  /**
+   * Complete the request lifecycle by firing the
+   * {@link HttpContext.Lifecycle#COMPLETED} callbacks.
+   * <p>The default implementation invokes the callbacks synchronously. An
+   * adapter with pending asynchronous response writes may override this hook
+   * and defer calling {@code super.onRequestCompleted()} until the body and
+   * trailer completion path has finished, including on failure. Trailer
+   * suppliers must run before callbacks release any resources they depend on.
+   * <p>This hook is invoked even if {@link #requestCompletedInternal(Throwable)}
+   * fails. A synchronous exception from this hook is suppressed onto the
+   * original failure when one exists. An adapter that defers completion must
+   * preserve that failure handling and arrange for callbacks to fire once.
+   *
+   * @since 5.0
+   */
+  protected void onRequestCompleted() {
+    fireCallbacks(Lifecycle.COMPLETED);
   }
 
   // ---------------------------------------------------------------------
@@ -1922,8 +1961,12 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    */
   @Override
   public void setResponseTrailers(ResponseTrailer... trailers) {
-    Assert.notEmpty(trailers, "Trailer fields are required");
+    Assert.notNull(trailers, "Trailer fields are required");
     assertNotCommitted();
+    if (trailers.length == 0) {
+      clearResponseTrailers();
+      return;
+    }
     if (!isResponseTrailersSupported()) {
       throw new UnsupportedOperationException("Response trailers are not supported");
     }
@@ -1952,9 +1995,27 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
       validated.add(name);
     }
 
-    this.responseTrailers = new ResponseTrailerConfig(List.of(trailers), validated);
-    // the body length is unknown until the trailer suppliers have run
+    this.responseTrailers = new ResponseTrailerConfig(List.of(trailers), Collections.unmodifiableSet(validated));
+    // let the adapter select framing that can carry trailers
     this.responseContentLength = -1L;
+  }
+
+  /**
+   * Discard registered trailers when the final response cannot carry them.
+   * <p>Adapters must call this before selecting response framing and writing
+   * headers, after all callbacks that may change the response status. This
+   * allows an otherwise valid no-content or upgraded response to complete
+   * normally without evaluating its trailer suppliers.
+   *
+   * @since 5.0
+   */
+  protected final void validateResponseTrailersBeforeCommit() {
+    int status = getStatus();
+    if (this.responseTrailers != null && (getMethod() == HttpMethod.HEAD
+            || status < 200 || status == 204 || status == 304
+            || (getMethod() == HttpMethod.CONNECT && status < 300))) {
+      clearResponseTrailers();
+    }
   }
 
   /**
@@ -1998,11 +2059,11 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * @since 5.0
    */
   protected final @Nullable HttpHeaders evaluateResponseTrailers() {
+    validateResponseTrailersBeforeCommit();
     ResponseTrailerConfig config = this.responseTrailers;
-    if (config == null || config.evaluated) {
+    if (config == null || !config.evaluated.compareAndSet(false, true)) {
       return null;
     }
-    config.evaluated = true;
 
     HttpHeaders trailers = HttpHeaders.forWritable();
     for (ResponseTrailer trailer : config.trailers) {
@@ -2022,7 +2083,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     }
     for (int i = 0; i < value.length(); i++) {
       char c = value.charAt(i);
-      if (c == '\r' || c == '\n' || c == '\0') {
+      if ((c < 0x20 && c != '\t') || c == 0x7f) {
         throw new IllegalStateException("Invalid trailer value for field '" + name + "'");
       }
     }
@@ -2202,7 +2263,8 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   }
 
   /**
-   * Immutable trailer registration. The {@code evaluated} flag makes the
+   * Immutable trailer configuration with an atomic evaluation guard. The
+   * {@code evaluated} flag makes the
    * suppliers run at most once, regardless of how many completion paths reach
    * them.
    *
@@ -2214,7 +2276,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
 
     public final Set<String> names;
 
-    public boolean evaluated;
+    public final AtomicBoolean evaluated = new AtomicBoolean();
 
     ResponseTrailerConfig(List<ResponseTrailer> trailers, Set<String> names) {
       this.trailers = trailers;

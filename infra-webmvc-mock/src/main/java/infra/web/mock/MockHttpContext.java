@@ -483,6 +483,7 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
   protected void writeHeaders() {
     if (!headersWritten) {
       onCommitting();
+      validateResponseTrailersBeforeCommit();
       HttpHeaders headers = responseHeaders();
       for (Map.Entry<String, List<String>> entry : headers.entries()) {
         String headerName = entry.getKey();

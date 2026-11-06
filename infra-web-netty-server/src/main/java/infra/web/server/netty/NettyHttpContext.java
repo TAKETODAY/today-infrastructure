@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.UncheckedIOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.ClosedChannelException;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.context.ApplicationContext;
 import infra.http.DefaultHttpHeaders;
@@ -67,6 +69,7 @@ import infra.web.server.RequestBodySizeExceededException;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
@@ -90,6 +93,7 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.AsciiString;
 import io.netty.util.AttributeKey;
 import io.netty.util.AttributeMap;
+import io.netty.util.ReferenceCountUtil;
 import io.netty.util.internal.PlatformDependent;
 
 import static infra.http.HttpHeaders.isNotEmpty;
@@ -194,6 +198,8 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   private @Nullable ByteBuf responseBody;
 
   private @Nullable Object fileToSend;
+
+  private @Nullable ResponseWriteCompletion responseWriteCompletion;
 
   private @Nullable ServerHttpResponse outputMessage;
 
@@ -650,7 +656,82 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     cleanup(null);
     if (notHandled == null) {
       flush();
-      endResponse();
+      completeResponse();
+    }
+    else {
+      discardPendingResponseBody();
+      discardPendingResponseFile();
+    }
+  }
+
+  private void discardPendingResponseBody() {
+    ByteBuf body = this.responseBody;
+    this.responseBody = null;
+    ReferenceCountUtil.safeRelease(body);
+  }
+
+  /**
+   * Release a response file that has not been handed to the channel pipeline.
+   */
+  private void discardPendingResponseFile() {
+    Object pendingFile = this.fileToSend;
+    this.fileToSend = null;
+    releaseResponseFile(pendingFile);
+  }
+
+  /**
+   * Release an unsent response file or an input rejected by the pipeline.
+   */
+  protected final void releaseResponseFile(@Nullable Object pendingFile) {
+    try {
+      if (pendingFile instanceof ChunkedInput<?> input) {
+        input.close();
+      }
+    }
+    catch (Exception ex) {
+      log.warn("Failed to close pending response file", ex);
+    }
+    finally {
+      ReferenceCountUtil.safeRelease(pendingFile);
+    }
+  }
+
+  /**
+   * Adapt a pending zero-copy file when trailers were registered afterwards.
+   */
+  protected final Object prepareResponseFile(Object file) {
+    if (file instanceof PendingFileRegion region && getResponseTrailerNames() != null) {
+      try {
+        return createChunkedResponseFile(region.file, region.position(), region.count());
+      }
+      catch (IOException ex) {
+        throw new UncheckedIOException("Failed to prepare response file", ex);
+      }
+      finally {
+        ReferenceCountUtil.safeRelease(region);
+      }
+    }
+    return file;
+  }
+
+  private Object createChunkedResponseFile(File file, long position, long count) throws IOException {
+    ChannelPipeline pipeline = channel.pipeline();
+    if (pipeline.context(CHUNKED_WRITER_NAME) == null) {
+      pipeline.addLast(CHUNKED_WRITER_NAME, new ChunkedWriteHandler());
+    }
+    FileChannel fileChannel = FileChannel.open(file.toPath(), StandardOpenOption.READ);
+    try {
+      ChunkedNioFile nioFile = new ChunkedNioFile(fileChannel, position, count, nioFileChunkSize);
+      return modifyChunkedFile(nioFile);
+    }
+    catch (IOException | RuntimeException | Error ex) {
+      try {
+        fileChannel.close();
+      }
+      catch (IOException closeFailure) {
+        ex.addSuppressed(closeFailure);
+      }
+      throw ex;
     }
   }
 
@@ -683,6 +764,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   protected void writeHeaders() {
     if (committed.compareAndSet(false, true)) {
       onCommitting();
+      validateResponseTrailersBeforeCommit();
       // ---------------------------------------------
       // apply Status code and headers
       // ---------------------------------------------
@@ -760,15 +842,130 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * Write and flush a response body chunk.
    */
   protected void writeResponseBody(ByteBuf body) {
-    channel.writeAndFlush(body);
+    trackResponseWrite(channel.writeAndFlush(body));
   }
 
   /**
    * Write and flush a file or chunked input.
    */
   protected void writeResponseFile(Object file) {
-    channel.writeAndFlush(file)
-            .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+    Object prepared = prepareResponseFile(file);
+    ChannelFuture future;
+    try {
+      future = channel.writeAndFlush(prepared);
+    }
+    catch (RuntimeException | Error failure) {
+      releaseResponseFile(prepared);
+      throw failure;
+    }
+    trackResponseWrite(future);
+  }
+
+  /**
+   * Track body writes so trailers are only evaluated after successful writes.
+   */
+  protected final void trackResponseWrite(ChannelFuture future) {
+    future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+    if (getResponseTrailerNames() != null) {
+      ResponseWriteCompletion completion = this.responseWriteCompletion;
+      if (completion == null) {
+        completion = new ResponseWriteCompletion();
+        this.responseWriteCompletion = completion;
+      }
+      completion.track(future);
+    }
+  }
+
+  private void completeResponse() {
+    ResponseWriteCompletion completion = this.responseWriteCompletion;
+    if (completion == null) {
+      endResponse();
+    }
+    else {
+      completion.requested.set(true);
+      completion.tryComplete();
+    }
+  }
+
+  @Override
+  protected void onRequestCompleted() {
+    ResponseWriteCompletion completion = this.responseWriteCompletion;
+    if (completion == null || !completion.requested.get()) {
+      super.onRequestCompleted();
+    }
+    else {
+      completion.callbacksRequested.set(true);
+      completion.runCallbacks();
+    }
+  }
+
+  /**
+   * Constant-size write accounting, also preserving trailer-before-cleanup order.
+   */
+  private final class ResponseWriteCompletion implements ChannelFutureListener {
+
+    private final AtomicInteger pending = new AtomicInteger();
+
+    private final AtomicBoolean failed = new AtomicBoolean();
+
+    private final AtomicBoolean requested = new AtomicBoolean();
+
+    private final AtomicBoolean finishing = new AtomicBoolean();
+
+    private final AtomicBoolean finished = new AtomicBoolean();
+
+    private final AtomicBoolean callbacksRequested = new AtomicBoolean();
+
+    private final AtomicBoolean callbacksRun = new AtomicBoolean();
+
+    void track(ChannelFuture future) {
+      // Must be incremented before registration: a completed future may
+      // invoke the listener synchronously.
+      pending.incrementAndGet();
+      future.addListener(this);
+    }
+
+    @Override
+    public void operationComplete(ChannelFuture future) {
+      if (!future.isSuccess()) {
+        failed.set(true);
+      }
+      pending.decrementAndGet();
+      try {
+        tryComplete();
+      }
+      catch (Throwable failure) {
+        abortResponse(failure);
+      }
+    }
+
+    void tryComplete() {
+      if (requested.get() && (failed.get() || pending.get() == 0)
+              && finishing.compareAndSet(false, true)) {
+        try {
+          if (!failed.get()) {
+            endResponse();
+          }
+        }
+        finally {
+          finished.set(true);
+          runCallbacks();
+        }
+      }
+    }
+
+    void runCallbacks() {
+      if (finished.get() && callbacksRequested.get() && callbacksRun.compareAndSet(false, true)) {
+        NettyHttpContext.super.onRequestCompleted();
+      }
+    }
+  }
+
+  /**
+   * Abort a response that cannot produce a valid terminating message.
+   */
+  protected final void abortResponse(Throwable failure) {
+    HttpTrafficHandler.handleCommittedException(channel, failure);
   }
 
   /**
@@ -791,6 +988,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   @Override
   public void reset() {
     assertNotCommitted();
+    discardPendingResponseFile();
     clearResponseTrailers();
     nettyResponseHeaders.clear();
 
@@ -956,6 +1154,8 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * becomes inactive.
    */
   protected void onChannelInactive() {
+    discardPendingResponseBody();
+    discardPendingResponseFile();
     cleanup(new ClosedChannelException());
   }
 
@@ -1006,6 +1206,8 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       processRequest();
     }
     catch (Throwable e) {
+      discardPendingResponseBody();
+      discardPendingResponseFile();
       httpTrafficHandler.handleException(channel, e);
     }
     finally {
@@ -1435,22 +1637,27 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
     @Override
     public void sendFile(File file, long position, long count) throws IOException {
+      discardPendingResponseFile();
       // chunked framing is required when trailers were registered, so a
       // zero-copy file region cannot be used
       if (config.secure || !supportsFileRegion() || getResponseTrailerNames() != null) {
-        ChannelPipeline pipeline = channel.pipeline();
-        if (pipeline.context(CHUNKED_WRITER_NAME) == null) {
-          pipeline.addLast(CHUNKED_WRITER_NAME, new ChunkedWriteHandler());
-        }
-        ChunkedNioFile nioFile = new ChunkedNioFile(FileChannel.open(file.toPath(), StandardOpenOption.READ),
-                position, count, nioFileChunkSize);
-        fileToSend = modifyChunkedFile(nioFile);
+        fileToSend = createChunkedResponseFile(file, position, count);
       }
       else {
-        fileToSend = new DefaultFileRegion(file, position, count);
+        fileToSend = new PendingFileRegion(file, position, count);
       }
     }
 
+  }
+
+  private static final class PendingFileRegion extends DefaultFileRegion {
+
+    private final File file;
+
+    PendingFileRegion(File file, long position, long count) {
+      super(file, position, count);
+      this.file = file;
+    }
   }
 
 }
