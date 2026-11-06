@@ -73,6 +73,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
+import io.netty.channel.FileRegion;
 import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.Headers;
 import io.netty.handler.codec.HeadersUtils;
@@ -778,25 +779,33 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
           headers.remove(HttpHeaderNames.CONTENT_LENGTH);
           headers.set(HttpHeaderNames.TRAILER, String.join(", ", trailerNames));
         }
-        else if (MediaType.TEXT_EVENT_STREAM_VALUE.equals(getResponseContentType())) {
-          if (supportsTransferEncoding()) {
-            headers.set(HttpHeaderNames.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
-            headers.remove(HttpHeaderNames.CONTENT_LENGTH);
-          }
-        }
         else if (!headers.contains(HttpHeaderNames.CONTENT_LENGTH)
                 && !isTransferEncodingChunked(headers)) {
-          ByteBuf responseBody = this.responseBody;
-          if (responseBody == null) {
-            if (getMethod() == HttpMethod.HEAD && outputStream instanceof NoBodyOutputStream nbStream) {
-              headers.setInt(HttpHeaderNames.CONTENT_LENGTH, nbStream.contentLength);
-            }
-            else {
-              headers.setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
+          if (StringUtils.startsWithIgnoreCase(getResponseContentType(), MediaType.TEXT_EVENT_STREAM_VALUE)) {
+            if (supportsTransferEncoding()) {
+              headers.set(HttpHeaderNames.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
+              headers.remove(HttpHeaderNames.CONTENT_LENGTH);
             }
           }
           else {
-            headers.setInt(HttpHeaderNames.CONTENT_LENGTH, responseBody.readableBytes());
+            ByteBuf responseBody = this.responseBody;
+            if (responseBody == null) {
+              if (getMethod() == HttpMethod.HEAD && outputStream instanceof NoBodyOutputStream nbStream) {
+                headers.setInt(HttpHeaderNames.CONTENT_LENGTH, nbStream.contentLength);
+              }
+              else if (fileToSend instanceof FileRegion region) {
+                headers.setLong(HttpHeaderNames.CONTENT_LENGTH, region.count());
+              }
+              else if (fileToSend instanceof ChunkedInput<?> input && input.length() >= 0) {
+                headers.setLong(HttpHeaderNames.CONTENT_LENGTH, input.length());
+              }
+              else {
+                headers.setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
+              }
+            }
+            else {
+              headers.setInt(HttpHeaderNames.CONTENT_LENGTH, responseBody.readableBytes());
+            }
           }
         }
       }
