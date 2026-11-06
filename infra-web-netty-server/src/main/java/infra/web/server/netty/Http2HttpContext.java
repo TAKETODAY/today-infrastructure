@@ -259,14 +259,6 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
     return method != null ? HttpMethod.valueOf(method.toString()) : HttpMethod.GET;
   }
 
-  private static long contentLength(Http2Headers headers) {
-    CharSequence value = headers.get(HttpHeaderNames.CONTENT_LENGTH);
-    if (value != null) {
-      return Long.parseLong(value.toString());
-    }
-    return -1L;
-  }
-
   /**
    * Adapts file chunks to HTTP/2 DATA frames without ending the stream.
    * <p>Netty's {@code Http2DataChunkedInput} marks the last DATA frame with

@@ -152,8 +152,6 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
           "proxy-authenticate", "proxy-authorization", "content-encoding", "content-type",
           "content-range", "content-location", "set-cookie", "cache-control", "expires", "vary");
 
-  protected long responseContentLength = -1L;
-
   protected boolean notModified = false;
 
   protected HttpCookie @Nullable [] cookies;
@@ -1664,7 +1662,6 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   @Override
   public void reset() {
     assertNotCommitted();
-    responseContentLength = -1L;
     responseContentType = null;
     responseTrailers = null;
     if (responseHeaders != null) {
@@ -1996,8 +1993,6 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     }
 
     this.responseTrailers = new ResponseTrailerConfig(List.of(trailers), Collections.unmodifiableSet(validated));
-    // let the adapter select framing that can carry trailers
-    this.responseContentLength = -1L;
   }
 
   /**
@@ -2041,7 +2036,6 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    */
   protected final void clearResponseTrailers() {
     this.responseTrailers = null;
-    this.responseContentLength = -1L;
   }
 
   /**

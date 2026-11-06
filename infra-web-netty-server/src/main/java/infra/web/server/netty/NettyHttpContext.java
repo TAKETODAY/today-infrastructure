@@ -777,7 +777,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
           }
           headers.remove(HttpHeaderNames.CONTENT_LENGTH);
           headers.set(HttpHeaderNames.TRAILER, String.join(", ", trailerNames));
-          responseContentLength = -1L;
         }
         else if (MediaType.TEXT_EVENT_STREAM_VALUE.equals(getResponseContentType())) {
           if (supportsTransferEncoding()) {
@@ -785,20 +784,19 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
             headers.remove(HttpHeaderNames.CONTENT_LENGTH);
           }
         }
-        else if (!isTransferEncodingChunked(headers)) {
-          if (!headers.contains(HttpHeaderNames.CONTENT_LENGTH)) {
-            ByteBuf responseBody = this.responseBody;
-            if (responseBody == null) {
-              if (getMethod() == HttpMethod.HEAD && outputStream instanceof NoBodyOutputStream nbStream) {
-                headers.setInt(HttpHeaderNames.CONTENT_LENGTH, nbStream.contentLength);
-              }
-              else {
-                headers.setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
-              }
+        else if (!headers.contains(HttpHeaderNames.CONTENT_LENGTH)
+                && !isTransferEncodingChunked(headers)) {
+          ByteBuf responseBody = this.responseBody;
+          if (responseBody == null) {
+            if (getMethod() == HttpMethod.HEAD && outputStream instanceof NoBodyOutputStream nbStream) {
+              headers.setInt(HttpHeaderNames.CONTENT_LENGTH, nbStream.contentLength);
             }
             else {
-              headers.setInt(HttpHeaderNames.CONTENT_LENGTH, responseBody.readableBytes());
+              headers.setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
             }
+          }
+          else {
+            headers.setInt(HttpHeaderNames.CONTENT_LENGTH, responseBody.readableBytes());
           }
         }
       }
@@ -884,7 +882,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   @Override
   public void setContentLength(long length) {
-    responseContentLength = length;
     nettyResponseHeaders.setLong(HttpHeaderNames.CONTENT_LENGTH, length);
   }
 
@@ -1205,8 +1202,13 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     channel.attr(KEY).set(this);
   }
 
-  static @Nullable NettyHttpContext getAndRemove(AttributeMap map) {
+  protected static @Nullable NettyHttpContext getAndRemove(AttributeMap map) {
     return map.attr(KEY).getAndSet(null);
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  protected static long contentLength(Headers headers) {
+    return headers.getLong(HttpHeaderNames.CONTENT_LENGTH, -1);
   }
 
   /**
@@ -1518,24 +1520,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
     @Override
     public long getContentLength() {
-      long contentLength = responseContentLength;
-      if (contentLength == -1L) {
-        CharSequence value = nettyResponseHeaders.get(HttpHeaderNames.CONTENT_LENGTH);
-        if (value != null) {
-          contentLength = parseLong(value.toString());
-          responseContentLength = contentLength;
-        }
-      }
-      return contentLength;
-    }
-
-    private static long parseLong(String value) {
-      try {
-        return Long.parseLong(value);
-      }
-      catch (NumberFormatException e) {
-        return -1;
-      }
+      return contentLength(nettyResponseHeaders);
     }
 
     @Override
@@ -1546,6 +1531,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
     @Override
     public void sendFile(File file, long position, long count) throws IOException {
+      assertNotCommitted();
       Assert.notNull(file, "File is required");
       Assert.isTrue(position >= 0, "Position must not be negative");
       Assert.isTrue(count >= 0, "Count must not be negative");

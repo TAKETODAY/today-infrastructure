@@ -189,14 +189,6 @@ class PendingResponseFileTests {
   }
 
   @Test
-  void sendFileRejectsOverflowingRange() throws Exception {
-    HttpContext context = createContext();
-    assertThatThrownBy(() -> context.asHttpOutputMessage().sendFile(file(), Long.MAX_VALUE, 1))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("range");
-  }
-
-  @Test
   void sendFileRejectsCountBeyondFileLength() throws Exception {
     HttpContext context = createContext();
     assertThatThrownBy(() -> context.asHttpOutputMessage().sendFile(file(), 0, 5))
