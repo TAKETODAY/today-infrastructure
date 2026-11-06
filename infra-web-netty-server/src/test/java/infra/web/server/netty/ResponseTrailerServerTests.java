@@ -128,7 +128,7 @@ class ResponseTrailerServerTests {
   @Test
   void fileResponseUsesChunkedFramingAndTrailers() throws Exception {
     file = Files.createTempFile("http1-trailer", ".txt");
-    Files.writeString(file, "file-content-".repeat(256));
+    Files.writeString(file, "file-content-".repeat(1024));
     start();
 
     Http1TestClient.Response response = client.get("/trailers/file");
@@ -139,6 +139,41 @@ class ResponseTrailerServerTests {
     assertThat(response.headers()).doesNotContainKey("content-length");
     assertThat(response.headers()).containsEntry("trailer", "Content-Digest");
     assertThat(response.trailers()).containsEntry("content-digest", "sha-256=:file:");
+  }
+
+  @Test
+  void lateTrailerRegistrationKeepsFileBodyAndTrailingFields() throws Exception {
+    file = Files.createTempFile("http1-trailer-late", ".txt");
+    String content = "late-file-content-".repeat(1024);
+    Files.writeString(file, content);
+    start();
+
+    Http1TestClient.Response response = client.get("/trailers/file/late");
+
+    assertThat(response.status()).isEqualTo(200);
+    assertThat(response.bodyAsString()).isEqualTo(content);
+    assertThat(response.headers()).containsEntry("transfer-encoding", "chunked");
+    assertThat(response.headers()).doesNotContainKey("content-length");
+    assertThat(response.headers()).containsEntry("trailer", "Content-Digest");
+    assertThat(response.trailers()).containsEntry("content-digest", "sha-256=:late:");
+  }
+
+  @Test
+  void rangeFileWithTrailerKeepsRangeBodyAndTrailingFields() throws Exception {
+    file = Files.createTempFile("http1-trailer-range", ".txt");
+    String content = "0123456789".repeat(64);
+    Files.writeString(file, content);
+    start();
+
+    Http1TestClient.Response response = client.get("/trailers/file/range");
+
+    assertThat(response.status()).isEqualTo(206);
+    assertThat(response.bodyAsString()).isEqualTo(content.substring(10, 110));
+    assertThat(response.headers()).containsEntry("content-range", "bytes 10-109/640");
+    assertThat(response.headers()).containsEntry("transfer-encoding", "chunked");
+    assertThat(response.headers()).doesNotContainKey("content-length");
+    assertThat(response.headers()).containsEntry("trailer", "Content-Digest");
+    assertThat(response.trailers()).containsEntry("content-digest", "sha-256=:range:");
   }
 
   @Test
@@ -217,6 +252,19 @@ class ResponseTrailerServerTests {
           context.setContentLength(length);
           registerTrailer(context, "sha-256=:file:");
           context.asHttpOutputMessage().sendFile(file, 0, length);
+        }
+        case "/trailers/file/late" -> {
+          long length = Files.size(file);
+          context.setContentType(MediaType.TEXT_PLAIN);
+          context.asHttpOutputMessage().sendFile(file, 0, length);
+          registerTrailer(context, "sha-256=:late:");
+        }
+        case "/trailers/file/range" -> {
+          long length = Files.size(file);
+          context.setStatus(206);
+          context.setHeader("Content-Range", "bytes 10-109/" + length);
+          registerTrailer(context, "sha-256=:range:");
+          context.asHttpOutputMessage().sendFile(file, 10, 100);
         }
         case "/trailers/error" -> {
           registerTrailer(context, "sha-256=:never:");

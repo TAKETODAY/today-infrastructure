@@ -222,7 +222,7 @@ class Http2ServerTests {
   @Test
   void fileResponseEndsWithTrailingHeaders() throws Exception {
     file = Files.createTempFile("h2-trailer", ".txt");
-    Files.writeString(file, "file-trailer-".repeat(128));
+    Files.writeString(file, "file-trailer-".repeat(2048));
     start(false);
 
     Http2TestClient.Response response = client.get("/trailers/file");
@@ -230,6 +230,26 @@ class Http2ServerTests {
     assertThat(response.status()).isEqualTo(200);
     assertThat(response.bodyAsString()).isEqualTo(Files.readString(file));
     assertThat(response.trailers()).containsEntry("content-digest", "sha-256=:file:");
+    assertThat(response.dataEndStream()).isFalse();
+    assertThat(response.trailersEndStream()).isTrue();
+  }
+
+  @Test
+  void lateFileTrailerRegistrationEndsWithTrailingHeaders() throws Exception {
+    file = Files.createTempFile("h2-trailer-late", ".txt");
+    String content = "late-h2-file-".repeat(2048);
+    Files.writeString(file, content);
+    start(false);
+
+    Http2TestClient.Response response = client.get("/trailers/file/late");
+
+    assertThat(response.status()).isEqualTo(200);
+    assertThat(response.bodyAsString()).isEqualTo(content);
+    assertThat(response.headers()).doesNotContainKey("content-length");
+    assertThat(response.headers()).doesNotContainKey("transfer-encoding");
+    assertThat(response.headers()).containsEntry("trailer", "Content-Digest");
+    assertThat(response.trailers()).containsEntry("content-digest", "sha-256=:late:");
+    assertThat(response.trailers().keySet()).allMatch(name -> !name.startsWith(":"));
     assertThat(response.dataEndStream()).isFalse();
     assertThat(response.trailersEndStream()).isTrue();
   }
@@ -463,6 +483,13 @@ class Http2ServerTests {
         context.setResponseTrailers(
                 ResponseTrailer.of("Content-Digest", () -> "sha-256=:file:"));
         context.asHttpOutputMessage().sendFile(file, 0, length);
+      }
+      else if ("/trailers/file/late".equals(path)) {
+        long length = Files.size(file);
+        context.setContentType(MediaType.TEXT_PLAIN);
+        context.asHttpOutputMessage().sendFile(file, 0, length);
+        context.setResponseTrailers(
+                ResponseTrailer.of("Content-Digest", () -> "sha-256=:late:"));
       }
       else if ("/error".equals(path)) {
         throw new IllegalStateException("boom");
