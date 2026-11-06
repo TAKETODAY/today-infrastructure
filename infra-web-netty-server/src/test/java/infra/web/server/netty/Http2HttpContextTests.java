@@ -280,7 +280,7 @@ class Http2HttpContextTests {
   }
 
   @Test
-  void trailersAreSentAsTrailingHeadersFrame() {
+  void trailersAreSentAsTrailingHeadersFrameWithLowercaseNames() {
     Http2HttpContext context = createContext();
     context.setResponseTrailers(
             ResponseTrailer.of("Content-Digest", () -> "sha-256=:abc:"));
@@ -292,6 +292,7 @@ class Http2HttpContextTests {
     Http2HeadersFrame frame = captor.getValue();
     assertThat(frame.isEndStream()).isTrue();
     assertThat(frame.headers().get("content-digest")).isEqualTo("sha-256=:abc:");
+    assertThat(frame.headers().names()).containsExactly("content-digest");
     assertThat(frame.headers().contains(Http2Headers.PseudoHeaderName.STATUS.value())).isFalse();
   }
 

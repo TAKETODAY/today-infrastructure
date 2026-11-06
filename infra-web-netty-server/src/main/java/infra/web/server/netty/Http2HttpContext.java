@@ -209,7 +209,7 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
     Http2Headers http2Trailers = new DefaultHttp2Headers();
     for (var entry : trailers.entries()) {
       for (String value : entry.getValue()) {
-        http2Trailers.add(entry.getKey(), value);
+        http2Trailers.add(normalizeHeaderName(entry.getKey()), value);
       }
     }
     // trailer HEADERS carry no pseudo headers and end the stream
