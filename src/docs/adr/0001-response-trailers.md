@@ -18,11 +18,11 @@ HTTP/1.1 的 chunked 编码和 HTTP/2 都允许在正文之后发送尾部字段
 以下结论来自当前代码，用于替代 #374 中的推测：
 
 1. **提交状态机的实际顺序**：`NettyHttpContext.writeHeaders()` 先执行 `committed.compareAndSet(false, true)`，再调用 `onCommitting()`，之后才装配状态码与响应头。因此在 `COMMITTING` 回调内 `isCommitted()` 已经是 `true`。
-2. **正常完成入口集中，但不天然保证一次求值**：`requestCompletedInternal(notHandled)` 在 `notHandled == null` 时先执行 `flush()`，再通过完成处理等待已跟踪的正文写入成功，最后调用 `endResponse()`。入口集中不能代替对重复、重入或并发求值的防护。
+2. **正常完成入口集中，但不天然保证一次求值**：`requestCompletedInternal(notHandled)` 在 `notHandled == null` 时先执行 `flush()`，再调用 `endResponse()`；trailer supplier 在 `endResponse()` 中同步求值，不等待异步写出完成。入口集中不能代替对重复、重入或并发求值的防护。
 3. **协议终止消息可替换**：HTTP/1.1 通过 `LastHttpContent` 结束响应，HTTP/2 通过带 `END_STREAM` 的 DATA 或 HEADERS 帧结束响应。Trailer 可沿用这些结束点，不需要新增生命周期阶段；HTTP/2 尾部字段名必须规范化为小写。
 4. **文件终止机制无需变化，但发送与清理策略需要适配**：`ChunkedNioFile`、`DefaultFileRegion` 和 HTTP/2 文件 DATA 包装器不负责结束响应，终止消息仍由 `endResponse()` 写出。有 Trailer 的 HTTP/1.1 需要禁用现有 zero-copy `FileRegion` 路径，改走支持 chunked 的文件发送路径；由此打开的文件资源必须在发送完成或失败、尚未发送即重置、异常退出及替换待发送文件时正确回收。
 5. **`Content-Length` 自动推断是全局性的**：`writeHeaders()` 的长度推断同时影响 HTTP/1.1 与 HTTP/2。有 Trailer 时 HTTP/1.1 因 chunked 定界必须移除 `Content-Length`；HTTP/2 可以保留正确的长度，本项目选择统一省略，不能将这一策略解释成 HTTP/2 的协议要求。
-6. **`reset()` 是清理点**：错误处理调用 `reset()` 时必须清除 Trailer 配置和待发送资源。仅以注册时状态或正常完成入口判断，不能覆盖后续状态改变和异步发送失败。
+6. **`reset()` 是清理点**：错误处理调用 `reset()` 时必须清除 Trailer 配置和待发送资源。仅以注册时状态或正常完成入口判断，不能覆盖后续状态改变；异步发送失败由 `CLOSE_ON_FAILURE` 终止连接或流。
 
 ## 决策
 
@@ -91,11 +91,11 @@ Trailer 的发送以 chunked 定界为准，不要求请求携带 `TE: trailers`
 - supplier 返回 `null`：只跳过该字段；同一次注册中的其他字段仍可正常发送。
 - HTTP/1.1：响应已经提交后失败，应关闭连接，使客户端能够识别响应截断，不能用正常终止 chunk 伪装成功。
 - HTTP/2：终止对应流并保留诊断信息；具体采用流关闭或 reset 取决于统一异常处理及 Netty 管线，本契约不保证必然发送 `RST_STREAM`。
-- 已知正文生产失败、正文写出失败或连接断开时，不应再求值或发送成功 Trailer。`notHandled != null` 只覆盖进入完成流程时已知的失败，不能替代异步写入结果检查。
-- supplier 在执行响应结束处理的线程上调用，必须是非阻塞的。正文生产完成表示正文生成逻辑已结束；文件发送准备完成甚至不代表文件已被完整读取。正文交给管线、异步写出成功以及客户端实际收到是不同阶段。supplier 求值不构成网络写出成功或客户端收到完整正文的证明。
-- 文件及其他异步正文发送必须明确处理写出结果和终止消息之间的顺序，防止已知发送失败后仍生成成功 Trailer；不能只凭调用过 `flush()` 就认定正文写出成功。
+- 正文生产失败（`notHandled != null`）时跳过 supplier。正文写出是异步的，supplier 求值之后才报告的写失败无法回滚已生成的字段；此时由 `CLOSE_ON_FAILURE` 关闭连接或流，客户端通过截断识别失败。
+- supplier 在 `requestCompletedInternal()` 的完成路径中同步调用，必须是非阻塞的。它运行在请求线程，而不是 I/O 完成回调；supplier 求值不构成网络写出成功或客户端收到完整正文的证明。
 - 一次求值采用原子防护，在调用 supplier 前占用求值资格；重复、重入或并发调用不能再次执行 supplier，失败后也不重试。该防护只保证求值次数，不使整个上下文或 supplier 自动具备线程安全性。
-- 失败路径仍须执行约定的完成清理并释放资源；不能因为 supplier 异常跳过必要清理。异步写入时保留 supplier 先于 `COMPLETED` 回调的顺序，避免求值依赖已被回调释放；写入失败则跳过 supplier 并执行完成回调。写入跟踪使用固定大小的计数状态，不累计保存每次 flush 的 future。
+- 失败路径仍须执行约定的完成清理并释放资源；不能因为 supplier 异常跳过必要清理。supplier 在 `onRequestCompleted()` 之前执行，因为 `requestCompletedInternal()` 先于 `COMPLETED` 回调；异步写失败可能发生在 `COMPLETED` 之后，回调不得依赖写完成的确认。
+- 终止消息（HTTP/1.1 的 `LastHttpContent`、HTTP/2 的终止 DATA/HEADERS）写入失败时通过 `CLOSE_ON_FAILURE` 关闭连接或流。头部和正文写入同样使用该监听；实现不再等待写入成功后才求值 supplier。
 
 - **理由**：Trailer 可承载正文完整性元数据，但它本身不是端到端交付确认。异常后补发部分字段或正常结束标记会让客户端误判正文完整性；实现必须分别处理正文生产、管线写出和传输失败。
 
@@ -110,7 +110,9 @@ Trailer 的发送以 chunked 定界为准，不要求请求携带 `TE: trailers`
 
 注册检查不代替最终状态检查。在最终响应头提交时（包括 `COMMITTING` 回调完成后），若最终状态为 `1xx`、`204`、`304` 或成功 `CONNECT`，则清除已有 Trailer 注册，不调用 supplier，也不生成 Trailer 声明或因该注册启用 chunked。`101` 协议升级属于 `1xx`，同样清除注册。调用方可以先注册、再修改状态，最终发送必须以最终状态为准。
 
-`flush()` 既不结束响应也不触发 supplier；`reset()` 清除配置并回收尚未发送的资源；提交前传入空数组可只清除 Trailer 注册，不重置其他响应状态。
+`flush()` 既不结束响应也不触发 supplier；`reset()` 清除配置并回收尚未发送的资源；提交前传入空数组可只清除 Trailer 注册，不重置其他响应状态。`onChannelInactive()` 释放待发送的正文和文件。
+
+`COMMITTED` 回调不得修改响应头。当前响应头适配器与 Netty 存储共享同一份数据（`Http1Headers` 为 live view），在真正 flush 之前技术上仍可修改；这是实现细节，不属于契约。
 
 ## 不在本 ADR 范围
 
@@ -126,4 +128,4 @@ Trailer 的发送以 chunked 定界为准，不要求请求携带 `TE: trailers`
 - `AbstractHttpContext` 承担全部配置状态、校验与原子防护的一次求值；`AbstractDelegatingHttpContext` 与 `DelegatingHttpContext` 纯委托，不另存状态。
 - `MockHttpContext` 复用骨架行为，额外暴露最终字段供断言。
 - 未配置 Trailer 时保持既有响应定界和终止行为；文件资源回收和必要的完成清理不能依赖是否配置 Trailer。
-- 实现需要按 #374 验收项补充契约测试与 HTTP/1.1、HTTP/2 协议级测试。测试重点：注册时机、替换与空数组清除、防御性复制、最终状态变化、`reset`、空结果、空值跳过、同名多值、禁止字段与控制字符、并发及失败后不重复求值、keep-alive 复用、HTTP/2 字段名小写、尾部 HEADERS 顺序、`END_STREAM` 唯一性、文件资源回收、异步发送失败和完成清理。
+- 实现需要按 #374 验收项补充契约测试与 HTTP/1.1、HTTP/2 协议级测试。测试重点：注册时机、替换与空数组清除、防御性复制、最终状态变化、`reset`、空结果、空值跳过、同名多值、禁止字段与控制字符、并发及失败后不重复求值、keep-alive 复用、HTTP/2 字段名小写、尾部 HEADERS 顺序、`END_STREAM` 唯一性、文件资源回收、连接或流关闭。

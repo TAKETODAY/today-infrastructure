@@ -160,13 +160,11 @@ final class HttpContext extends NettyHttpContext implements Runnable {
           }
         }
       }
-      if (HttpUtil.isKeepAlive(request)) {
-        channel.writeAndFlush(lastContent);
-      }
-      else {
-        channel.writeAndFlush(lastContent)
-                .addListener(ChannelFutureListener.CLOSE);
-      }
+
+      channel.writeAndFlush(lastContent)
+              .addListener(HttpUtil.isKeepAlive(request)
+                      ? ChannelFutureListener.CLOSE_ON_FAILURE
+                      : ChannelFutureListener.CLOSE);
     }
     catch (Throwable failure) {
       abortResponse(failure);

@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.jspecify.annotations.Nullable;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Field;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import infra.context.ApplicationContext;
+import infra.http.HttpHeaders;
 import infra.http.ResponseTrailer;
 import infra.web.DispatcherHandler;
 import io.netty.buffer.ByteBuf;
@@ -152,6 +154,69 @@ class PendingResponseFileTests {
 
     then(input).should().close();
     assertThat(pendingFile(context)).isNull();
+  }
+
+  @Test
+  void sendFileSetsContentLength() throws Exception {
+    HttpContext context = createContext();
+    context.asHttpOutputMessage().sendFile(file(), 0, 4);
+
+    assertThat(context.responseHeaders().getContentLength()).isEqualTo(4);
+    assertThat(pendingFile(context)).isNotNull();
+    context.reset();
+  }
+
+  @Test
+  void sendFileRejectsNegativeCount() throws Exception {
+    HttpContext context = createContext();
+    assertThatThrownBy(() -> context.asHttpOutputMessage().sendFile(file(), 0, -1))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Count");
+
+    assertThat(pendingFile(context)).isNull();
+    assertThat(context.responseHeaders().contains(HttpHeaders.CONTENT_LENGTH)).isFalse();
+  }
+
+  @Test
+  void sendFileRejectsNegativePosition() throws Exception {
+    HttpContext context = createContext();
+    assertThatThrownBy(() -> context.asHttpOutputMessage().sendFile(file(), -1, 4))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Position");
+
+    assertThat(pendingFile(context)).isNull();
+    assertThat(context.responseHeaders().contains(HttpHeaders.CONTENT_LENGTH)).isFalse();
+  }
+
+  @Test
+  void sendFileRejectsOverflowingRange() throws Exception {
+    HttpContext context = createContext();
+    assertThatThrownBy(() -> context.asHttpOutputMessage().sendFile(file(), Long.MAX_VALUE, 1))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("range");
+  }
+
+  @Test
+  void sendFileRejectsCountBeyondFileLength() throws Exception {
+    HttpContext context = createContext();
+    assertThatThrownBy(() -> context.asHttpOutputMessage().sendFile(file(), 0, 5))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Count");
+  }
+
+  @Test
+  void sendFileRejectsPositionBeyondFileLength() throws Exception {
+    HttpContext context = createContext();
+    assertThatThrownBy(() -> context.asHttpOutputMessage().sendFile(file(), 5, 0))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Position");
+  }
+
+  @Test
+  void sendFileRejectsNullFile() {
+    HttpContext context = createContext();
+    assertThatThrownBy(() -> context.asHttpOutputMessage().sendFile((File) null, 0, 1))
+            .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test

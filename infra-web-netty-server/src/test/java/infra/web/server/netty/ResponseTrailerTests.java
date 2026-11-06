@@ -17,20 +17,18 @@
 package infra.web.server.netty;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.context.ApplicationContext;
 import infra.http.ResponseTrailer;
 import infra.web.DispatcherHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelOutboundHandlerAdapter;
-import io.netty.channel.ChannelPromise;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
@@ -218,58 +216,31 @@ class ResponseTrailerTests {
   }
 
   @Test
-  void completionWaitsForEveryFileWriteBeforeEvaluatingTrailers() {
+  void clearingTrailersKeepsFileContentLength(@TempDir Path tempDir) throws IOException {
+    Path file = tempDir.resolve("body.txt");
+    Files.writeString(file, "hello");
     HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
-    AtomicInteger calls = registerCountingTrailer(context);
-    List<ChannelPromise> writes = delayFileWrites(context, 2);
-
-    context.requestCompletedInternal(null);
-    assertThat(calls).hasValue(0);
-    writes.get(1).setSuccess();
-    assertThat(calls).hasValue(0);
-    writes.get(0).setSuccess();
-    channel.runPendingTasks();
-
-    assertThat(calls).hasValue(1);
-    DefaultHttpResponse response = channel.readOutbound();
-    assertThat(response.headers().get(HttpHeaderNames.TRAILER)).isEqualTo("Content-Digest");
-    LastHttpContent content = channel.readOutbound();
-    assertThat(content.trailingHeaders().get("Content-Digest")).isEqualTo("sha-256=:abc:");
-    assertThat(channel.<Object>readOutbound()).isNull();
-  }
-
-  @Test
-  void asynchronousFileWriteFailureClosesConnectionWithoutEvaluatingTrailers() {
-    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
-    AtomicInteger calls = registerCountingTrailer(context);
-    List<ChannelPromise> writes = delayFileWrites(context, 2);
+    context.setResponseTrailers(ResponseTrailer.of("Content-Digest", () -> "sha-256=:abc:"));
+    context.asHttpOutputMessage().sendFile(file, 0, 5);
+    context.setResponseTrailers();
 
     context.requestCompletedInternal(null);
     channel.flush();
-    assertThat(calls).hasValue(0);
-    writes.get(0).setFailure(new IOException("file write failed"));
-    writes.get(1).setSuccess();
-    channel.runPendingTasks();
 
-    assertThat(channel.isOpen()).isFalse();
-    assertThat(calls).hasValue(0);
-    assertThat(channel.<Object>readOutbound()).isInstanceOf(DefaultHttpResponse.class);
-    assertThat(channel.<Object>readOutbound()).isNull();
+    DefaultHttpResponse response = channel.readOutbound();
+    assertThat(response.headers().get(HttpHeaderNames.CONTENT_LENGTH)).isEqualTo("5");
+    assertThat(response.headers().contains(HttpHeaderNames.TRANSFER_ENCODING)).isFalse();
+    channel.finishAndReleaseAll();
   }
 
   @Test
-  void fileWriteFailureBeforeCompletionDoesNotEvaluateTrailers() {
+  void requestCompletionEvaluatesTrailers() {
     HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
     AtomicInteger calls = registerCountingTrailer(context);
-    List<ChannelPromise> writes = delayFileWrites(context, 1);
-    writes.get(0).setFailure(new IOException("file write failed"));
 
     context.requestCompletedInternal(null);
-    channel.runPendingTasks();
 
-    assertThat(channel.isOpen()).isFalse();
-    assertThat(calls).hasValue(0);
-    assertThat(channel.<Object>readOutbound()).isNull();
+    assertThat(calls).hasValue(1);
   }
 
   private AtomicInteger registerCountingTrailer(HttpContext context) {
@@ -279,27 +250,6 @@ class ResponseTrailerTests {
       return "sha-256=:abc:";
     }));
     return calls;
-  }
-
-  private List<ChannelPromise> delayFileWrites(HttpContext context, int count) {
-    Object file = new Object();
-    List<ChannelPromise> writes = new ArrayList<>();
-    channel.pipeline().addLast(new ChannelOutboundHandlerAdapter() {
-      @Override
-      public void write(ChannelHandlerContext ctx, Object message, ChannelPromise promise) {
-        if (message == file) {
-          writes.add(promise);
-        }
-        else {
-          ctx.write(message, promise);
-        }
-      }
-    });
-    for (int i = 0; i < count; i++) {
-      context.writeResponseFile(file);
-    }
-    assertThat(writes).hasSize(count);
-    return writes;
   }
 
   private HttpContext createContext(HttpVersion version, HttpMethod method) {

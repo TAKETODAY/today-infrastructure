@@ -22,9 +22,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.context.ApplicationContext;
@@ -334,10 +332,10 @@ class Http2HttpContextTests {
   @Test
   void fileWriteFailureClosesChannel() throws Exception {
     ChannelFuture future = mock();
+    Http2HttpContext context = createContext();
     when(channel.writeAndFlush(any())).thenReturn(future);
     when(future.addListener(any(ChannelFutureListener.class))).thenReturn(future);
 
-    Http2HttpContext context = createContext();
     context.writeResponseFile(mock(ByteBuf.class));
 
     ArgumentCaptor<ChannelFutureListener> listener = ArgumentCaptor.forClass(ChannelFutureListener.class);
@@ -400,138 +398,69 @@ class Http2HttpContextTests {
   }
 
   @Test
-  void completionWaitsForEveryFileWriteBeforeEvaluatingTrailers() {
+  void terminalWriteFailureClosesStream() {
+    Http2HttpContext context = createContext();
+    ChannelFuture terminal = mock();
+    when(channel.writeAndFlush(any())).thenReturn(terminal);
+    when(terminal.channel()).thenReturn(channel);
+    when(terminal.isSuccess()).thenReturn(false);
+    when(terminal.addListener(any(ChannelFutureListener.class))).thenAnswer(invocation -> {
+      ChannelFutureListener listener = invocation.getArgument(0);
+      listener.operationComplete(terminal);
+      return terminal;
+    });
+
+    context.endResponse();
+
+    then(channel).should().close();
+  }
+
+  @Test
+  void trailersAreEvaluatedOnCompletion() {
     Http2HttpContext context = createContext();
     AtomicInteger calls = registerCountingTrailer(context);
-    Object firstFile = new Object();
-    Object secondFile = new Object();
-    DefaultChannelPromise firstWrite = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
-    DefaultChannelPromise secondWrite = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
-    when(channel.writeAndFlush(firstFile)).thenReturn(firstWrite);
-    when(channel.writeAndFlush(secondFile)).thenReturn(secondWrite);
-    context.writeResponseFile(firstFile);
-    context.writeResponseFile(secondFile);
 
     context.requestCompletedInternal(null);
-    assertThat(calls).hasValue(0);
-    then(channel).should(never()).writeAndFlush(any(Http2HeadersFrame.class));
-    secondWrite.setSuccess();
-    assertThat(calls).hasValue(0);
-    then(channel).should(never()).writeAndFlush(any(Http2HeadersFrame.class));
-    firstWrite.setSuccess();
 
     assertThat(calls).hasValue(1);
     ArgumentCaptor<Http2HeadersFrame> tail = ArgumentCaptor.forClass(Http2HeadersFrame.class);
     then(channel).should().writeAndFlush(tail.capture());
     assertThat(tail.getValue().isEndStream()).isTrue();
     assertThat(tail.getValue().headers().get("content-digest")).isEqualTo("sha-256=:abc:");
-    then(channel).should(never()).writeAndFlush(any(DefaultHttp2DataFrame.class));
   }
 
   @Test
-  void asynchronousFileWriteFailureClosesStreamWithoutEvaluatingTrailers() {
+  void headWriteFailureClosesStream() {
     Http2HttpContext context = createContext();
-    AtomicInteger calls = registerCountingTrailer(context);
-    Object file = new Object();
-    DefaultChannelPromise write = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
-    when(channel.writeAndFlush(file)).thenReturn(write);
-    Object otherFile = new Object();
-    DefaultChannelPromise otherWrite = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
-    when(channel.writeAndFlush(otherFile)).thenReturn(otherWrite);
-    context.writeResponseFile(file);
-    context.writeResponseFile(otherFile);
-
-    context.requestCompletedInternal(null);
-    assertThat(calls).hasValue(0);
-    write.setFailure(new IOException("file write failed"));
-    otherWrite.setSuccess();
-
-    assertThat(calls).hasValue(0);
-    then(channel).should().close();
-    then(channel).should(never()).writeAndFlush(any(Http2HeadersFrame.class));
-    then(channel).should(never()).writeAndFlush(any(DefaultHttp2DataFrame.class));
-  }
-
-  @Test
-  void fileWriteFailureBeforeCompletionDoesNotEvaluateTrailers() {
-    Http2HttpContext context = createContext();
-    AtomicInteger calls = registerCountingTrailer(context);
-    Object file = new Object();
-    DefaultChannelPromise write = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
-    when(channel.writeAndFlush(file)).thenReturn(write);
-    context.writeResponseFile(file);
-    write.setFailure(new IOException("file write failed"));
-
-    context.requestCompletedInternal(null);
-
-    assertThat(calls).hasValue(0);
-    then(channel).should().close();
-    then(channel).should(never()).writeAndFlush(any(Http2HeadersFrame.class));
-    then(channel).should(never()).writeAndFlush(any(DefaultHttp2DataFrame.class));
-  }
-
-  @Test
-  void bodyWriteSuccessEvaluatesTrailersBeforeCompletedCallback() {
-    Http2HttpContext context = createContext();
-    AtomicBoolean cleanedUp = new AtomicBoolean();
-    List<String> events = new ArrayList<>();
-    context.setResponseTrailers(ResponseTrailer.of("Content-Digest", () -> {
-      assertThat(cleanedUp).isFalse();
-      events.add("trailer");
-      return "sha-256=:abc:";
-    }));
-    context.registerCallback(HttpContext.Lifecycle.COMPLETED, "cleanup", () -> {
-      cleanedUp.set(true);
-      events.add("cleanup");
+    registerCountingTrailer(context);
+    ChannelFuture head = mock();
+    when(channel.write(any())).thenReturn(head);
+    when(head.channel()).thenReturn(channel);
+    when(head.isSuccess()).thenReturn(false);
+    when(head.addListener(any(ChannelFutureListener.class))).thenAnswer(invocation -> {
+      ChannelFutureListener listener = invocation.getArgument(0);
+      listener.operationComplete(head);
+      return head;
     });
-    DefaultChannelPromise write = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
-    when(channel.writeAndFlush(any(DefaultHttp2DataFrame.class))).thenReturn(write);
-    ByteBuf body = Unpooled.buffer().writeByte(1);
-    try {
-      context.writeResponseBody(body);
-      context.requestCompletedInternal(null);
-      context.onRequestCompleted();
 
-      assertThat(cleanedUp).isFalse();
-      assertThat(events).isEmpty();
-      then(channel).should(never()).writeAndFlush(any(Http2HeadersFrame.class));
-      write.setSuccess();
+    context.requestCompletedInternal(null);
 
-      assertThat(cleanedUp).isTrue();
-      assertThat(events).containsExactly("trailer", "cleanup");
-      then(channel).should().writeAndFlush(any(Http2HeadersFrame.class));
-    }
-    finally {
-      body.release();
-    }
+    then(channel).should().close();
   }
 
   @Test
-  void bodyWriteFailureRunsCompletedCallbackWithoutEvaluatingTrailers() {
+  void asynchronousFileWriteFailureClosesStream() {
     Http2HttpContext context = createContext();
-    AtomicInteger calls = registerCountingTrailer(context);
-    AtomicBoolean cleanedUp = new AtomicBoolean();
-    context.registerCallback(HttpContext.Lifecycle.COMPLETED, "cleanup", () -> cleanedUp.set(true));
+    registerCountingTrailer(context);
+    Object file = new Object();
     DefaultChannelPromise write = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
-    when(channel.writeAndFlush(any(DefaultHttp2DataFrame.class))).thenReturn(write);
-    ByteBuf body = Unpooled.buffer().writeByte(1);
-    try {
-      context.writeResponseBody(body);
-      context.requestCompletedInternal(null);
-      context.onRequestCompleted();
+    when(channel.writeAndFlush(file)).thenReturn(write);
+    context.writeResponseFile(file);
 
-      assertThat(cleanedUp).isFalse();
-      assertThat(calls).hasValue(0);
-      write.setFailure(new IOException("body write failed"));
+    context.requestCompletedInternal(null);
+    write.setFailure(new IOException("file write failed"));
 
-      assertThat(cleanedUp).isTrue();
-      assertThat(calls).hasValue(0);
-      then(channel).should().close();
-      then(channel).should(never()).writeAndFlush(any(Http2HeadersFrame.class));
-    }
-    finally {
-      body.release();
-    }
+    then(channel).should().close();
   }
 
   private AtomicInteger registerCountingTrailer(Http2HttpContext context) {
@@ -547,11 +476,21 @@ class Http2HttpContextTests {
     ApplicationContext applicationContext = mock();
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .multipartParser(mock()).sendErrorHandler(mock()).build();
+    when(channel.write(any())).thenAnswer(invocation -> succeededPromise());
+    when(channel.writeAndFlush(any())).thenAnswer(invocation -> succeededPromise());
     return new Http2HttpContext(channel, requestHeaders, config, applicationContext,
             new DispatcherHandler(applicationContext), httpTrafficHandler);
   }
 
+  private DefaultChannelPromise succeededPromise() {
+    DefaultChannelPromise promise = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
+    promise.setSuccess();
+    return promise;
+  }
+
   private Http2HttpContext createContext(DispatcherHandler dispatcher, NettyRequestConfig config, Http2Headers headers) {
+    when(channel.write(any())).thenAnswer(invocation -> succeededPromise());
+    when(channel.writeAndFlush(any())).thenAnswer(invocation -> succeededPromise());
     return new Http2HttpContext(channel, headers, config, mock(ApplicationContext.class), dispatcher, httpTrafficHandler);
   }
 

@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.context.ApplicationContext;
 import infra.http.DefaultHttpHeaders;
@@ -53,6 +52,7 @@ import infra.http.support.NettyHeaders;
 import infra.lang.Constant;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.InfraStrategies;
 import infra.util.MultiValueMap;
@@ -198,8 +198,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   private @Nullable ByteBuf responseBody;
 
   private @Nullable Object fileToSend;
-
-  private @Nullable ResponseWriteCompletion responseWriteCompletion;
 
   private @Nullable ServerHttpResponse outputMessage;
 
@@ -656,7 +654,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     cleanup(null);
     if (notHandled == null) {
       flush();
-      completeResponse();
+      endResponse();
     }
     else {
       discardPendingResponseBody();
@@ -825,17 +823,19 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
         }
       }
 
-      writeResponseHead(status, headers);
+      trackResponseWrite(writeResponseHead(status, headers));
       onCommitted();
     }
   }
 
   /**
    * Write the response head using the transport specific representation.
+   *
+   * @return the write future, so the caller can attach the failure listener
    */
   protected <T extends Headers<CharSequence, CharSequence, T>>
-  void writeResponseHead(HttpResponseStatus status, DefaultHeaders<CharSequence, @Nullable CharSequence, T> headers) {
-    channel.write(new DefaultHttpResponse(version(), status, new Http1Headers(headers)));
+  ChannelFuture writeResponseHead(HttpResponseStatus status, DefaultHeaders<CharSequence, @Nullable CharSequence, T> headers) {
+    return channel.write(new DefaultHttpResponse(version(), status, new Http1Headers(headers)));
   }
 
   /**
@@ -850,115 +850,23 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    */
   protected void writeResponseFile(Object file) {
     Object prepared = prepareResponseFile(file);
-    ChannelFuture future;
     try {
-      future = channel.writeAndFlush(prepared);
+      trackResponseWrite(channel.writeAndFlush(prepared));
     }
     catch (RuntimeException | Error failure) {
       releaseResponseFile(prepared);
       throw failure;
     }
-    trackResponseWrite(future);
   }
 
   /**
-   * Track body writes so trailers are only evaluated after successful writes.
+   * Track a response write so a failed write closes the connection or stream.
+   * Trailers are evaluated when the response completes and are written after
+   * every body chunk in pipeline order; an asynchronous write failure aborts
+   * the exchange through {@link ChannelFutureListener#CLOSE_ON_FAILURE}.
    */
   protected final void trackResponseWrite(ChannelFuture future) {
     future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
-    if (getResponseTrailerNames() != null) {
-      ResponseWriteCompletion completion = this.responseWriteCompletion;
-      if (completion == null) {
-        completion = new ResponseWriteCompletion();
-        this.responseWriteCompletion = completion;
-      }
-      completion.track(future);
-    }
-  }
-
-  private void completeResponse() {
-    ResponseWriteCompletion completion = this.responseWriteCompletion;
-    if (completion == null) {
-      endResponse();
-    }
-    else {
-      completion.requested.set(true);
-      completion.tryComplete();
-    }
-  }
-
-  @Override
-  protected void onRequestCompleted() {
-    ResponseWriteCompletion completion = this.responseWriteCompletion;
-    if (completion == null || !completion.requested.get()) {
-      super.onRequestCompleted();
-    }
-    else {
-      completion.callbacksRequested.set(true);
-      completion.runCallbacks();
-    }
-  }
-
-  /**
-   * Constant-size write accounting, also preserving trailer-before-cleanup order.
-   */
-  private final class ResponseWriteCompletion implements ChannelFutureListener {
-
-    private final AtomicInteger pending = new AtomicInteger();
-
-    private final AtomicBoolean failed = new AtomicBoolean();
-
-    private final AtomicBoolean requested = new AtomicBoolean();
-
-    private final AtomicBoolean finishing = new AtomicBoolean();
-
-    private final AtomicBoolean finished = new AtomicBoolean();
-
-    private final AtomicBoolean callbacksRequested = new AtomicBoolean();
-
-    private final AtomicBoolean callbacksRun = new AtomicBoolean();
-
-    void track(ChannelFuture future) {
-      // Must be incremented before registration: a completed future may
-      // invoke the listener synchronously.
-      pending.incrementAndGet();
-      future.addListener(this);
-    }
-
-    @Override
-    public void operationComplete(ChannelFuture future) {
-      if (!future.isSuccess()) {
-        failed.set(true);
-      }
-      pending.decrementAndGet();
-      try {
-        tryComplete();
-      }
-      catch (Throwable failure) {
-        abortResponse(failure);
-      }
-    }
-
-    void tryComplete() {
-      if (requested.get() && (failed.get() || pending.get() == 0)
-              && finishing.compareAndSet(false, true)) {
-        try {
-          if (!failed.get()) {
-            endResponse();
-          }
-        }
-        finally {
-          finished.set(true);
-          runCallbacks();
-        }
-      }
-    }
-
-    void runCallbacks() {
-      if (finished.get() && callbacksRequested.get() && callbacksRun.compareAndSet(false, true)) {
-        NettyHttpContext.super.onRequestCompleted();
-      }
-    }
   }
 
   /**
@@ -1632,11 +1540,22 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
     @Override
     public void sendFile(Path file, long position, long count) throws IOException {
+      Assert.notNull(file, "File is required");
       sendFile(file.toFile(), position, count);
     }
 
     @Override
     public void sendFile(File file, long position, long count) throws IOException {
+      Assert.notNull(file, "File is required");
+      Assert.isTrue(position >= 0, "Position must not be negative");
+      Assert.isTrue(count >= 0, "Count must not be negative");
+      Assert.isTrue(count <= Long.MAX_VALUE - position, "File range is too large");
+      if (file.isFile()) {
+        long fileLength = file.length();
+        Assert.isTrue(position <= fileLength, "Position exceeds file length");
+        Assert.isTrue(count <= fileLength - position, "Count exceeds available file bytes");
+      }
+
       discardPendingResponseFile();
       // chunked framing is required when trailers were registered, so a
       // zero-copy file region cannot be used
@@ -1646,6 +1565,8 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       else {
         fileToSend = new PendingFileRegion(file, position, count);
       }
+
+      setContentLength(count);
     }
 
   }
