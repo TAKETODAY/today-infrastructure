@@ -261,17 +261,6 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
   HttpMethod getMethod();
 
   /**
-   * Return the HTTP method of the request as a String value.
-   *
-   * @return the HTTP method as a plain String
-   * @see #getMethod()
-   */
-  @Override
-  default String getMethodAsString() {
-    return getMethod().name();
-  }
-
-  /**
    * Return the URI of the request (including a query string if any,
    * but only if it is well-formed for a URI representation).
    *
