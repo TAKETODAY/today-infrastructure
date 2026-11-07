@@ -726,8 +726,8 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       validateResponseTrailersBeforeCommit();
       var headers = nettyResponseHeaders;
       int code = status.code();
-      if (code < 200 || code == 204 || code == 304 || code == 205
-              || (method == CONNECT && code >= 200 && code < 300)) {
+      if (code < 200 || code == 204 || code == 205 || code == 304
+              || (method == CONNECT && code < 300)) {
         // these responses carry no body, even when a handler or sendFile()
         // prepared one
         headers.remove(HttpHeaderNames.CONTENT_LENGTH);
