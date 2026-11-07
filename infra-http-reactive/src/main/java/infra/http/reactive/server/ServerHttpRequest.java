@@ -74,16 +74,14 @@ public interface ServerHttpRequest extends HttpRequest, ReactiveHttpInputMessage
   /**
    * Return the local address the request was accepted on, if available.
    */
-  @Nullable
-  default InetSocketAddress getLocalAddress() {
+  default @Nullable InetSocketAddress getLocalAddress() {
     return null;
   }
 
   /**
    * Return the remote address where this request is connected to, if available.
    */
-  @Nullable
-  default InetSocketAddress getRemoteAddress() {
+  default @Nullable InetSocketAddress getRemoteAddress() {
     return null;
   }
 
@@ -93,8 +91,7 @@ public interface ServerHttpRequest extends HttpRequest, ReactiveHttpInputMessage
    *
    * @return the session information, or {@code null} if none available
    */
-  @Nullable
-  default SslInfo getSslInfo() {
+  default @Nullable SslInfo getSslInfo() {
     return null;
   }
 

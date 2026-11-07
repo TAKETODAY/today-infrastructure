@@ -36,8 +36,8 @@ import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.ResponseCookie;
 import infra.http.reactive.client.ClientHttpResponse;
-import infra.util.Assert;
 import infra.lang.Constant;
+import infra.util.Assert;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import reactor.core.publisher.Flux;
@@ -66,7 +66,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
     }
 
     @Override
-    public Map<String, Object> getAttributes() {
+    public Map<String, @Nullable Object> getAttributes() {
       return Map.of();
     }
 
