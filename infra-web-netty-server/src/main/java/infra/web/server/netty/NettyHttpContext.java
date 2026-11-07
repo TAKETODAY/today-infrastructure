@@ -679,14 +679,16 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   }
 
   /**
-   * Write the {@code Content-Length} header when the response length is known
-   * or can be derived from the pending body.
-   * <p>An explicit length or a chunked transfer coding wins, so the common
-   * response path returns after the first lookup. For a {@code HEAD} request
-   * the length is taken from the discarded body before it is released, so the
-   * representation length is preserved.
+   * Write the headers that frame the response content.
+   * <p>When the length is known it is written as {@code Content-Length}. An
+   * unknown-length {@link ChunkedInput} uses chunked transfer coding where the
+   * protocol supports it; otherwise the message is delimited by the transport.
+   * An explicit length or a chunked transfer coding wins, so the common response
+   * path returns after the first lookup. For a {@code HEAD} request the length is
+   * taken from the discarded body before it is released, so the representation
+   * length is preserved.
    */
-  private void writeContentLength(DefaultHeaders<CharSequence, @Nullable CharSequence, ?> headers) {
+  private void writeContentFraming(DefaultHeaders<CharSequence, @Nullable CharSequence, ?> headers) {
     if (headers.contains(HttpHeaderNames.CONTENT_LENGTH)
             || isTransferEncodingChunked(headers)) {
       return;
@@ -695,20 +697,21 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     Object body = this.pendingBody;
     if (body instanceof ByteBuf byteBuf) {
       headers.setInt(HttpHeaderNames.CONTENT_LENGTH, byteBuf.readableBytes());
-      return;
     }
-    if (body instanceof FileRegion region) {
+    else if (body instanceof FileRegion region) {
       headers.setLong(HttpHeaderNames.CONTENT_LENGTH, region.count());
-      return;
     }
-    if (body instanceof ChunkedInput<?> input) {
+    else if (body instanceof ChunkedInput<?> input) {
       long length = input.length();
       if (length >= 0) {
         headers.setLong(HttpHeaderNames.CONTENT_LENGTH, length);
-        return;
+      }
+      else if (method != HEAD && supportsTransferEncoding()) {
+        // Unknown length cannot use Content-Length; let chunked coding delimit it.
+        headers.set(HttpHeaderNames.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
       }
     }
-    if (outputStream instanceof NoBodyOutputStream nbStream) {
+    else if (outputStream instanceof NoBodyOutputStream nbStream) {
       headers.setInt(HttpHeaderNames.CONTENT_LENGTH, nbStream.contentLength);
     }
     else {
@@ -738,7 +741,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       }
       else if (method == HEAD) {
         // preserve the representation length before the body is discarded
-        writeContentLength(headers);
+        writeContentFraming(headers);
         discardPendingResponse();
       }
       else {
@@ -753,7 +756,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
           }
         }
         else {
-          writeContentLength(headers);
+          writeContentFraming(headers);
         }
       }
 
