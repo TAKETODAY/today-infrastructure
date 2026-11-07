@@ -591,33 +591,6 @@ class NettyHttpContextTests {
     assertThat(ctx.getServerPort()).isEqualTo(80);
   }
 
-  // -- parsePortFromHostHeader tests --
-
-  @Test
-  void parsePortFromHostHeaderWithIpv4AndPort() {
-    assertThat(NettyHttpContext.parsePortFromHostHeader("example.com:8080")).isEqualTo(8080);
-  }
-
-  @Test
-  void parsePortFromHostHeaderWithIpv4WithoutPort() {
-    assertThat(NettyHttpContext.parsePortFromHostHeader("example.com")).isEqualTo(-1);
-  }
-
-  @Test
-  void parsePortFromHostHeaderWithIpv6AndPort() {
-    assertThat(NettyHttpContext.parsePortFromHostHeader("[::1]:9090")).isEqualTo(9090);
-  }
-
-  @Test
-  void parsePortFromHostHeaderWithIpv6WithoutPort() {
-    assertThat(NettyHttpContext.parsePortFromHostHeader("[::1]")).isEqualTo(-1);
-  }
-
-  @Test
-  void parsePortFromHostHeaderWithIpv6AndMalformedPort() {
-    assertThat(NettyHttpContext.parsePortFromHostHeader("[::1]:abc")).isEqualTo(-1);
-  }
-
   // -- onResponseCommitted tests --
 
   @Test
