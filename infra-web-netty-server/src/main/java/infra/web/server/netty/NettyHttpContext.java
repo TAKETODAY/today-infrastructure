@@ -656,15 +656,15 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       writeResponseEnd();
     }
     else {
-      discardPendingResponseBody();
-      discardPendingResponseFile();
+      discardPendingResponse();
     }
   }
 
-  private void discardPendingResponseBody() {
+  private void discardPendingResponse() {
     ByteBuf body = this.responseBody;
     this.responseBody = null;
     ReferenceCountUtil.safeRelease(body);
+    discardPendingResponseFile();
   }
 
   /**
@@ -802,21 +802,16 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       onCommitting();
       validateResponseTrailersBeforeCommit();
       var headers = nettyResponseHeaders;
-      var status = this.status;
       int code = status.code();
-      boolean noContent = code < 200 || code == 204 || code == 304;
-      boolean resetContent = code == 205;
-      boolean tunnel = method == CONNECT && code >= 200 && code < 300;
-
-      if (noContent || resetContent || tunnel) {
+      if (code < 200 || code == 204 || code == 304 || code == 205
+              || (method == CONNECT && code >= 200 && code < 300)) {
         // these responses carry no body, even when a handler or sendFile()
         // prepared one
         headers.remove(HttpHeaderNames.CONTENT_LENGTH);
         headers.remove(HttpHeaderNames.TRANSFER_ENCODING);
         headers.remove(HttpHeaderNames.TRAILER);
-        discardPendingResponseBody();
-        discardPendingResponseFile();
-        if (resetContent) {
+        discardPendingResponse();
+        if (code == 205) {
           // 205 is not implicitly empty; clients need an explicit zero length
           headers.setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
         }
@@ -824,24 +819,18 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       else if (method == HEAD) {
         // preserve the representation length before the body is discarded
         writeContentLength(headers);
-        discardPendingResponseBody();
-        discardPendingResponseFile();
+        discardPendingResponse();
       }
       else {
         Set<String> trailerNames = getResponseTrailerNames();
-        if (trailerNames != null) {
-          // trailers require a framing that postpones the end of the message
+        if (trailerNames != null || isEventStream(getResponseContentType())) {
           if (supportsTransferEncoding()) {
             headers.set(HttpHeaderNames.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
           }
           headers.remove(HttpHeaderNames.CONTENT_LENGTH);
-          headers.set(HttpHeaderNames.TRAILER, String.join(", ", trailerNames));
-        }
-        else if (isEventStream(getResponseContentType())) {
-          if (supportsTransferEncoding()) {
-            headers.set(HttpHeaderNames.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
+          if (trailerNames != null) {
+            headers.set(HttpHeaderNames.TRAILER, String.join(", ", trailerNames));
           }
-          headers.remove(HttpHeaderNames.CONTENT_LENGTH);
         }
         else {
           writeContentLength(headers);
@@ -1105,8 +1094,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * becomes inactive.
    */
   protected void onChannelInactive() {
-    discardPendingResponseBody();
-    discardPendingResponseFile();
+    discardPendingResponse();
     cleanup(new ClosedChannelException());
   }
 
@@ -1157,8 +1145,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       processRequest();
     }
     catch (Throwable e) {
-      discardPendingResponseBody();
-      discardPendingResponseFile();
+      discardPendingResponse();
       httpTrafficHandler.handleException(channel, e);
     }
     finally {
@@ -1299,7 +1286,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * Whether the response content type is {@code text/event-stream}, optionally
    * followed by whitespace and media type parameters.
    */
-  private static boolean isEventStream(@Nullable String contentType) {
+  static boolean isEventStream(@Nullable String contentType) {
     if (contentType == null) {
       return false;
     }
