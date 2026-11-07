@@ -200,7 +200,7 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
   }
 
   @Override
-  protected void endResponse() {
+  protected void writeResponseEnd() {
     try {
       HttpHeaders trailers = evaluateResponseTrailers();
       if (trailers == null) {
@@ -262,7 +262,7 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
   /**
    * Adapts file chunks to HTTP/2 DATA frames without ending the stream.
    * <p>Netty's {@code Http2DataChunkedInput} marks the last DATA frame with
-   * {@code endStream=true}, which would require {@link #endResponse()} to skip
+   * {@code endStream=true}, which would require {@link #writeResponseEnd()} to skip
    * its own terminator. Keeping the terminator in {@code endResponse()} lets
    * file and in-memory responses complete through the same path.
    */

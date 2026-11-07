@@ -277,7 +277,7 @@ class Http2HttpContextTests {
   void regularResponseWritesEndStreamFrame() {
     Http2HttpContext context = createContext();
 
-    context.endResponse();
+    context.writeResponseEnd();
 
     then(channel).should().writeAndFlush(any(DefaultHttp2DataFrame.class));
   }
@@ -288,7 +288,7 @@ class Http2HttpContextTests {
     context.setResponseTrailers(
             ResponseTrailer.of("Content-Digest", () -> "sha-256=:abc:"));
 
-    context.endResponse();
+    context.writeResponseEnd();
 
     ArgumentCaptor<Http2HeadersFrame> captor = ArgumentCaptor.forClass(Http2HeadersFrame.class);
     then(channel).should().writeAndFlush(captor.capture());
@@ -323,7 +323,7 @@ class Http2HttpContextTests {
       throw new IllegalStateException("boom");
     }));
 
-    context.endResponse();
+    context.writeResponseEnd();
 
     then(channel).should().close();
     then(channel).should(never()).writeAndFlush(any());
@@ -410,7 +410,7 @@ class Http2HttpContextTests {
       return terminal;
     });
 
-    context.endResponse();
+    context.writeResponseEnd();
 
     then(channel).should().close();
   }

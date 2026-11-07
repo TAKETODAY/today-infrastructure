@@ -102,7 +102,7 @@ class ResponseTrailerTests {
     context.setResponseTrailers(
             ResponseTrailer.of("Content-Digest", () -> "sha-256=:abc:"));
 
-    context.endResponse();
+    context.writeResponseEnd();
 
     LastHttpContent content = channel.readOutbound();
     assertThat(content.trailingHeaders().get("Content-Digest")).isEqualTo("sha-256=:abc:");
@@ -113,7 +113,7 @@ class ResponseTrailerTests {
   void noTrailersKeepsEmptyTerminator() {
     HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
 
-    context.endResponse();
+    context.writeResponseEnd();
 
     LastHttpContent content = channel.readOutbound();
     assertThat(content.trailingHeaders().isEmpty()).isTrue();
@@ -126,7 +126,7 @@ class ResponseTrailerTests {
       throw new IllegalStateException("boom");
     }));
 
-    context.endResponse();
+    context.writeResponseEnd();
 
     assertThat(channel.isOpen()).isFalse();
     Object outbound = channel.readOutbound();
@@ -143,7 +143,7 @@ class ResponseTrailerTests {
     }));
 
     context.reset();
-    context.endResponse();
+    context.writeResponseEnd();
 
     assertThat(calls).hasValue(0);
     LastHttpContent content = channel.readOutbound();
@@ -160,7 +160,7 @@ class ResponseTrailerTests {
     }));
 
     context.sendError(HttpResponseStatus.INTERNAL_SERVER_ERROR.code(), "boom");
-    context.endResponse();
+    context.writeResponseEnd();
 
     assertThat(calls).hasValue(0);
     LastHttpContent content = channel.readOutbound();

@@ -148,7 +148,7 @@ final class HttpContext extends NettyHttpContext implements Runnable {
    * closes the connection instead of sending a partial trailer section.
    */
   @Override
-  protected void endResponse() {
+  protected void writeResponseEnd() {
     try {
       HttpHeaders trailers = evaluateResponseTrailers();
       LastHttpContent lastContent = LastHttpContent.EMPTY_LAST_CONTENT;

@@ -655,7 +655,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     cleanup(null);
     if (notHandled == null) {
       flush();
-      endResponse();
+      writeResponseEnd();
     }
     else {
       discardPendingResponseBody();
@@ -886,7 +886,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   /**
    * Complete the response, closing the connection when it is not kept alive.
    */
-  protected void endResponse() {
+  protected void writeResponseEnd() {
   }
 
   @Override
