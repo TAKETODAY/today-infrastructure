@@ -95,19 +95,19 @@ class DefaultServerRequest implements ServerRequest {
   @Nullable
   private MultiValueMap<String, Part> parts;
 
-  public DefaultServerRequest(HttpContext mockRequest, List<HttpMessageConverter<?>> messageConverters) {
-    this(mockRequest, messageConverters, null);
+  public DefaultServerRequest(HttpContext context, List<HttpMessageConverter<?>> messageConverters) {
+    this(context, messageConverters, null);
   }
 
-  public DefaultServerRequest(HttpContext httpContext,
+  public DefaultServerRequest(HttpContext context,
           List<HttpMessageConverter<?>> messageConverters, @Nullable ApiVersionStrategy versionStrategy) {
 
-    this.httpContext = httpContext;
+    this.httpContext = context;
     this.versionStrategy = versionStrategy;
-    this.params = httpContext.getParameters();
-    this.requestPath = httpContext.getRequestPath();
+    this.params = context.getParameters();
+    this.requestPath = context.getRequestPath();
     this.messageConverters = List.copyOf(messageConverters);
-    this.headers = new DefaultRequestHeaders(httpContext.getHeaders());
+    this.headers = new DefaultRequestHeaders(context.getHeaders());
   }
 
   @Override
