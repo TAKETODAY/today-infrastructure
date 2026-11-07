@@ -219,7 +219,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
             }
             catch (IllegalArgumentException ex) {
               context.setHeader(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());
-              context.setStatus(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value());
+              context.setStatus(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
             }
           }
         }

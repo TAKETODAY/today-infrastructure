@@ -47,7 +47,7 @@ final class RelativeRedirectResponseWrapper extends DelegatingHttpContext {
   @Override
   public void sendRedirect(String location) throws IOException {
     reset();
-    setStatus(this.redirectStatus.value());
+    setStatus(this.redirectStatus);
     setHeader(HttpHeaders.LOCATION, location);
     flush();
   }

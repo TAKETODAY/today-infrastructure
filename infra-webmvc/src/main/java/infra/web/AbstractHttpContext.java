@@ -1400,7 +1400,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     boolean isHttpGetOrHead = SAFE_METHODS.contains(getMethod());
     if (this.notModified) {
       setStatus(isHttpGetOrHead ?
-              HttpStatus.NOT_MODIFIED.value() : HttpStatus.PRECONDITION_FAILED.value());
+              HttpStatus.NOT_MODIFIED : HttpStatus.PRECONDITION_FAILED);
     }
     if (isHttpGetOrHead) {
       HttpHeaders httpHeaders = responseHeaders();
