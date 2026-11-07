@@ -62,7 +62,6 @@ import infra.web.AbstractHttpContext;
 import infra.web.DispatcherHandler;
 import infra.web.HttpContext;
 import infra.web.HttpContextHolder;
-import infra.web.Trailer;
 import infra.web.async.AsyncWebRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.multipart.MultipartRequest;
@@ -833,18 +832,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   @Override
   public void setContentLength(long length) {
     nettyResponseHeaders.setLong(HttpHeaderNames.CONTENT_LENGTH, length);
-  }
-
-  /**
-   * Trailers require chunked framing, which HTTP/1.1 introduced. HTTP/2 always
-   * supports them.
-   */
-  @Override
-  public void setTrailerFields(Trailer... trailers) {
-    if (trailers != null && trailers.length > 0 && version().compareTo(HttpVersion.HTTP_1_1) < 0) {
-      throw new UnsupportedOperationException("Response trailers are not supported");
-    }
-    super.setTrailerFields(trailers);
   }
 
   @Override

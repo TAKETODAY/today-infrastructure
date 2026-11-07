@@ -39,7 +39,6 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.Mockito.mock;
 
@@ -52,15 +51,6 @@ import static org.mockito.Mockito.mock;
 class TrailerTests {
 
   private final EmbeddedChannel channel = new EmbeddedChannel();
-
-  @Test
-  void http10RejectsRegistration() {
-    HttpContext context = createContext(HttpVersion.HTTP_1_0, HttpMethod.GET);
-
-    assertThatExceptionOfType(UnsupportedOperationException.class)
-            .isThrownBy(() -> context.setTrailerFields(
-                    Trailer.field("X-Checksum", () -> "v1")));
-  }
 
   @Test
   void headRequestRejectsRegistration() {
