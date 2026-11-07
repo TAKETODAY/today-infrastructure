@@ -24,6 +24,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
@@ -211,6 +213,8 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
 
   protected @Nullable HandlerMatchingMetadata matchingMetadata;
 
+  private @Nullable String remoteAddress;
+
   private @Nullable Session session;
 
   private long requestCompletedTimeMillis;
@@ -269,6 +273,81 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   @Override
   public int getRemotePort() {
     return remoteAddress().getPort();
+  }
+
+  @Override
+  public String getRemoteAddress() {
+    if (remoteAddress == null) {
+      remoteAddress = remoteAddress().getAddress().getHostAddress();
+    }
+    return remoteAddress;
+  }
+
+  @Override
+  public int getServerPort() {
+    SocketAddress socketAddress = localAddress();
+    if (socketAddress instanceof InetSocketAddress) {
+      return ((InetSocketAddress) socketAddress).getPort();
+    }
+    String hostHeader = getHeader(HttpHeaders.HOST);
+    if (hostHeader != null) {
+      int port = parsePortFromHostHeader(hostHeader);
+      if (port > 0) {
+        return port;
+      }
+    }
+    return isSecure() ? 443 : 80;
+  }
+
+  static int parsePortFromHostHeader(String hostHeader) {
+    int idx;
+    if (hostHeader.charAt(0) == '[') {
+      int closingBracket = hostHeader.indexOf(']');
+      if (closingBracket < 0) {
+        return -1;
+      }
+      idx = hostHeader.indexOf(':', closingBracket);
+    }
+    else {
+      idx = hostHeader.indexOf(':');
+    }
+    if (idx < 0) {
+      return -1;
+    }
+    try {
+      return Integer.parseInt(hostHeader.substring(idx + 1));
+    }
+    catch (NumberFormatException e) {
+      return -1;
+    }
+  }
+
+  @Override
+  public String getServerName() {
+    String host = getHeader(HttpHeaders.HOST);
+    if (host != null) {
+      if (host.charAt(0) == '[') {
+        int closingBracket = host.indexOf(']');
+        if (closingBracket > 0) {
+          host = host.substring(0, closingBracket + 1);
+        }
+      }
+      else {
+        int colonIndex = host.indexOf(':');
+        if (colonIndex >= 0) {
+          host = host.substring(0, colonIndex);
+        }
+      }
+      return host;
+    }
+    SocketAddress socketAddress = localAddress();
+    if (socketAddress instanceof InetSocketAddress) {
+      host = ((InetSocketAddress) socketAddress).getHostString();
+    }
+    if (host == null) {
+      host = Constant.LOCALHOST;
+    }
+    return host;
   }
 
   // @since 4.0
