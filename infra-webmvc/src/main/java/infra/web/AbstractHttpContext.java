@@ -1082,7 +1082,9 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * request, or null if the type is not known
    */
   @Override
-  public abstract @Nullable String getContentTypeAsString();
+  public @Nullable String getContentTypeAsString() {
+    return getHeader(HttpHeaders.CONTENT_TYPE);
+  }
 
   /**
    * Returns the HTTP headers associated with the current request. If the headers

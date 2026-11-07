@@ -266,6 +266,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return the HTTP method as a plain String
    * @see #getMethod()
    */
+  @Override
   default String getMethodAsString() {
     return getMethod().name();
   }
@@ -596,6 +597,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return a long containing the length of the request body or -1L if the length
    * is not known
    */
+  @Override
   long getContentLength();
 
   /**

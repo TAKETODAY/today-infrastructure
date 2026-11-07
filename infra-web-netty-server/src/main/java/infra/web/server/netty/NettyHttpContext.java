@@ -445,11 +445,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   }
 
   @Override
-  public @Nullable String getContentTypeAsString() {
-    return getHeader(DefaultHttpHeaders.CONTENT_TYPE);
-  }
-
-  @Override
   public @Nullable String getResponseContentType() {
     String contentType = this.responseContentType;
     if (contentType == null) {
