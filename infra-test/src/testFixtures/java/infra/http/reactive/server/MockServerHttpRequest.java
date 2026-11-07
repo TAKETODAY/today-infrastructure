@@ -36,19 +36,20 @@ import infra.core.io.buffer.DefaultDataBufferFactory;
 import infra.http.DefaultHttpHeaders;
 import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
+import infra.http.HttpMethod;
 import infra.http.MediaType;
-import infra.util.Assert;
 import infra.logging.Logger;
-import infra.web.mock.api.AsyncContext;
-import infra.web.mock.api.AsyncEvent;
-import infra.web.mock.api.AsyncListener;
-import infra.web.mock.api.MockInputStream;
-import infra.web.mock.api.ReadListener;
-import infra.web.mock.api.Cookie;
-import infra.web.mock.MockRequest;
+import infra.util.Assert;
 import infra.util.LinkedCaseInsensitiveMap;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
+import infra.web.mock.MockRequest;
+import infra.web.mock.api.AsyncContext;
+import infra.web.mock.api.AsyncEvent;
+import infra.web.mock.api.AsyncListener;
+import infra.web.mock.api.Cookie;
+import infra.web.mock.api.MockInputStream;
+import infra.web.mock.api.ReadListener;
 import reactor.core.publisher.Flux;
 
 /**
@@ -86,7 +87,7 @@ class MockServerHttpRequest extends AbstractServerHttpRequest {
           AsyncContext asyncContext, String servletPath, DataBufferFactory bufferFactory, int bufferSize)
           throws IOException, URISyntaxException {
 
-    super(initUri(request), servletPath, HttpHeaders.forWritable(initHeaders(headers, request)).asReadOnly());
+    super(initMethod(request), initUri(request), servletPath, HttpHeaders.forWritable(initHeaders(headers, request)).asReadOnly());
 
     Assert.notNull(bufferFactory, "'bufferFactory' is required");
     Assert.isTrue(bufferSize > 0, "'bufferSize' must be higher than 0");
@@ -154,9 +155,8 @@ class MockServerHttpRequest extends AbstractServerHttpRequest {
     return (headers != null ? headers.asMultiValueMap() : headerValues);
   }
 
-  @Override
-  public String getMethodAsString() {
-    return this.request.getMethod();
+  static HttpMethod initMethod(MockRequest request) {
+    return HttpMethod.valueOf(request.getMethod());
   }
 
   @Override

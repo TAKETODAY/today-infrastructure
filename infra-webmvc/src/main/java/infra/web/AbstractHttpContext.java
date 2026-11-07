@@ -120,7 +120,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   public static final String FORM_URLENCODED_ATTRIBUTE =
           Conventions.getQualifiedAttributeName(HttpContext.class, "form-urlencoded");
 
-  private static final List<String> SAFE_METHODS = List.of("GET", "HEAD");
+  private static final List<HttpMethod> SAFE_METHODS = List.of(HttpMethod.GET, HttpMethod.HEAD);
 
   /**
    * Date formats as specified in the HTTP RFC.
@@ -1323,7 +1323,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   }
 
   private boolean validateIfMatch(@Nullable String eTag) {
-    if (SAFE_METHODS.contains(getMethodAsString())) {
+    if (SAFE_METHODS.contains(getMethod())) {
       return false;
     }
 
@@ -1347,7 +1347,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   private boolean matchRequestedETags(List<String> requestedETags, @Nullable String tag, boolean weakCompare) {
     if (StringUtils.isNotEmpty(tag)) {
       ETag eTag = ETag.create(tag);
-      boolean isNotSafeMethod = !SAFE_METHODS.contains(getMethodAsString());
+      boolean isNotSafeMethod = !SAFE_METHODS.contains(getMethod());
       for (String requestedETagString : requestedETags) {
         // Compare weak/strong ETags as per https://datatracker.ietf.org/doc/html/rfc9110#section-8.8.3
         for (ETag requestedETag : ETag.parse(requestedETagString)) {
@@ -1366,7 +1366,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
 
   private void updateResponseStateChanging(@Nullable String eTag, long lastModifiedTimestamp) {
     if (this.notModified) {
-      setStatus(HttpStatus.PRECONDITION_FAILED.value());
+      setStatus(HttpStatus.PRECONDITION_FAILED);
     }
     else {
       addCachingResponseHeaders(eTag, lastModifiedTimestamp);
@@ -1397,7 +1397,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   }
 
   private void updateResponseIdempotent(@Nullable String eTag, long lastModifiedTimestamp) {
-    boolean isHttpGetOrHead = SAFE_METHODS.contains(getMethodAsString());
+    boolean isHttpGetOrHead = SAFE_METHODS.contains(getMethod());
     if (this.notModified) {
       setStatus(isHttpGetOrHead ?
               HttpStatus.NOT_MODIFIED.value() : HttpStatus.PRECONDITION_FAILED.value());
@@ -1414,7 +1414,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   }
 
   private void addCachingResponseHeaders(@Nullable String eTag, long lastModifiedTimestamp) {
-    if (SAFE_METHODS.contains(getMethodAsString())) {
+    if (SAFE_METHODS.contains(getMethod())) {
       HttpHeaders httpHeaders = responseHeaders();
       if (lastModifiedTimestamp > 0 && parseDateValue(httpHeaders.getFirst(HttpHeaders.LAST_MODIFIED)) == -1) {
         httpHeaders.setLastModified(lastModifiedTimestamp);
@@ -1542,7 +1542,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
 
   /**
    * Checks if the current instance has a binding context established.
-   *
+   * <p>
    * This method evaluates whether the {@code bindingContext} is initialized
    * (i.e., not null). It is typically used to determine if the object is ready
    * for binding-related operations.

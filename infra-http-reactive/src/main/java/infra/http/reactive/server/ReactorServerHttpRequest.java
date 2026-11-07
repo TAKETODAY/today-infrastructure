@@ -71,11 +71,6 @@ class ReactorServerHttpRequest extends AbstractServerHttpRequest {
   }
 
   @Override
-  public String getMethodAsString() {
-    return this.request.method().name();
-  }
-
-  @Override
   protected MultiValueMap<String, HttpCookie> initCookies() {
     LinkedMultiValueMap<String, HttpCookie> cookies = MultiValueMap.forLinkedHashMap();
     Map<CharSequence, List<Cookie>> allCookies = this.request.allCookies();
@@ -89,20 +84,17 @@ class ReactorServerHttpRequest extends AbstractServerHttpRequest {
   }
 
   @Override
-  @Nullable
-  public InetSocketAddress getLocalAddress() {
+  public @Nullable InetSocketAddress getLocalAddress() {
     return this.request.hostAddress();
   }
 
   @Override
-  @Nullable
-  public InetSocketAddress getRemoteAddress() {
+  public @Nullable InetSocketAddress getRemoteAddress() {
     return this.request.remoteAddress();
   }
 
   @Override
-  @Nullable
-  protected SslInfo initSslInfo() {
+  protected @Nullable SslInfo initSslInfo() {
     Channel channel = ((Connection) this.request).channel();
     SslHandler sslHandler = channel.pipeline().get(SslHandler.class);
     if (sslHandler == null && channel.parent() != null) { // HTTP/2
@@ -127,8 +119,7 @@ class ReactorServerHttpRequest extends AbstractServerHttpRequest {
   }
 
   @Override
-  @Nullable
-  protected String initId() {
+  protected @Nullable String initId() {
     if (this.request instanceof Connection) {
       return ((Connection) this.request).channel().id().asShortText() + "-" + logPrefixIndex.incrementAndGet();
     }

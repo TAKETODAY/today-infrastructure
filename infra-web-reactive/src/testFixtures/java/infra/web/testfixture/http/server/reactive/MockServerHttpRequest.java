@@ -56,8 +56,6 @@ import reactor.core.publisher.Flux;
  */
 public final class MockServerHttpRequest extends AbstractServerHttpRequest {
 
-  private final HttpMethod httpMethod;
-
   private final MultiValueMap<String, HttpCookie> cookies;
 
   @Nullable
@@ -76,18 +74,12 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
           @Nullable InetSocketAddress localAddress, @Nullable InetSocketAddress remoteAddress,
           @Nullable SslInfo sslInfo, Publisher<? extends DataBuffer> body) {
 
-    super(uri, contextPath, headers);
-    this.httpMethod = httpMethod;
+    super(httpMethod, uri, contextPath, headers);
     this.cookies = cookies;
     this.localAddress = localAddress;
     this.remoteAddress = remoteAddress;
     this.sslInfo = sslInfo;
     this.body = Flux.from(body);
-  }
-
-  @Override
-  public HttpMethod getMethod() {
-    return this.httpMethod;
   }
 
   @Override

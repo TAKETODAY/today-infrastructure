@@ -45,30 +45,25 @@ import reactor.core.publisher.Flux;
  */
 class DefaultServerHttpRequestBuilder implements ServerHttpRequest.Builder {
 
-  private URI uri;
-
   private final HttpHeaders headers;
-
-  private String httpMethodValue;
-
-  @Nullable
-  private String uriPath;
-
-  @Nullable
-  private String contextPath;
-
-  @Nullable
-  private SslInfo sslInfo;
-
-  @Nullable
-  private InetSocketAddress remoteAddress;
-
-  @Nullable
-  private InetSocketAddress localAddress;
 
   private final Flux<DataBuffer> body;
 
   private final ServerHttpRequest originalRequest;
+
+  private URI uri;
+
+  private HttpMethod httpMethod;
+
+  private @Nullable String uriPath;
+
+  private @Nullable String contextPath;
+
+  private @Nullable SslInfo sslInfo;
+
+  private @Nullable InetSocketAddress remoteAddress;
+
+  private @Nullable InetSocketAddress localAddress;
 
   public DefaultServerHttpRequestBuilder(ServerHttpRequest original) {
     Assert.notNull(original, "ServerHttpRequest is required");
@@ -80,7 +75,7 @@ class DefaultServerHttpRequestBuilder implements ServerHttpRequest.Builder {
     // headers by using the basic constructor and addAll.
     this.headers = HttpHeaders.forWritable();
     this.headers.addAll(original.getHeaders());
-    this.httpMethodValue = original.getMethod().name();
+    this.httpMethod = original.getMethod();
     this.contextPath = original.getPath().contextPath().value();
     this.remoteAddress = original.getRemoteAddress();
     this.body = original.getBody();
@@ -89,7 +84,7 @@ class DefaultServerHttpRequestBuilder implements ServerHttpRequest.Builder {
 
   @Override
   public ServerHttpRequest.Builder method(HttpMethod httpMethod) {
-    this.httpMethodValue = httpMethod.name();
+    this.httpMethod = httpMethod;
     return this;
   }
 
@@ -147,7 +142,7 @@ class DefaultServerHttpRequestBuilder implements ServerHttpRequest.Builder {
 
   @Override
   public ServerHttpRequest build() {
-    return new MutatedServerHttpRequest(getUriToUse(), this.contextPath, this.httpMethodValue,
+    return new MutatedServerHttpRequest(getUriToUse(), this.contextPath, this.httpMethod,
             this.sslInfo, this.remoteAddress, localAddress, this.headers, this.body, this.originalRequest);
   }
 
@@ -191,37 +186,25 @@ class DefaultServerHttpRequestBuilder implements ServerHttpRequest.Builder {
 
   private static class MutatedServerHttpRequest extends AbstractServerHttpRequest {
 
-    private final String methodValue;
-
     private final Flux<DataBuffer> body;
 
     private final ServerHttpRequest originalRequest;
 
-    @Nullable
-    private final SslInfo sslInfo;
+    private final @Nullable SslInfo sslInfo;
 
-    @Nullable
-    private final InetSocketAddress remoteAddress;
+    private final @Nullable InetSocketAddress remoteAddress;
 
-    @Nullable
-    private final InetSocketAddress localAddress;
+    private final @Nullable InetSocketAddress localAddress;
 
     public MutatedServerHttpRequest(URI uri, @Nullable String contextPath,
-            String method, @Nullable SslInfo sslInfo, @Nullable InetSocketAddress remoteAddress,
+            HttpMethod method, @Nullable SslInfo sslInfo, @Nullable InetSocketAddress remoteAddress,
             @Nullable InetSocketAddress localAddress, HttpHeaders headers, Flux<DataBuffer> body, ServerHttpRequest originalRequest) {
-
-      super(uri, contextPath, headers);
+      super(method, uri, contextPath, headers);
       this.localAddress = localAddress;
       this.body = body;
-      this.methodValue = method;
       this.originalRequest = originalRequest;
       this.sslInfo = sslInfo != null ? sslInfo : originalRequest.getSslInfo();
       this.remoteAddress = remoteAddress != null ? remoteAddress : originalRequest.getRemoteAddress();
-    }
-
-    @Override
-    public String getMethodAsString() {
-      return this.methodValue;
     }
 
     @Override
@@ -230,20 +213,17 @@ class DefaultServerHttpRequestBuilder implements ServerHttpRequest.Builder {
     }
 
     @Override
-    @Nullable
-    public InetSocketAddress getLocalAddress() {
+    public @Nullable InetSocketAddress getLocalAddress() {
       return localAddress;
     }
 
     @Override
-    @Nullable
-    public InetSocketAddress getRemoteAddress() {
+    public @Nullable InetSocketAddress getRemoteAddress() {
       return remoteAddress;
     }
 
     @Override
-    @Nullable
-    protected SslInfo initSslInfo() {
+    protected @Nullable SslInfo initSslInfo() {
       return this.sslInfo;
     }
 
