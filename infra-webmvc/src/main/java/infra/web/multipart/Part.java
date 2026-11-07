@@ -91,6 +91,7 @@ public interface Part extends InputStreamSource, HttpInputMessage {
    * @return the content type, or {@code null} if not defined
    * (or no part has been chosen in the multipart form)
    */
+  @Override
   @Nullable
   MediaType getContentType();
 
@@ -99,6 +100,7 @@ public interface Part extends InputStreamSource, HttpInputMessage {
    *
    * @since 5.0
    */
+  @Override
   long getContentLength();
 
   /**
