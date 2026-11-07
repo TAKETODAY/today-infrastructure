@@ -551,14 +551,17 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   }
 
   private HttpChannelInitializer createInitializer(ChannelHandler httpTrafficHandler, HttpDecoderConfig config) {
+    var compression = getCompression();
     Ssl ssl = getSsl();
     if (Ssl.isEnabled(ssl)) {
       SecuredHttpChannelInitializer initializer = new SecuredHttpChannelInitializer(httpTrafficHandler, config,
-              channelConfigurer, isHttp2Enabled(), ssl, getSslBundle(), getServerNameSslBundles(), http2FrameCodecFactory);
+              channelConfigurer, isHttp2Enabled(), ssl, getSslBundle(), getServerNameSslBundles(),
+              http2FrameCodecFactory, compression);
       addBundleUpdateHandler(ssl, initializer::updateSSLBundle);
       return initializer;
     }
-    return new HttpChannelInitializer(httpTrafficHandler, isHttp2Enabled(), channelConfigurer, config, http2FrameCodecFactory);
+    return new HttpChannelInitializer(httpTrafficHandler, isHttp2Enabled(), channelConfigurer, config,
+            http2FrameCodecFactory, compression);
   }
 
   private final class DefaultHttp2FrameCodecFactory implements Http2FrameCodecFactory {

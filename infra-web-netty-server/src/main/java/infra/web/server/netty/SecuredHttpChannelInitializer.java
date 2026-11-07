@@ -30,6 +30,7 @@ import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ExceptionUtils;
 import infra.util.ObjectUtils;
+import infra.web.server.Compression;
 import infra.web.server.Ssl;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
@@ -78,8 +79,9 @@ final class SecuredHttpChannelInitializer extends HttpChannelInitializer {
 
   public SecuredHttpChannelInitializer(ChannelHandler httpTrafficHandler, HttpDecoderConfig config,
           @Nullable ChannelConfigurer configurer, boolean http2Enabled, Ssl ssl, SslBundle sslBundle,
-          Map<String, SslBundle> serverNameSslBundles, Http2FrameCodecFactory http2FrameCodecFactory) {
-    super(httpTrafficHandler, http2Enabled, configurer, config, http2FrameCodecFactory);
+          Map<String, SslBundle> serverNameSslBundles, Http2FrameCodecFactory http2FrameCodecFactory,
+          @Nullable Compression compression) {
+    super(httpTrafficHandler, http2Enabled, configurer, config, http2FrameCodecFactory, compression);
     this.handshakeTimeout = ssl.handshakeTimeout.toMillis();
     this.clientAuth = Ssl.ClientAuth.map(ssl.clientAuth, ClientAuth.NONE, ClientAuth.OPTIONAL, ClientAuth.REQUIRE);
     this.sslContext = createSslContext(sslBundle);

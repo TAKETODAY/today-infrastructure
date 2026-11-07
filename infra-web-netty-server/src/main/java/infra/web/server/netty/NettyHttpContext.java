@@ -71,6 +71,7 @@ import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.Headers;
 import io.netty.handler.codec.HeadersUtils;
+import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -725,14 +726,21 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    */
   protected <T extends Headers<CharSequence, CharSequence, T>>
   void writeResponseHead(HttpResponseStatus status, DefaultHeaders<CharSequence, @Nullable CharSequence, T> headers) {
-    channel.write(new DefaultHttpResponse(version(), status, new Http1Headers(headers)));
+    Http1Headers responseHeaders = new Http1Headers(headers);
+    if (fileToSend != null) {
+      // File regions and chunked file inputs bypass the compression handler.
+      channel.write(new CompressionHandler.NoCompressionResponse(version(), status, responseHeaders));
+    }
+    else {
+      channel.write(new DefaultHttpResponse(version(), status, responseHeaders));
+    }
   }
 
   /**
    * Write and flush a response body chunk.
    */
   protected void writeResponseBody(ByteBuf body) {
-    channel.writeAndFlush(body);
+    channel.writeAndFlush(new DefaultHttpContent(body));
   }
 
   /**

@@ -18,6 +18,7 @@ package infra.web.server.netty;
 
 import org.jspecify.annotations.Nullable;
 
+import infra.web.server.Compression;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerAdapter;
@@ -47,10 +48,13 @@ sealed class HttpChannelInitializer extends ChannelInitializer<Channel> permits 
   protected static final String HttpTrafficHandler = "HttpTrafficHandler";
   protected static final String H2CUpgradeHandler = "H2CUpgradeHandler";
   protected static final String H2MultiplexHandler = "H2MultiplexHandler";
+  protected static final String HttpCompressor = "HttpCompressor";
 
   protected final boolean http2Enabled;
 
   private final ChannelHandler httpTrafficHandler;
+
+  private final @Nullable Compression compression;
 
   /**
    * A configuration object for specifying the behavior
@@ -64,12 +68,13 @@ sealed class HttpChannelInitializer extends ChannelInitializer<Channel> permits 
 
   protected HttpChannelInitializer(ChannelHandler httpTrafficHandler, boolean http2Enabled,
           @Nullable ChannelConfigurer channelConfigurer, HttpDecoderConfig httpDecoderConfig,
-          Http2FrameCodecFactory http2FrameCodecFactory) {
+          Http2FrameCodecFactory http2FrameCodecFactory, @Nullable Compression compression) {
     this.http2Enabled = http2Enabled;
     this.channelConfigurer = channelConfigurer;
     this.httpDecoderConfig = httpDecoderConfig;
     this.httpTrafficHandler = httpTrafficHandler;
     this.http2FrameCodecFactory = http2FrameCodecFactory;
+    this.compression = compression;
   }
 
   @Override
@@ -90,9 +95,13 @@ sealed class HttpChannelInitializer extends ChannelInitializer<Channel> permits 
   }
 
   protected void configureHttp11Channel(Channel ch) {
-    ch.pipeline()
-            .addLast(HttpCodec, new HttpServerCodec(httpDecoderConfig))
-            .addLast(HttpTrafficHandler, httpTrafficHandler);
+    ChannelPipeline pipeline = ch.pipeline();
+    pipeline.addLast(HttpCodec, new HttpServerCodec(httpDecoderConfig));
+    Compression compression = this.compression;
+    if (compression != null && compression.isEnabled()) {
+      pipeline.addLast(HttpCompressor, new CompressionHandler(compression));
+    }
+    pipeline.addLast(HttpTrafficHandler, httpTrafficHandler);
   }
 
   protected void configureHttp11OrH2Channel(Channel channel) {
@@ -103,9 +112,13 @@ sealed class HttpChannelInitializer extends ChannelInitializer<Channel> permits 
     var h2cUpgradeHandler = new CleartextHttp2ServerUpgradeHandler(
             httpServerCodec, new HttpServerUpgradeHandler(httpServerCodec, upgrader), http2ServerHandler);
 
-    channel.pipeline()
-            .addLast(H2CUpgradeHandler, h2cUpgradeHandler)
-            .addLast(HttpTrafficHandler, httpTrafficHandler);
+    ChannelPipeline pipeline = channel.pipeline()
+            .addLast(H2CUpgradeHandler, h2cUpgradeHandler);
+    Compression compression = this.compression;
+    if (compression != null && compression.isEnabled()) {
+      pipeline.addLast(HttpCompressor, new CompressionHandler(compression));
+    }
+    pipeline.addLast(HttpTrafficHandler, httpTrafficHandler);
   }
 
   protected final Http2FrameCodec createHttp2FrameCodec() {

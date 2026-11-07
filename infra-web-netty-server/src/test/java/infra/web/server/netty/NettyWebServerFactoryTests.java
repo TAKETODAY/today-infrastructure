@@ -22,7 +22,10 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import infra.util.DataSize;
+import infra.web.server.Compression;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpDecoderConfig;
@@ -37,6 +40,32 @@ import static org.mockito.Mockito.mock;
  * @since 5.0 2025/10/11 22:05
  */
 class NettyWebServerFactoryTests {
+
+  @Test
+  void addsCompressionHandlerWhenEnabled() {
+    Compression compression = new Compression();
+    compression.setEnabled(true);
+
+    HttpChannelInitializer initializer = new HttpChannelInitializer(
+            mock(ChannelHandler.class), false, null, new HttpDecoderConfig(),
+            mock(Http2FrameCodecFactory.class), compression);
+
+    EmbeddedChannel channel = new EmbeddedChannel(initializer);
+
+    assertThat(channel.pipeline().get(HttpChannelInitializer.HttpCompressor))
+            .isInstanceOf(CompressionHandler.class);
+  }
+
+  @Test
+  void doesNotAddCompressionHandlerWhenDisabled() {
+    HttpChannelInitializer initializer = new HttpChannelInitializer(
+            mock(ChannelHandler.class), false, null, new HttpDecoderConfig(),
+            mock(Http2FrameCodecFactory.class), null);
+
+    EmbeddedChannel channel = new EmbeddedChannel(initializer);
+
+    assertThat(channel.pipeline().get(HttpChannelInitializer.HttpCompressor)).isNull();
+  }
 
   @Test
   void shouldCreateNettyWebServerFactoryWithDefaults() {

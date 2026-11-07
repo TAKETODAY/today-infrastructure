@@ -18,21 +18,34 @@ package infra.web.server.netty;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 import infra.context.ApplicationContext;
+import infra.http.MediaType;
 import infra.http.support.Netty4HttpHeaders;
+import infra.util.DataSize;
 import infra.util.MultiValueMap;
 import infra.web.DispatcherHandler;
+import infra.web.server.Compression;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.QueryStringEncoder;
+import io.netty.util.ReferenceCountUtil;
 
 import static infra.web.server.netty.HttpContext.newResponseHeaders;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -717,6 +730,169 @@ class NettyHttpContextTests {
     ctx.flush();
 
     assertThat(committed[0]).isTrue();
+  }
+
+  @Test
+  void gzipCompressesEligibleResponse() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    request.headers().set(HttpHeaderNames.ACCEPT_ENCODING, "gzip");
+
+    EmbeddedChannel channel = new EmbeddedChannel(new CompressionHandler(gzipCompression()));
+    channel.writeInbound(request);
+
+    var ctx = textResponse(request, channel, "hello compression ".repeat(100));
+    ctx.requestCompletedInternal(null);
+    channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+
+    DefaultHttpResponse response = channel.readOutbound();
+    byte[] compressed = readOutboundBody(channel);
+
+    assertThat(response.headers().get(HttpHeaderNames.CONTENT_ENCODING)).isEqualTo("gzip");
+    assertThat(response.headers().get(HttpHeaderNames.VARY)).isEqualToIgnoringCase("Accept-Encoding");
+    assertThat(new String(gunzip(compressed), StandardCharsets.UTF_8)).isEqualTo("hello compression ".repeat(100));
+  }
+
+  @Test
+  void doesNotCompressWithoutGzipAcceptEncoding() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+
+    EmbeddedChannel channel = new EmbeddedChannel(new CompressionHandler(gzipCompression()));
+    channel.writeInbound(request);
+
+    var ctx = textResponse(request, channel, "hello compression ".repeat(100));
+    ctx.requestCompletedInternal(null);
+    channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+
+    DefaultHttpResponse response = channel.readOutbound();
+    byte[] body = readOutboundBody(channel);
+
+    assertThat(response.headers().contains(HttpHeaderNames.CONTENT_ENCODING)).isFalse();
+    assertThat(new String(body, StandardCharsets.UTF_8)).isEqualTo("hello compression ".repeat(100));
+  }
+
+  @Test
+  void doesNotCompressBelowMinResponseSize() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    request.headers().set(HttpHeaderNames.ACCEPT_ENCODING, "gzip");
+
+    Compression compression = gzipCompression();
+    compression.setMinResponseSize(DataSize.ofKilobytes(1));
+    EmbeddedChannel channel = new EmbeddedChannel(new CompressionHandler(compression));
+    channel.writeInbound(request);
+
+    var ctx = textResponse(request, channel, "small");
+    ctx.requestCompletedInternal(null);
+    channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+
+    DefaultHttpResponse response = channel.readOutbound();
+    assertThat(response.headers().contains(HttpHeaderNames.CONTENT_ENCODING)).isFalse();
+    readOutboundBody(channel);
+  }
+
+  @Test
+  void doesNotCompressServerSentEvents() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    request.headers().set(HttpHeaderNames.ACCEPT_ENCODING, "gzip");
+
+    EmbeddedChannel channel = new EmbeddedChannel(new CompressionHandler(gzipCompression()));
+    channel.writeInbound(request);
+
+    var ctx = new NettyHttpContextStub(request, channel, NettyRequestConfig.forBuilder(false));
+    ctx.setContentType(MediaType.TEXT_EVENT_STREAM);
+    ctx.getOutputStream().write("data: hello\n\n".getBytes(StandardCharsets.UTF_8));
+    ctx.requestCompletedInternal(null);
+    channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+
+    DefaultHttpResponse response = channel.readOutbound();
+    byte[] body = readOutboundBody(channel);
+
+    assertThat(response.headers().contains(HttpHeaderNames.CONTENT_ENCODING)).isFalse();
+    assertThat(new String(body, StandardCharsets.UTF_8)).isEqualTo("data: hello\n\n");
+  }
+
+  @Test
+  void doesNotCompressExcludedUserAgent() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    request.headers().set(HttpHeaderNames.ACCEPT_ENCODING, "gzip");
+    request.headers().set(HttpHeaderNames.USER_AGENT, "curl/8.0");
+
+    Compression compression = gzipCompression();
+    compression.setExcludedUserAgents(new String[] { "curl/8.0" });
+    EmbeddedChannel channel = new EmbeddedChannel(new CompressionHandler(compression));
+    channel.writeInbound(request);
+
+    var ctx = textResponse(request, channel, "hello compression ".repeat(100));
+    ctx.requestCompletedInternal(null);
+    channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+
+    DefaultHttpResponse response = channel.readOutbound();
+    assertThat(response.headers().contains(HttpHeaderNames.CONTENT_ENCODING)).isFalse();
+    readOutboundBody(channel);
+  }
+
+  @Test
+  void doesNotCompressHeadResponse() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.HEAD, "/test");
+    request.headers().set(HttpHeaderNames.ACCEPT_ENCODING, "gzip");
+
+    EmbeddedChannel channel = new EmbeddedChannel(new CompressionHandler(gzipCompression()));
+    channel.writeInbound(request);
+
+    var ctx = new NettyHttpContextStub(request, channel, NettyRequestConfig.forBuilder(false));
+    ctx.setContentType(MediaType.TEXT_PLAIN);
+    ctx.getOutputStream().write("hello".getBytes(StandardCharsets.UTF_8));
+    ctx.requestCompletedInternal(null);
+    channel.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+
+    DefaultHttpResponse response = channel.readOutbound();
+    assertThat(response.headers().contains(HttpHeaderNames.CONTENT_ENCODING)).isFalse();
+    readOutboundBody(channel);
+  }
+
+  private static Compression gzipCompression() {
+    var compression = new Compression();
+    compression.setEnabled(true);
+    compression.setMimeTypes(new String[] { "text/plain" });
+    compression.setMinResponseSize(DataSize.ofBytes(1));
+    return compression;
+  }
+
+  private static NettyHttpContextStub textResponse(
+          io.netty.handler.codec.http.HttpRequest request, EmbeddedChannel channel, String body) throws IOException {
+    var ctx = new NettyHttpContextStub(request, channel, NettyRequestConfig.forBuilder(false));
+    ctx.setContentType(MediaType.TEXT_PLAIN);
+    ctx.getOutputStream().write(body.getBytes(StandardCharsets.UTF_8));
+    return ctx;
+  }
+
+  private static byte[] gunzip(byte[] compressed) throws IOException {
+    try (GZIPInputStream input = new GZIPInputStream(new ByteArrayInputStream(compressed))) {
+      return input.readAllBytes();
+    }
+  }
+
+  private static byte[] readOutboundBody(EmbeddedChannel channel) {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    Object message;
+    while ((message = channel.readOutbound()) != null) {
+      if (message instanceof HttpContent content) {
+        ByteBuf buffer = content.content();
+        byte[] bytes = new byte[buffer.readableBytes()];
+        buffer.readBytes(bytes);
+        out.writeBytes(bytes);
+        content.release();
+      }
+      else {
+        ReferenceCountUtil.release(message);
+      }
+    }
+    return out.toByteArray();
   }
 
   // -- stub --
