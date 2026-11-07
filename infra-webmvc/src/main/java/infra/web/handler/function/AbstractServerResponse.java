@@ -105,7 +105,7 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
   }
 
   private void writeHeaders(HttpContext context) {
-    context.addHeaders(headers);
+    context.setHeaders(headers);
 
     if (context.getResponseContentType() == null && headers.getContentTypeAsString() != null) {
       context.setContentType(headers.getContentTypeAsString());
