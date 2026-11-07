@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.http.HttpHeaders;
-import infra.http.ResponseTrailer;
+import infra.web.Trailer;
 import infra.web.HttpContext;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
@@ -52,8 +52,8 @@ class MockHttpContextTrailerTests {
   @Test
   void evaluatesTrailersOnCompletion() {
     MockHttpContext context = new MockHttpContext();
-    context.setResponseTrailers(
-            ResponseTrailer.of("Content-Digest", () -> "sha-256=:abc:"));
+    context.setTrailerFields(
+            Trailer.field("Content-Digest", () -> "sha-256=:abc:"));
 
     context.requestCompleted();
 
@@ -65,10 +65,10 @@ class MockHttpContextTrailerTests {
   @Test
   void trailersAreCopiedDefensively() {
     MockHttpContext context = new MockHttpContext();
-    ResponseTrailer[] trailers = { ResponseTrailer.of("X-Checksum", () -> "v1") };
-    context.setResponseTrailers(trailers);
+    Trailer[] trailers = { Trailer.field("X-Checksum", () -> "v1") };
+    context.setTrailerFields(trailers);
 
-    trailers[0] = ResponseTrailer.of("X-Other", () -> "v2");
+    trailers[0] = Trailer.field("X-Other", () -> "v2");
 
     context.requestCompleted();
 
@@ -81,8 +81,8 @@ class MockHttpContextTrailerTests {
   @Test
   void laterRegistrationReplacesPreviousOne() {
     MockHttpContext context = new MockHttpContext();
-    context.setResponseTrailers(ResponseTrailer.of("X-First", () -> "1"));
-    context.setResponseTrailers(ResponseTrailer.of("X-Second", () -> "2"));
+    context.setTrailerFields(Trailer.field("X-First", () -> "1"));
+    context.setTrailerFields(Trailer.field("X-Second", () -> "2"));
 
     context.requestCompleted();
 
@@ -95,9 +95,9 @@ class MockHttpContextTrailerTests {
   @Test
   void sameNameProducesMultipleValues() {
     MockHttpContext context = new MockHttpContext();
-    context.setResponseTrailers(
-            ResponseTrailer.of("X-Checksum", () -> "v1"),
-            ResponseTrailer.of("X-Checksum", () -> "v2"));
+    context.setTrailerFields(
+            Trailer.field("X-Checksum", () -> "v1"),
+            Trailer.field("X-Checksum", () -> "v2"));
 
     context.requestCompleted();
 
@@ -109,7 +109,7 @@ class MockHttpContextTrailerTests {
   @Test
   void resetClearsRegistration() {
     MockHttpContext context = new MockHttpContext();
-    context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> "v1"));
+    context.setTrailerFields(Trailer.field("X-Checksum", () -> "v1"));
 
     context.reset();
     context.requestCompleted();
@@ -121,7 +121,7 @@ class MockHttpContextTrailerTests {
   void sendErrorClearsRegistration() throws Exception {
     MockHttpContext context = new MockHttpContext();
     AtomicInteger calls = new AtomicInteger();
-    context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> {
+    context.setTrailerFields(Trailer.field("X-Checksum", () -> {
       calls.incrementAndGet();
       return "v1";
     }));
@@ -139,12 +139,12 @@ class MockHttpContextTrailerTests {
     AtomicInteger calls = new AtomicInteger();
     context.setStatus(202);
     context.responseHeaders().set("X-Preserved", "value");
-    context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> {
+    context.setTrailerFields(Trailer.field("X-Checksum", () -> {
       calls.incrementAndGet();
       return "v1";
     }));
 
-    context.setResponseTrailers();
+    context.setTrailerFields();
     context.requestCompleted();
 
     assertThat(context.getStatus()).isEqualTo(202);
@@ -157,16 +157,16 @@ class MockHttpContextTrailerTests {
   void rejectsInvalidFieldName() {
     MockHttpContext context = new MockHttpContext();
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> context.setResponseTrailers(
-                    ResponseTrailer.of("Bad Name", () -> "1")));
+            .isThrownBy(() -> context.setTrailerFields(
+                    Trailer.field("Bad Name", () -> "1")));
   }
 
   @Test
   void rejectsForbiddenFieldNameIgnoringCase() {
     MockHttpContext context = new MockHttpContext();
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> context.setResponseTrailers(
-                    ResponseTrailer.of("content-length", () -> "1")));
+            .isThrownBy(() -> context.setTrailerFields(
+                    Trailer.field("content-length", () -> "1")));
   }
 
   @Test
@@ -175,16 +175,16 @@ class MockHttpContextTrailerTests {
     context.response.setCommitted(true);
 
     assertThatIllegalStateException()
-            .isThrownBy(() -> context.setResponseTrailers(
-                    ResponseTrailer.of("X-A", () -> "1")));
+            .isThrownBy(() -> context.setTrailerFields(
+                    Trailer.field("X-A", () -> "1")));
   }
 
   @Test
   void nullValueSkipsField() {
     MockHttpContext context = new MockHttpContext();
-    context.setResponseTrailers(
-            ResponseTrailer.of("X-Skipped", () -> null),
-            ResponseTrailer.of("X-Present", () -> "v1"));
+    context.setTrailerFields(
+            Trailer.field("X-Skipped", () -> null),
+            Trailer.field("X-Present", () -> "v1"));
 
     context.requestCompleted();
 
@@ -197,8 +197,8 @@ class MockHttpContextTrailerTests {
   @Test
   void rejectsLineBreaksInValues() {
     MockHttpContext context = new MockHttpContext();
-    context.setResponseTrailers(
-            ResponseTrailer.of("X-Checksum", () -> "v1\r\nInjected: 1"));
+    context.setTrailerFields(
+            Trailer.field("X-Checksum", () -> "v1\r\nInjected: 1"));
 
     assertThatIllegalStateException()
             .isThrownBy(context::requestCompleted)
@@ -208,9 +208,9 @@ class MockHttpContextTrailerTests {
   @Test
   void allValuesSkippedProducesNoTrailers() {
     MockHttpContext context = new MockHttpContext();
-    context.setResponseTrailers(
-            ResponseTrailer.of("X-First", () -> null),
-            ResponseTrailer.of("X-Second", () -> null));
+    context.setTrailerFields(
+            Trailer.field("X-First", () -> null),
+            Trailer.field("X-Second", () -> null));
 
     context.requestCompleted();
 
@@ -221,7 +221,7 @@ class MockHttpContextTrailerTests {
   void supplierRunsAtMostOnce() {
     MockHttpContext context = new MockHttpContext();
     AtomicInteger calls = new AtomicInteger();
-    context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> {
+    context.setTrailerFields(Trailer.field("X-Checksum", () -> {
       calls.incrementAndGet();
       return "v1";
     }));
@@ -239,7 +239,7 @@ class MockHttpContextTrailerTests {
   void failedRequestDoesNotEvaluateSupplier() {
     ErrorCompletingMockHttpContext context = new ErrorCompletingMockHttpContext();
     AtomicInteger calls = new AtomicInteger();
-    context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> {
+    context.setTrailerFields(Trailer.field("X-Checksum", () -> {
       calls.incrementAndGet();
       return "v1";
     }));
@@ -255,7 +255,7 @@ class MockHttpContextTrailerTests {
     for (int status : new int[] { 100, 101, 199, 204, 304 }) {
       InspectableMockHttpContext context = new InspectableMockHttpContext();
       AtomicInteger calls = new AtomicInteger();
-      context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> {
+      context.setTrailerFields(Trailer.field("X-Checksum", () -> {
         calls.incrementAndGet();
         return "v1";
       }));
@@ -274,7 +274,7 @@ class MockHttpContextTrailerTests {
   void committingCallbackCanChangeStatusAndDiscardTrailers() {
     InspectableMockHttpContext context = new InspectableMockHttpContext();
     AtomicInteger calls = new AtomicInteger();
-    context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> {
+    context.setTrailerFields(Trailer.field("X-Checksum", () -> {
       calls.incrementAndGet();
       return "v1";
     }));
@@ -295,7 +295,7 @@ class MockHttpContextTrailerTests {
     context.request.setMethod("CONNECT");
     context.setStatus(400);
     AtomicInteger calls = new AtomicInteger();
-    context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> {
+    context.setTrailerFields(Trailer.field("X-Checksum", () -> {
       calls.incrementAndGet();
       return "v1";
     }));
@@ -310,9 +310,9 @@ class MockHttpContextTrailerTests {
   @Test
   void declaredNamesAreImmutableAndCaseInsensitive() {
     InspectableMockHttpContext context = new InspectableMockHttpContext();
-    context.setResponseTrailers(
-            ResponseTrailer.of("X-Checksum", () -> "v1"),
-            ResponseTrailer.of("x-checksum", () -> "v2"));
+    context.setTrailerFields(
+            Trailer.field("X-Checksum", () -> "v1"),
+            Trailer.field("x-checksum", () -> "v2"));
 
     Set<String> names = context.trailerNames();
     assertThat(names).isNotNull().containsExactly("X-Checksum");
@@ -332,13 +332,13 @@ class MockHttpContextTrailerTests {
       }
       MockHttpContext context = new MockHttpContext();
       String value = "before" + c + "after";
-      context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> value));
+      context.setTrailerFields(Trailer.field("X-Checksum", () -> value));
       assertThatIllegalStateException().isThrownBy(context::requestCompleted)
               .withMessageContaining("Invalid trailer value");
       assertThat(context.getResponseTrailers()).isNull();
     }
     MockHttpContext context = new MockHttpContext();
-    context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> "before\tafter"));
+    context.setTrailerFields(Trailer.field("X-Checksum", () -> "before\tafter"));
     context.requestCompleted();
     HttpHeaders trailers = context.getResponseTrailers();
     assertThat(trailers).isNotNull();
@@ -349,7 +349,7 @@ class MockHttpContextTrailerTests {
   void defaultCompletionFiresCallbacksSynchronouslyAfterTrailerEvaluation() {
     MockHttpContext context = new MockHttpContext();
     List<String> events = new ArrayList<>();
-    context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> {
+    context.setTrailerFields(Trailer.field("X-Checksum", () -> {
       events.add("trailer");
       return "v1";
     }));
@@ -381,7 +381,7 @@ class MockHttpContextTrailerTests {
     IllegalStateException supplierFailure = new IllegalStateException("supplier");
     IllegalArgumentException callbackFailure = new IllegalArgumentException("callback");
     AtomicInteger callbacks = new AtomicInteger();
-    context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> {
+    context.setTrailerFields(Trailer.field("X-Checksum", () -> {
       throw supplierFailure;
     }));
     context.registerCallback(HttpContext.Lifecycle.COMPLETED, "cleanup", () -> {
@@ -401,7 +401,7 @@ class MockHttpContextTrailerTests {
     CountDownLatch entered = new CountDownLatch(1);
     CountDownLatch release = new CountDownLatch(1);
     AtomicInteger calls = new AtomicInteger();
-    context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> {
+    context.setTrailerFields(Trailer.field("X-Checksum", () -> {
       calls.incrementAndGet();
       entered.countDown();
       try {
@@ -446,15 +446,15 @@ class MockHttpContextTrailerTests {
   static final class InspectableMockHttpContext extends MockHttpContext {
 
     @Nullable Set<String> trailerNames() {
-      return getResponseTrailerNames();
+      return getTrailerFieldNames();
     }
 
     void validateTrailers() {
-      validateResponseTrailersBeforeCommit();
+      validateTrailerFieldsBeforeCommit();
     }
 
     @Nullable HttpHeaders evaluateTrailers() {
-      return evaluateResponseTrailers();
+      return evaluateTrailerFields();
     }
   }
 

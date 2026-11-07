@@ -27,7 +27,7 @@ import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.context.ApplicationContext;
-import infra.http.ResponseTrailer;
+import infra.web.Trailer;
 import infra.web.DispatcherHandler;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.DefaultHttpRequest;
@@ -49,7 +49,7 @@ import static org.mockito.Mockito.mock;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
  */
-class ResponseTrailerTests {
+class TrailerTests {
 
   private final EmbeddedChannel channel = new EmbeddedChannel();
 
@@ -58,8 +58,8 @@ class ResponseTrailerTests {
     HttpContext context = createContext(HttpVersion.HTTP_1_0, HttpMethod.GET);
 
     assertThatExceptionOfType(UnsupportedOperationException.class)
-            .isThrownBy(() -> context.setResponseTrailers(
-                    ResponseTrailer.of("X-Checksum", () -> "v1")));
+            .isThrownBy(() -> context.setTrailerFields(
+                    Trailer.field("X-Checksum", () -> "v1")));
   }
 
   @Test
@@ -67,8 +67,8 @@ class ResponseTrailerTests {
     HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.HEAD);
 
     assertThatIllegalStateException()
-            .isThrownBy(() -> context.setResponseTrailers(
-                    ResponseTrailer.of("X-Checksum", () -> "v1")));
+            .isThrownBy(() -> context.setTrailerFields(
+                    Trailer.field("X-Checksum", () -> "v1")));
   }
 
   @Test
@@ -77,15 +77,15 @@ class ResponseTrailerTests {
     context.setStatus(204);
 
     assertThatIllegalStateException()
-            .isThrownBy(() -> context.setResponseTrailers(
-                    ResponseTrailer.of("X-Checksum", () -> "v1")));
+            .isThrownBy(() -> context.setTrailerFields(
+                    Trailer.field("X-Checksum", () -> "v1")));
   }
 
   @Test
   void trailersForceChunkedFramingAndDeclaration() {
     HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
-    context.setResponseTrailers(
-            ResponseTrailer.of("Content-Digest", () -> "sha-256=:abc:"));
+    context.setTrailerFields(
+            Trailer.field("Content-Digest", () -> "sha-256=:abc:"));
 
     context.flush();
     channel.flush();
@@ -99,8 +99,8 @@ class ResponseTrailerTests {
   @Test
   void endResponseWritesTrailingHeaders() {
     HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
-    context.setResponseTrailers(
-            ResponseTrailer.of("Content-Digest", () -> "sha-256=:abc:"));
+    context.setTrailerFields(
+            Trailer.field("Content-Digest", () -> "sha-256=:abc:"));
 
     context.writeResponseEnd();
 
@@ -122,7 +122,7 @@ class ResponseTrailerTests {
   @Test
   void supplierFailureClosesConnectionWithoutTerminator() {
     HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
-    context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> {
+    context.setTrailerFields(Trailer.field("X-Checksum", () -> {
       throw new IllegalStateException("boom");
     }));
 
@@ -137,7 +137,7 @@ class ResponseTrailerTests {
   void resetClearsRegistration() {
     HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
     AtomicInteger calls = new AtomicInteger();
-    context.setResponseTrailers(ResponseTrailer.of("Content-Digest", () -> {
+    context.setTrailerFields(Trailer.field("Content-Digest", () -> {
       calls.incrementAndGet();
       return "sha-256=:abc:";
     }));
@@ -154,7 +154,7 @@ class ResponseTrailerTests {
   void sendErrorClearsRegistration() throws Exception {
     HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
     AtomicInteger calls = new AtomicInteger();
-    context.setResponseTrailers(ResponseTrailer.of("Content-Digest", () -> {
+    context.setTrailerFields(Trailer.field("Content-Digest", () -> {
       calls.incrementAndGet();
       return "sha-256=:abc:";
     }));
@@ -178,16 +178,16 @@ class ResponseTrailerTests {
     assertThat(response.status()).isEqualTo(HttpResponseStatus.FOUND);
     assertThat(response.headers().get(HttpHeaderNames.LOCATION)).isEqualTo("/target");
     assertThatIllegalStateException()
-            .isThrownBy(() -> context.setResponseTrailers(
-                    ResponseTrailer.of("Content-Digest", () -> "sha-256=:abc:")));
+            .isThrownBy(() -> context.setTrailerFields(
+                    Trailer.field("Content-Digest", () -> "sha-256=:abc:")));
   }
 
   @Test
   void registrationInsideCommittingCallbackIsRejected() {
     HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
     context.registerCallback(HttpContext.Lifecycle.COMMITTING, "register",
-            () -> context.setResponseTrailers(
-                    ResponseTrailer.of("Content-Digest", () -> "sha-256=:abc:")));
+            () -> context.setTrailerFields(
+                    Trailer.field("Content-Digest", () -> "sha-256=:abc:")));
 
     assertThatIllegalStateException().isThrownBy(context::flush);
   }
@@ -197,7 +197,7 @@ class ResponseTrailerTests {
   void finalNoBodyStatusDiscardsTrailers(int status) {
     HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
     AtomicInteger calls = new AtomicInteger();
-    context.setResponseTrailers(ResponseTrailer.of("Content-Digest", () -> {
+    context.setTrailerFields(Trailer.field("Content-Digest", () -> {
       calls.incrementAndGet();
       return "sha-256=:abc:";
     }));
@@ -333,9 +333,9 @@ class ResponseTrailerTests {
     Path file = tempDir.resolve("body.txt");
     Files.writeString(file, "hello");
     HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
-    context.setResponseTrailers(ResponseTrailer.of("Content-Digest", () -> "sha-256=:abc:"));
+    context.setTrailerFields(Trailer.field("Content-Digest", () -> "sha-256=:abc:"));
     context.asHttpOutputMessage().sendFile(file, 0, 5);
-    context.setResponseTrailers();
+    context.setTrailerFields();
 
     context.requestCompletedInternal(null);
     channel.flush();
@@ -358,7 +358,7 @@ class ResponseTrailerTests {
 
   private AtomicInteger registerCountingTrailer(HttpContext context) {
     AtomicInteger calls = new AtomicInteger();
-    context.setResponseTrailers(ResponseTrailer.of("Content-Digest", () -> {
+    context.setTrailerFields(Trailer.field("Content-Digest", () -> {
       calls.incrementAndGet();
       return "sha-256=:abc:";
     }));

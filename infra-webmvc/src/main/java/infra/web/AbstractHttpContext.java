@@ -60,7 +60,6 @@ import infra.http.HttpStatusCode;
 import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
-import infra.http.ResponseTrailer;
 import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
 import infra.lang.Constant;
@@ -221,7 +220,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
 
   private @Nullable EnumMap<Lifecycle, LinkedHashMap<String, Runnable>> lifecycleCallbacks;
 
-  private volatile @Nullable ResponseTrailerConfig responseTrailers;
+  private volatile @Nullable ResponseTrailerFields responseTrailers;
 
   protected AbstractHttpContext(ApplicationContext context, DispatcherHandler dispatcherHandler) {
     this.applicationContext = context;
@@ -2021,32 +2020,17 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   }
 
   /**
-   * Whether this adapter is able to send trailer fields on the current
-   * exchange. The skeletal implementation does not claim that the transport
-   * can send trailers; concrete adapters must opt in once their
-   * response-completion path is able to emit trailing fields.
-   *
-   * @since 5.0
-   */
-  protected boolean isResponseTrailersSupported() {
-    return false;
-  }
-
-  /**
    * {@inheritDoc}
    *
    * @since 5.0
    */
   @Override
-  public void setResponseTrailers(ResponseTrailer... trailers) {
+  public void setTrailerFields(Trailer... trailers) {
     Assert.notNull(trailers, "Trailer fields are required");
     assertNotCommitted();
     if (trailers.length == 0) {
-      clearResponseTrailers();
+      clearTrailerFields();
       return;
-    }
-    if (!isResponseTrailersSupported()) {
-      throw new UnsupportedOperationException("Response trailers are not supported");
     }
 
     if (getMethod() == HttpMethod.HEAD) {
@@ -2061,7 +2045,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     }
 
     Set<String> validated = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-    for (ResponseTrailer trailer : trailers) {
+    for (Trailer trailer : trailers) {
       Assert.notNull(trailer, "Trailer field is required");
       String name = trailer.name();
       if (!TRAILER_NAME_PATTERN.matcher(name).matches()) {
@@ -2073,7 +2057,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
       validated.add(name);
     }
 
-    this.responseTrailers = new ResponseTrailerConfig(List.of(trailers), Collections.unmodifiableSet(validated));
+    this.responseTrailers = new ResponseTrailerFields(List.of(trailers), Collections.unmodifiableSet(validated));
   }
 
   /**
@@ -2085,12 +2069,12 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    *
    * @since 5.0
    */
-  protected final void validateResponseTrailersBeforeCommit() {
+  protected final void validateTrailerFieldsBeforeCommit() {
     int status = getStatus();
     if (this.responseTrailers != null && (getMethod() == HttpMethod.HEAD
             || status < 200 || status == 204 || status == 304
             || (getMethod() == HttpMethod.CONNECT && status < 300))) {
-      clearResponseTrailers();
+      clearTrailerFields();
     }
   }
 
@@ -2103,8 +2087,8 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * @return the declared field names, or {@code null}
    * @since 5.0
    */
-  protected final @Nullable Set<String> getResponseTrailerNames() {
-    ResponseTrailerConfig trailers = this.responseTrailers;
+  protected final @Nullable Set<String> getTrailerFieldNames() {
+    ResponseTrailerFields trailers = this.responseTrailers;
     return trailers != null ? trailers.names : null;
   }
 
@@ -2115,7 +2099,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    *
    * @since 5.0
    */
-  protected final void clearResponseTrailers() {
+  protected final void clearTrailerFields() {
     this.responseTrailers = null;
   }
 
@@ -2133,15 +2117,15 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * @throws IllegalStateException if a supplier produces an invalid value
    * @since 5.0
    */
-  protected final @Nullable HttpHeaders evaluateResponseTrailers() {
-    validateResponseTrailersBeforeCommit();
-    ResponseTrailerConfig config = this.responseTrailers;
+  protected final @Nullable HttpHeaders evaluateTrailerFields() {
+    validateTrailerFieldsBeforeCommit();
+    var config = this.responseTrailers;
     if (config == null || !config.evaluated.compareAndSet(false, true)) {
       return null;
     }
 
     HttpHeaders trailers = HttpHeaders.forWritable();
-    for (ResponseTrailer trailer : config.trailers) {
+    for (Trailer trailer : config.trailers) {
       String value = trailer.supplier().get();
       if (value != null) {
         String name = trailer.name();
@@ -2345,15 +2329,15 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    *
    * @since 5.0
    */
-  private static final class ResponseTrailerConfig {
+  private static final class ResponseTrailerFields {
 
-    public final List<ResponseTrailer> trailers;
+    public final List<Trailer> trailers;
 
     public final Set<String> names;
 
     public final AtomicBoolean evaluated = new AtomicBoolean();
 
-    ResponseTrailerConfig(List<ResponseTrailer> trailers, Set<String> names) {
+    ResponseTrailerFields(List<Trailer> trailers, Set<String> names) {
       this.trailers = trailers;
       this.names = names;
     }

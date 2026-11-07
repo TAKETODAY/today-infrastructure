@@ -150,7 +150,7 @@ final class HttpContext extends NettyHttpContext implements Runnable {
   @Override
   protected void writeResponseEnd() {
     try {
-      HttpHeaders trailers = evaluateResponseTrailers();
+      HttpHeaders trailers = evaluateTrailerFields();
       LastHttpContent lastContent = LastHttpContent.EMPTY_LAST_CONTENT;
       if (trailers != null) {
         lastContent = new DefaultLastHttpContent(Unpooled.EMPTY_BUFFER);

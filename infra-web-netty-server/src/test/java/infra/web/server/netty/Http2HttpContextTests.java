@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.context.ApplicationContext;
 import infra.http.HttpHeaders;
-import infra.http.ResponseTrailer;
+import infra.web.Trailer;
 import infra.web.DispatcherHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -285,8 +285,8 @@ class Http2HttpContextTests {
   @Test
   void trailersAreSentAsTrailingHeadersFrameWithLowercaseNames() {
     Http2HttpContext context = createContext();
-    context.setResponseTrailers(
-            ResponseTrailer.of("Content-Digest", () -> "sha-256=:abc:"));
+    context.setTrailerFields(
+            Trailer.field("Content-Digest", () -> "sha-256=:abc:"));
 
     context.writeResponseEnd();
 
@@ -302,8 +302,8 @@ class Http2HttpContextTests {
   @Test
   void trailersSkipContentLengthAndTransferEncoding() {
     Http2HttpContext context = createContext();
-    context.setResponseTrailers(
-            ResponseTrailer.of("Content-Digest", () -> "sha-256=:abc:"));
+    context.setTrailerFields(
+            Trailer.field("Content-Digest", () -> "sha-256=:abc:"));
 
     context.flush();
 
@@ -319,7 +319,7 @@ class Http2HttpContextTests {
   void trailerFailureClosesStream() {
     when(channel.isActive()).thenReturn(true);
     Http2HttpContext context = createContext();
-    context.setResponseTrailers(ResponseTrailer.of("X-Checksum", () -> {
+    context.setTrailerFields(Trailer.field("X-Checksum", () -> {
       throw new IllegalStateException("boom");
     }));
 
@@ -465,7 +465,7 @@ class Http2HttpContextTests {
 
   private AtomicInteger registerCountingTrailer(Http2HttpContext context) {
     AtomicInteger calls = new AtomicInteger();
-    context.setResponseTrailers(ResponseTrailer.of("Content-Digest", () -> {
+    context.setTrailerFields(Trailer.field("Content-Digest", () -> {
       calls.incrementAndGet();
       return "sha-256=:abc:";
     }));

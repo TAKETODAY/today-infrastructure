@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import infra.context.ApplicationContext;
 import infra.http.HttpHeaders;
-import infra.http.ResponseTrailer;
+import infra.web.Trailer;
 import infra.web.DispatcherHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -262,7 +262,7 @@ class PendingResponseFileTests {
   @Test
   void replacingChunkedFileClosesPreviousFile() throws Exception {
     HttpContext context = spy(createContext());
-    context.setResponseTrailers(ResponseTrailer.of("Content-Digest", () -> "digest"));
+    context.setTrailerFields(Trailer.field("Content-Digest", () -> "digest"));
     List<ChunkedNioFile> inputs = new ArrayList<>();
     doAnswer(invocation -> {
       ChunkedNioFile input = invocation.getArgument(0);
@@ -285,7 +285,7 @@ class PendingResponseFileTests {
     HttpContext context = createContext();
     context.asHttpOutputMessage().sendFile(file(), 0, 4);
     DefaultFileRegion region = (DefaultFileRegion) pendingBody(context);
-    context.setResponseTrailers(ResponseTrailer.of("Content-Digest", () -> "digest"));
+    context.setTrailerFields(Trailer.field("Content-Digest", () -> "digest"));
 
     Object prepared = context.prepareResponseFile(region);
     setPendingBody(context, prepared);
@@ -301,7 +301,7 @@ class PendingResponseFileTests {
     HttpContext context = spy(createContext());
     context.asHttpOutputMessage().sendFile(file(), 0, 4);
     DefaultFileRegion region = (DefaultFileRegion) pendingBody(context);
-    context.setResponseTrailers(ResponseTrailer.of("Content-Digest", () -> "digest"));
+    context.setTrailerFields(Trailer.field("Content-Digest", () -> "digest"));
     AtomicReference<ChunkedNioFile> opened = new AtomicReference<>();
     IllegalStateException failure = new IllegalStateException("adaptation failed");
     doAnswer(invocation -> {
@@ -322,7 +322,7 @@ class PendingResponseFileTests {
     Path file = file();
     context.asHttpOutputMessage().sendFile(file, 0, 4);
     DefaultFileRegion region = (DefaultFileRegion) pendingBody(context);
-    context.setResponseTrailers(ResponseTrailer.of("Content-Digest", () -> "digest"));
+    context.setTrailerFields(Trailer.field("Content-Digest", () -> "digest"));
     Files.delete(file);
     setPendingBody(context, null);
 
@@ -345,7 +345,7 @@ class PendingResponseFileTests {
   @Test
   void adaptationFailureClosesNewFile() throws Exception {
     HttpContext context = spy(createContext());
-    context.setResponseTrailers(ResponseTrailer.of("Content-Digest", () -> "digest"));
+    context.setTrailerFields(Trailer.field("Content-Digest", () -> "digest"));
     AtomicReference<ChunkedNioFile> opened = new AtomicReference<>();
     IllegalStateException failure = new IllegalStateException("adaptation failed");
     doAnswer(invocation -> {

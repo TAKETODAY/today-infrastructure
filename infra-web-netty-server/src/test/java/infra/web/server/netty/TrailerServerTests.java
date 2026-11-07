@@ -36,7 +36,7 @@ import infra.web.server.WebServer;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.util.ResourceLeakDetector;
 
-import static infra.http.ResponseTrailer.of;
+import static infra.web.Trailer.field;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -47,7 +47,7 @@ import static org.mockito.Mockito.mock;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
  */
-class ResponseTrailerServerTests {
+class TrailerServerTests {
 
   private WebServer server;
 
@@ -242,8 +242,8 @@ class ResponseTrailerServerTests {
           context.flush();
         }
         case "/trailers/empty" -> {
-          context.setResponseTrailers(
-                  of("Content-Digest", () -> null));
+          context.setTrailerFields(
+                  field("Content-Digest", () -> null));
           writeResponse(context, "empty-body");
         }
         case "/trailers/file" -> {
@@ -277,7 +277,7 @@ class ResponseTrailerServerTests {
     }
 
     private void registerTrailer(HttpContext context, String digest) {
-      context.setResponseTrailers(of("Content-Digest", () -> {
+      context.setTrailerFields(field("Content-Digest", () -> {
         trailerEvaluations.incrementAndGet();
         return digest;
       }));

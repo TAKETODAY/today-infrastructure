@@ -334,11 +334,6 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
   }
 
   @Override
-  protected boolean isResponseTrailersSupported() {
-    return true;
-  }
-
-  @Override
   public boolean isCommitted() {
     return response.isCommitted();
   }
@@ -451,14 +446,14 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
   @Override
   public void sendError(int sc) throws IOException {
     assertNotCommitted();
-    clearResponseTrailers();
+    clearTrailerFields();
     response.sendError(sc);
   }
 
   @Override
   public void sendError(int sc, @Nullable String msg) throws IOException {
     assertNotCommitted();
-    clearResponseTrailers();
+    clearTrailerFields();
     response.sendError(sc, msg);
   }
 
@@ -483,7 +478,7 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
   protected void writeHeaders() {
     if (!headersWritten) {
       onCommitting();
-      validateResponseTrailersBeforeCommit();
+      validateTrailerFieldsBeforeCommit();
       HttpHeaders headers = responseHeaders();
       for (Map.Entry<String, List<String>> entry : headers.entries()) {
         String headerName = entry.getKey();
@@ -525,7 +520,7 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
   protected void requestCompletedInternal(@Nullable Throwable notHandled) {
     if (notHandled == null) {
       flush();
-      HttpHeaders trailers = evaluateResponseTrailers();
+      HttpHeaders trailers = evaluateTrailerFields();
       if (trailers != null) {
         this.responseTrailers = trailers;
       }

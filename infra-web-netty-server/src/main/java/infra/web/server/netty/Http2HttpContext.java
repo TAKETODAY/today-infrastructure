@@ -202,7 +202,7 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
   @Override
   protected void writeResponseEnd() {
     try {
-      HttpHeaders trailers = evaluateResponseTrailers();
+      HttpHeaders trailers = evaluateTrailerFields();
       if (trailers == null) {
         channel.writeAndFlush(new DefaultHttp2DataFrame(Unpooled.EMPTY_BUFFER, true))
                 .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);

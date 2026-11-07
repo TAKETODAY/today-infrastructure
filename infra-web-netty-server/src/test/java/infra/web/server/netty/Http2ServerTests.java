@@ -33,7 +33,7 @@ import java.util.concurrent.Executors;
 
 import infra.context.ApplicationContext;
 import infra.http.MediaType;
-import infra.http.ResponseTrailer;
+import infra.web.Trailer;
 import infra.web.DispatcherHandler;
 import infra.web.HttpContext;
 import infra.web.server.Http2;
@@ -467,29 +467,29 @@ class Http2ServerTests {
         context.asHttpOutputMessage().sendFile(file, 0, length);
       }
       else if ("/trailers".equals(path)) {
-        context.setResponseTrailers(
-                ResponseTrailer.of("Content-Digest", () -> "sha-256=:abc:"));
+        context.setTrailerFields(
+                Trailer.field("Content-Digest", () -> "sha-256=:abc:"));
         writeResponse(context, "hello-trailers".getBytes(StandardCharsets.UTF_8));
       }
       else if ("/trailers/empty".equals(path)) {
-        context.setResponseTrailers(
-                ResponseTrailer.of("Content-Digest", () -> null));
+        context.setTrailerFields(
+                Trailer.field("Content-Digest", () -> null));
         writeResponse(context, "hello-empty".getBytes(StandardCharsets.UTF_8));
       }
       else if ("/trailers/file".equals(path)) {
         long length = Files.size(file);
         context.setContentType(MediaType.TEXT_PLAIN);
         context.setContentLength(length);
-        context.setResponseTrailers(
-                ResponseTrailer.of("Content-Digest", () -> "sha-256=:file:"));
+        context.setTrailerFields(
+                Trailer.field("Content-Digest", () -> "sha-256=:file:"));
         context.asHttpOutputMessage().sendFile(file, 0, length);
       }
       else if ("/trailers/file/late".equals(path)) {
         long length = Files.size(file);
         context.setContentType(MediaType.TEXT_PLAIN);
         context.asHttpOutputMessage().sendFile(file, 0, length);
-        context.setResponseTrailers(
-                ResponseTrailer.of("Content-Digest", () -> "sha-256=:late:"));
+        context.setTrailerFields(
+                Trailer.field("Content-Digest", () -> "sha-256=:late:"));
       }
       else if ("/error".equals(path)) {
         throw new IllegalStateException("boom");

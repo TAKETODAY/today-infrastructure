@@ -26,17 +26,17 @@ HTTP/1.1 的 chunked 编码和 HTTP/2 都允许在正文之后发送尾部字段
 
 ## 决策
 
-### 接口形态：`ResponseTrailer` 绑定名称与求值
+### 接口形态：`Trailer` 绑定名称与求值
 
 ```java
-void setResponseTrailers(ResponseTrailer... trailers)
+void setTrailerFields(Trailer... trailers)
 ```
 
-`ResponseTrailer` 是 `infra.http` 中的不可变 record，包含字段名和 `Supplier<String>` 值供应器：
+`Trailer` 是 `infra.web` 中的不可变 record，包含字段名和 `Supplier<String>` 值供应器：
 
 ```java
-context.setResponseTrailers(
-    ResponseTrailer.of("Content-Digest", () -> digest.value()));
+context.setTrailerFields(
+    Trailer.field("Content-Digest", () -> digest.value()));
 ```
 
 - 名称随注册一起声明，传输层不需要再单独接收名称集合。
@@ -47,7 +47,7 @@ context.setResponseTrailers(
 
 ### 决策 1：注册窗口截止于响应头提交之前
 
-`setResponseTrailers` 只在 `isCommitted()` 为 `false` 时接受注册或通过空数组清除注册；提交后（包括 `COMMITTING` 回调内）抛 `IllegalStateException`。
+`setTrailerFields` 只在 `isCommitted()` 为 `false` 时接受注册或通过空数组清除注册；提交后（包括 `COMMITTING` 回调内）抛 `IllegalStateException`。
 
 - **理由**：`COMMITTING` 触发时 committed 标记已置位，状态已经脱离「可配置」区间。允许在 `COMMITTING` 内注册会让契约出现一个无法用 `isCommitted()` 解释的例外，也迫使实现额外维护一个 `headersWritten`
   标志。禁止它让规则保持单一。
@@ -124,7 +124,7 @@ Trailer 的发送以 chunked 定界为准，不要求请求携带 `TE: trailers`
 
 ## 后果
 
-- `HttpContext` 新增 `setResponseTrailers(ResponseTrailer...)` 默认方法，默认抛 `UnsupportedOperationException`；是否具备发送能力由 `AbstractHttpContext` 的 protected `isResponseTrailersSupported()` 判定，已有实现无需改动即可编译。
+- `HttpContext` 新增 `setTrailerFields(Trailer...)` 默认方法，默认抛 `UnsupportedOperationException`；是否发送尾部字段由各传输适配器在响应完成路径中决定，已有实现无需改动即可编译。
 - `AbstractHttpContext` 承担全部配置状态、校验与原子防护的一次求值；`AbstractDelegatingHttpContext` 与 `DelegatingHttpContext` 纯委托，不另存状态。
 - `MockHttpContext` 复用骨架行为，额外暴露最终字段供断言。
 - 未配置 Trailer 时保持既有响应定界和终止行为；文件资源回收和必要的完成清理不能依赖是否配置 Trailer。

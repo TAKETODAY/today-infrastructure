@@ -62,6 +62,7 @@ import infra.web.AbstractHttpContext;
 import infra.web.DispatcherHandler;
 import infra.web.HttpContext;
 import infra.web.HttpContextHolder;
+import infra.web.Trailer;
 import infra.web.async.AsyncWebRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.multipart.MultipartRequest;
@@ -310,17 +311,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * @return the request protocol version, for example {@code HTTP/1.1} or {@code HTTP/2.0}
    */
   public abstract HttpVersion version();
-
-  /**
-   * Trailers require chunked framing in HTTP/1.1, which was introduced in
-   * HTTP/1.1. HTTP/2 always supports trailers.
-   *
-   * @since 5.0
-   */
-  @Override
-  protected boolean isResponseTrailersSupported() {
-    return version().compareTo(HttpVersion.HTTP_1_1) >= 0;
-  }
 
   @Override
   public boolean isSecure() {
@@ -618,7 +608,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * Adapt a pending zero-copy file when trailers were registered afterwards.
    */
   protected final Object prepareResponseFile(Object file) {
-    if (file instanceof PendingFileRegion region && getResponseTrailerNames() != null) {
+    if (file instanceof PendingFileRegion region && getTrailerFieldNames() != null) {
       try {
         return createChunkedResponseFile(region.file, region.position(), region.count());
       }
@@ -727,7 +717,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   protected void writeHeaders() {
     if (committed.compareAndSet(false, true)) {
       onCommitting();
-      validateResponseTrailersBeforeCommit();
+      validateTrailerFieldsBeforeCommit();
       var headers = nettyResponseHeaders;
       int code = status.code();
       if (code < 200 || code == 204 || code == 205 || code == 304
@@ -749,7 +739,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
         discardPendingResponse();
       }
       else {
-        Set<String> trailerNames = getResponseTrailerNames();
+        Set<String> trailerNames = getTrailerFieldNames();
         if (trailerNames != null) {
           if (supportsTransferEncoding()) {
             headers.set(HttpHeaderNames.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
@@ -845,6 +835,18 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     nettyResponseHeaders.setLong(HttpHeaderNames.CONTENT_LENGTH, length);
   }
 
+  /**
+   * Trailers require chunked framing, which HTTP/1.1 introduced. HTTP/2 always
+   * supports them.
+   */
+  @Override
+  public void setTrailerFields(Trailer... trailers) {
+    if (trailers != null && trailers.length > 0 && version().compareTo(HttpVersion.HTTP_1_1) < 0) {
+      throw new UnsupportedOperationException("Response trailers are not supported");
+    }
+    super.setTrailerFields(trailers);
+  }
+
   @Override
   public boolean isCommitted() {
     return committed.get();
@@ -861,7 +863,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       discardPendingResponse();
     }
 
-    clearResponseTrailers();
+    clearTrailerFields();
     nettyResponseHeaders.clear();
 
     writer = null;
@@ -1509,7 +1511,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       discardPendingResponse();
       // chunked framing is required when trailers were registered, so a
       // zero-copy file region cannot be used
-      if (config.secure || !supportsFileRegion() || getResponseTrailerNames() != null) {
+      if (config.secure || !supportsFileRegion() || getTrailerFieldNames() != null) {
         pendingBody = createChunkedResponseFile(file, position, count);
       }
       else {
