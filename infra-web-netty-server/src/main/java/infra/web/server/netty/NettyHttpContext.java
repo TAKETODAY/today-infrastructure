@@ -195,9 +195,12 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   private HttpResponseStatus status = HttpResponseStatus.OK;
 
-  private @Nullable ByteBuf responseBody;
-
-  private @Nullable Object fileToSend;
+  /**
+   * The response body waiting to be written to the pipeline: a {@link ByteBuf},
+   * a {@link FileRegion} or a {@link ChunkedInput}. These representations are
+   * mutually exclusive and consumed together by {@link #flush()}.
+   */
+  private @Nullable Object pendingBody;
 
   private @Nullable ServerHttpResponse outputMessage;
 
@@ -515,19 +518,22 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * @return HTTP response body
    */
   private ByteBuf responseBody() {
-    ByteBuf responseBody = this.responseBody;
-    if (responseBody == null) {
-      var bodyFactory = config.responseBodyFactory;
-      if (bodyFactory != null) {
-        responseBody = bodyFactory.apply(this); // may null
-      }
-      if (responseBody == null) {
-        // fallback
-        responseBody = createResponseBody(config);
-      }
-      this.responseBody = responseBody;
+    if (pendingBody instanceof ByteBuf body) {
+      return body;
     }
-    return responseBody;
+    if (pendingBody != null) {
+      // a file is waiting to be sent; buffered output replaces it
+      discardPendingResponse();
+    }
+
+    var bodyFactory = config.responseBodyFactory;
+    ByteBuf body = bodyFactory != null ? bodyFactory.apply(this) : null; // may null
+    if (body == null) {
+      // fallback
+      body = createResponseBody(config);
+    }
+    this.pendingBody = body;
+    return body;
   }
 
   protected ByteBuf createResponseBody(NettyRequestConfig config) {
@@ -548,15 +554,13 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   public void flush() {
     writeHeaders();
 
-    Object fileToSend;
-    ByteBuf responseBody = this.responseBody;
-    if (responseBody != null) {
-      this.responseBody = null;
-      writeResponseBody(responseBody);
+    Object body = this.pendingBody;
+    this.pendingBody = null;
+    if (body instanceof ByteBuf byteBuf) {
+      writeResponseBody(byteBuf);
     }
-    else if ((fileToSend = this.fileToSend) != null) {
-      this.fileToSend = null;
-      writeResponseFile(fileToSend);
+    else if (body != null) {
+      writeResponseFile(body);
     }
   }
 
@@ -584,19 +588,14 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   }
 
   private void discardPendingResponse() {
-    ByteBuf body = this.responseBody;
-    this.responseBody = null;
-    ReferenceCountUtil.safeRelease(body);
-    discardPendingResponseFile();
-  }
-
-  /**
-   * Release a response file that has not been handed to the channel pipeline.
-   */
-  private void discardPendingResponseFile() {
-    Object pendingFile = this.fileToSend;
-    this.fileToSend = null;
-    releaseResponseFile(pendingFile);
+    Object body = this.pendingBody;
+    this.pendingBody = null;
+    if (body instanceof ByteBuf byteBuf) {
+      ReferenceCountUtil.safeRelease(byteBuf);
+    }
+    else if (body != null) {
+      releaseResponseFile(body);
+    }
   }
 
   /**
@@ -694,17 +693,16 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       return;
     }
 
-    ByteBuf responseBody = this.responseBody;
-    if (responseBody != null) {
-      headers.setInt(HttpHeaderNames.CONTENT_LENGTH, responseBody.readableBytes());
+    Object body = this.pendingBody;
+    if (body instanceof ByteBuf byteBuf) {
+      headers.setInt(HttpHeaderNames.CONTENT_LENGTH, byteBuf.readableBytes());
       return;
     }
-    Object file = this.fileToSend;
-    if (file instanceof FileRegion region) {
+    if (body instanceof FileRegion region) {
       headers.setLong(HttpHeaderNames.CONTENT_LENGTH, region.count());
       return;
     }
-    else if (file instanceof ChunkedInput<?> input) {
+    if (body instanceof ChunkedInput<?> input) {
       long length = input.length();
       if (length >= 0) {
         headers.setLong(HttpHeaderNames.CONTENT_LENGTH, length);
@@ -851,14 +849,17 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   @Override
   public void reset() {
     assertNotCommitted();
-    discardPendingResponseFile();
+    if (pendingBody instanceof ByteBuf body) {
+      // keep the buffer for reuse
+      body.clear();
+    }
+    else {
+      discardPendingResponse();
+    }
+
     clearResponseTrailers();
     nettyResponseHeaders.clear();
 
-    ByteBuf responseBody = this.responseBody;
-    if (responseBody != null) {
-      responseBody.clear();
-    }
     writer = null;
     responseContentType = null;
     status = HttpResponseStatus.OK;
@@ -1516,14 +1517,14 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
         Assert.isTrue(count <= fileLength - position, "Count exceeds available file bytes");
       }
 
-      discardPendingResponseFile();
+      discardPendingResponse();
       // chunked framing is required when trailers were registered, so a
       // zero-copy file region cannot be used
       if (config.secure || !supportsFileRegion() || getResponseTrailerNames() != null) {
-        fileToSend = createChunkedResponseFile(file, position, count);
+        pendingBody = createChunkedResponseFile(file, position, count);
       }
       else {
-        fileToSend = new PendingFileRegion(file, position, count);
+        pendingBody = new PendingFileRegion(file, position, count);
       }
 
       setContentLength(count);
