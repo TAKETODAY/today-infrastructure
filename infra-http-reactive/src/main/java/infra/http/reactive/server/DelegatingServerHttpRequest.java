@@ -119,7 +119,7 @@ public class DelegatingServerHttpRequest extends DelegatingHttpMessage implement
   }
 
   @Override
-  public Map<String, Object> getAttributes() {
+  public Map<String, @Nullable Object> getAttributes() {
     return delegate.getAttributes();
   }
 

@@ -214,7 +214,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
    * can no longer be replaced, so the connection or HTTP/2 stream is closed to
    * signal an incomplete response.
    */
-  private static void handleCommittedException(Channel channel, Throwable cause) {
+  static void handleCommittedException(Channel channel, Throwable cause) {
     if (!channel.isActive()) {
       return;
     }

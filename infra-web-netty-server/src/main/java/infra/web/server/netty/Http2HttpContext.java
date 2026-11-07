@@ -29,6 +29,7 @@ import infra.web.DispatcherHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.DefaultHeaders;
@@ -183,24 +184,44 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
   @Override
   protected <T extends Headers<CharSequence, CharSequence, T>>
-  void writeResponseHead(HttpResponseStatus status, DefaultHeaders<CharSequence, @Nullable CharSequence, T> headers) {
+  ChannelFuture writeResponseHead(HttpResponseStatus status, DefaultHeaders<CharSequence, @Nullable CharSequence, T> headers) {
     // connection-specific headers are forbidden in HTTP/2
     for (CharSequence name : CONNECTION_SPECIFIC_HEADERS) {
       headers.remove(name);
     }
 
     headers.set(Http2Headers.PseudoHeaderName.STATUS.value(), status.codeAsText());
-    channel.write(new DefaultHttp2HeadersFrame((Http2Headers) headers, false));
+    return channel.write(new DefaultHttp2HeadersFrame((Http2Headers) headers, false));
   }
 
   @Override
   protected void writeResponseBody(ByteBuf body) {
-    channel.writeAndFlush(new DefaultHttp2DataFrame(body, false));
+    trackResponseWrite(channel.writeAndFlush(new DefaultHttp2DataFrame(body, false)));
   }
 
   @Override
-  protected void endResponse() {
-    channel.writeAndFlush(new DefaultHttp2DataFrame(Unpooled.EMPTY_BUFFER, true));
+  protected void writeResponseEnd() {
+    try {
+      HttpHeaders trailers = evaluateTrailerFields();
+      if (trailers == null) {
+        channel.writeAndFlush(new DefaultHttp2DataFrame(Unpooled.EMPTY_BUFFER, true))
+                .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+        return;
+      }
+
+      Http2Headers http2Trailers = new DefaultHttp2Headers();
+      for (var entry : trailers.entries()) {
+        for (String value : entry.getValue()) {
+          http2Trailers.add(normalizeHeaderName(entry.getKey()), value);
+        }
+      }
+      // trailer HEADERS carry no pseudo headers and end the stream
+      channel.writeAndFlush(new DefaultHttp2HeadersFrame(http2Trailers, true))
+              .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+    }
+    catch (Throwable failure) {
+      abortResponse(failure);
+    }
   }
 
   @Override
@@ -238,18 +259,10 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
     return method != null ? HttpMethod.valueOf(method.toString()) : HttpMethod.GET;
   }
 
-  private static long contentLength(Http2Headers headers) {
-    CharSequence value = headers.get(HttpHeaderNames.CONTENT_LENGTH);
-    if (value != null) {
-      return Long.parseLong(value.toString());
-    }
-    return -1L;
-  }
-
   /**
    * Adapts file chunks to HTTP/2 DATA frames without ending the stream.
    * <p>Netty's {@code Http2DataChunkedInput} marks the last DATA frame with
-   * {@code endStream=true}, which would require {@link #endResponse()} to skip
+   * {@code endStream=true}, which would require {@link #writeResponseEnd()} to skip
    * its own terminator. Keeping the terminator in {@code endResponse()} lets
    * file and in-memory responses complete through the same path.
    */

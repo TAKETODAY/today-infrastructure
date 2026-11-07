@@ -44,7 +44,7 @@ class RelativeRedirectFilterTests {
 
     InOrder inOrder = Mockito.inOrder(this.response);
     inOrder.verify(this.response).reset();
-    inOrder.verify(this.response).setStatus(HttpStatus.SEE_OTHER.value());
+    inOrder.verify(this.response).setStatus(HttpStatus.SEE_OTHER);
     inOrder.verify(this.response).setHeader(HttpHeaders.LOCATION, location);
     inOrder.verify(this.response).flush();
   }
@@ -61,7 +61,7 @@ class RelativeRedirectFilterTests {
     assertThat(filter.getRedirectStatus()).isSameAs(HttpStatus.MOVED_PERMANENTLY);
     InOrder inOrder = Mockito.inOrder(this.response);
     inOrder.verify(this.response).reset();
-    inOrder.verify(this.response).setStatus(status.value());
+    inOrder.verify(this.response).setStatus(status);
     inOrder.verify(this.response).setHeader(HttpHeaders.LOCATION, location);
     inOrder.verify(this.response).flush();
   }

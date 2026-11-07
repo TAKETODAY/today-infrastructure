@@ -90,7 +90,7 @@ public class DelegatingHttpRequest extends DelegatingHttpMessage implements Http
   // AttributeAccessor
 
   @Override
-  public Map<String, Object> getAttributes() {
+  public Map<String, @Nullable Object> getAttributes() {
     return delegate.getAttributes();
   }
 

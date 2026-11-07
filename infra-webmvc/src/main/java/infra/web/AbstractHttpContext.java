@@ -24,6 +24,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
@@ -32,12 +34,17 @@ import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TimeZone;
+import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 
 import infra.beans.factory.BeanFactoryUtils;
 import infra.context.ApplicationContext;
@@ -114,7 +121,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   public static final String FORM_URLENCODED_ATTRIBUTE =
           Conventions.getQualifiedAttributeName(HttpContext.class, "form-urlencoded");
 
-  private static final List<String> SAFE_METHODS = List.of("GET", "HEAD");
+  private static final List<HttpMethod> SAFE_METHODS = List.of(HttpMethod.GET, HttpMethod.HEAD);
 
   /**
    * Date formats as specified in the HTTP RFC.
@@ -129,7 +136,22 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
 
   private static final TimeZone GMT = TimeZone.getTimeZone("GMT");
 
-  protected long responseContentLength = -1L;
+  /**
+   * An HTTP field name must be a token, as defined by RFC 9110, Section 5.1.
+   */
+  private static final Pattern TRAILER_NAME_PATTERN =
+          Pattern.compile("[!#$%&'*+\\-.^_`|~0-9A-Za-z]+");
+
+  /**
+   * Field names that must not appear in trailers, based on RFC 9110,
+   * Section 6.5.1. They either control framing, routing, authentication, or
+   * response semantics and therefore have to be known before the body.
+   */
+  private static final Set<String> FORBIDDEN_TRAILER_NAMES = Set.of(
+          "content-length", "transfer-encoding", "connection", "keep-alive", "te", "upgrade",
+          "proxy-connection", "trailer", "host", "authorization", "www-authenticate",
+          "proxy-authenticate", "proxy-authorization", "content-encoding", "content-type",
+          "content-range", "content-location", "set-cookie", "cache-control", "expires", "vary");
 
   protected boolean notModified = false;
 
@@ -190,11 +212,15 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
 
   protected @Nullable HandlerMatchingMetadata matchingMetadata;
 
+  private @Nullable String remoteAddress;
+
   private @Nullable Session session;
 
   private long requestCompletedTimeMillis;
 
   private @Nullable EnumMap<Lifecycle, LinkedHashMap<String, Runnable>> lifecycleCallbacks;
+
+  private volatile @Nullable ResponseTrailerFields responseTrailers;
 
   protected AbstractHttpContext(ApplicationContext context, DispatcherHandler dispatcherHandler) {
     this.applicationContext = context;
@@ -246,6 +272,81 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   @Override
   public int getRemotePort() {
     return remoteAddress().getPort();
+  }
+
+  @Override
+  public String getRemoteAddress() {
+    if (remoteAddress == null) {
+      remoteAddress = remoteAddress().getAddress().getHostAddress();
+    }
+    return remoteAddress;
+  }
+
+  @Override
+  public int getServerPort() {
+    SocketAddress socketAddress = localAddress();
+    if (socketAddress instanceof InetSocketAddress) {
+      return ((InetSocketAddress) socketAddress).getPort();
+    }
+    String hostHeader = getHeader(HttpHeaders.HOST);
+    if (hostHeader != null) {
+      int port = parsePortFromHostHeader(hostHeader);
+      if (port > 0) {
+        return port;
+      }
+    }
+    return isSecure() ? 443 : 80;
+  }
+
+  static int parsePortFromHostHeader(String hostHeader) {
+    int idx;
+    if (hostHeader.charAt(0) == '[') {
+      int closingBracket = hostHeader.indexOf(']');
+      if (closingBracket < 0) {
+        return -1;
+      }
+      idx = hostHeader.indexOf(':', closingBracket);
+    }
+    else {
+      idx = hostHeader.indexOf(':');
+    }
+    if (idx < 0) {
+      return -1;
+    }
+    try {
+      return Integer.parseInt(hostHeader.substring(idx + 1));
+    }
+    catch (NumberFormatException e) {
+      return -1;
+    }
+  }
+
+  @Override
+  public String getServerName() {
+    String host = getHeader(HttpHeaders.HOST);
+    if (host != null) {
+      if (host.charAt(0) == '[') {
+        int closingBracket = host.indexOf(']');
+        if (closingBracket > 0) {
+          host = host.substring(0, closingBracket + 1);
+        }
+      }
+      else {
+        int colonIndex = host.indexOf(':');
+        if (colonIndex >= 0) {
+          host = host.substring(0, colonIndex);
+        }
+      }
+      return host;
+    }
+    SocketAddress socketAddress = localAddress();
+    if (socketAddress instanceof InetSocketAddress) {
+      host = ((InetSocketAddress) socketAddress).getHostString();
+    }
+    if (host == null) {
+      host = Constant.LOCALHOST;
+    }
+    return host;
   }
 
   // @since 4.0
@@ -856,15 +957,33 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
       multipartRequest.cleanup();
     }
 
-    requestCompletedInternal(notHandled);
-
-    fireCallbacks(Lifecycle.COMPLETED);
+    Throwable failure = null;
+    try {
+      requestCompletedInternal(notHandled);
+    }
+    catch (RuntimeException | Error ex) {
+      failure = ex;
+      throw ex;
+    }
+    finally {
+      try {
+        onRequestCompleted();
+      }
+      catch (RuntimeException | Error ex) {
+        if (failure == null) {
+          throw ex;
+        }
+        if (failure != ex) {
+          failure.addSuppressed(ex);
+        }
+      }
+    }
   }
 
   /**
    * Invoked from {@link #requestCompleted(Throwable)} after request-scoped
-   * resources have been released, and immediately before the
-   * {@link HttpContext.Lifecycle#COMPLETED} callbacks are fired.
+   * resources have been released, and before {@link #onRequestCompleted()}
+   * is invoked.
    * <p>Subclasses override this to finish transport-specific work, such as
    * flushing the response body, completing the underlying exchange, or
    * releasing native buffers. The base implementation does nothing, since not
@@ -875,6 +994,25 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * @see #requestCompleted(Throwable)
    */
   protected void requestCompletedInternal(@Nullable Throwable notHandled) {
+  }
+
+  /**
+   * Complete the request lifecycle by firing the
+   * {@link HttpContext.Lifecycle#COMPLETED} callbacks.
+   * <p>The default implementation invokes the callbacks synchronously. An
+   * adapter with pending asynchronous response writes may override this hook
+   * and defer calling {@code super.onRequestCompleted()} until the body and
+   * trailer completion path has finished, including on failure. Trailer
+   * suppliers must run before callbacks release any resources they depend on.
+   * <p>This hook is invoked even if {@link #requestCompletedInternal(Throwable)}
+   * fails. A synchronous exception from this hook is suppressed onto the
+   * original failure when one exists. An adapter that defers completion must
+   * preserve that failure handling and arrange for callbacks to fire once.
+   *
+   * @since 5.0
+   */
+  protected void onRequestCompleted() {
+    fireCallbacks(Lifecycle.COMPLETED);
   }
 
   // ---------------------------------------------------------------------
@@ -1022,7 +1160,9 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * request, or null if the type is not known
    */
   @Override
-  public abstract @Nullable String getContentTypeAsString();
+  public @Nullable String getContentTypeAsString() {
+    return getHeader(HttpHeaders.CONTENT_TYPE);
+  }
 
   /**
    * Returns the HTTP headers associated with the current request. If the headers
@@ -1261,7 +1401,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   }
 
   private boolean validateIfMatch(@Nullable String eTag) {
-    if (SAFE_METHODS.contains(getMethodAsString())) {
+    if (SAFE_METHODS.contains(getMethod())) {
       return false;
     }
 
@@ -1285,7 +1425,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   private boolean matchRequestedETags(List<String> requestedETags, @Nullable String tag, boolean weakCompare) {
     if (StringUtils.isNotEmpty(tag)) {
       ETag eTag = ETag.create(tag);
-      boolean isNotSafeMethod = !SAFE_METHODS.contains(getMethodAsString());
+      boolean isNotSafeMethod = !SAFE_METHODS.contains(getMethod());
       for (String requestedETagString : requestedETags) {
         // Compare weak/strong ETags as per https://datatracker.ietf.org/doc/html/rfc9110#section-8.8.3
         for (ETag requestedETag : ETag.parse(requestedETagString)) {
@@ -1304,7 +1444,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
 
   private void updateResponseStateChanging(@Nullable String eTag, long lastModifiedTimestamp) {
     if (this.notModified) {
-      setStatus(HttpStatus.PRECONDITION_FAILED.value());
+      setStatus(HttpStatus.PRECONDITION_FAILED);
     }
     else {
       addCachingResponseHeaders(eTag, lastModifiedTimestamp);
@@ -1335,10 +1475,10 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   }
 
   private void updateResponseIdempotent(@Nullable String eTag, long lastModifiedTimestamp) {
-    boolean isHttpGetOrHead = SAFE_METHODS.contains(getMethodAsString());
+    boolean isHttpGetOrHead = SAFE_METHODS.contains(getMethod());
     if (this.notModified) {
       setStatus(isHttpGetOrHead ?
-              HttpStatus.NOT_MODIFIED.value() : HttpStatus.PRECONDITION_FAILED.value());
+              HttpStatus.NOT_MODIFIED : HttpStatus.PRECONDITION_FAILED);
     }
     if (isHttpGetOrHead) {
       HttpHeaders httpHeaders = responseHeaders();
@@ -1352,7 +1492,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   }
 
   private void addCachingResponseHeaders(@Nullable String eTag, long lastModifiedTimestamp) {
-    if (SAFE_METHODS.contains(getMethodAsString())) {
+    if (SAFE_METHODS.contains(getMethod())) {
       HttpHeaders httpHeaders = responseHeaders();
       if (lastModifiedTimestamp > 0 && parseDateValue(httpHeaders.getFirst(HttpHeaders.LAST_MODIFIED)) == -1) {
         httpHeaders.setLastModified(lastModifiedTimestamp);
@@ -1480,7 +1620,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
 
   /**
    * Checks if the current instance has a binding context established.
-   *
+   * <p>
    * This method evaluates whether the {@code bindingContext} is initialized
    * (i.e., not null). It is typically used to determine if the object is ready
    * for binding-related operations.
@@ -1602,8 +1742,8 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   @Override
   public void reset() {
     assertNotCommitted();
-    responseContentLength = -1L;
     responseContentType = null;
+    responseTrailers = null;
     if (responseHeaders != null) {
       responseHeaders.clear();
     }
@@ -1880,6 +2020,135 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   }
 
   /**
+   * {@inheritDoc}
+   *
+   * @since 5.0
+   */
+  @Override
+  public void setTrailerFields(Trailer... trailers) {
+    Assert.notNull(trailers, "Trailer fields are required");
+    assertNotCommitted();
+    if (trailers.length == 0) {
+      clearTrailerFields();
+      return;
+    }
+
+    if (getMethod() == HttpMethod.HEAD) {
+      throw new IllegalStateException("Response trailers are not supported for HEAD requests");
+    }
+    int status = getStatus();
+    if (status < 200 || status == 204 || status == 304) {
+      throw new IllegalStateException("Response trailers are not supported for status " + status);
+    }
+    if (getMethod() == HttpMethod.CONNECT && status < 300) {
+      throw new IllegalStateException("Response trailers are not supported for successful CONNECT");
+    }
+
+    Set<String> validated = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+    for (Trailer trailer : trailers) {
+      Assert.notNull(trailer, "Trailer field is required");
+      String name = trailer.name();
+      if (!TRAILER_NAME_PATTERN.matcher(name).matches()) {
+        throw new IllegalArgumentException("Invalid trailer field name: '" + name + "'");
+      }
+      if (FORBIDDEN_TRAILER_NAMES.contains(name.toLowerCase(Locale.ROOT))) {
+        throw new IllegalArgumentException("Trailer field is not allowed: '" + name + "'");
+      }
+      validated.add(name);
+    }
+
+    this.responseTrailers = new ResponseTrailerFields(List.of(trailers), Collections.unmodifiableSet(validated));
+  }
+
+  /**
+   * Discard registered trailers when the final response cannot carry them.
+   * <p>Adapters must call this before selecting response framing and writing
+   * headers, after all callbacks that may change the response status. This
+   * allows an otherwise valid no-content or upgraded response to complete
+   * normally without evaluating its trailer suppliers.
+   *
+   * @since 5.0
+   */
+  protected final void validateTrailerFieldsBeforeCommit() {
+    int status = getStatus();
+    if (this.responseTrailers != null && (getMethod() == HttpMethod.HEAD
+            || status < 200 || status == 204 || status == 304
+            || (getMethod() == HttpMethod.CONNECT && status < 300))) {
+      clearTrailerFields();
+    }
+  }
+
+  /**
+   * Return the declared trailer field names, or {@code null} if no trailers
+   * were registered.
+   * <p>Adapters use this to emit the {@code Trailer} declaration header and to
+   * choose a framing that can carry trailers.
+   *
+   * @return the declared field names, or {@code null}
+   * @since 5.0
+   */
+  protected final @Nullable Set<String> getTrailerFieldNames() {
+    ResponseTrailerFields trailers = this.responseTrailers;
+    return trailers != null ? trailers.names : null;
+  }
+
+  /**
+   * Discard the current trailer registration without touching the rest of the
+   * response state. Adapters use this on paths that must not emit trailers even
+   * though they do not perform a full {@link #reset()}.
+   *
+   * @since 5.0
+   */
+  protected final void clearTrailerFields() {
+    this.responseTrailers = null;
+  }
+
+  /**
+   * Evaluate the registered trailer fields.
+   * <p>Each supplier is invoked at most once. A second invocation returns
+   * {@code null} instead of evaluating them again, which keeps retries and
+   * multiple completion paths from producing duplicate or partial trailers.
+   * <p>Callers must treat an exception as a failed response: no trailer fields
+   * may be sent afterwards.
+   *
+   * @return the trailer fields, or {@code null} if none were registered,
+   * the suppliers were already evaluated, or every supplier returned
+   * {@code null}
+   * @throws IllegalStateException if a supplier produces an invalid value
+   * @since 5.0
+   */
+  protected final @Nullable HttpHeaders evaluateTrailerFields() {
+    validateTrailerFieldsBeforeCommit();
+    var config = this.responseTrailers;
+    if (config == null || !config.evaluated.compareAndSet(false, true)) {
+      return null;
+    }
+
+    HttpHeaders trailers = HttpHeaders.forWritable();
+    for (Trailer trailer : config.trailers) {
+      String value = trailer.supplier().get();
+      if (value != null) {
+        String name = trailer.name();
+        validateTrailerValue(name, value);
+        trailers.add(name, value);
+      }
+    }
+    return trailers.isEmpty() ? null : trailers;
+  }
+
+  private static void validateTrailerValue(String name, @Nullable String value) {
+    if (value == null) {
+      return;
+    }
+    for (int i = 0; i < value.length(); i++) {
+      char c = value.charAt(i);
+      if ((c < 0x20 && c != '\t') || c == 0x7f) {
+        throw new IllegalStateException("Invalid trailer value for field '" + name + "'");
+      }
+    }
+  }
+
+  /**
    * create a new response http-header
    *
    * @since 3.0
@@ -2049,6 +2318,28 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     @Override
     public void setContentType(@Nullable MediaType mediaType) {
       AbstractHttpContext.this.setContentType(mediaType);
+    }
+  }
+
+  /**
+   * Immutable trailer configuration with an atomic evaluation guard. The
+   * {@code evaluated} flag makes the
+   * suppliers run at most once, regardless of how many completion paths reach
+   * them.
+   *
+   * @since 5.0
+   */
+  private static final class ResponseTrailerFields {
+
+    public final List<Trailer> trailers;
+
+    public final Set<String> names;
+
+    public final AtomicBoolean evaluated = new AtomicBoolean();
+
+    ResponseTrailerFields(List<Trailer> trailers, Set<String> names) {
+      this.trailers = trailers;
+      this.names = names;
     }
   }
 

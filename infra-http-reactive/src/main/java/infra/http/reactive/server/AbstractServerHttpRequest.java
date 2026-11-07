@@ -50,6 +50,8 @@ public abstract class AbstractServerHttpRequest extends DefaultAttributeAccessor
 
   private final URI uri;
 
+  private final HttpMethod method;
+
   private final RequestPath path;
 
   private final HttpHeaders headers;
@@ -63,21 +65,6 @@ public abstract class AbstractServerHttpRequest extends DefaultAttributeAccessor
   private @Nullable String id;
 
   private @Nullable String logPrefix;
-
-  private @Nullable HttpMethod method;
-
-  /**
-   * Constructor with the URI and headers for the request.
-   *
-   * @param uri the URI for the request
-   * @param contextPath the context path for the request
-   * @param headers the headers for the request (as {@link HttpHeaders})
-   */
-  public AbstractServerHttpRequest(URI uri, @Nullable String contextPath, HttpHeaders headers) {
-    this.uri = uri;
-    this.path = RequestPath.parse(uri, contextPath);
-    this.headers = headers.asReadOnly();
-  }
 
   /**
    * Constructor with the method, URI and headers for the request.
@@ -119,11 +106,6 @@ public abstract class AbstractServerHttpRequest extends DefaultAttributeAccessor
 
   @Override
   public HttpMethod getMethod() {
-    HttpMethod method = this.method;
-    if (method == null) {
-      method = HttpMethod.valueOf(getMethodAsString());
-      this.method = method;
-    }
     return method;
   }
 

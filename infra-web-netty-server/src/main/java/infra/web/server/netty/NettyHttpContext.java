@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.UncheckedIOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.ClosedChannelException;
@@ -49,6 +50,9 @@ import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.server.ServerHttpResponse;
 import infra.http.support.NettyHeaders;
 import infra.lang.Constant;
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.InfraStrategies;
 import infra.util.MultiValueMap;
@@ -65,9 +69,11 @@ import infra.web.server.RequestBodySizeExceededException;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
+import io.netty.channel.FileRegion;
 import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.Headers;
 import io.netty.handler.codec.HeadersUtils;
@@ -88,9 +94,11 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.AsciiString;
 import io.netty.util.AttributeKey;
 import io.netty.util.AttributeMap;
+import io.netty.util.ReferenceCountUtil;
 import io.netty.util.internal.PlatformDependent;
 
 import static infra.http.HttpHeaders.isNotEmpty;
+import static io.netty.handler.codec.http.HttpMethod.CONNECT;
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpMethod.HEAD;
 import static io.netty.util.internal.StringUtil.decodeHexByte;
@@ -165,6 +173,11 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   private static final CookieHeaderNames.SameSite[] SAME_SITES = CookieHeaderNames.SameSite.values();
 
+  /**
+   * Shared logger for transport-level diagnostics.
+   */
+  protected static final Logger log = LoggerFactory.getLogger(NettyHttpContext.class);
+
   protected final Channel channel;
 
   protected final NettyRequestConfig config;
@@ -182,11 +195,12 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   private HttpResponseStatus status = HttpResponseStatus.OK;
 
-  private @Nullable String remoteAddress;
-
-  private @Nullable ByteBuf responseBody;
-
-  private @Nullable Object fileToSend;
+  /**
+   * The response body waiting to be written to the pipeline: a {@link ByteBuf},
+   * a {@link FileRegion} or a {@link ChunkedInput}. These representations are
+   * mutually exclusive and consumed together by {@link #flush()}.
+   */
+  private @Nullable Object pendingBody;
 
   private @Nullable ServerHttpResponse outputMessage;
 
@@ -230,11 +244,13 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   /**
    * Whether this protocol supports the {@code Transfer-Encoding} response header.
-   * <p>HTTP/2 forbids connection-specific headers, so the HTTP/2 context
-   * overrides this method to return {@code false}.
+   * <p>Chunked transfer coding was introduced in HTTP/1.1; HTTP/1.0 responses
+   * must be delimited by closing the connection instead. HTTP/2 also forbids
+   * connection-specific headers, so the HTTP/2 context overrides this method
+   * to return {@code false}.
    */
   protected boolean supportsTransferEncoding() {
-    return true;
+    return version().compareTo(HttpVersion.HTTP_1_1) >= 0;
   }
 
   /**
@@ -306,81 +322,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   }
 
   @Override
-  public int getServerPort() {
-    SocketAddress socketAddress = localAddress();
-    if (socketAddress instanceof InetSocketAddress) {
-      return ((InetSocketAddress) socketAddress).getPort();
-    }
-    String hostHeader = getHeader(HttpHeaders.HOST);
-    if (hostHeader != null) {
-      int port = parsePortFromHostHeader(hostHeader);
-      if (port > 0) {
-        return port;
-      }
-    }
-    return isSecure() ? 443 : 80;
-  }
-
-  static int parsePortFromHostHeader(String hostHeader) {
-    int idx;
-    if (hostHeader.charAt(0) == '[') {
-      int closingBracket = hostHeader.indexOf(']');
-      if (closingBracket < 0) {
-        return -1;
-      }
-      idx = hostHeader.indexOf(':', closingBracket);
-    }
-    else {
-      idx = hostHeader.indexOf(':');
-    }
-    if (idx < 0) {
-      return -1;
-    }
-    try {
-      return Integer.parseInt(hostHeader.substring(idx + 1));
-    }
-    catch (NumberFormatException e) {
-      return -1;
-    }
-  }
-
-  @Override
-  public String getServerName() {
-    String host = getHeader(HttpHeaders.HOST);
-    if (host != null) {
-      if (host.charAt(0) == '[') {
-        int closingBracket = host.indexOf(']');
-        if (closingBracket > 0) {
-          host = host.substring(0, closingBracket + 1);
-        }
-      }
-      else {
-        int colonIndex = host.indexOf(':');
-        if (colonIndex >= 0) {
-          host = host.substring(0, colonIndex);
-        }
-      }
-      return host;
-    }
-    SocketAddress socketAddress = localAddress();
-    if (socketAddress instanceof InetSocketAddress) {
-      host = ((InetSocketAddress) socketAddress).getHostString();
-    }
-    if (host == null) {
-      host = Constant.LOCALHOST;
-    }
-    return host;
-  }
-
-  @Override
-  public String getRemoteAddress() {
-    if (remoteAddress == null) {
-      remoteAddress = remoteAddress().getAddress().getHostAddress();
-    }
-    return remoteAddress;
-  }
-
-  @Override
   public InetSocketAddress remoteAddress() {
     return (InetSocketAddress) channel.remoteAddress();
   }
@@ -416,11 +357,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   @Override
   protected PrintWriter createWriter() throws IOException {
     return new PrintWriter(getOutputStream(), config.writerAutoFlush, config.writerCharset);
-  }
-
-  @Override
-  public @Nullable String getContentTypeAsString() {
-    return getHeader(DefaultHttpHeaders.CONTENT_TYPE);
   }
 
   @Override
@@ -571,19 +507,21 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * @return HTTP response body
    */
   private ByteBuf responseBody() {
-    ByteBuf responseBody = this.responseBody;
-    if (responseBody == null) {
-      var bodyFactory = config.responseBodyFactory;
-      if (bodyFactory != null) {
-        responseBody = bodyFactory.apply(this); // may null
-      }
-      if (responseBody == null) {
-        // fallback
-        responseBody = createResponseBody(config);
-      }
-      this.responseBody = responseBody;
+    if (pendingBody instanceof ByteBuf body) {
+      return body;
     }
-    return responseBody;
+    if (pendingBody != null) {
+      throw new IllegalStateException("Cannot write response body: a response file has already been scheduled");
+    }
+
+    var bodyFactory = config.responseBodyFactory;
+    ByteBuf body = bodyFactory != null ? bodyFactory.apply(this) : null; // may null
+    if (body == null) {
+      // fallback
+      body = createResponseBody(config);
+    }
+    this.pendingBody = body;
+    return body;
   }
 
   protected ByteBuf createResponseBody(NettyRequestConfig config) {
@@ -604,15 +542,13 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   public void flush() {
     writeHeaders();
 
-    Object fileToSend;
-    ByteBuf responseBody = this.responseBody;
-    if (responseBody != null) {
-      this.responseBody = null;
-      writeResponseBody(responseBody);
+    Object body = this.pendingBody;
+    this.pendingBody = null;
+    if (body instanceof ByteBuf byteBuf) {
+      writeResponseBody(byteBuf);
     }
-    else if ((fileToSend = this.fileToSend) != null) {
-      this.fileToSend = null;
-      writeResponseFile(fileToSend);
+    else if (body != null) {
+      writeResponseFile(body);
     }
   }
 
@@ -632,7 +568,77 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     cleanup(null);
     if (notHandled == null) {
       flush();
-      endResponse();
+      writeResponseEnd();
+    }
+    else {
+      discardPendingResponse();
+    }
+  }
+
+  private void discardPendingResponse() {
+    Object body = this.pendingBody;
+    this.pendingBody = null;
+    if (body instanceof ByteBuf byteBuf) {
+      ReferenceCountUtil.safeRelease(byteBuf);
+    }
+    else if (body != null) {
+      releaseResponseFile(body);
+    }
+  }
+
+  /**
+   * Release an unsent response file or an input rejected by the pipeline.
+   */
+  protected final void releaseResponseFile(@Nullable Object pendingFile) {
+    try {
+      if (pendingFile instanceof ChunkedInput<?> input) {
+        input.close();
+      }
+    }
+    catch (Exception ex) {
+      log.warn("Failed to close pending response file", ex);
+    }
+    finally {
+      ReferenceCountUtil.safeRelease(pendingFile);
+    }
+  }
+
+  /**
+   * Adapt a pending zero-copy file when trailers were registered afterwards.
+   */
+  protected final Object prepareResponseFile(Object file) {
+    if (file instanceof PendingFileRegion region && getTrailerFieldNames() != null) {
+      try {
+        return createChunkedResponseFile(region.file, region.position(), region.count());
+      }
+      catch (IOException ex) {
+        throw new UncheckedIOException("Failed to prepare response file", ex);
+      }
+      finally {
+        ReferenceCountUtil.safeRelease(region);
+      }
+    }
+    return file;
+  }
+
+  private Object createChunkedResponseFile(File file, long position, long count) throws IOException {
+    ChannelPipeline pipeline = channel.pipeline();
+    if (pipeline.context(CHUNKED_WRITER_NAME) == null) {
+      pipeline.addLast(CHUNKED_WRITER_NAME, new ChunkedWriteHandler());
+    }
+    FileChannel fileChannel = FileChannel.open(file.toPath(), StandardOpenOption.READ);
+    try {
+      ChunkedNioFile nioFile = new ChunkedNioFile(fileChannel, position, count, nioFileChunkSize);
+      return modifyChunkedFile(nioFile);
+    }
+    catch (IOException | RuntimeException | Error ex) {
+      try {
+        fileChannel.close();
+      }
+      catch (IOException closeFailure) {
+        ex.addSuppressed(closeFailure);
+      }
+      throw ex;
     }
   }
 
@@ -661,42 +667,91 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     writeHeaders();
   }
 
+  /**
+   * Write the headers that frame the response content.
+   * <p>When the length is known it is written as {@code Content-Length}. An
+   * unknown-length {@link ChunkedInput} uses chunked transfer coding where the
+   * protocol supports it; otherwise the message is delimited by the transport.
+   * An explicit length or a chunked transfer coding wins, so the common response
+   * path returns after the first lookup. For a {@code HEAD} request the length is
+   * taken from the discarded body before it is released, so the representation
+   * length is preserved.
+   */
+  private void writeContentFraming(DefaultHeaders<CharSequence, @Nullable CharSequence, ?> headers) {
+    if (isTransferEncodingChunked(headers)) {
+      // Explicit chunked framing wins over an inferred or stale Content-Length.
+      headers.remove(HttpHeaderNames.CONTENT_LENGTH);
+      return;
+    }
+    if (headers.contains(HttpHeaderNames.CONTENT_LENGTH)) {
+      return;
+    }
+
+    Object body = this.pendingBody;
+    if (body instanceof ByteBuf byteBuf) {
+      headers.setInt(HttpHeaderNames.CONTENT_LENGTH, byteBuf.readableBytes());
+    }
+    else if (body instanceof FileRegion region) {
+      headers.setLong(HttpHeaderNames.CONTENT_LENGTH, region.count());
+    }
+    else if (body instanceof ChunkedInput<?> input) {
+      long length = input.length();
+      if (length >= 0) {
+        headers.setLong(HttpHeaderNames.CONTENT_LENGTH, length);
+      }
+      else if (method != HEAD && supportsTransferEncoding()) {
+        // Unknown length cannot use Content-Length; let chunked coding delimit it.
+        headers.set(HttpHeaderNames.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
+      }
+    }
+    else if (outputStream instanceof NoBodyOutputStream nbStream) {
+      headers.setInt(HttpHeaderNames.CONTENT_LENGTH, nbStream.contentLength);
+    }
+    else {
+      headers.setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
+    }
+  }
+
   @Override
   protected void writeHeaders() {
     if (committed.compareAndSet(false, true)) {
       onCommitting();
-      // ---------------------------------------------
-      // apply Status code and headers
-      // ---------------------------------------------
+      validateTrailerFieldsBeforeCommit();
       var headers = nettyResponseHeaders;
-      if (status != HttpResponseStatus.SWITCHING_PROTOCOLS) {
-        // set Content-Length header
-        if (MediaType.TEXT_EVENT_STREAM_VALUE.equals(getResponseContentType())) {
+      int code = status.code();
+      if (code < 200 || code == 204 || code == 205 || code == 304
+              || (method == CONNECT && code < 300)) {
+        // these responses carry no body, even when a handler or sendFile()
+        // prepared one
+        headers.remove(HttpHeaderNames.CONTENT_LENGTH);
+        headers.remove(HttpHeaderNames.TRANSFER_ENCODING);
+        headers.remove(HttpHeaderNames.TRAILER);
+        discardPendingResponse();
+        if (code == 205) {
+          // 205 is not implicitly empty; clients need an explicit zero length
+          headers.setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
+        }
+      }
+      else if (method == HEAD) {
+        // preserve the representation length before the body is discarded
+        writeContentFraming(headers);
+        discardPendingResponse();
+      }
+      else {
+        Set<String> trailerNames = getTrailerFieldNames();
+        if (trailerNames != null) {
           if (supportsTransferEncoding()) {
             headers.set(HttpHeaderNames.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
-            headers.remove(HttpHeaderNames.CONTENT_LENGTH);
           }
+          headers.remove(HttpHeaderNames.CONTENT_LENGTH);
+          headers.set(HttpHeaderNames.TRAILER, String.join(", ", trailerNames));
         }
-        else if (!isTransferEncodingChunked(headers)) {
-          if (!headers.contains(HttpHeaderNames.CONTENT_LENGTH)) {
-            ByteBuf responseBody = this.responseBody;
-            if (responseBody == null) {
-              if (getMethod() == HttpMethod.HEAD && outputStream instanceof NoBodyOutputStream nbStream) {
-                headers.setInt(HttpHeaderNames.CONTENT_LENGTH, nbStream.contentLength);
-              }
-              else {
-                headers.setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
-              }
-            }
-            else {
-              headers.setInt(HttpHeaderNames.CONTENT_LENGTH, responseBody.readableBytes());
-            }
-          }
+        else {
+          writeContentFraming(headers);
         }
       }
 
       // apply cookies
-      var responseCookies = this.responseCookies;
       if (responseCookies != null) {
         var cookieEncoder = config.cookieEncoder;
         for (HttpCookie cookie : responseCookies) {
@@ -715,43 +770,67 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
         }
       }
 
-      writeResponseHead(status, headers);
+      trackResponseWrite(writeResponseHead(status, headers));
       onCommitted();
     }
   }
 
   /**
    * Write the response head using the transport specific representation.
+   *
+   * @return the write future, so the caller can attach the failure listener
    */
   protected <T extends Headers<CharSequence, CharSequence, T>>
-  void writeResponseHead(HttpResponseStatus status, DefaultHeaders<CharSequence, @Nullable CharSequence, T> headers) {
-    channel.write(new DefaultHttpResponse(version(), status, new Http1Headers(headers)));
+  ChannelFuture writeResponseHead(HttpResponseStatus status, DefaultHeaders<CharSequence, @Nullable CharSequence, T> headers) {
+    return channel.write(new DefaultHttpResponse(version(), status, new Http1Headers(headers)));
   }
 
   /**
    * Write and flush a response body chunk.
    */
   protected void writeResponseBody(ByteBuf body) {
-    channel.writeAndFlush(body);
+    trackResponseWrite(channel.writeAndFlush(body));
   }
 
   /**
    * Write and flush a file or chunked input.
    */
   protected void writeResponseFile(Object file) {
-    channel.writeAndFlush(file)
-            .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+    Object prepared = prepareResponseFile(file);
+    try {
+      trackResponseWrite(channel.writeAndFlush(prepared));
+    }
+    catch (RuntimeException | Error failure) {
+      releaseResponseFile(prepared);
+      throw failure;
+    }
+  }
+
+  /**
+   * Track a response write so a failed write closes the connection or stream.
+   * Trailers are evaluated when the response completes and are written after
+   * every body chunk in pipeline order; an asynchronous write failure aborts
+   * the exchange through {@link ChannelFutureListener#CLOSE_ON_FAILURE}.
+   */
+  protected final void trackResponseWrite(ChannelFuture future) {
+    future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+  }
+
+  /**
+   * Abort a response that cannot produce a valid terminating message.
+   */
+  protected final void abortResponse(Throwable failure) {
+    HttpTrafficHandler.handleCommittedException(channel, failure);
   }
 
   /**
    * Complete the response, closing the connection when it is not kept alive.
    */
-  protected void endResponse() {
+  protected void writeResponseEnd() {
   }
 
   @Override
   public void setContentLength(long length) {
-    responseContentLength = length;
     nettyResponseHeaders.setLong(HttpHeaderNames.CONTENT_LENGTH, length);
   }
 
@@ -763,15 +842,19 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   @Override
   public void reset() {
     assertNotCommitted();
+    if (pendingBody instanceof ByteBuf body) {
+      // keep the buffer for reuse
+      body.clear();
+    }
+    else {
+      discardPendingResponse();
+    }
+
+    clearTrailerFields();
     nettyResponseHeaders.clear();
 
-    ByteBuf responseBody = this.responseBody;
-    if (responseBody != null) {
-      responseBody.clear();
-    }
     writer = null;
     responseContentType = null;
-    responseContentLength = -1L;
     status = HttpResponseStatus.OK;
   }
 
@@ -928,6 +1011,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * becomes inactive.
    */
   protected void onChannelInactive() {
+    discardPendingResponse();
     cleanup(new ClosedChannelException());
   }
 
@@ -978,6 +1062,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       processRequest();
     }
     catch (Throwable e) {
+      discardPendingResponse();
       httpTrafficHandler.handleException(channel, e);
     }
     finally {
@@ -1067,8 +1152,13 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     channel.attr(KEY).set(this);
   }
 
-  static @Nullable NettyHttpContext getAndRemove(AttributeMap map) {
+  protected static @Nullable NettyHttpContext getAndRemove(AttributeMap map) {
     return map.attr(KEY).getAndSet(null);
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  protected static long contentLength(Headers headers) {
+    return headers.getLong(HttpHeaderNames.CONTENT_LENGTH, -1);
   }
 
   /**
@@ -1380,47 +1470,54 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
     @Override
     public long getContentLength() {
-      long contentLength = responseContentLength;
-      if (contentLength == -1L) {
-        CharSequence value = nettyResponseHeaders.get(HttpHeaderNames.CONTENT_LENGTH);
-        if (value != null) {
-          contentLength = parseLong(value.toString());
-          responseContentLength = contentLength;
-        }
-      }
-      return contentLength;
-    }
-
-    private static long parseLong(String value) {
-      try {
-        return Long.parseLong(value);
-      }
-      catch (NumberFormatException e) {
-        return -1;
-      }
+      return contentLength(nettyResponseHeaders);
     }
 
     @Override
     public void sendFile(Path file, long position, long count) throws IOException {
+      Assert.notNull(file, "File is required");
       sendFile(file.toFile(), position, count);
     }
 
     @Override
     public void sendFile(File file, long position, long count) throws IOException {
-      if (config.secure || !supportsFileRegion()) {
-        ChannelPipeline pipeline = channel.pipeline();
-        if (pipeline.context(CHUNKED_WRITER_NAME) == null) {
-          pipeline.addLast(CHUNKED_WRITER_NAME, new ChunkedWriteHandler());
-        }
-        ChunkedNioFile nioFile = new ChunkedNioFile(FileChannel.open(file.toPath(), StandardOpenOption.READ),
-                position, count, nioFileChunkSize);
-        fileToSend = modifyChunkedFile(nioFile);
+      assertNotCommitted();
+      Assert.notNull(file, "File is required");
+      Assert.isTrue(position >= 0, "Position must not be negative");
+      Assert.isTrue(count >= 0, "Count must not be negative");
+      if (file.isFile()) {
+        long fileLength = file.length();
+        Assert.isTrue(position <= fileLength, "Position exceeds file length");
+        Assert.isTrue(count <= fileLength - position, "Count exceeds available file bytes");
+      }
+
+      if (pendingBody instanceof ByteBuf body && body.readableBytes() > 0) {
+        throw new IllegalStateException("Cannot send file: response body has already been written");
+      }
+
+      discardPendingResponse();
+      // chunked framing is required when trailers were registered, so a
+      // zero-copy file region cannot be used
+      if (config.secure || !supportsFileRegion() || getTrailerFieldNames() != null) {
+        pendingBody = createChunkedResponseFile(file, position, count);
       }
       else {
-        fileToSend = new DefaultFileRegion(file, position, count);
+        pendingBody = new PendingFileRegion(file, position, count);
       }
+
+      setContentLength(count);
     }
 
+  }
+
+  private static final class PendingFileRegion extends DefaultFileRegion {
+
+    private final File file;
+
+    PendingFileRegion(File file, long position, long count) {
+      super(file, position, count);
+      this.file = file;
+    }
   }
 
 }

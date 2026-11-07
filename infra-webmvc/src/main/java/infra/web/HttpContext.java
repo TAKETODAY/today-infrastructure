@@ -260,16 +260,6 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
   HttpMethod getMethod();
 
   /**
-   * Return the HTTP method of the request as a String value.
-   *
-   * @return the HTTP method as a plain String
-   * @see #getMethod()
-   */
-  default String getMethodAsString() {
-    return getMethod().name();
-  }
-
-  /**
    * Return the URI of the request (including a query string if any,
    * but only if it is well-formed for a URI representation).
    *
@@ -595,6 +585,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return a long containing the length of the request body or -1L if the length
    * is not known
    */
+  @Override
   long getContentLength();
 
   /**
@@ -1576,6 +1567,48 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * This will never be {@code null}.
    */
   HttpHeaders responseHeaders();
+
+  /**
+   * Register trailer fields to be evaluated after the response body has been
+   * produced and before the terminating message is sent.
+   *
+   * <p>Each {@link Trailer} pairs a field name with a supplier for its value.
+   * Names must be registered before the response headers are committed, are
+   * copied defensively, and are compared case-insensitively. A later
+   * registration replaces the previous one instead of merging with it;
+   * multiple trailers with the same name produce multiple values for that
+   * field. An empty array clears the registration without resetting other
+   * response state.
+   *
+   * <p>Registration is rejected for HEAD requests, informational (1xx)
+   * responses, status 204 or 304, and successful CONNECT responses. If the
+   * final response changes to one of these states (including a protocol
+   * upgrade), the registration is discarded without evaluating its suppliers.
+   *
+   * <p>Suppliers are invoked at most once, after the body has been produced
+   * and only when the exchange completes normally. They run on the
+   * response-completion or body-write-completion thread and must not perform
+   * blocking I/O. Returning {@code null} omits that field for the current
+   * response; an invalid value or an exception aborts the response instead of
+   * sending partial trailers. Values may contain HTAB but no other control
+   * characters, and must not contain DEL (0x7F).
+   *
+   * <p>Trailers are sent on a best-effort basis: proxies may strip them and
+   * clients may ignore them. This is not a general-purpose streaming
+   * completion signal.
+   *
+   * @param trailers the trailer fields to register, or an empty array to clear them
+   * @throws IllegalStateException if the response has already been committed,
+   * or a nonempty registration is attempted for HEAD, an informational (1xx)
+   * response, status 204 or 304, or a successful CONNECT response
+   * @throws IllegalArgumentException if the array or an element is {@code null},
+   * or a name is empty, invalid, or forbidden
+   * @throws UnsupportedOperationException if this response does not support trailers
+   * @since 5.0
+   */
+  default void setTrailerFields(Trailer... trailers) {
+    throw new UnsupportedOperationException("Response trailers are not supported");
+  }
 
   /**
    * Return this context as a {@link ServerHttpResponse}, suitable for use

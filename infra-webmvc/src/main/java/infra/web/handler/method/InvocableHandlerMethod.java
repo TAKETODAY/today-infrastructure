@@ -140,7 +140,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
       response.sendError(status.value(), reason);
     }
     else {
-      response.setStatus(status.value());
+      response.setStatus(status);
     }
 
     // To be picked up by RedirectView

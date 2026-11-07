@@ -455,6 +455,11 @@ public abstract class AbstractDelegatingHttpContext implements HttpContext {
   }
 
   @Override
+  public void setTrailerFields(Trailer... trailers) {
+    delegate().setTrailerFields(trailers);
+  }
+
+  @Override
   public void addHeaders(@Nullable HttpHeaders headers) {
     delegate().addHeaders(headers);
   }

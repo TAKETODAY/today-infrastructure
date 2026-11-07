@@ -68,6 +68,17 @@ class DelegatingHttpContextTests {
   }
 
   @Test
+  void trailerRegistrationIsDelegated() {
+    HttpContext delegate = mock(HttpContext.class);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
+    Trailer trailer = Trailer.field("Content-Digest", () -> "sha-256=:abc:");
+
+    wrapper.setTrailerFields(trailer);
+
+    verify(delegate).setTrailerFields(trailer);
+  }
+
+  @Test
   void equals_ShouldReturnTrue_ForSameDelegate() {
     HttpContext delegate = mock(HttpContext.class);
     DelegatingHttpContext wrapper1 = new DelegatingHttpContext(delegate);

@@ -283,7 +283,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
           try {
             List<HttpRange> httpRanges = HttpRange.resolveRanges(request.requestHeaders(), request.responseHeaders());
             if (!httpRanges.isEmpty()) {
-              request.setStatus(HttpStatus.PARTIAL_CONTENT.value());
+              request.setStatus(HttpStatus.PARTIAL_CONTENT);
               entity = HttpRange.toResourceRegions(httpRanges, resource);
               entityClass = entity.getClass();
               entityType = RESOURCE_REGION_LIST_TYPE;

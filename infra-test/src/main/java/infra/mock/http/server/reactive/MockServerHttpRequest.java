@@ -57,28 +57,22 @@ import reactor.core.publisher.Flux;
  */
 public final class MockServerHttpRequest extends AbstractServerHttpRequest {
 
-  private final HttpMethod httpMethod;
-
   private final MultiValueMap<String, HttpCookie> cookies;
-
-  @Nullable
-  private final InetSocketAddress localAddress;
-
-  @Nullable
-  private final InetSocketAddress remoteAddress;
-
-  @Nullable
-  private final SslInfo sslInfo;
 
   private final Flux<DataBuffer> body;
 
-  private MockServerHttpRequest(HttpMethod httpMethod,
-          URI uri, @Nullable String contextPath, HttpHeaders headers, MultiValueMap<String, HttpCookie> cookies,
+  private final @Nullable InetSocketAddress localAddress;
+
+  private final @Nullable InetSocketAddress remoteAddress;
+
+  private final @Nullable SslInfo sslInfo;
+
+  private MockServerHttpRequest(HttpMethod httpMethod, URI uri, @Nullable String contextPath,
+          HttpHeaders headers, MultiValueMap<String, HttpCookie> cookies,
           @Nullable InetSocketAddress localAddress, @Nullable InetSocketAddress remoteAddress,
           @Nullable SslInfo sslInfo, Publisher<? extends DataBuffer> body) {
 
-    super(uri, contextPath, headers);
-    this.httpMethod = httpMethod;
+    super(httpMethod, uri, contextPath, headers);
     this.cookies = cookies;
     this.localAddress = localAddress;
     this.remoteAddress = remoteAddress;
@@ -87,25 +81,17 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
   }
 
   @Override
-  public HttpMethod getMethod() {
-    return this.httpMethod;
-  }
-
-  @Override
-  @Nullable
-  public InetSocketAddress getLocalAddress() {
+  public @Nullable InetSocketAddress getLocalAddress() {
     return this.localAddress;
   }
 
   @Override
-  @Nullable
-  public InetSocketAddress getRemoteAddress() {
+  public @Nullable InetSocketAddress getRemoteAddress() {
     return this.remoteAddress;
   }
 
   @Override
-  @Nullable
-  protected SslInfo initSslInfo() {
+  protected @Nullable SslInfo initSslInfo() {
     return this.sslInfo;
   }
 

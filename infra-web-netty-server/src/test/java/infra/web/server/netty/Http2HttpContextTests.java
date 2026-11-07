@@ -23,15 +23,18 @@ import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.context.ApplicationContext;
 import infra.http.HttpHeaders;
+import infra.web.Trailer;
 import infra.web.DispatcherHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.DefaultChannelPromise;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http2.DefaultHttp2DataFrame;
@@ -42,6 +45,7 @@ import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.Http2HeadersFrame;
 import io.netty.handler.codec.http2.Http2StreamChannel;
 import io.netty.handler.stream.ChunkedInput;
+import io.netty.util.concurrent.ImmediateEventExecutor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -49,6 +53,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
 /**
@@ -272,18 +277,65 @@ class Http2HttpContextTests {
   void regularResponseWritesEndStreamFrame() {
     Http2HttpContext context = createContext();
 
-    context.endResponse();
+    context.writeResponseEnd();
 
     then(channel).should().writeAndFlush(any(DefaultHttp2DataFrame.class));
   }
 
   @Test
+  void trailersAreSentAsTrailingHeadersFrameWithLowercaseNames() {
+    Http2HttpContext context = createContext();
+    context.setTrailerFields(
+            Trailer.field("Content-Digest", () -> "sha-256=:abc:"));
+
+    context.writeResponseEnd();
+
+    ArgumentCaptor<Http2HeadersFrame> captor = ArgumentCaptor.forClass(Http2HeadersFrame.class);
+    then(channel).should().writeAndFlush(captor.capture());
+    Http2HeadersFrame frame = captor.getValue();
+    assertThat(frame.isEndStream()).isTrue();
+    assertThat(frame.headers().get("content-digest")).isEqualTo("sha-256=:abc:");
+    assertThat(frame.headers().names()).containsExactly("content-digest");
+    assertThat(frame.headers().contains(Http2Headers.PseudoHeaderName.STATUS.value())).isFalse();
+  }
+
+  @Test
+  void trailersSkipContentLengthAndTransferEncoding() {
+    Http2HttpContext context = createContext();
+    context.setTrailerFields(
+            Trailer.field("Content-Digest", () -> "sha-256=:abc:"));
+
+    context.flush();
+
+    ArgumentCaptor<Http2HeadersFrame> captor = ArgumentCaptor.forClass(Http2HeadersFrame.class);
+    then(channel).should().write(captor.capture());
+    Http2Headers headers = captor.getValue().headers();
+    assertThat(headers.contains(HttpHeaderNames.CONTENT_LENGTH)).isFalse();
+    assertThat(headers.contains(HttpHeaderNames.TRANSFER_ENCODING)).isFalse();
+    assertThat(headers.get("trailer")).isEqualTo("Content-Digest");
+  }
+
+  @Test
+  void trailerFailureClosesStream() {
+    when(channel.isActive()).thenReturn(true);
+    Http2HttpContext context = createContext();
+    context.setTrailerFields(Trailer.field("X-Checksum", () -> {
+      throw new IllegalStateException("boom");
+    }));
+
+    context.writeResponseEnd();
+
+    then(channel).should().close();
+    then(channel).should(never()).writeAndFlush(any());
+  }
+
+  @Test
   void fileWriteFailureClosesChannel() throws Exception {
     ChannelFuture future = mock();
+    Http2HttpContext context = createContext();
     when(channel.writeAndFlush(any())).thenReturn(future);
     when(future.addListener(any(ChannelFutureListener.class))).thenReturn(future);
 
-    Http2HttpContext context = createContext();
     context.writeResponseFile(mock(ByteBuf.class));
 
     ArgumentCaptor<ChannelFutureListener> listener = ArgumentCaptor.forClass(ChannelFutureListener.class);
@@ -327,15 +379,118 @@ class Http2HttpContextTests {
     assertThat(context.tryWriteResponseContinue()).isFalse();
   }
 
+  @ParameterizedTest
+  @ValueSource(ints = { 204, 304 })
+  void finalNoBodyStatusDiscardsTrailers(int status) {
+    Http2HttpContext context = createContext();
+    AtomicInteger calls = registerCountingTrailer(context);
+    context.registerCallback(HttpContext.Lifecycle.COMMITTING, "status", () -> context.setStatus(status));
+
+    context.requestCompletedInternal(null);
+
+    ArgumentCaptor<Http2HeadersFrame> head = ArgumentCaptor.forClass(Http2HeadersFrame.class);
+    then(channel).should().write(head.capture());
+    assertThat(head.getValue().headers().status().toString()).isEqualTo(Integer.toString(status));
+    assertThat(head.getValue().headers().contains(HttpHeaderNames.TRAILER)).isFalse();
+    then(channel).should(never()).writeAndFlush(any(Http2HeadersFrame.class));
+    then(channel).should().writeAndFlush(any(DefaultHttp2DataFrame.class));
+    assertThat(calls).hasValue(0);
+  }
+
+  @Test
+  void terminalWriteFailureClosesStream() {
+    Http2HttpContext context = createContext();
+    ChannelFuture terminal = mock();
+    when(channel.writeAndFlush(any())).thenReturn(terminal);
+    when(terminal.channel()).thenReturn(channel);
+    when(terminal.isSuccess()).thenReturn(false);
+    when(terminal.addListener(any(ChannelFutureListener.class))).thenAnswer(invocation -> {
+      ChannelFutureListener listener = invocation.getArgument(0);
+      listener.operationComplete(terminal);
+      return terminal;
+    });
+
+    context.writeResponseEnd();
+
+    then(channel).should().close();
+  }
+
+  @Test
+  void trailersAreEvaluatedOnCompletion() {
+    Http2HttpContext context = createContext();
+    AtomicInteger calls = registerCountingTrailer(context);
+
+    context.requestCompletedInternal(null);
+
+    assertThat(calls).hasValue(1);
+    ArgumentCaptor<Http2HeadersFrame> tail = ArgumentCaptor.forClass(Http2HeadersFrame.class);
+    then(channel).should().writeAndFlush(tail.capture());
+    assertThat(tail.getValue().isEndStream()).isTrue();
+    assertThat(tail.getValue().headers().get("content-digest")).isEqualTo("sha-256=:abc:");
+  }
+
+  @Test
+  void headWriteFailureClosesStream() {
+    Http2HttpContext context = createContext();
+    registerCountingTrailer(context);
+    ChannelFuture head = mock();
+    when(channel.write(any())).thenReturn(head);
+    when(head.channel()).thenReturn(channel);
+    when(head.isSuccess()).thenReturn(false);
+    when(head.addListener(any(ChannelFutureListener.class))).thenAnswer(invocation -> {
+      ChannelFutureListener listener = invocation.getArgument(0);
+      listener.operationComplete(head);
+      return head;
+    });
+
+    context.requestCompletedInternal(null);
+
+    then(channel).should().close();
+  }
+
+  @Test
+  void asynchronousFileWriteFailureClosesStream() {
+    Http2HttpContext context = createContext();
+    registerCountingTrailer(context);
+    Object file = new Object();
+    DefaultChannelPromise write = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
+    when(channel.writeAndFlush(file)).thenReturn(write);
+    context.writeResponseFile(file);
+
+    context.requestCompletedInternal(null);
+    write.setFailure(new IOException("file write failed"));
+
+    then(channel).should().close();
+  }
+
+  private AtomicInteger registerCountingTrailer(Http2HttpContext context) {
+    AtomicInteger calls = new AtomicInteger();
+    context.setTrailerFields(Trailer.field("Content-Digest", () -> {
+      calls.incrementAndGet();
+      return "sha-256=:abc:";
+    }));
+    return calls;
+  }
+
   private Http2HttpContext createContext() {
     ApplicationContext applicationContext = mock();
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .multipartParser(mock()).sendErrorHandler(mock()).build();
+    when(channel.write(any())).thenAnswer(invocation -> succeededPromise());
+    when(channel.writeAndFlush(any())).thenAnswer(invocation -> succeededPromise());
     return new Http2HttpContext(channel, requestHeaders, config, applicationContext,
             new DispatcherHandler(applicationContext), httpTrafficHandler);
   }
 
+  private DefaultChannelPromise succeededPromise() {
+    DefaultChannelPromise promise = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
+    promise.setSuccess();
+    return promise;
+  }
+
   private Http2HttpContext createContext(DispatcherHandler dispatcher, NettyRequestConfig config, Http2Headers headers) {
+    when(channel.write(any())).thenAnswer(invocation -> succeededPromise());
+    when(channel.writeAndFlush(any())).thenAnswer(invocation -> succeededPromise());
     return new Http2HttpContext(channel, headers, config, mock(ApplicationContext.class), dispatcher, httpTrafficHandler);
   }
 
