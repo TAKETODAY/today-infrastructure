@@ -98,6 +98,7 @@ import io.netty.util.ReferenceCountUtil;
 import io.netty.util.internal.PlatformDependent;
 
 import static infra.http.HttpHeaders.isNotEmpty;
+import static io.netty.handler.codec.http.HttpMethod.CONNECT;
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpMethod.HEAD;
 import static io.netty.util.internal.StringUtil.decodeHexByte;
@@ -242,11 +243,13 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   /**
    * Whether this protocol supports the {@code Transfer-Encoding} response header.
-   * <p>HTTP/2 forbids connection-specific headers, so the HTTP/2 context
-   * overrides this method to return {@code false}.
+   * <p>Chunked transfer coding was introduced in HTTP/1.1; HTTP/1.0 responses
+   * must be delimited by closing the connection instead. HTTP/2 also forbids
+   * connection-specific headers, so the HTTP/2 context overrides this method
+   * to return {@code false}.
    */
   protected boolean supportsTransferEncoding() {
-    return true;
+    return version().compareTo(HttpVersion.HTTP_1_1) >= 0;
   }
 
   /**
@@ -759,17 +762,77 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     writeHeaders();
   }
 
+  /**
+   * Write the {@code Content-Length} header when the response length is known
+   * or can be derived from the pending body.
+   * <p>An explicit length or a chunked transfer coding wins, so the common
+   * response path returns after the first lookup. For a {@code HEAD} request
+   * the length is taken from the discarded body before it is released, so the
+   * representation length is preserved.
+   */
+  private void writeContentLength(DefaultHeaders<CharSequence, @Nullable CharSequence, ?> headers) {
+    if (headers.contains(HttpHeaderNames.CONTENT_LENGTH)
+            || isTransferEncodingChunked(headers)) {
+      return;
+    }
+
+    ByteBuf responseBody = this.responseBody;
+    if (responseBody != null) {
+      headers.setInt(HttpHeaderNames.CONTENT_LENGTH, responseBody.readableBytes());
+      return;
+    }
+    Object file = this.fileToSend;
+    if (file instanceof FileRegion region) {
+      headers.setLong(HttpHeaderNames.CONTENT_LENGTH, region.count());
+      return;
+    }
+    else if (file instanceof ChunkedInput<?> input) {
+      long length = input.length();
+      if (length >= 0) {
+        headers.setLong(HttpHeaderNames.CONTENT_LENGTH, length);
+        return;
+      }
+    }
+    if (outputStream instanceof NoBodyOutputStream nbStream) {
+      headers.setInt(HttpHeaderNames.CONTENT_LENGTH, nbStream.contentLength);
+    }
+    else {
+      headers.setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
+    }
+  }
+
   @Override
   protected void writeHeaders() {
     if (committed.compareAndSet(false, true)) {
       onCommitting();
       validateResponseTrailersBeforeCommit();
-      // ---------------------------------------------
-      // apply Status code and headers
-      // ---------------------------------------------
       var headers = nettyResponseHeaders;
-      if (status != HttpResponseStatus.SWITCHING_PROTOCOLS) {
-        // set Content-Length header
+      var status = this.status;
+      int code = status.code();
+      boolean noContent = code < 200 || code == 204 || code == 304;
+      boolean resetContent = code == 205;
+      boolean tunnel = method == CONNECT && code >= 200 && code < 300;
+
+      if (noContent || resetContent || tunnel) {
+        // these responses carry no body, even when a handler or sendFile()
+        // prepared one
+        headers.remove(HttpHeaderNames.CONTENT_LENGTH);
+        headers.remove(HttpHeaderNames.TRANSFER_ENCODING);
+        headers.remove(HttpHeaderNames.TRAILER);
+        discardPendingResponseBody();
+        discardPendingResponseFile();
+        if (resetContent) {
+          // 205 is not implicitly empty; clients need an explicit zero length
+          headers.setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
+        }
+      }
+      else if (method == HEAD) {
+        // preserve the representation length before the body is discarded
+        writeContentLength(headers);
+        discardPendingResponseBody();
+        discardPendingResponseFile();
+      }
+      else {
         Set<String> trailerNames = getResponseTrailerNames();
         if (trailerNames != null) {
           // trailers require a framing that postpones the end of the message
@@ -779,39 +842,18 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
           headers.remove(HttpHeaderNames.CONTENT_LENGTH);
           headers.set(HttpHeaderNames.TRAILER, String.join(", ", trailerNames));
         }
-        else if (!headers.contains(HttpHeaderNames.CONTENT_LENGTH)
-                && !isTransferEncodingChunked(headers)) {
-          if (StringUtils.startsWithIgnoreCase(getResponseContentType(), MediaType.TEXT_EVENT_STREAM_VALUE)) {
-            if (supportsTransferEncoding()) {
-              headers.set(HttpHeaderNames.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
-              headers.remove(HttpHeaderNames.CONTENT_LENGTH);
-            }
+        else if (isEventStream(getResponseContentType())) {
+          if (supportsTransferEncoding()) {
+            headers.set(HttpHeaderNames.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
           }
-          else {
-            ByteBuf responseBody = this.responseBody;
-            if (responseBody == null) {
-              if (getMethod() == HttpMethod.HEAD && outputStream instanceof NoBodyOutputStream nbStream) {
-                headers.setInt(HttpHeaderNames.CONTENT_LENGTH, nbStream.contentLength);
-              }
-              else if (fileToSend instanceof FileRegion region) {
-                headers.setLong(HttpHeaderNames.CONTENT_LENGTH, region.count());
-              }
-              else if (fileToSend instanceof ChunkedInput<?> input && input.length() >= 0) {
-                headers.setLong(HttpHeaderNames.CONTENT_LENGTH, input.length());
-              }
-              else {
-                headers.setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
-              }
-            }
-            else {
-              headers.setInt(HttpHeaderNames.CONTENT_LENGTH, responseBody.readableBytes());
-            }
-          }
+          headers.remove(HttpHeaderNames.CONTENT_LENGTH);
+        }
+        else {
+          writeContentLength(headers);
         }
       }
 
       // apply cookies
-      var responseCookies = this.responseCookies;
       if (responseCookies != null) {
         var cookieEncoder = config.cookieEncoder;
         for (HttpCookie cookie : responseCookies) {
@@ -1256,6 +1298,25 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   private static boolean isTransferEncodingChunked(DefaultHeaders<CharSequence, @Nullable CharSequence, ?> responseHeaders) {
     return responseHeaders.contains(
             HttpHeaderNames.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED, AsciiString.CASE_INSENSITIVE_HASHER);
+  }
+
+  /**
+   * Whether the response content type is {@code text/event-stream}, optionally
+   * followed by whitespace and media type parameters.
+   */
+  private static boolean isEventStream(@Nullable String contentType) {
+    if (contentType == null) {
+      return false;
+    }
+    int length = MediaType.TEXT_EVENT_STREAM_VALUE.length();
+    if (!contentType.regionMatches(true, 0, MediaType.TEXT_EVENT_STREAM_VALUE, 0, length)) {
+      return false;
+    }
+    int index = length;
+    while (index < contentType.length() && Character.isWhitespace(contentType.charAt(index))) {
+      index++;
+    }
+    return index == contentType.length() || contentType.charAt(index) == ';';
   }
 
   static void parseParameters(MultiValueMap<String, String> params, String s) {

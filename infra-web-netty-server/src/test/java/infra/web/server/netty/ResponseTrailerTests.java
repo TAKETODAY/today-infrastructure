@@ -216,6 +216,119 @@ class ResponseTrailerTests {
   }
 
   @Test
+  void headRequestDoesNotSendFileBody(@TempDir Path tempDir) throws IOException {
+    Path file = tempDir.resolve("head.txt");
+    Files.writeString(file, "hello");
+    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.HEAD);
+    context.asHttpOutputMessage().sendFile(file, 0, 5);
+
+    context.requestCompletedInternal(null);
+    channel.flush();
+
+    DefaultHttpResponse response = channel.readOutbound();
+    assertThat(response.headers().get(HttpHeaderNames.CONTENT_LENGTH)).isEqualTo("5");
+    LastHttpContent content = channel.readOutbound();
+    assertThat(content.content().readableBytes()).isZero();
+    assertThat(channel.<Object>readOutbound()).isNull();
+    channel.finishAndReleaseAll();
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = { 204, 304 })
+  void finalNoBodyStatusDoesNotSendFileBody(int status, @TempDir Path tempDir) throws IOException {
+    Path file = tempDir.resolve("no-body.txt");
+    Files.writeString(file, "hello");
+    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
+    context.setStatus(status);
+    context.asHttpOutputMessage().sendFile(file, 0, 5);
+
+    context.requestCompletedInternal(null);
+    channel.flush();
+
+    DefaultHttpResponse response = channel.readOutbound();
+    assertThat(response.status().code()).isEqualTo(status);
+    assertThat(response.headers().contains(HttpHeaderNames.CONTENT_LENGTH)).isFalse();
+    assertThat(response.headers().contains(HttpHeaderNames.TRANSFER_ENCODING)).isFalse();
+    LastHttpContent content = channel.readOutbound();
+    assertThat(content.content().readableBytes()).isZero();
+    assertThat(channel.<Object>readOutbound()).isNull();
+    channel.finishAndReleaseAll();
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = { 204, 304 })
+  void finalNoBodyStatusDoesNotSendBufferedBody(int status) throws IOException {
+    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
+    context.setStatus(status);
+    context.getOutputStream().write(1);
+
+    context.requestCompletedInternal(null);
+    channel.flush();
+
+    DefaultHttpResponse response = channel.readOutbound();
+    assertThat(response.status().code()).isEqualTo(status);
+    assertThat(response.headers().contains(HttpHeaderNames.CONTENT_LENGTH)).isFalse();
+    assertThat(response.headers().contains(HttpHeaderNames.TRANSFER_ENCODING)).isFalse();
+    LastHttpContent content = channel.readOutbound();
+    assertThat(content.content().readableBytes()).isZero();
+    assertThat(channel.<Object>readOutbound()).isNull();
+    channel.finishAndReleaseAll();
+  }
+
+  @Test
+  void resetContentDoesNotSendBufferedBody() throws IOException {
+    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
+    context.setStatus(HttpResponseStatus.RESET_CONTENT.code());
+    context.getOutputStream().write(1);
+
+    context.requestCompletedInternal(null);
+    channel.flush();
+
+    DefaultHttpResponse response = channel.readOutbound();
+    assertThat(response.status().code()).isEqualTo(205);
+    // 205 is not implicitly empty, so a zero length is required
+    assertThat(response.headers().get(HttpHeaderNames.CONTENT_LENGTH)).isEqualTo("0");
+    assertThat(response.headers().contains(HttpHeaderNames.TRANSFER_ENCODING)).isFalse();
+    LastHttpContent content = channel.readOutbound();
+    assertThat(content.content().readableBytes()).isZero();
+    assertThat(channel.<Object>readOutbound()).isNull();
+    channel.finishAndReleaseAll();
+  }
+
+  @Test
+  void headRequestKeepsExplicitTransferEncoding() throws IOException {
+    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.HEAD);
+    context.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), "chunked");
+    context.getOutputStream().write(1);
+
+    context.requestCompletedInternal(null);
+    channel.flush();
+
+    DefaultHttpResponse response = channel.readOutbound();
+    assertThat(response.headers().get(HttpHeaderNames.TRANSFER_ENCODING)).isEqualTo("chunked");
+    assertThat(response.headers().contains(HttpHeaderNames.CONTENT_LENGTH)).isFalse();
+    channel.finishAndReleaseAll();
+  }
+
+  @Test
+  void successfulConnectResponseHasNoFramingHeaders() throws IOException {
+    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.CONNECT);
+    context.setStatus(HttpResponseStatus.OK.code());
+    context.getOutputStream().write(1);
+
+    context.requestCompletedInternal(null);
+    channel.flush();
+
+    DefaultHttpResponse response = channel.readOutbound();
+    assertThat(response.headers().contains(HttpHeaderNames.CONTENT_LENGTH)).isFalse();
+    assertThat(response.headers().contains(HttpHeaderNames.TRANSFER_ENCODING)).isFalse();
+    LastHttpContent content = channel.readOutbound();
+    assertThat(content.content().readableBytes()).isZero();
+    assertThat(channel.<Object>readOutbound()).isNull();
+    channel.finishAndReleaseAll();
+  }
+
+  @Test
   void clearingTrailersKeepsFileContentLength(@TempDir Path tempDir) throws IOException {
     Path file = tempDir.resolve("body.txt");
     Files.writeString(file, "hello");
