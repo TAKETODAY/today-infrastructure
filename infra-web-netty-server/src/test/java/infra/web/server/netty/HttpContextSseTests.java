@@ -16,12 +16,8 @@
 
 package infra.web.server.netty;
 
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullSource;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import java.nio.charset.StandardCharsets;
 
@@ -39,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests for SSE response framing.
+ * Tests for chunked response framing.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
@@ -54,9 +50,10 @@ class HttpContextSseTests {
   }
 
   @Test
-  void contentTypeWithCharsetUsesChunkedFraming() throws Exception {
+  void explicitChunkedTransferEncodingUsesChunkedFraming() throws Exception {
     HttpContext context = createContext();
-    context.setContentType("text/event-stream;charset=UTF-8");
+    context.setContentType(MediaType.TEXT_EVENT_STREAM);
+    context.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), "chunked");
     context.getOutputStream().write("data: hello\n\n".getBytes(StandardCharsets.UTF_8));
 
     context.requestCompletedInternal(null);
@@ -68,9 +65,10 @@ class HttpContextSseTests {
   }
 
   @Test
-  void contentLengthIsRemovedForEventStream() throws Exception {
+  void explicitChunkedTransferEncodingRemovesContentLength() throws Exception {
     HttpContext context = createContext();
     context.setContentType(MediaType.TEXT_EVENT_STREAM);
+    context.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), "chunked");
     context.setContentLength(100);
     context.getOutputStream().write("data: hello\n\n".getBytes(StandardCharsets.UTF_8));
 
@@ -83,23 +81,11 @@ class HttpContextSseTests {
   }
 
   @Test
-  void lookalikeContentTypeIsNotEventStream() {
+  void explicitChunkedFramingIsNotLimitedToEventStream() throws Exception {
     HttpContext context = createContext();
-    context.setContentType("text/event-streaming");
-
-    context.requestCompletedInternal(null);
-    channel.flush();
-
-    DefaultHttpResponse response = channel.readOutbound();
-    assertThat(response.headers().contains(HttpHeaderNames.TRANSFER_ENCODING)).isFalse();
-    assertThat(response.headers().get(HttpHeaderNames.CONTENT_LENGTH)).isEqualTo("0");
-  }
-
-  @Test
-  void contentTypeWithWhitespaceBeforeParametersUsesChunkedFraming() throws Exception {
-    HttpContext context = createContext();
-    context.setContentType("text/event-stream ; charset=UTF-8");
-    context.getOutputStream().write("data: hello\n\n".getBytes(StandardCharsets.UTF_8));
+    context.setContentType(MediaType.APPLICATION_JSON);
+    context.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), "chunked");
+    context.getOutputStream().write("{\"hello\":\"world\"}".getBytes(StandardCharsets.UTF_8));
 
     context.requestCompletedInternal(null);
     channel.flush();
@@ -110,57 +96,22 @@ class HttpContextSseTests {
   }
 
   @Test
-  void http10EventStreamDoesNotUseChunkedFraming() throws Exception {
-    HttpContext context = createContext(HttpVersion.HTTP_1_0, HttpMethod.GET);
-    context.setContentType("text/event-stream");
-    context.getOutputStream().write("data: hello\n\n".getBytes(StandardCharsets.UTF_8));
+  void eventStreamContentTypeAloneUsesContentLength() throws Exception {
+    byte[] body = "data: hello\n\n".getBytes(StandardCharsets.UTF_8);
+    HttpContext context = createContext();
+    context.setContentType(MediaType.TEXT_EVENT_STREAM);
+    context.getOutputStream().write(body);
 
     context.requestCompletedInternal(null);
     channel.flush();
 
     DefaultHttpResponse response = channel.readOutbound();
     assertThat(response.headers().contains(HttpHeaderNames.TRANSFER_ENCODING)).isFalse();
-    assertThat(response.headers().contains(HttpHeaderNames.CONTENT_LENGTH)).isFalse();
-  }
-
-  @ParameterizedTest
-  @ValueSource(strings = {
-          "text/event-stream",
-          "TEXT/EVENT-STREAM",
-          "Text/Event-Stream",
-          "text/event-stream;charset=UTF-8",
-          "text/event-stream; charset=UTF-8",
-          "text/event-stream ; charset=UTF-8",
-          "text/event-stream\t;charset=UTF-8",
-          "text/event-stream;"
-  })
-  void isEventStreamAcceptsEventStreamMediaType(String contentType) {
-    assertThat(NettyHttpContext.isEventStream(contentType)).isTrue();
-  }
-
-  @ParameterizedTest
-  @NullSource
-  @ValueSource(strings = {
-          "",
-          "text/event-streaming",
-          "text/event-stream-foo",
-          "text/event-streamx",
-          "text/event",
-          "text/plain",
-          "application/json",
-          " text/event-stream",
-          "text/event-stream,text/plain"
-  })
-  void isEventStreamRejectsOtherValues(@Nullable String contentType) {
-    assertThat(NettyHttpContext.isEventStream(contentType)).isFalse();
+    assertThat(response.headers().get(HttpHeaderNames.CONTENT_LENGTH)).isEqualTo(String.valueOf(body.length));
   }
 
   private HttpContext createContext() {
-    return createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
-  }
-
-  private HttpContext createContext(HttpVersion version, HttpMethod method) {
-    var request = new DefaultHttpRequest(version, method, "/events");
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/events");
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .multipartParser(mock())
             .sendErrorHandler((request1, message) -> { })

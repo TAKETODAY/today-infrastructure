@@ -26,6 +26,8 @@ import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.util.Collections;
 
+import infra.http.HttpHeaders;
+import infra.http.MediaType;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
@@ -49,6 +51,15 @@ class SseServerResponseTests {
     this.mockRequest = new MockRequest("GET", "https://example.com");
     this.mockRequest.setAsyncSupported(true);
     this.mockResponse = new MockResponse();
+  }
+
+  @Test
+  void responseHeadersUseEventStreamAndChunkedFraming() {
+    ServerResponse response = ServerResponse.sse(sse -> { });
+
+    assertThat(response.headers().getContentType()).isEqualTo(MediaType.TEXT_EVENT_STREAM);
+    assertThat(response.headers().getFirst(HttpHeaders.TRANSFER_ENCODING)).isEqualTo(HttpHeaders.CHUNKED);
+    assertThat(response.headers().contains(HttpHeaders.CONTENT_LENGTH)).isFalse();
   }
 
   @Test

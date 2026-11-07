@@ -63,6 +63,7 @@ final class SseServerResponse extends AbstractServerResponse {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.setContentType(MediaType.TEXT_EVENT_STREAM);
     headers.setCacheControl(CacheControl.noCache());
+    headers.set(HttpHeaders.TRANSFER_ENCODING, HttpHeaders.CHUNKED);
     return headers;
   }
 

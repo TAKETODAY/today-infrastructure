@@ -689,8 +689,12 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * length is preserved.
    */
   private void writeContentFraming(DefaultHeaders<CharSequence, @Nullable CharSequence, ?> headers) {
-    if (headers.contains(HttpHeaderNames.CONTENT_LENGTH)
-            || isTransferEncodingChunked(headers)) {
+    if (isTransferEncodingChunked(headers)) {
+      // Explicit chunked framing wins over an inferred or stale Content-Length.
+      headers.remove(HttpHeaderNames.CONTENT_LENGTH);
+      return;
+    }
+    if (headers.contains(HttpHeaderNames.CONTENT_LENGTH)) {
       return;
     }
 
@@ -746,14 +750,12 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       }
       else {
         Set<String> trailerNames = getResponseTrailerNames();
-        if (trailerNames != null || isEventStream(getResponseContentType())) {
+        if (trailerNames != null) {
           if (supportsTransferEncoding()) {
             headers.set(HttpHeaderNames.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
           }
           headers.remove(HttpHeaderNames.CONTENT_LENGTH);
-          if (trailerNames != null) {
-            headers.set(HttpHeaderNames.TRAILER, String.join(", ", trailerNames));
-          }
+          headers.set(HttpHeaderNames.TRAILER, String.join(", ", trailerNames));
         }
         else {
           writeContentFraming(headers);
@@ -1206,25 +1208,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   private static boolean isTransferEncodingChunked(DefaultHeaders<CharSequence, @Nullable CharSequence, ?> responseHeaders) {
     return responseHeaders.contains(
             HttpHeaderNames.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED, AsciiString.CASE_INSENSITIVE_HASHER);
-  }
-
-  /**
-   * Whether the response content type is {@code text/event-stream}, optionally
-   * followed by whitespace and media type parameters.
-   */
-  static boolean isEventStream(@Nullable String contentType) {
-    if (contentType == null) {
-      return false;
-    }
-    int length = MediaType.TEXT_EVENT_STREAM_VALUE.length();
-    if (!contentType.regionMatches(true, 0, MediaType.TEXT_EVENT_STREAM_VALUE, 0, length)) {
-      return false;
-    }
-    int index = length;
-    while (index < contentType.length() && Character.isWhitespace(contentType.charAt(index))) {
-      index++;
-    }
-    return index == contentType.length() || contentType.charAt(index) == ';';
   }
 
   static void parseParameters(MultiValueMap<String, String> params, String s) {

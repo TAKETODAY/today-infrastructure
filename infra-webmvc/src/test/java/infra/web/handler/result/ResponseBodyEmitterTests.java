@@ -27,7 +27,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.IOException;
 import java.util.function.Consumer;
 
+import infra.http.HttpHeaders;
 import infra.http.MediaType;
+import infra.web.HttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIOException;
@@ -37,8 +39,10 @@ import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -51,6 +55,38 @@ class ResponseBodyEmitterTests {
   private ResponseBodyEmitter.Handler handler;
 
   private final ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding();
+
+  @Test
+  void extendResponseSetsChunkedTransferEncoding() {
+    HttpContext context = mock();
+    ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding(MediaType.TEXT_PLAIN);
+
+    emitter.extendResponse(context);
+
+    verify(context).setHeader(HttpHeaders.TRANSFER_ENCODING, HttpHeaders.CHUNKED);
+  }
+
+  @Test
+  void extendResponseSetsContentTypeWhenAbsent() {
+    HttpContext context = mock();
+    when(context.getResponseContentType()).thenReturn(null);
+    ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding(MediaType.TEXT_PLAIN);
+
+    emitter.extendResponse(context);
+
+    verify(context).setContentType(MediaType.TEXT_PLAIN);
+  }
+
+  @Test
+  void extendResponseKeepsExistingContentType() {
+    HttpContext context = mock();
+    when(context.getResponseContentType()).thenReturn(MediaType.APPLICATION_JSON_VALUE);
+    ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding(MediaType.TEXT_PLAIN);
+
+    emitter.extendResponse(context);
+
+    verify(context, never()).setContentType(any(MediaType.class));
+  }
 
   @Test
   void sendBeforeHandlerInitialized() throws Exception {
