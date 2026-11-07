@@ -16,8 +16,12 @@
 
 package infra.web.server.netty;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.nio.charset.StandardCharsets;
 
@@ -117,6 +121,38 @@ class HttpContextSseTests {
     DefaultHttpResponse response = channel.readOutbound();
     assertThat(response.headers().contains(HttpHeaderNames.TRANSFER_ENCODING)).isFalse();
     assertThat(response.headers().contains(HttpHeaderNames.CONTENT_LENGTH)).isFalse();
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+          "text/event-stream",
+          "TEXT/EVENT-STREAM",
+          "Text/Event-Stream",
+          "text/event-stream;charset=UTF-8",
+          "text/event-stream; charset=UTF-8",
+          "text/event-stream ; charset=UTF-8",
+          "text/event-stream\t;charset=UTF-8",
+          "text/event-stream;"
+  })
+  void isEventStreamAcceptsEventStreamMediaType(String contentType) {
+    assertThat(NettyHttpContext.isEventStream(contentType)).isTrue();
+  }
+
+  @ParameterizedTest
+  @NullSource
+  @ValueSource(strings = {
+          "",
+          "text/event-streaming",
+          "text/event-stream-foo",
+          "text/event-streamx",
+          "text/event",
+          "text/plain",
+          "application/json",
+          " text/event-stream",
+          "text/event-stream,text/plain"
+  })
+  void isEventStreamRejectsOtherValues(@Nullable String contentType) {
+    assertThat(NettyHttpContext.isEventStream(contentType)).isFalse();
   }
 
   private HttpContext createContext() {
