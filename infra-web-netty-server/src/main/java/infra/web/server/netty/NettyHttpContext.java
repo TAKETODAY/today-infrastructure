@@ -522,8 +522,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       return body;
     }
     if (pendingBody != null) {
-      // a file is waiting to be sent; buffered output replaces it
-      discardPendingResponse();
+      throw new IllegalStateException("Cannot write response body: a response file has already been scheduled");
     }
 
     var bodyFactory = config.responseBodyFactory;
@@ -1515,6 +1514,10 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
         long fileLength = file.length();
         Assert.isTrue(position <= fileLength, "Position exceeds file length");
         Assert.isTrue(count <= fileLength - position, "Count exceeds available file bytes");
+      }
+
+      if (pendingBody instanceof ByteBuf body && body.readableBytes() > 0) {
+        throw new IllegalStateException("Cannot send file: response body has already been written");
       }
 
       discardPendingResponse();

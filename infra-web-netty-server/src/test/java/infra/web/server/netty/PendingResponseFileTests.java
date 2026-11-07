@@ -99,15 +99,29 @@ class PendingResponseFileTests {
   }
 
   @Test
-  void sendFileDiscardsBufferedBody() throws Exception {
+  void sendFileRejectsBufferedBody() throws Exception {
     HttpContext context = createContext();
     context.getOutputStream().write(1);
     ByteBuf body = (ByteBuf) pendingBody(context);
 
+    assertThatThrownBy(() -> context.asHttpOutputMessage().sendFile(file(), 0, 4))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("response body");
+
+    assertThat(body.refCnt()).isOne();
+    context.onChannelInactive();
+    assertThat(body.refCnt()).isZero();
+  }
+
+  @Test
+  void writingBodyAfterSendFileFails() throws Exception {
+    HttpContext context = createContext();
     context.asHttpOutputMessage().sendFile(file(), 0, 4);
 
-    assertThat(body.refCnt()).isZero();
-    assertThat(pendingBody(context)).isInstanceOf(DefaultFileRegion.class);
+    assertThatThrownBy(() -> context.getOutputStream().write(1))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("response file");
+
     context.reset();
   }
 
