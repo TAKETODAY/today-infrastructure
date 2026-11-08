@@ -24,6 +24,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URI;
@@ -153,7 +155,33 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
           "proxy-authenticate", "proxy-authorization", "content-encoding", "content-type",
           "content-range", "content-location", "set-cookie", "cache-control", "expires", "vary");
 
-  protected boolean notModified = false;
+  private static final VarHandle STATE;
+
+  /**
+   * Response headers are being committed; header mutations are locked.
+   */
+  static final int COMMITTING = 1 << 0;
+
+  /**
+   * Response headers have been written.
+   */
+  static final int COMMITTED = 1 << 1;
+
+  static final int NOT_MODIFIED = 1 << 2;
+  static final int MULTIPART_KNOWN = 1 << 3;
+  static final int MULTIPART = 1 << 4;
+  static final int PRE_FLIGHT_KNOWN = 1 << 5;
+  static final int PRE_FLIGHT = 1 << 6;
+  static final int CORS_KNOWN = 1 << 7;
+  static final int CORS = 1 << 8;
+
+  /**
+   * Bit-packed request and response state. See the {@code *} constants declared
+   * above; bits {@code 1 << 16} and above are reserved for subclasses.
+   * <p>All access goes through the acquire/release operations on {@link #STATE},
+   * so the field itself does not need to be {@code volatile}.
+   */
+  private int state;
 
   protected HttpCookie @Nullable [] cookies;
 
@@ -196,12 +224,6 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   protected @Nullable BindingContext bindingContext;
 
   protected @Nullable Object redirectModel;
-
-  protected @Nullable Boolean multipartFlag;
-
-  protected @Nullable Boolean preFlightRequestFlag;
-
-  protected @Nullable Boolean corsRequestFlag;
 
   protected @Nullable MediaType contentType;
 
@@ -751,7 +773,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    */
   @Override
   public boolean isMultipart() {
-    Boolean multipartFlag = this.multipartFlag;
+    Boolean multipartFlag = triState(MULTIPART_KNOWN, MULTIPART);
     if (multipartFlag == null) {
       HttpMethod method = getMethod();
       if (method == HttpMethod.GET || method == HttpMethod.HEAD) {
@@ -761,7 +783,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
         final MediaType contentType = getContentType();
         multipartFlag = contentType != null && contentType.isMultipartType();
       }
-      this.multipartFlag = multipartFlag;
+      setTriState(MULTIPART_KNOWN, MULTIPART, multipartFlag);
     }
     return multipartFlag;
   }
@@ -1087,7 +1109,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    */
   @Override
   public boolean isPreFlightRequest() {
-    Boolean preFlightRequestFlag = this.preFlightRequestFlag;
+    Boolean preFlightRequestFlag = triState(PRE_FLIGHT_KNOWN, PRE_FLIGHT);
     if (preFlightRequestFlag == null) {
       if (HttpMethod.OPTIONS == getMethod()) {
         HttpHeaders httpHeaders = requestHeaders();
@@ -1097,7 +1119,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
       else {
         preFlightRequestFlag = false;
       }
-      this.preFlightRequestFlag = preFlightRequestFlag;
+      setTriState(PRE_FLIGHT_KNOWN, PRE_FLIGHT, preFlightRequestFlag);
     }
     return preFlightRequestFlag;
   }
@@ -1110,10 +1132,10 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    */
   @Override
   public boolean isCorsRequest() {
-    Boolean corsRequestFlag = this.corsRequestFlag;
+    Boolean corsRequestFlag = triState(CORS_KNOWN, CORS);
     if (corsRequestFlag == null) {
       corsRequestFlag = !WebUtils.isSameOrigin(this);
-      this.corsRequestFlag = corsRequestFlag;
+      setTriState(CORS_KNOWN, CORS, corsRequestFlag);
     }
     return corsRequestFlag;
   }
@@ -1248,16 +1270,26 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   /**
    * Checks if the current object has not been modified.
    *
-   * <p>This method returns the value of the internal flag {@code notModified},
-   * which indicates whether the object remains in its original state since
-   * it was last reset or initialized.
+   * <p>This method returns the {@code NOT_MODIFIED} state bit, which indicates
+   * whether a conditional request was evaluated as not modified since the
+   * response was last reset.
    *
    * @return {@code true} if the object has not been modified,
    * {@code false} otherwise.
    */
   @Override
   public boolean isNotModified() {
-    return this.notModified;
+    return isStateSet(NOT_MODIFIED);
+  }
+
+  /**
+   * Update the {@code NOT_MODIFIED} state bit.
+   *
+   * @param notModified whether the resource has not been modified
+   * @since 5.0
+   */
+  protected final void markNotModified(boolean notModified) {
+    updateState(notModified ? NOT_MODIFIED : 0, notModified ? 0 : NOT_MODIFIED);
   }
 
   /**
@@ -1377,19 +1409,19 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    */
   @Override
   public boolean checkNotModified(@Nullable String eTag, long lastModifiedTimestamp) {
-    if (this.notModified || (HttpStatus.OK.value() != getStatus())) {
-      return this.notModified;
+    if (isNotModified() || (HttpStatus.OK.value() != getStatus())) {
+      return isNotModified();
     }
     // Evaluate conditions in order of precedence.
     // See https://datatracker.ietf.org/doc/html/rfc9110#section-13.2.2
     if (validateIfMatch(eTag)) {
       updateResponseStateChanging(eTag, lastModifiedTimestamp);
-      return this.notModified;
+      return isNotModified();
     }
     // 2) If-Unmodified-Since
     else if (validateIfUnmodifiedSince(lastModifiedTimestamp)) {
       updateResponseStateChanging(eTag, lastModifiedTimestamp);
-      return this.notModified;
+      return isNotModified();
     }
     // 3) If-None-Match
     if (!validateIfNoneMatch(eTag)) {
@@ -1397,7 +1429,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
       validateIfModifiedSince(lastModifiedTimestamp);
     }
     updateResponseIdempotent(eTag, lastModifiedTimestamp);
-    return this.notModified;
+    return isNotModified();
   }
 
   private boolean validateIfMatch(@Nullable String eTag) {
@@ -1409,7 +1441,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     if (CollectionUtils.isEmpty(ifMatchHeaders)) {
       return false;
     }
-    this.notModified = matchRequestedETags(ifMatchHeaders, eTag, false);
+    markNotModified(matchRequestedETags(ifMatchHeaders, eTag, false));
     return true;
   }
 
@@ -1418,7 +1450,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     if (CollectionUtils.isEmpty(ifNoneMatchHeaders)) {
       return false;
     }
-    this.notModified = !matchRequestedETags(ifNoneMatchHeaders, eTag, true);
+    markNotModified(!matchRequestedETags(ifNoneMatchHeaders, eTag, true));
     return true;
   }
 
@@ -1443,7 +1475,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   }
 
   private void updateResponseStateChanging(@Nullable String eTag, long lastModifiedTimestamp) {
-    if (this.notModified) {
+    if (isNotModified()) {
       setStatus(HttpStatus.PRECONDITION_FAILED);
     }
     else {
@@ -1459,7 +1491,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     if (ifUnmodifiedSince == -1) {
       return false;
     }
-    this.notModified = (ifUnmodifiedSince < (lastModifiedTimestamp / 1000 * 1000));
+    markNotModified(ifUnmodifiedSince < (lastModifiedTimestamp / 1000 * 1000));
     return true;
   }
 
@@ -1470,13 +1502,13 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     long ifModifiedSince = parseDateHeader(HttpHeaders.IF_MODIFIED_SINCE);
     if (ifModifiedSince != -1) {
       // We will perform this validation...
-      this.notModified = ifModifiedSince >= (lastModifiedTimestamp / 1000 * 1000);
+      markNotModified(ifModifiedSince >= (lastModifiedTimestamp / 1000 * 1000));
     }
   }
 
   private void updateResponseIdempotent(@Nullable String eTag, long lastModifiedTimestamp) {
     boolean isHttpGetOrHead = SAFE_METHODS.contains(getMethod());
-    if (this.notModified) {
+    if (isNotModified()) {
       setStatus(isHttpGetOrHead ?
               HttpStatus.NOT_MODIFIED : HttpStatus.PRECONDITION_FAILED);
     }
@@ -1725,7 +1757,9 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * @see #reset
    */
   @Override
-  public abstract boolean isCommitted();
+  public boolean isCommitted() {
+    return isStateSet(COMMITTED);
+  }
 
   /**
    * Clears any data that exists in the buffer as well as the status code,
@@ -2282,10 +2316,115 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     return dispatcherHandler.sessionManagerDiscover.obtain(this);
   }
 
+  /**
+   * Return the current bit-packed state using acquire semantics.
+   */
+  protected final int state() {
+    return (int) STATE.getAcquire(this);
+  }
+
+  /**
+   * Try to acquire the response commit.
+   * <p>Returns {@code false} if the response is already committing or committed.
+   * On success only the {@code COMMITTING} bit is set: response headers are
+   * locked during {@link #onCommitting()} callbacks, but the response is not
+   * reported as committed until {@link #finishCommit(boolean)} succeeds. The
+   * caller must always complete the commit with {@link #finishCommit(boolean)}.
+   *
+   * @return {@code true} if this call acquired the commit
+   * @see #finishCommit(boolean)
+   * @since 5.0
+   */
+  protected final boolean tryBeginCommit() {
+    int current = state();
+    while ((current & (COMMITTING | COMMITTED)) == 0) {
+      if (STATE.compareAndSet(this, current, current | COMMITTING)) {
+        return true;
+      }
+      current = state();
+    }
+    return false;
+  }
+
+  /**
+   * Complete a commit started by {@link #tryBeginCommit()}.
+   * <p>When {@code committed} is {@code true} the response becomes committed;
+   * otherwise the {@code COMMITTING} bit is rolled back so the failure can
+   * still be turned into an error response.
+   *
+   * @param committed whether the response head was written
+   * @since 5.0
+   */
+  protected final void finishCommit(boolean committed) {
+    if (committed) {
+      updateState(COMMITTED, COMMITTING);
+    }
+    else {
+      updateState(0, COMMITTING);
+    }
+  }
+
+  /**
+   * Whether response headers are currently being committed.
+   *
+   * @since 5.0
+   */
+  protected final boolean isCommitting() {
+    return isStateSet(COMMITTING);
+  }
+
+  /**
+   * Whether all bits in the given mask are set.
+   */
+  protected final boolean isStateSet(int bits) {
+    return (state() & bits) == bits;
+  }
+
+  /**
+   * Atomically set {@code setBits} and clear {@code clearBits}.
+   */
+  protected final void updateState(int setBits, int clearBits) {
+    int current = state();
+    while (!STATE.compareAndSet(this, current, (current | setBits) & ~clearBits)) {
+      current = state();
+    }
+  }
+
+  /**
+   * Return the value of a lazily computed tri-state flag, or {@code null} if it
+   * has not been computed yet.
+   *
+   * @param knownBit the bit that marks the flag as computed
+   * @param valueBit the bit that stores the value
+   */
+  protected final @Nullable Boolean triState(int knownBit, int valueBit) {
+    int current = state();
+    if ((current & knownBit) == 0) {
+      return null;
+    }
+    return (current & valueBit) != 0;
+  }
+
+  /**
+   * Store a lazily computed tri-state flag.
+   */
+  protected final void setTriState(int knownBit, int valueBit, boolean value) {
+    updateState(knownBit | (value ? valueBit : 0), value ? 0 : valueBit);
+  }
+
   @Override
   public String toString() {
     String url = URLDecoder.decode(getRequestURL(), StandardCharsets.UTF_8);
     return getMethodAsString() + " " + url;
+  }
+
+  static {
+    try {
+      STATE = MethodHandles.lookup().findVarHandle(AbstractHttpContext.class, "state", int.class);
+    }
+    catch (ReflectiveOperationException ex) {
+      throw new ExceptionInInitializerError(ex);
+    }
   }
 
   final class HttpContextHttpOutputMessage implements ServerHttpResponse {
@@ -2323,9 +2462,8 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
 
   /**
    * Immutable trailer configuration with an atomic evaluation guard. The
-   * {@code evaluated} flag makes the
-   * suppliers run at most once, regardless of how many completion paths reach
-   * them.
+   * {@code evaluated} flag makes the suppliers run at most once per
+   * registration, regardless of how many completion paths reach them.
    *
    * @since 5.0
    */

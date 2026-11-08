@@ -695,7 +695,7 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
   }
 
   public void setNotModified(boolean notModified) {
-    this.notModified = notModified;
+    markNotModified(notModified);
   }
 
   @Override
