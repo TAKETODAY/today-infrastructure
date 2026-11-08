@@ -29,15 +29,14 @@ import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
+import infra.util.concurrent.SingleThreadAwaiter;
 import reactor.core.Exceptions;
 
 /**
@@ -84,9 +83,7 @@ final class SubscriberInputStream<T> extends InputStream implements Flow.Subscri
 
   private final AtomicInteger workAmount = new AtomicInteger();
 
-  private static final Object READY = new Object();
-
-  private final AtomicReference<@Nullable Object> parkedThread = new AtomicReference<>();
+  private final SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
 
   volatile boolean closed;
 
@@ -100,8 +97,7 @@ final class SubscriberInputStream<T> extends InputStream implements Flow.Subscri
 
   private boolean done;
 
-  @Nullable
-  private Throwable error;
+  private @Nullable Throwable error;
 
   /**
    * Create an instance.
@@ -209,10 +205,7 @@ final class SubscriberInputStream<T> extends InputStream implements Flow.Subscri
   }
 
   private void resume() {
-    Object last = this.parkedThread.getAndSet(READY);
-    if (last != READY) {
-      LockSupport.unpark((Thread) last);
-    }
+    awaiter.resume();
   }
 
   /* InputStream implementation */
@@ -425,28 +418,7 @@ final class SubscriberInputStream<T> extends InputStream implements Flow.Subscri
   }
 
   private void await() throws InterruptedIOException {
-    Thread toUnpark = Thread.currentThread();
-    while (true) {
-      Object current = this.parkedThread.get();
-      if (current == READY) {
-        break;
-      }
-      if (current != null && current != toUnpark) {
-        throw new IllegalStateException("Only one (Virtual)Thread can await!");
-      }
-      if (this.parkedThread.compareAndSet(null, toUnpark) || this.parkedThread.get() == toUnpark) {
-        LockSupport.park();
-        // A spurious wakeup leaves the reference owned by this thread; park again.
-      }
-      // Preserve a concurrent READY signal so data is delivered before interruption.
-      if (Thread.interrupted()) {
-        Thread.currentThread().interrupt();
-        if (this.parkedThread.compareAndSet(toUnpark, null)) {
-          throw new InterruptedIOException("Interrupted while awaiting data");
-        }
-      }
-    }
-    this.parkedThread.lazySet(null);
+    awaiter.await();
   }
 
 }

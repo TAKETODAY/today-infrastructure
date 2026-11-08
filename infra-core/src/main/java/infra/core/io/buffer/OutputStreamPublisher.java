@@ -273,7 +273,7 @@ final class OutputStreamPublisher<T> implements Publisher<T> {
       resume();
     }
 
-    private void await() {
+    private void await() throws IOException {
       awaiter.await();
     }
 

@@ -18,6 +18,10 @@ package infra.util.concurrent;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.InterruptedIOException;
+import java.io.UncheckedIOException;
+import java.util.concurrent.atomic.AtomicReference;
+
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -34,7 +38,7 @@ class SingleThreadAwaiterTests {
     boolean[] completed = { false };
 
     Thread waiter = new Thread(() -> {
-      awaiter.await();
+      await(awaiter);
       completed[0] = true;
     });
     waiter.start();
@@ -64,7 +68,7 @@ class SingleThreadAwaiterTests {
     awaiter.resume(); // 提前调用 resume
 
     Thread waiter = new Thread(() -> {
-      awaiter.await(); // 应该立即返回
+      await(awaiter); // 应该立即返回
       completed[0] = true;
     });
     waiter.start();
@@ -76,13 +80,13 @@ class SingleThreadAwaiterTests {
   @Test
   void testMultipleThreadsAwait() throws InterruptedException {
     SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
-    Thread first = new Thread(awaiter::await);
+    Thread first = new Thread(() -> await(awaiter));
     first.start();
 
     Thread.sleep(100);
 
     // 在主线程中尝试等待应该抛出异常
-    assertThrows(IllegalStateException.class, awaiter::await);
+    assertThrows(IllegalStateException.class, () -> await(awaiter));
 
     awaiter.resume();
   }
@@ -93,7 +97,7 @@ class SingleThreadAwaiterTests {
     for (int i = 0; i < 3; i++) {
       boolean[] completed = { false };
       Thread waiter = new Thread(() -> {
-        awaiter.await();
+        await(awaiter);
         completed[0] = true;
       });
       waiter.start();
@@ -108,23 +112,49 @@ class SingleThreadAwaiterTests {
   }
 
   @Test
-  void awaitAfterInterrupt() throws InterruptedException {
+  void interruptBeforeAwaitThrowsInterruptedIOException() throws InterruptedException {
     SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
-    boolean[] completed = { false };
+    AtomicReference<Throwable> failure = new AtomicReference<>();
 
     Thread waiter = new Thread(() -> {
       Thread.currentThread().interrupt();
-      awaiter.await(); // 即使线程被中断，await 也应该正常工作
-      completed[0] = true;
+      try {
+        awaiter.await();
+      }
+      catch (Throwable ex) {
+        failure.set(ex);
+      }
+      assertTrue(Thread.currentThread().isInterrupted());
+    });
+    waiter.start();
+    waiter.join(1000);
+
+    assertFalse(waiter.isAlive());
+    assertTrue(failure.get() instanceof InterruptedIOException);
+  }
+
+  @Test
+  void interruptWhileAwaitingThrowsInterruptedIOException() throws InterruptedException {
+    SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
+    AtomicReference<Throwable> failure = new AtomicReference<>();
+
+    Thread waiter = new Thread(() -> {
+      try {
+        awaiter.await();
+      }
+      catch (Throwable ex) {
+        failure.set(ex);
+      }
     });
     waiter.start();
 
-    Thread.sleep(100);
-    assertFalse(completed[0]);
-
-    awaiter.resume();
+    Thread.sleep(100); // 确保 waiter 线程进入等待状态
+    waiter.interrupt();
     waiter.join(1000);
-    assertTrue(completed[0]);
+
+    assertFalse(waiter.isAlive());
+    assertTrue(failure.get() instanceof InterruptedIOException);
+    assertTrue(waiter.isInterrupted());
   }
 
   @Test
@@ -139,7 +169,7 @@ class SingleThreadAwaiterTests {
       final int index = i;
       threads[i] = new Thread(() -> {
         try {
-          awaiter.await();
+          await(awaiter);
           completed[index] = true;
         }
         catch (IllegalStateException ignored) {
@@ -172,12 +202,12 @@ class SingleThreadAwaiterTests {
 
     // 同一个线程先 resume 后 await
     awaiter.resume();
-    awaiter.await();
+    await(awaiter);
 
     // 再次 await 应该会暂停
     Thread anotherThread = new Thread(awaiter::resume);
     anotherThread.start();
-    awaiter.await();
+    await(awaiter);
   }
 
   @Test
@@ -190,7 +220,7 @@ class SingleThreadAwaiterTests {
 
     // Next await should not block
     Thread thread = new Thread(() -> {
-      awaiter.await();
+      await(awaiter);
       assertTrue(true); // Should reach here immediately
     });
     thread.start();
@@ -213,7 +243,7 @@ class SingleThreadAwaiterTests {
       boolean[] completed = { false };
 
       Thread t = new Thread(() -> {
-        awaiter.await();
+        await(awaiter);
         completed[0] = true;
       });
       t.start();
@@ -232,13 +262,13 @@ class SingleThreadAwaiterTests {
     SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
 
     // Start first thread that will await
-    Thread first = new Thread(awaiter::await);
+    Thread first = new Thread(() -> await(awaiter));
     first.start();
 
     Thread.sleep(100); // Give time for first thread to start awaiting
 
     // Second thread trying to await should throw exception
-    Thread second = new Thread(() -> assertThrows(IllegalStateException.class, awaiter::await));
+    Thread second = new Thread(() -> assertThrows(IllegalStateException.class, () -> await(awaiter)));
     second.start();
 
     second.join(1000);
@@ -255,7 +285,7 @@ class SingleThreadAwaiterTests {
     // Use the awaiter once
     boolean[] completed1 = { false };
     Thread t1 = new Thread(() -> {
-      awaiter.await();
+      await(awaiter);
       completed1[0] = true;
     });
     t1.start();
@@ -268,7 +298,7 @@ class SingleThreadAwaiterTests {
     // Use the awaiter again - should work fine
     boolean[] completed2 = { false };
     Thread t2 = new Thread(() -> {
-      awaiter.await();
+      await(awaiter);
       completed2[0] = true;
     });
     t2.start();
@@ -277,6 +307,15 @@ class SingleThreadAwaiterTests {
     awaiter.resume();
     t2.join(1000);
     assertTrue(completed2[0]);
+  }
+
+  private static void await(SingleThreadAwaiter awaiter) {
+    try {
+      awaiter.await();
+    }
+    catch (InterruptedIOException ex) {
+      throw new UncheckedIOException(ex);
+    }
   }
 
 }

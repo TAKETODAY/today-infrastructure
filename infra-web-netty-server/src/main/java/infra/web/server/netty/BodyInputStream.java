@@ -276,8 +276,7 @@ class BodyInputStream extends InputStream {
     return new IOException("Read failed", ex);
   }
 
-  @Nullable
-  private ByteBuf getNextOrAwait() {
+  private @Nullable ByteBuf getNextOrAwait() throws IOException {
     if (this.available == null || this.available.readableBytes() == 0) {
       discard(this.available);
       this.available = null;

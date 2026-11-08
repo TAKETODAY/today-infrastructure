@@ -18,6 +18,7 @@ package infra.util.concurrent;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.InterruptedIOException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
@@ -32,8 +33,10 @@ import infra.util.InfraStrategies;
  * a time and keeps at most one pending notification: calling {@link #resume()}
  * before {@link #await()} makes the next {@code await} return immediately.
  *
- * <p>Waiting is not interruptible; an interrupt does not cause {@link #await()}
- * to return, and the interrupt status is preserved.
+ * <p>Waiting is interruptible: if the current thread is interrupted while
+ * waiting, {@link #await()} clears and restores the interrupt status and throws
+ * {@link InterruptedIOException}, unless a concurrent {@link #resume()} already
+ * published a notification for this thread.
  *
  * <p>By default, a waiting thread is parked with {@link LockSupport#park()}.
  * Set the {@code infra.awaiter.thread.park-nanos-enabled} system property to
@@ -68,11 +71,14 @@ public final class SingleThreadAwaiter {
 
   /**
    * Consumes a pending notification, parking the current thread if necessary.
+   *
+   * @throws InterruptedIOException if the current thread is interrupted while
+   * waiting and no notification was published concurrently
    */
-  public void await() {
+  public void await() throws InterruptedIOException {
     Thread currentThread = Thread.currentThread();
 
-    for (; ; ) {
+    while (true) {
       Object current = parkedThread.get();
       if (current == READY) {
         break;
@@ -82,7 +88,8 @@ public final class SingleThreadAwaiter {
         throw new IllegalStateException("Only one (Virtual)Thread can await!");
       }
 
-      if (parkedThread.compareAndSet(null, currentThread)) {
+      if (parkedThread.compareAndSet(null, currentThread)
+              || parkedThread.get() == currentThread) {
         if (parkNanosEnabled) {
           // LockSupport.park() 在极小的情况下会出现永远阻塞的状态
           LockSupport.parkNanos(threadParkNanos);
@@ -92,6 +99,13 @@ public final class SingleThreadAwaiter {
         }
         // we don't just break here because park() can wake up spuriously
         // if we got a proper resume, get() == READY and the loop will quit above
+      }
+      // Preserve a concurrent READY signal so data is delivered before interruption.
+      if (Thread.interrupted()) {
+        Thread.currentThread().interrupt();
+        if (parkedThread.compareAndSet(currentThread, null)) {
+          throw new InterruptedIOException("Interrupted while awaiting data");
+        }
       }
     }
     // clear the resume indicator so that the next await call will park without a resume()
