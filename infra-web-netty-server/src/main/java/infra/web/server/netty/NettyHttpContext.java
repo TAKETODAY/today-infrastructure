@@ -277,11 +277,9 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     if (contentLength == 0L || (contentLength == -1L && (method == GET || method == HEAD))) {
       return null;
     }
-    if (config.autoRead) {
-      return new BodyInputStream(config.dataReceivedQueueCapacity);
-    }
-    channel.config().setAutoRead(false);
-    return new ManualReadingBodyInputStream(config.dataReceivedQueueCapacity);
+    return config.autoRead
+            ? new BodyInputStream(config.dataReceivedQueueCapacity)
+            : new ManualReadingBodyInputStream(config.dataReceivedQueueCapacity);
   }
 
   @Override
@@ -1340,6 +1338,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
     private ManualReadingBodyInputStream(int capacity) {
       super(capacity);
+      channel.config().setAutoRead(false);
     }
 
     @Override

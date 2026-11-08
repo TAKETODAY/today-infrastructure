@@ -24,7 +24,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.util.Objects;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import infra.util.concurrent.SingleThreadAwaiter;
 import io.netty.buffer.ByteBuf;
@@ -35,8 +35,8 @@ import io.netty.buffer.ByteBuf;
  * <p>
  * This class handles backpressure by suspending the upstream data source
  * when the internal buffer queue reaches its capacity, and resuming it
- * when data is consumed. It ensures thread-safe access to the underlying
- * byte buffers using a reentrant lock.
+ * when data is consumed. The queue is bounded and thread-safe, allowing
+ * producers and the reader to access it concurrently.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
@@ -51,8 +51,6 @@ class BodyInputStream extends InputStream {
   private static final int CLOSED = 1 << 1;
   private static final int CANCELLED = 1 << 2;
   private static final int DONE = 1 << 3;
-
-  private final int capacity;
 
   private final SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
 
@@ -76,8 +74,7 @@ class BodyInputStream extends InputStream {
    * @param capacity the maximum number of buffers that can be queued
    */
   BodyInputStream(int capacity) {
-    this.capacity = capacity;
-    this.queue = new ConcurrentLinkedQueue<>();
+    this.queue = new ArrayBlockingQueue<>(capacity);
   }
 
   public void onDataReceived(ByteBuf buffer) {
@@ -87,14 +84,12 @@ class BodyInputStream extends InputStream {
       return;
     }
 
-    if (queue.size() >= capacity) {
+    if (!queue.offer(buffer)) {
       discard(buffer);
       this.error = new IOException("Buffer overflow");
       setState(state | DONE);
       return;
     }
-
-    queue.offer(buffer);
 
     int previousWorkState = addWork();
     if (previousWorkState == Integer.MIN_VALUE) {
