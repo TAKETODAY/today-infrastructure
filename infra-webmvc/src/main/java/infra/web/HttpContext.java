@@ -773,11 +773,29 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
   }
 
   /**
-   * Register a callback to be invoked just before the response headers
-   * are committed. At this point, the status code and headers can still
-   * be modified.
+   * Register a one-shot callback to be invoked just before the response
+   * headers are written.
+   *
+   * <p>The callback runs while the response is being committed: the status
+   * code, headers, content type, content length, and cookies may still be
+   * changed, but operations that require an uncommitted response, such as
+   * trailer registration, {@link #reset}, {@link #sendRedirect}, and
+   * {@link #sendError}, are rejected.
+   *
+   * <p>The callback is removed before it runs and is invoked at most once. It
+   * executes on the thread that commits the response: it must not block,
+   * perform significant work, write large body chunks, or call {@link #flush()}.
+   * If it throws, the commit fails and the exception is propagated to the
+   * caller. If the response is never committed, the callback is never invoked;
+   * callbacks registered after the response has been committed never run.
+   *
+   * <p>The callback is registered under a name derived from the callback
+   * object using {@link Conventions#getVariableName(Object)}.
    *
    * @param callback the callback to execute; must not be {@code null}
+   * @return the name under which the callback was registered
+   * @throws IllegalArgumentException if the callback is {@code null}
+   * @see Lifecycle#COMMITTING
    * @since 5.0
    */
   default String registerCommittingCallback(Runnable callback) {
