@@ -693,6 +693,15 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
   boolean isConcurrentHandlingStarted();
 
   /**
+   * Whether the request lifecycle has already been completed.
+   * <p>Completion includes request-scoped cleanup, response finalization and
+   * {@link Lifecycle#COMPLETED} callbacks, and happens at most once per request.
+   *
+   * @since 5.0
+   */
+  boolean isRequestCompleted();
+
+  /**
    * Returns the current {@code AsyncWebRequest} instance associated with this context.
    * If no asynchronous web request has been initialized yet, this method will create
    * a new instance using {@code createAsyncWebRequest()} and store it for future use.

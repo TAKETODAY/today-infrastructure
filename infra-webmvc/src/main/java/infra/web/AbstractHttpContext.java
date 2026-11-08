@@ -176,6 +176,13 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   static final int CORS = 1 << 8;
 
   /**
+   * Request lifecycle has been completed. See {@link #requestCompleted(Throwable)}.
+   *
+   * @since 5.0
+   */
+  static final int COMPLETED = 1 << 9;
+
+  /**
    * Bit-packed request and response state. See the {@code *} constants declared
    * above; bits {@code 1 << 16} and above are reserved for subclasses.
    * <p>All access goes through the acquire/release operations on {@link #STATE},
@@ -966,12 +973,25 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   // ---------------------------------------------------------------------
 
   /**
+   * Whether this request has already completed its lifecycle.
+   *
+   * @since 5.0
+   */
+  @Override
+  public boolean isRequestCompleted() {
+    return isStateSet(COMPLETED);
+  }
+
+  /**
    * Signal that the request has been completed.
    * <p>Executes all request destruction callbacks and other resources cleanup
    *
    * @param notHandled exception not handled
    */
   protected void requestCompleted(@Nullable Throwable notHandled) {
+    if (!tryMarkRequestCompleted()) {
+      return;
+    }
     requestCompletedTimeMillis = System.currentTimeMillis();
 
     if (multipartRequest != null) {
@@ -2321,6 +2341,22 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    */
   protected final int state() {
     return (int) STATE.getAcquire(this);
+  }
+
+  /**
+   * Atomically mark the request lifecycle as completed.
+   *
+   * @return {@code true} if this call marked it, {@code false} if it was already marked
+   */
+  private boolean tryMarkRequestCompleted() {
+    int current = state();
+    while ((current & COMPLETED) == 0) {
+      if (STATE.compareAndSet(this, current, current | COMPLETED)) {
+        return true;
+      }
+      current = state();
+    }
+    return false;
   }
 
   /**

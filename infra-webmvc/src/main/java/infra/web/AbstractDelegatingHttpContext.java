@@ -535,6 +535,11 @@ public abstract class AbstractDelegatingHttpContext implements HttpContext {
   }
 
   @Override
+  public boolean isRequestCompleted() {
+    return delegate().isRequestCompleted();
+  }
+
+  @Override
   public MultipartRequest asMultipartRequest() {
     return delegate().asMultipartRequest();
   }

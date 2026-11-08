@@ -179,6 +179,29 @@ class AbstractHttpContextStateTests {
     assertThat(third).hasValue(1);
   }
 
+  @Test
+  void requestCompletedIsIdempotent() {
+    AtomicInteger completions = new AtomicInteger();
+    context.registerCallback(HttpContext.Lifecycle.COMPLETED, "count", completions::incrementAndGet);
+
+    assertThat(context.isRequestCompleted()).isFalse();
+    assertThat(context.state() & AbstractHttpContext.COMPLETED).isZero();
+
+    context.requestCompleted(null);
+
+    assertThat(context.isRequestCompleted()).isTrue();
+    assertThat(context.state() & AbstractHttpContext.COMPLETED).isNotZero();
+    assertThat(completions).hasValue(1);
+
+    // repeated completion is ignored
+    context.requestCompleted(null);
+    assertThat(completions).hasValue(1);
+
+    // response reset does not re-open a completed request
+    context.reset();
+    assertThat(context.isRequestCompleted()).isTrue();
+  }
+
   @SuppressWarnings("NullAway")
   private static class StateHttpContext extends AbstractHttpContext {
 
