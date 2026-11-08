@@ -36,7 +36,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import infra.context.ApplicationContext;
 import infra.http.DefaultHttpHeaders;
@@ -190,8 +189,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   protected final HttpTrafficHandler httpTrafficHandler;
 
   private final long requestTimeMillis = System.currentTimeMillis();
-
-  private final AtomicBoolean committed = new AtomicBoolean();
 
   private HttpResponseStatus status = HttpResponseStatus.OK;
 
@@ -541,6 +538,11 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   @Override
   public void flush() {
     writeHeaders();
+    if (!isCommitted() || isCommitting()) {
+      // The head was not written: committing is in progress (re-entrant call
+      // from a committing callback) or it failed. Never write the body first.
+      return;
+    }
 
     Object body = this.pendingBody;
     this.pendingBody = null;
@@ -714,7 +716,17 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   @Override
   protected void writeHeaders() {
-    if (committed.compareAndSet(false, true)) {
+    if (!tryBeginCommit()) {
+      // Already committed, another thread / a re-entrant callback is in the
+      // middle of committing, or a failed attempt has not fully unwound yet.
+      // The head must be written exactly once.
+      return;
+    }
+
+    // From the committing phase onwards the response headers are locked:
+    // committing callbacks must not mutate headers or register trailers.
+    boolean committedOk = false;
+    try {
       onCommitting();
       validateTrailerFieldsBeforeCommit();
       var headers = nettyResponseHeaders;
@@ -771,8 +783,13 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       }
 
       trackResponseWrite(writeResponseHead(status, headers));
-      onCommitted();
+      committedOk = true;
     }
+    finally {
+      // keep COMMITTED when the head write was issued; roll back on failure
+      finishCommit(committedOk);
+    }
+    onCommitted();
   }
 
   /**
@@ -832,11 +849,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   @Override
   public void setContentLength(long length) {
     nettyResponseHeaders.setLong(HttpHeaderNames.CONTENT_LENGTH, length);
-  }
-
-  @Override
-  public boolean isCommitted() {
-    return committed.get();
   }
 
   @Override

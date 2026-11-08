@@ -692,6 +692,108 @@ class NettyHttpContextTests {
     assertThat(committed[0]).isTrue();
   }
 
+  @Test
+  void committingCallbackFailureLeavesResponseUncommitted() {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new OnCommittedTrackingStub(request, null);
+    ctx.registerCommittingCallback(() -> {
+      throw new IllegalStateException("commit failed");
+    });
+
+    assertThatThrownBy(ctx::flush)
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage("commit failed");
+
+    assertThat(ctx.isCommitted()).isFalse();
+    assertThat(ctx.onCommittedCallCount).isZero();
+  }
+
+  @Test
+  void responseCanCommitAfterCommittingCallbackFailure() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new OnCommittedTrackingStub(request, null);
+    ctx.registerCommittingCallback(() -> {
+      throw new IllegalStateException("commit failed");
+    });
+
+    assertThatThrownBy(ctx::flush).isInstanceOf(IllegalStateException.class);
+
+    // committing callbacks are one-shot, so the retry can commit the response
+    ctx.flush();
+    assertThat(ctx.isCommitted()).isTrue();
+    assertThat(ctx.onCommittedCallCount).isEqualTo(1);
+  }
+
+  @Test
+  void committedCallbackSeesCommittedState() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new NettyHttpContextStub(request, null);
+    var committed = new boolean[1];
+
+    ctx.registerCommittedCallback(() -> committed[0] = ctx.isCommitted());
+    ctx.flush();
+
+    assertThat(committed[0]).isTrue();
+  }
+
+  @Test
+  void reentrantFlushFromCommittingCallbackWritesHeadBeforeBody() throws IOException {
+    var channel = new EmbeddedChannel();
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new OnCommittedTrackingStub(request, channel);
+    ctx.getOutputStream().write('X');
+    ctx.registerCommittingCallback(ctx::flush);
+
+    ctx.flush();
+    channel.flush();
+
+    Object head = channel.readOutbound();
+    Object body = channel.readOutbound();
+    assertThat(head).isInstanceOf(io.netty.handler.codec.http.DefaultHttpResponse.class);
+    assertThat(body).isInstanceOf(io.netty.buffer.ByteBuf.class);
+    assertThat(ctx.onCommittedCallCount).isEqualTo(1);
+  }
+
+  @Test
+  void committingBitsSetDuringCommittingCallback() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new OnCommittedTrackingStub(request, null);
+    var committing = new boolean[1];
+    var committed = new boolean[1];
+    ctx.registerCommittingCallback(() -> {
+      committing[0] = ctx.isCommittingState();
+      committed[0] = ctx.isCommitted();
+    });
+
+    ctx.flush();
+
+    assertThat(committing[0]).isTrue();
+    // the head has not been written yet, so the response is not committed
+    assertThat(committed[0]).isFalse();
+    assertThat(ctx.isCommittingState()).isFalse();
+    assertThat(ctx.isCommitted()).isTrue();
+  }
+
+  @Test
+  void commitBitsClearedWhenCommittingCallbackFails() {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new OnCommittedTrackingStub(request, null);
+    ctx.registerCommittingCallback(() -> {
+      throw new IllegalStateException("commit failed");
+    });
+
+    assertThatThrownBy(ctx::flush).isInstanceOf(IllegalStateException.class);
+
+    assertThat(ctx.isCommittingState()).isFalse();
+    assertThat(ctx.isCommitted()).isFalse();
+  }
+
   // -- stub --
 
   private static Channel mockChannel() {
@@ -747,6 +849,10 @@ class NettyHttpContextTests {
 
     @Override
     protected void writeRejectResponseContinue() {
+    }
+
+    boolean isCommittingState() {
+      return isCommitting();
     }
   }
 

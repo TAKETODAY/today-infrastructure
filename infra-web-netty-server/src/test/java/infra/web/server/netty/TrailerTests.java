@@ -173,13 +173,21 @@ class TrailerTests {
   }
 
   @Test
-  void registrationInsideCommittingCallbackIsRejected() {
+  void registrationInsideCommittingCallbackIsApplied() {
     HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
     context.registerCallback(HttpContext.Lifecycle.COMMITTING, "register",
             () -> context.setTrailerFields(
                     Trailer.field("Content-Digest", () -> "sha-256=:abc:")));
 
-    assertThatIllegalStateException().isThrownBy(context::flush);
+    context.requestCompletedInternal(null);
+    channel.flush();
+
+    DefaultHttpResponse response = channel.readOutbound();
+    assertThat(response.headers().get(HttpHeaderNames.TRANSFER_ENCODING)).isEqualTo("chunked");
+    assertThat(response.headers().get(HttpHeaderNames.TRAILER)).isEqualTo("Content-Digest");
+
+    LastHttpContent content = channel.readOutbound();
+    assertThat(content.trailingHeaders().get("Content-Digest")).isEqualTo("sha-256=:abc:");
   }
 
   @ParameterizedTest
