@@ -83,7 +83,8 @@ final class SubscriberInputStream<T> extends InputStream implements Flow.Subscri
 
   private final AtomicInteger workAmount = new AtomicInteger();
 
-  private final SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
+  // streams always wait without a timeout, regardless of the global park-nanos setting
+  private final SingleThreadAwaiter awaiter = new SingleThreadAwaiter(false);
 
   volatile boolean closed;
 

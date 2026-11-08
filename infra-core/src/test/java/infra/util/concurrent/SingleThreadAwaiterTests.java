@@ -78,6 +78,26 @@ class SingleThreadAwaiterTests {
   }
 
   @Test
+  void explicitParkNanosBehaviorCanBeOverridden() throws InterruptedException {
+    for (boolean parkNanosEnabled : new boolean[] { false, true }) {
+      SingleThreadAwaiter awaiter = new SingleThreadAwaiter(parkNanosEnabled);
+      boolean[] completed = { false };
+      Thread waiter = new Thread(() -> {
+        await(awaiter);
+        completed[0] = true;
+      });
+      waiter.start();
+
+      Thread.sleep(50);
+      assertFalse(completed[0]);
+
+      awaiter.resume();
+      waiter.join(1000);
+      assertTrue(completed[0]);
+    }
+  }
+
+  @Test
   void testMultipleThreadsAwait() throws InterruptedException {
     SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
     Thread first = new Thread(() -> await(awaiter));

@@ -137,7 +137,7 @@ xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-anno
 | 是否固定生成类名中的哈希值，以测试哈希冲突处理，默认值：`false`。
 
 | `infra.awaiter.thread.park-nanos-enabled`
-| `SingleThreadAwaiter` 是否使用定时等待替代无限期的 `LockSupport.park()`，以规避极小概率的永久阻塞。默认值：`false`；在类初始化时读取。
+| `SingleThreadAwaiter` 是否使用定时等待替代无限期的 `LockSupport.park()`，以规避极小概率的永久阻塞。默认值：`false`；在类初始化时读取，仅对使用默认构造器的实例生效，订阅输入流始终使用无限期等待。
 
 | `infra.awaiter.thread.park-nanos`
 | `SingleThreadAwaiter` 启用定时等待时单次等待的时长，单位为纳秒。默认值：`3000000000`（3 秒）；仅在启用定时等待时生效。

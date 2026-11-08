@@ -72,7 +72,8 @@ final class SubscriberInputStream extends InputStream implements Subscriber<Data
 
   private final Queue<DataBuffer> queue;
 
-  private final SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
+  // streams always wait without a timeout, regardless of the global park-nanos setting
+  private final SingleThreadAwaiter awaiter = new SingleThreadAwaiter(false);
 
   private final AtomicInteger workAmount = new AtomicInteger();
 

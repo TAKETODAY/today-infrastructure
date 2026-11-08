@@ -43,7 +43,9 @@ import infra.util.InfraStrategies;
  * {@code true} to use timed parking instead, which avoids the rare case where
  * {@code park()} blocks forever. The timed wait duration is configured through
  * {@code infra.awaiter.thread.park-nanos} in nanoseconds and defaults to three
- * seconds. Both properties are read once when this class is initialized.
+ * seconds. Both properties are read once when this class is initialized and
+ * only apply to instances created with the default constructor; callers that
+ * must wait without a timeout can pass {@code false} explicitly.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
@@ -58,16 +60,36 @@ public final class SingleThreadAwaiter {
           "infra.awaiter.thread.park-nanos", TimeUnit.SECONDS.toNanos(3));
 
   /**
-   * Whether to use timed parking instead of {@link LockSupport#park()},
-   * configured by {@code infra.awaiter.thread.park-nanos-enabled}.
-   * Defaults to {@code false}.
+   * Default timed-parking behavior, configured by
+   * {@code infra.awaiter.thread.park-nanos-enabled}. Defaults to {@code false}.
    */
-  private static final boolean parkNanosEnabled = InfraStrategies.getFlag(
+  private static final boolean defaultParkNanosEnabled = InfraStrategies.getFlag(
           "infra.awaiter.thread.park-nanos-enabled", false);
 
   private static final Object READY = new Object();
 
   private final AtomicReference<@Nullable Object> parkedThread = new AtomicReference<>();
+
+  private final boolean parkNanosEnabled;
+
+  /**
+   * Creates an instance using the configured timed-parking behavior.
+   *
+   * @see #SingleThreadAwaiter(boolean)
+   */
+  public SingleThreadAwaiter() {
+    this(defaultParkNanosEnabled);
+  }
+
+  /**
+   * Creates an instance with explicit timed-parking behavior.
+   *
+   * @param parkNanosEnabled whether to use timed parking instead of
+   * {@link LockSupport#park()}
+   */
+  public SingleThreadAwaiter(boolean parkNanosEnabled) {
+    this.parkNanosEnabled = parkNanosEnabled;
+  }
 
   /**
    * Consumes a pending notification, parking the current thread if necessary.
