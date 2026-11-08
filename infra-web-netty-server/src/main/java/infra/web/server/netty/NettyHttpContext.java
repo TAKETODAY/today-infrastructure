@@ -569,7 +569,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   }
 
   @Override
-  protected void requestCompletedInternal(@Nullable Throwable notHandled) {
+  protected final void requestCompletedInternal(@Nullable Throwable notHandled) {
     cleanup(null);
     if (notHandled == null) {
       flush();
@@ -647,6 +647,9 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     }
   }
 
+  /**
+   * Restore channel auto-read if this request paused it.
+   */
   private void restoreAutoRead() {
     if (readPaused) {
       readPaused = false;
@@ -1055,6 +1058,11 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * removed from {@link HttpContextHolder} when the exchange completes.
    * <p>Protocol specific behavior is supplied by the {@code 100 Continue} and
    * request dispatch hooks, so subclasses only provide transport details.
+   * <p>When {@link NettyRequestConfig#autoRead} is disabled, manual body reading
+   * pauses channel auto-read for the request. The pause is released by
+   * {@link #cleanup(IOException)} when the request completes:
+   * {@link #processRequest()} guarantees that completion, while the early
+   * returns above call {@code cleanup} directly because they bypass it.
    */
   public final void run() {
     HttpContextHolder.set(this);
@@ -1085,9 +1093,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       httpTrafficHandler.handleException(channel, e);
     }
     finally {
-      if (!isConcurrentHandlingStarted()) {
-        restoreAutoRead();
-      }
       HttpContextHolder.cleanup();
     }
   }
@@ -1096,6 +1101,9 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * Dispatch the request to the {@link DispatcherHandler}.
    * <p>Subclasses may override this to inspect protocol state before dispatching,
    * for example to report a request decoding failure.
+   * <p>Implementations must guarantee that the request lifecycle completes
+   * before returning, including on failure, so that request-scoped resources and
+   * the paused channel auto-read are released.
    *
    * @throws Exception if request handling fails
    */

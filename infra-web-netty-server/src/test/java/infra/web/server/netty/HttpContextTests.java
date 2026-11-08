@@ -183,11 +183,17 @@ class HttpContextTests {
     HttpRequest request = mock(HttpRequest.class);
     NettyRequestConfig config = createConfigBuilder().autoRead(false).build();
     ApplicationContext applicationContext = mock(ApplicationContext.class);
-    DispatcherHandler dispatcherHandler = mock(DispatcherHandler.class);
+    DispatcherHandler dispatcherHandler = new DispatcherHandler(applicationContext) {
+      @Override
+      public void handleRequest(infra.web.HttpContext context) throws Exception {
+        requestCompleted(context, null);
+      }
+    };
     HttpTrafficHandler trafficHandler = mock(HttpTrafficHandler.class);
 
     when(request.method()).thenReturn(HttpMethod.POST);
     when(request.headers()).thenReturn(new DefaultHttpHeaders().set(HttpHeaderNames.CONTENT_LENGTH, "10"));
+    when(request.protocolVersion()).thenReturn(HttpVersion.HTTP_1_1);
     when(request.decoderResult()).thenReturn(DecoderResult.SUCCESS);
 
     HttpContext context = new HttpContext(channel, request, config, applicationContext, dispatcherHandler, trafficHandler);
@@ -195,6 +201,7 @@ class HttpContextTests {
 
     context.run();
 
+    assertThat(context.isRequestCompleted()).as("request completed").isTrue();
     assertThat(channel.config().isAutoRead()).isTrue();
   }
 
