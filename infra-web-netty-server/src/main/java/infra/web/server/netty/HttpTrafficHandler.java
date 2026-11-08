@@ -185,7 +185,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
     }
   }
 
-  void handleException(Channel channel, Throwable cause) {
+  final void handleException(Channel channel, Throwable cause) {
     NettyHttpContext context = NettyHttpContext.lookup(channel);
     if (context != null && context.isCommitted()) {
       handleCommittedException(channel, cause);
