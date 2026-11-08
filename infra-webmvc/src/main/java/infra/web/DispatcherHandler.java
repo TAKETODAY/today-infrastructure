@@ -576,18 +576,23 @@ public class DispatcherHandler extends WebLifecycleManager {
   }
 
   /**
-   * Handling HTTP request.
-   * <p>
-   * This method will throw un-handling exception to up stream
+   * Handle the given HTTP request.
+   * <p>When filters are configured, the request is executed through the filter
+   * chain and {@link #requestCompleted(HttpContext, Throwable)} is invoked after
+   * the chain returns. This guarantees that a short-circuiting filter still
+   * completes the request; the call is idempotent when the terminal handler has
+   * already completed it. Without filters, dispatching and completion are handled
+   * by {@link #handleRequestInternal(HttpContext)}.
+   * <p>Asynchronous requests remain open after this method returns and are
+   * completed when their concurrent result is dispatched through
+   * {@link #handleConcurrentResult(HttpContext, Object, Object)}.
+   * <p>Filter exceptions are not resolved here; they propagate to the caller
+   * (transport), which reports the failure and closes the exchange.
    *
    * @param context current HTTP request and HTTP response
    * @throws Exception in case of any kind of un-handling failure
-   * @see HandlerAdapter
-   * @see HandlerMapping
-   * @see HandlerExceptionHandler
-   * @see ReturnValueHandler
-   * @see NotFoundHandler
-   * @see HttpRequestHandler
+   * @see #handleRequestInternal(HttpContext)
+   * @see #requestCompleted(HttpContext, Throwable)
    * @since 4.0
    */
   public void handleRequest(HttpContext context) throws Exception {
