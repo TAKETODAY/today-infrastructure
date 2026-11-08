@@ -19,9 +19,12 @@ package infra.web.filter;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Locale;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
+import infra.core.Ordered;
 import infra.stereotype.Component;
 import infra.web.DispatcherHandler;
 import infra.web.Filter;
@@ -30,10 +33,12 @@ import infra.web.HandlerAdapter;
 import infra.web.HandlerMapping;
 import infra.web.HttpContext;
 import infra.web.HttpRequestHandler;
+import infra.web.RequestCompletedListener;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Integration tests for the {@link Filter} pipeline with {@link DispatcherHandler}.
@@ -132,6 +137,7 @@ class FilterIntegrationTests {
   @Test
   void repeatedContinuationInvokesAllRemainingFilters() throws Throwable {
     var order = new StringBuilder();
+    AtomicInteger completions = new AtomicInteger();
     try (var context = new AnnotationConfigApplicationContext()) {
       context.register(BaseConfig.class);
       context.registerBean("firstFilter", Filter.class, () -> (request, chain) -> {
@@ -144,6 +150,8 @@ class FilterIntegrationTests {
         chain.doFilter(request);
         order.append("b");
       });
+      context.registerBean("completed", RequestCompletedListener.class,
+              () -> (request, notHandled) -> completions.incrementAndGet());
       context.refresh();
 
       DispatcherHandler handler = new DispatcherHandler(context);
@@ -158,6 +166,7 @@ class FilterIntegrationTests {
       handler.handleRequest(new MockHttpContext());
 
       assertThat(order.toString()).isEqualTo("ABHbBHb");
+      assertThat(completions).hasValue(1);
     }
   }
 
@@ -180,6 +189,55 @@ class FilterIntegrationTests {
     handler.handleRequest(request);
 
     assertThat(request.getAttribute("filterCalled")).isEqualTo(Boolean.TRUE);
+    assertThat(request.getRequestProcessingTime()).isGreaterThanOrEqualTo(0);
+  }
+
+  @Test
+  void shortCircuitingFilterCompletesRequestOnce() throws Throwable {
+    AtomicInteger completions = new AtomicInteger();
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.register(BaseConfig.class);
+      context.registerBean("blockingFilter", Filter.class, () -> (request, chain) -> {
+        // do not call chain.doFilter — short-circuit
+      });
+      context.registerBean("completed", RequestCompletedListener.class,
+              () -> (request, notHandled) -> completions.incrementAndGet());
+      context.refresh();
+
+      DispatcherHandler handler = new DispatcherHandler(context);
+      handler.setHandlerMapping(mockHandlerMapping());
+      handler.setHandlerAdapter(mockHandlerAdapter());
+      handler.start();
+
+      MockHttpContext request = new MockHttpContext();
+      handler.handleRequest(request);
+
+      assertThat(request.isRequestCompleted()).isTrue();
+      assertThat(completions).hasValue(1);
+    }
+  }
+
+  @Test
+  void invokingFilterCompletesRequestOnce() throws Throwable {
+    AtomicInteger completions = new AtomicInteger();
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.register(BaseConfig.class);
+      context.registerBean("passThroughFilter", Filter.class, () -> (request, chain) -> chain.doFilter(request));
+      context.registerBean("completed", RequestCompletedListener.class,
+              () -> (request, notHandled) -> completions.incrementAndGet());
+      context.refresh();
+
+      DispatcherHandler handler = new DispatcherHandler(context);
+      handler.setHandlerMapping(mockHandlerMapping());
+      handler.setHandlerAdapter(mockHandlerAdapter());
+      handler.start();
+
+      MockHttpContext request = new MockHttpContext();
+      handler.handleRequest(request);
+
+      assertThat(request.isRequestCompleted()).isTrue();
+      assertThat(completions).hasValue(1);
+    }
   }
 
   @Test
@@ -198,6 +256,162 @@ class FilterIntegrationTests {
 
     // No filters configured, request should reach handler mapping
     assertThat(request.getAttribute("handlerInvoked")).isEqualTo(Boolean.TRUE);
+  }
+
+  @Test
+  void filtersWrapTerminalInRegistrationOrder() throws Throwable {
+    var order = new StringBuilder();
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.register(BaseConfig.class);
+      context.registerBean("firstFilter", Filter.class, () -> (request, chain) -> {
+        order.append("A");
+        chain.doFilter(request);
+        order.append("a");
+      });
+      context.registerBean("secondFilter", Filter.class, () -> (request, chain) -> {
+        order.append("B");
+        chain.doFilter(request);
+        order.append("b");
+      });
+      context.refresh();
+
+      DispatcherHandler handler = new DispatcherHandler(context);
+      HttpRequestHandler terminal = request -> {
+        order.append("H");
+        return HttpRequestHandler.NONE_RETURN_VALUE;
+      };
+      handler.setHandlerMapping(request -> terminal);
+      handler.setHandlerAdapter(mockHandlerAdapter());
+      handler.start();
+
+      handler.handleRequest(new MockHttpContext());
+
+      assertThat(order.toString()).isEqualTo("ABHba");
+    }
+  }
+
+  @Test
+  void orderedFiltersExecuteInAscendingOrder() throws Throwable {
+    var order = new StringBuilder();
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.register(BaseConfig.class);
+      context.registerBean("secondFilter", Filter.class, () -> new OrderedFilter("B", 2, order));
+      context.registerBean("firstFilter", Filter.class, () -> new OrderedFilter("A", 1, order));
+      context.registerBean("thirdFilter", Filter.class, () -> new OrderedFilter("C", 3, order));
+      context.refresh();
+
+      DispatcherHandler handler = new DispatcherHandler(context);
+      HttpRequestHandler terminal = request -> {
+        order.append("H");
+        return HttpRequestHandler.NONE_RETURN_VALUE;
+      };
+      handler.setHandlerMapping(request -> terminal);
+      handler.setHandlerAdapter(mockHandlerAdapter());
+      handler.start();
+
+      handler.handleRequest(new MockHttpContext());
+
+      assertThat(order.toString()).isEqualTo("ABCHcba");
+    }
+  }
+
+  @Test
+  void shortCircuitAtMiddleFilterSkipsRemainingFilters() throws Throwable {
+    var order = new StringBuilder();
+    AtomicInteger completions = new AtomicInteger();
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.register(BaseConfig.class);
+      context.registerBean("firstFilter", Filter.class, () -> (request, chain) -> {
+        order.append("A");
+        chain.doFilter(request);
+        order.append("a");
+      });
+      context.registerBean("secondFilter", Filter.class, () -> (request, chain) -> order.append("B"));
+      context.registerBean("thirdFilter", Filter.class, () -> (request, chain) -> {
+        order.append("C");
+        chain.doFilter(request);
+        order.append("c");
+      });
+      context.registerBean("completed", RequestCompletedListener.class,
+              () -> (request, notHandled) -> completions.incrementAndGet());
+      context.refresh();
+
+      DispatcherHandler handler = new DispatcherHandler(context);
+      HttpRequestHandler terminal = request -> {
+        order.append("H");
+        return HttpRequestHandler.NONE_RETURN_VALUE;
+      };
+      handler.setHandlerMapping(request -> terminal);
+      handler.setHandlerAdapter(mockHandlerAdapter());
+      handler.start();
+
+      handler.handleRequest(new MockHttpContext());
+
+      assertThat(order.toString()).isEqualTo("ABa");
+      assertThat(completions).hasValue(1);
+    }
+  }
+
+  @Test
+  void exceptionInMiddleFilterSkipsOuterPostProcessing() {
+    var order = new StringBuilder();
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.register(BaseConfig.class);
+      context.registerBean("firstFilter", Filter.class, () -> (request, chain) -> {
+        order.append("A");
+        chain.doFilter(request);
+        order.append("a");
+      });
+      context.registerBean("secondFilter", Filter.class, () -> (request, chain) -> {
+        order.append("B");
+        throw new IllegalStateException("filter failed");
+      });
+      context.registerBean("thirdFilter", Filter.class, () -> (request, chain) -> {
+        order.append("C");
+        chain.doFilter(request);
+      });
+      context.refresh();
+
+      DispatcherHandler handler = new DispatcherHandler(context);
+      HttpRequestHandler terminal = request -> {
+        order.append("H");
+        return HttpRequestHandler.NONE_RETURN_VALUE;
+      };
+      handler.setHandlerMapping(request -> terminal);
+      handler.setHandlerAdapter(mockHandlerAdapter());
+      handler.start();
+
+      assertThatThrownBy(() -> handler.handleRequest(new MockHttpContext()))
+              .isInstanceOf(IllegalStateException.class)
+              .hasMessage("filter failed");
+
+      assertThat(order.toString()).isEqualTo("AB");
+    }
+  }
+
+  static final class OrderedFilter implements Filter, Ordered {
+
+    private final String name;
+    private final int order;
+    private final StringBuilder log;
+
+    OrderedFilter(String name, int order, StringBuilder log) {
+      this.name = name;
+      this.order = order;
+      this.log = log;
+    }
+
+    @Override
+    public void doFilter(HttpContext http, FilterChain chain) throws Exception {
+      log.append(name);
+      chain.doFilter(http);
+      log.append(name.toLowerCase(Locale.ROOT));
+    }
+
+    @Override
+    public int getOrder() {
+      return order;
+    }
   }
 
   private static HandlerMapping mockHandlerMapping() {

@@ -598,6 +598,10 @@ public class DispatcherHandler extends WebLifecycleManager {
     }
     else {
       filterChain.doFilter(context);
+      // the terminal handler may have completed already; completion is idempotent
+      if (!context.isConcurrentHandlingStarted()) {
+        requestCompleted(context, null);
+      }
     }
   }
 
@@ -804,6 +808,10 @@ public class DispatcherHandler extends WebLifecycleManager {
   }
 
   protected void requestCompleted(HttpContext context, @Nullable Throwable notHandled) throws Exception {
+    if (context.isRequestCompleted()) {
+      return;
+    }
+
     if (!requestCompletedActions.isEmpty()) {
       for (RequestCompletedListener action : requestCompletedActions) {
         action.requestCompleted(context, notHandled);
