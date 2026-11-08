@@ -37,8 +37,8 @@ Web MVC 支持 API 版本管理。本节介绍相关策略及其职责。
 也不会回退到后续解析器。可以额外提供 `Predicate<RequestPath>` 判断路径是否包含版本；
 谓词返回 `false` 时，解析器返回 `null`，后续解析器才有机会执行。
 
-例如，`usePathSegment(0)` 从 `/{version}/...` 提取版本，
-`usePathSegment(1)` 从 `/api/{version}/...` 提取版本。
+例如，`usePathSegment(0)` 从 `/\{version}/...` 提取版本，
+`usePathSegment(1)` 从 `/api/\{version}/...` 提取版本。
 谓词通过 `usePathSegment(int, Predicate<RequestPath>)` 配置，
 其中 `RequestPath` 为 `infra.http.server.RequestPath`。
 
