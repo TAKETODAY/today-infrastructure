@@ -2348,7 +2348,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
 
   /**
    * Complete a commit started by {@link #tryBeginCommit()}.
-   * <p>When {@code committed} is {@code true} the response becomes committed;
+   * <p>When {@code headWritten} is {@code true} the response becomes committed;
    * otherwise the {@code COMMITTING} bit is rolled back so the failure can
    * still be turned into an error response.
    *
