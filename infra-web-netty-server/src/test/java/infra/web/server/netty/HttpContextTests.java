@@ -26,10 +26,12 @@ import io.netty.channel.Channel;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.DecoderResult;
 import io.netty.handler.codec.DefaultHeaders;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
@@ -173,6 +175,76 @@ class HttpContextTests {
 
     source.add("X-Added", "later");
     assertThat(view.get("X-Added")).isEqualTo("later");
+  }
+
+  @Test
+  void autoReadIsRestoredAfterRequestCompletes() {
+    EmbeddedChannel channel = new EmbeddedChannel();
+    HttpRequest request = mock(HttpRequest.class);
+    NettyRequestConfig config = createConfigBuilder().autoRead(false).build();
+    ApplicationContext applicationContext = mock(ApplicationContext.class);
+    DispatcherHandler dispatcherHandler = mock(DispatcherHandler.class);
+    HttpTrafficHandler trafficHandler = mock(HttpTrafficHandler.class);
+
+    when(request.method()).thenReturn(HttpMethod.POST);
+    when(request.headers()).thenReturn(new DefaultHttpHeaders().set(HttpHeaderNames.CONTENT_LENGTH, "10"));
+    when(request.decoderResult()).thenReturn(DecoderResult.SUCCESS);
+
+    HttpContext context = new HttpContext(channel, request, config, applicationContext, dispatcherHandler, trafficHandler);
+    assertThat(channel.config().isAutoRead()).isFalse();
+
+    context.run();
+
+    assertThat(channel.config().isAutoRead()).isTrue();
+  }
+
+  @Test
+  void autoReadIsRestoredWhenDeclaredContentLengthExceedsLimit() {
+    EmbeddedChannel channel = new EmbeddedChannel();
+    HttpRequest request = mock(HttpRequest.class);
+    NettyRequestConfig config = createConfigBuilder().maxContentLength(100).autoRead(false).build();
+    ApplicationContext applicationContext = mock(ApplicationContext.class);
+    DispatcherHandler dispatcherHandler = mock(DispatcherHandler.class);
+    HttpTrafficHandler trafficHandler = mock(HttpTrafficHandler.class);
+
+    when(request.method()).thenReturn(HttpMethod.POST);
+    when(request.headers()).thenReturn(new DefaultHttpHeaders().set(HttpHeaderNames.CONTENT_LENGTH, "150"));
+
+    HttpContext context = new HttpContext(channel, request, config, applicationContext, dispatcherHandler, trafficHandler);
+    assertThat(channel.config().isAutoRead()).isFalse();
+
+    context.run();
+
+    assertThat(channel.config().isAutoRead()).isTrue();
+  }
+
+  @Test
+  void autoReadIsRestoredWhenContinueIsRejected() {
+    EmbeddedChannel channel = new EmbeddedChannel();
+    HttpRequest request = mock(HttpRequest.class);
+    NettyRequestConfig config = createConfigBuilder().autoRead(false).build();
+    ApplicationContext applicationContext = mock(ApplicationContext.class);
+    DispatcherHandler dispatcherHandler = mock(DispatcherHandler.class);
+    HttpTrafficHandler trafficHandler = mock(HttpTrafficHandler.class);
+
+    DefaultHttpHeaders headers = new DefaultHttpHeaders();
+    headers.set(HttpHeaderNames.CONTENT_LENGTH, "10");
+    headers.set(HttpHeaderNames.EXPECT, HttpHeaderValues.CONTINUE);
+
+    when(request.method()).thenReturn(HttpMethod.POST);
+    when(request.headers()).thenReturn(headers);
+    when(request.protocolVersion()).thenReturn(HttpVersion.HTTP_1_1);
+    when(dispatcherHandler.requestContinueExpected(any())).thenReturn(false);
+
+    HttpContext context = new HttpContext(channel, request, config, applicationContext, dispatcherHandler, trafficHandler);
+    assertThat(channel.config().isAutoRead()).isFalse();
+    assertThat(context.is100ContinueExpected()).isTrue();
+
+    context.run();
+
+    assertThat(channel.config().isAutoRead()).isTrue();
+    Object response = channel.readOutbound();
+    assertThat(response).isInstanceOf(DefaultFullHttpResponse.class);
   }
 
   private static NettyRequestConfig createRequestConfig() {

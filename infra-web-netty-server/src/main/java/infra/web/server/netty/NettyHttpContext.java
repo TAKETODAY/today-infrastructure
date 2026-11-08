@@ -209,6 +209,11 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   private long receivedBytes;
 
   /**
+   * Whether this request paused channel auto-read for manual body reading.
+   */
+  private volatile boolean readPaused;
+
+  /**
    * Create a context with the given response headers container.
    * <p>Subclasses that use a protocol-specific container, such as HTTP/2
    * {@code Http2Headers}, can supply it through this constructor.
@@ -277,9 +282,12 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     if (contentLength == 0L || (contentLength == -1L && (method == GET || method == HEAD))) {
       return null;
     }
-    return config.autoRead
-            ? new BodyInputStream(config.dataReceivedQueueCapacity)
-            : new ManualReadingBodyInputStream(config.dataReceivedQueueCapacity);
+    if (config.autoRead) {
+      return new BodyInputStream(config.dataReceivedQueueCapacity);
+    }
+    channel.config().setAutoRead(false);
+    this.readPaused = true;
+    return new ManualReadingBodyInputStream(config.dataReceivedQueueCapacity);
   }
 
   @Override
@@ -562,7 +570,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   @Override
   protected void requestCompletedInternal(@Nullable Throwable notHandled) {
-    restoreAutoRead();
     cleanup(null);
     if (notHandled == null) {
       flush();
@@ -641,7 +648,8 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   }
 
   private void restoreAutoRead() {
-    if (!config.autoRead) {
+    if (readPaused) {
+      readPaused = false;
       channel.config().setAutoRead(true);
     }
   }
@@ -653,6 +661,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       }
       requestBody.close();
     }
+    restoreAutoRead();
   }
 
   /**
@@ -1054,6 +1063,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       long contentLength = getContentLength();
       if (contentLength != -1 && contentLength > config.maxContentLength) {
         processException(new RequestBodySizeExceededException(config.maxContentLength));
+        cleanup(null);
         return;
       }
 
@@ -1063,6 +1073,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
         }
         else {
           writeRejectResponseContinue();
+          cleanup(null);
           return;
         }
       }
@@ -1074,6 +1085,9 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       httpTrafficHandler.handleException(channel, e);
     }
     finally {
+      if (!isConcurrentHandlingStarted()) {
+        restoreAutoRead();
+      }
       HttpContextHolder.cleanup();
     }
   }
@@ -1338,7 +1352,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
     private ManualReadingBodyInputStream(int capacity) {
       super(capacity);
-      channel.config().setAutoRead(false);
     }
 
     @Override
