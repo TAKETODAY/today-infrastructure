@@ -205,7 +205,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
       if (isResourceType(valueType)) {
         context.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
         if (value != null) {
-          String headerRange = context.requestHeaders().getFirst(HttpHeaders.RANGE);
+          String headerRange = context.getHeader(HttpHeaders.RANGE);
           if (headerRange != null && context.getStatus() == 200) {
             Resource resource = (Resource) value;
             try {
@@ -267,7 +267,6 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
       // For ProblemDetail, fall back on RFC 7807 format
       if (compatibleMediaTypes.isEmpty() && ProblemDetail.class.isAssignableFrom(valueType)) {
         compatibleMediaTypes = determineCompatibleMediaTypes(problemMediaTypes, producibleTypes);
-
       }
 
       if (compatibleMediaTypes.isEmpty()) {

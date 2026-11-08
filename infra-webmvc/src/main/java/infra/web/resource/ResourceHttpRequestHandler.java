@@ -542,7 +542,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
 
     // Content phase
     ServerHttpResponse outputMessage = context.asHttpOutputMessage();
-    if (context.requestHeaders().get(HttpHeaders.RANGE) != null) {
+    if (context.getHeader(HttpHeaders.RANGE) != null) {
       try {
         List<HttpRange> httpRanges = HttpRange.resolveRanges(context.requestHeaders(), context.responseHeaders());
         if (!httpRanges.isEmpty()) {
