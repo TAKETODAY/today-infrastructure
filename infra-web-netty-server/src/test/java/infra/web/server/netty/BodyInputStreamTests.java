@@ -23,7 +23,6 @@ import java.util.ConcurrentModificationException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import infra.util.ExceptionUtils;
-import infra.util.concurrent.SimpleSingleThreadAwaiter;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
@@ -38,7 +37,7 @@ class BodyInputStreamTests {
 
   @Test
   void readsDataFromMultipleBuffers() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     ByteBuf buffer1 = Unpooled.buffer(2);
     buffer1.writeBytes(new byte[] { 1, 2 });
@@ -60,7 +59,7 @@ class BodyInputStreamTests {
 
   @Test
   void concurrentReadsThrowException() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     Thread t1 = new Thread(() -> {
       try {
@@ -85,7 +84,7 @@ class BodyInputStreamTests {
 
   @Test
   void readAfterError() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     inputStream.onError(new IOException("Stream error"));
 
     assertThatThrownBy(inputStream::read)
@@ -95,7 +94,7 @@ class BodyInputStreamTests {
 
   @Test
   void closeWhileReading() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     Thread readerThread = new Thread(() -> {
       try {
@@ -116,8 +115,7 @@ class BodyInputStreamTests {
 
   @Test
   void resumeWorksCorrectly() throws Exception {
-    SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
-    BodyInputStream inputStream = new BodyInputStream(awaiter);
+    BodyInputStream inputStream = new BodyInputStream();
 
     Thread readerThread = new Thread(() -> {
       try {
@@ -135,7 +133,6 @@ class BodyInputStreamTests {
     ByteBuf buffer = Unpooled.buffer(1);
     buffer.writeByte(42);
     inputStream.onDataReceived(buffer);
-    awaiter.resume(); // Manually resume
 
     readerThread.join(1000);
     assertThat(readerThread.getState()).isEqualTo(Thread.State.TERMINATED);
@@ -143,7 +140,7 @@ class BodyInputStreamTests {
 
   @Test
   void multipleCloseCallsAreSafe() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     inputStream.close();
     inputStream.close(); // Second close should not throw
     assertThat(inputStream.read()).isEqualTo(-1);
@@ -151,7 +148,7 @@ class BodyInputStreamTests {
 
   @Test
   void readZeroLengthArray() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     ByteBuf buffer = Unpooled.buffer(1);
     buffer.writeByte(1);
     inputStream.onDataReceived(buffer);
@@ -164,7 +161,7 @@ class BodyInputStreamTests {
 
   @Test
   void readWithInvalidIndices() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     byte[] buffer = new byte[5];
 
@@ -186,7 +183,7 @@ class BodyInputStreamTests {
 
   @Test
   void readSingleByteWithData() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     ByteBuf buffer = Unpooled.buffer(1);
     buffer.writeByte(0x42);
     inputStream.onDataReceived(buffer);
@@ -201,7 +198,7 @@ class BodyInputStreamTests {
 
   @Test
   void readSingleByteWithoutData() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     inputStream.onComplete();
 
     int result = inputStream.read();
@@ -210,7 +207,7 @@ class BodyInputStreamTests {
 
   @Test
   void readByteArrayWithExactLength() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     ByteBuf buffer = Unpooled.buffer(4);
     buffer.writeBytes(new byte[] { 1, 2, 3, 4 });
     inputStream.onDataReceived(buffer);
@@ -228,7 +225,7 @@ class BodyInputStreamTests {
 
   @Test
   void readByteArrayInChunks() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     ByteBuf buffer = Unpooled.buffer(4);
     buffer.writeBytes(new byte[] { 10, 20, 30, 40 });
     inputStream.onDataReceived(buffer);
@@ -249,7 +246,7 @@ class BodyInputStreamTests {
 
   @Test
   void readByteArrayWithPartialData() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     ByteBuf buffer = Unpooled.buffer(2);
     buffer.writeBytes(new byte[] { 1, 2 });
     inputStream.onDataReceived(buffer);
@@ -272,7 +269,7 @@ class BodyInputStreamTests {
 
   @Test
   void handleOnErrorWithPendingData() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     ByteBuf buffer = Unpooled.buffer(1);
     buffer.writeByte(1);
     inputStream.onDataReceived(buffer);
@@ -286,7 +283,7 @@ class BodyInputStreamTests {
 
   @Test
   void handleOnCompleteWithNoData() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     inputStream.onComplete();
 
     int result = inputStream.read();
@@ -295,7 +292,7 @@ class BodyInputStreamTests {
 
   @Test
   void handleCancelDuringRead() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     Thread readerThread = new Thread(() -> {
       try {
@@ -316,7 +313,7 @@ class BodyInputStreamTests {
 
   @Test
   void validateCleanAndFinalizeBehavior() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     ByteBuf buffer = Unpooled.buffer(1);
     buffer.writeByte(42);
     inputStream.onDataReceived(buffer);
@@ -328,7 +325,7 @@ class BodyInputStreamTests {
 
   @Test
   void validateAddWorkAtMaxValue() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     // Simulate reaching MAX_VALUE
     for (int i = 0; i < 100; i++) {
@@ -347,14 +344,14 @@ class BodyInputStreamTests {
 
   @Test
   void readReturnsMinusOneAfterStreamIsClosed() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     inputStream.close();
     assertThat(inputStream.read()).isEqualTo(-1);
   }
 
   @Test
   void readByteArrayReturnsMinusOneAfterStreamIsClosed() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     inputStream.close();
     byte[] buffer = new byte[10];
     assertThat(inputStream.read(buffer)).isEqualTo(-1);
@@ -362,7 +359,7 @@ class BodyInputStreamTests {
 
   @Test
   void readThrowsExceptionWhenCalledConcurrently() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     Thread t1 = new Thread(() -> {
       try {
@@ -389,7 +386,7 @@ class BodyInputStreamTests {
 
   @Test
   void readThrowsErrorWhenThereIsAnErrorInStream() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     RuntimeException error = new RuntimeException("error");
     inputStream.onError(new IOException(error));
 
@@ -400,7 +397,7 @@ class BodyInputStreamTests {
 
   @Test
   void readReturnsAvailableDataBeforeError() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     ByteBuf buffer = Unpooled.buffer(1);
     buffer.writeByte(42);
     inputStream.onDataReceived(buffer);
@@ -415,8 +412,7 @@ class BodyInputStreamTests {
 
   @Test
   void readBlocksUntilDataIsAvailable() throws Exception {
-    SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
-    BodyInputStream inputStream = new BodyInputStream(awaiter);
+    BodyInputStream inputStream = new BodyInputStream();
 
     Thread readerThread = new Thread(() -> {
       try {
@@ -434,7 +430,6 @@ class BodyInputStreamTests {
     ByteBuf buffer = Unpooled.buffer(1);
     buffer.writeByte(100);
     inputStream.onDataReceived(buffer);
-    awaiter.resume();
 
     readerThread.join(1000);
     assertThat(readerThread.getState()).isEqualTo(Thread.State.TERMINATED);
@@ -442,7 +437,7 @@ class BodyInputStreamTests {
 
   @Test
   void partialReadContinuesFromCorrectPosition() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     ByteBuf buffer = Unpooled.buffer(4);
     buffer.writeBytes(new byte[] { 10, 20, 30, 40 });
     inputStream.onDataReceived(buffer);
@@ -461,7 +456,7 @@ class BodyInputStreamTests {
 
   @Test
   void readByteArrayWithOffset() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     ByteBuf buffer = Unpooled.buffer(2);
     buffer.writeBytes(new byte[] { 50, 60 });
     inputStream.onDataReceived(buffer);
@@ -475,7 +470,7 @@ class BodyInputStreamTests {
 
   @Test
   void multipleBuffersAreReadInOrder() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     ByteBuf buffer1 = Unpooled.buffer(2);
     buffer1.writeBytes(new byte[] { 1, 2 });
@@ -500,7 +495,7 @@ class BodyInputStreamTests {
 
   @Test
   void closeCleansUpAllResources() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     ByteBuf buffer1 = Unpooled.buffer(1);
     buffer1.writeByte(1);
@@ -520,7 +515,7 @@ class BodyInputStreamTests {
 
   @Test
   void doubleCloseDoesNotCauseIssues() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     inputStream.close();
     inputStream.close(); // Should not throw
@@ -530,7 +525,7 @@ class BodyInputStreamTests {
 
   @Test
   void onCompleteAllowsFinishingReads() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     ByteBuf buffer = Unpooled.buffer(1);
     buffer.writeByte(42);
@@ -544,7 +539,7 @@ class BodyInputStreamTests {
 
   @Test
   void onErrorCausesSubsequentReadsToFail() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     inputStream.onError(new IOException(new IllegalStateException("Stream failure")));
 
     assertThatThrownBy(inputStream::read)
@@ -554,7 +549,7 @@ class BodyInputStreamTests {
 
   @Test
   void readWithZeroLengthReturnsZero() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     ByteBuf buffer = Unpooled.buffer(1);
     buffer.writeByte(42);
     inputStream.onDataReceived(buffer);
@@ -566,7 +561,7 @@ class BodyInputStreamTests {
 
   @Test
   void readWithNegativeLengthThrowsException() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     byte[] buffer = new byte[5];
     assertThatThrownBy(() -> inputStream.read(buffer, 0, -1))
@@ -575,7 +570,7 @@ class BodyInputStreamTests {
 
   @Test
   void readWithOffsetBeyondArrayThrowsException() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     byte[] buffer = new byte[5];
     assertThatThrownBy(() -> inputStream.read(buffer, 6, 1))
@@ -584,7 +579,7 @@ class BodyInputStreamTests {
 
   @Test
   void readWithLengthExceedingArrayThrowsException() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     byte[] buffer = new byte[5];
     assertThatThrownBy(() -> inputStream.read(buffer, 0, 6))
@@ -593,7 +588,7 @@ class BodyInputStreamTests {
 
   @Test
   void readWithOffsetAndLengthExceedingArrayThrowsException() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     byte[] buffer = new byte[5];
     assertThatThrownBy(() -> inputStream.read(buffer, 3, 4))
@@ -602,7 +597,7 @@ class BodyInputStreamTests {
 
   @Test
   void concurrentCallsToCloseAreSafe() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     Thread t1 = new Thread(inputStream::close);
     Thread t2 = new Thread(inputStream::close);
@@ -619,7 +614,7 @@ class BodyInputStreamTests {
 
   @Test
   void readAfterOnCompleteReturnsMinusOne() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     inputStream.onComplete();
 
     assertThat(inputStream.read()).isEqualTo(-1);
@@ -627,7 +622,7 @@ class BodyInputStreamTests {
 
   @Test
   void readAfterOnErrorThrowsTheSameError() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     Throwable error = new RuntimeException("test error");
     inputStream.onError(new IOException(error));
 
@@ -638,7 +633,7 @@ class BodyInputStreamTests {
 
   @Test
   void addWorkHandlesIntegerMaxValueCorrectly() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     // Set workAmount to Integer.MAX_VALUE - 1
     for (int i = 0; i < 100; i++) {
@@ -656,7 +651,7 @@ class BodyInputStreamTests {
 
   @Test
   void multipleOnCompleteCallsDoNotAffectBehavior() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     ByteBuf buffer = Unpooled.buffer(1);
     buffer.writeByte(42);
     inputStream.onDataReceived(buffer);
@@ -670,7 +665,7 @@ class BodyInputStreamTests {
 
   @Test
   void multipleOnErrorCallsDoNotAffectBehavior() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     ByteBuf buffer = Unpooled.buffer(1);
     buffer.writeByte(42);
     inputStream.onDataReceived(buffer);
@@ -689,7 +684,7 @@ class BodyInputStreamTests {
 
   @Test
   void onNextAfterOnErrorIsDiscarded() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     inputStream.onError(new IOException(new RuntimeException("error")));
 
     ByteBuf buffer = Unpooled.buffer(1);
@@ -703,7 +698,7 @@ class BodyInputStreamTests {
 
   @Test
   void onNextAfterOnCompleteIsDiscarded() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     inputStream.onComplete();
 
     ByteBuf buffer = Unpooled.buffer(1);
@@ -715,7 +710,7 @@ class BodyInputStreamTests {
 
   @Test
   void closeDuringBlockingReadReleasesLock() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     Thread readerThread = new Thread(() -> {
       try {
@@ -736,7 +731,7 @@ class BodyInputStreamTests {
 
   @Test
   void cleanAndFinalizeClearsAllBuffers() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     // Add several buffers
     for (int i = 0; i < 5; i++) {
@@ -753,15 +748,13 @@ class BodyInputStreamTests {
   @Test
   void resumeIsCalledOnlyOnceWhenAddingFirstItem() throws Exception {
     AtomicBoolean resumed = new AtomicBoolean(false);
-    SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter() {
+    BodyInputStream inputStream = new BodyInputStream() {
       @Override
-      public void resume() {
+      protected void resume() {
         resumed.set(true);
         super.resume();
       }
     };
-
-    BodyInputStream inputStream = new BodyInputStream(awaiter);
 
     // Initially no resume should be called
     assertThat(resumed.get()).isFalse();
@@ -777,15 +770,13 @@ class BodyInputStreamTests {
   @Test
   void resumeNotCalledWhenAddingSecondItem() throws Exception {
     AtomicBoolean resumed = new AtomicBoolean(false);
-    SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter() {
+    BodyInputStream inputStream = new BodyInputStream() {
       @Override
-      public void resume() {
+      protected void resume() {
         resumed.set(true);
         super.resume();
       }
     };
-
-    BodyInputStream inputStream = new BodyInputStream(awaiter);
 
     // Add first item, resume should be called
     ByteBuf buffer1 = Unpooled.buffer(1);
@@ -807,7 +798,7 @@ class BodyInputStreamTests {
 
   @Test
   void addWorkReturnsMinValueWhenAlreadyCancelled() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     // Force set workAmount to MIN_VALUE to simulate cancellation state
     inputStream.addWork(); // Make sure we can set it
@@ -825,7 +816,7 @@ class BodyInputStreamTests {
 
   @Test
   void readWithValidParametersReturnsCorrectData() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     ByteBuf buffer = Unpooled.buffer(5);
     buffer.writeBytes(new byte[] { 10, 20, 30, 40, 50 });
@@ -841,7 +832,7 @@ class BodyInputStreamTests {
 
   @Test
   void getNextOrAwaitReturnsNullWhenClosed() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     inputStream.close();
 
     // This would internally call getNextOrAwait
@@ -850,7 +841,7 @@ class BodyInputStreamTests {
 
   @Test
   void getNextOrAwaitReturnsNullWhenCancelled() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     // Simulate cancellation
     inputStream.close();
@@ -861,7 +852,7 @@ class BodyInputStreamTests {
 
   @Test
   void cleanAndFinalizeSetsWorkAmountToMinValue() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     ByteBuf buffer = Unpooled.buffer(1);
     buffer.writeByte(1);
@@ -875,7 +866,7 @@ class BodyInputStreamTests {
 
   @Test
   void closeWhenAlreadyClosedDoesNothing() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     inputStream.close();
 
     // Second close should not throw
@@ -886,7 +877,7 @@ class BodyInputStreamTests {
 
   @Test
   void readAfterCloseReturnsMinusOneEvenWithAvailableData() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     ByteBuf buffer = Unpooled.buffer(1);
     buffer.writeByte(42);
@@ -899,7 +890,7 @@ class BodyInputStreamTests {
 
   @Test
   void onErrorAfterCloseDoesNotChangeState() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     inputStream.close();
 
     inputStream.onError(new IOException("Should not matter"));
@@ -910,7 +901,7 @@ class BodyInputStreamTests {
 
   @Test
   void onCompleteAfterCloseDoesNotChangeState() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     inputStream.close();
 
     inputStream.onComplete();
@@ -920,7 +911,7 @@ class BodyInputStreamTests {
 
   @Test
   void onDataReceivedAfterCloseDiscardsBuffer() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
     inputStream.close();
 
     ByteBuf buffer = Unpooled.buffer(1);
@@ -932,7 +923,7 @@ class BodyInputStreamTests {
 
   @Test
   void onDataReceivedAfterCancelledDiscardsBuffer() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     // Simulate cancelled state
     inputStream.close();
@@ -946,7 +937,7 @@ class BodyInputStreamTests {
 
   @Test
   void workAmountIncrementsCorrectly() throws Exception {
-    BodyInputStream inputStream = new BodyInputStream(new SimpleSingleThreadAwaiter());
+    BodyInputStream inputStream = new BodyInputStream();
 
     int initial = inputStream.addWork();
     int second = inputStream.addWork();

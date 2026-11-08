@@ -26,11 +26,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/9/14 18:12
  */
-class SimpleSingleThreadAwaiterTests {
+class SingleThreadAwaiterTests {
 
   @Test
   void testBasicAwaitResume() throws InterruptedException {
-    SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
+    SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
     boolean[] completed = { false };
 
     Thread waiter = new Thread(() -> {
@@ -49,7 +49,7 @@ class SimpleSingleThreadAwaiterTests {
 
   @Test
   void testMultipleResume() {
-    SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
+    SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
     // 多次调用 resume 不应该抛出异常
     awaiter.resume();
     awaiter.resume();
@@ -58,7 +58,7 @@ class SimpleSingleThreadAwaiterTests {
 
   @Test
   void testResumeBeforeAwait() throws InterruptedException {
-    SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
+    SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
     boolean[] completed = { false };
 
     awaiter.resume(); // 提前调用 resume
@@ -75,7 +75,7 @@ class SimpleSingleThreadAwaiterTests {
 
   @Test
   void testMultipleThreadsAwait() throws InterruptedException {
-    SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
+    SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
     Thread first = new Thread(awaiter::await);
     first.start();
 
@@ -89,7 +89,7 @@ class SimpleSingleThreadAwaiterTests {
 
   @Test
   void testReuseAwaiter() throws InterruptedException {
-    SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
+    SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
     for (int i = 0; i < 3; i++) {
       boolean[] completed = { false };
       Thread waiter = new Thread(() -> {
@@ -109,7 +109,7 @@ class SimpleSingleThreadAwaiterTests {
 
   @Test
   void awaitAfterInterrupt() throws InterruptedException {
-    SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
+    SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
     boolean[] completed = { false };
 
     Thread waiter = new Thread(() -> {
@@ -129,7 +129,7 @@ class SimpleSingleThreadAwaiterTests {
 
   @Test
   void concurrentResumeAndAwait() throws InterruptedException {
-    SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
+    SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
     int threadCount = 10;
     Thread[] threads = new Thread[threadCount];
     boolean[] completed = new boolean[threadCount];
@@ -168,7 +168,7 @@ class SimpleSingleThreadAwaiterTests {
 
   @Test
   void parkAndUnparkSameThread() {
-    SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
+    SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
 
     // 同一个线程先 resume 后 await
     awaiter.resume();
@@ -181,16 +181,8 @@ class SimpleSingleThreadAwaiterTests {
   }
 
   @Test
-  void testConstructorWithParkNanosEnabled() {
-    SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter(true);
-    // Just test that it can be constructed without error
-    awaiter.resume();
-    awaiter.await();
-  }
-
-  @Test
   void testMultipleResumeCallsAreIdempotent() {
-    SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
+    SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
 
     // Multiple resume calls should not affect behavior
     awaiter.resume();
@@ -214,7 +206,7 @@ class SimpleSingleThreadAwaiterTests {
 
   @Test
   void testConcurrentMultipleResumesAndAwaits() throws InterruptedException {
-    SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
+    SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
     int rounds = 5;
 
     for (int i = 0; i < rounds; i++) {
@@ -237,7 +229,7 @@ class SimpleSingleThreadAwaiterTests {
 
   @Test
   void testExceptionWhenTwoThreadsAwaitSimultaneously() throws InterruptedException {
-    SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
+    SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
 
     // Start first thread that will await
     Thread first = new Thread(awaiter::await);
@@ -258,7 +250,7 @@ class SimpleSingleThreadAwaiterTests {
 
   @Test
   void testStateResetAfterUse() throws InterruptedException {
-    SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
+    SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
 
     // Use the awaiter once
     boolean[] completed1 = { false };

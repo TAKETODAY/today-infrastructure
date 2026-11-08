@@ -56,7 +56,6 @@ import infra.util.CollectionUtils;
 import infra.util.InfraStrategies;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
-import infra.util.concurrent.Awaiter;
 import infra.web.AbstractHttpContext;
 import infra.web.DispatcherHandler;
 import infra.web.HttpContext;
@@ -278,12 +277,11 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     if (contentLength == 0L || (contentLength == -1L && (method == GET || method == HEAD))) {
       return null;
     }
-    Awaiter awaiter = config.awaiterFactory.apply(this);
     if (config.autoRead) {
-      return new BodyInputStream(awaiter, config.dataReceivedQueueCapacity);
+      return new BodyInputStream(config.dataReceivedQueueCapacity);
     }
     channel.config().setAutoRead(false);
-    return new ManualReadingBodyInputStream(awaiter, config.dataReceivedQueueCapacity);
+    return new ManualReadingBodyInputStream(config.dataReceivedQueueCapacity);
   }
 
   @Override
@@ -1340,8 +1338,8 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   final class ManualReadingBodyInputStream extends BodyInputStream {
 
-    private ManualReadingBodyInputStream(Awaiter awaiter, int capacity) {
-      super(awaiter, capacity);
+    private ManualReadingBodyInputStream(int capacity) {
+      super(capacity);
     }
 
     @Override

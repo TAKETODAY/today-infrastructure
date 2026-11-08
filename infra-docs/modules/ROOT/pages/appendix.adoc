@@ -136,8 +136,11 @@ xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-anno
 | `infra.bytecode.stressHashCodes`
 | 是否固定生成类名中的哈希值，以测试哈希冲突处理，默认值：`false`。
 
+| `infra.awaiter.thread.park-nanos-enabled`
+| `SingleThreadAwaiter` 是否使用定时等待替代无限期的 `LockSupport.park()`，以规避极小概率的永久阻塞。默认值：`false`；在类初始化时读取。
+
 | `infra.awaiter.thread.park-nanos`
-| `SimpleSingleThreadAwaiter` 启用定时等待时的单次等待时长，单位为纳秒，默认值：`3000000000`。
+| `SingleThreadAwaiter` 启用定时等待时单次等待的时长，单位为纳秒。默认值：`3000000000`（3 秒）；仅在启用定时等待时生效。
 
 | `infra.util.concurrent.Scheduler.poolSize`
 | 默认调度器处理延迟任务的线程池大小，默认值：`1`，必须大于零；在调度器创建时读取。

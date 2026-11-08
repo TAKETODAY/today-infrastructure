@@ -29,7 +29,7 @@ import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicLong;
 
 import infra.util.Assert;
-import infra.util.concurrent.SimpleSingleThreadAwaiter;
+import infra.util.concurrent.SingleThreadAwaiter;
 
 /**
  * Bridges between {@link OutputStream} and {@link Flow.Publisher Flow.Publisher&lt;T&gt;}.
@@ -129,7 +129,7 @@ final class OutputStreamPublisher<T> implements Flow.Publisher<T> {
 
     private final AtomicLong requested = new AtomicLong();
 
-    private final SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
+    private final SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
 
     @Nullable
     private volatile Throwable error;

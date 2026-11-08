@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 
 import infra.context.ApplicationContext;
 import infra.http.MediaType;
-import infra.util.concurrent.Awaiter;
 import infra.web.DispatcherHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -93,12 +92,10 @@ class HttpContextTests {
 
   @Test
   void normalHttpContentShouldDeliverToRequestBodyStream() {
-    Awaiter awaiter = mock(Awaiter.class);
     Channel channel = new EmbeddedChannel();
 
     HttpRequest request = mock(HttpRequest.class);
-    NettyRequestConfig config = createConfigBuilder().maxContentLength(149)
-            .awaiterFactory(req -> awaiter).build();
+    NettyRequestConfig config = createConfigBuilder().maxContentLength(149).build();
 
     ApplicationContext context = mock(ApplicationContext.class);
     DispatcherHandler dispatcherHandler = mock(DispatcherHandler.class);
@@ -125,11 +122,9 @@ class HttpContextTests {
   @Test
   void lastHttpContentWithNoExistingStreamButWithDataShouldCreateAndCompleteStream() {
     // Given
-    Awaiter awaiter = mock(Awaiter.class);
     Channel channel = new EmbeddedChannel();
     HttpRequest request = mock(HttpRequest.class);
-    NettyRequestConfig config = createConfigBuilder().maxContentLength(149)
-            .awaiterFactory(req -> awaiter).build();
+    NettyRequestConfig config = createConfigBuilder().maxContentLength(149).build();
 
     ApplicationContext context = mock(ApplicationContext.class);
     DispatcherHandler dispatcherHandler = mock(DispatcherHandler.class);

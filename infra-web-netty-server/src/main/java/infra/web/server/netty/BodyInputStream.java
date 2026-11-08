@@ -26,7 +26,7 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import infra.util.concurrent.Awaiter;
+import infra.util.concurrent.SingleThreadAwaiter;
 import io.netty.buffer.ByteBuf;
 
 /**
@@ -54,7 +54,7 @@ class BodyInputStream extends InputStream {
 
   private final int capacity;
 
-  private final Awaiter awaiter;
+  private final SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
 
   private final Queue<ByteBuf> queue;
 
@@ -66,18 +66,16 @@ class BodyInputStream extends InputStream {
 
   private @Nullable IOException error;
 
-  BodyInputStream(Awaiter awaiter) {
-    this(awaiter, 128);
+  BodyInputStream() {
+    this(128);
   }
 
   /**
-   * Create a new {@code BodyInputStream} with the given {@link Awaiter} and capacity.
+   * Create a new {@code BodyInputStream} with the given capacity.
    *
-   * @param awaiter the {@link Awaiter} to use for suspending and resuming the stream
    * @param capacity the maximum number of buffers that can be queued
    */
-  BodyInputStream(Awaiter awaiter, int capacity) {
-    this.awaiter = awaiter;
+  BodyInputStream(int capacity) {
     this.capacity = capacity;
     this.queue = new ConcurrentLinkedQueue<>();
   }
@@ -154,7 +152,7 @@ class BodyInputStream extends InputStream {
     }
   }
 
-  private void resume() {
+  protected void resume() {
     awaiter.resume();
   }
 

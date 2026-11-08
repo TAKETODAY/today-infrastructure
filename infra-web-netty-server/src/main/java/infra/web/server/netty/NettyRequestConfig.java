@@ -21,12 +21,9 @@ import org.jspecify.annotations.Nullable;
 import java.nio.charset.Charset;
 import java.util.function.Function;
 
-import infra.http.HttpRequest;
 import infra.lang.Constant;
 import infra.util.Assert;
 import infra.util.DataSize;
-import infra.util.concurrent.Awaiter;
-import infra.util.concurrent.SimpleSingleThreadAwaiter;
 import infra.web.HttpContext;
 import infra.web.multipart.MultipartParser;
 import infra.web.server.error.SendErrorHandler;
@@ -126,11 +123,6 @@ public final class NettyRequestConfig {
   /**
    * @since 5.0
    */
-  public final Function<HttpRequest, Awaiter> awaiterFactory;
-
-  /**
-   * @since 5.0
-   */
   public final MultipartParser multipartParser;
 
   /**
@@ -152,7 +144,6 @@ public final class NettyRequestConfig {
     this.autoRead = builder.autoRead;
     this.cookieEncoder = builder.cookieEncoder;
     this.cookieDecoder = builder.cookieDecoder;
-    this.awaiterFactory = builder.awaiterFactory;
     this.multipartParser = builder.multipartParser;
     this.maxContentLength = builder.maxContentLength;
     this.writerAutoFlush = builder.writerAutoFlush;
@@ -222,8 +213,6 @@ public final class NettyRequestConfig {
     private boolean autoRead = true;
 
     private final boolean secure;
-
-    private Function<HttpRequest, Awaiter> awaiterFactory = ctx -> new SimpleSingleThreadAwaiter();
 
     Builder(boolean secure) {
       this.secure = secure;
@@ -425,17 +414,6 @@ public final class NettyRequestConfig {
     }
 
     /**
-     * Set {@link Awaiter} factory.
-     *
-     * @since 5.0
-     */
-    public Builder awaiterFactory(Function<HttpRequest, Awaiter> awaiterFactory) {
-      Assert.notNull(awaiterFactory, "awaiterFactory is required");
-      this.awaiterFactory = awaiterFactory;
-      return this;
-    }
-
-    /**
      * Sets the {@link infra.web.multipart.parsing.DefaultMultipartParser} to be used for parsing multipart requests.
      * <p>
      * This method allows configuring a custom multipart parser that will be used
@@ -478,7 +456,7 @@ public final class NettyRequestConfig {
      * @param dataReceivedQueueCapacity the capacity of the data received queue.
      * Must be a non-negative integer.
      * @return the current {@link Builder} instance, enabling method chaining
-     * @see BodyInputStream#BodyInputStream(Awaiter, int)
+     * @see BodyInputStream#BodyInputStream(int)
      * @since 5.0
      */
     public Builder dataReceivedQueueCapacity(int dataReceivedQueueCapacity) {

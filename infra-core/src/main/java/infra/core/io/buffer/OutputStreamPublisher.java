@@ -31,7 +31,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 
 import infra.util.Assert;
-import infra.util.concurrent.SimpleSingleThreadAwaiter;
+import infra.util.concurrent.SingleThreadAwaiter;
 
 /**
  * Bridges between {@link OutputStream} and {@link Publisher Publisher&lt;DataBuffer&gt;}.
@@ -132,7 +132,7 @@ final class OutputStreamPublisher<T> implements Publisher<T> {
 
     private final AtomicLong requested = new AtomicLong();
 
-    private final SimpleSingleThreadAwaiter awaiter = new SimpleSingleThreadAwaiter();
+    private final SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
 
     @Nullable
     private volatile Throwable error;
