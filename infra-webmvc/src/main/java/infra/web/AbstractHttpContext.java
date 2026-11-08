@@ -2352,11 +2352,11 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * otherwise the {@code COMMITTING} bit is rolled back so the failure can
    * still be turned into an error response.
    *
-   * @param committed whether the response head was written
+   * @param headWritten whether the response head was written
    * @since 5.0
    */
-  protected final void finishCommit(boolean committed) {
-    if (committed) {
+  protected final void finishCommit(boolean headWritten) {
+    if (headWritten) {
       updateState(COMMITTED, COMMITTING);
     }
     else {
