@@ -18,12 +18,19 @@ package infra.web.server.netty;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import infra.context.ApplicationContext;
+import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.http.MediaType;
 import infra.web.DispatcherHandler;
+import infra.web.Filter;
+import infra.web.RequestCompletedListener;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.embedded.EmbeddedChannel;
+import io.netty.util.ReferenceCountUtil;
 import io.netty.handler.codec.DecoderResult;
 import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -50,6 +57,73 @@ import static org.mockito.Mockito.when;
  * @since 5.0 2025/10/15 20:31
  */
 class HttpContextTests {
+
+  @Test
+  void filterFailureFallsBackToTransportWhenSendErrorFails() {
+    verifyFilterFailure(false);
+  }
+
+  @Test
+  void committedFilterFailureCompletesLifecycleWithoutSecondResponse() {
+    verifyFilterFailure(true);
+  }
+
+  private void verifyFilterFailure(boolean committed) {
+    var failure = new IllegalStateException("filter failed");
+    var failures = new ArrayList<Throwable>();
+    try (var applicationContext = new AnnotationConfigApplicationContext()) {
+      applicationContext.registerBean("filter", Filter.class, () -> (request, chain) -> {
+        request.getOutputStream().write(42);
+        if (committed) {
+          request.flush();
+        }
+        throw failure;
+      });
+      applicationContext.registerBean("completed", RequestCompletedListener.class,
+              () -> (request, notHandled) -> failures.add(notHandled));
+      applicationContext.refresh();
+      var dispatcher = new DispatcherHandler(applicationContext);
+      dispatcher.start();
+      var errorAttempts = new AtomicInteger();
+      var config = createConfigBuilder().autoRead(false).sendErrorHandler((request, message) -> {
+        errorAttempts.incrementAndGet();
+        throw new IllegalStateException("sendError failed");
+      }).build();
+      var channel = new EmbeddedChannel();
+      try {
+        var trafficHandler = new HttpTrafficHandler(config, applicationContext, dispatcher, (request, task) -> task.run());
+        var message = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/");
+        message.headers().set(HttpHeaderNames.CONTENT_LENGTH, 10);
+        var request = new HttpContext(channel, message, config, applicationContext, dispatcher, trafficHandler);
+        request.attach();
+        var completed = new AtomicInteger();
+        request.registerCompletedCallback(completed::incrementAndGet);
+
+        request.run();
+
+        assertThat(request.isRequestCompleted()).isTrue();
+        assertThat(failures).containsExactly(failure);
+        assertThat(errorAttempts).hasValue(committed ? 0 : 1);
+        assertThat(completed).hasValue(1);
+        assertThat(channel.config().isAutoRead()).isTrue();
+        assertThat(channel.isActive()).isFalse();
+        Object response = channel.readOutbound();
+        assertThat(response).isInstanceOf(io.netty.handler.codec.http.HttpResponse.class);
+        var status = ((io.netty.handler.codec.http.HttpResponse) response).status();
+        assertThat(status.code()).isEqualTo(committed ? 200 : 500);
+        ReferenceCountUtil.release(response);
+        Object remaining;
+        while ((remaining = channel.readOutbound()) != null) {
+          assertThat(remaining).isNotInstanceOf(io.netty.handler.codec.http.HttpResponse.class);
+          assertThat(remaining).isNotInstanceOf(LastHttpContent.class);
+          ReferenceCountUtil.release(remaining);
+        }
+      }
+      finally {
+        channel.finishAndReleaseAll();
+      }
+    }
+  }
 
   @Test
   void initDataExceedsMaxContentLengthShouldTriggerError() {

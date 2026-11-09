@@ -551,6 +551,9 @@ public class DispatcherHandler extends WebLifecycleManager {
    * @param concurrentResult async result
    */
   public void handleConcurrentResult(HttpContext context, @Nullable Object handler, @Nullable Object concurrentResult) throws Exception {
+    if (context.isRequestCompleted()) {
+      return;
+    }
     Throwable throwable = null;
     try {
       if (handler instanceof AsyncHandler asyncHandler) {
@@ -558,21 +561,19 @@ public class DispatcherHandler extends WebLifecycleManager {
       }
       if (handler instanceof AsyncReturnValueHandler valueHandler) {
         valueHandler.handleAsyncReturnValue(context, concurrentResult);
+        concurrentResult = HttpRequestHandler.NONE_RETURN_VALUE;
       }
       else {
         if (concurrentResult instanceof Throwable asyncError) {
           throwable = asyncError;
         }
-        processDispatchResult(context, handler, concurrentResult, throwable);
-        throwable = null;
       }
     }
     catch (Throwable ex) {
       throwable = ex; // not handled
     }
 
-    logResult(context, throwable);
-    requestCompleted(context, throwable);
+    processDispatchResultAndComplete(context, handler, concurrentResult, throwable);
   }
 
   /**
@@ -586,8 +587,9 @@ public class DispatcherHandler extends WebLifecycleManager {
    * <p>Asynchronous requests remain open after this method returns and are
    * completed when their concurrent result is dispatched through
    * {@link #handleConcurrentResult(HttpContext, Object, Object)}.
-   * <p>Filter exceptions are not resolved here; they propagate to the caller
-   * (transport), which reports the failure and closes the exchange.
+   * <p>Filter exceptions are resolved through the exception handling strategies
+   * while the request is incomplete and the response is uncommitted. Otherwise,
+   * they propagate to the transport without rewriting the response.
    *
    * @param context current HTTP request and HTTP response
    * @throws Exception in case of any kind of un-handling failure
@@ -602,7 +604,17 @@ public class DispatcherHandler extends WebLifecycleManager {
       handleRequestInternal(context);
     }
     else {
-      filterChain.doFilter(context);
+      try {
+        filterChain.doFilter(context);
+      }
+      catch (Throwable ex) {
+        if (!context.isRequestCompleted() && !context.isCommitted()) {
+          processDispatchResultAndComplete(context, null, null, ex);
+          return;
+        }
+        requestCompleted(context, ex);
+        throw ExceptionUtils.sneakyThrow(ex);
+      }
       // the terminal handler may have completed already; completion is idempotent
       if (!context.isConcurrentHandlingStarted()) {
         requestCompleted(context, null);
@@ -641,13 +653,7 @@ public class DispatcherHandler extends WebLifecycleManager {
       throwable = ex; // from request handler
     }
 
-    try {
-      processDispatchResult(context, handler, returnValue, throwable);
-      throwable = null; // handled
-    }
-    catch (Throwable ex) {
-      throwable = ex; // not handled
-    }
+    throwable = tryProcessDispatchResult(context, handler, returnValue, throwable);
     logResult(context, throwable);
 
     if (!context.isConcurrentHandlingStarted()) {
@@ -670,6 +676,32 @@ public class DispatcherHandler extends WebLifecycleManager {
       return ((HandlerAdapterProvider) handler).getHandlerAdapter();
     }
     return handlerAdapter;
+  }
+
+  /**
+   * Process the dispatch result, log the outcome, and complete the request.
+   */
+  private void processDispatchResultAndComplete(HttpContext context, @Nullable Object handler,
+          @Nullable Object returnValue, @Nullable Throwable failure) throws Exception {
+    failure = tryProcessDispatchResult(context, handler, returnValue, failure);
+    logResult(context, failure);
+    requestCompleted(context, failure);
+  }
+
+  /**
+   * Attempt to process the dispatch result.
+   *
+   * @return the unhandled failure, or {@code null} if processing succeeded
+   */
+  private @Nullable Throwable tryProcessDispatchResult(HttpContext context, @Nullable Object handler,
+          @Nullable Object returnValue, @Nullable Throwable failure) {
+    try {
+      processDispatchResult(context, handler, returnValue, failure);
+      return null;
+    }
+    catch (Throwable ex) {
+      return ex;
+    }
   }
 
   /**
@@ -819,29 +851,46 @@ public class DispatcherHandler extends WebLifecycleManager {
 
     if (!requestCompletedActions.isEmpty()) {
       for (RequestCompletedListener action : requestCompletedActions) {
-        action.requestCompleted(context, notHandled);
+        try {
+          action.requestCompleted(context, notHandled);
+        }
+        catch (Throwable ex) {
+          log.warn("RequestCompletedListener failed", ex);
+          if (notHandled != null && ex != notHandled) {
+            notHandled.addSuppressed(ex);
+          }
+        }
       }
     }
 
-    // exception not handled
-    if (notHandled != null) {
-      // try application level error handling
+    if (notHandled != null && !context.isCommitted()) {
       try {
         var httpStatus = HttpStatusProvider.getStatusCode(notHandled);
         context.sendError(httpStatus.first, httpStatus.second);
+        notHandled = null;
       }
-      catch (Throwable e) {
-        if (notHandled != e) {
-          notHandled.addSuppressed(e);
+      catch (Throwable ex) {
+        if (ex != notHandled) {
+          notHandled.addSuppressed(ex);
         }
-        context.nativeContext(AbstractHttpContext.class)
-                .requestCompleted(notHandled);
-        throw ExceptionUtils.sneakyThrow(notHandled);
       }
     }
 
-    context.nativeContext(AbstractHttpContext.class)
-            .requestCompleted(null);
+    try {
+      context.nativeContext(AbstractHttpContext.class).requestCompleted(notHandled);
+    }
+    catch (Throwable ex) {
+      if (notHandled == null) {
+        throw ExceptionUtils.sneakyThrow(ex);
+      }
+      if (ex != notHandled) {
+        notHandled.addSuppressed(ex);
+      }
+    }
+
+    if (notHandled != null) {
+      throw ExceptionUtils.sneakyThrow(notHandled);
+    }
   }
 
   /**

@@ -38,6 +38,7 @@ import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
@@ -353,6 +354,151 @@ class FilterIntegrationTests {
   }
 
   @Test
+  void postProcessingFailureDoesNotRepeatCompletion() {
+    var failure = new IllegalStateException("post-processing failed");
+    var failures = new ArrayList<Throwable>();
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.register(BaseConfig.class);
+      context.registerBean("filter", Filter.class, () -> (request, chain) -> {
+        chain.doFilter(request);
+        assertThat(request.isRequestCompleted()).isTrue();
+        throw failure;
+      });
+      context.registerBean("completed", RequestCompletedListener.class,
+              () -> (request, notHandled) -> failures.add(notHandled));
+      context.refresh();
+      DispatcherHandler handler = new DispatcherHandler(context);
+      handler.setHandlerMapping(request -> (HttpRequestHandler) http -> HttpRequestHandler.NONE_RETURN_VALUE);
+      handler.setExceptionHandler((request, ex, target) -> {
+        throw new AssertionError("Completed requests must not be resolved again");
+      });
+      handler.start();
+
+      MockHttpContext request = new MockHttpContext();
+      assertThatThrownBy(() -> handler.handleRequest(request)).isSameAs(failure);
+      assertThat(request.isRequestCompleted()).isTrue();
+      assertThat(failures).containsExactly((Throwable) null);
+    }
+  }
+
+  @Test
+  void failingListenerDoesNotChangeSuccessfulResponse() throws Exception {
+    var failures = new ArrayList<Throwable>();
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.register(BaseConfig.class);
+      context.registerBean("filter", Filter.class, () -> (request, chain) -> {
+        request.setStatus(202);
+        request.getWriter().write("success");
+      });
+      context.refresh();
+      DispatcherHandler handler = new DispatcherHandler(context);
+      handler.start();
+      handler.addRequestCompletedActions((request, notHandled) -> {
+        throw new IllegalStateException("listener failed");
+      }, (request, notHandled) -> failures.add(notHandled));
+      MockHttpContext request = new MockHttpContext();
+
+      handler.handleRequest(request);
+
+      assertThat(request.getStatus()).isEqualTo(202);
+      assertThat(request.getResponse().getContentAsString()).isEqualTo("success");
+      assertThat(request.isRequestCompleted()).isTrue();
+      assertThat(failures).containsExactly((Throwable) null);
+    }
+  }
+
+  @Test
+  void failingListenerDoesNotPreventOtherListenersOrCleanup() throws Exception {
+    var failure = new IllegalStateException("filter failed");
+    var listenerFailure = new IllegalArgumentException("listener failed");
+    var completions = new AtomicInteger();
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.register(BaseConfig.class);
+      context.registerBean("filter", Filter.class, () -> (request, chain) -> {
+        throw failure;
+      });
+      context.refresh();
+      DispatcherHandler handler = new DispatcherHandler(context);
+      handler.setExceptionHandler((request, ex, target) -> {
+        throw new AssertionError("Committed responses must not be reset");
+      });
+      handler.start();
+      handler.addRequestCompletedActions((request, notHandled) -> {
+        throw listenerFailure;
+      }, (request, notHandled) -> completions.incrementAndGet());
+
+      MockHttpContext request = new MockHttpContext();
+      request.getResponse().setCommitted(true);
+      assertThatThrownBy(() -> handler.handleRequest(request)).isSameAs(failure);
+      assertThat(request.isRequestCompleted()).isTrue();
+      assertThat(failure.getSuppressed()).containsExactly(listenerFailure);
+      assertThat(completions).hasValue(1);
+      assertThatCode(() -> handler.handleConcurrentResult(request, null, "late result")).doesNotThrowAnyException();
+      assertThat(completions).hasValue(1);
+    }
+  }
+
+  @Test
+  void filterFailureIsResolvedBeforeRequestCompletion() throws Exception {
+    var failure = new IllegalStateException("filter failed");
+    var failures = new ArrayList<Throwable>();
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.register(BaseConfig.class);
+      context.registerBean("filter", Filter.class, () -> (request, chain) -> {
+        request.setStatus(202);
+        throw failure;
+      });
+      context.registerBean("completed", RequestCompletedListener.class,
+              () -> (request, notHandled) -> failures.add(notHandled));
+      context.refresh();
+      var handler = new DispatcherHandler(context);
+      handler.setExceptionHandler((request, ex, target) -> {
+        assertThat(ex).isSameAs(failure);
+        assertThat(target).isNull();
+        assertThat(request.isRequestCompleted()).isFalse();
+        request.setStatus(400);
+        request.getWriter().write("resolved filter failure");
+        return HttpRequestHandler.NONE_RETURN_VALUE;
+      });
+      handler.start();
+      var request = new MockHttpContext();
+
+      handler.handleRequest(request);
+
+      assertThat(request.getStatus()).isEqualTo(400);
+      assertThat(request.getResponse().getContentAsString()).isEqualTo("resolved filter failure");
+      assertThat(request.isRequestCompleted()).isTrue();
+      assertThat(failures).containsExactly((Throwable) null);
+    }
+  }
+
+  @Test
+  void unresolvedFilterFailureFallsBackToSendError() {
+    var failure = new IllegalStateException("filter failed");
+    var failures = new ArrayList<Throwable>();
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.register(BaseConfig.class);
+      context.registerBean("filter", Filter.class, () -> (request, chain) -> {
+        throw failure;
+      });
+      context.registerBean("completed", RequestCompletedListener.class,
+              () -> (request, notHandled) -> failures.add(notHandled));
+      context.refresh();
+
+      DispatcherHandler handler = new DispatcherHandler(context);
+      handler.setHandlerMapping(mockHandlerMapping());
+      handler.setHandlerAdapter(mockHandlerAdapter());
+      handler.start();
+
+      MockHttpContext request = new MockHttpContext();
+      assertThatCode(() -> handler.handleRequest(request)).doesNotThrowAnyException();
+      assertThat(request.getStatus()).isEqualTo(500);
+      assertThat(request.isRequestCompleted()).isTrue();
+      assertThat(failures).containsExactly(failure);
+    }
+  }
+
+  @Test
   void exceptionInMiddleFilterSkipsOuterPostProcessing() {
     var order = new StringBuilder();
     try (var context = new AnnotationConfigApplicationContext()) {
@@ -381,9 +527,7 @@ class FilterIntegrationTests {
       handler.setHandlerAdapter(mockHandlerAdapter());
       handler.start();
 
-      assertThatThrownBy(() -> handler.handleRequest(new MockHttpContext()))
-              .isInstanceOf(IllegalStateException.class)
-              .hasMessage("filter failed");
+      assertThatCode(() -> handler.handleRequest(new MockHttpContext())).doesNotThrowAnyException();
 
       assertThat(order.toString()).isEqualTo("AB");
     }
