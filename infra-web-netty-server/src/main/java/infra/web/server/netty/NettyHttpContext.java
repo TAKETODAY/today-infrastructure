@@ -569,7 +569,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   }
 
   @Override
-  protected final void requestCompletedInternal(@Nullable Throwable notHandled) {
+  protected final void completeRequestInternal(@Nullable Throwable notHandled) {
     cleanup(null);
     if (notHandled == null) {
       flush();

@@ -179,7 +179,7 @@ class TrailerTests {
             () -> context.setTrailerFields(
                     Trailer.field("Content-Digest", () -> "sha-256=:abc:")));
 
-    context.requestCompletedInternal(null);
+    context.completeRequestInternal(null);
     channel.flush();
 
     DefaultHttpResponse response = channel.readOutbound();
@@ -201,7 +201,7 @@ class TrailerTests {
     }));
     context.registerCallback(HttpContext.Lifecycle.COMMITTING, "status", () -> context.setStatus(status));
 
-    context.requestCompletedInternal(null);
+    context.completeRequestInternal(null);
     channel.flush();
 
     DefaultHttpResponse response = channel.readOutbound();
@@ -220,7 +220,7 @@ class TrailerTests {
     HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.HEAD);
     context.asHttpOutputMessage().sendFile(file, 0, 5);
 
-    context.requestCompletedInternal(null);
+    context.completeRequestInternal(null);
     channel.flush();
 
     DefaultHttpResponse response = channel.readOutbound();
@@ -240,7 +240,7 @@ class TrailerTests {
     context.setStatus(status);
     context.asHttpOutputMessage().sendFile(file, 0, 5);
 
-    context.requestCompletedInternal(null);
+    context.completeRequestInternal(null);
     channel.flush();
 
     DefaultHttpResponse response = channel.readOutbound();
@@ -260,7 +260,7 @@ class TrailerTests {
     context.setStatus(status);
     context.getOutputStream().write(1);
 
-    context.requestCompletedInternal(null);
+    context.completeRequestInternal(null);
     channel.flush();
 
     DefaultHttpResponse response = channel.readOutbound();
@@ -279,7 +279,7 @@ class TrailerTests {
     context.setStatus(HttpResponseStatus.RESET_CONTENT.code());
     context.getOutputStream().write(1);
 
-    context.requestCompletedInternal(null);
+    context.completeRequestInternal(null);
     channel.flush();
 
     DefaultHttpResponse response = channel.readOutbound();
@@ -299,7 +299,7 @@ class TrailerTests {
     context.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), "chunked");
     context.getOutputStream().write(1);
 
-    context.requestCompletedInternal(null);
+    context.completeRequestInternal(null);
     channel.flush();
 
     DefaultHttpResponse response = channel.readOutbound();
@@ -314,7 +314,7 @@ class TrailerTests {
     context.setStatus(HttpResponseStatus.OK.code());
     context.getOutputStream().write(1);
 
-    context.requestCompletedInternal(null);
+    context.completeRequestInternal(null);
     channel.flush();
 
     DefaultHttpResponse response = channel.readOutbound();
@@ -335,7 +335,7 @@ class TrailerTests {
     context.asHttpOutputMessage().sendFile(file, 0, 5);
     context.setTrailerFields();
 
-    context.requestCompletedInternal(null);
+    context.completeRequestInternal(null);
     channel.flush();
 
     DefaultHttpResponse response = channel.readOutbound();
@@ -349,7 +349,7 @@ class TrailerTests {
     HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
     AtomicInteger calls = registerCountingTrailer(context);
 
-    context.requestCompletedInternal(null);
+    context.completeRequestInternal(null);
 
     assertThat(calls).hasValue(1);
   }

@@ -517,7 +517,7 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
   }
 
   @Override
-  protected void requestCompletedInternal(@Nullable Throwable notHandled) {
+  protected void completeRequestInternal(@Nullable Throwable notHandled) {
     if (notHandled == null) {
       flush();
       HttpHeaders trailers = evaluateTrailerFields();
@@ -756,7 +756,7 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
   }
 
   public void requestCompleted() {
-    requestCompleted(null);
+    completeRequest(null);
   }
 
   @Override

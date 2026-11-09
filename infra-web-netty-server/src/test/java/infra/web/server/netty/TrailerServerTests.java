@@ -273,7 +273,7 @@ class TrailerServerTests {
         }
         default -> writeResponse(context, "plain");
       }
-      requestCompleted(context, null);
+      completeRequest(context, null);
     }
 
     private void registerTrailer(HttpContext context, String digest) {

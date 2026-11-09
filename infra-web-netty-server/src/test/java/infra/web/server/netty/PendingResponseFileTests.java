@@ -157,7 +157,7 @@ class PendingResponseFileTests {
     ChunkedInput<?> input = mock();
     setPendingBody(context, input);
 
-    context.requestCompletedInternal(new IOException("response failed"));
+    context.completeRequestInternal(new IOException("response failed"));
 
     then(input).should().close();
     assertThat(pendingBody(context)).isNull();

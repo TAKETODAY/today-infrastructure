@@ -468,7 +468,7 @@ class MockHttpContextTrailerTests {
     }
 
     void completeWithError() {
-      requestCompleted(new IllegalStateException("boom"));
+      completeRequest(new IllegalStateException("boom"));
     }
   }
 

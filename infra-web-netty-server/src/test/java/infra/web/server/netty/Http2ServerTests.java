@@ -497,7 +497,7 @@ class Http2ServerTests {
       else {
         writeResponse(context, "hello".getBytes(StandardCharsets.UTF_8));
       }
-      requestCompleted(context, null);
+      completeRequest(context, null);
     }
 
     private static void writeResponse(HttpContext context, byte[] body) throws Exception {

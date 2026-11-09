@@ -386,7 +386,7 @@ class Http2HttpContextTests {
     AtomicInteger calls = registerCountingTrailer(context);
     context.registerCallback(HttpContext.Lifecycle.COMMITTING, "status", () -> context.setStatus(status));
 
-    context.requestCompletedInternal(null);
+    context.completeRequestInternal(null);
 
     ArgumentCaptor<Http2HeadersFrame> head = ArgumentCaptor.forClass(Http2HeadersFrame.class);
     then(channel).should().write(head.capture());
@@ -420,7 +420,7 @@ class Http2HttpContextTests {
     Http2HttpContext context = createContext();
     AtomicInteger calls = registerCountingTrailer(context);
 
-    context.requestCompletedInternal(null);
+    context.completeRequestInternal(null);
 
     assertThat(calls).hasValue(1);
     ArgumentCaptor<Http2HeadersFrame> tail = ArgumentCaptor.forClass(Http2HeadersFrame.class);
@@ -443,7 +443,7 @@ class Http2HttpContextTests {
       return head;
     });
 
-    context.requestCompletedInternal(null);
+    context.completeRequestInternal(null);
 
     then(channel).should().close();
   }
@@ -457,7 +457,7 @@ class Http2HttpContextTests {
     when(channel.writeAndFlush(file)).thenReturn(write);
     context.writeResponseFile(file);
 
-    context.requestCompletedInternal(null);
+    context.completeRequestInternal(null);
     write.setFailure(new IOException("file write failed"));
 
     then(channel).should().close();

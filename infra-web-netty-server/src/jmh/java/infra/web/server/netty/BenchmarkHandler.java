@@ -42,7 +42,7 @@ final class BenchmarkHandler extends DispatcherHandler {
     context.setContentType(MediaType.TEXT_PLAIN);
     context.setContentLength(BODY.length);
     context.getOutputStream().write(BODY);
-    requestCompleted(context, null);
+    completeRequest(context, null);
   }
 
 }

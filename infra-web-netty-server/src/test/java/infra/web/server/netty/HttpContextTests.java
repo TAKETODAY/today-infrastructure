@@ -260,7 +260,7 @@ class HttpContextTests {
     DispatcherHandler dispatcherHandler = new DispatcherHandler(applicationContext) {
       @Override
       public void handleRequest(infra.web.HttpContext context) throws Exception {
-        requestCompleted(context, null);
+        completeRequest(context, null);
       }
     };
     HttpTrafficHandler trafficHandler = mock(HttpTrafficHandler.class);

@@ -176,7 +176,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   static final int CORS = 1 << 8;
 
   /**
-   * Request lifecycle has been completed. See {@link #requestCompleted(Throwable)}.
+   * Request lifecycle has been completed. See {@link #completeRequest(Throwable)}.
    *
    * @since 5.0
    */
@@ -988,12 +988,12 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    *
    * @param notHandled exception not handled
    */
-  protected void requestCompleted(@Nullable Throwable notHandled) {
+  protected void completeRequest(@Nullable Throwable notHandled) {
     if (!tryMarkRequestCompleted()) {
       return;
     }
-    requestCompletedTimeMillis = System.currentTimeMillis();
 
+    requestCompletedTimeMillis = System.currentTimeMillis();
     if (multipartRequest != null) {
       // @since 3.0 cleanup MultipartFiles
       multipartRequest.cleanup();
@@ -1001,7 +1001,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
 
     Throwable failure = null;
     try {
-      requestCompletedInternal(notHandled);
+      completeRequestInternal(notHandled);
     }
     catch (RuntimeException | Error ex) {
       failure = ex;
@@ -1023,7 +1023,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   }
 
   /**
-   * Invoked from {@link #requestCompleted(Throwable)} after request-scoped
+   * Invoked from {@link #completeRequest(Throwable)} after request-scoped
    * resources have been released, and before {@link #onRequestCompleted()}
    * is invoked.
    * <p>Subclasses override this to finish transport-specific work, such as
@@ -1033,9 +1033,9 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    *
    * @param notHandled the exception left unhandled during request processing,
    * or {@code null} if the request was processed without an error
-   * @see #requestCompleted(Throwable)
+   * @see #completeRequest(Throwable)
    */
-  protected void requestCompletedInternal(@Nullable Throwable notHandled) {
+  protected void completeRequestInternal(@Nullable Throwable notHandled) {
   }
 
   /**
@@ -1046,7 +1046,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * and defer calling {@code super.onRequestCompleted()} until the body and
    * trailer completion path has finished, including on failure. Trailer
    * suppliers must run before callbacks release any resources they depend on.
-   * <p>This hook is invoked even if {@link #requestCompletedInternal(Throwable)}
+   * <p>This hook is invoked even if {@link #completeRequestInternal(Throwable)}
    * fails. A synchronous exception from this hook is suppressed onto the
    * original failure when one exists. An adapter that defers completion must
    * preserve that failure handling and arrange for callbacks to fire once.
@@ -2344,19 +2344,34 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   }
 
   /**
-   * Atomically mark the request lifecycle as completed.
+   * Atomically set {@code setBits} if none of the {@code guardBits} are set.
+   * <p>The guard is re-evaluated on every CAS retry, so a concurrent update
+   * can never make this call set the bits after the guard has been observed
+   * clear.
    *
-   * @return {@code true} if this call marked it, {@code false} if it was already marked
+   * @param setBits the bits to set on success
+   * @param guardBits the bits that must all be clear for the update to happen
+   * @return {@code true} if this call performed the update, {@code false}
+   * if any guard bit was already set
    */
-  private boolean tryMarkRequestCompleted() {
+  private boolean trySetState(int setBits, int guardBits) {
     int current = state();
-    while ((current & COMPLETED) == 0) {
-      if (STATE.compareAndSet(this, current, current | COMPLETED)) {
+    while ((current & guardBits) == 0) {
+      if (STATE.compareAndSet(this, current, current | setBits)) {
         return true;
       }
       current = state();
     }
     return false;
+  }
+
+  /**
+   * Atomically mark the request lifecycle as completed.
+   *
+   * @return {@code true} if this call marked it, {@code false} if it was already marked
+   */
+  private boolean tryMarkRequestCompleted() {
+    return trySetState(COMPLETED, COMPLETED);
   }
 
   /**
@@ -2372,14 +2387,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * @since 5.0
    */
   protected final boolean tryBeginCommit() {
-    int current = state();
-    while ((current & (COMMITTING | COMMITTED)) == 0) {
-      if (STATE.compareAndSet(this, current, current | COMMITTING)) {
-        return true;
-      }
-      current = state();
-    }
-    return false;
+    return trySetState(COMMITTING, COMMITTING | COMMITTED);
   }
 
   /**

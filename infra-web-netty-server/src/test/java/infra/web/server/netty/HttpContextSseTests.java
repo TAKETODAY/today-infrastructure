@@ -56,7 +56,7 @@ class HttpContextSseTests {
     context.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), "chunked");
     context.getOutputStream().write("data: hello\n\n".getBytes(StandardCharsets.UTF_8));
 
-    context.requestCompletedInternal(null);
+    context.completeRequestInternal(null);
     channel.flush();
 
     DefaultHttpResponse response = channel.readOutbound();
@@ -72,7 +72,7 @@ class HttpContextSseTests {
     context.setContentLength(100);
     context.getOutputStream().write("data: hello\n\n".getBytes(StandardCharsets.UTF_8));
 
-    context.requestCompletedInternal(null);
+    context.completeRequestInternal(null);
     channel.flush();
 
     DefaultHttpResponse response = channel.readOutbound();
@@ -87,7 +87,7 @@ class HttpContextSseTests {
     context.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), "chunked");
     context.getOutputStream().write("{\"hello\":\"world\"}".getBytes(StandardCharsets.UTF_8));
 
-    context.requestCompletedInternal(null);
+    context.completeRequestInternal(null);
     channel.flush();
 
     DefaultHttpResponse response = channel.readOutbound();
@@ -102,7 +102,7 @@ class HttpContextSseTests {
     context.setContentType(MediaType.TEXT_EVENT_STREAM);
     context.getOutputStream().write(body);
 
-    context.requestCompletedInternal(null);
+    context.completeRequestInternal(null);
     channel.flush();
 
     DefaultHttpResponse response = channel.readOutbound();

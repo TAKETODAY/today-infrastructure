@@ -187,14 +187,14 @@ class AbstractHttpContextStateTests {
     assertThat(context.isRequestCompleted()).isFalse();
     assertThat(context.state() & AbstractHttpContext.COMPLETED).isZero();
 
-    context.requestCompleted(null);
+    context.completeRequest(null);
 
     assertThat(context.isRequestCompleted()).isTrue();
     assertThat(context.state() & AbstractHttpContext.COMPLETED).isNotZero();
     assertThat(completions).hasValue(1);
 
     // repeated completion is ignored
-    context.requestCompleted(null);
+    context.completeRequest(null);
     assertThat(completions).hasValue(1);
 
     // response reset does not re-open a completed request
