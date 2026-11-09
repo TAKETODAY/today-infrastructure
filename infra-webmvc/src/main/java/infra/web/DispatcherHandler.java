@@ -607,7 +607,7 @@ public class DispatcherHandler extends WebLifecycleManager {
       try {
         filterChain.doFilter(context);
       }
-      catch (Throwable ex) {
+      catch (Exception ex) {
         if (!context.isRequestCompleted() && !context.isCommitted()) {
           processDispatchResultAndComplete(context, null, null, ex);
           return;
@@ -844,6 +844,38 @@ public class DispatcherHandler extends WebLifecycleManager {
     }
   }
 
+  /**
+   * Complete the request lifecycle and propagate any unhandled failure.
+   * <p>This is the single completion entry point shared by the filter chain and
+   * the terminal handler dispatch. Completion is idempotent: if the request is
+   * already completed, this method returns immediately without notifying
+   * listeners or rethrowing {@code notHandled}, so a short-circuiting filter and
+   * a handler that completed on its own cannot run cleanup twice.
+   * <p>Otherwise completion proceeds in order:
+   * <ol>
+   *   <li>Notify all {@link RequestCompletedListener listeners}. A listener
+   *   failure is logged and, when {@code notHandled} is present, suppressed onto
+   *   it.</li>
+   *   <li>If {@code notHandled} is present and the response is not committed,
+   *   map it to an HTTP status and send an error response. A failure while doing
+   *   so is suppressed onto {@code notHandled}.</li>
+   *   <li>Delegate to {@link AbstractHttpContext#completeRequest(Throwable)} to
+   *   release request-scoped resources and fire the completion callbacks.</li>
+   * </ol>
+   * <p>After completion, the unhandled failure, if any, is rethrown. When such a
+   * failure exists, exceptions raised by listeners, by the error response, or by
+   * the context cleanup are suppressed onto it rather than replacing it; when no
+   * failure was being propagated, a completion failure is thrown as is.
+   *
+   * @param context the current HTTP request context
+   * @param notHandled the failure left unhandled during dispatch, or
+   * {@code null} if the request completed normally
+   * @throws Exception the unhandled failure, or a failure raised while
+   * completing the request
+   * @see RequestCompletedListener
+   * @see AbstractHttpContext#completeRequest(Throwable)
+   * @since 5.0
+   */
   protected void completeRequest(HttpContext context, @Nullable Throwable notHandled) throws Exception {
     if (context.isRequestCompleted()) {
       return;
@@ -877,11 +909,12 @@ public class DispatcherHandler extends WebLifecycleManager {
     }
 
     try {
-      context.nativeContext(AbstractHttpContext.class).completeRequest(notHandled);
+      context.nativeContext(AbstractHttpContext.class)
+              .completeRequest(notHandled);
     }
-    catch (Throwable ex) {
+    catch (Exception ex) {
       if (notHandled == null) {
-        throw ExceptionUtils.sneakyThrow(ex);
+        throw ex;
       }
       if (ex != notHandled) {
         notHandled.addSuppressed(ex);
