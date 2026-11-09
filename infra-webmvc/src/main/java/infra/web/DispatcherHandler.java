@@ -674,25 +674,14 @@ public class DispatcherHandler extends WebLifecycleManager {
    */
   private void processDispatchResultAndComplete(HttpContext context, @Nullable Object handler,
           @Nullable Object returnValue, @Nullable Exception failure) throws Exception {
-    failure = tryProcessDispatchResult(context, handler, returnValue, failure);
-    logResult(context, failure);
-    completeRequest(context, failure);
-  }
-
-  /**
-   * Attempt to process the dispatch result.
-   *
-   * @return the unhandled failure, or {@code null} if processing succeeded
-   */
-  private @Nullable Exception tryProcessDispatchResult(HttpContext context, @Nullable Object handler,
-          @Nullable Object returnValue, @Nullable Exception failure) {
     try {
       processDispatchResult(context, handler, returnValue, failure);
-      return null;
     }
     catch (Exception ex) {
-      return ex;
+      failure = ex;
     }
+    logResult(context, failure);
+    completeRequest(context, failure);
   }
 
   /**
