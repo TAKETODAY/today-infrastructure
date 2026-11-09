@@ -123,7 +123,7 @@ public class Pair<A extends @Nullable Object, B extends @Nullable Object> implem
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o)
       return true;
     if (!(o instanceof Pair<?, ?> pair))
