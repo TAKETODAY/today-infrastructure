@@ -554,7 +554,7 @@ public class DispatcherHandler extends WebLifecycleManager {
     if (context.isRequestCompleted()) {
       return;
     }
-    Throwable throwable = null;
+    Exception notHandled = null;
     try {
       if (handler instanceof AsyncHandler asyncHandler) {
         handler = asyncHandler.wrapConcurrentResult(concurrentResult);
@@ -564,22 +564,22 @@ public class DispatcherHandler extends WebLifecycleManager {
         concurrentResult = HttpRequestHandler.NONE_RETURN_VALUE;
       }
       else {
-        if (concurrentResult instanceof Throwable asyncError) {
-          throwable = asyncError;
+        if (concurrentResult instanceof Exception asyncError) {
+          notHandled = asyncError;
         }
       }
     }
-    catch (Throwable ex) {
-      throwable = ex; // not handled
+    catch (Exception ex) {
+      notHandled = ex; // not handled
     }
 
-    processDispatchResultAndComplete(context, handler, concurrentResult, throwable);
+    processDispatchResultAndComplete(context, handler, concurrentResult, notHandled);
   }
 
   /**
    * Handle the given HTTP request.
    * <p>When filters are configured, the request is executed through the filter
-   * chain and {@link #completeRequest(HttpContext, Throwable)} is invoked after
+   * chain and {@link #completeRequest(HttpContext, Exception)} is invoked after
    * the chain returns. This guarantees that a short-circuiting filter still
    * completes the request; the call is idempotent when the terminal handler has
    * already completed it. Without filters, dispatching and completion are handled
@@ -594,7 +594,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * @param context current HTTP request and HTTP response
    * @throws Exception in case of any kind of un-handling failure
    * @see #handleRequestInternal(HttpContext)
-   * @see #completeRequest(HttpContext, Throwable)
+   * @see #completeRequest(HttpContext, Exception)
    * @since 4.0
    */
   public void handleRequest(HttpContext context) throws Exception {
@@ -613,19 +613,16 @@ public class DispatcherHandler extends WebLifecycleManager {
           return;
         }
         completeRequest(context, ex);
-        throw ExceptionUtils.sneakyThrow(ex);
+        throw ex;
       }
-      // the terminal handler may have completed already; completion is idempotent
-      if (!context.isConcurrentHandlingStarted()) {
-        completeRequest(context, null);
-      }
+      completeRequest(context, null);
     }
   }
 
   private void handleRequestInternal(HttpContext context) throws Exception {
     Object handler = null;
     Object returnValue = null;
-    Throwable throwable = null;
+    Exception notHandled = null;
     try {
       // Resolve the API version for the current request, if API versioning is configured.
       Comparable<?> apiVersion = resolveApiVersion(context);
@@ -649,16 +646,10 @@ public class DispatcherHandler extends WebLifecycleManager {
         }
       }
     }
-    catch (Throwable ex) {
-      throwable = ex; // from request handler
+    catch (Exception ex) {
+      notHandled = ex; // from request handler
     }
-
-    throwable = tryProcessDispatchResult(context, handler, returnValue, throwable);
-    logResult(context, throwable);
-
-    if (!context.isConcurrentHandlingStarted()) {
-      completeRequest(context, throwable);
-    }
+    processDispatchResultAndComplete(context, handler, returnValue, notHandled);
   }
 
   /**
@@ -682,7 +673,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * Process the dispatch result, log the outcome, and complete the request.
    */
   private void processDispatchResultAndComplete(HttpContext context, @Nullable Object handler,
-          @Nullable Object returnValue, @Nullable Throwable failure) throws Exception {
+          @Nullable Object returnValue, @Nullable Exception failure) throws Exception {
     failure = tryProcessDispatchResult(context, handler, returnValue, failure);
     logResult(context, failure);
     completeRequest(context, failure);
@@ -693,13 +684,13 @@ public class DispatcherHandler extends WebLifecycleManager {
    *
    * @return the unhandled failure, or {@code null} if processing succeeded
    */
-  private @Nullable Throwable tryProcessDispatchResult(HttpContext context, @Nullable Object handler,
-          @Nullable Object returnValue, @Nullable Throwable failure) {
+  private @Nullable Exception tryProcessDispatchResult(HttpContext context, @Nullable Object handler,
+          @Nullable Object returnValue, @Nullable Exception failure) {
     try {
       processDispatchResult(context, handler, returnValue, failure);
       return null;
     }
-    catch (Throwable ex) {
+    catch (Exception ex) {
       return ex;
     }
   }
@@ -850,7 +841,9 @@ public class DispatcherHandler extends WebLifecycleManager {
    * the terminal handler dispatch. Completion is idempotent: if the request is
    * already completed, this method returns immediately without notifying
    * listeners or rethrowing {@code notHandled}, so a short-circuiting filter and
-   * a handler that completed on its own cannot run cleanup twice.
+   * a handler that completed on its own cannot run cleanup twice. It also
+   * returns while asynchronous handling is still in progress, leaving completion
+   * to the dispatch of the concurrent result.
    * <p>Otherwise completion proceeds in order:
    * <ol>
    *   <li>Notify all {@link RequestCompletedListener listeners}. A listener
@@ -876,8 +869,8 @@ public class DispatcherHandler extends WebLifecycleManager {
    * @see AbstractHttpContext#completeRequest(Throwable)
    * @since 5.0
    */
-  protected void completeRequest(HttpContext context, @Nullable Throwable notHandled) throws Exception {
-    if (context.isRequestCompleted()) {
+  protected void completeRequest(HttpContext context, @Nullable Exception notHandled) throws Exception {
+    if (context.isRequestCompleted() || context.isConcurrentHandlingStarted()) {
       return;
     }
 
@@ -922,7 +915,7 @@ public class DispatcherHandler extends WebLifecycleManager {
     }
 
     if (notHandled != null) {
-      throw ExceptionUtils.sneakyThrow(notHandled);
+      throw notHandled;
     }
   }
 
