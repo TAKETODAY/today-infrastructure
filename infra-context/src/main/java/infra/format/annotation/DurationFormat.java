@@ -27,6 +27,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 /**
@@ -107,7 +108,7 @@ public @interface DurationFormat {
     /**
      * Microseconds ({@code "us"}).
      */
-    MICROS(ChronoUnit.MICROS, "us", duration -> duration.dividedBy(Duration.ofNanos(1000))),
+    MICROS(ChronoUnit.MICROS, "us", Unit::toMicros),
 
     /**
      * Milliseconds ({@code "ms"}).
@@ -133,6 +134,12 @@ public @interface DurationFormat {
      * Days ({@code "d"}).
      */
     DAYS(ChronoUnit.DAYS, "d", Duration::toDays);
+
+    private static final long NANOSECONDS_PER_MICROSECOND = TimeUnit.MICROSECONDS.toNanos(1);
+
+    private static final long NANOSECONDS_PER_SECOND = TimeUnit.SECONDS.toNanos(1);
+
+    private static final long MICROSECONDS_PER_SECOND = TimeUnit.SECONDS.toMicros(1);
 
     private final ChronoUnit chronoUnit;
 
@@ -230,6 +237,18 @@ public @interface DurationFormat {
         }
       }
       throw new IllegalArgumentException("'%s' is not a valid simple duration Unit".formatted(suffix));
+    }
+
+    private static long toMicros(Duration duration) {
+      long seconds = duration.getSeconds();
+      long nanoseconds = duration.getNano();
+      if (seconds < 0) {
+        seconds++;
+        nanoseconds -= NANOSECONDS_PER_SECOND;
+      }
+      seconds = Math.multiplyExact(seconds, MICROSECONDS_PER_SECOND);
+      nanoseconds = nanoseconds / NANOSECONDS_PER_MICROSECOND;
+      return Math.addExact(seconds, nanoseconds);
     }
 
   }
