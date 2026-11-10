@@ -23,6 +23,8 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -92,6 +94,14 @@ public class XsltViewTests {
   public void simpleTransformWithSource() throws Exception {
     Source source = new StreamSource(getProductDataResource().getInputStream());
     doTestWithModel(singletonMap("someKey", source));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"file:products.xsl", "/file:products.xsl"})
+  void invalidStylesheetLocation(String location) {
+    assertThatExceptionOfType(ApplicationContextException.class)
+            .isThrownBy(() -> getXsltView(location))
+            .withMessageStartingWith("Invalid XSLT stylesheet location");
   }
 
   @Test
