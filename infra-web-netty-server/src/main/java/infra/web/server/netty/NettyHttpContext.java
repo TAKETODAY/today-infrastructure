@@ -470,7 +470,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   @SuppressWarnings({ "unchecked", "rawtypes" })
   protected MultiValueMap<String, String> readParameters() {
     String queryString = getQueryString();
-    MultiValueMap<String, String> params = MultiValueMap.forSmartListAdaptation(new LinkedHashMap<>());
+    var params = MultiValueMap.<String, String>forSmartListAdaptation(new LinkedHashMap<>());
     if (queryString != null) {
       parseParameters(params, queryString, semicolonAsNormalChar, Constant.DEFAULT_CHARSET);
     }
@@ -478,20 +478,21 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     if (getAttribute(FORM_URLENCODED_ATTRIBUTE) instanceof MultiValueMap cached) {
       params.addAll(cached);
     }
-    else if (hasBody() && getMethod() != HttpMethod.GET
-            && getMethod() != HttpMethod.HEAD && isFormUrlEncoded()) {
-      try {
-        Charset charset = formCharset();
-        String s = getContentAsString(charset);
-        if (StringUtils.isNotEmpty(s)) {
-          MultiValueMap<String, String> body = MultiValueMap.forSmartListAdaptation(new LinkedHashMap<>());
-          parseParameters(body, s, semicolonAsNormalChar, charset);
-          params.addAll(body);
-          setAttribute(FORM_URLENCODED_ATTRIBUTE, body);
+    else if (hasBody() && getMethod() != HttpMethod.GET && getMethod() != HttpMethod.HEAD) {
+      Charset charset = resolveFormCharset();
+      if (charset != null) {
+        try {
+          String s = getContentAsString(charset);
+          if (StringUtils.isNotEmpty(s)) {
+            var body = MultiValueMap.<String, String>forSmartListAdaptation(new LinkedHashMap<>());
+            parseParameters(body, s, semicolonAsNormalChar, charset);
+            params.addAll(body);
+            setAttribute(FORM_URLENCODED_ATTRIBUTE, body);
+          }
         }
-      }
-      catch (IOException e) {
-        throw new HttpMessageNotReadableException("'application/x-www-form-urlencoded' content read failed", e, this);
+        catch (IOException e) {
+          throw new HttpMessageNotReadableException("'application/x-www-form-urlencoded' content read failed", e, this);
+        }
       }
     }
     return params;
@@ -1171,36 +1172,25 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     return requestBody != null;
   }
 
-  private boolean isFormUrlEncoded() {
-    try {
-      MediaType contentType = getContentType();
-      return contentType != null
-              && contentType.equalsTypeAndSubtype(MediaType.APPLICATION_FORM_URLENCODED);
-    }
-    catch (InvalidMediaTypeException ex) {
-      return false;
-    }
-  }
-
   /**
-   * Return the charset for decoding form body values.
+   * Return the charset for decoding a form body, or {@code null} if this request
+   * is not {@code application/x-www-form-urlencoded}.
    * <p>The {@code charset} parameter of the request {@code Content-Type} wins;
-   * UTF-8 is used when it is absent or when the content type cannot be parsed.
+   * UTF-8 is used when it is absent.
    */
-  private Charset formCharset() {
+  private @Nullable Charset resolveFormCharset() {
     try {
       MediaType contentType = getContentType();
-      if (contentType != null) {
-        Charset charset = contentType.getCharset();
-        if (charset != null) {
-          return charset;
-        }
+      if (contentType == null
+              || !contentType.equalsTypeAndSubtype(MediaType.APPLICATION_FORM_URLENCODED)) {
+        return null;
       }
+      Charset charset = contentType.getCharset();
+      return charset != null ? charset : Constant.DEFAULT_CHARSET;
     }
     catch (InvalidMediaTypeException ex) {
-      // fall through to the default charset
+      return null;
     }
-    return Constant.DEFAULT_CHARSET;
   }
 
   @Override
@@ -1281,23 +1271,18 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   static void parseParameters(MultiValueMap<String, String> params, String s,
           boolean semicolonAsNormalChar, Charset charset) {
     try {
-      parseParametersRaw(params, s, semicolonAsNormalChar, charset);
+      QueryStringDecoder decoder = QueryStringDecoder.builder()
+              .hasPath(false)
+              .charset(charset)
+              .maxParams(maxQueryParams)
+              .semicolonIsNormalChar(semicolonAsNormalChar)
+              .htmlQueryDecoding(htmlQueryDecoding)
+              .build(s);
+      params.addAll(decoder.parameters());
     }
     catch (IllegalArgumentException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid URL-encoded parameters", e);
     }
-  }
-
-  private static void parseParametersRaw(MultiValueMap<String, String> params, String s,
-          boolean semicolonAsNormalChar, Charset charset) {
-    QueryStringDecoder decoder = QueryStringDecoder.builder()
-            .hasPath(false)
-            .charset(charset)
-            .maxParams(maxQueryParams)
-            .semicolonIsNormalChar(semicolonAsNormalChar)
-            .htmlQueryDecoding(htmlQueryDecoding)
-            .build(s);
-    params.addAll(decoder.parameters());
   }
 
   static final class NoBodyOutputStream extends OutputStream {
