@@ -38,7 +38,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import infra.context.ApplicationContext;
-import infra.http.DefaultHttpHeaders;
 import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
@@ -78,6 +77,7 @@ import io.netty.handler.codec.HeadersUtils;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
@@ -711,7 +711,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       }
       else if (method != HEAD && supportsTransferEncoding()) {
         // Unknown length cannot use Content-Length; let chunked coding delimit it.
-        headers.set(HttpHeaderNames.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
+        headers.set(HttpHeaderNames.TRANSFER_ENCODING, HttpHeaderValues.CHUNKED);
       }
     }
     else if (outputStream instanceof NoBodyOutputStream nbStream) {
@@ -762,7 +762,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
         Set<String> trailerNames = getTrailerFieldNames();
         if (trailerNames != null) {
           if (supportsTransferEncoding()) {
-            headers.set(HttpHeaderNames.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
+            headers.set(HttpHeaderNames.TRANSFER_ENCODING, HttpHeaderValues.CHUNKED);
           }
           headers.remove(HttpHeaderNames.CONTENT_LENGTH);
           headers.set(HttpHeaderNames.TRAILER, String.join(", ", trailerNames));
@@ -1227,7 +1227,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    */
   private static boolean isTransferEncodingChunked(DefaultHeaders<CharSequence, @Nullable CharSequence, ?> responseHeaders) {
     return responseHeaders.contains(
-            HttpHeaderNames.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED, AsciiString.CASE_INSENSITIVE_HASHER);
+            HttpHeaderNames.TRANSFER_ENCODING, HttpHeaderValues.CHUNKED, AsciiString.CASE_INSENSITIVE_HASHER);
   }
 
   static void parseParameters(MultiValueMap<String, String> params, String s) {
