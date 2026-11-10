@@ -42,6 +42,7 @@ import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatusCode;
+import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
 import infra.http.converter.HttpMessageNotReadableException;
@@ -476,11 +477,10 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     if (getAttribute(FORM_URLENCODED_ATTRIBUTE) instanceof MultiValueMap cached) {
       params.addAll(cached);
     }
-    else if (getContentLength() > 0 && getMethod() != HttpMethod.GET && getMethod() != HttpMethod.HEAD
-            && StringUtils.startsWithIgnoreCase(getContentTypeAsString(), MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
-
+    else if (hasBody() && getMethod() != HttpMethod.GET
+            && getMethod() != HttpMethod.HEAD && isFormUrlEncoded()) {
       try {
-        String s = new String(getInputStream().readAllBytes(), StandardCharsets.ISO_8859_1);
+        String s = getContentAsString(StandardCharsets.ISO_8859_1);
         if (StringUtils.isNotEmpty(s)) {
           MultiValueMap<String, String> body = MultiValueMap.forSmartListAdaptation(new LinkedHashMap<>());
           parseParameters(body, s);
@@ -1164,6 +1164,22 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * not read the request body afterwards.
    */
   protected abstract void writeRejectResponseContinue();
+
+  protected boolean hasBody() {
+    return requestBody != null;
+  }
+
+  private boolean isFormUrlEncoded() {
+    MediaType contentType;
+    try {
+      contentType = getContentType();
+    }
+    catch (InvalidMediaTypeException ex) {
+      return false;
+    }
+    return contentType != null
+            && contentType.equalsTypeAndSubtype(MediaType.APPLICATION_FORM_URLENCODED);
+  }
 
   @Override
   public String toString() {

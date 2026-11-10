@@ -22,11 +22,13 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.context.ApplicationContext;
 import infra.http.HttpHeaders;
+import infra.http.MediaType;
 import infra.web.Trailer;
 import infra.web.DispatcherHandler;
 import io.netty.buffer.ByteBuf;
@@ -377,6 +379,22 @@ class Http2HttpContextTests {
     Http2HttpContext context = createContext(dispatcher, config(10), headers);
 
     assertThat(context.tryWriteResponseContinue()).isFalse();
+  }
+
+  @Test
+  void formBodyWithContentLengthIsParsed() {
+    String body = "name=today&q=2";
+    Http2Headers headers = new DefaultHttp2Headers()
+            .method("POST").scheme("https").path("/echo?q=1")
+            .set(HttpHeaderNames.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+            .set(HttpHeaderNames.CONTENT_LENGTH, String.valueOf(body.length()));
+    Http2HttpContext context = createContext(mock(), config(1024), headers);
+
+    context.onDataReceived(Unpooled.copiedBuffer(body, StandardCharsets.US_ASCII), true);
+
+    assertThat(context.getParameters())
+            .containsEntry("q", List.of("1", "2"))
+            .containsEntry("name", List.of("today"));
   }
 
   @ParameterizedTest
