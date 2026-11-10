@@ -170,7 +170,7 @@ class SimpleAsyncTaskSchedulerTests extends AbstractSchedulingTaskExecutorTests 
   @Test
   void scheduleFixedRateTask() throws Exception {
     TestTask task = new TestTask(this.testName, 1);
-    Future<?> future = scheduler.scheduleAtFixedRate(task, 1000);
+    Future<?> future = scheduler.scheduleAtFixedRate(task, Duration.ofSeconds(1));
     Thread.sleep(100);
     future.cancel(true);
     await(task);
@@ -183,7 +183,7 @@ class SimpleAsyncTaskSchedulerTests extends AbstractSchedulingTaskExecutorTests 
     TestTask task = new TestTask(this.testName, 0);
     TestErrorHandler errorHandler = new TestErrorHandler(1);
     scheduler.setErrorHandler(errorHandler);
-    Future<?> future = scheduler.scheduleAtFixedRate(task, 1000);
+    Future<?> future = scheduler.scheduleAtFixedRate(task, Duration.ofSeconds(1));
     Thread.sleep(100);
     future.cancel(true);
     await(errorHandler);
@@ -194,7 +194,7 @@ class SimpleAsyncTaskSchedulerTests extends AbstractSchedulingTaskExecutorTests 
   @Test
   void scheduleFixedDelayTask() throws Exception {
     TestTask task = new TestTask(this.testName, 1);
-    Future<?> future = scheduler.scheduleWithFixedDelay(task, 1000);
+    Future<?> future = scheduler.scheduleWithFixedDelay(task, Duration.ofSeconds(1));
     Thread.sleep(100);
     future.cancel(true);
     await(task);
@@ -207,7 +207,7 @@ class SimpleAsyncTaskSchedulerTests extends AbstractSchedulingTaskExecutorTests 
     TestTask task = new TestTask(this.testName, 0);
     TestErrorHandler errorHandler = new TestErrorHandler(1);
     scheduler.setErrorHandler(errorHandler);
-    Future<?> future = scheduler.scheduleWithFixedDelay(task, 1000);
+    Future<?> future = scheduler.scheduleWithFixedDelay(task, Duration.ofSeconds(1));
     Thread.sleep(100);
     future.cancel(true);
     await(errorHandler);
