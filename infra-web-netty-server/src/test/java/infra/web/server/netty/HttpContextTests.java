@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.http.MediaType;
+import infra.util.ExceptionUtils;
 import infra.web.DispatcherHandler;
 import infra.web.Filter;
 import infra.web.RequestCompletedListener;
@@ -60,16 +61,25 @@ class HttpContextTests {
 
   @Test
   void filterFailureFallsBackToTransportWhenSendErrorFails() {
-    verifyFilterFailure(false);
+    verifyFilterFailure(false, new IllegalStateException("filter failed"));
   }
 
   @Test
   void committedFilterFailureCompletesLifecycleWithoutSecondResponse() {
-    verifyFilterFailure(true);
+    verifyFilterFailure(true, new IllegalStateException("filter failed"));
   }
 
-  private void verifyFilterFailure(boolean committed) {
-    var failure = new IllegalStateException("filter failed");
+  @Test
+  void filterErrorReleasesResourcesWhenSendErrorFails() {
+    verifyFilterFailure(false, new AssertionError("filter failed"));
+  }
+
+  @Test
+  void committedFilterErrorCompletesLifecycleWithoutSecondResponse() {
+    verifyFilterFailure(true, new AssertionError("filter failed"));
+  }
+
+  private void verifyFilterFailure(boolean committed, Throwable failure) {
     var failures = new ArrayList<Throwable>();
     try (var applicationContext = new AnnotationConfigApplicationContext()) {
       applicationContext.registerBean("filter", Filter.class, () -> (request, chain) -> {
@@ -77,7 +87,7 @@ class HttpContextTests {
         if (committed) {
           request.flush();
         }
-        throw failure;
+        throw ExceptionUtils.sneakyThrow(failure);
       });
       applicationContext.registerBean("completed", RequestCompletedListener.class,
               () -> (request, notHandled) -> failures.add(notHandled));

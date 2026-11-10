@@ -554,23 +554,23 @@ public class DispatcherHandler extends WebLifecycleManager {
     if (context.isRequestCompleted()) {
       return;
     }
-    Exception notHandled = null;
+    Throwable notHandled = null;
     try {
-      if (handler instanceof AsyncHandler asyncHandler) {
-        handler = asyncHandler.wrapConcurrentResult(concurrentResult);
-      }
-      if (handler instanceof AsyncReturnValueHandler valueHandler) {
-        valueHandler.handleAsyncReturnValue(context, concurrentResult);
-        concurrentResult = HttpRequestHandler.NONE_RETURN_VALUE;
+      if (concurrentResult instanceof Throwable failure) {
+        notHandled = failure;
       }
       else {
-        if (concurrentResult instanceof Exception asyncError) {
-          notHandled = asyncError;
+        if (handler instanceof AsyncHandler asyncHandler) {
+          handler = asyncHandler.wrapConcurrentResult(concurrentResult);
+        }
+        if (handler instanceof AsyncReturnValueHandler valueHandler) {
+          valueHandler.handleAsyncReturnValue(context, concurrentResult);
+          concurrentResult = HttpRequestHandler.NONE_RETURN_VALUE;
         }
       }
     }
-    catch (Exception ex) {
-      notHandled = ex; // not handled
+    catch (Throwable ex) {
+      notHandled = ex;
     }
 
     processDispatchResultAndComplete(context, handler, concurrentResult, notHandled);
@@ -579,7 +579,7 @@ public class DispatcherHandler extends WebLifecycleManager {
   /**
    * Handle the given HTTP request.
    * <p>When filters are configured, the request is executed through the filter
-   * chain and {@link #completeRequest(HttpContext, Exception)} is invoked after
+   * chain and {@link #completeRequest(HttpContext, Throwable)} is invoked after
    * the chain returns. This guarantees that a short-circuiting filter still
    * completes the request; the call is idempotent when the terminal handler has
    * already completed it. Without filters, dispatching and completion are handled
@@ -590,11 +590,13 @@ public class DispatcherHandler extends WebLifecycleManager {
    * <p>Filter exceptions are resolved through the exception handling strategies
    * while the request is incomplete and the response is uncommitted. Otherwise,
    * they propagate to the transport without rewriting the response.
+   * All failures, including {@link Error Errors}, retain their original type
+   * and identity throughout exception handling and request completion.
    *
    * @param context current HTTP request and HTTP response
    * @throws Exception in case of any kind of un-handling failure
    * @see #handleRequestInternal(HttpContext)
-   * @see #completeRequest(HttpContext, Exception)
+   * @see #completeRequest(HttpContext, Throwable)
    * @since 4.0
    */
   public void handleRequest(HttpContext context) throws Exception {
@@ -607,13 +609,13 @@ public class DispatcherHandler extends WebLifecycleManager {
       try {
         filterChain.doFilter(context);
       }
-      catch (Exception ex) {
+      catch (Throwable failure) {
         if (!context.isRequestCompleted() && !context.isCommitted()) {
-          processDispatchResultAndComplete(context, null, null, ex);
+          processDispatchResultAndComplete(context, null, null, failure);
           return;
         }
-        completeRequest(context, ex);
-        throw ex;
+        completeRequest(context, failure);
+        throw ExceptionUtils.sneakyThrow(failure);
       }
       completeRequest(context, null);
     }
@@ -622,7 +624,7 @@ public class DispatcherHandler extends WebLifecycleManager {
   private void handleRequestInternal(HttpContext context) throws Exception {
     Object handler = null;
     Object returnValue = null;
-    Exception notHandled = null;
+    Throwable notHandled = null;
     try {
       // Resolve the API version for the current request, if API versioning is configured.
       Comparable<?> apiVersion = resolveApiVersion(context);
@@ -646,8 +648,8 @@ public class DispatcherHandler extends WebLifecycleManager {
         }
       }
     }
-    catch (Exception ex) {
-      notHandled = ex; // from request handler
+    catch (Throwable ex) {
+      notHandled = ex;
     }
     processDispatchResultAndComplete(context, handler, returnValue, notHandled);
   }
@@ -656,12 +658,12 @@ public class DispatcherHandler extends WebLifecycleManager {
    * Process the dispatch result, log the outcome, and complete the request.
    */
   private void processDispatchResultAndComplete(HttpContext context, @Nullable Object handler,
-          @Nullable Object returnValue, @Nullable Exception failure) throws Exception {
+          @Nullable Object returnValue, @Nullable Throwable failure) throws Exception {
     try {
       processDispatchResult(context, handler, returnValue, failure);
       failure = null;
     }
-    catch (Exception ex) {
+    catch (Throwable ex) {
       failure = ex;
     }
     logResult(context, failure);
@@ -722,12 +724,12 @@ public class DispatcherHandler extends WebLifecycleManager {
       try {
         handleReturnValue(selected, request, handler, returnValue);
       }
-      catch (Exception e) {
+      catch (Throwable failure) {
         if (exception == null) {
-          processDispatchResult(request, handler, null, e);
+          processDispatchResult(request, handler, null, failure);
         }
         else {
-          throw e;
+          throw ExceptionUtils.sneakyThrow(failure);
         }
       }
     }
@@ -842,7 +844,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * @see AbstractHttpContext#completeRequest(Throwable)
    * @since 5.0
    */
-  protected void completeRequest(HttpContext context, @Nullable Exception notHandled) throws Exception {
+  protected void completeRequest(HttpContext context, @Nullable Throwable notHandled) throws Exception {
     if (context.isRequestCompleted() || context.isConcurrentHandlingStarted()) {
       return;
     }
@@ -878,9 +880,9 @@ public class DispatcherHandler extends WebLifecycleManager {
       context.nativeContext(AbstractHttpContext.class)
               .completeRequest(notHandled);
     }
-    catch (Exception ex) {
+    catch (Throwable ex) {
       if (notHandled == null) {
-        throw ex;
+        throw ExceptionUtils.sneakyThrow(ex);
       }
       if (ex != notHandled) {
         notHandled.addSuppressed(ex);
@@ -888,7 +890,7 @@ public class DispatcherHandler extends WebLifecycleManager {
     }
 
     if (notHandled != null) {
-      throw notHandled;
+      throw ExceptionUtils.sneakyThrow(notHandled);
     }
   }
 
