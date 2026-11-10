@@ -676,6 +676,7 @@ public class DispatcherHandler extends WebLifecycleManager {
           @Nullable Object returnValue, @Nullable Exception failure) throws Exception {
     try {
       processDispatchResult(context, handler, returnValue, failure);
+      failure = null;
     }
     catch (Exception ex) {
       failure = ex;
