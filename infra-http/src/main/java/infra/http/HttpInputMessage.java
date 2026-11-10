@@ -90,7 +90,7 @@ public interface HttpInputMessage extends HttpMessage {
    * @since 5.0
    */
   default String getContentAsString(@Nullable Charset charset) throws IOException {
-    return StreamUtils.copyToString(getBody(), charset != null ? charset : StandardCharsets.UTF_8);
+    return new String(getContentAsByteArray(), charset != null ? charset : StandardCharsets.UTF_8);
   }
 
 }
