@@ -79,8 +79,18 @@ import io.netty.handler.codec.http.multipart.HttpDataFactory;
  */
 public final class NettyRequestConfig {
 
+  /**
+   * Server-side cookie encoder used to write {@code Set-Cookie} response headers.
+   *
+   * @see ServerCookieEncoder
+   */
   public final ServerCookieEncoder cookieEncoder;
 
+  /**
+   * Server-side cookie decoder used to read the {@code Cookie} request header.
+   *
+   * @see ServerCookieDecoder
+   */
   public final ServerCookieDecoder cookieDecoder;
 
   /**
@@ -90,15 +100,35 @@ public final class NettyRequestConfig {
    */
   public final int responseBodyInitialCapacity;
 
+  /**
+   * Optional factory for the initial response body buffer.
+   * <p>When it returns {@code null}, the buffer is created from the channel allocator.
+   *
+   * @see #responseBodyInitialCapacity
+   */
   public final @Nullable Function<HttpContext, ByteBuf> responseBodyFactory;
 
   /**
+   * Character set used by the response writer.
+   *
+   * @see #writerAutoFlush
    * @since 5.0
    */
   public final Charset writerCharset;
 
+  /**
+   * Whether the response writer flushes after every write operation.
+   *
+   * @see #writerCharset
+   * @since 5.0
+   */
   public final boolean writerAutoFlush;
 
+  /**
+   * Handler invoked to render an error response.
+   *
+   * @see SendErrorHandler
+   */
   public final SendErrorHandler sendErrorHandler;
 
   /**
@@ -114,16 +144,27 @@ public final class NettyRequestConfig {
   public final long maxContentLength;
 
   /**
+   * Parser used for {@code multipart/form-data} requests.
+   *
+   * @see MultipartParser
    * @since 5.0
    */
   public final MultipartParser multipartParser;
 
   /**
+   * Capacity of the queue that buffers received request body chunks.
+   *
+   * @see BodyInputStream#BodyInputStream(int)
    * @since 5.0
    */
   public final int dataReceivedQueueCapacity;
 
   /**
+   * Whether the channel reads request body frames automatically.
+   * <p>When {@code false}, the body is read on demand and channel auto-read is
+   * paused for the duration of the exchange.
+   *
+   * @see io.netty.channel.ChannelConfig#setAutoRead(boolean)
    * @since 5.0
    */
   public final boolean autoRead;
@@ -174,8 +215,14 @@ public final class NettyRequestConfig {
 
   public static class Builder {
 
+    /**
+     * Cookie encoder for response headers; {@link ServerCookieEncoder#STRICT} by default.
+     */
     private ServerCookieEncoder cookieEncoder = ServerCookieEncoder.STRICT;
 
+    /**
+     * Cookie decoder for request headers; {@link ServerCookieDecoder#STRICT} by default.
+     */
     private ServerCookieDecoder cookieDecoder = ServerCookieDecoder.STRICT;
 
     /**
@@ -185,22 +232,49 @@ public final class NettyRequestConfig {
      */
     private int responseBodyInitialCapacity = 128;
 
+    /**
+     * Optional factory for the initial response body buffer.
+     */
     private @Nullable Function<HttpContext, ByteBuf> responseBodyFactory;
 
+    /**
+     * Charset used by the response writer; falls back to {@link Constant#DEFAULT_CHARSET}.
+     */
     private @Nullable Charset writerCharset = Constant.DEFAULT_CHARSET;
 
+    /**
+     * Whether the response writer flushes after every write; {@code false} by default.
+     */
     private boolean writerAutoFlush = false;
 
+    /**
+     * Maximum accepted request content length; 1GB by default.
+     */
     private long maxContentLength = DataSize.BYTES_PER_GB;
 
+    /**
+     * Handler invoked to render an error response.
+     */
     private @Nullable SendErrorHandler sendErrorHandler;
 
+    /**
+     * Parser used for {@code multipart/form-data} requests.
+     */
     private @Nullable MultipartParser multipartParser;
 
+    /**
+     * Capacity of the queue that buffers received request body chunks; 256 by default.
+     */
     private int dataReceivedQueueCapacity = 256;
 
+    /**
+     * Whether the channel reads request body frames automatically; {@code true} by default.
+     */
     private boolean autoRead = true;
 
+    /**
+     * Whether this configuration is built for a secure connection.
+     */
     private final boolean secure;
 
     Builder(boolean secure) {
