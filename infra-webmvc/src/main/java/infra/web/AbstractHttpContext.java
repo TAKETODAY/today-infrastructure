@@ -2124,11 +2124,13 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * @since 5.0
    */
   protected final void validateTrailerFieldsBeforeCommit() {
-    int status = getStatus();
-    if (this.responseTrailers != null && (getMethod() == HttpMethod.HEAD
-            || status < 200 || status == 204 || status == 304
-            || (getMethod() == HttpMethod.CONNECT && status < 300))) {
-      clearTrailerFields();
+    if (responseTrailers != null) {
+      int status = getStatus();
+      if (getMethod() == HttpMethod.HEAD
+              || status < 200 || status == 204 || status == 304
+              || (getMethod() == HttpMethod.CONNECT && status < 300)) {
+        clearTrailerFields();
+      }
     }
   }
 

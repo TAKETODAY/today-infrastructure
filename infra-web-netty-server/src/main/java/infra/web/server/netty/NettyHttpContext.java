@@ -752,11 +752,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
           headers.setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
         }
       }
-      else if (method == HEAD) {
-        // preserve the representation length before the body is discarded
-        writeContentFraming(headers);
-        discardPendingResponse();
-      }
       else {
         Set<String> trailerNames = getTrailerFieldNames();
         if (trailerNames != null) {
@@ -768,6 +763,10 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
         }
         else {
           writeContentFraming(headers);
+          if (method == HEAD) {
+            // preserve the representation length before the body is discarded
+            discardPendingResponse();
+          }
         }
       }
 
