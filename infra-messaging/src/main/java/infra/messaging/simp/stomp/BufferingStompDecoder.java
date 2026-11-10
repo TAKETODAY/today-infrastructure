@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp.stomp;
 
 import org.jspecify.annotations.Nullable;
@@ -21,8 +23,8 @@ import org.jspecify.annotations.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.util.Assert;
 import infra.messaging.Message;
@@ -51,7 +53,9 @@ public class BufferingStompDecoder {
 
   private final int bufferSizeLimit;
 
-  private final Queue<ByteBuffer> chunks = new LinkedBlockingQueue<>();
+  private final LinkedBlockingQueue<ByteBuffer> chunks = new LinkedBlockingQueue<>();
+
+  private final AtomicInteger bufferSize = new AtomicInteger();
 
   private volatile @Nullable Integer expectedContentLength;
 
@@ -92,13 +96,18 @@ public class BufferingStompDecoder {
    * is "content-length" header, every subsequent call to decode attempts to
    * parse again with all available data. Therefore the presence of a "content-length"
    * header helps to optimize the decoding of large messages.
+   * <p>A buffer without any remaining content is ignored.
    *
    * @param newBuffer a buffer containing new data to decode
    * @return decoded messages or an empty list
    * @throws StompConversionException raised in case of decoding issues
    */
   public List<Message<byte[]>> decode(ByteBuffer newBuffer) {
+    if (!newBuffer.hasRemaining()) {
+      return Collections.emptyList();
+    }
     this.chunks.add(newBuffer);
+    this.bufferSize.addAndGet(newBuffer.remaining());
     checkBufferLimits();
 
     Integer contentLength = this.expectedContentLength;
@@ -112,6 +121,7 @@ public class BufferingStompDecoder {
 
     if (bufferToDecode.hasRemaining()) {
       this.chunks.add(bufferToDecode);
+      this.bufferSize.addAndGet(bufferToDecode.remaining());
       this.expectedContentLength = StompHeaderAccessor.getContentLength(headers);
     }
 
@@ -131,6 +141,7 @@ public class BufferingStompDecoder {
       result.flip();
     }
     this.chunks.clear();
+    this.bufferSize.set(0);
     this.expectedContentLength = null;
     return result;
   }
@@ -149,14 +160,10 @@ public class BufferingStompDecoder {
   }
 
   /**
-   * Calculate the current buffer size.
+   * Return the current buffer size.
    */
   public int getBufferSize() {
-    int size = 0;
-    for (ByteBuffer buffer : this.chunks) {
-      size = size + buffer.remaining();
-    }
-    return size;
+    return this.bufferSize.get();
   }
 
   /**
