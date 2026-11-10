@@ -28,9 +28,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.context.ApplicationContext;
 import infra.http.HttpHeaders;
+import infra.http.HttpStatus;
 import infra.http.MediaType;
-import infra.web.Trailer;
 import infra.web.DispatcherHandler;
+import infra.web.Trailer;
+import infra.web.server.RequestBodySizeExceededException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
@@ -395,6 +397,36 @@ class Http2HttpContextTests {
     assertThat(context.getParameters())
             .containsEntry("q", List.of("1", "2"))
             .containsEntry("name", List.of("today"));
+  }
+
+  @Test
+  void formBodyWithoutContentLengthIsParsed() {
+    String body = "name=today&q=2";
+    Http2Headers headers = new DefaultHttp2Headers()
+            .method("POST").scheme("https").path("/echo?q=1")
+            .set(HttpHeaderNames.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+    Http2HttpContext context = createContext(mock(), config(1024), headers);
+
+    context.onDataReceived(Unpooled.copiedBuffer(body, StandardCharsets.US_ASCII), true);
+
+    assertThat(context.getParameters())
+            .containsEntry("q", List.of("1", "2"))
+            .containsEntry("name", List.of("today"));
+  }
+
+  @Test
+  void oversizedFormBodyWithoutContentLengthIsRejectedAsPayloadTooLarge() {
+    String body = "name=todayx";
+    Http2Headers headers = new DefaultHttp2Headers()
+            .method("POST").scheme("https").path("/echo")
+            .set(HttpHeaderNames.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+    Http2HttpContext context = createContext(mock(), config(10), headers);
+
+    context.onDataReceived(Unpooled.copiedBuffer(body, StandardCharsets.US_ASCII), true);
+
+    assertThatThrownBy(context::getParameters)
+            .isInstanceOfSatisfying(RequestBodySizeExceededException.class,
+                    ex -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE));
   }
 
   @ParameterizedTest

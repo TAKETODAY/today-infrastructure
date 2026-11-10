@@ -29,6 +29,7 @@ import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.util.MultiValueMap;
 import infra.web.DispatcherHandler;
+import infra.web.server.RequestBodySizeExceededException;
 import infra.web.server.ResponseStatusException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -237,6 +238,19 @@ class NettyHttpContextParametersTests {
   }
 
   @Test
+  void oversizedChunkedFormBodyIsRejectedAsPayloadTooLarge() {
+    HttpRequest request = formRequest("/echo", FORM_URLENCODED);
+    request.headers().set(HttpHeaderNames.TRANSFER_ENCODING, HttpHeaderValues.CHUNKED);
+    HttpContext context = createContext(request, config(10));
+
+    sendBody(context, "name=todayx", StandardCharsets.US_ASCII);
+
+    assertThatThrownBy(context::getParameters)
+            .isInstanceOfSatisfying(RequestBodySizeExceededException.class,
+                    ex -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE));
+  }
+
+  @Test
   @SuppressWarnings("unchecked")
   void cachedFormBodyIsMergedWithQueryParameters() {
     HttpRequest request = formRequest(HttpMethod.POST, "/echo?q=query", FORM_URLENCODED, "0");
@@ -272,6 +286,14 @@ class NettyHttpContextParametersTests {
 
   private static NettyRequestConfig config() {
     return NettyRequestConfig.forBuilder(false)
+            .multipartParser(mock())
+            .sendErrorHandler((request, message) -> { })
+            .build();
+  }
+
+  private static NettyRequestConfig config(long maxContentLength) {
+    return NettyRequestConfig.forBuilder(false)
+            .maxContentLength(maxContentLength)
             .multipartParser(mock())
             .sendErrorHandler((request, message) -> { })
             .build();

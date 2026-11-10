@@ -491,6 +491,9 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
           }
         }
         catch (IOException e) {
+          if (e.getCause() instanceof RequestBodySizeExceededException sizeExceeded) {
+            throw sizeExceeded;
+          }
           throw new HttpMessageNotReadableException("'application/x-www-form-urlencoded' content read failed", e, this);
         }
       }
