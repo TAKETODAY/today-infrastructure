@@ -46,15 +46,6 @@ import infra.util.StringUtils;
 public class SpelParserConfiguration {
 
   /**
-   * Default maximum size to which a collection or array can automatically grow: {@value}.
-   * <p>Aligned with the default limit used for data binding, for consistent
-   * auto-growth behavior.
-   *
-   * @see Builder#maximumAutoGrowSize(int)
-   */
-  public static final int DEFAULT_MAX_AUTO_GROW_SIZE = 256;
-
-  /**
    * System property to configure the default compiler mode for SpEL expression parsers: {@value}.
    * <p>Prefer {@link Builder#compilerMode(SpelCompilerMode)} when setting the
    * mode for an individual parser. Can also be configured via {@link InfraStrategies}.
@@ -87,6 +78,16 @@ public class SpelParserConfiguration {
    * @see #EXPRESSION_MAX_BIG_POWER_BITS_PROPERTY_NAME
    */
   public static final int DEFAULT_MAX_BIG_POWER_BITS = 1_000_000;
+
+  /**
+   * Default maximum size to which a collection or array can automatically grow: {@value}.
+   * <p>Aligned with the default auto-grow limit used for data binding
+   * support (see {@code DataBinder.DEFAULT_AUTO_GROW_COLLECTION_LIMIT}), for
+   * consistency between SpEL and data binding.
+   *
+   * @see Builder#maximumAutoGrowSize(int)
+   */
+  public static final int DEFAULT_MAX_AUTO_GROW_SIZE = 256;
 
   /**
    * Default maximum structural nesting depth of a SpEL expression: {@value}.
