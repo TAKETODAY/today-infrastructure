@@ -642,7 +642,7 @@ public class DispatcherHandler extends WebLifecycleManager {
         }
         else {
           // adaptation for handling this request
-          returnValue = lookupHandlerAdapter(handler).handle(context, handler);
+          returnValue = handlerAdapter.handle(context, handler);
         }
       }
     }
@@ -650,23 +650,6 @@ public class DispatcherHandler extends WebLifecycleManager {
       notHandled = ex; // from request handler
     }
     processDispatchResultAndComplete(context, handler, returnValue, notHandled);
-  }
-
-  /**
-   * Find a {@link HandlerAdapter} for input handler
-   *
-   * @param handler HTTP handler
-   * @return A {@link HandlerAdapter}
-   * @throws HandlerAdapterNotFoundException If there isn't a {@link HandlerAdapter} for target handler
-   */
-  private HandlerAdapter lookupHandlerAdapter(@Nullable Object handler) {
-    if (handler instanceof HandlerAdapter) {
-      return (HandlerAdapter) handler;
-    }
-    if (handler instanceof HandlerAdapterProvider) {
-      return ((HandlerAdapterProvider) handler).getHandlerAdapter();
-    }
-    return handlerAdapter;
   }
 
   /**

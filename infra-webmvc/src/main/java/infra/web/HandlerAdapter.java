@@ -59,12 +59,7 @@ import infra.web.handler.method.RequestMappingHandlerAdapter;
  * {@code DispatcherHandler}. Non-Ordered instances get treated as lowest
  * priority.
  *
- * <p>
- * <b>Note:</b> A handler may specify a dedicated {@link HandlerAdapter} at
- * startup time through {@link HandlerAdapterProvider}.
- *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see HandlerAdapterProvider
  * @see HandlerAdapters
  * @see RequestMappingHandlerAdapter
  * @see HandlerFunctionAdapter
