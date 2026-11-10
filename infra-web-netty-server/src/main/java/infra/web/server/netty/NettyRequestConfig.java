@@ -31,7 +31,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
-import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 
 /**
  * Configuration class for Netty-based HTTP request handling. This class provides
@@ -49,7 +48,6 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
  *     .cookieEncoder(ServerCookieEncoder.LAX)
  *     .cookieDecoder(ServerCookieDecoder.LAX)
  *     .responseBodyInitialCapacity(256)
- *     .postRequestDecoderCharset(StandardCharsets.UTF_8)
  *     .writerCharset(StandardCharsets.UTF_8)
  *     .multipartParser(new DefaultMultipartParser())
  *     .sendErrorHandler(error -> {
@@ -62,7 +60,7 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
  * <ul>
  *   <li>Customizable cookie encoding and decoding strategies.</li>
  *   <li>Support for specifying initial capacity of response bodies.</li>
- *   <li>Flexible handling of character sets for POST request decoding and writers.</li>
+ *   <li>Flexible handling of character sets for response writers.</li>
  *   <li>Integration with Netty's {@link HttpDataFactory}.</li>
  *   <li>Error handling for send operations via {@link SendErrorHandler}.</li>
  *   <li>Optional support for SSL/TLS through the {@code secure} flag.</li>
@@ -93,11 +91,6 @@ public final class NettyRequestConfig {
   public final int responseBodyInitialCapacity;
 
   public final @Nullable Function<HttpContext, ByteBuf> responseBodyFactory;
-
-  /**
-   * @see InterfaceHttpPostRequestDecoder
-   */
-  public final Charset postRequestDecoderCharset;
 
   /**
    * @since 5.0
@@ -151,8 +144,6 @@ public final class NettyRequestConfig {
     this.responseBodyFactory = builder.responseBodyFactory;
     this.dataReceivedQueueCapacity = builder.dataReceivedQueueCapacity;
     this.responseBodyInitialCapacity = builder.responseBodyInitialCapacity;
-    this.postRequestDecoderCharset = builder.postRequestDecoderCharset == null
-            ? Constant.DEFAULT_CHARSET : builder.postRequestDecoderCharset;
     this.writerCharset = builder.writerCharset == null ? Constant.DEFAULT_CHARSET : builder.writerCharset;
   }
 
@@ -195,8 +186,6 @@ public final class NettyRequestConfig {
     private int responseBodyInitialCapacity = 128;
 
     private @Nullable Function<HttpContext, ByteBuf> responseBodyFactory;
-
-    private @Nullable Charset postRequestDecoderCharset = Constant.DEFAULT_CHARSET;
 
     private @Nullable Charset writerCharset = Constant.DEFAULT_CHARSET;
 
@@ -323,29 +312,6 @@ public final class NettyRequestConfig {
      */
     public Builder responseBodyInitialCapacity(int responseBodyInitialCapacity) {
       this.responseBodyInitialCapacity = responseBodyInitialCapacity;
-      return this;
-    }
-
-    /**
-     * Sets the character set to be used for decoding POST request data.
-     * If the provided charset is {@code null}, a default charset defined by
-     * {@link Constant#DEFAULT_CHARSET} will be used instead.
-     * <p>
-     * This method allows customization of the character encoding for handling
-     * POST request payloads, ensuring proper interpretation of incoming data.
-     * <p>
-     * Example usage:
-     * <pre>{@code
-     *   Builder builder = ...;
-     *   builder.postRequestDecoderCharset(StandardCharsets.UTF_8);
-     * }</pre>
-     *
-     * @param charset the character set to be used for decoding POST request data,
-     * or {@code null} to use the default charset
-     * @return the current {@link Builder} instance, enabling method chaining
-     */
-    public Builder postRequestDecoderCharset(@Nullable Charset charset) {
-      this.postRequestDecoderCharset = charset == null ? Constant.DEFAULT_CHARSET : charset;
       return this;
     }
 

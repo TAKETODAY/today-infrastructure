@@ -64,13 +64,6 @@ class NettyRequestConfigTests {
             .multipartParser(new DefaultMultipartParser())
             .build();
     assertThat(config.writerCharset).isEqualTo(StandardCharsets.US_ASCII);
-    assertThat(config.postRequestDecoderCharset).isSameAs(Constant.DEFAULT_CHARSET);
-
-    assertThat(NettyRequestConfig.forBuilder(false)
-            .postRequestDecoderCharset(StandardCharsets.US_ASCII)
-            .sendErrorHandler(new SendErrorHandler0())
-            .multipartParser(new DefaultMultipartParser())
-            .build().postRequestDecoderCharset).isEqualTo(StandardCharsets.US_ASCII);
   }
 
   @Test
@@ -178,7 +171,6 @@ class NettyRequestConfigTests {
     assertThat(config.cookieEncoder).isEqualTo(ServerCookieEncoder.STRICT);
     assertThat(config.cookieDecoder).isEqualTo(ServerCookieDecoder.STRICT);
     assertThat(config.responseBodyInitialCapacity).isEqualTo(128);
-    assertThat(config.postRequestDecoderCharset).isEqualTo(Constant.DEFAULT_CHARSET);
     assertThat(config.writerCharset).isEqualTo(Constant.DEFAULT_CHARSET);
     assertThat(config.secure).isFalse();
   }
@@ -235,12 +227,10 @@ class NettyRequestConfigTests {
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .sendErrorHandler(sendErrorHandler)
             .multipartParser(multipartParser)
-            .postRequestDecoderCharset(StandardCharsets.UTF_16)
             .writerCharset(StandardCharsets.ISO_8859_1)
             .build();
 
     // then
-    assertThat(config.postRequestDecoderCharset).isEqualTo(StandardCharsets.UTF_16);
     assertThat(config.writerCharset).isEqualTo(StandardCharsets.ISO_8859_1);
   }
 
@@ -254,12 +244,10 @@ class NettyRequestConfigTests {
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .sendErrorHandler(sendErrorHandler)
             .multipartParser(multipartParser)
-            .postRequestDecoderCharset(null)
             .writerCharset(null)
             .build();
 
     // then
-    assertThat(config.postRequestDecoderCharset).isEqualTo(Constant.DEFAULT_CHARSET);
     assertThat(config.writerCharset).isEqualTo(Constant.DEFAULT_CHARSET);
   }
 
