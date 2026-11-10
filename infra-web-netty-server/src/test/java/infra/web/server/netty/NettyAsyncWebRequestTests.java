@@ -18,14 +18,44 @@ package infra.web.server.netty;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/10/11 13:14
  */
 class NettyAsyncWebRequestTests {
+
+  @Test
+  void dispatchIgnoresLateResultsAndTimeouts() throws Exception {
+    NettyHttpContext request = mock(NettyHttpContext.class);
+    var asyncRequest = new NettyAsyncWebRequest(request);
+    var completions = new AtomicInteger();
+    var timeouts = new AtomicInteger();
+    asyncRequest.addCompletionHandler(completions::incrementAndGet);
+    asyncRequest.addTimeoutHandler(timeouts::incrementAndGet);
+    asyncRequest.startAsync();
+
+    asyncRequest.dispatch("first result");
+    asyncRequest.dispatch("late result");
+    asyncRequest.dispatch(new AssertionError("late filter failure"));
+    asyncRequest.checkTimeout();
+
+    assertThat(asyncRequest.isAsyncStarted()).isFalse();
+    assertThat(asyncRequest.isAsyncComplete()).isTrue();
+    assertThat(completions).hasValue(1);
+    assertThat(timeouts).hasValue(0);
+    assertThatIllegalStateException().isThrownBy(asyncRequest::startAsync);
+    verify(request, times(1)).dispatchConcurrentResult("first result");
+    verifyNoMoreInteractions(request);
+  }
 
   @Test
   void constructorShouldInitializeFields() {

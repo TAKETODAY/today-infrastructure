@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.web.async.AsyncWebRequest;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.ScheduledFuture;
@@ -48,7 +49,8 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
   }
 
   @Override
-  public void startAsync() {
+  public synchronized void startAsync() {
+    Assert.state(!isAsyncComplete(), "Async processing has already completed");
     if (timeout != null && timeout > 0) {
       timeoutFuture = channel.eventLoop().schedule(this::checkTimeout, timeout, TimeUnit.MILLISECONDS);
     }
@@ -56,7 +58,7 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
     this.asyncStarted = true;
   }
 
-  void checkTimeout() {
+  synchronized void checkTimeout() {
     if (!isAsyncComplete()) {
       // timeout
       log.debug("Async timeout, dispatch timeout events");
@@ -70,7 +72,7 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
   }
 
   @Override
-  public void dispatch(@Nullable Object concurrentResult) {
+  public synchronized void dispatch(@Nullable Object concurrentResult) {
     this.asyncStarted = false;
     if (asyncCompleted.compareAndSet(false, true)) {
       if (timeoutFuture != null) {
@@ -79,12 +81,12 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
       try {
         request.dispatchConcurrentResult(concurrentResult);
       }
-      catch (Exception e) {
+      catch (Throwable e) {
         // last exception handling
         for (var exceptionHandler : exceptionHandlers) {
           exceptionHandler.accept(e);
         }
-        channel.pipeline().fireExceptionCaught(e);
+        request.httpTrafficHandler.handleException(channel, e);
       }
       finally {
         dispatchEvent(completionHandlers);

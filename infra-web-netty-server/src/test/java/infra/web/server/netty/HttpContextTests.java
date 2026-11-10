@@ -79,10 +79,32 @@ class HttpContextTests {
     verifyFilterFailure(true, new AssertionError("filter failed"));
   }
 
+  @Test
+  void asyncFilterFailureCompletesLifecycleWhenSendErrorFails() {
+    verifyFilterFailure(false, new IllegalStateException("filter failed"), true);
+  }
+
+  @Test
+  void committedAsyncFilterErrorCompletesLifecycleWithoutSecondResponse() {
+    verifyFilterFailure(true, new AssertionError("filter failed"), true);
+  }
+
   private void verifyFilterFailure(boolean committed, Throwable failure) {
+    verifyFilterFailure(committed, failure, false);
+  }
+
+  private void verifyFilterFailure(boolean committed, Throwable failure, boolean async) {
     var failures = new ArrayList<Throwable>();
+    var asyncCompletions = new AtomicInteger();
     try (var applicationContext = new AnnotationConfigApplicationContext()) {
       applicationContext.registerBean("filter", Filter.class, () -> (request, chain) -> {
+        if (async) {
+          request.asyncWebRequest().addCompletionHandler(() -> {
+            assertThat(request.isRequestCompleted()).isTrue();
+            asyncCompletions.incrementAndGet();
+          });
+          request.asyncWebRequest().startAsync();
+        }
         request.getOutputStream().write(42);
         if (committed) {
           request.flush();
@@ -112,6 +134,12 @@ class HttpContextTests {
         request.run();
 
         assertThat(request.isRequestCompleted()).isTrue();
+        if (async) {
+          assertThat(request.isConcurrentHandlingStarted()).isFalse();
+          assertThat(request.asyncWebRequest().isAsyncComplete()).isTrue();
+          request.asyncWebRequest().dispatch("late result");
+          assertThat(asyncCompletions).hasValue(1);
+        }
         assertThat(failures).containsExactly(failure);
         assertThat(errorAttempts).hasValue(committed ? 0 : 1);
         assertThat(completed).hasValue(1);

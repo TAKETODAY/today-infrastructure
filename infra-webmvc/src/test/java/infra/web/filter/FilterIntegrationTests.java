@@ -36,6 +36,7 @@ import infra.web.HttpRequestHandler;
 import infra.web.RequestCompletedListener;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockAsyncContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -440,11 +441,25 @@ class FilterIntegrationTests {
 
   @Test
   void filterFailureIsResolvedBeforeRequestCompletion() throws Exception {
+    verifyResolvedFilterFailure(false);
+  }
+
+  @Test
+  void asyncFilterFailureIsResolvedAfterAsyncCompletion() throws Exception {
+    verifyResolvedFilterFailure(true);
+  }
+
+  private void verifyResolvedFilterFailure(boolean async) throws Exception {
     var failure = new IllegalStateException("filter failed");
     var failures = new ArrayList<Throwable>();
+    var asyncCompletions = new AtomicInteger();
     try (var context = new AnnotationConfigApplicationContext()) {
       context.register(BaseConfig.class);
       context.registerBean("filter", Filter.class, () -> (request, chain) -> {
+        if (async) {
+          request.asyncWebRequest().addCompletionHandler(asyncCompletions::incrementAndGet);
+          request.asyncWebRequest().startAsync();
+        }
         request.setStatus(202);
         throw failure;
       });
@@ -456,12 +471,28 @@ class FilterIntegrationTests {
         assertThat(ex).isSameAs(failure);
         assertThat(target).isNull();
         assertThat(request.isRequestCompleted()).isFalse();
+        assertThat(request.isConcurrentHandlingStarted()).isFalse();
         request.setStatus(400);
         request.getWriter().write("resolved filter failure");
         return HttpRequestHandler.NONE_RETURN_VALUE;
       });
       handler.start();
       var request = new MockHttpContext();
+      request.getRequest().setAsyncSupported(true);
+      if (async) {
+        request.asyncWebRequest().startAsync();
+        ((MockAsyncContext) request.getRequest().getAsyncContext()).addDispatchHandler(() -> {
+          request.getRequest().setAsyncStarted(false);
+          try {
+            handler.handleConcurrentResult(request, null,
+                    request.getAttribute(infra.web.async.WebAsyncManager.WEB_ASYNC_RESULT_ATTRIBUTE));
+            request.getRequest().getAsyncContext().complete();
+          }
+          catch (Exception ex) {
+            throw new IllegalStateException(ex);
+          }
+        });
+      }
 
       handler.handleRequest(request);
 
@@ -469,16 +500,36 @@ class FilterIntegrationTests {
       assertThat(request.getResponse().getContentAsString()).isEqualTo("resolved filter failure");
       assertThat(request.isRequestCompleted()).isTrue();
       assertThat(failures).containsExactly((Throwable) null);
+      if (async) {
+        assertThat(request.asyncWebRequest().isAsyncComplete()).isTrue();
+        request.asyncWebRequest().dispatch("late result");
+        handler.handleConcurrentResult(request, null, "late result");
+        assertThat(asyncCompletions).hasValue(1);
+        assertThat(request.getResponse().getContentAsString()).isEqualTo("resolved filter failure");
+        assertThat(failures).containsExactly((Throwable) null);
+      }
     }
   }
 
   @Test
   void unresolvedFilterFailureFallsBackToSendError() {
+    verifyUnresolvedFilterFailure(false);
+  }
+
+  @Test
+  void unresolvedAsyncFilterFailureFallsBackToSendError() {
+    verifyUnresolvedFilterFailure(true);
+  }
+
+  private void verifyUnresolvedFilterFailure(boolean async) {
     var failure = new IllegalStateException("filter failed");
     var failures = new ArrayList<Throwable>();
     try (var context = new AnnotationConfigApplicationContext()) {
       context.register(BaseConfig.class);
       context.registerBean("filter", Filter.class, () -> (request, chain) -> {
+        if (async) {
+          request.asyncWebRequest().startAsync();
+        }
         throw failure;
       });
       context.registerBean("completed", RequestCompletedListener.class,
@@ -491,10 +542,31 @@ class FilterIntegrationTests {
       handler.start();
 
       MockHttpContext request = new MockHttpContext();
+      request.getRequest().setAsyncSupported(true);
+      if (async) {
+        request.asyncWebRequest().startAsync();
+        ((MockAsyncContext) request.getRequest().getAsyncContext()).addDispatchHandler(() -> {
+          request.getRequest().setAsyncStarted(false);
+          try {
+            handler.handleConcurrentResult(request, null,
+                    request.getAttribute(infra.web.async.WebAsyncManager.WEB_ASYNC_RESULT_ATTRIBUTE));
+            request.getRequest().getAsyncContext().complete();
+          }
+          catch (Exception ex) {
+            throw new IllegalStateException(ex);
+          }
+        });
+      }
       assertThatCode(() -> handler.handleRequest(request)).doesNotThrowAnyException();
       assertThat(request.getStatus()).isEqualTo(500);
       assertThat(request.isRequestCompleted()).isTrue();
       assertThat(failures).containsExactly(failure);
+      assertThat(request.isConcurrentHandlingStarted()).isFalse();
+      if (async) {
+        assertThat(request.asyncWebRequest().isAsyncComplete()).isTrue();
+        request.asyncWebRequest().dispatch("late result");
+        assertThat(failure.getSuppressed()).isEmpty();
+      }
     }
   }
 

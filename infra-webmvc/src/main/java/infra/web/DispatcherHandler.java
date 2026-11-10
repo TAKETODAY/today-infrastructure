@@ -554,6 +554,10 @@ public class DispatcherHandler extends WebLifecycleManager {
     if (context.isRequestCompleted()) {
       return;
     }
+    if (concurrentResult instanceof Throwable failure && context.isCommitted()) {
+      completeRequest(context, failure);
+      throw ExceptionUtils.sneakyThrow(failure);
+    }
     Throwable notHandled = null;
     try {
       if (concurrentResult instanceof Throwable failure) {
@@ -590,6 +594,9 @@ public class DispatcherHandler extends WebLifecycleManager {
    * <p>Filter exceptions are resolved through the exception handling strategies
    * while the request is incomplete and the response is uncommitted. Otherwise,
    * they propagate to the transport without rewriting the response.
+   * While asynchronous handling is active, the failure is dispatched as an
+   * asynchronous result instead. Only the first accepted result is processed;
+   * application work itself is not interrupted.
    * All failures, including {@link Error Errors}, retain their original type
    * and identity throughout exception handling and request completion.
    *
@@ -610,6 +617,10 @@ public class DispatcherHandler extends WebLifecycleManager {
         filterChain.doFilter(context);
       }
       catch (Throwable failure) {
+        if (!context.isRequestCompleted() && context.isConcurrentHandlingStarted()) {
+          context.asyncWebRequest().dispatch(failure);
+          return;
+        }
         if (!context.isRequestCompleted() && !context.isCommitted()) {
           processDispatchResultAndComplete(context, null, null, failure);
           return;

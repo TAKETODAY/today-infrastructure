@@ -96,6 +96,9 @@ public class StandardMockAsyncWebRequest extends AsyncWebRequest implements Asyn
 
   @Override
   public void dispatch(Object concurrentResult) {
+    if (isAsyncComplete()) {
+      return;
+    }
     Assert.notNull(asyncContext, "Cannot dispatch without an AsyncContext");
 
     mockRequest.setAttribute(WebAsyncManager.WEB_ASYNC_REQUEST_ATTRIBUTE, request);
@@ -128,9 +131,10 @@ public class StandardMockAsyncWebRequest extends AsyncWebRequest implements Asyn
 
   @Override
   public void onComplete(AsyncEvent event) throws IOException {
-    dispatchEvent(completionHandlers);
     this.asyncContext = null;
-    asyncCompleted.set(true);
+    if (asyncCompleted.compareAndSet(false, true)) {
+      dispatchEvent(completionHandlers);
+    }
   }
 
 }
