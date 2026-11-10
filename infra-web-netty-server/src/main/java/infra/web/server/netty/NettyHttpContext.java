@@ -736,13 +736,13 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     boolean committedOk = false;
     try {
       onCommitting();
-      validateTrailerFieldsBeforeCommit();
       var headers = nettyResponseHeaders;
       int code = status.code();
       if (code < 200 || code == 204 || code == 205 || code == 304
               || (method == CONNECT && code < 300)) {
         // these responses carry no body, even when a handler or sendFile()
         // prepared one
+        clearTrailerFields();
         headers.remove(HttpHeaderNames.CONTENT_LENGTH);
         headers.remove(HttpHeaderNames.TRANSFER_ENCODING);
         headers.remove(HttpHeaderNames.TRAILER);
@@ -751,6 +751,12 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
           // 205 is not implicitly empty; clients need an explicit zero length
           headers.setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
         }
+      }
+      else if (method == HEAD) {
+        clearTrailerFields();
+        // preserve the representation length before the body is discarded
+        writeContentFraming(headers);
+        discardPendingResponse();
       }
       else {
         Set<String> trailerNames = getTrailerFieldNames();
@@ -763,10 +769,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
         }
         else {
           writeContentFraming(headers);
-          if (method == HEAD) {
-            // preserve the representation length before the body is discarded
-            discardPendingResponse();
-          }
         }
       }
 
