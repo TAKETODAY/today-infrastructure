@@ -311,6 +311,24 @@ class BeanWrapperAutoGrowingTests {
   }
 
   @Test
+  void getPropertyValueSelfPopulatingRawListWorksWithinLimit() {
+    bean.setListNotParameterized(new SelfPopulatingList());
+    wrapper.setAutoGrowCollectionLimit(3);
+    assertThat(wrapper.getPropertyValue("listNotParameterized[2]")).isInstanceOf(Bean.class);
+    List<?> list = bean.getListNotParameterized();
+    assertThat(list).hasSize(3).allSatisfy(entry -> assertThat(entry).isInstanceOf(Bean.class));
+  }
+
+  @Test
+  void setPropertyValueAutoPopulatingRawListForNestedPath() {
+    bean.setListNotParameterized(new SelfPopulatingList());
+    wrapper.setPropertyValue("listNotParameterized[1].prop", "test");
+    List<?> list = bean.getListNotParameterized();
+    assertThat(list).hasSize(2).element(1)
+            .isInstanceOfSatisfying(Bean.class, element -> assertThat(element.getProp()).isEqualTo("test"));
+  }
+
+  @Test
   void getPropertyValueSelfPopulatingRawListFailsWithoutAutoGrow() {
     bean.setListNotParameterized(new SelfPopulatingList());
     wrapper.setAutoGrowNestedPaths(false);
@@ -510,7 +528,14 @@ class BeanWrapperAutoGrowingTests {
     }
   }
 
-  /** List that creates elements on demand when accessed by index. */
+  /**
+   * A {@link List} implementation that creates elements on demand in {@link #get(int)}
+   * instead of throwing {@link IndexOutOfBoundsException} for out-of-range indexes.
+   * <p>Used to verify that {@link BeanWrapperImpl} delegates to {@link List#get(int)}
+   * for out-of-bounds indexes only if auto-growing is enabled and the index is
+   * within the configured auto-grow limit.
+   */
+  @SuppressWarnings("serial")
   private static class SelfPopulatingList extends ArrayList<Bean> {
 
     @Override

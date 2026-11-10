@@ -20,6 +20,8 @@ package infra.validation;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
@@ -2019,6 +2021,43 @@ class DataBinderTests {
             .withMessage("Index 16 out of bounds for auto-grow collection limit of 10");
   }
 
+  @ParameterizedTest(name = "directFieldAccess = {0}")
+  @ValueSource(booleans = { false, true })
+  void autoGrowSelfPopulatingRawListWithinDefaultLimit(boolean directFieldAccess) {
+    RawListForm form = new RawListForm();
+    DataBinder binder = new DataBinder(form, "form");
+    if (directFieldAccess) {
+      binder.initDirectFieldAccess();
+    }
+    PropertyValues mpvs = new PropertyValues();
+    mpvs.add("items[255].name", "test");
+    binder.bind(mpvs);
+
+    List<?> items = form.getItems();
+    assertThat(items).hasSize(256).element(255)
+            .isInstanceOfSatisfying(TestBean.class, bean -> assertThat(bean.getName()).isEqualTo("test"));
+  }
+
+  @ParameterizedTest(name = "directFieldAccess = {0}")
+  @ValueSource(booleans = { false, true })
+  void autoGrowSelfPopulatingRawListBeyondDefaultLimit(boolean directFieldAccess) {
+    RawListForm form = new RawListForm();
+    DataBinder binder = new DataBinder(form, "form");
+    if (directFieldAccess) {
+      binder.initDirectFieldAccess();
+    }
+    PropertyValues mpvs = new PropertyValues();
+    mpvs.add("items[256].name", "test");
+
+    assertThatExceptionOfType(InvalidPropertyException.class)
+            .isThrownBy(() -> binder.bind(mpvs))
+            .withMessageContaining("Invalid list index in property path 'items[256]'")
+            .havingCause().isExactlyInstanceOf(IndexOutOfBoundsException.class)
+            .withMessage("Index 256 out of bounds for auto-grow collection limit of 256");
+    List<?> items = form.getItems();
+    assertThat(items).isEmpty();
+  }
+
   @Test
   void nestedGrowingList() {
     Form form = new Form();
@@ -2496,6 +2535,35 @@ class DataBinderTests {
 
     public Map<String, Object> getF() {
       return f;
+    }
+  }
+
+  @SuppressWarnings({ "rawtypes", "unused" })
+  private static class RawListForm {
+
+    private List items = new SelfPopulatingList();
+
+    public List getItems() {
+      return this.items;
+    }
+
+    public void setItems(List items) {
+      this.items = items;
+    }
+  }
+
+  /**
+   * Test-only replacement for the deprecated auto-populating list utility.
+   */
+  @SuppressWarnings("serial")
+  private static class SelfPopulatingList extends ArrayList<TestBean> {
+
+    @Override
+    public TestBean get(int index) {
+      while (size() <= index) {
+        add(new TestBean());
+      }
+      return super.get(index);
     }
   }
 
