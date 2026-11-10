@@ -43,7 +43,7 @@ public class HandlerAdapters implements HandlerAdapter {
 
   @Override
   public boolean supports(Object handler) {
-    return selectAdapter(handler) != null;
+    return handler instanceof HttpRequestHandler || selectAdapter(handler) != null;
   }
 
   @Override

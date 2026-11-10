@@ -28,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -51,6 +52,25 @@ class HandlerAdaptersTests {
     HandlerAdapters handlerAdapters = new HandlerAdapters(adapters);
 
     assertThat(handlerAdapters).isNotNull();
+  }
+
+  @Test
+  void supportsReturnsTrueForHttpRequestHandlerWithoutAdapters() {
+    HttpRequestHandler handler = mock(HttpRequestHandler.class);
+    HandlerAdapters handlerAdapters = new HandlerAdapters(new HandlerAdapter[0]);
+
+    assertThat(handlerAdapters.supports(handler)).isTrue();
+    verifyNoInteractions(handler);
+  }
+
+  @Test
+  void supportsHttpRequestHandlerWithoutConsultingAdapters() {
+    HttpRequestHandler handler = mock(HttpRequestHandler.class);
+    HandlerAdapter adapter = mock(HandlerAdapter.class);
+    HandlerAdapters handlerAdapters = new HandlerAdapters(new HandlerAdapter[] { adapter });
+
+    assertThat(handlerAdapters.supports(handler)).isTrue();
+    verifyNoInteractions(adapter, handler);
   }
 
   @Test
