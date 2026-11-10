@@ -617,13 +617,15 @@ public class DispatcherHandler extends WebLifecycleManager {
         filterChain.doFilter(context);
       }
       catch (Throwable failure) {
-        if (!context.isRequestCompleted() && context.isConcurrentHandlingStarted()) {
-          context.asyncWebRequest().dispatch(failure);
-          return;
-        }
-        if (!context.isRequestCompleted() && !context.isCommitted()) {
-          processDispatchResultAndComplete(context, null, null, failure);
-          return;
+        if (!context.isRequestCompleted()) {
+          if (context.isConcurrentHandlingStarted()) {
+            context.asyncWebRequest().dispatch(failure);
+            return;
+          }
+          if (!context.isCommitted()) {
+            processDispatchResultAndComplete(context, null, null, failure);
+            return;
+          }
         }
         completeRequest(context, failure);
         throw ExceptionUtils.sneakyThrow(failure);
