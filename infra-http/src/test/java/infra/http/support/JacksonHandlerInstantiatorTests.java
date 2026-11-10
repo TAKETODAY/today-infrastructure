@@ -246,7 +246,8 @@ class JacksonHandlerInstantiatorTests {
     }
   }
 
-  @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, property = "type")
+  @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM,
+          include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
   @JsonTypeResolver(CustomTypeResolverBuilder.class)
   @JsonTypeIdResolver(CustomTypeIdResolver.class)
   public static class Group {
