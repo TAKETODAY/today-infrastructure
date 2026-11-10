@@ -2127,7 +2127,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     if (responseTrailers != null) {
       int status = getStatus();
       if (getMethod() == HttpMethod.HEAD
-              || status < 200 || status == 204 || status == 304
+              || status < 200 || status == 204 || status == 304 || status == 205
               || (getMethod() == HttpMethod.CONNECT && status < 300)) {
         clearTrailerFields();
       }
