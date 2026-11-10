@@ -20,12 +20,15 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import infra.context.ApplicationContext;
+import infra.http.HttpStatus;
 import infra.http.support.Netty4HttpHeaders;
 import infra.util.MultiValueMap;
 import infra.web.DispatcherHandler;
+import infra.web.server.ResponseStatusException;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -50,31 +53,31 @@ class NettyHttpContextTests {
   void parseParameters() {
     MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
 
-    NettyHttpContext.parseParameters(parameters, "most-popular");
+    parseParameters(parameters, "most-popular");
     assertThat(parameters).hasSize(1).containsKey("most-popular");
 
     parameters.clear();
-    NettyHttpContext.parseParameters(parameters, "most-popular&name=value&name=");
+    parseParameters(parameters, "most-popular&name=value&name=");
     assertThat(parameters).hasSize(2).containsKeys("name", "most-popular")
             .containsValues(List.of(""), List.of("value", ""));
 
     parameters.clear();
 
-    NettyHttpContext.parseParameters(parameters, "1=1&=2&n=v");
+    parseParameters(parameters, "1=1&=2&n=v");
     assertThat(parameters).hasSize(3).containsKey("n").containsKey("1").containsKey("2");
   }
 
   @Test
   void parseParameters_withEmptyString_shouldNotAddParameters() {
     MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(parameters, "");
+    parseParameters(parameters, "");
     assertThat(parameters).isEmpty();
   }
 
   @Test
   void parseParameters_withSingleKeyValuePair_shouldParseCorrectly() {
     MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(parameters, "key=value");
+    parseParameters(parameters, "key=value");
     assertThat(parameters).hasSize(1)
             .containsEntry("key", List.of("value"));
   }
@@ -82,7 +85,7 @@ class NettyHttpContextTests {
   @Test
   void parseParameters_withMultipleKeyValuePairs_shouldParseCorrectly() {
     MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(parameters, "key1=value1&key2=value2;key3=value3");
+    parseParameters(parameters, "key1=value1&key2=value2;key3=value3");
     assertThat(parameters).hasSize(3)
             .containsEntry("key1", List.of("value1"))
             .containsEntry("key2", List.of("value2"))
@@ -92,7 +95,7 @@ class NettyHttpContextTests {
   @Test
   void parseParameters_withEmptyValue_shouldParseCorrectly() {
     MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(parameters, "key=");
+    parseParameters(parameters, "key=");
     assertThat(parameters).hasSize(1)
             .containsEntry("key", List.of(""));
   }
@@ -100,7 +103,7 @@ class NettyHttpContextTests {
   @Test
   void parseParameters_withKeyOnly_shouldParseCorrectly() {
     MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(parameters, "key");
+    parseParameters(parameters, "key");
     assertThat(parameters).hasSize(1)
             .containsEntry("key", List.of(""));
   }
@@ -108,7 +111,7 @@ class NettyHttpContextTests {
   @Test
   void parseParameters_withMultipleEquals_shouldParseCorrectly() {
     MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(parameters, "key=value=more");
+    parseParameters(parameters, "key=value=more");
     assertThat(parameters).hasSize(1)
             .containsEntry("key", List.of("value=more"));
   }
@@ -116,7 +119,7 @@ class NettyHttpContextTests {
   @Test
   void parseParameters_withFragmentInUrl_shouldIgnoreFragmentPart() {
     MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(parameters, "key1=value1#key2=value2");
+    parseParameters(parameters, "key1=value1#key2=value2");
     assertThat(parameters).hasSize(1)
             .containsEntry("key1", List.of("value1"));
   }
@@ -127,7 +130,7 @@ class NettyHttpContextTests {
     QueryStringEncoder encoder = new QueryStringEncoder("");
     encoder.addParam("key@123", "value$456");
     encoder.addParam("key#789", "value%0A");
-    NettyHttpContext.parseParameters(parameters, encoder.toString().substring(1));
+    parseParameters(parameters, encoder.toString().substring(1));
     assertThat(parameters).hasSize(2)
             .containsEntry("key@123", List.of("value$456"))
             .containsEntry("key#789", List.of("value%0A"));
@@ -136,7 +139,7 @@ class NettyHttpContextTests {
   @Test
   void parseParameters_withUTF8SpecialCharacters_shouldParseCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(params, "name=张三&age=25&city=北京");
+    parseParameters(params, "name=张三&age=25&city=北京");
 
     assertThat(params)
             .hasSize(3)
@@ -148,7 +151,7 @@ class NettyHttpContextTests {
   @Test
   void parseParameters_withEncodedCharacters_shouldDecodeCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(params, "title=Hello+World&q=Java%2BSpring");
+    parseParameters(params, "title=Hello+World&q=Java%2BSpring");
 
     assertThat(params)
             .hasSize(2)
@@ -159,7 +162,7 @@ class NettyHttpContextTests {
   @Test
   void parseParameters_withMixedDelimiters_shouldParseAllParameters() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(params, "a=1&b=2;c=3&d=4");
+    parseParameters(params, "a=1&b=2;c=3&d=4");
 
     assertThat(params)
             .hasSize(4)
@@ -172,7 +175,7 @@ class NettyHttpContextTests {
   @Test
   void parseParameters_withEmptyValues_shouldParseAsEmptyStrings() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(params, "a=&b&c=");
+    parseParameters(params, "a=&b&c=");
 
     assertThat(params)
             .hasSize(3)
@@ -184,7 +187,7 @@ class NettyHttpContextTests {
   @Test
   void parseParameters_withEqualSignInValue_shouldParseCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(params, "equation=x=1&formula=a=b=c");
+    parseParameters(params, "equation=x=1&formula=a=b=c");
 
     assertThat(params)
             .hasSize(2)
@@ -200,14 +203,14 @@ class NettyHttpContextTests {
       query.append("p").append(i).append("=").append(i).append("&");
     }
 
-    NettyHttpContext.parseParameters(params, query.toString());
+    parseParameters(params, query.toString());
     assertThat(params).hasSize(1024);
   }
 
   @Test
   void parseParameters_withFragmentIdentifier_shouldIgnoreFragment() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(params, "a=1&b=2#fragment&c=3");
+    parseParameters(params, "a=1&b=2#fragment&c=3");
 
     assertThat(params)
             .hasSize(2)
@@ -217,18 +220,19 @@ class NettyHttpContextTests {
   }
 
   @Test
-  void parseParameters_withMalformedEncoding_shouldThrowIllegalArgumentException() {
+  void parseParameters_withMalformedEncoding_shouldThrowBadRequest() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
 
-    assertThatThrownBy(() -> NettyHttpContext.parseParameters(params, "key=%2"))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("unterminated escape sequence");
+    assertThatThrownBy(() -> parseParameters(params, "key=%2"))
+            .isInstanceOfSatisfying(ResponseStatusException.class,
+                    ex -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST))
+            .hasCauseInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void parseParameters_withPercentEncodedValues_shouldDecodeCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(params, "name=%E5%BC%A0%E4%B8%89&city=%E5%8C%97%E4%BA%AC");
+    parseParameters(params, "name=%E5%BC%A0%E4%B8%89&city=%E5%8C%97%E4%BA%AC");
 
     assertThat(params)
             .hasSize(2)
@@ -239,7 +243,7 @@ class NettyHttpContextTests {
   @Test
   void parseParameters_withReservedCharacters_shouldParseCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(params, "q=Java%3A%24%26%2B%2C%2F%3F%23%5B%5D%40");
+    parseParameters(params, "q=Java%3A%24%26%2B%2C%2F%3F%23%5B%5D%40");
 
     assertThat(params)
             .hasSize(1)
@@ -247,21 +251,24 @@ class NettyHttpContextTests {
   }
 
   @Test
-  void parseParameters_withMalformedPercentEncoding_shouldThrowException() {
+  void parseParameters_withMalformedPercentEncoding_shouldThrowBadRequest() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
 
-    assertThatThrownBy(() -> NettyHttpContext.parseParameters(params, "invalid=%2"))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("unterminated escape sequence");
+    assertThatThrownBy(() -> parseParameters(params, "invalid=%2"))
+            .isInstanceOfSatisfying(ResponseStatusException.class,
+                    ex -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST))
+            .hasCauseInstanceOf(IllegalArgumentException.class);
 
-    assertThatThrownBy(() -> NettyHttpContext.parseParameters(params, "invalid=%2G"))
-            .isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> parseParameters(params, "invalid=%2G"))
+            .isInstanceOfSatisfying(ResponseStatusException.class,
+                    ex -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST))
+            .hasCauseInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void parseParameters_withSpaceEncoding_shouldHandlePlusAndPercent20() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(params, "q1=hello+world&q2=hello%20world");
+    parseParameters(params, "q1=hello+world&q2=hello%20world");
 
     assertThat(params)
             .hasSize(2)
@@ -272,7 +279,7 @@ class NettyHttpContextTests {
   @Test
   void parseParameters_withControlCharacters_shouldParseCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(params, "data=%00%01%02%03%04%05");
+    parseParameters(params, "data=%00%01%02%03%04%05");
 
     assertThat(params)
             .hasSize(1)
@@ -282,7 +289,7 @@ class NettyHttpContextTests {
   @Test
   void parseParameters_withMultipleEncodedDelimiters_shouldParseCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(params, "key1=value%26one&key2=value%3Btwo");
+    parseParameters(params, "key1=value%26one&key2=value%3Btwo");
 
     assertThat(params)
             .hasSize(2)
@@ -293,7 +300,7 @@ class NettyHttpContextTests {
   @Test
   void parseParameters_withNonAsciiCharactersInKeys_shouldParseCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(params, "%E5%90%8D%E5%AD%97=zhang&%E5%B9%B4%E9%BE%84=20");
+    parseParameters(params, "%E5%90%8D%E5%AD%97=zhang&%E5%B9%B4%E9%BE%84=20");
 
     assertThat(params)
             .hasSize(2)
@@ -304,7 +311,7 @@ class NettyHttpContextTests {
   @Test
   void parseParameters_withMultipleEmptyValues_shouldParseCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(params, "key1=&key2=&key3=");
+    parseParameters(params, "key1=&key2=&key3=");
 
     assertThat(params)
             .hasSize(3)
@@ -316,7 +323,7 @@ class NettyHttpContextTests {
   @Test
   void parseParameters_withMultipleKeysNoValues_shouldParseCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(params, "key1&key2&key3");
+    parseParameters(params, "key1&key2&key3");
 
     assertThat(params)
             .hasSize(3)
@@ -328,7 +335,7 @@ class NettyHttpContextTests {
   @Test
   void parseParameters_withComplexEncodedCharacters_shouldParseCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(params, "key=%E2%98%83%E2%9C%88%F0%9F%98%80");
+    parseParameters(params, "key=%E2%98%83%E2%9C%88%F0%9F%98%80");
 
     assertThat(params)
             .hasSize(1)
@@ -338,7 +345,7 @@ class NettyHttpContextTests {
   @Test
   void parseParameters_withNullBytes_shouldParseCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(params, "key1=abc%00def&key2=ghi%00jkl");
+    parseParameters(params, "key1=abc%00def&key2=ghi%00jkl");
 
     assertThat(params)
             .hasSize(2)
@@ -353,7 +360,7 @@ class NettyHttpContextTests {
     for (int i = 0; i < 1000; i++) {
       longValue.append("a");
     }
-    NettyHttpContext.parseParameters(params, "key=" + longValue);
+    parseParameters(params, "key=" + longValue);
 
     assertThat(params)
             .hasSize(1)
@@ -363,7 +370,7 @@ class NettyHttpContextTests {
   @Test
   void parseParameters_withConsecutiveDelimiters_shouldParseCorrectly() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(params, "key1=value1&&&&key2=value2;;;;key3=value3");
+    parseParameters(params, "key1=value1&&&&key2=value2;;;;key3=value3");
 
     assertThat(params)
             .hasSize(3)
@@ -375,7 +382,7 @@ class NettyHttpContextTests {
   @Test
   void parseParameters_withSemicolonAndFlagTrue_shouldTreatSemicolonAsNormal() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(params, "key1=value;1&key2=value;2", true);
+    parseParameters(params, "key1=value;1&key2=value;2", true);
 
     assertThat(params)
             .hasSize(2)
@@ -386,7 +393,7 @@ class NettyHttpContextTests {
   @Test
   void parseParameters_withMultipleSemicolonsAndFlagTrue_shouldNotSplitOnSemicolons() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(params, "key=a;b;c;d", true);
+    parseParameters(params, "key=a;b;c;d", true);
 
     assertThat(params)
             .hasSize(1)
@@ -396,7 +403,7 @@ class NettyHttpContextTests {
   @Test
   void parseParameters_withSemicolonInKeyAndFlagTrue_shouldTreatAsNormal() {
     MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    NettyHttpContext.parseParameters(params, "key;with;semicolons=value", true);
+    parseParameters(params, "key;with;semicolons=value", true);
 
     assertThat(params)
             .hasSize(1)
@@ -795,6 +802,14 @@ class NettyHttpContextTests {
   }
 
   // -- stub --
+
+  private static void parseParameters(MultiValueMap<String, String> params, String s) {
+    NettyHttpContext.parseParameters(params, s, false, StandardCharsets.UTF_8);
+  }
+
+  private static void parseParameters(MultiValueMap<String, String> params, String s, boolean semicolonAsNormalChar) {
+    NettyHttpContext.parseParameters(params, s, semicolonAsNormalChar, StandardCharsets.UTF_8);
+  }
 
   private static Channel mockChannel() {
     return new EmbeddedChannel();

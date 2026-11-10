@@ -28,7 +28,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
@@ -41,6 +41,7 @@ import infra.context.ApplicationContext;
 import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
+import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
@@ -64,6 +65,7 @@ import infra.web.async.AsyncWebRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.multipart.MultipartRequest;
 import infra.web.server.RequestBodySizeExceededException;
+import infra.web.server.ResponseStatusException;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -83,6 +85,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.CookieHeaderNames;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
@@ -94,13 +97,11 @@ import io.netty.util.AsciiString;
 import io.netty.util.AttributeKey;
 import io.netty.util.AttributeMap;
 import io.netty.util.ReferenceCountUtil;
-import io.netty.util.internal.PlatformDependent;
 
 import static infra.http.HttpHeaders.isNotEmpty;
 import static io.netty.handler.codec.http.HttpMethod.CONNECT;
 import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpMethod.HEAD;
-import static io.netty.util.internal.StringUtil.decodeHexByte;
 
 /**
  * Netty-based implementation of the {@link HttpContext}, providing access to the
@@ -471,7 +472,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     String queryString = getQueryString();
     MultiValueMap<String, String> params = MultiValueMap.forSmartListAdaptation(new LinkedHashMap<>());
     if (queryString != null) {
-      parseParameters(params, queryString);
+      parseParameters(params, queryString, semicolonAsNormalChar, Constant.DEFAULT_CHARSET);
     }
 
     if (getAttribute(FORM_URLENCODED_ATTRIBUTE) instanceof MultiValueMap cached) {
@@ -480,10 +481,11 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     else if (hasBody() && getMethod() != HttpMethod.GET
             && getMethod() != HttpMethod.HEAD && isFormUrlEncoded()) {
       try {
-        String s = getContentAsString(StandardCharsets.ISO_8859_1);
+        Charset charset = formCharset();
+        String s = getContentAsString(charset);
         if (StringUtils.isNotEmpty(s)) {
           MultiValueMap<String, String> body = MultiValueMap.forSmartListAdaptation(new LinkedHashMap<>());
-          parseParameters(body, s);
+          parseParameters(body, s, semicolonAsNormalChar, charset);
           params.addAll(body);
           setAttribute(FORM_URLENCODED_ATTRIBUTE, body);
         }
@@ -1180,6 +1182,27 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     }
   }
 
+  /**
+   * Return the charset for decoding form body values.
+   * <p>The {@code charset} parameter of the request {@code Content-Type} wins;
+   * UTF-8 is used when it is absent or when the content type cannot be parsed.
+   */
+  private Charset formCharset() {
+    try {
+      MediaType contentType = getContentType();
+      if (contentType != null) {
+        Charset charset = contentType.getCharset();
+        if (charset != null) {
+          return charset;
+        }
+      }
+    }
+    catch (InvalidMediaTypeException ex) {
+      // fall through to the default charset
+    }
+    return Constant.DEFAULT_CHARSET;
+  }
+
   @Override
   public String toString() {
     return super.toString() + " " + version();
@@ -1245,110 +1268,36 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
             HttpHeaderNames.TRANSFER_ENCODING, HttpHeaderValues.CHUNKED, AsciiString.CASE_INSENSITIVE_HASHER);
   }
 
-  static void parseParameters(MultiValueMap<String, String> params, String s) {
-    parseParameters(params, s, semicolonAsNormalChar);
+  /**
+   * Parse URL-encoded parameters into the given map.
+   *
+   * @param params the target parameters
+   * @param s the raw query string or form body
+   * @param semicolonAsNormalChar whether a semicolon is a regular character
+   * @param charset the charset used to decode percent escapes
+   * @throws ResponseStatusException with {@code 400 Bad Request} if the input
+   * contains a malformed escape sequence
+   */
+  static void parseParameters(MultiValueMap<String, String> params, String s,
+          boolean semicolonAsNormalChar, Charset charset) {
+    try {
+      parseParametersRaw(params, s, semicolonAsNormalChar, charset);
+    }
+    catch (IllegalArgumentException e) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid URL-encoded parameters", e);
+    }
   }
 
-  @SuppressWarnings("fallthrough")
-  static void parseParameters(MultiValueMap<String, String> params, String s, boolean semicolonAsNormalChar) {
-    int paramsLimit = maxQueryParams;
-    int nameStart = 0;
-    int valueStart = -1;
-    int i;
-    int len = s.length();
-    loop:
-    for (i = 0; i < len; i++) {
-      switch (s.charAt(i)) {
-        case '=':
-          if (nameStart == i) {
-            nameStart = i + 1;
-          }
-          else if (valueStart < nameStart) {
-            valueStart = i + 1;
-          }
-          break;
-        case ';':
-          if (semicolonAsNormalChar) {
-            continue;
-          }
-          // fall through
-        case '&':
-          if (addParam(s, nameStart, valueStart, i, params)) {
-            paramsLimit--;
-            if (paramsLimit == 0) {
-              return;
-            }
-          }
-          nameStart = i + 1;
-          break;
-        case '#':
-          break loop;
-        default:
-          // continue
-      }
-    }
-    addParam(s, nameStart, valueStart, i, params);
-  }
-
-  private static boolean addParam(String s, int nameStart, int valueStart, int valueEnd, MultiValueMap<String, String> params) {
-    if (nameStart >= valueEnd) {
-      return false;
-    }
-    if (valueStart <= nameStart) {
-      valueStart = valueEnd + 1;
-    }
-    String name = decodeComponent(s, nameStart, valueStart - 1, htmlQueryDecoding);
-    String value = decodeComponent(s, valueStart, valueEnd, htmlQueryDecoding);
-    params.add(name, value);
-    return true;
-  }
-
-  private static String decodeComponent(String s, int from, int toExcluded, boolean plusToSpace) {
-    int len = toExcluded - from;
-    if (len <= 0) {
-      return Constant.BLANK;
-    }
-    int firstEscaped = -1;
-    for (int i = from; i < toExcluded; i++) {
-      char c = s.charAt(i);
-      if (c == '%' || (c == '+' && plusToSpace)) {
-        firstEscaped = i;
-        break;
-      }
-    }
-    if (firstEscaped == -1) {
-      return s.substring(from, toExcluded);
-    }
-
-    // Each encoded byte takes 3 characters (e.g. "%20")
-    int decodedCapacity = (toExcluded - firstEscaped) / 3;
-    byte[] buf = PlatformDependent.allocateUninitializedArray(decodedCapacity);
-    int bufIdx;
-
-    StringBuilder strBuf = new StringBuilder(len);
-    strBuf.append(s, from, firstEscaped);
-
-    for (int i = firstEscaped; i < toExcluded; i++) {
-      char c = s.charAt(i);
-      if (c != '%') {
-        strBuf.append(c != '+' || !plusToSpace ? c : ' ');
-        continue;
-      }
-
-      bufIdx = 0;
-      do {
-        if (i + 3 > toExcluded) {
-          throw new IllegalArgumentException("unterminated escape sequence at index %d of: %s".formatted(i, s));
-        }
-        buf[bufIdx++] = decodeHexByte(s, i + 1);
-        i += 3;
-      }
-      while (i < toExcluded && s.charAt(i) == '%');
-      i--;
-
-      strBuf.append(new String(buf, 0, bufIdx, StandardCharsets.UTF_8));
-    }
-    return strBuf.toString();
+  private static void parseParametersRaw(MultiValueMap<String, String> params, String s,
+          boolean semicolonAsNormalChar, Charset charset) {
+    QueryStringDecoder decoder = QueryStringDecoder.builder()
+            .hasPath(false)
+            .charset(charset)
+            .maxParams(maxQueryParams)
+            .semicolonIsNormalChar(semicolonAsNormalChar)
+            .htmlQueryDecoding(htmlQueryDecoding)
+            .build(s);
+    params.addAll(decoder.parameters());
   }
 
   static final class NoBodyOutputStream extends OutputStream {

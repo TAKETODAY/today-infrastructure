@@ -25,9 +25,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import infra.context.ApplicationContext;
+import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.util.MultiValueMap;
 import infra.web.DispatcherHandler;
+import infra.web.server.ResponseStatusException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -39,6 +41,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -127,6 +130,55 @@ class NettyHttpContextParametersTests {
   }
 
   @Test
+  void gbkFormContentTypeCharsetIsUsedForPercentDecoding() {
+    String body = "name=%D6%D0%CE%C4";
+    HttpRequest request = formRequest(HttpMethod.POST, "/echo",
+            FORM_URLENCODED + "; charset=GBK", String.valueOf(body.length()));
+    HttpContext context = createContext(request, config());
+
+    sendBody(context, body, StandardCharsets.US_ASCII);
+
+    assertThat(context.getParameters()).containsEntry("name", List.of("中文"));
+  }
+
+  @Test
+  void gbkFormContentTypeCharsetIsUsedForRawBytes() {
+    Charset gbk = Charset.forName("GBK");
+    String body = "name=中文";
+    HttpRequest request = formRequest(HttpMethod.POST, "/echo",
+            FORM_URLENCODED + "; charset=GBK", String.valueOf(body.getBytes(gbk).length));
+    HttpContext context = createContext(request, config());
+
+    sendBody(context, body, gbk);
+
+    assertThat(context.getParameters()).containsEntry("name", List.of("中文"));
+  }
+
+  @Test
+  void defaultCharsetIsUsedForRawFormBodyBytes() {
+    String body = "name=中文";
+    HttpRequest request = formRequest(HttpMethod.POST, "/echo",
+            FORM_URLENCODED, String.valueOf(body.getBytes(StandardCharsets.UTF_8).length));
+    HttpContext context = createContext(request, config());
+
+    sendBody(context, body, StandardCharsets.UTF_8);
+
+    assertThat(context.getParameters()).containsEntry("name", List.of("中文"));
+  }
+
+  @Test
+  void iso88591FormContentTypeCharsetIsUsedForPercentDecoding() {
+    String body = "name=%E9";
+    HttpRequest request = formRequest(HttpMethod.POST, "/echo",
+            FORM_URLENCODED + "; charset=ISO-8859-1", String.valueOf(body.length()));
+    HttpContext context = createContext(request, config());
+
+    sendBody(context, body, StandardCharsets.US_ASCII);
+
+    assertThat(context.getParameters()).containsEntry("name", List.of("é"));
+  }
+
+  @Test
   void queryParametersComeBeforeBodyParameters() {
     String body = "tag=body&id=2";
     HttpRequest request = formRequest(HttpMethod.POST, "/echo?tag=query&id=1", FORM_URLENCODED, String.valueOf(body.length()));
@@ -159,6 +211,29 @@ class NettyHttpContextParametersTests {
     sendBody(context, "", StandardCharsets.US_ASCII);
 
     assertThat(context.getParameters()).isEmpty();
+  }
+
+  @Test
+  void malformedFormBodyEncodingIsRejectedAsBadRequest() {
+    String body = "name=%2";
+    HttpRequest request = formRequest(HttpMethod.POST, "/echo", FORM_URLENCODED, String.valueOf(body.length()));
+    HttpContext context = createContext(request, config());
+
+    sendBody(context, body, StandardCharsets.US_ASCII);
+
+    assertThatThrownBy(context::getParameters)
+            .isInstanceOfSatisfying(ResponseStatusException.class,
+                    ex -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST));
+  }
+
+  @Test
+  void malformedQueryEncodingIsRejectedAsBadRequest() {
+    HttpRequest request = formRequest(HttpMethod.GET, "/echo?name=%2", null, null);
+    HttpContext context = createContext(request, config());
+
+    assertThatThrownBy(context::getParameters)
+            .isInstanceOfSatisfying(ResponseStatusException.class,
+                    ex -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST));
   }
 
   @Test
