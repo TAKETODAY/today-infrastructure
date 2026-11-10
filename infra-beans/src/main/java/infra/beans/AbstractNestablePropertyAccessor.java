@@ -783,7 +783,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
         Class<?> componentType = array.getClass().getComponentType();
         Object newArray = Array.newInstance(componentType, index + 1);
         System.arraycopy(array, 0, newArray, 0, length);
-        for (int i = length; i < Array.getLength(newArray); i++) {
+        for (int i = length; i < index + 1; i++) {
           Array.set(newArray, i, newValue(componentType, null, name));
         }
         setPropertyValue(name, newArray);
