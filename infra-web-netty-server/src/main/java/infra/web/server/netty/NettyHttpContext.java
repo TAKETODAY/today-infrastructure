@@ -1170,15 +1170,14 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   }
 
   private boolean isFormUrlEncoded() {
-    MediaType contentType;
     try {
-      contentType = getContentType();
+      MediaType contentType = getContentType();
+      return contentType != null
+              && contentType.equalsTypeAndSubtype(MediaType.APPLICATION_FORM_URLENCODED);
     }
     catch (InvalidMediaTypeException ex) {
       return false;
     }
-    return contentType != null
-            && contentType.equalsTypeAndSubtype(MediaType.APPLICATION_FORM_URLENCODED);
   }
 
   @Override
