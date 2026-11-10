@@ -1986,8 +1986,9 @@ class DataBinderTests {
 
     assertThatExceptionOfType(InvalidPropertyException.class)
             .isThrownBy(() -> binder.bind(mpvs))
-            .havingRootCause()
-            .isInstanceOf(IndexOutOfBoundsException.class);
+            .withMessageContaining("Invalid list index in property path 'friends[256]'")
+            .havingCause().isExactlyInstanceOf(IndexOutOfBoundsException.class)
+            .withMessage("Index 256 out of bounds for auto-grow collection limit of 256");
   }
 
   @Test
@@ -2013,8 +2014,9 @@ class DataBinderTests {
 
     assertThatExceptionOfType(InvalidPropertyException.class)
             .isThrownBy(() -> binder.bind(mpvs))
-            .havingRootCause()
-            .isInstanceOf(IndexOutOfBoundsException.class);
+            .withMessageContaining("Invalid list index in property path 'friends[16]'")
+            .havingCause().isExactlyInstanceOf(IndexOutOfBoundsException.class)
+            .withMessage("Index 16 out of bounds for auto-grow collection limit of 10");
   }
 
   @Test
