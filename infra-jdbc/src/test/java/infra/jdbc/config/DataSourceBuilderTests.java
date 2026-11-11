@@ -23,6 +23,8 @@ import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import com.zaxxer.hikari.HikariDataSource;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.assertj.core.api.InstanceOfAssertFactories;
+import org.assertj.core.util.introspection.FieldSupport;
 import org.h2.Driver;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.AfterEach;
@@ -50,6 +52,8 @@ import infra.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import infra.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import oracle.jdbc.internal.OpaqueString;
 import oracle.jdbc.pool.OracleDataSource;
+import oracle.ucp.config.PoolProperties;
+import oracle.ucp.config.PoolPropertiesException;
 import oracle.ucp.jdbc.PoolDataSource;
 import oracle.ucp.jdbc.PoolDataSourceImpl;
 
@@ -63,6 +67,7 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
  * @author Stephane Nicoll
  * @author Fabio Grassi
  * @author Phillip Webb
+ * @author Vedran Pavic
  */
 class DataSourceBuilderTests {
 
@@ -310,7 +315,9 @@ class DataSourceBuilderTests {
     oracle.jdbc.datasource.impl.OracleDataSource built = (oracle.jdbc.datasource.impl.OracleDataSource) builder
             .username("test2").password("secret2").build();
     assertThat(built.getUser()).isEqualTo("test2");
-    assertThat(built).extracting("password").extracting((opaque) -> ((OpaqueString) opaque).get())
+    assertThat(built)
+            .extracting((target) -> FieldSupport.extraction().fieldValue("password", OpaqueString.class, target))
+            .extracting(OpaqueString::get)
             .isEqualTo("secret2");
     assertThat(built.getURL()).isEqualTo("example.com");
   }
@@ -324,9 +331,20 @@ class DataSourceBuilderTests {
     DataSourceBuilder<?> builder = DataSourceBuilder.derivedFrom(dataSource);
     PoolDataSource built = (PoolDataSource) builder.username("test2").password("secret2").build();
     assertThat(built.getUser()).isEqualTo("test2");
-    assertThat(built).extracting("password").extracting((opaque) -> ((oracle.ucp.util.OpaqueString) opaque).get())
+    assertThat(built).extracting("recentPoolProperties")
+            .asInstanceOf(InstanceOfAssertFactories.type(PoolProperties.class))
+            .extracting(this::getPassword)
             .isEqualTo("secret2");
     assertThat(built.getURL()).isEqualTo("example.com");
+  }
+
+  private String getPassword(PoolProperties poolProperties) {
+    try {
+      return ((oracle.ucp.util.OpaqueString) poolProperties.getPoolProperty("password")).get();
+    }
+    catch (PoolPropertiesException ex) {
+      throw new IllegalStateException(ex);
+    }
   }
 
   @Test
@@ -407,7 +425,21 @@ class DataSourceBuilderTests {
   }
 
   @Test
-  void buildWhenDerivedFromCustomTypeDeriveDriverClassNameFromOverridenUrl() {
+  void buildWhenDerivedFromCustomTypeDeriveDriverClassNameFromUrl() {
+    NoDriverClassNameDataSource dataSource = new NoDriverClassNameDataSource();
+    dataSource.setUsername("test");
+    dataSource.setPassword("secret");
+    dataSource.setUrl("jdbc:postgresql://localhost:5432/postgres");
+    DataSourceBuilder<?> builder = DataSourceBuilder.derivedFrom(dataSource).type(SimpleDriverDataSource.class);
+    SimpleDriverDataSource testSource = (SimpleDriverDataSource) builder.build();
+    assertThat(testSource.getUsername()).isEqualTo("test");
+    assertThat(testSource.getUrl()).isEqualTo("jdbc:postgresql://localhost:5432/postgres");
+    assertThat(testSource.getPassword()).isEqualTo("secret");
+    assertThat(testSource.getDriver()).isInstanceOf(org.postgresql.Driver.class);
+  }
+
+  @Test
+  void buildWhenDerivedFromCustomTypeDeriveDriverClassNameFromOverriddenUrl() {
     NoDriverClassNameDataSource dataSource = new NoDriverClassNameDataSource();
     dataSource.setUsername("test");
     dataSource.setPassword("secret");

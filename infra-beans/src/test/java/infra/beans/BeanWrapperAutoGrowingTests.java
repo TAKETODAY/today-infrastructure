@@ -91,6 +91,80 @@ class BeanWrapperAutoGrowingTests {
   }
 
   @Test
+  void getPropertyValueAutoGrowArrayFailsAgainstLimit() {
+    wrapper.setAutoGrowCollectionLimit(2);
+    assertThatExceptionOfType(InvalidPropertyException.class)
+            .isThrownBy(() -> wrapper.getPropertyValue("array[4]"))
+            .withMessageContainingAll("Invalid property 'array[4]'",
+                    "Invalid array index in property path 'array[4]'")
+            .havingCause().isExactlyInstanceOf(ArrayIndexOutOfBoundsException.class)
+            .withMessage("Index 4 out of bounds for auto-grow collection limit of 2");
+  }
+
+  @Test
+  void getPropertyValueArrayFailsWithoutAutoGrow() {
+    bean.setArray(new Bean[] {new Bean()});
+    wrapper.setAutoGrowNestedPaths(false);
+    assertThatExceptionOfType(InvalidPropertyException.class)
+            .isThrownBy(() -> wrapper.getPropertyValue("array[4]"))
+            .withMessageContaining("Invalid array index in property path 'array[4]'")
+            .havingCause().isExactlyInstanceOf(ArrayIndexOutOfBoundsException.class)
+            .withMessage("Index 4 out of bounds for length 1");
+  }
+
+  @Test
+  void setPropertyValueAutoGrowArrayFailsAgainstLimit() {
+    wrapper.setAutoGrowCollectionLimit(2);
+    assertThatExceptionOfType(InvalidPropertyException.class)
+            .isThrownBy(() -> wrapper.setPropertyValue("array[4]", new Bean()))
+            .withMessageContaining("Invalid array index in property path 'array[4]'")
+            .havingCause().isExactlyInstanceOf(ArrayIndexOutOfBoundsException.class)
+            .withMessage("Index 4 out of bounds for auto-grow collection limit of 2");
+  }
+
+  @Test
+  void setPropertyValueArrayWithNegativeIndex() {
+    bean.setArray(new Bean[] {new Bean()});
+    wrapper.setExtractOldValueForEditor(true);
+    assertThatExceptionOfType(InvalidPropertyException.class)
+            .isThrownBy(() -> wrapper.setPropertyValue("array[-1]", new Bean()))
+            .withMessageContaining("Invalid array index in property path 'array[-1]'")
+            .havingCause().isExactlyInstanceOf(ArrayIndexOutOfBoundsException.class)
+            .withMessage("Index -1 out of bounds for length 1");
+  }
+
+  @Test
+  void getPropertyValueListWithNegativeIndex() {
+    bean.setList(new ArrayList<>(List.of(new Bean())));
+    assertThatExceptionOfType(InvalidPropertyException.class)
+            .isThrownBy(() -> wrapper.getPropertyValue("list[-1]"))
+            .withMessageContaining("Invalid list index in property path 'list[-1]'")
+            .havingCause().isExactlyInstanceOf(IndexOutOfBoundsException.class)
+            .withMessage("Index -1 out of bounds for length 1");
+  }
+
+  @Test
+  void setPropertyValueAutoGrowListFailsAgainstLimit() {
+    wrapper.setAutoGrowCollectionLimit(2);
+    assertThatExceptionOfType(InvalidPropertyException.class)
+            .isThrownBy(() -> wrapper.setPropertyValue("list[4]", new Bean()))
+            .withMessageContaining("Invalid list index in property path 'list[4]'")
+            .havingCause().isExactlyInstanceOf(IndexOutOfBoundsException.class)
+            .withMessage("Index 4 out of bounds for auto-grow collection limit of 2");
+  }
+
+  @Test
+  void setPropertyValueListWithNegativeIndex() {
+    bean.setList(new ArrayList<>(List.of(new Bean())));
+    wrapper.setExtractOldValueForEditor(true);
+    assertThatExceptionOfType(InvalidPropertyException.class)
+            .isThrownBy(() -> wrapper.setPropertyValue("list[-1]", new Bean()))
+            .withMessageContaining("Invalid list index in property path 'list[-1]'")
+            .havingCause().isExactlyInstanceOf(IndexOutOfBoundsException.class)
+            .withMessage("Index -1 out of bounds for length 1");
+  }
+
+  @Test
   void getPropertyValueAutoGrow2dArray() {
     assertThat(wrapper.getPropertyValue("multiArray[0][0]")).isNotNull();
     assertThat(bean.getMultiArray()[0]).hasSize(1);
@@ -185,7 +259,9 @@ class BeanWrapperAutoGrowingTests {
     assertThatExceptionOfType(InvalidPropertyException.class)
             .isThrownBy(() -> wrapper.getPropertyValue("list[4]"))
             .withMessageContainingAll("Invalid property 'list[4]'",
-                    "Cannot get element with index 4 from List of size 0");
+                    "Invalid list index in property path 'list[4]'")
+            .havingCause().isExactlyInstanceOf(IndexOutOfBoundsException.class)
+            .withMessage("Index 4 out of bounds for auto-grow collection limit of 2");
   }
 
   @Test
@@ -227,8 +303,53 @@ class BeanWrapperAutoGrowingTests {
 
   @Test
   void getPropertyValueAutoGrowListNotParameterized() {
-    assertThatExceptionOfType(InvalidPropertyException.class).isThrownBy(() ->
-            wrapper.getPropertyValue("listNotParameterized[0]"));
+    assertThatExceptionOfType(InvalidPropertyException.class)
+            .isThrownBy(() -> wrapper.getPropertyValue("listNotParameterized[0]"))
+            .withMessageContaining("Invalid list index in property path 'listNotParameterized[0]'")
+            .havingCause().isExactlyInstanceOf(IndexOutOfBoundsException.class)
+            .withMessage("Index 0 out of bounds for length 0");
+  }
+
+  @Test
+  void getPropertyValueSelfPopulatingRawListWorksWithinLimit() {
+    bean.setListNotParameterized(new SelfPopulatingList());
+    wrapper.setAutoGrowCollectionLimit(3);
+    assertThat(wrapper.getPropertyValue("listNotParameterized[2]")).isInstanceOf(Bean.class);
+    List<?> list = bean.getListNotParameterized();
+    assertThat(list).hasSize(3).allSatisfy(entry -> assertThat(entry).isInstanceOf(Bean.class));
+  }
+
+  @Test
+  void setPropertyValueAutoPopulatingRawListForNestedPath() {
+    bean.setListNotParameterized(new SelfPopulatingList());
+    wrapper.setPropertyValue("listNotParameterized[1].prop", "test");
+    List<?> list = bean.getListNotParameterized();
+    assertThat(list).hasSize(2).element(1)
+            .isInstanceOfSatisfying(Bean.class, element -> assertThat(element.getProp()).isEqualTo("test"));
+  }
+
+  @Test
+  void getPropertyValueSelfPopulatingRawListFailsWithoutAutoGrow() {
+    bean.setListNotParameterized(new SelfPopulatingList());
+    wrapper.setAutoGrowNestedPaths(false);
+    assertThatExceptionOfType(InvalidPropertyException.class)
+            .isThrownBy(() -> wrapper.getPropertyValue("listNotParameterized[2]"))
+            .withMessageContaining("Invalid list index in property path 'listNotParameterized[2]'")
+            .havingCause().isExactlyInstanceOf(IndexOutOfBoundsException.class)
+            .withMessage("Index 2 out of bounds for length 0");
+    assertThat(bean.getListNotParameterized()).isEmpty();
+  }
+
+  @Test
+  void getPropertyValueSelfPopulatingRawListFailsAgainstLimit() {
+    bean.setListNotParameterized(new SelfPopulatingList());
+    wrapper.setAutoGrowCollectionLimit(2);
+    assertThatExceptionOfType(InvalidPropertyException.class)
+            .isThrownBy(() -> wrapper.getPropertyValue("listNotParameterized[4]"))
+            .withMessageContaining("Invalid list index in property path 'listNotParameterized[4]'")
+            .havingCause().isExactlyInstanceOf(IndexOutOfBoundsException.class)
+            .withMessage("Index 4 out of bounds for auto-grow collection limit of 2");
+    assertThat(bean.getListNotParameterized()).isEmpty();
   }
 
   @Test
@@ -407,7 +528,14 @@ class BeanWrapperAutoGrowingTests {
     }
   }
 
-  /** List that creates elements on demand when accessed by index. */
+  /**
+   * A {@link List} implementation that creates elements on demand in {@link #get(int)}
+   * instead of throwing {@link IndexOutOfBoundsException} for out-of-range indexes.
+   * <p>Used to verify that {@link BeanWrapperImpl} delegates to {@link List#get(int)}
+   * for out-of-bounds indexes only if auto-growing is enabled and the index is
+   * within the configured auto-grow limit.
+   */
+  @SuppressWarnings("serial")
   private static class SelfPopulatingList extends ArrayList<Bean> {
 
     @Override

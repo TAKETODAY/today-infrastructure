@@ -9,6 +9,15 @@
 框架提供了恰当命名的 `DataBinder` 来做到这一点。`Validator` 和 `DataBinder`
 构成了主要用于但不限于 Web 层的 `validation` 包。
 
+`DataBinder` 的 `maxNestedPathDepth` 同时限制属性绑定和通过 `construct` 进行的构造器绑定。
+构造器参数本身为对象时，绑定器会沿嵌套属性路径递归构造；路径超过配置的最大深度时，
+抛出包含出错属性路径的 `BeanInstantiationException`。深度限制可改善常见情况下的错误诊断，
+但不能保证在所有 JVM 线程栈大小、JIT 编译状态和平台配置下都避免 `StackOverflowError`。
+
+`autoGrowCollectionLimit` 也适用于构造器绑定中的 `List` 和数组参数，
+不受 `autoGrowNestedPaths` 设置影响。索引达到或超过配置的限制时，绑定器在创建容器前
+抛出 `BeanInstantiationException`，并通过原因异常说明出错索引和自动增长限制。
+
 `BeanWrapper` 是框架中的一个基本概念，被广泛使用。然而，您可能不需要直接使用 `BeanWrapper`。
 由于这是参考文档，我们认为可能需要一些解释。我们在本章中解释 `BeanWrapper`，因为如果您要使用它，
 最有可能的情况是在尝试将数据绑定到对象时。

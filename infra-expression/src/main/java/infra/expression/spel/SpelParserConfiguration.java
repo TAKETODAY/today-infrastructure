@@ -46,15 +46,6 @@ import infra.util.StringUtils;
 public class SpelParserConfiguration {
 
   /**
-   * Default maximum size to which a collection or array can automatically grow: {@value}.
-   * <p>Aligned with the default limit used for data binding, for consistent
-   * auto-growth behavior.
-   *
-   * @see Builder#maximumAutoGrowSize(int)
-   */
-  public static final int DEFAULT_MAX_AUTO_GROW_SIZE = 256;
-
-  /**
    * System property to configure the default compiler mode for SpEL expression parsers: {@value}.
    * <p>Prefer {@link Builder#compilerMode(SpelCompilerMode)} when setting the
    * mode for an individual parser. Can also be configured via {@link InfraStrategies}.
@@ -89,17 +80,42 @@ public class SpelParserConfiguration {
   public static final int DEFAULT_MAX_BIG_POWER_BITS = 1_000_000;
 
   /**
-   * Default maximum structural nesting depth of a SpEL expression: {@value}.
-   * <p>Deeply nested inline lists, maps, parentheses, conditional expressions,
-   * and chained unary operators can exhaust a recursive-descent parser's stack.
-   * This limit typically turns that failure into a {@link SpelParseException},
-   * but does not guarantee protection from {@link StackOverflowError} for every
-   * JVM thread stack size and execution environment. Do not rely on it alone
-   * when evaluating expressions from untrusted sources.
+   * Default maximum size to which a collection or array can automatically grow: {@value}.
+   * <p>Aligned with the default auto-grow limit used for data binding
+   * support (see {@code DataBinder.DEFAULT_AUTO_GROW_COLLECTION_LIMIT}), for
+   * consistency between SpEL and data binding.
+   *
+   * @see Builder#maximumAutoGrowSize(int)
+   */
+  public static final int DEFAULT_MAX_AUTO_GROW_SIZE = 256;
+
+  /**
+   * Default maximum nesting depth permitted within a SpEL expression: {@value}.
+   * <p>This limit guards against deeply nested constructs (for example, nested
+   * inline lists or maps, parenthesized expressions, ternary or Elvis expressions,
+   * or chained unary operators) that could otherwise drive SpEL's recursive-descent
+   * parser to exhaust the current thread's call stack.
+   * <p>The default is intentionally conservative so that the limit is reached
+   * before the call stack is exhausted on a thread with a typical 1 MB stack,
+   * even before the parser has been JIT-compiled.
+   * <p><strong>NOTE</strong>: This limit improves diagnostics for the common case
+   * by converting what would otherwise be an opaque {@link StackOverflowError}
+   * into a descriptive {@link SpelParseException}, but it is <em>not</em> a
+   * guaranteed defense against {@code StackOverflowError} under every possible
+   * JVM thread stack size configuration. The amount of stack space consumed per
+   * level of nesting depends on the JVM, its current JIT compilation state, and
+   * the platform; consequently, this default may not suffice on threads configured
+   * with a substantially reduced stack size (for example, via a reduced {@code -Xss}
+   * setting, as is sometimes done in high-concurrency deployments to support large
+   * thread pools). Applications and frameworks that evaluate SpEL expressions from
+   * an untrusted source should not rely on this limit alone; see the
+   * <a href="https://docs.spring.io/spring-framework/reference/core/expressions/evaluation.html#expressions-evaluation-context-security"
+   * >Security Considerations</a> section of the Spring Framework reference
+   * documentation for further guidance on evaluating untrusted SpEL expressions.
    *
    * @see Builder#maximumNestingDepth(int)
    */
-  public static final int DEFAULT_MAX_EXPRESSION_NESTING_DEPTH = 1_000;
+  public static final int DEFAULT_MAX_EXPRESSION_NESTING_DEPTH = 200;
 
   /**
    * Property configuring the default maximum number of operations permitted

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.web.handler.method;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -56,6 +58,9 @@ import infra.validation.method.ParameterValidationResult;
 import infra.web.ResolvableMethod;
 import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestHeader;
+import infra.web.annotation.RequestPart;
+import infra.web.mock.MockMemoryPart;
+import infra.web.mock.MockMultipartRequest;
 import infra.web.annotation.RestController;
 import infra.web.bind.MethodArgumentNotValidException;
 import infra.web.bind.WebDataBinder;
@@ -168,6 +173,33 @@ class MethodValidationTests {
             codes [student.name,name]; arguments []; default message [name],10,1]; \
             default message [size must be between 1 and 10]"""
     ));
+  }
+
+  @Test
+  void requestPartsWithoutBindingResult() {
+    HandlerMethod hm = handlerMethod(new ValidController(),
+            c -> c.handleParts(mockPerson, mockErrors, mockPerson, ""));
+    request.setContentType(MediaType.MULTIPART_FORM_DATA_VALUE);
+    request.addHeader("myHeader", "12345");
+    MockMemoryPart person = new MockMemoryPart("person", "", "{\"name\":\"Faustino\"}".getBytes(UTF_8));
+    person.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+    MockMemoryPart other = new MockMemoryPart("other", "", "{\"name\":\"Cayetana6789\"}".getBytes(UTF_8));
+    other.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+    request.addPart(person);
+    request.addPart(other);
+    context.setMultipartRequest(new MockMultipartRequest(request));
+
+    HandlerMethodValidationException ex = catchThrowableOfType(HandlerMethodValidationException.class,
+            () -> handlerAdapter.handle(context, hm));
+    assertThat(ex).isNotNull();
+    assertThat(jakartaValidator.getMethodValidationCount()).isEqualTo(1);
+    assertThat(ex.getParameterValidationResults()).hasSize(1);
+    assertBeanResult(ex.getBeanResults().get(0), "other", List.of("""
+            Field error in object 'other' on field 'name': rejected value [Cayetana6789]; \
+            codes [Size.other.name,Size.name,Size.java.lang.String,Size]; \
+            arguments [infra.context.support.DefaultMessageSourceResolvable: \
+            codes [other.name,name]; arguments []; default message [name],10,1]; \
+            default message [size must be between 1 and 10]"""));
   }
 
   @Test
@@ -376,6 +408,11 @@ class MethodValidationTests {
   @SuppressWarnings({ "unused", "SameParameterValue", "UnusedReturnValue" })
   @RestController
   static class ValidController {
+
+    String handleParts(@Valid @RequestPart("person") Person person, Errors errors,
+            @Valid @RequestPart("other") Person other, @RequestHeader @Size(min = 5) String myHeader) {
+      return errors.toString();
+    }
 
     void handle(@Valid @ModelAttribute("student") Person person) {
     }

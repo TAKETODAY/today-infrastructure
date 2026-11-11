@@ -20,9 +20,11 @@ package infra.expression.spel.standard;
 
 import org.assertj.core.api.ThrowableAssert;
 import org.assertj.core.api.ThrowableAssertAlternative;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import infra.expression.EvaluationContext;
@@ -113,6 +115,48 @@ class SpelParserTests {
     void maxNestingDepthWithNestedTernaryExpressions() {
       assertThatNoException().isThrownBy(() -> parser.parseExpression(nestedTernaryExpression(2)));
       assertNestingDepthExceeded(() -> parser.parseExpression(nestedTernaryExpression(50)), maxNestingDepth);
+    }
+
+    @Test
+    void defaultMaxNestingDepthIsReachedBeforeStackOverflowOnThreadWithOneMegabyteStack() throws Exception {
+      SpelExpressionParser parser = new SpelExpressionParser();
+      int defaultMaxNestingDepth = SpelParserConfiguration.DEFAULT_MAX_EXPRESSION_NESTING_DEPTH;
+
+      assertThat(parseOnThreadWithOneMegabyteStack(parser, nestedParentheses(defaultMaxNestingDepth))).isNull();
+      assertThat(parseOnThreadWithOneMegabyteStack(parser, nestedInlineList(defaultMaxNestingDepth))).isNull();
+
+      assertNestingDepthExceeded(parseOnThreadWithOneMegabyteStack(parser,
+              nestedParentheses(defaultMaxNestingDepth + 1)), defaultMaxNestingDepth);
+      assertNestingDepthExceeded(parseOnThreadWithOneMegabyteStack(parser,
+              nestedInlineList(defaultMaxNestingDepth + 1)), defaultMaxNestingDepth);
+    }
+
+    /**
+     * Parse the supplied expression on a new thread with a 1 MB stack, and
+     * return the exception thrown or {@code null} if parsing succeeded.
+     */
+    private static @Nullable Throwable parseOnThreadWithOneMegabyteStack(
+            SpelExpressionParser parser, String expression) throws InterruptedException {
+      AtomicReference<Throwable> exception = new AtomicReference<>();
+      Thread thread = new Thread(null, () -> {
+        try {
+          parser.parseExpression(expression);
+        }
+        catch (Throwable ex) {
+          exception.set(ex);
+        }
+      }, "spel-parser-1mb-stack", 1024 * 1024);
+      thread.start();
+      thread.join();
+      return exception.get();
+    }
+
+    private static void assertNestingDepthExceeded(@Nullable Throwable exception, int maxNestingDepth) {
+      assertNestingDepthExceeded(() -> {
+        if (exception != null) {
+          throw exception;
+        }
+      }, maxNestingDepth);
     }
 
     private static SpelParserConfiguration configurationWithMaxNestingDepth(int maxNestingDepth) {

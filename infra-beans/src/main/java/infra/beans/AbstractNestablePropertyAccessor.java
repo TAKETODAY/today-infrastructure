@@ -285,31 +285,34 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
       int arrayIndex = Integer.parseInt(lastKey);
       Object oldValue = null;
       try {
-        if (isExtractOldValueForEditor() && arrayIndex < Array.getLength(propValue)) {
+        int length = Array.getLength(propValue);
+        if (isExtractOldValueForEditor() && arrayIndex >= 0 && arrayIndex < length) {
           oldValue = Array.get(propValue, arrayIndex);
         }
         Object convertedValue = convertIfNecessary(
                 canonicalName, oldValue, pv.getValue(), componentType, ph.nested(keys.size()));
-        int length = Array.getLength(propValue);
         if (arrayIndex >= length && arrayIndex < autoGrowCollectionLimit) {
           Object newArray = Array.newInstance(componentType, arrayIndex + 1);
           System.arraycopy(propValue, 0, newArray, 0, length);
           String propName = segment.withoutLastKey().toCanonicalName();
           setPropertyValue(propName, newArray);
           propValue = getPropertyValue(propName);
+          length = Array.getLength(propValue);
+        }
+        if (arrayIndex < 0 || arrayIndex >= length) {
+          throw createInvalidIndexException(canonicalName, true, arrayIndex, length, true);
         }
         Array.set(propValue, arrayIndex, convertedValue);
       }
       catch (IndexOutOfBoundsException ex) {
-        throw new InvalidPropertyException(getRootClass(), this.nestedPath + canonicalName,
-                "Invalid array index in property path '%s'".formatted(canonicalName), ex);
+        throw createInvalidIndexException(canonicalName, true, ex);
       }
     }
     else if (propValue instanceof List list) {
       TypeDescriptor requiredType = ph.getCollectionType(keys.size());
       int index = Integer.parseInt(lastKey);
       Object oldValue = null;
-      if (isExtractOldValueForEditor() && index < list.size()) {
+      if (isExtractOldValueForEditor() && index >= 0 && index < list.size()) {
         oldValue = list.get(index);
       }
       Object convertedValue = convertIfNecessary(canonicalName, oldValue, pv.getValue(),
@@ -329,12 +332,14 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
         list.add(convertedValue);
       }
       else {
+        if (index < 0 || index >= size) {
+          throw createInvalidIndexException(canonicalName, false, index, size, true);
+        }
         try {
           list.set(index, convertedValue);
         }
         catch (IndexOutOfBoundsException ex) {
-          throw new InvalidPropertyException(getRootClass(), this.nestedPath + canonicalName,
-                  "Invalid list index in property path '%s'".formatted(canonicalName), ex);
+          throw createInvalidIndexException(canonicalName, false, ex);
         }
       }
     }
@@ -360,6 +365,32 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
               "Property referenced in indexed property path '%s' is neither an array nor a List nor a Map; returned value was [%s]"
                       .formatted(canonicalName, propValue));
     }
+  }
+
+  /**
+   * Create an invalid-property exception with an index cause describing the
+   * current container size or the configured auto-grow collection limit.
+   * @param propertyName the canonical indexed property name
+   * @param array whether the property is an array
+   * @param index the rejected index
+   * @param size the current container size
+   * @param autoGrowing whether automatic growth would otherwise apply
+   */
+  private InvalidPropertyException createInvalidIndexException(
+          String propertyName, boolean array, int index, int size, boolean autoGrowing) {
+    int limit = autoGrowCollectionLimit;
+    String message = "Index " + index + " out of bounds for " +
+            (autoGrowing && index >= size && index >= limit ?
+                    "auto-grow collection limit of " + limit : "length " + size);
+    IndexOutOfBoundsException cause = array ?
+            new ArrayIndexOutOfBoundsException(message) : new IndexOutOfBoundsException(message);
+    return createInvalidIndexException(propertyName, array, cause);
+  }
+
+  private InvalidPropertyException createInvalidIndexException(
+          String propertyName, boolean array, IndexOutOfBoundsException cause) {
+    return new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
+            "Invalid " + (array ? "array" : "list") + " index in property path '" + propertyName + "'", cause);
   }
 
   private Object getPropertyHoldingValue(PropertyPath.Segment segment) {
@@ -620,17 +651,25 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
           else if (value.getClass().isArray()) {
             int index = Integer.parseInt(key);
             value = growArrayIfNecessary(value, index, indexedPropertyName.toString());
+            int length = Array.getLength(value);
+            if (index < 0 || index >= length) {
+              throw createInvalidIndexException(propertyName, true, index, length, isAutoGrowNestedPaths());
+            }
             value = Array.get(value, index);
           }
           else if (value instanceof List list) {
             int index = Integer.parseInt(key);
             growCollectionIfNecessary(list, index, indexedPropertyName.toString(), ph, i + 1);
-            if (index < 0 || index >= list.size()) {
-              throw new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
-                      "Cannot get element with index %d from List of size %d, accessed using property path '%s'"
-                              .formatted(index, list.size(), propertyName));
+            if (index < 0 || (index >= list.size() &&
+                    (!isAutoGrowNestedPaths() || index >= autoGrowCollectionLimit))) {
+              throw createInvalidIndexException(propertyName, false, index, list.size(), isAutoGrowNestedPaths());
             }
-            value = list.get(index);
+            try {
+              value = list.get(index);
+            }
+            catch (IndexOutOfBoundsException ex) {
+              throw createInvalidIndexException(propertyName, false, ex);
+            }
           }
           else if (value instanceof Map map) {
             Class<?> mapKeyType = ph.getResolvableType().getNested(i + 1).asMap().resolveGeneric(0);
@@ -682,7 +721,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     }
     catch (IndexOutOfBoundsException ex) {
       throw new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
-              "Index of out of bounds in property path '%s'".formatted(propertyName), ex);
+              "Index out of bounds in property path '%s'".formatted(propertyName), ex);
     }
     catch (NumberFormatException | TypeMismatchException ex) {
       throw new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
@@ -744,7 +783,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
         Class<?> componentType = array.getClass().getComponentType();
         Object newArray = Array.newInstance(componentType, index + 1);
         System.arraycopy(array, 0, newArray, 0, length);
-        for (int i = length; i < Array.getLength(newArray); i++) {
+        for (int i = length; i < index + 1; i++) {
           Array.set(newArray, i, newValue(componentType, null, name));
         }
         setPropertyValue(name, newArray);

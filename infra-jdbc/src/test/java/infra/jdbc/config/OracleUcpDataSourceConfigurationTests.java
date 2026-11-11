@@ -18,6 +18,7 @@
 
 package infra.jdbc.config;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
@@ -25,10 +26,13 @@ import java.time.Duration;
 
 import javax.sql.DataSource;
 
-import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.config.AutoConfigurations;
+import infra.test.context.runner.ApplicationContextRunner;
+import oracle.ucp.config.PoolProperties;
+import oracle.ucp.config.PoolPropertiesException;
 import oracle.ucp.jdbc.PoolDataSource;
 import oracle.ucp.jdbc.PoolDataSourceImpl;
+import oracle.ucp.util.OpaqueString;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,8 +41,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Fabio Grassi
  * @author Stephane Nicoll
+ * @author Moritz Halbritter
+ * @author Andy Wilkinson
+ * @author Phillip Webb
  */
 class OracleUcpDataSourceConfigurationTests {
+
+  private static final String PREFIX = "datasource.oracleucp.";
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
           .withConfiguration(AutoConfigurations.of(DataSourceAutoConfiguration.class))
@@ -57,8 +66,8 @@ class OracleUcpDataSourceConfigurationTests {
 
   @Test
   void testDataSourcePropertiesOverridden() {
-    this.contextRunner.withPropertyValues("datasource.oracleucp.url=jdbc:foo//bar/spam",
-            "datasource.oracleucp.max-idle-time=1234").run((context) -> {
+    this.contextRunner.withPropertyValues(PREFIX + "url=jdbc:foo//bar/spam",
+            PREFIX + "max-idle-time=1234").run((context) -> {
       PoolDataSourceImpl ds = context.getBean(PoolDataSourceImpl.class);
       assertThat(ds.getURL()).isEqualTo("jdbc:foo//bar/spam");
       assertThat(ds.getMaxIdleTime()).isEqualTo(1234);
@@ -67,7 +76,7 @@ class OracleUcpDataSourceConfigurationTests {
 
   @Test
   void testDataSourceConnectionPropertiesOverridden() {
-    this.contextRunner.withPropertyValues("datasource.oracleucp.connection-properties.autoCommit=false")
+    this.contextRunner.withPropertyValues(PREFIX + "connection-properties.autoCommit=false")
             .run((context) -> {
               PoolDataSourceImpl ds = context.getBean(PoolDataSourceImpl.class);
               assertThat(ds.getConnectionProperty("autoCommit")).isEqualTo("false");
@@ -101,10 +110,40 @@ class OracleUcpDataSourceConfigurationTests {
   @Test
   void poolNameTakesPrecedenceOverName() {
     this.contextRunner.withPropertyValues("datasource.name=myDS",
-            "datasource.oracleucp.connection-pool-name=myOracleUcpDS").run((context) -> {
+            PREFIX + "connection-pool-name=myOracleUcpDS").run((context) -> {
       PoolDataSourceImpl ds = context.getBean(PoolDataSourceImpl.class);
       assertThat(ds.getConnectionPoolName()).isEqualTo("myOracleUcpDS");
     });
+  }
+
+  @Test
+  void usesCustomJdbcConnectionDetailsWhenDefined() {
+    this.contextRunner.withBean(JdbcConnectionDetails.class, TestJdbcConnectionDetails::new)
+            .withPropertyValues(PREFIX + "url=jdbc:broken", PREFIX + "username=alice", PREFIX + "password=secret")
+            .run((context) -> {
+              assertThat(context).hasSingleBean(JdbcConnectionDetails.class)
+                      .doesNotHaveBean(PropertiesJdbcConnectionDetails.class);
+              DataSource dataSource = context.getBean(DataSource.class);
+              assertThat(dataSource).isInstanceOf(PoolDataSourceImpl.class);
+              PoolDataSourceImpl oracleUcp = (PoolDataSourceImpl) dataSource;
+              assertThat(oracleUcp.getUser()).isEqualTo("user-1");
+              assertThat(oracleUcp).extracting("recentPoolProperties")
+                      .asInstanceOf(InstanceOfAssertFactories.type(PoolProperties.class))
+                      .extracting(this::getPassword)
+                      .isEqualTo("password-1");
+              assertThat(oracleUcp.getConnectionFactoryClassName())
+                      .isEqualTo(DatabaseDriver.POSTGRESQL.getDriverClassName());
+              assertThat(oracleUcp.getURL()).isEqualTo("jdbc:customdb://customdb.example.com:12345/database-1");
+            });
+  }
+
+  private String getPassword(PoolProperties poolProperties) {
+    try {
+      return ((OpaqueString) poolProperties.getPoolProperty("password")).get();
+    }
+    catch (PoolPropertiesException ex) {
+      throw new IllegalStateException(ex);
+    }
   }
 
 }

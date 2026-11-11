@@ -27,11 +27,17 @@ import java.time.Duration;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.predicate.ReflectionHintsPredicates;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
+import infra.test.util.ReflectionTestUtils;
 import infra.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
+ * Tests for {@link ClientHttpRequestFactoryRuntimeHints}.
+ *
+ * @author Andy Wilkinson
+ * @author Stephane Nicoll
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2026/1/2 13:44
  */
@@ -91,6 +97,14 @@ class ClientHttpRequestFactoryRuntimeHintsTests {
     assertThat(reflection
             .onMethodInvocation(method(JdkClientHttpRequestFactory.class, "setReadTimeout", Duration.class)))
             .accepts(hints);
+  }
+
+  @Test
+  void findFieldWhenFieldDoesNotExistThrowsException() {
+    ClientHttpRequestFactoryRuntimeHints hints = new ClientHttpRequestFactoryRuntimeHints();
+    assertThatIllegalStateException()
+            .isThrownBy(() -> ReflectionTestUtils.invokeMethod(hints, "findField", String.class, "missingField"))
+            .withMessage("Unable to find field 'missingField' on java.lang.String");
   }
 
   private static Method method(Class<?> target, String name, Class<?>... parameterTypes) {
