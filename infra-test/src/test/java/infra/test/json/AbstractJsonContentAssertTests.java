@@ -57,6 +57,7 @@ import infra.core.io.InputStreamResource;
 import infra.core.io.Resource;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.util.FileCopyUtils;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -89,7 +90,8 @@ class AbstractJsonContentAssertTests {
   private static final String DIFFERENT = loadJson("different.json");
 
   private static final JsonConverterDelegate jsonContentConverter =
-          JsonConverterDelegate.of(List.of(new JacksonJsonHttpMessageConverter(new JsonMapper())));
+          JsonConverterDelegate.of(List.of(new JacksonJsonHttpMessageConverter(JsonMapper.builder()
+                  .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build())));
 
   private static final JsonComparator comparator = JsonAssert.comparator(JsonCompareMode.LENIENT);
 

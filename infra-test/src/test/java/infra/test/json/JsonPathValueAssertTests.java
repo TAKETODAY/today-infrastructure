@@ -32,6 +32,7 @@ import java.util.function.Consumer;
 
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.util.StringUtils;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -207,7 +208,8 @@ class JsonPathValueAssertTests {
   class ConvertToTests {
 
     private static final JsonConverterDelegate jsonContentConverter =
-            JsonConverterDelegate.of(List.of(new JacksonJsonHttpMessageConverter(new JsonMapper())));
+            JsonConverterDelegate.of(List.of(new JacksonJsonHttpMessageConverter(JsonMapper.builder()
+                    .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build())));
 
     @Test
     void convertToWithoutHttpMessageConverter() {
@@ -237,7 +239,7 @@ class JsonPathValueAssertTests {
     }
 
     @Test
-    void convertObjectToPojoWithMissingMandatoryField() {
+    void convertObjectToPojoWithUnknownField() {
       Map<?, ?> value = Map.of("firstName", "John");
       AssertProvider<JsonPathValueAssert> actual = forValue(value);
       assertThatExceptionOfType(AssertionError.class)
