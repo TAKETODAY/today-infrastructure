@@ -336,12 +336,12 @@ class ResourceHandlerUtilsTests {
   }
 
   @Test
-  void isInvalidPathShouldReturnFalseForPathWithColonNotInUrlContext() {
+  void isInvalidPathShouldReturnTrueForFileUrlPath() {
     String path = "/file:name.txt";
 
     boolean result = ResourceHandlerUtils.isInvalidPath(path);
 
-    assertThat(result).isFalse();
+    assertThat(result).isTrue();
   }
 
   @Test
