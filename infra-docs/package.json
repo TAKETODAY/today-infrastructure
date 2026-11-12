@@ -7,7 +7,7 @@
     "@asciidoctor/tabs": "1.0.0-beta.6",
     "@springio/antora-extensions": "1.14.7",
     "@opendevise/antora-release-line-extension": "1.0.0",
-    "fast-xml-parser": "5.7.0",
+    "fast-xml-parser": "5.12.0",
     "@today-tech/antora-extensions": "1.0.1"
   }
 }
