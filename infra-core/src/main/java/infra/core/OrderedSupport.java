@@ -19,24 +19,57 @@ package infra.core;
 import org.jspecify.annotations.Nullable;
 
 /**
+ * Convenient base class for {@link Ordered} implementations with a configurable
+ * order value.
+ *
+ * <p>Defaults to {@link Ordered#LOWEST_PRECEDENCE} when no order value has been
+ * explicitly configured. Lower values indicate higher priority.
+ *
  * @author TODAY 2019-12-27 11:31
+ * @see #setOrder(int)
  */
 public class OrderedSupport implements Ordered {
 
-  protected @Nullable Integer order;  // default: same as non-Ordered
+  /**
+   * The configured order value, or {@code null} if no order has been set.
+   *
+   * @see #getOrder()
+   */
+  protected @Nullable Integer order;
 
+  /**
+   * Create a new instance with the default order of
+   * {@link Ordered#LOWEST_PRECEDENCE}.
+   */
   public OrderedSupport() {
   }
 
+  /**
+   * Create a new instance with the specified order value.
+   *
+   * @param order the order value; lower values indicate higher priority
+   */
   public OrderedSupport(int order) {
     this.order = order;
   }
 
+  /**
+   * Return the configured order value, or {@link Ordered#LOWEST_PRECEDENCE}
+   * if no order value has been set.
+   *
+   * @return the order value
+   */
   @Override
   public int getOrder() {
     return order == null ? LOWEST_PRECEDENCE : order;
   }
 
+  /**
+   * Set the order value for this instance.
+   *
+   * @param order the order value; lower values indicate higher priority
+   * @see #getOrder()
+   */
   public void setOrder(int order) {
     this.order = order;
   }
