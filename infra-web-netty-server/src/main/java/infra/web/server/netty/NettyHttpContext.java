@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.io.UncheckedIOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -356,13 +355,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * @return the raw request target, never {@code null}
    */
   protected abstract String requestUri();
-
-  @Override
-  protected PrintWriter createWriter() throws IOException {
-    // characters stay buffered until the application calls flush(); the
-    // request completion path also flushes them before writing the response
-    return new PrintWriter(getOutputStream(), false, config.writerCharset);
-  }
 
   /**
    * Return the {@code Content-Type} response header value.

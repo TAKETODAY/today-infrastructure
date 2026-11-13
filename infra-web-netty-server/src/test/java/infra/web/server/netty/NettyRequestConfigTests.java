@@ -20,13 +20,10 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 
-import infra.lang.Constant;
 import infra.web.HttpContext;
 import infra.web.multipart.MultipartParser;
-import infra.web.multipart.parsing.DefaultMultipartParser;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
@@ -41,30 +38,6 @@ import static org.mockito.Mockito.mock;
  * @since 5.0 2024/11/12 17:07
  */
 class NettyRequestConfigTests {
-
-  @Test
-  void charset() {
-    assertThatThrownBy(() -> NettyRequestConfig.forBuilder(false)
-            .build()).isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("SendErrorHandler is required");
-
-    assertThatThrownBy(() -> NettyRequestConfig.forBuilder(false)
-            .sendErrorHandler(new SendErrorHandler0())
-            .build()).isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("MultipartParser is required");
-
-    assertThat(NettyRequestConfig.forBuilder(false)
-            .sendErrorHandler(new SendErrorHandler0())
-            .multipartParser(new DefaultMultipartParser())
-            .build().writerCharset).isSameAs(Constant.DEFAULT_CHARSET);
-
-    NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
-            .writerCharset(StandardCharsets.US_ASCII)
-            .sendErrorHandler(new SendErrorHandler0())
-            .multipartParser(new DefaultMultipartParser())
-            .build();
-    assertThat(config.writerCharset).isEqualTo(StandardCharsets.US_ASCII);
-  }
 
   @Test
   void shouldBuildWithAllRequiredFields() {
@@ -171,7 +144,6 @@ class NettyRequestConfigTests {
     assertThat(config.cookieEncoder).isEqualTo(ServerCookieEncoder.STRICT);
     assertThat(config.cookieDecoder).isEqualTo(ServerCookieDecoder.STRICT);
     assertThat(config.responseBodyInitialCapacity).isEqualTo(128);
-    assertThat(config.writerCharset).isEqualTo(Constant.DEFAULT_CHARSET);
     assertThat(config.secure).isFalse();
   }
 
@@ -215,40 +187,6 @@ class NettyRequestConfigTests {
             .build())
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("responseBodyInitialCapacity is required");
-  }
-
-  @Test
-  void shouldUseProvidedCharsetsWhenSet() {
-    // given
-    SendErrorHandler sendErrorHandler = new NettyRequestConfigTests.SendErrorHandler0();
-    MultipartParser multipartParser = mock(MultipartParser.class);
-
-    // when
-    NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
-            .sendErrorHandler(sendErrorHandler)
-            .multipartParser(multipartParser)
-            .writerCharset(StandardCharsets.ISO_8859_1)
-            .build();
-
-    // then
-    assertThat(config.writerCharset).isEqualTo(StandardCharsets.ISO_8859_1);
-  }
-
-  @Test
-  void shouldUseDefaultCharsetsWhenNullProvided() {
-    // given
-    SendErrorHandler sendErrorHandler = new NettyRequestConfigTests.SendErrorHandler0();
-    MultipartParser multipartParser = mock(MultipartParser.class);
-
-    // when
-    NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
-            .sendErrorHandler(sendErrorHandler)
-            .multipartParser(multipartParser)
-            .writerCharset(null)
-            .build();
-
-    // then
-    assertThat(config.writerCharset).isEqualTo(Constant.DEFAULT_CHARSET);
   }
 
   @Test

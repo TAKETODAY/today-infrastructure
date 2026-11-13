@@ -18,10 +18,8 @@ package infra.web.server.netty;
 
 import org.jspecify.annotations.Nullable;
 
-import java.nio.charset.Charset;
 import java.util.function.Function;
 
-import infra.lang.Constant;
 import infra.util.Assert;
 import infra.util.DataSize;
 import infra.web.HttpContext;
@@ -48,7 +46,6 @@ import io.netty.handler.codec.http.multipart.HttpDataFactory;
  *     .cookieEncoder(ServerCookieEncoder.LAX)
  *     .cookieDecoder(ServerCookieDecoder.LAX)
  *     .responseBodyInitialCapacity(256)
- *     .writerCharset(StandardCharsets.UTF_8)
  *     .multipartParser(new DefaultMultipartParser())
  *     .sendErrorHandler(error -> {
  *       // Handle send error logic
@@ -60,7 +57,6 @@ import io.netty.handler.codec.http.multipart.HttpDataFactory;
  * <ul>
  *   <li>Customizable cookie encoding and decoding strategies.</li>
  *   <li>Support for specifying initial capacity of response bodies.</li>
- *   <li>Flexible handling of character sets for response writers.</li>
  *   <li>Integration with Netty's {@link HttpDataFactory}.</li>
  *   <li>Error handling for send operations via {@link SendErrorHandler}.</li>
  *   <li>Optional support for SSL/TLS through the {@code secure} flag.</li>
@@ -107,13 +103,6 @@ public final class NettyRequestConfig {
    * @see #responseBodyInitialCapacity
    */
   public final @Nullable Function<HttpContext, ByteBuf> responseBodyFactory;
-
-  /**
-   * Character set used by the response writer.
-   *
-   * @since 5.0
-   */
-  public final Charset writerCharset;
 
   /**
    * Handler invoked to render an error response.
@@ -175,7 +164,6 @@ public final class NettyRequestConfig {
     this.responseBodyFactory = builder.responseBodyFactory;
     this.dataReceivedQueueCapacity = builder.dataReceivedQueueCapacity;
     this.responseBodyInitialCapacity = builder.responseBodyInitialCapacity;
-    this.writerCharset = builder.writerCharset == null ? Constant.DEFAULT_CHARSET : builder.writerCharset;
   }
 
   /**
@@ -226,11 +214,6 @@ public final class NettyRequestConfig {
      * Optional factory for the initial response body buffer.
      */
     private @Nullable Function<HttpContext, ByteBuf> responseBodyFactory;
-
-    /**
-     * Charset used by the response writer; falls back to {@link Constant#DEFAULT_CHARSET}.
-     */
-    private @Nullable Charset writerCharset = Constant.DEFAULT_CHARSET;
 
     /**
      * Maximum accepted request content length; 1GB by default.
@@ -371,32 +354,6 @@ public final class NettyRequestConfig {
      */
     public Builder responseBodyInitialCapacity(int responseBodyInitialCapacity) {
       this.responseBodyInitialCapacity = responseBodyInitialCapacity;
-      return this;
-    }
-
-    /**
-     * Sets the character set to be used for writing HTTP response data.
-     * If the provided charset is {@code null}, a default charset defined by
-     * {@link Constant#DEFAULT_CHARSET} will be used instead.
-     * <p>
-     * This method allows customization of the character encoding for handling
-     * HTTP response data, ensuring proper encoding of outgoing data.
-     * <p>
-     * Example usage:
-     * <pre>{@code
-     *   Builder builder = ...;
-     *   builder.writerCharset(StandardCharsets.UTF_8);
-     *
-     *   // If no specific charset is required, pass null to use the default:
-     *   builder.writerCharset(null);
-     * }</pre>
-     *
-     * @param charset the character set to be used for writing HTTP response data,
-     * or {@code null} to use the default charset
-     * @return the current {@link Builder} instance, enabling method chaining
-     */
-    public Builder writerCharset(@Nullable Charset charset) {
-      this.writerCharset = charset == null ? Constant.DEFAULT_CHARSET : charset;
       return this;
     }
 
