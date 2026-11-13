@@ -917,8 +917,12 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       discardPendingResponse();
     }
 
-    // clear the live header view even when it was never adapted
-    nettyResponseHeaders.clear();
+    // clear the live header view when it was never adapted; an existing
+    // responseHeaders adapter shares nettyResponseHeaders and was already
+    // cleared by super.reset()
+    if (responseHeaders == null) {
+      nettyResponseHeaders.clear();
+    }
     if (outputStream instanceof NoBodyOutputStream noBody) {
       // the cached HEAD stream is reused, so its byte count must restart at zero
       noBody.contentLength = 0;
