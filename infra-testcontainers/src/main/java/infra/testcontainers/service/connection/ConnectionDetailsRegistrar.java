@@ -121,7 +121,7 @@ class ConnectionDetailsRegistrar {
     return StringUtils.uncapitalize(parts.stream().map(StringUtils::capitalize).collect(Collectors.joining()));
   }
 
-  class ServiceConnectionBeanRegistrationExcludeFilter implements BeanRegistrationExcludeFilter {
+  static class ServiceConnectionBeanRegistrationExcludeFilter implements BeanRegistrationExcludeFilter {
 
     @Override
     public boolean isExcludedFromAotProcessing(RegisteredBean registeredBean) {
