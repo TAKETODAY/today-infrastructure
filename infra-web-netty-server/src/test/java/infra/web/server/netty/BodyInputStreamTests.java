@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.ConcurrentModificationException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import infra.util.ExceptionUtils;
 import io.netty.buffer.ByteBuf;
@@ -936,14 +937,60 @@ class BodyInputStreamTests {
   }
 
   @Test
-  void workAmountIncrementsCorrectly() throws Exception {
+  void overflowFailsAfterQueuedDataIsRead() throws Exception {
+    BodyInputStream inputStream = new BodyInputStream(1);
+    inputStream.onDataReceived(Unpooled.wrappedBuffer(new byte[] { 1 }));
+    inputStream.onDataReceived(Unpooled.wrappedBuffer(new byte[] { 2 }));
+    inputStream.onComplete();
+
+    assertThat(inputStream.read()).isEqualTo(1);
+    assertThatThrownBy(inputStream::read)
+            .isInstanceOf(IOException.class)
+            .hasMessage("Buffer overflow");
+  }
+
+  @Test
+  void concurrentCompleteAndReadDoesNotLoseDoneState() throws Exception {
+    for (int i = 0; i < 100; i++) {
+      BodyInputStream inputStream = new BodyInputStream();
+      AtomicReference<Integer> result = new AtomicReference<>();
+
+      Thread reader = new Thread(() -> {
+        try {
+          result.set(inputStream.read());
+        }
+        catch (IOException ex) {
+          result.set(-2);
+        }
+      });
+      reader.start();
+      inputStream.onComplete();
+
+      reader.join(2000);
+      assertThat(reader.getState()).as("iteration %s", i).isEqualTo(Thread.State.TERMINATED);
+      assertThat(result.get()).as("iteration %s", i).isEqualTo(-1);
+    }
+  }
+
+  @Test
+  void concurrentCloseAndReadDoesNotLoseClosedState() throws Exception {
     BodyInputStream inputStream = new BodyInputStream();
+    AtomicReference<Integer> result = new AtomicReference<>();
 
-    int initial = inputStream.addWork();
-    int second = inputStream.addWork();
+    Thread reader = new Thread(() -> {
+      try {
+        result.set(inputStream.read());
+      }
+      catch (IOException ex) {
+        result.set(-2);
+      }
+    });
+    reader.start();
+    inputStream.close();
 
-    assertThat(initial).isEqualTo(0);
-    assertThat(second).isEqualTo(1);
+    reader.join(2000);
+    assertThat(reader.getState()).isEqualTo(Thread.State.TERMINATED);
+    assertThat(result.get()).isEqualTo(-1);
   }
 
 }
