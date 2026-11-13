@@ -111,18 +111,9 @@ public final class NettyRequestConfig {
   /**
    * Character set used by the response writer.
    *
-   * @see #writerAutoFlush
    * @since 5.0
    */
   public final Charset writerCharset;
-
-  /**
-   * Whether the response writer flushes after every write operation.
-   *
-   * @see #writerCharset
-   * @since 5.0
-   */
-  public final boolean writerAutoFlush;
 
   /**
    * Handler invoked to render an error response.
@@ -180,7 +171,6 @@ public final class NettyRequestConfig {
     this.cookieDecoder = builder.cookieDecoder;
     this.multipartParser = builder.multipartParser;
     this.maxContentLength = builder.maxContentLength;
-    this.writerAutoFlush = builder.writerAutoFlush;
     this.sendErrorHandler = builder.sendErrorHandler;
     this.responseBodyFactory = builder.responseBodyFactory;
     this.dataReceivedQueueCapacity = builder.dataReceivedQueueCapacity;
@@ -241,11 +231,6 @@ public final class NettyRequestConfig {
      * Charset used by the response writer; falls back to {@link Constant#DEFAULT_CHARSET}.
      */
     private @Nullable Charset writerCharset = Constant.DEFAULT_CHARSET;
-
-    /**
-     * Whether the response writer flushes after every write; {@code false} by default.
-     */
-    private boolean writerAutoFlush = false;
 
     /**
      * Maximum accepted request content length; 1GB by default.
@@ -412,32 +397,6 @@ public final class NettyRequestConfig {
      */
     public Builder writerCharset(@Nullable Charset charset) {
       this.writerCharset = charset == null ? Constant.DEFAULT_CHARSET : charset;
-      return this;
-    }
-
-    /**
-     * Sets whether the writer should automatically flush the response buffer.
-     * <p>
-     * When auto-flush is enabled, the writer will automatically flush the response buffer
-     * after each write operation, ensuring that data is sent to the client immediately.
-     * When disabled (default), buffering may occur for better performance.
-     * <p>
-     * Example usage:
-     * <pre>{@code
-     *   Builder builder = ...;
-     *   builder.writerAutoFlush(true);  // Enable auto-flush
-     *   builder.writerAutoFlush(false); // Disable auto-flush (default)
-     * }</pre>
-     *
-     * @param writerAutoFlush {@code true} to enable automatic flushing of the response buffer,
-     * {@code false} to disable it (default behavior)
-     * @return the current {@link Builder} instance, enabling method chaining
-     * @see java.io.PrintWriter
-     * @see HttpContext#getWriter()
-     * @since 5.0
-     */
-    public Builder writerAutoFlush(boolean writerAutoFlush) {
-      this.writerAutoFlush = writerAutoFlush;
       return this;
     }
 

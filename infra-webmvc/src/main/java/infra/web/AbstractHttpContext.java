@@ -1939,10 +1939,33 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   }
 
   /**
-   * template method for get writer
+   * Create the {@link PrintWriter} used to write the response body as characters.
+   * <p>The default implementation wraps {@link #getOutputStream()} in a
+   * {@link PrintWriter} using {@link StandardCharsets#UTF_8 UTF-8} and with
+   * {@code autoFlush} disabled. Characters stay buffered until the writer is
+   * explicitly flushed, so the response body can be written incrementally and
+   * framed once with an accurate {@code Content-Length}; in particular,
+   * {@code println} does not commit the response on its own.
+   * <p>Flushing the returned writer eventually commits the response headers
+   * through {@link #flush()}. Closing it only releases the writer's buffer; it
+   * does not complete or close the exchange.
+   * <p>Like {@link #getOutputStream()}, the returned writer belongs to this
+   * context and is cached by {@link #getWriter()}. A response must use either a
+   * writer or an output stream, not both. {@link #reset()} clears the cached
+   * writer, so a later {@link #getWriter()} creates a new one.
+   * <p>Subclasses may override this method to use a charset declared by the
+   * response {@code Content-Type}, or to return a transport-specific writer.
+   *
+   * @return the response character writer
+   * @throws IOException if the response output stream cannot be created
+   * @see #getWriter()
+   * @see #getOutputStream()
+   * @see #flush()
+   * @see #reset()
+   * @see PrintWriter#PrintWriter(OutputStream, boolean, Charset)
    */
   protected PrintWriter createWriter() throws IOException {
-    return new PrintWriter(getOutputStream(), true);
+    return new PrintWriter(getOutputStream(), false, StandardCharsets.UTF_8);
   }
 
   /**

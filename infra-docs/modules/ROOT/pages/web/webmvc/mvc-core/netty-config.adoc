@@ -83,10 +83,6 @@ dependencies {
 | 资源泄漏检测级别 (DISABLED, SIMPLE, ADVANCED, PARANOID)。
 | DISABLED
 
-| `server.netty.writer-auto-flush`
-| 是否在每次写入操作后自动刷新 PrintWriter。
-| false
-
 | `server.netty.data-received-queue-capacity`
 | 用于存储接收数据块的队列容量。
 | 256
@@ -336,8 +332,7 @@ public ServerBootstrapCustomizer serverBootstrapCustomizer(){
 @Bean
 public NettyRequestConfigCustomizer requestConfigCustomizer() {
   return builder -> {
-    builder.maxContentLength(DataSize.ofMegabytes(50).toBytes())
-            .writerAutoFlush(false);
+    builder.maxContentLength(DataSize.ofMegabytes(50).toBytes());
   };
 }
 ----

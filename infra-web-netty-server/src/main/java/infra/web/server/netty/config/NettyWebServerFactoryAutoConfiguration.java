@@ -163,7 +163,6 @@ public final class NettyWebServerFactoryAutoConfiguration {
 
     var builder = NettyRequestConfig.forBuilder(Ssl.isEnabled(server.ssl))
             .multipartParser(multipartParser)
-            .writerAutoFlush(netty.writerAutoFlush)
             .sendErrorHandler(sendErrorHandler)
             .maxContentLength(netty.maxContentLength.toBytes())
             .dataReceivedQueueCapacity(netty.dataReceivedQueueCapacity)

@@ -359,7 +359,9 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   @Override
   protected PrintWriter createWriter() throws IOException {
-    return new PrintWriter(getOutputStream(), config.writerAutoFlush, config.writerCharset);
+    // characters stay buffered until the application calls flush(); the
+    // request completion path also flushes them before writing the response
+    return new PrintWriter(getOutputStream(), false, config.writerCharset);
   }
 
   /**
@@ -546,10 +548,30 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   @Override
   public void flush() {
+    // Characters buffered by the PrintWriter must reach pendingBody before the
+    // head is written, otherwise Content-Length would be computed as zero.
+    if (writer != null) {
+      // flushes characters into pendingBody, then reaches flushOutput()
+      writer.flush();
+    }
+    else {
+      flushOutput();
+    }
+  }
+
+  /**
+   * Write the response head and flush the pending body, without touching the
+   * character writer.
+   * <p>Also called by {@link ResponseBodyOutputStream#flush()} while
+   * {@link #flush()} is flushing the writer, so the underlying stream does not
+   * re-enter {@link #flush()} and flush the writer again.
+   */
+  private void flushOutput() {
     writeHeaders();
-    if (!isCommitted() || isCommitting()) {
-      // The head was not written: committing is in progress (re-entrant call
-      // from a committing callback) or it failed. Never write the body first.
+    if (!isCommitted()) {
+      // The head has not been written: a commit is in progress (re-entrant
+      // flush from a committing callback) or an earlier attempt failed. Never
+      // write the body before the head.
       return;
     }
 
@@ -1358,7 +1380,8 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
     @Override
     public void flush() {
-      NettyHttpContext.this.flush();
+      // the writer, when present, is flushed by NettyHttpContext.flush()
+      NettyHttpContext.this.flushOutput();
     }
 
   }

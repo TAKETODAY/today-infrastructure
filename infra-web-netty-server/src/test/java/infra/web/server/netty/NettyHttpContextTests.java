@@ -798,6 +798,54 @@ class NettyHttpContextTests {
   }
 
   @Test
+  void flushWritesBufferedWriterContent() throws IOException {
+    var channel = new EmbeddedChannel();
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new NettyHttpContextStub(request, channel);
+
+    ctx.getWriter().write("hello-writer");
+    ctx.flush();
+    channel.flush();
+
+    var head = (io.netty.handler.codec.http.HttpResponse) channel.readOutbound();
+    assertThat(head.headers().getInt(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH))
+            .isEqualTo("hello-writer".length());
+    var body = (io.netty.buffer.ByteBuf) channel.readOutbound();
+    try {
+      assertThat(body.toString(StandardCharsets.UTF_8)).isEqualTo("hello-writer");
+    }
+    finally {
+      body.release();
+      channel.finishAndReleaseAll();
+    }
+  }
+
+  @Test
+  void directWriterFlushWritesResponseWithoutRecursing() throws IOException {
+    var channel = new EmbeddedChannel();
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new NettyHttpContextStub(request, channel);
+
+    var writer = ctx.getWriter();
+    writer.write("direct");
+    writer.flush();
+    channel.flush();
+
+    Object head = channel.readOutbound();
+    assertThat(head).isInstanceOf(io.netty.handler.codec.http.DefaultHttpResponse.class);
+    var body = (io.netty.buffer.ByteBuf) channel.readOutbound();
+    try {
+      assertThat(body.toString(StandardCharsets.UTF_8)).isEqualTo("direct");
+    }
+    finally {
+      body.release();
+      channel.finishAndReleaseAll();
+    }
+  }
+
+  @Test
   void reentrantFlushFromCommittingCallbackWritesHeadBeforeBody() throws IOException {
     var channel = new EmbeddedChannel();
     var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,

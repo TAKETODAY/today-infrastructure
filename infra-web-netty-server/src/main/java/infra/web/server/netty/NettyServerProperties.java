@@ -24,7 +24,6 @@ import java.util.concurrent.TimeUnit;
 import infra.context.properties.ConfigurationProperties;
 import infra.context.properties.NestedConfigurationProperty;
 import infra.util.DataSize;
-import infra.web.HttpContext;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
 import io.netty.handler.logging.LogLevel;
@@ -170,21 +169,6 @@ public class NettyServerProperties {
    * if set to {@code true} to allow multiple content length headers.
    */
   public boolean allowDuplicateContentLengths = false;
-
-  /**
-   * Whether the PrintWriter should auto-flush after each write operation.
-   * <p>
-   * When set to {@code true}, the PrintWriter returned by
-   * {@link HttpContext#getWriter()} will automatically flush its output
-   * buffer after each write operation. This ensures that data is immediately
-   * sent to the client, which can be important for streaming responses.
-   * <p>
-   * Defaults to {@code false}, meaning manual flushing is required via
-   * {@link java.io.PrintWriter#flush()} or closing the writer.
-   *
-   * @since 5.0
-   */
-  public boolean writerAutoFlush = false;
 
   /**
    * The capacity of the queue used to store received data chunks.

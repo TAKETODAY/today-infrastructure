@@ -163,14 +163,6 @@ class NettyServerPropertiesTests {
   }
 
   @Test
-  void writerAutoFlush() {
-    assertThat(properties.writerAutoFlush).isFalse();
-
-    bind("server.netty.writer-auto-flush", "true");
-    assertThat(properties.writerAutoFlush).isTrue();
-  }
-
-  @Test
   void dataReceivedQueueCapacity() {
     assertThat(properties.dataReceivedQueueCapacity).isEqualTo(256);
 
