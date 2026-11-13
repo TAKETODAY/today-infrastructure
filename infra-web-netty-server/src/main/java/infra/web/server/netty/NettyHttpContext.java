@@ -805,6 +805,11 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   /**
    * Write the response head using the transport specific representation.
+   * <p>The head is written without flushing: the body and the terminating
+   * message belong to the same exchange and are flushed together, so flushing
+   * here would send an extra packet. It also does not go through
+   * {@link #writeAndFlush(Object)} because a response head holds no
+   * reference-counted resource to release on a synchronous failure.
    *
    * @return the write future, so the caller can attach the failure listener
    */
