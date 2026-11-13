@@ -691,7 +691,7 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
   }
 
   public void setResponseContentType(String responseContentType) {
-    this.responseContentType = responseContentType;
+    setContentType(responseContentType);
   }
 
   public void setNotModified(boolean notModified) {

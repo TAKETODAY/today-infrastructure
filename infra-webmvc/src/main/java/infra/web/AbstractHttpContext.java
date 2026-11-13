@@ -220,8 +220,6 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
 
   protected @Nullable Locale locale;
 
-  protected @Nullable String responseContentType;
-
   protected @Nullable MultipartRequest multipartRequest;
 
   protected @Nullable AsyncWebRequest asyncRequest;
@@ -1796,7 +1794,6 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   @Override
   public void reset() {
     assertNotCommitted();
-    responseContentType = null;
     responseTrailers = null;
     if (responseHeaders != null) {
       responseHeaders.clear();
@@ -1971,7 +1968,6 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    */
   @Override
   public void setContentType(@Nullable String contentType) {
-    this.responseContentType = contentType;
     setHeader(HttpHeaders.CONTENT_TYPE, contentType);
   }
 
@@ -1988,12 +1984,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    */
   @Override
   public @Nullable String getResponseContentType() {
-    if (responseContentType == null) {
-      if (responseHeaders != null) {
-        return responseHeaders.getContentTypeAsString();
-      }
-    }
-    return responseContentType;
+    return responseHeaders != null ? responseHeaders.getContentTypeAsString() : null;
   }
 
   /**

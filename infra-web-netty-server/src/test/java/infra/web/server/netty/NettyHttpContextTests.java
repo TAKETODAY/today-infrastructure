@@ -24,7 +24,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import infra.context.ApplicationContext;
+import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
+import infra.http.MediaType;
 import infra.http.support.Netty4HttpHeaders;
 import infra.util.MultiValueMap;
 import infra.web.DispatcherHandler;
@@ -440,6 +442,55 @@ class NettyHttpContextTests {
     assertThat(ctx.getRequestURI()).isEqualTo("/path/to");
     // an empty query string is normalized to null by AbstractHttpContext
     assertThat(ctx.getQueryString()).isNull();
+  }
+
+  // -- response content type tests --
+
+  @Test
+  void responseContentTypeTracksHeaderMutations() {
+    var ctx = newContext("/test");
+    assertThat(ctx.getResponseContentType()).isNull();
+
+    ctx.setContentType("text/html");
+    assertThat(ctx.getResponseContentType()).isEqualTo("text/html");
+
+    // reading the value must not freeze it against later header changes
+    ctx.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+    assertThat(ctx.getResponseContentType()).isEqualTo("application/json");
+
+    ctx.removeHeader(HttpHeaders.CONTENT_TYPE);
+    assertThat(ctx.getResponseContentType()).isNull();
+  }
+
+  @Test
+  void outputMessageContentTypeTracksHeaderMutations() {
+    var ctx = newContext("/test");
+    var outputMessage = ctx.asHttpOutputMessage();
+    assertThat(outputMessage.getContentType()).isNull();
+
+    outputMessage.setContentType(MediaType.APPLICATION_JSON);
+    assertThat(outputMessage.getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+    outputMessage.setHeader(HttpHeaders.CONTENT_TYPE, "text/plain");
+    assertThat(outputMessage.getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(outputMessage.getContentTypeAsString()).isEqualTo("text/plain");
+
+    outputMessage.removeHeader(HttpHeaders.CONTENT_TYPE);
+    assertThat(outputMessage.getContentType()).isNull();
+    assertThat(outputMessage.getContentTypeAsString()).isNull();
+  }
+
+  @Test
+  void resetClearsContentTypeForContextAndOutputMessage() {
+    var ctx = newContext("/test");
+    var outputMessage = ctx.asHttpOutputMessage();
+    outputMessage.setContentType(MediaType.APPLICATION_JSON);
+    assertThat(outputMessage.getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+    ctx.reset();
+
+    assertThat(ctx.getResponseContentType()).isNull();
+    assertThat(outputMessage.getContentType()).isNull();
   }
 
   private static NettyHttpContextStub newContext(String uri) {

@@ -362,17 +362,16 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     return new PrintWriter(getOutputStream(), config.writerAutoFlush, config.writerCharset);
   }
 
+  /**
+   * Return the {@code Content-Type} response header value.
+   * <p>The header is read on every call from the live
+   * {@link #nettyResponseHeaders} store instead of being cached: headers can
+   * also be changed through {@link #responseHeaders()} or {@link #setHeader},
+   * and a cached copy would not observe those changes.
+   */
   @Override
   public @Nullable String getResponseContentType() {
-    String contentType = this.responseContentType;
-    if (contentType == null) {
-      CharSequence value = nettyResponseHeaders.get(HttpHeaderNames.CONTENT_TYPE);
-      if (value != null) {
-        contentType = value.toString();
-        this.responseContentType = contentType;
-      }
-    }
-    return contentType;
+    return HeadersUtils.getAsString(nettyResponseHeaders, HttpHeaderNames.CONTENT_TYPE);
   }
 
   /**
@@ -903,7 +902,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     nettyResponseHeaders.clear();
 
     writer = null;
-    responseContentType = null;
     status = HttpResponseStatus.OK;
   }
 
@@ -1367,11 +1365,8 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   private final class NettyHttpOutputMessage implements ServerHttpResponse {
 
-    private @Nullable MediaType contentType;
-
     @Override
     public void setContentType(@Nullable MediaType mediaType) {
-      this.contentType = mediaType;
       NettyHttpContext.this.setContentType(mediaType);
     }
 
@@ -1412,15 +1407,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
     @Override
     public @Nullable MediaType getContentType() {
-      MediaType contentType = this.contentType;
-      if (contentType == null) {
-        CharSequence value = nettyResponseHeaders.get(HttpHeaderNames.CONTENT_TYPE);
-        if (value != null) {
-          contentType = MediaType.parseMediaType(value.toString());
-          this.contentType = contentType;
-        }
-      }
-      return contentType;
+      return responseHeaders().getContentType();
     }
 
     @Override
