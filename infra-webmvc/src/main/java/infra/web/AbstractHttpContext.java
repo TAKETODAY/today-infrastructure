@@ -1914,7 +1914,8 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
 
   /**
    * Returns a <code>PrintWriter</code> object that can send character text to the
-   * client. The <code>PrintWriter</code> uses the UTF-8 character encoding.
+   * client. The writer uses the charset declared by the response
+   * {@code Content-Type}, or UTF-8 when no charset is declared.
    * <p>
    * Calling flush() on the <code>PrintWriter</code> commits the response.
    * <p>
@@ -1925,6 +1926,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * the client
    * @throws IOException if an input or output exception occurred
    * @see #reset
+   * @see #resolveWriterCharset()
    * @see PrintWriter#PrintWriter(OutputStream, boolean, Charset)
    * @see PrintWriter#flush()
    */
@@ -1953,8 +1955,8 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * context and is cached by {@link #getWriter()}. A response must use either a
    * writer or an output stream, not both. {@link #reset()} clears the cached
    * writer, so a later {@link #getWriter()} creates a new one.
-   * <p>Subclasses may override this method to use a charset declared by the
-   * response {@code Content-Type}, or to return a transport-specific writer.
+   * <p>Subclasses may override this method to return a transport-specific
+   * writer.
    *
    * @return the response character writer
    * @throws IOException if the response output stream cannot be created
@@ -1962,10 +1964,43 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * @see #getOutputStream()
    * @see #flush()
    * @see #reset()
+   * @see #resolveWriterCharset()
    * @see PrintWriter#PrintWriter(OutputStream, boolean, Charset)
    */
   protected PrintWriter createWriter() throws IOException {
-    return new PrintWriter(getOutputStream(), false, StandardCharsets.UTF_8);
+    return new PrintWriter(getOutputStream(), false, resolveWriterCharset());
+  }
+
+  /**
+   * Resolve the {@link Charset} used to encode the response character writer.
+   * <p>The default implementation returns the charset declared by the response
+   * {@code Content-Type} header, or {@link StandardCharsets#UTF_8 UTF-8} when
+   * no charset is declared. A malformed or absent {@code Content-Type} also
+   * falls back to UTF-8 instead of failing the response.
+   * <p>Subclasses may override this method to pick a different default or to
+   * derive the charset from another source. The returned value is resolved once
+   * per writer creation, so callers must set the final {@code Content-Type}
+   * before calling {@link #getWriter()}.
+   *
+   * @return the charset used by the response writer, never {@code null}
+   * @see #createWriter()
+   * @see #setContentType(String)
+   * @since 5.0
+   */
+  protected Charset resolveWriterCharset() {
+    String contentType = getResponseContentType();
+    if (StringUtils.isNotEmpty(contentType)) {
+      try {
+        Charset charset = MediaType.parseMediaType(contentType).getCharset();
+        if (charset != null) {
+          return charset;
+        }
+      }
+      catch (InvalidMediaTypeException ignored) {
+        // malformed Content-Type: keep the default charset
+      }
+    }
+    return DEFAULT_CHARSET;
   }
 
   /**

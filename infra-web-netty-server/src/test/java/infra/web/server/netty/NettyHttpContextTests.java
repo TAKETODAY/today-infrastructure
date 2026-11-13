@@ -846,6 +846,31 @@ class NettyHttpContextTests {
   }
 
   @Test
+  void writerUsesCharsetDeclaredByResponseContentType() throws IOException {
+    var channel = new EmbeddedChannel();
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new NettyHttpContextStub(request, channel);
+    ctx.setContentType("text/plain;charset=ISO-8859-1");
+
+    ctx.getWriter().write("é");
+    ctx.flush();
+    channel.flush();
+
+    var head = (io.netty.handler.codec.http.HttpResponse) channel.readOutbound();
+    assertThat(head.headers().getInt(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH))
+            .isEqualTo(1);
+    var body = (io.netty.buffer.ByteBuf) channel.readOutbound();
+    try {
+      assertThat(body.toString(StandardCharsets.ISO_8859_1)).isEqualTo("é");
+    }
+    finally {
+      body.release();
+      channel.finishAndReleaseAll();
+    }
+  }
+
+  @Test
   void reentrantFlushFromCommittingCallbackWritesHeadBeforeBody() throws IOException {
     var channel = new EmbeddedChannel();
     var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,

@@ -1420,7 +1420,10 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
 
   /**
    * Returns a <code>PrintWriter</code> object that can send character text to the
-   * client. The <code>PrintWriter</code> uses the UTF-8 character encoding.
+   * client. The writer uses the charset declared by the response
+   * {@code Content-Type}, or UTF-8 when no charset is declared. Set the final
+   * {@code Content-Type} before calling this method, since the charset is
+   * resolved once when the writer is created.
    * <p>
    * Calling flush() on the <code>PrintWriter</code> commits the response.
    * <p>

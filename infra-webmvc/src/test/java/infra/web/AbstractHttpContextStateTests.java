@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.http.HttpCookie;
@@ -200,6 +201,32 @@ class AbstractHttpContextStateTests {
     // response reset does not re-open a completed request
     context.reset();
     assertThat(context.isRequestCompleted()).isTrue();
+  }
+
+  @Test
+  void resolveWriterCharsetDefaultsToUtf8() {
+    assertThat(context.resolveWriterCharset()).isEqualTo(StandardCharsets.UTF_8);
+  }
+
+  @Test
+  void resolveWriterCharsetUsesCharsetFromResponseContentType() {
+    context.setContentType("text/plain;charset=ISO-8859-1");
+
+    assertThat(context.resolveWriterCharset()).isEqualTo(StandardCharsets.ISO_8859_1);
+  }
+
+  @Test
+  void resolveWriterCharsetDefaultsToUtf8WhenContentTypeHasNoCharset() {
+    context.setContentType("text/plain");
+
+    assertThat(context.resolveWriterCharset()).isEqualTo(StandardCharsets.UTF_8);
+  }
+
+  @Test
+  void resolveWriterCharsetDefaultsToUtf8WhenContentTypeIsMalformed() {
+    context.setContentType("not a media type");
+
+    assertThat(context.resolveWriterCharset()).isEqualTo(StandardCharsets.UTF_8);
   }
 
   @SuppressWarnings("NullAway")
