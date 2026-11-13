@@ -19,13 +19,11 @@
 package infra.testcontainers.service.connection;
 
 import org.jspecify.annotations.Nullable;
-import infra.testcontainers.beans.TestcontainerBeanDefinition;
 import org.testcontainers.containers.Container;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import infra.beans.factory.BeanFactory;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.annotation.AnnotatedBeanDefinition;
 import infra.beans.factory.config.BeanDefinition;
@@ -38,8 +36,9 @@ import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
 import infra.core.type.AnnotationMetadata;
 import infra.core.type.MethodMetadata;
-import infra.util.Assert;
 import infra.origin.Origin;
+import infra.testcontainers.beans.TestcontainerBeanDefinition;
+import infra.util.Assert;
 
 /**
  * {@link ImportBeanDefinitionRegistrar} used by
@@ -50,17 +49,9 @@ import infra.origin.Origin;
  */
 class ServiceConnectionAutoConfigurationRegistrar implements ImportBeanDefinitionRegistrar {
 
-  private final BeanFactory beanFactory;
-
-  ServiceConnectionAutoConfigurationRegistrar(BeanFactory beanFactory) {
-    this.beanFactory = beanFactory;
-  }
-
   @Override
   public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
-    if (this.beanFactory instanceof ConfigurableBeanFactory listableBeanFactory) {
-      registerBeanDefinitions(listableBeanFactory, context.getRegistry());
-    }
+    registerBeanDefinitions(context.getBeanFactory(), context.getRegistry());
   }
 
   private void registerBeanDefinitions(ConfigurableBeanFactory beanFactory, BeanDefinitionRegistry registry) {
