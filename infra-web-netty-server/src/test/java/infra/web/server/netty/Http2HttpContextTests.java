@@ -30,6 +30,7 @@ import infra.context.ApplicationContext;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
+import infra.http.ResponseCookie;
 import infra.web.DispatcherHandler;
 import infra.web.Trailer;
 import infra.web.server.RequestBodySizeExceededException;
@@ -439,6 +440,20 @@ class Http2HttpContextTests {
     assertThatThrownBy(context::getParameters)
             .isInstanceOfSatisfying(RequestBodySizeExceededException.class,
                     ex -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE));
+  }
+
+  @Test
+  void resetClearsResponseState() {
+    Http2HttpContext context = createContext();
+    var outputMessage = context.asHttpOutputMessage();
+    outputMessage.setContentType(MediaType.APPLICATION_JSON);
+    context.addCookie(ResponseCookie.forSimple("session", "old"));
+
+    context.reset();
+
+    assertThat(context.getResponseContentType()).isNull();
+    assertThat(context.hasResponseCookie()).isFalse();
+    assertThat(context.asHttpOutputMessage()).isSameAs(outputMessage);
   }
 
   @Test

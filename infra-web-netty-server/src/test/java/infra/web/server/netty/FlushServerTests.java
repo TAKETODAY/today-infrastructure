@@ -133,6 +133,17 @@ class FlushServerTests {
     assertThat(client.isActive()).isTrue();
   }
 
+  @Test
+  void headErrorReturnsHeadersWithoutBody() throws Exception {
+    start();
+
+    Http1TestClient.Response response = client.head("/head-error");
+
+    assertThat(response.status()).isEqualTo(500);
+    assertThat(response.bodyAsString()).isEmpty();
+    assertThat(response.headers()).containsEntry("content-length", "0");
+  }
+
   private void start() throws Exception {
     ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.PARANOID);
 
@@ -199,6 +210,7 @@ class FlushServerTests {
           context.getWriter().write("hello-writer");
           context.flush();
         }
+        case "/head-error" -> throw new IllegalStateException("boom");
         default -> {
           context.setContentType(MediaType.TEXT_PLAIN);
           context.getOutputStream().write("plain".getBytes(StandardCharsets.UTF_8));

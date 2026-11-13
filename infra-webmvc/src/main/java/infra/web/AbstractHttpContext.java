@@ -592,7 +592,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
         }
       }
       responseCookies.removeAll(toRemove);
-      return toRemove;
+      return toRemove.isEmpty() ? null : toRemove;
     }
     return null;
   }
@@ -619,7 +619,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    */
   @Override
   public boolean hasResponseCookie() {
-    return responseCookies != null;
+    return responseCookies != null && !responseCookies.isEmpty();
   }
 
   /**
@@ -1795,6 +1795,13 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   public void reset() {
     assertNotCommitted();
     responseTrailers = null;
+    if (responseCookies != null) {
+      responseCookies.clear();
+    }
+    // A PrintWriter buffers characters that cannot be discarded; reusing it
+    // would leak the previous response into the next one. The output stream
+    // itself is stateless and stays cached.
+    writer = null;
     if (responseHeaders != null) {
       responseHeaders.clear();
     }

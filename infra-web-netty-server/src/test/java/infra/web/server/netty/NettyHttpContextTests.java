@@ -493,6 +493,60 @@ class NettyHttpContextTests {
     assertThat(outputMessage.getContentType()).isNull();
   }
 
+  @Test
+  void resetDiscardsHeadContentLengthAccumulatedBeforeReset() throws IOException {
+    var channel = new EmbeddedChannel();
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.HEAD, "/test");
+    var ctx = new NettyHttpContextStub(request, channel);
+
+    ctx.getOutputStream().write("abc".getBytes(StandardCharsets.UTF_8));
+    ctx.reset();
+    ctx.getOutputStream().write("de".getBytes(StandardCharsets.UTF_8));
+    ctx.flush();
+
+    var head = (io.netty.handler.codec.http.HttpResponse) channel.readOutbound();
+    assertThat(head.headers().getInt(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH))
+            .isEqualTo(2);
+    channel.finishAndReleaseAll();
+  }
+
+  @Test
+  void resetClearsResponseCookies() throws IOException {
+    var channel = new EmbeddedChannel();
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new NettyHttpContextStub(request, channel);
+
+    ctx.addCookie(infra.http.ResponseCookie.forSimple("session", "old"));
+    ctx.reset();
+    ctx.flush();
+
+    var head = (io.netty.handler.codec.http.HttpResponse) channel.readOutbound();
+    assertThat(head.headers().contains(io.netty.handler.codec.http.HttpHeaderNames.SET_COOKIE)).isFalse();
+    channel.finishAndReleaseAll();
+  }
+
+  @Test
+  void resetKeepsCachedOutputStream() throws IOException {
+    var ctx = newContext("/test");
+
+    var outputStream = ctx.getOutputStream();
+    ctx.reset();
+
+    assertThat(ctx.getOutputStream()).isSameAs(outputStream);
+  }
+
+  @Test
+  void resetKeepsCachedOutputMessage() {
+    var ctx = newContext("/test");
+
+    var outputMessage = ctx.asHttpOutputMessage();
+    ctx.reset();
+
+    assertThat(ctx.asHttpOutputMessage()).isSameAs(outputMessage);
+  }
+
   private static NettyHttpContextStub newContext(String uri) {
     var request = new DefaultHttpRequest(
             HttpVersion.HTTP_1_1, io.netty.handler.codec.http.HttpMethod.GET, uri);
@@ -914,6 +968,25 @@ class NettyHttpContextTests {
     assertThat(head).isInstanceOf(io.netty.handler.codec.http.HttpResponse.class);
     assertThat(body).isInstanceOf(io.netty.buffer.ByteBuf.class);
     ((io.netty.buffer.ByteBuf) body).release();
+    channel.finishAndReleaseAll();
+  }
+
+  @Test
+  void headWriterFlushWritesHeadWithoutBody() throws IOException {
+    var channel = new EmbeddedChannel();
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.HEAD, "/test");
+    var ctx = new NettyHttpContextStub(request, channel);
+
+    ctx.getWriter().write("ignored-body");
+    ctx.flush();
+
+    Object head = channel.readOutbound();
+    assertThat(head).isInstanceOf(io.netty.handler.codec.http.HttpResponse.class);
+    assertThat(((io.netty.handler.codec.http.HttpResponse) head).headers()
+            .getInt(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH)).isEqualTo(12);
+    Object extra = channel.readOutbound();
+    assertThat(extra).isNull();
     channel.finishAndReleaseAll();
   }
 

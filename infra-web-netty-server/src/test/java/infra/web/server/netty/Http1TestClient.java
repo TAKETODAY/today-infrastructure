@@ -91,11 +91,19 @@ final class Http1TestClient implements AutoCloseable {
   }
 
   Response get(String path) throws Exception {
+    return request(HttpMethod.GET, path);
+  }
+
+  Response head(String path) throws Exception {
+    return request(HttpMethod.HEAD, path);
+  }
+
+  private Response request(HttpMethod method, String path) throws Exception {
     CompletableFuture<Response> future = new CompletableFuture<>();
     pending.add(future);
 
     DefaultFullHttpRequest request = new DefaultFullHttpRequest(
-            HttpVersion.HTTP_1_1, HttpMethod.GET, path);
+            HttpVersion.HTTP_1_1, method, path);
     request.headers().set(HttpHeaderNames.HOST, "localhost");
     HttpUtil.setKeepAlive(request, true);
 

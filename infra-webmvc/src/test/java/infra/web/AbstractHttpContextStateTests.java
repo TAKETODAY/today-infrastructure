@@ -25,12 +25,14 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
+import infra.http.ResponseCookie;
 import infra.util.MultiValueMap;
 import infra.web.async.AsyncWebRequest;
 import infra.web.multipart.MultipartRequest;
@@ -201,6 +203,65 @@ class AbstractHttpContextStateTests {
     // response reset does not re-open a completed request
     context.reset();
     assertThat(context.isRequestCompleted()).isTrue();
+  }
+
+  @Test
+  void resetClearsResponseCookies() {
+    context.addCookie(ResponseCookie.forSimple("session", "old"));
+    assertThat(context.hasResponseCookie()).isTrue();
+
+    context.reset();
+
+    assertThat(context.hasResponseCookie()).isFalse();
+  }
+
+  @Test
+  void resetRebuildsWriterButKeepsCachedOutputStream() throws IOException {
+    var writer = context.getWriter();
+    var outputStream = context.getOutputStream();
+
+    context.reset();
+
+    assertThat(context.getWriter()).isNotSameAs(writer);
+    assertThat(context.getOutputStream()).isSameAs(outputStream);
+  }
+
+  @Test
+  void removeCookieReturnsRemovedCookiesAndClearsState() {
+    ResponseCookie cookie = ResponseCookie.forSimple("session", "old");
+    context.addCookie(cookie);
+
+    List<ResponseCookie> removed = context.removeCookie("session");
+
+    assertThat(removed).containsExactly(cookie);
+    assertThat(context.hasResponseCookie()).isFalse();
+  }
+
+  @Test
+  void removeCookieReturnsNullWhenNoCookieMatches() {
+    ResponseCookie cookie = ResponseCookie.forSimple("session", "old");
+    context.addCookie(cookie);
+
+    List<ResponseCookie> removed = context.removeCookie("missing");
+
+    assertThat(removed).isNull();
+    // a non-matching removal must not drop the existing cookie
+    assertThat(context.hasResponseCookie()).isTrue();
+  }
+
+  @Test
+  void removeCookieReturnsNullWhenNoCookieWasAdded() {
+    assertThat(context.removeCookie("missing")).isNull();
+  }
+
+  @Test
+  void removeCookieReturnsNullAfterReset() {
+    context.addCookie(ResponseCookie.forSimple("session", "old"));
+    context.reset();
+
+    // reset keeps the (empty) list for reuse, but no cookie remains to remove
+    assertThat(context.removeCookie("session")).isNull();
+    assertThat(context.hasResponseCookie()).isFalse();
   }
 
   @Test

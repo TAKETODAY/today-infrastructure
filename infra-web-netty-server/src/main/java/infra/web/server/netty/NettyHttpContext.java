@@ -908,7 +908,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   @Override
   public void reset() {
-    assertNotCommitted();
+    super.reset();
     if (pendingBody instanceof ByteBuf body) {
       // keep the buffer for reuse
       body.clear();
@@ -917,10 +917,12 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       discardPendingResponse();
     }
 
-    clearTrailerFields();
+    // clear the live header view even when it was never adapted
     nettyResponseHeaders.clear();
-
-    writer = null;
+    if (outputStream instanceof NoBodyOutputStream noBody) {
+      // the cached HEAD stream is reused, so its byte count must restart at zero
+      noBody.contentLength = 0;
+    }
     status = HttpResponseStatus.OK;
   }
 
@@ -1327,7 +1329,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     }
   }
 
-  static final class NoBodyOutputStream extends OutputStream {
+  final class NoBodyOutputStream extends OutputStream {
 
     public int contentLength = 0;
 
@@ -1344,6 +1346,13 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       }
 
       contentLength += len;
+    }
+
+    @Override
+    public void flush() {
+      // The writer flushes into this stream; the HEAD response still needs its
+      // head committed even though the body bytes are discarded.
+      NettyHttpContext.this.flushOutput();
     }
 
   }
