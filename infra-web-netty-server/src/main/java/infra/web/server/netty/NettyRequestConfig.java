@@ -140,14 +140,15 @@ public final class NettyRequestConfig {
   public final int dataReceivedQueueCapacity;
 
   /**
-   * Whether the channel reads request body frames automatically.
-   * <p>When {@code false}, the body is read on demand and channel auto-read is
-   * paused for the duration of the exchange.
+   * Whether the request body is read on demand instead of being received
+   * automatically by the channel.
+   * <p>When {@code true}, channel auto-read is paused for the duration of the
+   * exchange and body frames are requested as the application consumes them.
    *
    * @see io.netty.channel.ChannelConfig#setAutoRead(boolean)
    * @since 5.0
    */
-  public final boolean autoRead;
+  public final boolean manualBodyRead;
 
   private NettyRequestConfig(Builder builder) {
     Assert.notNull(builder.sendErrorHandler, "SendErrorHandler is required");
@@ -155,7 +156,7 @@ public final class NettyRequestConfig {
     Assert.isTrue(builder.responseBodyInitialCapacity > 0, "responseBodyInitialCapacity is required");
 
     this.secure = builder.secure;
-    this.autoRead = builder.autoRead;
+    this.manualBodyRead = builder.manualBodyRead;
     this.cookieEncoder = builder.cookieEncoder;
     this.cookieDecoder = builder.cookieDecoder;
     this.multipartParser = builder.multipartParser;
@@ -236,9 +237,9 @@ public final class NettyRequestConfig {
     private int dataReceivedQueueCapacity = 256;
 
     /**
-     * Whether the channel reads request body frames automatically; {@code true} by default.
+     * Whether the request body is read on demand; {@code false} by default.
      */
-    private boolean autoRead = true;
+    private boolean manualBodyRead = false;
 
     /**
      * Whether this configuration is built for a secure connection.
@@ -422,28 +423,25 @@ public final class NettyRequestConfig {
     }
 
     /**
-     * Sets whether the channel should read messages automatically.
-     * <p>
-     * When auto-read is enabled, the channel will continuously read messages from the remote peer
-     * without requiring explicit calls to {@code read()}. When disabled, the channel will only
-     * read messages when explicitly requested, allowing for more fine-grained control over
-     * the reading process.
+     * Sets whether the request body is read on demand.
+     * <p>When enabled, channel auto-read is paused while the exchange is active
+     * and body frames are requested as the application consumes them. This is
+     * not Netty's connection-level {@code AUTO_READ} channel option.
      * <p>
      * Example usage:
      * <pre>{@code
      *   Builder builder = ...;
-     *   builder.autoRead(true);  // Enable auto-read (default)
-     *   builder.autoRead(false); // Disable auto-read for manual control
+     *   builder.manualBodyRead(true);
      * }</pre>
      *
-     * @param autoRead {@code true} to enable automatic reading of messages,
-     * {@code false} to disable auto-reading (requires manual read calls)
+     * @param manualBodyRead {@code true} to read the body on demand,
+     * {@code false} to receive it automatically
      * @return the current {@link Builder} instance, enabling method chaining
      * @see io.netty.channel.ChannelConfig#setAutoRead(boolean)
      * @since 5.0
      */
-    public Builder autoRead(boolean autoRead) {
-      this.autoRead = autoRead;
+    public Builder manualBodyRead(boolean manualBodyRead) {
+      this.manualBodyRead = manualBodyRead;
       return this;
     }
 
