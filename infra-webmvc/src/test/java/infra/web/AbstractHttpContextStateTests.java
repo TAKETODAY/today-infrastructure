@@ -204,29 +204,29 @@ class AbstractHttpContextStateTests {
   }
 
   @Test
-  void resolveWriterCharsetDefaultsToUtf8() {
-    assertThat(context.resolveWriterCharset()).isEqualTo(StandardCharsets.UTF_8);
+  void resolveResponseCharsetDefaultsToUtf8() {
+    assertThat(context.resolveResponseCharset()).isEqualTo(StandardCharsets.UTF_8);
   }
 
   @Test
-  void resolveWriterCharsetUsesCharsetFromResponseContentType() {
+  void resolveResponseCharsetUsesCharsetFromResponseContentType() {
     context.setContentType("text/plain;charset=ISO-8859-1");
 
-    assertThat(context.resolveWriterCharset()).isEqualTo(StandardCharsets.ISO_8859_1);
+    assertThat(context.resolveResponseCharset()).isEqualTo(StandardCharsets.ISO_8859_1);
   }
 
   @Test
-  void resolveWriterCharsetDefaultsToUtf8WhenContentTypeHasNoCharset() {
+  void resolveResponseCharsetDefaultsToUtf8WhenContentTypeHasNoCharset() {
     context.setContentType("text/plain");
 
-    assertThat(context.resolveWriterCharset()).isEqualTo(StandardCharsets.UTF_8);
+    assertThat(context.resolveResponseCharset()).isEqualTo(StandardCharsets.UTF_8);
   }
 
   @Test
-  void resolveWriterCharsetDefaultsToUtf8WhenContentTypeIsMalformed() {
+  void resolveResponseCharsetDefaultsToUtf8WhenContentTypeIsMalformed() {
     context.setContentType("not a media type");
 
-    assertThat(context.resolveWriterCharset()).isEqualTo(StandardCharsets.UTF_8);
+    assertThat(context.resolveResponseCharset()).isEqualTo(StandardCharsets.UTF_8);
   }
 
   @SuppressWarnings("NullAway")

@@ -1926,7 +1926,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * the client
    * @throws IOException if an input or output exception occurred
    * @see #reset
-   * @see #resolveWriterCharset()
+   * @see #resolveResponseCharset()
    * @see PrintWriter#PrintWriter(OutputStream, boolean, Charset)
    * @see PrintWriter#flush()
    */
@@ -1964,11 +1964,11 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * @see #getOutputStream()
    * @see #flush()
    * @see #reset()
-   * @see #resolveWriterCharset()
+   * @see #resolveResponseCharset()
    * @see PrintWriter#PrintWriter(OutputStream, boolean, Charset)
    */
   protected PrintWriter createWriter() throws IOException {
-    return new PrintWriter(getOutputStream(), false, resolveWriterCharset());
+    return new PrintWriter(getOutputStream(), false, resolveResponseCharset());
   }
 
   /**
@@ -1987,7 +1987,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * @see #setContentType(String)
    * @since 5.0
    */
-  protected Charset resolveWriterCharset() {
+  protected Charset resolveResponseCharset() {
     String contentType = getResponseContentType();
     if (StringUtils.isNotEmpty(contentType)) {
       try {
