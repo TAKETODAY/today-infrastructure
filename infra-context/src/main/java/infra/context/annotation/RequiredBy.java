@@ -28,8 +28,11 @@ import infra.core.annotation.AliasFor;
  * Annotation to declare that other beans depend on the annotated bean.
  * <p>This annotation can be used on types or methods to specify bean names or types
  * that should be initialized after the annotated bean, ensuring proper dependency order.
+ * <p>This annotation must be used in conjunction with {@link EnableRequiredBy}
+ * on a configuration class to enable processing of the declared dependencies.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @see EnableRequiredBy
  * @since 5.0 2026/3/24 11:19
  */
 @Documented
