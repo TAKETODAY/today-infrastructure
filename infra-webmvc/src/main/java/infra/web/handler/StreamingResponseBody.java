@@ -27,6 +27,11 @@ import infra.web.handler.method.RequestMappingHandlerAdapter;
  * A http request handler return value type for asynchronous request processing
  * where the application can write directly to the response {@code OutputStream}
  * without holding up the container thread.
+ * <p>The callback may flush the stream multiple times to push content
+ * incrementally, but the response length is not known up front. To use chunked
+ * framing, set {@code Transfer-Encoding: chunked} (for example through the
+ * response headers) before the first flush. Otherwise, the first flush determines
+ * {@code Content-Length}, so any content written afterwards would exceed it.
  *
  * <p><strong>Note:</strong> when using this option it is highly recommended to
  * configure explicitly the TaskExecutor used in Web MVC for executing

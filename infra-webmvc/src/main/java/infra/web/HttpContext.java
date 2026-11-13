@@ -1655,6 +1655,10 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * of the response are written out.
    * <p>After the first flush, headers can no longer be changed.
    * Only further content writing and content flushing is possible.
+   * <p>To write the body across multiple flushes, set
+   * {@code Transfer-Encoding: chunked} before the first flush. Without chunked
+   * framing the first flush writes a fixed {@code Content-Length}, so any
+   * content written afterwards would exceed the declared length.
    *
    * @throws IOException if the act of flushing the buffer cannot be completed.
    * @see #isCommitted

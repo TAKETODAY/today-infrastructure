@@ -46,6 +46,10 @@ public interface ServerHttpResponse extends HttpOutputMessage, Flushable, Closea
    * Ensure that the headers and the content of the response are written out.
    * <p>After the first flush, headers can no longer be changed.
    * Only further content writing and content flushing is possible.
+   * <p>To write the body across multiple flushes, set
+   * {@code Transfer-Encoding: chunked} before the first flush. Without chunked
+   * framing the first flush writes a fixed {@code Content-Length}, so any
+   * content written afterwards would exceed the declared length.
    * <p>
    * NOTE: Not recommended to use {@link OutputStream#flush() getBody().flush()}
    */

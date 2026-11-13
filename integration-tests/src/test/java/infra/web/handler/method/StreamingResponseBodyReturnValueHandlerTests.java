@@ -30,12 +30,12 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import infra.core.MethodParameter;
 import infra.http.ResponseEntity;
-import infra.web.mock.MockHttpContext;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
 import infra.web.async.AsyncWebRequest;
 import infra.web.handler.StreamingResponseBody;
 import infra.web.handler.result.StreamingResponseBodyReturnValueHandler;
+import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.web.mock.StandardMockAsyncWebRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -87,6 +87,7 @@ public class StreamingResponseBodyReturnValueHandlerTests {
 
     assertThat(this.request.isAsyncStarted()).isTrue();
     assertThat(latch.await(5, TimeUnit.SECONDS)).isTrue();
+    assertThat(this.response.getHeader("Transfer-Encoding")).isNull();
     assertThat(this.response.getContentAsString()).isEqualTo("foo");
   }
 

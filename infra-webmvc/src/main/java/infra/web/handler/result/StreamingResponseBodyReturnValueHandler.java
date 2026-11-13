@@ -80,6 +80,9 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
     }
 
     if (returnValue instanceof StreamingResponseBody streamingBody) {
+      // The application controls framing: set Transfer-Encoding: chunked before
+      // the first flush to stream incrementally. Otherwise the first flush
+      // determines Content-Length and the task's final flush completes the body.
       var callable = new StreamingBodyTask(context.getOutputStream(), streamingBody);
       context.asyncManager().startCallableProcessing(callable, handler);
     }
