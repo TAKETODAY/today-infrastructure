@@ -846,6 +846,78 @@ class NettyHttpContextTests {
   }
 
   @Test
+  void emptyFlushPushesHeadToTheClient() {
+    var channel = new FlushCountingChannel();
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new NettyHttpContextStub(request, channel);
+
+    ctx.flush();
+
+    assertThat(channel.flushCount).isEqualTo(1);
+    Object head = channel.readOutbound();
+    assertThat(head).isInstanceOf(io.netty.handler.codec.http.HttpResponse.class);
+    assertThat(((io.netty.handler.codec.http.HttpResponse) head).headers()
+            .getInt(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH)).isZero();
+    Object extra = channel.readOutbound();
+    assertThat(extra).isNull();
+    channel.finishAndReleaseAll();
+  }
+
+  @Test
+  void repeatedEmptyFlushesWriteTheHeadOnlyOnce() {
+    var channel = new FlushCountingChannel();
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new NettyHttpContextStub(request, channel);
+
+    ctx.flush();
+    ctx.flush();
+
+    // both flushes reach the channel, but the head is committed only once
+    assertThat(channel.flushCount).isEqualTo(2);
+    Object head = channel.readOutbound();
+    assertThat(head).isInstanceOf(io.netty.handler.codec.http.HttpResponse.class);
+    Object extra = channel.readOutbound();
+    assertThat(extra).isNull();
+    channel.finishAndReleaseAll();
+  }
+
+  @Test
+  void emptyWriterFlushPushesHeadToTheClient() throws IOException {
+    var channel = new FlushCountingChannel();
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new NettyHttpContextStub(request, channel);
+
+    // nothing is written, but flushing the writer must still push the head
+    ctx.getWriter().flush();
+
+    assertThat(channel.flushCount).isEqualTo(1);
+    Object head = channel.readOutbound();
+    assertThat(head).isInstanceOf(io.netty.handler.codec.http.HttpResponse.class);
+    channel.finishAndReleaseAll();
+  }
+
+  @Test
+  void flushWithBodyWritesHeadAndBodyInOrder() throws IOException {
+    var channel = new EmbeddedChannel();
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new NettyHttpContextStub(request, channel);
+
+    ctx.getOutputStream().write('X');
+    ctx.flush();
+
+    Object head = channel.readOutbound();
+    Object body = channel.readOutbound();
+    assertThat(head).isInstanceOf(io.netty.handler.codec.http.HttpResponse.class);
+    assertThat(body).isInstanceOf(io.netty.buffer.ByteBuf.class);
+    ((io.netty.buffer.ByteBuf) body).release();
+    channel.finishAndReleaseAll();
+  }
+
+  @Test
   void writerUsesCharsetDeclaredByResponseContentType() throws IOException {
     var channel = new EmbeddedChannel();
     var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
@@ -992,6 +1064,17 @@ class NettyHttpContextTests {
 
     boolean isCommittingState() {
       return isCommitting();
+    }
+  }
+
+  private static class FlushCountingChannel extends EmbeddedChannel {
+
+    int flushCount;
+
+    @Override
+    public Channel flush() {
+      flushCount++;
+      return super.flush();
     }
   }
 

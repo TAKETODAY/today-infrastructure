@@ -575,6 +575,11 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     else if (body != null) {
       writeResponseFile(body);
     }
+    else {
+      // An empty flush still means the response is complete up to this point:
+      // push the head written above instead of waiting for a later body frame.
+      channel.flush();
+    }
   }
 
   @Override

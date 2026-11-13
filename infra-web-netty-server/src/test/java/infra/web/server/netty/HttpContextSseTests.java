@@ -19,11 +19,13 @@ package infra.web.server.netty;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 import infra.context.ApplicationContext;
 import infra.http.MediaType;
 import infra.web.DispatcherHandler;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
@@ -108,6 +110,49 @@ class HttpContextSseTests {
     DefaultHttpResponse response = channel.readOutbound();
     assertThat(response.headers().contains(HttpHeaderNames.TRANSFER_ENCODING)).isFalse();
     assertThat(response.headers().get(HttpHeaderNames.CONTENT_LENGTH)).isEqualTo(String.valueOf(body.length));
+  }
+
+  @Test
+  void chunkedMultipleFlushesWriteEachSegment() throws Exception {
+    HttpContext context = createContext();
+    context.setContentType(MediaType.TEXT_PLAIN);
+    context.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), "chunked");
+
+    OutputStream out = context.getOutputStream();
+    out.write("first-".getBytes(StandardCharsets.UTF_8));
+    context.flush();
+    out.write("second".getBytes(StandardCharsets.UTF_8));
+    context.flush();
+    context.completeRequestInternal(null);
+
+    DefaultHttpResponse response = channel.readOutbound();
+    assertThat(response.headers().get(HttpHeaderNames.TRANSFER_ENCODING)).isEqualTo("chunked");
+    assertThat(response.headers().contains(HttpHeaderNames.CONTENT_LENGTH)).isFalse();
+
+    ByteBuf first = channel.readOutbound();
+    ByteBuf second = channel.readOutbound();
+    try {
+      assertThat(first.toString(StandardCharsets.UTF_8)).isEqualTo("first-");
+      assertThat(second.toString(StandardCharsets.UTF_8)).isEqualTo("second");
+    }
+    finally {
+      first.release();
+      second.release();
+    }
+  }
+
+  @Test
+  void firstFlushWithoutChunkedFixesContentLength() throws Exception {
+    HttpContext context = createContext();
+    context.setContentType(MediaType.TEXT_PLAIN);
+
+    context.getOutputStream().write("first".getBytes(StandardCharsets.UTF_8));
+    context.flush();
+    context.completeRequestInternal(null);
+
+    DefaultHttpResponse response = channel.readOutbound();
+    assertThat(response.headers().get(HttpHeaderNames.CONTENT_LENGTH)).isEqualTo("5");
+    assertThat(response.headers().contains(HttpHeaderNames.TRANSFER_ENCODING)).isFalse();
   }
 
   private HttpContext createContext() {

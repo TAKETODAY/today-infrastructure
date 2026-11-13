@@ -441,6 +441,18 @@ class Http2HttpContextTests {
                     ex -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE));
   }
 
+  @Test
+  void emptyFlushPushesHeadersFrameToTheStream() {
+    Http2HttpContext context = createContext();
+
+    context.flush();
+
+    ArgumentCaptor<Http2HeadersFrame> head = ArgumentCaptor.forClass(Http2HeadersFrame.class);
+    then(channel).should().write(head.capture());
+    assertThat(head.getValue().isEndStream()).isFalse();
+    then(channel).should().flush();
+  }
+
   @ParameterizedTest
   @ValueSource(ints = { 204, 304 })
   void finalNoBodyStatusDiscardsTrailers(int status) {
