@@ -196,7 +196,8 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
 
   @Override
   protected void writeResponseBody(ByteBuf body) {
-    trackResponseWrite(channel.writeAndFlush(new DefaultHttp2DataFrame(body, false)));
+    // releasing the frame releases the wrapped content as well
+    writeAndFlush(new DefaultHttp2DataFrame(body, false));
   }
 
   @Override

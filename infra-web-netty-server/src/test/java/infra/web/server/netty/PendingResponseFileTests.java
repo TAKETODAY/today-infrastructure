@@ -36,7 +36,11 @@ import infra.http.HttpHeaders;
 import infra.web.Trailer;
 import infra.web.DispatcherHandler;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelOutboundHandlerAdapter;
+import io.netty.channel.ChannelPromise;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.DefaultHttpRequest;
@@ -44,6 +48,7 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.stream.ChunkedInput;
 import io.netty.handler.stream.ChunkedNioFile;
+import io.netty.util.ReferenceCountUtil;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -136,6 +141,62 @@ class PendingResponseFileTests {
     assertThatThrownBy(() -> context.writeResponseFile(input)).isSameAs(failure);
 
     then(input).should().close();
+  }
+
+  @Test
+  void synchronousWriteFailureReleasesBufferedBody() throws Exception {
+    Channel failingChannel = mock();
+    HttpContext context = createContext(failingChannel);
+    ByteBuf body = Unpooled.buffer(4);
+    IllegalStateException failure = new IllegalStateException("write failed");
+    doThrow(failure).when(failingChannel).writeAndFlush(body);
+
+    assertThatThrownBy(() -> context.writeResponseBody(body)).isSameAs(failure);
+
+    assertThat(body.refCnt()).isZero();
+  }
+
+  @Test
+  void pipelineFailureAfterHandoffKeepsNettyOwnership() {
+    EmbeddedChannel forwardingChannel = new EmbeddedChannel(new ChannelOutboundHandlerAdapter() {
+      @Override
+      public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
+        // the pipeline takes ownership, then fails after the message was accepted
+        ctx.write(msg, promise);
+        throw new IllegalStateException("failed after forwarding");
+      }
+    });
+    HttpContext context = createContext(forwardingChannel);
+    ByteBuf body = Unpooled.buffer(4);
+
+    context.writeResponseBody(body);
+
+    // the failure is reported through the promise, and Netty still owns the
+    // message that is waiting in the outbound buffer
+    assertThat(body.refCnt()).isOne();
+    forwardingChannel.finishAndReleaseAll();
+    assertThat(body.refCnt()).isZero();
+  }
+
+  @Test
+  void handlerFailureBeforeHandoffLeavesOwnershipToHandler() {
+    EmbeddedChannel rejectingChannel = new EmbeddedChannel(new ChannelOutboundHandlerAdapter() {
+      @Override
+      public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
+        // reject without taking ownership: Netty fails the promise, not writeAndFlush
+        throw new IllegalStateException("rejected");
+      }
+    });
+    HttpContext context = createContext(rejectingChannel);
+    ByteBuf body = Unpooled.buffer(4);
+
+    // A handler failure is reported through the promise, so writeResponseBody must
+    // not release here: the message may already belong to the pipeline in other cases
+    context.writeResponseBody(body);
+
+    assertThat(body.refCnt()).isOne();
+    ReferenceCountUtil.safeRelease(body);
+    rejectingChannel.finishAndReleaseAll();
   }
 
   @Test

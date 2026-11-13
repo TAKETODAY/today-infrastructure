@@ -353,6 +353,18 @@ class Http2HttpContextTests {
   }
 
   @Test
+  void synchronousBodyWriteFailureReleasesDataFrameContent() {
+    Http2HttpContext context = createContext();
+    ByteBuf body = Unpooled.buffer(4);
+    IllegalStateException failure = new IllegalStateException("write failed");
+    when(channel.writeAndFlush(any())).thenThrow(failure);
+
+    assertThatThrownBy(() -> context.writeResponseBody(body)).isSameAs(failure);
+
+    assertThat(body.refCnt()).isZero();
+  }
+
+  @Test
   void continueExpectationDoesNotBypassMaxContentLength() throws Exception {
     Http2Headers headers = new DefaultHttp2Headers()
             .method("POST").scheme("https").path("/upload")

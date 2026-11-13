@@ -589,28 +589,24 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   private void discardPendingResponse() {
     Object body = this.pendingBody;
     this.pendingBody = null;
-    if (body instanceof ByteBuf byteBuf) {
-      ReferenceCountUtil.safeRelease(byteBuf);
-    }
-    else if (body != null) {
-      releaseResponseFile(body);
-    }
+    releaseMessage(body);
   }
 
   /**
-   * Release an unsent response file or an input rejected by the pipeline.
+   * Release an unsent response message: closes a {@link ChunkedInput} and
+   * releases the message if it is reference-counted.
    */
-  protected final void releaseResponseFile(@Nullable Object pendingFile) {
+  protected final void releaseMessage(@Nullable Object message) {
     try {
-      if (pendingFile instanceof ChunkedInput<?> input) {
+      if (message instanceof ChunkedInput<?> input) {
         input.close();
       }
     }
     catch (Exception ex) {
-      log.warn("Failed to close pending response file", ex);
+      log.warn("Failed to release response message", ex);
     }
     finally {
-      ReferenceCountUtil.safeRelease(pendingFile);
+      ReferenceCountUtil.safeRelease(message);
     }
   }
 
@@ -797,7 +793,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
         }
       }
 
-      trackResponseWrite(writeResponseHead(status, headers));
+      closeOnWriteFailure(writeResponseHead(status, headers));
       committedOk = true;
     }
     finally {
@@ -819,32 +815,53 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   /**
    * Write and flush a response body chunk.
+   *
+   * @see #writeAndFlush(Object)
    */
   protected void writeResponseBody(ByteBuf body) {
-    trackResponseWrite(channel.writeAndFlush(body));
+    writeAndFlush(body);
   }
 
   /**
    * Write and flush a file or chunked input.
+   * <p>Ownership follows the same contract as {@link #writeAndFlush(Object)};
+   * a synchronous failure closes the file or chunked input and releases it.
    */
   protected void writeResponseFile(Object file) {
-    Object prepared = prepareResponseFile(file);
+    writeAndFlush(prepareResponseFile(file));
+  }
+
+  /**
+   * Write and flush a message whose ownership is transferred to the pipeline.
+   * <p>After {@link Channel#writeAndFlush(Object)} returns normally, Netty owns
+   * the message and releases it, whether the write eventually succeeds or fails.
+   * A synchronous throw instead means the message was rejected before ownership
+   * was transferred (for example an exception while locating or touching the
+   * next outbound handler), so it is released here; {@link ChunkedInput} values
+   * are closed as well. A handler that throws from {@code write()} fails the
+   * returned promise rather than throwing synchronously; that message is the
+   * handler's responsibility.
+   *
+   * @param message the message to write and flush
+   * @since 5.0
+   */
+  protected final void writeAndFlush(Object message) {
     try {
-      trackResponseWrite(channel.writeAndFlush(prepared));
+      closeOnWriteFailure(channel.writeAndFlush(message));
     }
     catch (RuntimeException | Error failure) {
-      releaseResponseFile(prepared);
+      releaseMessage(message);
       throw failure;
     }
   }
 
   /**
-   * Track a response write so a failed write closes the connection or stream.
-   * Trailers are evaluated when the response completes and are written after
+   * Close the connection or stream if the response write fails.
+   * <p>Trailers are evaluated when the response completes and are written after
    * every body chunk in pipeline order; an asynchronous write failure aborts
    * the exchange through {@link ChannelFutureListener#CLOSE_ON_FAILURE}.
    */
-  protected final void trackResponseWrite(ChannelFuture future) {
+  protected final void closeOnWriteFailure(ChannelFuture future) {
     future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
   }
 
