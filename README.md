@@ -381,6 +381,25 @@ Hello, TODAY!
 | 完整业务应用与框架使用实践         | [真实应用：TODAY BLOG](#today-blog)                          |
 | 模块用法与 API 文档                | [在线文档](https://docs.today-tech.cn/today-infrastructure)  |
 
+## AI 辅助开发
+
+[TODAY Infrastructure Skill](https://github.com/TAKETODAY/today-infra-skill) 是一个面向 AI 编码代理的 Agent Skill，按框架的真实 API 提供应用开发指引：
+
+- 工程搭建、`@InfraApplication` 启动模型、`infra.application` Gradle 插件
+- 控制器与请求映射、参数绑定、异常处理、MVC 配置
+- 依赖注入、事务、JDBC、持久化、校验
+- `@InfraTest`、MockMvc、WebTestClient 测试
+
+内容由 `infra-docs` 的 asciidoc 原文生成，随框架版本重新同步，不是手工摘抄的片段。
+
+```bash
+git clone https://github.com/TAKETODAY/today-infra-skill
+cd today-infra-skill
+./install.sh
+```
+
+安装后 skill 位于 `~/.config/opencode/skills/infra-app-dev`，供 [OpenCode](https://opencode.ai) 使用；其他遵循 `SKILL.md` 约定的 agent 可通过软链接接入。
+
 ## 参与项目
 
 欢迎通过以下方式参与：
