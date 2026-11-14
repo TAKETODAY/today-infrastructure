@@ -508,10 +508,45 @@ class BodyInputStreamTests {
 
     inputStream.close();
 
+    assertThat(buffer1.refCnt()).isZero();
+    assertThat(buffer2.refCnt()).isZero();
     // After closing, reading should return -1
     assertThat(inputStream.read()).isEqualTo(-1);
     byte[] data = new byte[10];
     assertThat(inputStream.read(data)).isEqualTo(-1);
+  }
+
+  @Test
+  void concurrentCompleteAndErrorDoesNotHang() throws Exception {
+    for (int i = 0; i < 50; i++) {
+      BodyInputStream inputStream = new BodyInputStream();
+      AtomicReference<Throwable> failure = new AtomicReference<>();
+
+      Thread reader = new Thread(() -> {
+        try {
+          inputStream.read();
+        }
+        catch (Throwable ex) {
+          failure.set(ex);
+        }
+      });
+      reader.start();
+
+      Thread complete = new Thread(inputStream::onComplete);
+      Thread error = new Thread(() -> inputStream.onError(new IOException("boom")));
+      complete.start();
+      error.start();
+
+      complete.join(2000);
+      error.join(2000);
+      reader.join(2000);
+
+      assertThat(reader.getState()).as("iteration %s", i).isEqualTo(Thread.State.TERMINATED);
+      Throwable failureValue = failure.get();
+      if (failureValue != null) {
+        assertThat(failureValue).isInstanceOf(IOException.class).hasMessage("boom");
+      }
+    }
   }
 
   @Test
