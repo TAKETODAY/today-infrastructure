@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.function.Consumer;
 
-import infra.http.CacheControl;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
@@ -53,22 +52,15 @@ final class SseServerResponse extends AbstractServerResponse {
   private final @Nullable Duration timeout;
 
   public SseServerResponse(Consumer<SseBuilder> sseConsumer, @Nullable Duration timeout) {
-    super(HttpStatus.OK, createHeaders(), null);
+    super(HttpStatus.OK, HttpHeaders.empty(), null);
     Assert.notNull(sseConsumer, "SseConsumer is required");
     this.sseConsumer = sseConsumer;
     this.timeout = timeout;
   }
 
-  private static HttpHeaders createHeaders() {
-    HttpHeaders headers = HttpHeaders.forWritable();
-    headers.setContentType(MediaType.TEXT_EVENT_STREAM);
-    headers.setCacheControl(CacheControl.noCache());
-    headers.set(HttpHeaders.TRANSFER_ENCODING, HttpHeaders.CHUNKED);
-    return headers;
-  }
-
   @Override
   protected Object writeToInternal(HttpContext request, Context context) throws Exception {
+    request.setHeader(HttpHeaders.CACHE_CONTROL, "no-cache");
     Long timeoutValue = timeout != null ? timeout.toMillis() : null;
     SseEmitter emitter = new SseEmitter(timeoutValue, null);
     sseConsumer.accept(new DefaultSseBuilder(emitter));

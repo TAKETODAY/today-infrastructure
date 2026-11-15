@@ -71,7 +71,7 @@ final class StreamingServerResponse extends AbstractServerResponse {
   @Override
   protected @Nullable Object writeToInternal(HttpContext request, Context context) throws Exception {
     DeferredResult<?> result = new DeferredResult<>(timeout != null ? timeout.toMillis() : null);
-    DefaultAsyncServerResponse.writeAsync(request, result);
+    request.asyncManager().startDeferredResultProcessing(result);
     this.streamConsumer.accept(new DefaultStreamBuilder(request, context, result, headers()));
     return null;
   }

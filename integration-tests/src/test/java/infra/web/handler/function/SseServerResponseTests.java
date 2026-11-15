@@ -27,6 +27,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
+import infra.http.CacheControl;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
@@ -67,12 +68,16 @@ class SseServerResponseTests {
   }
 
   @Test
-  void responseHeadersUseEventStreamAndChunkedFraming() {
-    ServerResponse response = ServerResponse.sse(sse -> { });
+  void responseHeadersUseEventStreamAndChunkedFraming() throws Throwable {
+    ServerResponse response = ServerResponse.sse(sse -> sse.complete());
 
-    assertThat(response.headers().getContentType()).isEqualTo(MediaType.TEXT_EVENT_STREAM);
-    assertThat(response.headers().getFirst(HttpHeaders.TRANSFER_ENCODING)).isEqualTo(HttpHeaders.CHUNKED);
+    assertThat(response.headers().getCacheControl()).isEqualTo(CacheControl.noCache().getHeaderValue());
     assertThat(response.headers().contains(HttpHeaders.CONTENT_LENGTH)).isFalse();
+
+    write(response, Collections::emptyList);
+
+    assertThat(this.mockResponse.getContentType()).isEqualTo(MediaType.TEXT_EVENT_STREAM_VALUE);
+    assertThat(this.mockResponse.getHeader(HttpHeaders.TRANSFER_ENCODING)).isEqualTo(HttpHeaders.CHUNKED);
   }
 
   @Test

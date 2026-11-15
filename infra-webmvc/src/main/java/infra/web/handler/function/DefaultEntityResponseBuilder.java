@@ -368,9 +368,8 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
     @Nullable
     @Override
     protected Object writeToInternal(HttpContext request, Context context) throws Exception {
-
       DeferredResult<ServerResponse> deferredResult = createDeferredResult(request, context);
-      DefaultAsyncServerResponse.writeAsync(request, deferredResult);
+      request.asyncManager().startDeferredResultProcessing(deferredResult);
       return NONE_RETURN_VALUE;
     }
 
@@ -420,7 +419,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
     @Override
     protected Object writeToInternal(HttpContext request, Context context) throws Exception {
       DeferredResult<?> deferredResult = new DeferredResult<>();
-      DefaultAsyncServerResponse.writeAsync(request, deferredResult);
+      request.asyncManager().startDeferredResultProcessing(deferredResult);
 
       entity().subscribe(new DeferredResultSubscriber(request, context, deferredResult));
       return NONE_RETURN_VALUE;

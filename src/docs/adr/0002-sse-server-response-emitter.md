@@ -45,7 +45,7 @@ SSE 分支改由 `ResponseBodyEmitterReturnValueHandler` 使用其构造时注�
 | 字符串数据 | 原样写出，多行拆为多行 `data:` | 相同 |
 | 对象数据默认 media type | `APPLICATION_JSON` | 保持 `APPLICATION_JSON`（字符串仍按文本处理） |
 | 空 `send()` | 写一个换行 | 不写任何内容 |
-| `Content-Type` / charset | `text/event-stream`，无 charset，chunked | 相同；`SseEmitter.extendResponse` 不覆盖已设置的响应头 |
+| `Content-Type` / charset | `text/event-stream`，无 charset，chunked | 相同；`Content-Type` 与 `Transfer-Encoding` 由 `SseEmitter.extendResponse` 在初始化时设置，`SseServerResponse` 只保留 `Cache-Control: no-cache` |
 | 超时 | `DeferredResult` 超时 | `SseEmitter` 超时，由返回值处理器创建 `DeferredResult` |
 | 完成 / 错误回调 | `DeferredResult` 回调 | `SseEmitter` 回调，最终映射到 `DeferredResult` |
 
