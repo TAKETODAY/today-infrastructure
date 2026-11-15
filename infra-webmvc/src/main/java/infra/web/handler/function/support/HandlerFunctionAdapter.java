@@ -26,7 +26,6 @@ import infra.web.HandlerAdapter;
 import infra.web.HttpContext;
 import infra.web.handler.function.HandlerFunction;
 import infra.web.handler.function.ServerRequest;
-import infra.web.handler.function.ServerResponse;
 
 /**
  * {@code HandlerAdapter} implementation that supports {@link HandlerFunction}s.
@@ -45,8 +44,7 @@ public class HandlerFunctionAdapter extends OrderedSupport implements HandlerAda
   @Override
   public @Nullable Object handle(HttpContext context, Object handler) throws Exception {
     ServerRequest serverRequest = ServerRequest.findRequired(context);
-    ServerResponse serverResponse = ((HandlerFunction<?>) handler).handle(serverRequest);
-    return serverResponse.writeTo(context, serverRequest);
+    return ((HandlerFunction<?>) handler).handle(serverRequest);
   }
 
 }

@@ -22,6 +22,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.CompletableFuture;
+
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
@@ -30,6 +32,7 @@ import infra.web.config.annotation.EnableWebMvc;
 import infra.web.mock.MockDispatcherHandler;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
+import infra.web.mock.api.DispatcherType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -84,6 +87,25 @@ class RouterFunctionIntegrationTests {
   }
 
   @Test
+  void serverResponseAsync() throws Exception {
+    MockRequest request = new MockRequest("GET", "/async");
+    request.setAsyncSupported(true);
+    MockResponse response = new MockResponse();
+    this.dispatcherHandler.service(request, response);
+
+    assertThat(request.isAsyncStarted()).isTrue();
+
+    this.context.getBean(WebConfig.class).asyncResponse
+            .complete(ServerResponse.ok().body("async"));
+
+    request.setDispatcherType(DispatcherType.ASYNC);
+    this.dispatcherHandler.service(request, response);
+
+    assertThat(response.getStatus()).isEqualTo(200);
+    assertThat(response.getContentAsString()).isEqualTo("async");
+  }
+
+  @Test
   void serverResponseSse() throws Exception {
     MockResponse response = get("/sse");
 
@@ -104,12 +126,15 @@ class RouterFunctionIntegrationTests {
   @EnableWebMvc
   static class WebConfig {
 
+    final CompletableFuture<ServerResponse> asyncResponse = new CompletableFuture<>();
+
     @Bean
     RouterFunction<ServerResponse> routerFunction() {
       return RouterFunctions.route()
               .GET("/hello", request -> ServerResponse.ok().body("hello"))
               .GET("/created", request -> ServerResponse.status(201).build())
               .GET("/json", request -> ServerResponse.ok().body(new Person("John", 42)))
+              .GET("/async", request -> ServerResponse.async(this.asyncResponse))
               .GET("/sse", request -> ServerResponse.sse(sse -> {
                 try {
                   sse.event("greeting").data("hello");

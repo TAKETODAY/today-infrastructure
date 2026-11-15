@@ -60,6 +60,7 @@ import infra.web.handler.result.ObjectHandlerMethodReturnValueHandler;
 import infra.web.handler.result.RenderedImageReturnValueHandler;
 import infra.web.handler.result.ResponseBodyEmitterReturnValueHandler;
 import infra.web.handler.result.ResponseEntityReturnValueHandler;
+import infra.web.handler.result.ServerResponseReturnValueHandler;
 import infra.web.handler.result.StreamingResponseBodyReturnValueHandler;
 import infra.web.handler.result.VoidReturnValueHandler;
 import infra.web.view.BeanNameViewResolver;
@@ -308,6 +309,7 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
     }
 
     handlers.add(responseBodyEmitterHandler);
+    handlers.add(new ServerResponseReturnValueHandler(this));
     handlers.add(new ResponseEntityReturnValueHandler(httpEntityMethodProcessor, responseBodyEmitterHandler));
     handlers.add(new RequestResponseBodyMethodProcessor(messageConverters, contentNegotiationManager, bodyAdvice, errorResponseInterceptors));
     handlers.add(new ModelAttributeMethodProcessor(true));

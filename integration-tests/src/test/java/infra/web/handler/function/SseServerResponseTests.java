@@ -33,7 +33,9 @@ import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
+import infra.web.handler.SelectableReturnValueHandler;
 import infra.web.handler.result.ResponseBodyEmitterReturnValueHandler;
+import infra.web.handler.result.ServerResponseReturnValueHandler;
 import infra.web.handler.result.SseEmitter;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
@@ -71,13 +73,14 @@ class SseServerResponseTests {
   void responseHeadersUseEventStreamAndChunkedFraming() throws Throwable {
     ServerResponse response = ServerResponse.sse(sse -> sse.complete());
 
-    assertThat(response.headers().getCacheControl()).isEqualTo(CacheControl.noCache().getHeaderValue());
     assertThat(response.headers().contains(HttpHeaders.CONTENT_LENGTH)).isFalse();
 
     write(response, Collections::emptyList);
 
     assertThat(this.mockResponse.getContentType()).isEqualTo(MediaType.TEXT_EVENT_STREAM_VALUE);
     assertThat(this.mockResponse.getHeader(HttpHeaders.TRANSFER_ENCODING)).isEqualTo(HttpHeaders.CHUNKED);
+    assertThat(this.mockResponse.getHeader(HttpHeaders.CACHE_CONTROL))
+            .isEqualTo(CacheControl.noCache().getHeaderValue());
   }
 
   @Test
@@ -197,7 +200,7 @@ class SseServerResponseTests {
   }
 
   /**
-   * Write the response and let the standard emitter handler complete it.
+   * Write the response through the same handler chain as {@code DispatcherHandler}.
    */
   private void write(ServerResponse response, ServerResponse.Context context) throws Exception {
     List<HttpMessageConverter<?>> converters = context.messageConverters();
@@ -205,11 +208,12 @@ class SseServerResponseTests {
       converters = List.of(new StringHttpMessageConverter());
     }
 
-    Object result = response.writeTo(this.httpContext, context);
-    assertThat(result).isInstanceOf(SseEmitter.class);
-
-    new ResponseBodyEmitterReturnValueHandler(converters)
-            .handleReturnValue(this.httpContext, null, result);
+    var emitterHandler = new ResponseBodyEmitterReturnValueHandler(converters);
+    var handler = new ServerResponseReturnValueHandler(
+            new SelectableReturnValueHandler(List.of(emitterHandler)));
+    this.httpContext.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE,
+            ServerRequest.create(this.httpContext, converters));
+    handler.handleReturnValue(this.httpContext, null, response);
   }
 
   @FunctionalInterface
