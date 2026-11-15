@@ -21,10 +21,7 @@ package infra.web.handler.function;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.List;
 import java.util.function.Consumer;
 
 import infra.http.CacheControl;
@@ -32,14 +29,18 @@ import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.SseUtils;
-import infra.http.converter.HttpMessageConverter;
 import infra.util.Assert;
 import infra.web.HttpContext;
-import infra.web.async.DeferredResult;
+import infra.web.handler.result.SseEmitter;
 
 /**
  * Implementation of {@link ServerResponse} for sending
  * <a href="https://html.spec.whatwg.org/multipage/server-sent-events.html">Server-Sent Events</a>.
+ *
+ * <p>This response writes the status and headers and then returns an
+ * {@link SseEmitter}. Handling is completed by the return-value handler chain,
+ * so SSE responses share the emitter lifecycle, timeout and completion handling
+ * with MVC's {@code SseEmitter} support.
  *
  * @author Arjen Poutsma
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -49,8 +50,7 @@ final class SseServerResponse extends AbstractServerResponse {
 
   private final Consumer<SseBuilder> sseConsumer;
 
-  @Nullable
-  private final Duration timeout;
+  private final @Nullable Duration timeout;
 
   public SseServerResponse(Consumer<SseBuilder> sseConsumer, @Nullable Duration timeout) {
     super(HttpStatus.OK, createHeaders(), null);
@@ -69,37 +69,26 @@ final class SseServerResponse extends AbstractServerResponse {
 
   @Override
   protected Object writeToInternal(HttpContext request, Context context) throws Exception {
-    DeferredResult<?> result;
-    if (timeout != null) {
-      result = new DeferredResult<>(timeout.toMillis());
-    }
-    else {
-      result = new DeferredResult<>();
-    }
-
-    DefaultAsyncServerResponse.writeAsync(request, result);
-    sseConsumer.accept(new DefaultSseBuilder(request, context, result));
-    return NONE_RETURN_VALUE;
+    Long timeoutValue = timeout != null ? timeout.toMillis() : null;
+    SseEmitter emitter = new SseEmitter(timeoutValue, null);
+    sseConsumer.accept(new DefaultSseBuilder(emitter));
+    return emitter;
   }
 
+  /**
+   * Adapts {@link SseBuilder} to {@link SseEmitter.SseEventBuilder}.
+   * <p>Fields are accumulated in an event builder; each {@code data} or
+   * {@link #send()} call completes the current event and sends it through
+   * the emitter.
+   */
   private static final class DefaultSseBuilder implements SseBuilder {
 
-    private static final byte[] NL_NL = new byte[] { '\n', '\n' };
+    private final SseEmitter emitter;
 
-    private final DeferredResult<?> deferredResult;
+    private SseEmitter.SseEventBuilder eventBuilder = SseEmitter.event();
 
-    private final List<HttpMessageConverter<?>> messageConverters;
-
-    private final StringBuilder builder = new StringBuilder();
-
-    private final HttpContext request;
-
-    private boolean sendFailed;
-
-    public DefaultSseBuilder(HttpContext request, Context context, DeferredResult<?> deferredResult) {
-      this.request = request;
-      this.deferredResult = deferredResult;
-      this.messageConverters = context.messageConverters();
+    public DefaultSseBuilder(SseEmitter emitter) {
+      this.emitter = emitter;
     }
 
     @Override
@@ -109,54 +98,41 @@ final class SseServerResponse extends AbstractServerResponse {
 
     @Override
     public void send() throws IOException {
-      this.builder.append('\n');
-      try {
-        OutputStream body = request.getOutputStream();
-        body.write(builderBytes());
-        request.flush();
-      }
-      catch (IOException ex) {
-        this.sendFailed = true;
-        throw ex;
-      }
-      finally {
-        this.builder.setLength(0);
-      }
+      sendEvent();
+    }
+
+    private void sendEvent() throws IOException {
+      SseEmitter.SseEventBuilder builder = this.eventBuilder;
+      this.eventBuilder = SseEmitter.event();
+      this.emitter.send(builder);
     }
 
     @Override
     public SseBuilder id(String id) {
       Assert.hasLength(id, "Id must not be empty");
       SseUtils.assertNoLineSeparator(id);
-      return field("id", id);
+      this.eventBuilder.id(id);
+      return this;
     }
 
     @Override
     public SseBuilder event(String eventName) {
       Assert.hasLength(eventName, "Name must not be empty");
       SseUtils.assertNoLineSeparator(eventName);
-      return field("event", eventName);
+      this.eventBuilder.name(eventName);
+      return this;
     }
 
     @Override
     public SseBuilder retry(Duration duration) {
       Assert.notNull(duration, "Duration is required");
-      String millis = Long.toString(duration.toMillis());
-      return field("retry", millis);
+      this.eventBuilder.reconnectTime(duration.toMillis());
+      return this;
     }
 
     @Override
     public SseBuilder comment(String comment) {
-      return field("", comment);
-    }
-
-    private SseBuilder field(String name, String value) {
-      builder.append(name).append(':');
-      if (name.equals("data")) {
-        builder.append(' ');
-      }
-      SseUtils.appendFieldValue(name, value, builder);
-      builder.append('\n');
+      this.eventBuilder.comment(comment);
       return this;
     }
 
@@ -168,86 +144,37 @@ final class SseServerResponse extends AbstractServerResponse {
     @Override
     public void data(Object object, @Nullable MediaType mediaType) throws IOException {
       Assert.notNull(object, "Object is required");
-      if (object instanceof String) {
-        writeString((String) object);
-      }
-      else {
-        writeObject(object, mediaType);
-      }
-    }
-
-    private void writeString(String string) throws IOException {
-      field("data", string);
-      send();
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private void writeObject(Object data, @Nullable MediaType mediaType) throws IOException {
-      builder.append("data: ");
-      try {
-        OutputStream body = request.getOutputStream();
-        body.write(builderBytes());
-
-        Class<?> dataClass = data.getClass();
-        for (HttpMessageConverter converter : messageConverters) {
-          if (converter.canWrite(dataClass, mediaType)) {
-            converter.write(data, mediaType, request.asHttpOutputMessage());
-            body.write(NL_NL);
-            request.flush();
-            return;
-          }
-        }
-      }
-      catch (IOException ex) {
-        this.sendFailed = true;
-        throw ex;
-      }
-      finally {
-        builder.setLength(0);
-      }
-    }
-
-    private byte[] builderBytes() {
-      return builder.toString().getBytes(StandardCharsets.UTF_8);
+      // Strings are written as-is, without JSON quoting; other objects are
+      // serialized with the given media type hint.
+      this.eventBuilder.data(object, object instanceof String ? null : mediaType);
+      sendEvent();
     }
 
     @Override
     public void error(Throwable t) {
-      if (sendFailed) {
-        return;
-      }
-      deferredResult.setErrorResult(t);
+      this.emitter.completeWithError(t);
     }
 
     @Override
     public void complete() {
-      if (sendFailed) {
-        return;
-      }
-      try {
-        request.flush();
-        deferredResult.setResult(null);
-      }
-      catch (IOException ex) {
-        deferredResult.setErrorResult(ex);
-      }
+      this.emitter.complete();
     }
 
     @Override
     public SseBuilder onTimeout(Runnable onTimeout) {
-      deferredResult.onTimeout(onTimeout);
+      this.emitter.onTimeout(onTimeout);
       return this;
     }
 
     @Override
     public SseBuilder onError(Consumer<Throwable> onError) {
-      deferredResult.onError(onError);
+      this.emitter.onError(onError);
       return this;
     }
 
     @Override
     public SseBuilder onComplete(Runnable onCompletion) {
-      deferredResult.onCompletion(onCompletion);
+      this.emitter.onCompletion(onCompletion);
       return this;
     }
 
