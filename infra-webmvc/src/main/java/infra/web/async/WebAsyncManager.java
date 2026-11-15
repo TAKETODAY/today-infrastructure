@@ -28,9 +28,9 @@ import java.util.concurrent.Future;
 
 import infra.core.task.AsyncTaskExecutor;
 import infra.core.task.SimpleAsyncTaskExecutor;
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpContext;
 import infra.web.HttpContextHolder;
@@ -496,8 +496,7 @@ public final class WebAsyncManager {
 
   //
 
-  @Nullable
-  public static Object findHttpRequestHandler(HttpContext request) {
+  public static @Nullable Object findHttpRequestHandler(HttpContext request) {
     @Nullable Object[] concurrentResultContext = request.asyncManager().getConcurrentResultContext();
     if (concurrentResultContext != null && concurrentResultContext.length == 1) {
       return concurrentResultContext[0];
