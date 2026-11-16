@@ -10,15 +10,15 @@ include::partial$web/web-uris.adoc[leveloffset=+1]
 [[mvc-uricomponentsbuilder]]
 == 相对 Web 请求
 
-您可以使用 `UriComponentsBuilder` 创建相对于当前请求的 URI，如下例所示：
+您可以使用 `HttpContextUriComponentsBuilder` 创建相对于当前请求的 URI，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-HttpRequest request = ...
+HttpContext request = ...
 
 // 重用 scheme, host, port, path, 和 query string...
 
-URI uri = UriComponentsBuilder.fromRequest(request)
+URI uri = HttpContextUriComponentsBuilder.fromRequest(request)
     .replaceQueryParam("accountId", "{id}")
     .build("123");
 ----
@@ -27,11 +27,11 @@ URI uri = UriComponentsBuilder.fromRequest(request)
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-HttpRequest request = ...
+HttpContext request = ...
 
 // 重用 scheme, host, port, 和 context path...
 
-URI uri = UriComponentsBuilder.fromContextPath(request)
+URI uri = HttpContextUriComponentsBuilder.fromContextPath(request)
     .path("/accounts")
     .build()
     .toUri();
@@ -71,7 +71,7 @@ Java::
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 UriComponents uriComponents = MvcUriComponentsBuilder
-  .fromMethodName(BookingController.class, "getBooking", 21).buildAndExpand(42);
+  .fromMethodName(BookingController.class, "getBooking", 21L).buildAndExpand(42);
 
 URI uri = uriComponents.encode().toUri();
 ----
@@ -91,7 +91,7 @@ Java::
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 UriComponents uriComponents = MvcUriComponentsBuilder
-  .fromMethodCall(on(BookingController.class).getBooking(21)).buildAndExpand(42);
+  .fromMethodCall(on(BookingController.class).getBooking(21L)).buildAndExpand(42);
 
 URI uri = uriComponents.encode().toUri();
 ----
@@ -101,7 +101,7 @@ NOTE: 控制器方法签名在设计用于通过 `fromMethodCall` 创建链接�
 返回类型还有一个技术限制（即为链接构建器调用生成运行时代理），因此返回类型不能是 `final`。
 特别是，用于视图名称的常见 `String` 返回类型在这里不起作用。您应该改用 `ModelAndView` 甚至普通的 `Object`（带有 `String` 返回值）。
 
-前面的示例使用了 `MvcUriComponentsBuilder` 中的静态方法。在内部，它们依赖 `UriComponentsBuilder`
+前面的示例使用了 `MvcUriComponentsBuilder` 中的静态方法。在内部，它们依赖 `HttpContextUriComponentsBuilder`
 从当前请求的 scheme、host、port 准备基本 URL。这在大多数情况下效果很好。
 但是，有时这可能还不够。例如，您可能处于请求上下文之外（例如准备链接的批处理过程），或者您可能需要插入路径前缀
 （例如从请求路径中删除并需要重新插入到链接中的区域设置前缀）。
@@ -116,11 +116,12 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	UriComponentsBuilder base = UriComponentsBuilder.forURI(req.getURI()).path("/en");
-	MvcUriComponentsBuilder builder = MvcUriComponentsBuilder.relativeTo(base);
-	builder.withMethodCall(on(BookingController.class).getBooking(21)).buildAndExpand(42);
+UriComponentsBuilder base = UriComponentsBuilder.forURI(req.getURI()).path("/en");
+MvcUriComponentsBuilder builder = MvcUriComponentsBuilder.relativeTo(base);
+UriComponents uriComponents = builder
+  .withMethodCall(on(BookingController.class).getBooking(21L)).buildAndExpand(42);
 
-	URI uri = uriComponents.encode().toUri();
+URI uri = uriComponents.encode().toUri();
 ----
 
 ======

@@ -273,7 +273,8 @@ public class MyConfig {
       throws NoSuchMethodException {
 
     RequestMappingInfo info = RequestMappingInfo
-        .paths("/user/{id}").methods(RequestMethod.GET).build(); // <2>
+        .paths("/user/{id}").methods(HttpMethod.GET)
+        .options(mapping.getBuilderConfiguration()).build(); // <2>
 
     Method method = UserHandler.class.getMethod("getUser", Long.class); // <3>
 
@@ -282,7 +283,7 @@ public class MyConfig {
 }
 ----
 <1> 注入目标处理器和控制器的处理器映射。
-<2> 准备请求映射元数据。
+<2> 使用 `infra.http.HttpMethod` 准备请求映射元数据，并沿用处理器映射的构建配置。
 <3> 获取处理器方法。
 <4> 添加注册。
 
@@ -335,4 +336,3 @@ class PersonController implements PersonService {
 有关详细信息，请参阅：
 - xref:integration/rest-clients.adoc#rest-http-interface-method-parameters[@HttpExchange] 方法参数的列表。
 - xref:web/webmvc/mvc-controller/ann-methods/arguments.adoc[@RequestMapping] 方法参数的列表。
-

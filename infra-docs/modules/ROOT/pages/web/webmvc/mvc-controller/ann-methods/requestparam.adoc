@@ -1,7 +1,7 @@
 [[mvc-ann-requestparam]]
 = `@RequestParam`
 
-您可以使用 `@RequestParam` 注解将 Servlet 请求参数（即查询参数或表单数据）绑定到控制器中的方法参数。
+您可以使用 `@RequestParam` 注解将 HTTP 请求参数（即查询参数或表单数据）绑定到控制器中的方法参数。
 
 以下示例显示了如何执行此操作：
 

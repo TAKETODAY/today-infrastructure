@@ -35,10 +35,9 @@
 
 `HandlerExceptionHandler` 的契约指定它可以返回：
 
-* 指向错误视图的 `ModelAndView`。
-* 如果异常在解析器内处理，则为空 `ModelAndView`。
-* 如果异常仍未解决，则为 `null`，以便后续解析器尝试，如果异常在最后仍存在，则允许其冒泡到 Servlet 容器。
+* 需要进一步渲染的结果，例如指向错误视图的 `ModelAndView` 或 `ResponseEntity`。
+* `HandlerExceptionHandler.NONE_RETURN_VALUE`，表示异常已完全处理，无需进一步渲染。
+* `null`，表示当前解析器无法处理，交由后续解析器尝试；若最终仍未解决，异常会继续向调用方传播，由 HTTP 服务层处理。
 
 xref:web/webmvc/mvc-config.adoc[MVC 配置] 会自动声明用于默认 Web MVC 异常、
 `@ResponseStatus` 注解异常以及支持 `@ExceptionHandler` 方法的内置解析器。您可以自定义该列表或替换它。
-

@@ -10,8 +10,9 @@ xref:core/beans/java/instantiating-container.adoc#beans-java-instantiating-conta
 注册为 Infra bean。`@RestControllerAdvice` 被 `@ControllerAdvice` 和 `@ResponseBody` 元注释，
 这意味着 `@ExceptionHandler` 方法的返回值将通过响应体消息转换进行渲染，而不是通过 HTML 视图。
 
-在启动时，`RequestMappingHandlerMapping` 和 `ExceptionHandlerExceptionResolver` 检测控制器建议
-bean 并在运行时应用它们。来自 `@ControllerAdvice` 的全局 `@ExceptionHandler` 方法在来自 `@Controller`
+在启动时，`RequestMappingHandlerAdapter` 通过 `ControllerMethodResolver` 检测全局的 `@ModelAttribute` 和 `@InitBinder` 方法，
+`ExceptionHandlerAnnotationExceptionHandler` 检测全局的 `@ExceptionHandler` 方法，并在运行时应用它们。
+来自 `@ControllerAdvice` 的全局 `@ExceptionHandler` 方法在来自 `@Controller`
 的局部方法之后应用。相比之下，全局的 `@ModelAttribute` 和 `@InitBinder` 方法在局部方法之前应用。
 
 `@ControllerAdvice` 注解具有属性，允许你缩小它们适用的控制器和处理器集。例如：
@@ -33,5 +34,4 @@ public class ExampleAdvice3 {}
 
 
 前述示例中的选择器在运行时评估，如果广泛使用可能会对性能产生负面影响。有关更多详细信息，请参见
-{today-framework-api}/web/bind/annotation/ControllerAdvice.html[`@ControllerAdvice`] javadoc。
-
+{today-framework-api}/web/annotation/ControllerAdvice.html[`@ControllerAdvice`] javadoc。

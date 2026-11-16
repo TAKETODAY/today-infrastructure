@@ -66,11 +66,11 @@ Infra 中包含以下区域设置解析器选择。
 | 属性 | 默认值 | 描述
 
 | `cookieName`
-| 类名 + LOCALE
+| 类名 + ".LOCALE"
 | cookie 的名称
 
 | `cookieMaxAge`
-| Servlet 容器默认值
+| `null`（不显式设置最大寿命）
 | cookie 在客户端上持续存在的最大时间。如果指定了 `-1`，则 cookie 将不会持久化。
   它仅在客户端关闭浏览器之前可用。
 
@@ -85,11 +85,11 @@ Infra 中包含以下区域设置解析器选择。
 == Session 解析器
 
 `SessionLocaleResolver` 允许您从可能与用户请求关联的会话中检索 `Locale` 和 `TimeZone`。
-与 `CookieLocaleResolver` 相比，此策略将本地选择的区域设置存储在 Servlet 容器的 `Session` 中。
+与 `CookieLocaleResolver` 相比，此策略将本地选择的区域设置存储在 `infra.session.Session` 中。
 因此，这些设置对于每个会话都是临时的，因此在每个会话结束时会丢失。
 
-请注意，与外部会话管理机制（如 Infra Session 项目）没有直接关系。
-此 `SessionLocaleResolver` 针对当前 `MockRequest` 评估和修改相应的 `Session` 属性。
+此 `SessionLocaleResolver` 通过当前 `HttpContext.getSession(false)` 读取会话属性，
+并在设置区域或时区时通过 `HttpContext.getSession()` 获取或创建会话。应用需要配置可用的会话管理支持。
 
 
 [[mvc-localeresolver-interceptor]]

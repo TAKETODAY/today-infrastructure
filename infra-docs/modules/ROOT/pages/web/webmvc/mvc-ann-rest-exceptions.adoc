@@ -129,7 +129,7 @@ NOTE: 从 5.0 开始，框架不再将请求路径自动设置为 `ProblemDetail
 | (默认) | `+{0}+` 参数条件列表
 |===
 
-注意：与其他异常不同，`MethodArgumentValidException` 和 `HandlerMethodValidationException` 的消息参数基于
+注意：与其他异常不同，`MethodArgumentNotValidException` 和 `HandlerMethodValidationException` 的消息参数基于
 `MessageSourceResolvable` 错误列表，也可以通过 xref:core/beans/context-introduction.adoc#context-functionality-messagesource[MessageSource]
 资源包进行自定义。有关更多详细信息，请参见 xref:core/validation/beanvalidation.adoc#validation-beanvalidation-infra-method-i18n[自定义验证错误]。
 
