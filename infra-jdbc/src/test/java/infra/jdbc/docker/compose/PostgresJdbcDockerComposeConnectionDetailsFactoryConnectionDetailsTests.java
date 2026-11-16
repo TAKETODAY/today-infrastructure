@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.jdbc.docker.compose;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.postgresql.Driver;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import infra.docker.compose.core.ConnectionPorts;
 import infra.docker.compose.core.RunningService;
@@ -35,6 +41,7 @@ import static org.mockito.Mockito.mock;
  * {@link PostgresJdbcDockerComposeConnectionDetailsFactory.PostgresJdbcDockerComposeConnectionDetails}.
  *
  * @author Dmytro Nosan
+ * @author Raunak Kumar Pandey
  */
 class PostgresJdbcDockerComposeConnectionDetailsFactoryConnectionDetailsTests {
 
@@ -59,6 +66,20 @@ class PostgresJdbcDockerComposeConnectionDetailsFactoryConnectionDetailsTests {
     JdbcConnectionDetails connectionDetails = getConnectionDetails();
     assertConnectionDetails(connectionDetails);
     assertThat(connectionDetails.getJdbcUrl()).endsWith("/database");
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = { "my+db", "my?db", "my/db", "my%db", "my%db", "my db", "my数据库" })
+  void createConnectionDetailsWithDatabaseNameRequiringEncoding(String database) {
+    given(this.service.env())
+            .willReturn(Map.of("POSTGRES_USER", "user", "POSTGRES_PASSWORD", "password", "POSTGRES_DB", database));
+    this.labels.put("infra.jdbc.parameters", "connectTimeout=30");
+    this.environment.setProperty("spring.application.name", "my-app");
+    JdbcConnectionDetails connectionDetails = getConnectionDetails();
+    assertThat(Driver.parseURL(connectionDetails.getJdbcUrl(), new Properties()))
+            .containsEntry("PGDBNAME", database)
+            .containsEntry("connectTimeout", "30")
+            .containsEntry("ApplicationName", "my-app");
   }
 
   @Test
