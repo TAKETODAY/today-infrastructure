@@ -66,7 +66,7 @@ import static infra.web.HttpContext.FORWARD_REQUEST_URI_ATTRIBUTE;
  * <p>
  * This class is responsible for processing all incoming HTTP requests and dispatching them
  * to the appropriate handler/controller based on the request mappings.
- *
+ * <p>
  * The DispatcherHandler follows a well-defined request processing workflow:
  * <ul>
  * <li>Lookup appropriate handler for the incoming request using configured HandlerMapping</li>

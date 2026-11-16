@@ -50,6 +50,7 @@ import infra.web.annotation.ResponseStatus;
  * }
  * }</pre>
  *
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see HttpStatusCode
  * @see ResponseStatus
  */
@@ -102,4 +103,5 @@ public interface HttpStatusProvider {
     }
     return Pair.of(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
   }
+
 }
