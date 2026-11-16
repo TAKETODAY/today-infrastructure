@@ -32,7 +32,9 @@ import infra.http.reactive.server.ReactorHttpHandlerAdapter;
 import infra.http.support.ReactorResourceFactory;
 import infra.util.Assert;
 import infra.util.CollectionUtils;
+import infra.web.config.WebProperties.ForwardedHeaders.Naming;
 import infra.web.server.Compression;
+import infra.web.server.ForwardedRequestHeaders;
 import infra.web.server.Shutdown;
 import infra.web.server.Ssl;
 import infra.web.server.WebServer;
@@ -55,12 +57,6 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
   private final List<NettyRouteProvider> routeProviders = new ArrayList<>();
 
   private @Nullable Duration lifecycleTimeout;
-
-  private boolean useForwardHeaders;
-
-  private boolean useRfcForwardHeader;
-
-  private boolean useForwardedPrefix;
 
   private @Nullable ReactorResourceFactory resourceFactory;
 
@@ -137,40 +133,6 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
   }
 
   /**
-   * Set if x-forward-* headers should be processed.
-   *
-   * @param useForwardHeaders if x-forward headers should be used
-   */
-  public void setUseForwardHeaders(boolean useForwardHeaders) {
-    this.useForwardHeaders = useForwardHeaders;
-  }
-
-  /**
-   * Set if the RFC "Forwarded" header should be processed.
-   * <p>
-   * {@link #setUseForwardHeaders(boolean)} will take precedence if enabled.
-   *
-   * @param useRfcForwardHeader if the "Forwarded" header should be used
-   * @since 5.0
-   */
-  public void setUseRfcForwardHeader(boolean useRfcForwardHeader) {
-    this.useRfcForwardHeader = useRfcForwardHeader;
-  }
-
-  /**
-   * Set if the "X-Forwarded-Prefix" header should be processed when forwarded headers
-   * support is enabled.
-   *
-   * @param useForwardedPrefix if the "X-Forwarded-Prefix" header should be used
-   * @see #setUseForwardHeaders(boolean)
-   * @see #setUseRfcForwardHeader(boolean)
-   * @since 5.0
-   */
-  public void setUseForwardedPrefix(boolean useForwardedPrefix) {
-    this.useForwardedPrefix = useForwardedPrefix;
-  }
-
-  /**
    * Set the {@link ReactorResourceFactory} to get the shared resources from.
    *
    * @param resourceFactory the server resources
@@ -194,13 +156,10 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
   }
 
   private HttpServer configureForwardedHeaders(HttpServer server) {
-    if (this.useForwardHeaders) {
-      return server.forwarded(false, this.useForwardedPrefix);
-    }
-    if (this.useRfcForwardHeader) {
-      return server.forwarded(true, this.useForwardedPrefix);
-    }
-    return server.noForwarded();
+    ForwardedRequestHeaders forwardedHeaders = getForwardedRequestHeaders();
+    return forwardedHeaders != null
+            ? server.forwarded(forwardedHeaders.naming() == Naming.RFC_7239, forwardedHeaders.usePrefix())
+            : server.noForwarded();
   }
 
   private HttpServer customizeSslConfiguration(Ssl ssl, HttpServer httpServer) {

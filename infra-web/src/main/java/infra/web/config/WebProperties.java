@@ -57,7 +57,50 @@ public class WebProperties {
   @NestedConfigurationProperty
   public final ErrorProperties error = new ErrorProperties();
 
+  /**
+   * Forwarded request header properties shared by framework and web server support.
+   */
   public final ForwardedHeaders forwardedHeaders = new ForwardedHeaders();
+
+  /**
+   * Configuration for forwarded request headers.
+   */
+  public static class ForwardedHeaders {
+
+    /**
+     * Strategy for processing forwarded headers. If unspecified, the web server
+     * deduces its default from the cloud platform.
+     */
+    public @Nullable ForwardedHeaderStrategy strategy;
+
+    /**
+     * Naming of forwarded headers.
+     */
+    public Naming naming = Naming.X_FORWARDED;
+
+    /**
+     * Whether to use the forwarded prefix header. Disabled by default.
+     */
+    public boolean usePrefix;
+
+    /**
+     * Naming for forwarded headers.
+     */
+    public enum Naming {
+
+      /**
+       * Named using the de facto 'X-Forwarded-*' standard.
+       */
+      X_FORWARDED,
+
+      /**
+       * Named using the RFC-7239 standard.
+       */
+      RFC_7239
+
+    }
+
+  }
 
   public enum LocaleResolver {
 
@@ -350,40 +393,6 @@ public class WebProperties {
       }
 
     }
-
-  }
-
-  /**
-   * Forwarded headers.
-   */
-  public static class ForwardedHeaders {
-
-    /**
-     * Format of the forwarded headers to support.
-     */
-    public HeaderFormat headerFormat = HeaderFormat.X_FORWARDED;
-
-    /**
-     * Whether to use the "X-Forwarded-Prefix" header to determine the context path.
-     */
-    public boolean useForwardedPrefix;
-
-  }
-
-  /**
-   * Formats of forwarded headers supported by {@link ForwardedHeaders}.
-   */
-  public enum HeaderFormat {
-
-    /**
-     * Use the standard "Forwarded" header, as defined by RFC 7239.
-     */
-    STANDARD,
-
-    /**
-     * Use the non-standard "X-Forwarded-*" headers.
-     */
-    X_FORWARDED
 
   }
 

@@ -133,14 +133,75 @@ dependencies {
 | 是否使用虚拟线程处理 HTTP 请求 (Java 21+)。
 | false
 
-| `server.forward-headers-strategy`
-| 处理 X-Forwarded-* 头的策略 (NATIVE, FRAMEWORK, NONE)。
-| 无 (暂未实现)
-
 | `server.shutdown`
 | 服务器支持的关闭类型 (IMMEDIATE, GRACEFUL)。
 | GRACEFUL
 |===
+
+=== 在反向代理后处理转发头
+
+转发头是框架与服务器共享的 Web 配置，统一由 `infra-web` 模块的 `WebProperties` 管理，使用 `web.forwarded-headers` 前缀：
+
+|===
+| 属性名 | 描述 | 默认值
+
+| `web.forwarded-headers.strategy`
+| 处理策略：`web-server`、`framework` 或 `none`。
+| 未指定时，由服务器在支持的云平台推断为 `web-server`，其他环境不处理
+
+| `web.forwarded-headers.naming`
+| 转发头命名：`x-forwarded` 或 `rfc-7239`。
+| `x-forwarded`
+
+| `web.forwarded-headers.use-prefix`
+| 是否使用 `X-Forwarded-Prefix`。
+| `false`
+|===
+
+只有在应用流量来自可信 HTTP 代理、且应用实例只能从可信网络直接访问时，才应启用转发头支持。
+在支持转发头的云平台运行时，框架会自动启用服务器处理策略；这建立在平台能够隔离应用实例的前提上。
+如果部署平台不满足该前提，应将 `web.forwarded-headers.strategy` 显式设置为 `none`。
+
+代理通常使用 `X-Forwarded-Host`、`X-Forwarded-Port`、`X-Forwarded-Proto`、`X-Forwarded-For`，
+或者使用 https://www.rfc-editor.org/rfc/rfc7239[RFC 7239] 定义的 `Forwarded` 头。
+首先确认代理、负载均衡器或云平台采用的命名方式；实际部署中 `X-Forwarded-*` 更常见。
+启用支持后，应用生成的链接、HTTP 302 响应和 JSON、HTML 中的 URL 可以反映原始请求的信息。
+
+Reactor Netty 支持由服务器直接处理转发头：
+
+[configprops,yaml]
+----
+web:
+  forwarded-headers:
+    strategy: web-server
+----
+
+这种方式的具体行为由服务器实现决定。支持的云平台默认采用 `web-server`，其他环境默认忽略转发头。
+如需使用 RFC 7239，将 `web.forwarded-headers.naming` 设置为 `rfc-7239`；默认值为 `x-forwarded`。
+
+`X-Forwarded-Prefix` 表示代理转发请求前剥离的原始 URL 路径前缀。默认忽略此头；要启用它，可配置：
+
+[configprops,yaml]
+----
+web:
+  forwarded-headers:
+    strategy: web-server
+    naming: x-forwarded
+    use-prefix: true
+----
+
+服务器原生处理仅允许对 `x-forwarded` 命名启用前缀；`rfc-7239` 与 `use-prefix: true` 的组合会被拒绝。
+
+如果不能使用服务器原生支持，可设置 `strategy: framework`。
+MVC 使用 `infra.web.filter.ForwardedHeaderFilter`，响应式应用使用
+`infra.web.reactive.server.ForwardedHeaderTransformer`，同样通过上述 `naming` 和 `use-prefix` 配置。
+独立 Netty 服务器与 Reactor Netty 是不同的实现，当前请为独立 Netty 显式选择 `framework` 或 `none`，不要依赖云平台推断的原生处理。
+可用时优先选择 `web-server`，避免通用框架处理的额外层次。
+
+旧的 `server.forward-headers-strategy` 配置已由 `web.forwarded-headers.strategy` 替代，
+原值 `native` 应改为 `web-server`。不提供 `server.request.header.forwarded.*` 配置。
+原 `web.forwarded-headers.header-format` 改为 `web.forwarded-headers.naming`，其中 `standard` 改为 `rfc-7239`；
+原 `web.forwarded-headers.use-forwarded-prefix` 改为 `web.forwarded-headers.use-prefix`。
 
 === 线程池配置
 

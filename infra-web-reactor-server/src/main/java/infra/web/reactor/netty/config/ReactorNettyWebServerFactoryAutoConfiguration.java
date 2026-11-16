@@ -24,17 +24,17 @@ import infra.context.annotation.config.DisableDIAutoConfiguration;
 import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnClass;
 import infra.context.condition.ConditionalOnMissingBean;
-import infra.context.condition.ConditionalOnProperty;
 import infra.context.condition.ConditionalOnWebApplication;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.Ordered;
-import infra.core.env.Environment;
 import infra.http.reactive.ReactiveHttpInputMessage;
 import infra.http.support.ReactorNettyConfigurations.ReactorResourceFactoryConfiguration;
 import infra.http.support.ReactorResourceFactory;
 import infra.stereotype.Component;
+import infra.web.config.ConditionalOnForwardedHeaderStrategy;
+import infra.web.config.ForwardedHeaderStrategy;
 import infra.web.config.WebProperties;
-import infra.web.config.WebProperties.HeaderFormat;
+import infra.web.config.WebProperties.ForwardedHeaders.Naming;
 import infra.web.reactive.server.ForwardedHeaderTransformer;
 import infra.web.reactor.netty.NettyRouteProvider;
 import infra.web.reactor.netty.ReactorNettyReactiveWebServerFactory;
@@ -80,18 +80,17 @@ public final class ReactorNettyWebServerFactoryAutoConfiguration {
 
   @Component
   static ReactorNettyWebServerFactoryCustomizer nettyWebServerFactoryCustomizer(
-          Environment environment, ServerProperties serverProperties,
-          WebProperties webProperties, ReactorServerProperties reactorProperties) {
-    return new ReactorNettyWebServerFactoryCustomizer(environment, serverProperties, webProperties, reactorProperties);
+          ServerProperties serverProperties, ReactorServerProperties reactorProperties) {
+    return new ReactorNettyWebServerFactoryCustomizer(serverProperties, reactorProperties);
   }
 
   @Component
   @ConditionalOnMissingBean
-  @ConditionalOnProperty(value = "server.forward-headers-strategy", havingValue = "framework")
+  @ConditionalOnForwardedHeaderStrategy(ForwardedHeaderStrategy.FRAMEWORK)
   public static ForwardedHeaderTransformer forwardedHeaderTransformer(WebProperties webProperties) {
     var properties = webProperties.forwardedHeaders;
-    var transformer = new ForwardedHeaderTransformer(properties.headerFormat == HeaderFormat.STANDARD);
-    transformer.setUseForwardedPrefix(properties.useForwardedPrefix);
+    var transformer = new ForwardedHeaderTransformer(properties.naming == Naming.RFC_7239);
+    transformer.setUseForwardedPrefix(properties.usePrefix);
     return transformer;
   }
 

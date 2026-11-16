@@ -40,7 +40,6 @@ import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnBean;
 import infra.context.condition.ConditionalOnBooleanProperty;
 import infra.context.condition.ConditionalOnMissingBean;
-import infra.context.condition.ConditionalOnProperty;
 import infra.context.condition.ConditionalOnWebApplication;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.Ordered;
@@ -69,7 +68,7 @@ import infra.web.accept.ApiVersionResolver;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.config.WebMvcProperties.ApiVersion.Use;
 import infra.web.config.WebMvcProperties.Format;
-import infra.web.config.WebProperties.HeaderFormat;
+import infra.web.config.WebProperties.ForwardedHeaders.Naming;
 import infra.web.config.WebProperties.Resources;
 import infra.web.config.WebProperties.Resources.Chain.Strategy;
 import infra.web.config.annotation.ApiVersionConfigurer;
@@ -266,12 +265,12 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
   @Order(Ordered.HIGHEST_PRECEDENCE)
   @Component
-  @ConditionalOnProperty(name = "server.forward-headers-strategy", havingValue = "framework")
+  @ConditionalOnForwardedHeaderStrategy(ForwardedHeaderStrategy.FRAMEWORK)
   @ConditionalOnMissingBean(ForwardedHeaderFilter.class)
   ForwardedHeaderFilter forwardedHeaderFilter(ObjectProvider<ForwardedHeaderFilterCustomizer> customizerProvider) {
     var properties = webProperties.forwardedHeaders;
-    var filter = new ForwardedHeaderFilter(properties.headerFormat == HeaderFormat.STANDARD);
-    filter.setUseForwardedPrefix(properties.useForwardedPrefix);
+    var filter = new ForwardedHeaderFilter(properties.naming == Naming.RFC_7239);
+    filter.setUseForwardedPrefix(properties.usePrefix);
     for (ForwardedHeaderFilterCustomizer customizer : customizerProvider) {
       customizer.customize(filter);
     }

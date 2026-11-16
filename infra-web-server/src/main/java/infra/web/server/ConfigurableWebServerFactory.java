@@ -100,6 +100,15 @@ public interface ConfigurableWebServerFactory extends WebServerFactory {
   void setShutdown(Shutdown shutdown);
 
   /**
+   * Sets the forwarded request headers configuration.
+   *
+   * @param forwardedRequestHeaders settings for forwarded request headers or
+   * {@code null} if forwarded headers should not be considered
+   * @since 5.0
+   */
+  void setForwardedRequestHeaders(@Nullable ForwardedRequestHeaders forwardedRequestHeaders);
+
+  /**
    * Sets the application temp. Provides access to an
    * application specific temporary directory
    *

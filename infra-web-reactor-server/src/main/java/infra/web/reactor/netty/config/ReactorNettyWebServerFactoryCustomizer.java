@@ -18,13 +18,9 @@ package infra.web.reactor.netty.config;
 
 import java.time.Duration;
 
-import infra.app.cloud.CloudPlatform;
 import infra.core.Ordered;
-import infra.core.env.Environment;
 import infra.util.DataSize;
 import infra.util.PropertyMapper;
-import infra.web.config.WebProperties;
-import infra.web.config.WebProperties.ForwardedHeaders;
 import infra.web.reactor.netty.ReactorNettyReactiveWebServerFactory;
 import infra.web.reactor.netty.ReactorServerProperties;
 import infra.web.server.Http2;
@@ -43,19 +39,18 @@ import io.netty.channel.ChannelOption;
  */
 public class ReactorNettyWebServerFactoryCustomizer implements WebServerFactoryCustomizer<ReactorNettyReactiveWebServerFactory>, Ordered {
 
-  private final Environment environment;
-
   private final ServerProperties serverProperties;
-
-  private final WebProperties webProperties;
 
   private final ReactorServerProperties reactor;
 
-  public ReactorNettyWebServerFactoryCustomizer(Environment environment, ServerProperties serverProperties,
-          WebProperties webProperties, ReactorServerProperties reactorProperties) {
-    this.environment = environment;
+  /**
+   * Create a customizer for Reactor Netty-specific settings.
+   *
+   * @param serverProperties the common server properties
+   * @param reactorProperties the Reactor Netty properties
+   */
+  public ReactorNettyWebServerFactoryCustomizer(ServerProperties serverProperties, ReactorServerProperties reactorProperties) {
     this.serverProperties = serverProperties;
-    this.webProperties = webProperties;
     this.reactor = reactorProperties;
   }
 
@@ -66,10 +61,6 @@ public class ReactorNettyWebServerFactoryCustomizer implements WebServerFactoryC
 
   @Override
   public void customize(ReactorNettyReactiveWebServerFactory factory) {
-    if (getOrDeduceUseForwardHeaders()) {
-      configureForwardedSupport(factory);
-    }
-
     PropertyMapper map = PropertyMapper.get();
 
     map.from(reactor.idleTimeout).to(idleTimeout -> customizeIdleTimeout(factory, idleTimeout));
@@ -88,23 +79,6 @@ public class ReactorNettyWebServerFactoryCustomizer implements WebServerFactoryC
       }));
     }
     customizeRequestDecoder(factory, map);
-  }
-
-  private boolean getOrDeduceUseForwardHeaders() {
-    if (this.serverProperties.forwardHeadersStrategy == null) {
-      CloudPlatform platform = CloudPlatform.getActive(this.environment);
-      return platform != null && platform.isUsingForwardHeaders();
-    }
-    return this.serverProperties.forwardHeadersStrategy.equals(ServerProperties.ForwardHeadersStrategy.NATIVE);
-  }
-
-  private void configureForwardedSupport(ReactorNettyReactiveWebServerFactory factory) {
-    ForwardedHeaders forwardedHeaders = webProperties.forwardedHeaders;
-    switch (forwardedHeaders.headerFormat) {
-      case X_FORWARDED -> factory.setUseForwardHeaders(true);
-      case STANDARD -> factory.setUseRfcForwardHeader(true);
-    }
-    factory.setUseForwardedPrefix(forwardedHeaders.useForwardedPrefix);
   }
 
   private void customizeConnectionTimeout(ReactorNettyReactiveWebServerFactory factory, Duration connectionTimeout) {
