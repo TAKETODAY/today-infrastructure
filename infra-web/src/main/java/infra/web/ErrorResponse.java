@@ -354,7 +354,7 @@ public interface ErrorResponse extends HttpStatusProvider {
      * @return the same builder instance
      * @see ErrorResponse#getDetailMessageArguments()
      */
-    Builder detailMessageArguments(Object @Nullable ... messageArguments);
+    Builder detailMessageArguments(@Nullable Object @Nullable ... messageArguments);
 
     /**
      * Set a "dynamic" {@link ProblemDetail#setProperty(String, Object)
@@ -405,6 +405,7 @@ public interface ErrorResponse extends HttpStatusProvider {
     /**
      * Handle a problem detail with access to the current request.
      * <p>The default implementation delegates to the two-argument variant.
+     *
      * @param detail the problem detail to render
      * @param errorResponse the originating response, if any
      * @param request the current HTTP request
