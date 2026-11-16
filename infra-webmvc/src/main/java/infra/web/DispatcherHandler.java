@@ -53,7 +53,6 @@ import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.handler.ReturnValueHandlerNotFoundException;
 import infra.web.handler.SimpleNotFoundHandler;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
-import infra.web.handler.result.AsyncReturnValueHandler;
 import infra.web.server.RequestContinueExpectedResolver;
 import infra.web.util.WebUtils;
 import infra.web.view.ViewRef;
@@ -566,10 +565,6 @@ public class DispatcherHandler extends WebLifecycleManager {
       else {
         if (handler instanceof AsyncHandler asyncHandler) {
           handler = asyncHandler.wrapConcurrentResult(concurrentResult);
-        }
-        if (handler instanceof AsyncReturnValueHandler valueHandler) {
-          valueHandler.handleAsyncReturnValue(context, concurrentResult);
-          concurrentResult = HttpRequestHandler.NONE_RETURN_VALUE;
         }
       }
     }
