@@ -61,6 +61,43 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ProblemDetailRenderingTests {
 
   @Test
+  void controllerProblemDetailIsRenderedWithoutMessageConversion() throws Exception {
+    var request = new MockRequest();
+    request.addHeader("Accept", "text/html");
+    var response = new MockResponse();
+    var context = new MockHttpContext(new StaticApplicationContext(), request, response);
+    var processor = new RequestResponseBodyMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()));
+    processor.setErrorResponseViewResolver((current, detail, error) ->
+            new ModelAndView("problem", Map.of("problem", detail), HttpStatus.SERVICE_UNAVAILABLE));
+    processor.setViewReturnValueHandler(new infra.web.view.ViewReturnValueHandler((name, locale) ->
+            (model, current) -> {
+              assertThat(model).containsKey("problem");
+              current.setContentType("text/html");
+              current.getWriter().write("<html>problem</html>");
+            }));
+
+    processor.handleReturnValue(context, null, ProblemDetail.forStatus(HttpStatus.BAD_REQUEST));
+    context.flush();
+
+    assertThat(response.getStatus()).isEqualTo(503);
+    assertThat(response.getContentAsString()).isEqualTo("<html>problem</html>");
+  }
+
+  @Test
+  void invalidAcceptHeaderBypassesViewResolution() throws Exception {
+    var context = new MockHttpContext();
+    context.requestHeaders().set("Accept", "invalid");
+    var processor = new RequestResponseBodyMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()));
+    processor.setErrorResponseViewResolver((current, detail, error) -> {
+      throw new AssertionError("Invalid Accept header must bypass views");
+    });
+
+    processor.handleReturnValue(context, null, ProblemDetail.forStatus(HttpStatus.BAD_REQUEST));
+
+    assertThat(context.getStatus()).isEqualTo(400);
+  }
+
+  @Test
   void disconnectedClientProducesServerErrorFallback() throws Exception {
     try (var application = new StaticApplicationContext()) {
       application.refresh();
@@ -77,7 +114,8 @@ class ProblemDetailRenderingTests {
   void jsonOnlyAdviceBypassesHtmlView() throws Exception {
     try (var application = new AnnotationConfigApplicationContext(JsonOnlyAdvice.class)) {
       var resolver = resolver(application);
-      resolver.setErrorResponseViewResolver((request, detail, error) -> {
+      var processor = new RequestResponseBodyMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()));
+      processor.setErrorResponseViewResolver((request, detail, error) -> {
         throw new AssertionError("JSON-only advice must not resolve an HTML view");
       });
       var request = new MockRequest("GET", "/orders/42");
@@ -87,8 +125,7 @@ class ProblemDetailRenderingTests {
       context.setMatchingMetadata(new infra.web.HandlerMatchingMetadata(context));
       Object value = resolver.handleException(context, new IllegalStateException(), null);
       assertThat(value).isInstanceOf(ProblemDetail.class);
-      new RequestResponseBodyMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null, List.of(), List.of())
-              .handleReturnValue(context, null, value);
+      processor.handleReturnValue(context, null, value);
       context.flush();
       assertThat(response.getContentAsString()).contains("\"status\":409");
     }
@@ -123,7 +160,10 @@ class ProblemDetailRenderingTests {
       var request = new MockRequest("GET", "/orders/42");
       request.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
       var context = new MockHttpContext(application, request, response);
-      resolver.setErrorResponseViewResolver((current, detail, error) -> {
+      var processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
+      var rendered = new java.util.concurrent.atomic.AtomicReference<ModelAndView>();
+      processor.setViewReturnValueHandler(capturingViewHandler(rendered));
+      processor.setErrorResponseViewResolver((current, detail, error) -> {
         if (adviceType == InstanceAdvice.class) {
           assertThat(detail.getInstance()).isEqualTo(URI.create("/orders/42/errors/7f3c2a91"));
         }
@@ -132,7 +172,9 @@ class ProblemDetailRenderingTests {
         }
         return new ModelAndView("error/" + detail.getStatus(), Map.of("problem", detail));
       });
-      var value = (ModelAndView) resolver.handleException(context, new IllegalStateException(), null);
+      Object result = resolver.handleException(context, new IllegalStateException(), null);
+      processor.handleReturnValue(context, null, result);
+      var value = rendered.get();
       context.flush();
       int status = adviceType == ResponseEntityAdvice.class ? 422 :
               adviceType == ResponseBodyAdvice.class ? 400 : 409;
@@ -187,8 +229,6 @@ class ProblemDetailRenderingTests {
         invocations.incrementAndGet();
         detail.setProperty("traceId", "123");
       });
-      resolver.setErrorResponseInterceptors(interceptors);
-      resolver.setErrorResponseViewResolver((request, detail, error) -> null);
       var request = new MockRequest("GET", "/orders/42");
       request.addHeader("Accept", "text/html");
       var response = new MockResponse();
@@ -196,6 +236,7 @@ class ProblemDetailRenderingTests {
       Object value = resolver.handleException(context, new IllegalStateException(), null);
       var processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()),
               null, List.of(), null, interceptors);
+      processor.setErrorResponseViewResolver((current, detail, error) -> null);
       processor.handleReturnValue(context, null, value);
       context.flush();
       assertThat(invocations).hasValue(1);
@@ -225,7 +266,7 @@ class ProblemDetailRenderingTests {
       };
       var processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()),
               null, List.of(), null, List.of(
-                      (detail, error) -> detail.setProperty("errorResponse", error != null), interceptor));
+              (detail, error) -> detail.setProperty("errorResponse", error != null), interceptor));
       processor.handleReturnValue(context, null, new infra.web.ErrorResponseException(HttpStatus.BAD_REQUEST, null));
       context.flush();
       assertThat(response.getStatus()).isEqualTo(400);
@@ -252,7 +293,7 @@ class ProblemDetailRenderingTests {
       };
       var processor = new RequestResponseBodyMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()),
               null, List.of(), List.of(
-                      (detail, error) -> detail.setProperty("errorResponse", error != null), interceptor));
+              (detail, error) -> detail.setProperty("errorResponse", error != null), interceptor));
       processor.handleReturnValue(context, null, ProblemDetail.forStatus(HttpStatus.BAD_REQUEST));
       context.flush();
       assertThat(response.getContentAsString()).contains("\"trace\":\"on\"", "\"errorResponse\":false");
@@ -266,7 +307,10 @@ class ProblemDetailRenderingTests {
     try (var application = new StaticApplicationContext()) {
       application.refresh();
       var resolver = resolver(application);
-      resolver.setErrorResponseViewResolver((request, detail, error) -> new ModelAndView("error"));
+      var processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
+      processor.setErrorResponseViewResolver((request, detail, error) -> {
+        throw new AssertionError("JSON preference must bypass views");
+      });
       var request = new MockRequest("GET", "/orders/42");
       if (accept != null) {
         request.addHeader("Accept", accept);
@@ -275,8 +319,7 @@ class ProblemDetailRenderingTests {
       var context = new MockHttpContext(application, request, response);
       Object value = resolver.handleException(context, new IllegalStateException("Secret internal state"), null);
       assertThat(value).isInstanceOf(ErrorResponse.class);
-      new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null)
-              .handleReturnValue(context, null, value);
+      processor.handleReturnValue(context, null, value);
       context.flush();
       assertThat(response.getStatus()).isEqualTo(500);
       assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
@@ -306,7 +349,8 @@ class ProblemDetailRenderingTests {
   void adviceWithExplicitContentTypeDoesNotResolveView() throws Exception {
     try (var application = new AnnotationConfigApplicationContext(ContentTypeAdvice.class)) {
       var resolver = resolver(application);
-      resolver.setErrorResponseViewResolver((request, detail, error) -> {
+      var processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
+      processor.setErrorResponseViewResolver((request, detail, error) -> {
         throw new AssertionError("Explicit content type must bypass views");
       });
       var request = new MockRequest();
@@ -315,8 +359,7 @@ class ProblemDetailRenderingTests {
       var context = new MockHttpContext(application, request, response);
       Object value = resolver.handleException(context, new IllegalStateException(), null);
       assertThat(value).isInstanceOf(ResponseEntity.class);
-      new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null)
-              .handleReturnValue(context, null, value);
+      processor.handleReturnValue(context, null, value);
       context.flush();
       assertThat(response.getStatus()).isEqualTo(409);
       assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
@@ -340,32 +383,45 @@ class ProblemDetailRenderingTests {
       application.refresh();
       var resolver = resolver(application);
       var invocations = new AtomicInteger();
-      resolver.setErrorResponseInterceptors(List.of((detail, error) -> {
+      var processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()),
+              null, List.of(), null, List.of((detail, error) -> {
         invocations.incrementAndGet();
         detail.setInstance(URI.create("/orders/42/errors/unique"));
         detail.setProperty("traceId", "123");
       }));
+      var rendered = new java.util.concurrent.atomic.AtomicReference<ModelAndView>();
+      processor.setViewReturnValueHandler(capturingViewHandler(rendered));
       var request = new MockRequest();
       request.addHeader("Accept", "*/*;q=0.8,text/html");
       var response = new MockResponse();
       var context = new MockHttpContext(application, request, response);
       var exception = new HttpRequestMethodNotSupportedException("POST", List.of("GET"));
-      resolver.setErrorResponseViewResolver((current, detail, error) -> {
+      processor.setErrorResponseViewResolver((current, detail, error) -> {
         assertThat(error).isSameAs(exception);
         assertThat(detail.getInstance()).isEqualTo(URI.create("/orders/42/errors/unique"));
         assertThat(detail.getProperties()).containsEntry("traceId", "123");
         return new ModelAndView("error/405", Map.of("problem", detail));
       });
       Object value = resolver.handleException(context, exception, null);
+      processor.handleReturnValue(context, null, value);
       context.flush();
-      assertThat(value).isInstanceOf(ModelAndView.class);
-      assertThat(((ModelAndView) value).getViewName()).isEqualTo("error/405");
-      assertThat(((ModelAndView) value).getStatus()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
+      assertThat(rendered.get().getViewName()).isEqualTo("error/405");
+      assertThat(rendered.get().getStatus()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
       assertThat(response.getStatus()).isEqualTo(405);
       assertThat(response.getHeader("Allow")).isEqualTo("GET");
       assertThat(invocations).hasValue(1);
       assertThat(response.getContentAsString()).isEmpty();
     }
+  }
+
+  private infra.web.view.ViewReturnValueHandler capturingViewHandler(
+          java.util.concurrent.atomic.AtomicReference<ModelAndView> rendered) {
+    return new infra.web.view.ViewReturnValueHandler((name, locale) -> null) {
+      @Override
+      public void renderView(infra.web.HttpContext context, ModelAndView view) {
+        rendered.set(view);
+      }
+    };
   }
 
   private ExceptionHandlerAnnotationExceptionHandler resolver(infra.context.ApplicationContext application) {

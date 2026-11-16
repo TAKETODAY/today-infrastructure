@@ -72,49 +72,37 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ExceptionHandlerAnnotationExceptionHandlerTests {
 
   @Test
-  void browserGetsProblemDetailView() throws Exception {
+  void browserGetsProblemDetailForReturnValueProcessing() throws Exception {
     try (var application = new AnnotationConfigApplicationContext(Config.class)) {
       handler.setApplicationContext(application);
       handler.setRenderUnhandledExceptionsAsProblemDetails(true);
-      handler.setErrorResponseViewResolver((context, detail, error) ->
-              new ModelAndView("error/" + detail.getStatus(), java.util.Map.of("problem", detail)));
       handler.afterPropertiesSet();
       request.addHeader("Accept", "text/html,application/json;q=0.5,*/*;q=0.1");
       Object result = handler.handleException(new MockHttpContext(application, request, response),
               new IllegalStateException(), null);
-      assertThat(result).isInstanceOf(ModelAndView.class);
-      var view = (ModelAndView) result;
-      assertThat(view.getViewName()).isEqualTo("error/500");
-      assertThat(view.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
-      assertThat(view.getModel()).containsKey("problem");
-      assertThat(response.getStatus()).isEqualTo(500);
+      assertThat(result).isInstanceOf(infra.web.ErrorResponse.class);
+      assertThat(response.getContentAsString()).isEmpty();
     }
   }
 
   @Test
-  void problemViewStatusHasPrecedence() throws Exception {
+  void fallbackPreservesProblemDetailStatus() throws Exception {
     try (var application = new AnnotationConfigApplicationContext(Config.class)) {
       handler.setApplicationContext(application);
       handler.setRenderUnhandledExceptionsAsProblemDetails(true);
-      handler.setErrorResponseViewResolver((context, detail, error) ->
-              new ModelAndView("error", HttpStatus.SERVICE_UNAVAILABLE));
       handler.afterPropertiesSet();
       request.addHeader("Accept", "text/html");
-      var result = (ModelAndView) handler.handleException(new MockHttpContext(application, request, response),
+      var result = (infra.web.ErrorResponse) handler.handleException(new MockHttpContext(application, request, response),
               new IllegalStateException(), null);
-      assertThat(result.getStatus()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
-      assertThat(response.getStatus()).isEqualTo(503);
+      assertThat(result.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @Test
-  void jsonPreferenceDoesNotResolveProblemView() throws Exception {
+  void jsonPreferenceReturnsProblemDetail() throws Exception {
     try (var application = new AnnotationConfigApplicationContext(Config.class)) {
       handler.setApplicationContext(application);
       handler.setRenderUnhandledExceptionsAsProblemDetails(true);
-      handler.setErrorResponseViewResolver((context, detail, error) -> {
-        throw new AssertionError("HTML view must not be resolved");
-      });
       handler.afterPropertiesSet();
       request.addHeader("Accept", "text/html;q=0.5,application/json");
       assertThat(handler.handleException(new MockHttpContext(application, request, response),
@@ -123,11 +111,23 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   }
 
   @Test
-  void nullProblemViewFallsBackToMessageConverters() throws Exception {
+  void invalidAcceptHeaderDoesNotDiscardProblemDetail() throws Exception {
     try (var application = new AnnotationConfigApplicationContext(Config.class)) {
       handler.setApplicationContext(application);
       handler.setRenderUnhandledExceptionsAsProblemDetails(true);
-      handler.setErrorResponseViewResolver((context, detail, error) -> null);
+      handler.afterPropertiesSet();
+      request.addHeader("Accept", "invalid");
+
+      assertThat(handler.handleException(new MockHttpContext(application, request, response),
+              new IllegalStateException(), null)).isInstanceOf(infra.web.ErrorResponse.class);
+    }
+  }
+
+  @Test
+  void htmlPreferenceReturnsProblemDetail() throws Exception {
+    try (var application = new AnnotationConfigApplicationContext(Config.class)) {
+      handler.setApplicationContext(application);
+      handler.setRenderUnhandledExceptionsAsProblemDetails(true);
       handler.afterPropertiesSet();
       request.addHeader("Accept", "text/html");
       assertThat(handler.handleException(new MockHttpContext(application, request, response),

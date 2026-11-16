@@ -34,11 +34,7 @@ import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.http.ProblemDetail;
-import infra.http.ResponseEntity;
 import infra.util.Assert;
-import infra.web.ErrorResponse;
-import infra.web.ErrorResponseViewResolver;
 import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.accept.ContentNegotiationManager;
@@ -49,20 +45,25 @@ import infra.web.handler.AbstractHandlerMethodExceptionHandler;
 import infra.web.resource.ResourceHttpRequestHandler;
 
 /**
- * Handle {@link ExceptionHandler} annotated method
- * <p>
- * this method indicates that is a exception handler
- * </p>
+ * Handle exceptions through methods annotated with {@link ExceptionHandler @ExceptionHandler}.
+ *
+ * <p>Searches the controller class hierarchy first, then applicable
+ * {@link ControllerAdvice @ControllerAdvice} beans in their configured order.
+ * Handler selection takes both the exception type and the requested media types
+ * into account.
+ *
+ * <p>An optional {@link ProblemDetailExceptionHandler} provides RFC 9457 problem
+ * details when no application exception handler matches or the selected handler
+ * rethrows or fails. Return values are processed by the normal return value
+ * handling infrastructure; this handler does not resolve or render error views.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see ExceptionHandlerMethodResolver
+ * @see #setRenderUnhandledExceptionsAsProblemDetails(boolean)
  * @since 2.3.7 2019-06-22 19:17
  */
 public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerMethodExceptionHandler
         implements ApplicationContextAware, InitializingBean {
-
-  /** Request attribute for a problem detail intercepted before error view resolution. */
-  public static final String INTERCEPTED_PROBLEM_DETAIL_ATTRIBUTE =
-          ExceptionHandlerAnnotationExceptionHandler.class.getName() + ".interceptedProblemDetail";
 
   private final ConcurrentHashMap<Class<?>, ExceptionHandlerMethodResolver> exceptionHandlerCache =
           new ConcurrentHashMap<>(64);
@@ -80,45 +81,17 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
 
   private @Nullable InvocableHandlerMethod problemDetailHandlerMethod;
 
-  private @Nullable ErrorResponseViewResolver errorResponseViewResolver;
-
-  private List<ErrorResponse.Interceptor> errorResponseInterceptors = List.of();
-
   /**
-   * Configure interceptors to apply before resolving an error response view.
-   *
-   * @param interceptors the interceptors to invoke
-   * @since 5.0
-   */
-  public void setErrorResponseInterceptors(List<ErrorResponse.Interceptor> interceptors) {
-    this.errorResponseInterceptors = List.copyOf(interceptors);
-  }
-
-  /**
-   * Configure a resolver for problem detail views when the client prefers HTML.
-   *
-   * @param resolver the resolver, or {@code null} to use message converters
-   * @since 5.0
-   */
-  public void setErrorResponseViewResolver(@Nullable ErrorResponseViewResolver resolver) {
-    this.errorResponseViewResolver = resolver;
-  }
-
-  /**
-   * Return the configured problem detail view resolver, if any.
-   *
-   * @since 5.0
-   */
-  public @Nullable ErrorResponseViewResolver getErrorResponseViewResolver() {
-    return this.errorResponseViewResolver;
-  }
-
-  /**
-   * Enable rendering exceptions not handled by application exception handlers as
-   * RFC 9457 problem details. The fallback runs after local and controller advice
-   * methods, including when such a method rethrows or fails. Its return value uses
-   * the normal content negotiation and error response interceptor infrastructure.
-   * <p>Already committed responses are not rendered. The default is {@code false}.
+   * Enable the RFC 9457 problem detail fallback for exceptions not handled by
+   * controller-local or {@code @ControllerAdvice} exception handlers.
+   * <p>The fallback also applies when the selected application exception handler
+   * rethrows or fails, and handles the original exception rather than the handler
+   * failure. Only {@link Exception} instances are eligible, and the fallback is
+   * skipped if the response is already committed.
+   * <p>The fallback result uses the normal return value handling infrastructure,
+   * including content negotiation, error response interceptors, and configured
+   * error views. The default is {@code false}. Configure this option before
+   * {@link #afterPropertiesSet() initialization}.
    *
    * @param enabled whether to render unhandled exceptions as problem details
    * @see ProblemDetailExceptionHandler
@@ -139,6 +112,12 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
   }
 
   /**
+   * Set the registry used to resolve arguments of exception handler methods.
+   * <p>If not configured, initialization looks for a
+   * {@link ParameterResolvingRegistry} in the application context, falling back
+   * to a default {@link HandlerParameterFactory} if none is available.
+   *
+   * @param registry the parameter resolving registry
    * @since 5.0
    */
   public void setParameterResolvingRegistry(ParameterResolvingRegistry registry) {
@@ -151,18 +130,19 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
   }
 
   /**
-   * Set the {@link ContentNegotiationManager} to use to determine requested media types.
-   * If not set, the default constructor is used.
+   * Set the manager used to determine the requested media types when selecting
+   * an {@code @ExceptionHandler} method.
+   * <p>By default, a new {@link ContentNegotiationManager} is used.
    *
+   * @param contentNegotiationManager the content negotiation manager
    * @since 5.0
    */
   public void setContentNegotiationManager(ContentNegotiationManager contentNegotiationManager) {
     this.contentNegotiationManager = contentNegotiationManager;
   }
 
-  @Nullable
   @Override
-  protected Object handleInternal(HttpContext context, @Nullable HandlerMethod handlerMethod, Throwable target) {
+  protected @Nullable Object handleInternal(HttpContext context, @Nullable HandlerMethod handlerMethod, Throwable target) {
     // catch all handlers
     var exHandler = getExceptionHandlerMethod(context, handlerMethod, target);
     if (exHandler == null) {
@@ -195,10 +175,10 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
       }
 
       if (exHandler == this.problemDetailHandlerMethod && target instanceof Exception exception) {
-        return resolveErrorView(context, exHandler.invokeAndHandle(context, null,
-                new Object[] { exception, context.getLocale() }));
+        return exHandler.invokeAndHandle(context, null,
+                new Object[] { exception, context.getLocale() });
       }
-      return resolveErrorView(context, exHandler.invokeAndHandle(context, null, arguments));
+      return exHandler.invokeAndHandle(context, null, arguments);
     }
     catch (Throwable invocationEx) {
       if (!disconnectedClientHelper.checkAndLogClientDisconnectedException(invocationEx)) {
@@ -218,8 +198,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
             metadata.setHandler(fallback);
           }
           try {
-            return resolveErrorView(context,
-                    fallback.invokeAndHandle(context, null, new Object[] { exception, context.getLocale() }));
+            return fallback.invokeAndHandle(context, null, new Object[] { exception, context.getLocale() });
           }
           catch (Exception fallbackFailure) {
             logger.warn("Failure in problem detail handler", fallbackFailure);
@@ -231,19 +210,23 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
   }
 
   /**
-   * Find an {@code @ExceptionHandler} method for the given exception. The default
-   * implementation searches methods in the class hierarchy of the controller first
-   * and if not found, it continues searching for additional {@code @ExceptionHandler}
-   * methods assuming some {@linkplain ControllerAdvice @ControllerAdvice}
-   * Infra-managed beans were detected.
+   * Find a handler method for the given exception and requested media types.
+   * <p>The default implementation searches {@code @ExceptionHandler} methods in
+   * the controller class hierarchy first, then applicable
+   * {@link ControllerAdvice @ControllerAdvice} beans in their configured order.
+   * If no method matches, the configured problem detail fallback is returned for
+   * {@link Exception} instances unless the response is already committed.
+   * <p>If the requested media types cannot be resolved, matching proceeds with
+   * {@link MediaType#ALL}.
    *
    * @param context the original web request that resulted in a handler error
-   * @param handlerMethod the method where the exception was raised (may be {@code null})
+   * @param handlerMethod the controller method associated with the request,
+   * or {@code null} if none is available
    * @param exception the raised exception
-   * @return a method to handle the exception, or {@code null} if none
+   * @return the matching exception handler or problem detail fallback,
+   * or {@code null} if neither is available
    */
-  @Nullable
-  protected InvocableHandlerMethod getExceptionHandlerMethod(HttpContext context, @Nullable HandlerMethod handlerMethod, Throwable exception) {
+  protected @Nullable InvocableHandlerMethod getExceptionHandlerMethod(HttpContext context, @Nullable HandlerMethod handlerMethod, Throwable exception) {
     List<MediaType> acceptedMediaTypes = List.of(MediaType.ALL);
     try {
       acceptedMediaTypes = contentNegotiationManager.resolveMediaTypes(context);
@@ -295,65 +278,6 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
     return context.isCommitted() ? null : this.problemDetailHandlerMethod;
   }
 
-  private @Nullable Object resolveErrorView(HttpContext context, @Nullable Object value) throws Exception {
-    if (this.errorResponseViewResolver == null || context.getResponseContentType() != null) {
-      return value;
-    }
-    ErrorResponse error = value instanceof ErrorResponse response ? response : null;
-    Object body = error != null ? error.getBody() :
-            value instanceof ResponseEntity<?> entity ? entity.getBody() : value;
-    if (!(body instanceof ProblemDetail detail)) {
-      return value;
-    }
-    if ((value instanceof ResponseEntity<?> entity && entity.getHeaders().getContentType() != null)
-            || (error != null && error.getHeaders().getContentType() != null)) {
-      return value;
-    }
-    var metadata = context.getMatchingMetadata();
-    if (metadata != null && metadata.getProducibleMediaTypes() != null
-            && !metadata.getProducibleMediaTypes().isEmpty()
-            && metadata.getProducibleMediaTypes().stream().noneMatch(MediaType.TEXT_HTML::isCompatibleWith)) {
-      return value;
-    }
-    boolean html = false;
-    for (MediaType type : this.contentNegotiationManager.resolveMediaTypes(context)) {
-      if (type.isConcrete()) {
-        html = MediaType.TEXT_HTML.isCompatibleWith(type);
-        break;
-      }
-    }
-    if (!html) {
-      return value;
-    }
-    try {
-      for (var interceptor : this.errorResponseInterceptors) {
-        interceptor.handleError(detail, error, context);
-      }
-    }
-    catch (Throwable ignored) {
-      // Match message-converter interceptor handling: rendering must continue.
-    }
-    if (!this.errorResponseInterceptors.isEmpty()) {
-      context.setAttribute(INTERCEPTED_PROBLEM_DETAIL_ATTRIBUTE, detail);
-    }
-    var view = this.errorResponseViewResolver.resolveErrorView(context, detail, error);
-    if (view == null) {
-      return value;
-    }
-    if (value instanceof ResponseEntity<?> entity) {
-      context.addHeaders(entity.getHeaders());
-    }
-    else if (error != null) {
-      context.addHeaders(error.getHeaders());
-    }
-    if (view.getStatus() == null) {
-      view.setStatus(value instanceof ResponseEntity<?> entity ? entity.getStatusCode() :
-              infra.http.HttpStatusCode.valueOf(detail.getStatus()));
-    }
-    context.setStatus(view.getStatus());
-    return view;
-  }
-
   private InvocableHandlerMethod createHandlerMethod(ExceptionHandlerMappingInfo mappingInfo, HttpContext context, Object advice) {
     if (!mappingInfo.getProducibleTypes().isEmpty()) {
       var matchingMetadata = context.getMatchingMetadata();
@@ -380,6 +304,12 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
 
   //
 
+  /**
+   * Initialize argument resolution, discover {@code @ControllerAdvice} exception
+   * handlers, and prepare the problem detail fallback if enabled.
+   *
+   * @throws IllegalStateException if no application context has been configured
+   */
   @Override
   public void afterPropertiesSet() {
     ApplicationContext context = applicationContext;

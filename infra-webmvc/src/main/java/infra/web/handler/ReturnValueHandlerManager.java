@@ -41,6 +41,7 @@ import infra.http.converter.StringHttpMessageConverter;
 import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.web.ErrorResponse;
+import infra.web.ErrorResponseViewResolver;
 import infra.web.HttpContext;
 import infra.web.RedirectModelManager;
 import infra.web.ReturnValueHandler;
@@ -99,6 +100,27 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   private final ArrayList<Object> bodyAdvice = new ArrayList<>();
 
   private final ArrayList<ErrorResponse.Interceptor> errorResponseInterceptors = new ArrayList<>();
+
+  private @Nullable ErrorResponseViewResolver errorResponseViewResolver;
+
+  /**
+   * Configure the resolver for HTML problem detail views.
+   *
+   * @param resolver the resolver, or {@code null} to use message converters
+   * @since 5.0
+   */
+  public void setErrorResponseViewResolver(@Nullable ErrorResponseViewResolver resolver) {
+    this.errorResponseViewResolver = resolver;
+  }
+
+  /**
+   * Return the configured problem detail view resolver, if any.
+   *
+   * @since 5.0
+   */
+  public @Nullable ErrorResponseViewResolver getErrorResponseViewResolver() {
+    return this.errorResponseViewResolver;
+  }
 
   // @since 4.0
   @SuppressWarnings("NullAway.Init")
@@ -298,6 +320,8 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
 
     HttpEntityMethodProcessor httpEntityMethodProcessor = new HttpEntityMethodProcessor(messageConverters,
             contentNegotiationManager, bodyAdvice, redirectModelManager, errorResponseInterceptors);
+    httpEntityMethodProcessor.setErrorResponseViewResolver(errorResponseViewResolver);
+    httpEntityMethodProcessor.setViewReturnValueHandler(viewHandler);
 
     ResponseBodyEmitterReturnValueHandler responseBodyEmitterHandler;
     if (taskExecutor != null) {
@@ -311,7 +335,11 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
     handlers.add(responseBodyEmitterHandler);
     handlers.add(new ServerResponseReturnValueHandler(this));
     handlers.add(new ResponseEntityReturnValueHandler(httpEntityMethodProcessor, responseBodyEmitterHandler));
-    handlers.add(new RequestResponseBodyMethodProcessor(messageConverters, contentNegotiationManager, bodyAdvice, errorResponseInterceptors));
+    var responseBodyProcessor = new RequestResponseBodyMethodProcessor(messageConverters,
+            contentNegotiationManager, bodyAdvice, errorResponseInterceptors);
+    responseBodyProcessor.setErrorResponseViewResolver(errorResponseViewResolver);
+    responseBodyProcessor.setViewReturnValueHandler(viewHandler);
+    handlers.add(responseBodyProcessor);
     handlers.add(new ModelAttributeMethodProcessor(true));
 
     // fall back

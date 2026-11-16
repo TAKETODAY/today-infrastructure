@@ -296,7 +296,7 @@ class WebMvcConfigurationSupportTests {
 
     verify(configurer).configureProblemDetails(any(ProblemDetailsConfigurer.class));
     assertThat(handler.isRenderUnhandledExceptionsAsProblemDetails()).isFalse();
-    assertThat(handler.getErrorResponseViewResolver()).isNull();
+    assertThat(configuration.getProblemDetailsConfigurer().getViewResolver()).isNull();
   }
 
   @Test
@@ -308,10 +308,11 @@ class WebMvcConfigurationSupportTests {
         configurer.renderUnhandledExceptions(true).viewResolver(viewResolver);
       }
     };
-    var handler = exceptionHandler(new DelegatingWebMvcConfiguration(List.of(configurer)));
+    var configuration = new DelegatingWebMvcConfiguration(List.of(configurer));
+    var handler = exceptionHandler(configuration);
 
     assertThat(handler.isRenderUnhandledExceptionsAsProblemDetails()).isTrue();
-    assertThat(handler.getErrorResponseViewResolver()).isSameAs(viewResolver);
+    assertThat(configuration.getProblemDetailsConfigurer().getViewResolver()).isSameAs(viewResolver);
   }
 
   @Test
@@ -329,10 +330,11 @@ class WebMvcConfigurationSupportTests {
         configurer.viewResolver(viewResolver);
       }
     };
-    var handler = exceptionHandler(new DelegatingWebMvcConfiguration(List.of(first, second)));
+    var configuration = new DelegatingWebMvcConfiguration(List.of(first, second));
+    var handler = exceptionHandler(configuration);
 
     assertThat(handler.isRenderUnhandledExceptionsAsProblemDetails()).isTrue();
-    assertThat(handler.getErrorResponseViewResolver()).isSameAs(viewResolver);
+    assertThat(configuration.getProblemDetailsConfigurer().getViewResolver()).isSameAs(viewResolver);
   }
 
   @Test
@@ -340,7 +342,7 @@ class WebMvcConfigurationSupportTests {
     try (var application = new AnnotationConfigApplicationContext(DefaultProblemDetailsConfig.class)) {
       var handler = configuredExceptionHandler(application);
       assertThat(handler.isRenderUnhandledExceptionsAsProblemDetails()).isFalse();
-      assertThat(handler.getErrorResponseViewResolver()).isNull();
+      assertThat(application.getBean(ReturnValueHandlerManager.class).getErrorResponseViewResolver()).isNull();
 
       var request = new MockHttpContext(application, new MockRequest("GET", "/"), new MockResponse());
       assertThat(handler.handleException(request, new IllegalStateException(), null)).isNull();
@@ -352,7 +354,7 @@ class WebMvcConfigurationSupportTests {
     try (var application = new AnnotationConfigApplicationContext(ProblemDetailsConfig.class, TestController.class)) {
       var handler = configuredExceptionHandler(application);
       assertThat(handler.isRenderUnhandledExceptionsAsProblemDetails()).isTrue();
-      assertThat(handler.getErrorResponseViewResolver()).isNotNull();
+      assertThat(application.getBean(ReturnValueHandlerManager.class).getErrorResponseViewResolver()).isNotNull();
 
       var response = new MockResponse();
       var request = new MockHttpContext(application, new MockRequest("GET", "/"), response);

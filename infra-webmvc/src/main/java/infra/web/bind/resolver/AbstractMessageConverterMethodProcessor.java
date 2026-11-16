@@ -45,6 +45,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpRange;
 import infra.http.HttpRequest;
 import infra.http.HttpStatus;
+import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.http.ProblemDetail;
 import infra.http.converter.GenericHttpMessageConverter;
@@ -58,6 +59,7 @@ import infra.util.MimeTypeUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 import infra.web.ErrorResponse;
+import infra.web.ErrorResponseViewResolver;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotAcceptableException;
@@ -65,6 +67,8 @@ import infra.web.ReturnValueHandler;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.util.UriUtils;
 import infra.web.util.pattern.PathPattern;
+import infra.web.view.ModelAndView;
+import infra.web.view.ViewReturnValueHandler;
 
 /**
  * Extends {@link infra.web.bind.resolver.AbstractMessageConverterMethodArgumentResolver} with the ability to handle method
@@ -112,10 +116,13 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 
   private final ContentNegotiationManager contentNegotiationManager;
 
+  private @Nullable ErrorResponseViewResolver errorResponseViewResolver;
+
+  private @Nullable ViewReturnValueHandler viewReturnValueHandler;
+
   private final HashSet<String> safeExtensions = new HashSet<>();
 
-  @Nullable
-  private final ArrayList<ErrorResponse.Interceptor> errorResponseInterceptors;
+  private final @Nullable ArrayList<ErrorResponse.Interceptor> errorResponseInterceptors;
 
   /**
    * Constructor with list of converters only.
@@ -161,6 +168,102 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
     else {
       this.errorResponseInterceptors = null;
     }
+  }
+
+  /**
+   * Configure a resolver for problem detail views when the client prefers HTML.
+   *
+   * @param resolver the resolver, or {@code null} to use message converters
+   * @since 5.0
+   */
+  public void setErrorResponseViewResolver(@Nullable ErrorResponseViewResolver resolver) {
+    this.errorResponseViewResolver = resolver;
+  }
+
+  /**
+   * Return the configured problem detail view resolver, if any.
+   *
+   * @since 5.0
+   */
+  public @Nullable ErrorResponseViewResolver getErrorResponseViewResolver() {
+    return this.errorResponseViewResolver;
+  }
+
+  /**
+   * Configure the handler used to render resolved problem detail views.
+   *
+   * @param handler the view rendering handler
+   * @since 5.0
+   */
+  public void setViewReturnValueHandler(ViewReturnValueHandler handler) {
+    this.viewReturnValueHandler = handler;
+  }
+
+  /**
+   * Resolve and render the given problem detail as a view if the client prefers
+   * HTML and the configured resolver returns a view.
+   * <p>The view's status takes precedence over the supplied fallback status.
+   * If this method returns {@code true}, the body must not be written with
+   * message converters.
+   *
+   * @param detail the problem detail to render
+   * @param errorResponse the originating error response, if any
+   * @param status the status to use if the view does not declare one
+   * @param context the current HTTP request and response context
+   * @return whether the problem detail was rendered as a view
+   * @throws Exception if resolving or rendering the view fails
+   * @since 5.0
+   */
+  protected boolean resolveErrorView(ProblemDetail detail, @Nullable ErrorResponse errorResponse,
+          HttpStatusCode status, HttpContext context) throws Exception {
+    ErrorResponseViewResolver resolver = this.errorResponseViewResolver;
+    if (resolver == null || context.getResponseContentType() != null || !isHtmlPreferred(context)) {
+      return false;
+    }
+    ModelAndView view = resolver.resolveErrorView(context, detail, errorResponse);
+    if (view == null) {
+      return false;
+    }
+    HttpStatusCode viewStatus = view.getStatus() != null ? view.getStatus() : status;
+    view.setStatus(viewStatus);
+    context.setStatus(viewStatus);
+    ViewReturnValueHandler viewHandler = this.viewReturnValueHandler;
+    if (viewHandler == null) {
+      var application = context.getApplicationContext();
+      if (application != null) {
+        viewHandler = application.getBean(ViewReturnValueHandler.class);
+      }
+    }
+    if (viewHandler == null) {
+      throw new IllegalStateException("No ViewReturnValueHandler configured for problem detail views");
+    }
+    viewHandler.renderView(context, view);
+    return true;
+  }
+
+  private boolean isHtmlPreferred(HttpContext context) {
+    HandlerMatchingMetadata metadata = context.getMatchingMetadata();
+    if (metadata != null) {
+      var producibleTypes = metadata.getProducibleMediaTypes();
+      if (!CollectionUtils.isEmpty(producibleTypes)
+              && producibleTypes.stream().noneMatch(MediaType.TEXT_HTML::isCompatibleWith)) {
+        return false;
+      }
+    }
+    List<MediaType> acceptableTypes;
+    try {
+      acceptableTypes = getAcceptableMediaTypes(context);
+    }
+    catch (HttpMediaTypeNotAcceptableException ex) {
+      return false;
+    }
+    // Acceptable media types are sorted by quality and specificity.
+    for (MediaType mediaType : acceptableTypes) {
+      if (mediaType.isConcrete()) {
+        return MediaType.TEXT_HTML.isCompatibleWith(mediaType);
+      }
+    }
+    return false;
   }
 
   // ReturnValueHandler

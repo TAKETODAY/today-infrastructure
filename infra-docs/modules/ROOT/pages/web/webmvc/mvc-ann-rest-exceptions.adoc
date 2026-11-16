@@ -81,8 +81,8 @@ public void configureProblemDetails(ProblemDetailsConfigurer configurer) {
 ----
 
 `ModelAndView` 来自 `infra.web.view`，示例还需要配置能解析 `errors/problem` 的视图解析器及相应模板。
-解析器适用于异常处理方法返回的 `ProblemDetail`、`ErrorResponse`，以及正文为 `ProblemDetail` 的 `ResponseEntity`，
-也适用于上述兜底结果；不是所有普通控制器返回值的通用视图转换器。
+解析器在消息转换处理器中执行，适用于控制器和异常处理方法返回的 `ProblemDetail`、`ErrorResponse`，
+以及正文为 `ProblemDetail` 的 `ResponseEntity`，也适用于上述兜底结果；不是任意返回值的通用视图转换器。
 
 只有内容协商选择 HTML 时才尝试解析视图。若响应或返回实体已显式指定 `Content-Type`，
 或者映射的 `produces` 不兼容 HTML，则继续使用原返回值。解析器返回 `null` 同样回退到消息转换器。

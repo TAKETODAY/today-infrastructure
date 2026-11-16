@@ -21,6 +21,7 @@ package infra.web.config.annotation;
 import org.jspecify.annotations.Nullable;
 
 import infra.web.ErrorResponseViewResolver;
+import infra.web.bind.resolver.AbstractMessageConverterMethodProcessor;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 
 /**
@@ -59,12 +60,12 @@ public class ProblemDetailsConfigurer {
 
   /**
    * Configure an {@link ErrorResponseViewResolver} to render problem details
-   * returned by {@code @ExceptionHandler} methods as views, typically HTML
+   * returned by controller or {@code @ExceptionHandler} methods as views, typically HTML
    * error pages, when the client prefers HTML.
    * <p>By default, problem details are always written with message converters.
    *
    * @param viewResolver the resolver to use
-   * @see ExceptionHandlerAnnotationExceptionHandler#setErrorResponseViewResolver(ErrorResponseViewResolver)
+   * @see AbstractMessageConverterMethodProcessor#setErrorResponseViewResolver(ErrorResponseViewResolver)
    */
   public ProblemDetailsConfigurer viewResolver(ErrorResponseViewResolver viewResolver) {
     this.viewResolver = viewResolver;

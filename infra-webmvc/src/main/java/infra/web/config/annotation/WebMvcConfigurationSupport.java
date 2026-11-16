@@ -522,6 +522,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
     manager.setViewReturnValueHandler(viewHandler);
     manager.addRequestResponseBodyAdvice(requestResponseBodyAdvice);
     manager.setErrorResponseInterceptors(getErrorResponseInterceptors());
+    manager.setErrorResponseViewResolver(getProblemDetailsConfigurer().getViewResolver());
     manager.registerDefaultHandlers();
 
     modifyReturnValueHandlerManager(manager);
@@ -632,10 +633,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
 
     handler.setContentNegotiationManager(contentNegotiationManager);
     handler.setParameterResolvingRegistry(registry);
-    handler.setErrorResponseInterceptors(getErrorResponseInterceptors());
     ProblemDetailsConfigurer problemDetails = getProblemDetailsConfigurer();
     handler.setRenderUnhandledExceptionsAsProblemDetails(problemDetails.isRenderUnhandledExceptions());
-    handler.setErrorResponseViewResolver(problemDetails.getViewResolver());
     handler.afterPropertiesSet();
     handlers.add(handler);
 
