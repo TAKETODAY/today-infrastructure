@@ -55,7 +55,10 @@ public class MediaTypeParamApiVersionResolver implements ApiVersionResolver {
     for (String header : request.getHeaders(HttpHeaders.ACCEPT)) {
       for (MediaType mediaType : MediaType.parseMediaTypes(header)) {
         if (compatibleMediaType.isCompatibleWith(mediaType)) {
-          return mediaType.getParameter(parameterName);
+          String version = mediaType.getParameter(parameterName);
+          if (version != null) {
+            return version;
+          }
         }
       }
     }
