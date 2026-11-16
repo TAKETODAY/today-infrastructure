@@ -716,4 +716,3 @@ public class MyProperties {
 
 TODAY INFRA 不提供通用的内建配置值加密机制。
 需要在启动前修改环境中的配置值时，可以使用 `infra.app.env.EnvironmentPostProcessor` 扩展点。
-不要把上游 Spring Cloud 的集成方案直接当作 infra 内建能力。
