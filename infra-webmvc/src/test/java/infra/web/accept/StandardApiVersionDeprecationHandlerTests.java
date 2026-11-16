@@ -19,6 +19,8 @@
 package infra.web.accept;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.net.URI;
 import java.time.ZonedDateTime;
@@ -70,6 +72,25 @@ class StandardApiVersionDeprecationHandlerTests {
     );
 
     assertThat(handler.toString()).startsWith("StandardApiVersionDeprecationHandler [VersionInfo[version=1.1,");
+  }
+
+  @ParameterizedTest
+  @CsvSource(delimiter = '|', textBlock = """
+          2026-07-01T00:30:00+01:00[Europe/London]       | Tue, 30 Jun 2026 23:30:00 GMT
+          2026-03-05T22:00:00-05:00[America/New_York]    | Fri, 06 Mar 2026 03:00:00 GMT
+          2026-11-05T09:05:03Z[GMT]                      | Thu, 05 Nov 2026 09:05:03 GMT
+          2026-11-05T09:05:03Z                           | Thu, 05 Nov 2026 09:05:03 GMT
+          """)
+  void sunsetDateFormattedAsImfFixdate(String date, String expected) {
+    ApiVersionParser<String> parser = version -> version;
+    StandardApiVersionDeprecationHandler handler = new StandardApiVersionDeprecationHandler(parser);
+
+    handler.configureVersion("1").setSunsetDate(ZonedDateTime.parse(date));
+    MockHttpContext context = new MockHttpContext(request, response);
+    handler.handleVersion("1", this.handler, context);
+    context.flush();
+
+    assertThat(response.getHeader("Sunset")).isEqualTo(expected);
   }
 
   @Test
