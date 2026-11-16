@@ -20,6 +20,8 @@ package infra.http.codec.protobuf;
 
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
+
 import infra.core.ResolvableType;
 import infra.core.codec.DecodingException;
 import infra.core.io.buffer.DataBuffer;
@@ -74,6 +76,16 @@ public class ProtobufJsonDecoderTests extends AbstractDecoderTests<ProtobufJsonD
     testDecodeToMonoAll(Mono.just(dataBuffer), Msg.class, step -> step
             .expectNext(this.msg1)
             .verifyComplete());
+  }
+
+  @Test
+  void decodeToMonoNonAsciiUtf8() {
+    Msg expected = Msg.newBuilder().setFoo("Caf\u00e9 \u20ac").build();
+    byte[] json = "{\"foo\":\"Caf\u00e9 \u20ac\"}".getBytes(StandardCharsets.UTF_8);
+
+    testDecodeToMono(Mono.just(this.bufferFactory.wrap(json)), ResolvableType.forClass(Msg.class), step -> step
+            .expectNext(expected)
+            .verifyComplete(), MediaType.APPLICATION_JSON, null);
   }
 
   @Test
