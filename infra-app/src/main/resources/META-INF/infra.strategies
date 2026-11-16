@@ -54,11 +54,13 @@ infra.app.env.YamlPropertySourceLoader
 # ConfigData Location Resolvers
 infra.app.context.config.ConfigDataLocationResolver=\
 infra.app.context.config.ConfigTreeConfigDataLocationResolver,\
+infra.app.context.config.SystemEnvironmentConfigDataLocationResolver,\
 infra.app.context.config.StandardConfigDataLocationResolver
 
 # ConfigData Loaders
 infra.app.context.config.ConfigDataLoader=\
 infra.app.context.config.ConfigTreeConfigDataLoader,\
+infra.app.context.config.SystemEnvironmentConfigDataLoader,\
 infra.app.context.config.StandardConfigDataLoader
 
 # Error Reporters

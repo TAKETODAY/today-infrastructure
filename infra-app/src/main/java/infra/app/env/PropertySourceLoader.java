@@ -19,7 +19,10 @@
 package infra.app.env;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.List;
+
+import org.jspecify.annotations.Nullable;
 
 import infra.core.env.PropertySource;
 import infra.core.io.Resource;
@@ -31,6 +34,7 @@ import infra.util.InfraStrategies;
  *
  * @author Dave Syer
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
 public interface PropertySourceLoader {
@@ -54,5 +58,21 @@ public interface PropertySourceLoader {
    * @throws IOException if the source cannot be loaded
    */
   List<PropertySource<?>> load(String name, Resource resource) throws IOException;
+
+  /**
+   * Load the resource into one or more property sources. Multi-document formats
+   * may return a property source for each document.
+   *
+   * @param name the root name of the property source
+   * @param resource the resource to load
+   * @param encoding the encoding of the resource, or {@code null} for the default
+   * @return the loaded property sources
+   * @throws IOException if the source cannot be loaded
+   * @since 5.0
+   */
+  default List<PropertySource<?>> load(String name, Resource resource, @Nullable Charset encoding)
+          throws IOException {
+    return load(name, resource);
+  }
 
 }

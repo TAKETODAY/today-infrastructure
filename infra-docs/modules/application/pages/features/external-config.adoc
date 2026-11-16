@@ -123,6 +123,30 @@ NOTE: 扩展名提示必须位于位置字符串的末尾。
 其他位置的方括号视为路径的一部分。
 例如，`file:/etc/config[prod]/myconfig[.yaml]` 会将 `/etc/config[prod]/myconfig` 作为 YAML 文件导入。
 
+=== 从环境变量导入配置
+
+`env:` 将一个环境变量的完整内容作为配置文档加载，而不是将环境变量名作为单个属性名。
+默认按 Java Properties 格式解析：
+
+[source,properties]
+----
+app.config.import=env:MY_CONFIGURATION
+----
+
+例如，`MY_CONFIGURATION` 可以包含多行 `server.port=8081`、`app.name=demo` 配置。
+使用 YAML 时添加扩展名提示：
+
+[source,properties]
+----
+app.config.import=env:MY_CONFIGURATION[.yaml]
+----
+
+支持 YAML 多文档。环境变量不存在时启动失败；使用 `optional:env:MY_CONFIGURATION` 可忽略缺失变量。
+默认使用 JVM 默认字符集对环境变量内容进行编码，并将同一字符集传给配置加载器，避免 Properties 默认编码导致中文等字符乱码。
+`env:` 位置也支持 `[extension=.properties][encoding=UTF-8]` 形式的提示；
+普通文件导入仍仅支持前述 `[.yaml]` 扩展名提示，不因此获得通用编码提示支持。
+环境变量可能包含敏感配置，请不要将其内容输出到日志。
+
 === 配置树
 
 配置树把目录和文件名组成属性名，把文件内容作为属性值，适合读取挂载到文件系统的配置或 Secret：
