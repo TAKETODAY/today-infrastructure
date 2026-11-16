@@ -259,6 +259,55 @@ Map 的特殊键可以用方括号保留，例如 YAML 中的 `"[/key1]"`。
 Map 则可以从多个来源合并不同键，同一属性由更高优先级的值覆盖。
 这些规则适用于全部属性源，不限于 Profile 配置文件。
 
+例如，将以下配置绑定到包含 `name` 和 `description` 成员的对象列表：
+
+[source,yaml]
+----
+my:
+  list:
+    - name: my name
+      description: my description
+---
+app:
+  config:
+    activate:
+      on-profile: dev
+my:
+  list:
+    - name: my another name
+----
+
+未激活 `dev` 时，列表中有一个对象，名称为 `my name`，描述为 `my description`。
+激活 `dev` 后，列表仍只有一个对象，名称为 `my another name`；如果对象没有预设描述，描述为 `null`，不会继承低优先级列表同一索引处的描述。
+即使低优先级列表有多个元素，也不会保留没有出现在高优先级列表中的元素。
+
+Map 的行为不同。考虑将以下配置绑定到 `Map<String, MyPojo>`：
+
+[source,yaml]
+----
+my:
+  map:
+    key1:
+      name: my name 1
+      description: my description 1
+---
+app:
+  config:
+    activate:
+      on-profile: dev
+my:
+  map:
+    key1:
+      name: dev name 1
+    key2:
+      name: dev name 2
+      description: dev description 2
+----
+
+激活 `dev` 后，Map 包含 `key1` 和 `key2`。
+`key1.name` 是 `dev name 1`，而 `key1.description` 仍为低优先级来源的 `my description 1`。
+`key2` 的两个成员都来自 `dev` 文档。
+
 === 类型转换
 
 绑定器使用转换服务将文本转换为目标类型。
@@ -271,11 +320,147 @@ Map 则可以从多个来源合并不同键，同一属性由更高优先级的�
 
 迁移已有整数属性为上述类型时，应保留原单位语义，而不是默认假定单位相同。
 
+==== Duration 示例
+
+下面的不可变配置属性类型通过构造器绑定超时值。
+使用前需要通过 `@EnableConfigurationProperties` 或配置属性扫描注册类型，并保留编译参数 `-parameters`：
+
+[source,java]
+----
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+
+import infra.context.properties.ConfigurationProperties;
+import infra.context.properties.bind.DefaultValue;
+import infra.format.annotation.DurationUnit;
+
+@ConfigurationProperties("my")
+public class MyProperties {
+
+  private final Duration sessionTimeout;
+
+  private final Duration readTimeout;
+
+  public MyProperties(@DurationUnit(ChronoUnit.SECONDS) @DefaultValue("30s") Duration sessionTimeout,
+          @DefaultValue("1000ms") Duration readTimeout) {
+    this.sessionTimeout = sessionTimeout;
+    this.readTimeout = readTimeout;
+  }
+
+  public Duration getSessionTimeout() {
+    return this.sessionTimeout;
+  }
+
+  public Duration getReadTimeout() {
+    return this.readTimeout;
+  }
+}
+----
+
+`my.session-timeout=30`、`PT30S` 和 `30s` 都表示 30 秒，因为该参数用 `@DurationUnit` 指定了秒。
+`my.read-timeout=500`、`PT0.5S` 和 `500ms` 都表示 500 毫秒，因为未指定注解时默认单位为毫秒。
+缺失属性使用 `@DefaultValue`，分别为 30 秒和 1 秒。
+JavaBean 绑定也可以在对应字段上使用 `@DurationUnit`，并通过字段初始化提供默认值。
+
+==== DataSize 示例
+
+容量属性同样支持构造器绑定与默认单位：
+
+[source,java]
+----
+import infra.context.properties.ConfigurationProperties;
+import infra.context.properties.bind.DefaultValue;
+import infra.format.annotation.DataSizeUnit;
+import infra.util.DataSize;
+import infra.util.DataUnit;
+
+@ConfigurationProperties("my")
+public class MyProperties {
+
+  private final DataSize bufferSize;
+
+  private final DataSize sizeThreshold;
+
+  public MyProperties(@DataSizeUnit(DataUnit.MEGABYTES) @DefaultValue("2MB") DataSize bufferSize,
+          @DefaultValue("512B") DataSize sizeThreshold) {
+    this.bufferSize = bufferSize;
+    this.sizeThreshold = sizeThreshold;
+  }
+
+  public DataSize getBufferSize() {
+    return this.bufferSize;
+  }
+
+  public DataSize getSizeThreshold() {
+    return this.sizeThreshold;
+  }
+}
+----
+
+`my.buffer-size=10` 和 `10MB` 等价，而 `my.size-threshold=256` 和 `256B` 等价。
+这里的 `KB`、`MB` 等使用二进制倍数，例如 `1KB` 为 1024 字节。
+将原先以 MB 为单位的整数属性改为 `DataSize` 时，应保留 `@DataSizeUnit(DataUnit.MEGABYTES)`，避免把既有无单位配置解释为字节。
+
 === 校验
 
 存在 Jakarta Bean Validation 实现时，可以在配置属性类型上声明 `infra.validation.annotation.Validated`，并为成员添加约束。
 嵌套对象的级联校验使用 `jakarta.validation.Valid`。
 也可以提供名为 `configurationPropertiesValidator` 的 `infra.validation.Validator` Bean；它的工厂方法应是静态的，避免过早创建配置类。
+
+下面的配置类型要求提供远端地址，并级联校验嵌套的用户名：
+
+[source,java]
+----
+import java.net.InetAddress;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
+import infra.context.properties.ConfigurationProperties;
+import infra.validation.annotation.Validated;
+
+@ConfigurationProperties("my.service")
+@Validated
+public class MyProperties {
+
+  @NotNull
+  private InetAddress remoteAddress;
+
+  @Valid
+  private final Security security = new Security();
+
+  public InetAddress getRemoteAddress() {
+    return this.remoteAddress;
+  }
+
+  public void setRemoteAddress(InetAddress remoteAddress) {
+    this.remoteAddress = remoteAddress;
+  }
+
+  public Security getSecurity() {
+    return this.security;
+  }
+
+  public static class Security {
+
+    @NotEmpty
+    private String username;
+
+    public String getUsername() {
+      return this.username;
+    }
+
+    public void setUsername(String username) {
+      this.username = username;
+    }
+  }
+}
+----
+
+`Security` 提前初始化为非空对象，因此即使没有提供任何 `my.service.security.*` 配置，也会通过 `@Valid` 检查其 `username` 约束。
+仅在嵌套类型上声明约束并不能替代关联成员上的 `@Valid`。
+也可以在创建配置属性 Bean 的 `@Bean` 方法上声明 `@Validated` 来触发校验。
 
 === 与 @Value 的区别
 
