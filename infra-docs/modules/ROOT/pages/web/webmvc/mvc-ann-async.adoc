@@ -54,7 +54,7 @@ HTTP 处理器也可以使用 `java.util.concurrent.Callable` 包装任何支持
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @PostMapping
-public Callable<String> processUpload(MultipartFile file) {
+public Callable<String> processUpload(@RequestParam("file") Part file) {
   return () -> "someView";
 }
 
@@ -64,7 +64,7 @@ public class MyHttpRequestHandler implements HttpRequestHandler {
   @Nullable
   @Override
   public Callable<String> handleRequest(HttpContext request) throws Throwable {
-    MultipartFile file = request.getMultipartRequest().getFile("file");
+    Part file = request.asMultipartRequest().getPart("file");
     // ...
     return () -> "someView";
   }
@@ -181,7 +181,7 @@ emitter.complete();
 ----
 @GetMapping(path="/events", produces=MediaType.TEXT_EVENT_STREAM_VALUE)
 public SseEmitter streamEvents() {
-  SseEmitter emitter = forServerSentEvents();
+  SseEmitter emitter = ResponseBodyEmitter.forServerSentEvents();
   // 在此处配置并使用 `emitter` 发送事件
   return emitter;
 }
@@ -192,7 +192,7 @@ public class MyHttpRequestHandler implements HttpRequestHandler {
   @Nullable
   @Override
   public SseEmitter handleRequest(HttpContext request) throws Throwable {
-    SseEmitter emitter = forServerSentEvents();
+    SseEmitter emitter = ResponseBodyEmitter.forServerSentEvents();
     // 其他地方引用 emitter 变量.
     return emitter;
   }
@@ -278,4 +278,3 @@ MVC 配置为异步请求处理提供了以下选项：
 
 请注意，您也可以在 `DeferredResult`、`ResponseBodyEmitter` 和 `SseEmitter` 上设置默认超时值。
 对于 `Callable`，您可以使用 `WebAsyncTask` 提供超时值。
-

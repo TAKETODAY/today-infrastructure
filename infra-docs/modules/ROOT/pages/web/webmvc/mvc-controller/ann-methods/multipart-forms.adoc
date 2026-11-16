@@ -1,7 +1,7 @@
 [[mvc-multipart-forms]]
 = Multipart
 
-在 xref:web/webmvc/mvc-core/multipart.adoc[启用] `MultipartResolver` 之后，
+在 xref:web/webmvc/mvc-core/multipart.adoc[配置] `MultipartParser` 之后，
 带有 `multipart/form-data` 的 POST 请求的内容将被解析并作为常规请求参数访问。
 以下示例访问一个常规表单字段和一个上传的文件：
 
@@ -11,15 +11,19 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
+import java.io.IOException;
+
+import infra.web.multipart.Part;
+
 @Controller
 public class FileUploadController {
 
   @PostMapping("/form")
   public String handleFormUpload(@RequestParam("name") String name,
-      @RequestParam("file") MultipartFile file) {
+      @RequestParam("file") Part file) throws IOException {
 
     if (!file.isEmpty()) {
-      byte[] bytes = file.getBytes();
+      byte[] bytes = file.getContentAsByteArray();
       // store the bytes somewhere
       return "redirect:uploadSuccess";
     }
@@ -30,10 +34,11 @@ public class FileUploadController {
 
 ======
 
-将参数类型声明为 `List<MultipartFile>` 允许解析同一参数名称的多个文件。
+将参数类型声明为 `List<Part>` 允许解析同一参数名称的多个部分。
 
-当 `@RequestParam` 注解声明为 `Map<String, MultipartFile>` 或 `MultiValueMap<String, MultipartFile>` 时，
-如果在注解中没有指定参数名称，则映射将填充每个给定参数名称的多部分文件。
+当 `@RequestParam` 注解声明为 `Map<String, Part>` 或 `MultiValueMap<String, Part>` 时，
+如果在注解中没有指定参数名称，则映射将填充各名称对应的部分（包括文件和表单字段）。
+`Part` 是 `infra.web.multipart.Part`，不是 Servlet 的 `Part`；读取其内容需要处理 `IOException`。
 
 
 您还可以将多部分内容用作数据绑定到 xref:web/webmvc/mvc-controller/ann-methods/modelattrib-method-args.adoc[命令对象] 的一部分。
@@ -49,7 +54,7 @@ class MyForm {
 
   private String name;
 
-  private MultipartFile file;
+  private Part file;
 
   // ...
 }
@@ -58,9 +63,9 @@ class MyForm {
 public class FileUploadController {
 
   @PostMapping("/form")
-  public String handleFormUpload(MyForm form, BindingResult errors) {
+  public String handleFormUpload(MyForm form, BindingResult errors) throws IOException {
     if (!form.getFile().isEmpty()) {
-      byte[] bytes = form.getFile().getBytes();
+      byte[] bytes = form.getFile().getContentAsByteArray();
       // store the bytes somewhere
       return "redirect:uploadSuccess";
     }
@@ -104,7 +109,7 @@ Java::
 ----
 @PostMapping("/")
 public String handle(@RequestPart("meta-data") MetaData metadata,
-    @RequestPart("file-data") MultipartFile file) {
+    @RequestPart("file-data") Part file) {
   // ...
 }
 ----
