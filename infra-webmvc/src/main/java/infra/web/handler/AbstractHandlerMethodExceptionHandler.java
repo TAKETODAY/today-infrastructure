@@ -22,7 +22,6 @@ import org.jspecify.annotations.Nullable;
 
 import infra.web.HandlerExceptionHandler;
 import infra.web.HttpContext;
-import infra.web.handler.function.HandlerFunction;
 import infra.web.handler.method.HandlerMethod;
 
 /**
@@ -53,10 +52,6 @@ public abstract class AbstractHandlerMethodExceptionHandler extends AbstractHand
     if (handler instanceof HandlerMethod handlerMethod) {
       handler = handlerMethod.getBean();
       return super.shouldApplyTo(request, handler);
-    }
-
-    if (handler instanceof HandlerFunction<?> handlerFunction) {
-      return super.shouldApplyTo(request, handlerFunction);
     }
 
     if (hasGlobalExceptionHandlers() && hasHandlerMappings()) {

@@ -42,6 +42,7 @@ import infra.web.annotation.ControllerAdvice;
 import infra.web.annotation.ExceptionHandler;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.handler.AbstractHandlerMethodExceptionHandler;
+import infra.web.handler.function.HandlerFunction;
 import infra.web.resource.ResourceHttpRequestHandler;
 
 /**
@@ -296,10 +297,15 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
   @Override
   protected boolean shouldApplyTo(HttpContext request, @Nullable Object handler) {
     if (this.problemDetailHandlerMethod != null && !hasHandlerMappings()) {
-      return true;
+      return true;  // render problem details for any handler
     }
-    return (handler instanceof ResourceHttpRequestHandler ?
-            hasGlobalExceptionHandlers() : super.shouldApplyTo(request, handler));
+    else if ((handler instanceof ResourceHttpRequestHandler || handler instanceof HandlerFunction)
+            && hasGlobalExceptionHandlers() && !hasHandlerMappings()) {
+      return true;  // apply to ResourceHttpRequestHandler and HandlerFunction by default
+    }
+    else {
+      return super.shouldApplyTo(request, handler);
+    }
   }
 
   //

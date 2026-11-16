@@ -24,6 +24,9 @@ import java.io.Writer;
 import java.net.SocketTimeoutException;
 import java.util.Locale;
 
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
 import infra.aop.framework.ProxyFactory;
 import infra.beans.FatalBeanException;
 import infra.context.ApplicationContext;
@@ -71,67 +74,27 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ExceptionHandlerAnnotationExceptionHandlerTests {
 
-  @Test
-  void browserGetsProblemDetailForReturnValueProcessing() throws Exception {
+  @ParameterizedTest
+  @ValueSource(strings = {
+          "text/html,application/json;q=0.5,*/*;q=0.1",
+          "text/html",
+          "text/html;q=0.5,application/json",
+          "invalid"
+  })
+  void fallbackReturnsProblemDetailWithoutRendering(String accept) throws Exception {
     try (var application = new AnnotationConfigApplicationContext(Config.class)) {
       handler.setApplicationContext(application);
       handler.setRenderUnhandledExceptionsAsProblemDetails(true);
       handler.afterPropertiesSet();
-      request.addHeader("Accept", "text/html,application/json;q=0.5,*/*;q=0.1");
+      request.addHeader("Accept", accept);
       Object result = handler.handleException(new MockHttpContext(application, request, response),
               new IllegalStateException(), null);
       assertThat(result).isInstanceOf(infra.web.ErrorResponse.class);
+      var error = (infra.web.ErrorResponse) result;
+      assertThat(error.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+      assertThat(error.getBody().getStatus()).isEqualTo(500);
       assertThat(response.getContentAsString()).isEmpty();
-    }
-  }
-
-  @Test
-  void fallbackPreservesProblemDetailStatus() throws Exception {
-    try (var application = new AnnotationConfigApplicationContext(Config.class)) {
-      handler.setApplicationContext(application);
-      handler.setRenderUnhandledExceptionsAsProblemDetails(true);
-      handler.afterPropertiesSet();
-      request.addHeader("Accept", "text/html");
-      var result = (infra.web.ErrorResponse) handler.handleException(new MockHttpContext(application, request, response),
-              new IllegalStateException(), null);
-      assertThat(result.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  @Test
-  void jsonPreferenceReturnsProblemDetail() throws Exception {
-    try (var application = new AnnotationConfigApplicationContext(Config.class)) {
-      handler.setApplicationContext(application);
-      handler.setRenderUnhandledExceptionsAsProblemDetails(true);
-      handler.afterPropertiesSet();
-      request.addHeader("Accept", "text/html;q=0.5,application/json");
-      assertThat(handler.handleException(new MockHttpContext(application, request, response),
-              new IllegalStateException(), null)).isInstanceOf(infra.web.ErrorResponse.class);
-    }
-  }
-
-  @Test
-  void invalidAcceptHeaderDoesNotDiscardProblemDetail() throws Exception {
-    try (var application = new AnnotationConfigApplicationContext(Config.class)) {
-      handler.setApplicationContext(application);
-      handler.setRenderUnhandledExceptionsAsProblemDetails(true);
-      handler.afterPropertiesSet();
-      request.addHeader("Accept", "invalid");
-
-      assertThat(handler.handleException(new MockHttpContext(application, request, response),
-              new IllegalStateException(), null)).isInstanceOf(infra.web.ErrorResponse.class);
-    }
-  }
-
-  @Test
-  void htmlPreferenceReturnsProblemDetail() throws Exception {
-    try (var application = new AnnotationConfigApplicationContext(Config.class)) {
-      handler.setApplicationContext(application);
-      handler.setRenderUnhandledExceptionsAsProblemDetails(true);
-      handler.afterPropertiesSet();
-      request.addHeader("Accept", "text/html");
-      assertThat(handler.handleException(new MockHttpContext(application, request, response),
-              new IllegalStateException(), null)).isInstanceOf(infra.web.ErrorResponse.class);
+      assertThat(response.isCommitted()).isFalse();
     }
   }
 
