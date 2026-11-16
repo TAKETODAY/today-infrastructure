@@ -332,6 +332,45 @@ YAML 和多文档 Properties 不能直接依靠普通 `@PropertySource` 或 `@Te
 通过 `EnableConfigurationProperties` 显式注册，或使用 `ConfigurationPropertiesScan` 扫描配置属性类。
 配置属性扫描与普通组件扫描是不同的机制。
 
+=== 注册与扫描
+
+对于需要按条件启用的配置属性，或者自动配置中使用的类型，可以在配置类上显式注册：
+
+[source,java]
+----
+import infra.context.annotation.Configuration;
+import infra.context.properties.ConfigurationProperties;
+import infra.context.properties.EnableConfigurationProperties;
+
+@Configuration(proxyBeanMethods = false)
+@EnableConfigurationProperties(SomeProperties.class)
+public class MyConfiguration {
+}
+
+@ConfigurationProperties("some.properties")
+class SomeProperties {
+
+  private String name;
+
+  public String getName() {
+    return this.name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+}
+----
+
+也可以在配置类上声明 `@ConfigurationPropertiesScan`，默认从该配置类所在包开始扫描。
+通过 `@ConfigurationPropertiesScan({"com.example.app", "com.example.another"})` 指定包名，或通过 `basePackageClasses` 指定各个包中的标记类型，可以限制扫描范围。
+带有 `@Component` 或其元注解的类型不会被配置属性扫描重复发现；不要把它当作普通组件扫描的替代品。
+
+通过扫描或 `@EnableConfigurationProperties` 注册的 Bean 使用约定名称 `<prefix>-<fqn>`，分别表示配置前缀与类型全限定名。
+没有前缀时，只使用类型全限定名。
+例如 `com.example.app.SomeProperties` 使用 `some.properties` 前缀时，Bean 名称为 `some.properties-com.example.app.SomeProperties`。
+业务代码通常直接按类型注入，不必依赖这一名称。
+
 === JavaBean 绑定
 
 JavaBean 绑定通常使用无参构造器、getter 和 setter。
@@ -348,6 +387,93 @@ record 同样支持构造器绑定。构造器参数名必须保留，编译时�
 `infra.context.properties.bind.DefaultValue` 为缺失的构造器参数或 record 组件指定默认值，支持占位符解析和类型转换。
 嵌套对象未提供属性时通常为 `null`；空的 `@DefaultValue` 可以要求为缺失的嵌套属性创建默认对象。
 不推荐把 `Optional` 用作配置属性成员，应根据实际空值语义设计类型。
+
+==== 嵌套构造器与默认值
+
+下面的示例同时绑定顶层属性与嵌套安全设置。嵌套对象也通过构造器创建：
+
+[source,java]
+----
+import java.net.InetAddress;
+import java.util.List;
+
+import infra.context.properties.ConfigurationProperties;
+import infra.context.properties.bind.DefaultValue;
+
+@ConfigurationProperties("my.service")
+public class MyProperties {
+
+  private final boolean enabled;
+
+  private final InetAddress remoteAddress;
+
+  private final Security security;
+
+  public MyProperties(boolean enabled, InetAddress remoteAddress, Security security) {
+    this.enabled = enabled;
+    this.remoteAddress = remoteAddress;
+    this.security = security;
+  }
+
+  public boolean isEnabled() {
+    return this.enabled;
+  }
+
+  public InetAddress getRemoteAddress() {
+    return this.remoteAddress;
+  }
+
+  public Security getSecurity() {
+    return this.security;
+  }
+
+  public static class Security {
+
+    private final String username;
+
+    private final String password;
+
+    private final List<String> roles;
+
+    public Security(String username, String password, @DefaultValue("USER") List<String> roles) {
+      this.username = username;
+      this.password = password;
+      this.roles = roles;
+    }
+
+    public String getUsername() {
+      return this.username;
+    }
+
+    public String getPassword() {
+      return this.password;
+    }
+
+    public List<String> getRoles() {
+      return this.roles;
+    }
+  }
+}
+----
+
+例如以下配置会创建启用的服务配置，以及用户名为 `admin`、密码为 `null`、角色为 `USER` 的嵌套对象：
+
+[source,properties]
+----
+my.service.enabled=true
+my.service.security.username=admin
+----
+
+如果只有 `my.service.enabled=true` 而完全没有安全设置，则 `security` 为 `null`。
+如果希望在缺少所有安全设置时仍创建默认对象，可以把外层构造器的参数改为 `@DefaultValue Security security`。
+此时用户名和密码仍为 `null`，角色列表使用 `USER` 默认值；空的 `@DefaultValue` 不表示把空字符串转换为 `Security`。
+
+还可以通过 `my.service.security=`（Properties）或 `security: {}`（YAML）显式提供空的嵌套配置，触发默认对象绑定。
+`@DefaultValue` 只在对应属性缺失时提供默认值；属性已经存在但为空，不意味着总会使用注解中的非空默认值。
+默认值中的占位符会在类型转换前解析。
+
+对于多个构造器，可以使用 `@ConstructorBinding` 明确选择；若要退出隐式构造器绑定，可将有参构造器标注为 `@Autowired` 或设为私有，并提供可用的 JavaBean 绑定方式。
+Java 保留字不能直接作为成员名时，可用 `infra.context.properties.bind.Name` 在构造器参数上指定实际属性名，例如 `@Name("import") String importLocation`。
 
 配置对象中的默认值不会自动写入 `Environment`。
 例如一个布尔成员默认是 `false`，不意味着 `@Value("${my.enabled}")` 在未提供属性时一定能解析；仍应显式提供占位符默认值。
