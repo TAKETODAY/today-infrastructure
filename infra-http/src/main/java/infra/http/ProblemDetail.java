@@ -67,7 +67,7 @@ public class ProblemDetail implements Serializable {
 
   private @Nullable URI instance;
 
-  private @Nullable Map<String, Object> properties;
+  private @Nullable Map<String, @Nullable Object> properties;
 
   /**
    * For deserialization.
@@ -261,7 +261,7 @@ public class ProblemDetail implements Serializable {
    *
    * @param properties the properties map
    */
-  public void setProperties(@Nullable Map<String, Object> properties) {
+  public void setProperties(@Nullable Map<String, @Nullable Object> properties) {
     this.properties = properties;
   }
 
@@ -270,16 +270,14 @@ public class ProblemDetail implements Serializable {
   /**
    * Return the configured {@link #setType(URI) problem type}.
    */
-  @Nullable
-  public URI getType() {
+  public @Nullable URI getType() {
     return this.type;
   }
 
   /**
    * Return the configured {@link #setTitle(String) problem title}.
    */
-  @Nullable
-  public String getTitle() {
+  public @Nullable String getTitle() {
     if (this.title == null) {
       HttpStatus httpStatus = HttpStatus.resolve(this.status);
       if (httpStatus != null) {
@@ -300,16 +298,14 @@ public class ProblemDetail implements Serializable {
   /**
    * Return the configured {@link #setDetail(String) problem detail}.
    */
-  @Nullable
-  public String getDetail() {
+  public @Nullable String getDetail() {
     return this.detail;
   }
 
   /**
    * Return the configured {@link #setInstance(URI) problem instance}.
    */
-  @Nullable
-  public URI getInstance() {
+  public @Nullable URI getInstance() {
     return this.instance;
   }
 
@@ -323,8 +319,7 @@ public class ProblemDetail implements Serializable {
    *
    * @see infra.http.support.ProblemDetailJacksonMixin
    */
-  @Nullable
-  public Map<String, Object> getProperties() {
+  public @Nullable Map<String, @Nullable Object> getProperties() {
     return this.properties;
   }
 
