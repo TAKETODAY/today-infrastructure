@@ -18,11 +18,11 @@
 
 package infra.app.env;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
-
-import org.jspecify.annotations.Nullable;
 
 import infra.core.env.PropertySource;
 import infra.core.io.Resource;
@@ -60,10 +60,12 @@ public interface PropertySourceLoader {
   List<PropertySource<?>> load(String name, Resource resource) throws IOException;
 
   /**
-   * Load the resource into one or more property sources. Multi-document formats
-   * may return a property source for each document.
+   * Load the resource into one or more property sources. Implementations may either
+   * return a list containing a single source, or in the case of a multi-document format
+   * such as yaml a source for each document in the resource.
    *
-   * @param name the root name of the property source
+   * @param name the root name of the property source. If multiple documents are loaded
+   * an additional suffix should be added to the name for each source loaded.
    * @param resource the resource to load
    * @param encoding the encoding of the resource, or {@code null} for the default
    * @return the loaded property sources

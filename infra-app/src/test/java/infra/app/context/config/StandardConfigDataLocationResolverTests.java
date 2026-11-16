@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
@@ -266,6 +267,7 @@ class StandardConfigDataLocationResolverTests {
     var locations = this.resolver.resolve(this.context, location);
     assertThat(locations).hasSize(1);
     var resolved = locations.get(0);
+    assertThat(resolved.getReference().encoding).isEqualTo(StandardCharsets.UTF_8);
     var loaded = new StandardConfigDataLoader().load(mock(ConfigDataLoaderContext.class), resolved);
     assertThat(loaded.getPropertySources().get(0).getProperty("smiley")).isEqualTo("😃");
   }
