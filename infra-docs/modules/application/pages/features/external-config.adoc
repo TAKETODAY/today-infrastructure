@@ -1,9 +1,68 @@
 [[features.external-config]]
 = 外部化配置
 
+////
+Adapted from the Spring Boot external configuration documentation and examples.
+Copyright 2012-present the original author or authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Modifications Copyright 2017 - 2026 the TODAY authors.
+////
+
 TODAY INFRA 允许把配置放在应用代码之外，使同一份代码在不同环境中运行。
 配置来源包括 Java Properties、YAML、环境变量、Java 系统属性和命令行参数。
 可以通过 `infra.beans.factory.annotation.Value` 注入单个值，通过 `infra.core.env.Environment` 查询属性，或使用 `infra.context.properties.ConfigurationProperties` 绑定结构化对象。
+
+[[features.external-config.order]]
+== 属性源与覆盖顺序
+
+标准 `Application` 启动流程中，常见属性源按以下顺序排列，后面的值覆盖前面的值：
+
+. `Application.setDefaultProperties(...)` 提供的默认属性。
+. 配置类上的 `@PropertySource` 属性源。
+. 配置数据，例如 `application.properties`、YAML 和导入的配置。
+. 仅提供 `random.*` 属性的随机属性源。
+. 操作系统环境变量。
+. Java 系统属性。
+. `infra.application.json` 或 `INFRA_APPLICATION_JSON` 中的 JSON 属性。
+. 命令行选项。
+
+测试中的内联属性、`@DynamicPropertySource` 和 `@TestPropertySource` 还可以增加高优先级属性源。
+其最终顺序取决于使用的测试引导器和上下文定制器；不能把 Boot 的测试切片和 Devtools 属性源顺序直接套用到 infra。
+同样，infra 的标准 Web 环境不会自动增加 Servlet 初始化参数或 `java:comp/env` JNDI 属性源。
+需要其他来源时，应显式配置属性源或环境后处理器。
+
+配置数据内部按以下层次覆盖：打包在 JAR 内的普通配置、JAR 内的 Profile 专用配置、JAR 外的普通配置、JAR 外的 Profile 专用配置。
+显式配置位置与位置组可以改变搜索安排，详见下文。
+
+例如，一个组件可以通过 `@Value` 使用 `name` 属性：
+
+[source,java]
+----
+import infra.beans.factory.annotation.Value;
+import infra.stereotype.Component;
+
+@Component
+public class MyBean {
+
+  @Value("${name}")
+  private String name;
+}
+----
+
+在 JAR 内的 `application.properties` 中提供 `name=default`，部署时用外部同名文件覆盖，临时运行时再用 `java -jar app.jar --name=production` 覆盖。
+诊断意外值时，应检查当前 `Environment` 中的属性源及其顺序，而不是假定存在 Boot 的 `/actuator/env` 或 `/actuator/configprops` 端点。
 
 == 配置文件搜索路径
 
@@ -47,7 +106,7 @@ java -jar myapp.jar --infra.application.json='{"my":{"name":"test"}}'
 
 解析后，环境中会出现 `my.name=test`。
 该 JSON 属性源位于系统属性之前；通常仍低于命令行属性。
-目标实现把 JSON 的 `null`、空对象和空数组转换为空字符串。这与上游页面中“`null` 不能覆盖较低优先级属性”的说明不同，不应照搬该说明。
+JSON 的 `null`、空对象和空数组会转换为空字符串，因此可以覆盖较低优先级属性的非空值。
 
 == 更改名称和位置
 
@@ -213,7 +272,13 @@ app.config.import=classpath:import.properties[encoding=utf-8]
 app.config.import=file:/etc/config/myconfig[extension=.properties][encoding=utf-8]
 ----
 
-编码提示会传递给配置加载器；Properties 加载器支持指定字符集，未指定时保持原有默认编码。
+编码提示会传递给配置加载器；Properties 加载器默认使用 ISO-8859-1，使用 `[encoding=utf-8]` 可以读取 UTF-8 文件。
+YAML 加载器自行识别其支持的编码，不提供通过这个属性选择任意字符集的保证。
+
+==== 文件属性
+
+扩展名与编码可以作为多个尾部属性组合，例如 `file:/etc/config/myconfig[extension=.properties][encoding=utf-8]`。
+`file:/etc/config/myconfig[extension=.yaml]` 与前面的 `[.yaml]` 简写等价。
 
 NOTE: 扩展名提示必须位于位置字符串的末尾。
 其他位置的方括号视为路径的一部分。
@@ -292,6 +357,10 @@ Docker Secret 文件名本身也可以包含点，例如 `/run/secrets/db.passwo
 
 配置值使用时可通过环境解析 `$\{name}` 占位符，也可以指定默认值 `${name:default}`。
 推荐使用小写连字符形式的规范属性名，例如 `${demo.item-price}`。
+在标准应用环境中，这种写法可以同时匹配配置文件中的 `demo.item-price`、`demo.itemPrice` 和环境变量 `DEMO_ITEMPRICE`。
+如果改用 `${demo.itemPrice}`，则不会反向匹配配置文件中的 `demo.item-price`。
+占位符可以出现在值的任意位置，也可以引用系统属性或环境变量。
+还可以定义 `server.port=${port:8080}`，以 `--port=9000` 作为现有属性的短命令行参数。
 
 [source,properties]
 ----
@@ -318,6 +387,19 @@ my:
 
 `app.config.activate.on-profile` 支持 Profile 表达式；`on-cloud-platform` 可以要求检测到指定云平台，例如 `kubernetes`。
 同时指定两个条件时，两者都必须匹配。
+`on-profile` 也可以提供表达式列表，只需其中一个表达式匹配。
+例如以下 Properties 文件始终提供 `myprop`，第二个文档仅在 Kubernetes 上且 `prod` 或 `staging` 激活时提供 `myotherprop`：
+
+[source,properties]
+----
+myprop=always-set
+#---
+app.config.activate.on-cloud-platform=kubernetes
+app.config.activate.on-profile=prod | staging
+myotherprop=sometimes-set
+----
+
+YAML 中也可以使用 `---` 表达完全相同的文档边界和激活条件。
 YAML 和多文档 Properties 不能直接依靠普通 `@PropertySource` 或 `@TestPropertySource` 加载；这些注解的默认加载方式不等价于应用配置数据加载器。
 
 == YAML
@@ -325,6 +407,58 @@ YAML 和多文档 Properties 不能直接依靠普通 `@PropertySource` 或 `@Te
 类路径中存在 SnakeYAML 时，配置数据加载器可以读取 YAML。
 层次结构会展平成点分隔的属性名，列表会变成 `my.servers[0]`、`my.servers[1]` 等索引属性。
 也可以使用 `infra.beans.factory.config.YamlPropertiesFactoryBean`、`YamlMapFactoryBean` 或 `infra.app.env.YamlPropertySourceLoader` 单独加载 YAML。
+
+=== 映射为扁平属性
+
+YAML 适合描述层次化配置。例如：
+
+[source,yaml]
+----
+environments:
+  dev:
+    url: "https://dev.example.com"
+    name: "Developer Setup"
+  prod:
+    url: "https://another.example.com"
+    name: "My Cool App"
+----
+
+供 `Environment` 使用时，会展平为：
+
+[source,properties]
+----
+environments.dev.url=https://dev.example.com
+environments.dev.name=Developer Setup
+environments.prod.url=https://another.example.com
+environments.prod.name=My Cool App
+----
+
+列表使用带索引的属性名：
+
+[source,yaml]
+----
+my:
+  servers:
+    - "dev.example.com"
+    - "another.example.com"
+----
+
+等价的扁平属性是：
+
+[source,properties]
+----
+my.servers[0]=dev.example.com
+my.servers[1]=another.example.com
+----
+
+`infra.context.properties.bind.Binder` 可以将索引属性绑定为 `List` 或 `Set`。
+普通 `@PropertySource` 和 `@TestPropertySource` 的默认加载方式不解析 YAML；使用这些入口时应提供 Properties，或显式实现适用的加载方式。
+
+=== 直接加载 YAML
+
+`YamlPropertiesFactoryBean` 将 YAML 加载为 `java.util.Properties`，`YamlMapFactoryBean` 将其加载为 `Map`。
+需要得到环境属性源时，使用 `YamlPropertySourceLoader`。
+这些 API 与应用的配置数据搜索、导入和激活流程不是同一个入口，单独调用时不要假定会自动处理 `app.config.import`。
 
 == 随机值配置
 
@@ -402,6 +536,19 @@ class SomeProperties {
 没有前缀时，只使用类型全限定名。
 例如 `com.example.app.SomeProperties` 使用 `some.properties` 前缀时，Bean 名称为 `some.properties-com.example.app.SomeProperties`。
 业务代码通常直接按类型注入，不必依赖这一名称。
+
+下面是在配置类上指定扫描包的完整示例，也可以把扫描注解放到应用主配置类上：
+
+[source,java]
+----
+import infra.context.annotation.Configuration;
+import infra.context.properties.ConfigurationPropertiesScan;
+
+@Configuration(proxyBeanMethods = false)
+@ConfigurationPropertiesScan({"com.example.app", "com.example.another"})
+public class MyApplication {
+}
+----
 
 === JavaBean 绑定
 
@@ -617,8 +764,67 @@ my:
 ----
 
 业务服务可以声明接收 `MyProperties` 的构造器，并通过 `getRemoteAddress()` 和 `getSecurity()` 使用绑定结果。
+例如，下面的服务与前面的 JavaBean `MyProperties` 放在同一个包中；这里返回绑定的地址，实际业务可以将它交给连接组件：
+
+[source,java]
+----
+import java.net.InetAddress;
+
+import infra.stereotype.Service;
+
+@Service
+public class MyService {
+
+  private final MyProperties properties;
+
+  public MyService(MyProperties properties) {
+    this.properties = properties;
+  }
+
+  public InetAddress remoteAddress() {
+    return this.properties.getRemoteAddress();
+  }
+}
+----
+
 配置对象本身通常不应承担建立连接等业务操作。
 确需访问环境时可以实现 `infra.context.EnvironmentAware`；需要构造器注入其他 Bean 时，应使用普通组件注册和 JavaBean 属性绑定，而不是配置属性构造器绑定。
+例如下面的普通组件保留业务依赖的构造器注入，`my.name` 则通过 setter 绑定：
+
+[source,java]
+----
+import infra.beans.factory.annotation.Autowired;
+import infra.context.properties.ConfigurationProperties;
+import infra.stereotype.Component;
+
+@Component
+@ConfigurationProperties("my")
+public class MyProperties {
+
+  private final MyBean myBean;
+
+  private String name;
+
+  @Autowired
+  public MyProperties(MyBean myBean) {
+    this.myBean = myBean;
+  }
+
+  public String getName() {
+    return this.name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  @Component
+  public static class MyBean {
+  }
+}
+----
+
+这类对象通过普通组件扫描注册，不再额外通过 `@EnableConfigurationProperties` 创建第二个实例。
 
 ==== 第三方对象绑定示例
 
@@ -709,16 +915,117 @@ Properties 和系统属性中的列表可使用 `[0]` 等索引或逗号分隔�
 列表索引用下划线包围，例如 `my.service[0].other` 对应 `MY_SERVICE_0_OTHER`。
 环境变量绑定到 Map 时，键名会小写化，但值不变。
 
+环境变量映射用于系统环境属性源。自定义属性源是否采用同样的规则，还取决于其名称及类型；普通 Map 属性源不会仅因键使用大写就自动变成操作系统环境源。
+具体而言，目标要求来源是 `SystemEnvironmentPropertySource`，并且名称为 `systemEnvironment` 或以 `-systemEnvironment` 结尾。
+
+==== Map 的特殊键
+
 Map 的特殊键可以用方括号保留，例如 YAML 中的 `"[/key1]"`。
 没有方括号时，键中的部分非字母数字字符会被删除。
 对于 `Map<String, String>`，点可以保留为键的一部分；对于 `Map<String, Object>`，不加括号的点通常表示嵌套结构。
 宽松绑定默认缓存不可变属性源；需要控制缓存时使用 `infra.context.properties.source.ConfigurationPropertyCaching`。
+
+例如，以下 YAML 绑定到 `Map<String, String>`：
+
+[source,yaml]
+----
+my:
+  map:
+    "[/key1]": "value1"
+    "[/key2]": "value2"
+    "/key3": "value3"
+----
+
+结果中的键为 `/key1`、`/key2` 和 `key3`；未加方括号的键会移除字母数字、连字符和点以外的字符。
+YAML 中含方括号的键应加引号，避免被当作 YAML 结构。
+标量值包括枚举和 `java.lang` 包中除 `Object` 外的类型。
+将 `a.b=c` 绑定到 `Map<String, String>` 得到 `{"a.b"="c"}`，绑定到 `Map<String, Object>` 则得到 `{"a"={"b"="c"}}`；后者改用 `[a.b]=c` 才会保留完整的点分隔键。
+
+==== 环境变量中的 Map
+
+[source,java]
+----
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import infra.context.properties.ConfigurationProperties;
+
+@ConfigurationProperties("my.props")
+public class MyMapsProperties {
+
+  private final Map<String, String> values = new LinkedHashMap<>();
+
+  public Map<String, String> getValues() {
+    return this.values;
+  }
+}
+----
+
+`MY_PROPS_VALUES_KEY=value` 得到 `values` 中的 `{"key"="value"}`。
+设置为 `MY_PROPS_VALUES_KEY=VALUE` 时，结果为 `{"key"="VALUE"}`：只有名称会转为小写，值不会改变大小写。
+
+==== 缓存
+
+宽松绑定缓存默认只用于不可变属性源。
+`ConfigurationPropertyCaching.get(environment)` 控制环境中的缓存，也可以指定底层属性源只控制一个来源。
+可以通过 `enable()`、`disable()`、`setTimeToLive(...)` 和 `clear()` 管理缓存；为可变来源启用缓存时，应同步考虑更新后的失效策略。
 
 === 集合合并规则
 
 多个来源中的列表按最高优先级来源整体替换，不追加元素，也不合并同一索引对象的字段。
 Map 则可以从多个来源合并不同键，同一属性由更高优先级的值覆盖。
 这些规则适用于全部属性源，不限于 Profile 配置文件。
+
+下面的类型同时展示可变列表与 Map 的可绑定入口；两个集合也可以分别放到独立的配置类型中：
+
+[source,java]
+----
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import infra.context.properties.ConfigurationProperties;
+
+@ConfigurationProperties("my")
+public class MyProperties {
+
+  private final List<MyPojo> list = new ArrayList<>();
+
+  private final Map<String, MyPojo> map = new LinkedHashMap<>();
+
+  public List<MyPojo> getList() {
+    return this.list;
+  }
+
+  public Map<String, MyPojo> getMap() {
+    return this.map;
+  }
+
+  public static class MyPojo {
+
+    private String name;
+
+    private String description;
+
+    public String getName() {
+      return this.name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    public String getDescription() {
+      return this.description;
+    }
+
+    public void setDescription(String description) {
+      this.description = description;
+    }
+  }
+}
+----
 
 例如，将以下配置绑定到包含 `name` 和 `description` 成员的对象列表：
 
@@ -741,6 +1048,8 @@ my:
 未激活 `dev` 时，列表中有一个对象，名称为 `my name`，描述为 `my description`。
 激活 `dev` 后，列表仍只有一个对象，名称为 `my another name`；如果对象没有预设描述，描述为 `null`，不会继承低优先级列表同一索引处的描述。
 即使低优先级列表有多个元素，也不会保留没有出现在高优先级列表中的元素。
+例如在第一个文档中追加 `name: another name`、`description: another description` 的第二项，激活 `dev` 后仍然只有 `my another name` 这一项。
+YAML 列表和逗号分隔列表都可以整体替换已有列表。
 
 Map 的行为不同。考虑将以下配置绑定到 `Map<String, MyPojo>`：
 
@@ -773,7 +1082,9 @@ my:
 
 绑定器使用转换服务将文本转换为目标类型。
 自定义转换可通过名为 `conversionService` 的转换服务或带 `ConfigurationPropertiesBinding` 的转换器提供。
+也可以通过 `infra.beans.factory.config.CustomEditorConfigurer` 注册自定义属性编辑器。
 用于绑定的转换器会较早创建，应限制其依赖；通过 `@Bean` 注册转换器时推荐使用静态工厂方法。
+如果自定义转换服务不用于配置属性，应避免命名为 `conversionService`，仅通过限定注解提供配置绑定专用转换器。
 
 * `Duration` 支持整数（默认毫秒）、ISO-8601 和 `10s` 等形式；`infra.format.annotation.DurationUnit` 可以调整无单位数值的单位。支持 `ns`、`us`、`ms`、`s`、`m`、`h`、`d`。
 * `Period` 支持整数（默认天）、ISO-8601 和 `1y3d` 等形式；`infra.format.annotation.PeriodUnit` 可调整默认单位。支持 `y`、`m`、`w`、`d`，周会转换成 7 天。
@@ -823,6 +1134,48 @@ public class MyProperties {
 缺失属性使用 `@DefaultValue`，分别为 30 秒和 1 秒。
 JavaBean 绑定也可以在对应字段上使用 `@DurationUnit`，并通过字段初始化提供默认值。
 
+对应的完整 JavaBean 写法如下：
+
+[source,java]
+----
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+
+import infra.context.properties.ConfigurationProperties;
+import infra.format.annotation.DurationUnit;
+
+@ConfigurationProperties("my")
+public class MyProperties {
+
+  @DurationUnit(ChronoUnit.SECONDS)
+  private Duration sessionTimeout = Duration.ofSeconds(30);
+
+  private Duration readTimeout = Duration.ofMillis(1000);
+
+  public Duration getSessionTimeout() {
+    return this.sessionTimeout;
+  }
+
+  public void setSessionTimeout(Duration sessionTimeout) {
+    this.sessionTimeout = sessionTimeout;
+  }
+
+  public Duration getReadTimeout() {
+    return this.readTimeout;
+  }
+
+  public void setReadTimeout(Duration readTimeout) {
+    this.readTimeout = readTimeout;
+  }
+}
+----
+
+==== Period 示例
+
+`Period` 的整数值默认表示天，例如 `10` 表示 10 天；`P1Y3D` 与简写 `1y3d` 都表示 1 年 3 天。
+`1w` 会转换为 7 天，而不是存储单独的周字段。
+需要把无单位整数解释为其他单位时，在属性字段或构造器参数上使用 `@PeriodUnit`。
+
 ==== DataSize 示例
 
 容量属性同样支持构造器绑定与默认单位：
@@ -861,6 +1214,55 @@ public class MyProperties {
 `my.buffer-size=10` 和 `10MB` 等价，而 `my.size-threshold=256` 和 `256B` 等价。
 这里的 `KB`、`MB` 等使用二进制倍数，例如 `1KB` 为 1024 字节。
 将原先以 MB 为单位的整数属性改为 `DataSize` 时，应保留 `@DataSizeUnit(DataUnit.MEGABYTES)`，避免把既有无单位配置解释为字节。
+
+对应的 JavaBean 写法使用字段初始化提供相同默认值：
+
+[source,java]
+----
+import infra.context.properties.ConfigurationProperties;
+import infra.format.annotation.DataSizeUnit;
+import infra.util.DataSize;
+import infra.util.DataUnit;
+
+@ConfigurationProperties("my")
+public class MyProperties {
+
+  @DataSizeUnit(DataUnit.MEGABYTES)
+  private DataSize bufferSize = DataSize.ofMegabytes(2);
+
+  private DataSize sizeThreshold = DataSize.ofBytes(512);
+
+  public DataSize getBufferSize() {
+    return this.bufferSize;
+  }
+
+  public void setBufferSize(DataSize bufferSize) {
+    this.bufferSize = bufferSize;
+  }
+
+  public DataSize getSizeThreshold() {
+    return this.sizeThreshold;
+  }
+
+  public void setSizeThreshold(DataSize sizeThreshold) {
+    this.sizeThreshold = sizeThreshold;
+  }
+}
+----
+
+==== Base64 数据
+
+配置属性为 `infra.core.io.Resource` 时，可以使用 `base64:` 前缀提供编码后的二进制内容：
+
+[source,yaml]
+----
+my:
+  property: "base64:SGVsbG8gV29ybGQ="
+----
+
+通过应用资源加载器解析后，资源内容为 `Hello World`。
+同一个 `Resource` 属性也可以使用 `classpath:` 等资源路径，不必把内容内联到配置中。
+Base64 是编码而不是加密，不应据此认为敏感值已受到保护。
 
 === 校验
 
@@ -928,6 +1330,31 @@ public class MyProperties {
 `@ConfigurationProperties` 支持结构化绑定、宽松命名和配置元数据，不求值 SpEL。
 `@Value` 适合单个值和需要表达式求值的情况，但不提供等价的配置元数据能力。
 应用自定义一组配置键时，推荐把它们归入一个配置属性类。
+
+[cols="3,2,2"]
+|===
+|能力 |`@ConfigurationProperties` |`@Value`
+
+|宽松绑定
+|支持
+|有限支持，取决于规范属性名及环境解析方式
+
+|配置元数据
+|支持
+|不支持等价的配置键元数据生成
+
+|SpEL 求值
+|不支持
+|支持
+|===
+
+`@Value` 同样推荐使用规范形式，例如 `@Value("${demo.item-price}")`。
+在标准应用环境中，它可以匹配 `demo.item-price`、`demo.itemPrice` 和 `DEMO_ITEMPRICE`；改用驼峰占位符则不会反向匹配连字符配置键。
+配置文件被解析并放入环境时，不会对其中的 SpEL 表达式求值；但表达式作为 `@Value` 的输入消费时可以求值。
+这与 `@ConfigurationProperties` 把配置作为数据进行绑定不同。
+
+配置注解处理器可以生成 `META-INF/infra-configuration-metadata.json`，供工具提供自定义键提示。
+附加元数据与打包规则见 xref:ROOT:appendix/configuration-metadata-packaging.adoc[]。
 
 == 配置值加密
 
