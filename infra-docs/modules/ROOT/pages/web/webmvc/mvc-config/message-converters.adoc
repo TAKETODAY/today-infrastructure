@@ -1,9 +1,9 @@
 [[mvc-config-message-converters]]
 = 消息转换器
 
-您可以通过重写 {today-framework-api}/web/config/WebMvcConfigurer.html#configureMessageConverters-java.util.List-[`configureMessageConverters()`]，
+您可以通过重写 {today-framework-api}++/web/config/annotation/WebMvcConfigurer.html#configureMessageConverters(java.util.List)++[`configureMessageConverters(List)`]，
 在Java配置中设置要使用的 `HttpMessageConverter` 实例，替换默认使用的实例。您也可以通过重写
-{today-framework-api}/web/config/WebMvcConfigurer.html#extendMessageConverters-java.util.List-[`extendMessageConverters()`]，
+{today-framework-api}++/web/config/annotation/WebMvcConfigurer.html#extendMessageConverters(java.util.List)++[`extendMessageConverters(List)`]，
 在最后定制配置的消息转换器列表。
 
 TIP: 在 Infra App 应用程序中，`WebMvcAutoConfiguration` 除了默认转换器外，还会添加它检测到的任何
@@ -14,41 +14,30 @@ TIP: 在 Infra App 应用程序中，`WebMvcAutoConfiguration` 除了默认转�
 `Map<String, String>`；读取为普通 `Map` 时，同一名称仅保留第一个值。
 multipart 写入继续使用 `MultiValueMap`，由现有的 part 转换器处理。
 
-以下示例添加了 XML 和 Jackson JSON 转换器，并使用自定义的 `ObjectMapper` 替换默认的转换器：
+以下示例添加 Jackson 3 的 XML 和 JSON 转换器，并定制输出缩进。
 
 [source,java]
 ----
+import infra.http.converter.json.JacksonJsonHttpMessageConverter;
+import infra.http.converter.xml.JacksonXmlHttpMessageConverter;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.dataformat.xml.XmlMapper;
+
 @Configuration
 public class WebConfiguration implements WebMvcConfigurer {
 
   @Override
   public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-    Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder()
-            .indentOutput(true)
-            .dateFormat(new SimpleDateFormat("yyyy-MM-dd"))
-            .modulesToInstall(new ParameterNamesModule());
-    converters.add(new JacksonJsonHttpMessageConverter(builder.build()));
-    converters.add(new JacksonXmlHttpMessageConverter(builder.createXmlMapper(true).build()));
+    converters.add(new JacksonJsonHttpMessageConverter(
+      JsonMapper.builder().enable(SerializationFeature.INDENT_OUTPUT)));
+    converters.add(new JacksonXmlHttpMessageConverter(
+      XmlMapper.builder(JacksonXmlHttpMessageConverter.defensiveXmlFactory())
+        .enable(SerializationFeature.INDENT_OUTPUT)));
   }
 }
 ----
 
-此构建器按以下方式自定义 Jackson 的默认属性：
-
-* {jackson-docs}/jackson-databind/javadoc/2.6/com/fasterxml/jackson/databind/DeserializationFeature.html#FAIL_ON_UNKNOWN_PROPERTIES[`DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES`] 被禁用。
-* {jackson-docs}/jackson-databind/javadoc/2.6/com/fasterxml/jackson/databind/MapperFeature.html#DEFAULT_VIEW_INCLUSION[`MapperFeature.DEFAULT_VIEW_INCLUSION`] 被禁用。
-
-它还自动注册以下知名模块（如果它们在类路径上被检测到）：
-
-* {jackson-github-org}/jackson-datatype-joda[jackson-datatype-joda]: 支持 Joda-Time 类型。
-* {jackson-github-org}/jackson-datatype-jsr310[jackson-datatype-jsr310]: 支持 Java 8 日期和时间 API 类型。
-* {jackson-github-org}/jackson-datatype-jdk8[jackson-datatype-jdk8]: 支持其他 Java 8 类型，如 `Optional`。
-
-注意：启用 Jackson XML 支持的缩进需要除了
-https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.codehaus.woodstox%22%20AND%20a%3A%22woodstox-core-asl%22[`woodstox-core-asl`]
-依赖项外，还需要 https://search.maven.org/#search%7Cga%7C1%7Ca%3A%22jackson-dataformat-xml%22[`jackson-dataformat-xml`] 依赖项。
-
-其他有趣的 Jackson 模块包括：
-
-* https://github.com/zalando/jackson-datatype-money[jackson-datatype-money]: 支持 `javax.money` 类型（非官方模块）。
-* {jackson-github-org}/jackson-datatype-hibernate[jackson-datatype-hibernate]: 支持 Hibernate 特定类型和属性（包括延迟加载方面）。
+使用接收 mapper 构建器的构造函数时，转换器会注册通过 `MapperBuilder.findModules(ClassLoader)`
+发现的 Jackson 3 模块，并为 `ProblemDetail` 添加对应的 mixin。
+XML 构建器使用 `defensiveXmlFactory()` 禁止 DTD 和外部实体解析。
