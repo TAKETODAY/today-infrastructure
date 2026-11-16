@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2026 the TODAY authors.
+ * Copyright 2012-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.gradle.tasks.bundling;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
@@ -26,11 +28,11 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.artifacts.ResolvableDependencies;
+import org.gradle.api.artifacts.component.ComponentArtifactIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.artifacts.result.ResolvedArtifactResult;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.api.tasks.bundling.Jar;
-import org.gradle.internal.component.external.model.ModuleComponentArtifactIdentifier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -767,7 +769,7 @@ abstract class AbstractInfraArchiveTests<T extends Jar & InfraArchive> {
   }
 
   private ResolvedArtifactResult mockArtifact(String fileName, String group, String module, String version) {
-    ModuleComponentArtifactIdentifier moduleId = mock(ModuleComponentArtifactIdentifier.class);
+    ComponentArtifactIdentifier moduleId = mock(ComponentArtifactIdentifier.class);
     ModuleComponentIdentifier componentId = mock(ModuleComponentIdentifier.class);
     given(moduleId.getComponentIdentifier()).willReturn(componentId);
     given(componentId.getGroup()).willReturn(group);

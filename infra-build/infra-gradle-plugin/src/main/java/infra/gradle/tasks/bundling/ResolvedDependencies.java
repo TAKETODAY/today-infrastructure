@@ -29,7 +29,7 @@ import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
-import org.gradle.internal.component.external.model.ModuleComponentArtifactIdentifier;
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.util.List;
@@ -89,22 +89,21 @@ class ResolvedDependencies {
 
   void resolvedArtifacts(Provider<Set<ResolvedArtifactResult>> resolvedArtifacts) {
     this.artifactFiles.addAll(resolvedArtifacts
-            .map((artifacts) -> artifacts.stream().map(ResolvedArtifactResult::getFile).collect(Collectors.toList())));
+            .map((artifacts) -> artifacts.stream().map(ResolvedArtifactResult::getFile).toList()));
     this.artifactIds.addAll(resolvedArtifacts
-            .map((artifacts) -> artifacts.stream().map(ResolvedArtifactResult::getId).collect(Collectors.toList())));
+            .map((artifacts) -> artifacts.stream().map(ResolvedArtifactResult::getId).toList()));
   }
 
-  DependencyDescriptor find(File file) {
+  @Nullable DependencyDescriptor find(File file) {
     ComponentArtifactIdentifier id = findArtifactIdentifier(file);
     if (id == null) {
       return null;
     }
-    if (id instanceof ModuleComponentArtifactIdentifier moduleComponentId) {
-      ModuleComponentIdentifier moduleId = moduleComponentId.getComponentIdentifier();
+    ComponentIdentifier componentIdentifier = id.getComponentIdentifier();
+    if (componentIdentifier instanceof ModuleComponentIdentifier moduleId) {
       return new DependencyDescriptor(
               LibraryCoordinates.of(moduleId.getGroup(), moduleId.getModule(), moduleId.getVersion()), false);
     }
-    ComponentIdentifier componentIdentifier = id.getComponentIdentifier();
     if (componentIdentifier instanceof ProjectComponentIdentifier projectComponentId) {
       String projectPath = projectComponentId.getProjectPath();
       LibraryCoordinates projectCoordinates = this.projectCoordinatesByPath.get(projectPath);
@@ -115,7 +114,7 @@ class ResolvedDependencies {
     return null;
   }
 
-  private ComponentArtifactIdentifier findArtifactIdentifier(File file) {
+  private @Nullable ComponentArtifactIdentifier findArtifactIdentifier(File file) {
     List<File> files = this.artifactFiles.get();
     for (int i = 0; i < files.size(); i++) {
       if (file.equals(files.get(i))) {
