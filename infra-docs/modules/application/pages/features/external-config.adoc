@@ -326,6 +326,38 @@ YAML 和多文档 Properties 不能直接依靠普通 `@PropertySource` 或 `@Te
 层次结构会展平成点分隔的属性名，列表会变成 `my.servers[0]`、`my.servers[1]` 等索引属性。
 也可以使用 `infra.beans.factory.config.YamlPropertiesFactoryBean`、`YamlMapFactoryBean` 或 `infra.app.env.YamlPropertySourceLoader` 单独加载 YAML。
 
+== 随机值配置
+
+`infra.app.env.RandomValuePropertySource` 可以为配置占位符生成随机整数、长整数、UUID 或字符串：
+
+[source,yaml]
+----
+my:
+  secret: "${random.value}"
+  number: "${random.int}"
+  bignumber: "${random.long}"
+  uuid: "${random.uuid}"
+  number-less-than-ten: "${random.int(10)}"
+  number-in-range: "${random.int[1024,65536]}"
+----
+
+`random.int(10)` 的范围为大于等于 0、小于 10；`random.int[1024,65536]` 的范围为大于等于 1024、小于 65536。
+长整数也可以使用范围形式，例如 `${random.long(100)}`。
+范围语法为 `OPEN value (,max) CLOSE`，两侧分隔符可以使用任意字符；提供一个数值时表示上界，提供两个数值时分别表示下界和上界，上界不包含在结果中。
+单个上界必须为正数，两个边界必须满足下界小于上界。
+
+随机属性源在读取属性时生成值，不应把多次读取同一随机属性理解为读取一个持久不变的密钥。
+需要稳定值时，应由应用保存已生成的值或使用外部配置管理；不要将这些示例视为完整的凭据管理方案。
+
+== 系统环境变量前缀
+
+多个应用共享同一组操作系统环境变量时，可以在启动前调用 `Application.setEnvironmentPrefix(...)`，为系统环境属性绑定设置应用专用前缀。
+例如设置前缀为 `input` 后，配置属性 `remote.timeout` 可以通过 `INPUT_REMOTE_TIMEOUT` 提供。
+前缀仅作用于系统环境属性源；Properties、YAML 和 Java 系统属性仍使用 `remote.timeout`，不需要改成带前缀的名称。
+
+这与 `app.config.import=env:MY_CONFIGURATION` 不同：前者影响系统环境属性的名称映射，后者按明确给出的变量名读取整份配置文档。
+不要把环境前缀当作自动修改 `env:` 导入变量名的规则。
+
 == 类型安全的配置属性
 
 多个相关属性适合绑定为 `@ConfigurationProperties` 对象，而不是使用大量 `@Value` 字段。
@@ -377,6 +409,92 @@ JavaBean 绑定通常使用无参构造器、getter 和 setter。
 预先初始化为可变实现的集合、Map，以及预先初始化的嵌套对象，可以省略 setter。
 目标还支持公开字段绑定；静态成员不应作为配置属性。
 嵌套属性名由成员名决定，而不是由嵌套类型名决定。
+
+下面的类型将 `my.service` 下的属性绑定为服务配置：
+
+[source,java]
+----
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import infra.context.properties.ConfigurationProperties;
+
+@ConfigurationProperties("my.service")
+public class MyProperties {
+
+  private boolean enabled;
+
+  private InetAddress remoteAddress;
+
+  private final Security security = new Security();
+
+  public boolean isEnabled() {
+    return this.enabled;
+  }
+
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
+
+  public InetAddress getRemoteAddress() {
+    return this.remoteAddress;
+  }
+
+  public void setRemoteAddress(InetAddress remoteAddress) {
+    this.remoteAddress = remoteAddress;
+  }
+
+  public Security getSecurity() {
+    return this.security;
+  }
+
+  public static class Security {
+
+    private String username;
+
+    private String password;
+
+    private List<String> roles = new ArrayList<>(Collections.singleton("USER"));
+
+    public String getUsername() {
+      return this.username;
+    }
+
+    public void setUsername(String username) {
+      this.username = username;
+    }
+
+    public String getPassword() {
+      return this.password;
+    }
+
+    public void setPassword(String password) {
+      this.password = password;
+    }
+
+    public List<String> getRoles() {
+      return this.roles;
+    }
+
+    public void setRoles(List<String> roles) {
+      this.roles = roles;
+    }
+  }
+}
+----
+
+这个类型定义了以下属性：
+
+* `my.service.enabled`，默认值为 `false`。
+* `my.service.remote-address`，文本值会转换为 `InetAddress`。
+* `my.service.security.username` 和 `my.service.security.password`，默认均为 `null`。
+* `my.service.security.roles`，默认包含 `USER`，使用可变列表初始化。
+
+`security` 已初始化，因此不需要 setter；如果希望绑定器按需通过无参构造器创建嵌套对象，则需要提供可写入口。
+如果使用 Lombok 生成访问器，应避免意外生成改变实例创建方式的构造器。
+成员名与 Java 保留字冲突时，可以在字段上使用 `@Name`，例如 `@Name("import") private String importLocation;`。
 
 === 构造器绑定
 
@@ -484,10 +602,109 @@ Java 保留字不能直接作为成员名时，可用 `infra.context.properties.
 通常应只承载环境配置，不在构造器中注入其他业务 Bean。
 也可以在创建第三方对象的 `@Bean` 方法上使用 `@ConfigurationProperties`，为返回的对象绑定指定前缀下的属性。
 
+例如，将前面的 `MyProperties` 注册后，可以使用以下 YAML 配置它：
+
+[source,yaml]
+----
+my:
+  service:
+    remote-address: 192.168.1.1
+    security:
+      username: "admin"
+      roles:
+        - "USER"
+        - "ADMIN"
+----
+
+业务服务可以声明接收 `MyProperties` 的构造器，并通过 `getRemoteAddress()` 和 `getSecurity()` 使用绑定结果。
+配置对象本身通常不应承担建立连接等业务操作。
+确需访问环境时可以实现 `infra.context.EnvironmentAware`；需要构造器注入其他 Bean 时，应使用普通组件注册和 JavaBean 属性绑定，而不是配置属性构造器绑定。
+
+==== 第三方对象绑定示例
+
+无法修改第三方类型时，可以把注解放到创建该对象的公开 `@Bean` 方法上。
+下面用一个具有 `name` JavaBean 属性的组件演示这种方式；实际使用时将其替换为第三方库中的类型：
+
+[source,java]
+----
+import infra.context.annotation.Bean;
+import infra.context.annotation.Configuration;
+import infra.context.properties.ConfigurationProperties;
+
+@Configuration(proxyBeanMethods = false)
+public class ThirdPartyConfiguration {
+
+  @Bean
+  @ConfigurationProperties("another")
+  public AnotherComponent anotherComponent() {
+    return new AnotherComponent();
+  }
+
+  public static class AnotherComponent {
+
+    private String name;
+
+    public String getName() {
+      return this.name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+  }
+}
+----
+
+例如 `another.name=example` 会绑定到这个 Bean 的 `name` 属性。
+对象先由工厂方法创建，再进行 JavaBean 绑定；注解不会把第三方对象改为由配置属性构造器创建。
+
 === 宽松绑定
 
 绑定时支持连字符、驼峰和下划线等常见命名形式，例如 `first-name`、`firstName`、`first_name`。
 注解的前缀必须使用小写连字符形式。推荐配置文件也使用这一形式。
+
+例如下面的配置类型：
+
+[source,java]
+----
+import infra.context.properties.ConfigurationProperties;
+
+@ConfigurationProperties("my.main-project.person")
+public class MyPersonProperties {
+
+  private String firstName;
+
+  public String getFirstName() {
+    return this.firstName;
+  }
+
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
+}
+----
+
+[cols="2,3"]
+|===
+|属性名 |适用形式
+
+|`my.main-project.person.first-name`
+|Properties 和 YAML 推荐使用的小写连字符形式。
+
+|`my.main-project.person.firstName`
+|驼峰形式。
+
+|`my.main-project.person.first_name`
+|下划线形式。
+
+|`MY_MAINPROJECT_PERSON_FIRSTNAME`
+|操作系统环境变量形式。
+|===
+
+Properties、YAML 和 Java 系统属性支持上述驼峰、连字符和下划线成员名。
+Properties 和系统属性中的列表可使用 `[0]` 等索引或逗号分隔值；YAML 还支持标准列表语法。
+环境变量遵循下述专用映射规则，不能直接套用配置文件中的全部拼写形式。
+
 环境变量名转换规则是把点换成下划线、删除连字符并转为大写：`app.main.log-startup-info` 对应 `APP_MAIN_LOGSTARTUPINFO`。
 列表索引用下划线包围，例如 `my.service[0].other` 对应 `MY_SERVICE_0_OTHER`。
 环境变量绑定到 Map 时，键名会小写化，但值不变。
