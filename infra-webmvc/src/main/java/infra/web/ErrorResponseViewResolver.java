@@ -28,6 +28,7 @@ import infra.web.view.ModelAndView;
  * writing it with message converters when the client prefers HTML.
  * <p>Applies to problem details, error responses, and response entities returned
  * by exception handler methods. Error response interceptors run before resolution.
+ *
  * @author Brian Clozel
  * @since 5.0
  */
@@ -37,6 +38,7 @@ public interface ErrorResponseViewResolver {
   /**
    * Resolve a view for the given problem detail.
    * <p>The view may declare a status; otherwise the entity or problem status is used.
+   *
    * @param request the current request
    * @param problemDetail the detail to render
    * @param errorResponse the originating error response, if any

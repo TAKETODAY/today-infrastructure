@@ -81,6 +81,7 @@ public final class ProblemDetailExceptionHandler {
 
   /**
    * Create a new instance.
+   *
    * @param messageSource the source used to resolve the type, title, and detail
    * of problem details and response status reasons, or {@code null} to use defaults
    */
@@ -90,6 +91,7 @@ public final class ProblemDetailExceptionHandler {
 
   /**
    * Handle the exception and return the error response to render.
+   *
    * @param ex the exception to handle
    * @param locale the locale for message lookups
    * @return the error response
