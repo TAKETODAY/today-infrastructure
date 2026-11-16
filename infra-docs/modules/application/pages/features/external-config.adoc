@@ -70,6 +70,19 @@ java -jar myapp.jar --app.config.additional-location=optional:file:./custom-conf
 这些属性在加载配置文件之前就会读取，必须通过命令行、系统属性或环境变量等早期来源设置。
 不要把 `app.config.name` 放进希望由它决定文件名的配置文件中。
 
+目录位置会追加由 `app.config.name` 生成的文件名；文件位置则直接加载指定文件。
+两种位置都会考虑 Profile 专用变体，例如 `classpath:myconfig.properties` 也会查找适用的 `myconfig-prod.properties`。
+
+例如，将 `app.config.location` 设置为 `optional:classpath:/custom-config/,optional:file:./custom-config/` 后，只搜索这两个自定义位置，不再搜索默认位置。
+如果改用同样的 `app.config.additional-location`，则先搜索默认位置，再搜索两个自定义位置：
+
+. `optional:classpath:/;optional:classpath:/config/`
+. `optional:file:./;optional:file:./config/;optional:file:./config/*/`
+. `optional:classpath:/custom-config/`
+. `optional:file:./custom-config/`
+
+这样可以在打包配置中提供默认值，再由部署环境中的文件选择性覆盖。
+
 === 可选位置
 
 指定的位置不存在时，默认会抛出 `ConfigDataLocationNotFoundException`，阻止启动。
@@ -83,6 +96,9 @@ java -jar myapp.jar --app.config.additional-location=optional:file:./custom-conf
 通配符仅用于外部位置，不能用于 `classpath:`；子目录按绝对路径的字母顺序处理。
 需要不同优先级时，显式列出各个位置。
 
+例如，分别挂载 `/config/redis/application.properties` 和 `/config/mysql/application.properties` 时，`config/*/` 可以同时发现这两份配置。
+通配符位置只能包含一个 `*`；目录搜索必须以 `*/` 结尾，文件搜索必须采用 `*/<filename>` 形式。
+
 === Profile 专用文件
 
 `application-prod.properties` 等 Profile 专用文件覆盖同位置的普通配置。
@@ -90,6 +106,36 @@ java -jar myapp.jar --app.config.additional-location=optional:file:./custom-conf
 此规则作用于位置组：`classpath:/cfg/,classpath:/ext/` 先处理整个 `cfg` 再处理 `ext`，而 `classpath:/cfg/;classpath:/ext/` 把二者放在同一组内按 Profile 处理。
 没有激活的 Profile 时，会考虑默认 Profile（默认是 `default`）对应的文件。
 更多 Profile 设置见 xref:features/profiles.adoc[]。
+
+==== 位置组与覆盖顺序
+
+假设激活的 Profile 顺序为 `prod,live`，并存在以下文件：
+
+[source,text]
+----
+/cfg
+  application-live.properties
+/ext
+  application-live.properties
+  application-prod.properties
+----
+
+使用 `app.config.location=classpath:/cfg/,classpath:/ext/` 时，逗号将两个目录划为不同组。
+先处理 `/cfg` 组的全部 Profile，再处理 `/ext` 组：
+
+. `/cfg/application-live.properties`
+. `/ext/application-prod.properties`
+. `/ext/application-live.properties`
+
+使用 `app.config.location=classpath:/cfg/;classpath:/ext/` 时，两个目录属于同一组，按 Profile 顺序遍历组内位置：
+
+. `/ext/application-prod.properties`
+. `/cfg/application-live.properties`
+. `/ext/application-live.properties`
+
+因此，逗号与分号并非可以任意互换的分隔符。
+在 shell 命令中使用分号时，应给整个参数加引号，避免被 shell 当作命令分隔符。
+每个配置文件只加载一次；已直接导入的 Profile 专用文件不会再次重复导入。
 
 == 导入配置数据
 
@@ -107,6 +153,48 @@ app.config.import=optional:file:./dev.properties
 以 `/` 或 `file:`、`classpath:` 等协议前缀开头的位置是固定位置。
 其他位置相对于声明导入的文件解析，`optional:` 不影响这一判断。
 例如 `/demo/application.properties` 中的 `optional:core/core.properties` 指向 `/demo/core/core.properties`。
+
+=== 链式相对导入
+
+假设应用位于 `/demo`，其 `/demo/application.properties` 包含：
+
+[source,properties]
+----
+app.config.import=optional:core/core.properties
+----
+
+如果 `/demo/core/core.properties` 又包含：
+
+[source,properties]
+----
+app.config.import=optional:extra/extra.properties
+----
+
+第二次导入指向 `/demo/core/extra/extra.properties`，而不是 `/demo/extra/extra.properties`。
+每一级相对导入都以声明它的配置文件所在目录为基准，`optional:` 只控制缺失时是否允许继续启动。
+
+=== 导入声明的顺序与扩展点
+
+下列两个文档的效果相同：
+
+[source,properties]
+----
+app.config.import=my.properties
+my.property=value
+----
+
+[source,properties]
+----
+my.property=value
+app.config.import=my.properties
+----
+
+两种写法中，`my.properties` 的属性都优先于声明导入的文档。
+如果导入 `my.properties` 且存在适用的 `my-prod.properties` 等变体，也会考虑这些 Profile 专用文件。
+
+默认支持的导入形式包括 Properties、YAML、环境变量内容与配置树。
+第三方库可以通过 `infra.app.context.config.ConfigDataLocationResolver` 与 `ConfigDataLoader` 支持其他位置或外部存储，不要求配置一定来自本地文件。
+扩展实现需要按目标项目的 `META-INF/infra.strategies` 机制注册，不能直接使用 Boot 的注册文件名。
 
 === 无扩展名文件
 
@@ -169,6 +257,36 @@ app.config.import=optional:configtree:/etc/config/
 文件名中的点也作为属性名的一部分，值可以绑定为 `String` 或 `byte[]`。
 `configtree:/etc/config/*/` 可以导入直接子目录中的配置树，目录按字母顺序处理。
 Docker Secret 也可以通过 `optional:configtree:/run/secrets/` 导入。
+
+挂载卷通常有两种布局：一个文件包含完整 YAML 或 Properties 文档，或者目录中的每个文件各自对应一个配置值。
+前一种使用普通文件导入；后一种才使用 `configtree:`，二者不能混淆。
+例如：
+
+[source,text]
+----
+etc/
+  config/
+    dbconfig/
+      db/
+        username
+        password
+    mqconfig/
+      mq/
+        username
+        password
+----
+
+使用下面的导入可以同时读取两个配置树：
+
+[source,properties]
+----
+app.config.import=optional:configtree:/etc/config/*/
+----
+
+得到的属性名为 `db.username`、`db.password`、`mq.username` 和 `mq.password`，不包含通配符所匹配的 `dbconfig`、`mqconfig` 目录名。
+每个匹配的直接子目录分别作为配置树根目录；它下面的目录和文件名才组成属性名。
+如果需要不同于字母顺序的覆盖规则，应分别显式声明各个导入位置。
+Docker Secret 文件名本身也可以包含点，例如 `/run/secrets/db.password` 会暴露为 `db.password`。
 
 == 占位符与多文档配置
 
