@@ -170,6 +170,13 @@ final class FileHint {
     return start != -1 ? value.substring(0, start) : value;
   }
 
+  /**
+   * Return the index of the first bracket of the hint at the end of the given value.
+   * Brackets that are not part of the trailing bracketed groups are ignored.
+   *
+   * @param value the source value
+   * @return the index of the start of the hint or {@code -1} if there is no hint
+   */
   private static int findHintStart(String value) {
     int start = -1;
     int depth = 0;

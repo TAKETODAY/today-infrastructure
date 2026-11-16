@@ -42,6 +42,7 @@ import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.InfraStrategies;
 import infra.util.ResourceUtils;
@@ -53,6 +54,7 @@ import infra.util.StringUtils;
  * @author Madhura Bhave
  * @author Phillip Webb
  * @author Scott Frederick
+ * @author Sijun Yang
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
@@ -286,14 +288,18 @@ public class StandardConfigDataLocationResolver implements ConfigDataLocationRes
   }
 
   private Set<StandardConfigDataResource> resolveNonPatternEmptyDirectories(StandardConfigDataReference reference) {
-    Resource resource = resourceLoader.getResource(reference.directory);
+    String directory = reference.directory;
+    Assert.state(directory != null, "Directory is required");
+    Resource resource = resourceLoader.getResource(directory);
     return (resource instanceof ClassPathResource || !resource.exists())
             ? Collections.emptySet()
             : Collections.singleton(new StandardConfigDataResource(reference, resource, true));
   }
 
   private Set<StandardConfigDataResource> resolvePatternEmptyDirectories(StandardConfigDataReference reference) {
-    List<Resource> subdirectories = resourceLoader.getResources(reference.directory, ResourceType.DIRECTORY);
+    String directory = reference.directory;
+    Assert.state(directory != null, "Directory is required");
+    List<Resource> subdirectories = resourceLoader.getResources(directory, ResourceType.DIRECTORY);
     ConfigDataLocation location = reference.configDataLocation;
     if (!location.isOptional() && CollectionUtils.isEmpty(subdirectories)) {
       String message = String.format("Config data location '%s' contains no subdirectories", location);

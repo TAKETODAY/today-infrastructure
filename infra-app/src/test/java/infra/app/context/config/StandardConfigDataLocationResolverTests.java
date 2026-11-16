@@ -153,7 +153,7 @@ class StandardConfigDataLocationResolverTests {
     assertThat(locations).extracting(Object::toString)
             .contains(filePath("src", "test", "resources", "config", "1-first", "testproperties.properties"))
             .contains(filePath("src", "test", "resources", "config", "2-second", "testproperties.properties"))
-            .doesNotContain(filePath("src", "test", "resources", "config", "3-third", "testproperties.properties"));
+            .doesNotContain(filePath("src", "test", "resources", "config", "nested", "3-third", "testproperties.properties"));
   }
 
   @Test
@@ -189,7 +189,7 @@ class StandardConfigDataLocationResolverTests {
 
   @Test
   void resolveWhenLocationIsRelativeAndFileResolves() {
-    this.environment.setProperty("spring.config.name", "other");
+    this.environment.setProperty("app.config.name", "other");
     ConfigDataLocation location = ConfigDataLocation.valueOf("other.properties");
     this.resolver = new StandardConfigDataLocationResolver(this.environmentBinder, this.resourceLoader);
     StandardConfigDataReference parentReference = new StandardConfigDataReference(

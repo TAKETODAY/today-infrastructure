@@ -30,6 +30,7 @@ import infra.util.StringUtils;
  * be resolved to one or more {@link StandardConfigDataResource resources}.
  *
  * @author Phillip Webb
+ * @author Moritz Halbritter
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */

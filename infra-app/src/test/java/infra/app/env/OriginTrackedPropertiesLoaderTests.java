@@ -20,6 +20,7 @@ package infra.app.env;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -32,7 +33,9 @@ import infra.core.io.ByteArrayResource;
 import infra.core.io.ClassPathResource;
 import infra.core.io.PropertiesUtils;
 import infra.origin.OriginTrackedValue;
+import infra.origin.Origin;
 import infra.origin.TextResourceOrigin;
+import infra.origin.TextResourceOrigin.Location;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -405,19 +408,23 @@ class OriginTrackedPropertiesLoaderTests {
     assertThat(getValue(value)).isEqualTo("abc");
   }
 
-  private OriginTrackedValue getFromFirst(String key) {
+  private @Nullable OriginTrackedValue getFromFirst(String key) {
     return this.documents.get(0).asMap().get(key);
   }
 
-  private Object getValue(OriginTrackedValue value) {
+  private @Nullable Object getValue(@Nullable OriginTrackedValue value) {
     return (value != null) ? value.getValue() : null;
   }
 
-  private String getLocation(OriginTrackedValue value) {
+  private @Nullable String getLocation(@Nullable OriginTrackedValue value) {
     if (value == null) {
       return null;
     }
-    return ((TextResourceOrigin) value.getOrigin()).getLocation().toString();
+    Origin origin = value.getOrigin();
+    assertThat(origin).isNotNull();
+    Location location = ((TextResourceOrigin) origin).getLocation();
+    assertThat(location).isNotNull();
+    return location.toString();
   }
 
 }
