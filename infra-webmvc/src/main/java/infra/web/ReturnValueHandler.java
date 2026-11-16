@@ -23,76 +23,16 @@ import infra.web.handler.result.HandlerMethodReturnValueHandler;
 import infra.web.handler.result.SmartReturnValueHandler;
 
 /**
- * An interface for handling return values from HTTP request handlers.
- * Implementations of this interface are responsible for determining whether
- * they can support a given handler or its return value and for processing
- * the return value appropriately.
+ * Strategy for processing return values from HTTP request handlers.
  *
- * <p>This interface provides methods to check support for handlers and return
- * values, as well as a method to process the return value. It also includes
- * a static utility method for selecting an appropriate {@link ReturnValueHandler}
- * from a list based on the handler and return value.
+ * <p>Implementations declare support for a handler, a return value, or both,
+ * and process supported results within an {@link HttpContext}. Use
+ * {@link SmartReturnValueHandler} when support depends on the combination of
+ * a handler and its return value.
  *
- * <p><strong>Usage Example:</strong>
- * <pre>{@code
- * public class MyReturnValueHandler implements ReturnValueHandler {
- *
- *   @Override
- *   public boolean supportsHandler(Object handler) {
- *     // Check if the handler is supported
- *     return handler instanceof MyCustomHandler;
- *   }
- *
- *   @Override
- *   public boolean supportsReturnValue(Object returnValue) {
- *     // Check if the return value is supported
- *     return returnValue instanceof MyCustomResult;
- *   }
- *
- *   @Override
- *   public void handleReturnValue(HttpContext context, Object handler, Object returnValue)
- *           throws Exception {
- *     // Process the return value
- *     if (returnValue instanceof MyCustomResult result) {
- *       context.getResponse().write(result.toString());
- *     }
- *   }
- * }
- * }</pre>
- *
- * <p><strong>SmartReturnValueHandler Example:</strong>
- * <pre>{@code
- * public class SmartHandler implements SmartReturnValueHandler {
- *
- *   @Override
- *   public boolean supportsHandler(Object handler, Object returnValue) {
- *     // Support both handler and return value together
- *     return handler instanceof MyCustomHandler && returnValue instanceof MyCustomResult;
- *   }
- *
- *   @Override
- *   public void handleReturnValue(HttpContext context, Object handler, Object returnValue)
- *           throws Exception {
- *     // Handle the return value
- *     context.getResponse().write("Handled by SmartHandler");
- *   }
- * }
- * }</pre>
- *
- * <p><strong>Handler Selection Example:</strong>
- * <pre>{@code
- * List<ReturnValueHandler> handlers = new ArrayList<>();
- * handlers.add(new MyReturnValueHandler());
- * handlers.add(new SmartHandler());
- *
- * Object handler = new MyCustomHandler();
- * Object returnValue = new MyCustomResult();
- *
- * ReturnValueHandler selectedHandler = ReturnValueHandler.select(handlers, handler, returnValue);
- * if (selectedHandler != null) {
- *   selectedHandler.handleReturnValue(context, handler, returnValue);
- * }
- * }</pre>
+ * <p>The {@link #select(Iterable, Object, Object)} utility method selects the
+ * first matching candidate in iteration order. Selection does not invoke
+ * {@link #handleReturnValue(HttpContext, Object, Object)}.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see SmartReturnValueHandler
@@ -105,41 +45,14 @@ import infra.web.handler.result.SmartReturnValueHandler;
 public interface ReturnValueHandler {
 
   /**
-   * A special constant value used to indicate that a handler has fully processed
-   * the request and no further result handling is required. This value is typically
-   * used in conjunction with {@link HttpRequestHandler} and {@link ReturnValueHandler}.
+   * Sentinel indicating that no return value is available for value-based handling.
+   * This is the same instance as {@link HttpRequestHandler#NONE_RETURN_VALUE}.
    *
-   * <p>This value is returned by handlers when they have completed all necessary
-   * processing, signaling to the framework that no additional {@link ReturnValueHandler}
-   * should be invoked.
+   * <p>Unlike {@code null}, this sentinel disables return-value support checks in
+   * {@link #select(Iterable, Object, Object)}. A candidate may still be selected
+   * through {@link #supportsHandler(Object)} if a handler is supplied.
    *
-   * <p><b>Usage Examples:</b>
-   *
-   * <pre>{@code
-   *  // Example 1: Returning NONE_RETURN_VALUE to indicate no further processing
-   *  HttpRequestHandler handler = request -> {
-   *    if (request.getParameter("action").equals("logout")) {
-   *      request.getSession().invalidate();
-   *      return ReturnValueHandler.NONE_RETURN_VALUE; // No further processing needed
-   *    }
-   *    return null; // Let the framework handle the result
-   *  };
-   * }</pre>
-   *
-   * <pre>{@code
-   *  // Example 2: Using NONE_RETURN_VALUE in ReturnValueHandler selection logic
-   *  ReturnValueHandler selectedHandler = ReturnValueHandler.select(
-   *      handlers,
-   *      handler,
-   *      ReturnValueHandler.NONE_RETURN_VALUE
-   *  );
-   *  if (selectedHandler == null) {
-   *    System.out.println("No handler matched or no further processing required.");
-   *  }
-   * }</pre>
-   *
-   * <p><b>Note:</b> This value is a singleton instance of {@link Object} and should
-   * only be referenced directly, not instantiated or compared using {@code ==}.
+   * <p>Compare this sentinel by identity ({@code ==}), not by equality.
    *
    * @see HttpRequestHandler#NONE_RETURN_VALUE
    * @see ReturnValueHandler#supportsReturnValue(Object)
@@ -148,96 +61,67 @@ public interface ReturnValueHandler {
   Object NONE_RETURN_VALUE = HttpRequestHandler.NONE_RETURN_VALUE;
 
   /**
-   * Determines whether this {@link ReturnValueHandler} supports the given handler.
-   * <p>
-   * This method is typically used during application runtime to check if the current
-   * {@link ReturnValueHandler} can handle the result or behavior of the specified handler.
-   * <p>
-   * For example, you might use this method to determine if a specific handler is compatible
-   * with the current implementation:
-   * <pre>{@code
-   * ReturnValueHandler handler = ...;
-   * Object targetHandler = ...;
+   * Determine whether this implementation supports return-value handling for the
+   * given request handler.
    *
-   * if (handler.supportsHandler(targetHandler)) {
-   *   System.out.println("This ReturnValueHandler supports the target handler.");
-   * }
-   * else {
-   *   System.out.println("This ReturnValueHandler does not support the target handler.");
-   * }
-   * }</pre>
-   *
-   * @param handler the target handler to be checked for support
-   * @return true if this {@link ReturnValueHandler} supports the specified handler,
-   * false otherwise
+   * @param handler the request handler to check (never {@code null})
+   * @return {@code true} if the handler is supported, {@code false} otherwise
    */
   boolean supportsHandler(Object handler);
 
   /**
-   * Determines whether this {@link ReturnValueHandler} supports the given return value.
-   * <p>
-   * This method is used to check if the current {@link ReturnValueHandler} can handle
-   * the provided return value. It is typically invoked during the processing of a handler's
-   * result to ensure compatibility with the return value type or content.
+   * Determine whether this implementation supports the given return value.
+   *
+   * <p>The default implementation returns {@code false}. Override this method
+   * to support results based on their type or content, including {@code null}
+   * if applicable.
    *
    * @param returnValue the return value to be checked for support; may be {@code null}
-   * @return {@code true} if this {@link ReturnValueHandler} supports the specified return value,
-   * {@code false} otherwise
+   * @return {@code true} if the return value is supported, {@code false} otherwise
    */
   default boolean supportsReturnValue(@Nullable Object returnValue) {
     return false;
   }
 
   /**
-   * Handles the return value produced by a request handler within the given context.
-   * <p>
-   * This method is responsible for processing the return value generated by a handler
-   * in the context of a request. It ensures that the return value is appropriately
-   * managed, transformed, or dispatched based on the implementation logic.
+   * Process the return value within the current request context, for example by
+   * writing a response or rendering a view.
    *
-   * @param context the {@link HttpContext} representing the current request context
+   * @param context the current HTTP request and response context
    * @param handler the handler object associated with the request; may be {@code null}
-   * @param returnValue the return value produced by the handler; may be {@code null}
+   * @param returnValue the result to process; may be {@code null} or
+   * {@link #NONE_RETURN_VALUE} for handler-only selection
    * @throws Exception if an error occurs while handling the return value
    */
   void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue)
           throws Exception;
 
   /**
-   * Selects an appropriate {@link ReturnValueHandler} from the provided list based on the given
-   * handler and return value. The selection process considers the following scenarios:
+   * Select the first matching return-value handler in candidate iteration order.
+   *
+   * <p>Support is checked according to the supplied arguments:
    * <ul>
-   *   <li>If both handler and return value are provided, it attempts to match a handler that supports
-   *       both.</li>
-   *   <li>If only the return value is provided, it matches a handler that supports the return value.</li>
-   *   <li>If only the handler is provided, it matches a handler that supports the handler.</li>
+   * <li>If {@code handler} is non-null and {@code returnValue} is not
+   * {@link #NONE_RETURN_VALUE}, a {@link SmartReturnValueHandler} is checked via
+   * {@link SmartReturnValueHandler#supportsHandler(Object, Object)}. Other
+   * candidates match if either {@link #supportsHandler(Object)} or
+   * {@link #supportsReturnValue(Object)} returns {@code true}.</li>
+   * <li>If {@code handler} is {@code null} and {@code returnValue} is not
+   * {@code NONE_RETURN_VALUE}, only {@code supportsReturnValue} is checked.</li>
+   * <li>If {@code returnValue} is {@code NONE_RETURN_VALUE} and {@code handler}
+   * is non-null, only {@code supportsHandler(Object)} is checked.</li>
    * </ul>
-   * <p>
-   * If no matching handler is found, the method returns {@code null}.
-   * <p>
-   * Example usage:
-   * <pre>{@code
-   * List<ReturnValueHandler> handlers = ...;
-   * Object handler = new MyHandler();
-   * Object returnValue = "example";
    *
-   * ReturnValueHandler selectedHandler = ReturnValueHandler.select(handlers, handler, returnValue);
-   * if (selectedHandler != null) {
-   *   System.out.println("Selected handler: " + selectedHandler);
-   * }
-   * else {
-   *   System.out.println("No suitable handler found.");
-   * }
-   * }</pre>
-   * <p>
-   * In this example, the method will attempt to find a handler that supports both the
-   * {@code MyHandler} instance and the string return value.
+   * <p>A {@code null} return value participates in support checks like any other
+   * value. If no candidate matches, or if {@code handler} is {@code null} and
+   * {@code returnValue} is {@code NONE_RETURN_VALUE}, this method returns
+   * {@code null}. The selected candidate is not invoked by this method.
    *
-   * @param handlers the Iterable of {@link ReturnValueHandler} candidates to evaluate; must not be null
-   * @param handler the target handler to be checked for support; may be null
-   * @param returnValue the return value to be checked for support; may be null
-   * @return the first {@link ReturnValueHandler} that matches the criteria, or {@code null}
-   * if no suitable handler is found
+   * @param handlers the candidates to evaluate in iteration order (never {@code null})
+   * @param handler the request handler to check; may be {@code null}
+   * @param returnValue the result to check; may be {@code null} or
+   * {@link #NONE_RETURN_VALUE}
+   * @return the first matching candidate, or {@code null} if none matches
    */
   @Nullable
   static ReturnValueHandler select(Iterable<ReturnValueHandler> handlers,
