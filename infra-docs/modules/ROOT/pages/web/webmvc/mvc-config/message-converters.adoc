@@ -41,3 +41,31 @@ public class WebConfiguration implements WebMvcConfigurer {
 使用接收 mapper 构建器的构造函数时，转换器会注册通过 `MapperBuilder.findModules(ClassLoader)`
 发现的 Jackson 3 模块，并为 `ProblemDetail` 添加对应的 mixin。
 XML 构建器使用 `defensiveXmlFactory()` 禁止 DTD 和外部实体解析。
+
+[[mvc-config-message-converters-builder]]
+== 保留默认转换器的构建器配置
+
+如果只需替换某一种格式的转换器，同时保留字节数组、字符串、表单等默认支持，
+可以重写 `configureMessageConverters(HttpMessageConverters.ServerBuilder)`：
+
+[source,java]
+----
+@Override
+public void configureMessageConverters(HttpMessageConverters.ServerBuilder builder) {
+  builder.withJsonConverter(new JacksonJsonHttpMessageConverter(
+    JsonMapper.builder().enable(SerializationFeature.INDENT_OUTPUT)));
+}
+----
+
+`HttpMessageConverters` 来自 `infra.http.converter`。默认构建流程已经调用 `registerDefaults()`，
+`withJsonConverter`、`withXmlConverter` 等方法替换对应格式的默认选择；
+`addCustomConverter` 将额外转换器放在默认转换器之前。`disableDefaults()` 可关闭基于类路径的默认注册，
+但仍保留手动注册项；不要为了单独替换 JSON 转换器而关闭全部默认支持。
+
+三个配置入口的区别是：
+
+* `configureMessageConverters(List)` 向初始空列表添加转换器；列表非空时不再构建默认转换器。
+* `configureMessageConverters(ServerBuilder)` 定制默认转换器的构建过程；如果前一个入口已提供非空列表，此过程不会执行。
+* `extendMessageConverters(List)` 在最终列表形成后执行，可增删或重排已有转换器。
+
+转换器顺序会影响内容协商，尤其是请求接受 `*/*` 时；自定义转换器应精确声明支持的类型和媒体类型。

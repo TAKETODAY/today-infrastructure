@@ -30,6 +30,86 @@ NOTE: 从 5.0 开始，框架不再将请求路径自动设置为 `ProblemDetail
 规范要求此字段标识问题的某一次具体发生；如果该 URI 可以解引用，则应提供这次问题的相关信息。
 应用程序显式设置的值仍会保留。
 
+[[mvc-ann-rest-exceptions-fallback]]
+== 未处理异常的兜底响应
+
+除了声明 `ResponseEntityExceptionHandler`，还可以通过 `configureProblemDetails`，
+将未被控制器或 `@ControllerAdvice` 中的 `@ExceptionHandler` 处理的异常转换为 RFC 9457 问题详情：
+
+[source,java]
+----
+import infra.context.annotation.Configuration;
+import infra.web.config.annotation.ProblemDetailsConfigurer;
+import infra.web.config.annotation.WebMvcConfigurer;
+
+@Configuration
+public class ProblemDetailsConfiguration implements WebMvcConfigurer {
+
+  @Override
+  public void configureProblemDetails(ProblemDetailsConfigurer configurer) {
+    configurer.renderUnhandledExceptions(true);
+  }
+}
+----
+
+此选项默认关闭。启用后，局部和全局异常处理方法仍优先执行；没有匹配方法，或异常处理方法重新抛出异常、执行失败时，
+才尝试兜底。响应已经提交时不会再次渲染；此兜底针对 `Exception`，不是对所有 `Throwable` 的捕获。
+
+实现了 `ErrorResponse` 的异常保留其状态、响应头和问题详情；其他异常根据 `@ResponseStatus`、
+类型转换及消息读取等已知异常规则确定状态，未知异常默认使用 `500`。问题详情会通过 `MessageSource` 解析消息。
+应用仍应提供面向用户的安全错误描述，不要将堆栈、凭据或内部实现细节写入响应。
+
+NOTE: 此配置作用于 MVC 默认的 `ExceptionHandlerAnnotationExceptionHandler`。
+如果使用 `configureExceptionHandlers(List)` 替换了默认异常处理器，需要自行配置对应处理器。
+Infra App 的 `web.mvc.problemdetails.enabled=true` 则用于自动注册基于 `ResponseEntityExceptionHandler` 的控制器建议，
+并不等同于开启这里的所有未处理异常兜底。
+
+[[mvc-ann-rest-exceptions-html]]
+== HTML 错误视图
+
+对于同一端点，可以向 API 客户端写出问题详情，向偏好 HTML 的浏览器返回错误页面。
+通过 `ProblemDetailsConfigurer.viewResolver(...)` 注册 `infra.web.ErrorResponseViewResolver`：
+
+[source,java]
+----
+@Override
+public void configureProblemDetails(ProblemDetailsConfigurer configurer) {
+  configurer.renderUnhandledExceptions(true)
+    .viewResolver((request, problem, errorResponse) ->
+      new ModelAndView("errors/problem").addObject("problem", problem));
+}
+----
+
+`ModelAndView` 来自 `infra.web.view`，示例还需要配置能解析 `errors/problem` 的视图解析器及相应模板。
+解析器适用于异常处理方法返回的 `ProblemDetail`、`ErrorResponse`，以及正文为 `ProblemDetail` 的 `ResponseEntity`，
+也适用于上述兜底结果；不是所有普通控制器返回值的通用视图转换器。
+
+只有内容协商选择 HTML 时才尝试解析视图。若响应或返回实体已显式指定 `Content-Type`，
+或者映射的 `produces` 不兼容 HTML，则继续使用原返回值。解析器返回 `null` 同样回退到消息转换器。
+视图自身声明的状态优先；否则沿用 `ResponseEntity` 的状态，或 `ProblemDetail.status`。
+原 `ResponseEntity` 或 `ErrorResponse` 的响应头会保留。
+
+[[mvc-ann-rest-exceptions-interceptors]]
+== 错误响应拦截器
+
+通过 `WebMvcConfigurer.addErrorResponseInterceptors` 为问题详情添加统一的非标准字段：
+
+[source,java]
+----
+@Override
+public void addErrorResponseInterceptors(List<ErrorResponse.Interceptor> interceptors) {
+  interceptors.add((problem, errorResponse) ->
+    problem.setProperty("service", "orders"));
+}
+----
+
+示例中的 `List` 来自 `java.util`，`ErrorResponse` 来自 `infra.web`。
+拦截器在问题详情写入消息转换器之前执行；使用 HTML 错误视图时，在调用视图解析器之前执行。
+`errorResponse` 可能为 `null`（例如直接返回 `ProblemDetail`），不要假定它始终存在。
+这不是请求生命周期拦截器，也不会拦截任意自定义 JSON 错误对象。
+若需要当前请求，应使用匿名类实现双参数 `handleError`，并重写带 `HttpRequest` 的三参数重载；
+三参数重载是默认方法，不能直接用三参数 lambda 实现该接口。
+
 [[mvc-ann-rest-exceptions-non-standard]]
 == 非标准字段
 

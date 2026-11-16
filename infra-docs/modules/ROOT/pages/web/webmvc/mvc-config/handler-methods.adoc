@@ -1,0 +1,120 @@
+[[mvc-config-handler-methods]]
+= 参数解析与返回值扩展
+
+Web MVC 使用 `ParameterResolvingStrategy` 将请求转换为控制器方法参数，
+使用 `ReturnValueHandler` 处理方法结果。两者都可以通过 `WebMvcConfigurer` 扩展，无需替换整个请求映射适配器。
+
+== 自定义参数解析
+
+以下示例将 `X-Tenant-Id` 请求头封装为专用参数类型；业务场景仍需自行验证租户身份和访问权限，不能将请求头视为可信身份。
+
+[source,java]
+----
+import infra.context.annotation.Configuration;
+import infra.http.HttpStatus;
+import infra.web.HttpContext;
+import infra.web.bind.resolver.ParameterResolvingStrategies;
+import infra.web.bind.resolver.ParameterResolvingStrategy;
+import infra.web.config.annotation.WebMvcConfigurer;
+import infra.web.handler.method.HandlerParameter;
+import infra.web.server.ResponseStatusException;
+
+@Configuration
+public class TenantWebConfiguration implements WebMvcConfigurer {
+
+  public record TenantId(String value) {}
+
+  @Override
+  public void configureParameterResolving(ParameterResolvingStrategies strategies) {
+    strategies.add(new ParameterResolvingStrategy() {
+      @Override
+      public boolean supportsParameter(HandlerParameter parameter) {
+        return parameter.getParameterType() == TenantId.class;
+      }
+
+      @Override
+      public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
+        String value = context.requestHeaders().getFirst("X-Tenant-Id");
+        if (value == null || value.isBlank()) {
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing tenant id");
+        }
+        return new TenantId(value);
+      }
+    });
+  }
+}
+----
+
+控制器声明 `TenantId` 参数即可使用该策略。注册表先查自定义策略，再查默认策略，各列表中采用第一个匹配项。
+因此 `supportsParameter` 应严格限定适用类型或注解，并且不能依赖当前请求数据或产生副作用。
+自定义策略负责必要的转换、校验和缺失值处理，不会自动获得 `@RequestParam` 等内置解析器的全部行为。
+
+需要检查或调整默认策略时，可以使用双参数重载
+`configureParameterResolving(ParameterResolvingRegistry, ParameterResolvingStrategies)`，
+通过注册表的 `getDefaultStrategies()` 和 `getCustomizedStrategies()` 访问两组策略。
+通常应优先追加精确匹配的自定义策略，避免移除框架默认支持。
+
+== 自定义返回值处理
+
+`modifyReturnValueHandlerManager(ReturnValueHandlerManager)` 在默认返回值处理器注册后执行。
+通过 `manager.getHandlers()` 可检查和调整有序列表，`manager.addHandlers(...)` 则追加到末尾。
+当自定义返回类型可能被默认兜底处理器接收时，应将专用处理器放到它之前，而不是简单追加。
+
+实现 `infra.web.ReturnValueHandler` 时，需提供 `supportsHandler(Object)` 和
+`handleReturnValue(HttpContext, Object, Object)`；也可以重写 `supportsReturnValue(Object)` 按运行时结果匹配。
+普通处理器的处理器匹配与返回值匹配是“或”关系，因此不要用无条件返回 `true` 的匹配方法，
+否则会截获视图、异步响应或其他默认结果。需要联合判断时可实现 `SmartReturnValueHandler`。
+
+下面为专用的纯文本结果类型注册处理器。示例按运行时结果类型匹配，插入到列表首部，
+从而也能处理 `@ResponseBody` 方法返回的该类型；其他类型仍交给默认处理器。
+
+[source,java]
+----
+import java.nio.charset.StandardCharsets;
+
+import org.jspecify.annotations.Nullable;
+
+import infra.context.annotation.Configuration;
+import infra.web.HttpContext;
+import infra.web.ReturnValueHandler;
+import infra.web.config.annotation.WebMvcConfigurer;
+import infra.web.handler.ReturnValueHandlerManager;
+
+@Configuration
+public class TextResultConfiguration implements WebMvcConfigurer {
+
+  public record TextResult(String text) {}
+
+  @Override
+  public void modifyReturnValueHandlerManager(ReturnValueHandlerManager manager) {
+    manager.getHandlers().add(0, new ReturnValueHandler() {
+      @Override
+      public boolean supportsHandler(Object handler) {
+        return false;
+      }
+
+      @Override
+      public boolean supportsReturnValue(@Nullable Object returnValue) {
+        return returnValue instanceof TextResult;
+      }
+
+      @Override
+      public void handleReturnValue(HttpContext context, @Nullable Object handler,
+          @Nullable Object returnValue) throws Exception {
+        TextResult result = (TextResult) returnValue;
+        context.responseHeaders().set("Content-Type", "text/plain;charset=UTF-8");
+        context.getOutputStream().write(result.text().getBytes(StandardCharsets.UTF_8));
+      }
+    });
+  }
+}
+----
+
+该示例直接写出固定格式，不经过消息转换器，也不实现内容协商。
+若要支持多种媒体类型，通常应优先扩展 xref:web/webmvc/mvc-config/message-converters.adoc[消息转换器]。
+`SmartReturnValueHandler` 位于 `infra.web.handler.result`；需要联合匹配时，
+必须重写其双参数 `supportsHandler(handler, returnValue)`，默认实现仍使用“或”关系。
+
+返回值管理器也处理函数式端点的 `ServerResponse`。标准 MVC 配置已注册
+`ServerResponseReturnValueHandler`；如果通过 `setHandlers(...)` 整体替换列表，
+必须保留业务需要的视图、消息转换、异步及函数式响应支持。一般应局部插入处理器，而不是替换整条链。
