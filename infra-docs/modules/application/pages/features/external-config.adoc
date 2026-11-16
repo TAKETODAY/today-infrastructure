@@ -117,7 +117,15 @@ app.config.import=optional:file:./dev.properties
 app.config.import=file:/etc/config/myconfig[.yaml]
 ----
 
-目标解析器支持此形式的扩展名提示。不要照搬上游当前支持的 `[extension=.yaml][encoding=utf-8]` 属性语法；目标当前没有等价的通用文件属性解析能力。
+`[.yaml]` 是 `[extension=.yaml]` 的简写。也可以指定文件编码，或组合两种提示：
+
+[source,properties]
+----
+app.config.import=classpath:import.properties[encoding=utf-8]
+app.config.import=file:/etc/config/myconfig[extension=.properties][encoding=utf-8]
+----
+
+编码提示会传递给配置加载器；Properties 加载器支持指定字符集，未指定时保持原有默认编码。
 
 NOTE: 扩展名提示必须位于位置字符串的末尾。
 其他位置的方括号视为路径的一部分。
@@ -144,7 +152,7 @@ app.config.import=env:MY_CONFIGURATION[.yaml]
 支持 YAML 多文档。环境变量不存在时启动失败；使用 `optional:env:MY_CONFIGURATION` 可忽略缺失变量。
 默认使用 JVM 默认字符集对环境变量内容进行编码，并将同一字符集传给配置加载器，避免 Properties 默认编码导致中文等字符乱码。
 `env:` 位置也支持 `[extension=.properties][encoding=UTF-8]` 形式的提示；
-普通文件导入仍仅支持前述 `[.yaml]` 扩展名提示，不因此获得通用编码提示支持。
+普通文件导入同样支持前述扩展名与编码提示。
 环境变量可能包含敏感配置，请不要将其内容输出到日志。
 
 === 配置树

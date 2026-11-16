@@ -194,7 +194,7 @@ class StandardConfigDataLocationResolverTests {
     StandardConfigDataReference parentReference = new StandardConfigDataReference(
             ConfigDataLocation.valueOf("classpath:configdata/properties/application.properties"), null,
             "classpath:configdata/properties/application", null, "properties",
-            new PropertiesPropertySourceLoader());
+            new PropertiesPropertySourceLoader(), null);
     ClassPathResource parentResource = new ClassPathResource("configdata/properties/application.properties");
     StandardConfigDataResource parent = new StandardConfigDataResource(parentReference, parentResource);
     given(this.context.getParent()).willReturn(parent);
@@ -211,7 +211,7 @@ class StandardConfigDataLocationResolverTests {
     this.resolver = new StandardConfigDataLocationResolver(this.environmentBinder, this.resourceLoader);
     StandardConfigDataReference parentReference = new StandardConfigDataReference(
             ConfigDataLocation.valueOf("optional:classpath:configdata/"), null, "classpath:config/specific", null,
-            "properties", new PropertiesPropertySourceLoader());
+            "properties", new PropertiesPropertySourceLoader(), null);
     ClassPathResource parentResource = new ClassPathResource("config/specific.properties");
     StandardConfigDataResource parent = new StandardConfigDataResource(parentReference, parentResource);
     given(this.context.getParent()).willReturn(parent);
@@ -226,7 +226,7 @@ class StandardConfigDataLocationResolverTests {
     ConfigDataLocation location = ConfigDataLocation.valueOf("application.other");
     StandardConfigDataReference parentReference = new StandardConfigDataReference(
             ConfigDataLocation.valueOf("classpath:configdata/properties/application.properties"), null,
-            "configdata/properties/application", null, "properties", new PropertiesPropertySourceLoader());
+            "configdata/properties/application", null, "properties", new PropertiesPropertySourceLoader(), null);
     ClassPathResource parentResource = new ClassPathResource("configdata/properties/application.properties");
     StandardConfigDataResource parent = new StandardConfigDataResource(parentReference, parentResource);
     given(this.context.getParent()).willReturn(parent);
@@ -245,6 +245,39 @@ class StandardConfigDataLocationResolverTests {
     ConfigData loaded = new StandardConfigDataLoader().load(null, resolved);
     PropertySource<?> propertySource = loaded.getPropertySources().get(0);
     assertThat(propertySource.getProperty("withnotext")).isEqualTo("test");
+  }
+
+  @Test
+  @WithResource(name = "explicit-extension", content = "withnoextension=test")
+  void resolveWhenLocationUsesOptionalExplicitExtensionSyntaxResolves() throws Exception {
+    var location = ConfigDataLocation.valueOf("classpath:/explicit-extension[extension=.properties]");
+    var locations = this.resolver.resolve(this.context, location);
+    assertThat(locations).hasSize(1);
+    var resolved = locations.get(0);
+    assertThat(resolved.getResource().getName()).endsWith("explicit-extension");
+    var loaded = new StandardConfigDataLoader().load(mock(ConfigDataLoaderContext.class), resolved);
+    assertThat(loaded.getPropertySources().get(0).getProperty("withnoextension")).isEqualTo("test");
+  }
+
+  @Test
+  @WithResource(name = "utf-8.properties", content = "smiley=😃")
+  void resolveWhenLocationUsesEncodingSyntaxResolves() throws IOException {
+    var location = ConfigDataLocation.valueOf("classpath:utf-8.properties[encoding=utf-8]");
+    var locations = this.resolver.resolve(this.context, location);
+    assertThat(locations).hasSize(1);
+    var resolved = locations.get(0);
+    var loaded = new StandardConfigDataLoader().load(mock(ConfigDataLoaderContext.class), resolved);
+    assertThat(loaded.getPropertySources().get(0).getProperty("smiley")).isEqualTo("😃");
+  }
+
+  @Test
+  @WithResource(name = "config[a]/unicode", content = "name=中文")
+  void resolveWhenLocationCombinesExtensionEncodingAndPathBrackets() throws IOException {
+    var location = ConfigDataLocation.valueOf("classpath:config[a]/unicode[extension=.properties][encoding=utf-8]");
+    var locations = this.resolver.resolve(this.context, location);
+    assertThat(locations).hasSize(1);
+    var loaded = new StandardConfigDataLoader().load(mock(ConfigDataLoaderContext.class), locations.get(0));
+    assertThat(loaded.getPropertySources().get(0).getProperty("name")).isEqualTo("中文");
   }
 
   @Test

@@ -20,6 +20,8 @@ package infra.app.context.config;
 
 import org.jspecify.annotations.Nullable;
 
+import java.nio.charset.Charset;
+
 import infra.app.env.PropertySourceLoader;
 import infra.util.StringUtils;
 
@@ -37,13 +39,13 @@ class StandardConfigDataReference {
 
   public final String resourceLocation;
 
-  @Nullable
-  public final String directory;
-
-  @Nullable
-  public final String profile;
-
   public final PropertySourceLoader propertySourceLoader;
+
+  public final @Nullable String directory;
+
+  public final @Nullable String profile;
+
+  public final @Nullable Charset encoding;
 
   /**
    * Create a new {@link StandardConfigDataReference} instance.
@@ -56,16 +58,18 @@ class StandardConfigDataReference {
    * @param extension the file extension for the resource
    * @param propertySourceLoader the property source loader that should be used for this
    * reference
+   * @param encoding the encoding of the resource
    */
   StandardConfigDataReference(ConfigDataLocation configDataLocation,
           @Nullable String directory, String root, @Nullable String profile,
-          @Nullable String extension, PropertySourceLoader propertySourceLoader) {
+          @Nullable String extension, PropertySourceLoader propertySourceLoader, @Nullable Charset encoding) {
     this.configDataLocation = configDataLocation;
     String profileSuffix = StringUtils.hasText(profile) ? "-" + profile : "";
     this.resourceLocation = root + profileSuffix + ((extension != null) ? "." + extension : "");
     this.directory = directory;
     this.profile = profile;
     this.propertySourceLoader = propertySourceLoader;
+    this.encoding = encoding;
   }
 
   boolean isMandatoryDirectory() {
@@ -77,7 +81,7 @@ class StandardConfigDataReference {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (this == obj) {
       return true;
     }
