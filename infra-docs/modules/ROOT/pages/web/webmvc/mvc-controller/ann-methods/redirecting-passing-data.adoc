@@ -25,7 +25,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@PostMapping("/files/{path}")
+@POST("/files/{path}")
 public String upload(...) {
   // ...
   return "redirect:files/{path}";

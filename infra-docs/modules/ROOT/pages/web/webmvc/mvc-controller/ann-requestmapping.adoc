@@ -119,7 +119,7 @@ URI 变量会自动转换为适当的类型，或者抛出 `TypeMismatchExceptio
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@GetMapping("/{name:[a-z-]+}-{version:\\d\\.\\d\\.\\d}{ext:\\.[a-z]+}")
+@GET("/{name:[a-z-]+}-{version:\\d\\.\\d\\.\\d}{ext:\\.[a-z]+}")
 public void handle(@PathVariable String name, @PathVariable String version, @PathVariable String ext) {
   // ...
 }
@@ -244,7 +244,7 @@ Web MVC 支持使用 xref:core/beans/classpath-scanning.adoc#beans-meta-annotati
 进行请求映射。这些注解本身使用 `@RequestMapping` 进行元注解，并组合起来重新声明 `@RequestMapping`
 的子集（或全部）属性，以实现更狭窄、更具体的目的。
 
-`@GET`、`@POST`、`@PUT`、`@DELETE` 和 `@PatchMapping` 是组合注解的示例。
+`@GET`、`@POST`、`@PUT`、`@DELETE` 和 `@PATCH` 是组合注解的示例。
 之所以提供这些注解，是因为可以说，大多数控制器方法应该映射到特定的 HTTP 方法，而不是使用默认匹配所有 HTTP 方法的
 `@RequestMapping`。如果您需要一个如何实现组合注解的示例，请查看这些注解是如何声明的。
 

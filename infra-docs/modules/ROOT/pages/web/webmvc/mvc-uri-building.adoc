@@ -53,7 +53,7 @@ Java::
 @RequestMapping("/hotels/{hotel}")
 public class BookingController {
 
-  @GetMapping("/bookings/{booking}")
+  @GET("/bookings/{booking}")
   public ModelAndView getBooking(@PathVariable Long booking) {
     // ...
   }

@@ -11,7 +11,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@GetMapping("/accounts/{id}")
+@GET("/accounts/{id}")
 @ResponseBody
 public Account handle() {
   // ...

@@ -17,7 +17,7 @@ public class EditPetForm {
 
   // ...
 
-  @GetMapping
+  @GET
   public String setupForm(@RequestParam("petId") int petId, Model model) { <1>
     Pet pet = this.clinic.loadPet(petId);
     model.addAttribute("pet", pet);

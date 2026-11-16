@@ -24,7 +24,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@GetMapping("/demo")
+@GET("/demo")
 public void handle(
     @RequestHeader("Accept-Encoding") String encoding, // <1>
     @RequestHeader("Keep-Alive") long keepAlive) { // <2>

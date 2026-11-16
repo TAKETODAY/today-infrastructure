@@ -18,7 +18,7 @@ import infra.web.multipart.Part;
 @Controller
 public class FileUploadController {
 
-  @PostMapping("/form")
+  @POST("/form")
   public String handleFormUpload(@RequestParam("name") String name,
       @RequestParam("file") Part file) throws IOException {
 
@@ -62,7 +62,7 @@ class MyForm {
 @Controller
 public class FileUploadController {
 
-  @PostMapping("/form")
+  @POST("/form")
   public String handleFormUpload(MyForm form, BindingResult errors) throws IOException {
     if (!form.getFile().isEmpty()) {
       byte[] bytes = form.getFile().getContentAsByteArray();
@@ -107,7 +107,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@PostMapping("/")
+@POST("/")
 public String handle(@RequestPart("meta-data") MetaData metadata,
     @RequestPart("file-data") Part file) {
   // ...
@@ -127,7 +127,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@PostMapping("/")
+@POST("/")
 public String handle(@Valid @RequestPart("meta-data") MetaData metadata, Errors errors) {
   // ...
 }

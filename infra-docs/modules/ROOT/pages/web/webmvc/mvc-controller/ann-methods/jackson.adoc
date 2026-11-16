@@ -19,7 +19,7 @@ Java::
 @RestController
 public class UserController {
 
-  @GetMapping("/user")
+  @GET("/user")
   @JsonView(User.WithoutPasswordView.class)
   public User getUser() {
     return new User("eric", "7!jd#h23");
@@ -69,7 +69,7 @@ Java::
 @RestController
 public class UserController {
 
-  @GetMapping("/user")
+  @GET("/user")
   public MappingJacksonValue getUser() {
     User user = new User("eric", "7!jd#h23");
     MappingJacksonValue value = new MappingJacksonValue(user);
@@ -91,7 +91,7 @@ Java::
 @Controller
 public class UserController extends AbstractController {
 
-  @GetMapping("/user")
+  @GET("/user")
   public String getUser(Model model) {
     model.addAttribute("user", new User("eric", "7!jd#h23"));
     model.addAttribute(JsonView.class.getName(), User.WithoutPasswordView.class);
