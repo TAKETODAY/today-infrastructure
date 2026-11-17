@@ -29,6 +29,8 @@ import infra.core.testfixture.io.buffer.DataBufferTestUtils;
 import infra.http.MediaType;
 import infra.http.codec.Pojo;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 import tools.jackson.dataformat.cbor.CBORMapper;
 
 import static infra.http.MediaType.APPLICATION_XML;
@@ -76,6 +78,16 @@ class JacksonCborEncoderTests extends AbstractLeakCheckingTests {
     DataBuffer result = encoder.encodeValue(value, this.bufferFactory, ResolvableType.forClass(Pojo.class),
             MediaType.APPLICATION_CBOR, null);
     pojoConsumer(value).accept(result);
+  }
+
+  @Test
+  void encodeMono() {
+    Pojo value = new Pojo("foo", "bar");
+    Flux<DataBuffer> result = this.encoder.encode(Mono.just(value), this.bufferFactory,
+            ResolvableType.forClass(Pojo.class), MediaType.APPLICATION_CBOR, null);
+    StepVerifier.create(result)
+            .consumeNextWith(pojoConsumer(value))
+            .verifyComplete();
   }
 
   @Test

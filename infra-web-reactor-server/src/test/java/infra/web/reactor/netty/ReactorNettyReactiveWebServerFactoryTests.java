@@ -43,8 +43,10 @@ import infra.http.reactive.server.ServerHttpRequest;
 import infra.http.reactive.server.ServerHttpResponse;
 import infra.http.support.ReactorResourceFactory;
 import infra.test.classpath.resources.WithPackageResources;
+import infra.web.config.WebProperties.ForwardedHeaders.Naming;
 import infra.web.reactive.BodyInserters;
 import infra.web.reactive.client.WebClient;
+import infra.web.server.ForwardedRequestHeaders;
 import infra.web.server.PortInUseException;
 import infra.web.server.Shutdown;
 import infra.web.server.Ssl;
@@ -135,29 +137,53 @@ class ReactorNettyReactiveWebServerFactoryTests extends AbstractReactiveWebServe
   @Test
   void useForwardedHeaders() {
     ReactorNettyReactiveWebServerFactory factory = getFactory();
-    factory.setUseForwardHeaders(true);
+    factory.setForwardedRequestHeaders(new ForwardedRequestHeaders(Naming.X_FORWARDED, false));
     assertForwardHeaderIsUsed(factory);
+  }
+
+  @Test
+  void forwardedRequestHeadersWhenXForwardedNamingAndActualHeaderRfc() {
+    assertThat(forwardedHeaderResponse(Naming.X_FORWARDED, "Forwarded", "proto=https")).isEqualTo("http");
+  }
+
+  @Test
+  void forwardedRequestHeadersWhenRfcForwardedNamingAndActualHeaderIsRfc() {
+    assertThat(forwardedHeaderResponse(Naming.RFC_7239, "Forwarded", "proto=https")).isEqualTo("https");
+  }
+
+  @Test
+  void forwardedRequestHeadersWhenRfcForwardedNamingAndActualHeaderIsXForwarded() {
+    assertThat(forwardedHeaderResponse(Naming.RFC_7239, "X-Forwarded-Proto", "https")).isEqualTo("http");
+  }
+
+  private @Nullable String forwardedHeaderResponse(Naming naming, String headerName, String headerValue) {
+    ReactorNettyReactiveWebServerFactory factory = getFactory();
+    factory.setForwardedRequestHeaders(new ForwardedRequestHeaders(naming, false));
+    this.webServer = factory.createWebServer((request, response) -> response.writeWith(Mono.just(
+            response.bufferFactory().wrap(request.getURI().getScheme().getBytes(StandardCharsets.UTF_8)))));
+    this.webServer.start();
+    return getWebClient(this.webServer.getPort()).build().get().header(headerName, headerValue)
+            .retrieve().bodyToMono(String.class).defaultIfEmpty("").block(Duration.ofSeconds(30));
   }
 
   @Test
   void forwardedPrefixIsIgnoredByDefault() {
     ReactorNettyReactiveWebServerFactory factory = getFactory();
-    factory.setUseForwardHeaders(true);
+    factory.setForwardedRequestHeaders(new ForwardedRequestHeaders(Naming.X_FORWARDED, false));
     assertThat(echoContextPath(factory, "/api")).isEmpty();
   }
 
   @Test
   void useForwardedPrefixWithForwardHeaders() {
     ReactorNettyReactiveWebServerFactory factory = getFactory();
-    factory.setUseForwardHeaders(true);
-    factory.setUseForwardedPrefix(true);
+    factory.setForwardedRequestHeaders(new ForwardedRequestHeaders(Naming.X_FORWARDED, true));
     assertThat(echoContextPath(factory, "/api")).isEqualTo("/api");
   }
 
   @Test
   void useForwardedPrefixHasNoEffectWhenForwardHeadersAreDisabled() {
     ReactorNettyReactiveWebServerFactory factory = getFactory();
-    factory.setUseForwardedPrefix(true);
+    factory.setForwardedRequestHeaders(null);
     assertThat(echoContextPath(factory, "/api")).isEmpty();
   }
 

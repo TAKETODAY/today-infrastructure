@@ -66,6 +66,14 @@ class ConfigDataLocationResolversTests {
   private ResourceLoader resourceLoader = new DefaultResourceLoader();
 
   @Test
+  void defaultStrategiesIncludeSystemEnvironmentResolver() {
+    var resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,
+            Binder.get(new infra.mock.env.MockEnvironment()), this.resourceLoader,
+            infra.util.InfraStrategies.forDefaultResourceLocation(getClass().getClassLoader()));
+    assertThat(resolvers.getResolvers()).anyMatch(SystemEnvironmentConfigDataLocationResolver.class::isInstance);
+  }
+
+  @Test
   void createWhenInjectingLogAndDeferredLogFactoryCreatesResolver() {
     MockStrategies strategies = new MockStrategies();
     strategies.add(ConfigDataLocationResolver.class, TestLogResolver.class);

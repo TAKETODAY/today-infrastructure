@@ -11,10 +11,12 @@ import infra.context.annotation.Import;
 import infra.context.annotation.ImportBeanDefinitionRegistrar;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.ApplicationTemp;
+import infra.core.env.Environment;
 import infra.core.ssl.SslBundles;
 import infra.core.type.AnnotationMetadata;
 import infra.stereotype.Component;
 import infra.util.ObjectUtils;
+import infra.web.config.WebProperties;
 import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 
 /**
@@ -23,13 +25,14 @@ import infra.web.server.WebServerFactoryCustomizerBeanPostProcessor;
  */
 @Import(WebServerConfiguration.BeanPostProcessorsRegistrar.class)
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties(ServerProperties.class)
+@EnableConfigurationProperties({ ServerProperties.class, WebProperties.class })
 public class WebServerConfiguration {
 
   @Component
   static DefaultWebServerFactoryCustomizer reactiveWebServerFactoryCustomizer(ServerProperties serverProperties,
-          @Nullable SslBundles sslBundles, @Nullable ApplicationTemp applicationTemp) {
-    return new DefaultWebServerFactoryCustomizer(serverProperties, sslBundles, applicationTemp);
+          @Nullable SslBundles sslBundles, @Nullable ApplicationTemp applicationTemp, Environment environment,
+          WebProperties webProperties) {
+    return new DefaultWebServerFactoryCustomizer(serverProperties, sslBundles, applicationTemp, environment, webProperties);
   }
 
   /**

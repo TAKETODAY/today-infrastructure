@@ -97,11 +97,6 @@ public class ServerProperties {
   public final Multipart multipart = new Multipart();
 
   /**
-   * Strategy for handling X-Forwarded-* headers.
-   */
-  public @Nullable ForwardHeadersStrategy forwardHeadersStrategy;
-
-  /**
    * Type of shutdown that the server will support.
    */
   public @Nullable Shutdown shutdown = Shutdown.GRACEFUL;
@@ -230,28 +225,6 @@ public class ServerProperties {
         return applicationTemp.getDir(Objects.requireNonNullElse(tempSubDir, "multipart"));
       }
     }
-
-  }
-
-  /**
-   * Strategies for supporting forward headers.
-   */
-  public enum ForwardHeadersStrategy {
-
-    /**
-     * Use the underlying container's native support for forwarded headers.
-     */
-    NATIVE,
-
-    /**
-     * Use Infra support for handling forwarded headers.
-     */
-    FRAMEWORK,
-
-    /**
-     * Ignore X-Forwarded-* headers.
-     */
-    NONE
 
   }
 

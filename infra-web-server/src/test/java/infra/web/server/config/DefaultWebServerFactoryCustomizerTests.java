@@ -7,8 +7,13 @@ import java.net.InetAddress;
 
 import infra.core.ssl.DefaultSslBundleRegistry;
 import infra.core.ssl.SslBundles;
+import infra.mock.env.MockEnvironment;
 import infra.test.util.ReflectionTestUtils;
 import infra.web.server.Shutdown;
+import infra.web.server.ForwardedRequestHeaders;
+import infra.web.config.WebProperties;
+import infra.web.config.WebProperties.ForwardedHeaders.Naming;
+import infra.web.config.ForwardedHeaderStrategy;
 import infra.web.server.Ssl;
 import infra.web.server.reactive.ConfigurableReactiveWebServerFactory;
 
@@ -25,13 +30,15 @@ class DefaultWebServerFactoryCustomizerTests {
 
   private final ServerProperties properties = new ServerProperties();
 
+  private final WebProperties webProperties = new WebProperties();
+
   private final SslBundles sslBundles = new DefaultSslBundleRegistry();
 
   private DefaultWebServerFactoryCustomizer customizer;
 
   @BeforeEach
   void setup() {
-    this.customizer = new DefaultWebServerFactoryCustomizer(this.properties, this.sslBundles, null);
+    this.customizer = new DefaultWebServerFactoryCustomizer(this.properties, this.sslBundles, null, new MockEnvironment(), webProperties);
   }
 
   @Test
@@ -40,6 +47,23 @@ class DefaultWebServerFactoryCustomizerTests {
     this.properties.port = (9000);
     this.customizer.customize(factory);
     then(factory).should().setPort(9000);
+  }
+
+  @Test
+  void deduceUseForwardHeaders() {
+    MockEnvironment environment = new MockEnvironment().withProperty("DYNO", "-");
+    var factory = mock(ConfigurableReactiveWebServerFactory.class);
+    new DefaultWebServerFactoryCustomizer(properties, sslBundles, null, environment, webProperties).customize(factory);
+    then(factory).should().setForwardedRequestHeaders(new ForwardedRequestHeaders(Naming.X_FORWARDED, false));
+  }
+
+  @Test
+  void forwardHeadersWhenStrategyIsWebServer() {
+    webProperties.forwardedHeaders.strategy = ForwardedHeaderStrategy.WEB_SERVER;
+    webProperties.forwardedHeaders.naming = Naming.RFC_7239;
+    var factory = mock(ConfigurableReactiveWebServerFactory.class);
+    customizer.customize(factory);
+    then(factory).should().setForwardedRequestHeaders(new ForwardedRequestHeaders(Naming.RFC_7239, false));
   }
 
   @Test

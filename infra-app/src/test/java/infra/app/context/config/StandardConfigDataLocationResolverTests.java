@@ -23,6 +23,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,6 +35,7 @@ import infra.core.io.ClassPathResource;
 import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
 import infra.mock.env.MockEnvironment;
+import infra.test.classpath.resources.ResourcesRoot;
 import infra.test.classpath.resources.WithResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,6 +49,8 @@ import static org.mockito.Mockito.mock;
  *
  * @author Madhura Bhave
  * @author Phillip Webb
+ * @author Moritz Halbritter
+ * @author Sijun Yang
  */
 class StandardConfigDataLocationResolverTests {
 
@@ -72,12 +77,13 @@ class StandardConfigDataLocationResolverTests {
   }
 
   @Test
+  @WithResource(name = "configdata/application.properties")
   void resolveWhenLocationIsDirectoryResolvesAllMatchingFilesInDirectory() {
-    ConfigDataLocation location = ConfigDataLocation.valueOf("classpath:/configdata/properties/");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("classpath:/configdata/");
     List<StandardConfigDataResource> locations = this.resolver.resolve(this.context, location);
     assertThat(locations).hasSize(1);
     assertThat(locations).extracting(Object::toString)
-            .containsExactly("class path resource [configdata/properties/application.properties]");
+            .containsExactly("class path resource [configdata/application.properties]");
   }
 
   @Test
@@ -143,28 +149,36 @@ class StandardConfigDataLocationResolverTests {
   }
 
   @Test
-  void resolveWhenLocationIsWildcardDirectoriesRestrictsToOneLevelDeep() {
-    ConfigDataLocation location = ConfigDataLocation.valueOf("file:src/test/resources/config/*/");
+  @WithResource(name = "config/0-empty/testproperties.properties")
+  @WithResource(name = "config/1-first/testproperties.properties", content = "first.property=apple")
+  @WithResource(name = "config/2-second/testproperties.properties", content = "second.property=ball")
+  @WithResource(name = "config/nested/3-third/testproperties.properties", content = "third.property=shouldnotbefound")
+  void resolveWhenLocationIsWildcardDirectoriesRestrictsToOneLevelDeep(@ResourcesRoot Path resourcesRoot) {
+    ConfigDataLocation location = ConfigDataLocation.valueOf("file:" + resourcesRoot + "/config/*/");
     this.environment.setProperty("app.config.name", "testproperties");
     this.resolver = new StandardConfigDataLocationResolver(this.environmentBinder, this.resourceLoader);
     List<StandardConfigDataResource> locations = this.resolver.resolve(this.context, location);
     assertThat(locations).hasSize(3);
     assertThat(locations).extracting(Object::toString)
-            .contains(filePath("src", "test", "resources", "config", "1-first", "testproperties.properties"))
-            .contains(filePath("src", "test", "resources", "config", "2-second", "testproperties.properties"))
-            .doesNotContain(filePath("src", "test", "resources", "config", "3-third", "testproperties.properties"));
+            .contains(filePath(resourcesRoot.resolve("config/1-first/testproperties.properties")))
+            .contains(filePath(resourcesRoot.resolve("config/2-second/testproperties.properties")))
+            .doesNotContain(filePath(resourcesRoot.resolve("config/nested/3-third/testproperties.properties")));
   }
 
   @Test
-  void resolveWhenLocationIsWildcardDirectoriesSortsAlphabeticallyBasedOnAbsolutePath() {
-    ConfigDataLocation location = ConfigDataLocation.valueOf("file:src/test/resources/config/*/");
+  @WithResource(name = "config/0-empty/testproperties.properties")
+  @WithResource(name = "config/1-first/testproperties.properties", content = "first.property=apple")
+  @WithResource(name = "config/2-second/testproperties.properties", content = "second.property=ball")
+  @WithResource(name = "config/nested/3-third/testproperties.properties", content = "third.property=shouldnotbefound")
+  void resolveWhenLocationIsWildcardDirectoriesSortsAlphabeticallyBasedOnFixedPath(@ResourcesRoot Path resourcesRoot) {
+    ConfigDataLocation location = ConfigDataLocation.valueOf("file:" + resourcesRoot + "/config/*/");
     this.environment.setProperty("app.config.name", "testproperties");
     this.resolver = new StandardConfigDataLocationResolver(this.environmentBinder, this.resourceLoader);
     List<StandardConfigDataResource> locations = this.resolver.resolve(this.context, location);
     assertThat(locations).extracting(Object::toString)
-            .containsExactly(filePath("src", "test", "resources", "config", "0-empty", "testproperties.properties"),
-                    filePath("src", "test", "resources", "config", "1-first", "testproperties.properties"),
-                    filePath("src", "test", "resources", "config", "2-second", "testproperties.properties"));
+            .containsExactly(filePath(resourcesRoot.resolve("config/0-empty/testproperties.properties")),
+                    filePath(resourcesRoot.resolve("config/1-first/testproperties.properties")),
+                    filePath(resourcesRoot.resolve("config/2-second/testproperties.properties")));
   }
 
   @Test
@@ -174,27 +188,30 @@ class StandardConfigDataLocationResolverTests {
   }
 
   @Test
-  void resolveWhenLocationIsWildcardFilesLoadsAllFilesThatMatch() {
+  @WithResource(name = "config/0-empty/testproperties.properties")
+  @WithResource(name = "config/1-first/testproperties.properties", content = "first.property=apple")
+  @WithResource(name = "config/2-second/testproperties.properties", content = "second.property=ball")
+  @WithResource(name = "config/nested/3-third/testproperties.properties", content = "third.property=shouldnotbefound")
+  void resolveWhenLocationIsWildcardFilesLoadsAllFilesThatMatch(@ResourcesRoot Path resourcesRoot) {
     ConfigDataLocation location = ConfigDataLocation
-            .valueOf("file:src/test/resources/config/*/testproperties.properties");
+            .valueOf("file:" + resourcesRoot + "/config/*/testproperties.properties");
     List<StandardConfigDataResource> locations = this.resolver.resolve(this.context, location);
     assertThat(locations).hasSize(3);
     assertThat(locations).extracting(Object::toString)
-            .contains(filePath("src", "test", "resources", "config", "1-first", "testproperties.properties"))
-            .contains(filePath("src", "test", "resources", "config", "2-second", "testproperties.properties"))
-            .doesNotContain(
-                    filePath("src", "test", "resources", "config", "nested", "3-third", "testproperties.properties"));
+            .contains(filePath(resourcesRoot.resolve("config/1-first/testproperties.properties")))
+            .contains(filePath(resourcesRoot.resolve("config/2-second/testproperties.properties")))
+            .doesNotContain(filePath(resourcesRoot.resolve("config/nested/3-third/testproperties.properties")));
   }
 
   @Test
   void resolveWhenLocationIsRelativeAndFileResolves() {
-    this.environment.setProperty("spring.config.name", "other");
+    this.environment.setProperty("app.config.name", "other");
     ConfigDataLocation location = ConfigDataLocation.valueOf("other.properties");
     this.resolver = new StandardConfigDataLocationResolver(this.environmentBinder, this.resourceLoader);
     StandardConfigDataReference parentReference = new StandardConfigDataReference(
             ConfigDataLocation.valueOf("classpath:configdata/properties/application.properties"), null,
             "classpath:configdata/properties/application", null, "properties",
-            new PropertiesPropertySourceLoader());
+            new PropertiesPropertySourceLoader(), null);
     ClassPathResource parentResource = new ClassPathResource("configdata/properties/application.properties");
     StandardConfigDataResource parent = new StandardConfigDataResource(parentReference, parentResource);
     given(this.context.getParent()).willReturn(parent);
@@ -205,13 +222,15 @@ class StandardConfigDataLocationResolverTests {
   }
 
   @Test
+  @WithResource(name = "config/specific.properties")
+  @WithResource(name = "config/nested/3-third/testproperties.properties")
   void resolveWhenLocationIsRelativeAndDirectoryResolves() {
     this.environment.setProperty("app.config.name", "testproperties");
     ConfigDataLocation location = ConfigDataLocation.valueOf("nested/3-third/");
     this.resolver = new StandardConfigDataLocationResolver(this.environmentBinder, this.resourceLoader);
     StandardConfigDataReference parentReference = new StandardConfigDataReference(
             ConfigDataLocation.valueOf("optional:classpath:configdata/"), null, "classpath:config/specific", null,
-            "properties", new PropertiesPropertySourceLoader());
+            "properties", new PropertiesPropertySourceLoader(), null);
     ClassPathResource parentResource = new ClassPathResource("config/specific.properties");
     StandardConfigDataResource parent = new StandardConfigDataResource(parentReference, parentResource);
     given(this.context.getParent()).willReturn(parent);
@@ -226,7 +245,7 @@ class StandardConfigDataLocationResolverTests {
     ConfigDataLocation location = ConfigDataLocation.valueOf("application.other");
     StandardConfigDataReference parentReference = new StandardConfigDataReference(
             ConfigDataLocation.valueOf("classpath:configdata/properties/application.properties"), null,
-            "configdata/properties/application", null, "properties", new PropertiesPropertySourceLoader());
+            "configdata/properties/application", null, "properties", new PropertiesPropertySourceLoader(), null);
     ClassPathResource parentResource = new ClassPathResource("configdata/properties/application.properties");
     StandardConfigDataResource parent = new StandardConfigDataResource(parentReference, parentResource);
     given(this.context.getParent()).willReturn(parent);
@@ -236,27 +255,63 @@ class StandardConfigDataLocationResolverTests {
   }
 
   @Test
+  @WithResource(name = "application-props-no-extension", content = "withnoextension=test")
   void resolveWhenLocationUsesOptionalExtensionSyntaxResolves() throws Exception {
     ConfigDataLocation location = ConfigDataLocation.valueOf("classpath:/application-props-no-extension[.properties]");
     List<StandardConfigDataResource> locations = this.resolver.resolve(this.context, location);
     assertThat(locations).hasSize(1);
     StandardConfigDataResource resolved = locations.get(0);
     assertThat(resolved.getResource().getName()).endsWith("application-props-no-extension");
-    ConfigData loaded = new StandardConfigDataLoader().load(null, resolved);
+    ConfigData loaded = new StandardConfigDataLoader().load(mock(ConfigDataLoaderContext.class), resolved);
     PropertySource<?> propertySource = loaded.getPropertySources().get(0);
-    assertThat(propertySource.getProperty("withnotext")).isEqualTo("test");
+    assertThat(propertySource.getProperty("withnoextension")).isEqualTo("test");
   }
 
   @Test
+  @WithResource(name = "application-props-no-extension", content = "withnoextension=test")
+  void resolveWhenLocationUsesOptionalExplicitExtensionSyntaxResolves() throws Exception {
+    var location = ConfigDataLocation.valueOf("classpath:/application-props-no-extension[extension=.properties]");
+    var locations = this.resolver.resolve(this.context, location);
+    assertThat(locations).hasSize(1);
+    var resolved = locations.get(0);
+    assertThat(resolved.getResource().getName()).endsWith("application-props-no-extension");
+    var loaded = new StandardConfigDataLoader().load(mock(ConfigDataLoaderContext.class), resolved);
+    assertThat(loaded.getPropertySources().get(0).getProperty("withnoextension")).isEqualTo("test");
+  }
+
+  @Test
+  @WithResource(name = "utf-8.properties", content = "smiley=😃")
+  void resolveWhenLocationUsesEncodingSyntaxResolves() throws IOException {
+    var location = ConfigDataLocation.valueOf("classpath:utf-8.properties[encoding=utf-8]");
+    var locations = this.resolver.resolve(this.context, location);
+    assertThat(locations).hasSize(1);
+    var resolved = locations.get(0);
+    assertThat(resolved.getReference().encoding).isEqualTo(StandardCharsets.UTF_8);
+    var loaded = new StandardConfigDataLoader().load(mock(ConfigDataLoaderContext.class), resolved);
+    assertThat(loaded.getPropertySources().get(0).getProperty("smiley")).isEqualTo("😃");
+  }
+
+  @Test
+  @WithResource(name = "config[a]/unicode", content = "name=中文")
+  void resolveWhenLocationCombinesExtensionEncodingAndPathBrackets() throws IOException {
+    var location = ConfigDataLocation.valueOf("classpath:config[a]/unicode[extension=.properties][encoding=utf-8]");
+    var locations = this.resolver.resolve(this.context, location);
+    assertThat(locations).hasSize(1);
+    var loaded = new StandardConfigDataLoader().load(mock(ConfigDataLoaderContext.class), locations.get(0));
+    assertThat(loaded.getPropertySources().get(0).getProperty("name")).isEqualTo("中文");
+  }
+
+  @Test
+  @WithResource(name = "application-dev.properties")
   void resolveProfileSpecificReturnsProfileSpecificFiles() {
-    ConfigDataLocation location = ConfigDataLocation.valueOf("classpath:/configdata/properties/");
+    ConfigDataLocation location = ConfigDataLocation.valueOf("classpath:/");
     this.environment.setActiveProfiles("dev");
     Profiles profiles = new Profiles(this.environment, this.environmentBinder, Collections.emptyList());
     List<StandardConfigDataResource> locations = this.resolver.resolveProfileSpecific(this.context, location,
             profiles);
     assertThat(locations).hasSize(1);
     assertThat(locations).extracting(Object::toString)
-            .containsExactly("class path resource [configdata/properties/application-dev.properties]");
+            .containsExactly("class path resource [application-dev.properties]");
   }
 
   @Test
@@ -291,7 +346,6 @@ class StandardConfigDataLocationResolverTests {
   void resolveWhenOptionalAndLoaderIsUnknownAndExtensionIsUnknownShouldNotFail() {
     ConfigDataLocation location = ConfigDataLocation
             .valueOf("optional:some-unknown-loader:dummy.some-unknown-extension");
-    List<StandardConfigDataResource> locations = this.resolver.resolve(this.context, location);
     assertThatNoException().isThrownBy(() -> this.resolver.resolve(this.context, location));
   }
 
@@ -345,6 +399,10 @@ class StandardConfigDataLocationResolverTests {
 
   private String filePath(String... components) {
     return "file [" + String.join(File.separator, components) + "]";
+  }
+
+  private String filePath(Path path) {
+    return "file [%s]".formatted(path);
   }
 
 }

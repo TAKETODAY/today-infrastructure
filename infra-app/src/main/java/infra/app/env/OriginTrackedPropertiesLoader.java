@@ -18,6 +18,8 @@
 
 package infra.app.env;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -30,14 +32,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
 
-import org.jspecify.annotations.Nullable;
-
 import infra.core.io.Resource;
-import infra.util.Assert;
 import infra.origin.Origin;
 import infra.origin.OriginTrackedValue;
 import infra.origin.TextResourceOrigin;
 import infra.origin.TextResourceOrigin.Location;
+import infra.util.Assert;
 
 /**
  * Class to load {@code .properties} files into a map of {@code String} -&gt;
@@ -68,15 +68,6 @@ class OriginTrackedPropertiesLoader {
   /**
    * Load {@code .properties} data and return a list of documents.
    *
-   * @return the loaded properties
-   * @throws IOException on read error
-   */
-  List<Document> load() throws IOException {
-    return load(null);
-  }
-
-  /**
-   * Load {@code .properties} data and return a list of documents.
    * @param encoding the resource encoding. Uses ISO-8859-1 if {@code null}
    * @return the loaded properties
    * @throws IOException on read error
@@ -193,7 +184,9 @@ class OriginTrackedPropertiesLoader {
     result = result && readAndExpect(reader, reader::isHyphenCharacter);
     if (!reader.isEndOfLine()) {
       reader.read(false);
-      reader.skipWhitespace();
+      while (reader.isWhiteSpace()) {
+        reader.read(false);
+      }
     }
     return result && reader.isEndOfLine();
   }

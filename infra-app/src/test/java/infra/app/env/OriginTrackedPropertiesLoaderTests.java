@@ -20,6 +20,7 @@ package infra.app.env;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -32,7 +33,10 @@ import infra.core.io.ByteArrayResource;
 import infra.core.io.ClassPathResource;
 import infra.core.io.PropertiesUtils;
 import infra.origin.OriginTrackedValue;
+import infra.origin.Origin;
 import infra.origin.TextResourceOrigin;
+import infra.origin.TextResourceOrigin.Location;
+import infra.test.classpath.resources.WithResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -42,6 +46,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  *
  * @author Madhura Bhave
  * @author Phillip Webb
+ * @author Moritz Halbritter
  */
 class OriginTrackedPropertiesLoaderTests {
 
@@ -53,7 +58,7 @@ class OriginTrackedPropertiesLoaderTests {
   void setUp() throws Exception {
     String path = "test-properties.properties";
     this.resource = new ClassPathResource(path, getClass());
-    this.documents = new OriginTrackedPropertiesLoader(this.resource).load();
+    this.documents = new OriginTrackedPropertiesLoader(this.resource).load(null);
   }
 
   @Test
@@ -96,10 +101,11 @@ class OriginTrackedPropertiesLoaderTests {
   }
 
   @Test
+  @WithResource(name = "malformed-unicode.properties", content = "test-malformed-unicode=properties\\u(026test")
   void getMalformedUnicodeProperty() {
     // gh-12716
-    ClassPathResource resource = new ClassPathResource("test-properties-malformed-unicode.properties", getClass());
-    assertThatIllegalStateException().isThrownBy(() -> new OriginTrackedPropertiesLoader(resource).load())
+    ClassPathResource resource = new ClassPathResource("malformed-unicode.properties");
+    assertThatIllegalStateException().isThrownBy(() -> new OriginTrackedPropertiesLoader(resource).load(null))
             .withMessageContaining("Malformed \\uxxxx encoding");
   }
 
@@ -169,7 +175,7 @@ class OriginTrackedPropertiesLoaderTests {
   @Test
   void getPropertyWithEscapedCommentPrefixCharacter() throws IOException {
     String content = "\\#hash-prefixed=hash\n\\!bang-prefixed=bang";
-    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load();
+    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load(null);
     assertThat(loaded).hasSize(1);
     Map<String, OriginTrackedValue> map = loaded.get(0).asMap();
     assertThat(map).containsOnlyKeys("#hash-prefixed", "!bang-prefixed");
@@ -202,56 +208,72 @@ class OriginTrackedPropertiesLoaderTests {
   @Test
   void loadWhenMultiDocumentWithPoundPrefixAndWithoutWhitespaceLoadsMultiDoc() throws IOException {
     String content = "a=a\n#---\nb=b";
-    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load();
+    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load(null);
     assertThat(loaded).hasSize(2);
   }
 
   @Test
   void loadWhenMultiDocumentWithExclamationPrefixAndWithoutWhitespaceLoadsMultiDoc() throws IOException {
     String content = "a=a\n!---\nb=b";
-    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load();
+    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load(null);
     assertThat(loaded).hasSize(2);
   }
 
   @Test
   void loadWhenMultiDocumentWithPoundPrefixAndLeadingWhitespaceLoadsSingleDoc() throws IOException {
     String content = "a=a\n \t#---\nb=b";
-    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load();
+    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load(null);
     assertThat(loaded).hasSize(1);
   }
 
   @Test
   void loadWhenMultiDocumentWithExclamationPrefixAndLeadingWhitespaceLoadsSingleDoc() throws IOException {
     String content = "a=a\n \t!---\nb=b";
-    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load();
+    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load(null);
     assertThat(loaded).hasSize(1);
   }
 
   @Test
   void loadWhenMultiDocumentWithPoundPrefixAndTrailingWhitespaceLoadsMultiDoc() throws IOException {
     String content = "a=a\n#--- \t \nb=b";
-    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load();
+    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load(null);
     assertThat(loaded).hasSize(2);
   }
 
   @Test
   void loadWhenMultiDocumentWithExclamationPrefixAndTrailingWhitespaceLoadsMultiDoc() throws IOException {
     String content = "a=a\n!--- \t \nb=b";
-    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load();
+    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load(null);
     assertThat(loaded).hasSize(2);
+  }
+
+  @Test
+  void loadWhenMultiDocumentWithTrailingWhitespaceAndIndentedNextLineLoadsFollowingProperties() throws IOException {
+    String content = "a=a\n#--- \n  b=b";
+    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load(null);
+    assertThat(loaded).hasSize(2);
+    assertThat(loaded.get(1).asMap()).containsOnlyKeys("b");
+    assertThat(getValue(loaded.get(1).asMap().get("b"))).isEqualTo("b");
+  }
+
+  @Test
+  void loadWhenMultiDocumentWithTrailingWhitespaceTracksLocationOfFollowingProperties() throws IOException {
+    String content = "a=a\n#--- \nb=b";
+    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load(null);
+    assertThat(getLocation(loaded.get(1).asMap().get("b"))).isEqualTo("3:3");
   }
 
   @Test
   void loadWhenMultiDocumentWithPoundPrefixAndTrailingCharsLoadsSingleDoc() throws IOException {
     String content = "a=a\n#--- \tcomment\nb=b";
-    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load();
+    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load(null);
     assertThat(loaded).hasSize(1);
   }
 
   @Test
   void loadWhenMultiDocumentWithExclamationPrefixAndTrailingCharsLoadsSingleDoc() throws IOException {
     String content = "a=a\n!--- \tcomment\nb=b";
-    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load();
+    List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load(null);
     assertThat(loaded).hasSize(1);
   }
 
@@ -259,7 +281,7 @@ class OriginTrackedPropertiesLoaderTests {
   void loadWhenMultiDocumentSeparatorPrefixDifferentFromCommentPrefixLoadsMultiDoc() throws IOException {
     String[] contents = new String[] { "a=a\n# comment\n!---\nb=b", "a=a\n! comment\n#---\nb=b" };
     for (String content : contents) {
-      List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load();
+      List<Document> loaded = new OriginTrackedPropertiesLoader(new ByteArrayResource(content.getBytes())).load(null);
       assertThat(loaded).hasSize(2);
     }
   }
@@ -298,8 +320,9 @@ class OriginTrackedPropertiesLoaderTests {
   }
 
   @Test
+  @WithResource(name = "utf-8.properties", content = "smiley=😃")
   void shouldRespectEncoding() throws IOException {
-    ByteArrayResource resource = new ByteArrayResource("smiley=😃".getBytes(StandardCharsets.UTF_8));
+    ClassPathResource resource = new ClassPathResource("utf-8.properties");
     List<Document> documents = new OriginTrackedPropertiesLoader(resource).load(StandardCharsets.UTF_8);
     OriginTrackedValue value = documents.get(0).asMap().get("smiley");
     assertThat(value).isNotNull();
@@ -376,9 +399,44 @@ class OriginTrackedPropertiesLoaderTests {
   }
 
   @Test
+  @WithResource(name = "existing-non-multi-document.properties", content = """
+      #---
+      # Test
+      #---
+
+      spring=boot
+
+      #---
+      # Test
+
+      boot=bar
+
+
+      # Test
+      #---
+
+      bar=ok
+
+      !---
+      ! Test
+      !---
+
+      ok=well
+
+      !---
+      ! Test
+
+      well=hello
+
+      ! Test
+      !---
+
+      hello=world
+
+      """)
   void existingCommentsAreNotTreatedAsMultiDoc() throws Exception {
-    this.resource = new ClassPathResource("existing-non-multi-document.properties", getClass());
-    this.documents = new OriginTrackedPropertiesLoader(this.resource).load();
+    this.resource = new ClassPathResource("existing-non-multi-document.properties");
+    this.documents = new OriginTrackedPropertiesLoader(this.resource).load(null);
     assertThat(this.documents).hasSize(1);
   }
 
@@ -388,19 +446,23 @@ class OriginTrackedPropertiesLoaderTests {
     assertThat(getValue(value)).isEqualTo("abc");
   }
 
-  private OriginTrackedValue getFromFirst(String key) {
+  private @Nullable OriginTrackedValue getFromFirst(String key) {
     return this.documents.get(0).asMap().get(key);
   }
 
-  private Object getValue(OriginTrackedValue value) {
+  private @Nullable Object getValue(@Nullable OriginTrackedValue value) {
     return (value != null) ? value.getValue() : null;
   }
 
-  private String getLocation(OriginTrackedValue value) {
+  private @Nullable String getLocation(@Nullable OriginTrackedValue value) {
     if (value == null) {
       return null;
     }
-    return ((TextResourceOrigin) value.getOrigin()).getLocation().toString();
+    Origin origin = value.getOrigin();
+    assertThat(origin).isNotNull();
+    Location location = ((TextResourceOrigin) origin).getLocation();
+    assertThat(location).isNotNull();
+    return location.toString();
   }
 
 }

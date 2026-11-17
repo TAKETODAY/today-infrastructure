@@ -43,7 +43,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import infra.aop.support.AopUtils;
-import infra.scheduling.config.TaskExecutionAutoConfiguration;
 import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
@@ -68,6 +67,7 @@ import infra.http.CacheControl;
 import infra.http.HttpHeaders;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.config.HttpMessageConvertersAutoConfiguration;
+import infra.scheduling.config.TaskExecutionAutoConfiguration;
 import infra.test.classpath.ClassPathExclusions;
 import infra.test.context.assertj.AssertableApplicationContext;
 import infra.test.context.runner.ApplicationContextRunner;
@@ -938,13 +938,13 @@ class WebMvcAutoConfigurationTests {
 
   @Test
   void forwardedHeaderFilterIsNotConfiguredWhenStrategyIsNotFramework() {
-    this.contextRunner.withPropertyValues("server.forward-headers-strategy=native")
+    this.contextRunner.withPropertyValues("web.forwarded-headers.strategy=web-server")
             .run((context) -> assertThat(context).doesNotHaveBean(ForwardedHeaderFilter.class));
   }
 
   @Test
   void forwardedHeaderFilterIsConfiguredWhenFrameworkStrategyIsUsed() {
-    this.contextRunner.withPropertyValues("server.forward-headers-strategy=framework").run((context) -> {
+    this.contextRunner.withPropertyValues("web.forwarded-headers.strategy=framework").run((context) -> {
       assertThat(context).hasSingleBean(ForwardedHeaderFilter.class);
       Filter filter = context.getBean(ForwardedHeaderFilter.class);
       assertThat(filter).isInstanceOf(ForwardedHeaderFilter.class);
@@ -956,9 +956,9 @@ class WebMvcAutoConfigurationTests {
   @Test
   void forwardedHeaderFilterAppliesConfiguredProperties() {
     this.contextRunner
-            .withPropertyValues("server.forward-headers-strategy=framework",
-                    "web.forwarded-headers.header-format=standard",
-                    "web.forwarded-headers.use-forwarded-prefix=true")
+            .withPropertyValues("web.forwarded-headers.strategy=framework",
+                    "web.forwarded-headers.naming=rfc-7239",
+                    "web.forwarded-headers.use-prefix=true")
             .run((context) -> {
               Filter filter = context.getBean(ForwardedHeaderFilter.class);
               assertThat(filter).extracting("useStandardHeader").isEqualTo(true);
@@ -969,14 +969,14 @@ class WebMvcAutoConfigurationTests {
   @Test
   void forwardedHeaderFilterBacksOffWhenFilterBeanAlreadyRegistered() {
     this.contextRunner.withUserConfiguration(ForwardedHeaderFilterConfiguration.class)
-            .withPropertyValues("server.forward-headers-strategy=framework")
+            .withPropertyValues("web.forwarded-headers.strategy=framework")
             .run((context) -> assertThat(context).hasSingleBean(ForwardedHeaderFilter.class));
   }
 
   @Test
-  void forwardedHeaderFilterCustomizerFromDeprecatedTypeIsApplied() {
+  void forwardedHeaderFilterCustomizerIsApplied() {
     this.contextRunner.withUserConfiguration(ForwardedHeaderFilterCustomizerConfiguration.class)
-            .withPropertyValues("server.forward-headers-strategy=framework")
+            .withPropertyValues("web.forwarded-headers.strategy=framework")
             .run((context) -> {
               Filter filter = context.getBean(ForwardedHeaderFilter.class);
               assertThat(filter).extracting("removeOnly").isEqualTo(true);
