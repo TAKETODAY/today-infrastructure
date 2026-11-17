@@ -29,6 +29,7 @@ import java.util.Map;
 import tools.jackson.databind.ObjectMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -146,6 +147,33 @@ class ProblemDetailTests {
     Map<String, Object> properties = problemDetail.getProperties();
     assertThat(properties).containsEntry("key1", "value1");
     assertThat(properties).containsEntry("key2", 123);
+  }
+
+  @Test
+  void getProperty_shouldReturnPropertyValue() {
+    ProblemDetail problemDetail = ProblemDetail.forRawStatusCode(500);
+    problemDetail.setProperty("key1", "value1");
+    problemDetail.setProperty("key2", 123);
+
+    assertThat(problemDetail.getProperty("key1")).isEqualTo("value1");
+    assertThat(problemDetail.getProperty("key2")).isEqualTo(123);
+    assertThat(problemDetail.getProperty("missing")).isNull();
+  }
+
+  @Test
+  void getProperty_whenNoProperties_shouldReturnNull() {
+    ProblemDetail problemDetail = ProblemDetail.forRawStatusCode(500);
+
+    assertThat(problemDetail.getProperty("key")).isNull();
+  }
+
+  @Test
+  void getProperty_withNullName_shouldThrowException() {
+    ProblemDetail problemDetail = ProblemDetail.forRawStatusCode(500);
+
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> problemDetail.getProperty(null))
+            .withMessage("Name is required");
   }
 
   @Test

@@ -253,6 +253,18 @@ public class ProblemDetail implements Serializable {
   }
 
   /**
+   * Return the value of the "dynamic" property with the given name.
+   *
+   * @param name the property name
+   * @return the property value, or {@code null} if not present
+   * @see #setProperty(String, Object)
+   */
+  public @Nullable Object getProperty(String name) {
+    Assert.notNull(name, "Name is required");
+    return this.properties != null ? this.properties.get(name) : null;
+  }
+
+  /**
    * Setter for the {@link #getProperties() properties map}.
    * <p>By default, this is not set.
    * <p>When Jackson JSON is present on the classpath, any properties set here
