@@ -20,17 +20,13 @@ package infra.web.util;
 
 import org.jspecify.annotations.Nullable;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
-import java.util.function.Supplier;
 
 import infra.beans.factory.BeanFactoryUtils;
-import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.context.ApplicationContext;
 import infra.core.Conventions;
 import infra.core.i18n.LocaleContext;
@@ -47,21 +43,18 @@ import infra.util.MultiValueMap;
 import infra.util.StringUtils;
 import infra.web.AbstractDelegatingHttpContext;
 import infra.web.HttpContext;
-import infra.web.HttpContextHolder;
 import infra.web.LocaleContextResolver;
 import infra.web.LocaleResolver;
 import infra.web.RedirectModel;
 import infra.web.RedirectModelManager;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.RequestBindingException;
-import infra.web.context.support.RequestScope;
-import infra.web.context.support.SessionScope;
 import infra.web.multipart.Part;
 
 /**
  * Miscellaneous utilities for web applications.
  * <p>Provides request parameter extraction, application locale resolution,
- * redirect model access, web scope registration, and utilities for sessions,
+ * redirect model access, and utilities for sessions,
  * request paths, origins, and multipart cleanup.
  *
  * @author Rod Johnson
@@ -537,27 +530,6 @@ public abstract class WebUtils {
         manager.saveRedirectModel(request, redirectModel);
       }
     }
-  }
-
-  // static
-
-  /**
-   * Register web-specific scopes ("request", "session")
-   * with the given BeanFactory, as used by the ApplicationContext.
-   *
-   * @param beanFactory the BeanFactory to configure
-   */
-  public static void registerScopes(ConfigurableBeanFactory beanFactory) {
-
-    // @Autowired Session currentSession;
-    beanFactory.registerResolvableDependency(Session.class, new WebSessionProvider());
-
-    beanFactory.registerScope(HttpContext.SCOPE_REQUEST, RequestScope.instance);
-    beanFactory.registerScope(HttpContext.SCOPE_SESSION, new SessionScope());
-
-    // register HttpContext
-    // @Autowired HttpContext currentRequest;
-    beanFactory.registerResolvableDependency(HttpContext.class, new InjectableHttpContext());
   }
 
   //---------------------------------------------------------------------
@@ -1254,45 +1226,6 @@ public abstract class WebUtils {
       }
       return values;
     }
-  }
-
-  //
-
-  /**
-   * Factory that exposes the current web-session object on demand.
-   */
-  private static final class WebSessionProvider implements Supplier<Session>, Serializable {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    @Override
-    public Session get() {
-      return HttpContextHolder.required().getSession();
-    }
-
-    @Override
-    public String toString() {
-      return "Current Session";
-    }
-
-  }
-
-  /**
-   * Factory that exposes the current request-context object on demand.
-   */
-  private static final class InjectableHttpContext extends AbstractDelegatingHttpContext {
-
-    @Override
-    public HttpContext delegate() {
-      return HttpContextHolder.required();
-    }
-
-    @Override
-    public String toString() {
-      return "Current HttpContext";
-    }
-
   }
 
 }

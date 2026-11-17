@@ -33,7 +33,7 @@ import infra.web.context.StandardWebEnvironment;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.MockUtils;
-import infra.web.util.WebUtils;
+import infra.web.context.support.WebScopeRegistrar;
 
 /**
  * Subclass of {@link GenericApplicationContext}, suitable for web mock environments.
@@ -109,7 +109,7 @@ public class GenericMockWebApplicationContext extends GenericApplicationContext
    * @param beanFactory the BeanFactory to configure
    */
   static void registerWebApplicationScopes(ConfigurableBeanFactory beanFactory) {
-    WebUtils.registerScopes(beanFactory);
+    WebScopeRegistrar.registerScopes(beanFactory);
 
     beanFactory.registerResolvableDependency(Session.class, new SessionObjectSupplier());
     beanFactory.registerResolvableDependency(MockRequest.class, new RequestObjectSupplier());

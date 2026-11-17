@@ -39,7 +39,7 @@ import infra.web.HttpContext;
 import infra.web.HttpContextHolder;
 import infra.web.context.annotation.RequestScope;
 import infra.web.context.annotation.SessionScope;
-import infra.web.util.WebUtils;
+import infra.web.context.support.WebScopeRegistrar;
 
 import static infra.context.annotation.ScopedProxyMode.DEFAULT;
 import static infra.context.annotation.ScopedProxyMode.INTERFACES;
@@ -68,7 +68,7 @@ class ClassPathBeanDefinitionScannerScopeIntegrationTests {
 
   @BeforeEach
   void setup() {
-    WebUtils.registerScopes(context.getBeanFactory());
+    WebScopeRegistrar.registerScopes(context.getBeanFactory());
     MockRequest oldRequestWithSession = new MockRequest();
     oldRequestWithSession.setSession(new MockSession());
     this.oldRequestAttributesWithSession = new MockHttpContext(

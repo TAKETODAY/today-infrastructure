@@ -32,7 +32,7 @@ import infra.session.Session;
 import infra.session.config.EnableSession;
 import infra.web.DispatcherHandler;
 import infra.web.HttpContextHolder;
-import infra.web.util.WebUtils;
+import infra.web.context.support.WebScopeRegistrar;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -53,7 +53,7 @@ public class RequestAndSessionScopedBeanTests {
     bd.setScope(HttpContext.SCOPE_REQUEST);
     bd.getPropertyValues().add("name", "abc");
     wac.registerBeanDefinition(targetBeanName, bd);
-    WebUtils.registerScopes(wac.getBeanFactory());
+    WebScopeRegistrar.registerScopes(wac.getBeanFactory());
     wac.refresh();
 
     MockRequest request = new MockRequest();
@@ -97,7 +97,7 @@ public class RequestAndSessionScopedBeanTests {
     wac.refresh();
     wac.registerBeanDefinition(targetBeanName, bd);
 
-    WebUtils.registerScopes(wac.getBeanFactory());
+    WebScopeRegistrar.registerScopes(wac.getBeanFactory());
 
     Session session = context.getSession();
 
