@@ -60,6 +60,19 @@ import static org.mockito.Mockito.when;
 class DelegatingHttpContextTests {
 
   @Test
+  void sendIsDelegated() throws Exception {
+    HttpContext delegate = mock(HttpContext.class);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
+    Object result = new Object();
+
+    wrapper.send(result);
+    wrapper.send(null);
+
+    verify(delegate).send(result);
+    verify(delegate).send(null);
+  }
+
+  @Test
   void requestLocaleIsDelegated() {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.getLocale()).thenReturn(Locale.SIMPLIFIED_CHINESE);

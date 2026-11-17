@@ -657,6 +657,11 @@ public abstract class AbstractDelegatingHttpContext implements HttpContext {
   }
 
   @Override
+  public void send(@Nullable Object result) throws Exception {
+    delegate().send(result);
+  }
+
+  @Override
   public long transferTo(OutputStream out) throws IOException {
     return delegate().transferTo(out);
   }

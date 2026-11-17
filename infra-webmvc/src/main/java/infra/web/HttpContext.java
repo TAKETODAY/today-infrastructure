@@ -1243,6 +1243,27 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
   void sendRedirect(String location) throws IOException;
 
   /**
+   * Send the given result using the configured response value handlers and
+   * message converters, without requiring a mapped controller method.
+   * <p>The result is passed unchanged to the configured return value handlers,
+   * following their normal selection rules, including view-name handling for
+   * strings. To send a string as a response body, wrap it in an
+   * {@link infra.http.HttpEntity}. An {@code HttpEntity} supplies response headers
+   * and a {@link infra.http.ResponseEntity} also supplies the status code.
+   * A {@code null} result leaves the response unchanged.
+   * <p>This method does not complete the request lifecycle or continue a filter
+   * chain. A filter sending a short-circuit response should return without
+   * invoking {@link FilterChain#doFilter(HttpContext)}. Returning from this
+   * method does not guarantee that the client has received the response.
+   *
+   * @param result the response result, or {@code null} for no body
+   * @throws IllegalStateException if the response is committed or the request completed
+   * @throws Exception if processing or writing the result fails
+   * @since 5.0
+   */
+  void send(@Nullable Object result) throws Exception;
+
+  /**
    * Forward the request to a new path, re-dispatching through the handler
    * pipeline without involving filters.
    * <p>Similar to Servlet's {@code RequestDispatcher.forward()}.

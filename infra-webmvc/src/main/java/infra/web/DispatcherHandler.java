@@ -629,6 +629,29 @@ public class DispatcherHandler extends WebLifecycleManager {
     }
   }
 
+  /**
+   * Send a response result without resolving a handler or completing the request.
+   * <p>The result is passed unchanged to the configured return value handlers.
+   *
+   * @param context the current request context
+   * @param result the response result, or {@code null} to leave the response unchanged
+   * @throws IllegalStateException if the response is committed or the request completed
+   * @throws Exception if processing or writing the result fails
+   * @since 5.0
+   */
+  void send(HttpContext context, @Nullable Object result) throws Exception {
+    Assert.state(!context.isRequestCompleted(), "Request is already completed");
+    Assert.state(!context.isCommitted(), "Response is already committed");
+    if (result == null) {
+      return;
+    }
+    ReturnValueHandler selected = returnValueHandler.selectHandler(null, result);
+    if (selected == null) {
+      throw new ReturnValueHandlerNotFoundException(result, null);
+    }
+    handleReturnValue(selected, context, null, result);
+  }
+
   private void handleRequestInternal(HttpContext context) throws Exception {
     Object handler = null;
     Object returnValue = null;

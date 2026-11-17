@@ -1825,6 +1825,11 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     dispatcherHandler.forward(this, path);
   }
 
+  @Override
+  public void send(@Nullable Object result) throws Exception {
+    dispatcherHandler.send(this, result);
+  }
+
   /**
    * Gets the current status code of this response.
    *
