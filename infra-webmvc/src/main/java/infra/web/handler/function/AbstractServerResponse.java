@@ -47,8 +47,7 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
 
   private final HttpHeaders headers;
 
-  @Nullable
-  private final MultiValueMap<String, ResponseCookie> cookies;
+  private final @Nullable MultiValueMap<String, ResponseCookie> cookies;
 
   protected AbstractServerResponse(HttpStatusCode statusCode,
           HttpHeaders headers, @Nullable MultiValueMap<String, ResponseCookie> cookies) {

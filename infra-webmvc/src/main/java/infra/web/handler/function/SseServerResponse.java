@@ -60,7 +60,7 @@ final class SseServerResponse extends AbstractServerResponse {
 
   @Override
   protected Object writeToInternal(HttpContext request, Context context) throws Exception {
-    request.setHeader(HttpHeaders.CACHE_CONTROL, "no-cache");
+    request.setHeader(HttpHeaders.CACHE_CONTROL, HttpHeaders.NO_CACHE);
     Long timeoutValue = timeout != null ? timeout.toMillis() : null;
     SseEmitter emitter = new SseEmitter(timeoutValue, null);
     sseConsumer.accept(new DefaultSseBuilder(emitter));
