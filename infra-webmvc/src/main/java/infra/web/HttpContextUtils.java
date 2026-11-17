@@ -65,6 +65,28 @@ public final class HttpContextUtils {
   private HttpContextUtils() {
   }
 
+  /**
+   * Find a bean by name in the application context associated with the request,
+   * requiring it to match the specified type.
+   * <p>Uses the application context's normal name lookup rules, including aliases
+   * and delegation to a parent context. Does not fall back to a type-only lookup
+   * or inspect request attributes.
+   * <p>Returns {@code null} if the request has no application context or the
+   * named bean is absent. If the bean exists, type mismatch and bean creation
+   * exceptions are propagated rather than treated as an absent bean.
+   *
+   * @param request the HTTP request whose application context to search
+   * @param beanName the name or alias of the bean to find
+   * @param requiredType the required type of the bean
+   * @param <T> the expected bean type
+   * @return the bean, or {@code null} if no application context or named bean
+   * is available
+   * @throws infra.beans.factory.BeanNotOfRequiredTypeException if the named bean
+   * does not match the required type
+   * @throws infra.beans.BeansException if the bean cannot be obtained
+   * @see HttpContext#getApplicationContext()
+   * @see BeanFactoryUtils#find(infra.beans.factory.BeanFactory, String, Class)
+   */
   public static <T> @Nullable T getBean(HttpContext request, String beanName, Class<T> requiredType) {
     ApplicationContext beanFactory = request.getApplicationContext();
     if (beanFactory != null) {
