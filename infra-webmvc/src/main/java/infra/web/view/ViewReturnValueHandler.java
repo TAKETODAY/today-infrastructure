@@ -215,10 +215,6 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    */
   private Locale getLocale(HttpContext request) {
     LocaleResolver localeResolver = this.localeResolver;
-    if (localeResolver == null) {
-      localeResolver = WebUtils.getLocaleResolver(request);
-    }
-
     if (localeResolver != null) {
       return localeResolver.resolveLocale(request);
     }
