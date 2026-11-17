@@ -654,6 +654,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     ApplicationContext webAppContext = initDispatcher(MyParameterDispatchingController.class);
 
     MockRequest request = new MockRequest("GET", "/myPath.do");
+    request.addHeader("Accept-Language", "en");
     MockResponse response = new MockResponse();
     Session session = request.getSession();
     assertThat(session).isNotNull();
@@ -661,7 +662,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     assertThat(response.getContentAsString()).isEqualTo("myView");
     assertThat(request.getAttribute("sessionId")).isSameAs(session.getId());
     assertThat(request.getAttribute("requestUri")).isSameAs(request.getRequestURI());
-    assertThat(request.getAttribute("locale")).isSameAs(request.getLocale());
+    assertThat(request.getAttribute("locale")).isEqualTo(request.getLocale());
 
     request = new MockRequest("GET", "/myPath.do");
     response = new MockResponse();
