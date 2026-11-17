@@ -909,6 +909,10 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * <p>Language ranges are ordered by descending quality value. Wildcard
    * ranges and ranges with zero quality are ignored. For full language
    * negotiation, use {@link HttpHeaders#getAcceptLanguage()} instead.
+   * <p>This is a request preference, not the application's effective locale or
+   * a guarantee that the application supports the language. Cookie and session
+   * locale selections do not change this value. For message lookup, rendering,
+   * and formatting, use {@link HttpContextUtils#resolveLocale(HttpContext)}.
    *
    * @return the preferred locale, or {@code null} if the header is absent,
    * blank, or contains no acceptable concrete language range

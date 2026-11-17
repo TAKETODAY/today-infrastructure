@@ -4,8 +4,54 @@
 Infra 架构的大部分都支持国际化，Infra Web MVC 框架也是如此。`DispatcherHandler` 让您可以使用客户端的区域设置自动解析消息。
 这是通过 `LocaleResolver` 对象完成的。
 
-当请求进来时，`DispatcherHandler` 会寻找一个区域设置解析器，如果找到，它会尝试使用它来设置区域设置。
-通过使用 `HttpContext.getLocale()` 方法，您始终可以检索由区域设置解析器解析的区域设置。
+请求语言偏好和应用最终使用的区域设置是两个不同的概念：
+
+[cols="2,3,3"]
+|===
+| API | 含义 | 使用场景
+
+| `HttpContext.getLocale()`
+| 仅从 `Accept-Language` 读取请求首选语言，可以为 `null`
+| 检查客户端偏好，或作为自定义解析器的输入
+
+| `LocaleResolver`
+| 定义应用如何选择区域设置，成功解析时返回非空值
+| 配置请求头、Cookie、Session 或固定语言策略，以及修改用户的语言选择
+
+| `HttpContextUtils.resolveLocale(request)`
+| 按应用策略获取非空的最终区域设置
+| 消息查找、视图渲染、日期和数字格式化
+|===
+
+`HttpContext.getLocale()` 按质量权重降序选择具体语言，忽略通配符范围和 `q=0` 的范围。
+请求头缺失、空白或不含可接受的具体语言时返回 `null`；非法请求头仍会抛出解析异常。
+该方法不读取 Cookie、Session 或 `LocaleResolver`，也不回退到 JVM 默认语言。
+它不保证应用支持返回的语言；需要所有语言候选和权重时，使用 `request.requestHeaders().getAcceptLanguage()`。
+
+应用代码通常应使用 `HttpContextUtils.resolveLocale(request)`：
+
+. 从请求关联的 `ApplicationContext` 中按 `LocaleResolver.BEAN_NAME`（`webLocaleResolver`）查找解析器。
+. 如果存在解析器，直接返回其结果，由解析器负责默认值和支持语言等策略。
+. 只有不存在解析器时，才读取 `request.getLocale()`，并在其为空时回退到 `Locale.getDefault()`。
+
+控制器和异常处理方法的 `Locale` 参数，以及 `HttpContext.getMessage(...)`，使用最终解析语言。
+例如，请求头为法语，而 `SessionLocaleResolver` 中保存了中文选择时，`request.getLocale()` 返回法语，
+`HttpContextUtils.resolveLocale(request)` 返回中文。更改会话中的选择不会修改请求头语言。
+
+工具方法不依赖线程语言上下文，但早期过滤器或独立测试中的请求可能尚未关联应用上下文，因而无法查到解析器。
+不要将 `Locale.getDefault()` 当作稳定的应用默认语言；需要固定默认值时，应在解析器中显式配置。
+在 MVC 请求处理期间，`LocaleContextHolder` 通常也提供当前语言，但它是线程绑定的上下文，
+不应假设在早期过滤器或异步线程中同样可用。
+
+[IMPORTANT]
+====
+`resolveLocale` 的非空保证不是异常容错保证：解析器异常及非法语言头的解析异常不会被自动吞掉。
+错误响应若需要对非法语言头回退，应在应用的语言解析边界明确实现这一策略。
+消息资源的默认语言只影响资源查找，不能替代语言协商；设置 `Content-Language` 时，应与实际响应正文采用的语言保持一致。
+====
+
+自定义 `LocaleResolver` 应读取 `request.getLocale()` 作为请求偏好，并自行处理空值及回退。
+不要在解析器内部调用 `HttpContextUtils.resolveLocale(request)` 取得回退值，否则可能递归调用自身。
 
 除了自动区域设置解析之外，您还可以将拦截器附加到处理程序映射
 （有关处理程序映射拦截器的更多信息，请参阅 xref:web/webmvc/mvc-core/handlermapping-interceptor.adoc[拦截]）
@@ -27,7 +73,8 @@ Infra 中包含以下区域设置解析器选择。
 除了获取客户端的区域设置外，了解其时区通常很有用。`LocaleContextResolver` 接口提供了对 `LocaleResolver`
 的扩展，让解析器提供更丰富的 `LocaleContext`，其中可能包括时区信息。
 
-如果可用，可以使用 `HttpContext.getTimeZone()` 方法获取用户的 `TimeZone`。
+如果可用，可以使用 `HttpContextUtils.getTimeZone(request)` 方法获取用户的 `TimeZone`；
+没有解析器提供时区时，此方法返回 `null`，不会回退到系统默认时区。
 任何向 Infra `ConversionService` 注册的日期/时间 `Converter` 和 `Formatter` 对象都会自动使用时区信息。
 
 
@@ -36,6 +83,27 @@ Infra 中包含以下区域设置解析器选择。
 
 此区域设置解析器检查客户端（例如，Web 浏览器）发送的请求中的 `accept-language` 头。
 通常，此头字段包含客户端操作系统的区域设置。请注意，此解析器不支持时区信息。
+
+默认情况下，`AcceptHeaderLocaleResolver` 没有限制支持的语言。
+可通过 `setSupportedLocales(...)` 配置候选语言，并通过 `setDefaultLocale(...)` 配置没有可用请求语言或匹配失败时的默认值：
+
+[source,java]
+----
+@Component
+public LocaleResolver webLocaleResolver() {
+  AcceptHeaderLocaleResolver resolver = new AcceptHeaderLocaleResolver();
+  resolver.setSupportedLocales(List.of(Locale.CHINESE, Locale.ENGLISH));
+  resolver.setDefaultLocale(Locale.CHINESE);
+  return resolver;
+}
+----
+
+此工厂方法应定义在配置类中，Bean 名称为 `webLocaleResolver`。
+上例使用语言级候选，因此 `en-US` 可回退匹配 `en`，`zh-CN` 可回退匹配 `zh`；
+请求 `fr, en-US;q=0.8` 会选择英文，仅请求法语或未提供可用具体语言时选择中文。
+如果只配置 `en-US`，则 `en-GB` 或 `en` 不会自动匹配它；需要语言级匹配时必须显式加入 `en`。
+仅配置支持语言列表而不配置默认值，不构成严格的语言白名单：匹配失败时仍会返回请求首选语言。
+通配符和零权重候选会被忽略；非法语言头不会因为配置了默认值就自动回退。
 
 
 [[mvc-localeresolver-cookie]]
@@ -47,7 +115,7 @@ Infra 中包含以下区域设置解析器选择。
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="localeResolver" class="infra.web.i18n.CookieLocaleResolver">
+<bean id="webLocaleResolver" class="infra.web.i18n.CookieLocaleResolver">
 
   <property name="cookieName" value="clientlanguage"/>
 
@@ -97,6 +165,9 @@ Infra 中包含以下区域设置解析器选择。
 
 您可以通过将 `LocaleChangeInterceptor` 添加到 `HandlerMapping` 定义之一来启用区域设置更改。
 它检测请求中的参数并相应地更改区域设置，在调度程序的应用程序上下文中的 `LocaleResolver` 上调用 `setLocale` 方法。
+也可以通过拦截器的 `setLocaleResolver(...)` 显式指定解析器。
+Cookie 和 Session 策略支持保存语言选择，而 `AcceptHeaderLocaleResolver` 不支持动态修改，调用其 `setLocale` 会抛出
+`UnsupportedOperationException`。拦截器更改的是策略中的选择，不是 `HttpContext.getLocale()` 表示的请求头偏好。
 下一个示例显示，对包含名为 `siteLanguage` 参数的所有 `{asterisk}.view` 资源的调用现在会更改区域设置。
 因此，例如，对 URL `https://www.sf.net/home.view?siteLanguage=nl` 的请求会将站点语言更改为荷兰语。
 以下示例显示了如何拦截区域设置：
@@ -108,7 +179,7 @@ Infra 中包含以下区域设置解析器选择。
   <property name="paramName" value="siteLanguage"/>
 </bean>
 
-<bean id="localeResolver"
+<bean id="webLocaleResolver"
     class="infra.web.i18n.CookieLocaleResolver"/>
 
 <bean id="urlMapping"

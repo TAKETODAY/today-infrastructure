@@ -74,23 +74,32 @@ public final class HttpContextUtils {
   }
 
   /**
-   * Return the LocaleResolver that has been bound to the request by the
-   * HttpContext.
+   * Find the {@link LocaleResolver#BEAN_NAME named LocaleResolver bean} in
+   * the application context associated with the request.
+   * <p>This method does not resolve a locale or read a request attribute.
    *
    * @param request current HTTP request
-   * @return the current LocaleResolver, or {@code null} if not found
+   * @return the configured resolver, or {@code null} if no application context
+   * or matching bean is available
    */
   public static @Nullable LocaleResolver getLocaleResolver(HttpContext request) {
     return getBean(request, LocaleResolver.BEAN_NAME, LocaleResolver.class);
   }
 
   /**
-   * Retrieve the current locale from the given request, using the
-   * LocaleResolver bound to the request by the DispatcherHandler
-   * (if available), falling back to the request's accept-header locale and
-   * finally to {@link Locale#getDefault()}.
+   * Resolve the effective locale for application use, such as message lookup,
+   * view rendering, and formatting.
+   * <p>If a configured {@link #getLocaleResolver LocaleResolver} is available,
+   * return its result directly: the resolver is responsible for its own defaults
+   * and must return a non-null locale. Only when no resolver is available, use
+   * {@link HttpContext#getLocale()} and, if that is null, {@link Locale#getDefault()}.
    * <p>Unlike {@link HttpContext#getLocale()}, this method always returns
-   * an effective, non-null locale for application use.
+   * a non-null locale on successful resolution. It does not suppress parsing
+   * or resolver exceptions, or restrict the result to supported languages.
+   * Configure application defaults and supported languages on the resolver.
+   * <p>Resolver implementations must not call this method to obtain a fallback,
+   * since doing so may invoke the same resolver recursively. They should read
+   * {@link HttpContext#getLocale()} directly instead.
    * <p>Consider using {@link LocaleContextHolder#getLocale()}
    * which will normally be populated with the same Locale.
    *
@@ -110,10 +119,10 @@ public final class HttpContextUtils {
 
   /**
    * Retrieve the current time zone from the given request, using the
-   * {@link TimeZoneAwareLocaleContext} in the {@link LocaleResolver} bound to
-   * the request by the {@link DispatcherHandler} (if available).
+   * {@link TimeZoneAwareLocaleContext} supplied by the configured
+   * {@link #getLocaleResolver LocaleResolver} (if available).
    * <p>Note: This method returns {@code null} if no specific time zone can be
-   * resolved for the given request. This is in contrast to {@link #getLocale}
+   * resolved for the given request. This is in contrast to {@link #resolveLocale}
    * where it is always possible to fall back to the request's locale based on the
    * {@code Accept-Language} header or the default locale for the server.
    * <p>Consider using {@link LocaleContextHolder#getTimeZone()}

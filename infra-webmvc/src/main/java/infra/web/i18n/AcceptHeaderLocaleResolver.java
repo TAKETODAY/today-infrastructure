@@ -83,10 +83,14 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
   }
 
   /**
-   * Configure a fixed default locale to fall back on if the request does not
-   * have an "Accept-Language" header.
-   * <p>By default this is not set in which case when there is no "Accept-Language"
-   * header, {@link Locale#getDefault()} is used.
+   * Configure a fixed default locale to use if the request has no acceptable
+   * concrete language range or none of its ranges matches the supported locales.
+   * <p>If not configured, an absent request locale falls back to
+   * {@link Locale#getDefault()}, while a non-matching request falls back to its
+   * preferred locale. A supported-locale list alone is therefore not a strict
+   * allowlist: configure a default locale as well to handle non-matching requests.
+   * <p>Wildcard and zero-quality ranges are ignored. Invalid language headers
+   * still raise parsing exceptions rather than selecting this default.
    *
    * @param defaultLocale the default locale to use
    */

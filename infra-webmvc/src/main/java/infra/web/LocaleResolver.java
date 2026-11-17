@@ -38,6 +38,15 @@ import infra.core.i18n.LocaleContextHolder;
  * <p>Use {@link HttpContextUtils#resolveLocale(HttpContext)}
  * to retrieve the current locale in controllers or views, independent
  * of the actual resolution strategy.
+ * <p>In contrast, {@link HttpContext#getLocale()} only exposes the request's
+ * {@code Accept-Language} preference and may return {@code null}. Implementations
+ * may use that preference as an input, but must supply their own fallback to
+ * satisfy the non-null resolution contract. They must not call
+ * {@link HttpContextUtils#resolveLocale(HttpContext)} for a fallback, since that
+ * may invoke the same resolver recursively.
+ * <p>Register the application strategy under {@link #BEAN_NAME}. Changing a
+ * locale through this strategy does not modify the request's language header
+ * or the value exposed by {@link HttpContext#getLocale()}.
  *
  * <p>there is an extended strategy interface
  * called {@link LocaleContextResolver}, allowing for resolution of
@@ -62,8 +71,10 @@ public interface LocaleResolver {
   String BEAN_NAME = "webLocaleResolver";
 
   /**
-   * Resolve the current locale via the given request.
-   * Can return a default locale as fallback in any case.
+   * Resolve the effective application locale for the given request, applying
+   * this strategy's configured defaults when necessary.
+   * <p>The result may differ from {@link HttpContext#getLocale()}, for example
+   * when a cookie or session contains an explicit language selection.
    *
    * @param context the request to resolve the locale for
    * @return the current locale (never {@code null})
