@@ -108,9 +108,9 @@ public interface AttributeAccessor {
   }
 
   /**
-   * Returns {@code true} if this map contains no key-value mappings.
+   * Return {@code true} if this accessor has any attributes.
    *
-   * @return {@code true} if this map contains no key-value mappings
+   * @return {@code true} if at least one attribute exists, {@code false} otherwise
    * @since 4.0
    */
   boolean hasAttributes();
