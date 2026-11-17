@@ -21,6 +21,7 @@ package infra.web.config.annotation;
 import org.jspecify.annotations.Nullable;
 
 import infra.web.ErrorResponseViewResolver;
+import infra.web.handler.ReturnValueHandlerManager;
 
 /**
  * Configure how RFC 9457 problem details are produced and rendered.
@@ -63,7 +64,7 @@ public class ProblemDetailsConfigurer {
    * <p>By default, problem details are always written with message converters.
    *
    * @param viewResolver the resolver to use
-   * @see infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler#setErrorResponseViewResolver
+   * @see ReturnValueHandlerManager#setErrorResponseViewResolver
    */
   public ProblemDetailsConfigurer viewResolver(ErrorResponseViewResolver viewResolver) {
     this.viewResolver = viewResolver;
