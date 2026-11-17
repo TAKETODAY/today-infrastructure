@@ -239,10 +239,6 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
     return new SelectableReturnValueHandler(handlers);
   }
 
-  public @Nullable ReturnValueHandler getHandler(final Object handler) {
-    return ReturnValueHandler.select(getHandlers(), handler, null);
-  }
-
   /**
    * @param returnValue if returnValue is {@link ReturnValueHandler#NONE_RETURN_VALUE} match handler only
    * @return null if returnValue is {@link ReturnValueHandler#NONE_RETURN_VALUE} or no one matched
