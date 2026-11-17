@@ -30,9 +30,12 @@ ${messages.getMessage("optional", "默认文本")}
 
 默认开启消息访问器暴露，`messages` 是模板模型的保留名称。业务模型（包括静态属性及已合并的请求、Session 属性）
 或请求属性中存在同名值时，渲染直接失败，不会静默覆盖。
-访问器不保存在共享视图字段中，也不复制到请求属性中；JSON、下载等非模板视图不会自动获得该对象。
+访问器不保存在共享视图字段中，也不复制到 FreeMarker 请求属性中。
+消息暴露能力定义在 `AbstractView`：普通视图默认关闭，`AbstractTemplateView` 默认开启。
+因此 JSON、下载等非模板视图默认不会获得该对象，需要时可以显式开启。
 
 可以通过视图或视图解析器的 `setExposeMessages(false)` 关闭自动暴露。
+`UrlBasedViewResolver` 未显式配置该选项时保留具体视图的默认值；该配置不作用于特殊的 `redirect:` 和 `forward:` 快捷视图。
 使用自动配置时，设置 `freemarker.expose-messages=false`；Groovy 模板对应配置为
 `groovy.template.expose-messages=false`。关闭后不创建消息访问器，也不检查或保留 `messages` 名称，
 业务可以自行提供同名模型或请求属性。消息宏需要可用的消息访问器，关闭后若仍使用这些宏，需自行提供兼容对象。

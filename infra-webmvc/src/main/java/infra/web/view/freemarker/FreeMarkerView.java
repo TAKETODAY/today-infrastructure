@@ -346,46 +346,6 @@ public class FreeMarkerView extends AbstractTemplateView {
   }
 
   /**
-   * Message accessor adapting template sequences for older FreeMarker object wrappers.
-   * Message lookup and formatting remain delegated to MessageSourceAccessor.
-   */
-  public static class FreeMarkerMessages extends MessageSourceAccessor {
-
-    /**
-     * Create an accessor for one rendering operation.
-     *
-     * @param messageSource the source to delegate to
-     * @param locale the rendering locale
-     */
-    public FreeMarkerMessages(MessageSource messageSource, Locale locale) {
-      super(messageSource, locale);
-    }
-
-    /**
-     * Resolve a message with template sequence arguments.
-     *
-     * @param code the message code
-     * @param args the message arguments
-     * @return the unescaped message
-     */
-    public String getMessage(String code, List<?> args) {
-      return getMessage(code, args.toArray());
-    }
-
-    /**
-     * Resolve a message with template sequence arguments and a default message.
-     *
-     * @param code the message code
-     * @param args the message arguments
-     * @param defaultMessage the fallback message
-     * @return the unescaped message
-     */
-    public String getMessage(String code, List<?> args, String defaultMessage) {
-      return getMessage(code, args.toArray(), defaultMessage);
-    }
-  }
-
-  /**
    * Build a FreeMarker template model for the given model Map.
    * <p>The default implementation builds a {@link SimpleHash} for the
    * given MVC model with an additional fallback to request attributes.
@@ -490,6 +450,48 @@ public class FreeMarkerView extends AbstractTemplateView {
         return wrap(obj);
       }
       return wrap(null);
+    }
+  }
+
+  /**
+   * Message accessor adapting template sequences for older FreeMarker object wrappers.
+   * Message lookup and formatting remain delegated to MessageSourceAccessor.
+   *
+   * @since 5.0
+   */
+  public static class FreeMarkerMessages extends MessageSourceAccessor {
+
+    /**
+     * Create an accessor for one rendering operation.
+     *
+     * @param messageSource the source to delegate to
+     * @param locale the rendering locale
+     */
+    public FreeMarkerMessages(MessageSource messageSource, Locale locale) {
+      super(messageSource, locale);
+    }
+
+    /**
+     * Resolve a message with template sequence arguments.
+     *
+     * @param code the message code
+     * @param args the message arguments
+     * @return the unescaped message
+     */
+    public String getMessage(String code, List<?> args) {
+      return getMessage(code, args.toArray());
+    }
+
+    /**
+     * Resolve a message with template sequence arguments and a default message.
+     *
+     * @param code the message code
+     * @param args the message arguments
+     * @param defaultMessage the fallback message
+     * @return the unescaped message
+     */
+    public String getMessage(String code, List<?> args, String defaultMessage) {
+      return getMessage(code, args.toArray(), defaultMessage);
     }
   }
 

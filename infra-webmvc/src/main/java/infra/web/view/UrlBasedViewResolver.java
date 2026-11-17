@@ -109,6 +109,8 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
 
   private @Nullable Class<?> viewClass;
 
+  private @Nullable Boolean exposeMessages;
+
   private String prefix = "";
 
   private String suffix = "";
@@ -420,6 +422,19 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
   }
 
   /**
+   * Set whether resolved views expose a rendering-specific message accessor.
+   * By default, each view retains its own default (enabled for template views).
+   * This setting does not apply to special redirect or forward shortcuts.
+   *
+   * @param exposeMessages whether to expose the message accessor
+   * @see AbstractView#setExposeMessages
+   * @since 5.0
+   */
+  public void setExposeMessages(boolean exposeMessages) {
+    this.exposeMessages = exposeMessages;
+  }
+
+  /**
    * This implementation returns just the view name,
    * as this ViewResolver doesn't support localized resolution.
    */
@@ -546,6 +561,10 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
     AbstractUrlBasedView view = instantiateView();
     view.setUrl(getPrefix() + viewName + getSuffix());
     view.setAttributesMap(getAttributesMap());
+
+    if (this.exposeMessages != null) {
+      view.setExposeMessages(this.exposeMessages);
+    }
 
     String contentType = getContentType();
     if (contentType != null) {

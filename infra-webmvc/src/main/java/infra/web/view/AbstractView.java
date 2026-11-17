@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -33,6 +34,7 @@ import java.util.StringTokenizer;
 import infra.beans.factory.BeanNameAware;
 import infra.context.ApplicationContext;
 import infra.context.support.ApplicationObjectSupport;
+import infra.context.support.MessageSourceAccessor;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.logging.LogMessage;
@@ -67,6 +69,11 @@ import infra.web.util.WebUtils;
  */
 public abstract class AbstractView extends ApplicationObjectSupport implements View, BeanNameAware {
 
+  /** Model attribute reserved for the message accessor when automatic exposure is enabled. */
+  public static final String MESSAGES_ATTRIBUTE = "messages";
+
+  private boolean exposeMessages = false;
+
   public static final String DEFAULT_ENCODING = "UTF-8";
 
   /** Default content type. Overridable as bean property. */
@@ -90,6 +97,28 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
   private boolean exposeOutputRedirectModel = false;
 
   private boolean exposeContextBeansAsAttributes = false;
+
+  /**
+   * Set whether to expose a rendering-specific, unescaped message accessor as {@code messages}.
+   * Default is {@code false}; template views enable this by default.
+   * When disabled, the name is available to application models.
+   *
+   * @param exposeMessages whether to expose the message accessor
+   * @since 5.0
+   */
+  public void setExposeMessages(boolean exposeMessages) {
+    this.exposeMessages = exposeMessages;
+  }
+
+  /**
+   * Return whether automatic message exposure is enabled.
+   *
+   * @return whether to expose the message accessor
+   * @since 5.0
+   */
+  public boolean isExposeMessages() {
+    return this.exposeMessages;
+  }
 
   /**
    * Set the content type for this view.
@@ -336,7 +365,9 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 
     Map<String, Object> mergedModel = createMergedOutputModel(model, context);
     prepareResponse(context);
-    renderMergedOutputModel(mergedModel, getHttpContextToExpose(context));
+    HttpContext contextToExpose = getHttpContextToExpose(context);
+    prepareModel(mergedModel, contextToExpose);
+    renderMergedOutputModel(mergedModel, contextToExpose);
   }
 
   /**
@@ -400,6 +431,47 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
       headers.setPragma("private");
       headers.setCacheControl("private, must-revalidate");
     }
+  }
+
+  /**
+   * Prepare the merged model before rendering, exposing messages if enabled.
+   * Subclasses merging additional attributes must do so before calling this method.
+   *
+   * @param model the merged output model
+   * @param context the HTTP context to expose to the view
+   * @throws Exception if model preparation fails
+   * @since 5.0
+   */
+  protected void prepareModel(Map<String, Object> model, HttpContext context) throws Exception {
+    if (this.exposeMessages) {
+      if (model.containsKey(MESSAGES_ATTRIBUTE) || context.getAttribute(MESSAGES_ATTRIBUTE) != null) {
+        throw new ViewRenderingException("Cannot expose messages because of an existing model object of the same name");
+      }
+      model.put(MESSAGES_ATTRIBUTE, createMessageSourceAccessor(context, resolveLocale(context)));
+    }
+  }
+
+  /**
+   * Resolve the effective locale for this rendering operation.
+   *
+   * @param context current HTTP request
+   * @return the rendering locale
+   * @since 5.0
+   */
+  protected Locale resolveLocale(HttpContext context) {
+    return WebUtils.resolveLocale(context);
+  }
+
+  /**
+   * Create the unescaped message accessor for this rendering operation.
+   *
+   * @param context current HTTP request
+   * @param locale the rendering locale
+   * @return the message accessor
+   * @since 5.0
+   */
+  protected MessageSourceAccessor createMessageSourceAccessor(HttpContext context, Locale locale) {
+    return new MessageSourceAccessor(context.getMessageSource(), locale);
   }
 
   /**

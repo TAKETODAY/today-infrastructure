@@ -19,13 +19,10 @@
 package infra.web.view;
 
 import java.util.LinkedHashMap;
-import java.util.Locale;
 import java.util.Map;
 
-import infra.context.support.MessageSourceAccessor;
 import infra.session.Session;
 import infra.web.HttpContext;
-import infra.web.util.WebUtils;
 
 /**
  * Adapter base class for template-based view technologies such as FreeMarker,
@@ -46,11 +43,6 @@ import infra.web.util.WebUtils;
  */
 public abstract class AbstractTemplateView extends AbstractUrlBasedView {
 
-  /**
-   * Reserved model attribute for the rendering-specific, unescaped message accessor.
-   */
-  public static final String MESSAGES_ATTRIBUTE = "messages";
-
   private boolean exposeRequestAttributes = false;
 
   private boolean allowRequestOverride = false;
@@ -59,27 +51,11 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
 
   private boolean allowSessionOverride = false;
 
-  private boolean exposeMessages = true;
-
   /**
-   * Set whether to expose a rendering-specific message accessor as {@code messages}.
-   * Default is {@code true}. When disabled, the name is available to application models.
-   *
-   * @param exposeMessages whether to expose the message accessor
-   * @since 5.0
+   * Create a template view with automatic message exposure enabled.
    */
-  public void setExposeMessages(boolean exposeMessages) {
-    this.exposeMessages = exposeMessages;
-  }
-
-  /**
-   * Return whether the rendering-specific message accessor is exposed.
-   *
-   * @return whether automatic message exposure is enabled
-   * @since 5.0
-   */
-  public boolean isExposeMessages() {
-    return this.exposeMessages;
+  protected AbstractTemplateView() {
+    setExposeMessages(true);
   }
 
   /**
@@ -121,7 +97,7 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
   }
 
   @Override
-  protected final void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
+  protected final void prepareModel(Map<String, Object> model, HttpContext http) throws Exception {
     if (exposeRequestAttributes) {
       Map<String, Object> exposed = null;
       for (String attribute : http.attributeNames()) {
@@ -145,13 +121,11 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
       exposeSessionAttributes(model, http);
     }
 
-    if (exposeMessages) {
-      if (model.containsKey(MESSAGES_ATTRIBUTE) || http.getAttribute(MESSAGES_ATTRIBUTE) != null) {
-        throw new ViewRenderingException("Cannot expose messages because of an existing model object of the same name");
-      }
-      model.put(MESSAGES_ATTRIBUTE, createMessageSourceAccessor(http, resolveLocale(http)));
-    }
+    super.prepareModel(model, http);
+  }
 
+  @Override
+  protected final void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
     applyContentType(http);
 
     if (logger.isDebugEnabled()) {
@@ -182,28 +156,6 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
         logger.trace("Exposed session attributes to model: {}", exposed);
       }
     }
-  }
-
-  /**
-   * Resolve the locale for template selection, messages, and formatting.
-   * The default implementation uses the request's LocaleResolver.
-   *
-   * @param context current HTTP request
-   * @return the rendering locale
-   */
-  protected Locale resolveLocale(HttpContext context) {
-    return WebUtils.resolveLocale(context);
-  }
-
-  /**
-   * Create the unescaped message accessor for this rendering operation.
-   *
-   * @param context current HTTP request
-   * @param locale the rendering locale
-   * @return the message accessor
-   */
-  protected MessageSourceAccessor createMessageSourceAccessor(HttpContext context, Locale locale) {
-    return new MessageSourceAccessor(context.getMessageSource(), locale);
   }
 
   /**
