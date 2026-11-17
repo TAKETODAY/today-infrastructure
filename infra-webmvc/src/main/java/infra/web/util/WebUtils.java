@@ -41,6 +41,7 @@ import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
+import infra.web.AbstractDelegatingHttpContext;
 import infra.web.HttpContext;
 import infra.web.LocaleContextResolver;
 import infra.web.LocaleResolver;
@@ -78,6 +79,57 @@ public abstract class WebUtils {
 
   /** Key for the mutex session attribute. */
   public static final String SESSION_MUTEX_ATTRIBUTE = WebUtils.class.getName() + ".MUTEX";
+
+  /**
+   * Return the native context of the given type, checking the supplied context
+   * first and then unwrapping {@link AbstractDelegatingHttpContext} instances.
+   * Only the delegate chain is inspected; the outermost matching context wins.
+   *
+   * @param context the context to introspect
+   * @param requiredType the desired type, or {@code null} for no match
+   * @param <T> the type of the native context
+   * @return the matching context, or {@code null} if the type is {@code null}
+   * or no matching context is available
+   * @see #nativeContext(HttpContext, Class)
+   * @since 5.0
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> @Nullable T getNativeContext(HttpContext context, @Nullable Class<T> requiredType) {
+    if (requiredType != null) {
+      while (true) {
+        if (requiredType.isInstance(context)) {
+          return (T) context;
+        }
+        else if (context instanceof AbstractDelegatingHttpContext wrapper) {
+          context = wrapper.delegate();
+        }
+        else {
+          break;
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Return the native context of the given type, throwing an exception if none
+   * is available. The outermost matching context in the delegate chain wins.
+   *
+   * @param context the context to introspect
+   * @param type the desired type of native context
+   * @param <T> the type of the native context
+   * @return the matching native context (never {@code null})
+   * @throws IllegalStateException if no matching context is available
+   * @see #getNativeContext(HttpContext, Class)
+   * @since 5.0
+   */
+  public static <T> T nativeContext(HttpContext context, Class<T> type) {
+    T nativeContext = getNativeContext(context, type);
+    if (nativeContext == null) {
+      throw new IllegalStateException("No native context of type " + type.getName() + " is available");
+    }
+    return nativeContext;
+  }
 
   /**
    * Return the best available mutex for the given session:

@@ -35,6 +35,8 @@ import infra.core.i18n.SimpleTimeZoneAwareLocaleContext;
 import infra.http.HttpHeaders;
 import infra.session.Session;
 import infra.util.MultiValueMap;
+import infra.web.AbstractDelegatingHttpContext;
+import infra.web.DelegatingHttpContext;
 import infra.web.HttpContext;
 import infra.web.LocaleContextResolver;
 import infra.web.LocaleResolver;
@@ -62,6 +64,48 @@ import static org.mockito.Mockito.mock;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public class WebUtilsTests {
+
+  @Test
+  void nativeContextMatchesSelfOrReturnsNull() {
+    MockHttpContext context = new MockHttpContext();
+    assertThat(WebUtils.<Object>getNativeContext(context, null)).isNull();
+    assertThat(WebUtils.getNativeContext(context, HttpContext.class)).isSameAs(context);
+    assertThat(WebUtils.nativeContext(context, MockHttpContext.class)).isSameAs(context);
+    assertThat(WebUtils.getNativeContext(context, String.class)).isNull();
+    assertThatThrownBy(() -> WebUtils.nativeContext(context, String.class))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage("No native context of type java.lang.String is available");
+  }
+
+  @Test
+  void nativeContextUnwrapsNestedDecoratorsAndPrefersOuterMatch() {
+    MockHttpContext target = new MockHttpContext();
+    HttpContext inner = new DelegatingHttpContext(target);
+    HttpContext outer = new DelegatingHttpContext(inner);
+
+    assertThat(WebUtils.<Object>getNativeContext(outer, null)).isNull();
+    assertThat(WebUtils.getNativeContext(outer, HttpContext.class)).isSameAs(outer);
+    assertThat(WebUtils.getNativeContext(outer, AbstractDelegatingHttpContext.class)).isSameAs(outer);
+    assertThat(WebUtils.nativeContext(outer, DelegatingHttpContext.class)).isSameAs(outer);
+    assertThat(WebUtils.nativeContext(outer, MockHttpContext.class)).isSameAs(target);
+    assertThat(WebUtils.getNativeContext(outer, String.class)).isNull();
+    assertThatThrownBy(() -> WebUtils.nativeContext(outer, String.class))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage("No native context of type java.lang.String is available");
+  }
+
+  @Test
+  void nativeContextLookupDoesNotInteractWithTarget() {
+    MockHttpContext target = mock(MockHttpContext.class);
+    HttpContext outer = new DelegatingHttpContext(new DelegatingHttpContext(target));
+
+    assertThat(WebUtils.getNativeContext(outer, MockHttpContext.class)).isSameAs(target);
+    assertThat(WebUtils.getNativeContext(outer, String.class)).isNull();
+    assertThatThrownBy(() -> WebUtils.nativeContext(outer, String.class))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage("No native context of type java.lang.String is available");
+    then(target).shouldHaveNoMoreInteractions();
+  }
 
   @Test
   void intParameter() {

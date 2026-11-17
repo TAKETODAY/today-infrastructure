@@ -32,7 +32,7 @@ import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 
-class HttpContextSessionAndNativeContextTests {
+class HttpContextSessionTests {
 
   @Test
   void sessionReadsDoNotCreateSession() {
@@ -144,45 +144,6 @@ class HttpContextSessionAndNativeContextTests {
     then(target).should().getSessionId();
     then(target).should().setSessionAttribute("value", value);
     then(target).should().setSessionAttribute("value", null);
-    then(target).shouldHaveNoMoreInteractions();
-  }
-
-  @Test
-  void nativeContextMatchesSelfOrReturnsNull() {
-    MockHttpContext context = new MockHttpContext();
-    assertThat(context.<Object>getNativeContext(null)).isNull();
-    assertThat(context.getNativeContext(HttpContext.class)).isSameAs(context);
-    assertThat(context.nativeContext(MockHttpContext.class)).isSameAs(context);
-    assertThat(context.getNativeContext(String.class)).isNull();
-    assertThatIllegalStateException().isThrownBy(() -> context.nativeContext(String.class))
-            .withMessage("No native context of type java.lang.String is available");
-  }
-
-  @Test
-  void nativeContextUnwrapsNestedDecoratorsAndPrefersOuterMatch() {
-    MockHttpContext target = new MockHttpContext();
-    HttpContext inner = new DelegatingHttpContext(target);
-    HttpContext outer = new DelegatingHttpContext(inner);
-
-    assertThat(outer.<Object>getNativeContext(null)).isNull();
-    assertThat(outer.getNativeContext(HttpContext.class)).isSameAs(outer);
-    assertThat(outer.getNativeContext(AbstractDelegatingHttpContext.class)).isSameAs(outer);
-    assertThat(outer.nativeContext(DelegatingHttpContext.class)).isSameAs(outer);
-    assertThat(outer.nativeContext(MockHttpContext.class)).isSameAs(target);
-    assertThat(outer.getNativeContext(String.class)).isNull();
-    assertThatIllegalStateException().isThrownBy(() -> outer.nativeContext(String.class));
-  }
-
-  @Test
-  void nativeContextLookupDoesNotInvokeDelegateOverride() {
-    MockHttpContext target = mock(MockHttpContext.class);
-    given(target.getNativeContext(String.class)).willReturn("custom-native-context");
-    HttpContext outer = new DelegatingHttpContext(new DelegatingHttpContext(target));
-
-    assertThat(outer.getNativeContext(MockHttpContext.class)).isSameAs(target);
-    assertThat(outer.getNativeContext(String.class)).isNull();
-    assertThatIllegalStateException().isThrownBy(() -> outer.nativeContext(String.class))
-            .withMessage("No native context of type java.lang.String is available");
     then(target).shouldHaveNoMoreInteractions();
   }
 

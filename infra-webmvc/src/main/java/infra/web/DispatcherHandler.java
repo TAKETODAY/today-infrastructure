@@ -885,7 +885,7 @@ public class DispatcherHandler extends WebLifecycleManager {
     }
 
     try {
-      context.nativeContext(AbstractHttpContext.class)
+      WebUtils.nativeContext(context, AbstractHttpContext.class)
               .completeRequest(notHandled);
     }
     catch (Throwable ex) {
