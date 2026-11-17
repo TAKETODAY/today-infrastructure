@@ -117,7 +117,7 @@ class HttpContextTests {
       var dispatcher = new DispatcherHandler(applicationContext);
       dispatcher.start();
       var errorAttempts = new AtomicInteger();
-      var config = createConfigBuilder().autoRead(false).sendErrorHandler((request, message) -> {
+      var config = createConfigBuilder().manualBodyRead(true).sendErrorHandler((request, message) -> {
         errorAttempts.incrementAndGet();
         throw new IllegalStateException("sendError failed");
       }).build();
@@ -290,10 +290,10 @@ class HttpContextTests {
   }
 
   @Test
-  void autoReadIsRestoredAfterRequestCompletes() {
+  void manualBodyReadIsRestoredAfterRequestCompletes() {
     EmbeddedChannel channel = new EmbeddedChannel();
     HttpRequest request = mock(HttpRequest.class);
-    NettyRequestConfig config = createConfigBuilder().autoRead(false).build();
+    NettyRequestConfig config = createConfigBuilder().manualBodyRead(true).build();
     ApplicationContext applicationContext = mock(ApplicationContext.class);
     DispatcherHandler dispatcherHandler = new DispatcherHandler(applicationContext) {
       @Override
@@ -318,10 +318,10 @@ class HttpContextTests {
   }
 
   @Test
-  void autoReadIsRestoredWhenDeclaredContentLengthExceedsLimit() {
+  void manualBodyReadIsRestoredWhenDeclaredContentLengthExceedsLimit() {
     EmbeddedChannel channel = new EmbeddedChannel();
     HttpRequest request = mock(HttpRequest.class);
-    NettyRequestConfig config = createConfigBuilder().maxContentLength(100).autoRead(false).build();
+    NettyRequestConfig config = createConfigBuilder().maxContentLength(100).manualBodyRead(true).build();
     ApplicationContext applicationContext = mock(ApplicationContext.class);
     DispatcherHandler dispatcherHandler = mock(DispatcherHandler.class);
     HttpTrafficHandler trafficHandler = mock(HttpTrafficHandler.class);
@@ -338,10 +338,10 @@ class HttpContextTests {
   }
 
   @Test
-  void autoReadIsRestoredWhenContinueIsRejected() {
+  void manualBodyReadIsRestoredWhenContinueIsRejected() {
     EmbeddedChannel channel = new EmbeddedChannel();
     HttpRequest request = mock(HttpRequest.class);
-    NettyRequestConfig config = createConfigBuilder().autoRead(false).build();
+    NettyRequestConfig config = createConfigBuilder().manualBodyRead(true).build();
     ApplicationContext applicationContext = mock(ApplicationContext.class);
     DispatcherHandler dispatcherHandler = mock(DispatcherHandler.class);
     HttpTrafficHandler trafficHandler = mock(HttpTrafficHandler.class);

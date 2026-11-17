@@ -87,7 +87,10 @@ class BodyInputStream extends InputStream {
     if (!queue.offer(buffer)) {
       discard(buffer);
       this.error = new IOException("Buffer overflow");
-      setState(state | DONE);
+      updateState(DONE, 0);
+      if (addWork() == 0) {
+        resume();
+      }
       return;
     }
 
@@ -111,7 +114,7 @@ class BodyInputStream extends InputStream {
       return;
     }
     this.error = io;
-    setState(state | DONE);
+    updateState(DONE, 0);
 
     if (addWork() == 0) {
       resume();
@@ -124,7 +127,7 @@ class BodyInputStream extends InputStream {
       return;
     }
 
-    setState(state | DONE);
+    updateState(DONE, 0);
 
     if (addWork() == 0) {
       resume();
@@ -155,22 +158,20 @@ class BodyInputStream extends InputStream {
 
   @Override
   public int read() throws IOException {
-    int state = getState();
-    if ((state & READING) != 0) {
-      if ((state & CLOSED) != 0) {
+    if (!trySetState(READING, READING)) {
+      if ((getState() & CLOSED) != 0) {
         return -1;
       }
       throw new IOException("Concurrent access is not allowed");
     }
 
-    setState(state | READING);
     try {
       ByteBuf next = getNextOrAwait();
 
       if (next == null) {
-        state = getState();
+        int state = getState();
         if ((state & DONE) != 0) {
-          setState(state | CLOSED);
+          updateState(CLOSED, 0);
           cleanAndFinalize();
           if (this.error == null) {
             return -1;
@@ -194,8 +195,7 @@ class BodyInputStream extends InputStream {
       throw readFailed(ex);
     }
     finally {
-      state = getState();
-      setState(state & ~READING);
+      updateState(0, READING);
     }
   }
 
@@ -206,30 +206,28 @@ class BodyInputStream extends InputStream {
       return 0;
     }
 
-    int state = getState();
-    if ((state & READING) != 0) {
-      if ((state & CLOSED) != 0) {
+    if (!trySetState(READING, READING)) {
+      if ((getState() & CLOSED) != 0) {
         return -1;
       }
       throw new IOException("Concurrent access is not allowed");
     }
 
-    setState(state | READING);
     try {
       for (int j = 0; j < len; ) {
         ByteBuf next = getNextOrAwait();
 
         if (next == null) {
-          state = getState();
+          int state = getState();
           if ((state & DONE) != 0) {
             cleanAndFinalize();
             if (this.error == null) {
-              setState(state | CLOSED);
+              updateState(CLOSED, 0);
               return j == 0 ? -1 : j;
             }
             else {
               if (j == 0) {
-                setState(state | CLOSED);
+                updateState(CLOSED, 0);
                 throw this.error;
               }
               return j;
@@ -255,14 +253,12 @@ class BodyInputStream extends InputStream {
       throw readFailed(ex);
     }
     finally {
-      state = getState();
-      setState(state & ~READING);
+      updateState(0, READING);
     }
   }
 
   private IOException readFailed(Throwable ex) {
-    int state = getState();
-    setState(state | CLOSED);
+    updateState(CLOSED, 0);
     cancel();
     cleanAndFinalize();
     if (ex instanceof IOException e) {
@@ -324,14 +320,11 @@ class BodyInputStream extends InputStream {
 
   @Override
   public void close() {
-    int state = getState();
-    if ((state & CLOSED) != 0) {
+    if (!trySetState(CLOSED, CLOSED)) {
       return;
     }
 
-    setState(state | CLOSED);
-
-    if ((state & READING) != 0) {
+    if ((getState() & READING) != 0) {
       if (addWork() == 0) {
         resume();
       }
@@ -343,12 +336,31 @@ class BodyInputStream extends InputStream {
   }
 
   private void cancel() {
-    int state = getState();
-    setState(state | CANCELLED);
+    updateState(CANCELLED, 0);
   }
 
-  private void setState(int state) {
-    STATE.setRelease(this, state);
+  /**
+   * Atomically set {@code setBits} if none of the {@code guardBits} are set.
+   */
+  private boolean trySetState(int setBits, int guardBits) {
+    int current = getState();
+    while ((current & guardBits) == 0) {
+      if (STATE.compareAndSet(this, current, current | setBits)) {
+        return true;
+      }
+      current = getState();
+    }
+    return false;
+  }
+
+  /**
+   * Atomically set {@code setBits} and clear {@code clearBits}.
+   */
+  private void updateState(int setBits, int clearBits) {
+    int current = getState();
+    while (!STATE.compareAndSet(this, current, (current | setBits) & ~clearBits)) {
+      current = getState();
+    }
   }
 
   private int getState() {

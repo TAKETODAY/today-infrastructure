@@ -273,8 +273,8 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * Create the request body stream for this exchange.
    * <p>A zero-length body, or an unknown length for a method that carries no body,
    * leaves the stream unset so reads return an empty input stream. When
-   * {@link NettyRequestConfig#autoRead} is disabled, the channel stops reading
-   * automatically and the body stream requests more data on demand.
+   * {@link NettyRequestConfig#manualBodyRead} is enabled, the channel stops
+   * reading automatically and the body stream requests more data on demand.
    *
    * @param contentLength the declared request content length
    * @param method the request method
@@ -283,12 +283,12 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     if (contentLength == 0L || (contentLength == -1L && (method == GET || method == HEAD))) {
       return null;
     }
-    if (config.autoRead) {
-      return new BodyInputStream(config.dataReceivedQueueCapacity);
+    if (config.manualBodyRead) {
+      channel.config().setAutoRead(false);
+      this.readPaused = true;
+      return new ManualReadingBodyInputStream(config.dataReceivedQueueCapacity);
     }
-    channel.config().setAutoRead(false);
-    this.readPaused = true;
-    return new ManualReadingBodyInputStream(config.dataReceivedQueueCapacity);
+    return new BodyInputStream(config.dataReceivedQueueCapacity);
   }
 
   @Override
@@ -1110,7 +1110,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * removed from {@link HttpContextHolder} when the exchange completes.
    * <p>Protocol specific behavior is supplied by the {@code 100 Continue} and
    * request dispatch hooks, so subclasses only provide transport details.
-   * <p>When {@link NettyRequestConfig#autoRead} is disabled, manual body reading
+   * <p>When {@link NettyRequestConfig#manualBodyRead} is enabled, body reading
    * pauses channel auto-read for the request. The pause is released by
    * {@link #cleanup(IOException)} when the request completes:
    * {@link #processRequest()} guarantees that completion, while the early
