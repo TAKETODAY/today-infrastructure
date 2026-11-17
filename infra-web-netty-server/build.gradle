@@ -22,6 +22,7 @@ dependencies {
 
   testImplementation project(':infra-test-support')
   testImplementation project(":infra-test")
+  testImplementation project(":infra-app")
   testImplementation project(":infra-webmvc-mock")
 
   testFixturesApi('io.netty:netty-codec-http')
