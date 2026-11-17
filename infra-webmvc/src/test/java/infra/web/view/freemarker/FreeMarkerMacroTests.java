@@ -36,14 +36,14 @@ import infra.beans.testfixture.beans.TestBean;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.support.StaticMessageSource;
 import infra.core.io.ClassPathResource;
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
 import infra.util.FileCopyUtils;
 import infra.util.StringUtils;
 import infra.web.BindStatus;
+import infra.web.HttpContext;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
+import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.web.view.ViewRenderingException;
 
 import static infra.freemarker.config.FreeMarkerProperties.DEFAULT_HTTP_CONTEXT_ATTRIBUTE;
@@ -177,6 +177,35 @@ class FreeMarkerMacroTests {
     context.setAttribute("messages", "business value");
     assertThatExceptionOfType(ViewRenderingException.class)
             .isThrownBy(() -> renderMessages("unused", Map.of(), null));
+  }
+
+  @Test
+  void disabledMessageExposureLeavesModelAndRequestNamesAvailable() throws Exception {
+    storeTemplateInTempDir("${messages}");
+    FreeMarkerView view = new FreeMarkerView();
+    view.setConfiguration(fc.getConfiguration());
+    view.setUrl("tmp.ftl");
+    view.setExposeMessages(false);
+    context.setAttribute("messages", "request value");
+    view.render(Map.of("messages", "model value"), context);
+    assertThat(getOutput()).isEqualTo("model value");
+    assertThat(context.getAttribute("messages")).isEqualTo("model value");
+  }
+
+  @Test
+  void disabledMessageExposureDoesNotCreateAccessor() throws Exception {
+    storeTemplateInTempDir("${messages!'absent'}");
+    FreeMarkerView view = new FreeMarkerView() {
+      @Override
+      protected infra.context.support.MessageSourceAccessor createMessageSourceAccessor(HttpContext context, Locale locale) {
+        throw new AssertionError("Message accessor must not be created");
+      }
+    };
+    view.setConfiguration(fc.getConfiguration());
+    view.setUrl("tmp.ftl");
+    view.setExposeMessages(false);
+    view.render(Map.of(), context);
+    assertThat(getOutput()).isEqualTo("absent");
   }
 
   @Test

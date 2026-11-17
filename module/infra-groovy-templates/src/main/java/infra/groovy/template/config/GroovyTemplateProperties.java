@@ -56,6 +56,11 @@ public class GroovyTemplateProperties implements InitializingBean, ApplicationCo
 
   private static final Logger log = LoggerFactory.getLogger(GroovyTemplateProperties.class);
 
+  /**
+   * Whether to expose a rendering-specific message accessor as messages.
+   */
+  private boolean exposeMessages = true;
+
   public static final String DEFAULT_RESOURCE_LOADER_PATH = "classpath:/templates/";
 
   public static final String DEFAULT_PREFIX = "";
@@ -189,6 +194,26 @@ public class GroovyTemplateProperties implements InitializingBean, ApplicationCo
   private boolean useDoubleQuotes;
 
   private ApplicationContext applicationContext;
+
+  /**
+   * Return whether automatic message exposure is enabled.
+   *
+   * @return whether to expose messages
+   * @since 5.0
+   */
+  public boolean isExposeMessages() {
+    return this.exposeMessages;
+  }
+
+  /**
+   * Set whether to expose the rendering-specific message accessor.
+   *
+   * @param exposeMessages whether to expose messages
+   * @since 5.0
+   */
+  public void setExposeMessages(boolean exposeMessages) {
+    this.exposeMessages = exposeMessages;
+  }
 
   public boolean isCheckTemplateLocation() {
     return this.checkTemplateLocation;
@@ -446,6 +471,7 @@ public class GroovyTemplateProperties implements InitializingBean, ApplicationCo
     resolver.setAllowRequestOverride(isAllowRequestOverride());
     resolver.setAllowSessionOverride(isAllowSessionOverride());
     resolver.setExposeSessionAttributes(isExposeSessionAttributes());
+    resolver.setExposeMessages(isExposeMessages());
     resolver.setHttpContextAttribute(getHttpContextAttribute());
     // The resolver usually acts as a fallback resolver (e.g. like a
     // InternalResourceViewResolver) so it needs to have low precedence

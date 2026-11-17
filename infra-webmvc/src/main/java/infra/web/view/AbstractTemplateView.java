@@ -59,6 +59,29 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
 
   private boolean allowSessionOverride = false;
 
+  private boolean exposeMessages = true;
+
+  /**
+   * Set whether to expose a rendering-specific message accessor as {@code messages}.
+   * Default is {@code true}. When disabled, the name is available to application models.
+   *
+   * @param exposeMessages whether to expose the message accessor
+   * @since 5.0
+   */
+  public void setExposeMessages(boolean exposeMessages) {
+    this.exposeMessages = exposeMessages;
+  }
+
+  /**
+   * Return whether the rendering-specific message accessor is exposed.
+   *
+   * @return whether automatic message exposure is enabled
+   * @since 5.0
+   */
+  public boolean isExposeMessages() {
+    return this.exposeMessages;
+  }
+
   /**
    * Set whether all request attributes should be added to the
    * model prior to merging with the template. Default is "false".
@@ -122,10 +145,12 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
       exposeSessionAttributes(model, http);
     }
 
-    if (model.containsKey(MESSAGES_ATTRIBUTE) || http.getAttribute(MESSAGES_ATTRIBUTE) != null) {
-      throw new ViewRenderingException("Cannot expose messages because of an existing model object of the same name");
+    if (exposeMessages) {
+      if (model.containsKey(MESSAGES_ATTRIBUTE) || http.getAttribute(MESSAGES_ATTRIBUTE) != null) {
+        throw new ViewRenderingException("Cannot expose messages because of an existing model object of the same name");
+      }
+      model.put(MESSAGES_ATTRIBUTE, createMessageSourceAccessor(http, resolveLocale(http)));
     }
-    model.put(MESSAGES_ATTRIBUTE, createMessageSourceAccessor(http, resolveLocale(http)));
 
     applyContentType(http);
 

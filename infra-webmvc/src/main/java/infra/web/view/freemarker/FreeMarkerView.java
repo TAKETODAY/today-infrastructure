@@ -318,9 +318,15 @@ public class FreeMarkerView extends AbstractTemplateView {
    */
   protected void doRender(Map<String, Object> model, HttpContext context) throws Exception {
     // Expose model to JSP tags (as request attributes).
-    Map<String, Object> requestModel = new LinkedHashMap<>(model);
-    requestModel.remove(MESSAGES_ATTRIBUTE);
-    exposeModelAsRequestAttributes(requestModel, context);
+    if (isExposeMessages()) {
+      Map<String, Object> requestModel = new LinkedHashMap<>(model);
+      requestModel.remove(MESSAGES_ATTRIBUTE);
+      exposeModelAsRequestAttributes(requestModel, context);
+    }
+    else {
+      exposeModelAsRequestAttributes(model, context);
+    }
+
     // Expose FreeMarker hash model.
     SimpleHash fmModel = buildTemplateModel(model, context);
 

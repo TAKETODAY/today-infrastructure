@@ -154,6 +154,11 @@ public class FreeMarkerProperties implements InitializingBean, ApplicationContex
 
   private ApplicationContext applicationContext;
 
+  /**
+   * Whether to expose a rendering-specific message accessor as messages.
+   */
+  private boolean exposeMessages = true;
+
   public FreeMarkerProperties() {
     this(DEFAULT_PREFIX, DEFAULT_SUFFIX);
   }
@@ -161,6 +166,26 @@ public class FreeMarkerProperties implements InitializingBean, ApplicationContex
   protected FreeMarkerProperties(String defaultPrefix, String defaultSuffix) {
     this.prefix = defaultPrefix;
     this.suffix = defaultSuffix;
+  }
+
+  /**
+   * Return whether automatic message exposure is enabled.
+   *
+   * @return whether to expose messages
+   * @since 5.0
+   */
+  public boolean isExposeMessages() {
+    return this.exposeMessages;
+  }
+
+  /**
+   * Set whether to expose the rendering-specific message accessor.
+   *
+   * @param exposeMessages whether to expose messages
+   * @since 5.0
+   */
+  public void setExposeMessages(boolean exposeMessages) {
+    this.exposeMessages = exposeMessages;
   }
 
   public void setEnabled(boolean enabled) {

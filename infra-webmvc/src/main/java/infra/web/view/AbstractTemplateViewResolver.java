@@ -40,6 +40,8 @@ public abstract class AbstractTemplateViewResolver extends UrlBasedViewResolver 
 
   private boolean allowSessionOverride = false;
 
+  private boolean exposeMessages = true;
+
   @Override
   protected Class<?> requiredViewClass() {
     return AbstractTemplateView.class;
@@ -89,6 +91,18 @@ public abstract class AbstractTemplateViewResolver extends UrlBasedViewResolver 
     this.allowSessionOverride = allowSessionOverride;
   }
 
+  /**
+   * Set whether resolved views expose a rendering-specific message accessor.
+   * Default is {@code true}.
+   *
+   * @param exposeMessages whether to expose the message accessor
+   * @see AbstractTemplateView#setExposeMessages
+   * @since 5.0
+   */
+  public void setExposeMessages(boolean exposeMessages) {
+    this.exposeMessages = exposeMessages;
+  }
+
   @Override
   protected AbstractUrlBasedView buildView(String viewName) throws Exception {
     AbstractTemplateView view = (AbstractTemplateView) super.buildView(viewName);
@@ -96,6 +110,7 @@ public abstract class AbstractTemplateViewResolver extends UrlBasedViewResolver 
     view.setAllowRequestOverride(allowRequestOverride);
     view.setExposeSessionAttributes(exposeSessionAttributes);
     view.setAllowSessionOverride(allowSessionOverride);
+    view.setExposeMessages(exposeMessages);
     return view;
   }
 

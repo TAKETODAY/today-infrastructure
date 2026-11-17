@@ -117,6 +117,7 @@ public final class FreeMarkerAutoConfiguration {
       resolver.setAllowRequestOverride(properties.isAllowRequestOverride());
       resolver.setAllowSessionOverride(properties.isAllowSessionOverride());
       resolver.setExposeSessionAttributes(properties.isExposeSessionAttributes());
+      resolver.setExposeMessages(properties.isExposeMessages());
       resolver.setHttpContextAttribute(properties.getHttpContextAttribute());
       resolver.setOrder(Ordered.HIGHEST_PRECEDENCE + 100);
     }

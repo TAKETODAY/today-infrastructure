@@ -28,9 +28,14 @@ ${messages.getMessage("optional", "默认文本")}
 非 HTML 模板按自己的输出格式处理转义。表单绑定仍通过 `request.getBindStatus()` 访问，
 `infra.web.default-html-escape` 仅控制绑定展示，不再参与消息解析。
 
-`messages` 是模板模型的保留名称。业务模型（包括静态属性及已合并的请求、Session 属性）
+默认开启消息访问器暴露，`messages` 是模板模型的保留名称。业务模型（包括静态属性及已合并的请求、Session 属性）
 或请求属性中存在同名值时，渲染直接失败，不会静默覆盖。
 访问器不保存在共享视图字段中，也不复制到请求属性中；JSON、下载等非模板视图不会自动获得该对象。
+
+可以通过视图或视图解析器的 `setExposeMessages(false)` 关闭自动暴露。
+使用自动配置时，设置 `freemarker.expose-messages=false`；Groovy 模板对应配置为
+`groovy.template.expose-messages=false`。关闭后不创建消息访问器，也不检查或保留 `messages` 名称，
+业务可以自行提供同名模型或请求属性。消息宏需要可用的消息访问器，关闭后若仍使用这些宏，需自行提供兼容对象。
 
 === Java 调用与消息解析契约
 
