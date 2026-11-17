@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2026 the TODAY authors.
+ * Copyright 2002-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
 
 package infra.web;
 
@@ -1911,26 +1913,94 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
   }
 
   /**
-   * Determine the session id of the given request, if any.
+   * Return the ID of the current session without creating a session.
    *
    * @return the session id, or {@code null} if none
    */
   default @Nullable String getSessionId() {
-    return WebUtils.getSessionId(this);
+    Session session = getSession(false);
+    return session != null ? session.getId() : null;
+  }
+
+  /**
+   * Return a session attribute without creating a session.
+   *
+   * @param name the name of the session attribute
+   * @return the attribute value, or {@code null} if no session or attribute exists
+   * @since 5.0
+   */
+  default @Nullable Object getSessionAttribute(String name) {
+    Session session = getSession(false);
+    return session != null ? session.getAttribute(name) : null;
+  }
+
+  /**
+   * Return a required session attribute without creating a session.
+   *
+   * @param name the name of the session attribute
+   * @return the attribute value (never {@code null})
+   * @throws IllegalStateException if no session or attribute exists
+   * @since 5.0
+   */
+  default Object getRequiredSessionAttribute(String name) {
+    Object value = getSessionAttribute(name);
+    if (value == null) {
+      throw new IllegalStateException("No session attribute '" + name + "' found");
+    }
+    return value;
+  }
+
+  /**
+   * Set a session attribute, creating a session if necessary for a non-null value.
+   * <p>A {@code null} value removes the attribute from an existing session
+   * without creating a session.
+   *
+   * @param name the name of the session attribute
+   * @param value the attribute value, or {@code null} to remove it
+   * @since 5.0
+   */
+  default void setSessionAttribute(String name, @Nullable Object value) {
+    if (value != null) {
+      getSession().setAttribute(name, value);
+    }
+    else {
+      Session session = getSession(false);
+      if (session != null) {
+        session.removeAttribute(name);
+      }
+    }
   }
 
   /**
    * Return the underlying native context object of the given type, if available,
-   * by traversing the decorator chain.
+   * by traversing the {@link AbstractDelegatingHttpContext} decorator chain.
+   * <p>The outermost matching context is returned without invoking native
+   * context lookup overrides on delegates.
    *
-   * @param type the desired type of native context object
+   * @param requiredType the desired type of native context object, or {@code null}
    * @param <T> the type of the native context
    * @return the matching native context, or {@code null} if none is available
+   * or the required type is {@code null}
    * @see #nativeContext(Class)
    * @since 5.0
    */
-  default <T> @Nullable T getNativeContext(Class<T> type) {
-    return WebUtils.getNativeContext(this, type);
+  @SuppressWarnings("unchecked")
+  default <T> @Nullable T getNativeContext(@Nullable Class<T> requiredType) {
+    if (requiredType != null) {
+      HttpContext context = this;
+      while (true) {
+        if (requiredType.isInstance(context)) {
+          return (T) context;
+        }
+        else if (context instanceof AbstractDelegatingHttpContext wrapper) {
+          context = wrapper.delegate();
+        }
+        else {
+          break;
+        }
+      }
+    }
+    return null;
   }
 
   /**

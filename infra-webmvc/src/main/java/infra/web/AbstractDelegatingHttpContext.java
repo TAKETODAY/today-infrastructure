@@ -691,6 +691,21 @@ public abstract class AbstractDelegatingHttpContext implements HttpContext {
     return delegate().isDefaultHtmlEscape();
   }
 
+  @Override
+  public @Nullable Object getSessionAttribute(String name) {
+    return delegate().getSessionAttribute(name);
+  }
+
+  @Override
+  public Object getRequiredSessionAttribute(String name) {
+    return delegate().getRequiredSessionAttribute(name);
+  }
+
+  @Override
+  public void setSessionAttribute(String name, @Nullable Object value) {
+    delegate().setSessionAttribute(name, value);
+  }
+
   public abstract HttpContext delegate();
 
   @Override

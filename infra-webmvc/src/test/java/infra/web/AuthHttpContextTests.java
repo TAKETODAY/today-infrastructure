@@ -23,9 +23,8 @@ import java.security.Principal;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import infra.web.util.WebUtils;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.withSettings;
 
@@ -83,19 +82,21 @@ class AuthHttpContextTests {
 
   @Test
   void getNativeContextFindsAuthHttpContextDirectly() {
-    HttpContext delegate = mock(HttpContext.class, withSettings().extraInterfaces(AuthHttpContext.class));
+    HttpContext delegate = mock(HttpContext.class, withSettings().extraInterfaces(AuthHttpContext.class)
+            .defaultAnswer(CALLS_REAL_METHODS));
 
-    AuthHttpContext found = WebUtils.getNativeContext(delegate, AuthHttpContext.class);
+    AuthHttpContext found = delegate.getNativeContext(AuthHttpContext.class);
 
     assertThat(found).isSameAs(delegate);
   }
 
   @Test
   void getNativeContextUnwrapsDecoratorToFindAuthHttpContext() {
-    HttpContext delegate = mock(HttpContext.class, withSettings().extraInterfaces(AuthHttpContext.class));
+    HttpContext delegate = mock(HttpContext.class, withSettings().extraInterfaces(AuthHttpContext.class)
+            .defaultAnswer(CALLS_REAL_METHODS));
     DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
-    AuthHttpContext found = WebUtils.getNativeContext(wrapper, AuthHttpContext.class);
+    AuthHttpContext found = wrapper.getNativeContext(AuthHttpContext.class);
 
     assertThat(found).isSameAs(delegate);
     assertThat(wrapper).isNotInstanceOf(AuthHttpContext.class);
@@ -106,7 +107,7 @@ class AuthHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
-    AuthHttpContext found = WebUtils.getNativeContext(wrapper, AuthHttpContext.class);
+    AuthHttpContext found = wrapper.getNativeContext(AuthHttpContext.class);
 
     assertThat(found).isNull();
   }

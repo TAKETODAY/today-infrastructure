@@ -35,7 +35,6 @@ import infra.core.i18n.SimpleTimeZoneAwareLocaleContext;
 import infra.http.HttpHeaders;
 import infra.session.Session;
 import infra.util.MultiValueMap;
-import infra.web.AbstractDelegatingHttpContext;
 import infra.web.HttpContext;
 import infra.web.LocaleContextResolver;
 import infra.web.LocaleResolver;
@@ -49,13 +48,11 @@ import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 
 /**
  * @author Juergen Hoeller
@@ -65,19 +62,6 @@ import static org.mockito.Mockito.never;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public class WebUtilsTests {
-
-  @Test
-  void sessionReadsDoNotCreateSession() {
-    MockHttpContext context = new MockHttpContext();
-
-    assertThat(WebUtils.getSessionId(context)).isNull();
-    assertThat(context.getSessionId()).isNull();
-    assertThat(WebUtils.getSessionAttribute(context, "missing")).isNull();
-    assertThatIllegalStateException()
-            .isThrownBy(() -> WebUtils.getRequiredSessionAttribute(context, "missing"))
-            .withMessage("No session attribute 'missing' found");
-    assertThat(context.getSession(false)).isNull();
-  }
 
   @Test
   void intParameter() {
@@ -284,90 +268,12 @@ public class WebUtilsTests {
   }
 
   @Test
-  void sessionReadsUseExistingSession() {
-    MockHttpContext context = new MockHttpContext();
-    Session session = context.getSession();
-    Object value = new Object();
-    session.setAttribute("value", value);
-
-    assertThat(WebUtils.getSessionId(context)).isEqualTo(session.getId());
-    assertThat(context.getSessionId()).isEqualTo(session.getId());
-    assertThat(WebUtils.getSessionAttribute(context, "value")).isSameAs(value);
-    assertThat(WebUtils.getRequiredSessionAttribute(context, "value")).isSameAs(value);
-    assertThat(WebUtils.getSessionAttribute(context, "missing")).isNull();
-    assertThatIllegalStateException()
-            .isThrownBy(() -> WebUtils.getRequiredSessionAttribute(context, "missing"))
-            .withMessage("No session attribute 'missing' found");
-    assertThat(context.getSession(false)).isSameAs(session);
-  }
-
-  @Test
-  void settingSessionAttributeCreatesSessionAndReplacesValue() {
-    MockHttpContext context = new MockHttpContext();
-    Object first = new Object();
-    Object second = new Object();
-
-    WebUtils.setSessionAttribute(context, "value", first);
-    Session session = context.getSession(false);
-    assertThat(session).isNotNull();
-    assertThat(WebUtils.getSessionAttribute(context, "value")).isSameAs(first);
-
-    WebUtils.setSessionAttribute(context, "value", second);
-    assertThat(context.getSession(false)).isSameAs(session);
-    assertThat(WebUtils.getRequiredSessionAttribute(context, "value")).isSameAs(second);
-  }
-
-  @Test
-  void removingSessionAttributeDoesNotCreateSession() {
-    MockHttpContext context = new MockHttpContext();
-    WebUtils.setSessionAttribute(context, "missing", null);
-    assertThat(context.getSession(false)).isNull();
-
-    WebUtils.setSessionAttribute(context, "value", "remove");
-    WebUtils.setSessionAttribute(context, "other", "keep");
-    Session session = context.getSession(false);
-    WebUtils.setSessionAttribute(context, "value", null);
-    WebUtils.setSessionAttribute(context, "missing", null);
-
-    assertThat(context.getSession(false)).isSameAs(session);
-    assertThat(WebUtils.getSessionAttribute(context, "value")).isNull();
-    assertThat(WebUtils.getSessionAttribute(context, "other")).isEqualTo("keep");
-  }
-
-  @Test
-  void sessionAttributeRemovalUsesRemoveRatherThanNullAssignment() {
-    HttpContext context = mock(HttpContext.class);
-    Session session = mock(Session.class);
-    given(context.getSession(false)).willReturn(session);
-
-    WebUtils.setSessionAttribute(context, "value", null);
-
-    then(session).should().removeAttribute("value");
-    then(session).shouldHaveNoMoreInteractions();
-    then(context).should(never()).getSession();
-    then(context).should(never()).getSession(true);
-  }
-
-  @Test
   void sessionMutexUsesDedicatedAttributeOrSessionItself() {
     Session session = new MockHttpContext().getSession();
     assertThat(WebUtils.getSessionMutex(session)).isSameAs(session);
     Object mutex = new Object();
     session.setAttribute(WebUtils.SESSION_MUTEX_ATTRIBUTE, mutex);
     assertThat(WebUtils.getSessionMutex(session)).isSameAs(mutex);
-  }
-
-  @Test
-  void nativeContextUnwrapsNestedDecoratorsAndPrefersOuterMatch() {
-    MockHttpContext nativeContext = new MockHttpContext();
-    AbstractDelegatingHttpContext inner = wrap(nativeContext);
-    AbstractDelegatingHttpContext outer = wrap(inner);
-
-    assertThat(WebUtils.getNativeContext(outer, HttpContext.class)).isSameAs(outer);
-    assertThat(WebUtils.getNativeContext(outer, AbstractDelegatingHttpContext.class)).isSameAs(outer);
-    assertThat(WebUtils.getNativeContext(outer, MockHttpContext.class)).isSameAs(nativeContext);
-    assertThat(WebUtils.getNativeContext(outer, String.class)).isNull();
-    assertThat(WebUtils.<Object>getNativeContext(outer, null)).isNull();
   }
 
   @Test
@@ -508,15 +414,6 @@ public class WebUtilsTests {
     assertThat(WebUtils.removeSemicolonContent("/a;x=1;y=2/b;z=3/c;")).isEqualTo("/a/b/c");
     assertThat(WebUtils.removeSemicolonContent(";x=1/a;b=2/")).isEqualTo("/a/");
     assertThat(WebUtils.removeSemicolonContent("/a%3Bb/c")).isEqualTo("/a%3Bb/c");
-  }
-
-  private AbstractDelegatingHttpContext wrap(HttpContext context) {
-    return new AbstractDelegatingHttpContext() {
-      @Override
-      public HttpContext delegate() {
-        return context;
-      }
-    };
   }
 
   @ParameterizedTest

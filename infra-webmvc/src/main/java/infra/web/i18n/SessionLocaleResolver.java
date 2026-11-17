@@ -105,7 +105,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
 
   @Override
   public Locale resolveLocale(HttpContext context) {
-    Locale locale = (Locale) WebUtils.getSessionAttribute(context, this.localeAttributeName);
+    Locale locale = (Locale) context.getSessionAttribute(this.localeAttributeName);
     if (locale == null) {
       locale = determineDefaultLocale(context);
     }
@@ -117,7 +117,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
     return new TimeZoneAwareLocaleContext() {
       @Override
       public Locale getLocale() {
-        Locale locale = (Locale) WebUtils.getSessionAttribute(context, localeAttributeName);
+        Locale locale = (Locale) context.getSessionAttribute(localeAttributeName);
         if (locale == null) {
           locale = determineDefaultLocale(context);
         }
@@ -126,7 +126,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
 
       @Override
       public @Nullable TimeZone getTimeZone() {
-        TimeZone timeZone = (TimeZone) WebUtils.getSessionAttribute(context, timeZoneAttributeName);
+        TimeZone timeZone = (TimeZone) context.getSessionAttribute(timeZoneAttributeName);
         if (timeZone == null) {
           timeZone = determineDefaultTimeZone(context);
         }
@@ -145,8 +145,8 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
         timeZone = ((TimeZoneAwareLocaleContext) localeContext).getTimeZone();
       }
     }
-    WebUtils.setSessionAttribute(context, localeAttributeName, locale);
-    WebUtils.setSessionAttribute(context, timeZoneAttributeName, timeZone);
+    context.setSessionAttribute(localeAttributeName, locale);
+    context.setSessionAttribute(timeZoneAttributeName, timeZone);
   }
 
   /**
