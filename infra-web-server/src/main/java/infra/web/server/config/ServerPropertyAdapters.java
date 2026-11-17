@@ -22,6 +22,8 @@ import org.jspecify.annotations.Nullable;
 
 import infra.app.cloud.CloudPlatform;
 import infra.core.env.Environment;
+import infra.util.Feature;
+import infra.util.FeatureDetector;
 import infra.util.PropertyMapper;
 import infra.util.PropertyMapper.Source.Adapter;
 import infra.web.config.ForwardedHeaderStrategy;
@@ -52,16 +54,17 @@ public final class ServerPropertyAdapters {
     return new ForwardedRequestHeadersAdapter(environment);
   }
 
-  private record ForwardedRequestHeadersAdapter(
-          @Nullable Environment environment) implements Adapter<WebProperties, ForwardedRequestHeaders> {
+  private record ForwardedRequestHeadersAdapter(@Nullable Environment environment)
+          implements Adapter<WebProperties, ForwardedRequestHeaders> {
 
     @Override
     public @Nullable ForwardedRequestHeaders adapt(WebProperties webProperties) {
       ForwardedHeaderStrategy strategy = webProperties.forwardedHeaders.strategy;
       if (strategy == null) {
-        CloudPlatform cloudPlatform = CloudPlatform.getActive(environment);
-        strategy = cloudPlatform != null && cloudPlatform.isUsingForwardHeaders()
-                ? ForwardedHeaderStrategy.WEB_SERVER : ForwardedHeaderStrategy.NONE;
+        // infra-app is optional, so only look up CloudPlatform when it is present
+        boolean usingForwardHeaders = FeatureDetector.isPresent(Feature.APP)
+                && CloudPlatformSupport.isUsingForwardHeaders(environment);
+        strategy = usingForwardHeaders ? ForwardedHeaderStrategy.WEB_SERVER : ForwardedHeaderStrategy.NONE;
       }
       return strategy == ForwardedHeaderStrategy.WEB_SERVER ? forwardedRequestHeaders(webProperties) : null;
     }
@@ -69,6 +72,19 @@ public final class ServerPropertyAdapters {
     private ForwardedRequestHeaders forwardedRequestHeaders(WebProperties webProperties) {
       ForwardedHeaders forwardedProperties = webProperties.forwardedHeaders;
       return new ForwardedRequestHeaders(forwardedProperties.naming, forwardedProperties.usePrefix);
+    }
+
+  }
+
+  /**
+   * Isolates the reference to {@code infra.app.cloud.CloudPlatform} so that the
+   * type is only loaded when {@code infra-app} is present on the classpath.
+   */
+  private static final class CloudPlatformSupport {
+
+    static boolean isUsingForwardHeaders(@Nullable Environment environment) {
+      CloudPlatform cloudPlatform = CloudPlatform.getActive(environment);
+      return cloudPlatform != null && cloudPlatform.isUsingForwardHeaders();
     }
 
   }

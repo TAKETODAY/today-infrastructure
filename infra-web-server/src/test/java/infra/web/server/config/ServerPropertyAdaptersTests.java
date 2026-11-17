@@ -22,12 +22,13 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import infra.context.properties.bind.Binder;
-import infra.web.server.ForwardedRequestHeaders;
+import infra.core.env.ConfigurableEnvironment;
+import infra.core.env.Environment;
+import infra.mock.env.MockEnvironment;
+import infra.test.classpath.ClassPathExclusions;
 import infra.web.config.WebProperties;
 import infra.web.config.WebProperties.ForwardedHeaders.Naming;
-import infra.core.env.Environment;
-import infra.core.env.ConfigurableEnvironment;
-import infra.mock.env.MockEnvironment;
+import infra.web.server.ForwardedRequestHeaders;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,26 +36,26 @@ class ServerPropertyAdaptersTests {
 
   @Test
   void adaptWhenNativeSpecified() {
-    MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("web.forwarded-headers.strategy", "web-server");
-    environment.setProperty("web.forwarded-headers.naming", "x-forwarded");
-    environment.setProperty("web.forwarded-headers.use-prefix", "true");
+    MockEnvironment environment = new MockEnvironment()
+            .withProperty("web.forwarded-headers.strategy", "web-server")
+            .withProperty("web.forwarded-headers.naming", "x-forwarded")
+            .withProperty("web.forwarded-headers.use-prefix", "true");
     assertThat(adapt(environment)).isEqualTo(new ForwardedRequestHeaders(Naming.X_FORWARDED, true));
   }
 
   @Test
   void adaptWhenFrameworkAndCloudPlatformUsesForwardHeadersReturnsNull() {
-    MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("web.forwarded-headers.strategy", "framework");
-    environment.setProperty("app.main.cloud-platform", "cloud_foundry");
+    MockEnvironment environment = new MockEnvironment()
+            .withProperty("web.forwarded-headers.strategy", "framework")
+            .withProperty("app.main.cloud-platform", "cloud_foundry");
     assertThat(adapt(environment)).isNull();
   }
 
   @Test
   void adaptWhenNoneAndCloudPlatformUsesForwardHeadersReturnsNull() {
-    MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("web.forwarded-headers.strategy", "none");
-    environment.setProperty("app.main.cloud-platform", "cloud_foundry");
+    MockEnvironment environment = new MockEnvironment()
+            .withProperty("web.forwarded-headers.strategy", "none")
+            .withProperty("app.main.cloud-platform", "cloud_foundry");
     assertThat(adapt(environment)).isNull();
   }
 
@@ -65,16 +66,48 @@ class ServerPropertyAdaptersTests {
 
   @Test
   void adaptWhenNotSpecifiedAndCloudPlatformUsesForwardHeaders() {
-    MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("app.main.cloud-platform", "cloud_foundry");
+    MockEnvironment environment = new MockEnvironment()
+            .withProperty("app.main.cloud-platform", "cloud_foundry");
     assertThat(adapt(environment)).isEqualTo(new ForwardedRequestHeaders(Naming.X_FORWARDED, false));
   }
 
   @Test
+  void adaptWhenNotSpecifiedAndCloudPlatformDetectedFromEnvironment() {
+    MockEnvironment environment = new MockEnvironment().withProperty("DYNO", "-");
+    assertThat(adapt(environment)).isEqualTo(new ForwardedRequestHeaders(Naming.X_FORWARDED, false));
+  }
+
+  @Test
+  void adaptWhenNotSpecifiedAndCloudPlatformUsesForwardHeadersWithCustomNamingAndPrefix() {
+    MockEnvironment environment = new MockEnvironment()
+            .withProperty("app.main.cloud-platform", "cloud_foundry")
+            .withProperty("web.forwarded-headers.naming", "rfc-7239");
+    assertThat(adapt(environment)).isEqualTo(new ForwardedRequestHeaders(Naming.RFC_7239, false));
+  }
+
+  @Test
   void adaptWhenNotSpecifiedAndCloudPlatformDoesNotUseForwardHeaders() {
-    MockEnvironment environment = new MockEnvironment();
-    environment.setProperty("app.main.cloud-platform", "none");
+    MockEnvironment environment = new MockEnvironment()
+            .withProperty("app.main.cloud-platform", "none");
     assertThat(adapt(environment)).isNull();
+  }
+
+  @Test
+  @ClassPathExclusions("infra-app-*.jar")
+  void adaptWhenNotSpecifiedAndAppIsNotPresentReturnsNull() {
+    MockEnvironment environment = new MockEnvironment()
+            .withProperty("DYNO", "-")
+            .withProperty("app.main.cloud-platform", "cloud_foundry");
+    assertThat(adapt(environment)).isNull();
+  }
+
+  @Test
+  @ClassPathExclusions("infra-app-*.jar")
+  void adaptWhenNativeSpecifiedAndAppIsNotPresent() {
+    MockEnvironment environment = new MockEnvironment()
+            .withProperty("web.forwarded-headers.strategy", "web-server")
+            .withProperty("web.forwarded-headers.naming", "rfc-7239");
+    assertThat(adapt(environment)).isEqualTo(new ForwardedRequestHeaders(Naming.RFC_7239, false));
   }
 
   private @Nullable ForwardedRequestHeaders adapt(@Nullable Environment environment) {
