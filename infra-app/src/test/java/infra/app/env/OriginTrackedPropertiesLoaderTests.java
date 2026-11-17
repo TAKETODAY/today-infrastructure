@@ -36,6 +36,7 @@ import infra.origin.OriginTrackedValue;
 import infra.origin.Origin;
 import infra.origin.TextResourceOrigin;
 import infra.origin.TextResourceOrigin.Location;
+import infra.test.classpath.resources.WithResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -100,9 +101,10 @@ class OriginTrackedPropertiesLoaderTests {
   }
 
   @Test
+  @WithResource(name = "malformed-unicode.properties", content = "test-malformed-unicode=properties\\u(026test")
   void getMalformedUnicodeProperty() {
     // gh-12716
-    ClassPathResource resource = new ClassPathResource("test-properties-malformed-unicode.properties", getClass());
+    ClassPathResource resource = new ClassPathResource("malformed-unicode.properties");
     assertThatIllegalStateException().isThrownBy(() -> new OriginTrackedPropertiesLoader(resource).load(null))
             .withMessageContaining("Malformed \\uxxxx encoding");
   }
@@ -318,8 +320,9 @@ class OriginTrackedPropertiesLoaderTests {
   }
 
   @Test
+  @WithResource(name = "utf-8.properties", content = "smiley=😃")
   void shouldRespectEncoding() throws IOException {
-    ByteArrayResource resource = new ByteArrayResource("smiley=😃".getBytes(StandardCharsets.UTF_8));
+    ClassPathResource resource = new ClassPathResource("utf-8.properties");
     List<Document> documents = new OriginTrackedPropertiesLoader(resource).load(StandardCharsets.UTF_8);
     OriginTrackedValue value = documents.get(0).asMap().get("smiley");
     assertThat(value).isNotNull();
@@ -396,8 +399,43 @@ class OriginTrackedPropertiesLoaderTests {
   }
 
   @Test
+  @WithResource(name = "existing-non-multi-document.properties", content = """
+      #---
+      # Test
+      #---
+
+      spring=boot
+
+      #---
+      # Test
+
+      boot=bar
+
+
+      # Test
+      #---
+
+      bar=ok
+
+      !---
+      ! Test
+      !---
+
+      ok=well
+
+      !---
+      ! Test
+
+      well=hello
+
+      ! Test
+      !---
+
+      hello=world
+
+      """)
   void existingCommentsAreNotTreatedAsMultiDoc() throws Exception {
-    this.resource = new ClassPathResource("existing-non-multi-document.properties", getClass());
+    this.resource = new ClassPathResource("existing-non-multi-document.properties");
     this.documents = new OriginTrackedPropertiesLoader(this.resource).load(null);
     assertThat(this.documents).hasSize(1);
   }
