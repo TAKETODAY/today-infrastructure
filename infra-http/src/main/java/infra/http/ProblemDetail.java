@@ -205,10 +205,10 @@ public class ProblemDetail implements Serializable {
   /**
    * Setter for the {@link #getStatus() problem status}.
    *
-   * @param httpStatus the problem status
+   * @param code the problem status
    */
-  public void setStatus(HttpStatus httpStatus) {
-    this.status = httpStatus.value();
+  public void setStatus(HttpStatusCode code) {
+    this.status = code.value();
   }
 
   /**
