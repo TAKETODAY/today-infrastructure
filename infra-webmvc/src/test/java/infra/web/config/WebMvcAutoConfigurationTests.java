@@ -362,10 +362,10 @@ class WebMvcAutoConfigurationTests {
 
   @Test
   void customLocaleResolverWithMatchingNameReplacesAutoConfiguredLocaleResolver() {
-    this.contextRunner.withBean("webLocaleResolver", CustomLocaleResolver.class, CustomLocaleResolver::new)
+    this.contextRunner.withBean("mvcLocaleResolver", CustomLocaleResolver.class, CustomLocaleResolver::new)
             .run((context) -> {
               assertThat(context).hasSingleBean(LocaleResolver.class);
-              assertThat(context.getBean("webLocaleResolver")).isInstanceOf(CustomLocaleResolver.class);
+              assertThat(context.getBean("mvcLocaleResolver")).isInstanceOf(CustomLocaleResolver.class);
             });
   }
 
@@ -374,7 +374,7 @@ class WebMvcAutoConfigurationTests {
     this.contextRunner.withBean("customLocaleResolver", CustomLocaleResolver.class, CustomLocaleResolver::new)
             .run((context) -> {
               assertThat(context.getBean("customLocaleResolver")).isInstanceOf(CustomLocaleResolver.class);
-              assertThat(context.getBean("webLocaleResolver")).isInstanceOf(AcceptHeaderLocaleResolver.class);
+              assertThat(context.getBean("mvcLocaleResolver")).isInstanceOf(AcceptHeaderLocaleResolver.class);
             });
   }
 

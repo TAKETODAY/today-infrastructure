@@ -30,7 +30,7 @@ Infra 架构的大部分都支持国际化，Infra Web MVC 框架也是如此。
 
 应用代码通常应使用 `HttpContextUtils.resolveLocale(request)`：
 
-. 从请求关联的 `ApplicationContext` 中按 `LocaleResolver.BEAN_NAME`（`webLocaleResolver`）查找解析器。
+. 从请求关联的 `ApplicationContext` 中按 `LocaleResolver.BEAN_NAME`（`mvcLocaleResolver`）查找 MVC 语言解析器。
 . 如果存在解析器，直接返回其结果，由解析器负责默认值和支持语言等策略。
 . 只有不存在解析器时，才读取 `request.getLocale()`，并在其为空时回退到 `Locale.getDefault()`。
 
@@ -89,8 +89,8 @@ Infra 中包含以下区域设置解析器选择。
 
 [source,java]
 ----
-@Component
-public LocaleResolver webLocaleResolver() {
+@Component(name = LocaleResolver.BEAN_NAME)
+public LocaleResolver mvcLocaleResolver() {
   AcceptHeaderLocaleResolver resolver = new AcceptHeaderLocaleResolver();
   resolver.setSupportedLocales(List.of(Locale.CHINESE, Locale.ENGLISH));
   resolver.setDefaultLocale(Locale.CHINESE);
@@ -98,7 +98,9 @@ public LocaleResolver webLocaleResolver() {
 }
 ----
 
-此工厂方法应定义在配置类中，Bean 名称为 `webLocaleResolver`。
+此工厂方法应定义在配置类中，Bean 名称为 `mvcLocaleResolver`。
+这是按名称选择的 MVC 策略角色；其他名称的 `LocaleResolver` 可以并存，
+但仅注册其他名称或标注 `@Primary` 不会替换这个角色。
 上例使用语言级候选，因此 `en-US` 可回退匹配 `en`，`zh-CN` 可回退匹配 `zh`；
 请求 `fr, en-US;q=0.8` 会选择英文，仅请求法语或未提供可用具体语言时选择中文。
 如果只配置 `en-US`，则 `en-GB` 或 `en` 不会自动匹配它；需要语言级匹配时必须显式加入 `en`。
@@ -115,7 +117,7 @@ public LocaleResolver webLocaleResolver() {
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="webLocaleResolver" class="infra.web.i18n.CookieLocaleResolver">
+<bean id="mvcLocaleResolver" class="infra.web.i18n.CookieLocaleResolver">
 
   <property name="cookieName" value="clientlanguage"/>
 
@@ -179,7 +181,7 @@ Cookie 和 Session 策略支持保存语言选择，而 `AcceptHeaderLocaleResol
   <property name="paramName" value="siteLanguage"/>
 </bean>
 
-<bean id="webLocaleResolver"
+<bean id="mvcLocaleResolver"
     class="infra.web.i18n.CookieLocaleResolver"/>
 
 <bean id="urlMapping"

@@ -473,9 +473,9 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
   protected void configureViewResolvers(ViewResolverRegistry registry) {
   }
 
-  @Component
+  @Component(name = LocaleResolver.BEAN_NAME)
   @ConditionalOnMissingBean(name = LocaleResolver.BEAN_NAME)
-  public LocaleResolver webLocaleResolver() {
+  public LocaleResolver mvcLocaleResolver() {
     return new AcceptHeaderLocaleResolver();
   }
 

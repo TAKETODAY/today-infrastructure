@@ -233,9 +233,9 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   }
 
   @Override
-  @Component
+  @Component(name = LocaleResolver.BEAN_NAME)
   @ConditionalOnMissingBean(name = LocaleResolver.BEAN_NAME)
-  public LocaleResolver webLocaleResolver() {
+  public LocaleResolver mvcLocaleResolver() {
     if (this.webProperties.localeResolver == WebProperties.LocaleResolver.FIXED) {
       return new FixedLocaleResolver(this.webProperties.locale);
     }

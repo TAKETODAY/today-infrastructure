@@ -66,9 +66,9 @@ import infra.core.i18n.LocaleContextHolder;
 public interface LocaleResolver {
 
   /**
-   * default bean name
+   * Bean name of the locale resolver used by MVC.
    */
-  String BEAN_NAME = "webLocaleResolver";
+  String BEAN_NAME = "mvcLocaleResolver";
 
   /**
    * Resolve the effective application locale for the given request, applying
