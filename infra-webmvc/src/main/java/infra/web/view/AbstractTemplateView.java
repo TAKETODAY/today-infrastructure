@@ -19,10 +19,13 @@
 package infra.web.view;
 
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
+import infra.context.support.MessageSourceAccessor;
 import infra.session.Session;
 import infra.web.HttpContext;
+import infra.web.util.WebUtils;
 
 /**
  * Adapter base class for template-based view technologies such as FreeMarker,
@@ -42,6 +45,11 @@ import infra.web.HttpContext;
  * @since 4.0
  */
 public abstract class AbstractTemplateView extends AbstractUrlBasedView {
+
+  /**
+   * Reserved model attribute for the rendering-specific, unescaped message accessor.
+   */
+  public static final String MESSAGES_ATTRIBUTE = "messages";
 
   private boolean exposeRequestAttributes = false;
 
@@ -114,6 +122,11 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
       exposeSessionAttributes(model, http);
     }
 
+    if (model.containsKey(MESSAGES_ATTRIBUTE) || http.getAttribute(MESSAGES_ATTRIBUTE) != null) {
+      throw new ViewRenderingException("Cannot expose messages because of an existing model object of the same name");
+    }
+    model.put(MESSAGES_ATTRIBUTE, createMessageSourceAccessor(http, resolveLocale(http)));
+
     applyContentType(http);
 
     if (logger.isDebugEnabled()) {
@@ -144,6 +157,28 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
         logger.trace("Exposed session attributes to model: {}", exposed);
       }
     }
+  }
+
+  /**
+   * Resolve the locale for template selection, messages, and formatting.
+   * The default implementation uses the request's LocaleResolver.
+   *
+   * @param context current HTTP request
+   * @return the rendering locale
+   */
+  protected Locale resolveLocale(HttpContext context) {
+    return WebUtils.resolveLocale(context);
+  }
+
+  /**
+   * Create the unescaped message accessor for this rendering operation.
+   *
+   * @param context current HTTP request
+   * @param locale the rendering locale
+   * @return the message accessor
+   */
+  protected MessageSourceAccessor createMessageSourceAccessor(HttpContext context, Locale locale) {
+    return new MessageSourceAccessor(context.getMessageSource(), locale);
   }
 
   /**

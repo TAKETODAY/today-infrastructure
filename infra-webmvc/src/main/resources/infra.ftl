@@ -1,5 +1,6 @@
-<#ftl output_format="HTML" strip_whitespace=true>
+<#ftl output_format="HTML" auto_esc=true strip_whitespace=true>
 <#-- @ftlvariable name="request" type="infra.web.HttpContext" -->
+<#-- @ftlvariable name="messages" type="infra.context.support.MessageSourceAccessor" -->
 <#--
  * infra.ftl
  *
@@ -20,7 +21,7 @@
  *
  * Macro to translate a message code into a message.
  -->
-<#macro message code>${request.getMessage(code)?no_esc}</#macro>
+<#macro message code>${messages.getMessage(code)}</#macro>
 
 <#--
  * messageText
@@ -28,14 +29,14 @@
  * Macro to translate a message code into a message,
  * using the given default text if no message found.
  -->
-<#macro messageText code, text>${request.getMessage(code, text)?no_esc}</#macro>
+<#macro messageText code, text>${messages.getMessage(code, text)}</#macro>
 
 <#--
  * messageArgs
  *
  * Macro to translate a message code with arguments into a message.
  -->
-<#macro messageArgs code, args>${request.getMessage(code, args)?no_esc}</#macro>
+<#macro messageArgs code, args>${messages.getMessage(code, args)}</#macro>
 
 <#--
  * messageArgsText
@@ -43,7 +44,7 @@
  * Macro to translate a message code with arguments into a message,
  * using the given default text if no message found.
  -->
-<#macro messageArgsText code, args, text>${request.getMessage(code, args, text)?no_esc}</#macro>
+<#macro messageArgsText code, args, text>${messages.getMessage(code, args, text)}</#macro>
 
 <#--
  * bind
@@ -54,9 +55,7 @@
  * within a form to bind to multiple command objects and/or field names.
  *
  * This macro will participate in the default HTML escape setting for the given
- * HttpContext. This can be customized by calling "setDefaultHtmlEscape"
- * on the "request" context variable, or via the
- * "defaultHtmlEscape" context-param in web.xml (same as for the JSP bind tag).
+ * HttpContext, configured via "infra.web.default-html-escape".
  * Also regards a "htmlEscape" variable in the namespace of this library.
  *
  * Producing no output, the following context variable will be available

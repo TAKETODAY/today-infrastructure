@@ -4,6 +4,49 @@
 https://freemarker.apache.org/[Apache FreeMarker] 是一个模板引擎，用于生成从 HTML 到电子邮件等各种文本输出。
 Infra Framework 内置了使用 FreeMarker 模板的 Infra MVC 集成。
 
+[[mvc-view-freemarker-messages]]
+== 消息解析与输出转义
+
+模板视图为每次渲染提供 `messages` 对象，基于现有的 `MessageSourceAccessor`
+解析消息并格式化参数。它使用当前 `HttpContext.getMessageSource()`，因此保留自定义消息源及上下文装饰器的委托语义。
+显式配置的视图 Locale 优先，否则通过当前请求的 `LocaleResolver` 解析语言；
+模板选择、消息解析和 FreeMarker 格式化使用相同的渲染语言。
+
+[source,ftl]
+----
+<#ftl output_format="HTML" auto_esc=true>
+<#import "/infra.ftl" as infra>
+
+${messages.getMessage("welcome")}
+${messages.getMessage("welcome.user", [user.name])}
+${messages.getMessage("optional", "默认文本")}
+<@infra.messageArgs "welcome.user", [user.name]/>
+----
+
+消息访问器返回普通文本，不执行 HTML 转义。HTML 模板应开启自动转义，不要对消息使用 `?no_esc`，
+也不要在消息源中预先存放 HTML 实体。`infra.ftl` 的四个消息宏保留原有名称，并在输出时自动转义一次。
+非 HTML 模板按自己的输出格式处理转义。表单绑定仍通过 `request.getBindStatus()` 访问，
+`infra.web.default-html-escape` 仅控制绑定展示，不再参与消息解析。
+
+`messages` 是模板模型的保留名称。业务模型（包括静态属性及已合并的请求、Session 属性）
+或请求属性中存在同名值时，渲染直接失败，不会静默覆盖。
+访问器不保存在共享视图字段中，也不复制到请求属性中；JSON、下载等非模板视图不会自动获得该对象。
+
+=== Java 调用与消息解析契约
+
+消息查找与输出转义是两个独立职责。模板使用 `messages` 解析消息，
+`request` 表示请求上下文，用于访问请求数据和表单绑定状态。
+
+Java 调用方直接依赖 `MessageSource` 并显式传入 Locale，或创建
+`new MessageSourceAccessor(context.getMessageSource(), WebUtils.resolveLocale(context))`。
+参数数组、`MessageSourceResolvable`、默认文本和缺失消息异常均使用现有消息解析契约。
+不带默认文本且找不到消息时抛出 `NoSuchMessageException`；默认文本为空串时返回空串。
+`MessageSourceAccessor` 的默认文本重载将消息源返回的 `null` 转为空串；
+直接调用 `MessageSource` 的可空默认文本重载可能返回 `null`，调用方应显式决定如何处理。
+
+JSON 或 ProblemDetail 应使用未进行 HTML 转义的消息，由对应序列化器处理输出编码。
+`ErrorResponse.updateAndGetBody(MessageSource, Locale)` 通过显式的消息源和 Locale 解析错误消息。
+
 
 [[mvc-view-freemarker-contextconfig]]
 == 视图配置

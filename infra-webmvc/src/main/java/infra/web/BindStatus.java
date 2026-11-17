@@ -33,6 +33,7 @@ import infra.validation.BindingResult;
 import infra.validation.Errors;
 import infra.validation.ObjectError;
 import infra.web.util.HtmlUtils;
+import infra.web.util.WebUtils;
 
 /**
  * Simple adapter to expose the bind status of a field or object.
@@ -295,7 +296,8 @@ public class BindStatus {
         this.errorMessages = new String[this.objectErrors.size()];
         for (int i = 0; i < this.objectErrors.size(); i++) {
           ObjectError error = this.objectErrors.get(i);
-          this.errorMessages[i] = this.context.getMessage(error, this.htmlEscape);
+          String message = this.context.getMessageSource().getMessage(error, WebUtils.resolveLocale(this.context));
+          this.errorMessages[i] = this.htmlEscape ? HtmlUtils.htmlEscape(message) : message;
         }
       }
       else {

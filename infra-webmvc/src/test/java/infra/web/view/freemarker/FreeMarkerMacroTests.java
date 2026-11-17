@@ -25,6 +25,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import freemarker.template.Configuration;
@@ -33,6 +34,7 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.context.support.StaticMessageSource;
 import infra.core.io.ClassPathResource;
 import infra.web.HttpContext;
 import infra.web.mock.MockHttpContext;
@@ -42,9 +44,11 @@ import infra.util.FileCopyUtils;
 import infra.util.StringUtils;
 import infra.web.BindStatus;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
+import infra.web.view.ViewRenderingException;
 
 import static infra.freemarker.config.FreeMarkerProperties.DEFAULT_HTTP_CONTEXT_ATTRIBUTE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Darren Davison
@@ -75,7 +79,13 @@ class FreeMarkerMacroTests {
     fc.afterPropertiesSet();
 
     wac.getBeanFactory().registerSingleton("freeMarkerConfigurer", fc);
+    StaticMessageSource messages = new StaticMessageSource();
+    messages.addMessage("hello", Locale.ENGLISH, "Howdy");
+    messages.addMessage("world", Locale.ENGLISH, "Mundo");
+    messages.addMessage("helloArgs", Locale.ENGLISH, "Howdy[{0}]");
+    wac.getBeanFactory().registerSingleton("messageSource", messages);
     wac.refresh();
+    request.addPreferredLocale(Locale.ENGLISH);
 
     wac.registerSingleton(AcceptHeaderLocaleResolver.BEAN_NAME, new AcceptHeaderLocaleResolver());
   }
@@ -126,6 +136,133 @@ class FreeMarkerMacroTests {
   @Test
   void testMessageArgsWithDefaultMessage() throws Exception {
     assertThat(getMacroOutput("MESSAGEARGSWITHDEFAULTMESSAGE")).isEqualTo("Hi");
+  }
+
+  @Test
+  void messagesAndMacrosEscapeExactlyOnce() throws Exception {
+    StaticMessageSource source = wac.getBean("messageSource", StaticMessageSource.class);
+    source.addMessage("special", Locale.ENGLISH, "<b>Tom & \"Sue\"</b>");
+    assertThat(renderMessages("""
+            ${messages.getMessage('special')}|<@infra.message 'special'/>|\
+            <@infra.messageText 'missing', '<default & text>'/>|\
+            <@infra.messageArgs 'helloArgs', ['<World & friends>']/>
+            """, Map.of(), null))
+            .isEqualTo("&lt;b&gt;Tom &amp; &quot;Sue&quot;&lt;/b&gt;|&lt;b&gt;Tom &amp; &quot;Sue&quot;&lt;/b&gt;|"
+                    + "&lt;default &amp; text&gt;|Howdy[&lt;World &amp; friends&gt;]");
+  }
+
+  @Test
+  void explicitLocaleControlsMessagesAndFormatting() throws Exception {
+    wac.getBean("messageSource", StaticMessageSource.class).addMessage("hello", Locale.GERMANY, "Hallo");
+    assertThat(renderMessages("${messages.getMessage('hello')}|${.locale}|${1234.5?string('0.0')}",
+            Map.of(), Locale.GERMANY)).isEqualTo("Hallo|de_DE|1234,5");
+  }
+
+  @Test
+  void messagesRemainUnescapedOutsideHtmlOutput() throws Exception {
+    wac.getBean("messageSource", StaticMessageSource.class).addMessage("special", Locale.ENGLISH, "<tag> & text");
+    assertThat(renderMessages("<#outputformat 'plainText'>${messages.getMessage('special')}</#outputformat>",
+            Map.of(), null)).isEqualTo("<tag> & text");
+  }
+
+  @Test
+  void messagesNameIsReserved() {
+    assertThatExceptionOfType(ViewRenderingException.class)
+            .isThrownBy(() -> renderMessages("unused", Map.of("messages", "business value"), null))
+            .withMessageContaining("existing model object");
+  }
+
+  @Test
+  void requestMessagesNameIsReserved() {
+    context.setAttribute("messages", "business value");
+    assertThatExceptionOfType(ViewRenderingException.class)
+            .isThrownBy(() -> renderMessages("unused", Map.of(), null));
+  }
+
+  @Test
+  void repeatedRenderingDoesNotLeakMessagesIntoRequestOrView() throws Exception {
+    wac.getBean("messageSource", StaticMessageSource.class).addMessage("hello", Locale.GERMANY, "Hallo");
+    storeTemplateInTempDir("${messages.getMessage('hello')}");
+    FreeMarkerView view = new FreeMarkerView();
+    view.setConfiguration(fc.getConfiguration());
+    view.setUrl("tmp.ftl");
+    view.render(Map.of(), context);
+    assertThat(getOutput()).isEqualTo("Howdy");
+    assertThat(context.getAttribute("messages")).isNull();
+    MockRequest secondRequest = new MockRequest();
+    secondRequest.addPreferredLocale(Locale.GERMANY);
+    MockResponse secondResponse = new MockResponse();
+    MockHttpContext secondContext = new MockHttpContext(wac, secondRequest, secondResponse);
+    view.render(Map.of(), secondContext);
+    assertThat(secondResponse.getContentAsString()).isEqualTo("Hallo");
+    assertThat(secondContext.getAttribute("messages")).isNull();
+  }
+
+  @Test
+  void decoratedContextRetainsCustomMessageSourceAndLocaleResolver() throws Exception {
+    StaticMessageSource source = new StaticMessageSource();
+    source.addMessage("hello", Locale.GERMANY, "Custom Hallo");
+    HttpContext custom = new infra.web.AbstractDelegatingHttpContext() {
+      @Override
+      public HttpContext delegate() {
+        return context;
+      }
+
+      @Override
+      public infra.context.MessageSource getMessageSource() {
+        return source;
+      }
+    };
+    HttpContext decorated = new infra.web.AbstractDelegatingHttpContext() {
+      @Override
+      public HttpContext delegate() {
+        return custom;
+      }
+    };
+    var resolver = (AcceptHeaderLocaleResolver) wac.getBean(AcceptHeaderLocaleResolver.BEAN_NAME);
+    resolver.setSupportedLocales(java.util.List.of(Locale.GERMANY));
+    resolver.setDefaultLocale(Locale.GERMANY);
+    storeTemplateInTempDir("${messages.getMessage('hello')}|${.locale}");
+    FreeMarkerView view = new FreeMarkerView();
+    view.setConfiguration(fc.getConfiguration());
+    view.setUrl("tmp.ftl");
+    view.render(Map.of(), decorated);
+    assertThat(getOutput()).isEqualTo("Custom Hallo|de_DE");
+  }
+
+  @Test
+  void missingMessageWithoutDefaultFails() {
+    assertThatExceptionOfType(TemplateException.class)
+            .isThrownBy(() -> renderMessages("${messages.getMessage('missing')}", Map.of(), null))
+            .withRootCauseInstanceOf(infra.context.NoSuchMessageException.class);
+  }
+
+  @Test
+  void defaultMessagesAndResolvableUseAccessorContracts() throws Exception {
+    var resolvable = new infra.context.support.DefaultMessageSourceResolvable(
+            new String[] { "missing", "helloArgs" }, new Object[] { "World" }, "fallback");
+    assertThat(renderMessages("${messages.getMessage(error)}|${messages.getMessage('missing', '')}",
+            Map.of("error", resolvable), null)).isEqualTo("Howdy[World]|");
+  }
+
+  @Test
+  void nullableDefaultRetainsEmptyStringContractWithoutEscaping() {
+    StaticMessageSource source = new StaticMessageSource();
+    var messages = new FreeMarkerView.FreeMarkerMessages(source, Locale.ENGLISH);
+    assertThat(source.getMessage("missing", null, null, Locale.ENGLISH)).isNull();
+    assertThat(messages.getMessage("missing", (String) null)).isEmpty();
+    assertThat(messages.getMessage("missing", "")).isEmpty();
+    assertThat(messages.getMessage("missing", "<fallback> & text")).isEqualTo("<fallback> & text");
+  }
+
+  private String renderMessages(String template, Map<String, ?> model, Locale locale) throws Exception {
+    storeTemplateInTempDir("<#outputformat 'HTML'>" + template + "</#outputformat>");
+    FreeMarkerView view = new FreeMarkerView();
+    view.setUrl("tmp.ftl");
+    view.setConfiguration(fc.getConfiguration());
+    view.setLocale(locale);
+    view.render(model, context);
+    return getOutput();
   }
 
   @Test
@@ -213,10 +350,6 @@ class FreeMarkerMacroTests {
     storeTemplateInTempDir(macro);
 
     DummyMacroHttpContext rc = new DummyMacroHttpContext(context);
-    Map<String, String> msgMap = new HashMap<>();
-    msgMap.put("hello", "Howdy");
-    msgMap.put("world", "Mundo");
-    rc.setMessageMap(msgMap);
     rc.setContextPath("/infratest");
 
     TestBean darren = new TestBean("Darren", 99);

@@ -24,6 +24,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serial;
 import java.nio.charset.Charset;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -42,9 +44,10 @@ import infra.beans.BeansException;
 import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.context.ApplicationContextException;
+import infra.context.MessageSource;
+import infra.context.support.MessageSourceAccessor;
 import infra.util.Assert;
 import infra.web.HttpContext;
-import infra.web.util.WebUtils;
 import infra.web.view.AbstractTemplateView;
 
 /**
@@ -315,17 +318,65 @@ public class FreeMarkerView extends AbstractTemplateView {
    */
   protected void doRender(Map<String, Object> model, HttpContext context) throws Exception {
     // Expose model to JSP tags (as request attributes).
-    exposeModelAsRequestAttributes(model, context);
+    Map<String, Object> requestModel = new LinkedHashMap<>(model);
+    requestModel.remove(MESSAGES_ATTRIBUTE);
+    exposeModelAsRequestAttributes(requestModel, context);
     // Expose FreeMarker hash model.
     SimpleHash fmModel = buildTemplateModel(model, context);
 
     // Grab the locale-specific version of the template.
-    Locale locale = findLocale(context);
+    Locale locale = resolveLocale(context);
     processTemplate(getTemplate(locale), fmModel, context);
   }
 
-  private Locale findLocale(HttpContext context) {
-    return locale == null ? WebUtils.resolveLocale(context) : locale;
+  @Override
+  protected Locale resolveLocale(HttpContext context) {
+    return this.locale != null ? this.locale : super.resolveLocale(context);
+  }
+
+  @Override
+  protected MessageSourceAccessor createMessageSourceAccessor(HttpContext context, Locale locale) {
+    return new FreeMarkerMessages(context.getMessageSource(), locale);
+  }
+
+  /**
+   * Message accessor adapting template sequences for older FreeMarker object wrappers.
+   * Message lookup and formatting remain delegated to MessageSourceAccessor.
+   */
+  public static class FreeMarkerMessages extends MessageSourceAccessor {
+
+    /**
+     * Create an accessor for one rendering operation.
+     *
+     * @param messageSource the source to delegate to
+     * @param locale the rendering locale
+     */
+    public FreeMarkerMessages(MessageSource messageSource, Locale locale) {
+      super(messageSource, locale);
+    }
+
+    /**
+     * Resolve a message with template sequence arguments.
+     *
+     * @param code the message code
+     * @param args the message arguments
+     * @return the unescaped message
+     */
+    public String getMessage(String code, List<?> args) {
+      return getMessage(code, args.toArray());
+    }
+
+    /**
+     * Resolve a message with template sequence arguments and a default message.
+     *
+     * @param code the message code
+     * @param args the message arguments
+     * @param defaultMessage the fallback message
+     * @return the unescaped message
+     */
+    public String getMessage(String code, List<?> args, String defaultMessage) {
+      return getMessage(code, args.toArray(), defaultMessage);
+    }
   }
 
   /**
@@ -397,14 +448,12 @@ public class FreeMarkerView extends AbstractTemplateView {
           throws IOException, TemplateException {
 
     String encoding = getEncoding();
+    Environment env = template.createProcessingEnvironment(model, response.getWriter());
+    env.setLocale(template.getLocale());
     if (encoding != null) {
-      Environment env = template.createProcessingEnvironment(model, response.getWriter());
       env.setOutputEncoding(encoding);
-      env.process();
     }
-    else {
-      template.process(model, response.getWriter());
-    }
+    env.process();
   }
 
   /**

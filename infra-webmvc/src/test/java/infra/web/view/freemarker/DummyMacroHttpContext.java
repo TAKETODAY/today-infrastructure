@@ -18,7 +18,6 @@
 
 package infra.web.view.freemarker;
 
-import java.util.List;
 import java.util.Map;
 
 import infra.web.BindStatus;
@@ -37,46 +36,10 @@ public class DummyMacroHttpContext {
 
   private final HttpContext request;
 
-  private Map<String, String> messageMap;
-
   private String contextPath;
 
   public DummyMacroHttpContext(HttpContext request) {
     this.request = request;
-  }
-
-  public void setMessageMap(Map<String, String> messageMap) {
-    this.messageMap = messageMap;
-  }
-
-  /**
-   * @see HttpContext#getMessage(String)
-   */
-  public String getMessage(String code) {
-    return this.messageMap.get(code);
-  }
-
-  /**
-   * @see HttpContext#getMessage(String, String)
-   */
-  public String getMessage(String code, String defaultMsg) {
-    String msg = this.messageMap.get(code);
-    return (msg != null ? msg : defaultMsg);
-  }
-
-  /**
-   * @see HttpContext#getMessage(String, List)
-   */
-  public String getMessage(String code, List<?> args) {
-    return this.messageMap.get(code) + args;
-  }
-
-  /**
-   * @see HttpContext#getMessage(String, List, String)
-   */
-  public String getMessage(String code, List<?> args, String defaultMsg) {
-    String msg = this.messageMap.get(code);
-    return (msg != null ? msg + args : defaultMsg);
   }
 
   public void setContextPath(String contextPath) {

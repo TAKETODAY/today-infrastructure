@@ -39,8 +39,6 @@ import java.util.function.Consumer;
 
 import infra.context.ApplicationContext;
 import infra.context.MessageSource;
-import infra.context.MessageSourceResolvable;
-import infra.context.NoSuchMessageException;
 import infra.core.Conventions;
 import infra.core.io.InputStreamSource;
 import infra.core.io.OutputStreamSource;
@@ -67,7 +65,6 @@ import infra.web.async.WebAsyncManager;
 import infra.web.context.annotation.RequestScope;
 import infra.web.context.annotation.SessionScope;
 import infra.web.multipart.MultipartRequest;
-import infra.web.util.HtmlUtils;
 import infra.web.util.WebUtils;
 
 /**
@@ -121,7 +118,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
   String FORWARD_ATTRIBUTE = Conventions.getQualifiedAttributeName(HttpContext.class, "forward");
 
   /**
-   * Flag indicating whether HTML escaping is enabled by default for message resolution.
+   * Flag indicating whether HTML escaping is enabled by default for binding display values.
    * This value is retrieved from the application's configuration using the key
    * "infra.web.default-html-escape". If the key is not found, the default value is {@code false}.
    *
@@ -1112,7 +1109,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
 
   /**
    * Checks if the current instance has a binding context established.
-   *
+   * <p>
    * This method evaluates whether the {@code bindingContext} is initialized
    * (i.e., not null). It is typically used to determine if the object is ready
    * for binding-related operations.
@@ -1679,144 +1676,6 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
   // ---------------------------------------------------------------------
 
   /**
-   * Retrieve the message for the given code, using the "defaultHtmlEscape" setting.
-   *
-   * @param code the code of the message
-   * @param defaultMessage the String to return if the lookup fails
-   * @return the message
-   * @since 5.0
-   */
-  default String getMessage(String code, String defaultMessage) {
-    return getMessage(code, null, defaultMessage, isDefaultHtmlEscape());
-  }
-
-  /**
-   * Retrieve the message for the given code, using the "defaultHtmlEscape" setting.
-   *
-   * @param code the code of the message
-   * @param args arguments for the message, or {@code null} if none
-   * @param defaultMessage the String to return if the lookup fails
-   * @return the message
-   * @since 5.0
-   */
-  default String getMessage(String code, Object @Nullable [] args, String defaultMessage) {
-    return getMessage(code, args, defaultMessage, isDefaultHtmlEscape());
-  }
-
-  /**
-   * Retrieve the message for the given code, using the "defaultHtmlEscape" setting.
-   *
-   * @param code the code of the message
-   * @param args arguments for the message as a List, or {@code null} if none
-   * @param defaultMessage the String to return if the lookup fails
-   * @return the message
-   * @since 5.0
-   */
-  default String getMessage(String code, @Nullable List<?> args, String defaultMessage) {
-    return getMessage(code, (args != null ? args.toArray() : null), defaultMessage, isDefaultHtmlEscape());
-  }
-
-  /**
-   * Retrieve the message for the given code.
-   *
-   * @param code the code of the message
-   * @param args arguments for the message, or {@code null} if none
-   * @param defaultMessage the String to return if the lookup fails
-   * @param htmlEscape if the message should be HTML-escaped
-   * @return the message
-   * @since 5.0
-   */
-  default String getMessage(String code, Object @Nullable [] args, String defaultMessage, boolean htmlEscape) {
-    Locale locale = WebUtils.resolveLocale(this);
-    String msg = getMessageSource().getMessage(code, args, defaultMessage, locale);
-    if (msg == null) {
-      return "";
-    }
-    return htmlEscape ? HtmlUtils.htmlEscape(msg) : msg;
-  }
-
-  /**
-   * Retrieve the message for the given code, using the "defaultHtmlEscape" setting.
-   *
-   * @param code the code of the message
-   * @return the message
-   * @throws infra.context.NoSuchMessageException if not found
-   * @since 5.0
-   */
-  default String getMessage(String code) throws NoSuchMessageException {
-    return getMessage(code, null, isDefaultHtmlEscape());
-  }
-
-  /**
-   * Retrieve the message for the given code, using the "defaultHtmlEscape" setting.
-   *
-   * @param code the code of the message
-   * @param args arguments for the message, or {@code null} if none
-   * @return the message
-   * @throws infra.context.NoSuchMessageException if not found
-   * @since 5.0
-   */
-  default String getMessage(String code, Object @Nullable [] args) throws NoSuchMessageException {
-    return getMessage(code, args, isDefaultHtmlEscape());
-  }
-
-  /**
-   * Retrieve the message for the given code, using the "defaultHtmlEscape" setting.
-   *
-   * @param code the code of the message
-   * @param args arguments for the message as a List, or {@code null} if none
-   * @return the message
-   * @throws infra.context.NoSuchMessageException if not found
-   * @since 5.0
-   */
-  default String getMessage(String code, @Nullable List<?> args) throws NoSuchMessageException {
-    return getMessage(code, args != null ? args.toArray() : null, isDefaultHtmlEscape());
-  }
-
-  /**
-   * Retrieve the message for the given code.
-   *
-   * @param code the code of the message
-   * @param args arguments for the message, or {@code null} if none
-   * @param htmlEscape if the message should be HTML-escaped
-   * @return the message
-   * @throws infra.context.NoSuchMessageException if not found
-   * @since 5.0
-   */
-  default String getMessage(String code, Object @Nullable [] args, boolean htmlEscape) throws NoSuchMessageException {
-    Locale locale = WebUtils.resolveLocale(this);
-    String msg = getMessageSource().getMessage(code, args, locale);
-    return htmlEscape ? HtmlUtils.htmlEscape(msg) : msg;
-  }
-
-  /**
-   * Retrieve the given MessageSourceResolvable (for example, an ObjectError instance), using the "defaultHtmlEscape" setting.
-   *
-   * @param resolvable the MessageSourceResolvable
-   * @return the message
-   * @throws infra.context.NoSuchMessageException if not found
-   * @since 5.0
-   */
-  default String getMessage(MessageSourceResolvable resolvable) throws NoSuchMessageException {
-    return getMessage(resolvable, isDefaultHtmlEscape());
-  }
-
-  /**
-   * Retrieve the given MessageSourceResolvable (for example, an ObjectError instance).
-   *
-   * @param resolvable the MessageSourceResolvable
-   * @param htmlEscape if the message should be HTML-escaped
-   * @return the message
-   * @throws infra.context.NoSuchMessageException if not found
-   * @since 5.0
-   */
-  default String getMessage(MessageSourceResolvable resolvable, boolean htmlEscape) throws NoSuchMessageException {
-    Locale locale = WebUtils.resolveLocale(this);
-    String msg = getMessageSource().getMessage(resolvable, locale);
-    return htmlEscape ? HtmlUtils.htmlEscape(msg) : msg;
-  }
-
-  /**
    * Return the MessageSource to use (typically the current ApplicationContext).
    *
    * @since 5.0
@@ -1826,7 +1685,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
   }
 
   /**
-   * Determines whether HTML escaping is enabled by default for message resolution.
+   * Determines whether HTML escaping is enabled by default for binding display values.
    * This method returns the value of the static field {@code defaultHtmlEscape},
    * which is initialized from the application's configuration.
    *
