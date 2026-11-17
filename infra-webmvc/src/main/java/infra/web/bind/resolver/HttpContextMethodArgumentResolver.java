@@ -31,9 +31,9 @@ import infra.core.io.InputStreamSource;
 import infra.core.io.OutputStreamSource;
 import infra.http.HttpMethod;
 import infra.web.HttpContext;
-import infra.web.HttpContextUtils;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.multipart.MultipartRequest;
+import infra.web.util.WebUtils;
 
 /**
  * Resolves backed request-related method arguments. Supports values of the
@@ -133,14 +133,14 @@ public class HttpContextMethodArgumentResolver implements ParameterResolvingStra
       return request.getMethod();
     }
     else if (Locale.class == paramType) {
-      return HttpContextUtils.resolveLocale(request);
+      return WebUtils.resolveLocale(request);
     }
     else if (TimeZone.class == paramType) {
-      TimeZone timeZone = HttpContextUtils.getTimeZone(request);
+      TimeZone timeZone = WebUtils.getTimeZone(request);
       return timeZone != null ? timeZone : TimeZone.getDefault();
     }
     else if (ZoneId.class == paramType) {
-      TimeZone timeZone = HttpContextUtils.getTimeZone(request);
+      TimeZone timeZone = WebUtils.getTimeZone(request);
       return timeZone != null ? timeZone.toZoneId() : ZoneId.systemDefault();
     }
     else if (InputStreamSource.class == paramType

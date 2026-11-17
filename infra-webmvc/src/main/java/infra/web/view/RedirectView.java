@@ -42,8 +42,8 @@ import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpContext;
-import infra.web.HttpContextUtils;
 import infra.web.util.UriUtils;
+import infra.web.util.WebUtils;
 
 /**
  * View that redirects to an absolute, context relative, or current request
@@ -257,7 +257,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
     String targetUrl = createTargetUrl(model, http);
 
     // Save RedirectModel
-    HttpContextUtils.saveRedirectModel(targetUrl, http);
+    WebUtils.saveRedirectModel(targetUrl, http);
 
     // Redirect
     sendRedirect(http, targetUrl);

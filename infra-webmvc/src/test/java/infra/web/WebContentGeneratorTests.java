@@ -28,6 +28,7 @@ import infra.http.CacheControl;
 import infra.http.HttpHeaders;
 import infra.session.Session;
 import infra.session.SessionRequiredException;
+import infra.web.util.WebUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -173,7 +174,7 @@ class WebContentGeneratorTests {
     when(request.getMethodAsString()).thenReturn("GET");
 
     Session session = mock(Session.class);
-    try (MockedStatic<HttpContextUtils> mocked = mockStatic(HttpContextUtils.class)) {
+    try (MockedStatic<WebUtils> mocked = mockStatic(WebUtils.class)) {
       when(request.getSession(false)).thenReturn(session);
 
       assertThatCode(() -> generator.checkRequest(request)).doesNotThrowAnyException();
@@ -357,7 +358,7 @@ class WebContentGeneratorTests {
 
     HttpContext request = mock(HttpContext.class);
     when(request.getMethodAsString()).thenReturn("GET");
-    try (MockedStatic<HttpContextUtils> mocked = mockStatic(HttpContextUtils.class)) {
+    try (MockedStatic<WebUtils> mocked = mockStatic(WebUtils.class)) {
       when(request.getSession(false)).thenReturn(null);
 
       assertThatExceptionOfType(SessionRequiredException.class)

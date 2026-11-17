@@ -28,8 +28,8 @@ import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 import infra.web.HandlerInterceptor;
 import infra.web.HttpContext;
-import infra.web.HttpContextUtils;
 import infra.web.LocaleResolver;
+import infra.web.util.WebUtils;
 
 /**
  * Interceptor that allows for changing the current locale on every request,
@@ -127,7 +127,7 @@ public class LocaleChangeInterceptor implements HandlerInterceptor {
       if (checkHttpMethod(context.getMethodAsString())) {
         LocaleResolver localeResolver = getLocaleResolver();
         if (localeResolver == null) {
-          localeResolver = HttpContextUtils.getLocaleResolver(context);
+          localeResolver = WebUtils.getLocaleResolver(context);
           if (localeResolver == null) {
             throw new IllegalStateException("No LocaleResolver found");
           }

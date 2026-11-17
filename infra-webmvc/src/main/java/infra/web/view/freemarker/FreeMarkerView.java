@@ -44,7 +44,7 @@ import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.context.ApplicationContextException;
 import infra.util.Assert;
 import infra.web.HttpContext;
-import infra.web.HttpContextUtils;
+import infra.web.util.WebUtils;
 import infra.web.view.AbstractTemplateView;
 
 /**
@@ -325,7 +325,7 @@ public class FreeMarkerView extends AbstractTemplateView {
   }
 
   private Locale findLocale(HttpContext context) {
-    return locale == null ? HttpContextUtils.resolveLocale(context) : locale;
+    return locale == null ? WebUtils.resolveLocale(context) : locale;
   }
 
   /**

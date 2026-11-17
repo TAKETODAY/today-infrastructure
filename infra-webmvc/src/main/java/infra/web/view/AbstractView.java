@@ -41,8 +41,8 @@ import infra.util.LogFormatUtils;
 import infra.web.ContextExposingHttpContext;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpContext;
-import infra.web.HttpContextUtils;
 import infra.web.RedirectModel;
+import infra.web.util.WebUtils;
 
 /**
  * Abstract base class for {@link View}
@@ -313,7 +313,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    *
    * @param exposeOutputRedirectModel If true, all 'output' RedirectModel
    * will be put to current view
-   * @see HttpContextUtils#getOutputRedirectModel(HttpContext)
+   * @see WebUtils#getOutputRedirectModel(HttpContext)
    */
   public void setExposeOutputRedirectModel(boolean exposeOutputRedirectModel) {
     this.exposeOutputRedirectModel = exposeOutputRedirectModel;
@@ -378,7 +378,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 
     if (exposeOutputRedirectModel) {
       // put all output RedirectModel
-      RedirectModel output = HttpContextUtils.getOutputRedirectModel(context);
+      RedirectModel output = WebUtils.getOutputRedirectModel(context);
       if (output != null) {
         mergedModel.putAll(output.asMap());
       }

@@ -33,6 +33,7 @@ import infra.ui.ModelMap;
 import infra.util.MultiValueMap;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
+import infra.web.util.WebUtils;
 
 /**
  * A specialization of the {@link Model} interface that controllers can use to
@@ -57,7 +58,7 @@ import infra.util.StringUtils;
  * </pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see HttpContextUtils#getOutputRedirectModel
+ * @see WebUtils#getOutputRedirectModel
  * @see HttpContext#getInputRedirectModel
  * @since 2.3.3 2018-11-18 16:39
  */
@@ -79,7 +80,7 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
    * Name of request attribute that holds the "output" {@link RedirectModel} with
    * attributes to save for a subsequent request.
    *
-   * @see HttpContextUtils#getOutputRedirectModel(HttpContext)
+   * @see WebUtils#getOutputRedirectModel(HttpContext)
    */
   public static final String OUTPUT_ATTRIBUTE = Conventions.getQualifiedAttributeName(
           RedirectModel.class, "OUTPUT");

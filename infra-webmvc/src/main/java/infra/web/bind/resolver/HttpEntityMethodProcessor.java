@@ -41,13 +41,13 @@ import infra.util.Assert;
 import infra.util.StringUtils;
 import infra.web.ErrorResponse;
 import infra.web.HttpContext;
-import infra.web.HttpContextUtils;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.RedirectModelManager;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
+import infra.web.util.WebUtils;
 
 /**
  * Resolves {@link HttpEntity} and {@link RequestEntity} method argument values
@@ -299,7 +299,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
   }
 
   private void saveRedirectAttributes(HttpContext request, String location) {
-    HttpContextUtils.saveRedirectModel(location, request, redirectModelManager);
+    WebUtils.saveRedirectModel(location, request, redirectModelManager);
   }
 
   @Override

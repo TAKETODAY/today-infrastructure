@@ -41,6 +41,7 @@ import infra.web.i18n.CookieLocaleResolver;
 import infra.web.i18n.SessionLocaleResolver;
 import infra.web.mock.MockHttpContext;
 import infra.web.multipart.MultipartRequest;
+import infra.web.util.WebUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -58,7 +59,7 @@ class AbstractHttpContextStateTests {
   @Test
   void localeIsNullWithoutAcceptLanguage() {
     assertThat(context.getLocale()).isNull();
-    assertThat(HttpContextUtils.resolveLocale(context)).isEqualTo(Locale.getDefault());
+    assertThat(WebUtils.resolveLocale(context)).isEqualTo(Locale.getDefault());
     assertThat(context.getLocale()).isNull();
   }
 
@@ -75,7 +76,7 @@ class AbstractHttpContextStateTests {
     context.requestHeaders.set(HttpHeaders.ACCEPT_LANGUAGE, "*;q=1, en-US;q=0.5, zh-CN;q=0.9");
 
     assertThat(context.getLocale()).isEqualTo(Locale.SIMPLIFIED_CHINESE);
-    assertThat(HttpContextUtils.resolveLocale(context)).isEqualTo(Locale.SIMPLIFIED_CHINESE);
+    assertThat(WebUtils.resolveLocale(context)).isEqualTo(Locale.SIMPLIFIED_CHINESE);
   }
 
   @Test

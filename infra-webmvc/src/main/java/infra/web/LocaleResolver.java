@@ -24,6 +24,7 @@ import java.util.Locale;
 
 import infra.core.i18n.LocaleContext;
 import infra.core.i18n.LocaleContextHolder;
+import infra.web.util.WebUtils;
 
 /**
  * Interface for web-based locale resolution strategies that allows for
@@ -35,14 +36,14 @@ import infra.core.i18n.LocaleContextHolder;
  * {@link infra.web.i18n.AcceptHeaderLocaleResolver},
  * simply using the request's locale provided by the respective HTTP header.
  *
- * <p>Use {@link HttpContextUtils#resolveLocale(HttpContext)}
+ * <p>Use {@link WebUtils#resolveLocale(HttpContext)}
  * to retrieve the current locale in controllers or views, independent
  * of the actual resolution strategy.
  * <p>In contrast, {@link HttpContext#getLocale()} only exposes the request's
  * {@code Accept-Language} preference and may return {@code null}. Implementations
  * may use that preference as an input, but must supply their own fallback to
  * satisfy the non-null resolution contract. They must not call
- * {@link HttpContextUtils#resolveLocale(HttpContext)} for a fallback, since that
+ * {@link WebUtils#resolveLocale(HttpContext)} for a fallback, since that
  * may invoke the same resolver recursively.
  * <p>Register the application strategy under {@link #BEAN_NAME}. Changing a
  * locale through this strategy does not modify the request's language header
@@ -60,7 +61,7 @@ import infra.core.i18n.LocaleContextHolder;
  * @see LocaleContextResolver
  * @see LocaleContextHolder
  * @see HttpContext#getLocale
- * @see HttpContextUtils#resolveLocale
+ * @see WebUtils#resolveLocale
  * @since 4.0 2022/2/3 22:54
  */
 public interface LocaleResolver {

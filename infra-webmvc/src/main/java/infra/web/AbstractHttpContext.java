@@ -1747,7 +1747,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     }
 
     if (manager == null) {
-      manager = HttpContextUtils.getRedirectModelManager(this);
+      manager = WebUtils.getRedirectModelManager(this);
     }
     if (manager != null) {
       RedirectModel redirectModel = manager.retrieveAndUpdate(this);

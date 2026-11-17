@@ -35,7 +35,7 @@ import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.PatternMatchUtils;
 import infra.web.HttpContext;
-import infra.web.HttpContextUtils;
+import infra.web.util.WebUtils;
 
 /**
  * Simple implementation of the {@link ViewResolver}
@@ -398,7 +398,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
    *
    * @param exposeOutputRedirectModel If true, all 'output' RedirectModel
    * will be put to current view
-   * @see HttpContextUtils#getOutputRedirectModel(HttpContext)
+   * @see WebUtils#getOutputRedirectModel(HttpContext)
    */
   public void setExposeOutputRedirectModel(boolean exposeOutputRedirectModel) {
     this.exposeOutputRedirectModel = exposeOutputRedirectModel;

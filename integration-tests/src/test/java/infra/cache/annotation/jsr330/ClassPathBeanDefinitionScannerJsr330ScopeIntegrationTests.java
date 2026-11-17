@@ -44,7 +44,7 @@ import infra.web.mock.MockSession;
 import infra.session.config.EnableSession;
 import infra.web.DispatcherHandler;
 import infra.web.HttpContextHolder;
-import infra.web.HttpContextUtils;
+import infra.web.util.WebUtils;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 
@@ -71,7 +71,7 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
 
   @BeforeEach
   void setup() {
-    HttpContextUtils.registerScopes(context.getBeanFactory());
+    WebUtils.registerScopes(context.getBeanFactory());
     MockRequest oldRequestWithSession = new MockRequest();
     oldRequestWithSession.setSession(new MockSession());
     this.oldRequestAttributesWithSession = new MockHttpContext(

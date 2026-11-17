@@ -102,7 +102,6 @@ import infra.validation.Errors;
 import infra.validation.FieldError;
 import infra.validation.beanvalidation.LocalValidatorFactoryBean;
 import infra.web.HttpContext;
-import infra.web.HttpContextUtils;
 import infra.web.RedirectModel;
 import infra.web.SerializationTestUtils;
 import infra.web.accept.ContentNegotiationManagerFactoryBean;
@@ -141,6 +140,7 @@ import infra.web.multipart.Part;
 import infra.web.multipart.support.StringPartEditor;
 import infra.web.testfixture.MockMultipartFile;
 import infra.web.testfixture.security.TestPrincipal;
+import infra.web.util.WebUtils;
 import infra.web.view.AbstractView;
 import infra.web.view.ModelAndView;
 import infra.web.view.View;
@@ -1524,7 +1524,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 //
 //    assertThat(response.getStatus()).isEqualTo(200);
 //    assertThat(response.getForwardedUrl()).isEqualTo("messages/new");
-//    assertThat(HttpContextUtils.getOutputRedirectModel(context).isEmpty()).isTrue();
+//    assertThat(WebUtils.getOutputRedirectModel(context).isEmpty()).isTrue();
 
     // POST -> success
     request = new MockRequest("POST", "/messages");
@@ -1537,7 +1537,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     assertThat(response.getStatus()).isEqualTo(302);
     assertThat(response.getRedirectedUrl()).isEqualTo("/messages/1?name=value");
-    assertThat(HttpContextUtils.getOutputRedirectModel(context).get("successMessage")).isEqualTo("yay!");
+    assertThat(WebUtils.getOutputRedirectModel(context).get("successMessage")).isEqualTo("yay!");
 
     // GET after POST
     request = new MockRequest("GET", "/messages/1");
@@ -1565,7 +1565,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     assertThat(response.getStatus()).isEqualTo(302);
     assertThat(response.getRedirectedUrl()).isEqualTo("/messages/1?name=value");
-    assertThat(HttpContextUtils.getOutputRedirectModel(context).get("successMessage")).isEqualTo("yay!");
+    assertThat(WebUtils.getOutputRedirectModel(context).get("successMessage")).isEqualTo("yay!");
 
     // GET after POST
     request = new MockRequest("GET", "/messages/1");

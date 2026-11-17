@@ -27,12 +27,12 @@ import infra.web.BindingContext;
 import infra.web.HandlerExceptionHandler;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpContext;
-import infra.web.HttpContextUtils;
 import infra.web.LocaleResolver;
 import infra.web.RedirectModel;
 import infra.web.RedirectModelManager;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.result.SmartReturnValueHandler;
+import infra.web.util.WebUtils;
 
 /**
  * Handles return values that are view names, {@link View} instances, or {@link ViewRef} references.
@@ -216,13 +216,13 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
   private Locale getLocale(HttpContext request) {
     LocaleResolver localeResolver = this.localeResolver;
     if (localeResolver == null) {
-      localeResolver = HttpContextUtils.getLocaleResolver(request);
+      localeResolver = WebUtils.getLocaleResolver(request);
     }
 
     if (localeResolver != null) {
       return localeResolver.resolveLocale(request);
     }
-    return HttpContextUtils.resolveLocale(request);
+    return WebUtils.resolveLocale(request);
   }
 
   /**
@@ -278,7 +278,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * to resolve the view. ViewResolvers that support internationalization
    * should respect this.
    * <p>
-   * If {@link #localeResolver} is null use {@link HttpContextUtils#resolveLocale(HttpContext)}
+   * If {@link #localeResolver} is null use {@link WebUtils#resolveLocale(HttpContext)}
    * to find Locale
    *
    * @param localeResolver to determine the Locale in which to resolve the view

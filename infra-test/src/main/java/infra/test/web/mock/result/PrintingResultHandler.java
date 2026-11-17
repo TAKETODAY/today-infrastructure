@@ -41,12 +41,12 @@ import infra.validation.BindingResult;
 import infra.validation.Errors;
 import infra.web.HandlerInterceptor;
 import infra.web.HttpContext;
-import infra.web.HttpContextUtils;
 import infra.web.RedirectModel;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.api.Cookie;
+import infra.web.util.WebUtils;
 import infra.web.view.ModelAndView;
 
 /**
@@ -107,7 +107,7 @@ public class PrintingResultHandler implements ResultHandler {
     printModelAndView(result.getModelAndView());
 
     this.printer.printHeading("RedirectModel");
-    printFlashMap(HttpContextUtils.getOutputRedirectModel(result.getContext()));
+    printFlashMap(WebUtils.getOutputRedirectModel(result.getContext()));
 
     this.printer.printHeading("HttpResponse");
     printResponse(result.getResponse());

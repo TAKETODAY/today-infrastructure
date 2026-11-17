@@ -912,12 +912,12 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * <p>This is a request preference, not the application's effective locale or
    * a guarantee that the application supports the language. Cookie and session
    * locale selections do not change this value. For message lookup, rendering,
-   * and formatting, use {@link HttpContextUtils#resolveLocale(HttpContext)}.
+   * and formatting, use {@link WebUtils#resolveLocale(HttpContext)}.
    *
    * @return the preferred locale, or {@code null} if the header is absent,
    * blank, or contains no acceptable concrete language range
    * @throws IllegalArgumentException if the header cannot be parsed
-   * @see HttpContextUtils#resolveLocale(HttpContext)
+   * @see WebUtils#resolveLocale(HttpContext)
    * @since 4.0
    */
   @Nullable Locale getLocale();
@@ -1725,7 +1725,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @since 5.0
    */
   default String getMessage(String code, Object @Nullable [] args, String defaultMessage, boolean htmlEscape) {
-    Locale locale = HttpContextUtils.resolveLocale(this);
+    Locale locale = WebUtils.resolveLocale(this);
     String msg = getMessageSource().getMessage(code, args, defaultMessage, locale);
     if (msg == null) {
       return "";
@@ -1782,7 +1782,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @since 5.0
    */
   default String getMessage(String code, Object @Nullable [] args, boolean htmlEscape) throws NoSuchMessageException {
-    Locale locale = HttpContextUtils.resolveLocale(this);
+    Locale locale = WebUtils.resolveLocale(this);
     String msg = getMessageSource().getMessage(code, args, locale);
     return htmlEscape ? HtmlUtils.htmlEscape(msg) : msg;
   }
@@ -1809,7 +1809,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @since 5.0
    */
   default String getMessage(MessageSourceResolvable resolvable, boolean htmlEscape) throws NoSuchMessageException {
-    Locale locale = HttpContextUtils.resolveLocale(this);
+    Locale locale = WebUtils.resolveLocale(this);
     String msg = getMessageSource().getMessage(resolvable, locale);
     return htmlEscape ? HtmlUtils.htmlEscape(msg) : msg;
   }

@@ -36,7 +36,6 @@ import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.util.Assert;
 import infra.web.HttpContext;
-import infra.web.HttpContextUtils;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.annotation.ControllerAdvice;
@@ -45,6 +44,7 @@ import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.handler.AbstractHandlerMethodExceptionHandler;
 import infra.web.handler.function.HandlerFunction;
 import infra.web.resource.ResourceHttpRequestHandler;
+import infra.web.util.WebUtils;
 
 /**
  * Handle exceptions through methods annotated with {@link ExceptionHandler @ExceptionHandler}.
@@ -178,7 +178,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
 
       if (exHandler == this.problemDetailHandlerMethod && target instanceof Exception exception) {
         return exHandler.invokeAndHandle(context, null,
-                new Object[] { exception, HttpContextUtils.resolveLocale(context) });
+                new Object[] { exception, WebUtils.resolveLocale(context) });
       }
       return exHandler.invokeAndHandle(context, null, arguments);
     }
@@ -200,7 +200,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
             metadata.setHandler(fallback);
           }
           try {
-            return fallback.invokeAndHandle(context, null, new Object[] { exception, HttpContextUtils.resolveLocale(context) });
+            return fallback.invokeAndHandle(context, null, new Object[] { exception, WebUtils.resolveLocale(context) });
           }
           catch (Exception fallbackFailure) {
             logger.warn("Failure in problem detail handler", fallbackFailure);

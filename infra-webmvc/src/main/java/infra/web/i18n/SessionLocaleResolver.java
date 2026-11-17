@@ -28,7 +28,7 @@ import infra.core.i18n.TimeZoneAwareLocaleContext;
 import infra.util.Assert;
 import infra.session.Session;
 import infra.web.HttpContext;
-import infra.web.HttpContextUtils;
+import infra.web.util.WebUtils;
 
 /**
  * {@link infra.web.LocaleResolver} implementation that
@@ -62,21 +62,21 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
   /**
    * Default name of the session attribute that holds the Locale.
    * Only used internally by this implementation.
-   * <p>Use {@link HttpContextUtils#resolveLocale(HttpContext)}
+   * <p>Use {@link WebUtils#resolveLocale(HttpContext)}
    * to retrieve the current locale in controllers or views.
    *
    * @see HttpContext#getLocale
-   * @see HttpContextUtils#resolveLocale
+   * @see WebUtils#resolveLocale
    */
   public static final String LOCALE_SESSION_ATTRIBUTE_NAME = SessionLocaleResolver.class.getName() + ".LOCALE";
 
   /**
    * Default name of the session attribute that holds the TimeZone.
    * Only used internally by this implementation.
-   * <p>Use {@code HttpContext(Utils).getTimeZone()}
+   * <p>Use {@link WebUtils#getTimeZone(HttpContext)}
    * to retrieve the current time zone in controllers or views.
    *
-   * @see HttpContextUtils#getTimeZone
+   * @see WebUtils#getTimeZone
    */
   public static final String TIME_ZONE_SESSION_ATTRIBUTE_NAME = SessionLocaleResolver.class.getName() + ".TIME_ZONE";
 
