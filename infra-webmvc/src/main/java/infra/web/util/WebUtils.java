@@ -88,6 +88,74 @@ public abstract class WebUtils {
   public static final String SESSION_MUTEX_ATTRIBUTE = WebUtils.class.getName() + ".MUTEX";
 
   /**
+   * Determine the session id of the given request, if any.
+   *
+   * @param request current HTTP request
+   * @return the session id, or {@code null} if none
+   * @since 5.0
+   */
+  public static @Nullable String getSessionId(HttpContext request) {
+    Session session = request.getSession(false);
+    return session != null ? session.getId() : null;
+  }
+
+  /**
+   * Check the given request for a session attribute of the given name.
+   * Returns null if there is no session or if the session has no such attribute.
+   * Does not create a new session if none has existed before!
+   *
+   * @param request current HTTP request
+   * @param name the name of the session attribute
+   * @return the value of the session attribute, or {@code null} if not found
+   * @since 5.0
+   */
+  public static @Nullable Object getSessionAttribute(HttpContext request, String name) {
+    Session session = request.getSession(false);
+    return session != null ? session.getAttribute(name) : null;
+  }
+
+  /**
+   * Check the given request for a session attribute of the given name.
+   * Throws an exception if there is no session or if the session has no such
+   * attribute. Does not create a new session if none has existed before!
+   *
+   * @param request current HTTP request
+   * @param name the name of the session attribute
+   * @return the value of the session attribute (never {@code null})
+   * @throws IllegalStateException if the session attribute could not be found
+   * @since 5.0
+   */
+  public static Object getRequiredSessionAttribute(HttpContext request, String name) throws IllegalStateException {
+    Object attr = getSessionAttribute(request, name);
+    if (attr == null) {
+      throw new IllegalStateException("No session attribute '" + name + "' found");
+    }
+    return attr;
+  }
+
+  /**
+   * Set the session attribute with the given name to the given value.
+   * Removes the session attribute if value is null, if a session existed at all.
+   * Does not create a new session if not necessary!
+   *
+   * @param request current HTTP request
+   * @param name the name of the session attribute
+   * @param value the value of the session attribute
+   * @since 5.0
+   */
+  public static void setSessionAttribute(HttpContext request, String name, @Nullable Object value) {
+    if (value != null) {
+      request.getSession().setAttribute(name, value);
+    }
+    else {
+      Session session = request.getSession(false);
+      if (session != null) {
+        session.removeAttribute(name);
+      }
+    }
+  }
+
+  /**
    * Return the best available mutex for the given session:
    * that is, an object to synchronize on for the given session.
    *

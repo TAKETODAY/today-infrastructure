@@ -26,7 +26,6 @@ import java.util.TimeZone;
 import infra.core.i18n.LocaleContext;
 import infra.core.i18n.TimeZoneAwareLocaleContext;
 import infra.util.Assert;
-import infra.session.Session;
 import infra.web.HttpContext;
 import infra.web.util.WebUtils;
 
@@ -106,7 +105,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
 
   @Override
   public Locale resolveLocale(HttpContext context) {
-    Locale locale = getSessionAttribute(context, this.localeAttributeName);
+    Locale locale = (Locale) WebUtils.getSessionAttribute(context, this.localeAttributeName);
     if (locale == null) {
       locale = determineDefaultLocale(context);
     }
@@ -118,7 +117,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
     return new TimeZoneAwareLocaleContext() {
       @Override
       public Locale getLocale() {
-        Locale locale = getSessionAttribute(context, localeAttributeName);
+        Locale locale = (Locale) WebUtils.getSessionAttribute(context, localeAttributeName);
         if (locale == null) {
           locale = determineDefaultLocale(context);
         }
@@ -127,7 +126,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
 
       @Override
       public @Nullable TimeZone getTimeZone() {
-        TimeZone timeZone = getSessionAttribute(context, timeZoneAttributeName);
+        TimeZone timeZone = (TimeZone) WebUtils.getSessionAttribute(context, timeZoneAttributeName);
         if (timeZone == null) {
           timeZone = determineDefaultTimeZone(context);
         }
@@ -146,22 +145,8 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
         timeZone = ((TimeZoneAwareLocaleContext) localeContext).getTimeZone();
       }
     }
-    setSessionAttribute(context, localeAttributeName, locale);
-    setSessionAttribute(context, timeZoneAttributeName, timeZone);
-  }
-
-  @SuppressWarnings("unchecked")
-  private <T> @Nullable T getSessionAttribute(HttpContext request, String attributeName) {
-    Session session = request.getSession(false);
-    if (session != null) {
-      return (T) session.getAttribute(attributeName);
-    }
-    return null;
-  }
-
-  private void setSessionAttribute(HttpContext request, String attributeName, @Nullable Object attribute) {
-    Session session = request.getSession();
-    session.setAttribute(attributeName, attribute);
+    WebUtils.setSessionAttribute(context, localeAttributeName, locale);
+    WebUtils.setSessionAttribute(context, timeZoneAttributeName, timeZone);
   }
 
   /**

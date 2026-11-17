@@ -1916,8 +1916,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return the session id, or {@code null} if none
    */
   default @Nullable String getSessionId() {
-    Session session = getSession(false);
-    return session != null ? session.getId() : null;
+    return WebUtils.getSessionId(this);
   }
 
   /**
