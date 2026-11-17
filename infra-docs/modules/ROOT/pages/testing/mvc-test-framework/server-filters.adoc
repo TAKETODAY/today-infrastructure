@@ -2,7 +2,7 @@
 = Filter 注册
 :page-section-summary-toc: 1
 
-当设置 `MockMvc` 实例时，你可以注册一个或多个 Servlet `Filter` 实例，如下例所示：
+当设置 `MockMvc` 实例时，你可以注册一个或多个 `Filter` 实例，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
