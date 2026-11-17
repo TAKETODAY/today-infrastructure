@@ -222,7 +222,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
     if (localeResolver != null) {
       return localeResolver.resolveLocale(request);
     }
-    return request.getLocale();
+    return HttpContextUtils.resolveLocale(request);
   }
 
   /**
@@ -278,7 +278,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * to resolve the view. ViewResolvers that support internationalization
    * should respect this.
    * <p>
-   * If {@link #localeResolver} is null use {@link HttpContextUtils#getLocale(HttpContext)}
+   * If {@link #localeResolver} is null use {@link HttpContextUtils#resolveLocale(HttpContext)}
    * to find Locale
    *
    * @param localeResolver to determine the Locale in which to resolve the view

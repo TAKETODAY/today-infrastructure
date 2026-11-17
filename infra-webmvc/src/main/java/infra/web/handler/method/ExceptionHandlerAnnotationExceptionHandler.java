@@ -36,6 +36,7 @@ import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.util.Assert;
 import infra.web.HttpContext;
+import infra.web.HttpContextUtils;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.annotation.ControllerAdvice;
@@ -177,7 +178,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
 
       if (exHandler == this.problemDetailHandlerMethod && target instanceof Exception exception) {
         return exHandler.invokeAndHandle(context, null,
-                new Object[] { exception, context.getLocale() });
+                new Object[] { exception, HttpContextUtils.resolveLocale(context) });
       }
       return exHandler.invokeAndHandle(context, null, arguments);
     }
@@ -199,7 +200,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
             metadata.setHandler(fallback);
           }
           try {
-            return fallback.invokeAndHandle(context, null, new Object[] { exception, context.getLocale() });
+            return fallback.invokeAndHandle(context, null, new Object[] { exception, HttpContextUtils.resolveLocale(context) });
           }
           catch (Exception fallbackFailure) {
             logger.warn("Failure in problem detail handler", fallbackFailure);
