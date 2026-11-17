@@ -32,6 +32,7 @@ import infra.context.ApplicationContext;
 import infra.core.i18n.LocaleContext;
 import infra.core.i18n.LocaleContextHolder;
 import infra.core.i18n.TimeZoneAwareLocaleContext;
+import infra.lang.Constant;
 import infra.lang.Contract;
 import infra.session.Session;
 import infra.util.CollectionUtils;
@@ -53,14 +54,6 @@ import infra.web.util.UriComponentsBuilder;
  * @since 4.0 2022/1/22 23:21
  */
 public final class HttpContextUtils {
-
-  private static final IntParser INT_PARSER = new IntParser();
-  private static final LongParser LONG_PARSER = new LongParser();
-  private static final FloatParser FLOAT_PARSER = new FloatParser();
-  private static final DoubleParser DOUBLE_PARSER = new DoubleParser();
-  private static final BooleanParser BOOLEAN_PARSER = new BooleanParser();
-
-  private static final StringParser STRING_PARSER = new StringParser();
 
   private HttpContextUtils() {
   }
@@ -318,7 +311,7 @@ public final class HttpContextUtils {
   public static int getRequiredIntParameter(HttpContext request, String name)
           throws RequestBindingException {
 
-    return INT_PARSER.parseInt(name, request.getParameter(name));
+    return IntParser.INSTANCE.parseInt(name, request.getParameter(name));
   }
 
   /**
@@ -332,7 +325,7 @@ public final class HttpContextUtils {
   public static int[] getRequiredIntParameters(HttpContext request, String name)
           throws RequestBindingException {
 
-    return INT_PARSER.parseInts(name, request.getParameters(name));
+    return IntParser.INSTANCE.parseInts(name, request.getParameters(name));
   }
 
   /**
@@ -400,7 +393,7 @@ public final class HttpContextUtils {
   public static long getRequiredLongParameter(HttpContext request, String name)
           throws RequestBindingException {
 
-    return LONG_PARSER.parseLong(name, request.getParameter(name));
+    return LongParser.INSTANCE.parseLong(name, request.getParameter(name));
   }
 
   /**
@@ -414,7 +407,7 @@ public final class HttpContextUtils {
   public static long[] getRequiredLongParameters(HttpContext request, String name)
           throws RequestBindingException {
 
-    return LONG_PARSER.parseLongs(name, request.getParameters(name));
+    return LongParser.INSTANCE.parseLongs(name, request.getParameters(name));
   }
 
   /**
@@ -482,7 +475,7 @@ public final class HttpContextUtils {
   public static float getRequiredFloatParameter(HttpContext request, String name)
           throws RequestBindingException {
 
-    return FLOAT_PARSER.parseFloat(name, request.getParameter(name));
+    return FloatParser.INSTANCE.parseFloat(name, request.getParameter(name));
   }
 
   /**
@@ -496,7 +489,7 @@ public final class HttpContextUtils {
   public static float[] getRequiredFloatParameters(HttpContext request, String name)
           throws RequestBindingException {
 
-    return FLOAT_PARSER.parseFloats(name, request.getParameters(name));
+    return FloatParser.INSTANCE.parseFloats(name, request.getParameters(name));
   }
 
   /**
@@ -564,7 +557,7 @@ public final class HttpContextUtils {
   public static double getRequiredDoubleParameter(HttpContext request, String name)
           throws RequestBindingException {
 
-    return DOUBLE_PARSER.parseDouble(name, request.getParameter(name));
+    return DoubleParser.INSTANCE.parseDouble(name, request.getParameter(name));
   }
 
   /**
@@ -578,7 +571,7 @@ public final class HttpContextUtils {
   public static double[] getRequiredDoubleParameters(HttpContext request, String name)
           throws RequestBindingException {
 
-    return DOUBLE_PARSER.parseDoubles(name, request.getParameters(name));
+    return DoubleParser.INSTANCE.parseDoubles(name, request.getParameters(name));
   }
 
   /**
@@ -599,7 +592,7 @@ public final class HttpContextUtils {
     if (request.getParameter(name) == null) {
       return null;
     }
-    return (getRequiredBooleanParameter(request, name));
+    return getRequiredBooleanParameter(request, name);
   }
 
   /**
@@ -655,7 +648,7 @@ public final class HttpContextUtils {
   public static boolean getRequiredBooleanParameter(HttpContext request, String name)
           throws RequestBindingException {
 
-    return BOOLEAN_PARSER.parseBoolean(name, request.getParameter(name));
+    return BooleanParser.INSTANCE.parseBoolean(name, request.getParameter(name));
   }
 
   /**
@@ -671,7 +664,7 @@ public final class HttpContextUtils {
    */
   public static boolean[] getRequiredBooleanParameters(HttpContext request, String name)
           throws RequestBindingException {
-    return BOOLEAN_PARSER.parseBooleans(name, request.getParameters(name));
+    return BooleanParser.INSTANCE.parseBooleans(name, request.getParameters(name));
   }
 
   /**
@@ -716,7 +709,7 @@ public final class HttpContextUtils {
       return getRequiredStringParameters(request, name);
     }
     catch (RequestBindingException ex) {
-      return new String[0];
+      return Constant.EMPTY_STRING_ARRAY;
     }
   }
 
@@ -731,7 +724,7 @@ public final class HttpContextUtils {
   public static String getRequiredStringParameter(HttpContext request, String name)
           throws RequestBindingException {
 
-    return STRING_PARSER.validateRequiredString(name, request.getParameter(name));
+    return StringParser.INSTANCE.validateRequiredString(name, request.getParameter(name));
   }
 
   /**
@@ -745,7 +738,7 @@ public final class HttpContextUtils {
   public static String[] getRequiredStringParameters(HttpContext request, String name)
           throws RequestBindingException {
 
-    return STRING_PARSER.validateRequiredStrings(name, request.getParameters(name));
+    return StringParser.INSTANCE.validateRequiredStrings(name, request.getParameters(name));
   }
 
   private abstract static class ParameterParser<T> {
@@ -777,6 +770,8 @@ public final class HttpContextUtils {
 
   private static final class IntParser extends ParameterParser<Integer> {
 
+    private static final IntParser INSTANCE = new IntParser();
+
     @Override
     protected String getType() {
       return "int";
@@ -802,6 +797,8 @@ public final class HttpContextUtils {
   }
 
   private static final class LongParser extends ParameterParser<Long> {
+
+    private static final LongParser INSTANCE = new LongParser();
 
     @Override
     protected String getType() {
@@ -829,6 +826,8 @@ public final class HttpContextUtils {
 
   private static final class FloatParser extends ParameterParser<Float> {
 
+    private static final FloatParser INSTANCE = new FloatParser();
+
     @Override
     protected String getType() {
       return "float";
@@ -854,6 +853,8 @@ public final class HttpContextUtils {
   }
 
   private static final class DoubleParser extends ParameterParser<Double> {
+
+    private static final DoubleParser INSTANCE = new DoubleParser();
 
     @Override
     protected String getType() {
@@ -881,6 +882,8 @@ public final class HttpContextUtils {
 
   private static final class BooleanParser extends ParameterParser<Boolean> {
 
+    private static final BooleanParser INSTANCE = new BooleanParser();
+
     @Override
     protected String getType() {
       return "boolean";
@@ -907,6 +910,8 @@ public final class HttpContextUtils {
   }
 
   private static final class StringParser extends ParameterParser<String> {
+
+    private static final StringParser INSTANCE = new StringParser();
 
     @Override
     protected String getType() {
