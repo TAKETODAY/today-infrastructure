@@ -59,11 +59,11 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
    * The name of the request attribute that holds the {@code Locale}.
    * <p>Only used for overriding a cookie value if the locale has been
    * changed in the course of the current request!
-   * <p>Use {@code HttpContext(Utils).getLocale()}
+   * <p>Use {@link HttpContextUtils#resolveLocale(HttpContext)}
    * to retrieve the current locale in controllers or views.
    *
    * @see HttpContext#getLocale
-   * @see HttpContextUtils#getLocale
+   * @see HttpContextUtils#resolveLocale
    */
   public static final String LOCALE_REQUEST_ATTRIBUTE_NAME = CookieLocaleResolver.class.getName() + ".LOCALE";
 
@@ -318,7 +318,8 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
    * Determine the default locale for the given request,
    * Called if no locale cookie has been found.
    * <p>The default implementation returns the specified default locale,
-   * if any, else falls back to the request's accept-header locale.
+   * if any, else falls back to the request's accept-header locale and finally
+   * to {@link Locale#getDefault()}.
    *
    * @param request the request to resolve the locale for
    * @return the default locale (never {@code null})
@@ -330,7 +331,7 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
     if (defaultLocale == null) {
       defaultLocale = request.getLocale();
     }
-    return defaultLocale;
+    return defaultLocale != null ? defaultLocale : Locale.getDefault();
   }
 
   /**

@@ -64,7 +64,13 @@ public abstract class AbstractLocaleContextResolver
   @Override
   public Locale resolveLocale(HttpContext context) {
     Locale locale = resolveLocaleContext(context).getLocale();
-    return locale != null ? locale : context.getLocale();
+    if (locale == null) {
+      locale = getDefaultLocale();
+    }
+    if (locale == null) {
+      locale = context.getLocale();
+    }
+    return locale != null ? locale : Locale.getDefault();
   }
 
   @Override

@@ -320,7 +320,7 @@ public abstract class AbstractDelegatingHttpContext implements HttpContext {
   }
 
   @Override
-  public Locale getLocale() {
+  public @Nullable Locale getLocale() {
     return delegate().getLocale();
   }
 

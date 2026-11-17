@@ -58,7 +58,7 @@ public interface LocaleContextResolver extends LocaleResolver {
    * @param context the request to resolve the locale context for
    * @return the current locale context (never {@code null}
    * @see #resolveLocale(HttpContext)
-   * @see HttpContextUtils#getLocale
+   * @see HttpContextUtils#resolveLocale
    * @see HttpContextUtils#getTimeZone
    */
   LocaleContext resolveLocaleContext(HttpContext context);

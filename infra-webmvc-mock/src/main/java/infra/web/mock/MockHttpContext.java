@@ -339,11 +339,6 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
   }
 
   @Override
-  protected Locale readLocale() {
-    return request.getLocale();
-  }
-
-  @Override
   public void reset() {
     super.reset();
     response.reset();

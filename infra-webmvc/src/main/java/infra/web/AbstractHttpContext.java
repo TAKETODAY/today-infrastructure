@@ -1257,16 +1257,14 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   protected abstract HttpHeaders createRequestHeaders();
 
   /**
-   * Returns the preferred <code>Locale</code> that the client will
-   * accept content in, based on the Accept-Language header. If the
-   * client request doesn't provide an Accept-Language header, this
-   * method returns the default locale for the server.
+   * Return the client's preferred locale from the {@code Accept-Language}
+   * header, without applying a default locale.
    *
-   * @return the preferred <code>Locale</code> for the client
+   * @return the preferred locale, or {@code null} if none is available
    * @since 4.0
    */
   @Override
-  public Locale getLocale() {
+  public @Nullable Locale getLocale() {
     if (locale == null) {
       locale = readLocale();
     }
@@ -1274,13 +1272,13 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   }
 
   // @since 4.0
-  protected Locale readLocale() {
-    List<Locale> locales = requestHeaders().getAcceptLanguageAsLocales();
-    Locale locale = CollectionUtils.firstElement(locales);
-    if (locale == null) {
-      return Locale.getDefault();
+  protected @Nullable Locale readLocale() {
+    for (Locale.LanguageRange range : requestHeaders().getAcceptLanguage()) {
+      if (range.getWeight() > 0 && !range.getRange().contains("*")) {
+        return Locale.forLanguageTag(range.getRange());
+      }
     }
-    return locale;
+    return null;
   }
 
   // checkNotModified

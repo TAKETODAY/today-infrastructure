@@ -133,7 +133,7 @@ public class HttpContextMethodArgumentResolver implements ParameterResolvingStra
       return request.getMethod();
     }
     else if (Locale.class == paramType) {
-      return HttpContextUtils.getLocale(request);
+      return HttpContextUtils.resolveLocale(request);
     }
     else if (TimeZone.class == paramType) {
       TimeZone timeZone = HttpContextUtils.getTimeZone(request);

@@ -904,17 +904,19 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
   HttpHeaders requestHeaders();
 
   /**
-   * Returns the preferred <code>Locale</code> that the client will
-   * accept content in, based on the Accept-Language header. If the
-   * client request doesn't provide an Accept-Language header, this
-   * method returns the default locale for the server.
+   * Return the client's preferred locale from the {@code Accept-Language}
+   * header, without applying a default locale or consulting a {@link LocaleResolver}.
+   * <p>Language ranges are ordered by descending quality value. Wildcard
+   * ranges and ranges with zero quality are ignored. For full language
+   * negotiation, use {@link HttpHeaders#getAcceptLanguage()} instead.
    *
-   * @return the preferred <code>Locale</code> for the client
-   * @see LocaleResolver
-   * @see HttpContextUtils#getLocale(HttpContext)
+   * @return the preferred locale, or {@code null} if the header is absent,
+   * blank, or contains no acceptable concrete language range
+   * @throws IllegalArgumentException if the header cannot be parsed
+   * @see HttpContextUtils#resolveLocale(HttpContext)
    * @since 4.0
    */
-  Locale getLocale();
+  @Nullable Locale getLocale();
 
   // checkNotModified
 
@@ -1719,7 +1721,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @since 5.0
    */
   default String getMessage(String code, Object @Nullable [] args, String defaultMessage, boolean htmlEscape) {
-    Locale locale = HttpContextUtils.getLocale(this);
+    Locale locale = HttpContextUtils.resolveLocale(this);
     String msg = getMessageSource().getMessage(code, args, defaultMessage, locale);
     if (msg == null) {
       return "";
@@ -1776,7 +1778,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @since 5.0
    */
   default String getMessage(String code, Object @Nullable [] args, boolean htmlEscape) throws NoSuchMessageException {
-    Locale locale = HttpContextUtils.getLocale(this);
+    Locale locale = HttpContextUtils.resolveLocale(this);
     String msg = getMessageSource().getMessage(code, args, locale);
     return htmlEscape ? HtmlUtils.htmlEscape(msg) : msg;
   }
@@ -1803,7 +1805,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @since 5.0
    */
   default String getMessage(MessageSourceResolvable resolvable, boolean htmlEscape) throws NoSuchMessageException {
-    Locale locale = HttpContextUtils.getLocale(this);
+    Locale locale = HttpContextUtils.resolveLocale(this);
     String msg = getMessageSource().getMessage(resolvable, locale);
     return htmlEscape ? HtmlUtils.htmlEscape(msg) : msg;
   }

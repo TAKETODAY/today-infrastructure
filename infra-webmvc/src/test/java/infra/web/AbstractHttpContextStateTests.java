@@ -26,6 +26,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.http.HttpCookie;
@@ -35,9 +36,14 @@ import infra.http.MediaType;
 import infra.http.ResponseCookie;
 import infra.util.MultiValueMap;
 import infra.web.async.AsyncWebRequest;
+import infra.web.i18n.AcceptHeaderLocaleResolver;
+import infra.web.i18n.CookieLocaleResolver;
+import infra.web.i18n.SessionLocaleResolver;
+import infra.web.mock.MockHttpContext;
 import infra.web.multipart.MultipartRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * White-box tests for the bit-packed {@link AbstractHttpContext} state.
@@ -48,6 +54,68 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AbstractHttpContextStateTests {
 
   private final StateHttpContext context = new StateHttpContext();
+
+  @Test
+  void localeIsNullWithoutAcceptLanguage() {
+    assertThat(context.getLocale()).isNull();
+    assertThat(HttpContextUtils.resolveLocale(context)).isEqualTo(Locale.getDefault());
+    assertThat(context.getLocale()).isNull();
+  }
+
+  @Test
+  void localeIsNullWithoutAcceptableConcreteLanguage() {
+    for (String value : List.of("", " ", "*", "*;q=0.8", "en;q=0", "en;q=0, *")) {
+      context.requestHeaders.set(HttpHeaders.ACCEPT_LANGUAGE, value);
+      assertThat(context.getLocale()).as("Accept-Language: %s", value).isNull();
+    }
+  }
+
+  @Test
+  void localeUsesQualityOrderAndIgnoresWildcards() {
+    context.requestHeaders.set(HttpHeaders.ACCEPT_LANGUAGE, "*;q=1, en-US;q=0.5, zh-CN;q=0.9");
+
+    assertThat(context.getLocale()).isEqualTo(Locale.SIMPLIFIED_CHINESE);
+    assertThat(HttpContextUtils.resolveLocale(context)).isEqualTo(Locale.SIMPLIFIED_CHINESE);
+  }
+
+  @Test
+  void localeRejectsInvalidAcceptLanguage() {
+    context.requestHeaders.set(HttpHeaders.ACCEPT_LANGUAGE, "en;q=invalid");
+
+    assertThatIllegalArgumentException().isThrownBy(context::getLocale);
+  }
+
+  @Test
+  void localeResolversFallBackWithoutRequestLocale() {
+    AcceptHeaderLocaleResolver acceptHeaderResolver = new AcceptHeaderLocaleResolver();
+    CookieLocaleResolver cookieResolver = new CookieLocaleResolver();
+    SessionLocaleResolver sessionResolver = new SessionLocaleResolver();
+
+    assertThat(acceptHeaderResolver.resolveLocale(context)).isEqualTo(Locale.getDefault());
+    assertThat(cookieResolver.resolveLocale(context)).isEqualTo(Locale.getDefault());
+    assertThat(sessionResolver.resolveLocale(new MockHttpContext())).isEqualTo(Locale.getDefault());
+    assertThat(context.getLocale()).isNull();
+  }
+
+  @Test
+  void acceptHeaderResolverUsesConfiguredDefaultForZeroQualityLanguages() {
+    context.requestHeaders.set(HttpHeaders.ACCEPT_LANGUAGE, "en;q=0, *");
+    AcceptHeaderLocaleResolver resolver = new AcceptHeaderLocaleResolver();
+    resolver.setDefaultLocale(Locale.SIMPLIFIED_CHINESE);
+
+    assertThat(resolver.resolveLocale(context)).isEqualTo(Locale.SIMPLIFIED_CHINESE);
+    assertThat(context.getLocale()).isNull();
+  }
+
+  @Test
+  void acceptHeaderResolverDoesNotSelectZeroQualitySupportedLanguage() {
+    context.requestHeaders.set(HttpHeaders.ACCEPT_LANGUAGE, "fr, en;q=0");
+    AcceptHeaderLocaleResolver resolver = new AcceptHeaderLocaleResolver();
+    resolver.setSupportedLocales(List.of(Locale.ENGLISH));
+    resolver.setDefaultLocale(Locale.SIMPLIFIED_CHINESE);
+
+    assertThat(resolver.resolveLocale(context)).isEqualTo(Locale.SIMPLIFIED_CHINESE);
+  }
 
   @Test
   void commitStateTransitions() {

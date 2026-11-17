@@ -405,7 +405,7 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
         }
       };
 
-      Locale locale = HttpContextUtils.getLocale(http);
+      Locale locale = HttpContextUtils.resolveLocale(http);
       RenderingContext context = new RenderingContext(applicationContext(), locale, templateLoader, url);
 
       Object html;

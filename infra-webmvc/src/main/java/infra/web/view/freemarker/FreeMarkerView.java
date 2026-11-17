@@ -325,7 +325,7 @@ public class FreeMarkerView extends AbstractTemplateView {
   }
 
   private Locale findLocale(HttpContext context) {
-    return locale == null ? HttpContextUtils.getLocale(context) : locale;
+    return locale == null ? HttpContextUtils.resolveLocale(context) : locale;
   }
 
   /**

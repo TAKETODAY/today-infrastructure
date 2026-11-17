@@ -87,22 +87,25 @@ public final class HttpContextUtils {
   /**
    * Retrieve the current locale from the given request, using the
    * LocaleResolver bound to the request by the DispatcherHandler
-   * (if available), falling back to the request's accept-header Locale.
-   * <p>This method serves as a straightforward alternative to the standard
-   * Web {@link HttpContext#getLocale()} method,
-   * falling back to the latter if no more specific locale has been found.
+   * (if available), falling back to the request's accept-header locale and
+   * finally to {@link Locale#getDefault()}.
+   * <p>Unlike {@link HttpContext#getLocale()}, this method always returns
+   * an effective, non-null locale for application use.
    * <p>Consider using {@link LocaleContextHolder#getLocale()}
    * which will normally be populated with the same Locale.
    *
    * @param request current HTTP request
-   * @return the current locale for the given request, either from the
-   * LocaleResolver or from the plain request itself
+   * @return the effective locale (never {@code null})
    * @see #getLocaleResolver
    * @see LocaleContextHolder#getLocale()
    */
-  public static Locale getLocale(HttpContext request) {
+  public static Locale resolveLocale(HttpContext request) {
     LocaleResolver localeResolver = getLocaleResolver(request);
-    return localeResolver != null ? localeResolver.resolveLocale(request) : request.getLocale();
+    if (localeResolver != null) {
+      return localeResolver.resolveLocale(request);
+    }
+    Locale locale = request.getLocale();
+    return locale != null ? locale : Locale.getDefault();
   }
 
   /**

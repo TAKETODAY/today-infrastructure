@@ -116,7 +116,7 @@ class HttpContextMethodArgumentResolverTests {
 
     Object result = resolver.resolveArgument(httpContext, parameter);
 
-    assertThat(result).isEqualTo(Locale.ENGLISH);
+    assertThat(result).isEqualTo(Locale.getDefault());
   }
 
   @Test
