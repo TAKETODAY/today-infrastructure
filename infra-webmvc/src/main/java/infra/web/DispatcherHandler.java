@@ -20,6 +20,7 @@ package infra.web;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -635,11 +636,12 @@ public class DispatcherHandler extends WebLifecycleManager {
    *
    * @param context the current request context
    * @param result the response result, or {@code null} to leave the response unchanged
-   * @throws IllegalStateException if the response is committed or the request completed
-   * @throws Exception if processing or writing the result fails
+   * @throws IOException if writing the response fails with an I/O error
+   * @throws IllegalStateException if the response is committed, the request is
+   * completed, or a return value handler fails with another checked exception
    * @since 5.0
    */
-  void send(HttpContext context, @Nullable Object result) throws Exception {
+  void send(HttpContext context, @Nullable Object result) throws IOException {
     Assert.state(!context.isRequestCompleted(), "Request is already completed");
     Assert.state(!context.isCommitted(), "Response is already committed");
     if (result == null) {
@@ -649,7 +651,15 @@ public class DispatcherHandler extends WebLifecycleManager {
     if (selected == null) {
       throw new ReturnValueHandlerNotFoundException(result, null);
     }
-    handleReturnValue(selected, context, null, result);
+    try {
+      handleReturnValue(selected, context, null, result);
+    }
+    catch (IOException | RuntimeException ex) {
+      throw ex;
+    }
+    catch (Exception ex) {
+      throw new IllegalStateException("Failed to send response", ex);
+    }
   }
 
   private void handleRequestInternal(HttpContext context) throws Exception {

@@ -20,6 +20,7 @@ package infra.web.server.error;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,6 @@ import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
 import infra.stereotype.Controller;
-import infra.util.ExceptionUtils;
 import infra.util.MimeTypeUtils;
 import infra.util.StringUtils;
 import infra.web.HttpContext;
@@ -74,9 +74,8 @@ public class BasicErrorController extends AbstractErrorController implements Sen
   }
 
   @Override
-  public void handleError(HttpContext http, @Nullable String message) {
-    Object returnValue = handleRequest(http, message);
-    ExceptionUtils.sneakyThrow(() -> http.send(returnValue));
+  public void handleError(HttpContext http, @Nullable String message) throws IOException {
+    http.send(handleRequest(http, message));
   }
 
   private Object handleRequest(HttpContext http, @Nullable String message) {

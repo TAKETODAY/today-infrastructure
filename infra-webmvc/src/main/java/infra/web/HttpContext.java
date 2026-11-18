@@ -1026,11 +1026,12 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * method does not guarantee that the client has received the response.
    *
    * @param result the response result, or {@code null} for no body
-   * @throws IllegalStateException if the response is committed or the request completed
-   * @throws Exception if processing or writing the result fails
+   * @throws IOException if writing the response fails with an I/O error
+   * @throws IllegalStateException if the response is committed, the request is
+   * completed, or a return value handler fails with another checked exception
    * @since 5.0
    */
-  void send(@Nullable Object result) throws Exception;
+  void send(@Nullable Object result) throws IOException;
 
   /**
    * Forward the request to a new path, re-dispatching through the handler

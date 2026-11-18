@@ -1808,7 +1808,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   }
 
   @Override
-  public void send(@Nullable Object result) throws Exception {
+  public void send(@Nullable Object result) throws IOException {
     dispatcherHandler.send(this, result);
   }
 

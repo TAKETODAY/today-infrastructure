@@ -18,6 +18,7 @@ package infra.web;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -36,6 +37,7 @@ import infra.web.mock.MockRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -141,6 +143,25 @@ class HttpContextSendTests {
   }
 
   @Test
+  void ioFailurePropagatesUnchanged() throws Exception {
+    IOException failure = new IOException("Write failed");
+    try (var context = new AnnotationConfigApplicationContext()) {
+      assertThatThrownBy(() -> sendWithFailingHandler(context, failure)).isSameAs(failure);
+    }
+  }
+
+  @Test
+  void otherCheckedFailureIsWrappedWithItsCause() throws Exception {
+    Exception failure = new Exception("Rendering failed");
+    try (var context = new AnnotationConfigApplicationContext()) {
+      assertThatThrownBy(() -> sendWithFailingHandler(context, failure))
+              .isInstanceOf(IllegalStateException.class)
+              .hasMessage("Failed to send response")
+              .hasCause(failure);
+    }
+  }
+
+  @Test
   void filterSendFailureUsesDispatcherExceptionHandling() throws Exception {
     AtomicInteger completions = new AtomicInteger();
     try (var context = new AnnotationConfigApplicationContext()) {
@@ -164,6 +185,20 @@ class HttpContextSendTests {
       assertThat(http.isRequestCompleted()).isTrue();
       assertThat(completions).hasValue(1);
     }
+  }
+
+  private void sendWithFailingHandler(AnnotationConfigApplicationContext context, Exception failure) throws Exception {
+    context.refresh();
+    DispatcherHandler dispatcher = createDispatcher(context);
+    ReturnValueHandlerManager manager = mock(ReturnValueHandlerManager.class);
+    ReturnValueHandler selected = mock(ReturnValueHandler.class);
+    MockHttpContext http = new MockHttpContext(new MockRequest(), dispatcher);
+    Object result = new Object();
+    given(manager.selectHandler(null, result)).willReturn(selected);
+    willThrow(failure).given(selected).handleReturnValue(http, null, result);
+    dispatcher.setReturnValueHandler(manager);
+
+    http.send(result);
   }
 
   private void verifyFilterResponse(Object result, int status, String body) throws Exception {
