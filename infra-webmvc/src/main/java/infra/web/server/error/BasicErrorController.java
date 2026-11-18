@@ -34,11 +34,9 @@ import infra.util.MimeTypeUtils;
 import infra.util.StringUtils;
 import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotAcceptableException;
-import infra.web.HttpRequestHandler;
 import infra.web.annotation.ExceptionHandler;
 import infra.web.annotation.RequestMapping;
 import infra.web.config.ErrorProperties;
-import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.util.WebUtils;
 
 /**
@@ -59,8 +57,6 @@ import infra.web.util.WebUtils;
 @RequestMapping
 public class BasicErrorController extends AbstractErrorController implements SendErrorHandler {
 
-  private final ReturnValueHandlerManager returnValueHandler;
-
   /**
    * Create a new {@link BasicErrorController} instance.
    *
@@ -68,10 +64,8 @@ public class BasicErrorController extends AbstractErrorController implements Sen
    * @param errorProperties configuration properties
    * @param errorViewResolvers error view resolvers
    */
-  public BasicErrorController(ErrorAttributes errorAttributes, ErrorProperties errorProperties,
-          List<ErrorViewResolver> errorViewResolvers, ReturnValueHandlerManager returnValueHandler) {
+  public BasicErrorController(ErrorAttributes errorAttributes, ErrorProperties errorProperties, List<ErrorViewResolver> errorViewResolvers) {
     super(errorAttributes, errorProperties, errorViewResolvers);
-    this.returnValueHandler = returnValueHandler;
   }
 
   @RequestMapping("${server.error.path:${error.path:/error}}")
@@ -82,14 +76,7 @@ public class BasicErrorController extends AbstractErrorController implements Sen
   @Override
   public void handleError(HttpContext http, @Nullable String message) {
     Object returnValue = handleRequest(http, message);
-    if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
-      try {
-        returnValueHandler.handleReturnValue(http, null, returnValue);
-      }
-      catch (Throwable e) {
-        throw ExceptionUtils.sneakyThrow(e);
-      }
-    }
+    ExceptionUtils.sneakyThrow(() -> http.send(returnValue));
   }
 
   private Object handleRequest(HttpContext http, @Nullable String message) {
