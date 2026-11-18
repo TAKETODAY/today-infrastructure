@@ -25,6 +25,7 @@ import org.assertj.core.api.InstanceOfAssertFactories;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -501,7 +502,7 @@ class WebMvcAutoConfigurationTests {
   void customAsyncRequestTimeout() {
     this.contextRunner.withPropertyValues("web.mvc.async.request-timeout:12345")
             .run((context) -> assertThat(context.getBean(WebAsyncManagerFactory.class))
-                    .extracting("asyncRequestTimeout").isEqualTo(12345L));
+                    .extracting("asyncRequestTimeout").isEqualTo(Duration.ofMillis(12345)));
   }
 
   @Test
