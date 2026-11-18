@@ -19,6 +19,7 @@ package infra.web.async;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;
+import java.time.Duration;
 
 import infra.beans.factory.BeanFactory;
 import infra.core.task.AsyncTaskExecutor;
@@ -48,7 +49,7 @@ class WebAsyncTaskTests {
   @Test
   void constructorWithTimeoutAndCallable() {
     Callable<String> callable = () -> "test";
-    Long timeout = 5000L;
+    Duration timeout = Duration.ofSeconds(5);
     WebAsyncTask<String> webAsyncTask = new WebAsyncTask<>(timeout, callable);
 
     assertThat(webAsyncTask.getCallable()).isSameAs(callable);
@@ -59,7 +60,7 @@ class WebAsyncTaskTests {
   @Test
   void constructorWithTimeoutExecutorNameAndCallable() {
     Callable<String> callable = () -> "test";
-    Long timeout = 5000L;
+    Duration timeout = Duration.ofSeconds(5);
     String executorName = "testExecutor";
     WebAsyncTask<String> webAsyncTask = new WebAsyncTask<>(timeout, executorName, callable);
 
@@ -71,7 +72,7 @@ class WebAsyncTaskTests {
   @Test
   void constructorWithTimeoutExecutorAndCallable() {
     Callable<String> callable = () -> "test";
-    Long timeout = 5000L;
+    Duration timeout = Duration.ofSeconds(5);
     AsyncTaskExecutor executor = Runnable::run;
     WebAsyncTask<String> webAsyncTask = new WebAsyncTask<>(timeout, executor, callable);
 
@@ -90,7 +91,7 @@ class WebAsyncTaskTests {
   @Test
   void constructorWithNullExecutorNameThrowsException() {
     Callable<String> callable = () -> "test";
-    assertThatThrownBy(() -> new WebAsyncTask<>(5000L, (String) null, callable))
+    assertThatThrownBy(() -> new WebAsyncTask<>(Duration.ofSeconds(5), (String) null, callable))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("Executor name is required");
   }
@@ -98,7 +99,7 @@ class WebAsyncTaskTests {
   @Test
   void constructorWithNullExecutorThrowsException() {
     Callable<String> callable = () -> "test";
-    assertThatThrownBy(() -> new WebAsyncTask<>(5000L, (AsyncTaskExecutor) null, callable))
+    assertThatThrownBy(() -> new WebAsyncTask<>(Duration.ofSeconds(5), (AsyncTaskExecutor) null, callable))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("Executor is required");
   }
@@ -119,7 +120,7 @@ class WebAsyncTaskTests {
   @Test
   void getExecutorReturnsDirectExecutor() {
     AsyncTaskExecutor executor = Runnable::run;
-    WebAsyncTask<String> webAsyncTask = new WebAsyncTask<>(5000L, executor, () -> "test");
+    WebAsyncTask<String> webAsyncTask = new WebAsyncTask<>(Duration.ofSeconds(5), executor, () -> "test");
 
     assertThat(webAsyncTask.getExecutor()).isSameAs(executor);
   }

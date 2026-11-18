@@ -51,8 +51,8 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
   @Override
   public synchronized void startAsync() {
     Assert.state(!isAsyncComplete(), "Async processing has already completed");
-    if (timeout != null && timeout > 0) {
-      timeoutFuture = channel.eventLoop().schedule(this::checkTimeout, timeout, TimeUnit.MILLISECONDS);
+    if (timeout != null && !timeout.isZero()) {
+      timeoutFuture = channel.eventLoop().schedule(this::checkTimeout, timeout.toMillis(), TimeUnit.MILLISECONDS);
     }
 
     this.asyncStarted = true;

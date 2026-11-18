@@ -90,7 +90,7 @@ public class StandardMockAsyncWebRequest extends AsyncWebRequest implements Asyn
     this.asyncContext = mockRequest.startAsync(mockRequest, mockResponse);
     asyncContext.addListener(this);
     if (timeout != null) {
-      asyncContext.setTimeout(this.timeout);
+      asyncContext.setTimeout(this.timeout.toMillis());
     }
   }
 

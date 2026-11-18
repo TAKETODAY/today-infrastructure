@@ -21,14 +21,13 @@ package infra.web.context.async;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 import infra.core.task.AsyncTaskExecutor;
 import infra.core.task.SimpleAsyncTaskExecutor;
-import infra.web.mock.MockHttpContext;
-import infra.web.mock.MockRequest;
 import infra.util.concurrent.Future;
 import infra.web.async.AsyncWebRequest;
 import infra.web.async.CallableProcessingInterceptor;
@@ -37,6 +36,8 @@ import infra.web.async.DeferredResultProcessingInterceptor;
 import infra.web.async.TimeoutAsyncProcessingInterceptor;
 import infra.web.async.WebAsyncManager;
 import infra.web.async.WebAsyncTask;
+import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
@@ -240,11 +241,11 @@ class WebAsyncManagerTests {
     AsyncTaskExecutor executor = mock(AsyncTaskExecutor.class);
 //    given(this.request.unwrapRequest(MockRequest.class)).willReturn(this.mockRequest);
 
-    WebAsyncTask<Object> asyncTask = new WebAsyncTask<>(1000L, executor, mock(Callable.class));
+    WebAsyncTask<Object> asyncTask = new WebAsyncTask<>(Duration.ofSeconds(1), executor, mock(Callable.class));
     this.asyncManager.startCallableProcessing(asyncTask);
 
     verify(executor).submit((Runnable) notNull());
-    verify(this.asyncWebRequest).setTimeout(1000L);
+    verify(this.asyncWebRequest).setTimeout(Duration.ofSeconds(1));
     verify(this.asyncWebRequest).addTimeoutHandler(any(Runnable.class));
     verify(this.asyncWebRequest).addErrorHandler(any(Consumer.class));
     verify(this.asyncWebRequest).addCompletionHandler(any(Runnable.class));
@@ -260,7 +261,7 @@ class WebAsyncManagerTests {
 
   @Test
   public void startDeferredResultProcessing() throws Exception {
-    DeferredResult<String> deferredResult = new DeferredResult<>(1000L);
+    DeferredResult<String> deferredResult = new DeferredResult<>(Duration.ofSeconds(1));
     String concurrentResult = "abc";
 
     DeferredResultProcessingInterceptor interceptor = mock(DeferredResultProcessingInterceptor.class);
@@ -277,7 +278,7 @@ class WebAsyncManagerTests {
     verify(interceptor).beforeConcurrentHandling(this.request, deferredResult);
     verify(interceptor).preProcess(this.request, deferredResult);
     verify(interceptor).postProcess(request, deferredResult, concurrentResult);
-    verify(this.asyncWebRequest).setTimeout(1000L);
+    verify(this.asyncWebRequest).setTimeout(Duration.ofSeconds(1));
   }
 
   @Test

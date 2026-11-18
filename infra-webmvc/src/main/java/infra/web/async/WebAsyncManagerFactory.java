@@ -18,6 +18,7 @@ package infra.web.async;
 
 import org.jspecify.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -28,6 +29,7 @@ import infra.core.task.SimpleAsyncTaskExecutor;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.web.HttpContext;
+import infra.web.util.TimeoutUtils;
 
 /**
  * WebAsyncManager Factory
@@ -37,14 +39,11 @@ import infra.web.HttpContext;
  */
 public class WebAsyncManagerFactory {
 
-  @Nullable
-  private List<CallableProcessingInterceptor> callableInterceptors;
+  private @Nullable List<CallableProcessingInterceptor> callableInterceptors;
 
-  @Nullable
-  private List<DeferredResultProcessingInterceptor> deferredResultInterceptors;
+  private @Nullable List<DeferredResultProcessingInterceptor> deferredResultInterceptors;
 
-  @Nullable
-  private Long asyncRequestTimeout;
+  private @Nullable Duration asyncRequestTimeout;
 
   private AsyncTaskExecutor taskExecutor = new MvcSimpleAsyncTaskExecutor();
 
@@ -63,16 +62,17 @@ public class WebAsyncManagerFactory {
   }
 
   /**
-   * Specify the amount of time, in milliseconds, before concurrent handling
-   * should time out. the timeout begins after the main request
+   * Specify the amount of time before concurrent handling
+   * should time out. The timeout begins after the main request
    * processing thread has exited and ends when the request is dispatched again
    * for further processing of the concurrently produced result.
    * <p>If this value is not set, the default timeout of the underlying
    * implementation is used.
    *
-   * @param timeout the timeout value in milliseconds
+   * @param timeout the timeout value
    */
-  public void setAsyncRequestTimeout(@Nullable Long timeout) {
+  public void setAsyncRequestTimeout(@Nullable Duration timeout) {
+    TimeoutUtils.validate(timeout);
     this.asyncRequestTimeout = timeout;
   }
 

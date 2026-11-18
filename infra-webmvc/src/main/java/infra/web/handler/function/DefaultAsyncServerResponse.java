@@ -106,7 +106,7 @@ final class DefaultAsyncServerResponse extends ErrorHandlingServerResponse imple
   private DeferredResult<ServerResponse> createDeferredResult(HttpContext request) {
     DeferredResult<ServerResponse> result;
     if (timeout != null) {
-      result = new DeferredResult<>(timeout.toMillis());
+      result = new DeferredResult<>(timeout);
     }
     else {
       result = new DeferredResult<>();

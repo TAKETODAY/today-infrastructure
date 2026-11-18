@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import java.time.Duration;
 
 import infra.core.task.AsyncTaskExecutor;
 import infra.core.task.SimpleAsyncTaskExecutor;
@@ -35,6 +36,7 @@ import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpContext;
 import infra.web.HttpContextHolder;
 import infra.web.util.DisconnectedClientHelper;
+import infra.web.util.TimeoutUtils;
 
 /**
  * The central class for managing asynchronous request processing, mainly intended
@@ -88,13 +90,11 @@ public final class WebAsyncManager {
   private static final TimeoutAsyncProcessingInterceptor timeoutInterceptor =
           new TimeoutAsyncProcessingInterceptor();
 
-  @Nullable
-  private Long asyncRequestTimeout;
+  private @Nullable Duration asyncRequestTimeout;
 
   private AsyncTaskExecutor taskExecutor = DEFAULT_TASK_EXECUTOR;
 
-  @Nullable
-  private volatile Object concurrentResult = RESULT_NONE;
+  private volatile @Nullable Object concurrentResult = RESULT_NONE;
 
   private volatile @Nullable Object @Nullable [] concurrentResultContext;
 
@@ -103,11 +103,9 @@ public final class WebAsyncManager {
    */
   private volatile boolean errorHandlingInProgress;
 
-  @Nullable
-  private LinkedHashMap<Object, CallableProcessingInterceptor> callableInterceptors;
+  private @Nullable LinkedHashMap<Object, CallableProcessingInterceptor> callableInterceptors;
 
-  @Nullable
-  private LinkedHashMap<Object, DeferredResultProcessingInterceptor> deferredResultInterceptors;
+  private @Nullable LinkedHashMap<Object, DeferredResultProcessingInterceptor> deferredResultInterceptors;
 
   private final HttpContext httpContext;
 
@@ -127,10 +125,11 @@ public final class WebAsyncManager {
   /**
    * Set the time required for concurrent handling to complete.
    *
-   * @param timeout amount of time in milliseconds; {@code null} means no
+   * @param timeout amount of time; {@code null} means no
    * timeout, i.e. rely on the default timeout of the container.
    */
-  public void setTimeout(@Nullable Long timeout) {
+  public void setTimeout(@Nullable Duration timeout) {
+    TimeoutUtils.validate(timeout);
     this.asyncRequestTimeout = timeout;
   }
 
@@ -148,8 +147,7 @@ public final class WebAsyncManager {
    * concurrent handling raised one.
    * @see #clearConcurrentResult()
    */
-  @Nullable
-  public Object getConcurrentResult() {
+  public @Nullable Object getConcurrentResult() {
     return concurrentResult;
   }
 
@@ -169,8 +167,7 @@ public final class WebAsyncManager {
    * @param key the key
    * @return the interceptor registered under that key, or {@code null} if none
    */
-  @Nullable
-  public CallableProcessingInterceptor getCallableInterceptor(Object key) {
+  public @Nullable CallableProcessingInterceptor getCallableInterceptor(Object key) {
     return callableInterceptors == null ? null : callableInterceptors.get(key);
   }
 
@@ -180,8 +177,7 @@ public final class WebAsyncManager {
    * @param key the key
    * @return the interceptor registered under that key, or {@code null} if none
    */
-  @Nullable
-  public DeferredResultProcessingInterceptor getDeferredResultInterceptor(Object key) {
+  public @Nullable DeferredResultProcessingInterceptor getDeferredResultInterceptor(Object key) {
     return deferredResultInterceptors == null ? null : deferredResultInterceptors.get(key);
   }
 
@@ -296,7 +292,7 @@ public final class WebAsyncManager {
     Assert.notNull(webAsyncTask, "WebAsyncTask is required");
     AsyncWebRequest asyncRequest = getAsyncWebRequest();
 
-    Long timeout = webAsyncTask.getTimeout();
+    Duration timeout = webAsyncTask.getTimeout();
     if (timeout == null) {
       timeout = this.asyncRequestTimeout;
     }
@@ -423,7 +419,7 @@ public final class WebAsyncManager {
   public void startDeferredResultProcessing(DeferredResult<?> deferred, @Nullable Object... processingContext) throws Exception {
     Assert.notNull(deferred, "DeferredResult is required");
     AsyncWebRequest asyncRequest = getAsyncWebRequest();
-    Long timeout = deferred.getTimeoutValue();
+    Duration timeout = deferred.getTimeout();
     if (timeout == null) {
       timeout = this.asyncRequestTimeout;
     }

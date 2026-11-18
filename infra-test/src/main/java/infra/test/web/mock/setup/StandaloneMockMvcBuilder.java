@@ -20,6 +20,7 @@ package infra.test.web.mock.setup;
 
 import org.jspecify.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,10 +47,10 @@ import infra.core.env.MapPropertySource;
 import infra.format.support.DefaultFormattingConversionService;
 import infra.format.support.FormattingConversionService;
 import infra.http.converter.HttpMessageConverter;
-import infra.util.Assert;
 import infra.session.config.EnableSession;
 import infra.stereotype.Component;
 import infra.test.web.mock.MvcResult;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.validation.Validator;
 import infra.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -132,7 +133,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   private List<HandlerExceptionHandler> handlerExceptionHandlers;
 
   @Nullable
-  private Long asyncRequestTimeout;
+  private Duration asyncRequestTimeout;
 
   @Nullable
   private List<ViewResolver> viewResolvers;
@@ -267,7 +268,10 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
    *
    * @param timeout the timeout value in milliseconds
    */
-  public StandaloneMockMvcBuilder setAsyncRequestTimeout(long timeout) {
+  public StandaloneMockMvcBuilder setAsyncRequestTimeout(@Nullable Duration timeout) {
+    if (timeout != null && timeout.isNegative()) {
+      throw new IllegalArgumentException("Timeout must not be negative");
+    }
     this.asyncRequestTimeout = timeout;
     return this;
   }
@@ -541,9 +545,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
 
     @Override
     public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
-      if (asyncRequestTimeout != null) {
-        configurer.setDefaultTimeout(asyncRequestTimeout);
-      }
+      configurer.setDefaultTimeout(asyncRequestTimeout);
     }
 
     @Override

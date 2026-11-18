@@ -19,6 +19,7 @@ package infra.samples;
 import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.Callable;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
@@ -48,7 +49,7 @@ class AsyncController {
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
   @GET("/deferred-result")
-  public DeferredResult<String> deferredResult(@Nullable Long timeout) {
+  public DeferredResult<String> deferredResult(@Nullable Duration timeout) {
     DeferredResult<String> result = new DeferredResult<>(timeout, "Timeout");
     Future.run(() -> {
       logger.info("异步任务开始执行");
@@ -95,7 +96,7 @@ class AsyncController {
   }
 
   @GET("/web-async-task")
-  public WebAsyncTask<String> webAsyncTask(@Nullable Long timeout) {
+  public WebAsyncTask<String> webAsyncTask(@Nullable Duration timeout) {
     return new WebAsyncTask<>(timeout, callable());
   }
 

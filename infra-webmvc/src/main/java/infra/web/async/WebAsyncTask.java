@@ -20,6 +20,7 @@ package infra.web.async;
 
 import org.jspecify.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.concurrent.Callable;
 
 import infra.beans.factory.BeanFactory;
@@ -27,6 +28,7 @@ import infra.beans.factory.BeanFactoryAware;
 import infra.core.task.AsyncTaskExecutor;
 import infra.util.Assert;
 import infra.web.HttpContext;
+import infra.web.util.TimeoutUtils;
 
 /**
  * Holder for a {@link Callable}, a timeout value, and a task executor.
@@ -41,26 +43,19 @@ public class WebAsyncTask<V> implements BeanFactoryAware {
 
   private final Callable<V> callable;
 
-  @Nullable
-  private Long timeout;
+  private @Nullable Duration timeout;
 
-  @Nullable
-  private AsyncTaskExecutor executor;
+  private @Nullable AsyncTaskExecutor executor;
 
-  @Nullable
-  private String executorName;
+  private @Nullable String executorName;
 
-  @Nullable
-  private BeanFactory beanFactory;
+  private @Nullable BeanFactory beanFactory;
 
-  @Nullable
-  private Callable<V> timeoutCallback;
+  private @Nullable Callable<V> timeoutCallback;
 
-  @Nullable
-  private Callable<V> errorCallback;
+  private @Nullable Callable<V> errorCallback;
 
-  @Nullable
-  private Runnable completionCallback;
+  private @Nullable Runnable completionCallback;
 
   /**
    * Create a {@code WebAsyncTask} wrapping the given {@link Callable}.
@@ -75,24 +70,26 @@ public class WebAsyncTask<V> implements BeanFactoryAware {
   /**
    * Create a {@code WebAsyncTask} with a timeout value and a {@link Callable}.
    *
-   * @param timeout a timeout value in milliseconds
+   * @param timeout a timeout value
    * @param callable the callable for concurrent handling
    */
-  public WebAsyncTask(@Nullable Long timeout, Callable<V> callable) {
+  public WebAsyncTask(@Nullable Duration timeout, Callable<V> callable) {
     this(callable);
+    TimeoutUtils.validate(timeout);
     this.timeout = timeout;
   }
 
   /**
    * Create a {@code WebAsyncTask} with a timeout value, an executor name, and a {@link Callable}.
    *
-   * @param timeout the timeout value in milliseconds; ignored if {@code null}
+   * @param timeout the timeout value; ignored if {@code null}
    * @param executorName the name of an executor bean to use
    * @param callable the callable for concurrent handling
    */
-  public WebAsyncTask(@Nullable Long timeout, String executorName, Callable<V> callable) {
+  public WebAsyncTask(@Nullable Duration timeout, String executorName, Callable<V> callable) {
     this(callable);
     Assert.notNull(executorName, "Executor name is required");
+    TimeoutUtils.validate(timeout);
     this.executorName = executorName;
     this.timeout = timeout;
   }
@@ -100,13 +97,14 @@ public class WebAsyncTask<V> implements BeanFactoryAware {
   /**
    * Create a {@code WebAsyncTask} with a timeout value, an executor instance, and a Callable.
    *
-   * @param timeout the timeout value in milliseconds; ignored if {@code null}
+   * @param timeout the timeout value; ignored if {@code null}
    * @param executor the executor to use
    * @param callable the callable for concurrent handling
    */
-  public WebAsyncTask(@Nullable Long timeout, AsyncTaskExecutor executor, Callable<V> callable) {
+  public WebAsyncTask(@Nullable Duration timeout, AsyncTaskExecutor executor, Callable<V> callable) {
     this(callable);
     Assert.notNull(executor, "Executor is required");
+    TimeoutUtils.validate(timeout);
     this.executor = executor;
     this.timeout = timeout;
   }
@@ -119,10 +117,9 @@ public class WebAsyncTask<V> implements BeanFactoryAware {
   }
 
   /**
-   * Return the timeout value in milliseconds, or {@code null} if no timeout is set.
+   * Return the timeout value, or {@code null} if no timeout is set.
    */
-  @Nullable
-  public Long getTimeout() {
+  public @Nullable Duration getTimeout() {
     return this.timeout;
   }
 
@@ -140,8 +137,7 @@ public class WebAsyncTask<V> implements BeanFactoryAware {
    * Return the AsyncTaskExecutor to use for concurrent handling,
    * or {@code null} if none specified.
    */
-  @Nullable
-  public AsyncTaskExecutor getExecutor() {
+  public @Nullable AsyncTaskExecutor getExecutor() {
     if (this.executor != null) {
       return this.executor;
     }

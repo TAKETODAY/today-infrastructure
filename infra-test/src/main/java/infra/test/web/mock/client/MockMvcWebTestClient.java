@@ -20,6 +20,7 @@ package infra.test.web.mock.client;
 
 import org.jspecify.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.function.Supplier;
 
 import infra.context.ApplicationContext;
@@ -272,9 +273,9 @@ public interface MockMvcWebTestClient {
     /**
      * Specify the timeout value for async execution.
      * <p>This is delegated to
-     * {@link StandaloneMockMvcBuilder#setAsyncRequestTimeout(long)}.
+     * {@link StandaloneMockMvcBuilder#setAsyncRequestTimeout(Duration)}.
      */
-    ControllerSpec asyncRequestTimeout(long timeout);
+    ControllerSpec asyncRequestTimeout(Duration timeout);
 
     /**
      * Provide custom argument resolvers.

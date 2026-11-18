@@ -21,6 +21,7 @@ package infra.test.web.mock.client;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
+import java.time.Duration;
 import java.util.function.Supplier;
 
 import infra.format.support.FormattingConversionService;
@@ -101,7 +102,7 @@ class StandaloneMockMvcSpec extends AbstractMockMvcServerSpec<MockMvcWebTestClie
   }
 
   @Override
-  public StandaloneMockMvcSpec asyncRequestTimeout(long timeout) {
+  public StandaloneMockMvcSpec asyncRequestTimeout(Duration timeout) {
     this.mockMvcBuilder.setAsyncRequestTimeout(timeout);
     return this;
   }

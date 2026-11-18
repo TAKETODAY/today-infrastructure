@@ -21,11 +21,13 @@ package infra.web.async;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import infra.util.Assert;
 import infra.web.HttpContext;
+import infra.web.util.TimeoutUtils;
 
 /**
  * Extends {@link HttpContext} with methods for asynchronous request processing.
@@ -36,8 +38,7 @@ import infra.web.HttpContext;
  */
 public abstract class AsyncWebRequest {
 
-  @Nullable
-  protected Long timeout;
+  protected @Nullable Duration timeout;
 
   protected final AtomicBoolean asyncCompleted = new AtomicBoolean();
 
@@ -52,11 +53,12 @@ public abstract class AsyncWebRequest {
    * This property should not be set when concurrent handling is in progress,
    * i.e. when {@link #isAsyncStarted()} is {@code true}.
    *
-   * @param timeout amount of time in milliseconds; {@code null} means no
+   * @param timeout amount of time; {@code null} means no
    * timeout, i.e. rely on the default timeout of the container.
    */
-  public void setTimeout(@Nullable Long timeout) {
+  public void setTimeout(@Nullable Duration timeout) {
     Assert.state(!isAsyncStarted(), "Cannot change the timeout with concurrent handling in progress");
+    TimeoutUtils.validate(timeout);
     this.timeout = timeout;
   }
 

@@ -87,6 +87,7 @@ import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.config.format.DateTimeFormatters;
 import infra.web.config.format.WebConversionService;
 import infra.web.context.support.RequestHandledEventPublisher;
+import infra.web.context.support.WebScopeRegistrar;
 import infra.web.filter.ForwardedHeaderFilter;
 import infra.web.handler.AbstractHandlerExceptionHandler;
 import infra.web.handler.ResponseEntityExceptionHandler;
@@ -99,7 +100,6 @@ import infra.web.i18n.FixedLocaleResolver;
 import infra.web.resource.EncodedResourceResolver;
 import infra.web.resource.ResourceResolver;
 import infra.web.resource.VersionResourceResolver;
-import infra.web.context.support.WebScopeRegistrar;
 import infra.web.view.BeanNameViewResolver;
 import infra.web.view.View;
 
@@ -374,11 +374,8 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
         configurer.setTaskExecutor(asyncTaskExecutor);
       }
     }
-    Duration timeout = mvcProperties.async.requestTimeout;
-    if (timeout != null) {
-      configurer.setDefaultTimeout(timeout.toMillis());
-    }
 
+    configurer.setDefaultTimeout(mvcProperties.async.requestTimeout);
     // user config can override default config 'applicationTaskExecutor' and 'timeout'
     configurers.configureAsyncSupport(configurer);
   }

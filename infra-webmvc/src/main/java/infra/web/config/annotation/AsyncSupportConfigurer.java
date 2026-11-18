@@ -20,6 +20,7 @@ package infra.web.config.annotation;
 
 import org.jspecify.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -29,6 +30,7 @@ import infra.util.CollectionUtils;
 import infra.web.async.CallableProcessingInterceptor;
 import infra.web.async.DeferredResult;
 import infra.web.async.DeferredResultProcessingInterceptor;
+import infra.web.util.TimeoutUtils;
 
 /**
  * Helps with configuring options for asynchronous request processing.
@@ -41,7 +43,7 @@ public class AsyncSupportConfigurer {
 
   protected @Nullable AsyncTaskExecutor taskExecutor;
 
-  protected @Nullable Long timeout;
+  protected @Nullable Duration timeout;
 
   protected @Nullable List<CallableProcessingInterceptor> callableInterceptors;
 
@@ -66,16 +68,17 @@ public class AsyncSupportConfigurer {
   }
 
   /**
-   * Specify the amount of time, in milliseconds, before asynchronous request
+   * Specify the amount of time before asynchronous request
    * handling times out. the timeout begins after the main request
    * processing thread has exited and ends when the request is dispatched again
    * for further processing of the concurrently produced result.
    * <p>If this value is not set, the default timeout of the underlying
    * implementation is used.
    *
-   * @param timeout the timeout value in milliseconds
+   * @param timeout the timeout value
    */
-  public AsyncSupportConfigurer setDefaultTimeout(long timeout) {
+  public AsyncSupportConfigurer setDefaultTimeout(@Nullable Duration timeout) {
+    TimeoutUtils.validate(timeout);
     this.timeout = timeout;
     return this;
   }

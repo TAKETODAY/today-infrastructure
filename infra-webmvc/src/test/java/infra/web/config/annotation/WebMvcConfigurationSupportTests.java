@@ -23,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.security.Principal;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -456,7 +457,7 @@ class WebMvcConfigurationSupportTests {
 
     @Override
     public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
-      configurer.setDefaultTimeout(2500).setTaskExecutor(new ConcurrentTaskExecutor())
+      configurer.setDefaultTimeout(Duration.ofMillis(2500)).setTaskExecutor(new ConcurrentTaskExecutor())
               .registerCallableInterceptors(new CallableProcessingInterceptor() { })
               .registerDeferredResultInterceptors(new DeferredResultProcessingInterceptor() { });
     }

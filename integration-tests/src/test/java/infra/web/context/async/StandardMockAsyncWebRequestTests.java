@@ -19,13 +19,14 @@ package infra.web.context.async;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.function.Consumer;
 
-import infra.web.mock.api.AsyncEvent;
-import infra.web.mock.MockRequest;
 import infra.web.mock.MockAsyncContext;
+import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.StandardMockAsyncWebRequest;
+import infra.web.mock.api.AsyncEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -50,7 +51,7 @@ class StandardMockAsyncWebRequestTests {
     this.request.setAsyncSupported(true);
     this.response = new MockResponse();
     this.asyncRequest = new StandardMockAsyncWebRequest(this.request, this.response);
-    this.asyncRequest.setTimeout(44 * 1000L);
+    this.asyncRequest.setTimeout(Duration.ofSeconds(44));
   }
 
   @Test
@@ -127,7 +128,7 @@ class StandardMockAsyncWebRequestTests {
   public void setTimeoutDuringConcurrentHandling() {
     this.asyncRequest.startAsync();
     assertThatIllegalStateException().isThrownBy(() ->
-            this.asyncRequest.setTimeout(25L));
+            this.asyncRequest.setTimeout(Duration.ofMillis(25)));
   }
 
   @Test

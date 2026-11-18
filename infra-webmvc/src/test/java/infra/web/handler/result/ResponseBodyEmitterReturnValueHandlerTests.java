@@ -25,6 +25,7 @@ import org.mockito.Mockito;
 import org.reactivestreams.Publisher;
 
 import java.util.Collections;
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -158,14 +159,14 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     AsyncWebRequest asyncWebRequest = mock(AsyncWebRequest.class);
     webRequest.setAsyncRequest(asyncWebRequest);
 
-    ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding(19000L);
+    ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding(Duration.ofSeconds(19));
     emitter.onTimeout(Mockito.mock(Runnable.class));
     emitter.onCompletion(Mockito.mock(Runnable.class));
 
     HandlerMethod handlerMethod = on(TestController.class).resolveHandlerMethod(ResponseBodyEmitter.class);
     this.handler.handleReturnValue(webRequest, handlerMethod, emitter);
 
-    verify(asyncWebRequest).setTimeout(19000L);
+    verify(asyncWebRequest).setTimeout(Duration.ofSeconds(19));
     verify(asyncWebRequest).addTimeoutHandler(ArgumentMatchers.any(Runnable.class));
     verify(asyncWebRequest, times(1)).addCompletionHandler(ArgumentMatchers.any(Runnable.class));
     verify(asyncWebRequest).startAsync();
@@ -178,7 +179,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     AsyncWebRequest asyncWebRequest = mock(AsyncWebRequest.class);
     webRequest.setAsyncRequest(asyncWebRequest);
 
-    ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding(19000L);
+    ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding(Duration.ofSeconds(19));
     emitter.onError(Mockito.mock(Consumer.class));
     emitter.onCompletion(Mockito.mock(Runnable.class));
 

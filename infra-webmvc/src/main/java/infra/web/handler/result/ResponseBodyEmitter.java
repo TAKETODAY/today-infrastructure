@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.locks.ReentrantLock;
@@ -34,6 +35,7 @@ import infra.http.converter.HttpMessageConverter;
 import infra.util.ObjectUtils;
 import infra.web.HttpContext;
 import infra.web.async.DeferredResult;
+import infra.web.util.TimeoutUtils;
 
 /**
  * A controller method return value type for asynchronous request processing
@@ -73,7 +75,7 @@ import infra.web.async.DeferredResult;
  */
 public class ResponseBodyEmitter {
 
-  private final @Nullable Long timeout;
+  private final @Nullable Duration timeout;
 
   private final @Nullable MediaType contentType;
 
@@ -113,11 +115,12 @@ public class ResponseBodyEmitter {
    * Java Config or the MVC namespace is used, or if that's not set, then the
    * timeout depends on the default of the underlying server.
    *
-   * @param timeout the timeout value in milliseconds
+   * @param timeout the timeout value
    * @param contentType response content-type header
    * @since 5.0
    */
-  protected ResponseBodyEmitter(@Nullable Long timeout, @Nullable MediaType contentType) {
+  protected ResponseBodyEmitter(@Nullable Duration timeout, @Nullable MediaType contentType) {
+    TimeoutUtils.validate(timeout);
     this.timeout = timeout;
     this.contentType = contentType;
   }
@@ -125,7 +128,7 @@ public class ResponseBodyEmitter {
   /**
    * Return the configured timeout value, if any.
    */
-  public @Nullable Long getTimeout() {
+  public @Nullable Duration getTimeout() {
     return timeout;
   }
 
@@ -400,9 +403,9 @@ public class ResponseBodyEmitter {
    * Java Config or the MVC namespace is used, or if that's not set, then the
    * timeout depends on the default of the underlying server.
    *
-   * @param timeout the timeout value in milliseconds
+   * @param timeout the timeout value
    */
-  public static ResponseBodyEmitter forChunkedTransferEncoding(@Nullable Long timeout) {
+  public static ResponseBodyEmitter forChunkedTransferEncoding(@Nullable Duration timeout) {
     return new ResponseBodyEmitter(timeout, null);
   }
 
@@ -425,11 +428,11 @@ public class ResponseBodyEmitter {
    * Java Config or the MVC namespace is used, or if that's not set, then the
    * timeout depends on the default of the underlying server.
    *
-   * @param timeout the timeout value in milliseconds
+   * @param timeout the timeout value
    * @param contentType response content-type header
    * @since 5.0
    */
-  public static ResponseBodyEmitter forChunkedTransferEncoding(@Nullable Long timeout, @Nullable MediaType contentType) {
+  public static ResponseBodyEmitter forChunkedTransferEncoding(@Nullable Duration timeout, @Nullable MediaType contentType) {
     return new ResponseBodyEmitter(timeout, contentType);
   }
 
@@ -461,11 +464,11 @@ public class ResponseBodyEmitter {
    * Java Config or the MVC namespace is used, or if that's not set, then the
    * timeout and charset depend on the default of the underlying server.
    *
-   * @param timeout the timeout value in milliseconds
+   * @param timeout the timeout value
    * @param charset response character set
    * @since 5.0
    */
-  public static SseEmitter forServerSentEvents(@Nullable Long timeout, @Nullable Charset charset) {
+  public static SseEmitter forServerSentEvents(@Nullable Duration timeout, @Nullable Charset charset) {
     return new SseEmitter(timeout, charset);
   }
 
