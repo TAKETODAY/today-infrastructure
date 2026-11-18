@@ -15,7 +15,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/TAKETODAY/today-infrastructure/badge.svg)](https://coveralls.io/github/TAKETODAY/today-infrastructure)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure?ref=badge_shield)
 
-[快速开始](#快速开始) · [安装配置](#installation) · [真实应用](#today-blog) · [在线文档](https://docs.today-tech.cn/today-infrastructure/) · [AI 辅助开发](#ai-辅助开发) · [示例工程](infra-samples) · [贡献指南](CONTRIBUTING.md) · [交流讨论](https://github.com/TAKETODAY/today-infrastructure/discussions)
+[快速开始](#快速开始) · [安装配置](#installation) · [真实应用](#today-blog) · [在线文档](https://docs.today-tech.cn/today-infrastructure/) · [AI 辅助开发](#ai-辅助开发) · [示例工程](infra-samples) · [路线图](ROADMAP.md) · [贡献指南](CONTRIBUTING.md) · [交流讨论](https://github.com/TAKETODAY/today-infrastructure/discussions)
 
 ## 概述
 
@@ -401,6 +401,8 @@ cd today-infra-skill
 安装后 skill 位于 `~/.config/opencode/skills/infra-app-dev`，供 [OpenCode](https://opencode.ai) 使用；其他遵循 `SKILL.md` 约定的 agent 可通过软链接接入。
 
 ## 参与项目
+
+想参与小范围试用，或和我们一起维护示例、文档及模块？请看[项目路线图](ROADMAP.md)，了解当前重点和参与方式。
 
 欢迎通过以下方式参与：
 
