@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 import infra.web.mock.MockAsyncContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.mock.StandardMockAsyncWebRequest;
+import infra.web.mock.StandardMockWebAsyncRequest;
 import infra.web.mock.api.AsyncEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,9 +37,9 @@ import static org.mockito.Mockito.verify;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/21 19:01
  */
-class StandardMockAsyncWebRequestTests {
+class StandardMockWebAsyncRequestTests {
 
-  private StandardMockAsyncWebRequest asyncRequest;
+  private StandardMockWebAsyncRequest asyncRequest;
 
   private MockRequest request;
 
@@ -50,7 +50,7 @@ class StandardMockAsyncWebRequestTests {
     this.request = new MockRequest();
     this.request.setAsyncSupported(true);
     this.response = new MockResponse();
-    this.asyncRequest = new StandardMockAsyncWebRequest(this.request, this.response);
+    this.asyncRequest = new StandardMockWebAsyncRequest(this.request, this.response);
     this.asyncRequest.setTimeout(Duration.ofSeconds(44));
   }
 

@@ -61,7 +61,7 @@ import infra.web.AbstractHttpContext;
 import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.accept.ApiVersionStrategy;
-import infra.web.async.AsyncWebRequest;
+import infra.web.async.WebAsyncRequest;
 import infra.web.bind.HttpContextDataBinder;
 import infra.web.bind.WebDataBinder;
 import infra.web.multipart.MultipartRequest;
@@ -553,7 +553,7 @@ class DefaultServerRequest implements ServerRequest {
     }
 
     @Override
-    protected AsyncWebRequest createAsyncWebRequest() {
+    protected WebAsyncRequest createAsyncRequest() {
       throw new UnsupportedOperationException();
     }
 

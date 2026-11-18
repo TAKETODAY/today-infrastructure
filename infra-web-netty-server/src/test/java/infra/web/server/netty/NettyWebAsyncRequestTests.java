@@ -31,12 +31,12 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/10/11 13:14
  */
-class NettyAsyncWebRequestTests {
+class NettyWebAsyncRequestTests {
 
   @Test
   void dispatchIgnoresLateResultsAndTimeouts() throws Exception {
     NettyHttpContext request = mock(NettyHttpContext.class);
-    var asyncRequest = new NettyAsyncWebRequest(request);
+    var asyncRequest = new NettyWebAsyncRequest(request);
     var completions = new AtomicInteger();
     var timeouts = new AtomicInteger();
     asyncRequest.addCompletionHandler(completions::incrementAndGet);
@@ -60,27 +60,27 @@ class NettyAsyncWebRequestTests {
   @Test
   void constructorShouldInitializeFields() {
     NettyHttpContext request = mock(NettyHttpContext.class);
-    NettyAsyncWebRequest asyncWebRequest = new NettyAsyncWebRequest(request);
+    NettyWebAsyncRequest asyncRequest = new NettyWebAsyncRequest(request);
 
-    assertThat(asyncWebRequest.isAsyncStarted()).isFalse();
+    assertThat(asyncRequest.isAsyncStarted()).isFalse();
   }
 
   @Test
   void startAsyncShouldSetAsyncStartedFlag() {
     NettyHttpContext request = mock(NettyHttpContext.class);
-    NettyAsyncWebRequest asyncWebRequest = new NettyAsyncWebRequest(request);
+    NettyWebAsyncRequest asyncRequest = new NettyWebAsyncRequest(request);
 
-    asyncWebRequest.startAsync();
+    asyncRequest.startAsync();
 
-    assertThat(asyncWebRequest.isAsyncStarted()).isTrue();
+    assertThat(asyncRequest.isAsyncStarted()).isTrue();
   }
 
   @Test
   void isAsyncStartedShouldReturnFalseByDefault() {
     NettyHttpContext request = mock(NettyHttpContext.class);
-    NettyAsyncWebRequest asyncWebRequest = new NettyAsyncWebRequest(request);
+    NettyWebAsyncRequest asyncRequest = new NettyWebAsyncRequest(request);
 
-    assertThat(asyncWebRequest.isAsyncStarted()).isFalse();
+    assertThat(asyncRequest.isAsyncStarted()).isFalse();
   }
 
 }

@@ -39,10 +39,10 @@ import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockAsyncContext;
 import infra.web.mock.MockResponse;
-import infra.web.async.AsyncWebRequest;
+import infra.web.async.WebAsyncRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.handler.method.HandlerMethod;
-import infra.web.mock.StandardMockAsyncWebRequest;
+import infra.web.mock.StandardMockWebAsyncRequest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
@@ -80,8 +80,8 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     this.response = new MockResponse();
     this.webRequest = new MockHttpContext(null, this.request, this.response);
 
-    AsyncWebRequest asyncWebRequest = new StandardMockAsyncWebRequest(this.request, this.response);
-    webRequest.setAsyncRequest(asyncWebRequest);
+    WebAsyncRequest asyncRequest = new StandardMockWebAsyncRequest(this.request, this.response);
+    webRequest.setAsyncRequest(asyncRequest);
     this.request.setAsyncSupported(true);
   }
 
@@ -156,8 +156,8 @@ class ResponseBodyEmitterReturnValueHandlerTests {
 
   @Test
   public void responseBodyEmitterWithTimeoutValue() throws Exception {
-    AsyncWebRequest asyncWebRequest = mock(AsyncWebRequest.class);
-    webRequest.setAsyncRequest(asyncWebRequest);
+    WebAsyncRequest asyncRequest = mock(WebAsyncRequest.class);
+    webRequest.setAsyncRequest(asyncRequest);
 
     ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding(Duration.ofSeconds(19));
     emitter.onTimeout(Mockito.mock(Runnable.class));
@@ -166,18 +166,18 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     HandlerMethod handlerMethod = on(TestController.class).resolveHandlerMethod(ResponseBodyEmitter.class);
     this.handler.handleReturnValue(webRequest, handlerMethod, emitter);
 
-    verify(asyncWebRequest).setTimeout(Duration.ofSeconds(19));
-    verify(asyncWebRequest).addTimeoutHandler(ArgumentMatchers.any(Runnable.class));
-    verify(asyncWebRequest, times(1)).addCompletionHandler(ArgumentMatchers.any(Runnable.class));
-    verify(asyncWebRequest).startAsync();
+    verify(asyncRequest).setTimeout(Duration.ofSeconds(19));
+    verify(asyncRequest).addTimeoutHandler(ArgumentMatchers.any(Runnable.class));
+    verify(asyncRequest, times(1)).addCompletionHandler(ArgumentMatchers.any(Runnable.class));
+    verify(asyncRequest).startAsync();
   }
 
   @SuppressWarnings("unchecked")
   @Test
   public void responseBodyEmitterWithErrorValue() throws Exception {
 
-    AsyncWebRequest asyncWebRequest = mock(AsyncWebRequest.class);
-    webRequest.setAsyncRequest(asyncWebRequest);
+    WebAsyncRequest asyncRequest = mock(WebAsyncRequest.class);
+    webRequest.setAsyncRequest(asyncRequest);
 
     ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding(Duration.ofSeconds(19));
     emitter.onError(Mockito.mock(Consumer.class));
@@ -186,9 +186,9 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     HandlerMethod type = on(TestController.class).resolveHandlerMethod(ResponseBodyEmitter.class);
     this.handler.handleReturnValue(webRequest, type, emitter);
 
-    verify(asyncWebRequest).addErrorHandler(ArgumentMatchers.any(Consumer.class));
-    verify(asyncWebRequest, times(1)).addCompletionHandler(ArgumentMatchers.any(Runnable.class));
-    verify(asyncWebRequest).startAsync();
+    verify(asyncRequest).addErrorHandler(ArgumentMatchers.any(Consumer.class));
+    verify(asyncRequest, times(1)).addCompletionHandler(ArgumentMatchers.any(Runnable.class));
+    verify(asyncRequest).startAsync();
   }
 
   @Test

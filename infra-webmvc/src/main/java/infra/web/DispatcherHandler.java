@@ -614,7 +614,7 @@ public class DispatcherHandler extends WebLifecycleManager {
       catch (Throwable failure) {
         if (!context.isRequestCompleted()) {
           if (context.isConcurrentHandlingStarted()) {
-            context.asyncWebRequest().dispatch(failure);
+            context.asyncRequest().dispatch(failure);
             return;
           }
           if (!context.isCommitted()) {

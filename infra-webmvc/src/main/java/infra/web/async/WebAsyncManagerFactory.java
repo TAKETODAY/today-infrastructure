@@ -68,7 +68,7 @@ public class WebAsyncManagerFactory {
    * A timeout specified by a {@link WebAsyncTask} or {@link DeferredResult}
    * takes precedence over this default.
    * <p>If no timeout is specified for the request and this default is
-   * {@code null}, the underlying {@link AsyncWebRequest} retains its timeout.
+   * {@code null}, the underlying {@link WebAsyncRequest} retains its timeout.
    * A value of {@link Duration#ZERO} is passed to the underlying request,
    * which determines how to interpret it.
    *

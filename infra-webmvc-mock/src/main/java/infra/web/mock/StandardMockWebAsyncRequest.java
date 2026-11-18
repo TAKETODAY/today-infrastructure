@@ -22,14 +22,14 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 import infra.util.Assert;
-import infra.web.async.AsyncWebRequest;
+import infra.web.async.WebAsyncRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.mock.api.AsyncContext;
 import infra.web.mock.api.AsyncEvent;
 import infra.web.mock.api.AsyncListener;
 
 /**
- * A Mock implementation of {@link AsyncWebRequest}.
+ * A Mock implementation of {@link WebAsyncRequest}.
  *
  * <p>The mock and all filters involved in an async request must have async
  * support enabled using the Mock API or by adding an
@@ -41,7 +41,7 @@ import infra.web.mock.api.AsyncListener;
  * @since 4.0
  */
 @SuppressWarnings("NullAway")
-public class StandardMockAsyncWebRequest extends AsyncWebRequest implements AsyncListener {
+public class StandardMockWebAsyncRequest extends WebAsyncRequest implements AsyncListener {
 
   @Nullable
   private AsyncContext asyncContext;
@@ -52,7 +52,7 @@ public class StandardMockAsyncWebRequest extends AsyncWebRequest implements Asyn
 
   private final MockResponse mockResponse;
 
-  public StandardMockAsyncWebRequest(MockHttpContext context) {
+  public StandardMockWebAsyncRequest(MockHttpContext context) {
     this.request = context;
     this.mockRequest = context.getRequest();
     this.mockResponse = context.getResponse();
@@ -64,7 +64,7 @@ public class StandardMockAsyncWebRequest extends AsyncWebRequest implements Asyn
    * @param request current HTTP request
    * @param response current HTTP response
    */
-  public StandardMockAsyncWebRequest(MockRequest request, MockResponse response) {
+  public StandardMockWebAsyncRequest(MockRequest request, MockResponse response) {
     this.request = new MockHttpContext(null, request, response);
     this.mockRequest = request;
     this.mockResponse = response;

@@ -35,7 +35,7 @@ import infra.web.async.DeferredResult;
 import infra.web.async.DeferredResultProcessingInterceptor;
 import infra.web.async.WebAsyncManager;
 import infra.web.async.WebAsyncTask;
-import infra.web.mock.StandardMockAsyncWebRequest;
+import infra.web.mock.StandardMockWebAsyncRequest;
 
 import static infra.web.async.CallableProcessingInterceptor.RESULT_NONE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,7 +54,7 @@ public class WebAsyncManagerErrorTests {
 
   private WebAsyncManager asyncManager;
 
-  private StandardMockAsyncWebRequest asyncWebRequest;
+  private StandardMockWebAsyncRequest asyncRequest;
 
   private MockRequest mockRequest;
 
@@ -71,10 +71,10 @@ public class WebAsyncManagerErrorTests {
     AsyncTaskExecutor executor = mock(AsyncTaskExecutor.class);
     request = new MockHttpContext(null, mockRequest, mockResponse);
 
-    this.asyncWebRequest = (StandardMockAsyncWebRequest) request.asyncWebRequest();
+    this.asyncRequest = (StandardMockWebAsyncRequest) request.asyncRequest();
     this.asyncManager = request.asyncManager();
     this.asyncManager.setTaskExecutor(executor);
-    this.request.setAsyncRequest(this.asyncWebRequest);
+    this.request.setAsyncRequest(this.asyncRequest);
 
   }
 
@@ -90,8 +90,8 @@ public class WebAsyncManagerErrorTests {
     this.asyncManager.startCallableProcessing(callable);
 
     AsyncEvent event = new AsyncEvent(new MockAsyncContext(this.mockRequest, this.mockResponse), e);
-    this.asyncWebRequest.onError(event);
-    this.asyncWebRequest.onComplete(event);
+    this.asyncRequest.onError(event);
+    this.asyncRequest.onComplete(event);
 
     assertThat(this.asyncManager.hasConcurrentResult()).isTrue();
     assertThat(this.asyncManager.getConcurrentResult()).isEqualTo(e);
@@ -111,7 +111,7 @@ public class WebAsyncManagerErrorTests {
 
     Exception e = new Exception();
     AsyncEvent event = new AsyncEvent(new MockAsyncContext(this.mockRequest, this.mockResponse), e);
-    this.asyncWebRequest.onError(event);
+    this.asyncRequest.onError(event);
 
     assertThat(this.asyncManager.hasConcurrentResult()).isTrue();
     assertThat(this.asyncManager.getConcurrentResult()).isEqualTo(7);
@@ -131,7 +131,7 @@ public class WebAsyncManagerErrorTests {
     this.asyncManager.startCallableProcessing(callable);
 
     AsyncEvent event = new AsyncEvent(new MockAsyncContext(this.mockRequest, this.mockResponse), e);
-    this.asyncWebRequest.onError(event);
+    this.asyncRequest.onError(event);
 
     assertThat(this.asyncManager.hasConcurrentResult()).isTrue();
     assertThat(this.asyncManager.getConcurrentResult()).isEqualTo(22);
@@ -154,7 +154,7 @@ public class WebAsyncManagerErrorTests {
     this.asyncManager.startCallableProcessing(callable);
 
     AsyncEvent event = new AsyncEvent(new MockAsyncContext(this.mockRequest, this.mockResponse), e);
-    this.asyncWebRequest.onError(event);
+    this.asyncRequest.onError(event);
 
     assertThat(this.asyncManager.hasConcurrentResult()).isTrue();
     assertThat(this.asyncManager.getConcurrentResult()).isEqualTo(exception);
@@ -176,8 +176,8 @@ public class WebAsyncManagerErrorTests {
     this.asyncManager.startDeferredResultProcessing(deferredResult);
 
     AsyncEvent event = new AsyncEvent(new MockAsyncContext(this.mockRequest, this.mockResponse), e);
-    this.asyncWebRequest.onError(event);
-    this.asyncWebRequest.onComplete(event);
+    this.asyncRequest.onError(event);
+    this.asyncRequest.onComplete(event);
 
     assertThat(this.asyncManager.hasConcurrentResult()).isTrue();
     assertThat(this.asyncManager.getConcurrentResult()).isEqualTo(e);
@@ -195,7 +195,7 @@ public class WebAsyncManagerErrorTests {
     this.asyncManager.startDeferredResultProcessing(deferredResult);
 
     AsyncEvent event = new AsyncEvent(new MockAsyncContext(this.mockRequest, this.mockResponse), e);
-    this.asyncWebRequest.onError(event);
+    this.asyncRequest.onError(event);
 
     assertThat(this.asyncManager.hasConcurrentResult()).isTrue();
     assertThat(this.asyncManager.getConcurrentResult()).isEqualTo(e);
@@ -212,7 +212,7 @@ public class WebAsyncManagerErrorTests {
 
     Exception e = new Exception();
     AsyncEvent event = new AsyncEvent(new MockAsyncContext(this.mockRequest, this.mockResponse), e);
-    this.asyncWebRequest.onError(event);
+    this.asyncRequest.onError(event);
 
     assertThat(this.asyncManager.hasConcurrentResult()).isTrue();
     assertThat(this.asyncManager.getConcurrentResult()).isEqualTo(e);
@@ -238,7 +238,7 @@ public class WebAsyncManagerErrorTests {
 
     Exception e = new Exception();
     AsyncEvent event = new AsyncEvent(new MockAsyncContext(this.mockRequest, this.mockResponse), e);
-    this.asyncWebRequest.onError(event);
+    this.asyncRequest.onError(event);
 
     assertThat(this.asyncManager.hasConcurrentResult()).isTrue();
     assertThat(this.asyncManager.getConcurrentResult()).isEqualTo(e);
@@ -264,7 +264,7 @@ public class WebAsyncManagerErrorTests {
 
     Exception e = new Exception();
     AsyncEvent event = new AsyncEvent(new MockAsyncContext(this.mockRequest, this.mockResponse), e);
-    this.asyncWebRequest.onError(event);
+    this.asyncRequest.onError(event);
 
     assertThat(this.asyncManager.hasConcurrentResult()).isTrue();
     assertThat(this.asyncManager.getConcurrentResult()).isEqualTo(e);

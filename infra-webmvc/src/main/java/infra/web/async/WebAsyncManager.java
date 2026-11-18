@@ -280,7 +280,7 @@ public final class WebAsyncManager {
 
   /**
    * Use the given {@link WebAsyncTask} to configure the task executor as well as
-   * the timeout value of the {@code AsyncWebRequest} before delegating to
+   * the timeout value of the {@code WebAsyncRequest} before delegating to
    * {@link #startCallableProcessing(Callable, Object...)}.
    *
    * @param webAsyncTask a WebAsyncTask containing the target {@code Callable}
@@ -290,7 +290,7 @@ public final class WebAsyncManager {
    */
   public void startCallableProcessing(WebAsyncTask<?> webAsyncTask, @Nullable Object... processingContext) throws Exception {
     Assert.notNull(webAsyncTask, "WebAsyncTask is required");
-    AsyncWebRequest asyncRequest = getAsyncWebRequest();
+    WebAsyncRequest asyncRequest = getAsyncRequest();
 
     Duration timeout = webAsyncTask.getTimeout();
     if (timeout == null) {
@@ -366,8 +366,8 @@ public final class WebAsyncManager {
     }
   }
 
-  private AsyncWebRequest getAsyncWebRequest() {
-    return httpContext.asyncWebRequest();
+  private WebAsyncRequest getAsyncRequest() {
+    return httpContext.asyncRequest();
   }
 
   private String formatRequestUri() {
@@ -383,7 +383,7 @@ public final class WebAsyncManager {
       this.errorHandlingInProgress = (result instanceof Throwable);
     }
 
-    AsyncWebRequest asyncRequest = getAsyncWebRequest();
+    WebAsyncRequest asyncRequest = getAsyncRequest();
     if (asyncRequest.isAsyncComplete()) {
       if (logger.isDebugEnabled()) {
         logger.debug("Async result set but request already complete: {}", formatRequestUri());
@@ -405,7 +405,7 @@ public final class WebAsyncManager {
    * Start concurrent request processing and initialize the given
    * {@link DeferredResult} with a {@link DeferredResultHandler} that saves
    * the result and dispatches the request to resume processing of that
-   * result. The {@code AsyncWebRequest} is also updated with a completion
+   * result. The {@code WebAsyncRequest} is also updated with a completion
    * handler that expires the {@code DeferredResult} and a timeout handler
    * assuming the {@code DeferredResult} has a default timeout result.
    *
@@ -418,7 +418,7 @@ public final class WebAsyncManager {
    */
   public void startDeferredResultProcessing(DeferredResult<?> deferred, @Nullable Object... processingContext) throws Exception {
     Assert.notNull(deferred, "DeferredResult is required");
-    AsyncWebRequest asyncRequest = getAsyncWebRequest();
+    WebAsyncRequest asyncRequest = getAsyncRequest();
     Duration timeout = deferred.getTimeout();
     if (timeout == null) {
       timeout = this.asyncRequestTimeout;
@@ -477,7 +477,7 @@ public final class WebAsyncManager {
     }
   }
 
-  private void startAsyncProcessing(AsyncWebRequest asyncRequest, @Nullable Object[] processingContext) {
+  private void startAsyncProcessing(WebAsyncRequest asyncRequest, @Nullable Object[] processingContext) {
     synchronized(WebAsyncManager.this) {
       this.concurrentResult = RESULT_NONE;
       this.concurrentResultContext = processingContext;

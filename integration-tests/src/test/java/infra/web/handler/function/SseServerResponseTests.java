@@ -40,7 +40,7 @@ import infra.web.handler.result.SseEmitter;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.mock.StandardMockAsyncWebRequest;
+import infra.web.mock.StandardMockWebAsyncRequest;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -66,7 +66,7 @@ class SseServerResponseTests {
     this.mockRequest.setAsyncSupported(true);
     this.mockResponse = new MockResponse();
     this.httpContext = new MockHttpContext(null, this.mockRequest, this.mockResponse);
-    this.httpContext.setAsyncRequest(new StandardMockAsyncWebRequest(this.mockRequest, this.mockResponse));
+    this.httpContext.setAsyncRequest(new StandardMockWebAsyncRequest(this.mockRequest, this.mockResponse));
   }
 
   @Test

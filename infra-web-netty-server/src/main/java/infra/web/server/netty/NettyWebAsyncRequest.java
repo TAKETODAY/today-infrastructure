@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.Assert;
-import infra.web.async.AsyncWebRequest;
+import infra.web.async.WebAsyncRequest;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.ScheduledFuture;
 
@@ -35,9 +35,9 @@ import io.netty.util.concurrent.ScheduledFuture;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/21 13:47
  */
-public class NettyAsyncWebRequest extends AsyncWebRequest {
+public class NettyWebAsyncRequest extends WebAsyncRequest {
 
-  private static final Logger log = LoggerFactory.getLogger(NettyAsyncWebRequest.class);
+  private static final Logger log = LoggerFactory.getLogger(NettyWebAsyncRequest.class);
 
   private final NettyHttpContext request;
 
@@ -47,7 +47,7 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
 
   private @Nullable ScheduledFuture<?> timeoutFuture;
 
-  NettyAsyncWebRequest(NettyHttpContext request) {
+  NettyWebAsyncRequest(NettyHttpContext request) {
     this.request = request;
     this.channel = request.channel;
   }

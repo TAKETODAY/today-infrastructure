@@ -59,7 +59,7 @@ import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
-import infra.web.async.AsyncWebRequest;
+import infra.web.async.WebAsyncRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.context.annotation.RequestScope;
 import infra.web.context.annotation.SessionScope;
@@ -682,33 +682,13 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
   boolean isConcurrentHandlingStarted();
 
   /**
-   * Whether the request lifecycle has already been completed.
-   * <p>Completion includes request-scoped cleanup, response finalization and
-   * {@link Lifecycle#COMPLETED} callbacks, and happens at most once per request.
+   * Return the {@link WebAsyncRequest} associated with this context, creating
+   * it on first access. Accessing it does not start asynchronous processing.
    *
-   * @since 5.0
+   * @return the async request for this context
+   * @see WebAsyncRequest#startAsync()
    */
-  boolean isRequestCompleted();
-
-  /**
-   * Returns the current {@code AsyncWebRequest} instance associated with this context.
-   * If no asynchronous web request has been initialized yet, this method will create
-   * a new instance using {@code createAsyncWebRequest()} and store it for future use.
-   *
-   * <p>Example usage:
-   * <pre>{@code
-   *   // Retrieve the async web request
-   *   AsyncWebRequest asyncRequest = context.asyncWebRequest();
-   *
-   *   // Perform operations on the async request
-   *   asyncRequest.setAttribute("key", "value");
-   *   String value = (String) asyncRequest.getAttribute("key");
-   * }</pre>
-   *
-   * @return the current {@code AsyncWebRequest} instance, or a newly created instance
-   * if none has been initialized yet
-   */
-  AsyncWebRequest asyncWebRequest();
+  WebAsyncRequest asyncRequest();
 
   /**
    * Returns the {@code WebAsyncManager} associated with this instance, lazily
@@ -1190,6 +1170,15 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @see #reset
    */
   boolean isCommitted();
+
+  /**
+   * Whether the request lifecycle has already been completed.
+   * <p>Completion includes request-scoped cleanup, response finalization and
+   * {@link Lifecycle#COMPLETED} callbacks, and happens at most once per request.
+   *
+   * @since 5.0
+   */
+  boolean isRequestCompleted();
 
   /**
    * Clears any data that exists in the buffer as well as the status code,

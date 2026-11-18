@@ -35,7 +35,7 @@ import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
 import infra.util.MultiValueMap;
-import infra.web.async.AsyncWebRequest;
+import infra.web.async.WebAsyncRequest;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
 import infra.web.i18n.CookieLocaleResolver;
 import infra.web.i18n.SessionLocaleResolver;
@@ -435,7 +435,7 @@ class AbstractHttpContextStateTests {
     }
 
     @Override
-    protected AsyncWebRequest createAsyncWebRequest() {
+    protected WebAsyncRequest createAsyncRequest() {
       throw new UnsupportedOperationException();
     }
 

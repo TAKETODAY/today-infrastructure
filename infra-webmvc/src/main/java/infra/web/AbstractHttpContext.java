@@ -72,7 +72,7 @@ import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
-import infra.web.async.AsyncWebRequest;
+import infra.web.async.WebAsyncRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.async.WebAsyncManagerFactory;
 import infra.web.multipart.MultipartRequest;
@@ -101,7 +101,7 @@ import static infra.lang.Constant.DEFAULT_CHARSET;
  *   <li>{@link #readParameters()} — parse query/form parameters</li>
  *   <li>{@link #createInputStream()} / {@link #createOutputStream()} — supply the body streams</li>
  *   <li>{@link #createRequestHeaders()} / {@link #createResponseHeaders()} — supply the headers</li>
- *   <li>{@link #createMultipartRequest()} / {@link #createAsyncWebRequest()} — factory methods</li>
+ *   <li>{@link #createMultipartRequest()} / {@link #createAsyncRequest()} — factory methods</li>
  * </ul>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -222,7 +222,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
 
   protected @Nullable MultipartRequest multipartRequest;
 
-  protected @Nullable AsyncWebRequest asyncRequest;
+  protected @Nullable WebAsyncRequest asyncRequest;
 
   protected @Nullable WebAsyncManager webAsyncManager;
 
@@ -870,29 +870,11 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     return asyncRequest != null && asyncRequest.isAsyncStarted();
   }
 
-  /**
-   * Returns the current {@code AsyncWebRequest} instance associated with this context.
-   * If no asynchronous web request has been initialized yet, this method will create
-   * a new instance using {@code createAsyncWebRequest()} and store it for future use.
-   *
-   * <p>Example usage:
-   * <pre>{@code
-   *   // Retrieve the async web request
-   *   AsyncWebRequest asyncRequest = context.asyncWebRequest();
-   *
-   *   // Perform operations on the async request
-   *   asyncRequest.setAttribute("key", "value");
-   *   String value = (String) asyncRequest.getAttribute("key");
-   * }</pre>
-   *
-   * @return the current {@code AsyncWebRequest} instance, or a newly created instance
-   * if none has been initialized yet
-   */
   @Override
-  public AsyncWebRequest asyncWebRequest() {
+  public WebAsyncRequest asyncRequest() {
     var asyncRequest = this.asyncRequest;
     if (asyncRequest == null) {
-      asyncRequest = createAsyncWebRequest();
+      asyncRequest = createAsyncRequest();
       this.asyncRequest = asyncRequest;
     }
     return asyncRequest;
@@ -901,21 +883,21 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   /**
    * Creates and returns a new asynchronous web request instance.
    * This method is intended to be implemented by subclasses to provide
-   * a specific implementation of {@link AsyncWebRequest}.
+   * a specific implementation of {@link WebAsyncRequest}.
    *
    * <p>Example usage:
    * <pre>{@code
-   * public class CustomAsyncWebRequestCreator {
-   *   protected AsyncWebRequest createAsyncWebRequest() {
-   *     return new CustomAsyncWebRequest();
+   * public class CustomWebAsyncRequestCreator {
+   *   protected WebAsyncRequest createAsyncRequest() {
+   *     return new CustomWebAsyncRequest();
    *   }
    * }
    * }</pre>
    *
-   * @return a new instance of {@link AsyncWebRequest} to handle asynchronous
+   * @return a new instance of {@link WebAsyncRequest} to handle asynchronous
    * web requests
    */
-  protected abstract AsyncWebRequest createAsyncWebRequest();
+  protected abstract WebAsyncRequest createAsyncRequest();
 
   /**
    * Returns the {@code WebAsyncManager} associated with this instance, lazily

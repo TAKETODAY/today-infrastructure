@@ -82,7 +82,7 @@ xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-configuration-mvc[配置好的]
 `DeferredResult` 处理流程如下：
 
 * HTTP 处理器返回一个 `DeferredResult`，并将其保存在一些内存队列或列表中，以便可以访问。
-* Web MVC 调用 `AsyncWebRequest.startAsync()`。
+* Web MVC 调用 `WebAsyncRequest.startAsync()`。
 * 与此同时，`DispatcherHandler` 退出当前IO线程，但响应通道保持打开状态。
 * 应用程序从某个线程设置 `DeferredResult`，Web MVC 将请求重新派发到底层 HTTP 引擎。
 * `DispatcherHandler#handleConcurrentResult` 将会被调用，并且处理异步产生的返回值。
@@ -90,7 +90,7 @@ xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-configuration-mvc[配置好的]
 `Callable` 处理流程如下:
 
 * HTTP 处理器返回一个 `Callable`。
-* Web MVC 调用 `AsyncWebRequest.startAsync()` 并提交 `Callable` 到一个业务线程池 `AsyncTaskExecutor`
+* Web MVC 调用 `WebAsyncRequest.startAsync()` 并提交 `Callable` 到一个业务线程池 `AsyncTaskExecutor`
 * 与此同时，`DispatcherHandler` 退出当前IO线程，但响应通道保持打开状态。
 * 最终 `Callable` 产生一个结果（返回值）`DispatcherHandler#handleConcurrentResult` 将会被调用，并且处理异步产生的返回值。
 

@@ -30,13 +30,14 @@ import infra.web.HttpContext;
 import infra.web.util.TimeoutUtils;
 
 /**
- * Extends {@link HttpContext} with methods for asynchronous request processing.
+ * Controls asynchronous processing for an {@link HttpContext}, including
+ * timeouts, lifecycle callbacks, and dispatch of the concurrent result.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public abstract class AsyncWebRequest {
+public abstract class WebAsyncRequest {
 
   protected @Nullable Duration timeout;
 

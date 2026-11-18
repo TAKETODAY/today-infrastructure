@@ -457,8 +457,8 @@ class FilterIntegrationTests {
       context.register(BaseConfig.class);
       context.registerBean("filter", Filter.class, () -> (request, chain) -> {
         if (async) {
-          request.asyncWebRequest().addCompletionHandler(asyncCompletions::incrementAndGet);
-          request.asyncWebRequest().startAsync();
+          request.asyncRequest().addCompletionHandler(asyncCompletions::incrementAndGet);
+          request.asyncRequest().startAsync();
         }
         request.setStatus(202);
         throw failure;
@@ -480,7 +480,7 @@ class FilterIntegrationTests {
       var request = new MockHttpContext();
       request.getRequest().setAsyncSupported(true);
       if (async) {
-        request.asyncWebRequest().startAsync();
+        request.asyncRequest().startAsync();
         ((MockAsyncContext) request.getRequest().getAsyncContext()).addDispatchHandler(() -> {
           request.getRequest().setAsyncStarted(false);
           try {
@@ -501,8 +501,8 @@ class FilterIntegrationTests {
       assertThat(request.isRequestCompleted()).isTrue();
       assertThat(failures).containsExactly((Throwable) null);
       if (async) {
-        assertThat(request.asyncWebRequest().isAsyncComplete()).isTrue();
-        request.asyncWebRequest().dispatch("late result");
+        assertThat(request.asyncRequest().isAsyncComplete()).isTrue();
+        request.asyncRequest().dispatch("late result");
         handler.handleConcurrentResult(request, null, "late result");
         assertThat(asyncCompletions).hasValue(1);
         assertThat(request.getResponse().getContentAsString()).isEqualTo("resolved filter failure");
@@ -528,7 +528,7 @@ class FilterIntegrationTests {
       context.register(BaseConfig.class);
       context.registerBean("filter", Filter.class, () -> (request, chain) -> {
         if (async) {
-          request.asyncWebRequest().startAsync();
+          request.asyncRequest().startAsync();
         }
         throw failure;
       });
@@ -544,7 +544,7 @@ class FilterIntegrationTests {
       MockHttpContext request = new MockHttpContext();
       request.getRequest().setAsyncSupported(true);
       if (async) {
-        request.asyncWebRequest().startAsync();
+        request.asyncRequest().startAsync();
         ((MockAsyncContext) request.getRequest().getAsyncContext()).addDispatchHandler(() -> {
           request.getRequest().setAsyncStarted(false);
           try {
@@ -563,8 +563,8 @@ class FilterIntegrationTests {
       assertThat(failures).containsExactly(failure);
       assertThat(request.isConcurrentHandlingStarted()).isFalse();
       if (async) {
-        assertThat(request.asyncWebRequest().isAsyncComplete()).isTrue();
-        request.asyncWebRequest().dispatch("late result");
+        assertThat(request.asyncRequest().isAsyncComplete()).isTrue();
+        request.asyncRequest().dispatch("late result");
         assertThat(failure.getSuppressed()).isEmpty();
       }
     }

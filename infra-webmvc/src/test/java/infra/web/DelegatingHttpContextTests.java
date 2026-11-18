@@ -44,7 +44,7 @@ import infra.http.ResponseCookie;
 import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
 import infra.util.MultiValueMap;
-import infra.web.async.AsyncWebRequest;
+import infra.web.async.WebAsyncRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.multipart.MultipartRequest;
 
@@ -1132,17 +1132,17 @@ class DelegatingHttpContextTests {
   }
 
   @Test
-  void asyncWebRequest_ShouldDelegateToDelegate() {
+  void asyncRequest_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
-    AsyncWebRequest asyncWebRequest = mock(AsyncWebRequest.class);
-    when(delegate.asyncWebRequest()).thenReturn(asyncWebRequest);
+    WebAsyncRequest asyncRequest = mock(WebAsyncRequest.class);
+    when(delegate.asyncRequest()).thenReturn(asyncRequest);
 
     DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
-    AsyncWebRequest result = wrapper.asyncWebRequest();
+    WebAsyncRequest result = wrapper.asyncRequest();
 
-    assertThat(result).isSameAs(asyncWebRequest);
-    verify(delegate).asyncWebRequest();
+    assertThat(result).isSameAs(asyncRequest);
+    verify(delegate).asyncRequest();
   }
 
   @Test

@@ -37,7 +37,7 @@ import infra.web.async.DeferredResultProcessingInterceptor;
 import infra.web.async.WebAsyncManager;
 import infra.web.async.WebAsyncTask;
 import infra.web.mock.MockHttpContext;
-import infra.web.mock.StandardMockAsyncWebRequest;
+import infra.web.mock.StandardMockWebAsyncRequest;
 
 import static infra.web.async.CallableProcessingInterceptor.RESULT_NONE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,7 +59,7 @@ public class WebAsyncManagerTimeoutTests {
 
   private WebAsyncManager asyncManager;
 
-  private StandardMockAsyncWebRequest asyncWebRequest;
+  private StandardMockWebAsyncRequest asyncRequest;
 
   private MockRequest mockRequest;
 
@@ -72,13 +72,13 @@ public class WebAsyncManagerTimeoutTests {
     this.mockRequest = new MockRequest("GET", "/test");
     this.mockRequest.setAsyncSupported(true);
     this.mockResponse = new MockResponse();
-    this.asyncWebRequest = new StandardMockAsyncWebRequest(mockRequest, mockResponse);
+    this.asyncRequest = new StandardMockWebAsyncRequest(mockRequest, mockResponse);
 
     AsyncTaskExecutor executor = mock(AsyncTaskExecutor.class);
     request = new MockHttpContext(null, mockRequest, mockResponse);
     this.asyncManager = request.asyncManager();
     this.asyncManager.setTaskExecutor(executor);
-    this.request.setAsyncRequest(this.asyncWebRequest);
+    this.request.setAsyncRequest(this.asyncRequest);
   }
 
   @Test
@@ -91,8 +91,8 @@ public class WebAsyncManagerTimeoutTests {
     this.asyncManager.registerCallableInterceptor("interceptor", interceptor);
     this.asyncManager.startCallableProcessing(callable);
 
-    this.asyncWebRequest.onTimeout(ASYNC_EVENT);
-    this.asyncWebRequest.onComplete(ASYNC_EVENT);
+    this.asyncRequest.onTimeout(ASYNC_EVENT);
+    this.asyncRequest.onComplete(ASYNC_EVENT);
 
     assertThat(this.asyncManager.hasConcurrentResult()).isTrue();
     assertThat(this.asyncManager.getConcurrentResult().getClass()).isEqualTo(AsyncRequestTimeoutException.class);
@@ -110,7 +110,7 @@ public class WebAsyncManagerTimeoutTests {
 
     this.asyncManager.startCallableProcessing(webAsyncTask);
 
-    this.asyncWebRequest.onTimeout(ASYNC_EVENT);
+    this.asyncRequest.onTimeout(ASYNC_EVENT);
 
     assertThat(this.asyncManager.hasConcurrentResult()).isTrue();
     assertThat(this.asyncManager.getConcurrentResult()).isEqualTo(7);
@@ -128,7 +128,7 @@ public class WebAsyncManagerTimeoutTests {
     this.asyncManager.registerCallableInterceptor("timeoutInterceptor", interceptor);
     this.asyncManager.startCallableProcessing(callable);
 
-    this.asyncWebRequest.onTimeout(ASYNC_EVENT);
+    this.asyncRequest.onTimeout(ASYNC_EVENT);
 
     assertThat(this.asyncManager.hasConcurrentResult()).isTrue();
     assertThat(this.asyncManager.getConcurrentResult()).isEqualTo(22);
@@ -149,7 +149,7 @@ public class WebAsyncManagerTimeoutTests {
     this.asyncManager.registerCallableInterceptor("timeoutInterceptor", interceptor);
     this.asyncManager.startCallableProcessing(callable);
 
-    this.asyncWebRequest.onTimeout(ASYNC_EVENT);
+    this.asyncRequest.onTimeout(ASYNC_EVENT);
 
     assertThat(this.asyncManager.hasConcurrentResult()).isTrue();
     assertThat(this.asyncManager.getConcurrentResult()).isEqualTo(exception);
@@ -171,7 +171,7 @@ public class WebAsyncManagerTimeoutTests {
     this.asyncManager.setTaskExecutor(executor);
     this.asyncManager.startCallableProcessing(callable);
 
-    this.asyncWebRequest.onTimeout(ASYNC_EVENT);
+    this.asyncRequest.onTimeout(ASYNC_EVENT);
 
     assertThat(this.asyncManager.hasConcurrentResult()).isTrue();
 
@@ -190,8 +190,8 @@ public class WebAsyncManagerTimeoutTests {
     this.asyncManager.registerDeferredResultInterceptor("interceptor", interceptor);
     this.asyncManager.startDeferredResultProcessing(deferredResult);
 
-    this.asyncWebRequest.onTimeout(ASYNC_EVENT);
-    this.asyncWebRequest.onComplete(ASYNC_EVENT);
+    this.asyncRequest.onTimeout(ASYNC_EVENT);
+    this.asyncRequest.onComplete(ASYNC_EVENT);
 
     assertThat(this.asyncManager.hasConcurrentResult()).isTrue();
     assertThat(this.asyncManager.getConcurrentResult().getClass()).isEqualTo(AsyncRequestTimeoutException.class);
@@ -208,7 +208,7 @@ public class WebAsyncManagerTimeoutTests {
     this.asyncManager.startDeferredResultProcessing(deferredResult);
 
     AsyncEvent event = null;
-    this.asyncWebRequest.onTimeout(event);
+    this.asyncRequest.onTimeout(event);
 
     assertThat(this.asyncManager.hasConcurrentResult()).isTrue();
     assertThat(this.asyncManager.getConcurrentResult()).isEqualTo(23);
@@ -224,7 +224,7 @@ public class WebAsyncManagerTimeoutTests {
     this.asyncManager.startDeferredResultProcessing(deferredResult);
 
     AsyncEvent event = null;
-    this.asyncWebRequest.onTimeout(event);
+    this.asyncRequest.onTimeout(event);
 
     assertThat(this.asyncManager.hasConcurrentResult()).isTrue();
     assertThat(this.asyncManager.getConcurrentResult()).isEqualTo(23);
@@ -248,7 +248,7 @@ public class WebAsyncManagerTimeoutTests {
     this.asyncManager.startDeferredResultProcessing(deferredResult);
 
     AsyncEvent event = null;
-    this.asyncWebRequest.onTimeout(event);
+    this.asyncRequest.onTimeout(event);
 
     assertThat(this.asyncManager.hasConcurrentResult()).isTrue();
     assertThat(this.asyncManager.getConcurrentResult()).isEqualTo(23);
@@ -272,7 +272,7 @@ public class WebAsyncManagerTimeoutTests {
     this.asyncManager.startDeferredResultProcessing(deferredResult);
 
     AsyncEvent event = null;
-    this.asyncWebRequest.onTimeout(event);
+    this.asyncRequest.onTimeout(event);
 
     assertThat(this.asyncManager.hasConcurrentResult()).isTrue();
     assertThat(this.asyncManager.getConcurrentResult()).isEqualTo(exception);
