@@ -54,6 +54,7 @@ import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.view.ModelAndView;
+import tools.jackson.databind.json.JsonMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -328,12 +329,14 @@ class ProblemDetailRenderingTests {
   }
 
   @Test
-  void localizedUnknownExceptionIsActuallyWritten() throws Exception {
+  void localizedProblemDetailJsonPreservesSpecialCharacters() throws Exception {
     try (var application = new StaticApplicationContext()) {
+      String detail = "La valeur doit être < 100 & > 0 : \"quantité\"";
       application.addMessage(ErrorResponse.getDefaultDetailMessageCode(IllegalStateException.class, null),
-              Locale.FRENCH, "Erreur interne");
+              Locale.FRENCH, detail);
       application.refresh();
       var request = new MockRequest();
+      request.addHeader("Accept", MediaType.APPLICATION_PROBLEM_JSON_VALUE);
       request.addPreferredLocale(Locale.FRENCH);
       var response = new MockResponse();
       var context = new MockHttpContext(application, request, response);
@@ -341,7 +344,11 @@ class ProblemDetailRenderingTests {
       new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null)
               .handleReturnValue(context, null, value);
       context.flush();
-      assertThat(response.getContentAsString()).contains("Erreur interne");
+      assertThat(response.getStatus()).isEqualTo(500);
+      assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+      String json = response.getContentAsString();
+      assertThat(json).doesNotContain("&lt;", "&gt;", "&amp;", "&quot;");
+      assertThat(JsonMapper.builder().build().readValue(json, ProblemDetail.class).getDetail()).isEqualTo(detail);
     }
   }
 
