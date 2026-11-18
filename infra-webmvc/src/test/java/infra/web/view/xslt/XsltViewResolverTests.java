@@ -20,10 +20,17 @@ package infra.web.view.xslt;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.StringReader;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.xml.transform.OutputKeys;
 
 import infra.context.support.StaticApplicationContext;
 import infra.util.ClassUtils;
+import infra.web.mock.MockHttpContext;
+import infra.web.view.View;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -49,5 +56,31 @@ public class XsltViewResolverTests {
     XsltView view = (XsltView) viewResolver.resolveViewName(viewName, Locale.ENGLISH);
     assertThat(view).as("View should not be null").isNotNull();
     assertThat(view.getUrl()).as("Incorrect URL").isEqualTo((prefix + viewName + suffix));
+  }
+
+  @Test
+  void rendersNamedSourceWithConfiguredOutputProperties() throws Exception {
+    Properties properties = new Properties();
+    properties.setProperty(OutputKeys.METHOD, "text");
+    XsltViewResolver resolver = new XsltViewResolver();
+    resolver.setPrefix(ClassUtils.classPackageAsResourcePath(getClass()) + "/");
+    resolver.setSuffix(".xsl");
+    resolver.setSourceKey("reportXml");
+    resolver.setOutputProperties(properties);
+    resolver.setIndent(false);
+    resolver.setCacheTemplates(false);
+
+    try (StaticApplicationContext applicationContext = new StaticApplicationContext()) {
+      applicationContext.refresh();
+      resolver.setApplicationContext(applicationContext);
+      View view = resolver.resolveViewName("report", Locale.ENGLISH);
+      assertThat(view).isInstanceOf(XsltView.class);
+      MockHttpContext context = new MockHttpContext();
+
+      view.render(Map.of("unusedXml", new StringReader("<report><title>Wrong source</title></report>"),
+              "reportXml", new StringReader("<report><title>Quarterly report</title></report>")), context);
+
+      assertThat(context.response.getContentAsString()).isEqualTo("Quarterly report");
+    }
   }
 }

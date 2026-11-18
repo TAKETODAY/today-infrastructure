@@ -18,14 +18,14 @@ package infra.web.view;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockSession;
 
-import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -33,88 +33,99 @@ import static org.mockito.Mockito.when;
  */
 class AbstractTemplateViewTests {
 
-  @Test
-  void shouldSetAndGetExposeRequestAttributes() {
-    // given
-    TestAbstractTemplateView view = new TestAbstractTemplateView();
+  private final TestAbstractTemplateView view = new TestAbstractTemplateView();
 
-    // when
+  @Test
+  void exposesRequestAndSessionAttributesWithConfiguredOverrides() throws Exception {
+    MockHttpContext context = new MockHttpContext();
+    context.setAttribute("requestOnly", "request");
+    context.setAttribute("title", "request title");
+    context.setAttribute("theme", "request theme");
+    MockSession session = new MockSession();
+    session.setAttribute("theme", "session theme");
+    session.setAttribute("sessionOnly", "session");
+    context.request.setSession(session);
+    view.setExposeRequestAttributes(true);
+    view.setAllowRequestOverride(true);
+    view.setExposeSessionAttributes(true);
+    view.setAllowSessionOverride(true);
+    Map<String, Object> model = Map.of("title", "model title", "theme", "model theme", "body", "content");
+
+    view.render(model, context);
+
+    assertThat(view.renderedModel).containsExactlyInAnyOrderEntriesOf(Map.of(
+            "requestOnly", "request", "title", "request title", "theme", "session theme",
+            "sessionOnly", "session", "body", "content"));
+  }
+
+  @Test
+  void rejectsRequestAttributeCollisionByDefault() {
+    MockHttpContext context = new MockHttpContext();
+    context.setAttribute("title", "request title");
     view.setExposeRequestAttributes(true);
 
-    // then
-    // Verify no exception is thrown
-    assertThatNoException().isThrownBy(() -> view.setExposeRequestAttributes(true));
+    assertThatExceptionOfType(ViewRenderingException.class)
+            .isThrownBy(() -> view.render(Map.of("title", "model title"), context))
+            .withMessageContaining("Cannot expose request attribute 'title'");
   }
 
   @Test
-  void shouldSetAndGetAllowRequestOverride() {
-    // given
-    TestAbstractTemplateView view = new TestAbstractTemplateView();
-
-    // when
-    view.setAllowRequestOverride(true);
-
-    // then
-    assertThatNoException().isThrownBy(() -> view.setAllowRequestOverride(true));
-  }
-
-  @Test
-  void shouldSetAndGetExposeSessionAttributes() {
-    // given
-    TestAbstractTemplateView view = new TestAbstractTemplateView();
-
-    // when
+  void rejectsSessionAttributeCollisionByDefault() {
+    MockHttpContext context = new MockHttpContext();
+    MockSession session = new MockSession();
+    session.setAttribute("theme", "session theme");
+    context.request.setSession(session);
     view.setExposeSessionAttributes(true);
 
-    // then
-    assertThatNoException().isThrownBy(() -> view.setExposeSessionAttributes(true));
+    assertThatExceptionOfType(ViewRenderingException.class)
+            .isThrownBy(() -> view.render(Map.of("theme", "model theme"), context))
+            .withMessageContaining("Cannot expose session attribute 'theme'");
   }
 
   @Test
-  void shouldSetAndGetAllowSessionOverride() {
-    // given
-    TestAbstractTemplateView view = new TestAbstractTemplateView();
+  void sessionExposureDoesNotCreateASession() throws Exception {
+    MockHttpContext context = new MockHttpContext();
+    view.setExposeSessionAttributes(true);
 
-    // when
-    view.setAllowSessionOverride(true);
+    view.render(Map.of("title", "model title"), context);
 
-    // then
-    assertThatNoException().isThrownBy(() -> view.setAllowSessionOverride(true));
+    assertThat(view.renderedModel).containsExactlyEntriesOf(Map.of("title", "model title"));
+    assertThat(context.getSession(false)).isNull();
   }
 
   @Test
-  void shouldApplyContentTypeWhenResponseContentTypeIsNull() {
-    // given
-    TestAbstractTemplateView view = new TestAbstractTemplateView();
+  void appliesConfiguredContentType() throws Exception {
+    MockHttpContext context = new MockHttpContext();
     view.setContentType("text/html");
 
-    Map<String, Object> model = new LinkedHashMap<>();
-    HttpContext context = mock(HttpContext.class);
-    when(context.getResponseContentType()).thenReturn(null);
+    view.render(null, context);
 
-    // when & then
-    assertThatNoException().isThrownBy(() -> view.renderMergedOutputModel(model, context));
+    assertThat(context.getResponseContentType()).isEqualTo("text/html");
   }
 
   @Test
-  void shouldNotApplyContentTypeWhenResponseContentTypeIsAlreadySet() {
-    // given
-    TestAbstractTemplateView view = new TestAbstractTemplateView();
+  void preservesExistingContentType() throws Exception {
+    MockHttpContext context = new MockHttpContext();
+    context.setContentType("application/json");
     view.setContentType("text/html");
 
-    Map<String, Object> model = new LinkedHashMap<>();
-    HttpContext context = mock(HttpContext.class);
-    when(context.getResponseContentType()).thenReturn("application/json");
+    view.render(null, context);
 
-    // when & then
-    assertThatNoException().isThrownBy(() -> view.renderMergedOutputModel(model, context));
+    assertThat(context.getResponseContentType()).isEqualTo("application/json");
   }
 
   static class TestAbstractTemplateView extends AbstractTemplateView {
 
+    Map<String, Object> renderedModel = Map.of();
+
+    TestAbstractTemplateView() {
+      setExposeMessages(false);
+      setExposeBindings(false);
+    }
+
     @Override
-    protected void renderMergedTemplateModel(Map<String, Object> model, HttpContext context) throws Exception {
-      // No-op implementation for testing
+    protected void renderMergedTemplateModel(Map<String, Object> model, HttpContext context) {
+      this.renderedModel = model;
     }
   }
 
