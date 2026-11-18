@@ -28,6 +28,10 @@ import io.netty.channel.Channel;
 import io.netty.util.concurrent.ScheduledFuture;
 
 /**
+ * Manages asynchronous request processing for a {@link NettyHttpContext}.
+ * Timeout callbacks run on the request channel's event loop, while concurrent
+ * results are handed back to the request context to resume processing.
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/21 13:47
  */
@@ -48,6 +52,12 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
     this.channel = request.channel;
   }
 
+  /**
+   * {@inheritDoc}
+   * <p>A positive timeout is scheduled on the channel's event loop in
+   * milliseconds. Neither {@code null} nor {@link java.time.Duration#ZERO}
+   * schedules a timeout task for this request.
+   */
   @Override
   public synchronized void startAsync() {
     Assert.state(!isAsyncComplete(), "Async processing has already completed");
@@ -71,6 +81,14 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
     return asyncStarted;
   }
 
+  /**
+   * {@inheritDoc}
+   * <p>Only the first dispatch is processed. It cancels any scheduled timeout
+   * before handing off the result and invokes completion handlers after the
+   * dispatch attempt.
+   *
+   * @param concurrentResult the result of concurrent processing, possibly {@code null}
+   */
   @Override
   public synchronized void dispatch(@Nullable Object concurrentResult) {
     this.asyncStarted = false;

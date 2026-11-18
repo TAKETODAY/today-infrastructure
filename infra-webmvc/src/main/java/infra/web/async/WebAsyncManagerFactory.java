@@ -32,7 +32,8 @@ import infra.web.HttpContext;
 import infra.web.util.TimeoutUtils;
 
 /**
- * WebAsyncManager Factory
+ * Creates a {@link WebAsyncManager} for each request, applying the configured
+ * task executor, default timeout, and processing interceptors.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/12/3 22:26
@@ -50,26 +51,30 @@ public class WebAsyncManagerFactory {
   // Async
 
   /**
-   * Set the default {@link AsyncTaskExecutor} to use when a controller method
-   * return a {@link Callable}. Controller methods can override this default on
-   * a per-request basis by returning an {@link WebAsyncTask}.
-   * <p>If your application has controllers with such return types, please
-   * configure an {@link AsyncTaskExecutor} as the one used by default is not
-   * suitable for production under load.
+   * Set the default executor for asynchronous {@link Callable} processing.
+   * A controller can override this default for a request by returning a
+   * {@link WebAsyncTask} with its own executor.
+   * <p>Configure an executor for production use; the built-in
+   * {@link SimpleAsyncTaskExecutor} is not suitable under load.
+   *
+   * @param taskExecutor the executor to use by default
    */
   public void setTaskExecutor(AsyncTaskExecutor taskExecutor) {
     this.taskExecutor = taskExecutor;
   }
 
   /**
-   * Specify the amount of time before concurrent handling
-   * should time out. The timeout begins after the main request
-   * processing thread has exited and ends when the request is dispatched again
-   * for further processing of the concurrently produced result.
-   * <p>If this value is not set, the default timeout of the underlying
-   * implementation is used.
+   * Set the default timeout for asynchronous request processing.
+   * A timeout specified by a {@link WebAsyncTask} or {@link DeferredResult}
+   * takes precedence over this default.
+   * <p>If no timeout is specified for the request and this default is
+   * {@code null}, the underlying {@link AsyncWebRequest} retains its timeout.
+   * A value of {@link Duration#ZERO} is passed to the underlying request,
+   * which determines how to interpret it.
    *
-   * @param timeout the timeout value
+   * @param timeout the default timeout, or {@code null} to clear it
+   * @throws IllegalArgumentException if the timeout is negative, positive but
+   * less than one millisecond, or too large to convert to milliseconds
    */
   public void setAsyncRequestTimeout(@Nullable Duration timeout) {
     TimeoutUtils.validate(timeout);
@@ -77,23 +82,31 @@ public class WebAsyncManagerFactory {
   }
 
   /**
-   * Configure {@code CallableProcessingInterceptor}'s to register on async requests.
+   * Set the interceptors to register with each manager for asynchronous
+   * {@link Callable} processing.
    *
-   * @param interceptors the interceptors to register
+   * @param interceptors the interceptors to register, or {@code null} for none
    */
   public void setCallableInterceptors(@Nullable List<CallableProcessingInterceptor> interceptors) {
     this.callableInterceptors = interceptors;
   }
 
   /**
-   * Configure {@code DeferredResultProcessingInterceptor}'s to register on async requests.
+   * Set the interceptors to register with each manager for asynchronous
+   * {@link DeferredResult} processing.
    *
-   * @param interceptors the interceptors to register
+   * @param interceptors the interceptors to register, or {@code null} for none
    */
   public void setDeferredResultInterceptors(@Nullable List<DeferredResultProcessingInterceptor> interceptors) {
     this.deferredResultInterceptors = interceptors;
   }
 
+  /**
+   * Create a new manager for the given request using this factory's configuration.
+   *
+   * @param request the HTTP context for the request
+   * @return the configured manager
+   */
   public WebAsyncManager createWebAsyncManager(HttpContext request) {
     WebAsyncManager asyncManager = new WebAsyncManager(request);
     asyncManager.setTaskExecutor(taskExecutor);
@@ -103,6 +116,13 @@ public class WebAsyncManagerFactory {
     return asyncManager;
   }
 
+  /**
+   * Look up a factory bean by type in the given application context.
+   *
+   * @param context the application context to search
+   * @return the resolved factory bean, or a new factory with default settings
+   * if no bean is found
+   */
   public static WebAsyncManagerFactory find(ApplicationContext context) {
     WebAsyncManagerFactory factory = BeanFactoryUtils.find(context, WebAsyncManagerFactory.class);
     if (factory != null) {
@@ -112,7 +132,7 @@ public class WebAsyncManagerFactory {
   }
 
   /**
-   * A default MVC AsyncTaskExecutor that warns if used.
+   * The default MVC executor, which warns against using it in production.
    */
   @SuppressWarnings("serial")
   private static class MvcSimpleAsyncTaskExecutor extends SimpleAsyncTaskExecutor {
