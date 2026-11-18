@@ -126,12 +126,12 @@ public interface MvcResult {
 
   /**
    * Get the result of async execution and wait if necessary.
+   * <p>This wait limit applies only to the calling test thread. It does not
+   * change the timeout configured for the async request.
    *
-   * @param timeToWait how long to wait for the async result to be set, in
-   * milliseconds; if -1, then fall back on the timeout value associated with
-   * the async request, see
-   * {@link MockAsyncContext#setTimeout
-   * MockAsyncContext#setTimeout} for more details.
+   * @param timeToWait the wait limit in milliseconds, {@code 0} to check
+   * without waiting, or {@code -1} to use the request timeout as in
+   * {@link #getAsyncResult()}
    * @throws IllegalStateException if the async result was not set
    */
   Object getAsyncResult(long timeToWait);
