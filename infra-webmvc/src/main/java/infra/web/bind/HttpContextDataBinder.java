@@ -268,7 +268,7 @@ public class HttpContextDataBinder extends WebDataBinder {
   }
 
   private static @Nullable Map<String, String> getUriVars(HttpContext request) {
-    HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(request);
     if (matchingMetadata != null) {
       return matchingMetadata.getUriVariables();
     }

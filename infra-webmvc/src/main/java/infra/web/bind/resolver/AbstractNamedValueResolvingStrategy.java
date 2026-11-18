@@ -117,7 +117,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
       arg = resolveEmbeddedValuesAndExpressions(namedValueInfo.defaultValue);
     }
 
-    BindingContext bindingContext = context.getBinding();
+    BindingContext bindingContext = BindingContext.find(context);
     if (bindingContext != null) {
       arg = convertIfNecessary(context, bindingContext, namedValueInfo, methodParameter, arg);
       // Check for null value after conversion of incoming argument value

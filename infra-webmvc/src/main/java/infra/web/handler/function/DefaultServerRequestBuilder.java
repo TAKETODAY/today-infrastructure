@@ -380,7 +380,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Map<String, String> pathVariables() {
-      HandlerMatchingMetadata matchingMetadata = httpContext.getMatchingMetadata();
+      HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(httpContext);
       if (matchingMetadata != null) {
         PathMatchInfo pathMatchInfo = matchingMetadata.getPathMatchInfo();
         if (pathMatchInfo != null) {

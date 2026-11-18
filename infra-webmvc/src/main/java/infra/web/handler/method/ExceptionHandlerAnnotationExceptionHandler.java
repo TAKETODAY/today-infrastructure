@@ -35,6 +35,7 @@ import infra.context.ApplicationContextAware;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.util.Assert;
+import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.accept.ContentNegotiationManager;
@@ -171,7 +172,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
         arguments[arguments.length - 2] = handlerMethod.getMethod();
       }
 
-      var metadata = context.getMatchingMetadata();
+      var metadata = HandlerMatchingMetadata.find(context);
       if (metadata != null) {
         metadata.setHandler(exHandler);
       }
@@ -194,7 +195,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
       if (exHandler != this.problemDetailHandlerMethod) {
         var fallback = getProblemDetailHandlerMethod(context);
         if (fallback != null && target instanceof Exception exception) {
-          var metadata = context.getMatchingMetadata();
+          var metadata = HandlerMatchingMetadata.find(context);
           if (metadata != null) {
             metadata.setProducibleMediaTypes(null);
             metadata.setHandler(fallback);
@@ -282,7 +283,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
 
   private InvocableHandlerMethod createHandlerMethod(ExceptionHandlerMappingInfo mappingInfo, HttpContext context, Object advice) {
     if (!mappingInfo.getProducibleTypes().isEmpty()) {
-      var matchingMetadata = context.getMatchingMetadata();
+      var matchingMetadata = HandlerMatchingMetadata.find(context);
       if (matchingMetadata != null) {
         matchingMetadata.setProducibleMediaTypes(mappingInfo.getProducibleTypes());
       }

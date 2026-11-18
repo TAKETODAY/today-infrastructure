@@ -409,7 +409,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 
     Map<String, Object> pathVars = null;
     if (exposePathVariables) {
-      HandlerMatchingMetadata metadata = context.getMatchingMetadata();
+      HandlerMatchingMetadata metadata = HandlerMatchingMetadata.find(context);
       if (metadata != null && metadata.hasPathVariables()) {
         pathVars = metadata.getPathVariables();
         size += pathVars.size();

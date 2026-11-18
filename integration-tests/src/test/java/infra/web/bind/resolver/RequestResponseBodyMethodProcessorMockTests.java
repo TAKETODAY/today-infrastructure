@@ -224,7 +224,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
 
     };
 
-    webRequest.setBinding(bindingContext);
+    BindingContext.set(webRequest, bindingContext);
   }
 
   @Test
@@ -347,7 +347,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
     HandlerMatchingMetadata metadata = mock(HandlerMatchingMetadata.class);
     given(metadata.getProducibleMediaTypes()).willReturn(List.of(MediaType.TEXT_HTML));
 
-    webRequest.setMatchingMetadata(metadata);
+    HandlerMatchingMetadata.set(webRequest, metadata);
 
     given(stringMessageConverter.canWrite(String.class, MediaType.TEXT_HTML)).willReturn(true);
 

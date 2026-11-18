@@ -39,7 +39,7 @@ public abstract class AbstractUrlViewController extends AbstractController {
   /**
    * Retrieves the URL path to use for lookup and delegates to
    * {@link #getViewNameForRequest}. Also adds the content of
-   * {@link HttpContext#getInputRedirectModel()} to the model.
+   * {@link RedirectModel#findInputModel(HttpContext)} to the model.
    */
   @Override
   protected ModelAndView handleRequestInternal(HttpContext request) {
@@ -47,7 +47,7 @@ public abstract class AbstractUrlViewController extends AbstractController {
     if (logger.isTraceEnabled()) {
       logger.trace("Returning view name '{}'", viewName);
     }
-    RedirectModel model = request.getInputRedirectModel(null);
+    RedirectModel model = RedirectModel.findInputModel(request);
     if (model != null) {
       return new ModelAndView(viewName, model.asMap());
     }

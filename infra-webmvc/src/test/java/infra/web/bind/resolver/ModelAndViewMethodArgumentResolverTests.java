@@ -19,8 +19,8 @@ package infra.web.bind.resolver;
 import org.junit.jupiter.api.Test;
 
 import infra.web.BindingContext;
-import infra.web.HttpContext;
 import infra.web.handler.method.HandlerParameter;
+import infra.web.mock.MockHttpContext;
 import infra.web.view.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,11 +35,11 @@ class ModelAndViewMethodArgumentResolverTests {
 
   @Test
   void resolveArgumentReturnsModelAndViewFromContext() throws Throwable {
-    HttpContext context = mock(HttpContext.class);
+    var context = new MockHttpContext();
     BindingContext binding = mock(BindingContext.class);
     ModelAndView modelAndView = new ModelAndView();
 
-    when(context.binding()).thenReturn(binding);
+    BindingContext.set(context, binding);
     when(binding.getModelAndView()).thenReturn(modelAndView);
 
     HandlerParameter resolvable = mock(HandlerParameter.class);

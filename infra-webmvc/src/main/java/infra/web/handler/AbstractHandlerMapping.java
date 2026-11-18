@@ -368,8 +368,8 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
       chain = getHandlerExecutionChain(handler, null);
     }
 
-    if (!context.hasMatchingMetadata()) {
-      context.setMatchingMetadata(new HandlerMatchingMetadata(handler, context, patternParser));
+    if (!HandlerMatchingMetadata.has(context)) {
+      HandlerMatchingMetadata.set(context, new HandlerMatchingMetadata(handler, context, patternParser));
     }
 
     return chain;

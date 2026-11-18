@@ -25,6 +25,8 @@ import java.util.List;
 
 import infra.core.conversion.ConversionService;
 import infra.format.support.DefaultFormattingConversionService;
+import infra.web.BindingContext;
+import infra.web.DelegatingHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.annotation.RequestParam;
 import infra.web.bind.WebDataBinder;
@@ -116,6 +118,22 @@ class InitBinderBindingContextTests {
 
     assertThat(dataBinder.getDisallowedFields()).isNotNull();
     assertThat(dataBinder.getDisallowedFields()[0]).isEqualToIgnoringCase("requestParam-22");
+  }
+
+  @Test
+  void temporarilyReplacesBindingContextAndRestoresItAfterInitBinder() throws Exception {
+    BindingContext original = new BindingContext().addAttribute("requestParam", "not an int");
+    BindingContext.set(webRequest, original);
+    request.setParameter("requestParam", "22");
+    argumentResolvers.addCustomizedStrategies(new RequestParamMethodArgumentResolver(null, false));
+
+    InitBinderBindingContext factory = createFactory("initBinderTypeConversion", WebDataBinder.class, int.class);
+    var wrapper = new DelegatingHttpContext(webRequest);
+    WebDataBinder dataBinder = factory.createBinder(wrapper, null, "foo");
+
+    assertThat(dataBinder.getDisallowedFields()).containsExactly("requestParam-22");
+    assertThat(BindingContext.obtain(wrapper)).isSameAs(original);
+    assertThat(BindingContext.obtain(webRequest)).isSameAs(original);
   }
 
   private InitBinderBindingContext createFactory(String methodName, Class<?>... parameterTypes)

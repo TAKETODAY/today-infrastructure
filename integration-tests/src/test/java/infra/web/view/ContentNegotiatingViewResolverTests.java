@@ -81,7 +81,7 @@ public class ContentNegotiatingViewResolverTests {
 
     HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(httpContext);
     matchingMetadata.setProducibleMediaTypes(List.of(MediaType.APPLICATION_XHTML_XML));
-    httpContext.setMatchingMetadata(matchingMetadata);
+    HandlerMatchingMetadata.set(httpContext, matchingMetadata);
 
     request.addHeader("Accept", "text/html,application/xml;q=0.9,application/xhtml+xml,*/*;q=0.8");
     viewResolver.afterPropertiesSet();

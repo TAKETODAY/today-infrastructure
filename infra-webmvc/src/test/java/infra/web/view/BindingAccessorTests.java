@@ -30,16 +30,14 @@ import infra.validation.BeanPropertyBindingResult;
 import infra.validation.BindingResult;
 import infra.validation.FieldError;
 import infra.web.BindingContext;
-import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 class BindingAccessorTests {
 
-  private final HttpContext context = mock(HttpContext.class);
+  private final MockHttpContext context = new MockHttpContext();
 
   private final StaticMessageSource source = new StaticMessageSource();
 
@@ -49,10 +47,10 @@ class BindingAccessorTests {
 
   @Test
   void finalModelWinsAndValuesRemainUnescaped() {
-    given(context.getAttribute("bean")).willReturn(new TestBean("request"));
+    context.setAttribute("bean", new TestBean("request"));
     BindingContext binding = new BindingContext();
     binding.addAttribute("bean", new TestBean("binding"));
-    given(context.getBinding()).willReturn(binding);
+    BindingContext.set(context, binding);
     var bindings = accessor(Map.of("bean", new TestBean("<Tom & Sue>")));
     var status = bindings.getBindStatus("bean.name");
     assertThat(status.getValue()).isEqualTo("<Tom & Sue>");
@@ -64,11 +62,11 @@ class BindingAccessorTests {
 
   @Test
   void bindingModelPrecedesRequestAndNullShadowsFallback() {
-    given(context.getAttribute("bean")).willReturn(new TestBean("request"));
+    context.setAttribute("bean", new TestBean("request"));
     assertThat(accessor(Map.of()).getBindStatus("bean.name").getValue()).isEqualTo("request");
     BindingContext binding = new BindingContext();
     binding.addAttribute("bean", new TestBean("binding"));
-    given(context.getBinding()).willReturn(binding);
+    BindingContext.set(context, binding);
     assertThat(accessor(Map.of()).getBindStatus("bean.name").getValue()).isEqualTo("binding");
     Map<String, Object> model = new HashMap<>();
     model.put("bean", null);
@@ -104,7 +102,7 @@ class BindingAccessorTests {
     var binding = new BindingContext();
     var errors = new BeanPropertyBindingResult(new TestBean("binding"), "bean");
     binding.addAttribute(BindingResult.MODEL_KEY_PREFIX + "bean", errors);
-    given(context.getBinding()).willReturn(binding);
+    BindingContext.set(context, binding);
     Map<String, Object> model = new HashMap<>();
     model.put(BindingResult.MODEL_KEY_PREFIX + "bean", null);
     model.put("bean", new TestBean("model"));

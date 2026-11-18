@@ -192,7 +192,7 @@ final class ReactiveTypeHandler {
 
   @Unmodifiable
   private Collection<MediaType> getMediaTypes(HttpContext request) throws HttpMediaTypeNotAcceptableException {
-    HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(request);
     if (matchingMetadata != null) {
       var producibleMediaTypes = matchingMetadata.getProducibleMediaTypes();
       if (ObjectUtils.isNotEmpty(producibleMediaTypes)) {
@@ -490,4 +490,3 @@ final class ReactiveTypeHandler {
   }
 
 }
-

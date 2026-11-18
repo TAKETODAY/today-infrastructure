@@ -242,7 +242,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
   }
 
   private boolean isHtmlPreferred(HttpContext context) {
-    HandlerMatchingMetadata metadata = context.getMatchingMetadata();
+    HandlerMatchingMetadata metadata = HandlerMatchingMetadata.find(context);
     if (metadata != null) {
       var producibleTypes = metadata.getProducibleMediaTypes();
       if (!CollectionUtils.isEmpty(producibleTypes)
@@ -440,7 +440,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
     }
 
     if (body != null) {
-      HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
+      HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(context);
       if (matchingMetadata != null) {
         if (isContentTypePreset || CollectionUtils.isNotEmpty(matchingMetadata.getProducibleMediaTypes())) {
           throw new HttpMessageNotWritableException(
@@ -497,7 +497,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
    */
   @SuppressWarnings("NullAway")
   protected Collection<MediaType> getProducibleMediaTypes(HttpContext request, Class<?> valueClass, @Nullable Type targetType) {
-    HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(request);
     if (matchingMetadata != null) {
       var mediaTypes = matchingMetadata.getProducibleMediaTypes();
       if (ObjectUtils.isNotEmpty(mediaTypes)) {
@@ -642,7 +642,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
       return false;
     }
 
-    HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(request);
     if (matchingMetadata != null) {
       PathPattern bestMatchingPattern = matchingMetadata.getBestMatchingPattern();
       if (bestMatchingPattern.getPatternString().endsWith("." + extension)) {

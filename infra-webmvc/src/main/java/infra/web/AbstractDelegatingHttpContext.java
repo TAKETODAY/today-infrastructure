@@ -470,26 +470,6 @@ public abstract class AbstractDelegatingHttpContext implements HttpContext {
   }
 
   @Override
-  public @Nullable HandlerMatchingMetadata getMatchingMetadata() {
-    return delegate().getMatchingMetadata();
-  }
-
-  @Override
-  public void setMatchingMetadata(@Nullable HandlerMatchingMetadata handlerMatchingMetadata) {
-    delegate().setMatchingMetadata(handlerMatchingMetadata);
-  }
-
-  @Override
-  public boolean hasMatchingMetadata() {
-    return delegate().hasMatchingMetadata();
-  }
-
-  @Override
-  public HandlerMatchingMetadata matchingMetadata() {
-    return delegate().matchingMetadata();
-  }
-
-  @Override
   public @Nullable Object getAttribute(String name) {
     return delegate().getAttribute(name);
   }
@@ -542,36 +522,6 @@ public abstract class AbstractDelegatingHttpContext implements HttpContext {
   @Override
   public MultipartRequest asMultipartRequest() {
     return delegate().asMultipartRequest();
-  }
-
-  @Override
-  public void setBinding(@Nullable BindingContext bindingContext) {
-    delegate().setBinding(bindingContext);
-  }
-
-  @Override
-  public @Nullable BindingContext getBinding() {
-    return delegate().getBinding();
-  }
-
-  @Override
-  public BindingContext binding() {
-    return delegate().binding();
-  }
-
-  @Override
-  public boolean hasBinding() {
-    return delegate().hasBinding();
-  }
-
-  @Override
-  public @Nullable RedirectModel getInputRedirectModel() {
-    return delegate().getInputRedirectModel();
-  }
-
-  @Override
-  public @Nullable RedirectModel getInputRedirectModel(@Nullable RedirectModelManager manager) {
-    return delegate().getInputRedirectModel(manager);
   }
 
   // AttributeAccessorSupport

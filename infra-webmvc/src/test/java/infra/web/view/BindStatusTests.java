@@ -25,7 +25,7 @@ import infra.context.support.MessageSourceAccessor;
 import infra.context.support.StaticMessageSource;
 import infra.validation.BeanPropertyBindingResult;
 import infra.web.BindingContext;
-import infra.web.HttpContext;
+import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -35,15 +35,13 @@ class BindStatusTests {
 
   @Test
   void resolvesMessagesWithoutOutputEscaping() {
-    HttpContext context = mock(HttpContext.class);
+    var context = new MockHttpContext();
     BindingContext binding = mock(BindingContext.class);
     var errors = new BeanPropertyBindingResult(new Object(), "bean");
     errors.reject("invalid", new Object[] { "<value>" }, "fallback");
     var messages = new StaticMessageSource();
     messages.addMessage("invalid", Locale.ENGLISH, "Invalid & {0}");
-    given(context.getBinding()).willReturn(binding);
-    given(context.getMessageSource()).willReturn(messages);
-    given(context.getLocale()).willReturn(Locale.ENGLISH);
+    BindingContext.set(context, binding);
     given(binding.getErrors("bean")).willReturn(errors);
 
     assertThat(new BindingAccessor(context, Map.of(), new MessageSourceAccessor(messages, Locale.ENGLISH))

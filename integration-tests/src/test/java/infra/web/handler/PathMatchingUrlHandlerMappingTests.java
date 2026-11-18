@@ -282,7 +282,7 @@ public class PathMatchingUrlHandlerMappingTests {
       }
     }
 
-    HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
+    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(context);
     request.setAttribute(PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, matchingMetadata.getPathWithinMapping().value());
     return chain;
   }

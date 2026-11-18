@@ -186,12 +186,15 @@ class DispatcherHandlerForwardTests {
     handler.setHandlerMapping(ctx -> {
       String uri = ctx.getRequestURI();
       if ("/first".equals(uri)) {
+        HandlerMatchingMetadata.set(ctx, new HandlerMatchingMetadata(ctx));
         return (HttpRequestHandler) req -> {
           req.forward("/second");
           return HttpRequestHandler.NONE_RETURN_VALUE;
         };
       }
       if ("/second".equals(uri)) {
+        assertThat(HandlerMatchingMetadata.has(ctx)).isFalse();
+        HandlerMatchingMetadata.set(ctx, new HandlerMatchingMetadata(ctx));
         return (HttpRequestHandler) req -> {
           req.setAttribute("reachedSecond", Boolean.TRUE);
           return HttpRequestHandler.NONE_RETURN_VALUE;
@@ -207,6 +210,7 @@ class DispatcherHandlerForwardTests {
     handler.handleRequest(request);
 
     assertThat(request.requestURI).isEqualTo("/second");
+    assertThat(HandlerMatchingMetadata.obtain(request).getLookupPath().value()).isEqualTo("/second");
     assertThat(request.getAttribute("reachedSecond")).isEqualTo(Boolean.TRUE);
     assertThat(request.getAttribute(HttpContext.FORWARD_ATTRIBUTE)).isEqualTo(Boolean.TRUE);
   }

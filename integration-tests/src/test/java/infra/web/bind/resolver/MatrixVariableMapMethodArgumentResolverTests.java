@@ -59,7 +59,7 @@ class MatrixVariableMapMethodArgumentResolverTests {
 
     BindingContext binding = new BindingContext();
     this.webRequest = new MockHttpContext(null, new MockRequest(), null);
-    webRequest.setBinding(binding);
+    BindingContext.set(webRequest, binding);
 
     PathMatchInfo info = new MockPathMatchInfo();
     RequestPath requestPath = RequestPath.parse("/mock", null);
@@ -69,7 +69,7 @@ class MatrixVariableMapMethodArgumentResolverTests {
             new Object(), "/mock", requestPath, pathPattern, PathPatternParser.defaultInstance);
 
     ReflectionTestUtils.setField(matchingMetadata, "pathMatchInfo", info);
-    webRequest.setMatchingMetadata(matchingMetadata);
+    HandlerMatchingMetadata.set(webRequest, matchingMetadata);
   }
 
   @Test
@@ -188,7 +188,7 @@ class MatrixVariableMapMethodArgumentResolverTests {
   }
 
   private MultiValueMap<String, String> getVariablesFor(String pathVarName) {
-    HandlerMatchingMetadata metadata = webRequest.matchingMetadata();
+    HandlerMatchingMetadata metadata = HandlerMatchingMetadata.obtain(webRequest);
 
     Map<String, MultiValueMap<String, String>> matrixVariables = metadata.getMatrixVariables();
 

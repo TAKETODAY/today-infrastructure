@@ -168,7 +168,7 @@ public class ExpressionValueMethodArgumentResolverTests {
     Object value = resolver.resolveArgument(webRequest, param);
     assertThat(value).isEqualTo("123");
 
-    webRequest.setBinding(new BindingContext());
+    BindingContext.set(webRequest, new BindingContext());
     value = resolver.resolveArgument(webRequest, param);
 
     System.clearProperty("number.property");

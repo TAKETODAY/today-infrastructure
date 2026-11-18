@@ -48,6 +48,7 @@ import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
+import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpContext;
 import infra.web.HttpRequestHandler;
 import infra.web.NotFoundHandler;
@@ -582,7 +583,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
 
   protected @Nullable Resource getResource(HttpContext request) throws IOException {
     String path;
-    var matchingMetadata = request.getMatchingMetadata();
+    var matchingMetadata = HandlerMatchingMetadata.find(request);
     if (matchingMetadata == null) {
       path = request.getRequestPath().value();
     }

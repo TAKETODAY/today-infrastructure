@@ -69,7 +69,7 @@ public class ErrorsMethodArgumentResolverTests {
     mavContainer.addAttribute("ignore4", "value4");
     mavContainer.addAttribute("ignore5", "value5");
     mavContainer.addAllAttributes(bindingResult.getModel());
-    webRequest.setBinding(mavContainer);
+    BindingContext.set(webRequest, mavContainer);
 
     Object actual = resolver.resolveArgument(webRequest, paramErrors);
     assertThat(bindingResult).isSameAs(actual);
@@ -80,7 +80,7 @@ public class ErrorsMethodArgumentResolverTests {
     BindingContext mavContainer = new BindingContext();
     mavContainer.addAllAttributes(bindingResult.getModel());
     mavContainer.addAttribute("ignore1", "value1");
-    webRequest.setBinding(mavContainer);
+    BindingContext.set(webRequest, mavContainer);
 
     assertThatIllegalStateException().isThrownBy(() ->
             resolver.resolveArgument(webRequest, paramErrors));
@@ -89,7 +89,7 @@ public class ErrorsMethodArgumentResolverTests {
   @Test
   public void noBindingResult() throws Exception {
     BindingContext mavContainer = new BindingContext();
-    webRequest.setBinding(mavContainer);
+    BindingContext.set(webRequest, mavContainer);
 
     assertThatIllegalStateException().isThrownBy(() ->
             resolver.resolveArgument(webRequest, paramErrors));

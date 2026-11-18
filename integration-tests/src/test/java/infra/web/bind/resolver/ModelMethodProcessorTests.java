@@ -62,7 +62,7 @@ class ModelMethodProcessorTests {
     redirectModelParam = new MethodParameter(redirectModel, 0);
 
     webRequest = new MockHttpContext(null, new MockRequest(), null);
-    webRequest.setBinding(new BindingContext());
+    BindingContext.set(webRequest, new BindingContext());
   }
 
   @Test
@@ -85,7 +85,7 @@ class ModelMethodProcessorTests {
 
   @Test
   public void resolveArgumentValue() throws Throwable {
-    BindingContext bindingContext = webRequest.getBinding();
+    BindingContext bindingContext = BindingContext.find(webRequest);
     ModelMap model = bindingContext.getModel();
     assertThat(processor.resolveArgument(webRequest, new HandlerParameter(paramModel))).isSameAs(model);
     assertThat(processor.resolveArgument(webRequest, new HandlerParameter(redirectModelParam))).isSameAs(bindingContext.getRedirectModel());
@@ -96,7 +96,7 @@ class ModelMethodProcessorTests {
   @Test
   public void handleModelReturnValue() throws Exception {
 
-    BindingContext bindingContext = webRequest.getBinding();
+    BindingContext bindingContext = BindingContext.find(webRequest);
     bindingContext.addAttribute("attr1", "value1");
 
     ModelMap returnValue = new ModelMap();

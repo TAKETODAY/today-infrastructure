@@ -498,7 +498,7 @@ public final class WebAsyncManager {
       return concurrentResultContext[0];
     }
     else {
-      HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+      HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(request);
       if (matchingMetadata != null) {
         return matchingMetadata.getHandler();
       }

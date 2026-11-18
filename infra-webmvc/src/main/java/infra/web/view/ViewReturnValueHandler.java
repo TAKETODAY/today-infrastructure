@@ -241,7 +241,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    */
   public void renderView(HttpContext context, View view, @Nullable Map<String, @Nullable Object> model) {
     // Model from BindingContext
-    BindingContext binding = context.getBinding();
+    BindingContext binding = BindingContext.find(context);
     if (binding != null) {
       try {
         binding.updateModel(context);
@@ -308,7 +308,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
 
     View view = resolveViewName(locale, viewName);
     if (view == null) {
-      HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
+      HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(context);
       if (matchingMetadata != null) {
         Object handler = matchingMetadata.getHandler();
         throw new ViewRenderingException(

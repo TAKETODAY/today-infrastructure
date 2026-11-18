@@ -88,7 +88,7 @@ class PathVariableMapMethodArgumentResolverTests {
 
     HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(
             new Object(), "/mock", requestPath, pathPattern, PathPatternParser.defaultInstance);
-    webRequest.setMatchingMetadata(matchingMetadata);
+    HandlerMatchingMetadata.set(webRequest, matchingMetadata);
 
     Object result = resolver.resolveArgument(webRequest, paramMap);
 
@@ -138,7 +138,7 @@ class PathVariableMapMethodArgumentResolverTests {
 
     HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(
             new Object(), "/mock", requestPath, pathPattern, PathPatternParser.defaultInstance);
-    webRequest.setMatchingMetadata(matchingMetadata);
+    HandlerMatchingMetadata.set(webRequest, matchingMetadata);
 
     PathVariableMapMethodArgumentResolver resolver = new PathVariableMapMethodArgumentResolver();
     Object result = resolver.resolveArgument(webRequest, paramMap);
@@ -207,7 +207,7 @@ class PathVariableMapMethodArgumentResolverTests {
 
     HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(
             new Object(), "/mock", requestPath, pathPattern, PathPatternParser.defaultInstance);
-    webRequest.setMatchingMetadata(matchingMetadata);
+    HandlerMatchingMetadata.set(webRequest, matchingMetadata);
   }
 
   public void handle(

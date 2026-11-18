@@ -78,7 +78,7 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueResolv
   @Nullable
   @Override
   protected Object resolveName(String name, HandlerParameter resolvable, HttpContext context) throws Exception {
-    HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
+    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(context);
     if (matchingMetadata != null) {
       return matchingMetadata.getUriVariable(name);
     }
@@ -97,7 +97,7 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueResolv
 
   @Override
   protected void handleResolvedValue(@Nullable Object arg, String name, HandlerParameter resolvable, HttpContext request) {
-    request.matchingMetadata().getPathVariables().put(name, arg);
+    HandlerMatchingMetadata.obtain(request).getPathVariables().put(name, arg);
   }
 
   @Override
@@ -133,4 +133,3 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueResolv
   }
 
 }
-

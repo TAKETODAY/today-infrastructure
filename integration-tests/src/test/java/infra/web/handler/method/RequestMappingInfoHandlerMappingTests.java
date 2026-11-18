@@ -191,7 +191,7 @@ class RequestMappingInfoHandlerMappingTests {
     MockRequest request = new MockRequest("HEAD", "/quid");
     HandlerMethod handler = getHandler(mapping, request);
     var context = new MockHttpContext(null, request, new MockResponse());
-    context.setBinding(new BindingContext());
+    BindingContext.set(context, new BindingContext());
     Object result = new InvocableHandlerMethod(handler, new HandlerParameterFactory()).invokeForRequest(context, null, null);
     assertThat(result).isInstanceOf(HttpHeaders.class);
     HttpHeaders headers = (HttpHeaders) result;
@@ -239,8 +239,8 @@ class RequestMappingInfoHandlerMappingTests {
 
     mapping.getHandler(context);
 
-    HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
-    assertThat(context.hasMatchingMetadata()).isTrue();
+    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(context);
+    assertThat(HandlerMatchingMetadata.has(context)).isTrue();
     assertThat(matchingMetadata).isNotNull();
     var producibleMediaTypes = matchingMetadata.getProducibleMediaTypes();
     assertThat(producibleMediaTypes).isNotNull().contains(MediaType.APPLICATION_XML);
@@ -250,9 +250,9 @@ class RequestMappingInfoHandlerMappingTests {
 
     request.addHeader("Accept", "application/json");
     mapping.getHandler(context);
-    matchingMetadata = context.getMatchingMetadata();
+    matchingMetadata = HandlerMatchingMetadata.find(context);
 
-    assertThat(context.hasMatchingMetadata()).isTrue();
+    assertThat(HandlerMatchingMetadata.has(context)).isTrue();
     assertThat(matchingMetadata).isNotNull();
     assertThat(matchingMetadata.getProducibleMediaTypes())
             .as("Negated expression shouldn't be listed as producible type").isNull();
@@ -299,9 +299,9 @@ class RequestMappingInfoHandlerMappingTests {
 
     mapping.handleMatch(match, lookupPath, context);
 
-    HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
+    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(context);
     assertThat(matchingMetadata).isNotNull();
-    assertThat(context.hasMatchingMetadata()).isTrue();
+    assertThat(HandlerMatchingMetadata.has(context)).isTrue();
 
     Map<String, String> uriVariables = matchingMetadata.getUriVariables();
 
@@ -323,9 +323,9 @@ class RequestMappingInfoHandlerMappingTests {
 
     mapping.handleMatch(match, lookupPath, context);
 
-    HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
+    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(context);
     assertThat(matchingMetadata).isNotNull();
-    assertThat(context.hasMatchingMetadata()).isTrue();
+    assertThat(HandlerMatchingMetadata.has(context)).isTrue();
 
     Map<String, String> uriVariables = matchingMetadata.getUriVariables();
 
@@ -342,9 +342,9 @@ class RequestMappingInfoHandlerMappingTests {
 
     var infoMatch = getMappingInfoMatch(mapping, key);
     mapping.handleMatch(infoMatch, "/1/2", context);
-    HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
+    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(context);
     assertThat(matchingMetadata).isNotNull();
-    assertThat(context.hasMatchingMetadata()).isTrue();
+    assertThat(HandlerMatchingMetadata.has(context)).isTrue();
 
     assertThat(matchingMetadata.getBestMatchingPattern().toString()).isEqualTo("/{path1}/2");
   }
@@ -360,9 +360,9 @@ class RequestMappingInfoHandlerMappingTests {
 
     mapping.handleMatch(match, path, context);
 
-    HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
+    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(context);
     assertThat(matchingMetadata).isNotNull();
-    assertThat(context.hasMatchingMetadata()).isTrue();
+    assertThat(HandlerMatchingMetadata.has(context)).isTrue();
 
     assertThat(matchingMetadata.getBestMatchingPattern().toString()).isEqualTo(path);
   }
@@ -487,7 +487,7 @@ class RequestMappingInfoHandlerMappingTests {
 
     var context = new MockHttpContext(null, request, new MockResponse());
 
-    context.setBinding(new BindingContext());
+    BindingContext.set(context, new BindingContext());
     Object result = new InvocableHandlerMethod(handlerMethod, new HandlerParameterFactory())
             .invokeForRequest(context, null, null);
 
@@ -523,9 +523,9 @@ class RequestMappingInfoHandlerMappingTests {
     var match = getMappingInfoMatch(mapping, info);
     mapping.handleMatch(match, lookupPath, context);
 
-    HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
+    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(context);
     assertThat(matchingMetadata).isNotNull();
-    assertThat(context.hasMatchingMetadata()).isTrue();
+    assertThat(HandlerMatchingMetadata.has(context)).isTrue();
 
     request.setAttribute(HandlerMatchingMetadataKey, matchingMetadata);
   }

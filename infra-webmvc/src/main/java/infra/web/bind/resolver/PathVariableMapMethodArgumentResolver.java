@@ -53,7 +53,7 @@ public class PathVariableMapMethodArgumentResolver implements ParameterResolving
   @Nullable
   @Override
   public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
-    HandlerMatchingMetadata metadata = context.getMatchingMetadata();
+    HandlerMatchingMetadata metadata = HandlerMatchingMetadata.find(context);
     Map<Object, Object> map = CollectionUtils.createMap(parameter.getParameterType());
     if (metadata != null) {
       Map<String, String> uriVariables = metadata.getUriVariables();

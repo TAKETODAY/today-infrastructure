@@ -723,7 +723,7 @@ public class DispatcherHandler extends WebLifecycleManager {
       exception = ExceptionUtils.unwrapIfNecessary(exception);
       returnValue = processHandlerException(request, handler, exception);
 
-      HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+      HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(request);
       if (matchingMetadata != null) {
         handler = matchingMetadata.getHandler();
       }
@@ -803,7 +803,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    */
   protected @Nullable Object processHandlerException(HttpContext request, @Nullable Object handler, Throwable ex) throws Exception {
     // Success and error responses may use different content types
-    HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(request);
     if (matchingMetadata != null) {
       matchingMetadata.setProducibleMediaTypes(null);
     }
@@ -1015,7 +1015,7 @@ public class DispatcherHandler extends WebLifecycleManager {
     request.parameters = null;
     request.requestPath = null;
     request.uri = null;
-    request.matchingMetadata = null;
+    HandlerMatchingMetadata.set(request, null);
 
     if (log.isDebugEnabled()) {
       log.debug("Forwarding {} {} -> {}", request.getMethod(), requestURI, path);

@@ -273,7 +273,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
   }
 
   protected void validateIfApplicable(HttpContext context, MethodParameter parameter, @Nullable Object arg) throws Exception {
-    BindingContext bindingContext = context.getBinding();
+    BindingContext bindingContext = BindingContext.find(context);
     if (bindingContext != null) {
       String name = Conventions.getVariableNameForParameter(parameter);
       ResolvableType type = ResolvableType.forMethodParameter(parameter);

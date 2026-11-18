@@ -65,7 +65,6 @@ import infra.http.ResponseCookie;
 import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
 import infra.lang.Constant;
-import infra.lang.NullValue;
 import infra.session.Session;
 import infra.session.SessionManager;
 import infra.util.Assert;
@@ -190,6 +189,11 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    */
   private int state;
 
+  protected final DispatcherHandler dispatcherHandler;
+
+  /** @since 4.0 */
+  protected final ApplicationContext applicationContext;
+
   protected HttpCookie @Nullable [] cookies;
 
   protected @Nullable PrintWriter writer;
@@ -224,20 +228,9 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
 
   protected @Nullable WebAsyncRequest asyncRequest;
 
-  protected @Nullable WebAsyncManager webAsyncManager;
-
-  protected @Nullable BindingContext bindingContext;
-
-  protected @Nullable Object redirectModel;
+  protected @Nullable WebAsyncManager asyncManager;
 
   protected @Nullable MediaType contentType;
-
-  protected final DispatcherHandler dispatcherHandler;
-
-  /** @since 4.0 */
-  protected final ApplicationContext applicationContext;
-
-  protected @Nullable HandlerMatchingMetadata matchingMetadata;
 
   private @Nullable String remoteAddress;
 
@@ -922,10 +915,10 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    */
   @Override
   public WebAsyncManager asyncManager() {
-    WebAsyncManager webAsyncManager = this.webAsyncManager;
+    WebAsyncManager webAsyncManager = this.asyncManager;
     if (webAsyncManager == null) {
       webAsyncManager = createWebAsyncManager();
-      this.webAsyncManager = webAsyncManager;
+      this.asyncManager = webAsyncManager;
     }
     return webAsyncManager;
   }
@@ -1580,171 +1573,6 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
       }
     }
     return -1;
-  }
-
-  /**
-   * Sets the matching metadata for this handler. The matching metadata provides
-   * information about how a handler is matched to a specific request or context.
-   * This method allows setting or updating the metadata, which can be null if no
-   * matching information is available.
-   *
-   * @param handlerMatchingMetadata the metadata to set, or null if no metadata is available
-   */
-  @Override
-  public void setMatchingMetadata(@Nullable HandlerMatchingMetadata handlerMatchingMetadata) {
-    this.matchingMetadata = handlerMatchingMetadata;
-  }
-
-  /**
-   * Returns the {@code HandlerMatchingMetadata} associated with this instance,
-   * if available. This metadata typically contains information about how a
-   * handler matches certain criteria, such as request mappings in a web
-   * application context.
-   *
-   * <p>If no matching metadata has been set, this method will return
-   * {@code null}. Ensure proper null checks when using the returned value.</p>
-   *
-   * @return the {@code HandlerMatchingMetadata} associated with this instance,
-   * or {@code null} if no metadata is available
-   */
-  @Override
-  public @Nullable HandlerMatchingMetadata getMatchingMetadata() {
-    return this.matchingMetadata;
-  }
-
-  /**
-   * Returns the {@code HandlerMatchingMetadata} associated with this instance.
-   *
-   * <p>This method retrieves the metadata that describes how a handler matches
-   * a specific request. If the metadata is not set, an exception is thrown to
-   * indicate that it is required.
-   *
-   * @return the {@code HandlerMatchingMetadata} instance associated with this handler
-   * @throws IllegalStateException if the {@code HandlerMatchingMetadata} is not set
-   */
-  @Override
-  public HandlerMatchingMetadata matchingMetadata() {
-    HandlerMatchingMetadata matchingMetadata = this.matchingMetadata;
-    Assert.state(matchingMetadata != null, "HandlerMatchingMetadata is required");
-    return matchingMetadata;
-  }
-
-  @Override
-  public boolean hasMatchingMetadata() {
-    return matchingMetadata != null;
-  }
-
-  /**
-   * Sets the binding context for this component. The binding context is used to
-   * manage data bindings between the component and its associated data model.
-   *
-   * <p>If {@code null} is passed, any existing binding context will be cleared.</p>
-   *
-   * @param bindingContext the {@link BindingContext} to set, or {@code null} to clear
-   * the current binding context
-   */
-  @Override
-  public void setBinding(@Nullable BindingContext bindingContext) {
-    this.bindingContext = bindingContext;
-  }
-
-  /**
-   * Checks if the current instance has a binding context established.
-   * <p>
-   * This method evaluates whether the {@code bindingContext} is initialized
-   * (i.e., not null). It is typically used to determine if the object is ready
-   * for binding-related operations.
-   *
-   * @return {@code true} if the {@code bindingContext} is not null, indicating
-   * that a binding context exists; {@code false} otherwise.
-   * @since 4.0
-   */
-  @Override
-  public boolean hasBinding() {
-    return bindingContext != null;
-  }
-
-  /**
-   * Returns the current {@link BindingContext} associated with this instance.
-   *
-   * <p>This method provides access to the binding context, which may be used to manage
-   * data bindings or retrieve information about the current binding state. If no binding
-   * context is set, the method will return {@code null}.
-   *
-   * <p><strong>Example Usage:</strong>
-   * <pre>{@code
-   *   // Retrieve the binding context
-   *   BindingContext context = getBinding();
-   *
-   *   if (context != null) {
-   *     // Perform operations with the binding context
-   *     System.out.println("Binding context found: " + context);
-   *   }
-   *   else {
-   *     System.out.println("No binding context is currently set.");
-   *   }
-   * }</pre>
-   *
-   * @return the current {@link BindingContext}, or {@code null} if no binding context
-   * is associated with this instance
-   * @since 4.0
-   */
-  @Override
-  public @Nullable BindingContext getBinding() {
-    return bindingContext;
-  }
-
-  /**
-   * Returns the {@link BindingContext} associated with this instance.
-   *
-   * <p>This method retrieves the binding context, ensuring that it has been
-   * initialized. If the binding context is not set, an exception is thrown
-   * to indicate that a valid context is required.</p>
-   *
-   * @return the non-null {@link BindingContext} instance associated with this object
-   * @throws IllegalStateException if BindingContext is not set
-   * @since 4.0
-   */
-  @Override
-  public BindingContext binding() {
-    BindingContext bindingContext = this.bindingContext;
-    Assert.state(bindingContext != null, "BindingContext is required");
-    return bindingContext;
-  }
-
-  /**
-   * Return read-only "input" flash attributes from request before redirect.
-   *
-   * @param manager RedirectModelManager manage RedirectModel
-   * @return a RedirectModel, or {@code null} if not found
-   * @see RedirectModel
-   */
-  @Override
-  public @Nullable RedirectModel getInputRedirectModel(@Nullable RedirectModelManager manager) {
-    if (redirectModel instanceof RedirectModel ret) {
-      return ret;
-    }
-    else if (redirectModel == NullValue.INSTANCE) {
-      return null;
-    }
-
-    if (manager == null) {
-      manager = WebUtils.getRedirectModelManager(this);
-    }
-    if (manager != null) {
-      RedirectModel redirectModel = manager.retrieveAndUpdate(this);
-      if (redirectModel != null) {
-        this.redirectModel = redirectModel;
-        return redirectModel;
-      }
-    }
-    Object attribute = getAttribute(RedirectModel.INPUT_ATTRIBUTE);
-    if (attribute instanceof RedirectModel ret) {
-      this.redirectModel = ret;
-      return ret;
-    }
-    this.redirectModel = NullValue.INSTANCE;
-    return null;
   }
 
   /**

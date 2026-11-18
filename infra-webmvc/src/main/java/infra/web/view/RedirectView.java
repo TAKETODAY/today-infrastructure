@@ -327,7 +327,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
   }
 
   private Map<String, String> getCurrentRequestUriVariables(HttpContext request) {
-    HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(request);
     if (matchingMetadata != null) {
       return matchingMetadata.getUriVariables();
     }

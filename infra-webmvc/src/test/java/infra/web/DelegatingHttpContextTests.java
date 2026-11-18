@@ -1020,45 +1020,6 @@ class DelegatingHttpContextTests {
   }
 
   @Test
-  void getMatchingMetadata_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    HandlerMatchingMetadata metadata = mock(HandlerMatchingMetadata.class);
-    when(delegate.getMatchingMetadata()).thenReturn(metadata);
-
-    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
-
-    HandlerMatchingMetadata result = wrapper.getMatchingMetadata();
-
-    assertThat(result).isSameAs(metadata);
-    verify(delegate).getMatchingMetadata();
-  }
-
-  @Test
-  void setMatchingMetadata_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    HandlerMatchingMetadata metadata = mock(HandlerMatchingMetadata.class);
-
-    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
-
-    wrapper.setMatchingMetadata(metadata);
-
-    verify(delegate).setMatchingMetadata(metadata);
-  }
-
-  @Test
-  void hasMatchingMetadata_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    when(delegate.hasMatchingMetadata()).thenReturn(true);
-
-    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
-
-    boolean result = wrapper.hasMatchingMetadata();
-
-    assertThat(result).isTrue();
-    verify(delegate).hasMatchingMetadata();
-  }
-
-  @Test
   void getAttribute_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.getAttribute("key")).thenReturn("value");
@@ -1173,88 +1134,6 @@ class DelegatingHttpContextTests {
   }
 
   @Test
-  void setBinding_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    BindingContext bindingContext = mock(BindingContext.class);
-
-    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
-
-    wrapper.setBinding(bindingContext);
-
-    verify(delegate).setBinding(bindingContext);
-  }
-
-  @Test
-  void getBinding_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    BindingContext bindingContext = mock(BindingContext.class);
-    when(delegate.getBinding()).thenReturn(bindingContext);
-
-    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
-
-    BindingContext result = wrapper.getBinding();
-
-    assertThat(result).isSameAs(bindingContext);
-    verify(delegate).getBinding();
-  }
-
-  @Test
-  void binding_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    BindingContext bindingContext = mock(BindingContext.class);
-    when(delegate.binding()).thenReturn(bindingContext);
-
-    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
-
-    BindingContext result = wrapper.binding();
-
-    assertThat(result).isSameAs(bindingContext);
-    verify(delegate).binding();
-  }
-
-  @Test
-  void hasBinding_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    when(delegate.hasBinding()).thenReturn(true);
-
-    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
-
-    boolean result = wrapper.hasBinding();
-
-    assertThat(result).isTrue();
-    verify(delegate).hasBinding();
-  }
-
-  @Test
-  void getInputRedirectModel_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    RedirectModel redirectModel = mock(RedirectModel.class);
-    when(delegate.getInputRedirectModel()).thenReturn(redirectModel);
-
-    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
-
-    RedirectModel result = wrapper.getInputRedirectModel();
-
-    assertThat((Object) result).isSameAs(redirectModel);
-    verify(delegate).getInputRedirectModel();
-  }
-
-  @Test
-  void getInputRedirectModelWithManager_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    RedirectModel redirectModel = mock(RedirectModel.class);
-    RedirectModelManager manager = mock(RedirectModelManager.class);
-    when(delegate.getInputRedirectModel(manager)).thenReturn(redirectModel);
-
-    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
-
-    RedirectModel result = wrapper.getInputRedirectModel(manager);
-
-    assertThat((Object) result).isSameAs(redirectModel);
-    verify(delegate).getInputRedirectModel(manager);
-  }
-
-  @Test
   void hasAttribute_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.hasAttribute("key")).thenReturn(true);
@@ -1345,20 +1224,6 @@ class DelegatingHttpContextTests {
 
     assertThat(result).isEqualTo("GET");
     verify(delegate).getMethodAsString();
-  }
-
-  @Test
-  void matchingMetadata_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    HandlerMatchingMetadata metadata = mock(HandlerMatchingMetadata.class);
-    when(delegate.matchingMetadata()).thenReturn(metadata);
-
-    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
-
-    HandlerMatchingMetadata result = wrapper.matchingMetadata();
-
-    assertThat(result).isSameAs(metadata);
-    verify(delegate).matchingMetadata();
   }
 
   @Test

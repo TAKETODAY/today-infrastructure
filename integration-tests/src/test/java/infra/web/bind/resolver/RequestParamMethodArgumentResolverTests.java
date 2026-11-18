@@ -164,7 +164,7 @@ class RequestParamMethodArgumentResolverTests {
     Part expected = new MockMultipartFile("mfile", "Hello World".getBytes());
     request.addPart(expected);
     webRequest = new MockHttpContext(null, request, null);
-    webRequest.setBinding(new BindingContext());
+    BindingContext.set(webRequest, new BindingContext());
 
     HandlerParameter param = this.testMethod.annotPresent(RequestParam.class)
             .isNotNullable().arg(Part.class);
@@ -183,7 +183,7 @@ class RequestParamMethodArgumentResolverTests {
     request.addPart(expected2);
     request.addPart(new MockMultipartFile("other", "Hello World 3".getBytes()));
     webRequest = new MockHttpContext(null, request, null);
-    webRequest.setBinding(new BindingContext());
+    BindingContext.set(webRequest, new BindingContext());
 
     HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).arg(List.class, Part.class);
     Object result = resolver.resolveArgument(webRequest, param);
@@ -198,7 +198,7 @@ class RequestParamMethodArgumentResolverTests {
     MultipartMockRequest request = new MultipartMockRequest();
     request.addPart(new MockMultipartFile("other", "Hello World 3".getBytes()));
     webRequest = new MockHttpContext(null, request, null);
-    webRequest.setBinding(new BindingContext());
+    BindingContext.set(webRequest, new BindingContext());
 
     HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).arg(List.class, Part.class);
     assertThatExceptionOfType(MissingRequestPartException.class).isThrownBy(() ->
@@ -214,7 +214,7 @@ class RequestParamMethodArgumentResolverTests {
     request.addPart(expected2);
     request.addPart(new MockMultipartFile("other", "Hello World 3".getBytes()));
     MockHttpContext webRequest = new MockHttpContext(null, request, null);
-    webRequest.setBinding(new BindingContext());
+    BindingContext.set(webRequest, new BindingContext());
 
     HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).arg(Part[].class);
     Object result = resolver.resolveArgument(webRequest, param);
@@ -232,7 +232,7 @@ class RequestParamMethodArgumentResolverTests {
     MultipartMockRequest request = new MultipartMockRequest();
     request.addPart(new MockMultipartFile("other", "Hello World 3".getBytes()));
     webRequest = new MockHttpContext(null, request, null);
-    webRequest.setBinding(new BindingContext());
+    BindingContext.set(webRequest, new BindingContext());
 
     HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).arg(Part[].class);
     assertThatExceptionOfType(MissingRequestPartException.class).isThrownBy(() ->
@@ -245,7 +245,7 @@ class RequestParamMethodArgumentResolverTests {
     Part expected = new MockMultipartFile("multipartFileNotAnnot", "Hello World".getBytes());
     request.addPart(expected);
     MockHttpContext webRequest = new MockHttpContext(null, request, null);
-    webRequest.setBinding(new BindingContext());
+    BindingContext.set(webRequest, new BindingContext());
 
     HandlerParameter param = this.testMethod.annotNotPresent().arg(Part.class);
     Object result = resolver.resolveArgument(webRequest, param);
@@ -263,7 +263,7 @@ class RequestParamMethodArgumentResolverTests {
     request.addPart(expected1);
     request.addPart(expected2);
     webRequest = new MockHttpContext(null, request, null);
-    webRequest.setBinding(new BindingContext());
+    BindingContext.set(webRequest, new BindingContext());
 
     HandlerParameter param = this.testMethod
             .annotNotPresent(RequestParam.class).arg(List.class, Part.class);
@@ -290,7 +290,7 @@ class RequestParamMethodArgumentResolverTests {
     request.addPart(expected);
     request.setMethod("PUT");
     webRequest = new MockHttpContext(null, request, null);
-    webRequest.setBinding(new BindingContext());
+    BindingContext.set(webRequest, new BindingContext());
 
     HandlerParameter param = testMethod.annotNotPresent(
             RequestParam.class).arg(List.class, Part.class);
@@ -345,7 +345,7 @@ class RequestParamMethodArgumentResolverTests {
     BindingContext binderFactory = mock(BindingContext.class);
     given(binderFactory.createBinder(webRequest, null, "stringNotAnnot")).willReturn(binder);
     given(binderFactory.createBinder(webRequest, "stringNotAnnot")).willReturn(binder);
-    webRequest.setBinding(binderFactory);
+    BindingContext.set(webRequest, binderFactory);
 
     request.addParameter("stringNotAnnot", "");
 
@@ -368,7 +368,7 @@ class RequestParamMethodArgumentResolverTests {
       }
     };
 
-    webRequest.setBinding(binderFactory);
+    BindingContext.set(webRequest, binderFactory);
 
     request.addParameter("booleanParam", " ");
 
@@ -388,7 +388,7 @@ class RequestParamMethodArgumentResolverTests {
     BindingContext binderFactory = mock(BindingContext.class);
     given(binderFactory.createBinder(webRequest, null, "name")).willReturn(binder);
     given(binderFactory.createBinder(webRequest, "name")).willReturn(binder);
-    webRequest.setBinding(binderFactory);
+    BindingContext.set(webRequest, binderFactory);
 
     HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired()).arg(String.class);
     Object arg = resolver.resolveArgument(webRequest, param);
@@ -406,7 +406,7 @@ class RequestParamMethodArgumentResolverTests {
 
     request.addParameter("name", "    ");
 
-    webRequest.setBinding(context);
+    BindingContext.set(webRequest, context);
 
     HandlerParameter param = testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired("bar")).arg(String.class);
     Object arg = resolver.resolveArgument(webRequest, param);
@@ -465,7 +465,7 @@ class RequestParamMethodArgumentResolverTests {
     MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
-    webRequest.setBinding(binderFactory);
+    BindingContext.set(webRequest, binderFactory);
 
     var param = this.testMethod.annotPresent(RequestParam.class).isNullable().arg(Integer.class);
     Object result = resolver.resolveArgument(webRequest, param);
@@ -485,7 +485,7 @@ class RequestParamMethodArgumentResolverTests {
     MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
-    webRequest.setBinding(binderFactory);
+    BindingContext.set(webRequest, binderFactory);
 
     var param = this.testMethod.annotPresent(RequestParam.class).isNullable().arg(Integer.class);
     Object result = resolver.resolveArgument(webRequest, param);
@@ -504,7 +504,7 @@ class RequestParamMethodArgumentResolverTests {
     MockHttpContext webRequest = new MockHttpContext(null, request);
 
     BindingContext binderFactory = new BindingContext(initializer);
-    webRequest.setBinding(binderFactory);
+    BindingContext.set(webRequest, binderFactory);
 
     var param = this.testMethod.annotPresent(RequestParam.class).isNullable().arg(Integer[].class);
     Object result = resolver.resolveArgument(webRequest, param);
@@ -524,7 +524,7 @@ class RequestParamMethodArgumentResolverTests {
     MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
-    webRequest.setBinding(binderFactory);
+    BindingContext.set(webRequest, binderFactory);
 
     var param = this.testMethod.annotPresent(RequestParam.class).isNullable().arg(Integer[].class);
     Object result = resolver.resolveArgument(webRequest, param);
@@ -542,7 +542,7 @@ class RequestParamMethodArgumentResolverTests {
     MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
-    webRequest.setBinding(binderFactory);
+    BindingContext.set(webRequest, binderFactory);
 
     var param = this.testMethod.annotPresent(RequestParam.class).isNullable().arg(List.class);
     Object result = resolver.resolveArgument(webRequest, param);
@@ -561,7 +561,7 @@ class RequestParamMethodArgumentResolverTests {
     MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
-    webRequest.setBinding(binderFactory);
+    BindingContext.set(webRequest, binderFactory);
 
     var param = this.testMethod.annotPresent(RequestParam.class).isNullable().arg(List.class);
     Object result = resolver.resolveArgument(webRequest, param);
@@ -579,13 +579,13 @@ class RequestParamMethodArgumentResolverTests {
     MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
-    webRequest.setBinding(binderFactory);
+    BindingContext.set(webRequest, binderFactory);
 
     MultipartMockRequest request = new MultipartMockRequest();
     Part expected = new MockMultipartFile("mfile", "Hello World".getBytes());
     request.addPart(expected);
     webRequest = new MockHttpContext(null, request, null);
-    webRequest.setBinding(new BindingContext(initializer));
+    BindingContext.set(webRequest, new BindingContext(initializer));
 
     HandlerParameter param = testMethod.annotPresent(
             RequestParam.class).isNullable().arg(Part.class);
@@ -602,7 +602,7 @@ class RequestParamMethodArgumentResolverTests {
     MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
-    webRequest.setBinding(binderFactory);
+    BindingContext.set(webRequest, binderFactory);
 
     request.setMethod("POST");
     request.setContentType("multipart/form-data");
@@ -621,7 +621,7 @@ class RequestParamMethodArgumentResolverTests {
     MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
 
     BindingContext binderFactory = new BindingContext(initializer);
-    webRequest.setBinding(binderFactory);
+    BindingContext.set(webRequest, binderFactory);
 
     HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).isNullable()
             .arg(Part.class);

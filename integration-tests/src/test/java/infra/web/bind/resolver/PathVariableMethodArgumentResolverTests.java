@@ -72,7 +72,7 @@ class PathVariableMethodArgumentResolverTests {
     request = new MockRequest();
     webRequest = new MockHttpContext(null, request, new MockResponse());
 
-    webRequest.setMatchingMetadata(new HandlerMatchingMetadata(webRequest));
+    HandlerMatchingMetadata.set(webRequest, new HandlerMatchingMetadata(webRequest));
 
     Method method = ReflectionUtils.findMethod(getClass(), "handle", (Class<?>[]) null);
     paramNamedString = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
@@ -93,7 +93,7 @@ class PathVariableMethodArgumentResolverTests {
 
     HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(
             new Object(), "/mock", requestPath, pathPattern, PathPatternParser.defaultInstance);
-    webRequest.setMatchingMetadata(matchingMetadata);
+    HandlerMatchingMetadata.set(webRequest, matchingMetadata);
   }
 
   private void applyTemplateVars(String name, String value) {
@@ -102,7 +102,7 @@ class PathVariableMethodArgumentResolverTests {
 
     HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(
             new Object(), "/mock", requestPath, pathPattern, PathPatternParser.defaultInstance);
-    webRequest.setMatchingMetadata(matchingMetadata);
+    HandlerMatchingMetadata.set(webRequest, matchingMetadata);
   }
 
   @Test
@@ -135,7 +135,7 @@ class PathVariableMethodArgumentResolverTests {
     initializer.setConversionService(new DefaultConversionService());
 
     BindingContext binderFactory = new BindingContext(initializer);
-    webRequest.setBinding(binderFactory);
+    BindingContext.set(webRequest, binderFactory);
 
     String result = (String) resolver.resolveArgument(webRequest, paramOptional);
     assertThat(result).as("PathVariable not resolved correctly").isEqualTo("value");
@@ -164,7 +164,7 @@ class PathVariableMethodArgumentResolverTests {
     initializer.setConversionService(new DefaultConversionService());
 
     BindingContext binderFactory = new BindingContext(initializer);
-    webRequest.setBinding(binderFactory);
+    BindingContext.set(webRequest, binderFactory);
 
     assertThat(resolver.resolveArgument(webRequest, paramOptional))
             .isNull();
@@ -196,7 +196,7 @@ class PathVariableMethodArgumentResolverTests {
     initializer.setConversionService(new DefaultConversionService());
 
     BindingContext binderFactory = new BindingContext(initializer);
-    webRequest.setBinding(binderFactory);
+    BindingContext.set(webRequest, binderFactory);
 
     PathVariableMethodArgumentResolver resolver = new PathVariableMethodArgumentResolver();
     Object result = resolver.resolveArgument(webRequest, paramInt);
@@ -219,7 +219,7 @@ class PathVariableMethodArgumentResolverTests {
     initializer.setConversionService(conversionService);
 
     BindingContext binderFactory = new BindingContext(initializer);
-    webRequest.setBinding(binderFactory);
+    BindingContext.set(webRequest, binderFactory);
 
     PathVariableMethodArgumentResolver resolver = new PathVariableMethodArgumentResolver();
     Object result = resolver.resolveArgument(webRequest, paramCustom);
@@ -240,7 +240,7 @@ class PathVariableMethodArgumentResolverTests {
     initializer.setConversionService(new DefaultConversionService());
 
     BindingContext binderFactory = new BindingContext(initializer);
-    webRequest.setBinding(binderFactory);
+    BindingContext.set(webRequest, binderFactory);
 
     PathVariableMethodArgumentResolver resolver = new PathVariableMethodArgumentResolver();
 
@@ -319,7 +319,7 @@ class PathVariableMethodArgumentResolverTests {
     initializer.setConversionService(new DefaultConversionService());
 
     BindingContext binderFactory = new BindingContext(initializer);
-    webRequest.setBinding(binderFactory);
+    BindingContext.set(webRequest, binderFactory);
 
     PathVariableMethodArgumentResolver resolver = new PathVariableMethodArgumentResolver();
 
@@ -341,7 +341,7 @@ class PathVariableMethodArgumentResolverTests {
     ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
     initializer.setConversionService(new DefaultConversionService());
     BindingContext binderFactory = new BindingContext(initializer);
-    webRequest.setBinding(binderFactory);
+    BindingContext.set(webRequest, binderFactory);
 
     PathVariableMethodArgumentResolver resolver = new PathVariableMethodArgumentResolver();
 
@@ -385,7 +385,7 @@ class PathVariableMethodArgumentResolverTests {
     PathVariableMethodArgumentResolver resolver = new PathVariableMethodArgumentResolver();
     Object result = resolver.resolveArgument(webRequest, paramNamedString);
 
-    assertThat(webRequest.matchingMetadata().getPathVariables()).containsEntry("name", "stored-value");
+    assertThat(HandlerMatchingMetadata.obtain(webRequest).getPathVariables()).containsEntry("name", "stored-value");
   }
 
   @Test

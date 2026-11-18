@@ -160,7 +160,7 @@ class RequestMappingHandlerAdapterTests {
     this.handlerAdapter.afterPropertiesSet();
     this.handlerAdapter.handle(context, handlerMethod);
 
-    ModelMap model = context.binding().getModel();
+    ModelMap model = BindingContext.obtain(context).getModel();
 
     assertThat(model.get("attr1")).isEqualTo("lAttr1");
     assertThat(model.get("attr2")).isEqualTo("gAttr2");
@@ -172,14 +172,14 @@ class RequestMappingHandlerAdapterTests {
 
     HandlerMethod handlerMethod = handlerMethod(new TestController(), "handle");
     this.handlerAdapter.afterPropertiesSet();
-    context.setBinding(new BindingContext());
+    BindingContext.set(context, new BindingContext());
     this.handlerAdapter.handle(context, handlerMethod);
-    ModelMap model = context.binding().getModel();
+    ModelMap model = BindingContext.obtain(context).getModel();
 
     Object instance = model.get("instance");
     context = new MockHttpContext(null, request, response);
-    context.setBinding(new BindingContext());
-    model = context.binding().getModel();
+    BindingContext.set(context, new BindingContext());
+    model = BindingContext.obtain(context).getModel();
     this.handlerAdapter.handle(context, handlerMethod);
     assertThat(instance).isNotSameAs(model.get("instance"));
   }
@@ -191,9 +191,9 @@ class RequestMappingHandlerAdapterTests {
     HandlerMethod handlerMethod = handlerMethod(new TestController(), "handle");
     this.handlerAdapter.afterPropertiesSet();
 
-    context.setBinding(new BindingContext());
+    BindingContext.set(context, new BindingContext());
     this.handlerAdapter.handle(context, handlerMethod);
-    ModelMap model = context.binding().getModel();
+    ModelMap model = BindingContext.obtain(context).getModel();
 
     assertThat(model.get("attr1")).isEqualTo("lAttr1");
     assertThat(model.get("attr2")).isEqualTo("gAttr2");
@@ -207,9 +207,9 @@ class RequestMappingHandlerAdapterTests {
     HandlerMethod handlerMethod = handlerMethod(new TestController(), "handle");
     this.handlerAdapter.afterPropertiesSet();
 
-    context.setBinding(new BindingContext());
+    BindingContext.set(context, new BindingContext());
     this.handlerAdapter.handle(context, handlerMethod);
-    ModelMap model = context.binding().getModel();
+    ModelMap model = BindingContext.obtain(context).getModel();
 
     assertThat(model.get("attr1")).isEqualTo("lAttr1");
     assertThat(model.get("attr2")).isEqualTo("gAttr2");
@@ -283,12 +283,14 @@ class RequestMappingHandlerAdapterTests {
     this.handlerAdapter.setRedirectModelManager(redirectModelManager);
     handlerAdapter.afterPropertiesSet();
     MockRequest request = new MockRequest();
-    HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
+    HandlerMethod handlerMethod = new HandlerMethod(new FlashModelController(), "handle");
 
     MockHttpContext request1 = new MockHttpContext(request);
     Object result = this.handlerAdapter.handleInternal(request1, handlerMethod);
 
-    assertThat(request1.getBinding().getModel()).containsEntry("attr", "value");
+    assertThat(BindingContext.obtain(request1).getModel())
+            .containsEntry("attr", "value")
+            .containsEntry("flashSeenByModelMethod", "value");
   }
 
   @Test
@@ -344,6 +346,18 @@ class RequestMappingHandlerAdapterTests {
     @ResponseBody
     public String handleBody(@Nullable @RequestBody Map<String, String> body) {
       return "Body: " + body;
+    }
+  }
+
+  private static class FlashModelController {
+
+    @ModelAttribute
+    public void copyFlashAttribute(Model model) {
+      model.addAttribute("flashSeenByModelMethod", model.getAttribute("attr"));
+    }
+
+    public String handle() {
+      return "view";
     }
   }
 

@@ -92,7 +92,7 @@ public class HandlerMethodMappingTests {
     HandlerMethod result = this.mapping.getHandlerInternal(context);
 
     assertThat(result.getMethod()).isEqualTo(method1);
-    HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
+    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(context);
     if (matchingMetadata != null) {
       assertThat(matchingMetadata.getHandler()).isEqualTo(result);
     }
@@ -111,7 +111,7 @@ public class HandlerMethodMappingTests {
 
     assertThat(result.getMethod()).isEqualTo(method1);
 
-    HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
+    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(context);
     if (matchingMetadata != null) {
       assertThat(matchingMetadata.getHandler()).isEqualTo(result);
     }

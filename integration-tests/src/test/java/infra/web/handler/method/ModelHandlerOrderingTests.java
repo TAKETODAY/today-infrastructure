@@ -57,7 +57,7 @@ class ModelHandlerOrderingTests {
 
   @BeforeEach
   void setup() {
-    webRequest.setBinding(mavContainer);
+    BindingContext.set(webRequest, mavContainer);
     this.mavContainer.addAttribute("methods", new ArrayList<String>());
   }
 

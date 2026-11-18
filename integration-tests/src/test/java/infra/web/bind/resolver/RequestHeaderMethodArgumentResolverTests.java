@@ -135,7 +135,7 @@ class RequestHeaderMethodArgumentResolverTests {
   void resolveStringArrayArgument() throws Throwable {
     String[] expected = new String[] { "foo", "bar" };
     mockRequest.addHeader("name", expected);
-    webRequest.setBinding(new BindingContext());
+    BindingContext.set(webRequest, new BindingContext());
 
     Object result = resolver.resolveArgument(webRequest, paramNamedValueStringArray);
     assertThat(result).isInstanceOf(String[].class);
@@ -211,7 +211,7 @@ class RequestHeaderMethodArgumentResolverTests {
 
     ConfigurableWebBindingInitializer bindingInitializer = new ConfigurableWebBindingInitializer();
     bindingInitializer.setConversionService(new DefaultFormattingConversionService());
-    webRequest.setBinding(new BindingContext(bindingInitializer));
+    BindingContext.set(webRequest, new BindingContext(bindingInitializer));
 
     Object result = resolver.resolveArgument(webRequest, paramDate);
     assertThat(result).isEqualTo(new Date(rfc1123val));
@@ -224,7 +224,7 @@ class RequestHeaderMethodArgumentResolverTests {
 
     ConfigurableWebBindingInitializer bindingInitializer = new ConfigurableWebBindingInitializer();
     bindingInitializer.setConversionService(new DefaultFormattingConversionService());
-    webRequest.setBinding(new BindingContext(bindingInitializer));
+    BindingContext.set(webRequest, new BindingContext(bindingInitializer));
 
     Object result = resolver.resolveArgument(webRequest, paramInstant);
 
@@ -238,7 +238,7 @@ class RequestHeaderMethodArgumentResolverTests {
 
     ConfigurableWebBindingInitializer bindingInitializer = new ConfigurableWebBindingInitializer();
     bindingInitializer.setConversionService(new DefaultFormattingConversionService());
-    webRequest.setBinding(new BindingContext(bindingInitializer));
+    BindingContext.set(webRequest, new BindingContext(bindingInitializer));
 
     Object result = resolver.resolveArgument(webRequest, paramUuid);
 
@@ -251,7 +251,7 @@ class RequestHeaderMethodArgumentResolverTests {
 
     ConfigurableWebBindingInitializer bindingInitializer = new ConfigurableWebBindingInitializer();
     bindingInitializer.setConversionService(new DefaultFormattingConversionService());
-    webRequest.setBinding(new BindingContext(bindingInitializer));
+    BindingContext.set(webRequest, new BindingContext(bindingInitializer));
 
     assertThatThrownBy(
             () -> resolver.resolveArgument(webRequest, paramUuid))
@@ -274,7 +274,7 @@ class RequestHeaderMethodArgumentResolverTests {
 
     ConfigurableWebBindingInitializer bindingInitializer = new ConfigurableWebBindingInitializer();
     bindingInitializer.setConversionService(new DefaultFormattingConversionService());
-    webRequest.setBinding(new BindingContext(bindingInitializer));
+    BindingContext.set(webRequest, new BindingContext(bindingInitializer));
 
     assertThatExceptionOfType(MissingRequestHeaderException.class)
             .isThrownBy(() -> resolver.resolveArgument(webRequest, paramUuid));
@@ -295,7 +295,7 @@ class RequestHeaderMethodArgumentResolverTests {
 
     ConfigurableWebBindingInitializer bindingInitializer = new ConfigurableWebBindingInitializer();
     bindingInitializer.setConversionService(new DefaultFormattingConversionService());
-    webRequest.setBinding(new BindingContext(bindingInitializer));
+    BindingContext.set(webRequest, new BindingContext(bindingInitializer));
 
     Object result = resolver.resolveArgument(webRequest, paramUuidOptional);
 

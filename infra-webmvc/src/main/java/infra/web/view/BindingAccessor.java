@@ -83,7 +83,7 @@ public class BindingAccessor {
       }
       throw new IllegalStateException("Model attribute '" + key + "' is not an Errors instance");
     }
-    BindingContext binding = this.context.getBinding();
+    BindingContext binding = BindingContext.find(this.context);
     return binding != null ? binding.getErrors(name) : null;
   }
 
@@ -91,7 +91,7 @@ public class BindingAccessor {
     if (this.model.containsKey(name)) {
       return this.model.get(name);
     }
-    BindingContext binding = this.context.getBinding();
+    BindingContext binding = BindingContext.find(this.context);
     if (binding != null && binding.containsAttribute(name)) {
       return binding.getModel().get(name);
     }

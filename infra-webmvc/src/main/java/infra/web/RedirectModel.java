@@ -28,6 +28,7 @@ import java.util.Objects;
 
 import infra.core.AttributeAccessor;
 import infra.core.Conventions;
+import infra.lang.NullValue;
 import infra.ui.Model;
 import infra.ui.ModelMap;
 import infra.util.MultiValueMap;
@@ -59,7 +60,7 @@ import infra.web.util.WebUtils;
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see WebUtils#getOutputRedirectModel
- * @see HttpContext#getInputRedirectModel
+ * @see #findInputModel(HttpContext)
  * @since 2.3.3 2018-11-18 16:39
  */
 public class RedirectModel extends ModelMap implements Serializable, Comparable<RedirectModel> {
@@ -71,7 +72,7 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
    * Name of request attribute that holds a RedirectModel with "input"
    * redirect attributes saved by a previous request, if any.
    *
-   * @see HttpContext#getInputRedirectModel()
+   * @see #findInputModel(HttpContext)
    */
   public static final String INPUT_ATTRIBUTE = Conventions.getQualifiedAttributeName(
           RedirectModel.class, "INPUT");
@@ -84,6 +85,8 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
    */
   public static final String OUTPUT_ATTRIBUTE = Conventions.getQualifiedAttributeName(
           RedirectModel.class, "OUTPUT");
+
+  private static final String INPUT_CACHE_ATTRIBUTE = RedirectModel.class.getName() + ".inputCache";
 
   // @since 4.0
   private @Nullable String targetRequestPath;
@@ -253,6 +256,8 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
             .formatted(super.toString(), targetRequestPath, targetRequestParams);
   }
 
+  // Static Methods
+
   /**
    * Return "output" RedirectModel to save attributes for request after redirect.
    *
@@ -265,6 +270,49 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
       return (RedirectModel) attribute;
     }
     return null;
+  }
+
+  /**
+   * Return incoming flash attributes saved by a previous request, using the default manager.
+   *
+   * @param request the current request
+   * @return the input redirect model, or {@code null} if none is available
+   * @see #findInputModel(HttpContext, RedirectModelManager)
+   * @since 5.0
+   */
+  public static @Nullable RedirectModel findInputModel(HttpContext request) {
+    return findInputModel(request, null);
+  }
+
+  /**
+   * Retrieve and consume incoming flash attributes on the first lookup for this request.
+   * If the manager does not supply a model, fall back to {@link #INPUT_ATTRIBUTE}.
+   * Subsequent reads reuse the result, including a cached miss, regardless of the manager supplied.
+   *
+   * @param request the current request
+   * @param manager the manager to use, or {@code null} to resolve it from the request
+   * @return the input redirect model, or {@code null} if none is available
+   * @since 5.0
+   */
+  public static @Nullable RedirectModel findInputModel(HttpContext request, @Nullable RedirectModelManager manager) {
+    Object cached = request.getAttribute(INPUT_CACHE_ATTRIBUTE);
+    if (cached instanceof RedirectModel model) {
+      return model;
+    }
+    if (cached == NullValue.INSTANCE) {
+      return null;
+    }
+
+    if (manager == null) {
+      manager = WebUtils.getRedirectModelManager(request);
+    }
+
+    RedirectModel model = manager != null ? manager.retrieveAndUpdate(request) : null;
+    if (model == null && request.getAttribute(INPUT_ATTRIBUTE) instanceof RedirectModel attribute) {
+      model = attribute;
+    }
+    request.setAttribute(INPUT_CACHE_ATTRIBUTE, model != null ? model : NullValue.INSTANCE);
+    return model;
   }
 
 }

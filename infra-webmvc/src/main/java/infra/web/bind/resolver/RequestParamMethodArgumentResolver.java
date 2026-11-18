@@ -169,7 +169,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
     }
     else {
       // fallback path-variable, can resolve a none-annotated param
-      HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+      HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(request);
       if (matchingMetadata != null) {
         arg = matchingMetadata.getUriVariable(name);
       }

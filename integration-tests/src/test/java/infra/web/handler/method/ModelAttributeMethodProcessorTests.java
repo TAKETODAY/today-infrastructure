@@ -84,7 +84,7 @@ class ModelAttributeMethodProcessorTests {
   public void setup() throws Throwable {
     this.request = new MockHttpContext(null, new MockRequest(), null);
     this.container = new BindingContext();
-    request.setBinding(container);
+    BindingContext.set(request, container);
     this.processor = new ModelAttributeMethodProcessor(false);
 
     Method method = ModelAttributeHandler.class.getDeclaredMethod("modelAttribute",
@@ -162,7 +162,7 @@ class ModelAttributeMethodProcessorTests {
     dataBinder.setTargetType(ResolvableType.forMethodParameter(paramNamedValidModelAttr.getMethodParameter()));
 
     BindingContext factory = mock();
-    request.setBinding(factory);
+    BindingContext.set(request, factory);
     given(factory.createBinder(any(), isNull(), eq("attrName"), any())).willReturn(dataBinder);
 
     this.processor.resolveArgument(request, this.paramNamedValidModelAttr);
@@ -185,7 +185,7 @@ class ModelAttributeMethodProcessorTests {
         return dataBinder;
       }
     };
-    request.setBinding(factory);
+    BindingContext.set(request, factory);
 
     this.processor.resolveArgument(this.request, paramNamedValidModelAttr);
 
@@ -213,7 +213,7 @@ class ModelAttributeMethodProcessorTests {
     // Declare binding disabled (e.g. via @ModelAttribute method)
     factory.setBindingDisabled(name);
 
-    request.setBinding(factory);
+    BindingContext.set(request, factory);
 
     this.processor.resolveArgument(request, paramNamedValidModelAttr);
 
@@ -234,7 +234,7 @@ class ModelAttributeMethodProcessorTests {
     };
     factory.addAttribute(name, target);
 
-    request.setBinding(factory);
+    BindingContext.set(request, factory);
     this.processor.resolveArgument(request, this.paramBindingDisabledAttr);
 
     assertThat(dataBinder.isBindInvoked()).isFalse();
@@ -256,7 +256,7 @@ class ModelAttributeMethodProcessorTests {
         return dataBinder;
       }
     };
-    request.setBinding(binderFactory);
+    BindingContext.set(request, binderFactory);
 
     assertThatExceptionOfType(MethodArgumentNotValidException.class)
             .isThrownBy(() -> processor.resolveArgument(request, this.paramNonSimpleType));
@@ -281,7 +281,7 @@ class ModelAttributeMethodProcessorTests {
     Object anotherTestBean = new TestBean();
     factory.addAttribute("anotherTestBean", anotherTestBean);
 
-    request.setBinding(factory);
+    BindingContext.set(request, factory);
 
     this.processor.resolveArgument(request, this.paramModelAttr);
 
@@ -321,7 +321,7 @@ class ModelAttributeMethodProcessorTests {
       }
     };
 
-    requestWithParam.setBinding(factory);
+    BindingContext.set(requestWithParam, factory);
     Object resolved = this.processor.resolveArgument(requestWithParam, this.beanWithConstructorArgs);
     assertThat(resolved).isInstanceOf(TestBeanWithConstructorArgs.class);
     assertThat(((TestBeanWithConstructorArgs) resolved).listOfStrings).containsExactly("1", "2");
@@ -335,7 +335,7 @@ class ModelAttributeMethodProcessorTests {
     BindingContext factory = new BindingContext();
     ResolvableType type = ResolvableType.forMethodParameter(param.getMethodParameter());
 
-    request.setBinding(factory);
+    BindingContext.set(request, factory);
     this.processor.resolveArgument(request, param);
   }
 

@@ -210,7 +210,7 @@ class ReactiveTypeHandlerTests {
     // Media type from "produces" attribute
     HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(webRequest);
     matchingMetadata.setProducibleMediaTypes(List.of(MediaType.TEXT_EVENT_STREAM));
-    webRequest.setMatchingMetadata(matchingMetadata);
+    HandlerMatchingMetadata.set(webRequest, matchingMetadata);
     testSseResponse(true, null);
 
     // Preset media type
@@ -408,7 +408,7 @@ class ReactiveTypeHandlerTests {
 
     BindingContext mavContainer = new BindingContext();
     MethodParameter returnType = on(TestController.class).resolveReturnType(asyncType, genericType);
-    webRequest.setBinding(mavContainer);
+    BindingContext.set(webRequest, mavContainer);
     return this.handler.handleValue(returnValue, returnType, contentType, this.webRequest);
   }
 

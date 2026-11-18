@@ -126,7 +126,7 @@ public class BaseViewTests {
     HttpContext httpContext = new MockHttpContext(wac, request, response);
     HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(httpContext);
     metadata.getPathVariables().putAll(pathVars);
-    httpContext.setMatchingMetadata(metadata);
+    HandlerMatchingMetadata.set(httpContext, metadata);
 
     tv.render(new HashMap<>(), httpContext);
 
@@ -183,7 +183,7 @@ public class BaseViewTests {
 
     HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(httpContext);
     metadata.getPathVariables().putAll(pathVars);
-    httpContext.setMatchingMetadata(metadata);
+    HandlerMatchingMetadata.set(httpContext, metadata);
 
     Map<String, Object> model = new HashMap<>();
     model.put("one", new HashMap<>());

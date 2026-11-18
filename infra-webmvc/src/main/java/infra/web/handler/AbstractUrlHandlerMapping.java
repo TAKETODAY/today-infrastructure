@@ -142,7 +142,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
     if (handler != null) {
       var matchingMetadata = new HandlerMatchingMetadata(
               handler, requestPath, lookupPath, null, getPatternParser());
-      request.setMatchingMetadata(matchingMetadata);
+      HandlerMatchingMetadata.set(request, matchingMetadata);
       return handler;
     }
 
@@ -177,7 +177,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
 
     var matchingMetadata = new HandlerMatchingMetadata(
             handler, requestPath, lookupPath, bestMatchingPattern, getPatternParser());
-    request.setMatchingMetadata(matchingMetadata);
+    HandlerMatchingMetadata.set(request, matchingMetadata);
     return handler;
   }
 

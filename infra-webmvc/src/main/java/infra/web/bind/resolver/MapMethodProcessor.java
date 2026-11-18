@@ -60,7 +60,7 @@ public class MapMethodProcessor implements ParameterResolvingStrategy, HandlerMe
   @Nullable
   @Override
   public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
-    return context.binding().getModel();
+    return BindingContext.obtain(context).getModel();
   }
 
   // HandlerMethodReturnValueHandler
@@ -80,7 +80,7 @@ public class MapMethodProcessor implements ParameterResolvingStrategy, HandlerMe
   public void handleReturnValue(HttpContext context,
           @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof Map map) {
-      BindingContext bindingContext = context.getBinding();
+      BindingContext bindingContext = BindingContext.find(context);
       if (bindingContext != null) {
         bindingContext.addAllAttributes(map);
       }

@@ -163,7 +163,7 @@ public class SimpleUrlHandlerMappingTests {
       }
     }
 
-    HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
+    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(context);
     request.setAttribute(PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, matchingMetadata.getPathWithinMapping().value());
     request.setAttribute(BEST_MATCHING_HANDLER_ATTRIBUTE, matchingMetadata.getHandler());
     return chain;

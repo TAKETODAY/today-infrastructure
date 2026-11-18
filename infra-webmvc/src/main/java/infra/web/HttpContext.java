@@ -59,8 +59,8 @@ import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
-import infra.web.async.WebAsyncRequest;
 import infra.web.async.WebAsyncManager;
+import infra.web.async.WebAsyncRequest;
 import infra.web.context.annotation.RequestScope;
 import infra.web.context.annotation.SessionScope;
 import infra.web.multipart.MultipartRequest;
@@ -830,137 +830,6 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @since 4.0
    */
   boolean checkNotModified(@Nullable String eTag, long lastModifiedTimestamp);
-
-  /**
-   * Sets the matching metadata for this handler. The matching metadata provides
-   * information about how a handler is matched to a specific request or context.
-   * This method allows setting or updating the metadata, which can be null if no
-   * matching information is available.
-   *
-   * @param handlerMatchingMetadata the metadata to set, or null if no metadata is available
-   */
-  void setMatchingMetadata(@Nullable HandlerMatchingMetadata handlerMatchingMetadata);
-
-  /**
-   * Returns the {@code HandlerMatchingMetadata} associated with this instance,
-   * if available. This metadata typically contains information about how a
-   * handler matches certain criteria, such as request mappings in a web
-   * application context.
-   *
-   * <p>If no matching metadata has been set, this method will return
-   * {@code null}. Ensure proper null checks when using the returned value.</p>
-   *
-   * @return the {@code HandlerMatchingMetadata} associated with this instance,
-   * or {@code null} if no metadata is available
-   */
-  @Nullable
-  HandlerMatchingMetadata getMatchingMetadata();
-
-  /**
-   * Returns the {@code HandlerMatchingMetadata} associated with this instance.
-   *
-   * <p>This method retrieves the metadata that describes how a handler matches
-   * a specific request. If the metadata is not set, an exception is thrown to
-   * indicate that it is required.
-   *
-   * @return the {@code HandlerMatchingMetadata} instance associated with this handler
-   * @throws IllegalStateException if the {@code HandlerMatchingMetadata} is not set
-   */
-  HandlerMatchingMetadata matchingMetadata();
-
-  /**
-   * Returns {@code true} if this instance has handler matching metadata
-   * associated with it.
-   *
-   * @return {@code true} if the {@link HandlerMatchingMetadata} is present,
-   * {@code false} otherwise
-   */
-  boolean hasMatchingMetadata();
-
-  /**
-   * Sets the binding context for this component. The binding context is used to
-   * manage data bindings between the component and its associated data model.
-   *
-   * <p>If {@code null} is passed, any existing binding context will be cleared.</p>
-   *
-   * @param bindingContext the {@link BindingContext} to set, or {@code null} to clear
-   * the current binding context
-   */
-  void setBinding(@Nullable BindingContext bindingContext);
-
-  /**
-   * Checks if the current instance has a binding context established.
-   * <p>
-   * This method evaluates whether the {@code bindingContext} is initialized
-   * (i.e., not null). It is typically used to determine if the object is ready
-   * for binding-related operations.
-   *
-   * @return {@code true} if the {@code bindingContext} is not null, indicating
-   * that a binding context exists; {@code false} otherwise.
-   * @since 4.0
-   */
-  boolean hasBinding();
-
-  /**
-   * Returns the current {@link BindingContext} associated with this instance.
-   *
-   * <p>This method provides access to the binding context, which may be used to manage
-   * data bindings or retrieve information about the current binding state. If no binding
-   * context is set, the method will return {@code null}.
-   *
-   * <p><strong>Example Usage:</strong>
-   * <pre>{@code
-   *   // Retrieve the binding context
-   *   BindingContext context = getBinding();
-   *
-   *   if (context != null) {
-   *     // Perform operations with the binding context
-   *     System.out.println("Binding context found: " + context);
-   *   }
-   *   else {
-   *     System.out.println("No binding context is currently set.");
-   *   }
-   * }</pre>
-   *
-   * @return the current {@link BindingContext}, or {@code null} if no binding context
-   * is associated with this instance
-   * @since 4.0
-   */
-  @Nullable
-  BindingContext getBinding();
-
-  /**
-   * Returns the {@link BindingContext} associated with this instance.
-   *
-   * <p>This method retrieves the binding context, ensuring that it has been
-   * initialized. If the binding context is not set, an exception is thrown
-   * to indicate that a valid context is required.</p>
-   *
-   * @return the non-null {@link BindingContext} instance associated with this object
-   * @throws IllegalStateException if BindingContext is not set
-   * @since 4.0
-   */
-  BindingContext binding();
-
-  /**
-   * Return the incoming flash attributes saved by a previous request before it redirected.
-   *
-   * @return the input redirect model, or {@code null} if none is available
-   * @see #getInputRedirectModel(RedirectModelManager)
-   */
-  default @Nullable RedirectModel getInputRedirectModel() {
-    return getInputRedirectModel(null);
-  }
-
-  /**
-   * Return the incoming flash attributes saved by a previous request before it redirected.
-   *
-   * @param manager the manager to use for lookup, or {@code null} to resolve it from this context
-   * @return the input redirect model, or {@code null} if none is available
-   * @see RedirectModel
-   */
-  @Nullable
-  RedirectModel getInputRedirectModel(@Nullable RedirectModelManager manager);
 
   /**
    * Set the {@code Content-Length} response header.

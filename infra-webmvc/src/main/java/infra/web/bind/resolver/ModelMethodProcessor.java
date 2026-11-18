@@ -56,11 +56,11 @@ public class ModelMethodProcessor implements ReturnValueHandler, ParameterResolv
       RedirectModel redirectModel = new RedirectModel();
       context.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, redirectModel);
       // set redirect model to current BindingContext
-      context.binding().setRedirectModel(redirectModel);
+      BindingContext.obtain(context).setRedirectModel(redirectModel);
       return redirectModel;
     }
 
-    return context.binding().getModel();
+    return BindingContext.obtain(context).getModel();
   }
 
   //---------------------------------------------------------------------
@@ -84,7 +84,7 @@ public class ModelMethodProcessor implements ReturnValueHandler, ParameterResolv
   @Override
   public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof Model model) {
-      BindingContext bindingContext = context.binding();
+      BindingContext bindingContext = BindingContext.obtain(context);
       if (returnValue instanceof RedirectModel redirectModel) {
         // RedirectModel is a special case:
         RedirectModel existRedirectModel = bindingContext.getRedirectModel();
@@ -115,7 +115,6 @@ public class ModelMethodProcessor implements ReturnValueHandler, ParameterResolv
   }
 
 }
-
 
 
 

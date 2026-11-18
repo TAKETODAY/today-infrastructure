@@ -30,6 +30,7 @@ import infra.lang.Constant;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
+import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpContext;
 import infra.web.annotation.MatrixVariable;
 import infra.web.bind.MissingMatrixVariableException;
@@ -68,10 +69,9 @@ public class MatrixVariableMethodArgumentResolver extends AbstractNamedValueReso
     return true;
   }
 
-  @Nullable
   @Override
-  protected Object resolveName(String name, HandlerParameter resolvable, HttpContext request) throws Exception {
-    Map<String, MultiValueMap<String, String>> pathParameters = request.matchingMetadata().getMatrixVariables();
+  protected @Nullable Object resolveName(String name, HandlerParameter resolvable, HttpContext request) throws Exception {
+    var pathParameters = HandlerMatchingMetadata.obtain(request).getMatrixVariables();
     if (CollectionUtils.isEmpty(pathParameters)) {
       return null;
     }
@@ -121,10 +121,8 @@ public class MatrixVariableMethodArgumentResolver extends AbstractNamedValueReso
   }
 
   @Override
-  protected void handleMissingValueAfterConversion(
-          String name, MethodParameter parameter, HttpContext request) throws Exception {
+  protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, HttpContext request) throws Exception {
     throw new MissingMatrixVariableException(name, parameter, true);
   }
 
 }
-

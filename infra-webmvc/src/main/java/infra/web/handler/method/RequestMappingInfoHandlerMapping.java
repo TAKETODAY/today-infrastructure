@@ -108,7 +108,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
             bestMatch.getHandlerMethod(), directLookupPath, request.getRequestPath(),
             CollectionUtils.firstElement(pathPatternsCondition.getPatterns()), getPatternParser());
 
-    request.setMatchingMetadata(matchingMetadata);
+    HandlerMatchingMetadata.set(request, matchingMetadata);
 
     Collection<MediaType> mediaTypes = info.getProducesCondition().getProducibleMediaTypes();
     if (!mediaTypes.isEmpty()) {

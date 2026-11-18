@@ -63,7 +63,7 @@ public class VoidReturnValueHandler implements SmartReturnValueHandler {
    */
   @Override
   public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
-    BindingContext binding = context.getBinding();
+    BindingContext binding = BindingContext.find(context);
     if (binding != null && binding.hasModelAndView()) {
       ModelAndView modelAndView = binding.getModelAndView();
       // user constructed a ModelAndView hold in context

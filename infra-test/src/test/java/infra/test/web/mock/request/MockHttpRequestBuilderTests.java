@@ -477,7 +477,7 @@ class MockHttpRequestBuilderTests {
     MockRequest request = this.builder.buildRequest(this.mockContext);
 
     RedirectModel flashMap =
-            new MockHttpContext(null, request, new MockResponse()).getInputRedirectModel();
+            RedirectModel.findInputModel(new MockHttpContext(null, request, new MockResponse()));
 
     assertThat(flashMap.get("foo")).isEqualTo("bar");
   }

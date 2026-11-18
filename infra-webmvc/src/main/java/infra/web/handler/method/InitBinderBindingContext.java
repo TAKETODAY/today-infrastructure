@@ -47,8 +47,7 @@ public class InitBinderBindingContext extends BindingContext {
 
   private final ControllerMethodResolver methodResolver;
 
-  @Nullable
-  private List<InvocableHandlerMethod> binderMethods;
+  private @Nullable List<InvocableHandlerMethod> binderMethods;
 
   /**
    * Create a new InitBinderBindingContext instance.
@@ -98,8 +97,8 @@ public class InitBinderBindingContext extends BindingContext {
     }
 
     if (!binderMethods.isEmpty()) {
-      BindingContext bindingContext = context.getBinding();
-      context.setBinding(binderMethodContext);
+      BindingContext bindingContext = BindingContext.find(context);
+      BindingContext.set(context, binderMethodContext);
       for (InvocableHandlerMethod binderMethod : binderMethods) {
         if (isBinderMethodApplicable(binderMethod, dataBinder)) {
           Object returnValue = binderMethod.invokeForRequest(context, null, new Object[] { dataBinder });
@@ -114,7 +113,7 @@ public class InitBinderBindingContext extends BindingContext {
           }
         }
       }
-      context.setBinding(bindingContext);
+      BindingContext.set(context, bindingContext);
     }
   }
 

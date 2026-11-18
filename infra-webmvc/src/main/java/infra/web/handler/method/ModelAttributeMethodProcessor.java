@@ -107,10 +107,9 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    * and the next method parameter is not of type {@link Errors}
    * @throws Exception if WebDataBinder initialization fails
    */
-  @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
-    BindingContext bindingContext = context.binding();
+  public @Nullable Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
+    BindingContext bindingContext = BindingContext.obtain(context);
 
     MethodParameter parameter = resolvable.getMethodParameter();
     String name = ModelHandler.getNameForParameter(parameter);
@@ -176,8 +175,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
     return attribute;
   }
 
-  @Nullable
-  private static Object wrapAsOptionalIfNecessary(MethodParameter parameter, @Nullable Object target) {
+  private static @Nullable Object wrapAsOptionalIfNecessary(MethodParameter parameter, @Nullable Object target) {
     return parameter.getParameterType() == Optional.class ? Optional.ofNullable(target) : target;
   }
 
@@ -195,8 +193,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    * @param request the current request
    * @return the created model attribute, or {@code null}
    */
-  @Nullable
-  protected Object createAttribute(String attributeName, MethodParameter parameter,
+  protected @Nullable Object createAttribute(String attributeName, MethodParameter parameter,
           BindingContext bindingContext, HttpContext request) throws Exception {
 
     String value = getRequestValueForAttribute(attributeName, request);
@@ -218,8 +215,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    * @param request the current request
    * @return the request value to try to convert, or {@code null} if none
    */
-  @Nullable
-  protected String getRequestValueForAttribute(String attributeName, HttpContext request) {
+  protected @Nullable String getRequestValueForAttribute(String attributeName, HttpContext request) {
     String variableValue = getUriVariables(request).get(attributeName);
     if (StringUtils.hasText(variableValue)) {
       return variableValue;
@@ -232,7 +228,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
   }
 
   private Map<String, String> getUriVariables(HttpContext request) {
-    HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(request);
     if (matchingMetadata != null) {
       return matchingMetadata.getUriVariables();
     }
@@ -253,8 +249,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    * @return the created model attribute, or {@code null} if no suitable
    * conversion found
    */
-  @Nullable
-  protected Object createAttributeFromRequestValue(String sourceValue, String attributeName,
+  protected @Nullable Object createAttributeFromRequestValue(String sourceValue, String attributeName,
           MethodParameter parameter, BindingContext binderFactory, HttpContext request) throws Exception {
 
     DataBinder binder = binderFactory.createBinder(request, attributeName);
@@ -357,7 +352,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
     HandlerMethod handlerMethod = HandlerMethod.resolve(handler);
     if (handlerMethod != null && returnValue != null) {
       String name = ModelHandler.getNameForReturnValue(returnValue, handlerMethod.getReturnType());
-      context.binding().addAttribute(name, returnValue);
+      BindingContext.obtain(context).addAttribute(name, returnValue);
     }
   }
 

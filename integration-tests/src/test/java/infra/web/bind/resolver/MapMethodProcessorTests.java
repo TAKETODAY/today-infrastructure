@@ -58,7 +58,7 @@ class MapMethodProcessorTests {
     this.processor = new MapMethodProcessor();
     this.mavContainer = new BindingContext();
     this.webRequest = new MockHttpContext(null, new MockRequest(), null);
-    webRequest.setBinding(mavContainer);
+    BindingContext.set(webRequest, mavContainer);
 
   }
 
@@ -199,7 +199,7 @@ class MapMethodProcessorTests {
     HandlerParameter param = this.resolvable.annotNotPresent().arg(Map.class, String.class, Object.class);
     Object result = this.processor.resolveArgument(webRequest, param);
     assertThat(result).isInstanceOf(Map.class);
-    assertThat(result).isSameAs(webRequest.binding().getModel());
+    assertThat(result).isSameAs(BindingContext.obtain(webRequest).getModel());
   }
 
   @SuppressWarnings("unused")

@@ -170,7 +170,7 @@ public class ParameterizableViewController extends AbstractController {
 
   /**
    * Return a ModelAndView object with the specified view name.
-   * <p>The content of the {@link HttpContext#getInputRedirectModel()}
+   * <p>The content of the {@link RedirectModel#findInputModel(HttpContext)}
    * "input" RedirectModel} is also added to the model.
    *
    * @see #getViewName()
@@ -214,7 +214,7 @@ public class ParameterizableViewController extends AbstractController {
     }
 
     ModelAndView modelAndView = new ModelAndView();
-    RedirectModel redirectModel = request.getInputRedirectModel();
+    RedirectModel redirectModel = RedirectModel.findInputModel(request);
     if (redirectModel != null) {
       modelAndView.addAllObjects(redirectModel.asMap());
     }

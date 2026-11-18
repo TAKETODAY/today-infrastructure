@@ -520,7 +520,7 @@ class HttpContextDataBinderTests {
 
   @Test
   void createBinderViaSetters() {
-    context.setMatchingMetadata(new UriVariablesMatchingMetadata(context,
+    HandlerMatchingMetadata.set(context, new UriVariablesMatchingMetadata(context,
             Map.of("name", "John", "age", "25")));
 
     request.addHeader("Some-Int-Array", "1");
@@ -537,7 +537,7 @@ class HttpContextDataBinderTests {
 
   @Test
   void createBinderViaConstructor() {
-    context.setMatchingMetadata(new UriVariablesMatchingMetadata(context,
+    HandlerMatchingMetadata.set(context, new UriVariablesMatchingMetadata(context,
             Map.of("name", "John", "age", "25")));
 
     request.addHeader("Some-Int-Array", "1");
@@ -561,7 +561,7 @@ class HttpContextDataBinderTests {
     request.addParameter("age", "25");
     request.addHeader("name", "Johnny");
 
-    context.setMatchingMetadata(new UriVariablesMatchingMetadata(context, Map.of("age", "26")));
+    HandlerMatchingMetadata.set(context, new UriVariablesMatchingMetadata(context, Map.of("age", "26")));
 
     TestBean target = new TestBean();
     HttpContextDataBinder binder = new HttpContextDataBinder(target, "");

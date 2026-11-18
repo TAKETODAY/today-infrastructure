@@ -30,7 +30,9 @@ import infra.core.ParameterNameDiscoverer;
 import infra.http.HttpHeaders;
 import infra.session.Session;
 import infra.validation.method.MethodValidator;
+import infra.web.BindingContext;
 import infra.web.HttpContext;
+import infra.web.RedirectModel;
 import infra.web.RedirectModelManager;
 import infra.web.annotation.RequestMapping;
 import infra.web.bind.resolver.ParameterResolvingRegistry;
@@ -212,10 +214,10 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
   protected @Nullable Object invokeHandlerMethod(HttpContext request, HandlerMethod handlerMethod) throws Exception {
     var binding = new InitBinderBindingContext(modelHandler, webBindingInitializer, methodResolver, handlerMethod);
     binding.setMethodValidationApplicable(methodValidator != null && handlerMethod.shouldValidateArguments());
-    request.setBinding(binding);
+    BindingContext.set(request, binding);
 
     // add last RedirectModel to this request
-    var inputRedirectModel = request.getInputRedirectModel(redirectModelManager);
+    var inputRedirectModel = RedirectModel.findInputModel(request, redirectModelManager);
     if (inputRedirectModel != null) {
       binding.addAllAttributes(inputRedirectModel);
     }

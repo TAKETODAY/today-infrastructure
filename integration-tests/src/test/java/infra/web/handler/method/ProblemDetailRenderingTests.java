@@ -39,6 +39,7 @@ import infra.http.ProblemDetail;
 import infra.http.ResponseEntity;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.web.ErrorResponse;
+import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpRequestMethodNotSupportedException;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.handler.ResponseEntityExceptionHandler;
@@ -123,7 +124,7 @@ class ProblemDetailRenderingTests {
       request.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
       var response = new MockResponse();
       var context = new MockHttpContext(application, request, response);
-      context.setMatchingMetadata(new infra.web.HandlerMatchingMetadata(context));
+      HandlerMatchingMetadata.set(context, new HandlerMatchingMetadata(context));
       Object value = resolver.handleException(context, new IllegalStateException(), null);
       assertThat(value).isInstanceOf(ProblemDetail.class);
       processor.handleReturnValue(context, null, value);
