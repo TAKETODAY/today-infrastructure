@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 
+import infra.http.HttpMethod;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ObjectUtils;
@@ -52,12 +53,11 @@ public class LocaleChangeInterceptor implements HandlerInterceptor {
 
   private String paramName = DEFAULT_PARAM_NAME;
 
-  private String @Nullable [] httpMethods;
-
   private boolean ignoreInvalidLocale = false;
 
-  @Nullable
-  private LocaleResolver localeResolver;
+  private HttpMethod @Nullable [] httpMethods;
+
+  private @Nullable LocaleResolver localeResolver;
 
   /**
    * Set the name of the parameter that contains a locale specification
@@ -78,16 +78,16 @@ public class LocaleChangeInterceptor implements HandlerInterceptor {
   /**
    * Configure the HTTP method(s) over which the locale can be changed.
    *
-   * @param httpMethods the methods
+   * @param httpMethods the methods, or {@code null} or empty to allow all methods
    */
-  public void setHttpMethods(String @Nullable ... httpMethods) {
+  public void setHttpMethods(HttpMethod @Nullable ... httpMethods) {
     this.httpMethods = httpMethods;
   }
 
   /**
    * Return the configured HTTP methods.
    */
-  public String @Nullable [] getHttpMethods() {
+  public HttpMethod @Nullable [] getHttpMethods() {
     return this.httpMethods;
   }
 
@@ -115,8 +115,7 @@ public class LocaleChangeInterceptor implements HandlerInterceptor {
   /**
    * Return LocaleResolver.
    */
-  @Nullable
-  public LocaleResolver getLocaleResolver() {
+  public @Nullable LocaleResolver getLocaleResolver() {
     return localeResolver;
   }
 
@@ -124,7 +123,7 @@ public class LocaleChangeInterceptor implements HandlerInterceptor {
   public boolean preProcessing(HttpContext context, Object handler) {
     String newLocale = context.getParameter(getParamName());
     if (newLocale != null) {
-      if (checkHttpMethod(context.getMethodAsString())) {
+      if (checkHttpMethod(context.getMethod())) {
         LocaleResolver localeResolver = getLocaleResolver();
         if (localeResolver == null) {
           localeResolver = WebUtils.getLocaleResolver(context);
@@ -137,9 +136,7 @@ public class LocaleChangeInterceptor implements HandlerInterceptor {
         }
         catch (IllegalArgumentException ex) {
           if (isIgnoreInvalidLocale()) {
-            if (logger.isDebugEnabled()) {
-              logger.debug("Ignoring invalid locale value [{}]: {}", newLocale, ex.getMessage());
-            }
+            logger.debug("Ignoring invalid locale value [{}]: {}", newLocale, ex.getMessage());
           }
           else {
             throw ex;
@@ -151,13 +148,13 @@ public class LocaleChangeInterceptor implements HandlerInterceptor {
     return true;
   }
 
-  private boolean checkHttpMethod(String currentMethod) {
-    String[] configuredMethods = getHttpMethods();
+  private boolean checkHttpMethod(HttpMethod method) {
+    var configuredMethods = getHttpMethods();
     if (ObjectUtils.isEmpty(configuredMethods)) {
       return true;
     }
-    for (String configuredMethod : configuredMethods) {
-      if (configuredMethod.equalsIgnoreCase(currentMethod)) {
+    for (var configuredMethod : configuredMethods) {
+      if (configuredMethod == method) {
         return true;
       }
     }
@@ -172,8 +169,7 @@ public class LocaleChangeInterceptor implements HandlerInterceptor {
    * @param localeValue the locale value to parse
    * @return the corresponding {@code Locale} instance
    */
-  @Nullable
-  protected Locale parseLocaleValue(String localeValue) {
+  protected @Nullable Locale parseLocaleValue(String localeValue) {
     return StringUtils.parseLocale(localeValue);
   }
 
