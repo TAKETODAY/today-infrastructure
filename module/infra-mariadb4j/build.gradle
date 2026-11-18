@@ -13,6 +13,7 @@ dependencies {
 
   testImplementation project(":infra-test")
   testImplementation project(':infra-test-support')
+  testImplementation(testFixtures(project(":infra-core")))
   testImplementation 'com.zaxxer:HikariCP'
 
   api 'ch.vorburger.mariaDB4j:mariaDB4j-db-macos-arm64'

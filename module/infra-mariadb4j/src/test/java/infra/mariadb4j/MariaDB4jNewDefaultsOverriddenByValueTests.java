@@ -17,6 +17,9 @@
  * limitations under the License.
  * #L%
  */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.mariadb4j;
 
 import org.junit.jupiter.api.AfterEach;
@@ -25,24 +28,32 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import infra.beans.factory.annotation.Autowired;
-import infra.context.annotation.Configuration;
+import infra.core.testfixture.net.TestSocketUtils;
 import infra.mariadb4j.config.MariaDB4jAutoConfiguration;
 import infra.test.context.ContextConfiguration;
-import infra.test.context.TestPropertySource;
+import infra.test.context.DynamicPropertyRegistry;
+import infra.test.context.DynamicPropertySource;
 import infra.test.context.junit.jupiter.InfraExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests overriding the default configuration of a MariaDB4jSpringService set in a {@link
- * Configuration} via Spring Value properties.
+ * Tests overriding the default MariaDB4j port with an environment property.
  *
  * @author Michael Vorburger
  */
 @ExtendWith(InfraExtension.class)
 @ContextConfiguration(classes = MariaDB4jAutoConfiguration.class)
-@TestPropertySource(properties = { "mariadb4j.port=5678" })
 class MariaDB4jNewDefaultsOverriddenByValueTests {
+
+  private static final int PORT = TestSocketUtils.findAvailableTcpPort();
+
+  @DynamicPropertySource
+  static void mariaDbProperties(DynamicPropertyRegistry registry) {
+    registry.add("mariadb4j.port", () -> PORT);
+    // The macOS temporary directory can make the default Unix socket path too long.
+    registry.add("mariadb4j.socket", () -> "/tmp/mariadb4j-" + PORT + ".sock");
+  }
 
   @Autowired
   MariaDB4jLifecycle lifecycle;
@@ -56,7 +67,7 @@ class MariaDB4jNewDefaultsOverriddenByValueTests {
 
   @Test
   public void testNewDefaults() {
-    assertEquals(5678, lifecycle.mariadb.getConfiguration().getPort());
+    assertThat(lifecycle.mariadb.getConfiguration().getPort()).isEqualTo(PORT);
   }
 
   @AfterEach
