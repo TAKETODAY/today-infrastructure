@@ -56,7 +56,7 @@ final class DefaultAsyncServerResponse extends ErrorHandlingServerResponse imple
   @Override
   public ServerResponse block() {
     try {
-      if (timeout != null && timeout.toMillis() > 0) {
+      if (timeout != null && !timeout.isZero()) {
         return futureResponse.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
       }
       else {

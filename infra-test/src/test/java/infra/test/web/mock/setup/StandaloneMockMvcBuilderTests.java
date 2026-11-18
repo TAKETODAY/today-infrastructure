@@ -19,6 +19,10 @@
 package infra.test.web.mock.setup;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+
+import java.time.Duration;
 
 import infra.context.ApplicationContext;
 import infra.web.mock.MockHttpContext;
@@ -83,6 +87,19 @@ class StandaloneMockMvcBuilderTests {
     StandaloneMockMvcBuilder builder = MockMvcBuilders.standaloneSetup(new PersonController());
     assertThatIllegalArgumentException().isThrownBy(() ->
             builder.addFilters((Filter[]) null));
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+          "PT-1S, Timeout must not be negative",
+          "PT0.000000001S, Timeout must be zero or at least 1 millisecond",
+          "PT9223372036854775807S, Timeout is too large"
+  })
+  void setAsyncRequestTimeoutRejectsInvalidValues(Duration timeout, String message) {
+    StandaloneMockMvcBuilder builder = MockMvcBuilders.standaloneSetup(new PersonController());
+
+    assertThatIllegalArgumentException().isThrownBy(() -> builder.setAsyncRequestTimeout(timeout))
+            .withMessage(message);
   }
 
   @Controller

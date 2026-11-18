@@ -282,14 +282,16 @@ public interface ServerResponse {
    * body based on an asynchronous result. If only the body is asynchronous,
    * {@link BodyBuilder#body(Object)} can be used instead.
    *
-   * <p>A timeout value of zero or less specifies an infinite timeout. Since
-   * the timeout is applied with millisecond precision, a value of less than
-   * one millisecond also specifies an infinite timeout.
+   * <p>{@code null} leaves the MVC async request timeout unchanged, and
+   * {@link Duration#ZERO} uses the container's zero-timeout behavior.
+   * Neither value sets a time limit for {@link AsyncServerResponse#block()}.
    *
    * @param asyncResponse a {@code CompletableFuture<ServerResponse>},
    * {@code Future<ServerResponse>} or {@code Publisher<ServerResponse>}
-   * @param timeout maximum time period to wait for before timing out
+   * @param timeout the timeout, or {@code null} to leave it unspecified
    * @return the asynchronous response
+   * @throws IllegalArgumentException if the timeout is negative, positive but
+   * less than one millisecond, or cannot be represented in milliseconds
    */
   static AsyncServerResponse async(Object asyncResponse, @Nullable Duration timeout) {
     return AsyncServerResponse.create(asyncResponse, timeout);

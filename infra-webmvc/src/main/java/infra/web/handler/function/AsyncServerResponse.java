@@ -30,6 +30,7 @@ import infra.core.ReactiveAdapterRegistry;
 import infra.util.Assert;
 import infra.util.Feature;
 import infra.util.concurrent.Future;
+import infra.web.util.TimeoutUtils;
 
 import static infra.util.FeatureDetector.isPresent;
 
@@ -46,9 +47,9 @@ public interface AsyncServerResponse extends ServerResponse {
 
   /**
    * Block until the future response is obtained.
-   * <p>If this response was created with a timeout of at least one
-   * millisecond, this method waits at most for that timeout; otherwise,
-   * it blocks indefinitely.
+   * <p>If this response was created with a positive timeout, this method waits
+   * at most for that timeout with millisecond precision. With no timeout or
+   * {@link Duration#ZERO}, it waits indefinitely.
    */
   ServerResponse block();
 
@@ -78,17 +79,20 @@ public interface AsyncServerResponse extends ServerResponse {
    * asynchronous producer of a single {@code ServerResponse} that can be
    * adapted via the {@link ReactiveAdapterRegistry}).
    *
-   * <p>A timeout value of zero or less specifies an infinite timeout. Since
-   * the timeout is applied with millisecond precision, a value of less than
-   * one millisecond also specifies an infinite timeout.
+   * <p>{@code null} leaves the MVC async request timeout unchanged, and
+   * {@link Duration#ZERO} uses the container's zero-timeout behavior.
+   * Neither value sets a time limit for {@link #block()}.
    *
    * @param asyncResponse a {@code CompletableFuture<ServerResponse>},
    * {@code Future<ServerResponse>} or {@code Publisher<ServerResponse>}
-   * @param timeout maximum time period to wait for before timing out
+   * @param timeout the timeout, or {@code null} to leave it unspecified
    * @return the asynchronous response
+   * @throws IllegalArgumentException if the timeout is negative, positive but
+   * less than one millisecond, or cannot be represented in milliseconds
    */
   static AsyncServerResponse create(Object asyncResponse, @Nullable Duration timeout) {
     Assert.notNull(asyncResponse, "AsyncResponse is required");
+    TimeoutUtils.validate(timeout);
 
     CompletableFuture<ServerResponse> futureResponse = toCompletableFuture(asyncResponse);
     if (futureResponse.isDone()

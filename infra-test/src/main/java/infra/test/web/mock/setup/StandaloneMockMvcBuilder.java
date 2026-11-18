@@ -76,6 +76,7 @@ import infra.web.handler.method.RequestMappingHandlerMapping;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
 import infra.web.mock.MockDispatcherHandler;
+import infra.web.util.TimeoutUtils;
 import infra.web.view.InternalResourceViewResolver;
 import infra.web.view.ModelAndView;
 import infra.web.view.View;
@@ -260,18 +261,17 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   }
 
   /**
-   * Specify the timeout value for async execution. In Web MVC Test, this
-   * value is used to determine how long to wait for async execution to
-   * complete so that a test can verify the results synchronously.
-   * <p>A timeout of zero or less specifies no timeout, in which case Web MVC
-   * Test waits indefinitely for async execution to complete.
+   * Configure the default asynchronous request timeout for this setup.
+   * {@link MvcResult#getAsyncResult()} uses the effective request timeout
+   * to determine how long to wait for the result. If the effective request
+   * timeout is {@link Duration#ZERO}, the test waits indefinitely.
    *
-   * @param timeout the timeout value in milliseconds
+   * @param timeout the timeout, or {@code null} to use the mock container default
+   * @throws IllegalArgumentException if the timeout is negative, positive but
+   * less than one millisecond, or cannot be represented in milliseconds
    */
   public StandaloneMockMvcBuilder setAsyncRequestTimeout(@Nullable Duration timeout) {
-    if (timeout != null && timeout.isNegative()) {
-      throw new IllegalArgumentException("Timeout must not be negative");
-    }
+    TimeoutUtils.validate(timeout);
     this.asyncRequestTimeout = timeout;
     return this;
   }
