@@ -16,7 +16,7 @@
 
 // Modifications Copyright 2017 - 2026 the TODAY authors.
 
-package infra.web;
+package infra.web.view;
 
 import org.jspecify.annotations.Nullable;
 
@@ -27,13 +27,12 @@ import java.util.Objects;
 
 import infra.beans.BeanWrapper;
 import infra.context.NoSuchMessageException;
+import infra.context.support.MessageSourceAccessor;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 import infra.validation.BindingResult;
 import infra.validation.Errors;
 import infra.validation.ObjectError;
-import infra.web.util.HtmlUtils;
-import infra.web.util.WebUtils;
 
 /**
  * Simple adapter to expose the bind status of a field or object.
@@ -48,15 +47,13 @@ import infra.web.util.WebUtils;
  * @author Juergen Hoeller
  * @author Darren Davison
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @see HttpContext#getBindStatus
+ * @see BindingAccessor#getBindStatus
  */
 public class BindStatus {
 
-  private final HttpContext context;
+  private final MessageSourceAccessor messages;
 
   private final String path;
-
-  private final boolean htmlEscape;
 
   private final @Nullable String expression;
 
@@ -81,16 +78,15 @@ public class BindStatus {
   /**
    * Create a new BindStatus instance, representing a field or object status.
    *
-   * @param context the current HttpContext
+   * @param bindings the rendering-specific binding accessor
+   * @param messages the rendering-specific message accessor
    * @param path the bean and property path for which values and errors
    * will be resolved (for example, "customer.address.street")
-   * @param htmlEscape whether to HTML-escape error messages and string values
    * @throws IllegalStateException if no corresponding Errors object found
    */
-  public BindStatus(HttpContext context, String path, boolean htmlEscape) throws IllegalStateException {
-    this.context = context;
+  BindStatus(BindingAccessor bindings, String path, MessageSourceAccessor messages) throws IllegalStateException {
+    this.messages = messages;
     this.path = path;
-    this.htmlEscape = htmlEscape;
 
     // determine name of the object and property
     String beanName;
@@ -105,11 +101,10 @@ public class BindStatus {
       this.expression = path.substring(dotPos + 1);
     }
 
-    BindingContext binding = context.getBinding();
-    this.errors = binding != null ? binding.getErrors(beanName, htmlEscape) : null;
+    this.errors = bindings.getErrors(beanName);
 
     if (this.errors != null) {
-      // Usual case: A BindingResult is available as request attribute.
+      // Usual case: a binding result is available for rendering.
       // Can determine error codes and messages for the given expression.
       // Can use a custom PropertyEditor, as registered by a form controller.
       if (this.expression != null) {
@@ -139,13 +134,13 @@ public class BindStatus {
       this.errorCodes = initErrorCodes(this.objectErrors);
     }
     else {
-      // No BindingResult available as request attribute:
+      // No binding result available:
       // Probably forwarded directly to a form view.
       // Let's do the best we can: extract a plain target if appropriate.
-      Object target = context.getAttribute(beanName);
+      Object target = bindings.getTarget(beanName);
       if (target == null) {
         throw new IllegalStateException("Neither BindingResult nor plain target object for bean name '" +
-                beanName + "' available as request attribute");
+                beanName + "' available for rendering");
       }
       if (this.expression != null && !"*".equals(this.expression) && !this.expression.endsWith("*")) {
         BeanWrapper bw = BeanWrapper.forBeanPropertyAccess(target);
@@ -157,9 +152,6 @@ public class BindStatus {
       this.errorMessages = new String[0];
     }
 
-    if (htmlEscape && this.value instanceof String text) {
-      this.value = HtmlUtils.htmlEscape(text);
-    }
   }
 
   /**
@@ -196,8 +188,7 @@ public class BindStatus {
   /**
    * Return the current value of the field, i.e. either the property value
    * or a rejected update, or {@code null} if not field-specific.
-   * <p>This value will be an HTML-escaped String if the original value
-   * already was a String.
+   * <p>No output escaping is applied.
    */
   public @Nullable Object getValue() {
     return this.value;
@@ -223,16 +214,14 @@ public class BindStatus {
   /**
    * Return a suitable display value for the field, i.e. the stringified
    * value if not null, and an empty string in case of a null value.
-   * <p>This value will be an HTML-escaped String if the original value
-   * was non-null: the {@code toString} result of the original value
-   * will get HTML-escaped.
+   * <p>No output escaping is applied.
    */
   public String getDisplayValue() {
     if (this.value instanceof String displayValue) {
       return displayValue;
     }
     if (this.value != null) {
-      return (this.htmlEscape ? HtmlUtils.htmlEscape(this.value.toString()) : this.value.toString());
+      return this.value.toString();
     }
     return "";
   }
@@ -296,8 +285,7 @@ public class BindStatus {
         this.errorMessages = new String[this.objectErrors.size()];
         for (int i = 0; i < this.objectErrors.size(); i++) {
           ObjectError error = this.objectErrors.get(i);
-          String message = this.context.getMessageSource().getMessage(error, WebUtils.resolveLocale(this.context));
-          this.errorMessages[i] = this.htmlEscape ? HtmlUtils.htmlEscape(message) : message;
+          this.errorMessages[i] = this.messages.getMessage(error);
         }
       }
       else {

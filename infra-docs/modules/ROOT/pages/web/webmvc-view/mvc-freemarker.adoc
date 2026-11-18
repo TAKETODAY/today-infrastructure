@@ -25,12 +25,17 @@ ${messages.getMessage("optional", "默认文本")}
 
 消息访问器返回普通文本，不执行 HTML 转义。HTML 模板应开启自动转义，不要对消息使用 `?no_esc`，
 也不要在消息源中预先存放 HTML 实体。`infra.ftl` 的四个消息宏保留原有名称，并在输出时自动转义一次。
-非 HTML 模板按自己的输出格式处理转义。表单绑定仍通过 `request.getBindStatus()` 访问，
-`infra.web.default-html-escape` 仅控制绑定展示，不再参与消息解析。
+非 HTML 模板按自己的输出格式处理转义。表单绑定通过 `bindings.getBindStatus("person.name")` 访问，
+绑定值和本地化错误消息同样返回原始文本，由输出层统一转义。
 
 默认开启消息访问器暴露，`messages` 是模板模型的保留名称。业务模型（包括静态属性及已合并的请求、Session 属性）
 或请求属性中存在同名值时，渲染直接失败，不会静默覆盖。
 访问器不保存在共享视图字段中，也不复制到 FreeMarker 请求属性中。
+绑定访问器 `bindings` 采用相同的生命周期与名称冲突规则，但由独立的 `setExposeBindings(boolean)` 控制。
+普通视图默认关闭，模板视图默认开启；自动配置对应 `freemarker.expose-bindings` 和
+`groovy.template.expose-bindings`，默认均为 `true`。关闭消息暴露不影响绑定错误的本地化。
+绑定结果优先取自最终渲染模型，其次取自当前绑定上下文；普通对象依次从最终模型、绑定模型和请求属性查找。
+模型中显式的空值不会回退到低优先级对象。
 消息暴露能力定义在 `AbstractView`：普通视图默认关闭，`AbstractTemplateView` 默认开启。
 因此 JSON、下载等非模板视图默认不会获得该对象，需要时可以显式开启。
 
@@ -160,7 +165,7 @@ Infra 模板库中定义的一些宏被认为是内部的（私有的），但�
 			<@infra.bind "personForm.name"/>
 			<input type="text"
 				name="${infra.status.expression}"
-				value="${infra.status.value?html}"/><br />
+				value="${infra.status.value}"/><br />
 			<#list infra.status.errorMessages as error> <b>${error}</b> <br /> </#list>
 			<br />
 			...
@@ -170,9 +175,8 @@ Infra 模板库中定义的一些宏被认为是内部的（私有的），但�
 	</html>
 ----
 
-名为 `<@infra.bindEscaped>` 的宏的另一种形式采用第二个参数，该参数显式指定是否应在状态错误消息或值中使用 HTML 转义。
-您可以根据需要将其设置为 `true` 或 `false`。
-其他表单处理宏简化了 HTML 转义的使用，您应该尽可能使用这些宏。
+HTML 模板应开启自动转义，绑定宏不对字段值和错误消息预先转义。
+其他表单处理宏简化了字段生成，您可以根据需要使用这些宏。
 下一节将对它们进行解释。
 
 [[mvc-views-form-macros]]
@@ -366,16 +370,11 @@ Java::
 
 处理此指令后，Infra 宏生成的任何元素现在都符合 XHTML。
 
-以类似的方式，您可以为每个字段指定 HTML 转义，如下例所示：
+HTML 输出统一使用 FreeMarker 自动转义；不要对字段值和错误消息使用 `?no_esc`：
 
 [source,jsp,indent=0,subs="verbatim,quotes"]
 ----
-	<#-- until this point, default HTML escaping is used -->
-
-	<#assign htmlEscape = true>
-	<#-- next field will use HTML escaping -->
+	<#ftl output_format="HTML" auto_esc=true>
+	<#import "/infra.ftl" as infra>
 	<@infra.formInput "command.name"/>
-
-	<#assign htmlEscape = false in infra>
-	<#-- all future fields will be bound with HTML escaping off -->
 ----

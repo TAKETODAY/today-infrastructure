@@ -34,6 +34,47 @@ import static org.mockito.Mockito.mock;
 class AbstractViewTests {
 
   @Test
+  void bindingExposureDefaultsAndResolverOverrides() throws Exception {
+    var ordinary = new CapturingView();
+    assertThat(ordinary.isExposeBindings()).isFalse();
+    ordinary.render(Map.of("bindings", "business"), mock(HttpContext.class));
+    assertThat(ordinary.model).containsEntry("bindings", "business");
+    var resolver = new UrlBasedViewResolver();
+    resolver.setViewClass(CapturingView.class);
+    assertThat(resolver.buildView("home").isExposeBindings()).isFalse();
+    resolver.setViewClass(FreeMarkerView.class);
+    assertThat(resolver.buildView("home").isExposeBindings()).isTrue();
+    resolver.setExposeBindings(false);
+    assertThat(resolver.buildView("home").isExposeBindings()).isFalse();
+    resolver.setViewClass(CapturingView.class);
+    resolver.setExposeBindings(true);
+    assertThat(resolver.buildView("home").isExposeBindings()).isTrue();
+  }
+
+  @Test
+  void bindingExposureRejectsRequestAndMergedTemplateConflicts() {
+    var context = new infra.web.mock.MockHttpContext();
+    context.setAttribute("bindings", "request");
+    var view = new FreeMarkerView();
+    view.setExposeRequestAttributes(true);
+    view.setAllowRequestOverride(true);
+    assertThatExceptionOfType(ViewRenderingException.class)
+            .isThrownBy(() -> view.render(Map.of(), context))
+            .withMessageContaining("Cannot expose bindings");
+  }
+
+  @Test
+  void disabledBindingsDoNotCreateAccessor() throws Exception {
+    var view = new CapturingView() {
+      @Override
+      protected BindingAccessor createBindingAccessor(HttpContext context, Map<String, Object> model, Locale locale) {
+        throw new AssertionError("Binding accessor must not be created");
+      }
+    };
+    view.render(Map.of(), mock(HttpContext.class));
+  }
+
+  @Test
   void ordinaryViewsLeaveMessagesNameAvailableByDefault() throws Exception {
     var view = new CapturingView();
     assertThat(view.isExposeMessages()).isFalse();

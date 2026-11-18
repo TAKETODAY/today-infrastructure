@@ -57,7 +57,6 @@ import infra.session.Session;
 import infra.session.SessionManager;
 import infra.util.Assert;
 import infra.util.CollectionUtils;
-import infra.util.InfraStrategies;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
 import infra.web.async.AsyncWebRequest;
@@ -116,15 +115,6 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @see #forward(String)
    */
   String FORWARD_ATTRIBUTE = Conventions.getQualifiedAttributeName(HttpContext.class, "forward");
-
-  /**
-   * Flag indicating whether HTML escaping is enabled by default for binding display values.
-   * This value is retrieved from the application's configuration using the key
-   * "infra.web.default-html-escape". If the key is not found, the default value is {@code false}.
-   *
-   * @since 5.0
-   */
-  boolean defaultHtmlEscape = InfraStrategies.getFlag("infra.web.default-html-escape", false);
 
   /**
    * Empty {@link HttpCookie} array constant used as a safe return value
@@ -1703,43 +1693,6 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    */
   default MessageSource getMessageSource() {
     return getApplicationContext();
-  }
-
-  /**
-   * Determines whether HTML escaping is enabled by default for binding display values.
-   * This method returns the value of the static field {@code defaultHtmlEscape},
-   * which is initialized from the application's configuration.
-   *
-   * @return {@code true} if HTML escaping is enabled by default, {@code false} otherwise
-   * @since 5.0
-   */
-  default boolean isDefaultHtmlEscape() {
-    return defaultHtmlEscape;
-  }
-
-  /**
-   * Create a BindStatus for the given bind object, using the "defaultHtmlEscape" setting.
-   *
-   * @param path the bean and property path for which values and errors will be resolved (for example, "person.age")
-   * @return the new BindStatus instance
-   * @throws IllegalStateException if no corresponding Errors object found
-   * @since 5.0
-   */
-  default BindStatus getBindStatus(String path) throws IllegalStateException {
-    return new BindStatus(this, path, isDefaultHtmlEscape());
-  }
-
-  /**
-   * Create a BindStatus for the given bind object, using the "defaultHtmlEscape" setting.
-   *
-   * @param path the bean and property path for which values and errors will be resolved (for example, "person.age")
-   * @param htmlEscape create a BindStatus with automatic HTML escaping?
-   * @return the new BindStatus instance
-   * @throws IllegalStateException if no corresponding Errors object found
-   * @since 5.0
-   */
-  default BindStatus getBindStatus(String path, boolean htmlEscape) throws IllegalStateException {
-    return new BindStatus(this, path, htmlEscape);
   }
 
   // ---------------------------------------------------------------------

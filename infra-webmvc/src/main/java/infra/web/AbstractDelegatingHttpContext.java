@@ -692,11 +692,6 @@ public abstract class AbstractDelegatingHttpContext implements HttpContext {
   }
 
   @Override
-  public boolean isDefaultHtmlEscape() {
-    return delegate().isDefaultHtmlEscape();
-  }
-
-  @Override
   public @Nullable Object getSessionAttribute(String name) {
     return delegate().getSessionAttribute(name);
   }

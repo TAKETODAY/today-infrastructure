@@ -21,7 +21,6 @@ package infra.web;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +34,6 @@ import infra.validation.BindingResult;
 import infra.validation.DataBinder;
 import infra.validation.Errors;
 import infra.validation.SmartValidator;
-import infra.web.bind.EscapedErrors;
 import infra.web.bind.HttpContextDataBinder;
 import infra.web.bind.WebDataBinder;
 import infra.web.bind.support.BindParamNameResolver;
@@ -71,8 +69,6 @@ public class BindingContext {
   private @Nullable Set<String> bindingDisabled;
 
   protected @Nullable ModelAndView modelAndView;
-
-  private @Nullable Map<String, Errors> errorsMap;
 
   private boolean methodValidationApplicable;
 
@@ -391,57 +387,11 @@ public class BindingContext {
    * @since 5.0
    */
   public @Nullable Errors getErrors(String name) {
-    return getErrors(name, isDefaultHtmlEscape());
-  }
-
-  /**
-   * Retrieve the Errors instance for the given bind object.
-   *
-   * @param name the name of the bind object
-   * @param htmlEscape create an Errors instance with automatic HTML escaping?
-   * @return the Errors instance, or {@code null} if not found
-   * @since 5.0
-   */
-  public @Nullable Errors getErrors(String name, boolean htmlEscape) {
-    if (this.errorsMap == null) {
-      this.errorsMap = new HashMap<>();
+    Object value = this.model != null ? this.model.get(BindingResult.MODEL_KEY_PREFIX + name) : null;
+    if (value instanceof BindException exception) {
+      return exception.getBindingResult();
     }
-    Errors errors = this.errorsMap.get(name);
-    boolean put = false;
-    if (errors == null) {
-      if (model != null && model.get(BindingResult.MODEL_KEY_PREFIX + name) instanceof Errors e) {
-        errors = e;
-      }
-      // Check old BindException prefix for backwards compatibility.
-      if (errors instanceof BindException be) {
-        errors = be.getBindingResult();
-      }
-      if (errors == null) {
-        return null;
-      }
-      put = true;
-    }
-    if (htmlEscape && !(errors instanceof EscapedErrors)) {
-      errors = new EscapedErrors(errors);
-      put = true;
-    }
-    else if (!htmlEscape && errors instanceof EscapedErrors ee) {
-      errors = ee.getSource();
-      put = true;
-    }
-    if (put) {
-      this.errorsMap.put(name, errors);
-    }
-    return errors;
-  }
-
-  /**
-   * Determine whether HTML escaping is enabled by default for error messages.
-   *
-   * @since 5.0
-   */
-  protected boolean isDefaultHtmlEscape() {
-    return HttpContext.defaultHtmlEscape;
+    return value instanceof Errors errors ? errors : null;
   }
 
   /**

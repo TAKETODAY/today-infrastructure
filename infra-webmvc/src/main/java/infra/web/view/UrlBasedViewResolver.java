@@ -111,6 +111,8 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
 
   private @Nullable Boolean exposeMessages;
 
+  private @Nullable Boolean exposeBindings;
+
   private String prefix = "";
 
   private String suffix = "";
@@ -435,6 +437,17 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
   }
 
   /**
+   * Set whether resolved views expose bindings, retaining view defaults when unset.
+   * Does not apply to redirect or forward shortcuts.
+   *
+   * @param exposeBindings whether to expose bindings
+   * @since 5.0
+   */
+  public void setExposeBindings(boolean exposeBindings) {
+    this.exposeBindings = exposeBindings;
+  }
+
+  /**
    * This implementation returns just the view name,
    * as this ViewResolver doesn't support localized resolution.
    */
@@ -564,6 +577,9 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
 
     if (this.exposeMessages != null) {
       view.setExposeMessages(this.exposeMessages);
+    }
+    if (this.exposeBindings != null) {
+      view.setExposeBindings(this.exposeBindings);
     }
 
     String contentType = getContentType();

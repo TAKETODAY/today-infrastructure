@@ -20,7 +20,6 @@ package infra.web.view.freemarker;
 
 import java.util.Map;
 
-import infra.web.BindStatus;
 import infra.web.HttpContext;
 import infra.web.util.UriComponents;
 import infra.web.util.UriComponentsBuilder;
@@ -57,20 +56,6 @@ public class DummyMacroHttpContext {
   public String getContextUrl(String relativeUrl, Map<String, String> params) {
     UriComponents uric = UriComponentsBuilder.forURIString(relativeUrl).buildAndExpand(params);
     return getContextPath() + uric.toURI().toASCIIString();
-  }
-
-  /**
-   * @see HttpContext#getBindStatus(String)
-   */
-  public BindStatus getBindStatus(String path) throws IllegalStateException {
-    return getBindStatus(path, false);
-  }
-
-  /**
-   * @see HttpContext#getBindStatus(String, boolean)
-   */
-  public BindStatus getBindStatus(String path, boolean htmlEscape) throws IllegalStateException {
-    return new BindStatus(request, path, htmlEscape);
   }
 
 }

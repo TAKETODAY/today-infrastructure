@@ -152,12 +152,15 @@ public class FreeMarkerProperties implements InitializingBean, ApplicationContex
    */
   private boolean preferFileSystemAccess;
 
-  private ApplicationContext applicationContext;
-
   /**
    * Whether to expose a rendering-specific message accessor as messages.
    */
   private boolean exposeMessages = true;
+
+  /** Whether to expose rendering-specific binding access. */
+  private boolean exposeBindings = true;
+
+  private ApplicationContext applicationContext;
 
   public FreeMarkerProperties() {
     this(DEFAULT_PREFIX, DEFAULT_SUFFIX);
@@ -186,6 +189,25 @@ public class FreeMarkerProperties implements InitializingBean, ApplicationContex
    */
   public void setExposeMessages(boolean exposeMessages) {
     this.exposeMessages = exposeMessages;
+  }
+
+  /**
+   * Return whether automatic binding exposure is enabled.
+   *
+   * @since 5.0
+   */
+  public boolean isExposeBindings() {
+    return this.exposeBindings;
+  }
+
+  /**
+   * Set whether to expose rendering-specific bindings.
+   *
+   * @param exposeBindings whether to expose bindings
+   * @since 5.0
+   */
+  public void setExposeBindings(boolean exposeBindings) {
+    this.exposeBindings = exposeBindings;
   }
 
   public void setEnabled(boolean enabled) {

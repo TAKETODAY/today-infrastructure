@@ -72,6 +72,31 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
   /** Model attribute reserved for the message accessor when automatic exposure is enabled. */
   public static final String MESSAGES_ATTRIBUTE = "messages";
 
+  /** Model attribute reserved for automatic binding access. */
+  public static final String BINDINGS_ATTRIBUTE = "bindings";
+
+  private boolean exposeBindings = false;
+
+  /**
+   * Set whether to expose rendering-specific bindings. Default is {@code false}.
+   * Template views enable this by default.
+   *
+   * @param exposeBindings whether to expose bindings
+   * @since 5.0
+   */
+  public void setExposeBindings(boolean exposeBindings) {
+    this.exposeBindings = exposeBindings;
+  }
+
+  /**
+   * Return whether automatic binding exposure is enabled.
+   *
+   * @since 5.0
+   */
+  public boolean isExposeBindings() {
+    return this.exposeBindings;
+  }
+
   private boolean exposeMessages = false;
 
   public static final String DEFAULT_ENCODING = "UTF-8";
@@ -434,7 +459,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
   }
 
   /**
-   * Prepare the merged model before rendering, exposing messages if enabled.
+   * Prepare the merged model before rendering, exposing messages and bindings if enabled.
    * Subclasses merging additional attributes must do so before calling this method.
    *
    * @param model the merged output model
@@ -443,6 +468,12 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * @since 5.0
    */
   protected void prepareModel(Map<String, Object> model, HttpContext context) throws Exception {
+    if (this.exposeBindings) {
+      if (model.containsKey(BINDINGS_ATTRIBUTE) || context.getAttribute(BINDINGS_ATTRIBUTE) != null) {
+        throw new ViewRenderingException("Cannot expose bindings because of an existing model object of the same name");
+      }
+      model.put(BINDINGS_ATTRIBUTE, createBindingAccessor(context, model, resolveLocale(context)));
+    }
     if (this.exposeMessages) {
       if (model.containsKey(MESSAGES_ATTRIBUTE) || context.getAttribute(MESSAGES_ATTRIBUTE) != null) {
         throw new ViewRenderingException("Cannot expose messages because of an existing model object of the same name");
@@ -472,6 +503,19 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    */
   protected MessageSourceAccessor createMessageSourceAccessor(HttpContext context, Locale locale) {
     return new MessageSourceAccessor(context.getMessageSource(), locale);
+  }
+
+  /**
+   * Create binding access for one rendering, independently of message exposure.
+   *
+   * @param context the context exposed to the view
+   * @param model the final rendering model
+   * @param locale the effective rendering locale
+   * @return the binding accessor
+   * @since 5.0
+   */
+  protected BindingAccessor createBindingAccessor(HttpContext context, Map<String, Object> model, Locale locale) {
+    return new BindingAccessor(context, model, new MessageSourceAccessor(context.getMessageSource(), locale));
   }
 
   /**

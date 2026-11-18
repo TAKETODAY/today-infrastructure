@@ -38,12 +38,13 @@ import infra.context.support.StaticMessageSource;
 import infra.core.io.ClassPathResource;
 import infra.util.FileCopyUtils;
 import infra.util.StringUtils;
-import infra.web.BindStatus;
 import infra.web.HttpContext;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
+import infra.web.view.BindStatus;
+import infra.web.view.BindingAccessor;
 import infra.web.view.ViewRenderingException;
 
 import static infra.freemarker.config.FreeMarkerProperties.DEFAULT_HTTP_CONTEXT_ATTRIBUTE;
@@ -98,8 +99,8 @@ class FreeMarkerMacroTests {
       protected void processTemplate(Template template, SimpleHash fmModel, HttpContext response) throws IOException, TemplateException {
         Map model = fmModel.toMap();
         assertThat(model.get(DEFAULT_HTTP_CONTEXT_ATTRIBUTE)).isInstanceOf(HttpContext.class);
-        HttpContext rc = (HttpContext) model.get(DEFAULT_HTTP_CONTEXT_ATTRIBUTE);
-        BindStatus status = rc.getBindStatus("tb.name");
+        BindingAccessor bindings = (BindingAccessor) model.get(BINDINGS_ATTRIBUTE);
+        BindStatus status = bindings.getBindStatus("tb.name");
         assertThat(status.getExpression()).isEqualTo("name");
         assertThat(status.getValue()).isEqualTo("juergen");
       }
@@ -116,6 +117,106 @@ class FreeMarkerMacroTests {
   @Test
   void testName() throws Exception {
     assertThat(getMacroOutput("NAME")).isEqualTo("Darren");
+  }
+
+  @Test
+  void bindingValuesAndErrorsEscapeExactlyOnceWithMessagesDisabled() throws Exception {
+    storeTemplateInTempDir("<#outputformat 'HTML'><@infra.formInput 'bean.name'/>|"
+            + "<@infra.bind 'bean.name'/>${infra.status.errorMessage}</#outputformat>");
+    var errors = new infra.validation.BeanPropertyBindingResult(new TestBean("actual"), "bean");
+    errors.addError(new infra.validation.FieldError("bean", "name", "<Tom & Sue>", false,
+            new String[] { "invalid" }, null, "fallback"));
+    wac.getBean("messageSource", StaticMessageSource.class)
+            .addMessage("invalid", Locale.GERMANY, "<Fehler & Text>");
+    FreeMarkerView view = new FreeMarkerView();
+    view.setConfiguration(fc.getConfiguration());
+    view.setUrl("tmp.ftl");
+    view.setExposeMessages(false);
+    view.setLocale(Locale.GERMANY);
+    view.render(Map.of(infra.validation.BindingResult.MODEL_KEY_PREFIX + "bean", errors), context);
+    assertThat(getOutput()).contains("value=\"&lt;Tom &amp; Sue&gt;\"", "|&lt;Fehler &amp; Text&gt;");
+    assertThat(context.getAttribute("bindings")).isNull();
+    assertThat(context.getAttribute("messages")).isNull();
+  }
+
+  @Test
+  void bindEscapesValueAndDisplayValueAtHtmlOutput() throws Exception {
+    var bean = new TestBean("<Tom & \"Sue\"> &lt;tag&gt;");
+
+    assertThat(renderMessages("<@infra.bind 'bean.name'/>${infra.status.value}|${infra.status.displayValue}",
+            Map.of("bean", bean), null))
+            .isEqualTo("&lt;Tom &amp; &quot;Sue&quot;&gt; &amp;lt;tag&amp;gt;|"
+                    + "&lt;Tom &amp; &quot;Sue&quot;&gt; &amp;lt;tag&amp;gt;");
+    assertThat(bean.getName()).isEqualTo("<Tom & \"Sue\"> &lt;tag&gt;");
+  }
+
+  @Test
+  void bindEscapesRejectedValueAndFormattedErrorWithoutChangingBindingResult() throws Exception {
+    var bean = new TestBean("actual");
+    var errors = new infra.validation.BeanPropertyBindingResult(bean, "bean");
+    String rejectedValue = "<rejected & \"value\"> &lt;";
+    errors.addError(new infra.validation.FieldError("bean", "name", rejectedValue, false,
+            new String[] { "invalid" }, new Object[] { "<argument & text>" }, "fallback"));
+    wac.getBean("messageSource", StaticMessageSource.class)
+            .addMessage("invalid", Locale.GERMANY, "<Fehler> {0} &lt;");
+
+    assertThat(renderMessages("<@infra.bind 'bean.name'/>${infra.status.value}|"
+                    + "${infra.status.errorMessage}|<#list infra.status.errorMessages as error>${error}</#list>",
+            Map.of(infra.validation.BindingResult.MODEL_KEY_PREFIX + "bean", errors), Locale.GERMANY))
+            .isEqualTo("&lt;rejected &amp; &quot;value&quot;&gt; &amp;lt;|"
+                    + "&lt;Fehler&gt; &lt;argument &amp; text&gt; &amp;lt;|"
+                    + "&lt;Fehler&gt; &lt;argument &amp; text&gt; &amp;lt;");
+    assertThat(errors.getFieldValue("name")).isEqualTo(rejectedValue);
+    assertThat(bean.getName()).isEqualTo("actual");
+    assertThat(errors.getFieldError("name").getDefaultMessage()).isEqualTo("fallback");
+  }
+
+  @Test
+  void boundFormMacrosEscapeMarkupAndCompareUnescapedOptionValues() throws Exception {
+    String value = "</textarea><script>\"Tom & Sue\"</script>";
+    String escaped = "&lt;/textarea&gt;&lt;script&gt;&quot;Tom &amp; Sue&quot;&lt;/script&gt;";
+
+    String output = renderMessages("<@infra.formInput 'bean.name'/>"
+                    + "<@infra.formTextarea 'bean.name'/>"
+                    + "<@infra.formSingleSelect 'bean.name', options/>",
+            Map.of("bean", new TestBean(value), "options", Map.of(value, value)), null);
+
+    assertThat(output).contains("value=\"" + escaped + "\"",
+                    "\n" + escaped + "</textarea>")
+            .doesNotContain("<script>", "&amp;lt;/textarea");
+    assertThat(output.replaceAll("\\s+", " "))
+            .contains("<option value=\"" + escaped + "\" selected=\"selected\" >" + escaped + "</option>");
+  }
+
+  @Test
+  void bindLeavesValuesAndErrorsUnescapedInPlainTextOutput() throws Exception {
+    var errors = new infra.validation.BeanPropertyBindingResult(new TestBean("actual"), "bean");
+    errors.addError(new infra.validation.FieldError("bean", "name", "<Tom & Sue> &lt;", false,
+            new String[] { "missing" }, null, "<invalid & value>"));
+
+    assertThat(renderMessages("<#outputformat 'plainText'><@infra.bind 'bean.name'/>"
+                    + "${infra.status.value}|${infra.status.displayValue}|${infra.status.errorMessage}</#outputformat>",
+            Map.of(infra.validation.BindingResult.MODEL_KEY_PREFIX + "bean", errors), null))
+            .isEqualTo("<Tom & Sue> &lt;|<Tom & Sue> &lt;|<invalid & value>");
+  }
+
+  @Test
+  void disabledBindingExposureLeavesNameAvailable() throws Exception {
+    storeTemplateInTempDir("${bindings}");
+    FreeMarkerView view = new FreeMarkerView();
+    view.setConfiguration(fc.getConfiguration());
+    view.setUrl("tmp.ftl");
+    view.setExposeBindings(false);
+    context.setAttribute("bindings", "request");
+    view.render(Map.of("bindings", "business"), context);
+    assertThat(getOutput()).isEqualTo("business");
+    assertThat(context.getAttribute("bindings")).isEqualTo("business");
+  }
+
+  @Test
+  void bindingsNameIsReserved() {
+    assertThatExceptionOfType(ViewRenderingException.class)
+            .isThrownBy(() -> renderMessages("unused", Map.of("bindings", "business"), null));
   }
 
   @Test

@@ -52,10 +52,11 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
   private boolean allowSessionOverride = false;
 
   /**
-   * Create a template view with automatic message exposure enabled.
+   * Create a template view with automatic message and binding exposure enabled.
    */
   protected AbstractTemplateView() {
     setExposeMessages(true);
+    setExposeBindings(true);
   }
 
   /**

@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package infra.web;
+package infra.web.view;
 
 import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
+import java.util.Map;
 
+import infra.context.support.MessageSourceAccessor;
 import infra.context.support.StaticMessageSource;
 import infra.validation.BeanPropertyBindingResult;
+import infra.web.BindingContext;
+import infra.web.HttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -30,7 +34,7 @@ import static org.mockito.Mockito.mock;
 class BindStatusTests {
 
   @Test
-  void resolvesMessagesBeforeApplyingDisplayEscaping() {
+  void resolvesMessagesWithoutOutputEscaping() {
     HttpContext context = mock(HttpContext.class);
     BindingContext binding = mock(BindingContext.class);
     var errors = new BeanPropertyBindingResult(new Object(), "bean");
@@ -40,13 +44,10 @@ class BindStatusTests {
     given(context.getBinding()).willReturn(binding);
     given(context.getMessageSource()).willReturn(messages);
     given(context.getLocale()).willReturn(Locale.ENGLISH);
-    given(binding.getErrors("bean", false)).willReturn(errors);
-    given(binding.getErrors("bean", true)).willReturn(errors);
+    given(binding.getErrors("bean")).willReturn(errors);
 
-    assertThat(new BindStatus(context, "bean", false).getErrorMessages())
+    assertThat(new BindingAccessor(context, Map.of(), new MessageSourceAccessor(messages, Locale.ENGLISH))
+            .getBindStatus("bean").getErrorMessages())
             .containsExactly("Invalid & <value>");
-    BindStatus escaped = new BindStatus(context, "bean", true);
-    assertThat(escaped.getErrorMessages()).containsExactly("Invalid &amp; &lt;value&gt;");
-    assertThat(escaped.getErrorMessage()).isEqualTo("Invalid &amp; &lt;value&gt;");
   }
 }

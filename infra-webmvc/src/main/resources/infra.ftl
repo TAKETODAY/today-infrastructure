@@ -1,6 +1,7 @@
 <#ftl output_format="HTML" auto_esc=true strip_whitespace=true>
 <#-- @ftlvariable name="request" type="infra.web.HttpContext" -->
 <#-- @ftlvariable name="messages" type="infra.context.support.MessageSourceAccessor" -->
+<#-- @ftlvariable name="bindings" type="infra.web.view.BindingAccessor" -->
 <#--
  * infra.ftl
  *
@@ -54,50 +55,27 @@
  * (for example, "person.name") to get field errors. Can be called multiple times
  * within a form to bind to multiple command objects and/or field names.
  *
- * This macro will participate in the default HTML escape setting for the given
- * HttpContext, configured via "infra.web.default-html-escape".
- * Also regards a "htmlEscape" variable in the namespace of this library.
+ * Values and messages are unescaped; the output format applies escaping.
  *
  * Producing no output, the following context variable will be available
  * each time this macro is referenced (assuming you import this library in
- * your templates with the namespace 'spring'):
+ * your templates with the namespace 'infra'):
  *
- *   spring.status : a BindStatus instance holding the command object name,
+ *   infra.status : a BindStatus instance holding the command object name,
  *   expression, value, and error messages and codes for the path supplied
  *
  * @param path the path (string value) of the value required to bind to.
- *     Spring defaults to a command name of "command" but this can be
+ *     Infra defaults to a command name of "command" but this can be
  *     overridden by user configuration.
  -->
 <#macro bind path>
-  <#if htmlEscape?exists>
-    <#assign status = request.getBindStatus(path, htmlEscape)>
-  <#else>
-    <#assign status = request.getBindStatus(path)>
-  </#if>
+  <#assign status = bindings.getBindStatus(path)>
   <#-- assign a temporary value, forcing a string representation for any
   kind of variable. This temp value is only used in this macro lib -->
   <#if status.value?exists && status.value?is_boolean>
     <#assign stringStatusValue=status.value?string>
   <#else>
     <#assign stringStatusValue=status.value?default("")>
-  </#if>
-</#macro>
-
-<#--
- * bindEscaped
- *
- * Similar to spring:bind, but takes an explicit HTML escape flag rather
- * than relying on the default HTML escape setting.
- -->
-<#macro bindEscaped path, htmlEscape>
-  <#assign status = request.getBindStatus(path, htmlEscape)>
-  <#-- assign a temporary value, forcing a string representation for any
-  kind of variable. This temp value is only used in this macro lib -->
-  <#if status.value?exists && status.value?is_boolean>
-      <#assign stringStatusValue=status.value?string>
-  <#else>
-      <#assign stringStatusValue=status.value?default("")>
   </#if>
 </#macro>
 

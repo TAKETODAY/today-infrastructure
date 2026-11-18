@@ -3983,14 +3983,16 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     BindStatusView(String content) {
       this.content = content;
+      setExposeBindings(true);
     }
 
     @Override
     protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
-      http.getBindStatus("dataClass");
-      http.getBindStatus("dataClass.param1");
-      http.getBindStatus("dataClass.param2");
-      http.getBindStatus("dataClass.param3");
+      var bindings = (infra.web.view.BindingAccessor) model.get(BINDINGS_ATTRIBUTE);
+      bindings.getBindStatus("dataClass");
+      bindings.getBindStatus("dataClass.param1");
+      bindings.getBindStatus("dataClass.param2");
+      bindings.getBindStatus("dataClass.param3");
       http.getWriter().write(this.content);
     }
   }
@@ -4199,16 +4201,18 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     NestedBindStatusView(String content) {
       this.content = content;
+      setExposeBindings(true);
     }
 
     @Override
     protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
-      http.getBindStatus("nestedDataClass");
-      http.getBindStatus("nestedDataClass.param1");
-      http.getBindStatus("nestedDataClass.nestedParam2");
-      http.getBindStatus("nestedDataClass.nestedParam2.param1");
-      http.getBindStatus("nestedDataClass.nestedParam2.param2");
-      http.getBindStatus("nestedDataClass.nestedParam2.param3");
+      var bindings = (infra.web.view.BindingAccessor) model.get(BINDINGS_ATTRIBUTE);
+      bindings.getBindStatus("nestedDataClass");
+      bindings.getBindStatus("nestedDataClass.param1");
+      bindings.getBindStatus("nestedDataClass.nestedParam2");
+      bindings.getBindStatus("nestedDataClass.nestedParam2.param1");
+      bindings.getBindStatus("nestedDataClass.nestedParam2.param2");
+      bindings.getBindStatus("nestedDataClass.nestedParam2.param3");
       http.getWriter().write(this.content);
     }
   }

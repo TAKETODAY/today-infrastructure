@@ -200,9 +200,6 @@ xref:data-access/jdbc/advanced.adoc#jdbc-batch-list[对对象列表进行批量�
 | `infra.web.prevent-RFD-exploits`
 | 阻止 RFD 攻击开关，默认开启。
 
-| `infra.web.default-html-escape`
-| `HttpContext` 默认是否对 HTML 输出转义，默认值：`false`。
-
 | `infra.web.ssl.nio-file-chunked-size`
 | Netty HTTP 上下文启用 SSL 时，分块发送文件使用的缓冲区大小，单位为字节，默认值：`4096`。
 

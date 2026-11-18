@@ -52,6 +52,18 @@ class FreeMarkerAutoConfigurationIntegrationTests {
 
   private AnnotationConfigWebServerApplicationContext context;
 
+  @Test
+  @WithResource(name = "templates/home.ftl", content = "home")
+  void disableBindingExposure() throws Exception {
+    load("freemarker.expose-bindings=false");
+    var resolver = this.context.getBean(FreeMarkerViewResolver.class);
+    var view = (infra.web.view.AbstractTemplateView) resolver.resolveViewName("home", Locale.UK);
+    assertThat(view).isNotNull();
+    assertThat(view.isExposeBindings()).isFalse();
+    assertThat(view.isExposeMessages()).isTrue();
+    assertThat(this.context.getBean(FreeMarkerProperties.class).isExposeBindings()).isFalse();
+  }
+
   @AfterEach
   void close() {
     if (this.context != null) {
@@ -147,6 +159,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
     var view = (infra.web.view.AbstractTemplateView) resolver.resolveViewName("home", Locale.UK);
     assertThat(view).isNotNull();
     assertThat(view.isExposeMessages()).isTrue();
+    assertThat(view.isExposeBindings()).isTrue();
   }
 
   @SuppressWarnings("deprecation")
