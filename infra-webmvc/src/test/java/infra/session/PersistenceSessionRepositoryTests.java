@@ -30,6 +30,11 @@ import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -74,6 +79,79 @@ class PersistenceSessionRepositoryTests {
       return Objects.hash(age, name);
     }
 
+  }
+
+  @Test
+  void expiredPersistedSessionIsDiscardedBeforeItCanBeRestored() throws Exception {
+    var delegate = new InMemorySessionRepository(new SessionEventDispatcher(), () -> "id");
+    var persister = mock(SessionPersister.class);
+    var repository = new PersistenceSessionRepository(persister, delegate);
+    Session expired = delegate.createSession("id");
+    expired.setLastAccessTime(Instant.EPOCH);
+    given(persister.findById("id")).willReturn(expired);
+
+    assertThat(repository.retrieveSession("id")).isNull();
+    assertThat(delegate.contains("id")).isFalse();
+    verify(persister).remove("id");
+  }
+
+  @Test
+  void failedPersistentRemovalStillReturnsAndEvictsTheInMemorySession() throws IOException {
+    var delegate = new InMemorySessionRepository(new SessionEventDispatcher(), () -> "id");
+    var persister = mock(SessionPersister.class);
+    var repository = new PersistenceSessionRepository(persister, delegate);
+    Session session = repository.createSession("id");
+    repository.saveOrUpdate(session);
+    willThrow(new IOException()).given(persister).remove("id");
+
+    assertThat(repository.remove("id")).isSameAs(session);
+    assertThat(delegate.contains("id")).isFalse();
+    verify(persister).remove("id");
+  }
+
+  @Test
+  void unreadableSessionIsKeptForRetryAfterTransientIoFailure() throws Exception {
+    var delegate = new InMemorySessionRepository(new SessionEventDispatcher(), () -> "id");
+    var persister = mock(SessionPersister.class);
+    var repository = new PersistenceSessionRepository(persister, delegate);
+    Session restored = delegate.createSession("id");
+    given(persister.findById("id")).willThrow(new IOException()).willReturn(restored);
+
+    assertThat(repository.retrieveSession("id")).isNull();
+    verify(persister, never()).remove("id");
+    assertThat(repository.retrieveSession("id")).isSameAs(restored);
+  }
+
+  @Test
+  void incompatibleAndCorruptSessionsAreRemovedFromThePersister() throws Exception {
+    var delegate = new InMemorySessionRepository(new SessionEventDispatcher(), () -> "id");
+    var persister = mock(SessionPersister.class);
+    var repository = new PersistenceSessionRepository(persister, delegate);
+    given(persister.findById("incompatible")).willThrow(new ClassNotFoundException());
+    given(persister.findById("corrupt")).willThrow(new ClassCastException());
+
+    assertThat(repository.retrieveSession("incompatible")).isNull();
+    verify(persister).remove("incompatible");
+    assertThat(repository.retrieveSession("corrupt")).isNull();
+    verify(persister).remove("corrupt");
+  }
+
+  @Test
+  void shutdownContinuesPersistingOtherSessionsAfterWriteFailure() throws IOException {
+    var delegate = mock(SessionRepository.class);
+    var persister = mock(SessionPersister.class);
+    var repository = new PersistenceSessionRepository(persister, delegate);
+    Session first = new MapSession("first");
+    Session last = new MapSession("last");
+    given(delegate.getIdentifiers()).willReturn(new String[] { "first", "missing", "last" });
+    given(delegate.retrieveSession("first")).willReturn(first);
+    given(delegate.retrieveSession("last")).willReturn(last);
+    willThrow(new IOException()).given(persister).persist(first);
+
+    repository.destroy();
+
+    verify(persister).persist(last);
+    verify(persister, never()).persist(null);
   }
 
   @Test

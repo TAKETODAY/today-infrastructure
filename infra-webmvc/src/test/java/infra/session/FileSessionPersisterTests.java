@@ -21,7 +21,9 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Map;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
@@ -32,6 +34,9 @@ import infra.session.config.EnableSession;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -78,6 +83,53 @@ class FileSessionPersisterTests {
 
     persister.remove(id);
     assertThat(persister.keys()).hasSize(0);
+  }
+
+  @Test
+  void usesJavaSerializationForSessionsWithoutCustomStreamSupport() throws Exception {
+    Session original = mock(Session.class, withSettings().serializable());
+    given(original.getId()).willReturn("id");
+    SessionRepository repository = mock(SessionRepository.class);
+    given(repository.createSession("id")).willReturn(new MapSession("id"));
+    var persister = new FileSessionPersister(repository);
+    persister.setDirectory(tempDir);
+    persister.persist(original);
+
+    Session restored = persister.findById("id");
+    assertThat(restored).isNotNull().isNotSameAs(original);
+    assertThat(restored.getId()).isEqualTo("id");
+  }
+
+  @Test
+  void rejectsSerializedObjectsThatAreNotSessions() throws IOException {
+    SessionRepository repository = mock(SessionRepository.class);
+    given(repository.createSession("id")).willReturn(new MapSession("id"));
+    var persister = new FileSessionPersister(repository);
+    persister.setDirectory(tempDir);
+    try (var stream = new ObjectOutputStream(Files.newOutputStream(tempDir.toPath().resolve("id.session")))) {
+      stream.writeObject("not a session");
+    }
+
+    assertThatThrownBy(() -> persister.findById("id")).isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
+  void restoresOtherAttributesWhenOneContainsANonSerializableValue() throws Exception {
+    var repository = new InMemorySessionRepository(new SessionEventDispatcher(), () -> "id");
+    var persister = new FileSessionPersister(repository);
+    persister.setDirectory(tempDir);
+    Session session = repository.createSession("id");
+    var values = new ArrayList<>();
+    values.add(new Object());
+    session.setAttribute("nested", values);
+    session.setAttribute("plain", new Object());
+    session.setAttribute("language", "zh");
+
+    persister.persist(session);
+
+    Session restored = persister.findById("id");
+    assertThat(restored).isNotNull();
+    assertThat(restored.getAttributes()).containsExactlyEntriesOf(Map.of("language", "zh"));
   }
 
   @Test
