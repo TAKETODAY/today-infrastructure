@@ -75,11 +75,11 @@ class DelegatingHttpContextTests {
   @Test
   void requestLocaleIsDelegated() {
     HttpContext delegate = mock(HttpContext.class);
-    when(delegate.getLocale()).thenReturn(Locale.SIMPLIFIED_CHINESE);
+    when(delegate.getPreferredLocale()).thenReturn(Locale.SIMPLIFIED_CHINESE);
     DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
-    assertThat(wrapper.getLocale()).isEqualTo(Locale.SIMPLIFIED_CHINESE);
-    verify(delegate).getLocale();
+    assertThat(wrapper.getPreferredLocale()).isEqualTo(Locale.SIMPLIFIED_CHINESE);
+    verify(delegate).getPreferredLocale();
   }
 
   @Test
@@ -87,8 +87,8 @@ class DelegatingHttpContextTests {
     HttpContext delegate = mock(HttpContext.class);
     DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
-    assertThat(wrapper.getLocale()).isNull();
-    verify(delegate).getLocale();
+    assertThat(wrapper.getPreferredLocale()).isNull();
+    verify(delegate).getPreferredLocale();
   }
 
   @Test
@@ -424,27 +424,27 @@ class DelegatingHttpContextTests {
   void removeCookie_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
     List<ResponseCookie> cookies = new ArrayList<>();
-    when(delegate.removeCookie("name")).thenReturn(cookies);
+    when(delegate.removeCookies("name")).thenReturn(cookies);
 
     DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
-    List<ResponseCookie> result = wrapper.removeCookie("name");
+    List<ResponseCookie> result = wrapper.removeCookies("name");
 
     assertThat(result).isSameAs(cookies);
-    verify(delegate).removeCookie("name");
+    verify(delegate).removeCookies("name");
   }
 
   @Test
   void hasResponseCookie_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
-    when(delegate.hasResponseCookie()).thenReturn(true);
+    when(delegate.hasResponseCookies()).thenReturn(true);
 
     DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
-    boolean result = wrapper.hasResponseCookie();
+    boolean result = wrapper.hasResponseCookies();
 
     assertThat(result).isTrue();
-    verify(delegate).hasResponseCookie();
+    verify(delegate).hasResponseCookies();
   }
 
   @Test
@@ -493,14 +493,14 @@ class DelegatingHttpContextTests {
   void getParametersByName_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
     String[] values = { "value1", "value2" };
-    when(delegate.getParameters("param")).thenReturn(values);
+    when(delegate.getParameterValues("param")).thenReturn(values);
 
     DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
-    String[] result = wrapper.getParameters("param");
+    String[] result = wrapper.getParameterValues("param");
 
     assertThat(result).isSameAs(values);
-    verify(delegate).getParameters("param");
+    verify(delegate).getParameterValues("param");
   }
 
   @Test
@@ -683,14 +683,14 @@ class DelegatingHttpContextTests {
   void getLocale_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
     Locale locale = Locale.ENGLISH;
-    when(delegate.getLocale()).thenReturn(locale);
+    when(delegate.getPreferredLocale()).thenReturn(locale);
 
     DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
-    Locale result = wrapper.getLocale();
+    Locale result = wrapper.getPreferredLocale();
 
     assertThat(result).isSameAs(locale);
-    verify(delegate).getLocale();
+    verify(delegate).getPreferredLocale();
   }
 
   @Test

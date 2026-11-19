@@ -64,7 +64,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
    * <p>Use {@link WebUtils#resolveLocale(HttpContext)}
    * to retrieve the current locale in controllers or views.
    *
-   * @see HttpContext#getLocale
+   * @see HttpContext#getPreferredLocale
    * @see WebUtils#resolveLocale
    */
   public static final String LOCALE_SESSION_ATTRIBUTE_NAME = SessionLocaleResolver.class.getName() + ".LOCALE";
@@ -160,12 +160,12 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
    * @param request the request to resolve the locale for
    * @return the default locale (never {@code null})
    * @see #setDefaultLocale
-   * @see HttpContext#getLocale()
+   * @see HttpContext#getPreferredLocale()
    */
   protected Locale determineDefaultLocale(HttpContext request) {
     Locale defaultLocale = getDefaultLocale();
     if (defaultLocale == null) {
-      defaultLocale = request.getLocale();
+      defaultLocale = request.getPreferredLocale();
     }
     return defaultLocale != null ? defaultLocale : Locale.getDefault();
   }

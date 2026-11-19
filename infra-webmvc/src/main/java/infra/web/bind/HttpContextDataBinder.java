@@ -336,10 +336,10 @@ public class HttpContextDataBinder extends WebDataBinder {
     }
 
     protected @Nullable Object getRequestParameter(String name, Class<?> type) {
-      Object value = request.getParameters(name);
+      Object value = request.getParameterValues(name);
 
       if (value == null && !name.endsWith("[]") && (List.class.isAssignableFrom(type) || type.isArray())) {
-        value = this.request.getParameters(name + "[]");
+        value = this.request.getParameterValues(name + "[]");
       }
       if (value == null) {
         Map<String, String> uriVars = getUriVars(getRequest());

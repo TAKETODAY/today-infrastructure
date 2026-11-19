@@ -89,7 +89,7 @@ class AbstractViewTests {
     var source = new StaticMessageSource();
     source.addMessage("hello", Locale.GERMANY, "Hallo & <world>");
     given(context.getMessageSource()).willReturn(source);
-    given(context.getLocale()).willReturn(Locale.GERMANY);
+    given(context.getPreferredLocale()).willReturn(Locale.GERMANY);
     var view = new CapturingView();
     view.setExposeMessages(true);
     view.render(Map.of(), context);

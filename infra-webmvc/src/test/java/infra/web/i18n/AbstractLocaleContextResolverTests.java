@@ -40,7 +40,7 @@ class AbstractLocaleContextResolverTests {
   void prefersLocaleContextOverConfiguredDefaultAndRequestLocale() {
     resolver.setLocaleContext(request, new SimpleLocaleContext(Locale.JAPAN));
     resolver.setDefaultLocale(Locale.FRANCE);
-    given(request.getLocale()).willReturn(Locale.GERMANY);
+    given(request.getPreferredLocale()).willReturn(Locale.GERMANY);
 
     assertThat(resolver.resolveLocale(request)).isEqualTo(Locale.JAPAN);
   }
@@ -48,14 +48,14 @@ class AbstractLocaleContextResolverTests {
   @Test
   void prefersConfiguredDefaultOverRequestLocaleWhenContextHasNoLocale() {
     resolver.setDefaultLocale(Locale.FRANCE);
-    given(request.getLocale()).willReturn(Locale.GERMANY);
+    given(request.getPreferredLocale()).willReturn(Locale.GERMANY);
 
     assertThat(resolver.resolveLocale(request)).isEqualTo(Locale.FRANCE);
   }
 
   @Test
   void fallsBackToRequestLocaleWhenNoDefaultIsConfigured() {
-    given(request.getLocale()).willReturn(Locale.GERMANY);
+    given(request.getPreferredLocale()).willReturn(Locale.GERMANY);
 
     assertThat(resolver.resolveLocale(request)).isEqualTo(Locale.GERMANY);
   }

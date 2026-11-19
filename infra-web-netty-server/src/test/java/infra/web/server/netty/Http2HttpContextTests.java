@@ -452,7 +452,7 @@ class Http2HttpContextTests {
     context.reset();
 
     assertThat(context.getResponseContentType()).isNull();
-    assertThat(context.hasResponseCookie()).isFalse();
+    assertThat(context.hasResponseCookies()).isFalse();
     assertThat(context.asHttpOutputMessage()).isSameAs(outputMessage);
   }
 

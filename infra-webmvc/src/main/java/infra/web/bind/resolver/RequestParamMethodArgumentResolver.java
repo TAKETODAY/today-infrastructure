@@ -160,9 +160,9 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
     }
 
     Object arg = null;
-    String[] paramValues = request.getParameters(name);
+    String[] paramValues = request.getParameterValues(name);
     if (paramValues == null) {
-      paramValues = request.getParameters(name + "[]");
+      paramValues = request.getParameterValues(name + "[]");
     }
     if (paramValues != null) {
       arg = paramValues.length == 1 ? paramValues[0] : paramValues;

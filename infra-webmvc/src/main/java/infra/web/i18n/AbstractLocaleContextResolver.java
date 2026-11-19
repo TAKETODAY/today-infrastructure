@@ -68,7 +68,7 @@ public abstract class AbstractLocaleContextResolver
       locale = getDefaultLocale();
     }
     if (locale == null) {
-      locale = context.getLocale();
+      locale = context.getPreferredLocale();
     }
     return locale != null ? locale : Locale.getDefault();
   }

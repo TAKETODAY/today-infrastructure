@@ -43,7 +43,7 @@ import infra.web.LocaleResolver;
  * @author Juergen Hoeller
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @see HttpContext#getLocale()
+ * @see HttpContext#getPreferredLocale()
  * @since 4.0
  */
 public class AcceptHeaderLocaleResolver implements LocaleResolver {
@@ -54,7 +54,7 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
 
   /**
    * Configure the list of supported locales to compare and match against
-   * {@link HttpContext#getLocale() requested locales}.
+   * {@link HttpContext#getPreferredLocale() requested locales}.
    * <p>In order for a supported locale to be considered a match, it must match
    * on both country and language. If you want to support a language-only match
    * as a fallback, you must configure the language explicitly as a supported
@@ -109,7 +109,7 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
   @Override
   public Locale resolveLocale(HttpContext context) {
     Locale defaultLocale = getDefaultLocale();
-    Locale requestLocale = context.getLocale();
+    Locale requestLocale = context.getPreferredLocale();
     if (requestLocale == null) {
       return defaultLocale != null ? defaultLocale : Locale.getDefault();
     }

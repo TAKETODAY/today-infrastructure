@@ -391,7 +391,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return the removed response cookies, or {@code null} if none matched
    */
   @Nullable
-  List<ResponseCookie> removeCookie(String name);
+  List<ResponseCookie> removeCookies(String name);
 
   /**
    * Determine whether the response cookie list is non-empty.
@@ -399,7 +399,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return {@code true} if the list contains at least one response cookie
    * @see #responseCookies()
    */
-  boolean hasResponseCookie();
+  boolean hasResponseCookies();
 
   /**
    * Return the live list of response cookies. Add or remove cookies before
@@ -447,7 +447,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @return the parameter values, or {@code null} if there are none
    * @see #getParameters()
    */
-  default String @Nullable [] getParameters(String name) {
+  default String @Nullable [] getParameterValues(String name) {
     List<String> list = getParameters().get(name);
     if (CollectionUtils.isEmpty(list)) {
       return null;
@@ -464,10 +464,10 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * <p>
    * You should only use this method when you are sure the parameter has only one
    * value. If the parameter might have more than one value, use
-   * {@link #getParameters(String)}.
+   * {@link #getParameterValues(String)}.
    *
    * <p>For a multivalued parameter, this method returns the first value
-   * returned by {@link #getParameters(String)}.
+   * returned by {@link #getParameterValues(String)}.
    *
    * <p>
    * If the parameter data was sent in the request body, such as occurs with an
@@ -476,7 +476,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    *
    * @param name a <code>String</code> specifying the name of the parameter
    * @return the first parameter value, or {@code null} if there are none
-   * @see #getParameters(String)
+   * @see #getParameterValues(String)
    */
   default @Nullable String getParameter(String name) {
     List<String> list = getParameters().get(name);
@@ -777,7 +777,7 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @see WebUtils#resolveLocale(HttpContext)
    * @since 4.0
    */
-  @Nullable Locale getLocale();
+  @Nullable Locale getPreferredLocale();
 
   // checkNotModified
 

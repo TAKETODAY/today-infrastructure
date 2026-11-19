@@ -88,7 +88,7 @@ public class CookieSessionIdResolver implements SessionIdResolver {
     HttpCookie cookie = exchange.getCookie(cookieName);
     if (cookie == null) {
       // fallback to response cookies
-      if (exchange.hasResponseCookie()) {
+      if (exchange.hasResponseCookies()) {
         for (ResponseCookie httpCookie : exchange.responseCookies()) {
           if (cookieName.equals(httpCookie.getName())) {
             return httpCookie.getValue();
@@ -111,7 +111,7 @@ public class CookieSessionIdResolver implements SessionIdResolver {
 
   @Override
   public void expireSession(HttpContext exchange) {
-    exchange.removeCookie(cookieName);
+    exchange.removeCookies(cookieName);
     exchange.removeAttribute(WRITTEN_SESSION_ID_ATTR);
   }
 

@@ -377,14 +377,14 @@ public abstract class WebUtils {
    * <p>If a configured {@link #getLocaleResolver LocaleResolver} is available,
    * return its result directly: the resolver is responsible for its own defaults
    * and must return a non-null locale. Only when no resolver is available, use
-   * {@link HttpContext#getLocale()} and, if that is null, {@link Locale#getDefault()}.
-   * <p>Unlike {@link HttpContext#getLocale()}, this method always returns
+   * {@link HttpContext#getPreferredLocale()} and, if that is null, {@link Locale#getDefault()}.
+   * <p>Unlike {@link HttpContext#getPreferredLocale()}, this method always returns
    * a non-null locale on successful resolution. It does not suppress parsing
    * or resolver exceptions, or restrict the result to supported languages.
    * Configure application defaults and supported languages on the resolver.
    * <p>Resolver implementations must not call this method to obtain a fallback,
    * since doing so may invoke the same resolver recursively. They should read
-   * {@link HttpContext#getLocale()} directly instead.
+   * {@link HttpContext#getPreferredLocale()} directly instead.
    * <p>Consider using {@link LocaleContextHolder#getLocale()}
    * which will normally be populated with the same Locale.
    *
@@ -398,7 +398,7 @@ public abstract class WebUtils {
     if (localeResolver != null) {
       return localeResolver.resolveLocale(request);
     }
-    Locale locale = request.getLocale();
+    Locale locale = request.getPreferredLocale();
     return locale != null ? locale : Locale.getDefault();
   }
 
@@ -574,7 +574,7 @@ public abstract class WebUtils {
   public static int[] getRequiredIntParameters(HttpContext request, String name)
           throws RequestBindingException {
 
-    return IntParser.INSTANCE.parseInts(name, request.getParameters(name));
+    return IntParser.INSTANCE.parseInts(name, request.getParameterValues(name));
   }
 
   /**
@@ -656,7 +656,7 @@ public abstract class WebUtils {
   public static long[] getRequiredLongParameters(HttpContext request, String name)
           throws RequestBindingException {
 
-    return LongParser.INSTANCE.parseLongs(name, request.getParameters(name));
+    return LongParser.INSTANCE.parseLongs(name, request.getParameterValues(name));
   }
 
   /**
@@ -738,7 +738,7 @@ public abstract class WebUtils {
   public static float[] getRequiredFloatParameters(HttpContext request, String name)
           throws RequestBindingException {
 
-    return FloatParser.INSTANCE.parseFloats(name, request.getParameters(name));
+    return FloatParser.INSTANCE.parseFloats(name, request.getParameterValues(name));
   }
 
   /**
@@ -820,7 +820,7 @@ public abstract class WebUtils {
   public static double[] getRequiredDoubleParameters(HttpContext request, String name)
           throws RequestBindingException {
 
-    return DoubleParser.INSTANCE.parseDoubles(name, request.getParameters(name));
+    return DoubleParser.INSTANCE.parseDoubles(name, request.getParameterValues(name));
   }
 
   /**
@@ -913,7 +913,7 @@ public abstract class WebUtils {
    */
   public static boolean[] getRequiredBooleanParameters(HttpContext request, String name)
           throws RequestBindingException {
-    return BooleanParser.INSTANCE.parseBooleans(name, request.getParameters(name));
+    return BooleanParser.INSTANCE.parseBooleans(name, request.getParameterValues(name));
   }
 
   /**
@@ -987,7 +987,7 @@ public abstract class WebUtils {
   public static String[] getRequiredStringParameters(HttpContext request, String name)
           throws RequestBindingException {
 
-    return StringParser.INSTANCE.validateRequiredStrings(name, request.getParameters(name));
+    return StringParser.INSTANCE.validateRequiredStrings(name, request.getParameterValues(name));
   }
 
   private abstract static class ParameterParser<T> {

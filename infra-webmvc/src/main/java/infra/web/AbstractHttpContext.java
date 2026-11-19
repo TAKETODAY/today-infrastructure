@@ -576,7 +576,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * if no cookies were found or the internal cookie list is null
    */
   @Override
-  public @Nullable List<ResponseCookie> removeCookie(String name) {
+  public @Nullable List<ResponseCookie> removeCookies(String name) {
     if (responseCookies != null) {
       ArrayList<ResponseCookie> toRemove = new ArrayList<>(2);
       for (ResponseCookie responseCookie : responseCookies) {
@@ -611,7 +611,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * @return true if response cookies are present, false otherwise
    */
   @Override
-  public boolean hasResponseCookie() {
+  public boolean hasResponseCookies() {
     return responseCookies != null && !responseCookies.isEmpty();
   }
 
@@ -1239,7 +1239,7 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    * @since 4.0
    */
   @Override
-  public @Nullable Locale getLocale() {
+  public @Nullable Locale getPreferredLocale() {
     if (locale == null) {
       locale = readLocale();
     }

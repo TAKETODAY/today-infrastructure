@@ -2763,7 +2763,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       response.getWriter().write("myView");
       request.setAttribute("sessionId", this.session.getId());
       request.setAttribute("requestUri", this.request.getRequestURI());
-      request.setAttribute("locale", this.webRequest.getLocale());
+      request.setAttribute("locale", this.webRequest.getPreferredLocale());
     }
 
     @RequestMapping(params = { "view", "!lang" })

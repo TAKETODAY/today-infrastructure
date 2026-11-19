@@ -58,16 +58,16 @@ class AbstractHttpContextStateTests {
 
   @Test
   void localeIsNullWithoutAcceptLanguage() {
-    assertThat(context.getLocale()).isNull();
+    assertThat(context.getPreferredLocale()).isNull();
     assertThat(WebUtils.resolveLocale(context)).isEqualTo(Locale.getDefault());
-    assertThat(context.getLocale()).isNull();
+    assertThat(context.getPreferredLocale()).isNull();
   }
 
   @Test
   void localeIsNullWithoutAcceptableConcreteLanguage() {
     for (String value : List.of("", " ", "*", "*;q=0.8", "en;q=0", "en;q=0, *")) {
       context.requestHeaders.set(HttpHeaders.ACCEPT_LANGUAGE, value);
-      assertThat(context.getLocale()).as("Accept-Language: %s", value).isNull();
+      assertThat(context.getPreferredLocale()).as("Accept-Language: %s", value).isNull();
     }
   }
 
@@ -75,7 +75,7 @@ class AbstractHttpContextStateTests {
   void localeUsesQualityOrderAndIgnoresWildcards() {
     context.requestHeaders.set(HttpHeaders.ACCEPT_LANGUAGE, "*;q=1, en-US;q=0.5, zh-CN;q=0.9");
 
-    assertThat(context.getLocale()).isEqualTo(Locale.SIMPLIFIED_CHINESE);
+    assertThat(context.getPreferredLocale()).isEqualTo(Locale.SIMPLIFIED_CHINESE);
     assertThat(WebUtils.resolveLocale(context)).isEqualTo(Locale.SIMPLIFIED_CHINESE);
   }
 
@@ -83,7 +83,7 @@ class AbstractHttpContextStateTests {
   void localeRejectsInvalidAcceptLanguage() {
     context.requestHeaders.set(HttpHeaders.ACCEPT_LANGUAGE, "en;q=invalid");
 
-    assertThatIllegalArgumentException().isThrownBy(context::getLocale);
+    assertThatIllegalArgumentException().isThrownBy(context::getPreferredLocale);
   }
 
   @Test
@@ -95,7 +95,7 @@ class AbstractHttpContextStateTests {
     assertThat(acceptHeaderResolver.resolveLocale(context)).isEqualTo(Locale.getDefault());
     assertThat(cookieResolver.resolveLocale(context)).isEqualTo(Locale.getDefault());
     assertThat(sessionResolver.resolveLocale(new MockHttpContext())).isEqualTo(Locale.getDefault());
-    assertThat(context.getLocale()).isNull();
+    assertThat(context.getPreferredLocale()).isNull();
   }
 
   @Test
@@ -105,7 +105,7 @@ class AbstractHttpContextStateTests {
     resolver.setDefaultLocale(Locale.SIMPLIFIED_CHINESE);
 
     assertThat(resolver.resolveLocale(context)).isEqualTo(Locale.SIMPLIFIED_CHINESE);
-    assertThat(context.getLocale()).isNull();
+    assertThat(context.getPreferredLocale()).isNull();
   }
 
   @Test
@@ -277,11 +277,11 @@ class AbstractHttpContextStateTests {
   @Test
   void resetClearsResponseCookies() {
     context.addCookie(ResponseCookie.forSimple("session", "old"));
-    assertThat(context.hasResponseCookie()).isTrue();
+    assertThat(context.hasResponseCookies()).isTrue();
 
     context.reset();
 
-    assertThat(context.hasResponseCookie()).isFalse();
+    assertThat(context.hasResponseCookies()).isFalse();
   }
 
   @Test
@@ -300,10 +300,10 @@ class AbstractHttpContextStateTests {
     ResponseCookie cookie = ResponseCookie.forSimple("session", "old");
     context.addCookie(cookie);
 
-    List<ResponseCookie> removed = context.removeCookie("session");
+    List<ResponseCookie> removed = context.removeCookies("session");
 
     assertThat(removed).containsExactly(cookie);
-    assertThat(context.hasResponseCookie()).isFalse();
+    assertThat(context.hasResponseCookies()).isFalse();
   }
 
   @Test
@@ -311,16 +311,16 @@ class AbstractHttpContextStateTests {
     ResponseCookie cookie = ResponseCookie.forSimple("session", "old");
     context.addCookie(cookie);
 
-    List<ResponseCookie> removed = context.removeCookie("missing");
+    List<ResponseCookie> removed = context.removeCookies("missing");
 
     assertThat(removed).isNull();
     // a non-matching removal must not drop the existing cookie
-    assertThat(context.hasResponseCookie()).isTrue();
+    assertThat(context.hasResponseCookies()).isTrue();
   }
 
   @Test
   void removeCookieReturnsNullWhenNoCookieWasAdded() {
-    assertThat(context.removeCookie("missing")).isNull();
+    assertThat(context.removeCookies("missing")).isNull();
   }
 
   @Test
@@ -329,8 +329,8 @@ class AbstractHttpContextStateTests {
     context.reset();
 
     // reset keeps the (empty) list for reuse, but no cookie remains to remove
-    assertThat(context.removeCookie("session")).isNull();
-    assertThat(context.hasResponseCookie()).isFalse();
+    assertThat(context.removeCookies("session")).isNull();
+    assertThat(context.hasResponseCookies()).isFalse();
   }
 
   @Test

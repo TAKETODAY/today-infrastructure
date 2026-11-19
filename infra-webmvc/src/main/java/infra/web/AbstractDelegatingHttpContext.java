@@ -180,13 +180,13 @@ public abstract class AbstractDelegatingHttpContext implements HttpContext {
   }
 
   @Override
-  public @Nullable List<ResponseCookie> removeCookie(String name) {
-    return delegate().removeCookie(name);
+  public @Nullable List<ResponseCookie> removeCookies(String name) {
+    return delegate().removeCookies(name);
   }
 
   @Override
-  public boolean hasResponseCookie() {
-    return delegate().hasResponseCookie();
+  public boolean hasResponseCookies() {
+    return delegate().hasResponseCookies();
   }
 
   @Override
@@ -205,8 +205,8 @@ public abstract class AbstractDelegatingHttpContext implements HttpContext {
   }
 
   @Override
-  public String @Nullable [] getParameters(String name) {
-    return delegate().getParameters(name);
+  public String @Nullable [] getParameterValues(String name) {
+    return delegate().getParameterValues(name);
   }
 
   @Override
@@ -320,8 +320,8 @@ public abstract class AbstractDelegatingHttpContext implements HttpContext {
   }
 
   @Override
-  public @Nullable Locale getLocale() {
-    return delegate().getLocale();
+  public @Nullable Locale getPreferredLocale() {
+    return delegate().getPreferredLocale();
   }
 
   @Override

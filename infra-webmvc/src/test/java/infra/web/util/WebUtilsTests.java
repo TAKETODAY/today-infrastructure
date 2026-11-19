@@ -355,7 +355,7 @@ public class WebUtilsTests {
   @Test
   void localeFallsBackToRequestThenSystemDefaultWithoutResolver() {
     HttpContext context = mock(HttpContext.class);
-    given(context.getLocale()).willReturn(Locale.JAPAN).willReturn(null);
+    given(context.getPreferredLocale()).willReturn(Locale.JAPAN).willReturn(null);
 
     assertThat(WebUtils.resolveLocale(context)).isEqualTo(Locale.JAPAN);
     assertThat(WebUtils.resolveLocale(context)).isEqualTo(Locale.getDefault());
