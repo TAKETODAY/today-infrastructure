@@ -267,17 +267,33 @@ Web MVC 为异步请求公开了几个选项。
 [[mvc-ann-async-configuration-mvc]]
 === Web MVC
 
-MVC 配置为异步请求处理提供了以下选项：
+使用 `WebMvcConfigurer` 的 `configureAsyncSupport` 回调设置 MVC 的默认异步超时：
 
-* Java 配置：使用 `WebMvcConfigurer` 上的 `configureAsyncSupport` 回调。
+[source,java]
+----
+import java.time.Duration;
 
-您可以配置以下内容：
+import infra.context.annotation.Configuration;
+import infra.web.config.annotation.AsyncSupportConfigurer;
+import infra.web.config.annotation.WebMvcConfigurer;
 
-* 异步请求没有默认超时值，除非它被明确设置。
-* 用于阻塞写入时的 `AsyncTaskExecutor`，当使用 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-reactive-types[响应式类型]
-流式传输和执行来自控制器方法的 `Callable` 实例。默认使用的不适用于负载下的生产环境。
-* `DeferredResultProcessingInterceptor` 实现和 `CallableProcessingInterceptor` 实现。
+@Configuration
+public class AsyncMvcConfiguration implements WebMvcConfigurer {
 
+  @Override
+  public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
+    configurer.setDefaultTimeout(Duration.ofSeconds(30));
+  }
+}
+----
 
-请注意，您也可以在 `DeferredResult`、`ResponseBodyEmitter` 和 `SseEmitter` 上设置默认超时值。
-对于 `Callable`，您可以使用 `WebAsyncTask` 提供超时值。
+单次请求的超时优先于 MVC 默认值。可以在 `DeferredResult` 或 `WebAsyncTask` 上指定超时，
+也可以通过 `ResponseBodyEmitter.forChunkedTransferEncoding(...)` 或
+`ResponseBodyEmitter.forServerSentEvents(...)` 为流式响应和 SSE 指定超时。
+例如，`ResponseBodyEmitter.forServerSentEvents(Duration.ofMinutes(2), null)` 为当前 SSE 响应设置两分钟超时，
+不指定字符集。单次请求的超时为 `null` 时使用 MVC 默认值；两者都未设置时，由底层服务器决定，
+不能把未配置超时理解为一定不会超时。正超时至少为 1 毫秒且必须能转换为毫秒；负值无效。
+
+`configureAsyncSupport` 也可以配置运行 `Callable` 和执行响应式流阻塞写入所用的 `AsyncTaskExecutor`，
+以及 `DeferredResultProcessingInterceptor`、`CallableProcessingInterceptor`。
+生产环境应根据负载配置执行器，不要依赖默认执行器处理高并发负载。

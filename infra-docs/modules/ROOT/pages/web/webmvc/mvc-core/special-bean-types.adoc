@@ -1,11 +1,10 @@
 [[mvc-special-bean-types]]
 = 特殊 Bean 类型
 
-`DispatcherHandler` 委托给特殊的 bean 来处理请求并渲染适当的响应。
-这里的 `"特殊 beans"` 指的是由基础设施管理的实现框架合同的 `Object` 实例。
-这些通常具有内置的合同，但您可以自定义它们的属性并扩展或替换它们。
+MVC 将请求映射、处理器调用和响应生成委托给不同的基础设施 Bean。
+有些 Bean 由 `DispatcherHandler` 直接查找，有些由 MVC 配置装配后交给映射器、适配器或返回值处理器使用。
 
-以下表格列出了 `DispatcherHandler` 检测到的特殊 bean：
+== `DispatcherHandler` 直接查找的 Bean
 
 [[mvc-webappctx-special-beans-tbl]]
 [cols="1,2", options="header"]
@@ -13,29 +12,71 @@
 | Bean 类型 | 解释
 
 | `HandlerMapping`
-| 将请求映射到处理程序，并与一组 xref:web/webmvc/mvc-core/handlermapping-interceptor.adoc[拦截器]
-一起用于前后处理。映射基于某些标准，其详细信息因 `HandlerMapping` 实现而异。
+| 将请求映射到处理器，并为匹配的处理器提供 xref:web/webmvc/mvc-core/handlermapping-interceptor.adoc[拦截器]。
 
-两个主要的 `HandlerMapping` 实现是 `RequestMappingHandlerMapping`
-（支持 `@RequestMapping` 注解的方法）和 `SimpleUrlHandlerMapping`
-（将 URI 路径模式的显式注册保持为处理程序）。
+例如，`RequestMappingHandlerMapping` 查找注解控制器方法，`RouterFunctionMapping` 匹配函数式路由，
+`SimpleUrlHandlerMapping` 根据显式注册的 URL 模式查找处理器。
 
 | `HandlerAdapter`
-| 帮助 `DispatcherHandler` 调用映射到请求的处理程序，而不管处理程序实际上是如何调用的。
-例如，调用带有注解的控制器需要解析注解。`HandlerAdapter` 的主要目的是保护 `DispatcherHandler` 免受此类细节的影响。
+| 调用对应类型的处理器，使 `DispatcherHandler` 无需了解注解控制器、函数式处理器等各自的调用细节。
 
 | xref:web/webmvc/mvc-core/exceptionhandlers.adoc[`HandlerExceptionHandler`]
-| 处理异常的策略接口，可能将它们映射到处理程序，HTML 错误视图，或其他目标。参见 xref:web/webmvc/mvc-core/exceptionhandlers.adoc[异常]。
+| 处理请求处理过程中抛出的异常，例如调用 `@ExceptionHandler`，或生成错误响应或错误视图。
+
+| xref:web/webmvc/mvc-config/handler-methods.adoc[`ReturnValueHandlerManager`]
+| 从返回值处理器中选择匹配项，处理响应体、视图、异步结果等。
+
+| `NotFoundHandler`
+| 未找到匹配的处理器时提供兜底处理，默认发送 HTTP 404。
+若启用 `web.mvc.throw-exception-if-no-handler-found`，则跳过此 Bean，抛出 `HandlerNotFoundException` 交给异常处理机制。
+
+| xref:web/webmvc/mvc-core/filters.adoc[`Filter`]
+| 在处理器映射之前运行。`DispatcherHandler` 将发现的过滤器按 `Ordered` 或 `@Order` 排序并组成过滤器链；
+过滤器可继续执行链，也可以直接返回响应。
+
+| xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-configuration-mvc[`WebAsyncManagerFactory`]
+| 为请求创建 `WebAsyncManager`，为其应用默认超时、任务执行器和异步处理拦截器。
+
+| `RequestToViewNameTranslator`
+| 在需要默认视图名时，根据请求生成逻辑视图名。它决定视图名，`ViewResolver` 则根据名称查找实际视图。
+
+| xref:web/webmvc-versioning.adoc[`ApiVersionStrategy`]
+| 解析和校验请求的 API 版本，并处理版本弃用。未配置策略时不启用 API 版本管理。
+
+| `RequestCompletedListener`
+| 在请求完成阶段接收回调，并可获得未处理的异常。异步处理尚未结束时不会触发该回调。
+
+| `RequestContinueExpectedResolver`
+| 为带有 `Expect: 100-continue` 的请求判断是否允许客户端继续发送请求体。
+按顺序询问各解析器，第一个非 `null` 的结果作为决策。
+|===
+
+== MVC 处理流程中的其他 Bean
+
+下列 Bean 由其他 MVC 基础设施使用，不由 `DispatcherHandler` 的策略初始化直接查找。
+
+[cols="1,2", options="header"]
+|===
+| Bean 类型 | 解释
+
+| xref:web/webmvc/mvc-config/handler-methods.adoc[`ParameterResolvingRegistry`]
+| 为注解处理器方法选择参数解析策略。标准 MVC 配置会安装内置策略，自定义策略优先于内置策略。
+
+| `ViewReturnValueHandler`
+| 处理返回的视图名、`View`、`ViewRef` 或 `ModelAndView`；需要按名称查找视图时，委托给 `ViewResolver`。
 
 | xref:web/webmvc/mvc-core/viewresolver.adoc[`ViewResolver`]
-| 解析处理程序返回的基于逻辑的 `String` 类型的视图名称，以确定要用于呈现响应的实际 `View`。
-参见 xref:web/webmvc/mvc-core/viewresolver.adoc[视图解析] 和 xref:web/webmvc-view.adoc[View 技术]。
+| 将逻辑视图名解析为用于渲染响应的实际 `View`。参见 xref:web/webmvc-view.adoc[视图技术]。
 
-| xref:web/webmvc/mvc-core/localeresolver.adoc[`LocaleResolver`], xref:web/webmvc/mvc-core/localeresolver.adoc#mvc-timezone[LocaleContextResolver]
-| 解析客户端正在使用的 `Locale` 和可能的时区，以便能够提供国际化视图。参见 xref:web/webmvc/mvc-core/localeresolver.adoc[Locale]。
+| xref:web/webmvc/mvc-core/localeresolver.adoc[`LocaleResolver`]、xref:web/webmvc/mvc-core/localeresolver.adoc#mvc-timezone[`LocaleContextResolver`]
+| 解析请求的 `Locale`；`LocaleContextResolver` 还可提供时区信息。
+
+| xref:web/webmvc/mvc-core/viewresolver.adoc#mvc-multiple-representations[`ContentNegotiationManager`]
+| 确定请求接受的媒体类型，供映射、消息转换和视图解析等环节使用。
 
 | xref:web/webmvc/mvc-controller/ann-methods/redirect-model.adoc[`RedirectModelManager`]
-| 存储和检索 "`input`" 和 "`output`" `RedirectModel`，可用于在重定向时将属性从一个请求传递到另一个请求。
-参见 xref:web/webmvc/mvc-controller/ann-methods/redirect-model.adoc[重定向 Model]。
+| 保存重定向的输出 `RedirectModel`，并在目标请求中取回输入模型，用于跨请求传递属性。
 
+| xref:web/webmvc/mvc-core/multipart.adoc[`MultipartParser`]
+| 解析 multipart 请求（包括文件上传）。启用 Netty 自动配置时，由 `NettyRequestConfig` 持有解析器。
 |===

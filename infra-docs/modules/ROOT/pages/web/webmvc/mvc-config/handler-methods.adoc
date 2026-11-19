@@ -54,9 +54,20 @@ public class TenantWebConfiguration implements WebMvcConfigurer {
 通过注册表的 `getDefaultStrategies()` 和 `getCustomizedStrategies()` 访问两组策略。
 通常应优先追加精确匹配的自定义策略，避免移除框架默认支持。
 
-从 5.0 起，参数解析接口和注册表位于 `infra.web.handler.method`，内置解析器位于
-`infra.web.handler.method.support`。如果需要手动创建带内置解析器的注册表，请使用
-`DefaultParameterResolvingRegistry`；直接创建 `ParameterResolvingRegistry` 得到的是空注册表。
+[[mvc-config-handler-methods-migration]]
+=== 升级到 5.0：参数解析扩展
+
+只使用 `@RequestParam`、`@RequestBody` 等标准注解的控制器无需修改。直接引用已迁移类型的代码需要更新导入：
+
+* `ParameterResolvingStrategy`、`ParameterResolvingStrategies`、`ParameterResolvingRegistry` 和
+  `ParameterResolverNotFoundException` 位于 `infra.web.handler.method`。
+* `RequestParamMethodArgumentResolver`、`ModelAttributeMethodProcessor`、`RequestResponseBodyMethodProcessor`、
+  `HttpEntityMethodProcessor` 等内置实现位于 `infra.web.handler.method.support`。
+* `MissingRequestHeaderException`、`MissingRequestCookieException` 和 `MissingRequestPartException` 位于 `infra.web.bind`。
+
+通过 `WebMvcConfigurer` 或策略 Bean 注册自定义策略，仍由标准 MVC 配置安装内置策略。
+需要手动装配内置策略时，使用 `infra.web.handler.method.support.DefaultParameterResolvingRegistry`。
+直接创建 `ParameterResolvingRegistry` 得到的是空注册表，适用于由应用自行提供完整策略列表的情况。
 
 == 自定义返回值处理
 

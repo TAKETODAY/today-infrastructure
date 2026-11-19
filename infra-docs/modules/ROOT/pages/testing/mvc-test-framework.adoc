@@ -4,4 +4,7 @@
 
 Web MVC Test 框架，也被称为 MockMvc，为测试 Infra MVC 应用程序提供支持。它执行完整的 Web MVC 请求处理，但是通过 mock 请求和响应对象，而不是通过运行中的服务器。
 
-MockMvc 可以单独用于执行请求和验证响应。它也可以通过 xref:testing/webtestclient.adoc[WebTestClient] 使用，其中 MockMvc 作为服务器插入以处理请求。`WebTestClient` 的优势在于可以选择使用更高级别的对象而不是原始数据，以及能够切换到针对实时服务器的完整端到端 HTTP 测试并使用相同的测试 API。
+可以直接使用 `MockMvc` 发起请求并验证响应，也可以使用
+xref:testing/mvc-test-framework/server-setup-options.adoc#mvc-test-mockmvctester[`MockMvcTester`] 编写 AssertJ 断言。
+xref:testing/webtestclient.adoc[WebTestClient] 也可以把 MockMvc 用作请求处理后端；
+如果需要针对运行中的服务器进行端到端 HTTP 测试，可以切换后端并保留同一套 `WebTestClient` API。
