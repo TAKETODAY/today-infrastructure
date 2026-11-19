@@ -1,12 +1,11 @@
 [[mvc-ann-rest-exceptions]]
 = 错误响应
 
-REST服务的一个常见需求是在错误响应的正文中包含详细信息。TODAY框架支持"HTTP API的问题详情"规范，即{rfc-site}/rfc7807[RFC 7807]。
+REST 服务通常需要在错误响应体中提供结构化的错误信息。Web MVC 支持 {rfc-site}/rfc9457[RFC 9457：HTTP API 问题详情]。
 
 以下是这方面的主要抽象：
-- `ProblemDetail` -- RFC 7807问题详情的表示；一个简单的容器，用于存放规范中定义的标准字段和非标准字段。
-- `ErrorResponse` -- 公开HTTP错误响应详细信息的契约，包括HTTP状态、响应头和RFC 7807格式的正文；
-这允许异常封装并公开它们如何映射到HTTP响应的详细信息。所有 Web MVC 异常都实现了这一点。
+- `ProblemDetail` -- RFC 9457 问题详情的表示，包含标准字段和应用自定义的扩展字段。
+- `ErrorResponse` -- 描述异常如何映射为 HTTP 错误响应的契约，包括状态码、响应头和问题详情正文。
 - `ErrorResponseException` -- 基本的 `ErrorResponse` 实现，其他人可以将其用作方便的基类。
 - `ResponseEntityExceptionHandler` -- 一个方便的基类，用于处理所有 Web MVC 异常和任何 `ErrorResponseException`
 的 xref:web/webmvc/mvc-controller/ann-advice.adoc[@ControllerAdvice] ，并渲染一个带正文的错误响应。
@@ -14,17 +13,17 @@ REST服务的一个常见需求是在错误响应的正文中包含详细信息�
 [[mvc-ann-rest-exceptions-render]]
 == 渲染
 
-你可以从任何 `@ExceptionHandler` 或任何 `@RequestMapping` 方法返回 `ProblemDetail` 或 `ErrorResponse` ，以渲染RFC 7807响应。处理过程如下：
+可以从 `@ExceptionHandler` 或 `@RequestMapping` 方法返回 `ProblemDetail` 或 `ErrorResponse`，生成 RFC 9457 问题详情响应。处理过程如下：
 - `ProblemDetail` 的 `status` 属性确定HTTP状态。
 - 对于内容协商，Jackson 的 `HttpMessageConverter` 在渲染 `ProblemDetail` 时优先选择 "application/problem+json"
 而不是 "application/json"，并在找不到兼容的媒体类型时回退到它。
 
-要为基础设施异常和任何 `ErrorResponseException` 启用 RFC 7807响应，
+要为框架内置异常和 `ErrorResponseException` 启用问题详情响应，
 请扩展 `ResponseEntityExceptionHandler` 并在基础设施配置中将其声明为 xref:web/webmvc/mvc-controller/ann-advice.adoc[@ControllerAdvice]。
 该处理器有一个 `@ExceptionHandler` 方法，用于处理任何 `ErrorResponse` 异常，包括所有内置的Web异常。你可以添加更多的异常处理方法，
 并使用一个受保护的方法将任何异常映射到 `ProblemDetail`。
 
-你可以通过使用 `WebMvcConfigurer` 在 xref:web/webmvc/mvc-config.adoc[MVC Config] 中注册 `ErrorResponse` 拦截器。使用它来拦截任何 RFC 7807 响应并采取一些行动。
+如需在写出问题详情前统一添加字段，可以注册 xref:web/webmvc/mvc-ann-rest-exceptions.adoc#mvc-ann-rest-exceptions-interceptors[错误响应拦截器]。
 
 NOTE: 从 5.0 开始，框架不再将请求路径自动设置为 `ProblemDetail.instance`。
 规范要求此字段标识问题的某一次具体发生；如果该 URI 可以解引用，则应提供这次问题的相关信息。
@@ -113,7 +112,7 @@ public void addErrorResponseInterceptors(List<ErrorResponse.Interceptor> interce
 [[mvc-ann-rest-exceptions-non-standard]]
 == 非标准字段
 
-你可以通过以下两种方式之一在 RFC 7807 响应中扩展非标准字段：
+可以通过以下两种方式之一在 RFC 9457 响应中添加扩展字段：
 
 一、插入到 `ProblemDetail` 的 "properties" `Map` 中。当使用 Jackson 库时，框架注册了 `ProblemDetailJacksonMixin`，
 确保这个 "properties" `Map` 在响应中被展开并呈现为顶级JSON属性，同样，在反序列化期间任何未知属性也被插入到这个 `Map` 中。
