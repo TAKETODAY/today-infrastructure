@@ -252,6 +252,65 @@ class AbstractHttpContextStateTests {
   }
 
   @Test
+  void unnamedCallbackRegistrationsAreIndependent() {
+    for (HttpContext.Lifecycle phase : HttpContext.Lifecycle.values()) {
+      AtomicInteger invocations = new AtomicInteger();
+      Runnable callback = invocations::incrementAndGet;
+
+      String firstName = context.registerCallback(phase, callback);
+      String secondName = context.registerCallback(phase, callback);
+
+      assertThat(firstName).isNotBlank().isNotEqualTo(secondName);
+      context.fireCallbacks(phase);
+      assertThat(invocations).hasValue(2);
+      context.fireCallbacks(phase);
+      assertThat(invocations).hasValue(2);
+    }
+  }
+
+  @Test
+  void generatedCallbackNameAllowsIndependentRemoval() {
+    for (HttpContext.Lifecycle phase : HttpContext.Lifecycle.values()) {
+      AtomicInteger removedInvocations = new AtomicInteger();
+      AtomicInteger retainedInvocations = new AtomicInteger();
+      String name = context.registerCallback(phase, removedInvocations::incrementAndGet);
+      context.registerCallback(phase, retainedInvocations::incrementAndGet);
+
+      context.removeCallback(phase, name);
+      context.fireCallbacks(phase);
+
+      assertThat(removedInvocations).hasValue(0);
+      assertThat(retainedInvocations).hasValue(1);
+    }
+  }
+
+  @Test
+  void explicitlyNamedCallbackRegistrationReplacesPreviousCallback() {
+    for (HttpContext.Lifecycle phase : HttpContext.Lifecycle.values()) {
+      AtomicInteger replacedInvocations = new AtomicInteger();
+      AtomicInteger replacementInvocations = new AtomicInteger();
+      context.registerCallback(phase, "count", replacedInvocations::incrementAndGet);
+      context.registerCallback(phase, "count", replacementInvocations::incrementAndGet);
+
+      context.fireCallbacks(phase);
+
+      assertThat(replacedInvocations).hasValue(0);
+      assertThat(replacementInvocations).hasValue(1);
+    }
+  }
+
+  @Test
+  @SuppressWarnings("NullAway")
+  void unnamedCallbackRegistrationRejectsNullArguments() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> context.registerCallback(null, () -> { }))
+            .withMessage("Phase is required");
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> context.registerCallback(HttpContext.Lifecycle.COMPLETED, null))
+            .withMessage("Callback is required");
+  }
+
+  @Test
   void requestCompletedIsIdempotent() {
     AtomicInteger completions = new AtomicInteger();
     context.registerCallback(HttpContext.Lifecycle.COMPLETED, "count", completions::incrementAndGet);
