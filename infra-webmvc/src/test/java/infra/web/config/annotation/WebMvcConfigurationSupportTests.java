@@ -58,8 +58,6 @@ import infra.web.annotation.RequestMapping;
 import infra.web.annotation.RestController;
 import infra.web.async.CallableProcessingInterceptor;
 import infra.web.async.DeferredResultProcessingInterceptor;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
-import infra.web.bind.resolver.ParameterResolvingStrategies;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.AbstractHandlerMapping;
@@ -72,10 +70,13 @@ import infra.web.handler.SimpleUrlHandlerMapping;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.HandlerTypePredicate;
-import infra.web.handler.method.ModelAttributeMethodProcessor;
+import infra.web.handler.method.ParameterResolvingRegistry;
+import infra.web.handler.method.ParameterResolvingStrategies;
 import infra.web.handler.method.RequestMappingHandlerAdapter;
 import infra.web.handler.method.RequestMappingHandlerMapping;
 import infra.web.handler.method.RequestMappingInfo;
+import infra.web.handler.method.support.DefaultParameterResolvingRegistry;
+import infra.web.handler.method.support.ModelAttributeMethodProcessor;
 import infra.web.i18n.LocaleChangeInterceptor;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
@@ -117,7 +118,7 @@ class WebMvcConfigurationSupportTests {
   void handlerMappings() throws Exception {
     RequestMappingHandlerMapping rmHandlerMapping = this.config.requestMappingHandlerMapping(
             this.config.mvcContentNegotiationManager(), this.config.mvcApiVersionStrategy(),
-            ParameterResolvingRegistry.get(context));
+            DefaultParameterResolvingRegistry.get(context));
     rmHandlerMapping.setApplicationContext(this.context);
     rmHandlerMapping.afterPropertiesSet();
 
@@ -176,7 +177,7 @@ class WebMvcConfigurationSupportTests {
   void requestMappingHandlerAdapter() {
     RequestMappingHandlerAdapter adapter = this.config.requestMappingHandlerAdapter(
             null, null,
-            ParameterResolvingRegistry.get(context), this.config.mvcValidator(), this.config.mvcConversionService());
+            DefaultParameterResolvingRegistry.get(context), this.config.mvcValidator(), this.config.mvcConversionService());
 
     // ConversionService
     String actual = this.config.mvcConversionService().convert(new TestBean(), String.class);
@@ -185,8 +186,8 @@ class WebMvcConfigurationSupportTests {
     DirectFieldAccessor fieldAccessor = new DirectFieldAccessor(adapter);
 
     // Custom argument resolvers and return value handlers
-    ParameterResolvingRegistry registry =
-            (ParameterResolvingRegistry) fieldAccessor.getPropertyValue("resolvingRegistry");
+    DefaultParameterResolvingRegistry registry =
+            (DefaultParameterResolvingRegistry) fieldAccessor.getPropertyValue("resolvingRegistry");
     assertThat(registry.getMessageConverters()).hasSize(3);
 
   }
@@ -194,7 +195,7 @@ class WebMvcConfigurationSupportTests {
   @Test
   void webBindingInitializer() {
     RequestMappingHandlerAdapter adapter = this.config.requestMappingHandlerAdapter(null, null,
-            ParameterResolvingRegistry.get(context), this.config.mvcValidator(), this.config.mvcConversionService());
+            DefaultParameterResolvingRegistry.get(context), this.config.mvcValidator(), this.config.mvcConversionService());
 
     ConfigurableWebBindingInitializer initializer =
             (ConfigurableWebBindingInitializer) adapter.getWebBindingInitializer();
@@ -215,7 +216,7 @@ class WebMvcConfigurationSupportTests {
 
     RequestMappingHandlerMapping mapping = this.config.requestMappingHandlerMapping(
             this.config.mvcContentNegotiationManager(), this.config.mvcApiVersionStrategy(),
-            ParameterResolvingRegistry.get(context));
+            DefaultParameterResolvingRegistry.get(context));
 
     request.setParameter("f", "json");
     ContentNegotiationManager manager = mapping.getContentNegotiationManager();
@@ -233,7 +234,7 @@ class WebMvcConfigurationSupportTests {
   @Test
   void exceptionHandlers() {
     List<HandlerExceptionHandler> resolvers = ((CompositeHandlerExceptionHandler)
-            this.config.handlerExceptionHandler(ParameterResolvingRegistry.get(context), null)).getExceptionHandlers();
+            this.config.handlerExceptionHandler(DefaultParameterResolvingRegistry.get(context), null)).getExceptionHandlers();
 
     assertThat(resolvers).hasSize(2);
     assertThat(resolvers.get(0).getClass()).isEqualTo(ResponseStatusExceptionHandler.class);
@@ -373,7 +374,7 @@ class WebMvcConfigurationSupportTests {
   private ExceptionHandlerAnnotationExceptionHandler exceptionHandler(WebMvcConfigurationSupport configuration) {
     configuration.setApplicationContext(this.context);
     var composite = (CompositeHandlerExceptionHandler) configuration.handlerExceptionHandler(
-            ParameterResolvingRegistry.get(this.context), configuration.mvcContentNegotiationManager());
+            DefaultParameterResolvingRegistry.get(this.context), configuration.mvcContentNegotiationManager());
     return (ExceptionHandlerAnnotationExceptionHandler) composite.getExceptionHandlers().get(0);
   }
 

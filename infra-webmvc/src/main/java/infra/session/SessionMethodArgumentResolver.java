@@ -19,8 +19,8 @@ package infra.session;
 import org.jspecify.annotations.Nullable;
 
 import infra.web.HttpContext;
-import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.handler.method.HandlerParameter;
+import infra.web.handler.method.ParameterResolvingStrategy;
 
 /**
  * for {@link Session} Type-based parameter resolving

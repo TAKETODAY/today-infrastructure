@@ -28,9 +28,7 @@ import infra.core.MethodParameter;
 import infra.util.ReflectionUtils;
 import infra.web.annotation.RequestHeader;
 import infra.web.annotation.RequestParam;
-import infra.web.bind.resolver.ParameterResolvingStrategy;
-import infra.web.bind.resolver.RequestHeaderMethodArgumentResolver;
-import infra.web.bind.resolver.RequestParamMethodArgumentResolver;
+import infra.web.handler.method.ParameterResolvingStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -30,9 +30,9 @@ import java.util.Map;
 import infra.core.MethodParameter;
 import infra.core.conversion.ConversionService;
 import infra.format.support.DefaultFormattingConversionService;
-import infra.web.bind.resolver.ParameterResolvingStrategies;
-import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.handler.method.HandlerParameter;
+import infra.web.handler.method.ParameterResolvingStrategies;
+import infra.web.handler.method.ParameterResolvingStrategy;
 import infra.web.util.UriComponentsBuilder;
 
 /**

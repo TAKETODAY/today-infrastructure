@@ -22,8 +22,8 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.util.Assert;
 import infra.web.HttpContext;
 import infra.web.annotation.SessionAttribute;
-import infra.web.bind.resolver.AbstractNamedValueResolvingStrategy;
 import infra.web.handler.method.HandlerParameter;
+import infra.web.handler.method.support.AbstractNamedValueResolvingStrategy;
 
 /**
  * resolve attribute from {@link Session}

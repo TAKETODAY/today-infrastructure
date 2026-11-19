@@ -37,8 +37,8 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.handler.ReturnValueHandlerManager;
+import infra.web.handler.method.support.DefaultParameterResolvingRegistry;
 import infra.web.server.netty.NettyRequestUpgradeStrategy;
 import infra.web.socket.client.WebSocketClient;
 import infra.web.socket.client.support.NettyWebSocketClient;
@@ -88,7 +88,7 @@ public abstract class AbstractWebSocketIntegrationTests {
     this.ctx = new AnnotationConfigApplicationContext();
     this.ctx.register(getAnnotatedConfigClasses());
 
-    ctx.register(ParameterResolvingRegistry.class);
+    ctx.register(DefaultParameterResolvingRegistry.class);
     ctx.register(ReturnValueHandlerManager.class);
 
     this.ctx.register(upgradeStrategyConfigTypes.get(this.server.getClass()));

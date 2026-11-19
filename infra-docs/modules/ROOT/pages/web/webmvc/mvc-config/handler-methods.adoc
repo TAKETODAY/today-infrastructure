@@ -13,10 +13,10 @@ Web MVC 使用 `ParameterResolvingStrategy` 将请求转换为控制器方法参
 import infra.context.annotation.Configuration;
 import infra.http.HttpStatus;
 import infra.web.HttpContext;
-import infra.web.bind.resolver.ParameterResolvingStrategies;
-import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.handler.method.HandlerParameter;
+import infra.web.handler.method.ParameterResolvingStrategies;
+import infra.web.handler.method.ParameterResolvingStrategy;
 import infra.web.server.ResponseStatusException;
 
 @Configuration
@@ -53,6 +53,10 @@ public class TenantWebConfiguration implements WebMvcConfigurer {
 `configureParameterResolving(ParameterResolvingRegistry, ParameterResolvingStrategies)`，
 通过注册表的 `getDefaultStrategies()` 和 `getCustomizedStrategies()` 访问两组策略。
 通常应优先追加精确匹配的自定义策略，避免移除框架默认支持。
+
+从 5.0 起，参数解析接口和注册表位于 `infra.web.handler.method`，内置解析器位于
+`infra.web.handler.method.support`。如果需要手动创建带内置解析器的注册表，请使用
+`DefaultParameterResolvingRegistry`；直接创建 `ParameterResolvingRegistry` 得到的是空注册表。
 
 == 自定义返回值处理
 

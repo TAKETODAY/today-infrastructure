@@ -1,0 +1,93 @@
+/*
+ * Copyright 2002-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
+package infra.web.handler.method.support;
+
+import org.jspecify.annotations.Nullable;
+
+import java.util.List;
+import java.util.Map;
+
+import infra.beans.factory.config.ConfigurableBeanFactory;
+import infra.core.MethodParameter;
+import infra.http.HttpHeaders;
+import infra.web.HttpContext;
+import infra.web.annotation.RequestHeader;
+import infra.web.bind.MissingRequestHeaderException;
+import infra.web.bind.WebDataBinder;
+import infra.web.handler.method.HandlerParameter;
+
+/**
+ * Resolves method arguments annotated with {@code @RequestHeader} except for
+ * {@link Map} arguments. See {@link RequestHeaderMapMethodArgumentResolver} for
+ * details on {@link Map} arguments annotated with {@code @RequestHeader}.
+ *
+ * <p>An {@code @RequestHeader} is a named value resolved from a request header.
+ * It has a required flag and a default value to fall back on when the request
+ * header does not exist.
+ *
+ * <p>A {@link WebDataBinder} is invoked to apply type conversion to resolved
+ * request header values that don't yet match the method parameter type.
+ *
+ * @author Arjen Poutsma
+ * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-07-13 11:11
+ */
+public class RequestHeaderMethodArgumentResolver extends AbstractNamedValueResolvingStrategy {
+
+  /**
+   * Create a new {@link RequestHeaderMethodArgumentResolver} instance.
+   *
+   * @param beanFactory a bean factory to use for resolving  ${...}
+   * placeholder and #{...} SpEL expressions in default values;
+   * or {@code null} if default values are not expected to have expressions
+   */
+  public RequestHeaderMethodArgumentResolver(@Nullable ConfigurableBeanFactory beanFactory) {
+    super(beanFactory);
+  }
+
+  @Override
+  public boolean supportsParameter(HandlerParameter parameter) {
+    return parameter.hasParameterAnnotation(RequestHeader.class)
+            && (!parameter.isAssignableTo(Map.class) && !parameter.isAssignableTo(HttpHeaders.class));
+  }
+
+  @Override
+  protected @Nullable Object resolveName(String name, HandlerParameter resolvable, HttpContext context) throws Exception {
+    final HttpHeaders httpHeaders = context.requestHeaders();
+    List<String> headerValues = httpHeaders.get(name);
+    if (headerValues != null) {
+      return headerValues.size() == 1 ? headerValues.get(0) : headerValues;
+    }
+    else {
+      return null;
+    }
+  }
+
+  @Override
+  protected void handleMissingValue(String name, MethodParameter parameter) {
+    throw new MissingRequestHeaderException(name, parameter);
+  }
+
+  @Override
+  protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, HttpContext request) throws Exception {
+    throw new MissingRequestHeaderException(name, parameter, true);
+  }
+
+}

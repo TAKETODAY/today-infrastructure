@@ -26,12 +26,12 @@ import java.lang.reflect.Method;
 import infra.core.MethodParameter;
 import infra.web.HttpContext;
 import infra.web.filter.ForwardedHeaderFilter;
+import infra.web.handler.method.support.UriComponentsBuilderParameterStrategy;
+import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.bind.resolver.UriComponentsBuilderParameterStrategy;
-import infra.web.mock.MockHttpContext;
-import infra.web.util.UriComponentsBuilder;
 import infra.web.util.HttpContextUriComponentsBuilder;
+import infra.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

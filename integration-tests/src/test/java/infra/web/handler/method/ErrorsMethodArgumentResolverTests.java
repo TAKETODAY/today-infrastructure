@@ -22,13 +22,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import infra.core.MethodParameter;
-import infra.web.mock.MockHttpContext;
-import infra.web.mock.MockRequest;
 import infra.validation.BindingResult;
 import infra.validation.Errors;
 import infra.web.BindingContext;
 import infra.web.bind.HttpContextDataBinder;
-import infra.web.bind.resolver.ErrorsMethodArgumentResolver;
+import infra.web.handler.method.support.ErrorsMethodArgumentResolver;
+import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

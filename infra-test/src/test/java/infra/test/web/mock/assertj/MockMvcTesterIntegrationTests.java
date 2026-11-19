@@ -69,7 +69,7 @@ import infra.web.annotation.RequestParam;
 import infra.web.annotation.RequestPart;
 import infra.web.annotation.ResponseStatus;
 import infra.web.annotation.RestController;
-import infra.web.bind.resolver.MissingRequestPartException;
+import infra.web.bind.MissingRequestPartException;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.handler.StreamingResponseBody;
 import infra.web.mock.MockMemoryFilePart;

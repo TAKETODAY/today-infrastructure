@@ -127,4 +127,4 @@
   它将被解析为 `@RequestParam`。否则，它将被解析为 `@ModelAttribute`。
 |===
 
-应用也可以注册 `infra.web.bind.resolver.ParameterResolvingStrategy` Bean 来支持自定义参数；MVC 配置会优先使用匹配的自定义解析器。
+应用也可以注册 `infra.web.handler.method.ParameterResolvingStrategy` Bean 来支持自定义参数；MVC 配置会优先使用匹配的自定义解析器。

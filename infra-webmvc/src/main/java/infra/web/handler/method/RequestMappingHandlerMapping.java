@@ -55,12 +55,12 @@ import infra.web.accept.DefaultApiVersionStrategy;
 import infra.web.annotation.CrossOrigin;
 import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestMapping;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.condition.AbstractRequestCondition;
 import infra.web.handler.condition.CompositeRequestCondition;
 import infra.web.handler.condition.ConsumesRequestCondition;
 import infra.web.handler.condition.RequestCondition;
+import infra.web.handler.method.support.DefaultParameterResolvingRegistry;
 
 import static infra.core.annotation.AnnotationUtils.loadAnnotationType;
 
@@ -159,7 +159,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
     ApplicationContext context = applicationContext();
     if (resolvingRegistry == null) {
-      resolvingRegistry = ParameterResolvingRegistry.get(context);
+      resolvingRegistry = DefaultParameterResolvingRegistry.get(context);
     }
 
     this.parameterFactory = new RegistryHandlerParameterFactory(resolvingRegistry, parameterNameDiscoverer);

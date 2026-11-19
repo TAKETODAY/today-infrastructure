@@ -20,8 +20,6 @@ import org.jspecify.annotations.Nullable;
 
 import infra.core.MethodParameter;
 import infra.web.HttpContext;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
-import infra.web.bind.resolver.ParameterResolvingStrategy;
 
 /**
  * Represents a method parameter that can be resolved using a {@link ParameterResolvingStrategy}.

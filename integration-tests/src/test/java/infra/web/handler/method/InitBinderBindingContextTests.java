@@ -27,14 +27,13 @@ import infra.core.conversion.ConversionService;
 import infra.format.support.DefaultFormattingConversionService;
 import infra.web.BindingContext;
 import infra.web.DelegatingHttpContext;
-import infra.web.mock.MockRequest;
 import infra.web.annotation.RequestParam;
 import infra.web.bind.WebDataBinder;
 import infra.web.bind.annotation.InitBinder;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
-import infra.web.bind.resolver.RequestParamMethodArgumentResolver;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
+import infra.web.handler.method.support.RequestParamMethodArgumentResolver;
 import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

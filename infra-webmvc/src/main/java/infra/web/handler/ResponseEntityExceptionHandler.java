@@ -50,8 +50,8 @@ import infra.web.async.AsyncRequestTimeoutException;
 import infra.web.bind.MethodArgumentNotValidException;
 import infra.web.bind.MissingPathVariableException;
 import infra.web.bind.MissingRequestParameterException;
+import infra.web.bind.MissingRequestPartException;
 import infra.web.bind.RequestBindingException;
-import infra.web.bind.resolver.MissingRequestPartException;
 import infra.web.handler.method.HandlerMethodValidationException;
 import infra.web.util.WebUtils;
 

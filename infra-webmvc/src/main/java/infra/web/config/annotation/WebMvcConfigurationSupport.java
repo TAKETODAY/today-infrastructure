@@ -71,8 +71,6 @@ import infra.web.accept.ApiVersionStrategy;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.async.WebAsyncManagerFactory;
 import infra.web.bind.WebDataBinder;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
-import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.bind.support.WebBindingInitializer;
 import infra.web.cors.CorsConfiguration;
@@ -87,14 +85,17 @@ import infra.web.handler.function.support.HandlerFunctionAdapter;
 import infra.web.handler.function.support.RouterFunctionMapping;
 import infra.web.handler.method.ControllerAdviceBean;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
-import infra.web.handler.method.JsonViewRequestBodyAdvice;
-import infra.web.handler.method.JsonViewResponseBodyAdvice;
 import infra.web.handler.method.MvcUriComponentsBuilder;
+import infra.web.handler.method.ParameterResolvingRegistry;
+import infra.web.handler.method.ParameterResolvingStrategy;
 import infra.web.handler.method.RequestBodyAdvice;
 import infra.web.handler.method.RequestMappingHandlerAdapter;
 import infra.web.handler.method.RequestMappingHandlerMapping;
 import infra.web.handler.method.ResponseBodyAdvice;
 import infra.web.handler.method.support.CompositeUriComponentsContributor;
+import infra.web.handler.method.support.DefaultParameterResolvingRegistry;
+import infra.web.handler.method.support.JsonViewRequestBodyAdvice;
+import infra.web.handler.method.support.JsonViewResponseBodyAdvice;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
 import infra.web.util.pattern.PathPatternParser;
 import infra.web.view.DefaultRequestToViewNameTranslator;
@@ -543,7 +544,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
           ParameterResolvingStrategy @Nullable [] strategies, @Nullable RedirectModelManager redirectModelManager,
           @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager) {
 
-    var registry = new ParameterResolvingRegistry(getMessageConverters());
+    var registry = new DefaultParameterResolvingRegistry(getMessageConverters());
     registry.setApplicationContext(getApplicationContext());
     registry.setRedirectModelManager(redirectModelManager);
     registry.addRequestResponseBodyAdvice(requestResponseBodyAdvice);

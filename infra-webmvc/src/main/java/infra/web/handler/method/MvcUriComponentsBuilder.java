@@ -56,9 +56,9 @@ import infra.util.StringUtils;
 import infra.web.HttpContext;
 import infra.web.HttpContextHolder;
 import infra.web.annotation.RequestMapping;
-import infra.web.bind.resolver.PathVariableMethodArgumentResolver;
-import infra.web.bind.resolver.RequestParamMethodArgumentResolver;
 import infra.web.handler.method.support.CompositeUriComponentsContributor;
+import infra.web.handler.method.support.PathVariableMethodArgumentResolver;
+import infra.web.handler.method.support.RequestParamMethodArgumentResolver;
 import infra.web.util.HttpContextUriComponentsBuilder;
 import infra.web.util.UriComponentsBuilder;
 

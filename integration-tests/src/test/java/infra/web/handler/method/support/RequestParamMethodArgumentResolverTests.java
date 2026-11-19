@@ -1,0 +1,656 @@
+/*
+ * Copyright 2002-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
+package infra.web.handler.method.support;
+
+import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import infra.beans.propertyeditors.StringTrimmerEditor;
+import infra.core.conversion.support.DefaultConversionService;
+import infra.web.BindingContext;
+import infra.web.HttpContext;
+import infra.web.MultipartException;
+import infra.web.ResolvableMethod;
+import infra.web.annotation.RequestParam;
+import infra.web.annotation.RequestPart;
+import infra.web.bind.HttpContextDataBinder;
+import infra.web.bind.MissingRequestParameterException;
+import infra.web.bind.MissingRequestPartException;
+import infra.web.bind.support.ConfigurableWebBindingInitializer;
+import infra.web.handler.method.HandlerParameter;
+import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
+import infra.web.mock.MultipartMockRequest;
+import infra.web.multipart.Part;
+import infra.web.testfixture.MockMultipartFile;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.InstanceOfAssertFactories.array;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+
+/**
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/5/12 10:43
+ */
+class RequestParamMethodArgumentResolverTests {
+
+  private RequestParamMethodArgumentResolver resolver = new RequestParamMethodArgumentResolver(null, true);
+
+  private MockRequest request = new MockRequest();
+
+  private MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
+
+  private ResolvableMethod testMethod = ResolvableMethod.on(getClass()).named("handle").build();
+
+  @Test
+  public void supportsParameter() {
+    resolver = new RequestParamMethodArgumentResolver(null, true);
+
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired("bar")).arg(String.class);
+    assertThat(resolver.supportsParameter(param)).isTrue();
+
+    param = this.testMethod.annotPresent(RequestParam.class).arg(String[].class);
+    assertThat(resolver.supportsParameter(param)).isTrue();
+
+    param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().name("name")).arg(Map.class);
+    assertThat(resolver.supportsParameter(param)).isTrue();
+
+    param = this.testMethod.annotPresent(RequestParam.class).isNotNullable().arg(Part.class);
+    assertThat(resolver.supportsParameter(param)).isTrue();
+
+    param = this.testMethod.annotPresent(RequestParam.class).arg(List.class, Part.class);
+    assertThat(resolver.supportsParameter(param)).isTrue();
+
+    param = this.testMethod.annotPresent(RequestParam.class).arg(Part[].class);
+    assertThat(resolver.supportsParameter(param)).isTrue();
+
+    param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(Map.class);
+    assertThat(resolver.supportsParameter(param)).isFalse();
+
+    param = this.testMethod.annotNotPresent(RequestParam.class).arg(String.class);
+    assertThat(resolver.supportsParameter(param)).isTrue();
+
+    param = this.testMethod.annotNotPresent().arg(Part.class);
+    assertThat(resolver.supportsParameter(param)).isTrue();
+
+    param = this.testMethod.annotNotPresent(RequestParam.class).arg(List.class, Part.class);
+    assertThat(resolver.supportsParameter(param)).isTrue();
+
+    param = this.testMethod.annot(MvcAnnotationPredicates.requestPart()).arg(Part.class);
+    assertThat(resolver.supportsParameter(param)).isFalse();
+
+    param = this.testMethod.annot(MvcAnnotationPredicates.requestParam()).arg(String.class);
+    assertThat(resolver.supportsParameter(param)).isTrue();
+
+    param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired()).arg(String.class);
+    assertThat(resolver.supportsParameter(param)).isTrue();
+
+    param = this.testMethod.annotPresent(RequestParam.class).isNullable().arg(Integer.class);
+    assertThat(resolver.supportsParameter(param)).isTrue();
+
+    param = this.testMethod.annotPresent(RequestParam.class).isNullable().arg(Part.class);
+    assertThat(resolver.supportsParameter(param)).isTrue();
+
+    resolver = new RequestParamMethodArgumentResolver(null, false);
+
+    param = this.testMethod.annotNotPresent(RequestParam.class).arg(String.class);
+    assertThat(resolver.supportsParameter(param)).isFalse();
+
+    param = this.testMethod.annotPresent(RequestPart.class).arg(Part.class);
+    assertThat(resolver.supportsParameter(param)).isFalse();
+  }
+
+  @Test
+  public void resolveString() throws Throwable {
+    String expected = "foo";
+    request.addParameter("name", expected);
+
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired("bar")).arg(String.class);
+    Object result = resolver.resolveArgument(webRequest, param);
+    boolean condition = result instanceof String;
+    assertThat(condition).isTrue();
+    assertThat(result).as("Invalid result").isEqualTo(expected);
+  }
+
+  @Test
+  public void resolveStringArray() throws Throwable {
+    String[] expected = new String[] { "foo", "bar" };
+    request.addParameter("name", expected);
+
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).arg(String[].class);
+    Object result = resolver.resolveArgument(webRequest, param);
+    boolean condition = result instanceof String[];
+    assertThat(condition).isTrue();
+    assertThat((String[]) result).as("Invalid result").isEqualTo(expected);
+  }
+
+  @Test
+  void resolveStringArrayWithEmptyArraySuffix() throws Throwable {
+    String[] expected = new String[] { "foo", "bar" };
+    request.addParameter("name[]", expected[0]);
+    request.addParameter("name[]", expected[1]);
+
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).arg(String[].class);
+    Object result = resolver.resolveArgument(webRequest, param);
+    assertThat(result).asInstanceOf(array(String[].class)).containsExactly(expected);
+  }
+
+  @Test
+  public void resolveMultipartFile() throws Throwable {
+    MultipartMockRequest request = new MultipartMockRequest();
+    Part expected = new MockMultipartFile("mfile", "Hello World".getBytes());
+    request.addPart(expected);
+    webRequest = new MockHttpContext(null, request, null);
+    BindingContext.set(webRequest, new BindingContext());
+
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class)
+            .isNotNullable().arg(Part.class);
+    Object result = resolver.resolveArgument(webRequest, param);
+    boolean condition = result instanceof Part;
+    assertThat(condition).isTrue();
+    assertThat(result).as("Invalid result").isEqualTo(expected);
+  }
+
+  @Test
+  public void resolveMultipartFileList() throws Throwable {
+    MultipartMockRequest request = new MultipartMockRequest();
+    Part expected1 = new MockMultipartFile("mfilelist", "Hello World 1".getBytes());
+    Part expected2 = new MockMultipartFile("mfilelist", "Hello World 2".getBytes());
+    request.addPart(expected1);
+    request.addPart(expected2);
+    request.addPart(new MockMultipartFile("other", "Hello World 3".getBytes()));
+    webRequest = new MockHttpContext(null, request, null);
+    BindingContext.set(webRequest, new BindingContext());
+
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).arg(List.class, Part.class);
+    Object result = resolver.resolveArgument(webRequest, param);
+
+    boolean condition = result instanceof List;
+    assertThat(condition).isTrue();
+    assertThat(result).isEqualTo(Arrays.asList(expected1, expected2));
+  }
+
+  @Test
+  public void resolveMultipartFileListMissing() throws Throwable {
+    MultipartMockRequest request = new MultipartMockRequest();
+    request.addPart(new MockMultipartFile("other", "Hello World 3".getBytes()));
+    webRequest = new MockHttpContext(null, request, null);
+    BindingContext.set(webRequest, new BindingContext());
+
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).arg(List.class, Part.class);
+    assertThatExceptionOfType(MissingRequestPartException.class).isThrownBy(() ->
+            resolver.resolveArgument(webRequest, param));
+  }
+
+  @Test
+  public void resolveMultipartFileArray() throws Throwable {
+    MultipartMockRequest request = new MultipartMockRequest();
+    Part expected1 = new MockMultipartFile("mfilearray", "Hello World 1".getBytes());
+    Part expected2 = new MockMultipartFile("mfilearray", "Hello World 2".getBytes());
+    request.addPart(expected1);
+    request.addPart(expected2);
+    request.addPart(new MockMultipartFile("other", "Hello World 3".getBytes()));
+    MockHttpContext webRequest = new MockHttpContext(null, request, null);
+    BindingContext.set(webRequest, new BindingContext());
+
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).arg(Part[].class);
+    Object result = resolver.resolveArgument(webRequest, param);
+
+    boolean condition = result instanceof Part[];
+    assertThat(condition).isTrue();
+    Part[] parts = (Part[]) result;
+    assertThat(parts.length).isEqualTo(2);
+    assertThat(expected1).isEqualTo(parts[0]);
+    assertThat(expected2).isEqualTo(parts[1]);
+  }
+
+  @Test
+  public void resolveMultipartFileArrayMissing() throws Throwable {
+    MultipartMockRequest request = new MultipartMockRequest();
+    request.addPart(new MockMultipartFile("other", "Hello World 3".getBytes()));
+    webRequest = new MockHttpContext(null, request, null);
+    BindingContext.set(webRequest, new BindingContext());
+
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).arg(Part[].class);
+    assertThatExceptionOfType(MissingRequestPartException.class).isThrownBy(() ->
+            resolver.resolveArgument(webRequest, param));
+  }
+
+  @Test
+  public void resolveMultipartFileNotAnnot() throws Throwable {
+    MultipartMockRequest request = new MultipartMockRequest();
+    Part expected = new MockMultipartFile("multipartFileNotAnnot", "Hello World".getBytes());
+    request.addPart(expected);
+    MockHttpContext webRequest = new MockHttpContext(null, request, null);
+    BindingContext.set(webRequest, new BindingContext());
+
+    HandlerParameter param = this.testMethod.annotNotPresent().arg(Part.class);
+    Object result = resolver.resolveArgument(webRequest, param);
+
+    boolean condition = result instanceof Part;
+    assertThat(condition).isTrue();
+    assertThat(result).as("Invalid result").isEqualTo(expected);
+  }
+
+  @Test
+  public void resolveMultipartFileListNotannot() throws Throwable {
+    MultipartMockRequest request = new MultipartMockRequest();
+    Part expected1 = new MockMultipartFile("multipartFileList", "Hello World 1".getBytes());
+    Part expected2 = new MockMultipartFile("multipartFileList", "Hello World 2".getBytes());
+    request.addPart(expected1);
+    request.addPart(expected2);
+    webRequest = new MockHttpContext(null, request, null);
+    BindingContext.set(webRequest, new BindingContext());
+
+    HandlerParameter param = this.testMethod
+            .annotNotPresent(RequestParam.class).arg(List.class, Part.class);
+
+    Object result = resolver.resolveArgument(webRequest, param);
+    boolean condition = result instanceof List;
+    assertThat(condition).isTrue();
+    assertThat(result).isEqualTo(Arrays.asList(expected1, expected2));
+  }
+
+  @Test
+  public void isMultipartRequest() {
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class)
+            .isNotNullable()
+            .arg(Part.class);
+    assertThatExceptionOfType(MultipartException.class).isThrownBy(() ->
+            resolver.resolveArgument(webRequest, param));
+  }
+
+  @Test
+  public void isMultipartRequestHttpPut() throws Throwable {
+    MultipartMockRequest request = new MultipartMockRequest();
+    Part expected = new MockMultipartFile("multipartFileList", "Hello World".getBytes());
+    request.addPart(expected);
+    request.setMethod("PUT");
+    webRequest = new MockHttpContext(null, request, null);
+    BindingContext.set(webRequest, new BindingContext());
+
+    HandlerParameter param = testMethod.annotNotPresent(
+            RequestParam.class).arg(List.class, Part.class);
+
+    Object actual = resolver.resolveArgument(webRequest, param);
+    boolean condition = actual instanceof List;
+    assertThat(condition).isTrue();
+    assertThat(((List<?>) actual).get(0)).isEqualTo(expected);
+  }
+
+  @Test
+  public void noMultipartContent() throws Throwable {
+    request.setMethod("POST");
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class)
+            .isNotNullable().arg(Part.class);
+    assertThatExceptionOfType(MultipartException.class).isThrownBy(() ->
+            resolver.resolveArgument(webRequest, param));
+  }
+
+  @Test
+  public void missingMultipartFile() throws Throwable {
+    request.setMethod("POST");
+    request.setContentType("multipart/form-data");
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class)
+            .isNotNullable().arg(Part.class);
+    assertThatExceptionOfType(MissingRequestPartException.class).isThrownBy(() ->
+            resolver.resolveArgument(webRequest, param));
+  }
+
+  @Test
+  public void resolveDefaultValue() throws Throwable {
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired("bar")).arg(String.class);
+    Object result = resolver.resolveArgument(webRequest, param);
+    boolean condition = result instanceof String;
+    assertThat(condition).isTrue();
+    assertThat(result).as("Invalid result").isEqualTo("bar");
+  }
+
+  @Test
+  public void missingRequestParam() throws Throwable {
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).arg(String[].class);
+    assertThatExceptionOfType(MissingRequestParameterException.class).isThrownBy(() ->
+            resolver.resolveArgument(webRequest, param));
+  }
+
+  @Test
+  public void missingRequestParamEmptyValueConvertedToNull() throws Throwable {
+    HttpContextDataBinder binder = new HttpContextDataBinder(null);
+    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
+
+    BindingContext binderFactory = mock(BindingContext.class);
+    given(binderFactory.createBinder(webRequest, null, "stringNotAnnot")).willReturn(binder);
+    given(binderFactory.createBinder(webRequest, "stringNotAnnot")).willReturn(binder);
+    BindingContext.set(webRequest, binderFactory);
+
+    request.addParameter("stringNotAnnot", "");
+
+    HandlerParameter param = this.testMethod.annotNotPresent(RequestParam.class).arg(String.class);
+//    Object arg = resolver.resolveArgument(webRequest, param);
+//    assertThat(arg).isNull();
+
+    assertThatThrownBy(() -> resolver.resolveArgument(webRequest, param))
+            .isInstanceOf(MissingRequestParameterException.class)
+            .hasMessage("Required request parameter 'stringNotAnnot' for method parameter type String is present but converted to null");
+  }
+
+  @Test
+  public void missingRequestParamAfterConversionWithDefaultValue() throws Throwable {
+
+    BindingContext binderFactory = new BindingContext() {
+      @Override
+      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
+        return new HttpContextDataBinder(null);
+      }
+    };
+
+    BindingContext.set(webRequest, binderFactory);
+
+    request.addParameter("booleanParam", " ");
+
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).arg(Boolean.class);
+    Object arg = resolver.resolveArgument(webRequest, param);
+    assertThat(arg).isEqualTo(Boolean.FALSE);
+  }
+
+  @Test
+  public void missingRequestParamEmptyValueNotRequired() throws Throwable {
+    HttpContextDataBinder binder = new HttpContextDataBinder(null);
+    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+    request.addParameter("name", "");
+
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
+
+    BindingContext binderFactory = mock(BindingContext.class);
+    given(binderFactory.createBinder(webRequest, null, "name")).willReturn(binder);
+    given(binderFactory.createBinder(webRequest, "name")).willReturn(binder);
+    BindingContext.set(webRequest, binderFactory);
+
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired()).arg(String.class);
+    Object arg = resolver.resolveArgument(webRequest, param);
+    assertThat(arg).isNull();
+  }
+
+  @Test
+  public void missingRequestParamEmptyValueNotRequiredWithDefaultValue() throws Throwable {
+    HttpContextDataBinder binder = new HttpContextDataBinder(null);
+    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+
+    BindingContext context = mock(BindingContext.class);
+    given(context.createBinder(webRequest, null, "name")).willReturn(binder);
+    given(context.createBinder(webRequest, "name")).willReturn(binder);
+
+    request.addParameter("name", "    ");
+
+    BindingContext.set(webRequest, context);
+
+    HandlerParameter param = testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired("bar")).arg(String.class);
+    Object arg = resolver.resolveArgument(webRequest, param);
+    assertThat(arg).isEqualTo("bar");
+  }
+
+  @Test
+  public void resolveSimpleTypeParam() throws Throwable {
+    request.setParameter("stringNotAnnot", "plainValue");
+    HandlerParameter param = this.testMethod.annotNotPresent(RequestParam.class).arg(String.class);
+    Object result = resolver.resolveArgument(webRequest, param);
+
+    boolean condition = result instanceof String;
+    assertThat(condition).isTrue();
+    assertThat(result).isEqualTo("plainValue");
+  }
+
+  @Test
+  public void resolveSimpleTypeParamToNull() throws Throwable {
+    HandlerParameter param = this.testMethod.annotNotPresent(RequestParam.class).arg(String.class);
+    assertThatThrownBy(() -> resolver.resolveArgument(webRequest, param))
+            .isInstanceOf(MissingRequestParameterException.class)
+            .hasMessage("Required request parameter 'stringNotAnnot' for method parameter type String is not present");
+  }
+
+  @Test
+  public void resolveEmptyValueToDefault() throws Throwable {
+    request.addParameter("name", "");
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired("bar")).arg(String.class);
+    Object result = resolver.resolveArgument(webRequest, param);
+    assertThat(result).isEqualTo("bar");
+  }
+
+  @Test
+  public void resolveEmptyValueWithoutDefault() throws Throwable {
+    request.addParameter("stringNotAnnot", "");
+    HandlerParameter param = this.testMethod.annotNotPresent(RequestParam.class).arg(String.class);
+    Object result = resolver.resolveArgument(webRequest, param);
+    assertThat(result).isEqualTo("");
+  }
+
+  @Test
+  public void resolveEmptyValueRequiredWithoutDefault() throws Throwable {
+    request.addParameter("name", "");
+    HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().notRequired()).arg(String.class);
+    Object result = resolver.resolveArgument(webRequest, param);
+    assertThat(result).isEqualTo("");
+  }
+
+  @Test
+  @SuppressWarnings("rawtypes")
+  public void resolveOptionalParamValue() throws Throwable {
+    ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
+    initializer.setConversionService(new DefaultConversionService());
+
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
+
+    BindingContext binderFactory = new BindingContext(initializer);
+    BindingContext.set(webRequest, binderFactory);
+
+    var param = this.testMethod.annotPresent(RequestParam.class).isNullable().arg(Integer.class);
+    Object result = resolver.resolveArgument(webRequest, param);
+    assertThat(result).isNull();
+
+    webRequest.addParameter("name", "123");
+    result = resolver.resolveArgument(webRequest, param);
+    assertThat(result).isNotNull().isEqualTo(123);
+  }
+
+  @Test
+  @SuppressWarnings("rawtypes")
+  public void missingOptionalParamValue() throws Throwable {
+    ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
+    initializer.setConversionService(new DefaultConversionService());
+
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
+
+    BindingContext binderFactory = new BindingContext(initializer);
+    BindingContext.set(webRequest, binderFactory);
+
+    var param = this.testMethod.annotPresent(RequestParam.class).isNullable().arg(Integer.class);
+    Object result = resolver.resolveArgument(webRequest, param);
+    assertThat(result).isNull();
+
+    result = resolver.resolveArgument(webRequest, param);
+    assertThat(result).isNull();
+  }
+
+  @Test
+  @SuppressWarnings("rawtypes")
+  public void resolveOptionalParamArray() throws Throwable {
+    ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
+    initializer.setConversionService(new DefaultConversionService());
+
+    MockHttpContext webRequest = new MockHttpContext(null, request);
+
+    BindingContext binderFactory = new BindingContext(initializer);
+    BindingContext.set(webRequest, binderFactory);
+
+    var param = this.testMethod.annotPresent(RequestParam.class).isNullable().arg(Integer[].class);
+    Object result = resolver.resolveArgument(webRequest, param);
+    assertThat(result).isNull();
+
+    webRequest.setParameter("name", "123", "456");
+    result = resolver.resolveArgument(webRequest, param);
+    assertThat(result).isNotNull()
+            .isEqualTo(new Integer[] { 123, 456 });
+  }
+
+  @Test
+  public void missingOptionalParamArray() throws Throwable {
+    ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
+    initializer.setConversionService(new DefaultConversionService());
+
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
+
+    BindingContext binderFactory = new BindingContext(initializer);
+    BindingContext.set(webRequest, binderFactory);
+
+    var param = this.testMethod.annotPresent(RequestParam.class).isNullable().arg(Integer[].class);
+    Object result = resolver.resolveArgument(webRequest, param);
+    assertThat(result).isNull();
+
+    result = resolver.resolveArgument(webRequest, param);
+    assertThat(result).isNull();
+  }
+
+  @Test
+  public void resolveOptionalParamList() throws Throwable {
+    ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
+    initializer.setConversionService(new DefaultConversionService());
+
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
+
+    BindingContext binderFactory = new BindingContext(initializer);
+    BindingContext.set(webRequest, binderFactory);
+
+    var param = this.testMethod.annotPresent(RequestParam.class).isNullable().arg(List.class);
+    Object result = resolver.resolveArgument(webRequest, param);
+    assertThat(result).isNull();
+
+    webRequest.setParameter("name", "123", "456");
+    result = resolver.resolveArgument(webRequest, param);
+    assertThat(result).isNotNull().isEqualTo(Arrays.asList("123", "456"));
+  }
+
+  @Test
+  public void missingOptionalParamList() throws Throwable {
+    ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
+    initializer.setConversionService(new DefaultConversionService());
+
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
+
+    BindingContext binderFactory = new BindingContext(initializer);
+    BindingContext.set(webRequest, binderFactory);
+
+    var param = this.testMethod.annotPresent(RequestParam.class).isNullable().arg(List.class);
+    Object result = resolver.resolveArgument(webRequest, param);
+    assertThat(result).isNull();
+
+    result = resolver.resolveArgument(webRequest, param);
+    assertThat(result).isNull();
+  }
+
+  @Test
+  public void resolveOptionalMultipartFile() throws Throwable {
+    ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
+    initializer.setConversionService(new DefaultConversionService());
+
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
+
+    BindingContext binderFactory = new BindingContext(initializer);
+    BindingContext.set(webRequest, binderFactory);
+
+    MultipartMockRequest request = new MultipartMockRequest();
+    Part expected = new MockMultipartFile("mfile", "Hello World".getBytes());
+    request.addPart(expected);
+    webRequest = new MockHttpContext(null, request, null);
+    BindingContext.set(webRequest, new BindingContext(initializer));
+
+    HandlerParameter param = testMethod.annotPresent(
+            RequestParam.class).isNullable().arg(Part.class);
+    Object result = resolver.resolveArgument(webRequest, param);
+
+    assertThat(result).isEqualTo(expected);
+  }
+
+  @Test
+  public void missingOptionalMultipartFile() throws Throwable {
+    ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
+    initializer.setConversionService(new DefaultConversionService());
+
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
+
+    BindingContext binderFactory = new BindingContext(initializer);
+    BindingContext.set(webRequest, binderFactory);
+
+    request.setMethod("POST");
+    request.setContentType("multipart/form-data");
+
+    var param = this.testMethod.annotPresent(RequestParam.class).isNullable().arg(Part.class);
+    Object actual = resolver.resolveArgument(webRequest, param);
+
+    assertThat(actual).isEqualTo(null);
+  }
+
+  @Test
+  public void optionalMultipartFileWithoutMultipartRequest() throws Throwable {
+    ConfigurableWebBindingInitializer initializer = new ConfigurableWebBindingInitializer();
+    initializer.setConversionService(new DefaultConversionService());
+
+    MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
+
+    BindingContext binderFactory = new BindingContext(initializer);
+    BindingContext.set(webRequest, binderFactory);
+
+    HandlerParameter param = this.testMethod.annotPresent(RequestParam.class).isNullable()
+            .arg(Part.class);
+    Object actual = resolver.resolveArgument(webRequest, param);
+
+    assertThat(actual).isNull();
+  }
+
+  @SuppressWarnings({ "unused" })
+  public void handle(
+          @RequestParam(name = "name", defaultValue = "bar") String param1,
+          @RequestParam("name") String[] param2,
+          @RequestParam("name") Map<?, ?> param3,
+          @RequestParam("mfile") Part param4,
+          @RequestParam("mfilelist") List<Part> param5,
+          @RequestParam("mfilearray") Part[] param6,
+          @RequestParam Map<?, ?> param10,
+          String stringNotAnnot,
+          Part multipartFileNotAnnot,
+          List<Part> multipartFileList,
+          @RequestPart Part requestPartAnnot,
+          @RequestParam("name") String paramRequired,
+          @RequestParam(name = "name", required = false) String paramNotRequired,
+          @RequestParam("name") @Nullable Integer paramOptional,
+          @RequestParam("name") @Nullable Integer @Nullable [] paramOptionalArray,
+          @RequestParam("name") @Nullable List<?> paramOptionalList,
+          @RequestParam("mfile") @Nullable Part multipartFileOptional,
+          @RequestParam(defaultValue = "false") Boolean booleanParam) {
+  }
+
+}

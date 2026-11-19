@@ -1,0 +1,219 @@
+/*
+ * Copyright 2002-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
+package infra.web.handler.method.support;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import infra.core.MethodParameter;
+import infra.http.server.RequestPath;
+import infra.web.HandlerMatchingMetadata;
+import infra.web.annotation.PathVariable;
+import infra.web.handler.method.HandlerParameter;
+import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
+import infra.web.util.pattern.PathPattern;
+import infra.web.util.pattern.PathPatternParser;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/5/27 22:06
+ */
+class PathVariableMapMethodArgumentResolverTests {
+
+  private PathVariableMapMethodArgumentResolver resolver;
+
+  private MockHttpContext webRequest;
+
+  private MockRequest request;
+
+  private HandlerParameter paramMap;
+  private HandlerParameter paramNamedMap;
+  private HandlerParameter paramMapNoAnnot;
+
+  @BeforeEach
+  public void setup() throws Exception {
+    resolver = new PathVariableMapMethodArgumentResolver();
+    request = new MockRequest();
+    webRequest = new MockHttpContext(null, request, new MockResponse());
+
+    Method method = getClass().getMethod("handle", Map.class, Map.class, Map.class);
+    paramMap = new HandlerParameter(new MethodParameter(method, 0));
+    paramNamedMap = new HandlerParameter(new MethodParameter(method, 1));
+    paramMapNoAnnot = new HandlerParameter(new MethodParameter(method, 2));
+  }
+
+  @Test
+  public void supportsParameter() {
+    assertThat(resolver.supportsParameter(paramMap)).isTrue();
+    assertThat(resolver.supportsParameter(paramNamedMap)).isFalse();
+    assertThat(resolver.supportsParameter(paramMapNoAnnot)).isFalse();
+  }
+
+  @Test
+  public void resolveArgument() throws Throwable {
+    applyTemplateVars();
+
+    Map<String, String> uriTemplateVars = new HashMap<>();
+    uriTemplateVars.put("name1", "value1");
+    uriTemplateVars.put("name2", "value2");
+
+    RequestPath requestPath = RequestPath.parse("/mock/value1/value2", null);
+    PathPattern pathPattern = PathPatternParser.defaultInstance.parse("/mock/{name1}/{name2}");
+
+    HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(
+            new Object(), "/mock", requestPath, pathPattern, PathPatternParser.defaultInstance);
+    HandlerMatchingMetadata.set(webRequest, matchingMetadata);
+
+    Object result = resolver.resolveArgument(webRequest, paramMap);
+
+    assertThat(result).isEqualTo(uriTemplateVars);
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void resolveArgumentNoUriVars() throws Throwable {
+    Map<String, String> map = (Map<String, String>) resolver.resolveArgument(webRequest, paramMap);
+
+    assertThat(map).isEqualTo(Collections.emptyMap());
+  }
+
+  @Test
+  void resolveArgumentWithCustomMapImplementation() throws Throwable {
+    Method method = TestController.class.getMethod("handleCustomMap", CustomMap.class);
+    HandlerParameter paramCustomMap = new HandlerParameter(new MethodParameter(method, 0));
+
+    applyTemplateVars();
+
+    PathVariableMapMethodArgumentResolver resolver = new PathVariableMapMethodArgumentResolver();
+    Object result = resolver.resolveArgument(webRequest, paramCustomMap);
+
+    assertThat(result).isInstanceOf(CustomMap.class);
+    assertThat(((Map) result)).containsEntry("name", "value");
+  }
+
+  @Test
+  void resolveArgumentWithLinkedHashMap() throws Throwable {
+    Method method = TestController.class.getMethod("handleLinkedHashMap", LinkedHashMap.class);
+    HandlerParameter paramLinkedHashMap = new HandlerParameter(new MethodParameter(method, 0));
+
+    applyTemplateVars();
+
+    PathVariableMapMethodArgumentResolver resolver = new PathVariableMapMethodArgumentResolver();
+    Object result = resolver.resolveArgument(webRequest, paramLinkedHashMap);
+
+    assertThat(result).isInstanceOf(LinkedHashMap.class);
+    assertThat(((Map) result)).containsEntry("name", "value");
+  }
+
+  @Test
+  void resolveArgumentWithEmptyUriVariables() throws Throwable {
+    RequestPath requestPath = RequestPath.parse("/mock", null);
+    PathPattern pathPattern = PathPatternParser.defaultInstance.parse("/mock");
+
+    HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(
+            new Object(), "/mock", requestPath, pathPattern, PathPatternParser.defaultInstance);
+    HandlerMatchingMetadata.set(webRequest, matchingMetadata);
+
+    PathVariableMapMethodArgumentResolver resolver = new PathVariableMapMethodArgumentResolver();
+    Object result = resolver.resolveArgument(webRequest, paramMap);
+
+    assertThat(result).isInstanceOf(Map.class);
+    assertThat(((Map<?, ?>) result)).isEmpty();
+  }
+
+  @Test
+  void resolveArgumentWithoutMatchingMetadata() throws Throwable {
+    MockHttpContext context = new MockHttpContext(null, new MockRequest(), new MockResponse());
+    // No matching metadata
+
+    PathVariableMapMethodArgumentResolver resolver = new PathVariableMapMethodArgumentResolver();
+    Object result = resolver.resolveArgument(context, paramMap);
+
+    assertThat(result).isInstanceOf(Map.class);
+    assertThat(((Map<?, ?>) result)).isEmpty();
+  }
+
+  @Test
+  void supportsParameterWithNonMapType() throws Exception {
+    Method method = TestController.class.getMethod("handleString", String.class);
+    HandlerParameter paramString = new HandlerParameter(new MethodParameter(method, 0));
+
+    PathVariableMapMethodArgumentResolver resolver = new PathVariableMapMethodArgumentResolver();
+    assertThat(resolver.supportsParameter(paramString)).isFalse();
+  }
+
+  @Test
+  void supportsParameterWithoutPathVariableAnnotation() throws Exception {
+    Method method = TestController.class.getMethod("handleMapWithoutAnnotation", Map.class);
+    HandlerParameter paramMapNoAnnot = new HandlerParameter(new MethodParameter(method, 0));
+
+    PathVariableMapMethodArgumentResolver resolver = new PathVariableMapMethodArgumentResolver();
+    assertThat(resolver.supportsParameter(paramMapNoAnnot)).isFalse();
+  }
+
+  @Test
+  void supportsParameterWithNamedPathVariable() throws Exception {
+    Method method = TestController.class.getMethod("handleNamedMap", Map.class);
+    HandlerParameter paramNamedMap = new HandlerParameter(new MethodParameter(method, 0));
+
+    PathVariableMapMethodArgumentResolver resolver = new PathVariableMapMethodArgumentResolver();
+    assertThat(resolver.supportsParameter(paramNamedMap)).isFalse();
+  }
+
+  static class TestController {
+    public void handleCustomMap(@PathVariable CustomMap customMap) { }
+
+    public void handleLinkedHashMap(@PathVariable LinkedHashMap map) { }
+
+    public void handleString(@PathVariable String string) { }
+
+    public void handleMapWithoutAnnotation(Map<String, String> map) { }
+
+    public void handleNamedMap(@PathVariable("name") Map<String, String> namedMap) { }
+  }
+
+  static class CustomMap extends LinkedHashMap<String, String> {
+  }
+
+  private void applyTemplateVars() {
+    RequestPath requestPath = RequestPath.parse("/mock/value", null);
+    PathPattern pathPattern = PathPatternParser.defaultInstance.parse("/mock/{name}");
+
+    HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(
+            new Object(), "/mock", requestPath, pathPattern, PathPatternParser.defaultInstance);
+    HandlerMatchingMetadata.set(webRequest, matchingMetadata);
+  }
+
+  public void handle(
+          @PathVariable Map<String, String> map,
+          @PathVariable(value = "name") Map<String, String> namedMap,
+          Map<String, String> mapWithoutAnnotat) {
+  }
+
+}

@@ -21,10 +21,10 @@ package infra.app.webmvc.test.config.mockmvc;
 import infra.app.webmvc.test.config.WebMvcTest;
 import infra.stereotype.Component;
 import infra.web.HttpContext;
-import infra.web.bind.resolver.ParameterResolvingStrategies;
-import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.handler.method.HandlerParameter;
+import infra.web.handler.method.ParameterResolvingStrategies;
+import infra.web.handler.method.ParameterResolvingStrategy;
 
 /**
  * Example {@link WebMvcConfigurer} used in {@link WebMvcTest @WebMvcTest} tests.

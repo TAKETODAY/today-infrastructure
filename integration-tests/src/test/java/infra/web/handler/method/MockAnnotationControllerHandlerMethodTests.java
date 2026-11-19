@@ -122,14 +122,13 @@ import infra.web.bind.WebDataBinder;
 import infra.web.bind.annotation.BindParam;
 import infra.web.bind.annotation.InitBinder;
 import infra.web.bind.annotation.ModelAttribute;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
-import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.bind.support.WebBindingInitializer;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.handler.function.RouterFunction;
 import infra.web.handler.function.RouterFunctions;
 import infra.web.handler.function.ServerResponse;
+import infra.web.handler.method.support.DefaultParameterResolvingRegistry;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
@@ -930,7 +929,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       RootBeanDefinition adapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
       wac.registerBeanDefinition("handlerAdapter", adapterDef);
 
-      register("parameterResolvingRegistry", ParameterResolvingRegistry.class, wac)
+      register("parameterResolvingRegistry", DefaultParameterResolvingRegistry.class, wac)
               .getPropertyValues().add("messageConverters", new NotReadableMessageConverter());
 
       register("returnValueHandlerManager", ReturnValueHandlerManager.class, wac)

@@ -35,10 +35,10 @@ import infra.web.HttpContext;
 import infra.web.RedirectModel;
 import infra.web.RedirectModelManager;
 import infra.web.annotation.RequestMapping;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
-import infra.web.bind.resolver.ParameterResolvingStrategy;
-import infra.web.bind.resolver.RequestParamMethodArgumentResolver;
 import infra.web.bind.support.WebBindingInitializer;
+import infra.web.handler.method.support.DefaultParameterResolvingRegistry;
+import infra.web.handler.method.support.ModelAttributeMethodProcessor;
+import infra.web.handler.method.support.RequestParamMethodArgumentResolver;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
 import infra.web.util.SessionMutexListener;
 import infra.web.util.WebUtils;
@@ -142,7 +142,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
   public void afterPropertiesSet() {
     ApplicationContext context = applicationContext();
     if (resolvingRegistry == null) {
-      resolvingRegistry = ParameterResolvingRegistry.get(context);
+      resolvingRegistry = DefaultParameterResolvingRegistry.get(context);
     }
 
     this.methodResolver = new ControllerMethodResolver(context,

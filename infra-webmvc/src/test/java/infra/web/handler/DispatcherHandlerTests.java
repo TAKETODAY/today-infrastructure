@@ -33,7 +33,8 @@ import infra.web.HandlerMapping;
 import infra.web.NotFoundHandler;
 import infra.web.RequestCompletedListener;
 import infra.web.async.WebAsyncManagerFactory;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
+import infra.web.handler.method.ParameterResolvingRegistry;
+import infra.web.handler.method.support.DefaultParameterResolvingRegistry;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -49,7 +50,7 @@ class DispatcherHandlerTests {
 
     @Component
     ParameterResolvingRegistry parameterResolvingRegistry() {
-      return new ParameterResolvingRegistry();
+      return new DefaultParameterResolvingRegistry();
     }
 
     @Component

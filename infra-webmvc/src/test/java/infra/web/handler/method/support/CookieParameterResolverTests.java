@@ -1,0 +1,421 @@
+/*
+ * Copyright 2017 - 2026 the TODAY authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package infra.web.handler.method.support;
+
+import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Method;
+
+import infra.core.MethodParameter;
+import infra.core.ParameterNameDiscoverer;
+import infra.http.HttpCookie;
+import infra.web.annotation.CookieValue;
+import infra.web.bind.MissingRequestCookieException;
+import infra.web.handler.method.HandlerParameter;
+import infra.web.handler.method.support.CookieParameterResolver.AllCookieParameterResolver;
+import infra.web.handler.method.support.CookieParameterResolver.CookieCollectionParameterResolver;
+import infra.web.handler.method.support.CookieParameterResolver.CookieValueAnnotationParameterResolver;
+import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
+import infra.web.mock.api.Cookie;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+/**
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2025/10/9 22:13
+ */
+class CookieParameterResolverTests {
+
+  @Test
+  public void supportsParameterWithHttpCookie() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleCookie", HttpCookie.class);
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
+    CookieParameterResolver resolver = new CookieParameterResolver();
+
+    assertThat(resolver.supportsParameter(parameter)).isTrue();
+  }
+
+  @Test
+  public void supportsParameterWithString() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleString", String.class);
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
+    CookieParameterResolver resolver = new CookieParameterResolver();
+
+    assertThat(resolver.supportsParameter(parameter)).isFalse();
+  }
+
+  @Test
+  public void resolveArgumentWithExistingCookie() throws Throwable {
+    MockRequest mockRequest = new MockRequest();
+    mockRequest.setCookies(new Cookie("testCookie", "testValue"));
+    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
+
+    Method method = getClass().getDeclaredMethod("handleCookie", HttpCookie.class);
+    MethodParameter parameter1 = new MethodParameter(method, 0);
+    parameter1.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
+    HandlerParameter parameter = new HandlerParameter(parameter1);
+    CookieParameterResolver resolver = new CookieParameterResolver();
+
+    Object result = resolver.resolveArgument(context, parameter);
+
+    assertThat(result).isInstanceOf(HttpCookie.class);
+    HttpCookie cookie = (HttpCookie) result;
+    assertThat(cookie.getName()).isEqualTo("testCookie");
+    assertThat(cookie.getValue()).isEqualTo("testValue");
+  }
+
+  @Test
+  public void resolveArgumentWithMissingCookie() throws Exception {
+    MockRequest mockRequest = new MockRequest();
+    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
+
+    Method method = getClass().getDeclaredMethod("handleCookie", HttpCookie.class);
+    MethodParameter parameter1 = new MethodParameter(method, 0);
+    parameter1.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
+    HandlerParameter parameter = new HandlerParameter(parameter1);
+    CookieParameterResolver resolver = new CookieParameterResolver();
+
+    assertThatThrownBy(() -> resolver.resolveArgument(context, parameter))
+            .isInstanceOf(MissingRequestCookieException.class);
+  }
+
+  @Test
+  public void supportsParameterWithCookieValueAnnotation() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleAnnotatedCookie", String.class);
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
+    CookieValueAnnotationParameterResolver resolver =
+            new CookieValueAnnotationParameterResolver(null);
+
+    assertThat(resolver.supportsParameter(parameter)).isTrue();
+  }
+
+  @Test
+  public void supportsParameterWithoutCookieValueAnnotation() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleCookie", HttpCookie.class);
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
+    CookieValueAnnotationParameterResolver resolver =
+            new CookieValueAnnotationParameterResolver(null);
+
+    assertThat(resolver.supportsParameter(parameter)).isFalse();
+  }
+
+  @Test
+  public void resolveNameWithHttpCookieType() throws Exception {
+    MockRequest mockRequest = new MockRequest();
+    mockRequest.setCookies(new Cookie("testCookie", "testValue"));
+    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
+
+    Method method = getClass().getDeclaredMethod("handleCookie", HttpCookie.class);
+    MethodParameter methodParam = new MethodParameter(method, 0);
+    methodParam.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
+    HandlerParameter parameter = new HandlerParameter(methodParam);
+    CookieValueAnnotationParameterResolver resolver =
+            new CookieValueAnnotationParameterResolver(null);
+
+    Object result = resolver.resolveName("testCookie", parameter, context);
+
+    assertThat(result).isInstanceOf(HttpCookie.class);
+    assertThat(((HttpCookie) result).getName()).isEqualTo("testCookie");
+    assertThat(((HttpCookie) result).getValue()).isEqualTo("testValue");
+  }
+
+  @Test
+  public void resolveNameWithStringType() throws Exception {
+    MockRequest mockRequest = new MockRequest();
+    mockRequest.setCookies(new Cookie("testCookie", "testValue"));
+    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
+
+    Method method = getClass().getDeclaredMethod("handleAnnotatedCookie", String.class);
+    MethodParameter methodParam = new MethodParameter(method, 0);
+    methodParam.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
+    HandlerParameter parameter = new HandlerParameter(methodParam);
+    CookieValueAnnotationParameterResolver resolver =
+            new CookieValueAnnotationParameterResolver(null);
+
+    Object result = resolver.resolveName("testCookie", parameter, context);
+
+    assertThat(result).isInstanceOf(String.class);
+    assertThat(result).isEqualTo("testValue");
+  }
+
+  @Test
+  public void resolveNameWithMissingCookie() throws Exception {
+    MockRequest mockRequest = new MockRequest();
+    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
+
+    Method method = getClass().getDeclaredMethod("handleAnnotatedCookie", String.class);
+    MethodParameter methodParam = new MethodParameter(method, 0);
+    methodParam.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
+    HandlerParameter parameter = new HandlerParameter(methodParam);
+    CookieValueAnnotationParameterResolver resolver =
+            new CookieValueAnnotationParameterResolver(null);
+
+    Object result = resolver.resolveName("missingCookie", parameter, context);
+
+    assertThat(result).isNull();
+  }
+
+  @Test
+  public void handleMissingValue() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleAnnotatedCookie", String.class);
+    MethodParameter parameter = new MethodParameter(method, 0);
+    CookieValueAnnotationParameterResolver resolver =
+            new CookieValueAnnotationParameterResolver(null);
+
+    assertThatThrownBy(() -> resolver.handleMissingValue("missingCookie", parameter))
+            .isInstanceOf(MissingRequestCookieException.class);
+  }
+
+  @Test
+  public void handleMissingValueAfterConversion() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleAnnotatedCookie", String.class);
+    MethodParameter parameter = new MethodParameter(method, 0);
+    CookieValueAnnotationParameterResolver resolver =
+            new CookieValueAnnotationParameterResolver(null);
+
+    assertThatThrownBy(() -> resolver.handleMissingValueAfterConversion("missingCookie", parameter, null))
+            .isInstanceOf(MissingRequestCookieException.class)
+            .hasFieldOrPropertyWithValue("missingAfterConversion", true);
+  }
+
+  @Test
+  public void allCookieParameterResolverSupportsParameter() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleCookieArray", HttpCookie[].class);
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
+    AllCookieParameterResolver resolver = new AllCookieParameterResolver();
+
+    assertThat(resolver.supportsParameter(parameter)).isTrue();
+  }
+
+  @Test
+  public void allCookieParameterResolverSupportsParameterWithNonArrayType() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleCookie", HttpCookie.class);
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
+    AllCookieParameterResolver resolver = new AllCookieParameterResolver();
+
+    assertThat(resolver.supportsParameter(parameter)).isFalse();
+  }
+
+  @Test
+  public void allCookieParameterResolverSupportsParameterWithWrongComponentType() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleStringArray", String[].class);
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
+    AllCookieParameterResolver resolver = new AllCookieParameterResolver();
+
+    assertThat(resolver.supportsParameter(parameter)).isFalse();
+  }
+
+  @Test
+  public void allCookieParameterResolverResolveArgument() throws Exception {
+    MockRequest mockRequest = new MockRequest();
+    mockRequest.setCookies(new Cookie("cookie1", "value1"), new Cookie("cookie2", "value2"));
+    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
+
+    Method method = getClass().getDeclaredMethod("handleCookieArray", HttpCookie[].class);
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
+    AllCookieParameterResolver resolver = new AllCookieParameterResolver();
+
+    Object result = resolver.resolveArgument(context, parameter);
+
+    assertThat(result).isInstanceOf(HttpCookie[].class);
+    HttpCookie[] resultCookies = (HttpCookie[]) result;
+    assertThat(resultCookies).hasSize(2);
+    assertThat(resultCookies[0].getName()).isEqualTo("cookie1");
+    assertThat(resultCookies[1].getName()).isEqualTo("cookie2");
+  }
+
+  @Test
+  public void cookieCollectionParameterResolverSupportsParameter() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleCookieCollection", java.util.List.class);
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
+    CookieCollectionParameterResolver resolver =
+            new CookieCollectionParameterResolver(null);
+
+    assertThat(resolver.supportsParameter(parameter)).isTrue();
+  }
+
+  @Test
+  public void cookieCollectionParameterResolverResolveName() throws Exception {
+    MockRequest mockRequest = new MockRequest();
+    mockRequest.setCookies(new Cookie("cookie1", "value1"), new Cookie("cookie2", "value2"));
+    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
+
+    Method method = getClass().getDeclaredMethod("handleCookieCollection", java.util.List.class);
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
+    CookieCollectionParameterResolver resolver =
+            new CookieCollectionParameterResolver(null);
+
+    Object result = resolver.resolveName("anyName", parameter, context);
+
+    assertThat(result).isInstanceOf(HttpCookie[].class);
+    HttpCookie[] resultCookies = (HttpCookie[]) result;
+    assertThat(resultCookies).hasSize(2);
+  }
+
+  @Test
+  public void cookieValueAnnotationParameterResolverSupportsParameter() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleAnnotatedCookie", String.class);
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
+    CookieValueAnnotationParameterResolver resolver =
+            new CookieValueAnnotationParameterResolver(null);
+
+    assertThat(resolver.supportsParameter(parameter)).isTrue();
+  }
+
+  @Test
+  public void cookieValueAnnotationParameterResolverDoesNotSupportParameter() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleString", String.class);
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
+    CookieValueAnnotationParameterResolver resolver =
+            new CookieValueAnnotationParameterResolver(null);
+
+    assertThat(resolver.supportsParameter(parameter)).isFalse();
+  }
+
+  @Test
+  public void cookieValueAnnotationParameterResolverResolveNameWithCookieValue() throws Exception {
+    MockRequest mockRequest = new MockRequest();
+    mockRequest.setCookies(new Cookie("testCookie", "testValue"));
+    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
+
+    Method method = getClass().getDeclaredMethod("handleAnnotatedCookie", String.class);
+    MethodParameter methodParam = new MethodParameter(method, 0);
+    methodParam.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
+    HandlerParameter parameter = new HandlerParameter(methodParam);
+    CookieValueAnnotationParameterResolver resolver =
+            new CookieValueAnnotationParameterResolver(null);
+
+    Object result = resolver.resolveName("testCookie", parameter, context);
+
+    assertThat(result).isEqualTo("testValue");
+  }
+
+  @Test
+  public void cookieValueAnnotationParameterResolverResolveNameWithHttpCookie() throws Exception {
+    MockRequest mockRequest = new MockRequest();
+    mockRequest.setCookies(new Cookie("testCookie", "testValue"));
+    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
+
+    Method method = getClass().getDeclaredMethod("handleAnnotatedHttpCookie", HttpCookie.class);
+    MethodParameter methodParam = new MethodParameter(method, 0);
+    methodParam.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
+    HandlerParameter parameter = new HandlerParameter(methodParam);
+    CookieValueAnnotationParameterResolver resolver =
+            new CookieValueAnnotationParameterResolver(null);
+
+    Object result = resolver.resolveName("testCookie", parameter, context);
+
+    assertThat(result).isInstanceOf(HttpCookie.class);
+    HttpCookie resultCookie = (HttpCookie) result;
+    assertThat(resultCookie.getName()).isEqualTo("testCookie");
+    assertThat(resultCookie.getValue()).isEqualTo("testValue");
+  }
+
+  @Test
+  public void cookieValueAnnotationParameterResolverResolveNameWithMissingCookie() throws Exception {
+    MockRequest mockRequest = new MockRequest();
+    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
+
+    Method method = getClass().getDeclaredMethod("handleAnnotatedCookie", String.class);
+    MethodParameter methodParam = new MethodParameter(method, 0);
+    methodParam.initParameterNameDiscovery(ParameterNameDiscoverer.getSharedInstance());
+    HandlerParameter parameter = new HandlerParameter(methodParam);
+    CookieValueAnnotationParameterResolver resolver =
+            new CookieValueAnnotationParameterResolver(null);
+
+    Object result = resolver.resolveName("missingCookie", parameter, context);
+
+    assertThat(result).isNull();
+  }
+
+  @Test
+  public void cookieValueAnnotationParameterResolverHandleMissingValue() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleAnnotatedCookie", String.class);
+    MethodParameter parameter = new MethodParameter(method, 0);
+    CookieValueAnnotationParameterResolver resolver =
+            new CookieValueAnnotationParameterResolver(null);
+
+    assertThatThrownBy(() -> resolver.handleMissingValue("missingCookie", parameter))
+            .isInstanceOf(MissingRequestCookieException.class);
+  }
+
+  @Test
+  public void cookieValueAnnotationParameterResolverHandleMissingValueAfterConversion() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleAnnotatedCookie", String.class);
+    MethodParameter parameter = new MethodParameter(method, 0);
+    CookieValueAnnotationParameterResolver resolver =
+            new CookieValueAnnotationParameterResolver(null);
+
+    assertThatThrownBy(() -> resolver.handleMissingValueAfterConversion("missingCookie", parameter, null))
+            .isInstanceOf(MissingRequestCookieException.class)
+            .hasFieldOrPropertyWithValue("missingAfterConversion", true);
+  }
+
+  @Test
+  public void allCookieParameterResolverDoesNotSupportNonArrayParameter() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleCookie", HttpCookie.class);
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
+    AllCookieParameterResolver resolver = new AllCookieParameterResolver();
+
+    assertThat(resolver.supportsParameter(parameter)).isFalse();
+  }
+
+  @Test
+  public void allCookieParameterResolverDoesNotSupportWrongArrayType() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleStringArray", String[].class);
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
+    AllCookieParameterResolver resolver = new AllCookieParameterResolver();
+
+    assertThat(resolver.supportsParameter(parameter)).isFalse();
+  }
+
+  @Test
+  public void cookieCollectionParameterResolverDoesNotSupportNonCollectionParameter() throws Exception {
+    Method method = getClass().getDeclaredMethod("handleCookie", HttpCookie.class);
+    HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
+    CookieCollectionParameterResolver resolver =
+            new CookieCollectionParameterResolver(null);
+
+    assertThat(resolver.supportsParameter(parameter)).isFalse();
+  }
+
+  @SuppressWarnings("unused")
+  private void handleAnnotatedHttpCookie(@CookieValue("testCookie") HttpCookie cookie) { }
+
+  @SuppressWarnings("unused")
+  private void handleAnnotatedCookie(@CookieValue("testCookie") String cookieValue) { }
+
+  @SuppressWarnings("unused")
+  private void handleCookieArray(HttpCookie[] cookies) { }
+
+  @SuppressWarnings("unused")
+  private void handleStringArray(String[] strings) { }
+
+  @SuppressWarnings("unused")
+  private void handleCookieCollection(java.util.List<HttpCookie> cookies) { }
+
+  @SuppressWarnings("unused")
+  private void handleCookie(HttpCookie testCookie) {
+  }
+
+  @SuppressWarnings("unused")
+  private void handleString(String value) { }
+
+}

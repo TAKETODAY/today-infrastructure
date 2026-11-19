@@ -30,16 +30,16 @@ import infra.core.MethodIntrospector;
 import infra.core.annotation.AnnotationUtils;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.web.mock.MockHttpContext;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
 import infra.ui.Model;
 import infra.util.ReflectionUtils;
 import infra.web.BindingContext;
 import infra.web.annotation.RequestMapping;
 import infra.web.bind.annotation.ModelAttribute;
-import infra.web.bind.resolver.ModelMethodProcessor;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
+import infra.web.handler.method.support.ModelAttributeMethodProcessor;
+import infra.web.handler.method.support.ModelMethodProcessor;
+import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

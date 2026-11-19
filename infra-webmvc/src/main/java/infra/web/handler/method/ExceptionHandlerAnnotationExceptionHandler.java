@@ -41,7 +41,6 @@ import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.annotation.ExceptionHandler;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.handler.AbstractHandlerMethodExceptionHandler;
 import infra.web.handler.function.HandlerFunction;
 import infra.web.resource.ResourceHttpRequestHandler;
