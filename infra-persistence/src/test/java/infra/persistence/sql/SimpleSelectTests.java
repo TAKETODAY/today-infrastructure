@@ -212,4 +212,24 @@ class SimpleSelectTests {
             "SELECT name FROM t_user order by b DESC");
   }
 
+  @Test
+  void canReplaceAndClearOrderingThroughEitherOverload() {
+    var select = new SimpleSelect("t_user").addColumn("name").orderBy("id");
+    select.orderBy(OrderSpec.builder().desc("name")).orderBy("id");
+    assertThat(select.toStatementString(platform)).isEqualTo("SELECT name FROM t_user order by name DESC, id ASC");
+
+    select.orderBy((OrderSpec.Builder) null);
+    assertThat(select.toStatementString(platform)).isEqualTo("SELECT name FROM t_user");
+
+    select.orderBy(OrderSpec.asc("id")).orderBy((OrderSpec) null);
+    assertThat(select.toStatementString(platform)).isEqualTo("SELECT name FROM t_user");
+  }
+
+  @Test
+  void ignoresAbsentRestrictionsAndOmitsAnAliasEqualToItsColumn() {
+    var select = new SimpleSelect("t_user").addColumn("id", "id").addWhereToken(null).addRestrictions(null, "name");
+
+    assertThat(select.toStatementString(platform)).isEqualTo("SELECT id FROM t_user WHERE name = ?");
+  }
+
 }

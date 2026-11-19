@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import infra.persistence.Identifier;
 import infra.persistence.platform.Platform;
 
 import static infra.persistence.sql.Restrictions.and;
@@ -133,6 +134,26 @@ class RestrictionTests {
     restriction.render(platform, sqlBuffer);
 
     assertThat(sqlBuffer.toString()).isEqualTo("column <> value");
+  }
+
+  @Test
+  void comparesRestrictionsByColumnOperatorAndRightHandSide() {
+    Restriction restriction = notEqual("`status`");
+    Restriction equivalent = notEqual(Identifier.parse("`status`"));
+
+    assertThat(render(restriction)).isEqualTo("`status` <> ?");
+    assertThat(restriction).isEqualTo(restriction).isEqualTo(equivalent).hasSameHashCodeAs(equivalent)
+            .isNotEqualTo(null).isNotEqualTo(plain("`status` <> ?"))
+            .isNotEqualTo(notEqual("`category`")).isNotEqualTo(equal("`status`"))
+            .isNotEqualTo(notEqual("`status`", "'closed'"));
+  }
+
+  @Test
+  void selectsConnectorForBooleanConjunctionFlag() {
+    var restrictions = List.of(equal("tenant_id"), equal("owner_id"));
+
+    assertThat(renderWhereClause(platform, restrictions, LogicalOperator.of(true))).hasToString("tenant_id = ? AND owner_id = ?");
+    assertThat(renderWhereClause(platform, restrictions, LogicalOperator.of(false))).hasToString("tenant_id = ? OR owner_id = ?");
   }
 
   @Test
