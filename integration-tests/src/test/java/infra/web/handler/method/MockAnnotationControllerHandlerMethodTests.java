@@ -104,6 +104,7 @@ import infra.validation.beanvalidation.LocalValidatorFactoryBean;
 import infra.web.HttpContext;
 import infra.web.RedirectModel;
 import infra.web.SerializationTestUtils;
+import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.ContentNegotiationManagerFactoryBean;
 import infra.web.annotation.CookieValue;
 import infra.web.annotation.ExceptionHandler;
@@ -128,7 +129,7 @@ import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.handler.function.RouterFunction;
 import infra.web.handler.function.RouterFunctions;
 import infra.web.handler.function.ServerResponse;
-import infra.web.handler.method.support.DefaultParameterResolvingRegistry;
+import infra.web.handler.method.support.ParameterResolvingRegistryFactory;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
@@ -929,8 +930,9 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       RootBeanDefinition adapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
       wac.registerBeanDefinition("handlerAdapter", adapterDef);
 
-      register("parameterResolvingRegistry", DefaultParameterResolvingRegistry.class, wac)
-              .getPropertyValues().add("messageConverters", new NotReadableMessageConverter());
+      wac.registerBean("parameterResolvingRegistry", ParameterResolvingRegistry.class,
+              () -> ParameterResolvingRegistryFactory.create(wac, List.of(new NotReadableMessageConverter()),
+                      new ContentNegotiationManager(), null, List.of()));
 
       register("returnValueHandlerManager", ReturnValueHandlerManager.class, wac)
               .getPropertyValues().add("messageConverters", new NotReadableMessageConverter()); ;

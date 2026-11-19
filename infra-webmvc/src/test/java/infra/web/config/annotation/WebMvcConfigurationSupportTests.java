@@ -75,7 +75,7 @@ import infra.web.handler.method.ParameterResolvingStrategies;
 import infra.web.handler.method.RequestMappingHandlerAdapter;
 import infra.web.handler.method.RequestMappingHandlerMapping;
 import infra.web.handler.method.RequestMappingInfo;
-import infra.web.handler.method.support.DefaultParameterResolvingRegistry;
+import infra.web.handler.method.support.ParameterResolvingRegistryFactory;
 import infra.web.handler.method.support.ModelAttributeMethodProcessor;
 import infra.web.i18n.LocaleChangeInterceptor;
 import infra.web.mock.MockHttpContext;
@@ -118,7 +118,7 @@ class WebMvcConfigurationSupportTests {
   void handlerMappings() throws Exception {
     RequestMappingHandlerMapping rmHandlerMapping = this.config.requestMappingHandlerMapping(
             this.config.mvcContentNegotiationManager(), this.config.mvcApiVersionStrategy(),
-            DefaultParameterResolvingRegistry.get(context));
+            ParameterResolvingRegistryFactory.getOrCreate(context));
     rmHandlerMapping.setApplicationContext(this.context);
     rmHandlerMapping.afterPropertiesSet();
 
@@ -175,9 +175,9 @@ class WebMvcConfigurationSupportTests {
 
   @Test
   void requestMappingHandlerAdapter() {
-    RequestMappingHandlerAdapter adapter = this.config.requestMappingHandlerAdapter(
-            null, null,
-            DefaultParameterResolvingRegistry.get(context), this.config.mvcValidator(), this.config.mvcConversionService());
+    ParameterResolvingRegistry registry = this.config.parameterResolvingRegistry(null, null, this.config.mvcContentNegotiationManager());
+    RequestMappingHandlerAdapter adapter = this.config.requestMappingHandlerAdapter(null, null,
+            registry, this.config.mvcValidator(), this.config.mvcConversionService());
 
     // ConversionService
     String actual = this.config.mvcConversionService().convert(new TestBean(), String.class);
@@ -185,17 +185,14 @@ class WebMvcConfigurationSupportTests {
 
     DirectFieldAccessor fieldAccessor = new DirectFieldAccessor(adapter);
 
-    // Custom argument resolvers and return value handlers
-    DefaultParameterResolvingRegistry registry =
-            (DefaultParameterResolvingRegistry) fieldAccessor.getPropertyValue("resolvingRegistry");
-    assertThat(registry.getMessageConverters()).hasSize(3);
+    assertThat(fieldAccessor.getPropertyValue("resolvingRegistry")).isSameAs(registry);
 
   }
 
   @Test
   void webBindingInitializer() {
     RequestMappingHandlerAdapter adapter = this.config.requestMappingHandlerAdapter(null, null,
-            DefaultParameterResolvingRegistry.get(context), this.config.mvcValidator(), this.config.mvcConversionService());
+            ParameterResolvingRegistryFactory.getOrCreate(context), this.config.mvcValidator(), this.config.mvcConversionService());
 
     ConfigurableWebBindingInitializer initializer =
             (ConfigurableWebBindingInitializer) adapter.getWebBindingInitializer();
@@ -216,7 +213,7 @@ class WebMvcConfigurationSupportTests {
 
     RequestMappingHandlerMapping mapping = this.config.requestMappingHandlerMapping(
             this.config.mvcContentNegotiationManager(), this.config.mvcApiVersionStrategy(),
-            DefaultParameterResolvingRegistry.get(context));
+            ParameterResolvingRegistryFactory.getOrCreate(context));
 
     request.setParameter("f", "json");
     ContentNegotiationManager manager = mapping.getContentNegotiationManager();
@@ -234,7 +231,7 @@ class WebMvcConfigurationSupportTests {
   @Test
   void exceptionHandlers() {
     List<HandlerExceptionHandler> resolvers = ((CompositeHandlerExceptionHandler)
-            this.config.handlerExceptionHandler(DefaultParameterResolvingRegistry.get(context), null)).getExceptionHandlers();
+            this.config.handlerExceptionHandler(ParameterResolvingRegistryFactory.getOrCreate(context), null)).getExceptionHandlers();
 
     assertThat(resolvers).hasSize(2);
     assertThat(resolvers.get(0).getClass()).isEqualTo(ResponseStatusExceptionHandler.class);
@@ -374,7 +371,7 @@ class WebMvcConfigurationSupportTests {
   private ExceptionHandlerAnnotationExceptionHandler exceptionHandler(WebMvcConfigurationSupport configuration) {
     configuration.setApplicationContext(this.context);
     var composite = (CompositeHandlerExceptionHandler) configuration.handlerExceptionHandler(
-            DefaultParameterResolvingRegistry.get(this.context), configuration.mvcContentNegotiationManager());
+            ParameterResolvingRegistryFactory.getOrCreate(this.context), configuration.mvcContentNegotiationManager());
     return (ExceptionHandlerAnnotationExceptionHandler) composite.getExceptionHandlers().get(0);
   }
 

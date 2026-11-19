@@ -93,7 +93,7 @@ import infra.web.handler.method.RequestMappingHandlerAdapter;
 import infra.web.handler.method.RequestMappingHandlerMapping;
 import infra.web.handler.method.ResponseBodyAdvice;
 import infra.web.handler.method.support.CompositeUriComponentsContributor;
-import infra.web.handler.method.support.DefaultParameterResolvingRegistry;
+import infra.web.handler.method.support.ParameterResolvingRegistryFactory;
 import infra.web.handler.method.support.JsonViewRequestBodyAdvice;
 import infra.web.handler.method.support.JsonViewResponseBodyAdvice;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
@@ -544,13 +544,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
           ParameterResolvingStrategy @Nullable [] strategies, @Nullable RedirectModelManager redirectModelManager,
           @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager) {
 
-    var registry = new DefaultParameterResolvingRegistry(getMessageConverters());
-    registry.setApplicationContext(getApplicationContext());
-    registry.setRedirectModelManager(redirectModelManager);
-    registry.addRequestResponseBodyAdvice(requestResponseBodyAdvice);
-    registry.setContentNegotiationManager(contentNegotiationManager);
-
-    registry.registerDefaultStrategies();
+    var registry = ParameterResolvingRegistryFactory.create(applicationContext(), getMessageConverters(),
+            contentNegotiationManager, redirectModelManager, requestResponseBodyAdvice);
     registry.addCustomizedStrategies(strategies);
 
     modifyParameterResolvingRegistry(registry);
@@ -558,7 +553,6 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
   }
 
   protected void modifyParameterResolvingRegistry(ParameterResolvingRegistry registry) {
-
   }
 
   // HandlerExceptionHandler

@@ -60,7 +60,8 @@ import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.MissingRequestPartException;
 import infra.web.bind.RequestBindingException;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
-import infra.web.handler.method.support.DefaultParameterResolvingRegistry;
+import infra.web.handler.method.ParameterResolvingRegistry;
+import infra.web.handler.method.support.ParameterResolvingRegistryFactory;
 import infra.web.mock.MockDispatcherHandler;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
@@ -314,7 +315,8 @@ class ResponseEntityExceptionHandlerTests {
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
     ctx.registerSingleton("exceptionHandlerAnnotationExceptionHandler", ExceptionHandlerAnnotationExceptionHandler.class);
 
-    ctx.registerSingleton("parameterResolvingRegistry", DefaultParameterResolvingRegistry.class);
+    ctx.registerBean("parameterResolvingRegistry", ParameterResolvingRegistry.class,
+            () -> ParameterResolvingRegistryFactory.create(ctx));
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
 
     ctx.refresh();
@@ -339,7 +341,8 @@ class ResponseEntityExceptionHandlerTests {
   void controllerAdviceWithNestedException() throws Exception {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
-    ctx.registerSingleton("parameterResolvingRegistry", DefaultParameterResolvingRegistry.class);
+    ctx.registerBean("parameterResolvingRegistry", ParameterResolvingRegistry.class,
+            () -> ParameterResolvingRegistryFactory.create(ctx));
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
     ctx.refresh();
 
@@ -359,7 +362,8 @@ class ResponseEntityExceptionHandlerTests {
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
     ctx.registerSingleton("exceptionHandlerAnnotationExceptionHandler", ExceptionHandlerAnnotationExceptionHandler.class);
 
-    ctx.registerSingleton("parameterResolvingRegistry", DefaultParameterResolvingRegistry.class);
+    ctx.registerBean("parameterResolvingRegistry", ParameterResolvingRegistry.class,
+            () -> ParameterResolvingRegistryFactory.create(ctx));
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
 
     ctx.refresh();
@@ -381,7 +385,8 @@ class ResponseEntityExceptionHandlerTests {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.registerSingleton("controller", NestedExceptionThrowingController.class);
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
-    ctx.registerSingleton("parameterResolvingRegistry", DefaultParameterResolvingRegistry.class);
+    ctx.registerBean("parameterResolvingRegistry", ParameterResolvingRegistry.class,
+            () -> ParameterResolvingRegistryFactory.create(ctx));
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
 
     ctx.refresh();

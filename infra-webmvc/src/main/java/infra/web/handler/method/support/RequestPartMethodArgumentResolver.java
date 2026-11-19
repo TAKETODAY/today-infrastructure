@@ -82,7 +82,7 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
    * {@code ResponseBodyAdvice}.
    */
   public RequestPartMethodArgumentResolver(List<HttpMessageConverter<?>> messageConverters,
-          List<Object> requestResponseBodyAdvice) {
+          @Nullable List<Object> requestResponseBodyAdvice) {
 
     super(messageConverters, requestResponseBodyAdvice);
   }
@@ -109,9 +109,8 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
     }
   }
 
-  @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
+  public @Nullable Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
     MethodParameter parameter = resolvable.getMethodParameter();
 
     NamedValueInfo namedValueInfo = resolvable.getNamedValueInfo();

@@ -30,7 +30,6 @@ import infra.core.MethodParameter;
 import infra.core.annotation.SynthesizingMethodParameter;
 import infra.web.MockMethodParameter;
 import infra.web.handler.method.HandlerParameter;
-import infra.web.handler.method.ParameterResolvingStrategies;
 import infra.web.handler.method.ParameterResolvingStrategy;
 import infra.web.server.InternalServerException;
 
@@ -188,38 +187,24 @@ class ParameterResolverRegistryTests {
 
   @Test
   void registerDefaults() {
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.refresh();
+      var registry = ParameterResolvingRegistryFactory.create(context);
 
-    var context = new AnnotationConfigApplicationContext();
-    context.refresh();
-
-    DefaultParameterResolvingRegistry registry = new DefaultParameterResolvingRegistry();
-    registry.setApplicationContext(context);
-    ParameterResolvingStrategies defaultStrategies = registry.getDefaultStrategies();
-
-    assertThat(defaultStrategies).isEmpty();
-
-    registry.registerDefaultStrategies(defaultStrategies);
-    assertThat(defaultStrategies).isNotEmpty();
-
-    // contains
-
-    assertThat(defaultStrategies.contains(ModelMethodProcessor.class)).isTrue();
-    assertThat(defaultStrategies.contains(ParameterResolvingStrategy.class)).isFalse();
-    assertThat(registry.contains(ModelMethodProcessor.class)).isTrue();
-
+      assertThat(registry.getDefaultStrategies().contains(ModelMethodProcessor.class)).isTrue();
+      assertThat(registry.getDefaultStrategies().contains(ParameterResolvingStrategy.class)).isFalse();
+      assertThat(registry.contains(ModelMethodProcessor.class)).isTrue();
+    }
   }
 
   @Test
   void lookupStrategy() {
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.refresh();
+      var registry = ParameterResolvingRegistryFactory.create(context);
 
-    var context = new AnnotationConfigApplicationContext();
-    context.refresh();
-    DefaultParameterResolvingRegistry registry = new DefaultParameterResolvingRegistry();
-    registry.setApplicationContext(context);
-    registry.registerDefaultStrategies(); // register defaults
-
-    ParameterResolvingStrategy strategy = registry.findStrategy(testUser);
-    assertThat(strategy).isNotNull().isInstanceOf(ModelAttributeMethodProcessor.class);
+      assertThat(registry.findStrategy(testUser)).isInstanceOf(ModelAttributeMethodProcessor.class);
+    }
   }
 
   static HandlerParameter createParameter(int idx, Method method, String name) {

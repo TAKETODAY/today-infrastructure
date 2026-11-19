@@ -60,7 +60,7 @@ import infra.web.handler.condition.AbstractRequestCondition;
 import infra.web.handler.condition.CompositeRequestCondition;
 import infra.web.handler.condition.ConsumesRequestCondition;
 import infra.web.handler.condition.RequestCondition;
-import infra.web.handler.method.support.DefaultParameterResolvingRegistry;
+import infra.web.handler.method.support.ParameterResolvingRegistryFactory;
 
 import static infra.core.annotation.AnnotationUtils.loadAnnotationType;
 
@@ -157,9 +157,8 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
     config.setContentNegotiationManager(getContentNegotiationManager());
     config.setApiVersionStrategy(getApiVersionStrategy());
 
-    ApplicationContext context = applicationContext();
     if (resolvingRegistry == null) {
-      resolvingRegistry = DefaultParameterResolvingRegistry.get(context);
+      resolvingRegistry = ParameterResolvingRegistryFactory.getOrCreate(applicationContext());
     }
 
     this.parameterFactory = new RegistryHandlerParameterFactory(resolvingRegistry, parameterNameDiscoverer);

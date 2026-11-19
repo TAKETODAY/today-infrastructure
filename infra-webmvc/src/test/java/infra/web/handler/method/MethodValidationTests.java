@@ -53,6 +53,7 @@ import infra.validation.beanvalidation.LocalValidatorFactoryBean;
 import infra.validation.method.ParameterErrors;
 import infra.validation.method.ParameterValidationResult;
 import infra.web.ResolvableMethod;
+import infra.web.accept.ContentNegotiationManager;
 import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestHeader;
 import infra.web.annotation.RequestPart;
@@ -62,7 +63,7 @@ import infra.web.bind.WebDataBinder;
 import infra.web.bind.annotation.InitBinder;
 import infra.web.bind.annotation.ModelAttribute;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
-import infra.web.handler.method.support.DefaultParameterResolvingRegistry;
+import infra.web.handler.method.support.ParameterResolvingRegistryFactory;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockMemoryPart;
 import infra.web.mock.MockMultipartRequest;
@@ -140,11 +141,9 @@ class MethodValidationTests {
     RequestMappingHandlerAdapter handlerAdapter = new RequestMappingHandlerAdapter();
     handlerAdapter.setWebBindingInitializer(bindingInitializer);
     handlerAdapter.setApplicationContext(context);
-    DefaultParameterResolvingRegistry registry = new DefaultParameterResolvingRegistry(List.of(
-            new StringHttpMessageConverter(), new JacksonJsonHttpMessageConverter()));
-    handlerAdapter.setResolvingRegistry(registry);
-    registry.setApplicationContext(context);
-    registry.registerDefaultStrategies();
+    handlerAdapter.setResolvingRegistry(ParameterResolvingRegistryFactory.create(context,
+            List.of(new StringHttpMessageConverter(), new JacksonJsonHttpMessageConverter()),
+            new ContentNegotiationManager(), null, List.of()));
 
     handlerAdapter.afterPropertiesSet();
     return handlerAdapter;

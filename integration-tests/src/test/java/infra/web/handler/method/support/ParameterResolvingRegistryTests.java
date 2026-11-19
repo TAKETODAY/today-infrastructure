@@ -20,13 +20,10 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Import;
 import infra.core.MethodParameter;
-import infra.http.converter.StringHttpMessageConverter;
 import infra.web.HttpContext;
 import infra.web.MockHandlerParameter;
 import infra.web.config.annotation.EnableWebMvc;
@@ -43,47 +40,17 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @since 4.0 2022/2/12 22:29
  */
 class ParameterResolvingRegistryTests {
-  DefaultParameterResolvingRegistry registry = new DefaultParameterResolvingRegistry();
 
   @Test
-  void parameterResolvingRegistry() {
-    assertThat(registry.getMessageConverters()).hasSize(3);
+  void explicitlyRegisteredRegistryIsNotPopulatedByFallback() {
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.registerBean(ParameterResolvingRegistry.class);
+      context.refresh();
 
-    DefaultParameterResolvingRegistry registry1 = new DefaultParameterResolvingRegistry(registry.getMessageConverters());
-
-    assertThat(registry1.getMessageConverters()).isNotEmpty().hasSize(3);
-    assertThat(registry1).isNotEqualTo(registry);
-
-    registry.setMessageConverters(List.of(new StringHttpMessageConverter(StandardCharsets.US_ASCII)));
-    assertThat(registry.getMessageConverters()).isNotEmpty().hasSize(1);
-
-    assertThat(registry.toString()).isNotEmpty();
-    registry.hashCode();
-  }
-
-  @Test
-  void defaultStrategies() {
-    assertThat(registry.getDefaultStrategies()).hasSize(0);
-    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-    context.refresh();
-
-    registry.setApplicationContext(context);
-    registry.registerDefaultStrategies();
-
-    assertThat(registry.getDefaultStrategies()).isNotEmpty();
-
-  }
-
-  @Test
-  void requestResponseBodyAdvice() {
-    assertThat(registry.getRequestResponseBodyAdvice()).hasSize(0);
-
-    registry.addRequestResponseBodyAdvice(List.of(new Object()));
-    assertThat(registry.getRequestResponseBodyAdvice()).hasSize(1);
-
-    registry.setRequestResponseBodyAdvice(List.of(new Object()));
-    assertThat(registry.getRequestResponseBodyAdvice()).hasSize(1);
-
+      var registry = context.getBean(ParameterResolvingRegistry.class);
+      assertThat(ParameterResolvingRegistryFactory.getOrCreate(context)).isSameAs(registry);
+      assertThat(registry.getDefaultStrategies()).isEmpty();
+    }
   }
 
   void p(String data) {
@@ -91,32 +58,32 @@ class ParameterResolvingRegistryTests {
   }
 
   @Test
-  void lookupStrategy() throws NoSuchMethodException {
-    Method q = getClass().getDeclaredMethod("p", String.class);
-    MethodParameter parameter = MethodParameter.forExecutable(q, 0);
-    ParameterResolvingStrategy data = registry.findStrategy(new MockHandlerParameter(parameter, "data"));
-
-    assertThat(data).isNull();
-
-    assertThatThrownBy(() -> registry.obtainStrategy(new MockHandlerParameter(parameter, "data")))
+  void emptyRegistryDoesNotResolveParameters() throws NoSuchMethodException {
+    var registry = new ParameterResolvingRegistry();
+    HandlerParameter parameter = stringParameter();
+    assertThat(registry.findStrategy(parameter)).isNull();
+    assertThatThrownBy(() -> registry.obtainStrategy(parameter))
             .isInstanceOf(ParameterResolverNotFoundException.class)
             .hasMessageStartingWith("There isn't have a parameter resolver to resolve parameter");
+  }
 
-    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-    context.refresh();
-    registry.setApplicationContext(context);
-    registry.registerDefaultStrategies();
-    registry.trimToSize();
-    registry.setRedirectModelManager(null);
-    assertThat(registry.getRedirectModelManager()).isNull();
+  @Test
+  void factoryPreservesBuiltInOrder() throws NoSuchMethodException {
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.refresh();
+      var registry = ParameterResolvingRegistryFactory.create(context);
+      assertThat(registry.getDefaultStrategies().getStrategies())
+              .map(Object::getClass)
+              .startsWith(RequestParamMethodArgumentResolver.class, RequestParamMapMethodArgumentResolver.class)
+              .endsWith(RequestParamMethodArgumentResolver.class, ModelAttributeMethodProcessor.class);
+      assertThat(registry.obtainStrategy(stringParameter())).isInstanceOf(RequestParamMethodArgumentResolver.class);
+      assertThat(context.getBeansOfType(ParameterResolvingRegistry.class)).isEmpty();
+    }
+  }
 
-    data = registry.findStrategy(new MockHandlerParameter(parameter, "data"));
-
-    assertThat(data)
-            .isNotNull()
-            .isEqualTo(registry.obtainStrategy(new MockHandlerParameter(parameter, "data")))
-            .isInstanceOf(RequestParamMethodArgumentResolver.class);
-
+  private HandlerParameter stringParameter() throws NoSuchMethodException {
+    Method method = getClass().getDeclaredMethod("p", String.class);
+    return new MockHandlerParameter(MethodParameter.forExecutable(method, 0), "data");
   }
 
   @Test
@@ -124,22 +91,22 @@ class ParameterResolvingRegistryTests {
     try (var context = new AnnotationConfigApplicationContext()) {
       context.refresh();
 
-      ParameterResolvingRegistry fallback = DefaultParameterResolvingRegistry.get(context);
+      ParameterResolvingRegistry fallback = ParameterResolvingRegistryFactory.getOrCreate(context);
 
       assertThat(fallback.contains(RequestParamMethodArgumentResolver.class)).isTrue();
-      assertThat(DefaultParameterResolvingRegistry.get(context)).isSameAs(fallback);
+      assertThat(ParameterResolvingRegistryFactory.getOrCreate(context)).isSameAs(fallback);
       assertThat(context.getBean("parameterResolvingRegistry")).isSameAs(fallback);
     }
   }
 
   @Test
-  void autoRegister() {
-
-    var context = new AnnotationConfigApplicationContext(AppConfig.class);
-    ParameterResolvingRegistry registry = context.getBean(ParameterResolvingRegistry.class);
-    assertThat(registry.contains(ParameterResolvingStrategy0.class)).isTrue();
-    assertThat(DefaultParameterResolvingRegistry.get(context)).isSameAs(registry);
-
+  void mvcRegistryUsesCustomStrategyBeforeBuiltInStrategies() throws NoSuchMethodException {
+    try (var context = new AnnotationConfigApplicationContext(AppConfig.class)) {
+      var registry = context.getBean(ParameterResolvingRegistry.class);
+      assertThat(registry.contains(RequestParamMethodArgumentResolver.class)).isTrue();
+      assertThat(registry.obtainStrategy(stringParameter())).isSameAs(context.getBean(ParameterResolvingStrategy0.class));
+      assertThat(ParameterResolvingRegistryFactory.getOrCreate(context)).isSameAs(registry);
+    }
   }
 
   @EnableWebMvc
@@ -152,7 +119,7 @@ class ParameterResolvingRegistryTests {
 
     @Override
     public boolean supportsParameter(HandlerParameter parameter) {
-      return false;
+      return parameter.getParameterType() == String.class;
     }
 
     @Nullable
