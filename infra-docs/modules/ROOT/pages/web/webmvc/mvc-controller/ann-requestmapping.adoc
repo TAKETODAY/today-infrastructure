@@ -6,26 +6,20 @@
 [[mvc-ann-requestmapping-annotation]]
 == `@RequestMapping`
 
-可以使用 `@RequestMapping` 元注解将请求映射到控制器方法。它有各种属性来匹配 URL、HTTP 方法、请求参数、请求头和媒体类型。
-您可以在类级别使用它来表达共享映射，或者在方法级别使用它来缩小到特定的端点映射。
+使用 `@RequestMapping` 将请求映射到控制器方法。映射可以按 URL 路径、HTTP 方法、请求参数、请求头、媒体类型和 API 版本匹配。
+可以在类级别声明共享条件，再在方法级别声明具体端点。`value` 和 `path` 互为别名，都可以指定一个或多个路径模式。
 
-还有特定于 HTTP 方法的变体 `@RequestMapping`：
+以下 xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-composed[组合注解] 是指定 HTTP 方法的快捷方式：
 
-* `@GET`
-* `@POST`
-* `@PUT`
-* `@DELETE`
-* `@PATCH`
-* `@GetMapping`
-* `@PostMapping`
-* `@PutMapping`
-* `@DeleteMapping`
-* `@PatchMapping`
+* `@GET` 或 `@GetMapping`
+* `@POST` 或 `@PostMapping`
+* `@PUT` 或 `@PutMapping`
+* `@DELETE` 或 `@DeleteMapping`
+* `@PATCH` 或 `@PatchMapping`
+* `@QUERY` 或 `@QueryMapping`
 
-
-这些快捷方式是 xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-composed[自定义注解]，
-之所以提供它们，是因为可以说，大多数控制器方法应该映射到特定的 HTTP 方法，而不是使用默认情况下匹配所有 HTTP
-方法的 `@RequestMapping`。在类级别仍然需要 `@RequestMapping` 来表达共享映射。
+建议为控制器端点显式指定 HTTP 方法。不设置 `method` 时，该条件通常不限制 HTTP 方法；
+普通 OPTIONS 请求由框架 xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-head-options[默认处理]。
 
 NOTE: `@RequestMapping` 不能与在同一元素（类、接口或方法）上声明的其他 `@RequestMapping`
 注解一起使用。如果在同一个元素上检测到多个 `@RequestMapping` 注解，将记录一条警告，并且只使用第一个映射。
@@ -52,31 +46,33 @@ class PersonController {
 }
 ----
 
+[[mvc-ann-requestmapping-combine]]
+=== 类级别与方法级别映射的合并
+
+方法级别的 `combine` 默认为 `true`。类级别和方法级别的路径会合并；如果两级都声明了 HTTP 方法，取并集而不是交集。
+如果两级都设置了 `name`，映射名称会以 `#` 拼接，例如 `persons#get`。
+
+在方法级别设置 `combine = false` 可以跳过整个类级别映射，而不只是跳过类级别的路径。
+例如，在上面的 `PersonController` 中，`@GET(path = "/people", combine = false)` 映射的是 `/people`，而不是 `/persons/people`。
+此选项不会跳过通过 xref:web/webmvc/mvc-config/path-matching.adoc[MVC 路径匹配配置] 添加的全局路径前缀。
+
 
 [[mvc-ann-requestmapping-uri-templates]]
 == URI 匹配
 
-`@RequestMapping` 方法可以使用 URL patterns 进行映射。有两种选择：
+Web MVC 使用预先解析的 `PathPattern` 匹配请求路径。请求路径表示为 `PathContainer`，可以逐段处理 URL 编码和路径参数。
+有关匹配选项，请参阅 xref:web/webmvc/mvc-config/path-matching.adoc[MVC 配置]。
 
-* `PathPattern` -- 一个预先解析的模式，与预先解析为 `PathContainer` 的 URL 路径匹配。
-这种解决方案专为 Web 使用而设计，有效处理编码和路径参数，并有效匹配。
-* `AntPathMatcher` -- 将字符串模式与字符串路径匹配。这是原始解决方案，也用框架
-配置中选择类路径、文件系统和其他位置的资源。它效率较低，且字符串路径输入在有效处理编码和其他 URL 问题方面是一个挑战。
+`+**+` 和 `+{*name}+` 都匹配零个或多个路径段，后者还会将匹配到的路径捕获为变量。
+每个模式只能包含一个这样的多段匹配元素，且只能放在模式开头或末尾。
+完整语法参见 {today-framework-api}/web/util/pattern/PathPattern.html[`PathPattern`]。
 
-`PathPattern` 是 Web 应用程序的推荐解决方案。从版本 5.0 开始在 Web MVC 是唯一的选择。
-请参阅 xref:web/webmvc/mvc-config/path-matching.adoc[MVC 配置] 了解路径匹配选项的自定义。
-
-`PathPattern` 支持与 `AntPathMatcher` 相同的模式语法。此外，它还支持捕获模式，例如 `+{*today}+`，
-用于匹配路径末尾的 0 个或多个路径段。`PathPattern` 还限制了 `+**+` 的使用，仅允许在模式的末尾匹配多个路径段。
-这消除了在选择给定请求的最佳匹配模式时的许多歧义情况。有关完整模式语法，
-请参阅 {today-framework-api}/web/util/pattern/PathPattern.html[PathPattern]
-和 {today-framework-api}/util/AntPathMatcher.html[AntPathMatcher]。
-
-一些示例 pattern：
+路径模式示例：
 
 * `+"/resources/ima?e.png"+` -- 在路径段中匹配一个字符
 * `+"/resources/*.png"+` -- 在路径段中匹配零个或多个字符
-* `+"/resources/**"+` -- 匹配多个路径段
+* `+"/resources/**"+` -- 匹配 `/resources` 后的零个或多个路径段
+* `+"/{*path}/info"+` -- 将 `/info` 前的路径捕获为 `path`，例如从 `/docs/api/info` 捕获 `/docs/api`
 * `+"/projects/{project}/versions"+` -- 匹配一个路径段并将其捕获为变量
 * `+"/projects/{project:[a-z]+}/versions"+` -- 匹配并捕获具有正则表达式的变量
 
@@ -114,8 +110,8 @@ URI 变量会自动转换为适当的类型，或者抛出 `TypeMismatchExceptio
 您可以显式命名 URI 变量（例如，`@PathVariable("customId")`），但如果名称相同，并且您的代码使用了
 `-parameters` 编译器标志进行编译，则可以省略此细节。
 
-语法 `{varName:regex}` 声明了一个具有正则表达式的 URI 变量，该正则表达式的语法为 `{varName:regex}`。
-例如，给定URL `/infra-web-4.0.jar`，以下方法提取了名称、版本和文件扩展名：
+语法 `+{varName:regex}+` 为 URI 变量添加正则表达式约束。
+例如，给定 URL `/infra-web-4.0.0.jar`，以下方法提取名称、版本和文件扩展名：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -125,25 +121,22 @@ public void handle(@PathVariable String name, @PathVariable String version, @Pat
 }
 ----
 
-URI 路径 patterns 也可以包含嵌入式 `${...}` 占位符，这些占位符在启动时通过使用
-`PropertySourcesPlaceholderConfigurer` 与本地、系统、环境和其他 PropertySource 结合解析。
-例如，您可以使用此功能，基于某些外部配置，参数化一个 baseURL。
+路径模式也可以包含 `+${...}+` 占位符，例如 `+${api.base-path}/pets+`。
+框架在注册映射时解析占位符，因此可以通过外部配置指定端点的路径前缀。
 
 
 [[mvc-ann-requestmapping-pattern-comparison]]
-== Pattern 比较
+== 路径模式的优先级
 
-当多个 Pattern 匹配一个 URL 时，必须选择最佳匹配。这可以通过以下方式之一完成，具体的 `PathPattern` 的使用：
+如果多个映射都匹配同一个请求，框架会使用
 {today-framework-api}/web/util/pattern/PathPattern.html#SPECIFICITY_COMPARATOR[`PathPattern.SPECIFICITY_COMPARATOR`]
+比较路径模式的具体程度：
 
-这有助于将更最佳的 Pattern 排在前面。如果一个 Pattern 具有更少的 URI 变量（每个计数为1）、
-单个通配符（每个计数为1）和双通配符（计数为2），则该 Pattern 更靠前。在得分相等的情况下，选择更长的 Pattern。
-在得分和长度相同的情况下，选择 URI 变量多于通配符的模式。
+* 含 `+**+` 或 `+{*name}+` 的模式排在其他模式之后；如果两者都含多段匹配元素，优先选择规范化后更长的模式。
+* 按得分从低到高排序。捕获变量的权重低于 `+*+` 通配符，例如 `+/pets/{id}+` 比 `+/pets/*+` 更具体。
+* 得分相同时，优先选择规范化后更长的模式。例如，单独占据一个路径段的捕获变量按一个字符计。
 
-默认映射 Pattern (`/{asterisk}{asterisk}`) 被排除在评分之外，并且始终排序在最后。
-此外，前缀 Pattern（例如 `/public/{asterisk}{asterisk}`）被认为比其他没有双通配符的 Pattern 更不具体。
-
-有关完整详细信息，请参见上述链接中的模式比较器。
+如果路径模式无法区分候选映射，框架还会比较请求参数、请求头、媒体类型等映射条件。
 
 
 [[mvc-ann-requestmapping-consumes]]
@@ -194,8 +187,9 @@ TIP: `MediaType` 提供了常用媒体类型的常量，如 `APPLICATION_JSON_VA
 [[mvc-ann-requestmapping-params-and-headers]]
 == 请求参数和请求头
 
-您可以根据请求参数条件来缩小请求映射的范围。您可以测试请求参数的存在（`myParam`）、
-不存在（`!myParam`）或特定值（`myParam=myValue`）。以下示例展示了如何测试特定值：
+可以根据请求参数条件缩小映射范围。支持检查参数是否存在（`myParam`）、是否不存在（`!myParam`）、
+是否等于指定值（`myParam=myValue`）或是否不等于指定值（`myParam!=myValue`）。声明多个条件时，必须同时满足。
+以下示例检查参数值：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -215,25 +209,44 @@ public void findPet(@PathVariable String petId) {
   // ...
 }
 ----
-<1> 检查 `myHeader` 是否等于 `myValue`.
+<1> 检查 `myHeader` 是否等于 `myValue`。
 
 TIP: 您可以使用头条件匹配 `Content-Type` 和 `Accept`，但最好使用 xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-consumes[consumes]
 和 xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-produces[produces] 代替。
 
 
+[[mvc-ann-requestmapping-version]]
+== API 版本
+
+配置 xref:web/webmvc-versioning.adoc#mvc-versioning-mapping[API 版本管理] 后，可以用 `version` 属性区分同一端点的不同版本，
+例如 `@GET(path = "/pets", version = "1.2")`。`"1.2"` 是固定版本，要求精确匹配；`"1.2+"` 是基线版本，
+可以匹配 `1.2` 及更高的受支持版本。其他映射条件相同时，框架优先选择不高于请求版本的最高声明版本，再校验固定版本是否精确匹配。
+
+方法级别声明的 `version` 会覆盖类级别版本；未声明时，默认沿用类级别版本。
+
+
+[[mvc-ann-requestmapping-query]]
+== HTTP QUERY
+
+`@QUERY` 和 `@QueryMapping` 都等价于 `@RequestMapping(method = HttpMethod.QUERY)`。
+HTTP QUERY 是一种可以携带请求体的只读查询方法（参见 https://www.rfc-editor.org/rfc/rfc10008.html[RFC 10008]）。
+例如，可以用 `@QUERY(path = "/pets/search", consumes = "application/json")` 映射接收 JSON 查询条件的端点，
+并用 `@RequestBody` 读取查询条件。
+
+
 [[mvc-ann-requestmapping-head-options]]
-== HTTP HEAD, OPTIONS
+== HTTP HEAD 和 OPTIONS
 
-`@GET`（以及 `@RequestMapping(method=HttpMethod.GET)`）支持 HTTP HEAD 的请求映射。
-控制器方法无需更改。在响应包装器确保将 `Content-Length` 头部设置为写入的字节数（而实际上不写入响应）。
+`@GET`、`@GetMapping` 和 `@RequestMapping(method = HttpMethod.GET)` 也匹配 HEAD 请求。
+框架不会发送响应体。显式声明的 HEAD 映射优先于 GET 映射提供的隐式 HEAD 支持。
 
-默认情况下，HTTP OPTIONS 通过将 `Allow` 响应头部设置为所有具有匹配 URL 模式的 `@RequestMapping`
-方法中列出的 HTTP 方法列表来处理。
+没有显式映射处理普通 OPTIONS 请求时，框架从路径匹配的映射中收集已声明的 HTTP 方法，并通过 `Allow` 响应头返回。
+`Allow` 会包含 `OPTIONS`；存在 GET 或 QUERY 映射时，也会包含 `HEAD`。
+如果没有收集到显式声明的 HTTP 方法，`Allow` 包含 `HttpMethod` 定义的除 `TRACE` 以外的所有方法。
 
-对于没有 HTTP 方法声明的 `@RequestMapping`，`Allow` 头部被设置为 `GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS`。
-控制器方法应始终声明支持的 HTTP 方法（例如，通过使用特定于 HTTP 方法的变体：`@GET`、`@POST` 等）。
-
-您可以显式地将 `@RequestMapping` 方法映射到 HTTP HEAD 和 HTTP OPTIONS，但在常见情况下这不是必需的。
+默认的 OPTIONS 响应通过 `Accept-Patch` 和 `Accept-Query` 公告 PATCH 和 QUERY 请求体可用的媒体类型（如已声明）。
+如果 HEAD 请求没有匹配的 HTTP 方法条件，但该路径声明了 QUERY 映射，框架也会通过 `Accept-Query` 公告媒体类型，
+而不会调用 QUERY 控制器方法。
 
 
 
@@ -244,13 +257,8 @@ Web MVC 支持使用 xref:core/beans/classpath-scanning.adoc#beans-meta-annotati
 进行请求映射。这些注解本身使用 `@RequestMapping` 进行元注解，并组合起来重新声明 `@RequestMapping`
 的子集（或全部）属性，以实现更狭窄、更具体的目的。
 
-`@GET`、`@POST`、`@PUT`、`@DELETE` 和 `@PATCH` 是组合注解的示例。
-之所以提供这些注解，是因为可以说，大多数控制器方法应该映射到特定的 HTTP 方法，而不是使用默认匹配所有 HTTP 方法的
-`@RequestMapping`。如果您需要一个如何实现组合注解的示例，请查看这些注解是如何声明的。
-
-注意：`@RequestMapping` 不能与在同一元素（类、接口或方法）上声明的其他 `@RequestMapping` 注解一起使用。
-如果在同一个元素上检测到多个 `@RequestMapping` 注解，将记录一条警告，并且只使用第一个映射。
-这也适用于如 `@GET`、`@POST` 等组合的 `@RequestMapping` 注解。
+`@GET`、`@POST` 和 `@QUERY` 都是组合注解。如果需要实现自己的组合注解，可以参考它们如何使用 `@AliasFor`
+将属性映射到 `@RequestMapping`。
 
 Web MVC 还支持使用自定义请求映射属性和自定义请求匹配逻辑。这是一个更高级的选项，需要通过扩展
 `RequestMappingHandlerMapping` 并覆盖 `getCustomCondition` 方法来实现，
@@ -286,6 +294,8 @@ public class MyConfig {
 <2> 使用 `infra.http.HttpMethod` 准备请求映射元数据，并沿用处理器映射的构建配置。
 <3> 获取处理器方法。
 <4> 添加注册。
+
+如需移除动态注册的映射，可以调用 `mapping.unregisterMapping(info)`。
 
 
 [[mvc-ann-httpexchange-annotation]]
@@ -326,13 +336,18 @@ class PersonController implements PersonService {
 ----
 
 `@HttpExchange` 和 `@RequestMapping` 在功能上有所区别：
-- `@RequestMapping` 可以通过路径模式、HTTP 方法等映射到任意数量的请求。
-- `@HttpExchange` 声明了一个具有具体 HTTP 方法、路径和内容类型的单一端点。
+
+* `@RequestMapping` 可以通过路径模式、HTTP 方法等条件匹配多种请求。
+* `@HttpExchange` 声明的是客户端与服务器共享的单一端点契约。
+
+NOTE: 同一个类、接口或方法不能同时声明 `@RequestMapping` 和 `@HttpExchange`（包括各自的组合注解）；框架会拒绝注册此类映射。
 
 对于方法参数和返回值：
-- 通常，`@HttpExchange` 支持 `@RequestMapping` 支持的方法参数的一个子集。
-- 特别地，它不包括任何特定于服务器端的参数类型。
+
+* 通常，`@HttpExchange` 支持 `@RequestMapping` 支持的方法参数的一个子集。
+* 特别地，它不包括任何特定于服务器端的参数类型。
 
 有关详细信息，请参阅：
-- xref:integration/rest-clients.adoc#rest-http-interface-method-parameters[@HttpExchange] 方法参数的列表。
-- xref:web/webmvc/mvc-controller/ann-methods/arguments.adoc[@RequestMapping] 方法参数的列表。
+
+* xref:integration/rest-clients.adoc#rest-http-interface-method-parameters[@HttpExchange] 方法参数的列表。
+* xref:web/webmvc/mvc-controller/ann-methods/arguments.adoc[@RequestMapping] 方法参数的列表。

@@ -1,14 +1,17 @@
 [[mvc-ann-arguments]]
 = 方法参数
 
-下表描述了支持的控制器方法参数。任何参数都不支持响应式类型。
+下表列出 Web MVC 内置解析器支持的控制器方法参数。`Session` 和 `@SessionAttribute` 需要启用 Web 会话支持，例如在配置类上添加 `infra.session.config.EnableSession`（`@EnableSession`）。
+默认的参数解析器不支持以响应式类型接收请求输入。
 
-JDK 8 的 `java.util.Optional` 支持作为方法参数，与具有 `required` 属性的注解（例如 `@RequestParam`、
-`@RequestHeader` 等）结合使用，相当于 `required=false`。
+对 `@RequestParam`、`@RequestHeader` 等按名称绑定的参数，可以将参数声明为 `@Nullable`，或在支持 `required` 的绑定注解上设置 `required=false`，以允许值缺失。
 
 [cols="1,2", options="header"]
 |===
 | 控制器方法参数 | 描述
+
+| `infra.web.HttpContext`
+| 当前请求上下文，可访问请求信息并操作响应。
 
 | `HttpMethod`
 | 请求的 HTTP 方法。
@@ -16,8 +19,8 @@ JDK 8 的 `java.util.Optional` 支持作为方法参数，与具有 `required` �
 | `java.util.Locale`
 | 当前请求的区域设置，由最具体的可用 `LocaleResolver` 确定（实际上是配置的 `LocaleResolver` 或 `LocaleContextResolver`）。
 
-| `java.util.TimeZone` + `java.time.ZoneId`
-| 与当前请求关联的时区，由 `LocaleContextResolver` 确定。
+| `java.util.TimeZone`, `java.time.ZoneId`
+| 与当前请求关联的时区，由 `LocaleContextResolver` 确定；未解析到时区时使用系统默认时区。
 
 | `java.io.InputStream`, `java.io.Reader`
 | 用于访问原始请求体。
@@ -25,14 +28,19 @@ JDK 8 的 `java.util.Optional` 支持作为方法参数，与具有 `required` �
 | `java.io.OutputStream`, `java.io.Writer`
 | 用于访问原始响应体。
 
+| `infra.core.io.InputStreamSource`, `infra.core.io.OutputStreamSource`
+| 通过流接口访问请求体或响应体。框架将当前 `HttpContext` 作为对应的流来源传入。
+
 | `@PathVariable`
-| 用于访问 URI 模板变量。参见 xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-uri-templates[URI 模式]。
+| 用于访问 URI 模板变量。不指定变量名时，可用 `Map<String, String>` 接收全部变量。
+  参见 xref:web/webmvc/mvc-controller/ann-requestmapping.adoc#mvc-ann-requestmapping-uri-templates[URI 模式]。
 
 | `@MatrixVariable`
 | 用于访问 URI 路径段中的名称-值对。参见 xref:web/webmvc/mvc-controller/ann-methods/matrix-variables.adoc[矩阵变量]。
 
 | `@RequestParam`
 | 用于访问请求参数，包括多部分文件。参数值将转换为声明的方法参数类型。
+  不指定参数名时，可用 `Map<String, String>` 接收各参数的首个值，或用 `MultiValueMap<String, String>` 接收全部值。
   参见 xref:web/webmvc/mvc-controller/ann-methods/requestparam.adoc[`@RequestParam`]
   以及 xref:web/webmvc/mvc-controller/ann-methods/multipart-forms.adoc[Multipart]。
 
@@ -40,25 +48,41 @@ JDK 8 的 `java.util.Optional` 支持作为方法参数，与具有 `required` �
   参见本表末尾的“任何其他参数”。
 
 | `@RequestHeader`
-| 用于访问请求头。头值将转换为声明的方法参数类型。参见 xref:web/webmvc/mvc-controller/ann-methods/requestheader.adoc[`@RequestHeader`]。
+| 用于访问请求头。头值将转换为声明的方法参数类型；用 `Map<String, String>` 可接收各请求头的首个值，
+  用 `MultiValueMap<String, String>` 可接收全部值。参见 xref:web/webmvc/mvc-controller/ann-methods/requestheader.adoc[`@RequestHeader`]。
+
+| `infra.http.HttpHeaders`
+| 访问所有请求头，无需添加 `@RequestHeader`。
 
 | `@CookieValue`
 | 用于访问 Cookie。Cookie 值将转换为声明的方法参数类型。参见 xref:web/webmvc/mvc-controller/ann-methods/cookievalue.adoc[`@CookieValue`]。
+
+| `infra.http.HttpCookie`, `HttpCookie[]`, `List<HttpCookie>`
+| 不加注解也可读取 Cookie。单个 `HttpCookie` 按方法参数名查找；数组或列表接收请求中的所有 Cookie。
 
 | `@RequestBody`
 | 用于访问 HTTP 请求体。使用 `HttpMessageConverter` 实现将正文内容转换为声明的方法参数类型。
   参见 xref:web/webmvc/mvc-controller/ann-methods/requestbody.adoc[`@RequestBody`]。
 
-| `HttpEntity<B>`
-| 用于访问请求头和正文。正文使用 `HttpMessageConverter` 进行转换。
+| `infra.http.HttpEntity<B>`, `infra.http.RequestEntity<B>`
+| 用于访问请求头和正文。正文使用 `HttpMessageConverter` 进行转换；`RequestEntity` 还提供请求方法和 URI。
   参见 xref:web/webmvc/mvc-controller/ann-methods/httpentity.adoc[HttpEntity]。
 
 | `@RequestPart`
 | 用于访问 `multipart/form-data` 请求中的部分，使用 `HttpMessageConverter` 转换该部分的正文。
   参见 xref:web/webmvc/mvc-controller/ann-methods/multipart-forms.adoc[Multipart]。
 
-| `java.util.Map`, `infra.ui.Model`, `infra.ui.ModelMap`
+| `infra.web.multipart.MultipartRequest`
+| 访问当前多部分请求及其各部分。
+
+| `infra.web.multipart.Part`, `Part[]`, `List<Part>`, `Collection<Part>`
+| 访问多部分请求中的指定部分。不加注解时按方法参数名查找；可以用 `@RequestParam` 或 `@RequestPart` 显式指定名称。
+
+| 不带注解的 `java.util.Map<String, Object>`、`infra.ui.Model`、`infra.ui.ModelMap`
 | 用于访问在 HTML 控制器中使用的模型，并作为视图渲染的一部分暴露给模板。
+
+| `infra.web.view.ModelAndView`
+| 访问当前请求的模型和视图设置，可添加模型属性或设置视图名。
 
 | `infra.web.RedirectModel`
 | 添加供重定向目标请求临时使用的属性。这些属性默认不参与构造重定向 URL；目标控制器通过普通 `Model` 访问它们。
@@ -83,13 +107,24 @@ JDK 8 的 `java.util.Optional` 支持作为方法参数，与具有 `required` �
   参见 xref:web/webmvc/mvc-uri-building.adoc[URI 链接]。
 
 | `@SessionAttribute`
-| 用于访问任何会话属性。更多详细信息请参阅 xref:web/webmvc/mvc-controller/ann-methods/sessionattribute.adoc[`@SessionAttribute`]。
+| 从现有会话中读取属性，不会为此创建会话。参见 xref:web/webmvc/mvc-controller/ann-methods/sessionattribute.adoc[`@SessionAttribute`]。
+
+| `infra.session.Session`
+| 访问当前会话。必需参数在没有会话时会创建会话；声明为 `@Nullable Session` 时只读取已有会话。
 
 | `@RequestAttribute`
 | 用于访问请求属性。更多详细信息请参阅 xref:web/webmvc/mvc-controller/ann-methods/requestattrib.adoc[`@RequestAttribute`]。
 
+| `@Autowired`
+| 从应用上下文注入依赖，不从请求中绑定数据。注解来自 `infra.beans.factory.annotation`。
+
+| `@Value`
+| 注入字面值、配置占位符 `+${...}+` 或表达式 `+#{...}+` 的求值结果。注解来自 `infra.beans.factory.annotation`。
+
 | 任何其他参数
 | 如果方法参数与本表前面的任何值都不匹配，并且它是一个简单类型（由
-  {today-framework-api}/beans/BeanUtils.html#isSimpleProperty-java.lang.Class-[BeanUtils#isSimpleProperty] 确定），
+  `infra.beans.BeanUtils.isSimpleProperty` 确定），
   它将被解析为 `@RequestParam`。否则，它将被解析为 `@ModelAttribute`。
 |===
+
+应用也可以注册 `infra.web.bind.resolver.ParameterResolvingStrategy` Bean 来支持自定义参数；MVC 配置会优先使用匹配的自定义解析器。
