@@ -53,6 +53,17 @@ class SessionEventDispatcherTests {
   }
 
   @Test
+  void sessionIdChangeNotifiesListenersWithPreviousId() {
+    dispatcher.addSessionListeners(new SessionListener() { }, listener);
+    var repository = new InMemorySessionRepository(dispatcher, () -> "replacement");
+    Session original = repository.createSession("original");
+    repository.saveOrUpdate(original);
+
+    assertThat(original.changeSessionId()).isEqualTo("replacement");
+    verify(listener).sessionIdChanged(original, "original");
+  }
+
+  @Test
   void shouldNotifyListenersSessionDestroyed() {
     dispatcher.addSessionListeners(new SessionListener() { });
     dispatcher.addSessionListeners(listener);
