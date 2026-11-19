@@ -163,19 +163,29 @@ class NettyServerPropertiesTests {
   }
 
   @Test
-  void dataReceivedQueueCapacity() {
-    assertThat(properties.dataReceivedQueueCapacity).isEqualTo(256);
-
-    bind("server.netty.data-received-queue-capacity", "512");
-    assertThat(properties.dataReceivedQueueCapacity).isEqualTo(512);
-  }
-
-  @Test
   void manualBodyRead() {
     assertThat(properties.manualBodyRead).isFalse();
 
     bind("server.netty.manual-body-read", "true");
     assertThat(properties.manualBodyRead).isTrue();
+  }
+
+  @Test
+  void requestBodyWatermarks() {
+    assertThat(properties.requestBodyHighWaterMark).isEqualTo(DataSize.ofKilobytes(256));
+    assertThat(properties.requestBodyLowWaterMark).isEqualTo(DataSize.ofKilobytes(64));
+    assertThat(properties.maxBufferedRequestBodyBytes).isEqualTo(DataSize.ofKilobytes(512));
+    assertThat(properties.maxBufferedRequestBodyChunks).isEqualTo(256);
+
+    bind("server.netty.request-body-high-water-mark", "1MB");
+    bind("server.netty.request-body-low-water-mark", "128KB");
+    bind("server.netty.max-buffered-request-body-bytes", "2MB");
+    bind("server.netty.max-buffered-request-body-chunks", "512");
+
+    assertThat(properties.requestBodyHighWaterMark).isEqualTo(DataSize.ofMegabytes(1));
+    assertThat(properties.requestBodyLowWaterMark).isEqualTo(DataSize.ofKilobytes(128));
+    assertThat(properties.maxBufferedRequestBodyBytes).isEqualTo(DataSize.ofMegabytes(2));
+    assertThat(properties.maxBufferedRequestBodyChunks).isEqualTo(512);
   }
 
   @Test

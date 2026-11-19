@@ -40,6 +40,8 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.DefaultChannelPromise;
+import io.netty.channel.ChannelConfig;
+import io.netty.channel.EventLoop;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http2.DefaultHttp2DataFrame;
@@ -67,6 +69,10 @@ import static org.mockito.Mockito.when;
 class Http2HttpContextTests {
 
   private final Http2StreamChannel channel = mock();
+
+  private final ChannelConfig channelConfig = mock();
+
+  private final EventLoop eventLoop = mock();
 
   private final HttpTrafficHandler httpTrafficHandler = mock();
 
@@ -567,6 +573,10 @@ class Http2HttpContextTests {
             .multipartParser(mock()).sendErrorHandler(mock()).build();
     when(channel.write(any())).thenAnswer(invocation -> succeededPromise());
     when(channel.writeAndFlush(any())).thenAnswer(invocation -> succeededPromise());
+    when(channel.config()).thenReturn(channelConfig);
+    when(channel.eventLoop()).thenReturn(eventLoop);
+    when(eventLoop.inEventLoop()).thenReturn(true);
+    when(channelConfig.isAutoRead()).thenReturn(true);
     return new Http2HttpContext(channel, requestHeaders, config, applicationContext,
             new DispatcherHandler(applicationContext), httpTrafficHandler);
   }
@@ -580,6 +590,10 @@ class Http2HttpContextTests {
   private Http2HttpContext createContext(DispatcherHandler dispatcher, NettyRequestConfig config, Http2Headers headers) {
     when(channel.write(any())).thenAnswer(invocation -> succeededPromise());
     when(channel.writeAndFlush(any())).thenAnswer(invocation -> succeededPromise());
+    when(channel.config()).thenReturn(channelConfig);
+    when(channel.eventLoop()).thenReturn(eventLoop);
+    when(eventLoop.inEventLoop()).thenReturn(true);
+    when(channelConfig.isAutoRead()).thenReturn(true);
     return new Http2HttpContext(channel, headers, config, mock(ApplicationContext.class), dispatcher, httpTrafficHandler);
   }
 

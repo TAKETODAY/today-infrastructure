@@ -69,6 +69,7 @@ import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.util.Attribute;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.DefaultFileRegion;
@@ -203,16 +204,13 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   private final @Nullable BodyInputStream requestBody;
 
+  private final @Nullable RequestBodyReadController requestBodyReadController;
+
   private final io.netty.handler.codec.http.HttpMethod method;
 
   private final long contentLength;
 
   private long receivedBytes;
-
-  /**
-   * Whether this request paused channel auto-read for manual body reading.
-   */
-  private volatile boolean readPaused;
 
   /**
    * Create a context with the given response headers container.
@@ -232,7 +230,14 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     this.nettyResponseHeaders = nettyResponseHeaders;
     this.contentLength = contentLength;
     this.method = method;
-    this.requestBody = createRequestBody(contentLength, method);
+    if (contentLength != 0L && !(contentLength == -1L && (method == GET || method == HEAD))) {
+      this.requestBodyReadController = RequestBodyReadController.forChannel(channel, config.manualBodyRead);
+      this.requestBody = new BodyInputStream(config.requestBodyBufferLimits, requestBodyReadController);
+    }
+    else {
+      this.requestBodyReadController = null;
+      this.requestBody = null;
+    }
   }
 
   /**
@@ -267,28 +272,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    */
   protected boolean supportsFileRegion() {
     return true;
-  }
-
-  /**
-   * Create the request body stream for this exchange.
-   * <p>A zero-length body, or an unknown length for a method that carries no body,
-   * leaves the stream unset so reads return an empty input stream. When
-   * {@link NettyRequestConfig#manualBodyRead} is enabled, the channel stops
-   * reading automatically and the body stream requests more data on demand.
-   *
-   * @param contentLength the declared request content length
-   * @param method the request method
-   */
-  private @Nullable BodyInputStream createRequestBody(long contentLength, io.netty.handler.codec.http.HttpMethod method) {
-    if (contentLength == 0L || (contentLength == -1L && (method == GET || method == HEAD))) {
-      return null;
-    }
-    if (config.manualBodyRead) {
-      channel.config().setAutoRead(false);
-      this.readPaused = true;
-      return new ManualReadingBodyInputStream(config.dataReceivedQueueCapacity);
-    }
-    return new BodyInputStream(config.dataReceivedQueueCapacity);
   }
 
   @Override
@@ -594,13 +577,29 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   @Override
   protected final void completeRequestInternal(@Nullable Throwable notHandled) {
-    cleanup(null);
-    if (notHandled == null) {
-      flush();
-      writeResponseEnd();
+    ChannelFuture responseFuture = null;
+    try {
+      if (notHandled == null) {
+        flush();
+        responseFuture = writeResponseEnd();
+      }
+      else {
+        discardPendingResponse();
+      }
     }
-    else {
-      discardPendingResponse();
+    finally {
+      if (notHandled == null) {
+        // Wait for the terminating write before restoring reads for HTTP/1 keep-alive
+        // or closing a connection whose request body did not finish arriving.
+        cleanup(null, responseFuture != null ? responseFuture : channel.newSucceededFuture(), true);
+      }
+      else {
+        // Let HttpTrafficHandler write the fallback error response before the
+        // request-body controller closes an HTTP/1 connection with an incomplete body.
+        // channelInactive() performs the final cleanup after that response has
+        // been rejected or the connection has been closed.
+        cleanupBody(null);
+      }
     }
   }
 
@@ -667,24 +666,27 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
     }
   }
 
-  /**
-   * Restore channel auto-read if this request paused it.
-   */
-  private void restoreAutoRead() {
-    if (readPaused) {
-      readPaused = false;
-      channel.config().setAutoRead(true);
+  private void cleanup(@Nullable IOException error) {
+    cleanup(error, channel.newSucceededFuture(), false);
+  }
+
+  private void cleanup(@Nullable IOException error, ChannelFuture responseFuture, boolean detach) {
+    cleanupBody(error);
+    if (requestBodyReadController != null) {
+      requestBodyReadController.release(responseFuture);
+    }
+    if (detach) {
+      responseFuture.addListener(future -> detach(this));
     }
   }
 
-  private void cleanup(@Nullable IOException error) {
+  private void cleanupBody(@Nullable IOException error) {
     if (requestBody != null) {
       if (error != null) {
         requestBody.onError(error);
       }
       requestBody.close();
     }
-    restoreAutoRead();
   }
 
   /**
@@ -898,7 +900,8 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   /**
    * Complete the response, closing the connection when it is not kept alive.
    */
-  protected void writeResponseEnd() {
+  protected ChannelFuture writeResponseEnd() {
+    return channel.newSucceededFuture();
   }
 
   @Override
@@ -1110,11 +1113,7 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * removed from {@link HttpContextHolder} when the exchange completes.
    * <p>Protocol specific behavior is supplied by the {@code 100 Continue} and
    * request dispatch hooks, so subclasses only provide transport details.
-   * <p>When {@link NettyRequestConfig#manualBodyRead} is enabled, body reading
-   * pauses channel auto-read for the request. The pause is released by
-   * {@link #cleanup(IOException)} when the request completes:
-   * {@link #processRequest()} guarantees that completion, while the early
-   * returns above call {@code cleanup} directly because they bypass it.
+   * <p>Early rejections clean up the request body without dispatching it.
    */
   public final void run() {
     HttpContextHolder.set(this);
@@ -1153,9 +1152,9 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
    * Dispatch the request to the {@link DispatcherHandler}.
    * <p>Subclasses may override this to inspect protocol state before dispatching,
    * for example to report a request decoding failure.
-   * <p>Implementations must guarantee that the request lifecycle completes
-   * before returning, including on failure, so that request-scoped resources and
-   * the paused channel auto-read are released.
+   * <p>Request completion closes the body stream and defers transport read
+   * cleanup to the terminating response write. Unhandled failures are left to
+   * {@link HttpTrafficHandler} so it can send a fallback error response.
    *
    * @throws Exception if request handling fails
    */
@@ -1248,6 +1247,13 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
 
   static @Nullable NettyHttpContext lookup(AttributeMap map) {
     return map.attr(KEY).get();
+  }
+
+  private static void detach(NettyHttpContext context) {
+    Attribute<@Nullable NettyHttpContext> attribute = context.channel.attr(KEY);
+    if (attribute.get() == context) {
+      attribute.set(null);
+    }
   }
 
   /**
@@ -1357,19 +1363,6 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
       // The writer flushes into this stream; the HEAD response still needs its
       // head committed even though the body bytes are discarded.
       NettyHttpContext.this.flushOutput();
-    }
-
-  }
-
-  final class ManualReadingBodyInputStream extends BodyInputStream {
-
-    private ManualReadingBodyInputStream(int capacity) {
-      super(capacity);
-    }
-
-    @Override
-    protected void requestNext() {
-      channel.read();
     }
 
   }

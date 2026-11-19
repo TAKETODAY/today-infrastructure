@@ -171,20 +171,33 @@ public class NettyServerProperties {
   public boolean allowDuplicateContentLengths = false;
 
   /**
-   * The capacity of the queue used to store received data chunks.
-   * <p>
-   * This setting controls how many data chunks can be queued for processing
-   * before backpressure is applied to the data source. A larger queue can
-   * help smooth out bursts of data but will consume more memory.
-   *
-   * @since 5.0
+   * Unread request-body byte threshold at or above which automatic reads pause.
    */
-  public int dataReceivedQueueCapacity = 256;
+  public DataSize requestBodyHighWaterMark = DataSize.ofKilobytes(256);
 
   /**
-   * Whether request bodies are read on demand instead of automatically.
-   *
-   * @since 5.0
+   * Unread request-body byte threshold at or below which paused reads resume.
+   * Must be less than {@link #requestBodyHighWaterMark}.
+   */
+  public DataSize requestBodyLowWaterMark = DataSize.ofKilobytes(64);
+
+  /**
+   * Maximum unread bytes buffered per request, including the chunk being read.
+   * Must be at least {@link #requestBodyHighWaterMark}. This is separate from
+   * the total request body limit in {@link #maxContentLength}.
+   */
+  public DataSize maxBufferedRequestBodyBytes = DataSize.ofKilobytes(512);
+
+  /**
+   * Maximum number of chunks queued per request, excluding the chunk being read.
+   */
+  public int maxBufferedRequestBodyChunks = 256;
+
+  /**
+   * Whether to request more body data only when the application reads and no
+   * buffered data is available.
+   * <p>Defaults to {@code false}, which uses automatic reads with watermark-based
+   * backpressure. Both modes enforce the same hard buffer limits.
    */
   public boolean manualBodyRead;
 
