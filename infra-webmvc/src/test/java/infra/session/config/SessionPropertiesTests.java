@@ -94,6 +94,15 @@ class SessionPropertiesTests {
   }
 
   @Test
+  void storeDirectoryBeneathARegularFileCannotBeCreated(@TempDir File tempDir) throws IOException {
+    File parent = File.createTempFile("parent", ".txt", tempDir);
+    File store = new File(parent, "sessions");
+    assertThat(SessionProperties.getValidStoreDir(null, store, false)).isEqualTo(store);
+    assertThatIllegalStateException().isThrownBy(() -> SessionProperties.getValidStoreDir(null, store, true))
+            .withMessageContaining(store.getPath());
+  }
+
+  @Test
   void getValidStoreDirWhenStoreDirIsFileThrowsException(@TempDir File tempDir) throws IOException {
     var properties = new SessionProperties();
     var file = new File(tempDir, "file.txt");
