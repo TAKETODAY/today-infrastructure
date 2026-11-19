@@ -20,8 +20,15 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Optional;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
+import infra.beans.factory.BeanNotOfRequiredTypeException;
+import infra.beans.factory.NoUniqueBeanDefinitionException;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Import;
 import infra.core.MethodParameter;
@@ -128,6 +135,73 @@ class ParameterResolvingRegistryTests {
       assertThat(fallback.contains(RequestParamMethodArgumentResolver.class)).isTrue();
       assertThat(ParameterResolvingRegistryFactory.getOrCreate(context)).isSameAs(fallback);
       assertThat(context.getBean("parameterResolvingRegistry")).isSameAs(fallback);
+    }
+  }
+
+  @Test
+  void ambiguousRegistryBeansDoNotTriggerFallback() {
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.registerBean("firstRegistry", ParameterResolvingRegistry.class);
+      context.registerBean("secondRegistry", ParameterResolvingRegistry.class);
+      context.refresh();
+
+      assertThatThrownBy(() -> ParameterResolvingRegistryFactory.getOrCreate(context))
+              .isInstanceOf(NoUniqueBeanDefinitionException.class);
+      assertThat(context.getBeanNamesForType(ParameterResolvingRegistry.class))
+              .containsExactlyInAnyOrder("firstRegistry", "secondRegistry");
+    }
+  }
+
+  @Test
+  void primaryRegistryBeanIsReused() {
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.registerBean("firstRegistry", ParameterResolvingRegistry.class);
+      context.registerBean("primaryRegistry", ParameterResolvingRegistry.class, definition -> definition.setPrimary(true));
+      context.refresh();
+
+      assertThat(ParameterResolvingRegistryFactory.getOrCreate(context)).isSameAs(context.getBean("primaryRegistry"));
+      assertThat(context.containsBean("parameterResolvingRegistry")).isFalse();
+    }
+  }
+
+  @Test
+  void singletonWithReservedNameAndWrongTypeIsNotReplaced() {
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.getBeanFactory().registerSingleton("parameterResolvingRegistry", "not a registry");
+      context.refresh();
+
+      assertThatThrownBy(() -> ParameterResolvingRegistryFactory.getOrCreate(context))
+              .isInstanceOf(BeanNotOfRequiredTypeException.class);
+      assertThat(context.getBean("parameterResolvingRegistry")).isEqualTo("not a registry");
+    }
+  }
+
+  @Test
+  void concurrentFirstLookupsShareFallbackRegistry() throws Exception {
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.refresh();
+      int callers = 8;
+      var start = new CyclicBarrier(callers);
+      var lookups = new ArrayList<Future<ParameterResolvingRegistry>>(callers);
+      var executor = Executors.newFixedThreadPool(callers);
+      try {
+        for (int i = 0; i < callers; i++) {
+          lookups.add(executor.submit(() -> {
+            start.await(10, TimeUnit.SECONDS);
+            return ParameterResolvingRegistryFactory.getOrCreate(context);
+          }));
+        }
+
+        var registry = lookups.get(0).get(10, TimeUnit.SECONDS);
+        for (var lookup : lookups) {
+          assertThat(lookup.get(10, TimeUnit.SECONDS)).isSameAs(registry);
+        }
+        assertThat(context.getBeansOfType(ParameterResolvingRegistry.class))
+                .containsOnlyKeys("parameterResolvingRegistry").containsValue(registry);
+      }
+      finally {
+        executor.shutdownNow();
+      }
     }
   }
 

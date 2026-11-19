@@ -384,7 +384,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
     if (supportedMediaTypes.contains(MediaType.APPLICATION_CBOR)) {
       map.put("cbor", MediaType.APPLICATION_CBOR);
     }
-    if (supportedMediaTypes.contains(MediaType.APPLICATION_ATOM_XML)) {
+    if (supportedMediaTypes.contains(MediaType.APPLICATION_YAML)) {
       map.put("yaml", MediaType.APPLICATION_YAML);
     }
     return map;
@@ -996,8 +996,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public CompositeUriComponentsContributor mvcUriComponentsContributor(ParameterResolvingRegistry registry,
           @Qualifier("mvcConversionService") FormattingConversionService conversionService) {
-    var strategies = new ArrayList<>(registry.getDefaultStrategies().getStrategies());
-    strategies.addAll(registry.getCustomizedStrategies().getStrategies());
+    var strategies = new ArrayList<>(registry.getCustomizedStrategies().getStrategies());
+    strategies.addAll(registry.getDefaultStrategies().getStrategies());
     return new CompositeUriComponentsContributor(strategies, conversionService);
   }
 

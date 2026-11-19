@@ -20,7 +20,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-import infra.beans.factory.BeanFactoryUtils;
+import infra.beans.factory.BeanNotOfRequiredTypeException;
+import infra.beans.factory.NoUniqueBeanDefinitionException;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.context.ApplicationContext;
 import infra.core.MethodParameter;
@@ -47,6 +48,8 @@ import infra.web.handler.method.ParameterResolvingStrategies;
  * @since 5.0
  */
 public final class ParameterResolvingRegistryFactory {
+
+  private static final String REGISTRY_BEAN_NAME = "parameterResolvingRegistry";
 
   private static final Logger logger = LoggerFactory.getLogger(ParameterResolvingRegistryFactory.class);
 
@@ -134,15 +137,33 @@ public final class ParameterResolvingRegistryFactory {
    *
    * @param context the application context to look up the registry in
    * @return the configured or newly registered registry
+   * @throws NoUniqueBeanDefinitionException if multiple registries match and none can be selected
    */
   public static ParameterResolvingRegistry getOrCreate(ApplicationContext context) {
-    var resolvingRegistry = BeanFactoryUtils.find(context, ParameterResolvingRegistry.class);
-    if (resolvingRegistry == null) {
-      resolvingRegistry = create(context);
-      context.unwrapFactory(ConfigurableBeanFactory.class)
-              .registerSingleton("parameterResolvingRegistry", resolvingRegistry);
+    var registry = context.getBeanProvider(ParameterResolvingRegistry.class).getIfAvailable();
+    if (registry != null) {
+      return registry;
     }
-    return resolvingRegistry;
+
+    var beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
+    // Coordinate fallback creation without holding this lock during typed bean lookup.
+    synchronized(beanFactory) {
+      if (beanFactory.containsSingleton(REGISTRY_BEAN_NAME)) {
+        Object existing = beanFactory.getSingleton(REGISTRY_BEAN_NAME);
+        if (existing instanceof ParameterResolvingRegistry existingRegistry) {
+          return existingRegistry;
+        }
+        if (existing != null) {
+          throw new BeanNotOfRequiredTypeException(REGISTRY_BEAN_NAME, ParameterResolvingRegistry.class, existing.getClass());
+        }
+      }
+      if (beanFactory.containsLocalBean(REGISTRY_BEAN_NAME)) {
+        throw new IllegalStateException("Bean name '%s' is already in use".formatted(REGISTRY_BEAN_NAME));
+      }
+      registry = create(context);
+      beanFactory.registerSingleton(REGISTRY_BEAN_NAME, registry);
+      return registry;
+    }
   }
 
   private static final class RequestAttributeMethodArgumentResolver extends AbstractNamedValueResolvingStrategy {
