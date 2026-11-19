@@ -104,14 +104,11 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
   private boolean detectHandlerMethodsInAncestorContexts = false;
 
-  @Nullable
-  private HandlerMethodMappingNamingStrategy<T> namingStrategy;
+  private @Nullable HandlerMethodMappingNamingStrategy<T> namingStrategy;
 
-  @Nullable
-  private BeanDefinitionRegistry registry;
+  private @Nullable BeanDefinitionRegistry registry;
 
-  @Nullable
-  private AnnotatedBeanDefinitionReader beanDefinitionReader;
+  private @Nullable AnnotatedBeanDefinitionReader beanDefinitionReader;
 
   private boolean useInheritedInterceptor = true;
 
@@ -158,8 +155,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
   /**
    * Return the configured naming strategy or {@code null}.
    */
-  @Nullable
-  public HandlerMethodMappingNamingStrategy<T> getNamingStrategy() {
+  public @Nullable HandlerMethodMappingNamingStrategy<T> getNamingStrategy() {
     return this.namingStrategy;
   }
 
@@ -179,8 +175,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * list will never be modified and is safe to iterate.
    * @see #setHandlerMethodMappingNamingStrategy
    */
-  @Nullable
-  public List<HandlerMethod> getHandlerMethodsForMappingName(String mappingName) {
+  public @Nullable List<HandlerMethod> getHandlerMethodsForMappingName(String mappingName) {
     return this.mappingRegistry.getHandlerMethodsByMappingName(mappingName);
   }
 
@@ -483,8 +478,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * @param lookupPath mapping lookup path within the current mapping
    * @param request the current request
    */
-  @Nullable
-  protected HandlerMethod handleNoMatch(Set<T> mappings, String lookupPath, HttpContext request) {
+  protected @Nullable HandlerMethod handleNoMatch(Set<T> mappings, String lookupPath, HttpContext request) {
 
     return null;
   }
@@ -649,8 +643,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * declaring class
    * @return the mapping, or {@code null} if the method is not mapped
    */
-  @Nullable
-  protected abstract T getMappingForMethod(Method method, Class<?> handlerType);
+  protected abstract @Nullable T getMappingForMethod(Method method, Class<?> handlerType);
 
   /**
    * Return the request mapping paths that are not patterns.
@@ -665,8 +658,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * @param request the current HTTP request
    * @return the match, or {@code null} if the mapping doesn't match
    */
-  @Nullable
-  protected abstract T getMatchingMapping(T mapping, HttpContext request);
+  protected abstract @Nullable T getMatchingMapping(T mapping, HttpContext request);
 
   /**
    * Return a comparator for sorting matching mappings.
@@ -842,8 +834,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
   static class MappingRegistration<T> {
     public final T mapping;
 
-    @Nullable
-    public final String mappingName;
+    public final @Nullable String mappingName;
 
     public final boolean hasCorsConfig;
 

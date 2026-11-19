@@ -197,8 +197,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
     }
   }
 
-  @Nullable
-  private String decodeAndNormalizePath(@Nullable String path, HttpContext request) {
+  private @Nullable String decodeAndNormalizePath(@Nullable String path, HttpContext request) {
     if (path != null && !path.isEmpty()) {
       path = URLDecoder.decode(path, StandardCharsets.UTF_8);
       if (path.charAt(0) != '/') {

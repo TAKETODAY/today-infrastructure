@@ -81,9 +81,8 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
    *
    * @return an info in case of a match; or {@code null} otherwise.
    */
-  @Nullable
   @Override
-  protected RequestMappingInfo getMatchingMapping(RequestMappingInfo info, HttpContext request) {
+  protected @Nullable RequestMappingInfo getMatchingMapping(RequestMappingInfo info, HttpContext request) {
     return info.getMatchingCondition(request);
   }
 
@@ -125,9 +124,8 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
    * @throws HttpMediaTypeNotAcceptableException if there are matches by URL
    * but not by consumable/producible media types
    */
-  @Nullable
   @Override
-  protected HandlerMethod handleNoMatch(Set<RequestMappingInfo> infos, String lookupPath, HttpContext request) {
+  protected @Nullable HandlerMethod handleNoMatch(Set<RequestMappingInfo> infos, String lookupPath, HttpContext request) {
     if (CollectionUtils.isEmpty(infos)) {
       return null;
     }

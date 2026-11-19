@@ -152,21 +152,17 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   /** Internal constant for constructor binding via "[]". */
   private static final int NO_INDEX = -1;
 
-  @Nullable
-  private Object target;
+  private @Nullable Object target;
 
-  @Nullable
-  ResolvableType targetType;
+  @Nullable ResolvableType targetType;
 
   private final String objectName;
 
-  @Nullable
-  private AbstractPropertyBindingResult bindingResult;
+  private @Nullable AbstractPropertyBindingResult bindingResult;
+
+  private @Nullable ExtendedTypeConverter typeConverter;
 
   private boolean directFieldAccess = false;
-
-  @Nullable
-  private ExtendedTypeConverter typeConverter;
 
   private boolean declarativeBinding = false;
 
@@ -883,36 +879,31 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
   }
 
   @Override
-  @Nullable
-  public PropertyEditor findCustomEditor(@Nullable Class<?> requiredType, @Nullable String propertyPath) {
+  public @Nullable PropertyEditor findCustomEditor(@Nullable Class<?> requiredType, @Nullable String propertyPath) {
     return getPropertyEditorRegistry().findCustomEditor(requiredType, propertyPath);
   }
 
   @Override
-  @Nullable
-  public <T> T convertIfNecessary(@Nullable Object value, @Nullable Class<T> requiredType) throws TypeMismatchException {
+  public <T> @Nullable T convertIfNecessary(@Nullable Object value, @Nullable Class<T> requiredType) throws TypeMismatchException {
     return getTypeConverter().convertIfNecessary(value, requiredType);
   }
 
   @Override
-  @Nullable
-  public <T> T convertIfNecessary(@Nullable Object value, @Nullable Class<T> requiredType,
+  public <T> @Nullable T convertIfNecessary(@Nullable Object value, @Nullable Class<T> requiredType,
           @Nullable MethodParameter methodParam) throws TypeMismatchException {
 
     return getTypeConverter().convertIfNecessary(value, requiredType, methodParam);
   }
 
   @Override
-  @Nullable
-  public <T> T convertIfNecessary(@Nullable Object value, @Nullable Class<T> requiredType, @Nullable Field field)
+  public <T> @Nullable T convertIfNecessary(@Nullable Object value, @Nullable Class<T> requiredType, @Nullable Field field)
           throws TypeMismatchException {
 
     return getTypeConverter().convertIfNecessary(value, requiredType, field);
   }
 
-  @Nullable
   @Override
-  public <T> T convertIfNecessary(@Nullable Object value, @Nullable Class<T> requiredType,
+  public <T> @Nullable T convertIfNecessary(@Nullable Object value, @Nullable Class<T> requiredType,
           @Nullable TypeDescriptor typeDescriptor) throws TypeMismatchException {
 
     return getTypeConverter().convertIfNecessary(value, requiredType, typeDescriptor);
@@ -954,8 +945,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
     }
   }
 
-  @Nullable
-  private Object createObject(ResolvableType objectType, String nestedPath, ValueResolver valueResolver, int depth) {
+  private @Nullable Object createObject(ResolvableType objectType, String nestedPath, ValueResolver valueResolver, int depth) {
     Class<?> clazz = objectType.resolve();
     boolean isOptional = (clazz == Optional.class);
     clazz = (isOptional ? objectType.resolveGeneric(0) : clazz);
@@ -1136,9 +1126,8 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
     return map;
   }
 
-  @Nullable
   @SuppressWarnings("unchecked")
-  private <V> V @Nullable [] createArray(Constructor<?> ctor, String paramPath, Class<?> paramType, ResolvableType type,
+  private <V> @Nullable V @Nullable [] createArray(Constructor<?> ctor, String paramPath, Class<?> paramType, ResolvableType type,
           ValueResolver valueResolver, int depth) {
     ResolvableType elementType = type.getNested(2);
     SortedSet<Integer> indexes = getIndexes(paramPath, valueResolver);
