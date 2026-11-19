@@ -32,6 +32,7 @@ import infra.web.bind.annotation.ModelAttribute;
 /**
  * Naming conventions for model attributes supplied as handler method arguments or return values.
  *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
  */
 public final class ModelAttributeNames {
