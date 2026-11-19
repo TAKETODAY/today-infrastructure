@@ -1,7 +1,9 @@
 [[persistence-version]]
 = 乐观锁
 
-在版本属性上标注 `@Version` 即可启用乐观锁。更新时框架会校验版本并自动递进；删除同样受版本约束。
+在版本属性上标注 `@Version` 即可启用乐观锁。更新时框架将新版本写入 `SET`，并将旧版本加入 `WHERE`，
+影响行数不等于 1 时抛出 `OptimisticLockingFailureException`。插入不会自动初始化版本；调用方应为新实体设置初始值，
+更新时实体必须携带非空的旧版本。
 每个实体只允许一个版本属性，否则抛出 `IllegalEntityException`。
 
 开箱支持的类型：`int`/`Integer`、`long`/`Long`、`short`/`Short`，以及
@@ -16,18 +18,27 @@ class User {
   Integer id;
 
   @Version
-  Integer version;
+  Integer version = 0;
 }
 ----
 
-自定义类型可实现 `VersionIncrementStrategy`，返回 `null` 表示不支持该类型以便回退：
+`delete(User.class, id)` 不检查版本。要按主键和版本删除，请用 `delete(entity)` 并传入含有主键和非空版本的实体。
+实体版本为 `null` 时，按主键删除不会附加版本条件；带版本删除影响行数不等于 1 时也会抛出 `OptimisticLockingFailureException`。
+更新方法内部失败时会恢复已递增的版本；如果方法已成功返回而外层事务之后回滚，框架不会把内存版本改回去。
+批量更新需要 JDBC 驱动返回每条语句的准确行数，详见 xref:data-access/persistence/batch.adoc[批量持久化]。
+
+可在 `DefaultEntityManager` 上设置自定义 `VersionIncrementStrategy`。它会替换默认策略，不会自动回退；
+对仍由默认策略支持的类型，应显式委托：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
-entityManager.setVersionIncrementStrategy(current -> {
+VersionIncrementStrategy defaults = new DefaultVersionIncrementStrategy();
+manager.setVersionIncrementStrategy(current -> { // manager 是 DefaultEntityManager
   if (current instanceof String v) {
     return v + "_updated";
   }
-  return null; // 交给回退策略
+  return defaults.nextVersion(current);
 });
 ----
+
+最终返回 `null` 时，更新会抛出 `IllegalArgumentException`。

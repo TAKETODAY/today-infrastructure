@@ -54,6 +54,26 @@ Restrictions.append(platform, List.of(where), buf);   // " WHERE ..."
 `resolveOrderByClause` 解析排序、`setParameter` 绑定参数。内置实现有按主键查询、无条件查询、
 示例查询与 `Map` 查询等。
 
+两种查询接口都继承 `ParameterSource`。绑定方法从传入的 JDBC 参数下标开始，返回下一个可用下标；
+无参下标重载从 `1` 开始。渲染和绑定使用相同的条件顺序，滚动查询会用返回的下标继续绑定游标。
+
+[source,java]
+----
+QueryCondition minimumAge = new QueryCondition() {
+  @Override
+  public void collectRestrictions(EntityMetadata metadata, List<Restriction> restrictions) {
+    restrictions.add(Restrictions.greaterEqual("age"));
+  }
+
+  @Override
+  public int setParameter(EntityMetadata metadata, PreparedStatement statement, int index) throws SQLException {
+    statement.setInt(index, 18);
+    return index + 1;
+  }
+};
+Page<User> adults = entityManager.page(User.class, minimumAge, Pageable.of(1, 20));
+----
+
 [[persistence-order-spec]]
 == OrderSpec
 
@@ -112,3 +132,14 @@ Platform mysql = Platform.mysql();
 
 `Identifier` 表示 SQL 标识符，配合 `Platform` 决定引号渲染：`render(platform)` 按方言加引号，
 `render()` 使用反引号的中立形式。
+
+== 安全与方言边界
+
+结构化条件（例如 `Restrictions.equal`、`like`、`in`）生成 `?` 占位符；使用这些工厂手工构建查询时，
+调用方仍须绑定参数。`plain`、`PlainRestriction`、
+`@Where(value = ...)` 和 `@OrderByClause` 是原始 SQL 入口：它们不会替调用方校验语法、转义标识符或
+过滤用户输入。不要把请求参数、租户名或排序字段直接拼接到这些片段中；需要动态值时改用参数绑定，
+需要动态列名时使用受限的白名单映射到 `Identifier`。
+
+`GenericPlatform` 使用通用 SQL 语法，但不保证与所有数据库兼容。`Platform.forDataSource(dataSource)` 会根据 JDBC 元数据选择已知方言，
+但数据库特性、`TRUNCATE`、分页语法和外连接行为仍可能需要提供自定义 `Platform`。

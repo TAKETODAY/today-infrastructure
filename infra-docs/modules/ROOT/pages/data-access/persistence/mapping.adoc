@@ -106,10 +106,11 @@ class Document {
 UUID 与自定义生成器仅在主键为 `null` 时执行，已有非空主键会保留。
 `@GeneratedUuid` 已包含主键映射，无需同时标注 `@Id` 或 `@GeneratedId`，也可用于创建更深层的组合注解。
 例如 `@GeneratedUuid UUID id` 和 `@GeneratedUuid String id` 都使用 UUID 策略；裸 `@GeneratedId` 仍保持默认数据库生成行为。
-`GenerationType.UUID` 固定采用 RFC 9562 UUID v7，包含 48 位 Unix 毫秒时间戳和 74 位安全随机数据。
+`GenerationType.UUID` 默认采用 RFC 9562 UUID v7，包含 48 位 Unix 毫秒时间戳和 74 位安全随机数据。
 其时间前缀有利于支持相应排序的数据库索引局部性，但不保证同毫秒内或跨节点严格递增；
 时钟回拨会反映在时间戳中。生成时间可从 ID 中解析。
-已有 v4 与新增 v7 可以共存。需要随机 UUID v4 或其他算法时，使用自定义 `IdGenerator`。
+已有 v4 与新增 v7 可以共存。可以注册线程安全的 `infra.util.UuidGenerator` bean，替换自动配置的解析器所用的 UUID 生成器；
+手动配置时调用 `IdGeneratorResolver#setUuidGenerator`。若只想定制某类实体的生成规则，使用自定义 `IdGenerator`。
 使用 `Long` 等包装类型表示尚未分配的数字主键；基本类型 `long` 的默认值 `0` 不为 `null`，不会触发应用生成器。
 应用生成型主键始终参与 INSERT，不会被 `PropertyUpdateStrategy.notId()` 等普通属性策略排除。
 数据库自增策略则始终排除主键列，因此不应对这种实体预先赋值主键。
@@ -156,17 +157,17 @@ class Order {
 * 同时指定 Class 与名称：按名称获取 Bean，并以 Class 约束其类型。
 * 未指定自定义生成器：使用 `strategy`。指定自定义生成器时覆盖默认 `IDENTITY`，不能同时配置 `UUID`。
 
-自动创建的生成器按 Class 在当前 EntityManager 内复用，并在 EntityManager 销毁时执行销毁回调。
+自动创建的生成器由 `IdGeneratorResolver` 复用，并在解析器销毁时执行销毁回调。
 按类型或名称查到的 Bean 按“生成器类型 + Bean 名称”在 Resolver 内缓存，后续解析复用首次获得的实例，
 即使 Bean 声明为 prototype 也不会每次重新获取，因此生成器必须线程安全。
 已有 Bean 不由 Resolver 销毁；自动创建的实例不会额外注册成容器单例。
-通过容器创建的 `DefaultEntityManager` 会自动接收 BeanFactory；手动创建时，可以调用 `setBeanFactory(beanFactory)`
-提供生成器的依赖，并在使用结束后调用 `destroy()` 释放自动创建的生成器。
+自动配置通过容器管理解析器的生命周期；手动创建时，可用 `setIdGeneratorResolver(new IdGeneratorResolver(beanFactory))`
+提供依赖，并在不再使用解析器时调用其 `destroy()`。
 
 === 分布式 ID
 
 `IdGenerator` 可以接入本地雪花算法、UUID v7、ULID、数据库号段、Redis 递增或远程 ID 服务。
-当前内置策略为 `IDENTITY` 与 `UUID`（固定 v7），其他算法通过自定义生成器接入。
+当前内置策略为 `IDENTITY` 与 `UUID`（默认 v7），其他算法通过自定义生成器接入。
 多节点唯一性、节点编号、时钟回拨处理和号段分配由生成器及其依赖服务负责。
 
 对雪花或号段等有状态生成器，建议注册为线程安全的单例 Bean，通过名称引用：

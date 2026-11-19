@@ -10,13 +10,23 @@ dependencies {
 }
 ----
 
-该模块依赖 `infra-jdbc` 与 `infra-tx`，因此需要配置一个 `DataSource`（或 `RepositoryManager`）。
-当容器中存在唯一的 `DataSource` 候选者时，`EntityManagerAutoConfiguration` 会自动注册以下 bean：
+该模块依赖 `infra-jdbc` 与 `infra-tx`。`EntityManagerAutoConfiguration` 在
+`RepositoryManagerAutoConfiguration` 之后处理，条件是容器能确定单一 `DataSource` 候选者（例如只有一个数据源，
+或多个数据源中有一个 `@Primary`）。默认 `EntityManager` 需要 `RepositoryManager`，可由 JDBC 自动配置提供，也可由应用定义。
+
+满足数据源条件后，`EntityManagerAutoConfiguration` 按类型补齐以下组件：
 
 * `EntityManager`：默认实现为 `DefaultEntityManager`。
 * `EntityMetadataFactory`：默认实现为 `DefaultEntityMetadataFactory`。
-* `EntityEventRegistry`：默认实现为 `DefaultEntityEventRegistry`，并自动注册容器中所有的 `Listener` bean。
-* `SqlStatementLogger`：SQL 日志记录器。
+* `EntityEventRegistry`：默认实现为 `DefaultEntityEventRegistry`，并注册容器中所有的 `Listener` bean。
+* `EntityQueryFactories`：将容器中的查询工厂和条件策略接入示例查询。
+* `IdGeneratorResolver`：解析应用生成型主键的生成器。
+* `Platform`：根据 `DataSource` 选择 SQL 方言；没有特定方言时使用 `GenericPlatform`。
+* `SqlStatementLogger`：使用共享的 SQL 日志记录器。
+* `AuditingEntityListener`：仅在 `persistence.auditing-enabled=true` 且没有同类型 bean 时创建。
+
+如果显式提供其中某个 bean，对应的自动配置 bean 不会覆盖它。显式提供
+`EntityEventRegistry` 时，容器中的 `Listener` 不会再由自动配置隐式装入该自定义注册表。
 
 == 配置属性
 
@@ -34,7 +44,12 @@ dependencies {
 | `persistence.max-batch-records`
 | `int`
 | `0`
-| 单次批处理允许累积的记录数；达到该值后 `addToBatch()` 会隐式调用 `executeBatch()`。为 `0` 时不隐式执行批处理。
+| 每个兼容的 JDBC `PreparedStatement` 批次允许累积的记录数；达到该值后隐式执行该批次。为 `0` 时不做中途刷新，输入消费结束后仍会执行剩余批次。中途执行不会提交事务。
+
+| `persistence.auditing-enabled`
+| `boolean`
+| `false`
+| 是否自动注册 `AuditingEntityListener`。可选的 `Clock` bean 用于提供时钟，可选的 `AuditorAware` bean 用于提供当前操作者。
 
 |===
 
@@ -46,7 +61,8 @@ persistence:
   page-size: 20
 ----
 
-`EntityManagerCustomizer` 在配置属性应用后执行，可以通过 `setDefaultPageable()` 进一步覆盖默认分页。
+`EntityManagerCustomizer` 在配置属性应用后执行，可以通过 `setDefaultPageable()` 进一步覆盖默认分页，
+也可以设置默认更新策略、版本递增策略、事务定义、批量阈值、SQL 日志器和查询工厂等。
 
 == 自定义
 
@@ -54,7 +70,15 @@ persistence:
 
 * `EntityManagerCustomizer`：定制 `DefaultEntityManager`（如更新策略、版本策略、默认分页等）。
 * `EntityMetadataFactoryCustomizer`：定制 `DefaultEntityMetadataFactory`（如表名、列名、主键发现策略）。
-* `TypeHandlerManagerCustomizer`：定制 JDBC 类型处理器（来自 `infra-jdbc`）。
+* `TypeHandlerManagerCustomizer`：定制 JDBC 类型处理器（该接口属于 `infra-jdbc`，但会影响实体属性的类型映射）。
+
+还可以直接注册以下扩展点：
+
+* `EntityQueryFactory`：为特定的示例对象创建自定义 `QueryStatement` 或 `QueryCondition`。
+* `PropertyConditionStrategy`：作为 bean 加入内置专用策略之后、兜底策略之前，详见 xref:data-access/persistence/query-by-example.adoc#persistence-condition-precedence[注解优先级]。
+* `UuidGenerator`：替换 UUID 主键策略默认使用的 v7 生成器（由自动配置的 `IdGeneratorResolver` 接收）。
+* `VersionIncrementStrategy`：替换版本属性的递增规则。
+* `Platform`：提供数据库方言实现；原始 SQL 片段必须由应用自行保证与目标数据库兼容。
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -67,3 +91,22 @@ class MyEntityManagerCustomizer implements EntityManagerCustomizer {
   }
 }
 ----
+
+== 手动创建
+
+不使用容器自动配置时，最小配置是一个 `RepositoryManager`：
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+RepositoryManager repositories = new RepositoryManager(dataSource);
+DefaultEntityManager entityManager = new DefaultEntityManager(repositories, Platform.forDataSource(dataSource));
+try {
+  entityManager.persist(user);
+}
+finally {
+  entityManager.getIdGeneratorResolver().destroy(); // 释放解析器按需创建的生成器
+}
+----
+
+仅传入 `RepositoryManager` 时使用通用平台。手动创建的管理器已有组件默认值，但不会自动应用配置属性、
+注册容器监听器或注入应用的生成器依赖；如需这些能力，须显式配置相应组件。

@@ -1,14 +1,16 @@
 [[persistence-example]]
 = 查询条件与示例查询 (QueryCondition)
 
-面向用户的通用查询抽象是 `QueryCondition`：它描述"要查什么条件"（`collectRestrictions` 收集条件、
+面向用户的通用查询抽象是 `QueryCondition`：它描述“要查什么条件”（`collectRestrictions` 收集条件、
 `setParameter` 绑定参数、`resolveOrderByClause` 解析排序）。具体条件如何表达由实现决定，
-`EntityManager.find(...)` / `count(...)` / `page(...)` 等均接受 `QueryCondition`。
+`count`、`page`、`slice` 和 `scroll` 可直接使用 `QueryCondition`；`find` 等查询方法使用 `QueryStatement`。
+默认示例查询实现同时支持两种接口。
 
-示例查询（Query by Example，QBE）是 `QueryCondition` 的一种：以对象作为"探针（probe）"，
+示例查询（Query by Example，QBE）是 `QueryCondition` 的一种：以对象作为“探针（probe）”，
 把它的非空属性转换为 `WHERE` 条件，并可通过注解在属性上精细描述。
 
-NOTE: 示例查询是 `QueryCondition` 的一种，探针对象即 *example*。
+空值通常不生成条件（`@WhereIsNull` 除外），默认等值策略也忽略空白字符串。需要表达“未设置”时尽量使用包装类型：
+基本类型默认值（如 `0`、`false`）不为 `null`，仍可能生成条件。
 
 [[persistence-condition-annotations]]
 == 条件注解
@@ -18,10 +20,10 @@ NOTE: 示例查询是 `QueryCondition` 的一种，探针对象即 *example*。
 | 注解 | 说明
 
 | `@Where`
-| 自定义条件片段或操作符，如 `@Where("status > ?")`、`@Where(operator = " > ")`；缺省为等值匹配。
+| 自定义条件片段或操作符，如 `@Where("status > ?")`、`@Where(operator = " > ")`；缺省为等值匹配。原始片段原样渲染，应包含恰好一个 `?`，绑定当前属性值。
 
 | `@Trim`
-| 通用行为修饰，生成条件前对字符串值执行 `trim()`，可与 `@Where`/`@Like` 等叠加。
+| 默认的值规范化器对字符串执行 `trim()`，适用于调用规范化器的策略（如 `@Where`、`@Like` 和兜底等值），不会逐个处理 `@In` 的元素。
 
 | `@Like`
 | 生成 `LIKE` 条件，默认匹配 `%value%`。
@@ -33,16 +35,16 @@ NOTE: 示例查询是 `QueryCondition` 的一种，探针对象即 *example*。
 | 生成后缀匹配 `LIKE '%value'`。
 
 | `@In`
-| 属性为集合 / 数组时生成 `column IN (?, ?, ...)`；空集合不产生条件。
+| 使用可迭代对象或数组生成 `column IN (?, ?, ...)`；标量按一个元素处理。
 
 | `@NotIn`
-| 属性为集合 / 数组时生成 `column NOT IN (?, ?, ...)`；空集合不产生条件。
+| 参数形式与 `@In` 相同，生成 `column NOT IN (?, ?, ...)`。
 
 | `@Between`
-| 属性为 `Range` 或两元素集合 / 数组时生成 `column BETWEEN ? AND ?`。
+| 使用 `infra.persistence.query.Range`，或恰好两个元素的可迭代对象或数组，生成 `column BETWEEN ? AND ?`；两个边界都须非空。
 
 | `@NotBetween`
-| 属性为 `Range` 或两元素集合 / 数组时生成 `column NOT BETWEEN ? AND ?`。
+| 参数形式与 `@Between` 相同，生成 `column NOT BETWEEN ? AND ?`。
 
 | `@WhereIsNull`
 | 当属性值为 `null` 时生成 `column IS NULL`（`@WhereIsNull(not = true)` 为 `IS NOT NULL`）。
@@ -51,13 +53,13 @@ NOTE: 示例查询是 `QueryCondition` 的一种，探针对象即 *example*。
 | 通过连接表生成 `target IN (SELECT ...)` 多对多子查询谓词，见 <<persistence-subquery>>。
 
 | `@OR`
-| 将当前属性的条件与前一个条件以 `OR` 连接（默认为 `AND`），整体加括号。
+| 用 `OR` 连接当前条件与前一项（默认为 `AND`）；需要明确括号边界时使用分组。
 
 | `@Group`
 | 以点分路径把属性归入命名分组；配合 `@Connector` / `@GroupOR` 控制组内与组间连接。
 
 | `@GroupExpression`
-| 类级别，用布尔表达式描述复杂分组，如 `@GroupExpression("name OR age")`。
+| 类级别，用属性名和布尔表达式描述分组，如 `@GroupExpression("active AND (name OR age)")`；优先于属性上的分组和连接符设置，未列入表达式的属性不生成条件。
 
 | `@OrderBy`
 | 属性级别排序键：`@OrderBy(Order.DESC)`；多个属性用 `order()` 声明优先级（越小越靠前）。详见 <<persistence-order-by>>。
@@ -101,7 +103,8 @@ List<User> users = entityManager.find(User.class, query);
 [[persistence-subquery]]
 == 多对多子查询 (@Subquery)
 
-`@Subquery` 用于"通过连接表查询被引用实体"的多对多场景，只能标注在 `@EntityRef` 查询类的字段上。它生成：
+`@Subquery` 用于通过连接表查询被引用实体。应将它用在 `@EntityRef` 示例类型的字段上；没有引用元数据时，
+子查询策略不会生成条件，后续策略仍可能生成其他谓词。默认生成：
 
 [source,sql,indent=0,subs="verbatim,quotes"]
 ----
@@ -115,17 +118,18 @@ class TagQuery {
 
   // 连接表名直接给出；WHERE 列取自字段映射列（article_id）
   @Subquery(fromTable = "article_label", select = "label_id")
-  public final Long articleId;
+  Long articleId;
 }
 // id IN (SELECT label_id FROM article_label WHERE article_id = ?)
 ----
 
-* `select`：子查询选出的列（对应被引用实体主键的连接表列），必填。
-* `fromTable`：连接表名；或用 `from` 指定连接实体，由其实体的 `@Table` 解析表名（`from` 优先）。
-* 字段的映射列名作为连接表 `WHERE` 列；可用 `where` 覆盖。
+* `select`：必填，指定子查询选出的列或表达式。默认与外层主键比较，使用 `target` 时应和目标列匹配。
+* `fromTable`：连接表名；或用 `from` 指定连接实体，由其映射元数据解析表名（`from` 优先）。两者都不指定时，构建子查询会报错。
+* `where` 是 `@Column.value` 的别名，指定连接表的 `WHERE` 列；不指定时使用该字段的映射列名。
 * `target`：外层匹配列。缺省为被引用实体的主键列；也可指定被引用实体的属性名（按其映射列解析），
   不存在时按原始列名处理。
-* `negative = true`：生成 `NOT IN (SELECT ...)`。
+* `negative = true`：生成 `NOT IN (SELECT ...)`。若显式设置外层比较 `operator`（如 `>`），则忽略 `negative`；使用标量比较时须保证子查询至多返回一行。
+* `whereOperator`：子查询内部过滤的操作符，默认 `=`。
 
 [source,sql,indent=0,subs="verbatim,quotes"]
 ----
@@ -137,37 +141,38 @@ code IN (SELECT label_id FROM article_label WHERE article_id = ?)
 code NOT IN (SELECT label_id FROM article_label WHERE post_id = ?)
 ----
 
-多字段可各自声明 `@Subquery`，谓词按字段顺序用 `AND` 连接；配合 `@OR` 则以 `OR` 连接并加括号。
+多字段可各自声明 `@Subquery`，默认以 `AND` 连接；`@OR` 改变连接符，括号边界由分组决定。
 
 [[persistence-condition-precedence]]
 == 注解优先级
 
-同一属性上叠加多个条件注解时，策略按注册顺序选择第一个产生条件的注解，**不会把多个注解合并**。顺序为：
+同一属性只使用第一个返回条件的策略，不合并多个注解。查找顺序为：
 
+. 通过 `InfraStrategies` 发现的自定义策略
 . `@Where`
 . `@Subquery`
 . `@Like` / `@PrefixLike` / `@SuffixLike`
 . `@In` / `@NotIn` / `@Between` / `@NotBetween`
-. 兜底等值（`@WhereIsNull` 仅在 `null` 值路径生效）
+. 通过 bean 自动配置或 `EntityQueryFactories#addStrategy` 添加的策略
+. 兜底等值或 `@WhereIsNull`（后者仅在 `null` 值路径生效）
 
-因此 `@Where` 会覆盖 `@Subquery`，`@Subquery` 会覆盖 `@Like`/`@In`。若某个注解因值不满足而放弃
-（如空 `@In`、无法解析的 `@Subquery`），会继续向后落到兜底等值 `column = ?`。
+专用策略返回 `null` 不代表忽略整个属性。例如，空 `@In` 或边界无效的 `@Between` 不生成对应的多值谓词，
+但非空属性值仍可能落到 `column = ?`。若希望省略这类筛选，应在构造示例时将属性设为 `null`（且不标注 `@WhereIsNull`）。
 
 [[persistence-order-by]]
 == ORDER BY 解析优先级
 
-示例查询的 `ORDER BY` 按以下优先级解析，命中较早的来源即生效：
+示例查询的 `ORDER BY` 按以下优先级解析，跳过空规格（`OrderSpec.empty()`）；`OrderSpecSource` 不能返回 `null`：
 
 . 实现 `OrderSpecSource` 的对象自身提供的编程式排序；
-. 类级别 `@OrderByClause` 指定的原始 SQL 片段；
-. 属性级别 `@OrderBy` —— 多个属性按各自 `order()` 值排序，值越小越先应用（优先级越高）。
+. 示例类型元数据中的排序：类级别 `@OrderByClause` 优先于属性级别 `@OrderBy`（多个键按 `order()` 从小到大）；
+. 查询目标实体元数据中的排序。
 
 主键（`@Id`）属性与普通属性一样会被扫描，因此同样可以用 `@OrderBy` 参与排序。例如：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 @Table(name = "t_user")
-@OrderByClause("name DESC")            // 类级别原始子句，优先级最高（若实现 OrderSpecSource 则由其覆盖）
 class User {
 
   @Id
@@ -182,16 +187,43 @@ class User {
 }
 ----
 
-上面的例子中，`created_at DESC` 会排在 `name ASC` 之前；若类级别声明了 `@OrderByClause`
-或实体实现了 `OrderSpecSource`，则属性级排序不会生效。
+上面的例子中，`created_at DESC` 会排在 `name ASC` 之前。若加上 `@OrderByClause("name DESC")`，
+则改用原始片段；若示例对象的 `OrderSpecSource` 返回非空规格，则优先使用该规格。
 
-也可以直接使用 `Map` 作为条件（键为列名，值为参数）：
+也可以直接使用 `Map` 作为条件：键优先按实体映射解析，找不到时当作列名；值通过 JDBC `setObject` 绑定。
+Map 查询只生成等值条件（`null` 值不转换成 `IS NULL`），不解析 `@Like`、分组或子查询注解：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
 Map<String, Object> example = Map.of("name", "John", "age", 30);
-List<User> users = entityManager.find(User.class, (Object) example);
+List<User> users = entityManager.find(User.class, example);
 ----
+
+== 自定义查询工厂
+
+`EntityQueryFactories` 会按以下顺序选择查询实现：应用显式注册的
+`EntityQueryFactory`、通过策略机制发现的工厂、内置的排序 / Map 工厂，最后才是默认示例查询工厂。
+工厂必须实现 `createQuery` 和 `createCondition` 两个方法；不支持的示例或用法返回 `null`，让下一个工厂处理。
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+@Component
+class UserQueryFactory implements EntityQueryFactory {
+
+  @Override
+  public @Nullable QueryStatement createQuery(Object example) {
+    return example instanceof UserQuery query ? new UserQueryStatement(query) : null;
+  }
+
+  @Override
+  public @Nullable QueryCondition createCondition(Object example) {
+    return null; // 让其他工厂处理条件形式
+  }
+}
+----
+
+上例的 `UserQueryStatement` 由应用实现。对于需要手写 SQL 的场景，优先实现 `QueryStatement`，并遵守 `render` 与 `setParameter` 的占位符顺序；
+不要把用户输入直接拼接到 `PlainRestriction`、`@Where` 或 `@OrderByClause` 的原始 SQL 片段中。
 
 [[persistence-condition-strategy]]
 == 条件策略与值提取
@@ -201,6 +233,5 @@ List<User> users = entityManager.find(User.class, (Object) example);
   `resolve(EntityMetadata, EntityProperty)`。
   内置实现包括 `WhereAnnotationConditionStrategy`、`SubqueryConditionStrategy`、
   `FuzzyQueryConditionStrategy`（`@Like` 系列）、`MultiValueConditionStrategy`（`@In`/`@Between` 系列）
-  与兜底的 `DefaultConditionStrategy`（默认等值 / `@WhereIsNull`）；自定义实现可通过 `InfraStrategies`
-  机制被发现，并排在上述默认实现之前生效。
-* `ValueNormalizer`：在生成条件前对值做规范化（如 `@Trim` 的 `trim()`）。
+  与兜底的 `DefaultConditionStrategy`（默认等值 / `@WhereIsNull`）。优先级见 <<persistence-condition-precedence>>。
+* `ValueNormalizer`：在支持值规范化的策略中处理属性值。通过 `EntityQueryFactories#addNormalizer` 添加的规范化器按添加顺序执行，最后执行 `ValueNormalizer.DEFAULT`。

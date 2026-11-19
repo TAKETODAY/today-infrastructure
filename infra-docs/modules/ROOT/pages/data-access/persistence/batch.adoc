@@ -1,12 +1,14 @@
 [[persistence-batch]]
 = 批量持久化
 
-批量写入通过 `PersistenceProperties.maxBatchRecords` 控制：当累积的记录数达到该值时，
-会隐式执行一次 `executeBatch()`；为 `0` 时不自动执行，由显式的刷新触发。
+批量写入通过 `persistence.max-batch-records` 控制：每个具有相同实体类型和有序写入列的
+JDBC `PreparedStatement` 批次达到该值时，会隐式执行一次 `executeBatch()`。它不是整个操作的总缓存上限，
+也不是事务提交阈值；为 `0` 时不做中途刷新，输入消费结束后仍会执行所有剩余批次。
 
-`BatchExecutionListener` 会在每个批次执行前后收到通知，`BatchExecution` 暴露了 SQL 语句 `statement`、实体元数据
-`entityMetadata`、实际插入属性列表 `properties`、是否处理自增主键 `autoGenerateId` 以及当前批次收集到的实体集合 `entities`，
-并通过 `getAffectedRows()` 返回该批次累计受影响的行数。监听器可通过 `@Order` / `Ordered` 排序。
+`BatchExecutionListener` 会在每次批次执行前后收到通知。`BatchExecution` 的 `getOperation()` 区分插入和更新，
+`getStatement()`、`getEntityMetadata()`、`getProperties()`、`isAutoGenerateId()` 和 `getEntities()` 提供本次执行的上下文。
+`getAffectedRows()` 是同一个 `PreparedStatement` 已累计的影响行数，不只是本次 `executeBatch()` 的结果。
+监听器可通过 `@Order` / `Ordered` 排序。
 批量插入的准确影响行数取决于 JDBC 驱动。所有计数已知时按实际影响行数累加；
 任一计数为 `Statement.SUCCESS_NO_INFO`（`-2`）时，累计计数和 `persist` 返回值也为 `SUCCESS_NO_INFO`，
 即使其他结果的行数已知也不例外。该值表示执行成功但总影响行数未知，不表示失败或输入实体数量，
@@ -18,7 +20,7 @@
 == 主键生成与属性选择
 
 批量插入为每个实体调用 `onPrePersist`，随后生成尚未赋值的应用主键，再绑定参数并加入 JDBC 批次。
-自定义 `IdGenerator` 每个实体调用一次，不会自动合并成一次远程 ID 服务请求。
+需要生成主键的实体会分别调用自定义 `IdGenerator`，不会自动合并成一次远程 ID 服务请求。
 UUID 或自定义生成型主键始终包含在 INSERT 中；数据库自增主键在批次执行后逐实体回填，
 返回主键不足时操作失败并回滚，不发送实体插入成功回调。
 
@@ -31,7 +33,9 @@ UUID 或自定义生成型主键始终包含在 INSERT 中；数据库自增主�
 UUID 和自定义生成器不请求；未声明生成策略的模型也不请求。
 数据库自增主键的批量返回能力和顺序取决于 JDBC 驱动。
 
-批量操作通过 `RepositoryManager` 开启事务；事务回滚不会清除实体已经获得的应用主键。
+批量操作通过 `RepositoryManager` 请求事务（默认 `REQUIRED`）。中途执行 JDBC batch 不会提交事务，
+加入外层事务时由外层事务决定最终提交；在参与范围内回滚失败批量调用，通常会把外层事务标记为仅回滚。
+事务回滚不会清除实体已经获得的主键。
 重试及新实体判断见 xref:data-access/persistence/entity-manager.adoc#persistence-persist-id[主键与插入流程]。
 
 [source,java,indent=0,subs="verbatim,quotes"]
@@ -40,7 +44,7 @@ class LoggingBatchListener implements BatchExecutionListener {
 
   @Override
   public void preProcessing(BatchExecution execution, boolean implicitExecution) {
-    // execution.statement, execution.entities
+    // execution.getStatement(), execution.getEntities()
   }
 
   @Override
@@ -78,10 +82,10 @@ int selectedCount = entityManager.updateById(entities, strategy);
 返回 `0` 等非预期行数时触发乐观锁异常；返回 `SUCCESS_NO_INFO` 时，由于无法验证乐观锁，
 操作会报错并回滚，而不是返回未知总行数。如果驱动不能提供准确的批量计数，应改用逐条更新带版本的实体。
 
-所有更新在同一事务中执行，失败会回滚；事务传播配置与批量插入一致。
-实体上的审计值和递增版本，以及已发送的回调不会随数据库回滚恢复。
-更新成功后逐实体调用 `onPostUpdate`，执行失败调用相应的 `onUpdateFailed`；
-后置回调不表示事务提交。`BatchExecutionListener` 接收批量更新通知，
-其 `BatchExecution.getAffectedRows()` 同样可能返回 `SUCCESS_NO_INFO`。
+事务传播配置与批量插入一致。批量更新调用内部失败时会尝试回滚未完成的事务，并恢复本次调用记录的旧版本。
+若调用成功后外层事务才回滚，则不会恢复内存版本；已填充的审计值和已发送的回调也不会撤销。
+每个批次执行成功并校验行数后逐实体调用 `onPostUpdate`；执行阶段的失败由
+`BatchExecutionListener.postProcessing` 接收，不会逐实体调用 `onUpdateFailed`。
+后置回调不表示事务提交。
 
 若多行统一写入相同值，应优先使用一条带条件的 UPDATE，而非构造多个实体。

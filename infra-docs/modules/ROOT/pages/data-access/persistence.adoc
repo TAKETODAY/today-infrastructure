@@ -3,24 +3,28 @@
 :page-section-summary-toc: 1
 
 `infra-persistence` 在 xref:data-access/jdbc.adoc[JDBC] 抽象之上提供了一个轻量级的实体持久化层。
-它不依赖 JPA/Hibernate，而是通过注解与运行时元数据把 Java 对象映射到关系表，并由
-`EntityManager` 统一负责增删改查、示例查询、分页、乐观锁与生命周期事件。
+它不依赖 JPA/Hibernate，也不提供 JPA 的实体上下文、一级缓存或脏检查；框架通过注解与运行时元数据
+把 Java 对象映射到关系表，并由 `EntityManager` 负责 SQL 写入、条件查询、分页、主键生成、乐观锁与生命周期事件。
+
+它更适合希望直接控制 SQL 形状、事务边界和实体映射，同时又不想重复编写基础 JDBC CRUD 代码的应用。
+复杂查询可以直接实现 `QueryStatement` / `QueryCondition`，而不是被限制在示例查询的表达能力内。
 
 本部分按层次拆分介绍持久化框架的各个方面：
 
 == 配置与映射
 
-* xref:data-access/persistence/configuration.adoc[自动配置与依赖]：引入即用、配置属性与可定制组件。
+* xref:data-access/persistence/configuration.adoc[自动配置与依赖]：自动配置条件、配置属性和可定制组件。
 * xref:data-access/persistence/mapping.adoc[实体映射]：表 / 列 / 主键 / 版本映射、`@EntityRef` 引用实体与可插拔元数据工厂。
 * xref:data-access/persistence/mapping.adoc#persistence-id-generation[主键生成策略]：数据库自增、UUID、自定义 / 分布式 ID 生成器、依赖注入与 Meta 注解。
 
 == 运行时 API
 
-* xref:data-access/persistence/entity-manager.adoc[`EntityManager`]：`persist` / `update` / `updateById` / `saveOrUpdate` / `delete` / `truncate` / `find*` / `count` / `page` / `iterate` 等完整 API。
+* xref:data-access/persistence/entity-manager.adoc[`EntityManager`]：`persist` / `update` / `updateById` / `saveOrUpdate` / `delete` / `truncate` / `find*` / `count` / `page` / `slice` / `scroll` / `iterate` 等 API。
 * xref:data-access/persistence/query-by-example.adoc[查询条件 (QueryCondition) 与示例查询]：通用查询抽象 `QueryCondition`、条件注解（`@Where`、`@Like`、`@In`、`@Between`、`@Subquery` 等）、注解优先级与 `ORDER BY` 解析。
 * xref:data-access/persistence/update-strategy.adoc[属性更新策略]：精细控制哪些字段参与更新。
 * xref:data-access/persistence/version.adoc[乐观锁]：基于 `@Version` 的并发控制。
-* xref:data-access/persistence/paging.adoc[分页]：`Pageable` / `Page` / `Order`。
+* xref:data-access/persistence/paging.adoc[分页]：`Pageable` / `Page` / `Slice` / `Order`。
+* xref:data-access/persistence/scrolling.adoc[滚动查询]：基于 keyset 的 `Scroll` / `ScrollPageable` / `ScrollPosition`，适合大结果集遍历。
 
 == 事件与批处理
 
@@ -31,6 +35,34 @@
 == 底层构件
 
 * xref:data-access/persistence/sql.adoc[SQL 构建与数据库平台]：`Restriction` / `Condition` 分层、`Restrictions` 工厂、`OrderSpec` 与 `Platform`。
+
+== 快速选择
+
+[%header,cols="1,2,3"]
+|===
+|需求 |建议 API |说明
+
+|插入或修改单个实体
+|`persist` / `update` / `saveOrUpdate`
+|操作返回 JDBC 影响行数；不会因为调用 API 就自动提交外层事务。
+
+|批量写入或按主键批量更新
+|`persist(Iterable)` / `persist(Stream)` / `updateById(Iterable)`
+|默认新建或加入事务，并按实体类型和有序写入列拆分 JDBC batch。
+
+|需要总记录数的页码分页
+|`page`
+|先统计总数；总数非零时再读取当前页。
+
+|只需要判断是否还有下一页
+|`slice`
+|不执行 count，而是多读取一行来判断 `hasNext`。
+
+|按游标持续遍历大结果集
+|`scroll`
+|使用 keyset 条件，不使用越来越大的 offset；必须有结构化排序键。
+
+|===
 
 == 延伸阅读
 

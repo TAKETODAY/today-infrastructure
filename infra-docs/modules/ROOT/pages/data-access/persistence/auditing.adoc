@@ -13,10 +13,10 @@
 persistence.auditing-enabled=true
 ----
 
-注册一个 `AuditorAware<T>` Bean，提供当前用户或系统身份。
+如需记录身份，注册一个 `AuditorAware<T>` bean，提供当前用户或系统身份；不提供时仍可填充时间。
 操作者值直接赋给审计属性，类型必须与目标属性兼容；返回 `null` 时保留实体上的原值。
 时间默认使用 UTC 系统时钟，可以注册 `Clock` Bean 替换。
-自定义 `AuditingEntityListener` Bean 会替代自动配置创建的默认监听器。
+显式注册 `AuditingEntityListener` bean 不受该开关控制。若同时替换了 `EntityEventRegistry`，须自行将监听器加入注册表。
 
 手动创建 `DefaultEntityManager` 时，注册监听器即可启用审计：
 

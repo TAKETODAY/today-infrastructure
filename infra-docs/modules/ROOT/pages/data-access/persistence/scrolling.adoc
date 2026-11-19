@@ -1,0 +1,108 @@
+[[persistence-scrolling]]
+= 滚动查询
+
+`scroll` 使用 keyset（也称 seek）分页返回一个个窗口，不依赖越来越大的 `OFFSET`。
+它适合导出、后台任务和需要遍历大量记录的接口。每个窗口只多读取一行来判断是否还有下一窗口，
+不会执行总数查询。
+
+== 基本用法
+
+滚动查询必须能够解析出结构化排序键。下面通过 `OrderSpecSource` 提供排序，通过 `ScrollPageable` 单独传递游标。
+假设 `User` 映射了非空的 `createdAt` 和 `id`，其中数据库列 `created_at` 对应属性 `createdAt`：
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+@EntityRef(User.class)
+class UserQuery implements OrderSpecSource {
+
+  @Like
+  String name;
+
+  @Override
+  public OrderSpec orderSpec() {
+    return OrderSpec.desc("created_at"); // 未列出的主键 id 自动追加为 DESC
+  }
+}
+
+UserQuery query = new UserQuery();
+query.name = "Jo";
+ScrollPageable request = ScrollPageable.of(100);
+
+Scroll<User> window = entityManager.scroll(User.class, query, request);
+while (true) {
+  ScrollPosition next = window.nextPosition();
+  for (User user : window) {
+    process(user);
+  }
+  if (next == null) {
+    break;
+  }
+  window = entityManager.scroll(User.class, query, request.withPosition(next));
+}
+----
+
+`ScrollPageable.of(size)` 不传入游标；续查时使用 `withPosition(next)` 从该位置之后继续，不再返回该行。
+`ScrollIterator` 可按需请求下一窗口；与持有 `ResultSet` 的 `EntityIterator` 不同，它遍历的是每次查询已读取的窗口：
+
+[source,java]
+----
+ScrollIterator<User> users = ScrollIterator.of(
+        position -> entityManager.scroll(User.class, query, request.withPosition(position)));
+users.forEachRemaining(this::process); // process 不修改排序属性
+----
+
+== 排序与游标要求
+
+* 优先使用查询解析出的排序；没有排序时，可从游标条目取得排序。
+* 若结果实体有主键且尚未参与排序，框架将其追加为最后一个键，沿用前一个键的方向；没有其他键时使用主键升序。
+  没有主键时，应用须提供能唯一标识记录的排序组合。
+* 排序键必须映射到结果实体的属性，不能重复，查出的排序值不能为 `null`。`@OrderByClause`、`OrderSpec.plain(...)` 和
+  `OrderSpec.builder().raw(...)` 提供的原始 SQL 片段不能用于 keyset 排序。
+* 续查游标必须包含全部排序键（包括自动追加的主键），使用 Java 属性名，顺序和方向与查询一致，值与属性类型兼容。
+  `ScrollPosition` 要求值全空（仅声明初始排序）或全非空（续查）。
+
+多次窗口查询不自动建立跨窗口的快照。业务上应尽量选用稳定的排序键；数据或筛选条件在遍历过程中改变时，结果可能重复或遗漏。
+
+== Scroll API
+
+* `Scroll.rows()`：当前窗口的行。不要修改列表，也不要在提取位置前修改行的排序属性。
+* `Scroll.isLast()` / `hasNext()`：是否还有下一窗口。
+* `Scroll.positionAt(index)`：当前窗口中指定行的位置，下标从 `0` 开始。
+* `Scroll.position()`：最后一行的位置；空窗口调用会抛出异常。
+* `Scroll.nextPosition()`：最后窗口或空窗口返回 `null`，否则返回可用于下一次请求的位置。
+
+`ScrollPageable.pageSize` 必须在 `1` 到 `Integer.MAX_VALUE - 1` 之间，因为框架需要多读取一行。
+
+== 由示例对象提供游标
+
+当游标来自 HTTP 请求或消息时，可以让示例对象实现 `ScrollPositionSource`，用类型化属性构建位置。
+以下按 `age ASC, id ASC` 查询，两个游标字段要么同时为空，要么同时提供：
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+@EntityRef(User.class)
+class UserCursor implements ScrollPositionSource {
+
+  @OrderBy(order = 0)
+  Integer age;
+
+  @OrderBy(order = 1)
+  Long id;
+
+  @Override
+  public ScrollPosition scrollPosition() {
+    return ScrollPosition.builder()
+            .asc("age", age) // 全为空时仅声明初始排序
+            .asc("id", id)
+            .build();
+  }
+}
+----
+
+示例对象和 `ScrollPageable` 不能同时提供游标；同时提供时框架会抛出
+`IllegalArgumentException`，不会静默选择其中一个。使用上述示例对象时，每次传入不带游标的 `ScrollPageable.of(size)`。
+默认示例查询也能从示例自身的 `@OrderBy` 属性自动构造位置；被识别为游标条目的属性不再作为等值条件。
+若要显式从 `ScrollPageable` 提供位置，又要用示例上的 `@OrderBy` 声明排序，可让示例实现 `ScrollPositionSource` 并返回 `null`，禁用自动提取。
+
+`ScrollPosition` 是内部查询坐标，
+对外传输时应使用应用自己的 DTO 或安全的编码格式，不要直接信任客户端提交的列名和排序方向。
