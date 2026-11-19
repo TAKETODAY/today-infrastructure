@@ -59,7 +59,7 @@ import infra.web.context.support.SessionScope;
 @DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(SessionProperties.class)
-class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor, SmartInitializingSingleton {
+final class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor, SmartInitializingSingleton {
 
   volatile boolean destructionCallbackRegistered;
 
@@ -172,8 +172,8 @@ class WebSessionConfiguration implements MergedBeanDefinitionPostProcessor, Smar
   @Component(RedirectModelManager.BEAN_NAME)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(value = RedirectModelManager.class, name = RedirectModelManager.BEAN_NAME)
-  static SessionRedirectModelManager sessionRedirectModelManager(SessionManager sessionManager) {
-    return new SessionRedirectModelManager(sessionManager);
+  static SessionRedirectModelManager redirectModelManager() {
+    return new SessionRedirectModelManager();
   }
 
   @Override
