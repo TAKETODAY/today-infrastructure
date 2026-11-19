@@ -50,6 +50,8 @@ public class FilterConfiguration {
 过滤器通过 `doFilter(HttpContext, FilterChain)` 处理请求。通常只调用一次
 `chain.doFilter(http)`；重复调用会再次执行下游链，而不是从上次结束的位置继续。
 链的终点进入处理器查找、执行及返回值处理。
+调用 `HttpContext.forward(path)` 则直接重新查找目标处理器，不会重新执行过滤器链。
+参见 xref:web/webmvc/mvc-core/sequence.adoc#mvc-internal-forward[内部转发]。
 
 例如，两个过滤器的顺序值分别为 `0` 和 `10`，正常同步执行时顺序如下：
 

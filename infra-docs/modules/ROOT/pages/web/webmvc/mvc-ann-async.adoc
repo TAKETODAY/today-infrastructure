@@ -99,10 +99,13 @@ xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-configuration-mvc[配置好的]
 === 异常处理
 
 当您使用 `DeferredResult` 时，您可以选择调用 `setResult` 或使用异常调用 `setErrorResult`。
-在这两种情况下，Web MVC 都会继续处理该请求，它被视为 HTTP 处理器返回了给定的值，或者被视为它产生了给定的异常。
-然后，该异常会通过常规的异常处理机制（例如，调用 `@ExceptionHandler` 方法）进行处理。
+请求仍在处理时，`setResult` 提供的值按处理器的返回值处理；传给 `setErrorResult` 的异常则按处理器抛出的异常处理。
+如果响应尚未提交，Web MVC 可以走常规的异常处理流程，例如调用 `@ExceptionHandler` 方法。
 
-当您使用 `Callable` 时，也会有类似的处理逻辑，主要的区别在于结果是由 `Callable` 返回的，或者由它引发的异常。
+`Callable` 返回结果或抛出异常时，也遵循同样的规则。
+
+如果异步异常到达时响应已经提交（例如 SSE 已经发送第一条事件），`DispatcherHandler` 会完成请求并传播异常，
+不会再通过 MVC 异常处理器生成替代响应。此时不能更改已发送的状态码，也不能用错误响应替换已经写出的内容。
 
 
 [[mvc-ann-async-interception]]
