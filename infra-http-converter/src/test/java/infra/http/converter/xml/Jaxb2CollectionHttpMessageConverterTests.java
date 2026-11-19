@@ -29,11 +29,14 @@ import java.util.List;
 import java.util.Set;
 
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 
 import infra.core.ParameterizedTypeReference;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.http.MockHttpInputMessage;
+import infra.http.MediaType;
+import infra.http.MockHttpOutputMessage;
 import infra.http.converter.HttpMessageNotReadableException;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -42,6 +45,7 @@ import jakarta.xml.bind.annotation.XmlType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Test fixture for {@link Jaxb2CollectionHttpMessageConverter}.
@@ -68,6 +72,51 @@ public class Jaxb2CollectionHttpMessageConverterTests {
     rootElementSetType = new ParameterizedTypeReference<Set<RootElement>>() { }.getType();
     typeListType = new ParameterizedTypeReference<List<TestType>>() { }.getType();
     typeSetType = new ParameterizedTypeReference<Set<TestType>>() { }.getType();
+  }
+
+  @Test
+  void onlyReadsCollectionsWithAnExplicitJaxbElementType() {
+    var wildcard = new ParameterizedTypeReference<List<? extends RootElement>>() { }.getType();
+    var map = new ParameterizedTypeReference<java.util.Map<String, RootElement>>() { }.getType();
+    var unannotated = new ParameterizedTypeReference<List<String>>() { }.getType();
+    assertThat(this.converter.canRead(List.class, null)).isFalse();
+    assertThat(this.converter.canRead(List.class, null, null)).isFalse();
+    assertThat(this.converter.canRead(wildcard, null, null)).isFalse();
+    assertThat(this.converter.canRead(map, null, null)).isFalse();
+    assertThat(this.converter.canRead(unannotated, null, null)).isFalse();
+    assertThat(this.converter.canRead(this.rootElementListType, null, MediaType.TEXT_PLAIN)).isFalse();
+    assertThat(this.converter.canWrite(List.class, null)).isFalse();
+    assertThat(this.converter.canWrite(this.rootElementListType, null, null)).isFalse();
+    var readOnly = new Jaxb2CollectionHttpMessageConverter<List<RootElement>>();
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> readOnly.write(List.of(), this.rootElementListType, null, new MockHttpOutputMessage()));
+    assertThatExceptionOfType(infra.http.converter.HttpMessageNotWritableException.class)
+            .isThrownBy(() -> readOnly.write(List.of(), null, new MockHttpOutputMessage()))
+            .withCauseInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
+  void honorsTheDeclaredCharsetAndConcreteCollectionType() throws Exception {
+    var type = new ParameterizedTypeReference<java.util.ArrayList<TestType>>() { }.getType();
+    var charset = StandardCharsets.ISO_8859_1;
+    var input = new MockHttpInputMessage("<!-- before --><items>\n<item s=\"café\"/></items>".getBytes(charset));
+    input.getHeaders().setContentType(MediaType.APPLICATION_XML.withCharset(charset));
+    assertThat(this.converter.read(type, null, input)).isExactlyInstanceOf(java.util.ArrayList.class)
+            .containsExactly(new TestType("café"));
+    var empty = new MockHttpInputMessage("<items>\n</items>".getBytes(StandardCharsets.UTF_8));
+    var sorted = new ParameterizedTypeReference<java.util.SortedSet<TestType>>() { }.getType();
+    assertThat(this.converter.read(sorted, null, empty)).isInstanceOf(java.util.TreeSet.class).isEmpty();
+    assertThatIllegalArgumentException().isThrownBy(() -> this.converter.createCollection(java.util.AbstractList.class))
+            .withMessageContaining("Could not instantiate collection class");
+  }
+
+  @Test
+  void reportsInvalidXmlStreamWithTheInputMessage() {
+    var input = new MockHttpInputMessage("not XML".getBytes(StandardCharsets.UTF_8));
+    assertThatExceptionOfType(HttpMessageNotReadableException.class)
+            .isThrownBy(() -> this.converter.read(this.rootElementListType, null, input))
+            .withCauseInstanceOf(XMLStreamException.class)
+            .satisfies(error -> assertThat(error.getHttpInputMessage()).isSameAs(input));
   }
 
   @Test

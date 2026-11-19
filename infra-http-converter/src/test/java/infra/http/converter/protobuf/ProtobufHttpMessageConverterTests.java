@@ -28,13 +28,18 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import infra.http.MediaType;
+import infra.http.converter.HttpMessageConversionException;
+import infra.util.Feature;
+import infra.util.FeatureDetector;
 import infra.http.MockHttpInputMessage;
 import infra.http.MockHttpOutputMessage;
 import infra.http.protobuf.Msg;
 import infra.http.protobuf.SecondMsg;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 
 /**
  * Test suite for {@link ProtobufHttpMessageConverter}.
@@ -52,6 +57,45 @@ class ProtobufHttpMessageConverterTests {
 
   private final Msg testMsg = Msg.newBuilder().setFoo("Foo").setBlah(SecondMsg.newBuilder().setBlah(123).build()).build();
   private final MediaType testPlusProtoMediaType = MediaType.parseMediaType("application/vnd.example.public.v1+x-protobuf");
+
+  @Test
+  void retainsBinaryAndTextSupportWhenTheOptionalJsonLibraryIsUnavailable() throws IOException {
+    try (var features = mockStatic(FeatureDetector.class)) {
+      features.when(() -> FeatureDetector.isPresent(Feature.PROTOBUF_UTIL)).thenReturn(false);
+      var basic = new ProtobufHttpMessageConverter();
+      assertThat(basic.getSupportedMediaTypes()).containsExactly(ProtobufHttpMessageConverter.PROTOBUF,
+              ProtobufHttpMessageConverter.PLUS_PROTOBUF, MediaType.TEXT_PLAIN);
+      assertThat(basic.canRead(Msg.class, MediaType.APPLICATION_JSON)).isFalse();
+      assertThat(basic.canWrite(Msg.class, MediaType.APPLICATION_JSON)).isFalse();
+      var input = new MockHttpInputMessage(this.testMsg.toByteArray());
+      input.getHeaders().setContentType(MediaType.APPLICATION_OCTET_STREAM);
+      assertThat(basic.read(Msg.class, input)).isEqualTo(this.testMsg);
+      var output = new MockHttpOutputMessage();
+      basic.writeInternal(this.testMsg, output);
+      assertThat(output.getBodyAsBytes()).isEqualTo(this.testMsg.toByteArray());
+      var unsupported = new MockHttpOutputMessage();
+      unsupported.setContentType(MediaType.APPLICATION_XML);
+      basic.writeInternal(this.testMsg, unsupported);
+      assertThat(unsupported.getBodyAsBytes()).isEmpty();
+    }
+  }
+
+  @Test
+  void rejectsNonConstructibleMessagesAndUnsupportedJsonFormats() throws IOException {
+    assertThat(this.converter.canRead(Msg.class, MediaType.APPLICATION_XML)).isFalse();
+    assertThat(this.converter.canWrite(Msg.class, MediaType.APPLICATION_XML)).isFalse();
+    var input = new MockHttpInputMessage(new byte[0]);
+    assertThatExceptionOfType(HttpMessageConversionException.class)
+            .isThrownBy(() -> this.converter.read(Message.class, input)).withMessageContaining("no invocable newBuilder()");
+
+    var support = new ProtobufHttpMessageConverter.ProtobufJavaUtilSupport(JsonFormat.parser(), JsonFormat.printer());
+    assertThatExceptionOfType(HttpMessageConversionException.class)
+            .isThrownBy(() -> support.merge(input, StandardCharsets.UTF_8, MediaType.APPLICATION_XML,
+                    this.extensionRegistry, Msg.newBuilder())).withMessageContaining("does not support parsing");
+    assertThatExceptionOfType(HttpMessageConversionException.class)
+            .isThrownBy(() -> support.print(this.testMsg, new MockHttpOutputMessage(), MediaType.APPLICATION_XML))
+            .withMessageContaining("does not support printing");
+  }
 
   @Test
   void canRead() {

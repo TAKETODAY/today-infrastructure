@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.xmlunit.diff.DifferenceEvaluator;
 
 import java.nio.charset.StandardCharsets;
+import javax.xml.transform.dom.DOMSource;
 
 import javax.xml.namespace.QName;
 
@@ -33,9 +34,14 @@ import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.core.testfixture.xml.XmlContent;
 import infra.http.MediaType;
+import infra.http.HttpHeaders;
 import infra.http.MockHttpInputMessage;
 import infra.http.MockHttpOutputMessage;
 import infra.http.converter.HttpMessageNotReadableException;
+import infra.http.converter.HttpMessageNotWritableException;
+import infra.http.converter.HttpMessageConversionException;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.JAXBElement;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
@@ -48,6 +54,9 @@ import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.mock;
+import static org.mockito.BDDMockito.given;
 import static org.xmlunit.diff.ComparisonType.XML_STANDALONE;
 import static org.xmlunit.diff.DifferenceEvaluators.Default;
 import static org.xmlunit.diff.DifferenceEvaluators.chain;
@@ -78,6 +87,58 @@ public class Jaxb2RootElementHttpMessageConverterTests {
     advisedSupport.setProxyTargetClass(true);
     AopProxy proxy = proxyFactory.createAopProxy(advisedSupport);
     rootElementCglib = (RootElement) proxy.getProxy();
+  }
+
+  @Test
+  void roundTripsTheDeclaredCharsetAndCachesTheJaxbContext() throws Exception {
+    var charset = StandardCharsets.ISO_8859_1;
+    var mediaType = MediaType.APPLICATION_XML.withCharset(charset);
+    this.rootElement.getType().s = "café";
+    var output = new MockHttpOutputMessage();
+    this.converter.write(this.rootElement, mediaType, output);
+    assertThat(output.getBodyAsString(charset)).contains("encoding=\"ISO-8859-1\"", "café");
+    for (int i = 0; i < 2; i++) {
+      var input = new MockHttpInputMessage("<rootElement><type s=\"café\"/></rootElement>".getBytes(charset));
+      input.getHeaders().setContentType(mediaType);
+      assertThat(((RootElement) this.converter.read(RootElement.class, input)).getType().s).isEqualTo("café");
+    }
+    assertThat(this.converter.getJaxbContext(RootElement.class)).isSameAs(this.converter.getJaxbContext(RootElement.class));
+    assertThat(this.converter.supportsRepeatableWrites(this.rootElement)).isTrue();
+    var dom = new DOMSource();
+    assertThat(this.converter.processSource(dom, HttpHeaders.forWritable())).isSameAs(dom);
+    this.converter.setProcessExternalEntities(false);
+    assertThat(this.converter.isProcessExternalEntities()).isFalse();
+  }
+
+  @Test
+  void rejectsUnannotatedTypesAndIncompatibleMediaTypes() {
+    assertThat(this.converter.canRead(String.class, MediaType.APPLICATION_XML)).isFalse();
+    assertThat(this.converter.canRead(RootElement.class, MediaType.TEXT_PLAIN)).isFalse();
+    assertThat(this.converter.canWrite(RootElement.class, MediaType.TEXT_PLAIN)).isFalse();
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> this.converter.supports(String.class));
+    assertThatExceptionOfType(HttpMessageNotWritableException.class)
+            .isThrownBy(() -> this.converter.write(new Type(), null, new MockHttpOutputMessage()))
+            .withMessageContaining("Could not marshal");
+  }
+
+  @Test
+  void preservesFailuresFromJaxbFactoryAndConverterSetup() throws Exception {
+    var failure = new JAXBException("provider failed");
+    JAXBContext context = mock();
+    given(context.createMarshaller()).willThrow(failure);
+    given(context.createUnmarshaller()).willThrow(failure);
+    try (var contexts = mockStatic(JAXBContext.class)) {
+      contexts.when(() -> JAXBContext.newInstance(RootElement.class)).thenReturn(context);
+      contexts.when(() -> JAXBContext.newInstance(Type.class)).thenThrow(failure);
+      assertThatExceptionOfType(HttpMessageConversionException.class)
+              .isThrownBy(() -> this.converter.getJaxbContext(Type.class)).withCause(failure);
+      assertThatExceptionOfType(HttpMessageConversionException.class)
+              .isThrownBy(() -> this.converter.read(RootElement.class, new MockHttpInputMessage(new byte[0])))
+              .withMessageStartingWith("Could not create Unmarshaller").withCause(failure);
+      assertThatExceptionOfType(HttpMessageConversionException.class)
+              .isThrownBy(() -> this.converter.write(this.rootElement, null, new MockHttpOutputMessage()))
+              .withMessageStartingWith("Could not create Marshaller").withCause(failure);
+    }
   }
 
   @Test

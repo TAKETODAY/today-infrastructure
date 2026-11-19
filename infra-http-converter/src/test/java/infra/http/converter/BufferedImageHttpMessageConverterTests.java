@@ -20,10 +20,14 @@ package infra.http.converter;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.ArgumentCaptor;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import javax.imageio.ImageIO;
 
@@ -32,9 +36,14 @@ import infra.core.io.Resource;
 import infra.http.MediaType;
 import infra.http.MockHttpInputMessage;
 import infra.http.MockHttpOutputMessage;
+import infra.http.StreamingHttpOutputMessage;
 import infra.util.FileCopyUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Unit tests for BufferedImageHttpMessageConverter.
@@ -62,6 +71,62 @@ public class BufferedImageHttpMessageConverterTests {
     assertThat(converter.canWrite(BufferedImage.class, null)).as("Image not supported").isTrue();
     assertThat(converter.canWrite(BufferedImage.class, new MediaType("image", "png"))).as("Image not supported").isTrue();
     assertThat(converter.canWrite(BufferedImage.class, new MediaType("*", "*"))).as("Image not supported").isTrue();
+  }
+
+  @Test
+  void rejectsUnsupportedTypesAndMissingDefaults() {
+    var png = new MediaType("image", "png");
+    var image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+    assertThat(this.converter.getSupportedMediaTypes()).contains(png);
+    assertThat(this.converter.canRead(String.class, png)).isFalse();
+    assertThat(this.converter.canWrite(String.class, png)).isFalse();
+    assertThat(this.converter.canRead(BufferedImage.class, MediaType.TEXT_PLAIN)).isFalse();
+    assertThat(this.converter.canWrite(BufferedImage.class, MediaType.TEXT_PLAIN)).isFalse();
+    assertThatIllegalArgumentException().isThrownBy(() -> this.converter.setDefaultContentType(MediaType.TEXT_PLAIN))
+            .withMessageContaining("not supported");
+    this.converter.setDefaultContentType(null);
+    assertThatIllegalArgumentException().isThrownBy(() -> this.converter.write(image, null, new MockHttpOutputMessage()))
+            .withMessageContaining("defaultContentType");
+    assertThatExceptionOfType(HttpMessageNotWritableException.class)
+            .isThrownBy(() -> this.converter.write(image, MediaType.TEXT_PLAIN, new MockHttpOutputMessage()))
+            .withMessageContaining("ImageWriter");
+  }
+
+  @Test
+  void requiresASupportedContentTypeWhenReading() {
+    var missing = new MockHttpInputMessage(new byte[0]);
+    assertThatExceptionOfType(HttpMessageNotReadableException.class)
+            .isThrownBy(() -> this.converter.read(BufferedImage.class, missing))
+            .withMessage("No Content-Type header");
+
+    var unsupported = new MockHttpInputMessage(new byte[0]);
+    unsupported.getHeaders().setContentType(MediaType.TEXT_PLAIN);
+    assertThatExceptionOfType(HttpMessageNotReadableException.class)
+            .isThrownBy(() -> this.converter.read(BufferedImage.class, unsupported))
+            .withMessageContaining("ImageReader");
+  }
+
+  @Test
+  void streamsRepeatablePngUsingATemporaryCacheDirectory(@TempDir Path directory) throws IOException {
+    assertThatIllegalArgumentException().isThrownBy(() -> this.converter.setCacheDir(directory.resolve("missing").toFile()))
+            .withMessageContaining("not a directory");
+    this.converter.setCacheDir(directory.toFile());
+    var png = new MediaType("image", "png");
+    this.converter.setDefaultContentType(png);
+    var image = new BufferedImage(2, 1, BufferedImage.TYPE_INT_RGB);
+    image.setRGB(1, 0, 0xff102030);
+    var output = mock(StreamingHttpOutputMessage.class);
+    this.converter.write(image, new MediaType("image", "*"), output);
+    verify(output).setContentType(png);
+    var captor = ArgumentCaptor.forClass(StreamingHttpOutputMessage.Body.class);
+    verify(output).setBody(captor.capture());
+    var body = captor.getValue();
+    assertThat(body.repeatable()).isTrue();
+    var bytes = new ByteArrayOutputStream();
+    body.writeTo(bytes);
+    var input = new MockHttpInputMessage(bytes.toByteArray());
+    input.getHeaders().setContentType(png);
+    assertThat(this.converter.read(BufferedImage.class, input).getRGB(1, 0)).isEqualTo(0xff102030);
   }
 
   @Test

@@ -40,6 +40,18 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stax.StAXSource;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.stream.StreamResult;
+
+import java.io.InputStream;
 
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
@@ -48,10 +60,19 @@ import infra.http.MediaType;
 import infra.http.MockHttpInputMessage;
 import infra.http.MockHttpOutputMessage;
 import infra.http.converter.HttpMessageNotReadableException;
+import infra.http.converter.HttpMessageNotWritableException;
 import infra.util.FileCopyUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willAnswer;
+import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -73,6 +94,95 @@ class SourceHttpMessageConverterTests {
     bodyExternal = "<!DOCTYPE root SYSTEM \"https://192.168.28.42/1.jsp\" [" +
             "  <!ELEMENT root ANY >\n" +
             "  <!ENTITY ext SYSTEM \"" + external.getURI() + "\" >]><root>&ext;</root>";
+  }
+
+  @Test
+  void translatesParserConfigurationAndInitializationFailures() throws Exception {
+    var domFactory = mock(DocumentBuilderFactory.class);
+    var saxFactory = mock(SAXParserFactory.class);
+    var staxFactory = mock(XMLInputFactory.class);
+    var configurationFailure = new ParserConfigurationException("parser unavailable");
+    var streamFailure = new XMLStreamException("reader unavailable");
+    willThrow(configurationFailure).given(domFactory).setFeature(anyString(), anyBoolean());
+    given(domFactory.newDocumentBuilder()).willThrow(configurationFailure);
+    given(saxFactory.newSAXParser()).willThrow(configurationFailure);
+    given(staxFactory.createXMLStreamReader(any(InputStream.class))).willThrow(streamFailure);
+    try (var dom = mockStatic(DocumentBuilderFactory.class);
+            var sax = mockStatic(SAXParserFactory.class);
+            var stax = mockStatic(XMLInputFactory.class)) {
+      dom.when(DocumentBuilderFactory::newInstance).thenReturn(domFactory);
+      sax.when(SAXParserFactory::newInstance).thenReturn(saxFactory);
+      stax.when(XMLInputFactory::newInstance).thenReturn(staxFactory);
+      var input = new MockHttpInputMessage(new byte[0]);
+      assertThatExceptionOfType(HttpMessageNotReadableException.class)
+              .isThrownBy(() -> this.converter.read(DOMSource.class, input))
+              .withMessageStartingWith("Could not set feature").withCause(configurationFailure);
+      assertThatExceptionOfType(HttpMessageNotReadableException.class)
+              .isThrownBy(() -> this.converter.read(SAXSource.class, input))
+              .withMessageStartingWith("Could not parse document").withCause(configurationFailure);
+      assertThatExceptionOfType(HttpMessageNotReadableException.class)
+              .isThrownBy(() -> this.converter.read(StAXSource.class, input))
+              .withMessageStartingWith("Could not parse document").withCause(streamFailure);
+    }
+  }
+
+  @Test
+  void diagnosesDomParserNullPointerWhenDtdSupportIsDisabled() throws Exception {
+    var factory = mock(DocumentBuilderFactory.class);
+    var builder = mock(DocumentBuilder.class);
+    var failure = new NullPointerException("parser failed");
+    given(factory.newDocumentBuilder()).willReturn(builder);
+    given(builder.parse(any(InputStream.class))).willThrow(failure);
+    try (var factories = mockStatic(DocumentBuilderFactory.class)) {
+      factories.when(DocumentBuilderFactory::newInstance).thenReturn(factory);
+      var input = new MockHttpInputMessage(new byte[0]);
+      assertThatExceptionOfType(HttpMessageNotReadableException.class)
+              .isThrownBy(() -> this.converter.read(DOMSource.class, input))
+              .withMessageContaining("DTD declarations").withCause(failure);
+      this.converter.setSupportDtd(true);
+      assertThatExceptionOfType(NullPointerException.class)
+              .isThrownBy(() -> this.converter.read(DOMSource.class, input)).isSameAs(failure);
+    }
+  }
+
+  @Test
+  void reusesParsersAndRebuildsThemAfterConfigurationChanges() throws Exception {
+    assertThat(this.converter.isSupportDtd()).isFalse();
+    assertThat(this.converter.isProcessExternalEntities()).isFalse();
+    byte[] bytes = BODY.getBytes(StandardCharsets.UTF_8);
+    for (boolean enabled : new boolean[] { true, false }) {
+      this.converter.setProcessExternalEntities(enabled);
+      assertThat(this.converter.isProcessExternalEntities()).isEqualTo(enabled);
+      assertThat(this.converter.isSupportDtd()).isTrue();
+      for (int i = 0; i < 2; i++) {
+        var dom = (DOMSource) this.converter.read(DOMSource.class, new MockHttpInputMessage(bytes));
+        assertThat(((Document) dom.getNode()).getDocumentElement().getTextContent()).isEqualTo("Hello World");
+        var sax = (SAXSource) this.converter.read(SAXSource.class, new MockHttpInputMessage(bytes));
+        assertThat(sax.getInputSource().getByteStream().readAllBytes()).isEqualTo(bytes);
+        var stax = (StAXSource) this.converter.read(StAXSource.class, new MockHttpInputMessage(bytes));
+        var reader = stax.getXMLStreamReader();
+        try {
+          reader.nextTag();
+          assertThat(reader.getElementText()).isEqualTo("Hello World");
+        }
+        finally {
+          reader.close();
+        }
+      }
+    }
+  }
+
+  @Test
+  void reportsUnsupportedSourceTypesAndInvalidTransformInput() {
+    class CustomSource extends StreamSource { }
+    var input = new MockHttpInputMessage(BODY.getBytes(StandardCharsets.UTF_8));
+    assertThatExceptionOfType(HttpMessageNotReadableException.class)
+            .isThrownBy(() -> this.converter.read(CustomSource.class, input))
+            .withMessageContaining("Only DOMSource, SAXSource, StAXSource, and StreamSource are supported");
+    var malformed = new StreamSource(new java.io.StringReader("<root>"));
+    assertThatExceptionOfType(HttpMessageNotWritableException.class)
+            .isThrownBy(() -> this.converter.write(malformed, null, new MockHttpOutputMessage()))
+            .withMessageContaining("Could not transform");
   }
 
   @Test
