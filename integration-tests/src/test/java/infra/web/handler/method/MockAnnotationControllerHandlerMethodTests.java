@@ -51,6 +51,8 @@ import java.util.UUID;
 
 import infra.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import infra.aop.interceptor.SimpleTraceInterceptor;
+import infra.aop.support.AopUtils;
+import infra.aop.support.ComposablePointcut;
 import infra.aop.support.DefaultPointcutAdvisor;
 import infra.beans.factory.BeanCreationException;
 import infra.beans.factory.annotation.Autowired;
@@ -367,14 +369,16 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
   @Test
   void sessionAttributeExposureWithInterface() throws Exception {
-    initDispatcher(MySessionAttributesControllerImpl.class, wac -> {
+    ApplicationContext context = initDispatcher(MySessionAttributesControllerImpl.class, wac -> {
       wac.registerBean("viewResolver", ModelExposingViewResolver.class);
       DefaultAdvisorAutoProxyCreator autoProxyCreator = new DefaultAdvisorAutoProxyCreator();
       autoProxyCreator.setBeanFactory(wac.getBeanFactory());
       autoProxyCreator.setProxyTargetClass(true);
       wac.getBeanFactory().addBeanPostProcessor(autoProxyCreator);
-      wac.getBeanFactory().registerSingleton("advisor", new DefaultPointcutAdvisor(new SimpleTraceInterceptor()));
+      var pointcut = new ComposablePointcut(MySessionAttributesControllerImpl.class::equals);
+      wac.getBeanFactory().registerSingleton("advisor", new DefaultPointcutAdvisor(pointcut, new SimpleTraceInterceptor()));
     });
+    assertThat(AopUtils.isCglibProxy(context.getBean(MySessionAttributesControllerImpl.class))).isTrue();
 
     MockRequest request = new MockRequest("GET", "/myPage");
     MockResponse response = new MockResponse();
