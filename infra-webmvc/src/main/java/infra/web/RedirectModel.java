@@ -28,7 +28,6 @@ import java.util.Objects;
 
 import infra.core.AttributeAccessor;
 import infra.core.Conventions;
-import infra.lang.NullValue;
 import infra.ui.Model;
 import infra.ui.ModelMap;
 import infra.util.MultiValueMap;
@@ -86,7 +85,10 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
   public static final String OUTPUT_ATTRIBUTE = Conventions.getQualifiedAttributeName(
           RedirectModel.class, "OUTPUT");
 
-  private static final String INPUT_CACHE_ATTRIBUTE = RedirectModel.class.getName() + ".inputCache";
+  private static final String INPUT_CACHE_ATTRIBUTE = Conventions.getQualifiedAttributeName(
+          RedirectModel.class, "INPUT_CACHE");
+
+  private static final Object NO_INPUT = new Object();
 
   // @since 4.0
   private @Nullable String targetRequestPath;
@@ -299,7 +301,7 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
     if (cached instanceof RedirectModel model) {
       return model;
     }
-    if (cached == NullValue.INSTANCE) {
+    if (cached == NO_INPUT) {
       return null;
     }
 
@@ -311,7 +313,7 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
     if (model == null && request.getAttribute(INPUT_ATTRIBUTE) instanceof RedirectModel attribute) {
       model = attribute;
     }
-    request.setAttribute(INPUT_CACHE_ATTRIBUTE, model != null ? model : NullValue.INSTANCE);
+    request.setAttribute(INPUT_CACHE_ATTRIBUTE, model != null ? model : NO_INPUT);
     return model;
   }
 

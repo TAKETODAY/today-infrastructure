@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import infra.core.DefaultAttributeAccessor;
 import infra.http.MediaType;
 import infra.http.server.PathContainer;
 import infra.lang.NullValue;
@@ -32,12 +33,47 @@ import infra.web.util.pattern.PathPattern;
 import infra.web.util.pattern.PathPatternParser;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/10 23:54
  */
 class HandlerMatchingMetadataTests {
+  @Test
+  void matchingMetadataUsesOnlyTheRequestAttributeContract() {
+    HttpContext request = mock(HttpContext.class);
+    var attributes = new DefaultAttributeAccessor();
+    given(request.getAttribute(anyString())).willAnswer(invocation -> attributes.getAttribute(invocation.getArgument(0)));
+    doAnswer(invocation -> {
+      attributes.setAttribute(invocation.getArgument(0), invocation.getArgument(1));
+      return null;
+    }).when(request).setAttribute(anyString(), any());
+    var wrapper = new DelegatingHttpContext(new DelegatingHttpContext(request));
+    assertThat(HandlerMatchingMetadata.has(wrapper)).isFalse();
+    assertThat(HandlerMatchingMetadata.find(wrapper)).isNull();
+    assertThatIllegalStateException().isThrownBy(() -> HandlerMatchingMetadata.obtain(wrapper))
+            .withMessage("HandlerMatchingMetadata is required");
+    assertThat(attributes.getAttributeNames()).isEmpty();
+
+    var original = new HandlerMatchingMetadata(createContext());
+    HandlerMatchingMetadata.set(request, original);
+    assertThat(HandlerMatchingMetadata.has(wrapper)).isTrue();
+    assertThat(HandlerMatchingMetadata.obtain(wrapper)).isSameAs(original);
+
+    var replacement = new HandlerMatchingMetadata(createContext());
+    HandlerMatchingMetadata.set(wrapper, replacement);
+    assertThat(HandlerMatchingMetadata.obtain(request)).isSameAs(replacement);
+
+    HandlerMatchingMetadata.set(wrapper, null);
+    assertThat(HandlerMatchingMetadata.find(request)).isNull();
+  }
+
   @Test
   void constructorWithHttpContext() {
     HttpContext request = createContext();

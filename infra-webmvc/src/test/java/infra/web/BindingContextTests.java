@@ -27,9 +27,11 @@ import infra.core.ResolvableType;
 import infra.ui.ModelMap;
 import infra.web.bind.WebDataBinder;
 import infra.web.bind.support.WebBindingInitializer;
+import infra.web.mock.MockHttpContext;
 import infra.web.view.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.mock;
 
@@ -38,6 +40,29 @@ import static org.mockito.Mockito.mock;
  * @since 5.0 2025/10/9 16:32
  */
 class BindingContextTests {
+  @Test
+  void bindingIsSharedByNestedDelegatesAndCanBeReplacedAndCleared() {
+    var request = new MockHttpContext();
+    var wrapper = new DelegatingHttpContext(new DelegatingHttpContext(request));
+    assertThat(BindingContext.has(wrapper)).isFalse();
+    assertThat(BindingContext.find(wrapper)).isNull();
+    assertThatIllegalStateException().isThrownBy(() -> BindingContext.obtain(wrapper))
+            .withMessage("BindingContext is required");
+    assertThat(request.getAttributeNames()).isEmpty();
+
+    var original = new BindingContext();
+    BindingContext.set(wrapper, original);
+    assertThat(BindingContext.has(request)).isTrue();
+    assertThat(BindingContext.obtain(request)).isSameAs(original);
+
+    var replacement = new BindingContext();
+    BindingContext.set(request, replacement);
+    assertThat(BindingContext.obtain(wrapper)).isSameAs(replacement);
+
+    BindingContext.set(wrapper, null);
+    assertThat(BindingContext.find(request)).isNull();
+  }
+
   @Test
   void constructor_ShouldCreateEmptyBindingContext() {
     BindingContext context = new BindingContext();
