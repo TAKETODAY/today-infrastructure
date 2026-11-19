@@ -502,14 +502,6 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
 
   protected abstract @Nullable String readQueryString();
 
-  /**
-   * Returns an array containing all of the <code>Cookie</code> objects the client
-   * sent with this request. This method returns <code>null</code> if no cookies
-   * were sent.
-   *
-   * @return an array of all the <code>Cookies</code> included with this request,
-   * or {@link #EMPTY_COOKIES} if the request has no cookies
-   */
   @Override
   public HttpCookie[] getCookies() {
     var cookies = this.cookies;
@@ -521,8 +513,8 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   }
 
   /**
-   * @return an array of all the Cookies included with this request,or
-   * {@link #EMPTY_COOKIES} if the request has no cookies
+   * Read the cookies sent with the request.
+   * @return the request cookies, or an empty array if none were sent
    */
   protected abstract HttpCookie[] readCookies();
 
@@ -556,25 +548,6 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     responseCookies().add(cookie);
   }
 
-  /**
-   * Removes all cookies with the specified name from the internal list of response cookies.
-   * If no cookies match the given name, or if the internal cookie list is null,
-   * the method will return null. Otherwise, it returns a list of removed cookies.
-   *
-   * <p>Example usage:
-   * <pre>{@code
-   *   // Assuming responseCookies contains: [cookie1(name="id"), cookie2(name="session")]
-   *   List<HttpCookie> removed = removeCookie("id");
-   *
-   *   // After execution:
-   *   // removed contains: [cookie1(name="id")]
-   *   // responseCookies now contains: [cookie2(name="session")]
-   * }</pre>
-   *
-   * @param name the name of the cookies to be removed; must not be null
-   * @return a list of {@link HttpCookie} objects that were removed, or null
-   * if no cookies were found or the internal cookie list is null
-   */
   @Override
   public @Nullable List<ResponseCookie> removeCookies(String name) {
     if (responseCookies != null) {
@@ -590,56 +563,11 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     return null;
   }
 
-  /**
-   * Checks if there are any response cookies available.
-   *
-   * <p>This method returns true if the {@code responseCookies} object is not null,
-   * indicating that there are cookies present in the response. Otherwise, it returns false.
-   *
-   * <p><b>Example Usage:</b>
-   * <pre>{@code
-   * if (httpRequest.hasResponseCookie()) {
-   *   // Process the response cookies
-   *   System.out.println("Response contains cookies.");
-   * }
-   * else {
-   *   // Handle the case where no cookies are present
-   *   System.out.println("No cookies in the response.");
-   * }
-   * }</pre>
-   *
-   * @return true if response cookies are present, false otherwise
-   */
   @Override
   public boolean hasResponseCookies() {
     return responseCookies != null && !responseCookies.isEmpty();
   }
 
-  /**
-   * Returns the list of response cookies associated with this object. If no
-   * cookies have been set previously, an empty list is initialized and returned.
-   *
-   * <p>This method ensures that a non-null list is always available for use.
-   * The returned list can be modified directly to add or remove cookies.
-   *
-   * <p><strong>Example Usage:</strong>
-   * <pre>{@code
-   *   // Retrieve the response cookies
-   *   ArrayList<HttpCookie> cookies = responseCookies();
-   *
-   *   // Add a new cookie to the list
-   *   cookies.add(new HttpCookie("sessionId", "12345"));
-   *
-   *   // Iterate through the cookies
-   *   for (HttpCookie cookie : responseCookies()) {
-   *     System.out.println("Cookie Name: " + cookie.getName());
-   *     System.out.println("Cookie Value: " + cookie.getValue());
-   *   }
-   * }</pre>
-   *
-   * @return a modifiable list of {@link HttpCookie} objects representing the
-   * response cookies. If no cookies exist, an empty list is returned.
-   */
   @Override
   public ArrayList<ResponseCookie> responseCookies() {
     var responseCookies = this.responseCookies;

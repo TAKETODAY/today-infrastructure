@@ -87,6 +87,10 @@ public void doFilter(HttpContext http, FilterChain chain) throws Exception {
 同步处理返回时，响应可能已经提交、请求也可能已经完成，
 因此应在调用过滤链之前设置响应头，不要把后置逻辑当作修改响应结果的入口。
 
+注册生命周期回调时，如果不指定名称，每次注册都独立生效。例如，将同一个 `Runnable` 注册两次作为完成回调，请求完成时它会执行两次。
+要取消其中一次注册，请在该阶段开始触发回调之前调用 `removeCallback(phase, name)`，传入注册时的阶段和该次注册返回的名称。
+如果希望后注册的回调替换先前的回调，请使用 `registerCallback(phase, name, callback)`，在同一阶段显式指定相同名称。
+
 == 与 HandlerInterceptor 的区别
 
 [cols="1,2,2",options="header"]
