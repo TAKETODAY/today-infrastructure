@@ -19,20 +19,30 @@
 package infra.http.client;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.reactivestreams.FlowAdapters;
 
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
+import java.util.concurrent.atomic.AtomicReference;
 
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIOException;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.willAnswer;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -62,6 +72,104 @@ class OutputStreamPublisherTests {
               return result;
             }
           };
+
+  @Test
+  void rejectsANonPositiveChunkSize() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> new OutputStreamPublisher<>(output -> { }, this.byteMapper, Runnable::run, 0))
+            .withMessage("ChunkSize must be larger than 0");
+  }
+
+  @Test
+  void propagatesAWriterFailureAfterFlushedData() {
+    var failure = new IOException("write failed");
+    var publisher = new OutputStreamPublisher<>(output -> {
+      output.write(FOO);
+      output.flush();
+      throw failure;
+    }, this.byteMapper, Runnable::run, null);
+
+    StepVerifier.create(toString(publisher)).expectNext("foo")
+            .expectErrorSatisfies(error -> assertThat(error).isSameAs(failure)).verify();
+  }
+
+  @Test
+  void emitsInvalidDemandErrorEvenWhenTheWriterProducesNoData() {
+    var task = new AtomicReference<Runnable>();
+    var publisher = new OutputStreamPublisher<>(output -> { }, this.byteMapper, task::set, null);
+    Flow.Subscriber<byte[]> subscriber = mock();
+    var subscription = ArgumentCaptor.forClass(Flow.Subscription.class);
+    publisher.subscribe(subscriber);
+    verify(subscriber).onSubscribe(subscription.capture());
+    subscription.getValue().request(1);
+    subscription.getValue().request(0);
+
+    task.get().run();
+
+    var error = ArgumentCaptor.forClass(Throwable.class);
+    verify(subscriber).onError(error.capture());
+    assertThat(error.getValue()).isInstanceOf(IllegalArgumentException.class).hasMessage("request should be a positive number");
+    verifyNoMoreInteractions(subscriber);
+  }
+
+  @Test
+  void completesSilentlyWhenCancelledBeforeAnEmptyWrite() {
+    var publisher = new OutputStreamPublisher<>(output -> { }, this.byteMapper, Runnable::run, null);
+    Flow.Subscriber<byte[]> subscriber = mock();
+    willAnswer(invocation -> {
+      Flow.Subscription subscription = invocation.getArgument(0);
+      subscription.cancel();
+      return null;
+    }).given(subscriber).onSubscribe(any());
+
+    publisher.subscribe(subscriber);
+
+    verify(subscriber).onSubscribe(any());
+    verifyNoMoreInteractions(subscriber);
+  }
+
+  @Test
+  void ignoresRepeatedCancellationAndDoesNotNotifyTheCancelledSubscriber() {
+    var task = new AtomicReference<Runnable>();
+    var publisher = new OutputStreamPublisher<>(output -> output.write(FOO), this.byteMapper, task::set, null);
+    Flow.Subscriber<byte[]> subscriber = mock();
+    var subscription = ArgumentCaptor.forClass(Flow.Subscription.class);
+    publisher.subscribe(subscriber);
+    verify(subscriber).onSubscribe(subscription.capture());
+    subscription.getValue().request(1);
+    subscription.getValue().cancel();
+    subscription.getValue().cancel();
+    subscription.getValue().request(1);
+    subscription.getValue().request(0);
+
+    task.get().run();
+
+    verifyNoMoreInteractions(subscriber);
+  }
+
+  @Test
+  void saturatesDemandRatherThanOverflowing() {
+    var task = new AtomicReference<Runnable>();
+    var publisher = new OutputStreamPublisher<>(output -> {
+      output.write(FOO);
+      output.flush();
+      output.write(BAR);
+    }, this.byteMapper, task::set, null);
+    Flow.Subscriber<byte[]> subscriber = mock();
+    var subscription = ArgumentCaptor.forClass(Flow.Subscription.class);
+    publisher.subscribe(subscriber);
+    verify(subscriber).onSubscribe(subscription.capture());
+    subscription.getValue().request(Long.MAX_VALUE - 1);
+    subscription.getValue().request(3);
+    subscription.getValue().request(1);
+
+    task.get().run();
+
+    var order = inOrder(subscriber);
+    order.verify(subscriber).onNext(FOO);
+    order.verify(subscriber).onNext(BAR);
+    order.verify(subscriber).onComplete();
+  }
 
   @Test
   void basic() {

@@ -24,11 +24,14 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -36,12 +39,178 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIOException;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2024/11/23 10:27
  */
 class SubscriberInputStreamTests {
+
+  @Test
+  void rejectsNonPositiveDemand() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> new SubscriberInputStream<byte[]>(bytes -> bytes, bytes -> { }, 0))
+            .withMessage("demand must be greater than 0");
+  }
+
+  @Test
+  void drainsPendingBytesBeforePropagatingAnUpstreamError() throws IOException {
+    var failure = new IllegalStateException("upstream failed after data");
+    try (var stream = new SubscriberInputStream<byte[]>(bytes -> bytes, bytes -> { }, 2)) {
+      stream.onSubscribe(mock());
+      stream.onNext(FOO);
+      stream.onError(failure);
+
+      byte[] result = new byte[FOO.length + 1];
+      assertThat(stream.read(result)).isEqualTo(FOO.length);
+      assertThat(result).startsWith(FOO);
+      assertThatThrownBy(stream::read).isSameAs(failure);
+    }
+  }
+
+  @Test
+  void cancelsADuplicateSubscriptionAndDiscardsDataAfterClose() throws IOException {
+    Flow.Subscription first = mock();
+    Flow.Subscription duplicate = mock();
+    List<byte[]> discarded = new ArrayList<>();
+    var stream = new SubscriberInputStream<byte[]>(bytes -> bytes, discarded::add, 1);
+    stream.onSubscribe(first);
+    stream.onSubscribe(duplicate);
+    stream.onNext(FOO);
+    stream.close();
+    stream.onNext(BAR);
+
+    assertThat(stream.read()).isEqualTo(-1);
+    assertThat(stream.read(new byte[1])).isEqualTo(-1);
+    assertThat(discarded).containsExactly(FOO, BAR);
+    verify(first).request(1);
+    verify(duplicate).cancel();
+    verify(duplicate, never()).request(1);
+  }
+
+  @Test
+  void readsBufferedDataBeforeReportingOverflowAndDiscardsSubsequentBuffers() throws IOException {
+    Flow.Subscription subscription = mock();
+    List<byte[]> discarded = new ArrayList<>();
+    try (var stream = new SubscriberInputStream<byte[]>(bytes -> bytes, discarded::add, 1)) {
+      stream.onSubscribe(subscription);
+      stream.onNext(FOO);
+      stream.onNext(BAR);
+      stream.onNext(BAZ);
+      stream.onComplete();
+      stream.onError(new IllegalStateException("late error"));
+
+      byte[] result = new byte[8];
+      assertThat(stream.read(result, 1, 0)).isZero();
+      assertThat(stream.read(result, 1, 7)).isEqualTo(3);
+      assertThat(result).containsExactly(0, 'f', 'o', 'o', 0, 0, 0, 0);
+      assertThatThrownBy(() -> stream.read(result)).hasMessage("Buffer overflow");
+      assertThat(discarded).containsExactly(BAR, BAZ);
+      verify(subscription).cancel();
+    }
+  }
+
+  @Test
+  void propagatesUpstreamErrorFromSingleByteRead() throws IOException {
+    Flow.Subscription subscription = mock();
+    var failure = new IllegalStateException("upstream failed");
+    try (var stream = new SubscriberInputStream<byte[]>(bytes -> bytes, bytes -> { }, 1)) {
+      stream.onSubscribe(subscription);
+      stream.onError(failure);
+      assertThatThrownBy(stream::read).isSameAs(failure);
+      verify(subscription).cancel();
+    }
+  }
+
+  @Test
+  void returnsEndOfStreamAfterCompletionWithoutData() throws IOException {
+    try (var stream = new SubscriberInputStream<byte[]>(bytes -> bytes, bytes -> { }, 1)) {
+      stream.onSubscribe(mock());
+      stream.onComplete();
+      assertThat(stream.read()).isEqualTo(-1);
+    }
+  }
+
+  @Test
+  void propagatesInterruptionBeforeAnyBytesAreRead() throws IOException {
+    Flow.Subscription subscription = mock();
+    try (var stream = new SubscriberInputStream<byte[]>(bytes -> bytes, bytes -> { }, 1)) {
+      stream.onSubscribe(subscription);
+      Thread.currentThread().interrupt();
+      assertThatIOException().isThrownBy(() -> stream.read(new byte[1]))
+              .isInstanceOf(InterruptedIOException.class);
+      assertThat(Thread.currentThread().isInterrupted()).isTrue();
+      verify(subscription).cancel();
+    }
+    finally {
+      Thread.interrupted();
+    }
+  }
+
+  @Test
+  void rejectsConcurrentReadsButAllowsCloseWhileAnotherReaderOwnsTheStream() throws Exception {
+    Flow.Subscription subscription = mock();
+    var mapping = new CountDownLatch(1);
+    var release = new CountDownLatch(1);
+    try (var stream = new SubscriberInputStream<byte[]>(bytes -> {
+      mapping.countDown();
+      try {
+        if (!release.await(5, TimeUnit.SECONDS)) {
+          throw new AssertionError("Reader was not released");
+        }
+      }
+      catch (InterruptedException ex) {
+        Thread.currentThread().interrupt();
+        throw new AssertionError(ex);
+      }
+      return bytes;
+    }, bytes -> { }, 1)) {
+      stream.onSubscribe(subscription);
+      stream.onNext(FOO);
+      var read = new FutureTask<>(() -> stream.read(new byte[FOO.length + 1]));
+      Thread reader = new Thread(read, "subscriber-input-stream-reader");
+      reader.setDaemon(true);
+      reader.start();
+      try {
+        assertThat(mapping.await(5, TimeUnit.SECONDS)).isTrue();
+        assertThatThrownBy(stream::read).isInstanceOf(ConcurrentModificationException.class);
+        assertThatThrownBy(() -> stream.read(new byte[1])).isInstanceOf(ConcurrentModificationException.class);
+        stream.close();
+        assertThat(stream.read()).isEqualTo(-1);
+        assertThat(stream.read(new byte[1])).isEqualTo(-1);
+      }
+      finally {
+        release.countDown();
+      }
+      assertThat(read.get(5, TimeUnit.SECONDS)).isEqualTo(-1);
+      verify(subscription).cancel();
+    }
+  }
+
+  @Test
+  void requiresASubscriptionBeforeClosingAndContinuesCleanupWhenDiscardFails() throws IOException {
+    var unsubscribed = new SubscriberInputStream<byte[]>(bytes -> bytes, bytes -> { }, 1);
+    assertThatIllegalStateException().isThrownBy(unsubscribed::close).withMessageContaining("must be subscribed");
+
+    List<byte[]> discarded = new ArrayList<>();
+    var stream = new SubscriberInputStream<byte[]>(bytes -> bytes, bytes -> {
+      discarded.add(bytes);
+      if (bytes == FOO) {
+        throw new IllegalStateException("discard failed");
+      }
+    }, 2);
+    stream.onSubscribe(mock());
+    stream.onNext(FOO);
+    stream.onNext(BAR);
+    stream.close();
+    assertThat(discarded).containsExactly(FOO, BAR);
+  }
 
   @Test
   void interruptWhileAwaitingData() throws InterruptedException {
