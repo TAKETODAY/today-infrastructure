@@ -118,6 +118,132 @@ class LazyConnectionDataSourceProxyTests {
   }
 
   @Test
+  void credentialsAndReadOnlyFlagSelectPhysicalDataSourceLazily() throws SQLException {
+    DataSource writable = mock();
+    DataSource readOnly = mock();
+    Connection primary = mock();
+    Connection replica = mock();
+    when(writable.getConnection("user", "secret")).thenReturn(primary);
+    when(readOnly.getConnection("reader", "secret")).thenReturn(replica);
+    lazyProxy.setTargetDataSource(writable);
+    lazyProxy.setReadOnlyDataSource(readOnly);
+
+    try (var reader = lazyProxy.getConnection("reader", "secret");
+            var writer = lazyProxy.getConnection("user", "secret")) {
+      reader.setReadOnly(true);
+      assertThat(reader.isReadOnly()).isTrue();
+      assertThat(writer.isReadOnly()).isFalse();
+      assertThat(reader.isWrapperFor(ConnectionProxy.class)).isTrue();
+      assertThat(reader.unwrap(ConnectionProxy.class)).isSameAs(reader);
+      assertThat(reader).isNotEqualTo(writer);
+      assertThat(reader.hashCode()).isEqualTo(System.identityHashCode(reader));
+      verify(readOnly, never()).getConnection("reader", "secret");
+      verify(writable, never()).getConnection("user", "secret");
+
+      assertThat(reader.unwrap(ConnectionProxy.class).getTargetConnection()).isSameAs(replica);
+      assertThat(writer.unwrap(ConnectionProxy.class).getTargetConnection()).isSameAs(primary);
+      reader.setReadOnly(false);
+      assertThat(reader.hashCode()).isEqualTo(System.identityHashCode(reader));
+      verify(replica, never()).setReadOnly(true);
+      verify(replica, never()).setReadOnly(false);
+    }
+    verify(replica).close();
+    verify(primary).close();
+  }
+
+  @Test
+  void readOnlyDataSourceCanBeUsedAsSoleTarget() throws SQLException {
+    DataSource readOnly = mock();
+    Connection physical = mock();
+    when(readOnly.getConnection()).thenReturn(physical);
+    lazyProxy.setReadOnlyDataSource(readOnly);
+
+    try (var connection = lazyProxy.getConnection()) {
+      assertThat(connection.isReadOnly()).isTrue();
+      assertThat(connection.unwrap(ConnectionProxy.class).getTargetConnection()).isSameAs(physical);
+    }
+    verify(physical).close();
+  }
+
+  @Test
+  void closedUninitializedHandleRejectsStatementCreationWithoutBorrowing() throws SQLException {
+    DataSource dataSource = mock();
+    lazyProxy.setTargetDataSource(dataSource);
+
+    var connection = lazyProxy.getConnection();
+    assertThat(connection.isClosed()).isFalse();
+    assertThat(connection.toString()).contains("Lazy Connection proxy");
+    connection.commit();
+    connection.rollback();
+    connection.close();
+
+    assertThat(connection.isClosed()).isTrue();
+    assertThatExceptionOfType(SQLException.class).isThrownBy(() -> establishPhysicalConnection(connection))
+            .withMessageContaining("connection is closed");
+    verify(dataSource, never()).getConnection();
+  }
+
+  @Test
+  void failedSettingsLeaveHandleAvailableToRetryWithFreshPhysicalConnection() throws SQLException {
+    DataSource dataSource = mock();
+    Connection first = mock();
+    Connection second = mock();
+    var failure = new SQLException("schema rejected");
+    when(dataSource.getConnection()).thenReturn(first, second);
+    doThrow(failure).when(first).setSchema("app");
+    doThrow(new SQLException("close failed")).when(first).close();
+    lazyProxy.setTargetDataSource(dataSource);
+
+    try (var connection = lazyProxy.getConnection()) {
+      connection.setSchema("app");
+      assertThatExceptionOfType(SQLException.class).isThrownBy(() -> establishPhysicalConnection(connection))
+              .isSameAs(failure);
+      verify(first).close();
+      assertThat(connection.unwrap(ConnectionProxy.class).getTargetConnection()).isSameAs(second);
+      verify(second).setSchema("app");
+    }
+    verify(second).close();
+  }
+
+  @Test
+  void suppressesRollbackOnClosedTargetButPropagatesDriverExceptionOtherwise() throws SQLException {
+    DataSource dataSource = mock();
+    Connection physical = mock();
+    var failure = new SQLException("rollback failed");
+    when(dataSource.getConnection()).thenReturn(physical);
+    when(physical.isClosed()).thenReturn(true, false);
+    doThrow(failure).when(physical).rollback();
+    lazyProxy.setTargetDataSource(dataSource);
+
+    try (var connection = lazyProxy.getConnection()) {
+      establishPhysicalConnection(connection);
+      connection.rollback();
+      verify(physical, never()).rollback();
+      assertThatExceptionOfType(SQLException.class).isThrownBy(connection::rollback).isSameAs(failure);
+    }
+  }
+
+  @Test
+  void retriesDefaultPropertyLookupAfterAcquisitionFailure() throws SQLException {
+    DataSource dataSource = mock();
+    Connection defaults = mock();
+    when(dataSource.getConnection()).thenThrow(new SQLException("temporarily unavailable")).thenReturn(defaults);
+    when(defaults.getTransactionIsolation()).thenReturn(TRANSACTION_READ_COMMITTED);
+    proxy.setDefaultAutoCommit(true);
+    proxy.setTargetDataSource(dataSource);
+
+    proxy.checkDefaultConnectionProperties();
+    try (var connection = proxy.getConnection()) {
+      assertThat(connection.getAutoCommit()).isTrue();
+      assertThat(connection.getTransactionIsolation()).isEqualTo(TRANSACTION_READ_COMMITTED);
+    }
+
+    verify(defaults, never()).getAutoCommit();
+    verify(defaults).getTransactionIsolation();
+    verify(defaults).close();
+  }
+
+  @Test
   void lazyHandlingOfCatalog() throws SQLException {
     DataSource dataSource = mock();
     Connection first = mock();

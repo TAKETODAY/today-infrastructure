@@ -28,6 +28,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -42,6 +43,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -287,6 +289,36 @@ public class JdbcTemplateQueryTests {
     verify(this.resultSet).close();
     verify(this.statement).close();
     verify(this.connection).close();
+  }
+
+  @Test
+  void queryForObjectWithArgumentTypes() throws Exception {
+    String sql = "SELECT AGE FROM CUSTMR WHERE ID = ?";
+    given(this.resultSet.next()).willReturn(true, false);
+    given(this.resultSet.getInt(1)).willReturn(22);
+
+    assertThat(this.template.queryForObject(sql, new Object[] { 3 }, new int[] { Types.INTEGER }, Integer.class))
+            .isEqualTo(22);
+
+    verify(this.preparedStatement).setObject(1, 3, Types.INTEGER);
+    verify(this.resultSet).close();
+    verify(this.preparedStatement).close();
+    verify(this.connection).close();
+  }
+
+  @Test
+  void queryForListAndRowSetWithArgumentTypes() throws Exception {
+    String sql = "SELECT AGE FROM CUSTMR WHERE ID < ?";
+
+    assertThat(this.template.queryForList(sql, new Object[] { 3 }, new int[] { Types.INTEGER }, Integer.class))
+            .isEmpty();
+    assertThat(this.template.queryForList(sql, new Object[] { 3 }, new int[] { Types.INTEGER })).isEmpty();
+    assertThat(this.template.queryForRowSet(sql, new Object[] { 3 }, new int[] { Types.INTEGER })).isNotNull();
+
+    verify(this.preparedStatement, times(3)).setObject(1, 3, Types.INTEGER);
+    verify(this.resultSet, times(3)).close();
+    verify(this.preparedStatement, times(3)).close();
+    verify(this.connection, times(3)).close();
   }
 
   @Test

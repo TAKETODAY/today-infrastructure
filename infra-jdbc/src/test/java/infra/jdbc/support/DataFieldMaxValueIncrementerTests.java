@@ -36,11 +36,13 @@ import infra.jdbc.support.incrementer.MySQLIdentityColumnMaxValueIncrementer;
 import infra.jdbc.support.incrementer.MySQLMaxValueIncrementer;
 import infra.jdbc.support.incrementer.OracleSequenceMaxValueIncrementer;
 import infra.jdbc.support.incrementer.PostgresSequenceMaxValueIncrementer;
+import infra.jdbc.support.incrementer.SqliteMaxValueIncrementer;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -60,6 +62,47 @@ class DataFieldMaxValueIncrementerTests {
   private final Statement statement = mock(Statement.class);
 
   private final ResultSet resultSet = mock(ResultSet.class);
+
+  @Test
+  void sqliteRemovesOldRowsAfterReadingNewKey() throws SQLException {
+    given(dataSource.getConnection()).willReturn(connection);
+    given(connection.createStatement()).willReturn(statement);
+    given(statement.executeQuery("select max(rowid) from myseq")).willReturn(resultSet);
+    given(resultSet.next()).willReturn(true);
+    given(resultSet.getLong(1)).willReturn(17L);
+    var incrementer = new SqliteMaxValueIncrementer(dataSource, "myseq", "seq");
+
+    assertThat(incrementer.nextLongValue()).isEqualTo(17L);
+
+    var order = inOrder(statement, resultSet, connection);
+    order.verify(statement).executeUpdate("insert into myseq values(null)");
+    order.verify(statement).executeQuery("select max(rowid) from myseq");
+    order.verify(resultSet).getLong(1);
+    order.verify(statement).executeUpdate("delete from myseq where seq < 17");
+    order.verify(statement).close();
+    order.verify(connection).close();
+  }
+
+  @Test
+  void sqliteReportsMissingRowAndDriverFailure() throws SQLException {
+    given(dataSource.getConnection()).willReturn(connection);
+    given(connection.createStatement()).willReturn(statement);
+    var failure = new SQLException("query failed");
+    given(statement.executeQuery("select max(rowid) from myseq")).willReturn(resultSet).willThrow(failure);
+    var incrementer = new SqliteMaxValueIncrementer();
+    incrementer.setDataSource(dataSource);
+    incrementer.setIncrementerName("myseq");
+    incrementer.setColumnName("seq");
+    incrementer.afterPropertiesSet();
+
+    assertThatExceptionOfType(DataAccessResourceFailureException.class).isThrownBy(incrementer::nextLongValue)
+            .withMessageContaining("rowid query failed");
+    assertThatExceptionOfType(DataAccessResourceFailureException.class).isThrownBy(incrementer::nextLongValue)
+            .withCause(failure);
+
+    verify(statement, times(2)).close();
+    verify(connection, times(2)).close();
+  }
 
   @Test
   void hanaSequenceMaxValueIncrementer() throws SQLException {
