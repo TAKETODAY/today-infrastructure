@@ -4,6 +4,8 @@ plugins {
 
 description = "Infra Integration Tests"
 
+sourceSets.test.java.srcDir rootProject.file('infra-docs/modules/ROOT/examples/data-access/persistence/scrolling')
+
 dependencies {
 
   testImplementation(project(":infra-webmvc-mock"))

@@ -73,9 +73,45 @@ users.forEachRemaining(this::process); // process 不修改排序属性
 
 `ScrollPageable.pageSize` 必须在 `1` 到 `Integer.MAX_VALUE - 1` 之间，因为框架需要多读取一行。
 
+[[persistence-scrolling-http]]
+== 在 HTTP 请求间继续查询
+
+将 `ScrollPosition` 留在持久化层与应用之间。下面的 `POST /users/scroll` 用 `name` 精确筛选，
+由服务端固定按 `created_at DESC, id DESC` 排序。客户端调用时只需要遵守以下约定：
+
+. 首次发送 `{"name":"Jo","limit":2}`，不要传 `cursor`。
+. 如果响应带有 `nextCursor`，下次用同一个 `name`，并把 `nextCursor` 对象原样放入请求的 `cursor` 字段。
+. 响应不带 `nextCursor` 时表示查询结束。切换筛选条件时，丢弃旧游标并重新请求首屏。
+
+例如，收到 `{"items":["9007199254740994","9007199254740993"],"nextCursor":{"name":"Jo","createdAt":"2026-01-01T00:00:00.123456789Z","id":"9007199254740993"}}` 后，续查请求为：
+
+[source,json]
+----
+{
+  "name": "Jo",
+  "limit": 2,
+  "cursor": {"name":"Jo","createdAt":"2026-01-01T00:00:00.123456789Z","id":"9007199254740993"}
+}
+----
+
+[source,java]
+----
+include::example$data-access/persistence/scrolling/UserScrollController.java[tag=http-scroll]
+----
+
+示例的 `scroll_user` 表使用 `BIGINT` 主键、非空时间戳和非空的 `name`；`limit` 默认为 `20`，最大为 `100`。
+游标将 `Instant` 和 `long` 都表示为字符串，避免丢掉时间戳的小数精度，或在 JavaScript 中舍入较大的整数 ID。
+服务端先还原类型，通过 `ScrollPageable` 传入位置；响应游标来自 `window.nextPosition()`，即本窗口最后一条已返回记录的位置。
+空窗口和末窗口均不返回 `nextCursor`。
+
+游标值不完整、解析失败，或游标的 `name` 与当前筛选条件不同，均返回 `400 Bad Request`。排序字段与方向只由服务端决定；
+如果将来变更该接口的排序或筛选语义，应让旧游标失效（例如为游标增加版本）。
+示例中的游标是未签名的应用 DTO，不是权限凭据；每次请求仍须独立执行授权及租户过滤。
+若应用需要拒绝客户端篡改游标，可使用服务端签名或服务端保存的游标，并将其绑定到相应的查询范围。
+
 == 由示例对象提供游标
 
-当游标来自 HTTP 请求或消息时，可以让示例对象实现 `ScrollPositionSource`，用类型化属性构建位置。
+另一种写法是让示例对象实现 `ScrollPositionSource`，用类型化属性构建位置。
 以下按 `age ASC, id ASC` 查询，两个游标字段要么同时为空，要么同时提供：
 
 [source,java,indent=0,subs="verbatim,quotes"]
