@@ -140,7 +140,8 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
       }
     }
     else if (frame instanceof Http2ResetFrame resetFrame) {
-      NettyHttpContext httpContext = NettyHttpContext.getAndRemove(ctx);
+      // Keep the context attached so channelInactive can finish stream cleanup.
+      NettyHttpContext httpContext = NettyHttpContext.lookup(ctx);
       if (httpContext != null) {
         httpContext.onError(new IOException("HTTP/2 stream reset: " + resetFrame.errorCode()));
       }
