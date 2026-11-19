@@ -22,6 +22,10 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
+
+import infra.util.LinkedMultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -144,6 +148,57 @@ class UriUtilsTests {
     assertThat(UriUtils.extractFileExtension("/products;q=11/view.html;r=22?param=/path/a.do")).isEqualTo("html");
     assertThat(UriUtils.extractFileExtension("/products;q=11/view.html;r=22;s=33?param=/path/a.do")).isEqualTo("html");
     assertThat(UriUtils.extractFileExtension("/products/.html")).isEqualTo("html");
+  }
+
+  @Test
+  void encodesComponentsWithNamedCharacterSet() {
+    String encoding = "ISO-8859-1";
+    assertThat(UriUtils.encodeScheme("a b", encoding)).isEqualTo("a%20b");
+    assertThat(UriUtils.encodeAuthority("user@café.test:80", encoding)).isEqualTo("user@caf%E9.test:80");
+    assertThat(UriUtils.encodeAuthority("user@café.test:80", CHARSET)).isEqualTo("user@caf%C3%A9.test:80");
+    assertThat(UriUtils.encodeUserInfo("a:b@c", encoding)).isEqualTo("a:b%40c");
+    assertThat(UriUtils.encodeHost("café.test", encoding)).isEqualTo("caf%E9.test");
+    assertThat(UriUtils.encodePort("8 0", encoding)).isEqualTo("8%200");
+    assertThat(UriUtils.encodePath("/café/a", encoding)).isEqualTo("/caf%E9/a");
+    assertThat(UriUtils.encodePathSegment("café/a", encoding)).isEqualTo("caf%E9%2Fa");
+    assertThat(UriUtils.encodeQuery("q=café&n=1", encoding)).isEqualTo("q=caf%E9&n=1");
+    assertThat(UriUtils.encodeQueryParam("q=café&n=1", encoding)).isEqualTo("q%3Dcaf%E9%26n%3D1");
+    assertThat(UriUtils.encodeFragment("café/a#b", encoding)).isEqualTo("caf%E9/a%23b");
+    assertThat(UriUtils.encode("café+bar", encoding)).isEqualTo("caf%E9%2Bbar");
+    assertThat(UriUtils.decode("caf%E9+bar", encoding)).isEqualTo("café+bar");
+  }
+
+  @Test
+  void encodesNamesAndRepeatedQueryValuesWithoutMutatingTheInput() {
+    var params = new LinkedMultiValueMap<String, String>();
+    params.add("café & tea", "a=b");
+    params.add("café & tea", "a+b");
+    params.add("status", "");
+
+    var encoded = UriUtils.encodeQueryParams(params);
+
+    assertThat(encoded).containsEntry("caf%C3%A9%20%26%20tea", List.of("a%3Db", "a+b"))
+            .containsEntry("status", List.of(""));
+    assertThat(params.get("café & tea")).containsExactly("a=b", "a+b");
+  }
+
+  @Test
+  void encodesNullVariablesAsEmptyStringsAndStringifiesOtherValues() {
+    var variables = new HashMap<String, Object>();
+    variables.put("empty", null);
+    variables.put("count", 42);
+    variables.put("path", "a/b");
+
+    assertThat(UriUtils.encodeUriVariables(variables)).containsEntry("empty", "").containsEntry("count", "42")
+            .containsEntry("path", "a%2Fb");
+    assertThat(UriUtils.encodeUriVariables(null, 42, "a/b")).containsExactly("", "42", "a%2Fb");
+  }
+
+  @Test
+  void ignoresDotsOutsideTheFinalPathSegmentWhenExtractingExtensions() {
+    assertThat(UriUtils.extractFileExtension("/directory.ext/name?target=a.pdf#here.txt")).isNull();
+    assertThat(UriUtils.extractFileExtension("/name;param=a.pdf")).isNull();
+    assertThat(UriUtils.extractFileExtension("/report.html?value=one;two")).isEqualTo("html");
   }
 
 }
