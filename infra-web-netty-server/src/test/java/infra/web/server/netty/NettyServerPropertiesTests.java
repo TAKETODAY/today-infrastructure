@@ -171,11 +171,11 @@ class NettyServerPropertiesTests {
   }
 
   @Test
-  void autoRead() {
-    assertThat(properties.autoRead).isTrue();
+  void manualBodyRead() {
+    assertThat(properties.manualBodyRead).isFalse();
 
-    bind("server.netty.auto-read", "false");
-    assertThat(properties.autoRead).isFalse();
+    bind("server.netty.manual-body-read", "true");
+    assertThat(properties.manualBodyRead).isTrue();
   }
 
   @Test

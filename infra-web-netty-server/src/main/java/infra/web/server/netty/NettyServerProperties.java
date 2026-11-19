@@ -182,18 +182,11 @@ public class NettyServerProperties {
   public int dataReceivedQueueCapacity = 256;
 
   /**
-   * Whether to read data automatically from the channel.
-   * <p>
-   * When set to {@code true}, the channel will automatically read data when available.
-   * When set to {@code false}, data will only be read when explicitly requested,
-   * allowing for more fine-grained control over the reading process and potentially
-   * enabling better flow control in high-throughput scenarios.
-   * <p>
-   * Defaults to {@code true}, meaning the channel will automatically read data.
+   * Whether request bodies are read on demand instead of automatically.
    *
    * @since 5.0
    */
-  public boolean autoRead = true;
+  public boolean manualBodyRead;
 
   /**
    * Netty resource leak detection level.
