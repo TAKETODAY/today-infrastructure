@@ -28,7 +28,7 @@ import infra.web.RedirectModel;
 import infra.web.annotation.PostMapping;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.post;
-import static infra.test.web.mock.result.MockMvcResultMatchers.flash;
+import static infra.test.web.mock.result.MockMvcResultMatchers.redirectModel;
 import static infra.test.web.mock.result.MockMvcResultMatchers.status;
 import static infra.test.web.mock.setup.MockMvcBuilders.standaloneSetup;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -38,48 +38,48 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
 /**
- * Examples of expectations on flash attributes.
+ * Examples of expectations on output redirect model attributes.
  *
  * @author Rossen Stoyanchev
  * @author Sam Brannen
  */
-public class FlashAttributeAssertionTests {
+public class RedirectModelAssertionTests {
 
   private final MockMvc mockMvc = standaloneSetup(new PersonController())
           .alwaysExpect(status().isFound())
-          .alwaysExpect(flash().attributeCount(3))
+          .alwaysExpect(redirectModel().attributeCount(3))
           .build();
 
   @Test
   void attributeCountWithWrongCount() throws Exception {
     assertThatExceptionOfType(AssertionError.class)
-            .isThrownBy(() -> this.mockMvc.perform(post("/persons")).andExpect(flash().attributeCount(1)))
+            .isThrownBy(() -> this.mockMvc.perform(post("/persons")).andExpect(redirectModel().attributeCount(1)))
             .withMessage("RedirectModel size expected:<1> but was:<3>");
   }
 
   @Test
   void attributeExists() throws Exception {
     this.mockMvc.perform(post("/persons"))
-            .andExpect(flash().attributeExists("one", "two", "three"));
+            .andExpect(redirectModel().attributeExists("one", "two", "three"));
   }
 
   @Test
   void attributeEqualTo() throws Exception {
     this.mockMvc.perform(post("/persons"))
-            .andExpect(flash().attribute("one", "1"))
-            .andExpect(flash().attribute("two", 2.222))
-            .andExpect(flash().attribute("three", new URL("https://example.com")));
+            .andExpect(redirectModel().attribute("one", "1"))
+            .andExpect(redirectModel().attribute("two", 2.222))
+            .andExpect(redirectModel().attribute("three", new URL("https://example.com")));
   }
 
   @Test
   void attributeMatchers() throws Exception {
     this.mockMvc.perform(post("/persons"))
-            .andExpect(flash().attribute("one", containsString("1")))
-            .andExpect(flash().attribute("two", closeTo(2, 0.5)))
-            .andExpect(flash().attribute("three", notNullValue()))
-            .andExpect(flash().attribute("one", equalTo("1")))
-            .andExpect(flash().attribute("two", equalTo(2.222)))
-            .andExpect(flash().attribute("three", equalTo(new URL("https://example.com"))));
+            .andExpect(redirectModel().attribute("one", containsString("1")))
+            .andExpect(redirectModel().attribute("two", closeTo(2, 0.5)))
+            .andExpect(redirectModel().attribute("three", notNullValue()))
+            .andExpect(redirectModel().attribute("one", equalTo("1")))
+            .andExpect(redirectModel().attribute("two", equalTo(2.222)))
+            .andExpect(redirectModel().attribute("three", equalTo(new URL("https://example.com"))));
   }
 
   @Controller

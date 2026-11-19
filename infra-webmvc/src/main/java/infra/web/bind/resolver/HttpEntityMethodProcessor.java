@@ -242,7 +242,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
       else if (returnStatus.is3xxRedirection()) {
         String location = context.responseHeaders().getFirst(HttpHeaders.LOCATION);
         if (location != null) {
-          saveRedirectAttributes(context, location);
+          saveOutputRedirectModel(context, location);
         }
       }
     }
@@ -298,7 +298,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
     return context.checkNotModified(etag, lastModifiedTimestamp);
   }
 
-  private void saveRedirectAttributes(HttpContext request, String location) {
+  private void saveOutputRedirectModel(HttpContext request, String location) {
     WebUtils.saveRedirectModel(location, request, redirectModelManager);
   }
 

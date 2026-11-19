@@ -104,11 +104,11 @@ public interface MvcResult {
   Throwable getUnresolvedException();
 
   /**
-   * Return the "output" flash attributes saved during request processing.
+   * Return the output redirect model populated during request processing.
    *
    * @return the {@code RedirectModel}, possibly empty
    */
-  RedirectModel getFlashMap();
+  RedirectModel getOutputRedirectModel();
 
   /**
    * Get the result of async execution.

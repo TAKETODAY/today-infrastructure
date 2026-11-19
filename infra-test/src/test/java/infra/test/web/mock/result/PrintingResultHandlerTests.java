@@ -308,17 +308,17 @@ class PrintingResultHandlerTests {
   }
 
   @Test
-  void flashMapNull() throws Exception {
+  void outputRedirectModelAbsent() throws Exception {
     this.handler.handle(mvcResult);
 
     assertValue("RedirectModel", "Type", null);
   }
 
   @Test
-  void flashMap() throws Exception {
-    RedirectModel flashMap = new RedirectModel();
-    flashMap.put("attrName", "attrValue");
-    this.request.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, flashMap);
+  void outputRedirectModel() throws Exception {
+    RedirectModel outputRedirectModel = new RedirectModel();
+    outputRedirectModel.put("attrName", "attrValue");
+    this.request.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, outputRedirectModel);
 
     this.handler.handle(this.mvcResult);
 

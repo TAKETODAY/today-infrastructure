@@ -171,7 +171,7 @@ class DefaultMvcResult implements MvcResult {
   }
 
   @Override
-  public RedirectModel getFlashMap() {
+  public RedirectModel getOutputRedirectModel() {
     RedirectModel model = WebUtils.getOutputRedirectModel(this.httpContext);
     if (model == null) {
       model = new RedirectModel();

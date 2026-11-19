@@ -1511,7 +1511,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
   @Test
   void redirectAttribute() throws Exception {
-    ApplicationContext wac = initDispatcher(RedirectAttributesController.class);
+    ApplicationContext wac = initDispatcher(RedirectModelController.class);
 
     MockRequest request = new MockRequest("POST", "/messages");
     MockResponse response = new MockResponse();
@@ -1553,8 +1553,8 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   }
 
   @Test
-  void flashAttributesWithResponseEntity() throws Exception {
-    ApplicationContext wac = initDispatcher(RedirectAttributesController.class);
+  void redirectModelWithResponseEntity() throws Exception {
+    ApplicationContext wac = initDispatcher(RedirectModelController.class);
 
     MockRequest request = new MockRequest("POST", "/messages-response-entity");
     MockResponse response = new MockResponse();
@@ -3765,9 +3765,9 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   @Controller
   @Configuration(proxyBeanMethods = false)
   @EnableSession
-  static class RedirectAttributesController extends AbstractSessionManagerAutowired {
+  static class RedirectModelController extends AbstractSessionManagerAutowired {
 
-    public RedirectAttributesController(SessionManager sessionManager) {
+    public RedirectModelController(SessionManager sessionManager) {
       super(sessionManager);
     }
 

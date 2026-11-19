@@ -443,7 +443,7 @@ public abstract class WebUtils {
   }
 
   /**
-   * Return the {@code RedirectModelManager} instance to save flash attributes.
+   * Return the {@code RedirectModelManager} used to save and retrieve redirect models.
    * <p>the convenience method {@link #saveRedirectModel} may be
    * used to save the "output" RedirectModel.
    *

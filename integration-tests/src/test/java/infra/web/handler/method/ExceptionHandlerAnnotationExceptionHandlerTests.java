@@ -667,13 +667,13 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   }
 
   @Controller
-  static class RedirectAttributesController {
+  static class RedirectModelController {
 
     public void handle() { }
 
     @ExceptionHandler
-    public String handleException(Exception ex, RedirectModel redirectAttributes) {
-      redirectAttributes.setAttribute("exceptionClassName", ClassUtils.getShortName(ex.getClass()));
+    public String handleException(Exception ex, RedirectModel redirectModel) {
+      redirectModel.setAttribute("exceptionClassName", ClassUtils.getShortName(ex.getClass()));
       return "redirect:/";
     }
   }

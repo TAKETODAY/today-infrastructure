@@ -128,7 +128,7 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
 
   private final Map<String, Object> sessionAttributes = new LinkedHashMap<>();
 
-  private final Map<String, Object> flashAttributes = new LinkedHashMap<>();
+  private final Map<String, Object> inputRedirectAttributes = new LinkedHashMap<>();
 
   private final List<MockRequestCustomizer> requestCustomizers = new ArrayList<>();
 
@@ -558,24 +558,24 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
   }
 
   /**
-   * Set an "input" flash attribute.
+   * Set an attribute on the input redirect model.
    *
-   * @param name the flash attribute name
-   * @param value the flash attribute value
+   * @param name the attribute name
+   * @param value the attribute value
    */
-  public B flashAttr(String name, Object value) {
-    addToMap(this.flashAttributes, name, value);
+  public B redirectModelAttr(String name, Object value) {
+    addToMap(this.inputRedirectAttributes, name, value);
     return self();
   }
 
   /**
-   * Set flash attributes.
+   * Set attributes on the input redirect model.
    *
-   * @param flashAttributes the flash attributes
+   * @param attributes the input redirect model attributes
    */
-  public B flashAttrs(Map<String, Object> flashAttributes) {
-    Assert.notEmpty(flashAttributes, "'flashAttributes' must not be empty");
-    flashAttributes.forEach(this::flashAttr);
+  public B redirectModelAttrs(Map<String, Object> attributes) {
+    Assert.notEmpty(attributes, "'attributes' must not be empty");
+    attributes.forEach(this::redirectModelAttr);
     return self();
   }
 
@@ -738,10 +738,10 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
         this.sessionAttributes.put(attributeName, entry.getValue());
       }
     }
-    for (Map.Entry<String, Object> entry : parentBuilder.flashAttributes.entrySet()) {
+    for (Map.Entry<String, Object> entry : parentBuilder.inputRedirectAttributes.entrySet()) {
       String attributeName = entry.getKey();
-      if (!this.flashAttributes.containsKey(attributeName)) {
-        this.flashAttributes.put(attributeName, entry.getValue());
+      if (!this.inputRedirectAttributes.containsKey(attributeName)) {
+        this.inputRedirectAttributes.put(attributeName, entry.getValue());
       }
     }
 
@@ -888,9 +888,9 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
       session.setAttribute(name, attribute);
     });
 
-    RedirectModel flashMap = new RedirectModel();
-    flashMap.putAll(this.flashAttributes);
-    request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, flashMap);
+    RedirectModel inputRedirectModel = new RedirectModel();
+    inputRedirectModel.putAll(this.inputRedirectAttributes);
+    request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, inputRedirectModel);
     return request;
   }
 

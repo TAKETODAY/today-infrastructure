@@ -87,7 +87,7 @@ class MvcRequestStateTests {
   }
 
   @Test
-  void flashMissIsCachedEvenIfAnotherManagerOrAnInputAttributeBecomesAvailable() {
+  void inputRedirectModelMissIsCachedEvenIfAnotherManagerOrAnInputAttributeBecomesAvailable() {
     var request = new MockHttpContext();
     var first = mock(RedirectModelManager.class);
     var second = mock(RedirectModelManager.class);

@@ -274,7 +274,7 @@ class RequestMappingHandlerAdapterTests {
   }
 
   @Test
-  void handleMethodWithRedirectAttributes() throws Throwable {
+  void handleMethodWithRedirectModel() throws Throwable {
     RedirectModelManager redirectModelManager = mock(RedirectModelManager.class);
     RedirectModel redirectModel = new RedirectModel();
     redirectModel.addAttribute("attr", "value");
@@ -283,14 +283,14 @@ class RequestMappingHandlerAdapterTests {
     this.handlerAdapter.setRedirectModelManager(redirectModelManager);
     handlerAdapter.afterPropertiesSet();
     MockRequest request = new MockRequest();
-    HandlerMethod handlerMethod = new HandlerMethod(new FlashModelController(), "handle");
+    HandlerMethod handlerMethod = new HandlerMethod(new InputRedirectModelController(), "handle");
 
     MockHttpContext request1 = new MockHttpContext(request);
     Object result = this.handlerAdapter.handleInternal(request1, handlerMethod);
 
     assertThat(BindingContext.obtain(request1).getModel())
             .containsEntry("attr", "value")
-            .containsEntry("flashSeenByModelMethod", "value");
+            .containsEntry("redirectAttributeSeenByModelMethod", "value");
   }
 
   @Test
@@ -349,11 +349,11 @@ class RequestMappingHandlerAdapterTests {
     }
   }
 
-  private static class FlashModelController {
+  private static class InputRedirectModelController {
 
     @ModelAttribute
-    public void copyFlashAttribute(Model model) {
-      model.addAttribute("flashSeenByModelMethod", model.getAttribute("attr"));
+    public void copyRedirectAttribute(Model model) {
+      model.addAttribute("redirectAttributeSeenByModelMethod", model.getAttribute("attr"));
     }
 
     public String handle() {

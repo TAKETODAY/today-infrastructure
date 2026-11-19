@@ -123,11 +123,11 @@ public class MvcTestResultAssert extends AbstractMockResponseAssert<MvcTestResul
 
   /**
    * Return a new {@linkplain MapAssert assertion} object that uses the
-   * "output" flash attributes saved during request processing as the object
+   * output redirect model attributes populated during request processing as the object
    * to test.
    */
-  public MapAssert<String, Object> flash() {
-    return new MapAssert<>(getMvcResult().getFlashMap());
+  public MapAssert<String, Object> redirectModel() {
+    return new MapAssert<>(getMvcResult().getOutputRedirectModel());
   }
 
   /**

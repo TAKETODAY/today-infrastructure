@@ -380,19 +380,19 @@ class WebMvcAutoConfigurationTests {
   }
 
   @Test
-  void customFlashMapManagerWithMatchingNameReplacesDefaultFlashMapManager() {
-    this.contextRunner.withBean("sessionRedirectModelManager", CustomFlashMapManager.class, CustomFlashMapManager::new)
+  void customRedirectModelManagerWithMatchingNameReplacesDefaultManager() {
+    this.contextRunner.withBean("sessionRedirectModelManager", CustomRedirectModelManager.class, CustomRedirectModelManager::new)
             .run((context) -> {
               assertThat(context).hasSingleBean(RedirectModelManager.class);
-              assertThat(context.getBean("sessionRedirectModelManager")).isInstanceOf(CustomFlashMapManager.class);
+              assertThat(context.getBean("sessionRedirectModelManager")).isInstanceOf(CustomRedirectModelManager.class);
             });
   }
 
   @Test
-  void customFlashMapManagerWithDifferentNameDoesNotReplaceDefaultFlashMapManager() {
-    this.contextRunner.withBean("sessionRedirectModelManager", CustomFlashMapManager.class, CustomFlashMapManager::new)
+  void customRedirectModelManagerWithDifferentNameDoesNotReplaceDefaultManager() {
+    this.contextRunner.withBean("sessionRedirectModelManager", CustomRedirectModelManager.class, CustomRedirectModelManager::new)
             .run((context) -> {
-              assertThat(context.getBean("sessionRedirectModelManager")).isInstanceOf(CustomFlashMapManager.class);
+              assertThat(context.getBean("sessionRedirectModelManager")).isInstanceOf(CustomRedirectModelManager.class);
               assertThat(context.getBean("sessionRedirectModelManager")).isInstanceOf(RedirectModelManager.class);
             });
   }
@@ -1372,7 +1372,7 @@ class WebMvcAutoConfigurationTests {
 
   }
 
-  static class CustomFlashMapManager extends AbstractRedirectModelManager {
+  static class CustomRedirectModelManager extends AbstractRedirectModelManager {
 
     @Nullable
     @Override

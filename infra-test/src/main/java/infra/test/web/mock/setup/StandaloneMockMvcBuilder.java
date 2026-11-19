@@ -142,9 +142,6 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   @Nullable
   private LocaleResolver localeResolver;
 
-  @Nullable
-  private RedirectModelManager flashMapManager;
-
   private boolean useTrailingSlashPatternMatch = true;
 
   private final Map<String, Object> placeholderValues = new HashMap<>();
@@ -337,15 +334,6 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   }
 
   /**
-   * Provide a custom FlashMapManager instance.
-   * If not provided, {@code SessionFlashMapManager} is used by default.
-   */
-  public StandaloneMockMvcBuilder setFlashMapManager(RedirectModelManager flashMapManager) {
-    this.flashMapManager = flashMapManager;
-    return this;
-  }
-
-  /**
    * Whether to match to URLs irrespective of the presence of a trailing slash.
    * If enabled a method mapped to "/users" also matches to "/users/".
    */
@@ -375,6 +363,11 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
     return this;
   }
 
+  /**
+   * Provide a custom manager for storing and retrieving redirect models.
+   *
+   * @param redirectModelManager the custom manager, or {@code null} to clear it
+   */
   public StandaloneMockMvcBuilder setRedirectModelManager(@Nullable RedirectModelManager redirectModelManager) {
     this.redirectModelManager = redirectModelManager;
     return this;
@@ -427,10 +420,6 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
 
     if (localeResolver != null) {
       wac.addBean(LocaleResolver.BEAN_NAME, this.localeResolver);
-    }
-
-    if (flashMapManager != null) {
-      wac.addBean(RedirectModelManager.BEAN_NAME, this.flashMapManager);
     }
 
     wac.refresh();

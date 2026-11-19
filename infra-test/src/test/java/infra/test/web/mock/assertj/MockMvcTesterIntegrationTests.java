@@ -366,11 +366,11 @@ public class MockMvcTesterIntegrationTests {
   }
 
   @Nested
-  class FlashTests {
+  class RedirectModelTests {
 
     @Test
     void containsAttributes() {
-      assertThat(mvc.post().uri("/persons").param("name", "Andy")).flash()
+      assertThat(mvc.post().uri("/persons").param("name", "Andy")).redirectModel()
               .containsOnlyKeys("message").hasEntrySatisfying("message",
                       value -> assertThat(value).isInstanceOfSatisfying(String.class,
                               stringValue -> assertThat(stringValue).startsWith("success")));
@@ -565,9 +565,9 @@ public class MockMvcTesterIntegrationTests {
     }
 
     @Test
-    void assertFlashWithUnresolvedException() {
+    void assertRedirectModelWithUnresolvedException() {
       testAssertionFailureWithUnresolvableException(
-              result -> assertThat(result).flash());
+              result -> assertThat(result).redirectModel());
     }
 
     @Test

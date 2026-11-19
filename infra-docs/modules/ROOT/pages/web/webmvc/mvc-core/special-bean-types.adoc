@@ -34,11 +34,8 @@
 | xref:web/webmvc/mvc-core/localeresolver.adoc[`LocaleResolver`], xref:web/webmvc/mvc-core/localeresolver.adoc#mvc-timezone[LocaleContextResolver]
 | 解析客户端正在使用的 `Locale` 和可能的时区，以便能够提供国际化视图。参见 xref:web/webmvc/mvc-core/localeresolver.adoc[Locale]。
 
-| xref:web/webmvc/mvc-controller/ann-methods/flash-attributes.adoc[`RedirectModelManager`]
+| xref:web/webmvc/mvc-controller/ann-methods/redirect-model.adoc[`RedirectModelManager`]
 | 存储和检索 "`input`" 和 "`output`" `RedirectModel`，可用于在重定向时将属性从一个请求传递到另一个请求。
-参见 xref:web/webmvc/mvc-controller/ann-methods/flash-attributes.adoc[Redirect Attributes]。
+参见 xref:web/webmvc/mvc-controller/ann-methods/redirect-model.adoc[重定向 Model]。
 
 |===
-
-
-

@@ -125,11 +125,11 @@ public class RouterFunctionsTests {
     var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
     var binding = new BindingContext();
     var metadata = new HandlerMatchingMetadata(httpContext);
-    var flash = new RedirectModel("source", "redirect");
+    var inputRedirectModel = new RedirectModel("source", "redirect");
     BindingContext.set(httpContext, binding);
     HandlerMatchingMetadata.set(httpContext, metadata);
-    httpContext.setAttribute(RedirectModel.INPUT_ATTRIBUTE, flash);
-    assertThatObject(RedirectModel.findInputModel(httpContext)).isSameAs(flash);
+    httpContext.setAttribute(RedirectModel.INPUT_ATTRIBUTE, inputRedirectModel);
+    assertThatObject(RedirectModel.findInputModel(httpContext)).isSameAs(inputRedirectModel);
     httpContext.removeAttribute(RedirectModel.INPUT_ATTRIBUTE);
     ServerRequest request = new DefaultServerRequest(httpContext, Collections.emptyList());
 
@@ -138,7 +138,7 @@ public class RouterFunctionsTests {
     assertThat(resultHandlerFunction.get()).isEqualTo(handlerFunction);
     assertThat(BindingContext.obtain(httpContext)).isSameAs(binding);
     assertThat(HandlerMatchingMetadata.obtain(httpContext)).isSameAs(metadata);
-    assertThatObject(RedirectModel.findInputModel(httpContext)).isSameAs(flash);
+    assertThatObject(RedirectModel.findInputModel(httpContext)).isSameAs(inputRedirectModel);
   }
 
   @Test

@@ -28,34 +28,34 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /**
  * @author Craig Walls
  */
-public class FlashAttributeResultMatchersTests {
+public class RedirectModelResultMatchersTests {
 
   @Test
   public void attributeExists() throws Exception {
-    new FlashAttributeResultMatchers().attributeExists("good").match(getStubMvcResult());
+    new RedirectModelResultMatchers().attributeExists("good").match(getStubMvcResult());
   }
 
   @Test
   public void attributeExists_doesntExist() throws Exception {
     assertThatExceptionOfType(AssertionError.class).isThrownBy(() ->
-            new FlashAttributeResultMatchers().attributeExists("bad").match(getStubMvcResult()));
+            new RedirectModelResultMatchers().attributeExists("bad").match(getStubMvcResult()));
   }
 
   @Test
   public void attribute() throws Exception {
-    new FlashAttributeResultMatchers().attribute("good", "good").match(getStubMvcResult());
+    new RedirectModelResultMatchers().attribute("good", "good").match(getStubMvcResult());
   }
 
   @Test
   public void attribute_incorrectValue() throws Exception {
     assertThatExceptionOfType(AssertionError.class).isThrownBy(() ->
-            new FlashAttributeResultMatchers().attribute("good", "not good").match(getStubMvcResult()));
+            new RedirectModelResultMatchers().attribute("good", "not good").match(getStubMvcResult()));
   }
 
   private StubMvcResult getStubMvcResult() {
-    RedirectModel flashMap = new RedirectModel();
-    flashMap.put("good", "good");
-    StubMvcResult mvcResult = new StubMvcResult(null, null, null, null, null, flashMap, null);
+    RedirectModel outputRedirectModel = new RedirectModel();
+    outputRedirectModel.put("good", "good");
+    StubMvcResult mvcResult = new StubMvcResult(null, null, null, null, null, outputRedirectModel, null);
     return mvcResult;
   }
 

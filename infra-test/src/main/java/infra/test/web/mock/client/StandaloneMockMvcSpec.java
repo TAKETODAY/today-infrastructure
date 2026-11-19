@@ -144,8 +144,8 @@ class StandaloneMockMvcSpec extends AbstractMockMvcServerSpec<MockMvcWebTestClie
   }
 
   @Override
-  public StandaloneMockMvcSpec flashMapManager(RedirectModelManager flashMapManager) {
-    this.mockMvcBuilder.setFlashMapManager(flashMapManager);
+  public StandaloneMockMvcSpec redirectModelManager(RedirectModelManager redirectModelManager) {
+    this.mockMvcBuilder.setRedirectModelManager(redirectModelManager);
     return this;
   }
 

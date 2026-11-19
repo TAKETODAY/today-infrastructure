@@ -118,7 +118,7 @@ public interface MockMvcWebTestClient {
    * including HTTP status, headers, and body. That is all that is available
    * when making a live request over HTTP. However when the server is
    * {@link MockMvc}, many more assertions are possible against the server
-   * response, e.g. model attributes, flash attributes, etc.
+   * response, e.g. model and output redirect model attributes.
    *
    * <p>Example:
    * <pre class="code">
@@ -132,8 +132,8 @@ public interface MockMvcWebTestClient {
    * MockMvcWebTestClient.resultActionsFor(result)
    * 		.andExpect(model().size(1))
    * 		.andExpect(model().attributeExists("name"))
-   * 		.andExpect(flash().attributeCount(1))
-   * 		.andExpect(flash().attribute("message", "success!"));
+   * 		.andExpect(redirectModel().attributeCount(1))
+   * 		.andExpect(redirectModel().attribute("message", "success!"));
    * </pre>
    * <p>Note: this method works only if the {@link WebTestClient} used to
    * perform the request was initialized through one of bind method in this
@@ -320,11 +320,11 @@ public interface MockMvcWebTestClient {
     ControllerSpec localeResolver(LocaleResolver localeResolver);
 
     /**
-     * Provide a custom FlashMapManager.
+     * Provide a custom {@link RedirectModelManager}.
      * <p>This is delegated to
-     * {@link StandaloneMockMvcBuilder#setFlashMapManager(RedirectModelManager)}.
+     * {@link StandaloneMockMvcBuilder#setRedirectModelManager(RedirectModelManager)}.
      */
-    ControllerSpec flashMapManager(RedirectModelManager flashMapManager);
+    ControllerSpec redirectModelManager(RedirectModelManager redirectModelManager);
 
     /**
      * Whether to match trailing slashes.

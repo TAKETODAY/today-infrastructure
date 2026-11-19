@@ -107,7 +107,7 @@ public class PrintingResultHandler implements ResultHandler {
     printModelAndView(result.getModelAndView());
 
     this.printer.printHeading("RedirectModel");
-    printFlashMap(WebUtils.getOutputRedirectModel(result.getContext()));
+    printRedirectModel(WebUtils.getOutputRedirectModel(result.getContext()));
 
     this.printer.printHeading("HttpResponse");
     printResponse(result.getResponse());
@@ -242,14 +242,14 @@ public class PrintingResultHandler implements ResultHandler {
   }
 
   /**
-   * Print "output" flash attributes.
+   * Print the output redirect model attributes.
    */
-  protected void printFlashMap(RedirectModel flashMap) throws Exception {
-    if (ObjectUtils.isEmpty(flashMap)) {
+  protected void printRedirectModel(RedirectModel redirectModel) throws Exception {
+    if (ObjectUtils.isEmpty(redirectModel)) {
       this.printer.printValue("Attributes", null);
     }
     else {
-      flashMap.forEach((name, value) -> {
+      redirectModel.forEach((name, value) -> {
         this.printer.printValue("Attribute", name);
         this.printer.printValue("value", value);
       });

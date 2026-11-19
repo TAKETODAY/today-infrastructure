@@ -60,10 +60,10 @@ JDK 8 的 `java.util.Optional` 支持作为方法参数，与具有 `required` �
 | `java.util.Map`, `infra.ui.Model`, `infra.ui.ModelMap`
 | 用于访问在 HTML 控制器中使用的模型，并作为视图渲染的一部分暴露给模板。
 
-| `RedirectAttributes`
-| 指定重定向情况下使用的属性（即附加到查询字符串中）以及在重定向后的请求之前临时存储的 Flash 属性。
+| `infra.web.RedirectModel`
+| 添加供重定向目标请求临时使用的属性。这些属性默认不参与构造重定向 URL；目标控制器通过普通 `Model` 访问它们。
   参见 xref:web/webmvc/mvc-controller/ann-methods/redirecting-passing-data.adoc[重定向属性]
-  和 xref:web/webmvc/mvc-controller/ann-methods/flash-attributes.adoc[Flash 属性]。
+  和 xref:web/webmvc/mvc-controller/ann-methods/redirect-model.adoc[重定向 Model]。
 
 | `@ModelAttribute`
 | 用于访问模型中现有的属性（如果不存在则实例化），并应用数据绑定和验证。

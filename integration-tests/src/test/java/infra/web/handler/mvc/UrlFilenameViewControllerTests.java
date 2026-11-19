@@ -208,7 +208,7 @@ class UrlFilenameViewControllerTests {
   }
 
   @PathPatternsParameterizedTest
-  void withFlashAttributes(Function<String, HttpContext> requestFactory) throws Throwable {
+  void withInputRedirectModel(Function<String, HttpContext> requestFactory) throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
     HttpContext request = requestFactory.apply("/index");
     request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, new RedirectModel("name", "value"));

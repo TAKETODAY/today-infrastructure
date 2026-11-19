@@ -273,7 +273,7 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
   }
 
   /**
-   * Return incoming flash attributes saved by a previous request, using the default manager.
+   * Return the input redirect model saved by a previous request, using the default manager.
    *
    * @param request the current request
    * @return the input redirect model, or {@code null} if none is available
@@ -285,7 +285,7 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
   }
 
   /**
-   * Retrieve and consume incoming flash attributes on the first lookup for this request.
+   * Retrieve and consume the input redirect model on the first lookup for this request.
    * If the manager does not supply a model, fall back to {@link #INPUT_ATTRIBUTE}.
    * Subsequent reads reuse the result, including a cached miss, regardless of the manager supplied.
    *
