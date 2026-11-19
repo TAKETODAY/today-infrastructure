@@ -36,7 +36,7 @@ Java 基础设施库，移植/演进自 Spring Framework（group `cn.taketoday`�
 - 测试用 AssertJ + Mockito（优先 BDDMockito），**禁用** JUnit 断言 / Hamcrest / TestNG / JetBrains 注解（根 `build.gradle` 已统一注入依赖）
 - 字符串大小写转换必须指定 `Locale`
 - NullAway 空值校验生效：`@SuppressWarnings("NullAway")` 是合法且常见的写法，留意 JSpecify 空值注解
-- 修改第三方源码（Spring/ASM 等）：**必须保留原始版权头**，在其后追加 `// Modifications Copyright 2017 - 2026 the TODAY authors.`
+- 版权头规则：新建且由 TODAY 独立编写的源码使用 `Copyright 2017 - 2026 the TODAY authors.`，不添加 `Modifications` 注释；修改或移植 Spring、ASM 等上游/第三方源码时，必须完整保留原始版权头，并在许可证注释结束后追加 `// Modifications Copyright 2017 - 2026 the TODAY authors.`；不要用 TODAY 版权头覆盖上游作者声明
 - 公共 API 必须写 JavaDoc，每个包必须有 `package-info.java`
 - Checkstyle 配置在 `src/checkstyle/checkstyle.xml`（tool version 13.3.0），由 `check` 触发
 

@@ -627,8 +627,9 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
 
   /**
    * Register the given callback to be executed after request completion.
-   * <p>The callback is registered under a name derived from the callback object
-   * using {@link Conventions#getVariableName(Object)}.
+   * <p>Each invocation registers the callback under a newly generated name.
+   * Treat the returned name as an opaque registration identifier for use with
+   * {@link #removeCallback(Lifecycle, String)}.
    *
    * @param callback the callback to run after request completion; must not be {@code null}
    * @return the name under which the callback was registered
@@ -656,8 +657,9 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * caller. If the response is never committed, the callback is never invoked;
    * callbacks registered after the response has been committed never run.
    *
-   * <p>The callback is registered under a name derived from the callback
-   * object using {@link Conventions#getVariableName(Object)}.
+   * <p>Each invocation registers the callback under a newly generated name.
+   * Treat the returned name as an opaque registration identifier for use with
+   * {@link #removeCallback(Lifecycle, String)}.
    *
    * @param callback the callback to execute; must not be {@code null}
    * @return the name under which the callback was registered
@@ -672,6 +674,9 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
   /**
    * Register a callback to run after the response is committed.
    * At that point it is too late to change the response headers.
+   * <p>Each invocation registers the callback under a newly generated name.
+   * Treat the returned name as an opaque registration identifier for use with
+   * {@link #removeCallback(Lifecycle, String)}.
    *
    * @param callback the callback to execute; must not be {@code null}
    * @return the name under which the callback was registered
@@ -684,8 +689,12 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
   }
 
   /**
-   * Register a lifecycle callback with a name derived from the callback
-   * object using {@link Conventions#getVariableName(Object)}.
+   * Register a lifecycle callback under a newly generated name.
+   * <p>Each invocation creates an independent registration, even when the same
+   * callback object is supplied more than once. To replace an existing callback,
+   * use {@link #registerCallback(Lifecycle, String, Runnable)} with an explicit name.
+   * <p>Treat the returned name as an opaque registration identifier for use with
+   * {@link #removeCallback(Lifecycle, String)}.
    *
    * @param phase lifecycle phase
    * @param callback the callback to execute
@@ -694,10 +703,11 @@ public interface HttpContext extends InputStreamSource, OutputStreamSource, Http
    * @since 5.0
    */
   default String registerCallback(Lifecycle phase, Runnable callback) {
+    Assert.notNull(phase, "Phase is required");
     Assert.notNull(callback, "Callback is required");
-    String variableName = Conventions.getVariableName(callback);
-    registerCallback(phase, variableName, callback);
-    return variableName;
+    String name = CallbackNameGenerator.nextName();
+    registerCallback(phase, name, callback);
+    return name;
   }
 
   //
