@@ -192,7 +192,8 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
         }
         else if (converter instanceof SmartHttpMessageConverter<?> smart) {
           if (targetResolvableType == null) {
-            targetResolvableType = getNestedTypeIfNeeded(resolvableType == null ? ResolvableType.forMethodParameter(parameter) : resolvableType);
+            ResolvableType parameterType = resolvableType != null ? resolvableType : ResolvableType.forMethodParameter(parameter);
+            targetResolvableType = unwrapHttpEntity(parameterType, parameterType);
           }
           if (smart.canRead(targetResolvableType, contentType)) {
             if (message.hasBody()) {
@@ -259,18 +260,20 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
   }
 
   /**
-   * Return the generic type of the {@code returnType} (or of the nested type
-   * if it is an {@link HttpEntity} or/and an {@link Optional}).
+   * Return the type to write for a return value, unwrapping {@link Optional}
+   * and {@link HttpEntity} if necessary.
    */
   protected ResolvableType getNestedTypeIfNeeded(ResolvableType type) {
     ResolvableType genericType = type;
     if (Optional.class.isAssignableFrom(genericType.toClass())) {
       genericType = ResolvableType.forType(genericType.getNested(2).getType(), type);
     }
-    if (HttpEntity.class.isAssignableFrom(genericType.toClass())) {
-      genericType = ResolvableType.forType(genericType.getNested(2).getType(), type);
-    }
-    return genericType;
+    return unwrapHttpEntity(genericType, type);
+  }
+
+  private static ResolvableType unwrapHttpEntity(ResolvableType type, ResolvableType owner) {
+    return HttpEntity.class.isAssignableFrom(type.toClass())
+            ? ResolvableType.forType(type.getNested(2).getType(), owner) : type;
   }
 
   protected void validateIfApplicable(HttpContext context, MethodParameter parameter, @Nullable Object arg) throws Exception {

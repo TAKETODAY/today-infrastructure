@@ -18,6 +18,7 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,6 @@ import java.sql.Savepoint;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
@@ -229,13 +229,21 @@ class MvcUriComponentsBuilderTests {
     assertThat(uriComponents.toUriString()).isEqualTo("http://localhost/something/optional-param");
   }
 
-  @Test  // gh-22656
-  public void fromMethodNameWithOptionalNamedParam() {
+  @Test
+  public void fromMethodNameWithNullableNamedParam() {
     UriComponents uriComponents = fromMethodName(ControllerWithMethods.class,
-            "methodWithOptionalNamedParam", Optional.of("foo")).build();
+            "methodWithNullableNamedParam", "foo").build();
 
     assertThat(uriComponents.toUriString())
             .isEqualTo("http://localhost/something/optional-param-with-name?search=foo");
+  }
+
+  @Test
+  public void fromMethodNameWithMissingNullableNamedParam() {
+    UriComponents uriComponents = fromMethodName(ControllerWithMethods.class,
+            "methodWithNullableNamedParam", new Object[] { null }).build();
+
+    assertThat(uriComponents.toUriString()).isEqualTo("http://localhost/something/optional-param-with-name");
   }
 
   @Test
@@ -573,7 +581,7 @@ class MvcUriComponentsBuilderTests {
     }
 
     @GetMapping("/optional-param-with-name")
-    HttpEntity<Void> methodWithOptionalNamedParam(@RequestParam("search") Optional<String> q) {
+    HttpEntity<Void> methodWithNullableNamedParam(@RequestParam("search") @Nullable String q) {
       return null;
     }
   }

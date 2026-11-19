@@ -24,7 +24,6 @@ import java.beans.PropertyEditor;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import infra.beans.BeanUtils;
 import infra.beans.factory.config.ConfigurableBeanFactory;
@@ -227,13 +226,9 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
             ? requestParam.name() : parameter.getParameterName();
     Assert.state(name != null, "Unresolvable parameter name");
 
-    if (value instanceof Optional<?> optional) {
-      value = optional.orElse(null);
-    }
-
     if (value == null) {
-      if (requestParam != null &&
-              (!requestParam.required() || !requestParam.defaultValue().equals(Constant.DEFAULT_NONE))) {
+      if (parameter.isNullable() || (requestParam != null &&
+              (!requestParam.required() || !requestParam.defaultValue().equals(Constant.DEFAULT_NONE)))) {
         return;
       }
       builder.queryParam(name);

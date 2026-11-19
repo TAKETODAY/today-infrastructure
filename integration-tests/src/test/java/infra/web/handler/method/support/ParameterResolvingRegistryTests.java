@@ -20,20 +20,24 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Import;
 import infra.core.MethodParameter;
 import infra.web.HttpContext;
 import infra.web.MockHandlerParameter;
+import infra.web.annotation.RequestParam;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.method.ParameterResolverNotFoundException;
 import infra.web.handler.method.ParameterResolvingRegistry;
 import infra.web.handler.method.ParameterResolvingStrategy;
+import infra.web.handler.method.RegistryHandlerParameterFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -87,6 +91,34 @@ class ParameterResolvingRegistryTests {
   }
 
   @Test
+  void optionalParameterCanMatchStrategyInDefaultGroup() throws NoSuchMethodException {
+    var registry = new ParameterResolvingRegistry();
+    var strategy = new ParameterResolvingStrategy0();
+    registry.addDefaultStrategies(strategy);
+
+    assertThat(registry.findStrategy(new HandlerParameter(optionalParameter()))).isSameAs(strategy);
+  }
+
+  @Test
+  void customStrategyCanResolveOptionalParameter() throws Exception {
+    try (var context = new AnnotationConfigApplicationContext(AppConfig.class)) {
+      var registry = context.getBean(ParameterResolvingRegistry.class);
+      var factory = new RegistryHandlerParameterFactory(registry);
+      var parameter = factory.createParameter(optionalParameter());
+
+      assertThat(registry.obtainStrategy(parameter)).isSameAs(context.getBean(ParameterResolvingStrategy0.class));
+      assertThat(parameter.resolveArgument(mock(HttpContext.class))).isEqualTo(Optional.of(42));
+    }
+  }
+
+  private MethodParameter optionalParameter() throws NoSuchMethodException {
+    return MethodParameter.forExecutable(getClass().getDeclaredMethod("optionalQuery", Optional.class), 0);
+  }
+
+  void optionalQuery(@RequestParam("value") Optional<Integer> value) {
+  }
+
+  @Test
   void fallbackRegistryUsesBuiltInStrategiesAndIsReused() {
     try (var context = new AnnotationConfigApplicationContext()) {
       context.refresh();
@@ -119,13 +151,13 @@ class ParameterResolvingRegistryTests {
 
     @Override
     public boolean supportsParameter(HandlerParameter parameter) {
-      return parameter.getParameterType() == String.class;
+      return parameter.is(String.class) || parameter.is(Optional.class);
     }
 
     @Nullable
     @Override
     public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
-      return null;
+      return parameter.is(Optional.class) ? Optional.of(42) : null;
     }
   }
 

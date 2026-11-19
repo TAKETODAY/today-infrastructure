@@ -113,7 +113,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
    * Throws MethodArgumentNotValidException if validation fails.
    *
    * @throws HttpMessageNotReadableException if {@link RequestBody#required()}
-   * is {@code true} and there is no body content or if there is no suitable
+   * is {@code true} for a non-nullable parameter and there is no body content, or if there is no suitable
    * converter to read the content with.
    */
   @Nullable
@@ -140,7 +140,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 
   protected boolean checkRequired(MethodParameter parameter) {
     RequestBody requestBody = parameter.getParameterAnnotation(RequestBody.class);
-    return requestBody != null && requestBody.required() && !parameter.isOptional();
+    return requestBody != null && requestBody.required() && !parameter.isNullable();
   }
 
   //---------------------------------------------------------------------

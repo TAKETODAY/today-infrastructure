@@ -182,7 +182,6 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
    *
    * @param name the name of the value being resolved
    * @param resolvable the method parameter to resolve to an argument value
-   * (pre-nested in case of a {@link java.util.Optional} declaration)
    * @param context the current request context
    * @return the resolved argument (may be {@code null})
    * @throws Exception in case of errors

@@ -1970,28 +1970,55 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   }
 
   @Test
-  void dataClassBindingWithOptional() throws Exception {
-    initDispatcher(OptionalDataClassController.class);
+  void optionalControllerParameterCanUseCustomResolverAfterMappingRegistration() throws Exception {
+    var context = initDispatcher(OptionalDataClassController.class);
+    var registry = context.getBean(ParameterResolvingRegistry.class);
+    registry.addCustomizedStrategies(new ParameterResolvingStrategy() {
+      @Override
+      public boolean supportsParameter(HandlerParameter parameter) {
+        return parameter.is(Optional.class);
+      }
 
-    MockRequest request = new MockRequest("GET", "/bind");
-    request.addParameter("param1", "value1");
-    request.addParameter("param2", "true");
-    request.addParameter("param3", "3");
+      @Override
+      public Object resolveArgument(HttpContext request, HandlerParameter parameter) {
+        return Optional.empty();
+      }
+    });
+
     MockResponse response = new MockResponse();
-    getMockHandler().service(request, response);
-    assertThat(response.getContentAsString()).isEqualTo("value1-true-3");
+    getMockHandler().service(new MockRequest("GET", "/bind"), response);
+    assertThat(response.getContentAsString()).isEqualTo("Optional.empty");
   }
 
   @Test
-  void dataClassBindingWithOptionalAndConversionError() throws Exception {
-    initDispatcher(OptionalDataClassController.class);
+  void nullableAndNotRequiredRequestParametersMayBeMissing() throws Exception {
+    initDispatcher(NullableRequestParamsController.class);
 
-    MockRequest request = new MockRequest("GET", "/bind");
-    request.addParameter("param1", "value1");
-    request.addParameter("param2", "x");
+    MockRequest request = new MockRequest("GET", "/params");
     MockResponse response = new MockResponse();
     getMockHandler().service(request, response);
-    assertThat(response.getContentAsString()).isEqualTo("value1-x-null");
+    assertThat(response.getContentAsString()).isEqualTo("null/null");
+  }
+
+  @Test
+  void nullableRequestParameterStillRejectsInvalidInput() throws Exception {
+    initDispatcher(NullableRequestParamsController.class);
+
+    MockRequest request = new MockRequest("GET", "/params");
+    request.addParameter("page", "abc");
+    MockResponse response = new MockResponse();
+    getMockHandler().service(request, response);
+    assertThat(response.getStatus()).isEqualTo(400);
+  }
+
+  @Test
+  void nullableRequestBodyMayBeMissingWithConsumesCondition() throws Exception {
+    initDispatcher(NullableRequestParamsController.class);
+
+    MockRequest request = new MockRequest("POST", "/body");
+    MockResponse response = new MockResponse();
+    getMockHandler().service(request, response);
+    assertThat(response.getContentAsString()).isEqualTo("null");
   }
 
   @Test
@@ -4081,14 +4108,23 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class OptionalDataClassController {
 
     @RequestMapping("/bind")
-    public String handle(Optional<DataClass> optionalData, BindingResult result) {
-      if (result.hasErrors()) {
-        assertThat(optionalData).isNotNull();
-        assertThat(optionalData).isNotPresent();
-        return result.getFieldValue("param1") + "-" + result.getFieldValue("param2") + "-" +
-                result.getFieldValue("param3");
-      }
-      return optionalData.map(data -> data.param1 + "-" + data.param2 + "-" + data.param3).orElse("");
+    public String handle(Optional<DataClass> optionalData) {
+      return optionalData.toString();
+    }
+  }
+
+  @RestController
+  static class NullableRequestParamsController {
+
+    @RequestMapping("/params")
+    public String params(@RequestParam("page") @Nullable Integer page,
+            @RequestParam(name = "size", required = false) Integer size) {
+      return page + "/" + size;
+    }
+
+    @PostMapping(path = "/body", consumes = "text/plain")
+    public String body(@RequestBody @Nullable String body) {
+      return String.valueOf(body);
     }
   }
 
