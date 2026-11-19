@@ -49,7 +49,7 @@ class FieldOriginTests {
     Origin o1 = new FieldOrigin(findField("one"));
     Origin o2 = new FieldOrigin(findField("one"));
     Origin o3 = new FieldOrigin(findField("two"));
-    assertThat(o1).isEqualTo(o1).isEqualTo(o2).isNotEqualTo(o3);
+    assertThat(o1).isEqualTo(o1).isEqualTo(o2).isNotEqualTo(o3).isNotEqualTo("one").isNotEqualTo(null);
     assertThat(o1).hasSameHashCodeAs(o2);
   }
 

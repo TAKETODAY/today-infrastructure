@@ -18,8 +18,12 @@
 
 package infra.testcontainers.service.connection;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.FutureContainer;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.postgresql.PostgreSQLContainer;
@@ -62,6 +66,31 @@ class ContainerConnectionSourceTests {
     this.annotation = MergedAnnotation.valueOf(ServiceConnection.class, Map.of("name", "", "type", new Class<?>[0]));
     this.source = new ContainerConnectionSource<>(this.beanNameSuffix, this.origin, PostgreSQLContainer.class,
             this.container.getDockerImageName(), this.annotation, () -> this.container, null, null);
+  }
+
+  @Test
+  void traceLogsExplainWhichConnectionCriteriaMatched() {
+    setupSourceAnnotatedWithType(DatabaseConnectionDetails.class);
+    Logger logger = (Logger) LoggerFactory.getLogger(ContainerConnectionSource.class);
+    ListAppender<ILoggingEvent> appender = new ListAppender<>();
+    appender.start();
+    logger.addAppender(appender);
+    try {
+      assertThat(this.source.accepts("other", JdbcDatabaseContainer.class, DatabaseConnectionDetails.class)).isFalse();
+      assertThat(this.source.accepts("postgres", FutureContainer.class, DatabaseConnectionDetails.class)).isFalse();
+      assertThat(this.source.accepts("postgres", JdbcDatabaseContainer.class, ExampleConnectionDetails.class)).isFalse();
+      assertThat(this.source.accepts("postgres", JdbcDatabaseContainer.class, DatabaseConnectionDetails.class)).isTrue();
+
+      assertThat(appender.list).extracting(ILoggingEvent::getFormattedMessage).satisfiesExactly(
+              message -> assertThat(message).contains("source connection name 'postgres'", "required connection name 'other'"),
+              message -> assertThat(message).contains("source container type", FutureContainer.class.getName()),
+              message -> assertThat(message).contains("source connection details types", ExampleConnectionDetails.class.getName()),
+              message -> assertThat(message).contains("accepted for connection name 'postgres'"));
+    }
+    finally {
+      logger.detachAppender(appender);
+      appender.stop();
+    }
   }
 
   @Test

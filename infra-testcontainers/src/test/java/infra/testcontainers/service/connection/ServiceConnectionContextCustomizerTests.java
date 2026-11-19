@@ -116,7 +116,7 @@ class ServiceConnectionContextCustomizerTests {
             List.of(new ContainerConnectionSource<>("test", this.origin, PostgreSQLContainer.class, "namex",
                     annotation1, () -> container1, null, null)));
     assertThat(n1.hashCode()).isEqualTo(n2.hashCode()).isNotEqualTo(n3.hashCode());
-    assertThat(n1).isEqualTo(n2).isNotEqualTo(n3);
+    assertThat(n1).isEqualTo(n1).isEqualTo(n2).isNotEqualTo(n3).isNotEqualTo("name").isNotEqualTo(null);
     // Connection Details Types
     ServiceConnectionContextCustomizer t1 = new ServiceConnectionContextCustomizer(
             List.of(new ContainerConnectionSource<>("test", this.origin, PostgreSQLContainer.class, "name",

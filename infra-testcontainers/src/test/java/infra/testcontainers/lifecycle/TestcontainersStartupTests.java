@@ -33,6 +33,9 @@ import infra.mock.env.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link TestcontainersStartup}.
@@ -130,9 +133,20 @@ class TestcontainersStartupTests {
   }
 
   @Test
+  void startsContainerWhenItsRunningStateCannotBeDetermined() {
+    GenericContainer<?> container = mock(GenericContainer.class);
+    given(container.isRunning()).willThrow(new IllegalStateException("No container has been created yet"));
+
+    TestcontainersStartup.start(container);
+
+    then(container).should().start();
+  }
+
+  @Test
   void getWhenNoPropertyReturnsDefault() {
     MockEnvironment environment = new MockEnvironment();
     assertThat(TestcontainersStartup.get(environment)).isEqualTo(TestcontainersStartup.SEQUENTIAL);
+    assertThat(TestcontainersStartup.get(null)).isEqualTo(TestcontainersStartup.SEQUENTIAL);
   }
 
   @Test

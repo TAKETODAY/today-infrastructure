@@ -24,6 +24,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import java.util.Map;
 
+import infra.beans.factory.support.RegisteredBean;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.service.connection.ConnectionDetails;
@@ -66,6 +67,34 @@ class ConnectionDetailsRegistrarTests {
   }
 
   @Test
+  void explicitConnectionNamePreservesTheOriginalFailure() {
+    var beanFactory = new StandardBeanFactory();
+    var registrar = new ConnectionDetailsRegistrar(beanFactory, this.factories);
+    var annotation = MergedAnnotation.valueOf(ServiceConnection.class, Map.of("name", "postgres"));
+    var namedSource = new ContainerConnectionSource<>("test", this.origin, PostgreSQLContainer.class, null,
+            annotation, () -> this.container, null, null);
+    var failure = new ConnectionDetailsNotFoundException("No matching connection details.", null);
+    given(this.factories.getConnectionDetails(namedSource, true)).willThrow(failure);
+
+    assertThatExceptionOfType(ConnectionDetailsNotFoundException.class)
+            .isThrownBy(() -> registrar.registerBeanDefinitions(beanFactory, namedSource)).isSameAs(failure);
+  }
+
+  @Test
+  void onlyGeneratedServiceConnectionsAreExcludedFromAotProcessing() {
+    var beanFactory = new StandardBeanFactory();
+    var registrar = new ConnectionDetailsRegistrar(beanFactory, this.factories);
+    given(this.factories.getConnectionDetails(this.source, true))
+            .willReturn(Map.of(TestConnectionDetails.class, new TestConnectionDetails()));
+    registrar.registerBeanDefinitions(beanFactory, this.source);
+    beanFactory.registerBeanDefinition("manual", new RootBeanDefinition(CustomTestConnectionDetails.class));
+
+    var filter = new ConnectionDetailsRegistrar.ServiceConnectionBeanRegistrationExcludeFilter();
+    assertThat(filter.isExcludedFromAotProcessing(RegisteredBean.of(beanFactory, "testConnectionDetailsForTest"))).isTrue();
+    assertThat(filter.isExcludedFromAotProcessing(RegisteredBean.of(beanFactory, "manual"))).isFalse();
+  }
+
+  @Test
   void registerBeanDefinitionsWhenConnectionDetailsFactoryNotFoundAndNoConnectionNameThrowsExceptionWithBetterMessage() {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     ConnectionDetailsRegistrar registrar = new ConnectionDetailsRegistrar(beanFactory, this.factories);
@@ -81,7 +110,7 @@ class ConnectionDetailsRegistrarTests {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     ConnectionDetailsRegistrar registrar = new ConnectionDetailsRegistrar(beanFactory, this.factories);
     given(this.factories.getConnectionDetails(this.source, true))
-            .willThrow(new ConnectionDetailsNotFoundException("fail", null));
+            .willThrow(new ConnectionDetailsNotFoundException("fail.", null));
     assertThatExceptionOfType(ConnectionDetailsNotFoundException.class)
             .isThrownBy(() -> registrar.registerBeanDefinitions(beanFactory, this.source))
             .withMessage("fail. You may need to add a 'name' to your @ServiceConnection annotation");

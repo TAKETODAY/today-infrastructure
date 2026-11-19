@@ -32,6 +32,8 @@ import java.util.Map;
 import infra.context.service.connection.ConnectionDetails;
 import infra.context.service.connection.ConnectionDetailsFactory;
 import infra.core.annotation.MergedAnnotation;
+import infra.core.annotation.MergedAnnotations;
+import infra.core.ssl.SslBundle;
 import infra.origin.Origin;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,6 +70,55 @@ class ContainerConnectionDetailsFactoryTests {
     this.source = new ContainerConnectionSource<>(this.beanNameSuffix, this.origin, PostgreSQLContainer.class,
             this.container.getDockerImageName(), this.annotation, () -> this.container, null, null);
   }
+
+  @Test
+  void registersReflectionHintsForRequiredTypesOfDiscoveredFactories() {
+    var hints = ContainerConnectionDetailsFactoryHints.getRegisteredHints(getClass().getClassLoader());
+    assertThat(hints.reflection().getTypeHint(java.sql.Driver.class)).isNotNull();
+  }
+
+  @Test
+  void missingRequiredClassPreventsCreationOfDetails() {
+    var factory = new TestContainerConnectionDetailsFactory("myname", "example.MissingClient");
+    assertThat(getConnectionDetails(factory, this.source)).isNull();
+  }
+
+  @Test
+  void missingOptionalClassDuringFactoryExecutionIsIgnored() {
+    var factory = new TestContainerConnectionDetailsFactory() {
+      @Override
+      protected DatabaseConnectionDetails getContainerConnectionDetails(
+              ContainerConnectionSource<JdbcDatabaseContainer<?>> source) {
+        throw new NoClassDefFoundError("example/MissingClient");
+      }
+    };
+    assertThat(getConnectionDetails(factory, this.source)).isNull();
+  }
+
+  @Test
+  void sslBundleIsCreatedLazilyAndCached() throws NoSuchFieldException {
+    MergedAnnotations annotations = MergedAnnotations.from(getClass().getDeclaredField("sslContainer"));
+    var source = new ContainerConnectionSource<>(this.beanNameSuffix, this.origin, PostgreSQLContainer.class,
+            null, this.annotation, () -> this.container, SslBundleSource.get(annotations), annotations);
+    var details = getConnectionDetails(new TestContainerConnectionDetailsFactory(), source);
+    assertThat(details).isNotNull();
+
+    SslBundle bundle = details.getSslBundle();
+    assertThat(bundle).isNotNull();
+    assertThat(details.getSslBundle()).isSameAs(bundle);
+    assertThat(details.hasAnnotation(JksTrustStore.class)).isTrue();
+  }
+
+  @Test
+  void connectionWithoutAnnotationMetadataHasNoSslBundle() {
+    var details = getConnectionDetails(new TestContainerConnectionDetailsFactory(), this.source);
+    assertThat(details).isNotNull();
+    assertThat(details.getSslBundle()).isNull();
+    assertThat(details.hasAnnotation(Ssl.class)).isFalse();
+  }
+
+  @JksTrustStore("ca.jks")
+  private PostgreSQLContainer sslContainer;
 
   @Test
   void getConnectionDetailsWhenTypesMatchAndNoNameRestrictionReturnsDetails() {
@@ -172,8 +223,8 @@ class ContainerConnectionDetailsFactoryTests {
       this(ANY_CONNECTION_NAME);
     }
 
-    TestContainerConnectionDetailsFactory(@Nullable String connectionName) {
-      super(connectionName);
+    TestContainerConnectionDetailsFactory(@Nullable String connectionName, String... requiredClasses) {
+      super(connectionName, requiredClasses);
     }
 
     TestContainerConnectionDetailsFactory(List<String> connectionNames) {
