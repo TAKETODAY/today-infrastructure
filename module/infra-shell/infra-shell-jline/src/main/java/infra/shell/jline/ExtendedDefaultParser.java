@@ -224,6 +224,75 @@ public class ExtendedDefaultParser implements Parser {
     return Character.isWhitespace(buffer.charAt(pos));
   }
 
+  private boolean isRawEscapeChar(char key) {
+    for (char e : escapeChars) {
+      if (e == key) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean isRawQuoteChar(char key) {
+    for (char e : quoteChars) {
+      if (e == key) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Another copy from JLine's {@link org.jline.reader.impl.LineReaderImpl}
+   *
+   * Used to wrap {@link org.jline.reader.ParsedLine} into
+   * {@link org.jline.reader.CompletingParsedLine}
+   */
+  private static org.jline.reader.CompletingParsedLine wrap(ParsedLine line) {
+    if (line instanceof org.jline.reader.CompletingParsedLine) {
+      return (org.jline.reader.CompletingParsedLine) line;
+    }
+    else {
+      return new org.jline.reader.CompletingParsedLine() {
+        public String word() {
+          return line.word();
+        }
+
+        public int wordCursor() {
+          return line.wordCursor();
+        }
+
+        public int wordIndex() {
+          return line.wordIndex();
+        }
+
+        public List<String> words() {
+          return line.words();
+        }
+
+        public String line() {
+          return line.line();
+        }
+
+        public int cursor() {
+          return line.cursor();
+        }
+
+        public CharSequence escape(CharSequence candidate, boolean complete) {
+          return candidate;
+        }
+
+        public int rawWordCursor() {
+          return wordCursor();
+        }
+
+        public int rawWordLength() {
+          return word().length();
+        }
+      };
+    }
+  }
+
   /**
    * The result of a delimited buffer.
    *
@@ -310,75 +379,6 @@ public class ExtendedDefaultParser implements Parser {
       return sb;
     }
 
-  }
-
-  private boolean isRawEscapeChar(char key) {
-    for (char e : escapeChars) {
-      if (e == key) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private boolean isRawQuoteChar(char key) {
-    for (char e : quoteChars) {
-      if (e == key) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Another copy from JLine's {@link org.jline.reader.impl.LineReaderImpl}
-   *
-   * Used to wrap {@link org.jline.reader.ParsedLine} into
-   * {@link org.jline.reader.CompletingParsedLine}
-   */
-  private static org.jline.reader.CompletingParsedLine wrap(ParsedLine line) {
-    if (line instanceof org.jline.reader.CompletingParsedLine) {
-      return (org.jline.reader.CompletingParsedLine) line;
-    }
-    else {
-      return new org.jline.reader.CompletingParsedLine() {
-        public String word() {
-          return line.word();
-        }
-
-        public int wordCursor() {
-          return line.wordCursor();
-        }
-
-        public int wordIndex() {
-          return line.wordIndex();
-        }
-
-        public List<String> words() {
-          return line.words();
-        }
-
-        public String line() {
-          return line.line();
-        }
-
-        public int cursor() {
-          return line.cursor();
-        }
-
-        public CharSequence escape(CharSequence candidate, boolean complete) {
-          return candidate;
-        }
-
-        public int rawWordCursor() {
-          return wordCursor();
-        }
-
-        public int rawWordLength() {
-          return word().length();
-        }
-      };
-    }
   }
 
   /**

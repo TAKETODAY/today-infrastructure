@@ -78,12 +78,6 @@ public class ThemeResolver {
   private static final long BG_COLOR = 0xFFFFFFL << BG_COLOR_EXP;
 
   /**
-   * Stores resolved values for {@link ThemeResolver#resolveValues(AttributedStyle)}.
-   */
-  public record ResolvedValues(int style, int foreground, int background) {
-  }
-
-  /**
    * Resolve {@code style}, {@code foreground color} and {@code background color} from
    * an {@link AttributedStyle}.
    *
@@ -183,6 +177,12 @@ public class ThemeResolver {
    */
   public AttributedStyle resolveStyle(String spec) {
     return styleResolver.resolve(spec);
+  }
+
+  /**
+   * Stores resolved values for {@link ThemeResolver#resolveValues(AttributedStyle)}.
+   */
+  public record ResolvedValues(int style, int foreground, int background) {
   }
 
 }

@@ -428,49 +428,6 @@ public interface ComponentFlow {
       return runGetResults();
     }
 
-    private static class OrderedInputOperationList {
-
-      private final Map<String, Node> map = new HashMap<>();
-
-      private @Nullable Node first;
-
-      OrderedInputOperationList(List<OrderedInputOperation> values) {
-        Node ref = null;
-        for (OrderedInputOperation oio : values) {
-          Node node = new Node(oio);
-          map.put(oio.id, node);
-          if (ref != null) {
-            ref.next = node;
-          }
-          ref = node;
-          if (first == null) {
-            first = node;
-          }
-        }
-      }
-
-      @Nullable Node get(String id) {
-        return map.get(id);
-      }
-
-      @Nullable Node getFirst() {
-        return first;
-      }
-
-      static class Node {
-
-        OrderedInputOperation data;
-
-        @Nullable Node next;
-
-        Node(OrderedInputOperation data) {
-          this.data = data;
-        }
-
-      }
-
-    }
-
     private DefaultComponentFlowResult runGetResults() {
       List<OrderedInputOperation> oios = Stream
               .of(stringInputsStream(), numberInputsStream(), pathInputsStream(), confirmationInputsStream(),
@@ -816,6 +773,49 @@ public interface ComponentFlow {
                 ? Optional.ofNullable(f1.apply(selector.getThisContext(context))) : null;
         return OrderedInputOperation.of(input.getId(), input.getOrder(), operation, f2);
       });
+    }
+
+    private static class OrderedInputOperationList {
+
+      private final Map<String, Node> map = new HashMap<>();
+
+      private @Nullable Node first;
+
+      OrderedInputOperationList(List<OrderedInputOperation> values) {
+        Node ref = null;
+        for (OrderedInputOperation oio : values) {
+          Node node = new Node(oio);
+          map.put(oio.id, node);
+          if (ref != null) {
+            ref.next = node;
+          }
+          ref = node;
+          if (first == null) {
+            first = node;
+          }
+        }
+      }
+
+      @Nullable Node get(String id) {
+        return map.get(id);
+      }
+
+      @Nullable Node getFirst() {
+        return first;
+      }
+
+      static class Node {
+
+        OrderedInputOperation data;
+
+        @Nullable Node next;
+
+        Node(OrderedInputOperation data) {
+          this.data = data;
+        }
+
+      }
+
     }
 
   }

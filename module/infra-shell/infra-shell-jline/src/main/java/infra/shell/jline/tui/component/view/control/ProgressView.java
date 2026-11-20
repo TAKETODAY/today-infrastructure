@@ -175,51 +175,6 @@ public class ProgressView extends BoxView {
   }
 
   /**
-   * Defines an item within a progress view. Allows to set item's factory, size and
-   * horizontal alignment.
-   */
-  public static class ProgressViewItem {
-
-    private final Function<ProgressContext, TextCell<ProgressContext>> factory;
-
-    private final int size;
-
-    private final HorizontalAlign align;
-
-    public ProgressViewItem(Function<ProgressContext, TextCell<ProgressContext>> factory, int size,
-            HorizontalAlign align) {
-      this.factory = factory;
-      this.size = size;
-      this.align = align;
-    }
-
-    public static ProgressViewItem ofText() {
-      return ofText(0, HorizontalAlign.CENTER);
-    }
-
-    public static ProgressViewItem ofText(int size, HorizontalAlign hAligh) {
-      return new ProgressViewItem(DEFAULT_DESCRIPTION_FACTORY, size, hAligh);
-    }
-
-    public static ProgressViewItem ofSpinner() {
-      return ofSpinner(0, HorizontalAlign.CENTER);
-    }
-
-    public static ProgressViewItem ofSpinner(int size, HorizontalAlign hAligh) {
-      return new ProgressViewItem(DEFAULT_SPINNER_FACTORY, size, hAligh);
-    }
-
-    public static ProgressViewItem ofPercent() {
-      return ofPercent(0, HorizontalAlign.CENTER);
-    }
-
-    public static ProgressViewItem ofPercent(int size, HorizontalAlign hAligh) {
-      return new ProgressViewItem(DEFAULT_PERCENT_FACTORY, size, hAligh);
-    }
-
-  }
-
-  /**
    * Gets a progress description.
    *
    * @return a progress description
@@ -316,24 +271,6 @@ public class ProgressView extends BoxView {
     running = false;
     ProgressState state = getState();
     dispatch(ShellMessageBuilder.ofView(this, ProgressViewEndEvent.of(this, state)));
-  }
-
-  private static class BoxWrapper extends BoxView {
-
-    TextCell<ProgressContext> delegate;
-
-    BoxWrapper(TextCell<ProgressContext> delegate) {
-      this.delegate = delegate;
-    }
-
-    @Override
-    protected void drawInternal(Screen screen) {
-      Rectangle rect = getRect();
-      delegate.setRect(rect.x(), rect.y(), rect.width(), rect.height());
-      delegate.draw(screen);
-      super.drawInternal(screen);
-    }
-
   }
 
   private void initLayout() {
@@ -450,6 +387,69 @@ public class ProgressView extends BoxView {
         return ProgressView.this.spinner;
       }
     };
+  }
+
+  /**
+   * Defines an item within a progress view. Allows to set item's factory, size and
+   * horizontal alignment.
+   */
+  public static class ProgressViewItem {
+
+    private final Function<ProgressContext, TextCell<ProgressContext>> factory;
+
+    private final int size;
+
+    private final HorizontalAlign align;
+
+    public ProgressViewItem(Function<ProgressContext, TextCell<ProgressContext>> factory, int size,
+            HorizontalAlign align) {
+      this.factory = factory;
+      this.size = size;
+      this.align = align;
+    }
+
+    public static ProgressViewItem ofText() {
+      return ofText(0, HorizontalAlign.CENTER);
+    }
+
+    public static ProgressViewItem ofText(int size, HorizontalAlign hAligh) {
+      return new ProgressViewItem(DEFAULT_DESCRIPTION_FACTORY, size, hAligh);
+    }
+
+    public static ProgressViewItem ofSpinner() {
+      return ofSpinner(0, HorizontalAlign.CENTER);
+    }
+
+    public static ProgressViewItem ofSpinner(int size, HorizontalAlign hAligh) {
+      return new ProgressViewItem(DEFAULT_SPINNER_FACTORY, size, hAligh);
+    }
+
+    public static ProgressViewItem ofPercent() {
+      return ofPercent(0, HorizontalAlign.CENTER);
+    }
+
+    public static ProgressViewItem ofPercent(int size, HorizontalAlign hAligh) {
+      return new ProgressViewItem(DEFAULT_PERCENT_FACTORY, size, hAligh);
+    }
+
+  }
+
+  private static class BoxWrapper extends BoxView {
+
+    TextCell<ProgressContext> delegate;
+
+    BoxWrapper(TextCell<ProgressContext> delegate) {
+      this.delegate = delegate;
+    }
+
+    @Override
+    protected void drawInternal(Screen screen) {
+      Rectangle rect = getRect();
+      delegate.setRect(rect.x(), rect.y(), rect.width(), rect.height());
+      delegate.draw(screen);
+      super.drawInternal(screen);
+    }
+
   }
 
   /**

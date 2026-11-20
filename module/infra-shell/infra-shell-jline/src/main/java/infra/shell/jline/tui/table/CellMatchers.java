@@ -23,7 +23,7 @@ package infra.shell.jline.tui.table;
  *
  * @author Eric Bottard
  */
-public class CellMatchers {
+public final class CellMatchers {
 
   private CellMatchers() {
   }

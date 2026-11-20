@@ -70,22 +70,6 @@ public class StringToStyleExpressionRenderer implements AttributeRenderer<String
     }
   }
 
-  private static final class TruncateValues {
-
-    @Nullable Integer width;
-
-    int prefix = 0;
-
-    public void setWidth(Integer width) {
-      this.width = width;
-    }
-
-    public void setPrefix(int prefix) {
-      this.prefix = prefix;
-    }
-
-  }
-
   private static TruncateValues mapValues(String expression) {
     TruncateValues values = new TruncateValues();
     Stream.of(expression.split("-")).map(String::trim).forEach(v -> {
@@ -100,6 +84,22 @@ public class StringToStyleExpressionRenderer implements AttributeRenderer<String
       }
     });
     return values;
+  }
+
+  private static final class TruncateValues {
+
+    @Nullable Integer width;
+
+    int prefix = 0;
+
+    public void setWidth(Integer width) {
+      this.width = width;
+    }
+
+    public void setPrefix(int prefix) {
+      this.prefix = prefix;
+    }
+
   }
 
 }

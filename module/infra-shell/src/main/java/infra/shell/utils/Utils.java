@@ -44,7 +44,7 @@ import jakarta.validation.ValidatorFactory;
  * @author Eric Bottard
  * @author Mahmoud Ben Hassine
  */
-public class Utils {
+public final class Utils {
 
   private Utils() {
   }

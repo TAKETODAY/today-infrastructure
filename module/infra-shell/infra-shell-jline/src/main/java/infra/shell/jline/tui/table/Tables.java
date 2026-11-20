@@ -25,7 +25,7 @@ import java.util.Map;
  *
  * @author Eric Bottard
  */
-public class Tables {
+public final class Tables {
 
   private Tables() {
   }

@@ -48,9 +48,14 @@ public class DefaultScreen implements Screen, DisplayLines {
 
   private static final Logger log = LoggerFactory.getLogger(DefaultScreen.class);
 
+  private static final char[] BOX_CHARS = new char[] { ' ', '╴', '╵', '┌', '╶', '─', '┐', '┬', '╷', '└', '│', '├', '┘', '┴',
+          '┤', '┼' };
+
   private boolean showCursor;
 
   private Position cursorPosition = new Position(0, 0);
+
+  private final Map<Integer, Layer> layers = new TreeMap<>();
 
   private int rows = 0;
 
@@ -109,8 +114,9 @@ public class DefaultScreen implements Screen, DisplayLines {
     return null;
   }
 
-  private static char[] BOX_CHARS = new char[] { ' ', '╴', '╵', '┌', '╶', '─', '┐', '┬', '╷', '└', '│', '├', '┘', '┴',
-          '┤', '┼' };
+  private void reset() {
+    layers.clear();
+  }
 
   @Override
   public List<AttributedString> getScreenLines() {
@@ -171,6 +177,30 @@ public class DefaultScreen implements Screen, DisplayLines {
       newLines.add(builder.toAttributedString());
     }
     return newLines;
+  }
+
+  private Layer getLayer(int index) {
+    Layer layer = layers.computeIfAbsent(index, l -> {
+      return new Layer();
+    });
+    return layer;
+  }
+
+  public ScreenItem[][] getScreenItems() {
+    DefaultScreenItem[][] projection = new DefaultScreenItem[rows][columns];
+    layers.entrySet().stream().forEach(entry -> {
+      Layer layer = entry.getValue();
+      DefaultScreenItem[][] layerItems = layer.items;
+      for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < columns; j++) {
+          if (layerItems[i][j] != null) {
+            projection[i][j] = layerItems[i][j];
+          }
+        }
+      }
+
+    });
+    return projection;
   }
 
   /**
@@ -251,10 +281,6 @@ public class DefaultScreen implements Screen, DisplayLines {
 
   }
 
-  private void reset() {
-    layers.clear();
-  }
-
   private final class Layer {
 
     DefaultScreenItem[][] items = new DefaultScreenItem[rows][columns];
@@ -271,32 +297,6 @@ public class DefaultScreen implements Screen, DisplayLines {
       }
     }
 
-  }
-
-  private Map<Integer, Layer> layers = new TreeMap<>();
-
-  private Layer getLayer(int index) {
-    Layer layer = layers.computeIfAbsent(index, l -> {
-      return new Layer();
-    });
-    return layer;
-  }
-
-  public ScreenItem[][] getScreenItems() {
-    DefaultScreenItem[][] projection = new DefaultScreenItem[rows][columns];
-    layers.entrySet().stream().forEach(entry -> {
-      Layer layer = entry.getValue();
-      DefaultScreenItem[][] layerItems = layer.items;
-      for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < columns; j++) {
-          if (layerItems[i][j] != null) {
-            projection[i][j] = layerItems[i][j];
-          }
-        }
-      }
-
-    });
-    return projection;
   }
 
   /**

@@ -18,7 +18,7 @@
 
 package infra.shell.jline.tui.component.view.screen;
 
-public class Color {
+public final class Color {
 
   private Color() {
   }

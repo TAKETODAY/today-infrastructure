@@ -105,14 +105,6 @@ public interface MouseHandler {
   }
 
   /**
-   * Arguments for a {@link MouseHandler}.
-   *
-   * @param event the mouse event
-   */
-  record MouseHandlerArgs(MouseEvent event) {
-  }
-
-  /**
    * Construct {@link MouseHandlerResult} from a {@link MouseEvent} and a {@link View}.
    *
    * @param event the mouse event
@@ -124,6 +116,14 @@ public interface MouseHandler {
   static MouseHandlerResult resultOf(MouseEvent event, boolean consumed, @Nullable View focus,
           @Nullable View capture) {
     return new MouseHandlerResult(event, consumed, focus, capture);
+  }
+
+  /**
+   * Arguments for a {@link MouseHandler}.
+   *
+   * @param event the mouse event
+   */
+  record MouseHandlerArgs(MouseEvent event) {
   }
 
   /**

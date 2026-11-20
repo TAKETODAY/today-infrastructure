@@ -101,6 +101,28 @@ public class PartsTextRenderer implements AttributeRenderer<PartsText> {
     return buf.toString();
   }
 
+  private static Values mapValues(String expression) {
+    Values values = new Values();
+    Stream.of(expression.split(",")).map(String::trim).forEach(v -> {
+      String[] split = v.split(":", 2);
+      if (split.length == 2) {
+        if ("width".equals(split[0])) {
+          values.setWidth(Integer.parseInt(split[1]));
+        }
+        else if ("prefix".equals(split[0])) {
+          values.setPrefix(Integer.parseInt(split[1]));
+        }
+        else if ("textStyle".equals(split[0])) {
+          values.setTextStyle(split[1]);
+        }
+        else if ("matchStyle".equals(split[0])) {
+          values.setMatchStyle(split[1]);
+        }
+      }
+    });
+    return values;
+  }
+
   private static final class Values {
 
     @Nullable Integer width;
@@ -127,28 +149,6 @@ public class PartsTextRenderer implements AttributeRenderer<PartsText> {
       this.matchStyle = matchStyle;
     }
 
-  }
-
-  private static Values mapValues(String expression) {
-    Values values = new Values();
-    Stream.of(expression.split(",")).map(String::trim).forEach(v -> {
-      String[] split = v.split(":", 2);
-      if (split.length == 2) {
-        if ("width".equals(split[0])) {
-          values.setWidth(Integer.parseInt(split[1]));
-        }
-        else if ("prefix".equals(split[0])) {
-          values.setPrefix(Integer.parseInt(split[1]));
-        }
-        else if ("textStyle".equals(split[0])) {
-          values.setTextStyle(split[1]);
-        }
-        else if ("matchStyle".equals(split[0])) {
-          values.setMatchStyle(split[1]);
-        }
-      }
-    });
-    return values;
   }
 
 }

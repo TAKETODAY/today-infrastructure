@@ -69,7 +69,7 @@ import static org.jline.keymap.KeyMap.key;
 /**
  * Component resolving {@link Path} based on base path and optional search term. User is
  * expected to type a base path and then delimited by space and a search term.
- *
+ * <p>
  * Based on algorithms i.e. from https://github.com/junegunn/fzf and other sources.
  *
  * @author Janne Valkealahti
@@ -412,43 +412,6 @@ public class PathSearch extends AbstractTextComponent<Path, PathSearchContext> {
     }
 
     /**
-     * Domain class for path view item. Having its index, name(path), ref to cursor
-     * row index and list of name match parts.
-     */
-    public static class PathViewItem implements Nameable {
-
-      private Path path;
-
-      private PartsText partsText;
-
-      private boolean selected;
-
-      public PathViewItem(Path path, PartsText partsText, boolean selected) {
-        this.path = path;
-        this.partsText = partsText;
-        this.selected = selected;
-      }
-
-      @Override
-      public String getName() {
-        return path.toString();
-      }
-
-      public Path getPath() {
-        return path;
-      }
-
-      public boolean isSelected() {
-        return selected;
-      }
-
-      public PartsText getPartsText() {
-        return partsText;
-      }
-
-    }
-
-    /**
      * Split given text into {@link PartText}'s by given positions.
      *
      * @param text the text to split
@@ -511,6 +474,43 @@ public class PathSearch extends AbstractTextComponent<Path, PathSearchContext> {
         }
       }
       return parts;
+    }
+
+    /**
+     * Domain class for path view item. Having its index, name(path), ref to cursor
+     * row index and list of name match parts.
+     */
+    public static class PathViewItem implements Nameable {
+
+      private Path path;
+
+      private PartsText partsText;
+
+      private boolean selected;
+
+      public PathViewItem(Path path, PartsText partsText, boolean selected) {
+        this.path = path;
+        this.partsText = partsText;
+        this.selected = selected;
+      }
+
+      @Override
+      public String getName() {
+        return path.toString();
+      }
+
+      public Path getPath() {
+        return path;
+      }
+
+      public boolean isSelected() {
+        return selected;
+      }
+
+      public PartsText getPartsText() {
+        return partsText;
+      }
+
     }
 
   }

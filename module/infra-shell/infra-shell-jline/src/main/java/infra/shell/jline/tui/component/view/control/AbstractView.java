@@ -356,19 +356,6 @@ public abstract class AbstractView extends AbstractControl implements View {
     });
   }
 
-  record KeyBindingValue(@Nullable String keyCommand, @Nullable KeyBindingConsumer keyConsumer,
-          @Nullable Runnable keyRunnable) {
-    static KeyBindingValue of(@Nullable KeyBindingValue old, @Nullable String keyCommand,
-            @Nullable KeyBindingConsumer keyConsumer, @Nullable Runnable keyRunnable) {
-      if (old == null) {
-        return new KeyBindingValue(keyCommand, keyConsumer, keyRunnable);
-      }
-      return new KeyBindingValue(keyCommand != null ? keyCommand : old.keyCommand(),
-              keyConsumer != null ? keyConsumer : old.keyConsumer(),
-              keyRunnable != null ? keyRunnable : old.keyRunnable());
-    }
-  }
-
   /**
    * Get key bindings.
    *
@@ -385,21 +372,6 @@ public abstract class AbstractView extends AbstractControl implements View {
    */
   protected Map<Integer, KeyBindingValue> getHotKeyBindings() {
     return hotKeyBindings;
-  }
-
-  record MouseBindingValue(@Nullable String mouseCommand, @Nullable MouseBindingConsumer mouseConsumer,
-          @Nullable Runnable mouseRunnable, @Nullable Predicate<MouseEvent> mousePredicate) {
-    static MouseBindingValue of(@Nullable MouseBindingValue old, @Nullable String mouseCommand,
-            @Nullable MouseBindingConsumer mouseConsumer, @Nullable Runnable mouseRunnable,
-            @Nullable Predicate<MouseEvent> mousePredicate) {
-      if (old == null) {
-        return new MouseBindingValue(mouseCommand, mouseConsumer, mouseRunnable, mousePredicate);
-      }
-      return new MouseBindingValue(mouseCommand != null ? mouseCommand : old.mouseCommand(),
-              mouseConsumer != null ? mouseConsumer : old.mouseConsumer(),
-              mouseRunnable != null ? mouseRunnable : old.mouseRunnable(),
-              mousePredicate != null ? mousePredicate : old.mousePredicate());
-    }
   }
 
   /**
@@ -530,6 +502,34 @@ public abstract class AbstractView extends AbstractControl implements View {
       return true;
     }
     return false;
+  }
+
+  record MouseBindingValue(@Nullable String mouseCommand, @Nullable MouseBindingConsumer mouseConsumer,
+          @Nullable Runnable mouseRunnable, @Nullable Predicate<MouseEvent> mousePredicate) {
+    static MouseBindingValue of(@Nullable MouseBindingValue old, @Nullable String mouseCommand,
+            @Nullable MouseBindingConsumer mouseConsumer, @Nullable Runnable mouseRunnable,
+            @Nullable Predicate<MouseEvent> mousePredicate) {
+      if (old == null) {
+        return new MouseBindingValue(mouseCommand, mouseConsumer, mouseRunnable, mousePredicate);
+      }
+      return new MouseBindingValue(mouseCommand != null ? mouseCommand : old.mouseCommand(),
+              mouseConsumer != null ? mouseConsumer : old.mouseConsumer(),
+              mouseRunnable != null ? mouseRunnable : old.mouseRunnable(),
+              mousePredicate != null ? mousePredicate : old.mousePredicate());
+    }
+  }
+
+  record KeyBindingValue(@Nullable String keyCommand, @Nullable KeyBindingConsumer keyConsumer,
+          @Nullable Runnable keyRunnable) {
+    static KeyBindingValue of(@Nullable KeyBindingValue old, @Nullable String keyCommand,
+            @Nullable KeyBindingConsumer keyConsumer, @Nullable Runnable keyRunnable) {
+      if (old == null) {
+        return new KeyBindingValue(keyCommand, keyConsumer, keyRunnable);
+      }
+      return new KeyBindingValue(keyCommand != null ? keyCommand : old.keyCommand(),
+              keyConsumer != null ? keyConsumer : old.keyConsumer(),
+              keyRunnable != null ? keyRunnable : old.keyRunnable());
+    }
   }
 
 }

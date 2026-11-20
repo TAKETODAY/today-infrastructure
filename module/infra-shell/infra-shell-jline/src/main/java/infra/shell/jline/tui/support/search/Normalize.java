@@ -21,7 +21,7 @@ package infra.shell.jline.tui.support.search;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Normalize {
+public final class Normalize {
 
   private Normalize() {
   }

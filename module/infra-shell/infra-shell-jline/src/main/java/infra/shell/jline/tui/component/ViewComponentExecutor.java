@@ -52,6 +52,34 @@ public class ViewComponentExecutor implements AutoCloseable {
     this.executor.close();
   }
 
+  /**
+   * Execute runnable and return state which can be used for further operations.
+   *
+   * @param runnable the runnable
+   * @return run state
+   */
+  public ViewComponentRun start(Runnable runnable) {
+    if (future != null && !future.isDone()) {
+      throw new IllegalStateException("Can run component as there is existing one in non stopped state");
+    }
+    future = executor.submit(() -> {
+      log.debug("About to run component");
+      runnable.run();
+      log.debug("Finished run component");
+    });
+    return new FutureViewComponentRun(future);
+  }
+
+  /**
+   * Stop a {@code ViewComponent} which has been previously started with this executor.
+   */
+  public void stop() {
+    if (future != null) {
+      future.cancel(true);
+    }
+    future = null;
+  }
+
   private static final class FutureViewComponentRun implements ViewComponentRun {
 
     private Future<?> future;
@@ -81,34 +109,6 @@ public class ViewComponentExecutor implements AutoCloseable {
       return this.future.isDone();
     }
 
-  }
-
-  /**
-   * Execute runnable and return state which can be used for further operations.
-   *
-   * @param runnable the runnable
-   * @return run state
-   */
-  public ViewComponentRun start(Runnable runnable) {
-    if (future != null && !future.isDone()) {
-      throw new IllegalStateException("Can run component as there is existing one in non stopped state");
-    }
-    future = executor.submit(() -> {
-      log.debug("About to run component");
-      runnable.run();
-      log.debug("Finished run component");
-    });
-    return new FutureViewComponentRun(future);
-  }
-
-  /**
-   * Stop a {@code ViewComponent} which has been previously started with this executor.
-   */
-  public void stop() {
-    if (future != null) {
-      future.cancel(true);
-    }
-    future = null;
   }
 
 }
