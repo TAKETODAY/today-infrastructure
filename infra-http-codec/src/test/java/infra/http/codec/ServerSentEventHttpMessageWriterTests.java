@@ -18,6 +18,7 @@
 
 package infra.http.codec;
 
+import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 
 import java.nio.charset.Charset;
@@ -27,11 +28,13 @@ import java.util.Collections;
 import java.util.Map;
 
 import infra.core.ResolvableType;
+import infra.core.codec.CodecException;
 import infra.core.io.buffer.DataBufferFactory;
 import infra.core.testfixture.io.buffer.AbstractDataBufferAllocatingTests;
 import infra.http.MediaType;
 import infra.http.ServerSentEvent;
 import infra.http.codec.json.JacksonJsonEncoder;
+import infra.web.testfixture.http.server.reactive.MockServerHttpRequest;
 import infra.web.testfixture.http.server.reactive.MockServerHttpResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -56,6 +59,29 @@ class ServerSentEventHttpMessageWriterTests extends AbstractDataBufferAllocating
 
   private ServerSentEventHttpMessageWriter messageWriter =
           new ServerSentEventHttpMessageWriter(new JacksonJsonEncoder());
+
+  @Test
+  void writesACommentWithoutADataLineThroughTheServerAdapter() {
+    var writer = new ServerSentEventHttpMessageWriter();
+    var type = ResolvableType.forClassWithGenerics(ServerSentEvent.class, String.class);
+    var response = new MockServerHttpResponse();
+    assertThat(writer.getWritableMediaTypes()).containsExactly(MediaType.TEXT_EVENT_STREAM);
+
+    StepVerifier.create(writer.write(Mono.just(ServerSentEvent.builder().comment("heartbeat").build()), type, type,
+                    null, MockServerHttpRequest.get("/").build(), response, HINTS))
+            .expectComplete().verify(Duration.ofSeconds(5));
+    assertThat(response.getBodyAsString().block(Duration.ofSeconds(5))).isEqualTo(":heartbeat\n\n");
+  }
+
+  @Test
+  void cannotWriteObjectDataWithoutAnEncoder() {
+    var writer = new ServerSentEventHttpMessageWriter();
+    StepVerifier.create(writer.write(Mono.just(new Pojo("foo", "bar")), forClass(Pojo.class),
+                    MediaType.TEXT_EVENT_STREAM, new MockServerHttpResponse(), HINTS))
+            .expectErrorSatisfies(error -> assertThat(error).isInstanceOf(CodecException.class)
+                    .hasMessage("No SSE encoder configured and the data is not String."))
+            .verify(Duration.ofSeconds(5));
+  }
 
   @ParameterizedDataBufferAllocatingTest
   void canWrite(DataBufferFactory bufferFactory) {

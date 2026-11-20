@@ -44,6 +44,7 @@ import infra.http.codec.CodecConfigurer;
 import infra.http.codec.DecoderHttpMessageReader;
 import infra.http.codec.EncoderHttpMessageWriter;
 import infra.http.codec.FormHttpMessageReader;
+import infra.http.codec.FormHttpMessageWriter;
 import infra.http.codec.HttpMessageReader;
 import infra.http.codec.HttpMessageWriter;
 import infra.http.codec.ResourceHttpMessageReader;
@@ -68,6 +69,7 @@ import infra.http.codec.smile.JacksonSmileEncoder;
 import infra.util.MimeType;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -82,6 +84,67 @@ class CodecConfigurerTests {
   private final CodecConfigurer configurer = new TestCodecConfigurer();
 
   private final AtomicInteger index = new AtomicInteger();
+
+  @Test
+  void composesDefaultCustomizersAndAppliesThemToMultipartFormWriter() {
+    var defaults = this.configurer.defaultCodecs();
+    defaults.maxInMemorySize(128);
+    defaults.maxInMemorySize(128);
+    defaults.enableLoggingRequestDetails(false);
+    defaults.enableLoggingRequestDetails(false);
+    defaults.configureDefaultCodec(codec -> {
+      if (codec instanceof FormHttpMessageWriter formWriter) {
+        formWriter.setEnableLoggingRequestDetails(true);
+      }
+    });
+    defaults.configureDefaultCodec(codec -> {
+      if (codec instanceof FormHttpMessageWriter formWriter) {
+        assertThat(formWriter.isEnableLoggingRequestDetails()).isTrue();
+        formWriter.setEnableLoggingRequestDetails(false);
+      }
+    });
+
+    var writer = this.configurer.getWriters().stream().filter(MultipartHttpMessageWriter.class::isInstance)
+            .map(MultipartHttpMessageWriter.class::cast).findFirst().orElseThrow();
+    assertThat(writer.getFormWriter()).isInstanceOfSatisfying(FormHttpMessageWriter.class,
+            formWriter -> assertThat(formWriter.isEnableLoggingRequestDetails()).isFalse());
+    assertThat(this.configurer.getReaders()).anySatisfy(reader -> assertThat(reader)
+            .isInstanceOfSatisfying(DefaultPartHttpMessageReader.class, partReader -> assertThat(partReader.getMaxInMemorySize()).isEqualTo(128)));
+  }
+
+  @Test
+  void registersCustomCodecsWithIndividualDefaultConfigCallbacks() {
+    var defaults = this.configurer.defaultCodecs();
+    defaults.maxInMemorySize(1024);
+    defaults.enableLoggingRequestDetails(true);
+    FormHttpMessageWriter writer = new FormHttpMessageWriter();
+    this.configurer.customCodecs().registerWithDefaultConfig(writer, config -> {
+      assertThat(config.maxInMemorySize()).isEqualTo(1024);
+      writer.setEnableLoggingRequestDetails(Boolean.TRUE.equals(config.isEnableLoggingRequestDetails()));
+    });
+
+    assertThat(this.configurer.getWriters()).contains(writer);
+    assertThat(writer.isEnableLoggingRequestDetails()).isTrue();
+    assertThatIllegalArgumentException().isThrownBy(() -> this.configurer.customCodecs().register("not a codec"))
+            .withMessageContaining("Unexpected codec type");
+  }
+
+  @Test
+  void cloneKeepsAnIndependentListOfExplicitMultipartWriters() {
+    var defaults = this.configurer.defaultCodecs();
+    defaults.multipartCodecs().encoder(CharSequenceEncoder.textPlainOnly());
+    var clone = this.configurer.clone();
+    var resourceWriter = new ResourceHttpMessageWriter();
+    clone.defaultCodecs().multipartCodecs().writer(resourceWriter);
+
+    assertThat(multipartWriter(this.configurer).getPartWriters()).hasSize(1).doesNotContain(resourceWriter);
+    assertThat(multipartWriter(clone).getPartWriters()).hasSize(2).contains(resourceWriter);
+  }
+
+  private static MultipartHttpMessageWriter multipartWriter(CodecConfigurer configurer) {
+    return configurer.getWriters().stream().filter(MultipartHttpMessageWriter.class::isInstance)
+            .map(MultipartHttpMessageWriter.class::cast).findFirst().orElseThrow();
+  }
 
   @Test
   void defaultReaders() {
