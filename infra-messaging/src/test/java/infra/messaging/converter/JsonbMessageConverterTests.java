@@ -19,6 +19,7 @@ package infra.messaging.converter;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -34,6 +35,8 @@ import infra.util.MimeType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.Mockito.mock;
 import static org.assertj.core.api.Assertions.within;
 
 /**
@@ -48,6 +51,23 @@ class JsonbMessageConverterTests {
   void defaultConstructor() {
     JsonbMessageConverter converter = new JsonbMessageConverter();
     assertThat(converter.getSupportedMimeTypes()).contains(new MimeType("application", "json"));
+  }
+
+  @Test
+  void customJsonbAndConfigConstructors() {
+    jakarta.json.bind.Jsonb jsonb = mock();
+    JsonbMessageConverter converter = new JsonbMessageConverter(jsonb);
+    assertThat(converter.getJsonb()).isSameAs(jsonb);
+    converter.setJsonb(jsonb);
+    assertThat(converter.getJsonb()).isSameAs(jsonb);
+    assertThat(new JsonbMessageConverter(new jakarta.json.bind.JsonbConfig()).getJsonb()).isNotNull();
+  }
+
+  @Test
+  void rejectsNullJsonb() {
+    assertThatIllegalArgumentException().isThrownBy(() -> new JsonbMessageConverter((jakarta.json.bind.Jsonb) null));
+    JsonbMessageConverter converter = new JsonbMessageConverter();
+    assertThatIllegalArgumentException().isThrownBy(() -> converter.setJsonb(null));
   }
 
   @Test

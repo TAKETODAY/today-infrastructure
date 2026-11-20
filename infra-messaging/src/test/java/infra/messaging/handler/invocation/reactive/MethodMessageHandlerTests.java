@@ -29,11 +29,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import infra.context.ApplicationContext;
 import infra.context.support.StaticApplicationContext;
+import infra.core.MethodParameter;
+import infra.core.ReactiveAdapterRegistry;
 import infra.util.Assert;
 import infra.messaging.Message;
 import infra.messaging.handler.DestinationPatternsMessageCondition;
 import infra.messaging.handler.HandlerMethod;
+import infra.messaging.handler.MessagingAdviceBean;
 import infra.messaging.handler.invocation.AbstractExceptionHandlerMethodResolver;
 import infra.messaging.handler.invocation.TestExceptionResolver;
 import infra.messaging.support.GenericMessage;
@@ -47,6 +51,10 @@ import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link AbstractMethodMessageHandler}.
@@ -132,6 +140,152 @@ class MethodMessageHandlerTests {
             .verifyComplete();
   }
 
+  @Test
+  void returnsEmptyForMessageWithoutMatchingDestination() {
+    TestMethodMessageHandler handler = initMethodMessageHandler(TestController.class);
+
+    Message<?> message = new GenericMessage<>("body", Collections.singletonMap(
+            DestinationPatternsMessageCondition.LOOKUP_DESTINATION_HEADER,
+                new SimpleRouteMatcher(new AntPathMatcher()).parseRoute("/not-mapped")));
+    StepVerifier.create(handler.handleMessage(message))
+            .verifyComplete();
+  }
+
+  @Test
+  void handlesMessagesWithoutDestinationAndReportsInvocationFailures() throws Exception {
+    TestMethodMessageHandler handler = new TestMethodMessageHandler();
+    handler.setHandlers(Collections.emptyList());
+    handler.afterPropertiesSet();
+
+    StepVerifier.create(handler.handleMessage(new GenericMessage<>("body")))
+            .verifyComplete();
+
+    handler = new TestMethodMessageHandler();
+    handler.setHandlers(Collections.singletonList(new FailingController()));
+    handler.afterPropertiesSet();
+    handler.registerHandlerMethod(new FailingController(), FailingController.class.getMethod("fail"), "/fail");
+    Message<?> message = new GenericMessage<>("body", Collections.singletonMap(
+            DestinationPatternsMessageCondition.LOOKUP_DESTINATION_HEADER,
+            new SimpleRouteMatcher(new AntPathMatcher()).parseRoute("/fail")));
+    StepVerifier.create(handler.handleMessage(message))
+            .expectError(IllegalStateException.class)
+            .verify(Duration.ofSeconds(5));
+  }
+
+  @Test
+  void supportsExplicitHandlersWithoutApplicationContext() {
+    TestMethodMessageHandler handler = new TestMethodMessageHandler();
+    handler.setHandlerPredicate(type -> true);
+    handler.setHandlers(Collections.singletonList(new TestController()));
+    assertThat(handler.getHandlerPredicate()).isNull();
+    handler.afterPropertiesSet();
+    assertThat(handler.getHandlerMethods()).containsKey("/handleMessage");
+    assertThat(handler.getDestinationLookup().get("/handleMessage")).contains("/handleMessage");
+  }
+
+  @Test
+  void rejectsBeanNameDetectionWithoutApplicationContext() throws Exception {
+    TestMethodMessageHandler handler = new TestMethodMessageHandler();
+    assertThatIllegalStateException().isThrownBy(() ->
+            handler.detectHandlerMethodsForTest("controller"));
+  }
+
+  @Test
+  void ignoresUnresolvableBeanTypesAndScopedTargetsDuringDiscovery() {
+    ApplicationContext context = mock();
+    given(context.getBeanNamesForType(Object.class)).willReturn(new String[] { "lazy", "scopedTarget.controller" });
+    given(context.getType("lazy")).willThrow(new IllegalStateException("type not available"));
+    TestMethodMessageHandler handler = new TestMethodMessageHandler();
+    handler.setApplicationContext(context);
+
+    handler.afterPropertiesSet();
+
+    assertThat(handler.getHandlerMethods()).isEmpty();
+    verify(context, never()).getType("scopedTarget.controller");
+  }
+
+  @Test
+  void fallsBackToApplicableAdviceWhenReturnValueHandlingFails() throws Exception {
+    TestController controller = new TestController();
+    TestMethodMessageHandler handler = new TestMethodMessageHandler();
+    IllegalArgumentException failure = new IllegalArgumentException("reply not sent");
+    TestAdvice advice = new TestAdvice();
+    MessagingAdviceBean ignored = mock();
+    MessagingAdviceBean applicable = mock();
+    given(applicable.isApplicableToBeanType(TestController.class)).willReturn(true);
+    given(applicable.resolveBean()).willReturn(advice);
+    TestExceptionResolver resolver = new TestExceptionResolver(TestAdvice.class);
+    handler.registerExceptionHandlerAdvice(ignored, resolver);
+    handler.registerExceptionHandlerAdvice(applicable, resolver);
+    handler.registerHandlerMethod(controller, TestController.class.getMethod("handleMessage"), "/reply");
+    handler.returnValueHandler = new TestReturnValueHandler() {
+      @Override
+      public Mono<Void> handleReturnValue(@Nullable Object value, MethodParameter returnType, Message<?> message) {
+        return (returnType.getExecutable().getName().equals("handleMessage") ? Mono.error(failure) :
+                super.handleReturnValue(value, returnType, message));
+      }
+    };
+    handler.afterPropertiesSet();
+    Message<?> message = new GenericMessage<>("body", Map.of(DestinationPatternsMessageCondition.LOOKUP_DESTINATION_HEADER,
+            new SimpleRouteMatcher(new AntPathMatcher()).parseRoute("/reply")));
+
+    StepVerifier.create(handler.handleMessage(message)).expectComplete().verify(Duration.ofSeconds(5));
+
+    assertThat(advice.failure).isSameAs(failure);
+    assertThat(handler.getLastReturnValue()).isEqualTo("recovered");
+    verify(ignored, never()).resolveBean();
+  }
+
+  @Test
+  void rejectsEquallySpecificDestinationPatterns() throws Exception {
+    TestMethodMessageHandler handler = new TestMethodMessageHandler();
+    TestController controller = new TestController();
+    handler.registerHandlerMethod(controller, TestController.class.getMethod("handleMessageMatch1"), "/orders/{id}");
+    handler.registerHandlerMethod(controller, TestController.class.getMethod("handleMessageMatch2"), "/orders/{name}");
+    handler.afterPropertiesSet();
+    Message<?> message = new GenericMessage<>("body", Map.of(DestinationPatternsMessageCondition.LOOKUP_DESTINATION_HEADER,
+            new SimpleRouteMatcher(new AntPathMatcher()).parseRoute("/orders/42")));
+
+    StepVerifier.create(handler.handleMessage(message))
+            .expectErrorSatisfies(error -> assertThat(error).isInstanceOf(IllegalStateException.class)
+                    .hasMessageContainingAll("/orders/42", "handleMessageMatch1", "handleMessageMatch2"))
+            .verify(Duration.ofSeconds(5));
+    assertThat(handler.getLastReturnValue()).isNull();
+  }
+
+  @Test
+  void configurationPropertiesAndExplicitHandlers() {
+    TestMethodMessageHandler handler = new TestMethodMessageHandler();
+    assertThat(handler.getHandlerPredicate()).isNotNull();
+
+    handler.setHandlerPredicate(null);
+    assertThat(handler.getHandlerPredicate()).isNull();
+    handler.setHandlerPredicate(type -> true);
+    assertThat(handler.getHandlerPredicate()).isNotNull();
+
+    List<Object> handlers = Collections.singletonList(new TestController());
+    handler.setHandlers(handlers);
+    assertThat(handler.getHandlerPredicate()).isNull();
+
+    ArgumentResolverConfigurer argumentConfigurer = new ArgumentResolverConfigurer();
+    ReturnValueHandlerConfigurer returnValueConfigurer = new ReturnValueHandlerConfigurer();
+    ReactiveAdapterRegistry registry = new ReactiveAdapterRegistry();
+    handler.setArgumentResolverConfigurer(argumentConfigurer);
+    handler.setReturnValueHandlerConfigurer(returnValueConfigurer);
+    handler.setReactiveAdapterRegistry(registry);
+    handler.setApplicationContext(new StaticApplicationContext());
+    handler.setBeanName("testHandler");
+
+    assertThat(handler.getArgumentResolverConfigurer()).isSameAs(argumentConfigurer);
+    assertThat(handler.getReturnValueHandlerConfigurer()).isSameAs(returnValueConfigurer);
+    assertThat(handler.getReactiveAdapterRegistry()).isSameAs(registry);
+    assertThat(handler.getApplicationContext()).isInstanceOf(StaticApplicationContext.class);
+    assertThat(handler.getBeanName()).isEqualTo("testHandler");
+
+    handler.afterPropertiesSet();
+    assertThat(handler.getHandlerMethods()).isNotEmpty();
+  }
+
   private TestMethodMessageHandler initMethodMessageHandler(Class<?>... handlerTypes) {
     return initMethodMessageHandler(handler -> { }, handlerTypes);
   }
@@ -192,9 +346,26 @@ class MethodMessageHandlerTests {
     void handleMessageFoo(String foo) { }
   }
 
+  private static class FailingController {
+
+    public Mono<String> fail() {
+      return Mono.error(new IllegalStateException("failure"));
+    }
+  }
+
+  private static class TestAdvice {
+
+    private IllegalArgumentException failure;
+
+    public String handleIllegalArgumentException(IllegalArgumentException failure) {
+      this.failure = failure;
+      return "recovered";
+    }
+  }
+
   private static class TestMethodMessageHandler extends AbstractMethodMessageHandler<String> {
 
-    private final TestReturnValueHandler returnValueHandler = new TestReturnValueHandler();
+    private TestReturnValueHandler returnValueHandler = new TestReturnValueHandler();
 
     private PathMatcher pathMatcher = new AntPathMatcher();
 
@@ -214,6 +385,10 @@ class MethodMessageHandlerTests {
 
     public @Nullable Object getLastReturnValue() {
       return this.returnValueHandler.getLastReturnValue();
+    }
+
+    public void detectHandlerMethodsForTest(Object handler) {
+      detectHandlerMethods(handler);
     }
 
     @Override

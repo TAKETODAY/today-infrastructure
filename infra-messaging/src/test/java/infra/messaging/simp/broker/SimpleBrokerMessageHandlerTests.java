@@ -29,7 +29,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
-
+import infra.context.ApplicationEventPublisher;
 import infra.core.testfixture.security.TestPrincipal;
 import infra.messaging.Message;
 import infra.messaging.MessageChannel;
@@ -46,6 +46,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -108,6 +109,53 @@ class SimpleBrokerMessageHandlerTests {
     assertThat(messageCaptured("sess2", "sub2", "/foo")).isTrue();
     assertThat(messageCaptured("sess1", "sub3", "/bar")).isTrue();
     assertThat(messageCaptured("sess2", "sub3", "/bar")).isTrue();
+  }
+
+  @Test
+  void duplicateConnectKeepsSubscriptionsAndUnsubscribeOnlyRemovesTheRequestedSubscription() {
+    startSession("sess1");
+    this.messageHandler.handleMessage(createSubscriptionMessage("sess1", "sub1", "/foo"));
+    this.messageHandler.handleMessage(createSubscriptionMessage("sess1", "sub2", "/foo"));
+
+    this.messageHandler.handleMessage(createConnectMessage("sess1", new TestPrincipal("other"), new long[] { 0, 0 }));
+    SimpMessageHeaderAccessor unsubscribe = SimpMessageHeaderAccessor.create(SimpMessageType.UNSUBSCRIBE);
+    unsubscribe.setSessionId("sess1");
+    unsubscribe.setSubscriptionId("sub1");
+    this.messageHandler.handleMessage(MessageBuilder.createMessage(new byte[0], unsubscribe.getMessageHeaders()));
+    this.messageHandler.handleMessage(createMessage("/foo", "body"));
+
+    verify(this.clientOutChannel).send(this.messageCaptor.capture());
+    assertThat(messageCaptured("sess1", "sub1", "/foo")).isFalse();
+    assertThat(messageCaptured("sess1", "sub2", "/foo")).isTrue();
+  }
+
+  @Test
+  void doesNotScheduleHeartbeatWhenBothIntervalsAreZero() {
+    this.messageHandler.setTaskScheduler(this.taskScheduler);
+    this.messageHandler.setHeartbeatValue(new long[] { 0, 0 });
+
+    this.messageHandler.start();
+    this.messageHandler.stop();
+
+    verifyNoMoreInteractions(this.taskScheduler);
+  }
+
+  @Test
+  void configurationAndHeartbeatValidation() {
+    DefaultSubscriptionRegistry registry = new DefaultSubscriptionRegistry();
+    this.messageHandler.setSubscriptionRegistry(registry);
+    this.messageHandler.setPathMatcher(new infra.util.AntPathMatcher());
+    this.messageHandler.setCacheLimit(10);
+    this.messageHandler.setSelectorHeaderName("selector");
+    this.messageHandler.setHeaderInitializer(accessor -> accessor.setHeader("initialized", true));
+    this.messageHandler.setTaskScheduler(this.taskScheduler);
+    this.messageHandler.setHeartbeatValue(new long[] { 0, 0 });
+
+    assertThat(this.messageHandler.getSubscriptionRegistry()).isSameAs(registry);
+    assertThat(this.messageHandler.getTaskScheduler()).isSameAs(this.taskScheduler);
+    assertThat(this.messageHandler.getHeartbeatValue()).containsExactly(0, 0);
+    assertThatIllegalArgumentException().isThrownBy(() -> this.messageHandler.setHeartbeatValue(new long[] { 1 }));
+    assertThatIllegalArgumentException().isThrownBy(() -> this.messageHandler.setHeartbeatValue(new long[] { -1, 0 }));
   }
 
   @Test
@@ -291,6 +339,77 @@ class SimpleBrokerMessageHandlerTests {
     List<Message<?>> messages = this.messageCaptor.getAllValues();
     assertThat(messages).hasSize(1);
     assertThat(messages.get(0).getHeaders().get(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER)).isEqualTo(SimpMessageType.CONNECT_ACK);
+  }
+
+  @Test
+  void brokerLifecycleConfigurationAndDestinationFiltering() {
+    assertThat(this.messageHandler.getClientInboundChannel()).isSameAs(this.clientInChannel);
+    assertThat(this.messageHandler.getClientOutboundChannel()).isSameAs(this.clientOutChannel);
+    assertThat(this.messageHandler.getBrokerChannel()).isSameAs(this.brokerChannel);
+    assertThat(this.messageHandler.getDestinationPrefixes()).isEmpty();
+    assertThat(this.messageHandler.isAutoStartup()).isTrue();
+    assertThat(this.messageHandler.getPhase()).isEqualTo(Integer.MAX_VALUE);
+    assertThat(this.messageHandler.isRunning()).isFalse();
+    assertThat(this.messageHandler.isBrokerAvailable()).isFalse();
+
+    this.messageHandler.setAutoStartup(false);
+    this.messageHandler.setPhase(10);
+    this.messageHandler.setUserDestinationPredicate(destination -> destination.startsWith("/user/"));
+    ApplicationEventPublisher publisher = mock();
+    this.messageHandler.setApplicationEventPublisher(publisher);
+    assertThat(this.messageHandler.isAutoStartup()).isFalse();
+    assertThat(this.messageHandler.getPhase()).isEqualTo(10);
+    assertThat(this.messageHandler.isPreservePublishOrder()).isFalse();
+    assertThat(this.messageHandler.getApplicationEventPublisher()).isSameAs(publisher);
+    assertThat(checkDestination("/topic/foo")).isTrue();
+    assertThat(checkDestination("/user/foo")).isFalse();
+    assertThat(checkDestination(null)).isTrue();
+
+    this.messageHandler.start();
+    assertThat(this.messageHandler.isRunning()).isTrue();
+    assertThat(this.messageHandler.isBrokerAvailable()).isTrue();
+    this.messageHandler.handleMessage(createMessage("/topic/foo", "ignored"));
+    this.messageHandler.stop(() -> { });
+    assertThat(this.messageHandler.isRunning()).isFalse();
+    assertThat(this.messageHandler.isBrokerAvailable()).isFalse();
+    verify(this.clientInChannel).subscribe(this.messageHandler);
+    verify(this.brokerChannel).subscribe(this.messageHandler);
+    verify(this.clientInChannel).unsubscribe(this.messageHandler);
+    verify(this.brokerChannel).unsubscribe(this.messageHandler);
+  }
+
+  @Test
+  void heartbeatTaskDisconnectsInactiveSessionsAndInitializesHeaders() throws Exception {
+    this.messageHandler.setHeartbeatValue(new long[] { 1, 1 });
+    this.messageHandler.setTaskScheduler(this.taskScheduler);
+    this.messageHandler.setHeaderInitializer(accessor -> accessor.setHeader("initialized", true));
+    this.messageHandler.start();
+
+    ArgumentCaptor<Runnable> taskCaptor = ArgumentCaptor.forClass(Runnable.class);
+    verify(this.taskScheduler).scheduleWithFixedDelay(taskCaptor.capture(), eq(Duration.ofMillis(1)));
+    this.messageHandler.handleMessage(createConnectMessage("sess1", new TestPrincipal("joe"), new long[] { 1, 0 }));
+    Thread.sleep(10);
+    taskCaptor.getValue().run();
+
+    verify(this.clientOutChannel, atLeast(2)).send(this.messageCaptor.capture());
+    assertThat(this.messageCaptor.getAllValues()).anySatisfy(message ->
+            assertThat(message.getHeaders().get("initialized")).isEqualTo(true));
+  }
+
+  @Test
+  void ignoresFailureSendingToOneSubscriber() {
+    startSession("sess1");
+    this.messageHandler.handleMessage(createSubscriptionMessage("sess1", "sub1", "/foo"));
+    reset(this.clientOutChannel);
+    doThrow(new IllegalStateException("client disconnected")).when(this.clientOutChannel).send(any());
+
+    this.messageHandler.handleMessage(createMessage("/foo", "body"));
+
+    verify(this.clientOutChannel).send(any());
+  }
+
+  private boolean checkDestination(String destination) {
+    return this.messageHandler.checkDestinationPrefix(destination);
   }
 
   private Message<String> startSession(String id) {

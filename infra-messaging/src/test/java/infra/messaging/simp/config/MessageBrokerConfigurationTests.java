@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp.config;
 
 import org.jspecify.annotations.Nullable;
@@ -72,6 +74,7 @@ import infra.messaging.support.MessageBuilder;
 import infra.messaging.tcp.ReconnectStrategy;
 import infra.messaging.tcp.TcpConnectionHandler;
 import infra.messaging.tcp.TcpOperations;
+import infra.scheduling.TaskScheduler;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.stereotype.Controller;
 import infra.util.AntPathMatcher;
@@ -428,6 +431,39 @@ class MessageBrokerConfigurationTests {
   }
 
   @Test
+  void customUserPrefixTranslatesAndDeliversUserMessages() {
+    try (var context = loadConfig(UserPrefixConfig.class)) {
+      MessageChannel inbound = context.getBean("clientInboundChannel", MessageChannel.class);
+      TestChannel outbound = context.getBean("clientOutboundChannel", TestChannel.class);
+      SimpMessagingTemplate template = context.getBean(SimpMessagingTemplate.class);
+      SimpleBrokerMessageHandler broker = context.getBean(SimpleBrokerMessageHandler.class);
+
+      assertThat(broker.getHeartbeatValue()).containsExactly(0, 0);
+      assertThat(((DefaultSubscriptionRegistry) broker.getSubscriptionRegistry()).getSelectorHeaderName())
+              .isEqualTo("filter");
+      assertThat(template.getUserDestinationPrefix()).isEqualTo("/private/");
+      assertThat(context.getBean(UserPrefixConfig.class).getApplicationContext()).isSameAs(context);
+
+      inbound.send(createConnectMessage("session", new long[] { 0, 0 }));
+      SimpMessageHeaderAccessor subscribe = SimpMessageHeaderAccessor.create(SimpMessageType.SUBSCRIBE);
+      subscribe.setSessionId("session");
+      subscribe.setSubscriptionId("private-subscription");
+      subscribe.setDestination("/private/queue/orders");
+      inbound.send(MessageBuilder.createMessage("", subscribe.getMessageHeaders()));
+      outbound.messages.clear();
+
+      SimpMessageHeaderAccessor send = SimpMessageHeaderAccessor.create();
+      send.setSessionId("session");
+      template.convertAndSendToUser("session", "/queue/orders", "updated", send.getMessageHeaders());
+
+      assertThat(outbound.messages).singleElement().satisfies(message -> {
+        assertThat(SimpMessageHeaderAccessor.getDestination(message.getHeaders())).isEqualTo("/queue/orders-usersession");
+        assertThat(SimpMessageHeaderAccessor.getSubscriptionId(message.getHeaders())).isEqualTo("private-subscription");
+      });
+    }
+  }
+
+  @Test
   void customCacheLimit() {
     ApplicationContext context = loadConfig(CustomConfig.class);
 
@@ -582,6 +618,18 @@ class MessageBrokerConfigurationTests {
         registry.setOrder(order);
       }
       return registry;
+    }
+  }
+
+  @Configuration
+  static class UserPrefixConfig extends BaseDotSeparatorConfig {
+
+    @Override
+    protected void configureMessageBroker(MessageBrokerRegistry registry) {
+      registry.setUserDestinationPrefix("/private");
+      TaskScheduler scheduler = mock();
+      registry.enableSimpleBroker().setTaskScheduler(scheduler).setHeartbeatValue(new long[] { 0, 0 })
+              .setSelectorHeaderName("filter");
     }
   }
 

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.handler.annotation.support;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -37,6 +39,7 @@ import static infra.messaging.handler.annotation.MessagingPredicates.header;
 import static infra.messaging.handler.annotation.MessagingPredicates.headerPlain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
@@ -172,6 +175,36 @@ class HeaderMethodArgumentResolverTests {
   }
 
   @Test
+  void emptyHeaderUsesDefaultValue() throws Exception {
+    Message<String> message = MessageBuilder.withPayload("body").setHeader("name", "").build();
+    assertThat(this.resolver.resolveArgument(this.resolvable.annot(header("name", "bar")).arg(), message))
+            .isEqualTo("bar");
+  }
+
+  @Test
+  void missingOptionalBooleanUsesFalse() throws Exception {
+    Message<String> message = MessageBuilder.withPayload("body").build();
+    assertThat(this.resolver.resolveArgument(this.resolvable.annot(header("enabled").required(false)).arg(), message))
+            .isEqualTo(false);
+  }
+
+  @Test
+  void requiredNumericHeaderIsMissingWhenConversionReturnsNull() {
+    Message<String> message = MessageBuilder.withPayload("body").setHeader("count", "").build();
+    assertThatExceptionOfType(MessageHandlingException.class).isThrownBy(() ->
+            this.resolver.resolveArgument(this.resolvable.annot(header("count")).arg(), message))
+            .withMessageContaining("count");
+  }
+
+  @Test
+  void headerNameExpressionMustNotResolveToNull() {
+    Message<String> message = MessageBuilder.withPayload("body").build();
+    assertThatIllegalArgumentException().isThrownBy(() ->
+            this.resolver.resolveArgument(this.resolvable.annot(header("#{null}")).arg(), message))
+            .withMessageContaining("Specified name must not resolve to null");
+  }
+
+  @Test
   void resolveOptionalHeaderWithValue() throws Exception {
     Message<String> message = MessageBuilder.withPayload("foo").setHeader("foo", "bar").build();
     MethodParameter param = this.resolvable.annot(header("foo")).arg(Optional.class, String.class);
@@ -196,7 +229,10 @@ class HeaderMethodArgumentResolverTests {
           String param5,
           @Header("foo") Optional<String> param6,
           @Header("nativeHeaders.param1") String nativeHeaderParam1,
-          @Header(name = "${systemProperty}", required = false) int primitivePlaceholderParam) {
+          @Header(name = "${systemProperty}", required = false) int primitivePlaceholderParam,
+          @Header(name = "enabled", required = false) boolean enabled,
+          @Header("count") Integer count,
+          @Header("#{null}") String nullName) {
   }
 
   public static class TestMessageHeaderAccessor extends NativeMessageHeaderAccessor {

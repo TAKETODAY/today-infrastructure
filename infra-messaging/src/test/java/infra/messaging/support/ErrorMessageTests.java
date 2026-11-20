@@ -18,6 +18,10 @@ package infra.messaging.support;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+
+import infra.messaging.MessageHeaders;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -36,6 +40,19 @@ class ErrorMessageTests {
     emString = em.toString();
     assertThat(emString).contains("original");
     assertThat(emString).contains(em.getOriginalMessage().toString());
+  }
+
+  @Test
+  void allConstructorsRetainHeadersAndOriginalMessage() {
+    MessageHeaders headers = new MessageHeaders(Map.of("key", "value"));
+    GenericMessage<String> original = new GenericMessage<>("original");
+    RuntimeException cause = new RuntimeException("cause");
+
+    assertThat(new ErrorMessage(cause, Map.of("key", "value")).getOriginalMessage()).isNull();
+    assertThat(new ErrorMessage(cause, headers).getHeaders()).isSameAs(headers);
+    assertThat(new ErrorMessage(cause, original).getOriginalMessage()).isSameAs(original);
+    assertThat(new ErrorMessage(cause, Map.of("key", "value"), original).getOriginalMessage()).isSameAs(original);
+    assertThat(new ErrorMessage(cause, headers, original).getOriginalMessage()).isSameAs(original);
   }
 
 }

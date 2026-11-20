@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 
 import infra.core.MethodParameter;
+import infra.core.DefaultParameterNameDiscoverer;
 import infra.messaging.Message;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -95,6 +96,30 @@ class InvocableHandlerMethodTests {
     Object value = invoke(new Handler(), method, 2, "value2");
 
     assertThat(value).isEqualTo("2-value2");
+  }
+
+  @Test
+  void invokesNoArgMethodAndSupportsConvenienceConstructor() throws Exception {
+    Method method = Handler.class.getMethod("noArg");
+    InvocableHandlerMethod handlerMethod = new InvocableHandlerMethod(new Handler(), "noArg");
+    handlerMethod.setParameterNameDiscoverer(DefaultParameterNameDiscoverer.getSharedInstance());
+
+    assertThat(handlerMethod.invoke(this.message)).isEqualTo("no-arg");
+    assertThat(new InvocableHandlerMethod(new Handler(), method).invoke(this.message)).isEqualTo("no-arg");
+  }
+
+  @Test
+  void resolvesAsyncReturnValueTypeFromValueAndDeclaredType() throws Exception {
+    InvocableHandlerMethod handlerMethod = new InvocableHandlerMethod(new Handler(),
+            Handler.class.getMethod("handleAsyncValue"));
+
+    MethodParameter withValue = handlerMethod.getAsyncReturnValueType("value");
+    MethodParameter withoutValue = handlerMethod.getAsyncReturnValueType(null);
+
+    assertThat(withValue.getParameterType()).isEqualTo(String.class);
+    assertThat(withValue.getGenericParameterType()).isEqualTo(String.class);
+    assertThat(withoutValue.getParameterType()).isEqualTo(String.class);
+    assertThat(withoutValue.clone().getGenericParameterType()).isEqualTo(String.class);
   }
 
   @Test
@@ -174,6 +199,14 @@ class InvocableHandlerMethodTests {
     }
 
     public void handle(double amount) {
+    }
+
+    public String noArg() {
+      return "no-arg";
+    }
+
+    public java.util.concurrent.CompletableFuture<String> handleAsyncValue() {
+      return java.util.concurrent.CompletableFuture.completedFuture("value");
     }
 
     public void handleWithException(Throwable ex) throws Throwable {
