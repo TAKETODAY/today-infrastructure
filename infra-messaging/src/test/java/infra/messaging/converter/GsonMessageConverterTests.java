@@ -19,6 +19,8 @@ package infra.messaging.converter;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,6 +35,7 @@ import infra.util.MimeType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.within;
 
 /**
@@ -47,6 +50,27 @@ class GsonMessageConverterTests {
   void defaultConstructor() {
     GsonMessageConverter converter = new GsonMessageConverter();
     assertThat(converter.getSupportedMimeTypes()).contains(new MimeType("application", "json"));
+  }
+
+  @Test
+  void customGsonAndParameterizedTypeSerialization() throws Exception {
+    com.google.gson.Gson gson = new com.google.gson.Gson();
+    GsonMessageConverter converter = new GsonMessageConverter(gson);
+    converter.setGson(gson);
+    assertThat(converter.getGson()).isSameAs(gson);
+
+    Method method = getClass().getDeclaredMethod("handleList", List.class);
+    Type type = method.getGenericParameterTypes()[0];
+    assertThat(type).isInstanceOf(ParameterizedType.class);
+    Message<?> message = converter.toMessage(List.of("a"), MessageBuilder.withPayload("ignored").build().getHeaders());
+    assertThat(new String((byte[]) message.getPayload(), StandardCharsets.UTF_8)).isEqualTo("[\"a\"]");
+  }
+
+  @Test
+  void rejectsNullGson() {
+    assertThatIllegalArgumentException().isThrownBy(() -> new GsonMessageConverter(null));
+    GsonMessageConverter converter = new GsonMessageConverter();
+    assertThatIllegalArgumentException().isThrownBy(() -> converter.setGson(null));
   }
 
   @Test

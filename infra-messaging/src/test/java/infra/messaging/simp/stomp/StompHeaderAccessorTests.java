@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
+import infra.core.testfixture.security.TestPrincipal;
 import infra.messaging.Message;
 import infra.messaging.MessageHeaders;
 import infra.messaging.simp.SimpMessageHeaderAccessor;
@@ -35,6 +36,7 @@ import infra.util.MimeType;
 import infra.util.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * Tests for {@link StompHeaderAccessor}.
@@ -241,6 +243,144 @@ class StompHeaderAccessorTests {
     final String payload = string + " > 80";
     actual = accessor.getShortLogMessage(payload.getBytes(StandardCharsets.UTF_8));
     assertThat(actual).isEqualTo(("SEND /foo session=123 application/json payload=" + string + "...(truncated)"));
+  }
+
+  @Test
+  void headerAccessorsAndHeartbeat() {
+    StompHeaderAccessor accessor = StompHeaderAccessor.create(StompCommand.SEND);
+    assertThat(accessor.getHeartbeat()).containsExactly(0, 0);
+    assertThat(accessor.getContentLength()).isNull();
+    assertThat(accessor.getReceipt()).isNull();
+    assertThat(accessor.getReceiptId()).isNull();
+    assertThat(accessor.getMessage()).isNull();
+    assertThat(accessor.getMessageId()).isNull();
+    assertThat(accessor.getVersion()).isNull();
+    assertThat(accessor.getHost()).isNull();
+
+    accessor.setHeartbeat(10, 20);
+    accessor.setContentLength(42);
+    accessor.setAck("client");
+    accessor.setNack("nack-id");
+    accessor.setLogin("joe");
+    accessor.setPasscode("secret");
+    accessor.setReceipt("receipt");
+    accessor.setReceiptId("receipt-id");
+    accessor.setMessage("message");
+    accessor.setMessageId("message-id");
+    accessor.setVersion("1.2");
+    accessor.setHost("example.org");
+    accessor.setUser(new TestPrincipal("joe"));
+
+    assertThat(accessor.getHeartbeat()).containsExactly(10, 20);
+    assertThat(accessor.getContentLength()).isEqualTo(42);
+    assertThat(accessor.getAck()).isEqualTo("client");
+    assertThat(accessor.getNack()).isEqualTo("nack-id");
+    assertThat(accessor.getLogin()).isEqualTo("joe");
+    assertThat(accessor.getPasscode()).isEqualTo("secret");
+    assertThat(accessor.getReceipt()).isEqualTo("receipt");
+    assertThat(accessor.getReceiptId()).isEqualTo("receipt-id");
+    assertThat(accessor.getMessage()).isEqualTo("message");
+    assertThat(accessor.getMessageId()).isEqualTo("message-id");
+    assertThat(accessor.getVersion()).isEqualTo("1.2");
+    assertThat(accessor.getHost()).isEqualTo("example.org");
+    assertThat(accessor.toNativeHeaderMap().get(StompHeaderAccessor.STOMP_PASSCODE_HEADER))
+            .containsExactly("PROTECTED");
+  }
+
+  @Test
+  void updateClientAndServerCommands() {
+    StompHeaderAccessor client = StompHeaderAccessor.wrap(MessageBuilder.createMessage(
+            "payload", SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE).getMessageHeaders()));
+    client.setSessionId("session");
+    assertThat(client.updateStompCommandAsClientMessage()).isEqualTo(StompCommand.SEND);
+    assertThat(client.updateStompCommandAsClientMessage()).isEqualTo(StompCommand.SEND);
+    client.setHeader("stompCommand", StompCommand.SUBSCRIBE);
+    assertThatIllegalStateException().isThrownBy(client::updateStompCommandAsServerMessage);
+
+    StompHeaderAccessor server = StompHeaderAccessor.create(StompCommand.SEND);
+    server.setSessionId("session");
+    server.setSubscriptionId("subscription");
+    server.updateStompCommandAsServerMessage();
+    assertThat(server.getCommand()).isEqualTo(StompCommand.MESSAGE);
+    assertThat(server.getMessageId()).startsWith("session-");
+    assertThat(server.getSubscriptionId()).isEqualTo("subscription");
+    server.updateStompCommandAsServerMessage();
+    assertThat(server.getMessageId()).isNotNull();
+
+    assertThatIllegalStateException().isThrownBy(() ->
+            StompHeaderAccessor.create(StompCommand.CONNECT).updateStompCommandAsClientMessage());
+    assertThatIllegalStateException().isThrownBy(() ->
+            StompHeaderAccessor.create(StompCommand.CONNECT).updateStompCommandAsServerMessage());
+    assertThatIllegalStateException().isThrownBy(() ->
+            StompHeaderAccessor.create(StompCommand.MESSAGE).updateStompCommandAsClientMessage());
+  }
+
+  @Test
+  void detailedLogMessagesForHeartbeatsAndCommands() {
+    StompHeaderAccessor heartbeat = StompHeaderAccessor.createForHeartbeat();
+    assertThat(heartbeat.isHeartbeat()).isTrue();
+    assertThat(heartbeat.getDetailedLogMessage(null)).isEqualTo("heart-beat");
+    heartbeat.setSessionId("session");
+    assertThat(heartbeat.getDetailedLogMessage(null)).isEqualTo("heart-beat in session session");
+
+    StompHeaderAccessor connect = StompHeaderAccessor.create(StompCommand.CONNECT);
+    connect.setSessionId("session");
+    connect.setUser(new TestPrincipal("joe"));
+    assertThat(connect.getShortLogMessage(null)).isEqualTo("CONNECT user=joe session=session");
+
+    StompHeaderAccessor stomp = StompHeaderAccessor.create(StompCommand.STOMP);
+    stomp.setSessionId("session");
+    assertThat(stomp.getShortLogMessage(null)).isEqualTo("STOMP session=session");
+
+    StompHeaderAccessor unsubscribe = StompHeaderAccessor.create(StompCommand.UNSUBSCRIBE);
+    unsubscribe.setSessionId("session");
+    unsubscribe.setSubscriptionId("sub");
+    assertThat(unsubscribe.getShortLogMessage(null)).isEqualTo("UNSUBSCRIBE id=sub session=session");
+
+    StompHeaderAccessor disconnect = StompHeaderAccessor.create(StompCommand.DISCONNECT);
+    disconnect.setSessionId("session");
+    disconnect.setReceipt("receipt");
+    assertThat(disconnect.getShortLogMessage(null)).isEqualTo("DISCONNECT receipt=receipt session=session");
+  }
+
+  @Test
+  void detailedLogMessagesCoverAllCommandShapes() {
+    StompHeaderAccessor subscribe = StompHeaderAccessor.create(StompCommand.SUBSCRIBE);
+    subscribe.setDestination("/topic/foo");
+    subscribe.setSubscriptionId("sub-1");
+    subscribe.setSessionId("session");
+    assertThat(subscribe.getShortLogMessage(null)).isEqualTo("SUBSCRIBE /topic/foo id=sub-1 session=session");
+
+    StompHeaderAccessor connected = StompHeaderAccessor.create(StompCommand.CONNECTED);
+    connected.setHeartbeat(10, 20);
+    connected.setSessionId("session");
+    assertThat(connected.getShortLogMessage(null)).isEqualTo("CONNECTED heart-beat=[10, 20] session=session");
+
+    StompHeaderAccessor message = StompHeaderAccessor.create(StompCommand.MESSAGE);
+    message.setSessionId("session");
+    message.setUser(new TestPrincipal("joe"));
+    message.setNativeHeader("custom", "value");
+    message.setContentType(MimeType.TEXT_PLAIN);
+    assertThat(message.getDetailedLogMessage("payload".getBytes(StandardCharsets.UTF_8)))
+            .contains("MESSAGE", "custom", "user=joe", "payload=payload");
+
+    StompHeaderAccessor noCommand = StompHeaderAccessor.wrap(MessageBuilder.withPayload("payload").build());
+    assertThat(noCommand.getDetailedLogMessage("payload")).contains("payload");
+    assertThatIllegalStateException().isThrownBy(() -> message.getShortLogMessage("payload"));
+  }
+
+  @Test
+  void staticHeaderAccessorsAndContentLength() {
+    StompHeaderAccessor accessor = StompHeaderAccessor.create(StompCommand.CONNECT);
+    accessor.setPasscode("secret");
+    accessor.setContentLength(11);
+    Map<String, Object> headers = accessor.getMessageHeaders();
+
+    assertThat(StompHeaderAccessor.getCommand(headers)).isEqualTo(StompCommand.CONNECT);
+    assertThat(StompHeaderAccessor.getPasscode(headers)).isEqualTo("secret");
+    assertThat(StompHeaderAccessor.getContentLength(accessor.toNativeHeaderMap())).isEqualTo(11);
+    assertThat(StompHeaderAccessor.getContentLength(Map.of())).isNull();
+    assertThat(StompHeaderAccessor.getPasscode(Map.of())).isNull();
   }
 
 }

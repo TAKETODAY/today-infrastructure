@@ -30,12 +30,14 @@ import infra.core.codec.CharSequenceEncoder;
 import infra.core.codec.Decoder;
 import infra.core.codec.Encoder;
 import infra.core.codec.StringDecoder;
+import infra.core.conversion.support.DefaultConversionService;
 import infra.core.env.MapPropertySource;
 import infra.core.env.PropertySource;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DefaultDataBufferFactory;
 import infra.messaging.Message;
 import infra.messaging.handler.DestinationPatternsMessageCondition;
+import infra.messaging.handler.MessagingAdviceBean;
 import infra.messaging.handler.annotation.DestinationVariable;
 import infra.messaging.handler.annotation.MessageExceptionHandler;
 import infra.messaging.handler.annotation.MessageMapping;
@@ -46,12 +48,17 @@ import infra.messaging.support.MessageHeaderAccessor;
 import infra.stereotype.Controller;
 import infra.util.AntPathMatcher;
 import infra.util.SimpleRouteMatcher;
+import infra.validation.Validator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Tests for {@link MessageMappingMessageHandler}.
@@ -122,6 +129,31 @@ class MessageMappingMessageHandlerTests {
     StepVerifier.create(initMesssageHandler().handleMessage(message))
             .expectErrorSatisfies(ex -> assertThat(ex.getMessage().startsWith("Could not resolve method parameter at index 0")).as("Actual: " + ex.getMessage()).isTrue())
             .verify(Duration.ofSeconds(5));
+  }
+
+  @Test
+  void discoversAnnotatedAdviceAndIgnoresAdviceWithoutExceptionMappings() {
+    MessageMappingMessageHandler handler = initMesssageHandler();
+    Validator validator = mock();
+    DefaultConversionService conversionService = new DefaultConversionService();
+    handler.setValidator(validator);
+    handler.setConversionService(conversionService);
+    assertThat(handler.getValidator()).isSameAs(validator);
+    assertThat(handler.getConversionService()).isSameAs(conversionService);
+
+    MessagingAdviceBean withoutMappings = mock();
+    doReturn(Object.class).when(withoutMappings).getBeanType();
+    handler.registerMessagingAdvice(withoutMappings);
+    MessagingAdviceBean advice = mock();
+    doReturn(GlobalAdvice.class).when(advice).getBeanType();
+    given(advice.isApplicableToBeanType(TestController.class)).willReturn(true);
+    given(advice.resolveBean()).willReturn(new GlobalAdvice());
+    handler.registerMessagingAdvice(advice);
+
+    handler.handleMessage(message("globalException", "abc")).block(Duration.ofSeconds(5));
+
+    verifyOutputContent(List.of("unavailable::global"));
+    verifyNoInteractions(validator);
   }
 
   private MessageMappingMessageHandler initMesssageHandler() {
@@ -206,9 +238,22 @@ class MessageMappingMessageHandlerTests {
               .flatMap(aLong -> Mono.error(new IllegalArgumentException("rejected")));
     }
 
+    @MessageMapping("globalException")
+    String handleGlobalException() {
+      throw new IllegalStateException("unavailable");
+    }
+
     @MessageExceptionHandler
     Mono<String> handleException(IllegalArgumentException ex) {
       return Mono.delay(Duration.ofMillis(10)).map(aLong -> ex.getMessage() + "::handled");
+    }
+  }
+
+  static class GlobalAdvice {
+
+    @MessageExceptionHandler
+    String handle(IllegalStateException failure) {
+      return failure.getMessage() + "::global";
     }
   }
 

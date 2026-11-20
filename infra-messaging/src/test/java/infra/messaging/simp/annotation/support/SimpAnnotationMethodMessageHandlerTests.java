@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import infra.context.support.StaticApplicationContext;
 import infra.messaging.Message;
@@ -56,6 +57,7 @@ import infra.messaging.simp.SimpMessageType;
 import infra.messaging.simp.SimpMessagingTemplate;
 import infra.messaging.simp.annotation.SubscribeMapping;
 import infra.messaging.support.MessageBuilder;
+import infra.messaging.support.MessageHeaderInitializer;
 import infra.stereotype.Controller;
 import infra.util.AntPathMatcher;
 import infra.validation.Errors;
@@ -69,6 +71,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -359,6 +362,52 @@ class SimpAnnotationMethodMessageHandlerTests {
     this.messageHandler.handleMessage(message);
 
     assertThat(this.testController.method).isEqualTo("placeholder");
+  }
+
+  @Test
+  void lifecycleSubscribesAndUnsubscribesFromInboundChannel() {
+    assertThat(this.messageHandler.isRunning()).isFalse();
+
+    this.messageHandler.start();
+
+    assertThat(this.messageHandler.isRunning()).isTrue();
+    verify(this.channel).subscribe(this.messageHandler);
+
+    this.messageHandler.stop();
+
+    assertThat(this.messageHandler.isRunning()).isFalse();
+    verify(this.channel).unsubscribe(this.messageHandler);
+  }
+
+  @Test
+  void lifecycleStopCallbackIsInvoked() {
+    this.messageHandler.start();
+    AtomicBoolean callbackCalled = new AtomicBoolean();
+
+    this.messageHandler.stop(() -> callbackCalled.set(true));
+
+    assertThat(callbackCalled).isTrue();
+    assertThat(this.messageHandler.isRunning()).isFalse();
+    verify(this.channel, times(1)).unsubscribe(this.messageHandler);
+  }
+
+  @Test
+  void configurationPropertiesAreApplied() {
+    assertThat(this.messageHandler.getPhase()).isEqualTo(Integer.MAX_VALUE);
+    this.messageHandler.setPhase(42);
+    assertThat(this.messageHandler.getPhase()).isEqualTo(42);
+
+    assertThat(this.messageHandler.getHeaderInitializer()).isNull();
+    MessageHeaderInitializer initializer = headers -> headers.setHeader("initialized", true);
+    this.messageHandler.setHeaderInitializer(initializer);
+    assertThat(this.messageHandler.getHeaderInitializer()).isSameAs(initializer);
+
+    assertThat(this.messageHandler.getPathMatcher()).isInstanceOf(AntPathMatcher.class);
+    this.messageHandler.setPathMatcher(new AntPathMatcher("."));
+    assertThat(this.messageHandler.getPathMatcher()).isInstanceOf(AntPathMatcher.class);
+    assertThat(this.messageHandler.getValidator()).isInstanceOf(StringTestValidator.class);
+    this.messageHandler.setMessageConverter(this.converter);
+    assertThat(this.messageHandler.getMessageConverter()).isSameAs(this.converter);
   }
 
   private Message<?> createMessage(String destination) {

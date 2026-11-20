@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp.annotation.support;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -47,6 +49,8 @@ import infra.messaging.support.MessageHeaderAccessor;
 import infra.util.MimeType;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -117,6 +121,7 @@ class SubscriptionMethodReturnValueHandlerTests {
   @Test
   void messageSentToChannel() throws Exception {
     given(this.messageChannel.send(any(Message.class))).willReturn(true);
+    this.handler.setHeaderInitializer(headers -> headers.setHeader("origin", "subscription"));
 
     String sessionId = "sess1";
     String subscriptionId = "subs1";
@@ -137,7 +142,24 @@ class SubscriptionMethodReturnValueHandlerTests {
     assertThat(headerAccessor.getSubscriptionId()).isEqualTo(subscriptionId);
     assertThat(headerAccessor.getDestination()).isEqualTo(destination);
     assertThat(headerAccessor.getContentType()).isEqualTo(MIME_TYPE);
+    assertThat(headerAccessor.getHeader("origin")).isEqualTo("subscription");
     assertThat(headerAccessor.getHeader(SimpMessagingTemplate.CONVERSION_HINT_HEADER)).isEqualTo(this.subscribeEventReturnType);
+  }
+
+  @Test
+  void rejectsIncompleteSubscriptionRepliesWithoutSending() throws Exception {
+    Message<?> noSubscription = createInputMessage("sess1", null, "/dest", null);
+    Message<?> noDestination = createInputMessage("sess1", "sub1", null, null);
+
+    this.handler.handleReturnValue(null, this.subscribeEventReturnType, noSubscription);
+    assertThatIllegalStateException().isThrownBy(() ->
+            this.handler.handleReturnValue(PAYLOAD, this.subscribeEventReturnType, noSubscription))
+            .withMessageContaining("No simpSubscriptionId");
+    assertThatIllegalStateException().isThrownBy(() ->
+            this.handler.handleReturnValue(PAYLOAD, this.subscribeEventReturnType, noDestination))
+            .withMessageContaining("No simpDestination");
+
+    verifyNoInteractions(this.messageChannel);
   }
 
   @Test

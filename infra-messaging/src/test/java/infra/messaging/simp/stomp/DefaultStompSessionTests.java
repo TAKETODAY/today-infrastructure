@@ -49,12 +49,15 @@ import infra.util.MimeType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -224,6 +227,28 @@ class DefaultStompSessionTests {
   }
 
   @Test
+  void heartbeatWriteFailureClosesConnectionAndReportsTransportError() {
+    this.session.afterConnected(this.connection);
+    this.connectHeaders.setHeartbeat(new long[] { 10000, 10000 });
+
+    StompHeaderAccessor connected = StompHeaderAccessor.create(StompCommand.CONNECTED);
+    connected.setVersion("1.2");
+    connected.setHeartbeat(10000, 10000);
+    connected.setLeaveMutable(true);
+    this.session.handleMessage(MessageBuilder.createMessage(new byte[0], connected.getMessageHeaders()));
+
+    ArgumentCaptor<Runnable> taskCaptor = ArgumentCaptor.forClass(Runnable.class);
+    verify(this.connection).onWriteInactivity(taskCaptor.capture(), any(Long.class));
+    IllegalStateException failure = new IllegalStateException("write failed");
+    given(this.connection.sendAsync(any())).willReturn(CompletableFuture.failedFuture(failure));
+
+    taskCaptor.getValue().run();
+
+    verify(this.connection).close();
+    verify(this.sessionHandler).handleTransportError(same(this.session), any(ConnectionLostException.class));
+  }
+
+  @Test
   void handleErrorFrame() {
     StompHeaderAccessor accessor = StompHeaderAccessor.create(StompCommand.ERROR);
     accessor.setContentType(new MimeType("text", "plain", StandardCharsets.UTF_8));
@@ -340,11 +365,34 @@ class DefaultStompSessionTests {
   }
 
   @Test
+  void ignoresExceptionRaisedByTransportErrorHandler() {
+    IllegalStateException exception = new IllegalStateException("simulated exception");
+    doThrow(new IllegalArgumentException("handler failed")).when(this.sessionHandler)
+            .handleTransportError(same(this.session), same(exception));
+
+    this.session.handleFailure(exception);
+
+    verify(this.sessionHandler).handleTransportError(this.session, exception);
+  }
+
+  @Test
   void afterConnectionClosed() {
     this.session.afterConnectionClosed();
 
     verify(this.sessionHandler).handleTransportError(same(this.session), any(ConnectionLostException.class));
     verifyNoMoreInteractions(this.sessionHandler);
+  }
+
+  @Test
+  void afterConnectionClosedResetsConnectionAndReportsFailure() {
+    this.session.afterConnected(this.connection);
+    reset(this.sessionHandler);
+
+    this.session.afterConnectionClosed();
+
+    assertThat(this.session.isConnected()).isFalse();
+    verify(this.connection).close();
+    verify(this.sessionHandler).handleTransportError(same(this.session), any(ConnectionLostException.class));
   }
 
   @Test
@@ -663,6 +711,61 @@ class DefaultStompSessionTests {
   }
 
   @Test
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  void receiptCallbacksAreResolvedOnlyOnceAndCallbackFailuresAreIgnored() {
+    TaskScheduler taskScheduler = mock();
+    ScheduledFuture future = mock();
+    given(taskScheduler.schedule(any(Runnable.class), any(Instant.class))).willReturn(future);
+    this.session.afterConnected(this.connection);
+    this.session.setTaskScheduler(taskScheduler);
+
+    StompHeaders headers = new StompHeaders();
+    headers.setDestination("/topic/foo");
+    headers.setReceipt("receipt");
+    Receiptable receiptable = this.session.send(headers, "payload");
+    AtomicBoolean called = new AtomicBoolean();
+    receiptable.addReceiptTask(receiptHeaders -> {
+      throw new IllegalStateException("callback failure");
+    });
+    receiptable.addReceiptTask(() -> called.set(true));
+
+    StompHeaderAccessor receipt = StompHeaderAccessor.create(StompCommand.RECEIPT);
+    receipt.setReceiptId("receipt");
+    receipt.setLeaveMutable(true);
+    this.session.handleMessage(MessageBuilder.createMessage(new byte[0], receipt.getMessageHeaders()));
+    this.session.handleMessage(MessageBuilder.createMessage(new byte[0], receipt.getMessageHeaders()));
+
+    assertThat(called).isTrue();
+    verify(future).cancel(true);
+
+    AtomicBoolean lateCalled = new AtomicBoolean();
+    receiptable.addReceiptTask(() -> lateCalled.set(true));
+    assertThat(lateCalled).isTrue();
+  }
+
+  @Test
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  void lateReceiptLostTaskRunsImmediately() {
+    TaskScheduler taskScheduler = mock();
+    ScheduledFuture future = mock();
+    given(taskScheduler.schedule(any(Runnable.class), any(Instant.class))).willReturn(future);
+    this.session.afterConnected(this.connection);
+    this.session.setTaskScheduler(taskScheduler);
+
+    StompHeaders headers = new StompHeaders();
+    headers.setDestination("/topic/foo");
+    headers.setReceipt("receipt");
+    Receiptable receiptable = this.session.send(headers, "payload");
+    ArgumentCaptor<Runnable> taskCaptor = ArgumentCaptor.forClass(Runnable.class);
+    verify(taskScheduler).schedule(taskCaptor.capture(), any(Instant.class));
+    taskCaptor.getValue().run();
+
+    AtomicBoolean called = new AtomicBoolean();
+    receiptable.addReceiptLostTask(() -> called.set(true));
+    assertThat(called).isTrue();
+  }
+
+  @Test
   void unsubscribeWithoutReceipt() {
     this.session.afterConnected(this.connection);
     assertThat(this.session.isConnected()).isTrue();
@@ -737,6 +840,112 @@ class DefaultStompSessionTests {
 
     assertThat(this.session.isConnected()).isFalse();
     verifyNoMoreInteractions(this.sessionHandler);
+  }
+
+  @Test
+  void connectionClosedAfterClientDisconnectDoesNotReportFailure() {
+    this.session.afterConnected(this.connection);
+    this.session.disconnect();
+    reset(this.sessionHandler);
+
+    this.session.afterConnectionClosed();
+
+    verifyNoMoreInteractions(this.sessionHandler);
+  }
+
+  @Test
+  void configurationAndValidation() {
+    assertThat(this.session.getSessionId()).isNotBlank();
+    assertThat(this.session.getSessionHandler()).isSameAs(this.sessionHandler);
+    assertThat(this.session.getConnectHeaders().getCommand()).isEqualTo(StompCommand.CONNECT);
+    assertThat(this.session.getSession()).isNotNull();
+    assertThat(this.session.getMessageConverter()).isNotNull();
+    assertThat(this.session.getTaskScheduler()).isNull();
+    assertThat(this.session.getReceiptTimeLimit()).isEqualTo(15000L);
+    assertThat(this.session.isAutoReceiptEnabled()).isFalse();
+
+    TaskScheduler scheduler = mock();
+    this.session.setTaskScheduler(scheduler);
+    this.session.setReceiptTimeLimit(1000L);
+    this.session.setAutoReceipt(true);
+    assertThat(this.session.getTaskScheduler()).isSameAs(scheduler);
+    assertThat(this.session.getReceiptTimeLimit()).isEqualTo(1000L);
+    assertThat(this.session.isAutoReceiptEnabled()).isTrue();
+    assertThatIllegalArgumentException().isThrownBy(() -> this.session.setReceiptTimeLimit(0));
+    assertThatIllegalArgumentException().isThrownBy(() -> this.session.setReceiptTimeLimit(-1));
+  }
+
+  @Test
+  void rejectsInvalidOperationsAndMissingConnection() {
+    assertThatIllegalArgumentException().isThrownBy(() -> this.session.send((String) null, "payload"));
+    assertThatIllegalArgumentException().isThrownBy(() -> this.session.subscribe((String) null, mock()));
+    assertThatIllegalArgumentException().isThrownBy(() -> this.session.subscribe("/topic/foo", null));
+    assertThatIllegalStateException().isThrownBy(() -> this.session.acknowledge((String) null, true));
+    assertThatIllegalStateException().isThrownBy(() -> this.session.send("/topic/foo", "payload"));
+    assertThatIllegalStateException().isThrownBy(() -> this.session.disconnect());
+  }
+
+  @Test
+  void handleMessageRequiresStompAccessorAndReportsHandlerFailure() {
+    Message<byte[]> message = MessageBuilder.withPayload(new byte[0]).build();
+    assertThatIllegalStateException().isThrownBy(() -> this.session.handleMessage(message));
+
+    this.session.afterConnected(this.connection);
+    StompFrameHandler frameHandler = mock();
+    Subscription subscription = this.session.subscribe("/topic/foo", frameHandler);
+    StompHeaderAccessor accessor = StompHeaderAccessor.create(StompCommand.MESSAGE);
+    accessor.setSubscriptionId(subscription.getSubscriptionId());
+    accessor.setDestination("/topic/foo");
+    accessor.setLeaveMutable(true);
+    StompHeaders headers = StompHeaders.readOnlyStompHeaders(accessor.getNativeHeaders());
+    RuntimeException failure = new RuntimeException("handler failure");
+    given(frameHandler.getPayloadType(headers)).willReturn(String.class);
+    org.mockito.Mockito.doThrow(failure).when(frameHandler).handleFrame(headers, "payload");
+
+    byte[] payload = "payload".getBytes(StandardCharsets.UTF_8);
+    this.session.handleMessage(MessageBuilder.createMessage(payload, accessor.getMessageHeaders()));
+
+    verify(this.sessionHandler).handleException(this.session, StompCommand.MESSAGE,
+            headers, payload, failure);
+  }
+
+  @Test
+  void handlesUnknownSubscriptionAndReceipt() {
+    StompHeaderAccessor messageAccessor = StompHeaderAccessor.create(StompCommand.MESSAGE);
+    messageAccessor.setSubscriptionId("missing");
+    messageAccessor.setLeaveMutable(true);
+    this.session.handleMessage(MessageBuilder.createMessage(new byte[0], messageAccessor.getMessageHeaders()));
+
+    StompHeaderAccessor receiptAccessor = StompHeaderAccessor.create(StompCommand.RECEIPT);
+    receiptAccessor.setReceiptId("missing");
+    receiptAccessor.setLeaveMutable(true);
+    this.session.handleMessage(MessageBuilder.createMessage(new byte[0], receiptAccessor.getMessageHeaders()));
+    verifyNoMoreInteractions(this.sessionHandler);
+  }
+
+  @Test
+  void acknowledgeUsesMessageIdForStomp11() {
+    this.session.afterConnected(this.connection);
+    StompHeaderAccessor connected = StompHeaderAccessor.create(StompCommand.CONNECTED);
+    connected.setVersion("1.1");
+    connected.setLeaveMutable(true);
+    this.session.handleMessage(MessageBuilder.createMessage(new byte[0], connected.getMessageHeaders()));
+
+    this.session.acknowledge("message-1", true);
+    StompHeaderAccessor sent = MessageHeaderAccessor.getAccessor(this.messageCaptor.getValue(),
+            StompHeaderAccessor.class);
+    assertThat(sent.getCommand()).isEqualTo(StompCommand.ACK);
+    assertThat(sent.getMessageId()).isEqualTo("message-1");
+    assertThat(sent.getSubscriptionId()).isNull();
+  }
+
+  @Test
+  void ignoresFailureFromTransportErrorCallback() {
+    RuntimeException failure = new RuntimeException("failure");
+    org.mockito.Mockito.doThrow(failure).when(this.sessionHandler).handleTransportError(
+            same(this.session), same(failure));
+    this.session.handleFailure(failure);
+    verify(this.sessionHandler).handleTransportError(this.session, failure);
   }
 
 }
