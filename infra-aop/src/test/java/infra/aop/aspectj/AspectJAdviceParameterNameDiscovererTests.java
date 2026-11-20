@@ -23,6 +23,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import infra.aop.aspectj.AspectJAdviceParameterNameDiscoverer.AmbiguousBindingException;
@@ -40,6 +41,40 @@ class AspectJAdviceParameterNameDiscovererTests {
 
   @Nested
   class StandardTests {
+
+    @Test
+    void nullMethodReturnsNull() {
+      AspectJAdviceParameterNameDiscoverer discoverer = new AspectJAdviceParameterNameDiscoverer("execution(* *(..))");
+
+      assertThat(discoverer.getParameterNames(null)).isNull();
+    }
+
+    @Test
+    void constructorReturnsNullByDefault() throws NoSuchMethodException {
+      Constructor<?> constructor = AspectJAdviceParameterNameDiscovererTests.class.getDeclaredConstructor();
+      AspectJAdviceParameterNameDiscoverer discoverer = new AspectJAdviceParameterNameDiscoverer("execution(* *(..))");
+
+      assertThat(discoverer.getParameterNames(constructor)).isNull();
+    }
+
+    @Test
+    void constructorRaisesWhenConfiguredToRaiseExceptions() throws NoSuchMethodException {
+      Constructor<?> constructor = AspectJAdviceParameterNameDiscovererTests.class.getDeclaredConstructor();
+      AspectJAdviceParameterNameDiscoverer discoverer = new AspectJAdviceParameterNameDiscoverer("execution(* *(..))");
+      discoverer.setRaiseExceptions(true);
+
+      assertThatExceptionOfType(UnsupportedOperationException.class)
+              .isThrownBy(() -> discoverer.getParameterNames(constructor))
+              .withMessageContaining("constructor");
+    }
+
+    @Test
+    void failedBindingReturnsNullWhenExceptionsAreDisabled() throws NoSuchMethodException {
+      Method method = getMethod("twoObjects");
+      AspectJAdviceParameterNameDiscoverer discoverer = new AspectJAdviceParameterNameDiscoverer("args(x,y)");
+
+      assertThat(discoverer.getParameterNames(method)).isNull();
+    }
 
     @Test
     void noArgs() {
@@ -82,6 +117,12 @@ class AspectJAdviceParameterNameDiscovererTests {
     void throwableNoCandidates() {
       assertException(getMethod("noArgs"), "foo()", null, "ex", IllegalStateException.class,
               "Not enough arguments in method to satisfy binding of returning and throwing variables");
+    }
+
+    @Test
+    void throwingNameWithoutThrowableCandidate() {
+      assertException(getMethod("oneObject"), "foo()", null, "ex", IllegalStateException.class,
+              "could not be completed as no available arguments are a subtype of Throwable");
     }
 
     @Test
@@ -219,6 +260,21 @@ class AspectJAdviceParameterNameDiscovererTests {
       assertParameterNames(getMethod("onePrimitive"), "call(bar *) && somepc(foo)", "foo");
       assertParameterNames(getMethod("onePrimitive"), "somepc ( foo )", "foo");
       assertParameterNames(getMethod("onePrimitive"), "somepc( foo)", "foo");
+    }
+
+    @Test
+    void referenceBindingReportsAmbiguousCandidatesAndIgnoresNonReferences() {
+      assertException(getMethod("oneObject"), "somepc(foo) && otherpc(bar)",
+              AmbiguousBindingException.class,
+              "Found 2 candidate reference pointcut variables");
+      assertParameterNames(getMethod("oneObject"), "!execution(* *(..)) && somepc(foo)", "foo");
+    }
+
+    @Test
+    void referenceBindingRejectsMultipleUnboundArgumentsBeforeScanningReferences() {
+      assertException(getMethod("twoObjects"), "args(Object, Object) && somepc(foo)",
+              AmbiguousBindingException.class,
+              "Still 2 unbound args at this()/target()/args() binding stage");
     }
   }
 

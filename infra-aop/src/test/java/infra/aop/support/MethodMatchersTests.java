@@ -26,6 +26,8 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 
 import infra.aop.MethodMatcher;
+import infra.aop.IntroductionAwareMethodMatcher;
+import infra.aop.ClassFilter;
 import infra.aop.framework.DefaultMethodInvocation;
 import infra.beans.testfixture.beans.IOther;
 import infra.beans.testfixture.beans.ITestBean;
@@ -110,6 +112,44 @@ public class MethodMatchersTests {
     assertThat(union.matches(ITESTBEAN_SETAGE, TestBean.class)).as("Matched setAge method").isTrue();
     assertThat(union.matches(ITESTBEAN_GETAGE, TestBean.class)).as("Matched getAge method").isTrue();
     assertThat(union.matches(IOTHER_ABSQUATULATE, TestBean.class)).as("Didn't matched absquatulate method").isFalse();
+  }
+
+  @Test
+  void classFilterAwareAndIntroductionAwareCombinatorsRespectTheirFilters() throws Exception {
+    MethodMatcher getter = new StartsWithMatcher("get");
+    MethodMatcher setter = new StartsWithMatcher("set");
+    ClassFilter onlyTestBean = clazz -> clazz == TestBean.class;
+    ClassFilter never = clazz -> false;
+
+    MethodMatcher filtered = MethodMatcher.union(getter, onlyTestBean, setter, never);
+    assertThat(MethodMatcher.matches(filtered, ITESTBEAN_GETAGE, TestBean.class, false)).isTrue();
+    assertThat(filtered.matches(ITESTBEAN_SETAGE, TestBean.class)).isFalse();
+    assertThat(filtered.matches(ITESTBEAN_GETAGE, String.class)).isFalse();
+    assertThat(filtered).isNotEqualTo(MethodMatcher.union(getter, setter));
+
+    IntroductionAwareMethodMatcher aware = new IntroductionAwareMethodMatcher() {
+      @Override
+      public boolean matches(Method method, Class<?> targetClass, boolean hasIntroductions) {
+        return hasIntroductions;
+      }
+
+      @Override
+      public boolean matches(Method method, Class<?> targetClass) {
+        return false;
+      }
+
+      @Override
+      public boolean isRuntime() {
+        return false;
+      }
+
+      @Override
+      public boolean matches(MethodInvocation invocation) {
+        return false;
+      }
+    };
+    MethodMatcher awareUnion = MethodMatcher.union(aware, getter);
+    assertThat(MethodMatcher.matches(awareUnion, ITESTBEAN_GETAGE, TestBean.class, true)).isTrue();
   }
 
   @Test

@@ -59,6 +59,22 @@ class ClassFiltersTests {
   }
 
   @Test
+  void arrayCombinatorsAndValueSemantics() {
+    ClassFilter[] filters = { exceptionFilter, interfaceFilter };
+    ClassFilter union = ClassFilter.union(filters);
+    ClassFilter sameUnion = ClassFilter.union(new ClassFilter[] { exceptionFilter, interfaceFilter });
+    ClassFilter intersection = ClassFilter.intersection(filters);
+    ClassFilter sameIntersection = ClassFilter.intersection(
+            new ClassFilter[] { exceptionFilter, interfaceFilter });
+
+    assertThat(union.matches(String.class)).isFalse();
+    assertThat(union).isEqualTo(sameUnion).hasSameHashCodeAs(sameUnion);
+    assertThat(intersection.matches(TestBean.class)).isFalse();
+    assertThat(intersection).isEqualTo(sameIntersection).hasSameHashCodeAs(sameIntersection);
+    assertThat(union).isNotEqualTo(intersection).hasToString(union.toString());
+  }
+
+  @Test
   void intersection() {
     assertThat(exceptionFilter.matches(RuntimeException.class)).isTrue();
     assertThat(hasRootCauseFilter.matches(NestedRuntimeException.class)).isTrue();

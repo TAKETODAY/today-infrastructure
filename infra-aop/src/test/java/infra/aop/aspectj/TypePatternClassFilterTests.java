@@ -61,6 +61,8 @@ class TypePatternClassFilterTests {
   void validPatternMatching() {
     TypePatternClassFilter tpcf = new TypePatternClassFilter("infra.beans.testfixture.beans.*");
 
+    assertThat(tpcf.getTypePattern()).isEqualTo("infra.beans.testfixture.beans.*");
+
     assertThat(tpcf.matches(TestBean.class)).as("Must match: in package").isTrue();
     assertThat(tpcf.matches(ITestBean.class)).as("Must match: in package").isTrue();
     assertThat(tpcf.matches(IOther.class)).as("Must match: in package").isTrue();
