@@ -19,8 +19,12 @@
 package infra.http.codec.multipart;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.AbstractMap;
 import java.util.Collections;
@@ -29,6 +33,8 @@ import java.util.Map;
 
 import infra.core.ResolvableType;
 import infra.core.codec.StringDecoder;
+import infra.core.io.ByteArrayResource;
+import infra.core.io.FileSystemResource;
 import infra.core.testfixture.io.buffer.AbstractLeakCheckingTests;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
@@ -36,6 +42,7 @@ import infra.util.MultiValueMap;
 import infra.web.testfixture.http.server.reactive.MockServerHttpResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import static infra.http.codec.multipart.MultipartHttpMessageWriterTests.parse;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,6 +62,65 @@ public class PartEventHttpMessageWriterTests extends AbstractLeakCheckingTests {
     assertThat(this.writer.canWrite(ResolvableType.forClass(PartEvent.class), MediaType.MULTIPART_FORM_DATA)).isTrue();
     assertThat(this.writer.canWrite(ResolvableType.forClass(FilePartEvent.class), MediaType.MULTIPART_FORM_DATA)).isTrue();
     assertThat(this.writer.canWrite(ResolvableType.forClass(FormPartEvent.class), MediaType.MULTIPART_FORM_DATA)).isTrue();
+    assertThat(this.writer.canWrite(ResolvableType.forClass(PartEvent.class), null)).isTrue();
+    assertThat(this.writer.canWrite(ResolvableType.forClass(PartEvent.class), MediaType.TEXT_PLAIN)).isFalse();
+    assertThat(this.writer.canWrite(ResolvableType.forClass(String.class), MediaType.MULTIPART_FORM_DATA)).isFalse();
+  }
+
+  @Test
+  void fileEventPreservesFilenameAndUsesTheDetectedMediaType(@TempDir Path directory) throws Exception {
+    Path file = Files.writeString(directory.resolve("résumé.txt"), "file contents");
+
+    StepVerifier.create(FilePartEvent.create("document", file))
+            .assertNext(event -> {
+              assertThat(event.name()).isEqualTo("document");
+              assertThat(event.filename()).isEqualTo("résumé.txt");
+              assertThat(event.headers().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+              assertThat(event.isLast()).isFalse();
+              try {
+                assertThat(event.content().toString(StandardCharsets.UTF_8)).isEqualTo("file contents");
+              }
+              finally {
+                event.content().release();
+              }
+            })
+            .assertNext(event -> {
+              assertThat(event.isLast()).isTrue();
+              assertThat(event.content().readableBytes()).isZero();
+            })
+            .expectComplete().verify(Duration.ofSeconds(5));
+  }
+
+  @Test
+  void emptyFileEventUsesCustomHeadersAndAnOctetStreamFallback(@TempDir Path directory) throws Exception {
+    Path file = Files.createFile(directory.resolve("no-extension"));
+    StepVerifier.create(FilePartEvent.create("document", new FileSystemResource(file), headers -> headers.set("X-Part", "test")))
+            .assertNext(event -> {
+              assertThat(event.headers().getFirst("X-Part")).isEqualTo("test");
+              assertThat(event.headers().getContentType()).isEqualTo(MediaType.APPLICATION_OCTET_STREAM);
+              assertThat(event.isLast()).isTrue();
+              assertThat(event.content().readableBytes()).isZero();
+            }).expectComplete().verify(Duration.ofSeconds(5));
+    StepVerifier.create(FilePartEvent.create("document", new ByteArrayResource(new byte[0])))
+            .expectError(FileNotFoundException.class).verify(Duration.ofSeconds(5));
+  }
+
+  @Test
+  void formEventUsesItsDeclaredCharset() {
+    StepVerifier.create(FormPartEvent.create("label", "é", headers ->
+                    headers.setContentType(MediaType.TEXT_PLAIN.withCharset(StandardCharsets.ISO_8859_1))))
+            .assertNext(event -> {
+              assertThat(event.name()).isEqualTo("label");
+              assertThat(event.value()).isEqualTo("é");
+              var content = event.content();
+              try {
+                assertThat(content.readableBytes()).isEqualTo(1);
+                assertThat(content.read()).isEqualTo((byte) 0xe9);
+              }
+              finally {
+                content.release();
+              }
+            }).verifyComplete();
   }
 
   @Test

@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +47,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class FormHttpMessageReaderTests extends AbstractLeakCheckingTests {
 
   private final FormHttpMessageReader reader = new FormHttpMessageReader();
+
+  @Test
+  void decodesFormValuesUsingAnExplicitCharsetOrTheConfiguredDefault() {
+    this.reader.setDefaultCharset(StandardCharsets.ISO_8859_1);
+    var rawMap = ResolvableType.forClass(MultiValueMap.class);
+    assertThat(this.reader.getReadableMediaTypes()).containsExactly(MediaType.APPLICATION_FORM_URLENCODED);
+    assertThat(this.reader.canRead(rawMap, null)).isTrue();
+    assertThat(this.reader.canRead(ResolvableType.forClass(Map.class), null)).isFalse();
+
+    var fallback = MockServerHttpRequest.post("/").body("name=caf%E9");
+    var explicit = MockServerHttpRequest.post("/")
+            .contentType(MediaType.APPLICATION_FORM_URLENCODED.withCharset(StandardCharsets.UTF_8)).body("name=caf%C3%A9");
+    for (var request : List.of(fallback, explicit)) {
+      StepVerifier.create(this.reader.readMono(rawMap, request, Map.of()))
+              .assertNext(form -> assertThat(form.getFirst("name")).isEqualTo("café"))
+              .expectComplete().verify(Duration.ofSeconds(5));
+    }
+  }
 
   @Test
   public void canRead() {

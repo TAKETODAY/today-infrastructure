@@ -31,6 +31,10 @@ import infra.core.Ordered;
 import infra.http.codec.CodecConfigurer;
 import infra.http.codec.CodecConfigurer.DefaultCodecs;
 import infra.http.codec.CodecCustomizer;
+import infra.http.codec.DecoderHttpMessageReader;
+import infra.http.codec.EncoderHttpMessageWriter;
+import infra.http.codec.json.JacksonJsonDecoder;
+import infra.http.codec.json.JacksonJsonEncoder;
 import infra.http.codec.support.DefaultClientCodecConfigurer;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
@@ -82,7 +86,20 @@ class CodecsAutoConfigurationTests {
   @Test
   void jacksonCodecCustomizerIsAutoConfiguredWhenJsonMapperIsPresent() {
     this.contextRunner.withUserConfiguration(JsonMapperConfiguration.class)
-            .run((context) -> assertThat(context).hasBean("jacksonCodecCustomizer"));
+            .run(context -> {
+              CodecConfigurer configurer = new DefaultClientCodecConfigurer();
+              context.getBean("jacksonCodecCustomizer", CodecCustomizer.class).customize(configurer);
+              JsonMapper mapper = context.getBean(JsonMapper.class);
+
+              assertThat(configurer.getReaders().stream().filter(DecoderHttpMessageReader.class::isInstance)
+                      .map(reader -> ((DecoderHttpMessageReader<?>) reader).getDecoder())
+                      .filter(JacksonJsonDecoder.class::isInstance).map(JacksonJsonDecoder.class::cast))
+                      .singleElement().satisfies(decoder -> assertThat(decoder.getMapper()).isSameAs(mapper));
+              assertThat(configurer.getWriters().stream().filter(EncoderHttpMessageWriter.class::isInstance)
+                      .map(writer -> ((EncoderHttpMessageWriter<?>) writer).getEncoder())
+                      .filter(JacksonJsonEncoder.class::isInstance).map(JacksonJsonEncoder.class::cast))
+                      .singleElement().satisfies(encoder -> assertThat(encoder.getMapper()).isSameAs(mapper));
+            });
   }
 
   @Test
