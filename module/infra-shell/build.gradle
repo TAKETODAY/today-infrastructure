@@ -1,0 +1,15 @@
+description = 'Infra Shell command core and application auto-configuration'
+
+dependencies {
+  api(project(':infra-context'))
+  api(project(':infra-app'))
+  api('jakarta.validation:jakarta.validation-api')
+  runtimeOnly('org.hibernate.validator:hibernate-validator')
+  runtimeOnly('org.glassfish:jakarta.el')
+
+  annotationProcessor(project(':infra-build:infra-annotation-config-processor'))
+  annotationProcessor(project(':infra-build:infra-configuration-processor'))
+
+  testImplementation(project(':infra-test'))
+  testImplementation('com.google.jimfs:jimfs:1.3.2')
+}

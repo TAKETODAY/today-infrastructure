@@ -1,0 +1,107 @@
+/*
+ * Copyright 2025-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
+package infra.shell.jline;
+
+import org.jline.reader.LineReader;
+import org.jline.terminal.Terminal;
+
+import java.io.Console;
+import java.io.PrintWriter;
+
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
+import infra.shell.InputReader;
+import infra.shell.InteractiveShellRunner;
+import infra.shell.command.CommandParser;
+import infra.shell.command.CommandRegistry;
+
+/**
+ * Interactive shell runner based on the JVM's system {@link Console}.
+ *
+ * @author Mahmoud Ben Hassine
+ * @author David Pilar
+ * @since 5.0
+ */
+public class JLineShellRunner extends InteractiveShellRunner {
+
+  private static final Logger log = LoggerFactory.getLogger(JLineShellRunner.class);
+
+  private final LineReader lineReader;
+
+  /**
+   * Create a new {@link JLineShellRunner} instance.
+   *
+   * @param inputProvider the JLine input provider
+   * @param commandParser the command parser
+   * @param commandRegistry the command registry
+   */
+  public JLineShellRunner(JLineInputProvider inputProvider, CommandParser commandParser,
+          CommandRegistry commandRegistry) {
+    super(inputProvider, commandParser, commandRegistry);
+    this.lineReader = inputProvider.getLineReader();
+  }
+
+  @Override
+  public void print(String message) {
+    ignoringClosedTerminal(() -> this.lineReader.getTerminal().writer().println(message));
+  }
+
+  @Override
+  public void flush() {
+    ignoringClosedTerminal(() -> this.lineReader.getTerminal().flush());
+  }
+
+  private void ignoringClosedTerminal(Runnable action) {
+    try {
+      action.run();
+    }
+    catch (IllegalStateException ex) {
+      if (ex.getMessage() == null || !ex.getMessage().contains("closed")) {
+        throw ex;
+      }
+    }
+  }
+
+  @Override
+  public PrintWriter getWriter() {
+    return this.lineReader.getTerminal().writer();
+  }
+
+  @Override
+  public InputReader getReader() {
+    return new JLineInputReader(this.lineReader);
+  }
+
+  /**
+   * Raise {@code INT} on the terminal so the blocked {@link LineReader#readLine()}
+   * throws.
+   */
+  @Override
+  protected void wakeup() {
+    try {
+      this.lineReader.getTerminal().raise(Terminal.Signal.INT);
+    }
+    catch (Exception ex) {
+      if (log.isDebugEnabled()) {
+        log.debug("Failed to raise INT on terminal to wake up line reader", ex);
+      }
+    }
+  }
+
+}

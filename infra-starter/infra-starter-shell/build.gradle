@@ -1,0 +1,5 @@
+description = 'Starter for Infra Shell applications with JLine'
+
+dependencies {
+  api(project(':module:infra-shell:infra-shell-jline'))
+}

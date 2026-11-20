@@ -1,0 +1,53 @@
+/*
+ * Copyright 2022-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
+package infra.shell.test;
+
+import org.assertj.core.api.AbstractAssert;
+
+import java.util.List;
+
+/**
+ * Asserts for {@link ShellScreen}.
+ *
+ * @author Janne Valkealahti
+ * @author Mahmoud Ben Hassine
+ */
+public class ShellScreenAssert extends AbstractAssert<ShellScreenAssert, ShellScreen> {
+
+  public ShellScreenAssert(ShellScreen actual) {
+    super(actual, ShellScreenAssert.class);
+  }
+
+  /**
+   * Verifies that text if found in a screen.
+   *
+   * @param text the text to look for
+   * @return this assertion object
+   */
+  public ShellScreenAssert containsText(String text) {
+    isNotNull();
+    List<String> lines = actual.lines();
+    boolean match = lines.stream().anyMatch(n -> n.contains(text));
+    if (!match) {
+      failWithMessage("Expected to find %s in screen but was %s", text, String.join("\n", lines));
+    }
+    return this;
+  }
+
+}
