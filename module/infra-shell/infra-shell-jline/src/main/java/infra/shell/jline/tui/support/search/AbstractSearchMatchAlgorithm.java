@@ -53,28 +53,6 @@ abstract class AbstractSearchMatchAlgorithm implements SearchMatchAlgorithm {
   public static final int BONUS_BOUNDARY_DELIMITER = BONUS_BOUNDARY + 1 + 1; // default
   // +1
 
-  /**
-   * Enumeration of matched characters.
-   */
-  static enum CharClass {
-
-    WHITE, NONWORD, DELIMITER, LOWER, UPPER, LETTER, NUMBER
-
-  }
-
-  static class CalculateScore {
-
-    int score;
-
-    int[] pos;
-
-    CalculateScore(int score, int[] pos) {
-      this.score = score;
-      this.pos = pos;
-    }
-
-  }
-
   static int indexAt(int index, int max, boolean forward) {
     if (forward) {
       return index;
@@ -287,4 +265,23 @@ abstract class AbstractSearchMatchAlgorithm implements SearchMatchAlgorithm {
     return r;
   }
 
+  /**
+   * Enumeration of matched characters.
+   */
+  static enum CharClass {
+    WHITE, NONWORD, DELIMITER, LOWER, UPPER, LETTER, NUMBER
+  }
+
+  static class CalculateScore {
+
+    int score;
+
+    int[] pos;
+
+    CalculateScore(int score, int[] pos) {
+      this.score = score;
+      this.pos = pos;
+    }
+
+  }
 }

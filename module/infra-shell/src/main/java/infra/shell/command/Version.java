@@ -43,14 +43,6 @@ public class Version extends AbstractCommand implements InitializingBean, Applic
     super("version", "Show version info", "Built-In Commands");
   }
 
-  public record BuildProperties(@Nullable String group, @Nullable String artifact, @Nullable String name,
-          @Nullable String version, @Nullable Instant time) {
-  }
-
-  public record GitProperties(@Nullable String branch, @Nullable String commitId, @Nullable String shortCommitId,
-          @Nullable Instant commitTime) {
-  }
-
   private ApplicationContext applicationContext;
 
   private @Nullable BuildProperties buildProperties;
@@ -125,6 +117,14 @@ public class Version extends AbstractCommand implements InitializingBean, Applic
   public void afterPropertiesSet() {
     applicationContext.getBeanProvider(Version.BuildProperties.class).ifAvailable(this::setBuildProperties);
     applicationContext.getBeanProvider(Version.GitProperties.class).ifAvailable(this::setGitProperties);
+  }
+
+  public record BuildProperties(@Nullable String group, @Nullable String artifact, @Nullable String name,
+          @Nullable String version, @Nullable Instant time) {
+  }
+
+  public record GitProperties(@Nullable String branch, @Nullable String commitId, @Nullable String shortCommitId,
+          @Nullable Instant commitTime) {
   }
 
 }
