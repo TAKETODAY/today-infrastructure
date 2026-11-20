@@ -14,6 +14,9 @@
   <logger name="org.apache" level="WARN" />
   <logger name="org.osjava.sj.jndi" level="OFF" />
   <logger name="infra.context.annotation" level="OFF" />
+  <logger name="infra.test.context" level="DEBUG" />
+  <logger name="infra.test.context.cache" level="DEBUG" additivity="false" />
+  <logger name="infra.test.util" level="DEBUG" />
   <logger name="org.apache.tomcat.util.scan" level="OFF" />
 
   <!--  <root level="TRACE">-->
@@ -23,6 +26,3 @@
   </root>
 
 </configuration>
-
-
-
