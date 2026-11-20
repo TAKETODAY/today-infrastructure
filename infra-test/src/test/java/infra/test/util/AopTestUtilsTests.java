@@ -21,12 +21,16 @@ package infra.test.util;
 import org.junit.jupiter.api.Test;
 
 import infra.aop.framework.ProxyFactory;
+import infra.aop.TargetSource;
 import infra.aop.support.AopUtils;
 
 import static infra.test.util.AopTestUtils.getTargetObject;
 import static infra.test.util.AopTestUtils.getUltimateTargetObject;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * Unit tests for {@link AopTestUtils}.
@@ -130,6 +134,43 @@ class AopTestUtilsTests {
     assertThat(AopUtils.isJdkDynamicProxy(proxy)).as("Proxy is a JDK dynamic proxy").isTrue();
     assertThat(proxy).isInstanceOf(Foo.class);
     return proxy;
+  }
+
+  @Test
+  void missingTargetReturnsOriginalProxy() throws Exception {
+    TargetSource source = mock(TargetSource.class);
+    org.mockito.BDDMockito.<Class<?>>given(source.getTargetClass()).willReturn(Foo.class);
+    ProxyFactory factory = new ProxyFactory();
+    factory.addInterface(Foo.class);
+    factory.setTargetSource(source);
+    Object proxy = factory.getProxy();
+    assertThat(AopTestUtils.<Object>getTargetObject(proxy)).isSameAs(proxy);
+    assertThat(AopTestUtils.<Object>getUltimateTargetObject(proxy)).isSameAs(proxy);
+  }
+
+  @Test
+  void targetSourceFailureIsWrappedWithOriginalCause() throws Exception {
+    TargetSource source = mock(TargetSource.class);
+    org.mockito.BDDMockito.<Class<?>>given(source.getTargetClass()).willReturn(Foo.class);
+    Exception failure = new Exception("target unavailable");
+    given(source.getTarget()).willThrow(failure);
+    ProxyFactory factory = new ProxyFactory();
+    factory.addInterface(Foo.class);
+    factory.setTargetSource(source);
+    Object proxy = factory.getProxy();
+    assertThatIllegalStateException().isThrownBy(() -> getTargetObject(proxy))
+            .withMessage("Failed to unwrap proxied object").withCause(failure);
+    assertThatIllegalStateException().isThrownBy(() -> getUltimateTargetObject(proxy))
+            .withMessage("Failed to unwrap proxied object").withCause(failure);
+  }
+
+  @Test
+  void opaqueProxyIsNotUnwrapped() {
+    ProxyFactory factory = new ProxyFactory(foo);
+    factory.setOpaque(true);
+    Object proxy = factory.getProxy();
+    assertThat(AopTestUtils.<Object>getTargetObject(proxy)).isSameAs(proxy);
+    assertThat(AopTestUtils.<Object>getUltimateTargetObject(proxy)).isSameAs(proxy);
   }
 
   private Foo cglibProxy(Foo foo) {

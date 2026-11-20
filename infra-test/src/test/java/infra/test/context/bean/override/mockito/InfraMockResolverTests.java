@@ -19,11 +19,15 @@ package infra.test.context.bean.override.mockito;
 import org.junit.jupiter.api.Test;
 
 import infra.aop.framework.ProxyFactory;
+import infra.aop.TargetSource;
 import infra.aop.StandardProxy;
 import infra.aop.target.HotSwappableTargetSource;
 import infra.aop.target.SingletonTargetSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * Unit tests for {@link InfraMockResolver}.
@@ -49,6 +53,32 @@ class InfraMockResolverTests {
     MyService proxy = ProxyFactory.getProxy(MyService.class, new HotSwappableTargetSource(myService));
     Object target = new InfraMockResolver().resolve(proxy);
     assertThat(target).isInstanceOf(StandardProxy.class);
+  }
+
+  @Test
+  void emptyStaticTargetAndOpaqueProxyRemainUnwrapped() throws Exception {
+    TargetSource source = mock(TargetSource.class);
+    given(source.isStatic()).willReturn(true);
+    org.mockito.BDDMockito.<Class<?>>given(source.getTargetClass()).willReturn(MyService.class);
+    MyService proxy = ProxyFactory.getProxy(MyService.class, source);
+    assertThat(InfraMockResolver.getUltimateTargetObject(proxy)).isSameAs(proxy);
+    ProxyFactory factory = new ProxyFactory(new MyServiceImpl());
+    factory.setOpaque(true);
+    Object opaque = factory.getProxy();
+    assertThat(InfraMockResolver.getUltimateTargetObject(opaque)).isSameAs(opaque);
+    InfraMockResolver.rejectUnsupportedSpyTarget("opaque", opaque);
+  }
+
+  @Test
+  void failingStaticTargetPreservesCause() throws Exception {
+    TargetSource source = mock(TargetSource.class);
+    given(source.isStatic()).willReturn(true);
+    org.mockito.BDDMockito.<Class<?>>given(source.getTargetClass()).willReturn(MyService.class);
+    Exception failure = new Exception("target failed");
+    given(source.getTarget()).willThrow(failure);
+    MyService proxy = ProxyFactory.getProxy(MyService.class, source);
+    assertThatIllegalStateException().isThrownBy(() -> InfraMockResolver.getUltimateTargetObject(proxy))
+            .withMessage("Failed to unwrap proxied object").withCause(failure);
   }
 
   private interface MyService {

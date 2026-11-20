@@ -25,9 +25,13 @@ import java.util.concurrent.CountDownLatch;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
+import infra.web.BindingContext;
+import infra.web.view.ModelAndView;
+import infra.web.view.View;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.Mockito.mock;
 
 /**
  * Test fixture for {@link DefaultMvcResult}.
@@ -108,6 +112,45 @@ public class DefaultMvcResultTests {
       // Clear the interrupt status so it does not leak to other tests.
       Thread.interrupted();
     }
+  }
+
+  @Test
+  void resultFindsExplicitAndBindingContextModelAndViews() {
+    var context = mvcResult.getContext();
+    var explicit = new ModelAndView("explicit");
+    context.setAttribute(MvcResult.MODEL_AND_VIEW_ATTRIBUTE, explicit);
+    assertThat(mvcResult.getModelAndView()).isSameAs(explicit);
+    assertThat(mvcResult.getModelAndView()).isSameAs(explicit);
+    assertThat(DefaultMvcResult.forContext(context)).isSameAs(mvcResult);
+    assertThatIllegalStateException().isThrownBy(() -> DefaultMvcResult.forContext(new MockHttpContext()))
+            .withMessage("No DefaultMvcResult");
+  }
+
+  @Test
+  void resultBuildsModelAndViewFromBindingModelAndViewAttributes() {
+    for (Object view : new Object[] { "view-name", mock(View.class), new Object() }) {
+      var context = new MockHttpContext();
+      var binding = new BindingContext();
+      BindingContext.set(context, binding);
+      binding.getModel().addAttribute("key", "value");
+      if (view instanceof String name) {
+        context.setAttribute(MvcResult.VIEW_NAME_ATTRIBUTE, name);
+      }
+      else if (view instanceof View) {
+        context.setAttribute(MvcResult.VIEW_ATTRIBUTE, view);
+      }
+      var result = new DefaultMvcResult(context.getRequest(), context.getResponse(), context);
+      assertThat(result.getModelAndView().getModel()).containsEntry("key", "value");
+      assertThat(result.getModelAndView()).isSameAs(result.getModelAndView());
+    }
+  }
+
+  @Test
+  void redirectModelsAreCreatedOnceAndMissingAsyncResultsAreRejected() {
+    assertThat((Object) mvcResult.getOutputRedirectModel()).isSameAs(mvcResult.getOutputRedirectModel());
+    mvcResult.setAsyncDispatchLatch(new CountDownLatch(0));
+    assertThatIllegalStateException().isThrownBy(() -> mvcResult.getAsyncResult(0))
+            .withMessageContaining("was not set");
   }
 
 }
