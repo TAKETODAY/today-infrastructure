@@ -23,16 +23,21 @@ import org.junit.jupiter.api.Test;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import infra.app.Application;
 import infra.app.ApplicationArguments;
 import infra.app.ApplicationContextFactory;
 import infra.app.ApplicationShutdownHookInstance;
 import infra.app.ApplicationType;
+import infra.app.Banner;
+import infra.app.builder.ParentContextApplicationContextInitializer.ParentContextAvailableEvent;
+import infra.app.builder.ParentContextCloserApplicationListener.ContextCloserListener;
 import infra.context.ApplicationContext;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
+import infra.context.event.ContextClosedEvent;
 import infra.context.support.StaticApplicationContext;
 import infra.core.env.ConfigurableEnvironment;
 import infra.core.env.Profiles;
@@ -42,8 +47,11 @@ import infra.core.io.ResourceLoader;
 import infra.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
@@ -312,6 +320,97 @@ class ApplicationBuilderTests {
   void setEnvironmentPrefix() {
     ApplicationBuilder builder = new ApplicationBuilder(ExampleConfig.class).environmentPrefix("test");
     assertThat(builder.application().getEnvironmentPrefix()).isEqualTo("test");
+  }
+
+  @Test
+  void siblingsShareTheRunningParentAndFirstSiblingReceivesStartupArguments() {
+    var first = new ApplicationBuilder(ChildConfig.class).type(ApplicationType.NORMAL).registerShutdownHook(false);
+    var parent = first.parent(ExampleConfig.class).registerShutdownHook(false);
+    assertThat(first.parent(StringBuilder.class)).isSameAs(parent);
+    first.properties("shared=value", "flag");
+    assertThat(first.context()).isNull();
+
+    try (var parentContext = parent.run()) {
+      var second = first.sibling(new Class<?>[] { ChildConfig.class }, "--first-only=true")
+              .type(ApplicationType.NORMAL).registerShutdownHook(false);
+      try (var firstContext = first.context(); var secondContext = second.run()) {
+        var third = first.sibling(ChildConfig.class).type(ApplicationType.NORMAL).registerShutdownHook(false);
+        try (var thirdContext = third.run()) {
+          assertThat(firstContext.getParent()).isSameAs(parentContext);
+          assertThat(secondContext.getParent()).isSameAs(parentContext);
+          assertThat(thirdContext.getParent()).isSameAs(parentContext);
+          assertThat(firstContext.getEnvironment().getProperty("first-only")).isEqualTo("true");
+          assertThat(secondContext.getEnvironment().getProperty("first-only")).isNull();
+          assertThat(parentContext.getEnvironment().getProperty("shared")).isEqualTo("value");
+          assertThat(thirdContext.getEnvironment().getProperty("flag")).isEmpty();
+          assertThat(parentContext.getBean(StringBuilder.class)).isNotNull();
+        }
+      }
+    }
+  }
+
+  @Test
+  void rejectsCreatingASiblingWithoutAParent() {
+    var builder = new ApplicationBuilder(ExampleConfig.class).type(ApplicationType.NORMAL).registerShutdownHook(false);
+    try (var running = builder.run()) {
+      assertThatIllegalStateException().isThrownBy(() -> builder.sibling(ChildConfig.class))
+              .withMessageContaining("No parent defined yet");
+    }
+  }
+
+  @Test
+  void canAttachToAnExistingParentAndCustomizeStartup() {
+    var bannerPrinted = new AtomicBoolean();
+    try (var parent = new AnnotationConfigApplicationContext(ExampleConfig.class)) {
+      var builder = ApplicationBuilder.forSources(new DefaultResourceLoader(), ChildConfig.class)
+              .parent(parent)
+              .type(ApplicationType.NORMAL)
+              .main(ExampleConfig.class)
+              .bannerMode(Banner.Mode.CONSOLE)
+              .banner((environment, source, output) -> bannerPrinted.set(source == ExampleConfig.class))
+              .beanNameGenerator((definition, registry) -> "customChild")
+              .logStartupInfo(false)
+              .headless(false)
+              .lazyInitialization(true)
+              .allowCircularReferences(true)
+              .setAddConversionService(false)
+              .addCommandLineProperties(false)
+              .registerShutdownHook(false);
+
+      try (var child = builder.run("--ignored=true")) {
+        assertThat(child.getParent()).isSameAs(parent);
+        assertThat(child.getEnvironment().getProperty("ignored")).isNull();
+        assertThat(child.getBeanFactory().containsSingleton("customChild")).isFalse();
+        assertThat(child.getBean("customChild")).isInstanceOf(ChildConfig.class);
+        assertThat(bannerPrinted).isTrue();
+      }
+    }
+  }
+
+  @Test
+  void contextCloserIgnoresUnrelatedContextsAndClosesAnActiveChildOnlyOnce() {
+    var parent = mock(ConfigurableApplicationContext.class);
+    var child = mock(ConfigurableApplicationContext.class);
+    var unrelated = mock(ConfigurableApplicationContext.class);
+    given(child.getParent()).willReturn(parent);
+    given(child.isActive()).willReturn(true, false);
+    var listener = new ParentContextCloserApplicationListener();
+    listener.setApplicationContext(child);
+
+    listener.onApplicationEvent(new ParentContextAvailableEvent(unrelated));
+    then(parent).shouldHaveNoInteractions();
+    listener.onApplicationEvent(new ParentContextAvailableEvent(child));
+
+    var closer = listener.createContextCloserListener(child);
+    then(parent).should().addApplicationListener(closer);
+    closer.onApplicationEvent(new ContextClosedEvent(unrelated));
+    then(child).should(never()).close();
+    closer.onApplicationEvent(new ContextClosedEvent(parent));
+    closer.onApplicationEvent(new ContextClosedEvent(parent));
+    then(child).should().close();
+    assertThat(closer.equals(closer)).isTrue();
+    assertThat(closer.equals(null)).isFalse();
+    assertThat(closer).isNotEqualTo(parent).isNotEqualTo(new ContextCloserListener(unrelated));
   }
 
   @Test

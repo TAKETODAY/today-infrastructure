@@ -37,6 +37,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import infra.app.ConfigurableBootstrapContext;
 import infra.app.DefaultBootstrapContext;
 import infra.app.MockApplicationEnvironment;
@@ -77,6 +81,46 @@ class ConfigDataEnvironmentTests {
   private final Collection<String> additionalProfiles = Collections.emptyList();
 
   private final ConversionService conversionService = DefaultConversionService.getSharedInstance();
+
+  @Test
+  void traceIdentifiesImportedAndInactiveSources(@TempDir Path directory) throws IOException {
+    Path config = Files.writeString(directory.resolve("settings.properties"), """
+            sample.value=active
+            #---
+            app.config.activate.on-profile=production
+            sample.value=inactive
+            """);
+    this.environment.setProperty("app.config.location", config.toUri().toString());
+    this.environment.setProperty("app.config.import", "optional:" + directory.resolve("missing.properties").toUri());
+    Logger environmentLog = (Logger) org.slf4j.LoggerFactory.getLogger(ConfigDataEnvironment.class);
+    Logger contributorsLog = (Logger) org.slf4j.LoggerFactory.getLogger(ConfigDataEnvironmentContributors.class);
+    Level environmentLevel = environmentLog.getLevel();
+    Level contributorsLevel = contributorsLog.getLevel();
+    var appender = new ListAppender<ILoggingEvent>();
+    appender.start();
+    environmentLog.addAppender(appender);
+    contributorsLog.addAppender(appender);
+    try {
+      environmentLog.setLevel(Level.TRACE);
+      contributorsLog.setLevel(Level.TRACE);
+      new ConfigDataEnvironment(this.bootstrapContext, this.environment, this.resourceLoader,
+              List.of("test"), null).processAndApply();
+
+      assertThat(this.environment.getProperty("sample.value")).isEqualTo("active");
+      assertThat(this.environment.getActiveProfiles()).containsExactly("test");
+      assertThat(appender.list).extracting(ILoggingEvent::getFormattedMessage)
+              .anyMatch(message -> message.contains("Adding imported property source") && message.contains("settings.properties"))
+              .anyMatch(message -> message.contains("Skipping inactive property source") && message.contains("settings.properties"))
+              .anyMatch(message -> message.contains("Setting active profiles: [test]"));
+    }
+    finally {
+      environmentLog.detachAppender(appender);
+      contributorsLog.detachAppender(appender);
+      environmentLog.setLevel(environmentLevel);
+      contributorsLog.setLevel(contributorsLevel);
+      appender.stop();
+    }
+  }
 
   @Test
   void createExposesEnvironmentBinderToConfigDataLocationResolvers() {

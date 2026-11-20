@@ -24,7 +24,9 @@ import infra.app.diagnostics.FailureAnalysis;
 import infra.app.diagnostics.analyzer.nounique.TestBean;
 import infra.app.diagnostics.analyzer.nounique.TestBeanConsumer;
 import infra.beans.factory.BeanCreationException;
+import infra.beans.factory.NoUniqueBeanDefinitionException;
 import infra.beans.factory.ObjectProvider;
+import infra.beans.factory.UnsatisfiedDependencyException;
 import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
@@ -45,6 +47,33 @@ class NoUniqueBeanDefinitionFailureAnalyzerTests {
 
   private NoUniqueBeanDefinitionFailureAnalyzer analyzer = new NoUniqueBeanDefinitionFailureAnalyzer(
           this.context.getBeanFactory());
+
+  @Test
+  void describesProgrammaticallyRegisteredSingletons() {
+    this.context.getBeanFactory().registerSingleton("first", new TestBean());
+    this.context.getBeanFactory().registerSingleton("second", new TestBean());
+    var cause = new NoUniqueBeanDefinitionException(TestBean.class, "first", "second");
+    var failure = new UnsatisfiedDependencyException("consumer.xml", "consumer", "testBean", cause);
+
+    FailureAnalysis analysis = this.analyzer.analyze(failure);
+
+    assertThat(analysis).isNotNull();
+    assertThat(analysis.getCause()).isSameAs(cause);
+    assertThat(analysis.getDescription()).startsWith("consumer.xml required a single bean, but 2 were found:")
+            .contains("first: a programmatically registered singleton", "second: a programmatically registered singleton");
+  }
+
+  @Test
+  void doesNotAnalyzeAmbiguityWithoutAnInjectionSite() {
+    assertThat(this.analyzer.analyze(new NoUniqueBeanDefinitionException(TestBean.class, "first", "second"))).isNull();
+  }
+
+  @Test
+  void doesNotAnalyzeAmbiguityWithoutCandidateNamesInTheMessage() {
+    var cause = new NoUniqueBeanDefinitionException(TestBean.class, 2, "Ambiguous dependency");
+    var failure = new UnsatisfiedDependencyException("consumer.xml", "consumer", "testBean", cause);
+    assertThat(this.analyzer.analyze(failure)).isNull();
+  }
 
   @Test
   void failureAnalysisForFieldConsumer() {

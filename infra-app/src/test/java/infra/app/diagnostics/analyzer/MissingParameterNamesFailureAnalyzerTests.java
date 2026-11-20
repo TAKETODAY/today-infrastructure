@@ -78,6 +78,29 @@ class MissingParameterNamesFailureAnalyzerTests {
   }
 
   @Test
+  void scansPastUnrelatedSuppressedExceptionsAndCycles() throws Throwable {
+    var failure = new RuntimeException();
+    var unrelated = new IllegalStateException(failure);
+    failure.addSuppressed(unrelated);
+    failure.addSuppressed(getInfraFrameworkMissingParameterException());
+
+    FailureAnalysis analysis = MissingParameterNamesFailureAnalyzer.analyzeForMissingParameters(failure);
+
+    assertThat(analysis).isNotNull();
+    assertThat(analysis.getDescription()).endsWith("Resulting Failure: java.lang.RuntimeException");
+    assertThat(analysis.getCause()).isSameAs(failure);
+  }
+
+  @Test
+  void ignoresParameterMessagesWithoutAFrameworkStackFrame() {
+    var failure = new IllegalArgumentException("Ensure that the compiler uses the '-parameters' flag");
+    failure.setStackTrace(new StackTraceElement[0]);
+    assertThat(MissingParameterNamesFailureAnalyzer.analyzeForMissingParameters(failure)).isNull();
+    failure.setStackTrace(new StackTraceElement[] { new StackTraceElement("example.UserCode", "invoke", "UserCode.java", 1) });
+    assertThat(MissingParameterNamesFailureAnalyzer.analyzeForMissingParameters(failure)).isNull();
+  }
+
+  @Test
   void analyzeForMissingParametersWhenNotPresentReturnsNull() {
     RuntimeException exception = new RuntimeException("Badness");
     FailureAnalysis analysis = MissingParameterNamesFailureAnalyzer.analyzeForMissingParameters(exception);

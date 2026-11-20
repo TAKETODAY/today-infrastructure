@@ -33,6 +33,7 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.BootstrapContext;
 import infra.context.ConfigurableApplicationContext;
+import infra.context.event.ContextClosedEvent;
 import infra.context.support.AbstractApplicationContext;
 import infra.context.support.GenericApplicationContext;
 
@@ -40,8 +41,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -122,6 +126,69 @@ class ApplicationShutdownHookTests {
     shutdownThread.join();
     // Context should have been closed before handler action was run
     assertThat(finished).containsExactly(context, handlerAction);
+  }
+
+  @Test
+  void waitsForAClosingContextBeforeRunningHandlers() {
+    var shutdownHook = new TestApplicationShutdownHook();
+    var context = mock(ConfigurableApplicationContext.class);
+    shutdownHook.registerApplicationContext(context);
+    shutdownHook.onApplicationEvent(new ContextClosedEvent(context));
+    given(context.isActive()).willReturn(true, true, false);
+    var action = mock(Runnable.class);
+    shutdownHook.handlers.add(action);
+
+    shutdownHook.run();
+
+    InOrder ordered = inOrder(context, action);
+    ordered.verify(context).isActive();
+    ordered.verify(context).close();
+    ordered.verify(context, times(2)).isActive();
+    ordered.verify(action).run();
+  }
+
+  @Test
+  void restoresInterruptStatusWhenWaitingForAContext() {
+    var shutdownHook = new TestApplicationShutdownHook();
+    var context = mock(ConfigurableApplicationContext.class);
+    given(context.isActive()).willReturn(true);
+    shutdownHook.registerApplicationContext(context);
+    var action = mock(Runnable.class);
+    shutdownHook.handlers.add(action);
+
+    Thread.currentThread().interrupt();
+    try {
+      shutdownHook.run();
+      assertThat(Thread.currentThread().isInterrupted()).isTrue();
+    }
+    finally {
+      Thread.interrupted();
+    }
+    InOrder ordered = inOrder(context, action);
+    ordered.verify(context).close();
+    ordered.verify(action).run();
+  }
+
+  @Test
+  void removedHandlersDoNotRunAndRunningHandlersResetsRegistrations() {
+    var shutdownHook = new TestApplicationShutdownHook();
+    var removed = mock(Runnable.class);
+    var retained = mock(Runnable.class);
+    var addedAfterReset = mock(Runnable.class);
+    shutdownHook.handlers.add(removed);
+    shutdownHook.handlers.add(retained);
+    shutdownHook.handlers.add(retained);
+    shutdownHook.handlers.remove(removed);
+
+    shutdownHook.handlers.run();
+    shutdownHook.handlers.add(addedAfterReset);
+    shutdownHook.handlers.run();
+
+    verifyNoInteractions(removed);
+    InOrder ordered = inOrder(retained, addedAfterReset);
+    ordered.verify(retained).run();
+    ordered.verify(addedAfterReset).run();
+    ordered.verifyNoMoreInteractions();
   }
 
   @Test

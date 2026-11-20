@@ -18,7 +18,6 @@
 
 package infra.app.config.logging;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,6 @@ import infra.app.context.event.ApplicationFailedEvent;
 import infra.app.logging.LogLevel;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.Import;
 import infra.context.condition.ConditionEvaluationReport;
@@ -44,7 +42,7 @@ import infra.web.config.WebMvcAutoConfiguration;
 
 import static infra.app.config.logging.ConditionEvaluationReportLoggingListener.forLoggingLevel;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatException;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
@@ -66,33 +64,49 @@ class ConditionEvaluationReportLoggingListenerTests {
   }
 
   @Test
-  @Disabled
   void logsDebugOnApplicationFailedEvent(CapturedOutput output) {
-    withDebugLogging(() -> {
-      AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-      var initializer = forLoggingLevel(LogLevel.DEBUG);
-      initializer.initialize(context);
-      context.register(ErrorConfig.class);
-      assertThatException().isThrownBy(context::refresh)
-              .satisfies((ex) -> context.publishEvent(new ApplicationFailedEvent(new Application(), new ApplicationArguments(), context, ex)));
-
+    try (var context = new AnnotationConfigApplicationContext(Config.class)) {
+      forLoggingLevel(LogLevel.DEBUG).initialize(context);
+      withDebugLogging(() -> context.publishEvent(failedEvent(context)));
       assertThat(output).contains("CONDITIONS EVALUATION REPORT");
-    });
+    }
   }
 
   @Test
-  @Disabled
   void logsInfoGuidanceToEnableDebugLoggingOnApplicationFailedEvent(CapturedOutput output) {
-    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-    var initializer = forLoggingLevel(LogLevel.INFO);
+    try (var context = new AnnotationConfigApplicationContext(Config.class)) {
+      forLoggingLevel(LogLevel.DEBUG).initialize(context);
+      withInfoLogging(() -> context.publishEvent(failedEvent(context)));
+      assertThat(output).doesNotContain("CONDITIONS EVALUATION REPORT")
+              .contains("re-run your application with 'debug' enabled");
+    }
+  }
 
-    initializer.initialize(context);
-    context.register(ErrorConfig.class);
-    assertThatException().isThrownBy(context::refresh)
-            .satisfies((ex) -> withInfoLogging(() ->
-                    context.publishEvent(new ApplicationFailedEvent(new Application(), new ApplicationArguments(), context, ex))));
-    assertThat(output).doesNotContain("CONDITIONS EVALUATION REPORT")
-            .contains("re-run your application with 'debug' enabled");
+  @Test
+  void doesNotReportChildContextRefresh(CapturedOutput output) {
+    try (var parent = new AnnotationConfigApplicationContext(Config.class);
+            var child = new AnnotationConfigApplicationContext()) {
+      child.setParent(parent);
+      this.initializer.initialize(parent);
+      withInfoLogging(child::refresh);
+      assertThat(output).doesNotContain("CONDITIONS EVALUATION REPORT");
+    }
+  }
+
+  @Test
+  void doesNotReportFailureFromAnotherContext(CapturedOutput output) {
+    try (var context = new AnnotationConfigApplicationContext(Config.class);
+            var other = new AnnotationConfigApplicationContext()) {
+      this.initializer.initialize(context);
+      withInfoLogging(() -> context.publishEvent(failedEvent(other)));
+      assertThat(output).doesNotContain("CONDITIONS EVALUATION REPORT");
+    }
+  }
+
+  @Test
+  void rejectsUnsupportedLoggingLevel() {
+    assertThatIllegalArgumentException().isThrownBy(() -> forLoggingLevel(LogLevel.WARN))
+            .withMessage("LogLevel must be INFO or DEBUG");
   }
 
   @Test
@@ -107,6 +121,11 @@ class ConditionEvaluationReportLoggingListenerTests {
 
   private void withDebugLogging(Runnable runnable) {
     withLoggingLevel(Level.DEBUG, runnable);
+  }
+
+  private ApplicationFailedEvent failedEvent(AnnotationConfigApplicationContext context) {
+    return new ApplicationFailedEvent(new Application(), new ApplicationArguments(), context,
+            new IllegalStateException("Startup failed"));
   }
 
   private void withInfoLogging(Runnable runnable) {
@@ -130,17 +149,6 @@ class ConditionEvaluationReportLoggingListenerTests {
   @Import({ WebMvcAutoConfiguration.class, HttpMessageConvertersAutoConfiguration.class,
           PropertyPlaceholderAutoConfiguration.class })
   static class Config {
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  @Import(WebMvcAutoConfiguration.class)
-  static class ErrorConfig {
-
-    @Bean
-    String iBreak() {
-      throw new RuntimeException();
-    }
 
   }
 
