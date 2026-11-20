@@ -37,6 +37,7 @@ import infra.mock.env.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * Tests for {@link StructuredLogEncoder}.
@@ -68,6 +69,34 @@ class StructuredLogEncoderTests extends AbstractStructuredLoggingTests {
   void tearDown() {
     super.tearDown();
     this.encoder.stop();
+  }
+
+  @Test
+  void supportsGelfWithTheDefaultCharsetAndNoFraming() {
+    this.encoder.setFormat("gelf");
+    this.encoder.setCharset(null);
+    this.encoder.start();
+    LoggingEvent event = new LoggingEvent();
+    event.setLevel(ch.qos.logback.classic.Level.INFO);
+    event.setMessage("ready — 测试");
+    event.setMDCPropertyMap(Collections.emptyMap());
+
+    assertThat(deserialize(encode(event))).containsEntry("version", "1.1")
+            .containsEntry("short_message", "ready — 测试");
+    assertThat(this.encoder.headerBytes()).isNull();
+    assertThat(this.encoder.footerBytes()).isNull();
+  }
+
+  @Test
+  void requiresAFormatAndAnEnvironmentBeforeStarting() {
+    assertThatIllegalStateException().isThrownBy(this.encoder::start).withMessage("Format has not been set");
+    StructuredLogEncoder encoderWithoutEnvironment = new StructuredLogEncoder();
+    encoderWithoutEnvironment.setFormat("ecs");
+    encoderWithoutEnvironment.setContext(new ContextBase());
+
+    assertThatIllegalStateException().isThrownBy(encoderWithoutEnvironment::start)
+            .withMessage("Unable to find Infra Environment in logger context");
+    assertThat(encoderWithoutEnvironment.isStarted()).isFalse();
   }
 
   @Test
