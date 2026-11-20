@@ -125,8 +125,7 @@ public class ControllerAdviceBean implements Ordered {
    * @param controllerAdvice the {@code @ControllerAdvice} annotation for the
    * bean, or {@code null} if not yet retrieved
    */
-  public ControllerAdviceBean(
-          String beanName, BeanFactory beanFactory, @Nullable ControllerAdvice controllerAdvice) {
+  public ControllerAdviceBean(String beanName, BeanFactory beanFactory, @Nullable ControllerAdvice controllerAdvice) {
     Assert.hasText(beanName, "Bean name must contain text");
     Assert.notNull(beanFactory, "BeanFactory is required");
     if (!beanFactory.containsBean(beanName)) {
@@ -143,8 +142,7 @@ public class ControllerAdviceBean implements Ordered {
     this.beanFactory = beanFactory;
   }
 
-  ControllerAdviceBean(
-          String beanName, BeanFactory beanFactory, Class<?> beanType, @Nullable ControllerAdvice controllerAdvice) {
+  ControllerAdviceBean(String beanName, BeanFactory beanFactory, Class<?> beanType, @Nullable ControllerAdvice controllerAdvice) {
     this.beanOrName = beanName;
     this.isSingleton = beanFactory.isSingleton(beanName);
     this.beanType = beanType;
