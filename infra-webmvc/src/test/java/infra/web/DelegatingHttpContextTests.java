@@ -44,7 +44,7 @@ import infra.http.ResponseCookie;
 import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
 import infra.util.MultiValueMap;
-import infra.web.async.AsyncWebRequest;
+import infra.web.async.WebAsyncRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.multipart.MultipartRequest;
 
@@ -58,6 +58,38 @@ import static org.mockito.Mockito.when;
  * @since 5.0 2025/10/9 16:21
  */
 class DelegatingHttpContextTests {
+
+  @Test
+  void sendIsDelegated() throws Exception {
+    HttpContext delegate = mock(HttpContext.class);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
+    Object result = new Object();
+
+    wrapper.send(result);
+    wrapper.send(null);
+
+    verify(delegate).send(result);
+    verify(delegate).send(null);
+  }
+
+  @Test
+  void requestLocaleIsDelegated() {
+    HttpContext delegate = mock(HttpContext.class);
+    when(delegate.getPreferredLocale()).thenReturn(Locale.SIMPLIFIED_CHINESE);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
+
+    assertThat(wrapper.getPreferredLocale()).isEqualTo(Locale.SIMPLIFIED_CHINESE);
+    verify(delegate).getPreferredLocale();
+  }
+
+  @Test
+  void requestLocaleCanDelegateNull() {
+    HttpContext delegate = mock(HttpContext.class);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
+
+    assertThat(wrapper.getPreferredLocale()).isNull();
+    verify(delegate).getPreferredLocale();
+  }
 
   @Test
   void getDelegate_ShouldReturnDelegateInstance() {
@@ -392,27 +424,27 @@ class DelegatingHttpContextTests {
   void removeCookie_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
     List<ResponseCookie> cookies = new ArrayList<>();
-    when(delegate.removeCookie("name")).thenReturn(cookies);
+    when(delegate.removeCookies("name")).thenReturn(cookies);
 
     DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
-    List<ResponseCookie> result = wrapper.removeCookie("name");
+    List<ResponseCookie> result = wrapper.removeCookies("name");
 
     assertThat(result).isSameAs(cookies);
-    verify(delegate).removeCookie("name");
+    verify(delegate).removeCookies("name");
   }
 
   @Test
   void hasResponseCookie_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
-    when(delegate.hasResponseCookie()).thenReturn(true);
+    when(delegate.hasResponseCookies()).thenReturn(true);
 
     DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
-    boolean result = wrapper.hasResponseCookie();
+    boolean result = wrapper.hasResponseCookies();
 
     assertThat(result).isTrue();
-    verify(delegate).hasResponseCookie();
+    verify(delegate).hasResponseCookies();
   }
 
   @Test
@@ -461,14 +493,14 @@ class DelegatingHttpContextTests {
   void getParametersByName_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
     String[] values = { "value1", "value2" };
-    when(delegate.getParameters("param")).thenReturn(values);
+    when(delegate.getParameterValues("param")).thenReturn(values);
 
     DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
-    String[] result = wrapper.getParameters("param");
+    String[] result = wrapper.getParameterValues("param");
 
     assertThat(result).isSameAs(values);
-    verify(delegate).getParameters("param");
+    verify(delegate).getParameterValues("param");
   }
 
   @Test
@@ -651,14 +683,14 @@ class DelegatingHttpContextTests {
   void getLocale_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
     Locale locale = Locale.ENGLISH;
-    when(delegate.getLocale()).thenReturn(locale);
+    when(delegate.getPreferredLocale()).thenReturn(locale);
 
     DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
-    Locale result = wrapper.getLocale();
+    Locale result = wrapper.getPreferredLocale();
 
     assertThat(result).isSameAs(locale);
-    verify(delegate).getLocale();
+    verify(delegate).getPreferredLocale();
   }
 
   @Test
@@ -988,45 +1020,6 @@ class DelegatingHttpContextTests {
   }
 
   @Test
-  void getMatchingMetadata_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    HandlerMatchingMetadata metadata = mock(HandlerMatchingMetadata.class);
-    when(delegate.getMatchingMetadata()).thenReturn(metadata);
-
-    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
-
-    HandlerMatchingMetadata result = wrapper.getMatchingMetadata();
-
-    assertThat(result).isSameAs(metadata);
-    verify(delegate).getMatchingMetadata();
-  }
-
-  @Test
-  void setMatchingMetadata_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    HandlerMatchingMetadata metadata = mock(HandlerMatchingMetadata.class);
-
-    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
-
-    wrapper.setMatchingMetadata(metadata);
-
-    verify(delegate).setMatchingMetadata(metadata);
-  }
-
-  @Test
-  void hasMatchingMetadata_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    when(delegate.hasMatchingMetadata()).thenReturn(true);
-
-    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
-
-    boolean result = wrapper.hasMatchingMetadata();
-
-    assertThat(result).isTrue();
-    verify(delegate).hasMatchingMetadata();
-  }
-
-  @Test
   void getAttribute_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
     when(delegate.getAttribute("key")).thenReturn("value");
@@ -1100,17 +1093,17 @@ class DelegatingHttpContextTests {
   }
 
   @Test
-  void asyncWebRequest_ShouldDelegateToDelegate() {
+  void asyncRequest_ShouldDelegateToDelegate() {
     HttpContext delegate = mock(HttpContext.class);
-    AsyncWebRequest asyncWebRequest = mock(AsyncWebRequest.class);
-    when(delegate.asyncWebRequest()).thenReturn(asyncWebRequest);
+    WebAsyncRequest asyncRequest = mock(WebAsyncRequest.class);
+    when(delegate.asyncRequest()).thenReturn(asyncRequest);
 
     DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
 
-    AsyncWebRequest result = wrapper.asyncWebRequest();
+    WebAsyncRequest result = wrapper.asyncRequest();
 
-    assertThat(result).isSameAs(asyncWebRequest);
-    verify(delegate).asyncWebRequest();
+    assertThat(result).isSameAs(asyncRequest);
+    verify(delegate).asyncRequest();
   }
 
   @Test
@@ -1138,88 +1131,6 @@ class DelegatingHttpContextTests {
 
     assertThat(result).isSameAs(multipartRequest);
     verify(delegate).asMultipartRequest();
-  }
-
-  @Test
-  void setBinding_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    BindingContext bindingContext = mock(BindingContext.class);
-
-    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
-
-    wrapper.setBinding(bindingContext);
-
-    verify(delegate).setBinding(bindingContext);
-  }
-
-  @Test
-  void getBinding_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    BindingContext bindingContext = mock(BindingContext.class);
-    when(delegate.getBinding()).thenReturn(bindingContext);
-
-    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
-
-    BindingContext result = wrapper.getBinding();
-
-    assertThat(result).isSameAs(bindingContext);
-    verify(delegate).getBinding();
-  }
-
-  @Test
-  void binding_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    BindingContext bindingContext = mock(BindingContext.class);
-    when(delegate.binding()).thenReturn(bindingContext);
-
-    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
-
-    BindingContext result = wrapper.binding();
-
-    assertThat(result).isSameAs(bindingContext);
-    verify(delegate).binding();
-  }
-
-  @Test
-  void hasBinding_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    when(delegate.hasBinding()).thenReturn(true);
-
-    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
-
-    boolean result = wrapper.hasBinding();
-
-    assertThat(result).isTrue();
-    verify(delegate).hasBinding();
-  }
-
-  @Test
-  void getInputRedirectModel_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    RedirectModel redirectModel = mock(RedirectModel.class);
-    when(delegate.getInputRedirectModel()).thenReturn(redirectModel);
-
-    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
-
-    RedirectModel result = wrapper.getInputRedirectModel();
-
-    assertThat((Object) result).isSameAs(redirectModel);
-    verify(delegate).getInputRedirectModel();
-  }
-
-  @Test
-  void getInputRedirectModelWithManager_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    RedirectModel redirectModel = mock(RedirectModel.class);
-    RedirectModelManager manager = mock(RedirectModelManager.class);
-    when(delegate.getInputRedirectModel(manager)).thenReturn(redirectModel);
-
-    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
-
-    RedirectModel result = wrapper.getInputRedirectModel(manager);
-
-    assertThat((Object) result).isSameAs(redirectModel);
-    verify(delegate).getInputRedirectModel(manager);
   }
 
   @Test
@@ -1313,20 +1224,6 @@ class DelegatingHttpContextTests {
 
     assertThat(result).isEqualTo("GET");
     verify(delegate).getMethodAsString();
-  }
-
-  @Test
-  void matchingMetadata_ShouldDelegateToDelegate() {
-    HttpContext delegate = mock(HttpContext.class);
-    HandlerMatchingMetadata metadata = mock(HandlerMatchingMetadata.class);
-    when(delegate.matchingMetadata()).thenReturn(metadata);
-
-    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
-
-    HandlerMatchingMetadata result = wrapper.matchingMetadata();
-
-    assertThat(result).isSameAs(metadata);
-    verify(delegate).matchingMetadata();
   }
 
   @Test

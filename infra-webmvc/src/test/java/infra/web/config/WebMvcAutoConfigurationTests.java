@@ -25,6 +25,7 @@ import org.assertj.core.api.InstanceOfAssertFactories;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -43,7 +44,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import infra.aop.support.AopUtils;
-import infra.scheduling.config.TaskExecutionAutoConfiguration;
 import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
@@ -68,6 +68,7 @@ import infra.http.CacheControl;
 import infra.http.HttpHeaders;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.config.HttpMessageConvertersAutoConfiguration;
+import infra.scheduling.config.TaskExecutionAutoConfiguration;
 import infra.test.classpath.ClassPathExclusions;
 import infra.test.context.assertj.AssertableApplicationContext;
 import infra.test.context.runner.ApplicationContextRunner;
@@ -362,10 +363,10 @@ class WebMvcAutoConfigurationTests {
 
   @Test
   void customLocaleResolverWithMatchingNameReplacesAutoConfiguredLocaleResolver() {
-    this.contextRunner.withBean("webLocaleResolver", CustomLocaleResolver.class, CustomLocaleResolver::new)
+    this.contextRunner.withBean("mvcLocaleResolver", CustomLocaleResolver.class, CustomLocaleResolver::new)
             .run((context) -> {
               assertThat(context).hasSingleBean(LocaleResolver.class);
-              assertThat(context.getBean("webLocaleResolver")).isInstanceOf(CustomLocaleResolver.class);
+              assertThat(context.getBean("mvcLocaleResolver")).isInstanceOf(CustomLocaleResolver.class);
             });
   }
 
@@ -374,24 +375,24 @@ class WebMvcAutoConfigurationTests {
     this.contextRunner.withBean("customLocaleResolver", CustomLocaleResolver.class, CustomLocaleResolver::new)
             .run((context) -> {
               assertThat(context.getBean("customLocaleResolver")).isInstanceOf(CustomLocaleResolver.class);
-              assertThat(context.getBean("webLocaleResolver")).isInstanceOf(AcceptHeaderLocaleResolver.class);
+              assertThat(context.getBean("mvcLocaleResolver")).isInstanceOf(AcceptHeaderLocaleResolver.class);
             });
   }
 
   @Test
-  void customFlashMapManagerWithMatchingNameReplacesDefaultFlashMapManager() {
-    this.contextRunner.withBean("sessionRedirectModelManager", CustomFlashMapManager.class, CustomFlashMapManager::new)
+  void customRedirectModelManagerWithMatchingNameReplacesDefaultManager() {
+    this.contextRunner.withBean("sessionRedirectModelManager", CustomRedirectModelManager.class, CustomRedirectModelManager::new)
             .run((context) -> {
               assertThat(context).hasSingleBean(RedirectModelManager.class);
-              assertThat(context.getBean("sessionRedirectModelManager")).isInstanceOf(CustomFlashMapManager.class);
+              assertThat(context.getBean("sessionRedirectModelManager")).isInstanceOf(CustomRedirectModelManager.class);
             });
   }
 
   @Test
-  void customFlashMapManagerWithDifferentNameDoesNotReplaceDefaultFlashMapManager() {
-    this.contextRunner.withBean("sessionRedirectModelManager", CustomFlashMapManager.class, CustomFlashMapManager::new)
+  void customRedirectModelManagerWithDifferentNameDoesNotReplaceDefaultManager() {
+    this.contextRunner.withBean("sessionRedirectModelManager", CustomRedirectModelManager.class, CustomRedirectModelManager::new)
             .run((context) -> {
-              assertThat(context.getBean("sessionRedirectModelManager")).isInstanceOf(CustomFlashMapManager.class);
+              assertThat(context.getBean("sessionRedirectModelManager")).isInstanceOf(CustomRedirectModelManager.class);
               assertThat(context.getBean("sessionRedirectModelManager")).isInstanceOf(RedirectModelManager.class);
             });
   }
@@ -501,7 +502,7 @@ class WebMvcAutoConfigurationTests {
   void customAsyncRequestTimeout() {
     this.contextRunner.withPropertyValues("web.mvc.async.request-timeout:12345")
             .run((context) -> assertThat(context.getBean(WebAsyncManagerFactory.class))
-                    .extracting("asyncRequestTimeout").isEqualTo(12345L));
+                    .extracting("asyncRequestTimeout").isEqualTo(Duration.ofMillis(12345)));
   }
 
   @Test
@@ -938,13 +939,13 @@ class WebMvcAutoConfigurationTests {
 
   @Test
   void forwardedHeaderFilterIsNotConfiguredWhenStrategyIsNotFramework() {
-    this.contextRunner.withPropertyValues("server.forward-headers-strategy=native")
+    this.contextRunner.withPropertyValues("web.forwarded-headers.strategy=web-server")
             .run((context) -> assertThat(context).doesNotHaveBean(ForwardedHeaderFilter.class));
   }
 
   @Test
   void forwardedHeaderFilterIsConfiguredWhenFrameworkStrategyIsUsed() {
-    this.contextRunner.withPropertyValues("server.forward-headers-strategy=framework").run((context) -> {
+    this.contextRunner.withPropertyValues("web.forwarded-headers.strategy=framework").run((context) -> {
       assertThat(context).hasSingleBean(ForwardedHeaderFilter.class);
       Filter filter = context.getBean(ForwardedHeaderFilter.class);
       assertThat(filter).isInstanceOf(ForwardedHeaderFilter.class);
@@ -956,9 +957,9 @@ class WebMvcAutoConfigurationTests {
   @Test
   void forwardedHeaderFilterAppliesConfiguredProperties() {
     this.contextRunner
-            .withPropertyValues("server.forward-headers-strategy=framework",
-                    "web.forwarded-headers.header-format=standard",
-                    "web.forwarded-headers.use-forwarded-prefix=true")
+            .withPropertyValues("web.forwarded-headers.strategy=framework",
+                    "web.forwarded-headers.naming=rfc-7239",
+                    "web.forwarded-headers.use-prefix=true")
             .run((context) -> {
               Filter filter = context.getBean(ForwardedHeaderFilter.class);
               assertThat(filter).extracting("useStandardHeader").isEqualTo(true);
@@ -969,14 +970,14 @@ class WebMvcAutoConfigurationTests {
   @Test
   void forwardedHeaderFilterBacksOffWhenFilterBeanAlreadyRegistered() {
     this.contextRunner.withUserConfiguration(ForwardedHeaderFilterConfiguration.class)
-            .withPropertyValues("server.forward-headers-strategy=framework")
+            .withPropertyValues("web.forwarded-headers.strategy=framework")
             .run((context) -> assertThat(context).hasSingleBean(ForwardedHeaderFilter.class));
   }
 
   @Test
-  void forwardedHeaderFilterCustomizerFromDeprecatedTypeIsApplied() {
+  void forwardedHeaderFilterCustomizerIsApplied() {
     this.contextRunner.withUserConfiguration(ForwardedHeaderFilterCustomizerConfiguration.class)
-            .withPropertyValues("server.forward-headers-strategy=framework")
+            .withPropertyValues("web.forwarded-headers.strategy=framework")
             .run((context) -> {
               Filter filter = context.getBean(ForwardedHeaderFilter.class);
               assertThat(filter).extracting("removeOnly").isEqualTo(true);
@@ -1371,7 +1372,7 @@ class WebMvcAutoConfigurationTests {
 
   }
 
-  static class CustomFlashMapManager extends AbstractRedirectModelManager {
+  static class CustomRedirectModelManager extends AbstractRedirectModelManager {
 
     @Nullable
     @Override

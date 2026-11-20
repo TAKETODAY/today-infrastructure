@@ -47,13 +47,12 @@ public Account addAccount(@RequestParam String number) {
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@GetMapping("/accounts/{id}")
+@GET("/accounts/{id}")
 @ModelAttribute("myAccount")
 public Account handle() {
   // ...
   return account;
 }
 ----
-
 
 

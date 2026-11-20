@@ -24,6 +24,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -33,12 +34,18 @@ import infra.http.converter.cbor.JacksonCborHttpMessageConverter;
 import infra.http.converter.feed.AtomFeedHttpMessageConverter;
 import infra.http.converter.feed.RssChannelHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
+import infra.http.converter.json.GsonHttpMessageConverter;
+import infra.http.converter.json.JsonbHttpMessageConverter;
 import infra.http.converter.smile.JacksonSmileHttpMessageConverter;
 import infra.http.converter.xml.JacksonXmlHttpMessageConverter;
 import infra.http.converter.yaml.JacksonYamlHttpMessageConverter;
+import infra.util.Feature;
+import infra.util.FeatureDetector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Mockito.mockStatic;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -57,6 +64,80 @@ class DefaultHttpMessageConvertersTests {
             HttpMessageConverters.forClient().build(),
             HttpMessageConverters.forServer().build()
     );
+  }
+
+  @Test
+  void selectsTheNextAvailableJsonLibraryWhenJacksonIsUnavailable() {
+    var client = HttpMessageConverters.forClient();
+    try (var features = mockStatic(FeatureDetector.class)) {
+      features.when(() -> FeatureDetector.isPresent(Feature.GSON)).thenReturn(true);
+      assertThat(client.registerDefaults().build()).hasAtLeastOneElementOfType(GsonHttpMessageConverter.class);
+      features.when(() -> FeatureDetector.isPresent(Feature.GSON)).thenReturn(false);
+      features.when(() -> FeatureDetector.isPresent(Feature.JSONB)).thenReturn(true);
+      assertThat(HttpMessageConverters.forServer().registerDefaults().build()).hasAtLeastOneElementOfType(JsonbHttpMessageConverter.class);
+      features.when(() -> FeatureDetector.isPresent(Feature.JSONB)).thenReturn(false);
+      assertThat(HttpMessageConverters.forServer().registerDefaults().build().asList())
+              .noneMatch(converter -> converter.canWrite(Object.class, infra.http.MediaType.APPLICATION_JSON));
+    }
+  }
+
+  @Test
+  void configuresEveryDetectedConverterAndInvokesChainedConfigurer() {
+    var seen = new java.util.ArrayList<HttpMessageConverter<?>>();
+    var builder = HttpMessageConverters.forClient().registerDefaults()
+            .configureMessageConverters(seen::add)
+            .configureMessageConverters(converter -> assertThat(seen).contains(converter));
+    var converters = builder.build();
+    assertThat(seen).containsExactlyElementsOf(converters.asList());
+    assertThat(converters).hasAtLeastOneElementOfType(ByteArrayHttpMessageConverter.class)
+            .hasAtLeastOneElementOfType(StringHttpMessageConverter.class);
+  }
+
+  @Test
+  void keepsOnlyCustomConvertersWhenDefaultsAreDisabled() {
+    var custom = new CustomHttpMessageConverter();
+    var converters = HttpMessageConverters.forServer().disableDefaults()
+            .addCustomConverter(custom).build();
+    assertThat(converters.asList()).hasExactlyElementsOfTypes(CustomHttpMessageConverter.class,
+            AllEncompassingFormHttpMessageConverter.class);
+    assertThat(converters.iterator()).toIterable().containsExactlyElementsOf(converters.asList());
+  }
+
+  @Test
+  void clientKeepsExplicitFormatConvertersAndIgnoresNullBulkRegistration() {
+    var xml = new JacksonXmlHttpMessageConverter();
+    var smile = new JacksonSmileHttpMessageConverter();
+    var cbor = new JacksonCborHttpMessageConverter();
+    var yaml = new JacksonYamlHttpMessageConverter();
+    var custom = new CustomHttpMessageConverter();
+    var builder = HttpMessageConverters.forClient().registerDefaults()
+            .withXmlConverter(xml).withSmileConverter(smile).withCborConverter(cbor).withYamlConverter(yaml);
+
+    var converters = builder.addCustomConverters(null).addCustomConverters(List.of(custom)).build();
+    assertThat(converters.isEmpty()).isFalse();
+    assertThat(converters.asList()).startsWith(custom).contains(xml, smile, cbor, yaml);
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> converters.asList().clear());
+    assertThat(builder.disableDefaults().build().asList()).hasExactlyElementsOfTypes(
+            CustomHttpMessageConverter.class, AllEncompassingFormHttpMessageConverter.class);
+    assertThat(HttpMessageConverters.forClient().registerDefaults().disableDefaults().build().isEmpty()).isTrue();
+  }
+
+  @Test
+  void serverKeepsExplicitFormatConvertersInTheMainListAndMultipart() {
+    var xml = new JacksonXmlHttpMessageConverter();
+    var smile = new JacksonSmileHttpMessageConverter();
+    var cbor = new JacksonCborHttpMessageConverter();
+    var yaml = new JacksonYamlHttpMessageConverter();
+    var custom = new CustomHttpMessageConverter();
+    var builder = HttpMessageConverters.forServer().registerDefaults()
+            .withXmlConverter(xml).withSmileConverter(smile).withCborConverter(cbor).withYamlConverter(yaml);
+
+    var converters = builder.addCustomConverters(null).addCustomConverters(List.of(custom)).build();
+    assertThat(converters.asList()).startsWith(custom).contains(xml, smile, cbor, yaml);
+    assertThat(findMessageConverter(AllEncompassingFormHttpMessageConverter.class, converters).getPartConverters())
+            .contains(xml, smile, cbor, yaml, custom);
+    assertThat(builder.disableDefaults().build().asList()).hasExactlyElementsOfTypes(
+            CustomHttpMessageConverter.class, AllEncompassingFormHttpMessageConverter.class);
   }
 
   @Test

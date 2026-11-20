@@ -21,9 +21,11 @@ package infra.web.accept;
 import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -48,6 +50,14 @@ import infra.web.HttpContext;
  * @since 5.0
  */
 public class StandardApiVersionDeprecationHandler implements ApiVersionDeprecationHandler {
+
+  /**
+   * HTTP-date in the preferred IMF-fixdate format: GMT with a two-digit day.
+   *
+   * @see <a href="https://www.rfc-editor.org/rfc/rfc9110#section-5.6.7">RFC 9110, Section 5.6.7</a>
+   */
+  private static final DateTimeFormatter HTTP_DATE_FORMATTER =
+          DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.US).withZone(ZoneId.of("GMT"));
 
   private final ApiVersionParser<?> versionParser;
 
@@ -212,9 +222,9 @@ public class StandardApiVersionDeprecationHandler implements ApiVersionDeprecati
   }
 
   private record VersionInfo(Comparable<?> version,
-                             Predicate<HttpContext> requestPredicate,
-                             @Nullable String deprecationDate, @Nullable String deprecationLink,
-                             @Nullable String sunsetDate, @Nullable String sunsetLink) {
+          Predicate<HttpContext> requestPredicate,
+          @Nullable String deprecationDate, @Nullable String deprecationLink,
+          @Nullable String sunsetDate, @Nullable String sunsetLink) {
 
     VersionInfo(Comparable<?> version) {
       this(version, request -> true, null, null, null, null);
@@ -240,7 +250,7 @@ public class StandardApiVersionDeprecationHandler implements ApiVersionDeprecati
     public VersionInfo withSunsetDate(ZonedDateTime sunsetDate) {
       return new VersionInfo(version(), requestPredicate(),
               deprecationDate(), deprecationLink(),
-              sunsetDate.format(DateTimeFormatter.RFC_1123_DATE_TIME), sunsetLink());
+              HTTP_DATE_FORMATTER.format(sunsetDate), sunsetLink());
     }
 
     public VersionInfo withSunsetLink(URI uri, MediaType mediaType) {

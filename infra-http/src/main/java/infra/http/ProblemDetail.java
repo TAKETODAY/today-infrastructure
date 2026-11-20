@@ -67,7 +67,7 @@ public class ProblemDetail implements Serializable {
 
   private @Nullable URI instance;
 
-  private @Nullable Map<String, Object> properties;
+  private @Nullable Map<String, @Nullable Object> properties;
 
   /**
    * For deserialization.
@@ -205,10 +205,10 @@ public class ProblemDetail implements Serializable {
   /**
    * Setter for the {@link #getStatus() problem status}.
    *
-   * @param httpStatus the problem status
+   * @param code the problem status
    */
-  public void setStatus(HttpStatus httpStatus) {
-    this.status = httpStatus.value();
+  public void setStatus(HttpStatusCode code) {
+    this.status = code.value();
   }
 
   /**
@@ -253,6 +253,18 @@ public class ProblemDetail implements Serializable {
   }
 
   /**
+   * Return the value of the "dynamic" property with the given name.
+   *
+   * @param name the property name
+   * @return the property value, or {@code null} if not present
+   * @see #setProperty(String, Object)
+   */
+  public @Nullable Object getProperty(String name) {
+    Assert.notNull(name, "Name is required");
+    return this.properties != null ? this.properties.get(name) : null;
+  }
+
+  /**
    * Setter for the {@link #getProperties() properties map}.
    * <p>By default, this is not set.
    * <p>When Jackson JSON is present on the classpath, any properties set here
@@ -261,7 +273,7 @@ public class ProblemDetail implements Serializable {
    *
    * @param properties the properties map
    */
-  public void setProperties(@Nullable Map<String, Object> properties) {
+  public void setProperties(@Nullable Map<String, @Nullable Object> properties) {
     this.properties = properties;
   }
 
@@ -270,16 +282,14 @@ public class ProblemDetail implements Serializable {
   /**
    * Return the configured {@link #setType(URI) problem type}.
    */
-  @Nullable
-  public URI getType() {
+  public @Nullable URI getType() {
     return this.type;
   }
 
   /**
    * Return the configured {@link #setTitle(String) problem title}.
    */
-  @Nullable
-  public String getTitle() {
+  public @Nullable String getTitle() {
     if (this.title == null) {
       HttpStatus httpStatus = HttpStatus.resolve(this.status);
       if (httpStatus != null) {
@@ -300,16 +310,14 @@ public class ProblemDetail implements Serializable {
   /**
    * Return the configured {@link #setDetail(String) problem detail}.
    */
-  @Nullable
-  public String getDetail() {
+  public @Nullable String getDetail() {
     return this.detail;
   }
 
   /**
    * Return the configured {@link #setInstance(URI) problem instance}.
    */
-  @Nullable
-  public URI getInstance() {
+  public @Nullable URI getInstance() {
     return this.instance;
   }
 
@@ -323,8 +331,7 @@ public class ProblemDetail implements Serializable {
    *
    * @see infra.http.support.ProblemDetailJacksonMixin
    */
-  @Nullable
-  public Map<String, Object> getProperties() {
+  public @Nullable Map<String, @Nullable Object> getProperties() {
     return this.properties;
   }
 

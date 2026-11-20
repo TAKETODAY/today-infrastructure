@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.groovy.template.config;
 
 import org.junit.jupiter.api.Test;
@@ -30,6 +32,17 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Stephane Nicoll
  */
 class GroovyTemplatePropertiesTests {
+
+  @Test
+  void bindingExposureIsConfigurableIndependentlyOfMessages() {
+    var properties = new GroovyTemplateProperties();
+    assertThat(properties.isExposeBindings()).isTrue();
+    properties.setExposeBindings(false);
+    var resolver = new infra.web.view.groovy.GroovyMarkupViewResolver();
+    properties.applyToMvcViewResolver(resolver);
+    assertThat(resolver).hasFieldOrPropertyWithValue("exposeBindings", false);
+    assertThat(properties.isExposeMessages()).isTrue();
+  }
 
   @Test
   void defaultContentType() {

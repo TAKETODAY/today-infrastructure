@@ -21,10 +21,31 @@ TIP: 对于采用注解控制器的浏览器应用，可以使用
 xref:web/webmvc/mvc-controller/ann-modelattrib-methods.adoc[@ModelAttribute 方法]
 初始化供视图渲染使用的其他模型属性。
 
-每个请求使用独立的 `WebDataBinder` 实例。对于注解控制器，可以通过控制器内的
+框架按绑定目标创建 `WebDataBinder`，不会在不同请求之间共享实例。对于注解控制器，可以通过控制器内的
 xref:web/webmvc/mvc-controller/ann-initbinder.adoc[@InitBinder 方法]自定义该实例，
 也可以通过 xref:web/webmvc/mvc-controller/ann-advice.adoc[Controller Advice] 跨控制器自定义。
 对于函数式端点，使用接受 `Consumer<WebDataBinder>` 的 `ServerRequest.bind` 重载。
+
+[[mvc-data-binding-request-values]]
+== 请求值来源与优先级
+
+MVC 的 `HttpContextDataBinder` 除了查询参数和表单字段，还可以绑定 multipart 部件、
+当前请求映射提取的 URI 路径变量，以及通过筛选的请求头。同名值的优先级取决于绑定方式：
+
+* *构造函数绑定*：先查请求参数，再查同名路径变量和请求头。如果都没有找到，
+  先尝试字段默认值或标记前缀，再查同名 multipart 部件。
+* *属性绑定*：先收集请求参数，再加入 multipart 部件；加入的部件可替换同名请求参数。
+  路径变量和请求头只补充尚未出现的属性，其中路径变量优先于请求头。
+  属性绑定会移除请求头名称中的连字符并将首字母转为小写，例如 `X-Region` 作为 `xRegion` 候选属性。
+
+请求头筛选默认排除 `Authorization`、`Cookie` 和 `Host` 等请求头。可以用
+`HttpContextDataBinder.addHeaderPredicate(...)` 进一步收窄范围；`setHeaderPredicate(...)` 会替换默认筛选规则。
+请求参数可能覆盖同名路径变量，因此需要用路径 ID 选择或授权资源时，应显式声明 `@PathVariable` 参数，
+不要从绑定对象的同名属性中读取该 ID。
+
+优先使用只包含客户端可编辑字段的专用对象。如果需要属性绑定，可以通过
+xref:web/webmvc/mvc-controller/ann-initbinder.adoc[@InitBinder] 的 `setAllowedFields(...)` 限制可写字段。
+该方法只限制属性绑定，不会限制构造函数参数；构造函数同样只应接收允许客户端提供的值。
 
 [[mvc-data-binding-design]]
 == 模型设计

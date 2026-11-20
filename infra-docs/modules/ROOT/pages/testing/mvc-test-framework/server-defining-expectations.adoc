@@ -25,7 +25,8 @@ mockMvc.perform(get("/accounts/1")).andExpect(status().isOk());
 
 期望分为两大类。第一类断言验证响应的属性（例如，响应状态、头和内容）。这些是要断言的最重要的结果。
 
-第二类断言超出了响应本身。这些断言让你检查 Web MVC 特定的方面，例如哪个控制器方法处理了请求、是否引发并处理了异常、模型的内容是什么、选择了哪个视图、添加了哪些 flash 属性等等。它们还让你检查 Servlet 特定的方面，例如请求和会话属性。
+第二类断言检查响应之外的处理结果，例如实际调用的控制器方法、已处理的异常、模型属性、选用的视图以及请求和会话属性。
+通过 `MockMvcResultMatchers.redirectModel()` 可以断言输出 xref:web/webmvc/mvc-controller/ann-methods/redirect-model.adoc[重定向 Model] 的属性。
 
 以下测试断言绑定或验证失败：
 

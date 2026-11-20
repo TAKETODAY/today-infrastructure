@@ -40,19 +40,24 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class AssertFileChannelDataBlocksClosedExtension implements BeforeEachCallback, AfterEachCallback {
 
-  private static OpenFilesTracker tracker = new OpenFilesTracker();
+  private final OpenFilesTracker tracker = new OpenFilesTracker();
 
   @Override
   public void beforeEach(ExtensionContext context) throws Exception {
-    tracker.clear();
-    FileDataBlock.tracker = tracker;
-    DefaultCleanerTracking.set(tracker::addedCleanable);
+    FileDataBlock.tracker = this.tracker;
+    DefaultCleanerTracking.set(this.tracker::addedCleanable);
   }
 
   @Override
   public void afterEach(ExtensionContext context) throws Exception {
-    tracker.assertAllClosed();
-    FileDataBlock.tracker = FileDataBlock.Tracker.NONE;
+    try {
+      this.tracker.assertAllClosed();
+    }
+    finally {
+      DefaultCleanerTracking.set(null);
+      FileDataBlock.tracker = FileDataBlock.Tracker.NONE;
+      this.tracker.clear();
+    }
   }
 
   private static final class OpenFilesTracker implements FileDataBlock.Tracker {
@@ -63,22 +68,26 @@ class AssertFileChannelDataBlocksClosedExtension implements BeforeEachCallback, 
 
     private final List<Closeable> close = new ArrayList<>();
 
+    private final List<Object> referents = new ArrayList<>();
+
     @Override
-    public void openedFileChannel(Path path) {
+    public synchronized void openedFileChannel(Path path) {
       this.paths.add(path);
     }
 
     @Override
-    public void closedFileChannel(Path path) {
+    public synchronized void closedFileChannel(Path path) {
       this.paths.remove(path);
     }
 
-    void clear() {
+    synchronized void clear() {
       this.paths.clear();
       this.clean.clear();
+      this.close.clear();
+      this.referents.clear();
     }
 
-    void assertAllClosed() throws IOException {
+    synchronized void assertAllClosed() throws IOException {
       for (Closeable closeable : this.close) {
         closeable.close();
       }
@@ -86,8 +95,10 @@ class AssertFileChannelDataBlocksClosedExtension implements BeforeEachCallback, 
       assertThat(this.paths).as("open paths").isEmpty();
     }
 
-    private void addedCleanable(Object obj, Cleanable cleanable) {
+    synchronized void addedCleanable(Object obj, Cleanable cleanable) {
       if (cleanable != null) {
+        // Keep the referent alive so the background Cleaner cannot race with teardown.
+        this.referents.add(obj);
         this.clean.add(cleanable);
       }
       if (obj instanceof Closeable closeable) {

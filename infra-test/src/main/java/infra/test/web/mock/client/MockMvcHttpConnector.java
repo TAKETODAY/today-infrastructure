@@ -292,8 +292,8 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
     }
 
     @Override
-    public RedirectModel getFlashMap() {
-      return this.mvcResult.getFlashMap();
+    public RedirectModel getOutputRedirectModel() {
+      return this.mvcResult.getOutputRedirectModel();
     }
 
     @Override

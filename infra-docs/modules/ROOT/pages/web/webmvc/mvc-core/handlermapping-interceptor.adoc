@@ -2,20 +2,23 @@
 = 拦截
 
 所有 `HandlerMapping` 实现都支持处理程序拦截器，当您想要将特定功能应用于某些请求（例如，检查主体）时，这些拦截器非常有用。
-拦截器必须从 `infra.web` 包中实现 `HandlerInterceptor`，该接口具有2个方法，
+拦截器必须从 `infra.web` 包中实现 `HandlerInterceptor`，该接口提供以下回调，
 应提供足够的灵活性来执行各种预处理和后处理：
 
 * `preProcessing(..)`: 在实际处理程序运行之前
 * `postProcessing(..)`: 在处理程序运行之后
+* `intercept(HttpContext, InterceptorChain)`: 环绕剩余拦截器链和处理程序，可替换返回值、处理异常或在 `finally` 中清理资源
 
 `preProcessing(..)` 方法返回一个布尔值。您可以使用此方法中断或继续执行链的处理。
 当此方法返回 `true` 时，处理程序执行链继续。
+返回 `false` 时跳过剩余链和当前拦截器的 `postProcessing`，拦截器需自行处理响应。
+默认实现仅在剩余链正常返回时调用 `postProcessing`，它不是请求完成回调。
 
 有关如何配置拦截器的示例，请参阅 MVC 配置部分中的 xref:web/webmvc/mvc-config/interceptors.adoc[拦截器]。
 您也可以通过在各个 `HandlerMapping` 实现上使用 setter 直接注册它们。
 
-`postProcessing` 方法对于 `@ResponseBody` 和 `ResponseEntity` 方法不太有用，
-因为这些方法的响应是在 `HandlerAdapter` 内和 `postProcessing` 之前写入和提交的。
-这意味着现在对响应进行任何更改（例如添加额外的头）为时已晚。对于此类场景，您可以实现 `ResponseBodyAdvice`
-并将其声明为 xref:web/webmvc/mvc-controller/ann-advice.adoc[Controller Advice] bean，
-或者直接在 `RequestMappingHandlerAdapter` 上进行配置。
+对于通常返回的 `@ResponseBody` 或 `ResponseEntity` 结果，`postProcessing` 在 `DispatcherHandler`
+执行返回值处理之前运行，可以检查结果或修改尚未提交的响应头，但不能替换返回值；替换结果请重写 `intercept`。
+如果处理程序已经直接写入并提交响应，则不能再修改响应头。
+要在消息转换器写入响应体之前定制内容，可以实现 `ResponseBodyAdvice`
+并将其声明为 xref:web/webmvc/mvc-controller/ann-advice.adoc[Controller Advice] bean。

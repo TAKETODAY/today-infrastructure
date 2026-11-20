@@ -10,7 +10,7 @@ A modular Java application framework with dependency injection, auto-configurati
 [![Apache License 2.0](https://img.shields.io/github/license/TAKETODAY/today-infrastructure?color=blue)](LICENSE)
 [![CI](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/ci.yaml/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/ci.yaml)
 
-[Quick start](#quick-start) · [Project setup](#project-setup) · [Real-world application](#real-world-application-today-blog) · [Documentation](https://docs.today-tech.cn/today-infrastructure/) · [Samples](infra-samples) · [Contributing](#contributing) · [Discussions](https://github.com/TAKETODAY/today-infrastructure/discussions)
+[Quick start](#quick-start) · [Project setup](#project-setup) · [Real-world application](#real-world-application-today-blog) · [Documentation](https://docs.today-tech.cn/today-infrastructure/) · [AI-assisted development](#ai-assisted-development) · [Samples](infra-samples) · [Contributing](#contributing) · [Discussions](https://github.com/TAKETODAY/today-infrastructure/discussions)
 
 ## Overview
 
@@ -172,6 +172,25 @@ Expected response: `Hello, TODAY!`. If port 8080 is occupied, change `server.por
 | Module usage and API documentation | [Online documentation](https://docs.today-tech.cn/today-infrastructure/) |
 
 Some documentation and contribution instructions are currently in Chinese.
+
+## AI-assisted development
+
+[TODAY Infrastructure Skill](https://github.com/TAKETODAY/today-infra-skill) is an Agent Skill for AI coding assistants that guides application development using the framework's real APIs:
+
+- Project setup, the `@InfraApplication` bootstrap model, and the `infra.application` Gradle plugin
+- Controllers and request mapping, argument binding, exception handling, MVC configuration
+- Dependency injection, transactions, JDBC, persistence, validation
+- Testing with `@InfraTest`, MockMvc, and WebTestClient
+
+The content is generated from the `infra-docs` AsciiDoc sources and re-synced with each framework version, rather than being hand-picked snippets.
+
+```bash
+git clone https://github.com/TAKETODAY/today-infra-skill
+cd today-infra-skill
+./install.sh
+```
+
+The skill is installed at `~/.config/opencode/skills/infra-app-dev` for [OpenCode](https://opencode.ai). Other agents that follow the `SKILL.md` convention can link it the same way.
 
 ## Project setup
 

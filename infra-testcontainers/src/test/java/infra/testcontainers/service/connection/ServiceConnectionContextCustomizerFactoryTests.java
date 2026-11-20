@@ -20,6 +20,8 @@ package infra.testcontainers.service.connection;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 import org.testcontainers.containers.Container;
 import org.testcontainers.containers.GenericContainer;
 
@@ -27,12 +29,14 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Collections;
 
+import infra.context.aot.AbstractAotProcessor;
 import infra.context.support.GenericApplicationContext;
 import infra.test.context.ContextCustomizer;
 import infra.test.context.MergedContextConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -45,6 +49,30 @@ import static org.mockito.Mockito.mock;
 class ServiceConnectionContextCustomizerFactoryTests {
 
   private final ServiceConnectionContextCustomizerFactory factory = new ServiceConnectionContextCustomizerFactory();
+
+  @Test
+  @ResourceLock(Resources.SYSTEM_PROPERTIES)
+  void aotProcessingDoesNotQueryTheContainerImage() {
+    String key = AbstractAotProcessor.AOT_PROCESSING;
+    String previous = System.setProperty(key, "true");
+    try {
+      var customizer = (ServiceConnectionContextCustomizer) this.factory
+              .createContextCustomizer(AotServiceConnection.class, Collections.emptyList());
+      assertThat(customizer.getSources()).singleElement().satisfies(source -> {
+        assertThat(source.getConnectionName()).isEqualTo("database");
+        assertThat(source.getContainerImageName()).isNull();
+      });
+      then(AotServiceConnection.database).shouldHaveNoInteractions();
+    }
+    finally {
+      if (previous == null) {
+        System.clearProperty(key);
+      }
+      else {
+        System.setProperty(key, previous);
+      }
+    }
+  }
 
   @Test
   void createContextCustomizerWhenNoServiceConnectionsReturnsCustomizerToApplyInitializer() {
@@ -150,6 +178,13 @@ class ServiceConnectionContextCustomizerFactoryTests {
   }
 
   static class NoServiceConnections {
+
+  }
+
+  static class AotServiceConnection {
+
+    @ServiceConnection(name = "database")
+    private static final GenericContainer<?> database = mock(GenericContainer.class);
 
   }
 

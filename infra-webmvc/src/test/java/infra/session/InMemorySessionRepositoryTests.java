@@ -60,6 +60,91 @@ class InMemorySessionRepositoryTests {
   }
 
   @Test
+  void creatingSessionAfterCheckIntervalCleansUpIdleSessions() {
+    Clock advancingClock = mock(Clock.class);
+    Instant start = clock.instant();
+    given(advancingClock.instant()).willReturn(start);
+    repository.setClock(advancingClock);
+    Session idle = repository.createSession("idle");
+    idle.setMaxIdleTime(Duration.ofSeconds(30));
+    repository.saveOrUpdate(idle);
+    Session permanent = repository.createSession("permanent");
+    permanent.setMaxIdleTime(Duration.ofSeconds(-1));
+    repository.saveOrUpdate(permanent);
+
+    given(advancingClock.instant()).willReturn(start.plusSeconds(120));
+    repository.createSession("next");
+
+    assertThat(repository.getIdentifiers()).containsExactly("permanent");
+    verify(eventDispatcher).sessionDestroyed(idle);
+  }
+
+  @Test
+  void capacityLimitRejectsNewSessionUntilAnIdleSessionCanBeEvicted() {
+    repository.setMaxSessions(1);
+    Session first = repository.createSession("first");
+    repository.saveOrUpdate(first);
+    Session next = repository.createSession("next");
+
+    assertThatExceptionOfType(TooManyActiveSessionsException.class)
+            .isThrownBy(() -> repository.saveOrUpdate(next))
+            .satisfies(ex -> assertThat(ex.getMaxActiveSessions()).isOne());
+    assertThat(repository.getIdentifiers()).containsExactly("first");
+
+    first.setLastAccessTime(clock.instant().minus(first.getMaxIdleTime()).minusSeconds(1));
+    repository.saveOrUpdate(next);
+    assertThat(repository.getIdentifiers()).containsExactly("next");
+    verify(eventDispatcher).sessionDestroyed(first);
+  }
+
+  @Test
+  void invalidatedSessionCannotBeSavedAgain() {
+    Session session = repository.createSession("id");
+    repository.saveOrUpdate(session);
+    session.invalidate();
+
+    assertThat(session.isExpired()).isTrue();
+    assertThatExceptionOfType(IllegalStateException.class)
+            .isThrownBy(() -> repository.saveOrUpdate(session)).withMessage("Session was invalidated");
+    assertThat(repository.getSessionCount()).isZero();
+  }
+
+  @Test
+  void retrievalExpiresSessionOnlyAfterItsIdleLimit() {
+    Session session = repository.createSession("id");
+    session.setMaxIdleTime(Duration.ofSeconds(10));
+    repository.saveOrUpdate(session);
+
+    assertThat(session.isNew()).isTrue();
+    session.setLastAccessTime(clock.instant().minusSeconds(10));
+    assertThat(repository.retrieveSession("id")).isSameAs(session);
+    assertThat(session.isNew()).isFalse();
+    session.setLastAccessTime(clock.instant().minusSeconds(10).minusNanos(1));
+    assertThat(repository.retrieveSession("id")).isNull();
+    assertThat(repository.contains("id")).isFalse();
+  }
+
+  @Test
+  void savingDetachedSessionCopiesChangesIntoTheManagedSession() {
+    MapSession detached = new MapSession("id");
+    detached.setAttribute("name", "before");
+    repository.saveOrUpdate(detached);
+
+    Session managed = repository.retrieveSession("id");
+    assertThat(managed).isNotNull().isNotSameAs(detached);
+    assertThat(managed.getAttribute("name")).isEqualTo("before");
+
+    detached.setMaxIdleTime(Duration.ofHours(1));
+    detached.setAttribute("name", "after");
+    repository.saveOrUpdate(detached);
+
+    assertThat(repository.retrieveSession("id")).isSameAs(managed);
+    assertThat(managed.getAttribute("name")).isEqualTo("after");
+    assertThat(managed.getMaxIdleTime()).isEqualTo(Duration.ofHours(1));
+    verify(eventDispatcher).sessionCreated(managed);
+  }
+
+  @Test
   void createSessionShouldReturnNewSession() {
     given(idGenerator.generateId()).willReturn("test-id");
     Session session = repository.createSession();

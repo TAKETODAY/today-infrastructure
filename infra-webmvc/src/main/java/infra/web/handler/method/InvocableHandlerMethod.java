@@ -36,13 +36,12 @@ import infra.web.HttpContext;
 import infra.web.HttpRequestHandler;
 import infra.web.annotation.ResponseStatus;
 import infra.web.bind.WebDataBinder;
-import infra.web.bind.resolver.ParameterResolvingStrategies;
 import infra.web.view.View;
 
 /**
  * Extension of {@link HandlerMethod} that invokes the underlying method with
  * argument values resolved from the current HTTP request through a list of
- * {@link infra.web.bind.resolver.ParameterResolvingStrategy}.
+ * {@link infra.web.handler.method.ParameterResolvingStrategy}.
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller

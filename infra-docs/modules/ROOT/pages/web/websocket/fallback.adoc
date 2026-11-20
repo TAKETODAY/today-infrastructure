@@ -5,17 +5,12 @@
 
 解决此问题的方法是 WebSocket 模拟 -- 即首先尝试使用 WebSocket，然后退回到模拟 WebSocket 交互并公开相同应用级别 API 的基于 HTTP 的技术。
 
+当前框架的 `WebSocketHandlerRegistry` 不提供 SockJS 注册 API，也没有内置的 SockJS HTTP 传输实现。
+如需长轮询或其他 HTTP 回退方案，需要由应用自行实现或集成其他服务；不能仅通过配置 WebSocket 处理器启用。
 
 [[websocket-fallback-cors]]
 == CORS
 
-如果您允许跨域请求（请参阅 xref:web/websocket/server.adoc#websocket-server-allowed-origins[允许的来源]），SockJS 协议将在 XHR 流和轮询传输中使用 CORS 进行跨域支持。
-因此，除非检测到响应中存在 CORS 标头，否则将自动添加 CORS 标头。
-因此，如果应用程序已经配置为提供 CORS 支持（例如，通过 Servlet 过滤器），则：
-
-* `Access-Control-Allow-Origin`：从 `Origin` 请求标头的值初始化。
-* `Access-Control-Allow-Credentials`：始终设置为 `true`。
-* `Access-Control-Request-Headers`：从等效请求标头的值初始化。
-* `Access-Control-Allow-Methods`：传输支持的 HTTP 方法（参见 `TransportType` 枚举）。
-* `Access-Control-Max-Age`：设置为 31536000（1 年）。
-
+WebSocket 握手的来源检查参见 xref:web/websocket/server.adoc#websocket-server-allowed-origins[允许的来源]。
+它不会为应用自行实现的 HTTP 回退端点配置 CORS；这些端点需要单独使用
+xref:web/webmvc-cors.adoc[Web MVC CORS 支持]，并按实际使用的来源、方法、请求头和凭据需求配置策略。

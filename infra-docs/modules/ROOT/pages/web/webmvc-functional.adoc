@@ -1,7 +1,7 @@
 [[webmvc-fn]]
 = Functional Endpoints
 
-Infra Web MVC 包括 WebMvc.fn，这是一个轻量级的函数式编程模型，在该模型中，函数用于路由和处理请求，设计为不可变性。
+Infra Web MVC 包括 WebMvc.fn，这是一个轻量级的函数式编程模型，在该模型中，函数用于路由和处理请求。
 它是基于注解编程模型的另一种选择，但在其他方面运行在相同的 xref:web/webmvc/mvc-core.adoc[DispatcherHandler] 上。
 
 
@@ -9,8 +9,8 @@ Infra Web MVC 包括 WebMvc.fn，这是一个轻量级的函数式编程模型�
 == 概述
 
 在 WebMvc.fn 中，一个 HTTP 请求通过 `HandlerFunction` 处理：一个接受 `ServerRequest` 并返回 `ServerResponse` 的函数。
-请求和响应对象都具有不可变的合同，提供了与 JDK 8 兼容的访问 HTTP 请求和响应的方式。
-`HandlerFunction` 相当于注解-based 编程模型中 `@RequestMapping` 方法的主体。
+请求和响应通过专用接口提供对 HTTP 请求和响应的访问；框架要求 JDK 17 或更高版本。
+`HandlerFunction` 相当于基于注解的编程模型中 `@RequestMapping` 方法的主体。
 
 传入的请求通过 `RouterFunction` 路由到处理函数：一个接受 `ServerRequest` 并返回可选的 `HandlerFunction`（即 `Optional<HandlerFunction>`）的函数。
 当路由函数匹配时，会返回一个处理函数；否则返回一个空的 Optional。
@@ -22,7 +22,7 @@ Infra Web MVC 包括 WebMvc.fn，这是一个轻量级的函数式编程模型�
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 import static infra.http.MediaType.APPLICATION_JSON;
-import static infra.web.handler.function.ReqestPredicates.*;
+import static infra.web.handler.function.RequestPredicates.accept;
 import static infra.web.handler.function.RouterFunctions.route;
 
 PersonRepository repository = ...
@@ -62,13 +62,17 @@ public class PersonHandler {
 [[webmvc-fn-handler-functions]]
 == HandlerFunction
 
-`ServerRequest` 和 `ServerResponse` 是不可变接口，提供了与 JDK 8 兼容的访问 HTTP 请求和响应的方式，包括头、主体、方法和状态码。
+`ServerRequest` 和 `ServerResponse` 提供了对 HTTP 请求和响应的访问，包括头、主体、方法和状态码。
+可以通过构建器创建请求副本和响应，但不应将整个请求视为深度不可变对象：
+例如，`ServerRequest.attributes()` 返回可修改的属性映射，`exchange()` 暴露底层 `HttpContext`。
 
 
 [[webmvc-fn-request]]
 === ServerRequest
 
 `ServerRequest` 提供了访问 HTTP 方法、URI、头和查询参数的方式，而对主体的访问则通过 `body` 方法提供。
+`body(Class)` 和 `body(ParameterizedTypeReference)` 均声明了 `IOException`，调用方需要捕获或声明该异常。
+`HandlerFunction.handle` 允许抛出 `Exception`，因此处理函数可以直接声明 `throws IOException`。
 
 以下示例将请求主体提取为 `String`：
 
@@ -84,7 +88,7 @@ String string = request.body(String.class);
 List<Person> people = request.body(new ParameterizedTypeReference<List<Person>>() {});
 ----
 
-以下示例演示了如何访问参数：
+以下示例演示了如何访问参数（包括查询字符串和提交的表单数据）：
 
 [source,java,role="primary"]
 ----
@@ -94,7 +98,7 @@ MultiValueMap<String, String> params = request.params();
 [[webmvc-fn-response]]
 === ServerResponse
 
-`ServerResponse` 提供了对 HTTP 响应的访问，并且由于它是不可变的，您可以使用 `build` 方法来创建它。
+`ServerResponse` 提供了对 HTTP 响应的访问。通过构建器的 `build()` 创建无主体响应，通过 `body(...)` 创建带主体响应。
 您可以使用构建器设置响应状态、添加响应头或提供主体。以下示例创建了一个带有 JSON 内容的 200 (OK) 响应：
 
 [source,java,role="primary"]
@@ -112,7 +116,8 @@ URI location = ...
 ServerResponse.created(location).build();
 ----
 
-您还可以使用异步结果作为主体，可以是 `CompletableFuture`、`Publisher`，或者任何其他类型，只要被 `ReactiveAdapterRegistry` 支持。例如：
+您还可以使用异步结果作为主体，可以是 `CompletionStage`（如 `CompletableFuture`）、`Publisher`，
+或者其他由 `ReactiveAdapterRegistry` 支持的单值异步类型。例如：
 
 
 [source,java,role="primary"]
@@ -160,6 +165,9 @@ sseBuilder.id("42")
 sseBuilder.complete();
 ----
 
+`SseBuilder.send(...)` 和 `data(...)` 会发送事件，并声明 `IOException`；发送线程需要处理该异常。
+`id(...)` 和 `event(...)` 设置当前事件的元数据，调用 `data(...)` 时才发送该事件。
+
 
 [[webmvc-fn-handler-classes]]
 === Handler Classes
@@ -179,12 +187,18 @@ HandlerFunction<ServerResponse> helloWorld =
 
 这很方便，但在应用程序中我们需要多个函数，多个内联 lambda 会变得混乱。
 因此，将相关的处理函数组合到一个处理器类中是有用的，它的作用类似于注解驱动的应用程序中的 `@Controller`。
-例如，下面的类暴露了一个响应式的 `Person` 存储库：
+例如，下面的类使用同步的 `Person` 存储库：
 
 --
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
+import java.io.IOException;
+import java.util.List;
+
+import infra.web.handler.function.ServerRequest;
+import infra.web.handler.function.ServerResponse;
+
 import static infra.http.MediaType.APPLICATION_JSON;
 import static infra.web.handler.function.ServerResponse.ok;
 
@@ -201,7 +215,7 @@ public class PersonHandler {
     return ok().contentType(APPLICATION_JSON).body(people);
   }
 
-  public ServerResponse createPerson(ServerRequest request) throws Exception { // <2>
+  public ServerResponse createPerson(ServerRequest request) throws IOException { // <2>
     Person person = request.body(Person.class);
     repository.savePerson(person);
     return ok().build();
@@ -237,13 +251,25 @@ public class PersonHandler {
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
+import java.io.IOException;
+
+import infra.http.HttpStatus;
+import infra.validation.BeanPropertyBindingResult;
+import infra.validation.Errors;
+import infra.validation.Validator;
+import infra.web.handler.function.ServerRequest;
+import infra.web.handler.function.ServerResponse;
+import infra.web.server.ResponseStatusException;
+
+import static infra.web.handler.function.ServerResponse.ok;
+
 public class PersonHandler {
 
   private final Validator validator = new PersonValidator(); // <1>
 
   // ...
 
-  public ServerResponse createPerson(ServerRequest request) {
+  public ServerResponse createPerson(ServerRequest request) throws IOException {
     Person person = request.body(Person.class);
     validate(person); // <2>
     repository.savePerson(person);
@@ -254,17 +280,17 @@ public class PersonHandler {
     Errors errors = new BeanPropertyBindingResult(person, "person");
     validator.validate(person, errors);
     if (errors.hasErrors()) {
-      throw new ServerWebInputException(errors.toString()); // <3>
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errors.toString()); // <3>
     }
   }
 }
 ----
 <1> 创建 `Validator` 实例.
 <2> 应用验证.
-<3> 抛一个 400 异常的响应.
+<3> 抛出 `ResponseStatusException`，由 MVC 异常处理机制生成 400 Bad Request 响应。
 
 
-处理程序还可以通过创建和注入基于 `LocalValidatorFactoryBean` 的全局 `Validator` 实例来使用标准的 Bean 验证 API（JSR-303）。
+处理程序还可以通过创建和注入基于 `LocalValidatorFactoryBean` 的全局 `Validator` 实例来使用标准的 Jakarta Bean Validation API。
 请参阅 xref:core/validation/beanvalidation.adoc[Infra 验证]。
 
 
@@ -330,7 +356,8 @@ RouterFunction<ServerResponse> route = RouterFunctions.route()
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 import static infra.http.MediaType.APPLICATION_JSON;
-import static infra.web.handler.function.RequestPredicates.*;
+import static infra.web.handler.function.RequestPredicates.accept;
+import static infra.web.handler.function.RouterFunctions.route;
 
 PersonRepository repository = ...
 PersonHandler handler = new PersonHandler(repository);
@@ -393,20 +420,22 @@ RouterFunction<ServerResponse> route = route()
 
 WebMvc.fn 提供了内置支持用于提供资源。
 
-NOTE: 除了下面描述的功能外，还可以实现更灵活的资源处理，这得益于。
-{today-framework-api}++/web/handler/function/RouterFunctions.html#resources(java.util.function.Function)++[`RouterFunctions#resource(java.util.function.Function)`].
+NOTE: 除了下面描述的功能外，还可以通过
+{today-framework-api}++/web/handler/function/RouterFunctions.html#resources(java.util.function.Function)++[`RouterFunctions.resources(Function<ServerRequest, Optional<Resource>>)`]
+实现自定义资源查找。
 
 [[webmvc-fn-resource]]
-=== 重定向到资源
+=== 将请求路由到指定资源
 
-可以将匹配指定谓词的请求重定向到资源。例如，在单页应用程序中处理重定向时可能很有用。
+可以将匹配指定谓词的请求路由到资源，例如为单页应用程序提供 `index.html` 回退。
+这会直接返回资源内容，而不是发送带有 `Location` 头的 HTTP 3xx 重定向响应。
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 ClassPathResource index = new ClassPathResource("static/index.html");
 List<String> extensions = List.of("js", "css", "ico", "png", "jpg", "gif");
 RequestPredicate spaPredicate = path("/api/**").or(path("/error")).or(pathExtension(extensions::contains)).negate();
-RouterFunction<ServerResponse> redirectToIndex = route()
+RouterFunction<ServerResponse> indexRoute = route()
   .resource(spaPredicate, index)
   .build();
 ----
@@ -442,7 +471,7 @@ xref:core/beans/annotation-config/autowired.adoc#beans-factory-ordered[对其进
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Configuration
-@EnableMvc
+@EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
 
   @Bean
@@ -480,7 +509,7 @@ public class WebConfig implements WebMvcConfigurer {
 == Filtering Handler Functions
 
 你可以通过在路由函数构建器上使用 `before`、`after` 或 `filter` 方法来过滤处理函数。
-使用注解时，你可以通过使用 `@ControllerAdvice`、`ServletFilter` 或两者来实现类似的功能。
+在基于注解的编程模型中，可以通过 `HandlerInterceptor` 或底层服务器的过滤器实现类似的请求前后处理。
 该过滤器将应用于由构建器构建的所有路由。
 这意味着嵌套路由中定义的过滤器不适用于“顶级”路由。
 例如，请考虑以下示例：
@@ -496,11 +525,16 @@ RouterFunction<ServerResponse> route = route()
         .header("X-RequestHeader", "Value")
         .build()))
     .POST(handler::createPerson))
-  .after((request, response) -> logResponse(response)) // <2>
+  .after((request, response) -> { // <2>
+    logResponse(response);
+    return response;
+  })
   .build();
 ----
 <1> 添加自定义请求头的 `before` 过滤器仅应用于这两个 GET 路由。
 <2> 记录响应的 `after` 过滤器应用于所有路由，包括嵌套的路由。
+
+`after` 接受 `BiFunction<ServerRequest, ServerResponse, ServerResponse>`，因此回调必须返回响应。
 
 路由构建器上的 `filter` 方法接受一个 `HandlerFilterFunction`：一个接受 `ServerRequest` 和 `HandlerFunction` 并返回 `ServerResponse` 的函数。
 处理程序函数参数表示链中的下一个元素。
@@ -536,5 +570,5 @@ RouterFunction<ServerResponse> route = route()
 
 除了在路由函数构建器上使用 `filter` 方法之外，还可以通过 `RouterFunction.filter(HandlerFilterFunction)` 将过滤器应用于现有的路由函数。
 
-注意：对于功能端点的 CORS 支持是通过专用的 xref:web/webmvc-cors.adoc#mvc-cors-filter[`CorsFilter`] 提供的。
-
+注意：通过 MVC 配置注册的功能端点支持 `WebMvcConfigurer.addCorsMappings(CorsRegistry)` 配置的全局 CORS 映射。
+也可以使用专用的 xref:web/webmvc-cors.adoc#mvc-cors-filter[`CorsFilter`]。

@@ -267,7 +267,7 @@ public class ContentNegotiatingViewResolver extends ApplicationObjectSupport imp
   }
 
   private Collection<MediaType> getProducibleMediaTypes(HttpContext context) {
-    HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
+    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(context);
     if (matchingMetadata != null) {
       var mediaTypes = matchingMetadata.getProducibleMediaTypes();
       if (CollectionUtils.isNotEmpty(mediaTypes)) {

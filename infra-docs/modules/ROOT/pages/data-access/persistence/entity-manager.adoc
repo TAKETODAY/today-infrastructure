@@ -1,8 +1,11 @@
 [[persistence-manager]]
 = EntityManager
 
-`EntityManager` 是持久化的中心 API，所有方法在数据访问失败时抛出 `DataAccessException`，
-实体元数据非法时抛出 `IllegalEntityException`。
+`EntityManager` 是持久化的中心 API。数据访问失败通常转换为 `DataAccessException`，
+实体元数据、主键或参数不符合要求时可能抛出 `IllegalEntityException`、
+`InvalidDataAccessApiUsageException` 或 `IllegalArgumentException`。应用回调抛出的运行时异常通常保留原类型。
+
+单条操作不会自动开启或提交事务；批量写入通过 `RepositoryManager` 请求事务，详见 <<persistence-transaction>>。
 
 == 持久化
 
@@ -14,6 +17,9 @@ entityManager.persist(users);
 entityManager.persist(user, PropertyUpdateStrategy.noneNull());
 entityManager.persist(userStream);
 ----
+
+`persist` 返回 JDBC 报告的影响行数。批量 JDBC 驱动可能返回 `Statement.SUCCESS_NO_INFO`（`-2`），
+此时返回值表示执行成功但影响行数未知，而不是实体数量。
 
 [[persistence-persist-id]]
 === 主键与插入流程
@@ -36,7 +42,7 @@ entityManager.persist(userStream);
 应改用 `@GeneratedId`；手动赋值主键继续使用 `@Id`。
 
 应用生成的 ID 在插入失败或事务回滚后仍保留在实体上，已分配的 ID 不会被框架回收。
-`saveOrUpdate()` 优先使用 `NewEntityIndicator.isNew()` 判断是否为新实体，否则按主键是否为 `null` 判断，
+`saveOrUpdate()` 优先使用 `NewEntityIndicator.isNew()` 判断是否为新实体，否则仅在实体有主键属性且其值为 `null` 时判为新实体，
 不会先查询数据库确认记录是否存在。已经生成 ID 的失败插入应使用 `persist()` 重试，
 或由 `NewEntityIndicator` 明确管理新实体状态。
 
@@ -58,10 +64,14 @@ entityManager.updateById(user, 10L);
 entityManager.updateById(user, PropertyUpdateStrategy.noneNull());
 entityManager.updateById(user, 10L, PropertyUpdateStrategy.noneNull());
 
-// 新实体插入、已存在则更新
+// 按新实体判定选择插入或更新，不查询数据库
 entityManager.saveOrUpdate(user);
 entityManager.saveOrUpdate(user, PropertyUpdateStrategy.noneNull());
 ----
+
+从实体读取主键的 `updateById(entity)` 会排除 `SET` 中的主键列。传入显式 ID 的
+`updateById(entity, id, strategy)` 则只用该参数定位旧记录，实体属性是否写入由策略决定，主键列也可能进入 `SET`。
+不希望修改主键时，可用 `PropertyUpdateStrategy.notId().and(strategy)`。
 
 当实体没有主键、又要以某个属性定位记录时，可在该属性上标注 `@UpdateBy`：
 
@@ -92,10 +102,14 @@ entityManager.delete(example);          // 按实体 / 示例条件删除
 entityManager.truncate(User.class);     // 清空整张表，保留表结构
 ----
 
+`delete` 返回受影响行数；`truncate` 没有实体级回调参数，且其事务行为取决于数据库平台和当前事务。
+`delete(entityOrExample)` 优先使用实体中非空的主键，否则由示例生成条件。若示例没有生成任何条件，
+会执行不带 `WHERE` 的 DELETE；使用动态条件删除前，应在应用中确认至少有一个有效条件。
+
 == 查询
 
-查询方法接受一个 `QueryCondition`（描述条件部分）或 `QueryStatement`（渲染 SQL 并绑定参数）；
-`find(example)` 这类重载只是其中"以对象为探针"的输入形式，详见
+`find`、`findFirst`、`findUnique` 和 `iterate` 可直接接收 `QueryStatement`；`count`、`page`、`slice` 和
+`scroll` 可直接接收 `QueryCondition`。两组方法也可通过各自的 `Object example` 重载转换示例对象，详见
 xref:data-access/persistence/query-by-example.adoc[查询条件与示例查询]。
 
 [source,java,indent=0,subs="verbatim,quotes"]
@@ -103,14 +117,14 @@ xref:data-access/persistence/query-by-example.adoc[查询条件与示例查询]�
 // 按主键查询
 User user = entityManager.findById(User.class, 1L);
 
-// 首条 / 唯一结果，超过一条时抛异常
+// 首条 / 唯一结果：无结果均为 null；只有 findUnique 在多条时抛异常
 User first = entityManager.findFirst(User.class);
 User unique = entityManager.findUnique(User.class, example);
 
 // 列表查询：无条件、按排序、按示例、按 QueryStatement
 List<User> all = entityManager.find(User.class);
-List<User> sorted = entityManager.find(User.class, new Pair<>("age", Order.DESC));
-List<User> matched = entityManager.find(example);
+List<User> sorted = entityManager.find(User.class, OrderSpec.desc("age"));
+List<User> matched = entityManager.find(User.class, example);
 
 // 结果映射为 Map（按属性名或 keyMapper）
 Map<Long, User> byId = entityManager.find(User.class, User::getId);
@@ -122,6 +136,12 @@ Number active = entityManager.count(User.class, example);
 // 分页
 Page<User> page = entityManager.page(User.class, Pageable.of(1, 10));
 
+// 不统计总数的页码切片
+Slice<User> slice = entityManager.slice(User.class, Pageable.of(1, 10));
+
+// 基于 keyset 的窗口查询，见“滚动查询”
+Scroll<User> window = entityManager.scroll(User.class, ScrollPageable.of(100));
+
 // 迭代（避免一次性加载全部数据）
 try (EntityIterator<User> it = entityManager.iterate(User.class)) {
   while (it.hasNext()) {
@@ -130,3 +150,22 @@ try (EntityIterator<User> it = entityManager.iterate(User.class)) {
 }
 entityManager.iterate(User.class, example, this::process);
 ----
+
+`iterate` 返回的 `EntityIterator` 持有 JDBC `ResultSet` 和连接。使用返回值时必须显式关闭，
+推荐使用 try-with-resources；`toMap(...)` 会在转换完成后自动关闭迭代器。
+`findUnique` 在发现第二行时抛出 `IncorrectResultSizeDataAccessException`；若只关心首行，用 `findFirst`，并按需要显式排序。
+
+`find` 的 `Map` 重载会按 key 写入 `LinkedHashMap`。如果多个实体映射到同一个 key，后一个实体会覆盖前一个实体；
+key 为 `null` 时不要依赖其行为。
+
+[[persistence-transaction]]
+== 事务与批量
+
+单条 `persist`、`update`、`delete` 和查询方法只执行当前调用，不负责业务事务的生命周期。
+建议在业务服务层使用 xref:data-access/transaction.adoc[事务管理] 声明事务，
+让多次实体操作处于同一事务中。没有外层事务时，单条 SQL 的提交行为取决于 JDBC 连接的自动提交等设置。
+
+批量 `persist(Iterable/Stream)` 与 `updateById(Iterable)` 默认使用 `TransactionDefinition.withDefaults()`
+（传播行为为 `REQUIRED`）。没有事务时新建，有事务时加入；完成批量操作并不提前提交所加入的外层事务。
+可通过 `DefaultEntityManager#setTransactionConfig` 修改批量操作的事务定义，详见
+xref:data-access/persistence/batch.adoc[批量持久化]。

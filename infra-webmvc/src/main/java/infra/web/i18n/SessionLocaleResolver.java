@@ -26,9 +26,8 @@ import java.util.TimeZone;
 import infra.core.i18n.LocaleContext;
 import infra.core.i18n.TimeZoneAwareLocaleContext;
 import infra.util.Assert;
-import infra.session.Session;
 import infra.web.HttpContext;
-import infra.web.HttpContextUtils;
+import infra.web.util.WebUtils;
 
 /**
  * {@link infra.web.LocaleResolver} implementation that
@@ -62,21 +61,21 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
   /**
    * Default name of the session attribute that holds the Locale.
    * Only used internally by this implementation.
-   * <p>Use {@code HttpContext(Utils).getLocale()}
+   * <p>Use {@link WebUtils#resolveLocale(HttpContext)}
    * to retrieve the current locale in controllers or views.
    *
-   * @see HttpContext#getLocale
-   * @see HttpContextUtils#getLocale
+   * @see HttpContext#getPreferredLocale
+   * @see WebUtils#resolveLocale
    */
   public static final String LOCALE_SESSION_ATTRIBUTE_NAME = SessionLocaleResolver.class.getName() + ".LOCALE";
 
   /**
    * Default name of the session attribute that holds the TimeZone.
    * Only used internally by this implementation.
-   * <p>Use {@code HttpContext(Utils).getTimeZone()}
+   * <p>Use {@link WebUtils#getTimeZone(HttpContext)}
    * to retrieve the current time zone in controllers or views.
    *
-   * @see HttpContextUtils#getTimeZone
+   * @see WebUtils#getTimeZone
    */
   public static final String TIME_ZONE_SESSION_ATTRIBUTE_NAME = SessionLocaleResolver.class.getName() + ".TIME_ZONE";
 
@@ -106,7 +105,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
 
   @Override
   public Locale resolveLocale(HttpContext context) {
-    Locale locale = getSessionAttribute(context, this.localeAttributeName);
+    Locale locale = (Locale) context.getSessionAttribute(this.localeAttributeName);
     if (locale == null) {
       locale = determineDefaultLocale(context);
     }
@@ -118,7 +117,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
     return new TimeZoneAwareLocaleContext() {
       @Override
       public Locale getLocale() {
-        Locale locale = getSessionAttribute(context, localeAttributeName);
+        Locale locale = (Locale) context.getSessionAttribute(localeAttributeName);
         if (locale == null) {
           locale = determineDefaultLocale(context);
         }
@@ -127,7 +126,7 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
 
       @Override
       public @Nullable TimeZone getTimeZone() {
-        TimeZone timeZone = getSessionAttribute(context, timeZoneAttributeName);
+        TimeZone timeZone = (TimeZone) context.getSessionAttribute(timeZoneAttributeName);
         if (timeZone == null) {
           timeZone = determineDefaultTimeZone(context);
         }
@@ -146,22 +145,8 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
         timeZone = ((TimeZoneAwareLocaleContext) localeContext).getTimeZone();
       }
     }
-    setSessionAttribute(context, localeAttributeName, locale);
-    setSessionAttribute(context, timeZoneAttributeName, timeZone);
-  }
-
-  @SuppressWarnings("unchecked")
-  private <T> @Nullable T getSessionAttribute(HttpContext request, String attributeName) {
-    Session session = request.getSession(false);
-    if (session != null) {
-      return (T) session.getAttribute(attributeName);
-    }
-    return null;
-  }
-
-  private void setSessionAttribute(HttpContext request, String attributeName, @Nullable Object attribute) {
-    Session session = request.getSession();
-    session.setAttribute(attributeName, attribute);
+    context.setSessionAttribute(localeAttributeName, locale);
+    context.setSessionAttribute(timeZoneAttributeName, timeZone);
   }
 
   /**
@@ -175,14 +160,14 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
    * @param request the request to resolve the locale for
    * @return the default locale (never {@code null})
    * @see #setDefaultLocale
-   * @see HttpContext#getLocale()
+   * @see HttpContext#getPreferredLocale()
    */
   protected Locale determineDefaultLocale(HttpContext request) {
     Locale defaultLocale = getDefaultLocale();
     if (defaultLocale == null) {
-      defaultLocale = request.getLocale();
+      defaultLocale = request.getPreferredLocale();
     }
-    return defaultLocale;
+    return defaultLocale != null ? defaultLocale : Locale.getDefault();
   }
 
   /**

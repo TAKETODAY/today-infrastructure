@@ -35,7 +35,7 @@ import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.PatternMatchUtils;
 import infra.web.HttpContext;
-import infra.web.HttpContextUtils;
+import infra.web.util.WebUtils;
 
 /**
  * Simple implementation of the {@link ViewResolver}
@@ -108,6 +108,10 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
   public static final String FORWARD_URL_PREFIX = "forward:";
 
   private @Nullable Class<?> viewClass;
+
+  private @Nullable Boolean exposeMessages;
+
+  private @Nullable Boolean exposeBindings;
 
   private String prefix = "";
 
@@ -398,7 +402,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
    *
    * @param exposeOutputRedirectModel If true, all 'output' RedirectModel
    * will be put to current view
-   * @see HttpContextUtils#getOutputRedirectModel(HttpContext)
+   * @see WebUtils#getOutputRedirectModel(HttpContext)
    */
   public void setExposeOutputRedirectModel(boolean exposeOutputRedirectModel) {
     this.exposeOutputRedirectModel = exposeOutputRedirectModel;
@@ -417,6 +421,30 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
   @Override
   public int getOrder() {
     return this.order;
+  }
+
+  /**
+   * Set whether resolved views expose a rendering-specific message accessor.
+   * By default, each view retains its own default (enabled for template views).
+   * This setting does not apply to special redirect or forward shortcuts.
+   *
+   * @param exposeMessages whether to expose the message accessor
+   * @see AbstractView#setExposeMessages
+   * @since 5.0
+   */
+  public void setExposeMessages(boolean exposeMessages) {
+    this.exposeMessages = exposeMessages;
+  }
+
+  /**
+   * Set whether resolved views expose bindings, retaining view defaults when unset.
+   * Does not apply to redirect or forward shortcuts.
+   *
+   * @param exposeBindings whether to expose bindings
+   * @since 5.0
+   */
+  public void setExposeBindings(boolean exposeBindings) {
+    this.exposeBindings = exposeBindings;
   }
 
   /**
@@ -546,6 +574,13 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
     AbstractUrlBasedView view = instantiateView();
     view.setUrl(getPrefix() + viewName + getSuffix());
     view.setAttributesMap(getAttributesMap());
+
+    if (this.exposeMessages != null) {
+      view.setExposeMessages(this.exposeMessages);
+    }
+    if (this.exposeBindings != null) {
+      view.setExposeBindings(this.exposeBindings);
+    }
 
     String contentType = getContentType();
     if (contentType != null) {

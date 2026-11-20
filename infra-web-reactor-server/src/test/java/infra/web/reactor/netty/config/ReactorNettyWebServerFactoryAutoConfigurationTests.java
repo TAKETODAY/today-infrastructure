@@ -127,14 +127,14 @@ class ReactorNettyWebServerFactoryAutoConfigurationTests {
   @Test
   void forwardedHeaderTransformerShouldBeConfigured() {
     this.contextRunner.withUserConfiguration(HttpHandlerConfiguration.class)
-            .withPropertyValues("server.forward-headers-strategy=framework", "server.port=0")
+            .withPropertyValues("web.forwarded-headers.strategy=framework", "server.port=0")
             .run((context) -> assertThat(context).hasSingleBean(ForwardedHeaderTransformer.class));
   }
 
   @Test
   void forwardedHeaderTransformerWhenStrategyNotFilterShouldNotBeConfigured() {
     this.contextRunner.withUserConfiguration(HttpHandlerConfiguration.class)
-            .withPropertyValues("server.forward-headers-strategy=native", "server.port=0")
+            .withPropertyValues("web.forwarded-headers.strategy=web-server", "server.port=0")
             .run((context) -> assertThat(context).doesNotHaveBean(ForwardedHeaderTransformer.class));
   }
 
@@ -142,7 +142,7 @@ class ReactorNettyWebServerFactoryAutoConfigurationTests {
   void forwardedHeaderTransformerWhenAlreadyRegisteredShouldBackOff() {
     this.contextRunner
             .withUserConfiguration(ForwardedHeaderTransformerConfiguration.class, HttpHandlerConfiguration.class)
-            .withPropertyValues("server.forward-headers-strategy=framework", "server.port=0")
+            .withPropertyValues("web.forwarded-headers.strategy=framework", "server.port=0")
             .run((context) -> assertThat(context).hasSingleBean(ForwardedHeaderTransformer.class));
   }
 
@@ -153,13 +153,13 @@ class ReactorNettyWebServerFactoryAutoConfigurationTests {
 
   @Test
   void forwardedHeaderTransformerIsNotConfiguredWhenStrategyIsNotFramework() {
-    this.contextRunner.withPropertyValues("server.forward-headers-strategy=native")
+    this.contextRunner.withPropertyValues("web.forwarded-headers.strategy=web-server")
             .run((context) -> assertThat(context).doesNotHaveBean(ForwardedHeaderTransformer.class));
   }
 
   @Test
   void forwardedHeaderTransformerIsConfiguredWhenFrameworkStrategyIsUsed() {
-    this.contextRunner.withPropertyValues("server.forward-headers-strategy=framework").run((context) -> {
+    this.contextRunner.withPropertyValues("web.forwarded-headers.strategy=framework").run((context) -> {
       assertThat(context).hasSingleBean(ForwardedHeaderTransformer.class);
       ForwardedHeaderTransformer transformer = context.getBean(ForwardedHeaderTransformer.class);
       assertThat(transformer).extracting("useStandardHeader").isEqualTo(false);
@@ -170,9 +170,9 @@ class ReactorNettyWebServerFactoryAutoConfigurationTests {
   @Test
   void forwardedHeaderTransformerAppliesConfiguredProperties() {
     this.contextRunner
-            .withPropertyValues("server.forward-headers-strategy=framework",
-                    "web.forwarded-headers.header-format=standard",
-                    "web.forwarded-headers.use-forwarded-prefix=true")
+            .withPropertyValues("web.forwarded-headers.strategy=framework",
+                    "web.forwarded-headers.naming=rfc-7239",
+                    "web.forwarded-headers.use-prefix=true")
             .run((context) -> {
               ForwardedHeaderTransformer transformer = context.getBean(ForwardedHeaderTransformer.class);
               assertThat(transformer).extracting("useStandardHeader").isEqualTo(true);
@@ -183,7 +183,7 @@ class ReactorNettyWebServerFactoryAutoConfigurationTests {
   @Test
   void forwardedHeaderTransformerBacksOffWhenBeanAlreadyRegistered() {
     this.contextRunner.withUserConfiguration(ForwardedHeaderTransformerConfiguration.class)
-            .withPropertyValues("server.forward-headers-strategy=framework")
+            .withPropertyValues("web.forwarded-headers.strategy=framework")
             .run((context) -> assertThat(context).hasSingleBean(ForwardedHeaderTransformer.class));
   }
 

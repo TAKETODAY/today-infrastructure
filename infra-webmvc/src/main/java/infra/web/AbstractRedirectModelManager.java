@@ -46,7 +46,7 @@ import infra.web.util.UriComponentsBuilder;
  */
 public abstract class AbstractRedirectModelManager implements RedirectModelManager {
 
-  protected static final Object DEFAULT_FLASH_MAPS_MUTEX = new Object();
+  protected static final Object DEFAULT_REDIRECT_MODELS_MUTEX = new Object();
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -197,8 +197,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
     }
   }
 
-  @Nullable
-  private String decodeAndNormalizePath(@Nullable String path, HttpContext request) {
+  private @Nullable String decodeAndNormalizePath(@Nullable String path, HttpContext request) {
     if (path != null && !path.isEmpty()) {
       path = URLDecoder.decode(path, StandardCharsets.UTF_8);
       if (path.charAt(0) != '/') {
@@ -237,7 +236,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
    * @return the mutex to use (may be {@code null} if none applicable)
    */
   protected @Nullable Object getRedirectModelMutex(HttpContext request) {
-    return DEFAULT_FLASH_MAPS_MUTEX;
+    return DEFAULT_REDIRECT_MODELS_MUTEX;
   }
 
 }

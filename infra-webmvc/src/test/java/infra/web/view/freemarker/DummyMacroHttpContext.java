@@ -18,10 +18,8 @@
 
 package infra.web.view.freemarker;
 
-import java.util.List;
 import java.util.Map;
 
-import infra.web.BindStatus;
 import infra.web.HttpContext;
 import infra.web.util.UriComponents;
 import infra.web.util.UriComponentsBuilder;
@@ -37,46 +35,10 @@ public class DummyMacroHttpContext {
 
   private final HttpContext request;
 
-  private Map<String, String> messageMap;
-
   private String contextPath;
 
   public DummyMacroHttpContext(HttpContext request) {
     this.request = request;
-  }
-
-  public void setMessageMap(Map<String, String> messageMap) {
-    this.messageMap = messageMap;
-  }
-
-  /**
-   * @see HttpContext#getMessage(String)
-   */
-  public String getMessage(String code) {
-    return this.messageMap.get(code);
-  }
-
-  /**
-   * @see HttpContext#getMessage(String, String)
-   */
-  public String getMessage(String code, String defaultMsg) {
-    String msg = this.messageMap.get(code);
-    return (msg != null ? msg : defaultMsg);
-  }
-
-  /**
-   * @see HttpContext#getMessage(String, List)
-   */
-  public String getMessage(String code, List<?> args) {
-    return this.messageMap.get(code) + args;
-  }
-
-  /**
-   * @see HttpContext#getMessage(String, List, String)
-   */
-  public String getMessage(String code, List<?> args, String defaultMsg) {
-    String msg = this.messageMap.get(code);
-    return (msg != null ? msg + args : defaultMsg);
   }
 
   public void setContextPath(String contextPath) {
@@ -94,20 +56,6 @@ public class DummyMacroHttpContext {
   public String getContextUrl(String relativeUrl, Map<String, String> params) {
     UriComponents uric = UriComponentsBuilder.forURIString(relativeUrl).buildAndExpand(params);
     return getContextPath() + uric.toURI().toASCIIString();
-  }
-
-  /**
-   * @see HttpContext#getBindStatus(String)
-   */
-  public BindStatus getBindStatus(String path) throws IllegalStateException {
-    return getBindStatus(path, false);
-  }
-
-  /**
-   * @see HttpContext#getBindStatus(String, boolean)
-   */
-  public BindStatus getBindStatus(String path, boolean htmlEscape) throws IllegalStateException {
-    return new BindStatus(request, path, htmlEscape);
   }
 
 }

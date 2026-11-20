@@ -68,6 +68,7 @@ import infra.web.util.DisconnectedClientHelper;
  * are logged at ERROR level; other exceptions are logged at DEBUG level.
  *
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
 public final class ProblemDetailExceptionHandler {
@@ -81,6 +82,7 @@ public final class ProblemDetailExceptionHandler {
 
   /**
    * Create a new instance.
+   *
    * @param messageSource the source used to resolve the type, title, and detail
    * of problem details and response status reasons, or {@code null} to use defaults
    */
@@ -90,6 +92,7 @@ public final class ProblemDetailExceptionHandler {
 
   /**
    * Handle the exception and return the error response to render.
+   *
    * @param ex the exception to handle
    * @param locale the locale for message lookups
    * @return the error response
@@ -121,13 +124,13 @@ public final class ProblemDetailExceptionHandler {
       return status;
     }
     if (ex instanceof ConversionNotSupportedException conversion) {
-      Object[] args = { conversion.getPropertyName(), conversion.getValue() };
+      @Nullable Object[] args = { conversion.getPropertyName(), conversion.getValue() };
       return ErrorResponse.builder(ex, HttpStatus.INTERNAL_SERVER_ERROR,
                       "Failed to convert '" + args[0] + "' with value: '" + args[1] + "'")
               .detailMessageArguments(args).build();
     }
     if (ex instanceof TypeMismatchException mismatch) {
-      Object[] args = { mismatch.getPropertyName(), mismatch.getValue(),
+      @Nullable Object[] args = { mismatch.getPropertyName(), mismatch.getValue(),
               mismatch.getRequiredType() != null ? mismatch.getRequiredType().getSimpleName() : "" };
       return ErrorResponse.builder(ex, HttpStatus.BAD_REQUEST,
                       "Failed to convert '" + args[0] + "' with value: '" + args[1] + "'")

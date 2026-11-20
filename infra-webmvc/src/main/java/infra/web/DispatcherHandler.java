@@ -20,6 +20,7 @@ package infra.web;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -53,7 +54,6 @@ import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.handler.ReturnValueHandlerNotFoundException;
 import infra.web.handler.SimpleNotFoundHandler;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
-import infra.web.handler.result.AsyncReturnValueHandler;
 import infra.web.server.RequestContinueExpectedResolver;
 import infra.web.util.WebUtils;
 import infra.web.view.ViewRef;
@@ -67,7 +67,7 @@ import static infra.web.HttpContext.FORWARD_REQUEST_URI_ATTRIBUTE;
  * <p>
  * This class is responsible for processing all incoming HTTP requests and dispatching them
  * to the appropriate handler/controller based on the request mappings.
- *
+ * <p>
  * The DispatcherHandler follows a well-defined request processing workflow:
  * <ul>
  * <li>Lookup appropriate handler for the incoming request using configured HandlerMapping</li>
@@ -567,10 +567,6 @@ public class DispatcherHandler extends WebLifecycleManager {
         if (handler instanceof AsyncHandler asyncHandler) {
           handler = asyncHandler.wrapConcurrentResult(concurrentResult);
         }
-        if (handler instanceof AsyncReturnValueHandler valueHandler) {
-          valueHandler.handleAsyncReturnValue(context, concurrentResult);
-          concurrentResult = HttpRequestHandler.NONE_RETURN_VALUE;
-        }
       }
     }
     catch (Throwable ex) {
@@ -619,7 +615,7 @@ public class DispatcherHandler extends WebLifecycleManager {
       catch (Throwable failure) {
         if (!context.isRequestCompleted()) {
           if (context.isConcurrentHandlingStarted()) {
-            context.asyncWebRequest().dispatch(failure);
+            context.asyncRequest().dispatch(failure);
             return;
           }
           if (!context.isCommitted()) {
@@ -631,6 +627,38 @@ public class DispatcherHandler extends WebLifecycleManager {
         throw ExceptionUtils.sneakyThrow(failure);
       }
       completeRequest(context, null);
+    }
+  }
+
+  /**
+   * Send a response result without resolving a handler or completing the request.
+   * <p>The result is passed unchanged to the configured return value handlers.
+   *
+   * @param context the current request context
+   * @param result the response result, or {@code null} to leave the response unchanged
+   * @throws IOException if writing the response fails with an I/O error
+   * @throws IllegalStateException if the response is committed, the request is
+   * completed, or a return value handler fails with another checked exception
+   * @since 5.0
+   */
+  void send(HttpContext context, @Nullable Object result) throws IOException {
+    Assert.state(!context.isRequestCompleted(), "Request is already completed");
+    Assert.state(!context.isCommitted(), "Response is already committed");
+    if (result == null) {
+      return;
+    }
+    ReturnValueHandler selected = returnValueHandler.selectHandler(null, result);
+    if (selected == null) {
+      throw new ReturnValueHandlerNotFoundException(result, null);
+    }
+    try {
+      handleReturnValue(selected, context, null, result);
+    }
+    catch (IOException | RuntimeException ex) {
+      throw ex;
+    }
+    catch (Exception ex) {
+      throw new IllegalStateException("Failed to send response", ex);
     }
   }
 
@@ -695,7 +723,7 @@ public class DispatcherHandler extends WebLifecycleManager {
       exception = ExceptionUtils.unwrapIfNecessary(exception);
       returnValue = processHandlerException(request, handler, exception);
 
-      HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+      HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(request);
       if (matchingMetadata != null) {
         handler = matchingMetadata.getHandler();
       }
@@ -775,7 +803,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    */
   protected @Nullable Object processHandlerException(HttpContext request, @Nullable Object handler, Throwable ex) throws Exception {
     // Success and error responses may use different content types
-    HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(request);
     if (matchingMetadata != null) {
       matchingMetadata.setProducibleMediaTypes(null);
     }
@@ -890,7 +918,7 @@ public class DispatcherHandler extends WebLifecycleManager {
     }
 
     try {
-      context.nativeContext(AbstractHttpContext.class)
+      WebUtils.nativeContext(context, AbstractHttpContext.class)
               .completeRequest(notHandled);
     }
     catch (Throwable ex) {
@@ -987,7 +1015,7 @@ public class DispatcherHandler extends WebLifecycleManager {
     request.parameters = null;
     request.requestPath = null;
     request.uri = null;
-    request.matchingMetadata = null;
+    HandlerMatchingMetadata.set(request, null);
 
     if (log.isDebugEnabled()) {
       log.debug("Forwarding {} {} -> {}", request.getMethod(), requestURI, path);

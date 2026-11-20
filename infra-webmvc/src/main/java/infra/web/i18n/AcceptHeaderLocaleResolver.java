@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import infra.http.HttpHeaders;
 import infra.util.StringUtils;
 import infra.web.HttpContext;
 import infra.web.LocaleResolver;
@@ -44,7 +43,7 @@ import infra.web.LocaleResolver;
  * @author Juergen Hoeller
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @see HttpContext#getLocale()
+ * @see HttpContext#getPreferredLocale()
  * @since 4.0
  */
 public class AcceptHeaderLocaleResolver implements LocaleResolver {
@@ -55,7 +54,7 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
 
   /**
    * Configure the list of supported locales to compare and match against
-   * {@link HttpContext#getLocale() requested locales}.
+   * {@link HttpContext#getPreferredLocale() requested locales}.
    * <p>In order for a supported locale to be considered a match, it must match
    * on both country and language. If you want to support a language-only match
    * as a fallback, you must configure the language explicitly as a supported
@@ -67,7 +66,7 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
    * supported locales.
    * <p>If there is no match, then the {@link #setDefaultLocale(Locale)
    * defaultLocale} is used, if configured, or otherwise falling back on
-   * {@link HttpContext#getLocale()}.
+   * the request locale or {@link Locale#getDefault()} if no request locale is available.
    *
    * @param locales the supported locales
    */
@@ -84,11 +83,14 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
   }
 
   /**
-   * Configure a fixed default locale to fall back on if the request does not
-   * have an "Accept-Language" header.
-   * <p>By default this is not set in which case when there is no "Accept-Language"
-   * header, the default locale for the server is used as defined in
-   * {@link HttpContext#getLocale()}.
+   * Configure a fixed default locale to use if the request has no acceptable
+   * concrete language range or none of its ranges matches the supported locales.
+   * <p>If not configured, an absent request locale falls back to
+   * {@link Locale#getDefault()}, while a non-matching request falls back to its
+   * preferred locale. A supported-locale list alone is therefore not a strict
+   * allowlist: configure a default locale as well to handle non-matching requests.
+   * <p>Wildcard and zero-quality ranges are ignored. Invalid language headers
+   * still raise parsing exceptions rather than selecting this default.
    *
    * @param defaultLocale the default locale to use
    */
@@ -107,10 +109,10 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
   @Override
   public Locale resolveLocale(HttpContext context) {
     Locale defaultLocale = getDefaultLocale();
-    if (defaultLocale != null && StringUtils.isBlank(context.getHeader(HttpHeaders.ACCEPT_LANGUAGE))) {
-      return defaultLocale;
+    Locale requestLocale = context.getPreferredLocale();
+    if (requestLocale == null) {
+      return defaultLocale != null ? defaultLocale : Locale.getDefault();
     }
-    Locale requestLocale = context.getLocale();
     List<Locale> supportedLocales = getSupportedLocales();
     if (supportedLocales.isEmpty() || supportedLocales.contains(requestLocale)) {
       return requestLocale;
@@ -124,8 +126,11 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
 
   private @Nullable Locale findSupportedLocale(HttpContext request, List<Locale> supportedLocales) {
     Locale languageMatch = null;
-    List<Locale> requestLocales = request.requestHeaders().getAcceptLanguageAsLocales();
-    for (Locale locale : requestLocales) {
+    for (Locale.LanguageRange range : request.requestHeaders().getAcceptLanguage()) {
+      if (range.getWeight() == 0 || range.getRange().contains("*")) {
+        continue;
+      }
+      Locale locale = Locale.forLanguageTag(range.getRange());
       if (supportedLocales.contains(locale)) {
         if (languageMatch == null || languageMatch.getLanguage().equals(locale.getLanguage())) {
           // Full match: language + country, possibly narrowed from earlier language-only match

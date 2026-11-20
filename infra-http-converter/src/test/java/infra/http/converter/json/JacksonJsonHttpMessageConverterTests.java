@@ -37,13 +37,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.io.ByteArrayOutputStream;
 
 import infra.core.ParameterizedTypeReference;
 import infra.core.ResolvableType;
 import infra.http.MediaType;
 import infra.http.MockHttpInputMessage;
 import infra.http.MockHttpOutputMessage;
+import infra.http.ProblemDetail;
 import infra.http.ResponseEntity;
+import infra.http.StreamingHttpOutputMessage;
+import infra.http.converter.HttpMessageConversionException;
+import infra.http.converter.HttpMessageNotWritableException;
+
+import org.mockito.ArgumentCaptor;
+
+import tools.jackson.databind.SerializationFeature;
 import infra.http.converter.HttpMessageNotReadableException;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
@@ -71,6 +80,86 @@ class JacksonJsonHttpMessageConverterTests {
   private JacksonJsonHttpMessageConverter converter = new JacksonJsonHttpMessageConverter();
 
   private final ResolvableType unresolvableType = ResolvableType.forClass(ResponseEntity.class).getNested(2);
+
+  @Test
+  void selectsRegisteredMappersOnlyForMatchingTypesAndMediaTypes() throws IOException {
+    var json = MediaType.APPLICATION_JSON;
+    var custom = MediaType.parseMediaType("application/vnd.test+json");
+    var mapper = JsonMapper.builder().enable(SerializationFeature.INDENT_OUTPUT).build();
+    this.converter.registerMappersForType(MyBean.class, registrations -> registrations.put(custom, mapper));
+    this.converter.registerMappersForType(MyBase.class, registrations -> registrations.put(json, new JsonMapper()));
+    assertThat(this.converter.getMappersForType(MyBean.class)).containsEntry(custom, mapper);
+    assertThat(this.converter.getMappersForType(String.class)).isEmpty();
+    assertThat(this.converter.getSupportedMediaTypes(MyBean.class)).containsExactly(custom, json);
+    assertThat(this.converter.getSupportedMediaTypes(ProblemDetail.class)).containsExactly(MediaType.APPLICATION_PROBLEM_JSON);
+    assertThat(this.converter.getMapper()).isNotSameAs(mapper);
+    assertThat(this.converter.canWrite(MyBean.class, custom)).isTrue();
+    assertThat(this.converter.canWrite(MyBean.class, json)).isFalse();
+    assertThat(this.converter.canRead(MyBean.class, json)).isFalse();
+    assertThat(this.converter.canRead(MyBean.class, null)).isTrue();
+
+    var bean = new MyBean();
+    bean.setString("selected");
+    var output = new MockHttpOutputMessage();
+    this.converter.write(bean, custom, output);
+    assertThat(output.getBodyAsString()).contains("\n", "selected");
+    var input = new MockHttpInputMessage(output.getBodyAsBytes());
+    input.getHeaders().setContentType(custom);
+    assertThat(((MyBean) this.converter.read(MyBean.class, input)).getString()).isEqualTo("selected");
+    input.getHeaders().setContentType(json);
+    org.assertj.core.api.Assertions.assertThatIllegalStateException()
+            .isThrownBy(() -> this.converter.read(MyBean.class, input)).withMessageStartingWith("No ObjectMapper");
+    org.assertj.core.api.Assertions.assertThatIllegalStateException()
+            .isThrownBy(() -> this.converter.write(bean, json, new MockHttpOutputMessage())).withMessageStartingWith("No ObjectMapper");
+  }
+
+  @Test
+  void readsExplicitCharsetsAndWritesRepeatableServerSentEventData() throws Exception {
+    for (var charset : List.of(StandardCharsets.UTF_16, java.nio.charset.Charset.forName("UTF-32"))) {
+      var input = new MockHttpInputMessage("\"café\"".getBytes(charset));
+      input.getHeaders().setContentType(MediaType.APPLICATION_JSON.withCharset(charset));
+      assertThat(this.converter.read(String.class, input)).isEqualTo("café");
+    }
+    var method = String.class.getMethod("substring", int.class);
+    var type = ResolvableType.forMethodParameter(new infra.core.MethodParameter(method, -1));
+    assertThat(this.converter.read(type, new MockHttpInputMessage("\"ok\"".getBytes(StandardCharsets.UTF_8)), Map.of()))
+            .isEqualTo("ok");
+
+    var eventConverter = new JacksonJsonHttpMessageConverter(JsonMapper.builder().enable(SerializationFeature.INDENT_OUTPUT));
+    var output = org.mockito.Mockito.mock(StreamingHttpOutputMessage.class);
+    var headers = infra.http.HttpHeaders.forWritable();
+    headers.setContentType(MediaType.TEXT_EVENT_STREAM);
+    org.mockito.BDDMockito.given(output.getHeaders()).willReturn(headers);
+    org.mockito.BDDMockito.given(output.getContentType()).willReturn(MediaType.TEXT_EVENT_STREAM);
+    org.mockito.BDDMockito.given(output.getContentTypeAsString()).willReturn("text/event-stream");
+    eventConverter.write(Map.of("name", "café"), ResolvableType.forClass(Map.class), MediaType.TEXT_EVENT_STREAM, output, null);
+    var captor = ArgumentCaptor.forClass(StreamingHttpOutputMessage.Body.class);
+    org.mockito.Mockito.verify(output).setBody(captor.capture());
+    var bytes = new ByteArrayOutputStream();
+    captor.getValue().writeTo(bytes);
+    assertThat(captor.getValue().repeatable()).isTrue();
+    assertThat(bytes.toString(StandardCharsets.UTF_8)).contains("\ndata:   \"name\"", "café");
+  }
+
+  @Test
+  void reportsTypeDefinitionAndSerializationFailuresSeparately() {
+    var input = new MockHttpInputMessage("{}".getBytes(StandardCharsets.UTF_8));
+    assertThatExceptionOfType(HttpMessageConversionException.class)
+            .isThrownBy(() -> this.converter.read(Runnable.class, input)).withMessageStartingWith("Type definition error");
+    var strict = new JacksonJsonHttpMessageConverter(JsonMapper.builder().enable(SerializationFeature.FAIL_ON_EMPTY_BEANS));
+    assertThatExceptionOfType(HttpMessageConversionException.class)
+            .isThrownBy(() -> strict.write(new Object(), null, new MockHttpOutputMessage())).withMessageStartingWith("Type definition error");
+    assertThatExceptionOfType(HttpMessageNotWritableException.class)
+            .isThrownBy(() -> this.converter.write(new FailingBean(), null, new MockHttpOutputMessage()))
+            .withMessageContaining("getter failed");
+  }
+
+  static class FailingBean {
+
+    public String getValue() {
+      throw new IllegalStateException("getter failed");
+    }
+  }
 
   @Test
   void canRead() {

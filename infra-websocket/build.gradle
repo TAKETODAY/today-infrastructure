@@ -16,6 +16,8 @@ dependencies {
 
   testImplementation project(":infra-test")
   testImplementation project(':infra-test-support')
+  testImplementation project(':infra-webmvc-mock')
+  testImplementation 'ch.qos.logback:logback-classic'
 
   testImplementation(testFixtures(project(":infra-core")))
   testImplementation(testFixtures(project(":infra-web")))

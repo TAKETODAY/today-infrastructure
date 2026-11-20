@@ -22,13 +22,15 @@ import org.jspecify.annotations.Nullable;
 
 import infra.core.ApplicationTemp;
 import infra.core.Ordered;
+import infra.core.env.Environment;
 import infra.core.ssl.SslBundles;
+import infra.web.config.WebProperties;
 import infra.web.server.ConfigurableWebServerFactory;
 import infra.web.server.WebServerFactoryCustomizer;
 
 /**
- * {@link WebServerFactoryCustomizer} to apply {@link ServerProperties} to reactive
- * servers.
+ * {@link WebServerFactoryCustomizer} to apply {@link ServerProperties} and shared
+ * {@link WebProperties} to web servers.
  *
  * @author Brian Clozel
  * @author Yunkun Huang
@@ -46,14 +48,24 @@ public class DefaultWebServerFactoryCustomizer implements WebServerFactoryCustom
 
   private final ServerProperties serverProperties;
 
+  private final Environment environment;
+
+  private final WebProperties webProperties;
+
   /**
    * Create a new {@link DefaultWebServerFactoryCustomizer} instance.
    *
    * @param serverProperties the server properties
    * @param sslBundles the SSL bundles
+   * @param applicationTemp the application temporary directory
+   * @param environment the environment
+   * @param webProperties the shared web properties
    */
   public DefaultWebServerFactoryCustomizer(ServerProperties serverProperties,
-          @Nullable SslBundles sslBundles, @Nullable ApplicationTemp applicationTemp) {
+          @Nullable SslBundles sslBundles, @Nullable ApplicationTemp applicationTemp, Environment environment,
+          WebProperties webProperties) {
+    this.webProperties = webProperties;
+    this.environment = environment;
     this.serverProperties = serverProperties;
     this.sslBundles = sslBundles;
     this.applicationTemp = applicationTemp;
@@ -67,6 +79,10 @@ public class DefaultWebServerFactoryCustomizer implements WebServerFactoryCustom
   @Override
   public void customize(ConfigurableWebServerFactory factory) {
     serverProperties.applyTo(factory, sslBundles, applicationTemp);
+    var headers = ServerPropertyAdapters.webServerForwardedRequestHeaders(environment).adapt(webProperties);
+    if (headers != null) {
+      factory.setForwardedRequestHeaders(headers);
+    }
   }
 
 }

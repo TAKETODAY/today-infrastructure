@@ -1,0 +1,54 @@
+/*
+ * Copyright 2017 - 2026 the TODAY authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package infra.web.handler.method.support;
+
+import org.jspecify.annotations.Nullable;
+
+import infra.web.BindingContext;
+import infra.web.HttpContext;
+import infra.web.handler.method.HandlerParameter;
+import infra.web.handler.method.ParameterResolvingStrategy;
+import infra.web.view.ModelAndView;
+
+/**
+ * for ModelAndView
+ * <pre> {@code
+ *  @GET
+ *  void handle(ModelAndView view) {
+ *    // ...
+ *    view.setViewName("/page/view.html");
+ *  }
+ * }
+ * </pre>
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2023/3/5 14:22
+ */
+public class ModelAndViewMethodArgumentResolver implements ParameterResolvingStrategy {
+
+  @Override
+  public boolean supportsParameter(HandlerParameter parameter) {
+    return parameter.is(ModelAndView.class);
+  }
+
+  @Nullable
+  @Override
+  public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
+    return BindingContext.obtain(context).getModelAndView();
+  }
+
+}

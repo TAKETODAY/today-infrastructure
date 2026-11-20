@@ -30,13 +30,15 @@ import infra.core.ParameterNameDiscoverer;
 import infra.http.HttpHeaders;
 import infra.session.Session;
 import infra.validation.method.MethodValidator;
+import infra.web.BindingContext;
 import infra.web.HttpContext;
+import infra.web.RedirectModel;
 import infra.web.RedirectModelManager;
 import infra.web.annotation.RequestMapping;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
-import infra.web.bind.resolver.ParameterResolvingStrategy;
-import infra.web.bind.resolver.RequestParamMethodArgumentResolver;
 import infra.web.bind.support.WebBindingInitializer;
+import infra.web.handler.method.support.ModelAttributeMethodProcessor;
+import infra.web.handler.method.support.ParameterResolvingRegistryFactory;
+import infra.web.handler.method.support.RequestParamMethodArgumentResolver;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
 import infra.web.util.SessionMutexListener;
 import infra.web.util.WebUtils;
@@ -140,7 +142,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
   public void afterPropertiesSet() {
     ApplicationContext context = applicationContext();
     if (resolvingRegistry == null) {
-      resolvingRegistry = ParameterResolvingRegistry.get(context);
+      resolvingRegistry = ParameterResolvingRegistryFactory.getOrCreate(context);
     }
 
     this.methodResolver = new ControllerMethodResolver(context,
@@ -212,10 +214,10 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
   protected @Nullable Object invokeHandlerMethod(HttpContext request, HandlerMethod handlerMethod) throws Exception {
     var binding = new InitBinderBindingContext(modelHandler, webBindingInitializer, methodResolver, handlerMethod);
     binding.setMethodValidationApplicable(methodValidator != null && handlerMethod.shouldValidateArguments());
-    request.setBinding(binding);
+    BindingContext.set(request, binding);
 
     // add last RedirectModel to this request
-    var inputRedirectModel = request.getInputRedirectModel(redirectModelManager);
+    var inputRedirectModel = RedirectModel.findInputModel(request, redirectModelManager);
     if (inputRedirectModel != null) {
       binding.addAllAttributes(inputRedirectModel);
     }

@@ -83,12 +83,12 @@ URL 模式的 `CorsConfiguration` 映射。在大多数情况下，应用程序�
 public class AccountController {
 
   @CrossOrigin
-  @GetMapping("/{id}")
+  @GET("/{id}")
   public Account retrieve(@PathVariable Long id) {
     // ...
   }
 
-  @DeleteMapping("/{id}")
+  @DELETE("/{id}")
   public void remove(@PathVariable Long id) {
     // ...
   }
@@ -117,12 +117,12 @@ public class AccountController {
 @RequestMapping("/account")
 public class AccountController {
 
-	@GetMapping("/{id}")
+	@GET("/{id}")
 	public Account retrieve(@PathVariable Long id) {
 		// ...
 	}
 
-	@DeleteMapping("/{id}")
+	@DELETE("/{id}")
 	public void remove(@PathVariable Long id) {
 		// ...
 	}
@@ -139,12 +139,12 @@ public class AccountController {
 public class AccountController {
 
   @CrossOrigin("https://domain2.com")
-  @GetMapping("/{id}")
+  @GET("/{id}")
   public Account retrieve(@PathVariable Long id) {
     // ...
   }
 
-  @DeleteMapping("/{id}")
+  @DELETE("/{id}")
   public void remove(@PathVariable Long id) {
     // ...
   }
@@ -221,4 +221,3 @@ source.registerCorsConfiguration("/**", config);
 
 CorsInterceptor filter = new CorsInterceptor(source);
 ----
-

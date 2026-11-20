@@ -40,7 +40,6 @@ import infra.context.annotation.config.EnableAutoConfiguration;
 import infra.context.condition.ConditionalOnBean;
 import infra.context.condition.ConditionalOnBooleanProperty;
 import infra.context.condition.ConditionalOnMissingBean;
-import infra.context.condition.ConditionalOnProperty;
 import infra.context.condition.ConditionalOnWebApplication;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.Ordered;
@@ -61,15 +60,13 @@ import infra.validation.MessageCodesResolver;
 import infra.validation.Validator;
 import infra.web.DispatcherHandler;
 import infra.web.HandlerExceptionHandler;
-import infra.web.HttpContextUtils;
 import infra.web.LocaleResolver;
 import infra.web.accept.ApiVersionDeprecationHandler;
 import infra.web.accept.ApiVersionParser;
 import infra.web.accept.ApiVersionResolver;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.config.WebMvcProperties.ApiVersion.Use;
 import infra.web.config.WebMvcProperties.Format;
-import infra.web.config.WebProperties.HeaderFormat;
+import infra.web.config.WebProperties.ForwardedHeaders.Naming;
 import infra.web.config.WebProperties.Resources;
 import infra.web.config.WebProperties.Resources.Chain.Strategy;
 import infra.web.config.annotation.ApiVersionConfigurer;
@@ -89,11 +86,13 @@ import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.config.format.DateTimeFormatters;
 import infra.web.config.format.WebConversionService;
 import infra.web.context.support.RequestHandledEventPublisher;
+import infra.web.context.support.WebScopeRegistrar;
 import infra.web.filter.ForwardedHeaderFilter;
 import infra.web.handler.AbstractHandlerExceptionHandler;
 import infra.web.handler.ResponseEntityExceptionHandler;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
+import infra.web.handler.method.ParameterResolvingRegistry;
 import infra.web.handler.method.RequestMappingHandlerAdapter;
 import infra.web.handler.method.RequestMappingHandlerMapping;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
@@ -233,9 +232,9 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   }
 
   @Override
-  @Component
+  @Component(name = LocaleResolver.BEAN_NAME)
   @ConditionalOnMissingBean(name = LocaleResolver.BEAN_NAME)
-  public LocaleResolver webLocaleResolver() {
+  public LocaleResolver mvcLocaleResolver() {
     if (this.webProperties.localeResolver == WebProperties.LocaleResolver.FIXED) {
       return new FixedLocaleResolver(this.webProperties.locale);
     }
@@ -261,17 +260,17 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Component
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   static BeanFactoryPostProcessor webScopeConfigurer() {
-    return HttpContextUtils::registerScopes;
+    return WebScopeRegistrar::registerScopes;
   }
 
   @Order(Ordered.HIGHEST_PRECEDENCE)
   @Component
-  @ConditionalOnProperty(name = "server.forward-headers-strategy", havingValue = "framework")
+  @ConditionalOnForwardedHeaderStrategy(ForwardedHeaderStrategy.FRAMEWORK)
   @ConditionalOnMissingBean(ForwardedHeaderFilter.class)
   ForwardedHeaderFilter forwardedHeaderFilter(ObjectProvider<ForwardedHeaderFilterCustomizer> customizerProvider) {
     var properties = webProperties.forwardedHeaders;
-    var filter = new ForwardedHeaderFilter(properties.headerFormat == HeaderFormat.STANDARD);
-    filter.setUseForwardedPrefix(properties.useForwardedPrefix);
+    var filter = new ForwardedHeaderFilter(properties.naming == Naming.RFC_7239);
+    filter.setUseForwardedPrefix(properties.usePrefix);
     for (ForwardedHeaderFilterCustomizer customizer : customizerProvider) {
       customizer.customize(filter);
     }
@@ -375,11 +374,8 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
         configurer.setTaskExecutor(asyncTaskExecutor);
       }
     }
-    Duration timeout = mvcProperties.async.requestTimeout;
-    if (timeout != null) {
-      configurer.setDefaultTimeout(timeout.toMillis());
-    }
 
+    configurer.setDefaultTimeout(mvcProperties.async.requestTimeout);
     // user config can override default config 'applicationTaskExecutor' and 'timeout'
     configurers.configureAsyncSupport(configurer);
   }

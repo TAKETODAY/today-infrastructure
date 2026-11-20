@@ -21,12 +21,12 @@ public String processSubmit(@ModelAttribute Pet pet) { // <1>
 `Pet` 对象可能是：
 
 * 从模型中访问，它可能已经被一个 xref:web/webmvc/mvc-controller/ann-modelattrib-methods.adoc[@ModelAttribute 方法] 添加。
-* 如果模型字段名称与请求值的名称（如路径变量或请求参数）匹配，可以通过 `Converter` 获取（示例如下）。
+* 如果模型属性名称与路径变量或请求参数的名称匹配，可以通过 `Converter` 获取（示例如下）。
 * 通过默认构造函数实例化。
 * 通过与请求参数匹配的参数的“`主构造函数`”实例化。参数名称是通过字节码中的运行时保留参数名称确定的。
 
-如上所述，如果模型字段名称与请求值的名称（如路径变量或请求参数）匹配，并且存在兼容的
-`Converter<String, T>`，则可以使用 `Converter<String, T>` 获取模型对象。在以下示例中，
+框架尝试通过 `Converter<String, T>` 获取整个模型对象时，先查同名路径变量，再查同名请求参数。
+在以下示例中，
 模型属性名称 `account` 与 URI 路径变量 `account` 匹配，并且有一个注册的 `Converter<String, Account>`，
 它可能从持久化存储中检索它：
 
@@ -46,6 +46,9 @@ public String create(@ModelAttribute("account") Account account) { // <1>
 ======
 
 默认情况下，同时应用构造函数和属性的 xref:core/validation/beans-beans.adoc#beans-binding[数据绑定]。
+绑定构造函数参数或对象属性时，使用的是另一套
+xref:web/webmvc/mvc-data-binding.adoc#mvc-data-binding-request-values[请求值来源与优先级]，
+与上面通过 `Converter` 获取整个对象的过程不同。
 然而，模型对象设计需要仔细考虑，出于安全原因，建议使用专门针对 Web 绑定的对象，或者仅应用构造函数绑定。
 如果必须使用属性绑定，则应设置 _allowedFields_ 模式以限制可以设置哪些属性。有关此问题的更多详细信息和示例配置，
 请参阅 xref:web/webmvc/mvc-controller/ann-initbinder.adoc#mvc-ann-initbinder-model-design[安全的模型对象设计]。

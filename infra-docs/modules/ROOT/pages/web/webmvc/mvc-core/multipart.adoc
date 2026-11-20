@@ -2,10 +2,11 @@
 = Multipart 解析器
 
 `infra.web.multipart` 包中的 `MultipartParser` 是用于解析 `multipart` 请求（包括文件上传）的策略。
-有一个默认的的 `infra.web.multipart.parsing.DefaultMultipartParser` 实现。底层来源于
+有一个默认的 `infra.web.multipart.parsing.DefaultMultipartParser` 实现。底层来源于
 （Apache Commons FileUpload）
 
 
-要启用 `multipart` 处理，您需要在 IoC 容器声明一个名为 `MultipartParser` bean。
-当接收到内容类型为 `multipart/form-data` 的 POST 时，解析器会解析内容。
-
+在使用 Netty 自动配置的 Infra App 应用中，框架会在没有自定义 `MultipartParser` bean 时注册默认实现，
+并将其注入 `NettyRequestConfig`；自定义解析器按类型提供，无需使用特定 bean 名称。
+手动配置 Netty 时，通过 `NettyRequestConfig.Builder.multipartParser(...)` 指定解析器。
+通过 `HttpContext.asMultipartRequest()` 访问解析后的 `MultipartRequest`，使用 `getPart(name)` 或 `getParts()` 获取 `Part`。

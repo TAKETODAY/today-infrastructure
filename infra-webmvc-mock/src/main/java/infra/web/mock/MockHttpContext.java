@@ -55,7 +55,7 @@ import infra.web.AbstractHttpContext;
 import infra.web.AuthHttpContext;
 import infra.web.DispatcherHandler;
 import infra.web.HttpContext;
-import infra.web.async.AsyncWebRequest;
+import infra.web.async.WebAsyncRequest;
 import infra.web.context.support.SessionManagerDiscover;
 import infra.web.mock.api.Cookie;
 import infra.web.mock.api.MockIndicator;
@@ -339,11 +339,6 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
   }
 
   @Override
-  protected Locale readLocale() {
-    return request.getLocale();
-  }
-
-  @Override
   public void reset() {
     super.reset();
     response.reset();
@@ -470,8 +465,8 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
   }
 
   @Override
-  protected AsyncWebRequest createAsyncWebRequest() {
-    return new StandardMockAsyncWebRequest(this);
+  protected WebAsyncRequest createAsyncRequest() {
+    return new StandardMockWebAsyncRequest(this);
   }
 
   @Override
@@ -609,8 +604,8 @@ public class MockHttpContext extends AbstractHttpContext implements MockIndicato
     return names;
   }
 
-  public void setAsyncRequest(@Nullable AsyncWebRequest asyncWebRequest) {
-    this.asyncRequest = asyncWebRequest;
+  public void setAsyncRequest(@Nullable WebAsyncRequest asyncRequest) {
+    this.asyncRequest = asyncRequest;
   }
 
   public void setRequestURI(String requestURI) {

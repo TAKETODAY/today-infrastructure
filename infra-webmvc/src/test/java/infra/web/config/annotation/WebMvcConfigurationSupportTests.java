@@ -23,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.security.Principal;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -57,8 +58,6 @@ import infra.web.annotation.RequestMapping;
 import infra.web.annotation.RestController;
 import infra.web.async.CallableProcessingInterceptor;
 import infra.web.async.DeferredResultProcessingInterceptor;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
-import infra.web.bind.resolver.ParameterResolvingStrategies;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.AbstractHandlerMapping;
@@ -71,10 +70,13 @@ import infra.web.handler.SimpleUrlHandlerMapping;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.HandlerTypePredicate;
-import infra.web.handler.method.ModelAttributeMethodProcessor;
+import infra.web.handler.method.ParameterResolvingRegistry;
+import infra.web.handler.method.ParameterResolvingStrategies;
 import infra.web.handler.method.RequestMappingHandlerAdapter;
 import infra.web.handler.method.RequestMappingHandlerMapping;
 import infra.web.handler.method.RequestMappingInfo;
+import infra.web.handler.method.support.ParameterResolvingRegistryFactory;
+import infra.web.handler.method.support.ModelAttributeMethodProcessor;
 import infra.web.i18n.LocaleChangeInterceptor;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
@@ -86,7 +88,9 @@ import infra.web.view.ViewResolverComposite;
 import infra.web.view.ViewReturnValueHandler;
 import infra.web.view.json.JacksonJsonView;
 
+import static infra.http.MediaType.APPLICATION_ATOM_XML;
 import static infra.http.MediaType.APPLICATION_JSON;
+import static infra.http.MediaType.APPLICATION_YAML;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -116,7 +120,7 @@ class WebMvcConfigurationSupportTests {
   void handlerMappings() throws Exception {
     RequestMappingHandlerMapping rmHandlerMapping = this.config.requestMappingHandlerMapping(
             this.config.mvcContentNegotiationManager(), this.config.mvcApiVersionStrategy(),
-            ParameterResolvingRegistry.get(context));
+            ParameterResolvingRegistryFactory.getOrCreate(context));
     rmHandlerMapping.setApplicationContext(this.context);
     rmHandlerMapping.afterPropertiesSet();
 
@@ -173,9 +177,9 @@ class WebMvcConfigurationSupportTests {
 
   @Test
   void requestMappingHandlerAdapter() {
-    RequestMappingHandlerAdapter adapter = this.config.requestMappingHandlerAdapter(
-            null, null,
-            ParameterResolvingRegistry.get(context), this.config.mvcValidator(), this.config.mvcConversionService());
+    ParameterResolvingRegistry registry = this.config.parameterResolvingRegistry(null, null, this.config.mvcContentNegotiationManager());
+    RequestMappingHandlerAdapter adapter = this.config.requestMappingHandlerAdapter(null, null,
+            registry, this.config.mvcValidator(), this.config.mvcConversionService());
 
     // ConversionService
     String actual = this.config.mvcConversionService().convert(new TestBean(), String.class);
@@ -183,17 +187,14 @@ class WebMvcConfigurationSupportTests {
 
     DirectFieldAccessor fieldAccessor = new DirectFieldAccessor(adapter);
 
-    // Custom argument resolvers and return value handlers
-    ParameterResolvingRegistry registry =
-            (ParameterResolvingRegistry) fieldAccessor.getPropertyValue("resolvingRegistry");
-    assertThat(registry.getMessageConverters()).hasSize(3);
+    assertThat(fieldAccessor.getPropertyValue("resolvingRegistry")).isSameAs(registry);
 
   }
 
   @Test
   void webBindingInitializer() {
     RequestMappingHandlerAdapter adapter = this.config.requestMappingHandlerAdapter(null, null,
-            ParameterResolvingRegistry.get(context), this.config.mvcValidator(), this.config.mvcConversionService());
+            ParameterResolvingRegistryFactory.getOrCreate(context), this.config.mvcValidator(), this.config.mvcConversionService());
 
     ConfigurableWebBindingInitializer initializer =
             (ConfigurableWebBindingInitializer) adapter.getWebBindingInitializer();
@@ -214,7 +215,7 @@ class WebMvcConfigurationSupportTests {
 
     RequestMappingHandlerMapping mapping = this.config.requestMappingHandlerMapping(
             this.config.mvcContentNegotiationManager(), this.config.mvcApiVersionStrategy(),
-            ParameterResolvingRegistry.get(context));
+            ParameterResolvingRegistryFactory.getOrCreate(context));
 
     request.setParameter("f", "json");
     ContentNegotiationManager manager = mapping.getContentNegotiationManager();
@@ -230,9 +231,39 @@ class WebMvcConfigurationSupportTests {
   }
 
   @Test
+  void defaultMediaTypesWithYamlConverter() {
+    var converter = new StringHttpMessageConverter();
+    converter.setSupportedMediaTypes(List.of(APPLICATION_YAML));
+    var configuration = new WebMvcConfigurationSupport() {
+      @Override
+      protected void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        converters.add(converter);
+      }
+    };
+
+    assertThat(configuration.mvcContentNegotiationManager().getMediaTypeMappings())
+            .containsExactlyEntriesOf(Map.of("yaml", APPLICATION_YAML));
+  }
+
+  @Test
+  void defaultMediaTypesWithAtomConverter() {
+    var converter = new StringHttpMessageConverter();
+    converter.setSupportedMediaTypes(List.of(APPLICATION_ATOM_XML));
+    var configuration = new WebMvcConfigurationSupport() {
+      @Override
+      protected void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        converters.add(converter);
+      }
+    };
+
+    assertThat(configuration.mvcContentNegotiationManager().getMediaTypeMappings())
+            .containsExactlyEntriesOf(Map.of("atom", APPLICATION_ATOM_XML));
+  }
+
+  @Test
   void exceptionHandlers() {
     List<HandlerExceptionHandler> resolvers = ((CompositeHandlerExceptionHandler)
-            this.config.handlerExceptionHandler(ParameterResolvingRegistry.get(context), null)).getExceptionHandlers();
+            this.config.handlerExceptionHandler(ParameterResolvingRegistryFactory.getOrCreate(context), null)).getExceptionHandlers();
 
     assertThat(resolvers).hasSize(2);
     assertThat(resolvers.get(0).getClass()).isEqualTo(ResponseStatusExceptionHandler.class);
@@ -296,7 +327,7 @@ class WebMvcConfigurationSupportTests {
 
     verify(configurer).configureProblemDetails(any(ProblemDetailsConfigurer.class));
     assertThat(handler.isRenderUnhandledExceptionsAsProblemDetails()).isFalse();
-    assertThat(handler.getErrorResponseViewResolver()).isNull();
+    assertThat(configuration.getProblemDetailsConfigurer().getViewResolver()).isNull();
   }
 
   @Test
@@ -308,10 +339,11 @@ class WebMvcConfigurationSupportTests {
         configurer.renderUnhandledExceptions(true).viewResolver(viewResolver);
       }
     };
-    var handler = exceptionHandler(new DelegatingWebMvcConfiguration(List.of(configurer)));
+    var configuration = new DelegatingWebMvcConfiguration(List.of(configurer));
+    var handler = exceptionHandler(configuration);
 
     assertThat(handler.isRenderUnhandledExceptionsAsProblemDetails()).isTrue();
-    assertThat(handler.getErrorResponseViewResolver()).isSameAs(viewResolver);
+    assertThat(configuration.getProblemDetailsConfigurer().getViewResolver()).isSameAs(viewResolver);
   }
 
   @Test
@@ -329,10 +361,11 @@ class WebMvcConfigurationSupportTests {
         configurer.viewResolver(viewResolver);
       }
     };
-    var handler = exceptionHandler(new DelegatingWebMvcConfiguration(List.of(first, second)));
+    var configuration = new DelegatingWebMvcConfiguration(List.of(first, second));
+    var handler = exceptionHandler(configuration);
 
     assertThat(handler.isRenderUnhandledExceptionsAsProblemDetails()).isTrue();
-    assertThat(handler.getErrorResponseViewResolver()).isSameAs(viewResolver);
+    assertThat(configuration.getProblemDetailsConfigurer().getViewResolver()).isSameAs(viewResolver);
   }
 
   @Test
@@ -340,7 +373,7 @@ class WebMvcConfigurationSupportTests {
     try (var application = new AnnotationConfigApplicationContext(DefaultProblemDetailsConfig.class)) {
       var handler = configuredExceptionHandler(application);
       assertThat(handler.isRenderUnhandledExceptionsAsProblemDetails()).isFalse();
-      assertThat(handler.getErrorResponseViewResolver()).isNull();
+      assertThat(application.getBean(ReturnValueHandlerManager.class).getErrorResponseViewResolver()).isNull();
 
       var request = new MockHttpContext(application, new MockRequest("GET", "/"), new MockResponse());
       assertThat(handler.handleException(request, new IllegalStateException(), null)).isNull();
@@ -352,7 +385,7 @@ class WebMvcConfigurationSupportTests {
     try (var application = new AnnotationConfigApplicationContext(ProblemDetailsConfig.class, TestController.class)) {
       var handler = configuredExceptionHandler(application);
       assertThat(handler.isRenderUnhandledExceptionsAsProblemDetails()).isTrue();
-      assertThat(handler.getErrorResponseViewResolver()).isNotNull();
+      assertThat(application.getBean(ReturnValueHandlerManager.class).getErrorResponseViewResolver()).isNotNull();
 
       var response = new MockResponse();
       var request = new MockHttpContext(application, new MockRequest("GET", "/"), response);
@@ -370,7 +403,7 @@ class WebMvcConfigurationSupportTests {
   private ExceptionHandlerAnnotationExceptionHandler exceptionHandler(WebMvcConfigurationSupport configuration) {
     configuration.setApplicationContext(this.context);
     var composite = (CompositeHandlerExceptionHandler) configuration.handlerExceptionHandler(
-            ParameterResolvingRegistry.get(this.context), configuration.mvcContentNegotiationManager());
+            ParameterResolvingRegistryFactory.getOrCreate(this.context), configuration.mvcContentNegotiationManager());
     return (ExceptionHandlerAnnotationExceptionHandler) composite.getExceptionHandlers().get(0);
   }
 
@@ -454,7 +487,7 @@ class WebMvcConfigurationSupportTests {
 
     @Override
     public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
-      configurer.setDefaultTimeout(2500).setTaskExecutor(new ConcurrentTaskExecutor())
+      configurer.setDefaultTimeout(Duration.ofMillis(2500)).setTaskExecutor(new ConcurrentTaskExecutor())
               .registerCallableInterceptors(new CallableProcessingInterceptor() { })
               .registerDeferredResultInterceptors(new DeferredResultProcessingInterceptor() { });
     }

@@ -189,8 +189,7 @@ public interface ServerRequest extends ServerResponse.Context {
    * @param name the attribute name
    * @return the attribute value
    */
-  @Nullable
-  default Object attribute(String name) {
+  default @Nullable Object attribute(String name) {
     return attributes().get(name);
   }
 
@@ -431,8 +430,7 @@ public interface ServerRequest extends ServerResponse.Context {
     return new DefaultServerRequestBuilder(other);
   }
 
-  @Nullable
-  static ServerRequest find(HttpContext context) {
+  static @Nullable ServerRequest find(HttpContext context) {
     Object attribute = context.getAttribute(RouterFunctions.REQUEST_ATTRIBUTE);
     if (attribute instanceof ServerRequest serverRequest) {
       return serverRequest;
@@ -516,8 +514,7 @@ public interface ServerRequest extends ServerResponse.Context {
      *
      * @param headerName the header name
      */
-    @Nullable
-    default String firstHeader(String headerName) {
+    default @Nullable String firstHeader(String headerName) {
       List<String> list = header(headerName);
       return list.isEmpty() ? null : list.get(0);
     }

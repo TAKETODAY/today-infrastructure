@@ -30,10 +30,10 @@ import infra.util.Assert;
 import infra.web.BindingContext;
 import infra.web.HandlerInterceptor;
 import infra.web.HttpContext;
-import infra.web.HttpContextUtils;
 import infra.web.RedirectModel;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
+import infra.web.util.WebUtils;
 import infra.web.view.ModelAndView;
 import infra.web.view.View;
 
@@ -139,15 +139,14 @@ class DefaultMvcResult implements MvcResult {
   }
 
   @Override
-  @Nullable
-  public ModelAndView getModelAndView() {
+  public @Nullable ModelAndView getModelAndView() {
     if (modelAndView == null) {
       Object attribute = httpContext.getAttribute(MODEL_AND_VIEW_ATTRIBUTE);
       if (attribute instanceof ModelAndView view) {
         this.modelAndView = view;
       }
-      else if (httpContext.hasBinding()) {
-        BindingContext bindingContext = httpContext.binding();
+      else if (BindingContext.has(httpContext)) {
+        BindingContext bindingContext = BindingContext.obtain(httpContext);
         if (bindingContext.hasModelAndView()) {
           ModelAndView modelAndView = bindingContext.getModelAndView();
           setModelAndView(modelAndView);
@@ -172,8 +171,8 @@ class DefaultMvcResult implements MvcResult {
   }
 
   @Override
-  public RedirectModel getFlashMap() {
-    RedirectModel model = HttpContextUtils.getOutputRedirectModel(this.httpContext);
+  public RedirectModel getOutputRedirectModel() {
+    RedirectModel model = WebUtils.getOutputRedirectModel(this.httpContext);
     if (model == null) {
       model = new RedirectModel();
       httpContext.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, model);

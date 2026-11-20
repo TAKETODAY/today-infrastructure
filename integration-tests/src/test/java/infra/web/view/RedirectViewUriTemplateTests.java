@@ -117,7 +117,7 @@ class RedirectViewUriTemplateTests {
         return currentRequestUriTemplateVars;
       }
     };
-    context.setMatchingMetadata(metadata);
+    HandlerMatchingMetadata.set(context, metadata);
 
     String url = "https://url.somewhere.com";
     RedirectView redirectView = new RedirectView(url + "/{key1}/{var1}/{name}");

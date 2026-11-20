@@ -32,8 +32,8 @@ import infra.util.CollectionUtils;
 import infra.validation.Validator;
 import infra.web.ErrorResponse;
 import infra.web.HandlerExceptionHandler;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.handler.ReturnValueHandlerManager;
+import infra.web.handler.method.ParameterResolvingRegistry;
 
 /**
  * A subclass of {@code WebMvcConfigurationSupport} that detects and delegates

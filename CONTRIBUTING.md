@@ -22,7 +22,20 @@
 
 - 如果不确定，请务必在Issue中提问。
 
+## 🙌 不改框架核心代码，也是在贡献
+
+下面这些都算贡献，不必先熟悉框架内部实现：
+
+- **写一个使用示例**：用一个小例子展示如何使用某个 API 或完成一个常见任务。
+- **补一个缺失的测试**：为尚未覆盖的场景补充测试，无需同时修改框架实现。
+- **翻译一段文档**：从一段说明或一个小节开始，不必一次翻译整篇。
+- **在 [Discussions](https://github.com/TAKETODAY/today-infrastructure/discussions) 里回答一个问题**：分享你的使用经验，或参与设计讨论。不需要提交 PR。
+
+如果你熟悉 Java，但还不想动框架核心代码，欢迎把一个小而可运行的[示例工程](infra-samples)作为你的第一个 PR。让示例聚焦一个场景，并附上运行步骤和预期结果即可。
+
 ## 🚀 贡献流程
+
+以下流程适用于需要通过 PR 修改仓库内容的贡献。
 
 ### 1. 寻找贡献点
 - **浏览现有议题**：查看带有 [`good first issue`](https://github.com/TAKETODAY/today-infrastructure/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) 标签的议题，这是专门为新贡献者准备的。

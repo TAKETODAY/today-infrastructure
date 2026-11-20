@@ -42,14 +42,10 @@ import infra.http.ProblemDetail;
 import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.HttpMessageNotWritableException;
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
-import infra.web.mock.api.MockException;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
 import infra.stereotype.Controller;
 import infra.validation.MapBindingResult;
 import infra.web.ErrorResponse;
+import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.HttpRequestMethodNotSupportedException;
@@ -61,11 +57,16 @@ import infra.web.async.AsyncRequestTimeoutException;
 import infra.web.bind.MethodArgumentNotValidException;
 import infra.web.bind.MissingPathVariableException;
 import infra.web.bind.MissingRequestParameterException;
+import infra.web.bind.MissingRequestPartException;
 import infra.web.bind.RequestBindingException;
-import infra.web.bind.resolver.MissingRequestPartException;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
+import infra.web.handler.method.ParameterResolvingRegistry;
+import infra.web.handler.method.support.ParameterResolvingRegistryFactory;
 import infra.web.mock.MockDispatcherHandler;
+import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
+import infra.web.mock.api.MockException;
 import infra.web.server.ResponseStatusException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -314,7 +315,8 @@ class ResponseEntityExceptionHandlerTests {
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
     ctx.registerSingleton("exceptionHandlerAnnotationExceptionHandler", ExceptionHandlerAnnotationExceptionHandler.class);
 
-    ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
+    ctx.registerBean("parameterResolvingRegistry", ParameterResolvingRegistry.class,
+            () -> ParameterResolvingRegistryFactory.create(ctx));
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
 
     ctx.refresh();
@@ -339,7 +341,8 @@ class ResponseEntityExceptionHandlerTests {
   void controllerAdviceWithNestedException() throws Exception {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
-    ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
+    ctx.registerBean("parameterResolvingRegistry", ParameterResolvingRegistry.class,
+            () -> ParameterResolvingRegistryFactory.create(ctx));
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
     ctx.refresh();
 
@@ -359,7 +362,8 @@ class ResponseEntityExceptionHandlerTests {
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
     ctx.registerSingleton("exceptionHandlerAnnotationExceptionHandler", ExceptionHandlerAnnotationExceptionHandler.class);
 
-    ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
+    ctx.registerBean("parameterResolvingRegistry", ParameterResolvingRegistry.class,
+            () -> ParameterResolvingRegistryFactory.create(ctx));
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
 
     ctx.refresh();
@@ -381,7 +385,8 @@ class ResponseEntityExceptionHandlerTests {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.registerSingleton("controller", NestedExceptionThrowingController.class);
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
-    ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
+    ctx.registerBean("parameterResolvingRegistry", ParameterResolvingRegistry.class,
+            () -> ParameterResolvingRegistryFactory.create(ctx));
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
 
     ctx.refresh();

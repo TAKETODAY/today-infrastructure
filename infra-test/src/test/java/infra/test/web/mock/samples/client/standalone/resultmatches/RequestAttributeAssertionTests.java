@@ -53,7 +53,7 @@ public class RequestAttributeAssertionTests {
   void requestAttributeMatcher() throws Exception {
     performRequest(mainMockClient, "/1")
             .andExpect(request().request(context -> {
-              HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
+              HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(context);
 
               assertThat(matchingMetadata).isNotNull();
               assertThat(matchingMetadata.getProducibleMediaTypes()).contains(MediaType.APPLICATION_JSON);

@@ -36,6 +36,7 @@ dependencies {
 
   testImplementation(project(":infra-test"))
   testImplementation(project(":infra-test-support"))
+  testImplementation("ch.qos.logback:logback-classic")
   testImplementation("org.testcontainers:testcontainers-junit-jupiter")
   testImplementation("org.testcontainers:testcontainers-postgresql")
 }

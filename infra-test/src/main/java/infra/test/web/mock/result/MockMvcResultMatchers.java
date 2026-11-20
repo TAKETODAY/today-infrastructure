@@ -77,10 +77,10 @@ public abstract class MockMvcResultMatchers {
   }
 
   /**
-   * Access to flash attribute assertions.
+   * Access to output redirect model assertions.
    */
-  public static FlashAttributeResultMatchers flash() {
-    return new FlashAttributeResultMatchers();
+  public static RedirectModelResultMatchers redirectModel() {
+    return new RedirectModelResultMatchers();
   }
 
   /**

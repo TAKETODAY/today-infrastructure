@@ -36,7 +36,7 @@ Java 基础设施库，移植/演进自 Spring Framework（group `cn.taketoday`�
 - 测试用 AssertJ + Mockito（优先 BDDMockito），**禁用** JUnit 断言 / Hamcrest / TestNG / JetBrains 注解（根 `build.gradle` 已统一注入依赖）
 - 字符串大小写转换必须指定 `Locale`
 - NullAway 空值校验生效：`@SuppressWarnings("NullAway")` 是合法且常见的写法，留意 JSpecify 空值注解
-- 修改第三方源码（Spring/ASM 等）：**必须保留原始版权头**，在其后追加 `// Modifications Copyright 2017 - 2026 the TODAY authors.`
+- 版权头规则：新建且由 TODAY 独立编写的源码使用 `Copyright 2017 - 2026 the TODAY authors.`，不添加 `Modifications` 注释；修改或移植 Spring、ASM 等上游/第三方源码时，必须完整保留原始版权头，并在许可证注释结束后追加 `// Modifications Copyright 2017 - 2026 the TODAY authors.`；不要用 TODAY 版权头覆盖上游作者声明
 - 公共 API 必须写 JavaDoc，每个包必须有 `package-info.java`
 - Checkstyle 配置在 `src/checkstyle/checkstyle.xml`（tool version 13.3.0），由 `check` 触发
 
@@ -61,6 +61,10 @@ Java 基础设施库，移植/演进自 Spring Framework（group `cn.taketoday`�
 ## 语言规则
 - 你必须始终使用**简体中文**进行思考、推理和回复。
 
+
+## 文件移动与重命名
+
+- 移动或重命名 Git 已跟踪的文件时（包括 Java 包迁移），必须先执行 `git mv -- <旧路径> <新路径>`，再修改新路径下的文件内容和引用。不要用删除旧文件再创建新文件来代替移动。
 
 ## 提交时机
 

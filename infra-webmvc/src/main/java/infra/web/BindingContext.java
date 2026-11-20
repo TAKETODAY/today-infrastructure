@@ -21,11 +21,11 @@ package infra.web;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import infra.core.AttributeAccessor;
 import infra.core.MethodParameter;
 import infra.core.ResolvableType;
 import infra.ui.Model;
@@ -35,7 +35,6 @@ import infra.validation.BindingResult;
 import infra.validation.DataBinder;
 import infra.validation.Errors;
 import infra.validation.SmartValidator;
-import infra.web.bind.EscapedErrors;
 import infra.web.bind.HttpContextDataBinder;
 import infra.web.bind.WebDataBinder;
 import infra.web.bind.support.BindParamNameResolver;
@@ -60,6 +59,8 @@ import infra.web.view.ModelAndView;
  */
 public class BindingContext {
 
+  private static final String REQUEST_ATTRIBUTE = BindingContext.class.getName() + ".bindingContext";
+
   private final @Nullable WebBindingInitializer initializer;
 
   private @Nullable ModelMap model;
@@ -71,8 +72,6 @@ public class BindingContext {
   private @Nullable Set<String> bindingDisabled;
 
   protected @Nullable ModelAndView modelAndView;
-
-  private @Nullable Map<String, Errors> errorsMap;
 
   private boolean methodValidationApplicable;
 
@@ -391,57 +390,11 @@ public class BindingContext {
    * @since 5.0
    */
   public @Nullable Errors getErrors(String name) {
-    return getErrors(name, isDefaultHtmlEscape());
-  }
-
-  /**
-   * Retrieve the Errors instance for the given bind object.
-   *
-   * @param name the name of the bind object
-   * @param htmlEscape create an Errors instance with automatic HTML escaping?
-   * @return the Errors instance, or {@code null} if not found
-   * @since 5.0
-   */
-  public @Nullable Errors getErrors(String name, boolean htmlEscape) {
-    if (this.errorsMap == null) {
-      this.errorsMap = new HashMap<>();
+    Object value = this.model != null ? this.model.get(BindingResult.MODEL_KEY_PREFIX + name) : null;
+    if (value instanceof BindException exception) {
+      return exception.getBindingResult();
     }
-    Errors errors = this.errorsMap.get(name);
-    boolean put = false;
-    if (errors == null) {
-      if (model != null && model.get(BindingResult.MODEL_KEY_PREFIX + name) instanceof Errors e) {
-        errors = e;
-      }
-      // Check old BindException prefix for backwards compatibility.
-      if (errors instanceof BindException be) {
-        errors = be.getBindingResult();
-      }
-      if (errors == null) {
-        return null;
-      }
-      put = true;
-    }
-    if (htmlEscape && !(errors instanceof EscapedErrors)) {
-      errors = new EscapedErrors(errors);
-      put = true;
-    }
-    else if (!htmlEscape && errors instanceof EscapedErrors ee) {
-      errors = ee.getSource();
-      put = true;
-    }
-    if (put) {
-      this.errorsMap.put(name, errors);
-    }
-    return errors;
-  }
-
-  /**
-   * Determine whether HTML escaping is enabled by default for error messages.
-   *
-   * @since 5.0
-   */
-  protected boolean isDefaultHtmlEscape() {
-    return HttpContext.defaultHtmlEscape;
+    return value instanceof Errors errors ? errors : null;
   }
 
   /**
@@ -458,6 +411,57 @@ public class BindingContext {
       sb.append(redirectModel);
     }
     return sb.toString();
+  }
+
+  // Static Methods
+
+  /**
+   * Associate the binding context with this request, replacing any previous value.
+   *
+   * @param request the current request
+   * @param binding the binding context, or {@code null} to clear it
+   * @since 5.0
+   */
+  public static void set(HttpContext request, @Nullable BindingContext binding) {
+    request.setAttribute(REQUEST_ATTRIBUTE, binding);
+  }
+
+  /**
+   * Return the binding context associated with this request without creating one.
+   *
+   * @param accessor the current request
+   * @return the binding context, or {@code null} if not set
+   * @since 5.0
+   */
+  public static @Nullable BindingContext find(AttributeAccessor accessor) {
+    return (BindingContext) accessor.getAttribute(REQUEST_ATTRIBUTE);
+  }
+
+  /**
+   * Determine whether a binding context is already associated with this request.
+   *
+   * @param accessor the current request
+   * @return whether a binding context is set
+   * @since 5.0
+   */
+  public static boolean has(AttributeAccessor accessor) {
+    return find(accessor) != null;
+  }
+
+  /**
+   * Return the binding context associated with this request.
+   *
+   * @param accessor the current request
+   * @return the existing binding context
+   * @throws IllegalStateException if no binding context is set
+   * @since 5.0
+   */
+  public static BindingContext obtain(AttributeAccessor accessor) {
+    BindingContext binding = find(accessor);
+    if (binding == null) {
+      throw new IllegalStateException("BindingContext is required");
+    }
+    return binding;
   }
 
   /**

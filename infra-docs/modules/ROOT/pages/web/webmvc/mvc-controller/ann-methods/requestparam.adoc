@@ -1,7 +1,7 @@
 [[mvc-ann-requestparam]]
 = `@RequestParam`
 
-您可以使用 `@RequestParam` 注解将 Servlet 请求参数（即查询参数或表单数据）绑定到控制器中的方法参数。
+您可以使用 `@RequestParam` 注解将 HTTP 请求参数（即查询参数或表单数据）绑定到控制器中的方法参数。
 
 以下示例显示了如何执行此操作：
 
@@ -17,7 +17,7 @@ public class EditPetForm {
 
   // ...
 
-  @GetMapping
+  @GET
   public String setupForm(@RequestParam("petId") int petId, Model model) { <1>
     Pet pet = this.clinic.loadPet(petId);
     model.addAttribute("pet", pet);
@@ -32,8 +32,8 @@ public class EditPetForm {
 
 ======
 
-默认情况下，使用此注解的方法参数是必需的，但您可以通过将 `@RequestParam` 注解的 `required` 标志设置为 `false`
-或通过使用 `java.util.Optional` 包装器声明参数来指定方法参数是可选的。
+默认情况下，使用此注解的方法参数是必需的。要允许缺失，可以添加 `@Nullable`（例如 `@RequestParam @Nullable Integer page`），
+或将 `@RequestParam` 的 `required` 设置为 `false`。
 
 如果目标方法参数类型不是 `String`，则自动应用类型转换。
 参见 xref:web/webmvc/mvc-controller/ann-methods/typeconversion.adoc[类型转换]。

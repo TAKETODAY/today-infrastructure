@@ -26,12 +26,16 @@ import java.util.Map;
 import java.util.Optional;
 
 import infra.http.HttpStatus;
+import infra.web.BindingContext;
+import infra.web.HandlerMatchingMetadata;
+import infra.web.RedirectModel;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.view.PathPatternsTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatObject;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -119,11 +123,22 @@ public class RouterFunctionsTests {
 
     MockResponse mockResponse = new MockResponse();
     var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    var binding = new BindingContext();
+    var metadata = new HandlerMatchingMetadata(httpContext);
+    var inputRedirectModel = new RedirectModel("source", "redirect");
+    BindingContext.set(httpContext, binding);
+    HandlerMatchingMetadata.set(httpContext, metadata);
+    httpContext.setAttribute(RedirectModel.INPUT_ATTRIBUTE, inputRedirectModel);
+    assertThatObject(RedirectModel.findInputModel(httpContext)).isSameAs(inputRedirectModel);
+    httpContext.removeAttribute(RedirectModel.INPUT_ATTRIBUTE);
     ServerRequest request = new DefaultServerRequest(httpContext, Collections.emptyList());
 
     Optional<HandlerFunction<ServerResponse>> resultHandlerFunction = result.route(request);
     assertThat(resultHandlerFunction.isPresent()).isTrue();
     assertThat(resultHandlerFunction.get()).isEqualTo(handlerFunction);
+    assertThat(BindingContext.obtain(httpContext)).isSameAs(binding);
+    assertThat(HandlerMatchingMetadata.obtain(httpContext)).isSameAs(metadata);
+    assertThatObject(RedirectModel.findInputModel(httpContext)).isSameAs(inputRedirectModel);
   }
 
   @Test

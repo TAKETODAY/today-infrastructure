@@ -6,7 +6,7 @@
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@GetMapping("/")
+@GET("/")
 public String handle(@RequestAttribute Client client) { // <1>
   // ...
 }
@@ -16,4 +16,3 @@ public String handle(@RequestAttribute Client client) { // <1>
 在这个示例中，`@RequestAttribute` 注解用于将请求属性注入到控制器方法的参数中。如果请求中存在名为
 `Client` 的属性，则其值会被注入到方法参数 `client` 中。如果没有找到该属性，参数将被设置为 `null`。
 这种方式允许你轻松地在控制器方法中访问和使用请求范围内的属性。
-

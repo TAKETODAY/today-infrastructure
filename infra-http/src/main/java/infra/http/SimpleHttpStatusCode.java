@@ -18,6 +18,8 @@
 
 package infra.http;
 
+import org.jspecify.annotations.Nullable;
+
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -90,7 +92,7 @@ final class SimpleHttpStatusCode implements HttpStatusCode, Comparable<HttpStatu
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(@Nullable Object obj) {
     if (obj instanceof HttpStatusCode other) {
       return this.value == other.value();
     }

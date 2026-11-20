@@ -48,7 +48,9 @@ class MyWebTests {
 
 你应该使用哪种设置选项？
 
-`webAppContextSetup` 加载你实际的 Web MVC 配置，从而产生更完整的集成测试。由于 TestContext 框架缓存加载的 Infra 配置，即使你在测试套件中引入更多测试，它也有助于保持测试运行速度。此外，你可以通过 Infra 配置将 mock 服务注入控制器，以保持专注于测试 Web 层。以下示例使用 Mockito 声明了一个 mock 服务：
+`webAppContextSetup` 使用测试已经加载的 Web 应用上下文，因此可以验证该上下文中的 MVC 配置。
+TestContext 框架会缓存可复用的上下文。你也可以通过 Infra 配置将 mock 服务注入控制器，
+让测试专注于 Web 层。以下示例使用 Mockito 声明了一个 mock 服务：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -79,7 +81,46 @@ class AccountTests {
 }
 ----
 
-另一方面，`standaloneSetup` 更接近于单元测试。它一次测试一个控制器。你可以手动注入带有 mock 依赖的控制器，它不涉及加载 Infra 配置。此类测试更侧重于风格，更容易看出正在测试哪个控制器，是否需要任何特定的 Infra MVC 配置才能工作等等。`standaloneSetup` 也是编写临时测试以验证特定行为或调试问题的非常便捷的方式。
+`standaloneSetup` 适合聚焦测试一个或几个控制器：显式传入控制器和依赖，按需配置 MVC 组件，
+而不加载应用的 MVC 配置。要验证通过 Web 应用上下文注册的全局 Advice、自定义参数解析器或消息转换器，
+应当使用 `webAppContextSetup` 并加载包含这些组件的配置；独立测试通过并不能证明这些组件已正确注册。
 
-正如大多数“`集成与单元测试`”的争论一样，没有正确或错误的答案。但是，使用 `standaloneSetup` 确实意味着需要额外的 `webAppContextSetup` 测试来验证你的 Web MVC 配置。
-或者，你可以使用 `webAppContextSetup` 编写所有测试，以便始终针对实际的 Web MVC 配置进行测试。
+[[mvc-test-mockmvctester]]
+== 使用 MockMvcTester 编写 AssertJ 断言
+
+`MockMvcTester` 使用同一套 MockMvc 请求处理机制，提供 AssertJ 风格的断言。以下独立测试验证控制器的响应状态和文本：
+
+[source,java]
+----
+import org.junit.jupiter.api.Test;
+
+import infra.test.web.mock.assertj.MockMvcTester;
+import infra.web.annotation.GET;
+import infra.web.annotation.RestController;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class GreetingTests {
+
+  private final MockMvcTester mvc = MockMvcTester.of(new GreetingController());
+
+  @Test
+  void greeting() {
+    assertThat(mvc.get().uri("/greet"))
+        .hasStatusOk()
+        .hasBodyTextEqualTo("Hello");
+  }
+
+  @RestController
+  static class GreetingController {
+
+    @GET("/greet")
+    public String greet() {
+      return "Hello";
+    }
+  }
+}
+----
+
+在已加载 Web 应用上下文的测试中，用 `MockMvcTester.from(wac)` 验证 MVC 配置。
+如果已经构建了带自定义设置的 `MockMvc`，可以用 `MockMvcTester.create(mockMvc)` 复用它。

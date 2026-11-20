@@ -24,8 +24,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -96,6 +100,89 @@ class SingleConnectionDataSourceTests {
 
     ds.destroy();
     verify(connection, times(1)).close();
+  }
+
+  @Test
+  void lazilyRecreatesSharedConnectionAfterReset() throws SQLException {
+    Connection replacement = mock();
+    try (var source = new SingleConnectionDataSource("jdbc:mock", "user", "password", true) {
+
+      private boolean initialized;
+
+      @Override
+      protected Connection getConnectionFromDriverManager(String url, Properties properties) {
+        assertThat(url).isEqualTo("jdbc:mock");
+        assertThat(properties.getProperty("user")).isEqualTo("user");
+        assertThat(properties.getProperty("password")).isEqualTo("password");
+        if (initialized) {
+          return replacement;
+        }
+        initialized = true;
+        return connection;
+      }
+    }) {
+      source.resetConnection();
+      var first = source.getConnection("user", "password");
+      assertThat(first.unwrap(ConnectionProxy.class).getTargetConnection()).isSameAs(connection);
+      assertThat(source.getConnection()).isSameAs(first);
+      assertThat(source.shouldClose(first)).isFalse();
+      assertThat(source.shouldClose(connection)).isFalse();
+      assertThat(source.shouldClose(replacement)).isTrue();
+      assertThatExceptionOfType(SQLException.class).isThrownBy(() -> source.getConnection("user", "wrong"))
+              .withMessageContaining("custom username and password");
+      assertThatExceptionOfType(SQLException.class).isThrownBy(() -> source.getConnection("other", "password"));
+
+      source.resetConnection();
+      verify(connection).close();
+      var second = source.getConnection();
+      assertThat(second).isNotSameAs(first);
+      assertThat(second.unwrap(ConnectionProxy.class).getTargetConnection()).isSameAs(replacement);
+      assertThat(source.shouldClose(first)).isTrue();
+    }
+    verify(replacement).close();
+  }
+
+  @Test
+  void requiresUrlBeforeOpeningUnconfiguredConnection() {
+    try (var source = new SingleConnectionDataSource()) {
+      assertThatIllegalStateException().isThrownBy(source::getConnection).withMessageContaining("'url' property");
+    }
+  }
+
+  @Test
+  void stillAttemptsCloseAfterRollbackFailure() throws SQLException {
+    var source = new SingleConnectionDataSource(connection, false);
+    source.setRollbackBeforeClose(true);
+    willThrow(new SQLException("rollback failed")).given(connection).rollback();
+    willThrow(new SQLException("close failed")).given(connection).close();
+
+    source.resetConnection();
+
+    var order = inOrder(connection);
+    order.verify(connection).rollback();
+    order.verify(connection).close();
+  }
+
+  @Test
+  void skipsRollbackForAutoCommitConnectionAndDelegatesVendorUnwrapping() throws SQLException {
+    var source = new SingleConnectionDataSource(connection, true);
+    source.setRollbackBeforeClose(true);
+    given(connection.getAutoCommit()).willReturn(true);
+    var vendor = mock(VendorConnection.class);
+    given(connection.isWrapperFor(VendorConnection.class)).willReturn(true);
+    given(connection.unwrap(VendorConnection.class)).willReturn(vendor);
+
+    var proxy = source.getConnection();
+    assertThat(proxy.isWrapperFor(ConnectionProxy.class)).isTrue();
+    assertThat(proxy.isWrapperFor(VendorConnection.class)).isTrue();
+    assertThat(proxy.unwrap(VendorConnection.class)).isSameAs(vendor);
+    source.close();
+
+    verify(connection, never()).rollback();
+    verify(connection).close();
+  }
+
+  private interface VendorConnection extends Connection {
   }
 
 }

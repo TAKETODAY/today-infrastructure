@@ -25,14 +25,14 @@ import infra.util.StringUtils;
 import infra.web.annotation.ResponseStatus;
 
 /**
- * Interface to provide the HTTP status code for a response. This is typically
- * used in error handling scenarios to determine the appropriate HTTP status
- * code based on the exception or context.
+ * Contract for objects that expose an HTTP response status code.
  *
- * <p>Implementations of this interface should override the
- * {@link #getStatusCode()} method to return the desired HTTP status code.
+ * <p>Exceptions may implement this interface to supply a status code for error
+ * handling. The {@link #getStatusCode(Throwable)} utility method resolves a
+ * status code and message from an exception, giving this contract precedence
+ * over other status mappings.
  *
- * <p><strong>Usage Example:</strong>
+ * <p>For example:
  * <pre>{@code
  * public class CustomException extends RuntimeException implements HttpStatusProvider {
  *
@@ -48,107 +48,46 @@ import infra.web.annotation.ResponseStatus;
  *     return this.statusCode;
  *   }
  * }
- *
- * public class ErrorHandlingExample {
- *   public static void main(String[] args) {
- *     try {
- *       throw new CustomException("Bad Request", HttpStatus.BAD_REQUEST);
- *     } catch (Throwable ex) {
- *       Pair<HttpStatusCode, String> result = HttpStatusProvider.getStatusCode(ex);
- *       System.out.println("Status Code: " + result.getFirst());
- *       System.out.println("Message: " + result.getSecond());
- *     }
- *   }
- * }
  * }</pre>
  *
- * <p>In the example above, the {@code CustomException} implements
- * {@code HttpStatusProvider} to provide a specific HTTP status code. The
- * {@code HttpStatusProvider.getStatusCode(Throwable)} method is then used to
- * extract the status code and message from the exception.
- *
- * <p>This interface also provides a static utility method,
- * {@link #getStatusCode(Throwable)}, which determines the HTTP status code
- * based on the type of exception and its annotations.
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @see HttpStatusCode
+ * @see ResponseStatus
  */
 public interface HttpStatusProvider {
 
   /**
-   * Returns the HTTP status code associated with this object.
+   * Return the HTTP response status code associated with this object.
    *
-   * <p>This method is typically used in scenarios where an HTTP response needs
-   * to be determined based on the context or exception. Implementations should
-   * ensure that the returned status code accurately reflects the intended HTTP
-   * response.
-   *
-   * <p><strong>Usage Example:</strong>
-   * <pre>{@code
-   * public class CustomException extends RuntimeException implements HttpStatusProvider {
-   *
-   *   private final HttpStatusCode statusCode;
-   *
-   *   public CustomException(String message, HttpStatusCode statusCode) {
-   *     super(message);
-   *     this.statusCode = statusCode;
-   *   }
-   *
-   *   @Override
-   *   public HttpStatusCode getStatusCode() {
-   *     return this.statusCode;
-   *   }
-   * }
-   *
-   * public class ErrorHandlingExample {
-   *   public static void main(String[] args) {
-   *     try {
-   *       throw new CustomException("Not Found", HttpStatus.NOT_FOUND);
-   *     }
-   *     catch (Throwable ex) {
-   *       HttpStatusCode statusCode = ((HttpStatusProvider) ex).getStatusCode();
-   *       System.out.println("Status Code: " + statusCode.value());
-   *     }
-   *   }
-   * }
-   * }</pre>
-   *
-   * <p>In the example above, the {@code CustomException} implements
-   * {@code HttpStatusProvider} to provide a specific HTTP status code. The
-   * {@code getStatusCode()} method is then used to retrieve and print the status
-   * code when the exception is caught.
-   *
-   * @return the {@link HttpStatusCode} representing the HTTP status code
+   * @return the HTTP status code (never {@code null})
    */
   HttpStatusCode getStatusCode();
 
   /**
-   * Retrieves the HTTP status code and associated message from the given exception.
+   * Resolve an HTTP status code and associated message from the given exception.
    *
-   * <p>This method determines the appropriate HTTP status code based on the type
-   * and characteristics of the provided exception. It supports exceptions that
-   * implement {@link HttpStatusProvider}, {@link ConversionException}, or are
-   * annotated with {@link ResponseStatus}. If none of these conditions are met,
-   * a default status code of {@code 500 Internal Server Error} is returned.
+   * <p>The first matching rule in the following order determines the result:
+   * <ol>
+   * <li>If the exception implements {@link HttpStatusProvider}, use its
+   * {@link #getStatusCode() status code} and the exception message.</li>
+   * <li>If the exception is a {@link ConversionException}, use
+   * {@link HttpStatus#BAD_REQUEST BAD_REQUEST} and the exception message.</li>
+   * <li>If {@link ResponseStatus} is found on the exception class, use its
+   * {@link ResponseStatus#code() code} and {@link ResponseStatus#reason() reason}.
+   * If the reason is empty or contains only whitespace, use the exception
+   * message instead.</li>
+   * <li>Otherwise, use {@link HttpStatus#INTERNAL_SERVER_ERROR INTERNAL_SERVER_ERROR}
+   * and the exception message.</li>
+   * </ol>
    *
-   * <p><strong>Usage Example:</strong>
-   * <pre>{@code
-   * try {
-   *   throw new CustomException("Bad Request", HttpStatus.BAD_REQUEST);
-   * }
-   * catch (Throwable ex) {
-   *   Pair<HttpStatusCode, String> result = getStatusCode(ex);
-   *   System.out.println("Status Code: " + result.getFirst().value());
-   *   System.out.println("Message: " + result.getSecond());
-   * }
-   * }</pre>
+   * <p>Only the supplied exception is considered; its cause chain is not traversed.
+   * The resolved message may be {@code null} if the exception has no message and
+   * no non-blank annotation reason is used.
    *
-   * <p>In the example above, the {@code CustomException} implements
-   * {@code HttpStatusProvider} to provide a specific HTTP status code. The
-   * {@code getStatusCode()} method retrieves the status code and message when
-   * the exception is caught.
-   *
-   * @param ex the exception from which to extract the HTTP status code and message
-   * @return a {@link Pair} containing the {@link HttpStatusCode} and an associated
-   * message derived from the exception
+   * @param ex the exception to resolve (never {@code null})
+   * @return a pair containing the HTTP status code as its first element and
+   * the associated message, possibly {@code null}, as its second element
+   * @throws NullPointerException if {@code ex} is {@code null}
    */
   static Pair<HttpStatusCode, String> getStatusCode(Throwable ex) {
     if (ex instanceof HttpStatusProvider provider) {
@@ -164,4 +103,5 @@ public interface HttpStatusProvider {
     }
     return Pair.of(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
   }
+
 }

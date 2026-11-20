@@ -34,12 +34,13 @@ import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferFactory;
 import infra.http.HttpLogging;
 import infra.http.MediaType;
+import infra.http.ServerSentEvent;
 import infra.http.SseUtils;
 import infra.http.reactive.ReactiveHttpOutputMessage;
 import infra.http.reactive.server.ServerHttpRequest;
 import infra.http.reactive.server.ServerHttpResponse;
-import infra.util.Assert;
 import infra.logging.Logger;
+import infra.util.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -56,12 +57,11 @@ public class ServerSentEventHttpMessageWriter implements HttpMessageWriter<Objec
 
   private static final Logger logger = HttpLogging.forLogName(ServerSentEventHttpMessageWriter.class);
 
-  private static final MediaType DEFAULT_MEDIA_TYPE = new MediaType("text", "event-stream", StandardCharsets.UTF_8);
+  private static final MediaType DEFAULT_MEDIA_TYPE = MediaType.TEXT_EVENT_STREAM.withCharset(StandardCharsets.UTF_8);
 
   private static final List<MediaType> WRITABLE_MEDIA_TYPES = Collections.singletonList(MediaType.TEXT_EVENT_STREAM);
 
-  @Nullable
-  private final Encoder<?> encoder;
+  private final @Nullable Encoder<?> encoder;
 
   /**
    * Constructor without an {@code Encoder}. In this mode only {@code String}
@@ -97,14 +97,14 @@ public class ServerSentEventHttpMessageWriter implements HttpMessageWriter<Objec
   @Override
   public boolean canWrite(ResolvableType elementType, @Nullable MediaType mediaType) {
     return mediaType == null || MediaType.TEXT_EVENT_STREAM.includes(mediaType)
-            || infra.http.ServerSentEvent.class.isAssignableFrom(elementType.toClass());
+            || ServerSentEvent.class.isAssignableFrom(elementType.toClass());
   }
 
   @Override
   public Mono<Void> write(Publisher<?> input, ResolvableType elementType,
           @Nullable MediaType mediaType, ReactiveHttpOutputMessage message, Map<String, Object> hints) {
 
-    mediaType = (mediaType != null && mediaType.getCharset() != null ? mediaType : DEFAULT_MEDIA_TYPE);
+    mediaType = mediaType != null && mediaType.getCharset() != null ? mediaType : DEFAULT_MEDIA_TYPE;
     DataBufferFactory bufferFactory = message.bufferFactory();
 
     message.getHeaders().setContentType(mediaType);
@@ -114,13 +114,12 @@ public class ServerSentEventHttpMessageWriter implements HttpMessageWriter<Objec
   private Flux<Publisher<DataBuffer>> encode(Publisher<?> input, ResolvableType elementType,
           MediaType mediaType, DataBufferFactory factory, Map<String, Object> hints) {
 
-    ResolvableType dataType = (infra.http.ServerSentEvent.class.isAssignableFrom(elementType.toClass()) ?
-            elementType.getGeneric() : elementType);
+    ResolvableType dataType = ServerSentEvent.class.isAssignableFrom(elementType.toClass()) ?
+            elementType.getGeneric() : elementType;
 
     return Flux.from(input).map(element -> {
-
-      infra.http.ServerSentEvent<?> sse = (element instanceof infra.http.ServerSentEvent<?> serverSentEvent ?
-              serverSentEvent : infra.http.ServerSentEvent.builder().data(element).build());
+      ServerSentEvent<?> sse = element instanceof ServerSentEvent<?> serverSentEvent ?
+              serverSentEvent : ServerSentEvent.builder().data(element).build();
 
       String sseText = sse.format();
       Object data = sse.data();

@@ -27,6 +27,7 @@ import infra.core.i18n.LocaleContextHolder;
 import infra.core.i18n.SimpleLocaleContext;
 import infra.core.i18n.SimpleTimeZoneAwareLocaleContext;
 import infra.core.i18n.TimeZoneAwareLocaleContext;
+import infra.web.util.WebUtils;
 
 /**
  * Extension of {@link LocaleResolver}, adding support for a rich locale context
@@ -37,7 +38,7 @@ import infra.core.i18n.TimeZoneAwareLocaleContext;
  * @see LocaleContext
  * @see TimeZoneAwareLocaleContext
  * @see LocaleContextHolder
- * @see HttpContextUtils#getTimeZone
+ * @see WebUtils#getTimeZone
  * @since 4.0 2022/2/3 22:54
  */
 public interface LocaleContextResolver extends LocaleResolver {
@@ -45,7 +46,7 @@ public interface LocaleContextResolver extends LocaleResolver {
   /**
    * Resolve the current locale context via the given request.
    * <p>This is primarily intended for framework-level processing; consider using
-   * {@link HttpContextUtils} or
+   * {@link WebUtils} or
    * {@link HttpContext} for
    * application-level access to the current locale and/or time zone.
    * <p>The returned context may be a
@@ -58,8 +59,8 @@ public interface LocaleContextResolver extends LocaleResolver {
    * @param context the request to resolve the locale context for
    * @return the current locale context (never {@code null}
    * @see #resolveLocale(HttpContext)
-   * @see HttpContextUtils#getLocale
-   * @see HttpContextUtils#getTimeZone
+   * @see WebUtils#resolveLocale
+   * @see WebUtils#getTimeZone
    */
   LocaleContext resolveLocaleContext(HttpContext context);
 

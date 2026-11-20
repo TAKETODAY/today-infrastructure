@@ -24,7 +24,7 @@ Web MVC 定义了 `ViewResolver` 和 `View` 接口，让您可以在浏览器中
 | `InternalResourceViewResolver`
 | `UrlBasedViewResolver` 的便捷子类，支持 `InternalResourceView`（实际上是 Servlets 和 JSP）
   以及诸如 `JstlView` 之类的子类。您可以使用 `setViewClass(..)` 为此解析器生成的所有视图指定视图类。
-  有关详细信息，请参阅 {today-framework-api}/web/reactive/result/view/UrlBasedViewResolver.html[`UrlBasedViewResolver`] javadoc。
+  有关详细信息，请参阅 {today-framework-api}/web/view/UrlBasedViewResolver.html[`UrlBasedViewResolver`] javadoc。
 
 | `FreeMarkerViewResolver`
 | `UrlBasedViewResolver` 的便捷子类，支持 `FreeMarkerView` 及其自定义子类。

@@ -1,0 +1,321 @@
+/*
+ * Copyright 2002-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
+package infra.web.handler.method.support;
+
+import org.jspecify.annotations.Nullable;
+
+import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import infra.core.MethodParameter;
+import infra.core.ResolvableType;
+import infra.http.HttpEntity;
+import infra.http.HttpHeaders;
+import infra.http.HttpMethod;
+import infra.http.HttpStatusCode;
+import infra.http.ProblemDetail;
+import infra.http.RequestEntity;
+import infra.http.ResponseEntity;
+import infra.http.converter.HttpMessageConverter;
+import infra.util.Assert;
+import infra.util.StringUtils;
+import infra.web.ErrorResponse;
+import infra.web.HttpContext;
+import infra.web.HttpMediaTypeNotSupportedException;
+import infra.web.RedirectModelManager;
+import infra.web.accept.ContentNegotiationManager;
+import infra.web.handler.method.HandlerMethod;
+import infra.web.handler.method.HandlerParameter;
+import infra.web.handler.result.HandlerMethodReturnValueHandler;
+import infra.web.util.WebUtils;
+
+/**
+ * Resolves {@link HttpEntity} and {@link RequestEntity} method argument values
+ * and also handles {@link HttpEntity} and {@link ResponseEntity} return values.
+ *
+ * <p>An {@link HttpEntity} return type has a specific purpose. Therefore this
+ * handler should be configured ahead of handlers that support any return
+ * value type annotated with {@code @ModelAttribute} or {@code @ResponseBody}
+ * to ensure they don't take over.
+ *
+ * @author Arjen Poutsma
+ * @author Rossen Stoyanchev
+ * @author Brian Clozel
+ * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/1/23 17:43
+ */
+public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodProcessor implements HandlerMethodReturnValueHandler {
+
+  @Nullable
+  private final RedirectModelManager redirectModelManager;
+
+  /**
+   * Basic constructor with converters only. Suitable for resolving
+   * {@code HttpEntity}. For handling {@code ResponseEntity} consider also
+   * providing a {@code ContentNegotiationManager}.
+   */
+  public HttpEntityMethodProcessor(List<HttpMessageConverter<?>> converters, @Nullable RedirectModelManager redirectModelManager) {
+    super(converters);
+    this.redirectModelManager = redirectModelManager;
+  }
+
+  /**
+   * Complete constructor for resolving {@code HttpEntity} method arguments.
+   * For handling {@code ResponseEntity} consider also providing a
+   * {@code ContentNegotiationManager}.
+   */
+  public HttpEntityMethodProcessor(List<HttpMessageConverter<?>> converters,
+          @Nullable List<Object> requestResponseBodyAdvice, @Nullable RedirectModelManager redirectModelManager) {
+    super(converters, null, requestResponseBodyAdvice);
+    this.redirectModelManager = redirectModelManager;
+  }
+
+  /**
+   * Complete constructor for resolving {@code HttpEntity} and handling
+   * {@code ResponseEntity}.
+   */
+  public HttpEntityMethodProcessor(List<HttpMessageConverter<?>> converters, @Nullable ContentNegotiationManager manager,
+          @Nullable List<Object> requestResponseBodyAdvice, @Nullable RedirectModelManager redirectModelManager) {
+    super(converters, manager, requestResponseBodyAdvice);
+    this.redirectModelManager = redirectModelManager;
+  }
+
+  /**
+   * Variant of {@link #HttpEntityMethodProcessor(List, ContentNegotiationManager, List, RedirectModelManager)}
+   * with additional list of {@link ErrorResponse.Interceptor}s for return
+   * value handling.
+   *
+   * @since 5.0
+   */
+  public HttpEntityMethodProcessor(List<HttpMessageConverter<?>> converters, @Nullable ContentNegotiationManager manager,
+          @Nullable List<Object> requestResponseBodyAdvice, @Nullable RedirectModelManager redirectModelManager, List<ErrorResponse.Interceptor> interceptors) {
+    super(converters, manager, requestResponseBodyAdvice, interceptors);
+    this.redirectModelManager = redirectModelManager;
+  }
+
+  @Override
+  public boolean supportsParameter(HandlerParameter parameter) {
+    return parameter.is(HttpEntity.class)
+            || parameter.is(RequestEntity.class);
+  }
+
+  @Override
+  public @Nullable Object resolveArgument(HttpContext context, HandlerParameter resolvable)
+          throws IOException, HttpMediaTypeNotSupportedException //
+  {
+    MethodParameter parameter = resolvable.getMethodParameter();
+    Type paramType = getHttpEntityType(parameter);
+    if (paramType == null) {
+      throw new IllegalArgumentException("HttpEntity parameter '%s' in method %s is not parameterized"
+              .formatted(parameter.getParameterName(), parameter.getMethod()));
+    }
+
+    Object body = readWithMessageConverters(context, parameter, paramType);
+    if (RequestEntity.class == parameter.getParameterType()) {
+      return new RequestEntity<>(body, context.requestHeaders(),
+              context.getMethod(), context.getURI());
+    }
+    else {
+      return new HttpEntity<>(body, context.requestHeaders());
+    }
+  }
+
+  private @Nullable Type getHttpEntityType(MethodParameter parameter) {
+    Assert.isAssignable(HttpEntity.class, parameter.getParameterType());
+    Type parameterType = parameter.getGenericParameterType();
+    if (parameterType instanceof ParameterizedType type) {
+      if (type.getActualTypeArguments().length != 1) {
+        throw new IllegalArgumentException("Expected single generic parameter on '%s' in method %s"
+                .formatted(parameter.getParameterName(), parameter.getMethod()));
+      }
+      return type.getActualTypeArguments()[0];
+    }
+    else if (parameterType instanceof Class) {
+      return Object.class;
+    }
+    else {
+      return null;
+    }
+  }
+
+  //---------------------------------------------------------------------
+  // Implementation of ReturnValueHandler interface
+  //---------------------------------------------------------------------
+
+  @Override
+  public boolean supportsReturnValue(@Nullable Object returnValue) {
+    return (returnValue instanceof HttpEntity && !(returnValue instanceof RequestEntity))
+            || returnValue instanceof ErrorResponse
+            || returnValue instanceof ProblemDetail;
+  }
+
+  @Override
+  public boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
+    MethodParameter returnType = handlerMethod.getReturnType();
+    Class<?> type = returnType.getParameterType();
+    return (HttpEntity.class.isAssignableFrom(type) && !RequestEntity.class.isAssignableFrom(type))
+            || ErrorResponse.class.isAssignableFrom(type)
+            || ProblemDetail.class.isAssignableFrom(type);
+  }
+
+  @Override
+  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+    if (returnValue == null) {
+      return;
+    }
+
+    HttpEntity<?> httpEntity;
+    if (returnValue instanceof ErrorResponse response) {
+      httpEntity = new ResponseEntity<>(response.getBody(), response.getHeaders(), response.getStatusCode());
+    }
+    else if (returnValue instanceof ProblemDetail detail) {
+      httpEntity = ResponseEntity.of(detail).build();
+    }
+    else {
+      Assert.isInstanceOf(HttpEntity.class, returnValue);
+      httpEntity = (HttpEntity<?>) returnValue;
+    }
+
+    Object body = httpEntity.getBody();
+    if (body instanceof ProblemDetail detail) {
+      if (logger.isWarnEnabled() && httpEntity instanceof ResponseEntity<?> responseEntity) {
+        if (responseEntity.getStatusCode().value() != detail.getStatus()) {
+          HandlerMethod handlerMethod = HandlerMethod.resolve(handler);
+          if (handlerMethod != null) {
+            logger.warn("{} returned ResponseEntity: {}, but its status doesn't match the ProblemDetail status: {}",
+                    handlerMethod.getMethod().toGenericString(), responseEntity, detail.getStatus());
+          }
+        }
+      }
+      invokeErrorResponseInterceptors(detail, returnValue instanceof ErrorResponse response ? response : null, context);
+    }
+
+    if (httpEntity.hasHeaders()) {
+      HttpHeaders entityHeaders = httpEntity.headers();
+      HttpHeaders outputHeaders = context.responseHeaders();
+
+      for (var entry : entityHeaders.entries()) {
+        String key = entry.getKey();
+        if (HttpHeaders.VARY.equals(key) && outputHeaders.contains(HttpHeaders.VARY)) {
+          List<String> values = getVaryRequestHeadersToAdd(outputHeaders, entityHeaders);
+          if (!values.isEmpty()) {
+            outputHeaders.setVary(values);
+          }
+        }
+        else {
+          outputHeaders.set(key, entry.getValue());
+        }
+      }
+    }
+
+    if (httpEntity instanceof ResponseEntity<?> responseEntity) {
+      HttpStatusCode returnStatus = responseEntity.getStatusCode();
+      context.setStatus(returnStatus);
+      if (returnStatus.is2xxSuccessful()) {
+        HttpMethod method = context.getMethod();
+        if ((HttpMethod.GET == method || HttpMethod.HEAD == method)
+                && isResourceNotModified(context, method)) {
+          return;
+        }
+      }
+      else if (returnStatus.is3xxRedirection()) {
+        String location = context.responseHeaders().getFirst(HttpHeaders.LOCATION);
+        if (location != null) {
+          saveOutputRedirectModel(context, location);
+        }
+      }
+    }
+
+    if (body instanceof ProblemDetail detail && resolveErrorView(detail,
+            returnValue instanceof ErrorResponse response ? response : null,
+            httpEntity instanceof ResponseEntity<?> entity ? entity.getStatusCode() :
+                    HttpStatusCode.valueOf(detail.getStatus()), context)) {
+      return;
+    }
+
+    HandlerMethod handlerMethod = HandlerMethod.resolve(handler);
+    if (handlerMethod != null && handlerMethod.getRawReturnType().isInstance(returnValue)) {
+      // Try even with null body. ResponseBodyAdvice could get involved.
+      writeWithMessageConverters(body, handlerMethod.getReturnType(), context);
+    }
+    else if (body != null) {
+      // value can not-assignable to returnType, value maybe from HandlerInterceptor
+      writeWithMessageConverters(body, null, context);
+    }
+  }
+
+  private List<String> getVaryRequestHeadersToAdd(HttpHeaders responseHeaders, HttpHeaders entityHeaders) {
+    List<String> entityHeadersVary = entityHeaders.getVary();
+    List<String> vary = responseHeaders.get(HttpHeaders.VARY);
+    if (vary != null) {
+      ArrayList<String> result = new ArrayList<>(entityHeadersVary);
+      for (String header : vary) {
+        for (String existing : StringUtils.tokenizeToStringArray(header, ",")) {
+          if ("*".equals(existing)) {
+            return Collections.emptyList();
+          }
+          for (String value : entityHeadersVary) {
+            if (value.equalsIgnoreCase(existing)) {
+              result.remove(value);
+            }
+          }
+        }
+      }
+      return result;
+    }
+    return entityHeadersVary;
+  }
+
+  private boolean isResourceNotModified(HttpContext context, HttpMethod method) {
+    HttpHeaders responseHeaders = context.responseHeaders();
+    String etag = responseHeaders.getETag();
+    long lastModifiedTimestamp = responseHeaders.getLastModified();
+    if (HttpMethod.GET == method || HttpMethod.HEAD == method) {
+      responseHeaders.remove(HttpHeaders.ETAG);
+      responseHeaders.remove(HttpHeaders.LAST_MODIFIED);
+    }
+    return context.checkNotModified(etag, lastModifiedTimestamp);
+  }
+
+  private void saveOutputRedirectModel(HttpContext request, String location) {
+    WebUtils.saveRedirectModel(location, request, redirectModelManager);
+  }
+
+  @Override
+  protected Class<?> getReturnValueType(@Nullable Object returnValue, @Nullable MethodParameter returnType) {
+    if (returnValue != null) {
+      return returnValue.getClass();
+    }
+
+    if (returnType != null) {
+      Type type = getHttpEntityType(returnType);
+      if (type == null) {
+        type = Object.class;
+      }
+      return ResolvableType.forMethodParameter(returnType, type).toClass();
+    }
+    throw new IllegalStateException("return-value and return-type must not be null at same time");
+  }
+
+}

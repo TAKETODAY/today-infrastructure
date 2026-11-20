@@ -36,9 +36,7 @@ public interface RedirectModelManager {
    * Find a RedirectModel saved by a previous request that matches to the current
    * request, remove it from underlying storage, and also remove other expired
    * RedirectModel instances.
-   * <p>This method is invoked in the beginning of every request in contrast
-   * to {@link #saveRedirectModel}, which is invoked only when there are
-   * flash attributes to be saved - i.e. before a redirect.
+   * <p>This method is invoked on the first input redirect model lookup for a request.
    *
    * @param context Current request context
    * @return a RedirectModel matching the current request or {@code null}
@@ -49,8 +47,8 @@ public interface RedirectModelManager {
   /**
    * Save the given {@link RedirectModel} to the underlying storage, making it available
    * for retrieval during a subsequent request (typically after a redirect).
-   * <p>This method is invoked before performing a redirect when there are flash attributes
-   * that need to be preserved. The saved model will be returned by
+   * <p>This method is invoked before a redirect when there is an output redirect model
+   * to preserve. The saved model will be returned by
    * {@link #retrieveAndUpdate(HttpContext)} in the next matching request and then removed.
    *
    * @param context the current request context

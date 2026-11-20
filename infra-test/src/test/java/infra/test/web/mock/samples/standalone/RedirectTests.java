@@ -34,15 +34,15 @@ import jakarta.validation.Valid;
 
 import static infra.test.web.mock.request.MockMvcRequestBuilders.get;
 import static infra.test.web.mock.request.MockMvcRequestBuilders.post;
-import static infra.test.web.mock.result.MockMvcResultMatchers.flash;
 import static infra.test.web.mock.result.MockMvcResultMatchers.forwardedUrl;
 import static infra.test.web.mock.result.MockMvcResultMatchers.model;
+import static infra.test.web.mock.result.MockMvcResultMatchers.redirectModel;
 import static infra.test.web.mock.result.MockMvcResultMatchers.redirectedUrl;
 import static infra.test.web.mock.result.MockMvcResultMatchers.status;
 import static infra.test.web.mock.setup.MockMvcBuilders.standaloneSetup;
 
 /**
- * Redirect scenarios including saving and retrieving flash attributes.
+ * Redirect scenarios including saving and retrieving redirect models.
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
@@ -63,8 +63,8 @@ public class RedirectTests {
             .andExpect(redirectedUrl("/persons/Joe"))
             .andExpect(model().size(2))
             .andExpect(model().attributeExists("name"))
-            .andExpect(flash().attributeCount(1))
-            .andExpect(flash().attribute("message", "success!"));
+            .andExpect(redirectModel().attributeCount(1))
+            .andExpect(redirectModel().attribute("message", "success!"));
   }
 
   @Test
@@ -74,8 +74,8 @@ public class RedirectTests {
             .andExpect(redirectedUrl("/persons/Joe"))
             .andExpect(model().size(2))
             .andExpect(model().attributeExists("name", "person"))
-            .andExpect(flash().attributeCount(1))
-            .andExpect(flash().attribute("message", "success!"));
+            .andExpect(redirectModel().attributeCount(1))
+            .andExpect(redirectModel().attribute("message", "success!"));
   }
 
   @Test
@@ -85,7 +85,7 @@ public class RedirectTests {
             .andExpect(forwardedUrl("persons/add"))
             .andExpect(model().size(1))
             .andExpect(model().attributeExists("person"))
-            .andExpect(flash().attributeCount(0));
+            .andExpect(redirectModel().attributeCount(0));
   }
 
   @Test
@@ -95,18 +95,18 @@ public class RedirectTests {
             .andExpect(forwardedUrl("persons/add"))
             .andExpect(model().size(1))
             .andExpect(model().attributeExists("person"))
-            .andExpect(flash().attributeCount(0));
+            .andExpect(redirectModel().attributeCount(0));
   }
 
   @Test
   public void getPerson() throws Exception {
-    this.mockMvc.perform(get("/persons/Joe").flashAttr("message", "success!"))
+    this.mockMvc.perform(get("/persons/Joe").redirectModelAttr("message", "success!"))
             .andExpect(status().isOk())
             .andExpect(forwardedUrl("persons/index"))
             .andExpect(model().size(2))
             .andExpect(model().attribute("person", new Person("Joe")))
             .andExpect(model().attribute("message", "success!"))
-            .andExpect(flash().attributeCount(0));
+            .andExpect(redirectModel().attributeCount(0));
   }
 
   @Controller

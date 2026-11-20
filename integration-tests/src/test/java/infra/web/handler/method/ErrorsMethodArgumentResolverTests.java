@@ -22,13 +22,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import infra.core.MethodParameter;
-import infra.web.mock.MockHttpContext;
-import infra.web.mock.MockRequest;
 import infra.validation.BindingResult;
 import infra.validation.Errors;
 import infra.web.BindingContext;
 import infra.web.bind.HttpContextDataBinder;
-import infra.web.bind.resolver.ErrorsMethodArgumentResolver;
+import infra.web.handler.method.support.ErrorsMethodArgumentResolver;
+import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -69,7 +69,7 @@ public class ErrorsMethodArgumentResolverTests {
     mavContainer.addAttribute("ignore4", "value4");
     mavContainer.addAttribute("ignore5", "value5");
     mavContainer.addAllAttributes(bindingResult.getModel());
-    webRequest.setBinding(mavContainer);
+    BindingContext.set(webRequest, mavContainer);
 
     Object actual = resolver.resolveArgument(webRequest, paramErrors);
     assertThat(bindingResult).isSameAs(actual);
@@ -80,7 +80,7 @@ public class ErrorsMethodArgumentResolverTests {
     BindingContext mavContainer = new BindingContext();
     mavContainer.addAllAttributes(bindingResult.getModel());
     mavContainer.addAttribute("ignore1", "value1");
-    webRequest.setBinding(mavContainer);
+    BindingContext.set(webRequest, mavContainer);
 
     assertThatIllegalStateException().isThrownBy(() ->
             resolver.resolveArgument(webRequest, paramErrors));
@@ -89,7 +89,7 @@ public class ErrorsMethodArgumentResolverTests {
   @Test
   public void noBindingResult() throws Exception {
     BindingContext mavContainer = new BindingContext();
-    webRequest.setBinding(mavContainer);
+    BindingContext.set(webRequest, mavContainer);
 
     assertThatIllegalStateException().isThrownBy(() ->
             resolver.resolveArgument(webRequest, paramErrors));

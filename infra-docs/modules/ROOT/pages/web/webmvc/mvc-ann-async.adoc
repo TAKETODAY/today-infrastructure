@@ -17,7 +17,7 @@ Web MVC 异步请求集成，如下：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@GetMapping("/quotes")
+@GET("/quotes")
 @ResponseBody
 public DeferredResult<String> quotes() {
   DeferredResult<String> deferredResult = new DeferredResult<>();
@@ -53,8 +53,8 @@ HTTP 处理器也可以使用 `java.util.concurrent.Callable` 包装任何支持
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@PostMapping
-public Callable<String> processUpload(MultipartFile file) {
+@POST
+public Callable<String> processUpload(@RequestParam("file") Part file) {
   return () -> "someView";
 }
 
@@ -64,7 +64,7 @@ public class MyHttpRequestHandler implements HttpRequestHandler {
   @Nullable
   @Override
   public Callable<String> handleRequest(HttpContext request) throws Throwable {
-    MultipartFile file = request.getMultipartRequest().getFile("file");
+    Part file = request.asMultipartRequest().getPart("file");
     // ...
     return () -> "someView";
   }
@@ -82,7 +82,7 @@ xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-configuration-mvc[配置好的]
 `DeferredResult` 处理流程如下：
 
 * HTTP 处理器返回一个 `DeferredResult`，并将其保存在一些内存队列或列表中，以便可以访问。
-* Web MVC 调用 `AsyncWebRequest.startAsync()`。
+* Web MVC 调用 `WebAsyncRequest.startAsync()`。
 * 与此同时，`DispatcherHandler` 退出当前IO线程，但响应通道保持打开状态。
 * 应用程序从某个线程设置 `DeferredResult`，Web MVC 将请求重新派发到底层 HTTP 引擎。
 * `DispatcherHandler#handleConcurrentResult` 将会被调用，并且处理异步产生的返回值。
@@ -90,7 +90,7 @@ xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-configuration-mvc[配置好的]
 `Callable` 处理流程如下:
 
 * HTTP 处理器返回一个 `Callable`。
-* Web MVC 调用 `AsyncWebRequest.startAsync()` 并提交 `Callable` 到一个业务线程池 `AsyncTaskExecutor`
+* Web MVC 调用 `WebAsyncRequest.startAsync()` 并提交 `Callable` 到一个业务线程池 `AsyncTaskExecutor`
 * 与此同时，`DispatcherHandler` 退出当前IO线程，但响应通道保持打开状态。
 * 最终 `Callable` 产生一个结果（返回值）`DispatcherHandler#handleConcurrentResult` 将会被调用，并且处理异步产生的返回值。
 
@@ -99,10 +99,13 @@ xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-configuration-mvc[配置好的]
 === 异常处理
 
 当您使用 `DeferredResult` 时，您可以选择调用 `setResult` 或使用异常调用 `setErrorResult`。
-在这两种情况下，Web MVC 都会继续处理该请求，它被视为 HTTP 处理器返回了给定的值，或者被视为它产生了给定的异常。
-然后，该异常会通过常规的异常处理机制（例如，调用 `@ExceptionHandler` 方法）进行处理。
+请求仍在处理时，`setResult` 提供的值按处理器的返回值处理；传给 `setErrorResult` 的异常则按处理器抛出的异常处理。
+如果响应尚未提交，Web MVC 可以走常规的异常处理流程，例如调用 `@ExceptionHandler` 方法。
 
-当您使用 `Callable` 时，也会有类似的处理逻辑，主要的区别在于结果是由 `Callable` 返回的，或者由它引发的异常。
+`Callable` 返回结果或抛出异常时，也遵循同样的规则。
+
+如果异步异常到达时响应已经提交（例如 SSE 已经发送第一条事件），`DispatcherHandler` 会完成请求并传播异常，
+不会再通过 MVC 异常处理器生成替代响应。此时不能更改已发送的状态码，也不能用错误响应替换已经写出的内容。
 
 
 [[mvc-ann-async-interception]]
@@ -133,7 +136,7 @@ xref:integration/rest-clients.adoc#rest-message-conversion[`HttpMessageConverter
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@GetMapping("/events")
+@GET("/events")
 public ResponseBodyEmitter handle() {
   ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding();
   // 其他地方引用 emitter 变量.
@@ -179,9 +182,9 @@ emitter.complete();
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@GetMapping(path="/events", produces=MediaType.TEXT_EVENT_STREAM_VALUE)
+@GET(path="/events", produces=MediaType.TEXT_EVENT_STREAM_VALUE)
 public SseEmitter streamEvents() {
-  SseEmitter emitter = forServerSentEvents();
+  SseEmitter emitter = ResponseBodyEmitter.forServerSentEvents();
   // 在此处配置并使用 `emitter` 发送事件
   return emitter;
 }
@@ -192,7 +195,7 @@ public class MyHttpRequestHandler implements HttpRequestHandler {
   @Nullable
   @Override
   public SseEmitter handleRequest(HttpContext request) throws Throwable {
-    SseEmitter emitter = forServerSentEvents();
+    SseEmitter emitter = ResponseBodyEmitter.forServerSentEvents();
     // 其他地方引用 emitter 变量.
     return emitter;
   }
@@ -220,7 +223,7 @@ emitter.complete();
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@GetMapping("/download")
+@GET("/download")
 public StreamingResponseBody handle() {
   return new StreamingResponseBody() {
     @Override
@@ -264,18 +267,33 @@ Web MVC 为异步请求公开了几个选项。
 [[mvc-ann-async-configuration-mvc]]
 === Web MVC
 
-MVC 配置为异步请求处理提供了以下选项：
+使用 `WebMvcConfigurer` 的 `configureAsyncSupport` 回调设置 MVC 的默认异步超时：
 
-* Java 配置：使用 `WebMvcConfigurer` 上的 `configureAsyncSupport` 回调。
+[source,java]
+----
+import java.time.Duration;
 
-您可以配置以下内容：
+import infra.context.annotation.Configuration;
+import infra.web.config.annotation.AsyncSupportConfigurer;
+import infra.web.config.annotation.WebMvcConfigurer;
 
-* 异步请求没有默认超时值，除非它被明确设置。
-* 用于阻塞写入时的 `AsyncTaskExecutor`，当使用 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-reactive-types[响应式类型]
-流式传输和执行来自控制器方法的 `Callable` 实例。默认使用的不适用于负载下的生产环境。
-* `DeferredResultProcessingInterceptor` 实现和 `CallableProcessingInterceptor` 实现。
+@Configuration
+public class AsyncMvcConfiguration implements WebMvcConfigurer {
 
+  @Override
+  public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
+    configurer.setDefaultTimeout(Duration.ofSeconds(30));
+  }
+}
+----
 
-请注意，您也可以在 `DeferredResult`、`ResponseBodyEmitter` 和 `SseEmitter` 上设置默认超时值。
-对于 `Callable`，您可以使用 `WebAsyncTask` 提供超时值。
+单次请求的超时优先于 MVC 默认值。可以在 `DeferredResult` 或 `WebAsyncTask` 上指定超时，
+也可以通过 `ResponseBodyEmitter.forChunkedTransferEncoding(...)` 或
+`ResponseBodyEmitter.forServerSentEvents(...)` 为流式响应和 SSE 指定超时。
+例如，`ResponseBodyEmitter.forServerSentEvents(Duration.ofMinutes(2), null)` 为当前 SSE 响应设置两分钟超时，
+不指定字符集。单次请求的超时为 `null` 时使用 MVC 默认值；两者都未设置时，由底层服务器决定，
+不能把未配置超时理解为一定不会超时。正超时至少为 1 毫秒且必须能转换为毫秒；负值无效。
 
+`configureAsyncSupport` 也可以配置运行 `Callable` 和执行响应式流阻塞写入所用的 `AsyncTaskExecutor`，
+以及 `DeferredResultProcessingInterceptor`、`CallableProcessingInterceptor`。
+生产环境应根据负载配置执行器，不要依赖默认执行器处理高并发负载。

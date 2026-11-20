@@ -22,6 +22,7 @@ import infra.web.HttpContext;
 import infra.web.LocaleResolver;
 import infra.web.annotation.ResponseBody;
 import infra.web.handler.method.HandlerMethod;
+import infra.web.util.WebUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -204,7 +205,7 @@ class ViewReturnValueHandlerTests {
     HttpContext context = mock(HttpContext.class);
     View view = mock(View.class);
 
-    when(viewResolver.resolveViewName("viewName", context.getLocale())).thenReturn(view);
+    when(viewResolver.resolveViewName("viewName", WebUtils.resolveLocale(context))).thenReturn(view);
 
     // when & then
     assertThatNoException().isThrownBy(() -> handler.handleReturnValue(context, null, "viewName"));
@@ -231,7 +232,7 @@ class ViewReturnValueHandlerTests {
     ViewRef viewRef = ViewRef.forViewName("viewName");
     View view = mock(View.class);
 
-    when(viewResolver.resolveViewName("viewName", context.getLocale())).thenReturn(view);
+    when(viewResolver.resolveViewName("viewName", WebUtils.resolveLocale(context))).thenReturn(view);
 
     // when & then
     assertThatNoException().isThrownBy(() -> handler.handleReturnValue(context, null, viewRef));
@@ -246,7 +247,7 @@ class ViewReturnValueHandlerTests {
     ModelAndView modelAndView = new ModelAndView("viewName");
     View view = mock(View.class);
 
-    when(viewResolver.resolveViewName("viewName", context.getLocale())).thenReturn(view);
+    when(viewResolver.resolveViewName("viewName", WebUtils.resolveLocale(context))).thenReturn(view);
 
     // when & then
     assertThatNoException().isThrownBy(() -> handler.handleReturnValue(context, null, modelAndView));

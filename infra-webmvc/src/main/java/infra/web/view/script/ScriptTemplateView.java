@@ -51,8 +51,8 @@ import infra.util.FileCopyUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 import infra.web.HttpContext;
-import infra.web.HttpContextUtils;
 import infra.web.resource.ResourceHandlerUtils;
+import infra.web.util.WebUtils;
 import infra.web.view.AbstractUrlBasedView;
 import infra.web.view.ViewRenderingException;
 
@@ -405,7 +405,7 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
         }
       };
 
-      Locale locale = HttpContextUtils.getLocale(http);
+      Locale locale = WebUtils.resolveLocale(http);
       RenderingContext context = new RenderingContext(applicationContext(), locale, templateLoader, url);
 
       Object html;

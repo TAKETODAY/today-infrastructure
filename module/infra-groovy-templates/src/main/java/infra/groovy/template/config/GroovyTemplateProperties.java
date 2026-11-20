@@ -35,10 +35,10 @@ import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
 import infra.context.properties.ConfigurationProperties;
 import infra.core.Ordered;
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.ui.template.TemplateLocation;
+import infra.util.Assert;
 import infra.util.MimeType;
 import infra.web.view.AbstractTemplateViewResolver;
 
@@ -55,6 +55,14 @@ import infra.web.view.AbstractTemplateViewResolver;
 public class GroovyTemplateProperties implements InitializingBean, ApplicationContextAware {
 
   private static final Logger log = LoggerFactory.getLogger(GroovyTemplateProperties.class);
+
+  /**
+   * Whether to expose a rendering-specific message accessor as messages.
+   */
+  private boolean exposeMessages = true;
+
+  /** Whether to expose rendering-specific binding access. */
+  private boolean exposeBindings = true;
 
   public static final String DEFAULT_RESOURCE_LOADER_PATH = "classpath:/templates/";
 
@@ -189,6 +197,45 @@ public class GroovyTemplateProperties implements InitializingBean, ApplicationCo
   private boolean useDoubleQuotes;
 
   private ApplicationContext applicationContext;
+
+  /**
+   * Return whether automatic message exposure is enabled.
+   *
+   * @return whether to expose messages
+   * @since 5.0
+   */
+  public boolean isExposeMessages() {
+    return this.exposeMessages;
+  }
+
+  /**
+   * Set whether to expose the rendering-specific message accessor.
+   *
+   * @param exposeMessages whether to expose messages
+   * @since 5.0
+   */
+  public void setExposeMessages(boolean exposeMessages) {
+    this.exposeMessages = exposeMessages;
+  }
+
+  /**
+   * Return whether automatic binding exposure is enabled.
+   *
+   * @since 5.0
+   */
+  public boolean isExposeBindings() {
+    return this.exposeBindings;
+  }
+
+  /**
+   * Set whether to expose rendering-specific bindings.
+   *
+   * @param exposeBindings whether to expose bindings
+   * @since 5.0
+   */
+  public void setExposeBindings(boolean exposeBindings) {
+    this.exposeBindings = exposeBindings;
+  }
 
   public boolean isCheckTemplateLocation() {
     return this.checkTemplateLocation;
@@ -446,6 +493,8 @@ public class GroovyTemplateProperties implements InitializingBean, ApplicationCo
     resolver.setAllowRequestOverride(isAllowRequestOverride());
     resolver.setAllowSessionOverride(isAllowSessionOverride());
     resolver.setExposeSessionAttributes(isExposeSessionAttributes());
+    resolver.setExposeMessages(isExposeMessages());
+    resolver.setExposeBindings(isExposeBindings());
     resolver.setHttpContextAttribute(getHttpContextAttribute());
     // The resolver usually acts as a fallback resolver (e.g. like a
     // InternalResourceViewResolver) so it needs to have low precedence

@@ -75,6 +75,7 @@ import infra.util.StringUtils;
  * mounts.
  *
  * @author Phillip Webb
+ * @author Yu Xia
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 4.0
  */
@@ -125,7 +126,7 @@ public class ConfigTreePropertySource extends EnumerablePropertySource<Path> imp
 
   @Override
   public String[] getPropertyNames() {
-    return names;
+    return this.names.clone();
   }
 
   @Nullable
@@ -222,10 +223,11 @@ public class ConfigTreePropertySource extends EnumerablePropertySource<Path> imp
     static Map<String, PropertyFile> findAll(Path sourceDirectory, Set<Option> options) {
       try {
         var propertyFiles = new TreeMap<String, PropertyFile>();
-        try (Stream<Path> pathStream = Files.find(sourceDirectory, MAX_DEPTH,
-                PropertyFile::isPropertyFile, FileVisitOption.FOLLOW_LINKS)) {
-          pathStream.forEach((path) -> {
-            String name = getName(sourceDirectory.relativize(path));
+        try (Stream<Path> paths = Files.find(sourceDirectory, MAX_DEPTH,
+                PropertyFile::isRegularFileOrSymbolicLink, FileVisitOption.FOLLOW_LINKS)) {
+          paths.forEach((path) -> {
+            Path relativePath = sourceDirectory.relativize(path);
+            String name = getName(relativePath);
             if (StringUtils.hasText(name)) {
               if (options.contains(Option.USE_LOWERCASE_NAMES)) {
                 name = name.toLowerCase(Locale.getDefault());
@@ -241,20 +243,16 @@ public class ConfigTreePropertySource extends EnumerablePropertySource<Path> imp
       }
     }
 
-    private static boolean isPropertyFile(Path path, BasicFileAttributes attributes) {
-      return !hasHiddenPathElement(path) && (attributes.isRegularFile() || attributes.isSymbolicLink());
+    private static boolean isRegularFileOrSymbolicLink(Path path, BasicFileAttributes attributes) {
+      return attributes.isRegularFile() || attributes.isSymbolicLink();
     }
 
-    private static boolean hasHiddenPathElement(Path path) {
-      for (Path value : path) {
-        if (value.toString().startsWith("..")) {
-          return true;
+    private static @Nullable String getName(Path relativePath) {
+      for (Path element : relativePath) {
+        if (element.toString().startsWith("..")) {
+          return null;
         }
       }
-      return false;
-    }
-
-    private static String getName(Path relativePath) {
       int nameCount = relativePath.getNameCount();
       if (nameCount == 1) {
         return relativePath.toString();
@@ -360,19 +358,22 @@ public class ConfigTreePropertySource extends EnumerablePropertySource<Path> imp
           assertStillExists();
           return FileCopyUtils.copyToByteArray(this.resource.getInputStream());
         }
-        if (this.content == null) {
+        byte[] content = this.content;
+        if (content == null) {
           assertStillExists();
           this.resourceLock.lock();
           try {
-            if (this.content == null) {
-              this.content = FileCopyUtils.copyToByteArray(this.resource.getInputStream());
+            content = this.content;
+            if (content == null) {
+              content = FileCopyUtils.copyToByteArray(this.resource.getInputStream());
+              this.content = content;
             }
           }
           finally {
             this.resourceLock.unlock();
           }
         }
-        return this.content;
+        return content;
       }
       catch (IOException ex) {
         throw new IllegalStateException(ex);

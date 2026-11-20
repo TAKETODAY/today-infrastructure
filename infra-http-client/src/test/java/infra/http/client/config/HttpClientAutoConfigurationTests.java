@@ -27,9 +27,11 @@ import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
+import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.HttpClientSettings;
 import infra.http.client.HttpCookieHandling;
 import infra.http.client.HttpRedirects;
+import infra.http.client.JdkClientHttpRequestFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,6 +43,14 @@ class HttpClientAutoConfigurationTests {
 
   private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
           .withConfiguration(AutoConfigurations.of(HttpClientAutoConfiguration.class, SslAutoConfiguration.class));
+
+  @Test
+  void createsTheConfiguredImperativeRequestFactory() {
+    this.contextRunner.withConfiguration(AutoConfigurations.of(ImperativeHttpClientAutoConfiguration.class))
+            .withPropertyValues("http.clients.imperative.factory=jdk")
+            .run(context -> assertThat(context.getBean(ClientHttpRequestFactory.class))
+                    .isInstanceOf(JdkClientHttpRequestFactory.class));
+  }
 
   @Test
   void createsDefaultHttpClientSettings() {

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.core;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -25,11 +27,14 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import infra.beans.factory.NoSuchBeanDefinitionException;
+import infra.beans.factory.support.StandardBeanFactory;
 import infra.messaging.Message;
 import infra.messaging.MessageChannel;
 import infra.messaging.MessageDeliveryException;
 import infra.messaging.MessageHandler;
 import infra.messaging.MessageHeaders;
+import infra.messaging.PollableChannel;
 import infra.messaging.StubMessageChannel;
 import infra.messaging.SubscribableChannel;
 import infra.messaging.support.ExecutorSubscribableChannel;
@@ -39,6 +44,8 @@ import infra.messaging.support.MessageHeaderAccessor;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
@@ -107,6 +114,105 @@ class GenericMessagingTemplateTests {
     assertThat(sent.get()).isNotNull();
     assertThat(sent.get().getHeaders().containsKey(GenericMessagingTemplate.DEFAULT_SEND_TIMEOUT_HEADER)).isFalse();
     assertThat(sent.get().getHeaders().containsKey(GenericMessagingTemplate.DEFAULT_RECEIVE_TIMEOUT_HEADER)).isFalse();
+  }
+
+  @Test
+  void resolvesChannelBeansAndPreservesLookupFailures() {
+    var factory = new StandardBeanFactory();
+    factory.registerSingleton("orders", this.messageChannel);
+    this.template.setBeanFactory(factory);
+    this.template.convertAndSend("orders", "created");
+    List<? extends Message<?>> messages = this.messageChannel.getMessages();
+    assertThat(messages).singleElement().satisfies(message -> assertThat(message.getPayload()).isEqualTo("created"));
+
+    assertThatExceptionOfType(DestinationResolutionException.class)
+            .isThrownBy(() -> this.template.convertAndSend("missing", "created"))
+            .withMessageContaining("'missing'").withCauseInstanceOf(NoSuchBeanDefinitionException.class);
+
+    var resolver = new BeanFactoryMessageChannelDestinationResolver();
+    assertThatIllegalStateException().isThrownBy(() -> resolver.resolveDestination("orders"))
+            .withMessage("No BeanFactory configured");
+    resolver.setBeanFactory(factory);
+    assertThat(resolver.resolveDestination("orders")).isSameAs(this.messageChannel);
+  }
+
+  @Test
+  void readsStringTimeoutAndStripsAReceiveOnlyHeaderFromAnImmutableMessage() {
+    this.template.setSendTimeout(42);
+    this.template.setReceiveTimeout(10);
+    this.template.setSendTimeoutHeader("send-ms");
+    this.template.setReceiveTimeoutHeader("reply-ms");
+    MessageChannel channel = mock();
+    willAnswer(invocation -> {
+      Message<?> message = invocation.getArgument(0);
+      assertThat(message.getHeaders()).doesNotContainKeys("send-ms", "reply-ms").containsEntry("trace", "kept");
+      return true;
+    }).given(channel).send(any(Message.class), anyLong());
+
+    var receiveOnly = new GenericMessage<>("order", Map.of("reply-ms", "5", "trace", "kept"));
+    this.template.send(channel, receiveOnly);
+    this.template.send(channel, new GenericMessage<>("order", Map.of("send-ms", "25", "trace", "kept")));
+
+    verify(channel).send(any(Message.class), eq(42L));
+    verify(channel).send(any(Message.class), eq(25L));
+    assertThat(receiveOnly.getHeaders()).containsEntry("reply-ms", "5");
+    assertThat(this.template.getSendTimeout()).isEqualTo(42);
+    assertThat(this.template.getReceiveTimeout()).isEqualTo(10);
+    assertThat(this.template.getSendTimeoutHeader()).isEqualTo("send-ms");
+    assertThat(this.template.getReceiveTimeoutHeader()).isEqualTo("reply-ms");
+  }
+
+  @Test
+  void usesConfiguredReceiveTimeoutAndRequiresAPollableChannel() {
+    PollableChannel channel = mock();
+    this.template.setReceiveTimeout(0);
+    assertThat(this.template.receive(channel)).isNull();
+    verify(channel).receive(0);
+    assertThatIllegalStateException().isThrownBy(() -> this.template.receive(new ExecutorSubscribableChannel()))
+            .withMessageContaining("PollableChannel is required");
+  }
+
+  @Test
+  void restoresOriginalReplyRoutingAndRejectsASecondReplyAfterReturn() {
+    var channel = new ExecutorSubscribableChannel();
+    var temporary = new AtomicReference<MessageChannel>();
+    var reply = new GenericMessage<>("accepted");
+    channel.subscribe(request -> {
+      MessageChannel replyChannel = (MessageChannel) request.getHeaders().getReplyChannel();
+      assertThat(request.getHeaders().getErrorChannel()).isSameAs(replyChannel);
+      temporary.set(replyChannel);
+      assertThat(replyChannel.send(reply)).isTrue();
+    });
+    this.template.setThrowExceptionOnLateReply(true);
+    var request = MessageBuilder.withPayload("order").setReplyChannelName("replies").setErrorChannelName("errors")
+            .setHeader(GenericMessagingTemplate.DEFAULT_RECEIVE_TIMEOUT_HEADER, "0").build();
+
+    Message<?> result = this.template.sendAndReceive(channel, request);
+    assertThat(result).isNotNull();
+    assertThat(result.getPayload()).isEqualTo("accepted");
+    assertThat(result.getHeaders().getReplyChannel()).isEqualTo("replies");
+    assertThat(result.getHeaders().getErrorChannel()).isEqualTo("errors");
+    assertThatExceptionOfType(MessageDeliveryException.class).isThrownBy(() -> temporary.get().send(reply))
+            .withMessageContaining("already received a reply");
+  }
+
+  @Test
+  void reportsSendFailureAndRejectsRepliesToTheFailedRequest() {
+    MessageChannel channel = mock();
+    var temporary = new AtomicReference<MessageChannel>();
+    willAnswer(invocation -> {
+      Message<?> message = invocation.getArgument(0);
+      temporary.set((MessageChannel) message.getHeaders().getReplyChannel());
+      return false;
+    }).given(channel).send(any(Message.class));
+    this.template.setThrowExceptionOnLateReply(true);
+
+    assertThatExceptionOfType(MessageDeliveryException.class)
+            .isThrownBy(() -> this.template.sendAndReceive(channel, new GenericMessage<>("order")))
+            .withMessageContaining("Failed to send message");
+    assertThatExceptionOfType(MessageDeliveryException.class)
+            .isThrownBy(() -> temporary.get().send(new GenericMessage<>("unexpected")))
+            .withMessageContaining("exception while sending the request message");
   }
 
   @Test

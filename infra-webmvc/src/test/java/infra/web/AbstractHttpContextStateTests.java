@@ -26,6 +26,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.http.HttpCookie;
@@ -34,10 +35,16 @@ import infra.http.HttpMethod;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
 import infra.util.MultiValueMap;
-import infra.web.async.AsyncWebRequest;
+import infra.web.async.WebAsyncRequest;
+import infra.web.i18n.AcceptHeaderLocaleResolver;
+import infra.web.i18n.CookieLocaleResolver;
+import infra.web.i18n.SessionLocaleResolver;
+import infra.web.mock.MockHttpContext;
 import infra.web.multipart.MultipartRequest;
+import infra.web.util.WebUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * White-box tests for the bit-packed {@link AbstractHttpContext} state.
@@ -48,6 +55,68 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AbstractHttpContextStateTests {
 
   private final StateHttpContext context = new StateHttpContext();
+
+  @Test
+  void localeIsNullWithoutAcceptLanguage() {
+    assertThat(context.getPreferredLocale()).isNull();
+    assertThat(WebUtils.resolveLocale(context)).isEqualTo(Locale.getDefault());
+    assertThat(context.getPreferredLocale()).isNull();
+  }
+
+  @Test
+  void localeIsNullWithoutAcceptableConcreteLanguage() {
+    for (String value : List.of("", " ", "*", "*;q=0.8", "en;q=0", "en;q=0, *")) {
+      context.requestHeaders.set(HttpHeaders.ACCEPT_LANGUAGE, value);
+      assertThat(context.getPreferredLocale()).as("Accept-Language: %s", value).isNull();
+    }
+  }
+
+  @Test
+  void localeUsesQualityOrderAndIgnoresWildcards() {
+    context.requestHeaders.set(HttpHeaders.ACCEPT_LANGUAGE, "*;q=1, en-US;q=0.5, zh-CN;q=0.9");
+
+    assertThat(context.getPreferredLocale()).isEqualTo(Locale.SIMPLIFIED_CHINESE);
+    assertThat(WebUtils.resolveLocale(context)).isEqualTo(Locale.SIMPLIFIED_CHINESE);
+  }
+
+  @Test
+  void localeRejectsInvalidAcceptLanguage() {
+    context.requestHeaders.set(HttpHeaders.ACCEPT_LANGUAGE, "en;q=invalid");
+
+    assertThatIllegalArgumentException().isThrownBy(context::getPreferredLocale);
+  }
+
+  @Test
+  void localeResolversFallBackWithoutRequestLocale() {
+    AcceptHeaderLocaleResolver acceptHeaderResolver = new AcceptHeaderLocaleResolver();
+    CookieLocaleResolver cookieResolver = new CookieLocaleResolver();
+    SessionLocaleResolver sessionResolver = new SessionLocaleResolver();
+
+    assertThat(acceptHeaderResolver.resolveLocale(context)).isEqualTo(Locale.getDefault());
+    assertThat(cookieResolver.resolveLocale(context)).isEqualTo(Locale.getDefault());
+    assertThat(sessionResolver.resolveLocale(new MockHttpContext())).isEqualTo(Locale.getDefault());
+    assertThat(context.getPreferredLocale()).isNull();
+  }
+
+  @Test
+  void acceptHeaderResolverUsesConfiguredDefaultForZeroQualityLanguages() {
+    context.requestHeaders.set(HttpHeaders.ACCEPT_LANGUAGE, "en;q=0, *");
+    AcceptHeaderLocaleResolver resolver = new AcceptHeaderLocaleResolver();
+    resolver.setDefaultLocale(Locale.SIMPLIFIED_CHINESE);
+
+    assertThat(resolver.resolveLocale(context)).isEqualTo(Locale.SIMPLIFIED_CHINESE);
+    assertThat(context.getPreferredLocale()).isNull();
+  }
+
+  @Test
+  void acceptHeaderResolverDoesNotSelectZeroQualitySupportedLanguage() {
+    context.requestHeaders.set(HttpHeaders.ACCEPT_LANGUAGE, "fr, en;q=0");
+    AcceptHeaderLocaleResolver resolver = new AcceptHeaderLocaleResolver();
+    resolver.setSupportedLocales(List.of(Locale.ENGLISH));
+    resolver.setDefaultLocale(Locale.SIMPLIFIED_CHINESE);
+
+    assertThat(resolver.resolveLocale(context)).isEqualTo(Locale.SIMPLIFIED_CHINESE);
+  }
 
   @Test
   void commitStateTransitions() {
@@ -183,6 +252,65 @@ class AbstractHttpContextStateTests {
   }
 
   @Test
+  void unnamedCallbackRegistrationsAreIndependent() {
+    for (HttpContext.Lifecycle phase : HttpContext.Lifecycle.values()) {
+      AtomicInteger invocations = new AtomicInteger();
+      Runnable callback = invocations::incrementAndGet;
+
+      String firstName = context.registerCallback(phase, callback);
+      String secondName = context.registerCallback(phase, callback);
+
+      assertThat(firstName).isNotBlank().isNotEqualTo(secondName);
+      context.fireCallbacks(phase);
+      assertThat(invocations).hasValue(2);
+      context.fireCallbacks(phase);
+      assertThat(invocations).hasValue(2);
+    }
+  }
+
+  @Test
+  void generatedCallbackNameAllowsIndependentRemoval() {
+    for (HttpContext.Lifecycle phase : HttpContext.Lifecycle.values()) {
+      AtomicInteger removedInvocations = new AtomicInteger();
+      AtomicInteger retainedInvocations = new AtomicInteger();
+      String name = context.registerCallback(phase, removedInvocations::incrementAndGet);
+      context.registerCallback(phase, retainedInvocations::incrementAndGet);
+
+      context.removeCallback(phase, name);
+      context.fireCallbacks(phase);
+
+      assertThat(removedInvocations).hasValue(0);
+      assertThat(retainedInvocations).hasValue(1);
+    }
+  }
+
+  @Test
+  void explicitlyNamedCallbackRegistrationReplacesPreviousCallback() {
+    for (HttpContext.Lifecycle phase : HttpContext.Lifecycle.values()) {
+      AtomicInteger replacedInvocations = new AtomicInteger();
+      AtomicInteger replacementInvocations = new AtomicInteger();
+      context.registerCallback(phase, "count", replacedInvocations::incrementAndGet);
+      context.registerCallback(phase, "count", replacementInvocations::incrementAndGet);
+
+      context.fireCallbacks(phase);
+
+      assertThat(replacedInvocations).hasValue(0);
+      assertThat(replacementInvocations).hasValue(1);
+    }
+  }
+
+  @Test
+  @SuppressWarnings("NullAway")
+  void unnamedCallbackRegistrationRejectsNullArguments() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> context.registerCallback(null, () -> { }))
+            .withMessage("Phase is required");
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> context.registerCallback(HttpContext.Lifecycle.COMPLETED, null))
+            .withMessage("Callback is required");
+  }
+
+  @Test
   void requestCompletedIsIdempotent() {
     AtomicInteger completions = new AtomicInteger();
     context.registerCallback(HttpContext.Lifecycle.COMPLETED, "count", completions::incrementAndGet);
@@ -208,11 +336,11 @@ class AbstractHttpContextStateTests {
   @Test
   void resetClearsResponseCookies() {
     context.addCookie(ResponseCookie.forSimple("session", "old"));
-    assertThat(context.hasResponseCookie()).isTrue();
+    assertThat(context.hasResponseCookies()).isTrue();
 
     context.reset();
 
-    assertThat(context.hasResponseCookie()).isFalse();
+    assertThat(context.hasResponseCookies()).isFalse();
   }
 
   @Test
@@ -231,10 +359,10 @@ class AbstractHttpContextStateTests {
     ResponseCookie cookie = ResponseCookie.forSimple("session", "old");
     context.addCookie(cookie);
 
-    List<ResponseCookie> removed = context.removeCookie("session");
+    List<ResponseCookie> removed = context.removeCookies("session");
 
     assertThat(removed).containsExactly(cookie);
-    assertThat(context.hasResponseCookie()).isFalse();
+    assertThat(context.hasResponseCookies()).isFalse();
   }
 
   @Test
@@ -242,16 +370,16 @@ class AbstractHttpContextStateTests {
     ResponseCookie cookie = ResponseCookie.forSimple("session", "old");
     context.addCookie(cookie);
 
-    List<ResponseCookie> removed = context.removeCookie("missing");
+    List<ResponseCookie> removed = context.removeCookies("missing");
 
     assertThat(removed).isNull();
     // a non-matching removal must not drop the existing cookie
-    assertThat(context.hasResponseCookie()).isTrue();
+    assertThat(context.hasResponseCookies()).isTrue();
   }
 
   @Test
   void removeCookieReturnsNullWhenNoCookieWasAdded() {
-    assertThat(context.removeCookie("missing")).isNull();
+    assertThat(context.removeCookies("missing")).isNull();
   }
 
   @Test
@@ -260,8 +388,8 @@ class AbstractHttpContextStateTests {
     context.reset();
 
     // reset keeps the (empty) list for reuse, but no cookie remains to remove
-    assertThat(context.removeCookie("session")).isNull();
-    assertThat(context.hasResponseCookie()).isFalse();
+    assertThat(context.removeCookies("session")).isNull();
+    assertThat(context.hasResponseCookies()).isFalse();
   }
 
   @Test
@@ -366,7 +494,7 @@ class AbstractHttpContextStateTests {
     }
 
     @Override
-    protected AsyncWebRequest createAsyncWebRequest() {
+    protected WebAsyncRequest createAsyncRequest() {
       throw new UnsupportedOperationException();
     }
 

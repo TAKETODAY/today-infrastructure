@@ -10,7 +10,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@PostMapping("/accounts")
+@POST("/accounts")
 public void handle(@RequestBody Account account) {
   // ...
 }
@@ -31,7 +31,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@PostMapping("/accounts")
+@POST("/accounts")
 public void handle(@Valid @RequestBody Account account, Errors errors) {
   // ...
 }

@@ -19,10 +19,18 @@ package infra.web;
 import org.junit.jupiter.api.Test;
 
 import infra.core.AttributeAccessor;
+import infra.core.Conventions;
+import infra.lang.NullValue;
+import infra.web.mock.MockHttpContext;
 
 import static java.lang.Thread.sleep;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatObject;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -104,6 +112,40 @@ class RedirectModelTests {
 
     RedirectModel outputModel = RedirectModel.findOutputModel(accessor);
     assertThat((Object) outputModel).isNull();
+  }
+
+  @Test
+  void inputRedirectModelHitIsCachedAcrossDelegatesAndManagers() {
+    var request = new MockHttpContext();
+    var first = mock(RedirectModelManager.class);
+    var second = mock(RedirectModelManager.class);
+    var model = new RedirectModel("message", "saved");
+    given(first.retrieveAndUpdate(request)).willReturn(model);
+
+    assertThatObject(RedirectModel.findInputModel(request, first)).isSameAs(model);
+    assertThatObject(RedirectModel.findInputModel(new DelegatingHttpContext(request), first)).isSameAs(model);
+    assertThatObject(RedirectModel.findInputModel(request, second)).isSameAs(model);
+    verify(first).retrieveAndUpdate(request);
+    verifyNoMoreInteractions(first);
+    verifyNoInteractions(second);
+  }
+
+  @Test
+  void inputRedirectModelMissIsCachedEvenIfAnotherManagerOrAnInputAttributeBecomesAvailable() {
+    var request = new MockHttpContext();
+    var first = mock(RedirectModelManager.class);
+    var second = mock(RedirectModelManager.class);
+
+    assertThatObject(RedirectModel.findInputModel(request, first)).isNull();
+    String cacheAttribute = Conventions.getQualifiedAttributeName(RedirectModel.class, "INPUT_CACHE");
+    assertThat(request.getAttributes()).containsKey(cacheAttribute).doesNotContainValue(NullValue.INSTANCE);
+
+    request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, new RedirectModel("late", true));
+    assertThatObject(RedirectModel.findInputModel(new DelegatingHttpContext(request), first)).isNull();
+    assertThatObject(RedirectModel.findInputModel(request, second)).isNull();
+    verify(first).retrieveAndUpdate(request);
+    verifyNoMoreInteractions(first);
+    verifyNoInteractions(second);
   }
 
   @Test

@@ -29,7 +29,6 @@ import infra.core.i18n.TimeZoneAwareLocaleContext;
 import infra.http.HttpCookie;
 import infra.util.StringUtils;
 import infra.web.HttpContext;
-import infra.web.HttpContextUtils;
 import infra.web.LocaleContextResolver;
 import infra.web.LocaleResolver;
 import infra.web.util.WebUtils;
@@ -59,11 +58,11 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
    * The name of the request attribute that holds the {@code Locale}.
    * <p>Only used for overriding a cookie value if the locale has been
    * changed in the course of the current request!
-   * <p>Use {@code HttpContext(Utils).getLocale()}
+   * <p>Use {@link WebUtils#resolveLocale(HttpContext)}
    * to retrieve the current locale in controllers or views.
    *
-   * @see HttpContext#getLocale
-   * @see HttpContextUtils#getLocale
+   * @see HttpContext#getPreferredLocale
+   * @see WebUtils#resolveLocale
    */
   public static final String LOCALE_REQUEST_ATTRIBUTE_NAME = CookieLocaleResolver.class.getName() + ".LOCALE";
 
@@ -71,10 +70,10 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
    * The name of the request attribute that holds the {@code TimeZone}.
    * <p>Only used for overriding a cookie value if the locale has been
    * changed in the course of the current request!
-   * <p>Use {@code HttpContext(Utils).getTimeZone()}
+   * <p>Use {@link WebUtils#getTimeZone(HttpContext)}
    * to retrieve the current time zone in controllers or views.
    *
-   * @see HttpContextUtils#getTimeZone
+   * @see WebUtils#getTimeZone
    */
   public static final String TIME_ZONE_REQUEST_ATTRIBUTE_NAME = CookieLocaleResolver.class.getName() + ".TIME_ZONE";
 
@@ -318,19 +317,20 @@ public class CookieLocaleResolver extends CookieGenerator implements LocaleConte
    * Determine the default locale for the given request,
    * Called if no locale cookie has been found.
    * <p>The default implementation returns the specified default locale,
-   * if any, else falls back to the request's accept-header locale.
+   * if any, else falls back to the request's accept-header locale and finally
+   * to {@link Locale#getDefault()}.
    *
    * @param request the request to resolve the locale for
    * @return the default locale (never {@code null})
    * @see #setDefaultLocale
-   * @see HttpContext#getLocale()
+   * @see HttpContext#getPreferredLocale()
    */
   protected Locale determineDefaultLocale(HttpContext request) {
     Locale defaultLocale = getDefaultLocale();
     if (defaultLocale == null) {
-      defaultLocale = request.getLocale();
+      defaultLocale = request.getPreferredLocale();
     }
-    return defaultLocale;
+    return defaultLocale != null ? defaultLocale : Locale.getDefault();
   }
 
   /**

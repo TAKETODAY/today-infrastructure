@@ -20,13 +20,16 @@ package infra.web.socket.handler;
 
 import org.junit.jupiter.api.Test;
 
+import infra.util.concurrent.Future;
 import infra.web.socket.CloseStatus;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketMessage;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -84,6 +87,26 @@ class ExceptionWebSocketHandlerTests {
     this.decorator.onClose(this.session, closeStatus);
 
     assertThat(this.session.getCloseStatus()).isNull();
+  }
+
+  @Test
+  void forwardsSuccessfulCallbacksAndClosesAfterAsynchronousMessageFailure() throws Exception {
+    WebSocketMessage message = WebSocketMessage.ping();
+    Exception failure = new IllegalStateException("async failure");
+    Future<Void> result = Future.failed(failure, Runnable::run);
+    given(delegate.handleMessage(session, message)).willReturn(result);
+
+    decorator.onOpen(session);
+    decorator.onError(session, failure);
+    decorator.onClose(session, CloseStatus.NORMAL);
+    assertThat(session.getCloseStatus()).isNull();
+    verify(delegate).onOpen(session);
+    verify(delegate).onError(session, failure);
+    verify(delegate).onClose(session, CloseStatus.NORMAL);
+
+    assertThat(decorator.handleMessage(session, WebSocketMessage.pong())).isNull();
+    assertThat(decorator.handleMessage(session, message)).isSameAs(result);
+    assertThat(session.getCloseStatus()).isEqualTo(CloseStatus.SERVER_ERROR);
   }
 
 }

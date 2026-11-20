@@ -3,15 +3,17 @@
 
 `@ExceptionHandler`、`@InitBinder` 和 `@ModelAttribute` 方法仅适用于在其中声明的
 `@Controller` 类或类层次结构。相反，如果它们在 `@ControllerAdvice` 或 `@RestControllerAdvice`
-类中声明，则它们适用于任何控制器。`@ControllerAdvice` 中的 `@ExceptionHandler` 方法可用于处理任何 `@Controller` 或任何其他处理器的异常。
+类中声明，则它们可以应用于多个控制器。未指定选择器时默认全局适用；
+不限定控制器类型的 `@ControllerAdvice` 中的 `@ExceptionHandler` 也可用于处理其他处理器的异常。
 
 `@ControllerAdvice` 被 `@Component` 元注释，因此可以通过
 xref:core/beans/java/instantiating-container.adoc#beans-java-instantiating-container-scan[组件扫描]
 注册为 Infra bean。`@RestControllerAdvice` 被 `@ControllerAdvice` 和 `@ResponseBody` 元注释，
 这意味着 `@ExceptionHandler` 方法的返回值将通过响应体消息转换进行渲染，而不是通过 HTML 视图。
 
-在启动时，`RequestMappingHandlerMapping` 和 `ExceptionHandlerExceptionResolver` 检测控制器建议
-bean 并在运行时应用它们。来自 `@ControllerAdvice` 的全局 `@ExceptionHandler` 方法在来自 `@Controller`
+在启动时，`RequestMappingHandlerAdapter` 通过 `ControllerMethodResolver` 检测全局的 `@ModelAttribute` 和 `@InitBinder` 方法，
+`ExceptionHandlerAnnotationExceptionHandler` 检测全局的 `@ExceptionHandler` 方法，并在运行时应用它们。
+来自 `@ControllerAdvice` 的全局 `@ExceptionHandler` 方法在来自 `@Controller`
 的局部方法之后应用。相比之下，全局的 `@ModelAttribute` 和 `@InitBinder` 方法在局部方法之前应用。
 
 `@ControllerAdvice` 注解具有属性，允许你缩小它们适用的控制器和处理器集。例如：
@@ -33,5 +35,21 @@ public class ExampleAdvice3 {}
 
 
 前述示例中的选择器在运行时评估，如果广泛使用可能会对性能产生负面影响。有关更多详细信息，请参见
-{today-framework-api}/web/bind/annotation/ControllerAdvice.html[`@ControllerAdvice`] javadoc。
+{today-framework-api}/web/annotation/ControllerAdvice.html[`@ControllerAdvice`] javadoc。
 
+[[mvc-ann-body-advice]]
+== 定制请求体与响应体
+
+将实现 `infra.web.handler.method.RequestBodyAdvice` 或 `infra.web.handler.method.ResponseBodyAdvice` 的类标注为
+`@ControllerAdvice`，标准 MVC 配置会自动发现它。可以用上面的选择器限定控制器范围，
+再在接口的 `supports(...)` 方法中根据参数或返回值以及已选中的 `HttpMessageConverter` 缩小适用范围。
+
+* `RequestBodyAdvice` 作用于通过消息转换器读取的请求体，例如 `@RequestBody` 和 `HttpEntity` 参数。
+  `beforeBodyRead(...)` 可以在反序列化前包装输入消息，`afterBodyRead(...)` 可以处理转换后的对象，
+  空请求体走 `handleEmptyBody(...)`。如果必填的 `@RequestBody` 参数在此之后仍没有值，框架会抛出异常。
+* `ResponseBodyAdvice` 作用于通过消息转换器写出的响应体，例如 `@ResponseBody` 或 `ResponseEntity`。
+  `beforeBodyWrite(...)` 在内容协商和转换器选择之后、写出之前执行；替换后的对象必须仍能由已选中的转换器写出。
+
+这两个接口不是每个请求都会运行的回调。需要在处理器调用前后处理请求时，使用
+xref:web/webmvc/mvc-core/handlermapping-interceptor.adoc[拦截器]；需要配置转换器或调整其顺序时，
+使用 xref:web/webmvc/mvc-config/message-converters.adoc[消息转换器配置]。

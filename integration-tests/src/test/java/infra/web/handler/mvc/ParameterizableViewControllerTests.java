@@ -90,7 +90,7 @@ class ParameterizableViewControllerTests {
   }
 
   @Test
-  public void handleRequestWithFlashAttributes() throws Throwable {
+  public void handleRequestWithInputRedirectModel() throws Throwable {
     this.request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, new RedirectModel("name", "value"));
     ModelAndView mav = handleRequest();
     assertThat(mav.getModel().size()).isEqualTo(1);
@@ -398,14 +398,14 @@ class ParameterizableViewControllerTests {
     appContext.refresh();
     MockRequest request = new MockRequest("GET", "/");
     MockResponse response = new MockResponse();
-    request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, new RedirectModel("flashAttr", "flashValue"));
+    request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, new RedirectModel("notice", "Saved"));
     HttpContext context = new MockHttpContext(appContext, request, response);
 
     Object result = controller.handleRequestInternal(context);
 
     assertThat(result).isInstanceOf(ModelAndView.class);
     ModelAndView mav = (ModelAndView) result;
-    assertThat(mav.getModel().get("flashAttr")).isEqualTo("flashValue");
+    assertThat(mav.getModel().get("notice")).isEqualTo("Saved");
   }
 
   @Test

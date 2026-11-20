@@ -41,6 +41,40 @@ class HtmlUtilsTests {
   }
 
   @Test
+  void htmlEscapeEncodesMarkupAndAttributeQuotes() {
+    String input = "<input value=\"Tom & Sue's\">";
+
+    assertThat(HtmlUtils.htmlEscape(input))
+            .isEqualTo("&lt;input value=&quot;Tom &amp; Sue&#39;s&quot;&gt;");
+  }
+
+  @Test
+  void htmlEscapeTreatsExistingEntitiesAsLiteralText() {
+    String input = "&lt;script&gt; &#60; &#x3c; &unknown;";
+
+    assertThat(HtmlUtils.htmlEscape(input))
+            .isEqualTo("&amp;lt;script&amp;gt; &amp;#60; &amp;#x3c; &amp;unknown;");
+  }
+
+  @Test
+  void htmlEscapeMustBeAppliedOnlyOnceAtOutput() {
+    String input = "<Tom & Sue>";
+    String escaped = HtmlUtils.htmlEscape(input);
+
+    assertThat(escaped).isEqualTo("&lt;Tom &amp; Sue&gt;");
+    assertThat(HtmlUtils.htmlEscape(escaped)).isEqualTo("&amp;lt;Tom &amp;amp; Sue&amp;gt;");
+    assertThat(HtmlUtils.htmlUnescape(escaped)).isEqualTo(input);
+  }
+
+  @Test
+  void htmlEscapeWithUtf8PreservesUnicodeAndEscapesMarkup() {
+    String input = "<你好 😀> & \"Grüße\" 'κόσμος'";
+
+    assertThat(HtmlUtils.htmlEscape(input, "UTF-8"))
+            .isEqualTo("&lt;你好 😀&gt; &amp; &quot;Grüße&quot; &#39;κόσμος&#39;");
+  }
+
+  @Test
   void htmlEscapeIntoHtmlCharacterSet() {
     assertThat(HtmlUtils.htmlEscape("")).as("An empty string should be converted to an empty string").isEmpty();
     assertThat(HtmlUtils.htmlEscape("A sentence containing no special characters.")).as("A string containing no special characters should not be affected")

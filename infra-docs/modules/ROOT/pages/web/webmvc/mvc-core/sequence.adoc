@@ -1,18 +1,27 @@
 [[mvc-sequence]]
 = 处理流程
 
-`DispatcherHandler` 处理请求如下：
+`DispatcherHandler` 按以下顺序处理请求：
 
-* 搜索适当的处理程序。如果找到处理程序，则运行与处理程序关联的执行链（预处理器、后处理器和控制器）
-  以准备渲染模型。或者，对于带注解的控制器，可以渲染响应（在 `HandlerAdapter` 内）而不是返回视图。
+. 如果配置了 xref:web/webmvc/mvc-core/filters.adoc[过滤器]，先执行过滤链。过滤器可以直接发送响应并结束处理，无需查找处理器。
+. 到达过滤链末端（或没有过滤器）时，调度器使用 `HandlerMapping` 查找处理器；没有匹配时交给 `NotFoundHandler`。
+  找到处理器后，执行与之关联的 xref:web/webmvc/mvc-core/handlermapping-interceptor.adoc[拦截器] 和处理器。
+. 调度器根据处理器及其返回值选择 `ReturnValueHandler`，例如解析并渲染视图，或通过消息转换器写入响应体。
+  如果处理器已经直接写入响应，可以返回 `HttpRequestHandler.NONE_RETURN_VALUE` 跳过返回值处理；`null` 本身不表示跳过。
 
-* 如果 处理器返回了数据，则查找对应的数据处理器处理。如果没有返回（可能是由于预处理器或后处理器拦截了请求，可能是出于安全原因），
-  则不渲染视图，因为请求可能已经完成。
-
-`ApplicationContext` 中声明的 `HandlerExceptionHandler` bean 用于解决请求处理期间抛出的异常。
-这些异常解析器允许自定义解决异常的逻辑。有关更多详细信息，请参阅 xref:web/webmvc/mvc-core/exceptionhandlers.adoc[异常]。
+`HandlerExceptionHandler` 用于将处理请求时的异常转换为错误响应或视图。响应提交后不能再生成替代响应。
+参见 xref:web/webmvc/mvc-core/exceptionhandlers.adoc[异常]，以及 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-exceptions[异步异常处理]。
 
 对于 HTTP 缓存支持，处理程序可以使用 `HttpContext` 的 `checkNotModified` 方法，
 以及 xref:web/webmvc/mvc-caching.adoc#mvc-caching-etag-lastmodified[控制器的 HTTP 缓存]
 中描述的带注解控制器的更多选项。
 
+[[mvc-internal-forward]]
+== 内部转发
+
+响应尚未提交时，可以调用 `HttpContext.forward(path)`，在同一请求中将处理交给目标路径，例如 `http.forward("/orders?status=open")`。
+调度器重置响应、更新请求路径及查询字符串，然后重新查找并执行目标处理器，但不会重新执行过滤器链。
+这不是 HTTP 重定向：客户端不会发起新请求，地址栏也不会改变。
+
+已提交的响应不能转发；同一次请求中转发回已访问的路径也会抛出 `IllegalStateException`，即使查询字符串不同。
+调用 `forward` 后，应结束当前分支，不要再继续原来的过滤链或另外生成响应。

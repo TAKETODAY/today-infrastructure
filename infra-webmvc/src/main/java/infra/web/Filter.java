@@ -52,6 +52,8 @@ public interface Filter {
   /**
    * Process the current request, optionally delegating to the next filter
    * in the chain via {@link FilterChain#doFilter(HttpContext)}.
+   * <p>To send a short-circuit response, call {@link HttpContext#send(Object)}
+   * and return without invoking the chain.
    *
    * @param http the current request context
    * @param chain the filter chain to delegate to

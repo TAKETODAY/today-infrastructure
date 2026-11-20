@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 import java.util.List;
 
+import infra.context.ApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.stereotype.Component;
@@ -33,7 +34,8 @@ import infra.web.HandlerMapping;
 import infra.web.NotFoundHandler;
 import infra.web.RequestCompletedListener;
 import infra.web.async.WebAsyncManagerFactory;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
+import infra.web.handler.method.ParameterResolvingRegistry;
+import infra.web.handler.method.support.ParameterResolvingRegistryFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -48,8 +50,8 @@ class DispatcherHandlerTests {
   static class Config {
 
     @Component
-    ParameterResolvingRegistry parameterResolvingRegistry() {
-      return new ParameterResolvingRegistry();
+    ParameterResolvingRegistry parameterResolvingRegistry(ApplicationContext context) {
+      return ParameterResolvingRegistryFactory.create(context);
     }
 
     @Component

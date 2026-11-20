@@ -9,7 +9,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@GetMapping("/something")
+@GET("/something")
 public ResponseEntity<String> handle() {
   String body = ... ;
   String etag = ... ;

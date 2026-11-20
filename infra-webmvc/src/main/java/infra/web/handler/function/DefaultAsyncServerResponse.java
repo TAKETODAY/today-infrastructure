@@ -46,8 +46,7 @@ final class DefaultAsyncServerResponse extends ErrorHandlingServerResponse imple
 
   private final CompletableFuture<ServerResponse> futureResponse;
 
-  @Nullable
-  private final Duration timeout;
+  private final @Nullable Duration timeout;
 
   DefaultAsyncServerResponse(CompletableFuture<ServerResponse> futureResponse, @Nullable Duration timeout) {
     this.futureResponse = futureResponse;
@@ -57,7 +56,7 @@ final class DefaultAsyncServerResponse extends ErrorHandlingServerResponse imple
   @Override
   public ServerResponse block() {
     try {
-      if (timeout != null && timeout.toMillis() > 0) {
+      if (timeout != null && !timeout.isZero()) {
         return futureResponse.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
       }
       else {
@@ -101,18 +100,13 @@ final class DefaultAsyncServerResponse extends ErrorHandlingServerResponse imple
 
   @Override
   public Object writeTo(HttpContext request, Context context) throws Exception {
-    writeAsync(request, createDeferredResult(request));
-    return NONE_RETURN_VALUE;
-  }
-
-  static void writeAsync(HttpContext request, DeferredResult<?> deferredResult) throws Exception {
-    request.asyncManager().startDeferredResultProcessing(deferredResult);
+    return createDeferredResult(request);
   }
 
   private DeferredResult<ServerResponse> createDeferredResult(HttpContext request) {
     DeferredResult<ServerResponse> result;
     if (timeout != null) {
-      result = new DeferredResult<>(timeout.toMillis());
+      result = new DeferredResult<>(timeout);
     }
     else {
       result = new DeferredResult<>();

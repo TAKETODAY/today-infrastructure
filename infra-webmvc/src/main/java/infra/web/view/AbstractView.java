@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -33,6 +34,7 @@ import java.util.StringTokenizer;
 import infra.beans.factory.BeanNameAware;
 import infra.context.ApplicationContext;
 import infra.context.support.ApplicationObjectSupport;
+import infra.context.support.MessageSourceAccessor;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.logging.LogMessage;
@@ -41,8 +43,8 @@ import infra.util.LogFormatUtils;
 import infra.web.ContextExposingHttpContext;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpContext;
-import infra.web.HttpContextUtils;
 import infra.web.RedirectModel;
+import infra.web.util.WebUtils;
 
 /**
  * Abstract base class for {@link View}
@@ -67,6 +69,36 @@ import infra.web.RedirectModel;
  */
 public abstract class AbstractView extends ApplicationObjectSupport implements View, BeanNameAware {
 
+  /** Model attribute reserved for the message accessor when automatic exposure is enabled. */
+  public static final String MESSAGES_ATTRIBUTE = "messages";
+
+  /** Model attribute reserved for automatic binding access. */
+  public static final String BINDINGS_ATTRIBUTE = "bindings";
+
+  private boolean exposeBindings = false;
+
+  /**
+   * Set whether to expose rendering-specific bindings. Default is {@code false}.
+   * Template views enable this by default.
+   *
+   * @param exposeBindings whether to expose bindings
+   * @since 5.0
+   */
+  public void setExposeBindings(boolean exposeBindings) {
+    this.exposeBindings = exposeBindings;
+  }
+
+  /**
+   * Return whether automatic binding exposure is enabled.
+   *
+   * @since 5.0
+   */
+  public boolean isExposeBindings() {
+    return this.exposeBindings;
+  }
+
+  private boolean exposeMessages = false;
+
   public static final String DEFAULT_ENCODING = "UTF-8";
 
   /** Default content type. Overridable as bean property. */
@@ -90,6 +122,28 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
   private boolean exposeOutputRedirectModel = false;
 
   private boolean exposeContextBeansAsAttributes = false;
+
+  /**
+   * Set whether to expose a rendering-specific, unescaped message accessor as {@code messages}.
+   * Default is {@code false}; template views enable this by default.
+   * When disabled, the name is available to application models.
+   *
+   * @param exposeMessages whether to expose the message accessor
+   * @since 5.0
+   */
+  public void setExposeMessages(boolean exposeMessages) {
+    this.exposeMessages = exposeMessages;
+  }
+
+  /**
+   * Return whether automatic message exposure is enabled.
+   *
+   * @return whether to expose the message accessor
+   * @since 5.0
+   */
+  public boolean isExposeMessages() {
+    return this.exposeMessages;
+  }
 
   /**
    * Set the content type for this view.
@@ -313,7 +367,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    *
    * @param exposeOutputRedirectModel If true, all 'output' RedirectModel
    * will be put to current view
-   * @see HttpContextUtils#getOutputRedirectModel(HttpContext)
+   * @see WebUtils#getOutputRedirectModel(HttpContext)
    */
   public void setExposeOutputRedirectModel(boolean exposeOutputRedirectModel) {
     this.exposeOutputRedirectModel = exposeOutputRedirectModel;
@@ -336,7 +390,9 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 
     Map<String, Object> mergedModel = createMergedOutputModel(model, context);
     prepareResponse(context);
-    renderMergedOutputModel(mergedModel, getHttpContextToExpose(context));
+    HttpContext contextToExpose = getHttpContextToExpose(context);
+    prepareModel(mergedModel, contextToExpose);
+    renderMergedOutputModel(mergedModel, contextToExpose);
   }
 
   /**
@@ -353,7 +409,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 
     Map<String, Object> pathVars = null;
     if (exposePathVariables) {
-      HandlerMatchingMetadata metadata = context.getMatchingMetadata();
+      HandlerMatchingMetadata metadata = HandlerMatchingMetadata.find(context);
       if (metadata != null && metadata.hasPathVariables()) {
         pathVars = metadata.getPathVariables();
         size += pathVars.size();
@@ -378,7 +434,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 
     if (exposeOutputRedirectModel) {
       // put all output RedirectModel
-      RedirectModel output = HttpContextUtils.getOutputRedirectModel(context);
+      RedirectModel output = WebUtils.getOutputRedirectModel(context);
       if (output != null) {
         mergedModel.putAll(output.asMap());
       }
@@ -400,6 +456,66 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
       headers.setPragma("private");
       headers.setCacheControl("private, must-revalidate");
     }
+  }
+
+  /**
+   * Prepare the merged model before rendering, exposing messages and bindings if enabled.
+   * Subclasses merging additional attributes must do so before calling this method.
+   *
+   * @param model the merged output model
+   * @param context the HTTP context to expose to the view
+   * @throws Exception if model preparation fails
+   * @since 5.0
+   */
+  protected void prepareModel(Map<String, Object> model, HttpContext context) throws Exception {
+    if (this.exposeBindings) {
+      if (model.containsKey(BINDINGS_ATTRIBUTE) || context.getAttribute(BINDINGS_ATTRIBUTE) != null) {
+        throw new ViewRenderingException("Cannot expose bindings because of an existing model object of the same name");
+      }
+      model.put(BINDINGS_ATTRIBUTE, createBindingAccessor(context, model, resolveLocale(context)));
+    }
+    if (this.exposeMessages) {
+      if (model.containsKey(MESSAGES_ATTRIBUTE) || context.getAttribute(MESSAGES_ATTRIBUTE) != null) {
+        throw new ViewRenderingException("Cannot expose messages because of an existing model object of the same name");
+      }
+      model.put(MESSAGES_ATTRIBUTE, createMessageSourceAccessor(context, resolveLocale(context)));
+    }
+  }
+
+  /**
+   * Resolve the effective locale for this rendering operation.
+   *
+   * @param context current HTTP request
+   * @return the rendering locale
+   * @since 5.0
+   */
+  protected Locale resolveLocale(HttpContext context) {
+    return WebUtils.resolveLocale(context);
+  }
+
+  /**
+   * Create the unescaped message accessor for this rendering operation.
+   *
+   * @param context current HTTP request
+   * @param locale the rendering locale
+   * @return the message accessor
+   * @since 5.0
+   */
+  protected MessageSourceAccessor createMessageSourceAccessor(HttpContext context, Locale locale) {
+    return new MessageSourceAccessor(context.getMessageSource(), locale);
+  }
+
+  /**
+   * Create binding access for one rendering, independently of message exposure.
+   *
+   * @param context the context exposed to the view
+   * @param model the final rendering model
+   * @param locale the effective rendering locale
+   * @return the binding accessor
+   * @since 5.0
+   */
+  protected BindingAccessor createBindingAccessor(HttpContext context, Map<String, Object> model, Locale locale) {
+    return new BindingAccessor(context, model, new MessageSourceAccessor(context.getMessageSource(), locale));
   }
 
   /**

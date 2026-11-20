@@ -27,7 +27,7 @@ import java.net.SocketAddress;
 import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.util.MultiValueMap;
-import infra.web.async.AsyncWebRequest;
+import infra.web.async.WebAsyncRequest;
 import infra.web.multipart.MultipartRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -183,7 +183,7 @@ class HttpContextUrlTests {
     }
 
     @Override
-    protected AsyncWebRequest createAsyncWebRequest() {
+    protected WebAsyncRequest createAsyncRequest() {
       return null;
     }
 

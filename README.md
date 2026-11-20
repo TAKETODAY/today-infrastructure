@@ -15,7 +15,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/TAKETODAY/today-infrastructure/badge.svg)](https://coveralls.io/github/TAKETODAY/today-infrastructure)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure?ref=badge_shield)
 
-[快速开始](#快速开始) · [安装配置](#installation) · [真实应用](#today-blog) · [在线文档](https://docs.today-tech.cn/today-infrastructure/) · [示例工程](infra-samples) · [贡献指南](CONTRIBUTING.md) · [交流讨论](https://github.com/TAKETODAY/today-infrastructure/discussions)
+[快速开始](#快速开始) · [安装配置](#installation) · [真实应用](#today-blog) · [在线文档](https://docs.today-tech.cn/today-infrastructure/) · [AI 辅助开发](#ai-辅助开发) · [示例工程](infra-samples) · [贡献指南](CONTRIBUTING.md) · [交流讨论](https://github.com/TAKETODAY/today-infrastructure/discussions)
 
 ## 概述
 
@@ -380,6 +380,25 @@ Hello, TODAY!
 | Netty 应用启动与工程配置           | [netty-app](infra-samples/netty-app)                         |
 | 完整业务应用与框架使用实践         | [真实应用：TODAY BLOG](#today-blog)                          |
 | 模块用法与 API 文档                | [在线文档](https://docs.today-tech.cn/today-infrastructure)  |
+
+## AI 辅助开发
+
+[TODAY Infrastructure Skill](https://github.com/TAKETODAY/today-infra-skill) 是一个面向 AI 编码代理的 Agent Skill，按框架的真实 API 提供应用开发指引：
+
+- 工程搭建、`@InfraApplication` 启动模型、`infra.application` Gradle 插件
+- 控制器与请求映射、参数绑定、异常处理、MVC 配置
+- 依赖注入、事务、JDBC、持久化、校验
+- `@InfraTest`、MockMvc、WebTestClient 测试
+
+内容由 `infra-docs` 的 asciidoc 原文生成，随框架版本重新同步，不是手工摘抄的片段。
+
+```bash
+git clone https://github.com/TAKETODAY/today-infra-skill
+cd today-infra-skill
+./install.sh
+```
+
+安装后 skill 位于 `~/.config/opencode/skills/infra-app-dev`，供 [OpenCode](https://opencode.ai) 使用；其他遵循 `SKILL.md` 约定的 agent 可通过软链接接入。
 
 ## 参与项目
 

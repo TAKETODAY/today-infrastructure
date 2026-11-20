@@ -39,8 +39,8 @@ abstract class ErrorHandlingServerResponse implements ServerResponse {
 
   private final ArrayList<ErrorHandler<?>> errorHandlers = new ArrayList<>();
 
-  protected final <T extends ServerResponse> void addErrorHandler(Predicate<Throwable> predicate,
-          BiFunction<Throwable, ServerRequest, T> errorHandler) {
+  protected final <T extends ServerResponse> void addErrorHandler(
+          Predicate<Throwable> predicate, BiFunction<Throwable, ServerRequest, T> errorHandler) {
 
     Assert.notNull(predicate, "Predicate is required");
     Assert.notNull(errorHandler, "ErrorHandler is required");
@@ -55,8 +55,7 @@ abstract class ErrorHandlingServerResponse implements ServerResponse {
     throw ExceptionUtils.sneakyThrow(t);
   }
 
-  @Nullable
-  protected final ServerResponse errorResponse(Throwable t, HttpContext request) {
+  protected final @Nullable ServerResponse errorResponse(Throwable t, HttpContext request) {
     for (ErrorHandler<?> errorHandler : errorHandlers) {
       if (errorHandler.test(t)) {
         ServerRequest serverRequest = ServerRequest.findRequired(request);

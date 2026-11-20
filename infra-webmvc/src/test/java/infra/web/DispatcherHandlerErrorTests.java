@@ -29,7 +29,6 @@ import infra.web.context.support.RequestScope;
 import infra.web.annotation.ExceptionHandler;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import infra.web.handler.method.HandlerMethod;
-import infra.web.handler.result.AsyncReturnValueHandler;
 import infra.web.mock.MockHttpContext;
 import infra.web.multipart.MultipartRequest;
 
@@ -79,7 +78,7 @@ class DispatcherHandlerErrorTests {
       }
 
       Throwable escaped = catchThrowable(() -> {
-        if (stage == FailureStage.ASYNC || stage == FailureStage.ASYNC_HANDLER) {
+        if (stage == FailureStage.ASYNC || stage == FailureStage.ASYNC_RENDERING) {
           dispatcher.handleConcurrentResult(request, renderingHandler,
                   stage == FailureStage.ASYNC ? error : "result");
         }
@@ -150,7 +149,7 @@ class DispatcherHandlerErrorTests {
         }
       };
 
-      if (stage == FailureStage.ASYNC || stage == FailureStage.ASYNC_HANDLER) {
+      if (stage == FailureStage.ASYNC || stage == FailureStage.ASYNC_RENDERING) {
         dispatcher.handleConcurrentResult(request, renderingHandler,
                 stage == FailureStage.ASYNC ? error : "result");
       }
@@ -237,7 +236,7 @@ class DispatcherHandlerErrorTests {
     }
   }
 
-  enum FailureStage {HANDLER, FILTER, ASYNC, ASYNC_HANDLER, RENDERING}
+  enum FailureStage {HANDLER, FILTER, ASYNC, ASYNC_RENDERING, RENDERING}
 
   static class ErrorController {
 
@@ -260,7 +259,7 @@ class DispatcherHandlerErrorTests {
     }
   }
 
-  static class FailingReturnValueHandler implements HttpRequestHandler, ReturnValueHandler, AsyncReturnValueHandler {
+  static class FailingReturnValueHandler implements HttpRequestHandler, ReturnValueHandler {
 
     private final AssertionError error;
 
@@ -283,10 +282,6 @@ class DispatcherHandlerErrorTests {
       throw error;
     }
 
-    @Override
-    public void handleAsyncReturnValue(HttpContext context, @Nullable Object value) {
-      throw error;
-    }
   }
 
   static class TrackingContext extends MockHttpContext {

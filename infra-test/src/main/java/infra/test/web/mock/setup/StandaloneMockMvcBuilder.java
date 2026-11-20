@@ -20,6 +20,7 @@ package infra.test.web.mock.setup;
 
 import org.jspecify.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,10 +47,10 @@ import infra.core.env.MapPropertySource;
 import infra.format.support.DefaultFormattingConversionService;
 import infra.format.support.FormattingConversionService;
 import infra.http.converter.HttpMessageConverter;
-import infra.util.Assert;
 import infra.session.config.EnableSession;
 import infra.stereotype.Component;
 import infra.test.web.mock.MvcResult;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.validation.Validator;
 import infra.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -61,8 +62,6 @@ import infra.web.RedirectModelManager;
 import infra.web.ReturnValueHandler;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.accept.ContentNegotiationManager;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
-import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.config.annotation.AsyncSupportConfigurer;
 import infra.web.config.annotation.DelegatingWebMvcConfiguration;
 import infra.web.config.annotation.InterceptorRegistration;
@@ -71,10 +70,13 @@ import infra.web.config.annotation.PathMatchConfigurer;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.handler.MappedInterceptor;
 import infra.web.handler.ReturnValueHandlerManager;
+import infra.web.handler.method.ParameterResolvingRegistry;
+import infra.web.handler.method.ParameterResolvingStrategy;
 import infra.web.handler.method.RequestMappingHandlerMapping;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
 import infra.web.mock.MockDispatcherHandler;
+import infra.web.util.TimeoutUtils;
 import infra.web.view.InternalResourceViewResolver;
 import infra.web.view.ModelAndView;
 import infra.web.view.View;
@@ -132,16 +134,13 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   private List<HandlerExceptionHandler> handlerExceptionHandlers;
 
   @Nullable
-  private Long asyncRequestTimeout;
+  private Duration asyncRequestTimeout;
 
   @Nullable
   private List<ViewResolver> viewResolvers;
 
   @Nullable
   private LocaleResolver localeResolver;
-
-  @Nullable
-  private RedirectModelManager flashMapManager;
 
   private boolean useTrailingSlashPatternMatch = true;
 
@@ -259,15 +258,17 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   }
 
   /**
-   * Specify the timeout value for async execution. In Web MVC Test, this
-   * value is used to determine how long to wait for async execution to
-   * complete so that a test can verify the results synchronously.
-   * <p>A timeout of zero or less specifies no timeout, in which case Web MVC
-   * Test waits indefinitely for async execution to complete.
+   * Configure the default asynchronous request timeout for this setup.
+   * {@link MvcResult#getAsyncResult()} uses the effective request timeout
+   * to determine how long to wait for the result. If the effective request
+   * timeout is {@link Duration#ZERO}, the test waits indefinitely.
    *
-   * @param timeout the timeout value in milliseconds
+   * @param timeout the timeout, or {@code null} to use the mock container default
+   * @throws IllegalArgumentException if the timeout is negative, positive but
+   * less than one millisecond, or cannot be represented in milliseconds
    */
-  public StandaloneMockMvcBuilder setAsyncRequestTimeout(long timeout) {
+  public StandaloneMockMvcBuilder setAsyncRequestTimeout(@Nullable Duration timeout) {
+    TimeoutUtils.validate(timeout);
     this.asyncRequestTimeout = timeout;
     return this;
   }
@@ -333,15 +334,6 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   }
 
   /**
-   * Provide a custom FlashMapManager instance.
-   * If not provided, {@code SessionFlashMapManager} is used by default.
-   */
-  public StandaloneMockMvcBuilder setFlashMapManager(RedirectModelManager flashMapManager) {
-    this.flashMapManager = flashMapManager;
-    return this;
-  }
-
-  /**
    * Whether to match to URLs irrespective of the presence of a trailing slash.
    * If enabled a method mapped to "/users" also matches to "/users/".
    */
@@ -371,6 +363,11 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
     return this;
   }
 
+  /**
+   * Provide a custom manager for storing and retrieving redirect models.
+   *
+   * @param redirectModelManager the custom manager, or {@code null} to clear it
+   */
   public StandaloneMockMvcBuilder setRedirectModelManager(@Nullable RedirectModelManager redirectModelManager) {
     this.redirectModelManager = redirectModelManager;
     return this;
@@ -423,10 +420,6 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
 
     if (localeResolver != null) {
       wac.addBean(LocaleResolver.BEAN_NAME, this.localeResolver);
-    }
-
-    if (flashMapManager != null) {
-      wac.addBean(RedirectModelManager.BEAN_NAME, this.flashMapManager);
     }
 
     wac.refresh();
@@ -541,9 +534,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
 
     @Override
     public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
-      if (asyncRequestTimeout != null) {
-        configurer.setDefaultTimeout(asyncRequestTimeout);
-      }
+      configurer.setDefaultTimeout(asyncRequestTimeout);
     }
 
     @Override

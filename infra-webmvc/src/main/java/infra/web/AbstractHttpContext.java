@@ -65,14 +65,13 @@ import infra.http.ResponseCookie;
 import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
 import infra.lang.Constant;
-import infra.lang.NullValue;
 import infra.session.Session;
 import infra.session.SessionManager;
 import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
-import infra.web.async.AsyncWebRequest;
+import infra.web.async.WebAsyncRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.async.WebAsyncManagerFactory;
 import infra.web.multipart.MultipartRequest;
@@ -101,7 +100,7 @@ import static infra.lang.Constant.DEFAULT_CHARSET;
  *   <li>{@link #readParameters()} — parse query/form parameters</li>
  *   <li>{@link #createInputStream()} / {@link #createOutputStream()} — supply the body streams</li>
  *   <li>{@link #createRequestHeaders()} / {@link #createResponseHeaders()} — supply the headers</li>
- *   <li>{@link #createMultipartRequest()} / {@link #createAsyncWebRequest()} — factory methods</li>
+ *   <li>{@link #createMultipartRequest()} / {@link #createAsyncRequest()} — factory methods</li>
  * </ul>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -190,6 +189,11 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    */
   private int state;
 
+  protected final DispatcherHandler dispatcherHandler;
+
+  /** @since 4.0 */
+  protected final ApplicationContext applicationContext;
+
   protected HttpCookie @Nullable [] cookies;
 
   protected @Nullable PrintWriter writer;
@@ -222,22 +226,11 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
 
   protected @Nullable MultipartRequest multipartRequest;
 
-  protected @Nullable AsyncWebRequest asyncRequest;
+  protected @Nullable WebAsyncRequest asyncRequest;
 
-  protected @Nullable WebAsyncManager webAsyncManager;
-
-  protected @Nullable BindingContext bindingContext;
-
-  protected @Nullable Object redirectModel;
+  protected @Nullable WebAsyncManager asyncManager;
 
   protected @Nullable MediaType contentType;
-
-  protected final DispatcherHandler dispatcherHandler;
-
-  /** @since 4.0 */
-  protected final ApplicationContext applicationContext;
-
-  protected @Nullable HandlerMatchingMetadata matchingMetadata;
 
   private @Nullable String remoteAddress;
 
@@ -509,14 +502,6 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
 
   protected abstract @Nullable String readQueryString();
 
-  /**
-   * Returns an array containing all of the <code>Cookie</code> objects the client
-   * sent with this request. This method returns <code>null</code> if no cookies
-   * were sent.
-   *
-   * @return an array of all the <code>Cookies</code> included with this request,
-   * or {@link #EMPTY_COOKIES} if the request has no cookies
-   */
   @Override
   public HttpCookie[] getCookies() {
     var cookies = this.cookies;
@@ -528,8 +513,8 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   }
 
   /**
-   * @return an array of all the Cookies included with this request,or
-   * {@link #EMPTY_COOKIES} if the request has no cookies
+   * Read the cookies sent with the request.
+   * @return the request cookies, or an empty array if none were sent
    */
   protected abstract HttpCookie[] readCookies();
 
@@ -563,27 +548,8 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     responseCookies().add(cookie);
   }
 
-  /**
-   * Removes all cookies with the specified name from the internal list of response cookies.
-   * If no cookies match the given name, or if the internal cookie list is null,
-   * the method will return null. Otherwise, it returns a list of removed cookies.
-   *
-   * <p>Example usage:
-   * <pre>{@code
-   *   // Assuming responseCookies contains: [cookie1(name="id"), cookie2(name="session")]
-   *   List<HttpCookie> removed = removeCookie("id");
-   *
-   *   // After execution:
-   *   // removed contains: [cookie1(name="id")]
-   *   // responseCookies now contains: [cookie2(name="session")]
-   * }</pre>
-   *
-   * @param name the name of the cookies to be removed; must not be null
-   * @return a list of {@link HttpCookie} objects that were removed, or null
-   * if no cookies were found or the internal cookie list is null
-   */
   @Override
-  public @Nullable List<ResponseCookie> removeCookie(String name) {
+  public @Nullable List<ResponseCookie> removeCookies(String name) {
     if (responseCookies != null) {
       ArrayList<ResponseCookie> toRemove = new ArrayList<>(2);
       for (ResponseCookie responseCookie : responseCookies) {
@@ -597,56 +563,11 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     return null;
   }
 
-  /**
-   * Checks if there are any response cookies available.
-   *
-   * <p>This method returns true if the {@code responseCookies} object is not null,
-   * indicating that there are cookies present in the response. Otherwise, it returns false.
-   *
-   * <p><b>Example Usage:</b>
-   * <pre>{@code
-   * if (httpRequest.hasResponseCookie()) {
-   *   // Process the response cookies
-   *   System.out.println("Response contains cookies.");
-   * }
-   * else {
-   *   // Handle the case where no cookies are present
-   *   System.out.println("No cookies in the response.");
-   * }
-   * }</pre>
-   *
-   * @return true if response cookies are present, false otherwise
-   */
   @Override
-  public boolean hasResponseCookie() {
+  public boolean hasResponseCookies() {
     return responseCookies != null && !responseCookies.isEmpty();
   }
 
-  /**
-   * Returns the list of response cookies associated with this object. If no
-   * cookies have been set previously, an empty list is initialized and returned.
-   *
-   * <p>This method ensures that a non-null list is always available for use.
-   * The returned list can be modified directly to add or remove cookies.
-   *
-   * <p><strong>Example Usage:</strong>
-   * <pre>{@code
-   *   // Retrieve the response cookies
-   *   ArrayList<HttpCookie> cookies = responseCookies();
-   *
-   *   // Add a new cookie to the list
-   *   cookies.add(new HttpCookie("sessionId", "12345"));
-   *
-   *   // Iterate through the cookies
-   *   for (HttpCookie cookie : responseCookies()) {
-   *     System.out.println("Cookie Name: " + cookie.getName());
-   *     System.out.println("Cookie Value: " + cookie.getValue());
-   *   }
-   * }</pre>
-   *
-   * @return a modifiable list of {@link HttpCookie} objects representing the
-   * response cookies. If no cookies exist, an empty list is returned.
-   */
   @Override
   public ArrayList<ResponseCookie> responseCookies() {
     var responseCookies = this.responseCookies;
@@ -870,29 +791,11 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
     return asyncRequest != null && asyncRequest.isAsyncStarted();
   }
 
-  /**
-   * Returns the current {@code AsyncWebRequest} instance associated with this context.
-   * If no asynchronous web request has been initialized yet, this method will create
-   * a new instance using {@code createAsyncWebRequest()} and store it for future use.
-   *
-   * <p>Example usage:
-   * <pre>{@code
-   *   // Retrieve the async web request
-   *   AsyncWebRequest asyncRequest = context.asyncWebRequest();
-   *
-   *   // Perform operations on the async request
-   *   asyncRequest.setAttribute("key", "value");
-   *   String value = (String) asyncRequest.getAttribute("key");
-   * }</pre>
-   *
-   * @return the current {@code AsyncWebRequest} instance, or a newly created instance
-   * if none has been initialized yet
-   */
   @Override
-  public AsyncWebRequest asyncWebRequest() {
+  public WebAsyncRequest asyncRequest() {
     var asyncRequest = this.asyncRequest;
     if (asyncRequest == null) {
-      asyncRequest = createAsyncWebRequest();
+      asyncRequest = createAsyncRequest();
       this.asyncRequest = asyncRequest;
     }
     return asyncRequest;
@@ -901,21 +804,21 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   /**
    * Creates and returns a new asynchronous web request instance.
    * This method is intended to be implemented by subclasses to provide
-   * a specific implementation of {@link AsyncWebRequest}.
+   * a specific implementation of {@link WebAsyncRequest}.
    *
    * <p>Example usage:
    * <pre>{@code
-   * public class CustomAsyncWebRequestCreator {
-   *   protected AsyncWebRequest createAsyncWebRequest() {
-   *     return new CustomAsyncWebRequest();
+   * public class CustomWebAsyncRequestCreator {
+   *   protected WebAsyncRequest createAsyncRequest() {
+   *     return new CustomWebAsyncRequest();
    *   }
    * }
    * }</pre>
    *
-   * @return a new instance of {@link AsyncWebRequest} to handle asynchronous
+   * @return a new instance of {@link WebAsyncRequest} to handle asynchronous
    * web requests
    */
-  protected abstract AsyncWebRequest createAsyncWebRequest();
+  protected abstract WebAsyncRequest createAsyncRequest();
 
   /**
    * Returns the {@code WebAsyncManager} associated with this instance, lazily
@@ -940,10 +843,10 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
    */
   @Override
   public WebAsyncManager asyncManager() {
-    WebAsyncManager webAsyncManager = this.webAsyncManager;
+    WebAsyncManager webAsyncManager = this.asyncManager;
     if (webAsyncManager == null) {
       webAsyncManager = createWebAsyncManager();
-      this.webAsyncManager = webAsyncManager;
+      this.asyncManager = webAsyncManager;
     }
     return webAsyncManager;
   }
@@ -1257,16 +1160,14 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   protected abstract HttpHeaders createRequestHeaders();
 
   /**
-   * Returns the preferred <code>Locale</code> that the client will
-   * accept content in, based on the Accept-Language header. If the
-   * client request doesn't provide an Accept-Language header, this
-   * method returns the default locale for the server.
+   * Return the client's preferred locale from the {@code Accept-Language}
+   * header, without applying a default locale.
    *
-   * @return the preferred <code>Locale</code> for the client
+   * @return the preferred locale, or {@code null} if none is available
    * @since 4.0
    */
   @Override
-  public Locale getLocale() {
+  public @Nullable Locale getPreferredLocale() {
     if (locale == null) {
       locale = readLocale();
     }
@@ -1274,13 +1175,13 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   }
 
   // @since 4.0
-  protected Locale readLocale() {
-    List<Locale> locales = requestHeaders().getAcceptLanguageAsLocales();
-    Locale locale = CollectionUtils.firstElement(locales);
-    if (locale == null) {
-      return Locale.getDefault();
+  protected @Nullable Locale readLocale() {
+    for (Locale.LanguageRange range : requestHeaders().getAcceptLanguage()) {
+      if (range.getWeight() > 0 && !range.getRange().contains("*")) {
+        return Locale.forLanguageTag(range.getRange());
+      }
     }
-    return locale;
+    return null;
   }
 
   // checkNotModified
@@ -1603,171 +1504,6 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   }
 
   /**
-   * Sets the matching metadata for this handler. The matching metadata provides
-   * information about how a handler is matched to a specific request or context.
-   * This method allows setting or updating the metadata, which can be null if no
-   * matching information is available.
-   *
-   * @param handlerMatchingMetadata the metadata to set, or null if no metadata is available
-   */
-  @Override
-  public void setMatchingMetadata(@Nullable HandlerMatchingMetadata handlerMatchingMetadata) {
-    this.matchingMetadata = handlerMatchingMetadata;
-  }
-
-  /**
-   * Returns the {@code HandlerMatchingMetadata} associated with this instance,
-   * if available. This metadata typically contains information about how a
-   * handler matches certain criteria, such as request mappings in a web
-   * application context.
-   *
-   * <p>If no matching metadata has been set, this method will return
-   * {@code null}. Ensure proper null checks when using the returned value.</p>
-   *
-   * @return the {@code HandlerMatchingMetadata} associated with this instance,
-   * or {@code null} if no metadata is available
-   */
-  @Override
-  public @Nullable HandlerMatchingMetadata getMatchingMetadata() {
-    return this.matchingMetadata;
-  }
-
-  /**
-   * Returns the {@code HandlerMatchingMetadata} associated with this instance.
-   *
-   * <p>This method retrieves the metadata that describes how a handler matches
-   * a specific request. If the metadata is not set, an exception is thrown to
-   * indicate that it is required.
-   *
-   * @return the {@code HandlerMatchingMetadata} instance associated with this handler
-   * @throws IllegalStateException if the {@code HandlerMatchingMetadata} is not set
-   */
-  @Override
-  public HandlerMatchingMetadata matchingMetadata() {
-    HandlerMatchingMetadata matchingMetadata = this.matchingMetadata;
-    Assert.state(matchingMetadata != null, "HandlerMatchingMetadata is required");
-    return matchingMetadata;
-  }
-
-  @Override
-  public boolean hasMatchingMetadata() {
-    return matchingMetadata != null;
-  }
-
-  /**
-   * Sets the binding context for this component. The binding context is used to
-   * manage data bindings between the component and its associated data model.
-   *
-   * <p>If {@code null} is passed, any existing binding context will be cleared.</p>
-   *
-   * @param bindingContext the {@link BindingContext} to set, or {@code null} to clear
-   * the current binding context
-   */
-  @Override
-  public void setBinding(@Nullable BindingContext bindingContext) {
-    this.bindingContext = bindingContext;
-  }
-
-  /**
-   * Checks if the current instance has a binding context established.
-   * <p>
-   * This method evaluates whether the {@code bindingContext} is initialized
-   * (i.e., not null). It is typically used to determine if the object is ready
-   * for binding-related operations.
-   *
-   * @return {@code true} if the {@code bindingContext} is not null, indicating
-   * that a binding context exists; {@code false} otherwise.
-   * @since 4.0
-   */
-  @Override
-  public boolean hasBinding() {
-    return bindingContext != null;
-  }
-
-  /**
-   * Returns the current {@link BindingContext} associated with this instance.
-   *
-   * <p>This method provides access to the binding context, which may be used to manage
-   * data bindings or retrieve information about the current binding state. If no binding
-   * context is set, the method will return {@code null}.
-   *
-   * <p><strong>Example Usage:</strong>
-   * <pre>{@code
-   *   // Retrieve the binding context
-   *   BindingContext context = getBinding();
-   *
-   *   if (context != null) {
-   *     // Perform operations with the binding context
-   *     System.out.println("Binding context found: " + context);
-   *   }
-   *   else {
-   *     System.out.println("No binding context is currently set.");
-   *   }
-   * }</pre>
-   *
-   * @return the current {@link BindingContext}, or {@code null} if no binding context
-   * is associated with this instance
-   * @since 4.0
-   */
-  @Override
-  public @Nullable BindingContext getBinding() {
-    return bindingContext;
-  }
-
-  /**
-   * Returns the {@link BindingContext} associated with this instance.
-   *
-   * <p>This method retrieves the binding context, ensuring that it has been
-   * initialized. If the binding context is not set, an exception is thrown
-   * to indicate that a valid context is required.</p>
-   *
-   * @return the non-null {@link BindingContext} instance associated with this object
-   * @throws IllegalStateException if BindingContext is not set
-   * @since 4.0
-   */
-  @Override
-  public BindingContext binding() {
-    BindingContext bindingContext = this.bindingContext;
-    Assert.state(bindingContext != null, "BindingContext is required");
-    return bindingContext;
-  }
-
-  /**
-   * Return read-only "input" flash attributes from request before redirect.
-   *
-   * @param manager RedirectModelManager manage RedirectModel
-   * @return a RedirectModel, or {@code null} if not found
-   * @see RedirectModel
-   */
-  @Override
-  public @Nullable RedirectModel getInputRedirectModel(@Nullable RedirectModelManager manager) {
-    if (redirectModel instanceof RedirectModel ret) {
-      return ret;
-    }
-    else if (redirectModel == NullValue.INSTANCE) {
-      return null;
-    }
-
-    if (manager == null) {
-      manager = HttpContextUtils.getRedirectModelManager(this);
-    }
-    if (manager != null) {
-      RedirectModel redirectModel = manager.retrieveAndUpdate(this);
-      if (redirectModel != null) {
-        this.redirectModel = redirectModel;
-        return redirectModel;
-      }
-    }
-    Object attribute = getAttribute(RedirectModel.INPUT_ATTRIBUTE);
-    if (attribute instanceof RedirectModel ret) {
-      this.redirectModel = ret;
-      return ret;
-    }
-    this.redirectModel = NullValue.INSTANCE;
-    return null;
-  }
-
-  /**
    * Returns a boolean indicating if the response has been committed. A committed
    * response has already had its status code and headers written.
    *
@@ -1825,6 +1561,11 @@ public abstract class AbstractHttpContext extends DefaultAttributeAccessor imple
   @Override
   public void forward(String path) throws Exception {
     dispatcherHandler.forward(this, path);
+  }
+
+  @Override
+  public void send(@Nullable Object result) throws IOException {
+    dispatcherHandler.send(this, result);
   }
 
   /**

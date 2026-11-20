@@ -30,10 +30,10 @@ import infra.context.annotation.Configuration;
 import infra.context.support.GenericApplicationContext;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageConverters;
-import infra.web.HttpContextUtils;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.mock.MockDispatcherHandler;
+import infra.web.context.support.WebScopeRegistrar;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -96,7 +96,7 @@ public abstract class AbstractMockHandlerMethodTests {
 
     register("testConfig", TestConfig.class, context);
     AnnotationConfigUtils.registerAnnotationConfigProcessors(context);
-    HttpContextUtils.registerScopes(context.getBeanFactory());
+    WebScopeRegistrar.registerScopes(context.getBeanFactory());
 
     context.refresh();
 

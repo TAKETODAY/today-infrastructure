@@ -4,6 +4,62 @@
 https://freemarker.apache.org/[Apache FreeMarker] 是一个模板引擎，用于生成从 HTML 到电子邮件等各种文本输出。
 Infra Framework 内置了使用 FreeMarker 模板的 Infra MVC 集成。
 
+[[mvc-view-freemarker-messages]]
+== 消息解析与输出转义
+
+模板视图为每次渲染提供 `messages` 对象，基于现有的 `MessageSourceAccessor`
+解析消息并格式化参数。它使用当前 `HttpContext.getMessageSource()`，因此保留自定义消息源及上下文装饰器的委托语义。
+显式配置的视图 Locale 优先，否则通过当前请求的 `LocaleResolver` 解析语言；
+模板选择、消息解析和 FreeMarker 格式化使用相同的渲染语言。
+
+[source,ftl]
+----
+<#ftl output_format="HTML" auto_esc=true>
+<#import "/infra.ftl" as infra>
+
+${messages.getMessage("welcome")}
+${messages.getMessage("welcome.user", [user.name])}
+${messages.getMessage("optional", "默认文本")}
+<@infra.messageArgs "welcome.user", [user.name]/>
+----
+
+消息访问器返回普通文本，不执行 HTML 转义。HTML 模板应开启自动转义，不要对消息使用 `?no_esc`，
+也不要在消息源中预先存放 HTML 实体。`infra.ftl` 的四个消息宏保留原有名称，并在输出时自动转义一次。
+非 HTML 模板按自己的输出格式处理转义。表单绑定通过 `bindings.getBindStatus("person.name")` 访问，
+绑定值和本地化错误消息同样返回原始文本，由输出层统一转义。
+
+默认开启消息访问器暴露，`messages` 是模板模型的保留名称。业务模型（包括静态属性及已合并的请求、Session 属性）
+或请求属性中存在同名值时，渲染直接失败，不会静默覆盖。
+访问器不保存在共享视图字段中，也不复制到 FreeMarker 请求属性中。
+绑定访问器 `bindings` 采用相同的生命周期与名称冲突规则，但由独立的 `setExposeBindings(boolean)` 控制。
+普通视图默认关闭，模板视图默认开启；自动配置对应 `freemarker.expose-bindings` 和
+`groovy.template.expose-bindings`，默认均为 `true`。关闭消息暴露不影响绑定错误的本地化。
+绑定结果优先取自最终渲染模型，其次取自当前绑定上下文；普通对象依次从最终模型、绑定模型和请求属性查找。
+模型中显式的空值不会回退到低优先级对象。
+消息暴露能力定义在 `AbstractView`：普通视图默认关闭，`AbstractTemplateView` 默认开启。
+因此 JSON、下载等非模板视图默认不会获得该对象，需要时可以显式开启。
+
+可以通过视图或视图解析器的 `setExposeMessages(false)` 关闭自动暴露。
+`UrlBasedViewResolver` 未显式配置该选项时保留具体视图的默认值；该配置不作用于特殊的 `redirect:` 和 `forward:` 快捷视图。
+使用自动配置时，设置 `freemarker.expose-messages=false`；Groovy 模板对应配置为
+`groovy.template.expose-messages=false`。关闭后不创建消息访问器，也不检查或保留 `messages` 名称，
+业务可以自行提供同名模型或请求属性。消息宏需要可用的消息访问器，关闭后若仍使用这些宏，需自行提供兼容对象。
+
+=== Java 调用与消息解析契约
+
+消息查找与输出转义是两个独立职责。模板使用 `messages` 解析消息，
+`request` 表示请求上下文，用于访问请求数据和表单绑定状态。
+
+Java 调用方直接依赖 `MessageSource` 并显式传入 Locale，或创建
+`new MessageSourceAccessor(context.getMessageSource(), WebUtils.resolveLocale(context))`。
+参数数组、`MessageSourceResolvable`、默认文本和缺失消息异常均使用现有消息解析契约。
+不带默认文本且找不到消息时抛出 `NoSuchMessageException`；默认文本为空串时返回空串。
+`MessageSourceAccessor` 的默认文本重载将消息源返回的 `null` 转为空串；
+直接调用 `MessageSource` 的可空默认文本重载可能返回 `null`，调用方应显式决定如何处理。
+
+JSON 或 ProblemDetail 应使用未进行 HTML 转义的消息，由对应序列化器处理输出编码。
+`ErrorResponse.updateAndGetBody(MessageSource, Locale)` 通过显式的消息源和 Locale 解析错误消息。
+
 
 [[mvc-view-freemarker-contextconfig]]
 == 视图配置
@@ -109,7 +165,7 @@ Infra 模板库中定义的一些宏被认为是内部的（私有的），但�
 			<@infra.bind "personForm.name"/>
 			<input type="text"
 				name="${infra.status.expression}"
-				value="${infra.status.value?html}"/><br />
+				value="${infra.status.value}"/><br />
 			<#list infra.status.errorMessages as error> <b>${error}</b> <br /> </#list>
 			<br />
 			...
@@ -119,9 +175,8 @@ Infra 模板库中定义的一些宏被认为是内部的（私有的），但�
 	</html>
 ----
 
-名为 `<@infra.bindEscaped>` 的宏的另一种形式采用第二个参数，该参数显式指定是否应在状态错误消息或值中使用 HTML 转义。
-您可以根据需要将其设置为 `true` 或 `false`。
-其他表单处理宏简化了 HTML 转义的使用，您应该尽可能使用这些宏。
+HTML 模板应开启自动转义，绑定宏不对字段值和错误消息预先转义。
+其他表单处理宏简化了字段生成，您可以根据需要使用这些宏。
 下一节将对它们进行解释。
 
 [[mvc-views-form-macros]]
@@ -315,16 +370,11 @@ Java::
 
 处理此指令后，Infra 宏生成的任何元素现在都符合 XHTML。
 
-以类似的方式，您可以为每个字段指定 HTML 转义，如下例所示：
+HTML 输出统一使用 FreeMarker 自动转义；不要对字段值和错误消息使用 `?no_esc`：
 
 [source,jsp,indent=0,subs="verbatim,quotes"]
 ----
-	<#-- until this point, default HTML escaping is used -->
-
-	<#assign htmlEscape = true>
-	<#-- next field will use HTML escaping -->
+	<#ftl output_format="HTML" auto_esc=true>
+	<#import "/infra.ftl" as infra>
 	<@infra.formInput "command.name"/>
-
-	<#assign htmlEscape = false in infra>
-	<#-- all future fields will be bound with HTML escaping off -->
 ----

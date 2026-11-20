@@ -1,0 +1,140 @@
+/*
+ * Copyright 2017 - 2026 the TODAY authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package infra.web.mock;
+
+import org.jspecify.annotations.Nullable;
+
+import java.io.IOException;
+import java.util.function.Consumer;
+
+import infra.util.Assert;
+import infra.web.async.WebAsyncRequest;
+import infra.web.async.WebAsyncManager;
+import infra.web.mock.api.AsyncContext;
+import infra.web.mock.api.AsyncEvent;
+import infra.web.mock.api.AsyncListener;
+
+/**
+ * A Mock implementation of {@link WebAsyncRequest}.
+ *
+ * <p>The mock and all filters involved in an async request must have async
+ * support enabled using the Mock API or by adding an
+ * <code>&lt;async-supported&gt;true&lt;/async-supported&gt;</code> element to Mock and filter
+ * declarations in {@code web.xml}.
+ *
+ * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
+ */
+@SuppressWarnings("NullAway")
+public class StandardMockWebAsyncRequest extends WebAsyncRequest implements AsyncListener {
+
+  @Nullable
+  private AsyncContext asyncContext;
+
+  private final MockHttpContext request;
+
+  private final MockRequest mockRequest;
+
+  private final MockResponse mockResponse;
+
+  public StandardMockWebAsyncRequest(MockHttpContext context) {
+    this.request = context;
+    this.mockRequest = context.getRequest();
+    this.mockResponse = context.getResponse();
+  }
+
+  /**
+   * Create a new instance for the given request/response pair.
+   *
+   * @param request current HTTP request
+   * @param response current HTTP response
+   */
+  public StandardMockWebAsyncRequest(MockRequest request, MockResponse response) {
+    this.request = new MockHttpContext(null, request, response);
+    this.mockRequest = request;
+    this.mockResponse = response;
+  }
+
+  @Override
+  public boolean isAsyncStarted() {
+    return asyncContext != null && mockRequest.isAsyncStarted();
+  }
+
+  @Override
+  public void startAsync() {
+    Assert.state(mockRequest.isAsyncSupported(),
+            "Async support must be enabled on a mock and for all filters involved " +
+                    "in async request processing. This is done in Java code using the Mock API " +
+                    "or by adding \"<async-supported>true</async-supported>\" to mock and " +
+                    "filter declarations in web.xml.");
+    Assert.state(!isAsyncComplete(), "Async processing has already completed");
+
+    if (isAsyncStarted()) {
+      return;
+    }
+    this.asyncContext = mockRequest.startAsync(mockRequest, mockResponse);
+    asyncContext.addListener(this);
+    if (timeout != null) {
+      asyncContext.setTimeout(this.timeout.toMillis());
+    }
+  }
+
+  @Override
+  public void dispatch(Object concurrentResult) {
+    if (isAsyncComplete()) {
+      return;
+    }
+    Assert.notNull(asyncContext, "Cannot dispatch without an AsyncContext");
+
+    mockRequest.setAttribute(WebAsyncManager.WEB_ASYNC_REQUEST_ATTRIBUTE, request);
+    mockRequest.setAttribute(WebAsyncManager.WEB_ASYNC_RESULT_ATTRIBUTE, concurrentResult);
+
+    asyncContext.dispatch();
+  }
+
+  // ---------------------------------------------------------------------
+  // Implementation of AsyncListener methods
+  // ---------------------------------------------------------------------
+
+  @Override
+  public void onStartAsync(AsyncEvent event) {
+    // no-op
+  }
+
+  @Override
+  public void onError(AsyncEvent event) throws IOException {
+    Throwable throwable = event.getThrowable();
+    for (Consumer<Throwable> exceptionHandler : exceptionHandlers) {
+      exceptionHandler.accept(throwable);
+    }
+  }
+
+  @Override
+  public void onTimeout(AsyncEvent event) throws IOException {
+    dispatchEvent(timeoutHandlers);
+  }
+
+  @Override
+  public void onComplete(AsyncEvent event) throws IOException {
+    this.asyncContext = null;
+    if (asyncCompleted.compareAndSet(false, true)) {
+      dispatchEvent(completionHandlers);
+    }
+  }
+
+}

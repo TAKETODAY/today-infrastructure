@@ -65,7 +65,24 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
 
   private Shutdown shutdown = Shutdown.IMMEDIATE;
 
+  private @Nullable ForwardedRequestHeaders forwardedRequestHeaders;
+
   private ApplicationTemp applicationTemp = ApplicationTemp.instance;
+
+  /**
+   * Return the forwarded request headers configuration.
+   *
+   * @return the configuration or {@code null}
+   * @since 5.0
+   */
+  public @Nullable ForwardedRequestHeaders getForwardedRequestHeaders() {
+    return this.forwardedRequestHeaders;
+  }
+
+  @Override
+  public void setForwardedRequestHeaders(@Nullable ForwardedRequestHeaders forwardedRequestHeaders) {
+    this.forwardedRequestHeaders = forwardedRequestHeaders;
+  }
 
   /**
    * Create a new {@link AbstractConfigurableWebServerFactory} instance.

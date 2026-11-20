@@ -32,13 +32,16 @@ import infra.beans.BeanProperty;
 import infra.beans.BeanUtils;
 import infra.beans.factory.aot.BeanFactoryInitializationCode;
 import infra.beans.factory.support.StandardBeanFactory;
+import infra.core.ParameterizedTypeReference;
 import infra.jdbc.model.UserModel;
+import infra.lang.Enumerable;
 import infra.jdbc.type.TypeHandlerManager.AotContribution;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -105,6 +108,119 @@ class TypeHandlerManagerTests {
     aotContribution.applyTo(generationContext, mock(BeanFactoryInitializationCode.class));
     assertThat(RuntimeHintsPredicates.reflection().onType(EnumerationValueTypeHandler.class)).accepts(runtimeHints);
     assertThat(RuntimeHintsPredicates.reflection().onConstructorInvocation(BeanUtils.findResolvableConstructor(EnumerationValueTypeHandler.class))).accepts(runtimeHints);
+  }
+
+  @Test
+  void resolvesEnumHandlersAndSupportsExplicitHandlerRegistration() {
+    manager.setDefaultEnumTypeHandler(EnumTypeHandler.class);
+
+    var handler = manager.getTypeHandler(SampleEnum.class);
+    assertThat(handler).isInstanceOf(EnumTypeHandler.class);
+    assertThat(manager.getTypeHandler(SampleEnum.class)).isSameAs(handler);
+
+    manager.register(String.class, AnyTypeHandler.class);
+    assertThat(manager.getTypeHandler(String.class)).isInstanceOf(AnyTypeHandler.class);
+    assertThat(manager.getInstance(null, StringTypeHandler.class)).isInstanceOf(StringTypeHandler.class);
+  }
+
+  @Test
+  void registersAnnotatedHandlerClassAndInstance() {
+    manager.register(TrimmedStringHandler.class);
+    assertThat(manager.getTypeHandler(String.class)).isInstanceOf(TrimmedStringHandler.class);
+
+    var handler = new TrimmedStringHandler();
+    manager.register(handler);
+    assertThat(manager.getTypeHandler(String.class)).isSameAs(handler);
+  }
+
+  @Test
+  void infersJavaTypeFromHandlerTypeReference() throws SQLException {
+    manager.register(ReferencedStringHandler.class);
+    TypeHandler<String> handler = manager.getTypeHandler(String.class);
+    assertThat(handler).isInstanceOf(ReferencedStringHandler.class);
+
+    var statement = mock(PreparedStatement.class);
+    handler.setParameter(statement, 1, "Ada");
+    verify(statement).setObject(1, "Ada");
+  }
+
+  @Test
+  void constructsEnumerableHandlerUsingRegistryToResolveValueType() throws SQLException {
+    var valueHandler = mock(IntegerTypeHandler.class);
+    manager.register(Integer.class, valueHandler);
+    var statement = mock(PreparedStatement.class);
+
+    var inferred = manager.getTypeHandler(NumberedStatus.class);
+    assertThat(inferred).isInstanceOf(EnumerableEnumTypeHandler.class);
+    assertThat(manager.getTypeHandler(NumberedStatus.class)).isSameAs(inferred);
+    TypeHandler<NumberedStatus> explicit = manager.getInstance(NumberedStatus.class, EnumerableEnumTypeHandler.class);
+    explicit.setParameter(statement, 1, NumberedStatus.OPEN);
+
+    verify(valueHandler).setParameter(statement, 1, 7);
+  }
+
+  @Test
+  void reportsUnsupportedConstructorArgumentAndMissingDefaultConstructor() {
+    assertThatThrownBy(() -> manager.getInstance(String.class, UnsupportedHandler.class))
+            .isInstanceOf(TypeException.class).hasMessageContaining("Failed invoking constructor")
+            .hasRootCauseMessage("TypeHandler Constructor parameterType 'int' currently not supported");
+    assertThatThrownBy(() -> manager.getInstance(null, AnyTypeHandler.class))
+            .isInstanceOf(TypeException.class).hasMessageContaining("Unable to find a usable constructor")
+            .hasCauseInstanceOf(NoSuchMethodException.class);
+  }
+
+  @MappedTypes(String.class)
+  static class TrimmedStringHandler extends StringTypeHandler {
+
+    @Override
+    public void setNonNullParameter(PreparedStatement ps, int i, String arg) throws SQLException {
+      super.setNonNullParameter(ps, i, arg.trim());
+    }
+  }
+
+  public static class ReferencedStringHandler extends ParameterizedTypeReference<String> implements TypeHandler<String> {
+
+    private final AnyTypeHandler<String> delegate = new AnyTypeHandler<>(String.class);
+
+    @Override
+    public void setParameter(PreparedStatement ps, int parameterIndex, @Nullable String arg) throws SQLException {
+      delegate.setParameter(ps, parameterIndex, arg);
+    }
+
+    @Override
+    public @Nullable String getResult(ResultSet rs, String columnName) throws SQLException {
+      return delegate.getResult(rs, columnName);
+    }
+
+    @Override
+    public @Nullable String getResult(ResultSet rs, int columnIndex) throws SQLException {
+      return delegate.getResult(rs, columnIndex);
+    }
+
+    @Override
+    public @Nullable String getResult(CallableStatement cs, int columnIndex) throws SQLException {
+      return delegate.getResult(cs, columnIndex);
+    }
+  }
+
+  static class UnsupportedHandler extends StringTypeHandler {
+
+    UnsupportedHandler(int ignored) {
+    }
+  }
+
+  enum NumberedStatus implements Enumerable<Integer> {
+    OPEN;
+
+    @Override
+    public Integer getValue() {
+      return 7;
+    }
+  }
+
+  enum SampleEnum {
+    FIRST,
+    SECOND
   }
 
   static class AnyTypeHandlerResolver implements TypeHandlerResolver {

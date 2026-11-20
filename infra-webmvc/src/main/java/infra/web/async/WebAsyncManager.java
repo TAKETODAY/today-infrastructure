@@ -25,16 +25,18 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import java.time.Duration;
 
 import infra.core.task.AsyncTaskExecutor;
 import infra.core.task.SimpleAsyncTaskExecutor;
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpContext;
 import infra.web.HttpContextHolder;
 import infra.web.util.DisconnectedClientHelper;
+import infra.web.util.TimeoutUtils;
 
 /**
  * The central class for managing asynchronous request processing, mainly intended
@@ -88,13 +90,11 @@ public final class WebAsyncManager {
   private static final TimeoutAsyncProcessingInterceptor timeoutInterceptor =
           new TimeoutAsyncProcessingInterceptor();
 
-  @Nullable
-  private Long asyncRequestTimeout;
+  private @Nullable Duration asyncRequestTimeout;
 
   private AsyncTaskExecutor taskExecutor = DEFAULT_TASK_EXECUTOR;
 
-  @Nullable
-  private volatile Object concurrentResult = RESULT_NONE;
+  private volatile @Nullable Object concurrentResult = RESULT_NONE;
 
   private volatile @Nullable Object @Nullable [] concurrentResultContext;
 
@@ -103,11 +103,9 @@ public final class WebAsyncManager {
    */
   private volatile boolean errorHandlingInProgress;
 
-  @Nullable
-  private LinkedHashMap<Object, CallableProcessingInterceptor> callableInterceptors;
+  private @Nullable LinkedHashMap<Object, CallableProcessingInterceptor> callableInterceptors;
 
-  @Nullable
-  private LinkedHashMap<Object, DeferredResultProcessingInterceptor> deferredResultInterceptors;
+  private @Nullable LinkedHashMap<Object, DeferredResultProcessingInterceptor> deferredResultInterceptors;
 
   private final HttpContext httpContext;
 
@@ -127,10 +125,11 @@ public final class WebAsyncManager {
   /**
    * Set the time required for concurrent handling to complete.
    *
-   * @param timeout amount of time in milliseconds; {@code null} means no
+   * @param timeout amount of time; {@code null} means no
    * timeout, i.e. rely on the default timeout of the container.
    */
-  public void setTimeout(@Nullable Long timeout) {
+  public void setTimeout(@Nullable Duration timeout) {
+    TimeoutUtils.validate(timeout);
     this.asyncRequestTimeout = timeout;
   }
 
@@ -148,8 +147,7 @@ public final class WebAsyncManager {
    * concurrent handling raised one.
    * @see #clearConcurrentResult()
    */
-  @Nullable
-  public Object getConcurrentResult() {
+  public @Nullable Object getConcurrentResult() {
     return concurrentResult;
   }
 
@@ -169,8 +167,7 @@ public final class WebAsyncManager {
    * @param key the key
    * @return the interceptor registered under that key, or {@code null} if none
    */
-  @Nullable
-  public CallableProcessingInterceptor getCallableInterceptor(Object key) {
+  public @Nullable CallableProcessingInterceptor getCallableInterceptor(Object key) {
     return callableInterceptors == null ? null : callableInterceptors.get(key);
   }
 
@@ -180,8 +177,7 @@ public final class WebAsyncManager {
    * @param key the key
    * @return the interceptor registered under that key, or {@code null} if none
    */
-  @Nullable
-  public DeferredResultProcessingInterceptor getDeferredResultInterceptor(Object key) {
+  public @Nullable DeferredResultProcessingInterceptor getDeferredResultInterceptor(Object key) {
     return deferredResultInterceptors == null ? null : deferredResultInterceptors.get(key);
   }
 
@@ -284,7 +280,7 @@ public final class WebAsyncManager {
 
   /**
    * Use the given {@link WebAsyncTask} to configure the task executor as well as
-   * the timeout value of the {@code AsyncWebRequest} before delegating to
+   * the timeout value of the {@code WebAsyncRequest} before delegating to
    * {@link #startCallableProcessing(Callable, Object...)}.
    *
    * @param webAsyncTask a WebAsyncTask containing the target {@code Callable}
@@ -294,9 +290,9 @@ public final class WebAsyncManager {
    */
   public void startCallableProcessing(WebAsyncTask<?> webAsyncTask, @Nullable Object... processingContext) throws Exception {
     Assert.notNull(webAsyncTask, "WebAsyncTask is required");
-    AsyncWebRequest asyncRequest = getAsyncWebRequest();
+    WebAsyncRequest asyncRequest = getAsyncRequest();
 
-    Long timeout = webAsyncTask.getTimeout();
+    Duration timeout = webAsyncTask.getTimeout();
     if (timeout == null) {
       timeout = this.asyncRequestTimeout;
     }
@@ -370,8 +366,8 @@ public final class WebAsyncManager {
     }
   }
 
-  private AsyncWebRequest getAsyncWebRequest() {
-    return httpContext.asyncWebRequest();
+  private WebAsyncRequest getAsyncRequest() {
+    return httpContext.asyncRequest();
   }
 
   private String formatRequestUri() {
@@ -387,7 +383,7 @@ public final class WebAsyncManager {
       this.errorHandlingInProgress = (result instanceof Throwable);
     }
 
-    AsyncWebRequest asyncRequest = getAsyncWebRequest();
+    WebAsyncRequest asyncRequest = getAsyncRequest();
     if (asyncRequest.isAsyncComplete()) {
       if (logger.isDebugEnabled()) {
         logger.debug("Async result set but request already complete: {}", formatRequestUri());
@@ -409,7 +405,7 @@ public final class WebAsyncManager {
    * Start concurrent request processing and initialize the given
    * {@link DeferredResult} with a {@link DeferredResultHandler} that saves
    * the result and dispatches the request to resume processing of that
-   * result. The {@code AsyncWebRequest} is also updated with a completion
+   * result. The {@code WebAsyncRequest} is also updated with a completion
    * handler that expires the {@code DeferredResult} and a timeout handler
    * assuming the {@code DeferredResult} has a default timeout result.
    *
@@ -422,8 +418,8 @@ public final class WebAsyncManager {
    */
   public void startDeferredResultProcessing(DeferredResult<?> deferred, @Nullable Object... processingContext) throws Exception {
     Assert.notNull(deferred, "DeferredResult is required");
-    AsyncWebRequest asyncRequest = getAsyncWebRequest();
-    Long timeout = deferred.getTimeoutValue();
+    WebAsyncRequest asyncRequest = getAsyncRequest();
+    Duration timeout = deferred.getTimeout();
     if (timeout == null) {
       timeout = this.asyncRequestTimeout;
     }
@@ -481,7 +477,7 @@ public final class WebAsyncManager {
     }
   }
 
-  private void startAsyncProcessing(AsyncWebRequest asyncRequest, @Nullable Object[] processingContext) {
+  private void startAsyncProcessing(WebAsyncRequest asyncRequest, @Nullable Object[] processingContext) {
     synchronized(WebAsyncManager.this) {
       this.concurrentResult = RESULT_NONE;
       this.concurrentResultContext = processingContext;
@@ -496,14 +492,13 @@ public final class WebAsyncManager {
 
   //
 
-  @Nullable
-  public static Object findHttpRequestHandler(HttpContext request) {
+  public static @Nullable Object findHttpRequestHandler(HttpContext request) {
     @Nullable Object[] concurrentResultContext = request.asyncManager().getConcurrentResultContext();
     if (concurrentResultContext != null && concurrentResultContext.length == 1) {
       return concurrentResultContext[0];
     }
     else {
-      HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+      HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(request);
       if (matchingMetadata != null) {
         return matchingMetadata.getHandler();
       }

@@ -1,0 +1,357 @@
+/*
+ * Copyright 2002-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
+package infra.web.handler.method.support;
+
+import org.jspecify.annotations.Nullable;
+
+import java.lang.annotation.Annotation;
+import java.util.Collections;
+import java.util.Map;
+
+import infra.beans.BeanUtils;
+import infra.core.MethodParameter;
+import infra.core.ResolvableType;
+import infra.core.TypeDescriptor;
+import infra.core.conversion.ConversionService;
+import infra.core.conversion.Converter;
+import infra.util.ObjectUtils;
+import infra.util.StringUtils;
+import infra.validation.BindException;
+import infra.validation.BindingResult;
+import infra.validation.DataBinder;
+import infra.validation.Errors;
+import infra.validation.SmartValidator;
+import infra.validation.annotation.Validated;
+import infra.validation.annotation.ValidationAnnotationUtils;
+import infra.web.BindingContext;
+import infra.web.HandlerMatchingMetadata;
+import infra.web.HttpContext;
+import infra.web.bind.HttpContextDataBinder;
+import infra.web.bind.MethodArgumentNotValidException;
+import infra.web.bind.WebDataBinder;
+import infra.web.bind.annotation.ModelAttribute;
+import infra.web.handler.method.HandlerMethod;
+import infra.web.handler.method.HandlerParameter;
+import infra.web.handler.method.ModelAttributeNames;
+import infra.web.handler.method.ParameterResolvingStrategy;
+import infra.web.handler.result.HandlerMethodReturnValueHandler;
+
+/**
+ * Resolve {@code @ModelAttribute} annotated method arguments and handle
+ * return values from {@code @ModelAttribute} annotated methods.
+ *
+ * <p>Model attributes are obtained from the model or created with a default
+ * constructor (and then added to the model). Once created the attribute is
+ * populated via data binding to Web request parameters. Validation may be
+ * applied if the argument is annotated with {@code @jakarta.validation.Valid}.
+ * or Framework's own {@code @infra.validation.annotation.Validated}.
+ *
+ * <p>When this handler is created with {@code annotationNotRequired=true}
+ * any non-simple type argument and return value is regarded as a model
+ * attribute with or without the presence of an {@code @ModelAttribute}.
+ *
+ * @author Rossen Stoyanchev
+ * @author Juergen Hoeller
+ * @author Sebastien Deleuze
+ * @author Vladislav Kisel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/4/26 16:25
+ */
+public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy, HandlerMethodReturnValueHandler {
+
+  private final boolean annotationNotRequired;
+
+  /**
+   * Class constructor.
+   *
+   * @param annotationNotRequired if "true", non-simple method arguments and
+   * return values are considered model attributes with or without a
+   * {@code @ModelAttribute} annotation
+   */
+  public ModelAttributeMethodProcessor(boolean annotationNotRequired) {
+    this.annotationNotRequired = annotationNotRequired;
+  }
+
+  /**
+   * Returns {@code true} if the parameter is annotated with
+   * {@link ModelAttribute} or, if in default resolution mode, for any
+   * method parameter that is not a simple type.
+   */
+  @Override
+  public boolean supportsParameter(HandlerParameter parameter) {
+    return parameter.hasParameterAnnotation(ModelAttribute.class)
+            || (annotationNotRequired && !BeanUtils.isSimpleProperty(parameter.getParameterType()));
+  }
+
+  /**
+   * Resolve the argument from the model or if not found instantiate it with
+   * its default if it is available. The model attribute is then populated
+   * with request values via data binding and optionally validated
+   * if {@code @java.validation.Valid} is present on the argument.
+   *
+   * @throws BindException if data binding and validation result in an error
+   * and the next method parameter is not of type {@link Errors}
+   * @throws Exception if WebDataBinder initialization fails
+   */
+  @Override
+  public @Nullable Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
+    BindingContext bindingContext = BindingContext.obtain(context);
+
+    MethodParameter parameter = resolvable.getMethodParameter();
+    String name = ModelAttributeNames.getNameForParameter(parameter);
+
+    ModelAttribute ann = parameter.getParameterAnnotation(ModelAttribute.class);
+    if (ann != null) {
+      bindingContext.setBinding(name, ann.binding());
+    }
+
+    Object attribute;
+    BindingResult bindingResult = null;
+
+    if (bindingContext.containsAttribute(name)) {
+      attribute = bindingContext.getModel().get(name);
+      if (ObjectUtils.unwrapOptional(attribute) == null) {
+        bindingResult = bindingContext.createBinder(context, null, name).getBindingResult();
+        attribute = null;
+      }
+    }
+    else {
+      try {
+        // Mainly to allow subclasses alternative to create attribute
+        attribute = createAttribute(name, parameter, bindingContext, context);
+      }
+      catch (MethodArgumentNotValidException ex) {
+        if (isBindExceptionRequired(parameter)) {
+          throw ex;
+        }
+        attribute = ex.getTarget();
+        bindingResult = ex.getBindingResult();
+      }
+    }
+
+    // No BindingResult yet, proceed with binding and validation
+    if (bindingResult == null) {
+      ResolvableType type = ResolvableType.forMethodParameter(parameter);
+      WebDataBinder binder = bindingContext.createBinder(context, attribute, name, type);
+      if (attribute == null) {
+        constructAttribute(binder, context);
+        attribute = binder.getTarget();
+      }
+      if (!binder.getBindingResult().hasErrors()) {
+        if (!bindingContext.isBindingDisabled(name)) {
+          bindRequestParameters(binder, context);
+        }
+        validateIfApplicable(binder, parameter);
+      }
+      if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) {
+        throw new MethodArgumentNotValidException(parameter, binder.getBindingResult());
+      }
+      // Adapt the model attribute to the declared parameter type if necessary.
+      if (!parameter.getParameterType().isInstance(attribute)) {
+        attribute = binder.convertIfNecessary(binder.getTarget(), parameter.getParameterType(), parameter);
+      }
+      bindingResult = binder.getBindingResult();
+    }
+
+    // Add resolved attribute and BindingResult at the end of the model
+    Map<String, Object> bindingResultModel = bindingResult.getModel();
+    bindingContext.removeAttributes(bindingResultModel);
+    bindingContext.addAllAttributes(bindingResultModel);
+
+    return attribute;
+  }
+
+  /**
+   * Extension point to create the model attribute if not found in the model,
+   * with subsequent parameter binding through bean properties (unless suppressed).
+   * <p>By default this method returns {@code null} in which case
+   * {@link DataBinder#construct} is used instead
+   * to create the model attribute. The main purpose of this method then is to
+   * allow to create the model attribute in some other, alternative way.
+   *
+   * @param attributeName the name of the attribute (never {@code null})
+   * @param parameter the method parameter declaration
+   * @param bindingContext for creating WebDataBinder instance
+   * @param request the current request
+   * @return the created model attribute, or {@code null}
+   */
+  protected @Nullable Object createAttribute(String attributeName, MethodParameter parameter,
+          BindingContext bindingContext, HttpContext request) throws Exception {
+
+    String value = getRequestValueForAttribute(attributeName, request);
+    if (value != null) {
+      return createAttributeFromRequestValue(
+              value, attributeName, parameter, bindingContext, request);
+    }
+
+    return null;
+  }
+
+  /**
+   * Obtain a value from the request that may be used to instantiate the
+   * model attribute through type conversion from String to the target type.
+   * <p>The default implementation looks for the attribute name to match
+   * a URI variable first and then a request parameter.
+   *
+   * @param attributeName the model attribute name
+   * @param request the current request
+   * @return the request value to try to convert, or {@code null} if none
+   */
+  protected @Nullable String getRequestValueForAttribute(String attributeName, HttpContext request) {
+    String variableValue = getUriVariables(request).get(attributeName);
+    if (StringUtils.hasText(variableValue)) {
+      return variableValue;
+    }
+    String parameterValue = request.getParameter(attributeName);
+    if (StringUtils.hasText(parameterValue)) {
+      return parameterValue;
+    }
+    return null;
+  }
+
+  private Map<String, String> getUriVariables(HttpContext request) {
+    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(request);
+    if (matchingMetadata != null) {
+      return matchingMetadata.getUriVariables();
+    }
+    return Collections.emptyMap();
+  }
+
+  /**
+   * Create a model attribute from a String request value (e.g. URI template
+   * variable, request parameter) using type conversion.
+   * <p>The default implementation converts only if there a registered
+   * {@link Converter} that can perform the conversion.
+   *
+   * @param sourceValue the source value to create the model attribute from
+   * @param attributeName the name of the attribute (never {@code null})
+   * @param parameter the method parameter
+   * @param binderFactory for creating WebDataBinder instance
+   * @param request the current request
+   * @return the created model attribute, or {@code null} if no suitable
+   * conversion found
+   */
+  protected @Nullable Object createAttributeFromRequestValue(String sourceValue, String attributeName,
+          MethodParameter parameter, BindingContext binderFactory, HttpContext request) throws Exception {
+
+    DataBinder binder = binderFactory.createBinder(request, attributeName);
+    ConversionService conversionService = binder.getConversionService();
+    if (conversionService != null) {
+      TypeDescriptor source = TypeDescriptor.valueOf(String.class);
+      TypeDescriptor target = new TypeDescriptor(parameter);
+      if (conversionService.canConvert(source, target)) {
+        return binder.convertIfNecessary(sourceValue, parameter.getParameterType(), parameter);
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Extension point to create the attribute, binding the request to constructor args.
+   *
+   * @param binder the data binder instance to use for the binding
+   * @param request the current request
+   */
+  protected void constructAttribute(WebDataBinder binder, HttpContext request) {
+    if (binder instanceof HttpContextDataBinder rcdb) {
+      rcdb.construct(request);
+    }
+  }
+
+  /**
+   * Extension point to bind the request to the target object.
+   *
+   * @param binder the data binder instance to use for the binding
+   * @param request the current request
+   */
+  protected void bindRequestParameters(WebDataBinder binder, HttpContext request) {
+    if (binder instanceof HttpContextDataBinder rcdb) {
+      rcdb.bind(request);
+    }
+  }
+
+  /**
+   * Validate the model attribute if applicable.
+   * <p>The default implementation checks for {@code @jakarta.validation.Valid},
+   * Infra {@link Validated},
+   * and custom annotations whose name starts with "Valid".
+   *
+   * @param binder the DataBinder to be used
+   * @param parameter the method parameter declaration
+   * @see WebDataBinder#validate(Object...)
+   * @see SmartValidator#validate(Object, Errors, Object...)
+   */
+  protected void validateIfApplicable(WebDataBinder binder, MethodParameter parameter) {
+    for (Annotation ann : parameter.getParameterAnnotations()) {
+      Object[] validationHints = ValidationAnnotationUtils.determineValidationHints(ann);
+      if (validationHints != null) {
+        binder.validate(validationHints);
+        break;
+      }
+    }
+  }
+
+  /**
+   * Whether to raise a fatal bind exception on validation errors.
+   * <p>The default implementation delegates to {@link #isBindExceptionRequired(MethodParameter)}.
+   *
+   * @param binder the data binder used to perform data binding
+   * @param parameter the method parameter declaration
+   * @return {@code true} if the next method parameter is not of type {@link Errors}
+   * @see #isBindExceptionRequired(MethodParameter)
+   */
+  protected boolean isBindExceptionRequired(WebDataBinder binder, MethodParameter parameter) {
+    return isBindExceptionRequired(parameter);
+  }
+
+  /**
+   * Whether to raise a fatal bind exception on validation errors.
+   *
+   * @param parameter the method parameter declaration
+   * @return {@code true} if the next method parameter is not of type {@link Errors}
+   */
+  protected boolean isBindExceptionRequired(MethodParameter parameter) {
+    int i = parameter.getParameterIndex();
+    Class<?>[] paramTypes = parameter.getExecutable().getParameterTypes();
+    boolean hasBindingResult = (paramTypes.length > (i + 1) && Errors.class.isAssignableFrom(paramTypes[i + 1]));
+    return !hasBindingResult;
+  }
+
+  /**
+   * Return {@code true} if there is a method-level {@code @ModelAttribute}
+   * or, in default resolution mode, for any return value type that is not
+   * a simple type.
+   */
+  @Override
+  public boolean supportsHandlerMethod(HandlerMethod handler) {
+    MethodParameter returnType = handler.getReturnType();
+    return returnType.hasMethodAnnotation(ModelAttribute.class)
+            || (annotationNotRequired && !BeanUtils.isSimpleProperty(returnType.getParameterType()));
+  }
+
+  @Override
+  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+    HandlerMethod handlerMethod = HandlerMethod.resolve(handler);
+    if (handlerMethod != null && returnValue != null) {
+      String name = ModelAttributeNames.getNameForReturnValue(returnValue, handlerMethod.getReturnType());
+      BindingContext.obtain(context).addAttribute(name, returnValue);
+    }
+  }
+
+}

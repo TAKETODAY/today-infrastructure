@@ -19,37 +19,58 @@
 package infra.web.handler.function;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.reactivestreams.Publisher;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * @author Arjen Poutsma
  */
 class DefaultAsyncServerResponseTests {
 
-  @org.junit.jupiter.params.ParameterizedTest
-  @org.junit.jupiter.api.Timeout(5)
-  @org.junit.jupiter.params.provider.ValueSource(strings = { "PT0S", "PT-1S", "PT0.000001S" })
-  void blockNotCompletedWithInfiniteTimeout(Duration timeout) {
+  @Test
+  @Timeout(5)
+  void blockNotCompletedWithZeroTimeout() {
     ServerResponse wrappee = ServerResponse.ok().build();
     CompletableFuture<ServerResponse> future = CompletableFuture.supplyAsync(() -> wrappee,
-            CompletableFuture.delayedExecutor(100, java.util.concurrent.TimeUnit.MILLISECONDS));
-    AsyncServerResponse response = AsyncServerResponse.create(future, timeout);
+            CompletableFuture.delayedExecutor(100, TimeUnit.MILLISECONDS));
+    AsyncServerResponse response = ServerResponse.async(future, Duration.ZERO);
     assertThat(response.block()).isSameAs(wrappee);
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+          "PT-1S, Timeout must not be negative",
+          "PT0.000000001S, Timeout must be zero or at least 1 millisecond",
+          "PT9223372036854775807S, Timeout is too large"
+  })
+  void rejectsInvalidTimeout(Duration timeout, String message) {
+    CompletableFuture<ServerResponse> pending = new CompletableFuture<>();
+    CompletableFuture<ServerResponse> completed = CompletableFuture.completedFuture(ServerResponse.ok().build());
+
+    assertThatIllegalArgumentException().isThrownBy(() -> ServerResponse.async(pending, timeout))
+            .withMessage(message);
+    assertThatIllegalArgumentException().isThrownBy(() -> ServerResponse.async(completed, timeout))
+            .withMessage(message);
   }
 
   @Test
   void blockNotCompletedWithTimeoutExceeded() {
     CompletableFuture<ServerResponse> future = new CompletableFuture<>();
     AsyncServerResponse response = AsyncServerResponse.create(future, Duration.ofMillis(50));
-    org.assertj.core.api.Assertions.assertThatIllegalStateException()
-            .isThrownBy(response::block).withCauseInstanceOf(java.util.concurrent.TimeoutException.class);
+    assertThatIllegalStateException().isThrownBy(response::block).withCauseInstanceOf(TimeoutException.class);
   }
 
   @Test

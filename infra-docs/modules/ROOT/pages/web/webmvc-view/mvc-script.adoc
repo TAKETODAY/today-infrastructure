@@ -75,7 +75,7 @@ Java::
 @Controller
 public class SampleController {
 
-  @GetMapping("/sample")
+  @GET("/sample")
   public String test(Model model) {
     model.addAttribute("title", "Sample title");
     model.addAttribute("body", "Sample body");

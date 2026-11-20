@@ -51,6 +51,8 @@ import java.util.UUID;
 
 import infra.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import infra.aop.interceptor.SimpleTraceInterceptor;
+import infra.aop.support.AopUtils;
+import infra.aop.support.ComposablePointcut;
 import infra.aop.support.DefaultPointcutAdvisor;
 import infra.beans.factory.BeanCreationException;
 import infra.beans.factory.annotation.Autowired;
@@ -102,9 +104,9 @@ import infra.validation.Errors;
 import infra.validation.FieldError;
 import infra.validation.beanvalidation.LocalValidatorFactoryBean;
 import infra.web.HttpContext;
-import infra.web.HttpContextUtils;
 import infra.web.RedirectModel;
 import infra.web.SerializationTestUtils;
+import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.ContentNegotiationManagerFactoryBean;
 import infra.web.annotation.CookieValue;
 import infra.web.annotation.ExceptionHandler;
@@ -123,14 +125,13 @@ import infra.web.bind.WebDataBinder;
 import infra.web.bind.annotation.BindParam;
 import infra.web.bind.annotation.InitBinder;
 import infra.web.bind.annotation.ModelAttribute;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
-import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.bind.support.WebBindingInitializer;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.handler.function.RouterFunction;
 import infra.web.handler.function.RouterFunctions;
 import infra.web.handler.function.ServerResponse;
+import infra.web.handler.method.support.ParameterResolvingRegistryFactory;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
@@ -141,6 +142,7 @@ import infra.web.multipart.Part;
 import infra.web.multipart.support.StringPartEditor;
 import infra.web.testfixture.MockMultipartFile;
 import infra.web.testfixture.security.TestPrincipal;
+import infra.web.util.WebUtils;
 import infra.web.view.AbstractView;
 import infra.web.view.ModelAndView;
 import infra.web.view.View;
@@ -367,14 +369,16 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
   @Test
   void sessionAttributeExposureWithInterface() throws Exception {
-    initDispatcher(MySessionAttributesControllerImpl.class, wac -> {
+    ApplicationContext context = initDispatcher(MySessionAttributesControllerImpl.class, wac -> {
       wac.registerBean("viewResolver", ModelExposingViewResolver.class);
       DefaultAdvisorAutoProxyCreator autoProxyCreator = new DefaultAdvisorAutoProxyCreator();
       autoProxyCreator.setBeanFactory(wac.getBeanFactory());
       autoProxyCreator.setProxyTargetClass(true);
       wac.getBeanFactory().addBeanPostProcessor(autoProxyCreator);
-      wac.getBeanFactory().registerSingleton("advisor", new DefaultPointcutAdvisor(new SimpleTraceInterceptor()));
+      var pointcut = new ComposablePointcut(MySessionAttributesControllerImpl.class::equals);
+      wac.getBeanFactory().registerSingleton("advisor", new DefaultPointcutAdvisor(pointcut, new SimpleTraceInterceptor()));
     });
+    assertThat(AopUtils.isCglibProxy(context.getBean(MySessionAttributesControllerImpl.class))).isTrue();
 
     MockRequest request = new MockRequest("GET", "/myPage");
     MockResponse response = new MockResponse();
@@ -654,6 +658,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     ApplicationContext webAppContext = initDispatcher(MyParameterDispatchingController.class);
 
     MockRequest request = new MockRequest("GET", "/myPath.do");
+    request.addHeader("Accept-Language", "en");
     MockResponse response = new MockResponse();
     Session session = request.getSession();
     assertThat(session).isNotNull();
@@ -661,7 +666,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     assertThat(response.getContentAsString()).isEqualTo("myView");
     assertThat(request.getAttribute("sessionId")).isSameAs(session.getId());
     assertThat(request.getAttribute("requestUri")).isSameAs(request.getRequestURI());
-    assertThat(request.getAttribute("locale")).isSameAs(request.getLocale());
+    assertThat(request.getAttribute("locale")).isEqualTo(request.getLocale());
 
     request = new MockRequest("GET", "/myPath.do");
     response = new MockResponse();
@@ -929,8 +934,9 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       RootBeanDefinition adapterDef = new RootBeanDefinition(RequestMappingHandlerAdapter.class);
       wac.registerBeanDefinition("handlerAdapter", adapterDef);
 
-      register("parameterResolvingRegistry", ParameterResolvingRegistry.class, wac)
-              .getPropertyValues().add("messageConverters", new NotReadableMessageConverter());
+      wac.registerBean("parameterResolvingRegistry", ParameterResolvingRegistry.class,
+              () -> ParameterResolvingRegistryFactory.create(wac, List.of(new NotReadableMessageConverter()),
+                      new ContentNegotiationManager(), null, List.of()));
 
       register("returnValueHandlerManager", ReturnValueHandlerManager.class, wac)
               .getPropertyValues().add("messageConverters", new NotReadableMessageConverter()); ;
@@ -1510,7 +1516,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
   @Test
   void redirectAttribute() throws Exception {
-    ApplicationContext wac = initDispatcher(RedirectAttributesController.class);
+    ApplicationContext wac = initDispatcher(RedirectModelController.class);
 
     MockRequest request = new MockRequest("POST", "/messages");
     MockResponse response = new MockResponse();
@@ -1524,7 +1530,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 //
 //    assertThat(response.getStatus()).isEqualTo(200);
 //    assertThat(response.getForwardedUrl()).isEqualTo("messages/new");
-//    assertThat(HttpContextUtils.getOutputRedirectModel(context).isEmpty()).isTrue();
+//    assertThat(WebUtils.getOutputRedirectModel(context).isEmpty()).isTrue();
 
     // POST -> success
     request = new MockRequest("POST", "/messages");
@@ -1537,7 +1543,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     assertThat(response.getStatus()).isEqualTo(302);
     assertThat(response.getRedirectedUrl()).isEqualTo("/messages/1?name=value");
-    assertThat(HttpContextUtils.getOutputRedirectModel(context).get("successMessage")).isEqualTo("yay!");
+    assertThat(WebUtils.getOutputRedirectModel(context).get("successMessage")).isEqualTo("yay!");
 
     // GET after POST
     request = new MockRequest("GET", "/messages/1");
@@ -1552,8 +1558,8 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   }
 
   @Test
-  void flashAttributesWithResponseEntity() throws Exception {
-    ApplicationContext wac = initDispatcher(RedirectAttributesController.class);
+  void redirectModelWithResponseEntity() throws Exception {
+    ApplicationContext wac = initDispatcher(RedirectModelController.class);
 
     MockRequest request = new MockRequest("POST", "/messages-response-entity");
     MockResponse response = new MockResponse();
@@ -1565,7 +1571,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     assertThat(response.getStatus()).isEqualTo(302);
     assertThat(response.getRedirectedUrl()).isEqualTo("/messages/1?name=value");
-    assertThat(HttpContextUtils.getOutputRedirectModel(context).get("successMessage")).isEqualTo("yay!");
+    assertThat(WebUtils.getOutputRedirectModel(context).get("successMessage")).isEqualTo("yay!");
 
     // GET after POST
     request = new MockRequest("GET", "/messages/1");
@@ -1968,28 +1974,55 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   }
 
   @Test
-  void dataClassBindingWithOptional() throws Exception {
-    initDispatcher(OptionalDataClassController.class);
+  void optionalControllerParameterCanUseCustomResolverAfterMappingRegistration() throws Exception {
+    var context = initDispatcher(OptionalDataClassController.class);
+    var registry = context.getBean(ParameterResolvingRegistry.class);
+    registry.addCustomizedStrategies(new ParameterResolvingStrategy() {
+      @Override
+      public boolean supportsParameter(HandlerParameter parameter) {
+        return parameter.is(Optional.class);
+      }
 
-    MockRequest request = new MockRequest("GET", "/bind");
-    request.addParameter("param1", "value1");
-    request.addParameter("param2", "true");
-    request.addParameter("param3", "3");
+      @Override
+      public Object resolveArgument(HttpContext request, HandlerParameter parameter) {
+        return Optional.empty();
+      }
+    });
+
     MockResponse response = new MockResponse();
-    getMockHandler().service(request, response);
-    assertThat(response.getContentAsString()).isEqualTo("value1-true-3");
+    getMockHandler().service(new MockRequest("GET", "/bind"), response);
+    assertThat(response.getContentAsString()).isEqualTo("Optional.empty");
   }
 
   @Test
-  void dataClassBindingWithOptionalAndConversionError() throws Exception {
-    initDispatcher(OptionalDataClassController.class);
+  void nullableAndNotRequiredRequestParametersMayBeMissing() throws Exception {
+    initDispatcher(NullableRequestParamsController.class);
 
-    MockRequest request = new MockRequest("GET", "/bind");
-    request.addParameter("param1", "value1");
-    request.addParameter("param2", "x");
+    MockRequest request = new MockRequest("GET", "/params");
     MockResponse response = new MockResponse();
     getMockHandler().service(request, response);
-    assertThat(response.getContentAsString()).isEqualTo("value1-x-null");
+    assertThat(response.getContentAsString()).isEqualTo("null/null");
+  }
+
+  @Test
+  void nullableRequestParameterStillRejectsInvalidInput() throws Exception {
+    initDispatcher(NullableRequestParamsController.class);
+
+    MockRequest request = new MockRequest("GET", "/params");
+    request.addParameter("page", "abc");
+    MockResponse response = new MockResponse();
+    getMockHandler().service(request, response);
+    assertThat(response.getStatus()).isEqualTo(400);
+  }
+
+  @Test
+  void nullableRequestBodyMayBeMissingWithConsumesCondition() throws Exception {
+    initDispatcher(NullableRequestParamsController.class);
+
+    MockRequest request = new MockRequest("POST", "/body");
+    MockResponse response = new MockResponse();
+    getMockHandler().service(request, response);
+    assertThat(response.getContentAsString()).isEqualTo("null");
   }
 
   @Test
@@ -2762,7 +2795,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       response.getWriter().write("myView");
       request.setAttribute("sessionId", this.session.getId());
       request.setAttribute("requestUri", this.request.getRequestURI());
-      request.setAttribute("locale", this.webRequest.getLocale());
+      request.setAttribute("locale", this.webRequest.getPreferredLocale());
     }
 
     @RequestMapping(params = { "view", "!lang" })
@@ -3764,9 +3797,9 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   @Controller
   @Configuration(proxyBeanMethods = false)
   @EnableSession
-  static class RedirectAttributesController extends AbstractSessionManagerAutowired {
+  static class RedirectModelController extends AbstractSessionManagerAutowired {
 
-    public RedirectAttributesController(SessionManager sessionManager) {
+    public RedirectModelController(SessionManager sessionManager) {
       super(sessionManager);
     }
 
@@ -3982,14 +4015,16 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     BindStatusView(String content) {
       this.content = content;
+      setExposeBindings(true);
     }
 
     @Override
     protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
-      http.getBindStatus("dataClass");
-      http.getBindStatus("dataClass.param1");
-      http.getBindStatus("dataClass.param2");
-      http.getBindStatus("dataClass.param3");
+      var bindings = (infra.web.view.BindingAccessor) model.get(BINDINGS_ATTRIBUTE);
+      bindings.getBindStatus("dataClass");
+      bindings.getBindStatus("dataClass.param1");
+      bindings.getBindStatus("dataClass.param2");
+      bindings.getBindStatus("dataClass.param3");
       http.getWriter().write(this.content);
     }
   }
@@ -4077,14 +4112,23 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class OptionalDataClassController {
 
     @RequestMapping("/bind")
-    public String handle(Optional<DataClass> optionalData, BindingResult result) {
-      if (result.hasErrors()) {
-        assertThat(optionalData).isNotNull();
-        assertThat(optionalData).isNotPresent();
-        return result.getFieldValue("param1") + "-" + result.getFieldValue("param2") + "-" +
-                result.getFieldValue("param3");
-      }
-      return optionalData.map(data -> data.param1 + "-" + data.param2 + "-" + data.param3).orElse("");
+    public String handle(Optional<DataClass> optionalData) {
+      return optionalData.toString();
+    }
+  }
+
+  @RestController
+  static class NullableRequestParamsController {
+
+    @RequestMapping("/params")
+    public String params(@RequestParam("page") @Nullable Integer page,
+            @RequestParam(name = "size", required = false) Integer size) {
+      return page + "/" + size;
+    }
+
+    @PostMapping(path = "/body", consumes = "text/plain")
+    public String body(@RequestBody @Nullable String body) {
+      return String.valueOf(body);
     }
   }
 
@@ -4198,16 +4242,18 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     NestedBindStatusView(String content) {
       this.content = content;
+      setExposeBindings(true);
     }
 
     @Override
     protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
-      http.getBindStatus("nestedDataClass");
-      http.getBindStatus("nestedDataClass.param1");
-      http.getBindStatus("nestedDataClass.nestedParam2");
-      http.getBindStatus("nestedDataClass.nestedParam2.param1");
-      http.getBindStatus("nestedDataClass.nestedParam2.param2");
-      http.getBindStatus("nestedDataClass.nestedParam2.param3");
+      var bindings = (infra.web.view.BindingAccessor) model.get(BINDINGS_ATTRIBUTE);
+      bindings.getBindStatus("nestedDataClass");
+      bindings.getBindStatus("nestedDataClass.param1");
+      bindings.getBindStatus("nestedDataClass.nestedParam2");
+      bindings.getBindStatus("nestedDataClass.nestedParam2.param1");
+      bindings.getBindStatus("nestedDataClass.nestedParam2.param2");
+      bindings.getBindStatus("nestedDataClass.nestedParam2.param3");
       http.getWriter().write(this.content);
     }
   }

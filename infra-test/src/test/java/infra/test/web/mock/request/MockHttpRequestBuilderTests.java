@@ -472,14 +472,15 @@ class MockHttpRequestBuilderTests {
   }
 
   @Test
-  void flashAttribute() {
-    this.builder.flashAttr("foo", "bar");
+  void inputRedirectModelAttributes() {
+    this.builder.redirectModelAttr("foo", "bar");
+    this.builder.redirectModelAttrs(Map.of("order", 42));
     MockRequest request = this.builder.buildRequest(this.mockContext);
 
-    RedirectModel flashMap =
-            new MockHttpContext(null, request, new MockResponse()).getInputRedirectModel();
+    RedirectModel inputRedirectModel =
+            RedirectModel.findInputModel(new MockHttpContext(null, request, new MockResponse()));
 
-    assertThat(flashMap.get("foo")).isEqualTo("bar");
+    assertThat(inputRedirectModel.asMap()).containsEntry("foo", "bar").containsEntry("order", 42);
   }
 
   @Test

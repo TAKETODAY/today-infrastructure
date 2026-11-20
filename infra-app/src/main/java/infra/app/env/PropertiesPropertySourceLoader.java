@@ -19,14 +19,18 @@
 package infra.app.env;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import infra.core.env.PropertySource;
 import infra.core.io.PropertiesUtils;
 import infra.core.io.Resource;
+import infra.core.io.EncodedResource;
 
 /**
  * Strategy to load '.properties' files into a {@link PropertySource}.
@@ -47,7 +51,12 @@ public class PropertiesPropertySourceLoader implements PropertySourceLoader {
 
   @Override
   public List<PropertySource<?>> load(String name, Resource resource) throws IOException {
-    List<Map<String, ?>> properties = loadProperties(resource);
+    return load(name, resource, null);
+  }
+
+  @Override
+  public List<PropertySource<?>> load(String name, Resource resource, @Nullable Charset encoding) throws IOException {
+    List<Map<String, ?>> properties = loadProperties(resource, encoding);
     if (properties.isEmpty()) {
       return Collections.emptyList();
     }
@@ -61,15 +70,18 @@ public class PropertiesPropertySourceLoader implements PropertySourceLoader {
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  private List<Map<String, ?>> loadProperties(Resource resource) throws IOException {
+  private List<Map<String, ?>> loadProperties(Resource resource, @Nullable Charset encoding) throws IOException {
     String filename = resource.getName();
     List<Map<String, ?>> result = new ArrayList<>();
     if (filename != null && filename.endsWith(XML_FILE_EXTENSION)) {
-      result.add((Map) PropertiesUtils.loadProperties(resource));
+      result.add((Map) (encoding != null ? PropertiesUtils.loadProperties(new EncodedResource(resource, encoding))
+              : PropertiesUtils.loadProperties(resource)));
     }
     else {
-      List<OriginTrackedPropertiesLoader.Document> documents = new OriginTrackedPropertiesLoader(resource).load();
-      documents.forEach((document) -> result.add(document.asMap()));
+      List<OriginTrackedPropertiesLoader.Document> documents = new OriginTrackedPropertiesLoader(resource).load(encoding);
+      for (var document : documents) {
+        result.add(document.asMap());
+      }
     }
     return result;
   }

@@ -47,7 +47,6 @@ import infra.logging.LoggerFactory;
 import infra.stereotype.Component;
 import infra.ui.template.TemplateAvailabilityProviders;
 import infra.web.HttpContext;
-import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.server.error.BasicErrorController;
 import infra.web.server.error.DefaultErrorAttributes;
 import infra.web.server.error.DefaultErrorViewResolver;
@@ -86,10 +85,8 @@ public final class ErrorMvcAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean(value = ErrorController.class, search = SearchStrategy.CURRENT)
-  public static BasicErrorController basicErrorController(ErrorAttributes errorAttributes, WebProperties webProperties,
-          List<ErrorViewResolver> errorViewResolvers, ReturnValueHandlerManager returnValueHandler) {
-    return new BasicErrorController(errorAttributes,
-            webProperties.error, errorViewResolvers, returnValueHandler);
+  public static BasicErrorController basicErrorController(ErrorAttributes errorAttributes, WebProperties webProperties, List<ErrorViewResolver> errorViewResolvers) {
+    return new BasicErrorController(errorAttributes, webProperties.error, errorViewResolvers);
   }
 
   @Component

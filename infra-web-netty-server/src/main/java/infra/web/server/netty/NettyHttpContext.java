@@ -60,7 +60,7 @@ import infra.web.AbstractHttpContext;
 import infra.web.DispatcherHandler;
 import infra.web.HttpContext;
 import infra.web.HttpContextHolder;
-import infra.web.async.AsyncWebRequest;
+import infra.web.async.WebAsyncRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.multipart.MultipartRequest;
 import infra.web.server.RequestBodySizeExceededException;
@@ -1016,8 +1016,8 @@ public abstract class NettyHttpContext extends AbstractHttpContext {
   }
 
   @Override
-  protected AsyncWebRequest createAsyncWebRequest() {
-    return new NettyAsyncWebRequest(this);
+  protected WebAsyncRequest createAsyncRequest() {
+    return new NettyWebAsyncRequest(this);
   }
 
   /**

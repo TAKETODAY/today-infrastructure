@@ -22,13 +22,28 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import java.io.LineNumberReader;
+import java.io.StringReader;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import infra.core.io.ByteArrayResource;
 import infra.core.io.ClassPathResource;
 import infra.core.io.EncodedResource;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Unit tests for {@link ScriptUtils}.
@@ -236,6 +251,81 @@ public class ScriptUtilsUnitTests {
   public void containsStatementSeparator(String script, String delimiter, boolean expected) {
     // Indirectly tests ScriptUtils.containsStatementSeparator(EncodedResource, String, String, String[], String, String).
     Assertions.assertThat(ScriptUtils.containsSqlScriptDelimiters(script, delimiter)).isEqualTo(expected);
+  }
+
+  @Test
+  void wrapsFailureToCreateJdbcStatementWithScriptContext() throws SQLException {
+    var connection = mock(Connection.class);
+    var failure = new SQLException("cannot create statement");
+    given(connection.createStatement()).willThrow(failure);
+
+    assertThatThrownBy(() -> ScriptUtils.executeSqlScript(connection, script("select 1;")))
+            .isInstanceOf(UncategorizedScriptException.class).hasMessageContaining("migration.sql").hasCause(failure);
+  }
+
+  @Test
+  void drainsMixedResultsAndIgnoresFailureToCloseStatement() throws SQLException {
+    var connection = mock(Connection.class);
+    var statement = mock(Statement.class);
+    given(connection.createStatement()).willReturn(statement);
+    given(statement.getUpdateCount()).willReturn(3, -1, -1);
+    given(statement.getMoreResults()).willReturn(true, false);
+    willThrow(new SQLException("driver failed to close statement")).given(statement).close();
+
+    ScriptUtils.executeSqlScript(connection, script("select 1; select 2;"));
+
+    var order = inOrder(statement);
+    order.verify(statement).execute("select 1");
+    order.verify(statement).getUpdateCount();
+    order.verify(statement).getResultSet();
+    order.verify(statement).execute("select 2");
+    order.verify(statement).close();
+    verify(statement, times(3)).getUpdateCount();
+    verify(statement, times(4)).getMoreResults();
+  }
+
+  @Test
+  void rejectsUnclosedBlockCommentBeforeOpeningAStatement() {
+    var connection = mock(Connection.class);
+
+    assertThatThrownBy(() -> ScriptUtils.executeSqlScript(connection, script("select 1 /* unfinished")))
+            .isInstanceOf(ScriptParseException.class).hasMessageContaining("end delimiter", "migration.sql");
+    verifyNoInteractions(connection);
+
+    List<String> statements = new ArrayList<>();
+    assertThatThrownBy(() -> ScriptUtils.splitSqlScript("select 1 /* unfinished", ';', statements))
+            .isInstanceOf(ScriptParseException.class).hasMessageContaining("end delimiter");
+    assertThat(statements).isEmpty();
+  }
+
+  @Test
+  void readingWithOneCommentPrefixPreservesBlockCommentEnd() throws Exception {
+    try (var reader = new LineNumberReader(new StringReader("-- discard\n-- keep */\nselect 1;"))) {
+      assertThat(ScriptUtils.readScript(reader, "--", ";", "*/")).isEqualTo("-- keep */\nselect 1;");
+    }
+    try (var reader = new LineNumberReader(new StringReader("select 1;\n-- discard"))) {
+      assertThat(ScriptUtils.readScript(reader, "--", ";", null)).isEqualTo("select 1;");
+    }
+  }
+
+  @Test
+  void executesScriptWithoutDelimiterUsingLineBreaks() throws SQLException {
+    var connection = mock(Connection.class);
+    var statement = mock(Statement.class);
+    given(connection.createStatement()).willReturn(statement);
+    given(statement.getUpdateCount()).willReturn(-1);
+
+    ScriptUtils.executeSqlScript(connection, new EncodedResource(script("select ';'\nselect 2")),
+            false, false, "--", null, "/*", "*/");
+
+    var order = inOrder(statement);
+    order.verify(statement).execute("select ';'");
+    order.verify(statement).execute("select 2");
+    order.verify(statement).close();
+  }
+
+  private static ByteArrayResource script(String sql) {
+    return new ByteArrayResource(sql.getBytes(UTF_8), "migration.sql");
   }
 
   private String readScript(String path) throws Exception {

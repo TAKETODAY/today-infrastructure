@@ -29,7 +29,6 @@ import java.util.Deque;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -43,6 +42,7 @@ import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.InfraStrategies;
 import infra.util.ResourceUtils;
@@ -54,6 +54,7 @@ import infra.util.StringUtils;
  * @author Madhura Bhave
  * @author Phillip Webb
  * @author Scott Frederick
+ * @author Sijun Yang
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
@@ -67,10 +68,7 @@ public class StandardConfigDataLocationResolver implements ConfigDataLocationRes
 
   private static final Pattern URL_PREFIX = Pattern.compile("^([a-zA-Z][a-zA-Z0-9*]*?:)(.*$)");
 
-  private static final Pattern EXTENSION_HINT_PATTERN = Pattern.compile("^(.*)\\[(\\.\\w+)](?!\\[)$");
-
-  @Nullable
-  private static final String NO_PROFILE = null;
+  private static final @Nullable String NO_PROFILE = null;
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -202,7 +200,7 @@ public class StandardConfigDataLocationResolver implements ConfigDataLocationRes
     for (PropertySourceLoader propertySourceLoader : propertySourceLoaders) {
       for (String extension : propertySourceLoader.getFileExtensions()) {
         var reference = new StandardConfigDataReference(configDataLocation, directory,
-                directory + name, profile, extension, propertySourceLoader);
+                directory + name, profile, extension, propertySourceLoader, null);
         if (!references.contains(reference)) {
           references.addFirst(reference);
         }
@@ -213,17 +211,19 @@ public class StandardConfigDataLocationResolver implements ConfigDataLocationRes
 
   private Set<StandardConfigDataReference> getReferencesForFile(
           ConfigDataLocation configDataLocation, String file, @Nullable String profile) {
-    Matcher extensionHintMatcher = EXTENSION_HINT_PATTERN.matcher(file);
-    boolean extensionHintLocation = extensionHintMatcher.matches();
-    if (extensionHintLocation) {
-      file = extensionHintMatcher.group(1) + extensionHintMatcher.group(2);
+    FileHint fileHint = FileHint.from(file);
+    file = FileHint.removeFrom(file);
+    boolean hasFileHintExtension = fileHint.getExtension() != null;
+    if (hasFileHintExtension) {
+      file = file + fileHint.getExtension();
     }
     for (PropertySourceLoader propertySourceLoader : propertySourceLoaders) {
       String extension = getLoadableFileExtension(propertySourceLoader, file);
       if (extension != null) {
         String root = file.substring(0, file.length() - extension.length() - 1);
         var reference = new StandardConfigDataReference(configDataLocation, null, root,
-                profile, (!extensionHintLocation) ? extension : null, propertySourceLoader);
+                profile, !hasFileHintExtension ? extension : null, propertySourceLoader,
+                fileHint.getEncodingAsCharset());
         return Collections.singleton(reference);
       }
     }
@@ -288,14 +288,18 @@ public class StandardConfigDataLocationResolver implements ConfigDataLocationRes
   }
 
   private Set<StandardConfigDataResource> resolveNonPatternEmptyDirectories(StandardConfigDataReference reference) {
-    Resource resource = resourceLoader.getResource(reference.directory);
+    String directory = reference.directory;
+    Assert.state(directory != null, "Directory is required");
+    Resource resource = resourceLoader.getResource(directory);
     return (resource instanceof ClassPathResource || !resource.exists())
             ? Collections.emptySet()
             : Collections.singleton(new StandardConfigDataResource(reference, resource, true));
   }
 
   private Set<StandardConfigDataResource> resolvePatternEmptyDirectories(StandardConfigDataReference reference) {
-    List<Resource> subdirectories = resourceLoader.getResources(reference.directory, ResourceType.DIRECTORY);
+    String directory = reference.directory;
+    Assert.state(directory != null, "Directory is required");
+    List<Resource> subdirectories = resourceLoader.getResources(directory, ResourceType.DIRECTORY);
     ConfigDataLocation location = reference.configDataLocation;
     if (!location.isOptional() && CollectionUtils.isEmpty(subdirectories)) {
       String message = String.format("Config data location '%s' contains no subdirectories", location);

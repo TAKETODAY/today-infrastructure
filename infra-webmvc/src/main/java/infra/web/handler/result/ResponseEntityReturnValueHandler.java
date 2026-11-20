@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import infra.http.HttpEntity;
 import infra.web.HttpContext;
 import infra.web.ReturnValueHandler;
-import infra.web.bind.resolver.HttpEntityMethodProcessor;
+import infra.web.handler.method.support.HttpEntityMethodProcessor;
 
 /**
  * Handler for return values of type {@link infra.http.ResponseEntity}

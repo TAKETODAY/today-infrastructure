@@ -1,0 +1,115 @@
+/*
+ * Copyright 2017 - 2026 the TODAY authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package infra.web.server.netty;
+
+import org.jspecify.annotations.Nullable;
+
+import java.util.concurrent.TimeUnit;
+
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
+import infra.util.Assert;
+import infra.web.async.WebAsyncRequest;
+import io.netty.channel.Channel;
+import io.netty.util.concurrent.ScheduledFuture;
+
+/**
+ * Manages asynchronous request processing for a {@link NettyHttpContext}.
+ * Timeout callbacks run on the request channel's event loop, while concurrent
+ * results are handed back to the request context to resume processing.
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/10/21 13:47
+ */
+public class NettyWebAsyncRequest extends WebAsyncRequest {
+
+  private static final Logger log = LoggerFactory.getLogger(NettyWebAsyncRequest.class);
+
+  private final NettyHttpContext request;
+
+  private final Channel channel;
+
+  private volatile boolean asyncStarted;
+
+  private @Nullable ScheduledFuture<?> timeoutFuture;
+
+  NettyWebAsyncRequest(NettyHttpContext request) {
+    this.request = request;
+    this.channel = request.channel;
+  }
+
+  /**
+   * {@inheritDoc}
+   * <p>A positive timeout is scheduled on the channel's event loop in
+   * milliseconds. Neither {@code null} nor {@link java.time.Duration#ZERO}
+   * schedules a timeout task for this request.
+   */
+  @Override
+  public synchronized void startAsync() {
+    Assert.state(!isAsyncComplete(), "Async processing has already completed");
+    if (timeout != null && !timeout.isZero()) {
+      timeoutFuture = channel.eventLoop().schedule(this::checkTimeout, timeout.toMillis(), TimeUnit.MILLISECONDS);
+    }
+
+    this.asyncStarted = true;
+  }
+
+  synchronized void checkTimeout() {
+    if (!isAsyncComplete()) {
+      // timeout
+      log.debug("Async timeout, dispatch timeout events");
+      dispatchEvent(timeoutHandlers);
+    }
+  }
+
+  @Override
+  public boolean isAsyncStarted() {
+    return asyncStarted;
+  }
+
+  /**
+   * {@inheritDoc}
+   * <p>Only the first dispatch is processed. It cancels any scheduled timeout
+   * before handing off the result and invokes completion handlers after the
+   * dispatch attempt.
+   *
+   * @param concurrentResult the result of concurrent processing, possibly {@code null}
+   */
+  @Override
+  public synchronized void dispatch(@Nullable Object concurrentResult) {
+    this.asyncStarted = false;
+    if (asyncCompleted.compareAndSet(false, true)) {
+      if (timeoutFuture != null) {
+        timeoutFuture.cancel(true);
+      }
+      try {
+        request.dispatchConcurrentResult(concurrentResult);
+      }
+      catch (Throwable e) {
+        // last exception handling
+        for (var exceptionHandler : exceptionHandlers) {
+          exceptionHandler.accept(e);
+        }
+        request.httpTrafficHandler.handleException(channel, e);
+      }
+      finally {
+        dispatchEvent(completionHandlers);
+      }
+    }
+  }
+
+}

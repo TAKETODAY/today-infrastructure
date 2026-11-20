@@ -20,7 +20,6 @@ package infra.web.handler.method;
 
 import org.jspecify.annotations.Nullable;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -28,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 
 import infra.beans.BeanUtils;
-import infra.core.Conventions;
-import infra.core.GenericTypeResolver;
 import infra.core.MethodParameter;
 import infra.util.Assert;
 import infra.logging.Logger;
@@ -134,7 +131,7 @@ final class ModelHandler {
         continue;
       }
 
-      String returnValueName = getNameForReturnValue(returnValue, modelMethod.getReturnType());
+      String returnValueName = ModelAttributeNames.getNameForReturnValue(returnValue, modelMethod.getReturnType());
       if (!ann.binding()) {
         container.setBindingDisabled(returnValueName);
       }
@@ -199,48 +196,6 @@ final class ModelHandler {
             && !(value instanceof Map) && !BeanUtils.isSimpleValueType(value.getClass());
   }
 
-  /**
-   * Derive the model attribute name for the given method parameter based on
-   * a {@code @ModelAttribute} parameter annotation (if present) or falling
-   * back on parameter type based conventions.
-   *
-   * @param parameter a descriptor for the method parameter
-   * @return the derived name
-   * @see Conventions#getVariableNameForParameter(MethodParameter)
-   */
-  public static String getNameForParameter(MethodParameter parameter) {
-    ModelAttribute ann = parameter.getParameterAnnotation(ModelAttribute.class);
-    String name = ann != null ? ann.value() : null;
-    return StringUtils.hasText(name) ? name : Conventions.getVariableNameForParameter(parameter);
-  }
-
-  /**
-   * Derive the model attribute name for the given return value. Results will be
-   * based on:
-   * <ol>
-   * <li>the method {@code ModelAttribute} annotation value
-   * <li>the declared return type if it is more specific than {@code Object}
-   * <li>the actual return value type
-   * </ol>
-   *
-   * @param returnValue the value returned from a method invocation
-   * @param returnType a descriptor for the return type of the method
-   * @return the derived name (never {@code null} or empty String)
-   */
-  public static String getNameForReturnValue(@Nullable Object returnValue, MethodParameter returnType) {
-    ModelAttribute ann = returnType.getMethodAnnotation(ModelAttribute.class);
-    if (ann != null && StringUtils.hasText(ann.value())) {
-      return ann.value();
-    }
-    else {
-      Method method = returnType.getMethod();
-      Assert.state(method != null, "No handler method");
-      Class<?> containingClass = returnType.getContainingClass();
-      Class<?> resolvedType = GenericTypeResolver.resolveReturnType(method, containingClass);
-      return Conventions.getVariableNameForReturnType(method, resolvedType, returnValue);
-    }
-  }
-
   private static class ModelMethod {
 
     public final InvocableHandlerMethod handlerMethod;
@@ -251,7 +206,7 @@ final class ModelHandler {
       this.handlerMethod = handlerMethod;
       for (MethodParameter parameter : handlerMethod.getParameters()) {
         if (parameter.hasParameterAnnotation(ModelAttribute.class)) {
-          dependencies.add(getNameForParameter(parameter));
+          dependencies.add(ModelAttributeNames.getNameForParameter(parameter));
         }
       }
     }

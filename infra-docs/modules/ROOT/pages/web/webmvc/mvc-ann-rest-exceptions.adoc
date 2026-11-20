@@ -1,12 +1,11 @@
 [[mvc-ann-rest-exceptions]]
 = 错误响应
 
-REST服务的一个常见需求是在错误响应的正文中包含详细信息。TODAY框架支持"HTTP API的问题详情"规范，即{rfc-site}/rfc7807[RFC 7807]。
+REST 服务通常需要在错误响应体中提供结构化的错误信息。Web MVC 支持 {rfc-site}/rfc9457[RFC 9457：HTTP API 问题详情]。
 
 以下是这方面的主要抽象：
-- `ProblemDetail` -- RFC 7807问题详情的表示；一个简单的容器，用于存放规范中定义的标准字段和非标准字段。
-- `ErrorResponse` -- 公开HTTP错误响应详细信息的契约，包括HTTP状态、响应头和RFC 7807格式的正文；
-这允许异常封装并公开它们如何映射到HTTP响应的详细信息。所有 Web MVC 异常都实现了这一点。
+- `ProblemDetail` -- RFC 9457 问题详情的表示，包含标准字段和应用自定义的扩展字段。
+- `ErrorResponse` -- 描述异常如何映射为 HTTP 错误响应的契约，包括状态码、响应头和问题详情正文。
 - `ErrorResponseException` -- 基本的 `ErrorResponse` 实现，其他人可以将其用作方便的基类。
 - `ResponseEntityExceptionHandler` -- 一个方便的基类，用于处理所有 Web MVC 异常和任何 `ErrorResponseException`
 的 xref:web/webmvc/mvc-controller/ann-advice.adoc[@ControllerAdvice] ，并渲染一个带正文的错误响应。
@@ -14,26 +13,106 @@ REST服务的一个常见需求是在错误响应的正文中包含详细信息�
 [[mvc-ann-rest-exceptions-render]]
 == 渲染
 
-你可以从任何 `@ExceptionHandler` 或任何 `@RequestMapping` 方法返回 `ProblemDetail` 或 `ErrorResponse` ，以渲染RFC 7807响应。处理过程如下：
+可以从 `@ExceptionHandler` 或 `@RequestMapping` 方法返回 `ProblemDetail` 或 `ErrorResponse`，生成 RFC 9457 问题详情响应。处理过程如下：
 - `ProblemDetail` 的 `status` 属性确定HTTP状态。
 - 对于内容协商，Jackson 的 `HttpMessageConverter` 在渲染 `ProblemDetail` 时优先选择 "application/problem+json"
 而不是 "application/json"，并在找不到兼容的媒体类型时回退到它。
 
-要为基础设施异常和任何 `ErrorResponseException` 启用 RFC 7807响应，
+要为框架内置异常和 `ErrorResponseException` 启用问题详情响应，
 请扩展 `ResponseEntityExceptionHandler` 并在基础设施配置中将其声明为 xref:web/webmvc/mvc-controller/ann-advice.adoc[@ControllerAdvice]。
 该处理器有一个 `@ExceptionHandler` 方法，用于处理任何 `ErrorResponse` 异常，包括所有内置的Web异常。你可以添加更多的异常处理方法，
 并使用一个受保护的方法将任何异常映射到 `ProblemDetail`。
 
-你可以通过使用 `WebMvcConfigurer` 在 xref:web/webmvc/mvc-config.adoc[MVC Config] 中注册 `ErrorResponse` 拦截器。使用它来拦截任何 RFC 7807 响应并采取一些行动。
+如需在写出问题详情前统一添加字段，可以注册 xref:web/webmvc/mvc-ann-rest-exceptions.adoc#mvc-ann-rest-exceptions-interceptors[错误响应拦截器]。
 
 NOTE: 从 5.0 开始，框架不再将请求路径自动设置为 `ProblemDetail.instance`。
 规范要求此字段标识问题的某一次具体发生；如果该 URI 可以解引用，则应提供这次问题的相关信息。
 应用程序显式设置的值仍会保留。
 
+[[mvc-ann-rest-exceptions-fallback]]
+== 未处理异常的兜底响应
+
+除了声明 `ResponseEntityExceptionHandler`，还可以通过 `configureProblemDetails`，
+将未被控制器或 `@ControllerAdvice` 中的 `@ExceptionHandler` 处理的异常转换为 RFC 9457 问题详情：
+
+[source,java]
+----
+import infra.context.annotation.Configuration;
+import infra.web.config.annotation.ProblemDetailsConfigurer;
+import infra.web.config.annotation.WebMvcConfigurer;
+
+@Configuration
+public class ProblemDetailsConfiguration implements WebMvcConfigurer {
+
+  @Override
+  public void configureProblemDetails(ProblemDetailsConfigurer configurer) {
+    configurer.renderUnhandledExceptions(true);
+  }
+}
+----
+
+此选项默认关闭。启用后，局部和全局异常处理方法仍优先执行；没有匹配方法，或异常处理方法重新抛出异常、执行失败时，
+才尝试兜底。响应已经提交时不会再次渲染；此兜底针对 `Exception`，不是对所有 `Throwable` 的捕获。
+
+实现了 `ErrorResponse` 的异常保留其状态、响应头和问题详情；其他异常根据 `@ResponseStatus`、
+类型转换及消息读取等已知异常规则确定状态，未知异常默认使用 `500`。问题详情会通过 `MessageSource` 解析消息。
+应用仍应提供面向用户的安全错误描述，不要将堆栈、凭据或内部实现细节写入响应。
+
+NOTE: 此配置作用于 MVC 默认的 `ExceptionHandlerAnnotationExceptionHandler`。
+如果使用 `configureExceptionHandlers(List)` 替换了默认异常处理器，需要自行配置对应处理器。
+Infra App 的 `web.mvc.problemdetails.enabled=true` 则用于自动注册基于 `ResponseEntityExceptionHandler` 的控制器建议，
+并不等同于开启这里的所有未处理异常兜底。
+
+[[mvc-ann-rest-exceptions-html]]
+== HTML 错误视图
+
+对于同一端点，可以向 API 客户端写出问题详情，向偏好 HTML 的浏览器返回错误页面。
+通过 `ProblemDetailsConfigurer.viewResolver(...)` 注册 `infra.web.ErrorResponseViewResolver`：
+
+[source,java]
+----
+@Override
+public void configureProblemDetails(ProblemDetailsConfigurer configurer) {
+  configurer.renderUnhandledExceptions(true)
+    .viewResolver((request, problem, errorResponse) ->
+      new ModelAndView("errors/problem").addObject("problem", problem));
+}
+----
+
+`ModelAndView` 来自 `infra.web.view`，示例还需要配置能解析 `errors/problem` 的视图解析器及相应模板。
+解析器在消息转换处理器中执行，适用于控制器和异常处理方法返回的 `ProblemDetail`、`ErrorResponse`，
+以及正文为 `ProblemDetail` 的 `ResponseEntity`，也适用于上述兜底结果；不是任意返回值的通用视图转换器。
+
+只有内容协商选择 HTML 时才尝试解析视图。若响应或返回实体已显式指定 `Content-Type`，
+或者映射的 `produces` 不兼容 HTML，则继续使用原返回值。解析器返回 `null` 同样回退到消息转换器。
+视图自身声明的状态优先；否则沿用 `ResponseEntity` 的状态，或 `ProblemDetail.status`。
+原 `ResponseEntity` 或 `ErrorResponse` 的响应头会保留。
+
+[[mvc-ann-rest-exceptions-interceptors]]
+== 错误响应拦截器
+
+通过 `WebMvcConfigurer.addErrorResponseInterceptors` 为问题详情添加统一的非标准字段：
+
+[source,java]
+----
+@Override
+public void addErrorResponseInterceptors(List<ErrorResponse.Interceptor> interceptors) {
+  interceptors.add((problem, errorResponse) ->
+    problem.setProperty("service", "orders"));
+}
+----
+
+示例中的 `List` 来自 `java.util`，`ErrorResponse` 来自 `infra.web`。
+拦截器在问题详情写入消息转换器之前执行；使用 HTML 错误视图时，在调用视图解析器之前执行。
+`errorResponse` 可能为 `null`（例如直接返回 `ProblemDetail`），不要假定它始终存在。
+这不是请求生命周期拦截器，也不会拦截任意自定义 JSON 错误对象。
+若需要当前请求，应使用匿名类实现双参数 `handleError`，并重写带 `HttpRequest` 的三参数重载；
+三参数重载是默认方法，不能直接用三参数 lambda 实现该接口。
+
 [[mvc-ann-rest-exceptions-non-standard]]
 == 非标准字段
 
-你可以通过以下两种方式之一在 RFC 7807 响应中扩展非标准字段：
+可以通过以下两种方式之一在 RFC 9457 响应中添加扩展字段：
 
 一、插入到 `ProblemDetail` 的 "properties" `Map` 中。当使用 Jackson 库时，框架注册了 `ProblemDetailJacksonMixin`，
 确保这个 "properties" `Map` 在响应中被展开并呈现为顶级JSON属性，同样，在反序列化期间任何未知属性也被插入到这个 `Map` 中。
@@ -129,7 +208,7 @@ NOTE: 从 5.0 开始，框架不再将请求路径自动设置为 `ProblemDetail
 | (默认) | `+{0}+` 参数条件列表
 |===
 
-注意：与其他异常不同，`MethodArgumentValidException` 和 `HandlerMethodValidationException` 的消息参数基于
+注意：与其他异常不同，`MethodArgumentNotValidException` 和 `HandlerMethodValidationException` 的消息参数基于
 `MessageSourceResolvable` 错误列表，也可以通过 xref:core/beans/context-introduction.adoc#context-functionality-messagesource[MessageSource]
 资源包进行自定义。有关更多详细信息，请参见 xref:core/validation/beanvalidation.adoc#validation-beanvalidation-infra-method-i18n[自定义验证错误]。
 

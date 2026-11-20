@@ -28,9 +28,9 @@ import infra.util.CollectionUtils;
 import infra.validation.Validator;
 import infra.web.ErrorResponse;
 import infra.web.HandlerExceptionHandler;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
-import infra.web.bind.resolver.ParameterResolvingStrategies;
 import infra.web.handler.ReturnValueHandlerManager;
+import infra.web.handler.method.ParameterResolvingRegistry;
+import infra.web.handler.method.ParameterResolvingStrategies;
 
 /**
  * A {@link WebMvcConfigurer} that delegates to one or more others.

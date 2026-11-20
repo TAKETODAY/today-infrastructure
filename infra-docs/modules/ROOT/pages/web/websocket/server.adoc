@@ -40,6 +40,8 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
 ----
 
 前面的示例适用于 Web MVC 应用程序，并应包含在 xref:web/webmvc/mvc-core.adoc[`DispatcherHandler`] 的配置中。
+在启用自动配置的应用中，`WebSocketAutoConfiguration` 会收集 `WebSocketConfigurer` bean 并注册处理器映射；
+手动配置时，可以使用 `DefaultWebSocketHandlerRegistry` 注册处理器，并将其 `getHandlerMapping()` 返回值声明为 bean。
 然而 WebSocket 支持不依赖于 Web MVC。通过
 {today-framework-api}/web/socket/server/support/WebSocketHttpRequestHandler.html[`WebSocketHttpRequestHandler`]
 的帮助，将 `WebSocketHandler` 集成到其他 HTTP 服务环境中相对简单。
@@ -50,17 +52,38 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
 
 通过 `HandshakeInterceptor` 是定制初始 HTTP WebSocket 握手请求的最简单方法，它公开了 `"before"` 和 `"after"` 握手的方法。
 您可以使用此类拦截器来阻止握手或使任何属性可用于 `WebSocketSession`。
-以下示例使用内置拦截器将 HTTP 会话属性传递到 WebSocket 会话：
+以下示例实现 `infra.web.socket.server.HandshakeInterceptor`，将自定义属性传递到 WebSocket 会话：
 
 [source,java]
 ----
+import java.util.Map;
+
+import org.jspecify.annotations.Nullable;
+
+import infra.web.HttpContext;
+import infra.web.socket.WebSocketHandler;
+import infra.web.socket.server.HandshakeInterceptor;
+
 @Configuration
 public class WebSocketConfiguration implements WebSocketConfigurer {
 
   @Override
   public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-    registry.addHandler(new MyHandler(), "/myHandler");
-    //.addInterceptors(new SessionHandshakeInterceptor());
+    registry.addHandler(new MyHandler(), "/myHandler")
+      .addInterceptors(new HandshakeInterceptor() {
+        @Override
+        public boolean beforeHandshake(HttpContext request, WebSocketHandler handler,
+            Map<String, Object> attributes) {
+          attributes.put("channel", "notifications");
+          return true;
+        }
+
+        @Override
+        public void afterHandshake(HttpContext request, WebSocketHandler handler,
+            @Nullable Throwable exception) {
+          // 握手完成或失败后的处理
+        }
+      });
   }
 
 }
@@ -70,10 +93,10 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
 包括验证客户端来源、协商子协议和其他细节。如果应用程序需要配置自定义的 `RequestUpgradeStrategy`
 以适应尚不支持的 WebSocket 服务器引擎和版本（有关此主题的更多信息，
 请参见 xref:web/websocket/server.adoc#websocket-server-deployment[部署]）时，也可能需要使用此选项。
-Java 配置和 XML 命名空间都可以配置自定义的 `HandshakeHandler`。
+可以通过 `WebSocketHandlerRegistration.setHandshakeHandler(...)` 配置自定义的 `HandshakeHandler`。
 
 TIP: Infra 提供了一个 `WebSocketHandlerDecorator` 基类，您可以使用它来装饰 `WebSocketHandler`，以添加额外的行为。
-在使用 WebSocket Java 配置或 XML 命名空间时，默认情况下会提供并添加日志记录和异常处理实现。
+如需日志记录或异常处理装饰器，可在注册处理器时显式包装。
 `ExceptionWebSocketHandler` 捕获所有由任何 `WebSocketHandler` 方法引发的未捕获异常，并使用状态 `1011` 关闭 WebSocket 会话，这表示服务器错误。
 
 
@@ -81,12 +104,13 @@ TIP: Infra 提供了一个 `WebSocketHandlerDecorator` 基类，您可以使用�
 == 部署
 
 WebSocket API 很容易集成到 Web MVC 应用程序中，其中 `DispatcherHandler` 既提供 HTTP WebSocket 握手，也提供其他 HTTP 请求服务。
-通过调用 `WebSocketHttpRequestHandler`，它也很容易集成到其他 HTTP 处理场景中。这非常方便且易于理解。然而，在涉及到 JSR-356 运行时时，需要特别考虑。
+通过调用 `WebSocketHttpRequestHandler`，也可以集成到其他基于 `HttpContext` 的 HTTP 处理场景中。
+底层服务器的协议升级由 `RequestUpgradeStrategy` 完成，需要使用与服务器匹配的实现。
 
 [[websocket-server-allowed-origins]]
 == 允许的来源
 
-WebSocket 和 SockJS 的默认行为是仅接受同源请求。
+通过 `WebSocketHandlerRegistry` 注册的 WebSocket 处理器默认仅接受同源请求。
 也可以允许所有或指定的一组来源。
 此检查主要设计用于浏览器客户端。
 没有任何阻止其他类型的客户端修改 `Origin` 标头值（有关详细信息，请参见
@@ -94,13 +118,11 @@ WebSocket 和 SockJS 的默认行为是仅接受同源请求。
 
 三种可能的行为是：
 
-* 仅允许同源请求（默认）：在此模式下，当启用 SockJS 时，Iframe HTTP 响应头 `X-Frame-Options` 被设置为 `SAMEORIGIN`，
-并且禁用了 JSONP 传输，因为它不允许检查请求的来源。因此，当启用此模式时，不支持 IE6 和 IE7。
+* 仅允许同源请求（默认）。
 * 允许指定的一组来源：每个允许的来源必须以 `http://` 或 `https://` 开头。
 * 允许所有来源：要启用此模式，应将 `{asterisk}` 作为允许的来源值提供。
-在此模式下，所有传输都可用。
 
-您可以配置 WebSocket 和 SockJS 允许的来源，如下例所示：
+您可以配置 WebSocket 允许的来源，如下例所示：
 
 [source,java]
 ----

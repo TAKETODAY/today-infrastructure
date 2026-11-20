@@ -399,6 +399,16 @@ public class JdbcTemplateTests {
   }
 
   @Test
+  void executeSqlString() throws Exception {
+    given(this.connection.createStatement()).willReturn(this.statement);
+    this.template.execute("CREATE TABLE test_table (id INTEGER)");
+
+    verify(this.statement).execute("CREATE TABLE test_table (id INTEGER)");
+    verify(this.statement).close();
+    verify(this.connection).close();
+  }
+
+  @Test
   void batchUpdate() throws Exception {
     final String[] sql = { "UPDATE NOSUCHTABLE SET DATE_DISPATCHED = SYSDATE WHERE ID = 1",
             "UPDATE NOSUCHTABLE SET DATE_DISPATCHED = SYSDATE WHERE ID = 2" };

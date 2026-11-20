@@ -31,9 +31,9 @@ import java.util.function.Supplier;
 
 import infra.core.io.Resource;
 import infra.http.HttpHeaders;
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.web.util.pattern.PathPatternParser;
 
 /**
@@ -1186,8 +1186,13 @@ public abstract class RouterFunctions {
                 }
                 var result = routerFunction.route(nestedRequest);
                 if (result.isPresent() && nestedRequest != serverRequest) {
-                  serverRequest.exchange().clearAttributes();
-                  serverRequest.exchange().copyAttributeFrom(nestedRequest.exchange());
+                  var exchange = serverRequest.exchange();
+                  var nestedExchange = nestedRequest.exchange();
+                  // The default nested request shares the exchange. Do not clear its own attributes.
+                  if (exchange != nestedExchange) {
+                    exchange.clearAttributes();
+                    exchange.copyAttributeFrom(nestedExchange);
+                  }
                 }
                 return result;
               })

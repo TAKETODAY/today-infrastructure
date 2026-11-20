@@ -21,6 +21,7 @@ package infra.web.async;
 import org.jspecify.annotations.Nullable;
 
 import java.util.PriorityQueue;
+import java.time.Duration;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -31,6 +32,7 @@ import infra.logging.LoggerFactory;
 import infra.util.concurrent.Future;
 import infra.util.concurrent.FutureListener;
 import infra.web.HttpContext;
+import infra.web.util.TimeoutUtils;
 
 /**
  * {@code DeferredResult} provides an alternative to using a {@link Callable} for
@@ -62,25 +64,19 @@ public class DeferredResult<T> implements FutureListener<Future<T>> {
 
   private static final Logger logger = LoggerFactory.getLogger(DeferredResult.class);
 
-  @Nullable
-  private final Long timeoutValue;
+  private final @Nullable Duration timeout;
 
   private final Supplier<?> timeoutResult;
 
-  @Nullable
-  private Runnable timeoutCallback;
+  private @Nullable Runnable timeoutCallback;
 
-  @Nullable
-  private Consumer<Throwable> errorCallback;
+  private @Nullable Consumer<Throwable> errorCallback;
 
-  @Nullable
-  private Runnable completionCallback;
+  private @Nullable Runnable completionCallback;
 
-  @Nullable
-  private DeferredResultHandler resultHandler;
+  private @Nullable DeferredResultHandler resultHandler;
 
-  @Nullable
-  private volatile Object result = RESULT_NONE;
+  private volatile @Nullable Object result = RESULT_NONE;
 
   private volatile boolean expired;
 
@@ -97,32 +93,33 @@ public class DeferredResult<T> implements FutureListener<Future<T>> {
    * Java Config or the MVC namespace is used, or if that's not set, then the
    * timeout depends on the default of the underlying server.
    *
-   * @param timeoutValue timeout value in milliseconds
+   * @param timeout timeout value; {@code null} uses the configured default
    */
-  public DeferredResult(@Nullable Long timeoutValue) {
-    this(timeoutValue, () -> RESULT_NONE);
+  public DeferredResult(@Nullable Duration timeout) {
+    this(timeout, () -> RESULT_NONE);
   }
 
   /**
    * Create a DeferredResult with a timeout value and a default result to use
    * in case of timeout.
    *
-   * @param timeoutValue timeout value in milliseconds (ignored if {@code null})
+   * @param timeout timeout value (ignored if {@code null})
    * @param timeoutResult the result to use
    */
-  public DeferredResult(@Nullable Long timeoutValue, Object timeoutResult) {
-    this(timeoutValue, () -> timeoutResult);
+  public DeferredResult(@Nullable Duration timeout, Object timeoutResult) {
+    this(timeout, () -> timeoutResult);
   }
 
   /**
-   * Variant of {@link #DeferredResult(Long, Object)} that accepts a dynamic
+   * Variant of {@link #DeferredResult(Duration, Object)} that accepts a dynamic
    * fallback value based on a {@link Supplier}.
    *
-   * @param timeoutValue timeout value in milliseconds (ignored if {@code null})
+   * @param timeout timeout value (ignored if {@code null})
    * @param timeoutResult the result supplier to use
    */
-  public DeferredResult(@Nullable Long timeoutValue, Supplier<?> timeoutResult) {
-    this.timeoutValue = timeoutValue;
+  public DeferredResult(@Nullable Duration timeout, Supplier<?> timeoutResult) {
+    TimeoutUtils.validate(timeout);
+    this.timeout = timeout;
     this.timeoutResult = timeoutResult;
   }
 
@@ -150,18 +147,16 @@ public class DeferredResult<T> implements FutureListener<Future<T>> {
    * can also be {@code null}, it is recommended to use {@link #hasResult()} first
    * to check if there is a result prior to calling this method.
    */
-  @Nullable
-  public Object getResult() {
+  public @Nullable Object getResult() {
     Object resultToCheck = this.result;
-    return (resultToCheck != RESULT_NONE ? resultToCheck : null);
+    return resultToCheck != RESULT_NONE ? resultToCheck : null;
   }
 
   /**
-   * Return the configured timeout value in milliseconds.
+   * Return the configured timeout value.
    */
-  @Nullable
-  final Long getTimeoutValue() {
-    return this.timeoutValue;
+  final @Nullable Duration getTimeout() {
+    return this.timeout;
   }
 
   /**

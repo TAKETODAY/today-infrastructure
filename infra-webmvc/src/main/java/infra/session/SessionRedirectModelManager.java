@@ -20,8 +20,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-import infra.util.Assert;
-import infra.util.CollectionUtils;
 import infra.web.AbstractRedirectModelManager;
 import infra.web.HttpContext;
 import infra.web.RedirectModel;
@@ -38,61 +36,24 @@ public class SessionRedirectModelManager extends AbstractRedirectModelManager im
 
   private static final String SESSION_ATTRIBUTE = SessionRedirectModelManager.class.getName() + ".RedirectModel";
 
-  private final @Nullable SessionManager sessionManager;
-
-  public SessionRedirectModelManager() {
-    this.sessionManager = null;
-  }
-
-  public SessionRedirectModelManager(@Nullable SessionManager sessionManager) {
-    this.sessionManager = sessionManager;
-  }
-
   @Override
   @SuppressWarnings("unchecked")
   protected @Nullable List<RedirectModel> retrieveRedirectModel(HttpContext request) {
-    Session session = getSession(request, false);
-    if (session != null) {
-      return (List<RedirectModel>) session.getAttribute(SESSION_ATTRIBUTE);
-    }
-    return null;
+    return (List<RedirectModel>) request.getSessionAttribute(SESSION_ATTRIBUTE);
   }
 
   @Override
   protected void updateRedirectModel(List<RedirectModel> redirectModels, HttpContext request) {
-    if (CollectionUtils.isEmpty(redirectModels)) {
-      Session session = getSession(request, false);
-      if (session != null) {
-        session.removeAttribute(SESSION_ATTRIBUTE);
-      }
-    }
-    else {
-      Session session = getSession(request, true);
-      Assert.state(session != null, "Session not found in current request");
-      session.setAttribute(SESSION_ATTRIBUTE, redirectModels);
-    }
+    request.setSessionAttribute(SESSION_ATTRIBUTE, redirectModels.isEmpty() ? null : redirectModels);
   }
 
   @Override
   protected @Nullable Object getRedirectModelMutex(HttpContext request) {
-    Session session = getSession(request, false);
+    Session session = request.getSession(false);
     if (session != null) {
       return WebUtils.getSessionMutex(session);
     }
     return null;
-  }
-
-  @Nullable
-  public SessionManager getSessionManager() {
-    return sessionManager;
-  }
-
-  @Nullable Session getSession(HttpContext context, boolean create) {
-    SessionManager sessionManager = getSessionManager();
-    if (sessionManager == null) {
-      return context.getSession(create);
-    }
-    return sessionManager.getSession(context, create);
   }
 
 }

@@ -119,7 +119,7 @@ class DeferredResultReturnValueHandlerTests {
           Runnable setResultTask, Object expectedValue) throws Exception {
 
     BindingContext mavContainer = new BindingContext();
-    webRequest.setBinding(mavContainer);
+    BindingContext.set(webRequest, mavContainer);
     MethodParameter returnType = ResolvableMethod.on(TestController.class).resolveReturnType(asyncType, String.class);
     this.handler.handleReturnValue(webRequest, returnType, returnValue);
 

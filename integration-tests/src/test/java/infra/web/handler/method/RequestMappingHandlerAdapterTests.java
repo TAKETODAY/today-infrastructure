@@ -43,14 +43,11 @@ import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
 import infra.session.config.EnableSession;
 import infra.ui.Model;
 import infra.ui.ModelMap;
 import infra.web.BindingContext;
+import infra.web.HttpContext;
 import infra.web.RedirectModel;
 import infra.web.RedirectModelManager;
 import infra.web.annotation.ControllerAdvice;
@@ -58,15 +55,17 @@ import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestParam;
 import infra.web.annotation.ResponseBody;
 import infra.web.bind.annotation.ModelAttribute;
-import infra.web.bind.resolver.HttpEntityMethodProcessor;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
-import infra.web.bind.resolver.RequestResponseBodyAdviceChain;
-import infra.web.bind.resolver.RequestResponseBodyMethodProcessor;
 import infra.web.bind.support.WebBindingInitializer;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.handler.ReturnValueHandlerManager;
+import infra.web.handler.method.support.HttpEntityMethodProcessor;
+import infra.web.handler.method.support.RequestResponseBodyAdviceChain;
+import infra.web.handler.method.support.RequestResponseBodyMethodProcessor;
 import infra.web.handler.result.ResponseBodyEmitter;
 import infra.web.handler.result.SseEmitter;
+import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
 import infra.web.testfixture.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -160,7 +159,7 @@ class RequestMappingHandlerAdapterTests {
     this.handlerAdapter.afterPropertiesSet();
     this.handlerAdapter.handle(context, handlerMethod);
 
-    ModelMap model = context.binding().getModel();
+    ModelMap model = BindingContext.obtain(context).getModel();
 
     assertThat(model.get("attr1")).isEqualTo("lAttr1");
     assertThat(model.get("attr2")).isEqualTo("gAttr2");
@@ -172,14 +171,14 @@ class RequestMappingHandlerAdapterTests {
 
     HandlerMethod handlerMethod = handlerMethod(new TestController(), "handle");
     this.handlerAdapter.afterPropertiesSet();
-    context.setBinding(new BindingContext());
+    BindingContext.set(context, new BindingContext());
     this.handlerAdapter.handle(context, handlerMethod);
-    ModelMap model = context.binding().getModel();
+    ModelMap model = BindingContext.obtain(context).getModel();
 
     Object instance = model.get("instance");
     context = new MockHttpContext(null, request, response);
-    context.setBinding(new BindingContext());
-    model = context.binding().getModel();
+    BindingContext.set(context, new BindingContext());
+    model = BindingContext.obtain(context).getModel();
     this.handlerAdapter.handle(context, handlerMethod);
     assertThat(instance).isNotSameAs(model.get("instance"));
   }
@@ -191,9 +190,9 @@ class RequestMappingHandlerAdapterTests {
     HandlerMethod handlerMethod = handlerMethod(new TestController(), "handle");
     this.handlerAdapter.afterPropertiesSet();
 
-    context.setBinding(new BindingContext());
+    BindingContext.set(context, new BindingContext());
     this.handlerAdapter.handle(context, handlerMethod);
-    ModelMap model = context.binding().getModel();
+    ModelMap model = BindingContext.obtain(context).getModel();
 
     assertThat(model.get("attr1")).isEqualTo("lAttr1");
     assertThat(model.get("attr2")).isEqualTo("gAttr2");
@@ -207,9 +206,9 @@ class RequestMappingHandlerAdapterTests {
     HandlerMethod handlerMethod = handlerMethod(new TestController(), "handle");
     this.handlerAdapter.afterPropertiesSet();
 
-    context.setBinding(new BindingContext());
+    BindingContext.set(context, new BindingContext());
     this.handlerAdapter.handle(context, handlerMethod);
-    ModelMap model = context.binding().getModel();
+    ModelMap model = BindingContext.obtain(context).getModel();
 
     assertThat(model.get("attr1")).isEqualTo("lAttr1");
     assertThat(model.get("attr2")).isEqualTo("gAttr2");
@@ -274,7 +273,7 @@ class RequestMappingHandlerAdapterTests {
   }
 
   @Test
-  void handleMethodWithRedirectAttributes() throws Throwable {
+  void handleMethodWithRedirectModel() throws Throwable {
     RedirectModelManager redirectModelManager = mock(RedirectModelManager.class);
     RedirectModel redirectModel = new RedirectModel();
     redirectModel.addAttribute("attr", "value");
@@ -283,12 +282,14 @@ class RequestMappingHandlerAdapterTests {
     this.handlerAdapter.setRedirectModelManager(redirectModelManager);
     handlerAdapter.afterPropertiesSet();
     MockRequest request = new MockRequest();
-    HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
+    HandlerMethod handlerMethod = new HandlerMethod(new InputRedirectModelController(), "handle");
 
     MockHttpContext request1 = new MockHttpContext(request);
     Object result = this.handlerAdapter.handleInternal(request1, handlerMethod);
 
-    assertThat(request1.getBinding().getModel()).containsEntry("attr", "value");
+    assertThat(BindingContext.obtain(request1).getModel())
+            .containsEntry("attr", "value")
+            .containsEntry("redirectAttributeSeenByModelMethod", "value");
   }
 
   @Test
@@ -344,6 +345,18 @@ class RequestMappingHandlerAdapterTests {
     @ResponseBody
     public String handleBody(@Nullable @RequestBody Map<String, String> body) {
       return "Body: " + body;
+    }
+  }
+
+  private static class InputRedirectModelController {
+
+    @ModelAttribute
+    public void copyRedirectAttribute(Model model) {
+      model.addAttribute("redirectAttributeSeenByModelMethod", model.getAttribute("attr"));
+    }
+
+    public String handle() {
+      return "view";
     }
   }
 

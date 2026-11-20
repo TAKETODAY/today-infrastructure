@@ -21,6 +21,7 @@ package infra.test.web.mock.client;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
+import java.time.Duration;
 import java.util.function.Supplier;
 
 import infra.format.support.FormattingConversionService;
@@ -34,7 +35,7 @@ import infra.web.HandlerInterceptor;
 import infra.web.LocaleResolver;
 import infra.web.RedirectModelManager;
 import infra.web.accept.ContentNegotiationManager;
-import infra.web.bind.resolver.ParameterResolvingStrategy;
+import infra.web.handler.method.ParameterResolvingStrategy;
 import infra.web.handler.method.RequestMappingHandlerMapping;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
 import infra.web.view.View;
@@ -101,7 +102,7 @@ class StandaloneMockMvcSpec extends AbstractMockMvcServerSpec<MockMvcWebTestClie
   }
 
   @Override
-  public StandaloneMockMvcSpec asyncRequestTimeout(long timeout) {
+  public StandaloneMockMvcSpec asyncRequestTimeout(Duration timeout) {
     this.mockMvcBuilder.setAsyncRequestTimeout(timeout);
     return this;
   }
@@ -143,8 +144,8 @@ class StandaloneMockMvcSpec extends AbstractMockMvcServerSpec<MockMvcWebTestClie
   }
 
   @Override
-  public StandaloneMockMvcSpec flashMapManager(RedirectModelManager flashMapManager) {
-    this.mockMvcBuilder.setFlashMapManager(flashMapManager);
+  public StandaloneMockMvcSpec redirectModelManager(RedirectModelManager redirectModelManager) {
+    this.mockMvcBuilder.setRedirectModelManager(redirectModelManager);
     return this;
   }
 

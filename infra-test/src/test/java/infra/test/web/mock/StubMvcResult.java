@@ -45,7 +45,7 @@ public class StubMvcResult implements MvcResult {
 
   private ModelAndView mav;
 
-  private RedirectModel flashMap;
+  private RedirectModel outputRedirectModel;
 
   private MockResponse response;
   final HttpContext httpContext;
@@ -57,9 +57,9 @@ public class StubMvcResult implements MvcResult {
           HandlerInterceptor[] interceptors,
           Exception resolvedException,
           ModelAndView mav,
-          RedirectModel flashMap,
+          RedirectModel outputRedirectModel,
           MockResponse response) {
-    this(request, handler, interceptors, resolvedException, mav, flashMap, response, null);
+    this(request, handler, interceptors, resolvedException, mav, outputRedirectModel, response, null);
   }
 
   public StubMvcResult(MockRequest request,
@@ -67,7 +67,7 @@ public class StubMvcResult implements MvcResult {
           HandlerInterceptor[] interceptors,
           Exception resolvedException,
           ModelAndView mav,
-          RedirectModel flashMap,
+          RedirectModel outputRedirectModel,
           MockResponse response,
           @Nullable Throwable unresolvedException) {
     this.request = request;
@@ -75,7 +75,7 @@ public class StubMvcResult implements MvcResult {
     this.interceptors = interceptors;
     this.resolvedException = resolvedException;
     this.mav = mav;
-    this.flashMap = flashMap;
+    this.outputRedirectModel = outputRedirectModel;
     this.response = response;
     this.unresolvedException = unresolvedException;
     this.httpContext = new MockHttpContext(null, request, response);
@@ -112,8 +112,8 @@ public class StubMvcResult implements MvcResult {
   }
 
   @Override
-  public RedirectModel getFlashMap() {
-    return flashMap;
+  public RedirectModel getOutputRedirectModel() {
+    return outputRedirectModel;
   }
 
   @Override
@@ -150,8 +150,8 @@ public class StubMvcResult implements MvcResult {
     this.resolvedException = resolvedException;
   }
 
-  public void setFlashMap(RedirectModel flashMap) {
-    this.flashMap = flashMap;
+  public void setOutputRedirectModel(RedirectModel outputRedirectModel) {
+    this.outputRedirectModel = outputRedirectModel;
   }
 
   public void setResponse(MockResponse response) {

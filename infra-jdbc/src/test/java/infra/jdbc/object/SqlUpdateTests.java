@@ -231,6 +231,39 @@ public class SqlUpdateTests {
   }
 
   @Test
+  void retrievesNamedInsertKeyWithAnExplicitKeyColumn() throws SQLException {
+    given(resultSetMetaData.getColumnCount()).willReturn(1);
+    given(resultSetMetaData.getColumnLabel(1)).willReturn("id");
+    given(resultSet.getMetaData()).willReturn(resultSetMetaData);
+    given(resultSet.next()).willReturn(true, false);
+    given(resultSet.getObject(1)).willReturn(21L);
+    given(preparedStatement.getGeneratedKeys()).willReturn(resultSet);
+    given(preparedStatement.executeUpdate()).willReturn(1);
+    given(connection.prepareStatement(INSERT_GENERATE_KEYS, new String[] { "id" })).willReturn(preparedStatement);
+    var updater = new SqlUpdate(dataSource, "insert into show (name) values(:name)");
+    updater.declareParameter(new SqlParameter("name", Types.VARCHAR));
+    updater.setGeneratedKeysColumnNames("id");
+    var keys = new GeneratedKeyHolder();
+
+    assertThat(updater.updateByNamedParam(Map.of("name", "Ada"), keys)).isEqualTo(1);
+
+    assertThat(keys.getKeys()).containsEntry("id", 21L);
+    verify(preparedStatement).setString(1, "Ada");
+    verify(resultSet).close();
+  }
+
+  @Test
+  void enforcesMaximumRowsConfiguredByConstructor() throws SQLException {
+    given(connection.prepareStatement(UPDATE_INT)).willReturn(preparedStatement);
+    given(preparedStatement.executeUpdate()).willReturn(2);
+    var updater = new SqlUpdate(dataSource, UPDATE_INT, new int[] { Types.BIGINT }, 1);
+
+    assertThatExceptionOfType(JdbcUpdateAffectedIncorrectNumberOfRowsException.class)
+            .isThrownBy(() -> updater.update(100L));
+    verify(preparedStatement).setObject(1, 100L, Types.BIGINT);
+  }
+
+  @Test
   public void testUpdateConstructor() throws SQLException {
     given(preparedStatement.executeUpdate()).willReturn(1);
     given(connection.prepareStatement(UPDATE_OBJECTS)).willReturn(preparedStatement);

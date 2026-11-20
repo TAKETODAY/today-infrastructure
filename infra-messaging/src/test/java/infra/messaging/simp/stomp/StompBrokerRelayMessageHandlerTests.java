@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp.stomp;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -28,11 +30,13 @@ import java.util.concurrent.CompletableFuture;
 
 import infra.core.testfixture.security.TestPrincipal;
 import infra.messaging.Message;
+import infra.messaging.MessageDeliveryException;
 import infra.messaging.MessageHandler;
 import infra.messaging.MessageHeaders;
 import infra.messaging.StubMessageChannel;
 import infra.messaging.simp.SimpMessageHeaderAccessor;
 import infra.messaging.simp.SimpMessageType;
+import infra.messaging.support.GenericMessage;
 import infra.messaging.support.MessageBuilder;
 import infra.messaging.support.MessageHeaderAccessor;
 import infra.messaging.tcp.ReconnectStrategy;
@@ -41,6 +45,8 @@ import infra.messaging.tcp.TcpConnectionHandler;
 import infra.messaging.tcp.TcpOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -297,6 +303,100 @@ class StompBrokerRelayMessageHandlerTests {
     assertThat(this.outboundChannel.getMessages()).isEmpty();
   }
 
+  @Test
+  void rejectsServerMessagesWhenBrokerIsUnavailable() {
+    this.brokerRelay.start();
+    this.brokerRelay.stopInternal();
+
+    assertThatExceptionOfType(MessageDeliveryException.class)
+            .isThrownBy(() -> this.brokerRelay.handleMessage(message(StompCommand.SEND, null, null, "/topic/events")))
+            .withMessageContaining("Message broker not active");
+    assertThat(this.outboundChannel.getMessages()).isEmpty();
+  }
+
+  @Test
+  void rejectsUnadaptedMessagesAndIgnoresFramesForUnknownSessions() {
+    this.brokerRelay.start();
+    var plain = new GenericMessage<>("not a STOMP frame");
+    var unsupported = MessageBuilder.createMessage("no SIMP headers", new MessageHeaderAccessor().getMessageHeaders());
+
+    assertThatIllegalStateException().isThrownBy(() -> this.brokerRelay.handleMessage(plain))
+            .withMessageContaining("No header accessor");
+    assertThatIllegalStateException().isThrownBy(() -> this.brokerRelay.handleMessage(unsupported))
+            .withMessageContaining("Unexpected header accessor type");
+    this.brokerRelay.handleMessage(message(StompCommand.SUBSCRIBE, null, null, "/topic/events"));
+    this.brokerRelay.handleMessage(message(StompCommand.SEND, "missing", null, "/topic/events"));
+    this.brokerRelay.handleMessage(message(StompCommand.DISCONNECT, "missing", null, null));
+    assertThat(this.tcpClient.getSentMessages()).hasSize(1);
+    assertThat(this.outboundChannel.getMessages()).isEmpty();
+  }
+
+  @Test
+  void waitsForConnectedBeforeForwardingAndClosesOnDisconnectWithoutReceipt() {
+    this.brokerRelay.start();
+    Message<byte[]> connect = connectMessage("sess1", "joe");
+    StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(connect, StompHeaderAccessor.class);
+    assertThat(accessor).isNotNull();
+    accessor.setImmutable();
+    this.brokerRelay.handleMessage(connect);
+    var send = message(StompCommand.SEND, "sess1", null, "/topic/events");
+    this.brokerRelay.handleMessage(send);
+    assertThat(this.tcpClient.getSentMessages()).hasSize(2);
+
+    this.tcpClient.handleMessage(message(StompCommand.CONNECTED, null, null, null));
+    this.brokerRelay.handleMessage(send);
+    this.brokerRelay.handleMessage(message(StompCommand.DISCONNECT, "sess1", null, null));
+
+    assertThat(this.tcpClient.getSentHeaders(2).getDestination()).isEqualTo("/topic/events");
+    assertThat(this.tcpClient.getSentHeaders(3).getCommand()).isEqualTo(StompCommand.DISCONNECT);
+    assertThat(this.brokerRelay.getConnectionCount()).isEqualTo(1);
+    assertThat(this.tcpClient.connection.closed).isTrue();
+  }
+
+  @Test
+  void keepsConnectionOpenForDisconnectReceiptUntilBrokerClosesIt() {
+    this.brokerRelay.start();
+    this.brokerRelay.handleMessage(connectMessage("sess1", "joe"));
+    this.tcpClient.handleMessage(message(StompCommand.CONNECTED, null, null, null));
+    Message<byte[]> disconnect = message(StompCommand.DISCONNECT, "sess1", null, null);
+    StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(disconnect, StompHeaderAccessor.class);
+    assertThat(accessor).isNotNull();
+    accessor.setReceipt("close-1");
+    this.brokerRelay.handleMessage(disconnect);
+
+    assertThat(this.tcpClient.getSentHeaders(2).getReceipt()).isEqualTo("close-1");
+    assertThat(this.brokerRelay.getConnectionCount()).isEqualTo(2);
+    assertThat(this.tcpClient.connection.closed).isFalse();
+
+    this.tcpClient.connectionHandler.afterConnectionClosed();
+    this.tcpClient.connectionHandler.afterConnectionClosed();
+    assertThat(this.brokerRelay.getConnectionCount()).isEqualTo(1);
+    assertThat(this.outboundChannel.getMessages()).hasSize(2);
+    var error = MessageHeaderAccessor.getAccessor(this.outboundChannel.getMessages().get(1), StompHeaderAccessor.class);
+    assertThat(error).isNotNull();
+    assertThat(error.getCommand()).isEqualTo(StompCommand.ERROR);
+    assertThat(error.getMessage()).isEqualTo("Connection to broker closed.");
+  }
+
+  @Test
+  void reportsMissingConnectedFrameAndRemovesTheClientSession() {
+    this.brokerRelay.setHeaderInitializer(headers -> headers.setHeader("origin", "relay"));
+    this.brokerRelay.start();
+    this.brokerRelay.handleMessage(connectMessage("sess1", "joe"));
+
+    this.tcpClient.connection.readInactivity.run();
+    assertThat(this.tcpClient.connection.closed).isTrue();
+    assertThat(this.brokerRelay.getConnectionCount()).isEqualTo(1);
+    assertThat(this.outboundChannel.getMessages()).singleElement().satisfies(message -> {
+      StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+      assertThat(accessor).isNotNull();
+      assertThat(accessor.getCommand()).isEqualTo(StompCommand.ERROR);
+      assertThat(accessor.getSessionId()).isEqualTo("sess1");
+      assertThat(accessor.getMessage()).contains("No CONNECTED frame received");
+      assertThat(accessor.getHeader("origin")).isEqualTo("relay");
+    });
+  }
+
   private Message<byte[]> connectMessage(String sessionId, String user) {
     StompHeaderAccessor headers = StompHeaderAccessor.create(StompCommand.CONNECT);
     headers.setSessionId(sessionId);
@@ -372,6 +472,10 @@ class StompBrokerRelayMessageHandlerTests {
 
     private final List<Message<byte[]>> messages = new ArrayList<>();
 
+    private Runnable readInactivity;
+
+    private boolean closed;
+
     public List<Message<byte[]>> getMessages() {
       return this.messages;
     }
@@ -384,6 +488,7 @@ class StompBrokerRelayMessageHandlerTests {
 
     @Override
     public void onReadInactivity(Runnable runnable, long duration) {
+      this.readInactivity = runnable;
     }
 
     @Override
@@ -392,6 +497,7 @@ class StompBrokerRelayMessageHandlerTests {
 
     @Override
     public void close() {
+      this.closed = true;
     }
   }
 

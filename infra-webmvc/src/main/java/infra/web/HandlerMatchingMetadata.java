@@ -21,9 +21,11 @@ import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 import java.util.Map;
 
+import infra.core.AttributeAccessor;
 import infra.http.MediaType;
 import infra.http.server.PathContainer;
 import infra.lang.NullValue;
+import infra.util.Assert;
 import infra.lang.Unmodifiable;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
@@ -38,6 +40,9 @@ import infra.web.util.pattern.PathPatternParser;
  * @since 4.0 2022/2/17 14:16
  */
 public class HandlerMatchingMetadata {
+
+  private static final String REQUEST_ATTRIBUTE = HandlerMatchingMetadata.class.getName() + ".matchingMetadata";
+
   private Object handler;
 
   // direct handler lookup path
@@ -151,8 +156,7 @@ public class HandlerMatchingMetadata {
     return getPathMatchInfo().getUriVariables();
   }
 
-  @Nullable
-  public String getUriVariable(String name) {
+  public @Nullable String getUriVariable(String name) {
     return getPathMatchInfo().getUriVariable(name);
   }
 
@@ -186,9 +190,8 @@ public class HandlerMatchingMetadata {
     this.producibleMediaTypes = producibleMediaTypes;
   }
 
-  @Nullable
   @Unmodifiable
-  public Collection<MediaType> getProducibleMediaTypes() {
+  public @Nullable Collection<MediaType> getProducibleMediaTypes() {
     return producibleMediaTypes;
   }
 
@@ -203,4 +206,52 @@ public class HandlerMatchingMetadata {
   public PathPatternParser getPatternParser() {
     return patternParser;
   }
+
+  /**
+   * Associate handler matching metadata with this request, replacing any previous value.
+   *
+   * @param accessor the current request
+   * @param metadata the matching metadata, or {@code null} to clear it
+   * @since 5.0
+   */
+  public static void set(AttributeAccessor accessor, @Nullable HandlerMatchingMetadata metadata) {
+    accessor.setAttribute(REQUEST_ATTRIBUTE, metadata);
+  }
+
+  /**
+   * Return the matching metadata associated with this accessor without creating it.
+   *
+   * @param accessor the current accessor
+   * @return the matching metadata, or {@code null} if not set
+   * @since 5.0
+   */
+  public static @Nullable HandlerMatchingMetadata find(AttributeAccessor accessor) {
+    return (HandlerMatchingMetadata) accessor.getAttribute(REQUEST_ATTRIBUTE);
+  }
+
+  /**
+   * Determine whether handler matching metadata is already associated with this request.
+   *
+   * @param request the current request
+   * @return whether matching metadata is set
+   * @since 5.0
+   */
+  public static boolean has(HttpContext request) {
+    return find(request) != null;
+  }
+
+  /**
+   * Return the matching metadata associated with this request.
+   *
+   * @param request the current request
+   * @return the existing matching metadata
+   * @throws IllegalStateException if no matching metadata is set
+   * @since 5.0
+   */
+  public static HandlerMatchingMetadata obtain(HttpContext request) {
+    HandlerMatchingMetadata metadata = find(request);
+    Assert.state(metadata != null, "HandlerMatchingMetadata is required");
+    return metadata;
+  }
+
 }

@@ -74,8 +74,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
 
   private final List<HttpMessageConverter<?>> messageConverters;
 
-  @Nullable
-  private final ApiVersionStrategy versionStrategy;
+  private final @Nullable ApiVersionStrategy versionStrategy;
 
   private final HttpHeaders headers = HttpHeaders.forWritable();
 
@@ -221,8 +220,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
 
     private final InetSocketAddress remoteAddress;
 
-    @Nullable
-    private final ApiVersionStrategy versionStrategy;
+    private final @Nullable ApiVersionStrategy versionStrategy;
 
     public BuiltServerRequest(HttpContext httpContext, HttpMethod method, URI uri, HttpHeaders headers,
             MultiValueMap<String, HttpCookie> cookies, Map<String, Object> attributes, MultiValueMap<String, String> params,
@@ -380,7 +378,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Map<String, String> pathVariables() {
-      HandlerMatchingMetadata matchingMetadata = httpContext.getMatchingMetadata();
+      HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(httpContext);
       if (matchingMetadata != null) {
         PathMatchInfo pathMatchInfo = matchingMetadata.getPathMatchInfo();
         if (pathMatchInfo != null) {

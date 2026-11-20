@@ -20,8 +20,14 @@ package infra.testcontainers.service.connection;
 
 import org.testcontainers.containers.JdbcDatabaseContainer;
 
+import java.sql.Driver;
+
 public class DatabaseContainerDatabaseConnectionDetails
         extends ContainerConnectionDetailsFactory<JdbcDatabaseContainer<?>, DatabaseConnectionDetails> {
+
+  public DatabaseContainerDatabaseConnectionDetails() {
+    super(ANY_CONNECTION_NAME, Driver.class.getName());
+  }
 
   @Override
   protected DatabaseConnectionDetails getContainerConnectionDetails(

@@ -29,12 +29,12 @@ import infra.context.support.GenericApplicationContext;
 import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
+import infra.web.BindingContext;
+import infra.web.HttpContextHolder;
+import infra.web.handler.method.support.ExpressionValueMethodArgumentResolver;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.BindingContext;
-import infra.web.HttpContextHolder;
-import infra.web.bind.resolver.ExpressionValueMethodArgumentResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -168,7 +168,7 @@ public class ExpressionValueMethodArgumentResolverTests {
     Object value = resolver.resolveArgument(webRequest, param);
     assertThat(value).isEqualTo("123");
 
-    webRequest.setBinding(new BindingContext());
+    BindingContext.set(webRequest, new BindingContext());
     value = resolver.resolveArgument(webRequest, param);
 
     System.clearProperty("number.property");

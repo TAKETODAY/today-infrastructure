@@ -21,22 +21,23 @@ package infra.web.context.async;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 import infra.core.task.AsyncTaskExecutor;
 import infra.core.task.SimpleAsyncTaskExecutor;
-import infra.web.mock.MockHttpContext;
-import infra.web.mock.MockRequest;
 import infra.util.concurrent.Future;
-import infra.web.async.AsyncWebRequest;
+import infra.web.async.WebAsyncRequest;
 import infra.web.async.CallableProcessingInterceptor;
 import infra.web.async.DeferredResult;
 import infra.web.async.DeferredResultProcessingInterceptor;
 import infra.web.async.TimeoutAsyncProcessingInterceptor;
 import infra.web.async.WebAsyncManager;
 import infra.web.async.WebAsyncTask;
+import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
@@ -57,7 +58,7 @@ class WebAsyncManagerTests {
 
   private WebAsyncManager asyncManager;
 
-  private AsyncWebRequest asyncWebRequest;
+  private WebAsyncRequest asyncRequest;
 
   private MockRequest mockRequest = new MockRequest();
 
@@ -67,21 +68,21 @@ class WebAsyncManagerTests {
   public void setup() {
     this.asyncManager = request.asyncManager();
     this.asyncManager.setTaskExecutor(new SyncTaskExecutor());
-    this.asyncWebRequest = mock(AsyncWebRequest.class);
-    this.request.setAsyncRequest(this.asyncWebRequest);
+    this.asyncRequest = mock(WebAsyncRequest.class);
+    this.request.setAsyncRequest(this.asyncRequest);
 
-    reset(this.asyncWebRequest);
+    reset(this.asyncRequest);
   }
 
   @Test
   public void isConcurrentHandlingStarted() {
-    given(this.asyncWebRequest.isAsyncStarted()).willReturn(false);
+    given(this.asyncRequest.isAsyncStarted()).willReturn(false);
 
     assertThat(this.request.isConcurrentHandlingStarted()).isFalse();
 
-    reset(this.asyncWebRequest);
-    given(this.asyncWebRequest.isAsyncStarted()).willReturn(true);
-    request.asyncWebRequest();
+    reset(this.asyncRequest);
+    given(this.asyncRequest.isAsyncStarted()).willReturn(true);
+    request.asyncRequest();
     assertThat(this.request.isConcurrentHandlingStarted()).isTrue();
   }
 
@@ -163,9 +164,9 @@ class WebAsyncManagerTests {
 
     assertThat(this.asyncManager.hasConcurrentResult()).isFalse();
 
-    verify(this.asyncWebRequest).addTimeoutHandler(notNull());
-    verify(this.asyncWebRequest).addErrorHandler(notNull());
-    verify(this.asyncWebRequest).addCompletionHandler(notNull());
+    verify(this.asyncRequest).addTimeoutHandler(notNull());
+    verify(this.asyncRequest).addErrorHandler(notNull());
+    verify(this.asyncRequest).addCompletionHandler(notNull());
   }
 
   @Test
@@ -240,15 +241,15 @@ class WebAsyncManagerTests {
     AsyncTaskExecutor executor = mock(AsyncTaskExecutor.class);
 //    given(this.request.unwrapRequest(MockRequest.class)).willReturn(this.mockRequest);
 
-    WebAsyncTask<Object> asyncTask = new WebAsyncTask<>(1000L, executor, mock(Callable.class));
+    WebAsyncTask<Object> asyncTask = new WebAsyncTask<>(Duration.ofSeconds(1), executor, mock(Callable.class));
     this.asyncManager.startCallableProcessing(asyncTask);
 
     verify(executor).submit((Runnable) notNull());
-    verify(this.asyncWebRequest).setTimeout(1000L);
-    verify(this.asyncWebRequest).addTimeoutHandler(any(Runnable.class));
-    verify(this.asyncWebRequest).addErrorHandler(any(Consumer.class));
-    verify(this.asyncWebRequest).addCompletionHandler(any(Runnable.class));
-    verify(this.asyncWebRequest).startAsync();
+    verify(this.asyncRequest).setTimeout(Duration.ofSeconds(1));
+    verify(this.asyncRequest).addTimeoutHandler(any(Runnable.class));
+    verify(this.asyncRequest).addErrorHandler(any(Consumer.class));
+    verify(this.asyncRequest).addCompletionHandler(any(Runnable.class));
+    verify(this.asyncRequest).startAsync();
   }
 
   @Test
@@ -260,7 +261,7 @@ class WebAsyncManagerTests {
 
   @Test
   public void startDeferredResultProcessing() throws Exception {
-    DeferredResult<String> deferredResult = new DeferredResult<>(1000L);
+    DeferredResult<String> deferredResult = new DeferredResult<>(Duration.ofSeconds(1));
     String concurrentResult = "abc";
 
     DeferredResultProcessingInterceptor interceptor = mock(DeferredResultProcessingInterceptor.class);
@@ -277,7 +278,7 @@ class WebAsyncManagerTests {
     verify(interceptor).beforeConcurrentHandling(this.request, deferredResult);
     verify(interceptor).preProcess(this.request, deferredResult);
     verify(interceptor).postProcess(request, deferredResult, concurrentResult);
-    verify(this.asyncWebRequest).setTimeout(1000L);
+    verify(this.asyncRequest).setTimeout(Duration.ofSeconds(1));
   }
 
   @Test
@@ -296,9 +297,9 @@ class WebAsyncManagerTests {
 
     assertThat(this.asyncManager.hasConcurrentResult()).isFalse();
 
-    verify(this.asyncWebRequest).addTimeoutHandler(notNull());
-    verify(this.asyncWebRequest).addErrorHandler(notNull());
-    verify(this.asyncWebRequest).addCompletionHandler(notNull());
+    verify(this.asyncRequest).addTimeoutHandler(notNull());
+    verify(this.asyncRequest).addErrorHandler(notNull());
+    verify(this.asyncRequest).addCompletionHandler(notNull());
   }
 
   @Test
@@ -376,15 +377,15 @@ class WebAsyncManagerTests {
 
   private void setupDefaultAsyncScenario() {
 //    given(this.request.unwrapRequest(MockRequest.class)).willReturn(this.mockRequest);
-    given(this.asyncWebRequest.isAsyncComplete()).willReturn(false);
+    given(this.asyncRequest.isAsyncComplete()).willReturn(false);
   }
 
   private void verifyDefaultAsyncScenario() {
-    verify(this.asyncWebRequest).addTimeoutHandler(notNull());
-    verify(this.asyncWebRequest).addErrorHandler(notNull());
-    verify(this.asyncWebRequest).addCompletionHandler(notNull());
-    verify(this.asyncWebRequest).startAsync();
-    verify(this.asyncWebRequest).dispatch(notNull());
+    verify(this.asyncRequest).addTimeoutHandler(notNull());
+    verify(this.asyncRequest).addErrorHandler(notNull());
+    verify(this.asyncRequest).addCompletionHandler(notNull());
+    verify(this.asyncRequest).startAsync();
+    verify(this.asyncRequest).dispatch(notNull());
   }
 
   private final class StubCallable implements Callable<Object> {

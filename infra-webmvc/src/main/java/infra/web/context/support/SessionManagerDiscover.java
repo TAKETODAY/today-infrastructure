@@ -23,7 +23,7 @@ import infra.beans.factory.BeanFactoryUtils;
 import infra.util.Assert;
 import infra.session.SessionManager;
 import infra.web.HttpContext;
-import infra.web.HttpContextUtils;
+import infra.web.util.WebUtils;
 
 /**
  * Helper class to discover and obtain a {@link SessionManager} instance.
@@ -93,7 +93,7 @@ public class SessionManagerDiscover {
   public @Nullable SessionManager find(HttpContext request) {
     SessionManager sessionManager = find();
     if (sessionManager == null) {
-      sessionManager = HttpContextUtils.getBean(request, SessionManager.BEAN_NAME, SessionManager.class);
+      sessionManager = WebUtils.getBean(request, SessionManager.BEAN_NAME, SessionManager.class);
     }
     return sessionManager;
   }

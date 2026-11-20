@@ -33,6 +33,7 @@ import infra.web.socket.WebSocketSession;
 import infra.web.socket.server.HandshakeFailureException;
 import infra.web.socket.server.RequestUpgradeStrategy;
 import infra.web.socket.server.support.NettyWebSocketSession;
+import infra.web.util.WebUtils;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -93,7 +94,7 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
   public @Nullable WebSocketSession upgrade(HttpContext context, @Nullable String selectedProtocol, List<WebSocketExtension> selectedExtensions,
           WebSocketHandler wsHandler, Map<String, Object> attributes) throws HandshakeFailureException //
   {
-    var nettyContext = context.getNativeContext(infra.web.server.netty.HttpContext.class);
+    var nettyContext = WebUtils.getNativeContext(context, infra.web.server.netty.HttpContext.class);
     if (nettyContext == null) {
       throw new IllegalStateException("WebSocket upgrade requires an HTTP/1.x Netty request context");
     }

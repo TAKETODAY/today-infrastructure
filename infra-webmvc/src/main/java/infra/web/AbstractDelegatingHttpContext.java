@@ -53,7 +53,7 @@ import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
 import infra.session.Session;
 import infra.util.MultiValueMap;
-import infra.web.async.AsyncWebRequest;
+import infra.web.async.WebAsyncRequest;
 import infra.web.async.WebAsyncManager;
 import infra.web.multipart.MultipartRequest;
 
@@ -180,13 +180,13 @@ public abstract class AbstractDelegatingHttpContext implements HttpContext {
   }
 
   @Override
-  public @Nullable List<ResponseCookie> removeCookie(String name) {
-    return delegate().removeCookie(name);
+  public @Nullable List<ResponseCookie> removeCookies(String name) {
+    return delegate().removeCookies(name);
   }
 
   @Override
-  public boolean hasResponseCookie() {
-    return delegate().hasResponseCookie();
+  public boolean hasResponseCookies() {
+    return delegate().hasResponseCookies();
   }
 
   @Override
@@ -205,8 +205,8 @@ public abstract class AbstractDelegatingHttpContext implements HttpContext {
   }
 
   @Override
-  public String @Nullable [] getParameters(String name) {
-    return delegate().getParameters(name);
+  public String @Nullable [] getParameterValues(String name) {
+    return delegate().getParameterValues(name);
   }
 
   @Override
@@ -320,8 +320,8 @@ public abstract class AbstractDelegatingHttpContext implements HttpContext {
   }
 
   @Override
-  public Locale getLocale() {
-    return delegate().getLocale();
+  public @Nullable Locale getPreferredLocale() {
+    return delegate().getPreferredLocale();
   }
 
   @Override
@@ -470,26 +470,6 @@ public abstract class AbstractDelegatingHttpContext implements HttpContext {
   }
 
   @Override
-  public @Nullable HandlerMatchingMetadata getMatchingMetadata() {
-    return delegate().getMatchingMetadata();
-  }
-
-  @Override
-  public void setMatchingMetadata(@Nullable HandlerMatchingMetadata handlerMatchingMetadata) {
-    delegate().setMatchingMetadata(handlerMatchingMetadata);
-  }
-
-  @Override
-  public boolean hasMatchingMetadata() {
-    return delegate().hasMatchingMetadata();
-  }
-
-  @Override
-  public HandlerMatchingMetadata matchingMetadata() {
-    return delegate().matchingMetadata();
-  }
-
-  @Override
   public @Nullable Object getAttribute(String name) {
     return delegate().getAttribute(name);
   }
@@ -525,8 +505,8 @@ public abstract class AbstractDelegatingHttpContext implements HttpContext {
   }
 
   @Override
-  public AsyncWebRequest asyncWebRequest() {
-    return delegate().asyncWebRequest();
+  public WebAsyncRequest asyncRequest() {
+    return delegate().asyncRequest();
   }
 
   @Override
@@ -542,36 +522,6 @@ public abstract class AbstractDelegatingHttpContext implements HttpContext {
   @Override
   public MultipartRequest asMultipartRequest() {
     return delegate().asMultipartRequest();
-  }
-
-  @Override
-  public void setBinding(@Nullable BindingContext bindingContext) {
-    delegate().setBinding(bindingContext);
-  }
-
-  @Override
-  public @Nullable BindingContext getBinding() {
-    return delegate().getBinding();
-  }
-
-  @Override
-  public BindingContext binding() {
-    return delegate().binding();
-  }
-
-  @Override
-  public boolean hasBinding() {
-    return delegate().hasBinding();
-  }
-
-  @Override
-  public @Nullable RedirectModel getInputRedirectModel() {
-    return delegate().getInputRedirectModel();
-  }
-
-  @Override
-  public @Nullable RedirectModel getInputRedirectModel(@Nullable RedirectModelManager manager) {
-    return delegate().getInputRedirectModel(manager);
   }
 
   // AttributeAccessorSupport
@@ -657,6 +607,11 @@ public abstract class AbstractDelegatingHttpContext implements HttpContext {
   }
 
   @Override
+  public void send(@Nullable Object result) throws IOException {
+    delegate().send(result);
+  }
+
+  @Override
   public long transferTo(OutputStream out) throws IOException {
     return delegate().transferTo(out);
   }
@@ -687,8 +642,18 @@ public abstract class AbstractDelegatingHttpContext implements HttpContext {
   }
 
   @Override
-  public boolean isDefaultHtmlEscape() {
-    return delegate().isDefaultHtmlEscape();
+  public @Nullable Object getSessionAttribute(String name) {
+    return delegate().getSessionAttribute(name);
+  }
+
+  @Override
+  public Object getRequiredSessionAttribute(String name) {
+    return delegate().getRequiredSessionAttribute(name);
+  }
+
+  @Override
+  public void setSessionAttribute(String name, @Nullable Object value) {
+    delegate().setSessionAttribute(name, value);
   }
 
   public abstract HttpContext delegate();

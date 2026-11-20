@@ -13,7 +13,7 @@ DEFAULTMESSAGE
 <@infra.messageText "no.such.code", "hi"/> <@infra.messageText "no.such.code", "planet"/>
 
 MESSAGEARGS
-<@infra.messageArgs "hello", msgArgs/>
+<@infra.messageArgs "helloArgs", msgArgs/>
 
 MESSAGEARGSWITHDEFAULTMESSAGE
 <@infra.messageArgsText "no.such.code", msgArgs, "Hi"/>

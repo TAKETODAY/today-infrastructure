@@ -24,17 +24,15 @@ import java.util.List;
 import infra.web.AbstractRedirectModelManager;
 import infra.web.HttpContext;
 import infra.web.RedirectModel;
-import infra.web.HttpContextUtils;
 import infra.web.util.WebUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -43,285 +41,229 @@ import static org.mockito.Mockito.when;
  */
 class SessionRedirectModelManagerTests {
 
-  @Test
-  void constructor_ShouldSetSessionManager_WhenProvided() {
-    SessionManager sessionManager = mock(SessionManager.class);
-
-    SessionRedirectModelManager manager = new SessionRedirectModelManager(sessionManager);
-    assertThat(manager.getSessionManager()).isSameAs(sessionManager);
-  }
-
-  @Test
-  void constructor_ShouldHaveNullSessionManager_WhenNoArgs() {
-    SessionRedirectModelManager manager = new SessionRedirectModelManager();
-    assertThat(manager.getSessionManager()).isNull();
-  }
-
-  @Test
-  void getSession_ShouldUseHttpContextUtils_WhenSessionManagerIsNull() {
-    // given
-    SessionRedirectModelManager manager = new SessionRedirectModelManager();
-    HttpContext context = mock(HttpContext.class);
-    Session session = mock(Session.class);
-
-    try (var mockedUtils = mockStatic(HttpContextUtils.class)) {
-      mockedUtils.when(() -> context.getSession(true)).thenReturn(session);
-
-      Session result = manager.getSession(context, true);
-      assertThat(result).isSameAs(session);
-    }
-  }
+  private static final String SESSION_ATTRIBUTE = SessionRedirectModelManager.class.getName() + ".RedirectModel";
 
   @Test
   void retrieveRedirectModel_ShouldReturnNull_WhenSessionIsNull() {
-    // given
     SessionRedirectModelManager manager = new SessionRedirectModelManager();
-    HttpContext request = mock(HttpContext.class);
+    HttpContext request = mock(HttpContext.class, CALLS_REAL_METHODS);
 
-    // Mocking static method behavior to return null session
-    try (var mockedUtils = mockStatic(HttpContextUtils.class)) {
-      mockedUtils.when(() -> request.getSession(false)).thenReturn(null);
-
-      List<RedirectModel> result = manager.retrieveRedirectModel(request);
-      assertThat(result).isNull();
-    }
+    assertThat(manager.retrieveRedirectModel(request)).isNull();
+    verify(request).getSessionAttribute(SESSION_ATTRIBUTE);
+    verify(request).getSession(false);
+    verifyNoMoreInteractions(request);
   }
 
   @Test
   void retrieveRedirectModel_ShouldReturnNull_WhenAttributeIsNull() {
-    // given
     SessionRedirectModelManager manager = new SessionRedirectModelManager();
-    HttpContext request = mock(HttpContext.class);
+    HttpContext request = mock(HttpContext.class, CALLS_REAL_METHODS);
     Session session = mock(Session.class);
+    given(request.getSession(false)).willReturn(session);
 
-    when(session.getAttribute(anyString())).thenReturn(null);
-
-    try (var mockedUtils = mockStatic(HttpContextUtils.class)) {
-      mockedUtils.when(() -> request.getSession(false)).thenReturn(session);
-
-      List<RedirectModel> result = manager.retrieveRedirectModel(request);
-      assertThat(result).isNull();
-    }
+    assertThat(manager.retrieveRedirectModel(request)).isNull();
+    verify(session).getAttribute(SESSION_ATTRIBUTE);
+    verifyNoMoreInteractions(session);
   }
 
   @Test
   void retrieveRedirectModel_ShouldReturnModels_WhenAttributeExists() {
-    // given
     SessionRedirectModelManager manager = new SessionRedirectModelManager();
     HttpContext request = mock(HttpContext.class);
-    Session session = mock(Session.class);
-    List<RedirectModel> models = new ArrayList<>();
-    models.add(new RedirectModel());
+    List<RedirectModel> models = List.of(new RedirectModel());
+    given(request.getSessionAttribute(SESSION_ATTRIBUTE)).willReturn(models);
 
-    when(session.getAttribute(anyString())).thenReturn(models);
-
-    try (var mockedUtils = mockStatic(HttpContextUtils.class)) {
-      mockedUtils.when(() -> request.getSession(false)).thenReturn(session);
-
-      // when
-      List<RedirectModel> result = manager.retrieveRedirectModel(request);
-
-      // then
-      assertThat(result).isSameAs(models);
-    }
+    assertThat(manager.retrieveRedirectModel(request)).isSameAs(models);
+    verify(request).getSessionAttribute(SESSION_ATTRIBUTE);
+    verifyNoMoreInteractions(request);
   }
 
   @Test
   void updateRedirectModel_ShouldRemoveAttribute_WhenModelsIsEmpty() {
-    // given
     SessionRedirectModelManager manager = new SessionRedirectModelManager();
     HttpContext request = mock(HttpContext.class);
-    Session session = mock(Session.class);
-    List<RedirectModel> emptyModels = new ArrayList<>();
 
-    try (var mockedUtils = mockStatic(HttpContextUtils.class)) {
-      mockedUtils.when(() -> request.getSession(false)).thenReturn(session);
+    manager.updateRedirectModel(List.of(), request);
 
-      // when
-      manager.updateRedirectModel(emptyModels, request);
-
-      // then
-      verify(session).removeAttribute(anyString());
-    }
+    verify(request).setSessionAttribute(SESSION_ATTRIBUTE, null);
+    verifyNoMoreInteractions(request);
   }
 
   @Test
   void updateRedirectModel_ShouldSetAttribute_WhenModelsIsNotEmpty() {
-    // given
     SessionRedirectModelManager manager = new SessionRedirectModelManager();
     HttpContext request = mock(HttpContext.class);
-    Session session = mock(Session.class);
-    List<RedirectModel> models = new ArrayList<>();
-    models.add(new RedirectModel());
+    List<RedirectModel> models = List.of(new RedirectModel());
 
-    try (var mockedUtils = mockStatic(HttpContextUtils.class)) {
-      mockedUtils.when(() -> request.getSession(true)).thenReturn(session);
+    manager.updateRedirectModel(models, request);
 
-      // when
-      manager.updateRedirectModel(models, request);
-
-      // then
-      verify(session).setAttribute(anyString(), eq(models));
-    }
+    verify(request).setSessionAttribute(SESSION_ATTRIBUTE, models);
+    verifyNoMoreInteractions(request);
   }
 
   @Test
-  void updateRedirectModel_ShouldThrowException_WhenSessionNotFoundAndModelsNotEmpty() {
-    // given
+  void updateRedirectModel_ShouldNotCreateSession_WhenModelsAreEmpty() {
     SessionRedirectModelManager manager = new SessionRedirectModelManager();
-    HttpContext request = mock(HttpContext.class);
-    List<RedirectModel> models = new ArrayList<>();
-    models.add(new RedirectModel());
+    HttpContext request = mock(HttpContext.class, CALLS_REAL_METHODS);
 
-    try (var mockedUtils = mockStatic(HttpContextUtils.class)) {
-      mockedUtils.when(() -> request.getSession(true)).thenReturn(null);
+    manager.updateRedirectModel(List.of(), request);
 
-      // when & then
-      assertThatThrownBy(() -> manager.updateRedirectModel(models, request))
-              .isInstanceOf(IllegalStateException.class)
-              .hasMessage("Session not found in current request");
-    }
+    verify(request).setSessionAttribute(SESSION_ATTRIBUTE, null);
+    verify(request).getSession(false);
+    verifyNoMoreInteractions(request);
+  }
+
+  @Test
+  void updateRedirectModel_ShouldRemoveExistingSessionAttribute_WhenModelsAreEmpty() {
+    SessionRedirectModelManager manager = new SessionRedirectModelManager();
+    HttpContext request = mock(HttpContext.class, CALLS_REAL_METHODS);
+    Session session = mock(Session.class);
+    given(request.getSession(false)).willReturn(session);
+
+    manager.updateRedirectModel(List.of(), request);
+
+    verify(session).removeAttribute(SESSION_ATTRIBUTE);
+    verifyNoMoreInteractions(session);
+  }
+
+  @Test
+  void updateRedirectModel_ShouldCreateSession_WhenModelsAreNotEmpty() {
+    SessionRedirectModelManager manager = new SessionRedirectModelManager();
+    HttpContext request = mock(HttpContext.class, CALLS_REAL_METHODS);
+    Session session = mock(Session.class);
+    List<RedirectModel> models = List.of(new RedirectModel());
+    given(request.getSession(true)).willReturn(session);
+
+    manager.updateRedirectModel(models, request);
+
+    verify(request).getSession(true);
+    verify(session).setAttribute(SESSION_ATTRIBUTE, models);
+    verifyNoMoreInteractions(session);
   }
 
   @Test
   void getRedirectModelMutex_ShouldReturnNull_WhenSessionIsNull() {
-    // given
     SessionRedirectModelManager manager = new SessionRedirectModelManager();
     HttpContext request = mock(HttpContext.class);
 
-    try (var mockedUtils = mockStatic(HttpContextUtils.class)) {
-      mockedUtils.when(() -> request.getSession(false)).thenReturn(null);
-
-      // when
-      Object mutex = manager.getRedirectModelMutex(request);
-
-      // then
-      assertThat(mutex).isNull();
-    }
+    assertThat(manager.getRedirectModelMutex(request)).isNull();
+    verify(request).getSession(false);
+    verifyNoMoreInteractions(request);
   }
 
   @Test
   void getRedirectModelMutex_ShouldReturnMutex_WhenSessionExists() {
-    // given
     SessionRedirectModelManager manager = new SessionRedirectModelManager();
     HttpContext request = mock(HttpContext.class);
     Session session = mock(Session.class);
     Object mutex = new Object();
+    given(request.getSession(false)).willReturn(session);
+    given(session.getAttribute(WebUtils.SESSION_MUTEX_ATTRIBUTE)).willReturn(mutex);
 
-    when(WebUtils.getSessionMutex(session)).thenReturn(mutex);
-
-    try (var mockedUtils = mockStatic(HttpContextUtils.class)) {
-      mockedUtils.when(() -> request.getSession(false)).thenReturn(session);
-
-      // when
-      Object result = manager.getRedirectModelMutex(request);
-
-      // then
-      assertThat(result).isSameAs(mutex);
-    }
+    assertThat(manager.getRedirectModelMutex(request)).isSameAs(mutex);
+    verify(request).getSession(false);
+    verifyNoMoreInteractions(request);
   }
 
   @Test
-  void getSession_ShouldUseCustomSessionManager_WhenProvided() {
-    // given
-    SessionManager customManager = mock(SessionManager.class);
-    SessionRedirectModelManager manager = new SessionRedirectModelManager(customManager);
-    HttpContext context = mock(HttpContext.class);
-    Session session = mock(Session.class);
-
-    when(customManager.getSession(context, true)).thenReturn(session);
-
-    // when
-    Session result = manager.getSession(context, true);
-
-    // then
-    assertThat(result).isSameAs(session);
-    verify(customManager).getSession(context, true);
-  }
-
-  @Test
-  void getSession_ShouldNotCreateSession_WhenCreateIsFalseAndSessionNotExists() {
-    // given
+  void getRedirectModelMutex_ShouldReturnSession_WhenMutexAttributeIsAbsent() {
     SessionRedirectModelManager manager = new SessionRedirectModelManager();
-    HttpContext context = mock(HttpContext.class);
+    HttpContext request = mock(HttpContext.class);
+    Session session = mock(Session.class);
+    given(request.getSession(false)).willReturn(session);
 
-    try (var mockedUtils = mockStatic(HttpContextUtils.class)) {
-      mockedUtils.when(() -> context.getSession(false)).thenReturn(null);
-
-      Session result = manager.getSession(context, false);
-      assertThat(result).isNull();
-    }
+    assertThat(manager.getRedirectModelMutex(request)).isSameAs(session);
+    verify(request).getSession(false);
+    verifyNoMoreInteractions(request);
   }
 
   @Test
   void retrieveAndUpdate_ShouldReturnNull_WhenNoRedirectModels() {
-    // given
     SessionRedirectModelManager manager = new SessionRedirectModelManager();
     HttpContext context = mock(HttpContext.class);
 
-    try (var mockedUtils = mockStatic(HttpContextUtils.class)) {
-      mockedUtils.when(() -> context.getSession(false)).thenReturn(null);
+    RedirectModel result = manager.retrieveAndUpdate(context);
 
-      RedirectModel result = manager.retrieveAndUpdate(context);
-      assertThat((Object) result).isNull();
-    }
+    assertThat((Object) result).isNull();
+    verify(context).getSessionAttribute(SESSION_ATTRIBUTE);
+    verifyNoMoreInteractions(context);
   }
 
   @Test
   void retrieveAndUpdate_ShouldRemoveExpiredModelsAndReturnMatch() {
-    // given
     SessionRedirectModelManager manager = new SessionRedirectModelManager();
     HttpContext context = mock(HttpContext.class);
     Session session = mock(Session.class);
-    List<RedirectModel> redirectModels = new ArrayList<>();
-
     RedirectModel expiredModel = new RedirectModel();
-    expiredModel.startExpirationPeriod(-1); // Expired
-
+    expiredModel.setTargetRequestPath("/expired");
+    expiredModel.startExpirationPeriod(-1);
     RedirectModel validModel = new RedirectModel();
     validModel.setTargetRequestPath("/test");
+    List<RedirectModel> redirectModels = new ArrayList<>(List.of(expiredModel, validModel));
+    given(context.getSessionAttribute(SESSION_ATTRIBUTE)).willReturn(redirectModels);
+    given(context.getSession(false)).willReturn(session);
+    given(context.getRequestURI()).willReturn("/test");
 
-    redirectModels.add(expiredModel);
-    redirectModels.add(validModel);
+    RedirectModel result = manager.retrieveAndUpdate(context);
 
-    when(session.getAttribute(anyString())).thenReturn(redirectModels);
-    when(WebUtils.getSessionMutex(session)).thenReturn(new Object());
+    assertThat((Object) result).isSameAs(validModel);
+    assertThat(redirectModels).isEmpty();
+    verify(context).setSessionAttribute(SESSION_ATTRIBUTE, null);
+  }
 
-    try (var mockedUtils = mockStatic(HttpContextUtils.class)) {
-      mockedUtils.when(() -> context.getSession(false)).thenReturn(session);
-      mockedUtils.when(() -> context.getSession(true)).thenReturn(session);
+  @Test
+  void retrieveAndUpdate_ShouldPreserveUnmatchedModels() {
+    SessionRedirectModelManager manager = new SessionRedirectModelManager();
+    HttpContext context = mock(HttpContext.class);
+    RedirectModel matchingModel = new RedirectModel("message", "saved");
+    matchingModel.setTargetRequestPath("/target");
+    RedirectModel unmatchedModel = new RedirectModel("message", "other");
+    unmatchedModel.setTargetRequestPath("/other");
+    List<RedirectModel> models = new ArrayList<>(List.of(matchingModel, unmatchedModel));
+    given(context.getSessionAttribute(SESSION_ATTRIBUTE)).willReturn(models);
+    given(context.getRequestURI()).willReturn("/target");
 
-      when(context.getRequestURI()).thenReturn("/test");
+    RedirectModel result = manager.retrieveAndUpdate(context);
 
-      RedirectModel result = manager.retrieveAndUpdate(context);
+    assertThat((Object) result).isSameAs(matchingModel);
+    assertThat(models).containsExactly(unmatchedModel);
+    verify(context).setSessionAttribute(SESSION_ATTRIBUTE, models);
+  }
 
-      assertThat((Object) result).isNotNull();
-      assertThat(result.getTargetRequestPath()).isEqualTo("/test");
-//      verify(session).setAttribute(anyString(), any());
-    }
+  @Test
+  void retrieveAndUpdate_ShouldNotUpdateModels_WhenNoModelMatchesOrExpires() {
+    SessionRedirectModelManager manager = new SessionRedirectModelManager();
+    HttpContext context = mock(HttpContext.class);
+    RedirectModel model = new RedirectModel("message", "saved");
+    model.setTargetRequestPath("/target");
+    List<RedirectModel> models = new ArrayList<>(List.of(model));
+    given(context.getSessionAttribute(SESSION_ATTRIBUTE)).willReturn(models);
+    given(context.getRequestURI()).willReturn("/other");
+
+    RedirectModel result = manager.retrieveAndUpdate(context);
+
+    assertThat((Object) result).isNull();
+    assertThat(models).containsExactly(model);
+    verify(context).getSessionAttribute(SESSION_ATTRIBUTE);
+    verify(context).getRequestURI();
+    verifyNoMoreInteractions(context);
   }
 
   @Test
   void saveRedirectModel_ShouldSaveNewRedirectModel() {
-    // given
     SessionRedirectModelManager manager = new SessionRedirectModelManager();
-    HttpContext context = mock(HttpContext.class);
+    HttpContext context = mock(HttpContext.class, CALLS_REAL_METHODS);
     Session session = mock(Session.class);
     RedirectModel redirectModel = new RedirectModel();
     redirectModel.addAttribute("key", "value");
     redirectModel.setTargetRequestPath("/target");
+    given(context.getSession(true)).willReturn(session);
 
-    when(WebUtils.getSessionMutex(session)).thenReturn(new Object());
-    when(context.getRequestURI()).thenReturn("/current");
+    manager.saveRedirectModel(context, redirectModel);
 
-    try (var mockedUtils = mockStatic(HttpContextUtils.class)) {
-      mockedUtils.when(() -> context.getSession(false)).thenReturn(session);
-      mockedUtils.when(() -> context.getSession(true)).thenReturn(session);
-
-      manager.saveRedirectModel(context, redirectModel);
-
-      verify(session).setAttribute(anyString(), any(List.class));
-    }
+    verify(session).setAttribute(SESSION_ATTRIBUTE, List.of(redirectModel));
+    assertThat(redirectModel.getExpirationTime()).isPositive();
+    assertThat(redirectModel.isExpired()).isFalse();
   }
 
   @Test
@@ -376,8 +318,7 @@ class SessionRedirectModelManagerTests {
     // when
     manager.saveRedirectModel(context, null);
 
-    // then
-    // No exception should be thrown
+    verifyNoInteractions(context);
   }
 
   @Test
@@ -390,60 +331,44 @@ class SessionRedirectModelManagerTests {
     // when
     manager.saveRedirectModel(context, redirectModel);
 
-    // then
-    // No exception should be thrown
+    verifyNoInteractions(context);
   }
 
   @Test
   void saveRedirectModel_ShouldSaveModel_WithSessionMutex() {
-    // given
     SessionRedirectModelManager manager = new SessionRedirectModelManager();
     HttpContext context = mock(HttpContext.class);
     Session session = mock(Session.class);
+    Object mutex = new Object();
     RedirectModel redirectModel = new RedirectModel();
     redirectModel.addAttribute("key", "value");
     redirectModel.setTargetRequestPath("/target");
+    given(context.getSession(false)).willReturn(session);
+    given(session.getAttribute(WebUtils.SESSION_MUTEX_ATTRIBUTE)).willReturn(mutex);
 
-    when(session.getAttribute(anyString())).thenReturn(null);
-    when(WebUtils.getSessionMutex(session)).thenReturn(new Object());
-    when(context.getRequestURI()).thenReturn("/current");
+    manager.saveRedirectModel(context, redirectModel);
 
-    try (var mockedUtils = mockStatic(HttpContextUtils.class)) {
-      mockedUtils.when(() -> context.getSession(false)).thenReturn(session);
-      mockedUtils.when(() -> context.getSession(true)).thenReturn(session);
-
-      // when
-      manager.saveRedirectModel(context, redirectModel);
-
-      // then
-      verify(session).setAttribute(anyString(), any(List.class));
-    }
+    verify(context).setSessionAttribute(SESSION_ATTRIBUTE, List.of(redirectModel));
   }
 
   @Test
-  void saveRedirectModel_ShouldSaveModel_WithoutSessionMutex() {
-    // given
+  void saveRedirectModel_ShouldAppendToExistingModels() {
     SessionRedirectModelManager manager = new SessionRedirectModelManager();
     HttpContext context = mock(HttpContext.class);
     Session session = mock(Session.class);
+    RedirectModel existingModel = new RedirectModel();
+    existingModel.addAttribute("existing", "value");
+    List<RedirectModel> models = new ArrayList<>(List.of(existingModel));
     RedirectModel redirectModel = new RedirectModel();
     redirectModel.addAttribute("key", "value");
     redirectModel.setTargetRequestPath("/target");
+    given(context.getSession(false)).willReturn(session);
+    given(context.getSessionAttribute(SESSION_ATTRIBUTE)).willReturn(models);
 
-    when(session.getAttribute(anyString())).thenReturn(null);
-    when(WebUtils.getSessionMutex(session)).thenReturn(null);
-    when(context.getRequestURI()).thenReturn("/current");
+    manager.saveRedirectModel(context, redirectModel);
 
-    try (var mockedUtils = mockStatic(HttpContextUtils.class)) {
-      mockedUtils.when(() -> context.getSession(false)).thenReturn(session);
-      mockedUtils.when(() -> context.getSession(true)).thenReturn(session);
-
-      // when
-      manager.saveRedirectModel(context, redirectModel);
-
-      // then
-      verify(session).setAttribute(anyString(), any(List.class));
-    }
+    assertThat(models).containsExactly(existingModel, redirectModel);
+    verify(context).setSessionAttribute(SESSION_ATTRIBUTE, models);
   }
 
   @Test

@@ -2,7 +2,7 @@
 = 路径匹配
 
 可以定制与路径匹配和URL处理相关的选项。
-有关各个选项的详细信息，请参阅 {today-framework-api}/web/config/PathMatchConfigurer.html[`PathMatchConfigurer`] javadoc。
+有关各个选项的详细信息，请参阅 {today-framework-api}/web/config/annotation/PathMatchConfigurer.html[`PathMatchConfigurer`] javadoc。
 
 以下示例展示了如何定制路径匹配：
 

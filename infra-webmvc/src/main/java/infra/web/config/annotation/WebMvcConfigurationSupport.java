@@ -71,8 +71,6 @@ import infra.web.accept.ApiVersionStrategy;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.async.WebAsyncManagerFactory;
 import infra.web.bind.WebDataBinder;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
-import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.bind.support.WebBindingInitializer;
 import infra.web.cors.CorsConfiguration;
@@ -87,14 +85,17 @@ import infra.web.handler.function.support.HandlerFunctionAdapter;
 import infra.web.handler.function.support.RouterFunctionMapping;
 import infra.web.handler.method.ControllerAdviceBean;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
-import infra.web.handler.method.JsonViewRequestBodyAdvice;
-import infra.web.handler.method.JsonViewResponseBodyAdvice;
 import infra.web.handler.method.MvcUriComponentsBuilder;
+import infra.web.handler.method.ParameterResolvingRegistry;
+import infra.web.handler.method.ParameterResolvingStrategy;
 import infra.web.handler.method.RequestBodyAdvice;
 import infra.web.handler.method.RequestMappingHandlerAdapter;
 import infra.web.handler.method.RequestMappingHandlerMapping;
 import infra.web.handler.method.ResponseBodyAdvice;
 import infra.web.handler.method.support.CompositeUriComponentsContributor;
+import infra.web.handler.method.support.ParameterResolvingRegistryFactory;
+import infra.web.handler.method.support.JsonViewRequestBodyAdvice;
+import infra.web.handler.method.support.JsonViewResponseBodyAdvice;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
 import infra.web.util.pattern.PathPatternParser;
 import infra.web.view.DefaultRequestToViewNameTranslator;
@@ -383,7 +384,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
     if (supportedMediaTypes.contains(MediaType.APPLICATION_CBOR)) {
       map.put("cbor", MediaType.APPLICATION_CBOR);
     }
-    if (supportedMediaTypes.contains(MediaType.APPLICATION_ATOM_XML)) {
+    if (supportedMediaTypes.contains(MediaType.APPLICATION_YAML)) {
       map.put("yaml", MediaType.APPLICATION_YAML);
     }
     return map;
@@ -473,9 +474,9 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
   protected void configureViewResolvers(ViewResolverRegistry registry) {
   }
 
-  @Component
+  @Component(name = LocaleResolver.BEAN_NAME)
   @ConditionalOnMissingBean(name = LocaleResolver.BEAN_NAME)
-  public LocaleResolver webLocaleResolver() {
+  public LocaleResolver mvcLocaleResolver() {
     return new AcceptHeaderLocaleResolver();
   }
 
@@ -522,6 +523,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
     manager.setViewReturnValueHandler(viewHandler);
     manager.addRequestResponseBodyAdvice(requestResponseBodyAdvice);
     manager.setErrorResponseInterceptors(getErrorResponseInterceptors());
+    manager.setErrorResponseViewResolver(getProblemDetailsConfigurer().getViewResolver());
     manager.registerDefaultHandlers();
 
     modifyReturnValueHandlerManager(manager);
@@ -542,13 +544,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
           ParameterResolvingStrategy @Nullable [] strategies, @Nullable RedirectModelManager redirectModelManager,
           @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager) {
 
-    var registry = new ParameterResolvingRegistry(getMessageConverters());
-    registry.setApplicationContext(getApplicationContext());
-    registry.setRedirectModelManager(redirectModelManager);
-    registry.addRequestResponseBodyAdvice(requestResponseBodyAdvice);
-    registry.setContentNegotiationManager(contentNegotiationManager);
-
-    registry.registerDefaultStrategies();
+    var registry = ParameterResolvingRegistryFactory.create(applicationContext(), getMessageConverters(),
+            contentNegotiationManager, redirectModelManager, requestResponseBodyAdvice);
     registry.addCustomizedStrategies(strategies);
 
     modifyParameterResolvingRegistry(registry);
@@ -556,7 +553,6 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
   }
 
   protected void modifyParameterResolvingRegistry(ParameterResolvingRegistry registry) {
-
   }
 
   // HandlerExceptionHandler
@@ -632,10 +628,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
 
     handler.setContentNegotiationManager(contentNegotiationManager);
     handler.setParameterResolvingRegistry(registry);
-    handler.setErrorResponseInterceptors(getErrorResponseInterceptors());
     ProblemDetailsConfigurer problemDetails = getProblemDetailsConfigurer();
     handler.setRenderUnhandledExceptionsAsProblemDetails(problemDetails.isRenderUnhandledExceptions());
-    handler.setErrorResponseViewResolver(problemDetails.getViewResolver());
     handler.afterPropertiesSet();
     handlers.add(handler);
 
@@ -1002,8 +996,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public CompositeUriComponentsContributor mvcUriComponentsContributor(ParameterResolvingRegistry registry,
           @Qualifier("mvcConversionService") FormattingConversionService conversionService) {
-    var strategies = new ArrayList<>(registry.getDefaultStrategies().getStrategies());
-    strategies.addAll(registry.getCustomizedStrategies().getStrategies());
+    var strategies = new ArrayList<>(registry.getCustomizedStrategies().getStrategies());
+    strategies.addAll(registry.getDefaultStrategies().getStrategies());
     return new CompositeUriComponentsContributor(strategies, conversionService);
   }
 

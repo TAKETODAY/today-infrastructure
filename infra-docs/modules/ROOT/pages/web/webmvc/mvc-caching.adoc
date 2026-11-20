@@ -56,7 +56,7 @@ HTTP 处理器可以添加对 HTTP 缓存的显式支持。我们建议这样做
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@GetMapping("/book/{id}")
+@GET("/book/{id}")
 public ResponseEntity<Book> showBook(@PathVariable Long id) {
 
   Book book = findBook(id);
@@ -121,4 +121,3 @@ public String myHandleMethod(HttpContext request, Model model) {
 
 为了获得最佳性能，您应该使用 `Cache-Control` 和条件响应头提供静态资源。请参阅有关配置
 xref:web/webmvc/mvc-config/static-resources.adoc[静态资源] 的部分。
-

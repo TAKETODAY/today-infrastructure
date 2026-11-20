@@ -18,7 +18,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@GetMapping("/demo")
+@GET("/demo")
 public void handle(@CookieValue("JSESSIONID") String cookie) { <1>
   //...
 }

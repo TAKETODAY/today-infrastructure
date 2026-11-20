@@ -19,14 +19,28 @@
 package infra.web.socket.handler;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import infra.beans.factory.BeanFactory;
 import infra.beans.factory.DisposableBean;
+import infra.beans.factory.config.AutowireCapableBeanFactory;
 import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.util.concurrent.Future;
 import infra.web.socket.CloseStatus;
 import infra.web.socket.WebSocketHandler;
+import infra.web.socket.WebSocketMessage;
 import infra.web.socket.WebSocketSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -54,6 +68,61 @@ class PerConnectionWebSocketHandlerTests {
 
     assertThat(EchoHandler.initCount).isEqualTo(1);
     assertThat(EchoHandler.destroyCount).isEqualTo(1);
+  }
+
+  @Test
+  void createsSeparateHandlersWithoutAnAutowireCapableFactory() throws Exception {
+    var provider = new BeanCreatingHandlerProvider<>(PlainHandler.class);
+    provider.setBeanFactory(mock(BeanFactory.class));
+
+    PlainHandler first = provider.getHandler();
+    assertThat(provider.getHandler()).isNotSameAs(first);
+    assertThat(provider.getHandlerType()).isEqualTo(PlainHandler.class);
+    assertThat(provider.toString()).contains(PlainHandler.class.getName());
+    provider.destroy(first);
+
+    var handler = new PerConnectionWebSocketHandler(PlainHandler.class);
+    var session = new TestWebSocketSession();
+    handler.onOpen(session);
+    assertThat(handler.toString()).contains(PlainHandler.class.getName());
+    handler.onClose(session, CloseStatus.NORMAL);
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = { true, false })
+  void removesHandlerEvenIfDestroyThrows(boolean warn) throws Exception {
+    var factory = mock(AutowireCapableBeanFactory.class);
+    var delegate = mock(PlainHandler.class);
+    var handler = new PerConnectionWebSocketHandler(PlainHandler.class);
+    var session = new TestWebSocketSession();
+    var message = WebSocketMessage.ping();
+    var failure = new IllegalStateException("transport failure");
+    Future<Void> complete = Future.ok();
+    given(factory.createBean(PlainHandler.class)).willReturn(delegate);
+    given(delegate.handleMessage(session, message)).willReturn(complete);
+    given(delegate.onClose(session, CloseStatus.NORMAL)).willReturn(complete);
+    willThrow(new IllegalStateException("destroy failed")).given(factory).destroyBean(delegate);
+    handler.setBeanFactory(factory);
+    handler.onOpen(session);
+    assertThat(handler.handleMessage(session, message)).isSameAs(complete);
+    handler.onError(session, failure);
+    verify(delegate).onError(session, failure);
+
+    Logger logger = (Logger) LoggerFactory.getLogger(PerConnectionWebSocketHandler.class);
+    Level previous = logger.getLevel();
+    logger.setLevel(warn ? Level.WARN : Level.OFF);
+    try {
+      assertThat(handler.onClose(session, CloseStatus.NORMAL)).isSameAs(complete);
+      assertThatIllegalStateException().isThrownBy(() -> handler.onClose(session, CloseStatus.NORMAL))
+              .withMessageContaining("WebSocketHandler not found");
+      verify(factory).destroyBean(delegate);
+    }
+    finally {
+      logger.setLevel(previous);
+    }
+  }
+
+  static class PlainHandler extends WebSocketHandler {
   }
 
   public static class EchoHandler extends WebSocketHandler implements DisposableBean {

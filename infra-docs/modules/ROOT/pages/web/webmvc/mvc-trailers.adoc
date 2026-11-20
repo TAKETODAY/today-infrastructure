@@ -1,0 +1,45 @@
+[[mvc-trailers]]
+= 响应 Trailer
+
+当响应元数据只有在正文生产结束后才能确定时，可以通过 `HttpContext.setTrailerFields(Trailer...)`
+注册尾部字段，例如流式计算的摘要或统计信息。`Trailer` 来自 `infra.web`，将字段名与延迟求值的 `Supplier<String>` 绑定。
+
+[source,java]
+----
+@GET("/report")
+public void report(HttpContext context) throws IOException {
+  byte[] body = "report\n".getBytes(StandardCharsets.UTF_8);
+  context.setTrailerFields(Trailer.field("X-Report-Bytes", () -> Integer.toString(body.length)));
+  context.getOutputStream().write(body);
+}
+----
+
+示例使用 `infra.web.annotation.GET`、`infra.web.HttpContext`、`infra.web.Trailer`，
+以及 `java.io.IOException` 和 `java.nio.charset.StandardCharsets`。
+这里用简单统计值演示注册方式；框架不会自动计算正文摘要。
+
+== 注册与求值
+
+* 必须在响应头提交之前注册；进入 `COMMITTING` 回调时已不能注册或清除，提交后调用会抛出 `IllegalStateException`。
+* 后一次注册替换前一次；提交前调用无参数的 `setTrailerFields()` 清除注册，`reset()` 也会清除。
+* 一个名称可以注册多个值；supplier 返回 `null` 时跳过该字段。
+* supplier 在正常完成路径、正文生产结束后同步求值，而不是在 `flush()` 时求值；每次注册至多求值一次，失败不重试。
+* supplier 必须非阻塞；不能以其执行或请求完成回调作为网络发送成功的证明。
+
+名称必须是合法 HTTP 字段名。不能注册 `Content-Length`、`Transfer-Encoding`、`Content-Type`、
+`Authorization`、`Set-Cookie`、`Cache-Control` 等必须在头部阶段确定的字段。
+值不能包含 CR、LF 等控制字符（水平制表符除外）；非法字段或值会被拒绝。
+
+== 协议与失败边界
+
+当前 Netty 服务端支持 HTTP/1.1 和 HTTP/2 的响应 Trailer。HTTP/1.1 使用 chunked 编码，
+HTTP/2 使用尾部 HEADERS 帧。本实现注册 Trailer 后两种协议都省略 `Content-Length`；
+对 HTTP/2 而言这是实现策略，不是协议要求。其他 `HttpContext` 实现可能抛出 `UnsupportedOperationException`。
+
+`HEAD`、无正文状态（`1xx`、`204`、`205`、`304`）、协议升级和成功的 `CONNECT` 不能携带 Trailer。
+注册后若最终状态改为不允许正文的状态，会丢弃注册且不调用 supplier。
+正文生产失败时跳过求值；supplier 抛异常或产生非法值时，不补发正常结束标记，传输层终止连接或流。
+
+IMPORTANT: Trailer 是尽力而为的元数据。代理可能剥离，客户端可能忽略，浏览器 API 也未必暴露；
+本实现不强制要求 HTTP/1.1 请求携带 `TE: trailers`。不要用它承载必须送达的鉴权结果或唯一的业务完成标记，
+也不要将其作为 SSE 的默认结束机制，或将 Trailer 支持等同于 gRPC 支持。

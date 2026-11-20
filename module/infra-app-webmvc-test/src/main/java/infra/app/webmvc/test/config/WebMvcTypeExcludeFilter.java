@@ -35,9 +35,9 @@ import infra.util.ObjectUtils;
 import infra.web.Filter;
 import infra.web.HandlerInterceptor;
 import infra.web.annotation.ControllerAdvice;
-import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.config.WebMvcRegistrations;
 import infra.web.config.annotation.WebMvcConfigurer;
+import infra.web.handler.method.ParameterResolvingStrategy;
 import infra.web.server.error.ErrorAttributes;
 
 /**

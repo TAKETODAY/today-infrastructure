@@ -17,6 +17,8 @@
 package infra.web.socket.server.support;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +27,7 @@ import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.NettyDataBufferFactory;
 import infra.logging.Logger;
 import infra.util.concurrent.Future;
+import infra.util.concurrent.Promise;
 import infra.web.socket.CloseStatus;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketMessage;
@@ -34,6 +37,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.DefaultChannelPromise;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -56,6 +60,85 @@ import static org.mockito.Mockito.verify;
  * @since 5.0 2025/8/14 21:58
  */
 class NettyWebSocketSessionTests {
+
+  @ParameterizedTest
+  @ValueSource(booleans = { true, false })
+  void propagatesCancellationOfCloseFrameWriteOrTransportClose(boolean cancelWrite) {
+    Channel channel = mock(Channel.class);
+    NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
+            new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
+    DefaultChannelPromise write = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
+    DefaultChannelPromise close = new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
+    given(channel.writeAndFlush(any())).willAnswer(invocation -> {
+      invocation.<CloseWebSocketFrame>getArgument(0).release();
+      return write;
+    });
+    given(channel.close()).willReturn(close);
+
+    Future<Void> result = session.close(CloseStatus.NORMAL);
+    if (cancelWrite) {
+      write.cancel(false);
+      verify(channel, never()).close();
+    }
+    else {
+      write.setSuccess();
+      verify(channel).close();
+      close.cancel(false);
+    }
+    assertThat(result.isCancelled()).isTrue();
+  }
+
+  @Test
+  void waitsForCloseCallbackBeforeReplyingWithACloseFrame() {
+    Channel channel = mock(Channel.class);
+    given(channel.isActive()).willReturn(true);
+    NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
+            new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
+    WebSocketHandler handler = mock(WebSocketHandler.class);
+    Logger logger = mock(Logger.class);
+    given(logger.isDebugEnabled()).willReturn(true);
+    Promise<Void> acknowledged = Future.forPromise(Runnable::run);
+    given(handler.onClose(session, CloseStatus.GOING_AWAY)).willReturn(acknowledged);
+    given(channel.writeAndFlush(any())).willAnswer(invocation -> {
+      CloseWebSocketFrame frame = invocation.getArgument(0);
+      try {
+        assertThat(frame.statusCode()).isEqualTo(CloseStatus.GOING_AWAY.getCode());
+      }
+      finally {
+        frame.release();
+      }
+      return new DefaultChannelPromise(channel, ImmediateEventExecutor.INSTANCE);
+    });
+
+    session.onClose(handler, CloseStatus.GOING_AWAY, logger);
+    verify(channel, never()).writeAndFlush(any());
+    acknowledged.setSuccess(null);
+    verify(channel).writeAndFlush(any(CloseWebSocketFrame.class));
+  }
+
+  @Test
+  void releasesUnsupportedFrameWithoutDispatchingIt() {
+    Channel channel = mock(Channel.class);
+    NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
+            new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
+    WebSocketHandler handler = mock(WebSocketHandler.class);
+    ContinuationWebSocketFrame frame = new ContinuationWebSocketFrame(Unpooled.buffer(1).writeByte(1));
+
+    session.handleMessage(handler, frame, mock(Logger.class));
+
+    assertThat(frame.refCnt()).isZero();
+    verify(handler, never()).handleMessage(any(), any());
+  }
+
+  @Test
+  void sessionEqualityRequiresAnotherSession() {
+    Channel channel = mock(Channel.class);
+    NettyWebSocketSession session = new NettyWebSocketSession(false, channel,
+            new NettyDataBufferFactory(ByteBufAllocator.DEFAULT), null);
+
+    assertThat(session.equals(session)).isTrue();
+    assertThat(session).isNotEqualTo(channel);
+  }
 
   @Test
   void close() throws Exception {

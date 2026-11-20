@@ -19,6 +19,7 @@ package infra.web.config.annotation;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.time.Duration;
 
 import infra.core.task.AsyncTaskExecutor;
 import infra.web.async.CallableProcessingInterceptor;
@@ -47,7 +48,7 @@ class AsyncSupportConfigurerTests {
   @Test
   void setDefaultTimeoutStoresTimeout() {
     AsyncSupportConfigurer configurer = new AsyncSupportConfigurer();
-    long timeout = 5000L;
+    Duration timeout = Duration.ofSeconds(5);
 
     AsyncSupportConfigurer result = configurer.setDefaultTimeout(timeout);
 

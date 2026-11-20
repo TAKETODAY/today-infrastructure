@@ -41,16 +41,17 @@ import infra.http.converter.StringHttpMessageConverter;
 import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.web.ErrorResponse;
+import infra.web.ErrorResponseViewResolver;
 import infra.web.HttpContext;
 import infra.web.RedirectModelManager;
 import infra.web.ReturnValueHandler;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.async.WebAsyncTask;
-import infra.web.bind.resolver.HttpEntityMethodProcessor;
-import infra.web.bind.resolver.RequestResponseBodyMethodProcessor;
-import infra.web.handler.method.ModelAttributeMethodProcessor;
 import infra.web.handler.method.RequestBodyAdvice;
 import infra.web.handler.method.ResponseBodyAdvice;
+import infra.web.handler.method.support.HttpEntityMethodProcessor;
+import infra.web.handler.method.support.ModelAttributeMethodProcessor;
+import infra.web.handler.method.support.RequestResponseBodyMethodProcessor;
 import infra.web.handler.result.AsyncTaskMethodReturnValueHandler;
 import infra.web.handler.result.CallableMethodReturnValueHandler;
 import infra.web.handler.result.DeferredResultReturnValueHandler;
@@ -60,6 +61,7 @@ import infra.web.handler.result.ObjectHandlerMethodReturnValueHandler;
 import infra.web.handler.result.RenderedImageReturnValueHandler;
 import infra.web.handler.result.ResponseBodyEmitterReturnValueHandler;
 import infra.web.handler.result.ResponseEntityReturnValueHandler;
+import infra.web.handler.result.ServerResponseReturnValueHandler;
 import infra.web.handler.result.StreamingResponseBodyReturnValueHandler;
 import infra.web.handler.result.VoidReturnValueHandler;
 import infra.web.view.BeanNameViewResolver;
@@ -98,6 +100,27 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   private final ArrayList<Object> bodyAdvice = new ArrayList<>();
 
   private final ArrayList<ErrorResponse.Interceptor> errorResponseInterceptors = new ArrayList<>();
+
+  private @Nullable ErrorResponseViewResolver errorResponseViewResolver;
+
+  /**
+   * Configure the resolver for HTML problem detail views.
+   *
+   * @param resolver the resolver, or {@code null} to use message converters
+   * @since 5.0
+   */
+  public void setErrorResponseViewResolver(@Nullable ErrorResponseViewResolver resolver) {
+    this.errorResponseViewResolver = resolver;
+  }
+
+  /**
+   * Return the configured problem detail view resolver, if any.
+   *
+   * @since 5.0
+   */
+  public @Nullable ErrorResponseViewResolver getErrorResponseViewResolver() {
+    return this.errorResponseViewResolver;
+  }
 
   // @since 4.0
   @SuppressWarnings("NullAway.Init")
@@ -216,10 +239,6 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
     return new SelectableReturnValueHandler(handlers);
   }
 
-  public @Nullable ReturnValueHandler getHandler(final Object handler) {
-    return ReturnValueHandler.select(getHandlers(), handler, null);
-  }
-
   /**
    * @param returnValue if returnValue is {@link ReturnValueHandler#NONE_RETURN_VALUE} match handler only
    * @return null if returnValue is {@link ReturnValueHandler#NONE_RETURN_VALUE} or no one matched
@@ -297,6 +316,8 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
 
     HttpEntityMethodProcessor httpEntityMethodProcessor = new HttpEntityMethodProcessor(messageConverters,
             contentNegotiationManager, bodyAdvice, redirectModelManager, errorResponseInterceptors);
+    httpEntityMethodProcessor.setErrorResponseViewResolver(errorResponseViewResolver);
+    httpEntityMethodProcessor.setViewReturnValueHandler(viewHandler);
 
     ResponseBodyEmitterReturnValueHandler responseBodyEmitterHandler;
     if (taskExecutor != null) {
@@ -308,8 +329,13 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
     }
 
     handlers.add(responseBodyEmitterHandler);
+    handlers.add(new ServerResponseReturnValueHandler(this));
     handlers.add(new ResponseEntityReturnValueHandler(httpEntityMethodProcessor, responseBodyEmitterHandler));
-    handlers.add(new RequestResponseBodyMethodProcessor(messageConverters, contentNegotiationManager, bodyAdvice, errorResponseInterceptors));
+    var responseBodyProcessor = new RequestResponseBodyMethodProcessor(messageConverters,
+            contentNegotiationManager, bodyAdvice, errorResponseInterceptors);
+    responseBodyProcessor.setErrorResponseViewResolver(errorResponseViewResolver);
+    responseBodyProcessor.setViewReturnValueHandler(viewHandler);
+    handlers.add(responseBodyProcessor);
     handlers.add(new ModelAttributeMethodProcessor(true));
 
     // fall back

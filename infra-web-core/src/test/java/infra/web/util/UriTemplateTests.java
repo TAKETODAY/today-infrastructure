@@ -162,6 +162,21 @@ public class UriTemplateTests {
   }
 
   @Test
+  void rejectsVariablesWithAnEmptyCustomRegex() {
+    assertThatIllegalArgumentException().isThrownBy(() -> new UriTemplate("/hotels/{hotel:}"))
+            .withMessageContaining("No custom regular expression", "hotel:");
+  }
+
+  @Test
+  void retainsTemplateTextAndReturnsNoVariablesForAnUnrelatedPath() {
+    String pattern = "/hotels/{hotel:\\d+}";
+    UriTemplate template = new UriTemplate(pattern);
+
+    assertThat(template).hasToString(pattern);
+    assertThat(template.match("/restaurants/42")).isEmpty();
+  }
+
+  @Test
   void match() {
     Map<String, String> expected = Map.of("booking", "42", "hotel", "1");
 

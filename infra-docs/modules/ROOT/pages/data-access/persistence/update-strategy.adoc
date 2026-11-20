@@ -19,3 +19,9 @@ PropertyUpdateStrategy strategy = PropertyUpdateStrategy.noneNull()
         .and(PropertyUpdateStrategy.notId());
 entityManager.update(user, strategy);
 ----
+
+未显式传入策略时，优先使用实体的 `UpdateStrategySource#updateStrategy()`，否则使用管理器的默认策略（初始值为 `noneNull()`）。
+要把某个列显式更新为 SQL `NULL`，须让策略选中该属性；`noneNull()` 会跳过它。
+
+策略筛选的是写入列，而不是 `WHERE` 条件。版本列和生成型主键有独立规则，
+前置 xref:data-access/persistence/events.adoc[监听器] 也可以调整传给框架的策略。

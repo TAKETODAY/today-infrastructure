@@ -27,12 +27,12 @@ import infra.web.BindingContext;
 import infra.web.HandlerExceptionHandler;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpContext;
-import infra.web.HttpContextUtils;
 import infra.web.LocaleResolver;
 import infra.web.RedirectModel;
 import infra.web.RedirectModelManager;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.result.SmartReturnValueHandler;
+import infra.web.util.WebUtils;
 
 /**
  * Handles return values that are view names, {@link View} instances, or {@link ViewRef} references.
@@ -204,7 +204,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * LocaleResolver bound to the request by the Ioc
    * (if available), falling back to the request's accept-header Locale.
    * <p>This method serves as a straightforward alternative to the standard
-   * {@link HttpContext#getLocale()} method,
+   * {@link HttpContext#getPreferredLocale()} method,
    * falling back to the latter if no more specific locale has been found.
    * <p>Consider using {@link LocaleContextHolder#getLocale()}
    * which will normally be populated with the same Locale.
@@ -215,14 +215,10 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    */
   private Locale getLocale(HttpContext request) {
     LocaleResolver localeResolver = this.localeResolver;
-    if (localeResolver == null) {
-      localeResolver = HttpContextUtils.getLocaleResolver(request);
-    }
-
     if (localeResolver != null) {
       return localeResolver.resolveLocale(request);
     }
-    return request.getLocale();
+    return WebUtils.resolveLocale(request);
   }
 
   /**
@@ -245,7 +241,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    */
   public void renderView(HttpContext context, View view, @Nullable Map<String, @Nullable Object> model) {
     // Model from BindingContext
-    BindingContext binding = context.getBinding();
+    BindingContext binding = BindingContext.find(context);
     if (binding != null) {
       try {
         binding.updateModel(context);
@@ -278,7 +274,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * to resolve the view. ViewResolvers that support internationalization
    * should respect this.
    * <p>
-   * If {@link #localeResolver} is null use {@link HttpContextUtils#getLocale(HttpContext)}
+   * If {@link #localeResolver} is null use {@link WebUtils#resolveLocale(HttpContext)}
    * to find Locale
    *
    * @param localeResolver to determine the Locale in which to resolve the view
@@ -312,7 +308,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
 
     View view = resolveViewName(locale, viewName);
     if (view == null) {
-      HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
+      HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(context);
       if (matchingMetadata != null) {
         Object handler = matchingMetadata.getHandler();
         throw new ViewRenderingException(

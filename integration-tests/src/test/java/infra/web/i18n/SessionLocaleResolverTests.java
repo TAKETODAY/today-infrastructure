@@ -21,7 +21,10 @@ package infra.web.i18n;
 import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
+import java.util.TimeZone;
 
+import infra.core.i18n.SimpleTimeZoneAwareLocaleContext;
+import infra.core.i18n.TimeZoneAwareLocaleContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
 import infra.web.HttpContext;
@@ -33,6 +36,7 @@ import infra.session.config.EnableSession;
 import infra.web.DispatcherHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -52,6 +56,64 @@ public class SessionLocaleResolverTests {
   @Configuration
   static class SessionConfig {
 
+  }
+
+  @Test
+  void clearingLocaleContextWithoutSessionDoesNotCreateSession() {
+    MockHttpContext context = new MockHttpContext();
+    SessionLocaleResolver resolver = new SessionLocaleResolver();
+
+    resolver.setLocale(context, null);
+    resolver.setLocaleContext(context, null);
+
+    assertThat(context.getSession(false)).isNull();
+    assertThat(resolver.resolveLocale(context)).isEqualTo(Locale.getDefault());
+    assertThat(context.getSession(false)).isNull();
+  }
+
+  @Test
+  void customSessionAttributesAreSetReadLiveAndClearedWithoutRemovingOtherAttributes() {
+    MockHttpContext context = new MockHttpContext();
+    SessionLocaleResolver resolver = new SessionLocaleResolver();
+    resolver.setLocaleAttributeName("language");
+    resolver.setTimeZoneAttributeName("zone");
+    resolver.setDefaultLocale(Locale.JAPAN);
+    TimeZone defaultZone = TimeZone.getTimeZone("UTC");
+    TimeZone zone = TimeZone.getTimeZone("Europe/Berlin");
+    resolver.setDefaultTimeZone(defaultZone);
+    TimeZoneAwareLocaleContext localeContext = (TimeZoneAwareLocaleContext) resolver.resolveLocaleContext(context);
+    assertThat(localeContext.getLocale()).isEqualTo(Locale.JAPAN);
+    assertThat(localeContext.getTimeZone()).isSameAs(defaultZone);
+    assertThat(context.getSession(false)).isNull();
+
+    resolver.setLocaleContext(context, new SimpleTimeZoneAwareLocaleContext(Locale.GERMANY, zone));
+    Session session = context.getSession();
+    session.setAttribute("other", "keep");
+    assertThat(session.getAttribute("language")).isEqualTo(Locale.GERMANY);
+    assertThat(session.getAttribute("zone")).isSameAs(zone);
+    assertThat(localeContext.getLocale()).isEqualTo(Locale.GERMANY);
+    assertThat(localeContext.getTimeZone()).isSameAs(zone);
+
+    resolver.setLocaleContext(context, null);
+    assertThat(context.getSession(false)).isSameAs(session);
+    assertThat(session.getAttribute("language")).isNull();
+    assertThat(session.getAttribute("zone")).isNull();
+    assertThat(session.getAttribute("other")).isEqualTo("keep");
+    assertThat(localeContext.getLocale()).isEqualTo(Locale.JAPAN);
+    assertThat(localeContext.getTimeZone()).isSameAs(defaultZone);
+  }
+
+  @Test
+  void wrongSessionAttributeTypesAreNotSilentlyIgnored() {
+    MockHttpContext context = new MockHttpContext();
+    SessionLocaleResolver resolver = new SessionLocaleResolver();
+    Session session = context.getSession();
+    session.setAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME, "invalid");
+    assertThatThrownBy(() -> resolver.resolveLocale(context)).isInstanceOf(ClassCastException.class);
+    TimeZoneAwareLocaleContext localeContext = (TimeZoneAwareLocaleContext) resolver.resolveLocaleContext(context);
+    assertThatThrownBy(localeContext::getLocale).isInstanceOf(ClassCastException.class);
+    session.setAttribute(SessionLocaleResolver.TIME_ZONE_SESSION_ATTRIBUTE_NAME, "invalid");
+    assertThatThrownBy(localeContext::getTimeZone).isInstanceOf(ClassCastException.class);
   }
 
   @Test

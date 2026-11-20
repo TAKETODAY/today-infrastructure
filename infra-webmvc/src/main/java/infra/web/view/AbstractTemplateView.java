@@ -52,6 +52,14 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
   private boolean allowSessionOverride = false;
 
   /**
+   * Create a template view with automatic message and binding exposure enabled.
+   */
+  protected AbstractTemplateView() {
+    setExposeMessages(true);
+    setExposeBindings(true);
+  }
+
+  /**
    * Set whether all request attributes should be added to the
    * model prior to merging with the template. Default is "false".
    * <p>Note that some templates may make request attributes visible
@@ -90,7 +98,7 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
   }
 
   @Override
-  protected final void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
+  protected final void prepareModel(Map<String, Object> model, HttpContext http) throws Exception {
     if (exposeRequestAttributes) {
       Map<String, Object> exposed = null;
       for (String attribute : http.attributeNames()) {
@@ -114,6 +122,11 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
       exposeSessionAttributes(model, http);
     }
 
+    super.prepareModel(model, http);
+  }
+
+  @Override
+  protected final void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
     applyContentType(http);
 
     if (logger.isDebugEnabled()) {

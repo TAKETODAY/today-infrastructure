@@ -40,6 +40,35 @@ class DefaultSessionManagerTests {
   }
 
   @Test
+  void lookupByIdRequiresANonBlankIdAndASavedSession() {
+    var repository = new InMemorySessionRepository(new SessionEventDispatcher(), () -> "id");
+    var manager = new DefaultSessionManager(repository, null);
+
+    Session session = manager.createSession();
+    assertThat(manager.getSession(session.getId())).isNull();
+    repository.saveOrUpdate(session);
+    assertThat(manager.getSession(session.getId())).isSameAs(session);
+    assertThat(manager.getSession(" ")).isNull();
+  }
+
+  @Test
+  void staleRequestIdIsReplacedOnlyWhenCreationIsRequested() {
+    var repository = new InMemorySessionRepository(new SessionEventDispatcher(), () -> "replacement");
+    SessionIdResolver resolver = SessionIdResolver.xAuthToken();
+    var manager = new DefaultSessionManager(repository, resolver);
+    MockHttpContext context = new MockHttpContext();
+    context.requestHeaders().set(SessionIdResolver.HEADER_X_AUTH_TOKEN, "stale");
+
+    assertThat(manager.getSession(context, false)).isNull();
+    assertThat(repository.getSessionCount()).isZero();
+
+    Session replacement = manager.getSession(context);
+    assertThat(replacement.getId()).isEqualTo("replacement");
+    assertThat(resolver.getSessionId(context)).isEqualTo(replacement.getId());
+    assertThat(manager.getSession(context, false)).isSameAs(replacement);
+  }
+
+  @Test
   public void testWebSession() {
 
     AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();

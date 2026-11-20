@@ -36,11 +36,11 @@ import infra.web.HandlerExceptionHandler;
 import infra.web.HandlerMapping;
 import infra.web.ReturnValueHandler;
 import infra.web.annotation.CrossOrigin;
-import infra.web.bind.resolver.ParameterResolvingRegistry;
-import infra.web.bind.resolver.ParameterResolvingStrategies;
-import infra.web.bind.resolver.ParameterResolvingStrategy;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.ReturnValueHandlerManager;
+import infra.web.handler.method.ParameterResolvingRegistry;
+import infra.web.handler.method.ParameterResolvingStrategies;
+import infra.web.handler.method.ParameterResolvingStrategy;
 import infra.web.view.View;
 
 /**

@@ -107,10 +107,9 @@ xref:web/webmvc/mvc-core/exceptionhandlers.adoc[HandlerExceptionHandler] 机制�
 | `java.util.Map`, `infra.ui.Model`, `infra.ui.ModelMap`
 | 用于访问错误响应的模型。始终为空。
 
-| `RedirectModel`
-| 指定在重定向情况下使用的属性 -- （即附加到查询字符串中）以及存储在重定向请求后临时使用的 Flash 属性。
-参见 xref:web/webmvc/mvc-controller/ann-methods/redirecting-passing-data.adoc[重定向属性]
-和 xref:web/webmvc/mvc-controller/ann-methods/flash-attributes.adoc[Flash 属性]。
+| `infra.web.RedirectModel`
+| 添加供重定向目标请求临时使用的属性。这些属性默认不参与构造重定向 URL。
+  参见 xref:web/webmvc/mvc-controller/ann-methods/redirect-model.adoc[重定向 Model]。
 
 | `@RequestAttribute`
 | 请求 attributes. See xref:web/webmvc/mvc-controller/ann-methods/requestattrib.adoc[`@RequestAttribute`] for more details.

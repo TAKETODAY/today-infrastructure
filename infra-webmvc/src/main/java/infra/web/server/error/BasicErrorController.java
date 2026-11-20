@@ -20,6 +20,7 @@ package infra.web.server.error;
 
 import org.jspecify.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,16 +30,13 @@ import infra.http.InvalidMediaTypeException;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
 import infra.stereotype.Controller;
-import infra.util.ExceptionUtils;
 import infra.util.MimeTypeUtils;
 import infra.util.StringUtils;
 import infra.web.HttpContext;
 import infra.web.HttpMediaTypeNotAcceptableException;
-import infra.web.HttpRequestHandler;
 import infra.web.annotation.ExceptionHandler;
 import infra.web.annotation.RequestMapping;
 import infra.web.config.ErrorProperties;
-import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.util.WebUtils;
 
 /**
@@ -59,8 +57,6 @@ import infra.web.util.WebUtils;
 @RequestMapping
 public class BasicErrorController extends AbstractErrorController implements SendErrorHandler {
 
-  private final ReturnValueHandlerManager returnValueHandler;
-
   /**
    * Create a new {@link BasicErrorController} instance.
    *
@@ -68,10 +64,8 @@ public class BasicErrorController extends AbstractErrorController implements Sen
    * @param errorProperties configuration properties
    * @param errorViewResolvers error view resolvers
    */
-  public BasicErrorController(ErrorAttributes errorAttributes, ErrorProperties errorProperties,
-          List<ErrorViewResolver> errorViewResolvers, ReturnValueHandlerManager returnValueHandler) {
+  public BasicErrorController(ErrorAttributes errorAttributes, ErrorProperties errorProperties, List<ErrorViewResolver> errorViewResolvers) {
     super(errorAttributes, errorProperties, errorViewResolvers);
-    this.returnValueHandler = returnValueHandler;
   }
 
   @RequestMapping("${server.error.path:${error.path:/error}}")
@@ -80,16 +74,8 @@ public class BasicErrorController extends AbstractErrorController implements Sen
   }
 
   @Override
-  public void handleError(HttpContext http, @Nullable String message) {
-    Object returnValue = handleRequest(http, message);
-    if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
-      try {
-        returnValueHandler.handleReturnValue(http, null, returnValue);
-      }
-      catch (Throwable e) {
-        throw ExceptionUtils.sneakyThrow(e);
-      }
-    }
+  public void handleError(HttpContext http, @Nullable String message) throws IOException {
+    http.send(handleRequest(http, message));
   }
 
   private Object handleRequest(HttpContext http, @Nullable String message) {

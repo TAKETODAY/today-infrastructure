@@ -1,0 +1,42 @@
+[[mvc-redirect-model]]
+= 重定向 Model
+
+重定向 Model（`infra.web.RedirectModel`）用于将提示消息等临时数据从当前请求传给重定向后的请求，典型场景是 Post-Redirect-Get。
+与 xref:web/webmvc/mvc-controller/ann-methods/redirecting-passing-data.adoc[URL 中的重定向参数] 不同，
+重定向 Model 中的属性默认不会写入重定向 URL。
+
+在发起重定向的控制器方法中声明 `infra.web.RedirectModel` 参数，并用 `addAttribute` 添加输出属性。
+`RedirectView` 会将非空的输出模型交给已配置的 `RedirectModelManager` 保存。
+使用 `SessionRedirectModelManager` 时，属性临时保存在 HTTP 会话中；如果没有要保存的属性，就不会为此创建会话。
+目标请求匹配后，管理器取出并移除已保存的模型。对于带注解的控制器，框架在调用目标方法前将这些输入属性合并到普通 `Model` 中。
+
+例如，提交订单后重定向到订单详情页，由目标视图从模型中读取 `notice`：
+
+[source,java]
+----
+import infra.web.RedirectModel;
+import infra.web.annotation.GET;
+import infra.web.annotation.POST;
+import infra.web.view.RedirectView;
+
+// 以下方法位于同一个 @Controller 中。
+@POST("/orders/{id}")
+public RedirectView save(RedirectModel redirectModel) {
+  // 保存订单，成功后再添加提示。
+  redirectModel.addAttribute("notice", "订单已保存");
+  RedirectView view = new RedirectView("/orders/{id}");
+  view.setHttp10Compatible(false);
+  return view;
+}
+
+@GET("/orders/{id}")
+public String show() {
+  return "orders/detail";
+}
+----
+
+示例使用 `303 See Other`，让客户端在 POST 后以 GET 请求目标页面。正常匹配并消费后，刷新页面不会再次收到同一条提示。
+如果目标方法需要直接访问提示，可声明普通的 `infra.ui.Model` 参数；声明 `RedirectModel` 参数拿到的是当前请求的输出模型。
+
+`RedirectView` 保存属性时会记录目标 URL 的路径和查询参数，`SessionRedirectModelManager` 使用这些信息匹配目标请求。
+这可以避免无关请求提前取走属性，但如果同一会话中的并发请求都匹配同一目标，仍可能由先到的请求消费。

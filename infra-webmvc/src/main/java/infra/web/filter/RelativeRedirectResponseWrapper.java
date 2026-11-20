@@ -25,6 +25,7 @@ import infra.http.HttpStatusCode;
 import infra.util.Assert;
 import infra.web.DelegatingHttpContext;
 import infra.web.HttpContext;
+import infra.web.util.WebUtils;
 
 /**
  * A response wrapper used for the implementation of
@@ -53,7 +54,7 @@ final class RelativeRedirectResponseWrapper extends DelegatingHttpContext {
   }
 
   public static HttpContext wrapIfNecessary(HttpContext context, HttpStatusCode redirectStatus) {
-    RelativeRedirectResponseWrapper wrapper = context.getNativeContext(RelativeRedirectResponseWrapper.class);
+    RelativeRedirectResponseWrapper wrapper = WebUtils.getNativeContext(context, RelativeRedirectResponseWrapper.class);
 
     return wrapper != null ? context :
             new RelativeRedirectResponseWrapper(context, redirectStatus);

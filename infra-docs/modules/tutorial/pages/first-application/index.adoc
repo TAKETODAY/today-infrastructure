@@ -148,7 +148,6 @@ $ gradle infraRun
 [1111-11-11 11:11:11.111] - 80362 INFO [main] --- demo.DemoApplication: Starting DemoApplication using Java 17.0.9 on xxx with PID 80362 (build/classes/java/main started by xx )
 [1111-11-11 11:11:11.111] - 80362 INFO [main] --- demo.DemoApplication: No active profile set, falling back to 1 default profile: "default"
 [1111-11-11 11:11:11.111] - 80362 INFO [main] --- infra.web.context.AnnotationConfigWebServerApplicationContext: Starting application context at '1111-11-11 11:11:11.111'
-[1111-11-11 11:11:11.111] - 80362 INFO [main] --- infra.web.bind.resolver.ParameterResolvingRegistry: RedirectModel disabled
 [1111-11-11 11:11:11.111] - 80362 INFO [main] --- infra.web.netty.NettyChannelHandler: Completed initialization in 1 ms
 [1111-11-11 11:11:11.111] - 80362 INFO [main] --- infra.web.netty.NettyWebServer: Netty web server started on port: '8080'
 [1111-11-11 11:11:11.111] - 80362 INFO [main] --- infra.web.context.AnnotationConfigWebServerApplicationContext: Application context startup in 366 ms

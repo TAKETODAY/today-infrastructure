@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.composer.ComposerException;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.inspector.TagInspector;
 import org.yaml.snakeyaml.nodes.Tag;
@@ -53,7 +54,7 @@ import infra.util.StringUtils;
 /**
  * Base class for YAML factories.
  *
- * <p>Requires SnakeYAML 2.0 or higher
+   * <p>Requires SnakeYAML 2.0 or higher.
  *
  * @author Dave Syer
  * @author Juergen Hoeller
@@ -103,7 +104,7 @@ public class YamlProcessor {
    * }</pre>
    */
   public void setDocumentMatchers(DocumentMatcher... matchers) {
-    this.documentMatchers = Arrays.asList(matchers);
+    this.documentMatchers = List.of(matchers);
   }
 
   /**
@@ -139,7 +140,7 @@ public class YamlProcessor {
    * <p>If no supported types are configured, only Java standard classes
    * (as defined in {@link org.yaml.snakeyaml.constructor.SafeConstructor})
    * encountered in YAML documents will be supported.
-   * If an unsupported type is encountered, an {@link IllegalStateException}
+   * If an unsupported type is encountered, a {@link ComposerException}
    * will be thrown when the corresponding YAML node is processed.
    *
    * @param supportedTypes the supported types, or an empty array to clear the
@@ -154,7 +155,7 @@ public class YamlProcessor {
       Assert.noNullElements(supportedTypes, "'supportedTypes' must not contain null elements");
       this.supportedTypes = Arrays.stream(supportedTypes)
               .map(Class::getName)
-              .collect(Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet));
+              .collect(Collectors.toUnmodifiableSet());
     }
   }
 
@@ -182,12 +183,12 @@ public class YamlProcessor {
   /**
    * Create the {@link Yaml} instance to use.
    * <p>The default implementation sets the "allowDuplicateKeys" flag to {@code false},
-   * enabling built-in duplicate key handling in SnakeYAML 1.18+.
+   * enabling built-in duplicate key handling.
    * <p>If custom {@linkplain #setSupportedTypes supported types}
    * have been configured, the default implementation creates
    * a {@code Yaml} instance that filters out unsupported types encountered in
    * YAML documents. If an unsupported type is encountered, an
-   * {@link IllegalStateException} will be thrown when the node is processed.
+   * {@link ComposerException} will be thrown when the node is processed.
    *
    * @see LoaderOptions#setAllowDuplicateKeys(boolean)
    */
@@ -331,7 +332,7 @@ public class YamlProcessor {
   private void buildFlattenedMap(Map<String, Object> result, Map<String, Object> source, @Nullable String path,
           boolean includeEmpty, @Nullable Object emptyValue) {
 
-    if (includeEmpty && source.isEmpty()) {
+    if (includeEmpty && source.isEmpty() && path != null) {
       result.put(path, emptyValue);
       return;
     }
