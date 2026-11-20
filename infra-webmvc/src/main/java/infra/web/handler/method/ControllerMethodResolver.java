@@ -81,8 +81,6 @@ final class ControllerMethodResolver {
 
   private final LinkedHashMap<ControllerAdviceBean, Set<Method>> modelAttributeAdviceCache = new LinkedHashMap<>();
 
-  private final ConcurrentHashMap<HandlerMethod, InvocableHandlerMethod> invocableHandlerMethodMap = new ConcurrentHashMap<>();
-
   private final HandlerParameterFactory parameterFactory;
 
   ControllerMethodResolver(@Nullable ApplicationContext context, HandlerParameterFactory parameterFactory) {
@@ -122,16 +120,36 @@ final class ControllerMethodResolver {
     }
   }
 
-  public List<InvocableHandlerMethod> getModelAttributeMethods(HandlerMethod handlerMethod) {
+  public List<InvocableHandlerMethod> getModelAttributeMethods(InvocableHandlerMethod handlerMethod) {
+    List<InvocableHandlerMethod> cached = handlerMethod.getCachedModelAttributeMethods();
+    if (cached != null) {
+      return cached;
+    }
+    synchronized(handlerMethod) {
+      cached = handlerMethod.getCachedModelAttributeMethods();
+      if (cached == null) {
+        cached = resolveModelAttributeMethods(handlerMethod);
+        if (isModelAttributeMethodsCacheable(handlerMethod.getBeanType())) {
+          handlerMethod.setCachedModelAttributeMethods(cached);
+        }
+      }
+      return cached;
+    }
+  }
+
+  private List<InvocableHandlerMethod> resolveModelAttributeMethods(HandlerMethod handlerMethod) {
     Class<?> handlerType = handlerMethod.getBeanType();
 
-    ArrayList<InvocableHandlerMethod> attrMethods = new ArrayList<>();
+    ArrayList<InvocableHandlerMethod> attrMethods = null;
     // Global methods first
     if (!modelAttributeAdviceCache.isEmpty()) {
       for (var entry : modelAttributeAdviceCache.entrySet()) {
         ControllerAdviceBean controllerAdviceBean = entry.getKey();
         if (controllerAdviceBean.isApplicableToBeanType(handlerType)) {
           Object bean = controllerAdviceBean.resolveBean();
+          if (attrMethods == null) {
+            attrMethods = new ArrayList<>();
+          }
           for (Method method : entry.getValue()) {
             attrMethods.add(createHandlerMethod(bean, method));
           }
@@ -146,19 +164,39 @@ final class ControllerMethodResolver {
     }
 
     if (!methods.isEmpty()) {
+      if (attrMethods == null) {
+        attrMethods = new ArrayList<>(methods.size());
+      }
       for (Method method : methods) {
         Object bean = handlerMethod.getBean();
         attrMethods.add(createHandlerMethod(bean, method));
       }
     }
 
-    return attrMethods;
+    return attrMethods != null ? attrMethods : Collections.emptyList();
   }
 
   /**
    * @return non-null InvocableHandlerMethods
    */
-  public List<InvocableHandlerMethod> getBinderMethods(HandlerMethod handlerMethod) {
+  public List<InvocableHandlerMethod> getBinderMethods(InvocableHandlerMethod handlerMethod) {
+    List<InvocableHandlerMethod> cached = handlerMethod.getCachedBinderMethods();
+    if (cached != null) {
+      return cached;
+    }
+    synchronized(handlerMethod) {
+      cached = handlerMethod.getCachedBinderMethods();
+      if (cached == null) {
+        cached = resolveBinderMethods(handlerMethod);
+        if (isBinderMethodsCacheable(handlerMethod.getBeanType())) {
+          handlerMethod.setCachedBinderMethods(cached);
+        }
+      }
+      return cached;
+    }
+  }
+
+  private List<InvocableHandlerMethod> resolveBinderMethods(HandlerMethod handlerMethod) {
     Class<?> handlerType = handlerMethod.getBeanType();
     Set<Method> methods = initBinderCache.get(handlerType);
     if (methods == null) {
@@ -166,35 +204,58 @@ final class ControllerMethodResolver {
       initBinderCache.put(handlerType, methods);
     }
 
-    var initBinderMethods = new ArrayList<InvocableHandlerMethod>();
+    ArrayList<InvocableHandlerMethod> initBinderMethods = null;
     // Global methods first
     for (var entry : initBinderAdviceCache.entrySet()) {
       Set<Method> methodSet = entry.getValue();
       ControllerAdviceBean controllerAdviceBean = entry.getKey();
       if (controllerAdviceBean.isApplicableToBeanType(handlerType)) {
         Object bean = controllerAdviceBean.resolveBean();
+        if (initBinderMethods == null) {
+          initBinderMethods = new ArrayList<>();
+        }
         for (Method method : methodSet) {
           initBinderMethods.add(createHandlerMethod(bean, method));
         }
       }
     }
 
-    for (Method method : methods) {
-      Object bean = handlerMethod.getBean();
-      initBinderMethods.add(createHandlerMethod(bean, method));
+    if (!methods.isEmpty()) {
+      if (initBinderMethods == null) {
+        initBinderMethods = new ArrayList<>(methods.size());
+      }
+      for (Method method : methods) {
+        Object bean = handlerMethod.getBean();
+        initBinderMethods.add(createHandlerMethod(bean, method));
+      }
     }
-    return initBinderMethods.isEmpty() ? Collections.emptyList() : initBinderMethods;
+    return initBinderMethods != null ? initBinderMethods : Collections.emptyList();
+  }
+
+  private boolean isModelAttributeMethodsCacheable(Class<?> handlerType) {
+    return modelAttributeAdviceCache.keySet().stream()
+            .filter(adviceBean -> adviceBean.isApplicableToBeanType(handlerType))
+            .allMatch(ControllerAdviceBean::isSingleton);
+  }
+
+  private boolean isBinderMethodsCacheable(Class<?> handlerType) {
+    return initBinderAdviceCache.keySet().stream()
+            .filter(adviceBean -> adviceBean.isApplicableToBeanType(handlerType))
+            .allMatch(ControllerAdviceBean::isSingleton);
   }
 
   /**
-   * Create a {@link InvocableHandlerMethod} from the given {@link HandlerMethod} definition.
+   * Reuse a mapped {@link InvocableHandlerMethod}, or adapt a plain
+   * {@link HandlerMethod} for the current invocation.
    *
    * @param handlerMethod the {@link HandlerMethod} definition
    * @return the corresponding {@link InvocableHandlerMethod} (or custom subclass thereof)
    */
   public InvocableHandlerMethod createHandlerMethod(HandlerMethod handlerMethod) {
-    return invocableHandlerMethodMap.computeIfAbsent(handlerMethod,
-            handler -> new InvocableHandlerMethod(handler, parameterFactory));
+    if (handlerMethod instanceof InvocableHandlerMethod invocableHandlerMethod) {
+      return invocableHandlerMethod;
+    }
+    return new InvocableHandlerMethod(handlerMethod, parameterFactory);
   }
 
   private InvocableHandlerMethod createHandlerMethod(Object bean, Method method) {

@@ -180,6 +180,7 @@ class RequestMappingHandlerAdapterTests {
     BindingContext.set(context, new BindingContext());
     model = BindingContext.obtain(context).getModel();
     this.handlerAdapter.handle(context, handlerMethod);
+    model = BindingContext.obtain(context).getModel();
     assertThat(instance).isNotSameAs(model.get("instance"));
   }
 

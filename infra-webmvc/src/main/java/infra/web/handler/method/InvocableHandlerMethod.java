@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -55,6 +56,10 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
   private final HandlerParameter[] resolvableParameters;
 
+  private volatile @Nullable List<InvocableHandlerMethod> binderMethods;
+
+  private volatile @Nullable List<InvocableHandlerMethod> modelAttributeMethods;
+
   /**
    * Create an instance from a {@code HandlerMethod}.
    */
@@ -84,6 +89,28 @@ public class InvocableHandlerMethod extends HandlerMethod {
   private InvocableHandlerMethod(InvocableHandlerMethod handlerMethod, @Nullable Object handler, boolean initValidateFlags) {
     super(handlerMethod, handler, initValidateFlags);
     this.resolvableParameters = handlerMethod.resolvableParameters;
+    if (handler == null) {
+      this.binderMethods = handlerMethod.binderMethods;
+      this.modelAttributeMethods = handlerMethod.modelAttributeMethods;
+    }
+  }
+
+  @Nullable
+  List<InvocableHandlerMethod> getCachedBinderMethods() {
+    return this.binderMethods;
+  }
+
+  void setCachedBinderMethods(List<InvocableHandlerMethod> binderMethods) {
+    this.binderMethods = binderMethods;
+  }
+
+  @Nullable
+  List<InvocableHandlerMethod> getCachedModelAttributeMethods() {
+    return this.modelAttributeMethods;
+  }
+
+  void setCachedModelAttributeMethods(List<InvocableHandlerMethod> modelAttributeMethods) {
+    this.modelAttributeMethods = modelAttributeMethods;
   }
 
   @Override

@@ -212,7 +212,9 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
    * @see ControllerMethodResolver#createHandlerMethod(HandlerMethod)
    */
   protected @Nullable Object invokeHandlerMethod(HttpContext request, HandlerMethod handlerMethod) throws Exception {
-    var binding = new InitBinderBindingContext(modelHandler, webBindingInitializer, methodResolver, handlerMethod);
+    InvocableHandlerMethod invocableMethod = methodResolver.createHandlerMethod(handlerMethod);
+
+    var binding = new InitBinderBindingContext(modelHandler, webBindingInitializer, methodResolver, invocableMethod);
     binding.setMethodValidationApplicable(methodValidator != null && handlerMethod.shouldValidateArguments());
     BindingContext.set(request, binding);
 
@@ -223,13 +225,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
     }
 
     binding.initModel(request);
-
-    if (handlerMethod instanceof InvocableHandlerMethod invocableMethod) {
-      return invocableMethod.invokeAndHandle(request, methodValidator, null);
-    }
-
-    return methodResolver.createHandlerMethod(handlerMethod)
-            .invokeAndHandle(request, methodValidator, null);
+    return invocableMethod.invokeAndHandle(request, methodValidator, null);
   }
 
   private Predicate<MethodParameter> methodParamPredicate(ParameterResolvingRegistry resolvingRegistry, Class<?> resolverType) {

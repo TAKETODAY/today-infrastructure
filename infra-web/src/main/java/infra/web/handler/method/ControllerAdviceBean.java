@@ -260,6 +260,15 @@ public class ControllerAdviceBean implements Ordered {
     return resolvedBean;
   }
 
+  /**
+   * Whether the underlying advice bean is a singleton.
+   *
+   * @return {@code true} if the advice bean is a singleton
+   */
+  public boolean isSingleton() {
+    return this.isSingleton;
+  }
+
   private BeanFactory obtainBeanFactory() {
     Assert.state(this.beanFactory != null, "No BeanFactory set");
     return this.beanFactory;
