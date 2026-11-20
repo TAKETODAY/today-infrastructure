@@ -25,7 +25,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
-import java.util.Objects;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -45,10 +44,11 @@ public abstract class VersionExtractor {
    *
    * @param cls the Class to retrieve the version for
    * @return the version, or {@code null} if a version can not be extracted
-   * @throws NullPointerException if cls is null
    */
-  public static @Nullable String forClass(Class<?> cls) {
-    Objects.requireNonNull(cls, "Class is required");
+  public static @Nullable String forClass(@Nullable Class<?> cls) {
+    if (cls == null) {
+      return null;
+    }
 
     Package classPackage = cls.getPackage();
     if (classPackage != null) {

@@ -40,7 +40,6 @@ import java.util.jar.Manifest;
 import jakarta.annotation.PostConstruct;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -51,10 +50,8 @@ class VersionExtractorTests {
   private static final String SAMPLE_CLASS_NAME = VersionExtractorSample.class.getName();
 
   @Test
-  void forClassThrowsForNullClass() {
-    assertThatThrownBy(() -> VersionExtractor.forClass(null))
-            .isInstanceOf(NullPointerException.class)
-            .hasMessageContaining("Class");
+  void forClassReturnsNullForNullClass() {
+    assertThat(VersionExtractor.forClass(null)).isNull();
   }
 
   @Test
