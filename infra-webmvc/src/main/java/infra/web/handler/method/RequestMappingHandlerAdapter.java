@@ -20,13 +20,7 @@ package infra.web.handler.method;
 
 import org.jspecify.annotations.Nullable;
 
-import java.util.function.Predicate;
-
 import infra.beans.factory.InitializingBean;
-import infra.context.ApplicationContext;
-import infra.core.DefaultParameterNameDiscoverer;
-import infra.core.MethodParameter;
-import infra.core.ParameterNameDiscoverer;
 import infra.http.HttpHeaders;
 import infra.session.Session;
 import infra.validation.method.MethodValidator;
@@ -37,7 +31,6 @@ import infra.web.RedirectModelManager;
 import infra.web.annotation.RequestMapping;
 import infra.web.bind.support.WebBindingInitializer;
 import infra.web.handler.method.support.ModelAttributeMethodProcessor;
-import infra.web.handler.method.support.ParameterResolvingRegistryFactory;
 import infra.web.handler.method.support.RequestParamMethodArgumentResolver;
 import infra.web.handler.result.HandlerMethodReturnValueHandler;
 import infra.web.util.SessionMutexListener;
@@ -61,8 +54,6 @@ import static infra.validation.ValidationUtils.BEAN_VALIDATION_PRESENT;
  */
 public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter implements InitializingBean {
 
-  private @Nullable ParameterResolvingRegistry resolvingRegistry;
-
   private @Nullable WebBindingInitializer webBindingInitializer;
 
   private @Nullable RedirectModelManager redirectModelManager;
@@ -75,8 +66,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 
   private boolean synchronizeOnSession = false;
 
-  private ParameterNameDiscoverer parameterNameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
-
   /**
    * Set the {@link RedirectModelManager} to use for managing redirect models.
    */
@@ -85,10 +74,10 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
   }
 
   /**
-   * Set the {@link ParameterResolvingRegistry} to use for resolving method parameters.
+   * Set the shared resolver for this MVC application context before initialization.
    */
-  public void setResolvingRegistry(@Nullable ParameterResolvingRegistry resolvingRegistry) {
-    this.resolvingRegistry = resolvingRegistry;
+  public void setControllerMethodResolver(ControllerMethodResolver resolver) {
+    this.methodResolver = resolver;
   }
 
   /**
@@ -129,32 +118,19 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
     this.synchronizeOnSession = synchronizeOnSession;
   }
 
-  /**
-   * Set the ParameterNameDiscoverer to use for resolving method parameter names if needed
-   * (e.g. for default attribute names).
-   * <p>Default is a {@link DefaultParameterNameDiscoverer}.
-   */
-  public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {
-    this.parameterNameDiscoverer = parameterNameDiscoverer;
-  }
-
   @Override
   public void afterPropertiesSet() {
-    ApplicationContext context = applicationContext();
-    if (resolvingRegistry == null) {
-      resolvingRegistry = ParameterResolvingRegistryFactory.getOrCreate(context);
-    }
-
-    this.methodResolver = new ControllerMethodResolver(context,
-            new RegistryHandlerParameterFactory(resolvingRegistry, parameterNameDiscoverer));
-
-    this.modelHandler = new ModelHandler(methodResolver);
+    var resolver = ControllerMethodResolver.forRequestHandlers(this.methodResolver,
+            applicationContext());
+    resolver.initBindingAdvice();
+    this.methodResolver = resolver;
+    this.modelHandler = new ModelHandler(resolver);
 
     if (BEAN_VALIDATION_PRESENT) {
       this.methodValidator = HandlerMethodValidator.from(
-              webBindingInitializer, this.parameterNameDiscoverer,
-              methodParamPredicate(resolvingRegistry, ModelAttributeMethodProcessor.class),
-              methodParamPredicate(resolvingRegistry, RequestParamMethodArgumentResolver.class));
+              webBindingInitializer, resolver.getParameterNameDiscoverer(),
+              resolver.resolvedBy(ModelAttributeMethodProcessor.class),
+              resolver.resolvedBy(RequestParamMethodArgumentResolver.class));
     }
   }
 
@@ -226,13 +202,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 
     binding.initModel(request);
     return invocableMethod.invokeAndHandle(request, methodValidator, null);
-  }
-
-  private Predicate<MethodParameter> methodParamPredicate(ParameterResolvingRegistry resolvingRegistry, Class<?> resolverType) {
-    return parameter -> {
-      var strategy = resolvingRegistry.findStrategy(new HandlerParameter(parameter));
-      return resolverType.isInstance(strategy);
-    };
   }
 
 }
