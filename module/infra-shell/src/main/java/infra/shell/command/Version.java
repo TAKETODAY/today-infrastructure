@@ -1,0 +1,130 @@
+/*
+ * Copyright 2022-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
+package infra.shell.command;
+
+import org.jspecify.annotations.Nullable;
+
+import java.io.PrintWriter;
+import java.time.Instant;
+
+import infra.beans.BeansException;
+import infra.beans.factory.InitializingBean;
+import infra.context.ApplicationContext;
+import infra.context.ApplicationContextAware;
+import infra.util.StringUtils;
+
+/**
+ * Command to print the current version of Infra Shell.
+ *
+ * @author Janne Valkealahti
+ * @author Mahmoud Ben Hassine
+ * @author Piotr Olaszewski
+ * @author David Pilar
+ */
+public class Version extends AbstractCommand implements InitializingBean, ApplicationContextAware {
+
+  public Version() {
+    super("version", "Show version info", "Built-In Commands");
+  }
+
+  private ApplicationContext applicationContext;
+
+  private @Nullable BuildProperties buildProperties;
+
+  private @Nullable GitProperties gitProperties;
+
+  public void setBuildProperties(BuildProperties buildProperties) {
+    this.buildProperties = buildProperties;
+  }
+
+  public void setGitProperties(GitProperties gitProperties) {
+    this.gitProperties = gitProperties;
+  }
+
+  @Override
+  public String getHelp() {
+    return "This command displays the version of Infra Shell, as well as build and git information if available.";
+  }
+
+  @Override
+  public ExitStatus doExecute(CommandContext commandContext) throws Exception {
+    Package pkg = Version.class.getPackage();
+    String version = "N/A";
+    if (buildProperties != null && StringUtils.hasText(buildProperties.version())) {
+      version = buildProperties.version();
+    }
+    else if (pkg != null && pkg.getImplementationVersion() != null) {
+      version = pkg.getImplementationVersion();
+    }
+    PrintWriter printWriter = commandContext.outputWriter();
+    printWriter.println("Version: " + version);
+
+    if (buildProperties != null) {
+      if (StringUtils.hasText(buildProperties.group())) {
+        printWriter.println("Build Group: " + buildProperties.group());
+      }
+      if (StringUtils.hasText(buildProperties.artifact())) {
+        printWriter.println("Build Artifact: " + buildProperties.artifact());
+      }
+      if (StringUtils.hasText(buildProperties.name())) {
+        printWriter.println("Build Name: " + buildProperties.name());
+      }
+      if (buildProperties.time() != null) {
+        printWriter.println("Build Time: " + buildProperties.time());
+      }
+    }
+    if (gitProperties != null) {
+      if (StringUtils.hasText(gitProperties.shortCommitId())) {
+        printWriter.println("Git Short Commit ID: " + gitProperties.shortCommitId());
+      }
+      if (StringUtils.hasText(gitProperties.commitId())) {
+        printWriter.println("Git Commit ID: " + gitProperties.commitId());
+      }
+      if (StringUtils.hasText(gitProperties.branch())) {
+        printWriter.println("Git Branch: " + gitProperties.branch());
+      }
+      if (gitProperties.commitTime() != null) {
+        printWriter.println("Git Commit Time: " + gitProperties.commitTime());
+      }
+    }
+
+    printWriter.flush();
+    return ExitStatus.OK;
+  }
+
+  @Override
+  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    this.applicationContext = applicationContext;
+  }
+
+  @Override
+  public void afterPropertiesSet() {
+    applicationContext.getBeanProvider(Version.BuildProperties.class).ifAvailable(this::setBuildProperties);
+    applicationContext.getBeanProvider(Version.GitProperties.class).ifAvailable(this::setGitProperties);
+  }
+
+  public record BuildProperties(@Nullable String group, @Nullable String artifact, @Nullable String name,
+          @Nullable String version, @Nullable Instant time) {
+  }
+
+  public record GitProperties(@Nullable String branch, @Nullable String commitId, @Nullable String shortCommitId,
+          @Nullable Instant commitTime) {
+  }
+
+}

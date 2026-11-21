@@ -1,0 +1,78 @@
+/*
+ * Copyright 2022-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
+package infra.shell;
+
+import org.jspecify.annotations.Nullable;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import infra.aot.hint.MemberCategory;
+import infra.aot.hint.ProxyHints;
+import infra.aot.hint.ReflectionHints;
+import infra.aot.hint.ResourceHints;
+import infra.aot.hint.RuntimeHints;
+import infra.aot.hint.RuntimeHintsRegistrar;
+import infra.aot.hint.TypeHint;
+import infra.aot.hint.TypeReference;
+
+/**
+ * @author Piotr Olaszewski
+ * @author Mahmoud Ben Hassine
+ */
+public class JnaRuntimeHints implements RuntimeHintsRegistrar {
+
+  @Override
+  public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
+    ResourceHints resource = hints.resources();
+    ProxyHints proxy = hints.proxies();
+    ReflectionHints reflection = hints.reflection();
+    // should go graalvm-reachability-metadata
+    registerResources(resource);
+    // should go graalvm-reachability-metadata
+    registerProxies(proxy, "com.sun.jna.Library", "com.sun.jna.Callback");
+    // should go graalvm-reachability-metadata
+    registerForMostReflection(reflection, "com.sun.jna.CallbackReference", "com.sun.jna.Native",
+            "com.sun.jna.NativeLong", "com.sun.jna.Pointer", "com.sun.jna.Structure",
+            "com.sun.jna.ptr.IntByReference", "com.sun.jna.ptr.PointerByReference", "com.sun.jna.Klass",
+            "com.sun.jna.Structure$FFIType", "com.sun.jna.Structure$FFIType$size_t");
+  }
+
+  private void registerResources(ResourceHints resource) {
+    resource.registerPattern("com/sun/jna/win32-x86-64/jnidispatch.dll");
+    resource.registerPattern("com/sun/jna/linux-x86-64/libjnidispatch.so");
+  }
+
+  private void registerProxies(ProxyHints proxy, String... classNames) {
+    typeReferences(classNames)
+            .forEach(tr -> proxy.registerJdkProxy(jdkProxyHint -> jdkProxyHint.proxiedInterfaces(tr)));
+  }
+
+  private void registerForMostReflection(ReflectionHints reflection, String... classNames) {
+    reflection.registerTypes(typeReferences(classNames),
+            TypeHint.builtWith(MemberCategory.ACCESS_DECLARED_FIELDS, MemberCategory.ACCESS_PUBLIC_FIELDS,
+                    MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_PUBLIC_METHODS));
+  }
+
+  private List<TypeReference> typeReferences(String... classNames) {
+    return Stream.of(classNames).map(TypeReference::of).collect(Collectors.toList());
+  }
+
+}

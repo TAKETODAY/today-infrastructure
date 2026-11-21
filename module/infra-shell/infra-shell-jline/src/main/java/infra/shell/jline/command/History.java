@@ -1,0 +1,74 @@
+/*
+ * Copyright 2018-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
+package infra.shell.jline.command;
+
+import java.io.FileWriter;
+import java.io.PrintWriter;
+
+import infra.shell.command.AbstractCommand;
+import infra.shell.command.CommandContext;
+import infra.shell.command.CommandOption;
+import infra.shell.command.ExitStatus;
+import infra.shell.command.Script;
+
+/**
+ * A command that displays all previously run commands, optionally dumping them to a file
+ * readable by {@link Script}.
+ *
+ * @author Eric Bottard
+ * @author Mahmoud Ben Hassine
+ */
+public class History extends AbstractCommand {
+
+  private final org.jline.reader.History jLineHistory;
+
+  public History(org.jline.reader.History jLineHistory) {
+    super("history", "Display or save the history of previously run commands", "Built-In Commands");
+    this.jLineHistory = jLineHistory;
+  }
+
+  @Override
+  public String getHelp() {
+    return "Display the history of previously run commands. If a file is specified, write the history to that file instead.";
+  }
+
+  @Override
+  public ExitStatus doExecute(CommandContext commandContext) throws Exception {
+    PrintWriter outputWriter = commandContext.outputWriter();
+    CommandOption fileOption = commandContext.getOptionByName("file");
+    if (fileOption == null) {
+      jLineHistory.forEach(e -> outputWriter.println(e.line()));
+    }
+    else {
+      String fileName = fileOption.value();
+      if (fileName == null || fileName.isEmpty()) {
+        throw new IllegalArgumentException("File name must be provided");
+      }
+      try (FileWriter w = new FileWriter(fileName)) {
+        for (org.jline.reader.History.Entry entry : jLineHistory) {
+          w.append(entry.line()).append(System.lineSeparator());
+        }
+      }
+      outputWriter.println(String.format("Wrote %d entries to %s", jLineHistory.size(), fileName));
+    }
+    outputWriter.flush();
+    return ExitStatus.OK;
+  }
+
+}
