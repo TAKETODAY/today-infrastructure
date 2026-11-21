@@ -16,6 +16,8 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
@@ -38,7 +40,7 @@ public class HandlerParameterFactory {
 
   private final ParameterNameDiscoverer parameterNameDiscoverer;
 
-  private final HashMap<Method, HandlerParameter[]> cache = new HashMap<>();
+  private final @Nullable HashMap<Method, HandlerParameter[]> cache;
 
   /**
    * Constructs a new {@code ResolvableParameterFactory}
@@ -55,8 +57,13 @@ public class HandlerParameterFactory {
    * @throws IllegalArgumentException if {@code parameterNameDiscoverer} is null
    */
   public HandlerParameterFactory(ParameterNameDiscoverer parameterNameDiscoverer) {
+    this(parameterNameDiscoverer, true);
+  }
+
+  HandlerParameterFactory(ParameterNameDiscoverer parameterNameDiscoverer, boolean cacheParameters) {
     Assert.notNull(parameterNameDiscoverer, "parameterNameDiscoverer is required");
     this.parameterNameDiscoverer = parameterNameDiscoverer;
+    this.cache = cacheParameters ? new HashMap<>() : null;
   }
 
   /**
@@ -68,6 +75,10 @@ public class HandlerParameterFactory {
    * @return an array of {@link HandlerParameter}, or an empty array if no parameters exist
    */
   public HandlerParameter[] createArray(HandlerMethod handlerMethod) {
+    return createArray(handlerMethod, false);
+  }
+
+  private HandlerParameter[] createArray(HandlerMethod handlerMethod, boolean copyParameters) {
     MethodParameter[] parameters = handlerMethod.getParameters();
     if (ObjectUtils.isEmpty(parameters)) {
       return EMPTY;
@@ -75,6 +86,9 @@ public class HandlerParameterFactory {
     int i = 0;
     HandlerParameter[] ret = new HandlerParameter[parameters.length];
     for (MethodParameter parameter : parameters) {
+      if (copyParameters) {
+        parameter = parameter.clone();
+      }
       parameter.initParameterNameDiscovery(parameterNameDiscoverer);
       ret[i++] = createParameter(parameter);
     }
@@ -83,13 +97,18 @@ public class HandlerParameterFactory {
 
   /**
    * Retrieves the array of {@link HandlerParameter} instances for the given handler method,
-   * using a cache to avoid redundant creation for the same underlying {@link java.lang.reflect.Method}.
-   * <p>If the parameters are not found in the cache, they are created and stored for future access.</p>
+   * using a cache for the underlying {@link java.lang.reflect.Method} if enabled.
    *
    * @param handlerMethod the handler method to retrieve parameters for
    * @return a cached or newly created array of {@link HandlerParameter}, or an empty array if no parameters exist
    */
   public HandlerParameter[] getParameters(HandlerMethod handlerMethod) {
+    var cache = this.cache;
+    if (cache == null) {
+      // A copied HandlerMethod can share its original MethodParameter instances.
+      // Do not mutate their parameter name discovery for another invocation configuration.
+      return createArray(handlerMethod, true);
+    }
     Method method = handlerMethod.getMethod();
     if (method.getParameterCount() == 0) {
       return EMPTY;

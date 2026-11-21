@@ -187,7 +187,7 @@ class WebMvcConfigurationSupportTests {
 
     DirectFieldAccessor fieldAccessor = new DirectFieldAccessor(adapter);
 
-    assertThat(fieldAccessor.getPropertyValue("resolvingRegistry")).isSameAs(registry);
+    assertThat(fieldAccessor.getPropertyValue("methodResolver.parameterRegistry")).isSameAs(registry);
 
   }
 

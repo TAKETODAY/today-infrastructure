@@ -31,10 +31,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import infra.context.ApplicationContext;
-import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.MethodParameter;
-import infra.core.ParameterNameDiscoverer;
 import infra.core.StringValueResolver;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.MergedAnnotation;
@@ -60,7 +57,6 @@ import infra.web.handler.condition.AbstractRequestCondition;
 import infra.web.handler.condition.CompositeRequestCondition;
 import infra.web.handler.condition.ConsumesRequestCondition;
 import infra.web.handler.condition.RequestCondition;
-import infra.web.handler.method.support.ParameterResolvingRegistryFactory;
 
 import static infra.core.annotation.AnnotationUtils.loadAnnotationType;
 
@@ -85,11 +81,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
   private final RequestMappingInfo.BuilderConfiguration config = new RequestMappingInfo.BuilderConfiguration();
 
-  private @Nullable HandlerParameterFactory parameterFactory;
-
-  private @Nullable ParameterResolvingRegistry resolvingRegistry;
-
-  private ParameterNameDiscoverer parameterNameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
+  private @Nullable ControllerMethodResolver methodResolver;
 
   /**
    * Configure path prefixes to apply to controller methods.
@@ -132,23 +124,10 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   }
 
   /**
-   * Set the ParameterNameDiscoverer to use for resolving method parameter names if needed
-   * (e.g. for default attribute names).
-   * <p>Default is a {@link DefaultParameterNameDiscoverer}.
+   * Set the shared resolver for this MVC application context before initialization.
    */
-  public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {
-    this.parameterNameDiscoverer = parameterNameDiscoverer;
-  }
-
-  /**
-   * Set the {@link ParameterResolvingRegistry} to use for resolving method arguments.
-   * <p>If not set, a default registry will be obtained from the application context
-   * during {@link #afterPropertiesSet()}.
-   *
-   * @param resolvingRegistry the registry to use, or {@code null} to use the default
-   */
-  public void setResolvingRegistry(@Nullable ParameterResolvingRegistry resolvingRegistry) {
-    this.resolvingRegistry = resolvingRegistry;
+  public void setControllerMethodResolver(ControllerMethodResolver resolver) {
+    this.methodResolver = resolver;
   }
 
   @Override
@@ -157,11 +136,8 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
     config.setContentNegotiationManager(getContentNegotiationManager());
     config.setApiVersionStrategy(getApiVersionStrategy());
 
-    if (resolvingRegistry == null) {
-      resolvingRegistry = ParameterResolvingRegistryFactory.getOrCreate(applicationContext());
-    }
-
-    this.parameterFactory = new RegistryHandlerParameterFactory(resolvingRegistry, parameterNameDiscoverer);
+    this.methodResolver = ControllerMethodResolver.forRequestHandlers(this.methodResolver,
+            getApplicationContext());
 
     super.afterPropertiesSet();
   }
@@ -193,13 +169,9 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
   @Override
   protected HandlerMethod createHandlerMethod(Object handler, Method method) {
-    Assert.state(parameterFactory != null, "parameterFactory is required");
-    if (handler instanceof String beanName) {
-      ApplicationContext context = applicationContext();
-      return new InvocableHandlerMethod(beanName,
-              context.getBeanFactory(), context, method, parameterFactory);
-    }
-    return new InvocableHandlerMethod(handler, method, parameterFactory);
+    ControllerMethodResolver methodResolver = this.methodResolver;
+    Assert.state(methodResolver != null, "Handler mapping has not been initialized");
+    return methodResolver.createMappedHandlerMethod(handler, method, getApplicationContext());
   }
 
   /**

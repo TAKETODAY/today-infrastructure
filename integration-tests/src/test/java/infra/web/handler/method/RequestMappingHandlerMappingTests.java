@@ -34,7 +34,6 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.core.ParameterNameDiscoverer;
 import infra.core.annotation.AliasFor;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
@@ -75,7 +74,6 @@ class RequestMappingHandlerMappingTests {
     RequestMappingHandlerMapping mapping1 = new RequestMappingHandlerMapping();
     AnnotationConfigApplicationContext wac1 = new AnnotationConfigApplicationContext(Object.class);
     mapping1.setApplicationContext(wac1);
-    mapping1.setParameterNameDiscoverer(ParameterNameDiscoverer.getSharedInstance());
 
     RequestMappingHandlerMapping mapping2 = new RequestMappingHandlerMapping();
     AnnotationConfigApplicationContext wac2 = new AnnotationConfigApplicationContext(Object.class);

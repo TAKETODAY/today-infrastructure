@@ -141,9 +141,10 @@ class MethodValidationTests {
     RequestMappingHandlerAdapter handlerAdapter = new RequestMappingHandlerAdapter();
     handlerAdapter.setWebBindingInitializer(bindingInitializer);
     handlerAdapter.setApplicationContext(context);
-    handlerAdapter.setResolvingRegistry(ParameterResolvingRegistryFactory.create(context,
+    var registry = ParameterResolvingRegistryFactory.create(context,
             List.of(new StringHttpMessageConverter(), new JacksonJsonHttpMessageConverter()),
-            new ContentNegotiationManager(), null, List.of()));
+            new ContentNegotiationManager(), null, List.of());
+    handlerAdapter.setControllerMethodResolver(new ControllerMethodResolver(context, registry));
 
     handlerAdapter.afterPropertiesSet();
     return handlerAdapter;

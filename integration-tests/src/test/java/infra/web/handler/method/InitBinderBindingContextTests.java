@@ -164,10 +164,8 @@ class InitBinderBindingContextTests {
     Object handler = new InitBinderHandler();
     Method method = handler.getClass().getMethod(methodName, parameterTypes);
 
-    var parameterFactory = new RegistryHandlerParameterFactory(argumentResolvers);
-    InvocableHandlerMethod handlerMethod = new InvocableHandlerMethod(handler, method, parameterFactory);
-
-    ControllerMethodResolver methodResolver = new ControllerMethodResolver(null, parameterFactory);
+    ControllerMethodResolver methodResolver = new ControllerMethodResolver(null, argumentResolvers);
+    InvocableHandlerMethod handlerMethod = methodResolver.createHandlerMethod(handler, method, null);
 
     ModelHandler modelHandler = new ModelHandler(methodResolver);
 

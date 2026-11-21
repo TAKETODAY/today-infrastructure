@@ -110,6 +110,81 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   }
 
   @Test
+  void annotatedExceptionHandlersUseTheRegistryFromTheirResolver() throws Exception {
+    try (var application = new AnnotationConfigApplicationContext(Config.class)) {
+      var resolver = new ControllerMethodResolver(application, exceptionParameterRegistry("first"));
+      handler.setApplicationContext(application);
+      handler.setControllerMethodResolver(resolver);
+      handler.afterPropertiesSet();
+
+      var target = new HandlerMethod(new RegistryExceptionController(), "handle");
+      var exception = new IllegalStateException();
+      assertThat(handler.handleException(new MockHttpContext(application, request, response), exception, target)).isEqualTo("first");
+
+      var other = new ExceptionHandlerAnnotationExceptionHandler();
+      other.setApplicationContext(application);
+      other.setControllerMethodResolver(new ControllerMethodResolver(application, exceptionParameterRegistry("second")));
+      other.afterPropertiesSet();
+      assertThat(other.handleException(new MockHttpContext(application, request, new MockResponse()), exception, target)).isEqualTo("second");
+    }
+  }
+
+  private static ParameterResolvingRegistry exceptionParameterRegistry(String value) {
+    var registry = new ParameterResolvingRegistry();
+    registry.addCustomizedStrategies(new ParameterResolvingStrategy() {
+      @Override
+      public boolean supportsParameter(HandlerParameter parameter) {
+        return parameter.getParameterType() == String.class;
+      }
+
+      @Override
+      public Object resolveArgument(HttpContext request, HandlerParameter parameter) {
+        return value;
+      }
+    });
+    return registry;
+  }
+
+  static class RegistryExceptionController {
+
+    public void handle() {
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public String onException(String value) {
+      return value;
+    }
+  }
+
+  @Test
+  void prototypeExceptionAdviceIsResolvedForEachRequest() {
+    try (var application = new AnnotationConfigApplicationContext()) {
+      application.register(Config.class);
+      application.registerPrototype("prototypeExceptionAdvice", PrototypeExceptionAdvice.class);
+      application.refresh();
+      handler.setApplicationContext(application);
+      handler.afterPropertiesSet();
+
+      var exception = new IllegalStateException();
+      var first = handler.getExceptionHandlerMethod(new MockHttpContext(application, request, response), null, exception);
+      var second = handler.getExceptionHandlerMethod(new MockHttpContext(application, request, new MockResponse()), null, exception);
+
+      assertThat(first).isNotNull();
+      assertThat(second).isNotNull();
+      assertThat(first.getBean()).isInstanceOf(PrototypeExceptionAdvice.class).isNotSameAs(second.getBean());
+    }
+  }
+
+  @RestControllerAdvice
+  static class PrototypeExceptionAdvice {
+
+    @ExceptionHandler
+    public String handle(IllegalStateException exception) {
+      return "handled";
+    }
+  }
+
+  @Test
   void unknownExceptionAsProblemDetail() throws Exception {
     try (var application = new AnnotationConfigApplicationContext(Config.class)) {
       handler.setApplicationContext(application);
