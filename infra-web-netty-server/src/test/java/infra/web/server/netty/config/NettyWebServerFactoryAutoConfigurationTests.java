@@ -187,8 +187,7 @@ class NettyWebServerFactoryAutoConfigurationTests {
 
   @Test
   void nettyRequestConfigCustomizers() {
-    contextRunner.withPropertyValues("server.netty.autoRead=true")
-            .withBean(NettyRequestConfigCustomizer.class, () -> builder -> builder.manualBodyRead(false))
+    contextRunner.withBean(NettyRequestConfigCustomizer.class, () -> builder -> builder.manualBodyRead(false))
             .run(context -> {
               assertThat(context).hasSingleBean(NettyRequestConfig.class);
               assertThat(context.getBean(NettyRequestConfig.class).manualBodyRead)

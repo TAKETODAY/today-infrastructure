@@ -96,6 +96,11 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
   public final void channelRead(final ChannelHandlerContext ctx, final Object msg) throws IOException {
     if (msg instanceof HttpRequest request) {
       Channel channel = ctx.channel();
+      if (NettyHttpContext.lookup(ctx) != null) {
+        ReferenceCountUtil.release(request);
+        channel.close();
+        return;
+      }
       HttpContext httpContext = new HttpContext(channel, request, requestConfig,
               context, dispatcherHandler, this);
       httpContext.attach();
@@ -135,7 +140,8 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
       }
     }
     else if (frame instanceof Http2ResetFrame resetFrame) {
-      NettyHttpContext httpContext = NettyHttpContext.getAndRemove(ctx);
+      // Keep the context attached so channelInactive can finish stream cleanup.
+      NettyHttpContext httpContext = NettyHttpContext.lookup(ctx);
       if (httpContext != null) {
         httpContext.onError(new IOException("HTTP/2 stream reset: " + resetFrame.errorCode()));
       }

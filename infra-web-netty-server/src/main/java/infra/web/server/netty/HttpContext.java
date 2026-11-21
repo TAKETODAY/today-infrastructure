@@ -28,6 +28,7 @@ import infra.web.DispatcherHandler;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.CharSequenceValueConverter;
 import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.DefaultHeadersImpl;
@@ -148,7 +149,7 @@ final class HttpContext extends NettyHttpContext implements Runnable {
    * closes the connection instead of sending a partial trailer section.
    */
   @Override
-  protected void writeResponseEnd() {
+  protected ChannelFuture writeResponseEnd() {
     try {
       HttpHeaders trailers = evaluateTrailerFields();
       LastHttpContent lastContent = LastHttpContent.EMPTY_LAST_CONTENT;
@@ -161,13 +162,14 @@ final class HttpContext extends NettyHttpContext implements Runnable {
         }
       }
 
-      channel.writeAndFlush(lastContent)
+      return channel.writeAndFlush(lastContent)
               .addListener(HttpUtil.isKeepAlive(request)
                       ? ChannelFutureListener.CLOSE_ON_FAILURE
                       : ChannelFutureListener.CLOSE);
     }
     catch (Throwable failure) {
       abortResponse(failure);
+      return channel.newFailedFuture(failure);
     }
   }
 
@@ -232,4 +234,3 @@ final class HttpContext extends NettyHttpContext implements Runnable {
   }
 
 }
-

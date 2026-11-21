@@ -143,7 +143,7 @@ class HttpContextTests {
         assertThat(failures).containsExactly(failure);
         assertThat(errorAttempts).hasValue(committed ? 0 : 1);
         assertThat(completed).hasValue(1);
-        assertThat(channel.config().isAutoRead()).isTrue();
+        assertThat(channel.config().isAutoRead()).isFalse();
         assertThat(channel.isActive()).isFalse();
         Object response = channel.readOutbound();
         assertThat(response).isInstanceOf(io.netty.handler.codec.http.HttpResponse.class);
@@ -290,7 +290,7 @@ class HttpContextTests {
   }
 
   @Test
-  void manualBodyReadIsRestoredAfterRequestCompletes() {
+  void incompleteManualBodyClosesConnectionAfterRequestCompletes() {
     EmbeddedChannel channel = new EmbeddedChannel();
     HttpRequest request = mock(HttpRequest.class);
     NettyRequestConfig config = createConfigBuilder().manualBodyRead(true).build();
@@ -314,11 +314,12 @@ class HttpContextTests {
     context.run();
 
     assertThat(context.isRequestCompleted()).as("request completed").isTrue();
-    assertThat(channel.config().isAutoRead()).isTrue();
+    assertThat(channel.config().isAutoRead()).isFalse();
+    assertThat(channel.isOpen()).isFalse();
   }
 
   @Test
-  void manualBodyReadIsRestoredWhenDeclaredContentLengthExceedsLimit() {
+  void incompleteManualBodyClosesConnectionWhenDeclaredContentLengthExceedsLimit() {
     EmbeddedChannel channel = new EmbeddedChannel();
     HttpRequest request = mock(HttpRequest.class);
     NettyRequestConfig config = createConfigBuilder().maxContentLength(100).manualBodyRead(true).build();
@@ -334,11 +335,12 @@ class HttpContextTests {
 
     context.run();
 
-    assertThat(channel.config().isAutoRead()).isTrue();
+    assertThat(channel.config().isAutoRead()).isFalse();
+    assertThat(channel.isOpen()).isFalse();
   }
 
   @Test
-  void manualBodyReadIsRestoredWhenContinueIsRejected() {
+  void incompleteManualBodyClosesConnectionWhenContinueIsRejected() {
     EmbeddedChannel channel = new EmbeddedChannel();
     HttpRequest request = mock(HttpRequest.class);
     NettyRequestConfig config = createConfigBuilder().manualBodyRead(true).build();
@@ -361,7 +363,8 @@ class HttpContextTests {
 
     context.run();
 
-    assertThat(channel.config().isAutoRead()).isTrue();
+    assertThat(channel.config().isAutoRead()).isFalse();
+    assertThat(channel.isOpen()).isFalse();
     Object response = channel.readOutbound();
     assertThat(response).isInstanceOf(DefaultFullHttpResponse.class);
   }
