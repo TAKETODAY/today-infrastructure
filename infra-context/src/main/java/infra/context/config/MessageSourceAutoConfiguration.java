@@ -21,7 +21,9 @@ package infra.context.config;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
@@ -83,24 +85,18 @@ public final class MessageSourceAutoConfiguration {
 
   protected static class ResourceBundleCondition extends InfraCondition {
 
-    private static final ConcurrentReferenceHashMap<String, ConditionOutcome>
-            cache = new ConcurrentReferenceHashMap<>();
-
     @Override
     public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
       String basename = context.getEnvironment().getProperty("messages.basename", "messages");
-      ConditionOutcome outcome = cache.get(basename);
-      if (outcome == null) {
-        outcome = getMatchOutcomeForBasename(context, basename);
-        cache.put(basename, outcome);
-      }
-      return outcome;
+      ClassLoader classLoader = context.getClassLoader();
+      return Cache.forClassLoader(classLoader)
+              .computeIfAbsent(basename, () -> getMatchOutcomeForBasename(classLoader, basename));
     }
 
-    private ConditionOutcome getMatchOutcomeForBasename(ConditionContext context, String basename) {
+    private ConditionOutcome getMatchOutcomeForBasename(@Nullable ClassLoader classLoader, String basename) {
       ConditionMessage.Builder message = ConditionMessage.forCondition("ResourceBundle");
       for (String name : StringUtils.commaDelimitedListToStringArray(StringUtils.trimAllWhitespace(basename))) {
-        for (Resource resource : getResources(context.getClassLoader(), name)) {
+        for (Resource resource : getResources(classLoader, name)) {
           if (resource.exists()) {
             return ConditionOutcome.match(message.found("bundle").items(resource));
           }
@@ -118,6 +114,30 @@ public final class MessageSourceAutoConfiguration {
       catch (Exception ex) {
         return Collections.emptySet();
       }
+    }
+
+  }
+
+  static final class Cache {
+
+    private static final Cache none = new Cache(null);
+
+    private static final Map<ClassLoader, Cache> classLoaderCaches = new ConcurrentReferenceHashMap<>(16,
+            ConcurrentReferenceHashMap.ReferenceType.SOFT);
+
+    private final @Nullable Map<String, ConditionOutcome> outcomes;
+
+    private Cache(@Nullable Map<String, ConditionOutcome> outcomes) {
+      this.outcomes = outcomes;
+    }
+
+    ConditionOutcome computeIfAbsent(String basename, Supplier<ConditionOutcome> action) {
+      return (this.outcomes != null) ? this.outcomes.computeIfAbsent(basename, (key) -> action.get()) : action.get();
+    }
+
+    static Cache forClassLoader(@Nullable ClassLoader classLoader) {
+      return (classLoader != null) ? classLoaderCaches.computeIfAbsent(classLoader,
+              (key) -> new Cache(new ConcurrentReferenceHashMap<>())) : none;
     }
 
   }

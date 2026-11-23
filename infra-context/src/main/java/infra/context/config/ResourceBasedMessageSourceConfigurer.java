@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Properties;
 
 import infra.context.support.AbstractResourceBasedMessageSource;
+import infra.core.io.EncodedResource;
 import infra.core.io.PropertiesUtils;
 import infra.core.io.Resource;
 import infra.util.Assert;
@@ -41,6 +42,7 @@ import infra.util.StringUtils;
  * configuration is based upon that produced by auto-configuration.
  *
  * @author Henrique (henriquejsza)
+ * @author Tanishq Choudhary
  * @since 5.0
  */
 public class ResourceBasedMessageSourceConfigurer {
@@ -90,7 +92,7 @@ public class ResourceBasedMessageSourceConfigurer {
     Properties properties = CollectionUtils.createSortedProperties(false);
     for (Resource resource : resources) {
       try {
-        PropertiesUtils.fillProperties(properties, resource);
+        PropertiesUtils.fillProperties(properties, new EncodedResource(resource, this.properties.getEncoding()));
       }
       catch (IOException ex) {
         throw new UncheckedIOException("Failed to load common messages from '%s'".formatted(resource), ex);
