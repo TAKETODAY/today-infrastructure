@@ -18,6 +18,7 @@
 
 package infra.web.handler;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,18 +31,16 @@ import infra.beans.TypeMismatchException;
 import infra.beans.testfixture.beans.ITestBean;
 import infra.context.support.StaticMessageSource;
 import infra.core.annotation.AliasFor;
-import infra.core.i18n.LocaleContextHolder;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
-import org.jspecify.annotations.Nullable;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
 import infra.web.HandlerExceptionHandler;
-import infra.web.server.MethodNotAllowedException;
-import infra.web.server.ResponseStatusException;
 import infra.web.annotation.ResponseStatus;
 import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
+import infra.web.server.MethodNotAllowedException;
+import infra.web.server.ResponseStatusException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -87,19 +86,14 @@ class ResponseStatusExceptionHandlerTests {
   @Test
   public void statusCodeAndReasonMessage() throws Exception {
     Locale locale = Locale.CHINESE;
-    LocaleContextHolder.setLocale(locale);
-    try {
-      StaticMessageSource messageSource = new StaticMessageSource();
-      messageSource.addMessage("gone.reason", locale, "Gone reason message");
-      exceptionHandler.setMessageSource(messageSource);
+    request.addHeader(HttpHeaders.ACCEPT_LANGUAGE, locale.toLanguageTag());
+    StaticMessageSource messageSource = new StaticMessageSource();
+    messageSource.addMessage("gone.reason", locale, "Gone reason message");
+    exceptionHandler.setMessageSource(messageSource);
 
-      StatusCodeAndReasonMessageException ex = new StatusCodeAndReasonMessageException();
-      handleException(ex);
-      assertThat(response.getErrorMessage()).as("Invalid status reason").isEqualTo("Gone reason message");
-    }
-    finally {
-      LocaleContextHolder.resetLocaleContext();
-    }
+    StatusCodeAndReasonMessageException ex = new StatusCodeAndReasonMessageException();
+    handleException(ex);
+    assertThat(response.getErrorMessage()).as("Invalid status reason").isEqualTo("Gone reason message");
   }
 
   @Test

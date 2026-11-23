@@ -139,14 +139,14 @@ public class InvocableHandlerMethod extends HandlerMethod {
   public @Nullable Object invokeAndHandle(HttpContext request,
           @Nullable MethodValidator methodValidator, Object @Nullable [] providedArgs) throws Exception {
     Object returnValue = invokeForRequest(request, methodValidator, providedArgs);
-    applyResponseStatus(request);
+    boolean reasonPresent = applyResponseStatus(request);
 
     if (returnValue == null) {
       if (request.isNotModified() || getResponseStatus() != null) {
         return HttpRequestHandler.NONE_RETURN_VALUE;
       }
     }
-    else if (StringUtils.hasText(getResponseStatusReason())) {
+    else if (reasonPresent) {
       return HttpRequestHandler.NONE_RETURN_VALUE;
     }
 
@@ -156,14 +156,15 @@ public class InvocableHandlerMethod extends HandlerMethod {
   /**
    * Set the response status according to the {@link ResponseStatus} annotation.
    */
-  private void applyResponseStatus(HttpContext context) throws IOException {
+  private boolean applyResponseStatus(HttpContext context) throws IOException {
     HttpStatusCode status = getResponseStatus();
     if (status == null) {
-      return;
+      return false;
     }
 
     String reason = getResponseStatusReason();
-    if (StringUtils.hasText(reason)) {
+    boolean reasonPresent = StringUtils.hasText(reason);
+    if (reasonPresent) {
       MessageSource messageSource = getMessageSource();
       if (messageSource != null) {
         reason = messageSource.getMessage(reason, null, reason, WebUtils.resolveLocale(context));
@@ -176,6 +177,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
     // To be picked up by RedirectView
     context.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, status);
+    return reasonPresent;
   }
 
   /**
