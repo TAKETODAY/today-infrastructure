@@ -230,7 +230,7 @@ public class ConfigTreePropertySource extends EnumerablePropertySource<Path> imp
             String name = getName(relativePath);
             if (StringUtils.hasText(name)) {
               if (options.contains(Option.USE_LOWERCASE_NAMES)) {
-                name = name.toLowerCase(Locale.getDefault());
+                name = name.toLowerCase(Locale.ROOT);
               }
               propertyFiles.put(name, new PropertyFile(path, options));
             }
