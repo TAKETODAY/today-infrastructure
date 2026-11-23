@@ -27,10 +27,23 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.ConnectException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.AclEntry;
+import java.nio.file.attribute.AclEntryPermission;
+import java.nio.file.attribute.AclEntryType;
+import java.nio.file.attribute.AclFileAttributeView;
+import java.nio.file.attribute.PosixFileAttributeView;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import javax.management.MBeanServerConnection;
@@ -86,7 +99,12 @@ public class StartMojo extends AbstractRunMojo {
   @Parameter(property = "infra.start.maxAttempts", defaultValue = "60")
   private int maxAttempts;
 
+  @Parameter(defaultValue = "${project.build.directory}", readonly = true, required = true)
+  private File buildDirectory;
+
   private final Object lock = new Object();
+
+  private final String password = UUID.randomUUID().toString();
 
   /**
    * Flag to include the test classpath when running.
@@ -121,17 +139,53 @@ public class StartMojo extends AbstractRunMojo {
     List<String> remoteJmxArguments = new ArrayList<>();
     remoteJmxArguments.add("-Dcom.sun.management.jmxremote");
     remoteJmxArguments.add("-Dcom.sun.management.jmxremote.port=" + this.jmxPort);
-    remoteJmxArguments.add("-Dcom.sun.management.jmxremote.authenticate=false");
+    remoteJmxArguments.add("-Dcom.sun.management.jmxremote.rmi.port=" + this.jmxPort);
+    remoteJmxArguments.add("-Dcom.sun.management.jmxremote.local.only=true");
+    remoteJmxArguments.add("-Dcom.sun.management.jmxremote.host=127.0.0.1");
+    remoteJmxArguments.add("-Dcom.sun.management.jmxremote.authenticate=true");
+    Path directory = this.buildDirectory.toPath().toAbsolutePath();
+    Path passwordFile = directory.resolve(InfraApplicationAdminClient.JMX_PASSWORD_FILE);
+    writeWithOwnerOnlyPermissions(passwordFile, InfraApplicationAdminClient.JMX_USER + " " + this.password);
+    remoteJmxArguments.add("-Dcom.sun.management.jmxremote.password.file=" + passwordFile);
+    remoteJmxArguments.add("-Dcom.sun.management.jmxremote.password.toHashes=false");
+    Path accessFile = directory.resolve("infra.jmxremote.access");
+    writeWithOwnerOnlyPermissions(accessFile, InfraApplicationAdminClient.JMX_USER + " readwrite");
+    remoteJmxArguments.add("-Dcom.sun.management.jmxremote.access.file=" + accessFile);
     remoteJmxArguments.add("-Dcom.sun.management.jmxremote.ssl=false");
     remoteJmxArguments.add("-Djava.rmi.server.hostname=127.0.0.1");
     jvmArguments.getArgs().addAll(remoteJmxArguments);
     return jvmArguments;
   }
 
+  private void writeWithOwnerOnlyPermissions(Path file, String content) {
+    try {
+      Path directory = Files.createDirectories(file.getParent());
+      Files.deleteIfExists(file);
+      if (Files.getFileAttributeView(directory, PosixFileAttributeView.class) != null) {
+        Files.createFile(file, PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------")));
+      }
+      else {
+        Files.createFile(file);
+        AclFileAttributeView view = Files.getFileAttributeView(file, AclFileAttributeView.class);
+        if (view == null) {
+          throw new IOException("Unable to set owner-only permissions for " + file);
+        }
+        AclEntry ownerOnly = AclEntry.newBuilder().setType(AclEntryType.ALLOW).setPrincipal(view.getOwner())
+                .setPermissions(EnumSet.allOf(AclEntryPermission.class)).build();
+        view.setAcl(List.of(ownerOnly));
+      }
+      Files.write(file, List.of(content), StandardOpenOption.WRITE, LinkOption.NOFOLLOW_LINKS);
+    }
+    catch (IOException ex) {
+      throw new UncheckedIOException("Unable to write JMX configuration file " + file, ex);
+    }
+  }
+
   private void waitForInfraApplication() throws MojoFailureException, MojoExecutionException {
     try {
       getLog().debug("Connecting to local MBeanServer at port " + this.jmxPort);
-      try (JMXConnector connector = execute(this.wait, this.maxAttempts, new CreateJmxConnector(this.jmxPort))) {
+      try (JMXConnector connector = execute(this.wait, this.maxAttempts,
+              new CreateJmxConnector(this.jmxPort, this.password))) {
         if (connector == null) {
           throw new MojoExecutionException("JMX MBean server was not reachable before the configured "
                   + "timeout (" + (this.wait * this.maxAttempts) + "ms");
@@ -207,14 +261,17 @@ public class StartMojo extends AbstractRunMojo {
 
     private final int port;
 
-    CreateJmxConnector(int port) {
+    private final String password;
+
+    CreateJmxConnector(int port, String password) {
       this.port = port;
+      this.password = password;
     }
 
     @Override
     public JMXConnector call() throws Exception {
       try {
-        return InfraApplicationAdminClient.connect(this.port);
+        return InfraApplicationAdminClient.connect(this.port, this.password);
       }
       catch (IOException ex) {
         if (hasCauseWithType(ex, ConnectException.class)) {
@@ -227,7 +284,7 @@ public class StartMojo extends AbstractRunMojo {
     }
 
     private boolean hasCauseWithType(Throwable t, Class<? extends Exception> type) {
-      return type.isAssignableFrom(t.getClass()) || t.getCause() != null && hasCauseWithType(t.getCause(), type);
+      return type.isInstance(t) || t.getCause() != null && hasCauseWithType(t.getCause(), type);
     }
 
   }
