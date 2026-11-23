@@ -20,16 +20,95 @@ import org.junit.jupiter.api.Test;
 
 import infra.transaction.NestedTransactionNotSupportedException;
 import infra.transaction.SavepointManager;
+import infra.transaction.TransactionUsageException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/11/17 22:26
  */
 class DefaultTransactionStatusTests {
+
+  @Test
+  void heldSavepointIsReportedRolledBackAndReleasedInOrder() {
+    var manager = mock(SavepointManager.class);
+    var synchronization = mock(TransactionSynchronization.class);
+    var savepoint = new Object();
+    given(manager.createSavepoint()).willReturn(savepoint);
+    var status = new DefaultTransactionStatus(null, manager, false, false, true, false, false, null);
+
+    TransactionSynchronizationManager.initSynchronization();
+    try {
+      TransactionSynchronizationManager.registerSynchronization(synchronization);
+      status.createAndHoldSavepoint();
+      assertThat(status.hasSavepoint()).isTrue();
+      status.rollbackToHeldSavepoint();
+      assertThat(status.hasSavepoint()).isFalse();
+
+      var order = inOrder(manager, synchronization);
+      order.verify(manager).createSavepoint();
+      order.verify(synchronization).savepoint(savepoint);
+      order.verify(synchronization).savepointRollback(savepoint);
+      order.verify(manager).rollbackToSavepoint(savepoint);
+      order.verify(manager).releaseSavepoint(savepoint);
+    }
+    finally {
+      TransactionSynchronizationManager.clearSynchronization();
+    }
+  }
+
+  @Test
+  void releasingHeldSavepointDoesNotRollItBack() {
+    var manager = mock(SavepointManager.class);
+    var savepoint = new Object();
+    given(manager.createSavepoint()).willReturn(savepoint);
+    var status = new DefaultTransactionStatus(null, manager, false, false, true, false, false, null);
+
+    status.createAndHoldSavepoint();
+    status.releaseHeldSavepoint();
+
+    assertThat(status.hasSavepoint()).isFalse();
+    var order = inOrder(manager);
+    order.verify(manager).createSavepoint();
+    order.verify(manager).releaseSavepoint(savepoint);
+    order.verifyNoMoreInteractions();
+    assertThatThrownBy(status::releaseHeldSavepoint).isInstanceOf(TransactionUsageException.class);
+    assertThatThrownBy(status::rollbackToHeldSavepoint).isInstanceOf(TransactionUsageException.class);
+  }
+
+  @Test
+  void programmaticSavepointDoesNotChangeHeldSavepointState() {
+    var manager = mock(SavepointManager.class);
+    var savepoint = new Object();
+    given(manager.createSavepoint()).willReturn(savepoint);
+    var status = new DefaultTransactionStatus(null, manager, true, false, false, false, false, null);
+
+    assertThat(status.createSavepoint()).isSameAs(savepoint);
+    assertThat(status.hasSavepoint()).isFalse();
+    status.rollbackToSavepoint(savepoint);
+    status.releaseSavepoint(savepoint);
+
+    var order = inOrder(manager);
+    order.verify(manager).createSavepoint();
+    order.verify(manager).rollbackToSavepoint(savepoint);
+    order.verify(manager).releaseSavepoint(savepoint);
+  }
+
+  @Test
+  void completedStatusCannotBecomeRollbackOnly() {
+    var status = new SimpleTransactionStatus();
+    status.setCompleted();
+
+    assertThatThrownBy(status::setRollbackOnly).isInstanceOf(IllegalStateException.class);
+    assertThat(status.isRollbackOnly()).isFalse();
+    assertThatThrownBy(status::createSavepoint).isInstanceOf(NestedTransactionNotSupportedException.class);
+  }
 
   @Test
   void shouldCreateDefaultTransactionStatusWithAllParameters() {

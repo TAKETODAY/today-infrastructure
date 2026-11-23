@@ -26,12 +26,66 @@ import jakarta.transaction.UserTransaction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/10/12 21:25
  */
 class JtaSynchronizationAdapterTests {
+
+  @Test
+  void beforeCommitFailureMarksRollbackOnlyAndStillRunsCompletion() throws Exception {
+    var synchronization = mock(TransactionSynchronization.class);
+    var transaction = mock(UserTransaction.class);
+    var adapter = new JtaSynchronizationAdapter(synchronization, transaction);
+    var failure = new IllegalStateException("Could not flush resource");
+    willThrow(failure).given(synchronization).beforeCommit(false);
+
+    assertThatThrownBy(adapter::beforeCompletion).isSameAs(failure);
+    adapter.afterCompletion(Status.STATUS_ROLLEDBACK);
+
+    var order = inOrder(synchronization, transaction);
+    order.verify(synchronization).beforeCommit(false);
+    order.verify(transaction).setRollbackOnly();
+    order.verify(synchronization).beforeCompletion();
+    order.verify(synchronization).afterCompletion(TransactionSynchronization.STATUS_ROLLED_BACK);
+    order.verifyNoMoreInteractions();
+  }
+
+  @Test
+  void rollbackOnlyFailureDoesNotReplaceBeforeCommitFailure() throws Exception {
+    var synchronization = mock(TransactionSynchronization.class);
+    var transaction = mock(UserTransaction.class);
+    var adapter = new JtaSynchronizationAdapter(synchronization, transaction);
+    var failure = new IllegalStateException("Could not flush resource");
+    willThrow(failure).given(synchronization).beforeCommit(false);
+    willThrow(new SystemException("JTA provider unavailable")).given(transaction).setRollbackOnly();
+
+    assertThatThrownBy(adapter::beforeCompletion).isSameAs(failure);
+
+    var order = inOrder(synchronization, transaction);
+    order.verify(synchronization).beforeCommit(false);
+    order.verify(transaction).setRollbackOnly();
+    order.verify(synchronization).beforeCompletion();
+  }
+
+  @Test
+  void beforeCommitFailureIsPropagatedWithoutAUserTransaction() {
+    var synchronization = mock(TransactionSynchronization.class);
+    var adapter = new JtaSynchronizationAdapter(synchronization);
+    var failure = new IllegalStateException("Could not flush resource");
+    willThrow(failure).given(synchronization).beforeCommit(false);
+
+    assertThatThrownBy(adapter::beforeCompletion).isSameAs(failure);
+
+    var order = inOrder(synchronization);
+    order.verify(synchronization).beforeCommit(false);
+    order.verify(synchronization).beforeCompletion();
+  }
 
   @Test
   void constructorWithTransactionSynchronization() {
