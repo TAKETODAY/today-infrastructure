@@ -20,19 +20,30 @@ package infra.web.reactive.client.config;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+
 import infra.app.config.ssl.SslAutoConfiguration;
 import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
+import infra.core.ssl.SslBundle;
+import infra.core.ssl.SslBundles;
+import infra.http.HttpStatus;
+import infra.http.client.HttpClientSettings;
 import infra.http.codec.CodecConfigurer;
 import infra.http.codec.CodecCustomizer;
+import infra.http.reactive.client.ClientHttpConnector;
+import infra.http.reactive.client.ClientHttpConnectorBuilder;
 import infra.http.reactive.client.config.ReactiveHttpClientAutoConfiguration;
 import infra.web.reactive.client.WebClient;
 import infra.web.reactive.client.WebClientCustomizer;
+import infra.web.testfixture.http.client.reactive.MockClientHttpResponse;
+import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 
@@ -103,6 +114,26 @@ class WebClientAutoConfigurationTests {
       WebClientSsl webClientSsl = context.getBean(WebClientSsl.class);
       assertThat(webClientSsl).isInstanceOf(AutoConfiguredWebClientSsl.class);
     });
+  }
+
+  @Test
+  void namedSslBundleReconfiguresConnectorAndRetainsClientSettings() {
+    SslBundle bundle = mock(SslBundle.class);
+    SslBundles bundles = mock(SslBundles.class);
+    given(bundles.getBundle("partner")).willReturn(bundle);
+    HttpClientSettings defaults = HttpClientSettings.defaults().withConnectTimeout(Duration.ofSeconds(2));
+    ClientHttpConnectorBuilder<ClientHttpConnector> connectorBuilder = settings -> {
+      assertThat(settings).isEqualTo(defaults.withSslBundle(bundle));
+      return (method, uri, callback) -> Mono.just(new MockClientHttpResponse(HttpStatus.ACCEPTED));
+    };
+    WebClientSsl ssl = new AutoConfiguredWebClientSsl(connectorBuilder, defaults, bundles);
+
+    WebClient client = WebClient.builder()
+            .clientConnector((method, uri, callback) -> Mono.error(new AssertionError("Original connector retained")))
+            .apply(ssl.fromBundle("partner"))
+            .build();
+
+    assertThat(client.get().uri("https://example.com").exchange().block().statusCode()).isEqualTo(HttpStatus.ACCEPTED);
   }
 
   @Configuration(proxyBeanMethods = false)

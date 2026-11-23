@@ -330,6 +330,31 @@ class BodyExtractorsTests {
   }
 
   @Test
+  void toMultipartDataGroupsRepeatedFields() {
+    String body = """
+            --test-boundary
+            Content-Disposition: form-data; name="tag"
+
+            first
+            --test-boundary
+            Content-Disposition: form-data; name="tag"
+
+            second
+            --test-boundary--
+            """.replace("\n", "\r\n");
+    MockServerHttpRequest request = MockServerHttpRequest.post("/")
+            .header("Content-Type", "multipart/form-data; boundary=test-boundary").body(body);
+
+    StepVerifier.create(BodyExtractors.toMultipartData().extract(request, this.context))
+            .assertNext(parts -> {
+              assertThat(parts).containsOnlyKeys("tag");
+              assertThat(parts.get("tag")).extracting(part -> ((FormFieldPart) part).value())
+                      .containsExactly("first", "second");
+            })
+            .verifyComplete();
+  }
+
+  @Test
   void toParts() {
     BodyExtractor<Flux<Part>, ServerHttpRequest> extractor = infra.web.reactive.BodyExtractors.toParts();
 
