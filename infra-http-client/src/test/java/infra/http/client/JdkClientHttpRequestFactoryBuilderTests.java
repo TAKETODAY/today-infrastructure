@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
+import java.net.ProxySelector;
 import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.concurrent.Executor;
@@ -30,6 +31,7 @@ import infra.core.task.SimpleAsyncTaskExecutor;
 import infra.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link JdkClientHttpRequestFactoryBuilder} and {@link JdkHttpClientBuilder}.
@@ -62,6 +64,28 @@ class JdkClientHttpRequestFactoryBuilderTests
     HttpClient httpClient = (HttpClient) ReflectionTestUtils.getField(factory, "httpClient");
     assertThat(httpClient).isNotNull();
     assertThat(httpClient.executor()).containsSame(executor);
+  }
+
+  @Test
+  void withProxySelector() {
+    ProxySelector proxySelector = mock(ProxySelector.class);
+    JdkClientHttpRequestFactory factory = ClientHttpRequestFactoryBuilder.jdk().withProxySelector(proxySelector).build();
+    HttpClient httpClient = (HttpClient) ReflectionTestUtils.getField(factory, "httpClient");
+    assertThat(httpClient).isNotNull();
+    assertThat(httpClient.proxy()).containsSame(proxySelector);
+  }
+
+  @Test
+  void withProxySelectorWhenHasInetAddressFilter() {
+    ProxySelector proxySelector = mock(ProxySelector.class);
+    HttpClientSettings settings = HttpClientSettings.defaults().withInetAddressFilter(InetAddressFilter.externalAddresses());
+    JdkClientHttpRequestFactory factory = ClientHttpRequestFactoryBuilder.jdk().withProxySelector(proxySelector).build(settings);
+    HttpClient httpClient = (HttpClient) ReflectionTestUtils.getField(factory, "httpClient");
+    assertThat(httpClient).isNotNull();
+    assertThat(httpClient.proxy()).hasValueSatisfying(actual -> {
+      assertThat(actual).isInstanceOf(JdkFilteredProxySelector.class);
+      assertThat(actual).extracting("delegate").isSameAs(proxySelector);
+    });
   }
 
   @Test

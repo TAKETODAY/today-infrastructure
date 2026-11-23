@@ -149,6 +149,70 @@ class DefaultPartHttpMessageReaderTests extends AbstractLeakCheckingTests {
   }
 
   @ParameterizedDefaultPartHttpMessageReaderTest
+  void bareLineFeedInHeaderValueIsRejected(DefaultPartHttpMessageReader reader) {
+    String body = "--boundary\r\n"
+            + "X-Example: first\nsecond\r\n\r\n"
+            + "content\r\n--boundary--\r\n";
+    MockServerHttpRequest request = MockServerHttpRequest.post("/")
+            .contentType(new MediaType("multipart", "form-data", singletonMap("boundary", "boundary")))
+            .body(Flux.just(bufferFactory.wrap(body.getBytes(UTF_8))));
+
+    StepVerifier.create(reader.read(forClass(Part.class), request, emptyMap()))
+            .expectError(DecodingException.class)
+            .verify();
+  }
+
+  @ParameterizedDefaultPartHttpMessageReaderTest
+  void headerLineWithoutColonIsRejected(DefaultPartHttpMessageReader reader) {
+    String body = "--boundary\r\n"
+            + "not-a-header-line\r\n\r\n"
+            + "content\r\n--boundary--\r\n";
+    MockServerHttpRequest request = MockServerHttpRequest.post("/")
+            .contentType(new MediaType("multipart", "form-data", singletonMap("boundary", "boundary")))
+            .body(Flux.just(bufferFactory.wrap(body.getBytes(UTF_8))));
+
+    StepVerifier.create(reader.read(forClass(Part.class), request, emptyMap()))
+            .expectError(DecodingException.class)
+            .verify();
+  }
+
+  @ParameterizedDefaultPartHttpMessageReaderTest
+  void partialBoundaryIsTreatedAsBodyContent(DefaultPartHttpMessageReader reader) {
+    MockServerHttpRequest request = createRequest("partial-boundary.multipart", "boundary");
+
+    StepVerifier.create(reader.read(forClass(Part.class), request, emptyMap()))
+            .consumeNextWith(part -> {
+              Mono<String> content = DataBufferUtils.join(part.content()).map(buffer -> {
+                try {
+                  return buffer.toString(UTF_8);
+                }
+                finally {
+                  buffer.release();
+                }
+              });
+              StepVerifier.create(content)
+                      .expectNext("line one\r\n--boundaryXline two\r\nline three")
+                      .verifyComplete();
+            })
+            .verifyComplete();
+  }
+
+  @ParameterizedDefaultPartHttpMessageReaderTest
+  void boundarySuffixesCanSpanBuffers(DefaultPartHttpMessageReader reader) {
+    byte[] body = ("--boundary\r\nContent-Type: text/plain\r\n\r\n"
+            + "first\r\n--boundary\r\nContent-Type: text/plain\r\n\r\n"
+            + "second\r\n--boundary--\r\n").getBytes(UTF_8);
+    MockServerHttpRequest request = MockServerHttpRequest.post("/")
+            .contentType(new MediaType("multipart", "form-data", singletonMap("boundary", "boundary")))
+            .body(Flux.range(0, body.length).map(i -> bufferFactory.wrap(new byte[] { body[i] })));
+
+    StepVerifier.create(reader.read(forClass(Part.class), request, emptyMap()))
+            .consumeNextWith(part -> assertThat(readContent(part)).isEqualTo("first"))
+            .consumeNextWith(part -> assertThat(readContent(part)).isEqualTo("second"))
+            .verifyComplete();
+  }
+
+  @ParameterizedDefaultPartHttpMessageReaderTest
   void noEndBoundary(DefaultPartHttpMessageReader reader) {
     MockServerHttpRequest request = createRequest(
             "no-end-boundary.multipart", "boundary");

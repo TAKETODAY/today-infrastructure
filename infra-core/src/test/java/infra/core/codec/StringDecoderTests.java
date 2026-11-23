@@ -188,6 +188,39 @@ class StringDecoderTests extends AbstractDecoderTests<StringDecoder> {
   }
 
   @Test
+  void maxInMemoryLimitAfterSplittingFrames() {
+    Flux<DataBuffer> input = Flux.just(stringBuffer("ab\ncd\nefghijkl"));
+
+    this.decoder.setMaxInMemorySize(5);
+    testDecode(input, String.class, step -> step.verifyError(DataBufferLimitException.class));
+  }
+
+  @Test
+  void maxInMemoryLimitWhenJoiningSplitFrame() {
+    Flux<DataBuffer> input = Flux.just(stringBuffer("ab\ncd"), stringBuffer("efghijkl\n"));
+
+    this.decoder.setMaxInMemorySize(5);
+    testDecode(input, String.class, step -> step.expectNext("ab").verifyError(DataBufferLimitException.class));
+  }
+
+  @Test
+  void maxInMemoryLimitReleasesSourceBufferOnce() {
+    DataBuffer buffer = stringBuffer("ab\ncd\nefghijkl");
+    // Simulate a reference held by the server, as with Reactor Netty.
+    buffer.retain();
+
+    this.decoder.setMaxInMemorySize(5);
+    try {
+      StepVerifier.create(this.decoder.decode(Flux.just(buffer), TYPE, null, Collections.emptyMap()))
+              .verifyError(DataBufferLimitException.class);
+      assertThat(buffer.isAllocated()).isTrue();
+    }
+    finally {
+      buffer.release();
+    }
+  }
+
+  @Test
   void maxInMemoryLimitDoesNotApplyToParsedItemsThatDontRequireBuffering() {
     Flux<DataBuffer> input = Flux.just(
             stringBuffer("TOO MUCH DATA\nanother line\n\nand another\n"));

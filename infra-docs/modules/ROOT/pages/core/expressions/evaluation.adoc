@@ -150,14 +150,34 @@ Infra 提供了两个实现。
 
 `SimpleEvaluationContext` 旨在仅支持 SpEL 语言语法的一个子集。
 它排除了 Java 类型引用、构造函数和 bean 引用。
+默认也不支持通过反射调用构造函数或方法的类型转换（参见 <<expressions-evaluation-context-security,安全注意事项>>）。
 它还要求你显式选择表达式中属性和方法的支持级别。
-默认情况下，`create()` 静态工厂方法仅启用对属性的读取访问权限。
-你还可以获取构建器以配置所需的确切支持级别，针对以下一项或某种组合。
+通过 `forReadOnlyDataBinding()` 创建构建器可启用只读属性访问；通过 `forReadWriteDataBinding()` 可启用读写属性访问。
+也可以使用 `forPropertyAccessors(...)` 提供自定义访问器。构建器支持以下选项：
 
 * 仅自定义 `PropertyAccessor`（无反射）
 * 用于只读访问的数据绑定属性
 * 用于读写的数据绑定属性
 
+[[expressions-evaluation-context-security]]
+=== 安全注意事项
+
+`SimpleEvaluationContext` 默认使用受限的 `DefaultConversionService`，不通过反射调用任意类型的构造函数或方法来转换值。
+数字、布尔值、字符、枚举、`Locale`、`Charset`、`Currency`、`UUID`、集合和数组的常用转换仍然可用。
+需要额外转换时，优先通过构建器的 `withConverter(...)` 注册专用转换器，例如
+`withConverter(String.class, ZoneId.class, ZoneId::of)`。
+
+若必须全局恢复旧的反射转换行为（包括库中未配置自定义 `TypeConverter` 或 `ConversionService` 的上下文），
+可以通过 JVM 系统属性或 xref:appendix.adoc#appendix-infra-properties[`InfraStrategies` 属性]将
+`infra.expression.reflectiveConversion` 设为 `true`。这与传入标准的 `DefaultConversionService` 有相同的风险，
+因此更建议注册专用转换器。
+
+[WARNING]
+====
+构建器接收的自定义 `TypeConverter` 或 `ConversionService` 不会被框架限制。
+如果它能通过反射调用构造函数或方法来转换值（例如标准的 `DefaultConversionService`，
+或通过无参构造函数创建的 `StandardTypeConverter`），则必须像审查表达式可访问的其他对象一样审查每种转换目标类型。
+====
 
 [[expressions-type-conversion]]
 === 类型转换
@@ -166,6 +186,9 @@ Infra 提供了两个实现。
 (`infra.core.conversion.ConversionService`)。此转换服务附带了许多用于常见转换的内置转换器，
 但也完全可扩展，以便你可以在类型之间添加自定义转换。此外，它还具有泛型感知能力。
 这意味着，当你在表达式中使用泛型类型时，SpEL 会尝试转换以保持其遇到的任何对象的类型正确性。
+
+NOTE: `SimpleEvaluationContext` 默认不支持反射类型转换，可以通过构建器的 `withConverter(...)` 增加转换器。
+参见 <<expressions-evaluation-context-security,安全注意事项>>。
 
 这在实践中意味着什么？假设使用 `setValue()` 进行赋值来设置 `List` 属性。
 该属性的类型实际上是 `List<Boolean>`。SpEL 认识到列表的元素在放入之前需要转换为 `Boolean`。
@@ -264,6 +287,9 @@ xref:core/validation/beans-beans.adoc#data-binding-auto-grow[数据绑定的默�
 `infra.spel.default.max-operations` 的 JVM 系统属性或 Infra 属性设置为应用程序所需的
 最大操作数（请参阅 xref:appendix.adoc#appendix-infra-properties[支持的 Infra 属性]）。
 
+`maxOperations` 只统计表达式求值时执行的操作次数，例如运算符求值、属性访问、方法调用，
+以及选择和投影运算符处理的每个元素。它不衡量单次操作的成本。
+
 此外，SpEL 表达式中的 `BigDecimal` 或 `BigInteger` 幂运算结果默认不能超过 1,000,000 位，
 大约相当于 300,000 位十进制数字。较大的底数或指数可能使计算消耗大量资源，因此可以在创建
 `SpelParserConfiguration` 时通过 `builder().maximumBigPowerBits(...)` 指定更合适的上限；若需要实际上
@@ -308,6 +334,11 @@ SpEL 编译器旨在解决这一需求。在评估期间，编译器生成一个
 因为前面的表达式涉及数组访问、一些属性解引用和数字运算，所以性能提升可能非常明显。
 在 50,000 次迭代的示例微基准测试运行中，使用解释器评估需要 75 毫秒，而使用表达式的编译版本仅需 3 毫秒。
 
+[WARNING]
+====
+编译后求值不执行解释模式下的安全检查。因此，不要为来自不可信来源的表达式启用编译（参见 <<expressions-evaluation-context-security,安全注意事项>>）。
+`SimpleEvaluationContext` 默认不支持编译，除非通过 `SimpleEvaluationContext.Builder.withCompilationSupported()` 显式开启。
+====
 
 [[expressions-compiler-configuration]]
 === 编译器配置

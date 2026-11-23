@@ -99,8 +99,12 @@ public class DefaultConversionService extends GenericConversionService {
     registry.addConverter(new ZoneIdToTimeZoneConverter());
     registry.addConverter(new ZonedDateTimeToCalendarConverter());
 
+    // SimpleEvaluationContext excludes reflective converters by removing all
+    // Object-to-Object conversions. Register new reflective converters for
+    // the same pair or update that context to exclude them explicitly.
     registry.addConverter(new ObjectToObjectConverter());
     registry.addConverter(new IdToEntityConverter((ConversionService) registry));
+
     registry.addConverter(new FallbackObjectToStringConverter());
     registry.addConverter(new ObjectToOptionalConverter((ConversionService) registry));
     registry.addConverter(new OptionalToObjectConverter((ConversionService) registry));

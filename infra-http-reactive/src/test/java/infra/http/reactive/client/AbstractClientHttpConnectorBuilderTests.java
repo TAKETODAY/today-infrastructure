@@ -40,8 +40,10 @@ import infra.core.ssl.jks.JksSslStoreDetails;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
 import infra.http.client.AbstractWebServerSupport;
+import infra.http.client.FilteredHostException;
 import infra.http.client.HttpClientSettings;
 import infra.http.client.HttpRedirects;
+import infra.http.client.InetAddressFilter;
 import infra.http.client.RedirectHandler;
 import infra.test.classpath.resources.WithPackageResources;
 import infra.web.reactive.client.ClientRequest;
@@ -54,6 +56,7 @@ import infra.web.server.netty.NettyWebServerFactory;
 import io.netty.channel.ChannelHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatException;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
@@ -194,6 +197,23 @@ abstract class AbstractClientHttpConnectorBuilderTests<T extends ClientHttpConne
     }
     finally {
       shutdownGracefully(webServer);
+    }
+  }
+
+  @Test
+  void filteredInetAddress() throws Exception {
+    WebServer webServer = createWebServerFactory().createWebServer();
+    try {
+      webServer.start();
+      URI uri = new URI("http://localhost:%s/redirect".formatted(webServer.getPort()));
+      HttpClientSettings settings = HttpClientSettings.defaults().withInetAddressFilter(InetAddressFilter.externalAddresses());
+      ClientHttpConnector connector = this.builder.build(settings);
+      ClientRequest request = createRequest("GET", uri);
+      assertThatException().isThrownBy(() -> getResponse(connector, request))
+              .matches(ex -> ex instanceof FilteredHostException || ex.getCause() instanceof FilteredHostException);
+    }
+    finally {
+      webServer.stop();
     }
   }
 

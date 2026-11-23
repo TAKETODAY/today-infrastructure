@@ -75,6 +75,7 @@ final class ReflectiveComponentsClientHttpRequestFactoryBuilder<T extends Client
 
   private void configure(ClientHttpRequestFactory requestFactory, HttpClientSettings settings) {
     Assert.state(settings.sslBundle() == null, "Unable to set SSL bundle using reflection");
+    Assert.state(settings.inetAddressFilter() == null, "Unable to set InetAddress filter using reflection");
     Assert.state(settings.redirects() == null || settings.redirects() == HttpRedirects.FOLLOW_WHEN_POSSIBLE,
             "Unable to set redirect follow using reflection");
     Assert.state(settings.cookieHandling() == null || settings.cookieHandling() == HttpCookieHandling.ENABLE_WHEN_POSSIBLE,

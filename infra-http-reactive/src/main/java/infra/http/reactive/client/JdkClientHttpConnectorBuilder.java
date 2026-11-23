@@ -20,6 +20,7 @@ package infra.http.reactive.client;
 
 import org.jspecify.annotations.Nullable;
 
+import java.net.ProxySelector;
 import java.net.http.HttpClient;
 import java.util.Collection;
 import java.util.List;
@@ -71,6 +72,17 @@ public final class JdkClientHttpConnectorBuilder extends AbstractClientHttpConne
    */
   public JdkClientHttpConnectorBuilder withExecutor(Executor executor) {
     return new JdkClientHttpConnectorBuilder(getCustomizers(), this.httpClientBuilder.withExecutor(executor));
+  }
+
+  /**
+   * Return a new builder with a replacement {@link ProxySelector}.
+   *
+   * @param proxySelector the new proxy selector
+   * @return a new {@link JdkClientHttpConnectorBuilder} instance
+   * @since 5.0
+   */
+  public JdkClientHttpConnectorBuilder withProxySelector(ProxySelector proxySelector) {
+    return new JdkClientHttpConnectorBuilder(getCustomizers(), this.httpClientBuilder.withProxySelector(proxySelector));
   }
 
   /**

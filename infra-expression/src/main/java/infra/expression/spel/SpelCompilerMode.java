@@ -39,6 +39,9 @@ package infra.expression.spel;
  * change over time. For this reason, compilation is best suited to expressions whose
  * type information is not going to change on repeated evaluations.
  *
+ * <p><strong>WARNING</strong>: Enabling compilation for expressions from untrusted
+ * sources removes the safety guards supported in interpreted mode.
+ *
  * @author Andy Clement
  * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>

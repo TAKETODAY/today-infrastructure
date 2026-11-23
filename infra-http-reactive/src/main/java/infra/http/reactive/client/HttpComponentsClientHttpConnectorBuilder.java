@@ -18,6 +18,7 @@
 
 package infra.http.reactive.client;
 
+import org.apache.hc.client5.http.DnsResolver;
 import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
@@ -151,6 +152,18 @@ public final class HttpComponentsClientHttpConnectorBuilder
   protected HttpComponentsClientHttpConnector createClientHttpConnector(HttpClientSettings settings) {
     CloseableHttpAsyncClient client = this.httpClientBuilder.build(settings);
     return new HttpComponentsClientHttpConnector(client);
+  }
+
+  /**
+   * Return a new builder with a replacement {@link DnsResolver}.
+   *
+   * @param dnsResolver the DNS resolver to use
+   * @return a new {@link HttpComponentsClientHttpConnectorBuilder} instance
+   * @since 5.0
+   */
+  public HttpComponentsClientHttpConnectorBuilder withDnsResolver(DnsResolver dnsResolver) {
+    return new HttpComponentsClientHttpConnectorBuilder(getCustomizers(),
+            this.httpClientBuilder.withDnsResolver(dnsResolver));
   }
 
   static class Classes {

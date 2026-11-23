@@ -140,7 +140,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
   private final @Nullable WebMvcRegistrations mvcRegistrations;
 
-  private final @Nullable ResourceHandlerRegistrationCustomizer registrationCustomizer;
+  private final ObjectProvider<ResourceHandlerRegistrationCustomizer> resourceHandlerRegistrationCustomizers;
 
   private final @Nullable ApiVersionParser<?> apiVersionParser;
 
@@ -154,7 +154,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
           WebMvcProperties mvcProperties, List<WebMvcConfigurer> mvcConfigurers,
           ObjectProvider<ApiVersionResolver> apiVersionResolvers, @Nullable ApiVersionParser<?> apiVersionParser,
           @Nullable ApiVersionDeprecationHandler apiVersionDeprecationHandler, ObjectProvider<WebMvcRegistrations> mvcRegistrations,
-          @Nullable ResourceHandlerRegistrationCustomizer registrationCustomizer,
+          ObjectProvider<ResourceHandlerRegistrationCustomizer> resourceHandlerRegistrationCustomizers,
           ObjectProvider<ServerHttpMessageConvertersCustomizer> httpMessageConvertersCustomizerProvider) {
     this.beanFactory = beanFactory;
     this.mvcProperties = mvcProperties;
@@ -162,7 +162,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     this.mvcRegistrations = mvcRegistrations.getIfUnique();
     this.apiVersionParser = apiVersionParser;
     this.apiVersionResolvers = apiVersionResolvers;
-    this.registrationCustomizer = registrationCustomizer;
+    this.resourceHandlerRegistrationCustomizers = resourceHandlerRegistrationCustomizers;
     this.apiVersionDeprecationHandler = apiVersionDeprecationHandler;
     this.httpMessageConvertersCustomizerProvider = httpMessageConvertersCustomizerProvider;
     this.configurers = new CompositeWebMvcConfigurer(mvcConfigurers);
@@ -496,8 +496,9 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   }
 
   private void customizeResourceHandlerRegistration(ResourceHandlerRegistration registration) {
-    if (registrationCustomizer != null) {
-      registrationCustomizer.customize(registration);
+    var customizers = this.resourceHandlerRegistrationCustomizers.orderedStream().iterator();
+    while (customizers.hasNext()) {
+      customizers.next().customize(registration);
     }
   }
 
