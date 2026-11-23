@@ -171,9 +171,10 @@ public class InvocableHandlerMethod extends HandlerMethod {
     boolean reasonPresent = StringUtils.hasText(reason);
     if (reasonPresent) {
       MessageSource messageSource = getMessageSource();
-      if (messageSource != null) {
-        reason = messageSource.getMessage(reason, null, reason, WebUtils.resolveLocale(context));
+      if (messageSource == null) {
+        messageSource = context.getMessageSource();
       }
+      reason = messageSource.getMessage(reason, null, reason, WebUtils.resolveLocale(context));
       context.sendError(status.value(), reason);
     }
     else {

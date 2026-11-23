@@ -82,8 +82,10 @@ public ErrorBody submit(@RequestBody RequestBody body) {
 }
 ----
 
-`reason` 可以作为消息编码使用。当配置了 `MessageSource` 时，MVC 会在当前请求处理阶段解析该编码，并使用当前请求的有效 Locale；
-处理器方法和异常处理路径都通过 `WebUtils.resolveLocale(request)` 获取 Locale。LocaleResolver 存在时优先使用它，否则使用请求的首选 Locale，
+`reason` 可以作为消息编码使用。对于处理器方法，MVC 优先使用创建该方法处理器时传入的 `MessageSource`；
+未传入时，使用 `HttpContext.getMessageSource()`，它默认返回当前请求关联的 `ApplicationContext`。
+处理器方法和 `ResponseStatusExceptionHandler` 都通过 `WebUtils.resolveLocale(request)` 获取 Locale。
+`LocaleResolver` 存在时优先使用它，否则使用请求的首选 Locale，
 最后回退到 JVM 默认 Locale。找不到对应消息时，保留原始 `reason`。
 
 因此，消息资源可以按请求语言提供说明：
