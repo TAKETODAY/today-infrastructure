@@ -23,20 +23,18 @@ import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.util.Objects;
-import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import infra.util.concurrent.SingleThreadAwaiter;
 import io.netty.buffer.ByteBuf;
 
 /**
- * An {@link InputStream} implementation that reads HTTP request body data
- * from a queue of Netty {@link ByteBuf} objects.
- * <p>
- * This class handles backpressure by suspending the upstream data source
- * when the internal buffer queue reaches its capacity, and resuming it
- * when data is consumed. The queue is bounded and thread-safe, allowing
- * producers and the reader to access it concurrently.
+ * A blocking {@link InputStream} for a single application reader, fed with
+ * request-body buffers by the Netty event loop.
+ * <p>In automatic read mode, unread bytes at or above the high-water mark
+ * pause transport reads. Reads resume at or below the low-water mark.
+ * In manual read mode, the reader requests more data when the buffer is empty.
+ * The byte and queue limits are enforced in both modes.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
@@ -51,10 +49,17 @@ class BodyInputStream extends InputStream {
   private static final int CLOSED = 1 << 1;
   private static final int CANCELLED = 1 << 2;
   private static final int DONE = 1 << 3;
+  private static final int PAUSED = 1 << 4;
 
   private final SingleThreadAwaiter awaiter = new SingleThreadAwaiter();
 
-  private final Queue<ByteBuf> queue;
+  private final ArrayBlockingQueue<ByteBuf> queue;
+
+  private final @Nullable RequestBodyReadController readController;
+
+  private final NettyRequestConfig.BufferLimits limits;
+
+  private volatile long bufferedBytes;
 
   private int workAmount;
 
@@ -69,68 +74,121 @@ class BodyInputStream extends InputStream {
   }
 
   /**
-   * Create a new {@code BodyInputStream} with the given capacity.
+   * Create a stream with a bounded queue and no transport read control.
    *
    * @param capacity the maximum number of buffers that can be queued
    */
   BodyInputStream(int capacity) {
     this.queue = new ArrayBlockingQueue<>(capacity);
+    this.limits = new NettyRequestConfig.BufferLimits(Long.MAX_VALUE, 0, Long.MAX_VALUE, capacity);
+    this.readController = null;
   }
 
+  /**
+   * Create a stream using the shared request configuration limits.
+   *
+   * @param limits the byte watermarks and hard buffer limits
+   * @param readController the controller for this exchange, if present
+   */
+  BodyInputStream(NettyRequestConfig.BufferLimits limits,
+          @Nullable RequestBodyReadController readController) {
+    this.queue = new ArrayBlockingQueue<>(limits.maxBufferedChunks());
+    this.limits = limits;
+    this.readController = readController;
+  }
+
+  /**
+   * Take ownership of an incoming buffer. Release it immediately if the
+   * stream cannot accept it; otherwise release it after consumption or cleanup.
+   *
+   * @param buffer the incoming request-body buffer
+   */
   public void onDataReceived(ByteBuf buffer) {
-    int state = getState();
-    if ((state & DONE) != 0 || (state & CANCELLED) != 0) {
-      discard(buffer);
-      return;
-    }
+    boolean accepted;
+    boolean limitExceeded = false;
+    boolean wakeReader = false;
+    int readableBytes = buffer.readableBytes();
 
-    if (!queue.offer(buffer)) {
-      discard(buffer);
-      this.error = new IOException("Buffer overflow");
-      updateState(DONE, 0);
-      if (addWork() == 0) {
-        resume();
+    synchronized(this) {
+      int state = getState();
+      if ((state & (DONE | CLOSED | CANCELLED)) != 0) {
+        discard(buffer);
+        return;
       }
-      return;
-    }
-
-    int previousWorkState = addWork();
-    if (previousWorkState == Integer.MIN_VALUE) {
-      ByteBuf value = queue.poll();
-      if (value != null) {
-        discard(value);
+      accepted = (state & (DONE | CLOSED | CANCELLED)) == 0
+              && bufferedBytes <= limits.maxBufferedBytes() - readableBytes
+              && queue.offer(buffer);
+      if (accepted) {
+        bufferedBytes += readableBytes;
+        updateReadPressure();
+        int previousWorkState = addWork();
+        if (previousWorkState == 0) {
+          resume();
+        }
       }
-      return;
+      else if ((state & (DONE | CLOSED | CANCELLED)) == 0) {
+        limitExceeded = queue.remainingCapacity() == 0
+                || bufferedBytes > limits.maxBufferedBytes() - readableBytes;
+        if (limitExceeded) {
+          this.error = readController == null
+                  ? new IOException("Buffer overflow")
+                  : new RequestBodyBufferLimitExceededException();
+          updateState(DONE, 0);
+          wakeReader = addWork() == 0;
+        }
+      }
     }
 
-    if (previousWorkState == 0) {
-      resume();
+    if (!accepted) {
+      discard(buffer);
+      if (limitExceeded) {
+        if (readController != null) {
+          readController.abort();
+        }
+        if (wakeReader) {
+          resume();
+        }
+      }
+      else if (readController == null && (getState() & (DONE | CLOSED | CANCELLED)) == 0) {
+        this.error = new IOException("Buffer overflow");
+        updateState(DONE, 0);
+        if (addWork() == 0) {
+          resume();
+        }
+      }
     }
   }
 
   public void onError(IOException io) {
-    int state = getState();
-    if ((state & DONE) != 0) {
-      return;
-    }
-    this.error = io;
-    updateState(DONE, 0);
-
-    if (addWork() == 0) {
-      resume();
+    synchronized(this) {
+      int state = getState();
+      if ((state & DONE) != 0) {
+        return;
+      }
+      this.error = io;
+      updateState(DONE, 0);
+      if (addWork() == 0) {
+        resume();
+      }
     }
   }
 
   public void onComplete() {
-    int state = getState();
-    if ((state & DONE) != 0) {
-      return;
-    }
+    synchronized(this) {
+      int state = getState();
+      if ((state & DONE) != 0) {
+        return;
+      }
 
-    updateState(DONE, 0);
+      updateState(DONE, 0);
 
-    if (addWork() == 0) {
-      resume();
+      if (readController != null) {
+        readController.bodyComplete();
+      }
+
+      if (addWork() == 0) {
+        resume();
+      }
     }
   }
 
@@ -152,6 +210,15 @@ class BodyInputStream extends InputStream {
 
   protected void resume() {
     awaiter.resume();
+  }
+
+  /**
+   * Return the unread byte count across the queue and the current read buffer.
+   *
+   * @return currently buffered, unread bytes
+   */
+  final long bufferedBytes() {
+    return bufferedBytes;
   }
 
   /* InputStream implementation */
@@ -189,7 +256,9 @@ class BodyInputStream extends InputStream {
         }
       }
 
-      return next.readByte() & 0xFF;
+      int value = next.readByte() & 0xFF;
+      consume(1);
+      return value;
     }
     catch (Throwable ex) {
       throw readFailed(ex);
@@ -244,7 +313,9 @@ class BodyInputStream extends InputStream {
         }
         int initialReadPosition = next.readerIndex();
         next.readBytes(b, off + j, Math.min(len - j, next.readableBytes()));
-        j += next.readerIndex() - initialReadPosition;
+        int consumed = next.readerIndex() - initialReadPosition;
+        j += consumed;
+        consume(consumed);
       }
 
       return len;
@@ -269,8 +340,7 @@ class BodyInputStream extends InputStream {
 
   private @Nullable ByteBuf getNextOrAwait() throws IOException {
     if (this.available == null || this.available.readableBytes() == 0) {
-      discard(this.available);
-      this.available = null;
+      discardAvailable();
 
       int actualWorkAmount = (int) WORK_AMOUNT.getAcquire(this);
       for (; ; ) {
@@ -280,7 +350,10 @@ class BodyInputStream extends InputStream {
         }
 
         boolean isDone = (state & DONE) != 0;
-        ByteBuf buffer = queue.poll();
+        ByteBuf buffer;
+        synchronized(this) {
+          buffer = queue.poll();
+        }
         if (buffer != null) {
           this.available = buffer;
           break;
@@ -302,19 +375,22 @@ class BodyInputStream extends InputStream {
   }
 
   private void cleanAndFinalize() {
-    discard(this.available);
-    this.available = null;
+    synchronized(this) {
+      discardAvailable();
 
-    for (; ; ) {
-      int currentWorkAmount = workAmount;
-      ByteBuf value;
-      while ((value = queue.poll()) != null) {
-        discard(value);
-      }
+      for (; ; ) {
+        int currentWorkAmount = workAmount;
+        ByteBuf value;
+        while ((value = queue.poll()) != null) {
+          bufferedBytes -= value.readableBytes();
+          discard(value);
+        }
 
-      if (WORK_AMOUNT.weakCompareAndSetPlain(this, currentWorkAmount, Integer.MIN_VALUE)) {
-        return;
+        if (WORK_AMOUNT.weakCompareAndSetPlain(this, currentWorkAmount, Integer.MIN_VALUE)) {
+          break;
+        }
       }
+      bufferedBytes = 0;
     }
   }
 
@@ -374,6 +450,48 @@ class BodyInputStream extends InputStream {
   }
 
   protected void requestNext() {
+    if (readController != null) {
+      readController.requestRead();
+    }
+  }
+
+  private void consume(int bytes) {
+    if (bytes == 0) {
+      return;
+    }
+    synchronized(this) {
+      bufferedBytes -= bytes;
+      updateReadPressure();
+    }
+  }
+
+  private void discardAvailable() {
+    ByteBuf value = this.available;
+    this.available = null;
+    if (value != null) {
+      synchronized(this) {
+        bufferedBytes -= value.readableBytes();
+      }
+      discard(value);
+      synchronized(this) {
+        updateReadPressure();
+      }
+    }
+  }
+
+  private void updateReadPressure() {
+    if (readController == null || limits.highWaterMark() == Long.MAX_VALUE) {
+      return;
+    }
+    int state = getState();
+    if ((state & PAUSED) == 0 && bufferedBytes >= limits.highWaterMark()) {
+      updateState(PAUSED, 0);
+      readController.pause();
+    }
+    else if ((state & PAUSED) != 0 && bufferedBytes <= limits.lowWaterMark()) {
+      updateState(0, PAUSED);
+      readController.resume();
+    }
   }
 
   static {

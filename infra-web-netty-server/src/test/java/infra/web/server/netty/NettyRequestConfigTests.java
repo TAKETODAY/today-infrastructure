@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.function.Function;
 
+import infra.util.DataSize;
 import infra.web.HttpContext;
 import infra.web.multipart.MultipartParser;
 import infra.web.server.error.SendErrorHandler;
@@ -145,6 +146,42 @@ class NettyRequestConfigTests {
     assertThat(config.cookieDecoder).isEqualTo(ServerCookieDecoder.STRICT);
     assertThat(config.responseBodyInitialCapacity).isEqualTo(128);
     assertThat(config.secure).isFalse();
+  }
+
+  @Test
+  void shouldConvertRequestBodyBufferSizesToBytes() {
+    NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
+            .sendErrorHandler(new SendErrorHandler0())
+            .multipartParser(mock(MultipartParser.class))
+            .requestBodyHighWaterMark(DataSize.ofKilobytes(128))
+            .requestBodyLowWaterMark(DataSize.ofBytes(0))
+            .maxBufferedRequestBodyBytes(DataSize.ofMegabytes(1))
+            .maxBufferedRequestBodyChunks(64)
+            .build();
+
+    assertThat(config.requestBodyBufferLimits)
+            .isEqualTo(new NettyRequestConfig.BufferLimits(131_072, 0, 1_048_576, 64));
+  }
+
+  @Test
+  void shouldValidateRequestBodyWatermarks() {
+    MultipartParser multipartParser = mock(MultipartParser.class);
+    SendErrorHandler sendErrorHandler = new SendErrorHandler0();
+
+    assertThatThrownBy(() -> NettyRequestConfig.forBuilder(false)
+            .sendErrorHandler(sendErrorHandler).multipartParser(multipartParser)
+            .requestBodyLowWaterMark(DataSize.ofBytes(256))
+            .requestBodyHighWaterMark(DataSize.ofBytes(256)).build())
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("requestBodyLowWaterMark must be less than requestBodyHighWaterMark");
+
+    assertThatThrownBy(() -> NettyRequestConfig.forBuilder(false)
+            .sendErrorHandler(sendErrorHandler).multipartParser(multipartParser)
+            .requestBodyLowWaterMark(DataSize.ofBytes(64))
+            .requestBodyHighWaterMark(DataSize.ofBytes(513))
+            .maxBufferedRequestBodyBytes(DataSize.ofBytes(512)).build())
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("requestBodyHighWaterMark must not be greater than maxBufferedRequestBodyBytes");
   }
 
   @Test

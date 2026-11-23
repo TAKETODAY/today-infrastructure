@@ -117,7 +117,7 @@ public final class NettyRequestConfig {
   public final boolean secure;
 
   /**
-   * The maximum length of the http content.
+   * Maximum total request body length in bytes, independent of the buffer limits.
    *
    * @since 5.0
    */
@@ -131,19 +131,13 @@ public final class NettyRequestConfig {
    */
   public final MultipartParser multipartParser;
 
-  /**
-   * Capacity of the queue that buffers received request body chunks.
-   *
-   * @see BodyInputStream#BodyInputStream(int)
-   * @since 5.0
-   */
-  public final int dataReceivedQueueCapacity;
+  final BufferLimits requestBodyBufferLimits;
 
   /**
-   * Whether the request body is read on demand instead of being received
-   * automatically by the channel.
-   * <p>When {@code true}, channel auto-read is paused for the duration of the
-   * exchange and body frames are requested as the application consumes them.
+   * Whether to request more body data only when the application reads and no
+   * buffered data is available.
+   * <p>When {@code false}, the byte watermarks govern automatic reads.
+   * Both modes enforce the same hard buffer limits.
    *
    * @see io.netty.channel.ChannelConfig#setAutoRead(boolean)
    * @since 5.0
@@ -163,7 +157,9 @@ public final class NettyRequestConfig {
     this.maxContentLength = builder.maxContentLength;
     this.sendErrorHandler = builder.sendErrorHandler;
     this.responseBodyFactory = builder.responseBodyFactory;
-    this.dataReceivedQueueCapacity = builder.dataReceivedQueueCapacity;
+    this.requestBodyBufferLimits = new BufferLimits(builder.requestBodyHighWaterMark,
+            builder.requestBodyLowWaterMark, builder.maxBufferedRequestBodyBytes,
+            builder.maxBufferedRequestBodyChunks);
     this.responseBodyInitialCapacity = builder.responseBodyInitialCapacity;
   }
 
@@ -231,10 +227,13 @@ public final class NettyRequestConfig {
      */
     private @Nullable MultipartParser multipartParser;
 
-    /**
-     * Capacity of the queue that buffers received request body chunks; 256 by default.
-     */
-    private int dataReceivedQueueCapacity = 256;
+    private long requestBodyHighWaterMark = 256 * DataSize.BYTES_PER_KB;
+
+    private long requestBodyLowWaterMark = 64 * DataSize.BYTES_PER_KB;
+
+    private long maxBufferedRequestBodyBytes = 512 * DataSize.BYTES_PER_KB;
+
+    private int maxBufferedRequestBodyChunks = 256;
 
     /**
      * Whether the request body is read on demand; {@code false} by default.
@@ -397,47 +396,66 @@ public final class NettyRequestConfig {
     }
 
     /**
-     * Sets the capacity of the queue used for receiving data.
-     * <p>
-     * This method configures the maximum number of data items that can be queued
-     * for processing before the queue starts blocking or rejecting new items.
-     * Adjusting this value can help balance between memory usage and throughput
-     * based on the application's requirements.
-     * <p>
-     * Example usage:
-     * <pre>{@code
-     *   Builder builder = ...;
-     *   builder.dataReceivedQueueCapacity(1000); // Set queue capacity to 1000 items
-     * }</pre>
+     * Pause automatic reads when the unread request body reaches this threshold.
      *
-     * @param dataReceivedQueueCapacity the capacity of the data received queue.
-     * Must be a non-negative integer.
-     * @return the current {@link Builder} instance, enabling method chaining
-     * @see BodyInputStream#BodyInputStream(int)
-     * @since 5.0
+     * @param requestBodyHighWaterMark the positive high-water mark
+     * @return this builder
      */
-    public Builder dataReceivedQueueCapacity(int dataReceivedQueueCapacity) {
-      Assert.isTrue(dataReceivedQueueCapacity > 0, "dataReceivedQueueCapacity must be great than 0");
-      this.dataReceivedQueueCapacity = dataReceivedQueueCapacity;
+    public Builder requestBodyHighWaterMark(DataSize requestBodyHighWaterMark) {
+      long bytes = requestBodyHighWaterMark.toBytes();
+      Assert.isTrue(bytes > 0, "requestBodyHighWaterMark must be greater than 0");
+      this.requestBodyHighWaterMark = bytes;
       return this;
     }
 
     /**
-     * Sets whether the request body is read on demand.
-     * <p>When enabled, channel auto-read is paused while the exchange is active
-     * and body frames are requested as the application consumes them. This is
-     * not Netty's connection-level {@code AUTO_READ} channel option.
-     * <p>
-     * Example usage:
-     * <pre>{@code
-     *   Builder builder = ...;
-     *   builder.manualBodyRead(true);
-     * }</pre>
+     * Resume paused reads when the unread request body falls to or below this threshold.
+     *
+     * @param requestBodyLowWaterMark the non-negative low-water mark
+     * @return this builder
+     */
+    public Builder requestBodyLowWaterMark(DataSize requestBodyLowWaterMark) {
+      long bytes = requestBodyLowWaterMark.toBytes();
+      Assert.isTrue(bytes >= 0, "requestBodyLowWaterMark must not be negative");
+      this.requestBodyLowWaterMark = bytes;
+      return this;
+    }
+
+    /**
+     * Reject incoming body data if accepting it would exceed this unread byte limit.
+     *
+     * @param maxBufferedRequestBodyBytes the positive buffer size limit per request
+     * @return this builder
+     */
+    public Builder maxBufferedRequestBodyBytes(DataSize maxBufferedRequestBodyBytes) {
+      long bytes = maxBufferedRequestBodyBytes.toBytes();
+      Assert.isTrue(bytes > 0, "maxBufferedRequestBodyBytes must be greater than 0");
+      this.maxBufferedRequestBodyBytes = bytes;
+      return this;
+    }
+
+    /**
+     * Reject an incoming body chunk when the queue is full. The chunk currently
+     * being read is not counted against the queue limit.
+     *
+     * @param maxBufferedRequestBodyChunks the positive queue capacity per request
+     * @return this builder
+     */
+    public Builder maxBufferedRequestBodyChunks(int maxBufferedRequestBodyChunks) {
+      Assert.isTrue(maxBufferedRequestBodyChunks > 0,
+              "maxBufferedRequestBodyChunks must be greater than 0");
+      this.maxBufferedRequestBodyChunks = maxBufferedRequestBodyChunks;
+      return this;
+    }
+
+    /**
+     * Set the request-body read mode. This does not set the server's default
+     * Netty {@code AUTO_READ} option.
      *
      * @param manualBodyRead {@code true} to read the body on demand,
-     * {@code false} to receive it automatically
-     * @return the current {@link Builder} instance, enabling method chaining
-     * @see io.netty.channel.ChannelConfig#setAutoRead(boolean)
+     * {@code false} to use automatic reads with watermark-based backpressure
+     * @return this builder
+     * @see NettyRequestConfig#manualBodyRead
      * @since 5.0
      */
     public Builder manualBodyRead(boolean manualBodyRead) {
@@ -445,10 +463,32 @@ public final class NettyRequestConfig {
       return this;
     }
 
+    /**
+     * Build the request configuration.
+     *
+     * @return the immutable request configuration
+     * @throws IllegalArgumentException if required settings are missing or the
+     * buffer limits do not satisfy {@code 0 <= low < high <= maxBytes}
+     */
     public NettyRequestConfig build() {
+      Assert.isTrue(requestBodyLowWaterMark < requestBodyHighWaterMark,
+              "requestBodyLowWaterMark must be less than requestBodyHighWaterMark");
+      Assert.isTrue(requestBodyHighWaterMark <= maxBufferedRequestBodyBytes,
+              "requestBodyHighWaterMark must not be greater than maxBufferedRequestBodyBytes");
       return new NettyRequestConfig(this);
     }
 
+  }
+
+  /**
+   * Immutable buffer limits shared by all body streams using this configuration.
+   *
+   * @param highWaterMark the unread byte threshold for pausing automatic reads
+   * @param lowWaterMark the unread byte threshold for resuming paused reads
+   * @param maxBufferedBytes the unread byte limit, including the current read buffer
+   * @param maxBufferedChunks the queue capacity, excluding the current read buffer
+   */
+  record BufferLimits(long highWaterMark, long lowWaterMark, long maxBufferedBytes, int maxBufferedChunks) {
   }
 
 }

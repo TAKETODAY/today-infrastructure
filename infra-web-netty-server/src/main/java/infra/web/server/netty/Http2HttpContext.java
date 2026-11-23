@@ -201,13 +201,12 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
   }
 
   @Override
-  protected void writeResponseEnd() {
+  protected ChannelFuture writeResponseEnd() {
     try {
       HttpHeaders trailers = evaluateTrailerFields();
       if (trailers == null) {
-        channel.writeAndFlush(new DefaultHttp2DataFrame(Unpooled.EMPTY_BUFFER, true))
+        return channel.writeAndFlush(new DefaultHttp2DataFrame(Unpooled.EMPTY_BUFFER, true))
                 .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
-        return;
       }
 
       Http2Headers http2Trailers = new DefaultHttp2Headers();
@@ -217,11 +216,12 @@ final class Http2HttpContext extends NettyHttpContext implements Runnable {
         }
       }
       // trailer HEADERS carry no pseudo headers and end the stream
-      channel.writeAndFlush(new DefaultHttp2HeadersFrame(http2Trailers, true))
+      return channel.writeAndFlush(new DefaultHttp2HeadersFrame(http2Trailers, true))
               .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
     }
     catch (Throwable failure) {
       abortResponse(failure);
+      return channel.newFailedFuture(failure);
     }
   }
 

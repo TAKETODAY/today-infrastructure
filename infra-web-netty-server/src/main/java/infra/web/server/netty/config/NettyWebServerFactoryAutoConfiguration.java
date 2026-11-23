@@ -165,8 +165,11 @@ public final class NettyWebServerFactoryAutoConfiguration {
             .multipartParser(multipartParser)
             .sendErrorHandler(sendErrorHandler)
             .maxContentLength(netty.maxContentLength.toBytes())
-            .dataReceivedQueueCapacity(netty.dataReceivedQueueCapacity)
-            .manualBodyRead(!netty.autoRead);
+            .requestBodyHighWaterMark(netty.requestBodyHighWaterMark)
+            .requestBodyLowWaterMark(netty.requestBodyLowWaterMark)
+            .maxBufferedRequestBodyBytes(netty.maxBufferedRequestBodyBytes)
+            .maxBufferedRequestBodyChunks(netty.maxBufferedRequestBodyChunks)
+            .manualBodyRead(netty.manualBodyRead);
 
     for (NettyRequestConfigCustomizer customizer : customizers) {
       customizer.customize(builder);

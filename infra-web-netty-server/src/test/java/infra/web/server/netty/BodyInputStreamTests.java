@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.ConcurrentModificationException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import infra.util.ExceptionUtils;
@@ -56,6 +57,37 @@ class BodyInputStreamTests {
     assertThat(bytesRead).isEqualTo(4);
     assertThat(result).containsExactly(1, 2, 3, 4);
     assertThat(inputStream.read()).isEqualTo(-1);
+  }
+
+  @Test
+  void pausesAtHighWaterMarkAndResumesAtLowWaterMark() throws Exception {
+    RecordingReadController controller = new RecordingReadController();
+    BodyInputStream inputStream = new BodyInputStream(
+            new NettyRequestConfig.BufferLimits(4, 2, 8, 256), controller);
+
+    inputStream.onDataReceived(Unpooled.wrappedBuffer(new byte[] { 1, 2, 3, 4 }));
+    assertThat(inputStream.bufferedBytes()).isEqualTo(4);
+    assertThat(controller.pauses.get()).isEqualTo(1);
+
+    byte[] data = new byte[2];
+    assertThat(inputStream.read(data)).isEqualTo(2);
+    assertThat(inputStream.bufferedBytes()).isEqualTo(2);
+    assertThat(controller.resumes.get()).isEqualTo(1);
+  }
+
+  @Test
+  void hardBufferedByteLimitFailsAfterQueuedDataIsRead() throws Exception {
+    BodyInputStream inputStream = new BodyInputStream(
+            new NettyRequestConfig.BufferLimits(4, 2, 5, 256), new RecordingReadController());
+    inputStream.onDataReceived(Unpooled.wrappedBuffer(new byte[] { 1, 2, 3, 4 }));
+    inputStream.onDataReceived(Unpooled.wrappedBuffer(new byte[] { 5, 6 }));
+    inputStream.onComplete();
+
+    byte[] data = new byte[4];
+    assertThat(inputStream.read(data)).isEqualTo(4);
+    assertThatThrownBy(inputStream::read)
+            .isInstanceOf(IOException.class)
+            .hasMessage("Request body buffer limit exceeded");
   }
 
   @Test
@@ -1026,6 +1058,40 @@ class BodyInputStreamTests {
     reader.join(2000);
     assertThat(reader.getState()).isEqualTo(Thread.State.TERMINATED);
     assertThat(result.get()).isEqualTo(-1);
+  }
+
+  private static final class RecordingReadController implements RequestBodyReadController {
+
+    private final AtomicInteger pauses = new AtomicInteger();
+
+    private final AtomicInteger resumes = new AtomicInteger();
+
+    @Override
+    public void pause() {
+      pauses.incrementAndGet();
+    }
+
+    @Override
+    public void resume() {
+      resumes.incrementAndGet();
+    }
+
+    @Override
+    public void requestRead() {
+    }
+
+    @Override
+    public void bodyComplete() {
+    }
+
+    @Override
+    public void release(io.netty.channel.ChannelFuture responseFuture) {
+    }
+
+    @Override
+    public void abort() {
+    }
+
   }
 
 }
