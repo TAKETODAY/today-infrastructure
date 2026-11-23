@@ -189,4 +189,22 @@ class JavaLoggingSystemTests extends AbstractLoggingSystemTests {
             .isEqualTo(new LoggerConfiguration(getClass().getName(), LogLevel.DEBUG, LogLevel.DEBUG));
   }
 
+  @Test
+  void getLoggerConfigurationForRootLogger() {
+    this.loggingSystem.beforeInitialize();
+    this.loggingSystem.initialize(null, null, null);
+    this.loggingSystem.setLogLevel(LoggingSystem.ROOT_LOGGER_NAME, LogLevel.DEBUG);
+    LoggerConfiguration configuration = this.loggingSystem.getLoggerConfiguration(LoggingSystem.ROOT_LOGGER_NAME);
+    assertThat(configuration)
+            .isEqualTo(new LoggerConfiguration(LoggingSystem.ROOT_LOGGER_NAME, LogLevel.DEBUG, LogLevel.DEBUG));
+  }
+
+  @Test
+  void getLoggerConfigurationForNonExistentLoggerShouldReturnNull() {
+    this.loggingSystem.beforeInitialize();
+    this.loggingSystem.initialize(null, null, null);
+    LoggerConfiguration configuration = this.loggingSystem.getLoggerConfiguration("doesnotexist");
+    assertThat(configuration).isNull();
+  }
+
 }
