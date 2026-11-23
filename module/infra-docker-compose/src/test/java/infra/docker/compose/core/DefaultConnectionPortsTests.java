@@ -60,20 +60,27 @@ class DefaultConnectionPortsTests {
   }
 
   @Test
-  void getPrefersTcpWhenPortIsPublishedForBothProtocols() {
+  void getWhenPortIsPublishedForBothProtocolsThrowsException() {
     Map<String, List<HostPort>> mappings = new LinkedHashMap<>();
     mappings.put("53/tcp", List.of(new HostPort("127.0.0.1", "10053")));
     mappings.put("53/udp", List.of(new HostPort("127.0.0.1", "20053")));
     DefaultConnectionPorts ports = createForPorts(mappings);
-    assertThat(ports.get(53)).isEqualTo(10053);
-    assertThat(ports.getAll("udp")).containsExactly(20053);
+    assertThatIllegalStateException().isThrownBy(() -> ports.get(53))
+            .withMessage("Multiple host port mapping found for container port 53 with different protocols [tcp, udp]");
   }
 
   @Test
-  void getReturnsUdpPortWhenNoTcpPortIsPublished() {
+  void getWhenPortIsOnlyUdpReturnsPort() {
     DefaultConnectionPorts ports = createForPorts(
             Map.of("53/udp", List.of(new HostPort("127.0.0.1", "20053"))));
     assertThat(ports.get(53)).isEqualTo(20053);
+  }
+
+  @Test
+  void getWhenPortIsOnlyTcpReturnsPort() {
+    DefaultConnectionPorts ports = createForPorts(
+            Map.of("53/tcp", List.of(new HostPort("127.0.0.1", "10053"))));
+    assertThat(ports.get(53)).isEqualTo(10053);
   }
 
   private DefaultConnectionPorts createForPorts(Map<String, List<HostPort>> mappings) {
