@@ -35,6 +35,54 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class SynchronizationInfoTests {
 
   @Test
+  void synchronizedResourceIsUnboundOnSuspendAndReboundOnResume() {
+    var info = new SynchronizationInfo();
+    var previous = new Object();
+    var transactional = new Object();
+    info.bindResource("key", previous);
+    info.initSynchronization();
+    info.bindSynchronizedResource("key", transactional);
+    var synchronization = info.getSynchronizations().get(0);
+
+    assertThat(info.getResourceMap()).containsEntry("key", transactional);
+    synchronization.suspend();
+    assertThat(info.getResourceMap()).isEmpty();
+    synchronization.resume();
+    assertThat(info.getResourceMap()).containsEntry("key", transactional);
+    synchronization.afterCompletion(TransactionSynchronization.STATUS_COMMITTED);
+    assertThat(info.getResourceMap()).containsEntry("key", previous);
+  }
+
+  @Test
+  void resumingSynchronizedResourceRejectsUnexpectedBinding() {
+    var info = new SynchronizationInfo();
+    info.initSynchronization();
+    info.bindSynchronizedResource("key", "outer");
+    var synchronization = info.getSynchronizations().get(0);
+    synchronization.suspend();
+    info.bindResource("key", "unexpected");
+
+    assertThatThrownBy(synchronization::resume).isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Unexpected value [unexpected] for key [key] bound on resume");
+  }
+
+  @Test
+  void voidResourceHoldersAreIgnoredWithoutRemovingOtherBindings() {
+    var info = new SynchronizationInfo();
+    var holder = new ResourceHolderSupport() { };
+    holder.unbound();
+    info.bindResource("other", "active");
+    info.bindResource("replace", holder);
+    info.bindResource("replace", "replacement");
+    info.bindResource("unbind", holder);
+    info.bindResource("get", holder);
+
+    assertThat(info.unbindResourceIfPossible("unbind")).isNull();
+    assertThat(info.hasResource("get")).isFalse();
+    assertThat(info.getResourceMap()).containsOnlyKeys("other", "replace");
+  }
+
+  @Test
   void clearRemovesAllState() {
     SynchronizationInfo info = new SynchronizationInfo();
 

@@ -40,6 +40,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RuleBasedTransactionAttributeTests {
 
   @Test
+  void copyPreservesRollbackRulesWithoutSharingTheirList() {
+    var original = new RuleBasedTransactionAttribute();
+    original.setReadOnly(true);
+    var copyWithoutRules = new RuleBasedTransactionAttribute(original);
+    original.getRollbackRules().add(new RollbackRuleAttribute(IOException.class));
+
+    var copyWithRules = new RuleBasedTransactionAttribute(original);
+    original.getRollbackRules().clear();
+
+    assertThat(copyWithoutRules.isReadOnly()).isTrue();
+    assertThat(copyWithoutRules.rollbackOn(new IOException())).isFalse();
+    assertThat(copyWithRules.isReadOnly()).isTrue();
+    assertThat(copyWithRules.rollbackOn(new IOException())).isTrue();
+    assertThat(original.rollbackOn(new IOException())).isFalse();
+  }
+
+  @Test
   public void testDefaultRule() {
     RuleBasedTransactionAttribute rta = new RuleBasedTransactionAttribute();
     assertThat(rta.rollbackOn(new RuntimeException())).isTrue();
