@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -36,6 +37,7 @@ import infra.web.HttpContext;
 import infra.web.HttpRequestHandler;
 import infra.web.annotation.ResponseStatus;
 import infra.web.bind.WebDataBinder;
+import infra.web.util.WebUtils;
 import infra.web.view.View;
 
 /**
@@ -54,6 +56,10 @@ public class InvocableHandlerMethod extends HandlerMethod {
   private static final Object[] EMPTY_ARGS = new Object[0];
 
   private final HandlerParameter[] resolvableParameters;
+
+  private volatile @Nullable List<InvocableHandlerMethod> binderMethods;
+
+  private volatile @Nullable List<InvocableHandlerMethod> modelAttributeMethods;
 
   /**
    * Create an instance from a {@code HandlerMethod}.
@@ -84,6 +90,28 @@ public class InvocableHandlerMethod extends HandlerMethod {
   private InvocableHandlerMethod(InvocableHandlerMethod handlerMethod, @Nullable Object handler, boolean initValidateFlags) {
     super(handlerMethod, handler, initValidateFlags);
     this.resolvableParameters = handlerMethod.resolvableParameters;
+    if (handler == null) {
+      this.binderMethods = handlerMethod.binderMethods;
+      this.modelAttributeMethods = handlerMethod.modelAttributeMethods;
+    }
+  }
+
+  @Nullable
+  List<InvocableHandlerMethod> getCachedBinderMethods() {
+    return this.binderMethods;
+  }
+
+  void setCachedBinderMethods(List<InvocableHandlerMethod> binderMethods) {
+    this.binderMethods = binderMethods;
+  }
+
+  @Nullable
+  List<InvocableHandlerMethod> getCachedModelAttributeMethods() {
+    return this.modelAttributeMethods;
+  }
+
+  void setCachedModelAttributeMethods(List<InvocableHandlerMethod> modelAttributeMethods) {
+    this.modelAttributeMethods = modelAttributeMethods;
   }
 
   @Override
@@ -128,7 +156,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
   /**
    * Set the response status according to the {@link ResponseStatus} annotation.
    */
-  private void applyResponseStatus(HttpContext response) throws IOException {
+  private void applyResponseStatus(HttpContext context) throws IOException {
     HttpStatusCode status = getResponseStatus();
     if (status == null) {
       return;
@@ -136,14 +164,18 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
     String reason = getResponseStatusReason();
     if (StringUtils.hasText(reason)) {
-      response.sendError(status.value(), reason);
+      MessageSource messageSource = getMessageSource();
+      if (messageSource != null) {
+        reason = messageSource.getMessage(reason, null, reason, WebUtils.resolveLocale(context));
+      }
+      context.sendError(status.value(), reason);
     }
     else {
-      response.setStatus(status);
+      context.setStatus(status);
     }
 
     // To be picked up by RedirectView
-    response.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, status);
+    context.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, status);
   }
 
   /**

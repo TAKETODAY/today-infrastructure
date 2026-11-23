@@ -92,6 +92,17 @@ class InitBinderBindingContextTests {
   }
 
   @Test
+  void doesNotReplaceBindingContextWhenNoInitBinderMethodApplies() throws Exception {
+    BindingContext original = new BindingContext();
+    BindingContext.set(webRequest, original);
+
+    InitBinderBindingContext factory = createFactory("initBinderWithAttributeName", WebDataBinder.class);
+    factory.createBinder(this.webRequest, null, "invalidName");
+
+    assertThat(BindingContext.find(webRequest)).isSameAs(original);
+  }
+
+  @Test
   public void createBinderNullAttrName() throws Throwable {
     InitBinderBindingContext factory = createFactory("initBinderWithAttributeName", WebDataBinder.class);
     WebDataBinder dataBinder = factory.createBinder(this.webRequest, null, null);
@@ -104,6 +115,18 @@ class InitBinderBindingContextTests {
     InitBinderBindingContext factory = createFactory("initBinderReturnValue", WebDataBinder.class);
     assertThatIllegalStateException()
             .isThrownBy(() -> factory.createBinder(this.webRequest, null, "invalidName"));
+  }
+
+  @Test
+  void restoresBindingContextWhenInitBinderFails() throws Exception {
+    BindingContext original = new BindingContext();
+    BindingContext.set(webRequest, original);
+
+    InitBinderBindingContext factory = createFactory("initBinderReturnValue", WebDataBinder.class);
+    assertThatIllegalStateException()
+            .isThrownBy(() -> factory.createBinder(this.webRequest, null, "foo"));
+
+    assertThat(BindingContext.find(webRequest)).isSameAs(original);
   }
 
   @Test

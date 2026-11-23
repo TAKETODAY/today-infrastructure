@@ -84,7 +84,7 @@ class ModelHandlerTests {
   public void modelAttributeMethod() throws Throwable {
     BindingContext container = BindingContext.find(webRequest);
 
-    HandlerMethod handlerMethod = createHandlerMethod("handle");
+    InvocableHandlerMethod handlerMethod = createHandlerMethod("handle");
     ModelHandler modelHandler = createModelFactory(handlerMethod, "modelAttr", Model.class);
 
     modelHandler.initModel(this.webRequest, container, handlerMethod);
@@ -95,7 +95,7 @@ class ModelHandlerTests {
   @Test
   public void modelAttributeMethodWithExplicitName() throws Throwable {
     BindingContext mavContainer = BindingContext.find(webRequest);
-    HandlerMethod handlerMethod = createHandlerMethod("handle");
+    InvocableHandlerMethod handlerMethod = createHandlerMethod("handle");
 
     ModelHandler modelHandler = createModelFactory(handlerMethod, "modelAttrWithName");
     modelHandler.initModel(this.webRequest, mavContainer, handlerMethod);
@@ -107,7 +107,7 @@ class ModelHandlerTests {
   public void modelAttributeMethodWithNameByConvention() throws Throwable {
     BindingContext bindingContext = BindingContext.find(webRequest);
 
-    HandlerMethod handlerMethod = createHandlerMethod("handle");
+    InvocableHandlerMethod handlerMethod = createHandlerMethod("handle");
     ModelHandler modelHandler = createModelFactory(handlerMethod, "modelAttrConvention");
     modelHandler.initModel(this.webRequest, bindingContext, handlerMethod);
 
@@ -118,7 +118,7 @@ class ModelHandlerTests {
   public void modelAttributeMethodWithNullReturnValue() throws Throwable {
     BindingContext bindingContext = BindingContext.find(webRequest);
 
-    HandlerMethod handlerMethod = createHandlerMethod("handle");
+    InvocableHandlerMethod handlerMethod = createHandlerMethod("handle");
     ModelHandler modelHandler = createModelFactory(handlerMethod, "nullModelAttr");
     modelHandler.initModel(this.webRequest, bindingContext, handlerMethod);
 
@@ -130,7 +130,7 @@ class ModelHandlerTests {
   public void modelAttributeWithBindingDisabled() throws Throwable {
     BindingContext bindingContext = BindingContext.find(webRequest);
 
-    HandlerMethod handlerMethod = createHandlerMethod("handle");
+    InvocableHandlerMethod handlerMethod = createHandlerMethod("handle");
     ModelHandler modelHandler = createModelFactory(handlerMethod, "modelAttrWithBindingDisabled");
     modelHandler.initModel(this.webRequest, bindingContext, handlerMethod);
 
@@ -189,7 +189,7 @@ class ModelHandlerTests {
   }
 
   private ModelHandler createModelFactory(
-          HandlerMethod handlerMethod, String methodName, Class<?>... parameterTypes) throws Throwable {
+          InvocableHandlerMethod handlerMethod, String methodName, Class<?>... parameterTypes) throws Throwable {
     ControllerMethodResolver methodResolver = mock(ControllerMethodResolver.class);
 
     given(methodResolver.getModelAttributeMethods(handlerMethod))
