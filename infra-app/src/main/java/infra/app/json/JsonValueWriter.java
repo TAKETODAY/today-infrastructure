@@ -271,6 +271,7 @@ class JsonValueWriter {
   }
 
   private <N, V> void writePair(N name, V value) {
+    MemberPath previousPath = this.path;
     this.path = this.path.child(name.toString());
     if (!isFilteredPath()) {
       String processedName = processName(name.toString());
@@ -283,7 +284,7 @@ class JsonValueWriter {
       append(":");
       write(value);
     }
-    this.path = this.path.parent();
+    this.path = previousPath;
   }
 
   private void writeString(Object value) {

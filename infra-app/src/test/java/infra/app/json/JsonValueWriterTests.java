@@ -121,6 +121,21 @@ class JsonValueWriterTests {
   }
 
   @Test
+  void filteringMemberAfterEmptyNameSiblingInNestedMap() {
+    JsonWriter<Map<?, ?>> writer = JsonWriter.of((members) -> {
+      members.add();
+      members.applyingPathFilter((path) -> "payload.secret".equals(path.toString()));
+    });
+    Map<String, Object> inner = new LinkedHashMap<>();
+    inner.put("", "empty");
+    inner.put("secret", "s3cr3t");
+    Map<String, Object> outer = new LinkedHashMap<>();
+    outer.put("payload", inner);
+    assertThat(writer.writeToString(outer)).isEqualTo("""
+            {"payload":{"":"empty"}}""");
+  }
+
+  @Test
   void writeWhenMapWithNumericalKeys() {
     Map<Integer, String> map = new LinkedHashMap<>();
     map.put(1, "A");
