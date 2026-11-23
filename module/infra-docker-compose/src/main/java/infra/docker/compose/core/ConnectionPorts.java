@@ -34,7 +34,8 @@ import java.util.List;
 public interface ConnectionPorts {
 
   /**
-   * Return the host port mapped to the given container port.
+   * Return the host port mapped to the given container port. If the port is mapped for
+   * multiple protocols, the TCP mapping is preferred.
    *
    * @param containerPort the container port. This is usually the standard port for the
    * service (e.g. port 80 for HTTP)
