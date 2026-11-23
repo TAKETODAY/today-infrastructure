@@ -264,6 +264,9 @@ xref:core/validation/beans-beans.adoc#data-binding-auto-grow[数据绑定的默�
 `infra.spel.default.max-operations` 的 JVM 系统属性或 Infra 属性设置为应用程序所需的
 最大操作数（请参阅 xref:appendix.adoc#appendix-infra-properties[支持的 Infra 属性]）。
 
+`maxOperations` 只统计表达式求值时执行的操作次数，例如运算符求值、属性访问、方法调用，
+以及选择和投影运算符处理的每个元素。它不衡量单次操作的成本。
+
 此外，SpEL 表达式中的 `BigDecimal` 或 `BigInteger` 幂运算结果默认不能超过 1,000,000 位，
 大约相当于 300,000 位十进制数字。较大的底数或指数可能使计算消耗大量资源，因此可以在创建
 `SpelParserConfiguration` 时通过 `builder().maximumBigPowerBits(...)` 指定更合适的上限；若需要实际上
@@ -308,6 +311,11 @@ SpEL 编译器旨在解决这一需求。在评估期间，编译器生成一个
 因为前面的表达式涉及数组访问、一些属性解引用和数字运算，所以性能提升可能非常明显。
 在 50,000 次迭代的示例微基准测试运行中，使用解释器评估需要 75 毫秒，而使用表达式的编译版本仅需 3 毫秒。
 
+[WARNING]
+====
+编译后求值不执行解释模式下的安全检查。因此，不要为来自不可信来源的表达式启用编译。
+`SimpleEvaluationContext` 默认不支持编译，除非通过 `SimpleEvaluationContext.Builder.withCompilationSupported()` 显式开启。
+====
 
 [[expressions-compiler-configuration]]
 === 编译器配置
