@@ -19,7 +19,9 @@ package infra.transaction.interceptor;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
+import infra.core.StringValueResolver;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -102,6 +104,28 @@ class MethodMapTransactionAttributeSourceTests {
 
     TransactionAttribute result = source.getTransactionAttribute(method, String.class);
     assertThat(result).isNull();
+  }
+
+  @Test
+  void lazilyInitializesMethodMapAndResolvesEmbeddedValues() throws NoSuchMethodException {
+    MethodMapTransactionAttributeSource source = new MethodMapTransactionAttributeSource();
+    DefaultTransactionAttribute attr = new DefaultTransactionAttribute();
+    attr.setQualifier("${manager}");
+    source.setEmbeddedValueResolver((StringValueResolver) value -> value.replace("${manager}", "transactionManager"));
+    source.setMethodMap(Map.of(TestClass.class.getName() + ".testMethod", attr));
+
+    TransactionAttribute result = source.getTransactionAttribute(
+            TestClass.class.getMethod("testMethod"), TestClass.class);
+
+    assertThat(result).isSameAs(attr);
+    assertThat(attr.getQualifier()).isEqualTo("transactionManager");
+  }
+
+  static class TestClass {
+
+    public void testMethod() {
+    }
+
   }
 
   @Test

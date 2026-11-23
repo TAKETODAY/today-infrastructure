@@ -20,6 +20,10 @@ package infra.transaction;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+import javax.naming.NamingException;
 
 import infra.context.testfixture.jndi.ExpectedLookupTemplate;
 import infra.transaction.jta.JtaTransactionManager;
@@ -28,9 +32,11 @@ import infra.transaction.support.TransactionSynchronizationManager;
 import infra.transaction.support.TransactionTemplate;
 import jakarta.transaction.Status;
 import jakarta.transaction.TransactionManager;
+import jakarta.transaction.TransactionSynchronizationRegistry;
 import jakarta.transaction.UserTransaction;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -40,6 +46,103 @@ import static org.mockito.Mockito.verify;
  * @since 05.08.2005
  */
 public class JndiJtaTransactionManagerTests {
+
+  @ParameterizedTest
+  @ValueSource(strings = { "userTransaction", "transactionManager", "synchronizationRegistry" })
+  void reportsMissingExplicitJndiBinding(String binding) {
+    var manager = new JtaTransactionManager();
+    manager.setJndiTemplate(new ExpectedLookupTemplate());
+    manager.setAutodetectUserTransaction(false);
+    manager.setAutodetectTransactionManager(false);
+    switch (binding) {
+      case "userTransaction" -> manager.setUserTransactionName(binding);
+      case "transactionManager" -> manager.setTransactionManagerName(binding);
+      case "synchronizationRegistry" -> {
+        manager.setUserTransaction(mock(UserTransaction.class));
+        manager.setTransactionSynchronizationRegistryName(binding);
+      }
+      default -> throw new AssertionError(binding);
+    }
+
+    assertThatExceptionOfType(TransactionSystemException.class).isThrownBy(manager::afterPropertiesSet)
+            .withMessageContaining("JNDI location [" + binding + "]").withCauseInstanceOf(NamingException.class);
+  }
+
+  @Test
+  void failsInitializationWhenNoUserTransactionCanBeFound() {
+    var manager = new JtaTransactionManager();
+    manager.setJndiTemplate(new ExpectedLookupTemplate());
+
+    assertThatExceptionOfType(IllegalStateException.class).isThrownBy(manager::afterPropertiesSet)
+            .withMessageContaining("No JTA UserTransaction available");
+  }
+
+  @Test
+  void canDisableUserTransactionAndTransactionManagerAutodetection() {
+    var manager = new JtaTransactionManager();
+    manager.setJndiTemplate(new ExpectedLookupTemplate());
+    manager.setAutodetectUserTransaction(false);
+    manager.setAutodetectTransactionManager(false);
+
+    assertThatExceptionOfType(IllegalStateException.class).isThrownBy(manager::afterPropertiesSet)
+            .withMessageContaining("No JTA UserTransaction available");
+  }
+
+  @Test
+  void canDisableTransactionSynchronizationRegistryAutodetection() {
+    var manager = new JtaTransactionManager(mock(UserTransaction.class));
+    manager.setAutodetectTransactionSynchronizationRegistry(false);
+
+    manager.afterPropertiesSet();
+
+    assertThat(manager.getTransactionSynchronizationRegistry()).isNull();
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = { "configuredRegistry", "java:comp/TransactionSynchronizationRegistry" })
+  void findsSynchronizationRegistryInJndi(String registryName) {
+    var registry = mock(TransactionSynchronizationRegistry.class);
+    var userTransaction = mock(UserTransaction.class);
+    var jndi = new ExpectedLookupTemplate("java:comp/UserTransaction", userTransaction);
+    jndi.addObject(registryName, registry);
+    var manager = new JtaTransactionManager();
+    manager.setJndiTemplate(jndi);
+    if (registryName.equals("configuredRegistry")) {
+      manager.setTransactionSynchronizationRegistryName(registryName);
+    }
+
+    manager.afterPropertiesSet();
+
+    assertThat(manager.getTransactionSynchronizationRegistry()).isSameAs(registry);
+  }
+
+  @Test
+  void autodetectsTransactionManagerAndRegistryFromUserTransactionHandle() {
+    var handle = mock(CombinedUserTransaction.class);
+    var manager = new JtaTransactionManager((UserTransaction) handle);
+    manager.setJndiTemplate(new ExpectedLookupTemplate());
+
+    manager.afterPropertiesSet();
+
+    assertThat(manager.getTransactionManager()).isSameAs(handle);
+    assertThat(manager.getTransactionSynchronizationRegistry()).isSameAs(handle);
+    assertThat(new JtaTransactionManager((TransactionManager) handle).getUserTransaction()).isSameAs(handle);
+  }
+
+  @Test
+  void autodetectsRegistryFromTransactionManagerHandle() {
+    var handle = mock(TransactionManagerWithRegistry.class);
+    var manager = new JtaTransactionManager(handle);
+
+    manager.afterPropertiesSet();
+
+    assertThat(manager.getTransactionSynchronizationRegistry()).isSameAs(handle);
+    assertThat(manager.getUserTransaction()).isInstanceOf(UserTransactionAdapter.class);
+  }
+
+  interface TransactionManagerWithRegistry extends TransactionManager, TransactionSynchronizationRegistry { }
+
+  interface CombinedUserTransaction extends UserTransaction, TransactionManagerWithRegistry { }
 
   @Test
   public void jtaTransactionManagerWithDefaultJndiLookups1() throws Exception {
