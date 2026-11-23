@@ -128,7 +128,9 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * Invoke the method and handle the return value, applying the response status if necessary.
    * <p>If the return value is {@code null}, checks whether the request is not modified or
    * a response status is set, returning {@link HttpRequestHandler#NONE_RETURN_VALUE} in such cases.
-   * Additionally, if a response status reason is present, returns {@link HttpRequestHandler#NONE_RETURN_VALUE}.
+   * If a non-empty response status reason is present, the reason is sent through
+   * the error handling mechanism and the handler return value is ignored, returning
+   * {@link HttpRequestHandler#NONE_RETURN_VALUE}.
    *
    * @param request the current HTTP request context
    * @param methodValidator the validator to apply for method arguments and return values, may be {@code null}
@@ -155,6 +157,9 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
   /**
    * Set the response status according to the {@link ResponseStatus} annotation.
+   *
+   * @return {@code true} if a non-empty response status reason was applied,
+   * {@code false} otherwise
    */
   private boolean applyResponseStatus(HttpContext context) throws IOException {
     HttpStatusCode status = getResponseStatus();
