@@ -18,13 +18,19 @@ package infra.web.server.netty;
 
 import org.junit.jupiter.api.Test;
 
+import java.net.BindException;
 import java.net.InetSocketAddress;
 
 import infra.web.server.GracefulShutdownCallback;
+import infra.web.server.PortInUseException;
+import infra.web.server.WebServerException;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.local.LocalAddress;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -32,6 +38,31 @@ import static org.mockito.Mockito.mock;
  * @since 5.0 2025/10/11 22:10
  */
 class NettyWebServerTests {
+
+  @Test
+  void startReportsOccupiedPort() {
+    var address = new InetSocketAddress(8080);
+    var bootstrap = mock(ServerBootstrap.class);
+    var failure = new IllegalStateException(new BindException("Address already in use"));
+    given(bootstrap.bind(address)).willThrow(failure);
+    var server = new NettyWebServer(mock(), mock(), bootstrap, address, new NettyServerProperties.Shutdown(), false, false);
+
+    assertThatExceptionOfType(PortInUseException.class).isThrownBy(server::start)
+            .withCause(failure).satisfies(error -> assertThat(error.getPort()).isEqualTo(8080));
+  }
+
+  @Test
+  void startWrapsOtherBindingFailuresAndNonInetAddressHasNoPort() {
+    var address = new LocalAddress("test");
+    var bootstrap = mock(ServerBootstrap.class);
+    var failure = new IllegalStateException("binding failed");
+    given(bootstrap.bind(address)).willThrow(failure);
+    var server = new NettyWebServer(mock(), mock(), bootstrap, address, new NettyServerProperties.Shutdown(), false, false);
+
+    assertThat(server.getPort()).isEqualTo(-1);
+    assertThatExceptionOfType(WebServerException.class).isThrownBy(server::start)
+            .withMessage("Unable to start Netty").withCause(failure);
+  }
 
   private final boolean http2Enabled = false;
 
