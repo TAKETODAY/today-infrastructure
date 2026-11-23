@@ -146,7 +146,7 @@ class PropertiesUtilsTests {
   void fillPropertiesWithNullResource() {
     Properties props = new Properties();
     assertThatExceptionOfType(IllegalArgumentException.class)
-            .isThrownBy(() -> PropertiesUtils.fillProperties(props, null));
+            .isThrownBy(() -> PropertiesUtils.fillProperties(props, (Resource) null));
   }
 
   @Test

@@ -75,8 +75,6 @@ public abstract class PropertiesUtils {
    * @throws IOException if loading failed
    */
   public static void fillProperties(Properties props, EncodedResource resource) throws IOException {
-    Assert.notNull(props, "Properties is required");
-    Assert.notNull(resource, "EncodedResource is required");
     fillProperties(props, resource, DefaultPropertiesPersister.INSTANCE);
   }
 
