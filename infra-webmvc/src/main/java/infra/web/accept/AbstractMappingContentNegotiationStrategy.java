@@ -40,10 +40,10 @@ import infra.web.HttpMediaTypeNotAcceptableException;
  * through the base class {@link MappingMediaTypeFileExtensionResolver} which
  * stores such mappings.
  *
- * <p>The method {@link #handleNoMatch} allow sub-classes to plug in additional
- * ways of looking up media types (e.g. through the Java Activation framework.
- * Media types resolved via base classes are then added to the base class
- * {@link MappingMediaTypeFileExtensionResolver}, i.e. cached for new lookups.
+ * <p>The method {@link #handleNoMatch} allows subclasses to plug in additional
+ * ways of looking up media types (for example, through {@link MediaTypeFactory}).
+ * Media types resolved this way are not added to the base class
+ * {@link MappingMediaTypeFileExtensionResolver}.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -65,7 +65,7 @@ public abstract class AbstractMappingContentNegotiationStrategy
 
   /**
    * Whether to only use the registered mappings to look up file extensions,
-   * or also to use dynamic resolution (e.g. via {@link MediaType}.
+   * or also to use dynamic resolution (for example, via {@link MediaTypeFactory}).
    * <p>By default this is set to {@code false}.
    */
   public void setUseRegisteredExtensionsOnly(boolean useRegisteredExtensionsOnly) {
@@ -111,7 +111,6 @@ public abstract class AbstractMappingContentNegotiationStrategy
       }
       mediaType = handleNoMatch(webRequest, key);
       if (mediaType != null) {
-        addMapping(key, mediaType);
         return Collections.singletonList(mediaType);
       }
     }
@@ -133,10 +132,10 @@ public abstract class AbstractMappingContentNegotiationStrategy
   protected void handleMatch(String key, MediaType mediaType) { }
 
   /**
-   * Override to provide handling when a key is not resolved via.
-   * {@link #lookupMediaType}. Sub-classes can take further steps to
-   * determine the media type(s). If a MediaType is returned from
-   * this method it will be added to the cache in the base class.
+   * Override to provide handling when a key is not resolved via
+   * {@link #lookupMediaType}. Subclasses can take further steps to
+   * determine the media type(s). A MediaType returned from this method
+   * is not added to the registered mappings in the base class.
    */
   @Nullable
   protected MediaType handleNoMatch(HttpContext request, String key)
