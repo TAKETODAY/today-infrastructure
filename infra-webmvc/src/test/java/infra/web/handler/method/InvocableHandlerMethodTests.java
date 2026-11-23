@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
 
+import infra.context.MessageSource;
 import infra.context.support.StaticMessageSource;
 import infra.http.HttpStatus;
 import infra.web.HttpContext;
@@ -34,20 +35,34 @@ import static org.mockito.Mockito.mock;
 class InvocableHandlerMethodTests {
 
   @Test
-  void responseStatusReasonIsResolvedForEachRequest() throws Exception {
+  void responseStatusReasonUsesRequestMessageSourceForEachRequest() throws Exception {
     var messages = new StaticMessageSource();
     messages.addMessage("gone.reason", Locale.FRENCH, "Supprimé");
     messages.addMessage("gone.reason", Locale.GERMAN, "Entfernt");
     var handler = new InvocableHandlerMethod(new TestController(),
-            TestController.class.getDeclaredMethod("gone"), messages, new HandlerParameterFactory());
+            TestController.class.getDeclaredMethod("gone"), new HandlerParameterFactory());
 
-    assertResponseStatusReason(handler, Locale.FRENCH, "Supprimé");
-    assertResponseStatusReason(handler, Locale.GERMAN, "Entfernt");
-    assertResponseStatusReason(handler, Locale.ENGLISH, "gone.reason");
+    assertResponseStatusReason(handler, messages, Locale.FRENCH, "Supprimé");
+    assertResponseStatusReason(handler, messages, Locale.GERMAN, "Entfernt");
+    assertResponseStatusReason(handler, messages, Locale.ENGLISH, "gone.reason");
   }
 
-  private void assertResponseStatusReason(InvocableHandlerMethod handler, Locale locale, String reason) throws Exception {
+  @Test
+  void responseStatusReasonPrefersConfiguredMessageSource() throws Exception {
+    var messages = new StaticMessageSource();
+    messages.addMessage("gone.reason", Locale.FRENCH, "Supprimé");
+    var requestMessages = new StaticMessageSource();
+    requestMessages.addMessage("gone.reason", Locale.FRENCH, "Indisponible");
+    var handler = new InvocableHandlerMethod(new TestController(),
+            TestController.class.getDeclaredMethod("gone"), messages, new HandlerParameterFactory());
+
+    assertResponseStatusReason(handler, requestMessages, Locale.FRENCH, "Supprimé");
+  }
+
+  private void assertResponseStatusReason(InvocableHandlerMethod handler,
+          MessageSource messages, Locale locale, String reason) throws Exception {
     HttpContext request = mock(HttpContext.class);
+    given(request.getMessageSource()).willReturn(messages);
     given(request.getPreferredLocale()).willReturn(locale);
 
     assertThat(handler.invokeAndHandle(request, null, null)).isSameAs(HttpRequestHandler.NONE_RETURN_VALUE);
