@@ -82,7 +82,7 @@ class CaptureVariablePathElement extends PathElement implements VariableNameProv
     if (constraintPattern != null) {
       // TODO possible optimization - only regex match if rest of pattern matches?
       // Benefit likely to vary pattern to pattern
-      Matcher matcher = constraintPattern.matcher(candidateCapture);
+      Matcher matcher = constraintPattern.matcher(new MaxAttemptsCharSequence(candidateCapture));
       if (matcher.groupCount() != 0) {
         throw new IllegalArgumentException(
                 "No capture groups allowed in the constraint regex: " + constraintPattern.pattern());
