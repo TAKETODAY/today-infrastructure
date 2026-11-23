@@ -146,6 +146,52 @@ class UriComponentsBuilderTests {
   }
 
   @Test
+  void copiesRawUserInfoFromUriWithoutReencoding() {
+    var uri = URI.create("https://a%20b@example.test:8443/path");
+    var components = UriComponentsBuilder.forURI(uri).build(true);
+
+    assertThat(components.getUserInfo()).isEqualTo("a%20b");
+    assertThat(components.toURI()).isEqualTo(uri);
+  }
+
+  @Test
+  void parsesOriginWithExplicitPort() {
+    var origin = UriComponentsBuilder.forOriginHeader("https://example.test:8443").build();
+
+    assertThat(origin.getScheme()).isEqualTo("https");
+    assertThat(origin.getHost()).isEqualTo("example.test");
+    assertThat(origin.getPort()).isEqualTo(8443);
+    assertThat(origin.getPath()).isEmpty();
+  }
+
+  @Test
+  void absentQueryReplacementAndBlankSegmentsLeaveOnlyTheOriginalPath() {
+    var builder = UriComponentsBuilder.forPath("/items").queryParam("order", "name");
+
+    assertThat(builder.replaceQueryParams(null).pathSegment().pathSegment("", " ").build().toURI())
+            .hasToString("/items");
+  }
+
+  @Test
+  void rejectsPortsBelowTheUnsetSentinel() {
+    assertThatIllegalArgumentException().isThrownBy(() -> UriComponentsBuilder.create().port(-2))
+            .withMessageContaining("Port must be >= -1");
+  }
+
+  @Test
+  void clonesPresetVariablesAndUsesStrictEncodingWhenBuildingDirectly() {
+    var builder = UriComponentsBuilder.forPath("/items/{category}/{name}").queryParam("q", "{q}")
+            .uriVariables(Map.of("category", "a/b"));
+    var clone = (UriComponentsBuilder) builder.clone();
+    clone.uriVariables(Map.of("category", "featured", "name", "a b", "q", "x+y"));
+
+    assertThat(builder.toUriString()).isEqualTo("/items/a%2Fb/{name}?q={q}");
+    assertThat(builder.build(Map.of("name", "new item", "q", "x+y")))
+            .hasToString("/items/a%2Fb/new%20item?q=x%2By");
+    assertThat(clone.toUriString()).isEqualTo("/items/featured/a%20b?q=x%2By");
+  }
+
+  @Test
   void fromOpaqueUri() {
     URI uri = URI.create("mailto:foo@bar.com#baz");
     UriComponents result = UriComponentsBuilder.forURI(uri).build();

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp.annotation.support;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -57,6 +59,9 @@ import infra.messaging.support.MessageHeaderAccessor;
 import infra.util.MimeType;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -176,13 +181,31 @@ class SendToMethodReturnValueHandlerTests {
   @Test
   void sendToDefaultDestination() throws Exception {
     given(this.messageChannel.send(any(Message.class))).willReturn(true);
+    this.handler.setDefaultDestinationPrefix("/events");
+    this.handler.setHeaderInitializer(headers -> headers.setHeader("origin", "handler"));
+    assertThat(this.handler.getDefaultDestinationPrefix()).isEqualTo("/events");
 
     String sessionId = "sess1";
     Message<?> inputMessage = createMessage(sessionId, "sub1", "/app", "/dest", null);
     this.handler.handleReturnValue(PAYLOAD, this.sendToDefaultDestReturnType, inputMessage);
 
     verify(this.messageChannel, times(1)).send(this.messageCaptor.capture());
-    assertResponse(this.sendToDefaultDestReturnType, sessionId, 0, "/topic/dest");
+    assertResponse(this.sendToDefaultDestReturnType, sessionId, 0, "/events/dest");
+    assertThat(getCapturedAccessor(0).getHeader("origin")).isEqualTo("handler");
+  }
+
+  @Test
+  void rejectsMissingRoutingInformationWithoutSending() throws Exception {
+    Message<?> message = createMessage(null, "sub1", null, null, null);
+
+    this.handler.handleReturnValue(null, this.sendToUserReturnType, message);
+    assertThatExceptionOfType(MissingSessionUserException.class).isThrownBy(() ->
+            this.handler.handleReturnValue(PAYLOAD, this.sendToUserReturnType, message));
+    assertThatIllegalStateException().isThrownBy(() ->
+            this.handler.handleReturnValue(PAYLOAD, this.sendToDefaultDestReturnType, message))
+            .withMessageContaining("No lookup destination header");
+
+    verifyNoInteractions(this.messageChannel);
   }
 
   @Test
@@ -523,6 +546,8 @@ class SendToMethodReturnValueHandlerTests {
   @Test
   void sendToUserDefaultDestination() throws Exception {
     given(this.messageChannel.send(any(Message.class))).willReturn(true);
+    this.handler.setDefaultUserDestinationPrefix("/replies");
+    assertThat(this.handler.getDefaultUserDestinationPrefix()).isEqualTo("/replies");
 
     String sessionId = "sess1";
     TestUser user = new TestUser();
@@ -534,7 +559,7 @@ class SendToMethodReturnValueHandlerTests {
     SimpMessageHeaderAccessor accessor = getCapturedAccessor(0);
     assertThat(accessor.getSessionId()).isNull();
     assertThat(accessor.getSubscriptionId()).isNull();
-    assertThat(accessor.getDestination()).isEqualTo(("/user/" + user.getName() + "/queue/dest"));
+    assertThat(accessor.getDestination()).isEqualTo("/user/" + user.getName() + "/replies/dest");
   }
 
   @Test

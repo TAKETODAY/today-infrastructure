@@ -40,7 +40,6 @@ import static infra.aop.interceptor.CustomizableTraceInterceptor.PLACEHOLDER_TAR
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -99,6 +98,12 @@ class CustomizableTraceInterceptorTests {
   }
 
   @Test
+  void rejectsUnknownPlaceholder() {
+    assertThatIllegalArgumentException().isThrownBy(() -> interceptor.setEnterMessage("$[unknown]"))
+            .withMessageContaining("$[unknown]");
+  }
+
+  @Test
   void setExceptionMethodWithReturnValuePlaceholder() {
     // Must not be able to set exception message with return value placeholder
     assertThatIllegalArgumentException().isThrownBy(() -> interceptor.setExceptionMessage(PLACEHOLDER_RETURN_VALUE));
@@ -123,7 +128,7 @@ class CustomizableTraceInterceptorTests {
   void exceptionPathLogsCorrectly() throws Throwable {
     MethodInvocation methodInvocation = mock();
 
-    IllegalArgumentException exception = new IllegalArgumentException();
+    IllegalArgumentException exception = new IllegalArgumentException("invalid $value\\path");
     given(methodInvocation.getMethod()).willReturn(String.class.getMethod("toString"));
     given(methodInvocation.getThis()).willReturn(this);
     given(methodInvocation.proceed()).willThrow(exception);
@@ -132,10 +137,46 @@ class CustomizableTraceInterceptorTests {
     given(log.isTraceEnabled()).willReturn(true);
 
     CustomizableTraceInterceptor interceptor = new StubCustomizableTraceInterceptor(log);
-    assertThatIllegalArgumentException().isThrownBy(() -> interceptor.invoke(methodInvocation));
+    interceptor.setExceptionMessage("Failed: " + PLACEHOLDER_EXCEPTION);
+    assertThatIllegalArgumentException().isThrownBy(() -> interceptor.invoke(methodInvocation))
+            .isSameAs(exception);
 
     verify(log).trace(anyString());
-    verify(log).trace(anyString(), eq(exception));
+    verify(log).trace("Failed: " + exception, exception);
+  }
+
+  @Test
+  void exitMessageDistinguishesVoidFromNull() throws Throwable {
+    MethodInvocation invocation = mock();
+    given(invocation.getThis()).willReturn(this);
+    Logger log = mock(Logger.class);
+    given(log.isTraceEnabled()).willReturn(true);
+    CustomizableTraceInterceptor interceptor = new StubCustomizableTraceInterceptor(log);
+    interceptor.setExitMessage("Result: " + PLACEHOLDER_RETURN_VALUE);
+
+    given(invocation.getMethod()).willReturn(Runnable.class.getMethod("run"));
+    assertThat(interceptor.invoke(invocation)).isNull();
+    verify(log).trace("Result: void");
+
+    given(invocation.getMethod()).willReturn(Object.class.getMethod("toString"));
+    assertThat(interceptor.invoke(invocation)).isNull();
+    verify(log).trace("Result: null");
+  }
+
+  @Test
+  void logsDeclaredArgumentTypesAndLiteralArgumentValues() throws Throwable {
+    MethodInvocation invocation = mock();
+    given(invocation.getThis()).willReturn(new StringBuilder());
+    given(invocation.getMethod()).willReturn(StringBuilder.class.getMethod("insert", int.class, String.class));
+    given(invocation.getArguments()).willReturn(new Object[] { 0, "$value\\path" });
+    Logger log = mock(Logger.class);
+    given(log.isTraceEnabled()).willReturn(true);
+    CustomizableTraceInterceptor interceptor = new StubCustomizableTraceInterceptor(log);
+    interceptor.setEnterMessage(PLACEHOLDER_ARGUMENT_TYPES + ": " + PLACEHOLDER_ARGUMENTS);
+
+    interceptor.invoke(invocation);
+
+    verify(log).trace("int,String: 0,$value\\path");
   }
 
   @Test

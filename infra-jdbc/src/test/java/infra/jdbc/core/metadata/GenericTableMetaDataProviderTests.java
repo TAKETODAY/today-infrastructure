@@ -17,14 +17,22 @@
 package infra.jdbc.core.metadata;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
+
+import infra.dao.DataAccessResourceFailureException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -535,6 +543,80 @@ class GenericTableMetaDataProviderTests {
 
     provider.locateTableAndProcessMetaData(databaseMetaData, null, null, "test_table");
 
+  }
+
+  @ParameterizedTest
+  @CsvSource(value = {
+      "NONE, APP, PUBLIC, DBO, APP",
+      "NONE, app, PUBLIC, DBO, APP",
+      "NONE, user, PUBLIC, DBO, PUBLIC",
+      "NONE, user, OTHER, DBO, DBO",
+      "other, user, OTHER, DBO, OTHER"
+  }, nullValues = "NONE")
+  void selectsColumnMetadataFromExpectedSchema(String requestedSchema, String user, String first, String second, String expected)
+          throws SQLException {
+    var metadata = mock(DatabaseMetaData.class);
+    var tables = mock(ResultSet.class);
+    var columns = mock(ResultSet.class);
+    given(metadata.getUserName()).willReturn(user);
+    given(metadata.getTables(null, requestedSchema, "users", null)).willReturn(tables);
+    given(tables.next()).willReturn(true, true, true, false);
+    given(tables.getString("TABLE_SCHEM")).willReturn(first, second, "APP");
+    given(tables.getString("TABLE_NAME")).willReturn("users");
+    given(metadata.getColumns(null, expected, "users", null)).willReturn(columns);
+    given(columns.next()).willReturn(true, false);
+    given(columns.getString("COLUMN_NAME")).willReturn("id");
+    given(columns.getInt("DATA_TYPE")).willReturn(Types.BIGINT);
+    var provider = new GenericTableMetaDataProvider(metadata);
+    provider.initializeWithMetaData(metadata);
+
+    provider.initializeWithTableColumnMetaData(metadata, null, requestedSchema, "users");
+
+    assertThat(provider.getTableParameterMetaData()).extracting(TableParameterMetaData::getParameterName)
+            .containsExactly("id");
+    verify(tables).close();
+    verify(columns).close();
+  }
+
+  @ParameterizedTest
+  @CsvSource(value = { "missing, the 'missing' schema", "NONE, the default schema" }, nullValues = "NONE")
+  void rejectsMetadataFromUnrelatedSchemas(String schema, String expectedMessage) throws SQLException {
+    var metadata = mock(DatabaseMetaData.class);
+    var tables = mock(ResultSet.class);
+    given(metadata.getTables(null, schema, "users", null)).willReturn(tables);
+    given(tables.next()).willReturn(true, true, false);
+    given(tables.getString("TABLE_SCHEM")).willReturn("SALES", "ACCOUNTING");
+    var provider = new GenericTableMetaDataProvider(metadata);
+    provider.initializeWithMetaData(metadata);
+
+    assertThatThrownBy(() -> provider.initializeWithTableColumnMetaData(metadata, null, schema, "users"))
+            .isInstanceOf(DataAccessResourceFailureException.class).hasMessageContaining(expectedMessage);
+    verify(tables).close();
+  }
+
+  @Test
+  void reportsUnscaledOracleNumberAsNumericButPreservesScaledDecimals() throws SQLException {
+    var metadata = mock(DatabaseMetaData.class);
+    var tables = mock(ResultSet.class);
+    var columns = mock(ResultSet.class);
+    given(metadata.getTables(null, null, "users", null)).willReturn(tables);
+    given(tables.next()).willReturn(true, false);
+    given(tables.getString("TABLE_NAME")).willReturn("users");
+    given(metadata.getColumns(null, null, "users", null)).willReturn(columns);
+    given(columns.next()).willReturn(true, true, true, false);
+    given(columns.getString("COLUMN_NAME")).willReturn("id", "balance", "discount");
+    given(columns.getInt("DATA_TYPE")).willReturn(Types.DECIMAL);
+    given(columns.getString("TYPE_NAME")).willReturn("NUMBER", "NUMBER", "DECIMAL");
+    given(columns.getInt("DECIMAL_DIGITS")).willReturn(0, 2, 0);
+    var provider = new GenericTableMetaDataProvider(metadata);
+    provider.initializeWithMetaData(metadata);
+
+    provider.initializeWithTableColumnMetaData(metadata, null, null, "users");
+
+    assertThat(provider.getTableParameterMetaData()).extracting(TableParameterMetaData::getSqlType)
+            .containsExactly(Types.NUMERIC, Types.DECIMAL, Types.DECIMAL);
+    verify(tables).close();
+    verify(columns).close();
   }
 
 }

@@ -16,16 +16,16 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.net.SocketTimeoutException;
 import java.util.Locale;
-
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import infra.aop.framework.ProxyFactory;
 import infra.beans.FatalBeanException;
@@ -37,21 +37,16 @@ import infra.context.support.ApplicationObjectSupport;
 import infra.context.support.StaticApplicationContext;
 import infra.core.MethodParameter;
 import infra.core.annotation.Order;
-import infra.core.i18n.LocaleContextHolder;
+import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
-import org.jspecify.annotations.Nullable;
-
-import infra.web.HttpContext;
-import infra.web.mock.api.MockException;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
 import infra.stereotype.Controller;
 import infra.ui.Model;
 import infra.ui.ModelMap;
 import infra.util.ClassUtils;
 import infra.web.BindingContext;
+import infra.web.HttpContext;
 import infra.web.HttpRequestHandler;
 import infra.web.RedirectModel;
 import infra.web.annotation.ExceptionHandler;
@@ -62,6 +57,9 @@ import infra.web.config.annotation.EnableWebMvc;
 import infra.web.handler.function.HandlerFunction;
 import infra.web.handler.function.ServerResponse;
 import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
+import infra.web.mock.api.MockException;
 import infra.web.resource.ResourceHttpRequestHandler;
 import infra.web.util.WebUtils;
 import infra.web.view.ModelAndView;
@@ -202,12 +200,14 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
 
   static class RethrowingProblemController {
     public void handle() { }
+
     @ExceptionHandler
     public Object error(IllegalStateException ex) { throw ex; }
   }
 
   static class FailingProblemController {
     public void handle() { }
+
     @ExceptionHandler
     public Object error(IllegalStateException ex) { throw new IllegalArgumentException("Handler failure"); }
   }
@@ -444,10 +444,10 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   void handleExceptionWithReasonResolvedByMessageSource() throws Exception {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(MyConfig.class);
     StaticApplicationContext context = new StaticApplicationContext(ctx);
-    Locale locale = Locale.ENGLISH;
-    context.addMessage("gateway.timeout", locale, "Gateway Timeout");
+    Locale locale = Locale.FRENCH;
+    context.addMessage("gateway.timeout", locale, "Délai de passerelle");
     context.refresh();
-    LocaleContextHolder.setLocale(locale);
+    this.request.addHeader(HttpHeaders.ACCEPT_LANGUAGE, locale.toLanguageTag());
     this.handler.setApplicationContext(context);
     this.handler.afterPropertiesSet();
 
@@ -458,7 +458,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     assertThat(mav).as("Exception was not handled").isNotNull();
     assertThat(mav.isEmpty()).isTrue();
     assertThat(this.response.getStatus()).isEqualTo(HttpStatus.GATEWAY_TIMEOUT.value());
-    assertThat(this.response.getErrorMessage()).isEqualTo("Gateway Timeout");
+    assertThat(this.response.getErrorMessage()).isEqualTo("Délai de passerelle");
     assertThat(this.response.getContentAsString()).isEqualTo("");
   }
 

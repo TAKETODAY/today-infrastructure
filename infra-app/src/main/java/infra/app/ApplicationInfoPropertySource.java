@@ -64,8 +64,8 @@ class ApplicationInfoPropertySource extends MapPropertySource implements OriginL
     return true;
   }
 
-  private static Map<String, Object> getProperties(@Nullable String applicationVersion) {
-    Map<String, Object> result = new HashMap<>();
+  private static Map<String, @Nullable Object> getProperties(@Nullable String applicationVersion) {
+    Map<String, @Nullable Object> result = new HashMap<>();
     if (StringUtils.hasText(applicationVersion)) {
       result.put("app.version", applicationVersion);
     }

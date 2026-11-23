@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.rsocket;
 
 import org.jspecify.annotations.Nullable;
@@ -63,6 +65,13 @@ public class TestRSocket implements RSocket {
     this.savedMethodName = null;
     this.savedPayload = null;
     this.savedPayloadFlux = null;
+  }
+
+  @Override
+  public Mono<Void> metadataPush(Payload payload) {
+    this.savedMethodName = "metadataPush";
+    this.savedPayload = payload;
+    return Mono.empty();
   }
 
   @Override

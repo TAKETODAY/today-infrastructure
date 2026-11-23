@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.simp.config;
 
 import org.junit.jupiter.api.Test;
@@ -22,9 +24,11 @@ import infra.messaging.MessageChannel;
 import infra.messaging.StubMessageChannel;
 import infra.messaging.SubscribableChannel;
 import infra.messaging.simp.stomp.StompBrokerRelayMessageHandler;
+import infra.scheduling.TaskScheduler;
 import infra.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link StompBrokerRelayRegistration}.
@@ -48,6 +52,9 @@ class StompBrokerRelayRegistrationTests {
     registration.setSystemHeartbeatReceiveInterval(123);
     registration.setSystemHeartbeatSendInterval(456);
     registration.setVirtualHost("example.org");
+    registration.setRelayHost("broker.example.org").setRelayPort(61614);
+    TaskScheduler scheduler = mock();
+    registration.setTaskScheduler(scheduler).setAutoStartup(false);
 
     StompBrokerRelayMessageHandler handler = registration.getMessageHandler(new StubMessageChannel());
 
@@ -59,6 +66,10 @@ class StompBrokerRelayRegistrationTests {
     assertThat(handler.getSystemHeartbeatReceiveInterval()).isEqualTo(123);
     assertThat(handler.getSystemHeartbeatSendInterval()).isEqualTo(456);
     assertThat(handler.getVirtualHost()).isEqualTo("example.org");
+    assertThat(handler.getRelayHost()).isEqualTo("broker.example.org");
+    assertThat(handler.getRelayPort()).isEqualTo(61614);
+    assertThat(handler.getTaskScheduler()).isSameAs(scheduler);
+    assertThat(handler.isAutoStartup()).isFalse();
   }
 
 }

@@ -26,10 +26,12 @@ import java.util.Map;
 import infra.messaging.Message;
 import infra.messaging.simp.SimpMessageHeaderAccessor;
 import infra.messaging.simp.SimpMessageType;
+import infra.messaging.support.GenericMessage;
 import infra.messaging.support.MessageBuilder;
 import infra.util.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link DefaultSubscriptionRegistry}.
@@ -311,6 +313,21 @@ class DefaultSubscriptionRegistryTests {
   }
 
   @Test
+  void evaluatesDestinationAndIsolatesInvalidSelectors() {
+    this.registry.setSelectorHeaderName("selector");
+    this.registry.registerSubscription(subscribeMessage("matching", "s1", "/topic/*", "headers.destination == '/topic/orders'"));
+    this.registry.registerSubscription(subscribeMessage("invalidSyntax", "s2", "/topic/*", "headers["));
+    this.registry.registerSubscription(subscribeMessage("invalidValue", "s3", "/topic/*", "headers.missing.value"));
+
+    assertThat(this.registry.findSubscriptions(createMessage("/topic/orders")))
+            .containsOnlyKeys("matching", "invalidSyntax");
+    assertThat(this.registry.findSubscriptions(createMessage("/topic/other"))).containsOnlyKeys("invalidSyntax");
+
+    Message<?> withoutAccessor = new GenericMessage<>("body", Map.of(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/topic/orders"));
+    assertThatIllegalArgumentException().isThrownBy(() -> this.registry.findSubscriptions(withoutAccessor));
+  }
+
+  @Test
   void registerSubscriptionWithSelectorHeaderDisabledByDefault() {
     String sessionId1 = "sess01";
     String sessionId2 = "sess02";
@@ -465,6 +482,26 @@ class DefaultSubscriptionRegistryTests {
 
     iteratorValues.next();
     // no ConcurrentModificationException
+  }
+
+  @Test
+  void rejectsUnexpectedMessageTypesAndHandlesMissingHeaders() {
+    Message<?> message = MessageBuilder.withPayload("").build();
+    assertThatIllegalArgumentException().isThrownBy(() -> this.registry.registerSubscription(message));
+    assertThatIllegalArgumentException().isThrownBy(() -> this.registry.unregisterSubscription(message));
+    assertThatIllegalArgumentException().isThrownBy(() -> this.registry.findSubscriptions(message));
+
+    SimpMessageHeaderAccessor subscribe = SimpMessageHeaderAccessor.create(SimpMessageType.SUBSCRIBE);
+    subscribe.setDestination("/foo");
+    this.registry.registerSubscription(MessageBuilder.createMessage("", subscribe.getMessageHeaders()));
+    assertThat(this.registry.findSubscriptions(createMessage("/foo"))).isEmpty();
+
+    SimpMessageHeaderAccessor unsubscribe = SimpMessageHeaderAccessor.create(SimpMessageType.UNSUBSCRIBE);
+    this.registry.unregisterSubscription(MessageBuilder.createMessage("", unsubscribe.getMessageHeaders()));
+
+    SimpMessageHeaderAccessor destinationless = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);
+    assertThat(this.registry.findSubscriptions(MessageBuilder.createMessage("",
+            destinationless.getMessageHeaders()))).isEmpty();
   }
 
   @Test

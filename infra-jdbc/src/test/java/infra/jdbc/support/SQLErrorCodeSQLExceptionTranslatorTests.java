@@ -20,6 +20,8 @@ package infra.jdbc.support;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.sql.BatchUpdateException;
 import java.sql.Connection;
@@ -36,6 +38,8 @@ import infra.dao.DataAccessResourceFailureException;
 import infra.dao.DataIntegrityViolationException;
 import infra.dao.DeadlockLoserDataAccessException;
 import infra.dao.DuplicateKeyException;
+import infra.dao.PermissionDeniedDataAccessException;
+import infra.dao.TransientDataAccessResourceException;
 import infra.jdbc.BadSqlGrammarException;
 import infra.jdbc.InvalidResultSetAccessException;
 
@@ -63,6 +67,8 @@ class SQLErrorCodeSQLExceptionTranslatorTests {
     ERROR_CODES.setCannotAcquireLockCodes("7");
     ERROR_CODES.setDeadlockLoserCodes("8");
     ERROR_CODES.setCannotSerializeTransactionCodes("9");
+    ERROR_CODES.setPermissionDeniedCodes("11");
+    ERROR_CODES.setTransientDataAccessResourceCodes("12");
   }
 
   private SQLErrorCodeSQLExceptionTranslator translator = new SQLErrorCodeSQLExceptionTranslator(ERROR_CODES);
@@ -85,6 +91,8 @@ class SQLErrorCodeSQLExceptionTranslatorTests {
     checkTranslation(8, DeadlockLoserDataAccessException.class);
     checkTranslation(9, CannotSerializeTransactionException.class);
     checkTranslation(10, DuplicateKeyException.class);
+    checkTranslation(11, PermissionDeniedDataAccessException.class);
+    checkTranslation(12, TransientDataAccessResourceException.class);
 
     SQLException dupKeyEx = new SQLException("", "", 10);
     DataAccessException dataAccessException = translator.translate("task", "SQL", dupKeyEx);
@@ -130,6 +138,100 @@ class SQLErrorCodeSQLExceptionTranslatorTests {
     BadSqlGrammarException bsgEx = (BadSqlGrammarException) translator.translate("task", "SQL", batchUpdateEx);
     assertThat(bsgEx.getSql()).isEqualTo("SQL");
     assertThat((Object) bsgEx.getSQLException()).isEqualTo(badSqlEx);
+  }
+
+  @Test
+  void usesPostgresSqlStateFromBatchCauseEvenWithoutVendorCode() {
+    var postgres = new SQLErrorCodeSQLExceptionTranslator("PostgreSQL");
+    var duplicate = new SQLException("duplicate", "23505");
+    var batch = new BatchUpdateException();
+    batch.setNextException(duplicate);
+
+    assertThat(postgres.translate("insert", null, batch)).isInstanceOf(DuplicateKeyException.class).hasCause(duplicate);
+    assertThat(postgres.translate("insert", null, new SQLException("no state", null, 23505))).isNull();
+    assertThat(postgres.translate("insert", null, new SQLException("unmapped", "ZZ999"))).isNull();
+  }
+
+  @Test
+  void retainsBatchExceptionWhenNextExceptionHasNoTranslationIdentifier() {
+    var batch = new BatchUpdateException("invalid result", null, 4, new int[0]);
+    batch.setNextException(new SQLException("no state or code"));
+
+    var translated = (InvalidResultSetAccessException) translator.translate("read", null, batch);
+
+    assertThat(translated.getSql()).isEmpty();
+    assertThat(translated).hasCause(batch);
+  }
+
+  @Test
+  void fallsBackToSqlStateWhenVendorCodesAreNotConfigured() {
+    var fallback = new SQLErrorCodeSQLExceptionTranslator();
+    var syntaxError = new SQLException("syntax error", "42000");
+
+    assertThat(fallback.getSqlErrorCodes()).isNull();
+    assertThat(fallback.translate("query", null, syntaxError)).isInstanceOf(BadSqlGrammarException.class)
+            .hasCause(syntaxError);
+  }
+
+  @Test
+  void customTranslatorTakesPrecedenceButCanDeferToVendorCodes() {
+    var codes = new SQLErrorCodes();
+    codes.setBadSqlGrammarCodes("1");
+    var custom = mock(SQLExceptionTranslator.class);
+    codes.setCustomSqlExceptionTranslator(custom);
+    var sqlError = new SQLException("bad SQL", null, 1);
+    var customResult = new DataAccessResourceFailureException("custom", sqlError);
+    given(custom.translate("query", "SQL", sqlError)).willReturn(customResult).willReturn(null);
+    var candidate = new SQLErrorCodeSQLExceptionTranslator(codes);
+
+    assertThat(candidate.translate("query", "SQL", sqlError)).isSameAs(customResult);
+    assertThat(candidate.translate("query", "SQL", sqlError)).isInstanceOf(BadSqlGrammarException.class).hasCause(sqlError);
+  }
+
+  @ParameterizedTest
+  @ValueSource(classes = { InvalidResultSetAccessException.class, CustomTaskSqlException.class })
+  void passesTaskSqlAndCauseToCustomException(Class<? extends DataAccessException> exceptionClass) {
+    var candidate = translatorWithCustomException(exceptionClass);
+    var cause = new SQLException("bad SQL", null, 1);
+
+    assertThat(candidate.translate("query", "SELECT id", cause)).isExactlyInstanceOf(exceptionClass)
+            .hasMessageContaining("query").hasMessageContaining("SELECT id").hasCause(cause);
+  }
+
+  @Test
+  void fallsBackToVendorCodesWhenCustomExceptionCannotBeConstructed() {
+    var candidate = translatorWithCustomException(UnconstructableException.class);
+    var cause = new SQLException("bad SQL", null, 1);
+
+    assertThat(candidate.translate("query", null, cause)).isInstanceOf(BadSqlGrammarException.class).hasCause(cause);
+  }
+
+  private static SQLErrorCodeSQLExceptionTranslator translatorWithCustomException(
+          Class<? extends DataAccessException> exceptionClass) {
+    var codes = new SQLErrorCodes();
+    codes.setBadSqlGrammarCodes("1");
+    var mapping = new CustomSQLErrorCodesTranslation();
+    mapping.setErrorCodes("1");
+    mapping.setExceptionClass(exceptionClass);
+    codes.setCustomTranslations(mapping);
+    return new SQLErrorCodeSQLExceptionTranslator(codes);
+  }
+
+  @SuppressWarnings("serial")
+  public static class CustomTaskSqlException extends DataAccessException {
+
+    public CustomTaskSqlException(String task, String sql, Throwable cause) {
+      super(task + ": " + sql, cause);
+    }
+  }
+
+  @SuppressWarnings("serial")
+  public static class UnconstructableException extends DataAccessException {
+
+    public UnconstructableException(String message) {
+      super(message);
+      throw new IllegalStateException("constructor failed");
+    }
   }
 
   @Test

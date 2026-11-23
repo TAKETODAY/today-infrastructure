@@ -174,7 +174,7 @@ class ResponseEntityExceptionHandlerTests {
   void errorResponseProblemDetailViaMessageSource() {
     try {
       Locale locale = Locale.UK;
-      LocaleContextHolder.setLocale(locale);
+      LocaleContextHolder.setLocale(Locale.US);
 
       String type = "https://example.com/probs/unsupported-content";
       String title = "Media type is not valid or not supported";
@@ -187,6 +187,7 @@ class ResponseEntityExceptionHandlerTests {
               "Content-Type {0} not supported. Supported: {1}");
 
       this.exceptionHandler.setMessageSource(source);
+      this.mockRequest.addPreferredLocale(locale);
 
       ResponseEntity<?> entity = testException(new HttpMediaTypeNotSupportedException(
               MediaType.APPLICATION_JSON, List.of(MediaType.APPLICATION_ATOM_XML, MediaType.APPLICATION_XML)));
@@ -207,7 +208,7 @@ class ResponseEntityExceptionHandlerTests {
   public void reasonAsDetailShouldBeUpdatedViaMessageSource() {
 
     Locale locale = Locale.UK;
-    LocaleContextHolder.setLocale(locale);
+    LocaleContextHolder.setLocale(Locale.US);
 
     String reason = "bad.request";
     String message = "Breaking Bad Request";
@@ -216,6 +217,7 @@ class ResponseEntityExceptionHandlerTests {
       messageSource.addMessage(reason, locale, message);
 
       this.exceptionHandler.setMessageSource(messageSource);
+      this.mockRequest.addPreferredLocale(locale);
 
       ResponseEntity<?> entity = testException(new ResponseStatusException(HttpStatus.BAD_REQUEST, reason));
 
@@ -240,7 +242,7 @@ class ResponseEntityExceptionHandlerTests {
   @Test
   void typeMismatchWithProblemDetailViaMessageSource() {
     Locale locale = Locale.UK;
-    LocaleContextHolder.setLocale(locale);
+    LocaleContextHolder.setLocale(Locale.US);
 
     try {
       StaticMessageSource messageSource = new StaticMessageSource();
@@ -249,6 +251,7 @@ class ResponseEntityExceptionHandlerTests {
               "Failed to set {0} to value: {1}");
 
       this.exceptionHandler.setMessageSource(messageSource);
+      this.mockRequest.addPreferredLocale(locale);
 
       ResponseEntity<?> entity = testException(
               new TypeMismatchException(new PropertyChangeEvent(this, "name", "John", "James"), String.class));

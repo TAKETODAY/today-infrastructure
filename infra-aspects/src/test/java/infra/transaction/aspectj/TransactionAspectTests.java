@@ -118,6 +118,18 @@ public class TransactionAspectTests {
   }
 
   @Test
+  void explicitRollbackRulePreservesCheckedException() {
+    InterruptedException failure = new InterruptedException("transaction interrupted");
+
+    assertThatExceptionOfType(InterruptedException.class)
+            .isThrownBy(() -> methodAnnotationOnly.echo(failure)).isSameAs(failure);
+
+    assertThat(txManager.begun).isEqualTo(1);
+    assertThat(txManager.rollbacks).isEqualTo(1);
+    assertThat(txManager.commits).isZero();
+  }
+
+  @Test
   public void defaultCommitOnSubclassOfAnnotatedClass() throws Throwable {
     Exception ex = new Exception();
     assertThatExceptionOfType(Exception.class).isThrownBy(() ->

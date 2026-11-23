@@ -272,6 +272,76 @@ class UriComponentsTests {
     assertThat(result.getPathSegments()).isEqualTo(Arrays.asList("foo", "bar", "ba%2Fz"));
   }
 
+  @Test
+  void copiesEveryHierarchicalComponentIncludingAnUnexpandedPort() {
+    var source = forURIString("https://reader@example.test:{port}/items?order={sort}#top").build();
+    var copy = UriComponentsBuilder.create().uriComponents(source).build();
+
+    assertThatIllegalStateException().isThrownBy(copy::getPort).withMessageContaining("{port}");
+    assertThat(copy.expand(Map.of("port", 8443, "sort", "name")).toUriString())
+            .isEqualTo("https://reader@example.test:8443/items?order=name#top");
+  }
+
+  @Test
+  void verifiesEveryPartOfCompositeEncodedPath() {
+    var path = UriComponentsBuilder.forPath("/café").pathSegment("a%2Fb").path("/end");
+    assertThatIllegalArgumentException().isThrownBy(() -> path.build(true)).withMessageContaining("café");
+
+    var encoded = UriComponentsBuilder.forPath("/caf%C3%A9").pathSegment("a%2Fb").path("/end").build(true);
+    assertThat(encoded.toURI()).hasToString("/caf%C3%A9/a%2Fb/end");
+    assertThat(encoded.getPathSegments()).containsExactly("caf%C3%A9", "a%2Fb", "end");
+  }
+
+  @Test
+  void reportsTruncatedEscapesAndInvalidHosts() {
+    assertThatIllegalArgumentException().isThrownBy(() -> UriComponentsBuilder.forPath("/file%2").build(true))
+            .withMessageContaining("Invalid encoded sequence", "%2");
+    var invalidHost = UriComponentsBuilder.create().scheme("https").host("not a host").build();
+    assertThatIllegalStateException().isThrownBy(invalidHost::toURI).withMessageContaining("Could not create URI object");
+  }
+
+  @Test
+  void encodesOnlyOnceAndPreservesRelativePathsWithoutAuthority() {
+    var relative = UriComponentsBuilder.forPath("items/a b").build();
+    var encoded = relative.encode();
+
+    assertThat(relative.toURI()).hasToString("items/a%20b");
+    assertThat(encoded.encode()).isSameAs(encoded);
+    assertThat(encoded.toURI()).isEqualTo(relative.toURI());
+    assertThat(UriComponentsBuilder.forPath("items/a b").host("example.test").build().toURI())
+            .hasToString("//example.test/items/a%20b");
+  }
+
+  @Test
+  void opaqueUriEqualityUsesSchemeSpecificPartAndScheme() {
+    var original = UriComponentsBuilder.create().scheme("mailto").schemeSpecificPart("reader@example.test").build();
+    var changedScheme = UriComponentsBuilder.create().scheme("custom").schemeSpecificPart("reader@example.test").build();
+    var changedAddress = UriComponentsBuilder.create().scheme("mailto").schemeSpecificPart("editor@example.test").build();
+
+    assertThat(original).isNotEqualTo(changedScheme).isNotEqualTo(changedAddress);
+    var invalid = UriComponentsBuilder.create().scheme("invalid scheme").schemeSpecificPart("value").build();
+    assertThatIllegalStateException().isThrownBy(invalid::toURI).withMessageContaining("Could not create URI object");
+  }
+
+  @Test
+  void includesAuthorityPathQueryAndFragmentWhenComparingComponents() {
+    String url = "https://reader@example.test:8443/files?sort=name#top";
+    var uri = forURIString(url).build();
+    assertThat(uri).isEqualTo(forURIString(url).build()).hasSameHashCodeAs(forURIString(url).build());
+    assertThat(uri).isNotEqualTo(forURIString(url).scheme("http").build())
+            .isNotEqualTo(forURIString(url).userInfo("writer").build())
+            .isNotEqualTo(forURIString(url).host("cdn.example.test").build())
+            .isNotEqualTo(forURIString(url).port(8080).build())
+            .isNotEqualTo(forURIString(url).replacePath("/other").build())
+            .isNotEqualTo(forURIString(url).fragment("bottom").build())
+            .isNotEqualTo(forURIString("mailto:reader@example.test").build());
+
+    var segmented = UriComponentsBuilder.create().pathSegment("files").build();
+    var sameSegments = UriComponentsBuilder.create().pathSegment("files").build();
+    assertThat(segmented).isEqualTo(sameSegments).hasSameHashCodeAs(sameSegments)
+            .isNotEqualTo(UriComponentsBuilder.create().pathSegment("other").build());
+  }
+
   @ParameterizedTest
   @EnumSource
   void equalsHierarchicalUriComponents(ParserType parserType) {

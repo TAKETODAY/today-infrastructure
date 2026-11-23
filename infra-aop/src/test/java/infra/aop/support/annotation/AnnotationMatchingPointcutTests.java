@@ -18,6 +18,11 @@
 
 package infra.aop.support.annotation;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+
 import org.junit.jupiter.api.Test;
 
 import infra.aop.MethodMatcher;
@@ -32,6 +37,44 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Sam Brannen
  */
 class AnnotationMatchingPointcutTests {
+
+  @Test
+  void classPointcutMatchesDirectAndComposedAnnotations() {
+    var direct = AnnotationMatchingPointcut.forClassAnnotation(Marker.class).getClassFilter();
+    var inherited = new AnnotationClassFilter(Marker.class, true);
+
+    assertThat(direct.matches(Service.class)).isTrue();
+    assertThat(direct.matches(ComposedService.class)).isFalse();
+    assertThat(inherited.matches(ComposedService.class)).isTrue();
+    assertThat(inherited.matches(ServiceContract.class)).isFalse();
+    assertThat(inherited.equals(inherited)).isTrue();
+    assertThat(inherited).isNotEqualTo("not a class filter");
+  }
+
+  @Test
+  void methodPointcutResolvesAnnotationsOnTargetImplementation() throws Exception {
+    var pointcut = AnnotationMatchingPointcut.forMethodAnnotation(Marker.class);
+    Method run = ServiceContract.class.getMethod("run");
+    Method directlyAnnotated = Service.class.getMethod("run");
+    MethodMatcher direct = pointcut.getMethodMatcher();
+    MethodMatcher inherited = new AnnotationMethodMatcher(Marker.class, true);
+    Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(),
+            new Class<?>[] { ServiceContract.class }, (instance, method, args) -> null);
+
+    assertThat(pointcut.getClassFilter().matches(Service.class)).isTrue();
+    assertThat(direct.matches(directlyAnnotated, Service.class)).isTrue();
+    assertThat(direct.matches(run, Service.class)).isTrue();
+    assertThat(new AnnotationMethodMatcher(Marker.class).matches(run, Service.class)).isTrue();
+    assertThat(direct.matches(run, ComposedService.class)).isFalse();
+    assertThat(inherited.matches(run, ComposedService.class)).isTrue();
+    assertThat(direct.matches(run, proxy.getClass())).isFalse();
+    assertThat(direct.equals(direct)).isTrue();
+    assertThat(direct).isNotEqualTo("not a method matcher");
+    assertThat(pointcut.equals(pointcut)).isTrue();
+    assertThat(pointcut).isNotEqualTo("not a pointcut");
+    assertThat(pointcut.getClassFilter().equals(pointcut.getClassFilter())).isTrue();
+    assertThat(pointcut.getClassFilter()).isNotEqualTo("not a candidate class filter");
+  }
 
   @Test
   void classLevelPointcuts() {
@@ -101,6 +144,38 @@ class AnnotationMatchingPointcutTests {
     // #1 and #3 have equivalent hash codes even though equals() returns false.
     assertThat(pointcut1.hashCode()).isEqualTo(pointcut3.hashCode());
     assertThat(pointcut1.toString()).isEqualTo(pointcut2.toString());
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface Marker {
+  }
+
+  @Marker
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ComposedMarker {
+  }
+
+  interface ServiceContract {
+
+    void run();
+  }
+
+  @Marker
+  static class Service implements ServiceContract {
+
+    @Override
+    @Marker
+    public void run() {
+    }
+  }
+
+  @ComposedMarker
+  static class ComposedService implements ServiceContract {
+
+    @Override
+    @ComposedMarker
+    public void run() {
+    }
   }
 
 }

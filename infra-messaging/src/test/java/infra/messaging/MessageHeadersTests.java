@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging;
 
 import org.junit.jupiter.api.Test;
@@ -28,6 +30,7 @@ import infra.core.testfixture.io.SerializationTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Test fixture for {@link MessageHeaders}.
@@ -156,12 +159,29 @@ class MessageHeadersTests {
   }
 
   @Test
+  void mapAndItsViewsRejectChanges() {
+    MessageHeaders headers = new MessageHeaders(Map.of("name", "joe"));
+
+    assertThat(headers.containsValue("joe")).isTrue();
+    assertThat(headers.values()).contains("joe");
+    assertThatThrownBy(() -> headers.put("name", "jane")).isInstanceOf(UnsupportedOperationException.class);
+    assertThatThrownBy(() -> headers.putAll(Map.of("name", "jane"))).isInstanceOf(UnsupportedOperationException.class);
+    assertThatThrownBy(() -> headers.remove("name")).isInstanceOf(UnsupportedOperationException.class);
+    assertThatThrownBy(headers::clear).isInstanceOf(UnsupportedOperationException.class);
+    assertThatThrownBy(() -> headers.values().remove("joe")).isInstanceOf(UnsupportedOperationException.class);
+    assertThatThrownBy(() -> headers.entrySet().iterator().next().setValue("jane"))
+            .isInstanceOf(UnsupportedOperationException.class);
+    assertThat(headers).containsEntry("name", "joe");
+  }
+
+  @Test
   void serializeWithAllSerializableHeaders() throws Exception {
     Map<String, Object> map = new HashMap<>();
     map.put("name", "joe");
     map.put("age", 42);
     MessageHeaders input = new MessageHeaders(map);
     MessageHeaders output = SerializationTestUtils.serializeAndDeserialize(input);
+    assertThat(output).isEqualTo(input).hasSameHashCodeAs(input);
     assertThat(output.get("name")).isEqualTo("joe");
     assertThat(output.get("age")).isEqualTo(42);
     assertThat(input.get("name")).isEqualTo("joe");

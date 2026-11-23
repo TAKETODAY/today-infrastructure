@@ -1,7 +1,7 @@
 [[persistence-paging]]
 = 分页
 
-`Pageable` 描述分页参数，`Page` 承载分页结果：
+`Pageable` 描述基于页码和 offset 的分页参数，`Page` 承载包含总数的分页结果：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -15,5 +15,32 @@ int totalPages = page.getTotalPages();
 boolean hasNext = page.hasNextPage();
 ----
 
-也可以通过 `DefaultEntityManager#setDefaultPageable` 设置缺省分页。排序使用 `Order.ASC` / `Order.DESC`，
-配合 `Pair<String, Order>`（可变参数，按声明顺序）使用。
+`page` 先统计总数；总数为零时直接返回空页，不执行数据查询。统计和取数是两条 SQL，是否使用同一数据快照取决于事务隔离级别。
+`Pageable` 只描述页码和页大小，不携带排序。可用排序注解、在条件中提供排序，或直接调用
+`entityManager.page(User.class, OrderSpec.asc("id"), pageable)` 做仅排序的查询。应提供稳定排序以减少跨页遗漏或重复。
+
+页码从 `1` 开始，页大小必须为正数。未提供 `Pageable` 时使用默认值
+`Pageable.of(1, 10)`，可通过 `persistence.page-size` 或 `DefaultEntityManager#setDefaultPageable` 修改。
+`page(User.class, example)` 还可以从实现了 `Pageable` 的示例对象读取分页参数。
+`Page` 在总数为 `0` 时仍报告 `totalPages = 1`，以保持页码 API 的稳定性；请求超出总页数不会自动把
+`pageNumber` 改写为最后一页。
+
+== Slice：不统计总数
+
+如果只需要知道是否有下一页，可以使用 `slice`。框架会读取 `pageSize + 1` 行，丢弃多读的一行，
+以计算 `hasNext`，因此不会额外执行 count 查询：
+
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+Slice<User> slice = entityManager.slice(User.class, userQuery, Pageable.of(1, 20));
+for (User user : slice.rows()) {
+  process(user);
+}
+if (slice.hasNext()) {
+  Pageable next = Pageable.of(slice.pageNumber() + 1, slice.pageSize());
+}
+----
+
+`Slice` 是 record，访问器是 `rows()`、`pageNumber()`、`pageSize()` 和 `hasNext()`；`hasPrevious()` 只判断页码是否大于 `1`。
+它不提供总行数或总页数，并要求 `pageSize + 1` 和 offset 不超出 `int` 范围。深页码的 offset 查询可能变慢，持续遍历可使用
+xref:data-access/persistence/scrolling.adoc[滚动查询]。

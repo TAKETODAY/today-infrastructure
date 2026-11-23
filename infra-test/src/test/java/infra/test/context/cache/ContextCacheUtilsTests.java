@@ -28,6 +28,8 @@ import static infra.test.context.cache.ContextCache.DEFAULT_MAX_CONTEXT_CACHE_SI
 import static infra.test.context.cache.ContextCache.MAX_CONTEXT_CACHE_SIZE_PROPERTY_NAME;
 import static infra.test.context.cache.ContextCacheUtils.retrieveMaxCacheSize;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.Mockito.mockStatic;
 
 /**
  * Unit tests for {@link ContextCacheUtils}.
@@ -87,6 +89,26 @@ class ContextCacheUtilsTests {
 
   private static void assertDefaultValue() {
     assertThat(retrieveMaxCacheSize()).isEqualTo(DEFAULT_MAX_CONTEXT_CACHE_SIZE);
+  }
+
+  @Test
+  void pauseModesAcceptNamesIgnoringCaseAndWhitespace() {
+    try (var strategies = mockStatic(InfraStrategies.class)) {
+      String key = ContextCache.CONTEXT_CACHE_PAUSE_PROPERTY_NAME;
+      assertThat(ContextCacheUtils.retrievePauseMode()).isEqualTo(ContextCache.PauseMode.ON_CONTEXT_SWITCH);
+      strategies.when(() -> InfraStrategies.getProperty(key)).thenReturn("  ");
+      assertThat(ContextCacheUtils.retrievePauseMode()).isEqualTo(ContextCache.PauseMode.ON_CONTEXT_SWITCH);
+      for (ContextCache.PauseMode mode : ContextCache.PauseMode.values()) {
+        strategies.when(() -> InfraStrategies.getProperty(key))
+                .thenReturn(" " + mode.name().toLowerCase(java.util.Locale.ROOT) + " ");
+        assertThat(ContextCacheUtils.retrievePauseMode()).isEqualTo(mode);
+      }
+      strategies.when(() -> InfraStrategies.getProperty(key)).thenReturn("invalid-mode");
+      assertThatIllegalArgumentException().isThrownBy(ContextCacheUtils::retrievePauseMode)
+              .withMessageContaining("invalid-mode").withMessageContaining(key);
+      assertThat(ContextCache.PauseMode.from(null)).isNull();
+      assertThat(ContextCache.PauseMode.from("invalid-mode")).isNull();
+    }
   }
 
 }

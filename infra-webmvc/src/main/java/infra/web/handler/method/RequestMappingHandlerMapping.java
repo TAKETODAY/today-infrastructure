@@ -416,7 +416,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
       for (MethodParameter parameter : handlerMethod.getParameters()) {
         RequestBody requestBody = parameter.getParameterAnnotation(RequestBody.class);
         if (requestBody != null) {
-          condition.setBodyRequired(requestBody.required());
+          condition.setBodyRequired(requestBody.required() && !parameter.isNullable());
           break;
         }
       }

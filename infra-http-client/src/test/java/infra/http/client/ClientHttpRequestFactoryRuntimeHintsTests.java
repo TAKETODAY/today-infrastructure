@@ -27,6 +27,7 @@ import java.time.Duration;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.predicate.ReflectionHintsPredicates;
 import infra.aot.hint.predicate.RuntimeHintsPredicates;
+import infra.test.context.FilteredClassLoader;
 import infra.test.util.ReflectionTestUtils;
 import infra.util.ReflectionUtils;
 
@@ -42,6 +43,16 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * @since 5.0 2026/1/2 13:44
  */
 class ClientHttpRequestFactoryRuntimeHintsTests {
+
+  @Test
+  void doesNotRegisterHintsWhenTheRequestFactoryApiIsAbsent() throws Exception {
+    RuntimeHints hints = new RuntimeHints();
+    try (var classLoader = new FilteredClassLoader(ClientHttpRequestFactory.class)) {
+      new ClientHttpRequestFactoryRuntimeHints().registerHints(hints, classLoader);
+    }
+
+    assertThat(hints.reflection().typeHints()).isEmpty();
+  }
 
   @Test
   void shouldRegisterHints() {

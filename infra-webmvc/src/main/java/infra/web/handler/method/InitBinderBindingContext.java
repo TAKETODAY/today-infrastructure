@@ -41,11 +41,13 @@ public class InitBinderBindingContext extends BindingContext {
 
   private final ModelHandler modelHandler;
 
-  private final HandlerMethod handlerMethod;
-
-  private final BindingContext binderMethodContext;
+  private final InvocableHandlerMethod handlerMethod;
 
   private final ControllerMethodResolver methodResolver;
+
+  private final @Nullable WebBindingInitializer initializer;
+
+  private @Nullable BindingContext binderMethodContext;
 
   private @Nullable List<InvocableHandlerMethod> binderMethods;
 
@@ -55,13 +57,9 @@ public class InitBinderBindingContext extends BindingContext {
    * @param initializer for global data binder initialization
    */
   InitBinderBindingContext(ModelHandler modelHandler, @Nullable WebBindingInitializer initializer,
-          ControllerMethodResolver methodResolver, HandlerMethod handlerMethod) {
+          ControllerMethodResolver methodResolver, InvocableHandlerMethod handlerMethod) {
 
-    super(initializer);
-    this.modelHandler = modelHandler;
-    this.handlerMethod = handlerMethod;
-    this.methodResolver = methodResolver;
-    this.binderMethodContext = new BindingContext(initializer);
+    this(modelHandler, initializer, methodResolver, null, handlerMethod);
   }
 
   /**
@@ -70,14 +68,14 @@ public class InitBinderBindingContext extends BindingContext {
    * @param initializer for global data binder initialization
    */
   InitBinderBindingContext(ModelHandler modelHandler, @Nullable WebBindingInitializer initializer,
-          ControllerMethodResolver methodResolver, List<InvocableHandlerMethod> binderMethods, HandlerMethod handlerMethod) {
+          ControllerMethodResolver methodResolver, @Nullable List<InvocableHandlerMethod> binderMethods, InvocableHandlerMethod handlerMethod) {
 
     super(initializer);
     this.modelHandler = modelHandler;
     this.handlerMethod = handlerMethod;
     this.binderMethods = binderMethods;
     this.methodResolver = methodResolver;
-    this.binderMethodContext = new BindingContext(initializer);
+    this.initializer = initializer;
   }
 
   /**
@@ -96,24 +94,41 @@ public class InitBinderBindingContext extends BindingContext {
       this.binderMethods = binderMethods;
     }
 
-    if (!binderMethods.isEmpty()) {
-      BindingContext bindingContext = BindingContext.find(context);
-      BindingContext.set(context, binderMethodContext);
+    if (binderMethods.isEmpty()) {
+      return;
+    }
+
+    BindingContext originalContext = null;
+    BindingContext methodContext = null;
+    try {
       for (InvocableHandlerMethod binderMethod : binderMethods) {
         if (isBinderMethodApplicable(binderMethod, dataBinder)) {
+          if (methodContext == null) {
+            methodContext = this.binderMethodContext;
+            if (methodContext == null) {
+              methodContext = new BindingContext(this.initializer);
+              this.binderMethodContext = methodContext;
+            }
+            originalContext = BindingContext.find(context);
+            BindingContext.set(context, methodContext);
+          }
           Object returnValue = binderMethod.invokeForRequest(context, null, new Object[] { dataBinder });
           if (returnValue != null) {
             throw new IllegalStateException(
                     "@InitBinder methods must not return a value (should be void): " + binderMethod);
           }
           // Should not happen (no Model argument resolution) ...
-          if (!binderMethodContext.getModel().isEmpty()) {
+          if (!methodContext.getModel().isEmpty()) {
             throw new IllegalStateException(
                     "@InitBinder methods are not allowed to add model attributes: " + binderMethod);
           }
         }
       }
-      BindingContext.set(context, bindingContext);
+    }
+    finally {
+      if (methodContext != null) {
+        BindingContext.set(context, originalContext);
+      }
     }
   }
 

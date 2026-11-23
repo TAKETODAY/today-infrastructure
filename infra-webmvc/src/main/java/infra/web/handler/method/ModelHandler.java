@@ -82,18 +82,17 @@ final class ModelHandler {
    * @param handlerMethod the method for which the model is initialized
    * @throws Exception may arise from {@code @ModelAttribute} methods
    */
-  public void initModel(HttpContext request, BindingContext container, HandlerMethod handlerMethod) throws Exception {
+  public void initModel(HttpContext request, BindingContext container, InvocableHandlerMethod handlerMethod) throws Exception {
     ArrayList<ModelMethod> modelMethods = getModelMethods(handlerMethod);
     if (modelMethods != null) {
       invokeModelAttributeMethods(request, container, modelMethods);
     }
   }
 
-  @Nullable
-  private ArrayList<ModelMethod> getModelMethods(HandlerMethod handlerMethod) {
+  private @Nullable ArrayList<ModelMethod> getModelMethods(InvocableHandlerMethod handlerMethod) {
     List<InvocableHandlerMethod> handlerMethods = methodResolver.getModelAttributeMethods(handlerMethod);
     if (!handlerMethods.isEmpty()) {
-      ArrayList<ModelMethod> modelMethods = new ArrayList<>();
+      ArrayList<ModelMethod> modelMethods = new ArrayList<>(handlerMethods.size());
       for (InvocableHandlerMethod method : handlerMethods) {
         modelMethods.add(new ModelMethod(method));
       }

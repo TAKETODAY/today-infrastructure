@@ -118,7 +118,8 @@ class ModelHandlerOrderingTests {
     ControllerMethodResolver methodResolver = new ControllerMethodResolver(null, parameterFactory);
 
     ModelHandler factory = new ModelHandler(methodResolver);
-    factory.initModel(this.webRequest, this.mavContainer, new HandlerMethod(controller, "handle"));
+    factory.initModel(this.webRequest, this.mavContainer,
+            methodResolver.createHandlerMethod(new HandlerMethod(controller, "handle")));
     if (logger.isDebugEnabled()) {
       logger.debug(String.join(" >> ", getInvokedMethods()));
     }

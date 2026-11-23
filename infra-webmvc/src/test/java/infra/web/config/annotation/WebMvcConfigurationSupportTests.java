@@ -88,7 +88,9 @@ import infra.web.view.ViewResolverComposite;
 import infra.web.view.ViewReturnValueHandler;
 import infra.web.view.json.JacksonJsonView;
 
+import static infra.http.MediaType.APPLICATION_ATOM_XML;
 import static infra.http.MediaType.APPLICATION_JSON;
+import static infra.http.MediaType.APPLICATION_YAML;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -226,6 +228,36 @@ class WebMvcConfigurationSupportTests {
     request = new MockRequest("GET", "/resources/foo.gif");
     HandlerExecutionChain chain = (HandlerExecutionChain) handlerMapping.getHandler(new MockHttpContext(request));
     assertThat(chain).isNotNull();
+  }
+
+  @Test
+  void defaultMediaTypesWithYamlConverter() {
+    var converter = new StringHttpMessageConverter();
+    converter.setSupportedMediaTypes(List.of(APPLICATION_YAML));
+    var configuration = new WebMvcConfigurationSupport() {
+      @Override
+      protected void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        converters.add(converter);
+      }
+    };
+
+    assertThat(configuration.mvcContentNegotiationManager().getMediaTypeMappings())
+            .containsExactlyEntriesOf(Map.of("yaml", APPLICATION_YAML));
+  }
+
+  @Test
+  void defaultMediaTypesWithAtomConverter() {
+    var converter = new StringHttpMessageConverter();
+    converter.setSupportedMediaTypes(List.of(APPLICATION_ATOM_XML));
+    var configuration = new WebMvcConfigurationSupport() {
+      @Override
+      protected void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        converters.add(converter);
+      }
+    };
+
+    assertThat(configuration.mvcContentNegotiationManager().getMediaTypeMappings())
+            .containsExactlyEntriesOf(Map.of("atom", APPLICATION_ATOM_XML));
   }
 
   @Test

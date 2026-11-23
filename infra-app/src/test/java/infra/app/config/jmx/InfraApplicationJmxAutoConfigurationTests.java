@@ -118,6 +118,22 @@ class InfraApplicationJmxAutoConfigurationTests {
   }
 
   @Test
+  void adminBeanReportsReadinessAndCanCloseTheApplication() throws Exception {
+    ObjectName name = new ObjectName("infra.app:type=Admin,name=ShutdownTest");
+    var builder = new ApplicationBuilder(infra.app.config.jmx.InfraApplicationJmxAutoConfiguration.class)
+            .type(ApplicationType.NORMAL).registerShutdownHook(false);
+    try (var context = builder.run("--" + ENABLE_ADMIN_PROP, "--app.admin.jmx-name=" + name)) {
+      assertThat(this.server.getAttribute(name, "Ready")).isEqualTo(true);
+      assertThat(this.server.getAttribute(name, "EmbeddedWebApplication")).isEqualTo(false);
+
+      this.server.invoke(name, "shutdown", new Object[0], new String[0]);
+
+      assertThat(context.isActive()).isFalse();
+      assertThat(this.server.isRegistered(name)).isFalse();
+    }
+  }
+
+  @Test
   void onlyRegisteredOnceWhenThereIsAChildContext() {
     ApplicationBuilder parentBuilder = new ApplicationBuilder().type(ApplicationType.NORMAL)
             .sources(MultipleMBeanExportersConfiguration.class, infra.app.config.jmx.InfraApplicationJmxAutoConfiguration.class);

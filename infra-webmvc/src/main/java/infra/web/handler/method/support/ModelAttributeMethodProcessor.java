@@ -23,7 +23,6 @@ import org.jspecify.annotations.Nullable;
 import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Optional;
 
 import infra.beans.BeanUtils;
 import infra.core.MethodParameter;
@@ -127,9 +126,9 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
 
     if (bindingContext.containsAttribute(name)) {
       attribute = bindingContext.getModel().get(name);
-      if (attribute == null || ObjectUtils.unwrapOptional(attribute) == null) {
+      if (ObjectUtils.unwrapOptional(attribute) == null) {
         bindingResult = bindingContext.createBinder(context, null, name).getBindingResult();
-        attribute = wrapAsOptionalIfNecessary(parameter, null);
+        attribute = null;
       }
     }
     else {
@@ -141,7 +140,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
         if (isBindExceptionRequired(parameter)) {
           throw ex;
         }
-        attribute = wrapAsOptionalIfNecessary(parameter, ex.getTarget());
+        attribute = ex.getTarget();
         bindingResult = ex.getBindingResult();
       }
     }
@@ -152,7 +151,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
       WebDataBinder binder = bindingContext.createBinder(context, attribute, name, type);
       if (attribute == null) {
         constructAttribute(binder, context);
-        attribute = wrapAsOptionalIfNecessary(parameter, binder.getTarget());
+        attribute = binder.getTarget();
       }
       if (!binder.getBindingResult().hasErrors()) {
         if (!bindingContext.isBindingDisabled(name)) {
@@ -163,7 +162,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
       if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) {
         throw new MethodArgumentNotValidException(parameter, binder.getBindingResult());
       }
-      // Value type adaptation, also covering java.util.Optional
+      // Adapt the model attribute to the declared parameter type if necessary.
       if (!parameter.getParameterType().isInstance(attribute)) {
         attribute = binder.convertIfNecessary(binder.getTarget(), parameter.getParameterType(), parameter);
       }
@@ -176,10 +175,6 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
     bindingContext.addAllAttributes(bindingResultModel);
 
     return attribute;
-  }
-
-  private static @Nullable Object wrapAsOptionalIfNecessary(MethodParameter parameter, @Nullable Object target) {
-    return parameter.getParameterType() == Optional.class ? Optional.ofNullable(target) : target;
   }
 
   /**

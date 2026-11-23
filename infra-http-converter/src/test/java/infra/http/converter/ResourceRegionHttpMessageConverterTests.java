@@ -21,23 +21,30 @@ package infra.http.converter;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import infra.core.ParameterizedTypeReference;
+import infra.core.io.ByteArrayResource;
 import infra.core.io.ClassPathResource;
+import infra.core.io.InputStreamResource;
 import infra.core.io.Resource;
 import infra.core.io.ResourceRegion;
 import infra.http.HttpHeaders;
 import infra.http.HttpRange;
 import infra.http.MediaType;
+import infra.http.MockHttpInputMessage;
 import infra.http.MockHttpOutputMessage;
 import infra.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -49,6 +56,71 @@ import static org.mockito.Mockito.mock;
 public class ResourceRegionHttpMessageConverterTests {
 
   private final ResourceRegionHttpMessageConverter converter = new ResourceRegionHttpMessageConverter();
+
+  @Test
+  void doesNotReadRegionsOrAcceptUnsupportedGenericTypes() {
+    Type wildcard = new ParameterizedTypeReference<List<? extends ResourceRegion>>() { }.getType();
+    Type map = new ParameterizedTypeReference<Map<String, ResourceRegion>>() { }.getType();
+    assertThat(this.converter.canRead(wildcard, null, null)).isFalse();
+    assertThat(this.converter.canWrite(null, null, null)).isFalse();
+    assertThat(this.converter.canWrite(wildcard, null, null)).isFalse();
+    assertThat(this.converter.canWrite(map, null, null)).isFalse();
+    ParameterizedType malformed = mock();
+    given(malformed.getRawType()).willReturn(wildcard);
+    assertThat(this.converter.canWrite(malformed, null, null)).isFalse();
+    given(malformed.getRawType()).willReturn(List.class);
+    given(malformed.getActualTypeArguments()).willReturn(new Type[0]);
+    assertThat(this.converter.canWrite(malformed, null, null)).isFalse();
+    var input = new MockHttpInputMessage(new byte[0]);
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> this.converter.read(wildcard, null, input));
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> this.converter.read(ResourceRegion.class, input));
+  }
+
+  @Test
+  void usesResourceMediaTypeAndDistinguishesRepeatableSources() {
+    var resource = new ByteArrayResource(new byte[] { 1 }) {
+      @Override
+      public String getName() {
+        return "range.txt";
+      }
+    };
+    var region = new ResourceRegion(resource, 0, 1);
+    var singleUse = new ResourceRegion(new InputStreamResource(new ByteArrayInputStream(new byte[] { 2 })), 0, 1);
+    assertThat(this.converter.getDefaultContentType(region)).isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(this.converter.getDefaultContentType(List.of())).isEqualTo(MediaType.APPLICATION_OCTET_STREAM);
+    assertThat(this.converter.supportsRepeatableWrites(region)).isTrue();
+    assertThat(this.converter.supportsRepeatableWrites(List.of(region))).isTrue();
+    assertThat(this.converter.supportsRepeatableWrites(List.of(region, singleUse))).isFalse();
+  }
+
+  @Test
+  void writesRangesWithoutAPartContentTypeAndIgnoresFailureClosingTheLastStream() throws IOException {
+    byte[] bytes = { 'a', 'b', 'c' };
+    var resource = new ByteArrayResource(bytes) {
+      @Override
+      public ByteArrayInputStream getInputStream() {
+        return new ByteArrayInputStream(bytes) {
+          @Override
+          public void close() throws IOException {
+            throw new IOException("close failed");
+          }
+        };
+      }
+    };
+    var output = new MockHttpOutputMessage();
+    this.converter.writeInternal(List.of(new ResourceRegion(resource, 0, 1), new ResourceRegion(resource, 2, 1)),
+            null, output);
+    String boundary = output.getContentType().getParameter("boundary");
+    assertThat(output.getBodyAsString()).doesNotContain("Content-Type:")
+            .contains("Content-Range: bytes 0-0/3\r\n\r\na", "Content-Range: bytes 2-2/3\r\n\r\nc")
+            .endsWith("--" + boundary + "--");
+
+    var empty = new MockHttpOutputMessage();
+    this.converter.write(List.of(), null, empty);
+    assertThat(empty.getBodyAsString()).isEqualTo("\r\n--" + empty.getContentType().getParameter("boundary") + "--");
+  }
 
   @Test
   public void canReadResource() {

@@ -5,6 +5,8 @@
 默认的参数解析器不支持以响应式类型接收请求输入。
 
 对 `@RequestParam`、`@RequestHeader` 等按名称绑定的参数，可以将参数声明为 `@Nullable`，或在支持 `required` 的绑定注解上设置 `required=false`，以允许值缺失。
+例如，对于 `@RequestParam @Nullable Integer page`，未提供 `page` 时参数值为 `null`，传入 `page=abc` 时仍会触发类型转换错误。
+如果需要为 `java.util.Optional<T>` 参数定义绑定规则，可以注册自定义 `ParameterResolvingStrategy`。
 
 [cols="1,2", options="header"]
 |===

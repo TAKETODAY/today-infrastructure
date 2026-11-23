@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.aop.MethodBeforeAdvice;
+import infra.aop.ProxyMethodInvocation;
 import infra.aop.framework.AopContext;
 import infra.aop.framework.ProxyFactory;
 import infra.aop.interceptor.ExposeInvocationInterceptor;
@@ -40,7 +41,13 @@ import infra.beans.testfixture.beans.TestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Rod Johnson
@@ -49,6 +56,50 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * @since 2.0
  */
 public class MethodInvocationProceedingJoinPointTests {
+
+  @Test
+  void rejectsReplacementArgumentsWithTheWrongArityWithoutProceeding() throws Throwable {
+    ProxyMethodInvocation invocation = mock();
+    given(invocation.getArguments()).willReturn(new Object[] { "original" });
+    var joinPoint = new MethodInvocationProceedingJoinPoint(invocation);
+
+    assertThatIllegalArgumentException().isThrownBy(() -> joinPoint.proceed(new Object[0]))
+            .withMessage("Expecting 1 arguments to proceed, but was passed 0 arguments");
+    verify(invocation, never()).setArguments(any());
+    verify(invocation, never()).proceed();
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
+  void targetlessJoinPointDoesNotProvideSourceCoordinatesOrWovenClosures() {
+    ProxyMethodInvocation invocation = mock();
+    var joinPoint = new MethodInvocationProceedingJoinPoint(invocation);
+
+    assertThat(joinPoint.getTarget()).isNull();
+    assertThat(joinPoint.getId()).isZero();
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(joinPoint.getSourceLocation()::getWithinType).withMessageContaining("target is null");
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(joinPoint.getSourceLocation()::getColumn);
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> joinPoint.set$AroundClosure(null));
+  }
+
+  @Test
+  void describesAllParametersInTheMethodSignature() throws Exception {
+    ProxyMethodInvocation invocation = mock();
+    var method = getClass().getDeclaredMethod("combine", String.class, int.class);
+    given(invocation.getMethod()).willReturn(method);
+    var joinPoint = new MethodInvocationProceedingJoinPoint(invocation);
+    var signature = (MethodSignature) joinPoint.getSignature();
+
+    assertThat(signature.getDeclaringTypeName()).isEqualTo(getClass().getName());
+    assertThat(signature.getParameterNames()).containsExactly("value", "count");
+    assertThat(signature.getParameterNames()).containsExactly("value", "count");
+    assertThat(signature.toLongString()).endsWith(".combine(java.lang.String,int)");
+  }
+
+  private static String combine(String value, int count) {
+    return value.repeat(count);
+  }
 
   @Test
   public void testingBindingWithJoinPoint() {

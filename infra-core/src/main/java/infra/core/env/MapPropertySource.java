@@ -35,7 +35,7 @@ import infra.util.StringUtils;
  * @see PropertiesPropertySource
  * @since 4.0
  */
-public class MapPropertySource extends EnumerablePropertySource<Map<String, Object>> {
+public class MapPropertySource extends EnumerablePropertySource<Map<String, @Nullable Object>> {
 
   /**
    * Create a new {@code MapPropertySource} with the given name and {@code Map}.
@@ -44,7 +44,7 @@ public class MapPropertySource extends EnumerablePropertySource<Map<String, Obje
    * @param source the Map source (without {@code null} values in order to get
    * consistent {@link #getProperty} and {@link #containsProperty} behavior)
    */
-  public MapPropertySource(String name, Map<String, Object> source) {
+  public MapPropertySource(String name, Map<String, @Nullable Object> source) {
     super(name, source);
   }
 

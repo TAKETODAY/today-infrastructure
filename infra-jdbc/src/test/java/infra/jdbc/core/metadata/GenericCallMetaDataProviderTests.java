@@ -25,6 +25,7 @@ import org.mockito.InOrder;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
@@ -212,6 +214,63 @@ class GenericCallMetaDataProviderTests {
     inOrder.verify(this.databaseMetaData).getFunctions(null, null, "MY@_PROCEDURE");
     inOrder.verify(this.databaseMetaData).getFunctionColumns(null, null, "MY@_PROCEDURE", null);
     verifyNoMoreInteractions(this.databaseMetaData);
+  }
+
+  @Test
+  void skipsUnnamedFunctionArgumentsButKeepsUnnamedReturnValue() throws SQLException {
+    var provider = new GenericCallMetaDataProvider(databaseMetaData);
+    var procedures = mockProcedures();
+    var functions = mockFunctions(new Procedure(null, null, "CALCULATE"));
+    given(databaseMetaData.getProcedures(null, null, "CALCULATE")).willReturn(procedures);
+    given(databaseMetaData.getFunctions(null, null, "CALCULATE")).willReturn(functions);
+    ResultSet columns = mock();
+    given(databaseMetaData.getFunctionColumns(null, null, "CALCULATE", null)).willReturn(columns);
+    given(columns.next()).willReturn(true, true, true, true, false);
+    given(columns.getInt("COLUMN_TYPE")).willReturn(DatabaseMetaData.functionColumnIn,
+            DatabaseMetaData.functionColumnInOut, DatabaseMetaData.functionColumnOut, DatabaseMetaData.functionReturn);
+    given(columns.getInt("DATA_TYPE")).willReturn(Types.INTEGER);
+    given(columns.getInt("NULLABLE")).willReturn(DatabaseMetaData.functionNullable);
+
+    provider.initializeWithProcedureColumnMetaData(databaseMetaData, null, null, "calculate");
+
+    assertThat(provider.getCallParameterMetaData()).singleElement().satisfies(parameter -> {
+      assertThat(parameter.getParameterName()).isNull();
+      assertThat(parameter.getParameterType()).isEqualTo(DatabaseMetaData.functionReturn);
+      assertThat(parameter.getSqlType()).isEqualTo(Types.INTEGER);
+      assertThat(parameter.isNullable()).isTrue();
+    });
+    verify(columns).close();
+  }
+
+  @Test
+  void oracleLooksUpColumnsEvenWhenSynonymIsNotListed() throws SQLException {
+    var provider = new GenericCallMetaDataProvider(databaseMetaData);
+    given(databaseMetaData.getDatabaseProductName()).willReturn("Oracle");
+    var procedures = mockProcedures();
+    var functions = mockFunctions();
+    given(databaseMetaData.getProcedures(null, null, "SYNONYM")).willReturn(procedures);
+    given(databaseMetaData.getFunctions(null, null, "SYNONYM")).willReturn(functions);
+    var columns = mockProcedureColumns("ARG", DatabaseMetaData.functionColumnOut);
+    given(databaseMetaData.getFunctionColumns(null, null, "SYNONYM", null)).willReturn(columns);
+
+    provider.initializeWithProcedureColumnMetaData(databaseMetaData, null, null, "synonym");
+
+    assertThat(provider.getCallParameterMetaData()).extracting(CallParameterMetaData::getParameterName)
+            .containsExactly("ARG");
+    verify(columns).close();
+  }
+
+  @Test
+  void missingQualifiedProcedureSuggestsSpecifyingPackageSeparately() throws SQLException {
+    var provider = new GenericCallMetaDataProvider(databaseMetaData);
+    var procedures = mockProcedures();
+    var functions = mockFunctions();
+    given(databaseMetaData.getProcedures(null, null, "PKG.EXECUTE")).willReturn(procedures);
+    given(databaseMetaData.getFunctions(null, null, "PKG.EXECUTE")).willReturn(functions);
+
+    assertThatExceptionOfType(InvalidDataAccessApiUsageException.class)
+            .isThrownBy(() -> provider.initializeWithProcedureColumnMetaData(databaseMetaData, null, null, "pkg.execute"))
+            .withMessageContaining(".withCatalogName(\"PKG\")");
   }
 
   private ResultSet mockProcedures(Procedure... procedures) {

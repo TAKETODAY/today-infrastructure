@@ -18,7 +18,13 @@
 
 package infra.cache.aspectj;
 
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
 import java.util.Arrays;
+
+import javax.cache.annotation.CacheKey;
+import javax.cache.annotation.CacheResult;
 
 import infra.cache.Cache;
 import infra.cache.CacheManager;
@@ -33,6 +39,9 @@ import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.contextsupport.testfixture.jcache.AbstractJCacheAnnotationTests;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 /**
  * @author Stephane Nicoll
  */
@@ -41,6 +50,29 @@ public class JCacheAspectJJavaConfigTests extends AbstractJCacheAnnotationTests 
   @Override
   protected ApplicationContext getApplicationContext() {
     return new AnnotationConfigApplicationContext(EnableCachingConfig.class);
+  }
+
+  @Test
+  void cacheMissPropagatesOriginalCheckedExceptionWithoutCaching() throws IOException {
+    FailingCacheableService service = new FailingCacheableService();
+    IOException failure = new IOException("JCache load failed");
+
+    assertThatThrownBy(() -> service.load(this.keyItem, failure)).isSameAs(failure);
+
+    assertThat(this.ctx.getBean("defaultCache", Cache.class).get(this.keyItem)).isNull();
+    assertThat(service.load(this.keyItem, null)).isEqualTo(this.keyItem);
+    assertThat(service.load(this.keyItem, failure)).isEqualTo(this.keyItem);
+  }
+
+  static class FailingCacheableService {
+
+    @CacheResult(cacheName = DEFAULT_CACHE)
+    public String load(@CacheKey String key, IOException failure) throws IOException {
+      if (failure != null) {
+        throw failure;
+      }
+      return key;
+    }
   }
 
   @Configuration

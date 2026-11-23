@@ -19,12 +19,15 @@
 package infra.app.diagnostics.analyzer;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.properties.ConfigurationProperties;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.test.classpath.ClassPathExclusions;
 import infra.validation.annotation.Validated;
+import jakarta.validation.ValidationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -36,6 +39,27 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 @ClassPathExclusions("hibernate-validator-*.jar")
 class JakartaApiValidationExceptionFailureAnalyzerTests {
+
+  @ParameterizedTest
+  @ValueSource(strings = { "Bean Validation", "Jakarta Bean Validation" })
+  void recognizesMissingProvidersReportedByOlderValidationApis(String api) {
+    var failure = new ValidationException("Unable to create a Configuration, because no " + api
+            + " provider could be found. Add a provider to the classpath.");
+
+    var analysis = new ValidationExceptionFailureAnalyzer().analyze(new IllegalStateException(failure));
+
+    assertThat(analysis).isNotNull();
+    assertThat(analysis.getCause()).isSameAs(failure);
+    assertThat(analysis.getDescription()).contains("no implementation could be found");
+    assertThat(analysis.getAction()).contains("Hibernate Validator");
+  }
+
+  @Test
+  void ignoresValidationExceptionsUnrelatedToMissingProviders() {
+    var analyzer = new ValidationExceptionFailureAnalyzer();
+    assertThat(analyzer.analyze(new ValidationException())).isNull();
+    assertThat(analyzer.analyze(new ValidationException("Invalid constraint declaration"))).isNull();
+  }
 
   @Test
   void validatedPropertiesTest() {

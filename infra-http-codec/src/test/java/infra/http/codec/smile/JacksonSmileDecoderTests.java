@@ -55,6 +55,15 @@ class JacksonSmileDecoderTests extends AbstractDecoderTests<JacksonSmileDecoder>
     super(new JacksonSmileDecoder());
   }
 
+  @Test
+  void honorsMediaTypesWithAnExplicitMapperOrBuilder() {
+    MimeType custom = new MimeType("application", "example+x-jackson-smile");
+    assertThat(new JacksonSmileDecoder(this.mapper).getDecodableMimeTypes()).contains(SMILE_MIME_TYPE);
+    assertThat(new JacksonSmileDecoder(SmileMapper.builder()).getDecodableMimeTypes()).contains(SMILE_MIME_TYPE);
+    assertThat(new JacksonSmileDecoder(this.mapper, custom).getDecodableMimeTypes()).containsExactly(custom);
+    assertThat(new JacksonSmileDecoder(SmileMapper.builder(), custom).getDecodableMimeTypes()).containsExactly(custom);
+  }
+
   @Override
   @Test
   protected void canDecode() {

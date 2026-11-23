@@ -20,20 +20,31 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
+import infra.beans.factory.BeanNotOfRequiredTypeException;
+import infra.beans.factory.NoUniqueBeanDefinitionException;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Import;
 import infra.core.MethodParameter;
 import infra.web.HttpContext;
 import infra.web.MockHandlerParameter;
+import infra.web.annotation.RequestParam;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.method.ParameterResolverNotFoundException;
 import infra.web.handler.method.ParameterResolvingRegistry;
 import infra.web.handler.method.ParameterResolvingStrategy;
+import infra.web.handler.method.RegistryHandlerParameterFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -87,6 +98,34 @@ class ParameterResolvingRegistryTests {
   }
 
   @Test
+  void optionalParameterCanMatchStrategyInDefaultGroup() throws NoSuchMethodException {
+    var registry = new ParameterResolvingRegistry();
+    var strategy = new ParameterResolvingStrategy0();
+    registry.addDefaultStrategies(strategy);
+
+    assertThat(registry.findStrategy(new HandlerParameter(optionalParameter()))).isSameAs(strategy);
+  }
+
+  @Test
+  void customStrategyCanResolveOptionalParameter() throws Exception {
+    try (var context = new AnnotationConfigApplicationContext(AppConfig.class)) {
+      var registry = context.getBean(ParameterResolvingRegistry.class);
+      var factory = new RegistryHandlerParameterFactory(registry);
+      var parameter = factory.createParameter(optionalParameter());
+
+      assertThat(registry.obtainStrategy(parameter)).isSameAs(context.getBean(ParameterResolvingStrategy0.class));
+      assertThat(parameter.resolveArgument(mock(HttpContext.class))).isEqualTo(Optional.of(42));
+    }
+  }
+
+  private MethodParameter optionalParameter() throws NoSuchMethodException {
+    return MethodParameter.forExecutable(getClass().getDeclaredMethod("optionalQuery", Optional.class), 0);
+  }
+
+  void optionalQuery(@RequestParam("value") Optional<Integer> value) {
+  }
+
+  @Test
   void fallbackRegistryUsesBuiltInStrategiesAndIsReused() {
     try (var context = new AnnotationConfigApplicationContext()) {
       context.refresh();
@@ -96,6 +135,73 @@ class ParameterResolvingRegistryTests {
       assertThat(fallback.contains(RequestParamMethodArgumentResolver.class)).isTrue();
       assertThat(ParameterResolvingRegistryFactory.getOrCreate(context)).isSameAs(fallback);
       assertThat(context.getBean("parameterResolvingRegistry")).isSameAs(fallback);
+    }
+  }
+
+  @Test
+  void ambiguousRegistryBeansDoNotTriggerFallback() {
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.registerBean("firstRegistry", ParameterResolvingRegistry.class);
+      context.registerBean("secondRegistry", ParameterResolvingRegistry.class);
+      context.refresh();
+
+      assertThatThrownBy(() -> ParameterResolvingRegistryFactory.getOrCreate(context))
+              .isInstanceOf(NoUniqueBeanDefinitionException.class);
+      assertThat(context.getBeanNamesForType(ParameterResolvingRegistry.class))
+              .containsExactlyInAnyOrder("firstRegistry", "secondRegistry");
+    }
+  }
+
+  @Test
+  void primaryRegistryBeanIsReused() {
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.registerBean("firstRegistry", ParameterResolvingRegistry.class);
+      context.registerBean("primaryRegistry", ParameterResolvingRegistry.class, definition -> definition.setPrimary(true));
+      context.refresh();
+
+      assertThat(ParameterResolvingRegistryFactory.getOrCreate(context)).isSameAs(context.getBean("primaryRegistry"));
+      assertThat(context.containsBean("parameterResolvingRegistry")).isFalse();
+    }
+  }
+
+  @Test
+  void singletonWithReservedNameAndWrongTypeIsNotReplaced() {
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.getBeanFactory().registerSingleton("parameterResolvingRegistry", "not a registry");
+      context.refresh();
+
+      assertThatThrownBy(() -> ParameterResolvingRegistryFactory.getOrCreate(context))
+              .isInstanceOf(BeanNotOfRequiredTypeException.class);
+      assertThat(context.getBean("parameterResolvingRegistry")).isEqualTo("not a registry");
+    }
+  }
+
+  @Test
+  void concurrentFirstLookupsShareFallbackRegistry() throws Exception {
+    try (var context = new AnnotationConfigApplicationContext()) {
+      context.refresh();
+      int callers = 8;
+      var start = new CyclicBarrier(callers);
+      var lookups = new ArrayList<Future<ParameterResolvingRegistry>>(callers);
+      var executor = Executors.newFixedThreadPool(callers);
+      try {
+        for (int i = 0; i < callers; i++) {
+          lookups.add(executor.submit(() -> {
+            start.await(10, TimeUnit.SECONDS);
+            return ParameterResolvingRegistryFactory.getOrCreate(context);
+          }));
+        }
+
+        var registry = lookups.get(0).get(10, TimeUnit.SECONDS);
+        for (var lookup : lookups) {
+          assertThat(lookup.get(10, TimeUnit.SECONDS)).isSameAs(registry);
+        }
+        assertThat(context.getBeansOfType(ParameterResolvingRegistry.class))
+                .containsOnlyKeys("parameterResolvingRegistry").containsValue(registry);
+      }
+      finally {
+        executor.shutdownNow();
+      }
     }
   }
 
@@ -119,13 +225,13 @@ class ParameterResolvingRegistryTests {
 
     @Override
     public boolean supportsParameter(HandlerParameter parameter) {
-      return parameter.getParameterType() == String.class;
+      return parameter.is(String.class) || parameter.is(Optional.class);
     }
 
     @Nullable
     @Override
     public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
-      return null;
+      return parameter.is(Optional.class) ? Optional.of(42) : null;
     }
   }
 

@@ -19,17 +19,30 @@
 package infra.http.codec;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
+import java.io.ByteArrayInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import infra.core.io.ByteArrayResource;
+import infra.core.ResolvableType;
+import infra.core.io.FileSystemResource;
+import infra.core.io.InputStreamResource;
 import infra.core.io.Resource;
 import infra.http.HttpHeaders;
 import infra.http.HttpRange;
 import infra.http.HttpStatus;
+import infra.http.MediaType;
+import infra.http.reactive.ZeroCopyHttpOutputMessage;
+import infra.http.reactive.server.ServerHttpResponse;
 import infra.util.MimeType;
 import infra.util.StringUtils;
 import infra.web.testfixture.http.server.reactive.MockServerHttpRequest;
@@ -40,6 +53,10 @@ import reactor.test.StepVerifier;
 import static infra.http.MediaType.TEXT_PLAIN;
 import static infra.web.testfixture.http.server.reactive.MockServerHttpRequest.get;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * Unit tests for {@link ResourceHttpMessageWriter}.
@@ -66,6 +83,57 @@ public class ResourceHttpMessageWriterTests {
 
   private final Mono<Resource> input = Mono.just(new ByteArrayResource(
           "Infra  Framework test resource content.".getBytes(StandardCharsets.UTF_8)));
+
+  @ParameterizedTest
+  @ValueSource(booleans = { false, true })
+  void sendsFileOrRequestedRegionThroughZeroCopy(boolean range, @TempDir Path directory) throws Exception {
+    Path path = Files.writeString(directory.resolve("example.txt"), "abcdefghij");
+    var resource = new FileSystemResource(path);
+    var requestBuilder = get("/");
+    if (range) {
+      requestBuilder.range(of(2, 4));
+    }
+    ServerHttpResponse response = mock(ServerHttpResponse.class, withSettings().extraInterfaces(ZeroCopyHttpOutputMessage.class));
+    ZeroCopyHttpOutputMessage zeroCopyResponse = (ZeroCopyHttpOutputMessage) response;
+    HttpHeaders headers = HttpHeaders.forWritable();
+    long position = range ? 2 : 0;
+    long count = range ? 3 : 10;
+    given(response.getHeaders()).willReturn(headers);
+    given(zeroCopyResponse.writeWith(path, position, count)).willReturn(Mono.empty());
+
+    StepVerifier.create(this.writer.write(Mono.just(resource), null, ResolvableType.forClass(Resource.class),
+                    MediaType.APPLICATION_OCTET_STREAM, requestBuilder.build(), response, HINTS))
+            .expectComplete().verify(Duration.ofSeconds(5));
+
+    then(zeroCopyResponse).should().writeWith(path, position, count);
+    assertThat(headers.getContentLength()).isEqualTo(count);
+    assertThat(headers.getContentType()).isEqualTo(TEXT_PLAIN);
+    if (range) {
+      then(response).should().setStatusCode(HttpStatus.PARTIAL_CONTENT);
+      assertThat(headers.getFirst(HttpHeaders.CONTENT_RANGE)).isEqualTo("bytes 2-4/10");
+    }
+  }
+
+  @Test
+  void writesAOneShotStreamWithoutReadingItToDetermineLength() {
+    byte[] bytes = "one-shot body".getBytes(StandardCharsets.UTF_8);
+    Resource resource = new InputStreamResource(new ByteArrayInputStream(bytes));
+    StepVerifier.create(this.writer.write(Mono.just(resource), ResolvableType.forClass(Resource.class),
+                    MediaType.ALL, this.response, HINTS))
+            .expectComplete().verify(Duration.ofSeconds(5));
+
+    assertThat(this.response.getHeaders().getContentLength()).isEqualTo(-1);
+    StepVerifier.create(this.response.getBodyAsString()).expectNext("one-shot body").expectComplete().verify(Duration.ofSeconds(5));
+  }
+
+  @Test
+  void preservesExplicitContentLength() {
+    this.response.getHeaders().setContentLength(39);
+    StepVerifier.create(this.writer.write(this.input, ResolvableType.forClass(Resource.class), TEXT_PLAIN, this.response, HINTS))
+            .expectComplete().verify(Duration.ofSeconds(5));
+    assertThat(this.response.getHeaders().getContentLength()).isEqualTo(39);
+    assertThat(this.response.getBodyAsString().block(Duration.ofSeconds(5))).hasSize(39);
+  }
 
   @Test
   @SuppressWarnings({ "unchecked", "rawtypes" })

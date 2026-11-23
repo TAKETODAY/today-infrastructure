@@ -18,6 +18,7 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,11 +32,13 @@ import java.sql.Savepoint;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
+import infra.core.MethodParameter;
 import infra.core.annotation.AliasFor;
+import infra.core.conversion.ConversionService;
 import infra.format.annotation.DateTimeFormat;
 import infra.http.HttpEntity;
 import infra.http.HttpMethod;
@@ -45,6 +48,7 @@ import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.stereotype.Controller;
 import infra.util.MultiValueMap;
+import infra.web.HttpContext;
 import infra.web.HttpContextHolder;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.PathVariable;
@@ -54,6 +58,7 @@ import infra.web.annotation.RequestParam;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.PathMatchConfigurer;
 import infra.web.config.annotation.WebMvcConfigurer;
+import infra.web.handler.method.support.UriComponentsContributor;
 import infra.web.util.UriComponents;
 import infra.web.util.UriComponentsBuilder;
 import infra.web.view.ModelAndView;
@@ -229,13 +234,41 @@ class MvcUriComponentsBuilderTests {
     assertThat(uriComponents.toUriString()).isEqualTo("http://localhost/something/optional-param");
   }
 
-  @Test  // gh-22656
-  public void fromMethodNameWithOptionalNamedParam() {
+  @Test
+  public void fromMethodNameWithNullableNamedParam() {
     UriComponents uriComponents = fromMethodName(ControllerWithMethods.class,
-            "methodWithOptionalNamedParam", Optional.of("foo")).build();
+            "methodWithNullableNamedParam", "foo").build();
 
     assertThat(uriComponents.toUriString())
             .isEqualTo("http://localhost/something/optional-param-with-name?search=foo");
+  }
+
+  @Test
+  void fromMethodNameUsesCustomUriContributorBeforeBuiltInContributor() {
+    try (var context = new AnnotationConfigApplicationContext(WebConfig.class, CustomQueryContributor.class)) {
+      HttpContextHolder.set(new MockHttpContext(context, this.request, this.response));
+
+      assertThat(fromMethodName(ControllerWithMethods.class, "methodWithNullableNamedParam", "foo").toUriString())
+              .isEqualTo("http://localhost/something/optional-param-with-name?customSearch=foo");
+    }
+  }
+
+  @Test
+  void fromMethodNameSkipsArgumentHandledByCustomResolverWithoutUriContribution() {
+    try (var context = new AnnotationConfigApplicationContext(WebConfig.class, CustomQueryResolver.class)) {
+      HttpContextHolder.set(new MockHttpContext(context, this.request, this.response));
+
+      assertThat(fromMethodName(ControllerWithMethods.class, "methodWithNullableNamedParam", "foo").toUriString())
+              .isEqualTo("http://localhost/something/optional-param-with-name");
+    }
+  }
+
+  @Test
+  public void fromMethodNameWithMissingNullableNamedParam() {
+    UriComponents uriComponents = fromMethodName(ControllerWithMethods.class,
+            "methodWithNullableNamedParam", new Object[] { null }).build();
+
+    assertThat(uriComponents.toUriString()).isEqualTo("http://localhost/something/optional-param-with-name");
   }
 
   @Test
@@ -476,6 +509,38 @@ class MvcUriComponentsBuilderTests {
     HttpContextHolder.set(new MockHttpContext(context, request, new MockResponse()));
   }
 
+  static class CustomQueryResolver implements ParameterResolvingStrategy {
+
+    @Override
+    public boolean supportsParameter(HandlerParameter parameter) {
+      return supports(parameter.getMethodParameter());
+    }
+
+    static boolean supports(MethodParameter parameter) {
+      RequestParam annotation = parameter.getParameterAnnotation(RequestParam.class);
+      return annotation != null && annotation.value().equals("search");
+    }
+
+    @Override
+    public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
+      return "custom";
+    }
+  }
+
+  static class CustomQueryContributor extends CustomQueryResolver implements UriComponentsContributor {
+
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+      return supports(parameter);
+    }
+
+    @Override
+    public void contributeMethodArgument(MethodParameter parameter, Object value, UriComponentsBuilder builder,
+            Map<String, Object> uriVariables, ConversionService conversionService) {
+      builder.queryParam("customSearch", value);
+    }
+  }
+
   static class Person {
 
     Long id;
@@ -573,7 +638,7 @@ class MvcUriComponentsBuilderTests {
     }
 
     @GetMapping("/optional-param-with-name")
-    HttpEntity<Void> methodWithOptionalNamedParam(@RequestParam("search") Optional<String> q) {
+    HttpEntity<Void> methodWithNullableNamedParam(@RequestParam("search") @Nullable String q) {
       return null;
     }
   }
