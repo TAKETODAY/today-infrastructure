@@ -69,8 +69,7 @@ public class ResourceBasedMessageSourceConfigurer {
   public void configure(AbstractResourceBasedMessageSource messageSource) {
     Assert.notNull(messageSource, "'messageSource' is required");
     if (StringUtils.hasText(this.properties.getBasename())) {
-      messageSource.setBasenames(StringUtils.commaDelimitedListToStringArray(
-              StringUtils.trimAllWhitespace(this.properties.getBasename())));
+      messageSource.setBasenames(StringUtils.tokenizeToStringArray(this.properties.getBasename(), ","));
     }
     if (this.properties.getEncoding() != null) {
       messageSource.setDefaultCharset(this.properties.getEncoding());
