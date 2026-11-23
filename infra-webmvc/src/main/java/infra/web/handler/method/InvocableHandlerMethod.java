@@ -37,6 +37,7 @@ import infra.web.HttpContext;
 import infra.web.HttpRequestHandler;
 import infra.web.annotation.ResponseStatus;
 import infra.web.bind.WebDataBinder;
+import infra.web.util.WebUtils;
 import infra.web.view.View;
 
 /**
@@ -155,7 +156,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
   /**
    * Set the response status according to the {@link ResponseStatus} annotation.
    */
-  private void applyResponseStatus(HttpContext response) throws IOException {
+  private void applyResponseStatus(HttpContext context) throws IOException {
     HttpStatusCode status = getResponseStatus();
     if (status == null) {
       return;
@@ -163,14 +164,18 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
     String reason = getResponseStatusReason();
     if (StringUtils.hasText(reason)) {
-      response.sendError(status.value(), reason);
+      MessageSource messageSource = getMessageSource();
+      if (messageSource != null) {
+        reason = messageSource.getMessage(reason, null, reason, WebUtils.resolveLocale(context));
+      }
+      context.sendError(status.value(), reason);
     }
     else {
-      response.setStatus(status);
+      context.setStatus(status);
     }
 
     // To be picked up by RedirectView
-    response.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, status);
+    context.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, status);
   }
 
   /**

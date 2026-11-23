@@ -37,7 +37,7 @@ import infra.context.support.ApplicationObjectSupport;
 import infra.context.support.StaticApplicationContext;
 import infra.core.MethodParameter;
 import infra.core.annotation.Order;
-import infra.core.i18n.LocaleContextHolder;
+import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
@@ -447,7 +447,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     Locale locale = Locale.ENGLISH;
     context.addMessage("gateway.timeout", locale, "Gateway Timeout");
     context.refresh();
-    LocaleContextHolder.setLocale(locale);
+    this.request.addHeader(HttpHeaders.ACCEPT_LANGUAGE, locale.toLanguageTag());
     this.handler.setApplicationContext(context);
     this.handler.afterPropertiesSet();
 
