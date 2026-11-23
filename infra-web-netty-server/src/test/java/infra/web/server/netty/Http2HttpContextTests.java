@@ -243,6 +243,31 @@ class Http2HttpContextTests {
   }
 
   @Test
+  void rejectedContinueEndsStreamWithoutDispatchingRequest() throws Exception {
+    var dispatcher = mock(DispatcherHandler.class);
+    requestHeaders.method("POST").set("expect", "100-continue").setInt("content-length", 1);
+    var context = createContext(dispatcher, config(10), requestHeaders);
+    when(dispatcher.requestContinueExpected(context)).thenReturn(false);
+
+    context.run();
+
+    var frame = ArgumentCaptor.forClass(Http2HeadersFrame.class);
+    then(channel).should().writeAndFlush(frame.capture());
+    assertThat(frame.getValue().headers().status().toString()).isEqualTo("417");
+    assertThat(frame.getValue().headers().getInt("content-length")).isZero();
+    assertThat(frame.getValue().isEndStream()).isTrue();
+    then(dispatcher).should(never()).handleRequest(context);
+  }
+
+  @Test
+  void connectWithoutPathUsesRootAndDoesNotInventHost() {
+    var context = createContext(mock(), config(10), new DefaultHttp2Headers().method("CONNECT"));
+
+    assertThat(context.requestUri()).isEqualTo("/");
+    assertThat(context.containsHeader("host")).isFalse();
+  }
+
+  @Test
   void unsupportedExpectationDoesNotTriggerContinue() {
     requestHeaders.set("expect", "something-else");
 
