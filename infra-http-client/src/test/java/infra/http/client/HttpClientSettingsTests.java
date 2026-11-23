@@ -44,16 +44,29 @@ class HttpClientSettingsTests {
     assertThat(settings.connectTimeout()).isNull();
     assertThat(settings.readTimeout()).isNull();
     assertThat(settings.sslBundle()).isNull();
+    assertThat(settings.inetAddressFilter()).isNull();
   }
 
   @Test
   void createWithNulls() {
+    HttpClientSettings settings = new HttpClientSettings(null, null, null, null, null, null);
+    assertThat(settings.cookieHandling()).isNull();
+    assertThat(settings.redirects()).isNull();
+    assertThat(settings.connectTimeout()).isNull();
+    assertThat(settings.readTimeout()).isNull();
+    assertThat(settings.sslBundle()).isNull();
+    assertThat(settings.inetAddressFilter()).isNull();
+  }
+
+  @Test
+  void createWithoutFilter() {
     HttpClientSettings settings = new HttpClientSettings(null, null, null, null, null);
     assertThat(settings.cookieHandling()).isNull();
     assertThat(settings.redirects()).isNull();
     assertThat(settings.connectTimeout()).isNull();
     assertThat(settings.readTimeout()).isNull();
     assertThat(settings.sslBundle()).isNull();
+    assertThat(settings.inetAddressFilter()).isNull();
   }
 
   @Test
@@ -104,16 +117,29 @@ class HttpClientSettingsTests {
   }
 
   @Test
+  void withInetAddressFilterReturnsInstanceWithUpdatedFilter() {
+    InetAddressFilter filter = mock(InetAddressFilter.class);
+    HttpClientSettings settings = HttpClientSettings.defaults().withInetAddressFilter(filter);
+    assertThat(settings.redirects()).isNull();
+    assertThat(settings.connectTimeout()).isNull();
+    assertThat(settings.readTimeout()).isNull();
+    assertThat(settings.sslBundle()).isNull();
+    assertThat(settings.inetAddressFilter()).isSameAs(filter);
+  }
+
+  @Test
   void orElseReturnsNewInstanceWithUpdatedValues() {
     SslBundle sslBundle = mock(SslBundle.class);
-    HttpClientSettings settings = new HttpClientSettings(null, null, ONE_SECOND, null, null)
+    InetAddressFilter filter = mock(InetAddressFilter.class);
+    HttpClientSettings settings = new HttpClientSettings(null, null, ONE_SECOND, null, null, null)
             .orElse(new HttpClientSettings(HttpCookieHandling.ENABLE, HttpRedirects.FOLLOW_WHEN_POSSIBLE, TWO_SECONDS,
-                    TWO_SECONDS, sslBundle));
+                    TWO_SECONDS, sslBundle, filter));
     assertThat(settings.cookieHandling()).isEqualTo(HttpCookieHandling.ENABLE);
     assertThat(settings.redirects()).isEqualTo(HttpRedirects.FOLLOW_WHEN_POSSIBLE);
     assertThat(settings.connectTimeout()).isEqualTo(ONE_SECOND);
     assertThat(settings.readTimeout()).isEqualTo(TWO_SECONDS);
     assertThat(settings.sslBundle()).isEqualTo(sslBundle);
+    assertThat(settings.inetAddressFilter()).isSameAs(filter);
   }
 
   @Test

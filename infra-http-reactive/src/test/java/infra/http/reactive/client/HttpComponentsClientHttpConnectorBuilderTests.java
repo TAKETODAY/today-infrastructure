@@ -18,6 +18,7 @@
 
 package infra.http.reactive.client;
 
+import org.apache.hc.client5.http.DnsResolver;
 import org.apache.hc.client5.http.HttpRoute;
 import org.apache.hc.client5.http.async.HttpAsyncClient;
 import org.apache.hc.client5.http.config.ConnectionConfig;
@@ -36,11 +37,13 @@ import java.util.function.Function;
 import infra.core.ssl.SslBundle;
 import infra.http.client.HttpClientSettings;
 import infra.http.client.HttpComponentsHttpAsyncClientBuilder;
+import infra.http.client.InetAddressFilter;
 import infra.test.classpath.resources.WithPackageResources;
 import infra.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link HttpComponentsClientHttpConnectorBuilder} and
@@ -103,6 +106,23 @@ class HttpComponentsClientHttpConnectorBuilderTests
             .withTlsSocketStrategyFactory(tlsSocketStrategyFactory)
             .build(settings);
     assertThat(bundles).contains(settings.sslBundle());
+  }
+
+  @Test
+  void withDnsResolver() {
+    DnsResolver resolver = mock(DnsResolver.class);
+    var connector = ClientHttpConnectorBuilder.httpComponents().withDnsResolver(resolver).build();
+    assertThat(connector).extracting("client.manager.connectionOperator.sessionRequester.dnsResolver").isSameAs(resolver);
+  }
+
+  @Test
+  void withDnsResolverWhenHasInetAddressFilter() {
+    DnsResolver resolver = mock(DnsResolver.class);
+    HttpClientSettings settings = HttpClientSettings.defaults().withInetAddressFilter(InetAddressFilter.externalAddresses());
+    var connector = ClientHttpConnectorBuilder.httpComponents().withDnsResolver(resolver).build(settings);
+    assertThat(connector).extracting("client.manager.connectionOperator.sessionRequester.dnsResolver").satisfies(actual ->
+            assertThat(actual.getClass().getSimpleName()).isEqualTo("HttpComponentsFilteredDnsResolver"));
+    assertThat(connector).extracting("client.manager.connectionOperator.sessionRequester.dnsResolver.delegate").isSameAs(resolver);
   }
 
   @Test

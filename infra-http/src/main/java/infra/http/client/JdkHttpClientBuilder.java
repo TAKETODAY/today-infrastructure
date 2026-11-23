@@ -20,8 +20,12 @@ package infra.http.client;
 
 import org.jspecify.annotations.Nullable;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.net.CookieHandler;
 import java.net.CookieManager;
+import java.net.ProxySelector;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
 import java.util.concurrent.Executor;
@@ -44,14 +48,31 @@ import infra.util.Assert;
  */
 public final class JdkHttpClientBuilder {
 
-  private final Consumer<HttpClient.Builder> customizer;
+  private static final Method builderProxyMethod;
 
-  public JdkHttpClientBuilder() {
-    this(Empty.consumer());
+  private static final Method builderCookieHandlerMethod;
+
+  static {
+    try {
+      builderProxyMethod = HttpClient.Builder.class.getMethod("proxy", ProxySelector.class);
+      builderCookieHandlerMethod = HttpClient.Builder.class.getMethod("cookieHandler", CookieHandler.class);
+    }
+    catch (NoSuchMethodException ex) {
+      throw new IllegalStateException(ex);
+    }
   }
 
-  private JdkHttpClientBuilder(Consumer<HttpClient.Builder> customizer) {
+  private final Consumer<HttpClient.Builder> customizer;
+
+  private final @Nullable ProxySelector proxySelector;
+
+  public JdkHttpClientBuilder() {
+    this(Empty.consumer(), null);
+  }
+
+  private JdkHttpClientBuilder(Consumer<HttpClient.Builder> customizer, @Nullable ProxySelector proxySelector) {
     this.customizer = customizer;
+    this.proxySelector = proxySelector;
   }
 
   /**
@@ -75,7 +96,19 @@ public final class JdkHttpClientBuilder {
    */
   public JdkHttpClientBuilder withCustomizer(Consumer<HttpClient.Builder> customizer) {
     Assert.notNull(customizer, "'customizer' is required");
-    return new JdkHttpClientBuilder(this.customizer.andThen(customizer));
+    return new JdkHttpClientBuilder(this.customizer.andThen(customizer), this.proxySelector);
+  }
+
+  /**
+   * Return a new builder with a replacement {@link ProxySelector}.
+   *
+   * @param proxySelector the new proxy selector
+   * @return a new {@link JdkHttpClientBuilder} instance
+   * @since 5.0
+   */
+  public JdkHttpClientBuilder withProxySelector(ProxySelector proxySelector) {
+    Assert.notNull(proxySelector, "ProxySelector is required");
+    return new JdkHttpClientBuilder(this.customizer, proxySelector);
   }
 
   /**
@@ -87,11 +120,11 @@ public final class JdkHttpClientBuilder {
   public HttpClient build(@Nullable HttpClientSettings settings) {
     settings = settings != null ? settings : HttpClientSettings.defaults();
     Assert.isTrue(settings.readTimeout() == null, "'settings' must not have a 'readTimeout'");
-    HttpClient.Builder builder = HttpClient.newBuilder();
+    HttpClient.Builder builder = getBuilder(settings.inetAddressFilter());
 
     if (settings.cookieHandling() != null) {
       CookieHandler cookieHandler = asCookieHandler(settings.cookieHandling());
-      if (cookieHandler != null) {
+      if (cookieHandler != null || settings.inetAddressFilter() != null) {
         builder.cookieHandler(cookieHandler);
       }
     }
@@ -107,8 +140,39 @@ public final class JdkHttpClientBuilder {
       builder.sslParameters(asSslParameters(settings.sslBundle()));
     }
 
-    customizer.accept(builder);
+    if (this.proxySelector != null) {
+      builder.proxy(this.proxySelector);
+    }
+    this.customizer.accept(builder);
     return builder.build();
+  }
+
+  private HttpClient.Builder getBuilder(@Nullable InetAddressFilter filter) {
+    HttpClient.Builder delegate = HttpClient.newBuilder();
+    if (filter == null) {
+      return delegate;
+    }
+    UrlHostFilter hostFilter = new UrlHostFilter(filter);
+    ProxySelector defaultProxySelector = ProxySelector.getDefault();
+    delegate.proxy(new JdkFilteredProxySelector(
+            defaultProxySelector != null ? defaultProxySelector : ProxySelector.of(null), hostFilter));
+    delegate.cookieHandler(new JdkFilteredCookieHandler(CookieHandler.getDefault(), hostFilter));
+    return (HttpClient.Builder) Proxy.newProxyInstance(getClass().getClassLoader(),
+            new Class<?>[] { HttpClient.Builder.class }, (proxy, method, args) -> {
+              if (builderProxyMethod.equals(method)) {
+                args[0] = new JdkFilteredProxySelector((ProxySelector) args[0], hostFilter);
+              }
+              else if (builderCookieHandlerMethod.equals(method)) {
+                args[0] = new JdkFilteredCookieHandler((CookieHandler) args[0], hostFilter);
+              }
+              try {
+                Object result = method.invoke(delegate, args);
+                return result == delegate ? proxy : result;
+              }
+              catch (InvocationTargetException ex) {
+                throw ex.getCause();
+              }
+            });
   }
 
   private SSLParameters asSslParameters(SslBundle sslBundle) {

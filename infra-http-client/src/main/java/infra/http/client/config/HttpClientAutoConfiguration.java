@@ -26,6 +26,7 @@ import infra.context.condition.ConditionalOnMissingBean;
 import infra.context.properties.EnableConfigurationProperties;
 import infra.core.ssl.SslBundles;
 import infra.http.client.HttpClientSettings;
+import infra.http.client.InetAddressFilter;
 import infra.stereotype.Component;
 
 /**
@@ -41,8 +42,11 @@ public final class HttpClientAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean
-  public static HttpClientSettings httpClientSettings(@Nullable SslBundles sslBundles, HttpClientsProperties properties) {
-    HttpClientSettingsPropertyMapper propertyMapper = new HttpClientSettingsPropertyMapper(sslBundles, null);
+  public static HttpClientSettings httpClientSettings(@Nullable SslBundles sslBundles, HttpClientsProperties properties,
+          @Nullable InetAddressFilter inetAddressFilter) {
+    HttpClientSettings settings = inetAddressFilter != null
+            ? HttpClientSettings.defaults().withInetAddressFilter(inetAddressFilter) : HttpClientSettings.defaults();
+    HttpClientSettingsPropertyMapper propertyMapper = new HttpClientSettingsPropertyMapper(sslBundles, settings);
     return propertyMapper.map(properties);
   }
 

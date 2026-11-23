@@ -29,6 +29,8 @@ import java.util.function.UnaryOperator;
 import infra.util.Assert;
 import infra.util.ClassUtils;
 import reactor.netty.http.client.HttpClient;
+import reactor.netty.http.client.HttpClientConfig;
+import reactor.netty.transport.ClientTransport.ResolvedAddressSelector;
 
 /**
  * Builder for {@link ClientHttpRequestFactoryBuilder#reactor()}.
@@ -126,6 +128,20 @@ public final class ReactorClientHttpRequestFactoryBuilder extends AbstractClient
     }
 
     return requestFactory;
+  }
+
+  /**
+   * Return a new builder with the given resolved address selector. Use this method
+   * rather than a customizer so the configured address filter can wrap the selector.
+   *
+   * @param resolvedAddressSelector the resolved address selector to use
+   * @return a new {@link ReactorClientHttpRequestFactoryBuilder} instance
+   * @since 5.0
+   */
+  public ReactorClientHttpRequestFactoryBuilder withResolvedAddressSelector(
+          ResolvedAddressSelector<? super HttpClientConfig> resolvedAddressSelector) {
+    return new ReactorClientHttpRequestFactoryBuilder(getCustomizers(),
+            this.httpClientBuilder.withResolvedAddressSelector(resolvedAddressSelector));
   }
 
   static class Classes {

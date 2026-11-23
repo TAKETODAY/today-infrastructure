@@ -45,6 +45,50 @@ http:
 有 `SslBundles` Bean 时，可以通过 `infra.web.client.config.RestClientSsl` 或 `infra.web.reactive.client.config.WebClientSsl` 为 Builder 应用指定 Bundle。
 SSL Bundle 必须先由应用配置或代码注册，不能引用不存在的名称。
 
+== 限制 HTTP 客户端可访问的 IP 地址
+
+如果应用需要请求由用户提供的 URL，可以使用 `InetAddressFilter` 限制目标地址，降低服务端请求伪造（SSRF）的风险。
+`infra.http.client.InetAddressFilter` 支持精确 IP 地址、CIDR 网段以及 `and`、`or`、`andNot` 和 `negate` 组合操作。
+例如，`InetAddressFilter.externalAddresses()` 可排除私有地址、组播地址以及 RFC 6890 的特殊用途地址。
+
+为单个客户端配置过滤器：
+
+[source,java]
+----
+HttpClientSettings settings = HttpClientSettings.defaults()
+        .withInetAddressFilter(InetAddressFilter.externalAddresses());
+RestClient client = RestClient.builder()
+        .requestFactory(ClientHttpRequestFactoryBuilder.jdk().build(settings))
+        .baseUrl("https://example.org")
+        .build();
+----
+
+也可将过滤器注册为 Bean，应用到使用自动配置 `HttpClientSettings` 的客户端。例如，只允许访问一个内部网段中的指定范围：
+
+[source,java]
+----
+@Configuration(proxyBeanMethods = false)
+class HttpClientConfiguration {
+
+  @Bean
+  InetAddressFilter httpClientInetAddressFilter() {
+    return InetAddressFilter.of("192.168.1.0/24").andNot("192.168.1.1", "192.168.1.10");
+  }
+}
+----
+
+未配置过滤器时，客户端仍按原有方式建立连接。
+
+配置自定义代理选择器、DNS 解析器或 Reactor Netty 地址选择器时，优先使用相应构建器的专用方法，避免覆盖过滤配置。
+通过反射配置的自定义命令式请求工厂不支持此设置，会明确拒绝带过滤器的配置。
+
+[NOTE]
+====
+地址过滤只约束应用所在进程，不能限制 HTTP 代理代为发起的连接。
+代理可能使用不同的 DNS 解析结果，应在代理端另行配置访问限制。
+JDK 客户端的主机检查不会把检查结果绑定到实际连接使用的 IP；不要将它作为处理不可信 URL 时唯一的网络隔离措施。
+====
+
 == HTTP 服务接口
 
 可以使用 `infra.http.service.annotation.HttpExchange` 及 `GetExchange`、`PostExchange` 等方法级变体定义 Java 接口，将远程调用建模为服务契约。

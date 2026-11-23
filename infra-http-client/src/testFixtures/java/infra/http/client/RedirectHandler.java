@@ -50,7 +50,20 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
 
   private static final String REDIRECT_PATH = "/redirect";
 
-  private static final String REDIRECT_LOCATION = "/redirected";
+  private final String redirectLocation;
+
+  /** Create a handler that redirects to {@code /redirected}. */
+  public RedirectHandler() {
+    this("/redirected");
+  }
+
+  /**
+   * Create a handler with the given redirect location.
+   * @param redirectLocation the value of the Location header
+   */
+  public RedirectHandler(String redirectLocation) {
+    this.redirectLocation = redirectLocation;
+  }
 
   @Override
   public boolean isSharable() {
@@ -82,7 +95,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
   private void handleHttpRequest(ChannelHandlerContext ctx, HttpRequest request) {
     if (REDIRECT_PATH.equals(request.uri())) {
       DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FOUND);
-      response.headers().set(HttpHeaderNames.LOCATION, REDIRECT_LOCATION);
+      response.headers().set(HttpHeaderNames.LOCATION, this.redirectLocation);
       ctx.writeAndFlush(response)
               .addListener(ChannelFutureListener.CLOSE);
     }
@@ -107,7 +120,7 @@ public class RedirectHandler extends ChannelInboundHandlerAdapter {
     if (REDIRECT_PATH.equals(uri)) {
       Http2Headers responseHeaders = new DefaultHttp2Headers()
               .status(HttpResponseStatus.FOUND.codeAsText())
-              .set(HttpHeaderNames.LOCATION, REDIRECT_LOCATION);
+              .set(HttpHeaderNames.LOCATION, this.redirectLocation);
       ctx.writeAndFlush(new DefaultHttp2HeadersFrame(responseHeaders, true));
     }
     else {
