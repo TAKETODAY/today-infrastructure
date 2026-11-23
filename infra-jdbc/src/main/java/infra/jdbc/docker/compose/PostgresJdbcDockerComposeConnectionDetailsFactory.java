@@ -28,6 +28,7 @@ import infra.docker.compose.core.RunningService;
 import infra.docker.compose.service.connection.DockerComposeConnectionDetailsFactory;
 import infra.docker.compose.service.connection.DockerComposeConnectionSource;
 import infra.jdbc.config.JdbcConnectionDetails;
+import infra.jdbc.docker.compose.JdbcUrlBuilder.Encoding;
 import infra.util.StringUtils;
 
 /**
@@ -58,7 +59,7 @@ class PostgresJdbcDockerComposeConnectionDetailsFactory
   static class PostgresJdbcDockerComposeConnectionDetails extends DockerComposeConnectionDetails
           implements JdbcConnectionDetails {
 
-    private static final JdbcUrlBuilder jdbcUrlBuilder = new JdbcUrlBuilder("postgresql", 5432);
+    private static final JdbcUrlBuilder jdbcUrlBuilder = new JdbcUrlBuilder("postgresql", 5432, Encoding.URL);
 
     private final PostgresEnvironment environment;
 
@@ -67,7 +68,7 @@ class PostgresJdbcDockerComposeConnectionDetailsFactory
     PostgresJdbcDockerComposeConnectionDetails(RunningService service, Environment environment) {
       super(service);
       this.environment = new PostgresEnvironment(service.env());
-      String database = urlEncode(this.environment.getDatabase());
+      String database = this.environment.getDatabase();
       this.jdbcUrl = addApplicationNameIfNecessary(jdbcUrlBuilder.build(service, database), environment);
     }
 
@@ -101,11 +102,10 @@ class PostgresJdbcDockerComposeConnectionDetailsFactory
       else if (!jdbcUrl.endsWith("&")) {
         jdbcUrlBuilder.append("&");
       }
-      return jdbcUrlBuilder.append("ApplicationName").append('=').append(urlEncode(applicationName)).toString();
-    }
-
-    private static String urlEncode(String applicationName) {
-      return URLEncoder.encode(applicationName, StandardCharsets.UTF_8);
+      return jdbcUrlBuilder.append("ApplicationName")
+              .append('=')
+              .append(URLEncoder.encode(applicationName, StandardCharsets.UTF_8))
+              .toString();
     }
 
   }
