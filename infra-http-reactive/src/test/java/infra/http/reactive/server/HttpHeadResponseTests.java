@@ -22,6 +22,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.NettyDataBufferFactory;
@@ -31,6 +33,7 @@ import infra.web.testfixture.http.server.reactive.MockServerHttpResponse;
 import io.netty.buffer.PooledByteBufAllocator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -80,6 +83,28 @@ public class HttpHeadResponseTests {
     this.response.getHeaders().add(HttpHeaders.TRANSFER_ENCODING, "chunked");
     this.response.writeWith(body).block();
     assertThat(this.response.getHeaders().getContentLength()).isEqualTo(-1);
+  }
+
+  @Test
+  void emptyMonoSetsContentLengthToZero() {
+    StepVerifier.create(this.response.writeWith(Mono.empty())).expectComplete().verify(Duration.ofSeconds(5));
+
+    assertThat(this.response.getHeaders().getContentLength()).isZero();
+  }
+
+  @Test
+  void streamingHeadCommitsWithoutSubscribingToBody() {
+    AtomicBoolean subscribed = new AtomicBoolean();
+    Flux<Mono<DataBuffer>> groups = Flux.defer(() -> {
+      subscribed.set(true);
+      return Flux.just(Mono.fromSupplier(() -> toDataBuffer("data")));
+    });
+
+    StepVerifier.create(this.response.writeAndFlushWith(groups)).expectComplete().verify(Duration.ofSeconds(5));
+
+    assertThat(this.response.isCommitted()).isTrue();
+    assertThat(this.response.getHeaders().getContentLength()).isEqualTo(-1);
+    assertThat(subscribed).isFalse();
   }
 
   private DataBuffer toDataBuffer(String s) {

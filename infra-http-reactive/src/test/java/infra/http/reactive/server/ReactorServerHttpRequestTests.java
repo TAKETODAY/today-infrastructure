@@ -22,22 +22,40 @@ import org.junit.jupiter.api.Test;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
 
 import infra.core.io.buffer.NettyDataBufferFactory;
 import infra.http.HttpCookie;
 import infra.http.HttpMethod;
 import infra.util.MultiValueMap;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.DefaultChannelId;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
+import io.netty.handler.ssl.SslHandler;
+import reactor.core.publisher.Mono;
+import reactor.netty.ByteBufFlux;
+import reactor.netty.ChannelOperationsId;
+import reactor.netty.Connection;
 import reactor.netty.http.server.HttpServerRequest;
+import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -241,6 +259,140 @@ class ReactorServerHttpRequestTests {
 
     String id = request.initId();
     assertThat(id).isNull();
+  }
+
+  @Test
+  void bodyRetainsNativeBufferForDownstream() throws URISyntaxException {
+    var byteBuf = Unpooled.copiedBuffer("request body", StandardCharsets.UTF_8);
+    given(mockRequest.receive()).willReturn(ByteBufFlux.fromInbound(Mono.just(byteBuf)));
+    ReactorServerHttpRequest request = createRequest(mockRequest, "/");
+
+    try {
+      StepVerifier.create(request.getBody())
+              .assertNext(buffer -> {
+                try {
+                  assertThat(buffer.toString(StandardCharsets.UTF_8)).isEqualTo("request body");
+                  assertThat(byteBuf.refCnt()).isEqualTo(2);
+                }
+                finally {
+                  buffer.release();
+                }
+              })
+              .expectComplete().verify(Duration.ofSeconds(5));
+      assertThat(byteBuf.refCnt()).isEqualTo(1);
+    }
+    finally {
+      byteBuf.release();
+    }
+  }
+
+  @Test
+  void usesChannelIdWhenOperationsIdIsUnavailable() throws URISyntaxException {
+    HttpServerRequest nativeRequest = mock(HttpServerRequest.class,
+            withSettings().extraInterfaces(Connection.class, ChannelOperationsId.class));
+    Channel channel = mock(Channel.class);
+    DefaultChannelId channelId = DefaultChannelId.newInstance();
+    given(((Connection) nativeRequest).channel()).willReturn(channel);
+    given(channel.id()).willReturn(channelId);
+    ReactorServerHttpRequest request = createRequest(nativeRequest, "/");
+
+    String requestId = request.getId();
+    assertThat(requestId).startsWith(channelId.asShortText() + "-");
+    assertThat(request.getId()).isEqualTo(requestId);
+    String logPrefix = request.getLogPrefix();
+    assertThat(logPrefix).startsWith("[" + channelId.asShortText() + "-").endsWith("] ");
+    assertThat(request.getLogPrefix()).isEqualTo(logPrefix);
+  }
+
+  @Test
+  void prefersOperationsIdForLogPrefix() throws URISyntaxException {
+    HttpServerRequest nativeRequest = mock(HttpServerRequest.class,
+            withSettings().extraInterfaces(ChannelOperationsId.class));
+    ChannelOperationsId operationsId = (ChannelOperationsId) nativeRequest;
+    given(operationsId.asShortText()).willReturn("operation");
+    given(operationsId.asLongText()).willReturn("channel-operation");
+    ReactorServerHttpRequest request = createRequest(nativeRequest, "/");
+
+    assertThat(request.getLogPrefix()).isIn("[operation] ", "[channel-operation] ");
+  }
+
+  @Test
+  void fallsBackToRequestIdWithoutConnection() throws URISyntaxException {
+    ReactorServerHttpRequest request = createRequest(mockRequest, "/");
+
+    assertThat(request.getId()).isNotBlank();
+    assertThat(request.getLogPrefix()).isEqualTo("[" + request.getId() + "] ");
+  }
+
+  @Test
+  void mutatedRequestExposesOriginalNativeRequest() throws URISyntaxException {
+    HttpServerRequest nativeRequest = mock(HttpServerRequest.class, withSettings().extraInterfaces(Connection.class));
+    Channel channel = mock(Channel.class);
+    given(((Connection) nativeRequest).channel()).willReturn(channel);
+    given(channel.pipeline()).willReturn(mock(ChannelPipeline.class));
+    given(nativeRequest.receive()).willReturn(ByteBufFlux.fromInbound(Mono.empty()));
+
+    ServerHttpRequest mutated = createRequest(nativeRequest, "/").mutate().build();
+
+    assertThat(DelegatingServerHttpRequest.<HttpServerRequest>getNativeRequest(mutated)).isSameAs(nativeRequest);
+  }
+
+  @Test
+  void getsSslSessionFromParentChannel() throws Exception {
+    HttpServerRequest nativeRequest = mock(HttpServerRequest.class, withSettings().extraInterfaces(Connection.class));
+    Channel child = mock(Channel.class);
+    Channel parent = mock(Channel.class);
+    ChannelPipeline parentPipeline = mock(ChannelPipeline.class);
+    SslHandler sslHandler = mock(SslHandler.class);
+    SSLEngine engine = mock(SSLEngine.class);
+    SSLSession session = mock(SSLSession.class);
+    given(((Connection) nativeRequest).channel()).willReturn(child);
+    given(child.pipeline()).willReturn(mock(ChannelPipeline.class));
+    given(child.parent()).willReturn(parent);
+    given(parent.pipeline()).willReturn(parentPipeline);
+    given(parentPipeline.get(SslHandler.class)).willReturn(sslHandler);
+    given(sslHandler.engine()).willReturn(engine);
+    given(engine.getSession()).willReturn(session);
+    given(session.getId()).willReturn(new byte[] { 1, (byte) 0xAB });
+    given(session.getPeerCertificates()).willThrow(new SSLPeerUnverifiedException("No peer certificate"));
+    ReactorServerHttpRequest request = createRequest(nativeRequest, "/");
+
+    SslInfo sslInfo = request.getSslInfo();
+    assertThat(sslInfo).isNotNull();
+    assertThat(sslInfo.getSessionId()).isEqualTo("01ab");
+    assertThat(sslInfo.getPeerCertificates()).isNull();
+    assertThat(request.getSslInfo()).isSameAs(sslInfo);
+  }
+
+  @Test
+  void hasNoSslInfoOnPlainChannel() throws URISyntaxException {
+    HttpServerRequest nativeRequest = mock(HttpServerRequest.class, withSettings().extraInterfaces(Connection.class));
+    Channel channel = mock(Channel.class);
+    given(((Connection) nativeRequest).channel()).willReturn(channel);
+    given(channel.pipeline()).willReturn(mock(ChannelPipeline.class));
+
+    assertThat(createRequest(nativeRequest, "/").getSslInfo()).isNull();
+  }
+
+  @Test
+  void queryParamsDistinguishFlagsFromEmptyValuesAndDecodeRepeatedNames() throws URISyntaxException {
+    ReactorServerHttpRequest request = createRequest(mockRequest, "/?na%6De=a+b&flag&empty=&name=%2F");
+
+    MultiValueMap<String, String> params = request.getQueryParams();
+    assertThat(params.get("name")).containsExactly("a b", "/");
+    assertThat(params.get("flag")).containsExactly((String) null);
+    assertThat(params.get("empty")).containsExactly("");
+    assertThat(request.getQueryParams()).isSameAs(params);
+  }
+
+  private ReactorServerHttpRequest createRequest(HttpServerRequest nativeRequest, String uri) throws URISyntaxException {
+    given(nativeRequest.method()).willReturn(io.netty.handler.codec.http.HttpMethod.GET);
+    given(nativeRequest.uri()).willReturn(uri);
+    given(nativeRequest.requestHeaders()).willReturn(new DefaultHttpHeaders());
+    given(nativeRequest.scheme()).willReturn("http");
+    given(nativeRequest.hostName()).willReturn("example.com");
+    given(nativeRequest.hostPort()).willReturn(80);
+    return new ReactorServerHttpRequest(nativeRequest, bufferFactory);
   }
 
 }

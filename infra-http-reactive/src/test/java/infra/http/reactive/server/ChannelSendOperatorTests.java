@@ -35,6 +35,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import infra.core.io.buffer.DataBuffer;
 import infra.core.testfixture.io.buffer.LeakAwareDataBufferFactory;
+import reactor.core.Scannable;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -51,6 +52,48 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ChannelSendOperatorTests {
 
   private final OneByOneAsyncWriter writer = new OneByOneAsyncWriter();
+
+  @Test
+  void exposesTheSourceForReactorIntrospection() {
+    Flux<String> source = Flux.just("body");
+    Scannable operator = new ChannelSendOperator<>(source, publisher -> Flux.from(publisher).then());
+
+    assertThat(operator.scan(Scannable.Attr.PARENT)).isSameAs(source);
+    assertThat(operator.scan(Scannable.Attr.PREFETCH)).isEqualTo(Integer.MAX_VALUE);
+    assertThat(operator.scan(Scannable.Attr.ACTUAL)).isNull();
+  }
+
+  @Test
+  void firstWriteDemandOnlyConsumesTheCachedItem() {
+    List<String> written = new ArrayList<>();
+    List<Long> requested = new ArrayList<>();
+    BaseSubscriber<String> writer = new BaseSubscriber<>() {
+      @Override
+      protected void hookOnSubscribe(Subscription subscription) {
+        request(1);
+      }
+
+      @Override
+      protected void hookOnNext(String value) {
+        written.add(value);
+      }
+    };
+    ChannelSendOperator<String> operator = new ChannelSendOperator<>(
+            Flux.just("first", "second").doOnRequest(requested::add), publisher -> {
+              publisher.subscribe(writer);
+              return Mono.never();
+            });
+
+    StepVerifier.create(operator)
+            .then(() -> {
+              assertThat(written).containsExactly("first");
+              assertThat(requested).containsExactly(1L);
+              writer.request(1);
+              assertThat(written).containsExactly("first", "second");
+              assertThat(requested).containsExactly(1L, 1L);
+            })
+            .thenCancel().verify(Duration.ofSeconds(5));
+  }
 
   @Test
   void sourceCancelledWhenWriteFunctionResultErrorsWhileItemCached() {
