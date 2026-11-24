@@ -68,6 +68,8 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 
   /**
    * Set the {@link RedirectModelManager} to use for managing redirect models.
+   *
+   * @param redirectModelManager the redirect model manager to use, or {@code null}
    */
   public void setRedirectModelManager(@Nullable RedirectModelManager redirectModelManager) {
     this.redirectModelManager = redirectModelManager;
@@ -75,6 +77,8 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 
   /**
    * Set the shared resolver for this MVC application context before initialization.
+   *
+   * @param resolver the controller method resolver to use
    */
   public void setControllerMethodResolver(ControllerMethodResolver resolver) {
     this.methodResolver = resolver;
@@ -83,6 +87,8 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
   /**
    * Provide a WebBindingInitializer with "global" initialization to apply
    * to every DataBinder instance.
+   *
+   * @param webBindingInitializer the initializer to use, or {@code null}
    */
   public void setWebBindingInitializer(@Nullable WebBindingInitializer webBindingInitializer) {
     this.webBindingInitializer = webBindingInitializer;
@@ -90,6 +96,8 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 
   /**
    * Return the configured WebBindingInitializer, or {@code null} if none.
+   *
+   * @return the configured initializer, or {@code null}
    */
   public @Nullable WebBindingInitializer getWebBindingInitializer() {
     return this.webBindingInitializer;
@@ -120,8 +128,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
 
   @Override
   public void afterPropertiesSet() {
-    var resolver = ControllerMethodResolver.forRequestHandlers(this.methodResolver,
-            applicationContext());
+    var resolver = ControllerMethodResolver.forRequestHandlers(this.methodResolver, applicationContext());
     resolver.initBindingAdvice();
     this.methodResolver = resolver;
     this.modelHandler = new ModelHandler(resolver);

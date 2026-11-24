@@ -180,8 +180,6 @@ import static infra.validation.ValidationUtils.BEAN_VALIDATION_PRESENT;
 @DisableAllDependencyInjection
 public class WebMvcConfigurationSupport extends ApplicationObjectSupport implements EmbeddedValueResolverAware {
 
-  private @Nullable ControllerMethodResolver controllerMethodResolver;
-
   private final List<Object> requestResponseBodyAdvice = new ArrayList<>();
 
   private @Nullable ContentNegotiationManager contentNegotiationManager;
@@ -201,6 +199,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
   private @Nullable List<ErrorResponse.Interceptor> errorResponseInterceptors;
 
   private @Nullable ApiVersionStrategy apiVersionStrategy;
+
+  private @Nullable ControllerMethodResolver controllerMethodResolver;
 
   protected @Nullable StringValueResolver embeddedValueResolver;
 

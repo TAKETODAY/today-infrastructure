@@ -91,7 +91,8 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    * <p>Consider using {@link HandlerTypePredicate HandlerTypePredicate}
    * to group controllers.
    *
-   * @param prefixes a map with path prefixes as key
+   * @param prefixes a map with path prefixes as keys and predicates for matching
+   * controller types as values
    */
   public void setPathPrefixes(Map<String, Predicate<Class<?>>> prefixes) {
     this.pathPrefixes = prefixes.isEmpty()
@@ -100,7 +101,9 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   }
 
   /**
-   * The configured path prefixes as a read-only, possibly empty map.
+   * Return the configured path prefixes as a read-only, possibly empty map.
+   *
+   * @return the configured path prefixes
    */
   public Map<String, Predicate<Class<?>>> getPathPrefixes() {
     return this.pathPrefixes;
@@ -109,6 +112,8 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   /**
    * Set the {@link ContentNegotiationManager} to use to determine requested media types.
    * If not set, the default constructor is used.
+   *
+   * @param contentNegotiationManager the content negotiation manager to use
    */
   public void setContentNegotiationManager(ContentNegotiationManager contentNegotiationManager) {
     Assert.notNull(contentNegotiationManager, "ContentNegotiationManager is required");
@@ -118,6 +123,8 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
   /**
    * Return the configured {@link ContentNegotiationManager}.
+   *
+   * @return the configured content negotiation manager
    */
   public ContentNegotiationManager getContentNegotiationManager() {
     return this.contentNegotiationManager;
@@ -125,6 +132,8 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
   /**
    * Set the shared resolver for this MVC application context before initialization.
+   *
+   * @param resolver the controller method resolver to use
    */
   public void setControllerMethodResolver(ControllerMethodResolver resolver) {
     this.methodResolver = resolver;
@@ -136,14 +145,12 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
     config.setContentNegotiationManager(getContentNegotiationManager());
     config.setApiVersionStrategy(getApiVersionStrategy());
 
-    this.methodResolver = ControllerMethodResolver.forRequestHandlers(this.methodResolver,
-            getApplicationContext());
-
+    this.methodResolver = ControllerMethodResolver.forRequestHandlers(this.methodResolver, getApplicationContext());
     super.afterPropertiesSet();
   }
 
   /**
-   * Obtain a {@link RequestMappingInfo.BuilderConfiguration} that can reflects
+   * Obtain a {@link RequestMappingInfo.BuilderConfiguration} that reflects
    * the internal configuration of this {@code HandlerMapping} and can be used
    * to set {@link RequestMappingInfo.Builder#options(RequestMappingInfo.BuilderConfiguration)}.
    * <p>This is useful for programmatic registration of request mappings via
@@ -340,6 +347,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   /**
    * Resolve placeholder values in the given array of patterns.
    *
+   * @param patterns the patterns to resolve
    * @return a new array with updated patterns
    */
   protected String[] resolveEmbeddedValuesInPatterns(String[] patterns) {
