@@ -75,6 +75,7 @@ import infra.util.ClassUtils;
 import jakarta.annotation.PostConstruct;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.any;
@@ -99,6 +100,46 @@ class ConfigurationClassPostProcessorTests {
     QualifierAnnotationAutowireCandidateResolver acr = new QualifierAnnotationAutowireCandidateResolver();
     acr.setBeanFactory(this.beanFactory);
     this.beanFactory.setAutowireCandidateResolver(acr);
+  }
+
+  @Test
+  void processesRegistryAndFactoryOnceEach() {
+    beanFactory.registerBeanDefinition("config", new RootBeanDefinition(SingletonBeanConfig.class));
+    var processor = new ConfigurationClassPostProcessor(BootstrapContext.obtain(beanFactory));
+
+    processor.postProcessBeanDefinitionRegistry(beanFactory);
+
+    assertThat(beanFactory.getBeanDefinitionNames()).contains("foo", "bar");
+    assertThatIllegalStateException().isThrownBy(() -> processor.postProcessBeanDefinitionRegistry(beanFactory))
+            .withMessageContaining("postProcessBeanDefinitionRegistry already called");
+
+    processor.postProcessBeanFactory(beanFactory);
+
+    assertThat(beanFactory.getBean("bar", Bar.class).foo).isSameAs(beanFactory.getBean("foo"));
+    assertThatIllegalStateException().isThrownBy(() -> processor.postProcessBeanFactory(beanFactory))
+            .withMessageContaining("postProcessBeanFactory already called");
+  }
+
+  @Test
+  void rejectsTheRegistryCallbackAfterTheFactoryWasProcessedDirectly() {
+    var processor = new ConfigurationClassPostProcessor();
+
+    processor.postProcessBeanFactory(beanFactory);
+
+    assertThatIllegalStateException().isThrownBy(() -> processor.postProcessBeanDefinitionRegistry(beanFactory))
+            .withMessageContaining("postProcessBeanFactory already called");
+  }
+
+  @Test
+  void rejectsReplacingTheContextConfigurationBeanNameGeneratorWithADifferentOne() {
+    beanFactory.registerBeanDefinition("config", new RootBeanDefinition(SingletonBeanConfig.class));
+    beanFactory.registerSingleton(AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR,
+            FullyQualifiedConfigurationBeanNameGenerator.INSTANCE);
+    var processor = new ConfigurationClassPostProcessor(BootstrapContext.obtain(beanFactory));
+    processor.setBeanNameGenerator((definition, registry) -> "localName");
+
+    assertThatIllegalStateException().isThrownBy(() -> processor.postProcessBeanDefinitionRegistry(beanFactory))
+            .withMessageContaining("Context-level ConfigurationBeanNameGenerator", "must not be overridden");
   }
 
   /**

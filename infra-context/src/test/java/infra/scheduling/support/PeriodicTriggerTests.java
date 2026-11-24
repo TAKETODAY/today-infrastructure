@@ -24,17 +24,58 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.TimeUnit;
 
 import infra.scheduling.TriggerContext;
 import infra.util.NumberUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Mark Fisher
  * @since 3.0
  */
 public class PeriodicTriggerTests {
+
+  @Test
+  void defaultsToMillisecondsForNumericPeriodAndDelay() {
+    var trigger = new PeriodicTrigger(1500);
+    assertThat(trigger.getTimeUnit()).isEqualTo(TimeUnit.MILLISECONDS);
+    assertThat(trigger.getPeriod()).isEqualTo(1500);
+    assertThat(trigger.getPeriodDuration()).isEqualTo(Duration.ofMillis(1500));
+    assertThat(trigger.getInitialDelay()).isZero();
+    assertThat(trigger.getInitialDelayDuration()).isNull();
+    assertThat(trigger.isFixedRate()).isFalse();
+
+    trigger.setInitialDelay(250);
+    trigger.setFixedRate(true);
+    assertThat(trigger.getInitialDelay()).isEqualTo(250);
+    assertThat(trigger.getInitialDelayDuration()).isEqualTo(Duration.ofMillis(250));
+    assertThat(trigger.isFixedRate()).isTrue();
+  }
+
+  @Test
+  void usesExplicitTimeUnitForNumericPeriodAndDelay() {
+    var trigger = new PeriodicTrigger(5, TimeUnit.SECONDS);
+    trigger.setInitialDelay(3);
+
+    assertThat(trigger.getTimeUnit()).isEqualTo(TimeUnit.SECONDS);
+    assertThat(trigger.getPeriod()).isEqualTo(5);
+    assertThat(trigger.getPeriodDuration()).isEqualTo(Duration.ofSeconds(5));
+    assertThat(trigger.getInitialDelay()).isEqualTo(3);
+    assertThat(trigger.getInitialDelayDuration()).isEqualTo(Duration.ofSeconds(3));
+  }
+
+  @Test
+  void validatesPeriodAndComparesEquivalentConfigurations() {
+    assertThatIllegalArgumentException().isThrownBy(() -> new PeriodicTrigger(Duration.ofMillis(-1)))
+            .withMessage("Period must not be negative");
+    var seconds = new PeriodicTrigger(5, TimeUnit.SECONDS);
+    var millis = new PeriodicTrigger(5000);
+    assertThat(seconds).isEqualTo(millis).hasSameHashCodeAs(millis);
+    assertThat(seconds).isNotEqualTo(new PeriodicTrigger(5001));
+  }
 
   @Test
   void fixedDelayFirstExecution() {

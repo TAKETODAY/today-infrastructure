@@ -20,7 +20,11 @@ package infra.scripting.support;
 
 import org.junit.jupiter.api.Test;
 
+import infra.aop.support.AopUtils;
 import infra.beans.FatalBeanException;
+import infra.beans.factory.BeanCreationException;
+import infra.beans.factory.BeanDefinitionStoreException;
+import infra.beans.factory.BeanDefinitionValidationException;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.BeanDefinitionBuilder;
@@ -86,6 +90,54 @@ class ScriptFactoryPostProcessorTests {
   void testThrowsExceptionIfGivenNonAbstractBeanFactoryImplementation() {
     assertThatIllegalStateException().isThrownBy(() ->
             new ScriptFactoryPostProcessor().setBeanFactory(mock(BeanFactory.class)));
+  }
+
+  @Test
+  void createsAClassBasedRefreshableProxyForGroovy() {
+    try (var context = new GenericApplicationContext()) {
+      var definition = createScriptedGroovyBean();
+      definition.setAttribute(ScriptFactoryPostProcessor.REFRESH_CHECK_DELAY_ATTRIBUTE, "0");
+      definition.setAttribute(ScriptFactoryPostProcessor.PROXY_TARGET_CLASS_ATTRIBUTE, "true");
+      definition.setAttribute(ScriptFactoryPostProcessor.LANGUAGE_ATTRIBUTE, "groovy");
+      context.registerBeanDefinition(PROCESSOR_BEAN_NAME, createScriptFactoryPostProcessor(false));
+      context.registerBeanDefinition(MESSENGER_BEAN_NAME, definition);
+
+      context.refresh();
+
+      var messenger = context.getBean(MESSENGER_BEAN_NAME, Messenger.class);
+      assertThat(AopUtils.isCglibProxy(messenger)).isTrue();
+      assertThat(messenger.getMessage()).isEqualTo(MESSAGE_TEXT);
+    }
+  }
+
+  @Test
+  void rejectsAClassBasedRefreshableProxyForAnUnsupportedLanguage() {
+    try (var context = new GenericApplicationContext()) {
+      var definition = createScriptedGroovyBean();
+      definition.setAttribute(ScriptFactoryPostProcessor.PROXY_TARGET_CLASS_ATTRIBUTE, true);
+      definition.setAttribute(ScriptFactoryPostProcessor.LANGUAGE_ATTRIBUTE, "javascript");
+      context.registerBeanDefinition(PROCESSOR_BEAN_NAME, createScriptFactoryPostProcessor(true));
+      context.registerBeanDefinition(MESSENGER_BEAN_NAME, definition);
+
+      assertThatExceptionOfType(BeanCreationException.class).isThrownBy(context::refresh)
+              .havingRootCause().isInstanceOf(BeanDefinitionValidationException.class)
+              .withMessageContaining("language is not 'groovy'", "javascript");
+    }
+  }
+
+  @Test
+  void rejectsMetadataValuesOfUnsupportedTypes() {
+    var definition = createScriptedGroovyBean();
+    var processor = new ScriptFactoryPostProcessor();
+    definition.setAttribute(ScriptFactoryPostProcessor.REFRESH_CHECK_DELAY_ATTRIBUTE, true);
+    definition.setAttribute(ScriptFactoryPostProcessor.PROXY_TARGET_CLASS_ATTRIBUTE, 1);
+
+    assertThatExceptionOfType(BeanDefinitionStoreException.class)
+            .isThrownBy(() -> processor.resolveRefreshCheckDelay(definition))
+            .withMessageContaining("needs to be of type Number or String");
+    assertThatExceptionOfType(BeanDefinitionStoreException.class)
+            .isThrownBy(() -> processor.resolveProxyTargetClass(definition))
+            .withMessageContaining("needs to be of type Boolean or String");
   }
 
   @Test
