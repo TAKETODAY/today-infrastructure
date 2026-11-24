@@ -41,6 +41,7 @@ import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestHeader;
 import infra.web.annotation.RequestMapping;
 import infra.web.annotation.RestController;
+import infra.web.client.ApiVersionInserter;
 import infra.web.util.DefaultUriBuilderFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -320,6 +321,7 @@ class RestTestClientTests {
               .isThrownBy(() -> client.post().uri("/body").body("not-xml").exchange().expectBody().xml("<root/>"))
               .withMessageContaining("XML parsing error");
     }
+
     @Test
     void testBodyReturnResult() {
       var result = RestTestClientTests.this.client.get().uri("/test")
@@ -365,7 +367,7 @@ class RestTestClientTests {
     void requestAndBodyConsumersCoverOptionalRequestAttributes() {
       AtomicReference<Object> consumed = new AtomicReference<>();
       RestTestClient client = RestTestClient.bindToController(new TestController())
-              .apiVersionInserter(infra.web.client.ApiVersionInserter.forHeader("X-API-Version"))
+              .apiVersionInserter(ApiVersionInserter.forHeader("X-API-Version"))
               .configureMessageConverters(builder -> { })
               .entityExchangeResultConsumer(result -> consumed.set(result.getResponseBody()))
               .build();

@@ -25,7 +25,7 @@ import infra.http.client.support.HttpAccessor;
  * being used.
  *
  * <p>Typically used with {@link HttpAccessor} and subclasses such as
- * {@link infra.web.client.RestTemplate RestTemplate} to apply
+ * {@link infra.restclient.RestTemplate RestTemplate} to apply
  * consistent settings or headers to each request.
  *
  * <p>Unlike {@link ClientHttpRequestInterceptor}, this interface can apply

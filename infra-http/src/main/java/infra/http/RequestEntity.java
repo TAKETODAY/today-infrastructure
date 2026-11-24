@@ -167,7 +167,7 @@ public class RequestEntity<T extends @Nullable Object> extends HttpEntity<T> {
    * instance. This is because a URI cannot be created without further input
    * on how to expand template and encode the URI. In such cases, the
    * {@code URI} is prepared by the
-   * {@link infra.web.client.RestTemplate} with the help of the
+   * {@link infra.restclient.RestTemplate} with the help of the
    * {@link infra.web.util.UriTemplateHandler} it is configured with.
    */
   public URI getURI() {

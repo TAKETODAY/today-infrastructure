@@ -26,8 +26,8 @@ import infra.util.Assert;
 
 /**
  * Contract to intercept client-side HTTP requests. Implementations can be
- * registered with {@link infra.web.client.RestClient} or
- * {@link infra.web.client.RestTemplate} to modify the outgoing
+ * registered with {@link infra.restclient.RestClient} or
+ * {@link infra.restclient.RestTemplate} to modify the outgoing
  * request and/or the incoming response.
  *
  * @author Arjen Poutsma

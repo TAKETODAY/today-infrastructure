@@ -31,19 +31,19 @@ import infra.util.Assert;
 import infra.util.CollectionUtils;
 
 /**
- * Base class for {@link infra.web.client.RestTemplate}
+ * Base class for {@link infra.restclient.RestTemplate}
  * and other HTTP accessing gateway helpers, adding interceptor-related
  * properties to {@link HttpAccessor}'s common properties.
  *
  * <p>Not intended to be used directly.
- * See {@link infra.web.client.RestTemplate} for an entry point.
+ * See {@link infra.restclient.RestTemplate} for an entry point.
  *
  * @author Arjen Poutsma
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ClientHttpRequestInterceptor
  * @see InterceptingClientHttpRequestFactory
- * @see infra.web.client.RestTemplate
+ * @see infra.restclient.RestTemplate
  * @since 4.0
  */
 public abstract class InterceptingHttpAccessor extends HttpAccessor {
@@ -78,7 +78,7 @@ public abstract class InterceptingHttpAccessor extends HttpAccessor {
    * {@linkplain AnnotationAwareOrderComparator#sort(List) order}.
    * <p><strong>Note:</strong> This method does not support concurrent changes,
    * and in most cases should not be called after initialization on startup.
-   * See also related note on {@link infra.web.client.RestTemplate}
+   * See also related note on {@link infra.restclient.RestTemplate}
    * regarding concurrent configuration changes.
    *
    * @see #getRequestFactory()

@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 
 import infra.http.MediaType;
 import infra.http.ServerSentEvent;
-import infra.web.client.RestClient;
+import infra.restclient.RestClient;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>

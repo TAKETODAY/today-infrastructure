@@ -53,7 +53,7 @@ public class DisconnectedClientHelper {
 
   static {
     Set<Class<?>> types = CollectionUtils.newLinkedHashSet(3);
-    addExcludedExceptionType(types, "infra.web.client.RestClientException");
+    addExcludedExceptionType(types, "infra.restclient.RestClientException");
     addExcludedExceptionType(types, "infra.web.reactive.client.WebClientException");
     addExcludedExceptionType(types, "infra.dao.DataAccessException");
     EXCLUDED_EXCEPTION_TYPES = Set.copyOf(types);

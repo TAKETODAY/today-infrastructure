@@ -39,20 +39,20 @@ import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 
 /**
- * Base class for {@link infra.web.client.RestTemplate}
+ * Base class for {@link infra.restclient.RestTemplate}
  * and other HTTP accessing gateway helpers, defining common properties
  * such as the {@link ClientHttpRequestFactory} to operate on.
  *
  * <p>Not intended to be used directly.
  *
- * <p>See {@link infra.web.client.RestTemplate} for an entry point.
+ * <p>See {@link infra.restclient.RestTemplate} for an entry point.
  *
  * @author Arjen Poutsma
  * @author Juergen Hoeller
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ClientHttpRequestFactory
- * @see infra.web.client.RestTemplate
+ * @see infra.restclient.RestTemplate
  * @since 4.0
  */
 public abstract class HttpAccessor {

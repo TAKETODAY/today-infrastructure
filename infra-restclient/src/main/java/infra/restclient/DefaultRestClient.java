@@ -87,7 +87,7 @@ final class DefaultRestClient implements RestClient {
 
   private static final Logger logger = LoggerFactory.getLogger(DefaultRestClient.class);
 
-  public static final String key = "infra.web.client.sse-data-default-content-type";
+  public static final String key = "infra.restclient.sse-data-default-content-type";
 
   private final ClientHttpRequestFactory clientRequestFactory;
 

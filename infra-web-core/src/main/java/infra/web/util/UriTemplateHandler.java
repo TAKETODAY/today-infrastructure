@@ -28,7 +28,7 @@ import java.util.Map;
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see infra.web.client.RestTemplate#setUriTemplateHandler(UriTemplateHandler)
+ * @see infra.restclient.RestTemplate#setUriTemplateHandler(UriTemplateHandler)
  * @since 4.0
  */
 public interface UriTemplateHandler {
