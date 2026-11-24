@@ -71,7 +71,7 @@ final class MaxAttemptsCharSequence implements CharSequence {
     return this.text;
   }
 
-  private static class Counter {
+  private static final class Counter {
 
     public int value;
   }

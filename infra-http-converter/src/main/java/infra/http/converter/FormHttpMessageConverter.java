@@ -341,10 +341,21 @@ public class FormHttpMessageConverter implements SmartHttpMessageConverter<Objec
   }
 
   @Override
-  public Map<String, ?> read(@Nullable Class<?> clazz, HttpInputMessage inputMessage)
-          throws IOException, HttpMessageNotReadableException //
-  {
+  public Map<String, ?> read(@Nullable Class<?> clazz, HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
+    MultiValueMap<String, String> result = readForm(inputMessage);
+    return clazz == null || MultiValueMap.class.isAssignableFrom(clazz) ? result : result.asSingleValueMap();
+  }
 
+  /**
+   * Read a URL-encoded form, preserving all values for each field.
+   *
+   * @param inputMessage the message containing the form body
+   * @return the decoded form fields
+   * @throws IOException if reading the body fails
+   * @throws HttpMessageNotReadableException if the form payload cannot be decoded
+   * @since 5.0
+   */
+  public MultiValueMap<String, String> readForm(HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
     MediaType contentType = inputMessage.getContentType();
 
     Charset charset = null;
@@ -372,7 +383,7 @@ public class FormHttpMessageConverter implements SmartHttpMessageConverter<Objec
           result.add(name, value);
         }
       }
-      return clazz == null || MultiValueMap.class.isAssignableFrom(clazz) ? result : result.asSingleValueMap();
+      return result;
     }
     catch (IllegalArgumentException ex) {
       throw new HttpMessageNotReadableException("Could not decode HTTP form payload", ex, inputMessage);

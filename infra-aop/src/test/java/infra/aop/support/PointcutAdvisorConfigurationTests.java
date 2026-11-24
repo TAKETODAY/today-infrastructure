@@ -53,7 +53,7 @@ class PointcutAdvisorConfigurationTests {
 
   @Test
   void deserializedAdvisorAcceptsExplicitAdviceWithoutABeanFactory() throws Exception {
-    var advisor = (NamedAdvisor) SerializationTestUtils.serializeAndDeserialize(new NamedAdvisor());
+    var advisor = SerializationTestUtils.serializeAndDeserialize(new NamedAdvisor());
     advisor.setAdvice(advice);
 
     assertThat(advisor.getAdvice()).isSameAs(advice);

@@ -42,7 +42,7 @@ class MockClientHttpRequestTests {
             "https://example.org/{item}", "a b");
     assertThat(request.getMethod()).isEqualTo(HttpMethod.POST);
     assertThat(request.getURI()).isEqualTo(URI.create("https://example.org/a%20b"));
-    assertThat((Object) request.getNativeRequest()).isSameAs(request);
+    assertThat(request.<Object>getNativeRequest()).isSameAs(request);
     StepVerifier.create(request.getBodyAsString())
             .expectErrorMatches(ex -> ex instanceof IllegalStateException && ex.getMessage().contains("body is not set"))
             .verify();

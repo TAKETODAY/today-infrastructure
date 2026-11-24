@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -161,7 +162,7 @@ class DefaultHttpHeadersTests {
   void setHeader_withNullValue_shouldRemoveHeader() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.add("Test-Header", "value");
-    headers.setHeader("Test-Header", (List) null);
+    headers.setHeader("Test-Header", (Collection<String>) null);
 
     assertThat(headers.get("Test-Header")).isNull();
   }
@@ -743,7 +744,7 @@ class DefaultHttpHeadersTests {
   @Test
   void toSingleValueMap_shouldHandleNullValues() {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
-    headers.setHeader("Header-With-Null", (List) null);
+    headers.setHeader("Header-With-Null", (Collection<String>) null);
     headers.add("Header-With-Value", "value");
 
     Map<String, String> singleValueMap = headers.toSingleValueMap();
@@ -944,7 +945,7 @@ class DefaultHttpHeadersTests {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.add("Test-Header", "old-value");
 
-    List<String> oldValues = headers.setHeader("Test-Header", (List) null);
+    List<String> oldValues = headers.setHeader("Test-Header", (Collection<String>) null);
 
     assertThat(oldValues).containsExactly("old-value");
     assertThat(headers.get("Test-Header")).isNull();

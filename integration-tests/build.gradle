@@ -8,6 +8,8 @@ sourceSets.test.java.srcDir rootProject.file('infra-docs/modules/ROOT/examples/d
 
 dependencies {
 
+  testCompileOnly("com.github.spotbugs:spotbugs-annotations")
+
   testImplementation(project(":infra-webmvc-mock"))
   testImplementation project(':infra-app')
   testImplementation project(':infra-test-support')
