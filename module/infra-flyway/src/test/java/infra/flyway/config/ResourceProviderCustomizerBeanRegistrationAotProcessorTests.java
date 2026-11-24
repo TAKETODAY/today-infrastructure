@@ -20,9 +20,11 @@ package infra.flyway.config;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
+import infra.aot.generate.GeneratedFiles.Kind;
 import infra.aot.test.generate.TestGenerationContext;
 import infra.beans.factory.aot.AotServices;
 import infra.beans.factory.aot.BeanRegistrationAotContribution;
@@ -69,6 +71,19 @@ class ResourceProviderCustomizerBeanRegistrationAotProcessorTests {
   }
 
   @Test
+  void generatesSupplierForNativeImageCustomizer() throws IOException {
+    TestGenerationContext generationContext = new TestGenerationContext(TestTarget.class);
+    try (var context = createContext(ResourceProviderCustomizerConfiguration.class)) {
+      generate(context, generationContext);
+    }
+
+    String source = generationContext.getGeneratedFiles().getGeneratedFileContent(Kind.SOURCE,
+            "infra/flyway/config/ResourceProviderCustomizerBeanRegistrationAotProcessorTests__BeanDefinitions.java");
+    assertThat(source).contains("return new NativeImageResourceProviderCustomizer();",
+            "setInstanceSupplier(ResourceProviderCustomizerConfiguration::getResourceProviderCustomizerInstance)");
+  }
+
+  @Test
   @CompileWithForkedClassLoader
   void shouldReplaceResourceProviderCustomizer() {
     compile(createContext(ResourceProviderCustomizerConfiguration.class), (freshContext) -> {
@@ -87,8 +102,7 @@ class ResourceProviderCustomizerBeanRegistrationAotProcessorTests {
   @SuppressWarnings("unchecked")
   private void compile(GenericApplicationContext context, Consumer<GenericApplicationContext> freshContext) {
     TestGenerationContext generationContext = new TestGenerationContext(TestTarget.class);
-    ClassName className = new ApplicationContextAotGenerator().processAheadOfTime(context, generationContext);
-    generationContext.writeGeneratedContent();
+    ClassName className = generate(context, generationContext);
     TestCompiler.forSystem()
             .withCompilerOptions("-Xlint:deprecation,removal", "-Werror")
             .with(generationContext)
@@ -98,6 +112,12 @@ class ResourceProviderCustomizerBeanRegistrationAotProcessorTests {
               initializer.initialize(freshApplicationContext);
               freshContext.accept(freshApplicationContext);
             });
+  }
+
+  private ClassName generate(GenericApplicationContext context, TestGenerationContext generationContext) {
+    ClassName className = new ApplicationContextAotGenerator().processAheadOfTime(context, generationContext);
+    generationContext.writeGeneratedContent();
+    return className;
   }
 
   static class TestTarget {
