@@ -36,6 +36,7 @@ import infra.web.util.pattern.PathPattern.PathRemainingMatchInfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * Exercise matching of {@link PathPattern} objects.
@@ -743,6 +744,35 @@ class PathPatternTests {
     assertThatIllegalArgumentException().isThrownBy(() ->
                     matchAndExtract(pathPattern, "/web/foobar_goo"))
             .withMessageContaining("The number of capturing groups in the pattern");
+  }
+
+  @Test
+  void captureVariableRegexMatchesWithinCharacterBudget() {
+    PathPattern pattern = new PathPatternParser().parse("/{x:[a-z]{3}}");
+    assertThat(pattern.toChainString()).isEqualTo("Separator(/) CaptureVariable({x:[a-z]{3}})");
+    assertThat(pattern.matches(toPathContainer("/abc"))).isTrue();
+    assertThat(pattern.matches(toPathContainer("/ab1"))).isFalse();
+  }
+
+  @Test
+  void regexPathElementMatchesWithinCharacterBudget() {
+    PathPattern pattern = new PathPatternParser().parse("/{x:[a-z]{3}}*");
+    assertThat(pattern.toChainString()).isEqualTo("Separator(/) Regex({x:[a-z]{3}}*)");
+    assertThat(pattern.matches(toPathContainer("/abc"))).isTrue();
+    assertThat(pattern.matches(toPathContainer("/ab1"))).isFalse();
+  }
+
+  @Test
+  void characterAccessBudgetIsSharedWithSubsequences() {
+    CharSequence sequence = new MaxAttemptsCharSequence("abc");
+    CharSequence subsequence = sequence.subSequence(1, 2);
+    for (int i = 0; i < 999_999; i++) {
+      subsequence.charAt(0);
+    }
+    assertThat(sequence.charAt(0)).isEqualTo('a');
+    assertThatIllegalStateException()
+            .isThrownBy(() -> subsequence.charAt(0))
+            .withMessage("Too many character access attempts encountered during pattern matching");
   }
 
   @Test

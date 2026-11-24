@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import infra.docker.compose.core.DockerCliInspectResponse.Config;
 import infra.docker.compose.core.DockerCliInspectResponse.HostConfig;
@@ -45,15 +46,13 @@ class DefaultConnectionPorts implements ConnectionPorts {
 
   private final Map<ContainerPort, Integer> mappings;
 
-  private final Map<Integer, Integer> portMappings;
+  private final Map<Integer, List<String>> protocols;
 
   DefaultConnectionPorts(DockerCliInspectResponse inspectResponse) {
     this.mappings = !isHostNetworkMode(inspectResponse)
             ? buildMappingsForNetworkSettings(inspectResponse.networkSettings())
             : buildMappingsForHostNetworking(inspectResponse.config());
-    Map<Integer, Integer> portMappings = new HashMap<>();
-    this.mappings.forEach((containerPort, hostPort) -> portMappings.put(containerPort.number(), hostPort));
-    this.portMappings = Collections.unmodifiableMap(portMappings);
+    this.protocols = buildProtocolMappings(this.mappings.keySet());
   }
 
   private static boolean isHostNetworkMode(DockerCliInspectResponse inspectResponse) {
@@ -98,9 +97,27 @@ class DefaultConnectionPorts implements ConnectionPorts {
     return Collections.unmodifiableMap(mappings);
   }
 
+  private Map<Integer, List<String>> buildProtocolMappings(Set<ContainerPort> containerPorts) {
+    Map<Integer, List<String>> protocols = new HashMap<>();
+    containerPorts.forEach((containerPort) -> protocols
+            .computeIfAbsent(containerPort.number(), (key) -> new ArrayList<>())
+            .add(containerPort.protocol()));
+    protocols.replaceAll((port, values) -> {
+      Collections.sort(values);
+      return Collections.unmodifiableList(values);
+    });
+    return Collections.unmodifiableMap(protocols);
+  }
+
   @Override
   public int get(int containerPort) {
-    Integer hostPort = this.portMappings.get(containerPort);
+    List<String> protocols = this.protocols.get(containerPort);
+    Assert.state(protocols != null,
+            () -> "No host port mapping found for container port %s".formatted(containerPort));
+    Assert.state(protocols.size() == 1,
+            () -> "Multiple host port mapping found for container port %s with different protocols %s"
+                    .formatted(containerPort, protocols));
+    Integer hostPort = this.mappings.get(new ContainerPort(containerPort, protocols.get(0)));
     Assert.state(hostPort != null,
             () -> "No host port mapping found for container port %s".formatted(containerPort));
     return hostPort;

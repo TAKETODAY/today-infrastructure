@@ -45,6 +45,8 @@ import infra.web.HttpContextHolder;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.ContentNegotiationManagerFactoryBean;
+import infra.web.accept.PathExtensionContentNegotiationStrategy;
+import infra.web.util.UriUtils;
 
 /**
  * Implementation of {@link ViewResolver} that resolves a view based on the request file name
@@ -296,10 +298,22 @@ public class ContentNegotiatingViewResolver extends ApplicationObjectSupport imp
     if (viewResolvers != null) {
       ContentNegotiationManager negotiationManager = getContentNegotiationManager();
       Assert.state(negotiationManager != null, "No ContentNegotiationManager set");
+      PathExtensionContentNegotiationStrategy pathStrategy =
+              negotiationManager.getStrategy(PathExtensionContentNegotiationStrategy.class);
+      String pathExtension = null;
+      if (pathStrategy != null) {
+        pathExtension = UriUtils.extractFileExtension(HttpContextHolder.required().getRequestURI());
+      }
       for (ViewResolver viewResolver : viewResolvers) {
         View view = viewResolver.resolveViewName(viewName, locale);
         if (view != null) {
           candidateViews.add(view);
+        }
+        if (pathExtension != null) {
+          view = viewResolver.resolveViewName(viewName + '.' + pathExtension, locale);
+          if (view != null) {
+            candidateViews.add(view);
+          }
         }
         for (MediaType requestedMediaType : requestedMediaTypes) {
           List<String> extensions = negotiationManager.resolveFileExtensions(requestedMediaType);

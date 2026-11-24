@@ -68,7 +68,8 @@ public class InitBinderBindingContext extends BindingContext {
    * @param initializer for global data binder initialization
    */
   InitBinderBindingContext(ModelHandler modelHandler, @Nullable WebBindingInitializer initializer,
-          ControllerMethodResolver methodResolver, @Nullable List<InvocableHandlerMethod> binderMethods, InvocableHandlerMethod handlerMethod) {
+          ControllerMethodResolver methodResolver,
+          @Nullable List<InvocableHandlerMethod> binderMethods, InvocableHandlerMethod handlerMethod) {
 
     super(initializer);
     this.modelHandler = modelHandler;

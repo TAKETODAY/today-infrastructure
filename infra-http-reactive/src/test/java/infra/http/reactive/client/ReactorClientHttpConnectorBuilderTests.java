@@ -26,11 +26,15 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import infra.http.client.HttpClientSettings;
+import infra.http.client.InetAddressFilter;
 import infra.http.client.ReactorHttpClientBuilder;
 import infra.http.support.ReactorResourceFactory;
 import infra.test.util.ReflectionTestUtils;
 import io.netty.channel.ChannelOption;
 import reactor.netty.http.client.HttpClient;
+import reactor.netty.http.client.HttpClientConfig;
+import reactor.netty.transport.ClientTransport.ResolvedAddressSelector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.then;
@@ -84,6 +88,23 @@ class ReactorClientHttpConnectorBuilderTests
             .withHttpClientCustomizer(httpClientCustomizer2)
             .build();
     assertThat(httpClients).hasSize(2);
+  }
+
+  @Test
+  void withResolvedAddressSelector() {
+    ResolvedAddressSelector<HttpClientConfig> selector = (config, addresses) -> addresses;
+    var connector = ClientHttpConnectorBuilder.reactor().withResolvedAddressSelector(selector).build();
+    assertThat(connector).extracting("httpClient.config.resolvedAddressesSelector").isSameAs(selector);
+  }
+
+  @Test
+  void withResolvedAddressSelectorWhenHasInetAddressFilter() {
+    ResolvedAddressSelector<HttpClientConfig> selector = (config, addresses) -> addresses;
+    HttpClientSettings settings = HttpClientSettings.defaults().withInetAddressFilter(InetAddressFilter.externalAddresses());
+    var connector = ClientHttpConnectorBuilder.reactor().withResolvedAddressSelector(selector).build(settings);
+    assertThat(connector).extracting("httpClient.config.resolvedAddressesSelector").satisfies(actual ->
+            assertThat(actual.getClass().getSimpleName()).isEqualTo("ReactorFilteredResolvedAddressSelector"));
+    assertThat(connector).extracting("httpClient.config.resolvedAddressesSelector.delegate").isSameAs(selector);
   }
 
   @Test

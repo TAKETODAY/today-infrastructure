@@ -74,9 +74,7 @@ class ModelHandlerTests {
     returnValueHandlerManager = new ReturnValueHandlerManager();
     returnValueHandlerManager.setApplicationContext(context);
     returnValueHandlerManager.registerDefaultHandlers();
-    HandlerParameterFactory handlerParameterFactory = new HandlerParameterFactory();
-
-    this.methodResolver = new ControllerMethodResolver(context, handlerParameterFactory);
+    this.methodResolver = new ControllerMethodResolver(context, null);
     this.controller = new TestController();
   }
 

@@ -21,28 +21,27 @@ package infra.jdbc.metadata;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.junit.jupiter.api.Test;
 
-import infra.jdbc.metadata.DataSourcePoolMetadata;
+import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link infra.jdbc.metadata.CommonsDbcp2DataSourcePoolMetadata}.
+ * Tests for {@link CommonsDbcp2DataSourcePoolMetadata}.
  *
  * @author Stephane Nicoll
  */
-class CommonsDbcp2DataSourcePoolMetadataTests
-        extends AbstractDataSourcePoolMetadataTests<infra.jdbc.metadata.CommonsDbcp2DataSourcePoolMetadata> {
+class CommonsDbcp2DataSourcePoolMetadataTests extends AbstractDataSourcePoolMetadataTests<CommonsDbcp2DataSourcePoolMetadata> {
 
-  private final infra.jdbc.metadata.CommonsDbcp2DataSourcePoolMetadata dataSourceMetadata = createDataSourceMetadata(0, 2);
+  private final CommonsDbcp2DataSourcePoolMetadata dataSourceMetadata = createDataSourceMetadata(0, 2);
 
   @Override
-  protected infra.jdbc.metadata.CommonsDbcp2DataSourcePoolMetadata getDataSourceMetadata() {
+  protected CommonsDbcp2DataSourcePoolMetadata getDataSourceMetadata() {
     return this.dataSourceMetadata;
   }
 
   @Test
   void getPoolUsageWithNoCurrent() {
-    infra.jdbc.metadata.CommonsDbcp2DataSourcePoolMetadata dsm = new infra.jdbc.metadata.CommonsDbcp2DataSourcePoolMetadata(createDataSource()) {
+    CommonsDbcp2DataSourcePoolMetadata dsm = new CommonsDbcp2DataSourcePoolMetadata(createDataSource()) {
       @Override
       public Integer getActive() {
         return null;
@@ -53,7 +52,7 @@ class CommonsDbcp2DataSourcePoolMetadataTests
 
   @Test
   void getPoolUsageWithNoMax() {
-    infra.jdbc.metadata.CommonsDbcp2DataSourcePoolMetadata dsm = new infra.jdbc.metadata.CommonsDbcp2DataSourcePoolMetadata(createDataSource()) {
+    CommonsDbcp2DataSourcePoolMetadata dsm = new CommonsDbcp2DataSourcePoolMetadata(createDataSource()) {
       @Override
       public Integer getMax() {
         return null;
@@ -72,7 +71,7 @@ class CommonsDbcp2DataSourcePoolMetadataTests
   public void getValidationQuery() {
     BasicDataSource dataSource = createDataSource();
     dataSource.setValidationQuery("SELECT FROM FOO");
-    assertThat(new infra.jdbc.metadata.CommonsDbcp2DataSourcePoolMetadata(dataSource).getValidationQuery())
+    assertThat(new CommonsDbcp2DataSourcePoolMetadata(dataSource).getValidationQuery())
             .isEqualTo("SELECT FROM FOO");
   }
 
@@ -80,15 +79,15 @@ class CommonsDbcp2DataSourcePoolMetadataTests
   public void getDefaultAutoCommit() {
     BasicDataSource dataSource = createDataSource();
     dataSource.setDefaultAutoCommit(false);
-    assertThat(new infra.jdbc.metadata.CommonsDbcp2DataSourcePoolMetadata(dataSource).getDefaultAutoCommit()).isFalse();
+    assertThat(new CommonsDbcp2DataSourcePoolMetadata(dataSource).getDefaultAutoCommit()).isFalse();
   }
 
-  private infra.jdbc.metadata.CommonsDbcp2DataSourcePoolMetadata createDataSourceMetadata(int minSize, int maxSize) {
+  private CommonsDbcp2DataSourcePoolMetadata createDataSourceMetadata(int minSize, int maxSize) {
     BasicDataSource dataSource = createDataSource();
     dataSource.setMinIdle(minSize);
     dataSource.setMaxTotal(maxSize);
-    dataSource.setMinEvictableIdleTimeMillis(5000);
-    return new infra.jdbc.metadata.CommonsDbcp2DataSourcePoolMetadata(dataSource);
+    dataSource.setMinEvictableIdle(Duration.ofSeconds(5));
+    return new CommonsDbcp2DataSourcePoolMetadata(dataSource);
   }
 
   private BasicDataSource createDataSource() {

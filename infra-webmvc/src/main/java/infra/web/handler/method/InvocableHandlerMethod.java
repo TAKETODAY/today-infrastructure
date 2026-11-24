@@ -30,6 +30,7 @@ import java.util.stream.IntStream;
 
 import infra.beans.factory.BeanFactory;
 import infra.context.MessageSource;
+import infra.core.MethodParameter;
 import infra.http.HttpStatusCode;
 import infra.util.StringUtils;
 import infra.validation.method.MethodValidator;
@@ -57,9 +58,11 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
   private final HandlerParameter[] resolvableParameters;
 
-  private volatile @Nullable List<InvocableHandlerMethod> binderMethods;
+  private volatile MethodParameter @Nullable [] validationParameters;
 
-  private volatile @Nullable List<InvocableHandlerMethod> modelAttributeMethods;
+  private volatile @Nullable BindingMethods binderMethods;
+
+  private volatile @Nullable BindingMethods modelAttributeMethods;
 
   /**
    * Create an instance from a {@code HandlerMethod}.
@@ -97,21 +100,17 @@ public class InvocableHandlerMethod extends HandlerMethod {
   }
 
   @Nullable
-  List<InvocableHandlerMethod> getCachedBinderMethods() {
-    return this.binderMethods;
+  BindingMethods getBindingMethods(boolean binder) {
+    return binder ? this.binderMethods : this.modelAttributeMethods;
   }
 
-  void setCachedBinderMethods(List<InvocableHandlerMethod> binderMethods) {
-    this.binderMethods = binderMethods;
-  }
-
-  @Nullable
-  List<InvocableHandlerMethod> getCachedModelAttributeMethods() {
-    return this.modelAttributeMethods;
-  }
-
-  void setCachedModelAttributeMethods(List<InvocableHandlerMethod> modelAttributeMethods) {
-    this.modelAttributeMethods = modelAttributeMethods;
+  void setBindingMethods(boolean binder, BindingMethods methods) {
+    if (binder) {
+      this.binderMethods = methods;
+    }
+    else {
+      this.modelAttributeMethods = methods;
+    }
   }
 
   @Override
@@ -213,7 +212,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
     Object bean = getBean();
     if (shouldValidateArguments() && methodValidator != null) {
-      methodValidator.applyArgumentValidation(bean, getBridgedMethod(), getParameters(), args, getValidationGroups());
+      methodValidator.applyArgumentValidation(bean, getBridgedMethod(), getValidationParameters(), args, getValidationGroups());
     }
 
     try {
@@ -244,6 +243,20 @@ public class InvocableHandlerMethod extends HandlerMethod {
         throw new IllegalStateException(formatInvokeError("Invocation failure", args), te);
       }
     }
+  }
+
+  private MethodParameter[] getValidationParameters() {
+    var parameters = this.validationParameters;
+    if (parameters == null) {
+      // Validation must see the same names and types as argument resolution.
+      var resolvable = this.resolvableParameters;
+      parameters = new MethodParameter[resolvable.length];
+      for (int i = 0; i < resolvable.length; i++) {
+        parameters[i] = resolvable[i].getMethodParameter();
+      }
+      this.validationParameters = parameters;
+    }
+    return parameters;
   }
 
   /**
@@ -320,6 +333,9 @@ public class InvocableHandlerMethod extends HandlerMethod {
             .collect(Collectors.joining(",\n", " ", " "));
     return "%s\nController [%s]\nMethod [%s] with argument values:\n%s"
             .formatted(text, getBeanType().getName(), bridgedMethod.toGenericString(), formattedArgs);
+  }
+
+  record BindingMethods(ControllerMethodResolver resolver, List<InvocableHandlerMethod> methods) {
   }
 
 }

@@ -31,7 +31,6 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import infra.core.io.ApplicationResourceLoader;
 import infra.app.logging.AbstractLoggingSystem;
 import infra.app.logging.LogFile;
 import infra.app.logging.LogLevel;
@@ -41,6 +40,7 @@ import infra.app.logging.LoggingSystem;
 import infra.app.logging.LoggingSystemFactory;
 import infra.core.Ordered;
 import infra.core.annotation.Order;
+import infra.core.io.ApplicationResourceLoader;
 import infra.core.io.Resource;
 import infra.util.Assert;
 import infra.util.ClassUtils;
@@ -126,10 +126,7 @@ public class JavaLoggingSystem extends AbstractLoggingSystem {
 
   @Override
   public void setLogLevel(@Nullable String loggerName, LogLevel level) {
-    if (loggerName == null || ROOT_LOGGER_NAME.equals(loggerName)) {
-      loggerName = "";
-    }
-    Logger logger = Logger.getLogger(loggerName);
+    Logger logger = Logger.getLogger(loggerName(loggerName));
     if (logger != null) {
       this.configuredLoggers.add(logger);
       logger.setLevel(LEVELS.convertSystemToNative(level));
@@ -138,26 +135,34 @@ public class JavaLoggingSystem extends AbstractLoggingSystem {
 
   @Override
   public List<LoggerConfiguration> getLoggerConfigurations() {
-    List<LoggerConfiguration> result = new ArrayList<>();
-    Enumeration<String> names = LogManager.getLogManager().getLoggerNames();
+    ArrayList<LoggerConfiguration> result = new ArrayList<>();
+    LogManager logManager = LogManager.getLogManager();
+    Enumeration<String> names = logManager.getLoggerNames();
     while (names.hasMoreElements()) {
-      result.add(getLoggerConfiguration(names.nextElement()));
+      Logger logger = logManager.getLogger(names.nextElement());
+      if (logger != null) {
+        result.add(getLoggerConfiguration(logger));
+      }
     }
     result.sort(createConfigurationComparator());
     return Collections.unmodifiableList(result);
   }
 
   @Override
-  @Nullable
-  public LoggerConfiguration getLoggerConfiguration(String loggerName) {
-    Logger logger = Logger.getLogger(loggerName);
-    if (logger == null) {
-      return null;
-    }
+  public @Nullable LoggerConfiguration getLoggerConfiguration(String loggerName) {
+    Logger logger = LogManager.getLogManager().getLogger(loggerName(loggerName));
+    return logger != null ? getLoggerConfiguration(logger) : null;
+  }
+
+  private LoggerConfiguration getLoggerConfiguration(Logger logger) {
     LogLevel level = LEVELS.convertNativeToSystem(logger.getLevel());
     LogLevel effectiveLevel = LEVELS.convertNativeToSystem(getEffectiveLevel(logger));
     String name = StringUtils.isNotEmpty(logger.getName()) ? logger.getName() : ROOT_LOGGER_NAME;
     return new LoggerConfiguration(name, level, effectiveLevel);
+  }
+
+  private String loggerName(@Nullable String loggerName) {
+    return (loggerName == null || ROOT_LOGGER_NAME.equals(loggerName)) ? "" : loggerName;
   }
 
   private Level getEffectiveLevel(Logger root) {

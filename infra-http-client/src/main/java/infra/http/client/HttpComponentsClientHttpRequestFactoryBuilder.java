@@ -18,6 +18,7 @@
 
 package infra.http.client;
 
+import org.apache.hc.client5.http.DnsResolver;
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
@@ -170,6 +171,18 @@ public final class HttpComponentsClientHttpRequestFactoryBuilder extends Abstrac
   protected HttpComponentsClientHttpRequestFactory createClientHttpRequestFactory(HttpClientSettings settings) {
     HttpClient httpClient = this.httpClientBuilder.build(settings);
     return new HttpComponentsClientHttpRequestFactory(httpClient);
+  }
+
+  /**
+   * Return a new builder with a replacement {@link DnsResolver}.
+   *
+   * @param dnsResolver the DNS resolver to use
+   * @return a new {@link HttpComponentsClientHttpRequestFactoryBuilder} instance
+   * @since 5.0
+   */
+  public HttpComponentsClientHttpRequestFactoryBuilder withDnsResolver(DnsResolver dnsResolver) {
+    return new HttpComponentsClientHttpRequestFactoryBuilder(getCustomizers(),
+            this.httpClientBuilder.withDnsResolver(dnsResolver));
   }
 
   static class Classes {

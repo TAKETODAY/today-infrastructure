@@ -317,7 +317,6 @@ public class ContentNegotiatingViewResolverTests {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void resolveViewNameFilename() throws Exception {
     request.setRequestURI("/test.html");
 

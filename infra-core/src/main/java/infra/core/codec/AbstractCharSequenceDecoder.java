@@ -126,17 +126,16 @@ public abstract class AbstractCharSequenceDecoder<T extends CharSequence> extend
   private Collection<DataBuffer> processDataBuffer(DataBuffer buffer, DataBufferUtils.Matcher matcher,
           LimitedDataBufferList chunks) {
 
-    boolean release = true;
+    ArrayList<DataBuffer> result = null;
+    DataBuffer split = null;
     try {
-      List<DataBuffer> result = null;
       do {
         int endIndex = matcher.match(buffer);
         if (endIndex == -1) {
           chunks.add(buffer);
-          release = false;
-          break;
+          return (result != null ? result : Collections.emptyList());
         }
-        DataBuffer split = buffer.split(endIndex + 1);
+        split = buffer.split(endIndex + 1);
         if (result == null) {
           result = new ArrayList<>();
         }
@@ -146,9 +145,11 @@ public abstract class AbstractCharSequenceDecoder<T extends CharSequence> extend
             split.writePosition(split.writePosition() - delimiterLength);
           }
           result.add(split);
+          split = null;
         }
         else {
           chunks.add(split);
+          split = null;
           DataBuffer joined = buffer.factory().join(chunks);
           if (this.stripDelimiter) {
             joined.writePosition(joined.writePosition() - delimiterLength);
@@ -158,12 +159,20 @@ public abstract class AbstractCharSequenceDecoder<T extends CharSequence> extend
         }
       }
       while (buffer.readableBytes() > 0);
+      buffer.release();
       return (result != null ? result : Collections.emptyList());
     }
-    finally {
-      if (release) {
-        buffer.release();
+    catch (Throwable ex) {
+      // The source buffer is discarded by doOnDiscard; release only the split buffers here.
+      if (split != null) {
+        split.release();
       }
+      if (result != null) {
+        for (DataBuffer frame : result) {
+          frame.release();
+        }
+      }
+      throw ex;
     }
   }
 

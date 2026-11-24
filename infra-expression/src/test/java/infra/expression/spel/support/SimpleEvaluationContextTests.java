@@ -19,21 +19,31 @@
 package infra.expression.spel.support;
 
 import org.assertj.core.api.ThrowableTypeAssert;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+import infra.core.TypeDescriptor;
+import infra.core.conversion.ConverterNotFoundException;
+import infra.core.conversion.support.DefaultConversionService;
 import infra.expression.Expression;
 import infra.expression.IndexAccessor;
+import infra.expression.TypeConverter;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
 import infra.expression.spel.standard.SpelExpressionParser;
+import infra.util.InfraStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.entry;
 
 /**
@@ -48,6 +58,153 @@ class SimpleEvaluationContextTests {
   private final SpelExpressionParser parser = new SpelExpressionParser();
 
   private final Model model = new Model();
+
+  @Test
+  void defaultConversionServiceDoesNotOfferReflectiveConversions() {
+    TypeConverter converter = SimpleEvaluationContext.forReadOnlyDataBinding().build().getTypeConverter();
+    TypeDescriptor stringType = TypeDescriptor.valueOf(String.class);
+
+    assertThat(converter.canConvert(stringType, TypeDescriptor.valueOf(Label.class))).isFalse();
+    assertThat(converter.canConvert(stringType, TypeDescriptor.valueOf(ZoneId.class))).isFalse();
+  }
+
+  @Test
+  void mapKeyConversionViaConstructorNotSupportedByDefault() {
+    SimpleEvaluationContext context = SimpleEvaluationContext.forReadOnlyDataBinding().build();
+    LabelCatalog catalog = new LabelCatalog();
+
+    assertThatSpelEvaluationException()
+            .isThrownBy(() -> parser.parseExpression("labels['sample']").getValue(context, catalog))
+            .satisfies(ex -> assertThat(ex.getMessageCode()).isEqualTo(SpelMessage.TYPE_CONVERSION_ERROR))
+            .withRootCauseInstanceOf(ConverterNotFoundException.class);
+  }
+
+  @Test
+  void propertyConversionViaConstructorNotSupportedByDefault() {
+    SimpleEvaluationContext context = SimpleEvaluationContext.forReadWriteDataBinding().build();
+    LabelCatalog catalog = new LabelCatalog();
+
+    assertThatSpelEvaluationException()
+            .isThrownBy(() -> parser.parseExpression("label = 'sample'").getValue(context, catalog))
+            .satisfies(ex -> assertThat(ex.getMessageCode()).isEqualTo(SpelMessage.EXCEPTION_DURING_PROPERTY_WRITE))
+            .withRootCauseInstanceOf(ConverterNotFoundException.class);
+    assertThat(catalog.getLabel()).isNull();
+  }
+
+  @Test
+  void methodArgumentConversionViaConstructorNotSupportedByDefault() {
+    SimpleEvaluationContext context = SimpleEvaluationContext.forReadOnlyDataBinding().withInstanceMethods().build();
+    LabelCatalog catalog = new LabelCatalog();
+
+    assertThatSpelEvaluationException()
+            .isThrownBy(() -> parser.parseExpression("contains('sample')").getValue(context, catalog))
+            .satisfies(ex -> assertThat(ex.getMessageCode()).isEqualTo(SpelMessage.METHOD_NOT_FOUND));
+  }
+
+  @Test
+  void commonConversionsSupportedByDefault() {
+    TypeConverter converter = SimpleEvaluationContext.forReadOnlyDataBinding().build().getTypeConverter();
+    UUID uuid = UUID.randomUUID();
+
+    assertThat(convert(converter, "42", Integer.class)).isEqualTo(42);
+    assertThat(convert(converter, "true", Boolean.class)).isEqualTo(true);
+    assertThat(convert(converter, "SECONDS", TimeUnit.class)).isEqualTo(TimeUnit.SECONDS);
+    assertThat(convert(converter, uuid.toString(), UUID.class)).isEqualTo(uuid);
+    assertThat(convert(converter, new StringBuilder("built"), String.class)).isEqualTo("built");
+    assertThat((Integer[]) convert(converter, "1,2", Integer[].class)).containsExactly(1, 2);
+  }
+
+  @Test
+  void withConverter() {
+    TypeConverter converter = SimpleEvaluationContext.forReadOnlyDataBinding()
+            .withConverter(String.class, ZoneId.class, ZoneId::of)
+            .build().getTypeConverter();
+
+    assertThat(convert(converter, "Europe/Paris", ZoneId.class)).isEqualTo(ZoneId.of("Europe/Paris"));
+    assertThat(convert(converter, "42", Integer.class)).isEqualTo(42);
+    assertThat(converter.canConvert(TypeDescriptor.valueOf(String.class), TypeDescriptor.valueOf(Label.class))).isFalse();
+    assertThat(SimpleEvaluationContext.forReadOnlyDataBinding().build().getTypeConverter()
+            .canConvert(TypeDescriptor.valueOf(String.class), TypeDescriptor.valueOf(ZoneId.class))).isFalse();
+  }
+
+  @Test
+  void customTypeConverterIsUsedAsIs() {
+    TypeConverter converter = new StandardTypeConverter();
+
+    assertThat(SimpleEvaluationContext.forReadOnlyDataBinding().withTypeConverter(converter)
+            .build().getTypeConverter()).isSameAs(converter);
+  }
+
+  @Test
+  void customConversionServiceIsUsedAsIs() {
+    DefaultConversionService service = new DefaultConversionService();
+    service.addConverter(String.class, Label.class, Label::new);
+    SimpleEvaluationContext context = SimpleEvaluationContext.forReadWriteDataBinding()
+            .withConversionService(service).build();
+    LabelCatalog catalog = new LabelCatalog();
+
+    parser.parseExpression("label").setValue(context, catalog, "sample");
+    assertThat(catalog.getLabel()).isEqualTo(new Label("sample"));
+  }
+
+  @Test
+  void withConverterCannotBeCombinedWithCustomConversionServiceOrTypeConverter() {
+    assertThatIllegalStateException().isThrownBy(() -> SimpleEvaluationContext.forReadOnlyDataBinding()
+            .withConverter(String.class, ZoneId.class, ZoneId::of)
+            .withConversionService(new DefaultConversionService())
+            .build());
+
+    assertThatIllegalStateException().isThrownBy(() -> SimpleEvaluationContext.forReadOnlyDataBinding()
+            .withTypeConverter(new StandardTypeConverter())
+            .withConverter(String.class, ZoneId.class, ZoneId::of)
+            .build());
+  }
+
+  @Test
+  void reflectiveConversionProperty() {
+    String key = SimpleEvaluationContext.REFLECTIVE_CONVERSION_PROPERTY_NAME;
+    InfraStrategies.setFlag(key);
+    try {
+      TypeDescriptor source = TypeDescriptor.valueOf(String.class);
+      TypeDescriptor target = TypeDescriptor.valueOf(Label.class);
+
+      assertThat(SimpleEvaluationContext.forReadOnlyDataBinding().build().getTypeConverter()
+              .canConvert(source, target)).isTrue();
+      TypeConverter converter = SimpleEvaluationContext.forReadOnlyDataBinding()
+              .withConverter(String.class, ZoneId.class, ZoneId::of).build().getTypeConverter();
+      assertThat(converter.canConvert(source, target)).isTrue();
+      assertThat(convert(converter, "Europe/Paris", ZoneId.class)).isEqualTo(ZoneId.of("Europe/Paris"));
+    }
+    finally {
+      InfraStrategies.setProperty(key, null);
+    }
+  }
+
+  private static @Nullable Object convert(TypeConverter converter, Object value, Class<?> targetType) {
+    return converter.convertValue(value, TypeDescriptor.forObject(value), TypeDescriptor.valueOf(targetType));
+  }
+
+  record Label(String value) { }
+
+  static class LabelCatalog {
+
+    public final Map<Label, String> labels = Map.of();
+
+    private @Nullable Label label;
+
+    public @Nullable Label getLabel() {
+      return this.label;
+    }
+
+    public void setLabel(Label label) {
+      this.label = label;
+    }
+
+    public boolean contains(Label label) {
+      return this.labels.containsKey(label);
+    }
+
+  }
 
   @Test
   void compilationNotSupportedByDefault() {

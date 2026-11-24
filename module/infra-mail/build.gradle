@@ -15,6 +15,7 @@ dependencies {
   annotationProcessor(project(":infra-build:infra-annotation-config-processor"))
 
   compileOnly("com.fasterxml.jackson.core:jackson-annotations")
+  testCompileOnly("com.fasterxml.jackson.core:jackson-annotations")
 
   runtimeOnly("org.eclipse.angus:angus-mail")
 
@@ -34,4 +35,3 @@ dependencies {
   testRuntimeOnly("com.sun.mail:jakarta.mail")
 
 }
-

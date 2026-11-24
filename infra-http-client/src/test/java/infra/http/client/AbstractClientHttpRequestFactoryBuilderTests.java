@@ -25,6 +25,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -50,6 +52,7 @@ import infra.web.server.netty.NettyWebServerFactory;
 import io.netty.channel.ChannelHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatException;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
@@ -191,6 +194,60 @@ abstract class AbstractClientHttpRequestFactoryBuilderTests<T extends ClientHttp
     }
     finally {
       shutdownGracefully(webServer);
+    }
+  }
+
+  @Test
+  void filteredInetAddress() throws Exception {
+    WebServer webServer = createWebServerFactory().createWebServer();
+    try {
+      webServer.start();
+      URI uri = new URI("http://localhost:%s/test".formatted(webServer.getPort()));
+      HttpClientSettings settings = HttpClientSettings.defaults().withInetAddressFilter(InetAddressFilter.externalAddresses());
+      ClientHttpRequest request = this.builder.build(settings).createRequest(uri, HttpMethod.GET);
+      assertThatException().isThrownBy(request::execute)
+              .matches(ex -> ex instanceof FilteredHostException || ex.getCause() instanceof FilteredHostException);
+    }
+    finally {
+      webServer.stop();
+    }
+  }
+
+  @Test
+  void filteredInetAddressWhenRedirected() throws Exception {
+    WebServer blockedServer = createWebServerFactory().createWebServer();
+    try {
+      blockedServer.start();
+      int blockedPort = blockedServer.getPort();
+      NettyWebServerFactory factory = createWebServerFactory();
+      factory.setHttpTrafficHandler(new RedirectHandler("http://localhost:%s/test".formatted(blockedPort)));
+      WebServer redirectServer = factory.createWebServer();
+      try {
+        redirectServer.start();
+        URI uri = new URI("http://localhost:%s/redirect".formatted(redirectServer.getPort()));
+        InetAddressFilter filter = new InetAddressFilter() {
+
+          @Override
+          public boolean matches(InetAddress address) {
+            throw new IllegalStateException("This test requires the port");
+          }
+
+          @Override
+          public boolean matches(InetSocketAddress address) {
+            return address.getPort() != blockedPort;
+          }
+        };
+        ClientHttpRequest request = this.builder.build(HttpClientSettings.defaults().withInetAddressFilter(filter))
+                .createRequest(uri, HttpMethod.GET);
+        assertThatException().isThrownBy(request::execute)
+                .matches(ex -> ex instanceof FilteredHostException || ex.getCause() instanceof FilteredHostException);
+      }
+      finally {
+        redirectServer.stop();
+      }
+    }
+    finally {
+      blockedServer.stop();
     }
   }
 

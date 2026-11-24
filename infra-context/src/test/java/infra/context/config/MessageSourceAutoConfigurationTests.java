@@ -18,10 +18,12 @@
 
 package infra.context.config;
 
-import org.jspecify.annotations.Nullable;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.Disabled;
+
+import java.io.IOException;
 import java.util.Locale;
 
 import infra.aot.hint.RuntimeHints;
@@ -34,7 +36,10 @@ import infra.context.annotation.PropertySource;
 import infra.context.annotation.config.AutoConfigurations;
 import infra.context.support.ReloadableResourceBundleMessageSource;
 import infra.context.support.ResourceBundleMessageSource;
+import infra.core.io.ClassPathResource;
+import infra.test.classpath.resources.WithResource;
 import infra.test.context.assertj.AssertableApplicationContext;
+import infra.test.context.FilteredClassLoader;
 import infra.test.context.runner.ApplicationContextRunner;
 import infra.test.context.runner.ContextConsumer;
 
@@ -50,6 +55,8 @@ import static org.mockito.Mockito.mock;
  * @author Stephane Nicoll
  * @author Kedar Joshi
  * @author Henrique (henriquejsza)
+ * @author Tanishq Choudhary
+ * @author Daniel Lykov
  */
 class MessageSourceAutoConfigurationTests {
 
@@ -154,6 +161,16 @@ class MessageSourceAutoConfigurationTests {
   }
 
   @Test
+  @WithResource(name = "test/my messages.properties", content = "foo=bar")
+  void testMultipleMessageSourceCreatedWithSpacesInBasename() {
+    this.contextRunner.withPropertyValues("messages.basename=test/my messages, test/messages2")
+            .run((context) -> {
+              assertThat(context).hasSingleBean(MessageSource.class);
+              assertThat(context.getMessage("foo", null, "Foo message", Locale.UK)).isEqualTo("bar");
+            });
+  }
+
+  @Test
   @Disabled("Expected to fail per gh-1075")
   void testMessageSourceFromPropertySourceAnnotation() {
     this.contextRunner.withUserConfiguration(Config.class)
@@ -165,6 +182,31 @@ class MessageSourceAutoConfigurationTests {
     this.contextRunner.withPropertyValues("messages.basename=test/messages",
                     "messages.common-messages=classpath:test/common-messages.properties")
             .run((context) -> assertThat(context.getMessage("hello", null, "Hello!", Locale.UK)).isEqualTo("world"));
+  }
+
+  @Test
+  @WithResource(name = "test/encoded-common-messages.properties", content = "hello=Some text with some swedish öäå!")
+  void testCommonMessagesEncodingWorks() {
+    this.contextRunner
+            .withPropertyValues("messages.basename=test/messages",
+                    "messages.common-messages=classpath:test/encoded-common-messages.properties")
+            .run((context) -> assertThat(context.getMessage("hello", null, "Hello!", Locale.UK))
+                    .isEqualTo("Some text with some swedish öäå!"));
+  }
+
+  @Test
+  @WithResource(name = "test/isolated-messages.properties", content = "foo=bar")
+  void propertiesBundleIsDetectedAfterPreviousContextCouldNotLoadIt() throws IOException {
+    ApplicationContextRunner runner = this.contextRunner.withPropertyValues("messages.basename=test/isolated-messages");
+    try (FilteredClassLoader classLoader = new FilteredClassLoader(
+            new ClassPathResource("test/isolated-messages.properties"))) {
+      runner.withClassLoader(classLoader)
+              .run((context) -> assertThat(context).doesNotHaveBean(ResourceBundleMessageSource.class));
+    }
+    runner.run((context) -> {
+      assertThat(context).hasSingleBean(ResourceBundleMessageSource.class);
+      assertThat(context.getMessage("foo", null, Locale.UK)).isEqualTo("bar");
+    });
   }
 
   @Test

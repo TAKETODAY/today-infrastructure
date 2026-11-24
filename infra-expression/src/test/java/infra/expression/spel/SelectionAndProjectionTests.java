@@ -26,6 +26,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -276,6 +277,21 @@ class SelectionAndProjectionTests {
       assertThat(colorsMap).containsOnlyKeys("brown");
     }
 
+    /** Count the selection itself and every element processed, whether it matches or not. */
+    @ParameterizedTest
+    @ValueSource(strings = {"#root.?[false]", "#root.?[true]", "#root.^[false]", "#root.$[false]", "#root.$[true]"})
+    void selectionTracksEachElement(String expression) {
+      assertMaxOperations(expression, tenNumbers(), 11);
+      assertMaxOperations(expression, tenNumbers().toArray(new Integer[0]), 11);
+      assertMaxOperations(expression, tenNumbersMap(), 11);
+    }
+
+    @Test
+    void selectFirstTracksElementsUntilFirstMatch() {
+      assertMaxOperations("#root.^[true]", tenNumbers(), 2);
+      assertMaxOperations("#root.^[true]", tenNumbersMap(), 2);
+    }
+
   }
 
   @Nested
@@ -308,6 +324,14 @@ class SelectionAndProjectionTests {
               "[null, null, null, null, null, six, seven, eight, nine, ten]", ArrayList.class);
     }
 
+    /** Count the projection itself and every element processed. */
+    @Test
+    void projectionTracksEachElement() {
+      assertMaxOperations("#root.![#this]", tenNumbers(), 11);
+      assertMaxOperations("#root.![#this]", tenNumbers().toArray(new Integer[0]), 11);
+      assertMaxOperations("#root.![#this]", tenNumbersMap(), 11);
+    }
+
     @Test
     @SuppressWarnings("unchecked")
     void projectionWithSet() {
@@ -335,6 +359,18 @@ class SelectionAndProjectionTests {
       assertThat(value).asInstanceOf(array(Number[].class)).containsExactly(5, 5.9f, 7);
     }
 
+  }
+
+  private static List<Integer> tenNumbers() {
+    return IntStream.rangeClosed(1, 10).boxed().toList();
+  }
+
+  private static LinkedHashMap<Integer, Integer> tenNumbersMap() {
+    LinkedHashMap<Integer, Integer> map = new LinkedHashMap<>();
+    for (Integer number : tenNumbers()) {
+      map.put(number, number);
+    }
+    return map;
   }
 
   static class ListTestBean {

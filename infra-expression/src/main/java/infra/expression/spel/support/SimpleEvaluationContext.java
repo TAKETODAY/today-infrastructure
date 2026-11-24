@@ -29,6 +29,7 @@ import java.util.function.Supplier;
 
 import infra.core.TypeDescriptor;
 import infra.core.conversion.ConversionService;
+import infra.core.conversion.Converter;
 import infra.core.conversion.support.DefaultConversionService;
 import infra.expression.BeanResolver;
 import infra.expression.EvaluationContext;
@@ -43,6 +44,8 @@ import infra.expression.TypeLocator;
 import infra.expression.TypedValue;
 import infra.expression.spel.SpelEvaluationException;
 import infra.expression.spel.SpelMessage;
+import infra.util.Assert;
+import infra.util.InfraStrategies;
 
 /**
  * A basic implementation of {@link EvaluationContext} that focuses on a subset
@@ -88,6 +91,15 @@ import infra.expression.spel.SpelMessage;
  * context, care must be taken to ensure that function names and variable names
  * do not overlap.
  *
+ * <p>By default, {@code SimpleEvaluationContext} uses a {@link StandardTypeConverter}
+ * backed by a restricted {@link DefaultConversionService}. This service excludes
+ * converters that reflectively invoke constructors, static factory methods, or other
+ * methods on arbitrary types. Common conversions remain available; register dedicated
+ * converters for additional types via {@link Builder#withConverter}. Custom conversion
+ * services and type converters are used as-is. See {@link Builder#withConversionService}
+ * and {@link Builder#withTypeConverter} for details. The previous default can be restored
+ * globally via the {@value #REFLECTIVE_CONVERSION_PROPERTY_NAME} property.
+ *
  * <p>For more power and flexibility, in particular for internal configuration
  * scenarios, consider using {@link StandardEvaluationContext} instead.
  *
@@ -114,9 +126,24 @@ import infra.expression.spel.SpelMessage;
  */
 public final class SimpleEvaluationContext implements EvaluationContext {
 
+  /**
+   * Property that restores the standard {@link DefaultConversionService} as the
+   * default conversion service for {@code SimpleEvaluationContext}: {@value}.
+   * <p>Setting this flag to {@code true} enables reflective type conversion in every
+   * context that does not specify its own {@link ConversionService} or {@link TypeConverter}.
+   * <p><strong>WARNING</strong>: This has the same security implications as passing a
+   * standard {@code DefaultConversionService} to {@link Builder#withConversionService}.
+   * Prefer registering dedicated converters via {@link Builder#withConverter}.
+   * <p>Can be set as a JVM system property or via {@link InfraStrategies}.
+   * @since 5.0
+   */
+  public static final String REFLECTIVE_CONVERSION_PROPERTY_NAME = "infra.expression.reflectiveConversion";
+
   private static final TypeLocator typeNotFoundTypeLocator = typeName -> {
     throw new SpelEvaluationException(SpelMessage.TYPE_NOT_FOUND, typeName);
   };
+
+  private static volatile @Nullable DefaultConversionService restrictedConversionService;
 
   private final TypedValue rootObject;
 
@@ -145,7 +172,7 @@ public final class SimpleEvaluationContext implements EvaluationContext {
     this.propertyAccessors = propertyAccessors;
     this.indexAccessors = indexAccessors;
     this.methodResolvers = resolvers;
-    this.typeConverter = (converter != null ? converter : new StandardTypeConverter());
+    this.typeConverter = (converter != null ? converter : new StandardTypeConverter(getDefaultConversionService()));
     this.rootObject = (rootObject != null ? rootObject : TypedValue.NULL);
     this.assignmentEnabled = assignmentEnabled;
     this.compilationSupported = compilationSupported;
@@ -213,8 +240,11 @@ public final class SimpleEvaluationContext implements EvaluationContext {
 
   /**
    * The configured {@link TypeConverter}.
-   * <p>By default this is {@link StandardTypeConverter}.
+   * <p>By default this is a {@link StandardTypeConverter} backed by a restricted
+   * {@link ConversionService}. See the {@linkplain SimpleEvaluationContext
+   * class-level documentation} for details.
    *
+   * @see Builder#withConverter
    * @see Builder#withTypeConverter
    * @see Builder#withConversionService
    */
@@ -368,6 +398,34 @@ public final class SimpleEvaluationContext implements EvaluationContext {
   }
 
   /**
+   * Return the shared standard service if the compatibility flag is enabled;
+   * otherwise return the shared, lazily initialized restricted service.
+   */
+  private static DefaultConversionService getDefaultConversionService() {
+    if (InfraStrategies.getFlag(REFLECTIVE_CONVERSION_PROPERTY_NAME)) {
+      return DefaultConversionService.getSharedInstance();
+    }
+    DefaultConversionService service = restrictedConversionService;
+    if (service == null) {
+      synchronized (SimpleEvaluationContext.class) {
+        service = restrictedConversionService;
+        if (service == null) {
+          service = createRestrictedConversionService();
+          restrictedConversionService = service;
+        }
+      }
+    }
+    return service;
+  }
+
+  /** Create a default conversion service without the reflective Object-to-Object converters. */
+  private static DefaultConversionService createRestrictedConversionService() {
+    DefaultConversionService service = new DefaultConversionService();
+    service.removeConvertible(Object.class, Object.class);
+    return service;
+  }
+
+  /**
    * Builder for {@code SimpleEvaluationContext}.
    */
   public static final class Builder {
@@ -380,6 +438,9 @@ public final class SimpleEvaluationContext implements EvaluationContext {
 
     @Nullable
     private TypeConverter typeConverter;
+
+    @Nullable
+    private DefaultConversionService conversionService;
 
     @Nullable
     private TypedValue rootObject;
@@ -460,9 +521,15 @@ public final class SimpleEvaluationContext implements EvaluationContext {
 
     /**
      * Register a custom {@link ConversionService}.
-     * <p>By default a {@link StandardTypeConverter} backed by a
-     * {@link DefaultConversionService} is used.
+     * <p>By default a {@link StandardTypeConverter} backed by a restricted
+     * {@link DefaultConversionService} is used. It does not convert values by
+     * reflectively invoking constructors or methods on arbitrary types.
+     * <p><strong>WARNING</strong>: The supplied service is used as-is. If it
+     * performs reflective conversion, as a standard {@code DefaultConversionService}
+     * does, treat every conversion target with the same care as any object reachable
+     * from an expression. Prefer adding dedicated converters via {@link #withConverter}.
      *
+     * @see #withConverter
      * @see #withTypeConverter
      * @see StandardTypeConverter#StandardTypeConverter(ConversionService)
      */
@@ -473,14 +540,49 @@ public final class SimpleEvaluationContext implements EvaluationContext {
 
     /**
      * Register a custom {@link TypeConverter}.
-     * <p>By default a {@link StandardTypeConverter} backed by a
+     * <p>By default a {@link StandardTypeConverter} backed by a restricted
      * {@link DefaultConversionService} is used.
+     * <p><strong>WARNING</strong>: The supplied converter is used as-is. For
+     * example, a {@link StandardTypeConverter} created with its no-arg constructor
+     * delegates to the shared service, which supports reflective conversion. See
+     * {@link #withConversionService} for the implications.
      *
+     * @see #withConverter
      * @see #withConversionService
      * @see StandardTypeConverter#StandardTypeConverter()
      */
     public Builder withTypeConverter(TypeConverter converter) {
       this.typeConverter = converter;
+      return this;
+    }
+
+    /**
+     * Register a dedicated {@link Converter} in addition to the default converters.
+     * <p>Prefer this method for individual conversions not supported by default, for
+     * example {@code withConverter(String.class, ZoneId.class, ZoneId::of)}.
+     * This method can be called multiple times but cannot be combined with
+     * {@link #withConversionService} or {@link #withTypeConverter}; in that case,
+     * {@link #build()} throws an {@link IllegalStateException}.
+     *
+     * @param <S> the source type
+     * @param <T> the target type
+     * @param sourceType the type to convert from
+     * @param targetType the type to convert to
+     * @param converter the converter to register
+     * @return this builder
+     * @see SimpleEvaluationContext#REFLECTIVE_CONVERSION_PROPERTY_NAME
+     * @since 5.0
+     */
+    public <S, T> Builder withConverter(Class<S> sourceType, Class<T> targetType,
+            Converter<? super S, ? extends T> converter) {
+
+      DefaultConversionService service = this.conversionService;
+      if (service == null) {
+        service = (InfraStrategies.getFlag(REFLECTIVE_CONVERSION_PROPERTY_NAME) ?
+                new DefaultConversionService() : createRestrictedConversionService());
+        this.conversionService = service;
+      }
+      service.addConverter(sourceType, targetType, converter);
       return this;
     }
 
@@ -509,8 +611,14 @@ public final class SimpleEvaluationContext implements EvaluationContext {
     }
 
     public SimpleEvaluationContext build() {
+      TypeConverter converter = this.typeConverter;
+      if (this.conversionService != null) {
+        Assert.state(converter == null,
+                "withConverter() cannot be combined with withConversionService() or withTypeConverter()");
+        converter = new StandardTypeConverter(this.conversionService);
+      }
       return new SimpleEvaluationContext(this.propertyAccessors, this.indexAccessors,
-              this.resolvers, this.typeConverter, this.rootObject,
+              this.resolvers, converter, this.rootObject,
               this.assignmentEnabled, this.compilationSupported);
     }
 

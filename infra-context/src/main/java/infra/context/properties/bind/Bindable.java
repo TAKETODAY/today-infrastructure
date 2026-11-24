@@ -193,7 +193,7 @@ public final class Bindable<T> {
   public Bindable<T> withAnnotations(Annotation @Nullable ... annotations) {
     return new Bindable<>(this.type, this.boxedType, this.value,
             annotations != null ? annotations : Constant.EMPTY_ANNOTATIONS,
-            NO_BIND_RESTRICTIONS, this.bindMethod);
+            this.bindRestrictions, this.bindMethod);
   }
 
   /**

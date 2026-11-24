@@ -22,6 +22,7 @@ import infra.docker.compose.core.RunningService;
 import infra.docker.compose.service.connection.DockerComposeConnectionDetailsFactory;
 import infra.docker.compose.service.connection.DockerComposeConnectionSource;
 import infra.jdbc.config.JdbcConnectionDetails;
+import infra.jdbc.docker.compose.JdbcUrlBuilder.Encoding;
 
 /**
  * {@link DockerComposeConnectionDetailsFactory} to create {@link JdbcConnectionDetails}
@@ -47,7 +48,7 @@ class ClickHouseJdbcDockerComposeConnectionDetailsFactory extends DockerComposeC
   static class ClickhouseJdbcDockerComposeConnectionDetails extends DockerComposeConnectionDetails
           implements JdbcConnectionDetails {
 
-    private static final JdbcUrlBuilder jdbcUrlBuilder = new JdbcUrlBuilder("clickhouse", 8123);
+    private static final JdbcUrlBuilder jdbcUrlBuilder = new JdbcUrlBuilder("clickhouse", 8123, Encoding.URL_PLUS);
 
     private final ClickHouseEnvironment environment;
 

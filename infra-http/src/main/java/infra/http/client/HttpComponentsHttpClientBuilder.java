@@ -18,6 +18,8 @@
 
 package infra.http.client;
 
+import org.apache.hc.client5.http.DnsResolver;
+import org.apache.hc.client5.http.SystemDefaultDnsResolver;
 import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.cookie.StandardCookieSpec;
@@ -61,9 +63,11 @@ public final class HttpComponentsHttpClientBuilder {
 
   private final TlsSocketStrategyFactory tlsSocketStrategyFactory;
 
+  private final DnsResolver dnsResolver;
+
   public HttpComponentsHttpClientBuilder() {
     this(Empty.consumer(), Empty.consumer(), Empty.consumer(), Empty.consumer(), Empty.consumer(),
-            HttpComponentsSslBundleTlsStrategy::get);
+            HttpComponentsSslBundleTlsStrategy::get, SystemDefaultDnsResolver.INSTANCE);
   }
 
   private HttpComponentsHttpClientBuilder(Consumer<HttpClientBuilder> customizer,
@@ -71,13 +75,14 @@ public final class HttpComponentsHttpClientBuilder {
           Consumer<SocketConfig.Builder> socketConfigCustomizer,
           Consumer<ConnectionConfig.Builder> connectionConfigCustomizer,
           Consumer<RequestConfig.Builder> defaultRequestConfigCustomizer,
-          TlsSocketStrategyFactory tlsSocketStrategyFactory) {
+          TlsSocketStrategyFactory tlsSocketStrategyFactory, DnsResolver dnsResolver) {
     this.customizer = customizer;
     this.connectionManagerCustomizer = connectionManagerCustomizer;
     this.socketConfigCustomizer = socketConfigCustomizer;
     this.connectionConfigCustomizer = connectionConfigCustomizer;
     this.defaultRequestConfigCustomizer = defaultRequestConfigCustomizer;
     this.tlsSocketStrategyFactory = tlsSocketStrategyFactory;
+    this.dnsResolver = dnsResolver;
   }
 
   /**
@@ -91,7 +96,7 @@ public final class HttpComponentsHttpClientBuilder {
     Assert.notNull(customizer, "'customizer' is required");
     return new HttpComponentsHttpClientBuilder(this.customizer.andThen(customizer),
             this.connectionManagerCustomizer, this.socketConfigCustomizer, this.connectionConfigCustomizer,
-            this.defaultRequestConfigCustomizer, this.tlsSocketStrategyFactory);
+            this.defaultRequestConfigCustomizer, this.tlsSocketStrategyFactory, this.dnsResolver);
   }
 
   /**
@@ -106,7 +111,8 @@ public final class HttpComponentsHttpClientBuilder {
     Assert.notNull(connectionManagerCustomizer, "'connectionManagerCustomizer' is required");
     return new HttpComponentsHttpClientBuilder(this.customizer,
             this.connectionManagerCustomizer.andThen(connectionManagerCustomizer), this.socketConfigCustomizer,
-            this.connectionConfigCustomizer, this.defaultRequestConfigCustomizer, this.tlsSocketStrategyFactory);
+            this.connectionConfigCustomizer, this.defaultRequestConfigCustomizer, this.tlsSocketStrategyFactory,
+            this.dnsResolver);
   }
 
   /**
@@ -122,7 +128,7 @@ public final class HttpComponentsHttpClientBuilder {
     Assert.notNull(socketConfigCustomizer, "'socketConfigCustomizer' is required");
     return new HttpComponentsHttpClientBuilder(this.customizer, this.connectionManagerCustomizer,
             this.socketConfigCustomizer.andThen(socketConfigCustomizer), this.connectionConfigCustomizer,
-            this.defaultRequestConfigCustomizer, this.tlsSocketStrategyFactory);
+            this.defaultRequestConfigCustomizer, this.tlsSocketStrategyFactory, this.dnsResolver);
   }
 
   /**
@@ -137,7 +143,7 @@ public final class HttpComponentsHttpClientBuilder {
     Assert.notNull(connectionConfigCustomizer, "'connectionConfigCustomizer' is required");
     return new HttpComponentsHttpClientBuilder(this.customizer, this.connectionManagerCustomizer,
             this.socketConfigCustomizer, this.connectionConfigCustomizer.andThen(connectionConfigCustomizer),
-            this.defaultRequestConfigCustomizer, this.tlsSocketStrategyFactory);
+            this.defaultRequestConfigCustomizer, this.tlsSocketStrategyFactory, this.dnsResolver);
   }
 
   /**
@@ -154,7 +160,7 @@ public final class HttpComponentsHttpClientBuilder {
     Assert.notNull(tlsSocketStrategyFactory, "'tlsSocketStrategyFactory' is required");
     return new HttpComponentsHttpClientBuilder(this.customizer, this.connectionManagerCustomizer,
             this.socketConfigCustomizer, this.connectionConfigCustomizer, this.defaultRequestConfigCustomizer,
-            tlsSocketStrategyFactory);
+            tlsSocketStrategyFactory, this.dnsResolver);
   }
 
   /**
@@ -171,7 +177,21 @@ public final class HttpComponentsHttpClientBuilder {
     return new HttpComponentsHttpClientBuilder(this.customizer, this.connectionManagerCustomizer,
             this.socketConfigCustomizer, this.connectionConfigCustomizer,
             this.defaultRequestConfigCustomizer.andThen(defaultRequestConfigCustomizer),
-            this.tlsSocketStrategyFactory);
+            this.tlsSocketStrategyFactory, this.dnsResolver);
+  }
+
+  /**
+   * Return a new builder with a replacement {@link DnsResolver}.
+   *
+   * @param dnsResolver the DNS resolver to use
+   * @return a new {@link HttpComponentsHttpClientBuilder} instance
+   * @since 5.0
+   */
+  public HttpComponentsHttpClientBuilder withDnsResolver(DnsResolver dnsResolver) {
+    Assert.notNull(dnsResolver, "DnsResolver is required");
+    return new HttpComponentsHttpClientBuilder(this.customizer, this.connectionManagerCustomizer,
+            this.socketConfigCustomizer, this.connectionConfigCustomizer, this.defaultRequestConfigCustomizer,
+            this.tlsSocketStrategyFactory, dnsResolver);
   }
 
   /**
@@ -200,6 +220,12 @@ public final class HttpComponentsHttpClientBuilder {
     builder.setTlsSocketStrategy(tlsSocketStrategy);
 
     connectionManagerCustomizer.accept(builder);
+    if (settings.inetAddressFilter() != null) {
+      builder.setDnsResolver(new HttpComponentsFilteredDnsResolver(this.dnsResolver, settings.inetAddressFilter()));
+    }
+    else if (this.dnsResolver != SystemDefaultDnsResolver.INSTANCE) {
+      builder.setDnsResolver(this.dnsResolver);
+    }
     return builder.build();
   }
 

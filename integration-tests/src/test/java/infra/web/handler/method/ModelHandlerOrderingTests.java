@@ -115,7 +115,7 @@ class ModelHandlerOrderingTests {
     }
     Collections.shuffle(modelMethods);
 
-    ControllerMethodResolver methodResolver = new ControllerMethodResolver(null, parameterFactory);
+    ControllerMethodResolver methodResolver = new ControllerMethodResolver(null, resolvers);
 
     ModelHandler factory = new ModelHandler(methodResolver);
     factory.initModel(this.webRequest, this.mavContainer,
