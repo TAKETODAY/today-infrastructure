@@ -35,7 +35,7 @@ import infra.http.client.ClientHttpResponse;
 import infra.test.web.Person;
 import infra.test.web.client.MockRestServiceServer;
 import infra.util.FileCopyUtils;
-import infra.web.client.RestTemplate;
+import infra.restclient.RestTemplate;
 
 import static infra.test.web.client.ExpectedCount.manyTimes;
 import static infra.test.web.client.ExpectedCount.never;

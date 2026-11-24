@@ -35,7 +35,7 @@ import infra.test.context.runner.ApplicationContextRunner;
 import infra.test.http.server.LocalTestWebServer;
 import infra.test.http.server.LocalTestWebServer.Scheme;
 import infra.test.web.mock.client.RestTestClient;
-import infra.web.client.RestClient;
+import infra.restclient.RestClient;
 import infra.web.util.UriBuilderFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -51,7 +51,7 @@ import infra.util.MultiValueMap;
 import infra.web.annotation.POST;
 import infra.web.annotation.RequestPart;
 import infra.web.annotation.RestController;
-import infra.web.client.RestClient;
+import infra.restclient.RestClient;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.multipart.Part;
 import infra.web.server.netty.RandomPortWebServerConfig;

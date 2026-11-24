@@ -38,7 +38,7 @@ import infra.http.service.registry.greeting.GreetingB;
 import infra.http.service.support.RestClientHttpServiceGroupConfigurer;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
-import infra.web.client.RestClient;
+import infra.restclient.RestClient;
 import infra.web.testfixture.http.MockClientHttpRequest;
 import infra.web.testfixture.http.MockClientHttpResponse;
 

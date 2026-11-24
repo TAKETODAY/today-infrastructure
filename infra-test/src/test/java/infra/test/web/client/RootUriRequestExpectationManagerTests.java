@@ -32,8 +32,8 @@ import infra.http.client.ClientHttpRequest;
 import infra.http.client.ClientHttpResponse;
 import infra.http.client.support.DelegatingHttpRequest;
 import infra.web.util.UriTemplateHandler;
-import infra.web.client.RestTemplate;
-import infra.web.client.RestTemplateBuilder;
+import infra.restclient.RestTemplate;
+import infra.restclient.RestTemplateBuilder;
 
 import static infra.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static infra.test.web.client.response.MockRestResponseCreators.withSuccess;

@@ -21,8 +21,8 @@ package infra.http.service.config;
 import infra.beans.factory.ObjectProvider;
 import infra.http.service.registry.HttpServiceGroup;
 import infra.http.service.support.RestClientHttpServiceGroupConfigurer;
-import infra.web.client.RestClient;
-import infra.web.client.RestClientCustomizer;
+import infra.restclient.RestClient;
+import infra.restclient.RestClientCustomizer;
 
 /**
  * A {@link RestClientHttpServiceGroupConfigurer} to apply auto-configured

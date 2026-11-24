@@ -45,7 +45,7 @@ import infra.test.json.JsonConverterDelegate;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.util.StreamUtils;
-import infra.web.client.ClientResponse;
+import infra.restclient.ClientResponse;
 
 /**
  * Container for request and response details for exchanges performed through

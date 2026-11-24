@@ -26,8 +26,8 @@ import java.util.function.Supplier;
 import infra.test.web.client.RequestExpectationManager;
 import infra.test.web.client.SimpleRequestExpectationManager;
 import infra.test.web.client.UnorderedRequestExpectationManager;
-import infra.web.client.RestClient;
-import infra.web.client.RestClient.Builder;
+import infra.restclient.RestClient;
+import infra.restclient.RestClient.Builder;
 
 import static infra.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static infra.test.web.client.response.MockRestResponseCreators.withSuccess;

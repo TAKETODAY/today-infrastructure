@@ -30,7 +30,7 @@ import infra.http.HttpInputMessage;
 import infra.http.ResponseEntity;
 import infra.http.client.ClientHttpResponse;
 import infra.util.concurrent.Future;
-import infra.web.client.ClientResponse;
+import infra.restclient.ClientResponse;
 import infra.web.testfixture.http.MockClientHttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;

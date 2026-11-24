@@ -53,11 +53,11 @@ import infra.http.client.HttpCookieHandling;
 import infra.http.client.HttpRedirects;
 import infra.util.Assert;
 import infra.util.ObjectUtils;
-import infra.web.client.NoOpResponseErrorHandler;
-import infra.web.client.RequestCallback;
-import infra.web.client.ResponseExtractor;
-import infra.web.client.RestTemplate;
-import infra.web.client.RestTemplateBuilder;
+import infra.restclient.NoOpResponseErrorHandler;
+import infra.restclient.RequestCallback;
+import infra.restclient.ResponseExtractor;
+import infra.restclient.RestTemplate;
+import infra.restclient.RestTemplateBuilder;
 import infra.web.util.DefaultUriBuilderFactory;
 import infra.web.util.UriTemplateHandler;
 
@@ -914,8 +914,8 @@ public class TestRestTemplate {
    * @param <T> the type of the return value
    * @return an arbitrary object, as returned by the {@link ResponseExtractor}
    * @see RestTemplate#execute(java.lang.String, infra.http.HttpMethod,
-   * infra.web.client.RequestCallback,
-   * infra.web.client.ResponseExtractor, java.lang.Object[])
+   * RequestCallback,
+   * ResponseExtractor, java.lang.Object[])
    */
   public <T extends @Nullable Object> T execute(String url, HttpMethod method, RequestCallback requestCallback,
           ResponseExtractor<T> responseExtractor, Object... urlVariables) {
@@ -936,8 +936,8 @@ public class TestRestTemplate {
    * @param <T> the type of the return value
    * @return an arbitrary object, as returned by the {@link ResponseExtractor}
    * @see RestTemplate#execute(java.lang.String, infra.http.HttpMethod,
-   * infra.web.client.RequestCallback,
-   * infra.web.client.ResponseExtractor, java.util.Map)
+   * RequestCallback,
+   * ResponseExtractor, java.util.Map)
    */
   public <T extends @Nullable Object> T execute(String url, HttpMethod method, RequestCallback requestCallback,
           ResponseExtractor<T> responseExtractor, Map<String, ?> urlVariables) {
@@ -955,8 +955,8 @@ public class TestRestTemplate {
    * @param <T> the type of the return value
    * @return an arbitrary object, as returned by the {@link ResponseExtractor}
    * @see RestTemplate#execute(java.net.URI, infra.http.HttpMethod,
-   * infra.web.client.RequestCallback,
-   * infra.web.client.ResponseExtractor)
+   * RequestCallback,
+   * ResponseExtractor)
    */
   public <T extends @Nullable Object> T execute(URI url, HttpMethod method, @Nullable RequestCallback requestCallback,
           @Nullable ResponseExtractor<T> responseExtractor) {

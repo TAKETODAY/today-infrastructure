@@ -17,7 +17,7 @@
 package infra.http.service.support;
 
 import infra.http.service.registry.HttpServiceGroupConfigurer;
-import infra.web.client.RestClient;
+import infra.restclient.RestClient;
 
 /**
  * Extension of {@link HttpServiceGroupConfigurer} to configure groups

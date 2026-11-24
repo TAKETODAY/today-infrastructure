@@ -30,9 +30,9 @@ import infra.http.client.ClientHttpResponse;
 import infra.util.Assert;
 import infra.mock.http.client.MockClientHttpRequest;
 import infra.test.web.mock.MockMvc;
-import infra.web.client.RestClient;
-import infra.web.client.RestTemplate;
-import infra.web.client.support.RestGatewaySupport;
+import infra.restclient.RestClient;
+import infra.restclient.RestTemplate;
+import infra.restclient.support.RestGatewaySupport;
 
 /**
  * <strong>Main entry point for client-side REST testing</strong>. Used for tests

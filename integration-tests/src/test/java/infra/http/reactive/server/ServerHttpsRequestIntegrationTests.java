@@ -41,7 +41,7 @@ import infra.http.client.HttpComponentsClientHttpRequestFactory;
 import infra.http.reactive.server.HttpHandler;
 import infra.http.reactive.server.ServerHttpRequest;
 import infra.http.reactive.server.ServerHttpResponse;
-import infra.web.client.RestTemplate;
+import infra.restclient.RestTemplate;
 import infra.web.http.server.reactive.HttpServer;
 import infra.web.http.server.reactive.ReactorHttpsServer;
 import reactor.core.publisher.Mono;

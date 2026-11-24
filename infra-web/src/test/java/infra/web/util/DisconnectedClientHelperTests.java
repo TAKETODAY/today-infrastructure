@@ -30,7 +30,7 @@ import java.util.List;
 
 import infra.http.MockHttpInputMessage;
 import infra.http.converter.HttpMessageNotReadableException;
-import infra.web.client.ResourceAccessException;
+import infra.restclient.ResourceAccessException;
 import reactor.netty.channel.AbortedException;
 
 import static org.assertj.core.api.Assertions.assertThat;

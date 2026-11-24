@@ -55,8 +55,9 @@ include 'infra-http-service'
 include 'infra-http-reactive'
 include 'infra-http-converter'
 
+include 'infra-restclient'
+
 include 'infra-web-core'
-include 'infra-web-client'
 include 'infra-web-server'
 include 'infra-web-netty-server'
 include 'infra-web-reactive'

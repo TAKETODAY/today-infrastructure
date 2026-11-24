@@ -32,8 +32,8 @@ import infra.test.web.client.MockRestServiceServer;
 import infra.test.web.client.MockRestServiceServer.MockRestServiceServerBuilder;
 import infra.test.web.client.RequestExpectationManager;
 import infra.test.web.client.SimpleRequestExpectationManager;
-import infra.web.client.RestClient;
-import infra.web.client.RestClientCustomizer;
+import infra.restclient.RestClient;
+import infra.restclient.RestClientCustomizer;
 
 /**
  * {@link RestClientCustomizer} that can be applied to {@link RestClient.Builder RestClient.Builder}

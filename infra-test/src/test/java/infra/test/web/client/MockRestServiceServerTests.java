@@ -32,7 +32,7 @@ import infra.mock.http.client.MockClientHttpRequest;
 import infra.mock.http.client.MockClientHttpResponse;
 import infra.test.web.client.MockRestServiceServer.MockRestServiceServerBuilder;
 import infra.test.web.client.response.ExecutingResponseCreator;
-import infra.web.client.RestClient;
+import infra.restclient.RestClient;
 
 import static infra.http.HttpMethod.POST;
 import static infra.test.web.client.ExpectedCount.once;

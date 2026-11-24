@@ -56,7 +56,7 @@ import infra.test.util.ExceptionCollector;
 import infra.test.util.XmlExpectationsHelper;
 import infra.util.MimeType;
 import infra.util.MultiValueMap;
-import infra.web.client.RestClient;
+import infra.restclient.RestClient;
 import infra.web.util.UriBuilder;
 
 /**

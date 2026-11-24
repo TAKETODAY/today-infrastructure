@@ -31,9 +31,9 @@ import infra.http.client.config.ImperativeHttpClientAutoConfiguration;
 import infra.http.service.registry.HttpServiceProxyRegistry;
 import infra.http.service.support.RestClientAdapter;
 import infra.stereotype.Component;
-import infra.web.client.RestClient;
-import infra.web.client.RestClientCustomizer;
-import infra.web.client.config.RestClientAutoConfiguration;
+import infra.restclient.RestClient;
+import infra.restclient.RestClientCustomizer;
+import infra.restclient.config.RestClientAutoConfiguration;
 
 /**
  * AutoConfiguration for Infra HTTP Service clients backed by {@link RestClient}.

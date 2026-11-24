@@ -1,7 +1,7 @@
 [[io.rest-client]]
 = 调用 REST 服务
 
-TODAY INFRA 提供命令式 `infra.web.client.RestClient` 和响应式 `infra.web.reactive.client.WebClient`。
+TODAY INFRA 提供命令式 `infra.restclient.RestClient` 和响应式 `infra.web.reactive.client.WebClient`。
 普通阻塞应用通常选择 `RestClient`；使用 Reactor 的非阻塞应用可以选择 `WebClient`。
 底层 API 的详细说明见 xref:ROOT:integration/rest-clients.adoc[REST 客户端]。
 
@@ -14,7 +14,7 @@ TODAY INFRA 提供命令式 `infra.web.client.RestClient` 和响应式 `infra.we
 Builder 有状态，对它的修改会影响以后通过该实例构建的客户端。
 使用同一个 Builder 创建多个独立配置的客户端时，可以先调用 `clone()`。
 
-应用级定制可以提供 `infra.web.client.RestClientCustomizer` 或 `infra.web.reactive.client.WebClientCustomizer` Bean。
+应用级定制可以提供 `infra.restclient.RestClientCustomizer` 或 `infra.web.reactive.client.WebClientCustomizer` Bean。
 直接调用 `RestClient.create()` 或 `WebClient.create()` 则不应用容器中的这些定制器。
 
 == 底层 HTTP 客户端
@@ -42,7 +42,7 @@ http:
 `infra.http.client.config.HttpClientsProperties` 还提供重定向、Cookie 处理和 SSL Bundle 设置。
 各底层 HTTP 库的读超时和资源生命周期语义可能不同；需要更细控制时使用对应 Builder。
 
-有 `SslBundles` Bean 时，可以通过 `infra.web.client.config.RestClientSsl` 或 `infra.web.reactive.client.config.WebClientSsl` 为 Builder 应用指定 Bundle。
+有 `SslBundles` Bean 时，可以通过 `infra.restclient.config.RestClientSsl` 或 `infra.web.reactive.client.config.WebClientSsl` 为 Builder 应用指定 Bundle。
 SSL Bundle 必须先由应用配置或代码注册，不能引用不存在的名称。
 
 == 限制 HTTP 客户端可访问的 IP 地址

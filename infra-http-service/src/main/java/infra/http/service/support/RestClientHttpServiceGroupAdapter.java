@@ -21,7 +21,7 @@ package infra.http.service.support;
 import infra.http.service.invoker.HttpExchangeAdapter;
 import infra.http.service.registry.HttpServiceGroupAdapter;
 import infra.http.service.registry.HttpServiceGroupConfigurer;
-import infra.web.client.RestClient;
+import infra.restclient.RestClient;
 
 /**
  * Adapter for groups backed by {@link RestClient}.

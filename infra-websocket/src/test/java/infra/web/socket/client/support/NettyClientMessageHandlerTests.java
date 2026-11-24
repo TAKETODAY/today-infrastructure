@@ -24,9 +24,9 @@ import java.net.URI;
 
 import infra.http.HttpHeaders;
 import infra.logging.Logger;
-import infra.web.client.HttpClientErrorException;
-import infra.web.client.HttpServerErrorException;
-import infra.web.client.ResponseErrorHandler;
+import infra.restclient.HttpClientErrorException;
+import infra.restclient.HttpServerErrorException;
+import infra.restclient.ResponseErrorHandler;
 import infra.web.socket.CloseStatus;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.server.support.NettyWebSocketSession;

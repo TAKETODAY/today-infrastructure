@@ -8,6 +8,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.app.InfraApplication;
+import infra.restclient.RestClient;
+import infra.restclient.ServerSentEvents;
 import infra.test.app.context.InfraTest;
 import infra.test.app.context.InfraTest.WebEnvironment;
 import infra.test.web.server.LocalServerPort;

@@ -16,7 +16,7 @@ dependencies {
   optional(project(":infra-http-codec"))
   optional(project(":infra-http-converter"))
   optional(project(":infra-web-reactive"))
-  optional(project(":infra-web-client"))
+  optional(project(":infra-restclient"))
 
   optional("jakarta.validation:jakarta.validation-api")
   optional("jakarta.activation:jakarta.activation-api")

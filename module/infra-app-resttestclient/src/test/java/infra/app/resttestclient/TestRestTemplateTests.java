@@ -57,11 +57,11 @@ import infra.test.http.server.LocalTestWebServer.Scheme;
 import infra.test.util.ReflectionTestUtils;
 import infra.util.ReflectionUtils;
 import infra.util.ReflectionUtils.MethodCallback;
-import infra.web.client.NoOpResponseErrorHandler;
-import infra.web.client.ResponseErrorHandler;
-import infra.web.client.RestOperations;
-import infra.web.client.RestTemplate;
-import infra.web.client.RestTemplateBuilder;
+import infra.restclient.NoOpResponseErrorHandler;
+import infra.restclient.ResponseErrorHandler;
+import infra.restclient.RestOperations;
+import infra.restclient.RestTemplate;
+import infra.restclient.RestTemplateBuilder;
 import infra.web.util.DefaultUriBuilderFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;

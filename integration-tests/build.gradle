@@ -41,7 +41,7 @@ dependencies {
   testImplementation project(':infra-websocket')
   testImplementation project(':infra-oxm')
   testImplementation(project(":infra-core-test"))
-  testImplementation(project(":infra-web-client"))
+  testImplementation(project(":infra-restclient"))
   testImplementation(project(":infra-http-service"))
   testImplementation(project(":infra-web-reactive"))
   testImplementation(project(":infra-http-client"))

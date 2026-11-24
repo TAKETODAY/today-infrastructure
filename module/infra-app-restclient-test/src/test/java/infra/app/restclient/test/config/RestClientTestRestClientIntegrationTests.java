@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import infra.beans.factory.annotation.Autowired;
 import infra.http.MediaType;
 import infra.test.web.client.MockRestServiceServer;
-import infra.web.client.RestClient;
+import infra.restclient.RestClient;
 
 import static infra.test.web.client.match.MockRestRequestMatchers.content;
 import static infra.test.web.client.match.MockRestRequestMatchers.requestTo;

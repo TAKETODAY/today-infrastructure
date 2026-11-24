@@ -6,7 +6,7 @@ description = "Infra RestClient Test"
 
 dependencies {
 	api(project(":infra-context"))
-	api(project(":infra-web-client"))
+	api(project(":infra-restclient"))
   api(project(":infra-app"))
 	api project(":infra-test")
 

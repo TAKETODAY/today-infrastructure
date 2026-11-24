@@ -40,8 +40,8 @@ import infra.http.service.invoker.HttpServiceProxyFactory;
 import infra.http.service.invoker.RequestExecution;
 import infra.util.Assert;
 import infra.util.concurrent.Future;
-import infra.web.client.ClientResponse;
-import infra.web.client.RestClient;
+import infra.restclient.ClientResponse;
+import infra.restclient.RestClient;
 import infra.web.util.UriBuilderFactory;
 
 /**

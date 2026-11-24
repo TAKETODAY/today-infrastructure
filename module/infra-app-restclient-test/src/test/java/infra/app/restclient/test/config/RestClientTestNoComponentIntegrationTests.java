@@ -25,7 +25,7 @@ import infra.beans.factory.annotation.Autowired;
 import infra.context.ApplicationContext;
 import infra.http.MediaType;
 import infra.test.web.client.MockRestServiceServer;
-import infra.web.client.RestTemplateBuilder;
+import infra.restclient.RestTemplateBuilder;
 
 import static infra.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static infra.test.web.client.response.MockRestResponseCreators.withSuccess;

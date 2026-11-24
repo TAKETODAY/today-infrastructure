@@ -34,7 +34,7 @@ import infra.util.Assert;
 import infra.mock.http.client.MockClientHttpRequest;
 import infra.test.web.client.MockRestServiceServer.MockRestServiceServerBuilder;
 import infra.util.concurrent.Future;
-import infra.web.client.RestTemplate;
+import infra.restclient.RestTemplate;
 import infra.web.util.DefaultUriBuilderFactory;
 import infra.web.util.UriTemplateHandler;
 

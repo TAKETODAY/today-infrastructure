@@ -38,7 +38,7 @@ dependencies {
   jacocoAggregation project(':infra-http-service')
   jacocoAggregation project(':infra-http-converter')
   jacocoAggregation project(':infra-http-reactive')
-  jacocoAggregation project(':infra-web-client')
+  jacocoAggregation project(':infra-restclient')
   jacocoAggregation project(':infra-web-core')
   jacocoAggregation project(':infra-web-reactive')
   jacocoAggregation project(':infra-web-netty-server')

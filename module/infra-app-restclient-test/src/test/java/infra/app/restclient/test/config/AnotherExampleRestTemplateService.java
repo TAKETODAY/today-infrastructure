@@ -21,8 +21,8 @@ package infra.app.restclient.test.config;
 import org.jspecify.annotations.Nullable;
 
 import infra.stereotype.Service;
-import infra.web.client.RestTemplate;
-import infra.web.client.RestTemplateBuilder;
+import infra.restclient.RestTemplate;
+import infra.restclient.RestTemplateBuilder;
 
 /**
  * A second example web client used with {@link RestClientTest @RestClientTest} tests.

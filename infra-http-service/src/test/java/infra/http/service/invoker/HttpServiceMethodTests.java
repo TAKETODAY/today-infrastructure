@@ -44,7 +44,7 @@ import infra.http.service.annotation.PostExchange;
 import infra.http.service.annotation.PutExchange;
 import infra.util.concurrent.Future;
 import infra.web.annotation.GET;
-import infra.web.client.ClientResponse;
+import infra.restclient.ClientResponse;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Single;

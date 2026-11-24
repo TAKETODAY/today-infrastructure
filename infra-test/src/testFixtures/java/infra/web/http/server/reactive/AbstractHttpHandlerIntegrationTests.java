@@ -38,7 +38,7 @@ import infra.http.reactive.server.HttpHandler;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.StringUtils;
-import infra.web.client.HttpServerErrorException;
+import infra.restclient.HttpServerErrorException;
 import reactor.core.publisher.Flux;
 
 @Execution(ExecutionMode.SAME_THREAD)

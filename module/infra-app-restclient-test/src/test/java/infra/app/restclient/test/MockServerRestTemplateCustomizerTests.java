@@ -29,8 +29,8 @@ import infra.http.client.ClientHttpRequestFactory;
 import infra.test.web.client.RequestExpectationManager;
 import infra.test.web.client.SimpleRequestExpectationManager;
 import infra.test.web.client.UnorderedRequestExpectationManager;
-import infra.web.client.RestTemplate;
-import infra.web.client.RestTemplateBuilder;
+import infra.restclient.RestTemplate;
+import infra.restclient.RestTemplateBuilder;
 
 import static infra.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static infra.test.web.client.response.MockRestResponseCreators.withSuccess;

@@ -31,7 +31,7 @@ import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.test.web.Person;
 import infra.test.web.client.MockRestServiceServer;
-import infra.web.client.RestTemplate;
+import infra.restclient.RestTemplate;
 
 import static infra.test.web.client.match.MockRestRequestMatchers.content;
 import static infra.test.web.client.response.MockRestResponseCreators.withSuccess;

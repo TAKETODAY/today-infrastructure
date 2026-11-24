@@ -22,7 +22,7 @@ Java 基础设施库，移植/演进自 Spring Framework（group `cn.taketoday`�
 
 - 容器核心：`infra-core` `infra-beans` `infra-context` `infra-context-support` `infra-context-indexer` `infra-expression` `infra-core-test` `infra-instrument` `infra-app`
 - 事务/持久化：`infra-jdbc` `infra-persistence` `infra-tx` `infra-jcache` `infra-oxm`
-- Web MVC：`infra-web` `infra-webmvc` `infra-web-core` `infra-web-client` `infra-web-server` `infra-webmvc-mock` `infra-websocket`
+- Web MVC：`infra-web` `infra-webmvc` `infra-web-core` `infra-restclient` `infra-web-server` `infra-webmvc-mock` `infra-websocket`
 - Reactive/Netty：`infra-web-reactive` `infra-web-reactor-server` `infra-web-netty-server` `infra-http` `infra-http-client` `infra-http-codec` `infra-http-service` `infra-http-reactive` `infra-http-converter`
 - AOP/消息：`infra-aop` `infra-aspects` `infra-messaging`
 - 测试支持：`infra-test` `infra-test-support` `infra-testcontainers` `integration-tests`

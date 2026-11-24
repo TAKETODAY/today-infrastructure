@@ -32,7 +32,7 @@ import infra.core.ssl.SslManagerBundle;
 import infra.core.ssl.SslOptions;
 import infra.http.HttpHeaders;
 import infra.util.DataSize;
-import infra.web.client.ResponseErrorHandler;
+import infra.restclient.ResponseErrorHandler;
 import infra.web.socket.WebSocketExtension;
 import infra.web.socket.WebSocketHandler;
 import io.netty.handler.codec.http.HttpDecoderConfig;

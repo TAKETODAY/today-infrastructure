@@ -27,8 +27,8 @@ import java.lang.annotation.Target;
 
 import infra.test.app.config.json.AutoConfigureJson;
 import infra.context.annotation.config.ImportAutoConfiguration;
-import infra.web.client.RestClient;
-import infra.web.client.RestTemplateBuilder;
+import infra.restclient.RestClient;
+import infra.restclient.RestTemplateBuilder;
 
 /**
  * Annotation that can be applied to a test class to enable auto-configuration of a

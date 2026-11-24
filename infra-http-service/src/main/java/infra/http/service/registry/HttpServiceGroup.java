@@ -21,6 +21,7 @@ package infra.http.service.registry;
 import java.util.Set;
 
 import infra.http.service.invoker.HttpServiceProxyFactory;
+import infra.restclient.RestClient;
 
 /**
  * A group of HTTP Service interfaces that share the same
@@ -61,7 +62,7 @@ public interface HttpServiceGroup {
   enum ClientType {
 
     /**
-     * A group backed by {@link infra.web.client.RestClient}.
+     * A group backed by {@link RestClient}.
      */
     REST_CLIENT,
 

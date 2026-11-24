@@ -30,16 +30,16 @@ import infra.app.restclient.test.MockServerRestTemplateCustomizer;
 import infra.context.annotation.config.ImportAutoConfiguration;
 import infra.test.context.PropertyMapping;
 import infra.test.web.client.MockRestServiceServer;
-import infra.web.client.RestClient;
-import infra.web.client.RestTemplate;
-import infra.web.client.RestTemplateBuilder;
+import infra.restclient.RestClient;
+import infra.restclient.RestTemplate;
+import infra.restclient.RestTemplateBuilder;
 
 /**
  * Annotation that can be applied to a test class to enable and configure
  * auto-configuration of a single {@link MockRestServiceServer}. Only useful when a single
  * call is made to {@link RestTemplateBuilder} or {@link RestClient.Builder RestClient.Builder}. If
- * multiple {@link infra.web.client.RestTemplate RestTemplates} or
- * {@link infra.web.client.RestClient RestClients} are in use, inject a
+ * multiple {@link RestTemplate RestTemplates} or
+ * {@link RestClient RestClients} are in use, inject a
  * {@link MockServerRestTemplateCustomizer} and use
  * {@link MockServerRestTemplateCustomizer#getServer(RestTemplate)
  * getServer(RestTemplate)}, or inject a {@link MockServerRestClientCustomizer} and use

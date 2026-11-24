@@ -26,7 +26,7 @@ import infra.context.annotation.config.AutoConfiguration;
 import infra.context.condition.ConditionalOnMissingBean;
 import infra.stereotype.Component;
 import infra.test.http.server.LocalTestWebServer;
-import infra.web.client.RestTemplateBuilder;
+import infra.restclient.RestTemplateBuilder;
 
 /**
  * Test auto-configuration for {@link TestRestTemplate}.

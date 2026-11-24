@@ -37,6 +37,7 @@ import infra.http.service.registry.echo.EchoA;
 import infra.http.service.registry.echo.EchoB;
 import infra.http.service.registry.greeting.GreetingA;
 import infra.http.service.registry.greeting.GreetingB;
+import infra.restclient.RestClient;
 import infra.util.ClassUtils;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -46,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests for {@link HttpServiceProxyRegistry} with a
- * {@link infra.web.client.RestClient}.
+ * {@link RestClient}.
  *
  * @author Rossen Stoyanchev
  */

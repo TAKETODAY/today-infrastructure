@@ -11,7 +11,7 @@ dependencies {
   annotationProcessor 'org.projectlombok:lombok'
 
 
-  testImplementation 'cn.taketoday:infra-web-client'
+  testImplementation 'cn.taketoday:infra-restclient'
 }
 
 infraJar {

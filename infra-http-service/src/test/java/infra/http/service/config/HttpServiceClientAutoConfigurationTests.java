@@ -56,9 +56,9 @@ import infra.http.service.registry.ImportHttpServices;
 import infra.http.service.support.RestClientHttpServiceGroupConfigurer;
 import infra.test.util.ReflectionTestUtils;
 import infra.test.web.client.MockRestServiceServer;
-import infra.web.client.RestClient;
-import infra.web.client.RestClientCustomizer;
-import infra.web.client.config.RestClientAutoConfiguration;
+import infra.restclient.RestClient;
+import infra.restclient.RestClientCustomizer;
+import infra.restclient.config.RestClientAutoConfiguration;
 
 import static infra.test.web.client.match.MockRestRequestMatchers.header;
 import static infra.test.web.client.match.MockRestRequestMatchers.requestTo;

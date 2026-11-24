@@ -1,0 +1,2 @@
+infra.restclient.config.RestTemplateAutoConfiguration
+infra.restclient.config.RestClientAutoConfiguration

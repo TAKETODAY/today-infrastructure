@@ -47,7 +47,7 @@ import infra.test.web.mock.setup.StandaloneMockMvcBuilder;
 import infra.util.MultiValueMap;
 import infra.web.client.ApiVersionFormatter;
 import infra.web.client.ApiVersionInserter;
-import infra.web.client.RestClient;
+import infra.restclient.RestClient;
 import infra.web.util.UriBuilder;
 import infra.web.util.UriBuilderFactory;
 

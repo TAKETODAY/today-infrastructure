@@ -31,7 +31,7 @@ import infra.http.client.config.HttpClientSettingsPropertyMapper;
 import infra.http.service.registry.HttpServiceGroup;
 import infra.http.service.support.RestClientHttpServiceGroupConfigurer;
 import infra.util.StringUtils;
-import infra.web.client.RestClient;
+import infra.restclient.RestClient;
 
 /**
  * A {@link RestClientHttpServiceGroupConfigurer} that configures the group and its

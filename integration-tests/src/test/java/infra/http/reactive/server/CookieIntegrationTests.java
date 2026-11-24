@@ -30,7 +30,7 @@ import infra.http.HttpCookie;
 import infra.http.RequestEntity;
 import infra.http.ResponseCookie;
 import infra.http.ResponseEntity;
-import infra.web.client.RestTemplate;
+import infra.restclient.RestTemplate;
 import infra.web.http.server.reactive.AbstractHttpHandlerIntegrationTests;
 import infra.web.http.server.reactive.HttpServer;
 import reactor.core.publisher.Mono;

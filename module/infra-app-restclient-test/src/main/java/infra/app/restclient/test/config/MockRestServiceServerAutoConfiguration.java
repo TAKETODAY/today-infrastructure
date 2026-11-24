@@ -39,8 +39,8 @@ import infra.test.web.client.RequestExpectationManager;
 import infra.test.web.client.RequestMatcher;
 import infra.test.web.client.ResponseActions;
 import infra.util.Assert;
-import infra.web.client.RestClient;
-import infra.web.client.RestTemplate;
+import infra.restclient.RestClient;
+import infra.restclient.RestTemplate;
 
 /**
  * Auto-configuration for {@link MockRestServiceServer} support.

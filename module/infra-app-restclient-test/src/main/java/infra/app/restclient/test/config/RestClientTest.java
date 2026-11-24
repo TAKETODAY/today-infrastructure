@@ -37,8 +37,8 @@ import infra.test.context.BootstrapWith;
 import infra.test.context.filter.annotation.TypeExcludeFilters;
 import infra.test.context.junit.jupiter.InfraExtension;
 import infra.test.web.client.MockRestServiceServer;
-import infra.web.client.RestClient;
-import infra.web.client.RestTemplateBuilder;
+import infra.restclient.RestClient;
+import infra.restclient.RestTemplateBuilder;
 
 /**
  * Annotation for a Infra rest client test that focuses <strong>only</strong> on beans

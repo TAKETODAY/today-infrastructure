@@ -1,3 +1,3 @@
 infra.http.converter.config.HttpMessageConvertersAutoConfiguration
-infra.web.client.config.RestClientAutoConfiguration
-infra.web.client.config.RestTemplateAutoConfiguration
+infra.restclient.config.RestClientAutoConfiguration
+infra.restclient.config.RestTemplateAutoConfiguration

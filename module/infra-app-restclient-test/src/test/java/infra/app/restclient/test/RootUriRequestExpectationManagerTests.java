@@ -33,8 +33,8 @@ import infra.test.web.client.ExpectedCount;
 import infra.test.web.client.MockRestServiceServer;
 import infra.test.web.client.RequestExpectationManager;
 import infra.test.web.client.RequestMatcher;
-import infra.web.client.RestTemplate;
-import infra.web.client.RestTemplateBuilder;
+import infra.restclient.RestTemplate;
+import infra.restclient.RestTemplateBuilder;
 
 import static infra.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static infra.test.web.client.response.MockRestResponseCreators.withSuccess;

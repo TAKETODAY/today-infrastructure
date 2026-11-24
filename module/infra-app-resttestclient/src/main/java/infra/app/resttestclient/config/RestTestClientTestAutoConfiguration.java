@@ -31,7 +31,7 @@ import infra.stereotype.Component;
 import infra.test.http.server.LocalTestWebServer;
 import infra.test.web.mock.MockMvc;
 import infra.test.web.mock.client.RestTestClient;
-import infra.web.client.RestClient;
+import infra.restclient.RestClient;
 
 /**
  * Test auto-configuration for {@link RestTestClient}.

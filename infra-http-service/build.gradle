@@ -3,7 +3,7 @@ description = "HTTP service infrastructure"
 dependencies {
   api(project(":infra-http"))
 
-  optional(project(":infra-web-client"))
+  optional(project(":infra-restclient"))
   optional(project(":infra-web-reactive"))
 
   optional("io.projectreactor.netty:reactor-netty-http")
@@ -16,7 +16,7 @@ dependencies {
 
   testImplementation(project(":infra-core-test"))
   testImplementation testFixtures(project(":infra-web"))
-  testImplementation testFixtures(project(":infra-web-client"))
+  testImplementation testFixtures(project(":infra-restclient"))
   testImplementation testFixtures(project(":infra-webmvc"))
   testImplementation testFixtures(project(":infra-core"))
   testImplementation testFixtures(project(":infra-beans"))
