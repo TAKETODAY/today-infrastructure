@@ -17,12 +17,22 @@
 package infra.context.weaving;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.Instrumentation;
 
+import infra.instrument.InstrumentationSavingAgent;
+import infra.instrument.classloading.LoadTimeWeaver;
+import infra.instrument.classloading.SimpleInstrumentableClassLoader;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -63,6 +73,63 @@ class DefaultContextLoadTimeWeaverTests {
     DefaultContextLoadTimeWeaver weaver = new DefaultContextLoadTimeWeaver();
     assertThatThrownBy(() -> weaver.setBeanClassLoader(null))
             .isInstanceOf(NullPointerException.class);
+  }
+
+  @Test
+  void prefersTheServerSpecificWeaverAndDelegatesClassLoaderAccess() {
+    var serverWeaver = mock(LoadTimeWeaver.class);
+    var weaver = new DefaultContextLoadTimeWeaver() {
+      @Override
+      protected LoadTimeWeaver createServerSpecificLoadTimeWeaver(ClassLoader classLoader) {
+        return serverWeaver;
+      }
+    };
+    var instrumentable = getClass().getClassLoader();
+    var throwaway = new ClassLoader(instrumentable) { };
+    var transformer = mock(ClassFileTransformer.class);
+    given(serverWeaver.getInstrumentableClassLoader()).willReturn(instrumentable);
+    given(serverWeaver.getThrowawayClassLoader()).willReturn(throwaway);
+
+    weaver.setBeanClassLoader(instrumentable);
+    weaver.addTransformer(transformer);
+
+    then(serverWeaver).should().addTransformer(transformer);
+    assertThat(weaver.getInstrumentableClassLoader()).isSameAs(instrumentable);
+    assertThat(weaver.getThrowawayClassLoader()).isSameAs(throwaway);
+  }
+
+  @Test
+  void usesReflectiveClassLoaderHooksWithoutAnAgent() {
+    try (var agent = mockStatic(InstrumentationSavingAgent.class)) {
+      agent.when(InstrumentationSavingAgent::getInstrumentation).thenReturn(null);
+      var loader = new SimpleInstrumentableClassLoader(getClass().getClassLoader());
+      var weaver = new DefaultContextLoadTimeWeaver(loader);
+
+      assertThat(weaver.getInstrumentableClassLoader()).isSameAs(loader);
+      assertThat(weaver.getThrowawayClassLoader()).isNotSameAs(loader);
+      assertThatIllegalStateException().isThrownBy(() -> new DefaultContextLoadTimeWeaver(getClass().getClassLoader()))
+              .withMessageContaining("Specify a custom LoadTimeWeaver");
+    }
+  }
+
+  @Test
+  void removesTransformersRegisteredThroughTheAgentWhenDestroyed() {
+    var instrumentation = mock(Instrumentation.class);
+    try (var agent = mockStatic(InstrumentationSavingAgent.class)) {
+      agent.when(InstrumentationSavingAgent::getInstrumentation).thenReturn(instrumentation);
+      var loader = getClass().getClassLoader();
+      var weaver = new DefaultContextLoadTimeWeaver(loader);
+      weaver.addTransformer(mock(ClassFileTransformer.class));
+      assertThat(weaver.getInstrumentableClassLoader()).isSameAs(loader);
+
+      weaver.destroy();
+
+      var registered = ArgumentCaptor.forClass(ClassFileTransformer.class);
+      then(instrumentation).should().addTransformer(registered.capture());
+      then(instrumentation).should().removeTransformer(registered.getValue());
+      weaver.destroy();
+      then(instrumentation).shouldHaveNoMoreInteractions();
+    }
   }
 
 }

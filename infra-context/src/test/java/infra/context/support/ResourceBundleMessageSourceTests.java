@@ -20,9 +20,18 @@ package infra.context.support;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -36,6 +45,7 @@ import infra.context.NoSuchMessageException;
 import infra.core.i18n.LocaleContextHolder;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -267,6 +277,57 @@ class ResourceBundleMessageSourceTests {
     ms.setBasename("infra/context/support/messages");
     assertThat(ms.getMessage("code1", null, Locale.ENGLISH)).isEqualTo("message1");
     assertThat(ms.getMessage("code2", null, Locale.GERMAN)).isEqualTo("nachricht2");
+  }
+
+  @Test
+  void missingBundleDoesNotPreventLookupInLaterBundlesOrTheParent() {
+    var parent = new StaticMessageSource();
+    parent.addMessage("parentOnly", Locale.ENGLISH, "From parent: {0}");
+    var source = new ResourceBundleMessageSource();
+    source.setBasenames("infra/context/support/nonexistent-messages", "infra/context/support/messages");
+    source.setFallbackToSystemLocale(false);
+    source.setParentMessageSource(parent);
+
+    assertThat(source.getMessage("code1", null, Locale.ENGLISH)).isEqualTo("message1");
+    assertThat(source.getMessage("hello", new Object[] { "one", "two" }, Locale.ENGLISH)).isEqualTo("one, two");
+    assertThat(source.getMessage("hello", new Object[] { "three", "four" }, Locale.ENGLISH)).isEqualTo("three, four");
+    assertThat(source.getMessage("parentOnly", new Object[] { "value" }, Locale.ENGLISH)).isEqualTo("From parent: value");
+  }
+
+  @Test
+  void resolvesFormattedMessagesForALocaleThatIsNotInstalled() {
+    var source = new ResourceBundleMessageSource();
+    source.setBasename("infra/context/support/messages");
+    source.setFallbackToSystemLocale(false);
+    var locale = Locale.forLanguageTag("en-x-infra-test");
+
+    assertThat(source.getMessage("hello", new Object[] { "first", "second" }, locale)).isEqualTo("first, second");
+    assertThat(source.getMessage("missing", new Object[] { "value" }, "default {0}", locale)).isEqualTo("default value");
+  }
+
+  @Test
+  void reloadsAnExpiredBundleAndItsMessageFormat(@TempDir Path directory) throws IOException {
+    var bundle = directory.resolve("reloadable-messages.properties");
+    Files.writeString(bundle, "greeting=Café {0}\n", UTF_8);
+    Files.setLastModifiedTime(bundle, FileTime.from(Instant.EPOCH.plusSeconds(1)));
+
+    try (var loader = new URLClassLoader(new URL[] { directory.toUri().toURL() }, null)) {
+      var source = new ResourceBundleMessageSource();
+      source.setBeanClassLoader(getClass().getClassLoader());
+      source.setBundleClassLoader(loader);
+      source.setBasename("reloadable-messages");
+      source.setFallbackToSystemLocale(false);
+      source.setDefaultCharset(null);
+      source.setCacheMillis(0);
+
+      assertThat(source.getMessage("greeting", new Object[] { "Alice" }, Locale.ROOT)).isEqualTo("Café Alice");
+      assertThat(source.getMessage("greeting", new Object[] { "Bob" }, Locale.ROOT)).isEqualTo("Café Bob");
+
+      Files.writeString(bundle, "greeting=Updated {0}\n", UTF_8);
+      Files.setLastModifiedTime(bundle, FileTime.from(Instant.now().plus(1, ChronoUnit.DAYS)));
+
+      assertThat(source.getMessage("greeting", new Object[] { "Alice" }, Locale.ROOT)).isEqualTo("Updated Alice");
+    }
   }
 
   @Test
@@ -542,4 +603,3 @@ class ResourceBundleMessageSourceTests {
   }
 
 }
-
