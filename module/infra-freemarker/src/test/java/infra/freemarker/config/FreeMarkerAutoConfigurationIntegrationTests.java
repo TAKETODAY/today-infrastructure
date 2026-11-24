@@ -81,6 +81,34 @@ class FreeMarkerAutoConfigurationIntegrationTests {
   }
 
   @Test
+  void disablingViewResolutionKeepsTemplateConfiguration() {
+    load("freemarker.enabled=false");
+
+    assertThat(this.context.getBean(FreeMarkerProperties.class).isEnabled()).isFalse();
+    assertThat(this.context.getBeansOfType(FreeMarkerViewResolver.class)).isEmpty();
+    assertThat(this.context.getBean(freemarker.template.Configuration.class))
+            .isSameAs(this.context.getBean(FreeMarkerConfig.class).getConfiguration());
+  }
+
+  @Test
+  @WithResource(name = "templates/home.ftl", content = "home")
+  void appliesViewNameFilterAndAttributeExposureSettings() throws Exception {
+    load("freemarker.view-names=home",
+            "freemarker.expose-request-attributes=true",
+            "freemarker.allow-request-override=true",
+            "freemarker.expose-session-attributes=true",
+            "freemarker.http-context-attribute=webContext");
+
+    var resolver = this.context.getBean(FreeMarkerViewResolver.class);
+    assertThat(resolver.resolveViewName("other", Locale.UK)).isNull();
+    assertThat(resolver.resolveViewName("home", Locale.UK))
+            .hasFieldOrPropertyWithValue("exposeRequestAttributes", true)
+            .hasFieldOrPropertyWithValue("allowRequestOverride", true)
+            .hasFieldOrPropertyWithValue("exposeSessionAttributes", true)
+            .hasFieldOrPropertyWithValue("httpContextAttribute", "webContext");
+  }
+
+  @Test
   @WithResource(name = "templates/home.ftl", content = "home")
   void defaultViewResolution() throws Exception {
     load();

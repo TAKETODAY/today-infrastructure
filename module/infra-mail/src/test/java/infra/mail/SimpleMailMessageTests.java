@@ -19,11 +19,15 @@
 package infra.mail;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -220,6 +224,48 @@ class SimpleMailMessageTests {
     message1.setText("text");
     message2 = new SimpleMailMessage(message1);
     assertThat(message1).isEqualTo(message2);
+  }
+
+  @ParameterizedTest
+  @MethodSource("messageChanges")
+  void messagesWithOneDifferentFieldAreNotEqual(Consumer<SimpleMailMessage> change) {
+    SimpleMailMessage original = populatedMessage();
+    SimpleMailMessage copy = new SimpleMailMessage(original);
+    change.accept(copy);
+
+    assertThat(copy).isNotEqualTo(original);
+  }
+
+  private static Stream<Consumer<SimpleMailMessage>> messageChanges() {
+    return Stream.of(message -> message.setFrom("other@example.org"),
+            message -> message.setReplyTo("other@example.org"),
+            message -> message.setTo("other@example.org"),
+            message -> message.setCc("other@example.org"),
+            message -> message.setBcc("other@example.org"),
+            message -> message.setSentDate(new Date(5678L)),
+            message -> message.setSubject("other subject"),
+            message -> message.setText("other text"));
+  }
+
+  @Test
+  void stringRepresentationIncludesMessageFieldsAndAllRecipients() {
+    assertThat(populatedMessage().toString()).startsWith("SimpleMailMessage: ")
+            .contains("from=sender@example.org", "replyTo=reply@example.org", "to=first@example.org,second@example.org",
+                    "cc=copy@example.org", "bcc=hidden@example.org", "sentDate=" + new Date(1234L),
+                    "subject=subject", "text=body");
+  }
+
+  private static SimpleMailMessage populatedMessage() {
+    SimpleMailMessage message = new SimpleMailMessage();
+    message.setFrom("sender@example.org");
+    message.setReplyTo("reply@example.org");
+    message.setTo("first@example.org", "second@example.org");
+    message.setCc("copy@example.org");
+    message.setBcc("hidden@example.org");
+    message.setSentDate(new Date(1234L));
+    message.setSubject("subject");
+    message.setText("body");
+    return message;
   }
 
   @Test

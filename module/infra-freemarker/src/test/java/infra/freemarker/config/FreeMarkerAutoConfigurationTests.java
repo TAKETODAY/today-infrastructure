@@ -18,11 +18,13 @@
 
 package infra.freemarker.config;
 
+import freemarker.cache.FileTemplateLoader;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.StringWriter;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import infra.test.context.runner.ApplicationContextRunner;
@@ -67,6 +69,28 @@ class FreeMarkerAutoConfigurationTests {
             .withPropertyValues("freemarker.templateLoaderPath:"
                     + "classpath:/does-not-exist/,classpath:/also-does-not-exist")
             .run((context) -> assertThat(output).contains("Cannot find template location"));
+  }
+
+  @Test
+  void skipsWarningWhenTemplateLocationCheckIsDisabled(CapturedOutput output) {
+    this.contextRunner.withPropertyValues("freemarker.template-loader-path=classpath:/does-not-exist/",
+                    "freemarker.check-template-location=false")
+            .run(context -> {
+              assertThat(context).hasSingleBean(freemarker.template.Configuration.class);
+              assertThat(output).doesNotContain("Cannot find template location");
+            });
+  }
+
+  @Test
+  void canPreferFileSystemTemplateLoading(@TempDir Path tempDir) throws Exception {
+    Files.writeString(tempDir.resolve("local.ftl"), "Local template");
+    this.contextRunner.withPropertyValues("freemarker.template-loader-path=" + tempDir.toUri(),
+                    "freemarker.prefer-file-system-access=true")
+            .run(context -> {
+              var configuration = context.getBean(freemarker.template.Configuration.class);
+              assertThat(configuration.getTemplateLoader()).isInstanceOf(FileTemplateLoader.class);
+              assertThat(configuration.getTemplate("local.ftl")).hasToString("Local template");
+            });
   }
 
   @Test

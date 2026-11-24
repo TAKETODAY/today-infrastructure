@@ -49,4 +49,18 @@ class FreeMarkerPropertiesTests {
     assertThat(properties.getContentType()).hasToString("text/plain;charset=UTF-16;foo=bar");
   }
 
+  @Test
+  void explicitContentTypeCharsetDoesNotOverrideTemplateEncoding() {
+    FreeMarkerProperties properties = new FreeMarkerProperties();
+    properties.setCharset(StandardCharsets.UTF_16);
+    properties.setContentType(MimeTypeUtils.parseMimeType("text/plain;charset=ISO-8859-1"));
+
+    assertThat(properties.getCharset()).isEqualTo(StandardCharsets.UTF_16);
+    assertThat(properties.getContentType()).hasToString("text/plain;charset=ISO-8859-1");
+
+    properties.setContentType(null);
+    properties.setCharset(null);
+    assertThat(properties.getContentType()).hasToString("text/html;charset=UTF-8");
+  }
+
 }

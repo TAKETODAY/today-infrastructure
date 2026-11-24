@@ -19,22 +19,32 @@
 package infra.mail.javamail;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Stream;
 
 import infra.core.io.ByteArrayResource;
+import infra.mail.MailAuthenticationException;
 import infra.mail.MailParseException;
+import infra.mail.MailPreparationException;
 import infra.mail.MailSendException;
 import infra.mail.SimpleMailMessage;
 import infra.util.ObjectUtils;
 import jakarta.activation.FileTypeMap;
 import jakarta.mail.Address;
+import jakarta.mail.AuthenticationFailedException;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.NoSuchProviderException;
@@ -49,6 +59,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * @author Juergen Hoeller
@@ -448,6 +464,116 @@ public class JavaMailSenderTests {
   void testConnectionWithFailure() {
     sender.setHost(null);
     assertThatExceptionOfType(MessagingException.class).isThrownBy(sender::testConnection);
+  }
+
+  @Test
+  void parsesRawMimeMessageAndPreservesExplicitMessageIdWhenSending() throws Exception {
+    sender.setHost("host");
+    String raw = "To: reader@example.org\r\nSubject: Report\r\nMessage-ID: <report@example.org>\r\n\r\nBody";
+    MimeMessage message = sender.createMimeMessage(new ByteArrayInputStream(raw.getBytes(StandardCharsets.US_ASCII)));
+
+    sender.send(message);
+
+    MimeMessage sent = sender.transport.getSentMessage(0);
+    assertThat(sent.getMessageID()).isEqualTo("<report@example.org>");
+    assertThat(sent.getSubject()).isEqualTo("Report");
+    assertThat(sent.getContent()).isEqualTo("Body");
+  }
+
+  @Test
+  void wrapsReadErrorWhileParsingRawMimeContent() {
+    IOException failure = new IOException("unreadable message");
+    InputStream content = new InputStream() {
+      @Override
+      public int read() throws IOException {
+        throw failure;
+      }
+    };
+
+    assertThatExceptionOfType(MailParseException.class).isThrownBy(() -> sender.createMimeMessage(content))
+            .withMessageContaining("Could not parse raw MIME content")
+            .satisfies(ex -> assertThat(ex).hasRootCause(failure));
+  }
+
+  @Test
+  void distinguishesAuthenticationFromMessagePreparationFailure() throws Exception {
+    Transport transport = mock(Transport.class);
+    JavaMailSenderImpl sender = withTransport(transport);
+    AuthenticationFailedException unauthorized = new AuthenticationFailedException("bad credentials");
+    willThrow(unauthorized).given(transport).connect(null, -1, null, null);
+    IOException preparationFailure = new IOException("cannot read template");
+
+    assertThatExceptionOfType(MailPreparationException.class)
+            .isThrownBy(() -> sender.send(message -> { throw preparationFailure; })).withCause(preparationFailure);
+    verifyNoInteractions(transport);
+
+    assertThatExceptionOfType(MailAuthenticationException.class)
+            .isThrownBy(() -> sender.send(message -> message.setText("Body"))).withCause(unauthorized);
+  }
+
+  @ParameterizedTest
+  @CsvSource({ "'',", "secret, secret" })
+  void blankUsernameIsTreatedAsAbsent(String password, String expectedPassword) {
+    sender.setHost("host");
+    sender.setUsername("");
+    sender.setPassword(password);
+
+    assertThatNoException().isThrownBy(sender::testConnection);
+
+    assertThat(sender.transport.getConnectedUsername()).isNull();
+    assertThat(sender.transport.getConnectedPassword()).isEqualTo(expectedPassword);
+    assertThat(sender.transport.isCloseCalled()).isTrue();
+  }
+
+  @Test
+  void reconnectsAfterTransportDisconnectEvenWhenClosingOldTransportFails() throws Exception {
+    Transport original = mock(Transport.class);
+    Transport replacement = mock(Transport.class);
+    JavaMailSenderImpl sender = new JavaMailSenderImpl() {
+      private final Iterator<Transport> transports = List.of(original, replacement).iterator();
+
+      @Override
+      protected Transport getTransport(Session session) {
+        return this.transports.next();
+      }
+    };
+    willThrow(new MessagingException("connection lost")).given(original).close();
+    MimeMessage first = sender.createMimeMessage();
+    MimeMessage second = sender.createMimeMessage();
+
+    sender.send(first, second);
+
+    var order = inOrder(original, replacement);
+    order.verify(original).connect(null, -1, null, null);
+    order.verify(original).sendMessage(eq(first), any(Address[].class));
+    order.verify(original).close();
+    order.verify(replacement).connect(null, -1, null, null);
+    order.verify(replacement).sendMessage(eq(second), any(Address[].class));
+    order.verify(replacement).close();
+  }
+
+  @Test
+  void reportsFailedMessagesEvenWhenClosingTransportAlsoFails() throws Exception {
+    Transport transport = mock(Transport.class);
+    JavaMailSenderImpl sender = withTransport(transport);
+    MimeMessage message = sender.createMimeMessage();
+    MessagingException deliveryFailure = new MessagingException("delivery failed");
+    MessagingException closeFailure = new MessagingException("close failed");
+    willThrow(deliveryFailure).given(transport).sendMessage(eq(message), any(Address[].class));
+    willThrow(closeFailure).given(transport).close();
+
+    assertThatExceptionOfType(MailSendException.class).isThrownBy(() -> sender.send(message))
+            .withMessageContaining("Failed to close server connection after message failures").withCause(closeFailure)
+            .satisfies(ex -> assertThat(ex.getFailedMessages()).containsExactly(entry(message, deliveryFailure)));
+  }
+
+  private static JavaMailSenderImpl withTransport(Transport transport) {
+    return new JavaMailSenderImpl() {
+      @Override
+      protected Transport getTransport(Session session) {
+        return transport;
+      }
+    };
   }
 
   private static Stream<String> addresses(Address[] addresses) {
