@@ -174,6 +174,26 @@ class DockerComposeLifecycleManagerTests {
   }
 
   @Test
+  void usesExplicitComposeFilesInOrderInsteadOfSearchingWorkingDirectory() throws IOException {
+    File base = this.dockerComposeFile.getFiles().get(0);
+    File override = new File(this.temp, "override.yaml");
+    FileCopyUtils.copy(new byte[0], override);
+    this.properties.getFile().addAll(List.of(base, override));
+    var manager = new DockerComposeLifecycleManager(this.temp, this.applicationContext,
+            this.shutdownHandlers, this.properties, this.eventListeners, this.skipCheck, this.serviceReadinessChecks);
+
+    assertThat(manager.getComposeFile().getFiles()).containsExactly(base, override.getCanonicalFile());
+  }
+
+  @Test
+  void discoversComposeFileInWorkingDirectoryWhenNoneIsConfigured() {
+    var manager = new DockerComposeLifecycleManager(this.temp, this.applicationContext,
+            this.shutdownHandlers, this.properties, this.eventListeners, this.skipCheck, this.serviceReadinessChecks);
+
+    assertThat(manager.getComposeFile()).isEqualTo(this.dockerComposeFile);
+  }
+
+  @Test
   void startWhenInTestDoesNotStart() {
     given(this.skipCheck.shouldSkip(any(), any())).willReturn(true);
     EventCapturingListener listener = new EventCapturingListener();

@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import java.util.Map;
 import infra.core.io.ClassPathResource;
 import infra.docker.compose.core.DefaultConnectionPorts.ContainerPort;
 import infra.docker.compose.core.DockerCliInspectResponse.Config;
+import infra.docker.compose.core.DockerCliInspectResponse.HostConfig;
 import infra.docker.compose.core.DockerCliInspectResponse.HostPort;
 import infra.docker.compose.core.DockerCliInspectResponse.NetworkSettings;
 
@@ -81,6 +83,34 @@ class DefaultConnectionPortsTests {
     DefaultConnectionPorts ports = createForPorts(
             Map.of("53/tcp", List.of(new HostPort("127.0.0.1", "10053"))));
     assertThat(ports.get(53)).isEqualTo(10053);
+  }
+
+  @Test
+  void ignoresUnpublishedPortsAndFiltersPublishedPortsByProtocol() {
+    Map<String, List<HostPort>> mappings = new HashMap<>();
+    mappings.put("53/tcp", List.of(new HostPort("::", "1053"), new HostPort("0.0.0.0", "2053")));
+    mappings.put("53/udp", List.of(new HostPort("", "3053")));
+    mappings.put("5432/tcp", null);
+    DefaultConnectionPorts ports = createForPorts(mappings);
+
+    assertThat(ports.getAll()).containsExactlyInAnyOrder(2053, 3053);
+    assertThat(ports.getAll("UDP")).containsExactly(3053);
+    assertThat(ports.getAll("tcp")).containsExactly(2053);
+    assertThatIllegalStateException().isThrownBy(() -> ports.get(5432))
+            .withMessage("No host port mapping found for container port 5432");
+  }
+
+  @Test
+  void hasNoMappingsWhenBridgeNetworkPublishesNoPorts() {
+    assertThat(createForPorts(Map.of()).getAll()).isEmpty();
+  }
+
+  @Test
+  void hasNoMappingsWhenHostNetworkExposesNoPorts() {
+    var config = new Config("test", Map.of(), Map.of(), List.of());
+    var response = new DockerCliInspectResponse("id", config, null, new HostConfig("host"));
+
+    assertThat(new DefaultConnectionPorts(response).getAll()).isEmpty();
   }
 
   private DefaultConnectionPorts createForPorts(Map<String, List<HostPort>> mappings) {

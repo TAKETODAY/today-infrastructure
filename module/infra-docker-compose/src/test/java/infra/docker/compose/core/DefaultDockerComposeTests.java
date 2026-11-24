@@ -32,10 +32,13 @@ import infra.docker.compose.core.DockerCliInspectResponse.HostConfig;
 import infra.docker.compose.core.DockerCliInspectResponse.NetworkSettings;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 
 /**
  * Tests for {@link DefaultDockerCompose}.
@@ -78,6 +81,50 @@ class DefaultDockerComposeTests {
     Duration timeout = Duration.ofSeconds(1);
     compose.stop(timeout, Collections.emptyList());
     then(this.cli).should().run(new DockerCliCommand.ComposeStop(timeout, Collections.emptyList()));
+  }
+
+  @Test
+  void lifecycleCommandsWithoutArgumentsUseDefaults() {
+    var compose = new DefaultDockerCompose(this.cli, HOST);
+    Duration timeout = Duration.ofSeconds(3);
+
+    compose.up(LogLevel.OFF);
+    compose.start(LogLevel.OFF);
+    compose.stop(timeout);
+    compose.down(timeout);
+
+    then(this.cli).should().run(new DockerCliCommand.ComposeUp(LogLevel.OFF, List.of()));
+    then(this.cli).should().run(new DockerCliCommand.ComposeStart(LogLevel.OFF, List.of()));
+    then(this.cli).should().run(new DockerCliCommand.ComposeStop(timeout, List.of()));
+    then(this.cli).should().run(new DockerCliCommand.ComposeDown(timeout, List.of()));
+  }
+
+  @Test
+  void logsReturnsCliOutput() {
+    willReturn("database ready\n").given(this.cli).run(new DockerCliCommand.ComposeLogs());
+
+    assertThat(new DefaultDockerCompose(this.cli, HOST).logs()).isEqualTo("database ready\n");
+  }
+
+  @Test
+  void doesNotInspectExitedServices() {
+    willReturn(List.of(new DockerCliComposePsResponse("123", "database", "postgres", "exited")))
+            .given(this.cli).run(new DockerCliCommand.ComposePs());
+
+    assertThat(new DefaultDockerCompose(this.cli, HOST).getRunningServices()).isEmpty();
+    then(this.cli).should(never()).run(any(DockerCliCommand.Inspect.class));
+  }
+
+  @Test
+  void reportsContainerIdWhenInspectionDoesNotFindIt() {
+    willReturn(List.of(new DockerCliComposePsResponse("123", "database", "postgres", "running")))
+            .given(this.cli).run(new DockerCliCommand.ComposePs());
+    var config = new Config("postgres", Map.of(), Map.of(), List.of());
+    willReturn(List.of(new DockerCliInspectResponse("456", config, null, null)))
+            .given(this.cli).run(new DockerCliCommand.Inspect(List.of("123")));
+
+    assertThatIllegalStateException().isThrownBy(() -> new DefaultDockerCompose(this.cli, HOST).getRunningServices())
+            .withMessage("Failed to inspect container '123'");
   }
 
   @Test

@@ -30,12 +30,15 @@ import infra.app.context.event.ApplicationPreparedEvent;
 import infra.context.ApplicationListener;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.properties.bind.Binder;
+import infra.context.support.GenericApplicationContext;
+import infra.docker.compose.core.DockerCompose;
 import infra.mock.env.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 
 /**
  * Tests for {@link DockerComposeListener}.
@@ -58,6 +61,21 @@ class DockerComposeListenerTests {
     listener.onApplicationEvent(event);
     assertThat(listener.getManager()).isNotNull();
     then(listener.getManager()).should().start();
+  }
+
+  @Test
+  void defaultListenerHonorsDisabledProperty() {
+    try (var context = new GenericApplicationContext(); var dockerCompose = mockStatic(DockerCompose.class)) {
+      context.setEnvironment(new MockEnvironment().withProperty("docker.compose.enabled", "false")
+              .withProperty("docker.compose.skip.in-tests", "false"));
+      Application application = mock();
+      given(application.getListeners()).willReturn(Set.of());
+      var event = new ApplicationPreparedEvent(application, new ApplicationArguments(), context);
+
+      new DockerComposeListener().onApplicationEvent(event);
+
+      dockerCompose.verifyNoInteractions();
+    }
   }
 
   static class TestDockerComposeListener extends DockerComposeListener {
