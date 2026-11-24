@@ -22,9 +22,10 @@ import infra.core.ArraySizeTrimmer;
 import infra.core.style.ToStringBuilder;
 
 /**
- * Registry for managing and providing access to {@link ParameterResolvingStrategy} instances.
- * Searches customized strategies before default strategies, returning the first match
- * in registration order within each group. Both groups are initially empty.
+ * Registry for managing and looking up {@link ParameterResolvingStrategy} instances.
+ * Customized strategies are searched before default strategies, and the first
+ * matching strategy in registration order is returned from each group. Both
+ * groups are initially empty.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ParameterResolvingStrategy
@@ -38,14 +39,21 @@ public class ParameterResolvingRegistry implements ArraySizeTrimmer {
 
   /**
    * Return the mutable collection of default strategies.
+   *
+   * <p>Strategies in this collection are consulted after customized strategies.
+   *
+   * @return the collection of default strategies
    */
   public ParameterResolvingStrategies getDefaultStrategies() {
     return defaultStrategies;
   }
 
   /**
-   * get customized resolving-strategies
+   * Return the mutable collection of customized strategies.
    *
+   * <p>Strategies in this collection are consulted before default strategies.
+   *
+   * @return the collection of customized strategies
    * @since 4.0
    */
   public ParameterResolvingStrategies getCustomizedStrategies() {
@@ -53,11 +61,13 @@ public class ParameterResolvingRegistry implements ArraySizeTrimmer {
   }
 
   /**
-   * Find a suitable {@link ParameterResolvingStrategy} for given {@link HandlerParameter}
+   * Find the first strategy in the specified collection that supports the given
+   * parameter.
    *
-   * @param resolvable resolvable MethodParameter
-   * @return a suitable {@link ParameterResolvingStrategy},
-   * if returns {@code null} no suitable  {@link ParameterResolvingStrategy}
+   * @param resolvable the parameter to inspect
+   * @param strategies the strategies to search, in priority order
+   * @return the first strategy that supports the parameter, or {@code null} if
+   * none of the strategies supports it
    */
   protected @Nullable ParameterResolvingStrategy lookupStrategy(HandlerParameter resolvable, Iterable<ParameterResolvingStrategy> strategies) {
     for (ParameterResolvingStrategy resolver : strategies) {
@@ -69,12 +79,15 @@ public class ParameterResolvingRegistry implements ArraySizeTrimmer {
   }
 
   /**
-   * find parameter resolving strategies
-   * <p>
-   * find in {@code customizedResolvers} and when find in {@code defaultResolvers}
+   * Find a strategy for the given parameter.
    *
-   * @param parameter parameter value to be resolve
-   * @return A suitable {@link ParameterResolvingStrategy}
+   * <p>Customized strategies are searched first, followed by default
+   * strategies. Within each collection, strategies are searched in registration
+   * order.
+   *
+   * @param parameter the parameter to resolve
+   * @return the first matching strategy, or {@code null} if no registered
+   * strategy supports the parameter
    */
   public @Nullable ParameterResolvingStrategy findStrategy(HandlerParameter parameter) {
     ParameterResolvingStrategy resolvingStrategy = lookupStrategy(parameter, customizedStrategies);
@@ -85,11 +98,12 @@ public class ParameterResolvingRegistry implements ArraySizeTrimmer {
   }
 
   /**
-   * Get correspond parameter resolver, If there isn't a suitable resolver will be
-   * throws {@link ParameterResolverNotFoundException}
+   * Find a strategy for the given parameter, failing if none is available.
    *
-   * @return A suitable {@link ParameterResolvingStrategy}
-   * @throws ParameterResolverNotFoundException If there isn't a suitable resolver
+   * @param parameter the parameter to resolve
+   * @return a strategy that supports the parameter
+   * @throws ParameterResolverNotFoundException if no registered strategy supports
+   * the parameter
    */
   public ParameterResolvingStrategy obtainStrategy(HandlerParameter parameter) {
     ParameterResolvingStrategy resolver = findStrategy(parameter);
@@ -102,13 +116,12 @@ public class ParameterResolvingRegistry implements ArraySizeTrimmer {
   }
 
   /**
-   * Returns <tt>true</tt> if resolvers list contains the specified {@code resolverClass}.
-   * More formally, returns <tt>true</tt> if and only if all resolvers contains
-   * at least one element <tt>e</tt> such that
-   * <tt>(resolverClass == resolver.getClass())</tt>.
+   * Determine whether either strategy collection contains a strategy whose
+   * concrete class exactly matches the specified class.
    *
-   * @param resolverClass element whose presence in this defaultResolvers or customizedResolvers is to be tested
-   * @return <tt>true</tt> if resolvers contains the specified {@code resolverClass}
+   * @param resolverClass the concrete strategy class to search for
+   * @return {@code true} if a matching strategy is registered, {@code false}
+   * otherwise
    */
   public boolean contains(Class<?> resolverClass) {
     return defaultStrategies.contains(resolverClass)
@@ -118,7 +131,10 @@ public class ParameterResolvingRegistry implements ArraySizeTrimmer {
   //
 
   /**
-   * Add one or more customized parameter resolving strategies to the registry.
+   * Add one or more customized parameter resolving strategies.
+   *
+   * <p>Customized strategies are searched before default strategies. A
+   * {@code null} strategy is ignored.
    *
    * @param strategies the parameter resolving strategies to add
    * @since 4.0
@@ -128,7 +144,10 @@ public class ParameterResolvingRegistry implements ArraySizeTrimmer {
   }
 
   /**
-   * Add one or more default parameter resolving strategies to the registry.
+   * Add one or more default parameter resolving strategies.
+   *
+   * <p>Default strategies are searched after customized strategies. A
+   * {@code null} strategy is ignored.
    *
    * @param strategies the parameter resolving strategies to add
    * @since 4.0
@@ -138,6 +157,9 @@ public class ParameterResolvingRegistry implements ArraySizeTrimmer {
   }
 
   /**
+   * Trim the internal storage of both strategy collections to their current
+   * sizes.
+   *
    * @since 4.0
    */
   @Override
