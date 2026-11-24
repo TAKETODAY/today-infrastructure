@@ -46,8 +46,8 @@ import infra.context.support.AbstractMessageSource;
 import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.ParameterNameDiscoverer;
 import infra.core.io.Resource;
-import infra.util.Assert;
 import infra.lang.VisibleForTesting;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ReflectionUtils;
@@ -486,7 +486,7 @@ public class LocalValidatorFactoryBean extends InfraValidatorAdapter
   /**
    * Inner class to avoid a hard-coded Hibernate Validator 9.2 dependency.
    */
-  private static class HibernateValidator92Delegate {
+  private static final class HibernateValidator92Delegate {
 
     public static boolean adaptClassLoaderAndBeanProvider(Configuration<?> configuration,
             ApplicationContext context) {
