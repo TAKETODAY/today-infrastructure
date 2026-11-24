@@ -20,6 +20,9 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.File;
 import java.io.StringWriter;
@@ -38,10 +41,12 @@ import infra.core.i18n.LocaleContextHolder;
 import infra.core.io.ClassPathResource;
 import infra.test.BuildOutput;
 import infra.test.classpath.resources.WithResource;
+import infra.test.stdio.CapturedOutput;
+import infra.test.stdio.OutputCaptureExtension;
 import infra.test.util.TestPropertyValues;
 import infra.web.context.StandardWebEnvironment;
-import infra.web.mock.MockRequest;
 import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.view.View;
 import infra.web.view.groovy.GroovyMarkupConfig;
@@ -84,6 +89,23 @@ class GroovyTemplateAutoConfigurationTests {
     registerAndRefreshContext("groovy.template.resource-loader-path:classpath:/templates/empty-directory/");
   }
 
+  @ParameterizedTest
+  @ValueSource(booleans = { true, false })
+  @ExtendWith(OutputCaptureExtension.class)
+  void warnsAboutMissingTemplateLocationOnlyWhenCheckIsEnabled(boolean check, CapturedOutput output) {
+    String location = "classpath:/missing-groovy-templates/";
+    registerAndRefreshContext("groovy.template.resource-loader-path=" + location,
+            "groovy.template.check-template-location=" + check);
+
+    String warning = "Cannot find template location:";
+    if (check) {
+      assertThat(output).contains(warning);
+    }
+    else {
+      assertThat(output).doesNotContain(warning);
+    }
+  }
+
   @Test
   @WithResource(name = "templates/home.tpl", content = "yield 'home'")
   void defaultViewResolution() throws Exception {
@@ -92,6 +114,31 @@ class GroovyTemplateAutoConfigurationTests {
     String result = response.getContentAsString();
     assertThat(result).contains("home");
     assertThat(response.getContentType()).isEqualTo("text/html;charset=UTF-8");
+  }
+
+  @Test
+  @WithResource(name = "templates/allowed.tpl", content = """
+          yield "${requestValue}|${sessionValue}|${webContext.getAttribute('requestValue')}|${messages}"
+          """)
+  @WithResource(name = "templates/excluded.tpl", content = "yield 'excluded'")
+  void appliesViewNamesAndModelExposureSettingsWhenRendering() throws Exception {
+    registerAndRefreshContext("groovy.template.view-names=allowed", "groovy.template.http-context-attribute=webContext",
+            "groovy.template.expose-request-attributes=true", "groovy.template.allow-request-override=true",
+            "groovy.template.expose-session-attributes=true", "groovy.template.allow-session-override=true",
+            "groovy.template.expose-messages=false");
+    LocaleContextHolder.setLocale(Locale.UK);
+    var resolver = this.context.getBean(GroovyMarkupViewResolver.class);
+    assertThat(resolver.resolveViewName("excluded", Locale.UK)).isNull();
+    View view = resolver.resolveViewName("allowed", Locale.UK);
+    assertThat(view).isNotNull();
+
+    var response = new MockResponse();
+    var http = new MockHttpContext(new MockRequest(), response);
+    http.setAttribute("requestValue", "from request");
+    http.getSession().setAttribute("sessionValue", "from session");
+    view.render(Map.of("requestValue", "from model", "sessionValue", "from model", "messages", "custom messages"), http);
+
+    assertThat(response.getContentAsString()).isEqualTo("from request|from session|from request|custom messages");
   }
 
   @Test
@@ -183,6 +230,15 @@ class GroovyTemplateAutoConfigurationTests {
             .make(new HashMap<>(Collections.singletonMap("greeting", "Hello World")))
             .writeTo(writer);
     assertThat(writer.toString()).contains("Hello World");
+  }
+
+  @Test
+  void usesUserProvidedTemplateEngine() {
+    var engine = new MarkupTemplateEngine(new TemplateConfiguration());
+    this.context.registerBean(MarkupTemplateEngine.class, () -> engine);
+    registerAndRefreshContext();
+
+    assertThat(this.context.getBean(GroovyMarkupConfig.class).getTemplateEngine()).isSameAs(engine);
   }
 
   @Test

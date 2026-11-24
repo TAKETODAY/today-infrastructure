@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.groovy.template.config;
 
 import org.junit.jupiter.api.Test;
 
+import groovy.text.TemplateEngine;
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
 import infra.aot.hint.TypeHint;
@@ -26,10 +29,11 @@ import infra.core.io.DefaultResourceLoader;
 import infra.core.io.ResourceLoader;
 import infra.groovy.template.config.GroovyTemplateAvailabilityProvider.GroovyTemplateAvailabilityProperties;
 import infra.groovy.template.config.GroovyTemplateAvailabilityProvider.GroovyTemplateAvailabilityRuntimeHints;
-import infra.util.InfraStrategies;
 import infra.mock.env.MockEnvironment;
 import infra.test.classpath.resources.WithResource;
+import infra.test.context.FilteredClassLoader;
 import infra.ui.template.TemplateAvailabilityProvider;
+import infra.util.InfraStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -113,6 +117,16 @@ class GroovyTemplateAvailabilityProviderTests {
     new GroovyTemplateAvailabilityRuntimeHints().registerHints(hints, getClass().getClassLoader());
     TypeHint typeHint = hints.reflection().getTypeHint(GroovyTemplateAvailabilityProperties.class);
     assertThat(typeHint).isNotNull();
+  }
+
+  @Test
+  void skipsAvailabilityPropertiesRuntimeHintsWhenGroovyIsAbsent() throws Exception {
+    RuntimeHints hints = new RuntimeHints();
+    try (var classLoader = new FilteredClassLoader(TemplateEngine.class)) {
+      new GroovyTemplateAvailabilityRuntimeHints().registerHints(hints, classLoader);
+    }
+
+    assertThat(hints.reflection().getTypeHint(GroovyTemplateAvailabilityProperties.class)).isNull();
   }
 
 }

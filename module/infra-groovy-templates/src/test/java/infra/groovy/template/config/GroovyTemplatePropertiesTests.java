@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import infra.util.MimeTypeUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link GroovyTemplateProperties}.
@@ -77,6 +78,23 @@ class GroovyTemplatePropertiesTests {
     properties.setContentType(MimeTypeUtils.parseMimeType("text/plain;foo=bar"));
     properties.setCharset(StandardCharsets.UTF_16);
     assertThat(properties.getContentType()).hasToString("text/plain;charset=UTF-16;foo=bar");
+  }
+
+  @Test
+  void explicitContentTypeCharsetTakesPrecedenceOverDefaultCharset() {
+    var properties = new GroovyTemplateProperties();
+    properties.setCharset(StandardCharsets.UTF_16);
+    properties.setContentType(MimeTypeUtils.parseMimeType("text/plain;charset=ISO-8859-1"));
+
+    assertThat(properties.getContentType()).hasToString("text/plain;charset=ISO-8859-1");
+  }
+
+  @Test
+  void rejectsUnsupportedViewResolver() {
+    var properties = new GroovyTemplateProperties();
+
+    assertThatIllegalArgumentException().isThrownBy(() -> properties.applyToMvcViewResolver("unsupported"))
+            .withMessageContaining("ViewResolver is not an instance of AbstractTemplateViewResolver");
   }
 
 }
