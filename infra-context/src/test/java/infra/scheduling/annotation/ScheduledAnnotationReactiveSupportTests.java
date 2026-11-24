@@ -19,6 +19,7 @@
 package infra.scheduling.annotation;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.reactivestreams.Publisher;
@@ -31,6 +32,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.core.annotation.AnnotationUtils;
+import infra.scheduling.SchedulingAwareRunnable;
 import infra.util.Feature;
 import infra.util.ReflectionUtils;
 import io.reactivex.rxjava3.core.Completable;
@@ -99,6 +101,54 @@ class ScheduledAnnotationReactiveSupportTests {
     assertThatIllegalArgumentException().isThrownBy(() -> getPublisherFor(m, target))
             .withMessage("Cannot obtain a Publisher-convertible value from the @Scheduled reactive method")
             .withCause(new IllegalStateException("expected"));
+  }
+
+  @Test
+  void rejectsUnsupportedAndEagerReturnTypesWhenCreatingThePublisher() {
+    var target = new ReactiveMethods();
+    var string = ReflectionUtils.findMethod(ReactiveMethods.class, "oops");
+    var future = ReflectionUtils.findMethod(ReactiveMethods.class, "future");
+
+    assertThatIllegalArgumentException().isThrownBy(() -> getPublisherFor(string, target))
+            .withMessage("Cannot convert @Scheduled reactive method return type to Publisher");
+    assertThatIllegalArgumentException().isThrownBy(() -> getPublisherFor(future, target))
+            .withMessageContaining("CompletableFuture is not a deferred reactive type");
+  }
+
+  @Test
+  @Timeout(5)
+  void repeatsSubscriptionsAndRemovesCompletedOrFailedFixedDelaySubscriptions() {
+    var target = new ReactiveMethods();
+    var scheduled = AnnotationUtils.synthesizeAnnotation(Map.of("fixedDelay", 1L), Scheduled.class, null);
+    var tracker = new ArrayList<Runnable>();
+    var complete = createSubscriptionRunnable(ReflectionUtils.findMethod(ReactiveMethods.class, "trackingMono"),
+            target, scheduled, tracker);
+    var fail = createSubscriptionRunnable(ReflectionUtils.findMethod(ReactiveMethods.class, "monoError"),
+            target, scheduled, tracker);
+
+    assertThat(target.subscription).hasValue(0);
+    complete.run();
+    complete.run();
+    assertThat(target.subscription).hasValue(2);
+    assertThat(tracker).isEmpty();
+    fail.run();
+    assertThat(tracker).isEmpty();
+  }
+
+  @Test
+  void exposesTheSchedulerQualifierAndCancelsAnActiveSubscription() {
+    var target = new ReactiveMethods();
+    var scheduled = AnnotationUtils.synthesizeAnnotation(Map.of("fixedRate", 1L, "scheduler", "reactiveScheduler"),
+            Scheduled.class, null);
+    var tracker = new ArrayList<Runnable>();
+    var task = createSubscriptionRunnable(ReflectionUtils.findMethod(ReactiveMethods.class, "pendingMono"),
+            target, scheduled, tracker);
+
+    assertThat(task).isInstanceOfSatisfying(SchedulingAwareRunnable.class,
+            runnable -> assertThat(runnable.getQualifier()).isEqualTo("reactiveScheduler"));
+    task.run();
+    assertThat(tracker).singleElement().satisfies(Runnable::run);
+    assertThat(target.cancellations).hasValue(1);
   }
 
   @Test
@@ -243,6 +293,12 @@ class ScheduledAnnotationReactiveSupportTests {
     }
 
     AtomicInteger subscription = new AtomicInteger();
+
+    final AtomicInteger cancellations = new AtomicInteger();
+
+    public Mono<Void> pendingMono() {
+      return Mono.<Void>never().doOnCancel(cancellations::incrementAndGet);
+    }
 
     public Mono<Void> trackingMono() {
       return Mono.<Void>empty().doOnSubscribe(s -> subscription.incrementAndGet());

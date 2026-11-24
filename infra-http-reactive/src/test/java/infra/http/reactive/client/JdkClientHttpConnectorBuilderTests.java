@@ -20,16 +20,20 @@ package infra.http.reactive.client;
 
 import org.junit.jupiter.api.Test;
 
+import java.net.ProxySelector;
 import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.concurrent.Executor;
 
 import infra.core.task.SimpleAsyncTaskExecutor;
+import infra.http.client.HttpClientSettings;
+import infra.http.client.InetAddressFilter;
 import infra.http.client.JdkHttpClientBuilder;
 import infra.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link JdkClientHttpConnectorBuilder} and {@link JdkHttpClientBuilder}.
@@ -68,6 +72,28 @@ class JdkClientHttpConnectorBuilderTests extends AbstractClientHttpConnectorBuil
     HttpClient httpClient = (HttpClient) ReflectionTestUtils.getField(connector, "httpClient");
     assertThat(httpClient).isNotNull();
     assertThat(httpClient.executor()).containsSame(executor);
+  }
+
+  @Test
+  void withProxySelector() {
+    ProxySelector proxySelector = mock(ProxySelector.class);
+    JdkClientHttpConnector connector = ClientHttpConnectorBuilder.jdk().withProxySelector(proxySelector).build();
+    HttpClient httpClient = (HttpClient) ReflectionTestUtils.getField(connector, "httpClient");
+    assertThat(httpClient).isNotNull();
+    assertThat(httpClient.proxy()).containsSame(proxySelector);
+  }
+
+  @Test
+  void withProxySelectorWhenHasInetAddressFilter() {
+    ProxySelector proxySelector = mock(ProxySelector.class);
+    HttpClientSettings settings = HttpClientSettings.defaults().withInetAddressFilter(InetAddressFilter.externalAddresses());
+    JdkClientHttpConnector connector = ClientHttpConnectorBuilder.jdk().withProxySelector(proxySelector).build(settings);
+    HttpClient httpClient = (HttpClient) ReflectionTestUtils.getField(connector, "httpClient");
+    assertThat(httpClient).isNotNull();
+    assertThat(httpClient.proxy()).hasValueSatisfying(actual -> {
+      assertThat(actual.getClass().getSimpleName()).isEqualTo("JdkFilteredProxySelector");
+      assertThat(actual).extracting("delegate").isSameAs(proxySelector);
+    });
   }
 
   @Test

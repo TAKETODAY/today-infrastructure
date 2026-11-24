@@ -46,8 +46,11 @@ import infra.messaging.tcp.TcpOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -397,6 +400,223 @@ class StompBrokerRelayMessageHandlerTests {
     });
   }
 
+  @Test
+  void reportsClientConnectionFailureAndRemovesTheClientSession() {
+    this.brokerRelay.start();
+    this.brokerRelay.handleMessage(connectMessage("sess1", "joe"));
+
+    this.tcpClient.connectionHandler.afterConnectFailure(new IllegalStateException("connection refused"));
+
+    assertThat(this.brokerRelay.getConnectionCount()).isEqualTo(1);
+    assertThat(this.outboundChannel.getMessages()).singleElement().satisfies(message -> {
+      StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+      assertThat(accessor).isNotNull();
+      assertThat(accessor.getCommand()).isEqualTo(StompCommand.ERROR);
+      assertThat(accessor.getSessionId()).isEqualTo("sess1");
+      assertThat(accessor.getMessage()).contains("Failed to connect: connection refused");
+    });
+  }
+
+  @Test
+  void reportsForwardFailureAndClosesTheClientConnection() {
+    this.brokerRelay.start();
+    this.brokerRelay.handleMessage(connectMessage("sess1", "joe"));
+    this.tcpClient.handleMessage(message(StompCommand.CONNECTED, null, null, null));
+    this.tcpClient.connection.sendFailure = new IllegalStateException("write failed");
+
+    this.brokerRelay.handleMessage(message(StompCommand.SEND, "sess1", "joe", "/topic/events"));
+
+    assertThat(this.tcpClient.connection.closed).isTrue();
+    assertThat(this.outboundChannel.getMessages()).hasSize(2);
+    assertThat(this.outboundChannel.getMessages().get(1)).satisfies(message -> {
+      StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+      assertThat(accessor).isNotNull();
+      assertThat(accessor.getCommand()).isEqualTo(StompCommand.ERROR);
+      assertThat(accessor.getMessage()).contains("failed to forward");
+    });
+  }
+
+  @Test
+  void systemConnectionConfiguresHeartbeatsAndHandlesSystemMessages() {
+    MessageHandler handler = mock();
+    this.brokerRelay.setSystemSubscriptions(Collections.singletonMap("/topic/system", handler));
+    this.brokerRelay.start();
+
+    StompHeaderAccessor connected = StompHeaderAccessor.create(StompCommand.CONNECTED);
+    connected.setHeartbeat(100, 100);
+    connected.setLeaveMutable(true);
+    this.tcpClient.handleMessage(MessageBuilder.createMessage(new byte[0], connected.getMessageHeaders()));
+
+    assertThat(this.tcpClient.connection.writeInactivity).isNotNull();
+    assertThat(this.tcpClient.connection.readInactivity).isNotNull();
+    assertThat(this.tcpClient.getSentHeaders(1).getCommand()).isEqualTo(StompCommand.SUBSCRIBE);
+
+    this.tcpClient.connection.writeInactivity.run();
+    assertThat(this.tcpClient.getSentHeaders(2).getMessageType()).isEqualTo(SimpMessageType.HEARTBEAT);
+
+    this.tcpClient.handleMessage(message(StompCommand.MESSAGE, null, null, null));
+    this.tcpClient.handleMessage(message(StompCommand.MESSAGE, null, null, "/topic/unknown"));
+    this.tcpClient.handleMessage(message(StompCommand.MESSAGE, null, null, "/topic/system"));
+    verify(handler).handleMessage(any());
+  }
+
+  @Test
+  void systemHeartbeatFailureClosesConnectionAndSystemHandlerExceptionsAreIgnored() {
+    MessageHandler handler = mock();
+    doThrow(new IllegalStateException("handler failed")).when(handler).handleMessage(any());
+    this.brokerRelay.setSystemSubscriptions(Collections.singletonMap("/topic/system", handler));
+    this.brokerRelay.start();
+
+    StompHeaderAccessor connected = StompHeaderAccessor.create(StompCommand.CONNECTED);
+    connected.setHeartbeat(100, 100);
+    connected.setLeaveMutable(true);
+    this.tcpClient.handleMessage(MessageBuilder.createMessage(new byte[0], connected.getMessageHeaders()));
+
+    this.tcpClient.handleMessage(message(StompCommand.MESSAGE, null, null, "/topic/system"));
+    verify(handler).handleMessage(any());
+
+    this.tcpClient.connection.sendFailure = new IllegalStateException("heartbeat failed");
+    this.tcpClient.connection.writeInactivity.run();
+
+    assertThat(this.tcpClient.connection.closed).isTrue();
+  }
+
+  @Test
+  void missingSystemHeartbeatMakesBrokerUnavailable() {
+    this.brokerRelay.start();
+    StompHeaderAccessor connected = StompHeaderAccessor.create(StompCommand.CONNECTED);
+    connected.setHeartbeat(100, 100);
+    connected.setLeaveMutable(true);
+    this.tcpClient.handleMessage(MessageBuilder.createMessage(new byte[0], connected.getMessageHeaders()));
+
+    this.tcpClient.connection.readInactivity.run();
+
+    assertThat(this.tcpClient.connection.closed).isTrue();
+    assertThat(this.brokerRelay.isBrokerAvailable()).isFalse();
+  }
+
+  @Test
+  void failureToSubscribeOnSystemConnectionMakesBrokerUnavailable() {
+    this.brokerRelay.setSystemSubscriptions(Collections.singletonMap("/topic/system", mock(MessageHandler.class)));
+    this.brokerRelay.start();
+    this.tcpClient.connection.sendFailure = new IllegalStateException("subscription write failed");
+
+    this.tcpClient.handleMessage(message(StompCommand.CONNECTED, null, null, null));
+
+    assertThat(this.tcpClient.connection.closed).isTrue();
+    assertThat(this.brokerRelay.isBrokerAvailable()).isFalse();
+  }
+
+  @Test
+  void reportsSynchronousSystemSendFailureAndIgnoresNonBrokerDestination() {
+    this.brokerRelay.start();
+    this.tcpClient.handleMessage(message(StompCommand.CONNECTED, null, null, null));
+    this.brokerRelay.handleMessage(message(StompCommand.SEND, null, null, "/app/ignored"));
+    assertThat(this.tcpClient.getSentMessages()).hasSize(1);
+    this.tcpClient.connection.sendFailure = new IllegalStateException("system write failed");
+
+    assertThatExceptionOfType(MessageDeliveryException.class)
+            .isThrownBy(() -> this.brokerRelay.handleMessage(message(StompCommand.SEND, null, null, "/topic/events")))
+            .havingRootCause().withMessage("system write failed");
+    assertThat(this.brokerRelay.isBrokerAvailable()).isFalse();
+  }
+
+  @Test
+  void transportFailureNotifiesClientAndCleansUpOnlyOnce() {
+    this.brokerRelay.start();
+    this.brokerRelay.handleMessage(connectMessage("sess1", "joe"));
+    this.tcpClient.handleMessage(message(StompCommand.CONNECTED, null, null, null));
+
+    this.tcpClient.connectionHandler.handleFailure(new IllegalStateException("transport lost"));
+    this.tcpClient.connectionHandler.handleFailure(new IllegalStateException("late callback"));
+
+    assertThat(this.tcpClient.connection.closed).isTrue();
+    assertThat(this.outboundChannel.getMessages()).hasSize(2);
+    StompHeaderAccessor error = StompHeaderAccessor.wrap(this.outboundChannel.getMessages().get(1));
+    assertThat(error.getCommand()).isEqualTo(StompCommand.ERROR);
+    assertThat(error.getMessage()).contains("transport lost");
+  }
+
+  @Test
+  void systemConnectionClosePublishesBrokerUnavailableWithoutClosingTwice() {
+    this.brokerRelay.start();
+    assertThat(this.brokerRelay.getConnectionCount()).isEqualTo(1);
+
+    this.tcpClient.handlers.get(0).afterConnectionClosed();
+
+    // The TCP close callback resets the handler's connection reference first;
+    // the cleanup path must therefore not close an already closed connection.
+    assertThat(this.tcpClient.connection.closed).isFalse();
+    assertThat(this.brokerRelay.getConnectionCount()).isEqualTo(1);
+    assertThat(this.brokerRelay.isBrokerAvailable()).isFalse();
+  }
+
+  @Test
+  void stopContinuesWhenTcpClientShutdownFails() {
+    this.tcpClient.shutdownFailure = new IllegalStateException("shutdown failed");
+    this.brokerRelay.start();
+
+    this.brokerRelay.stop();
+
+    assertThat(this.brokerRelay.getTcpClient()).isSameAs(this.tcpClient);
+  }
+
+  @Test
+  void rejectsSystemMessageBeforeSystemConnectionIsConnected() {
+    this.brokerRelay.start();
+
+    assertThatExceptionOfType(MessageDeliveryException.class)
+            .isThrownBy(() -> this.brokerRelay.handleMessage(message(StompCommand.SEND, null, null, "/topic/events")))
+            .withCauseInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
+  void configurationAndStatistics() {
+    assertThat(this.brokerRelay.getRelayHost()).isEqualTo("127.0.0.1");
+    assertThat(this.brokerRelay.getRelayPort()).isEqualTo(61613);
+    assertThat(this.brokerRelay.getClientLogin()).isEqualTo("guest");
+    assertThat(this.brokerRelay.getClientPasscode()).isEqualTo("guest");
+    assertThat(this.brokerRelay.getSystemLogin()).isEqualTo("guest");
+    assertThat(this.brokerRelay.getSystemPasscode()).isEqualTo("guest");
+    assertThat(this.brokerRelay.getSystemHeartbeatSendInterval()).isEqualTo(10000);
+    assertThat(this.brokerRelay.getSystemHeartbeatReceiveInterval()).isEqualTo(10000);
+    assertThat(this.brokerRelay.getSystemSubscriptions()).isEmpty();
+    assertThat(this.brokerRelay.isPausable()).isFalse();
+    assertThat(this.brokerRelay.getTcpClient()).isSameAs(this.tcpClient);
+
+    this.brokerRelay.setRelayHost("broker.example");
+    this.brokerRelay.setRelayPort(61614);
+    this.brokerRelay.setClientLogin("client");
+    this.brokerRelay.setClientPasscode("client-pass");
+    this.brokerRelay.setSystemLogin("system");
+    this.brokerRelay.setSystemPasscode("system-pass");
+    this.brokerRelay.setSystemHeartbeatSendInterval(5);
+    this.brokerRelay.setSystemHeartbeatReceiveInterval(6);
+    this.brokerRelay.setVirtualHost("vhost");
+    this.brokerRelay.setHeaderInitializer(accessor -> accessor.setHeader("origin", "test"));
+    this.brokerRelay.setSystemSubscriptions(Collections.emptyMap());
+
+    assertThat(this.brokerRelay.getRelayHost()).isEqualTo("broker.example");
+    assertThat(this.brokerRelay.getRelayPort()).isEqualTo(61614);
+    assertThat(this.brokerRelay.getClientLogin()).isEqualTo("client");
+    assertThat(this.brokerRelay.getClientPasscode()).isEqualTo("client-pass");
+    assertThat(this.brokerRelay.getSystemLogin()).isEqualTo("system");
+    assertThat(this.brokerRelay.getSystemPasscode()).isEqualTo("system-pass");
+    assertThat(this.brokerRelay.getSystemHeartbeatSendInterval()).isEqualTo(5);
+    assertThat(this.brokerRelay.getSystemHeartbeatReceiveInterval()).isEqualTo(6);
+    assertThat(this.brokerRelay.getVirtualHost()).isEqualTo("vhost");
+    assertThat(this.brokerRelay.getHeaderInitializer()).isNotNull();
+    assertThat(this.brokerRelay.getStats().getTotalHandlers()).isZero();
+    assertThat(this.brokerRelay.getStatsInfo()).contains("0 sessions");
+
+    assertThatIllegalArgumentException().isThrownBy(() -> this.brokerRelay.setRelayHost(" "));
+    assertThatIllegalArgumentException().isThrownBy(() -> this.brokerRelay.setClientLogin(""));
+    assertThatIllegalArgumentException().isThrownBy(() -> this.brokerRelay.setClientPasscode(" "));
+    this.brokerRelay.setTcpClient(null);
+    assertThat(this.brokerRelay.isPausable()).isTrue();
+    assertThat(this.brokerRelay.toString()).contains("broker.example:61614");
+  }
+
   private Message<byte[]> connectMessage(String sessionId, String user) {
     StompHeaderAccessor headers = StompHeaderAccessor.create(StompCommand.CONNECT);
     headers.setSessionId(sessionId);
@@ -428,6 +648,10 @@ class StompBrokerRelayMessageHandlerTests {
 
     private StubTcpConnection connection = new StubTcpConnection();
 
+    private final List<TcpConnectionHandler<byte[]>> handlers = new ArrayList<>();
+
+    private Throwable shutdownFailure;
+
     private TcpConnectionHandler<byte[]> connectionHandler;
 
     public List<Message<byte[]>> getSentMessages() {
@@ -444,6 +668,7 @@ class StompBrokerRelayMessageHandlerTests {
 
     @Override
     public CompletableFuture<Void> connectAsync(TcpConnectionHandler<byte[]> handler) {
+      this.handlers.add(handler);
       this.connectionHandler = handler;
       handler.afterConnected(this.connection);
       return getVoidFuture();
@@ -452,6 +677,7 @@ class StompBrokerRelayMessageHandlerTests {
     @Override
     public CompletableFuture<Void> connectAsync(TcpConnectionHandler<byte[]> handler,
             ReconnectStrategy reconnectStrategy) {
+      this.handlers.add(handler);
       this.connectionHandler = handler;
       handler.afterConnected(this.connection);
       return getVoidFuture();
@@ -459,6 +685,9 @@ class StompBrokerRelayMessageHandlerTests {
 
     @Override
     public CompletableFuture<Void> shutdownAsync() {
+      if (this.shutdownFailure != null) {
+        return CompletableFuture.failedFuture(this.shutdownFailure);
+      }
       return getVoidFuture();
     }
 
@@ -474,7 +703,11 @@ class StompBrokerRelayMessageHandlerTests {
 
     private Runnable readInactivity;
 
+    private Runnable writeInactivity;
+
     private boolean closed;
+
+    private Throwable sendFailure;
 
     public List<Message<byte[]>> getMessages() {
       return this.messages;
@@ -483,6 +716,9 @@ class StompBrokerRelayMessageHandlerTests {
     @Override
     public CompletableFuture<Void> sendAsync(Message<byte[]> message) {
       this.messages.add(message);
+      if (this.sendFailure != null) {
+        return CompletableFuture.failedFuture(this.sendFailure);
+      }
       return getVoidFuture();
     }
 
@@ -493,6 +729,7 @@ class StompBrokerRelayMessageHandlerTests {
 
     @Override
     public void onWriteInactivity(Runnable runnable, long duration) {
+      this.writeInactivity = runnable;
     }
 
     @Override

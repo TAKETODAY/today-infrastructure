@@ -31,17 +31,18 @@ import infra.util.CollectionUtils;
 import infra.web.HttpContext;
 
 /**
- * A composite strategy class that manages a list of {@link ParameterResolvingStrategy}
- * instances. This class implements the {@link Iterable} interface, allowing it to
- * iterate over its strategies, and also acts as a {@link ParameterResolvingStrategy}
- * itself by delegating calls to the underlying strategies.
+ * A composite strategy that manages an ordered list of
+ * {@link ParameterResolvingStrategy} instances. This class implements
+ * {@link Iterable} so that its strategies can be iterated over, and also acts as
+ * a {@link ParameterResolvingStrategy} by delegating argument resolution to the
+ * first matching strategy.
  *
  * <p>This class provides methods to add, remove, replace, and query strategies,
- * as well as methods to manage the internal list of strategies efficiently.
- * It also supports trimming the internal list capacity to its size via the
- * {@link ArraySizeTrimmer} interface.</p>
+ * as well as methods to manage the internal list efficiently. It also supports
+ * trimming the internal list capacity to its current size via the
+ * {@link ArraySizeTrimmer} interface.
  *
- * <h3>Usage Examples</h3>
+ * <h3>Usage examples</h3>
  *
  * Adding strategies:
  * <pre>{@code
@@ -79,16 +80,16 @@ import infra.web.HttpContext;
  * strategies.trimToSize();
  * }</pre>
  *
- * <h3>Implementation Details</h3>
+ * <h3>Implementation details</h3>
  *
  * <p>This class delegates the {@link #supportsParameter(HandlerParameter)} and
  * {@link #resolveArgument(HttpContext, HandlerParameter)} methods to the
  * first strategy in the list that supports the given parameter. If no strategy supports
- * the parameter, the methods return {@code false} or {@code null}, respectively.</p>
+ * the parameter, the methods return {@code false} or {@code null}, respectively.
  *
- * <p>The internal list of strategies can be modified using methods like {@link #add},
- * {@link #set}, and {@link #removeIf}. These methods ensure efficient management of
- * the strategies while maintaining the integrity of the list.</p>
+ * <p>The internal list of strategies can be modified using methods such as
+ * {@link #add(ParameterResolvingStrategy...)}, {@link #set(List)}, and
+ * {@link #removeIf(Predicate)}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ParameterResolvingStrategy
@@ -99,10 +100,19 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
 
   private final ArrayList<ParameterResolvingStrategy> strategies;
 
+  /**
+   * Create an empty collection of parameter resolving strategies.
+   */
   public ParameterResolvingStrategies() {
     this(new ArrayList<>());
   }
 
+  /**
+   * Create an empty collection with the specified initial capacity.
+   *
+   * @param size the initial capacity of the collection
+   * @throws IllegalArgumentException if {@code size} is negative
+   */
   public ParameterResolvingStrategies(int size) {
     this(new ArrayList<>(size));
   }
@@ -115,6 +125,13 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
   // Implementation of ParameterResolvingStrategy interface
   //---------------------------------------------------------------------
 
+  /**
+   * Determine whether any registered strategy supports the given parameter.
+   *
+   * @param parameter the parameter to inspect
+   * @return {@code true} if at least one registered strategy supports the
+   * parameter, {@code false} otherwise
+   */
   @Override
   public boolean supportsParameter(HandlerParameter parameter) {
     for (ParameterResolvingStrategy strategy : strategies) {
@@ -125,9 +142,19 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
     return false;
   }
 
-  @Nullable
+  /**
+   * Resolve the given parameter using the first registered strategy that
+   * supports it.
+   *
+   * @param context the current request context
+   * @param parameter the parameter to resolve
+   * @return the resolved argument value, or {@code null} if no registered
+   * strategy supports the parameter or the selected strategy returns
+   * {@code null}
+   * @throws Exception if the selected strategy cannot resolve the argument
+   */
   @Override
-  public Object resolveArgument(HttpContext context, HandlerParameter parameter) throws Exception {
+  public @Nullable Object resolveArgument(HttpContext context, HandlerParameter parameter) throws Exception {
     for (ParameterResolvingStrategy strategy : strategies) {
       if (strategy.supportsParameter(parameter)) {
         return strategy.resolveArgument(context, parameter);
@@ -136,55 +163,65 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
     return null;
   }
 
-  public void add(@Nullable ParameterResolvingStrategy resolver) {
-    if (resolver != null) {
-      strategies.add(resolver);
+  /**
+   * Add a strategy to the end of this collection.
+   *
+   * <p>A {@code null} strategy is ignored.
+   *
+   * @param strategy the strategy to add, or {@code null}
+   */
+  public void add(@Nullable ParameterResolvingStrategy strategy) {
+    if (strategy != null) {
+      strategies.add(strategy);
     }
   }
 
   /**
-   * add resolvers or resolving-strategies
+   * Add the specified strategies to the end of this collection.
    *
-   * @param resolver resolvers or resolving-strategies
+   * @param strategies the strategies to add
    */
-  public void add(ParameterResolvingStrategy @Nullable ... resolver) {
-    CollectionUtils.addAll(strategies, resolver);
+  public void add(ParameterResolvingStrategy @Nullable ... strategies) {
+    CollectionUtils.addAll(this.strategies, strategies);
   }
 
   /**
-   * add resolvers or resolving-strategies
+   * Add all strategies in the specified list to the end of this collection.
    *
-   * @param resolvers resolvers or resolving-strategies
+   * @param strategies the strategies to add, or {@code null}
    */
-  public void add(@Nullable List<ParameterResolvingStrategy> resolvers) {
-    if (CollectionUtils.isNotEmpty(resolvers)) {
-      this.strategies.addAll(resolvers);
+  public void add(@Nullable List<ParameterResolvingStrategy> strategies) {
+    if (CollectionUtils.isNotEmpty(strategies)) {
+      this.strategies.addAll(strategies);
       trimToSize();
     }
   }
 
   /**
-   * set or clear resolvers
+   * Replace the current strategies with the strategies in the specified list.
+   * Passing {@code null} or an empty list clears this collection.
    *
-   * @param resolver can be null
+   * @param strategies the replacement strategies, or {@code null}
    */
-  public void set(@Nullable List<ParameterResolvingStrategy> resolver) {
-    strategies.clear();
-    if (CollectionUtils.isNotEmpty(resolver)) {
-      strategies.addAll(resolver);
+  public void set(@Nullable List<ParameterResolvingStrategy> strategies) {
+    this.strategies.clear();
+    if (CollectionUtils.isNotEmpty(strategies)) {
+      this.strategies.addAll(strategies);
       trimToSize();
     }
   }
 
   /**
-   * Returns the instance of the first occurrence of the specified strategy-class
+   * Return the first strategy whose concrete class exactly matches the specified
+   * class.
    *
-   * @param strategyClass strategy-class to search for
-   * @return the instance of the first occurrence of the specified strategy-class
+   * @param strategyClass the concrete strategy class to search for
+   * @param <T> the strategy type
+   * @return the first matching strategy, or {@code null} if no strategy with the
+   * specified concrete class is present
    */
-  @Nullable
   @SuppressWarnings("unchecked")
-  public <T> T get(Class<T> strategyClass) {
+  public <T> @Nullable T get(Class<T> strategyClass) {
     int idx = indexOf(strategyClass);
     if (idx != -1) {
       return (T) strategies.get(idx);
@@ -193,14 +230,11 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
   }
 
   /**
-   * Returns the index of the first occurrence of the specified strategy-class
-   * in this list, or -1 if this list does not contain the strategy-class.
-   * More formally, returns the lowest index {@code i} such that
-   * -1 if there is no such index.
+   * Return the index of the first strategy whose concrete class exactly matches
+   * the specified class, or {@code -1} if no such strategy is present.
    *
-   * @param strategyClass strategy-class to search for
-   * @return the index of the first occurrence of the specified strategy-class in
-   * this list, or -1 if this list does not contain the strategy-class
+   * @param strategyClass the concrete strategy class to search for
+   * @return the index of the first matching strategy, or {@code -1}
    */
   public int indexOf(Class<?> strategyClass) {
     int idx = 0;
@@ -214,14 +248,11 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
   }
 
   /**
-   * Returns the index of the last occurrence of the specified strategy-class
-   * in this list, or -1 if this list does not contain the strategy-class.
-   * More formally, returns the highest index {@code i} such that -1 if
-   * there is no such index.
+   * Return the index of the last strategy whose concrete class exactly matches
+   * the specified class, or {@code -1} if no such strategy is present.
    *
-   * @param strategyClass strategy-class to search for
-   * @return the index of the last occurrence of the specified strategy-class in
-   * this list, or -1 if this list does not contain the strategy-class
+   * @param strategyClass the concrete strategy class to search for
+   * @return the index of the last matching strategy, or {@code -1}
    */
   public int lastIndexOf(Class<?> strategyClass) {
     int idx = strategies.size() - 1;
@@ -235,25 +266,26 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
   }
 
   /**
-   * Replaces the element at the specified position in this list with
-   * the specified element.
+   * Replace the strategy at the specified position.
    *
-   * @param idx index of the element to replace
-   * @param strategy strategy to be stored at the specified position
-   * @return the element previously at the specified position
-   * @throws IndexOutOfBoundsException if the index is out of range {@code (index < 0 || index >= size())}
+   * @param idx the index of the strategy to replace
+   * @param strategy the replacement strategy
+   * @return the strategy previously at the specified position
+   * @throws IndexOutOfBoundsException if the index is out of range
+   * ({@code idx < 0 || idx >= size()})
    */
   public ParameterResolvingStrategy set(int idx, ParameterResolvingStrategy strategy) {
     return strategies.set(idx, strategy);
   }
 
   /**
-   * Replaces the element at the specified position in this list with
-   * the specified strategy-class.
+   * Replace the first strategy whose concrete class exactly matches the
+   * specified class.
    *
-   * @param strategyClass strategy-class to search for
-   * @param strategy new strategy
-   * @return if replaced
+   * @param strategyClass the concrete strategy class to search for
+   * @param strategy the replacement strategy
+   * @return {@code true} if a matching strategy was replaced, {@code false} if
+   * no matching strategy was found
    */
   public boolean replace(Class<?> strategyClass, ParameterResolvingStrategy strategy) {
     int idx = indexOf(strategyClass);
@@ -265,44 +297,32 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
   }
 
   /**
-   * Removes all the elements of this collection that satisfy the given
-   * predicate.  Errors or runtime exceptions thrown during iteration or by
-   * the predicate are relayed to the caller.
+   * Remove all strategies that satisfy the given predicate.
    *
-   * <p>
-   * The default implementation traverses all elements of the collection using
-   * its {@link List#iterator()}.  Each matching element is removed using
-   * {@link Iterator#remove()}.  If the collection's iterator does not
-   * support removal then an {@code UnsupportedOperationException} will be
-   * thrown on the first matching element.
-   *
-   * @param filter a predicate which returns {@code true} for elements to be
+   * @param filter a predicate that returns {@code true} for strategies to be
    * removed
-   * @return {@code true} if any elements were removed
+   * @return {@code true} if at least one strategy was removed
    * @throws NullPointerException if the specified filter is null
-   * @throws UnsupportedOperationException if elements cannot be removed
-   * from this collection.  Implementations may throw this exception if a
-   * matching element cannot be removed or if, in general, removal is not
-   * supported.
    */
   public boolean removeIf(Predicate<ParameterResolvingStrategy> filter) {
     return strategies.removeIf(filter);
   }
 
   /**
-   * Returns <tt>true</tt> if resolvers list contains the specified {@code resolverClass}.
-   * More formally, returns <tt>true</tt> if and only if all resolvers contains
-   * at least one element <tt>e</tt> such that
-   * <tt>(resolverClass == resolver.getClass())</tt>.
+   * Determine whether this collection contains a strategy whose concrete class
+   * exactly matches the specified class.
    *
-   * @param strategyClass element whose presence in this defaultResolvers or customizedResolvers is to be tested
-   * @return <tt>true</tt> if resolvers contains the specified {@code resolverClass}
+   * @param strategyClass the concrete strategy class to search for
+   * @return {@code true} if a matching strategy is present, {@code false}
+   * otherwise
    */
   public boolean contains(Class<?> strategyClass) {
     return indexOf(strategyClass) != -1;
   }
 
   /**
+   * Trim the internal storage to the current number of strategies.
+   *
    * @since 4.0
    */
   @Override
@@ -310,20 +330,42 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
     strategies.trimToSize();
   }
 
+  /**
+   * Return the internal mutable list of strategies.
+   *
+   * <p>Changes made to the returned list are reflected in this collection.
+   *
+   * @return the internal list of strategies
+   */
   public ArrayList<ParameterResolvingStrategy> getStrategies() {
     return strategies;
   }
 
+  /**
+   * Return an iterator over the registered strategies in list order.
+   *
+   * @return an iterator over the registered strategies
+   */
   @Override
   public Iterator<ParameterResolvingStrategy> iterator() {
     return strategies.iterator();
   }
 
+  /**
+   * Perform the given action for each registered strategy in list order.
+   *
+   * @param action the action to perform for each strategy
+   */
   @Override
   public void forEach(Consumer<? super ParameterResolvingStrategy> action) {
     strategies.forEach(action);
   }
 
+  /**
+   * Return a late-binding spliterator over the registered strategies.
+   *
+   * @return a spliterator over the registered strategies
+   */
   @Override
   public Spliterator<ParameterResolvingStrategy> spliterator() {
     return strategies.spliterator();
@@ -337,18 +379,19 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
   }
 
   /**
-   * Returns the number of strategies in this list.
+   * Return the number of registered strategies.
    *
-   * @return the number of strategies in this list
+   * @return the number of registered strategies
    */
   public int size() {
     return strategies.size();
   }
 
   /**
-   * Returns {@code true} if this strategies list contains no strategy.
+   * Determine whether no strategies are registered.
    *
-   * @return {@code true} if this strategies list contains no strategy
+   * @return {@code true} if no strategies are registered, otherwise
+   * {@code false}
    */
   public boolean isEmpty() {
     return strategies.isEmpty();

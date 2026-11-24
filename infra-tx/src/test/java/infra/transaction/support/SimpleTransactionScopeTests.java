@@ -218,4 +218,21 @@ class SimpleTransactionScopeTests {
     assertThat(TransactionSynchronizationManager.hasResource("tb")).isFalse();
   }
 
+  @Test
+  void handlesMissingScopedObjectsAndTransactionMetadata() {
+    var scope = new SimpleTransactionScope();
+    assertThat(scope.remove("missing")).isNull();
+    scope.registerDestructionCallback("missing", () -> { });
+    assertThat(scope.resolveContextualObject("any")).isNull();
+    assertThat(scope.getConversationId()).isNull();
+
+    TransactionSynchronizationManager.setCurrentTransactionName("transaction-name");
+    try {
+      assertThat(scope.getConversationId()).isEqualTo("transaction-name");
+    }
+    finally {
+      TransactionSynchronizationManager.clear();
+    }
+  }
+
 }

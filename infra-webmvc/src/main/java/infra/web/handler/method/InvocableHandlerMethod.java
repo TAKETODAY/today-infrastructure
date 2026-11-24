@@ -30,6 +30,7 @@ import java.util.stream.IntStream;
 
 import infra.beans.factory.BeanFactory;
 import infra.context.MessageSource;
+import infra.core.MethodParameter;
 import infra.http.HttpStatusCode;
 import infra.util.StringUtils;
 import infra.validation.method.MethodValidator;
@@ -37,6 +38,7 @@ import infra.web.HttpContext;
 import infra.web.HttpRequestHandler;
 import infra.web.annotation.ResponseStatus;
 import infra.web.bind.WebDataBinder;
+import infra.web.util.WebUtils;
 import infra.web.view.View;
 
 /**
@@ -56,9 +58,11 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
   private final HandlerParameter[] resolvableParameters;
 
-  private volatile @Nullable List<InvocableHandlerMethod> binderMethods;
+  private volatile MethodParameter @Nullable [] validationParameters;
 
-  private volatile @Nullable List<InvocableHandlerMethod> modelAttributeMethods;
+  private volatile @Nullable BindingMethods binderMethods;
+
+  private volatile @Nullable BindingMethods modelAttributeMethods;
 
   /**
    * Create an instance from a {@code HandlerMethod}.
@@ -96,21 +100,17 @@ public class InvocableHandlerMethod extends HandlerMethod {
   }
 
   @Nullable
-  List<InvocableHandlerMethod> getCachedBinderMethods() {
-    return this.binderMethods;
+  BindingMethods getBindingMethods(boolean binder) {
+    return binder ? this.binderMethods : this.modelAttributeMethods;
   }
 
-  void setCachedBinderMethods(List<InvocableHandlerMethod> binderMethods) {
-    this.binderMethods = binderMethods;
-  }
-
-  @Nullable
-  List<InvocableHandlerMethod> getCachedModelAttributeMethods() {
-    return this.modelAttributeMethods;
-  }
-
-  void setCachedModelAttributeMethods(List<InvocableHandlerMethod> modelAttributeMethods) {
-    this.modelAttributeMethods = modelAttributeMethods;
+  void setBindingMethods(boolean binder, BindingMethods methods) {
+    if (binder) {
+      this.binderMethods = methods;
+    }
+    else {
+      this.modelAttributeMethods = methods;
+    }
   }
 
   @Override
@@ -127,7 +127,9 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * Invoke the method and handle the return value, applying the response status if necessary.
    * <p>If the return value is {@code null}, checks whether the request is not modified or
    * a response status is set, returning {@link HttpRequestHandler#NONE_RETURN_VALUE} in such cases.
-   * Additionally, if a response status reason is present, returns {@link HttpRequestHandler#NONE_RETURN_VALUE}.
+   * If a non-empty response status reason is present, the reason is sent through
+   * the error handling mechanism and the handler return value is ignored, returning
+   * {@link HttpRequestHandler#NONE_RETURN_VALUE}.
    *
    * @param request the current HTTP request context
    * @param methodValidator the validator to apply for method arguments and return values, may be {@code null}
@@ -138,14 +140,14 @@ public class InvocableHandlerMethod extends HandlerMethod {
   public @Nullable Object invokeAndHandle(HttpContext request,
           @Nullable MethodValidator methodValidator, Object @Nullable [] providedArgs) throws Exception {
     Object returnValue = invokeForRequest(request, methodValidator, providedArgs);
-    applyResponseStatus(request);
+    boolean reasonPresent = applyResponseStatus(request);
 
     if (returnValue == null) {
       if (request.isNotModified() || getResponseStatus() != null) {
         return HttpRequestHandler.NONE_RETURN_VALUE;
       }
     }
-    else if (StringUtils.hasText(getResponseStatusReason())) {
+    else if (reasonPresent) {
       return HttpRequestHandler.NONE_RETURN_VALUE;
     }
 
@@ -154,23 +156,33 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
   /**
    * Set the response status according to the {@link ResponseStatus} annotation.
+   *
+   * @return {@code true} if a non-empty response status reason was applied,
+   * {@code false} otherwise
    */
-  private void applyResponseStatus(HttpContext response) throws IOException {
+  private boolean applyResponseStatus(HttpContext context) throws IOException {
     HttpStatusCode status = getResponseStatus();
     if (status == null) {
-      return;
+      return false;
     }
 
     String reason = getResponseStatusReason();
-    if (StringUtils.hasText(reason)) {
-      response.sendError(status.value(), reason);
+    boolean reasonPresent = StringUtils.hasText(reason);
+    if (reasonPresent) {
+      MessageSource messageSource = getMessageSource();
+      if (messageSource == null) {
+        messageSource = context.getMessageSource();
+      }
+      reason = messageSource.getMessage(reason, null, reason, WebUtils.resolveLocale(context));
+      context.sendError(status.value(), reason);
     }
     else {
-      response.setStatus(status);
+      context.setStatus(status);
     }
 
     // To be picked up by RedirectView
-    response.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, status);
+    context.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, status);
+    return reasonPresent;
   }
 
   /**
@@ -200,7 +212,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 
     Object bean = getBean();
     if (shouldValidateArguments() && methodValidator != null) {
-      methodValidator.applyArgumentValidation(bean, getBridgedMethod(), getParameters(), args, getValidationGroups());
+      methodValidator.applyArgumentValidation(bean, getBridgedMethod(), getValidationParameters(), args, getValidationGroups());
     }
 
     try {
@@ -231,6 +243,20 @@ public class InvocableHandlerMethod extends HandlerMethod {
         throw new IllegalStateException(formatInvokeError("Invocation failure", args), te);
       }
     }
+  }
+
+  private MethodParameter[] getValidationParameters() {
+    var parameters = this.validationParameters;
+    if (parameters == null) {
+      // Validation must see the same names and types as argument resolution.
+      var resolvable = this.resolvableParameters;
+      parameters = new MethodParameter[resolvable.length];
+      for (int i = 0; i < resolvable.length; i++) {
+        parameters[i] = resolvable[i].getMethodParameter();
+      }
+      this.validationParameters = parameters;
+    }
+    return parameters;
   }
 
   /**
@@ -307,6 +333,9 @@ public class InvocableHandlerMethod extends HandlerMethod {
             .collect(Collectors.joining(",\n", " ", " "));
     return "%s\nController [%s]\nMethod [%s] with argument values:\n%s"
             .formatted(text, getBeanType().getName(), bridgedMethod.toGenericString(), formattedArgs);
+  }
+
+  record BindingMethods(ControllerMethodResolver resolver, List<InvocableHandlerMethod> methods) {
   }
 
 }

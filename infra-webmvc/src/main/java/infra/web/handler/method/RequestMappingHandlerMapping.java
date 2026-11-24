@@ -31,10 +31,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import infra.context.ApplicationContext;
-import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.MethodParameter;
-import infra.core.ParameterNameDiscoverer;
 import infra.core.StringValueResolver;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.MergedAnnotation;
@@ -60,7 +57,6 @@ import infra.web.handler.condition.AbstractRequestCondition;
 import infra.web.handler.condition.CompositeRequestCondition;
 import infra.web.handler.condition.ConsumesRequestCondition;
 import infra.web.handler.condition.RequestCondition;
-import infra.web.handler.method.support.ParameterResolvingRegistryFactory;
 
 import static infra.core.annotation.AnnotationUtils.loadAnnotationType;
 
@@ -85,11 +81,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
   private final RequestMappingInfo.BuilderConfiguration config = new RequestMappingInfo.BuilderConfiguration();
 
-  private @Nullable HandlerParameterFactory parameterFactory;
-
-  private @Nullable ParameterResolvingRegistry resolvingRegistry;
-
-  private ParameterNameDiscoverer parameterNameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
+  private @Nullable ControllerMethodResolver methodResolver;
 
   /**
    * Configure path prefixes to apply to controller methods.
@@ -99,7 +91,8 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    * <p>Consider using {@link HandlerTypePredicate HandlerTypePredicate}
    * to group controllers.
    *
-   * @param prefixes a map with path prefixes as key
+   * @param prefixes a map with path prefixes as keys and predicates for matching
+   * controller types as values
    */
   public void setPathPrefixes(Map<String, Predicate<Class<?>>> prefixes) {
     this.pathPrefixes = prefixes.isEmpty()
@@ -108,7 +101,9 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   }
 
   /**
-   * The configured path prefixes as a read-only, possibly empty map.
+   * Return the configured path prefixes as a read-only, possibly empty map.
+   *
+   * @return the configured path prefixes
    */
   public Map<String, Predicate<Class<?>>> getPathPrefixes() {
     return this.pathPrefixes;
@@ -117,6 +112,8 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   /**
    * Set the {@link ContentNegotiationManager} to use to determine requested media types.
    * If not set, the default constructor is used.
+   *
+   * @param contentNegotiationManager the content negotiation manager to use
    */
   public void setContentNegotiationManager(ContentNegotiationManager contentNegotiationManager) {
     Assert.notNull(contentNegotiationManager, "ContentNegotiationManager is required");
@@ -126,29 +123,20 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
   /**
    * Return the configured {@link ContentNegotiationManager}.
+   *
+   * @return the configured content negotiation manager
    */
   public ContentNegotiationManager getContentNegotiationManager() {
     return this.contentNegotiationManager;
   }
 
   /**
-   * Set the ParameterNameDiscoverer to use for resolving method parameter names if needed
-   * (e.g. for default attribute names).
-   * <p>Default is a {@link DefaultParameterNameDiscoverer}.
-   */
-  public void setParameterNameDiscoverer(ParameterNameDiscoverer parameterNameDiscoverer) {
-    this.parameterNameDiscoverer = parameterNameDiscoverer;
-  }
-
-  /**
-   * Set the {@link ParameterResolvingRegistry} to use for resolving method arguments.
-   * <p>If not set, a default registry will be obtained from the application context
-   * during {@link #afterPropertiesSet()}.
+   * Set the shared resolver for this MVC application context before initialization.
    *
-   * @param resolvingRegistry the registry to use, or {@code null} to use the default
+   * @param resolver the controller method resolver to use
    */
-  public void setResolvingRegistry(@Nullable ParameterResolvingRegistry resolvingRegistry) {
-    this.resolvingRegistry = resolvingRegistry;
+  public void setControllerMethodResolver(ControllerMethodResolver resolver) {
+    this.methodResolver = resolver;
   }
 
   @Override
@@ -157,17 +145,12 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
     config.setContentNegotiationManager(getContentNegotiationManager());
     config.setApiVersionStrategy(getApiVersionStrategy());
 
-    if (resolvingRegistry == null) {
-      resolvingRegistry = ParameterResolvingRegistryFactory.getOrCreate(applicationContext());
-    }
-
-    this.parameterFactory = new RegistryHandlerParameterFactory(resolvingRegistry, parameterNameDiscoverer);
-
+    this.methodResolver = ControllerMethodResolver.forRequestHandlers(this.methodResolver, getApplicationContext());
     super.afterPropertiesSet();
   }
 
   /**
-   * Obtain a {@link RequestMappingInfo.BuilderConfiguration} that can reflects
+   * Obtain a {@link RequestMappingInfo.BuilderConfiguration} that reflects
    * the internal configuration of this {@code HandlerMapping} and can be used
    * to set {@link RequestMappingInfo.Builder#options(RequestMappingInfo.BuilderConfiguration)}.
    * <p>This is useful for programmatic registration of request mappings via
@@ -193,13 +176,9 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
   @Override
   protected HandlerMethod createHandlerMethod(Object handler, Method method) {
-    Assert.state(parameterFactory != null, "parameterFactory is required");
-    if (handler instanceof String beanName) {
-      ApplicationContext context = applicationContext();
-      return new InvocableHandlerMethod(beanName,
-              context.getBeanFactory(), context, method, parameterFactory);
-    }
-    return new InvocableHandlerMethod(handler, method, parameterFactory);
+    ControllerMethodResolver methodResolver = this.methodResolver;
+    Assert.state(methodResolver != null, "Handler mapping has not been initialized");
+    return methodResolver.createMappedHandlerMethod(handler, method, getApplicationContext());
   }
 
   /**
@@ -368,6 +347,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   /**
    * Resolve placeholder values in the given array of patterns.
    *
+   * @param patterns the patterns to resolve
    * @return a new array with updated patterns
    */
   protected String[] resolveEmbeddedValuesInPatterns(String[] patterns) {

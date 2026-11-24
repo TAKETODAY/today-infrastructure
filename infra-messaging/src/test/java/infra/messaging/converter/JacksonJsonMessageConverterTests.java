@@ -33,6 +33,7 @@ import infra.messaging.MessageHeaders;
 import infra.messaging.support.MessageBuilder;
 import infra.util.MimeType;
 import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -264,6 +265,59 @@ class JacksonJsonMessageConverterTests {
     bean.setWithView2("with");
     bean.setWithoutView("with");
     return bean;
+  }
+
+  @Test
+  void configuredMapperRejectsUnknownProperties() {
+    JsonMapper mapper = JsonMapper.builder().enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
+    JacksonJsonMessageConverter converter = new JacksonJsonMessageConverter(mapper);
+    Message<String> message = MessageBuilder.withPayload("{\"unknown\":true}").build();
+
+    assertThat(converter.getJsonMapper()).isSameAs(mapper);
+    assertThatExceptionOfType(MessageConversionException.class)
+            .isThrownBy(() -> converter.fromMessage(message, MyBean.class))
+            .withMessageContaining("Could not read JSON", "unknown");
+  }
+
+  @Test
+  void stringPayloadRoundTripWithExplicitJsonViews() throws Exception {
+    JacksonJsonMessageConverter converter = new JacksonJsonMessageConverter(JsonMapper.builder());
+    converter.setSerializedPayloadClass(String.class);
+    JsonView view = getClass().getMethod("jsonViewResponse").getAnnotation(JsonView.class);
+
+    Message<?> message = converter.toMessage(jsonViewResponse(), null, view);
+
+    assertThat(message.getPayload()).isInstanceOfSatisfying(String.class, json ->
+            assertThat(json).contains("withView1", "withView2").doesNotContain("withoutView"));
+    assertThat(converter.fromMessage(message, JacksonViewBean.class, MyJacksonView2.class))
+            .isInstanceOfSatisfying(JacksonViewBean.class, bean -> {
+              assertThat(bean.getWithView1()).isNull();
+              assertThat(bean.getWithView2()).isEqualTo("with");
+            });
+  }
+
+  @Test
+  void rejectsAmbiguousViewAndWrapsSerializationFailure() throws Exception {
+    JacksonJsonMessageConverter converter = new JacksonJsonMessageConverter();
+    MethodParameter returnType = new MethodParameter(getClass().getDeclaredMethod("ambiguousView"), -1);
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> converter.toMessage(jsonViewResponse(), null, returnType))
+            .withMessageContaining("exactly 1 class argument");
+    assertThatExceptionOfType(MessageConversionException.class)
+            .isThrownBy(() -> converter.toMessage(new FailingPayload(), null))
+            .withMessageContaining("Could not write JSON", "unreadable property");
+  }
+
+  @JsonView({ MyJacksonView1.class, MyJacksonView2.class })
+  void ambiguousView() {
+  }
+
+  static class FailingPayload {
+
+    public String getValue() {
+      throw new IllegalStateException("unreadable property");
+    }
   }
 
   public void jsonViewPayload(@JsonView(MyJacksonView2.class) JacksonViewBean payload) {

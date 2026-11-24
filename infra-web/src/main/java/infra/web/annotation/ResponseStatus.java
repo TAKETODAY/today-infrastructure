@@ -29,23 +29,28 @@ import infra.http.HttpStatus;
 import infra.lang.Constant;
 
 /**
- * Marks a method or exception class with the status {@link #value} and
- * {@link #reason} that should be returned.
+ * Marks a handler method, controller class, or exception class with the HTTP
+ * status {@link #value} and optional {@link #reason} to apply to the response.
  *
- * <p>The status code is applied to the HTTP response when the handler
- * method is invoked and overrides status information set by other means,
- * like {@code ResponseEntity} or {@code "redirect:"}.
+ * <p>When declared on a handler method or controller class, the status code is
+ * applied to the HTTP response when the handler method is invoked and overrides
+ * status information set by other means, like {@code ResponseEntity} or
+ * {@code "redirect:"}. When declared on an exception class, the status is
+ * applied when the exception is resolved by the MVC exception handling chain.
  *
  * <p><strong>Warning</strong>: when using this annotation on an exception
- * class, or when setting the {@code reason} attribute of this annotation,
- * the {@code HttpContext.sendError} method will be used.
+ * class, or when setting a non-empty {@code reason}, one of the
+ * {@link infra.web.HttpContext#sendError(int)} methods will be used. This
+ * delegates to the configured error handling mechanism, which determines how
+ * the error is ultimately rendered.
  *
- * <p>With {@code HttpContext.sendError}, the response is considered
- * complete and should not be written to any further. Furthermore, the Web
- * container will typically write an HTML error page therefore making the
- * use of a {@code reason} unsuitable for REST APIs. For such cases it is
- * preferable to use a {@link infra.http.ResponseEntity} as
- * a return type and avoid the use of {@code @ResponseStatus} altogether.
+ * <p>For a handler method, a non-empty {@code reason} also means that the
+ * method's return value is ignored; it is not written as the normal response
+ * body. The configured error handling mechanism may render an HTML error page,
+ * a JSON error document, or another representation. Consequently,
+ * {@code reason} should not be used to define a REST response body or a
+ * machine-readable error format. For those cases, use an explicit
+ * {@link infra.http.ResponseEntity} or an exception handler instead.
  *
  * <p>Note that a controller class may also be annotated with
  * {@code @ResponseStatus} and is then inherited by all {@code @RequestMapping}
@@ -80,10 +85,17 @@ public @interface ResponseStatus {
   HttpStatus code() default HttpStatus.INTERNAL_SERVER_ERROR;
 
   /**
-   * The <em>reason</em> to be used for the response.
-   * <p>Defaults to an empty string which will be ignored. Set the reason to a
-   * non-empty value to have it used to send a Web container error page.
-   * In this case, the return value of the handler method will be ignored.
+   * The optional <em>reason</em> associated with the response status.
+   * <p>Defaults to an empty string, which is ignored. When set to a non-empty
+   * value, the framework invokes
+   * {@link infra.web.HttpContext#sendError(int, String)} instead of merely
+   * setting the status. The reason is passed to the configured error handling
+   * mechanism and is not itself a response body. For a handler method, the
+   * method's return value is ignored in this case.
+   *
+   * <p>The value may be used as a message code when a message source is
+   * configured; resolution is performed for the current request when supported
+   * by the MVC error handling path.
    *
    * @see infra.web.HttpContext#sendError(int, String)
    * @since 3.0

@@ -64,9 +64,10 @@ public final class HandlerTypePredicate implements Predicate<Class<?>> {
    */
   private HandlerTypePredicate(Set<String> basePackages,
           List<Class<?>> assignableTypes, List<Class<? extends Annotation>> annotations) {
-    this.annotations = Collections.unmodifiableList(annotations);
-    this.basePackages = Collections.unmodifiableSet(basePackages);
-    this.assignableTypes = Collections.unmodifiableList(assignableTypes);
+    // Defensive copies, since the Builder's collections may be modified after build().
+    this.annotations = List.copyOf(annotations);
+    this.basePackages = Collections.unmodifiableSet(new LinkedHashSet<>(basePackages));
+    this.assignableTypes = List.copyOf(assignableTypes);
   }
 
   @Override
@@ -210,7 +211,8 @@ public final class HandlerTypePredicate implements Predicate<Class<?>> {
      *
      * @param annotations one or more annotations to check for
      */
-    @SuppressWarnings("unchecked")
+    @SafeVarargs // Making the method final allows us to use @SafeVarargs.
+    @SuppressWarnings("varargs")
     public final Builder annotation(Class<? extends Annotation> @Nullable ... annotations) {
       CollectionUtils.addAll(this.annotations, annotations);
       return this;
@@ -222,4 +224,3 @@ public final class HandlerTypePredicate implements Predicate<Class<?>> {
   }
 
 }
-

@@ -28,6 +28,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * Tests for {@link JacksonTester}.
@@ -63,6 +64,21 @@ class JacksonTesterTests extends AbstractJsonMarshalTesterTests {
     assertThat(type).isNotNull();
     assertThat(type.resolve()).isEqualTo(List.class);
     assertThat(type.resolveGeneric()).isEqualTo(ExampleObject.class);
+  }
+
+  @Test
+  void initFieldsAcceptsJsonMapperFactory() {
+    InitFieldsTestClass test = new InitFieldsTestClass();
+    JacksonTester.initFields(test, JsonMapper::new);
+    assertThat(test.test).isNotNull();
+    assertThat(test.base).isNotNull();
+  }
+
+  @Test
+  void uninitializedTesterCannotCreateAView() {
+    JacksonTester<Object> tester = new JacksonTester<>(new JsonMapper());
+    assertThatIllegalStateException().isThrownBy(() -> tester.forView(Object.class))
+            .withMessageContaining("'resourceLoadClass' is required");
   }
 
   @Override

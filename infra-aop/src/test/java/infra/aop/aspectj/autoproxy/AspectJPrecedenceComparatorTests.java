@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+import java.util.Comparator;
 
 import infra.aop.Advisor;
 import infra.aop.AfterReturningAdvice;
@@ -35,6 +36,7 @@ import infra.aop.aspectj.AspectJExpressionPointcut;
 import infra.aop.aspectj.AspectJMethodBeforeAdvice;
 import infra.aop.aspectj.AspectJPointcutAdvisor;
 import infra.aop.support.DefaultPointcutAdvisor;
+import infra.core.Ordered;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -72,6 +74,28 @@ public class AspectJPrecedenceComparatorTests {
     advisor1 = createAspectJBeforeAdvice(HIGH_PRECEDENCE_ADVISOR_ORDER, LATE_ADVICE_DECLARATION_ORDER, "someAspect");
     advisor2 = createAspectJAroundAdvice(HIGH_PRECEDENCE_ADVISOR_ORDER, EARLY_ADVICE_DECLARATION_ORDER, "someAspect");
     assertThat(this.comparator.compare(advisor1, advisor2)).as("advisor2 sorted before advisor1").isEqualTo(1);
+  }
+
+  @Test
+  void customAdvisorComparatorTakesPrecedenceOverDeclarationOrder() {
+    Advisor first = createAspectJBeforeAdvice(HIGH_PRECEDENCE_ADVISOR_ORDER, EARLY_ADVICE_DECLARATION_ORDER, "aspect");
+    Advisor second = createAspectJBeforeAdvice(LOW_PRECEDENCE_ADVISOR_ORDER, LATE_ADVICE_DECLARATION_ORDER, "aspect");
+    var comparator = new AspectJPrecedenceComparator(Comparator.comparingInt((Advisor advisor) -> ((Ordered) advisor).getOrder()).reversed());
+
+    assertThat(comparator.compare(first, second)).isPositive();
+    assertThat(comparator.compare(second, first)).isNegative();
+  }
+
+  @Test
+  void partialOrderDiagnosticIdentifiesAdviceAndItsPrecedence() throws Exception {
+    Advisor advisor = createAspectJBeforeAdvice(HIGH_PRECEDENCE_ADVISOR_ORDER, EARLY_ADVICE_DECLARATION_ORDER, "tracking");
+    // AspectJ's partial-order diagnostics print this internal holder rather than the original advisor.
+    Class<?> holderType = Class.forName(AspectJAwareAdvisorAutoProxyCreator.class.getName() + "$PartiallyComparableAdvisorHolder");
+    var constructor = holderType.getDeclaredConstructor(Advisor.class, Comparator.class);
+    constructor.setAccessible(true);
+
+    assertThat(constructor.newInstance(advisor, comparator).toString())
+            .isEqualTo("AspectJMethodBeforeAdvice: order = 100, aspect name = tracking, declaration order = 5");
   }
 
   @Test

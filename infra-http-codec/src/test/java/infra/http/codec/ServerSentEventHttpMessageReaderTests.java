@@ -23,12 +23,15 @@ import org.junit.jupiter.api.Test;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.Map;
 
 import infra.core.ResolvableType;
+import infra.core.codec.CodecException;
 import infra.core.io.buffer.DataBuffer;
 import infra.core.io.buffer.DataBufferLimitException;
 import infra.core.testfixture.io.buffer.AbstractLeakCheckingTests;
 import infra.http.MediaType;
+import infra.http.ServerSentEvent;
 import infra.http.codec.json.JacksonJsonDecoder;
 import infra.web.testfixture.http.server.reactive.MockServerHttpRequest;
 import reactor.core.publisher.Flux;
@@ -47,6 +50,30 @@ class ServerSentEventHttpMessageReaderTests extends AbstractLeakCheckingTests {
   private final JacksonJsonDecoder jsonDecoder = new JacksonJsonDecoder();
 
   private ServerSentEventHttpMessageReader reader = new ServerSentEventHttpMessageReader(this.jsonDecoder);
+
+  @Test
+  void retainsCommentOnlyEventsWithAnUnlimitedBuffer() {
+    var reader = new ServerSentEventHttpMessageReader();
+    reader.setMaxInMemorySize(-1);
+    var type = ResolvableType.forClassWithGenerics(ServerSentEvent.class, String.class);
+    var request = MockServerHttpRequest.post("/").body(Mono.just(stringBuffer(": heartbeat\n\n")));
+    assertThat(reader.getReadableMediaTypes()).containsExactly(MediaType.TEXT_EVENT_STREAM);
+    StepVerifier.create(reader.read(type, request, Map.of()))
+            .expectNext(ServerSentEvent.builder().comment("heartbeat").build()).expectComplete().verify(Duration.ofSeconds(5));
+  }
+
+  @Test
+  void requiresAnObjectDecoderAndRejectsReadingOneEventAsAMono() {
+    var reader = new ServerSentEventHttpMessageReader();
+    var type = ResolvableType.forClass(Pojo.class);
+    var request = MockServerHttpRequest.post("/").body("data: {}\n\n");
+    StepVerifier.create(reader.read(type, request, Map.of()))
+            .expectErrorSatisfies(error -> assertThat(error).isInstanceOf(CodecException.class)
+                    .hasMessage("No SSE decoder configured and the data is not String."))
+            .verify(Duration.ofSeconds(5));
+    StepVerifier.create(reader.readMono(type, MockServerHttpRequest.post("/").build(), Map.of()))
+            .expectError(UnsupportedOperationException.class).verify(Duration.ofSeconds(5));
+  }
 
   @Test
   void cannotRead() {

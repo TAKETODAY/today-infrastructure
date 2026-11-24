@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import infra.core.ParameterizedTypeReference;
 import infra.http.HttpHeaders;
@@ -43,6 +44,7 @@ import infra.web.annotation.RestController;
 import infra.web.util.DefaultUriBuilderFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.hamcrest.Matchers.equalTo;
 
 /**
@@ -291,6 +293,33 @@ class RestTestClientTests {
 
   @Nested
   class ReturnResults {
+
+    @Test
+    void expectationConsumersRetainRuntimeAndCheckedFailures() {
+      var runtime = new IllegalStateException("consumer");
+      assertThatExceptionOfType(IllegalStateException.class)
+              .isThrownBy(() -> client.get().uri("/test").exchange().expectAll(response -> { throw runtime; }))
+              .isSameAs(runtime);
+      var checked = new Exception("checked");
+      assertThatExceptionOfType(AssertionError.class)
+              .isThrownBy(() -> client.get().uri("/test").exchange()
+                      .expectAll(response -> RestTestClientTests.<RuntimeException>throwUnchecked(checked)))
+              .withCause(checked);
+    }
+
+    @Test
+    void rawBodyConsumersAndMalformedContentReportFailures() {
+      client.get().uri("/test").exchange().expectBody()
+              .consumeWith(result -> assertThat(result.getResponseBody()).isNotEmpty());
+      assertThatExceptionOfType(AssertionError.class)
+              .isThrownBy(() -> client.get().uri("/test").exchange().expectBody().isEmpty());
+      assertThatExceptionOfType(AssertionError.class)
+              .isThrownBy(() -> client.post().uri("/body").body("not-json").exchange().expectBody().json("{}"))
+              .withMessageContaining("JSON parsing error");
+      assertThatExceptionOfType(AssertionError.class)
+              .isThrownBy(() -> client.post().uri("/body").body("not-xml").exchange().expectBody().xml("<root/>"))
+              .withMessageContaining("XML parsing error");
+    }
     @Test
     void testBodyReturnResult() {
       var result = RestTestClientTests.this.client.get().uri("/test")
@@ -331,6 +360,28 @@ class RestTestClientTests {
       assertThat(result.getRequestBodyContent()).isEqualTo(body.getBytes(StandardCharsets.UTF_8));
       assertThat(result.getResponseBodyContent()).isEqualTo((body + "-out").getBytes(StandardCharsets.UTF_8));
     }
+
+    @Test
+    void requestAndBodyConsumersCoverOptionalRequestAttributes() {
+      AtomicReference<Object> consumed = new AtomicReference<>();
+      RestTestClient client = RestTestClient.bindToController(new TestController())
+              .apiVersionInserter(infra.web.client.ApiVersionInserter.forHeader("X-API-Version"))
+              .configureMessageConverters(builder -> { })
+              .entityExchangeResultConsumer(result -> consumed.set(result.getResponseBody()))
+              .build();
+      client.post().uri("/body")
+              .contentLength(4)
+              .attribute("one", "value")
+              .attributes(attributes -> attributes.put("two", "value"))
+              .apiVersion("v1")
+              .body("body")
+              .exchangeSuccessfully()
+              .expectBody(new ParameterizedTypeReference<String>() { })
+              .value(value -> assertThat(value).isEqualTo("body-out"))
+              .value(value -> value.toUpperCase(java.util.Locale.ROOT), value -> assertThat(value).isEqualTo("BODY-OUT"))
+              .consumeWith(result -> assertThat(result.getResponseBody()).isEqualTo("body-out"));
+      assertThat(consumed).hasValue("body-out");
+    }
   }
 
   @RestController
@@ -358,5 +409,10 @@ class RestTestClientTests {
     public String echoBody(@RequestBody String body) {
       return body + "-out";
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <E extends Throwable> void throwUnchecked(Throwable failure) throws E {
+    throw (E) failure;
   }
 }

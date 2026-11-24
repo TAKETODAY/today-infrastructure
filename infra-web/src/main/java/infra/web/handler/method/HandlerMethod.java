@@ -41,7 +41,6 @@ import infra.core.annotation.AnnotationUtils;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotationPredicates;
 import infra.core.annotation.MergedAnnotations;
-import infra.core.i18n.LocaleContextHolder;
 import infra.http.HttpStatusCode;
 import infra.lang.Constant;
 import infra.logging.Logger;
@@ -243,12 +242,19 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
   }
 
   /**
-   * Return the associated response status reason, if any.
+   * Return the reason declared in the response status annotation, if any.
    *
    * @see ResponseStatus#reason()
    */
   protected @Nullable String getResponseStatusReason() {
     return this.responseStatusReason;
+  }
+
+  /**
+   * Return the message source for resolving the response status reason, if configured.
+   */
+  protected @Nullable MessageSource getMessageSource() {
+    return this.messageSource;
   }
 
   /**
@@ -381,13 +387,9 @@ public class HandlerMethod extends AnnotatedMethod implements AsyncHandler {
     }
     if (annotation != null) {
       String reason = annotation.reason();
-      String resolvedReason = StringUtils.hasText(reason) && messageSource != null
-              ? messageSource.getMessage(reason, null, reason, LocaleContextHolder.getLocale())
-              : reason;
-
       this.responseStatus = annotation.code();
-      this.responseStatusReason = resolvedReason;
-      if (StringUtils.hasText(resolvedReason) && getMethod().getReturnType() != void.class) {
+      this.responseStatusReason = reason;
+      if (StringUtils.hasText(reason) && getMethod().getReturnType() != void.class) {
         log.warn("Return value of [{}] will be ignored since @ResponseStatus 'reason' attribute is set.", getMethod());
       }
     }

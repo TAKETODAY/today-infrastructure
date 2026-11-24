@@ -77,7 +77,7 @@ public class SystemEnvironmentPropertySource extends MapPropertySource {
    * Create a new {@code SystemEnvironmentPropertySource} with the given name and
    * delegating to the given {@code MapPropertySource}.
    */
-  public SystemEnvironmentPropertySource(String name, Map<String, Object> source) {
+  public SystemEnvironmentPropertySource(String name, Map<String, @Nullable Object> source) {
     super(name, source);
   }
 

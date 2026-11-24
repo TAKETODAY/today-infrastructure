@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.Properties;
 
 import infra.aop.support.AopUtils;
+import infra.aot.hint.MemberCategory;
+import infra.aot.hint.RuntimeHints;
 import infra.beans.factory.NoUniqueBeanDefinitionException;
 import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.annotation.Qualifier;
@@ -45,6 +47,7 @@ import infra.context.annotation.Import;
 import infra.context.annotation.Primary;
 import infra.context.support.PropertySourcesPlaceholderConfigurer;
 import infra.core.type.AnnotatedTypeMetadata;
+import infra.core.type.AnnotationMetadata;
 import infra.stereotype.Service;
 import infra.test.classpath.ClassPathExclusions;
 import infra.transaction.PlatformTransactionManager;
@@ -70,6 +73,37 @@ import static org.assertj.core.api.Assertions.assertThatException;
  * @since 4.0
  */
 class EnableTransactionManagementTests {
+
+  @Test
+  void rejectsImportMetadataWithoutEnableTransactionManagement() {
+    var configuration = new ProxyTransactionManagementConfiguration();
+
+    Assertions.assertThatIllegalArgumentException()
+            .isThrownBy(() -> configuration.setImportMetadata(AnnotationMetadata.introspect(String.class)))
+            .withMessageContaining("@EnableTransactionManagement is not present");
+  }
+
+  @Test
+  void rejectsMultipleTransactionManagementConfigurers() {
+    var configuration = new ProxyTransactionManagementConfiguration();
+    configuration.setConfigurers(List.of());
+    var manager = new CallCountingTransactionManager();
+
+    Assertions.assertThatIllegalStateException()
+            .isThrownBy(() -> configuration.setConfigurers(List.of(() -> manager, () -> manager)))
+            .withMessage("Only one TransactionManagementConfigurer may exist");
+  }
+
+  @Test
+  void runtimeHintsExposeTransactionDefinitionEnumFields() {
+    var hints = new RuntimeHints();
+    new TransactionRuntimeHints().registerHints(hints, getClass().getClassLoader());
+
+    for (Class<?> type : List.of(Isolation.class, Propagation.class)) {
+      assertThat(hints.reflection().getTypeHint(type)).isNotNull().satisfies(hint ->
+              assertThat(hint.getMemberCategories()).contains(MemberCategory.ACCESS_DECLARED_FIELDS));
+    }
+  }
 
   @Test
   void transactionProxyIsCreated() {

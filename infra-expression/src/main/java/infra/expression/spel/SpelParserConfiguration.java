@@ -247,6 +247,7 @@ public class SpelParserConfiguration {
    * evaluation.
    *
    * @see #DEFAULT_MAX_OPERATIONS
+   * @see Builder#maximumOperations(int)
    * @since 5.0
    */
   public int getMaximumOperations() {
@@ -360,9 +361,12 @@ public class SpelParserConfiguration {
      * <p>Defaults to the value of
      * {@value SpelParserConfiguration#EXPRESSION_COMPILER_MODE_PROPERTY_NAME},
      * or {@link SpelCompilerMode#OFF} when that property is not set.
+     * <p><strong>WARNING</strong>: Enabling compilation for expressions from
+     * untrusted sources removes the safety guards supported in interpreted mode.
      *
      * @param compilerMode the compiler mode; must not be {@code null}
      * @return this builder
+     * @see infra.expression.EvaluationContext#isCompilationSupported()
      */
     public Builder compilerMode(SpelCompilerMode compilerMode) {
       Assert.notNull(compilerMode, "'compilerMode' is required");
@@ -439,6 +443,10 @@ public class SpelParserConfiguration {
      * <p>Defaults to the value of
      * {@value SpelParserConfiguration#EXPRESSION_MAX_OPERATIONS_PROPERTY_NAME},
      * or {@link SpelParserConfiguration#DEFAULT_MAX_OPERATIONS} when unset.
+     * <p>This limit counts operations &mdash; for example, operator evaluations,
+     * property accesses, method invocations, and each element processed by the
+     * selection and projection operators. It does not account for the cost of
+     * an individual operation.
      *
      * @param maximumOperations the maximum operation count; must be positive
      * @return this builder

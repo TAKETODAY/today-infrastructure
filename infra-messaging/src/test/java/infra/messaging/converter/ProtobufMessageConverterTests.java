@@ -16,6 +16,8 @@
 
 package infra.messaging.converter;
 
+import com.google.protobuf.DynamicMessage;
+import com.google.protobuf.InvalidProtocolBufferException;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
@@ -31,6 +33,8 @@ import infra.messaging.support.MessageBuilder;
 import static infra.messaging.MessageHeaders.CONTENT_TYPE;
 import static infra.util.MimeType.APPLICATION_JSON;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -104,6 +108,31 @@ class ProtobufMessageConverterTests {
   }
 
   @Test
+  void convertsTextJsonAndUsesProtobufForDefaultOutput() {
+    Message<?> json = MessageBuilder.withPayload(new String(this.messageJson.getPayload(), StandardCharsets.UTF_8))
+            .setHeader(CONTENT_TYPE, APPLICATION_JSON).build();
+
+    assertThat(this.converter.fromMessage(json, Msg.class)).isEqualTo(this.testMsg);
+    Message<?> binary = this.converter.toMessage(this.testMsg, null);
+    assertThat(binary.getHeaders()).containsEntry(CONTENT_TYPE, ProtobufMessageConverter.PROTOBUF);
+    assertThat(binary.getPayload()).isEqualTo(this.testMsg.toByteArray());
+  }
+
+  @Test
+  void exposesMalformedProtobufAndUnsupportedBuilderAsConversionFailures() {
+    Message<byte[]> malformed = MessageBuilder.withPayload(new byte[] { 0x0a, 0x02, 'a' }).build();
+
+    assertThatExceptionOfType(MessageConversionException.class)
+            .isThrownBy(() -> this.converter.fromMessage(malformed, Msg.class))
+            .withMessageContaining("Could not read proto message")
+            .withCauseInstanceOf(InvalidProtocolBufferException.class);
+    assertThatExceptionOfType(MessageConversionException.class)
+            .isThrownBy(() -> this.converter.fromMessage(this.message, DynamicMessage.class))
+            .withMessageContaining("no invocable newBuilder() method", "DynamicMessage")
+            .withCauseInstanceOf(NoSuchMethodException.class);
+  }
+
+  @Test
   void jsonWithGoogleProtobuf() throws Exception {
     ProtobufMessageConverter converter = new ProtobufMessageConverter(
             new ProtobufMessageConverter.ProtobufJavaUtilSupport(null, null),
@@ -117,6 +146,13 @@ class ProtobufMessageConverterTests {
 
     //convertFrom
     assertThat(converter.fromMessage(messageJson, Msg.class)).isEqualTo(testMsg);
+  }
+
+  @Test
+  void jsonFormatConverterConstructors() {
+    assertThat(new ProtobufJsonFormatMessageConverter(null).getSupportedMimeTypes()).isNotEmpty();
+    assertThat(new ProtobufJsonFormatMessageConverter(null, null).getSupportedMimeTypes()).isNotEmpty();
+    assertThat(new ProtobufJsonFormatMessageConverter(null, null, null).getSupportedMimeTypes()).isNotEmpty();
   }
 
 }

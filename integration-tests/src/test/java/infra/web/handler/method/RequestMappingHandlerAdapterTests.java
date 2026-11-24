@@ -34,7 +34,6 @@ import java.util.Map;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.core.MethodParameter;
-import infra.core.ParameterNameDiscoverer;
 import infra.http.HttpHeaders;
 import infra.http.HttpInputMessage;
 import infra.http.HttpStatus;
@@ -107,8 +106,8 @@ class RequestMappingHandlerAdapterTests {
     handlerAdapter = new RequestMappingHandlerAdapter();
     handlerAdapter.setApplicationContext(this.webAppContext);
     handlerAdapter.setRedirectModelManager(webAppContext.getBean(RedirectModelManager.class));
-    handlerAdapter.setResolvingRegistry(webAppContext.getBean(ParameterResolvingRegistry.class));
-    handlerAdapter.setParameterNameDiscoverer(ParameterNameDiscoverer.getSharedInstance());
+    handlerAdapter.setControllerMethodResolver(new ControllerMethodResolver(webAppContext,
+            webAppContext.getBean(ParameterResolvingRegistry.class)));
 
     this.request = new MockRequest("GET", "/");
     this.response = new MockResponse();

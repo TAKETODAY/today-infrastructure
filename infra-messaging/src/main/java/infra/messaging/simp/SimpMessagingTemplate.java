@@ -197,8 +197,9 @@ public class SimpMessagingTemplate extends AbstractMessageSendingTemplate<String
   }
 
   private void initHeaders(SimpMessageHeaderAccessor simpAccessor) {
-    if (getHeaderInitializer() != null) {
-      getHeaderInitializer().initHeaders(simpAccessor);
+    MessageHeaderInitializer initializer = getHeaderInitializer();
+    if (initializer != null) {
+      initializer.initHeaders(simpAccessor);
     }
   }
 

@@ -108,9 +108,9 @@ public class AspectProxyFactoryTests {
     AspectJProxyFactory proxyFactory = new AspectJProxyFactory(new TestBean());
     proxyFactory.addAspect(LoggingAspectOnVarargs.class);
     ITestBean proxy = proxyFactory.getProxy();
-    assertThat(proxy.doWithVarargs(MyEnum.A, MyOtherEnum.C)).isTrue();
+    assertThat(proxy.<MyInterface>doWithVarargs(MyEnum.A, MyOtherEnum.C)).isTrue();
     ITestBean tb = SerializationTestUtils.serializeAndDeserialize(proxy);
-    assertThat(tb.doWithVarargs(MyEnum.A, MyOtherEnum.C)).isTrue();
+    assertThat(tb.<MyInterface>doWithVarargs(MyEnum.A, MyOtherEnum.C)).isTrue();
   }
 
   @Test
@@ -143,7 +143,7 @@ public class AspectProxyFactoryTests {
     AspectJProxyFactory proxyFactory = new AspectJProxyFactory(new TestBean());
     proxyFactory.addAspect(LoggingAspectOnVarargs.class);
     ITestBean proxy = proxyFactory.getProxy();
-    assertThat(proxy.doWithVarargs(MyEnum.A, MyOtherEnum.C)).isTrue();
+    assertThat(proxy.<MyInterface>doWithVarargs(MyEnum.A, MyOtherEnum.C)).isTrue();
   }
 
   @Test
@@ -151,7 +151,7 @@ public class AspectProxyFactoryTests {
     AspectJProxyFactory proxyFactory = new AspectJProxyFactory(new TestBean());
     proxyFactory.addAspect(LoggingAspectOnSetter.class);
     ITestBean proxy = proxyFactory.getProxy();
-    assertThat(proxy.doWithVarargs(MyEnum.A, MyOtherEnum.C)).isTrue();
+    assertThat(proxy.<MyInterface>doWithVarargs(MyEnum.A, MyOtherEnum.C)).isTrue();
   }
 
   public interface ITestBean {

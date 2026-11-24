@@ -20,10 +20,16 @@ package infra.aop.aspectj;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.aspectj.weaver.reflect.ReflectionWorld.ReflectionWorldException;
+import org.aspectj.weaver.tools.JoinPointMatch;
+import org.aspectj.weaver.tools.MatchingContext;
+import org.aspectj.weaver.tools.PointcutExpression;
+import org.aspectj.weaver.tools.ShadowMatch;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +50,9 @@ import test.annotation.transaction.Tx;
 import static infra.aop.InterceptorChainFactory.EMPTY_INTERCEPTOR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Rob Harrop
@@ -249,7 +258,164 @@ public class AspectJExpressionPointcutTests {
   @Test
   void testInvalidExpression() {
     String expression = "execution(void infra.beans.testfixture.beans.TestBean.setSomeNumber(Number) && args(Double)";
-    assertThat(getPointcut(expression).getClassFilter().matches(Object.class)).isFalse();
+    ClassFilter filter = getPointcut(expression).getClassFilter();
+    assertThat(filter.matches(Object.class)).isFalse();
+    assertThat(filter.matches(TestBean.class)).isFalse();
+  }
+
+  @Test
+  void avoidsProxyingAnAlreadyWovenClassForAnAjcAspect() {
+    AspectJExpressionPointcut pointcut = getPointcut("execution(* *(..))");
+    pointcut.setPointcutDeclarationScope(WovenType.class);
+
+    assertThat(pointcut.matches(WovenType.class)).isFalse();
+    assertThat(pointcut.matches(TestBean.class)).isTrue();
+  }
+
+  @Test
+  void fallsBackToTheTargetsClassLoaderWhenTheWeaverCannotResolveTheType() throws Exception {
+    AspectJExpressionPointcut pointcut = getPointcut("execution(* getAge(..))");
+    PointcutExpression expression = mock();
+    given(expression.couldMatchJoinPointsInType(TestBean.class))
+            .willThrow(new ReflectionWorldException("target invisible to the primary weaver"));
+    installWeaverExpression(pointcut, expression);
+
+    assertThat(pointcut.matches(TestBean.class)).isTrue();
+  }
+
+  @Test
+  void fallsBackToTheTargetsClassLoaderWhenTheWeaverCannotResolveTheMethod() throws Exception {
+    AspectJExpressionPointcut pointcut = getPointcut("args(Double)");
+    PointcutExpression expression = mock();
+    given(expression.matchesMethodExecution(setSomeNumber))
+            .willThrow(new ReflectionWorldException("method invisible to the primary weaver"));
+    installWeaverExpression(pointcut, expression);
+
+    assertThat(pointcut.matches(setSomeNumber, TestBean.class)).isTrue();
+    assertThat(pointcut.matches(new DefaultMethodInvocation(null, new TestBean(), setSomeNumber, TestBean.class,
+            new Object[] { 1D }, EMPTY_INTERCEPTOR))).isTrue();
+    assertThat(pointcut.matches(new DefaultMethodInvocation(null, new TestBean(), setSomeNumber, TestBean.class,
+            new Object[] { 1 }, EMPTY_INTERCEPTOR))).isFalse();
+  }
+
+  @Test
+  void cachesShadowMatchesAndDefensiveMatchesUseTheFallbackOnReflectionFailure() throws Exception {
+    AspectJExpressionPointcut pointcut = getPointcut("execution(* getAge(..))");
+    assertThat(pointcut.matches(getAge, TestBean.class)).isTrue();
+    assertThat(pointcut.matches(getAge, TestBean.class)).isTrue();
+
+    ShadowMatch primary = mock();
+    ShadowMatch fallback = mock();
+    JoinPointMatch joinPointMatch = mock();
+    given(primary.alwaysMatches()).willReturn(false);
+    given(primary.maybeMatches()).willReturn(true);
+    given(primary.neverMatches()).willReturn(false);
+    given(primary.matchesJoinPoint(null, null, new Object[0]))
+            .willThrow(new ReflectionWorldException("primary unavailable"));
+    given(fallback.matchesJoinPoint(null, null, new Object[0])).willReturn(joinPointMatch);
+
+    Class<?> defensiveType = Arrays.stream(AspectJExpressionPointcut.class.getDeclaredClasses())
+            .filter(type -> type.getSimpleName().equals("DefensiveShadowMatch"))
+            .findFirst().orElseThrow();
+    var constructor = defensiveType.getDeclaredConstructor(ShadowMatch.class, ShadowMatch.class);
+    constructor.setAccessible(true);
+    ShadowMatch defensive = (ShadowMatch) constructor.newInstance(primary, fallback);
+
+    assertThat(defensive.alwaysMatches()).isFalse();
+    assertThat(defensive.maybeMatches()).isTrue();
+    assertThat(defensive.neverMatches()).isFalse();
+    assertThat(defensive.matchesJoinPoint(null, null, new Object[0])).isSameAs(joinPointMatch);
+    MatchingContext context = mock();
+    defensive.setMatchingContext(context);
+    verify(primary).setMatchingContext(context);
+    verify(fallback).setMatchingContext(context);
+  }
+
+  @Test
+  void unavailableFallbackDoesNotCreateAMatch() throws Exception {
+    Method method = String.class.getMethod("length");
+    AspectJExpressionPointcut pointcut = getPointcut("execution(* length(..))");
+    PointcutExpression expression = mock();
+    given(expression.couldMatchJoinPointsInType(String.class))
+            .willThrow(new ReflectionWorldException("bootstrap type unavailable"));
+    given(expression.matchesMethodExecution(method))
+            .willThrow(new ReflectionWorldException("bootstrap method unavailable"));
+    installWeaverExpression(pointcut, expression);
+
+    assertThat(pointcut.matches(String.class)).isFalse();
+    assertThat(pointcut.matches(method, String.class)).isFalse();
+  }
+
+  @Test
+  void failedFallbackParsingIsTreatedAsNoMatch() throws Exception {
+    AspectJExpressionPointcut pointcut = getPointcut("invalid pointcut");
+    PointcutExpression expression = mock();
+    given(expression.couldMatchJoinPointsInType(TestBean.class))
+            .willThrow(new ReflectionWorldException("target invisible to the primary weaver"));
+    installWeaverExpression(pointcut, expression);
+
+    assertThat(pointcut.matches(TestBean.class)).isFalse();
+  }
+
+  @Test
+  void unexpectedWeaverFailuresAreTreatedAsNonMatches() throws Exception {
+    AspectJExpressionPointcut pointcut = getPointcut("execution(* getAge(..))");
+    PointcutExpression expression = mock();
+    given(expression.couldMatchJoinPointsInType(TestBean.class)).willThrow(new LinkageError("type"));
+    given(expression.matchesMethodExecution(getAge)).willThrow(new LinkageError("method"));
+    installWeaverExpression(pointcut, expression);
+
+    assertThat(pointcut.matches(TestBean.class)).isFalse();
+    assertThat(pointcut.matches(getAge, TestBean.class)).isFalse();
+  }
+
+  @Test
+  void unconfiguredPointcutHasAnExplicitDescription() {
+    assertThat(new AspectJExpressionPointcut().toString()).contains("<pointcut expression not set>");
+  }
+
+  private static void installWeaverExpression(AspectJExpressionPointcut pointcut, PointcutExpression expression) throws Exception {
+    // Simulate a primary weaver using a loader that cannot see the target; the fallback still uses the real parser.
+    var field = AspectJExpressionPointcut.class.getDeclaredField("pointcutExpression");
+    field.setAccessible(true);
+    field.set(pointcut, expression);
+    ShadowMatchUtils.clearCache();
+  }
+
+  static class WovenType {
+
+    static final Object ajc$marker = new Object();
+  }
+
+  @Test
+  void constructorRejectsMismatchedPointcutParameters() {
+    assertThatIllegalStateException().isThrownBy(() ->
+            new AspectJExpressionPointcut(TestBean.class, new String[] { "value" }, new Class<?>[0]))
+            .withMessageContaining("Number of pointcut parameter names");
+  }
+
+  @Test
+  void pointcutSupportsParametersEqualityAndDescription() {
+    AspectJExpressionPointcut first = new AspectJExpressionPointcut(
+            TestBean.class, new String[] { "value" }, new Class<?>[] { String.class });
+    first.setExpression("execution(* *(..)) && args(value)");
+    AspectJExpressionPointcut second = new AspectJExpressionPointcut(
+            TestBean.class, new String[] { "value" }, new Class<?>[] { String.class });
+    second.setExpression("execution(* *(..)) && args(value)");
+
+    assertThat(first).isEqualTo(second);
+    assertThat(first.hashCode()).isEqualTo(second.hashCode());
+    assertThat(first.toString()).contains(String.class.getName(), "value", "execution");
+    assertThat(first.isRuntime()).isTrue();
+  }
+
+  @Test
+  void methodMatchWithIntroductionsAcceptsMaybeMatch() throws Exception {
+    AspectJExpressionPointcut pointcut = getPointcut("this(infra.beans.testfixture.beans.ITestBean)");
+    Method method = ITestBean.class.getMethod("getAge");
+
+    assertThat(pointcut.matches(method, TestBean.class, true)).isTrue();
+    assertThat(pointcut.matches(method, TestBean.class, false)).isTrue();
   }
 
   private TestBean getAdvisedProxy(String pointcutExpression, CallCountingInterceptor interceptor) {
@@ -287,6 +453,21 @@ public class AspectJExpressionPointcutTests {
     AspectJExpressionPointcut pc = getPointcut("execution(* *(..)) and args(String)");
     String expr = pc.getPointcutExpression().getPointcutExpression();
     assertThat(expr).isEqualTo("execution(* *(..)) && args(String)");
+  }
+
+  @Test
+  void beanPointcutEvaluatesClassAndInvocationMatching() throws Exception {
+    AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut() {
+      @Override
+      protected String getCurrentProxiedBeanName() {
+        return "someName";
+      }
+    };
+    pointcut.setExpression("bean(someName)");
+
+    assertThat(pointcut.getClassFilter().matches(TestBean.class)).isTrue();
+    assertThat(pointcut.matches(new DefaultMethodInvocation(null, new TestBean(), getAge,
+            TestBean.class, new Object[0], EMPTY_INTERCEPTOR))).isTrue();
   }
 
   @Test

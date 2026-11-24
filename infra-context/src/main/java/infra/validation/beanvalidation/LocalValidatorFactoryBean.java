@@ -18,7 +18,10 @@
 
 package infra.validation.beanvalidation;
 
+import org.hibernate.validator.HibernateValidatorConfiguration;
+import org.hibernate.validator.bean.BeanHolder;
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
+import org.hibernate.validator.spi.bean.BeanProvider;
 import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
@@ -30,6 +33,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Consumer;
 
@@ -44,6 +48,7 @@ import infra.core.ParameterNameDiscoverer;
 import infra.core.io.Resource;
 import infra.util.Assert;
 import infra.lang.VisibleForTesting;
+import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ReflectionUtils;
 import jakarta.validation.ClockProvider;
@@ -87,6 +92,9 @@ import jakarta.validation.bootstrap.ProviderSpecificBootstrap;
  */
 public class LocalValidatorFactoryBean extends InfraValidatorAdapter
         implements ValidatorFactory, ApplicationContextAware, InitializingBean, DisposableBean {
+
+  private static final boolean HIBERNATE_VALIDATOR_92_PRESENT = ClassUtils.isPresent(
+          "org.hibernate.validator.spi.bean.BeanProvider", LocalValidatorFactoryBean.class.getClassLoader());
 
   @SuppressWarnings("rawtypes")
   @Nullable
@@ -273,15 +281,19 @@ public class LocalValidatorFactoryBean extends InfraValidatorAdapter
       configuration = bootstrap.configure();
     }
 
-    // Try Hibernate Validator 5.2's externalClassLoader(ClassLoader) method
+    // Try Hibernate Validator's externalClassLoader(ClassLoader) method
+    // as well as beanProvider(BeanProvider) on Hibernate Validator 9.2+
     if (this.applicationContext != null) {
-      try {
-        Method eclMethod = configuration.getClass().getMethod("externalClassLoader", ClassLoader.class);
-        eclMethod = ReflectionUtils.getPubliclyAccessibleMethodIfPossible(eclMethod, configuration.getClass());
-        ReflectionUtils.invokeMethod(eclMethod, configuration, this.applicationContext.getClassLoader());
-      }
-      catch (NoSuchMethodException ex) {
-        // Ignore - no Hibernate Validator 5.2+ or similar provider
+      if (!HIBERNATE_VALIDATOR_92_PRESENT
+              || !HibernateValidator92Delegate.adaptClassLoaderAndBeanProvider(configuration, this.applicationContext)) {
+        try {
+          Method eclMethod = configuration.getClass().getMethod("externalClassLoader", ClassLoader.class);
+          eclMethod = ReflectionUtils.getPubliclyAccessibleMethodIfPossible(eclMethod, configuration.getClass());
+          ReflectionUtils.invokeMethod(eclMethod, configuration, this.applicationContext.getClassLoader());
+        }
+        catch (NoSuchMethodException ex) {
+          // Ignore - no Hibernate Validator 5.2+ or similar provider
+        }
       }
     }
 
@@ -468,6 +480,41 @@ public class LocalValidatorFactoryBean extends InfraValidatorAdapter
 
     public static MessageInterpolator buildMessageInterpolator(MessageSource messageSource) {
       return new ResourceBundleMessageInterpolator(new MessageSourceResourceBundleLocator(messageSource));
+    }
+  }
+
+  /**
+   * Inner class to avoid a hard-coded Hibernate Validator 9.2 dependency.
+   */
+  private static class HibernateValidator92Delegate {
+
+    public static boolean adaptClassLoaderAndBeanProvider(Configuration<?> configuration,
+            ApplicationContext context) {
+      if (!(configuration instanceof HibernateValidatorConfiguration hvc)) {
+        return false;
+      }
+
+      // Non-reflective method call since we adapt to Hibernate Validator anyway
+      hvc.externalClassLoader(context.getClassLoader());
+
+      // Hibernate Validator 9.2 specific
+      hvc.beanProvider(new BeanProvider() {
+        @Override
+        public <T> BeanHolder<T> forType(Class<T> typeReference) {
+          return BeanHolder.of(Objects.requireNonNull(context).getBean(typeReference));
+        }
+
+        @Override
+        public <T> BeanHolder<T> forTypeAndName(Class<T> typeReference, String nameReference) {
+          return BeanHolder.of(Objects.requireNonNull(context).getBean(nameReference, typeReference));
+        }
+
+        @Override
+        public void close() {
+        }
+      });
+
+      return true;
     }
   }
 

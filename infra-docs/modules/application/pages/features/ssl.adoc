@@ -95,3 +95,9 @@ ssl:
 
 Let's Encrypt 证书也可以作为文件配置，但证书申请和续期应由 Certbot 等外部工具负责。
 TODAY INFRA 本身不会申请或续期证书。
+
+== 证书到期预警
+
+使用 `infra-app-health` 时，SSL 健康指示器通过 `health.ssl.certificate-validity-warning-threshold` 设置证书到期预警阈值，默认为 `14d`。
+如果一条仍然有效的证书链中有证书将在阈值内到期，健康检查会将该证书链列在 `details.expiringChains` 中，便于提前更换证书。
+临近到期本身不会降低健康状态；包含无效证书的链会列在 `details.invalidChains` 中，并使 SSL 健康状态变为 `OUT_OF_SERVICE`。

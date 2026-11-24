@@ -47,6 +47,7 @@ dependencies {
   testImplementation project(":infra-webmvc-mock")
   testImplementation 'org.skyscreamer:jsonassert:1.5.0'
   testImplementation("com.github.ben-manes.caffeine:caffeine")
+  testCompileOnly("com.github.spotbugs:spotbugs-annotations")
 
   testImplementation 'jakarta.inject:jakarta.inject-api'
 

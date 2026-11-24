@@ -18,6 +18,8 @@
 
 package infra.messaging.rsocket.service;
 
+import io.rsocket.metadata.CompositeMetadata;
+import io.rsocket.metadata.WellKnownMimeType;
 import io.rsocket.util.DefaultPayload;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -25,11 +27,14 @@ import org.junit.jupiter.api.Timeout;
 import java.time.Duration;
 import java.util.Optional;
 
+import infra.core.ReactiveAdapterRegistry;
 import infra.messaging.handler.annotation.Payload;
 import infra.messaging.rsocket.RSocketRequester;
 import infra.messaging.rsocket.RSocketStrategies;
 import infra.messaging.rsocket.TestRSocket;
+import infra.util.MimeType;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -76,6 +81,75 @@ class RSocketServiceProxyFactoryTests {
             .withMessage("Timeout must be a non-negative value");
   }
 
+  @Test
+  void resolvesRoutesAndUsesCustomArgumentsFromDefaultMethods() {
+    RSocketServiceProxyFactory factory = RSocketServiceProxyFactory.builder().rsocketRequester(this.requester)
+            .embeddedValueResolver(value -> value.replace("${service}", "orders").replace("${action}", "find"))
+            .reactiveAdapterRegistry(new ReactiveAdapterRegistry())
+            .customArgumentResolver((argument, parameter, values) -> {
+              if (argument instanceof Search search) {
+                values.setPayloadValue(search.query());
+                return true;
+              }
+              return false;
+            })
+            .build();
+    SearchService service = factory.createClient(SearchService.class);
+    this.rsocket.setPayloadMonoToReturn(Mono.just(DefaultPayload.create("found")));
+
+    StepVerifier.create(service.findByName("book")).expectNext("found").verifyComplete();
+
+    assertThat(this.rsocket.getSavedPayload().getMetadataUtf8()).isEqualTo("orders.find");
+    assertThat(this.rsocket.getSavedPayload().getDataUtf8()).isEqualTo("book");
+    assertThatIllegalStateException().isThrownBy(service::notAnExchange)
+            .withMessageContaining("Unexpected method invocation", "notAnExchange");
+  }
+
+  @Test
+  void metadataOnlyExchangeUsesMetadataPush() {
+    MetadataService service = RSocketServiceProxyFactory.builder(this.requester).build().createClient(MetadataService.class);
+
+    StepVerifier.create(service.push("status", MimeType.TEXT_PLAIN))
+            .expectComplete().verify(Duration.ofSeconds(5));
+
+    assertThat(this.rsocket.getSavedMethodName()).isEqualTo("metadataPush");
+    assertThat(this.rsocket.getSavedPayload().getMetadataUtf8()).isEqualTo("status");
+  }
+
+  @Test
+  void routedExchangeCombinesRoutingAndApplicationMetadata() {
+    MimeType composite = MimeType.valueOf(WellKnownMimeType.MESSAGE_RSOCKET_COMPOSITE_METADATA.getString());
+    RSocketRequester requester = RSocketRequester.wrap(this.rsocket, MimeType.TEXT_PLAIN, composite,
+            RSocketStrategies.create());
+    MetadataService service = RSocketServiceProxyFactory.builder(requester).build().createClient(MetadataService.class);
+    StepVerifier.create(service.routedPush("status", MimeType.TEXT_PLAIN))
+            .expectComplete().verify(Duration.ofSeconds(5));
+
+    assertThat(this.rsocket.getSavedMethodName()).isEqualTo("metadataPush");
+    CompositeMetadata metadata = new CompositeMetadata(this.rsocket.getSavedPayload().sliceMetadata(), false);
+    assertThat(metadata).extracting(CompositeMetadata.Entry::getMimeType)
+            .containsExactly(WellKnownMimeType.MESSAGE_RSOCKET_ROUTING.getString(), MimeType.TEXT_PLAIN.toString());
+  }
+
+  @Test
+  void exchangeWithoutRouteOrMetadataIsRejected() {
+    MetadataService service = RSocketServiceProxyFactory.builder(this.requester).build().createClient(MetadataService.class);
+
+    assertThatIllegalArgumentException().isThrownBy(service::missingRoute)
+            .withMessage("Neither route nor metadata provided");
+    assertThat(this.rsocket.getSavedPayload()).isNull();
+  }
+
+  @Test
+  void emptyOptionalAndMissingRequiredPayload() {
+    BlockingService service = RSocketServiceProxyFactory.builder(this.requester)
+            .blockTimeout(Duration.ofSeconds(1)).build().createClient(BlockingService.class);
+
+    assertThat(service.requestResponseOptional("request")).isEmpty();
+    assertThatIllegalArgumentException().isThrownBy(() -> service.requestResponse(null))
+            .withMessage("Missing payload");
+  }
+
   private static Mono<io.rsocket.Payload> delayedPayload(String data) {
     return Mono.just(DefaultPayload.create(data)).delayElement(Duration.ofMillis(50));
   }
@@ -87,5 +161,33 @@ class RSocketServiceProxyFactoryTests {
 
     @RSocketExchange("rr")
     Optional<String> requestResponseOptional(@Payload String input);
+  }
+
+  private interface MetadataService {
+
+    @RSocketExchange
+    Mono<Void> push(String metadata, MimeType mimeType);
+
+    @RSocketExchange("orders")
+    Mono<Void> routedPush(String metadata, MimeType mimeType);
+
+    @RSocketExchange
+    Mono<Void> missingRoute();
+  }
+
+  @RSocketExchange("${service}")
+  interface SearchService {
+
+    @RSocketExchange("${action}")
+    Mono<String> find(Search request);
+
+    default Mono<String> findByName(String query) {
+      return find(new Search(query));
+    }
+
+    String notAnExchange();
+  }
+
+  record Search(String query) {
   }
 }

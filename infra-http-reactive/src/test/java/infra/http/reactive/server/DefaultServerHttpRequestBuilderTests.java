@@ -18,22 +18,32 @@
 
 package infra.http.reactive.server;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.BDDMockito;
 
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.stream.Stream;
 
+import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
+import infra.http.HttpMethod;
 import infra.http.support.Netty4HttpHeaders;
 import infra.web.testfixture.http.server.reactive.MockServerHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.ReadOnlyHttpHeaders;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatRuntimeException;
 import static org.junit.jupiter.params.provider.Arguments.argumentSet;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -41,6 +51,71 @@ import static org.mockito.Mockito.when;
  * @since 5.0 2024/10/11 21:17
  */
 class DefaultServerHttpRequestBuilderTests {
+
+  @Test
+  void mutatesUriAndConnectionMetadataWithoutChangingOriginalRequest() {
+    HttpCookie cookie = new HttpCookie("theme", "dark");
+    ServerHttpRequest original = MockServerHttpRequest.post("/old/items").contextPath("/old")
+            .header("X-Original", "original").cookie(cookie).body("payload");
+    InetSocketAddress local = InetSocketAddress.createUnresolved("local", 8080);
+    InetSocketAddress remote = InetSocketAddress.createUnresolved("remote", 12345);
+    SslInfo sslInfo = mock(SslInfo.class);
+
+    ServerHttpRequest mutated = original.mutate()
+            .method(HttpMethod.PUT)
+            .uri(URI.create("https://user%40example@example.org:8443/unused?q=a%2Fb#anchor"))
+            .path("/new/item%20name")
+            .contextPath("/new")
+            .headers(headers -> headers.set("X-Original", "changed"))
+            .sslInfo(sslInfo).localAddress(local).remoteAddress(remote)
+            .build();
+
+    assertThat(mutated.getURI()).hasToString("https://user%40example@example.org:8443/new/item%20name?q=a%2Fb#anchor");
+    assertThat(mutated.getPath().contextPath().value()).isEqualTo("/new");
+    assertThat(mutated.getPath().pathWithinApplication().value()).isEqualTo("/item%20name");
+    assertThat(mutated.getQueryParams().getFirst("q")).isEqualTo("a/b");
+    assertThat(mutated.getMethod()).isEqualTo(HttpMethod.PUT);
+    assertThat(mutated.getHeaders().getFirst("X-Original")).isEqualTo("changed");
+    assertThat(mutated.getSslInfo()).isSameAs(sslInfo);
+    assertThat(mutated.getLocalAddress()).isEqualTo(local);
+    assertThat(mutated.getRemoteAddress()).isEqualTo(remote);
+    assertThat(mutated.getCookies().getFirst("theme")).isSameAs(cookie);
+    assertThat(mutated.getBody()).isSameAs(original.getBody());
+    assertThat(mutated.getId()).isEqualTo(original.getId());
+    assertThat(original.getURI()).hasToString("/old/items");
+    assertThat(original.getHeaders().getFirst("X-Original")).isEqualTo("original");
+  }
+
+  @Test
+  void rewritesRelativePathAndClearsContextPath() {
+    ServerHttpRequest original = MockServerHttpRequest.get("/old/items").contextPath("/old").build();
+
+    ServerHttpRequest mutated = original.mutate().path("/items").contextPath(null).build();
+
+    assertThat(mutated.getURI()).hasToString("/items");
+    assertThat(mutated.getPath().contextPath().value()).isEmpty();
+    assertThat(mutated.getQueryParams()).isEmpty();
+    assertThat(mutated.getSslInfo()).isNull();
+  }
+
+  @Test
+  void rejectsInvalidPaths() {
+    ServerHttpRequest original = MockServerHttpRequest.get("/items").build();
+
+    assertThatIllegalArgumentException().isThrownBy(() -> original.mutate().path("relative"))
+            .withMessageContaining("leading slash");
+    assertThatIllegalStateException().isThrownBy(() -> original.mutate().path("/item name").build())
+            .withCauseInstanceOf(URISyntaxException.class);
+  }
+
+  @Test
+  void requestDefaultsToUnavailableConnectionMetadata() {
+    ServerHttpRequest request = mock(ServerHttpRequest.class, CALLS_REAL_METHODS);
+
+    assertThat(request.getLocalAddress()).isNull();
+    assertThat(request.getRemoteAddress()).isNull();
+    assertThat(request.getSslInfo()).isNull();
+  }
 
   @ParameterizedTest
   @MethodSource("headers")

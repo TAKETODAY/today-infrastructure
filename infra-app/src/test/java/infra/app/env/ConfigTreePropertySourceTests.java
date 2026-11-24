@@ -20,6 +20,8 @@ package infra.app.env;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.ResourceLock;
+import org.junit.jupiter.api.parallel.Resources;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +29,7 @@ import java.lang.annotation.Annotation;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.Set;
 
 import infra.app.env.ConfigTreePropertySource.Option;
@@ -131,6 +134,26 @@ class ConfigTreePropertySourceTests {
     ConfigTreePropertySource propertySource = new ConfigTreePropertySource("test", this.directory,
             Option.USE_LOWERCASE_NAMES);
     assertThat(propertySource.getPropertyNames()).containsExactly("spring");
+  }
+
+  @Test
+  @ResourceLock(Resources.LOCALE)
+  void getPropertyNamesWhenLowercaseIgnoresDefaultLocale() throws Exception {
+    addProperty("CONFIG", "value");
+    Locale previous = Locale.getDefault();
+    Locale previousDisplay = Locale.getDefault(Locale.Category.DISPLAY);
+    Locale previousFormat = Locale.getDefault(Locale.Category.FORMAT);
+    try {
+      Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+      ConfigTreePropertySource propertySource = new ConfigTreePropertySource("test", this.directory,
+              Option.USE_LOWERCASE_NAMES);
+      assertThat(propertySource.getPropertyNames()).containsExactly("config");
+    }
+    finally {
+      Locale.setDefault(previous);
+      Locale.setDefault(Locale.Category.DISPLAY, previousDisplay);
+      Locale.setDefault(Locale.Category.FORMAT, previousFormat);
+    }
   }
 
   @Test

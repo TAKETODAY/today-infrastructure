@@ -16,16 +16,16 @@
 
 package infra.web.handler.method;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.net.SocketTimeoutException;
 import java.util.Locale;
-
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import infra.aop.framework.ProxyFactory;
 import infra.beans.FatalBeanException;
@@ -37,21 +37,16 @@ import infra.context.support.ApplicationObjectSupport;
 import infra.context.support.StaticApplicationContext;
 import infra.core.MethodParameter;
 import infra.core.annotation.Order;
-import infra.core.i18n.LocaleContextHolder;
+import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
-import org.jspecify.annotations.Nullable;
-
-import infra.web.HttpContext;
-import infra.web.mock.api.MockException;
-import infra.web.mock.MockRequest;
-import infra.web.mock.MockResponse;
 import infra.stereotype.Controller;
 import infra.ui.Model;
 import infra.ui.ModelMap;
 import infra.util.ClassUtils;
 import infra.web.BindingContext;
+import infra.web.HttpContext;
 import infra.web.HttpRequestHandler;
 import infra.web.RedirectModel;
 import infra.web.annotation.ExceptionHandler;
@@ -62,6 +57,9 @@ import infra.web.config.annotation.EnableWebMvc;
 import infra.web.handler.function.HandlerFunction;
 import infra.web.handler.function.ServerResponse;
 import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
+import infra.web.mock.api.MockException;
 import infra.web.resource.ResourceHttpRequestHandler;
 import infra.web.util.WebUtils;
 import infra.web.view.ModelAndView;
@@ -106,6 +104,81 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
       assertThat(handler.isRenderUnhandledExceptionsAsProblemDetails()).isFalse();
       assertThat(handler.handleException(new MockHttpContext(application, request, response),
               new IllegalStateException("Secret internal state"), null)).isNull();
+    }
+  }
+
+  @Test
+  void annotatedExceptionHandlersUseTheRegistryFromTheirResolver() throws Exception {
+    try (var application = new AnnotationConfigApplicationContext(Config.class)) {
+      var resolver = new ControllerMethodResolver(application, exceptionParameterRegistry("first"));
+      handler.setApplicationContext(application);
+      handler.setControllerMethodResolver(resolver);
+      handler.afterPropertiesSet();
+
+      var target = new HandlerMethod(new RegistryExceptionController(), "handle");
+      var exception = new IllegalStateException();
+      assertThat(handler.handleException(new MockHttpContext(application, request, response), exception, target)).isEqualTo("first");
+
+      var other = new ExceptionHandlerAnnotationExceptionHandler();
+      other.setApplicationContext(application);
+      other.setControllerMethodResolver(new ControllerMethodResolver(application, exceptionParameterRegistry("second")));
+      other.afterPropertiesSet();
+      assertThat(other.handleException(new MockHttpContext(application, request, new MockResponse()), exception, target)).isEqualTo("second");
+    }
+  }
+
+  private static ParameterResolvingRegistry exceptionParameterRegistry(String value) {
+    var registry = new ParameterResolvingRegistry();
+    registry.addCustomizedStrategies(new ParameterResolvingStrategy() {
+      @Override
+      public boolean supportsParameter(HandlerParameter parameter) {
+        return parameter.getParameterType() == String.class;
+      }
+
+      @Override
+      public Object resolveArgument(HttpContext request, HandlerParameter parameter) {
+        return value;
+      }
+    });
+    return registry;
+  }
+
+  static class RegistryExceptionController {
+
+    public void handle() {
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public String onException(String value) {
+      return value;
+    }
+  }
+
+  @Test
+  void prototypeExceptionAdviceIsResolvedForEachRequest() {
+    try (var application = new AnnotationConfigApplicationContext()) {
+      application.register(Config.class);
+      application.registerPrototype("prototypeExceptionAdvice", PrototypeExceptionAdvice.class);
+      application.refresh();
+      handler.setApplicationContext(application);
+      handler.afterPropertiesSet();
+
+      var exception = new IllegalStateException();
+      var first = handler.getExceptionHandlerMethod(new MockHttpContext(application, request, response), null, exception);
+      var second = handler.getExceptionHandlerMethod(new MockHttpContext(application, request, new MockResponse()), null, exception);
+
+      assertThat(first).isNotNull();
+      assertThat(second).isNotNull();
+      assertThat(first.getBean()).isInstanceOf(PrototypeExceptionAdvice.class).isNotSameAs(second.getBean());
+    }
+  }
+
+  @RestControllerAdvice
+  static class PrototypeExceptionAdvice {
+
+    @ExceptionHandler
+    public String handle(IllegalStateException exception) {
+      return "handled";
     }
   }
 
@@ -202,12 +275,14 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
 
   static class RethrowingProblemController {
     public void handle() { }
+
     @ExceptionHandler
     public Object error(IllegalStateException ex) { throw ex; }
   }
 
   static class FailingProblemController {
     public void handle() { }
+
     @ExceptionHandler
     public Object error(IllegalStateException ex) { throw new IllegalArgumentException("Handler failure"); }
   }
@@ -444,10 +519,10 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   void handleExceptionWithReasonResolvedByMessageSource() throws Exception {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(MyConfig.class);
     StaticApplicationContext context = new StaticApplicationContext(ctx);
-    Locale locale = Locale.ENGLISH;
-    context.addMessage("gateway.timeout", locale, "Gateway Timeout");
+    Locale locale = Locale.FRENCH;
+    context.addMessage("gateway.timeout", locale, "Délai de passerelle");
     context.refresh();
-    LocaleContextHolder.setLocale(locale);
+    this.request.addHeader(HttpHeaders.ACCEPT_LANGUAGE, locale.toLanguageTag());
     this.handler.setApplicationContext(context);
     this.handler.afterPropertiesSet();
 
@@ -458,7 +533,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     assertThat(mav).as("Exception was not handled").isNotNull();
     assertThat(mav.isEmpty()).isTrue();
     assertThat(this.response.getStatus()).isEqualTo(HttpStatus.GATEWAY_TIMEOUT.value());
-    assertThat(this.response.getErrorMessage()).isEqualTo("Gateway Timeout");
+    assertThat(this.response.getErrorMessage()).isEqualTo("Délai de passerelle");
     assertThat(this.response.getContentAsString()).isEqualTo("");
   }
 

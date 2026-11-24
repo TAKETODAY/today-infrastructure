@@ -30,12 +30,17 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import infra.transaction.IllegalTransactionStateException;
+import infra.transaction.InvalidTimeoutException;
 import infra.transaction.MockCallbackPreferringTransactionManager;
+import infra.transaction.NestedTransactionNotSupportedException;
 import infra.transaction.PlatformTransactionManager;
+import infra.transaction.SavepointManager;
 import infra.transaction.TestTransactionExecutionListener;
 import infra.transaction.TransactionDefinition;
 import infra.transaction.TransactionStatus;
+import infra.transaction.TransactionSuspensionNotSupportedException;
 import infra.transaction.TransactionSystemException;
+import infra.transaction.UnexpectedRollbackException;
 import infra.util.ReflectionUtils;
 
 import static infra.transaction.TransactionDefinition.ISOLATION_REPEATABLE_READ;
@@ -50,11 +55,291 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatRuntimeException;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Juergen Hoeller
  */
 class TransactionSupportTests {
+
+  @Test
+  void rejectsInvalidTimeoutBeforeStartingTransaction() {
+    var manager = new TestTransactionManager(false, true);
+    assertThatExceptionOfType(InvalidTimeoutException.class).isThrownBy(() -> manager.setDefaultTimeout(-2));
+    TransactionDefinition invalid = new TransactionDefinition() {
+      @Override
+      public int getTimeout() {
+        return TIMEOUT_DEFAULT - 1;
+      }
+    };
+
+    assertThatExceptionOfType(InvalidTimeoutException.class).isThrownBy(() -> manager.getTransaction(invalid));
+    assertThat(manager.begin).isFalse();
+  }
+
+  @Test
+  void rejectsNeverAndNestedPropagationWhenAnExistingTransactionDoesNotAllowThem() {
+    var manager = new TestTransactionManager(true, true);
+    var never = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_NEVER);
+    var nested = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_NESTED);
+
+    assertThatExceptionOfType(IllegalTransactionStateException.class)
+            .isThrownBy(() -> manager.getTransaction(never)).withMessageContaining("propagation 'never'");
+    assertThatExceptionOfType(NestedTransactionNotSupportedException.class)
+            .isThrownBy(() -> manager.getTransaction(nested));
+    assertThat(manager.begin).isFalse();
+  }
+
+  @Test
+  void restoresSynchronizationWhenSuspendingTheTransactionFails() {
+    var manager = new TestTransactionManager(true, true);
+    TransactionSynchronization synchronization = mock();
+    TransactionSynchronizationManager.initSynchronization();
+    try {
+      TransactionSynchronizationManager.registerSynchronization(synchronization);
+      var definition = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_NOT_SUPPORTED);
+
+      assertThatExceptionOfType(TransactionSuspensionNotSupportedException.class)
+              .isThrownBy(() -> manager.getTransaction(definition));
+
+      var order = inOrder(synchronization);
+      order.verify(synchronization).suspend();
+      order.verify(synchronization).resume();
+      assertThat(TransactionSynchronizationManager.getSynchronizations()).containsExactly(synchronization);
+    }
+    finally {
+      TransactionSynchronizationManager.clear();
+    }
+  }
+
+  @Test
+  void reportsResumeFailureWhenRequiresNewCannotBeginOrResume() {
+    var manager = new TestTransactionManager(true, false) {
+      @Override
+      protected Object doSuspend(Object transaction) {
+        return transaction;
+      }
+    };
+    var definition = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+
+    assertThatExceptionOfType(TransactionSuspensionNotSupportedException.class)
+            .isThrownBy(() -> manager.getTransaction(definition));
+    assertThat(manager.begin).isFalse();
+  }
+
+  @Test
+  void globalRollbackOnlyPreventsCommit() {
+    SmartTransactionObject transaction = mock();
+    given(transaction.isRollbackOnly()).willReturn(true);
+    var manager = new TestTransactionManager(false, true) {
+      @Override
+      protected Object doGetTransaction() {
+        return transaction;
+      }
+
+      @Override
+      protected void doBegin(Object resource, TransactionDefinition definition) {
+      }
+
+      @Override
+      protected void doRollback(DefaultTransactionStatus status) {
+        this.rollback = true;
+      }
+    };
+
+    var status = manager.getTransaction(null);
+    assertThatExceptionOfType(UnexpectedRollbackException.class).isThrownBy(() -> manager.commit(status));
+    assertThat(status.isCompleted()).isTrue();
+    assertThat(manager.commit).isFalse();
+    assertThat(manager.rollback).isTrue();
+  }
+
+  @Test
+  void rollbackFailureAfterCommitFailureNotifiesListenersAndClearsSynchronization() {
+    var commitFailure = new TransactionSystemException("commit failed");
+    var rollbackFailure = new TransactionSystemException("rollback failed");
+    var manager = new TestTransactionManager(false, true) {
+      @Override
+      protected void doCommit(DefaultTransactionStatus status) {
+        throw commitFailure;
+      }
+
+      @Override
+      protected void doRollback(DefaultTransactionStatus status) {
+        throw rollbackFailure;
+      }
+    };
+    manager.setRollbackOnCommitFailure(true);
+    manager.setTransactionSynchronization(AbstractPlatformTransactionManager.SYNCHRONIZATION_ALWAYS);
+    var listener = new TestTransactionExecutionListener();
+    manager.addListener(listener);
+    var status = manager.getTransaction(null);
+    TransactionSynchronization synchronization = mock();
+    TransactionSynchronizationManager.registerSynchronization(synchronization);
+
+    assertThatExceptionOfType(TransactionSystemException.class).isThrownBy(() -> manager.commit(status))
+            .isSameAs(rollbackFailure);
+    verify(synchronization).afterCompletion(TransactionSynchronization.STATUS_UNKNOWN);
+    assertThat(listener.rollbackFailure).isSameAs(rollbackFailure);
+    assertThat(status.isCompleted()).isTrue();
+  }
+
+  @Test
+  void emptySupportsTransactionCanActivateSynchronization() {
+    var manager = new TestTransactionManager(false, true);
+    manager.setTransactionSynchronization(AbstractPlatformTransactionManager.SYNCHRONIZATION_ALWAYS);
+    var definition = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_SUPPORTS);
+    definition.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
+
+    var status = manager.getTransaction(definition);
+    assertThat(status.hasTransaction()).isFalse();
+    assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
+    assertThat(TransactionSynchronizationManager.getCurrentTransactionIsolationLevel())
+            .isEqualTo(TransactionDefinition.ISOLATION_READ_COMMITTED);
+
+    manager.commit(status);
+    assertThat(status.isCompleted()).isTrue();
+  }
+
+  @Test
+  void participatingRollbackCanLeaveGlobalTransactionUnmarked() {
+    var manager = new TestTransactionManager(true, true);
+    manager.setGlobalRollbackOnParticipationFailure(false);
+    var status = manager.getTransaction(null);
+
+    manager.rollback(status);
+
+    assertThat(manager.rollbackOnly).isFalse();
+    assertThat(status.isCompleted()).isTrue();
+  }
+
+  @Test
+  void participatingSynchronizationReportsUnknownWhenCoordinatorCannotTrackCompletion() {
+    var manager = new TestTransactionManager(true, true);
+    manager.setTransactionSynchronization(AbstractPlatformTransactionManager.SYNCHRONIZATION_ALWAYS);
+    var status = manager.getTransaction(null);
+    TransactionSynchronization synchronization = mock();
+    TransactionSynchronizationManager.registerSynchronization(synchronization);
+
+    manager.commit(status);
+
+    verify(synchronization).afterCompletion(TransactionSynchronization.STATUS_UNKNOWN);
+    assertThat(manager.commit).isFalse();
+    assertThat(status.isCompleted()).isTrue();
+  }
+
+  @Test
+  void commitFailureWithoutRollbackOnCommitFailureReportsUnknownCompletion() {
+    var failure = new TransactionSystemException("commit failed");
+    var manager = new TestTransactionManager(false, true) {
+      @Override
+      protected void doCommit(DefaultTransactionStatus status) {
+        throw failure;
+      }
+    };
+    manager.setTransactionSynchronization(AbstractPlatformTransactionManager.SYNCHRONIZATION_ALWAYS);
+    var listener = new TestTransactionExecutionListener();
+    manager.addListener(listener);
+    var status = manager.getTransaction(null);
+    TransactionSynchronization synchronization = mock();
+    TransactionSynchronizationManager.registerSynchronization(synchronization);
+
+    assertThatExceptionOfType(TransactionSystemException.class).isThrownBy(() -> manager.commit(status))
+            .isSameAs(failure);
+    verify(synchronization).afterCompletion(TransactionSynchronization.STATUS_UNKNOWN);
+    assertThat(listener.afterCommitCalled).isTrue();
+    assertThat(manager.rollback).isFalse();
+  }
+
+  @Test
+  void afterCommitFailureStillRunsCompletionCallbacks() {
+    var failure = new IllegalStateException("after commit failed");
+    var manager = new TestTransactionManager(false, true);
+    manager.setTransactionSynchronization(AbstractPlatformTransactionManager.SYNCHRONIZATION_ALWAYS);
+    var synchronization = mock(TransactionSynchronization.class);
+    org.mockito.BDDMockito.willThrow(failure).given(synchronization).afterCommit();
+    var status = manager.getTransaction(null);
+    TransactionSynchronizationManager.registerSynchronization(synchronization);
+
+    assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> manager.commit(status)).isSameAs(failure);
+    verify(synchronization).afterCompletion(TransactionSynchronization.STATUS_COMMITTED);
+    assertThat(status.isCompleted()).isTrue();
+  }
+
+  @Test
+  void validatesIsolationAndReadOnlySettingsWhenJoiningAnExistingTransaction() {
+    var manager = new TestTransactionManager(true, true);
+    manager.setValidateExistingTransaction(true);
+    var definition = new DefaultTransactionDefinition();
+    definition.setIsolationLevel(ISOLATION_SERIALIZABLE);
+    definition.setReadOnly(true);
+
+    assertThatExceptionOfType(IllegalTransactionStateException.class)
+            .isThrownBy(() -> manager.getTransaction(definition)).withMessageContaining("(unknown)");
+    try {
+      TransactionSynchronizationManager.setCurrentTransactionIsolationLevel(ISOLATION_REPEATABLE_READ);
+      assertThatExceptionOfType(IllegalTransactionStateException.class)
+              .isThrownBy(() -> manager.getTransaction(definition)).withMessageContaining("ISOLATION_REPEATABLE_READ");
+
+      TransactionSynchronizationManager.setCurrentTransactionIsolationLevel(ISOLATION_SERIALIZABLE);
+      TransactionSynchronizationManager.setCurrentTransactionReadOnly(true);
+      var participant = manager.getTransaction(definition);
+      assertThat(participant.isNewTransaction()).isFalse();
+      manager.commit(participant);
+
+      definition.setReadOnly(false);
+      assertThatExceptionOfType(IllegalTransactionStateException.class)
+              .isThrownBy(() -> manager.getTransaction(definition)).withMessageContaining("not marked as read-only");
+    }
+    finally {
+      TransactionSynchronizationManager.clear();
+    }
+  }
+
+  @Test
+  void nestedTransactionsCommitAndRollBackThroughSavepoints() {
+    SavepointManager resource = mock();
+    Object first = new Object();
+    Object second = new Object();
+    given(resource.createSavepoint()).willReturn(first, second);
+    var manager = new TestTransactionManager(true, true) {
+      @Override
+      protected Object doGetTransaction() {
+        return resource;
+      }
+    };
+    var listener = new TestTransactionExecutionListener();
+    manager.setNestedTransactionAllowed(true);
+    manager.addListener(listener);
+    var definition = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_NESTED);
+
+    var committed = manager.getTransaction(definition);
+    assertThat(committed.hasSavepoint()).isTrue();
+    assertThat(listener.afterBeginCalled).isTrue();
+    manager.commit(committed);
+    var rolledBack = manager.getTransaction(definition);
+    manager.rollback(rolledBack);
+
+    var order = inOrder(resource);
+    order.verify(resource).createSavepoint();
+    order.verify(resource).releaseSavepoint(first);
+    order.verify(resource).createSavepoint();
+    order.verify(resource).rollbackToSavepoint(second);
+    order.verify(resource).releaseSavepoint(second);
+    assertThat(committed.isCompleted()).isTrue();
+    assertThat(rolledBack.isCompleted()).isTrue();
+    assertThat(manager.commit).isFalse();
+    assertThat(manager.rollback).isFalse();
+
+    var savepointFailure = new TransactionSystemException("cannot create savepoint");
+    given(resource.createSavepoint()).willThrow(savepointFailure);
+    assertThatExceptionOfType(TransactionSystemException.class)
+            .isThrownBy(() -> manager.getTransaction(definition)).isSameAs(savepointFailure);
+    assertThat(listener.beginFailure).isSameAs(savepointFailure);
+  }
 
   @AfterEach
   void postConditions() {

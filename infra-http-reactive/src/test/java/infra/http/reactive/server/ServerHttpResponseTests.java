@@ -23,6 +23,7 @@ import org.reactivestreams.Publisher;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -50,6 +51,12 @@ import reactor.netty.channel.AbortedException;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mock;
 
 /**
  * Unit tests for {@link AbstractServerHttpRequest}.
@@ -127,6 +134,85 @@ public class ServerHttpResponseTests {
     assertThat(response.headersWritten).isTrue();
     assertThat(response.cookiesWritten).isTrue();
     assertThat(response.body.isEmpty()).isTrue();
+  }
+
+  @Test
+  void statusAndCookiesCannotBeChangedAfterCommit() {
+    TestServerHttpResponse response = new TestServerHttpResponse();
+    ResponseCookie cookie = ResponseCookie.forSimple("theme", "dark");
+    assertThat(response.setStatusCode(HttpStatus.CREATED)).isTrue();
+    assertThat(response.setStatusCode(null)).isTrue();
+    assertThat(response.getRawStatusCode()).isNull();
+    assertThat(response.setRawStatusCode(299)).isTrue();
+    response.beforeCommit(() -> Mono.fromRunnable(() -> {
+      response.addCookie(cookie);
+      response.getHeaders().set("X-Result", "sent");
+    }));
+
+    StepVerifier.create(response.doCommit()).expectComplete().verify(Duration.ofSeconds(5));
+    StepVerifier.create(response.doCommit()).expectComplete().verify(Duration.ofSeconds(5));
+    StepVerifier.create(response.setComplete()).expectComplete().verify(Duration.ofSeconds(5));
+
+    assertThat(response.isCommitted()).isTrue();
+    assertThat(response.setStatusCode(HttpStatus.OK)).isFalse();
+    assertThat(response.setRawStatusCode(200)).isFalse();
+    assertThat(response.getRawStatusCode()).isEqualTo(299);
+    assertThat(response.getCookies().get("theme")).containsExactly(cookie);
+    assertThatIllegalStateException().isThrownBy(() -> response.addCookie(cookie));
+    assertThatThrownBy(() -> response.getCookies().add("theme", cookie))
+            .isInstanceOf(UnsupportedOperationException.class);
+    HttpHeaders committedHeaders = response.getHeaders();
+    assertThat(committedHeaders.getFirst("X-Result")).isEqualTo("sent");
+    assertThat(response.getHeaders()).isSameAs(committedHeaders);
+    assertThatThrownBy(() -> committedHeaders.set("X-Result", "changed"))
+            .isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
+  void defaultRawStatusMethodsAdaptStandardStatusCodes() {
+    ServerHttpResponse response = mock(ServerHttpResponse.class, CALLS_REAL_METHODS);
+    given(response.setStatusCode(HttpStatus.ACCEPTED)).willReturn(true);
+    given(response.getStatusCode()).willReturn(null, HttpStatus.ACCEPTED);
+
+    assertThat(response.getRawStatusCode()).isNull();
+    assertThat(response.setRawStatusCode(202)).isTrue();
+    assertThat(response.getRawStatusCode()).isEqualTo(202);
+    assertThat(response.setRawStatusCode(null)).isFalse();
+    then(response).should().setStatusCode(null);
+    assertThatIllegalStateException().isThrownBy(() -> response.setRawStatusCode(299))
+            .withMessageContaining("299");
+  }
+
+  @Test
+  void releasesMonoBodyWhenCancelledBeforeWriting() {
+    LeakAwareDataBufferFactory bufferFactory = new LeakAwareDataBufferFactory();
+    TestServerHttpResponse response = new TestServerHttpResponse();
+    response.beforeCommit(Mono::never);
+
+    StepVerifier.create(response.writeWith(Mono.fromSupplier(bufferFactory::allocateBuffer)))
+            .then(() -> assertThat(response.body).isEmpty())
+            .thenCancel().verify(Duration.ofSeconds(5));
+
+    assertThat(response.headersWritten).isFalse();
+    bufferFactory.checkForLeaks();
+  }
+
+  @Test
+  void flushSourceFailureClearsContentHeadersWithoutCommitting() {
+    TestServerHttpResponse response = new TestServerHttpResponse();
+    response.getHeaders().setContentType(MediaType.TEXT_PLAIN);
+    response.getHeaders().setContentLength(10);
+    response.getHeaders().set("X-Result", "preserved");
+    IllegalStateException failure = new IllegalStateException("flush source failed");
+
+    StepVerifier.create(response.writeAndFlushWith(Flux.error(failure)))
+            .expectErrorSatisfies(error -> assertThat(error).isSameAs(failure))
+            .verify(Duration.ofSeconds(5));
+
+    assertThat(response.isCommitted()).isFalse();
+    assertThat(response.getHeaders().asMultiValueMap()).doesNotContainKeys(HttpHeaders.CONTENT_TYPE,
+            HttpHeaders.CONTENT_LENGTH);
+    assertThat(response.getHeaders().getFirst("X-Result")).isEqualTo("preserved");
   }
 
   @Test

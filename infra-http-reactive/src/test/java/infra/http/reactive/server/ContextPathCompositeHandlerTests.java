@@ -24,6 +24,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -87,6 +88,21 @@ public class ContextPathCompositeHandlerTests {
 
     assertInvoked(handler1, "/path");
     assertNotInvoked(handler2, handler3);
+  }
+
+  @Test
+  void rootMappingActsAsFallbackForOtherPaths() {
+    TestHttpHandler specific = new TestHttpHandler();
+    TestHttpHandler fallback = new TestHttpHandler();
+    Map<String, HttpHandler> handlers = new LinkedHashMap<>();
+    handlers.put("/items", specific);
+    handlers.put("/", fallback);
+
+    testHandle("/other", handlers);
+
+    assertNotInvoked(specific);
+    assertThat(fallback.wasInvoked()).isTrue();
+    assertThat(fallback.getRequest().getPath().pathWithinApplication().value()).isEqualTo("/other");
   }
 
   @Test

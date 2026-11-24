@@ -26,7 +26,12 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Properties;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServerConnection;
@@ -68,6 +73,9 @@ public class StopMojo extends AbstractMojo {
   @Parameter(property = "today-infra.stop.skip", defaultValue = "false")
   private boolean skip;
 
+  @Parameter(defaultValue = "${project.build.directory}", readonly = true, required = true)
+  private File buildDirectory;
+
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
     if (this.skip) {
@@ -75,7 +83,8 @@ public class StopMojo extends AbstractMojo {
       return;
     }
     getLog().info("Stopping application...");
-    try (JMXConnector connector = InfraApplicationAdminClient.connect(this.jmxPort)) {
+    String password = readPassword();
+    try (JMXConnector connector = InfraApplicationAdminClient.connect(this.jmxPort, password)) {
       MBeanServerConnection connection = connector.getMBeanServerConnection();
       stop(connection);
     }
@@ -83,6 +92,22 @@ public class StopMojo extends AbstractMojo {
       // The response won't be received as the server has died - ignoring
       getLog().debug("Service is not reachable anymore (" + ex.getMessage() + ")");
     }
+  }
+
+  private String readPassword() throws MojoExecutionException {
+    Path passwordFile = this.buildDirectory.toPath().resolve(InfraApplicationAdminClient.JMX_PASSWORD_FILE);
+    Properties properties = new Properties();
+    try (InputStream input = Files.newInputStream(passwordFile)) {
+      properties.load(input);
+    }
+    catch (IOException ex) {
+      throw new MojoExecutionException("Unable to read JMX credentials from " + passwordFile, ex);
+    }
+    String password = properties.getProperty(InfraApplicationAdminClient.JMX_USER);
+    if (password == null || password.isBlank()) {
+      throw new MojoExecutionException("No JMX password found in " + passwordFile);
+    }
+    return password;
   }
 
   private void stop(MBeanServerConnection connection) throws IOException, MojoExecutionException {

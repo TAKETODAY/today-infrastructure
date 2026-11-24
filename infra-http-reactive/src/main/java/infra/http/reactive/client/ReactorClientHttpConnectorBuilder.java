@@ -32,6 +32,8 @@ import infra.http.support.ReactorResourceFactory;
 import infra.util.Assert;
 import infra.util.ClassUtils;
 import reactor.netty.http.client.HttpClient;
+import reactor.netty.http.client.HttpClientConfig;
+import reactor.netty.transport.ClientTransport.ResolvedAddressSelector;
 
 /**
  * Builder for {@link ClientHttpConnectorBuilder#reactor()}.
@@ -120,6 +122,20 @@ public final class ReactorClientHttpConnectorBuilder
   protected ReactorClientHttpConnector createClientHttpConnector(HttpClientSettings settings) {
     HttpClient httpClient = this.httpClientBuilder.build(settings);
     return new ReactorClientHttpConnector(httpClient);
+  }
+
+  /**
+   * Return a new builder with the given resolved address selector. Use this method
+   * rather than a customizer so the configured address filter can wrap the selector.
+   *
+   * @param resolvedAddressSelector the resolved address selector to use
+   * @return a new {@link ReactorClientHttpConnectorBuilder} instance
+   * @since 5.0
+   */
+  public ReactorClientHttpConnectorBuilder withResolvedAddressSelector(
+          ResolvedAddressSelector<? super HttpClientConfig> resolvedAddressSelector) {
+    return new ReactorClientHttpConnectorBuilder(getCustomizers(),
+            this.httpClientBuilder.withResolvedAddressSelector(resolvedAddressSelector));
   }
 
   static class Classes {

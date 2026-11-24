@@ -24,21 +24,23 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.LongSerializationPolicy;
+import com.google.gson.Strictness;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import java.io.StringReader;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import infra.test.context.runner.ApplicationContextRunner;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.context.annotation.config.AutoConfigurations;
+import infra.test.context.runner.ApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,6 +58,14 @@ class GsonAutoConfigurationTests {
     this.contextRunner.run((context) -> {
       Gson gson = context.getBean(Gson.class);
       assertThat(gson.toJson(new DataObject())).isEqualTo("{\"data\":1}");
+    });
+  }
+
+  @Test
+  void lenientTrue() {
+    this.contextRunner.withPropertyValues("gson.lenient:true").run((context) -> {
+      Gson gson = context.getBean(Gson.class);
+      assertThat(gson.newJsonReader(new StringReader("")).getStrictness()).isEqualTo(Strictness.LENIENT);
     });
   }
 

@@ -20,10 +20,15 @@ package infra.aop.framework.adapter;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.FileNotFoundException;
+import java.lang.reflect.Method;
 import java.rmi.ConnectException;
 import java.rmi.RemoteException;
+import java.util.stream.Stream;
 
 import infra.aop.framework.AopConfigException;
 import infra.aop.testfixture.advice.MyThrowsHandler;
@@ -39,6 +44,32 @@ import static org.mockito.Mockito.mock;
  * @author Chris Beams
  */
 public class ThrowsAdviceInterceptorTests {
+
+  @ParameterizedTest
+  @MethodSource("invalidHandlers")
+  void rejectsInvalidHandlerSignatures(Object handler, String message) {
+    assertThatExceptionOfType(AopConfigException.class)
+            .isThrownBy(() -> new ThrowsAdviceInterceptor(handler))
+            .withMessageContaining(message);
+  }
+
+  static Stream<Arguments> invalidHandlers() {
+    return Stream.of(
+            Arguments.of(new Object() {
+              public void afterThrowing(String ex) { }
+            }, "single argument must be a Throwable subclass"),
+            Arguments.of(new Object() {
+              public void afterThrowing(String method, Object[] args, Object target, Exception ex) { }
+            }, "four arguments must be Method, Object[], target, throwable"),
+            Arguments.of(new Object() {
+              public void afterThrowing() { }
+            }, "Unsupported afterThrowing signature"),
+            Arguments.of(new Object() {
+              public void afterThrowing(Exception ex) { }
+
+              public void afterThrowing(Method method, Object[] args, Object target, Exception ex) { }
+            }, "Only one afterThrowing method per specific Throwable subclass"));
+  }
 
   @Test
   public void testNoHandlerMethods() {

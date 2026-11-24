@@ -19,10 +19,12 @@ package infra.messaging.simp.stomp;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import infra.messaging.Message;
 import infra.messaging.simp.SimpMessageType;
+import infra.messaging.support.MessageHeaderInitializer;
 import infra.util.InvalidMimeTypeException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -117,6 +119,35 @@ class StompDecoderTests {
 
     String bodyText = new String(message.getPayload());
     assertThat(bodyText).isEqualTo("The body of the message");
+  }
+
+  @Test
+  void fallsBackToNullTerminatedBodyForNonnumericContentLength() {
+    Message<byte[]> frame = decode("SEND\ncontent-length:unknown\n\nbody\0");
+
+    assertThat(frame.getPayload()).isEqualTo("body".getBytes(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void initializesHeadersOnFramesAndHeartbeats() {
+    MessageHeaderInitializer initializer = accessor -> accessor.setHeader("decoded", true);
+    this.decoder.setHeaderInitializer(initializer);
+
+    assertThat(this.decoder.getHeaderInitializer()).isSameAs(initializer);
+    assertThat(decode("DISCONNECT\n\n\0").getHeaders()).containsEntry("decoded", true);
+    assertThat(decode("\r\n").getHeaders()).containsEntry("decoded", true);
+  }
+
+  @Test
+  void rejectsCompletedMalformedHeadersButWaitsForIncompleteFrames() {
+    assertIncompleteDecode("SEND\ninvalid\n");
+    assertIncompleteDecode("SEND\ncontent-type:text/plain;charset=U\n");
+    assertThatExceptionOfType(StompConversionException.class)
+            .isThrownBy(() -> decode("SEND\ninvalid\n\n\0"))
+            .withMessageContaining("Illegal header", "invalid");
+    assertThatExceptionOfType(StompConversionException.class)
+            .isThrownBy(() -> decode("SEND\rX"))
+            .withMessageContaining("must be followed by");
   }
 
   @Test

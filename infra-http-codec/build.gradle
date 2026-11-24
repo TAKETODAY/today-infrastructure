@@ -36,5 +36,5 @@ dependencies {
   testImplementation(testFixtures(project(":infra-beans")))
   testImplementation(testFixtures(project(":infra-web-reactive")))
 
-  testRuntimeOnly("ch.qos.logback:logback-classic")
+  testImplementation("ch.qos.logback:logback-classic")
 }

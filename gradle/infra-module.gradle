@@ -44,15 +44,15 @@ jar {
   manifest.attributes["Implementation-Vendor-Id"] = 'cn.taketoday'
   manifest.attributes["Automatic-Module-Name"] = project.name.replace('-', '.')  // for Jigsaw
   manifest.attributes["Build-Jdk-Spec"] = "${System.getProperty("java.specification.version")}"
+}
 
-  from("${rootDir}") {
-    include "NOTICE"
-    into "META-INF"
-    expand(copyright: new Date().format("yyyy"), version: project.version)
-  }
-  from("${rootDir}") {
-    include "LICENSE"
-    into "META-INF"
+// Include the root legal files in each published archive.
+tasks.withType(Jar).matching { it.name in ['jar', 'sourcesJar', 'javadocJar'] }.configureEach {
+  into('META-INF') {
+    from(rootProject.file('LICENSE'))
+    from(rootProject.file('NOTICE')) {
+      expand(copyright: new Date().format('yyyy'), version: project.version)
+    }
   }
 }
 

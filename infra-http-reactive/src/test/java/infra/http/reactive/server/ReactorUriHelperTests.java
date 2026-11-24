@@ -84,6 +84,37 @@ class ReactorUriHelperTests {
             .hasToString("https://example.org/foo/bar");
   }
 
+  @ParameterizedTest
+  @CsvSource({ "http,8080", "ws,8080", "https,8443", "wss,8443" })
+  void preservesNonDefaultPort(String scheme, int port) throws URISyntaxException {
+    given(nettyRequest.scheme()).willReturn(scheme);
+    given(nettyRequest.hostName()).willReturn("example.org");
+    given(nettyRequest.hostPort()).willReturn(port);
+    given(nettyRequest.uri()).willReturn("/path");
+
+    assertThat(ReactorUriHelper.createUri(nettyRequest)).hasScheme(scheme).hasPort(port).hasPath("/path");
+  }
+
+  @Test
+  void preservesEncodedZoneIdOnBracketedHost() throws URISyntaxException {
+    given(nettyRequest.scheme()).willReturn("http");
+    given(nettyRequest.hostName()).willReturn("[fe80::1%25en1]");
+    given(nettyRequest.hostPort()).willReturn(80);
+    given(nettyRequest.uri()).willReturn("/");
+
+    assertThat(ReactorUriHelper.createUri(nettyRequest)).hasToString("http://[fe80::1%25en1]/");
+  }
+
+  @Test
+  void absoluteRequestUriWithoutPathUsesServerAuthority() throws URISyntaxException {
+    given(nettyRequest.scheme()).willReturn("https");
+    given(nettyRequest.hostName()).willReturn("example.org");
+    given(nettyRequest.hostPort()).willReturn(443);
+    given(nettyRequest.uri()).willReturn("https://example.net");
+
+    assertThat(ReactorUriHelper.createUri(nettyRequest)).hasToString("https://example.org");
+  }
+
   @ParameterizedTest(name = "{displayName}({arguments})")
   @CsvSource(delimiter = '|', value = {
           "/prefix           | /prefix/",

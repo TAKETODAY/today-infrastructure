@@ -18,6 +18,7 @@
 
 package infra.http.client;
 
+import org.apache.hc.client5.http.DnsResolver;
 import org.apache.hc.client5.http.HttpRoute;
 import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
@@ -40,6 +41,7 @@ import infra.test.classpath.resources.WithPackageResources;
 import infra.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link HttpComponentsClientHttpRequestFactoryBuilder} and
@@ -95,6 +97,23 @@ class HttpComponentsClientHttpRequestFactoryBuilderTests
             .withTlsSocketStrategyFactory(tlsSocketStrategyFactory)
             .build(settings);
     assertThat(bundles).contains(settings.sslBundle());
+  }
+
+  @Test
+  void withDnsResolver() {
+    DnsResolver resolver = mock(DnsResolver.class);
+    var factory = ClientHttpRequestFactoryBuilder.httpComponents().withDnsResolver(resolver).build();
+    assertThat(factory).extracting("httpClient.connManager.connectionOperator.dnsResolver").isSameAs(resolver);
+  }
+
+  @Test
+  void withDnsResolverWhenHasInetAddressFilter() {
+    DnsResolver resolver = mock(DnsResolver.class);
+    HttpClientSettings settings = HttpClientSettings.defaults().withInetAddressFilter(InetAddressFilter.externalAddresses());
+    var factory = ClientHttpRequestFactoryBuilder.httpComponents().withDnsResolver(resolver).build(settings);
+    assertThat(factory).extracting("httpClient.connManager.connectionOperator.dnsResolver")
+            .isInstanceOf(HttpComponentsFilteredDnsResolver.class);
+    assertThat(factory).extracting("httpClient.connManager.connectionOperator.dnsResolver.delegate").isSameAs(resolver);
   }
 
   @Test

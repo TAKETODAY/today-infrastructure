@@ -234,8 +234,8 @@ class CaffeineCacheManagerTests {
     assertThat(cache1.get("key2").get()).isEqualTo(2);
     cache1.evict("key3");
     assertThat(cache1.get("key3")).isNull();
-    assertThat((String) cache1.get("key3", (k) -> "value3")).isEqualTo("value3");
-    assertThat((String) cache1.get("key3", (k) -> "value3")).isEqualTo("value3");
+    assertThat(cache1.<String, String>get("key3", (k) -> "value3")).isEqualTo("value3");
+    assertThat(cache1.<String, String>get("key3", (k) -> "value3")).isEqualTo("value3");
     cache1.evict("key3");
 
     assertThat(cache1.retrieve("key1").join()).isEqualTo("value1");

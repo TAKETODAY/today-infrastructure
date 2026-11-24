@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import infra.core.MethodParameter;
+import infra.core.ReactiveAdapterRegistry;
 import infra.messaging.Message;
 import infra.messaging.handler.invocation.MethodArgumentResolutionException;
 import infra.messaging.handler.invocation.ResolvableMethod;
@@ -102,6 +103,27 @@ class InvocableHandlerMethodTests {
     Object value = invokeAndBlock(new Handler(), method, 2, "value2");
 
     assertThat(value).isEqualTo("2-value2");
+  }
+
+  @Test
+  void configuresResolversParameterNamesAndReactiveAdapters() throws Exception {
+    InvocableHandlerMethod handlerMethod = new InvocableHandlerMethod(new Handler(),
+            Handler.class.getDeclaredMethod("handleAsync"));
+    HandlerMethodArgumentResolver resolver = new StubArgumentResolver(String.class, "value");
+    handlerMethod.setArgumentResolvers(List.of(resolver));
+    handlerMethod.setParameterNameDiscoverer(infra.core.DefaultParameterNameDiscoverer.getSharedInstance());
+    ReactiveAdapterRegistry registry = new ReactiveAdapterRegistry();
+    handlerMethod.setReactiveAdapterRegistry(registry);
+
+    assertThat(handlerMethod.getResolvers()).containsExactly(resolver);
+    assertThat(handlerMethod.getParameterNameDiscoverer()).isNotNull();
+    Handler handler = new Handler();
+    handlerMethod = new InvocableHandlerMethod(handler, Handler.class.getDeclaredMethod("handleAsync"));
+    handlerMethod.setArgumentResolvers(List.of(resolver));
+    handlerMethod.setParameterNameDiscoverer(infra.core.DefaultParameterNameDiscoverer.getSharedInstance());
+    handlerMethod.setReactiveAdapterRegistry(registry);
+    assertThat(handlerMethod.invoke(this.message).block(Duration.ofSeconds(5))).isNull();
+    assertThat(handler.getResult()).isEqualTo("success");
   }
 
   @Test

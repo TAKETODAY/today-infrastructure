@@ -220,6 +220,13 @@
       <property name="ignoreComments" value="true" />
     </module>
     <module name="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineJavaCheck">
+      <property name="id" value="caseConversionWithDefaultLocale" />
+      <property name="maximum" value="0" />
+      <property name="format" value="to(?:Upper|Lower)Case\(Locale\.getDefault\(\)\)" />
+      <property name="message" value="Please use Locale.ROOT for case changes" />
+      <property name="ignoreComments" value="true" />
+    </module>
+    <module name="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineJavaCheck">
       <property name="id" value="systemOutErrPrint" />
       <property name="format" value="System\.(out|err)\.print" />
       <property name="maximum" value="0" />

@@ -19,11 +19,13 @@
 package infra.http.codec.protobuf;
 
 import com.google.protobuf.Message;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Arrays;
 
 import infra.core.ResolvableType;
@@ -62,6 +64,57 @@ public class ProtobufDecoderTests extends AbstractDecoderTests<ProtobufDecoder> 
 
   public ProtobufDecoderTests() {
     super(new ProtobufDecoder());
+  }
+
+  @Test
+  void decodesUnlimitedMessagesAfterAnEmptyBuffer() throws IOException {
+    this.decoder.setMaxMessageSize(-1);
+    var encoded = new ByteArrayOutputStream();
+    this.testMsg1.writeDelimitedTo(encoded);
+    StepVerifier.create(this.decoder.decode(chunks(new byte[0], encoded.toByteArray()), forClass(Msg.class), null, emptyMap()))
+            .expectNext(this.testMsg1).expectComplete().verify(Duration.ofSeconds(5));
+  }
+
+  @Test
+  void acceptsAZeroLengthMessageWithAnExtendedSizePrefixSplitAcrossBuffers() {
+    byte[] prefix = new byte[5];
+    Arrays.fill(prefix, (byte) 0x80);
+    StepVerifier.create(this.decoder.decode(chunks(prefix, new byte[] { 0 }), forClass(Msg.class), null, emptyMap()))
+            .expectNext(Msg.getDefaultInstance()).expectComplete().verify(Duration.ofSeconds(5));
+  }
+
+  @Test
+  void rejectsAnUnterminatedSizePrefix() {
+    byte[] prefix = new byte[10];
+    Arrays.fill(prefix, (byte) 0x80);
+    StepVerifier.create(this.decoder.decode(chunks(prefix), forClass(Msg.class), null, emptyMap()))
+            .expectErrorMessage("Cannot parse message size: malformed varint").verify(Duration.ofSeconds(5));
+  }
+
+  @Test
+  void wrapsProtobufParsingFailuresForSingleAndDelimitedMessages() {
+    var type = forClass(Msg.class);
+    byte[] unfinishedString = { 10, 2, 'x' };
+    verifyParsingFailure(this.decoder.decodeToMono(chunks(unfinishedString), type, null, emptyMap()));
+    verifyParsingFailure(this.decoder.decode(chunks(new byte[] { 3 }, unfinishedString), type, null, emptyMap()));
+  }
+
+  @Test
+  void reportsMissingBuilderForAnUnsupportedMessageType() {
+    StepVerifier.create(this.decoder.decodeToMono(dataBuffer(this.testMsg1), forClass(Message.class), null, emptyMap()))
+            .expectErrorSatisfies(error -> assertThat(error).isInstanceOf(DecodingException.class)
+                    .hasMessageContaining("Could not read Protobuf message").hasCauseInstanceOf(NoSuchMethodException.class))
+            .verify(Duration.ofSeconds(5));
+  }
+
+  private Flux<DataBuffer> chunks(byte[]... chunks) {
+    return Flux.fromArray(chunks).map(this.bufferFactory::wrap);
+  }
+
+  private static void verifyParsingFailure(org.reactivestreams.Publisher<Message> result) {
+    StepVerifier.create(result).expectErrorSatisfies(error -> assertThat(error).isInstanceOf(DecodingException.class)
+            .hasMessage("I/O error while parsing input stream").hasCauseInstanceOf(InvalidProtocolBufferException.class))
+            .verify(Duration.ofSeconds(5));
   }
 
   @Test

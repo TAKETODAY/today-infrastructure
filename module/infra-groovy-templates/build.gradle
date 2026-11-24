@@ -17,5 +17,6 @@ dependencies {
   testImplementation testFixtures(project(":infra-web-server"))
   testImplementation testFixtures(project(":infra-web-netty-server"))
 
+  testCompileOnly("com.github.spotbugs:spotbugs-annotations")
   testRuntimeOnly("ch.qos.logback:logback-classic")
 }

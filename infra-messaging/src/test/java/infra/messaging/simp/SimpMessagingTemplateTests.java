@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 
 import infra.messaging.Message;
+import infra.messaging.MessageChannel;
+import infra.messaging.MessageDeliveryException;
 import infra.messaging.MessageHeaders;
 import infra.messaging.StubMessageChannel;
 import infra.messaging.simp.stomp.StompCommand;
@@ -36,6 +38,11 @@ import infra.util.LinkedMultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link SimpMessagingTemplate}.
@@ -202,6 +209,48 @@ class SimpMessagingTemplateTests {
     MessageHeaderAccessor sentAccessor = MessageHeaderAccessor.getAccessor(sentMessage, MessageHeaderAccessor.class);
     assertThat(sentAccessor.getClass()).isEqualTo(StompHeaderAccessor.class);
     assertThat(((StompHeaderAccessor) sentAccessor).getDestination()).isEqualTo("/queue/foo-user123");
+  }
+
+  @Test
+  void configurationAndSendBranches() {
+    assertThat(this.messagingTemplate.getMessageChannel()).isSameAs(this.messageChannel);
+    assertThat(this.messagingTemplate.getUserDestinationPrefix()).isEqualTo("/user/");
+    this.messagingTemplate.setUserDestinationPrefix("/custom");
+    assertThat(this.messagingTemplate.getUserDestinationPrefix()).isEqualTo("/custom/");
+    this.messagingTemplate.setSendTimeout(100);
+    assertThat(this.messagingTemplate.getSendTimeout()).isEqualTo(100);
+    assertThatIllegalArgumentException().isThrownBy(() -> this.messagingTemplate.setUserDestinationPrefix(" "));
+
+    this.messagingTemplate.setDefaultDestination("/default");
+    this.messagingTemplate.send(MessageBuilder.withPayload("payload").build());
+    assertThat(this.messageChannel.getMessages()).hasSize(1);
+    MessageHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(
+            this.messageChannel.getMessages().get(0), SimpMessageHeaderAccessor.class);
+    assertThat(((SimpMessageHeaderAccessor) accessor).getDestination()).isEqualTo("/default");
+
+    assertThatIllegalStateException().isThrownBy(() ->
+            new SimpMessagingTemplate(new StubMessageChannel()).send(MessageBuilder.withPayload("payload").build()));
+  }
+
+  @Test
+  void appliesHeaderInitializerAndUsesTimeout() {
+    MessageChannel channel = mock();
+    given(channel.send(any(Message.class), org.mockito.ArgumentMatchers.eq(25L))).willReturn(true);
+    SimpMessagingTemplate template = new SimpMessagingTemplate(channel);
+    template.setSendTimeout(25);
+    template.setHeaderInitializer(accessor -> accessor.setHeader("initialized", true));
+    template.convertAndSend("/foo", "payload");
+
+    org.mockito.ArgumentCaptor<Message<?>> captor = org.mockito.ArgumentCaptor.forClass(Message.class);
+    org.mockito.Mockito.verify(channel).send(captor.capture(), org.mockito.ArgumentMatchers.eq(25L));
+    assertThat(captor.getValue().getHeaders().get("initialized")).isEqualTo(true);
+
+    MessageChannel rejectingChannel = mock();
+    given(rejectingChannel.send(any(Message.class), org.mockito.ArgumentMatchers.eq(25L))).willReturn(false);
+    SimpMessagingTemplate rejectingTemplate = new SimpMessagingTemplate(rejectingChannel);
+    rejectingTemplate.setSendTimeout(25);
+    assertThatExceptionOfType(MessageDeliveryException.class)
+            .isThrownBy(() -> rejectingTemplate.convertAndSend("/foo", "payload"));
   }
 
 }

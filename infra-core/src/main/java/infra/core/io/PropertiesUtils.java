@@ -68,6 +68,17 @@ public abstract class PropertiesUtils {
   }
 
   /**
+   * Fill the given properties from the given encoded resource.
+   *
+   * @param props the Properties instance to fill
+   * @param resource the encoded resource to load from
+   * @throws IOException if loading failed
+   */
+  public static void fillProperties(Properties props, EncodedResource resource) throws IOException {
+    fillProperties(props, resource, DefaultPropertiesPersister.INSTANCE);
+  }
+
+  /**
    * Actually load properties from the given EncodedResource into the given Properties instance.
    *
    * @param props the Properties instance to load into
