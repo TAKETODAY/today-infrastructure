@@ -20,7 +20,12 @@ package infra.jmx.support;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+import java.util.Properties;
+
 import javax.management.MBeanServerConnection;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
@@ -31,6 +36,11 @@ import infra.jmx.AbstractMBeanServerTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Integration tests for {@link MBeanServerConnectionFactoryBean}.
@@ -109,6 +119,44 @@ class MBeanServerConnectionFactoryBeanTests extends AbstractMBeanServerTests {
     MBeanServerConnection connection = bean.getObject();
     assertThat(AopUtils.isAopProxy(connection)).isTrue();
     bean.destroy();
+  }
+
+  @Test
+  void defersConnectingWithMergedEnvironmentUntilFirstInvocation() throws Exception {
+    MBeanServerConnectionFactoryBean bean = new MBeanServerConnectionFactoryBean();
+    bean.setServiceUrl(this.serviceUrl);
+    bean.setConnectOnStartup(false);
+    bean.setBeanClassLoader(getClass().getClassLoader());
+    Properties properties = new Properties();
+    properties.setProperty("mode", "original");
+    properties.setProperty("source", "properties");
+    bean.setEnvironment(properties);
+    bean.setEnvironmentMap(null);
+    bean.setEnvironmentMap(Map.of("mode", "overridden"));
+    assertThat(bean.getObjectType()).isEqualTo(MBeanServerConnection.class);
+    assertThat(bean.isSingleton()).isTrue();
+    bean.destroy();
+
+    JMXServiceURL url = new JMXServiceURL(this.serviceUrl);
+    JMXConnector connector = mock(JMXConnector.class);
+    MBeanServerConnection connection = mock(MBeanServerConnection.class);
+    given(connector.getMBeanServerConnection()).willReturn(connection);
+    given(connection.getDefaultDomain()).willReturn("managed");
+    try (var factory = mockStatic(JMXConnectorFactory.class)) {
+      factory.when(() -> JMXConnectorFactory.connect(url, Map.of("mode", "overridden", "source", "properties")))
+              .thenReturn(connector);
+      bean.afterPropertiesSet();
+      try {
+        assertThat(bean.getObjectType()).isEqualTo(bean.getObject().getClass());
+        factory.verifyNoInteractions();
+        verifyNoInteractions(connector);
+        assertThat(bean.getObject().getDefaultDomain()).isEqualTo("managed");
+      }
+      finally {
+        bean.destroy();
+      }
+      verify(connector).close();
+    }
   }
 
   private JMXConnectorServer startConnectorServer() throws Exception {

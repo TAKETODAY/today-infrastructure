@@ -26,11 +26,15 @@ import javax.management.MalformedObjectNameException;
 import javax.management.Notification;
 import javax.management.ObjectName;
 import javax.management.RuntimeOperationsException;
+import javax.management.modelmbean.ModelMBeanNotificationBroadcaster;
 
 import infra.jmx.export.InfraModelMBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Rick Evans
@@ -64,6 +68,7 @@ public class ModelMBeanNotificationPublisherTests {
             publisher.sendNotification(null));
   }
 
+  @Test
   public void testSendVanillaNotification() throws Exception {
     StubInfraModelMBean mbean = new StubInfraModelMBean();
     Notification notification = new Notification("network.alarm.router", mbean, 1872);
@@ -77,6 +82,7 @@ public class ModelMBeanNotificationPublisherTests {
     assertThat(mbean.getActualNotification().getSource()).as("The 'source' property of the Notification is not being set to the ObjectName of the associated MBean.").isSameAs(objectName);
   }
 
+  @Test
   public void testSendAttributeChangeNotification() throws Exception {
     StubInfraModelMBean mbean = new StubInfraModelMBean();
     Notification notification = new AttributeChangeNotification(mbean, 1872, System.currentTimeMillis(), "Shall we break for some tea?", "agree", "java.lang.Boolean", Boolean.FALSE, Boolean.TRUE);
@@ -92,6 +98,7 @@ public class ModelMBeanNotificationPublisherTests {
     assertThat(mbean.getActualNotification().getSource()).as("The 'source' property of the Notification is not being set to the ObjectName of the associated MBean.").isSameAs(objectName);
   }
 
+  @Test
   public void testSendAttributeChangeNotificationWhereSourceIsNotTheManagedResource() throws Exception {
     StubInfraModelMBean mbean = new StubInfraModelMBean();
     Notification notification = new AttributeChangeNotification(this, 1872, System.currentTimeMillis(), "Shall we break for some tea?", "agree", "java.lang.Boolean", Boolean.FALSE, Boolean.TRUE);
@@ -109,6 +116,21 @@ public class ModelMBeanNotificationPublisherTests {
 
   private static ObjectName createObjectName() throws MalformedObjectNameException {
     return ObjectName.getInstance("foo:type=bar");
+  }
+
+  @Test
+  void replacesNullSourceAndReportsBroadcasterFailure() throws Exception {
+    ModelMBeanNotificationBroadcaster broadcaster = mock(ModelMBeanNotificationBroadcaster.class);
+    ObjectName name = createObjectName();
+    Notification notification = new Notification("infra.change", this, 1);
+    notification.setSource(null);
+    MBeanException failure = new MBeanException(new IllegalStateException("delivery failed"));
+    willThrow(failure).given(broadcaster).sendNotification(notification);
+    NotificationPublisher publisher = new ModelMBeanNotificationPublisher(broadcaster, name, this);
+
+    assertThatExceptionOfType(UnableToSendNotificationException.class).isThrownBy(() -> publisher.sendNotification(notification))
+            .withMessageContaining("Unable to send notification").withCause(failure);
+    assertThat(notification.getSource()).isEqualTo(name);
   }
 
   private static class StubInfraModelMBean extends InfraModelMBean {

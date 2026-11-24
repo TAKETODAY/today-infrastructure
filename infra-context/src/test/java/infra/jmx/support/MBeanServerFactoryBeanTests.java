@@ -28,9 +28,11 @@ import java.util.List;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 
+import infra.jmx.MBeanServerNotFoundException;
 import infra.jmx.MBeanTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Integration tests for {@link MBeanServerFactoryBean}.
@@ -115,6 +117,38 @@ class MBeanServerFactoryBeanTests {
     bean.afterPropertiesSet();
     try {
       assertThat(bean.getObject()).isSameAs(ManagementFactory.getPlatformMBeanServer());
+    }
+    finally {
+      bean.destroy();
+    }
+  }
+
+  @Test
+  void failsWhenExplicitAgentIdCannotBeLocated() {
+    MBeanServerFactoryBean bean = new MBeanServerFactoryBean();
+    bean.setAgentId("missing-agent");
+
+    assertThat(bean.getObjectType()).isEqualTo(MBeanServer.class);
+    assertThatExceptionOfType(MBeanServerNotFoundException.class).isThrownBy(bean::afterPropertiesSet)
+            .withMessageContaining("missing-agent");
+    assertThat(bean.getObject()).isNull();
+  }
+
+  @Test
+  void createsPrivateServerWhenOptionalLookupFails() {
+    MBeanServerFactoryBean bean = new MBeanServerFactoryBean() {
+      @Override
+      protected MBeanServer locateMBeanServer(String agentId) {
+        throw new MBeanServerNotFoundException("lookup unavailable");
+      }
+    };
+    bean.setLocateExistingServerIfPossible(true);
+    bean.setRegisterWithFactory(false);
+    bean.setDefaultDomain("private");
+    bean.afterPropertiesSet();
+    try {
+      assertThat(bean.getObject().getDefaultDomain()).isEqualTo("private");
+      assertThat(bean.getObjectType()).isEqualTo(bean.getObject().getClass());
     }
     finally {
       bean.destroy();
