@@ -21,27 +21,39 @@ package infra.web.handler.method;
 import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
+import infra.aop.support.AopUtils;
+import infra.beans.factory.BeanFactoryUtils;
 import infra.context.ApplicationContext;
+import infra.context.MessageSource;
 import infra.core.MethodIntrospector;
+import infra.core.MethodParameter;
+import infra.core.ParameterNameDiscoverer;
 import infra.core.annotation.AnnotatedElementUtils;
+import infra.http.MediaType;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.util.ReflectionUtils;
+import infra.util.function.SingletonSupplier;
+import infra.web.HandlerMatchingMetadata;
+import infra.web.HttpContext;
 import infra.web.annotation.RequestMapping;
 import infra.web.bind.annotation.InitBinder;
 import infra.web.bind.annotation.ModelAttribute;
+import infra.web.handler.method.support.ParameterResolvingRegistryFactory;
 
 /**
- * Package-private class to assist {@link RequestMappingHandlerAdapter} with
- * resolving, initializing, and caching annotated methods declared in
+ * Assist {@link RequestMappingHandlerAdapter} and
+ * {@link ExceptionHandlerAnnotationExceptionHandler} with resolving and caching annotated methods declared in
  * {@code @Controller} and {@code @ControllerAdvice} components.
  *
  * <p>Assists with the following annotations:
@@ -56,7 +68,7 @@ import infra.web.bind.annotation.ModelAttribute;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/11/30 22:33
  */
-final class ControllerMethodResolver {
+public final class ControllerMethodResolver {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -73,175 +85,277 @@ final class ControllerMethodResolver {
           !AnnotatedElementUtils.hasAnnotation(method, RequestMapping.class)
                   && AnnotatedElementUtils.hasAnnotation(method, ModelAttribute.class);
 
-  private final Map<Class<?>, Set<Method>> initBinderCache = new ConcurrentHashMap<>(64);
+  private final Map<Class<?>, Set<Method>> initBinderCache;
 
-  private final LinkedHashMap<ControllerAdviceBean, Set<Method>> initBinderAdviceCache = new LinkedHashMap<>();
+  private final Map<Class<?>, Set<Method>> modelAttributeCache;
 
-  private final ConcurrentHashMap<Class<?>, Set<Method>> modelAttributeCache = new ConcurrentHashMap<>(64);
+  private final Map<Class<?>, ExceptionHandlerMethodResolver> exceptionHandlerCache;
 
-  private final LinkedHashMap<ControllerAdviceBean, Set<Method>> modelAttributeAdviceCache = new LinkedHashMap<>();
+  private final @Nullable ApplicationContext applicationContext;
+
+  private final SingletonSupplier<List<ControllerAdviceBean>> adviceBeans;
+
+  private final SingletonSupplier<BindingAdvice> bindingAdvice;
+
+  private final SingletonSupplier<Map<ControllerAdviceBean, ExceptionHandlerMethodResolver>> exceptionAdvice;
+
+  private final @Nullable ParameterResolvingRegistry parameterRegistry;
+
+  private final ParameterNameDiscoverer parameterNameDiscoverer;
 
   private final HandlerParameterFactory parameterFactory;
 
-  ControllerMethodResolver(@Nullable ApplicationContext context, HandlerParameterFactory parameterFactory) {
-    this.parameterFactory = parameterFactory;
-
-    if (context != null) {
-      initControllerAdviceCache(context);
-    }
-  }
-
-  private void initControllerAdviceCache(ApplicationContext context) {
-    var adviceBeans = ControllerAdviceBean.findAnnotatedBeans(context);
-    for (ControllerAdviceBean adviceBean : adviceBeans) {
-      Class<?> beanType = adviceBean.getBeanType();
-      if (beanType == null) {
-        throw new IllegalStateException("Unresolvable type for ControllerAdviceBean: " + adviceBean);
-      }
-      Set<Method> attrMethods = MethodIntrospector.filterMethods(beanType, MODEL_ATTRIBUTE_METHODS);
-      if (!attrMethods.isEmpty()) {
-        this.modelAttributeAdviceCache.put(adviceBean, attrMethods);
-      }
-      Set<Method> binderMethods = MethodIntrospector.filterMethods(beanType, INIT_BINDER_METHODS);
-      if (!binderMethods.isEmpty()) {
-        this.initBinderAdviceCache.put(adviceBean, binderMethods);
-      }
-    }
-
-    if (log.isDebugEnabled()) {
-      int binderSize = this.initBinderAdviceCache.size();
-      int modelSize = this.modelAttributeAdviceCache.size();
-      if (modelSize == 0 && binderSize == 0) {
-        log.debug("ControllerAdvice beans: none");
-      }
-      else {
-        log.debug("ControllerAdvice beans: {} @ModelAttribute, {} @InitBinder", modelSize, binderSize);
-      }
-    }
-  }
-
-  public List<InvocableHandlerMethod> getModelAttributeMethods(InvocableHandlerMethod handlerMethod) {
-    List<InvocableHandlerMethod> cached = handlerMethod.getCachedModelAttributeMethods();
-    if (cached != null) {
-      return cached;
-    }
-    synchronized(handlerMethod) {
-      cached = handlerMethod.getCachedModelAttributeMethods();
-      if (cached == null) {
-        cached = resolveModelAttributeMethods(handlerMethod);
-        if (isModelAttributeMethodsCacheable(handlerMethod.getBeanType())) {
-          handlerMethod.setCachedModelAttributeMethods(cached);
-        }
-      }
-      return cached;
-    }
-  }
-
-  private List<InvocableHandlerMethod> resolveModelAttributeMethods(HandlerMethod handlerMethod) {
-    Class<?> handlerType = handlerMethod.getBeanType();
-
-    ArrayList<InvocableHandlerMethod> attrMethods = null;
-    // Global methods first
-    if (!modelAttributeAdviceCache.isEmpty()) {
-      for (var entry : modelAttributeAdviceCache.entrySet()) {
-        ControllerAdviceBean controllerAdviceBean = entry.getKey();
-        if (controllerAdviceBean.isApplicableToBeanType(handlerType)) {
-          Object bean = controllerAdviceBean.resolveBean();
-          if (attrMethods == null) {
-            attrMethods = new ArrayList<>();
-          }
-          for (Method method : entry.getValue()) {
-            attrMethods.add(createHandlerMethod(bean, method));
-          }
-        }
-      }
-    }
-    // controller local methods
-    Set<Method> methods = modelAttributeCache.get(handlerType);
-    if (methods == null) {
-      methods = MethodIntrospector.filterMethods(handlerType, MODEL_ATTRIBUTE_METHODS);
-      modelAttributeCache.put(handlerType, methods);
-    }
-
-    if (!methods.isEmpty()) {
-      if (attrMethods == null) {
-        attrMethods = new ArrayList<>(methods.size());
-      }
-      for (Method method : methods) {
-        Object bean = handlerMethod.getBean();
-        attrMethods.add(createHandlerMethod(bean, method));
-      }
-    }
-
-    return attrMethods != null ? attrMethods : Collections.emptyList();
+  /**
+   * Create a resolver for one MVC application context without discovering advice yet.
+   * A {@code null} context supports standalone handlers without global advice;
+   * a {@code null} registry uses the basic parameter factory.
+   */
+  public ControllerMethodResolver(@Nullable ApplicationContext context, @Nullable ParameterResolvingRegistry registry) {
+    this(context, registry, ParameterNameDiscoverer.getSharedInstance());
   }
 
   /**
-   * @return non-null InvocableHandlerMethods
+   * Create a resolver with the given registry and parameter name discovery strategy.
    */
-  public List<InvocableHandlerMethod> getBinderMethods(InvocableHandlerMethod handlerMethod) {
-    List<InvocableHandlerMethod> cached = handlerMethod.getCachedBinderMethods();
-    if (cached != null) {
-      return cached;
-    }
-    synchronized(handlerMethod) {
-      cached = handlerMethod.getCachedBinderMethods();
-      if (cached == null) {
-        cached = resolveBinderMethods(handlerMethod);
-        if (isBinderMethodsCacheable(handlerMethod.getBeanType())) {
-          handlerMethod.setCachedBinderMethods(cached);
-        }
-      }
-      return cached;
-    }
+  public ControllerMethodResolver(@Nullable ApplicationContext context, @Nullable ParameterResolvingRegistry registry,
+          ParameterNameDiscoverer discoverer) {
+    this.applicationContext = context;
+    this.adviceBeans = SingletonSupplier.of(() -> context != null ?
+            List.copyOf(ControllerAdviceBean.findAnnotatedBeans(context)) : List.of());
+    this.bindingAdvice = SingletonSupplier.of(this::discoverBindingAdvice);
+    this.exceptionAdvice = SingletonSupplier.of(this::discoverExceptionAdvice);
+    this.initBinderCache = new ConcurrentHashMap<>(64);
+    this.modelAttributeCache = new ConcurrentHashMap<>(64);
+    this.exceptionHandlerCache = new ConcurrentHashMap<>(64);
+    this.parameterRegistry = registry;
+    this.parameterNameDiscoverer = discoverer;
+    this.parameterFactory = createParameterFactory(registry, discoverer);
   }
 
-  private List<InvocableHandlerMethod> resolveBinderMethods(HandlerMethod handlerMethod) {
-    Class<?> handlerType = handlerMethod.getBeanType();
-    Set<Method> methods = initBinderCache.get(handlerType);
-    if (methods == null) {
-      methods = MethodIntrospector.filterMethods(handlerType, INIT_BINDER_METHODS);
-      initBinderCache.put(handlerType, methods);
-    }
-
-    ArrayList<InvocableHandlerMethod> initBinderMethods = null;
-    // Global methods first
-    for (var entry : initBinderAdviceCache.entrySet()) {
-      Set<Method> methodSet = entry.getValue();
-      ControllerAdviceBean controllerAdviceBean = entry.getKey();
-      if (controllerAdviceBean.isApplicableToBeanType(handlerType)) {
-        Object bean = controllerAdviceBean.resolveBean();
-        if (initBinderMethods == null) {
-          initBinderMethods = new ArrayList<>();
-        }
-        for (Method method : methodSet) {
-          initBinderMethods.add(createHandlerMethod(bean, method));
-        }
-      }
-    }
-
-    if (!methods.isEmpty()) {
-      if (initBinderMethods == null) {
-        initBinderMethods = new ArrayList<>(methods.size());
-      }
-      for (Method method : methods) {
-        Object bean = handlerMethod.getBean();
-        initBinderMethods.add(createHandlerMethod(bean, method));
-      }
-    }
-    return initBinderMethods != null ? initBinderMethods : Collections.emptyList();
+  private ControllerMethodResolver(ControllerMethodResolver source, @Nullable ParameterResolvingRegistry registry,
+          ParameterNameDiscoverer discoverer) {
+    this.applicationContext = source.applicationContext;
+    this.adviceBeans = source.adviceBeans;
+    this.bindingAdvice = source.bindingAdvice;
+    this.exceptionAdvice = source.exceptionAdvice;
+    this.initBinderCache = source.initBinderCache;
+    this.modelAttributeCache = source.modelAttributeCache;
+    this.exceptionHandlerCache = source.exceptionHandlerCache;
+    this.parameterRegistry = registry;
+    this.parameterNameDiscoverer = discoverer;
+    this.parameterFactory = createParameterFactory(registry, discoverer);
   }
 
-  private boolean isModelAttributeMethodsCacheable(Class<?> handlerType) {
-    return modelAttributeAdviceCache.keySet().stream()
-            .filter(adviceBean -> adviceBean.isApplicableToBeanType(handlerType))
-            .allMatch(ControllerAdviceBean::isSingleton);
+  private static HandlerParameterFactory createParameterFactory(@Nullable ParameterResolvingRegistry registry,
+          ParameterNameDiscoverer discoverer) {
+    // A Method alone does not identify its resolved generic types or its bound target.
+    return registry != null ? new RegistryHandlerParameterFactory(registry, discoverer, false)
+            : new HandlerParameterFactory(discoverer, false);
   }
 
-  private boolean isBinderMethodsCacheable(Class<?> handlerType) {
-    return initBinderAdviceCache.keySet().stream()
-            .filter(adviceBean -> adviceBean.isApplicableToBeanType(handlerType))
-            .allMatch(ControllerAdviceBean::isSingleton);
+  static ControllerMethodResolver forRequestHandlers(@Nullable ControllerMethodResolver shared,
+          @Nullable ApplicationContext context) {
+    var registry = shared != null ? shared.parameterRegistry : null;
+    var discoverer = shared != null ? shared.parameterNameDiscoverer : ParameterNameDiscoverer.getSharedInstance();
+    if (registry == null) {
+      Assert.state(context != null, "No ApplicationContext");
+      registry = ParameterResolvingRegistryFactory.getOrCreate(context);
+    }
+    if (shared == null || (shared.applicationContext == null && context != null)) {
+      return new ControllerMethodResolver(context, registry, discoverer);
+    }
+    return shared.withParameterConfiguration(registry, discoverer);
+  }
+
+  static ControllerMethodResolver forExceptionHandlers(ApplicationContext context) {
+    return new ControllerMethodResolver(context, BeanFactoryUtils.find(context, ParameterResolvingRegistry.class));
+  }
+
+  /**
+   * Return a resolver with different parameter settings that shares this resolver's method metadata.
+   */
+  public ControllerMethodResolver withParameterConfiguration(@Nullable ParameterResolvingRegistry registry,
+          ParameterNameDiscoverer discoverer) {
+    if (this.parameterRegistry == registry && this.parameterNameDiscoverer == discoverer) {
+      return this;
+    }
+    return new ControllerMethodResolver(this, registry, discoverer);
+  }
+
+  ParameterNameDiscoverer getParameterNameDiscoverer() {
+    return this.parameterNameDiscoverer;
+  }
+
+  Predicate<MethodParameter> resolvedBy(Class<? extends ParameterResolvingStrategy> strategyType) {
+    var registry = this.parameterRegistry;
+    return registry != null ? parameter -> strategyType.isInstance(registry.findStrategy(new HandlerParameter(parameter)))
+            : parameter -> false;
+  }
+
+  void initBindingAdvice() {
+    this.bindingAdvice.obtain();
+  }
+
+  void initExceptionAdvice() {
+    this.exceptionAdvice.obtain();
+  }
+
+  private BindingAdvice discoverBindingAdvice() {
+    var modelMethods = new LinkedHashMap<ControllerAdviceBean, Set<Method>>();
+    var binderMethods = new LinkedHashMap<ControllerAdviceBean, Set<Method>>();
+    for (ControllerAdviceBean adviceBean : this.adviceBeans.obtain()) {
+      Class<?> beanType = adviceType(adviceBean);
+      Set<Method> attrMethods = MethodIntrospector.filterMethods(beanType, MODEL_ATTRIBUTE_METHODS);
+      if (!attrMethods.isEmpty()) {
+        modelMethods.put(adviceBean, attrMethods);
+      }
+      Set<Method> initMethods = MethodIntrospector.filterMethods(beanType, INIT_BINDER_METHODS);
+      if (!initMethods.isEmpty()) {
+        binderMethods.put(adviceBean, initMethods);
+      }
+    }
+    log.debug("ControllerAdvice beans: {} @ModelAttribute, {} @InitBinder", modelMethods.size(), binderMethods.size());
+    return new BindingAdvice(binderMethods, modelMethods);
+  }
+
+  private Map<ControllerAdviceBean, ExceptionHandlerMethodResolver> discoverExceptionAdvice() {
+    var handlers = new LinkedHashMap<ControllerAdviceBean, ExceptionHandlerMethodResolver>();
+    for (ControllerAdviceBean adviceBean : this.adviceBeans.obtain()) {
+      var resolver = new ExceptionHandlerMethodResolver(adviceType(adviceBean));
+      if (resolver.hasExceptionMappings()) {
+        handlers.put(adviceBean, resolver);
+      }
+    }
+    log.debug("ControllerAdvice beans: {} @ExceptionHandler", handlers.size());
+    return handlers;
+  }
+
+  private static Class<?> adviceType(ControllerAdviceBean advice) {
+    Class<?> beanType = advice.getBeanType();
+    if (beanType == null) {
+      throw new IllegalStateException("Unresolvable type for ControllerAdviceBean: " + advice);
+    }
+    return beanType;
+  }
+
+  List<InvocableHandlerMethod> getModelAttributeMethods(InvocableHandlerMethod handler) {
+    return getBindingMethods(handler, false);
+  }
+
+  List<InvocableHandlerMethod> getBinderMethods(InvocableHandlerMethod handler) {
+    return getBindingMethods(handler, true);
+  }
+
+  private List<InvocableHandlerMethod> getBindingMethods(InvocableHandlerMethod handler, boolean binder) {
+
+    var cached = handler.getBindingMethods(binder);
+    if (cached == null) {
+      synchronized(handler) {
+        cached = handler.getBindingMethods(binder);
+        if (cached == null) {
+          var resolved = resolveBindingMethods(handler, binder);
+          if (resolved.cacheable()) {
+            handler.setBindingMethods(binder, new InvocableHandlerMethod.BindingMethods(this, resolved.methods()));
+          }
+          return resolved.methods();
+        }
+      }
+    }
+    // A handler can be used by another adapter. Keep only the first configuration in its cache.
+    return cached.resolver() == this ? cached.methods() : resolveBindingMethods(handler, binder).methods();
+  }
+
+  private ResolvedBindingMethods resolveBindingMethods(HandlerMethod handler, boolean binder) {
+    Class<?> handlerType = handler.getBeanType();
+    var advice = this.bindingAdvice.obtain();
+    var adviceMethods = binder ? advice.binderMethods() : advice.modelMethods();
+    var localMethods = binder ? initBinderCache.computeIfAbsent(handlerType,
+            type -> MethodIntrospector.filterMethods(type, INIT_BINDER_METHODS)) :
+            modelAttributeCache.computeIfAbsent(handlerType, type -> MethodIntrospector.filterMethods(type, MODEL_ATTRIBUTE_METHODS));
+
+    ArrayList<InvocableHandlerMethod> methods = null;
+    boolean cacheable = true;
+    // Global methods first, in advice order.
+    for (var entry : adviceMethods.entrySet()) {
+      ControllerAdviceBean adviceBean = entry.getKey();
+      if (adviceBean.isApplicableToBeanType(handlerType)) {
+        Object bean = adviceBean.resolveBean();
+        cacheable &= adviceBean.isSingleton();
+        if (methods == null) {
+          methods = new ArrayList<>(entry.getValue().size() + localMethods.size());
+        }
+        for (Method method : entry.getValue()) {
+          methods.add(createHandlerMethod(bean, method, null));
+        }
+      }
+    }
+    if (!localMethods.isEmpty()) {
+      if (methods == null) {
+        methods = new ArrayList<>(localMethods.size());
+      }
+      for (Method method : localMethods) {
+        methods.add(createHandlerMethod(handler.getBean(), method, null));
+      }
+    }
+    return new ResolvedBindingMethods(methods != null ? List.copyOf(methods) : List.of(), cacheable);
+  }
+
+  boolean hasExceptionHandlerAdvice() {
+    return !this.exceptionAdvice.obtain().isEmpty();
+  }
+
+  @Nullable
+  InvocableHandlerMethod resolveExceptionHandlerMethod(HttpContext context, @Nullable HandlerMethod handlerMethod,
+          Throwable exception, List<MediaType> acceptedMediaTypes) {
+
+    Class<?> handlerType = null;
+    if (handlerMethod != null) {
+      handlerType = handlerMethod.getBeanType();
+      var resolver = exceptionHandlerCache.computeIfAbsent(handlerType, ExceptionHandlerMethodResolver::new);
+      var mapping = resolveExceptionMapping(resolver, exception, acceptedMediaTypes);
+      if (mapping != null) {
+        return createExceptionHandlerMethod(context, handlerMethod.getBean(), mapping);
+      }
+
+      // Match advice selectors against the target class rather than a JDK proxy.
+      if (Proxy.isProxyClass(handlerType)) {
+        handlerType = AopUtils.getTargetClass(handlerMethod.getBean());
+      }
+    }
+
+    for (var entry : this.exceptionAdvice.obtain().entrySet()) {
+      ControllerAdviceBean advice = entry.getKey();
+      if (advice.isApplicableToBeanType(handlerType)) {
+        var mapping = resolveExceptionMapping(entry.getValue(), exception, acceptedMediaTypes);
+        if (mapping != null) {
+          return createExceptionHandlerMethod(context, advice.resolveBean(), mapping);
+        }
+      }
+    }
+    return null;
+  }
+
+  private static @Nullable ExceptionHandlerMappingInfo resolveExceptionMapping(ExceptionHandlerMethodResolver resolver,
+          Throwable exception, List<MediaType> acceptedMediaTypes) {
+
+    for (MediaType mediaType : acceptedMediaTypes) {
+      var mapping = resolver.resolveExceptionMapping(exception, mediaType);
+      if (mapping != null) {
+        return mapping;
+      }
+    }
+    return null;
+  }
+
+  private InvocableHandlerMethod createExceptionHandlerMethod(HttpContext context, Object bean,
+          ExceptionHandlerMappingInfo mapping) {
+    if (!mapping.getProducibleTypes().isEmpty()) {
+      var metadata = HandlerMatchingMetadata.find(context);
+      if (metadata != null) {
+        metadata.setProducibleMediaTypes(mapping.getProducibleTypes());
+      }
+    }
+    return createHandlerMethod(bean, mapping.getHandlerMethod(), this.applicationContext);
   }
 
   /**
@@ -255,11 +369,28 @@ final class ControllerMethodResolver {
     if (handlerMethod instanceof InvocableHandlerMethod invocableHandlerMethod) {
       return invocableHandlerMethod;
     }
-    return new InvocableHandlerMethod(handlerMethod, parameterFactory);
+    return new InvocableHandlerMethod(handlerMethod, this.parameterFactory);
   }
 
-  private InvocableHandlerMethod createHandlerMethod(Object bean, Method method) {
-    return new InvocableHandlerMethod(bean, method, parameterFactory);
+  InvocableHandlerMethod createMappedHandlerMethod(Object bean, Method method, @Nullable ApplicationContext context) {
+    if (bean instanceof String beanName) {
+      if (context == null) {
+        throw new IllegalStateException("ApplicationContext is required for a bean name handler");
+      }
+      return new InvocableHandlerMethod(beanName, context.getBeanFactory(), context, method, this.parameterFactory);
+    }
+    return createHandlerMethod(bean, method, null);
+  }
+
+  InvocableHandlerMethod createHandlerMethod(Object bean, Method method, @Nullable MessageSource messageSource) {
+    return new InvocableHandlerMethod(bean, method, messageSource, this.parameterFactory);
+  }
+
+  private record BindingAdvice(Map<ControllerAdviceBean, Set<Method>> binderMethods,
+          Map<ControllerAdviceBean, Set<Method>> modelMethods) {
+  }
+
+  private record ResolvedBindingMethods(List<InvocableHandlerMethod> methods, boolean cacheable) {
   }
 
 }

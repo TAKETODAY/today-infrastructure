@@ -20,15 +20,10 @@ package infra.web.handler.method;
 
 import org.jspecify.annotations.Nullable;
 
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ConcurrentHashMap;
 
-import infra.aop.support.AopUtils;
-import infra.beans.factory.BeanFactoryUtils;
 import infra.beans.factory.InitializingBean;
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextAware;
@@ -67,15 +62,9 @@ import infra.web.util.WebUtils;
 public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerMethodExceptionHandler
         implements ApplicationContextAware, InitializingBean {
 
-  private final ConcurrentHashMap<Class<?>, ExceptionHandlerMethodResolver> exceptionHandlerCache =
-          new ConcurrentHashMap<>(64);
-
-  private final LinkedHashMap<ControllerAdviceBean, ExceptionHandlerMethodResolver> exceptionHandlerAdviceCache =
-          new LinkedHashMap<>();
-
   private @Nullable ApplicationContext applicationContext;
 
-  private HandlerParameterFactory parameterFactory;
+  private volatile @Nullable ControllerMethodResolver methodResolver;
 
   private ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager();
 
@@ -114,16 +103,10 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
   }
 
   /**
-   * Set the registry used to resolve arguments of exception handler methods.
-   * <p>If not configured, initialization looks for a
-   * {@link ParameterResolvingRegistry} in the application context, falling back
-   * to a default {@link HandlerParameterFactory} if none is available.
-   *
-   * @param registry the parameter resolving registry
-   * @since 5.0
+   * Set the shared resolver for this MVC application context before initialization.
    */
-  public void setParameterResolvingRegistry(ParameterResolvingRegistry registry) {
-    this.parameterFactory = new RegistryHandlerParameterFactory(registry);
+  public void setControllerMethodResolver(ControllerMethodResolver resolver) {
+    this.methodResolver = resolver;
   }
 
   @Override
@@ -240,37 +223,11 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
       }
     }
 
-    Class<?> handlerType = null;
-    if (handlerMethod != null) {
-      // Local exception handler methods on the controller class itself.
-      // To be invoked through the proxy, even in case of an interface-based proxy.
-      handlerType = handlerMethod.getBeanType();
-      var resolver = exceptionHandlerCache.computeIfAbsent(handlerType, ExceptionHandlerMethodResolver::new);
-      for (MediaType mediaType : acceptedMediaTypes) {
-        ExceptionHandlerMappingInfo mappingInfo = resolver.resolveExceptionMapping(exception, mediaType);
-        if (mappingInfo != null) {
-          return createHandlerMethod(mappingInfo, context, handlerMethod.getBean());
-        }
-      }
-
-      // For advice applicability check below (involving base packages, assignable types
-      // and annotation presence), use target class instead of interface-based proxy.
-      if (Proxy.isProxyClass(handlerType)) {
-        handlerType = AopUtils.getTargetClass(handlerMethod.getBean());
-      }
-    }
-
-    for (var entry : exceptionHandlerAdviceCache.entrySet()) {
-      ControllerAdviceBean advice = entry.getKey();
-      if (advice.isApplicableToBeanType(handlerType)) {
-        ExceptionHandlerMethodResolver resolver = entry.getValue();
-        for (MediaType mediaType : acceptedMediaTypes) {
-          ExceptionHandlerMappingInfo mappingInfo = resolver.resolveExceptionMapping(exception, mediaType);
-          if (mappingInfo != null) {
-            return createHandlerMethod(mappingInfo, context, advice.resolveBean());
-          }
-        }
-      }
+    ControllerMethodResolver resolver = this.methodResolver;
+    Assert.state(resolver != null, "No ControllerMethodResolver");
+    var resolved = resolver.resolveExceptionHandlerMethod(context, handlerMethod, exception, acceptedMediaTypes);
+    if (resolved != null) {
+      return resolved;
     }
 
     return exception instanceof Exception ? getProblemDetailHandlerMethod(context) : null;
@@ -280,19 +237,10 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
     return context.isCommitted() ? null : this.problemDetailHandlerMethod;
   }
 
-  private InvocableHandlerMethod createHandlerMethod(ExceptionHandlerMappingInfo mappingInfo, HttpContext context, Object advice) {
-    if (!mappingInfo.getProducibleTypes().isEmpty()) {
-      var matchingMetadata = HandlerMatchingMetadata.find(context);
-      if (matchingMetadata != null) {
-        matchingMetadata.setProducibleMediaTypes(mappingInfo.getProducibleTypes());
-      }
-    }
-    return new InvocableHandlerMethod(advice, mappingInfo.getHandlerMethod(), applicationContext, parameterFactory);
-  }
-
   @Override
   protected boolean hasGlobalExceptionHandlers() {
-    return !this.exceptionHandlerAdviceCache.isEmpty() || this.problemDetailHandlerMethod != null;
+    var resolver = this.methodResolver;
+    return this.problemDetailHandlerMethod != null || (resolver != null && resolver.hasExceptionHandlerAdvice());
   }
 
   @Override
@@ -321,21 +269,17 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
   public void afterPropertiesSet() {
     ApplicationContext context = applicationContext;
     Assert.state(context != null, "No ApplicationContext");
-    if (parameterFactory == null) {
-      ParameterResolvingRegistry registry = BeanFactoryUtils.find(context, ParameterResolvingRegistry.class);
-      if (registry != null) {
-        parameterFactory = new RegistryHandlerParameterFactory(registry);
-      }
-      else {
-        parameterFactory = new HandlerParameterFactory();
-      }
+    var resolver = this.methodResolver;
+    if (resolver == null) {
+      resolver = ControllerMethodResolver.forExceptionHandlers(context);
     }
-    initExceptionHandlerAdviceCache(context);
+    resolver.initExceptionAdvice();
+    this.methodResolver = resolver;
     if (this.renderUnhandledExceptionsAsProblemDetails) {
       try {
-        this.problemDetailHandlerMethod = new InvocableHandlerMethod(new ProblemDetailExceptionHandler(context),
+        this.problemDetailHandlerMethod = resolver.createHandlerMethod(new ProblemDetailExceptionHandler(context),
                 ProblemDetailExceptionHandler.class.getMethod("handleException", Exception.class, Locale.class),
-                context, this.parameterFactory);
+                context);
       }
       catch (NoSuchMethodException ex) {
         throw new IllegalStateException("Problem detail handler method not found", ex);
@@ -343,30 +287,6 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
     }
     else {
       this.problemDetailHandlerMethod = null;
-    }
-  }
-
-  private void initExceptionHandlerAdviceCache(ApplicationContext applicationContext) {
-    var adviceBeans = ControllerAdviceBean.findAnnotatedBeans(applicationContext);
-    for (ControllerAdviceBean adviceBean : adviceBeans) {
-      Class<?> beanType = adviceBean.getBeanType();
-      if (beanType == null) {
-        throw new IllegalStateException("Unresolvable type for ControllerAdviceBean: " + adviceBean);
-      }
-      var resolver = new ExceptionHandlerMethodResolver(beanType);
-      if (resolver.hasExceptionMappings()) {
-        exceptionHandlerAdviceCache.put(adviceBean, resolver);
-      }
-    }
-
-    if (logger.isDebugEnabled()) {
-      int handlerSize = exceptionHandlerAdviceCache.size();
-      if (handlerSize == 0) {
-        logger.debug("ControllerAdvice beans: none");
-      }
-      else {
-        logger.debug("ControllerAdvice beans: {} @ExceptionHandler", handlerSize);
-      }
     }
   }
 

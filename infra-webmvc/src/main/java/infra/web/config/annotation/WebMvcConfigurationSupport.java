@@ -84,6 +84,7 @@ import infra.web.handler.SimpleUrlHandlerMapping;
 import infra.web.handler.function.support.HandlerFunctionAdapter;
 import infra.web.handler.function.support.RouterFunctionMapping;
 import infra.web.handler.method.ControllerAdviceBean;
+import infra.web.handler.method.ControllerMethodResolver;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import infra.web.handler.method.MvcUriComponentsBuilder;
 import infra.web.handler.method.ParameterResolvingRegistry;
@@ -93,9 +94,9 @@ import infra.web.handler.method.RequestMappingHandlerAdapter;
 import infra.web.handler.method.RequestMappingHandlerMapping;
 import infra.web.handler.method.ResponseBodyAdvice;
 import infra.web.handler.method.support.CompositeUriComponentsContributor;
-import infra.web.handler.method.support.ParameterResolvingRegistryFactory;
 import infra.web.handler.method.support.JsonViewRequestBodyAdvice;
 import infra.web.handler.method.support.JsonViewResponseBodyAdvice;
+import infra.web.handler.method.support.ParameterResolvingRegistryFactory;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
 import infra.web.util.pattern.PathPatternParser;
 import infra.web.view.DefaultRequestToViewNameTranslator;
@@ -198,6 +199,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
   private @Nullable List<ErrorResponse.Interceptor> errorResponseInterceptors;
 
   private @Nullable ApiVersionStrategy apiVersionStrategy;
+
+  private @Nullable ControllerMethodResolver controllerMethodResolver;
 
   protected @Nullable StringValueResolver embeddedValueResolver;
 
@@ -555,6 +558,16 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
   protected void modifyParameterResolvingRegistry(ParameterResolvingRegistry registry) {
   }
 
+  private synchronized ControllerMethodResolver getControllerMethodResolver(ParameterResolvingRegistry registry) {
+    if (this.applicationContext == null) {
+      return new ControllerMethodResolver(null, registry);
+    }
+    if (this.controllerMethodResolver == null) {
+      this.controllerMethodResolver = new ControllerMethodResolver(applicationContext(), registry);
+    }
+    return this.controllerMethodResolver;
+  }
+
   // HandlerExceptionHandler
 
   /**
@@ -626,8 +639,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
       handler.setApplicationContext(this.applicationContext);
     }
 
+    handler.setControllerMethodResolver(getControllerMethodResolver(registry));
     handler.setContentNegotiationManager(contentNegotiationManager);
-    handler.setParameterResolvingRegistry(registry);
     ProblemDetailsConfigurer problemDetails = getProblemDetailsConfigurer();
     handler.setRenderUnhandledExceptionsAsProblemDetails(problemDetails.isRenderUnhandledExceptions());
     handler.afterPropertiesSet();
@@ -664,7 +677,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
     var mapping = createRequestMappingHandlerMapping();
     mapping.setOrder(0);
     mapping.setContentNegotiationManager(contentNegotiationManager);
-    mapping.setResolvingRegistry(parameterResolvingRegistry);
+    mapping.setControllerMethodResolver(getControllerMethodResolver(parameterResolvingRegistry));
     mapping.setApiVersionStrategy(apiVersionStrategy);
 
     initHandlerMapping(mapping);
@@ -882,7 +895,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport impleme
     var adapter = createRequestMappingHandlerAdapter();
 
     adapter.setRedirectModelManager(redirectModelManager);
-    adapter.setResolvingRegistry(parameterResolvingRegistry);
+    adapter.setControllerMethodResolver(getControllerMethodResolver(parameterResolvingRegistry));
     if (webBindingInitializer == null) {
       webBindingInitializer = createWebBindingInitializer(conversionService, validator);
     }
