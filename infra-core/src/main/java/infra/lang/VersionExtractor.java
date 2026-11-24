@@ -23,8 +23,11 @@ import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.CodeSource;
+import java.security.ProtectionDomain;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 /**
  * Extracts version information for a Class.
@@ -42,31 +45,62 @@ public abstract class VersionExtractor {
    * @param cls the Class to retrieve the version for
    * @return the version, or {@code null} if a version can not be extracted
    */
-  @Nullable
-  public static String forClass(@Nullable Class<?> cls) {
-    if (cls != null) {
-      String implementationVersion = cls.getPackage().getImplementationVersion();
+  public static @Nullable String forClass(@Nullable Class<?> cls) {
+    if (cls == null) {
+      return null;
+    }
+
+    Package classPackage = cls.getPackage();
+    if (classPackage != null) {
+      String implementationVersion = classPackage.getImplementationVersion();
       if (implementationVersion != null) {
         return implementationVersion;
       }
-      URL codeSourceLocation = cls.getProtectionDomain().getCodeSource().getLocation();
-      try {
+    }
+
+    URL codeSourceLocation = getCodeSourceLocation(cls);
+    if (codeSourceLocation == null) {
+      return null;
+    }
+
+    try {
+      if ("jar".equalsIgnoreCase(codeSourceLocation.getProtocol())) {
+        // The underlying JarFile is cached and closed by the JDK's JarFileFactory
         URLConnection connection = codeSourceLocation.openConnection();
         if (connection instanceof JarURLConnection jarURLConnection) {
           return getImplementationVersion(jarURLConnection.getJarFile());
         }
-        try (JarFile jarFile = new JarFile(new File(codeSourceLocation.toURI()))) {
+      }
+      else if ("file".equalsIgnoreCase(codeSourceLocation.getProtocol())) {
+        // Directories (exploded classes) are not jar files and simply fail to open
+        try (JarFile jarFile = new JarFile(new File(codeSourceLocation.toURI()), false)) {
           return getImplementationVersion(jarFile);
         }
       }
-      catch (Exception ignored) {
+      // Other protocols are ignored to avoid unnecessary network access
+    }
+    catch (Exception ignored) {
+    }
+    return null;
+  }
+
+  private static @Nullable URL getCodeSourceLocation(Class<?> cls) {
+    ProtectionDomain protectionDomain = cls.getProtectionDomain();
+    if (protectionDomain != null) {
+      CodeSource codeSource = protectionDomain.getCodeSource();
+      if (codeSource != null) {
+        return codeSource.getLocation();
       }
     }
     return null;
   }
 
-  private static String getImplementationVersion(JarFile jarFile) throws IOException {
-    return jarFile.getManifest().getMainAttributes().getValue(Attributes.Name.IMPLEMENTATION_VERSION);
+  private static @Nullable String getImplementationVersion(JarFile jarFile) throws IOException {
+    Manifest manifest = jarFile.getManifest();
+    if (manifest == null) {
+      return null;
+    }
+    return manifest.getMainAttributes().getValue(Attributes.Name.IMPLEMENTATION_VERSION);
   }
 
 }

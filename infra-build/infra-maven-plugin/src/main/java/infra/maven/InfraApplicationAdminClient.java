@@ -21,6 +21,7 @@ package infra.maven;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import java.io.IOException;
+import java.util.Map;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
@@ -45,6 +46,10 @@ class InfraApplicationAdminClient {
 
   // Note: see InfraApplicationJmxAutoConfiguration
   static final String DEFAULT_OBJECT_NAME = "infra.app:type=Admin,name=InfraApplication";
+
+  static final String JMX_USER = "maven-build";
+
+  static final String JMX_PASSWORD_FILE = "infra.jmxremote.password";
 
   private final MBeanServerConnection connection;
 
@@ -111,16 +116,18 @@ class InfraApplicationAdminClient {
 
   /**
    * Create a connector for an {@link javax.management.MBeanServer} exposed on the
-   * current machine and the current port. Security should be disabled.
+   * current machine and the current port.
    *
    * @param port the port on which the mbean server is exposed
+   * @param password the password to use for authentication
    * @return a connection
    * @throws IOException if the connection to that server failed
    */
-  static JMXConnector connect(int port) throws IOException {
+  static JMXConnector connect(int port, String password) throws IOException {
     String url = "service:jmx:rmi:///jndi/rmi://127.0.0.1:" + port + "/jmxrmi";
     JMXServiceURL serviceUrl = new JMXServiceURL(url);
-    return JMXConnectorFactory.connect(serviceUrl, null);
+    return JMXConnectorFactory.connect(serviceUrl,
+            Map.of(JMXConnector.CREDENTIALS, new String[] { JMX_USER, password }));
   }
 
 }

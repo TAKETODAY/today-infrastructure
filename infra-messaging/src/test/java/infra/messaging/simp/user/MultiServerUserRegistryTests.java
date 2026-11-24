@@ -24,6 +24,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import infra.context.ApplicationEvent;
+import infra.context.event.SmartApplicationListener;
 import infra.messaging.Message;
 import infra.messaging.converter.JacksonJsonMessageConverter;
 import infra.messaging.converter.MessageConverter;
@@ -75,6 +77,7 @@ class MultiServerUserRegistryTests {
     assertThat(this.registry.getUserCount()).isEqualTo(1);
     SimpUser user = this.registry.getUser("joe");
     assertThat(user).isNotNull();
+    assertThat(user.getPrincipal()).isNull();
     assertThat(user.hasSessions()).isTrue();
     assertThat(user.getSessions()).hasSize(1);
     SimpSession session = user.getSession("remote-sess");
@@ -86,6 +89,8 @@ class MultiServerUserRegistryTests {
     assertThat(subscription.getId()).isEqualTo("remote-sub");
     assertThat(subscription.getSession()).isSameAs(session);
     assertThat(subscription.getDestination()).isEqualTo("/remote-dest");
+    assertThat(user.getSession("missing")).isNull();
+    assertThat(this.registry.getUser("missing")).isNull();
   }
 
   @Test
@@ -173,6 +178,101 @@ class MultiServerUserRegistryTests {
     assertThat(this.registry.getUserCount()).isEqualTo(1);
     this.registry.purgeExpiredRegistries();
     assertThat(this.registry.getUserCount()).isEqualTo(0);
+  }
+
+  @Test
+  void delegatesApplicationEventsWhenLocalRegistrySupportsThem() {
+    DelegatingRegistry local = new DelegatingRegistry();
+    MultiServerUserRegistry registry = new MultiServerUserRegistry(local);
+    ApplicationEvent event = mock();
+
+    assertThat(registry.getOrder()).isEqualTo(123);
+    assertThat(registry.supportsEventType(ApplicationEvent.class)).isTrue();
+    assertThat(registry.supportsSourceType(String.class)).isTrue();
+    registry.onApplicationEvent(event);
+
+    assertThat(local.event).isSameAs(event);
+    assertThat(registry.toString()).contains("local=").contains("remote=");
+  }
+
+  @Test
+  void aRemoteSubscriptionIsIdentifiedByBothItsSessionAndSubscriptionId() {
+    TestSimpUser remoteUser = new TestSimpUser("joe");
+    TestSimpSession first = new TestSimpSession("first");
+    TestSimpSession second = new TestSimpSession("second");
+    first.addSubscriptions(new TestSimpSubscription("sub", "/topic/first"));
+    second.addSubscriptions(new TestSimpSubscription("sub", "/topic/second"));
+    remoteUser.addSessions(first, second);
+    SimpUserRegistry remote = mock();
+    given(remote.getUsers()).willReturn(Set.of(remoteUser));
+    Message<?> broadcast = this.converter.toMessage(new MultiServerUserRegistry(remote).getLocalRegistryDto(), null);
+    this.registry.addRemoteRegistryDto(broadcast, this.converter, 20000);
+    SimpUser beforeRefresh = this.registry.getUser("joe");
+    Set<SimpSubscription> subscriptions = this.registry.findSubscriptions(subscription -> true);
+
+    this.registry.addRemoteRegistryDto(broadcast, this.converter, 20000);
+
+    assertThat(this.registry.getUser("joe")).isNotSameAs(beforeRefresh).isEqualTo(beforeRefresh);
+    assertThat(subscriptions).hasSize(2).containsExactlyInAnyOrderElementsOf(this.registry.findSubscriptions(s -> true));
+  }
+
+  @Test
+  void ignoresInvalidAndSelfBroadcasts() {
+    MessageConverter converter = mock();
+    Message<?> message = mock();
+    given(converter.fromMessage(message, Object.class)).willReturn(null);
+    this.registry.addRemoteRegistryDto(message, converter, 1000);
+    assertThat(this.registry.getUserCount()).isZero();
+
+    Object localDto = this.registry.getLocalRegistryDto();
+    Message<?> selfMessage = this.converter.toMessage(localDto, null);
+    this.registry.addRemoteRegistryDto(selfMessage, this.converter, 1000);
+    assertThat(this.registry.getUserCount()).isZero();
+  }
+
+  private static final class DelegatingRegistry implements SimpUserRegistry, SmartApplicationListener {
+
+    private ApplicationEvent event;
+
+    @Override
+    public int getOrder() {
+      return 123;
+    }
+
+    @Override
+    public boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
+      return eventType == ApplicationEvent.class;
+    }
+
+    @Override
+    public boolean supportsSourceType(Class<?> sourceType) {
+      return sourceType == String.class;
+    }
+
+    @Override
+    public void onApplicationEvent(ApplicationEvent event) {
+      this.event = event;
+    }
+
+    @Override
+    public SimpUser getUser(String userName) {
+      return null;
+    }
+
+    @Override
+    public Set<SimpUser> getUsers() {
+      return Collections.emptySet();
+    }
+
+    @Override
+    public int getUserCount() {
+      return 0;
+    }
+
+    @Override
+    public Set<SimpSubscription> findSubscriptions(SimpSubscriptionMatcher matcher) {
+      return Collections.emptySet();
+    }
   }
 
 }

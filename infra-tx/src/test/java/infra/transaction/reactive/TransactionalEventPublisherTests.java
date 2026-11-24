@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import infra.beans.factory.annotation.Autowired;
+import infra.context.ApplicationEvent;
 import infra.context.ApplicationEventPublisher;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
@@ -49,6 +50,8 @@ import infra.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 
 import static infra.transaction.event.TransactionPhase.AFTER_COMMIT;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 import static infra.transaction.event.TransactionPhase.AFTER_COMPLETION;
 import static infra.transaction.event.TransactionPhase.AFTER_ROLLBACK;
 import static infra.transaction.event.TransactionPhase.BEFORE_COMMIT;
@@ -166,6 +169,16 @@ class TransactionalEventPublisherTests {
         AfterCompletionExplicitTestListener.class);
     publishEvent("test");
     getEventCollector().assertTotalEventsCount(0);
+  }
+
+  @Test
+  public void rejectsApplicationEventAsPayload() {
+    TransactionalEventPublisher publisher = new TransactionalEventPublisher(mock(ApplicationEventPublisher.class));
+    ApplicationEvent event = new ApplicationEvent(this) { };
+
+    assertThatThrownBy(() -> publisher.publishEvent(event).block())
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Cannot publish ApplicationEvent");
   }
 
   @Test

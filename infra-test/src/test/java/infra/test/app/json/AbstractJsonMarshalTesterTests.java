@@ -128,6 +128,21 @@ abstract class AbstractJsonMarshalTesterTests {
   }
 
   @Test
+  void objectConvenienceMethodsReturnUnwrappedValues(@TempDir Path temp) throws Exception {
+    AbstractJsonMarshalTester<Object> tester = createTester(TYPE);
+    byte[] bytes = JSON.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+    File file = temp.resolve("object.json").toFile();
+    FileCopyUtils.copy(bytes, file);
+    assertThat(tester.parseObject(bytes)).isEqualTo(OBJECT);
+    assertThat(tester.parseObject(JSON)).isEqualTo(OBJECT);
+    assertThat(tester.readObject("example.json")).isEqualTo(OBJECT);
+    assertThat(tester.readObject(file)).isEqualTo(OBJECT);
+    assertThat(tester.readObject(new ByteArrayInputStream(bytes))).isEqualTo(OBJECT);
+    assertThat(tester.readObject(new ByteArrayResource(bytes))).isEqualTo(OBJECT);
+    assertThat(tester.readObject(new StringReader(JSON))).isEqualTo(OBJECT);
+  }
+
+  @Test
   void readResourcePathShouldReturnObject() throws Exception {
     AbstractJsonMarshalTester<Object> tester = createTester(TYPE);
     assertThat(tester.read("example.json")).isEqualTo(OBJECT);

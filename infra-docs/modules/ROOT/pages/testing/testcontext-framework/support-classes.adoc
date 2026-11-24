@@ -20,8 +20,6 @@ Infra TestContext 框架提供了与 JUnit 5 中引入的 JUnit Jupiter 测试�
 
 以下代码清单显示了如何配置测试类以将 `InfraExtension` 与 `@ContextConfiguration` 结合使用：
 
-[tabs]
-======
 Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
@@ -275,3 +273,48 @@ class GreetingServiceTests {
 
 ======
 
+如果嵌套测试类不应继承封闭类的配置，可以使用
+`@NestedTestConfiguration(EnclosingConfiguration.OVERRIDE)` 注解该嵌套测试类。
+在 `OVERRIDE` 模式下，封闭类上的测试相关注解都不会被继承，包括
+`@JUnitConfig` 和 `@ContextConfiguration`，因此嵌套类必须声明所需的全部配置。
+下面的示例中，`EnglishGreetings` 继承 `GreetingServiceTests` 的
+`@JUnitConfig(TestConfig.class)` 和 `@ActiveProfiles("lang_en")` 配置，而
+`FrenchGreetings` 通过声明自己的配置类和活动 profile 覆盖这两项配置。
+
+[tabs]
+======
+Java::
++
+[source,java,indent=0,subs="verbatim,quotes"]
+----
+  @JUnitConfig(TestConfig.class)
+  @ActiveProfiles("lang_en")
+  class GreetingServiceTests {
+
+    @Nested
+    class EnglishGreetings {
+
+      @Test
+      void hello(@Autowired GreetingService service) {
+        assertThat(service.greetWorld()).isEqualTo("Hello World");
+      }
+    }
+
+    @Nested
+    @NestedTestConfiguration(EnclosingConfiguration.OVERRIDE)
+    @JUnitConfig(FrenchConfig.class)
+    @ActiveProfiles("lang_fr")
+    class FrenchGreetings {
+
+      @Test
+      void hello(@Autowired GreetingService service) {
+        assertThat(service.greetWorld()).isEqualTo("Bonjour le monde");
+      }
+    }
+  }
+----
+======
+
+TIP: 如果只需要替换部分配置，`OVERRIDE` 模式通常过于严格。例如，要保留继承的
+配置类但使用不同的测试属性，可以在 `@Nested` 类上声明
+`@TestPropertySource(properties = ..., inheritProperties = false)`。

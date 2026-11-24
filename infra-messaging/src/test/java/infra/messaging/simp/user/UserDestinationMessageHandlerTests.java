@@ -22,6 +22,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 
 import infra.core.testfixture.security.TestPrincipal;
@@ -30,9 +34,11 @@ import infra.messaging.StubMessageChannel;
 import infra.messaging.SubscribableChannel;
 import infra.messaging.simp.SimpMessageHeaderAccessor;
 import infra.messaging.simp.SimpMessageType;
+import infra.messaging.simp.broker.OrderedMessageChannelDecorator;
 import infra.messaging.simp.stomp.StompBrokerRelayMessageHandler;
 import infra.messaging.simp.stomp.StompCommand;
 import infra.messaging.simp.stomp.StompHeaderAccessor;
+import infra.messaging.support.ExecutorSubscribableChannel;
 import infra.messaging.support.MessageBuilder;
 
 import static infra.messaging.simp.SimpMessageHeaderAccessor.ORIGINAL_DESTINATION;
@@ -155,6 +161,8 @@ class UserDestinationMessageHandlerTests {
     accessor.setDestination("/topic/unresolved");
     accessor.setNativeHeader(ORIGINAL_DESTINATION, "/user/joe/queue/foo");
     accessor.setNativeHeader("customHeader", "customHeaderValue");
+    accessor.setNativeHeader("subscription", "system-subscription");
+    accessor.setNativeHeader("message-id", "system-message");
     accessor.setLeaveMutable(true);
     byte[] payload = "payload".getBytes(StandardCharsets.UTF_8);
     this.handler.handleMessage(MessageBuilder.createMessage(payload, accessor.getMessageHeaders()));
@@ -166,6 +174,8 @@ class UserDestinationMessageHandlerTests {
     assertThat(headers.getDestination()).isEqualTo("/queue/foo-user123");
     assertThat(headers.getFirstNativeHeader(ORIGINAL_DESTINATION)).isEqualTo("/user/queue/foo");
     assertThat(headers.getFirstNativeHeader("customHeader")).isEqualTo("customHeaderValue");
+    assertThat(headers.getFirstNativeHeader("subscription")).isNull();
+    assertThat(headers.getFirstNativeHeader("message-id")).isNull();
     assertThat((byte[]) captor.getValue().getPayload()).isEqualTo(payload);
   }
 
@@ -187,6 +197,33 @@ class UserDestinationMessageHandlerTests {
   }
 
   @Test
+  void reconnectDoesNotWaitForPendingMessagesFromTheDisconnectedSession() {
+    ExecutorSubscribableChannel inbound = new ExecutorSubscribableChannel();
+    OrderedMessageChannelDecorator.configureInterceptor(inbound, true);
+    Queue<Runnable> tasks = new ArrayDeque<>();
+    ExecutorSubscribableChannel broker = new ExecutorSubscribableChannel(tasks::add);
+    List<String> delivered = new ArrayList<>();
+    broker.subscribe(message -> delivered.add(SimpMessageHeaderAccessor.getDestination(message.getHeaders())));
+    UserDestinationMessageHandler handler = new UserDestinationMessageHandler(inbound, broker,
+            new DefaultUserDestinationResolver(this.registry));
+    Message<?> first = createWith(SimpMessageType.SUBSCRIBE, "joe", SESSION_ID, "/user/queue/foo");
+    Message<?> second = createWith(SimpMessageType.SUBSCRIBE, "joe", SESSION_ID, "/user/queue/bar");
+
+    handler.handleMessage(first);
+    handler.handleMessage(second);
+    assertThat(tasks).hasSize(1);
+
+    handler.handleMessage(createWith(SimpMessageType.DISCONNECT, "joe", SESSION_ID, null));
+    handler.handleMessage(first);
+
+    assertThat(tasks).hasSize(2);
+    while (!tasks.isEmpty()) {
+      tasks.remove().run();
+    }
+    assertThat(delivered).containsExactly("/queue/foo-user123", "/queue/foo-user123", "/queue/bar-user123");
+  }
+
+  @Test
   void ignoreMessage() {
 
     // no destination
@@ -204,6 +241,72 @@ class UserDestinationMessageHandlerTests {
     // no match on message type
     this.handler.handleMessage(createWith(SimpMessageType.CONNECT, "joe", "123", "user/joe/queue/foo"));
     verifyNoInteractions(this.brokerChannel);
+  }
+
+  @Test
+  void lifecycleAndConfiguration() {
+    assertThat(this.handler.getUserDestinationResolver()).isNotNull();
+    assertThat(this.handler.getBroadcastDestination()).isNull();
+    assertThat(this.handler.getBrokerMessagingTemplate()).isNotNull();
+    assertThat(this.handler.isAutoStartup()).isTrue();
+    assertThat(this.handler.getPhase()).isEqualTo(Integer.MAX_VALUE);
+    assertThat(this.handler.isRunning()).isFalse();
+
+    this.handler.setBroadcastDestination("/topic/unresolved");
+    this.handler.setHeaderInitializer(accessor -> accessor.setHeader("initialized", true));
+    this.handler.setPhase(10);
+    assertThat(this.handler.getBroadcastDestination()).isEqualTo("/topic/unresolved");
+    assertThat(this.handler.getHeaderInitializer()).isNotNull();
+    assertThat(this.handler.getPhase()).isEqualTo(10);
+
+    this.handler.start();
+    assertThat(this.handler.isRunning()).isTrue();
+    this.handler.stop(() -> { });
+    assertThat(this.handler.isRunning()).isFalse();
+    Mockito.verify(this.brokerChannel).subscribe(this.handler);
+    Mockito.verify(this.brokerChannel).unsubscribe(this.handler);
+  }
+
+  @Test
+  void broadcastSkipsNonSystemMessagesAndRebroadcastsUnresolvedMessages() {
+    this.handler.setBroadcastDestination("/topic/unresolved");
+
+    StompHeaderAccessor clientMessage = StompHeaderAccessor.create(StompCommand.MESSAGE);
+    clientMessage.setSessionId("client-session");
+    clientMessage.setDestination("/topic/unresolved");
+    clientMessage.setLeaveMutable(true);
+    Message<byte[]> message = MessageBuilder.createMessage(new byte[0], clientMessage.getMessageHeaders());
+    this.handler.handleMessage(message);
+    verifyNoInteractions(this.registry);
+
+    UserDestinationResolver resolver = mock();
+    Message<?> unresolved = createWith(SimpMessageType.MESSAGE, "joe",
+            SESSION_ID, "/user/joe/queue/foo");
+    given(resolver.resolveDestination(unresolved)).willReturn(new UserDestinationResult(
+            "/user/joe/queue/foo", Set.of(), "/user/queue/foo", "joe"));
+    given(this.brokerChannel.send(Mockito.any(Message.class))).willReturn(true);
+    UserDestinationMessageHandler handler = new UserDestinationMessageHandler(
+            new StubMessageChannel(), this.brokerChannel, resolver);
+    handler.setBroadcastDestination("/topic/unresolved");
+    handler.handleMessage(unresolved);
+    Mockito.verify(this.brokerChannel).send(Mockito.any(Message.class));
+  }
+
+  @Test
+  @SuppressWarnings("rawtypes")
+  void headerInitializerAppliedToResolvedMessage() {
+    TestSimpUser simpUser = new TestSimpUser("joe");
+    simpUser.addSessions(new TestSimpSession(SESSION_ID));
+    given(this.registry.getUser("joe")).willReturn(simpUser);
+    given(this.brokerChannel.send(Mockito.any(Message.class))).willReturn(true);
+    this.handler.setHeaderInitializer(accessor -> accessor.setHeader("initialized", true));
+
+    this.handler.handleMessage(createWith(SimpMessageType.MESSAGE, "joe", SESSION_ID,
+            "/user/joe/queue/foo"));
+
+    ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
+    Mockito.verify(this.brokerChannel).send(captor.capture());
+    assertThat(captor.getValue().getHeaders().get("initialized")).isEqualTo(true);
   }
 
   private Message<?> createWith(

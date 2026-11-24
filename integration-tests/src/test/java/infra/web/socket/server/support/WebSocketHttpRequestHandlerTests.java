@@ -21,10 +21,13 @@ package infra.web.socket.server.support;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 
+import infra.http.HttpHeaders;
+import infra.http.HttpStatus;
 import infra.web.HttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
@@ -99,6 +102,32 @@ public class WebSocketHttpRequestHandlerTests {
 
     verifyNoMoreInteractions(this.handshakeHandler);
     assertThat(this.response.getHeader("headerName")).isEqualTo("headerValue");
+  }
+
+  @Test
+  void corsRequestRejected() throws Exception {
+    MockRequest request = new MockRequest();
+    request.addHeader(HttpHeaders.ORIGIN, "https://domain.example");
+    MockHttpContext context = new MockHttpContext(null, request, this.response);
+    this.requestHandler.handleRequest(context);
+    context.flush();
+
+    assertThat(this.response.getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+    verifyNoMoreInteractions(this.handshakeHandler);
+  }
+
+  @Test
+  void corsRequestAllowed() throws Exception {
+    String origin = "https://domain.example";
+    MockRequest request = new MockRequest();
+    request.addHeader(HttpHeaders.ORIGIN, origin);
+    this.requestHandler.setHandshakeInterceptors(List.of(new OriginHandshakeInterceptor(List.of(origin))));
+    MockHttpContext context = new MockHttpContext(null, request, this.response);
+    this.requestHandler.handleRequest(context);
+    context.flush();
+
+    verify(this.handshakeHandler).doHandshake(any(), any(), any());
+    assertThat(this.response.getStatus()).isEqualTo(HttpStatus.OK.value());
   }
 
   private static class TestInterceptor implements HandshakeInterceptor {

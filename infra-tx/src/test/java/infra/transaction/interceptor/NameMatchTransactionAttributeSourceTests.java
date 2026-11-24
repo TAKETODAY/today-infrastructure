@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import infra.transaction.TransactionDefinition;
+import infra.core.StringValueResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -109,6 +110,20 @@ class NameMatchTransactionAttributeSourceTests {
 
     TransactionAttribute result = source.getTransactionAttribute(method, TestClass.class);
     assertThat(result).isNull();
+  }
+
+  @Test
+  void resolvesEmbeddedAttributeValues() throws NoSuchMethodException {
+    NameMatchTransactionAttributeSource source = new NameMatchTransactionAttributeSource();
+    DefaultTransactionAttribute attr = new DefaultTransactionAttribute();
+    attr.setQualifier("${manager}");
+    StringValueResolver resolver = value -> value.replace("${manager}", "transactionManager");
+    source.setEmbeddedValueResolver(resolver);
+    source.addTransactionalMethod("testMethod", attr);
+
+    assertThat(source.getTransactionAttribute(TestClass.class.getMethod("testMethod"), TestClass.class))
+            .isSameAs(attr);
+    assertThat(attr.getQualifier()).isEqualTo("transactionManager");
   }
 
   @Test

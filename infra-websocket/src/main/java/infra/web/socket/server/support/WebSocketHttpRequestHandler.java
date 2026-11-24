@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import infra.http.HttpStatus;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.Assert;
@@ -55,6 +56,8 @@ public class WebSocketHttpRequestHandler implements HttpRequestHandler {
 
   private final ArrayList<HandshakeInterceptor> interceptors = new ArrayList<>();
 
+  private boolean hasOriginChecks;
+
   public WebSocketHttpRequestHandler(WebSocketHandler wsHandler) {
     this(wsHandler, new DefaultHandshakeHandler());
   }
@@ -71,13 +74,29 @@ public class WebSocketHttpRequestHandler implements HttpRequestHandler {
    */
   public void setHandshakeInterceptors(@Nullable List<HandshakeInterceptor> interceptors) {
     this.interceptors.clear();
+    this.hasOriginChecks = false;
     if (interceptors != null) {
-      this.interceptors.addAll(interceptors);
+      for (HandshakeInterceptor interceptor : interceptors) {
+        this.interceptors.add(interceptor);
+        if (interceptor instanceof OriginHandshakeInterceptor) {
+          this.hasOriginChecks = true;
+        }
+      }
     }
   }
 
   @Override
   public @Nullable Object handleRequest(HttpContext context) throws Exception {
+    if (!this.hasOriginChecks && context.isCorsRequest()) {
+      if (logger.isDebugEnabled()) {
+        logger.debug("Rejecting cross-origin WebSocket request from: '{}'. "
+                + "Configure an OriginHandshakeInterceptor to allow expected origins.",
+                context.getHeaders().getOrigin());
+      }
+      context.setStatus(HttpStatus.FORBIDDEN);
+      return NONE_RETURN_VALUE;
+    }
+
     HandshakeInterceptorChain chain = new HandshakeInterceptorChain(interceptors, wsHandler);
     Exception failure = null;
     try {

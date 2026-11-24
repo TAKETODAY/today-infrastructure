@@ -25,13 +25,13 @@ import java.io.IOException;
 import infra.context.MessageSource;
 import infra.context.MessageSourceAware;
 import infra.core.annotation.AnnotatedElementUtils;
-import infra.core.i18n.LocaleContextHolder;
 import infra.util.StringUtils;
 import infra.web.DispatcherHandler;
 import infra.web.HandlerExceptionHandler;
 import infra.web.HttpContext;
 import infra.web.annotation.ResponseStatus;
 import infra.web.server.ResponseStatusException;
+import infra.web.util.WebUtils;
 
 /**
  * A {@link HandlerExceptionHandler HandlerExceptionHandler} that uses
@@ -142,7 +142,7 @@ public class ResponseStatusExceptionHandler extends AbstractHandlerExceptionHand
   protected Object applyStatusAndReason(int statusCode, @Nullable String reason, HttpContext request) throws IOException {
     if (StringUtils.hasText(reason)) {
       if (messageSource != null) {
-        reason = messageSource.getMessage(reason, null, reason, LocaleContextHolder.getLocale());
+        reason = messageSource.getMessage(reason, null, reason, WebUtils.resolveLocale(request));
       }
       request.sendError(statusCode, reason);
     }

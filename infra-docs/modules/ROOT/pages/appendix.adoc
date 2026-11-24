@@ -79,6 +79,11 @@ checkpoint/restore at startup] 和
 | xref:core/expressions/evaluation.adoc#expressions-parser-configuration[Infra Expression Language] 求值时
 允许的默认最大操作数。未配置时为 10,000 次，也可在解析器配置中显式指定。
 
+| `infra.expression.reflectiveConversion`
+| 设置为 `true` 时，将标准的 `DefaultConversionService` 用作 `SimpleEvaluationContext` 的默认转换服务，恢复反射类型转换。
+请参阅 xref:core/expressions/evaluation.adoc#expressions-evaluation-context-security[SpEL 安全注意事项]和
+{today-framework-api}++/expression/spel/support/SimpleEvaluationContext.html#REFLECTIVE_CONVERSION_PROPERTY_NAME++[`SimpleEvaluationContext`]。
+
 | `infra.getenv.ignore`
 | 用于是否忽略系统环境变量的获取，开启之后，将不能获取系统变量，详见：
 {today-framework-api}++/core/env/AbstractEnvironment.html#IGNORE_GETENV_PROPERTY_NAME++[`AbstractEnvironment`]。

@@ -43,6 +43,7 @@ import infra.util.ReflectionUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.rsocket.ConnectionSetupPayload;
+import io.rsocket.loadbalance.RoundRobinLoadbalanceStrategy;
 import io.rsocket.DuplexConnection;
 import io.rsocket.RSocketErrorException;
 import io.rsocket.core.DefaultConnectionSetupPayload;
@@ -54,6 +55,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -114,6 +116,39 @@ class DefaultRSocketRequesterBuilderTests {
     assertThat(requester.dataMimeType())
             .as("Default data MimeType, based on the first configured, non-default Decoder")
             .isEqualTo(MimeType.APPLICATION_JSON);
+  }
+
+  @Test
+  void loadBalancedRequesterPreservesConfigurerAndMimeTypes() {
+    RSocketRequester requester = RSocketRequester.builder()
+            .apply(builder -> builder.dataMimeType(MimeType.APPLICATION_JSON).metadataMimeType(MimeType.TEXT_PLAIN))
+            .rsocketConnector(this.connectorConfigurer)
+            .transports(Flux.never(), new RoundRobinLoadbalanceStrategy());
+
+    try {
+      assertThat(requester.dataMimeType()).isEqualTo(MimeType.APPLICATION_JSON);
+      assertThat(requester.metadataMimeType()).isEqualTo(MimeType.TEXT_PLAIN);
+      assertThat(this.connectorConfigurer.connector()).isNotNull();
+    }
+    finally {
+      requester.rsocketClient().dispose();
+    }
+  }
+
+  @Test
+  void rejectsInferenceWhenConfiguredDecodersAdvertiseNoMimeTypes() {
+    Decoder<?> decoder = mock();
+    given(decoder.getDecodableMimeTypes()).willReturn(List.of());
+    RSocketStrategies strategies = RSocketStrategies.builder().decoders(decoders -> {
+      decoders.clear();
+      decoders.add(decoder);
+    }).build();
+
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> RSocketRequester.builder().rsocketStrategies(strategies).transport(this.transport))
+            .withMessage("Failed to select data MimeType to use.");
+    assertThat(RSocketRequester.builder().rsocketStrategies(strategies).dataMimeType(MimeType.TEXT_PLAIN)
+            .transport(this.transport).dataMimeType()).isEqualTo(MimeType.TEXT_PLAIN);
   }
 
   @Test

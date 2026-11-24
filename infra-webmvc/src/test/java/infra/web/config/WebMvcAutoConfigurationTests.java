@@ -24,6 +24,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -102,6 +103,7 @@ import infra.web.async.WebAsyncManagerFactory;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.config.annotation.AsyncSupportConfigurer;
 import infra.web.config.annotation.CorsRegistry;
+import infra.web.config.annotation.ResourceHandlerRegistration;
 import infra.web.config.annotation.ResourceHandlerRegistry;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.context.StandardWebEnvironment;
@@ -142,7 +144,11 @@ import static infra.web.config.WebMvcAutoConfigurationTests.OrderedControllerAdv
 import static infra.web.config.WebMvcAutoConfigurationTests.OrderedControllerAdviceBeansConfiguration.LowestOrderedControllerAdvice;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -245,6 +251,34 @@ class WebMvcAutoConfigurationTests {
       assertThat(getResourceTransformers(context, "/**")).extractingResultOf("getClass")
               .containsOnly(CachingResourceTransformer.class);
     });
+  }
+
+  @Test
+  void shouldCustomizeResources() {
+    this.contextRunner.withUserConfiguration(ResourceHandlerRegistrationCustomizers.class).run((context) -> {
+      var first = context.getBean("firstResourceHandlerRegistrationCustomizer", ResourceHandlerRegistrationCustomizer.class);
+      var second = context.getBean("secondResourceHandlerRegistrationCustomizer", ResourceHandlerRegistrationCustomizer.class);
+      then(first).should(times(2)).customize(any(ResourceHandlerRegistration.class));
+      then(second).should(times(2)).customize(any(ResourceHandlerRegistration.class));
+      InOrder ordered = inOrder(first, second);
+      then(first).should(ordered).customize(any(ResourceHandlerRegistration.class));
+      then(second).should(ordered).customize(any(ResourceHandlerRegistration.class));
+      then(first).should(ordered).customize(any(ResourceHandlerRegistration.class));
+      then(second).should(ordered).customize(any(ResourceHandlerRegistration.class));
+    });
+  }
+
+  @Test
+  @ClassPathExclusions("webjars*.jar")
+  void shouldCustomizeResourcesWhenResourceChainIsEnabled() {
+    this.contextRunner.withUserConfiguration(ResourceHandlerRegistrationCustomizerConfiguration.class)
+            .withPropertyValues("web.resources.chain.enabled:true")
+            .run((context) -> {
+              var customizer = context.getBean("customResourceHandlerRegistrationCustomizer", ResourceHandlerRegistrationCustomizer.class);
+              then(customizer).should(times(2)).customize(any(ResourceHandlerRegistration.class));
+              assertThat(getResourceResolvers(context, "/**")).extractingResultOf("getClass")
+                      .containsOnly(CachingResourceResolver.class, PathResourceResolver.class);
+            });
   }
 
   @Test
@@ -1071,6 +1105,33 @@ class WebMvcAutoConfigurationTests {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
       registry.addResourceHandler("/**").addResourceLocations("classpath:/foo/");
+    }
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class ResourceHandlerRegistrationCustomizers {
+
+    @Bean
+    @Order(2)
+    ResourceHandlerRegistrationCustomizer secondResourceHandlerRegistrationCustomizer() {
+      return mock(ResourceHandlerRegistrationCustomizer.class);
+    }
+
+    @Bean
+    @Order(1)
+    ResourceHandlerRegistrationCustomizer firstResourceHandlerRegistrationCustomizer() {
+      return mock(ResourceHandlerRegistrationCustomizer.class);
+    }
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class ResourceHandlerRegistrationCustomizerConfiguration {
+
+    @Bean
+    ResourceHandlerRegistrationCustomizer customResourceHandlerRegistrationCustomizer() {
+      return mock(ResourceHandlerRegistrationCustomizer.class);
     }
 
   }

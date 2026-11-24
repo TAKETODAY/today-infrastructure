@@ -24,13 +24,24 @@ import java.io.Closeable;
 import java.lang.reflect.Method;
 import java.util.Set;
 
+import infra.aop.TargetSource;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.beans.factory.DisposableBean;
 import infra.beans.factory.InitializingBean;
+import infra.bytecode.core.CodeGenerationException;
+import infra.bytecode.proxy.MethodProxy;
 import infra.util.ClassUtils;
 
+import static infra.aop.InterceptorChainFactory.EMPTY_INTERCEPTOR;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /** Regression tests for final methods declared on container callback interfaces. */
 class CglibAopProxyConfigurationCallbackTests {
@@ -71,6 +82,161 @@ class CglibAopProxyConfigurationCallbackTests {
   }
 
   @Test
+  void constructorArgumentsMustBeSpecifiedTogetherAndHaveMatchingSizes() {
+    AdvisedSupport config = new AdvisedSupport();
+    config.setTargetClass(ClassWithConstructor.class);
+    CglibAopProxy proxy = new CglibAopProxy(config);
+
+    assertThatIllegalArgumentException().isThrownBy(() -> proxy.setConstructorArguments(null,
+            new Class<?>[] { Object.class }));
+    assertThatIllegalArgumentException().isThrownBy(() -> proxy.setConstructorArguments(new Object[0],
+            new Class<?>[] { Object.class }));
+  }
+
+  @Test
+  void constructorArgumentsAreUsedWhenCreatingClassProxy() {
+    AdvisedSupport config = new AdvisedSupport();
+    config.setTargetClass(ClassWithConstructor.class);
+    CglibAopProxy proxy = new CglibAopProxy(config);
+    proxy.setConstructorArguments(new Object[] { "value" }, new Class<?>[] { Object.class });
+
+    assertThat(proxy.getProxy()).isInstanceOf(ClassWithConstructor.class);
+  }
+
+  @Test
+  void proxyTypeCanBeGeneratedWithoutRunningTheTargetConstructor() {
+    var config = new AdvisedSupport();
+    config.setTargetClass(ClassWithConstructor.class);
+    var proxy = new CglibAopProxy(config);
+
+    assertThat(proxy.getProxyClass(getClass().getClassLoader()).getSuperclass()).isEqualTo(ClassWithConstructor.class);
+  }
+
+  @Test
+  void instantiationAwareProxyAlsoAcceptsExplicitConstructorArguments() {
+    var config = new AdvisedSupport();
+    config.setTargetClass(ClassWithConstructor.class);
+    var proxy = new InstantiationAwareCglibAopProxy(config);
+    proxy.setConstructorArguments(new Object[] { "value" }, new Class<?>[] { Object.class });
+
+    assertThat(proxy.getProxy()).isInstanceOf(ClassWithConstructor.class);
+  }
+
+  @Test
+  void equivalentClassProxyConfigurationsHaveEqualFactoriesAndProxies() {
+    var target = new FluentTarget();
+    var config = new AdvisedSupport();
+    config.setTarget(target);
+    var otherConfig = new AdvisedSupport();
+    otherConfig.setTarget(target);
+    var first = new CglibAopProxy(config);
+    var second = new CglibAopProxy(otherConfig);
+
+    assertThat(first).isEqualTo(second).hasSameHashCodeAs(second);
+    assertThat(first).isNotEqualTo(new Object());
+    assertThat(first.getProxy()).isEqualTo(second.getProxy()).isNotEqualTo(target);
+  }
+
+  @Test
+  void fallsBackToReflectionWhenFastClassGenerationFailsForAnAdvisedCall() throws Throwable {
+    var target = new FluentTarget();
+    Method method = FluentTarget.class.getMethod("self");
+    MethodProxy fastProxy = mock();
+    given(fastProxy.invoke(target, new Object[0])).willThrow(new CodeGenerationException(new IllegalStateException("fast class")));
+    var invocation = new CglibAopProxy.CglibMethodInvocation(new Object(), target, method,
+            FluentTarget.class, fastProxy, new Object[0], EMPTY_INTERCEPTOR);
+
+    assertThat(invocation.proceed()).isSameAs(target);
+    verify(fastProxy).invoke(target, new Object[0]);
+  }
+
+  @Test
+  void targetlessInvocationRetainsItsMethodAndSharesAttributesWithTheClone() throws Exception {
+    Method method = FluentTarget.class.getMethod("self");
+    var invocation = new DefaultMethodInvocation(new Object(), null, method, null, new Object[0], EMPTY_INTERCEPTOR);
+    var clone = (DefaultMethodInvocation) invocation.invocableClone();
+
+    assertThat(invocation.getStaticPart()).isSameAs(method);
+    assertThat(invocation.getTargetClass()).isEqualTo(FluentTarget.class);
+    assertThat(invocation.toString()).contains("self", "target is null");
+    assertThat(invocation).isEqualTo(clone).hasSameHashCodeAs(clone).isNotEqualTo(method);
+    clone.setAttribute("marker", "shared");
+    assertThat(invocation.getAttribute("marker")).isEqualTo("shared");
+    clone.setArguments(new Object[] { "different" });
+    assertThat(invocation).isNotEqualTo(clone);
+  }
+
+  @Test
+  void invocationCloneReportsSubclassThatDisablesCloning() throws Exception {
+    var invocation = new DefaultMethodInvocation(new Object(), null, FluentTarget.class.getMethod("self"),
+            null, new Object[0], EMPTY_INTERCEPTOR) {
+      @Override
+      protected Object clone() throws CloneNotSupportedException {
+        throw new CloneNotSupportedException("disabled");
+      }
+    };
+
+    assertThatIllegalStateException().isThrownBy(invocation::invocableClone).withMessageContaining("disabled");
+  }
+
+  @Test
+  void frozenUnadvisedSingletonPreservesFluentProxyIdentity() {
+    ProxyFactory factory = new ProxyFactory(new FluentTarget());
+    factory.setProxyTargetClass(true);
+    factory.setFrozen(true);
+    FluentTarget proxy = (FluentTarget) factory.getProxy();
+
+    assertThat(proxy.self()).isSameAs(proxy);
+  }
+
+  @Test
+  void frozenUnadvisedSingletonExposesAndRestoresTheCurrentProxy() {
+    ProxyFactory factory = new ProxyFactory(new FluentTarget());
+    factory.setProxyTargetClass(true);
+    factory.setFrozen(true);
+    factory.setExposeProxy(true);
+    FluentTarget proxy = (FluentTarget) factory.getProxy();
+
+    assertThat(proxy.currentProxy()).isSameAs(proxy);
+    assertThatIllegalStateException().isThrownBy(AopContext::currentProxy);
+  }
+
+  @Test
+  void frozenUnadvisedDynamicSourceReleasesTargetEvenOnFailure() throws Exception {
+    FluentTarget target = new FluentTarget();
+    TargetSource source = mock();
+    willReturn(FluentTarget.class).given(source).getTargetClass();
+    given(source.getTarget()).willReturn(target);
+    ProxyFactory factory = new ProxyFactory();
+    factory.setTargetSource(source);
+    factory.setProxyTargetClass(true);
+    factory.setFrozen(true);
+    FluentTarget proxy = (FluentTarget) factory.getProxy();
+
+    assertThat(proxy.self()).isSameAs(proxy);
+    assertThatIllegalStateException().isThrownBy(proxy::currentProxy);
+    verify(source, times(2)).releaseTarget(target);
+  }
+
+  @Test
+  void frozenUnadvisedDynamicSourceExposesProxyAndReleasesTarget() throws Exception {
+    FluentTarget target = new FluentTarget();
+    TargetSource source = mock();
+    willReturn(FluentTarget.class).given(source).getTargetClass();
+    given(source.getTarget()).willReturn(target);
+    ProxyFactory factory = new ProxyFactory();
+    factory.setTargetSource(source);
+    factory.setProxyTargetClass(true);
+    factory.setFrozen(true);
+    factory.setExposeProxy(true);
+    FluentTarget proxy = (FluentTarget) factory.getProxy();
+
+    assertThat(proxy.currentProxy()).isSameAs(proxy);
+    verify(source).releaseTarget(target);
+    assertThatIllegalStateException().isThrownBy(AopContext::currentProxy);
+  }
+
+  @Test
   void finalMethodWithoutInterfaceMatchIsNotSuppressed() throws NoSuchMethodException {
     assertCallback(WithStandaloneFinal.class, "doSomething", false);
   }
@@ -85,6 +251,17 @@ class CglibAopProxyConfigurationCallbackTests {
   static class WithFinalAfterPropertiesSet implements InitializingBean {
     @Override
     public final void afterPropertiesSet() { }
+  }
+
+  static class FluentTarget {
+
+    public FluentTarget self() {
+      return this;
+    }
+
+    public Object currentProxy() {
+      return AopContext.currentProxy();
+    }
   }
 
   static class WithFinalDestroy implements DisposableBean {

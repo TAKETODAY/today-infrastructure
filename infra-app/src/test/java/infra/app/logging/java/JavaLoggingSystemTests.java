@@ -29,6 +29,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import infra.app.logging.AbstractLoggingSystemTests;
@@ -114,6 +115,33 @@ class JavaLoggingSystemTests extends AbstractLoggingSystemTests {
   }
 
   @Test
+  void formatterIncludesTheThrowableAfterTheFormattedMessage() {
+    LogRecord record = new LogRecord(Level.WARNING, "Failed to load {0}");
+    record.setLoggerName("infra.app.logging.example");
+    record.setParameters(new Object[] { "configuration" });
+    record.setThrown(new IllegalStateException("invalid setting"));
+
+    assertThat(new SimpleFormatter().format(record)).containsSubsequence("infra.app.logging.example",
+            "Failed to load configuration", "java.lang.IllegalStateException: invalid setting");
+  }
+
+  @Test
+  void nullAndNamedRootLoggerBothChangeTheNativeRootLogger() {
+    Logger root = Logger.getLogger("");
+    Level original = root.getLevel();
+    try {
+      this.loggingSystem.setLogLevel(null, LogLevel.WARN);
+      assertThat(root.getLevel()).isEqualTo(Level.WARNING);
+      this.loggingSystem.setLogLevel(LoggingSystem.ROOT_LOGGER_NAME, LogLevel.ERROR);
+      assertThat(root.getLevel()).isEqualTo(Level.SEVERE);
+    }
+    finally {
+      this.loggingSystem.cleanup();
+      root.setLevel(original);
+    }
+  }
+
+  @Test
   void testSystemPropertyInitializesFormat(CapturedOutput output) {
     System.setProperty(LoggingSystemProperty.PID.getEnvironmentVariableName(), "1234");
     this.loggingSystem.beforeInitialize();
@@ -187,6 +215,24 @@ class JavaLoggingSystemTests extends AbstractLoggingSystemTests {
     LoggerConfiguration configuration = this.loggingSystem.getLoggerConfiguration(getClass().getName());
     assertThat(configuration)
             .isEqualTo(new LoggerConfiguration(getClass().getName(), LogLevel.DEBUG, LogLevel.DEBUG));
+  }
+
+  @Test
+  void getLoggerConfigurationForRootLogger() {
+    this.loggingSystem.beforeInitialize();
+    this.loggingSystem.initialize(null, null, null);
+    this.loggingSystem.setLogLevel(LoggingSystem.ROOT_LOGGER_NAME, LogLevel.DEBUG);
+    LoggerConfiguration configuration = this.loggingSystem.getLoggerConfiguration(LoggingSystem.ROOT_LOGGER_NAME);
+    assertThat(configuration)
+            .isEqualTo(new LoggerConfiguration(LoggingSystem.ROOT_LOGGER_NAME, LogLevel.DEBUG, LogLevel.DEBUG));
+  }
+
+  @Test
+  void getLoggerConfigurationForNonExistentLoggerShouldReturnNull() {
+    this.loggingSystem.beforeInitialize();
+    this.loggingSystem.initialize(null, null, null);
+    LoggerConfiguration configuration = this.loggingSystem.getLoggerConfiguration("doesnotexist");
+    assertThat(configuration).isNull();
   }
 
 }

@@ -19,8 +19,10 @@ package infra.transaction;
 import org.junit.jupiter.api.Test;
 
 import infra.transaction.annotation.Isolation;
+import infra.transaction.support.DefaultTransactionDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -73,6 +75,60 @@ class TransactionDefinitionTests {
     assertThat(definition.getTimeout()).isEqualTo(TransactionDefinition.TIMEOUT_DEFAULT);
     assertThat(definition.isReadOnly()).isFalse();
     assertThat(definition.getName()).isNull();
+  }
+
+  @Test
+  void shouldCopyAndDescribeTransactionDefinition() {
+    var original = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+    original.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
+    original.setTimeout(30);
+    original.setReadOnly(true);
+    original.setName("ignored by description");
+
+    var copy = new DefaultTransactionDefinition(original);
+    assertThat(copy).isEqualTo(original);
+    assertThat(copy.hashCode()).isEqualTo(original.hashCode());
+    assertThat(copy.toString()).isEqualTo("PROPAGATION_REQUIRES_NEW,ISOLATION_SERIALIZABLE,timeout_30,readOnly");
+    assertThat(copy).isNotEqualTo(null);
+    assertThat(copy).isNotEqualTo("definition");
+  }
+
+  @Test
+  void shouldRenderAllSupportedPropagationAndIsolationNames() {
+    var definition = new DefaultTransactionDefinition();
+    int[] propagation = {
+            TransactionDefinition.PROPAGATION_REQUIRED,
+            TransactionDefinition.PROPAGATION_SUPPORTS,
+            TransactionDefinition.PROPAGATION_MANDATORY,
+            TransactionDefinition.PROPAGATION_REQUIRES_NEW,
+            TransactionDefinition.PROPAGATION_NOT_SUPPORTED,
+            TransactionDefinition.PROPAGATION_NEVER,
+            TransactionDefinition.PROPAGATION_NESTED
+    };
+    for (int value : propagation) {
+      definition.setPropagationBehavior(value);
+      assertThat(definition.toString()).startsWith("PROPAGATION_");
+    }
+    int[] isolation = {
+            TransactionDefinition.ISOLATION_DEFAULT,
+            TransactionDefinition.ISOLATION_READ_UNCOMMITTED,
+            TransactionDefinition.ISOLATION_READ_COMMITTED,
+            TransactionDefinition.ISOLATION_REPEATABLE_READ,
+            TransactionDefinition.ISOLATION_SERIALIZABLE
+    };
+    for (int value : isolation) {
+      definition.setIsolationLevel(value);
+      assertThat(definition.toString()).contains("ISOLATION_");
+    }
+  }
+
+  @Test
+  void rejectsInvalidTimeoutAndRendersInvalidDefinitionValues() {
+    var definition = new DefaultTransactionDefinition();
+    assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> definition.setTimeout(-2));
+    assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> new DefaultTransactionDefinition(99).toString())
+            .withMessageContaining("Unsupported propagation behavior: 99");
   }
 
 }

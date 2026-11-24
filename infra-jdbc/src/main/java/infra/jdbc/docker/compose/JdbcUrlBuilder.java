@@ -20,6 +20,9 @@ package infra.jdbc.docker.compose;
 
 import org.jspecify.annotations.Nullable;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import infra.docker.compose.core.RunningService;
 import infra.util.Assert;
 import infra.util.StringUtils;
@@ -30,6 +33,7 @@ import infra.util.StringUtils;
  * @author Moritz Halbritter
  * @author Andy Wilkinson
  * @author Phillip Webb
+ * @author Yu Xia
  */
 class JdbcUrlBuilder {
 
@@ -39,6 +43,8 @@ class JdbcUrlBuilder {
 
   private final int containerPort;
 
+  private final Encoding encoding;
+
   /**
    * Create a new {@link JdbcUrlBuilder} instance.
    *
@@ -46,9 +52,21 @@ class JdbcUrlBuilder {
    * @param containerPort the source container port
    */
   JdbcUrlBuilder(String driverProtocol, int containerPort) {
+    this(driverProtocol, containerPort, Encoding.NONE);
+  }
+
+  /**
+   * Create a new {@link JdbcUrlBuilder} instance.
+   *
+   * @param driverProtocol the driver protocol
+   * @param containerPort the source container port
+   * @param encoding the encoding to apply
+   */
+  JdbcUrlBuilder(String driverProtocol, int containerPort, Encoding encoding) {
     Assert.notNull(driverProtocol, "'driverProtocol' is required");
     this.driverProtocol = driverProtocol;
     this.containerPort = containerPort;
+    this.encoding = encoding;
   }
 
   /**
@@ -78,7 +96,7 @@ class JdbcUrlBuilder {
             service.ports().get(this.containerPort)));
     if (StringUtils.isNotEmpty(database)) {
       url.append("/");
-      url.append(database);
+      url.append(this.encoding.apply(database));
     }
     String parameters = getParameters(service);
     if (StringUtils.isNotEmpty(parameters)) {
@@ -101,6 +119,36 @@ class JdbcUrlBuilder {
 
   private @Nullable String getParameters(RunningService service) {
     return service.labels().get(PARAMETERS_LABEL);
+  }
+
+  /**
+   * Encoding strategies for database names.
+   */
+  enum Encoding {
+
+    /**
+     * Do not apply any encoding.
+     */
+    NONE,
+
+    /**
+     * URL encode elements.
+     */
+    URL,
+
+    /**
+     * URL encode elements, representing spaces as {@code %20} rather than {@code +}.
+     */
+    URL_PLUS;
+
+    String apply(String value) {
+      return switch (this) {
+        case NONE -> value;
+        case URL -> URLEncoder.encode(value, StandardCharsets.UTF_8);
+        case URL_PLUS -> URLEncoder.encode(value, StandardCharsets.UTF_8).replace("+", "%20");
+      };
+    }
+
   }
 
 }

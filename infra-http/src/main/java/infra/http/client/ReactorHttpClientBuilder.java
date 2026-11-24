@@ -35,7 +35,9 @@ import infra.util.function.ThrowingConsumer;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.ssl.SslContextBuilder;
 import reactor.netty.http.client.HttpClient;
+import reactor.netty.http.client.HttpClientConfig;
 import reactor.netty.tcp.SslProvider.SslContextSpec;
+import reactor.netty.transport.ClientTransport.ResolvedAddressSelector;
 
 /**
  * Builder that can be used to create a Rector Netty {@link HttpClient}.
@@ -51,13 +53,17 @@ public final class ReactorHttpClientBuilder {
 
   private final UnaryOperator<HttpClient> customizer;
 
+  private final @Nullable ResolvedAddressSelector<? super HttpClientConfig> resolvedAddressSelector;
+
   public ReactorHttpClientBuilder() {
-    this(HttpClient::create, UnaryOperator.identity());
+    this(HttpClient::create, UnaryOperator.identity(), null);
   }
 
-  private ReactorHttpClientBuilder(Supplier<HttpClient> httpClientFactory, UnaryOperator<HttpClient> customizer) {
+  private ReactorHttpClientBuilder(Supplier<HttpClient> httpClientFactory, UnaryOperator<HttpClient> customizer,
+          @Nullable ResolvedAddressSelector<? super HttpClientConfig> resolvedAddressSelector) {
     this.factory = httpClientFactory;
     this.customizer = customizer;
+    this.resolvedAddressSelector = resolvedAddressSelector;
   }
 
   /**
@@ -70,7 +76,8 @@ public final class ReactorHttpClientBuilder {
   public ReactorHttpClientBuilder withReactorResourceFactory(ReactorResourceFactory reactorResourceFactory) {
     Assert.notNull(reactorResourceFactory, "'reactorResourceFactory' is required");
     return new ReactorHttpClientBuilder(() -> HttpClient.create(reactorResourceFactory.getConnectionProvider()),
-            httpClient -> this.customizer.apply(httpClient).runOn(reactorResourceFactory.getLoopResources()));
+            httpClient -> this.customizer.apply(httpClient).runOn(reactorResourceFactory.getLoopResources()),
+            this.resolvedAddressSelector);
   }
 
   /**
@@ -82,7 +89,7 @@ public final class ReactorHttpClientBuilder {
    */
   public ReactorHttpClientBuilder withHttpClientFactory(Supplier<HttpClient> factory) {
     Assert.notNull(factory, "'factory' is required");
-    return new ReactorHttpClientBuilder(factory, this.customizer);
+    return new ReactorHttpClientBuilder(factory, this.customizer, this.resolvedAddressSelector);
   }
 
   /**
@@ -95,7 +102,21 @@ public final class ReactorHttpClientBuilder {
   public ReactorHttpClientBuilder withHttpClientCustomizer(UnaryOperator<HttpClient> customizer) {
     Assert.notNull(customizer, "'customizer' is required");
     return new ReactorHttpClientBuilder(this.factory,
-            httpClient -> customizer.apply(this.customizer.apply(httpClient)));
+            httpClient -> customizer.apply(this.customizer.apply(httpClient)), this.resolvedAddressSelector);
+  }
+
+  /**
+   * Return a new builder with the given resolved address selector. Use this method
+   * rather than a customizer so the configured address filter can wrap the selector.
+   *
+   * @param resolvedAddressSelector the resolved address selector to use
+   * @return a new {@link ReactorHttpClientBuilder} instance
+   * @since 5.0
+   */
+  public ReactorHttpClientBuilder withResolvedAddressSelector(
+          ResolvedAddressSelector<? super HttpClientConfig> resolvedAddressSelector) {
+    Assert.notNull(resolvedAddressSelector, "ResolvedAddressSelector is required");
+    return new ReactorHttpClientBuilder(this.factory, this.customizer, resolvedAddressSelector);
   }
 
   /**
@@ -125,7 +146,13 @@ public final class ReactorHttpClientBuilder {
       throw new IllegalArgumentException("Reactor Netty HTTP client does not support cookie handling");
     }
 
-    return this.customizer.apply(httpClient);
+    httpClient = this.customizer.apply(httpClient);
+    InetAddressFilter filter = settings.inetAddressFilter();
+    if (filter != null) {
+      return httpClient.resolvedAddressesSelector(
+              new ReactorFilteredResolvedAddressSelector<>(this.resolvedAddressSelector, filter));
+    }
+    return this.resolvedAddressSelector != null ? httpClient.resolvedAddressesSelector(this.resolvedAddressSelector) : httpClient;
   }
 
   HttpClient applyDefaults(HttpClient httpClient) {

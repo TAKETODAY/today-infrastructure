@@ -58,6 +58,22 @@ class JacksonSmileEncoderTests extends AbstractEncoderTests<JacksonSmileEncoder>
   }
 
   @Test
+  void honorsMediaTypesWithAnExplicitMapperOrBuilder() {
+    MimeType custom = new MimeType("application", "example+x-jackson-smile");
+    assertThat(new JacksonSmileEncoder(this.mapper).getEncodableMimeTypes()).contains(SMILE_MIME_TYPE);
+    assertThat(new JacksonSmileEncoder(SmileMapper.builder()).getEncodableMimeTypes()).contains(SMILE_MIME_TYPE);
+    assertThat(new JacksonSmileEncoder(this.mapper, custom).getEncodableMimeTypes()).containsExactly(custom);
+  }
+
+  @Test
+  void distinguishesStreamingFromNonStreamingSmileMediaTypes() {
+    assertThat(this.encoder.getStreamingMediaTypeSeparator(STREAM_SMILE_MIME_TYPE)).isEmpty();
+    assertThat(this.encoder.getStreamingMediaTypeSeparator(SMILE_MIME_TYPE)).isNull();
+    this.encoder.setStreamingMediaTypes(List.of());
+    assertThat(this.encoder.getStreamingMediaTypeSeparator(STREAM_SMILE_MIME_TYPE)).isNull();
+  }
+
+  @Test
   @Override
   protected void canEncode() {
     ResolvableType pojoType = ResolvableType.forClass(Pojo.class);

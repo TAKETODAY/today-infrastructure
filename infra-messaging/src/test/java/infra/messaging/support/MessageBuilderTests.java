@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
 package infra.messaging.support;
 
 import org.junit.jupiter.api.Test;
@@ -114,12 +116,41 @@ class MessageBuilderTests {
     Message<String> source = MessageBuilder.withPayload("test").setHeader("foo", "bar").build();
     RuntimeException ex = new RuntimeException();
     ErrorMessage errorMessage1 = new ErrorMessage(ex, Collections.singletonMap("baz", "42"), source);
-    Message<Throwable> errorMessage2 = MessageBuilder.fromMessage(errorMessage1).build();
+    Message<Throwable> errorMessage2 = MessageBuilder.fromMessage(errorMessage1).setHeader("attempt", 2).build();
     assertThat(errorMessage2).isExactlyInstanceOf(ErrorMessage.class);
     ErrorMessage actual = (ErrorMessage) errorMessage2;
     assertThat(actual.getPayload()).isSameAs(ex);
     assertThat(actual.getHeaders().get("baz")).isEqualTo("42");
     assertThat(actual.getOriginalMessage()).isSameAs(source);
+    assertThat(actual.getHeaders()).containsEntry("attempt", 2);
+    assertThat(errorMessage1.getHeaders()).doesNotContainKey("attempt");
+  }
+
+  @Test
+  void throwablePayloadCreatesErrorMessageWithoutOriginalMessage() {
+    RuntimeException failure = new RuntimeException("failed");
+    Message<RuntimeException> built = MessageBuilder.withPayload(failure).setHeader("attempt", 1).build();
+    Message<RuntimeException> created = MessageBuilder.createMessage(failure, built.getHeaders());
+
+    for (Message<?> message : new Message<?>[] { built, created }) {
+      assertThat(message).isInstanceOfSatisfying(ErrorMessage.class, error -> {
+        assertThat(error.getOriginalMessage()).isNull();
+        assertThat(error.getPayload()).isSameAs(failure);
+        assertThat(error.getHeaders()).containsEntry("attempt", 1);
+      });
+    }
+    assertThat(created.getHeaders()).isSameAs(built.getHeaders());
+  }
+
+  @Test
+  void removesMatchingHeadersWithoutChangingOriginal() {
+    Message<String> original = MessageBuilder.withPayload("body")
+            .copyHeaders(Map.of("internal-a", 1, "internal-b", 2, "public", 3)).build();
+
+    Message<String> copy = MessageBuilder.fromMessage(original).removeHeaders("internal-*").build();
+
+    assertThat(copy.getHeaders()).containsEntry("public", 3).doesNotContainKeys("internal-a", "internal-b");
+    assertThat(original.getHeaders()).containsKeys("internal-a", "internal-b");
   }
 
   @Test

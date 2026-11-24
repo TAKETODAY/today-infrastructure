@@ -24,7 +24,6 @@ import infra.beans.ConversionNotSupportedException;
 import infra.beans.TypeMismatchException;
 import infra.context.MessageSource;
 import infra.context.MessageSourceAware;
-import infra.core.i18n.LocaleContextHolder;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
@@ -572,7 +571,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
     }
 
     if (body == null && ex instanceof ErrorResponse errorResponse) {
-      body = errorResponse.updateAndGetBody(this.messageSource, LocaleContextHolder.getLocale());
+      body = errorResponse.updateAndGetBody(this.messageSource, WebUtils.resolveLocale(request));
     }
 
     return createResponseEntity(body, headers, statusCode, request);
@@ -605,7 +604,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
     if (detailMessageArguments != null) {
       builder.detailMessageArguments(detailMessageArguments);
     }
-    return builder.build().updateAndGetBody(this.messageSource, LocaleContextHolder.getLocale());
+    return builder.build().updateAndGetBody(this.messageSource, WebUtils.resolveLocale(request));
   }
 
   /**

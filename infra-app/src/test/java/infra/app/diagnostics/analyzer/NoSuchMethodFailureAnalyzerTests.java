@@ -19,13 +19,16 @@
 package infra.app.diagnostics.analyzer;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.URL;
 import java.util.List;
 
+import infra.app.diagnostics.FailureAnalysis;
 import infra.app.diagnostics.analyzer.NoSuchMethodFailureAnalyzer.ClassDescriptor;
 import infra.app.diagnostics.analyzer.NoSuchMethodFailureAnalyzer.NoSuchMethodDescriptor;
-import infra.util.MimeType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -53,59 +56,54 @@ class NoSuchMethodFailureAnalyzerTests {
     assertThat(location).asString().contains("infra-core");
   }
 
-//  @Test
-//  void whenAMethodOnAClassIsMissingThenNoSuchMethodErrorIsAnalyzed() {
-//    Throwable failure = createFailureForMissingMethod();
-//    assertThat(failure).isNotNull();
-////    failure.printStackTrace();
-//    FailureAnalysis analysis = new NoSuchMethodFailureAnalyzer().analyze(failure);
-//    assertThat(analysis).isNotNull();
-//    assertThat(analysis.getDescription())
-//            .contains(NoSuchMethodFailureAnalyzerTests.class.getName() + ".createFailureForMissingMethod(")
-//            .contains("isMoreSpecific(")
-//            .contains("calling method's class, " + NoSuchMethodFailureAnalyzerTests.class.getName() + ",")
-//            .contains("called method's class, infra.util.MimeType,");
-//    assertThat(analysis.getAction()).contains(NoSuchMethodFailureAnalyzerTests.class.getName())
-//            .contains("infra.util.MimeType");
-//  }
+  @Test
+  void reportsTheCallerAndCalledClassForALinkageError() {
+    String caller = getClass().getName();
+    String called = Child.class.getName();
+    String missingMethod = called.replace('.', '/') + ".missing()V";
+    NoSuchMethodError failure = linkageError(caller, missingMethod + " (loaded from somewhere)");
 
-//
-//  @Test
-//  void whenAnInheritedMethodIsMissingThenNoSuchMethodErrorIsAnalyzed() {
-//    Throwable failure = createFailureForMissingInheritedMethod();
-//    assertThat(failure).isNotNull();
-//    FailureAnalysis analysis = new NoSuchMethodFailureAnalyzer().analyze(failure);
-//    assertThat(analysis).isNotNull();
-//    assertThat(analysis.getDescription()).contains(R2dbcMappingContext.class.getName() + ".<init>(")
-//            .contains(R2dbcMappingContext.class.getName() + ".setForceQuote(")
-//            .contains("calling method's class, infra.data.r2dbc.mapping.R2dbcMappingContext,")
-//            .contains("called method's class, infra.data.r2dbc.mapping.R2dbcMappingContext,")
-//            .contains("    infra.data.r2dbc.mapping.R2dbcMappingContext")
-//            .contains("    infra.data.relational.core.mapping.RelationalMappingContext")
-//            .contains("    infra.data.mapping.context.AbstractMappingContext");
-//    assertThat(analysis.getAction()).contains("infra.data.r2dbc.mapping.R2dbcMappingContext");
-//  }
+    FailureAnalysis analysis = new NoSuchMethodFailureAnalyzer().analyze(new IllegalStateException(failure));
 
-  private Throwable createFailureForMissingMethod() {
-    try {
-      System.out.println(MimeType.class.getProtectionDomain().getCodeSource().getLocation());
-      MimeType mimeType = new MimeType("application", "json");
-      System.out.println(mimeType.isMoreSpecific(null));
-      return null;
-    }
-    catch (Throwable ex) {
-      return ex;
-    }
+    assertThat(analysis).isNotNull();
+    assertThat(analysis.getCause()).isSameAs(failure);
+    assertThat(analysis.getDescription()).contains(caller + ".invoke(", missingMethod,
+            "calling method's class, " + caller, "called method's class, " + called,
+            Child.class.getCanonicalName() + ":", Parent.class.getCanonicalName() + ":")
+            .doesNotContain("loaded from somewhere");
+    assertThat(analysis.getAction()).endsWith("compatible versions of the classes " + caller + " and " + called);
   }
 
-//  private Throwable createFailureForMissingInheritedMethod() {
-//    try {
-//      new R2dbcMappingContext();
-//      return null;
-//    }
-//    catch (Throwable ex) {
-//      return ex;
-//    }
-//  }
+  @Test
+  void recommendsASingleVersionWhenTheCallerAndCalledClassAreTheSame() {
+    String type = Child.class.getName();
+    FailureAnalysis analysis = new NoSuchMethodFailureAnalyzer().analyze(linkageError(type, "'void " + type + ".missing()'"));
+
+    assertThat(analysis).isNotNull();
+    assertThat(analysis.getAction()).endsWith("a single, compatible version of " + type);
+  }
+
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = { "'invalid'", "missing()", "'void missing.Type.method()'", "'void java.lang.String.method()'" })
+  void ignoresFailuresWithoutADescriptorForTheCalledClass(String message) {
+    assertThat(new NoSuchMethodFailureAnalyzer().analyze(linkageError(getClass().getName(), message))).isNull();
+  }
+
+  @Test
+  void ignoresFailuresWithoutADescriptorForTheCaller() {
+    assertThat(new NoSuchMethodFailureAnalyzer().analyze(linkageError("missing.Caller", "'void infra.util.MimeType.missing()'")))
+            .isNull();
+  }
+
+  private NoSuchMethodError linkageError(String caller, String message) {
+    NoSuchMethodError error = new NoSuchMethodError(message);
+    error.setStackTrace(new StackTraceElement[] { new StackTraceElement(caller, "invoke", "Caller.java", 42) });
+    return error;
+  }
+
+  static class Parent { }
+
+  static class Child extends Parent { }
 
 }

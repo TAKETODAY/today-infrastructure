@@ -20,8 +20,11 @@ package infra.aop.scope;
 
 import org.junit.jupiter.api.Test;
 
+import infra.beans.factory.BeanFactory;
+import infra.beans.factory.FactoryBeanNotInitializedException;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.config.BeanDefinitionHolder;
+import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.support.AbstractBeanDefinition;
 import infra.beans.factory.support.AutowireCandidateQualifier;
 import infra.beans.factory.support.BeanDefinitionRegistry;
@@ -30,7 +33,10 @@ import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.SimpleBeanDefinitionRegistry;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.BDDMockito.mock;
 
 /**
  * Unit tests for {@link ScopedProxyUtils}.
@@ -38,6 +44,18 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Sam Brannen
  */
 class ScopedProxyUtilsTests {
+
+  @Test
+  void scopedProxyRequiresInitializationAndAKnownTargetType() {
+    var proxy = new ScopedProxyFactoryBean();
+    proxy.setTargetBeanName("missing");
+
+    assertThatExceptionOfType(FactoryBeanNotInitializedException.class).isThrownBy(proxy::getObject);
+    assertThatIllegalStateException().isThrownBy(() -> proxy.setBeanFactory(mock(BeanFactory.class)))
+            .withMessageContaining("ConfigurableBeanFactory");
+    assertThatIllegalStateException().isThrownBy(() -> proxy.setBeanFactory(mock(ConfigurableBeanFactory.class)))
+            .withMessageContaining("missing");
+  }
 
   @Test
   void getTargetBeanNameAndIsScopedTarget() {

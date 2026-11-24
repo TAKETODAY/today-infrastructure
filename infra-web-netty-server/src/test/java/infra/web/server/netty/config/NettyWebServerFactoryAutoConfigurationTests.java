@@ -25,6 +25,9 @@ import java.io.FileNotFoundException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
+import infra.aot.hint.MemberCategory;
+import infra.aot.hint.RuntimeHints;
+import infra.aot.hint.predicate.RuntimeHintsPredicates;
 import infra.scheduling.concurrent.ThreadPoolTaskExecutor;
 import infra.test.classpath.ClassPathExclusions;
 import infra.test.context.runner.ApplicationContextRunner;
@@ -187,7 +190,7 @@ class NettyWebServerFactoryAutoConfigurationTests {
 
   @Test
   void nettyRequestConfigCustomizers() {
-    contextRunner.withPropertyValues("server.netty.autoRead=true")
+    contextRunner.withPropertyValues("server.netty.autoRead=false")
             .withBean(NettyRequestConfigCustomizer.class, () -> builder -> builder.manualBodyRead(false))
             .run(context -> {
               assertThat(context).hasSingleBean(NettyRequestConfig.class);
@@ -232,6 +235,17 @@ class NettyWebServerFactoryAutoConfigurationTests {
                               ClassUtils.load("infra.web.server.support.VirtualThreadHttpRequestExecutor")
                       );
             });
+  }
+
+  @Test
+  @EnabledForJreRange(min = JRE.JAVA_21)
+  void virtualThreadExecutorPublicConstructorIsAvailableForReflection() {
+    RuntimeHints hints = new RuntimeHints();
+    new NettyWebServerFactoryAutoConfiguration.VirtualThreadHints().registerHints(hints, getClass().getClassLoader());
+
+    assertThat(RuntimeHintsPredicates.reflection()
+            .onType(ClassUtils.load("infra.web.server.support.VirtualThreadHttpRequestExecutor"))
+            .withMemberCategory(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS)).accepts(hints);
   }
 
 }

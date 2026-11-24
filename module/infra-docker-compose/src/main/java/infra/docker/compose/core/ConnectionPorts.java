@@ -40,7 +40,8 @@ public interface ConnectionPorts {
    * service (e.g. port 80 for HTTP)
    * @return the host port. This can be an ephemeral port that is different from the
    * container port
-   * @throws IllegalStateException if the container port is not mapped
+   * @throws IllegalStateException if the container port is not mapped or if the port is
+   * mapped for multiple protocols
    */
   int get(int containerPort);
 

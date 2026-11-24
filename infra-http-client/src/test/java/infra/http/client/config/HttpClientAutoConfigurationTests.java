@@ -31,6 +31,7 @@ import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.HttpClientSettings;
 import infra.http.client.HttpCookieHandling;
 import infra.http.client.HttpRedirects;
+import infra.http.client.InetAddressFilter;
 import infra.http.client.JdkClientHttpRequestFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,6 +57,18 @@ class HttpClientAutoConfigurationTests {
   void createsDefaultHttpClientSettings() {
     this.contextRunner.run((context) -> assertThat(context.getBean(HttpClientSettings.class))
             .isEqualTo(HttpClientSettings.defaults()));
+  }
+
+  @Test
+  void appliesInetAddressFilterBeanToClientSettings() {
+    InetAddressFilter filter = InetAddressFilter.externalAddresses();
+    this.contextRunner.withBean(InetAddressFilter.class, () -> filter)
+            .withPropertyValues("http.clients.connect-timeout=1s")
+            .run(context -> {
+              HttpClientSettings settings = context.getBean(HttpClientSettings.class);
+              assertThat(settings.inetAddressFilter()).isSameAs(filter);
+              assertThat(settings.connectTimeout()).isEqualTo(Duration.ofSeconds(1));
+            });
   }
 
   @Test

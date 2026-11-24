@@ -28,6 +28,7 @@ import infra.core.io.buffer.DataBuffer;
 import infra.core.testfixture.codec.AbstractDecoderTests;
 import infra.http.MediaType;
 import infra.http.codec.Pojo;
+import infra.util.MimeType;
 import reactor.core.publisher.Flux;
 import tools.jackson.core.JacksonException;
 import tools.jackson.dataformat.cbor.CBORMapper;
@@ -51,6 +52,15 @@ class JacksonCborDecoderTests extends AbstractDecoderTests<JacksonCborDecoder> {
 
   public JacksonCborDecoderTests() {
     super(new JacksonCborDecoder());
+  }
+
+  @Test
+  void honorsMediaTypesWithAnExplicitMapperOrBuilder() {
+    MimeType custom = new MimeType("application", "example+cbor");
+    assertThat(new JacksonCborDecoder(this.mapper).getDecodableMimeTypes()).containsExactly(MediaType.APPLICATION_CBOR);
+    assertThat(new JacksonCborDecoder(CBORMapper.builder()).getDecodableMimeTypes()).containsExactly(MediaType.APPLICATION_CBOR);
+    assertThat(new JacksonCborDecoder(this.mapper, custom).getDecodableMimeTypes()).containsExactly(custom);
+    assertThat(new JacksonCborDecoder(CBORMapper.builder(), custom).getDecodableMimeTypes()).containsExactly(custom);
   }
 
   @Override

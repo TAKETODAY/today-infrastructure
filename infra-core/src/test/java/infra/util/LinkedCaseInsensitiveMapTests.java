@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -202,6 +203,26 @@ class LinkedCaseInsensitiveMapTests {
     map.keySet().remove("key");
     map.computeIfAbsent("key", k -> "newvalue");
     assertThat(map.get("key")).isEqualTo("newvalue");
+  }
+
+  @Test
+  void removeFromKeySetWithNullValue() {
+    map.put("key", null);
+    assertThat(map.keySet().remove("KEY")).isTrue();
+    assertThat(map).isEmpty();
+    assertThat(map.keySet().remove("key")).isFalse();
+    map.computeIfAbsent("key", key -> "newvalue");
+    assertThat(map.get("key")).isEqualTo("newvalue");
+  }
+
+  @Test
+  void removeAllFromKeySetWithNullValues() {
+    map.put("key1", null);
+    map.put("key2", null);
+    assertThat(map.keySet().removeAll(Set.of("KEY1"))).isTrue();
+    assertThat(map.keySet()).containsExactly("key2");
+    assertThat(map.keySet().removeAll(Set.of("KEY1"))).isFalse();
+    assertThat(map.keySet()).containsExactly("key2");
   }
 
   @Test

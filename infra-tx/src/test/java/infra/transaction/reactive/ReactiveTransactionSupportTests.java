@@ -18,22 +18,32 @@
 
 package infra.transaction.reactive;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import infra.dao.ConcurrencyFailureException;
 import infra.transaction.CannotCreateTransactionException;
 import infra.transaction.IllegalTransactionStateException;
+import infra.transaction.InvalidTimeoutException;
 import infra.transaction.ReactiveTransaction;
 import infra.transaction.ReactiveTransactionManager;
 import infra.transaction.TestTransactionExecutionListener;
 import infra.transaction.TransactionDefinition;
+import infra.transaction.TransactionSuspensionNotSupportedException;
 import infra.transaction.TransactionSystemException;
+import infra.transaction.UnexpectedRollbackException;
 import infra.transaction.support.DefaultTransactionDefinition;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * Unit tests for transactional support through {@link ReactiveTestTransactionManager}.
@@ -41,6 +51,340 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Mark Paluch
  */
 public class ReactiveTransactionSupportTests {
+
+  @ParameterizedTest
+  @ValueSource(ints = { TransactionDefinition.PROPAGATION_REQUIRES_NEW, TransactionDefinition.PROPAGATION_NOT_SUPPORTED })
+  void suspendingPropagationRestoresOuterResourcesAndSynchronization(int propagation) {
+    var events = new ArrayList<String>();
+    var tm = new SuspendingTransactionManager(true, events);
+    var definition = new DefaultTransactionDefinition(propagation);
+    definition.setName("inner");
+    boolean requiresNew = propagation == TransactionDefinition.PROPAGATION_REQUIRES_NEW;
+
+    Mono<Void> execution = TransactionSynchronizationManager.forCurrentTransaction().flatMap(manager -> {
+      registerOuterTransaction(manager, events);
+      return tm.getReactiveTransaction(definition).flatMap(status -> {
+        assertThat(status.isNewTransaction()).isEqualTo(requiresNew);
+        assertThat(status.hasTransaction()).isEqualTo(requiresNew);
+        assertThat(manager.getCurrentTransactionName()).isEqualTo("inner");
+        assertThat(manager.isActualTransactionActive()).isEqualTo(requiresNew);
+        assertThat(manager.isCurrentTransactionReadOnly()).isFalse();
+        assertThat(manager.getResource("resource")).isNull();
+        assertThat(manager.getSynchronizations()).isEmpty();
+        return tm.commit(status).then(Mono.fromRunnable(() -> {
+          assertThat(status.isCompleted()).isTrue();
+          assertOuterTransactionRestored(manager);
+        }));
+      });
+    });
+
+    StepVerifier.create(execution.contextWrite(TransactionContextManager.createTransactionContext())).verifyComplete();
+    assertThat(events).containsExactly("suspend synchronization", "suspend resource", "resume resource", "resume synchronization");
+    assertThat(tm.begin).isEqualTo(requiresNew);
+    assertThat(tm.commit).isEqualTo(requiresNew);
+    assertThat(tm.cleanup).isEqualTo(requiresNew);
+  }
+
+  @Test
+  void failedRequiresNewBeginRestoresOuterTransaction() {
+    var events = new ArrayList<String>();
+    var tm = new SuspendingTransactionManager(false, events);
+    var listener = new TestTransactionExecutionListener();
+    tm.addListener(listener);
+    var definition = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+
+    var execution = TransactionSynchronizationManager.forCurrentTransaction().flatMap(manager -> {
+      registerOuterTransaction(manager, events);
+      return tm.getReactiveTransaction(definition).doOnError(error -> assertOuterTransactionRestored(manager));
+    });
+
+    StepVerifier.create(execution.contextWrite(TransactionContextManager.createTransactionContext()))
+            .verifyError(CannotCreateTransactionException.class);
+    assertThat(events).containsExactly("suspend synchronization", "suspend resource", "resume resource", "resume synchronization");
+    assertThat(listener.beginFailure).isInstanceOf(CannotCreateTransactionException.class);
+    assertHasNotCommitted(tm);
+  }
+
+  @Test
+  void suspendsAndRestoresResourceWithoutOuterSynchronization() {
+    var events = new ArrayList<String>();
+    var tm = new SuspendingTransactionManager(true, events);
+    var definition = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_NOT_SUPPORTED);
+
+    var execution = TransactionSynchronizationManager.forCurrentTransaction().flatMap(manager -> {
+      manager.bindResource("resource", "outer value");
+      return tm.getReactiveTransaction(definition).flatMap(status -> {
+        assertThat(status.hasTransaction()).isFalse();
+        assertThat(manager.hasResource("resource")).isFalse();
+        return tm.commit(status).then(Mono.fromRunnable(() -> {
+          assertThat(manager.getResource("resource")).isEqualTo("outer value");
+          assertThat(manager.isSynchronizationActive()).isFalse();
+        }));
+      });
+    });
+
+    StepVerifier.create(execution.contextWrite(TransactionContextManager.createTransactionContext())).verifyComplete();
+    assertThat(events).containsExactly("suspend resource", "resume resource");
+    assertHasNotBegan(tm);
+    assertHasNotCommitted(tm);
+  }
+
+  @Test
+  void requiresNewIsRejectedWhenSuspensionIsNotSupported() {
+    var tm = new ReactiveTestTransactionManager(true, true);
+    var definition = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+
+    StepVerifier.create(tm.getReactiveTransaction(definition)
+                    .contextWrite(TransactionContextManager.createTransactionContext()))
+            .verifyError(TransactionSuspensionNotSupportedException.class);
+    assertHasNotBegan(tm);
+  }
+
+  @Test
+  void neverRejectsAnExistingTransaction() {
+    var tm = new ReactiveTestTransactionManager(true, true);
+    var definition = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_NEVER);
+
+    StepVerifier.create(tm.getReactiveTransaction(definition)
+                    .contextWrite(TransactionContextManager.createTransactionContext()))
+            .verifyError(IllegalTransactionStateException.class);
+    assertHasNotBegan(tm);
+  }
+
+  @Test
+  void nestedPropagationStartsAndCompletesANestedTransaction() {
+    var tm = new ReactiveTestTransactionManager(true, true);
+    var definition = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_NESTED);
+
+    var execution = tm.getReactiveTransaction(definition).flatMap(status -> {
+      assertThat(status.isNested()).isTrue();
+      assertThat(status.isNewTransaction()).isTrue();
+      return tm.commit(status).thenReturn(status);
+    });
+
+    StepVerifier.create(execution.contextWrite(TransactionContextManager.createTransactionContext()))
+            .assertNext(status -> assertThat(status.isCompleted()).isTrue())
+            .verifyComplete();
+    assertHasBegan(tm);
+    assertHasCommitted(tm);
+    assertHasCleanedUp(tm);
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = { true, false })
+  void completedTransactionRejectsSecondCompletion(boolean commit) {
+    var tm = new ReactiveTestTransactionManager(false, true);
+
+    var execution = tm.getReactiveTransaction(null).flatMap(status ->
+            tm.commit(status).then(Mono.defer(() -> commit ? tm.commit(status) : tm.rollback(status))));
+
+    StepVerifier.create(execution.contextWrite(TransactionContextManager.createTransactionContext()))
+            .verifyError(IllegalTransactionStateException.class);
+    assertHasCommitted(tm);
+    assertHasNoRollback(tm);
+  }
+
+  @Test
+  void participatingSynchronizationReceivesUnknownCompletionStatus() {
+    var tm = new ReactiveTestTransactionManager(true, true);
+    var completion = new ArrayList<Integer>();
+
+    var execution = tm.getReactiveTransaction(null).flatMap(status ->
+            TransactionSynchronizationManager.forCurrentTransaction().flatMap(manager -> {
+              registerCompletion(manager, completion);
+              return tm.commit(status);
+            }));
+
+    StepVerifier.create(execution.contextWrite(TransactionContextManager.createTransactionContext())).verifyComplete();
+    assertThat(completion).containsExactly(TransactionSynchronization.STATUS_UNKNOWN);
+    assertHasNotCommitted(tm);
+  }
+
+  @Test
+  void unexpectedRollbackReportsRolledBackCompletionWithoutRetryingRollback() {
+    var failure = new UnexpectedRollbackException("Already rolled back by coordinator");
+    var tm = new ReactiveTestTransactionManager(false, message -> failure, null);
+    var completion = new ArrayList<Integer>();
+    var listener = new TestTransactionExecutionListener();
+    tm.addListener(listener);
+
+    var execution = tm.getReactiveTransaction(null).flatMap(status ->
+            TransactionSynchronizationManager.forCurrentTransaction().flatMap(manager -> {
+              registerCompletion(manager, completion);
+              return tm.commit(status);
+            }));
+
+    StepVerifier.create(execution.contextWrite(TransactionContextManager.createTransactionContext()))
+            .expectErrorSatisfies(error -> assertThat(error).isSameAs(failure))
+            .verify();
+    assertThat(completion).containsExactly(TransactionSynchronization.STATUS_ROLLED_BACK);
+    assertThat(listener.afterRollbackCalled).isTrue();
+    assertHasNoRollback(tm);
+    assertHasCleanedUp(tm);
+  }
+
+  @Test
+  void rejectsInvalidTimeoutBeforeCreatingReactiveTransaction() {
+    var tm = new ReactiveTestTransactionManager(false, true);
+    TransactionDefinition definition = new TransactionDefinition() {
+      @Override
+      public int getTimeout() {
+        return TIMEOUT_DEFAULT - 1;
+      }
+    };
+
+    StepVerifier.create(tm.getReactiveTransaction(definition)
+                    .contextWrite(TransactionContextManager.createTransactionContext()))
+            .verifyError(InvalidTimeoutException.class);
+    assertHasNotBegan(tm);
+  }
+
+  @Test
+  void supportsEmptyTransactionWithSynchronizationAndIsolationHint() {
+    var tm = new ReactiveTestTransactionManager(false, true);
+    var definition = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_SUPPORTS);
+    definition.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
+
+    var execution = tm.getReactiveTransaction(definition).flatMap(status -> {
+      assertThat(status.hasTransaction()).isFalse();
+      return tm.commit(status);
+    });
+
+    StepVerifier.create(execution.contextWrite(TransactionContextManager.createTransactionContext())).verifyComplete();
+    assertHasNotBegan(tm);
+    assertHasNotCommitted(tm);
+    assertHasNoRollback(tm);
+  }
+
+  @Test
+  void rollingBackAnEmptySupportsTransactionCompletesWithoutBackendRollback() {
+    var tm = new ReactiveTestTransactionManager(false, true);
+    var definition = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_SUPPORTS);
+
+    var execution = tm.getReactiveTransaction(definition).flatMap(tm::rollback);
+
+    StepVerifier.create(execution.contextWrite(TransactionContextManager.createTransactionContext())).verifyComplete();
+    assertHasNotBegan(tm);
+    assertHasNoRollback(tm);
+    assertHasNotSetRollbackOnly(tm);
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = { false, true })
+  void beforeCommitFailureMarksAnExistingTransactionButDoesNotRollBackAnEmptyScope(boolean existing) {
+    var tm = new ReactiveTestTransactionManager(existing, true);
+    var failure = new IllegalStateException("before commit failed");
+    var callbacks = new ArrayList<String>();
+    var completion = new ArrayList<Integer>();
+    var definition = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_SUPPORTS);
+
+    var execution = TransactionSynchronizationManager.forCurrentTransaction().flatMap(manager ->
+            tm.getReactiveTransaction(definition).flatMap(status -> {
+              manager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public Mono<Void> beforeCommit(boolean readOnly) {
+                  return Mono.error(failure);
+                }
+
+                @Override
+                public Mono<Void> beforeCompletion() {
+                  return Mono.fromRunnable(() -> callbacks.add("before completion"));
+                }
+              });
+              registerCompletion(manager, completion);
+              return tm.commit(status).doOnError(error -> assertThat(status.isCompleted()).isTrue());
+            }));
+
+    StepVerifier.create(execution.contextWrite(TransactionContextManager.createTransactionContext()))
+            .expectErrorSatisfies(error -> assertThat(error).isSameAs(failure)).verify();
+    assertThat(callbacks).containsExactly("before completion");
+    assertThat(completion).containsExactly(existing ? TransactionSynchronization.STATUS_UNKNOWN
+            : TransactionSynchronization.STATUS_ROLLED_BACK);
+    assertThat(tm.rollbackOnly).isEqualTo(existing);
+    assertHasNotCommitted(tm);
+    assertHasNoRollback(tm);
+  }
+
+  @Test
+  void synchronizationCannotBeRegisteredOrClearedOutsideItsActiveScope() {
+    var manager = new TransactionSynchronizationManager(new TransactionContext());
+    var synchronization = new TransactionSynchronization() { };
+
+    assertThatIllegalStateException().isThrownBy(() -> manager.registerSynchronization(synchronization))
+            .withMessage("Transaction synchronization is not active");
+    manager.initSynchronization();
+    manager.registerSynchronization(synchronization);
+    assertThatIllegalStateException().isThrownBy(manager::initSynchronization).withMessageContaining("already active");
+    assertThat(manager.getSynchronizations()).containsExactly(synchronization);
+    manager.clearSynchronization();
+    assertThatIllegalStateException().isThrownBy(manager::clearSynchronization).withMessageContaining("not active");
+  }
+
+  private void registerCompletion(TransactionSynchronizationManager manager, List<Integer> completion) {
+    manager.registerSynchronization(new TransactionSynchronization() {
+      @Override
+      public Mono<Void> afterCompletion(int status) {
+        return Mono.fromRunnable(() -> completion.add(status));
+      }
+    });
+  }
+
+  private void registerOuterTransaction(TransactionSynchronizationManager manager, List<String> events) {
+    manager.setCurrentTransactionName("outer");
+    manager.setCurrentTransactionReadOnly(true);
+    manager.setCurrentTransactionIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
+    manager.setActualTransactionActive(true);
+    manager.bindResource("resource", "outer value");
+    manager.initSynchronization();
+    manager.registerSynchronization(new TransactionSynchronization() {
+      @Override
+      public Mono<Void> suspend() {
+        return Mono.fromRunnable(() -> events.add("suspend synchronization"));
+      }
+
+      @Override
+      public Mono<Void> resume() {
+        return Mono.fromRunnable(() -> events.add("resume synchronization"));
+      }
+    });
+  }
+
+  private void assertOuterTransactionRestored(TransactionSynchronizationManager manager) {
+    assertThat(manager.getCurrentTransactionName()).isEqualTo("outer");
+    assertThat(manager.isCurrentTransactionReadOnly()).isTrue();
+    assertThat(manager.getCurrentTransactionIsolationLevel()).isEqualTo(TransactionDefinition.ISOLATION_SERIALIZABLE);
+    assertThat(manager.isActualTransactionActive()).isTrue();
+    assertThat(manager.getResource("resource")).isEqualTo("outer value");
+    assertThat(manager.getSynchronizations()).hasSize(1);
+  }
+
+  @SuppressWarnings("serial")
+  private static class SuspendingTransactionManager extends ReactiveTestTransactionManager {
+
+    private final List<String> events;
+
+    SuspendingTransactionManager(boolean canCreateTransaction, List<String> events) {
+      super(true, canCreateTransaction);
+      this.events = events;
+    }
+
+    @Override
+    protected Mono<Object> doSuspend(TransactionSynchronizationManager manager, Object transaction) {
+      return Mono.fromSupplier(() -> {
+        events.add("suspend resource");
+        return manager.unbindResource("resource");
+      });
+    }
+
+    @Override
+    protected Mono<Void> doResume(TransactionSynchronizationManager manager, @Nullable Object transaction, Object resource) {
+      return Mono.fromRunnable(() -> {
+        events.add("resume resource");
+        manager.bindResource("resource", resource);
+      });
+    }
+
+  }
 
   @Test
   public void noExistingTransaction() {
@@ -335,6 +679,37 @@ public class ReactiveTransactionSupportTests {
     assertThat(tl.beforeRollbackCalled).isFalse();
     assertThat(tl.afterRollbackCalled).isFalse();
     assertThat(tl.rollbackFailure).isNull();
+  }
+
+  @Test
+  void rollbackFailureOverridesCommitFailureAndCleansUpTransaction() {
+    var commitFailure = new IllegalStateException("commit failed");
+    var rollbackFailure = new IllegalArgumentException("rollback failed");
+    var tm = new ReactiveTestTransactionManager(false, message -> commitFailure, message -> rollbackFailure);
+    var listener = new TestTransactionExecutionListener();
+    tm.addListener(listener);
+    var completion = new ArrayList<Integer>();
+
+    Mono<Void> execution = TransactionSynchronizationManager.forCurrentTransaction().flatMap(manager ->
+            tm.getReactiveTransaction(null).flatMap(status -> {
+              manager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public Mono<Void> afterCompletion(int outcome) {
+                  return Mono.fromRunnable(() -> completion.add(outcome));
+                }
+              });
+              return tm.commit(status).doOnError(error -> {
+                assertThat(status.isCompleted()).isTrue();
+                assertThat(manager.isSynchronizationActive()).isFalse();
+              });
+            }));
+
+    StepVerifier.create(execution.contextWrite(TransactionContextManager.createTransactionContext()))
+            .expectErrorSatisfies(error -> assertThat(error).isSameAs(rollbackFailure)).verify();
+    assertThat(completion).containsExactly(TransactionSynchronization.STATUS_UNKNOWN);
+    assertThat(listener.rollbackFailure).isSameAs(rollbackFailure);
+    assertThat(tm.rollback).isTrue();
+    assertThat(tm.cleanup).isTrue();
   }
 
   @Test

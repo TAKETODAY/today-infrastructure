@@ -22,6 +22,7 @@ import infra.messaging.Message;
 import infra.messaging.support.MessageBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link SimpMessageTypeMessageCondition}.
@@ -68,6 +69,23 @@ class SimpMessageTypeMessageConditionTests {
     Message<byte[]> message = message(null);
     assertThat(condition(SimpMessageType.MESSAGE).compareTo(condition(SimpMessageType.MESSAGE), message)).isEqualTo(0);
     assertThat(condition(SimpMessageType.MESSAGE).compareTo(condition(SimpMessageType.SUBSCRIBE), message)).isEqualTo(0);
+
+    message = message(SimpMessageType.MESSAGE);
+    assertThat(condition(SimpMessageType.MESSAGE).compareTo(condition(SimpMessageType.MESSAGE), message)).isEqualTo(0);
+    assertThat(condition(SimpMessageType.MESSAGE).compareTo(condition(SimpMessageType.SUBSCRIBE), message)).isEqualTo(-1);
+    assertThat(condition(SimpMessageType.SUBSCRIBE).compareTo(condition(SimpMessageType.MESSAGE), message)).isEqualTo(1);
+  }
+
+  @Test
+  void objectMethods() {
+    SimpMessageTypeMessageCondition message = condition(SimpMessageType.MESSAGE);
+    assertThat(message.getMessageType()).isEqualTo(SimpMessageType.MESSAGE);
+    assertThat(message.toString()).isEqualTo("[MESSAGE]");
+    assertThat(message).isEqualTo(new SimpMessageTypeMessageCondition(SimpMessageType.MESSAGE));
+    assertThat(message).isNotEqualTo(condition(SimpMessageType.SUBSCRIBE));
+    assertThat(message).isNotEqualTo(null);
+    assertThat(message).hasSameHashCodeAs(new SimpMessageTypeMessageCondition(SimpMessageType.MESSAGE));
+    assertThatIllegalArgumentException().isThrownBy(() -> new SimpMessageTypeMessageCondition(null));
   }
 
   private Message<byte[]> message(SimpMessageType messageType) {

@@ -25,9 +25,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.net.URI;
+import java.io.ByteArrayOutputStream;
+import java.time.Duration;
 
 import infra.http.client.ClientHttpRequest;
+import infra.http.client.ClientHttpResponse;
 import infra.http.client.support.DelegatingHttpRequest;
+import infra.web.util.UriTemplateHandler;
 import infra.web.client.RestTemplate;
 import infra.web.client.RestTemplateBuilder;
 
@@ -171,6 +175,42 @@ class RootUriRequestExpectationManagerTests {
     assertThatExceptionOfType(AssertionError.class)
             .isThrownBy(() -> restTemplate.getForEntity("https://spring.io/hello", String.class))
             .withMessageContaining("expected:<https://example.com/hello> but was:<https://spring.io/hello>");
+  }
+
+  @Test
+  void unrelatedAndMessageLessAssertionErrorsAreNotRewritten() throws Exception {
+    ClientHttpRequest request = mock(ClientHttpRequest.class);
+    given(request.getURI()).willReturn(new URI(this.uri + "/hello"));
+    for (AssertionError failure : new AssertionError[] { new AssertionError(), new AssertionError("other assertion") }) {
+      given(this.delegate.validateRequest(any(ClientHttpRequest.class))).willThrow(failure);
+      assertThatExceptionOfType(AssertionError.class).isThrownBy(() -> this.manager.validateRequest(request)).isSameAs(failure);
+    }
+  }
+
+  @Test
+  void wrappedRequestsDelegateBodyAndExecutionAndTimedVerification() throws Exception {
+    ClientHttpRequest request = mock(ClientHttpRequest.class);
+    given(request.getURI()).willReturn(new URI(this.uri + "/hello"));
+    var body = new ByteArrayOutputStream();
+    var response = mock(ClientHttpResponse.class);
+    given(request.getBody()).willReturn(body);
+    given(request.execute()).willReturn(response);
+    given(this.delegate.validateRequest(any(ClientHttpRequest.class))).willAnswer(invocation -> {
+      ClientHttpRequest wrapped = invocation.getArgument(0);
+      assertThat(wrapped.getBody()).isSameAs(body);
+      assertThat(wrapped.execute()).isSameAs(response);
+      wrapped.async();
+      wrapped.async(null);
+      return response;
+    });
+    assertThat(this.manager.validateRequest(request)).isSameAs(response);
+    then(request).should().async();
+    then(request).should().async(null);
+    this.manager.verify(Duration.ofMillis(10));
+    then(this.delegate).should().verify(Duration.ofMillis(10));
+    var template = new RestTemplate();
+    template.setUriTemplateHandler(mock(UriTemplateHandler.class));
+    assertThat(RootUriRequestExpectationManager.forRestTemplate(template, this.delegate)).isSameAs(this.delegate);
   }
 
 }

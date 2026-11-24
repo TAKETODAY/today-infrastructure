@@ -20,6 +20,7 @@
 
 | `ResponseStatusExceptionHandler`
 | 解析带有 `@ResponseStatus` 注解的异常，并根据注解中的值将它们映射到 HTTP 状态代码。
+  如果注解声明了非空的 `reason`，则通过 `sendError` 将状态和说明交给配置的错误处理机制。
 
 | `ExceptionHandlerAnnotationExceptionHandler`
 | 通过调用 `@Controller` 或 `@ControllerAdvice` 类中的 `@ExceptionHandler` 方法来解析异常。
@@ -41,3 +42,63 @@
 
 xref:web/webmvc/mvc-config.adoc[MVC 配置] 会自动声明用于默认 Web MVC 异常、
 `@ResponseStatus` 注解异常以及支持 `@ExceptionHandler` 方法的内置解析器。您可以自定义该列表或替换它。
+
+[[mvc-exceptionhandlers-response-status]]
+== `@ResponseStatus` 与错误说明
+
+`@ResponseStatus` 可以声明在处理器方法、控制器类或异常类上。它的 `code`
+（也可以通过别名 `value` 指定）用于设置 HTTP 响应状态。控制器类上的注解会应用于该控制器的请求映射方法；异常类上的注解则由
+`ResponseStatusExceptionHandler` 在异常处理链中解析。
+
+仅设置状态码时，处理器方法的返回值仍会按照正常的返回值处理流程写入响应：
+
+[source,java]
+----
+@ResponseStatus(HttpStatus.CREATED)
+public User create(@RequestBody User user) {
+  return userService.create(user);
+}
+----
+
+`reason` 的语义不同于普通的响应正文。设置非空 `reason` 后，MVC 会调用
+`HttpContext.sendError(status, reason)`，将状态码和说明交给配置的错误处理机制。默认错误处理机制可以根据内容协商生成 HTML 错误页面或其他错误表示；自定义
+`SendErrorHandler` 也可以改变最终的渲染方式。
+
+[source,java]
+----
+@ResponseStatus(code = HttpStatus.GONE, reason = "download.link.expired")
+public void download() {
+  // ...
+}
+----
+
+对于处理器方法，非空 `reason` 会使该方法的返回值被忽略。下面的返回值不会作为正常响应正文写出：
+
+[source,java]
+----
+@ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "request.invalid")
+public ErrorBody submit(@RequestBody RequestBody body) {
+  return new ErrorBody("invalid"); // 不会作为正常返回值写入响应
+}
+----
+
+`reason` 可以作为消息编码使用。对于处理器方法，MVC 优先使用创建该方法处理器时传入的 `MessageSource`；
+未传入时，使用 `HttpContext.getMessageSource()`，它默认返回当前请求关联的 `ApplicationContext`。
+处理器方法和 `ResponseStatusExceptionHandler` 都通过 `WebUtils.resolveLocale(request)` 获取 Locale。
+`LocaleResolver` 存在时优先使用它，否则使用请求的首选 Locale，
+最后回退到 JVM 默认 Locale。找不到对应消息时，保留原始 `reason`。
+
+因此，消息资源可以按请求语言提供说明：
+
+[source,properties]
+----
+request.invalid=请求无效
+----
+
+[source,properties]
+----
+request.invalid=Invalid request
+----
+
+由于 `reason` 会触发错误处理流程，并且不是稳定的响应正文或机器可读错误结构，REST API 不应使用它定义 JSON 错误协议、业务错误码或动态错误详情。
+对于 REST 错误响应，建议使用 `@ExceptionHandler` 返回 `ProblemDetail`、`ErrorResponse` 或 `ResponseEntity`，以显式控制响应状态、响应头和正文。

@@ -28,6 +28,7 @@ import infra.core.testfixture.io.buffer.AbstractLeakCheckingTests;
 import infra.core.testfixture.io.buffer.DataBufferTestUtils;
 import infra.http.MediaType;
 import infra.http.codec.Pojo;
+import infra.util.MimeType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -55,6 +56,15 @@ class JacksonCborEncoderTests extends AbstractLeakCheckingTests {
       assertThat(actual).isEqualTo(expected);
       dataBuffer.release();
     };
+  }
+
+  @Test
+  void honorsMediaTypesWithAnExplicitMapperOrBuilder() {
+    MimeType custom = new MimeType("application", "example+cbor");
+    assertThat(new JacksonCborEncoder(this.mapper).getEncodableMimeTypes()).containsExactly(MediaType.APPLICATION_CBOR);
+    assertThat(new JacksonCborEncoder(CBORMapper.builder()).getEncodableMimeTypes()).containsExactly(MediaType.APPLICATION_CBOR);
+    assertThat(new JacksonCborEncoder(this.mapper, custom).getEncodableMimeTypes()).containsExactly(custom);
+    assertThat(new JacksonCborEncoder(CBORMapper.builder(), custom).getEncodableMimeTypes()).containsExactly(custom);
   }
 
   @Test

@@ -44,6 +44,19 @@ class ReflectiveComponentsClientHttpRequestFactoryBuilderTests extends AbstractC
   }
 
   @Override
+  @Test
+  void filteredInetAddress() {
+    HttpClientSettings settings = HttpClientSettings.defaults().withInetAddressFilter(InetAddressFilter.externalAddresses());
+    assertThatIllegalStateException().isThrownBy(() -> ofTestRequestFactory().build(settings))
+            .withMessage("Unable to set InetAddress filter using reflection");
+  }
+
+  @Override
+  void filteredInetAddressWhenRedirected() {
+    // Reflective factories reject the address filter at build time.
+  }
+
+  @Override
   void connectWithSslBundle(String httpMethod) throws Exception {
     HttpClientSettings settings = HttpClientSettings.ofSslBundle(sslBundle());
     assertThatIllegalStateException().isThrownBy(() -> ofTestRequestFactory().build(settings))

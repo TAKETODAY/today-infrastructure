@@ -27,6 +27,7 @@ import infra.expression.Expression;
 import infra.expression.EvaluationContext;
 import infra.expression.ExpressionParser;
 import infra.expression.spel.standard.SpelExpressionParser;
+import infra.expression.spel.support.SimpleEvaluationContext;
 import infra.expression.spel.support.StandardEvaluationContext;
 import infra.util.ObjectUtils;
 
@@ -230,6 +231,33 @@ public abstract class AbstractExpressionTests {
         }
       }
     });
+  }
+
+  /**
+   * Verify operation accounting by evaluating with budgets of
+   * {@code expectedOperations + 1} (success) and {@code expectedOperations} (failure).
+   *
+   * @param expression the expression to evaluate
+   * @param rootObject the root object for evaluation
+   * @param expectedOperations the expected number of tracked operations
+   */
+  protected void assertMaxOperations(String expression, Object rootObject, int expectedOperations) {
+    EvaluationContext evaluationContext = SimpleEvaluationContext.forReadOnlyDataBinding().build();
+    createParser(expectedOperations + 1).parseExpression(expression).getValue(evaluationContext, rootObject);
+    Expression limited = createParser(expectedOperations).parseExpression(expression);
+    assertThatExceptionOfType(SpelEvaluationException.class)
+            .isThrownBy(() -> limited.getValue(evaluationContext, rootObject))
+            .satisfies(ex -> {
+              assertThat(ex.getMessageCode()).isEqualTo(SpelMessage.MAX_OPERATIONS_EXCEEDED);
+              assertThat(ex.getInserts()).as("inserts").containsExactly(expectedOperations);
+            });
+  }
+
+  private static SpelExpressionParser createParser(int maximumOperations) {
+    return new SpelExpressionParser(SpelParserConfiguration.builder()
+            .compilerMode(SpelCompilerMode.OFF)
+            .maximumOperations(maximumOperations)
+            .build());
   }
 
   /**

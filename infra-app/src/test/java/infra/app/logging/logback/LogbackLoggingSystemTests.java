@@ -63,6 +63,7 @@ import ch.qos.logback.core.status.OnConsoleStatusListener;
 import ch.qos.logback.core.status.StatusManager;
 import ch.qos.logback.core.status.WarnStatus;
 import ch.qos.logback.core.util.DynamicClassLoadingException;
+import infra.aot.AotDetector;
 import infra.app.logging.AbstractLoggingSystemTests;
 import infra.app.logging.LogFile;
 import infra.app.logging.LogLevel;
@@ -210,6 +211,51 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     this.loggingSystem.beforeInitialize();
     initialize(this.initializationContext, null, null);
     assertThat(getConsoleAppender()).isNotNull();
+  }
+
+  @Test
+  void defaultConfigUsesStructuredLoggingWhenConfigured(CapturedOutput output) {
+    this.environment.setProperty("logging.structured.format.console", "logstash");
+    this.loggingSystem.beforeInitialize();
+    initialize(this.initializationContext, null, null);
+
+    this.logger.info("Structured startup message");
+
+    assertThat(getConsoleAppender().getEncoder()).isInstanceOf(StructuredLogEncoder.class);
+    assertThat(getLineWithText(output, "Structured startup message"))
+            .startsWith("{").contains("\"message\":\"Structured startup message\"").endsWith("}");
+  }
+
+  @Test
+  void fallsBackToStandardConfigurationWhenAotLoggingArtifactsAreAbsent(CapturedOutput output) {
+    withAotLogging(() -> initialize(this.initializationContext, "classpath:logback-nondefault.xml", null));
+
+    this.logger.info("Fallback startup message");
+
+    assertThat(output).contains("Fallback startup message").endsWith("BOOTBOOT");
+  }
+
+  @Test
+  @WithResource(name = "META-INF/config/logback-pattern-rules", content = "clr=infra.app.logging.logback.ColorConverter")
+  void failsWithTheModelLocationWhenAotPatternRulesExistWithoutAModel() {
+    withAotLogging(() -> assertThatIllegalStateException()
+            .isThrownBy(() -> initialize(this.initializationContext, null, null))
+            .withMessage("Failed to load model from 'META-INF/config/logback-model'"));
+  }
+
+  private void withAotLogging(Runnable action) {
+    String previous = System.setProperty(AotDetector.AOT_ENABLED, "true");
+    try {
+      action.run();
+    }
+    finally {
+      if (previous == null) {
+        System.clearProperty(AotDetector.AOT_ENABLED);
+      }
+      else {
+        System.setProperty(AotDetector.AOT_ENABLED, previous);
+      }
+    }
   }
 
   @Test

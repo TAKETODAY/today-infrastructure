@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import infra.core.ParameterizedTypeReference;
 import infra.core.codec.ByteBufferEncoder;
 import infra.core.codec.CharSequenceEncoder;
 import infra.core.io.ClassPathResource;
@@ -420,6 +421,23 @@ class BodyInsertersTests {
             })
             .expectComplete()
             .verify();
+  }
+
+  @Test
+  void fromMultipartAsyncDataWritesPlainAndGenericParts() {
+    var type = new ParameterizedTypeReference<List<String>>() { };
+    MockClientHttpRequest plain = new MockClientHttpRequest(HttpMethod.POST, "/");
+    MockClientHttpRequest generic = new MockClientHttpRequest(HttpMethod.POST, "/");
+
+    BodyInserters.fromMultipartAsyncData("text", Mono.just("plain value"), String.class)
+            .withPublisher("list", Mono.just(List.of("first")), type)
+            .insert(plain, this.context).block();
+    BodyInserters.fromMultipartAsyncData("list", Mono.just(List.of("second")), type)
+            .insert(generic, this.context).block();
+
+    assertThat(plain.getHeaders().getContentType().isCompatibleWith(MediaType.MULTIPART_FORM_DATA)).isTrue();
+    assertThat(plain.getBodyAsString().block()).contains("name=\"text\"", "plain value", "name=\"list\"", "[\"first\"]");
+    assertThat(generic.getBodyAsString().block()).contains("name=\"list\"", "[\"second\"]");
   }
 
   @Test

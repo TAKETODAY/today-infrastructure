@@ -20,6 +20,7 @@ package infra.http.codec;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -36,6 +37,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -44,6 +46,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class FormHttpMessageWriterTests extends AbstractLeakCheckingTests {
 
   private final FormHttpMessageWriter writer = new FormHttpMessageWriter();
+
+  @Test
+  void declaresTheConfiguredCharsetAndEncodesFormValuesWithIt() {
+    this.writer.setDefaultCharset(ISO_8859_1);
+    var response = new MockServerHttpResponse(this.bufferFactory);
+    MultiValueMap<String, String> form = MultiValueMap.forLinkedHashMap();
+    form.add("name", "café");
+    var type = ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, String.class);
+    StepVerifier.create(this.writer.write(Mono.just(form), type, MediaType.APPLICATION_FORM_URLENCODED, response, Map.of()))
+            .expectComplete().verify(Duration.ofSeconds(5));
+
+    assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_FORM_URLENCODED.withCharset(ISO_8859_1));
+    assertThat(response.getBodyAsString().block(Duration.ofSeconds(5))).isEqualTo("name=caf%E9");
+  }
 
   @Test
   public void canWrite() {

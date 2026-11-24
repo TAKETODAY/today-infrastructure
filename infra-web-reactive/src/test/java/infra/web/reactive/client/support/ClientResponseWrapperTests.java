@@ -30,6 +30,8 @@ import infra.http.ResponseCookie;
 import infra.http.ResponseEntity;
 import infra.util.MultiValueMap;
 import infra.web.reactive.client.ClientResponse;
+import infra.web.reactive.client.ExchangeStrategies;
+import infra.web.reactive.client.WebClientResponseException;
 import infra.web.reactive.BodyExtractor;
 import infra.web.reactive.BodyExtractors;
 import reactor.core.publisher.Flux;
@@ -168,6 +170,30 @@ public class ClientResponseWrapperTests {
     given(mockResponse.toEntityList(reference)).willReturn(result);
 
     assertThat(wrapper.toEntityList(reference)).isSameAs(result);
+  }
+
+  @Test
+  void delegatesResponseMetadataAndLifecycle() {
+    ExchangeStrategies strategies = ExchangeStrategies.empty().build();
+    Mono<Void> release = Mono.empty();
+    Mono<ResponseEntity<Void>> bodiless = Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT));
+    WebClientResponseException failure = new WebClientResponseException(HttpStatus.INTERNAL_SERVER_ERROR,
+            "failure", null, null, null, null);
+    Mono<WebClientResponseException> exception = Mono.just(failure);
+    Mono<String> error = Mono.error(failure);
+    given(mockResponse.strategies()).willReturn(strategies);
+    given(mockResponse.releaseBody()).willReturn(release);
+    given(mockResponse.toBodilessEntity()).willReturn(bodiless);
+    given(mockResponse.createException()).willReturn(exception);
+    given(mockResponse.<String>createError()).willReturn(error);
+    given(mockResponse.logPrefix()).willReturn("[exchange] ");
+
+    assertThat(wrapper.strategies()).isSameAs(strategies);
+    assertThat(wrapper.releaseBody()).isSameAs(release);
+    assertThat(wrapper.toBodilessEntity()).isSameAs(bodiless);
+    assertThat(wrapper.createException()).isSameAs(exception);
+    assertThat(wrapper.<String>createError()).isSameAs(error);
+    assertThat(wrapper.logPrefix()).isEqualTo("[exchange] ");
   }
 
 }

@@ -20,6 +20,7 @@ package infra.gson.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.Strictness;
 
 import infra.beans.factory.ObjectProvider;
 import infra.context.annotation.Lazy;
@@ -63,7 +64,7 @@ public final class GsonAutoConfiguration {
   }
 
   @Component
-  public static StandardGsonBuilderCustomizer standardGsonBuilderCustomizer(GsonProperties gsonProperties) {
+  public static GsonBuilderCustomizer standardGsonBuilderCustomizer(GsonProperties gsonProperties) {
     return new StandardGsonBuilderCustomizer(gsonProperties);
   }
 
@@ -98,7 +99,7 @@ public final class GsonAutoConfiguration {
       map.from(properties::getLongSerializationPolicy).to(builder::setLongSerializationPolicy);
       map.from(properties::getFieldNamingPolicy).to(builder::setFieldNamingPolicy);
       map.from(properties::getPrettyPrinting).whenTrue().toCall(builder::setPrettyPrinting);
-      map.from(properties::getLenient).whenTrue().toCall(builder::setLenient);
+      map.from(properties::getLenient).whenTrue().toCall(() -> builder.setStrictness(Strictness.LENIENT));
       map.from(properties::getDisableHtmlEscaping).whenTrue().toCall(builder::disableHtmlEscaping);
       map.from(properties::getDateFormat).to(builder::setDateFormat);
     }

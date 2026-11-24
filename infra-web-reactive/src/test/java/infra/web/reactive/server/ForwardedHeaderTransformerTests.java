@@ -54,7 +54,31 @@ class ForwardedHeaderTransformerTests {
     headers.add("X-Forwarded-For", "203.0.113.195");
     ServerHttpRequest request = requestMutator.apply(getRequest(headers));
 
+    assertThat(requestMutator.isRemoveOnly()).isTrue();
+    assertThat(request.getURI()).isEqualTo(URI.create(BASE_URL));
     assertForwardedHeadersRemoved(request);
+  }
+
+  @Test
+  void returnsOriginalRequestIfNoForwardingHeadersArePresent() {
+    var transformer = new ForwardedHeaderTransformer(true);
+    MockServerHttpRequest request = MockServerHttpRequest.get(BASE_URL).header("X-Request-Id", "test").build();
+
+    assertThat(transformer.apply(request)).isSameAs(request);
+  }
+
+  @Test
+  void appliesForwardedHostWithoutChangingPathWhenPrefixIsAbsent() {
+    var transformer = new ForwardedHeaderTransformer(true);
+    transformer.setUseForwardedPrefix(true);
+    MockServerHttpRequest request = MockServerHttpRequest.get(BASE_URL)
+            .header("Forwarded", "host=public.example;proto=https").build();
+
+    ServerHttpRequest transformed = transformer.apply(request);
+
+    assertThat(transformed.getURI()).isEqualTo(URI.create("https://public.example/path"));
+    assertThat(transformed.getPath().contextPath().value()).isEmpty();
+    assertForwardedHeadersRemoved(transformed);
   }
 
   @Test

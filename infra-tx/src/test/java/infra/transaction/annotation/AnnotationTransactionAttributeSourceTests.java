@@ -27,6 +27,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.function.Consumer;
 
 import groovy.lang.GroovyObject;
@@ -47,6 +48,7 @@ import infra.transaction.testfixture.CallCountingTransactionManager;
 import infra.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author Colin Sampaleanu
@@ -250,6 +252,73 @@ class AnnotationTransactionAttributeSourceTests {
     assertThat(actual).satisfies(hasRollbackRules(new RollbackRuleAttribute(Exception.class),
             new NoRollbackRuleAttribute(IOException.class)));
     assertThat(actual.isReadOnly()).isTrue();
+  }
+
+  @Test
+  void customConstructorsAndDefaultRollbackRulesAreApplied() {
+    TransactionAnnotationParser parser = new TransactionalAnnotationParser();
+    AnnotationTransactionAttributeSource source = new AnnotationTransactionAttributeSource(parser);
+    source.addDefaultRollbackRule(new RollbackRuleAttribute(IllegalStateException.class));
+
+    TransactionAttribute attribute = source.getTransactionAttribute(
+            getMethod(StringRuleBean.class, "run"), StringRuleBean.class);
+    assertThat(attribute).isInstanceOfSatisfying(RuleBasedTransactionAttribute.class, ruleBased -> {
+      assertThat(ruleBased.getRollbackRules()).containsExactlyInAnyOrder(
+              new RollbackRuleAttribute("java.io.IOException"),
+              new NoRollbackRuleAttribute("java.lang.IllegalArgumentException"),
+              new RollbackRuleAttribute(IllegalStateException.class));
+    });
+
+    AnnotationTransactionAttributeSource varargs = new AnnotationTransactionAttributeSource(parser);
+    AnnotationTransactionAttributeSource set = new AnnotationTransactionAttributeSource(
+            Collections.singleton(parser));
+    assertThat(varargs).isEqualTo(set);
+    assertThat(source).isNotEqualTo("not a source");
+    assertThat(source).isEqualTo(source);
+    assertThatThrownBy(() -> new AnnotationTransactionAttributeSource((TransactionAnnotationParser) null))
+            .isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> new AnnotationTransactionAttributeSource(new TransactionAnnotationParser[0]))
+            .isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> new AnnotationTransactionAttributeSource(Collections.emptySet()))
+            .isInstanceOf(IllegalArgumentException.class);
+    AnnotationTransactionAttributeSource array = new AnnotationTransactionAttributeSource(
+            new TransactionAnnotationParser[] { parser });
+    assertThat(array.getTransactionAttribute(getMethod(StringRuleBean.class, "run"), StringRuleBean.class))
+            .isNotNull();
+  }
+
+  @Test
+  void parserRejectsConflictingTimeoutSettings() {
+    assertThatThrownBy(() -> new TransactionalAnnotationParser().parseTransactionAnnotation(
+            getMethod(ConflictingTimeoutBean.class, "run")))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Specify 'timeout' or 'timeoutString', not both");
+  }
+
+  @Test
+  void parserExposesReadOnlyAndJtaRollbackRules() {
+    TransactionAttribute infraAttribute = new TransactionalAnnotationParser().parseTransactionAnnotation(
+            getMethod(ReadOnlyBean.class, "run"));
+    assertThat(infraAttribute).isInstanceOfSatisfying(RuleBasedTransactionAttribute.class, attribute -> {
+      assertThat(attribute.isReadOnly()).isTrue();
+      assertThat(attribute.getTimeout()).isEqualTo(-1);
+    });
+
+    TransactionAttribute jtaAttribute = new JtaTransactionAnnotationParser().parseTransactionAnnotation(
+            getMethod(JtaRuleBean.class, "run"));
+    assertThat(jtaAttribute).isInstanceOfSatisfying(RuleBasedTransactionAttribute.class, attribute -> {
+      assertThat(attribute.getRollbackRules()).containsExactlyInAnyOrder(
+              new RollbackRuleAttribute(IOException.class),
+              new NoRollbackRuleAttribute(IllegalArgumentException.class));
+    });
+
+    JtaTransactionAnnotationParser parser = new JtaTransactionAnnotationParser();
+    assertThat(parser.parseTransactionAnnotation(getMethod(JtaRuleBean.class, "run")
+            .getAnnotation(jakarta.transaction.Transactional.class))).isNotNull();
+
+    assertThat(parser).isEqualTo(new JtaTransactionAnnotationParser());
+    assertThat(parser).isNotEqualTo(new TransactionalAnnotationParser());
+    assertThat(parser.hashCode()).isEqualTo(JtaTransactionAnnotationParser.class.hashCode());
   }
 
   @Nested
@@ -791,6 +860,36 @@ class AnnotationTransactionAttributeSourceTests {
 
     public int getAge() {
       return age;
+    }
+  }
+
+  static class StringRuleBean {
+
+    @Transactional(rollbackForClassName = "java.io.IOException",
+            noRollbackForClassName = "java.lang.IllegalArgumentException")
+    public void run() {
+    }
+  }
+
+  static class ConflictingTimeoutBean {
+
+    @Transactional(timeout = 5, timeoutString = "${timeout}")
+    public void run() {
+    }
+  }
+
+  static class ReadOnlyBean {
+
+    @Transactional(readOnly = true)
+    public void run() {
+    }
+  }
+
+  static class JtaRuleBean {
+
+    @jakarta.transaction.Transactional(rollbackOn = IOException.class,
+            dontRollbackOn = IllegalArgumentException.class)
+    public void run() {
     }
   }
 

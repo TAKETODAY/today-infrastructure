@@ -24,11 +24,21 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
+import infra.beans.factory.support.StandardBeanFactory;
+import infra.core.Ordered;
 import infra.core.task.AsyncTaskExecutor;
+import infra.core.task.SimpleAsyncTaskExecutor;
+import infra.core.task.SyncTaskExecutor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -56,6 +66,87 @@ class AsyncExecutionInterceptorTests {
     assertThat(classArgumentCaptor.getValue()).isEqualTo(Future.class);
   }
 
+  @Test
+  void invokeReturnsFutureResultAndUnwrapsTargetFuture() throws Throwable {
+    AsyncExecutionInterceptor interceptor = new AsyncExecutionInterceptor(new SyncTaskExecutor());
+    MethodInvocation invocation = mock();
+    given(invocation.getThis()).willReturn(new FutureService());
+    given(invocation.getMethod()).willReturn(FutureService.class.getMethod("future"));
+    given(invocation.proceed()).willReturn(CompletableFuture.completedFuture("value"));
+
+    Object result = interceptor.invoke(invocation);
+
+    assertThat(result).isInstanceOf(Future.class);
+    assertThat(((Future<?>) result).get(1, TimeUnit.SECONDS)).isEqualTo("value");
+  }
+
+  @Test
+  void invokeHandlesVoidFailuresWithConfiguredHandler() throws Throwable {
+    AtomicReference<Throwable> handled = new AtomicReference<>();
+    AsyncExecutionInterceptor interceptor = new AsyncExecutionInterceptor(null);
+    interceptor.setExecutor(new SyncTaskExecutor());
+    interceptor.setExceptionHandler((ex, method, params) -> handled.set(ex));
+    MethodInvocation invocation = mock();
+    IllegalStateException failure = new IllegalStateException("failure");
+    given(invocation.getThis()).willReturn(new VoidService());
+    given(invocation.getMethod()).willReturn(VoidService.class.getMethod("run"));
+    given(invocation.proceed()).willThrow(failure);
+
+    assertThat(interceptor.invoke(invocation)).isNull();
+    assertThat(handled).hasValue(failure);
+  }
+
+  @Test
+  void propagatesFutureFailuresThroughTheReturnedFuture() throws Throwable {
+    var interceptor = new AsyncExecutionInterceptor(new SyncTaskExecutor());
+    MethodInvocation invocation = mock();
+    var failure = new IllegalStateException("failed future");
+    given(invocation.getMethod()).willReturn(FutureService.class.getMethod("future"));
+    given(invocation.proceed()).willReturn(CompletableFuture.failedFuture(failure));
+
+    Future<?> result = (Future<?>) interceptor.invoke(invocation);
+    assertThatExceptionOfType(ExecutionException.class).isThrownBy(() -> result.get(1, TimeUnit.SECONDS))
+            .withCause(failure);
+  }
+
+  @Test
+  void requiresABeanFactoryWhenAnExecutorIsQualified() {
+    var interceptor = new AsyncExecutionInterceptor(null);
+
+    assertThatIllegalStateException().isThrownBy(() -> interceptor.findQualifiedExecutor(null, "worker"))
+            .withMessageContaining("BeanFactory must be set", "qualified executor 'worker'");
+  }
+
+  @Test
+  void ambiguousExecutorLookupRequiresAnExplicitDefaultName() {
+    var beans = new StandardBeanFactory();
+    beans.registerSingleton("first", new SyncTaskExecutor());
+    beans.registerSingleton("second", new SyncTaskExecutor());
+    var interceptor = new AsyncExecutionInterceptor(null);
+
+    assertThat(interceptor.getDefaultExecutor(beans)).isInstanceOf(SimpleAsyncTaskExecutor.class);
+    var defaultExecutor = new SyncTaskExecutor();
+    beans.registerSingleton("taskExecutor", defaultExecutor);
+    assertThat(interceptor.getDefaultExecutor(beans)).isSameAs(defaultExecutor);
+    assertThat(interceptor.getOrder()).isEqualTo(Ordered.HIGHEST_PRECEDENCE);
+  }
+
+  @Test
+  void invokeRejectsMissingExecutor() throws Exception {
+    AsyncExecutionInterceptor interceptor = new AsyncExecutionInterceptor(null) {
+      @Override
+      protected Executor getDefaultExecutor(infra.beans.factory.BeanFactory beanFactory) {
+        return null;
+      }
+    };
+    MethodInvocation invocation = mock();
+    given(invocation.getThis()).willReturn(new VoidService());
+    given(invocation.getMethod()).willReturn(VoidService.class.getMethod("run"));
+
+    org.assertj.core.api.Assertions.assertThatIllegalStateException()
+            .isThrownBy(() -> interceptor.invoke(invocation));
+  }
+
   interface GenericRunner<O> {
 
     O run();
@@ -66,6 +157,17 @@ class AsyncExecutionInterceptorTests {
     public Future<Void> run() {
       return CompletableFuture.runAsync(() -> {
       });
+    }
+  }
+
+  static class FutureService {
+    public Future<String> future() {
+      return CompletableFuture.completedFuture("value");
+    }
+  }
+
+  static class VoidService {
+    public void run() {
     }
   }
 }

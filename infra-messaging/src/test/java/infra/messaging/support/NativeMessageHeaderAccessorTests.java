@@ -271,4 +271,36 @@ class NativeMessageHeaderAccessorTests {
     // Does not fail with ConcurrentModificationException
     accessor.copyHeaders(accessor.getMessageHeaders());
   }
+
+  @Test
+  void replacesAndRemovesMultipleValuesWithoutRetainingTheInputList() {
+    NativeMessageHeaderAccessor accessor = new NativeMessageHeaderAccessor();
+    List<String> values = new java.util.ArrayList<>(List.of("one", "two"));
+    accessor.setNativeHeaderValues("key", values);
+    values.clear();
+
+    assertThat(accessor.containsNativeHeader("key")).isTrue();
+    assertThat(accessor.getNativeHeader("key")).containsExactly("one", "two");
+    accessor.setNativeHeaderValues("key", null);
+    assertThat(accessor.containsNativeHeader("key")).isFalse();
+    assertThat(accessor.removeNativeHeader("key")).isNull();
+
+    accessor.setNativeHeaderValues("key", List.of("three", "four"));
+    assertThat(accessor.removeNativeHeader("key")).containsExactly("three", "four");
+    assertThat(accessor.toNativeHeaderMap()).isEmpty();
+  }
+
+  @Test
+  void nullInputDoesNotClearExistingNativeOrApplicationHeaders() {
+    NativeMessageHeaderAccessor accessor = new NativeMessageHeaderAccessor();
+    accessor.setHeader("application", "value");
+    accessor.setNativeHeader("native", "first");
+
+    accessor.copyHeaders(null);
+    accessor.copyHeadersIfAbsent(null);
+    accessor.addNativeHeaders(null);
+
+    assertThat(accessor.getHeader("application")).isEqualTo("value");
+    assertThat(accessor.getNativeHeader("native")).containsExactly("first");
+  }
 }

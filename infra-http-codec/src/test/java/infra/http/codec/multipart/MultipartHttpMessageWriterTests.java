@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import infra.core.ResolvableType;
+import infra.core.codec.CodecException;
 import infra.core.codec.StringDecoder;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
@@ -46,6 +47,7 @@ import infra.web.testfixture.http.server.reactive.MockServerHttpResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
+import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -63,6 +65,49 @@ public class MultipartHttpMessageWriterTests extends AbstractLeakCheckingTests {
           new MultipartHttpMessageWriter(ClientCodecConfigurer.create().getWriters());
 
   private final MockServerHttpResponse response = new MockServerHttpResponse(this.bufferFactory);
+
+  @Test
+  void usesUrlEncodedFormForTextOnlyMapWithoutAnExplicitMediaType() {
+    MultiValueMap<String, String> form = MultiValueMap.forLinkedHashMap();
+    form.add("first name", "Ada Lovelace");
+    form.add("tag", "one+");
+    form.add("tag", "two");
+    ResolvableType type = ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, String.class);
+    assertThat(this.writer.canWrite(type, null)).isTrue();
+    assertThat(this.writer.canWrite(type, MediaType.APPLICATION_JSON)).isFalse();
+
+    this.writer.write(Mono.just(form), type, null, this.response, Map.of()).block(Duration.ofSeconds(5));
+
+    assertThat(this.response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_FORM_URLENCODED);
+    assertThat(this.response.getBodyAsString().block(Duration.ofSeconds(5))).isEqualTo("first+name=Ada+Lovelace&tag=one%2B&tag=two");
+  }
+
+  @Test
+  void infersMultipartForRawResourcesAndStringValues() {
+    var writer = new MultipartHttpMessageWriter();
+    MultiValueMap<String, Object> parts = MultiValueMap.forLinkedHashMap();
+    parts.add("title", "Example");
+    parts.add("photo", new ClassPathResource("/infra/http/codec/logo.jpg"));
+    writer.write(Mono.just(parts), ResolvableType.forClass(MultiValueMap.class), null, this.response, Map.of())
+            .block(Duration.ofSeconds(5));
+
+    var decoded = parse(this.response, Map.of());
+    assertThat(decoded.getFirst("title")).isInstanceOfSatisfying(FormFieldPart.class, part ->
+            assertThat(part.value()).isEqualTo("Example"));
+    assertThat(decoded.getFirst("photo")).isInstanceOfSatisfying(FilePart.class, part ->
+            assertThat(part.filename()).isEqualTo("logo.jpg"));
+  }
+
+  @Test
+  void reportsWhichPartHasNoCompatibleWriter() {
+    var writer = new MultipartHttpMessageWriter(List.of(), null);
+    assertThat(writer.getWritableMediaTypes()).doesNotContain(MediaType.APPLICATION_FORM_URLENCODED);
+    MultiValueMap<String, Object> parts = MultiValueMap.forLinkedHashMap();
+    parts.add("document", new Foo("example"));
+    StepVerifier.create(writer.write(Mono.just(parts), ResolvableType.forClass(MultiValueMap.class), null, this.response, Map.of()))
+            .expectErrorSatisfies(error -> assertThat(error).isInstanceOf(CodecException.class)
+                    .hasMessage("No suitable writer found for part: document")).verify(Duration.ofSeconds(5));
+  }
 
   @Test
   public void canWrite() {
