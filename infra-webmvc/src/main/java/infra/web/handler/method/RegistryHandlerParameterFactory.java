@@ -37,10 +37,6 @@ public class RegistryHandlerParameterFactory extends HandlerParameterFactory {
     this.resolvingRegistry = resolvingRegistry;
   }
 
-  public RegistryHandlerParameterFactory(ParameterResolvingRegistry registry, ParameterNameDiscoverer discoverer) {
-    this(registry, discoverer, true);
-  }
-
   RegistryHandlerParameterFactory(ParameterResolvingRegistry registry, ParameterNameDiscoverer discoverer, boolean cacheParameters) {
     super(discoverer, cacheParameters);
     Assert.notNull(registry, "ParameterResolvingRegistry is required");
