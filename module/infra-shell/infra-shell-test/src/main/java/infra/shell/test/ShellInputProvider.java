@@ -34,7 +34,7 @@ import java.util.List;
  * @param passwords Queue containing user password strings.
  * @author David Pilar
  * @author Mahmoud Ben Hassine
- * @since 4.0.2
+ * @since 5.0
  */
 public record ShellInputProvider(String command, Deque<String> inputs, Deque<String> passwords) {
 

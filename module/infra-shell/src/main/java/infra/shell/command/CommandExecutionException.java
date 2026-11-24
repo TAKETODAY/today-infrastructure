@@ -43,7 +43,7 @@ public class CommandExecutionException extends RuntimeException {
    *
    * @param message the detail message
    * @param exitCode the exit code associated with this exception
-   * @since 4.0.2
+   * @since 5.0
    */
   public CommandExecutionException(String message, int exitCode) {
     super(message);
@@ -65,7 +65,7 @@ public class CommandExecutionException extends RuntimeException {
    * Return the exit code associated with this exception.
    *
    * @return the exit code
-   * @since 4.0.2
+   * @since 5.0
    */
   public int getExitCode() {
     return this.exitCode;

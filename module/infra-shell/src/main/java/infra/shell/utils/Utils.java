@@ -56,7 +56,7 @@ public final class Utils {
    * @param method the method to check
    * @param environment the environment
    * @return true if the method has an active profile, false otherwise
-   * @since 4.0.2
+   * @since 5.0
    */
   public static boolean isProfileActive(Method method, Environment environment) {
     Profile profile = AnnotatedElementUtils.findMergedAnnotation(method, Profile.class);

@@ -78,7 +78,7 @@ public class ShellTestClient {
    * @return a {@code ShellScreen} object containing the output of the shell after
    * command execution
    * @throws Exception if an error occurs during the command execution
-   * @since 4.0.2
+   * @since 5.0
    */
   public ShellScreen sendCommand(ShellInputProvider inputProvider) throws Exception {
     StringWriter stringWriter = new StringWriter();

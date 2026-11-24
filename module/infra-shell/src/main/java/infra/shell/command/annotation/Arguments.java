@@ -42,7 +42,7 @@ public @interface Arguments {
    * arguments are collected.
    *
    * @return the maximum number of arguments to be collected
-   * @since 4.0.2
+   * @since 5.0
    */
   int arity() default Integer.MAX_VALUE;
 
@@ -50,7 +50,7 @@ public @interface Arguments {
    * Return a description of the arguments.
    *
    * @return description of the arguments
-   * @since 4.0.4
+   * @since 5.0
    */
   String description() default "";
 

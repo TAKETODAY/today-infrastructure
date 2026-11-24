@@ -32,7 +32,7 @@ import infra.stereotype.Component;
  * commands together and provide a common name and prefix for the group.
  *
  * @author Mahmoud Ben Hassine
- * @since 4.0.2
+ * @since 5.0
  */
 
 @Retention(RetentionPolicy.RUNTIME)

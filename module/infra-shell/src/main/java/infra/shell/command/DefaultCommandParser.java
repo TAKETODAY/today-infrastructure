@@ -165,7 +165,7 @@ public class DefaultCommandParser implements CommandParser {
    * @param input the raw input line
    * @return the list of words
    * @throws IllegalArgumentException if the input contains an unbalanced quote
-   * @since 4.0.4
+   * @since 5.0
    */
   protected List<String> tokenize(String input) {
     List<String> words = new ArrayList<>();

@@ -31,7 +31,7 @@ import infra.shell.command.CommandOption;
  * command options based on the current input context.
  *
  * @author David Pilar
- * @since 4.0.1
+ * @since 5.0
  */
 public class DefaultCompletionProvider implements CompletionProvider {
 

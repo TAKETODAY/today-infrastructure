@@ -31,7 +31,7 @@ import infra.shell.command.CommandRegistry;
 
 /**
  * @author Piotr Olaszewski
- * @since 4.0.1
+ * @since 5.0
  */
 public class CommandHighlighter implements Highlighter {
 

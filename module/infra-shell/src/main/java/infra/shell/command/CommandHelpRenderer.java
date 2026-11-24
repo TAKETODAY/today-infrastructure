@@ -31,7 +31,7 @@ import infra.util.StringUtils;
  * way.
  *
  * @author David Pilar
- * @since 4.0.4
+ * @since 5.0
  */
 public final class CommandHelpRenderer {
 

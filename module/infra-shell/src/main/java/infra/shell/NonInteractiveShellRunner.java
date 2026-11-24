@@ -74,7 +74,7 @@ public class NonInteractiveShellRunner implements ShellRunner {
    * @param commandParser the command parser
    * @param commandRegistry the command registry
    * @param outputWriter the output writer
-   * @since 4.0.1
+   * @since 5.0
    */
   public NonInteractiveShellRunner(CommandParser commandParser, CommandRegistry commandRegistry,
           PrintWriter outputWriter) {
