@@ -99,7 +99,7 @@ class JacksonHandlerInstantiatorTests {
   }
 
   @Test
-  void applicationContextAwaretypeResolverBuilder() {
+  void applicationContextAwareTypeResolverBuilder() {
     this.objectMapper.writeValueAsString(new Group());
     assertThat(CustomTypeResolverBuilder.isAutowiredFiledInitialized).isTrue();
   }

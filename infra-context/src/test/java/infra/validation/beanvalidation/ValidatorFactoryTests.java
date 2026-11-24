@@ -20,6 +20,7 @@ package infra.validation.beanvalidation;
 
 import org.hibernate.validator.HibernateValidator;
 import org.hibernate.validator.HibernateValidatorFactory;
+import org.hibernate.validator.bean.BeanRetrieval;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.ElementType;
@@ -38,6 +39,8 @@ import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.context.MessageSource;
+import infra.context.support.StaticApplicationContext;
 import infra.core.conversion.support.DefaultConversionService;
 import infra.core.env.Environment;
 import infra.validation.BeanPropertyBindingResult;
@@ -307,6 +310,18 @@ public class ValidatorFactoryTests {
     validator.afterPropertiesSet();
 
     assertThat(validator.getConstraintValidatorFactory()).isSameAs(cvf);
+    validator.destroy();
+  }
+
+  @Test
+  void accessBeanProvider() {
+    LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
+    StaticApplicationContext context = new StaticApplicationContext();
+    validator.setApplicationContext(context);
+    validator.afterPropertiesSet();
+
+    assertThat(validator.unwrap(HibernateValidatorFactory.class).getBeanResolver()
+            .resolve(MessageSource.class, BeanRetrieval.ANY).get()).isSameAs(context.getStaticMessageSource());
     validator.destroy();
   }
 
