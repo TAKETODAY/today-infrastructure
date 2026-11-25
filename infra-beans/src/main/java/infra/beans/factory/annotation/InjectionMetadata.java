@@ -56,13 +56,16 @@ public class InjectionMetadata {
     }
 
     @Override
-    public void checkConfigMembers(RootBeanDefinition beanDefinition) { }
+    public void checkConfigMembers(RootBeanDefinition beanDefinition) {
+    }
 
     @Override
-    public void inject(Object target, @Nullable String beanName, @Nullable PropertyValues pvs) { }
+    public void inject(Object target, @Nullable String beanName, @Nullable PropertyValues pvs) {
+    }
 
     @Override
-    public void clear(@Nullable PropertyValues pvs) { }
+    public void clear(@Nullable PropertyValues pvs) {
+    }
   };
 
   private final Class<?> targetClass;

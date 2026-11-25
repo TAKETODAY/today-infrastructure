@@ -54,9 +54,9 @@ import infra.core.OrderSourceProvider;
 import infra.core.OrderedSupport;
 import infra.core.PriorityOrdered;
 import infra.core.annotation.AnnotationUtils;
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ReflectionUtils;
@@ -94,9 +94,9 @@ import infra.util.StringUtils;
  * @see #setDestroyAnnotationType
  * @since 4.0 2021/12/3 16:46
  */
-public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
-        implements BeanFactoryAware, DestructionAwareBeanPostProcessor, MergedBeanDefinitionPostProcessor,
-        InitializationBeanPostProcessor, BeanRegistrationAotProcessor, PriorityOrdered, Serializable {
+public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport implements BeanFactoryAware,
+        DestructionAwareBeanPostProcessor, MergedBeanDefinitionPostProcessor, InitializationBeanPostProcessor,
+        BeanRegistrationAotProcessor, PriorityOrdered, Serializable {
 
   private static final Logger log = LoggerFactory.getLogger(InitDestroyAnnotationBeanPostProcessor.class);
 
@@ -104,13 +104,16 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
           new LifecycleMetadata(Object.class, Collections.emptyList(), Collections.emptyList()) {
 
             @Override
-            public void checkInitDestroyMethods(RootBeanDefinition beanDefinition) { }
+            public void checkInitDestroyMethods(RootBeanDefinition beanDefinition) {
+            }
 
             @Override
-            public void invokeInitMethods(Object target, String beanName) { }
+            public void invokeInitMethods(Object target, String beanName) {
+            }
 
             @Override
-            public void invokeDestroyMethods(Object target, String beanName) { }
+            public void invokeDestroyMethods(Object target, String beanName) {
+            }
 
             @Override
             public boolean hasDestroyMethods() {
@@ -122,8 +125,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
 
   private final LinkedHashSet<Class<? extends Annotation>> destroyAnnotationTypes = new LinkedHashSet<>(2);
 
-  @Nullable
-  private final transient ConcurrentHashMap<Class<?>, LifecycleMetadata>
+  private final transient @Nullable ConcurrentHashMap<Class<?>, LifecycleMetadata>
           lifecycleMetadataCache = new ConcurrentHashMap<>(256);
 
   @Nullable

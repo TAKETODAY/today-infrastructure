@@ -52,8 +52,7 @@ import infra.util.ClassUtils;
  * @see Qualifier
  * @since 4.0 2022/1/1 18:00
  */
-public class CustomAutowireConfigurer
-        extends OrderedSupport implements BeanFactoryPostProcessor, BeanClassLoaderAware, Ordered {
+public class CustomAutowireConfigurer extends OrderedSupport implements BeanFactoryPostProcessor, BeanClassLoaderAware, Ordered {
 
   @Nullable
   private Set<?> customQualifierTypes;
