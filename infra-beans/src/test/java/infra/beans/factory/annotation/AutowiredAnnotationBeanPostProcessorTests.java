@@ -46,10 +46,12 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import infra.beans.PropertyValues;
 import infra.beans.factory.BeanCreationException;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryUtils;
@@ -66,6 +68,7 @@ import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.config.TypedStringValue;
 import infra.beans.factory.support.AutowireCandidateQualifier;
 import infra.beans.factory.support.GenericBeanDefinition;
+import infra.beans.factory.support.RegisteredBean;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.SimpleAutowireCandidateResolver;
 import infra.beans.factory.support.StandardBeanFactory;
@@ -110,6 +113,229 @@ public class AutowiredAnnotationBeanPostProcessorTests {
   @AfterEach
   void close() {
     bf.destroySingletons();
+  }
+
+  @Test
+  void customAnnotationTypesReplaceDefaults() {
+    bpp.setAutowiredAnnotationTypes(Set.of(CustomInjection.class, Value.class));
+    TestBean dependency = new TestBean();
+    bf.registerSingleton("dependency", dependency);
+    var bean = new CustomInjectionTarget();
+
+    bpp.processInjection(bean);
+
+    assertThat(bean.custom).isSameAs(dependency);
+    assertThat(bean.standard).isNull();
+  }
+
+  @Test
+  void rejectsIncompatibleBeanFactory() {
+    assertThatThrownBy(() -> bpp.setBeanFactory(Mockito.mock(BeanFactory.class)))
+            .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("ConfigurableBeanFactory");
+  }
+
+  @Test
+  void rejectsMultipleRequiredConstructors() {
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> bpp.determineCandidateConstructors(ConflictingConstructors.class, "conflict"))
+            .withMessageContaining("Invalid autowire-marked");
+  }
+
+  @Test
+  void singleOptionalConstructorWithoutDefaultIsStillCandidate() throws Exception {
+    assertThat(bpp.determineCandidateConstructors(OptionalConstructor.class, "optional"))
+            .containsExactly(OptionalConstructor.class.getDeclaredConstructor(TestBean.class));
+  }
+
+  @Test
+  void lookupRequiresBeanDefinitionAndFactory() {
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> bpp.determineBeanType(LookupTarget.class, "missing"))
+            .withMessageContaining("without corresponding bean definition");
+    var standalone = new AutowiredAnnotationBeanPostProcessor();
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> standalone.determineBeanType(LookupTarget.class, "missing"))
+            .withMessageContaining("Lookup method resolution failed");
+  }
+
+  @Test
+  void determinesEnhancedTypeForLookupBean() {
+    bf.registerBeanDefinition("lookup", new RootBeanDefinition(LookupTarget.class));
+    Class<?> type = bpp.determineBeanType(LookupTarget.class, "lookup");
+
+    assertThat(type).isNotEqualTo(LookupTarget.class).isAssignableTo(LookupTarget.class);
+  }
+
+  @Test
+  void wrapsExceptionThrownByInjectionMethod() {
+    var bean = new RejectingInjectionTarget();
+    bf.registerSingleton("dependency", new TestBean());
+
+    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() -> bpp.processInjection(bean))
+            .withMessageContaining("Injection of autowired dependencies failed").withCause(bean.failure);
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> bpp.processDependencies(new PropertyValues(), bean, "target"))
+            .withMessageContaining("Injection of autowired dependencies failed").withCause(bean.failure);
+  }
+
+  @Test
+  void preservesUnsatisfiedDependencyForDirectInjection() {
+    assertThatExceptionOfType(UnsatisfiedDependencyException.class)
+            .isThrownBy(() -> bpp.processInjection(new RejectingInjectionTarget()))
+            .withMessageContaining("inject").withCauseInstanceOf(NoSuchBeanDefinitionException.class);
+  }
+
+  @Test
+  void refreshesInjectionMetadataWhenNamedTargetChangesClass() {
+    TestBean dependency = new TestBean();
+    bf.registerSingleton("dependency", dependency);
+    var first = new CustomInjectionTarget();
+    var replacement = new StaticInjectionTarget();
+
+    bpp.processDependencies(new PropertyValues(), first, "target");
+    bpp.processDependencies(new PropertyValues(), replacement, "target");
+
+    assertThat(first.standard).isSameAs(dependency);
+    assertThat(replacement.called).isTrue();
+  }
+
+  @Test
+  void skipsRuntimeAndAotInjectionWhenDisabledOnDefinition() {
+    var definition = new RootBeanDefinition(CustomInjectionTarget.class);
+    definition.setEnableDependencyInjection(false);
+    bf.registerBeanDefinition("disabled", definition);
+    bf.registerSingleton("dependency", new TestBean());
+    var registeredBean = RegisteredBean.of(bf, "disabled");
+
+    assertThat(bpp.processAheadOfTime(registeredBean)).isNull();
+    assertThat(bf.getBean("disabled", CustomInjectionTarget.class).standard).isNull();
+  }
+
+  @Test
+  void detectsAotInjectionPointsBeforeBeingAttachedToFactory() {
+    var standalone = new AutowiredAnnotationBeanPostProcessor();
+    bf.registerBeanDefinition("target", new RootBeanDefinition(OrderedInjectionTarget.class));
+
+    assertThat(standalone.determineBeanType(OrderedInjectionTarget.class, "target")).isEqualTo(OrderedInjectionTarget.class);
+    assertThat(standalone.processAheadOfTime(RegisteredBean.of(bf, "target"))).isNotNull();
+  }
+
+  @Test
+  void appliesAutowiredMethodsInDeclarationOrder() {
+    TestBean dependency = new TestBean();
+    bf.registerSingleton("dependency", dependency);
+    var target = new OrderedInjectionTarget();
+
+    bpp.processInjection(target);
+
+    assertThat(target.events).containsExactly("z", "a");
+  }
+
+  @Test
+  void ignoresInjectionAnnotationOnRecordAccessor() {
+    var target = new RecordInjectionTarget(new TestBean());
+
+    bpp.processInjection(target);
+
+    assertThat(target.accessorCalls()).hasValue(0);
+  }
+
+  @Test
+  void ignoresStaticMembersButInvokesZeroArgumentMethod() {
+    var bean = new StaticInjectionTarget();
+    bf.registerSingleton("dependency", new TestBean());
+    bpp.processInjection(bean);
+
+    assertThat(StaticInjectionTarget.staticField).isNull();
+    assertThat(bean.called).isTrue();
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface CustomInjection { }
+
+  static class CustomInjectionTarget {
+    @CustomInjection
+    TestBean custom;
+
+    @Autowired
+    TestBean standard;
+  }
+
+  static class ConflictingConstructors {
+    @Autowired
+    ConflictingConstructors(TestBean dependency) { }
+
+    @Autowired
+    ConflictingConstructors(String dependency) { }
+  }
+
+  static class OptionalConstructor {
+    @Autowired(required = false)
+    OptionalConstructor(TestBean dependency) { }
+  }
+
+  static class LookupTarget {
+    @Lookup
+    TestBean lookup() {
+      return null;
+    }
+  }
+
+  static class RejectingInjectionTarget {
+    final IllegalStateException failure = new IllegalStateException("rejected");
+
+    @Autowired
+    void inject(TestBean dependency) {
+      throw this.failure;
+    }
+  }
+
+  static class StaticInjectionTarget {
+    @Autowired
+    static TestBean staticField;
+
+    boolean called;
+
+    @Autowired
+    static void inject(TestBean dependency) {
+      throw new AssertionError("Static method must not be called");
+    }
+
+    @Autowired
+    void initialize() {
+      this.called = true;
+    }
+  }
+
+  static class OrderedInjectionTarget {
+
+    final List<String> events = new ArrayList<>();
+
+    @Autowired
+    void zFirst(TestBean dependency) {
+      this.events.add("z");
+    }
+
+    @Autowired
+    void aSecond(TestBean dependency) {
+      this.events.add("a");
+    }
+
+  }
+
+  record RecordInjectionTarget(TestBean dependency, AtomicInteger accessorCalls) {
+
+    RecordInjectionTarget(TestBean dependency) {
+      this(dependency, new AtomicInteger());
+    }
+
+    @Autowired
+    @Override
+    public TestBean dependency() {
+      this.accessorCalls.incrementAndGet();
+      return this.dependency;
+    }
+
   }
 
   @Test
