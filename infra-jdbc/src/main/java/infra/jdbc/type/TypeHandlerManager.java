@@ -54,8 +54,9 @@ import infra.core.ParameterizedTypeReference;
 import infra.core.ResolvableType;
 import infra.core.annotation.MergedAnnotation;
 import infra.core.annotation.MergedAnnotations;
-import infra.util.Assert;
 import infra.lang.Enumerable;
+import infra.util.Assert;
+import infra.util.DataSize;
 
 import static infra.aot.hint.MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS;
 
@@ -427,6 +428,7 @@ public class TypeHandlerManager implements TypeHandlerResolver {
 
     registry.register(UUID.class, new UUIDTypeHandler());
     registry.register(Duration.class, new DurationTypeHandler());
+    registry.register(DataSize.class, new DataSizeTypeHandler());
 
     registry.register(LocalDate.class, new AnyTypeHandler<>(LocalDate.class));
     registry.register(LocalTime.class, new AnyTypeHandler<>(LocalTime.class));
