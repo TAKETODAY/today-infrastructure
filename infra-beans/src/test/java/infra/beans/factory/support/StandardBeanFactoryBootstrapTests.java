@@ -34,6 +34,26 @@ import static org.junit.jupiter.api.Timeout.ThreadMode.SEPARATE_THREAD;
 class StandardBeanFactoryBootstrapTests {
 
   @Test
+  void bootstrapDefaultDoesNotAccessFactory() {
+    var factory = org.mockito.Mockito.mock(infra.beans.factory.config.ConfigurableBeanFactory.class,
+            org.mockito.Answers.CALLS_REAL_METHODS);
+    factory.prepareSingletonBootstrap();
+    org.mockito.Mockito.verify(factory).prepareSingletonBootstrap();
+    org.mockito.Mockito.verifyNoMoreInteractions(factory);
+  }
+
+  @Test
+  void singletonCallbackDefaultsToNoOpAndDelegatesToNoArgumentCallback() {
+    var factory = new StandardBeanFactory();
+    SmartInitializingSingleton noOp = new SmartInitializingSingleton() { };
+    noOp.afterSingletonsInstantiated();
+    noOp.afterSingletonsInstantiated(factory);
+    var callback = org.mockito.Mockito.mock(SmartInitializingSingleton.class, org.mockito.Answers.CALLS_REAL_METHODS);
+    callback.afterSingletonsInstantiated(factory);
+    org.mockito.Mockito.verify(callback).afterSingletonsInstantiated();
+  }
+
+  @Test
   void initializesPrerequisitesOnMainThreadBeforeRunningFactoryMethodInBackground() {
     var factory = new StandardBeanFactory();
     Thread main = Thread.currentThread();

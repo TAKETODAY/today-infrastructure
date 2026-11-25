@@ -35,6 +35,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class PropertyEditorRegistrySupportTests {
 
+  @Test
+  void registrarDoesNotOverrideDefaultEditorsByDefault() {
+    PropertyEditorRegistrar registrar = registry -> { };
+    assertThat(registrar.overridesDefaultEditors()).isFalse();
+  }
+
   /**
    * Matches the private {@code MAX_STRIPPED_PROPERTY_PATH_DEPTH} constant in
    * {@link PropertyEditorRegistrySupport}.

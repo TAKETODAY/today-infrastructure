@@ -38,6 +38,32 @@ import static org.mockito.Mockito.mock;
 class BeanDefinitionMetadataTests {
 
   @Test
+  void genericDefinitionReflectsArgumentAndPropertyPresence() {
+    var definition = new GenericBeanDefinition();
+    assertThat(definition.hasConstructorArgumentValues()).isFalse();
+    assertThat(definition.hasPropertyValues()).isFalse();
+    definition.getConstructorArgumentValues().addGenericArgumentValue("argument");
+    definition.getPropertyValues().add("property", "value");
+    assertThat(definition.hasConstructorArgumentValues()).isTrue();
+    assertThat(definition.hasPropertyValues()).isTrue();
+  }
+
+  @Test
+  void interfaceDefaultsReflectArgumentAndPropertyPresence() {
+    var definition = mock(BeanDefinition.class, org.mockito.Answers.CALLS_REAL_METHODS);
+    var arguments = new ConstructorArgumentValues();
+    var properties = new infra.beans.PropertyValues();
+    given(definition.getConstructorArgumentValues()).willReturn(arguments);
+    given(definition.getPropertyValues()).willReturn(properties);
+    assertThat(definition.hasConstructorArgumentValues()).isFalse();
+    assertThat(definition.hasPropertyValues()).isFalse();
+    arguments.addGenericArgumentValue("argument");
+    properties.add("property", "value");
+    assertThat(definition.hasConstructorArgumentValues()).isTrue();
+    assertThat(definition.hasPropertyValues()).isTrue();
+  }
+
+  @Test
   void matchesPrimaryNameTransformedNameAndAliases() {
     var names = new BeanNameHolder("&sample", new String[] { "alias" });
     assertThat(names.matchesName("&sample")).isTrue();

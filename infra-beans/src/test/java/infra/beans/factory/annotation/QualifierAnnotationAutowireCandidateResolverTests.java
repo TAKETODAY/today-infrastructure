@@ -40,6 +40,31 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
  */
 class QualifierAnnotationAutowireCandidateResolverTests {
 
+  @Test
+  void resolverInterfaceDefaultsRespectDefinitionAndDescriptor() {
+    var resolver = new DefaultResolver();
+    var definition = new infra.beans.factory.support.RootBeanDefinition(String.class);
+    var holder = new infra.beans.factory.config.BeanDefinitionHolder(definition, "bean");
+    var descriptor = org.mockito.Mockito.mock(DependencyDescriptor.class);
+    org.assertj.core.api.Assertions.assertThat(resolver.isAutowireCandidate(holder, descriptor)).isTrue();
+    definition.setAutowireCandidate(false);
+    org.assertj.core.api.Assertions.assertThat(resolver.isAutowireCandidate(holder, descriptor)).isFalse();
+    org.assertj.core.api.Assertions.assertThat(resolver.isRequired(descriptor)).isFalse();
+    org.mockito.BDDMockito.given(descriptor.isRequired()).willReturn(true);
+    org.assertj.core.api.Assertions.assertThat(resolver.isRequired(descriptor)).isTrue();
+    assertSoftly(softly -> {
+      softly.assertThat(resolver.getSuggestedName(descriptor)).isNull();
+      softly.assertThat(resolver.getSuggestedValue(descriptor)).isNull();
+      softly.assertThat(resolver.hasQualifier(descriptor)).isFalse();
+      softly.assertThat(resolver.getLazyResolutionProxyIfNecessary(descriptor, "bean")).isNull();
+      softly.assertThat(resolver.getLazyResolutionProxyClass(descriptor, "bean")).isNull();
+      softly.assertThat(resolver.cloneIfNecessary()).isNotSameAs(resolver).isExactlyInstanceOf(resolver.getClass());
+    });
+  }
+
+  static class DefaultResolver implements infra.beans.factory.support.AutowireCandidateResolver {
+  }
+
   final QualifierAnnotationAutowireCandidateResolver resolver = new QualifierAnnotationAutowireCandidateResolver();
 
   Method testMethod;

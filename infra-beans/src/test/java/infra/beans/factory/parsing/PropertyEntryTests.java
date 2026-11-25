@@ -20,6 +20,7 @@ package infra.beans.factory.parsing;
 
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
@@ -46,6 +47,11 @@ public class PropertyEntryTests {
   public void testCtorBailsOnWhitespacedPropertyNameArgument() throws Exception {
     assertThatIllegalArgumentException().isThrownBy(() ->
             new PropertyEntry("\t   "));
+  }
+
+  @Test
+  void validPropertyNameIsRendered() {
+    assertThat(new PropertyEntry("property").toString()).isEqualTo("Property 'property'");
   }
 
 }

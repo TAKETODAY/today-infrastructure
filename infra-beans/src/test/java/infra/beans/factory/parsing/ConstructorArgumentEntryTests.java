@@ -20,6 +20,7 @@ package infra.beans.factory.parsing;
 
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
@@ -34,6 +35,12 @@ public class ConstructorArgumentEntryTests {
   public void testCtorBailsOnNegativeCtorIndexArgument() {
     assertThatIllegalArgumentException().isThrownBy(() ->
             new ConstructorArgumentEntry(-1));
+  }
+
+  @Test
+  void unknownAndIndexedArgumentsAreRendered() {
+    assertThat(new ConstructorArgumentEntry().toString()).isEqualTo("Constructor-arg");
+    assertThat(new ConstructorArgumentEntry(2).toString()).isEqualTo("Constructor-arg #2");
   }
 
 }

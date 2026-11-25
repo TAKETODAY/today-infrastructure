@@ -36,6 +36,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AutowiredArgumentsCodeGeneratorTests {
 
   @Test
+  void argumentDefaultsSupportAssignableTypesAndRejectMismatches() {
+    AutowiredArguments arguments = () -> new Object[] { "value", 42, null };
+    assertThat(arguments.getObject(0)).isEqualTo("value");
+    assertThat(arguments.<String>get(0)).isEqualTo("value");
+    assertThat(arguments.get(0, CharSequence.class)).isEqualTo("value");
+    assertThat(arguments.get(1, int.class)).isEqualTo(42);
+    assertThat(arguments.get(2, String.class)).isNull();
+    org.assertj.core.api.Assertions.assertThatIllegalArgumentException()
+            .isThrownBy(() -> arguments.get(0, Integer.class)).withMessageContaining("Argument type mismatch");
+    org.assertj.core.api.Assertions.assertThatIllegalArgumentException()
+            .isThrownBy(() -> arguments.get(2, int.class)).withMessageContaining("Argument type mismatch");
+  }
+
+  @Test
   void generateCodeWhenNoArguments() {
     Method method = ReflectionUtils.findMethod(UnambiguousMethods.class, "zero");
     AutowiredArgumentsCodeGenerator generator = new AutowiredArgumentsCodeGenerator(

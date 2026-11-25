@@ -28,6 +28,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Rick Evans
@@ -45,6 +46,13 @@ public class FailFastProblemReporterTests {
   }
 
   @Test
+  void fatalAlsoFailsFast() {
+    FailFastProblemReporter reporter = new FailFastProblemReporter();
+    Problem problem = new Problem("fatal", new Location(new DescriptiveResource("here")));
+    assertThatExceptionOfType(BeanDefinitionParsingException.class).isThrownBy(() -> reporter.fatal(problem));
+  }
+
+  @Test
   public void testWarn() throws Exception {
     Problem problem = new Problem("VGER", new Location(new DescriptiveResource("here")),
             null, new IllegalArgumentException());
@@ -56,6 +64,21 @@ public class FailFastProblemReporterTests {
     reporter.warning(problem);
 
     verify(log).warn(eq(problem), isA(IllegalArgumentException.class));
+  }
+
+  @Test
+  void nullLoggerRestoresDefaultLogger() {
+    FailFastProblemReporter reporter = new FailFastProblemReporter();
+    Logger customLogger = mock(Logger.class);
+    Problem problem = new Problem("warning", new Location(new DescriptiveResource("here")));
+    reporter.setLogger(customLogger);
+    reporter.warning(problem);
+
+    reporter.setLogger(null);
+    reporter.warning(problem);
+
+    verify(customLogger).warn(problem, problem.getRootCause());
+    verifyNoMoreInteractions(customLogger);
   }
 
 }

@@ -54,6 +54,40 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class BeanFactoryUtilsTests {
 
+  @Test
+  void beanFactoryDefaultsDelegateAndReturnIndependentLists() {
+    var factory = org.mockito.Mockito.mock(BeanFactory.class, org.mockito.Answers.CALLS_REAL_METHODS);
+    var values = new java.util.LinkedHashMap<String, String>();
+    values.put("first", "one");
+    values.put("second", "two");
+    org.mockito.BDDMockito.given(factory.getBeansOfType(String.class, true, true)).willReturn(values);
+    assertThat(factory.getBeansOfType(String.class)).isSameAs(values);
+    var beans = factory.getBeans(String.class);
+    assertThat(beans).containsExactly("one", "two");
+    beans.clear();
+    assertThat(values).hasSize(2);
+
+    Map<String, Object> annotated = new java.util.LinkedHashMap<>(values);
+    org.mockito.BDDMockito.given(factory.getBeansWithAnnotation(TestAnnotation.class, true)).willReturn(annotated);
+    assertThat(factory.getBeansWithAnnotation(TestAnnotation.class)).isSameAs(annotated);
+    var matches = factory.getAnnotatedBeans(TestAnnotation.class);
+    assertThat(matches).containsExactly("one", "two");
+    matches.clear();
+    assertThat(annotated).hasSize(2);
+  }
+
+  @Test
+  void beanFactoryDefaultProviderAndUnwrap() {
+    var factory = org.mockito.Mockito.mock(BeanFactory.class, org.mockito.Answers.CALLS_REAL_METHODS);
+    var type = new infra.core.ParameterizedTypeReference<List<String>>() { };
+    ObjectProvider<List<String>> provider = new ObjectProvider<>() { };
+    org.mockito.BDDMockito.given(factory.<List<String>>getBeanProvider(ResolvableType.forType(type), true)).willReturn(provider);
+    assertThat(factory.getBeanProvider(type)).isSameAs(provider);
+    assertThat(factory.unwrap(BeanFactory.class)).isSameAs(factory);
+    org.assertj.core.api.Assertions.assertThatIllegalArgumentException()
+            .isThrownBy(() -> factory.unwrap(String.class));
+  }
+
   private static final Class<?> CLASS = BeanFactoryUtilsTests.class;
   private static final Resource ROOT_CONTEXT = qualifiedResource(CLASS, "root.xml");
   private static final Resource MIDDLE_CONTEXT = qualifiedResource(CLASS, "middle.xml");

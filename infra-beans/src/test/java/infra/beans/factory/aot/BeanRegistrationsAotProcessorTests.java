@@ -37,6 +37,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 class BeanRegistrationsAotProcessorTests {
 
   @Test
+  void registrationProcessorExcludesItselfByDefault() {
+    BeanRegistrationAotProcessor processor = registeredBean -> null;
+    assertThat(processor.isBeanExcludedFromAotProcessing()).isTrue();
+  }
+
+  @Test
   void beanRegistrationsAotProcessorIsRegistered() {
     assertThat(AotServices.factoriesAndBeans(new StandardBeanFactory())
             .load(BeanFactoryInitializationAotProcessor.class))

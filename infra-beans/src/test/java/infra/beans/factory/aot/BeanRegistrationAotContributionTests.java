@@ -36,6 +36,14 @@ import static org.mockito.Mockito.verifyNoInteractions;
 class BeanRegistrationAotContributionTests {
 
   @Test
+  void contributionPreservesCodeFragmentsByDefault() {
+    BeanRegistrationAotContribution contribution = (context, code) -> { };
+    var fragments = mock(BeanRegistrationCodeFragments.class);
+    assertThat(contribution.customizeBeanRegistrationCodeFragments(new TestGenerationContext(), fragments)).isSameAs(fragments);
+    verifyNoInteractions(fragments);
+  }
+
+  @Test
   void concatWithBothNullReturnsNull() {
     assertThat(BeanRegistrationAotContribution.concat(null, null)).isNull();
   }

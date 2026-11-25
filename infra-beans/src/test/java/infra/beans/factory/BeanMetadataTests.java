@@ -33,6 +33,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class BeanMetadataTests {
 
   @Test
+  void metadataElementHasNoSourceByDefault() {
+    infra.beans.BeanMetadataElement element = new infra.beans.BeanMetadataElement() { };
+    assertThat(element.getSource()).isNull();
+  }
+
+  @Test
   public void beanMetadata() {
     final BeanMetadata beanMetadata = BeanMetadata.forClass(BeanMappingTestBean.class);
     final Object instance = beanMetadata.newInstance();

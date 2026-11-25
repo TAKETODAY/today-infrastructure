@@ -72,6 +72,17 @@ public class ParseStateTests {
     assertThat(snapshot.peek()).as("Snapshot should not have been modified.").isEqualTo(entry);
   }
 
+  @Test
+  void toStringRendersEmptyAndNestedStates() {
+    ParseState empty = new ParseState();
+    assertThat(empty.toString()).isEmpty();
+
+    ParseState state = new ParseState();
+    state.push(new BeanEntry("outer"));
+    state.push(new PropertyEntry("value"));
+    assertThat(state.toString()).isEqualTo("Property 'value'\n\t-> Bean 'outer'");
+  }
+
   private static class MockEntry implements ParseState.Entry {
 
   }

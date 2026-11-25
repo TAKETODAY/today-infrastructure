@@ -46,6 +46,12 @@ import static org.mockito.Mockito.never;
 class DisposableBeanAdapterTests {
 
   @Test
+  void destructionAwareProcessorRequiresDestructionByDefault() {
+    var processor = mock(DestructionAwareBeanPostProcessor.class, org.mockito.Answers.CALLS_REAL_METHODS);
+    assertThat(processor.requiresDestruction(new Object())).isTrue();
+  }
+
+  @Test
   void invokesMatchingProcessorsBeforeDisposableBeanEvenWhenDestroyThrows() {
     var callbacks = new ArrayList<String>();
     DisposableBean bean = () -> {

@@ -41,6 +41,25 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class FactoryBeanTests {
 
+  @Test
+  @SuppressWarnings("unchecked")
+  void smartFactoryBeanDefaultsUsePrimaryObjectType() throws Exception {
+    SmartFactoryBean<String> factory = org.mockito.Mockito.mock(SmartFactoryBean.class, org.mockito.Answers.CALLS_REAL_METHODS);
+    org.mockito.BDDMockito.given(factory.getObjectType()).willAnswer(invocation -> String.class);
+    org.mockito.BDDMockito.given(factory.getObject()).willReturn("value");
+    assertThat(factory.isSingleton()).isTrue();
+    assertThat(factory.isPrototype()).isFalse();
+    assertThat(factory.isEagerInit()).isFalse();
+    assertThat(factory.supportsType(CharSequence.class)).isTrue();
+    assertThat(factory.supportsType(Integer.class)).isFalse();
+    assertThat(factory.getObject(CharSequence.class)).isEqualTo("value");
+    assertThat(factory.getObject(Integer.class)).isNull();
+    org.mockito.BDDMockito.given(factory.getObjectType()).willReturn(null);
+    assertThat(factory.supportsType(String.class)).isFalse();
+    assertThat(factory.getObject(String.class)).isNull();
+    org.mockito.Mockito.verify(factory, org.mockito.Mockito.times(1)).getObject();
+  }
+
   private static final Class<?> CLASS = FactoryBeanTests.class;
   private static final Resource RETURNS_NULL_CONTEXT = qualifiedResource(CLASS, "returnsNull.xml");
   private static final Resource WITH_AUTOWIRING_CONTEXT = qualifiedResource(CLASS, "withAutowiring.xml");

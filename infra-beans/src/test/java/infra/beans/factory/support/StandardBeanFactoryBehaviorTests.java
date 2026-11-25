@@ -27,6 +27,11 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.beans.factory.DisposableBean;
+import infra.beans.factory.DependenciesBeanPostProcessor;
+import infra.beans.factory.config.AutowireCapableBeanFactory;
+import infra.beans.factory.config.InstantiationAwareBeanPostProcessor;
+import infra.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
+import infra.beans.PropertyValues;
 import infra.beans.factory.InitializationBeanPostProcessor;
 import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.ObjectProvider;
@@ -40,8 +45,59 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Answers.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.verify;
+import static org.mockito.BDDMockito.given;
 
 class StandardBeanFactoryBehaviorTests {
+
+  @Test
+  void instantiationAwareProcessorDefaultsAllowInstantiationAndPopulation() {
+    var processor = mock(InstantiationAwareBeanPostProcessor.class, CALLS_REAL_METHODS);
+    assertThat(processor.postProcessBeforeInstantiation(String.class, "bean")).isNull();
+    assertThat(processor.postProcessAfterInstantiation(new Object(), "bean")).isTrue();
+  }
+
+  @Test
+  void smartInstantiationProcessorDefaultsPreserveBeanAndType() {
+    var processor = mock(SmartInstantiationAwareBeanPostProcessor.class, CALLS_REAL_METHODS);
+    var bean = new Object();
+    assertThat(processor.predictBeanType(String.class, "bean")).isNull();
+    assertThat(processor.determineBeanType(String.class, "bean")).isSameAs(String.class);
+    assertThat(processor.determineCandidateConstructors(String.class, "bean")).isNull();
+    assertThat(processor.getEarlyBeanReference(bean, "bean")).isSameAs(bean);
+  }
+
+  @Test
+  void initializationAndDependencyProcessorDefaultsPreserveInputs() {
+    var initialization = mock(InitializationBeanPostProcessor.class, CALLS_REAL_METHODS);
+    var dependencies = mock(DependenciesBeanPostProcessor.class, CALLS_REAL_METHODS);
+    var bean = new Object();
+    var properties = new PropertyValues();
+    assertThat(initialization.postProcessBeforeInitialization(bean, "bean")).isSameAs(bean);
+    assertThat(initialization.postProcessAfterInitialization(bean, "bean")).isSameAs(bean);
+    assertThat(dependencies.processDependencies(properties, bean, "bean")).isSameAs(properties);
+  }
+
+  @Test
+  void autowireDefaultsDelegateWithDocumentedArguments() {
+    var factory = mock(AutowireCapableBeanFactory.class, CALLS_REAL_METHODS);
+    given(factory.createBean(String.class, AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR, false)).willReturn("created");
+    given(factory.createBean(Integer.class, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, false)).willReturn(42);
+    assertThat(factory.createBean(String.class)).isEqualTo("created");
+    assertThat(factory.createBean(Integer.class, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE)).isEqualTo(42);
+    var bean = new Object();
+    factory.autowireBeanProperties(bean, AutowireCapableBeanFactory.AUTOWIRE_NO);
+    verify(factory).autowireBeanProperties(bean, AutowireCapableBeanFactory.AUTOWIRE_NO, false);
+  }
+
+  @Test
+  void mergedDefinitionResetDefaultIsNoOp() {
+    var processor = mock(MergedBeanDefinitionPostProcessor.class, CALLS_REAL_METHODS);
+    processor.resetBeanDefinition("bean");
+    verify(processor).resetBeanDefinition("bean");
+    org.mockito.Mockito.verifyNoMoreInteractions(processor);
+  }
 
   @Test
   void createsBeansWithInstanceSupplier() {

@@ -16,6 +16,7 @@
 
 package infra.beans.factory.parsing;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -52,6 +53,85 @@ class ReaderContextTests {
     assertThat(problem.getLocation().getSource()).isSameAs(this.source);
     assertThat(problem.getRootCause()).isSameAs(cause);
     assertThat(problem.getParseState()).isNull();
+  }
+
+  @Test
+  void forwardsFatalOverloadsWithTheSuppliedDetails() {
+    var reporter = mock(ProblemReporter.class);
+    var context = new ReaderContext(this.resource, reporter, this.listener, new NullSourceExtractor());
+    var state = new ParseState();
+    var cause = new IllegalStateException("cause");
+
+    context.fatal("fatal", null);
+    context.fatal("fatal with cause", this.source, cause);
+    context.fatal("fatal with state", this.source, state);
+
+    var captor = ArgumentCaptor.forClass(Problem.class);
+    then(reporter).should(times(3)).fatal(captor.capture());
+    assertThat(captor.getAllValues()).satisfiesExactly(
+            problem -> assertProblem(problem, "fatal", null, null, null),
+            problem -> assertProblem(problem, "fatal with cause", this.source, null, cause),
+            problem -> assertProblem(problem, "fatal with state", this.source, state, null));
+    then(reporter).shouldHaveNoMoreInteractions();
+  }
+
+  @Test
+  void forwardsErrorOverloadsWithTheSuppliedDetails() {
+    var reporter = mock(ProblemReporter.class);
+    var context = new ReaderContext(this.resource, reporter, this.listener, new NullSourceExtractor());
+    var state = new ParseState();
+    var cause = new IllegalStateException("cause");
+
+    context.error("error", this.source);
+    context.error("error with cause", this.source, cause);
+    context.error("error with state", this.source, state);
+    context.error("error with both", this.source, state, cause);
+
+    var captor = ArgumentCaptor.forClass(Problem.class);
+    then(reporter).should(times(4)).error(captor.capture());
+    assertThat(captor.getAllValues()).satisfiesExactly(
+            problem -> assertProblem(problem, "error", this.source, null, null),
+            problem -> assertProblem(problem, "error with cause", this.source, null, cause),
+            problem -> assertProblem(problem, "error with state", this.source, state, null),
+            problem -> assertProblem(problem, "error with both", this.source, state, cause));
+    then(reporter).shouldHaveNoMoreInteractions();
+  }
+
+  @Test
+  void forwardsWarningsWithoutCauseAndWithOptionalState() {
+    var reporter = mock(ProblemReporter.class);
+    var context = new ReaderContext(this.resource, reporter, this.listener, new NullSourceExtractor());
+    var state = new ParseState();
+    context.warning("warning", this.source);
+    context.warning("warning with state", this.source, state);
+
+    var captor = ArgumentCaptor.forClass(Problem.class);
+    then(reporter).should(times(2)).warning(captor.capture());
+    assertThat(captor.getAllValues()).satisfiesExactly(
+            problem -> assertProblem(problem, "warning", this.source, null, null),
+            problem -> assertProblem(problem, "warning with state", this.source, state, null));
+    then(reporter).shouldHaveNoMoreInteractions();
+  }
+
+  @Test
+  void reportsDefaultsComponentsAndAliases() {
+    var context = new ReaderContext(this.resource, mock(ProblemReporter.class), this.listener, new NullSourceExtractor());
+    var defaults = mock(DefaultsDefinition.class);
+    var component = mock(ComponentDefinition.class);
+
+    context.fireDefaultsRegistered(defaults);
+    context.fireComponentRegistered(component);
+    context.fireAliasRegistered("bean", "alias", this.source);
+
+    then(this.listener).should().defaultsRegistered(defaults);
+    then(this.listener).should().componentRegistered(component);
+    var captor = ArgumentCaptor.forClass(AliasDefinition.class);
+    then(this.listener).should().aliasRegistered(captor.capture());
+    var alias = captor.getValue();
+    assertThat(alias.getBeanName()).isEqualTo("bean");
+    assertThat(alias.getAlias()).isEqualTo("alias");
+    assertThat(alias.getSource()).isSameAs(this.source);
+    then(this.listener).shouldHaveNoMoreInteractions();
   }
 
   @Test
@@ -99,6 +179,15 @@ class ReaderContextTests {
 
     assertThat(context.getSourceExtractor()).isSameAs(extractor);
     assertThat(context.extractSource(this.source)).isSameAs(extracted);
+  }
+
+  private void assertProblem(Problem problem, String message, @Nullable Object source,
+          @Nullable ParseState state, @Nullable Throwable cause) {
+    assertThat(problem.getMessage()).isEqualTo(message);
+    assertThat(problem.getLocation().getResource()).isSameAs(this.resource);
+    assertThat(problem.getLocation().getSource()).isSameAs(source);
+    assertThat(problem.getParseState()).isSameAs(state);
+    assertThat(problem.getRootCause()).isSameAs(cause);
   }
 
 }

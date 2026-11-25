@@ -34,6 +34,13 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  */
 class InstanceSupplierTests {
 
+  @Test
+  void defaultFactoryMethodIsUnknownAndRemainsUnknownAfterComposition() {
+    InstanceSupplier<String> supplier = bean -> "value";
+    assertThat(supplier.getFactoryMethod()).isNull();
+    assertThat(supplier.andThen((bean, value) -> value.length()).getFactoryMethod()).isNull();
+  }
+
   private final RegisteredBean registeredBean = RegisteredBean
           .of(new StandardBeanFactory(), "test");
 

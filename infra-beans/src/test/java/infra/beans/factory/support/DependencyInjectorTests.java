@@ -20,12 +20,24 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
+import infra.beans.TypeConverter;
+import infra.beans.factory.NoSuchBeanDefinitionException;
 import infra.beans.factory.annotation.Autowired;
 import infra.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
+import infra.beans.factory.config.AutowireCapableBeanFactory;
 import infra.beans.factory.config.DependencyDescriptor;
+import infra.core.MethodParameter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -70,6 +82,137 @@ class DependencyInjectorTests {
 
     TestBean testBean = beanFactory.getBean(TestBean.class);
     assertThat(testBean.intProperty.value).isEqualTo(1);
+  }
+
+  @Test
+  void constructorInjectionUsesFirstMatchingProvidedArgumentWithoutConsultingFactory() throws Exception {
+    var factory = mock(AutowireCapableBeanFactory.class);
+    var injector = new DependencyInjector(factory);
+    var constructor = IntProperty.class.getDeclaredConstructor(int.class);
+    // Primitive parameters are resolved by the factory or a strategy, not by Class.isInstance.
+    var referenceConstructor = InjectionTarget.class.getDeclaredConstructor(CharSequence.class);
+    var first = new StringBuilder("first");
+
+    assertThat(injector.inject(referenceConstructor, null, 42, first, "second").value()).isSameAs(first);
+    assertThat(DependencyInjector.findProvided(constructor.getParameters()[0], new Object[] { 42 })).isNull();
+    verifyNoInteractions(factory);
+  }
+
+  @Test
+  void methodInjectionWithoutParametersNeedsNoResolutionAndPropagatesTargetFailure() throws Exception {
+    var factory = mock(AutowireCapableBeanFactory.class);
+    var injector = new DependencyInjector(factory);
+    var target = new InjectionTarget("provided");
+    var failure = new IllegalArgumentException("target failure");
+    var value = InjectionTarget.class.getDeclaredMethod("value");
+    var fail = InjectionTarget.class.getDeclaredMethod("fail", RuntimeException.class);
+    var inaccessible = InjectionTarget.class.getDeclaredMethod("inaccessible");
+
+    assertThat(injector.resolveArguments(value)).isNull();
+    assertThat(injector.inject(value, target)).isSameAs(target.value());
+    assertThatThrownBy(() -> injector.inject(fail, target, failure)).isSameAs(failure);
+    assertThatIllegalStateException().isThrownBy(() -> injector.inject(inaccessible, target))
+            .withMessageContaining("Could not access method", "inaccessible");
+    verifyNoInteractions(factory);
+  }
+
+  @Test
+  void resolveValueDelegatesToFactoryWithDefaultOrExplicitContext() throws Exception {
+    var factory = mock(AutowireCapableBeanFactory.class);
+    var injector = new DependencyInjector(factory);
+    var descriptor = new DependencyDescriptor(MethodParameter.forExecutable(
+            InjectionTarget.class.getDeclaredConstructor(CharSequence.class), 0), true);
+    var names = new HashSet<String>();
+    var converter = mock(TypeConverter.class);
+    given(factory.resolveDependency(descriptor, null, null, null)).willReturn("default");
+    given(factory.resolveDependency(descriptor, "consumer", names, converter)).willAnswer(invocation -> {
+      Set<String> resolvedNames = invocation.getArgument(2);
+      resolvedNames.add("dependency");
+      return "explicit";
+    });
+
+    assertThat(injector.resolveValue(descriptor)).isEqualTo("default");
+    assertThat(injector.resolveValue(descriptor, "consumer", names, converter)).isEqualTo("explicit");
+    assertThat(names).containsExactly("dependency");
+  }
+
+  @Test
+  void resolutionStrategiesReceiveContextAndCanBeReset() throws Exception {
+    var injector = new DependencyInjector(null);
+    var defaultStrategies = injector.getResolvingStrategies();
+    var descriptor = new DependencyDescriptor(MethodParameter.forExecutable(
+            InjectionTarget.class.getDeclaredConstructor(CharSequence.class), 0), true);
+    var names = new HashSet<String>();
+    var converter = mock(TypeConverter.class);
+    var strategies = new DependencyResolvingStrategies(List.of((dependency, context) -> {
+      assertThat(dependency).isSameAs(descriptor);
+      assertThat(context.requestingBeanName).isEqualTo("consumer");
+      assertThat(context.dependentBeans).isSameAs(names);
+      assertThat(context.typeConverter).isSameAs(converter);
+      context.addDependentBean("strategyDependency");
+      return "resolved";
+    }));
+    injector.setResolvingStrategies(strategies);
+
+    assertThat(injector.resolveValue(descriptor, "consumer", names, converter)).isEqualTo("resolved");
+    assertThat(names).containsExactly("strategyDependency");
+    assertThat(injector.getResolvingStrategies()).isSameAs(strategies);
+
+    injector.setResolvingStrategies(null);
+    var restored = injector.getResolvingStrategies();
+    assertThat(restored).isNotSameAs(strategies).isNotSameAs(defaultStrategies);
+    assertThat(injector.getResolvingStrategies()).isSameAs(restored);
+  }
+
+  @Test
+  void missingDependenciesWithoutAFactoryAreAllowedOnlyForOptionalParameters() throws Exception {
+    var injector = new DependencyInjector(null);
+    injector.setResolvingStrategies(new DependencyResolvingStrategies());
+    var required = InjectionTarget.class.getDeclaredConstructor(CharSequence.class);
+    var optional = InjectionTarget.class.getDeclaredMethod("optional", CharSequence.class);
+
+    assertThatThrownBy(() -> injector.resolveArguments(required, (Object[]) null))
+            .isInstanceOf(NoSuchBeanDefinitionException.class).hasMessageContaining(CharSequence.class.getName());
+    assertThat(injector.resolveArguments(optional, 42)).containsExactly((Object) null);
+  }
+
+  @Test
+  void unresolvedFactoryDependenciesRespectTheCandidateResolver() throws Exception {
+    var factory = new StandardBeanFactory() {
+      @Override
+      public @Nullable Object resolveDependency(DependencyDescriptor descriptor, @Nullable String requestingBeanName,
+              @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) {
+        return null;
+      }
+    };
+    var injector = new DependencyInjector(factory);
+    var required = InjectionTarget.class.getDeclaredConstructor(CharSequence.class);
+
+    assertThatThrownBy(() -> injector.resolveArguments(required)).isInstanceOf(NoSuchBeanDefinitionException.class)
+            .hasMessageContaining(CharSequence.class.getName());
+
+    factory.setAutowireCandidateResolver(new AutowireCandidateResolver() {
+      @Override
+      public boolean isRequired(DependencyDescriptor descriptor) {
+        return false;
+      }
+    });
+    assertThat(injector.resolveArguments(required)).containsExactly((Object) null);
+    assertThat(injector.getResolvingStrategies()).isSameAs(injector.getResolvingStrategies());
+  }
+
+  record InjectionTarget(CharSequence value) {
+
+    void fail(RuntimeException failure) {
+      throw failure;
+    }
+
+    private void inaccessible() {
+    }
+
+    void optional(@Nullable CharSequence dependency) {
+    }
+
   }
 
   static class ParameterHandlerBean {

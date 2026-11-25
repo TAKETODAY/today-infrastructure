@@ -29,6 +29,12 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 class CustomScopeConfigurerBehaviorTests {
 
   @Test
+  void scopeDefaultsToNoConversationId() {
+    var scope = org.mockito.Mockito.mock(Scope.class, org.mockito.Answers.CALLS_REAL_METHODS);
+    assertThat(scope.getConversationId()).isNull();
+  }
+
+  @Test
   void registersScopeInstancesClassesAndClassNames() {
     StandardBeanFactory factory = new StandardBeanFactory();
     CustomScopeConfigurer configurer = new CustomScopeConfigurer();

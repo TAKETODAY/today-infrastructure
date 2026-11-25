@@ -28,6 +28,30 @@ import static org.mockito.Mockito.mock;
 
 class SimpleBeanDefinitionRegistryTests {
 
+  @Test
+  void registryDefaultsCombineNameAndTypeAndRespectOverridePolicy() {
+    var registry = mock(BeanDefinitionRegistry.class, org.mockito.Answers.CALLS_REAL_METHODS);
+    assertThat(registry.containsBeanDefinition("bean", String.class)).isFalse();
+    org.mockito.Mockito.verify(registry, org.mockito.Mockito.never()).containsBeanDefinition(String.class);
+    org.mockito.BDDMockito.given(registry.containsBeanDefinition("bean")).willReturn(true);
+    assertThat(registry.containsBeanDefinition("bean", String.class)).isFalse();
+    org.mockito.BDDMockito.given(registry.containsBeanDefinition(String.class)).willReturn(true);
+    assertThat(registry.containsBeanDefinition("bean", String.class)).isTrue();
+    assertThat(registry.isBeanDefinitionOverridable("bean")).isFalse();
+    org.mockito.BDDMockito.given(registry.isAllowBeanDefinitionOverriding()).willReturn(true);
+    assertThat(registry.isBeanDefinitionOverridable("bean")).isTrue();
+  }
+
+  @Test
+  void registryPostProcessorFactoryCallbackIsNoOp() {
+    var processor = mock(BeanDefinitionRegistryPostProcessor.class, org.mockito.Answers.CALLS_REAL_METHODS);
+    var factory = mock(infra.beans.factory.config.ConfigurableBeanFactory.class);
+    processor.postProcessBeanFactory(factory);
+    org.mockito.Mockito.verifyNoInteractions(factory);
+    org.mockito.Mockito.verify(processor).postProcessBeanFactory(factory);
+    org.mockito.Mockito.verifyNoMoreInteractions(processor);
+  }
+
   private final SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
 
   @Test

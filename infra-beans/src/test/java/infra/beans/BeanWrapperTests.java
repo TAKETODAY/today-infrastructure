@@ -48,6 +48,14 @@ import static org.mockito.Mockito.mock;
  */
 class BeanWrapperTests extends AbstractPropertyAccessorTests {
 
+  @Test
+  void typeConverterDefaultRejectsTypeDescriptorResolution() {
+    var converter = mock(TypeConverter.class, org.mockito.Answers.CALLS_REAL_METHODS);
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() ->
+            converter.convertIfNecessary("1", Integer.class, infra.core.TypeDescriptor.valueOf(Integer.class)))
+            .withMessage("TypeDescriptor resolution not supported");
+  }
+
   @Override
   protected BeanWrapperImpl createAccessor(Object target) {
     return new BeanWrapperImpl(target);

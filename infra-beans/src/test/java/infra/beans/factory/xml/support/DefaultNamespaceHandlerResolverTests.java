@@ -26,6 +26,10 @@ import infra.beans.factory.xml.UtilNamespaceHandler;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.Answers.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Unit and integration tests for the {@link DefaultNamespaceHandlerResolver} class.
@@ -34,6 +38,14 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
  * @author Rick Evans
  */
 public class DefaultNamespaceHandlerResolverTests {
+
+  @Test
+  void namespaceHandlerInitializationIsNoOpByDefault() {
+    var handler = mock(NamespaceHandler.class, CALLS_REAL_METHODS);
+    handler.init();
+    verify(handler).init();
+    verifyNoMoreInteractions(handler);
+  }
 
   @Test
   public void testResolvedMappedHandler() {
