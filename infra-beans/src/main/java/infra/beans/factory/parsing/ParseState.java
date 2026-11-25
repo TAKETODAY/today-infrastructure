@@ -97,9 +97,7 @@ public final class ParseState {
     for (Entry entry : this.state) {
       if (i > 0) {
         sb.append('\n');
-        for (int j = 0; j < i; j++) {
-          sb.append('\t');
-        }
+        sb.append("\t".repeat(i));
         sb.append("-> ");
       }
       sb.append(entry);
