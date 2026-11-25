@@ -22,6 +22,7 @@ import java.util.List;
 
 import infra.aot.hint.RuntimeHints;
 import infra.aot.hint.RuntimeHintsRegistrar;
+import infra.aot.agent.RecordedInvocation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -170,6 +171,59 @@ class RuntimeHintsInvocationsAssertTests {
       RuntimeHints hints = new RuntimeHints();
       assertions.match(hints);
     }).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldReportMissingStaticInvocation() throws Exception {
+    RecordedInvocation invocation = invocation("CLASS_FORNAME", null, String.class);
+    RuntimeHintsInvocationsAssert assertions = new RuntimeHintsInvocations(List.of(invocation)).assertThat();
+
+    assertThatThrownBy(() -> assertions.match(new RuntimeHints()))
+            .isInstanceOf(AssertionError.class)
+            .hasMessageContaining("java.lang.Class#forName")
+            .hasMessageContaining("Stacktrace:");
+  }
+
+  @Test
+  void shouldReportMissingInstanceInvocation() throws Exception {
+    RecordedInvocation invocation = invocation("CLASS_GETMETHOD", String.class, String.class.getMethod("toString"));
+    RuntimeHintsInvocationsAssert assertions = new RuntimeHintsInvocations(List.of(invocation)).assertThat();
+
+    assertThatThrownBy(() -> assertions.match(new RuntimeHints()))
+            .isInstanceOf(AssertionError.class)
+            .hasMessageContaining("java.lang.Class#getMethod")
+            .hasMessageContaining("java.lang.String")
+            .hasMessageContaining("Stacktrace:");
+  }
+
+  @Test
+  void shouldReportCountMismatch() {
+    RuntimeHintsInvocationsAssert assertions = new RuntimeHintsInvocations(List.of()).assertThat();
+
+    assertThatThrownBy(() -> assertions.hasCount(1))
+            .isInstanceOf(AssertionError.class)
+            .hasMessageContaining("Number of recorded invocations does not match");
+  }
+
+  @Test
+  void shouldReturnNotMatchingInvocations() throws Exception {
+    RecordedInvocation invocation = invocation("CLASS_FORNAME", null, String.class);
+
+    RuntimeHintsInvocationsAssert assertions = new RuntimeHintsInvocations(List.of(invocation)).assertThat();
+    assertions.notMatching(new RuntimeHints()).containsExactly(invocation);
+  }
+
+  private RecordedInvocation invocation(String instrumentedMethod, Object instance, Object returnValue) throws Exception {
+    Class<?> type = Class.forName("infra.aot.agent.InstrumentedMethod");
+    var field = type.getDeclaredField(instrumentedMethod);
+    field.setAccessible(true);
+    Object builder = RecordedInvocation.class.getMethod("of", type).invoke(null, field.get(null));
+    if (instance != null) {
+      builder = builder.getClass().getMethod("onInstance", Object.class).invoke(builder, instance);
+    }
+    builder = builder.getClass().getMethod("withArgument", Object.class).invoke(builder, "java.lang.String");
+    builder = builder.getClass().getMethod("returnValue", Object.class).invoke(builder, returnValue);
+    return (RecordedInvocation) builder.getClass().getMethod("build").invoke(builder);
   }
 
   @Test

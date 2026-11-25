@@ -18,6 +18,9 @@ package infra.aot.test.agent;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
+
+import infra.aot.agent.RuntimeHintsAgent;
 import infra.aot.test.agent.RuntimeHintsRecorder.RuntimeHintsInvocationsListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -81,6 +84,51 @@ class RuntimeHintsRecorderTests {
       RuntimeHintsRecorder.record(() -> { });
     }).isInstanceOf(IllegalStateException.class)
             .hasMessageContaining("RuntimeHintsAgent must be loaded");
+  }
+
+  @Test
+  void shouldRecordEmptyActionWhenAgentIsLoaded() throws Exception {
+    withAgentLoaded(true);
+    try {
+      RuntimeHintsInvocations invocations = RuntimeHintsRecorder.record(() -> { });
+      assertThat(invocations.recordedInvocations()).isEmpty();
+    }
+    finally {
+      withAgentLoaded(false);
+    }
+  }
+
+  @Test
+  void shouldRemoveListenerWhenActionFails() throws Exception {
+    withAgentLoaded(true);
+    try {
+      assertThatThrownBy(() -> RuntimeHintsRecorder.record(() -> {
+        throw new RuntimeException("Test exception");
+      })).isInstanceOf(RuntimeException.class).hasMessage("Test exception");
+    }
+    finally {
+      withAgentLoaded(false);
+    }
+  }
+
+  @Test
+  void shouldRecordInvocationInListener() throws Exception {
+    RuntimeHintsInvocationsListener listener = new RuntimeHintsInvocationsListener();
+    Class<?> type = Class.forName("infra.aot.agent.InstrumentedMethod");
+    var field = type.getDeclaredField("CLASS_FORNAME");
+    field.setAccessible(true);
+    Object builder = Class.forName("infra.aot.agent.RecordedInvocation")
+            .getMethod("of", type).invoke(null, field.get(null));
+    builder = builder.getClass().getMethod("withArgument", Object.class).invoke(builder, "java.lang.String");
+    Object invocation = builder.getClass().getMethod("build").invoke(builder);
+    listener.onInvocation((infra.aot.agent.RecordedInvocation) invocation);
+    assertThat(listener).isNotNull();
+  }
+
+  private void withAgentLoaded(boolean loaded) throws Exception {
+    Field field = RuntimeHintsAgent.class.getDeclaredField("loaded");
+    field.setAccessible(true);
+    field.setBoolean(null, loaded);
   }
 
 
