@@ -47,6 +47,8 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Answers.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 
 class StandardBeanFactoryBehaviorTests {
@@ -141,6 +143,28 @@ class StandardBeanFactoryBehaviorTests {
     assertThat(scope.removedName).isEqualTo("bean");
     assertThat(first.destroyed).isTrue();
     assertThat(scope.callbacks).doesNotContainKey("bean");
+  }
+
+  @Test
+  void reportsInactiveScopeWithoutCreatingTheBean() {
+    var factory = new StandardBeanFactory();
+    var scope = mock(Scope.class);
+    var failure = new IllegalStateException("No request is bound to this thread");
+    given(scope.get(eq("bean"), any())).willThrow(failure);
+    factory.registerScope("request", scope);
+    var definition = new RootBeanDefinition(ScopedBean.class);
+    definition.setScope("request");
+    var invocations = new AtomicInteger();
+    definition.setInstanceSupplier(() -> {
+      invocations.incrementAndGet();
+      return new ScopedBean();
+    });
+    factory.registerBeanDefinition("bean", definition);
+
+    assertThatExceptionOfType(ScopeNotActiveException.class).isThrownBy(() -> factory.getBean("bean"))
+            .withMessageContaining("bean", "Scope 'request' is not active")
+            .withCause(failure);
+    assertThat(invocations).hasValue(0);
   }
 
   @Test

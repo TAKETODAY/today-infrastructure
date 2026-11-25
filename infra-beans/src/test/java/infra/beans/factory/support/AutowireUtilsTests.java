@@ -20,9 +20,13 @@ package infra.beans.factory.support;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.IntSupplier;
+import java.util.function.Supplier;
 
 import infra.util.ReflectionUtils;
 
@@ -36,6 +40,37 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Loïc Ledoyen
  */
 public class AutowireUtilsTests {
+
+  @Test
+  void serializableSupplierIsResolvedLazilyForAnInterface() {
+    var invocations = new AtomicInteger();
+    Supplier<IntSupplier> factory = (Supplier<IntSupplier> & Serializable) () -> {
+      int value = invocations.incrementAndGet();
+      return () -> value;
+    };
+
+    var proxy = (IntSupplier) AutowireUtils.resolveAutowiringValue(factory, IntSupplier.class);
+    Object otherProxy = AutowireUtils.resolveAutowiringValue(factory, IntSupplier.class);
+
+    assertThat(proxy.equals(proxy)).isTrue();
+    assertThat(proxy.equals(otherProxy)).isFalse();
+    assertThat(proxy.hashCode()).isEqualTo(System.identityHashCode(proxy));
+    assertThat(proxy.toString()).isEqualTo(factory.toString());
+    assertThat(invocations).hasValue(0);
+    assertThat(proxy.getAsInt()).isEqualTo(1);
+    assertThat(proxy.getAsInt()).isEqualTo(2);
+  }
+
+  @Test
+  void supplierIsOnlyInvokedWhenItDoesNotMatchTheRequiredType() {
+    var invocations = new AtomicInteger();
+    Supplier<String> factory = () -> "value-" + invocations.incrementAndGet();
+
+    assertThat(AutowireUtils.resolveAutowiringValue(factory, Supplier.class)).isSameAs(factory);
+    assertThat(invocations).hasValue(0);
+    assertThat(AutowireUtils.resolveAutowiringValue(factory, CharSequence.class)).isEqualTo("value-1");
+    assertThat(invocations).hasValue(1);
+  }
 
   @Test
   public void genericMethodReturnTypes() {

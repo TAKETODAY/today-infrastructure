@@ -20,7 +20,10 @@ package infra.beans.factory.xml;
 
 import org.junit.jupiter.api.Test;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
+import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.stream.Stream;
@@ -39,6 +42,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Rick Evans
@@ -98,6 +106,44 @@ public class XmlBeanDefinitionReaderTests {
     reader.setValidationMode(XmlBeanDefinitionReader.VALIDATION_DTD);
     reader.loadBeanDefinitions(resource);
     assertBeanDefinitions(registry);
+  }
+
+  @Test
+  void reportsTheSourceAndLineNumberForMalformedXml() {
+    reader.setValidating(false);
+    var source = new InputSource(new StringReader("""
+            <beans>
+              <bean>
+            </beans>
+            """));
+
+    assertThatExceptionOfType(XmlBeanDefinitionStoreException.class)
+            .isThrownBy(() -> reader.loadBeanDefinitions(source, "malformed.xml"))
+            .withCauseInstanceOf(SAXParseException.class)
+            .satisfies(exception -> {
+              assertThat(exception.getResourceDescription()).isEqualTo("malformed.xml");
+              assertThat(exception.getLineNumber()).isEqualTo(3);
+            });
+    assertThat(registry.getBeanDefinitionCount()).isZero();
+  }
+
+  @Test
+  void preservesSaxFailureWithoutParseLocationFromDocumentLoader() throws Exception {
+    reader.setValidating(false);
+    var source = new InputSource(new StringReader("<beans/>"));
+    var loader = mock(DocumentLoader.class);
+    var failure = new SAXException("document loader failed");
+    given(loader.loadDocument(same(source), any(), any(), eq(XmlBeanDefinitionReader.VALIDATION_NONE), eq(true)))
+            .willThrow(failure);
+    reader.setDocumentLoader(loader);
+
+    assertThatExceptionOfType(XmlBeanDefinitionStoreException.class)
+            .isThrownBy(() -> reader.loadBeanDefinitions(source, "beans.xml"))
+            .withCause(failure)
+            .satisfies(exception -> {
+              assertThat(exception.getResourceDescription()).isEqualTo("beans.xml");
+              assertThat(exception.getLineNumber()).isEqualTo(-1);
+            });
   }
 
   @Test

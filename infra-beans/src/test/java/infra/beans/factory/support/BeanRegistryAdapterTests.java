@@ -20,14 +20,17 @@ package infra.beans.factory.support;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import infra.beans.factory.BeanRegistrar;
 import infra.beans.factory.BeanRegistry;
 import infra.beans.factory.config.BeanDefinition;
+import infra.beans.factory.config.BeanDefinitionCustomizer;
 import infra.core.ParameterizedTypeReference;
 import infra.core.env.Environment;
 import infra.core.env.StandardEnvironment;
+import infra.util.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,6 +43,52 @@ class BeanRegistryAdapterTests {
   private final StandardBeanFactory beanFactory = new StandardBeanFactory();
 
   private final Environment env = new StandardEnvironment();
+
+  @Test
+  void appliesNamedDefinitionCustomizersAfterTheRegistrationSpec() {
+    var customizers = MultiValueMap.<String, BeanDefinitionCustomizer>forLinkedHashMap();
+    customizers.add("customized", definition -> definition.setDescription(definition.getDescription() + " first"));
+    customizers.add("customized", definition -> definition.setDescription(definition.getDescription() + " second"));
+    var adapter = new BeanRegistryAdapter(beanFactory, beanFactory, env, DefaultBeanRegistrar.class, customizers);
+
+    adapter.registerBean("customized", String.class, spec -> spec.description("spec"));
+    adapter.registerBean("untouched", String.class, spec -> spec.description("spec"));
+
+    assertThat(beanFactory.getBeanDefinition("customized").getDescription()).isEqualTo("spec first second");
+    assertThat(beanFactory.getBeanDefinition("untouched").getDescription()).isEqualTo("spec");
+  }
+
+  @Test
+  void generatesUniqueNamesAndFindsBeansByGenericType() {
+    var adapter = new BeanRegistryAdapter(beanFactory, env, DefaultBeanRegistrar.class);
+    var strings = new ParameterizedTypeReference<List<String>>() { };
+    var integers = new ParameterizedTypeReference<List<Integer>>() { };
+    String first = adapter.registerBean(strings, spec -> spec.supplier(context -> List.of("first")));
+    String second = adapter.registerBean(strings, spec -> spec.supplier(context -> List.of("second")));
+
+    assertThat(first).isNotEqualTo(second);
+    assertThat(adapter.containsBean(first)).isTrue();
+    assertThat(adapter.containsBean(List.class)).isTrue();
+    assertThat(adapter.containsBean(strings)).isTrue();
+    assertThat(adapter.containsBean(integers)).isFalse();
+    assertThat(beanFactory.getBean(first)).isEqualTo(List.of("first"));
+    assertThat(beanFactory.getBean(second)).isEqualTo(List.of("second"));
+  }
+
+  @Test
+  void resolvesSupplierDependenciesByNameTypeAndGenericProvider() {
+    var adapter = new BeanRegistryAdapter(beanFactory, env, DefaultBeanRegistrar.class);
+    var integers = new ParameterizedTypeReference<List<Integer>>() { };
+    adapter.registerBean("text", String.class, spec -> spec.supplier(context -> "text"));
+    adapter.registerBean("number", Integer.class, spec -> spec.supplier(context -> 42));
+    adapter.registerBean("integers", integers, spec -> spec.supplier(context -> List.of(1, 2)));
+    adapter.registerAlias("text", "textAlias");
+    adapter.registerBean("consumer", String.class, spec -> spec.supplier(context ->
+            context.bean("textAlias", String.class) + ":" + context.bean(Integer.class) + ":" +
+                    context.bean(integers) + ":" + context.beanProvider(integers).get()));
+
+    assertThat(beanFactory.getBean("consumer")).isEqualTo("text:42:[1, 2]:[1, 2]");
+  }
 
   @Test
   void defaultBackgroundInit() {
