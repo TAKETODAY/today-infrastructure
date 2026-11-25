@@ -61,7 +61,7 @@ public class OrderedSupport implements Ordered {
    */
   @Override
   public int getOrder() {
-    return order == null ? LOWEST_PRECEDENCE : order;
+    return order == null ? LOWEST_PRECEDENCE : order; // default: same as non-Ordered
   }
 
   /**

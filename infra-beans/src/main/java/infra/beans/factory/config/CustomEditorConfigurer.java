@@ -27,6 +27,7 @@ import infra.beans.BeansException;
 import infra.beans.PropertyEditorRegistrar;
 import infra.beans.PropertyEditorRegistry;
 import infra.core.Ordered;
+import infra.core.OrderedSupport;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
@@ -97,25 +98,13 @@ import infra.util.ClassUtils;
  * @see infra.validation.DataBinder#registerCustomEditor
  * @since 4.0 2022/2/17 18:16
  */
-public class CustomEditorConfigurer implements BeanFactoryPostProcessor, Ordered {
+public class CustomEditorConfigurer extends OrderedSupport implements BeanFactoryPostProcessor, Ordered {
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private int order = Ordered.LOWEST_PRECEDENCE;  // default: same as non-Ordered
-
   private PropertyEditorRegistrar @Nullable [] propertyEditorRegistrars;
 
-  @Nullable
-  private Map<Class<?>, Class<? extends PropertyEditor>> customEditors;
-
-  public void setOrder(int order) {
-    this.order = order;
-  }
-
-  @Override
-  public int getOrder() {
-    return this.order;
-  }
+  private @Nullable Map<Class<?>, Class<? extends PropertyEditor>> customEditors;
 
   /**
    * Specify the {@link PropertyEditorRegistrar PropertyEditorRegistrars}

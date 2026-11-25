@@ -79,6 +79,7 @@ import infra.beans.factory.support.StandardBeanFactory;
 import infra.core.BridgeMethodResolver;
 import infra.core.MethodParameter;
 import infra.core.Ordered;
+import infra.core.OrderedSupport;
 import infra.core.PriorityOrdered;
 import infra.core.annotation.AnnotationUtils;
 import infra.core.annotation.MergedAnnotation;
@@ -88,9 +89,9 @@ import infra.core.type.MethodMetadata;
 import infra.core.type.classreading.MetadataReaderFactory;
 import infra.javapoet.ClassName;
 import infra.javapoet.CodeBlock;
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ReflectionUtils;
@@ -159,7 +160,7 @@ import infra.util.StringUtils;
  * @see Value
  * @since 4.0 2022/3/20 21:12
  */
-public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationAwareBeanPostProcessor,
+public class AutowiredAnnotationBeanPostProcessor extends OrderedSupport implements SmartInstantiationAwareBeanPostProcessor,
         MergedBeanDefinitionPostProcessor, BeanRegistrationAotProcessor, PriorityOrdered, BeanFactoryAware, DependenciesBeanPostProcessor {
 
   private static final Constructor<?>[] EMPTY_CONSTRUCTOR_ARRAY = new Constructor<?>[0];
@@ -171,8 +172,6 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
   private String requiredParameterName = "required";
 
   private boolean requiredParameterValue = true;
-
-  private int order = Ordered.LOWEST_PRECEDENCE - 2;
 
   private @Nullable ConfigurableBeanFactory beanFactory;
 
@@ -191,6 +190,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
    * if available, as well as the original {@code javax.inject.Inject} variant.
    */
   public AutowiredAnnotationBeanPostProcessor() {
+    super(Ordered.LOWEST_PRECEDENCE - 2);
     this.autowiredAnnotationTypes.add(Autowired.class);
     this.autowiredAnnotationTypes.add(Value.class);
 
@@ -263,15 +263,6 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
    */
   public void setRequiredParameterValue(boolean requiredParameterValue) {
     this.requiredParameterValue = requiredParameterValue;
-  }
-
-  public void setOrder(int order) {
-    this.order = order;
-  }
-
-  @Override
-  public int getOrder() {
-    return this.order;
   }
 
   @Override
