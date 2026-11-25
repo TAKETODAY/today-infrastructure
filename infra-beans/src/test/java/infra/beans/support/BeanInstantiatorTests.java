@@ -146,6 +146,16 @@ class BeanInstantiatorTests {
     assertThat(instantiator).isInstanceOf(ReflectiveInstantiator.class);
     assertThat(instantiator.instantiate()).isInstanceOf(TestBean.class);
     assertThat(instantiator.getConstructor()).isSameAs(constructor);
+    assertThat(instantiator).hasToString("BeanInstantiator use reflective constructor: " + constructor);
+  }
+
+  @Test
+  void preservesBeanInstantiationExceptionFromSupplier() {
+    var failure = new BeanInstantiationException(TestBean.class, "creation failed");
+    var instantiator = BeanInstantiator.forSupplier(() -> {
+      throw failure;
+    });
+    assertThatThrownBy(instantiator::instantiate).isSameAs(failure);
   }
 
   @Test
