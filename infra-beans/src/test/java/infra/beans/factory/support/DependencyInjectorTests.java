@@ -99,6 +99,23 @@ class DependencyInjectorTests {
   }
 
   @Test
+  void methodInjectionCombinesProvidedArgumentsWithFactoryDependencies() throws Exception {
+    var factory = new StandardBeanFactory();
+    var registered = new ParameterHandlerBean();
+    var provided = new ParameterHandlerBean();
+    var target = new InjectionTarget("prefix");
+    factory.registerSingleton("registered", registered);
+    factory.registerSingleton("number", 7);
+    var injector = new DependencyInjector(factory);
+    var method = InjectionTarget.class.getDeclaredMethod("combine", ParameterHandlerBean.class, Integer.class);
+
+    assertThat(injector.inject(method, target, "unrelated", provided))
+            .isEqualTo(List.of("prefix", provided, 7));
+    assertThat(injector.inject(method, target, "unrelated"))
+            .isEqualTo(List.of("prefix", registered, 7));
+  }
+
+  @Test
   void methodInjectionWithoutParametersNeedsNoResolutionAndPropagatesTargetFailure() throws Exception {
     var factory = mock(AutowireCapableBeanFactory.class);
     var injector = new DependencyInjector(factory);
@@ -202,6 +219,10 @@ class DependencyInjectorTests {
   }
 
   record InjectionTarget(CharSequence value) {
+
+    List<Object> combine(ParameterHandlerBean dependency, Integer number) {
+      return List.of(this.value, dependency, number);
+    }
 
     void fail(RuntimeException failure) {
       throw failure;
