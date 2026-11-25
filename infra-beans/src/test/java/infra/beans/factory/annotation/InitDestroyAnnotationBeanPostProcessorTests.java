@@ -20,9 +20,18 @@ package infra.beans.factory.annotation;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
+import infra.beans.factory.BeanCreationException;
+import infra.beans.factory.BeanFactory;
 import infra.beans.factory.DisposableBean;
 import infra.beans.factory.InitializingBean;
 import infra.beans.factory.support.AbstractBeanDefinition;
+import infra.beans.factory.support.DependencyInjector;
 import infra.beans.factory.support.RegisteredBean;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.factory.support.StandardBeanFactory;
@@ -32,8 +41,14 @@ import infra.beans.testfixture.beans.factory.generator.lifecycle.Init;
 import infra.beans.testfixture.beans.factory.generator.lifecycle.InitDestroyBean;
 import infra.beans.testfixture.beans.factory.generator.lifecycle.MultiInitDestroyBean;
 
+import static infra.core.testfixture.io.SerializationTestUtils.serializeAndDeserialize;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link InitDestroyAnnotationBeanPostProcessor}.
@@ -44,6 +59,126 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 class InitDestroyAnnotationBeanPostProcessorTests {
 
   private final StandardBeanFactory beanFactory = new StandardBeanFactory();
+
+  @Test
+  void invokesInheritedCallbacksInLifecycleOrderWithoutDuplicatingConfiguredMethods() {
+    var processor = createLifecycleProcessor();
+    processor.addInitAnnotationType(ExtraInit.class);
+    processor.addInitAnnotationType(null);
+    processor.addDestroyAnnotationType(ExtraDestroy.class);
+    processor.addDestroyAnnotationType(null);
+    processor.setBeanFactory(this.beanFactory);
+    this.beanFactory.addBeanPostProcessor(processor);
+    var definition = new RootBeanDefinition(ChildLifecycleBean.class);
+    definition.setInitMethodName("initialize");
+    definition.setDestroyMethodName("release");
+    registerBean(definition);
+
+    var bean = this.beanFactory.getBean("test", ChildLifecycleBean.class);
+    assertThat(bean.events).containsExactly("parent init", "child init");
+
+    this.beanFactory.destroySingletons();
+    assertThat(bean.events).containsExactly("parent init", "child init", "child destroy", "parent destroy");
+  }
+
+  @Test
+  void invokesOverriddenAnnotatedCallbacksOnlyOnce() {
+    var processor = createLifecycleProcessor();
+    var bean = new OverridingLifecycleBean();
+    var definition = new RootBeanDefinition(OverridingLifecycleBean.class);
+
+    processor.postProcessMergedBeanDefinition(definition, OverridingLifecycleBean.class, "test");
+    processor.postProcessBeforeInitialization(bean, "test");
+    processor.postProcessBeforeDestruction(bean, "test");
+
+    assertThat(bean.events).containsExactly("overridden init", "overridden destroy");
+  }
+
+  @Test
+  void skipsCallbacksAlreadyManagedByAnotherProcessor() {
+    var processor = createLifecycleProcessor();
+    var definition = new RootBeanDefinition(ParentLifecycleBean.class);
+    definition.registerExternallyManagedInitMethod("initialize");
+    definition.registerExternallyManagedDestroyMethod("release");
+    var bean = new ParentLifecycleBean();
+
+    processor.postProcessMergedBeanDefinition(definition, ParentLifecycleBean.class, "test");
+    assertThat(processor.postProcessBeforeInitialization(bean, "test")).isSameAs(bean);
+    assertThat(processor.requiresDestruction(bean)).isFalse();
+    processor.postProcessBeforeDestruction(bean, "test");
+
+    assertThat(bean.events).isEmpty();
+  }
+
+  @Test
+  void leavesBeansWithoutCallbacksUntouched() {
+    var processor = createLifecycleProcessor();
+    var bean = "plain value";
+    var definition = new RootBeanDefinition(String.class);
+    processor.postProcessMergedBeanDefinition(definition, String.class, "test");
+
+    assertThat(processor.postProcessBeforeInitialization(bean, "test")).isSameAs(bean);
+    assertThat(processor.requiresDestruction(bean)).isFalse();
+    processor.postProcessBeforeDestruction(bean, "test");
+    assertThat(definition.getExternallyManagedInitMethods()).isEmpty();
+    assertThat(definition.getExternallyManagedDestroyMethods()).isEmpty();
+  }
+
+  @Test
+  void rediscoversDestroyCallbackAfterSerialization() throws Exception {
+    var processor = createLifecycleProcessor();
+    assertThat(processor.requiresDestruction(new ParentLifecycleBean())).isTrue();
+    var restored = serializeAndDeserialize(processor);
+    var bean = new ParentLifecycleBean();
+
+    assertThat(restored.requiresDestruction(bean)).isTrue();
+    restored.postProcessBeforeDestruction(bean, "test");
+
+    assertThat(bean.events).containsExactly("parent destroy");
+  }
+
+  @Test
+  void rejectsAnnotatedCallbacksWithParameters() {
+    var processor = createLifecycleProcessor();
+    var bean = new InvalidLifecycleBean();
+
+    assertThatIllegalStateException().isThrownBy(() -> processor.postProcessBeforeInitialization(bean, "test"))
+            .withMessageContainingAll("requires a no-arg method", "initialize");
+  }
+
+  @Test
+  void preservesInitCallbackCauseAndSuppressesDestroyCallbackFailure() {
+    var processor = createLifecycleProcessor();
+    var bean = new FailingLifecycleBean();
+
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> processor.postProcessBeforeInitialization(bean, "test"))
+            .withMessageContaining("Invocation of init method failed").withCause(bean.failure);
+    assertThat(processor.requiresDestruction(bean)).isTrue();
+    assertThatCode(() -> processor.postProcessBeforeDestruction(bean, "test")).doesNotThrowAnyException();
+    assertThat(bean.destroyCalled).isTrue();
+  }
+
+  @Test
+  void reportsPreparationFailureWithoutInvokingCallbacks() throws Exception {
+    var processor = createLifecycleProcessor();
+    var bean = new ParentLifecycleBean();
+    var factory = mock(BeanFactory.class);
+    var injector = mock(DependencyInjector.class);
+    given(factory.getInjector()).willReturn(injector);
+    processor.setBeanFactory(factory);
+    Method initialize = ParentLifecycleBean.class.getDeclaredMethod("initialize");
+    Method release = ParentLifecycleBean.class.getDeclaredMethod("release");
+    var failure = new IllegalStateException("cannot prepare callback");
+    given(injector.resolveArguments(initialize)).willThrow(failure);
+    given(injector.resolveArguments(release)).willThrow(failure);
+
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> processor.postProcessBeforeInitialization(bean, "test"))
+            .withMessageContaining("Failed to invoke init method").withCause(failure);
+    assertThatCode(() -> processor.postProcessBeforeDestruction(bean, "test")).doesNotThrowAnyException();
+    assertThat(bean.events).isEmpty();
+  }
 
   @Test
   void processAheadOfTimeWhenNoCallbackDoesNotMutateRootBeanDefinition() {
@@ -145,7 +280,7 @@ class InitDestroyAnnotationBeanPostProcessorTests {
 
   private void processAheadOfTime(RootBeanDefinition beanDefinition) {
     RegisteredBean registeredBean = registerBean(beanDefinition);
-    assertThat(createAotBeanPostProcessor().processAheadOfTime(registeredBean)).isNull();
+    assertThat(createLifecycleProcessor().processAheadOfTime(registeredBean)).isNull();
   }
 
   private RegisteredBean registerBean(RootBeanDefinition beanDefinition) {
@@ -158,7 +293,7 @@ class InitDestroyAnnotationBeanPostProcessorTests {
     return (RootBeanDefinition) this.beanFactory.getMergedBeanDefinition("test");
   }
 
-  private InitDestroyAnnotationBeanPostProcessor createAotBeanPostProcessor() {
+  private InitDestroyAnnotationBeanPostProcessor createLifecycleProcessor() {
     InitDestroyAnnotationBeanPostProcessor beanPostProcessor = new InitDestroyAnnotationBeanPostProcessor();
     beanPostProcessor.setInitAnnotationType(Init.class);
     beanPostProcessor.setDestroyAnnotationType(Destroy.class);
@@ -166,6 +301,84 @@ class InitDestroyAnnotationBeanPostProcessorTests {
   }
 
   static class NoInitDestroyBean { }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ExtraInit { }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ExtraDestroy { }
+
+  static class ParentLifecycleBean {
+
+    final List<String> events = new ArrayList<>();
+
+    @Init
+    public void initialize() {
+      this.events.add("parent init");
+    }
+
+    @Destroy
+    public void release() {
+      this.events.add("parent destroy");
+    }
+
+  }
+
+  static class ChildLifecycleBean extends ParentLifecycleBean {
+
+    @ExtraInit
+    private void initializeChild() {
+      this.events.add("child init");
+    }
+
+    @ExtraDestroy
+    private void releaseChild() {
+      this.events.add("child destroy");
+    }
+
+  }
+
+  static class InvalidLifecycleBean {
+
+    @Init
+    void initialize(String value) { }
+
+  }
+
+  static class OverridingLifecycleBean extends ParentLifecycleBean {
+
+    @Init
+    @Override
+    public void initialize() {
+      this.events.add("overridden init");
+    }
+
+    @Destroy
+    @Override
+    public void release() {
+      this.events.add("overridden destroy");
+    }
+
+  }
+
+  static class FailingLifecycleBean {
+
+    final IllegalStateException failure = new IllegalStateException("callback failed");
+
+    boolean destroyCalled;
+
+    @Init
+    void initialize() {
+      throw this.failure;
+    }
+
+    @Destroy
+    void release() {
+      this.destroyCalled = true;
+      throw this.failure;
+    }
+
+  }
 
   static class CustomInitDestroyBean {
 
