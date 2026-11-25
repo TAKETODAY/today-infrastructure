@@ -19,22 +19,87 @@
 package infra.beans.factory.xml;
 
 import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.xml.sax.InputSource;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import infra.core.io.ByteArrayResource;
 import infra.core.io.Resource;
 import infra.core.io.ResourceLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/12/18 22:03
  */
 class ResourceEntityResolverTests {
+
+  @ParameterizedTest
+  @ValueSource(booleans = { false, true })
+  void resolvesEntityRelativeToResourceBase(boolean useWorkingDirectoryUri) throws Exception {
+    String path = "includes/sample-entity.xml";
+    String systemId = useWorkingDirectoryUri ? Path.of(path).toAbsolutePath().toUri().toString() : path;
+    byte[] content = "<bean/>".getBytes(StandardCharsets.UTF_8);
+    ResourceLoader loader = mock(ResourceLoader.class);
+    given(loader.getResource(path)).willReturn(new ByteArrayResource(content));
+    var resolver = new ResourceEntityResolver(loader);
+
+    InputSource source = resolver.resolveEntity("testPublicId", systemId);
+
+    assertThat(source.getPublicId()).isEqualTo("testPublicId");
+    assertThat(source.getSystemId()).isEqualTo(systemId);
+    try (var stream = source.getByteStream()) {
+      assertThat(stream.readAllBytes()).containsExactly(content);
+    }
+  }
+
+  @Test
+  void prefersMappedSchemaOverResourceLoader() throws Exception {
+    ResourceLoader loader = mock(ResourceLoader.class);
+    given(loader.getClassLoader()).willReturn(getClass().getClassLoader());
+    var resolver = new ResourceEntityResolver(loader);
+    String systemId = "https://www.springframework.org/schema/beans/spring-beans.xsd";
+
+    InputSource source = resolver.resolveEntity("testPublicId", systemId);
+
+    assertThat(source.getSystemId()).isEqualTo(systemId);
+    try (var stream = source.getByteStream()) {
+      assertThat(new String(stream.readAllBytes(), StandardCharsets.UTF_8)).contains("http://www.springframework.org/schema/beans");
+    }
+    then(loader).should(never()).getResource(anyString());
+  }
+
+  @Test
+  void fallsBackToSchemaUrlAndReturnsNullIfUnavailable(@TempDir Path directory) throws Exception {
+    Path schema = directory.resolve("sample.xsd");
+    String content = "<schema xmlns=\"http://www.w3.org/2001/XMLSchema\"/>";
+    Files.writeString(schema, content);
+    var resolver = new ResourceEntityResolver(new NoOpResourceLoader());
+    String systemId = schema.toUri().toString();
+
+    InputSource source = resolver.resolveSchemaEntity("testPublicId", systemId);
+
+    assertThat(source.getSystemId()).isEqualTo(systemId);
+    assertThat(source.getPublicId()).isEqualTo("testPublicId");
+    try (var stream = source.getByteStream()) {
+      assertThat(new String(stream.readAllBytes(), StandardCharsets.UTF_8)).isEqualTo(content);
+    }
+    assertThat(resolver.resolveSchemaEntity("testPublicId", directory.resolve("missing.xsd").toUri().toString())).isNull();
+  }
 
   @ParameterizedTest
   @ValueSource(strings = { "https://example.org/schema/", "https://example.org/schema.xml" })
