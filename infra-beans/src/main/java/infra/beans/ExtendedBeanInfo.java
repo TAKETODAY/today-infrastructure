@@ -105,8 +105,8 @@ class ExtendedBeanInfo implements BeanInfo {
       try {
         propertyDescriptors.add(
                 pd instanceof IndexedPropertyDescriptor ?
-                new SimpleIndexedPropertyDescriptor((IndexedPropertyDescriptor) pd) :
-                new SimplePropertyDescriptor(pd));
+                        new SimpleIndexedPropertyDescriptor((IndexedPropertyDescriptor) pd) :
+                        new SimplePropertyDescriptor(pd));
       }
       catch (IntrospectionException ex) {
         // Probably simply a method that wasn't meant to follow the JavaBeans pattern...

@@ -43,9 +43,9 @@ import infra.beans.factory.DisposableBean;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.beans.factory.config.SingletonBeanRegistry;
 import infra.core.DefaultAliasRegistry;
-import infra.util.Assert;
 import infra.lang.Constant;
 import infra.lang.NullValue;
+import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 

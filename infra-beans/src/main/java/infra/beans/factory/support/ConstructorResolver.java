@@ -68,9 +68,9 @@ import infra.core.MethodParameter;
 import infra.core.NamedThreadLocal;
 import infra.core.ParameterNameDiscoverer;
 import infra.core.ResolvableType;
-import infra.util.Assert;
 import infra.lang.Constant;
 import infra.logging.Logger;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
@@ -618,7 +618,7 @@ final class ConstructorResolver {
             String argType = (value.getType() != null
                     ? ClassUtils.getShortName(value.getType())
                     : (value.getValue() != null
-                       ? value.getValue().getClass().getSimpleName()
+                            ? value.getValue().getClass().getSimpleName()
                             : "null"));
             argTypes.add(argType);
           }

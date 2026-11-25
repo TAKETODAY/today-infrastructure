@@ -57,6 +57,7 @@ public class BeanNotOfRequiredTypeException extends BeansException {
 
   /**
    * Create an exception for a generic required type.
+   *
    * @param beanName the requested bean name
    * @param requiredType the generic type required
    * @param actualType the actual bean type
@@ -86,6 +87,7 @@ public class BeanNotOfRequiredTypeException extends BeansException {
 
   /**
    * Return the generic type required for the bean.
+   *
    * @since 5.0
    */
   public Type getGenericRequiredType() {

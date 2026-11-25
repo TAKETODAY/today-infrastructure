@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import infra.beans.factory.config.DependencyDescriptor;
-import infra.util.InfraStrategies;
 import infra.logging.LoggerFactory;
+import infra.util.InfraStrategies;
 
 /**
  * Composite {@link DependencyResolvingStrategy} that delegates to a list of strategies.

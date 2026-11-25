@@ -32,8 +32,8 @@ import infra.beans.factory.config.DependencyDescriptor;
 import infra.core.MethodParameter;
 import infra.core.annotation.AnnotatedElementUtils;
 import infra.core.annotation.SynthesizingMethodParameter;
-import infra.util.Assert;
 import infra.lang.Constant;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 
 /**

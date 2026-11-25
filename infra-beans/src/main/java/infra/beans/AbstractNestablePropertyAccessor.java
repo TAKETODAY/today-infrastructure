@@ -370,6 +370,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
   /**
    * Create an invalid-property exception with an index cause describing the
    * current container size or the configured auto-grow collection limit.
+   *
    * @param propertyName the canonical indexed property name
    * @param array whether the property is an array
    * @param index the rejected index

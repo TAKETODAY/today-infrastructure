@@ -28,9 +28,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import infra.beans.BeanUtils;
 import infra.beans.FatalBeanException;
 import infra.core.io.PropertiesUtils;
-import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
+import infra.util.Assert;
 import infra.util.ClassUtils;
 import infra.util.CollectionUtils;
 

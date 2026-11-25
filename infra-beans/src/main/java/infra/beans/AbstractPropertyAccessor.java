@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import infra.util.CollectionUtils;
 import infra.util.Assert;
+import infra.util.CollectionUtils;
 
 /**
  * Abstract implementation of the {@link PropertyAccessor} interface.
