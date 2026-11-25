@@ -70,7 +70,7 @@ final class MapEntityQueryFactory implements EntityQueryFactory {
     public void collectRestrictions(EntityMetadata metadata, List<Restriction> restrictions) {
       for (Map.Entry<?, ?> entry : map.entrySet()) {
         String name = entry.getKey().toString();
-        EntityProperty property = metadata.findProperty(name);
+        EntityProperty property = findEntityProperty(metadata, name);
         restrictions.add(property != null
                 ? Restrictions.equal(property.getColumnName())
                 : Restrictions.equal(name));
@@ -80,9 +80,23 @@ final class MapEntityQueryFactory implements EntityQueryFactory {
     @Override
     public int setParameter(EntityMetadata metadata, PreparedStatement statement, int parameterIndex) throws SQLException {
       for (Map.Entry<?, ?> entry : map.entrySet()) {
-        statement.setObject(parameterIndex++, entry.getValue());
+        EntityProperty property = findEntityProperty(metadata, entry.getKey().toString());
+        if (property != null && property.getType().isInstance(entry.getValue())) {
+          property.setParameter(statement, parameterIndex++, entry.getValue());
+        }
+        else {
+          statement.setObject(parameterIndex++, entry.getValue());
+        }
       }
       return parameterIndex;
+    }
+
+    private static @Nullable EntityProperty findEntityProperty(EntityMetadata metadata, String name) {
+      EntityProperty property = metadata.findProperty(name);
+      if (property == null && metadata.getRefMetadata() != null) {
+        property = metadata.getRefMetadata().findProperty(name);
+      }
+      return property;
     }
 
     @Override
