@@ -27,7 +27,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -94,14 +93,14 @@ public interface ServerResponse {
   MultiValueMap<String, ResponseCookie> cookies();
 
   /**
-   * Write this response to the given response.
+   * Apply this response to the current exchange and return a value for the
+   * return-value handler chain to process, if any.
    *
    * @param request the current request
-   * @param context the context to use when writing
-   * @return a Web result to render, or {@code null} if handled directly
+   * @return the next return value, or {@link #NONE_RETURN_VALUE} if fully handled
    */
   @Nullable
-  Object writeTo(HttpContext request, Context context) throws Exception;
+  Object writeTo(HttpContext request) throws Exception;
 
   // Static methods
 
@@ -852,20 +851,6 @@ public interface ServerResponse {
      * @throws IOException in case of I/O errors
      */
     void flush() throws IOException;
-
-  }
-
-  /**
-   * Defines the context used during the {@link #writeTo(HttpContext, Context)}.
-   */
-  interface Context {
-
-    /**
-     * Return the {@link HttpMessageConverter HttpMessageConverters} to be used for response body conversion.
-     *
-     * @return the list of message writers
-     */
-    List<HttpMessageConverter<?>> messageConverters();
 
   }
 

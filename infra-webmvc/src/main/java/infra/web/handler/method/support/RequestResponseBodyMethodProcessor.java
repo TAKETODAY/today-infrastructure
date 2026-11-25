@@ -104,6 +104,14 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
     super(converters, manager, requestResponseBodyAdvice, interceptors);
   }
 
+  /**
+   * Write a body with an explicit type, without requiring a controller method.
+   * The response status and headers must already be applied to the exchange.
+   */
+  public void writeBody(HttpContext context, Object body, Type bodyType) throws IOException {
+    writeWithMessageConverters(body, null, bodyType, context);
+  }
+
   @Override
   public boolean supportsParameter(HandlerParameter parameter) {
     return parameter.hasParameterAnnotation(RequestBody.class);

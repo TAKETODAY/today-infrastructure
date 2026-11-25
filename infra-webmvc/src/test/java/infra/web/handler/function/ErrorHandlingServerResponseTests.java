@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
 import infra.http.ResponseCookie;
-import infra.http.converter.HttpMessageConverter;
 import infra.util.MultiValueMap;
 import infra.web.HttpContext;
 import infra.web.mock.MockHttpContext;
@@ -51,12 +50,7 @@ class ErrorHandlingServerResponseTests {
 
     Throwable testException = new IllegalArgumentException("test");
 
-    assertThatThrownBy(() -> response.handleError(testException, http, new ServerResponse.Context() {
-      @Override
-      public java.util.List<HttpMessageConverter<?>> messageConverters() {
-        return new java.util.ArrayList<>();
-      }
-    })).isSameAs(testException);
+    assertThatThrownBy(() -> response.handleError(testException, http)).isSameAs(testException);
   }
 
   @Test
@@ -132,7 +126,7 @@ class ErrorHandlingServerResponseTests {
     }
 
     @Override
-    public @Nullable Object writeTo(HttpContext request, Context context) throws Exception {
+    public @Nullable Object writeTo(HttpContext request) throws Exception {
       return null;
     }
   }

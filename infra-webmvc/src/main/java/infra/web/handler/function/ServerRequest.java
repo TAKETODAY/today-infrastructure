@@ -64,7 +64,7 @@ import infra.web.util.UriBuilder;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public interface ServerRequest extends ServerResponse.Context {
+public interface ServerRequest {
 
   /**
    * Get the HTTP method.
@@ -124,7 +124,6 @@ public interface ServerRequest extends ServerResponse.Context {
   /**
    * Get the readers used to convert the body of this request.
    */
-  @Override
   List<HttpMessageConverter<?>> messageConverters();
 
   /**

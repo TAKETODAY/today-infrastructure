@@ -206,7 +206,7 @@ final class DefaultRenderingResponseBuilder implements RenderingResponse.Builder
     }
 
     @Override
-    protected Object writeToInternal(HttpContext request, Context context) {
+    protected Object writeToInternal(HttpContext request) {
 
       ModelAndView mav = new ModelAndView(this.name, statusCode());
       mav.addAllObjects(this.model);

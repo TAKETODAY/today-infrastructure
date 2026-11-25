@@ -24,8 +24,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
@@ -37,6 +37,9 @@ import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.converter.ResourceHttpMessageConverter;
 import infra.http.converter.ResourceRegionHttpMessageConverter;
+import infra.http.converter.HttpMessageConverter;
+import infra.web.handler.SelectableReturnValueHandler;
+import infra.web.handler.method.support.RequestResponseBodyMethodProcessor;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
@@ -64,7 +67,7 @@ class ResourceHandlerFunctionTests {
     MockHttpContext httpContext = new MockHttpContext(null, mockRequest, mockResponse);
     ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(this.messageConverter));
     ServerResponse response = handlerFunction.handle(request);
-    response.writeTo(httpContext, this.context);
+    write(response, httpContext);
 
     assertThat(mockResponse.getStatus()).isEqualTo(200);
     assertThat(mockResponse.getHeader(HttpHeaders.ETAG)).isEqualTo("\"current\"");
@@ -83,7 +86,7 @@ class ResourceHandlerFunctionTests {
     MockHttpContext httpContext = new MockHttpContext(null, mockRequest, mockResponse);
     ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(this.messageConverter));
     ServerResponse response = handlerFunction.handle(request);
-    response.writeTo(httpContext, this.context);
+    write(response, httpContext);
 
     assertThat(mockResponse.getStatus()).isEqualTo(206);
     assertThat(mockResponse.getHeader(HttpHeaders.ETAG)).isEqualTo("\"current\"");
@@ -94,7 +97,7 @@ class ResourceHandlerFunctionTests {
 
   private final ResourceHandlerFunction handlerFunction = new ResourceHandlerFunction(this.resource, (r, h) -> { });
 
-  private ServerResponse.Context context;
+  private ServerResponseReturnValueHandler responseHandler;
 
   private ResourceHttpMessageConverter messageConverter;
 
@@ -102,7 +105,13 @@ class ResourceHandlerFunctionTests {
   void createContext() {
     this.messageConverter = new ResourceHttpMessageConverter();
     ResourceRegionHttpMessageConverter regionConverter = new ResourceRegionHttpMessageConverter();
-    this.context = () -> Arrays.asList(messageConverter, regionConverter);
+    List<HttpMessageConverter<?>> converters = List.of(messageConverter, regionConverter);
+    this.responseHandler = new ServerResponseReturnValueHandler(new SelectableReturnValueHandler(List.of()),
+            new RequestResponseBodyMethodProcessor(converters), converters);
+  }
+
+  private void write(ServerResponse response, MockHttpContext context) throws Exception {
+    this.responseHandler.handleReturnValue(context, null, response);
   }
 
   @Test
@@ -121,8 +130,7 @@ class ResourceHandlerFunctionTests {
     EntityResponse<Resource> entityResponse = (EntityResponse<Resource>) response;
     assertThat(entityResponse.entity()).isEqualTo(this.resource);
 
-    Object mav = response.writeTo(httpContext, this.context);
-    assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
+    write(response, httpContext);
 
     assertThat(mockResponse.getStatus()).isEqualTo(200);
     byte[] expectedBytes = Files.readAllBytes(this.resource.getFile().toPath());
@@ -150,8 +158,7 @@ class ResourceHandlerFunctionTests {
     EntityResponse<Resource> entityResponse = (EntityResponse<Resource>) response;
     assertThat(entityResponse.entity()).isEqualTo(this.resource);
 
-    Object mav = response.writeTo(httpContext, this.context);
-    assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
+    write(response, httpContext);
 
     assertThat(mockResponse.getStatus()).isEqualTo(206);
     byte[] expectedBytes = new byte[6];
@@ -183,8 +190,7 @@ class ResourceHandlerFunctionTests {
     EntityResponse<Resource> entityResponse = (EntityResponse<Resource>) response;
     assertThat(entityResponse.entity()).isEqualTo(this.resource);
 
-    Object mav = response.writeTo(httpContext, this.context);
-    assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
+    write(response, httpContext);
 
     assertThat(mockResponse.getStatus()).isEqualTo(416);
     byte[] expectedBytes = Files.readAllBytes(this.resource.getFile().toPath());
@@ -212,8 +218,7 @@ class ResourceHandlerFunctionTests {
     EntityResponse<Resource> entityResponse = (EntityResponse<Resource>) response;
     assertThat(entityResponse.entity().getName()).isEqualTo(this.resource.getName());
 
-    Object mav = response.writeTo(httpContext, this.context);
-    assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
+    write(response, httpContext);
 
     assertThat(mockResponse.getStatus()).isEqualTo(200);
     byte[] actualBytes = mockResponse.getContentAsByteArray();
@@ -235,7 +240,7 @@ class ResourceHandlerFunctionTests {
     assertThat(response.statusCode()).isEqualTo(HttpStatus.OK);
     assertThat(response.headers().getAllow()).isEqualTo(Set.of(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS));
 
-    Object mav = response.writeTo(httpContext, this.context);
+    Object mav = response.writeTo(httpContext);
     assertThat(mav).isNull();
     httpContext.flush();
 
@@ -354,9 +359,7 @@ class ResourceHandlerFunctionTests {
     ResourceHandlerFunction handlerFunctionWithHeaders = new ResourceHandlerFunction(this.resource, headersConsumer);
 
     ServerResponse response = handlerFunctionWithHeaders.handle(request);
-    Object mav = response.writeTo(httpContext, this.context);
-
-    assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
+    write(response, httpContext);
     assertThat(mockResponse.getHeader("X-Test-Header")).isEqualTo("test-value");
   }
 

@@ -24,11 +24,15 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
+import java.util.List;
 
 import infra.http.CacheControl;
 import infra.http.MediaType;
+import infra.http.converter.HttpMessageConverter;
+import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
+import infra.web.handler.SelectableReturnValueHandler;
+import infra.web.handler.method.support.RequestResponseBodyMethodProcessor;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
@@ -70,9 +74,7 @@ class StreamingServerResponseTests {
               }
             });
 
-    ServerResponse.Context context = Collections::emptyList;
-    Object mav = response.writeTo(httpContext, context);
-    assertThat(mav).isNull();
+    write(response, List.of(new StringHttpMessageConverter()));
     assertThat(this.mockResponse.getContentType()).isEqualTo(MediaType.TEXT_EVENT_STREAM.toString());
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(body);
   }
@@ -92,9 +94,7 @@ class StreamingServerResponseTests {
                 throw new UncheckedIOException(ex);
               }
             });
-    ServerResponse.Context context = Collections::emptyList;
-    Object mav = response.writeTo(httpContext, context);
-    assertThat(mav).isNull();
+    write(response, List.of(new StringHttpMessageConverter()));
     assertThat(this.mockResponse.getContentType()).isEqualTo(MediaType.TEXT_EVENT_STREAM.toString());
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(body);
   }
@@ -119,14 +119,18 @@ class StreamingServerResponseTests {
               }
             });
 
-    ServerResponse.Context context = () -> Collections.singletonList(new JacksonJsonHttpMessageConverter());
-    Object mav = response.writeTo(httpContext, context);
-    assertThat(mav).isNull();
+    write(response, List.of(new JacksonJsonHttpMessageConverter()));
     assertThat(this.mockResponse.getContentType()).isEqualTo(MediaType.APPLICATION_NDJSON.toString());
     assertThat(this.mockResponse.getContentAsString()).isEqualTo("""
             {"name":"John","age":51}
             {"name":"Jane","age":42}
             """);
+  }
+
+  private void write(ServerResponse response, List<HttpMessageConverter<?>> converters) throws Exception {
+    var handler = new ServerResponseReturnValueHandler(new SelectableReturnValueHandler(List.of()),
+            new RequestResponseBodyMethodProcessor(converters), converters);
+    handler.handleReturnValue(this.httpContext, null, response);
   }
 
   record Person(String name, int age) {

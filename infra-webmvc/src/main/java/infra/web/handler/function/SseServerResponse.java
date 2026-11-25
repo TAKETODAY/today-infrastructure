@@ -59,7 +59,7 @@ final class SseServerResponse extends AbstractServerResponse {
   }
 
   @Override
-  protected Object writeToInternal(HttpContext request, Context context) throws Exception {
+  protected Object writeToInternal(HttpContext request) {
     request.setHeader(HttpHeaders.CACHE_CONTROL, HttpHeaders.NO_CACHE);
     SseEmitter emitter = new SseEmitter(timeout, null);
     sseConsumer.accept(new DefaultSseBuilder(emitter));

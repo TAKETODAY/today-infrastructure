@@ -47,10 +47,15 @@ import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
 import infra.http.converter.StringHttpMessageConverter;
+import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
+import infra.web.mock.StandardMockWebAsyncRequest;
+import infra.web.handler.SelectableReturnValueHandler;
+import infra.web.handler.method.support.RequestResponseBodyMethodProcessor;
+import infra.web.handler.result.DeferredResultReturnValueHandler;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.view.ModelAndView;
@@ -62,8 +67,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Arjen Poutsma
  */
 class DefaultServerResponseBuilderTests {
-
-  static final ServerResponse.Context EMPTY_CONTEXT = Collections::emptyList;
 
   @Test
   void status() {
@@ -265,7 +268,7 @@ class DefaultServerResponseBuilderTests {
           ServerResponse response, MockRequest mockRequest, MockResponse mockResponse) throws Throwable {
     MockHttpContext context = new MockHttpContext(null, mockRequest, mockResponse);
     try {
-      return response.writeTo(context, EMPTY_CONTEXT);
+      return response.writeTo(context);
     }
     finally {
       context.flush();
@@ -314,12 +317,9 @@ class DefaultServerResponseBuilderTests {
 
     MockRequest mockRequest = new MockRequest("GET", "https://example.com");
     MockResponse mockResponse = new MockResponse();
-    ServerResponse.Context context = () -> Collections.singletonList(new StringHttpMessageConverter());
     MockHttpContext httpContext = new MockHttpContext(null, mockRequest, mockResponse);
 
-    Object mav = response.writeTo(httpContext, context);
-
-    assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);
+    responseHandler(List.of(new StringHttpMessageConverter())).handleReturnValue(httpContext, null, response);
     assertThat(mockResponse.getContentAsString()).isEqualTo(body);
   }
 
@@ -332,12 +332,8 @@ class DefaultServerResponseBuilderTests {
 
     MockRequest mockRequest = new MockRequest("GET", "https://example.com");
     MockResponse mockResponse = new MockResponse();
-    ServerResponse.Context context = () -> Collections.singletonList(new JacksonJsonHttpMessageConverter());
-
     MockHttpContext httpContext = new MockHttpContext(null, mockRequest, mockResponse);
-    Object mav = response.writeTo(httpContext, context);
-
-    assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
+    responseHandler(List.of(new JacksonJsonHttpMessageConverter())).handleReturnValue(httpContext, null, response);
 
     assertThat(mockResponse.getContentAsString()).isEqualTo("[\"foo\",\"bar\"]");
   }
@@ -345,19 +341,22 @@ class DefaultServerResponseBuilderTests {
   @Test
   void bodyCompletionStage() throws Throwable {
     String body = "foo";
-    CompletionStage<String> completionStage = CompletableFuture.completedFuture(body);
+    CompletableFuture<String> completionStage = new CompletableFuture<>();
     ServerResponse response = ServerResponse.ok().body(completionStage);
 
     MockRequest mockRequest = new MockRequest("GET", "https://example.com");
     MockResponse mockResponse = new MockResponse();
     mockRequest.setAsyncSupported(true);
 
-    ServerResponse.Context context = () -> Collections.singletonList(new StringHttpMessageConverter());
-
     MockHttpContext httpContext = new MockHttpContext(null, mockRequest, mockResponse);
-    Object mav = response.writeTo(httpContext, context);
+    httpContext.setAsyncRequest(new StandardMockWebAsyncRequest(mockRequest, mockResponse));
+    var handler = responseHandler(List.of(new StringHttpMessageConverter()));
+    handler.handleReturnValue(httpContext, null, response);
+    completionStage.complete(body);
 
-    assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
+    assertThat(mockResponse.getContentAsString()).isEmpty();
+    assertThat(httpContext.asyncManager().hasConcurrentResult()).isTrue();
+    handler.handleReturnValue(httpContext, null, httpContext.asyncManager().getConcurrentResult());
 
     assertThat(mockResponse.getContentAsString()).isEqualTo(body);
   }
@@ -372,13 +371,16 @@ class DefaultServerResponseBuilderTests {
     MockResponse mockResponse = new MockResponse();
     mockRequest.setAsyncSupported(true);
 
-    ServerResponse.Context context = () -> Collections.singletonList(new StringHttpMessageConverter());
-
     MockHttpContext httpContext = new MockHttpContext(null, mockRequest, mockResponse);
-    Object mav = response.writeTo(httpContext, context);
-    assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
+    httpContext.setAsyncRequest(new StandardMockWebAsyncRequest(mockRequest, mockResponse));
+    responseHandler(List.of(new StringHttpMessageConverter())).handleReturnValue(httpContext, null, response);
 
     assertThat(mockResponse.getContentAsString()).isEqualTo(body);
+  }
+
+  private static ServerResponseReturnValueHandler responseHandler(List<HttpMessageConverter<?>> converters) {
+    return new ServerResponseReturnValueHandler(new SelectableReturnValueHandler(List.of(new DeferredResultReturnValueHandler())),
+            new RequestResponseBodyMethodProcessor(converters), converters);
   }
 
   @Test
@@ -535,7 +537,7 @@ class DefaultServerResponseBuilderTests {
     MockHttpContext httpContext = new MockHttpContext(null, mockRequest, mockResponse);
 
     ServerResponse response = ServerResponse.ok().build(request -> "custom response");
-    Object result = response.writeTo(httpContext, DefaultServerResponseBuilderTests.EMPTY_CONTEXT);
+    Object result = response.writeTo(httpContext);
 
     assertThat(result).isEqualTo("custom response");
   }

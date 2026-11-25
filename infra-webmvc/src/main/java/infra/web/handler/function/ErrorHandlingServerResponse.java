@@ -47,10 +47,10 @@ abstract class ErrorHandlingServerResponse implements ServerResponse {
     this.errorHandlers.add(new ErrorHandler<>(predicate, errorHandler));
   }
 
-  protected final @Nullable Object handleError(Throwable t, HttpContext request, Context context) throws Exception {
+  protected final ServerResponse handleError(Throwable t, HttpContext request) {
     ServerResponse serverResponse = errorResponse(t, request);
     if (serverResponse != null) {
-      return serverResponse.writeTo(request, context);
+      return serverResponse;
     }
     throw ExceptionUtils.sneakyThrow(t);
   }

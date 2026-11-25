@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
 
 import infra.http.CacheControl;
@@ -34,8 +33,8 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.web.handler.SelectableReturnValueHandler;
+import infra.web.handler.method.support.RequestResponseBodyMethodProcessor;
 import infra.web.handler.result.ResponseBodyEmitterReturnValueHandler;
-import infra.web.handler.result.ServerResponseReturnValueHandler;
 import infra.web.handler.result.SseEmitter;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
@@ -75,7 +74,7 @@ class SseServerResponseTests {
 
     assertThat(response.headers().contains(HttpHeaders.CONTENT_LENGTH)).isFalse();
 
-    write(response, Collections::emptyList);
+    write(response, List.of());
 
     assertThat(this.mockResponse.getContentType()).isEqualTo(MediaType.TEXT_EVENT_STREAM_VALUE);
     assertThat(this.mockResponse.getHeader(HttpHeaders.TRANSFER_ENCODING)).isEqualTo(HttpHeaders.CHUNKED);
@@ -87,7 +86,7 @@ class SseServerResponseTests {
   void writeToReturnsSseEmitter() throws Throwable {
     ServerResponse response = ServerResponse.sse(sse -> { });
 
-    Object result = response.writeTo(this.httpContext, Collections::emptyList);
+    Object result = response.writeTo(this.httpContext);
     assertThat(result).isInstanceOf(SseEmitter.class);
   }
 
@@ -96,7 +95,7 @@ class SseServerResponseTests {
     String body = "foo bar";
     ServerResponse response = sse(sse -> sse.send(body));
 
-    write(response, Collections::emptyList);
+    write(response, List.of());
 
     assertThat(this.mockResponse.getContentAsString()).isEqualTo("data: " + body + "\n\n");
   }
@@ -105,9 +104,7 @@ class SseServerResponseTests {
   void sendObject() throws Throwable {
     Person person = new Person("John Doe", 42);
     ServerResponse response = sse(sse -> sse.send(person));
-    ServerResponse.Context context = () -> List.of(new JacksonJsonHttpMessageConverter());
-
-    write(response, context);
+    write(response, List.of(new JacksonJsonHttpMessageConverter()));
 
     String expected = "data: {\"name\":\"John Doe\",\"age\":42}\n\n";
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(expected);
@@ -120,9 +117,7 @@ class SseServerResponseTests {
 
     JsonMapper jsonMapper = JsonMapper.builder().enable(SerializationFeature.INDENT_OUTPUT).build();
     JacksonJsonHttpMessageConverter converter = new JacksonJsonHttpMessageConverter(jsonMapper);
-    ServerResponse.Context context = () -> List.of(converter);
-
-    write(response, context);
+    write(response, List.of(converter));
 
     String expected = "data: {\ndata:   \"name\" : \"John Doe\",\ndata:   \"age\" : 42\ndata: }\n\n";
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(expected);
@@ -136,7 +131,7 @@ class SseServerResponseTests {
             .retry(Duration.ofSeconds(1))
             .data("data"));
 
-    write(response, Collections::emptyList);
+    write(response, List.of());
 
     String expected = "id:id\nevent:name\n:comment line 1\n:comment line 2\nretry:1000\ndata: data\n\n";
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(expected);
@@ -146,7 +141,7 @@ class SseServerResponseTests {
   void sendWithoutData() throws Throwable {
     ServerResponse response = sse(sse -> sse.event("custom").send());
 
-    write(response, Collections::emptyList);
+    write(response, List.of());
 
     assertThat(this.mockResponse.getContentAsString()).isEqualTo("event:custom\n\n");
   }
@@ -156,7 +151,7 @@ class SseServerResponseTests {
     String body = "line1\rline2\r\nline3";
     ServerResponse response = sse(sse -> sse.send(body));
 
-    write(response, Collections::emptyList);
+    write(response, List.of());
 
     assertThat(this.mockResponse.getContentAsString()).isEqualTo("data: line1\ndata: line2\ndata: line3\n\n");
   }
@@ -165,7 +160,7 @@ class SseServerResponseTests {
   void commentWithCarriageReturn() throws Throwable {
     ServerResponse response = sse(sse -> sse.comment("line1\rline2").send());
 
-    write(response, Collections::emptyList);
+    write(response, List.of());
 
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(":line1\n:line2\n\n");
   }
@@ -174,7 +169,7 @@ class SseServerResponseTests {
   void sendHeartbeat() throws Throwable {
     ServerResponse response = sse(sse -> sse.comment("").send());
 
-    write(response, Collections::emptyList);
+    write(response, List.of());
 
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(":\n\n");
   }
@@ -183,7 +178,7 @@ class SseServerResponseTests {
   void emptySendWritesNothing() throws Throwable {
     ServerResponse response = sse(sse -> sse.send());
 
-    write(response, Collections::emptyList);
+    write(response, List.of());
 
     assertThat(this.mockResponse.getContentAsString()).isEmpty();
   }
@@ -202,17 +197,15 @@ class SseServerResponseTests {
   /**
    * Write the response through the same handler chain as {@code DispatcherHandler}.
    */
-  private void write(ServerResponse response, ServerResponse.Context context) throws Exception {
-    List<HttpMessageConverter<?>> converters = context.messageConverters();
+  private void write(ServerResponse response, List<HttpMessageConverter<?>> converters) throws Exception {
     if (converters.isEmpty()) {
       converters = List.of(new StringHttpMessageConverter());
     }
 
     var emitterHandler = new ResponseBodyEmitterReturnValueHandler(converters);
     var handler = new ServerResponseReturnValueHandler(
-            new SelectableReturnValueHandler(List.of(emitterHandler)));
-    this.httpContext.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE,
-            ServerRequest.create(this.httpContext, converters));
+            new SelectableReturnValueHandler(List.of(emitterHandler)),
+            new RequestResponseBodyMethodProcessor(converters), converters);
     handler.handleReturnValue(this.httpContext, null, response);
   }
 

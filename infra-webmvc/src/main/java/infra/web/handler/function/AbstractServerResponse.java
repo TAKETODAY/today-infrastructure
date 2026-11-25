@@ -80,7 +80,7 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
   }
 
   @Override
-  public @Nullable Object writeTo(HttpContext request, Context context) throws Exception {
+  public @Nullable Object writeTo(HttpContext request) throws Exception {
     try {
       writeStatusAndHeaders(request);
 
@@ -89,11 +89,11 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
         return NONE_RETURN_VALUE;
       }
       else {
-        return writeToInternal(request, context);
+        return writeToInternal(request);
       }
     }
     catch (Throwable throwable) {
-      return handleError(throwable, request, context);
+      return handleError(throwable, request);
     }
   }
 
@@ -122,7 +122,6 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
     }
   }
 
-  protected abstract @Nullable Object writeToInternal(HttpContext request, Context context)
-          throws Exception;
+  protected abstract @Nullable Object writeToInternal(HttpContext request) throws Exception;
 
 }

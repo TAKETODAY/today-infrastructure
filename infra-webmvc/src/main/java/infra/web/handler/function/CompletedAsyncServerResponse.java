@@ -18,8 +18,6 @@
 
 package infra.web.handler.function;
 
-import org.jspecify.annotations.Nullable;
-
 import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
 import infra.http.ResponseCookie;
@@ -69,8 +67,8 @@ final class CompletedAsyncServerResponse implements AsyncServerResponse {
   }
 
   @Override
-  public @Nullable Object writeTo(HttpContext request, Context context) throws Exception {
-    return this.serverResponse.writeTo(request, context);
+  public ServerResponse writeTo(HttpContext request) {
+    return this.serverResponse;
   }
 
 }

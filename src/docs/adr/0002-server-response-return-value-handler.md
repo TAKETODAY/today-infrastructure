@@ -25,7 +25,7 @@
 - `SseServerResponse.writeToInternal` 改为创建 `SseEmitter`，把 `SseBuilder` 适配到 `SseEmitter.SseEventBuilder`，不再自行操作输出流与 `DeferredResult`；
 - `DefaultAsyncServerResponse` 只把 future 的结果（包括错误响应）设置为异步结果，由返回值链写出，不再在完成回调里直接写响应。
 
-`ServerResponseReturnValueHandler` 注册在 `ReturnValueHandlerManager` 默认链中，位于 `ResponseBodyEmitterReturnValueHandler` 之后、`ResponseEntityReturnValueHandler` 之前。
+`ServerResponseReturnValueHandler` 注册在 `ReturnValueHandlerManager` 默认链中，位于 emitter 和 `ResponseEntity` 处理器之前。它不依赖路由绑定的 `ServerRequest`；只有函数式错误回调需要该请求对象。
 
 ### 为什么不选方案 A / C
 
@@ -34,9 +34,14 @@
 
 ## 行为语义
 
-### `Context.messageConverters()`
+### 请求读取与响应写出
 
-SSE 分支由 `ResponseBodyEmitterReturnValueHandler` 使用其构造时注入的转换器，`ServerResponseReturnValueHandler` 只负责把 `SseEmitter` 交回返回值链。标准 MVC 装配下，`RouterFunctionMapping` 与 `ReturnValueHandlerManager` 使用同一份转换器列表，因此与普通控制器行为一致；`Context.messageConverters()` 不再单独传递给 SSE 分支。
+删除 `ServerResponse.Context`；`ServerResponse.writeTo(HttpContext)` 应用状态码、响应头和 Cookie，并在条件请求命中时短路，不启动写出。`ServerRequest.messageConverters()` 只负责请求读取。标准 MVC 装配仍从同一配置注入请求侧和响应侧，但响应写出不再依赖路由映射的转换器配置。
+
+- 普通实体把值和显式类型交给 MVC 消息写出逻辑，复用内容协商、转换器选择和 Range 处理，不经由 `ResponseEntity` 二次应用响应元数据。
+- `CompletionStage` 实体完成后由异步分发写出；`Publisher` 实体继续逐项写出和刷新。
+- `stream(...)` 由返回值处理侧传入转换器，再启动 `StreamBuilder`，保留 `write()` 与显式 `flush()` 的区别。
+- SSE 继续由 `ResponseBodyEmitterReturnValueHandler` 写出，复用其转换器和异步生命周期。
 
 ### 写出时机
 

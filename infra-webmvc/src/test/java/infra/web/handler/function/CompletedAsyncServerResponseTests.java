@@ -18,14 +18,11 @@ package infra.web.handler.function;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.ResponseCookie;
-import infra.http.converter.HttpMessageConverter;
-import infra.http.converter.StringHttpMessageConverter;
 import infra.util.MultiValueMap;
 import infra.web.HttpContext;
 import infra.web.mock.MockHttpContext;
@@ -93,19 +90,12 @@ class CompletedAsyncServerResponseTests {
   }
 
   @Test
-  void writeToDelegatesToWrappedResponse() throws Throwable {
+  void writeToReturnsWrappedResponse() {
     ServerResponse wrappedResponse = ServerResponse.ok().body("test content");
     CompletedAsyncServerResponse asyncResponse = new CompletedAsyncServerResponse(wrappedResponse);
     HttpContext http = new MockHttpContext();
 
-    Object result = asyncResponse.writeTo(http, new ServerResponse.Context() {
-      @Override
-      public java.util.List<HttpMessageConverter<?>> messageConverters() {
-        return List.of(new StringHttpMessageConverter());
-      }
-    });
-
-    assertThat(result).isNotNull();
+    assertThat(asyncResponse.writeTo(http)).isSameAs(wrappedResponse);
   }
 
 }

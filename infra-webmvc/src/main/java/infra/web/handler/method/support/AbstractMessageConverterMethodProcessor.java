@@ -281,10 +281,20 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
    * be written by a converter, or if the content-type chosen by the server
    * has no compatible converter.
    */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
   protected <T> void writeWithMessageConverters(@Nullable T value, @Nullable MethodParameter returnType, HttpContext context)
           throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException //
   {
+    writeWithMessageConverters(value, returnType, null, context);
+  }
+
+  /**
+   * Write a response body, optionally using an explicit type supplied by the
+   * return value rather than resolving it from a controller method.
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  protected void writeWithMessageConverters(@Nullable Object value, @Nullable MethodParameter returnType,
+          @Nullable Type explicitType, HttpContext context)
+          throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException {
 
     Object body;
     Type targetType;
@@ -298,7 +308,10 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
     else {
       body = value;
       valueType = getReturnValueType(body, returnType);
-      if (returnType == null) {
+      if (explicitType != null) {
+        targetType = explicitType;
+      }
+      else if (returnType == null) {
         targetType = ResolvableType.forInstance(body).getType();
       }
       else {

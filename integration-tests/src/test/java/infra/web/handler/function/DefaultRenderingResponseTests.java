@@ -45,8 +45,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class DefaultRenderingResponseTests {
 
-  static final ServerResponse.Context EMPTY_CONTEXT = Collections::emptyList;
-
   @Test
   public void create() throws Throwable {
     String name = "foo";
@@ -76,7 +74,7 @@ public class DefaultRenderingResponseTests {
   private static ModelAndView getModelAndView(
           RenderingResponse result, MockRequest request, MockResponse response) throws Throwable {
     MockHttpContext mockHttpContext = new MockHttpContext(null, request, response);
-    Object write = result.writeTo(mockHttpContext, EMPTY_CONTEXT);
+    Object write = result.writeTo(mockHttpContext);
     mockHttpContext.flush();
     if (write instanceof ModelAndView andView) {
       return andView;

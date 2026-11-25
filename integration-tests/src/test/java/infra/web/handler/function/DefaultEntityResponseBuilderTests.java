@@ -47,8 +47,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class DefaultEntityResponseBuilderTests {
 
-  static final ServerResponse.Context EMPTY_CONTEXT = Collections::emptyList;
-
   @Test
   void fromObject() {
     String body = "foo";
@@ -186,7 +184,7 @@ class DefaultEntityResponseBuilderTests {
 
     MockHttpContext context = new MockHttpContext(null, mockRequest, mockResponse);
 
-    Object mav = entityResponse.writeTo(context, EMPTY_CONTEXT);
+    Object mav = entityResponse.writeTo(context);
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);
 
     assertThat(mockResponse.getStatus()).isEqualTo(HttpStatus.NOT_MODIFIED.value());
@@ -207,7 +205,7 @@ class DefaultEntityResponseBuilderTests {
     MockResponse mockResponse = new MockResponse();
     MockHttpContext context = new MockHttpContext(null, mockRequest, mockResponse);
 
-    Object mav = entityResponse.writeTo(context, EMPTY_CONTEXT);
+    Object mav = entityResponse.writeTo(context);
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);
 
     assertThat(mockResponse.getStatus()).isEqualTo(HttpStatus.NOT_MODIFIED.value());

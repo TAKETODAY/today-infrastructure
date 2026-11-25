@@ -149,7 +149,7 @@ final class ModelAndViewRenderingResponseBuilder implements RenderingResponse.Vi
     }
 
     @Override
-    protected Object writeToInternal(HttpContext request, Context context) {
+    protected Object writeToInternal(HttpContext request) {
       if (modelAndView.getStatus() == null) {
         modelAndView.setStatus(statusCode());
       }

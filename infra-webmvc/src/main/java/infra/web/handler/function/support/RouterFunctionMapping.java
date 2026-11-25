@@ -103,7 +103,7 @@ public class RouterFunctionMapping extends AbstractHandlerMapping implements Ini
 
   /**
    * Set the message body converters to use.
-   * <p>These converters are used to convert from and to HTTP requests and responses.
+   * <p>These converters are used to read HTTP request bodies.
    */
   public void setMessageConverters(List<HttpMessageConverter<?>> messageConverters) {
     this.messageConverters = messageConverters;

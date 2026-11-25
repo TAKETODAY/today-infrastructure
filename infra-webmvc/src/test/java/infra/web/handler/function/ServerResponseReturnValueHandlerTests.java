@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package infra.web.handler.result;
+package infra.web.handler.function;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,9 +24,9 @@ import java.util.List;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.web.ReturnValueHandler;
-import infra.web.handler.function.RouterFunctions;
-import infra.web.handler.function.ServerRequest;
-import infra.web.handler.function.ServerResponse;
+import infra.web.handler.method.support.RequestResponseBodyMethodProcessor;
+import infra.web.handler.result.ResponseBodyEmitter;
+import infra.web.handler.result.SseEmitter;
 import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
@@ -49,8 +49,6 @@ class ServerResponseReturnValueHandlerTests {
 
   private MockHttpContext httpContext;
 
-  private ServerRequest serverRequest;
-
   private ReturnValueHandler delegate;
 
   private ServerResponseReturnValueHandler handler;
@@ -58,11 +56,9 @@ class ServerResponseReturnValueHandlerTests {
   @BeforeEach
   void setUp() {
     this.httpContext = new MockHttpContext(new MockRequest(), new MockResponse());
-    this.serverRequest = ServerRequest.create(this.httpContext, this.messageConverters);
-    this.httpContext.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE, this.serverRequest);
-
     this.delegate = mock(ReturnValueHandler.class);
-    this.handler = new ServerResponseReturnValueHandler(this.delegate);
+    this.handler = new ServerResponseReturnValueHandler(this.delegate,
+            new RequestResponseBodyMethodProcessor(this.messageConverters), this.messageConverters);
   }
 
   @Test
@@ -79,7 +75,7 @@ class ServerResponseReturnValueHandlerTests {
   void writesResponseAndContinuesWithReturnedValue() throws Exception {
     ServerResponse response = mock(ServerResponse.class);
     Object handler = new Object();
-    given(response.writeTo(this.httpContext, this.serverRequest)).willReturn("view");
+    given(response.writeTo(this.httpContext)).willReturn("view");
 
     this.handler.handleReturnValue(this.httpContext, handler, response);
 
@@ -89,7 +85,7 @@ class ServerResponseReturnValueHandlerTests {
   @Test
   void stopsWhenResponseIsFullyWritten() throws Exception {
     ServerResponse response = mock(ServerResponse.class);
-    given(response.writeTo(this.httpContext, this.serverRequest)).willReturn(ReturnValueHandler.NONE_RETURN_VALUE);
+    given(response.writeTo(this.httpContext)).willReturn(ReturnValueHandler.NONE_RETURN_VALUE);
 
     this.handler.handleReturnValue(this.httpContext, null, response);
 
@@ -100,7 +96,7 @@ class ServerResponseReturnValueHandlerTests {
   void delegatesEmitterToReturnValueChain() throws Exception {
     ServerResponse response = mock(ServerResponse.class);
     SseEmitter emitter = ResponseBodyEmitter.forServerSentEvents();
-    given(response.writeTo(this.httpContext, this.serverRequest)).willReturn(emitter);
+    given(response.writeTo(this.httpContext)).willReturn(emitter);
 
     this.handler.handleReturnValue(this.httpContext, null, response);
 

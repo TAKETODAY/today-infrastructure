@@ -99,7 +99,7 @@ final class DefaultAsyncServerResponse extends ErrorHandlingServerResponse imple
   }
 
   @Override
-  public Object writeTo(HttpContext request, Context context) throws Exception {
+  public Object writeTo(HttpContext request) {
     return createDeferredResult(request);
   }
 

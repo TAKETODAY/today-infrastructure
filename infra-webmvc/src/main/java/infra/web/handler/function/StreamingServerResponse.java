@@ -69,11 +69,32 @@ final class StreamingServerResponse extends AbstractServerResponse {
   }
 
   @Override
-  protected @Nullable Object writeToInternal(HttpContext request, Context context) throws Exception {
-    DeferredResult<?> result = new DeferredResult<>(timeout);
-    request.asyncManager().startDeferredResultProcessing(result);
-    this.streamConsumer.accept(new DefaultStreamBuilder(request, context, result, headers()));
-    return null;
+  protected Object writeToInternal(HttpContext request) {
+    return new Stream(this);
+  }
+
+  record Stream(StreamingServerResponse response) {
+
+    void start(HttpContext request, @Nullable Object handler, List<HttpMessageConverter<?>> converters) throws Exception {
+      DeferredResult<Object> result = new DeferredResult<>(this.response.timeout);
+      request.asyncManager().startDeferredResultProcessing(result, handler);
+      try {
+        this.response.streamConsumer.accept(new DefaultStreamBuilder(request, converters, result, this.response.headers()));
+      }
+      catch (Throwable failure) {
+        if (request.isCommitted()) {
+          result.setErrorResult(failure);
+        }
+        else {
+          try {
+            result.setResult(this.response.handleError(failure, request));
+          }
+          catch (Throwable unhandled) {
+            result.setErrorResult(unhandled);
+          }
+        }
+      }
+    }
   }
 
   private static class DefaultStreamBuilder implements StreamBuilder {
@@ -88,11 +109,11 @@ final class StreamingServerResponse extends AbstractServerResponse {
 
     private boolean sendFailed;
 
-    public DefaultStreamBuilder(HttpContext response, Context context,
+    public DefaultStreamBuilder(HttpContext response, List<HttpMessageConverter<?>> converters,
             DeferredResult<?> deferredResult, HttpHeaders httpHeaders) {
       this.outputMessage = response.asHttpOutputMessage();
       this.deferredResult = deferredResult;
-      this.messageConverters = context.messageConverters();
+      this.messageConverters = converters;
       this.httpHeaders = httpHeaders;
     }
 
