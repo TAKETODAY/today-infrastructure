@@ -18,6 +18,8 @@ package infra.beans.factory.support;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 import java.util.Map;
 
@@ -131,6 +133,80 @@ class StaticListableBeanFactoryBehaviorTests {
     assertThatExceptionOfType(BeanCreationException.class)
             .isThrownBy(() -> factory.getBeansOfType(ResolvableType.forClass(Product.class), true, true));
   }
+
+  @Test
+  void matchesResolvableTypesAgainstFactoryProductsAndFactories() {
+    var factory = new StaticListableBeanFactory();
+    factory.addBean("product", new ProductFactory(new Product("one"), true));
+    var productType = ResolvableType.forClass(Product.class);
+    var factoryType = ResolvableType.forClassWithGenerics(FactoryBean.class, Product.class);
+
+    assertThat(factory.isTypeMatch("product", productType)).isTrue();
+    assertThat(factory.isTypeMatch("product", factoryType)).isFalse();
+    assertThat(factory.isTypeMatch("product", ResolvableType.NONE)).isFalse();
+    assertThat(factory.isTypeMatch("&product", factoryType)).isTrue();
+    assertThat(factory.isTypeMatch("&product", productType)).isFalse();
+  }
+
+  @Test
+  void providerReflectsChangesInCandidateAvailability() {
+    var factory = new StaticListableBeanFactory();
+    ObjectProvider<Product> provider = factory.getBeanProvider(ResolvableType.forClass(Product.class));
+    var product = new Product("one");
+    var other = new Product("two");
+
+    assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(provider::get);
+    assertThatExceptionOfType(NoSuchBeanDefinitionException.class).isThrownBy(() -> provider.get("argument"));
+    assertThat(provider.getIfUnique()).isNull();
+
+    factory.addBean("one", product);
+    assertThat(provider.get(new Object[0])).isSameAs(product);
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> provider.get("argument"));
+
+    factory.addBean("two", other);
+    assertThatExceptionOfType(NoUniqueBeanDefinitionException.class).isThrownBy(provider::get);
+    assertThatExceptionOfType(NoUniqueBeanDefinitionException.class).isThrownBy(() -> provider.get("argument"));
+    assertThatExceptionOfType(NoUniqueBeanDefinitionException.class).isThrownBy(provider::getIfAvailable);
+    assertThat(provider.getIfUnique()).isNull();
+    assertThat(provider.stream()).containsExactly(product, other);
+  }
+
+  @Test
+  void discoversAnnotationsOnFactoryProductTypesAndTheirInterfaces() {
+    var factory = new StaticListableBeanFactory();
+    var product = new AnnotatedProduct();
+    factory.addBean("plain", "value");
+    factory.addBean("annotated", new FactoryBean<AnnotatedProduct>() {
+      @Override
+      public AnnotatedProduct getObject() {
+        return product;
+      }
+
+      @Override
+      public Class<?> getObjectType() {
+        return AnnotatedProduct.class;
+      }
+    });
+
+    assertThat(factory.getBeanNamesForAnnotation(Label.class)).containsExactly("annotated");
+    assertThat(factory.getBeansWithAnnotation(Label.class)).containsOnlyKeys("annotated").containsEntry("annotated", product);
+    assertThat(factory.findAllAnnotationsOnBean("annotated", Label.class, false))
+            .extracting(Label::value).containsExactly("implementation", "contract");
+    assertThat(factory.findAllAnnotationsOnBean("plain", Label.class, false)).isEmpty();
+    assertThat(factory.findAllAnnotationsOnBean("&annotated", Label.class, false)).isEmpty();
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface Label {
+
+    String value();
+  }
+
+  @Label("contract")
+  interface AnnotatedContract { }
+
+  @Label("implementation")
+  static class AnnotatedProduct implements AnnotatedContract { }
 
   static class Product {
 

@@ -20,12 +20,18 @@ package infra.beans.factory.support;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import infra.beans.factory.BeanCurrentlyInCreationException;
+import infra.beans.factory.DisposableBean;
 import infra.beans.testfixture.beans.DerivedTestBean;
 import infra.beans.testfixture.beans.TestBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author TODAY 2021/10/2 15:51
@@ -96,6 +102,73 @@ class DefaultSingletonBeanRegistryTests {
     assertThat(beanRegistry.isDependent("a", "a")).isFalse();
     assertThat(beanRegistry.isDependent("b", "b")).isTrue();
     assertThat(beanRegistry.isDependent("c", "c")).isTrue();
+  }
+
+  @Test
+  void exposesEarlySingletonsAndProtectsCreationState() {
+    TestBean early = new TestBean();
+    beanRegistry.addSingletonFactory("early", () -> early);
+    beanRegistry.beforeSingletonCreation("early");
+
+    assertThat(beanRegistry.getSingleton("early", false)).isNull();
+    assertThat(beanRegistry.getSingleton("early", true)).isSameAs(early);
+    assertThat(beanRegistry.getSingleton("early", true)).isSameAs(early);
+    assertThat(beanRegistry.isSingletonCurrentlyInCreation("early")).isTrue();
+    assertThat(beanRegistry.getSingletonNames()).contains("early");
+
+    assertThatThrownBy(() -> beanRegistry.beforeSingletonCreation("early"))
+            .isInstanceOf(BeanCurrentlyInCreationException.class);
+    beanRegistry.afterSingletonCreation("early");
+    assertThat(beanRegistry.isSingletonCurrentlyInCreation("early")).isFalse();
+    assertThatIllegalStateException().isThrownBy(() -> beanRegistry.afterSingletonCreation("early"));
+  }
+
+  @Test
+  void destroysDependentsAndContainedBeansBeforeRemovingTheSingleton() {
+    List<String> destroyed = new ArrayList<>();
+    beanRegistry.registerSingleton("parent", new Object());
+    beanRegistry.registerSingleton("dependent", new Object());
+    beanRegistry.registerSingleton("contained", new Object());
+    beanRegistry.registerDisposableBean("parent", disposable("parent", destroyed));
+    beanRegistry.registerDisposableBean("dependent", disposable("dependent", destroyed));
+    beanRegistry.registerDisposableBean("contained", disposable("contained", destroyed));
+    beanRegistry.registerDependentBean("parent", "dependent");
+    beanRegistry.registerContainedBean("contained", "parent");
+
+    assertThat(beanRegistry.hasDependentBean("parent")).isTrue();
+    assertThat(beanRegistry.getDependentBeans("parent")).containsExactly("dependent");
+    assertThat(beanRegistry.getDependenciesForBean("dependent")).containsExactly("parent");
+
+    beanRegistry.destroySingleton("parent");
+
+    assertThat(destroyed).containsExactly("dependent", "parent", "contained");
+    assertThat(beanRegistry.getSingleton("parent")).isNull();
+    assertThat(beanRegistry.getSingleton("dependent")).isNull();
+    assertThat(beanRegistry.getSingleton("contained")).isNull();
+    assertThat(beanRegistry.hasDependentBean("parent")).isFalse();
+  }
+
+  @Test
+  void toleratesDisposableBeanFailuresAndRejectsDuplicateSingletons() {
+    Object singleton = new Object();
+    beanRegistry.registerSingleton("singleton", singleton);
+    assertThatThrownBy(() -> beanRegistry.registerSingleton("singleton", new Object()))
+            .isInstanceOf(IllegalStateException.class);
+
+    beanRegistry.registerDisposableBean("singleton", new DisposableBean() {
+      @Override
+      public void destroy() {
+        throw new IllegalStateException("destroy failed");
+      }
+    });
+    beanRegistry.destroySingleton("singleton");
+
+    assertThat(beanRegistry.getSingleton("singleton")).isNull();
+    assertThat(beanRegistry.containsSingleton("singleton")).isFalse();
+  }
+
+  private DisposableBean disposable(String name, List<String> destroyed) {
+    return () -> destroyed.add(name);
   }
 
 }
