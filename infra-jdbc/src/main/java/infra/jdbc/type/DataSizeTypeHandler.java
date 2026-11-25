@@ -40,8 +40,8 @@ import infra.util.DataSize;
 public class DataSizeTypeHandler extends BasicTypeHandler<DataSize> {
 
   @Override
-  public void setNonNullParameter(PreparedStatement ps, int parameterIndex, DataSize parameter) throws SQLException {
-    ps.setLong(parameterIndex, parameter.toBytes());
+  public void setNonNullParameter(PreparedStatement ps, int parameterIndex, DataSize arg) throws SQLException {
+    ps.setLong(parameterIndex, arg.toBytes());
   }
 
   @Override
