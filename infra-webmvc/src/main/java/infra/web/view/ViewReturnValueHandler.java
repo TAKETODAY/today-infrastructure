@@ -21,29 +21,31 @@ import org.jspecify.annotations.Nullable;
 import java.util.Locale;
 import java.util.Map;
 
-import infra.core.i18n.LocaleContextHolder;
 import infra.util.Assert;
 import infra.web.BindingContext;
-import infra.web.HandlerExceptionHandler;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpContext;
 import infra.web.LocaleResolver;
-import infra.web.RedirectModel;
-import infra.web.RedirectModelManager;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.result.SmartReturnValueHandler;
 import infra.web.util.WebUtils;
 
 /**
- * Handles return values that are view names, {@link View} instances, or {@link ViewRef} references.
- * This handler is responsible for resolving and rendering views based on the return value of a handler method.
+ * Renders view names ({@link CharSequence}), {@link ViewRef} references,
+ * {@link View} instances, and {@link ModelAndView} results.
+ *
+ * <p>Named views are resolved through a {@link ViewResolver}. A locale supplied
+ * by a {@code ViewRef} takes precedence over the request locale. Existing
+ * {@code View} instances are rendered directly without name resolution.
+ *
+ * <p>Before rendering, the handler updates the request's {@link BindingContext},
+ * if present, and merges its model into any supplied model. Binding context
+ * attributes take precedence over entries with the same name.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see View
+ * @see ViewResolver
  * @see ViewRef
- * @see RedirectModel
- * @see RedirectModelManager
- * @see HandlerMethod
+ * @see ModelAndView
  * @since 4.0 2022/2/9 20:34
  */
 public class ViewReturnValueHandler implements SmartReturnValueHandler {
@@ -52,16 +54,43 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
 
   private @Nullable LocaleResolver localeResolver;
 
+  /**
+   * Create a handler that resolves the request locale through {@link WebUtils#resolveLocale(HttpContext)}.
+   *
+   * @param viewResolver the resolver for named views (never {@code null})
+   */
   public ViewReturnValueHandler(ViewResolver viewResolver) {
     this(viewResolver, null);
   }
 
+  /**
+   * Create a handler with the given view and locale resolvers.
+   *
+   * @param viewResolver the resolver for named views (never {@code null})
+   * @param localeResolver the resolver for the request locale, or {@code null}
+   * to use {@link WebUtils#resolveLocale(HttpContext)}
+   */
   public ViewReturnValueHandler(ViewResolver viewResolver, @Nullable LocaleResolver localeResolver) {
     Assert.notNull(viewResolver, "viewResolver is required");
     this.viewResolver = viewResolver;
     this.localeResolver = localeResolver;
   }
 
+  /**
+   * Determine whether the result can be handled as a view, taking the handler
+   * method's declared return type into account when available.
+   *
+   * <p>For a {@code null} result, a handler method is supported only if its
+   * declared return type is assignable to {@link View}, {@link ViewRef}, or
+   * {@link ModelAndView}. If the result matches a declared {@link CharSequence}
+   * return type, it is supported only if the method is not marked for
+   * response body handling. Otherwise, support is determined from the result alone.
+   *
+   * @param handler the request handler, which may be {@code null}
+   * @param returnValue the result to check, which may be {@code null}
+   * @return whether the result is supported for the given handler
+   * @see #supportsReturnValue(Object)
+   */
   @Override
   public boolean supportsHandler(@Nullable Object handler, @Nullable Object returnValue) {
     HandlerMethod handlerMethod = HandlerMethod.resolve(handler);
@@ -82,6 +111,14 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
     return supportsReturnValue(returnValue);
   }
 
+  /**
+   * Check whether the result is a supported view name, reference, or object,
+   * without consulting a handler method.
+   *
+   * @param returnValue the result to check, which may be {@code null}
+   * @return {@code true} for a {@link CharSequence}, {@link View}, {@link ViewRef},
+   * or {@link ModelAndView}; {@code false} otherwise
+   */
   @Override
   public boolean supportsReturnValue(@Nullable Object returnValue) {
     return returnValue instanceof CharSequence
@@ -91,11 +128,14 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
   }
 
   /**
-   * @param context Current HTTP request context
-   * @param handler Target HTTP handler
-   * @param returnValue Handler execution result
-   * Or {@link HandlerExceptionHandler} return value
-   * @throws ViewRenderingException Could not resolve view with given name
+   * Render the result according to its runtime type. A {@code null} result
+   * leaves the response unchanged.
+   *
+   * @param context the current HTTP request and response context
+   * @param handler the request handler, which is not used by this method
+   * @param returnValue the view result to render, or {@code null} to skip rendering
+   * @throws ViewRenderingException if the result type is unsupported or view
+   * resolution, model update, or rendering fails
    */
   @Override
   public void handleReturnValue(HttpContext context,
@@ -120,7 +160,14 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
   // renderView
 
   /**
-   * Resolve {@link ModelAndView} return type
+   * Apply the status, if present, and render the named or direct view using
+   * the model from the given {@link ModelAndView}. The status is also exposed
+   * as the {@link View#RESPONSE_STATUS_ATTRIBUTE} request attribute. If the
+   * result contains no view, only the status is applied.
+   *
+   * @param request the current HTTP request and response context
+   * @param mv the model and view to render, or {@code null} to do nothing
+   * @throws ViewRenderingException if view resolution, model update, or rendering fails
    */
   public void renderView(HttpContext request, @Nullable ModelAndView mv) throws ViewRenderingException {
     if (mv != null) {
@@ -143,33 +190,36 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
   }
 
   /**
-   * rendering a view from {@code viewName}
+   * Convert the view name to a {@link String} and render it using the request model.
    *
-   * @param context current HTTP request context
-   * @param viewName View to render
-   * @throws ViewRenderingException If view rendering failed
+   * @param context the current HTTP request and response context
+   * @param viewName the logical view name
+   * @throws ViewRenderingException if view resolution, model update, or rendering fails
    */
   public void renderView(HttpContext context, CharSequence viewName) {
     renderView(context, viewName.toString());
   }
 
   /**
-   * rendering a view from {@code viewName}
+   * Resolve and render a named view using the request model.
    *
-   * @param context current HTTP request context
-   * @param viewName View to render
-   * @throws ViewRenderingException If view rendering failed
+   * @param context the current HTTP request and response context
+   * @param viewName the logical view name
+   * @throws ViewRenderingException if view resolution, model update, or rendering fails
    */
   public void renderView(HttpContext context, String viewName) {
     renderView(context, viewName, null);
   }
 
   /**
-   * rendering a view from {@code viewName}
+   * Resolve a named view using the request locale and render it with the given model.
    *
-   * @param context current HTTP request context
-   * @param viewName View to render
-   * @throws ViewRenderingException If view rendering failed
+   * @param context the current HTTP request and response context
+   * @param viewName the logical view name
+   * @param model the mutable model to merge with the request model, or {@code null}
+   * to use only the request model, if present
+   * @throws ViewRenderingException if view resolution, model update, or rendering fails
+   * @see #renderView(HttpContext, View, Map)
    */
   public void renderView(HttpContext context, String viewName, @Nullable Map<String, Object> model) {
     View view = resolveViewName(context, viewName, null);
@@ -177,22 +227,27 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
   }
 
   /**
-   * rendering a view from {@code viewName}
+   * Resolve and render a view reference using the request model.
    *
-   * @param context current HTTP request context
-   * @param viewRef ViewRef to render
-   * @throws ViewRenderingException If view rendering failed
+   * @param context the current HTTP request and response context
+   * @param viewRef the reference containing the view name and optional locale
+   * @throws ViewRenderingException if view resolution, model update, or rendering fails
+   * @see #renderView(HttpContext, ViewRef, Map)
    */
   public void renderView(HttpContext context, ViewRef viewRef) {
     renderView(context, viewRef, null);
   }
 
   /**
-   * rendering a view from {@code viewName}
+   * Resolve and render the referenced view with the given model. Use the
+   * reference's locale if present, otherwise use the request locale.
    *
-   * @param context current HTTP request context
-   * @param viewRef ViewRef to render
-   * @throws ViewRenderingException If view rendering failed
+   * @param context the current HTTP request and response context
+   * @param viewRef the reference containing the view name and optional locale
+   * @param model the mutable model to merge with the request model, or {@code null}
+   * to use only the request model, if present
+   * @throws ViewRenderingException if view resolution, model update, or rendering fails
+   * @see #renderView(HttpContext, View, Map)
    */
   public void renderView(HttpContext context, ViewRef viewRef, @Nullable Map<String, Object> model) {
     View view = resolveViewName(context, viewRef.getViewName(), viewRef.getLocale());
@@ -200,18 +255,8 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
   }
 
   /**
-   * Retrieve the current locale from the given request, using the
-   * LocaleResolver bound to the request by the Ioc
-   * (if available), falling back to the request's accept-header Locale.
-   * <p>This method serves as a straightforward alternative to the standard
-   * {@link HttpContext#getPreferredLocale()} method,
-   * falling back to the latter if no more specific locale has been found.
-   * <p>Consider using {@link LocaleContextHolder#getLocale()}
-   * which will normally be populated with the same Locale.
-   *
-   * @param request current HTTP request
-   * @return the current locale for the given request, either from the
-   * LocaleResolver or from the plain request itself
+   * Resolve the request locale using the configured resolver, if present,
+   * or {@link WebUtils#resolveLocale(HttpContext)} otherwise.
    */
   private Locale getLocale(HttpContext request) {
     LocaleResolver localeResolver = this.localeResolver;
@@ -222,22 +267,27 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
   }
 
   /**
-   * rendering a {@link View}
+   * Render the given view directly using the request model, if present.
    *
-   * @param context current HTTP request context
-   * @param view View to render
-   * @throws ViewRenderingException If view rendering failed
+   * @param context the current HTTP request and response context
+   * @param view the view to render
+   * @throws ViewRenderingException if the model update or rendering fails
    */
   public void renderView(HttpContext context, View view) {
     renderView(context, view, null);
   }
 
   /**
-   * rendering a {@link View}
+   * Render the given view directly after updating and merging the request model.
+   * If a model is supplied, request model entries are added to it in place,
+   * replacing entries with the same name. If neither model is available,
+   * the view receives {@code null}.
    *
-   * @param context current HTTP request context
-   * @param view View to render
-   * @throws ViewRenderingException If view rendering failed
+   * @param context the current HTTP request and response context
+   * @param view the view to render
+   * @param model the mutable model to merge with the request model, or {@code null}
+   * to use only the request model, if present
+   * @throws ViewRenderingException if the model update or rendering fails
    */
   public void renderView(HttpContext context, View view, @Nullable Map<String, @Nullable Object> model) {
     // Model from BindingContext
@@ -270,32 +320,25 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
   }
 
   /**
-   * set {@link #localeResolver} to determine the Locale in which
-   * to resolve the view. ViewResolvers that support internationalization
-   * should respect this.
-   * <p>
-   * If {@link #localeResolver} is null use {@link WebUtils#resolveLocale(HttpContext)}
-   * to find Locale
+   * Set the resolver that determines the locale for named views without an
+   * explicit locale. The resulting locale is passed to the view resolver.
    *
-   * @param localeResolver to determine the Locale in which to resolve the view
+   * @param localeResolver the request locale resolver, or {@code null} to use
+   * {@link WebUtils#resolveLocale(HttpContext)}
    */
   public void setLocaleResolver(@Nullable LocaleResolver localeResolver) {
     this.localeResolver = localeResolver;
   }
 
   /**
-   * Returns LocaleResolver
-   *
-   * @return LocaleResolver
+   * Return the explicitly configured locale resolver, or {@code null} if none is set.
    */
   public @Nullable LocaleResolver getLocaleResolver() {
     return localeResolver;
   }
 
   /**
-   * Returns ViewResolver
-   *
-   * @return ViewResolver
+   * Return the resolver used to resolve named views.
    */
   public ViewResolver getViewResolver() {
     return viewResolver;
