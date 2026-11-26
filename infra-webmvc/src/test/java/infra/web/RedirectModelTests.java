@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import infra.core.AttributeAccessor;
 import infra.core.Conventions;
 import infra.lang.NullValue;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 
 import static java.lang.Thread.sleep;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -116,14 +116,14 @@ class RedirectModelTests {
 
   @Test
   void inputRedirectModelHitIsCachedAcrossDelegatesAndManagers() {
-    var request = new MockHttpContext();
+    var request = new MockServerHttpExchange();
     var first = mock(RedirectModelManager.class);
     var second = mock(RedirectModelManager.class);
     var model = new RedirectModel("message", "saved");
     given(first.retrieveAndUpdate(request)).willReturn(model);
 
     assertThatObject(RedirectModel.findInputModel(request, first)).isSameAs(model);
-    assertThatObject(RedirectModel.findInputModel(new DelegatingHttpContext(request), first)).isSameAs(model);
+    assertThatObject(RedirectModel.findInputModel(new DelegatingServerHttpExchange(request), first)).isSameAs(model);
     assertThatObject(RedirectModel.findInputModel(request, second)).isSameAs(model);
     verify(first).retrieveAndUpdate(request);
     verifyNoMoreInteractions(first);
@@ -132,7 +132,7 @@ class RedirectModelTests {
 
   @Test
   void inputRedirectModelMissIsCachedEvenIfAnotherManagerOrAnInputAttributeBecomesAvailable() {
-    var request = new MockHttpContext();
+    var request = new MockServerHttpExchange();
     var first = mock(RedirectModelManager.class);
     var second = mock(RedirectModelManager.class);
 
@@ -141,7 +141,7 @@ class RedirectModelTests {
     assertThat(request.getAttributes()).containsKey(cacheAttribute).doesNotContainValue(NullValue.INSTANCE);
 
     request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, new RedirectModel("late", true));
-    assertThatObject(RedirectModel.findInputModel(new DelegatingHttpContext(request), first)).isNull();
+    assertThatObject(RedirectModel.findInputModel(new DelegatingServerHttpExchange(request), first)).isNull();
     assertThatObject(RedirectModel.findInputModel(request, second)).isNull();
     verify(first).retrieveAndUpdate(request);
     verifyNoMoreInteractions(first);

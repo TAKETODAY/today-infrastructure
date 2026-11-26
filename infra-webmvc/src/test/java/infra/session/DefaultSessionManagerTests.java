@@ -24,7 +24,7 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.http.HttpCookie;
 import infra.http.ResponseCookie;
 import infra.session.config.EnableSession;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,7 +56,7 @@ class DefaultSessionManagerTests {
     var repository = new InMemorySessionRepository(new SessionEventDispatcher(), () -> "replacement");
     SessionIdResolver resolver = SessionIdResolver.xAuthToken();
     var manager = new DefaultSessionManager(repository, resolver);
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     context.requestHeaders().set(SessionIdResolver.HEADER_X_AUTH_TOKEN, "stale");
 
     assertThat(manager.getSession(context, false)).isNull();
@@ -75,7 +75,7 @@ class DefaultSessionManagerTests {
     applicationContext.register(AppConfig.class);
     applicationContext.refresh();
     SessionManager sessionManager = applicationContext.getBean(SessionManager.class);
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
 
     Session noneExistingSession = sessionManager.getSession(context, false);
 

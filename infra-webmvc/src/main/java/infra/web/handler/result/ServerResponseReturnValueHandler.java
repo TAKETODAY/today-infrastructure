@@ -19,7 +19,7 @@ package infra.web.handler.result;
 import org.jspecify.annotations.Nullable;
 
 import infra.util.Assert;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.ReturnValueHandler;
 import infra.web.handler.function.ServerRequest;
 import infra.web.handler.function.ServerResponse;
@@ -68,18 +68,18 @@ public class ServerResponseReturnValueHandler implements SmartReturnValueHandler
   }
 
   @Override
-  public void handleReturnValue(HttpContext request, @Nullable Object handler,
+  public void handleReturnValue(ServerHttpExchange exchange, @Nullable Object handler,
           @Nullable Object returnValue) throws Exception {
 
     ServerResponse response = (ServerResponse) returnValue;
-    ServerRequest serverRequest = ServerRequest.findRequired(request);
+    ServerRequest serverRequest = ServerRequest.findRequired(exchange);
 
-    Object result = response.writeTo(request, serverRequest);
+    Object result = response.writeTo(exchange, serverRequest);
     if (result == NONE_RETURN_VALUE) {
       return;
     }
 
-    delegate.handleReturnValue(request, handler, result);
+    delegate.handleReturnValue(exchange, handler, result);
   }
 
 }

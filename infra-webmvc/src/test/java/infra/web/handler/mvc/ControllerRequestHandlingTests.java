@@ -25,7 +25,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.server.RequestPath;
 import infra.session.Session;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.server.ResponseStatusException;
 import infra.web.util.WebUtils;
 import infra.web.view.ModelAndView;
@@ -41,7 +41,7 @@ class ControllerRequestHandlingTests {
   @Test
   void synchronizesHandlerOnTheConfiguredSessionMutex() throws Exception {
     Object mutex = new Object();
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     Session session = mock(Session.class);
     given(request.getMethod()).willReturn(HttpMethod.GET);
     given(request.getMethodAsString()).willReturn("GET");
@@ -49,7 +49,7 @@ class ControllerRequestHandlingTests {
     given(session.getAttribute(WebUtils.SESSION_MUTEX_ATTRIBUTE)).willReturn(mutex);
     AbstractController controller = new AbstractController() {
       @Override
-      protected Object handleRequestInternal(HttpContext context) {
+      protected Object handleRequestInternal(ServerHttpExchange context) {
         return Thread.holdsLock(mutex);
       }
     };
@@ -78,7 +78,7 @@ class ControllerRequestHandlingTests {
 
   @Test
   void urlFilenameControllerCanPreserveSemicolonContent() throws Exception {
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     given(request.getMethod()).willReturn(HttpMethod.GET);
     given(request.getMethodAsString()).willReturn("GET");
     given(request.getRequestPath()).willReturn(RequestPath.parse("/catalog;lang=en/index.html", ""));
@@ -105,7 +105,7 @@ class ControllerRequestHandlingTests {
   }
 
   private static void assertCacheHeader(WebContentInterceptor interceptor, String path, String value) {
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
     given(context.getRequestPath()).willReturn(RequestPath.parse(path, ""));
     assertThat(interceptor.preProcessing(context, new Object())).isTrue();
     then(context).should().setHeader(HttpHeaders.CACHE_CONTROL, value);

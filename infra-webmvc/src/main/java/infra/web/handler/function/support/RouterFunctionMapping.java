@@ -32,7 +32,7 @@ import infra.http.converter.ByteArrayHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.util.CollectionUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.accept.DefaultApiVersionStrategy;
 import infra.web.handler.AbstractHandlerMapping;
 import infra.web.handler.function.HandlerFunction;
@@ -194,7 +194,7 @@ public class RouterFunctionMapping extends AbstractHandlerMapping implements Ini
   }
 
   @Override
-  protected @Nullable Object getHandlerInternal(HttpContext context) throws Exception {
+  protected @Nullable Object getHandlerInternal(ServerHttpExchange context) throws Exception {
     if (routerFunction != null) {
       ServerRequest request = ServerRequest.create(context, messageConverters, getApiVersionStrategy());
       HandlerFunction<?> handlerFunction = routerFunction.route(request).orElse(null);

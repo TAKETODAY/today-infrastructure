@@ -54,7 +54,7 @@ class TrailerTests {
 
   @Test
   void headRequestRejectsRegistration() {
-    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.HEAD);
+    ServerHttpExchange context = createContext(HttpVersion.HTTP_1_1, HttpMethod.HEAD);
 
     assertThatIllegalStateException()
             .isThrownBy(() -> context.setTrailerFields(
@@ -63,7 +63,7 @@ class TrailerTests {
 
   @Test
   void noBodyStatusRejectsRegistration() {
-    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
+    ServerHttpExchange context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
     context.setStatus(204);
 
     assertThatIllegalStateException()
@@ -73,7 +73,7 @@ class TrailerTests {
 
   @Test
   void trailersForceChunkedFramingAndDeclaration() {
-    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
+    ServerHttpExchange context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
     context.setTrailerFields(
             Trailer.field("Content-Digest", () -> "sha-256=:abc:"));
 
@@ -88,7 +88,7 @@ class TrailerTests {
 
   @Test
   void endResponseWritesTrailingHeaders() {
-    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
+    ServerHttpExchange context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
     context.setTrailerFields(
             Trailer.field("Content-Digest", () -> "sha-256=:abc:"));
 
@@ -101,7 +101,7 @@ class TrailerTests {
 
   @Test
   void noTrailersKeepsEmptyTerminator() {
-    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
+    ServerHttpExchange context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
 
     context.writeResponseEnd();
 
@@ -111,7 +111,7 @@ class TrailerTests {
 
   @Test
   void supplierFailureClosesConnectionWithoutTerminator() {
-    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
+    ServerHttpExchange context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
     context.setTrailerFields(Trailer.field("X-Checksum", () -> {
       throw new IllegalStateException("boom");
     }));
@@ -125,7 +125,7 @@ class TrailerTests {
 
   @Test
   void resetClearsRegistration() {
-    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
+    ServerHttpExchange context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
     AtomicInteger calls = new AtomicInteger();
     context.setTrailerFields(Trailer.field("Content-Digest", () -> {
       calls.incrementAndGet();
@@ -142,7 +142,7 @@ class TrailerTests {
 
   @Test
   void sendErrorClearsRegistration() throws Exception {
-    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
+    ServerHttpExchange context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
     AtomicInteger calls = new AtomicInteger();
     context.setTrailerFields(Trailer.field("Content-Digest", () -> {
       calls.incrementAndGet();
@@ -159,7 +159,7 @@ class TrailerTests {
 
   @Test
   void sendRedirectCommitsAndRejectsLaterRegistration() {
-    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
+    ServerHttpExchange context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
 
     context.sendRedirect("/target");
     channel.flush();
@@ -174,8 +174,8 @@ class TrailerTests {
 
   @Test
   void registrationInsideCommittingCallbackIsApplied() {
-    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
-    context.registerCallback(HttpContext.Lifecycle.COMMITTING, "register",
+    ServerHttpExchange context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
+    context.registerCallback(ServerHttpExchange.Lifecycle.COMMITTING, "register",
             () -> context.setTrailerFields(
                     Trailer.field("Content-Digest", () -> "sha-256=:abc:")));
 
@@ -193,13 +193,13 @@ class TrailerTests {
   @ParameterizedTest
   @ValueSource(ints = { 204, 304 })
   void finalNoBodyStatusDiscardsTrailers(int status) {
-    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
+    ServerHttpExchange context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
     AtomicInteger calls = new AtomicInteger();
     context.setTrailerFields(Trailer.field("Content-Digest", () -> {
       calls.incrementAndGet();
       return "sha-256=:abc:";
     }));
-    context.registerCallback(HttpContext.Lifecycle.COMMITTING, "status", () -> context.setStatus(status));
+    context.registerCallback(ServerHttpExchange.Lifecycle.COMMITTING, "status", () -> context.setStatus(status));
 
     context.completeRequestInternal(null);
     channel.flush();
@@ -217,7 +217,7 @@ class TrailerTests {
   void headRequestDoesNotSendFileBody(@TempDir Path tempDir) throws IOException {
     Path file = tempDir.resolve("head.txt");
     Files.writeString(file, "hello");
-    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.HEAD);
+    ServerHttpExchange context = createContext(HttpVersion.HTTP_1_1, HttpMethod.HEAD);
     context.asHttpOutputMessage().sendFile(file, 0, 5);
 
     context.completeRequestInternal(null);
@@ -236,7 +236,7 @@ class TrailerTests {
   void finalNoBodyStatusDoesNotSendFileBody(int status, @TempDir Path tempDir) throws IOException {
     Path file = tempDir.resolve("no-body.txt");
     Files.writeString(file, "hello");
-    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
+    ServerHttpExchange context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
     context.setStatus(status);
     context.asHttpOutputMessage().sendFile(file, 0, 5);
 
@@ -256,7 +256,7 @@ class TrailerTests {
   @ParameterizedTest
   @ValueSource(ints = { 204, 304 })
   void finalNoBodyStatusDoesNotSendBufferedBody(int status) throws IOException {
-    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
+    ServerHttpExchange context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
     context.setStatus(status);
     context.getOutputStream().write(1);
 
@@ -275,7 +275,7 @@ class TrailerTests {
 
   @Test
   void resetContentDoesNotSendBufferedBody() throws IOException {
-    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
+    ServerHttpExchange context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
     context.setStatus(HttpResponseStatus.RESET_CONTENT.code());
     context.getOutputStream().write(1);
 
@@ -295,7 +295,7 @@ class TrailerTests {
 
   @Test
   void headRequestKeepsExplicitTransferEncoding() throws IOException {
-    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.HEAD);
+    ServerHttpExchange context = createContext(HttpVersion.HTTP_1_1, HttpMethod.HEAD);
     context.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), "chunked");
     context.getOutputStream().write(1);
 
@@ -310,7 +310,7 @@ class TrailerTests {
 
   @Test
   void successfulConnectResponseHasNoFramingHeaders() throws IOException {
-    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.CONNECT);
+    ServerHttpExchange context = createContext(HttpVersion.HTTP_1_1, HttpMethod.CONNECT);
     context.setStatus(HttpResponseStatus.OK.code());
     context.getOutputStream().write(1);
 
@@ -330,7 +330,7 @@ class TrailerTests {
   void clearingTrailersKeepsFileContentLength(@TempDir Path tempDir) throws IOException {
     Path file = tempDir.resolve("body.txt");
     Files.writeString(file, "hello");
-    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
+    ServerHttpExchange context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
     context.setTrailerFields(Trailer.field("Content-Digest", () -> "sha-256=:abc:"));
     context.asHttpOutputMessage().sendFile(file, 0, 5);
     context.setTrailerFields();
@@ -346,7 +346,7 @@ class TrailerTests {
 
   @Test
   void requestCompletionEvaluatesTrailers() {
-    HttpContext context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
+    ServerHttpExchange context = createContext(HttpVersion.HTTP_1_1, HttpMethod.GET);
     AtomicInteger calls = registerCountingTrailer(context);
 
     context.completeRequestInternal(null);
@@ -354,7 +354,7 @@ class TrailerTests {
     assertThat(calls).hasValue(1);
   }
 
-  private AtomicInteger registerCountingTrailer(HttpContext context) {
+  private AtomicInteger registerCountingTrailer(ServerHttpExchange context) {
     AtomicInteger calls = new AtomicInteger();
     context.setTrailerFields(Trailer.field("Content-Digest", () -> {
       calls.incrementAndGet();
@@ -363,13 +363,13 @@ class TrailerTests {
     return calls;
   }
 
-  private HttpContext createContext(HttpVersion version, HttpMethod method) {
+  private ServerHttpExchange createContext(HttpVersion version, HttpMethod method) {
     var request = new DefaultHttpRequest(version, method, "/test");
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .multipartParser(mock())
             .sendErrorHandler((request1, message) -> { })
             .build();
-    return new HttpContext(channel, request, config, mock(ApplicationContext.class),
+    return new ServerHttpExchange(channel, request, config, mock(ApplicationContext.class),
             mock(DispatcherHandler.class), mock(HttpTrafficHandler.class));
   }
 

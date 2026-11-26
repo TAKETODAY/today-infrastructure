@@ -26,7 +26,7 @@ import java.util.List;
 
 import infra.core.MethodParameter;
 import infra.core.ResolvableType;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.handler.method.ParameterResolvingStrategy;
 import infra.web.multipart.Part;
 
@@ -56,7 +56,7 @@ final class MultipartResolutionDelegate {
   }
 
   @Nullable
-  public static Object resolveMultipartArgument(String name, MethodParameter parameter, HttpContext request) throws IOException {
+  public static Object resolveMultipartArgument(String name, MethodParameter parameter, ServerHttpExchange request) throws IOException {
     if (!request.isMultipart()) {
       if (isMultipartArgument(parameter)) {
         return null;

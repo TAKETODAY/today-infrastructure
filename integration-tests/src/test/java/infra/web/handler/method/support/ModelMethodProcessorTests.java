@@ -30,7 +30,7 @@ import infra.web.BindingContext;
 import infra.web.RedirectModel;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.HandlerParameter;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +47,7 @@ class ModelMethodProcessorTests {
   private MethodParameter paramModel;
   private MethodParameter redirectModelParam;
 
-  private MockHttpContext webRequest;
+  private MockServerHttpExchange webRequest;
 
   HandlerMethod redirectModelHandler;
 
@@ -61,7 +61,7 @@ class ModelMethodProcessorTests {
     paramModel = new MethodParameter(method, 0);
     redirectModelParam = new MethodParameter(redirectModel, 0);
 
-    webRequest = new MockHttpContext(null, new MockRequest(), null);
+    webRequest = new MockServerHttpExchange(null, new MockRequest(), null);
     BindingContext.set(webRequest, new BindingContext());
   }
 

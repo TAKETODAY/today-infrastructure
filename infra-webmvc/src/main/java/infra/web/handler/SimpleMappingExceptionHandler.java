@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import infra.web.HandlerExceptionHandler;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.view.ModelAndView;
 
 /**
@@ -182,7 +182,7 @@ public class SimpleMappingExceptionHandler extends AbstractHandlerExceptionHandl
    */
   @Nullable
   @Override
-  protected ModelAndView handleInternal(HttpContext request, @Nullable Object handler, Throwable ex) {
+  protected ModelAndView handleInternal(ServerHttpExchange request, @Nullable Object handler, Throwable ex) {
     // Expose ModelAndView for chosen error view.
     String viewName = determineViewName(ex, request);
     if (viewName != null) {
@@ -210,7 +210,7 @@ public class SimpleMappingExceptionHandler extends AbstractHandlerExceptionHandl
    * @return the resolved view name, or {@code null} if excluded or none found
    */
   @Nullable
-  protected String determineViewName(Throwable ex, HttpContext request) {
+  protected String determineViewName(Throwable ex, ServerHttpExchange request) {
     String viewName = null;
     if (excludedExceptions != null) {
       for (Class<?> excludedEx : excludedExceptions) {
@@ -298,7 +298,7 @@ public class SimpleMappingExceptionHandler extends AbstractHandlerExceptionHandl
    * @see #applyStatusCodeIfPossible
    */
   @Nullable
-  protected Integer determineStatusCode(HttpContext request, String viewName) {
+  protected Integer determineStatusCode(ServerHttpExchange request, String viewName) {
     if (this.statusCodes.containsKey(viewName)) {
       return this.statusCodes.get(viewName);
     }
@@ -313,9 +313,9 @@ public class SimpleMappingExceptionHandler extends AbstractHandlerExceptionHandl
    * @param statusCode the status code to apply
    * @see #determineStatusCode
    * @see #setDefaultStatusCode
-   * @see HttpContext#setStatus
+   * @see ServerHttpExchange#setStatus
    */
-  protected void applyStatusCodeIfPossible(HttpContext request, int statusCode) {
+  protected void applyStatusCodeIfPossible(ServerHttpExchange request, int statusCode) {
     if (logger.isDebugEnabled()) {
       logger.debug("Applying HTTP status {}", statusCode);
     }
@@ -331,7 +331,7 @@ public class SimpleMappingExceptionHandler extends AbstractHandlerExceptionHandl
    * @param request current HTTP request (useful for obtaining metadata)
    * @return the ModelAndView instance
    */
-  protected ModelAndView getModelAndView(String viewName, Throwable ex, HttpContext request) {
+  protected ModelAndView getModelAndView(String viewName, Throwable ex, ServerHttpExchange request) {
     return getModelAndView(viewName, ex);
   }
 

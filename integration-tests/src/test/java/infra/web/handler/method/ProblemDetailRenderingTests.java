@@ -41,6 +41,7 @@ import infra.http.converter.json.JacksonJsonHttpMessageConverter;
 import infra.web.ErrorResponse;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.HttpRequestMethodNotSupportedException;
+import infra.web.ServerHttpExchange;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.annotation.ExceptionHandler;
 import infra.web.annotation.ResponseBody;
@@ -50,7 +51,7 @@ import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandlerTests.
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandlerTests.RethrowingProblemController;
 import infra.web.handler.method.support.HttpEntityMethodProcessor;
 import infra.web.handler.method.support.RequestResponseBodyMethodProcessor;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.util.UriComponentsBuilder;
@@ -67,7 +68,7 @@ class ProblemDetailRenderingTests {
     var request = new MockRequest();
     request.addHeader("Accept", "text/html");
     var response = new MockResponse();
-    var context = new MockHttpContext(new StaticApplicationContext(), request, response);
+    var context = new MockServerHttpExchange(new StaticApplicationContext(), request, response);
     var processor = new RequestResponseBodyMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()));
     processor.setErrorResponseViewResolver((current, detail, error) ->
             new ModelAndView("problem", Map.of("problem", detail), HttpStatus.SERVICE_UNAVAILABLE));
@@ -87,7 +88,7 @@ class ProblemDetailRenderingTests {
 
   @Test
   void invalidAcceptHeaderBypassesViewResolution() throws Exception {
-    var context = new MockHttpContext();
+    var context = new MockServerHttpExchange();
     context.requestHeaders().set("Accept", "invalid");
     var processor = new RequestResponseBodyMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()));
     processor.setErrorResponseViewResolver((current, detail, error) -> {
@@ -104,7 +105,7 @@ class ProblemDetailRenderingTests {
     try (var application = new StaticApplicationContext()) {
       application.refresh();
       var response = new MockResponse();
-      var context = new MockHttpContext(application, new MockRequest("GET", "/orders/42"), response);
+      var context = new MockServerHttpExchange(application, new MockRequest("GET", "/orders/42"), response);
       Object value = resolver(application).handleException(context, new IOException("Broken pipe"), null);
       assertThat(value).isInstanceOf(ErrorResponse.class);
       assertThat(((ErrorResponse) value).getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -123,7 +124,7 @@ class ProblemDetailRenderingTests {
       var request = new MockRequest("GET", "/orders/42");
       request.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
       var response = new MockResponse();
-      var context = new MockHttpContext(application, request, response);
+      var context = new MockServerHttpExchange(application, request, response);
       HandlerMatchingMetadata.set(context, new HandlerMatchingMetadata(context));
       Object value = resolver.handleException(context, new IllegalStateException(), null);
       assertThat(value).isInstanceOf(ProblemDetail.class);
@@ -141,7 +142,7 @@ class ProblemDetailRenderingTests {
       var request = new MockRequest("GET", "/orders/42");
       request.addHeader("Accept", "application/json");
       var response = new MockResponse();
-      var context = new MockHttpContext(application, request, response);
+      var context = new MockServerHttpExchange(application, request, response);
       var handler = new HandlerMethod(controllerType.getDeclaredConstructor().newInstance(), "handle");
       Object value = resolver(application).handleException(context, new IllegalStateException("Secret internal state"), handler);
       new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null)
@@ -161,7 +162,7 @@ class ProblemDetailRenderingTests {
       var response = new MockResponse();
       var request = new MockRequest("GET", "/orders/42");
       request.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
-      var context = new MockHttpContext(application, request, response);
+      var context = new MockServerHttpExchange(application, request, response);
       var processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null);
       var rendered = new java.util.concurrent.atomic.AtomicReference<ModelAndView>();
       processor.setViewReturnValueHandler(capturingViewHandler(rendered));
@@ -194,7 +195,7 @@ class ProblemDetailRenderingTests {
   void responseEntityExceptionHandlerCoexists() throws Exception {
     try (var application = new AnnotationConfigApplicationContext(ProblemDetailsAdvice.class)) {
       var response = new MockResponse();
-      var context = new MockHttpContext(application, new MockRequest("GET", "/orders/42"), response);
+      var context = new MockServerHttpExchange(application, new MockRequest("GET", "/orders/42"), response);
       Object value = resolver(application).handleException(context,
               new MissingRequestParameterException("id", "int"), null);
       new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null)
@@ -209,7 +210,7 @@ class ProblemDetailRenderingTests {
   void responseEntityExceptionHandlerThatRethrowsWrappedException() throws Exception {
     try (var application = new AnnotationConfigApplicationContext(ProblemDetailsAdvice.class)) {
       var response = new MockResponse();
-      var context = new MockHttpContext(application, new MockRequest("GET", "/orders/42"), response);
+      var context = new MockServerHttpExchange(application, new MockRequest("GET", "/orders/42"), response);
       Object value = resolver(application).handleException(context,
               new IllegalStateException(new MissingRequestParameterException("id", "int")), null);
       assertThat(value).isNotNull();
@@ -234,7 +235,7 @@ class ProblemDetailRenderingTests {
       var request = new MockRequest("GET", "/orders/42");
       request.addHeader("Accept", "text/html");
       var response = new MockResponse();
-      var context = new MockHttpContext(application, request, response);
+      var context = new MockServerHttpExchange(application, request, response);
       Object value = resolver.handleException(context, new IllegalStateException(), null);
       var processor = new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()),
               null, List.of(), null, interceptors);
@@ -253,7 +254,7 @@ class ProblemDetailRenderingTests {
       application.refresh();
       var request = new MockRequest("GET", "/orders/42?trace=on");
       var response = new MockResponse();
-      var context = new MockHttpContext(application, request, response);
+      var context = new MockServerHttpExchange(application, request, response);
       ErrorResponse.Interceptor interceptor = new ErrorResponse.Interceptor() {
         @Override
         public void handleError(ProblemDetail detail, ErrorResponse error) {
@@ -282,7 +283,7 @@ class ProblemDetailRenderingTests {
       application.refresh();
       var request = new MockRequest("GET", "/orders/42?trace=on");
       var response = new MockResponse();
-      var context = new MockHttpContext(application, request, response);
+      var context = new MockServerHttpExchange(application, request, response);
       ErrorResponse.Interceptor interceptor = new ErrorResponse.Interceptor() {
         @Override
         public void handleError(ProblemDetail detail, ErrorResponse error) {
@@ -318,7 +319,7 @@ class ProblemDetailRenderingTests {
         request.addHeader("Accept", accept);
       }
       var response = new MockResponse();
-      var context = new MockHttpContext(application, request, response);
+      var context = new MockServerHttpExchange(application, request, response);
       Object value = resolver.handleException(context, new IllegalStateException("Secret internal state"), null);
       assertThat(value).isInstanceOf(ErrorResponse.class);
       processor.handleReturnValue(context, null, value);
@@ -340,7 +341,7 @@ class ProblemDetailRenderingTests {
       request.addHeader("Accept", MediaType.APPLICATION_PROBLEM_JSON_VALUE);
       request.addPreferredLocale(Locale.FRENCH);
       var response = new MockResponse();
-      var context = new MockHttpContext(application, request, response);
+      var context = new MockServerHttpExchange(application, request, response);
       Object value = resolver(application).handleException(context, new IllegalStateException(), null);
       new HttpEntityMethodProcessor(List.of(new JacksonJsonHttpMessageConverter()), null)
               .handleReturnValue(context, null, value);
@@ -364,7 +365,7 @@ class ProblemDetailRenderingTests {
       var request = new MockRequest();
       request.addHeader("Accept", "text/html");
       var response = new MockResponse();
-      var context = new MockHttpContext(application, request, response);
+      var context = new MockServerHttpExchange(application, request, response);
       Object value = resolver.handleException(context, new IllegalStateException(), null);
       assertThat(value).isInstanceOf(ResponseEntity.class);
       processor.handleReturnValue(context, null, value);
@@ -379,7 +380,7 @@ class ProblemDetailRenderingTests {
   void adviceHasPrecedenceOverFallback() throws Exception {
     try (var application = new AnnotationConfigApplicationContext(ContentTypeAdvice.class)) {
       Object value = resolver(application).handleException(
-              new MockHttpContext(application, new MockRequest(), new MockResponse()),
+              new MockServerHttpExchange(application, new MockRequest(), new MockResponse()),
               new IllegalStateException(), null);
       assertThat(((ResponseEntity<?>) value).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
     }
@@ -402,7 +403,7 @@ class ProblemDetailRenderingTests {
       var request = new MockRequest();
       request.addHeader("Accept", "*/*;q=0.8,text/html");
       var response = new MockResponse();
-      var context = new MockHttpContext(application, request, response);
+      var context = new MockServerHttpExchange(application, request, response);
       var exception = new HttpRequestMethodNotSupportedException("POST", List.of("GET"));
       processor.setErrorResponseViewResolver((current, detail, error) -> {
         assertThat(error).isSameAs(exception);
@@ -426,7 +427,7 @@ class ProblemDetailRenderingTests {
           java.util.concurrent.atomic.AtomicReference<ModelAndView> rendered) {
     return new infra.web.view.ViewReturnValueHandler((name, locale) -> null) {
       @Override
-      public void renderView(infra.web.HttpContext context, ModelAndView view) {
+      public void renderView(ServerHttpExchange context, ModelAndView view) {
         rendered.set(view);
       }
     };

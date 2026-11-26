@@ -16,7 +16,7 @@
 
 package infra.web.server.support;
 
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.server.HttpRequestExecutor;
 
 /**
@@ -35,7 +35,7 @@ public class VirtualThreadHttpRequestExecutor implements HttpRequestExecutor {
    * @param command the command to execute
    */
   @Override
-  public void execute(HttpContext ctx, Runnable command) {
+  public void execute(ServerHttpExchange ctx, Runnable command) {
     Thread.startVirtualThread(command);
   }
 

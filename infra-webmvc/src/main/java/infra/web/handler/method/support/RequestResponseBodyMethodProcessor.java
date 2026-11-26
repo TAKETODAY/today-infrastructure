@@ -30,7 +30,7 @@ import infra.http.ProblemDetail;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.HttpMessageNotReadableException;
 import infra.web.ErrorResponse;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.annotation.RequestBody;
@@ -118,16 +118,16 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
    */
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
+  public Object resolveArgument(ServerHttpExchange exchange, HandlerParameter resolvable) throws Exception {
     MethodParameter parameter = resolvable.getMethodParameter();
-    Object arg = readWithMessageConverters(context, parameter, parameter.getNestedGenericParameterType());
-    validateIfApplicable(context, parameter, arg);
+    Object arg = readWithMessageConverters(exchange, parameter, parameter.getNestedGenericParameterType());
+    validateIfApplicable(exchange, parameter, arg);
     return arg;
   }
 
   @Nullable
   @Override
-  protected Object readWithMessageConverters(HttpContext request, MethodParameter parameter, Type paramType)
+  protected Object readWithMessageConverters(ServerHttpExchange request, MethodParameter parameter, Type paramType)
           throws IOException, HttpMediaTypeNotSupportedException, HttpMessageNotReadableException //
   {
     Object arg = super.readWithMessageConverters(request, parameter, paramType);
@@ -160,11 +160,11 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
   }
 
   @Override
-  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(ServerHttpExchange exchange, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof ProblemDetail detail) {
-      context.setStatus(detail.getStatus());
-      invokeErrorResponseInterceptors(detail, null, context);
-      if (resolveErrorView(detail, null, HttpStatusCode.valueOf(detail.getStatus()), context)) {
+      exchange.setStatus(detail.getStatus());
+      invokeErrorResponseInterceptors(detail, null, exchange);
+      if (resolveErrorView(detail, null, HttpStatusCode.valueOf(detail.getStatus()), exchange)) {
         return;
       }
     }
@@ -172,11 +172,11 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
     // Try even with null return value. ResponseBodyAdvice could get involved.
     HandlerMethod handlerMethod = HandlerMethod.resolve(handler);
     if (handlerMethod != null && handlerMethod.getRawReturnType().isInstance(returnValue)) {
-      writeWithMessageConverters(returnValue, handlerMethod.getReturnType(), context);
+      writeWithMessageConverters(returnValue, handlerMethod.getReturnType(), exchange);
     }
     else if (returnValue != null) {
       // value can not-assignable to returnType, value maybe from HandlerInterceptor
-      writeWithMessageConverters(returnValue, null, context);
+      writeWithMessageConverters(returnValue, null, exchange);
     }
   }
 

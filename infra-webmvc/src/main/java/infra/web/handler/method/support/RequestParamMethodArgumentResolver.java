@@ -35,7 +35,7 @@ import infra.lang.Constant;
 import infra.util.Assert;
 import infra.util.StringUtils;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.annotation.RequestParam;
 import infra.web.annotation.RequestPart;
 import infra.web.bind.MissingRequestParameterException;
@@ -151,7 +151,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
 
   @Nullable
   @Override
-  protected Object resolveName(String name, HandlerParameter resolvable, HttpContext request) throws Exception {
+  protected Object resolveName(String name, HandlerParameter resolvable, ServerHttpExchange request) throws Exception {
     MethodParameter parameter = resolvable.getMethodParameter();
     Object mpArg = MultipartResolutionDelegate.resolveMultipartArgument(name, parameter, request);
     if (mpArg != MultipartResolutionDelegate.UNRESOLVABLE) {
@@ -187,17 +187,17 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
   }
 
   @Override
-  protected void handleMissingValue(String name, MethodParameter parameter, HttpContext request) throws Exception {
+  protected void handleMissingValue(String name, MethodParameter parameter, ServerHttpExchange request) throws Exception {
     handleMissingValueInternal(name, parameter, request, false);
   }
 
   @Override
-  protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, HttpContext request) throws Exception {
+  protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, ServerHttpExchange request) throws Exception {
     handleMissingValueInternal(name, parameter, request, true);
   }
 
   protected void handleMissingValueInternal(String name,
-          MethodParameter parameter, HttpContext request, boolean missingAfterConversion) throws Exception {
+          MethodParameter parameter, ServerHttpExchange request, boolean missingAfterConversion) throws Exception {
 
     if (MultipartResolutionDelegate.isMultipartArgument(parameter)) {
       if (!request.isMultipart()) {

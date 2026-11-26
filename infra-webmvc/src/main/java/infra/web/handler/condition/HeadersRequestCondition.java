@@ -27,7 +27,7 @@ import java.util.Set;
 
 import infra.http.HttpHeaders;
 import infra.util.ObjectUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.annotation.RequestMapping;
 
 /**
@@ -135,7 +135,7 @@ public final class HeadersRequestCondition extends AbstractRequestCondition<Head
    */
   @Override
   @Nullable
-  public HeadersRequestCondition getMatchingCondition(HttpContext request) {
+  public HeadersRequestCondition getMatchingCondition(ServerHttpExchange request) {
     if (request.isPreFlightRequest()) {
       return PRE_FLIGHT_MATCH;
     }
@@ -158,11 +158,11 @@ public final class HeadersRequestCondition extends AbstractRequestCondition<Head
    * <li>A greater number of non-negated expressions with a concrete value.
    * </ol>
    * <p>It is assumed that both instances have been obtained via
-   * {@link #getMatchingCondition(HttpContext)} and each instance
+   * {@link #getMatchingCondition(ServerHttpExchange)} and each instance
    * contains the matching header expression only or is otherwise empty.
    */
   @Override
-  public int compareTo(HeadersRequestCondition other, HttpContext request) {
+  public int compareTo(HeadersRequestCondition other, ServerHttpExchange request) {
     LinkedHashSet<HeaderExpression> expressions = this.expressions;
     LinkedHashSet<HeaderExpression> otherExpressions = other.expressions;
     int result = (otherExpressions == null ? 0 : otherExpressions.size()) - (expressions == null ? 0 : expressions.size());
@@ -200,12 +200,12 @@ public final class HeadersRequestCondition extends AbstractRequestCondition<Head
     }
 
     @Override
-    protected boolean matchName(HttpContext request) {
+    protected boolean matchName(ServerHttpExchange request) {
       return request.requestHeaders().getFirst(this.name) != null;
     }
 
     @Override
-    protected boolean matchValue(HttpContext request) {
+    protected boolean matchValue(ServerHttpExchange request) {
       return ObjectUtils.nullSafeEquals(this.value, request.requestHeaders().getFirst(this.name));
     }
   }

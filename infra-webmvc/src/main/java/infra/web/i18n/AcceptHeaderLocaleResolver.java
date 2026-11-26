@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Locale;
 
 import infra.util.StringUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.LocaleResolver;
 
 /**
@@ -43,7 +43,7 @@ import infra.web.LocaleResolver;
  * @author Juergen Hoeller
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
- * @see HttpContext#getPreferredLocale()
+ * @see ServerHttpExchange#getPreferredLocale()
  * @since 4.0
  */
 public class AcceptHeaderLocaleResolver implements LocaleResolver {
@@ -54,7 +54,7 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
 
   /**
    * Configure the list of supported locales to compare and match against
-   * {@link HttpContext#getPreferredLocale() requested locales}.
+   * {@link ServerHttpExchange#getPreferredLocale() requested locales}.
    * <p>In order for a supported locale to be considered a match, it must match
    * on both country and language. If you want to support a language-only match
    * as a fallback, you must configure the language explicitly as a supported
@@ -107,7 +107,7 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
   }
 
   @Override
-  public Locale resolveLocale(HttpContext context) {
+  public Locale resolveLocale(ServerHttpExchange context) {
     Locale defaultLocale = getDefaultLocale();
     Locale requestLocale = context.getPreferredLocale();
     if (requestLocale == null) {
@@ -124,7 +124,7 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
     return defaultLocale != null ? defaultLocale : requestLocale;
   }
 
-  private @Nullable Locale findSupportedLocale(HttpContext request, List<Locale> supportedLocales) {
+  private @Nullable Locale findSupportedLocale(ServerHttpExchange request, List<Locale> supportedLocales) {
     Locale languageMatch = null;
     for (Locale.LanguageRange range : request.requestHeaders().getAcceptLanguage()) {
       if (range.getWeight() == 0 || range.getRange().contains("*")) {
@@ -152,7 +152,7 @@ public class AcceptHeaderLocaleResolver implements LocaleResolver {
   }
 
   @Override
-  public void setLocale(HttpContext context, @Nullable Locale locale) {
+  public void setLocale(ServerHttpExchange exchange, @Nullable Locale locale) {
     throw new UnsupportedOperationException(
             "Cannot change HTTP accept header - use a different locale resolution strategy");
   }

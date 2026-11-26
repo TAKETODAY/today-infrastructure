@@ -19,7 +19,7 @@ package infra.web.context.support;
 import org.junit.jupiter.api.Test;
 
 import infra.context.ApplicationEventPublisher;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
@@ -38,7 +38,7 @@ class RequestHandledEventPublisherTests {
   void publishesEventOnRequestCompletion() {
     ApplicationEventPublisher publisher = mock(ApplicationEventPublisher.class);
     RequestHandledEventPublisher eventPublisher = new RequestHandledEventPublisher(publisher);
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
 
     when(request.getRequestURI()).thenReturn("/test");
     when(request.getRemoteAddress()).thenReturn("127.0.0.1");
@@ -55,7 +55,7 @@ class RequestHandledEventPublisherTests {
   void publishesEventWithFailureCause() {
     ApplicationEventPublisher publisher = mock(ApplicationEventPublisher.class);
     RequestHandledEventPublisher eventPublisher = new RequestHandledEventPublisher(publisher);
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     RuntimeException failure = new RuntimeException("test");
 
     when(request.getRequestURI()).thenReturn("/test");
@@ -81,7 +81,7 @@ class RequestHandledEventPublisherTests {
   void handlesNullSessionId() {
     ApplicationEventPublisher publisher = mock(ApplicationEventPublisher.class);
     RequestHandledEventPublisher eventPublisher = new RequestHandledEventPublisher(publisher);
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
 
     when(request.getRequestURI()).thenReturn("/test");
     when(request.getRemoteAddress()).thenReturn("127.0.0.1");

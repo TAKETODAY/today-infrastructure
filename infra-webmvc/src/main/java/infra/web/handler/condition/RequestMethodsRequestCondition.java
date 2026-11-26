@@ -31,7 +31,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.util.Assert;
 import infra.util.ObjectUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * A logical disjunction (' || ') request condition that matches a request
@@ -123,7 +123,7 @@ public final class RequestMethodsRequestCondition extends AbstractRequestConditi
    */
   @Override
   @Nullable
-  public RequestMethodsRequestCondition getMatchingCondition(HttpContext request) {
+  public RequestMethodsRequestCondition getMatchingCondition(ServerHttpExchange request) {
     if (request.isPreFlightRequest()) {
       return matchPreFlight(request);
     }
@@ -144,7 +144,7 @@ public final class RequestMethodsRequestCondition extends AbstractRequestConditi
    * method in the "Access-Control-Request-Method" header.
    */
   @Nullable
-  private RequestMethodsRequestCondition matchPreFlight(HttpContext request) {
+  private RequestMethodsRequestCondition matchPreFlight(ServerHttpExchange request) {
     if (getMethods().isEmpty()) {
       return this;
     }
@@ -179,11 +179,11 @@ public final class RequestMethodsRequestCondition extends AbstractRequestConditi
    * <li>Greater than 0 "other" has an HTTP request method but "this" doesn't
    * </ul>
    * <p>It is assumed that both instances have been obtained via
-   * {@link #getMatchingCondition(HttpContext)} and therefore each instance
+   * {@link #getMatchingCondition(ServerHttpExchange)} and therefore each instance
    * contains the matching HTTP request method only or is otherwise empty.
    */
   @Override
-  public int compareTo(RequestMethodsRequestCondition other, HttpContext request) {
+  public int compareTo(RequestMethodsRequestCondition other, ServerHttpExchange request) {
     if (other.methods.size() != this.methods.size()) {
       return other.methods.size() - this.methods.size();
     }

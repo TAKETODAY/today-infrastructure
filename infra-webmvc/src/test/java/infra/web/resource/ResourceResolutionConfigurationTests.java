@@ -38,7 +38,7 @@ import infra.http.converter.ResourceHttpMessageConverter;
 import infra.http.converter.ResourceRegionHttpMessageConverter;
 import infra.http.server.RequestPath;
 import infra.util.PathMatcher;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -74,8 +74,8 @@ class ResourceResolutionConfigurationTests {
     Resource compressed = new ByteArrayResource(new byte[] { 2 });
     ResourceResolvingChain chain = mock(ResourceResolvingChain.class);
     List<Resource> locations = List.of();
-    HttpContext deflate = requestAccepting("deflate");
-    HttpContext gzip = requestAccepting("gzip");
+    ServerHttpExchange deflate = requestAccepting("deflate");
+    ServerHttpExchange gzip = requestAccepting("gzip");
     given(chain.resolveResource(null, "site.css", locations)).willReturn(plain);
     given(chain.resolveResource(deflate, "site.css", locations)).willReturn(compressed);
 
@@ -89,7 +89,7 @@ class ResourceResolutionConfigurationTests {
     Path originalPath = Files.writeString(directory.resolve("site.css"), "plain text");
     Path encodedPath = Files.writeString(directory.resolve("site.css.test"), "encoded data");
     Resource original = new FileSystemResource(originalPath);
-    HttpContext request = requestAccepting("test");
+    ServerHttpExchange request = requestAccepting("test");
     ResourceResolvingChain chain = mock(ResourceResolvingChain.class);
     given(chain.resolveResource(request, "site.css", List.of())).willReturn(original);
     EncodedResourceResolver resolver = new EncodedResourceResolver();
@@ -125,7 +125,7 @@ class ResourceResolutionConfigurationTests {
     Resource original = mock(Resource.class);
     given(original.getName()).willReturn("site.css");
     given(original.createRelative("site.css.gz")).willThrow(new IOException("unavailable variant"));
-    HttpContext request = requestAccepting("gzip");
+    ServerHttpExchange request = requestAccepting("gzip");
     ResourceResolvingChain chain = mock(ResourceResolvingChain.class);
     given(chain.resolveResource(request, "site.css", List.of())).willReturn(original);
 
@@ -240,15 +240,15 @@ class ResourceResolutionConfigurationTests {
 
   @Test
   void returnsNullWhenRequestUrlHasNoPathToResolve() {
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     given(request.getRequestURI()).willReturn("/app/assets/logo.png");
     given(request.getRequestPath()).willReturn(RequestPath.parse("/assets/logo.png", ""));
 
     assertThat(new ResourceUrlProvider().getForRequestUrl(request, "/app?size=2")).isNull();
   }
 
-  private static HttpContext requestAccepting(String encoding) {
-    HttpContext request = mock(HttpContext.class);
+  private static ServerHttpExchange requestAccepting(String encoding) {
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     given(request.getHeader(HttpHeaders.ACCEPT_ENCODING)).willReturn(encoding);
     return request;
   }

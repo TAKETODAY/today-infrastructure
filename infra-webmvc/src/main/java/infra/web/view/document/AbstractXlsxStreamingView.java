@@ -24,7 +24,7 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import java.io.IOException;
 import java.util.Map;
 
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * Convenient superclass for Excel document views in the Office 2007 XLSX format,
@@ -42,7 +42,7 @@ public abstract class AbstractXlsxStreamingView extends AbstractXlsxView {
    * This implementation creates a {@link SXSSFWorkbook} for streaming the XLSX format.
    */
   @Override
-  protected SXSSFWorkbook createWorkbook(Map<String, Object> model, HttpContext request) {
+  protected SXSSFWorkbook createWorkbook(Map<String, Object> model, ServerHttpExchange request) {
     return new SXSSFWorkbook();
   }
 
@@ -52,7 +52,7 @@ public abstract class AbstractXlsxStreamingView extends AbstractXlsxView {
    * @see org.apache.poi.xssf.streaming.SXSSFWorkbook#dispose()
    */
   @Override
-  protected void renderWorkbook(Workbook workbook, HttpContext response) throws IOException {
+  protected void renderWorkbook(Workbook workbook, ServerHttpExchange response) throws IOException {
     super.renderWorkbook(workbook, response);
 
     // Dispose of temporary files in case of streaming variant...

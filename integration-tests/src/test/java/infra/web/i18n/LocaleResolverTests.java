@@ -38,7 +38,7 @@ import infra.session.SessionEventDispatcher;
 import infra.web.DispatcherHandler;
 import infra.web.LocaleContextResolver;
 import infra.web.LocaleResolver;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
@@ -89,7 +89,7 @@ public class LocaleResolverTests {
     MockRequest request = new MockRequest();
     request.addPreferredLocale(Locale.UK);
     MockResponse response = new MockResponse();
-    MockHttpContext httpContext = new MockHttpContext(applicationContext, request, response, new DispatcherHandler(applicationContext));
+    MockServerHttpExchange httpContext = new MockServerHttpExchange(applicationContext, request, response, new DispatcherHandler(applicationContext));
     // check original locale
     Locale locale = localeResolver.resolveLocale(httpContext);
     assertThat(locale).isEqualTo(Locale.UK);

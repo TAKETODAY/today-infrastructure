@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 import infra.session.Session;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.ResultMatcher;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.async.DeferredResult;
 import infra.web.async.WebAsyncTask;
 import infra.web.mock.MockRequest;
@@ -176,9 +176,9 @@ public class RequestResultMatchers {
   }
 
   /**
-   * Assert the given HttpContext.
+   * Assert the given ServerHttpExchange.
    */
-  public ResultMatcher request(Consumer<HttpContext> contextConsumer) {
+  public ResultMatcher request(Consumer<ServerHttpExchange> contextConsumer) {
     return result -> contextConsumer.accept(result.getContext());
   }
 

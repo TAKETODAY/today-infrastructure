@@ -28,7 +28,7 @@ import infra.core.annotation.AnnotatedElementUtils;
 import infra.util.StringUtils;
 import infra.web.DispatcherHandler;
 import infra.web.HandlerExceptionHandler;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.annotation.ResponseStatus;
 import infra.web.server.ResponseStatusException;
 import infra.web.util.WebUtils;
@@ -68,7 +68,7 @@ public class ResponseStatusExceptionHandler extends AbstractHandlerExceptionHand
 
   @Nullable
   @Override
-  protected Object handleInternal(HttpContext request, @Nullable Object handler, Throwable ex) {
+  protected Object handleInternal(ServerHttpExchange request, @Nullable Object handler, Throwable ex) {
     try {
       if (ex instanceof ResponseStatusException) {
         return resolveResponseStatusException((ResponseStatusException) ex, request, handler);
@@ -101,7 +101,7 @@ public class ResponseStatusExceptionHandler extends AbstractHandlerExceptionHand
    * @param ex the exception
    * @return an empty Object, i.e. exception resolved
    */
-  protected Object resolveResponseStatus(ResponseStatus responseStatus, HttpContext request,
+  protected Object resolveResponseStatus(ResponseStatus responseStatus, ServerHttpExchange request,
           @Nullable Object handler, Throwable ex) throws Exception {
 
     int statusCode = responseStatus.code().value();
@@ -123,7 +123,7 @@ public class ResponseStatusExceptionHandler extends AbstractHandlerExceptionHand
    * @return an empty Object, i.e. exception resolved
    */
   protected Object resolveResponseStatusException(ResponseStatusException ex,
-          HttpContext request, @Nullable Object handler) throws Exception {
+          ServerHttpExchange request, @Nullable Object handler) throws Exception {
 
     request.addHeaders(ex.getHeaders());
     return applyStatusAndReason(ex.getStatusCode().value(), ex.getReason(), request);
@@ -132,14 +132,14 @@ public class ResponseStatusExceptionHandler extends AbstractHandlerExceptionHand
   /**
    * Apply the resolved status code and reason to the response.
    * <p>The default implementation sends a response error using
-   * {@link HttpContext#sendError(int)} or
-   * {@link HttpContext#sendError(int, String)} if there is a reason
+   * {@link ServerHttpExchange#sendError(int)} or
+   * {@link ServerHttpExchange#sendError(int, String)} if there is a reason
    * and then returns an empty ModelAndView.
    *
    * @param statusCode the HTTP status code
    * @param reason the associated reason (may be {@code null} or empty)
    */
-  protected Object applyStatusAndReason(int statusCode, @Nullable String reason, HttpContext request) throws IOException {
+  protected Object applyStatusAndReason(int statusCode, @Nullable String reason, ServerHttpExchange request) throws IOException {
     if (StringUtils.hasText(reason)) {
       if (messageSource != null) {
         reason = messageSource.getMessage(reason, null, reason, WebUtils.resolveLocale(request));

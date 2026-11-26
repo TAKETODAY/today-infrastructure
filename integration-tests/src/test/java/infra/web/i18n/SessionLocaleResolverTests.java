@@ -27,8 +27,8 @@ import infra.core.i18n.SimpleTimeZoneAwareLocaleContext;
 import infra.core.i18n.TimeZoneAwareLocaleContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.session.Session;
@@ -60,7 +60,7 @@ public class SessionLocaleResolverTests {
 
   @Test
   void clearingLocaleContextWithoutSessionDoesNotCreateSession() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     SessionLocaleResolver resolver = new SessionLocaleResolver();
 
     resolver.setLocale(context, null);
@@ -73,7 +73,7 @@ public class SessionLocaleResolverTests {
 
   @Test
   void customSessionAttributesAreSetReadLiveAndClearedWithoutRemovingOtherAttributes() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     SessionLocaleResolver resolver = new SessionLocaleResolver();
     resolver.setLocaleAttributeName("language");
     resolver.setTimeZoneAttributeName("zone");
@@ -105,7 +105,7 @@ public class SessionLocaleResolverTests {
 
   @Test
   void wrongSessionAttributeTypesAreNotSilentlyIgnored() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     SessionLocaleResolver resolver = new SessionLocaleResolver();
     Session session = context.getSession();
     session.setAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME, "invalid");
@@ -120,7 +120,7 @@ public class SessionLocaleResolverTests {
   public void testResolveLocale() {
     MockRequest request = new MockRequest();
     MockResponse response = new MockResponse();
-    HttpContext context = new MockHttpContext(webApplicationContext, request, response, new DispatcherHandler(webApplicationContext));
+    ServerHttpExchange context = new MockServerHttpExchange(webApplicationContext, request, response, new DispatcherHandler(webApplicationContext));
 
     context.getSession()
             .setAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME, Locale.GERMAN);
@@ -133,7 +133,7 @@ public class SessionLocaleResolverTests {
   public void testSetAndResolveLocale() {
     MockRequest request = new MockRequest();
     MockResponse response = new MockResponse();
-    HttpContext context = new MockHttpContext(webApplicationContext, request, response);
+    ServerHttpExchange context = new MockServerHttpExchange(webApplicationContext, request, response);
 
     SessionLocaleResolver resolver = new SessionLocaleResolver();
     resolver.setLocale(context, Locale.GERMAN);
@@ -151,7 +151,7 @@ public class SessionLocaleResolverTests {
   public void testResolveLocaleWithoutSession() throws Exception {
     MockRequest request = new MockRequest();
     request.addPreferredLocale(Locale.TAIWAN);
-    HttpContext context = new MockHttpContext(webApplicationContext, request, null);
+    ServerHttpExchange context = new MockServerHttpExchange(webApplicationContext, request, null);
 
     SessionLocaleResolver resolver = new SessionLocaleResolver();
 
@@ -162,7 +162,7 @@ public class SessionLocaleResolverTests {
   public void testResolveLocaleWithoutSessionAndDefaultLocale() throws Exception {
     MockRequest request = new MockRequest();
     request.addPreferredLocale(Locale.TAIWAN);
-    HttpContext context = new MockHttpContext(webApplicationContext, request, null);
+    ServerHttpExchange context = new MockServerHttpExchange(webApplicationContext, request, null);
 
     SessionLocaleResolver resolver = new SessionLocaleResolver();
     resolver.setDefaultLocale(Locale.GERMAN);
@@ -174,7 +174,7 @@ public class SessionLocaleResolverTests {
   public void testSetLocaleToNullLocale() throws Exception {
     MockRequest request = new MockRequest();
     MockResponse response = new MockResponse();
-    HttpContext context = new MockHttpContext(webApplicationContext, request, response, new DispatcherHandler(webApplicationContext));
+    ServerHttpExchange context = new MockServerHttpExchange(webApplicationContext, request, response, new DispatcherHandler(webApplicationContext));
 
     request.addPreferredLocale(Locale.TAIWAN);
     context.getSession().setAttribute(SessionLocaleResolver.LOCALE_SESSION_ATTRIBUTE_NAME, Locale.GERMAN);

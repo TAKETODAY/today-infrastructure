@@ -20,12 +20,12 @@ package infra.test.web.mock;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.HandlerInterceptor;
 import infra.web.RedirectModel;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.view.ModelAndView;
 
 /**
@@ -48,7 +48,7 @@ public class StubMvcResult implements MvcResult {
   private RedirectModel outputRedirectModel;
 
   private MockResponse response;
-  final HttpContext httpContext;
+  final ServerHttpExchange exchange;
 
   private final @Nullable Throwable unresolvedException;
 
@@ -78,7 +78,7 @@ public class StubMvcResult implements MvcResult {
     this.outputRedirectModel = outputRedirectModel;
     this.response = response;
     this.unresolvedException = unresolvedException;
-    this.httpContext = new MockHttpContext(null, request, response);
+    this.exchange = new MockServerHttpExchange(null, request, response);
   }
 
   @Override
@@ -122,8 +122,8 @@ public class StubMvcResult implements MvcResult {
   }
 
   @Override
-  public HttpContext getContext() {
-    return httpContext;
+  public ServerHttpExchange getContext() {
+    return exchange;
   }
 
   public ModelAndView getMav() {

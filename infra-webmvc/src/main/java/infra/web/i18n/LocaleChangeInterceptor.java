@@ -28,7 +28,7 @@ import infra.logging.LoggerFactory;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 import infra.web.HandlerInterceptor;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.LocaleResolver;
 import infra.web.util.WebUtils;
 
@@ -120,19 +120,19 @@ public class LocaleChangeInterceptor implements HandlerInterceptor {
   }
 
   @Override
-  public boolean preProcessing(HttpContext context, Object handler) {
-    String newLocale = context.getParameter(getParamName());
+  public boolean preProcessing(ServerHttpExchange exchange, Object handler) {
+    String newLocale = exchange.getParameter(getParamName());
     if (newLocale != null) {
-      if (checkHttpMethod(context.getMethod())) {
+      if (checkHttpMethod(exchange.getMethod())) {
         LocaleResolver localeResolver = getLocaleResolver();
         if (localeResolver == null) {
-          localeResolver = WebUtils.getLocaleResolver(context);
+          localeResolver = WebUtils.getLocaleResolver(exchange);
           if (localeResolver == null) {
             throw new IllegalStateException("No LocaleResolver found");
           }
         }
         try {
-          localeResolver.setLocale(context, parseLocaleValue(newLocale));
+          localeResolver.setLocale(exchange, parseLocaleValue(newLocale));
         }
         catch (IllegalArgumentException ex) {
           if (isIgnoreInvalidLocale()) {

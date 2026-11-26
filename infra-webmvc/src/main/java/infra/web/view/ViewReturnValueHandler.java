@@ -24,7 +24,7 @@ import java.util.Map;
 import infra.util.Assert;
 import infra.web.BindingContext;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.LocaleResolver;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.result.SmartReturnValueHandler;
@@ -55,7 +55,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
   private @Nullable LocaleResolver localeResolver;
 
   /**
-   * Create a handler that resolves the request locale through {@link WebUtils#resolveLocale(HttpContext)}.
+   * Create a handler that resolves the request locale through {@link WebUtils#resolveLocale(ServerHttpExchange)}.
    *
    * @param viewResolver the resolver for named views (never {@code null})
    */
@@ -68,7 +68,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    *
    * @param viewResolver the resolver for named views (never {@code null})
    * @param localeResolver the resolver for the request locale, or {@code null}
-   * to use {@link WebUtils#resolveLocale(HttpContext)}
+   * to use {@link WebUtils#resolveLocale(ServerHttpExchange)}
    */
   public ViewReturnValueHandler(ViewResolver viewResolver, @Nullable LocaleResolver localeResolver) {
     Assert.notNull(viewResolver, "viewResolver is required");
@@ -131,26 +131,26 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * Render the result according to its runtime type. A {@code null} result
    * leaves the response unchanged.
    *
-   * @param context the current HTTP request and response context
+   * @param exchange the current HTTP request and response context
    * @param handler the request handler, which is not used by this method
    * @param returnValue the view result to render, or {@code null} to skip rendering
    * @throws ViewRenderingException if the result type is unsupported or view
    * resolution, model update, or rendering fails
    */
   @Override
-  public void handleReturnValue(HttpContext context,
+  public void handleReturnValue(ServerHttpExchange exchange,
           @Nullable Object handler, @Nullable Object returnValue) throws ViewRenderingException {
     if (returnValue instanceof CharSequence viewName) {
-      renderView(context, viewName);
+      renderView(exchange, viewName);
     }
     else if (returnValue instanceof ViewRef viewRef) {
-      renderView(context, viewRef);
+      renderView(exchange, viewRef);
     }
     else if (returnValue instanceof View view) {
-      renderView(context, view);
+      renderView(exchange, view);
     }
     else if (returnValue instanceof ModelAndView mv) {
-      renderView(context, mv);
+      renderView(exchange, mv);
     }
     else if (returnValue != null) {
       throw new ViewRenderingException("Unsupported render result [%s] as view".formatted(returnValue));
@@ -169,7 +169,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * @param mv the model and view to render, or {@code null} to do nothing
    * @throws ViewRenderingException if view resolution, model update, or rendering fails
    */
-  public void renderView(HttpContext request, @Nullable ModelAndView mv) throws ViewRenderingException {
+  public void renderView(ServerHttpExchange request, @Nullable ModelAndView mv) throws ViewRenderingException {
     if (mv != null) {
       if (mv.getStatus() != null) {
         request.setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, mv.getStatus());
@@ -196,7 +196,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * @param viewName the logical view name
    * @throws ViewRenderingException if view resolution, model update, or rendering fails
    */
-  public void renderView(HttpContext context, CharSequence viewName) {
+  public void renderView(ServerHttpExchange context, CharSequence viewName) {
     renderView(context, viewName.toString());
   }
 
@@ -207,7 +207,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * @param viewName the logical view name
    * @throws ViewRenderingException if view resolution, model update, or rendering fails
    */
-  public void renderView(HttpContext context, String viewName) {
+  public void renderView(ServerHttpExchange context, String viewName) {
     renderView(context, viewName, null);
   }
 
@@ -219,9 +219,9 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * @param model the mutable model to merge with the request model, or {@code null}
    * to use only the request model, if present
    * @throws ViewRenderingException if view resolution, model update, or rendering fails
-   * @see #renderView(HttpContext, View, Map)
+   * @see #renderView(ServerHttpExchange, View, Map)
    */
-  public void renderView(HttpContext context, String viewName, @Nullable Map<String, Object> model) {
+  public void renderView(ServerHttpExchange context, String viewName, @Nullable Map<String, Object> model) {
     View view = resolveViewName(context, viewName, null);
     renderView(context, view, model);
   }
@@ -232,9 +232,9 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * @param context the current HTTP request and response context
    * @param viewRef the reference containing the view name and optional locale
    * @throws ViewRenderingException if view resolution, model update, or rendering fails
-   * @see #renderView(HttpContext, ViewRef, Map)
+   * @see #renderView(ServerHttpExchange, ViewRef, Map)
    */
-  public void renderView(HttpContext context, ViewRef viewRef) {
+  public void renderView(ServerHttpExchange context, ViewRef viewRef) {
     renderView(context, viewRef, null);
   }
 
@@ -247,18 +247,18 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * @param model the mutable model to merge with the request model, or {@code null}
    * to use only the request model, if present
    * @throws ViewRenderingException if view resolution, model update, or rendering fails
-   * @see #renderView(HttpContext, View, Map)
+   * @see #renderView(ServerHttpExchange, View, Map)
    */
-  public void renderView(HttpContext context, ViewRef viewRef, @Nullable Map<String, Object> model) {
+  public void renderView(ServerHttpExchange context, ViewRef viewRef, @Nullable Map<String, Object> model) {
     View view = resolveViewName(context, viewRef.getViewName(), viewRef.getLocale());
     renderView(context, view, model);
   }
 
   /**
    * Resolve the request locale using the configured resolver, if present,
-   * or {@link WebUtils#resolveLocale(HttpContext)} otherwise.
+   * or {@link WebUtils#resolveLocale(ServerHttpExchange)} otherwise.
    */
-  private Locale getLocale(HttpContext request) {
+  private Locale getLocale(ServerHttpExchange request) {
     LocaleResolver localeResolver = this.localeResolver;
     if (localeResolver != null) {
       return localeResolver.resolveLocale(request);
@@ -273,7 +273,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * @param view the view to render
    * @throws ViewRenderingException if the model update or rendering fails
    */
-  public void renderView(HttpContext context, View view) {
+  public void renderView(ServerHttpExchange context, View view) {
     renderView(context, view, null);
   }
 
@@ -289,7 +289,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * to use only the request model, if present
    * @throws ViewRenderingException if the model update or rendering fails
    */
-  public void renderView(HttpContext context, View view, @Nullable Map<String, @Nullable Object> model) {
+  public void renderView(ServerHttpExchange context, View view, @Nullable Map<String, @Nullable Object> model) {
     // Model from BindingContext
     BindingContext binding = BindingContext.find(context);
     if (binding != null) {
@@ -324,7 +324,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * explicit locale. The resulting locale is passed to the view resolver.
    *
    * @param localeResolver the request locale resolver, or {@code null} to use
-   * {@link WebUtils#resolveLocale(HttpContext)}
+   * {@link WebUtils#resolveLocale(ServerHttpExchange)}
    */
   public void setLocaleResolver(@Nullable LocaleResolver localeResolver) {
     this.localeResolver = localeResolver;
@@ -344,7 +344,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
     return viewResolver;
   }
 
-  private View resolveViewName(HttpContext context, String viewName, @Nullable Locale locale) {
+  private View resolveViewName(ServerHttpExchange context, String viewName, @Nullable Locale locale) {
     if (locale == null) {
       locale = getLocale(context);
     }

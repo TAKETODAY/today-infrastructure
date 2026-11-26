@@ -25,34 +25,34 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
 public abstract class PathPatternsTestUtils {
 
-  public static Stream<Function<String, MockHttpContext>> requestArguments() {
+  public static Stream<Function<String, MockServerHttpExchange>> requestArguments() {
     return requestArguments(null);
   }
 
-  public static Stream<Function<String, MockHttpContext>> requestArguments(@Nullable String contextPath) {
+  public static Stream<Function<String, MockServerHttpExchange>> requestArguments(@Nullable String contextPath) {
     return Stream.of(
             path -> createRequest("GET", contextPath, path)
     );
   }
 
-  public static MockHttpContext createRequest(String method, @Nullable String contextPath, String path) {
+  public static MockServerHttpExchange createRequest(String method, @Nullable String contextPath, String path) {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.refresh();
     if (contextPath != null) {
       String requestUri = contextPath + (path.startsWith("/") ? "" : "/") + path;
 
       MockRequest mockRequest = new MockRequest(method, requestUri);
-      return new MockHttpContext(context, mockRequest, new MockResponse());
+      return new MockServerHttpExchange(context, mockRequest, new MockResponse());
     }
     else {
       MockRequest mockRequest = new MockRequest(method, path);
-      return new MockHttpContext(context, mockRequest, new MockResponse());
+      return new MockServerHttpExchange(context, mockRequest, new MockResponse());
     }
   }
 

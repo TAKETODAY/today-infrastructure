@@ -6,10 +6,10 @@ import org.mockito.Mockito;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
-import infra.web.DelegatingHttpContext;
-import infra.web.HttpContext;
+import infra.web.DelegatingServerHttpExchange;
+import infra.web.ServerHttpExchange;
 import infra.web.mock.MockFilterChain;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -23,7 +23,7 @@ class RelativeRedirectFilterTests {
 
   private final RelativeRedirectFilter filter = new RelativeRedirectFilter();
 
-  private final HttpContext response = mock();
+  private final ServerHttpExchange response = mock();
 
   @Test
   void sendRedirectHttpStatusWhenNullThenIllegalArgumentException() {
@@ -68,21 +68,21 @@ class RelativeRedirectFilterTests {
 
   @Test
   void wrapOnceOnly() throws Exception {
-    HttpContext original = new MockHttpContext();
+    ServerHttpExchange original = new MockServerHttpExchange();
 
     MockFilterChain chain = new MockFilterChain();
     this.filter.doFilter(original, chain);
 
-    HttpContext wrapped1 = chain.getContext();
+    ServerHttpExchange wrapped1 = chain.getContext();
     assertThat(wrapped1).isNotSameAs(original);
 
     chain.reset();
     this.filter.doFilter(wrapped1, chain);
-    HttpContext current = chain.getContext();
+    ServerHttpExchange current = chain.getContext();
     assertThat(current).isSameAs(wrapped1);
 
     chain.reset();
-    HttpContext wrapped2 = new DelegatingHttpContext(wrapped1);
+    ServerHttpExchange wrapped2 = new DelegatingServerHttpExchange(wrapped1);
     this.filter.doFilter(wrapped2, chain);
     current = chain.getContext();
     assertThat(current).isSameAs(wrapped2);
@@ -92,7 +92,7 @@ class RelativeRedirectFilterTests {
     MockFilterChain chain = new MockFilterChain();
     this.filter.doFilter(this.response, chain);
 
-    HttpContext wrappedResponse = chain.getContext();
+    ServerHttpExchange wrappedResponse = chain.getContext();
     wrappedResponse.sendRedirect(location);
   }
 

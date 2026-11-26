@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import infra.http.MediaType;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * Abstract superclass for RSS Feed views, using the
@@ -63,11 +63,11 @@ public abstract class AbstractRssFeedView extends AbstractFeedView<Channel> {
   }
 
   /**
-   * Invokes {@link #buildFeedItems(Map, HttpContext)}
+   * Invokes {@link #buildFeedItems(Map, ServerHttpExchange)}
    * to get a list of feed items.
    */
   @Override
-  protected final void buildFeedEntries(Map<String, Object> model, Channel channel, HttpContext context) throws Exception {
+  protected final void buildFeedEntries(Map<String, Object> model, Channel channel, ServerHttpExchange context) throws Exception {
     List<Item> items = buildFeedItems(model, context);
     channel.setItems(items);
   }
@@ -84,7 +84,7 @@ public abstract class AbstractRssFeedView extends AbstractFeedView<Channel> {
    * @throws Exception any exception that occurred during document building
    * @see Item
    */
-  protected abstract List<Item> buildFeedItems(Map<String, Object> model, HttpContext context)
+  protected abstract List<Item> buildFeedItems(Map<String, Object> model, ServerHttpExchange context)
           throws Exception;
 
 }

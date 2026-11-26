@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.util.Assert;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.annotation.SessionAttribute;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.method.support.AbstractNamedValueResolvingStrategy;
@@ -49,7 +49,7 @@ public class SessionAttributeParameterResolver extends AbstractNamedValueResolvi
   }
 
   @Override
-  protected @Nullable Object resolveName(String name, HandlerParameter resolvable, HttpContext context) throws Exception {
+  protected @Nullable Object resolveName(String name, HandlerParameter resolvable, ServerHttpExchange context) throws Exception {
     Session session = sessionManager.getSession(context, false);
     if (session == null) {
       return null;

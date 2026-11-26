@@ -46,7 +46,7 @@ import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.validation.BindException;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.MultipartException;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.bind.WebDataBinder;
@@ -210,7 +210,7 @@ public interface ServerRequest extends ServerResponse.Context {
    *
    * @param name the parameter name
    * @return the parameter value
-   * @see HttpContext#getParameter(String)
+   * @see ServerHttpExchange#getParameter(String)
    */
   default Optional<String> param(String name) {
     List<String> paramValues = params().get(name);
@@ -233,7 +233,7 @@ public interface ServerRequest extends ServerResponse.Context {
    *
    * @param name the parameter name
    * @return the parameter value
-   * @see HttpContext#getParameter(String)
+   * @see ServerHttpExchange#getParameter(String)
    */
   default List<String> params(String name) {
     List<String> paramValues = params().get(name);
@@ -247,7 +247,7 @@ public interface ServerRequest extends ServerResponse.Context {
    * Get all parameters for this request. parameters are contained
    * in the query string or posted form data.
    *
-   * @see HttpContext#getParameters()
+   * @see ServerHttpExchange#getParameters()
    */
   MultiValueMap<String, String> params();
 
@@ -258,7 +258,7 @@ public interface ServerRequest extends ServerResponse.Context {
    * @return the multipart data, mapping from name to part(s)
    * @throws NotMultipartRequestException if this request is not of type {@code "multipart/form-data"}
    * @throws MultipartException if parsing fails
-   * @see HttpContext#asMultipartRequest()
+   * @see ServerHttpExchange#asMultipartRequest()
    * @see MultipartRequest#getParts()
    */
   MultiValueMap<String, Part> parts() throws MultipartException;
@@ -288,7 +288,7 @@ public interface ServerRequest extends ServerResponse.Context {
   /**
    * Get the request that this request is based on.
    */
-  HttpContext exchange();
+  ServerHttpExchange exchange();
 
   /**
    * Check whether the requested resource has been modified given the
@@ -397,19 +397,19 @@ public interface ServerRequest extends ServerResponse.Context {
   // Static methods
 
   /**
-   * Create a new {@code ServerRequest} based on the given {@code HttpContext} and
+   * Create a new {@code ServerRequest} based on the given {@code ServerHttpExchange} and
    * message converters.
    *
    * @param context the request
    * @param messageReaders the message readers
    * @return the created {@code ServerRequest}
    */
-  static ServerRequest create(HttpContext context, List<HttpMessageConverter<?>> messageReaders) {
+  static ServerRequest create(ServerHttpExchange context, List<HttpMessageConverter<?>> messageReaders) {
     return new DefaultServerRequest(context, messageReaders);
   }
 
   /**
-   * Create a new {@code ServerRequest} based on the given {@code HttpContext} and
+   * Create a new {@code ServerRequest} based on the given {@code ServerHttpExchange} and
    * message converters.
    *
    * @param context the request
@@ -418,7 +418,7 @@ public interface ServerRequest extends ServerResponse.Context {
    * @return the created {@code ServerRequest}
    * @since 5.0
    */
-  static ServerRequest create(HttpContext context, List<HttpMessageConverter<?>> messageReaders,
+  static ServerRequest create(ServerHttpExchange context, List<HttpMessageConverter<?>> messageReaders,
           @Nullable ApiVersionStrategy versionStrategy) {
 
     return new DefaultServerRequest(context, messageReaders, versionStrategy);
@@ -434,7 +434,7 @@ public interface ServerRequest extends ServerResponse.Context {
     return new DefaultServerRequestBuilder(other);
   }
 
-  static @Nullable ServerRequest find(HttpContext context) {
+  static @Nullable ServerRequest find(ServerHttpExchange context) {
     Object attribute = context.getAttribute(RouterFunctions.REQUEST_ATTRIBUTE);
     if (attribute instanceof ServerRequest serverRequest) {
       return serverRequest;
@@ -442,7 +442,7 @@ public interface ServerRequest extends ServerResponse.Context {
     return null;
   }
 
-  static ServerRequest findRequired(HttpContext context) {
+  static ServerRequest findRequired(ServerHttpExchange context) {
     ServerRequest serverRequest = find(context);
     if (serverRequest == null) {
       throw new IllegalStateException(

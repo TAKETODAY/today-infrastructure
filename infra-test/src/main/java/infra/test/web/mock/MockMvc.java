@@ -30,11 +30,11 @@ import infra.test.web.mock.result.MockMvcResultMatchers;
 import infra.test.web.mock.setup.MockMvcBuilders;
 import infra.util.Assert;
 import infra.web.Filter;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpContextHolder;
 import infra.web.mock.MockDispatcherHandler;
 import infra.web.mock.MockFilterChain;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.api.AsyncContext;
@@ -147,9 +147,9 @@ public final class MockMvc {
       response.setDefaultCharacterEncoding(this.defaultResponseCharacterEncoding.name());
     }
 
-    HttpContext previous = HttpContextHolder.current();
+    ServerHttpExchange previous = HttpContextHolder.current();
 
-    var context = new MockHttpContext(mockContext.getApplicationContext(),
+    var context = new MockServerHttpExchange(mockContext.getApplicationContext(),
             request, response, mockContext.getDispatcherHandler());
     DefaultMvcResult mvcResult = new DefaultMvcResult(request, response, context);
 
@@ -163,7 +163,7 @@ public final class MockMvc {
       MockFilterChain filterChain = new MockFilterChain(mockContext.getDispatcherHandler(), this.filters);
       filterChain.doFilter(context);
 
-      HttpContext maybeNew = HttpContextHolder.required();
+      ServerHttpExchange maybeNew = HttpContextHolder.required();
       if (maybeNew != context) {
         mvcResult.setContext(maybeNew);
       }

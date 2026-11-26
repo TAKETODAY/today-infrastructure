@@ -39,12 +39,12 @@ import infra.core.ResolvableType;
 import infra.core.task.SyncTaskExecutor;
 import infra.http.MediaType;
 import infra.http.ServerSentEvent;
-import infra.web.mock.MockHttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.BindingContext;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.HttpContext;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.ContentNegotiationManagerFactoryBean;
 import io.reactivex.rxjava3.core.Single;
@@ -69,7 +69,7 @@ class ReactiveTypeHandlerTests {
 
   private MockResponse mockResponse;
 
-  private HttpContext webRequest;
+  private ServerHttpExchange webRequest;
 
   @BeforeEach
   public void setup() throws Exception {
@@ -84,7 +84,7 @@ class ReactiveTypeHandlerTests {
   private void resetRequest() {
     this.mockRequest = new MockRequest();
     this.mockResponse = new MockResponse();
-    this.webRequest = new MockHttpContext(null, this.mockRequest, this.mockResponse);
+    this.webRequest = new MockServerHttpExchange(null, this.mockRequest, this.mockResponse);
 
     this.mockRequest.setAsyncSupported(true);
   }
@@ -276,7 +276,7 @@ class ReactiveTypeHandlerTests {
     EmitterHandler emitterHandler = new EmitterHandler();
     emitter.initialize(emitterHandler);
 
-    MockHttpContext httpContext = new MockHttpContext(null, null, mockResponse);
+    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, null, mockResponse);
     emitter.extendResponse(httpContext);
 
     Bar bar1 = new Bar("foo");
@@ -302,7 +302,7 @@ class ReactiveTypeHandlerTests {
     EmitterHandler emitterHandler = new EmitterHandler();
     emitter.initialize(emitterHandler);
 
-    MockHttpContext httpContext = new MockHttpContext(null, null, mockResponse);
+    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, null, mockResponse);
     emitter.extendResponse(httpContext);
 
     Bar bar1 = new Bar("foo");

@@ -28,7 +28,7 @@ import io.netty.channel.Channel;
 import io.netty.util.concurrent.ScheduledFuture;
 
 /**
- * Manages asynchronous request processing for a {@link NettyHttpContext}.
+ * Manages asynchronous request processing for a {@link NettyServerHttpExchange}.
  * Timeout callbacks run on the request channel's event loop, while concurrent
  * results are handed back to the request context to resume processing.
  *
@@ -39,7 +39,7 @@ public class NettyWebAsyncRequest extends WebAsyncRequest {
 
   private static final Logger log = LoggerFactory.getLogger(NettyWebAsyncRequest.class);
 
-  private final NettyHttpContext request;
+  private final NettyServerHttpExchange request;
 
   private final Channel channel;
 
@@ -47,7 +47,7 @@ public class NettyWebAsyncRequest extends WebAsyncRequest {
 
   private @Nullable ScheduledFuture<?> timeoutFuture;
 
-  NettyWebAsyncRequest(NettyHttpContext request) {
+  NettyWebAsyncRequest(NettyServerHttpExchange request) {
     this.request = request;
     this.channel = request.channel;
   }

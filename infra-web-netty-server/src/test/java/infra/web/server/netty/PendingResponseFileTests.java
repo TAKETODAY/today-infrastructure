@@ -79,7 +79,7 @@ class PendingResponseFileTests {
 
   @Test
   void channelInactiveReleasesBufferedBody() throws Exception {
-    HttpContext context = createContext();
+    ServerHttpExchange context = createContext();
     context.getOutputStream().write(1);
     ByteBuf body = (ByteBuf) pendingBody(context);
 
@@ -92,7 +92,7 @@ class PendingResponseFileTests {
 
   @Test
   void channelInactiveClosesPendingInput() throws Exception {
-    HttpContext context = createContext();
+    ServerHttpExchange context = createContext();
     ChunkedInput<?> input = mock();
     setPendingBody(context, input);
 
@@ -105,7 +105,7 @@ class PendingResponseFileTests {
 
   @Test
   void sendFileRejectsBufferedBody() throws Exception {
-    HttpContext context = createContext();
+    ServerHttpExchange context = createContext();
     context.getOutputStream().write(1);
     ByteBuf body = (ByteBuf) pendingBody(context);
 
@@ -120,7 +120,7 @@ class PendingResponseFileTests {
 
   @Test
   void writingBodyAfterSendFileFails() throws Exception {
-    HttpContext context = createContext();
+    ServerHttpExchange context = createContext();
     context.asHttpOutputMessage().sendFile(file(), 0, 4);
 
     assertThatThrownBy(() -> context.getOutputStream().write(1))
@@ -133,7 +133,7 @@ class PendingResponseFileTests {
   @Test
   void synchronousWriteFailureClosesPreparedChunkedInput() throws Exception {
     Channel failingChannel = mock();
-    HttpContext context = createContext(failingChannel);
+    ServerHttpExchange context = createContext(failingChannel);
     ChunkedInput<?> input = mock();
     IllegalStateException failure = new IllegalStateException("write failed");
     doThrow(failure).when(failingChannel).writeAndFlush(input);
@@ -146,7 +146,7 @@ class PendingResponseFileTests {
   @Test
   void synchronousWriteFailureReleasesBufferedBody() throws Exception {
     Channel failingChannel = mock();
-    HttpContext context = createContext(failingChannel);
+    ServerHttpExchange context = createContext(failingChannel);
     ByteBuf body = Unpooled.buffer(4);
     IllegalStateException failure = new IllegalStateException("write failed");
     doThrow(failure).when(failingChannel).writeAndFlush(body);
@@ -166,7 +166,7 @@ class PendingResponseFileTests {
         throw new IllegalStateException("failed after forwarding");
       }
     });
-    HttpContext context = createContext(forwardingChannel);
+    ServerHttpExchange context = createContext(forwardingChannel);
     ByteBuf body = Unpooled.buffer(4);
 
     context.writeResponseBody(body);
@@ -187,7 +187,7 @@ class PendingResponseFileTests {
         throw new IllegalStateException("rejected");
       }
     });
-    HttpContext context = createContext(rejectingChannel);
+    ServerHttpExchange context = createContext(rejectingChannel);
     ByteBuf body = Unpooled.buffer(4);
 
     // A handler failure is reported through the promise, so writeResponseBody must
@@ -201,7 +201,7 @@ class PendingResponseFileTests {
 
   @Test
   void resetClosesPendingChunkedInputOnce() throws Exception {
-    HttpContext context = createContext();
+    ServerHttpExchange context = createContext();
     ChunkedInput<?> input = mock();
     setPendingBody(context, input);
 
@@ -214,7 +214,7 @@ class PendingResponseFileTests {
 
   @Test
   void exceptionalCompletionClosesPendingChunkedInput() throws Exception {
-    HttpContext context = createContext();
+    ServerHttpExchange context = createContext();
     ChunkedInput<?> input = mock();
     setPendingBody(context, input);
 
@@ -226,7 +226,7 @@ class PendingResponseFileTests {
 
   @Test
   void resetReleasesPendingFileRegion() throws Exception {
-    HttpContext context = createContext();
+    ServerHttpExchange context = createContext();
     DefaultFileRegion region = new DefaultFileRegion(file().toFile(), 0, 4);
     setPendingBody(context, region);
 
@@ -239,7 +239,7 @@ class PendingResponseFileTests {
 
   @Test
   void closeFailureStillDiscardsPendingInput() throws Exception {
-    HttpContext context = createContext();
+    ServerHttpExchange context = createContext();
     ChunkedInput<?> input = mock();
     doThrow(new IOException("close failed")).when(input).close();
     setPendingBody(context, input);
@@ -253,7 +253,7 @@ class PendingResponseFileTests {
 
   @Test
   void sendFileSetsContentLength() throws Exception {
-    HttpContext context = createContext();
+    ServerHttpExchange context = createContext();
     context.asHttpOutputMessage().sendFile(file(), 0, 4);
 
     assertThat(context.responseHeaders().getContentLength()).isEqualTo(4);
@@ -263,7 +263,7 @@ class PendingResponseFileTests {
 
   @Test
   void sendFileRejectsNegativeCount() throws Exception {
-    HttpContext context = createContext();
+    ServerHttpExchange context = createContext();
     assertThatThrownBy(() -> context.asHttpOutputMessage().sendFile(file(), 0, -1))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Count");
@@ -274,7 +274,7 @@ class PendingResponseFileTests {
 
   @Test
   void sendFileRejectsNegativePosition() throws Exception {
-    HttpContext context = createContext();
+    ServerHttpExchange context = createContext();
     assertThatThrownBy(() -> context.asHttpOutputMessage().sendFile(file(), -1, 4))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Position");
@@ -285,7 +285,7 @@ class PendingResponseFileTests {
 
   @Test
   void sendFileRejectsCountBeyondFileLength() throws Exception {
-    HttpContext context = createContext();
+    ServerHttpExchange context = createContext();
     assertThatThrownBy(() -> context.asHttpOutputMessage().sendFile(file(), 0, 5))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Count");
@@ -293,7 +293,7 @@ class PendingResponseFileTests {
 
   @Test
   void sendFileRejectsPositionBeyondFileLength() throws Exception {
-    HttpContext context = createContext();
+    ServerHttpExchange context = createContext();
     assertThatThrownBy(() -> context.asHttpOutputMessage().sendFile(file(), 5, 0))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Position");
@@ -301,14 +301,14 @@ class PendingResponseFileTests {
 
   @Test
   void sendFileRejectsNullFile() {
-    HttpContext context = createContext();
+    ServerHttpExchange context = createContext();
     assertThatThrownBy(() -> context.asHttpOutputMessage().sendFile((File) null, 0, 1))
             .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void replacingFileReleasesPreviousFileRegion() throws Exception {
-    HttpContext context = createContext();
+    ServerHttpExchange context = createContext();
     Path file = file();
     context.asHttpOutputMessage().sendFile(file, 0, 4);
     DefaultFileRegion first = (DefaultFileRegion) pendingBody(context);
@@ -322,7 +322,7 @@ class PendingResponseFileTests {
 
   @Test
   void replacingChunkedFileClosesPreviousFile() throws Exception {
-    HttpContext context = spy(createContext());
+    ServerHttpExchange context = spy(createContext());
     context.setTrailerFields(Trailer.field("Content-Digest", () -> "digest"));
     List<ChunkedNioFile> inputs = new ArrayList<>();
     doAnswer(invocation -> {
@@ -343,7 +343,7 @@ class PendingResponseFileTests {
 
   @Test
   void lateTrailerRegistrationConvertsFileRegionToChunkedInput() throws Exception {
-    HttpContext context = createContext();
+    ServerHttpExchange context = createContext();
     context.asHttpOutputMessage().sendFile(file(), 0, 4);
     DefaultFileRegion region = (DefaultFileRegion) pendingBody(context);
     context.setTrailerFields(Trailer.field("Content-Digest", () -> "digest"));
@@ -359,7 +359,7 @@ class PendingResponseFileTests {
 
   @Test
   void lateTrailerAdaptationFailureReleasesRegionAndNewFile() throws Exception {
-    HttpContext context = spy(createContext());
+    ServerHttpExchange context = spy(createContext());
     context.asHttpOutputMessage().sendFile(file(), 0, 4);
     DefaultFileRegion region = (DefaultFileRegion) pendingBody(context);
     context.setTrailerFields(Trailer.field("Content-Digest", () -> "digest"));
@@ -379,7 +379,7 @@ class PendingResponseFileTests {
 
   @Test
   void lateTrailerOpenFailureReleasesRegion() throws Exception {
-    HttpContext context = createContext();
+    ServerHttpExchange context = createContext();
     Path file = file();
     context.asHttpOutputMessage().sendFile(file, 0, 4);
     DefaultFileRegion region = (DefaultFileRegion) pendingBody(context);
@@ -395,7 +395,7 @@ class PendingResponseFileTests {
 
   @Test
   void fileWithoutTrailersKeepsZeroCopyRegion() throws Exception {
-    HttpContext context = createContext();
+    ServerHttpExchange context = createContext();
     context.asHttpOutputMessage().sendFile(file(), 0, 4);
     Object region = pendingBody(context);
 
@@ -405,7 +405,7 @@ class PendingResponseFileTests {
 
   @Test
   void adaptationFailureClosesNewFile() throws Exception {
-    HttpContext context = spy(createContext());
+    ServerHttpExchange context = spy(createContext());
     context.setTrailerFields(Trailer.field("Content-Digest", () -> "digest"));
     AtomicReference<ChunkedNioFile> opened = new AtomicReference<>();
     IllegalStateException failure = new IllegalStateException("adaptation failed");
@@ -426,25 +426,25 @@ class PendingResponseFileTests {
     return Files.writeString(directory.resolve("response.txt"), "body");
   }
 
-  private HttpContext createContext() {
+  private ServerHttpExchange createContext() {
     return createContext(channel);
   }
 
-  private HttpContext createContext(Channel responseChannel) {
+  private ServerHttpExchange createContext(Channel responseChannel) {
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .multipartParser(mock()).sendErrorHandler(mock()).build();
-    return new HttpContext(responseChannel, new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/"),
+    return new ServerHttpExchange(responseChannel, new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/"),
             config, mock(ApplicationContext.class), mock(DispatcherHandler.class), mock(HttpTrafficHandler.class));
   }
 
-  private static @Nullable Object pendingBody(NettyHttpContext context) throws Exception {
-    Field field = NettyHttpContext.class.getDeclaredField("pendingBody");
+  private static @Nullable Object pendingBody(NettyServerHttpExchange context) throws Exception {
+    Field field = NettyServerHttpExchange.class.getDeclaredField("pendingBody");
     field.setAccessible(true);
     return field.get(context);
   }
 
-  private static void setPendingBody(NettyHttpContext context, @Nullable Object body) throws Exception {
-    Field field = NettyHttpContext.class.getDeclaredField("pendingBody");
+  private static void setPendingBody(NettyServerHttpExchange context, @Nullable Object body) throws Exception {
+    Field field = NettyServerHttpExchange.class.getDeclaredField("pendingBody");
     field.setAccessible(true);
     field.set(context, body);
   }

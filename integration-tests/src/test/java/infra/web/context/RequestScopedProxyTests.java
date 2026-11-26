@@ -34,7 +34,7 @@ import infra.beans.testfixture.beans.DummyFactory;
 import infra.beans.testfixture.beans.ITestBean;
 import infra.beans.testfixture.beans.TestBean;
 import infra.core.io.ClassPathResource;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.HttpContextHolder;
@@ -66,7 +66,7 @@ public class RequestScopedProxyTests {
     assertThat(AopUtils.isCglibProxy(bean)).isTrue();
 
     MockRequest request = new MockRequest();
-    MockHttpContext requestAttributes = new MockHttpContext(null, request, null);
+    MockServerHttpExchange requestAttributes = new MockServerHttpExchange(null, request, null);
     HttpContextHolder.set(requestAttributes);
 
     try {
@@ -91,7 +91,7 @@ public class RequestScopedProxyTests {
     // assertTrue(AopUtils.isJdkDynamicProxy(bean));
 
     MockRequest request = new MockRequest();
-    MockHttpContext requestAttributes = new MockHttpContext(null, request, null);
+    MockServerHttpExchange requestAttributes = new MockServerHttpExchange(null, request, null);
     HttpContextHolder.set(requestAttributes);
 
     try {
@@ -116,7 +116,7 @@ public class RequestScopedProxyTests {
     assertThat(AopUtils.isCglibProxy(bean)).isTrue();
 
     MockRequest request = new MockRequest();
-    MockHttpContext requestAttributes = new MockHttpContext(null, request, new MockResponse());
+    MockServerHttpExchange requestAttributes = new MockServerHttpExchange(null, request, new MockResponse());
     HttpContextHolder.set(requestAttributes);
 
     try {
@@ -142,7 +142,7 @@ public class RequestScopedProxyTests {
     assertThat(AopUtils.isCglibProxy(bean)).isTrue();
 
     MockRequest request = new MockRequest();
-    MockHttpContext requestAttributes = new MockHttpContext(null, request, null);
+    MockServerHttpExchange requestAttributes = new MockServerHttpExchange(null, request, null);
     HttpContextHolder.set(requestAttributes);
 
     try {
@@ -166,7 +166,7 @@ public class RequestScopedProxyTests {
     String name = "scopedInnerBean";
 
     MockRequest request = new MockRequest();
-    MockHttpContext requestAttributes = new MockHttpContext(null, request, null);
+    MockServerHttpExchange requestAttributes = new MockServerHttpExchange(null, request, null);
     HttpContextHolder.set(requestAttributes);
 
     try {
@@ -193,7 +193,7 @@ public class RequestScopedProxyTests {
     String name = innerBeanDef.getBeanName();
 
     MockRequest request = new MockRequest();
-    MockHttpContext requestAttributes = new MockHttpContext(null, request, null);
+    MockServerHttpExchange requestAttributes = new MockServerHttpExchange(null, request, null);
     HttpContextHolder.set(requestAttributes);
 
     try {

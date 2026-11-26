@@ -55,7 +55,7 @@ import static infra.web.socket.handler.ExceptionWebSocketHandler.tryCloseWithErr
 
 /**
  * Handles HTTP traffic in Netty server, processing incoming requests and managing HTTP context.
- * This handler is responsible for creating and managing {@link HttpContext} instances,
+ * This handler is responsible for creating and managing {@link ServerHttpExchange} instances,
  * delegating request handling to the service executor, and managing WebSocket frames.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -96,13 +96,13 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
   public final void channelRead(final ChannelHandlerContext ctx, final Object msg) throws IOException {
     if (msg instanceof HttpRequest request) {
       Channel channel = ctx.channel();
-      HttpContext httpContext = new HttpContext(channel, request, requestConfig,
+      ServerHttpExchange httpContext = new ServerHttpExchange(channel, request, requestConfig,
               context, dispatcherHandler, this);
       httpContext.attach();
       executor.execute(httpContext, httpContext);
     }
     else if (msg instanceof HttpContent content) {
-      NettyHttpContext httpContext = NettyHttpContext.lookup(ctx);
+      NettyServerHttpExchange httpContext = NettyServerHttpExchange.lookup(ctx);
       if (httpContext != null) {
         httpContext.onDataReceived(content);
       }
@@ -126,7 +126,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
       handleHttp2Headers(ctx, headersFrame);
     }
     else if (frame instanceof Http2DataFrame dataFrame) {
-      NettyHttpContext httpContext = NettyHttpContext.lookup(ctx);
+      NettyServerHttpExchange httpContext = NettyServerHttpExchange.lookup(ctx);
       if (httpContext != null) {
         httpContext.onDataReceived(dataFrame.content(), dataFrame.isEndStream());
       }
@@ -135,7 +135,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
       }
     }
     else if (frame instanceof Http2ResetFrame resetFrame) {
-      NettyHttpContext httpContext = NettyHttpContext.getAndRemove(ctx);
+      NettyServerHttpExchange httpContext = NettyServerHttpExchange.getAndRemove(ctx);
       if (httpContext != null) {
         httpContext.onError(new IOException("HTTP/2 stream reset: " + resetFrame.errorCode()));
       }
@@ -149,7 +149,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
     Http2Headers headers = frame.headers();
     if (headers.method() == null) {
       // trailing headers of an already started request
-      NettyHttpContext httpContext = NettyHttpContext.lookup(ctx);
+      NettyServerHttpExchange httpContext = NettyServerHttpExchange.lookup(ctx);
       if (httpContext != null) {
         httpContext.onDataReceived(Unpooled.EMPTY_BUFFER, true);
       }
@@ -157,7 +157,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
     }
 
     Http2StreamChannel channel = (Http2StreamChannel) ctx.channel();
-    Http2HttpContext httpContext = new Http2HttpContext(channel, headers,
+    Http2ServerHttpExchange httpContext = new Http2ServerHttpExchange(channel, headers,
             requestConfig, context, dispatcherHandler, this);
     httpContext.attach();
     executor.execute(httpContext, httpContext);
@@ -186,7 +186,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
   }
 
   final void handleException(Channel channel, Throwable cause) {
-    NettyHttpContext context = NettyHttpContext.lookup(channel);
+    NettyServerHttpExchange context = NettyServerHttpExchange.lookup(channel);
     if (context != null && context.isCommitted()) {
       handleCommittedException(channel, cause);
       return;
@@ -230,7 +230,7 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
       Ws.channelInactive(ctx);
     }
 
-    NettyHttpContext context = NettyHttpContext.getAndRemove(ctx);
+    NettyServerHttpExchange context = NettyServerHttpExchange.getAndRemove(ctx);
     if (context != null) {
       context.onChannelInactive();
     }

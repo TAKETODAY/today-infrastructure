@@ -22,7 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -38,14 +38,14 @@ class SessionManagerOperationsTests {
   @Mock
   private SessionManager sessionManager;
 
-  private MockHttpContext httpContext;
+  private MockServerHttpExchange exchange;
 
   private Session session;
 
   @BeforeEach
   void setUp() {
     sessionManagerOperations = new SessionManagerOperations(sessionManager);
-    httpContext = new MockHttpContext();
+    exchange = new MockServerHttpExchange();
     session = new MapSession();
   }
 
@@ -63,32 +63,32 @@ class SessionManagerOperationsTests {
 
   @Test
   void getSession_withoutCreateFlag_shouldDelegateToSessionManager() {
-    when(sessionManager.getSession(httpContext)).thenReturn(session);
+    when(sessionManager.getSession(exchange)).thenReturn(session);
 
-    Session result = sessionManagerOperations.getSession(httpContext);
+    Session result = sessionManagerOperations.getSession(exchange);
 
     assertThat(result).isEqualTo(session);
-    verify(sessionManager).getSession(httpContext);
+    verify(sessionManager).getSession(exchange);
   }
 
   @Test
   void getSession_withCreateTrue_shouldDelegateToSessionManager() {
-    when(sessionManager.getSession(httpContext, true)).thenReturn(session);
+    when(sessionManager.getSession(exchange, true)).thenReturn(session);
 
-    Session result = sessionManagerOperations.getSession(httpContext, true);
+    Session result = sessionManagerOperations.getSession(exchange, true);
 
     assertThat(result).isEqualTo(session);
-    verify(sessionManager).getSession(httpContext, true);
+    verify(sessionManager).getSession(exchange, true);
   }
 
   @Test
   void getSession_withCreateFalse_shouldDelegateToSessionManager() {
-    when(sessionManager.getSession(httpContext, false)).thenReturn(null);
+    when(sessionManager.getSession(exchange, false)).thenReturn(null);
 
-    Session result = sessionManagerOperations.getSession(httpContext, false);
+    Session result = sessionManagerOperations.getSession(exchange, false);
 
     assertThat(result).isNull();
-    verify(sessionManager).getSession(httpContext, false);
+    verify(sessionManager).getSession(exchange, false);
   }
 
   @Test
@@ -115,18 +115,18 @@ class SessionManagerOperationsTests {
     String attributeValue = "testValue";
     session.setAttribute(attributeName, attributeValue);
 
-    when(sessionManager.getSession(httpContext, false)).thenReturn(session);
+    when(sessionManager.getSession(exchange, false)).thenReturn(session);
 
-    Object result = sessionManagerOperations.getAttribute(httpContext, attributeName);
+    Object result = sessionManagerOperations.getAttribute(exchange, attributeName);
 
     assertThat(result).isEqualTo(attributeValue);
   }
 
   @Test
   void getAttribute_fromHttpContext_whenSessionNotExists_shouldReturnNull() {
-    when(sessionManager.getSession(httpContext, false)).thenReturn(null);
+    when(sessionManager.getSession(exchange, false)).thenReturn(null);
 
-    Object result = sessionManagerOperations.getAttribute(httpContext, "testAttribute");
+    Object result = sessionManagerOperations.getAttribute(exchange, "testAttribute");
 
     assertThat(result).isNull();
   }
@@ -136,9 +136,9 @@ class SessionManagerOperationsTests {
     String attributeName = "testAttribute";
     String attributeValue = "testValue";
 
-    when(sessionManager.getSession(httpContext, false)).thenReturn(session);
+    when(sessionManager.getSession(exchange, false)).thenReturn(session);
 
-    sessionManagerOperations.setAttribute(httpContext, attributeName, attributeValue);
+    sessionManagerOperations.setAttribute(exchange, attributeName, attributeValue);
 
     assertThat(session.getAttribute(attributeName)).isEqualTo(attributeValue);
   }
@@ -148,9 +148,9 @@ class SessionManagerOperationsTests {
     String attributeName = "testAttribute";
     String attributeValue = "testValue";
 
-    when(sessionManager.getSession(httpContext, false)).thenReturn(null);
+    when(sessionManager.getSession(exchange, false)).thenReturn(null);
 
-    assertThatCode(() -> sessionManagerOperations.setAttribute(httpContext, attributeName, attributeValue))
+    assertThatCode(() -> sessionManagerOperations.setAttribute(exchange, attributeName, attributeValue))
             .doesNotThrowAnyException();
   }
 
@@ -160,9 +160,9 @@ class SessionManagerOperationsTests {
     String attributeValue = "testValue";
     session.setAttribute(attributeName, attributeValue);
 
-    when(sessionManager.getSession(httpContext, false)).thenReturn(session);
+    when(sessionManager.getSession(exchange, false)).thenReturn(session);
 
-    Object result = sessionManagerOperations.removeAttribute(httpContext, attributeName);
+    Object result = sessionManagerOperations.removeAttribute(exchange, attributeName);
 
     assertThat(result).isEqualTo(attributeValue);
     assertThat(session.hasAttribute(attributeName)).isFalse();
@@ -170,18 +170,18 @@ class SessionManagerOperationsTests {
 
   @Test
   void removeAttribute_whenSessionNotExists_shouldReturnNull() {
-    when(sessionManager.getSession(httpContext, false)).thenReturn(null);
+    when(sessionManager.getSession(exchange, false)).thenReturn(null);
 
-    Object result = sessionManagerOperations.removeAttribute(httpContext, "testAttribute");
+    Object result = sessionManagerOperations.removeAttribute(exchange, "testAttribute");
 
     assertThat(result).isNull();
   }
 
   @Test
   void removeAttribute_whenAttributeNotExists_shouldReturnNull() {
-    when(sessionManager.getSession(httpContext, false)).thenReturn(session);
+    when(sessionManager.getSession(exchange, false)).thenReturn(session);
 
-    Object result = sessionManagerOperations.removeAttribute(httpContext, "nonExistentAttribute");
+    Object result = sessionManagerOperations.removeAttribute(exchange, "nonExistentAttribute");
 
     assertThat(result).isNull();
   }
@@ -189,25 +189,25 @@ class SessionManagerOperationsTests {
   // 边界情况测试
   @Test
   void getAttribute_withNullAttributeName_shouldHandleGracefully() {
-    when(sessionManager.getSession(httpContext, false)).thenReturn(session);
+    when(sessionManager.getSession(exchange, false)).thenReturn(session);
 
-    assertThatCode(() -> sessionManagerOperations.getAttribute(httpContext, null))
+    assertThatCode(() -> sessionManagerOperations.getAttribute(exchange, null))
             .doesNotThrowAnyException();
   }
 
   @Test
   void setAttribute_withNullAttributeName_shouldHandleGracefully() {
-    when(sessionManager.getSession(httpContext, false)).thenReturn(session);
+    when(sessionManager.getSession(exchange, false)).thenReturn(session);
 
-    assertThatCode(() -> sessionManagerOperations.setAttribute(httpContext, null, "value"))
+    assertThatCode(() -> sessionManagerOperations.setAttribute(exchange, null, "value"))
             .doesNotThrowAnyException();
   }
 
   @Test
   void removeAttribute_withNullAttributeName_shouldHandleGracefully() {
-    when(sessionManager.getSession(httpContext, false)).thenReturn(session);
+    when(sessionManager.getSession(exchange, false)).thenReturn(session);
 
-    assertThatCode(() -> sessionManagerOperations.removeAttribute(httpContext, null))
+    assertThatCode(() -> sessionManagerOperations.removeAttribute(exchange, null))
             .doesNotThrowAnyException();
   }
 

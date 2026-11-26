@@ -53,7 +53,7 @@ import infra.util.ObjectUtils;
 import infra.util.ReflectionUtils;
 import infra.web.HandlerInterceptor;
 import infra.web.HandlerMapping;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.WebConfigurationException;
 import infra.web.annotation.Interceptor;
 import infra.web.cors.CorsConfiguration;
@@ -384,7 +384,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * Look up a handler method for the given request.
    */
   @Override
-  protected @Nullable HandlerMethod getHandlerInternal(HttpContext request) {
+  protected @Nullable HandlerMethod getHandlerInternal(ServerHttpExchange request) {
     HandlerMethod handlerMethod = lookupHandlerMethod(request.getRequestPath().value(), request);
     if (handlerMethod != null) {
       Object handler = handlerMethod.getBean();
@@ -403,10 +403,10 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * @param directLookupPath mapping lookup path within the current mapping
    * @param request the current request
    * @return the best-matching handler method, or {@code null} if no match
-   * @see #handleMatch(Match, String, HttpContext)
-   * @see #handleNoMatch(Set, String, HttpContext)
+   * @see #handleMatch(Match, String, ServerHttpExchange)
+   * @see #handleNoMatch(Set, String, ServerHttpExchange)
    */
-  protected @Nullable HandlerMethod lookupHandlerMethod(String directLookupPath, HttpContext request) {
+  protected @Nullable HandlerMethod lookupHandlerMethod(String directLookupPath, ServerHttpExchange request) {
     ArrayList<Match<T>> matches = new ArrayList<>();
     List<T> directPathMatches = mappingRegistry.getDirectPathMappings(directLookupPath);
     if (directPathMatches != null) {
@@ -452,7 +452,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
   }
 
   @SuppressWarnings("NullAway")
-  private void addMatchingMappings(Collection<T> mappings, ArrayList<Match<T>> matches, HttpContext request) {
+  private void addMatchingMappings(Collection<T> mappings, ArrayList<Match<T>> matches, ServerHttpExchange request) {
     var registrations = mappingRegistry.registrations;
     for (T mapping : mappings) {
       T match = getMatchingMapping(mapping, request);
@@ -469,7 +469,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * @param directLookupPath mapping lookup path within the current mapping
    * @param request the current request
    */
-  protected abstract void handleMatch(Match<T> bestMatch, String directLookupPath, HttpContext request);
+  protected abstract void handleMatch(Match<T> bestMatch, String directLookupPath, ServerHttpExchange request);
 
   /**
    * Invoked when no matching mapping is not found.
@@ -478,7 +478,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * @param lookupPath mapping lookup path within the current mapping
    * @param request the current request
    */
-  protected @Nullable HandlerMethod handleNoMatch(Set<T> mappings, String lookupPath, HttpContext request) {
+  protected @Nullable HandlerMethod handleNoMatch(Set<T> mappings, String lookupPath, ServerHttpExchange request) {
 
     return null;
   }
@@ -492,7 +492,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
   }
 
   @Override
-  protected @Nullable CorsConfiguration getCorsConfiguration(Object handler, HttpContext request) {
+  protected @Nullable CorsConfiguration getCorsConfiguration(Object handler, ServerHttpExchange request) {
     CorsConfiguration corsConfig = super.getCorsConfiguration(handler, request);
     HandlerMethod handlerMethod = HandlerMethod.resolve(handler);
     if (handlerMethod != null) {
@@ -658,7 +658,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * @param request the current HTTP request
    * @return the match, or {@code null} if the mapping doesn't match
    */
-  protected abstract @Nullable T getMatchingMapping(T mapping, HttpContext request);
+  protected abstract @Nullable T getMatchingMapping(T mapping, ServerHttpExchange request);
 
   /**
    * Return a comparator for sorting matching mappings.
@@ -667,7 +667,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * @param request the current request
    * @return the comparator (never {@code null})
    */
-  protected abstract Comparator<T> getMappingComparator(HttpContext request);
+  protected abstract Comparator<T> getMappingComparator(ServerHttpExchange request);
 
   /**
    * A registry that maintains all mappings to handler methods, exposing methods

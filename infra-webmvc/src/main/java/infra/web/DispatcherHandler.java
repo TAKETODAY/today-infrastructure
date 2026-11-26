@@ -59,8 +59,8 @@ import infra.web.util.WebUtils;
 import infra.web.view.ViewRef;
 
 import static infra.util.StringUtils.prependLeadingSlash;
-import static infra.web.HttpContext.FORWARD_ATTRIBUTE;
-import static infra.web.HttpContext.FORWARD_REQUEST_URI_ATTRIBUTE;
+import static infra.web.ServerHttpExchange.FORWARD_ATTRIBUTE;
+import static infra.web.ServerHttpExchange.FORWARD_REQUEST_URI_ATTRIBUTE;
 
 /**
  * Central dispatcher for HTTP request handlers/controllers.
@@ -90,7 +90,7 @@ public class DispatcherHandler extends WebLifecycleManager {
    * Attribute name for the set of paths already forwarded to in the current
    * forward chain, used to detect circular forwards.
    *
-   * @see #forward(AbstractHttpContext, String)
+   * @see #forward(AbstractServerHttpExchange, String)
    */
   static final String FORWARDED_PATHS_ATTRIBUTE = Conventions.getQualifiedAttributeName(DispatcherHandler.class, "forwardedPaths");
 
@@ -535,27 +535,27 @@ public class DispatcherHandler extends WebLifecycleManager {
   /**
    * Find a suitable handler to handle this HTTP request
    *
-   * @param context Current HTTP request context
+   * @param exchange the current HTTP exchange
    * @return Target handler, if returns {@code null} indicates that there isn't a
    * handler to handle this request
    */
-  public @Nullable Object lookupHandler(final HttpContext context) throws Exception {
-    return handlerMapping.getHandler(context);
+  public @Nullable Object lookupHandler(final ServerHttpExchange exchange) throws Exception {
+    return handlerMapping.getHandler(exchange);
   }
 
   /**
    * handle async results
    *
-   * @param context async request
+   * @param exchange the current HTTP exchange
    * @param handler sync handler
    * @param concurrentResult async result
    */
-  public void handleConcurrentResult(HttpContext context, @Nullable Object handler, @Nullable Object concurrentResult) throws Exception {
-    if (context.isRequestCompleted()) {
+  public void handleConcurrentResult(ServerHttpExchange exchange, @Nullable Object handler, @Nullable Object concurrentResult) throws Exception {
+    if (exchange.isRequestCompleted()) {
       return;
     }
-    if (concurrentResult instanceof Throwable failure && context.isCommitted()) {
-      completeRequest(context, failure);
+    if (concurrentResult instanceof Throwable failure && exchange.isCommitted()) {
+      completeRequest(exchange, failure);
       throw ExceptionUtils.sneakyThrow(failure);
     }
     Throwable notHandled = null;
@@ -573,20 +573,20 @@ public class DispatcherHandler extends WebLifecycleManager {
       notHandled = ex;
     }
 
-    processDispatchResultAndComplete(context, handler, concurrentResult, notHandled);
+    processDispatchResultAndComplete(exchange, handler, concurrentResult, notHandled);
   }
 
   /**
    * Handle the given HTTP request.
    * <p>When filters are configured, the request is executed through the filter
-   * chain and {@link #completeRequest(HttpContext, Throwable)} is invoked after
+   * chain and {@link #completeRequest(ServerHttpExchange, Throwable)} is invoked after
    * the chain returns. This guarantees that a short-circuiting filter still
    * completes the request; the call is idempotent when the terminal handler has
    * already completed it. Without filters, dispatching and completion are handled
-   * by {@link #handleRequestInternal(HttpContext)}.
+   * by {@link #handleRequestInternal(ServerHttpExchange)}.
    * <p>Asynchronous requests remain open after this method returns and are
    * completed when their concurrent result is dispatched through
-   * {@link #handleConcurrentResult(HttpContext, Object, Object)}.
+   * {@link #handleConcurrentResult(ServerHttpExchange, Object, Object)}.
    * <p>Filter exceptions are resolved through the exception handling strategies
    * while the request is incomplete and the response is uncommitted. Otherwise,
    * they propagate to the transport without rewriting the response.
@@ -596,37 +596,37 @@ public class DispatcherHandler extends WebLifecycleManager {
    * All failures, including {@link Error Errors}, retain their original type
    * and identity throughout exception handling and request completion.
    *
-   * @param context current HTTP request and HTTP response
+   * @param exchange current HTTP request and HTTP response
    * @throws Exception in case of any kind of un-handling failure
-   * @see #handleRequestInternal(HttpContext)
-   * @see #completeRequest(HttpContext, Throwable)
+   * @see #handleRequestInternal(ServerHttpExchange)
+   * @see #completeRequest(ServerHttpExchange, Throwable)
    * @since 4.0
    */
-  public void handleRequest(HttpContext context) throws Exception {
-    logRequest(context);
+  public void handleRequest(ServerHttpExchange exchange) throws Exception {
+    logRequest(exchange);
     var filterChain = this.filterChain;
     if (filterChain == null) {
-      handleRequestInternal(context);
+      handleRequestInternal(exchange);
     }
     else {
       try {
-        filterChain.doFilter(context);
+        filterChain.doFilter(exchange);
       }
       catch (Throwable failure) {
-        if (!context.isRequestCompleted()) {
-          if (context.isConcurrentHandlingStarted()) {
-            context.asyncRequest().dispatch(failure);
+        if (!exchange.isRequestCompleted()) {
+          if (exchange.isConcurrentHandlingStarted()) {
+            exchange.asyncRequest().dispatch(failure);
             return;
           }
-          if (!context.isCommitted()) {
-            processDispatchResultAndComplete(context, null, null, failure);
+          if (!exchange.isCommitted()) {
+            processDispatchResultAndComplete(exchange, null, null, failure);
             return;
           }
         }
-        completeRequest(context, failure);
+        completeRequest(exchange, failure);
         throw ExceptionUtils.sneakyThrow(failure);
       }
-      completeRequest(context, null);
+      completeRequest(exchange, null);
     }
   }
 
@@ -634,16 +634,16 @@ public class DispatcherHandler extends WebLifecycleManager {
    * Send a response result without resolving a handler or completing the request.
    * <p>The result is passed unchanged to the configured return value handlers.
    *
-   * @param context the current request context
+   * @param exchange the current request exchange
    * @param result the response result, or {@code null} to leave the response unchanged
    * @throws IOException if writing the response fails with an I/O error
    * @throws IllegalStateException if the response is committed, the request is
    * completed, or a return value handler fails with another checked exception
    * @since 5.0
    */
-  void send(HttpContext context, @Nullable Object result) throws IOException {
-    Assert.state(!context.isRequestCompleted(), "Request is already completed");
-    Assert.state(!context.isCommitted(), "Response is already committed");
+  void send(ServerHttpExchange exchange, @Nullable Object result) throws IOException {
+    Assert.state(!exchange.isRequestCompleted(), "Request is already completed");
+    Assert.state(!exchange.isCommitted(), "Response is already committed");
     if (result == null) {
       return;
     }
@@ -652,7 +652,7 @@ public class DispatcherHandler extends WebLifecycleManager {
       throw new ReturnValueHandlerNotFoundException(result, null);
     }
     try {
-      handleReturnValue(selected, context, null, result);
+      handleReturnValue(selected, exchange, null, result);
     }
     catch (IOException | RuntimeException ex) {
       throw ex;
@@ -662,68 +662,68 @@ public class DispatcherHandler extends WebLifecycleManager {
     }
   }
 
-  private void handleRequestInternal(HttpContext context) throws Exception {
+  private void handleRequestInternal(ServerHttpExchange exchange) throws Exception {
     Object handler = null;
     Object returnValue = null;
     Throwable notHandled = null;
     try {
       // Resolve the API version for the current request, if API versioning is configured.
-      Comparable<?> apiVersion = resolveApiVersion(context);
+      Comparable<?> apiVersion = resolveApiVersion(exchange);
       // Determine handler for the current request.
-      handler = lookupHandler(context);
+      handler = lookupHandler(exchange);
       if (handler == null) {
-        returnValue = handlerNotFound(context);
+        returnValue = handlerNotFound(exchange);
       }
       else {
-        handleDeprecations(context, handler, apiVersion);
+        handleDeprecations(exchange, handler, apiVersion);
         if (handler instanceof HandlerAdapterAware aware) {
           aware.setHandlerAdapter(handlerAdapter);
         }
         if (handler instanceof HttpRequestHandler requestHandler) {
           // specially for HttpRequestHandler
-          returnValue = requestHandler.handleRequest(context);
+          returnValue = requestHandler.handleRequest(exchange);
         }
         else {
           // adaptation for handling this request
-          returnValue = handlerAdapter.handle(context, handler);
+          returnValue = handlerAdapter.handle(exchange, handler);
         }
       }
     }
     catch (Throwable ex) {
       notHandled = ex;
     }
-    processDispatchResultAndComplete(context, handler, returnValue, notHandled);
+    processDispatchResultAndComplete(exchange, handler, returnValue, notHandled);
   }
 
   /**
    * Process the dispatch result, log the outcome, and complete the request.
    */
-  private void processDispatchResultAndComplete(HttpContext context, @Nullable Object handler,
+  private void processDispatchResultAndComplete(ServerHttpExchange exchange, @Nullable Object handler,
           @Nullable Object returnValue, @Nullable Throwable failure) throws Exception {
     try {
-      processDispatchResult(context, handler, returnValue, failure);
+      processDispatchResult(exchange, handler, returnValue, failure);
       failure = null;
     }
     catch (Throwable ex) {
       failure = ex;
     }
-    logResult(context, failure);
-    completeRequest(context, failure);
+    logResult(exchange, failure);
+    completeRequest(exchange, failure);
   }
 
   /**
    * Handle the result of handler selection and handler invocation, which is
    * either a view or an Exception to be resolved to a view.
    */
-  protected void processDispatchResult(HttpContext request, @Nullable Object handler,
+  protected void processDispatchResult(ServerHttpExchange exchange, @Nullable Object handler,
           @Nullable Object returnValue, @Nullable Throwable exception) throws Exception {
 
     handler = HandlerWrapper.unwrapIfNecessary(handler);
     if (exception != null) {
       exception = ExceptionUtils.unwrapIfNecessary(exception);
-      returnValue = processHandlerException(request, handler, exception);
+      returnValue = processHandlerException(exchange, handler, exception);
 
-      HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(request);
+      HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(exchange);
       if (matchingMetadata != null) {
         handler = matchingMetadata.getHandler();
       }
@@ -743,7 +743,7 @@ public class DispatcherHandler extends WebLifecycleManager {
         if (selected == null) {
           if (returnValue == null) {
             // find default view
-            String defaultViewName = getDefaultViewName(request);
+            String defaultViewName = getDefaultViewName(exchange);
             if (defaultViewName != null) {
               returnValue = ViewRef.forViewName(defaultViewName);
               selected = returnValueHandler.selectHandler(null, returnValue);
@@ -763,11 +763,11 @@ public class DispatcherHandler extends WebLifecycleManager {
       }
 
       try {
-        handleReturnValue(selected, request, handler, returnValue);
+        handleReturnValue(selected, exchange, handler, returnValue);
       }
       catch (Throwable failure) {
         if (exception == null) {
-          processDispatchResult(request, handler, null, failure);
+          processDispatchResult(exchange, handler, null, failure);
         }
         else {
           throw ExceptionUtils.sneakyThrow(failure);
@@ -782,42 +782,42 @@ public class DispatcherHandler extends WebLifecycleManager {
    * This method invokes the handler's {@code handleReturnValue} method to process
    * the result generated by the controller and write it to the HTTP response.
    *
-   * @param request the current request context
+   * @param exchange the current HTTP exchange
    * @param handler the selected handler (or {@code null} if not applicable)
    * @param returnValue the return value from the handler invocation
    * @param selected the specific {@code ReturnValueHandler} chosen to process this return value
    * @throws Exception if handling the return value fails
    */
-  protected void handleReturnValue(ReturnValueHandler selected, HttpContext request, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
-    selected.handleReturnValue(request, handler, returnValue);
+  protected void handleReturnValue(ReturnValueHandler selected, ServerHttpExchange exchange, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+    selected.handleReturnValue(exchange, handler, returnValue);
   }
 
   /**
    * Determine an error view via the registered HandlerExceptionHandlers.
    *
-   * @param request current HTTP request
+   * @param exchange current HTTP exchange
    * @param handler the executed handler, or {@code null} if none chosen at the time of the exception
    * @param ex the exception that got thrown during handler execution
    * @return a corresponding view to forward to
    * @throws Exception if no handler can handle the exception
    */
-  protected @Nullable Object processHandlerException(HttpContext request, @Nullable Object handler, Throwable ex) throws Exception {
+  protected @Nullable Object processHandlerException(ServerHttpExchange exchange, @Nullable Object handler, Throwable ex) throws Exception {
     // Success and error responses may use different content types
-    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(request);
+    HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(exchange);
     if (matchingMetadata != null) {
       matchingMetadata.setProducibleMediaTypes(null);
     }
 
-    // clear context
-    request.reset();
+    // Reset the response before rendering the error.
+    exchange.reset();
 
-    // prepare context throwable
-    request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
+    // Expose the exception as an exchange attribute.
+    exchange.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
 
-    Object returnValue = exceptionHandler.handleException(request, ex, handler);
+    Object returnValue = exceptionHandler.handleException(exchange, ex, handler);
     if (returnValue == null) {
       // not found a suitable handler to handle this exception,
-      return handleUnresolvedException(request, ex, handler);
+      return handleUnresolvedException(exchange, ex, handler);
     }
     else if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
       if (log.isTraceEnabled()) {
@@ -830,7 +830,7 @@ public class DispatcherHandler extends WebLifecycleManager {
     return returnValue;
   }
 
-  protected @Nullable Object handleUnresolvedException(HttpContext request, Throwable unresolved, @Nullable Object handler) throws Exception {
+  protected @Nullable Object handleUnresolvedException(ServerHttpExchange exchange, Throwable unresolved, @Nullable Object handler) throws Exception {
     // throw it to top level to handle
     throw ExceptionUtils.sneakyThrow(unresolved);
   }
@@ -838,16 +838,16 @@ public class DispatcherHandler extends WebLifecycleManager {
   /**
    * No handler found &rarr; set appropriate HTTP response status.
    *
-   * @param request current HTTP request
+   * @param exchange current HTTP exchange
    * @throws Exception if preparing the response failed
    */
-  protected @Nullable Object handlerNotFound(HttpContext request) throws Exception {
+  protected @Nullable Object handlerNotFound(ServerHttpExchange exchange) throws Exception {
     if (throwExceptionIfNoHandlerFound) {
       throw new HandlerNotFoundException(
-              request.getMethodAsString(), request.getRequestURI(), request.requestHeaders());
+              exchange.getMethodAsString(), exchange.getRequestURI(), exchange.requestHeaders());
     }
     else {
-      return notFoundHandler.handleNotFound(request);
+      return notFoundHandler.handleNotFound(exchange);
     }
   }
 
@@ -868,32 +868,32 @@ public class DispatcherHandler extends WebLifecycleManager {
    *   <li>If {@code notHandled} is present and the response is not committed,
    *   map it to an HTTP status and send an error response. A failure while doing
    *   so is suppressed onto {@code notHandled}.</li>
-   *   <li>Delegate to {@link AbstractHttpContext#completeRequest(Throwable)} to
+   *   <li>Delegate to {@link AbstractServerHttpExchange#completeRequest(Throwable)} to
    *   release request-scoped resources and fire the completion callbacks.</li>
    * </ol>
    * <p>After completion, the unhandled failure, if any, is rethrown. When such a
    * failure exists, exceptions raised by listeners, by the error response, or by
-   * the context cleanup are suppressed onto it rather than replacing it; when no
+   * the exchange cleanup are suppressed onto it rather than replacing it; when no
    * failure was being propagated, a completion failure is thrown as is.
    *
-   * @param context the current HTTP request context
+   * @param exchange the current HTTP exchange
    * @param notHandled the failure left unhandled during dispatch, or
    * {@code null} if the request completed normally
    * @throws Exception the unhandled failure, or a failure raised while
    * completing the request
    * @see RequestCompletedListener
-   * @see AbstractHttpContext#completeRequest(Throwable)
+   * @see AbstractServerHttpExchange#completeRequest(Throwable)
    * @since 5.0
    */
-  protected void completeRequest(HttpContext context, @Nullable Throwable notHandled) throws Exception {
-    if (context.isRequestCompleted() || context.isConcurrentHandlingStarted()) {
+  protected void completeRequest(ServerHttpExchange exchange, @Nullable Throwable notHandled) throws Exception {
+    if (exchange.isRequestCompleted() || exchange.isConcurrentHandlingStarted()) {
       return;
     }
 
     if (!requestCompletedActions.isEmpty()) {
       for (RequestCompletedListener action : requestCompletedActions) {
         try {
-          action.requestCompleted(context, notHandled);
+          action.requestCompleted(exchange, notHandled);
         }
         catch (Throwable ex) {
           log.warn("RequestCompletedListener failed", ex);
@@ -904,10 +904,10 @@ public class DispatcherHandler extends WebLifecycleManager {
       }
     }
 
-    if (notHandled != null && !context.isCommitted()) {
+    if (notHandled != null && !exchange.isCommitted()) {
       try {
         var httpStatus = HttpStatusProvider.getStatusCode(notHandled);
-        context.sendError(httpStatus.first, httpStatus.second);
+        exchange.sendError(httpStatus.first, httpStatus.second);
         notHandled = null;
       }
       catch (Throwable ex) {
@@ -918,7 +918,7 @@ public class DispatcherHandler extends WebLifecycleManager {
     }
 
     try {
-      WebUtils.nativeContext(context, AbstractHttpContext.class)
+      WebUtils.nativeContext(exchange, AbstractServerHttpExchange.class)
               .completeRequest(notHandled);
     }
     catch (Throwable ex) {
@@ -943,9 +943,9 @@ public class DispatcherHandler extends WebLifecycleManager {
    * {@code false} if it does not, or {@code null} if uncertain
    * @since 5.0
    */
-  public @Nullable Boolean requestContinueExpected(HttpContext request) {
+  public @Nullable Boolean requestContinueExpected(ServerHttpExchange exchange) {
     for (RequestContinueExpectedResolver resolver : requestContinueExpectedResolvers) {
-      Boolean resolved = resolver.shouldContinue(request);
+      Boolean resolved = resolver.shouldContinue(exchange);
       if (resolved != null) {
         return resolved;
       }
@@ -956,12 +956,12 @@ public class DispatcherHandler extends WebLifecycleManager {
   /**
    * Translate the supplied request into a default view name.
    *
-   * @param request current HTTP mock request
+   * @param exchange the current HTTP exchange
    * @return the view name (or {@code null} if no default found)
    * @throws Exception if view name translation failed
    */
-  protected @Nullable String getDefaultViewName(HttpContext request) throws Exception {
-    return viewNameTranslator != null ? viewNameTranslator.getViewName(request) : null;
+  protected @Nullable String getDefaultViewName(ServerHttpExchange exchange) throws Exception {
+    return viewNameTranslator != null ? viewNameTranslator.getViewName(exchange) : null;
   }
 
   /**
@@ -971,15 +971,15 @@ public class DispatcherHandler extends WebLifecycleManager {
    * The response buffer is cleared and the request path is updated before
    * re-dispatching.
    *
-   * @param request the current request context
+   * @param exchange the current HTTP exchange
    * @param path the new path to forward to
    * @throws Exception if forwarding fails
    * @throws IllegalStateException if the response has already been committed,
    * or a circular forward is detected
    * @since 5.0
    */
-  void forward(AbstractHttpContext request, String path) throws Exception {
-    if (request.isCommitted()) {
+  void forward(AbstractServerHttpExchange exchange, String path) throws Exception {
+    if (exchange.isCommitted()) {
       throw new IllegalStateException("Cannot forward after response has been committed");
     }
 
@@ -992,14 +992,14 @@ public class DispatcherHandler extends WebLifecycleManager {
 
     path = prependLeadingSlash(path);
 
-    String requestURI = request.getRequestURI();
+    String requestURI = exchange.getRequestURI();
 
     @SuppressWarnings("unchecked")
-    var forwardedPaths = (Set<String>) request.getAttribute(FORWARDED_PATHS_ATTRIBUTE);
+    var forwardedPaths = (Set<String>) exchange.getAttribute(FORWARDED_PATHS_ATTRIBUTE);
     if (forwardedPaths == null) {
       forwardedPaths = new HashSet<>();
       forwardedPaths.add(requestURI);
-      request.setAttribute(FORWARDED_PATHS_ATTRIBUTE, forwardedPaths);
+      exchange.setAttribute(FORWARDED_PATHS_ATTRIBUTE, forwardedPaths);
     }
 
     if (!forwardedPaths.add(path)) {
@@ -1007,20 +1007,20 @@ public class DispatcherHandler extends WebLifecycleManager {
               "Circular forward detected: path '%s' has already been forwarded to".formatted(path));
     }
 
-    request.setAttribute(FORWARD_REQUEST_URI_ATTRIBUTE, requestURI);
-    request.setAttribute(FORWARD_ATTRIBUTE, Boolean.TRUE);
-    request.reset();
-    request.requestURI = path;
-    request.queryString = queryString;
-    request.parameters = null;
-    request.requestPath = null;
-    request.uri = null;
-    HandlerMatchingMetadata.set(request, null);
+    exchange.setAttribute(FORWARD_REQUEST_URI_ATTRIBUTE, requestURI);
+    exchange.setAttribute(FORWARD_ATTRIBUTE, Boolean.TRUE);
+    exchange.reset();
+    exchange.requestURI = path;
+    exchange.queryString = queryString;
+    exchange.parameters = null;
+    exchange.requestPath = null;
+    exchange.uri = null;
+    HandlerMatchingMetadata.set(exchange, null);
 
     if (log.isDebugEnabled()) {
-      log.debug("Forwarding {} {} -> {}", request.getMethod(), requestURI, path);
+      log.debug("Forwarding {} {} -> {}", exchange.getMethod(), requestURI, path);
     }
-    handleRequestInternal(request);
+    handleRequestInternal(exchange);
   }
 
   /**
@@ -1030,21 +1030,21 @@ public class DispatcherHandler extends WebLifecycleManager {
    * <p>The resolved version is stored as the {@link HandlerMapping#API_VERSION_ATTRIBUTE}
    * request attribute so that handler mappings can match against it.
    *
-   * @param context the current HTTP request context
+   * @param exchange the current HTTP exchange
    * @return the resolved and validated API version, or {@code null} if API
    * versioning is disabled or no version applies to the request
    * @throws MissingApiVersionException if the version is required but not specified
    * @throws InvalidApiVersionException if the version is not supported
-   * @see ApiVersionStrategy#resolveParseAndValidateVersion(HttpContext)
+   * @see ApiVersionStrategy#resolveParseAndValidateVersion(ServerHttpExchange)
    */
-  private @Nullable Comparable<?> resolveApiVersion(HttpContext context) {
+  private @Nullable Comparable<?> resolveApiVersion(ServerHttpExchange exchange) {
     ApiVersionStrategy strategy = this.apiVersionStrategy;
     if (strategy == null) {
       return null;
     }
-    Comparable<?> version = strategy.resolveParseAndValidateVersion(context);
+    Comparable<?> version = strategy.resolveParseAndValidateVersion(exchange);
     if (version != null) {
-      context.setAttribute(HandlerMapping.API_VERSION_ATTRIBUTE, version);
+      exchange.setAttribute(HandlerMapping.API_VERSION_ATTRIBUTE, version);
     }
     return version;
   }
@@ -1052,41 +1052,41 @@ public class DispatcherHandler extends WebLifecycleManager {
   /**
    * Handle API version deprecations for the resolved version, if applicable.
    *
-   * @param context the current HTTP request context
+   * @param exchange the current HTTP exchange
    * @param handler the selected handler, possibly wrapped in a {@link HandlerWrapper}
    * @param apiVersion the resolved API version, or {@code null}
-   * @see ApiVersionStrategy#handleDeprecations(Comparable, Object, HttpContext)
+   * @see ApiVersionStrategy#handleDeprecations(Comparable, Object, ServerHttpExchange)
    */
-  private void handleDeprecations(HttpContext context, Object handler, @Nullable Comparable<?> apiVersion) {
+  private void handleDeprecations(ServerHttpExchange exchange, Object handler, @Nullable Comparable<?> apiVersion) {
     ApiVersionStrategy strategy = this.apiVersionStrategy;
     if (apiVersion == null || strategy == null) {
       return;
     }
     Object rawHandler = HandlerWrapper.unwrapIfNecessary(handler);
-    strategy.handleDeprecations(apiVersion, rawHandler, context);
+    strategy.handleDeprecations(apiVersion, rawHandler, exchange);
   }
 
   // @since 4.0
-  private void logRequest(HttpContext request) {
+  private void logRequest(ServerHttpExchange exchange) {
     if (log.isDebugEnabled()) {
       String params;
-      if (request.isMultipart()) {
+      if (exchange.isMultipart()) {
         params = "multipart";
       }
       else if (isEnableLoggingRequestDetails()) {
-        params = request.getParameters().entrySet().stream()
+        params = exchange.getParameters().entrySet().stream()
                 .map(entry -> entry.getKey() + ":" + entry.getValue())
                 .collect(Collectors.joining(", "));
       }
       else {
         // Avoid request body parsing for form data
-        params = StringUtils.startsWithIgnoreCase(request.getContentTypeAsString(), MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                || !request.getParameters().isEmpty() ? "masked" : "";
+        params = StringUtils.startsWithIgnoreCase(exchange.getContentTypeAsString(), MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                || !exchange.getParameters().isEmpty() ? "masked" : "";
       }
 
-      String queryString = request.getQueryString();
+      String queryString = exchange.getQueryString();
       String queryClause = StringUtils.isNotEmpty(queryString) ? "?" + queryString : "";
-      String message = request.getMethod() + " " + request.getRequestURL() + queryClause;
+      String message = exchange.getMethod() + " " + exchange.getRequestURL() + queryClause;
 
       if (!params.isEmpty()) {
         message += ", parameters={%s}".formatted(params);
@@ -1094,7 +1094,7 @@ public class DispatcherHandler extends WebLifecycleManager {
 
       if (log.isTraceEnabled()) {
         StringBuilder headers = new StringBuilder();
-        HttpHeaders httpHeaders = request.requestHeaders();
+        HttpHeaders httpHeaders = exchange.requestHeaders();
         if (!httpHeaders.isEmpty()) {
           if (isEnableLoggingRequestDetails()) {
             // first
@@ -1127,7 +1127,7 @@ public class DispatcherHandler extends WebLifecycleManager {
     }
   }
 
-  private void logResult(HttpContext request, @Nullable Throwable failureCause) {
+  private void logResult(ServerHttpExchange exchange, @Nullable Throwable failureCause) {
     if (log.isDebugEnabled()) {
       if (failureCause != null) {
         if (log.isTraceEnabled()) {
@@ -1138,14 +1138,14 @@ public class DispatcherHandler extends WebLifecycleManager {
         }
       }
       else {
-        if (request.isConcurrentHandlingStarted()) {
+        if (exchange.isConcurrentHandlingStarted()) {
           log.debug("Exiting but response remains open for further handling");
           return;
         }
 
         String headers = "";  // nothing below trace
         if (log.isTraceEnabled()) {
-          HttpHeaders httpHeaders = request.responseHeaders();
+          HttpHeaders httpHeaders = exchange.responseHeaders();
           if (isEnableLoggingRequestDetails()) {
             headers = httpHeaders.entries().stream()
                     .map(entry -> entry.getKey() + ":" + entry.getValue())
@@ -1156,8 +1156,8 @@ public class DispatcherHandler extends WebLifecycleManager {
           }
           headers = ", headers={%s}".formatted(headers);
         }
-        HttpStatus httpStatus = HttpStatus.resolve(request.getStatus());
-        log.debug("{} Completed {}{}", request, httpStatus != null ? httpStatus : request.getStatus(), headers);
+        HttpStatus httpStatus = HttpStatus.resolve(exchange.getStatus());
+        log.debug("{} Completed {}{}", exchange, httpStatus != null ? httpStatus : exchange.getStatus(), headers);
       }
     }
   }
@@ -1205,16 +1205,16 @@ public class DispatcherHandler extends WebLifecycleManager {
      * Proceed with the next filter in the chain, or invoke the terminal handler
      * if no filters remain.
      *
-     * @param context the current request context
+     * @param exchange the current HTTP exchange
      * @throws Exception if any filter or the terminal handler fails
      */
     @Override
-    public void doFilter(HttpContext context) throws Exception {
+    public void doFilter(ServerHttpExchange exchange) throws Exception {
       if (filter != null && chain != null) {
-        filter.doFilter(context, chain);
+        filter.doFilter(exchange, chain);
       }
       else {
-        dispatcherHandler.handleRequestInternal(context);
+        dispatcherHandler.handleRequestInternal(exchange);
       }
     }
 

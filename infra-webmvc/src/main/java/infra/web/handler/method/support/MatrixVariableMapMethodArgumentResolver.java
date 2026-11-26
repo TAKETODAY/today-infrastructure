@@ -31,7 +31,7 @@ import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.annotation.MatrixVariable;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.method.ParameterResolvingStrategy;
@@ -61,8 +61,8 @@ public class MatrixVariableMapMethodArgumentResolver implements ParameterResolvi
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
-    var matrixVariables = HandlerMatchingMetadata.obtain(context).getMatrixVariables();
+  public Object resolveArgument(ServerHttpExchange exchange, HandlerParameter resolvable) throws Exception {
+    var matrixVariables = HandlerMatchingMetadata.obtain(exchange).getMatrixVariables();
     MethodParameter parameter = resolvable.getMethodParameter();
     MultiValueMap<String, String> map = mapMatrixVariables(parameter, matrixVariables);
     return isSingleValueMap(parameter) ? map.toSingleValueMap() : map;

@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.function.Function;
 
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.multipart.MultipartParser;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
@@ -99,7 +99,7 @@ class NettyRequestConfigTests {
     // given
     SendErrorHandler sendErrorHandler = new NettyRequestConfigTests.SendErrorHandler0();
     MultipartParser multipartParser = mock(MultipartParser.class);
-    Function<HttpContext, ByteBuf> factory = mock(Function.class);
+    Function<ServerHttpExchange, ByteBuf> factory = mock(Function.class);
 
     // when
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
@@ -211,7 +211,7 @@ class NettyRequestConfigTests {
   static class SendErrorHandler0 implements SendErrorHandler {
 
     @Override
-    public void handleError(HttpContext http, @Nullable String message) throws IOException {
+    public void handleError(ServerHttpExchange http, @Nullable String message) throws IOException {
 
     }
 

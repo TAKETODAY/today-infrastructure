@@ -30,7 +30,7 @@ import infra.http.MediaType;
 import infra.lang.Unmodifiable;
 import infra.util.MimeType;
 import infra.util.MimeTypeUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpMediaTypeException;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.accept.ContentNegotiationManager;
@@ -180,7 +180,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
    */
   @Override
   @Nullable
-  public ProducesRequestCondition getMatchingCondition(HttpContext request) {
+  public ProducesRequestCondition getMatchingCondition(ServerHttpExchange request) {
     if (request.isPreFlightRequest()) {
       return EMPTY_CONDITION;
     }
@@ -238,12 +238,12 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
    * compared further with {@link MediaType#isMoreSpecific(MimeType)}.
    * </ol>
    * <p>It is assumed that both instances have been obtained via
-   * {@link #getMatchingCondition(HttpContext)} and each instance
+   * {@link #getMatchingCondition(ServerHttpExchange)} and each instance
    * contains the matching producible media type expression only or
    * is otherwise empty.
    */
   @Override
-  public int compareTo(ProducesRequestCondition other, HttpContext request) {
+  public int compareTo(ProducesRequestCondition other, ServerHttpExchange request) {
     try {
       List<MediaType> acceptedMediaTypes = getAcceptedMediaTypes(request);
       for (MediaType acceptedMediaType : acceptedMediaTypes) {
@@ -269,7 +269,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
   }
 
   @SuppressWarnings("unchecked")
-  private List<MediaType> getAcceptedMediaTypes(HttpContext request) throws HttpMediaTypeNotAcceptableException {
+  private List<MediaType> getAcceptedMediaTypes(ServerHttpExchange request) throws HttpMediaTypeNotAcceptableException {
     List<MediaType> result = (List<MediaType>) request.getAttribute(MEDIA_TYPES_ATTRIBUTE);
     if (result == null) {
       result = contentNegotiationManager.resolveMediaTypes(request);

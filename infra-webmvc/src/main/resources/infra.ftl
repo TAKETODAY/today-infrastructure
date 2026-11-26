@@ -1,5 +1,5 @@
 <#ftl output_format="HTML" auto_esc=true strip_whitespace=true>
-<#-- @ftlvariable name="request" type="infra.web.HttpContext" -->
+<#-- @ftlvariable name="request" type="infra.web.ServerHttpExchange" -->
 <#-- @ftlvariable name="messages" type="infra.context.support.MessageSourceAccessor" -->
 <#-- @ftlvariable name="bindings" type="infra.web.view.BindingAccessor" -->
 <#--

@@ -24,8 +24,8 @@ import infra.http.HttpStatusCode;
 import infra.http.ResponseCookie;
 import infra.http.converter.HttpMessageConverter;
 import infra.util.MultiValueMap;
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -41,7 +41,7 @@ class ErrorHandlingServerResponseTests {
   void handleErrorWithoutMatchingHandler() throws Throwable {
     TestErrorHandlingServerResponse response = new TestErrorHandlingServerResponse();
     ServerRequest serverRequest = mock();
-    HttpContext http = new MockHttpContext();
+    ServerHttpExchange http = new MockServerHttpExchange();
     http.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE, serverRequest);
 
     response.addErrorHandler(
@@ -63,7 +63,7 @@ class ErrorHandlingServerResponseTests {
   void errorResponseWithMatchingHandler() {
     TestErrorHandlingServerResponse response = new TestErrorHandlingServerResponse();
     ServerRequest serverRequest = mock();
-    HttpContext http = new MockHttpContext();
+    ServerHttpExchange http = new MockServerHttpExchange();
     http.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE, serverRequest);
 
     ServerResponse expectedResponse = ServerResponse.badRequest().build();
@@ -82,7 +82,7 @@ class ErrorHandlingServerResponseTests {
   void errorResponseWithoutMatchingHandler() {
     TestErrorHandlingServerResponse response = new TestErrorHandlingServerResponse();
     ServerRequest serverRequest = mock();
-    HttpContext http = new MockHttpContext();
+    ServerHttpExchange http = new MockServerHttpExchange();
     http.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE, serverRequest);
 
     response.addErrorHandler(
@@ -100,7 +100,7 @@ class ErrorHandlingServerResponseTests {
   void errorResponseWithoutAnyHandlers() {
     TestErrorHandlingServerResponse response = new TestErrorHandlingServerResponse();
     ServerRequest serverRequest = mock();
-    HttpContext http = new MockHttpContext();
+    ServerHttpExchange http = new MockServerHttpExchange();
     http.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE, serverRequest);
 
     Throwable testException = new IllegalArgumentException("test");
@@ -132,7 +132,7 @@ class ErrorHandlingServerResponseTests {
     }
 
     @Override
-    public @Nullable Object writeTo(HttpContext request, Context context) throws Exception {
+    public @Nullable Object writeTo(ServerHttpExchange request, Context context) throws Exception {
       return null;
     }
   }

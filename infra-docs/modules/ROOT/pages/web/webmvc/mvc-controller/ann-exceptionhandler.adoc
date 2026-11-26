@@ -92,7 +92,7 @@ xref:web/webmvc/mvc-core/exceptionhandlers.adoc[HandlerExceptionHandler] 机制�
 | `HandlerMethod`
 | 访问引发异常的控制器方法.
 
-| `HttpContext`
+| `ServerHttpExchange`
 | 当前请求上下文
 
 | `HttpMethod`

@@ -36,7 +36,7 @@ import infra.web.MockHandlerParameter;
 import infra.web.annotation.RequestParam;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.method.NamedValueInfo;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -338,7 +338,7 @@ class HandlerParameterTests {
   public void shouldResolveArgumentFromHttpContext() throws Exception {
     final Method method = HandlerParameterTests.class.getDeclaredMethod("plain", String.class);
     HandlerParameter parameter = createParameter(0, method, null);
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
 
     context.setParameter("value", "today");
     assertThat(parameter.resolveArgument(context)).isEqualTo("today");

@@ -37,7 +37,7 @@ Java::
 public class PdfWordList extends AbstractPdfView {
 
   protected void buildPdfDocument(Map<String, Object> model, Document doc, PdfWriter writer,
-      HttpContext request) throws Exception {
+      ServerHttpExchange exchange) throws Exception {
 
     List<String> words = (List<String>) model.get("wordList");
     for (String word : words) {
@@ -62,6 +62,5 @@ public class PdfWordList extends AbstractPdfView {
 
 编程模型与 `AbstractPdfView` 类似，`buildExcelDocument()` 是核心模板方法，
 控制器可通过外部定义（按名称）或在处理方法中直接返回 `View` 实例来返回该视图。
-
 
 

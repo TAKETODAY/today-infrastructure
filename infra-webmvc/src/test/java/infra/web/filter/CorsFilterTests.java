@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.FilterChain;
@@ -54,7 +54,7 @@ class CorsFilterTests {
       assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isNull();
       assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS)).isNull();
     };
-    filter.doFilter(new MockHttpContext(request), filterChain);
+    filter.doFilter(new MockServerHttpExchange(request), filterChain);
   }
 
   @Test
@@ -71,7 +71,7 @@ class CorsFilterTests {
       assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isNull();
       assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS)).isNull();
     };
-    filter.doFilter(new MockHttpContext(request), filterChain);
+    filter.doFilter(new MockServerHttpExchange(request), filterChain);
   }
 
   @Test
@@ -86,7 +86,7 @@ class CorsFilterTests {
       assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isEqualTo("https://domain2.com");
       assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS)).isEqualTo("header3, header4");
     };
-    filter.doFilter(new MockHttpContext(request, response), filterChain);
+    filter.doFilter(new MockServerHttpExchange(request, response), filterChain);
   }
 
   @Test
@@ -99,7 +99,7 @@ class CorsFilterTests {
 
     FilterChain filterChain = (filterRequest) ->
             fail("Invalid requests must not be forwarded to the filter chain");
-    filter.doFilter(new MockHttpContext(request), filterChain);
+    filter.doFilter(new MockServerHttpExchange(request), filterChain);
     assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isNull();
   }
 
@@ -114,7 +114,7 @@ class CorsFilterTests {
 
     FilterChain filterChain = (filterRequest) ->
             fail("Preflight requests must not be forwarded to the filter chain");
-    filter.doFilter(new MockHttpContext(request, response), filterChain);
+    filter.doFilter(new MockServerHttpExchange(request, response), filterChain);
     assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isEqualTo("https://domain2.com");
     assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS)).isEqualTo("header1, header2");
     assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS)).isEqualTo("header3, header4");
@@ -132,7 +132,7 @@ class CorsFilterTests {
 
     FilterChain filterChain = (filterRequest) ->
             fail("Preflight requests must not be forwarded to the filter chain");
-    filter.doFilter(new MockHttpContext(request), filterChain);
+    filter.doFilter(new MockServerHttpExchange(request), filterChain);
 
     assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN)).isNull();
   }

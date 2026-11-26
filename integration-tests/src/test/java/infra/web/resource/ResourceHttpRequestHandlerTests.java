@@ -41,12 +41,12 @@ import infra.util.ExceptionUtils;
 import infra.util.StringUtils;
 import infra.web.HttpRequestMethodNotSupportedException;
 import infra.web.NotFoundHandler;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.ContentNegotiationManagerFactoryBean;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.SimpleNotFoundHandler;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
@@ -268,7 +268,7 @@ public class ResourceHttpRequestHandlerTests {
     Resource resource = mock(Resource.class);
     given(resource.getName()).willReturn("filename");
 
-    MediaType mediaType = handler.getMediaType(mock(HttpContext.class), resource);
+    MediaType mediaType = handler.getMediaType(mock(ServerHttpExchange.class), resource);
 
     assertThat(mediaType).isNull();
   }
@@ -293,7 +293,7 @@ public class ResourceHttpRequestHandlerTests {
     private MockRequest request;
 
     private MockResponse response;
-    private MockHttpContext httpContext;
+    private MockServerHttpExchange httpContext;
 
     @BeforeEach
     void setup() throws Throwable {
@@ -302,7 +302,7 @@ public class ResourceHttpRequestHandlerTests {
       this.handler.afterPropertiesSet();
       this.request = new MockRequest("GET", "");
       this.response = new MockResponse();
-      httpContext = new MockHttpContext(null, request, response);
+      httpContext = new MockServerHttpExchange(null, request, response);
     }
 
     @Test
@@ -397,7 +397,7 @@ public class ResourceHttpRequestHandlerTests {
 
       MockRequest request = new MockRequest("GET", "");
       request.setRequestURI("foo.css");
-      handler.handleRequest(new MockHttpContext(null, request, response));
+      handler.handleRequest(new MockServerHttpExchange(null, request, response));
 
       assertThat(this.response.getContentType()).isEqualTo("text/css");
       assertThat(this.response.getContentAsString()).isEqualTo("h1 { color:red; }");
@@ -418,7 +418,7 @@ public class ResourceHttpRequestHandlerTests {
         this.request.setRequestURI("not-there.css");
         this.request.setMethod(method.name());
         this.response = new MockResponse();
-        httpContext = new MockHttpContext(null, request, response);
+        httpContext = new MockServerHttpExchange(null, request, response);
 
         assertThat(this.handler.handleRequest(httpContext)).isEqualTo(SimpleNotFoundHandler.NONE_RETURN_VALUE);
       }
@@ -435,7 +435,7 @@ public class ResourceHttpRequestHandlerTests {
 
     private MockResponse response;
 
-    private MockHttpContext httpContext;
+    private MockServerHttpExchange httpContext;
 
     @BeforeEach
     void setup() throws Throwable {
@@ -444,7 +444,7 @@ public class ResourceHttpRequestHandlerTests {
       this.handler.afterPropertiesSet();
       this.request = new MockRequest("GET", "");
       this.response = new MockResponse();
-      httpContext = new MockHttpContext(null, request, response);
+      httpContext = new MockServerHttpExchange(null, request, response);
     }
 
     @Test
@@ -656,7 +656,7 @@ public class ResourceHttpRequestHandlerTests {
     private MockRequest request;
 
     private MockResponse response;
-    private MockHttpContext httpContext;
+    private MockServerHttpExchange httpContext;
 
     @BeforeEach
     void setup() {
@@ -664,7 +664,7 @@ public class ResourceHttpRequestHandlerTests {
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
       this.request = new MockRequest("GET", "");
       this.response = new MockResponse();
-      httpContext = new MockHttpContext(null, request, response);
+      httpContext = new MockServerHttpExchange(null, request, response);
     }
 
     @Test
@@ -810,7 +810,7 @@ public class ResourceHttpRequestHandlerTests {
 
     private MockResponse response;
 
-    private MockHttpContext httpContext;
+    private MockServerHttpExchange httpContext;
 
     @BeforeEach
     void setup() throws Throwable {
@@ -818,7 +818,7 @@ public class ResourceHttpRequestHandlerTests {
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
       this.request = new MockRequest("GET", "");
       this.response = new MockResponse();
-      httpContext = new MockHttpContext(null, request, response);
+      httpContext = new MockServerHttpExchange(null, request, response);
     }
 
     @Test
@@ -902,7 +902,7 @@ public class ResourceHttpRequestHandlerTests {
     private void testInvalidPath(String requestPath) {
       this.request.setRequestURI(requestPath);
       this.response = new MockResponse();
-      httpContext = new MockHttpContext(null, request, response);
+      httpContext = new MockServerHttpExchange(null, request, response);
       assertNotFound();
     }
 
@@ -954,7 +954,7 @@ public class ResourceHttpRequestHandlerTests {
     private void testResolvePathWithTraversal(Resource location, String requestPath) {
       this.request.setRequestURI(requestPath);
       this.response = new MockResponse();
-      httpContext = new MockHttpContext(null, request, response);
+      httpContext = new MockServerHttpExchange(null, request, response);
       assertNotFound();
     }
 

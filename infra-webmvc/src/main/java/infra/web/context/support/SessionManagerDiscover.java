@@ -22,7 +22,7 @@ import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryUtils;
 import infra.util.Assert;
 import infra.session.SessionManager;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.util.WebUtils;
 
 /**
@@ -30,7 +30,7 @@ import infra.web.util.WebUtils;
  * <p>It first attempts to locate the manager in the configured {@link BeanFactory},
  * utilizing a double-checked locking mechanism for thread-safe lazy initialization.
  * If not found in the bean factory, it can also attempt to retrieve it from the
- * current {@link HttpContext}.
+ * current {@link ServerHttpExchange}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/1/30 17:41
@@ -85,12 +85,12 @@ public class SessionManagerDiscover {
 
   /**
    * Obtains the {@link SessionManager}, first checking the configured {@link #beanFactory},
-   * and if not found, attempting to retrieve it from the provided {@link HttpContext}.
+   * and if not found, attempting to retrieve it from the provided {@link ServerHttpExchange}.
    *
    * @param request the current request context to check for a SessionManager
    * @return the discovered SessionManager, or {@code null} if not found in either source
    */
-  public @Nullable SessionManager find(HttpContext request) {
+  public @Nullable SessionManager find(ServerHttpExchange request) {
     SessionManager sessionManager = find();
     if (sessionManager == null) {
       sessionManager = WebUtils.getBean(request, SessionManager.BEAN_NAME, SessionManager.class);
@@ -107,7 +107,7 @@ public class SessionManagerDiscover {
    * @return the discovered SessionManager
    * @throws IllegalStateException if no SessionManager is found
    */
-  public SessionManager obtain(HttpContext request) {
+  public SessionManager obtain(ServerHttpExchange request) {
     SessionManager sessionManager = find(request);
     if (sessionManager == null) {
       throw new IllegalStateException("No SessionManager in context");

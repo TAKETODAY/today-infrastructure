@@ -1,20 +1,20 @@
 [[mvc-trailers]]
 = 响应 Trailer
 
-当响应元数据只有在正文生产结束后才能确定时，可以通过 `HttpContext.setTrailerFields(Trailer...)`
+当响应元数据只有在正文生产结束后才能确定时，可以通过 `ServerHttpExchange.setTrailerFields(Trailer...)`
 注册尾部字段，例如流式计算的摘要或统计信息。`Trailer` 来自 `infra.web`，将字段名与延迟求值的 `Supplier<String>` 绑定。
 
 [source,java]
 ----
 @GET("/report")
-public void report(HttpContext context) throws IOException {
+public void report(ServerHttpExchange exchange) throws IOException {
   byte[] body = "report\n".getBytes(StandardCharsets.UTF_8);
-  context.setTrailerFields(Trailer.field("X-Report-Bytes", () -> Integer.toString(body.length)));
-  context.getOutputStream().write(body);
+  exchange.setTrailerFields(Trailer.field("X-Report-Bytes", () -> Integer.toString(body.length)));
+  exchange.getOutputStream().write(body);
 }
 ----
 
-示例使用 `infra.web.annotation.GET`、`infra.web.HttpContext`、`infra.web.Trailer`，
+示例使用 `infra.web.annotation.GET`、`infra.web.ServerHttpExchange`、`infra.web.Trailer`，
 以及 `java.io.IOException` 和 `java.nio.charset.StandardCharsets`。
 这里用简单统计值演示注册方式；框架不会自动计算正文摘要。
 
@@ -34,7 +34,7 @@ public void report(HttpContext context) throws IOException {
 
 当前 Netty 服务端支持 HTTP/1.1 和 HTTP/2 的响应 Trailer。HTTP/1.1 使用 chunked 编码，
 HTTP/2 使用尾部 HEADERS 帧。本实现注册 Trailer 后两种协议都省略 `Content-Length`；
-对 HTTP/2 而言这是实现策略，不是协议要求。其他 `HttpContext` 实现可能抛出 `UnsupportedOperationException`。
+对 HTTP/2 而言这是实现策略，不是协议要求。其他 `ServerHttpExchange` 实现可能抛出 `UnsupportedOperationException`。
 
 `HEAD`、无正文状态（`1xx`、`204`、`205`、`304`）、协议升级和成功的 `CONNECT` 不能携带 Trailer。
 注册后若最终状态改为不允许正文的状态，会丢弃注册且不调用 supplier。

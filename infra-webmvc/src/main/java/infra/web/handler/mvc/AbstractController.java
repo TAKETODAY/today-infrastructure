@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.session.Session;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.WebContentGenerator;
 import infra.web.util.WebUtils;
 
@@ -34,13 +34,13 @@ import infra.web.util.WebUtils;
  * <p><b>Workflow
  * (<a href="Controller.html#workflow">and that defined by interface</a>):</b><br>
  * <ol>
- * <li>{@link #handleRequest(HttpContext) handleRequest()}
+ * <li>{@link #handleRequest(ServerHttpExchange) handleRequest()}
  * will be called by the DispatcherHandler</li>
  * <li>Inspection of supported methods</li>
  * <li>If session is required, try to get it</li>
  * <li>Set caching headers if needed according to the cacheSeconds property</li>
  * <li>Call abstract method
- * {@link #handleRequestInternal(HttpContext) handleRequestInternal()}
+ * {@link #handleRequestInternal(ServerHttpExchange) handleRequestInternal()}
  * (optionally synchronizing around the call on the HttpSession),
  * which should be implemented by extending classes to provide actual
  * functionality to return {@link infra.web.view.ModelAndView ModelAndView} objects.</li>
@@ -150,7 +150,7 @@ public abstract class AbstractController extends WebContentGenerator implements 
 
   @Override
   @Nullable
-  public Object handleRequest(HttpContext context) throws Exception {
+  public Object handleRequest(ServerHttpExchange context) throws Exception {
     if (HttpMethod.OPTIONS == context.getMethod()) {
       context.setHeader(HttpHeaders.ALLOW, getAllowHeader());
       return NONE_RETURN_VALUE;
@@ -181,7 +181,7 @@ public abstract class AbstractController extends WebContentGenerator implements 
    * @see #handleRequest
    */
   @Nullable
-  protected abstract Object handleRequestInternal(HttpContext request)
+  protected abstract Object handleRequestInternal(ServerHttpExchange request)
           throws Exception;
 
 }

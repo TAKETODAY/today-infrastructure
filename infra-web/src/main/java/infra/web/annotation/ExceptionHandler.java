@@ -45,7 +45,7 @@ import infra.ui.Model;
  * cause within a wrapper exception. As of 4.0, any cause level is being
  * exposed, whereas previously only an immediate cause was considered.
  * <li>Request and/or response objects You may choose any specific request
- * type, e.g. {@link infra.web.HttpContext}.
+ * type, e.g. {@link infra.web.ServerHttpExchange}.
  * <li>Session object: typically {@link infra.session.Session}.
  * An argument of this type will enforce the presence of a corresponding session.
  * As a consequence, such an argument will never be {@code null}.
@@ -55,7 +55,7 @@ import infra.ui.Model;
  * "synchronizeOnSession"} flag to "true" if multiple requests are allowed to
  * access a session concurrently.</i>
  *
- * <li>{@link infra.web.HttpContext}.
+ * <li>{@link infra.web.ServerHttpExchange}.
  * Allows for generic request parameter access as well as request/session
  * attribute access, without ties to the native Web API.
  *
@@ -94,7 +94,7 @@ import infra.ui.Model;
  * {@linkplain infra.http.converter.HttpMessageConverter message converters}.
  * <li>{@code void} if the method handles the response itself (by
  * writing the response content directly, declaring an argument of type
- * {@link infra.web.HttpContext} for that purpose) or if the
+ * {@link infra.web.ServerHttpExchange} for that purpose) or if the
  * view name is supposed to be implicitly determined through a {@link infra.web.RequestToViewNameTranslator}
  * (not declaring a response argument in the handler method signature).
  * </ul>

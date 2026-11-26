@@ -31,7 +31,7 @@ import java.util.function.Supplier;
 
 import infra.session.Session;
 import infra.util.function.SingletonSupplier;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.async.DeferredResult;
 import infra.web.mock.MockRequest;
 
@@ -66,9 +66,9 @@ public abstract class AbstractRequestAssert<SELF extends AbstractRequestAssert<S
     Session httpSession = request.getSession();
     Assertions.assertThat(httpSession).as("HTTP session").isNotNull();
     Map<String, Object> map = toMap(httpSession.attributeNames(), httpSession::getAttribute);
-    HttpContext httpContext = getHttpContext();
-    if (httpContext != null) {
-      Session session = httpContext.getSession(false);
+    ServerHttpExchange exchange = getHttpContext();
+    if (exchange != null) {
+      Session session = exchange.getSession(false);
       if (session != null) {
         map.putAll(session.getAttributes());
       }
@@ -76,7 +76,7 @@ public abstract class AbstractRequestAssert<SELF extends AbstractRequestAssert<S
     return Assertions.assertThat(map).as("Session Attributes");
   }
 
-  protected @Nullable HttpContext getHttpContext() {
+  protected @Nullable ServerHttpExchange getHttpContext() {
     return null;
   }
 

@@ -36,8 +36,8 @@ import infra.context.annotation.ClassPathBeanDefinitionScanner;
 import infra.context.annotation.ScopeMetadata;
 import infra.context.annotation.ScopedProxyMode;
 import infra.context.support.GenericApplicationContext;
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.MockSession;
@@ -61,11 +61,11 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
 
   private static final String MODIFIED_NAME = "modified";
 
-  private final HttpContext oldRequestAttributes = new MockHttpContext(null, new MockRequest(), new MockResponse());
-  private final HttpContext newRequestAttributes = new MockHttpContext(null, new MockRequest(), new MockResponse());
+  private final ServerHttpExchange oldRequestAttributes = new MockServerHttpExchange(null, new MockRequest(), new MockResponse());
+  private final ServerHttpExchange newRequestAttributes = new MockServerHttpExchange(null, new MockRequest(), new MockResponse());
 
-  private HttpContext oldRequestAttributesWithSession;
-  private HttpContext newRequestAttributesWithSession;
+  private ServerHttpExchange oldRequestAttributesWithSession;
+  private ServerHttpExchange newRequestAttributesWithSession;
 
   private final GenericApplicationContext context = new GenericApplicationContext();
 
@@ -74,12 +74,12 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
     WebScopeRegistrar.registerScopes(context.getBeanFactory());
     MockRequest oldRequestWithSession = new MockRequest();
     oldRequestWithSession.setSession(new MockSession());
-    this.oldRequestAttributesWithSession = new MockHttpContext(
+    this.oldRequestAttributesWithSession = new MockServerHttpExchange(
             context, oldRequestWithSession, new MockResponse(), new DispatcherHandler(context));
 
     MockRequest newRequestWithSession = new MockRequest();
     newRequestWithSession.setSession(new MockSession());
-    this.newRequestAttributesWithSession = new MockHttpContext(
+    this.newRequestAttributesWithSession = new MockServerHttpExchange(
             context, newRequestWithSession, new MockResponse(), new DispatcherHandler(context));
 
   }

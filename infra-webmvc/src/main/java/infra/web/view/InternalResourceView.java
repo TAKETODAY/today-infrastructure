@@ -21,14 +21,14 @@ package infra.web.view;
 import java.util.Map;
 
 import infra.util.Assert;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 import static infra.util.StringUtils.prependLeadingSlash;
 
 /**
  * Wrapper for other resource within the same web application.
  * Exposes model objects as request attributes and forwards the request to
- * the specified resource URL using a {@link HttpContext#forward(String)}.
+ * the specified resource URL using a {@link ServerHttpExchange#forward(String)}.
  *
  * <p>If operating within an already included request or within a response that
  * has already been committed, this view will fall back to an include instead of
@@ -86,7 +86,7 @@ public class InternalResourceView extends AbstractUrlBasedView {
    * This includes setting the model as request attributes.
    */
   @Override
-  protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
+  protected void renderMergedOutputModel(Map<String, Object> model, ServerHttpExchange http) throws Exception {
     // Expose the model object as request attributes.
     exposeModelAsRequestAttributes(model, http);
 
@@ -100,7 +100,7 @@ public class InternalResourceView extends AbstractUrlBasedView {
   /**
    * Expose helpers unique to each rendering operation. This is necessary so that
    * different rendering operations can't overwrite each other's contexts etc.
-   * <p>Called by {@link #renderMergedOutputModel(Map, HttpContext)}.
+   * <p>Called by {@link #renderMergedOutputModel(Map, ServerHttpExchange)}.
    * The default implementation is empty. This method can be overridden to add
    * custom helpers as request attributes.
    *
@@ -109,7 +109,7 @@ public class InternalResourceView extends AbstractUrlBasedView {
    * @see #renderMergedOutputModel
    * @see InternalResourceView#exposeHelpers
    */
-  protected void exposeHelpers(HttpContext request) throws Exception {
+  protected void exposeHelpers(ServerHttpExchange request) throws Exception {
   }
 
   /**
@@ -124,7 +124,7 @@ public class InternalResourceView extends AbstractUrlBasedView {
    * @throws Exception if preparations failed
    * @see #getUrl()
    */
-  protected String prepareForRendering(HttpContext request) throws Exception {
+  protected String prepareForRendering(ServerHttpExchange request) throws Exception {
     String path = getUrl();
     Assert.state(path != null, "'url' not set");
     if (this.preventDispatchLoop) {

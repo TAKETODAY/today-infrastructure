@@ -136,7 +136,7 @@ class WebContentGeneratorTests {
   @Test
   void checkRequestWithUnsupportedMethod() {
     WebContentGenerator generator = new TestWebContentGenerator("GET");
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     when(request.getMethodAsString()).thenReturn("POST");
 
     assertThatExceptionOfType(HttpRequestMethodNotSupportedException.class)
@@ -147,7 +147,7 @@ class WebContentGeneratorTests {
   @Test
   void checkRequestWithSupportedMethod() {
     WebContentGenerator generator = new TestWebContentGenerator("GET", "POST");
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     when(request.getMethodAsString()).thenReturn("POST");
 
     assertThatCode(() -> generator.checkRequest(request)).doesNotThrowAnyException();
@@ -158,7 +158,7 @@ class WebContentGeneratorTests {
     WebContentGenerator generator = new TestWebContentGenerator();
     generator.setRequireSession(true);
 
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     when(request.getMethodAsString()).thenReturn("GET");
 
     assertThatExceptionOfType(SessionRequiredException.class)
@@ -170,7 +170,7 @@ class WebContentGeneratorTests {
     WebContentGenerator generator = new TestWebContentGenerator();
     generator.setRequireSession(true);
 
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     when(request.getMethodAsString()).thenReturn("GET");
 
     Session session = mock(Session.class);
@@ -187,7 +187,7 @@ class WebContentGeneratorTests {
     CacheControl cacheControl = CacheControl.maxAge(3600, TimeUnit.SECONDS);
     generator.setCacheControl(cacheControl);
 
-    HttpContext response = mock(HttpContext.class);
+    ServerHttpExchange response = mock(ServerHttpExchange.class);
     HttpHeaders headers = mock(HttpHeaders.class);
     when(response.responseHeaders()).thenReturn(headers);
 
@@ -201,7 +201,7 @@ class WebContentGeneratorTests {
     WebContentGenerator generator = new TestWebContentGenerator();
     generator.setCacheSeconds(3600);
 
-    HttpContext response = mock(HttpContext.class);
+    ServerHttpExchange response = mock(ServerHttpExchange.class);
     HttpHeaders headers = mock(HttpHeaders.class);
     when(response.responseHeaders()).thenReturn(headers);
 
@@ -215,7 +215,7 @@ class WebContentGeneratorTests {
     WebContentGenerator generator = new TestWebContentGenerator();
     generator.setCacheSeconds(0);
 
-    HttpContext response = mock(HttpContext.class);
+    ServerHttpExchange response = mock(ServerHttpExchange.class);
     HttpHeaders headers = mock(HttpHeaders.class);
     when(response.responseHeaders()).thenReturn(headers);
 
@@ -229,7 +229,7 @@ class WebContentGeneratorTests {
     WebContentGenerator generator = new TestWebContentGenerator();
     generator.setVaryByRequestHeaders("Accept-Language");
 
-    HttpContext response = mock(HttpContext.class);
+    ServerHttpExchange response = mock(ServerHttpExchange.class);
     HttpHeaders headers = mock(HttpHeaders.class);
     when(response.responseHeaders()).thenReturn(headers);
     when(response.containsResponseHeader("Vary")).thenReturn(false);
@@ -244,7 +244,7 @@ class WebContentGeneratorTests {
     WebContentGenerator generator = new TestWebContentGenerator();
     CacheControl cacheControl = CacheControl.maxAge(3600, TimeUnit.SECONDS);
 
-    HttpContext response = mock(HttpContext.class);
+    ServerHttpExchange response = mock(ServerHttpExchange.class);
 
     generator.applyCacheControl(response, cacheControl);
 
@@ -254,7 +254,7 @@ class WebContentGeneratorTests {
   @Test
   void applyCacheSecondsPositive() {
     WebContentGenerator generator = new TestWebContentGenerator();
-    HttpContext response = mock(HttpContext.class);
+    ServerHttpExchange response = mock(ServerHttpExchange.class);
 
     generator.applyCacheSeconds(response, 3600);
 
@@ -264,7 +264,7 @@ class WebContentGeneratorTests {
   @Test
   void applyCacheSecondsZero() {
     WebContentGenerator generator = new TestWebContentGenerator();
-    HttpContext response = mock(HttpContext.class);
+    ServerHttpExchange response = mock(ServerHttpExchange.class);
 
     generator.applyCacheSeconds(response, 0);
 
@@ -274,7 +274,7 @@ class WebContentGeneratorTests {
   @Test
   void applyCacheSecondsNegative() {
     WebContentGenerator generator = new TestWebContentGenerator();
-    HttpContext response = mock(HttpContext.class);
+    ServerHttpExchange response = mock(ServerHttpExchange.class);
 
     generator.applyCacheSeconds(response, -1);
 
@@ -345,7 +345,7 @@ class WebContentGeneratorTests {
   @Test
   void checkRequestWithNullSupportedMethodsAllowsAll() {
     WebContentGenerator generator = new TestWebContentGenerator(false);
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     when(request.getMethodAsString()).thenReturn("DELETE");
 
     assertThatCode(() -> generator.checkRequest(request)).doesNotThrowAnyException();
@@ -356,7 +356,7 @@ class WebContentGeneratorTests {
     WebContentGenerator generator = new TestWebContentGenerator();
     generator.setRequireSession(true);
 
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     when(request.getMethodAsString()).thenReturn("GET");
     try (MockedStatic<WebUtils> mocked = mockStatic(WebUtils.class)) {
       when(request.getSession(false)).thenReturn(null);
@@ -372,7 +372,7 @@ class WebContentGeneratorTests {
     WebContentGenerator generator = new TestWebContentGenerator();
     generator.setCacheSeconds(-1);
 
-    HttpContext response = mock(HttpContext.class);
+    ServerHttpExchange response = mock(ServerHttpExchange.class);
     HttpHeaders headers = mock(HttpHeaders.class);
     when(response.responseHeaders()).thenReturn(headers);
 
@@ -386,7 +386,7 @@ class WebContentGeneratorTests {
     WebContentGenerator generator = new TestWebContentGenerator();
     generator.setVaryByRequestHeaders("Accept-Language", "User-Agent");
 
-    HttpContext response = mock(HttpContext.class);
+    ServerHttpExchange response = mock(ServerHttpExchange.class);
     HttpHeaders headers = mock(HttpHeaders.class);
     when(response.responseHeaders()).thenReturn(headers);
     when(response.containsResponseHeader("Vary")).thenReturn(true);
@@ -402,7 +402,7 @@ class WebContentGeneratorTests {
     WebContentGenerator generator = new TestWebContentGenerator();
     generator.setVaryByRequestHeaders("Accept-Language");
 
-    HttpContext response = mock(HttpContext.class);
+    ServerHttpExchange response = mock(ServerHttpExchange.class);
     HttpHeaders headers = mock(HttpHeaders.class);
     when(response.responseHeaders()).thenReturn(headers);
     when(response.containsResponseHeader("Vary")).thenReturn(true);
@@ -418,7 +418,7 @@ class WebContentGeneratorTests {
     WebContentGenerator generator = new TestWebContentGenerator();
     generator.setVaryByRequestHeaders("Accept-Language", "User-Agent");
 
-    HttpContext response = mock(HttpContext.class);
+    ServerHttpExchange response = mock(ServerHttpExchange.class);
     HttpHeaders headers = mock(HttpHeaders.class);
     when(response.responseHeaders()).thenReturn(headers);
     when(response.containsResponseHeader("Vary")).thenReturn(true);
@@ -434,7 +434,7 @@ class WebContentGeneratorTests {
     WebContentGenerator generator = new TestWebContentGenerator();
     CacheControl cacheControl = CacheControl.empty();
 
-    HttpContext response = mock(HttpContext.class);
+    ServerHttpExchange response = mock(ServerHttpExchange.class);
 
     generator.applyCacheControl(response, cacheControl);
 
@@ -444,7 +444,7 @@ class WebContentGeneratorTests {
   @Test
   void applyCacheSecondsWithMaxAge() {
     WebContentGenerator generator = new TestWebContentGenerator();
-    HttpContext response = mock(HttpContext.class);
+    ServerHttpExchange response = mock(ServerHttpExchange.class);
 
     generator.applyCacheSeconds(response, 1800);
 

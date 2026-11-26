@@ -21,7 +21,7 @@ import org.jspecify.annotations.Nullable;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.MethodParameter;
 import infra.http.HttpCookie;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.annotation.CookieValue;
 import infra.web.bind.MissingRequestCookieException;
 import infra.web.handler.method.HandlerParameter;
@@ -48,7 +48,7 @@ public class CookieParameterResolver
 
   @Nullable
   @Override
-  protected Object resolveName(String name, HandlerParameter resolvable, HttpContext context) throws Exception {
+  protected Object resolveName(String name, HandlerParameter resolvable, ServerHttpExchange context) throws Exception {
     return context.getCookie(name);
   }
 
@@ -76,13 +76,13 @@ public class CookieParameterResolver
     }
 
     @Override
-    protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, HttpContext request) {
+    protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, ServerHttpExchange request) {
       throw new MissingRequestCookieException(name, parameter, true);
     }
 
     @Nullable
     @Override
-    protected Object resolveName(String name, HandlerParameter resolvable, HttpContext context) {
+    protected Object resolveName(String name, HandlerParameter resolvable, ServerHttpExchange context) {
       HttpCookie cookie = context.getCookie(name);
       if (cookie != null) {
         if (resolvable.is(HttpCookie.class)) {
@@ -104,8 +104,8 @@ public class CookieParameterResolver
     }
 
     @Override
-    public Object resolveArgument(HttpContext http, HandlerParameter parameter) {
-      return http.getCookies();
+    public Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) {
+      return exchange.getCookies();
     }
   }
 
@@ -123,7 +123,7 @@ public class CookieParameterResolver
 
     @Nullable
     @Override
-    protected Object resolveName(String name, HandlerParameter resolvable, HttpContext context) throws Exception {
+    protected Object resolveName(String name, HandlerParameter resolvable, ServerHttpExchange context) throws Exception {
       return context.getCookies();
     }
 

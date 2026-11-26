@@ -34,7 +34,7 @@ import infra.core.MethodParameter;
 import infra.http.HttpStatusCode;
 import infra.util.StringUtils;
 import infra.validation.method.MethodValidator;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpRequestHandler;
 import infra.web.annotation.ResponseStatus;
 import infra.web.bind.WebDataBinder;
@@ -137,7 +137,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * @return the processed return value, or {@link HttpRequestHandler#NONE_RETURN_VALUE} if no content should be written
    * @throws Exception if the invoked method throws an exception
    */
-  public @Nullable Object invokeAndHandle(HttpContext request,
+  public @Nullable Object invokeAndHandle(ServerHttpExchange request,
           @Nullable MethodValidator methodValidator, Object @Nullable [] providedArgs) throws Exception {
     Object returnValue = invokeForRequest(request, methodValidator, providedArgs);
     boolean reasonPresent = applyResponseStatus(request);
@@ -160,7 +160,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * @return {@code true} if a non-empty response status reason was applied,
    * {@code false} otherwise
    */
-  private boolean applyResponseStatus(HttpContext context) throws IOException {
+  private boolean applyResponseStatus(ServerHttpExchange context) throws IOException {
     HttpStatusCode status = getResponseStatus();
     if (status == null) {
       return false;
@@ -203,7 +203,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * or if the method raised an exception
    * @see #getMethodArgumentValues
    */
-  public @Nullable Object invokeForRequest(HttpContext request,
+  public @Nullable Object invokeForRequest(ServerHttpExchange request,
           @Nullable MethodValidator methodValidator, Object @Nullable [] providedArgs) throws Exception {
     @Nullable Object[] args = getMethodArgumentValues(request, providedArgs);
     if (log.isTraceEnabled()) {
@@ -264,7 +264,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
    * argument values and falling back to the configured argument resolvers.
    * <p>The resulting array will be passed into {@link Method#invoke(Object, Object...)}.
    */
-  private @Nullable Object[] getMethodArgumentValues(HttpContext request, Object @Nullable [] providedArgs) throws Exception {
+  private @Nullable Object[] getMethodArgumentValues(ServerHttpExchange request, Object @Nullable [] providedArgs) throws Exception {
     HandlerParameter[] parameters = this.resolvableParameters;
     int length = parameters.length;
     if (length == 0) {

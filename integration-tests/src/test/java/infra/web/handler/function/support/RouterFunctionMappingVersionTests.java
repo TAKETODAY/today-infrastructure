@@ -27,7 +27,8 @@ import java.net.URI;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
-import infra.web.mock.MockHttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.accept.StandardApiVersionDeprecationHandler;
@@ -36,7 +37,6 @@ import infra.web.config.annotation.EnableWebMvc;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.handler.HandlerExecutionChain;
 import infra.web.HandlerMapping;
-import infra.web.HttpContext;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.handler.function.HandlerFunction;
 import infra.web.handler.function.RouterFunction;
@@ -81,7 +81,7 @@ public class RouterFunctionMappingVersionTests {
 
     MockResponse response = new MockResponse();
 
-    MockHttpContext context = new MockHttpContext(request, response);
+    MockServerHttpExchange context = new MockServerHttpExchange(request, response);
     // API version resolution is a DispatcherHandler concern; simulate it here.
     Comparable<?> apiVersion = resolveApiVersion(context);
     HandlerExecutionChain chain = (HandlerExecutionChain) this.mapping.getHandler(context);
@@ -101,7 +101,7 @@ public class RouterFunctionMappingVersionTests {
   private void testGetHandler(String version, String expectedBody) throws Exception {
     MockRequest request = new MockRequest("GET", "/");
     request.addHeader("X-API-Version", version);
-    MockHttpContext context = new MockHttpContext(request);
+    MockServerHttpExchange context = new MockServerHttpExchange(request);
     // API version resolution is a DispatcherHandler concern; simulate it here.
     resolveApiVersion(context);
     HandlerExecutionChain chain = (HandlerExecutionChain) this.mapping.getHandler(context);
@@ -114,7 +114,7 @@ public class RouterFunctionMappingVersionTests {
    * {@link HandlerMapping#API_VERSION_ATTRIBUTE} request attribute,
    * mirroring the {@code DispatcherHandler} request-processing workflow.
    */
-  private @Nullable Comparable<?> resolveApiVersion(HttpContext context) {
+  private @Nullable Comparable<?> resolveApiVersion(ServerHttpExchange context) {
     ApiVersionStrategy strategy = this.mapping.getApiVersionStrategy();
     if (strategy == null) {
       return null;

@@ -41,14 +41,14 @@ public abstract class RequestThreadLocal {
    *
    * @return the current request context, or {@code null} if none is bound
    */
-  public abstract @Nullable HttpContext get();
+  public abstract @Nullable ServerHttpExchange get();
 
   /**
-   * Set the current request context in the thread local storage.
+   * Set the current exchange in the thread local storage.
    *
-   * @param context the request context to bind, or {@code null} to clear
+   * @param exchange the request context to bind, or {@code null} to clear
    */
-  public abstract void set(@Nullable HttpContext context);
+  public abstract void set(@Nullable ServerHttpExchange exchange);
 
   /**
    * Static factory method to lookup and create an appropriate RequestThreadLocal instance.
@@ -74,7 +74,7 @@ public abstract class RequestThreadLocal {
   @VisibleForTesting
   static final class Default extends RequestThreadLocal {
 
-    private final NamedThreadLocal<@Nullable HttpContext> threadLocal = new NamedThreadLocal<>("Current Request Context");
+    private final NamedThreadLocal<@Nullable ServerHttpExchange> threadLocal = new NamedThreadLocal<>("Current Request Context");
 
     @Override
     public void remove() {
@@ -82,17 +82,17 @@ public abstract class RequestThreadLocal {
     }
 
     @Override
-    public @Nullable HttpContext get() {
+    public @Nullable ServerHttpExchange get() {
       return threadLocal.get();
     }
 
     @Override
-    public void set(@Nullable HttpContext context) {
-      if (context == null) {
+    public void set(@Nullable ServerHttpExchange exchange) {
+      if (exchange == null) {
         threadLocal.remove();
       }
       else {
-        threadLocal.set(context);
+        threadLocal.set(exchange);
       }
     }
   }

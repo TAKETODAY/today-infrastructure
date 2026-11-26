@@ -37,7 +37,7 @@ import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.util.Assert;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.async.DeferredResult;
 import infra.web.handler.method.HandlerMethod;
@@ -139,7 +139,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
   }
 
   @Override
-  public void handleReturnValue(HttpContext request, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(ServerHttpExchange exchange, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue == null) {
       return;
     }
@@ -152,13 +152,13 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
       returnType = handlerMethod.getReturnType();
       // for ResponseEntity unwrap body
       if (returnValue instanceof ResponseEntity<?> entity) {
-        request.setStatus(entity.getStatusCode());
-        request.addHeaders(entity.getHeaders());
+        exchange.setStatus(entity.getStatusCode());
+        exchange.addHeaders(entity.getHeaders());
         contentType = entity.headers().getContentType();
         returnValue = entity.getBody();
         returnType = returnType.nested();
         if (returnValue == null) {
-          request.flush();
+          exchange.flush();
           return;
         }
       }
@@ -171,7 +171,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
     }
     else if (returnType != null) {
       // for reactive types
-      emitter = reactiveHandler.handleValue(returnValue, returnType, contentType, request);
+      emitter = reactiveHandler.handleValue(returnValue, returnType, contentType, exchange);
       if (emitter == null) {
         // Not streaming: write headers without committing response..
         return;
@@ -182,15 +182,15 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
       throw new UnsupportedOperationException(
               "Unsupported handler: '%s' and its return-value: '%s'".formatted(handler, returnValue));
     }
-    emitter.extendResponse(request);
+    emitter.extendResponse(exchange);
 
     HttpMessageConvertingHandler convertingHandler;
     // the response will ignore further header changes
     // Headers will be flushed at the first write
     try {
       DeferredResult<?> deferredResult = new DeferredResult<>(emitter.getTimeout());
-      request.asyncManager().startDeferredResultProcessing(deferredResult, handler);
-      convertingHandler = new HttpMessageConvertingHandler(request, deferredResult);
+      exchange.asyncManager().startDeferredResultProcessing(deferredResult, handler);
+      convertingHandler = new HttpMessageConvertingHandler(exchange, deferredResult);
     }
     catch (Throwable ex) {
       emitter.initializeWithError(ex);
@@ -205,11 +205,11 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
    */
   private class HttpMessageConvertingHandler implements ResponseBodyEmitter.Handler {
 
-    private final HttpContext request;
+    private final ServerHttpExchange request;
 
     private final DeferredResult<?> deferredResult;
 
-    public HttpMessageConvertingHandler(HttpContext request, DeferredResult<?> deferredResult) {
+    public HttpMessageConvertingHandler(ServerHttpExchange request, DeferredResult<?> deferredResult) {
       this.request = request;
       this.deferredResult = deferredResult;
     }

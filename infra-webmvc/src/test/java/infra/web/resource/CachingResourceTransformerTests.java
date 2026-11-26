@@ -23,7 +23,7 @@ import java.io.IOException;
 import infra.cache.Cache;
 import infra.cache.CacheManager;
 import infra.core.io.Resource;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -81,7 +81,7 @@ class CachingResourceTransformerTests {
   @Test
   void transformShouldReturnCachedResourceWhenFound() throws IOException {
     Cache cache = mock(Cache.class);
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     Resource resource = mock(Resource.class);
     Resource cachedResource = mock(Resource.class);
 
@@ -96,7 +96,7 @@ class CachingResourceTransformerTests {
   @Test
   void transformShouldDelegateToChainAndCacheResultWhenNotInCache() throws IOException {
     Cache cache = mock(Cache.class);
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     Resource resource = mock(Resource.class);
     Resource transformedResource = mock(Resource.class);
     ResourceTransformerChain transformerChain = mock(ResourceTransformerChain.class);
@@ -114,7 +114,7 @@ class CachingResourceTransformerTests {
   @Test
   void transformShouldHandleNullCachedResource() throws IOException {
     Cache cache = mock(Cache.class);
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     Resource resource = mock(Resource.class);
     Resource transformedResource = mock(Resource.class);
     ResourceTransformerChain transformerChain = mock(ResourceTransformerChain.class);

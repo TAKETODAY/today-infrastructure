@@ -29,7 +29,7 @@ import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.method.support.CookieParameterResolver.AllCookieParameterResolver;
 import infra.web.handler.method.support.CookieParameterResolver.CookieCollectionParameterResolver;
 import infra.web.handler.method.support.CookieParameterResolver.CookieValueAnnotationParameterResolver;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.api.Cookie;
@@ -65,7 +65,7 @@ class CookieParameterResolverTests {
   public void resolveArgumentWithExistingCookie() throws Throwable {
     MockRequest mockRequest = new MockRequest();
     mockRequest.setCookies(new Cookie("testCookie", "testValue"));
-    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
+    MockServerHttpExchange context = new MockServerHttpExchange(null, mockRequest, new MockResponse());
 
     Method method = getClass().getDeclaredMethod("handleCookie", HttpCookie.class);
     MethodParameter parameter1 = new MethodParameter(method, 0);
@@ -84,7 +84,7 @@ class CookieParameterResolverTests {
   @Test
   public void resolveArgumentWithMissingCookie() throws Exception {
     MockRequest mockRequest = new MockRequest();
-    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
+    MockServerHttpExchange context = new MockServerHttpExchange(null, mockRequest, new MockResponse());
 
     Method method = getClass().getDeclaredMethod("handleCookie", HttpCookie.class);
     MethodParameter parameter1 = new MethodParameter(method, 0);
@@ -120,7 +120,7 @@ class CookieParameterResolverTests {
   public void resolveNameWithHttpCookieType() throws Exception {
     MockRequest mockRequest = new MockRequest();
     mockRequest.setCookies(new Cookie("testCookie", "testValue"));
-    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
+    MockServerHttpExchange context = new MockServerHttpExchange(null, mockRequest, new MockResponse());
 
     Method method = getClass().getDeclaredMethod("handleCookie", HttpCookie.class);
     MethodParameter methodParam = new MethodParameter(method, 0);
@@ -140,7 +140,7 @@ class CookieParameterResolverTests {
   public void resolveNameWithStringType() throws Exception {
     MockRequest mockRequest = new MockRequest();
     mockRequest.setCookies(new Cookie("testCookie", "testValue"));
-    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
+    MockServerHttpExchange context = new MockServerHttpExchange(null, mockRequest, new MockResponse());
 
     Method method = getClass().getDeclaredMethod("handleAnnotatedCookie", String.class);
     MethodParameter methodParam = new MethodParameter(method, 0);
@@ -158,7 +158,7 @@ class CookieParameterResolverTests {
   @Test
   public void resolveNameWithMissingCookie() throws Exception {
     MockRequest mockRequest = new MockRequest();
-    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
+    MockServerHttpExchange context = new MockServerHttpExchange(null, mockRequest, new MockResponse());
 
     Method method = getClass().getDeclaredMethod("handleAnnotatedCookie", String.class);
     MethodParameter methodParam = new MethodParameter(method, 0);
@@ -226,7 +226,7 @@ class CookieParameterResolverTests {
   public void allCookieParameterResolverResolveArgument() throws Exception {
     MockRequest mockRequest = new MockRequest();
     mockRequest.setCookies(new Cookie("cookie1", "value1"), new Cookie("cookie2", "value2"));
-    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
+    MockServerHttpExchange context = new MockServerHttpExchange(null, mockRequest, new MockResponse());
 
     Method method = getClass().getDeclaredMethod("handleCookieArray", HttpCookie[].class);
     HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
@@ -255,7 +255,7 @@ class CookieParameterResolverTests {
   public void cookieCollectionParameterResolverResolveName() throws Exception {
     MockRequest mockRequest = new MockRequest();
     mockRequest.setCookies(new Cookie("cookie1", "value1"), new Cookie("cookie2", "value2"));
-    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
+    MockServerHttpExchange context = new MockServerHttpExchange(null, mockRequest, new MockResponse());
 
     Method method = getClass().getDeclaredMethod("handleCookieCollection", java.util.List.class);
     HandlerParameter parameter = new HandlerParameter(new MethodParameter(method, 0));
@@ -293,7 +293,7 @@ class CookieParameterResolverTests {
   public void cookieValueAnnotationParameterResolverResolveNameWithCookieValue() throws Exception {
     MockRequest mockRequest = new MockRequest();
     mockRequest.setCookies(new Cookie("testCookie", "testValue"));
-    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
+    MockServerHttpExchange context = new MockServerHttpExchange(null, mockRequest, new MockResponse());
 
     Method method = getClass().getDeclaredMethod("handleAnnotatedCookie", String.class);
     MethodParameter methodParam = new MethodParameter(method, 0);
@@ -311,7 +311,7 @@ class CookieParameterResolverTests {
   public void cookieValueAnnotationParameterResolverResolveNameWithHttpCookie() throws Exception {
     MockRequest mockRequest = new MockRequest();
     mockRequest.setCookies(new Cookie("testCookie", "testValue"));
-    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
+    MockServerHttpExchange context = new MockServerHttpExchange(null, mockRequest, new MockResponse());
 
     Method method = getClass().getDeclaredMethod("handleAnnotatedHttpCookie", HttpCookie.class);
     MethodParameter methodParam = new MethodParameter(method, 0);
@@ -331,7 +331,7 @@ class CookieParameterResolverTests {
   @Test
   public void cookieValueAnnotationParameterResolverResolveNameWithMissingCookie() throws Exception {
     MockRequest mockRequest = new MockRequest();
-    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
+    MockServerHttpExchange context = new MockServerHttpExchange(null, mockRequest, new MockResponse());
 
     Method method = getClass().getDeclaredMethod("handleAnnotatedCookie", String.class);
     MethodParameter methodParam = new MethodParameter(method, 0);

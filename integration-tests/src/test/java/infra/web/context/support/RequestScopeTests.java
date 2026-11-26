@@ -36,8 +36,8 @@ import infra.beans.testfixture.beans.DerivedTestBean;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.expression.StandardBeanExpressionResolver;
 import infra.core.io.ClassPathResource;
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.HttpContextHolder;
@@ -78,7 +78,7 @@ public class RequestScopeTests {
   @Test
   public void getFromScope() {
     MockRequest request = new MockRequest();
-    MockHttpContext requestAttributes = new MockHttpContext(null, request, null);
+    MockServerHttpExchange requestAttributes = new MockServerHttpExchange(null, request, null);
     HttpContextHolder.set(requestAttributes);
 
     String name = "requestScopedObject";
@@ -92,7 +92,7 @@ public class RequestScopeTests {
   @Test
   public void destructionAtRequestCompletion() {
     MockRequest request = new MockRequest();
-    MockHttpContext requestAttributes = new MockHttpContext(null, request, new MockResponse());
+    MockServerHttpExchange requestAttributes = new MockServerHttpExchange(null, request, new MockResponse());
     HttpContextHolder.set(requestAttributes);
 
     String name = "requestScopedDisposableObject";
@@ -108,7 +108,7 @@ public class RequestScopeTests {
   @Test
   public void getFromFactoryBeanInScope() {
     MockRequest request = new MockRequest();
-    MockHttpContext requestAttributes = new MockHttpContext(null, request, null);
+    MockServerHttpExchange requestAttributes = new MockServerHttpExchange(null, request, null);
     HttpContextHolder.set(requestAttributes);
 
     String name = "requestScopedFactoryBean";
@@ -122,7 +122,7 @@ public class RequestScopeTests {
   @Test
   public void circleLeadsToException() {
     MockRequest request = new MockRequest();
-    MockHttpContext requestAttributes = new MockHttpContext(null, request, null);
+    MockServerHttpExchange requestAttributes = new MockServerHttpExchange(null, request, null);
     HttpContextHolder.set(requestAttributes);
 
     String name = "requestScopedObjectCircle1";
@@ -135,7 +135,7 @@ public class RequestScopeTests {
   @Test
   public void innerBeanInheritsContainingBeanScopeByDefault() {
     MockRequest request = new MockRequest();
-    MockHttpContext requestAttributes = new MockHttpContext(null, request, new MockResponse()); HttpContextHolder.set(requestAttributes);
+    MockServerHttpExchange requestAttributes = new MockServerHttpExchange(null, request, new MockResponse()); HttpContextHolder.set(requestAttributes);
 
     String outerBeanName = "requestScopedOuterBean";
     assertThat(request.getAttribute(outerBeanName)).isNull();
@@ -147,7 +147,7 @@ public class RequestScopeTests {
     assertThat(outer1.wasDestroyed()).isTrue();
     assertThat(inner1.wasDestroyed()).isTrue();
     request = new MockRequest();
-    requestAttributes = new MockHttpContext(null, request, null);
+    requestAttributes = new MockServerHttpExchange(null, request, null);
     HttpContextHolder.set(requestAttributes);
     TestBean outer2 = (TestBean) this.beanFactory.getBean(outerBeanName);
     assertThat(outer2).isNotSameAs(outer1);
@@ -157,7 +157,7 @@ public class RequestScopeTests {
   @Test
   public void requestScopedInnerBeanDestroyedWhileContainedBySingleton() {
     MockRequest request = new MockRequest();
-    MockHttpContext requestAttributes = new MockHttpContext(null, request, new MockResponse()); HttpContextHolder.set(requestAttributes);
+    MockServerHttpExchange requestAttributes = new MockServerHttpExchange(null, request, new MockResponse()); HttpContextHolder.set(requestAttributes);
 
     String outerBeanName = "singletonOuterBean";
     TestBean outer1 = (TestBean) this.beanFactory.getBean(outerBeanName);
@@ -200,7 +200,7 @@ public class RequestScopeTests {
   @Test
   void getReturnsBeanFromRequestScope() {
     MockRequest request = new MockRequest();
-    MockHttpContext requestAttributes = new MockHttpContext(null, request, null);
+    MockServerHttpExchange requestAttributes = new MockServerHttpExchange(null, request, null);
     HttpContextHolder.set(requestAttributes);
 
     RequestScope requestScope = new RequestScope();
@@ -219,7 +219,7 @@ public class RequestScopeTests {
   @Test
   void getReturnsExistingBeanFromRequestScope() {
     MockRequest request = new MockRequest();
-    MockHttpContext requestAttributes = new MockHttpContext(null, request, null);
+    MockServerHttpExchange requestAttributes = new MockServerHttpExchange(null, request, null);
     HttpContextHolder.set(requestAttributes);
 
     RequestScope requestScope = new RequestScope();
@@ -237,7 +237,7 @@ public class RequestScopeTests {
   @Test
   void removeReturnsAndRemovesBeanFromRequestScope() {
     MockRequest request = new MockRequest();
-    MockHttpContext requestAttributes = new MockHttpContext(null, request, null);
+    MockServerHttpExchange requestAttributes = new MockServerHttpExchange(null, request, null);
     HttpContextHolder.set(requestAttributes);
 
     RequestScope requestScope = new RequestScope();
@@ -253,18 +253,18 @@ public class RequestScopeTests {
 
   @Test
   void resolveContextualObjectWithRequestKey() {
-    MockHttpContext httpContext = new MockHttpContext(null, new MockRequest(), null);
+    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, new MockRequest(), null);
     HttpContextHolder.set(httpContext);
 
     RequestScope requestScope = new RequestScope();
-    Object result = requestScope.resolveContextualObject(HttpContext.SCOPE_REQUEST);
+    Object result = requestScope.resolveContextualObject(ServerHttpExchange.SCOPE_REQUEST);
 
     assertThat(result).isSameAs(httpContext);
   }
 
   @Test
   void resolveContextualObjectWithInvalidKey() {
-    HttpContextHolder.set(new MockHttpContext(null, new MockRequest(), null));
+    HttpContextHolder.set(new MockServerHttpExchange(null, new MockRequest(), null));
 
     RequestScope requestScope = new RequestScope();
     Object result = requestScope.resolveContextualObject("invalidKey");
@@ -277,14 +277,14 @@ public class RequestScopeTests {
     HttpContextHolder.set(null);
 
     RequestScope requestScope = new RequestScope();
-    Object result = requestScope.resolveContextualObject(HttpContext.SCOPE_SESSION);
+    Object result = requestScope.resolveContextualObject(ServerHttpExchange.SCOPE_SESSION);
 
     assertThat(result).isNull();
   }
 
   @Test
   void registerDestructionCallbackRegistersCallback() {
-    MockHttpContext httpContext = new MockHttpContext(null, new MockRequest(), new MockResponse());
+    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, new MockRequest(), new MockResponse());
     HttpContextHolder.set(httpContext);
 
     RequestScope requestScope = new RequestScope();

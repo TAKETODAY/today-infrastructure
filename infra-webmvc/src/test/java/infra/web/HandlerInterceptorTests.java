@@ -45,7 +45,7 @@ class HandlerInterceptorTests {
   @Test
   void defaultPreProcessingReturnsTrue() throws Throwable {
     HandlerInterceptor interceptor = new HandlerInterceptor() { };
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     Object handler = new Object();
 
     boolean result = interceptor.preProcessing(request, handler);
@@ -56,7 +56,7 @@ class HandlerInterceptorTests {
   @Test
   void defaultPostProcessingDoesNotThrowException() throws Throwable {
     HandlerInterceptor interceptor = new HandlerInterceptor() { };
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     Object handler = new Object();
     Object result = new Object();
 
@@ -66,7 +66,7 @@ class HandlerInterceptorTests {
   @Test
   void defaultInterceptProceedsWithChainWhenPreProcessingReturnsTrue() throws Throwable {
     HandlerInterceptor interceptor = new HandlerInterceptor() { };
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     InterceptorChain chain = mock(InterceptorChain.class);
     Object handler = new Object();
     Object expectedResult = new Object();
@@ -84,7 +84,7 @@ class HandlerInterceptorTests {
   @Test
   void defaultInterceptReturnsNoneReturnValueWhenPreProcessingReturnsFalse() throws Throwable {
     HandlerInterceptor interceptor = new TestHandlerInterceptor(false);
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     InterceptorChain chain = mock(InterceptorChain.class);
     Object handler = new Object();
 
@@ -100,7 +100,7 @@ class HandlerInterceptorTests {
   @Test
   void interceptCallsPostProcessingWithCorrectParameters() throws Throwable {
     TestHandlerInterceptorWithAfterProcess interceptor = new TestHandlerInterceptorWithAfterProcess();
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     InterceptorChain chain = mock(InterceptorChain.class);
     Object handler = new Object();
     Object expectedResult = new Object();
@@ -119,7 +119,7 @@ class HandlerInterceptorTests {
   @Test
   void interceptDoesNotCallPostProcessingWhenPreProcessingReturnsFalse() throws Throwable {
     TestHandlerInterceptorWithAfterProcess interceptor = new TestHandlerInterceptorWithAfterProcess(false);
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     InterceptorChain chain = mock(InterceptorChain.class);
     Object handler = new Object();
 
@@ -145,14 +145,14 @@ class HandlerInterceptorTests {
     }
 
     @Override
-    public boolean preProcessing(HttpContext context, Object handler) {
+    public boolean preProcessing(ServerHttpExchange exchange, Object handler) {
       return returnValue;
     }
   }
 
   static class TestHandlerInterceptorWithAfterProcess implements HandlerInterceptor {
     private final boolean beforeProcessResult;
-    HttpContext capturedRequest;
+    ServerHttpExchange capturedRequest;
     Object capturedHandler;
     Object capturedResult;
 
@@ -165,13 +165,13 @@ class HandlerInterceptorTests {
     }
 
     @Override
-    public boolean preProcessing(HttpContext context, Object handler) {
+    public boolean preProcessing(ServerHttpExchange exchange, Object handler) {
       return beforeProcessResult;
     }
 
     @Override
-    public void postProcessing(HttpContext context, Object handler, Object result) {
-      this.capturedRequest = context;
+    public void postProcessing(ServerHttpExchange exchange, Object handler, Object result) {
+      this.capturedRequest = exchange;
       this.capturedHandler = handler;
       this.capturedResult = result;
     }

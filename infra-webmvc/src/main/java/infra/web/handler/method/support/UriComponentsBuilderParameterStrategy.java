@@ -18,18 +18,18 @@
 
 package infra.web.handler.method.support;
 
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.method.ParameterResolvingStrategy;
-import infra.web.util.HttpContextUriComponentsBuilder;
+import infra.web.util.HttpExchangeUriComponentsBuilder;
 import infra.web.util.UriComponentsBuilder;
 
 /**
  * Resolves argument values of type {@link UriComponentsBuilder} or
- * {@link HttpContextUriComponentsBuilder}.
+ * {@link HttpExchangeUriComponentsBuilder}.
  *
  * <p>The returned instance is initialized via
- * {@link HttpContextUriComponentsBuilder#fromRequest(HttpContext)}.
+ * {@link HttpExchangeUriComponentsBuilder#fromRequest(ServerHttpExchange)}.
  * Forwarded headers must be processed before argument resolution.
  *
  * @author Rossen Stoyanchev
@@ -40,12 +40,12 @@ public class UriComponentsBuilderParameterStrategy implements ParameterResolving
 
   @Override
   public boolean supportsParameter(HandlerParameter parameter) {
-    return parameter.is(UriComponentsBuilder.class) || parameter.is(HttpContextUriComponentsBuilder.class);
+    return parameter.is(UriComponentsBuilder.class) || parameter.is(HttpExchangeUriComponentsBuilder.class);
   }
 
   @Override
-  public HttpContextUriComponentsBuilder resolveArgument(HttpContext context, HandlerParameter parameter) {
-    return HttpContextUriComponentsBuilder.fromRequest(context);
+  public HttpExchangeUriComponentsBuilder resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) {
+    return HttpExchangeUriComponentsBuilder.fromRequest(exchange);
   }
 
 }

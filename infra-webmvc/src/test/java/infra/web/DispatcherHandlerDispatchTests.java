@@ -27,7 +27,7 @@ import infra.web.handler.AsyncHandler;
 import infra.web.handler.HandlerNotFoundException;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.handler.ReturnValueHandlerNotFoundException;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.server.RequestContinueExpectedResolver;
 import infra.web.view.ViewRef;
 
@@ -46,7 +46,7 @@ class DispatcherHandlerDispatchTests {
   @Test
   void publishesResolvedApiVersionBeforeMappingAndNotifiesDeprecationStrategy() throws Exception {
     try (GenericApplicationContext application = new GenericApplicationContext()) {
-      MockHttpContext request = new MockHttpContext(application);
+      MockServerHttpExchange request = new MockServerHttpExchange(application);
       ApiVersionStrategy strategy = mock(ApiVersionStrategy.class);
       given(strategy.resolveParseAndValidateVersion(request)).willAnswer(invocation -> 2);
       application.getBeanFactory().registerSingleton("apiVersionStrategy", strategy);
@@ -77,7 +77,7 @@ class DispatcherHandlerDispatchTests {
       NotFoundHandler fallback = mock(NotFoundHandler.class);
       application.getBeanFactory().registerSingleton("notFoundHandler", fallback);
       application.refresh();
-      MockHttpContext request = new MockHttpContext(application);
+      MockServerHttpExchange request = new MockServerHttpExchange(application);
       request.request.setMethod("GET");
       request.request.setRequestURI("/missing");
       given(fallback.handleNotFound(request)).willReturn(HttpRequestHandler.NONE_RETURN_VALUE);
@@ -106,8 +106,8 @@ class DispatcherHandlerDispatchTests {
   @Test
   void continuesPastUndecidedExpectContinueResolver() {
     try (GenericApplicationContext application = new GenericApplicationContext()) {
-      MockHttpContext request = new MockHttpContext(application);
-      MockHttpContext undecided = new MockHttpContext(application);
+      MockServerHttpExchange request = new MockServerHttpExchange(application);
+      MockServerHttpExchange undecided = new MockServerHttpExchange(application);
       RequestContinueExpectedResolver first = mock(RequestContinueExpectedResolver.class,
               withSettings().extraInterfaces(Ordered.class));
       RequestContinueExpectedResolver second = mock(RequestContinueExpectedResolver.class,
@@ -136,7 +136,7 @@ class DispatcherHandlerDispatchTests {
     try (GenericApplicationContext application = new GenericApplicationContext()) {
       application.getBeanFactory().registerSingleton("viewTranslator", (RequestToViewNameTranslator) request -> "landing");
       application.refresh();
-      MockHttpContext request = new MockHttpContext(application);
+      MockServerHttpExchange request = new MockServerHttpExchange(application);
       DispatcherHandler dispatcher = new DispatcherHandler(application);
       dispatcher.setHandlerMapping(context -> (HttpRequestHandler) http -> null);
       ReturnValueHandler renderer = mock(ReturnValueHandler.class);
@@ -165,7 +165,7 @@ class DispatcherHandlerDispatchTests {
   @Test
   void reportsUnsupportedSendResultWithoutCompletingRequest() {
     try (GenericApplicationContext application = new GenericApplicationContext()) {
-      MockHttpContext request = new MockHttpContext(application);
+      MockServerHttpExchange request = new MockServerHttpExchange(application);
       DispatcherHandler dispatcher = new DispatcherHandler(application);
       dispatcher.setReturnValueHandler(mock(ReturnValueHandlerManager.class));
 
@@ -179,7 +179,7 @@ class DispatcherHandlerDispatchTests {
   @Test
   void asyncResultUsesWrappedReturnValueHandler() throws Exception {
     try (GenericApplicationContext application = new GenericApplicationContext()) {
-      MockHttpContext request = new MockHttpContext(application);
+      MockServerHttpExchange request = new MockServerHttpExchange(application);
       DispatcherHandler dispatcher = new DispatcherHandler(application);
       AsyncHandler handler = mock(AsyncHandler.class);
       ReturnValueHandler renderer = mock(ReturnValueHandler.class);
@@ -195,7 +195,7 @@ class DispatcherHandlerDispatchTests {
   @Test
   void asyncFailureAfterCommitCompletesAndPropagatesOriginalFailure() throws Exception {
     try (GenericApplicationContext application = new GenericApplicationContext()) {
-      MockHttpContext request = new MockHttpContext(application);
+      MockServerHttpExchange request = new MockServerHttpExchange(application);
       request.response.setCommitted(true);
       DispatcherHandler dispatcher = new DispatcherHandler(application);
       HandlerExceptionHandler resolver = mock(HandlerExceptionHandler.class);

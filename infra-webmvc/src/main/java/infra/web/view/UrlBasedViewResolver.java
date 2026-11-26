@@ -34,7 +34,7 @@ import infra.core.Ordered;
 import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.PatternMatchUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.util.WebUtils;
 
 /**
@@ -52,7 +52,7 @@ import infra.web.util.WebUtils;
  *
  * <p>View names can either be resource URLs themselves, or get augmented by a
  * specified prefix and/or suffix. Exporting an attribute that holds the
- * HttpContext to all views is explicitly supported.
+ * ServerHttpExchange to all views is explicitly supported.
  *
  * <p>Example: prefix="/WEB-INF/jsp/", suffix=".jsp", viewname="test" &rarr;
  * "/WEB-INF/jsp/test.jsp"
@@ -83,7 +83,7 @@ import infra.web.util.WebUtils;
  * @see #setViewClass
  * @see #setPrefix
  * @see #setSuffix
- * @see #setHttpContextAttribute
+ * @see #setExchangeAttribute
  * @see #REDIRECT_URL_PREFIX
  * @see AbstractUrlBasedView
  * @see infra.web.view.freemarker.FreeMarkerView
@@ -123,7 +123,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
 
   private boolean redirectHttp10Compatible = true;
 
-  private @Nullable String httpContextAttribute;
+  private @Nullable String exchangeAttribute;
 
   /** Map of static attributes, keyed by attribute name (String). */
   private final Map<String, Object> staticAttributes = new HashMap<>();
@@ -262,20 +262,20 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
   }
 
   /**
-   * Set the name of the HttpContext attribute for all views.
+   * Set the name of the ServerHttpExchange attribute for all views.
    *
-   * @param httpContextAttribute name of the HttpContext attribute
-   * @see AbstractView#setHttpContextAttribute
+   * @param exchangeAttribute name of the ServerHttpExchange attribute
+   * @see AbstractView#setExchangeAttribute
    */
-  public void setHttpContextAttribute(@Nullable String httpContextAttribute) {
-    this.httpContextAttribute = httpContextAttribute;
+  public void setExchangeAttribute(@Nullable String exchangeAttribute) {
+    this.exchangeAttribute = exchangeAttribute;
   }
 
   /**
-   * Return the name of the HttpContext attribute for all views, if any.
+   * Return the name of the ServerHttpExchange attribute for all views, if any.
    */
-  protected @Nullable String getHttpContextAttribute() {
-    return this.httpContextAttribute;
+  protected @Nullable String getExchangeAttribute() {
+    return this.exchangeAttribute;
   }
 
   /**
@@ -402,7 +402,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
    *
    * @param exposeOutputRedirectModel If true, all 'output' RedirectModel
    * will be put to current view
-   * @see WebUtils#getOutputRedirectModel(HttpContext)
+   * @see WebUtils#getOutputRedirectModel(ServerHttpExchange)
    */
   public void setExposeOutputRedirectModel(boolean exposeOutputRedirectModel) {
     this.exposeOutputRedirectModel = exposeOutputRedirectModel;
@@ -587,9 +587,9 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
       view.setContentType(contentType);
     }
 
-    String httpContextAttribute = getHttpContextAttribute();
+    String httpContextAttribute = getExchangeAttribute();
     if (httpContextAttribute != null) {
-      view.setHttpContextAttribute(httpContextAttribute);
+      view.setExchangeAttribute(httpContextAttribute);
     }
 
     Boolean exposePathVariables = getExposePathVariables();

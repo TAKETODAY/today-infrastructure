@@ -29,7 +29,7 @@ import infra.ui.ModelMap;
 import infra.util.Assert;
 import infra.web.BindingContext;
 import infra.web.HandlerInterceptor;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.RedirectModel;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
@@ -57,7 +57,7 @@ class DefaultMvcResult implements MvcResult {
 
   private final AtomicReference<Object> asyncResult = new AtomicReference<>(RESULT_NONE);
 
-  private HttpContext httpContext;
+  private ServerHttpExchange exchange;
 
   private @Nullable Object handler;
 
@@ -74,11 +74,11 @@ class DefaultMvcResult implements MvcResult {
   /**
    * Create a new instance with the given request and response.
    */
-  public DefaultMvcResult(MockRequest request, MockResponse response, HttpContext httpContext) {
+  public DefaultMvcResult(MockRequest request, MockResponse response, ServerHttpExchange exchange) {
     this.mockRequest = request;
     this.mockResponse = response;
-    this.httpContext = httpContext;
-    httpContext.setAttribute(MVC_RESULT_ATTRIBUTE, this);
+    this.exchange = exchange;
+    exchange.setAttribute(MVC_RESULT_ATTRIBUTE, this);
   }
 
   @Override
@@ -92,8 +92,8 @@ class DefaultMvcResult implements MvcResult {
   }
 
   @Override
-  public HttpContext getContext() {
-    return httpContext;
+  public ServerHttpExchange getContext() {
+    return exchange;
   }
 
   public void setHandler(@Nullable Object handler) {
@@ -141,23 +141,23 @@ class DefaultMvcResult implements MvcResult {
   @Override
   public @Nullable ModelAndView getModelAndView() {
     if (modelAndView == null) {
-      Object attribute = httpContext.getAttribute(MODEL_AND_VIEW_ATTRIBUTE);
+      Object attribute = exchange.getAttribute(MODEL_AND_VIEW_ATTRIBUTE);
       if (attribute instanceof ModelAndView view) {
         this.modelAndView = view;
       }
-      else if (BindingContext.has(httpContext)) {
-        BindingContext bindingContext = BindingContext.obtain(httpContext);
+      else if (BindingContext.has(exchange)) {
+        BindingContext bindingContext = BindingContext.obtain(exchange);
         if (bindingContext.hasModelAndView()) {
           ModelAndView modelAndView = bindingContext.getModelAndView();
           setModelAndView(modelAndView);
         }
         else {
           ModelMap model = bindingContext.getModel();
-          Object viewNameAttribute = httpContext.getAttribute(VIEW_NAME_ATTRIBUTE);
+          Object viewNameAttribute = exchange.getAttribute(VIEW_NAME_ATTRIBUTE);
           if (viewNameAttribute instanceof String viewName) {
             modelAndView = new ModelAndView(viewName, model);
           }
-          else if (httpContext.getAttribute(VIEW_ATTRIBUTE) instanceof View view) {
+          else if (exchange.getAttribute(VIEW_ATTRIBUTE) instanceof View view) {
             modelAndView = new ModelAndView(view, model);
           }
           else {
@@ -172,10 +172,10 @@ class DefaultMvcResult implements MvcResult {
 
   @Override
   public RedirectModel getOutputRedirectModel() {
-    RedirectModel model = WebUtils.getOutputRedirectModel(this.httpContext);
+    RedirectModel model = WebUtils.getOutputRedirectModel(this.exchange);
     if (model == null) {
       model = new RedirectModel();
-      httpContext.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, model);
+      exchange.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, model);
     }
     return model;
   }
@@ -223,11 +223,11 @@ class DefaultMvcResult implements MvcResult {
     this.asyncDispatchLatch = asyncDispatchLatch;
   }
 
-  void setContext(HttpContext maybeNew) {
-    this.httpContext = maybeNew;
+  void setContext(ServerHttpExchange maybeNew) {
+    this.exchange = maybeNew;
   }
 
-  static DefaultMvcResult forContext(HttpContext request) {
+  static DefaultMvcResult forContext(ServerHttpExchange request) {
     Object attribute = request.getAttribute(MVC_RESULT_ATTRIBUTE);
     if (attribute instanceof DefaultMvcResult mvcResult) {
       return mvcResult;

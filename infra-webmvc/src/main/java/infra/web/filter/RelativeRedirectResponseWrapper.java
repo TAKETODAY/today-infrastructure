@@ -23,8 +23,8 @@ import java.io.IOException;
 import infra.http.HttpHeaders;
 import infra.http.HttpStatusCode;
 import infra.util.Assert;
-import infra.web.DelegatingHttpContext;
-import infra.web.HttpContext;
+import infra.web.DelegatingServerHttpExchange;
+import infra.web.ServerHttpExchange;
 import infra.web.util.WebUtils;
 
 /**
@@ -35,11 +35,11 @@ import infra.web.util.WebUtils;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-final class RelativeRedirectResponseWrapper extends DelegatingHttpContext {
+final class RelativeRedirectResponseWrapper extends DelegatingServerHttpExchange {
 
   private final HttpStatusCode redirectStatus;
 
-  private RelativeRedirectResponseWrapper(HttpContext delegate, HttpStatusCode redirectStatus) {
+  private RelativeRedirectResponseWrapper(ServerHttpExchange delegate, HttpStatusCode redirectStatus) {
     super(delegate);
     Assert.notNull(redirectStatus, "'redirectStatus' is required");
     this.redirectStatus = redirectStatus;
@@ -53,7 +53,7 @@ final class RelativeRedirectResponseWrapper extends DelegatingHttpContext {
     flush();
   }
 
-  public static HttpContext wrapIfNecessary(HttpContext context, HttpStatusCode redirectStatus) {
+  public static ServerHttpExchange wrapIfNecessary(ServerHttpExchange context, HttpStatusCode redirectStatus) {
     RelativeRedirectResponseWrapper wrapper = WebUtils.getNativeContext(context, RelativeRedirectResponseWrapper.class);
 
     return wrapper != null ? context :

@@ -17,7 +17,7 @@ HTTP/1.1 的 chunked 编码和 HTTP/2 都允许在正文之后发送尾部字段
 
 以下结论来自当前代码，用于替代 #374 中的推测：
 
-1. **提交状态机的实际顺序**：`NettyHttpContext.writeHeaders()` 先执行 `committed.compareAndSet(false, true)`，再调用 `onCommitting()`，之后才装配状态码与响应头。因此在 `COMMITTING` 回调内 `isCommitted()` 已经是 `true`。
+1. **提交状态机的实际顺序**：`NettyServerHttpExchange.writeHeaders()` 先执行 `committed.compareAndSet(false, true)`，再调用 `onCommitting()`，之后才装配状态码与响应头。因此在 `COMMITTING` 回调内 `isCommitted()` 已经是 `true`。
 2. **正常完成入口集中，但不天然保证一次求值**：`requestCompletedInternal(notHandled)` 在 `notHandled == null` 时先执行 `flush()`，再调用 `endResponse()`；trailer supplier 在 `endResponse()` 中同步求值，不等待异步写出完成。入口集中不能代替对重复、重入或并发求值的防护。
 3. **协议终止消息可替换**：HTTP/1.1 通过 `LastHttpContent` 结束响应，HTTP/2 通过带 `END_STREAM` 的 DATA 或 HEADERS 帧结束响应。Trailer 可沿用这些结束点，不需要新增生命周期阶段；HTTP/2 尾部字段名必须规范化为小写。
 4. **文件终止机制无需变化，但发送与清理策略需要适配**：`ChunkedNioFile`、`DefaultFileRegion` 和 HTTP/2 文件 DATA 包装器不负责结束响应，终止消息仍由 `endResponse()` 写出。有 Trailer 的 HTTP/1.1 需要禁用现有 zero-copy `FileRegion` 路径，改走支持 chunked 的文件发送路径；由此打开的文件资源必须在发送完成或失败、尚未发送即重置、异常退出及替换待发送文件时正确回收。
@@ -51,7 +51,7 @@ context.setTrailerFields(
 
 - **理由**：`COMMITTING` 触发时 committed 标记已置位，状态已经脱离「可配置」区间。允许在 `COMMITTING` 内注册会让契约出现一个无法用 `isCommitted()` 解释的例外，也迫使实现额外维护一个 `headersWritten`
   标志。禁止它让规则保持单一。
-- **实现落点**：`AbstractHttpContext` 在保存或清除配置前调用 `assertNotCommitted()`。空数组清除与注册共享提交边界，清除操作无需执行 supplier。
+- **实现落点**：`AbstractServerHttpExchange` 在保存或清除配置前调用 `assertNotCommitted()`。空数组清除与注册共享提交边界，清除操作无需执行 supplier。
 
 ### 决策 2：HTTP/1.1 不做 `TE: trailers` 强制协商
 
@@ -83,7 +83,7 @@ Trailer 的发送以 chunked 定界为准，不要求请求携带 `TE: trailers`
 
 - **理由**：RFC 9110 §6.5.1 把 trailer 限定为「正文处理完成后才确定的元数据」。上面这些字段要么必须在头部阶段生效（定界、认证、缓存），要么与正文语义强绑定，放进 trailer 会被中间件忽略或误用。黑名单比白名单更能容纳
   `Content-Digest`、`ETag`、`Server-Timing` 这类未来字段。
-- **实现落点**：名称校验放在 `AbstractHttpContext` 的注册方法内，值校验放在 supplier 求值后、写入尾部字段前，保证各适配器与 Mock 行为一致。
+- **实现落点**：名称校验放在 `AbstractServerHttpExchange` 的注册方法内，值校验放在 supplier 求值后、写入尾部字段前，保证各适配器与 Mock 行为一致。
 
 ### 决策 5：失败即终止，不重试、不伪装成功
 
@@ -124,8 +124,8 @@ Trailer 的发送以 chunked 定界为准，不要求请求携带 `TE: trailers`
 
 ## 后果
 
-- `HttpContext` 新增 `setTrailerFields(Trailer...)` 默认方法，默认抛 `UnsupportedOperationException`；是否发送尾部字段由各传输适配器在响应完成路径中决定，已有实现无需改动即可编译。
-- `AbstractHttpContext` 承担全部配置状态、校验与原子防护的一次求值；`AbstractDelegatingHttpContext` 与 `DelegatingHttpContext` 纯委托，不另存状态。
-- `MockHttpContext` 复用骨架行为，额外暴露最终字段供断言。
+- `ServerHttpExchange` 新增 `setTrailerFields(Trailer...)` 默认方法，默认抛 `UnsupportedOperationException`；是否发送尾部字段由各传输适配器在响应完成路径中决定，已有实现无需改动即可编译。
+- `AbstractServerHttpExchange` 承担全部配置状态、校验与原子防护的一次求值；`AbstractDelegatingServerHttpExchange` 与 `DelegatingServerHttpExchange` 纯委托，不另存状态。
+- `MockServerHttpExchange` 复用骨架行为，额外暴露最终字段供断言。
 - 未配置 Trailer 时保持既有响应定界和终止行为；文件资源回收和必要的完成清理不能依赖是否配置 Trailer。
 - 实现需要按 #374 验收项补充契约测试与 HTTP/1.1、HTTP/2 协议级测试。测试重点：注册时机、替换与空数组清除、防御性复制、最终状态变化、`reset`、空结果、空值跳过、同名多值、禁止字段与控制字符、并发及失败后不重复求值、keep-alive 复用、HTTP/2 字段名小写、尾部 HEADERS 顺序、`END_STREAM` 唯一性、文件资源回收、连接或流关闭。

@@ -27,7 +27,7 @@ import infra.beans.factory.BeanFactory;
 import infra.beans.factory.BeanFactoryAware;
 import infra.core.task.AsyncTaskExecutor;
 import infra.util.Assert;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.util.TimeoutUtils;
 
 /**
@@ -187,17 +187,17 @@ public class WebAsyncTask<V> implements BeanFactoryAware {
   CallableProcessingInterceptor createInterceptor() {
     return new CallableProcessingInterceptor() {
       @Override
-      public <T> Object handleTimeout(HttpContext request, Callable<T> task) throws Exception {
+      public <T> Object handleTimeout(ServerHttpExchange request, Callable<T> task) throws Exception {
         return (timeoutCallback != null ? timeoutCallback.call() : RESULT_NONE);
       }
 
       @Override
-      public <T> Object handleError(HttpContext request, Callable<T> task, Throwable t) throws Exception {
+      public <T> Object handleError(ServerHttpExchange request, Callable<T> task, Throwable t) throws Exception {
         return (errorCallback != null ? errorCallback.call() : RESULT_NONE);
       }
 
       @Override
-      public <T> void afterCompletion(HttpContext request, Callable<T> task) throws Exception {
+      public <T> void afterCompletion(ServerHttpExchange request, Callable<T> task) throws Exception {
         if (completionCallback != null) {
           completionCallback.run();
         }

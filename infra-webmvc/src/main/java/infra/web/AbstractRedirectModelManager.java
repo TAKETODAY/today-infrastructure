@@ -69,32 +69,32 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
   }
 
   @Override
-  public @Nullable RedirectModel retrieveAndUpdate(HttpContext context) {
-    List<RedirectModel> allRedirectModels = retrieveRedirectModel(context);
+  public @Nullable RedirectModel retrieveAndUpdate(ServerHttpExchange exchange) {
+    List<RedirectModel> allRedirectModels = retrieveRedirectModel(exchange);
     if (CollectionUtils.isEmpty(allRedirectModels)) {
       return null;
     }
 
     List<RedirectModel> mapsToRemove = getExpired(allRedirectModels);
-    RedirectModel match = getMatchingRedirectModel(allRedirectModels, context);
+    RedirectModel match = getMatchingRedirectModel(allRedirectModels, exchange);
     if (match != null) {
       mapsToRemove.add(match);
     }
 
     if (!mapsToRemove.isEmpty()) {
-      Object mutex = getRedirectModelMutex(context);
+      Object mutex = getRedirectModelMutex(exchange);
       if (mutex != null) {
         synchronized(mutex) {
-          allRedirectModels = retrieveRedirectModel(context);
+          allRedirectModels = retrieveRedirectModel(exchange);
           if (allRedirectModels != null) {
             allRedirectModels.removeAll(mapsToRemove);
-            updateRedirectModel(allRedirectModels, context);
+            updateRedirectModel(allRedirectModels, exchange);
           }
         }
       }
       else {
         allRedirectModels.removeAll(mapsToRemove);
-        updateRedirectModel(allRedirectModels, context);
+        updateRedirectModel(allRedirectModels, exchange);
       }
     }
 
@@ -119,7 +119,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
    *
    * @return a matching RedirectModel or {@code null}
    */
-  private @Nullable RedirectModel getMatchingRedirectModel(List<RedirectModel> allMaps, HttpContext request) {
+  private @Nullable RedirectModel getMatchingRedirectModel(List<RedirectModel> allMaps, ServerHttpExchange request) {
     ArrayList<RedirectModel> result = new ArrayList<>();
     for (RedirectModel model : allMaps) {
       if (isRedirectModelForRequest(model, request)) {
@@ -140,7 +140,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
    * Whether the given RedirectModel matches the current request.
    * Uses the expected request path and query parameters saved in the RedirectModel.
    */
-  protected boolean isRedirectModelForRequest(RedirectModel model, HttpContext request) {
+  protected boolean isRedirectModelForRequest(RedirectModel model, ServerHttpExchange request) {
     String expectedPath = model.getTargetRequestPath();
     if (expectedPath != null) {
       String requestUri = request.getRequestURI();
@@ -164,40 +164,40 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
     return true;
   }
 
-  private MultiValueMap<String, String> getOriginatingRequestParams(HttpContext request) {
+  private MultiValueMap<String, String> getOriginatingRequestParams(ServerHttpExchange request) {
     String query = request.getQueryString();
     return UriComponentsBuilder.forPath("/").query(query).build().getQueryParams();
   }
 
   @Override
-  public void saveRedirectModel(HttpContext context, @Nullable RedirectModel redirectModel) {
+  public void saveRedirectModel(ServerHttpExchange exchange, @Nullable RedirectModel redirectModel) {
     if (CollectionUtils.isEmpty(redirectModel)) {
       return;
     }
 
-    String path = decodeAndNormalizePath(redirectModel.getTargetRequestPath(), context);
+    String path = decodeAndNormalizePath(redirectModel.getTargetRequestPath(), exchange);
     redirectModel.setTargetRequestPath(path);
 
     redirectModel.startExpirationPeriod(getRedirectModelTimeout());
 
-    Object mutex = getRedirectModelMutex(context);
+    Object mutex = getRedirectModelMutex(exchange);
     if (mutex != null) {
       synchronized(mutex) {
-        List<RedirectModel> allRedirectModels = retrieveRedirectModel(context);
+        List<RedirectModel> allRedirectModels = retrieveRedirectModel(exchange);
         allRedirectModels = allRedirectModels != null ? allRedirectModels : new CopyOnWriteArrayList<>();
         allRedirectModels.add(redirectModel);
-        updateRedirectModel(allRedirectModels, context);
+        updateRedirectModel(allRedirectModels, exchange);
       }
     }
     else {
-      List<RedirectModel> allRedirectModels = retrieveRedirectModel(context);
+      List<RedirectModel> allRedirectModels = retrieveRedirectModel(exchange);
       allRedirectModels = allRedirectModels != null ? allRedirectModels : new ArrayList<>(1);
       allRedirectModels.add(redirectModel);
-      updateRedirectModel(allRedirectModels, context);
+      updateRedirectModel(allRedirectModels, exchange);
     }
   }
 
-  private @Nullable String decodeAndNormalizePath(@Nullable String path, HttpContext request) {
+  private @Nullable String decodeAndNormalizePath(@Nullable String path, ServerHttpExchange request) {
     if (path != null && !path.isEmpty()) {
       path = URLDecoder.decode(path, StandardCharsets.UTF_8);
       if (path.charAt(0) != '/') {
@@ -215,7 +215,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
    * @param request the current request
    * @return a List with RedirectModel instances, or {@code null} if none found
    */
-  protected abstract @Nullable List<RedirectModel> retrieveRedirectModel(HttpContext request);
+  protected abstract @Nullable List<RedirectModel> retrieveRedirectModel(ServerHttpExchange request);
 
   /**
    * Update the RedirectModel instances in the underlying storage.
@@ -223,7 +223,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
    * @param redirectModels a (potentially empty) list of RedirectModel instances to save
    * @param request the current request
    */
-  protected abstract void updateRedirectModel(List<RedirectModel> redirectModels, HttpContext request);
+  protected abstract void updateRedirectModel(List<RedirectModel> redirectModels, ServerHttpExchange request);
 
   /**
    * Obtain a mutex for modifying the RedirectModel List as handled by
@@ -235,7 +235,7 @@ public abstract class AbstractRedirectModelManager implements RedirectModelManag
    * @param request the current request
    * @return the mutex to use (may be {@code null} if none applicable)
    */
-  protected @Nullable Object getRedirectModelMutex(HttpContext request) {
+  protected @Nullable Object getRedirectModelMutex(ServerHttpExchange request) {
     return DEFAULT_REDIRECT_MODELS_MUTEX;
   }
 

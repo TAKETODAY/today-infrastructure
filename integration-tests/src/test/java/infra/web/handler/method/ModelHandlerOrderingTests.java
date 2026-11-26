@@ -37,7 +37,7 @@ import infra.web.annotation.RequestMapping;
 import infra.web.bind.annotation.ModelAttribute;
 import infra.web.handler.method.support.ModelAttributeMethodProcessor;
 import infra.web.handler.method.support.ModelMethodProcessor;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
@@ -50,7 +50,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ModelHandlerOrderingTests {
   private static final Logger logger = LoggerFactory.getLogger(ModelHandlerOrderingTests.class);
 
-  private final MockHttpContext webRequest = new MockHttpContext(
+  private final MockServerHttpExchange webRequest = new MockServerHttpExchange(
           null, new MockRequest(), new MockResponse());
 
   private final BindingContext mavContainer = new BindingContext();

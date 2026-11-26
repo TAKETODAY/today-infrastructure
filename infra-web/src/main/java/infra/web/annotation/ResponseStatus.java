@@ -40,7 +40,7 @@ import infra.lang.Constant;
  *
  * <p><strong>Warning</strong>: when using this annotation on an exception
  * class, or when setting a non-empty {@code reason}, one of the
- * {@link infra.web.HttpContext#sendError(int)} methods will be used. This
+ * {@link infra.web.ServerHttpExchange#sendError(int)} methods will be used. This
  * delegates to the configured error handling mechanism, which determines how
  * the error is ultimately rendered.
  *
@@ -77,8 +77,8 @@ public @interface ResponseStatus {
    * <p>Default is {@link HttpStatus#INTERNAL_SERVER_ERROR}, which should
    * typically be changed to something more appropriate.
    *
-   * @see infra.web.HttpContext#setStatus(int)
-   * @see infra.web.HttpContext#sendError(int)
+   * @see infra.web.ServerHttpExchange#setStatus(int)
+   * @see infra.web.ServerHttpExchange#sendError(int)
    * @since 3.0
    */
   @AliasFor("value")
@@ -88,7 +88,7 @@ public @interface ResponseStatus {
    * The optional <em>reason</em> associated with the response status.
    * <p>Defaults to an empty string, which is ignored. When set to a non-empty
    * value, the framework invokes
-   * {@link infra.web.HttpContext#sendError(int, String)} instead of merely
+   * {@link infra.web.ServerHttpExchange#sendError(int, String)} instead of merely
    * setting the status. The reason is passed to the configured error handling
    * mechanism and is not itself a response body. For a handler method, the
    * method's return value is ignored in this case.
@@ -97,7 +97,7 @@ public @interface ResponseStatus {
    * configured; resolution is performed for the current request when supported
    * by the MVC error handling path.
    *
-   * @see infra.web.HttpContext#sendError(int, String)
+   * @see infra.web.ServerHttpExchange#sendError(int, String)
    * @since 3.0
    */
   String reason() default Constant.BLANK;

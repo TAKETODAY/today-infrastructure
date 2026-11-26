@@ -38,22 +38,22 @@ public interface RedirectModelManager {
    * RedirectModel instances.
    * <p>This method is invoked on the first input redirect model lookup for a request.
    *
-   * @param context Current request context
+   * @param exchange Current request context
    * @return a RedirectModel matching the current request or {@code null}
    */
   @Nullable
-  RedirectModel retrieveAndUpdate(HttpContext context);
+  RedirectModel retrieveAndUpdate(ServerHttpExchange exchange);
 
   /**
    * Save the given {@link RedirectModel} to the underlying storage, making it available
    * for retrieval during a subsequent request (typically after a redirect).
    * <p>This method is invoked before a redirect when there is an output redirect model
    * to preserve. The saved model will be returned by
-   * {@link #retrieveAndUpdate(HttpContext)} in the next matching request and then removed.
+   * {@link #retrieveAndUpdate(ServerHttpExchange)} in the next matching request and then removed.
    *
-   * @param context the current request context
+   * @param exchange the current exchange
    * @param redirectModel the {@link RedirectModel} to save, or {@code null} if no model needs saving
    */
-  void saveRedirectModel(HttpContext context, @Nullable RedirectModel redirectModel);
+  void saveRedirectModel(ServerHttpExchange exchange, @Nullable RedirectModel redirectModel);
 
 }

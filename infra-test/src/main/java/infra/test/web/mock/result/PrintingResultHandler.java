@@ -40,7 +40,7 @@ import infra.util.ObjectUtils;
 import infra.validation.BindingResult;
 import infra.validation.Errors;
 import infra.web.HandlerInterceptor;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.RedirectModel;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.mock.MockRequest;
@@ -116,7 +116,7 @@ public class PrintingResultHandler implements ResultHandler {
   /**
    * Print the request.
    */
-  protected void printRequest(MockRequest request, HttpContext context) throws Exception {
+  protected void printRequest(MockRequest request, ServerHttpExchange context) throws Exception {
     String body = (request.getCharacterEncoding() != null ?
             request.getContentAsString() : MISSING_CHARACTER_ENCODING);
 
@@ -151,7 +151,7 @@ public class PrintingResultHandler implements ResultHandler {
     return multiValueMap;
   }
 
-  protected final Map<String, Object> getSessionAttributes(MockRequest request, HttpContext context) {
+  protected final Map<String, Object> getSessionAttributes(MockRequest request, ServerHttpExchange context) {
     Map<String, Object> map = new LinkedHashMap<>();
     Session session = request.getSession(false);
     if (session != null) {

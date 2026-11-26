@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.Map;
 
 import infra.http.MediaType;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.ContentNegotiationStrategy;
 import infra.web.accept.FixedContentNegotiationStrategy;
@@ -45,14 +45,14 @@ class ContentNegotiationConfigurerTests {
 
   private ContentNegotiationConfigurer configurer;
 
-  private HttpContext webRequest;
+  private ServerHttpExchange webRequest;
 
   private MockRequest mockRequest;
 
   @BeforeEach
   public void setup() {
     this.mockRequest = new MockRequest();
-    this.webRequest = new MockHttpContext(this.mockRequest);
+    this.webRequest = new MockServerHttpExchange(this.mockRequest);
     this.configurer = new ContentNegotiationConfigurer();
   }
 

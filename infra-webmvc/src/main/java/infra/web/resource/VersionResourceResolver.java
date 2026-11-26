@@ -42,7 +42,7 @@ import infra.http.HttpHeaders;
 import infra.util.Assert;
 import infra.util.AntPathMatcher;
 import infra.util.StringUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * Resolves request paths containing a version string that can be used as part
@@ -165,7 +165,7 @@ public class VersionResourceResolver extends AbstractResourceResolver {
 
   @Nullable
   @Override
-  protected Resource resolveResourceInternal(@Nullable HttpContext request,
+  protected Resource resolveResourceInternal(@Nullable ServerHttpExchange request,
           String requestPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     Resource resolved = chain.resolveResource(request, requestPath, locations);

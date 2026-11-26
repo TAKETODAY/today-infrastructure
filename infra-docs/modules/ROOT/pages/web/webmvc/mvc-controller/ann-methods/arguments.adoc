@@ -12,7 +12,7 @@
 |===
 | 控制器方法参数 | 描述
 
-| `infra.web.HttpContext`
+| `infra.web.ServerHttpExchange`
 | 当前请求上下文，可访问请求信息并操作响应。
 
 | `HttpMethod`
@@ -31,7 +31,7 @@
 | 用于访问原始响应体。
 
 | `infra.core.io.InputStreamSource`, `infra.core.io.OutputStreamSource`
-| 通过流接口访问请求体或响应体。框架将当前 `HttpContext` 作为对应的流来源传入。
+| 通过流接口访问请求体或响应体。框架将当前 `ServerHttpExchange` 作为对应的流来源传入。
 
 | `@PathVariable`
 | 用于访问 URI 模板变量。不指定变量名时，可用 `Map<String, String>` 接收全部变量。

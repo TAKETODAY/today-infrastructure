@@ -32,7 +32,7 @@ import infra.util.LogFormatUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 import infra.web.HandlerExceptionHandler;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.util.DisconnectedClientHelper;
 
 /**
@@ -161,7 +161,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * to the {@link #handleInternal} template method.
    */
   @Override
-  public @Nullable Object handleException(HttpContext context, Throwable ex, @Nullable Object handler) throws Exception {
+  public @Nullable Object handleException(ServerHttpExchange context, Throwable ex, @Nullable Object handler) throws Exception {
     if (shouldApplyTo(context, handler)) {
       prepareResponse(ex, context);
       Object result = handleInternal(context, handler, ex);
@@ -196,7 +196,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * @see #setMappedHandlers
    * @see #setMappedHandlerClasses
    */
-  protected boolean shouldApplyTo(HttpContext request, @Nullable Object handler) {
+  protected boolean shouldApplyTo(ServerHttpExchange request, @Nullable Object handler) {
     if (this.mappedHandlerPredicate != null) {
       return this.mappedHandlerPredicate.test(handler);
     }
@@ -236,7 +236,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * @see #buildLogMessage
    * @see Logger#warn(Object, Throwable)
    */
-  protected void logException(Throwable ex, HttpContext request) {
+  protected void logException(Throwable ex, ServerHttpExchange request) {
     if (warnLogger != null && warnLogger.isWarnEnabled()) {
       warnLogger.warn(buildLogMessage(ex, request));
     }
@@ -249,7 +249,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * @param request current HTTP request (useful for obtaining metadata)
    * @return the log message to use
    */
-  protected String buildLogMessage(Throwable ex, HttpContext request) {
+  protected String buildLogMessage(Throwable ex, ServerHttpExchange request) {
     return "Resolved [%s]".formatted(LogFormatUtils.formatValue(ex, -1, true));
   }
 
@@ -273,7 +273,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * @param response current HTTP response
    * @see #preventCaching
    */
-  protected void prepareResponse(Throwable ex, HttpContext response) {
+  protected void prepareResponse(Throwable ex, ServerHttpExchange response) {
     if (this.preventResponseCaching) {
       preventCaching(response);
     }
@@ -285,7 +285,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    *
    * @param response current HTTP response
    */
-  protected void preventCaching(HttpContext response) {
+  protected void preventCaching(ServerHttpExchange response) {
     response.addHeader(HttpHeaders.CACHE_CONTROL, "no-store");
   }
 
@@ -305,7 +305,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * or {@code null} for default processing in the resolution chain
    */
   @Nullable
-  protected abstract Object handleInternal(HttpContext request, @Nullable Object handler, Throwable ex)
+  protected abstract Object handleInternal(ServerHttpExchange request, @Nullable Object handler, Throwable ex)
           throws Exception;
 
 }

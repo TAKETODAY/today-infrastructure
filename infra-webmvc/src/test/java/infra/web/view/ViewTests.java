@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,7 +52,7 @@ class ViewTests {
   static class TestView implements View {
 
     @Override
-    public void render(Map<String, ?> model, HttpContext context) throws Exception {
+    public void render(Map<String, ?> model, ServerHttpExchange context) throws Exception {
       // no-op implementation for testing
     }
   }

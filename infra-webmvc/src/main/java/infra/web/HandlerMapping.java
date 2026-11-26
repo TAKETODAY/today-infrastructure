@@ -83,7 +83,7 @@ public interface HandlerMapping {
   String HANDLER_MAPPING_BEAN_NAME = "handlerMapping";
 
   /**
-   * Name of the {@link HttpContext} attribute that contains the
+   * Name of the {@link ServerHttpExchange} attribute that contains the
    * resolved and parsed API version.
    *
    * @since 5.0
@@ -107,7 +107,7 @@ public interface HandlerMapping {
    * beans to find a match, and only decide there is an error if none can find
    * a handler.
    *
-   * @param context current HTTP request context
+   * @param exchange current HTTP exchange
    * @return a {@link HandlerExecutionChain} containing the handler object and
    * any interceptors, or the handler object itself if no chain is required,
    * or {@code null} if no mapping found
@@ -115,7 +115,7 @@ public interface HandlerMapping {
    * @see HandlerExecutionChain
    */
   @Nullable
-  Object getHandler(HttpContext context) throws Exception;
+  Object getHandler(ServerHttpExchange exchange) throws Exception;
 
   // static factory method
 

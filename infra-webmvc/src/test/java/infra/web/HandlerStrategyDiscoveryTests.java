@@ -28,7 +28,7 @@ import infra.web.handler.CompositeHandlerExceptionHandler;
 import infra.web.handler.SimpleHandlerExceptionHandler;
 import infra.web.handler.function.HandlerFunction;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -80,7 +80,7 @@ class HandlerStrategyDiscoveryTests {
   void delegatesToHighestPriorityMappingAcrossContexts() throws Exception {
     try (GenericApplicationContext parent = new GenericApplicationContext();
             GenericApplicationContext child = new GenericApplicationContext(parent)) {
-      HttpContext request = mock(HttpContext.class);
+      ServerHttpExchange request = mock(ServerHttpExchange.class);
       Object handler = new Object();
       HandlerMapping first = ordered(HandlerMapping.class, -1);
       HandlerMapping second = ordered(HandlerMapping.class, 0);
@@ -98,7 +98,7 @@ class HandlerStrategyDiscoveryTests {
   @Test
   void delegatesToHighestPrioritySupportingAdapter() throws Exception {
     try (GenericApplicationContext context = new GenericApplicationContext()) {
-      HttpContext request = mock(HttpContext.class);
+      ServerHttpExchange request = mock(ServerHttpExchange.class);
       Object handler = new Object();
       HandlerAdapter first = ordered(HandlerAdapter.class, -1);
       HandlerAdapter second = ordered(HandlerAdapter.class, 0);
@@ -117,7 +117,7 @@ class HandlerStrategyDiscoveryTests {
   @Test
   void delegatesToExceptionHandlersInPriorityOrderUntilResolved() throws Exception {
     try (GenericApplicationContext context = new GenericApplicationContext()) {
-      HttpContext request = mock(HttpContext.class);
+      ServerHttpExchange request = mock(ServerHttpExchange.class);
       Throwable failure = new IllegalStateException("handler failed");
       HandlerExceptionHandler first = ordered(HandlerExceptionHandler.class, -1);
       HandlerExceptionHandler second = ordered(HandlerExceptionHandler.class, 0);
@@ -136,7 +136,7 @@ class HandlerStrategyDiscoveryTests {
 
   @Test
   void explicitAdapterListKeepsCallerOrder() throws Exception {
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     Object handler = new Object();
     HandlerAdapter first = ordered(HandlerAdapter.class, 0);
     HandlerAdapter second = ordered(HandlerAdapter.class, -1);
@@ -153,7 +153,7 @@ class HandlerStrategyDiscoveryTests {
     try (GenericApplicationContext context = new GenericApplicationContext()) {
       context.refresh();
 
-      assertThat(HandlerMapping.find(context, detectAll).getHandler(new MockHttpContext(context))).isNull();
+      assertThat(HandlerMapping.find(context, detectAll).getHandler(new MockServerHttpExchange(context))).isNull();
       assertThat(HandlerAdapter.find(context, detectAll).supports(mock(HandlerFunction.class))).isTrue();
       assertThat(HandlerExceptionHandler.find(context, detectAll))
               .isInstanceOfSatisfying(CompositeHandlerExceptionHandler.class, composite ->

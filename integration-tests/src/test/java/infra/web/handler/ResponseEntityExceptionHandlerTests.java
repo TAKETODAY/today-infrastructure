@@ -45,7 +45,7 @@ import infra.http.converter.HttpMessageNotWritableException;
 import infra.stereotype.Controller;
 import infra.validation.MapBindingResult;
 import infra.web.ErrorResponse;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.HttpRequestMethodNotSupportedException;
@@ -63,7 +63,7 @@ import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import infra.web.handler.method.ParameterResolvingRegistry;
 import infra.web.handler.method.support.ParameterResolvingRegistryFactory;
 import infra.web.mock.MockDispatcherHandler;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.api.MockException;
@@ -85,14 +85,14 @@ class ResponseEntityExceptionHandlerTests {
 
   private MockResponse mockResponse = new MockResponse();
 
-  private HttpContext request = new MockHttpContext(null, this.mockRequest, this.mockResponse);
+  private ServerHttpExchange request = new MockServerHttpExchange(null, this.mockRequest, this.mockResponse);
 
   @SuppressWarnings("unchecked")
   @Test
   void supportsAllDefaultHandlerExceptionResolverExceptionTypes() throws Exception {
 
     ExceptionHandler annotation = ResponseEntityExceptionHandler.class
-            .getMethod("handleException", Exception.class, HttpContext.class)
+            .getMethod("handleException", Exception.class, ServerHttpExchange.class)
             .getAnnotation(ExceptionHandler.class);
 
     Arrays.stream(SimpleHandlerExceptionHandler.class.getDeclaredMethods())
@@ -125,7 +125,7 @@ class ResponseEntityExceptionHandlerTests {
   @Test
   void patchHttpMediaTypeNotSupported() {
     this.mockRequest = new MockRequest("PATCH", "/");
-    this.request = new MockHttpContext(null, this.mockRequest, this.mockResponse);
+    this.request = new MockServerHttpExchange(null, this.mockRequest, this.mockResponse);
 
     ResponseEntity<Object> entity = testException(
             new HttpMediaTypeNotSupportedException(
@@ -147,7 +147,7 @@ class ResponseEntityExceptionHandlerTests {
   @Test
   void queryHttpMediaTypeNotSupported() {
     this.mockRequest = new MockRequest("QUERY", "/");
-    this.request = new MockHttpContext(null, this.mockRequest, this.mockResponse);
+    this.request = new MockServerHttpExchange(null, this.mockRequest, this.mockResponse);
     ResponseEntity<Object> entity = testException(new HttpMediaTypeNotSupportedException(
             MediaType.APPLICATION_JSON, List.of(MediaType.APPLICATION_ATOM_XML, MediaType.APPLICATION_XML), HttpMethod.QUERY));
     assertThat(entity.headers().getFirst(HttpHeaders.ACCEPT)).isEqualTo("application/atom+xml, application/xml");
@@ -354,7 +354,7 @@ class ResponseEntityExceptionHandlerTests {
     resolver.afterPropertiesSet();
 
     IllegalStateException ex = new IllegalStateException(new RequestBindingException("message"));
-    MockHttpContext context = new MockHttpContext(null, this.mockRequest, this.mockResponse);
+    MockServerHttpExchange context = new MockServerHttpExchange(null, this.mockRequest, this.mockResponse);
     assertThat(resolver.handleException(context, ex, null)).isNull();
   }
 
@@ -445,7 +445,7 @@ class ResponseEntityExceptionHandlerTests {
 
     @Override
     protected ResponseEntity<Object> handleRequestBindingException(
-            RequestBindingException ex, HttpHeaders headers, HttpStatusCode status, HttpContext request) {
+            RequestBindingException ex, HttpHeaders headers, HttpStatusCode status, ServerHttpExchange request) {
 
       headers = HttpHeaders.forWritable();
       headers.setOrRemove("someHeader", "someHeaderValue");

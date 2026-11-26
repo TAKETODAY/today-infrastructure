@@ -46,7 +46,7 @@ import infra.ui.Model;
 import infra.ui.ModelMap;
 import infra.util.ClassUtils;
 import infra.web.BindingContext;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpRequestHandler;
 import infra.web.RedirectModel;
 import infra.web.annotation.ExceptionHandler;
@@ -56,7 +56,7 @@ import infra.web.annotation.RestControllerAdvice;
 import infra.web.config.annotation.EnableWebMvc;
 import infra.web.handler.function.HandlerFunction;
 import infra.web.handler.function.ServerResponse;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.api.MockException;
@@ -85,7 +85,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
       handler.setRenderUnhandledExceptionsAsProblemDetails(true);
       handler.afterPropertiesSet();
       request.addHeader("Accept", accept);
-      Object result = handler.handleException(new MockHttpContext(application, request, response),
+      Object result = handler.handleException(new MockServerHttpExchange(application, request, response),
               new IllegalStateException(), null);
       assertThat(result).isInstanceOf(infra.web.ErrorResponse.class);
       var error = (infra.web.ErrorResponse) result;
@@ -102,7 +102,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
       handler.setApplicationContext(application);
       handler.afterPropertiesSet();
       assertThat(handler.isRenderUnhandledExceptionsAsProblemDetails()).isFalse();
-      assertThat(handler.handleException(new MockHttpContext(application, request, response),
+      assertThat(handler.handleException(new MockServerHttpExchange(application, request, response),
               new IllegalStateException("Secret internal state"), null)).isNull();
     }
   }
@@ -117,13 +117,13 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
 
       var target = new HandlerMethod(new RegistryExceptionController(), "handle");
       var exception = new IllegalStateException();
-      assertThat(handler.handleException(new MockHttpContext(application, request, response), exception, target)).isEqualTo("first");
+      assertThat(handler.handleException(new MockServerHttpExchange(application, request, response), exception, target)).isEqualTo("first");
 
       var other = new ExceptionHandlerAnnotationExceptionHandler();
       other.setApplicationContext(application);
       other.setControllerMethodResolver(new ControllerMethodResolver(application, exceptionParameterRegistry("second")));
       other.afterPropertiesSet();
-      assertThat(other.handleException(new MockHttpContext(application, request, new MockResponse()), exception, target)).isEqualTo("second");
+      assertThat(other.handleException(new MockServerHttpExchange(application, request, new MockResponse()), exception, target)).isEqualTo("second");
     }
   }
 
@@ -136,7 +136,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
       }
 
       @Override
-      public Object resolveArgument(HttpContext request, HandlerParameter parameter) {
+      public Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) {
         return value;
       }
     });
@@ -164,8 +164,8 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
       handler.afterPropertiesSet();
 
       var exception = new IllegalStateException();
-      var first = handler.getExceptionHandlerMethod(new MockHttpContext(application, request, response), null, exception);
-      var second = handler.getExceptionHandlerMethod(new MockHttpContext(application, request, new MockResponse()), null, exception);
+      var first = handler.getExceptionHandlerMethod(new MockServerHttpExchange(application, request, response), null, exception);
+      var second = handler.getExceptionHandlerMethod(new MockServerHttpExchange(application, request, new MockResponse()), null, exception);
 
       assertThat(first).isNotNull();
       assertThat(second).isNotNull();
@@ -188,7 +188,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
       handler.setApplicationContext(application);
       handler.setRenderUnhandledExceptionsAsProblemDetails(true);
       handler.afterPropertiesSet();
-      Object result = handler.handleException(new MockHttpContext(application, request, response),
+      Object result = handler.handleException(new MockServerHttpExchange(application, request, response),
               new IllegalStateException("Secret internal state"), null);
       assertThat(result).isInstanceOf(infra.web.ErrorResponse.class);
       var body = ((infra.web.ErrorResponse) result).getBody();
@@ -203,7 +203,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
       handler.setApplicationContext(application);
       handler.setRenderUnhandledExceptionsAsProblemDetails(true);
       handler.afterPropertiesSet();
-      Object result = handler.handleException(new MockHttpContext(application, request, response),
+      Object result = handler.handleException(new MockServerHttpExchange(application, request, response),
               new IllegalStateException("Secret"), new HandlerMethod(new RethrowingProblemController(), "handle"));
       assertThat(result).isInstanceOf(infra.web.ErrorResponse.class);
       assertThat(((infra.web.ErrorResponse) result).getBody().getStatus()).isEqualTo(500);
@@ -216,7 +216,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
       handler.setApplicationContext(application);
       handler.setRenderUnhandledExceptionsAsProblemDetails(true);
       handler.afterPropertiesSet();
-      Object result = handler.handleException(new MockHttpContext(application, request, response),
+      Object result = handler.handleException(new MockServerHttpExchange(application, request, response),
               new IllegalStateException("Secret"), new HandlerMethod(new FailingProblemController(), "handle"));
       assertThat(result).isInstanceOf(infra.web.ErrorResponse.class);
       assertThat(((infra.web.ErrorResponse) result).getBody().getStatus()).isEqualTo(500);
@@ -229,7 +229,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
       handler.setApplicationContext(application);
       handler.setRenderUnhandledExceptionsAsProblemDetails(true);
       handler.afterPropertiesSet();
-      assertThat(handler.handleException(new MockHttpContext(application, request, response),
+      assertThat(handler.handleException(new MockServerHttpExchange(application, request, response),
               new IllegalStateException(), new Object())).isInstanceOf(infra.web.ErrorResponse.class);
     }
   }
@@ -241,7 +241,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
       handler.setRenderUnhandledExceptionsAsProblemDetails(true);
       handler.setMappedHandlerClasses(RethrowingProblemController.class);
       handler.afterPropertiesSet();
-      assertThat(handler.handleException(new MockHttpContext(application, request, response),
+      assertThat(handler.handleException(new MockServerHttpExchange(application, request, response),
               new IllegalStateException(), new Object())).isNull();
     }
   }
@@ -253,7 +253,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
       handler.setRenderUnhandledExceptionsAsProblemDetails(true);
       handler.afterPropertiesSet();
       response.flushBuffer();
-      assertThat(handler.handleException(new MockHttpContext(application, request, response),
+      assertThat(handler.handleException(new MockServerHttpExchange(application, request, response),
               new IllegalStateException(), null)).isNull();
     }
   }
@@ -264,7 +264,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
       handler.setApplicationContext(application);
       handler.setRenderUnhandledExceptionsAsProblemDetails(true);
       handler.afterPropertiesSet();
-      Object result = handler.handleException(new MockHttpContext(application, request, response),
+      Object result = handler.handleException(new MockServerHttpExchange(application, request, response),
               new infra.web.HttpRequestMethodNotSupportedException("POST", java.util.List.of("GET")), null);
       assertThat(result).isInstanceOf(infra.web.ErrorResponse.class);
       var error = (infra.web.ErrorResponse) result;
@@ -314,7 +314,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.handler.setApplicationContext(new AnnotationConfigApplicationContext(Config.class));
 
     this.handler.afterPropertiesSet();
-    Object mav = this.handler.handleException(new MockHttpContext(this.request, this.response), null, handler);
+    Object mav = this.handler.handleException(new MockServerHttpExchange(this.request, this.response), null, handler);
     assertThat(mav).as("Exception can be resolved only if there is a HandlerMethod").isNull();
   }
 
@@ -349,7 +349,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   }
 
   private ModelAndView handleException(ApplicationContext context, Exception ex, HandlerMethod handlerMethod) throws Exception {
-    MockHttpContext context1 = new MockHttpContext(context, request, response);
+    MockServerHttpExchange context1 = new MockServerHttpExchange(context, request, response);
     context1.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
 
     BindingContext.set(context1, new BindingContext());
@@ -413,7 +413,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.handler.afterPropertiesSet();
     HandlerParameterFactory factory = new HandlerParameterFactory();
 
-    MockHttpContext context = new MockHttpContext(null, request, response);
+    MockServerHttpExchange context = new MockServerHttpExchange(null, request, response);
     BindingContext.set(context, new BindingContext());
 
     Object ret = this.handler.handleException(context, ex, handlerMethod);
@@ -575,7 +575,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.handler.afterPropertiesSet();
 
     IllegalStateException ex = new IllegalStateException();
-    Object mav = this.handler.handleException(new MockHttpContext(this.request, this.response), ex, null);
+    Object mav = this.handler.handleException(new MockServerHttpExchange(this.request, this.response), ex, null);
 
     assertThat(mav).as("Exception was not handled").isNotNull();
     assertThat(mav).isEqualTo("DefaultTestExceptionResolver: IllegalStateException");
@@ -606,7 +606,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     IllegalStateException ex = new IllegalStateException();
     ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
     Object mav = this.handler.handleException(
-            new MockHttpContext(ctx, this.request, this.response), ex, handler);
+            new MockServerHttpExchange(ctx, this.request, this.response), ex, handler);
 
     assertThat(mav).as("Exception was not handled").isNotNull();
     assertThat(mav).isEqualTo("DefaultTestExceptionResolver: IllegalStateException");
@@ -622,7 +622,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.request.addHeader("Accept", "application/json");
 
     Object mav = this.handler.handleException(
-            new MockHttpContext(ctx, this.request, this.response), ex, handlerMethod);
+            new MockServerHttpExchange(ctx, this.request, this.response), ex, handlerMethod);
 
     assertThat(mav).isEqualTo("jsonBody");
   }
@@ -638,7 +638,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.request.addHeader("Accept", "text/html");
 
     Object mav = this.handler.handleException(
-            new MockHttpContext(ctx, this.request, this.response), ex, handlerMethod);
+            new MockServerHttpExchange(ctx, this.request, this.response), ex, handlerMethod);
 
     assertThat(mav).isNotNull();
     assertThat(mav).isEqualTo("htmlView");
@@ -654,7 +654,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.request.addHeader("Accept", "*/*");
 
     Object mav = this.handler.handleException(
-            new MockHttpContext(ctx, this.request, this.response), ex, handlerMethod);
+            new MockServerHttpExchange(ctx, this.request, this.response), ex, handlerMethod);
 
     assertThat(mav).isNotNull();
     assertThat(mav).isEqualTo("htmlView");
@@ -671,7 +671,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
       throw new IllegalAccessException();
     };
 
-    Object mav = this.handler.handleException(new MockHttpContext(ctx, this.request, this.response), ex, handlerFunction);
+    Object mav = this.handler.handleException(new MockServerHttpExchange(ctx, this.request, this.response), ex, handlerFunction);
     assertThat(mav).isEqualTo("AnotherTestExceptionResolver: IllegalAccessException");
   }
 
@@ -875,7 +875,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     @Override
     public Object beforeBodyWrite(@Nullable Object body,
             MethodParameter returnType, MediaType contentType,
-            HttpMessageConverter<?> selected, HttpContext context) {
+            HttpMessageConverter<?> selected, ServerHttpExchange context) {
       return null;
     }
   }

@@ -27,7 +27,7 @@ import infra.beans.factory.config.BeanExpressionResolver;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.MethodParameter;
 import infra.web.BindingContext;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.bind.MissingRequestValueException;
 import infra.web.bind.WebDataBinder;
 import infra.web.context.support.RequestScope;
@@ -88,7 +88,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
 
   @Nullable
   @Override
-  public final Object resolveArgument(HttpContext context, HandlerParameter parameter) throws Exception {
+  public final Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) throws Exception {
     MethodParameter methodParameter = parameter.getMethodParameter();
     NamedValueInfo namedValueInfo = getNamedValueInfo(parameter);
 
@@ -99,10 +99,10 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
         throw new IllegalArgumentException(
                 "Specified name must not resolve to null: [%s]".formatted(namedValueInfo.name));
       }
-      arg = resolveName(resolvedName.toString(), parameter, context);
+      arg = resolveName(resolvedName.toString(), parameter, exchange);
     }
     else {
-      arg = resolveName(namedValueInfo.name, parameter, context);
+      arg = resolveName(namedValueInfo.name, parameter, exchange);
     }
 
     if (arg == null) {
@@ -110,7 +110,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
         arg = resolveEmbeddedValuesAndExpressions(namedValueInfo.defaultValue);
       }
       else if (namedValueInfo.required && !methodParameter.isNullable()) {
-        handleMissingValue(namedValueInfo.name, methodParameter, context);
+        handleMissingValue(namedValueInfo.name, methodParameter, exchange);
       }
       arg = handleNullValue(namedValueInfo.name, arg, methodParameter.getParameterType());
     }
@@ -118,27 +118,27 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
       arg = resolveEmbeddedValuesAndExpressions(namedValueInfo.defaultValue);
     }
 
-    BindingContext bindingContext = BindingContext.find(context);
+    BindingContext bindingContext = BindingContext.find(exchange);
     if (bindingContext != null) {
-      arg = convertIfNecessary(context, bindingContext, namedValueInfo, methodParameter, arg);
+      arg = convertIfNecessary(exchange, bindingContext, namedValueInfo, methodParameter, arg);
       // Check for null value after conversion of incoming argument value
       if (arg == null) {
         if (namedValueInfo.defaultValue != null) {
           arg = resolveEmbeddedValuesAndExpressions(namedValueInfo.defaultValue);
-          arg = convertIfNecessary(context, bindingContext, namedValueInfo, methodParameter, arg);
+          arg = convertIfNecessary(exchange, bindingContext, namedValueInfo, methodParameter, arg);
         }
         else if (namedValueInfo.required && !methodParameter.isNullable()) {
-          handleMissingValueAfterConversion(namedValueInfo.name, methodParameter, context);
+          handleMissingValueAfterConversion(namedValueInfo.name, methodParameter, exchange);
         }
       }
     }
 
-    handleResolvedValue(arg, namedValueInfo.name, parameter, context);
+    handleResolvedValue(arg, namedValueInfo.name, parameter, exchange);
     return arg;
   }
 
   @Nullable
-  private static Object convertIfNecessary(HttpContext context, BindingContext bindingContext,
+  private static Object convertIfNecessary(ServerHttpExchange context, BindingContext bindingContext,
           NamedValueInfo namedValueInfo, MethodParameter methodParameter, @Nullable Object arg) throws Exception {
 
     WebDataBinder binder = bindingContext.createBinder(context, namedValueInfo.name);
@@ -187,12 +187,12 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
    * @throws Exception in case of errors
    */
   @Nullable
-  protected abstract Object resolveName(String name, HandlerParameter resolvable, HttpContext context)
+  protected abstract Object resolveName(String name, HandlerParameter resolvable, ServerHttpExchange context)
           throws Exception;
 
   /**
    * Invoked when a named value is required, but
-   * {@link #resolveName(String, HandlerParameter, HttpContext)}
+   * {@link #resolveName(String, HandlerParameter, ServerHttpExchange)}
    * returned {@code null} and there is no default value.
    * Subclasses typically throw an exception in this case.
    *
@@ -200,7 +200,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
    * @param parameter the method parameter
    * @param request the current request
    */
-  protected void handleMissingValue(String name, MethodParameter parameter, HttpContext request)
+  protected void handleMissingValue(String name, MethodParameter parameter, ServerHttpExchange request)
           throws Exception {
 
     handleMissingValue(name, parameter);
@@ -208,7 +208,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
 
   /**
    * Invoked when a named value is required, but
-   * {@link #resolveName(String, HandlerParameter, HttpContext)}
+   * {@link #resolveName(String, HandlerParameter, ServerHttpExchange)}
    * returned {@code null} and there is no default value.
    * Subclasses typically throw an exception in this case.
    *
@@ -227,7 +227,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
    * @param parameter the method parameter
    * @param request the current request
    */
-  protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, HttpContext request) throws Exception {
+  protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, ServerHttpExchange request) throws Exception {
     throw new MissingRequestValueException("Missing argument '%s' for method parameter of type %s"
             .formatted(name, parameter.getParameterType().getSimpleName()), true);
   }
@@ -261,7 +261,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
    * @param context the current request
    */
   protected void handleResolvedValue(@Nullable Object arg,
-          String name, HandlerParameter resolvable, HttpContext context) {
+          String name, HandlerParameter resolvable, ServerHttpExchange context) {
 
   }
 

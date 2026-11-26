@@ -26,7 +26,7 @@ import infra.http.MediaType;
 import infra.web.annotation.QUERY;
 import infra.web.annotation.QueryMapping;
 import infra.web.annotation.RequestMapping;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,12 +90,12 @@ class QueryMappingTests {
         String path = "/api/" + methodName;
         assertThat(info.getPatternValues()).containsExactly(path);
         assertThat(info.getMethodsCondition().getMethods()).containsExactly(HttpMethod.QUERY);
-        assertThat(info.getMatchingCondition(new MockHttpContext(new MockRequest("QUERY", path)))).isNotNull();
-        assertThat(info.getMatchingCondition(new MockHttpContext(new MockRequest("QUERY", "/other")))).isNull();
+        assertThat(info.getMatchingCondition(new MockServerHttpExchange(new MockRequest("QUERY", path)))).isNotNull();
+        assertThat(info.getMatchingCondition(new MockServerHttpExchange(new MockRequest("QUERY", "/other")))).isNull();
 
         for (HttpMethod method : HttpMethod.values()) {
           if (method != HttpMethod.QUERY) {
-            assertThat(info.getMatchingCondition(new MockHttpContext(new MockRequest(method.name(), path))))
+            assertThat(info.getMatchingCondition(new MockServerHttpExchange(new MockRequest(method.name(), path))))
                     .as("%s must not match the QUERY mapping", method).isNull();
           }
         }

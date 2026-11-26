@@ -19,7 +19,7 @@ package infra.session;
 import org.jspecify.annotations.Nullable;
 
 import infra.util.Assert;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * For request parameter name {@link SessionIdResolver}
@@ -37,7 +37,7 @@ public class RequestParameterSessionIdResolver implements SessionIdResolver {
   }
 
   @Override
-  public @Nullable String getSessionId(HttpContext exchange) {
+  public @Nullable String getSessionId(ServerHttpExchange exchange) {
     // find in request attribute
     Object attribute = exchange.getAttribute(WRITTEN_SESSION_ID_ATTR);
     if (attribute instanceof String sessionId) {
@@ -47,13 +47,13 @@ public class RequestParameterSessionIdResolver implements SessionIdResolver {
   }
 
   @Override
-  public void setSessionId(HttpContext exchange, String sessionId) {
+  public void setSessionId(ServerHttpExchange exchange, String sessionId) {
     Assert.notNull(sessionId, "sessionId is required");
     exchange.setAttribute(WRITTEN_SESSION_ID_ATTR, sessionId);
   }
 
   @Override
-  public void expireSession(HttpContext exchange) {
+  public void expireSession(ServerHttpExchange exchange) {
     exchange.removeAttribute(WRITTEN_SESSION_ID_ATTR);
   }
 

@@ -51,7 +51,7 @@ public class MockMethodParameter extends HandlerParameter {
   }
 
   @Override
-  public Object resolveArgument(HttpContext request) throws Exception {
+  public Object resolveArgument(ServerHttpExchange request) throws Exception {
     return super.resolveArgument(request);
   }
 

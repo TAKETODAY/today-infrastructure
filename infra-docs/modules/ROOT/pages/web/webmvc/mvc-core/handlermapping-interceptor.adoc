@@ -7,7 +7,7 @@
 
 * `preProcessing(..)`: 在实际处理程序运行之前
 * `postProcessing(..)`: 在处理程序运行之后
-* `intercept(HttpContext, InterceptorChain)`: 环绕剩余拦截器链和处理程序，可替换返回值、处理异常或在 `finally` 中清理资源
+* `intercept(ServerHttpExchange, InterceptorChain)`: 环绕剩余拦截器链和处理程序，可替换返回值、处理异常或在 `finally` 中清理资源
 
 `preProcessing(..)` 方法返回一个布尔值。您可以使用此方法中断或继续执行链的处理。
 当此方法返回 `true` 时，处理程序执行链继续。

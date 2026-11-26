@@ -23,8 +23,8 @@ import org.jspecify.annotations.Nullable;
 import infra.beans.factory.annotation.Value;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.MethodParameter;
-import infra.web.HttpContext;
-import infra.web.bind.HttpContextDataBinder;
+import infra.web.ServerHttpExchange;
+import infra.web.bind.HttpExchangeDataBinder;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.method.NamedValueInfo;
 
@@ -35,7 +35,7 @@ import infra.web.handler.method.NamedValueInfo;
  * value string, which may contain ${...} placeholder or Infra Expression
  * Language #{...} expressions.
  *
- * <p>A {@link HttpContextDataBinder} may be invoked to apply type conversion to
+ * <p>A {@link HttpExchangeDataBinder} may be invoked to apply type conversion to
  * resolved argument value.
  *
  * @author Rossen Stoyanchev
@@ -74,7 +74,7 @@ public class ExpressionValueMethodArgumentResolver extends AbstractNamedValueRes
 
   @Nullable
   @Override
-  protected Object resolveName(String name, HandlerParameter resolvable, HttpContext context) throws Exception {
+  protected Object resolveName(String name, HandlerParameter resolvable, ServerHttpExchange context) throws Exception {
     // No name to resolve
     return null;
   }

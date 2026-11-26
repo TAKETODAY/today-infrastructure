@@ -27,7 +27,7 @@ import java.util.List;
 import infra.core.MethodParameter;
 import infra.http.converter.HttpMessageConverter;
 import infra.validation.annotation.ValidationAnnotationUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.MultipartException;
 import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestParam;
@@ -110,25 +110,25 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
   }
 
   @Override
-  public @Nullable Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
+  public @Nullable Object resolveArgument(ServerHttpExchange exchange, HandlerParameter resolvable) throws Exception {
     MethodParameter parameter = resolvable.getMethodParameter();
 
     NamedValueInfo namedValueInfo = resolvable.getNamedValueInfo();
     String name = namedValueInfo.name;
     Object arg = null;
 
-    Object mpArg = MultipartResolutionDelegate.resolveMultipartArgument(name, parameter, context);
+    Object mpArg = MultipartResolutionDelegate.resolveMultipartArgument(name, parameter, exchange);
     if (mpArg != MultipartResolutionDelegate.UNRESOLVABLE) {
       arg = mpArg;
     }
     else {
       try {
-        Part part = context.asMultipartRequest().getPart(name);
+        Part part = exchange.asMultipartRequest().getPart(name);
         if (part == null) {
           throw new MissingRequestPartException(name);
         }
         arg = readWithMessageConverters(part, parameter, parameter.getNestedGenericParameterType());
-        validateIfApplicable(context, parameter, arg);
+        validateIfApplicable(exchange, parameter, arg);
       }
       catch (MissingRequestPartException | MultipartException ex) {
         if (namedValueInfo.required) {
@@ -138,7 +138,7 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
     }
 
     if (arg == null && namedValueInfo.required) {
-      if (!context.isMultipart()) {
+      if (!exchange.isMultipart()) {
         throw new NotMultipartRequestException("Current request is not a multipart request", null);
       }
       else {

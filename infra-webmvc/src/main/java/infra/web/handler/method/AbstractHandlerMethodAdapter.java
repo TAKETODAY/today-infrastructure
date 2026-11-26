@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.core.Ordered;
 import infra.web.HandlerAdapter;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.WebContentGenerator;
 
 /**
@@ -80,8 +80,8 @@ public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator i
    * This implementation expects the handler to be an {@link HandlerMethod}.
    */
   @Override
-  public final @Nullable Object handle(HttpContext request, Object handler) throws Exception {
-    return handleInternal(request, (HandlerMethod) handler);
+  public final @Nullable Object handle(ServerHttpExchange exchange, Object handler) throws Exception {
+    return handleInternal(exchange, (HandlerMethod) handler);
   }
 
   /**
@@ -94,6 +94,6 @@ public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator i
    * @throws Exception in case of errors
    */
   protected abstract @Nullable Object handleInternal(
-          HttpContext request, HandlerMethod handlerMethod) throws Exception;
+          ServerHttpExchange request, HandlerMethod handlerMethod) throws Exception;
 
 }

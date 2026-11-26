@@ -37,7 +37,7 @@ import infra.web.handler.SelectableReturnValueHandler;
 import infra.web.handler.result.ResponseBodyEmitterReturnValueHandler;
 import infra.web.handler.result.ServerResponseReturnValueHandler;
 import infra.web.handler.result.SseEmitter;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.StandardMockWebAsyncRequest;
@@ -58,14 +58,14 @@ class SseServerResponseTests {
 
   private MockResponse mockResponse;
 
-  private MockHttpContext httpContext;
+  private MockServerHttpExchange httpContext;
 
   @BeforeEach
   void setUp() {
     this.mockRequest = new MockRequest("GET", "https://example.com");
     this.mockRequest.setAsyncSupported(true);
     this.mockResponse = new MockResponse();
-    this.httpContext = new MockHttpContext(null, this.mockRequest, this.mockResponse);
+    this.httpContext = new MockServerHttpExchange(null, this.mockRequest, this.mockResponse);
     this.httpContext.setAsyncRequest(new StandardMockWebAsyncRequest(this.mockRequest, this.mockResponse));
   }
 

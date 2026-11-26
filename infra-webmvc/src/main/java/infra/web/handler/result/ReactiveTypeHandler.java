@@ -45,7 +45,7 @@ import infra.logging.LoggerFactory;
 import infra.util.MimeType;
 import infra.util.ObjectUtils;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.async.DeferredResult;
@@ -111,7 +111,7 @@ final class ReactiveTypeHandler {
    */
   @Nullable
   public ResponseBodyEmitter handleValue(Object returnValue, MethodParameter returnType,
-          @Nullable MediaType presetMediaType, HttpContext request) throws Exception {
+          @Nullable MediaType presetMediaType, ServerHttpExchange request) throws Exception {
     Assert.notNull(returnValue, "Expected return value");
 
     ReactiveAdapter adapter = adapterRegistry.getAdapter(returnValue.getClass());
@@ -191,7 +191,7 @@ final class ReactiveTypeHandler {
   }
 
   @Unmodifiable
-  private Collection<MediaType> getMediaTypes(HttpContext request) throws HttpMediaTypeNotAcceptableException {
+  private Collection<MediaType> getMediaTypes(ServerHttpExchange request) throws HttpMediaTypeNotAcceptableException {
     HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(request);
     if (matchingMetadata != null) {
       var producibleMediaTypes = matchingMetadata.getProducibleMediaTypes();

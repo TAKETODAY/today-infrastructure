@@ -28,7 +28,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import infra.util.concurrent.Future;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.socket.CloseStatus;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketMessage;
@@ -47,7 +47,7 @@ class LoggingWebSocketHandlerTests {
   void delegatesCallbacksAtBothLogLevels(boolean trace) throws Exception {
     HandshakeHandler delegate = mock(HandshakeHandler.class);
     LoggingWebSocketHandler handler = new LoggingWebSocketHandler(delegate);
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
     WebSocketSession session = mock(WebSocketSession.class);
     WebSocketMessage message = WebSocketMessage.ping();
     Map<String, Object> attributes = Map.of("test", "value");
@@ -93,7 +93,7 @@ class LoggingWebSocketHandlerTests {
   @Test
   void acceptsHandshakeWhenDelegateHasNoHandshakeCallbacks() throws Exception {
     LoggingWebSocketHandler handler = new LoggingWebSocketHandler(mock(WebSocketHandler.class));
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
 
     assertThat(handler.beforeHandshake(context, Map.of())).isTrue();
     handler.afterHandshake(context, mock(WebSocketSession.class), null);

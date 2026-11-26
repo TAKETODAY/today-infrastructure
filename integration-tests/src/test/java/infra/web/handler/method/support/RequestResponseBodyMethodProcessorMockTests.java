@@ -43,7 +43,7 @@ import infra.validation.BindingResult;
 import infra.validation.beanvalidation.LocalValidatorFactoryBean;
 import infra.web.BindingContext;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.annotation.RequestBody;
@@ -52,7 +52,7 @@ import infra.web.bind.MethodArgumentNotValidException;
 import infra.web.bind.WebDataBinder;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.HandlerParameter;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import jakarta.validation.Valid;
@@ -88,7 +88,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
 
   private MockResponse mockResponse;
 
-  private MockHttpContext webRequest;
+  private MockServerHttpExchange webRequest;
 
   private HandlerParameter paramRequestBodyString;
   private HandlerParameter paramInt;
@@ -125,7 +125,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
     mockRequest = new MockRequest();
     mockRequest.setMethod("POST");
     mockResponse = new MockResponse();
-    webRequest = new MockHttpContext(null, mockRequest, mockResponse);
+    webRequest = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
     Method methodHandle1 = getClass().getMethod("handle1", String.class, Integer.TYPE);
     paramRequestBodyString = new HandlerParameter(new MethodParameter(methodHandle1, 0));
@@ -216,7 +216,7 @@ public class RequestResponseBodyMethodProcessorMockTests {
     BindingContext bindingContext = new BindingContext() {
 
       @Override
-      public void initBinder(WebDataBinder dataBinder, HttpContext context) {
+      public void initBinder(WebDataBinder dataBinder, ServerHttpExchange context) {
         LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
         validator.afterPropertiesSet();
         dataBinder.setValidator(validator);

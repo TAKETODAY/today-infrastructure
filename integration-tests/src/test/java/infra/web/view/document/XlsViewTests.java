@@ -33,8 +33,8 @@ import java.util.Map;
 
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.view.View;
@@ -49,13 +49,13 @@ public class XlsViewTests {
   private final ConfigurableApplicationContext wac = new AnnotationConfigApplicationContext();
   private final MockRequest request = new MockRequest();
   private final MockResponse response = new MockResponse();
-  HttpContext http = new MockHttpContext(wac, request, response);
+  ServerHttpExchange http = new MockServerHttpExchange(wac, request, response);
 
   @Test
   public void testXls() throws Exception {
     View excelView = new AbstractXlsView() {
       @Override
-      protected void buildExcelDocument(Map<String, Object> model, Workbook workbook, HttpContext request) throws Exception {
+      protected void buildExcelDocument(Map<String, Object> model, Workbook workbook, ServerHttpExchange request) throws Exception {
         Sheet sheet = workbook.createSheet("Test Sheet");
         Row row = sheet.createRow(0);
         Cell cell = row.createCell(0);
@@ -79,7 +79,7 @@ public class XlsViewTests {
     View excelView = new AbstractXlsxView() {
       @Override
       protected void buildExcelDocument(Map<String, Object> model, Workbook workbook,
-              HttpContext request) throws Exception {
+              ServerHttpExchange request) throws Exception {
         Sheet sheet = workbook.createSheet("Test Sheet");
         Row row = sheet.createRow(0);
         Cell cell = row.createCell(0);
@@ -103,7 +103,7 @@ public class XlsViewTests {
     View excelView = new AbstractXlsxStreamingView() {
       @Override
       protected void buildExcelDocument(Map<String, Object> model, Workbook workbook,
-              HttpContext request) throws Exception {
+              ServerHttpExchange request) throws Exception {
         Sheet sheet = workbook.createSheet("Test Sheet");
         Row row = sheet.createRow(0);
         Cell cell = row.createCell(0);

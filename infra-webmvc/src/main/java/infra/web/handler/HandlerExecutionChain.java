@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import infra.web.HandlerAdapter;
 import infra.web.HandlerInterceptor;
 import infra.web.HandlerMapping;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpRequestHandler;
 import infra.web.InterceptorChain;
 
@@ -79,7 +79,7 @@ public class HandlerExecutionChain implements HandlerWrapper, HandlerAdapterAwar
   }
 
   @Override
-  public @Nullable Object handleRequest(HttpContext context) throws Exception {
+  public @Nullable Object handleRequest(ServerHttpExchange context) throws Exception {
     var interceptors = this.interceptors;
     if (interceptors == null) {
       return handlerAdapter.handle(context, handler);
@@ -107,7 +107,7 @@ public class HandlerExecutionChain implements HandlerWrapper, HandlerAdapterAwar
     }
 
     @Override
-    protected @Nullable Object invokeHandler(HttpContext context, Object handler) throws Exception {
+    protected @Nullable Object invokeHandler(ServerHttpExchange context, Object handler) throws Exception {
       return handlerAdapter.handle(context, handler);
     }
   }

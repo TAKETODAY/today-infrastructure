@@ -31,10 +31,10 @@ import java.util.Map;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.http.HttpStatus;
-import infra.web.mock.MockHttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.HttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -56,7 +56,7 @@ public class RedirectViewTests {
 
   private MockResponse response;
 
-  private HttpContext context;
+  private ServerHttpExchange context;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -67,7 +67,7 @@ public class RedirectViewTests {
 
     context.refresh();
 
-    this.context = new MockHttpContext(context, request, response);
+    this.context = new MockServerHttpExchange(context, request, response);
   }
 
   @Test
@@ -284,7 +284,7 @@ public class RedirectViewTests {
           throws Exception {
     if (this.context == null) {
       AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-      this.context = new MockHttpContext(context, request, response);
+      this.context = new MockServerHttpExchange(context, request, response);
     }
 
     TestRedirectView rv = new TestRedirectView(url, contextRelative, map);

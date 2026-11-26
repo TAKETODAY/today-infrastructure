@@ -23,9 +23,9 @@ import org.junit.jupiter.api.Test;
 
 import infra.web.Filter;
 import infra.web.FilterChain;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.mock.MockFilterChain;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.MockUtils;
@@ -75,7 +75,7 @@ class MockFilterChainTests {
   @Test
   void doFilterEmptyChain() throws Exception {
     MockFilterChain chain = new MockFilterChain();
-    chain.doFilter(new MockHttpContext(request, response));
+    chain.doFilter(new MockServerHttpExchange(request, response));
 
     assertThat(chain.getRequest()).isEqualTo(request);
     assertThat(chain.getResponse()).isEqualTo(response);
@@ -85,7 +85,7 @@ class MockFilterChainTests {
   void doFilterWith() throws Exception {
     MockHandler mockHandler = mock(MockHandler.class);
     MockFilterChain chain = new MockFilterChain(mockHandler);
-    chain.doFilter(new MockHttpContext(request, response));
+    chain.doFilter(new MockServerHttpExchange(request, response));
     verify(mockHandler).service(request, response);
   }
 
@@ -97,7 +97,7 @@ class MockFilterChainTests {
     MockFilter filter1 = new MockFilter(null);
     MockFilterChain chain = new MockFilterChain(mockHandler, filter1, filter2);
 
-    chain.doFilter(new MockHttpContext(request, response));
+    chain.doFilter(new MockServerHttpExchange(request, response));
 
     assertThat(filter1.invoked).isTrue();
     assertThat(filter2.invoked).isTrue();
@@ -116,13 +116,13 @@ class MockFilterChainTests {
     }
 
     @Override
-    public void doFilter(HttpContext http, FilterChain chain) throws Exception {
+    public void doFilter(ServerHttpExchange exchange, FilterChain chain) throws Exception {
       this.invoked = true;
       if (this.mockHandler != null) {
-        this.mockHandler.service(MockUtils.getMockRequest(http), MockUtils.getMockResponse(http));
+        this.mockHandler.service(MockUtils.getMockRequest(exchange), MockUtils.getMockResponse(exchange));
       }
       else {
-        chain.doFilter(http);
+        chain.doFilter(exchange);
       }
     }
 

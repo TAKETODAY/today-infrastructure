@@ -43,7 +43,7 @@ import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
  * exceptions such as 404 Not Found).
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see DispatcherHandler#processHandlerException(HttpContext, Object, Throwable)
+ * @see DispatcherHandler#processHandlerException(ServerHttpExchange, Object, Throwable)
  * @see CompositeHandlerExceptionHandler
  * @see ExceptionHandlerAnnotationExceptionHandler
  * @see SimpleHandlerExceptionHandler
@@ -67,7 +67,7 @@ public interface HandlerExceptionHandler {
    * <p>Unlike {@code null}, this value signals a definitive outcome of the
    * resolution chain rather than a delegate to subsequent handlers.
    *
-   * @see DispatcherHandler#processHandlerException(HttpContext, Object, Throwable)
+   * @see DispatcherHandler#processHandlerException(ServerHttpExchange, Object, Throwable)
    */
   Object NONE_RETURN_VALUE = HttpRequestHandler.NONE_RETURN_VALUE;
 
@@ -84,7 +84,7 @@ public interface HandlerExceptionHandler {
    * @throws Exception if resolution fails and the exception must be propagated
    */
   @Nullable
-  Object handleException(HttpContext context, Throwable exception, @Nullable Object handler)
+  Object handleException(ServerHttpExchange context, Throwable exception, @Nullable Object handler)
           throws Exception;
 
   // static factory method

@@ -34,7 +34,7 @@ import infra.core.annotation.AnnotationAwareOrderComparator;
 import infra.util.AntPathMatcher;
 import infra.util.PathMatcher;
 import infra.util.StringUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.handler.SimpleUrlHandlerMapping;
 
 /**
@@ -144,7 +144,7 @@ public class ResourceUrlProvider extends ApplicationObjectSupport
    * @return the resolved public URL path, or {@code null} if unresolved
    */
   @Nullable
-  public final String getForRequestUrl(HttpContext request, String requestUrl) {
+  public final String getForRequestUrl(ServerHttpExchange request, String requestUrl) {
     int prefixIndex = getLookupPathIndex(request);
     int suffixIndex = getEndPathIndex(requestUrl);
     if (prefixIndex >= suffixIndex) {
@@ -157,7 +157,7 @@ public class ResourceUrlProvider extends ApplicationObjectSupport
     return resolvedLookupPath != null ? prefix + resolvedLookupPath + suffix : null;
   }
 
-  private int getLookupPathIndex(HttpContext request) {
+  private int getLookupPathIndex(ServerHttpExchange request) {
     String requestUri = request.getRequestURI();
     String lookupPath = request.getRequestPath().value();
     return requestUri.indexOf(lookupPath);

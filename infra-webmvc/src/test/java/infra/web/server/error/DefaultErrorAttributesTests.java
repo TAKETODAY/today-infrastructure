@@ -34,9 +34,9 @@ import infra.validation.BindException;
 import infra.validation.BindingResult;
 import infra.validation.MapBindingResult;
 import infra.validation.ObjectError;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.bind.MethodArgumentNotValidException;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.server.ResponseStatusException;
@@ -58,7 +58,7 @@ class DefaultErrorAttributesTests {
 
   private final MockRequest request = new MockRequest();
 
-  private final HttpContext webRequest = new MockHttpContext(
+  private final ServerHttpExchange webRequest = new MockServerHttpExchange(
           null, this.request, new MockResponse());
 
   @Test
@@ -267,7 +267,7 @@ class DefaultErrorAttributesTests {
     Map<String, Object> attributes = new infra.web.server.error.DefaultErrorAttributes() {
 
       @Override
-      protected String getMessage(HttpContext request, @Nullable Throwable error) {
+      protected String getMessage(ServerHttpExchange request, @Nullable Throwable error) {
         return "custom message";
       }
 

@@ -61,7 +61,7 @@ import infra.util.CollectionUtils;
 import infra.util.Feature;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.async.DeferredResult;
 
@@ -262,14 +262,14 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
     }
 
     @Override
-    protected @Nullable Object writeToInternal(HttpContext request, Context context) throws Exception {
+    protected @Nullable Object writeToInternal(ServerHttpExchange request, Context context) throws Exception {
       writeEntityWithMessageConverters(this.entity, request, context);
       return NONE_RETURN_VALUE;
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected void writeEntityWithMessageConverters(Object entity,
-            HttpContext request, ServerResponse.Context context) throws IOException {
+            ServerHttpExchange request, ServerResponse.Context context) throws IOException {
 
       MediaType contentType = getContentType(request);
       Class<?> entityClass = entity.getClass();
@@ -324,7 +324,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
       throw new HttpMediaTypeNotAcceptableException(producibleMediaTypes);
     }
 
-    private static @Nullable MediaType getContentType(HttpContext response) {
+    private static @Nullable MediaType getContentType(ServerHttpExchange response) {
       try {
         return MediaType.parseMediaType(response.getResponseContentType()).removeQualityValue();
       }
@@ -334,7 +334,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
     }
 
     protected void tryWriteEntityWithMessageConverters(Object entity,
-            HttpContext request, ServerResponse.Context context) throws Exception {
+            ServerHttpExchange request, ServerResponse.Context context) throws Exception {
       try {
         writeEntityWithMessageConverters(entity, request, context);
       }
@@ -367,14 +367,14 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
 
     @Nullable
     @Override
-    protected Object writeToInternal(HttpContext request, Context context) throws Exception {
+    protected Object writeToInternal(ServerHttpExchange request, Context context) throws Exception {
       DeferredResult<ServerResponse> deferredResult = createDeferredResult(request, context);
       request.asyncManager().startDeferredResultProcessing(deferredResult);
       return NONE_RETURN_VALUE;
     }
 
     private DeferredResult<ServerResponse> createDeferredResult(
-            HttpContext request, Context context) {
+            ServerHttpExchange request, Context context) {
 
       DeferredResult<ServerResponse> result = new DeferredResult<>();
       entity().whenComplete((value, ex) -> {
@@ -417,7 +417,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
 
     @Nullable
     @Override
-    protected Object writeToInternal(HttpContext request, Context context) throws Exception {
+    protected Object writeToInternal(ServerHttpExchange request, Context context) throws Exception {
       DeferredResult<?> deferredResult = new DeferredResult<>();
       request.asyncManager().startDeferredResultProcessing(deferredResult);
 
@@ -431,13 +431,13 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
 
       private @Nullable Subscription subscription;
 
-      private final HttpContext httpContext;
+      private final ServerHttpExchange exchange;
 
       private final DeferredResult<?> deferredResult;
 
-      public DeferredResultSubscriber(HttpContext httpContext,
+      public DeferredResultSubscriber(ServerHttpExchange exchange,
               Context context, DeferredResult<?> deferredResult) {
-        this.httpContext = httpContext;
+        this.exchange = exchange;
         this.context = context;
         this.deferredResult = deferredResult;
       }
@@ -457,8 +457,8 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
       public void onNext(T t) {
         Assert.state(this.subscription != null, "No subscription");
         try {
-          tryWriteEntityWithMessageConverters(t, httpContext, context);
-          httpContext.flush();
+          tryWriteEntityWithMessageConverters(t, exchange, context);
+          exchange.flush();
           this.subscription.request(1);
         }
         catch (Throwable ex) {
@@ -470,7 +470,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
       @Override
       public void onError(Throwable t) {
         try {
-          handleError(t, this.httpContext, this.context);
+          handleError(t, this.exchange, this.context);
         }
         catch (Throwable handlingThrowable) {
           this.deferredResult.setErrorResult(handlingThrowable);
@@ -480,7 +480,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
       @Override
       public void onComplete() {
         try {
-          httpContext.flush();
+          exchange.flush();
           this.deferredResult.setResult(null);
         }
         catch (IOException ex) {

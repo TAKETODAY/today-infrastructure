@@ -21,7 +21,7 @@ import java.nio.charset.StandardCharsets;
 import infra.context.ApplicationContext;
 import infra.http.MediaType;
 import infra.web.DispatcherHandler;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * Minimal dispatcher shared by the HTTP/1.1 and HTTP/2 benchmarks.
@@ -38,11 +38,11 @@ final class BenchmarkHandler extends DispatcherHandler {
   }
 
   @Override
-  public void handleRequest(HttpContext context) throws Exception {
-    context.setContentType(MediaType.TEXT_PLAIN);
-    context.setContentLength(BODY.length);
-    context.getOutputStream().write(BODY);
-    completeRequest(context, null);
+  public void handleRequest(ServerHttpExchange exchange) throws Exception {
+    exchange.setContentType(MediaType.TEXT_PLAIN);
+    exchange.setContentLength(BODY.length);
+    exchange.getOutputStream().write(BODY);
+    completeRequest(exchange, null);
   }
 
 }

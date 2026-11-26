@@ -28,7 +28,7 @@ import infra.core.task.AsyncTaskExecutor;
 import infra.core.task.SimpleAsyncTaskExecutor;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.util.TimeoutUtils;
 
 /**
@@ -107,7 +107,7 @@ public class WebAsyncManagerFactory {
    * @param request the HTTP context for the request
    * @return the configured manager
    */
-  public WebAsyncManager createWebAsyncManager(HttpContext request) {
+  public WebAsyncManager createWebAsyncManager(ServerHttpExchange request) {
     WebAsyncManager asyncManager = new WebAsyncManager(request);
     asyncManager.setTaskExecutor(taskExecutor);
     asyncManager.setTimeout(asyncRequestTimeout);

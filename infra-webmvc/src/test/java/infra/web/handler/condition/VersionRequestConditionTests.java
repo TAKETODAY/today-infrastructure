@@ -26,8 +26,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.HandlerMapping;
 import infra.web.accept.DefaultApiVersionStrategy;
@@ -105,7 +105,7 @@ class VersionRequestConditionTests {
   private void testMatch(
           String requestVersion, VersionRequestCondition condition, boolean matches, boolean notAcceptable) {
 
-    HttpContext request = requestWithVersion(requestVersion);
+    ServerHttpExchange request = requestWithVersion(requestVersion);
     VersionRequestCondition match = condition.getMatchingCondition(request);
 
     if (!matches) {
@@ -164,7 +164,7 @@ class VersionRequestConditionTests {
   void noRequestVersion() {
     VersionRequestCondition condition = condition("1.1");
 
-    MockHttpContext exchange = exchange();
+    MockServerHttpExchange exchange = exchange();
     VersionRequestCondition match = condition.getMatchingCondition(exchange);
     assertThat(match).isSameAs(condition);
 
@@ -180,15 +180,15 @@ class VersionRequestConditionTests {
     return new VersionRequestCondition(null, this.strategy);
   }
 
-  private static MockHttpContext exchange() {
-    return new MockHttpContext(new MockRequest("GET", "/path"));
+  private static MockServerHttpExchange exchange() {
+    return new MockServerHttpExchange(new MockRequest("GET", "/path"));
   }
 
-  private MockHttpContext requestWithVersion(String v) {
+  private MockServerHttpExchange requestWithVersion(String v) {
     MockRequest request = new MockRequest("GET", "/path");
     request.setAttribute(HandlerMapping.API_VERSION_ATTRIBUTE, this.strategy.parseVersion(v));
 
-    return new MockHttpContext(request);
+    return new MockServerHttpExchange(request);
   }
 
 }

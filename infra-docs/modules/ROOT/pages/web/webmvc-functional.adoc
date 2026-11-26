@@ -64,7 +64,7 @@ public class PersonHandler {
 
 `ServerRequest` 和 `ServerResponse` 提供了对 HTTP 请求和响应的访问，包括头、主体、方法和状态码。
 可以通过构建器创建请求副本和响应，但不应将整个请求视为深度不可变对象：
-例如，`ServerRequest.attributes()` 返回可修改的属性映射，`exchange()` 暴露底层 `HttpContext`。
+例如，`ServerRequest.attributes()` 返回可修改的属性映射，`exchange()` 暴露底层 `ServerHttpExchange`。
 
 
 [[webmvc-fn-request]]

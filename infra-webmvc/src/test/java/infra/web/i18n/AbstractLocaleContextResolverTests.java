@@ -24,7 +24,7 @@ import java.util.TimeZone;
 
 import infra.core.i18n.LocaleContext;
 import infra.core.i18n.SimpleLocaleContext;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.mock;
 
 class AbstractLocaleContextResolverTests {
 
-  private final HttpContext request = mock(HttpContext.class);
+  private final ServerHttpExchange request = mock(ServerHttpExchange.class);
 
   private final TestLocaleContextResolver resolver = new TestLocaleContextResolver();
 
@@ -91,12 +91,12 @@ class AbstractLocaleContextResolverTests {
     private @Nullable LocaleContext localeContext;
 
     @Override
-    public LocaleContext resolveLocaleContext(HttpContext request) {
+    public LocaleContext resolveLocaleContext(ServerHttpExchange request) {
       return this.localeContext != null ? this.localeContext : new SimpleLocaleContext(null);
     }
 
     @Override
-    public void setLocaleContext(HttpContext request, @Nullable LocaleContext localeContext) {
+    public void setLocaleContext(ServerHttpExchange request, @Nullable LocaleContext localeContext) {
       this.localeContext = localeContext;
     }
   }

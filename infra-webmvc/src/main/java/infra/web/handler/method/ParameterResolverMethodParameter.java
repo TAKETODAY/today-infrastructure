@@ -19,7 +19,7 @@ package infra.web.handler.method;
 import org.jspecify.annotations.Nullable;
 
 import infra.core.MethodParameter;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * Represents a method parameter that can be resolved using a {@link ParameterResolvingStrategy}.
@@ -40,7 +40,7 @@ final class ParameterResolverMethodParameter extends HandlerParameter {
   }
 
   @Override
-  public @Nullable Object resolveArgument(final HttpContext request) throws Exception {
+  public @Nullable Object resolveArgument(final ServerHttpExchange request) throws Exception {
     var strategy = this.strategy;
     if (strategy == null) {
       strategy = resolvers.obtainStrategy(this);

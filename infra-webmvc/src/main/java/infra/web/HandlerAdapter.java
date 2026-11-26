@@ -79,7 +79,7 @@ public interface HandlerAdapter {
    * Sentinel value indicating that the handler did not return a value, or the
    * result has already been processed and no further rendering is required.
    *
-   * @see #handle(HttpContext, Object)
+   * @see #handle(ServerHttpExchange, Object)
    */
   Object NONE_RETURN_VALUE = HttpRequestHandler.NONE_RETURN_VALUE;
 
@@ -105,7 +105,7 @@ public interface HandlerAdapter {
    * <p>The result is handled by a {@link ReturnValueHandler} unless it equals
    * {@link #NONE_RETURN_VALUE}.
    *
-   * @param context current HTTP request context
+   * @param exchange current HTTP exchange
    * @param handler the handler to use. This object must have previously been
    * passed to the {@link #supports(Object)} method of this interface, which
    * must have returned {@code true}.
@@ -116,7 +116,7 @@ public interface HandlerAdapter {
    * @see ReturnValueHandler
    */
   @Nullable
-  Object handle(HttpContext context, Object handler) throws Exception;
+  Object handle(ServerHttpExchange exchange, Object handler) throws Exception;
 
   // static factory method
 

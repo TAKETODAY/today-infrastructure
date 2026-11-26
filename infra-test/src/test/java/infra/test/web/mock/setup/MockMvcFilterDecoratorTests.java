@@ -23,14 +23,14 @@ import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;
 
-import infra.web.mock.MockHttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.api.DispatcherType;
 import infra.web.mock.MockResponse;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockFilterChain;
 import infra.web.Filter;
 import infra.web.FilterChain;
-import infra.web.HttpContext;
 import infra.web.mock.MockUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -219,7 +219,7 @@ class MockMvcFilterDecoratorTests {
     request.setDispatcherType(requestDispatcherType);
     request.setRequestURI(requestUri);
     filter = new MockMvcFilterDecorator(delegate, EnumSet.of(filterDispatcherType), pattern);
-    filter.doFilter(new MockHttpContext(request, response), filterChain);
+    filter.doFilter(new MockServerHttpExchange(request, response), filterChain);
 
     assertThat(delegate.request).isNull();
     assertThat(delegate.response).isNull();
@@ -233,7 +233,7 @@ class MockMvcFilterDecoratorTests {
   private void assertFilterInvoked(String requestUri, String pattern) throws Exception {
     request.setRequestURI(requestUri);
     filter = new MockMvcFilterDecorator(delegate, new String[] { pattern });
-    filter.doFilter(new MockHttpContext(request, response), filterChain);
+    filter.doFilter(new MockServerHttpExchange(request, response), filterChain);
 
     assertThat(delegate.request).isEqualTo(request);
     assertThat(delegate.response).isEqualTo(response);
@@ -250,9 +250,9 @@ class MockMvcFilterDecoratorTests {
     private FilterChain chain;
 
     @Override
-    public void doFilter(HttpContext http, FilterChain chain) throws Exception {
-      this.request = MockUtils.getMockRequest(http);
-      this.response = MockUtils.getMockResponse(http);
+    public void doFilter(ServerHttpExchange exchange, FilterChain chain) throws Exception {
+      this.request = MockUtils.getMockRequest(exchange);
+      this.response = MockUtils.getMockResponse(exchange);
       this.chain = chain;
     }
 

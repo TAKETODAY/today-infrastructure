@@ -25,8 +25,8 @@ import java.util.stream.Stream;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.http.HttpStatus;
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.RedirectModel;
@@ -45,112 +45,112 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 class UrlFilenameViewControllerTests {
 
   @SuppressWarnings("unused")
-  private static Stream<Function<String, MockHttpContext>> pathPatternsArguments() {
+  private static Stream<Function<String, MockServerHttpExchange>> pathPatternsArguments() {
     return PathPatternsTestUtils.requestArguments();
   }
 
   @PathPatternsParameterizedTest
-  void withPlainFilename(Function<String, HttpContext> requestFactory) throws Throwable {
+  void withPlainFilename(Function<String, ServerHttpExchange> requestFactory) throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
-    HttpContext request = requestFactory.apply("/index");
+    ServerHttpExchange request = requestFactory.apply("/index");
     ModelAndView mv = (ModelAndView) controller.handleRequest(request);
     assertThat(mv.getViewName()).isEqualTo("index");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
 
   @PathPatternsParameterizedTest
-  void withRedirectPrefix(Function<String, HttpContext> requestFactory) {
+  void withRedirectPrefix(Function<String, ServerHttpExchange> requestFactory) {
     UrlFilenameViewController controller = new UrlFilenameViewController();
-    HttpContext request = requestFactory.apply("/redirect:index");
+    ServerHttpExchange request = requestFactory.apply("/redirect:index");
     assertThatExceptionOfType(ResponseStatusException.class)
             .isThrownBy(() -> controller.handleRequest(request))
             .satisfies(ex -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST));
   }
 
   @PathPatternsParameterizedTest
-  void withForwardPrefix(Function<String, HttpContext> requestFactory) {
+  void withForwardPrefix(Function<String, ServerHttpExchange> requestFactory) {
     UrlFilenameViewController controller = new UrlFilenameViewController();
-    HttpContext request = requestFactory.apply("/forward:index");
+    ServerHttpExchange request = requestFactory.apply("/forward:index");
     assertThatExceptionOfType(ResponseStatusException.class)
             .isThrownBy(() -> controller.handleRequest(request))
             .satisfies(ex -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST));
   }
 
   @PathPatternsParameterizedTest
-  void withFilenamePlusExtension(Function<String, HttpContext> requestFactory) throws Throwable {
+  void withFilenamePlusExtension(Function<String, ServerHttpExchange> requestFactory) throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
-    HttpContext request = requestFactory.apply("/index.html");
+    ServerHttpExchange request = requestFactory.apply("/index.html");
     ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("index");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
 
-  private static ModelAndView getModelAndView(UrlFilenameViewController controller, HttpContext request) throws Throwable {
+  private static ModelAndView getModelAndView(UrlFilenameViewController controller, ServerHttpExchange request) throws Throwable {
     return (ModelAndView) controller.handleRequest(request);
   }
 
   @PathPatternsParameterizedTest
-  void withFilenameAndMatrixVariables(Function<String, HttpContext> requestFactory) throws Throwable {
+  void withFilenameAndMatrixVariables(Function<String, ServerHttpExchange> requestFactory) throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
-    HttpContext request = requestFactory.apply("/index;a=A;b=B");
+    ServerHttpExchange request = requestFactory.apply("/index;a=A;b=B");
     ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("index");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
 
   @PathPatternsParameterizedTest
-  void withPrefixAndSuffix(Function<String, HttpContext> requestFactory) throws Throwable {
+  void withPrefixAndSuffix(Function<String, ServerHttpExchange> requestFactory) throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
     controller.setPrefix("mypre_");
     controller.setSuffix("_mysuf");
-    HttpContext request = requestFactory.apply("/index.html");
+    ServerHttpExchange request = requestFactory.apply("/index.html");
     ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("mypre_index_mysuf");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
 
   @PathPatternsParameterizedTest
-  void withPrefix(Function<String, HttpContext> requestFactory) throws Throwable {
+  void withPrefix(Function<String, ServerHttpExchange> requestFactory) throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
     controller.setPrefix("mypre_");
-    HttpContext request = requestFactory.apply("/index.html");
+    ServerHttpExchange request = requestFactory.apply("/index.html");
     ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("mypre_index");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
 
   @PathPatternsParameterizedTest
-  void withSuffix(Function<String, HttpContext> requestFactory) throws Throwable {
+  void withSuffix(Function<String, ServerHttpExchange> requestFactory) throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
     controller.setSuffix("_mysuf");
-    HttpContext request = requestFactory.apply("/index.html");
+    ServerHttpExchange request = requestFactory.apply("/index.html");
     ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("index_mysuf");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
 
   @PathPatternsParameterizedTest
-  void multiLevel(Function<String, HttpContext> requestFactory) throws Throwable {
+  void multiLevel(Function<String, ServerHttpExchange> requestFactory) throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
-    HttpContext request = requestFactory.apply("/docs/cvs/commit.html");
+    ServerHttpExchange request = requestFactory.apply("/docs/cvs/commit.html");
     ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("docs/cvs/commit");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
 
   @PathPatternsParameterizedTest
-  void multiLevelWithMapping(Function<String, HttpContext> requestFactory) throws Throwable {
+  void multiLevelWithMapping(Function<String, ServerHttpExchange> requestFactory) throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
-    HttpContext request = requestFactory.apply("/cvs/commit.html");
+    ServerHttpExchange request = requestFactory.apply("/cvs/commit.html");
     ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("cvs/commit");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
 
   @PathPatternsParameterizedTest
-  void multiLevelMappingWithFallback(Function<String, HttpContext> requestFactory) throws Throwable {
+  void multiLevelMappingWithFallback(Function<String, ServerHttpExchange> requestFactory) throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
-    HttpContext request = requestFactory.apply("/docs/cvs/commit.html");
+    ServerHttpExchange request = requestFactory.apply("/docs/cvs/commit.html");
     exposePathInMapping(request, "/docs/cvs/commit.html");
     ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("docs/cvs/commit");
@@ -163,7 +163,7 @@ class UrlFilenameViewControllerTests {
     MockRequest request = new MockRequest("GET", "/docs/cvs/commit.html");
     AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
     wac.refresh();
-    MockHttpContext context = new MockHttpContext(wac, request, new MockResponse());
+    MockServerHttpExchange context = new MockServerHttpExchange(wac, request, new MockResponse());
     ModelAndView mv = getModelAndView(controller, context);
     assertThat(mv.getViewName()).isEqualTo("docs/cvs/commit");
     assertThat(mv.getModel().isEmpty()).isTrue();
@@ -198,19 +198,19 @@ class UrlFilenameViewControllerTests {
    */
   @PathPatternsParameterizedTest
   void nestedPathisUsedAsViewName_InBreakingChange(
-          Function<String, HttpContext> requestFactory) throws Throwable {
+          Function<String, ServerHttpExchange> requestFactory) throws Throwable {
 
     UrlFilenameViewController controller = new UrlFilenameViewController();
-    HttpContext request = requestFactory.apply("/products/view.html");
+    ServerHttpExchange request = requestFactory.apply("/products/view.html");
     ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("products/view");
     assertThat(mv.getModel().isEmpty()).isTrue();
   }
 
   @PathPatternsParameterizedTest
-  void withInputRedirectModel(Function<String, HttpContext> requestFactory) throws Throwable {
+  void withInputRedirectModel(Function<String, ServerHttpExchange> requestFactory) throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
-    HttpContext request = requestFactory.apply("/index");
+    ServerHttpExchange request = requestFactory.apply("/index");
     request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, new RedirectModel("name", "value"));
     ModelAndView mv = getModelAndView(controller, request);
     assertThat(mv.getViewName()).isEqualTo("index");
@@ -218,7 +218,7 @@ class UrlFilenameViewControllerTests {
     assertThat(mv.getModel().get("name")).isEqualTo("value");
   }
 
-  private void exposePathInMapping(HttpContext request, String mapping) {
+  private void exposePathInMapping(ServerHttpExchange request, String mapping) {
 
   }
 

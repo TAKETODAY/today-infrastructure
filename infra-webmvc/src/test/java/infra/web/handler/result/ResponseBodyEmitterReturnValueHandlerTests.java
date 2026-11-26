@@ -30,13 +30,13 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.core.ResolvableType;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockAsyncContext;
 import infra.web.mock.MockResponse;
@@ -68,7 +68,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
 
   private MockResponse response;
 
-  private MockHttpContext webRequest;
+  private MockServerHttpExchange webRequest;
 
   @BeforeEach
   public void setup() throws Exception {
@@ -79,7 +79,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
     this.handler = new ResponseBodyEmitterReturnValueHandler(converters);
     this.request = new MockRequest();
     this.response = new MockResponse();
-    this.webRequest = new MockHttpContext(null, this.request, this.response);
+    this.webRequest = new MockServerHttpExchange(null, this.request, this.response);
 
     WebAsyncRequest asyncRequest = new StandardMockWebAsyncRequest(this.request, this.response);
     webRequest.setAsyncRequest(asyncRequest);
@@ -122,7 +122,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
 
   @Test
   void notifiesEmitterWhenAsyncStartupFails() throws Exception {
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
     IllegalStateException failure = new IllegalStateException("async unavailable");
     Mockito.when(context.asyncManager()).thenThrow(failure);
     ResponseBodyEmitter emitter = forChunkedTransferEncoding();
@@ -141,7 +141,7 @@ class ResponseBodyEmitterReturnValueHandlerTests {
 
   @Test
   void handlesNullAndRecognizesAnEmitterWithoutAHandlerMethod() throws Exception {
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
     assertThat(handler.supportsHandler(new Object(), forChunkedTransferEncoding())).isTrue();
     assertThat(handler.supportsHandler(new Object(), "not an emitter")).isFalse();
 

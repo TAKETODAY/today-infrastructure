@@ -19,7 +19,7 @@ package infra.web.handler;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.handler.function.HandlerFunction;
 import infra.web.handler.function.ServerResponse;
 import infra.web.handler.method.HandlerMethod;
@@ -31,7 +31,7 @@ class AbstractHandlerMethodExceptionHandlerTests {
 
   private final TestExceptionHandler handler = new TestExceptionHandler();
 
-  private final HttpContext context = mock(HttpContext.class);
+  private final ServerHttpExchange context = mock(ServerHttpExchange.class);
 
   private final HandlerFunction<ServerResponse> function = request -> ServerResponse.ok().build();
 
@@ -83,7 +83,7 @@ class AbstractHandlerMethodExceptionHandlerTests {
     }
 
     @Override
-    protected @Nullable Object handleInternal(HttpContext request, @Nullable HandlerMethod handlerMethod, Throwable ex) {
+    protected @Nullable Object handleInternal(ServerHttpExchange request, @Nullable HandlerMethod handlerMethod, Throwable ex) {
       return null;
     }
   }

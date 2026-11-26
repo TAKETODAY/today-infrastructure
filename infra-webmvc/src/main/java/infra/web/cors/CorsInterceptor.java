@@ -20,7 +20,7 @@ package infra.web.cors;
 
 import infra.util.Assert;
 import infra.web.HandlerInterceptor;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -52,10 +52,10 @@ public class CorsInterceptor implements HandlerInterceptor {
   }
 
   @Override
-  public boolean preProcessing(HttpContext context, Object handler) throws Exception {
-    CorsConfiguration corsConfiguration = configSource.getCorsConfiguration(context);
-    return processor.process(corsConfiguration, context)
-            && !context.isPreFlightRequest();
+  public boolean preProcessing(ServerHttpExchange exchange, Object handler) throws Exception {
+    CorsConfiguration corsConfiguration = configSource.getCorsConfiguration(exchange);
+    return processor.process(corsConfiguration, exchange)
+            && !exchange.isPreFlightRequest();
   }
 
 }

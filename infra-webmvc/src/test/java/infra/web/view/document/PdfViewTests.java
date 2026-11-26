@@ -33,8 +33,8 @@ import java.util.Map;
 
 import infra.context.support.GenericApplicationContext;
 import infra.http.HttpHeaders;
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,7 +42,7 @@ class PdfViewTests {
 
   @Test
   void rendersModelIntoDownloadablePdf() throws Exception {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
 
     pdfView().render(Map.of("body", "Quarterly report"), context);
 
@@ -60,16 +60,16 @@ class PdfViewTests {
 
   @Test
   void stampsPdfLoadedFromConfiguredResource(@TempDir Path directory) throws Exception {
-    MockHttpContext templateResponse = new MockHttpContext();
+    MockServerHttpExchange templateResponse = new MockServerHttpExchange();
     pdfView().render(Map.of("body", "Original document"), templateResponse);
     Path template = Files.write(directory.resolve("template.pdf"), templateResponse.response.getContentAsByteArray());
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
 
     try (GenericApplicationContext applicationContext = new GenericApplicationContext()) {
       applicationContext.refresh();
       AbstractPdfStamperView view = new AbstractPdfStamperView() {
         @Override
-        protected void mergePdfDocument(Map<String, Object> model, PdfStamper stamper, HttpContext context) {
+        protected void mergePdfDocument(Map<String, Object> model, PdfStamper stamper, ServerHttpExchange context) {
           stamper.setInfoDictionary(Map.of("Title", (String) model.get("title")));
         }
       };
@@ -93,13 +93,13 @@ class PdfViewTests {
     return new AbstractPdfView() {
       @Override
       protected void buildPdfDocument(Map<String, Object> model, Document document, PdfWriter writer,
-              HttpContext context) throws Exception {
+              ServerHttpExchange context) throws Exception {
         document.add(new Paragraph((String) model.get("body")));
       }
     };
   }
 
-  private static byte[] assertPdfResponse(MockHttpContext context) {
+  private static byte[] assertPdfResponse(MockServerHttpExchange context) {
     byte[] content = context.response.getContentAsByteArray();
     assertThat(context.getResponseContentType()).isEqualTo("application/pdf");
     assertThat(context.response.getContentLengthLong()).isEqualTo(content.length);

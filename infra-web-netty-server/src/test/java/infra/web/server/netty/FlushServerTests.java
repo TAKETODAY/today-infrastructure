@@ -26,7 +26,7 @@ import java.util.concurrent.Executors;
 import infra.context.ApplicationContext;
 import infra.http.MediaType;
 import infra.web.DispatcherHandler;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.server.HttpRequestExecutor;
 import infra.web.server.SimpleHttpRequestExecutor;
 import infra.web.server.WebServer;
@@ -181,42 +181,42 @@ class FlushServerTests {
     }
 
     @Override
-    public void handleRequest(HttpContext context) throws Exception {
-      switch (context.getRequestURI()) {
+    public void handleRequest(ServerHttpExchange exchange) throws Exception {
+      switch (exchange.getRequestURI()) {
         case "/empty-flush" -> {
           // no body at all: the head must reach the client on this flush
-          context.flush();
+          exchange.flush();
         }
         case "/empty-writer-flush" -> {
           // nothing buffered, but flushing the writer must still push the head
-          context.getWriter().flush();
+          exchange.getWriter().flush();
         }
         case "/chunked" -> {
-          context.setContentType(MediaType.TEXT_PLAIN);
-          context.setHeader("Transfer-Encoding", "chunked");
-          var out = context.getOutputStream();
+          exchange.setContentType(MediaType.TEXT_PLAIN);
+          exchange.setHeader("Transfer-Encoding", "chunked");
+          var out = exchange.getOutputStream();
           out.write("first-|".getBytes(StandardCharsets.UTF_8));
-          context.flush();
+          exchange.flush();
           out.write("second".getBytes(StandardCharsets.UTF_8));
-          context.flush();
+          exchange.flush();
         }
         case "/fixed" -> {
-          context.setContentType(MediaType.TEXT_PLAIN);
-          context.getOutputStream().write("first".getBytes(StandardCharsets.UTF_8));
-          context.flush();
+          exchange.setContentType(MediaType.TEXT_PLAIN);
+          exchange.getOutputStream().write("first".getBytes(StandardCharsets.UTF_8));
+          exchange.flush();
         }
         case "/writer" -> {
-          context.setContentType(MediaType.TEXT_PLAIN);
-          context.getWriter().write("hello-writer");
-          context.flush();
+          exchange.setContentType(MediaType.TEXT_PLAIN);
+          exchange.getWriter().write("hello-writer");
+          exchange.flush();
         }
         case "/head-error" -> throw new IllegalStateException("boom");
         default -> {
-          context.setContentType(MediaType.TEXT_PLAIN);
-          context.getOutputStream().write("plain".getBytes(StandardCharsets.UTF_8));
+          exchange.setContentType(MediaType.TEXT_PLAIN);
+          exchange.getOutputStream().write("plain".getBytes(StandardCharsets.UTF_8));
         }
       }
-      completeRequest(context, null);
+      completeRequest(exchange, null);
     }
   }
 

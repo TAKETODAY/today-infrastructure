@@ -36,7 +36,7 @@ import infra.http.HttpMethod;
 import infra.http.HttpStatus;
 import infra.web.HandlerExceptionHandler;
 import infra.web.annotation.ResponseStatus;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.server.MethodNotAllowedException;
@@ -106,7 +106,7 @@ class ResponseStatusExceptionHandlerTests {
 
   @Nullable
   private Object handleException(Exception ex) throws Exception {
-    MockHttpContext context = new MockHttpContext(null, request, response);
+    MockServerHttpExchange context = new MockServerHttpExchange(null, request, response);
     try {
       return exceptionHandler.handleException(context, ex, null);
     }

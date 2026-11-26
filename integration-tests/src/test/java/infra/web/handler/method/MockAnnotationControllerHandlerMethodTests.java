@@ -103,7 +103,7 @@ import infra.validation.BindingResult;
 import infra.validation.Errors;
 import infra.validation.FieldError;
 import infra.validation.beanvalidation.LocalValidatorFactoryBean;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.RedirectModel;
 import infra.web.SerializationTestUtils;
 import infra.web.accept.ContentNegotiationManager;
@@ -120,7 +120,7 @@ import infra.web.annotation.RequestParam;
 import infra.web.annotation.ResponseBody;
 import infra.web.annotation.ResponseStatus;
 import infra.web.annotation.RestController;
-import infra.web.bind.HttpContextDataBinder;
+import infra.web.bind.HttpExchangeDataBinder;
 import infra.web.bind.WebDataBinder;
 import infra.web.bind.annotation.BindParam;
 import infra.web.bind.annotation.InitBinder;
@@ -132,7 +132,7 @@ import infra.web.handler.function.RouterFunction;
 import infra.web.handler.function.RouterFunctions;
 import infra.web.handler.function.ServerResponse;
 import infra.web.handler.method.support.ParameterResolvingRegistryFactory;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.MultipartMockRequest;
@@ -1524,7 +1524,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     Session session = (infra.session.Session) request.getAttribute("session");
 
-    MockHttpContext context = new MockHttpContext(wac, request, response);
+    MockServerHttpExchange context = new MockServerHttpExchange(wac, request, response);
     // POST -> bind error
 //    getServlet().service(request, response);
 //
@@ -1539,7 +1539,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     request.addParameter("name", "Jeff");
     response = new MockResponse();
     getMockHandler().service(request, response);
-    context = new MockHttpContext(wac, request, response);
+    context = new MockServerHttpExchange(wac, request, response);
 
     assertThat(response.getStatus()).isEqualTo(302);
     assertThat(response.getRedirectedUrl()).isEqualTo("/messages/1?name=value");
@@ -1567,7 +1567,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     getMockHandler().service(request, response);
 
     Session session = (infra.session.Session) request.getAttribute("session");
-    MockHttpContext context = new MockHttpContext(wac, request, response);
+    MockServerHttpExchange context = new MockServerHttpExchange(wac, request, response);
 
     assertThat(response.getStatus()).isEqualTo(302);
     assertThat(response.getRedirectedUrl()).isEqualTo("/messages/1?name=value");
@@ -1984,7 +1984,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       }
 
       @Override
-      public Object resolveArgument(HttpContext request, HandlerParameter parameter) {
+      public Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) {
         return Optional.empty();
       }
     });
@@ -2227,17 +2227,17 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class ControllerWithEmptyValueMapping {
 
     @RequestMapping("")
-    public void myPath2(HttpContext response) {
+    public void myPath2(ServerHttpExchange response) {
       throw new IllegalStateException("test");
     }
 
     @RequestMapping("/bar")
-    public void myPath3(HttpContext response) throws IOException {
+    public void myPath3(ServerHttpExchange response) throws IOException {
       response.getWriter().write("testX");
     }
 
     @ExceptionHandler
-    public void myPath2(Exception ex, HttpContext response) throws IOException {
+    public void myPath2(Exception ex, ServerHttpExchange response) throws IOException {
       response.getWriter().write(ex.getMessage());
     }
   }
@@ -2246,17 +2246,17 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   private static class ControllerWithErrorThrown {
 
     @RequestMapping("")
-    public void myPath2(HttpContext response) {
+    public void myPath2(ServerHttpExchange response) {
       throw new AssertionError("test");
     }
 
     @RequestMapping("/bar")
-    public void myPath3(HttpContext response) throws IOException {
+    public void myPath3(ServerHttpExchange response) throws IOException {
       response.getWriter().write("testX");
     }
 
     @ExceptionHandler
-    public void myPath2(Error err, HttpContext response) throws IOException {
+    public void myPath2(Error err, ServerHttpExchange response) throws IOException {
       response.getWriter().write(err.getMessage());
     }
   }
@@ -2265,24 +2265,24 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class MyAdaptedController {
 
     @RequestMapping("/myPath1.do")
-    public void myHandle(HttpContext request, HttpContext response) throws IOException {
+    public void myHandle(ServerHttpExchange request, ServerHttpExchange response) throws IOException {
       response.getWriter().write("test");
     }
 
     @RequestMapping("/myPath2.do")
     public void myHandle(@RequestParam("param1") String p1, @RequestParam("param2") int p2,
             @RequestHeader("header1") long h1, @CookieValue(name = "cookie1") HttpCookie c1,
-            HttpContext response) throws IOException {
+            ServerHttpExchange response) throws IOException {
       response.getWriter().write("test-" + p1 + "-" + p2 + "-" + h1 + "-" + c1.getValue());
     }
 
     @RequestMapping("/myPath3")
-    public void myHandle(TestBean tb, HttpContext response) throws IOException {
+    public void myHandle(TestBean tb, ServerHttpExchange response) throws IOException {
       response.getWriter().write("test-" + tb.getName() + "-" + tb.getAge());
     }
 
     @RequestMapping("/myPath4.do")
-    public void myHandle(TestBean tb, Errors errors, HttpContext response) throws IOException {
+    public void myHandle(TestBean tb, Errors errors, ServerHttpExchange response) throws IOException {
       response.getWriter().write("test-" + tb.getName() + "-" + errors.getFieldError("age").getCode());
     }
   }
@@ -2292,23 +2292,23 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class MyAdaptedController2 {
 
     @RequestMapping
-    public void myHandle(HttpContext request, HttpContext response) throws IOException {
+    public void myHandle(ServerHttpExchange request, ServerHttpExchange response) throws IOException {
       response.getWriter().write("test");
     }
 
     @RequestMapping("/myPath2.do")
-    public void myHandle(@RequestParam("param1") String p1, int param2, HttpContext response,
+    public void myHandle(@RequestParam("param1") String p1, int param2, ServerHttpExchange response,
             @RequestHeader("header1") String h1, @CookieValue("cookie1") String c1) throws IOException {
       response.getWriter().write("test-" + p1 + "-" + param2 + "-" + h1 + "-" + c1);
     }
 
     @RequestMapping("/myPath3")
-    public void myHandle(TestBean tb, HttpContext response) throws IOException {
+    public void myHandle(TestBean tb, ServerHttpExchange response) throws IOException {
       response.getWriter().write("test-" + tb.getName() + "-" + tb.getAge());
     }
 
     @RequestMapping("/myPath4.*")
-    public void myHandle(TestBean tb, Errors errors, HttpContext response) throws IOException {
+    public void myHandle(TestBean tb, Errors errors, ServerHttpExchange response) throws IOException {
       response.getWriter().write("test-" + tb.getName() + "-" + errors.getFieldError("age").getCode());
     }
   }
@@ -2318,7 +2318,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     @RequestMapping("/myPath2.do")
     public void myHandle(@RequestParam("param1") T p1, int param2, @RequestHeader Integer header1,
-            @CookieValue int cookie1, HttpContext response) throws IOException {
+            @CookieValue int cookie1, ServerHttpExchange response) throws IOException {
       response.getWriter().write("test-" + p1 + "-" + param2 + "-" + header1 + "-" + cookie1);
     }
 
@@ -2341,23 +2341,23 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class MyAdaptedController3 extends MyAdaptedControllerBase<String> {
 
     @RequestMapping
-    public void myHandle(HttpContext request, HttpContext response) throws IOException {
+    public void myHandle(ServerHttpExchange request, ServerHttpExchange response) throws IOException {
       response.getWriter().write("test");
     }
 
     @Override
     public void myHandle(@RequestParam("param1") String p1, int param2, @RequestHeader Integer header1,
-            @CookieValue int cookie1, HttpContext response) throws IOException {
+            @CookieValue int cookie1, ServerHttpExchange response) throws IOException {
       response.getWriter().write("test-" + p1 + "-" + param2 + "-" + header1 + "-" + cookie1);
     }
 
     @RequestMapping("/myPath3")
-    public void myHandle(TestBean tb, HttpContext response) throws IOException {
+    public void myHandle(TestBean tb, ServerHttpExchange response) throws IOException {
       response.getWriter().write("test-" + tb.getName() + "-" + tb.getAge());
     }
 
     @RequestMapping("/myPath4.*")
-    public void myHandle(TestBean tb, Errors errors, HttpContext response) throws IOException {
+    public void myHandle(TestBean tb, Errors errors, ServerHttpExchange response) throws IOException {
       response.getWriter().write("test-" + tb.getName() + "-" + errors.getFieldError("age").getCode());
     }
 
@@ -2390,7 +2390,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     }
 
     @RequestMapping("/nonEmptyParameterListHandler")
-    public void nonEmptyParameterListHandler(HttpContext response) {
+    public void nonEmptyParameterListHandler(ServerHttpExchange response) {
     }
   }
 
@@ -2434,10 +2434,10 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   abstract static class AbstractSessionManagerAutowired extends SessionManagerOperations {
 
     @Autowired
-    HttpContext http;
+    ServerHttpExchange http;
 
     @Autowired
-    HttpContext request;
+    ServerHttpExchange request;
 
     public AbstractSessionManagerAutowired(SessionManager sessionManager) {
       super(sessionManager);
@@ -2703,7 +2703,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
           extends MyCommandProvidingFormController<String, TestBean, ITestBean> {
 
     @InitBinder
-    public void initBinder(HttpContextDataBinder binder) {
+    public void initBinder(HttpExchangeDataBinder binder) {
       binder.initBeanPropertyAccess();
       binder.setRequiredFields("sex");
       LocalValidatorFactoryBean vf = new LocalValidatorFactoryBean();
@@ -2729,7 +2729,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
           extends MyCommandProvidingFormController<String, TestBean, ITestBean> {
 
     @InitBinder({ "myCommand", "date" })
-    public void initBinder(HttpContextDataBinder binder, String date, @RequestParam("date") String[] date2) {
+    public void initBinder(HttpExchangeDataBinder binder, String date, @RequestParam("date") String[] date2) {
       LocalValidatorFactoryBean vf = new LocalValidatorFactoryBean();
       vf.afterPropertiesSet();
       binder.setValidator(vf);
@@ -2764,7 +2764,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     @Nullable
     @Override
-    public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
+    public Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) {
       return new MySpecialArg("myValue");
     }
   }
@@ -2781,14 +2781,14 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     @Nullable
     @Autowired
-    private transient HttpContext request;
+    private transient ServerHttpExchange request;
 
     @Nullable
     @Autowired
-    private transient HttpContext webRequest;
+    private transient ServerHttpExchange webRequest;
 
     @RequestMapping
-    public void myHandle(HttpContext response, HttpContext request) throws IOException {
+    public void myHandle(ServerHttpExchange response, ServerHttpExchange request) throws IOException {
       if (this.session == null || this.request == null || this.webRequest == null) {
         throw new IllegalStateException();
       }
@@ -2799,17 +2799,17 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     }
 
     @RequestMapping(params = { "view", "!lang" })
-    public void myOtherHandle(HttpContext response) throws IOException {
+    public void myOtherHandle(ServerHttpExchange response) throws IOException {
       response.getWriter().write("myOtherView");
     }
 
     @RequestMapping(method = HttpMethod.GET, params = { "view=my", "lang=de" })
-    public void myLangHandle(HttpContext response) throws IOException {
+    public void myLangHandle(ServerHttpExchange response) throws IOException {
       response.getWriter().write("myLangView");
     }
 
     @RequestMapping(method = { HttpMethod.POST, HttpMethod.GET }, params = "surprise")
-    public void mySurpriseHandle(HttpContext response) throws IOException {
+    public void mySurpriseHandle(ServerHttpExchange response) throws IOException {
       response.getWriter().write("mySurpriseView");
     }
   }
@@ -2819,12 +2819,12 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class MyConstrainedParameterDispatchingController {
 
     @RequestMapping(params = { "view", "!lang" })
-    public void myOtherHandle(HttpContext response) throws IOException {
+    public void myOtherHandle(ServerHttpExchange response) throws IOException {
       response.getWriter().write("myOtherView");
     }
 
     @RequestMapping(method = HttpMethod.GET, params = { "view=my", "lang=de" })
-    public void myLangHandle(HttpContext response) throws IOException {
+    public void myLangHandle(ServerHttpExchange response) throws IOException {
       response.getWriter().write("myLangView");
     }
   }
@@ -2834,22 +2834,22 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class MyRelativePathDispatchingController {
 
     @RequestMapping
-    public void myHandle(HttpContext response) throws IOException {
+    public void myHandle(ServerHttpExchange response) throws IOException {
       response.getWriter().write("myView");
     }
 
     @RequestMapping("*Other")
-    public void myOtherHandle(HttpContext response) throws IOException {
+    public void myOtherHandle(ServerHttpExchange response) throws IOException {
       response.getWriter().write("myOtherView");
     }
 
     @RequestMapping("myLang")
-    public void myLangHandle(HttpContext response) throws IOException {
+    public void myLangHandle(ServerHttpExchange response) throws IOException {
       response.getWriter().write("myLangView");
     }
 
     @RequestMapping("surprise")
-    public void mySurpriseHandle(HttpContext response) throws IOException {
+    public void mySurpriseHandle(ServerHttpExchange response) throws IOException {
       response.getWriter().write("mySurpriseView");
     }
   }
@@ -2858,22 +2858,22 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class MyRelativeMethodPathDispatchingController {
 
     @RequestMapping("*/myHandle") // was **/myHandle
-    public void myHandle(HttpContext response) throws IOException {
+    public void myHandle(ServerHttpExchange response) throws IOException {
       response.getWriter().write("myView");
     }
 
     @RequestMapping("/*/*Other") // was /**/*Other
-    public void myOtherHandle(HttpContext response) throws IOException {
+    public void myOtherHandle(ServerHttpExchange response) throws IOException {
       response.getWriter().write("myOtherView");
     }
 
     @RequestMapping("*/myLang") // was **/myLang
-    public void myLangHandle(HttpContext response) throws IOException {
+    public void myLangHandle(ServerHttpExchange response) throws IOException {
       response.getWriter().write("myLangView");
     }
 
     @RequestMapping("/*/surprise") // was /**/surprise
-    public void mySurpriseHandle(HttpContext response) throws IOException {
+    public void mySurpriseHandle(ServerHttpExchange response) throws IOException {
       response.getWriter().write("mySurpriseView");
     }
   }
@@ -2921,7 +2921,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     public View resolveViewName(String viewName, Locale locale) throws Exception {
       return new AbstractView() {
         @Override
-        protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
+        protected void renderMergedOutputModel(Map<String, Object> model, ServerHttpExchange http) throws Exception {
           TestBean tb = (TestBean) model.get("testBean");
           if (tb == null) {
             tb = (TestBean) model.get("myCommand");
@@ -2967,7 +2967,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
       return new AbstractView() {
 
         @Override
-        protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
+        protected void renderMergedOutputModel(Map<String, Object> model, ServerHttpExchange http) throws Exception {
           http.setAttribute("viewName", viewName);
           setAttribute(http, "model", model);
         }
@@ -2978,7 +2978,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class ParentController {
 
     @RequestMapping(method = HttpMethod.GET)
-    public void doGet(HttpContext req, HttpContext resp) {
+    public void doGet(ServerHttpExchange req, ServerHttpExchange resp) {
     }
   }
 
@@ -2987,7 +2987,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class ChildController extends ParentController {
 
     @RequestMapping(method = HttpMethod.GET)
-    public void doGet(HttpContext req, HttpContext resp, @RequestParam("childId") String id) {
+    public void doGet(ServerHttpExchange req, ServerHttpExchange resp, @RequestParam("childId") String id) {
     }
   }
 
@@ -3041,7 +3041,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     public void myHandle(@RequestParam(required = false) String id,
             @RequestParam(required = false) boolean flag,
             @RequestHeader(value = "header", required = false) String header,
-            HttpContext response) throws IOException {
+            ServerHttpExchange response) throws IOException {
       response.getWriter().write(String.valueOf(id) + "-" + flag + "-" + String.valueOf(header));
     }
   }
@@ -3053,7 +3053,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     public void myHandle(@RequestParam(value = "id", defaultValue = "foo") String id,
             @RequestParam(value = "otherId", defaultValue = "") String id2,
             @RequestHeader(defaultValue = "bar") String header,
-            HttpContext response) throws IOException {
+            ServerHttpExchange response) throws IOException {
       response.getWriter().write(String.valueOf(id) + "-" + String.valueOf(id2) + "-" + String.valueOf(header));
     }
   }
@@ -3064,7 +3064,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     @RequestMapping("/myPath.do")
     public void myHandle(@RequestParam(value = "id", defaultValue = "${myKey}") String id,
             @RequestHeader(defaultValue = "#{systemProperties.myHeader}") String header,
-            @Value("#{request.requestPath.value()}") String path, HttpContext response) throws IOException {
+            @Value("#{request.requestPath.value()}") String path, ServerHttpExchange response) throws IOException {
       response.getWriter().write(id + "-" + header + "-" + path);
     }
   }
@@ -3073,7 +3073,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class NestedSetController {
 
     @RequestMapping("/myPath.do")
-    public void myHandle(GenericBean<?> gb, HttpContext response) throws Exception {
+    public void myHandle(GenericBean<?> gb, ServerHttpExchange response) throws Exception {
       response.getWriter().write(gb.getTestBeanSet().toString() + "-" +
               gb.getTestBeanSet().iterator().next().getClass().getName());
     }
@@ -3405,7 +3405,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class BindingCookieValueController {
 
     @InitBinder
-    public void initBinder(HttpContextDataBinder binder) {
+    public void initBinder(HttpExchangeDataBinder binder) {
       binder.initBeanPropertyAccess();
       SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
       dateFormat.setLenient(false);
@@ -3704,7 +3704,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class CustomMapEditorController {
 
     @InitBinder
-    public void initBinder(HttpContextDataBinder binder) {
+    public void initBinder(HttpExchangeDataBinder binder) {
       binder.initBeanPropertyAccess();
       binder.registerCustomEditor(Map.class, new CustomMapEditor());
     }
@@ -3733,18 +3733,18 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class MultipartController {
 
     @InitBinder
-    public void initBinder(HttpContextDataBinder binder) {
+    public void initBinder(HttpExchangeDataBinder binder) {
       binder.registerCustomEditor(String.class, new StringPartEditor());
     }
 
     @RequestMapping("/singleString")
-    public void processMultipart(@RequestParam("content") String content, HttpContext response)
+    public void processMultipart(@RequestParam("content") String content, ServerHttpExchange response)
             throws IOException {
       response.getWriter().write(content);
     }
 
     @RequestMapping("/stringArray")
-    public void processMultipart(@RequestParam("content") String[] content, HttpContext response)
+    public void processMultipart(@RequestParam("content") String[] content, ServerHttpExchange response)
             throws IOException {
       response.getWriter().write(StringUtils.arrayToDelimitedString(content, "-"));
     }
@@ -3754,12 +3754,12 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class CsvController {
 
     @RequestMapping("/singleInteger")
-    public void processCsv(@RequestParam("content") Integer content, HttpContext response) throws IOException {
+    public void processCsv(@RequestParam("content") Integer content, ServerHttpExchange response) throws IOException {
       response.getWriter().write(content.toString());
     }
 
     @RequestMapping("/integerArray")
-    public void processCsv(@RequestParam("content") Integer[] content, HttpContext response) throws IOException {
+    public void processCsv(@RequestParam("content") Integer[] content, ServerHttpExchange response) throws IOException {
       response.getWriter().write(StringUtils.arrayToDelimitedString(content, "-"));
     }
   }
@@ -3804,7 +3804,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     }
 
     @InitBinder
-    public void initBinder(HttpContextDataBinder dataBinder) {
+    public void initBinder(HttpExchangeDataBinder dataBinder) {
       dataBinder.setRequiredFields("name");
       saveSession();
     }
@@ -3841,7 +3841,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     private int count;
 
     @InitBinder
-    public void initBinder(HttpContextDataBinder dataBinder) {
+    public void initBinder(HttpExchangeDataBinder dataBinder) {
       this.count++;
     }
 
@@ -4019,7 +4019,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     }
 
     @Override
-    protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
+    protected void renderMergedOutputModel(Map<String, Object> model, ServerHttpExchange http) throws Exception {
       var bindings = (infra.web.view.BindingAccessor) model.get(BINDINGS_ATTRIBUTE);
       bindings.getBindStatus("dataClass");
       bindings.getBindStatus("dataClass.param1");
@@ -4146,7 +4146,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class DateClassController {
 
     @InitBinder
-    public void initBinder(HttpContextDataBinder binder) {
+    public void initBinder(HttpExchangeDataBinder binder) {
       binder.initDirectFieldAccess();
     }
 
@@ -4246,7 +4246,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     }
 
     @Override
-    protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
+    protected void renderMergedOutputModel(Map<String, Object> model, ServerHttpExchange http) throws Exception {
       var bindings = (infra.web.view.BindingAccessor) model.get(BINDINGS_ATTRIBUTE);
       bindings.getBindStatus("nestedDataClass");
       bindings.getBindStatus("nestedDataClass.param1");
@@ -4294,7 +4294,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class NestedDataAndDateClassController {
 
     @InitBinder
-    public void initBinder(HttpContextDataBinder binder) {
+    public void initBinder(HttpExchangeDataBinder binder) {
       binder.initDirectFieldAccess();
     }
 

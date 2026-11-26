@@ -21,7 +21,7 @@ import org.jspecify.annotations.Nullable;
 import infra.util.Assert;
 import infra.web.HandlerAdapter;
 import infra.web.HandlerAdapterNotFoundException;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpRequestHandler;
 
 /**
@@ -47,14 +47,14 @@ public class HandlerAdapters implements HandlerAdapter {
   }
 
   @Override
-  public @Nullable Object handle(HttpContext context, Object handler) throws Exception {
+  public @Nullable Object handle(ServerHttpExchange exchange, Object handler) throws Exception {
     if (handler instanceof HttpRequestHandler httpRequestHandler) {
-      return httpRequestHandler.handleRequest(context);
+      return httpRequestHandler.handleRequest(exchange);
     }
 
     for (HandlerAdapter handlerAdapter : handlerAdapters) {
       if (handlerAdapter.supports(handler)) {
-        return handlerAdapter.handle(context, handler);
+        return handlerAdapter.handle(exchange, handler);
       }
     }
     throw new HandlerAdapterNotFoundException(handler);

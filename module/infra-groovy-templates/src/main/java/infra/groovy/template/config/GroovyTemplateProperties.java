@@ -112,7 +112,7 @@ public class GroovyTemplateProperties implements InitializingBean, ApplicationCo
   private String suffix = DEFAULT_SUFFIX;
 
   /**
-   * Name of the HttpContext attribute for all views.
+   * Name of the ServerHttpExchange attribute for all views.
    */
   private String httpContextAttribute = DEFAULT_HTTP_CONTEXT_ATTRIBUTE;
 
@@ -495,7 +495,7 @@ public class GroovyTemplateProperties implements InitializingBean, ApplicationCo
     resolver.setExposeSessionAttributes(isExposeSessionAttributes());
     resolver.setExposeMessages(isExposeMessages());
     resolver.setExposeBindings(isExposeBindings());
-    resolver.setHttpContextAttribute(getHttpContextAttribute());
+    resolver.setExchangeAttribute(getHttpContextAttribute());
     // The resolver usually acts as a fallback resolver (e.g. like a
     // InternalResourceViewResolver) so it needs to have low precedence
     resolver.setOrder(Ordered.LOWEST_PRECEDENCE - 5);

@@ -20,7 +20,7 @@ package infra.app.webmvc.test.config.mockmvc;
 
 import infra.app.webmvc.test.config.WebMvcTest;
 import infra.stereotype.Component;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.method.ParameterResolvingStrategies;
@@ -44,7 +44,7 @@ public class ExampleWebMvcConfigurer implements WebMvcConfigurer {
       }
 
       @Override
-      public Object resolveArgument(HttpContext context, HandlerParameter parameter) throws Exception {
+      public Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) throws Exception {
         return new ExampleArgument("hello");
       }
 

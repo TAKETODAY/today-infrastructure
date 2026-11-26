@@ -86,7 +86,7 @@ class HttpTrafficHandlerTests {
       var chunk = new DefaultHttp2DataFrame(Unpooled.buffer().writeByte(42));
       channel.writeInbound(chunk, new DefaultHttp2HeadersFrame(new DefaultHttp2Headers().add("checksum", "abc"), true));
 
-      try (var body = NettyHttpContext.lookup(channel).getInputStream()) {
+      try (var body = NettyServerHttpExchange.lookup(channel).getInputStream()) {
         assertThat(body.read()).isEqualTo(42);
         assertThat(body.read()).isEqualTo(-1);
       }
@@ -109,7 +109,7 @@ class HttpTrafficHandlerTests {
 
       channel.close().syncUninterruptibly();
 
-      assertThat(NettyHttpContext.lookup(channel)).isNull();
+      assertThat(NettyServerHttpExchange.lookup(channel)).isNull();
       assertThat(content.refCnt()).isZero();
     }
     finally {
@@ -122,10 +122,10 @@ class HttpTrafficHandlerTests {
     var channel = new EmbeddedStreamChannel(newTrafficHandler((context, command) -> { }));
     try {
       channel.writeInbound(new DefaultHttp2HeadersFrame(new DefaultHttp2Headers().method("POST").path("/")));
-      try (var body = NettyHttpContext.lookup(channel).getInputStream()) {
+      try (var body = NettyServerHttpExchange.lookup(channel).getInputStream()) {
         channel.writeInbound(new DefaultHttp2ResetFrame(Http2Error.CANCEL));
 
-        assertThat(NettyHttpContext.lookup(channel)).isNull();
+        assertThat(NettyServerHttpExchange.lookup(channel)).isNull();
         assertThatIOException().isThrownBy(body::read).withMessage("HTTP/2 stream reset: 8");
       }
     }
@@ -169,7 +169,7 @@ class HttpTrafficHandlerTests {
             .sendErrorHandler(mock())
             .build();
     HttpRequestExecutor executor = (context, command) -> {
-      ((NettyHttpContext) context).writeHeaders();
+      ((NettyServerHttpExchange) context).writeHeaders();
       throw new IllegalStateException("boom");
     };
     HttpTrafficHandler trafficHandler = new HttpTrafficHandler(

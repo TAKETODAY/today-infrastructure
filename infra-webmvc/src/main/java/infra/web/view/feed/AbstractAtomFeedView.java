@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import infra.http.MediaType;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * Abstract superclass for Atom Feed views, using the
@@ -83,11 +83,11 @@ public abstract class AbstractAtomFeedView extends AbstractFeedView<Feed> {
   }
 
   /**
-   * Invokes {@link #buildFeedEntries(Map, HttpContext)}
+   * Invokes {@link #buildFeedEntries(Map, ServerHttpExchange)}
    * to get a list of feed entries.
    */
   @Override
-  protected final void buildFeedEntries(Map<String, Object> model, Feed feed, HttpContext context) throws Exception {
+  protected final void buildFeedEntries(Map<String, Object> model, Feed feed, ServerHttpExchange context) throws Exception {
     List<Entry> entries = buildFeedEntries(model, context);
     feed.setEntries(entries);
   }
@@ -104,7 +104,7 @@ public abstract class AbstractAtomFeedView extends AbstractFeedView<Feed> {
    * @throws Exception any exception that occurred during document building
    * @see Entry
    */
-  protected abstract List<Entry> buildFeedEntries(Map<String, Object> model, HttpContext context)
+  protected abstract List<Entry> buildFeedEntries(Map<String, Object> model, ServerHttpExchange context)
           throws Exception;
 
 }

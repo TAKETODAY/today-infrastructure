@@ -25,7 +25,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.time.Duration;
 
 import infra.context.ApplicationContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.stereotype.Controller;
@@ -56,7 +56,7 @@ class StandaloneMockMvcBuilderTests {
     RequestMappingHandlerMapping hm = builder.wac.getBean(RequestMappingHandlerMapping.class);
 
     MockRequest request = new MockRequest("GET", "/foo");
-    HandlerExecutionChain chain = (HandlerExecutionChain) hm.getHandler(new MockHttpContext(null,
+    HandlerExecutionChain chain = (HandlerExecutionChain) hm.getHandler(new MockServerHttpExchange(null,
             request, new MockResponse()));
 
     assertThat(chain).isNotNull();
@@ -71,13 +71,13 @@ class StandaloneMockMvcBuilderTests {
     RequestMappingHandlerMapping hm = builder.wac.getBean(RequestMappingHandlerMapping.class);
 
     MockRequest request = new MockRequest("GET", "/persons");
-    HandlerExecutionChain chain = (HandlerExecutionChain) hm.getHandler(new MockHttpContext(null,
+    HandlerExecutionChain chain = (HandlerExecutionChain) hm.getHandler(new MockServerHttpExchange(null,
             request, new MockResponse()));
     assertThat(chain).isNotNull();
     assertThat(((HandlerMethod) chain.getRawHandler()).getMethod().getName()).isEqualTo("persons");
 
     request = new MockRequest("GET", "/persons.xml");
-    chain = (HandlerExecutionChain) hm.getHandler(new MockHttpContext(null,
+    chain = (HandlerExecutionChain) hm.getHandler(new MockServerHttpExchange(null,
             request, new MockResponse()));
     assertThat(chain).isNull();
   }

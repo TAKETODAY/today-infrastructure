@@ -33,7 +33,7 @@ import infra.cache.concurrent.ConcurrentMapCache;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.http.HttpHeaders;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.resource.EncodedResourceResolver.EncodedResource;
 
@@ -84,7 +84,7 @@ public class EncodedResourceResolverTests {
     MockRequest request = new MockRequest();
     request.addHeader("Accept-Encoding", "gzip");
 
-    MockHttpContext httpContext = new MockHttpContext(null, request, null);
+    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, request, null);
 
     Resource actual = this.resolver.resolveResource(httpContext, file, this.locations);
 
@@ -104,7 +104,7 @@ public class EncodedResourceResolverTests {
     String file = "foo-e36d2e05253c6c7085a91522ce43a0b4.css";
     MockRequest request = new MockRequest();
     request.addHeader("Accept-Encoding", "gzip");
-    MockHttpContext httpContext = new MockHttpContext(null, request, null);
+    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, request, null);
 
     Resource resolved = this.resolver.resolveResource(httpContext, file, this.locations);
 
@@ -121,7 +121,7 @@ public class EncodedResourceResolverTests {
     gzippedFiles.create(file);
     MockRequest request = new MockRequest("GET", "/js/foo.js");
     request.addHeader("Accept-Encoding", "gzip");
-    MockHttpContext httpContext = new MockHttpContext(null, request, null);
+    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, request, null);
 
     Resource resolved = this.resolver.resolveResource(httpContext, file, this.locations);
 
@@ -132,7 +132,7 @@ public class EncodedResourceResolverTests {
 
     // 2. Resolve unencoded resource
     request = new MockRequest("GET", "/js/foo.js");
-    httpContext = new MockHttpContext(null, request, null);
+    httpContext = new MockServerHttpExchange(null, request, null);
 
     resolved = this.resolver.resolveResource(httpContext, file, this.locations);
 
@@ -229,7 +229,7 @@ public class EncodedResourceResolverTests {
     ResourceResolvingChain chain = mock(ResourceResolvingChain.class);
     when(chain.resolveResource(any(), any(), any())).thenReturn(originalResource);
 
-    MockHttpContext request = mock(MockHttpContext.class);
+    MockServerHttpExchange request = mock(MockServerHttpExchange.class);
     HttpHeaders headers = HttpHeaders.forWritable();
     when(request.getHeaders()).thenReturn(headers);
 
@@ -246,7 +246,7 @@ public class EncodedResourceResolverTests {
     ResourceResolvingChain chain = mock(ResourceResolvingChain.class);
     when(chain.resolveResource(any(), any(), any())).thenReturn(originalResource);
 
-    MockHttpContext request = mock(MockHttpContext.class);
+    MockServerHttpExchange request = mock(MockServerHttpExchange.class);
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("Accept-Encoding", "gzip, deflate");
     when(request.getHeaders()).thenReturn(headers);

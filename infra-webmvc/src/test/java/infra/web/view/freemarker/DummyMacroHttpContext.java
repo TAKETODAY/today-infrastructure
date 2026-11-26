@@ -20,7 +20,7 @@ package infra.web.view.freemarker;
 
 import java.util.Map;
 
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.util.UriComponents;
 import infra.web.util.UriComponentsBuilder;
 
@@ -33,11 +33,11 @@ import infra.web.util.UriComponentsBuilder;
  */
 public class DummyMacroHttpContext {
 
-  private final HttpContext request;
+  private final ServerHttpExchange request;
 
   private String contextPath;
 
-  public DummyMacroHttpContext(HttpContext request) {
+  public DummyMacroHttpContext(ServerHttpExchange request) {
     this.request = request;
   }
 

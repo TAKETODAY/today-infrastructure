@@ -38,7 +38,7 @@ import infra.web.bind.MissingPathVariableException;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.method.MethodArgumentTypeMismatchException;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.util.UriComponentsBuilder;
@@ -57,7 +57,7 @@ class PathVariableMethodArgumentResolverTests {
 
   private PathVariableMethodArgumentResolver resolver;
 
-  private MockHttpContext webRequest;
+  private MockServerHttpExchange webRequest;
 
   private MockRequest request;
 
@@ -70,7 +70,7 @@ class PathVariableMethodArgumentResolverTests {
   public void setup() throws Throwable {
     resolver = new PathVariableMethodArgumentResolver();
     request = new MockRequest();
-    webRequest = new MockHttpContext(null, request, new MockResponse());
+    webRequest = new MockServerHttpExchange(null, request, new MockResponse());
 
     HandlerMatchingMetadata.set(webRequest, new HandlerMatchingMetadata(webRequest));
 
@@ -390,7 +390,7 @@ class PathVariableMethodArgumentResolverTests {
 
   @Test
   void resolveNameReturnsNullWhenNoMatchingMetadata() throws Throwable {
-    MockHttpContext context = new MockHttpContext(null, new MockRequest(), new MockResponse());
+    MockServerHttpExchange context = new MockServerHttpExchange(null, new MockRequest(), new MockResponse());
     // No matching metadata set
 
     PathVariableMethodArgumentResolver resolver = new PathVariableMethodArgumentResolver();

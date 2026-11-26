@@ -23,10 +23,10 @@ import infra.http.HttpStatusCode;
 import infra.util.Assert;
 import infra.web.Filter;
 import infra.web.FilterChain;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
- * Overrides {@link infra.web.HttpContext#sendRedirect(String)} and handles it by
+ * Overrides {@link ServerHttpExchange#sendRedirect(String)} and handles it by
  * setting the HTTP status and "Location" headers, which keeps the Servlet
  * container from re-writing relative redirect URLs into absolute ones.
  * Servlet containers are required to do that but against the recommendation of
@@ -67,9 +67,9 @@ public class RelativeRedirectFilter implements Filter {
   }
 
   @Override
-  public void doFilter(HttpContext context, FilterChain filterChain) throws Exception {
-    context = RelativeRedirectResponseWrapper.wrapIfNecessary(context, this.redirectStatus);
-    filterChain.doFilter(context);
+  public void doFilter(ServerHttpExchange exchange, FilterChain filterChain) throws Exception {
+    exchange = RelativeRedirectResponseWrapper.wrapIfNecessary(exchange, this.redirectStatus);
+    filterChain.doFilter(exchange);
   }
 
 }

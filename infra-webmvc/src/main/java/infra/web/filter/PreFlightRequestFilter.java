@@ -3,7 +3,7 @@ package infra.web.filter;
 import infra.util.Assert;
 import infra.web.Filter;
 import infra.web.FilterChain;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.cors.PreFlightRequestHandler;
 
 /**
@@ -26,12 +26,12 @@ public class PreFlightRequestFilter implements Filter {
   }
 
   @Override
-  public void doFilter(HttpContext http, FilterChain chain) throws Exception {
-    if (http.isPreFlightRequest()) {
-      handler.handlePreFlight(http);
+  public void doFilter(ServerHttpExchange exchange, FilterChain chain) throws Exception {
+    if (exchange.isPreFlightRequest()) {
+      handler.handlePreFlight(exchange);
     }
     else {
-      chain.doFilter(http);
+      chain.doFilter(exchange);
     }
   }
 }

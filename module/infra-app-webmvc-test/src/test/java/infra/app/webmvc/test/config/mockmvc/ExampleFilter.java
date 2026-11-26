@@ -23,7 +23,7 @@ import infra.core.Ordered;
 import infra.stereotype.Component;
 import infra.web.Filter;
 import infra.web.FilterChain;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * Example filter used with {@link WebMvcTest @WebMvcTest} tests.
@@ -34,9 +34,9 @@ import infra.web.HttpContext;
 public class ExampleFilter implements Filter, Ordered {
 
   @Override
-  public void doFilter(HttpContext http, FilterChain chain) throws Exception {
-    chain.doFilter(http);
-    http.addHeader("x-test", "abc");
+  public void doFilter(ServerHttpExchange exchange, FilterChain chain) throws Exception {
+    chain.doFilter(exchange);
+    exchange.addHeader("x-test", "abc");
   }
 
   @Override

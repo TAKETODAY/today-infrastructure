@@ -301,7 +301,7 @@ CGLIB 代理不拦截私有方法。试图在此类代理上调用私有方法�
 [[beans-factory-scopes-injection]]
 === 直接注入 Request/Session 引用
 
-作为工厂作用域的替代方案，Infra `ApplicationContext` 还支持将 `MockRequest`、`MockResponse`、`Session`、`HttpContext`
+作为工厂作用域的替代方案，Infra `ApplicationContext` 还支持将 `MockRequest`、`MockResponse`、`Session`、`ServerHttpExchange`
 注入到 Infra 管理的 bean 中，只需通过基于类型的自动装配，就像其他 bean 的常规注入点一样。
 Infra 通常为此类请求和会话对象注入代理，这具有在单例 bean 和可序列化 bean 中也能工作的优势，类似于工厂作用域 bean 的作用域代理。
 

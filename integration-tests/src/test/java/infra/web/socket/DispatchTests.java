@@ -36,7 +36,7 @@ import infra.test.context.ActiveProfiles;
 import infra.test.context.TestPropertySource;
 import infra.test.web.server.LocalServerPort;
 import infra.util.concurrent.Future;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.socket.client.support.NettyWebSocketClient;
 import infra.web.socket.config.WebSocketConfigurer;
 import infra.web.socket.config.WebSocketHandlerRegistry;
@@ -141,12 +141,12 @@ class DispatchTests {
     private final Set<WebSocketSession> sessions = ConcurrentHashMap.newKeySet();
 
     @Override
-    public boolean beforeHandshake(HttpContext context, Map<String, Object> attributes) throws Exception {
+    public boolean beforeHandshake(ServerHttpExchange context, Map<String, Object> attributes) throws Exception {
       return HandshakeCapable.super.beforeHandshake(context, attributes);
     }
 
     @Override
-    public void afterHandshake(HttpContext context, @Nullable WebSocketSession session, @Nullable Throwable failure) throws Exception {
+    public void afterHandshake(ServerHttpExchange context, @Nullable WebSocketSession session, @Nullable Throwable failure) throws Exception {
       HandshakeCapable.super.afterHandshake(context, session, failure);
     }
 

@@ -19,7 +19,7 @@
 package infra.test.web.mock;
 
 import infra.test.web.mock.request.MockRequestCustomizer;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 
 /**
@@ -37,8 +37,8 @@ public interface SmartRequestBuilder extends RequestBuilder {
    * {@link MockRequestCustomizer infra.test.web.mock.request.MockRequestCustomizers}.
    *
    * @param request the request to customize
-   * @param context the {@link MockHttpContext} that wraps the request
+   * @param context the {@link MockServerHttpExchange} that wraps the request
    */
-  void customize(MockRequest request, MockHttpContext context);
+  void customize(MockRequest request, MockServerHttpExchange context);
 
 }

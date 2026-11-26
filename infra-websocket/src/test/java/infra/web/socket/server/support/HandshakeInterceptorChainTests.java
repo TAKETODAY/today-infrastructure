@@ -26,7 +26,7 @@ import java.util.Map;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.server.HandshakeCapable;
 import infra.web.socket.server.HandshakeInterceptor;
@@ -40,7 +40,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 
 class HandshakeInterceptorChainTests {
 
-  private final HttpContext request = mock(HttpContext.class);
+  private final ServerHttpExchange request = mock(ServerHttpExchange.class);
 
   private final Map<String, Object> attributes = Map.of();
 

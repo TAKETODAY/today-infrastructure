@@ -31,11 +31,11 @@ import java.util.Map;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.http.MediaType;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpContextHolder;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.FixedContentNegotiationStrategy;
@@ -57,7 +57,7 @@ public class ContentNegotiatingViewResolverTests {
 
   private MockRequest request;
 
-  HttpContext httpContext;
+  ServerHttpExchange exchange;
   AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
 
   @BeforeEach
@@ -67,8 +67,8 @@ public class ContentNegotiatingViewResolverTests {
     viewResolver.setApplicationContext(wac);
     request = new MockRequest("GET", "/test");
     MockResponse response = new MockResponse();
-    this.httpContext = new MockHttpContext(wac, request, response);
-    HttpContextHolder.set(httpContext);
+    this.exchange = new MockServerHttpExchange(wac, request, response);
+    HttpContextHolder.set(exchange);
   }
 
   @AfterEach
@@ -79,13 +79,13 @@ public class ContentNegotiatingViewResolverTests {
   @Test
   public void getMediaTypeAcceptHeaderWithProduces() throws Exception {
 
-    HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(httpContext);
+    HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(exchange);
     matchingMetadata.setProducibleMediaTypes(List.of(MediaType.APPLICATION_XHTML_XML));
-    HandlerMatchingMetadata.set(httpContext, matchingMetadata);
+    HandlerMatchingMetadata.set(exchange, matchingMetadata);
 
     request.addHeader("Accept", "text/html,application/xml;q=0.9,application/xhtml+xml,*/*;q=0.8");
     viewResolver.afterPropertiesSet();
-    List<MediaType> result = viewResolver.getMediaTypes(httpContext);
+    List<MediaType> result = viewResolver.getMediaTypes(exchange);
     assertThat(result.get(0)).as("Invalid content type").isEqualTo(new MediaType("application", "xhtml+xml"));
   }
 
@@ -448,9 +448,9 @@ public class ContentNegotiatingViewResolverTests {
     View result = viewResolver.resolveViewName(viewName, locale);
     assertThat(result).as("Invalid view").isNotNull();
     MockResponse response = new MockResponse();
-    this.httpContext = new MockHttpContext(wac, request, response);
-    HttpContextHolder.set(httpContext);
-    result.render(null, httpContext);
+    this.exchange = new MockServerHttpExchange(wac, request, response);
+    HttpContextHolder.set(exchange);
+    result.render(null, exchange);
     assertThat(response.getStatus()).as("Invalid status code set").isEqualTo(406);
   }
 

@@ -25,7 +25,7 @@ import java.util.Collections;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 
 import static infra.http.HttpMethod.DELETE;
 import static infra.http.HttpMethod.GET;
@@ -67,8 +67,8 @@ public class RequestMethodsRequestConditionTests {
     testNoMatch(condition, OPTIONS);
   }
 
-  private MockHttpContext createContext(MockRequest request) {
-    return new MockHttpContext(null, request, null);
+  private MockServerHttpExchange createContext(MockRequest request) {
+    return new MockServerHttpExchange(null, request, null);
   }
 
   @Test

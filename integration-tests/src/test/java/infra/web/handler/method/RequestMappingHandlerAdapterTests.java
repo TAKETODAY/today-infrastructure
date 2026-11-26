@@ -46,7 +46,7 @@ import infra.session.config.EnableSession;
 import infra.ui.Model;
 import infra.ui.ModelMap;
 import infra.web.BindingContext;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.RedirectModel;
 import infra.web.RedirectModelManager;
 import infra.web.annotation.ControllerAdvice;
@@ -62,7 +62,7 @@ import infra.web.handler.method.support.RequestResponseBodyAdviceChain;
 import infra.web.handler.method.support.RequestResponseBodyMethodProcessor;
 import infra.web.handler.result.ResponseBodyEmitter;
 import infra.web.handler.result.SseEmitter;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.testfixture.ReflectionTestUtils;
@@ -86,7 +86,7 @@ class RequestMappingHandlerAdapterTests {
 
   private AnnotationConfigApplicationContext webAppContext;
 
-  private MockHttpContext context;
+  private MockServerHttpExchange context;
 
   private final AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext(Config.class);
 
@@ -112,7 +112,7 @@ class RequestMappingHandlerAdapterTests {
     this.request = new MockRequest("GET", "/");
     this.response = new MockResponse();
 
-    context = new MockHttpContext(webAppContext, request, response);
+    context = new MockServerHttpExchange(webAppContext, request, response);
   }
 
   @EnableWebMvc
@@ -175,7 +175,7 @@ class RequestMappingHandlerAdapterTests {
     ModelMap model = BindingContext.obtain(context).getModel();
 
     Object instance = model.get("instance");
-    context = new MockHttpContext(null, request, response);
+    context = new MockServerHttpExchange(null, request, response);
     BindingContext.set(context, new BindingContext());
     model = BindingContext.obtain(context).getModel();
     this.handlerAdapter.handle(context, handlerMethod);
@@ -257,7 +257,7 @@ class RequestMappingHandlerAdapterTests {
     HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
 
     handlerAdapter.afterPropertiesSet();
-    Object result = this.handlerAdapter.handleInternal(new MockHttpContext(request), handlerMethod);
+    Object result = this.handlerAdapter.handleInternal(new MockServerHttpExchange(request), handlerMethod);
 
     assertThat(result).isNull();
   }
@@ -268,7 +268,7 @@ class RequestMappingHandlerAdapterTests {
     MockRequest request = new MockRequest();
     HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
     handlerAdapter.afterPropertiesSet();
-    Object result = this.handlerAdapter.handleInternal(new MockHttpContext(webAppContext, request), handlerMethod);
+    Object result = this.handlerAdapter.handleInternal(new MockServerHttpExchange(webAppContext, request), handlerMethod);
     assertThat(result).isNull();
   }
 
@@ -284,7 +284,7 @@ class RequestMappingHandlerAdapterTests {
     MockRequest request = new MockRequest();
     HandlerMethod handlerMethod = new HandlerMethod(new InputRedirectModelController(), "handle");
 
-    MockHttpContext request1 = new MockHttpContext(request);
+    MockServerHttpExchange request1 = new MockServerHttpExchange(request);
     Object result = this.handlerAdapter.handleInternal(request1, handlerMethod);
 
     assertThat(BindingContext.obtain(request1).getModel())
@@ -300,7 +300,7 @@ class RequestMappingHandlerAdapterTests {
     MockRequest request = new MockRequest();
     HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
 
-    this.handlerAdapter.handleInternal(new MockHttpContext(request), handlerMethod);
+    this.handlerAdapter.handleInternal(new MockServerHttpExchange(request), handlerMethod);
 
 //    verify(initializer).initBinder(any());
   }
@@ -310,7 +310,7 @@ class RequestMappingHandlerAdapterTests {
     MockRequest request = new MockRequest();
     HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
 
-    MockHttpContext httpContext = new MockHttpContext(request);
+    MockServerHttpExchange httpContext = new MockServerHttpExchange(request);
     handlerAdapter.afterPropertiesSet();
     this.handlerAdapter.handleInternal(httpContext, handlerMethod);
 
@@ -430,7 +430,7 @@ class RequestMappingHandlerAdapterTests {
 
     @Override
     public @Nullable Object beforeBodyWrite(@Nullable Object body, @Nullable MethodParameter returnType,
-            MediaType contentType, HttpMessageConverter<?> selected, HttpContext context) {
+            MediaType contentType, HttpMessageConverter<?> selected, ServerHttpExchange context) {
 
       Map<String, Object> map = new LinkedHashMap<>();
       map.put("status", context.getStatus());

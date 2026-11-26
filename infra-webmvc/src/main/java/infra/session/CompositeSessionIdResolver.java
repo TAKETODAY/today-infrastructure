@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -35,7 +35,7 @@ final class CompositeSessionIdResolver implements SessionIdResolver {
   }
 
   @Override
-  public @Nullable String getSessionId(HttpContext exchange) {
+  public @Nullable String getSessionId(ServerHttpExchange exchange) {
     for (SessionIdResolver resolver : resolvers) {
       String token = resolver.getSessionId(exchange);
       if (token != null) {
@@ -46,14 +46,14 @@ final class CompositeSessionIdResolver implements SessionIdResolver {
   }
 
   @Override
-  public void setSessionId(HttpContext exchange, String session) {
+  public void setSessionId(ServerHttpExchange exchange, String session) {
     for (SessionIdResolver resolver : resolvers) {
       resolver.setSessionId(exchange, session);
     }
   }
 
   @Override
-  public void expireSession(HttpContext context) {
+  public void expireSession(ServerHttpExchange context) {
     for (SessionIdResolver resolver : resolvers) {
       String token = resolver.getSessionId(context);
       if (token != null) {

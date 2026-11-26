@@ -28,7 +28,7 @@ import infra.test.web.mock.setup.ConfigurableMockMvcBuilder;
 import infra.test.web.mock.setup.MockMvcConfigurer;
 import infra.web.annotation.RequestMapping;
 import infra.web.annotation.ResponseBody;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.api.MockContext;
 
@@ -90,7 +90,7 @@ public class FrameworkExtensionTests {
     }
 
     @Override
-    public void customize(MockRequest request, MockHttpContext context) {
+    public void customize(MockRequest request, MockServerHttpExchange context) {
       for (String headerName : this.headers.names()) {
         request.addHeader(headerName, this.headers.get(headerName));
       }

@@ -42,7 +42,7 @@ import infra.web.bind.RequestBindingException;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.method.MethodArgumentTypeMismatchException;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
@@ -72,7 +72,7 @@ class RequestHeaderMethodArgumentResolverTests {
 
   private MockRequest mockRequest;
 
-  private MockHttpContext webRequest;
+  private MockServerHttpExchange webRequest;
   DefaultParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
 
   @BeforeEach
@@ -97,7 +97,7 @@ class RequestHeaderMethodArgumentResolverTests {
     paramUuidOptional = new HandlerParameter(getParameter(method, 10));
 
     mockRequest = new MockRequest();
-    webRequest = new MockHttpContext(null, mockRequest, new MockResponse());
+    webRequest = new MockServerHttpExchange(null, mockRequest, new MockResponse());
 
     // Expose request to the current thread (for SpEL expressions)
     HttpContextHolder.set(webRequest);

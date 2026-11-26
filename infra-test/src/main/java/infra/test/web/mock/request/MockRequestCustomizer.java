@@ -18,12 +18,12 @@
 
 package infra.test.web.mock.request;
 
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 
 /**
  * Callback for customizing a given {@link MockRequest} and its
- * {@link MockHttpContext} after the request has been built by
+ * {@link MockServerHttpExchange} after the request has been built by
  * {@link MockHttpRequestBuilder} or its subclass
  * {@link MockMultipartHttpRequestBuilder}.
  *
@@ -40,12 +40,12 @@ import infra.web.mock.MockRequest;
 public interface MockRequestCustomizer {
 
   /**
-   * Customize the given {@code MockRequest} and its {@code MockHttpContext}
+   * Customize the given {@code MockRequest} and its {@code MockServerHttpExchange}
    * after creation and initialization through a {@code MockHttpRequestBuilder}.
    *
    * @param request the request to customize
    * @param context the context wrapping the request
    */
-  void customize(MockRequest request, MockHttpContext context);
+  void customize(MockRequest request, MockServerHttpExchange context);
 
 }

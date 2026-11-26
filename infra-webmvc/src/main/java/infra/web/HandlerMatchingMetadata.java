@@ -68,11 +68,11 @@ public class HandlerMatchingMetadata {
   @Nullable
   private Map<String, Object> pathVariables;
 
-  public HandlerMatchingMetadata(HttpContext request) {
+  public HandlerMatchingMetadata(ServerHttpExchange request) {
     this(NullValue.INSTANCE, request);
   }
 
-  public HandlerMatchingMetadata(Object handler, HttpContext request) {
+  public HandlerMatchingMetadata(Object handler, ServerHttpExchange request) {
     this.handler = handler;
     this.bestMatchingPattern = null;
     this.lookupPath = request.getRequestPath();
@@ -80,7 +80,7 @@ public class HandlerMatchingMetadata {
     this.patternParser = PathPatternParser.defaultInstance;
   }
 
-  public HandlerMatchingMetadata(Object handler, HttpContext request, PathPatternParser patternParser) {
+  public HandlerMatchingMetadata(Object handler, ServerHttpExchange request, PathPatternParser patternParser) {
     this.handler = handler;
     this.bestMatchingPattern = null;
     this.lookupPath = request.getRequestPath();
@@ -236,7 +236,7 @@ public class HandlerMatchingMetadata {
    * @return whether matching metadata is set
    * @since 5.0
    */
-  public static boolean has(HttpContext request) {
+  public static boolean has(ServerHttpExchange request) {
     return find(request) != null;
   }
 
@@ -248,7 +248,7 @@ public class HandlerMatchingMetadata {
    * @throws IllegalStateException if no matching metadata is set
    * @since 5.0
    */
-  public static HandlerMatchingMetadata obtain(HttpContext request) {
+  public static HandlerMatchingMetadata obtain(ServerHttpExchange request) {
     HandlerMatchingMetadata metadata = find(request);
     Assert.state(metadata != null, "HandlerMatchingMetadata is required");
     return metadata;

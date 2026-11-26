@@ -57,7 +57,7 @@ public enum ApplicationType {
 
   public static final String WEB_INDICATOR_CLASS = "infra.web.ErrorResponse";
 
-  public static final String WEB_MVC_INDICATOR_CLASS = "infra.web.HttpContext";
+  public static final String WEB_MVC_INDICATOR_CLASS = "infra.web.ServerHttpExchange";
 
   public static final String REACTOR_INDICATOR_CLASS = Feature.REACTOR.indicatorClassName();
 

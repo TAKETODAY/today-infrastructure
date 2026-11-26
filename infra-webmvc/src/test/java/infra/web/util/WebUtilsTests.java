@@ -35,17 +35,17 @@ import infra.core.i18n.SimpleTimeZoneAwareLocaleContext;
 import infra.http.HttpHeaders;
 import infra.session.Session;
 import infra.util.MultiValueMap;
-import infra.web.AbstractDelegatingHttpContext;
-import infra.web.DelegatingHttpContext;
-import infra.web.HttpContext;
+import infra.web.AbstractDelegatingServerHttpExchange;
+import infra.web.DelegatingServerHttpExchange;
+import infra.web.ServerHttpExchange;
 import infra.web.LocaleContextResolver;
 import infra.web.LocaleResolver;
 import infra.web.RedirectModel;
 import infra.web.RedirectModelManager;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.RequestBindingException;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.multipart.Part;
-import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
@@ -67,10 +67,10 @@ public class WebUtilsTests {
 
   @Test
   void nativeContextMatchesSelfOrReturnsNull() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     assertThat(WebUtils.<Object>getNativeContext(context, null)).isNull();
-    assertThat(WebUtils.getNativeContext(context, HttpContext.class)).isSameAs(context);
-    assertThat(WebUtils.nativeContext(context, MockHttpContext.class)).isSameAs(context);
+    assertThat(WebUtils.getNativeContext(context, ServerHttpExchange.class)).isSameAs(context);
+    assertThat(WebUtils.nativeContext(context, MockServerHttpExchange.class)).isSameAs(context);
     assertThat(WebUtils.getNativeContext(context, String.class)).isNull();
     assertThatThrownBy(() -> WebUtils.nativeContext(context, String.class))
             .isInstanceOf(IllegalStateException.class)
@@ -79,15 +79,15 @@ public class WebUtilsTests {
 
   @Test
   void nativeContextUnwrapsNestedDecoratorsAndPrefersOuterMatch() {
-    MockHttpContext target = new MockHttpContext();
-    HttpContext inner = new DelegatingHttpContext(target);
-    HttpContext outer = new DelegatingHttpContext(inner);
+    MockServerHttpExchange target = new MockServerHttpExchange();
+    ServerHttpExchange inner = new DelegatingServerHttpExchange(target);
+    ServerHttpExchange outer = new DelegatingServerHttpExchange(inner);
 
     assertThat(WebUtils.<Object>getNativeContext(outer, null)).isNull();
-    assertThat(WebUtils.getNativeContext(outer, HttpContext.class)).isSameAs(outer);
-    assertThat(WebUtils.getNativeContext(outer, AbstractDelegatingHttpContext.class)).isSameAs(outer);
-    assertThat(WebUtils.nativeContext(outer, DelegatingHttpContext.class)).isSameAs(outer);
-    assertThat(WebUtils.nativeContext(outer, MockHttpContext.class)).isSameAs(target);
+    assertThat(WebUtils.getNativeContext(outer, ServerHttpExchange.class)).isSameAs(outer);
+    assertThat(WebUtils.getNativeContext(outer, AbstractDelegatingServerHttpExchange.class)).isSameAs(outer);
+    assertThat(WebUtils.nativeContext(outer, DelegatingServerHttpExchange.class)).isSameAs(outer);
+    assertThat(WebUtils.nativeContext(outer, MockServerHttpExchange.class)).isSameAs(target);
     assertThat(WebUtils.getNativeContext(outer, String.class)).isNull();
     assertThatThrownBy(() -> WebUtils.nativeContext(outer, String.class))
             .isInstanceOf(IllegalStateException.class)
@@ -96,10 +96,10 @@ public class WebUtilsTests {
 
   @Test
   void nativeContextLookupDoesNotInteractWithTarget() {
-    MockHttpContext target = mock(MockHttpContext.class);
-    HttpContext outer = new DelegatingHttpContext(new DelegatingHttpContext(target));
+    MockServerHttpExchange target = mock(MockServerHttpExchange.class);
+    ServerHttpExchange outer = new DelegatingServerHttpExchange(new DelegatingServerHttpExchange(target));
 
-    assertThat(WebUtils.getNativeContext(outer, MockHttpContext.class)).isSameAs(target);
+    assertThat(WebUtils.getNativeContext(outer, MockServerHttpExchange.class)).isSameAs(target);
     assertThat(WebUtils.getNativeContext(outer, String.class)).isNull();
     assertThatThrownBy(() -> WebUtils.nativeContext(outer, String.class))
             .isInstanceOf(IllegalStateException.class)
@@ -109,7 +109,7 @@ public class WebUtilsTests {
 
   @Test
   void intParameter() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     context.setParameter("valid", "5");
     context.setParameter("invalid", "e");
     context.setParameter("empty", "");
@@ -130,7 +130,7 @@ public class WebUtilsTests {
 
   @Test
   void intParameters() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     context.setParameter("valid", "1", "2", "3");
     context.setParameter("invalid", "1", "2", "bogus");
 
@@ -141,7 +141,7 @@ public class WebUtilsTests {
 
   @Test
   void longParameter() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     context.setParameter("valid", "5");
     context.setParameter("invalid", "e");
     context.setParameter("empty", "");
@@ -162,7 +162,7 @@ public class WebUtilsTests {
 
   @Test
   void longParameters() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     context.setParameter("values", "1", "2", "3");
     assertThat(WebUtils.getRequiredLongParameters(context, "values")).containsExactly(1, 2, 3);
 
@@ -179,7 +179,7 @@ public class WebUtilsTests {
 
   @Test
   void floatParameter() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     context.setParameter("valid", "5.5");
     context.setParameter("invalid", "e");
     context.setParameter("empty", "");
@@ -200,7 +200,7 @@ public class WebUtilsTests {
 
   @Test
   void floatParameters() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     context.setParameter("valid", "1.5", "2.5", "3");
     context.setParameter("invalid", "1.5", "2", "bogus");
 
@@ -214,7 +214,7 @@ public class WebUtilsTests {
 
   @Test
   void doubleParameter() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     context.setParameter("valid", "5.5");
     context.setParameter("invalid", "e");
     context.setParameter("empty", "");
@@ -235,7 +235,7 @@ public class WebUtilsTests {
 
   @Test
   void doubleParameters() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     context.setParameter("valid", "1.5", "2.5", "3");
     context.setParameter("invalid", "1.5", "2", "bogus");
 
@@ -249,7 +249,7 @@ public class WebUtilsTests {
 
   @Test
   void booleanParameterDefaultsOnlyWhenAbsent() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     assertThat(WebUtils.getBooleanParameter(context, "missing")).isNull();
     assertThat(WebUtils.getBooleanParameter(context, "missing", true)).isTrue();
     assertThat(WebUtils.getBooleanParameter(context, "missing", false)).isFalse();
@@ -261,7 +261,7 @@ public class WebUtilsTests {
 
   @Test
   void booleanParametersPreserveOrderAndEmptyValues() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     context.setParameter("flags", "true", "yes", "off", "1", "bogus");
     assertThat(WebUtils.getRequiredBooleanParameters(context, "flags"))
             .containsExactly(true, true, false, true, false);
@@ -273,7 +273,7 @@ public class WebUtilsTests {
 
   @Test
   void stringParameter() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     context.setParameter("valid", "str");
     context.setParameter("empty", "");
 
@@ -292,7 +292,7 @@ public class WebUtilsTests {
 
   @Test
   void stringParameters() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     context.setParameter("values", "value1", "value2");
     assertThat(WebUtils.getStringParameters(context, "values")).containsExactly("value1", "value2");
     assertThat(WebUtils.getRequiredStringParameters(context, "values")).containsExactly("value1", "value2");
@@ -302,7 +302,7 @@ public class WebUtilsTests {
 
   @Test
   void contextUtilitiesReturnNullWithoutApplicationContextOrRequestAttributes() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     assertThat(WebUtils.getBean(context, "testBean", String.class)).isNull();
     assertThat(WebUtils.getLocaleResolver(context)).isNull();
     assertThat(WebUtils.getTimeZone(context)).isNull();
@@ -313,7 +313,7 @@ public class WebUtilsTests {
 
   @Test
   void sessionMutexUsesDedicatedAttributeOrSessionItself() {
-    Session session = new MockHttpContext().getSession();
+    Session session = new MockServerHttpExchange().getSession();
     assertThat(WebUtils.getSessionMutex(session)).isSameAs(session);
     Object mutex = new Object();
     session.setAttribute(WebUtils.SESSION_MUTEX_ATTRIBUTE, mutex);
@@ -328,7 +328,7 @@ public class WebUtilsTests {
       child.setParent(parent);
       child.getBeanFactory().registerSingleton("namedBean", "child");
       child.getBeanFactory().registerAlias("namedBean", "alias");
-      MockHttpContext context = new MockHttpContext(child);
+      MockServerHttpExchange context = new MockServerHttpExchange(child);
       context.setAttribute("missing", "attribute");
 
       assertThat(WebUtils.getBean(context, "namedBean", String.class)).isEqualTo("child");
@@ -342,7 +342,7 @@ public class WebUtilsTests {
 
   @Test
   void beanLookupPropagatesCreationFailures() {
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     ApplicationContext applicationContext = mock(ApplicationContext.class);
     IllegalStateException failure = new IllegalStateException("creation failed");
     given(request.getApplicationContext()).willReturn(applicationContext);
@@ -354,7 +354,7 @@ public class WebUtilsTests {
 
   @Test
   void localeFallsBackToRequestThenSystemDefaultWithoutResolver() {
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
     given(context.getPreferredLocale()).willReturn(Locale.JAPAN).willReturn(null);
 
     assertThat(WebUtils.resolveLocale(context)).isEqualTo(Locale.JAPAN);
@@ -367,7 +367,7 @@ public class WebUtilsTests {
     try (StaticApplicationContext applicationContext = new StaticApplicationContext()) {
       LocaleResolver resolver = mock(LocaleResolver.class);
       applicationContext.getBeanFactory().registerSingleton("otherResolver", resolver);
-      MockHttpContext context = new MockHttpContext(applicationContext);
+      MockServerHttpExchange context = new MockServerHttpExchange(applicationContext);
       context.setLocale(Locale.JAPAN);
       context.setAttribute(LocaleResolver.BEAN_NAME, resolver);
       assertThat(WebUtils.getLocaleResolver(context)).isNull();
@@ -386,7 +386,7 @@ public class WebUtilsTests {
     try (StaticApplicationContext applicationContext = new StaticApplicationContext()) {
       LocaleContextResolver resolver = mock(LocaleContextResolver.class);
       applicationContext.getBeanFactory().registerSingleton(LocaleResolver.BEAN_NAME, resolver);
-      MockHttpContext context = new MockHttpContext(applicationContext);
+      MockServerHttpExchange context = new MockServerHttpExchange(applicationContext);
       TimeZone zone = TimeZone.getTimeZone("Asia/Shanghai");
       given(resolver.resolveLocaleContext(context)).willReturn(new SimpleLocaleContext(Locale.CHINA),
               new SimpleTimeZoneAwareLocaleContext(Locale.CHINA, null),
@@ -400,7 +400,7 @@ public class WebUtilsTests {
 
   @Test
   void redirectModelIsSavedWithTargetPathAndRepeatedQueryParameters() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     RedirectModel model = new RedirectModel();
     model.put("message", "saved");
     context.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, model);
@@ -421,7 +421,7 @@ public class WebUtilsTests {
       RedirectModelManager named = mock(RedirectModelManager.class);
       RedirectModelManager explicit = mock(RedirectModelManager.class);
       applicationContext.getBeanFactory().registerSingleton(RedirectModelManager.BEAN_NAME, named);
-      MockHttpContext context = new MockHttpContext(applicationContext);
+      MockServerHttpExchange context = new MockServerHttpExchange(applicationContext);
       RedirectModel model = new RedirectModel();
       model.put("message", "saved");
       context.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, model);
@@ -437,7 +437,7 @@ public class WebUtilsTests {
 
   @Test
   void redirectModelSkipsAbsentOrEmptyModelAndMissingManager() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     RedirectModelManager manager = mock(RedirectModelManager.class);
     WebUtils.saveRedirectModel("/target", context, manager);
     RedirectModel model = new RedirectModel();
@@ -463,7 +463,7 @@ public class WebUtilsTests {
   @ParameterizedTest
   @ValueSource(strings = { "", "invalid", "999999999999999999999999999999999999999999999999999999999999999999" })
   void invalidIntegralParametersThrowOrFallBackWithoutReturningPartialArrays(String value) {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     context.setParameter("number", value);
     assertThatThrownBy(() -> WebUtils.getIntParameter(context, "number"))
             .isInstanceOf(RequestBindingException.class).hasCauseInstanceOf(NumberFormatException.class);
@@ -484,7 +484,7 @@ public class WebUtilsTests {
   @ParameterizedTest
   @ValueSource(strings = { "", "invalid" })
   void invalidFloatingPointParametersThrowOrFallBackWithoutReturningPartialArrays(String value) {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     context.setParameter("number", value);
     assertThatThrownBy(() -> WebUtils.getFloatParameter(context, "number"))
             .isInstanceOf(RequestBindingException.class).hasCauseInstanceOf(NumberFormatException.class);
@@ -499,7 +499,7 @@ public class WebUtilsTests {
 
   @Test
   void missingParametersReturnEmptyArraysOrThrowTypedMissingParameterException() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     assertThat(WebUtils.getIntParameters(context, "missing")).isEmpty();
     assertThat(WebUtils.getLongParameters(context, "missing")).isEmpty();
     assertThat(WebUtils.getFloatParameters(context, "missing")).isEmpty();
@@ -516,7 +516,7 @@ public class WebUtilsTests {
 
   @Test
   void integralParametersSupportFullRangeAndPreserveArrayOrder() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     context.setParameter("int", "-2147483648", "2147483647", "0", "+1");
     context.setParameter("long", "-9223372036854775808", "9223372036854775807", "0", "+1");
     assertThat(WebUtils.getIntParameters(context, "int"))
@@ -530,7 +530,7 @@ public class WebUtilsTests {
   @ParameterizedTest
   @ValueSource(strings = { "true", "TRUE", "on", "ON", "yes", "YeS", "1" })
   void booleanParametersRecognizeAllTrueRepresentations(String value) {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     context.setParameter("flag", value);
     assertThat(WebUtils.getBooleanParameter(context, "flag")).isTrue();
     assertThat(WebUtils.getRequiredBooleanParameter(context, "flag")).isTrue();
@@ -540,7 +540,7 @@ public class WebUtilsTests {
   @ParameterizedTest
   @ValueSource(strings = { "false", "off", "no", "0", "", "unknown", " true " })
   void booleanParametersTreatOtherPresentValuesAsFalseRatherThanUsingDefault(String value) {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     context.setParameter("flag", value);
     assertThat(WebUtils.getBooleanParameter(context, "flag", true)).isFalse();
     assertThat(WebUtils.getRequiredBooleanParameters(context, "flag")).containsExactly(false);
@@ -548,7 +548,7 @@ public class WebUtilsTests {
 
   @Test
   void stringParametersPreserveEmptyValuesWhitespaceAndDuplicates() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     context.setParameter("text", "", " text ", "text", "text");
     assertThat(WebUtils.getStringParameter(context, "text", "fallback")).isEmpty();
     assertThat(WebUtils.getRequiredStringParameters(context, "text"))
@@ -708,7 +708,7 @@ public class WebUtilsTests {
       mockRequest.setServerPort(port);
     }
     mockRequest.addHeader(HttpHeaders.ORIGIN, originHeader);
-    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
+    MockServerHttpExchange context = new MockServerHttpExchange(null, mockRequest, new MockResponse());
     return WebUtils.isValidOrigin(context, allowed);
   }
 
@@ -721,7 +721,7 @@ public class WebUtilsTests {
     }
     mockRequest.addHeader(HttpHeaders.ORIGIN, originHeader);
 
-    MockHttpContext context = new MockHttpContext(null, mockRequest, new MockResponse());
+    MockServerHttpExchange context = new MockServerHttpExchange(null, mockRequest, new MockResponse());
     return WebUtils.isSameOrigin(context);
   }
 
@@ -744,7 +744,7 @@ public class WebUtilsTests {
     }
     request.addHeader(HttpHeaders.ORIGIN, originHeader);
 
-    MockHttpContext context = new MockHttpContext(request);
+    MockServerHttpExchange context = new MockServerHttpExchange(request);
     assertThat(WebUtils.isSameOrigin(context))
             .isEqualTo(checkSameOrigin("http", serverName, port, originHeader));
   }
@@ -760,7 +760,7 @@ public class WebUtilsTests {
     request.addHeader("Forwarded", forwardedHeader);
     request.addHeader(HttpHeaders.ORIGIN, originHeader);
 
-    MockHttpContext context = new MockHttpContext(request);
+    MockServerHttpExchange context = new MockServerHttpExchange(request);
     assertThat(WebUtils.isSameOrigin(context))
             .isEqualTo(checkSameOrigin("http", serverName, port, originHeader));
   }

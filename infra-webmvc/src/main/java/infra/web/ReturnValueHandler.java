@@ -26,13 +26,13 @@ import infra.web.handler.result.SmartReturnValueHandler;
  * Strategy for processing return values from HTTP request handlers.
  *
  * <p>Implementations declare support for a handler, a return value, or both,
- * and process supported results within an {@link HttpContext}. Use
+ * and process supported results within an {@link ServerHttpExchange}. Use
  * {@link SmartReturnValueHandler} when support depends on the combination of
  * a handler and its return value.
  *
  * <p>The {@link #select(Iterable, Object, Object)} utility method selects the
  * first matching candidate in iteration order. Selection does not invoke
- * {@link #handleReturnValue(HttpContext, Object, Object)}.
+ * {@link #handleReturnValue(ServerHttpExchange, Object, Object)}.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @see SmartReturnValueHandler
@@ -86,13 +86,13 @@ public interface ReturnValueHandler {
    * Process the return value within the current request context, for example by
    * writing a response or rendering a view.
    *
-   * @param context the current HTTP request and response context
+   * @param exchange the current HTTP request and response context
    * @param handler the handler object associated with the request; may be {@code null}
    * @param returnValue the result to process; may be {@code null} or
    * {@link #NONE_RETURN_VALUE} for handler-only selection
    * @throws Exception if an error occurs while handling the return value
    */
-  void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue)
+  void handleReturnValue(ServerHttpExchange exchange, @Nullable Object handler, @Nullable Object returnValue)
           throws Exception;
 
   /**

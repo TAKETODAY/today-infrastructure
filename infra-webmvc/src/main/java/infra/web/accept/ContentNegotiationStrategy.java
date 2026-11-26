@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 import infra.http.MediaType;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpMediaTypeNotAcceptableException;
 
 /**
@@ -51,7 +51,7 @@ public interface ContentNegotiationStrategy {
    * @throws HttpMediaTypeNotAcceptableException if the requested media
    * types cannot be parsed
    */
-  List<MediaType> resolveMediaTypes(HttpContext context)
+  List<MediaType> resolveMediaTypes(ServerHttpExchange context)
           throws HttpMediaTypeNotAcceptableException;
 
 }

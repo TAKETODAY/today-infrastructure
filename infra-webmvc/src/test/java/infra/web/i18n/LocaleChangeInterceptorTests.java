@@ -25,7 +25,7 @@ import java.util.Locale;
 
 import infra.context.support.StaticApplicationContext;
 import infra.http.HttpMethod;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.LocaleResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +49,7 @@ class LocaleChangeInterceptorTests {
   void onlyConfiguredMethodsChangeLocale(HttpMethod method, boolean expectedChange) {
     interceptor.setLocaleResolver(resolver);
     interceptor.setHttpMethods(HttpMethod.GET, HttpMethod.POST);
-    HttpContext context = localeChangeRequest(method, "fr");
+    ServerHttpExchange context = localeChangeRequest(method, "fr");
 
     assertThat(interceptor.preProcessing(context, handler)).isTrue();
     if (expectedChange) {
@@ -65,7 +65,7 @@ class LocaleChangeInterceptorTests {
   void nullOrEmptyConfigurationAllowsAllMethods(boolean nullConfiguration) {
     interceptor.setLocaleResolver(resolver);
     interceptor.setHttpMethods(nullConfiguration ? null : new HttpMethod[0]);
-    HttpContext context = localeChangeRequest(HttpMethod.PATCH, "fr");
+    ServerHttpExchange context = localeChangeRequest(HttpMethod.PATCH, "fr");
 
     assertThat(interceptor.preProcessing(context, handler)).isTrue();
     verify(resolver).setLocale(context, Locale.FRENCH);
@@ -74,7 +74,7 @@ class LocaleChangeInterceptorTests {
   @Test
   void missingLocaleParameterLeavesLocaleUnchanged() {
     interceptor.setLocaleResolver(resolver);
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
 
     assertThat(interceptor.preProcessing(context, handler)).isTrue();
     verifyNoInteractions(resolver);
@@ -85,7 +85,7 @@ class LocaleChangeInterceptorTests {
   void customParameterAcceptsLegacyAndBcp47LocaleFormats(String value) {
     interceptor.setLocaleResolver(resolver);
     interceptor.setParamName("lang");
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
     given(context.getMethod()).willReturn(HttpMethod.GET);
     given(context.getParameter("lang")).willReturn(value);
     given(context.getParameter(LocaleChangeInterceptor.DEFAULT_PARAM_NAME)).willReturn("en");
@@ -98,7 +98,7 @@ class LocaleChangeInterceptorTests {
   void findsLocaleResolverInRequestApplicationContext() {
     try (StaticApplicationContext applicationContext = new StaticApplicationContext()) {
       applicationContext.getBeanFactory().registerSingleton(LocaleResolver.BEAN_NAME, resolver);
-      HttpContext context = localeChangeRequest(HttpMethod.GET, "fr");
+      ServerHttpExchange context = localeChangeRequest(HttpMethod.GET, "fr");
       given(context.getApplicationContext()).willReturn(applicationContext);
 
       assertThat(interceptor.preProcessing(context, handler)).isTrue();
@@ -108,7 +108,7 @@ class LocaleChangeInterceptorTests {
 
   @Test
   void throwsWhenLocaleChangeIsRequestedWithoutResolver() {
-    HttpContext context = localeChangeRequest(HttpMethod.GET, "fr");
+    ServerHttpExchange context = localeChangeRequest(HttpMethod.GET, "fr");
 
     assertThatIllegalStateException().isThrownBy(() -> interceptor.preProcessing(context, handler))
             .withMessage("No LocaleResolver found");
@@ -117,7 +117,7 @@ class LocaleChangeInterceptorTests {
   @Test
   void rejectsInvalidLocaleByDefault() {
     interceptor.setLocaleResolver(resolver);
-    HttpContext context = localeChangeRequest(HttpMethod.GET, "fr!");
+    ServerHttpExchange context = localeChangeRequest(HttpMethod.GET, "fr!");
 
     assertThatIllegalArgumentException().isThrownBy(() -> interceptor.preProcessing(context, handler));
     verifyNoInteractions(resolver);
@@ -127,14 +127,14 @@ class LocaleChangeInterceptorTests {
   void ignoresInvalidLocaleWhenConfigured() {
     interceptor.setLocaleResolver(resolver);
     interceptor.setIgnoreInvalidLocale(true);
-    HttpContext context = localeChangeRequest(HttpMethod.GET, "fr!");
+    ServerHttpExchange context = localeChangeRequest(HttpMethod.GET, "fr!");
 
     assertThat(interceptor.preProcessing(context, handler)).isTrue();
     verifyNoInteractions(resolver);
   }
 
-  private HttpContext localeChangeRequest(HttpMethod method, String locale) {
-    HttpContext context = mock(HttpContext.class);
+  private ServerHttpExchange localeChangeRequest(HttpMethod method, String locale) {
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
     given(context.getParameter(LocaleChangeInterceptor.DEFAULT_PARAM_NAME)).willReturn(locale);
     given(context.getMethod()).willReturn(method);
     return context;

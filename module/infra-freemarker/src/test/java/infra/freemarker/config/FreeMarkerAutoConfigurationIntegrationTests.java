@@ -29,7 +29,7 @@ import infra.context.annotation.config.ImportAutoConfiguration;
 import infra.test.classpath.resources.WithResource;
 import infra.test.util.TestPropertyValues;
 import infra.web.config.WebMvcAutoConfiguration;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.server.MockWebServerFactory;
@@ -226,7 +226,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
     MockRequest request = new MockRequest();
     MockResponse response = new MockResponse();
 
-    MockHttpContext httpContext = new MockHttpContext(request, response);
+    MockServerHttpExchange httpContext = new MockServerHttpExchange(request, response);
     view.render(null, httpContext);
     httpContext.flush();
     return response;

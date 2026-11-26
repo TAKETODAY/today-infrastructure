@@ -23,7 +23,7 @@ import java.util.Locale;
 import infra.context.MessageSource;
 import infra.context.support.StaticMessageSource;
 import infra.http.HttpStatus;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpRequestHandler;
 import infra.web.annotation.ResponseStatus;
 
@@ -61,7 +61,7 @@ class InvocableHandlerMethodTests {
 
   private void assertResponseStatusReason(InvocableHandlerMethod handler,
           MessageSource messages, Locale locale, String reason) throws Exception {
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     given(request.getMessageSource()).willReturn(messages);
     given(request.getPreferredLocale()).willReturn(locale);
 

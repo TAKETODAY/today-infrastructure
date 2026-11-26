@@ -31,12 +31,12 @@ import infra.lang.Constant;
 import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.annotation.RequestParam;
 
 /**
  * Web-specific descriptor for a handler method parameter that can resolve an
- * argument value from an {@link HttpContext}.
+ * argument value from an {@link ServerHttpExchange}.
  *
  * <p>This class decorates a {@link MethodParameter} and exposes commonly used
  * reflection metadata, including the parameter type, annotations, generic type,
@@ -48,7 +48,7 @@ import infra.web.annotation.RequestParam;
  * <p>Type metadata and named-value metadata are resolved lazily and cached for
  * subsequent access. Subclasses may customize named-value creation through
  * {@link #createNamedValueInfo()} and argument resolution through
- * {@link #resolveArgument(HttpContext)}.
+ * {@link #resolveArgument(ServerHttpExchange)}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MethodParameter
@@ -398,7 +398,7 @@ public class HandlerParameter extends DefaultAttributeAccessor {
    * @return the resolved argument value, or {@code null} if no value is available
    * @throws Exception if argument resolution fails
    */
-  public @Nullable Object resolveArgument(HttpContext request) throws Exception {
+  public @Nullable Object resolveArgument(ServerHttpExchange request) throws Exception {
     return request.getParameter(getName());
   }
 

@@ -24,8 +24,8 @@ import java.util.function.Supplier;
 
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.session.Session;
-import infra.web.AbstractDelegatingHttpContext;
-import infra.web.HttpContext;
+import infra.web.AbstractDelegatingServerHttpExchange;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpContextHolder;
 
 /**
@@ -41,18 +41,18 @@ public final class WebScopeRegistrar {
 
   /**
    * Register the {@code request} and {@code session} scopes, along with
-   * resolvable dependencies for {@link HttpContext} and {@link Session}.
+   * resolvable dependencies for {@link ServerHttpExchange} and {@link Session}.
    * <p>Registration does not require an active request or create a session.
    * Dependencies resolve against {@link HttpContextHolder} when accessed.
    *
    * @param beanFactory the BeanFactory to configure
    */
   public static void registerScopes(ConfigurableBeanFactory beanFactory) {
-    beanFactory.registerScope(HttpContext.SCOPE_REQUEST, RequestScope.instance);
-    beanFactory.registerScope(HttpContext.SCOPE_SESSION, new SessionScope());
+    beanFactory.registerScope(ServerHttpExchange.SCOPE_REQUEST, RequestScope.instance);
+    beanFactory.registerScope(ServerHttpExchange.SCOPE_SESSION, new SessionScope());
 
     beanFactory.registerResolvableDependency(Session.class, new WebSessionProvider());
-    beanFactory.registerResolvableDependency(HttpContext.class, new InjectableHttpContext());
+    beanFactory.registerResolvableDependency(ServerHttpExchange.class, new InjectableServerHttpExchange());
   }
 
   /**
@@ -77,16 +77,16 @@ public final class WebScopeRegistrar {
   /**
    * Factory that exposes the current request-context object on demand.
    */
-  private static final class InjectableHttpContext extends AbstractDelegatingHttpContext {
+  private static final class InjectableServerHttpExchange extends AbstractDelegatingServerHttpExchange {
 
     @Override
-    public HttpContext delegate() {
+    public ServerHttpExchange delegate() {
       return HttpContextHolder.required();
     }
 
     @Override
     public String toString() {
-      return "Current HttpContext";
+      return "Current ServerHttpExchange";
     }
   }
 

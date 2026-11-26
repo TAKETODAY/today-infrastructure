@@ -35,7 +35,7 @@ import infra.validation.BindingResult;
 import infra.web.DispatcherHandler;
 import infra.web.ErrorResponse;
 import infra.web.HandlerExceptionHandler;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.HttpRequestMethodNotSupportedException;
@@ -153,7 +153,7 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
   // @since 4.0
   @Nullable
   @Override
-  protected Object handleInternal(HttpContext request, @Nullable Object handler, Throwable ex) {
+  protected Object handleInternal(ServerHttpExchange request, @Nullable Object handler, Throwable ex) {
 
     try {
       // ErrorResponse exceptions that expose HTTP response details
@@ -248,12 +248,12 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * @param handler the executed handler, or {@code null} if none chosen
    * at the time of the exception (for example, if multipart resolution failed)
    * @return an empty Object indicating the exception was handled
-   * @throws IOException potentially thrown from {@link HttpContext#sendError}
+   * @throws IOException potentially thrown from {@link ServerHttpExchange#sendError}
    * @since 4.0
    */
   @Nullable
   protected Object handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex,
-          HttpContext request, @Nullable Object handler) throws IOException {
+          ServerHttpExchange request, @Nullable Object handler) throws IOException {
 
     return null;
   }
@@ -269,12 +269,12 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * @param request current HTTP request
    * @param handler the executed handler
    * @return an empty Object indicating the exception was handled
-   * @throws IOException potentially thrown from {@link HttpContext#sendError}
+   * @throws IOException potentially thrown from {@link ServerHttpExchange#sendError}
    * @since 4.0
    */
   @Nullable
   protected Object handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex,
-          HttpContext request, @Nullable Object handler) throws IOException {
+          ServerHttpExchange request, @Nullable Object handler) throws IOException {
 
     return null;
   }
@@ -290,12 +290,12 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * @param request current HTTP request
    * @param handler the executed handler
    * @return an empty Object indicating the exception was handled
-   * @throws IOException potentially thrown from {@link HttpContext#sendError}
+   * @throws IOException potentially thrown from {@link ServerHttpExchange#sendError}
    * @since 4.0
    */
   @Nullable
   protected Object handleHttpMediaTypeNotAcceptable(HttpMediaTypeNotAcceptableException ex,
-          HttpContext request, @Nullable Object handler) throws IOException {
+          ServerHttpExchange request, @Nullable Object handler) throws IOException {
 
     return null;
   }
@@ -309,12 +309,12 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * @param request current HTTP request
    * @param handler the executed handler
    * @return an empty Object indicating the exception was handled
-   * @throws IOException potentially thrown from {@link HttpContext#sendError}
+   * @throws IOException potentially thrown from {@link ServerHttpExchange#sendError}
    * @since 4.0
    */
   @Nullable
   protected Object handleMissingPathVariable(MissingPathVariableException ex,
-          HttpContext request, @Nullable Object handler) throws IOException {
+          ServerHttpExchange request, @Nullable Object handler) throws IOException {
 
     return null;
   }
@@ -328,12 +328,12 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * @param request current HTTP request
    * @param handler the executed handler
    * @return an empty Object indicating the exception was handled
-   * @throws IOException potentially thrown from {@link HttpContext#sendError}
+   * @throws IOException potentially thrown from {@link ServerHttpExchange#sendError}
    * @since 4.0
    */
   @Nullable
   protected Object handleMissingRequestParameter(MissingRequestParameterException ex,
-          HttpContext request, @Nullable Object handler) throws IOException {
+          ServerHttpExchange request, @Nullable Object handler) throws IOException {
 
     return null;
   }
@@ -346,12 +346,12 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * @param request current HTTP request
    * @param handler the executed handler
    * @return an empty Object indicating the exception was handled
-   * @throws IOException potentially thrown from {@link HttpContext#sendError}
+   * @throws IOException potentially thrown from {@link ServerHttpExchange#sendError}
    * @since 4.0
    */
   @Nullable
   protected Object handleMissingRequestPartException(MissingRequestPartException ex,
-          HttpContext request, @Nullable Object handler) throws IOException {
+          ServerHttpExchange request, @Nullable Object handler) throws IOException {
 
     return null;
   }
@@ -366,12 +366,12 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * @param request current HTTP request
    * @param handler the executed handler
    * @return an empty Object indicating the exception was handled
-   * @throws IOException potentially thrown from {@link HttpContext#sendError}
+   * @throws IOException potentially thrown from {@link ServerHttpExchange#sendError}
    * @since 4.0
    */
   @Nullable
   protected Object handleRequestBindingException(RequestBindingException ex,
-          HttpContext request, @Nullable Object handler) throws IOException {
+          ServerHttpExchange request, @Nullable Object handler) throws IOException {
 
     return null;
   }
@@ -385,12 +385,12 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * @param request current HTTP request
    * @param handler the executed handler
    * @return an empty Object indicating the exception was handled
-   * @throws IOException potentially thrown from {@link HttpContext#sendError}
+   * @throws IOException potentially thrown from {@link ServerHttpExchange#sendError}
    * @since 4.0
    */
   @Nullable
   protected Object handleMethodArgumentNotValidException(MethodArgumentNotValidException ex,
-          HttpContext request, @Nullable Object handler) throws IOException {
+          ServerHttpExchange request, @Nullable Object handler) throws IOException {
 
     return null;
   }
@@ -405,12 +405,12 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * @param handler the executed handler, or {@code null} if none chosen
    * at the time of the exception (for example, if multipart resolution failed)
    * @return an empty Object indicating the exception was handled
-   * @throws IOException potentially thrown from {@link HttpContext#sendError}
+   * @throws IOException potentially thrown from {@link ServerHttpExchange#sendError}
    * @since 4.0
    */
   @Nullable
   protected Object handleHandlerNotFoundException(HandlerNotFoundException ex,
-          HttpContext request, @Nullable Object handler) throws IOException {
+          ServerHttpExchange request, @Nullable Object handler) throws IOException {
 
     NotFoundHandler.pageNotFoundLogger.warn(ex.getMessage());
     return null;
@@ -426,12 +426,12 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * @param handler the executed handler, or {@code null} if none chosen
    * at the time of the exception (for example, if multipart resolution failed)
    * @return an empty Object indicating the exception was handled
-   * @throws IOException potentially thrown from {@link HttpContext#sendError}
+   * @throws IOException potentially thrown from {@link ServerHttpExchange#sendError}
    * @since 4.0
    */
   @Nullable
   protected Object handleAsyncRequestTimeoutException(AsyncRequestTimeoutException ex,
-          HttpContext request, @Nullable Object handler) throws IOException {
+          ServerHttpExchange request, @Nullable Object handler) throws IOException {
 
     return null;
   }
@@ -450,7 +450,7 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * @return an empty ModelAndView indicating the exception was handled
    * @since 5.0
    */
-  protected Object handleDisconnectedClientException(Throwable ex, HttpContext request, @Nullable Object handler) {
+  protected Object handleDisconnectedClientException(Throwable ex, ServerHttpExchange request, @Nullable Object handler) {
     // Attempt to send 500 in case of onward (rather than client) connection issue
     try {
       sendServerError(ex, request);
@@ -465,17 +465,17 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * <p>The default implementation sets status and the headers of the response
    * to those obtained from the {@code ErrorResponse}. If available, the
    * {@link ProblemDetail#getDetail()}  is used as the message for
-   * {@link HttpContext#sendError(int, String)}.
+   * {@link ServerHttpExchange#sendError(int, String)}.
    *
    * @param errorResponse the exception to be handled
    * @param response current HTTP response
    * @param handler the executed handler
    * @return an empty Object indicating the exception was handled
-   * @throws IOException potentially thrown from {@link HttpContext#sendError}
+   * @throws IOException potentially thrown from {@link ServerHttpExchange#sendError}
    * @since 4.0
    */
   protected Object handleErrorResponse(ErrorResponse errorResponse,
-          HttpContext response, @Nullable Object handler) throws IOException {
+          ServerHttpExchange response, @Nullable Object handler) throws IOException {
 
     if (!response.isCommitted()) {
       HttpHeaders headers = errorResponse.getHeaders();
@@ -501,11 +501,11 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * @param request current HTTP request
    * @param handler the executed handler
    * @return an empty Object indicating the exception was handled
-   * @throws IOException potentially thrown from {@link HttpContext#sendError}
+   * @throws IOException potentially thrown from {@link ServerHttpExchange#sendError}
    * @since 4.0
    */
   protected Object handleConversionNotSupported(ConversionNotSupportedException ex,
-          HttpContext request, @Nullable Object handler) throws IOException {
+          ServerHttpExchange request, @Nullable Object handler) throws IOException {
 
     sendServerError(ex, request);
     return NONE_RETURN_VALUE;
@@ -520,11 +520,11 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * @param request current HTTP request
    * @param handler the executed handler
    * @return an empty Object indicating the exception was handled
-   * @throws IOException potentially thrown from {@link HttpContext#sendError}
+   * @throws IOException potentially thrown from {@link ServerHttpExchange#sendError}
    * @since 4.0
    */
   protected Object handleTypeMismatch(TypeMismatchException ex,
-          HttpContext request, @Nullable Object handler) throws IOException {
+          ServerHttpExchange request, @Nullable Object handler) throws IOException {
 
     request.sendError(HttpStatus.BAD_REQUEST);
     return NONE_RETURN_VALUE;
@@ -537,17 +537,17 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * Alternatively, a fallback view could be chosen, or the HttpMessageNotReadableException could be
    * rethrown as-is.
    * <p>If the root cause indicates a lost client connection, handling is delegated to
-   * {@link #handleDisconnectedClientException(Throwable, HttpContext, Object)} instead.
+   * {@link #handleDisconnectedClientException(Throwable, ServerHttpExchange, Object)} instead.
    *
    * @param ex the HttpMessageNotReadableException to be handled
    * @param request current HTTP request
    * @param handler the executed handler
    * @return an empty Object indicating the exception was handled
-   * @throws IOException potentially thrown from {@link HttpContext#sendError}
+   * @throws IOException potentially thrown from {@link ServerHttpExchange#sendError}
    * @since 4.0
    */
   protected Object handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
-          HttpContext request, @Nullable Object handler) throws IOException {
+          ServerHttpExchange request, @Nullable Object handler) throws IOException {
 
     if (DisconnectedClientHelper.isClientDisconnectedException(ex)) {
       return handleDisconnectedClientException(ex, request, handler);
@@ -564,17 +564,17 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * Alternatively, a fallback view could be chosen, or the HttpMessageNotWritableException could
    * be rethrown as-is.
    * <p>If the root cause indicates a lost client connection, handling is delegated to
-   * {@link #handleDisconnectedClientException(Throwable, HttpContext, Object)} instead.
+   * {@link #handleDisconnectedClientException(Throwable, ServerHttpExchange, Object)} instead.
    *
    * @param ex the HttpMessageNotWritableException to be handled
    * @param request current HTTP request
    * @param handler the executed handler
    * @return an empty Object indicating the exception was handled
-   * @throws IOException potentially thrown from {@link HttpContext#sendError}
+   * @throws IOException potentially thrown from {@link ServerHttpExchange#sendError}
    * @since 4.0
    */
   protected Object handleHttpMessageNotWritable(HttpMessageNotWritableException ex,
-          HttpContext request, @Nullable Object handler) throws IOException {
+          ServerHttpExchange request, @Nullable Object handler) throws IOException {
 
     if (DisconnectedClientHelper.isClientDisconnectedException(ex)) {
       return handleDisconnectedClientException(ex, request, handler);
@@ -591,10 +591,10 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * @param request current HTTP request
    * @param handler the executed handler
    * @return an empty Object indicating the exception was handled
-   * @throws IOException potentially thrown from {@link HttpContext#sendError}
+   * @throws IOException potentially thrown from {@link ServerHttpExchange#sendError}
    * @since 4.0
    */
-  protected Object handleBindException(BindException ex, HttpContext request,
+  protected Object handleBindException(BindException ex, ServerHttpExchange request,
           @Nullable Object handler) throws IOException {
 
     request.sendError(HttpStatus.BAD_REQUEST);
@@ -608,7 +608,7 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
    * @see WebUtils#ERROR_EXCEPTION_ATTRIBUTE
    * @since 4.0
    */
-  protected void sendServerError(Throwable ex, HttpContext request) throws IOException {
+  protected void sendServerError(Throwable ex, ServerHttpExchange request) throws IOException {
     request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
     request.sendError(HttpStatus.INTERNAL_SERVER_ERROR);
   }

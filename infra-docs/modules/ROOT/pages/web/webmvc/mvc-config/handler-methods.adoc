@@ -12,7 +12,7 @@ Web MVC 使用 `ParameterResolvingStrategy` 将请求转换为控制器方法参
 ----
 import infra.context.annotation.Configuration;
 import infra.http.HttpStatus;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.method.ParameterResolvingStrategies;
@@ -33,8 +33,8 @@ public class TenantWebConfiguration implements WebMvcConfigurer {
       }
 
       @Override
-      public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
-        String value = context.requestHeaders().getFirst("X-Tenant-Id");
+      public Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) {
+        String value = exchange.requestHeaders().getFirst("X-Tenant-Id");
         if (value == null || value.isBlank()) {
           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing tenant id");
         }
@@ -77,7 +77,7 @@ public class TenantWebConfiguration implements WebMvcConfigurer {
 当自定义返回类型可能被默认兜底处理器接收时，应将专用处理器放到它之前，而不是简单追加。
 
 实现 `infra.web.ReturnValueHandler` 时，需提供 `supportsHandler(Object)` 和
-`handleReturnValue(HttpContext, Object, Object)`；也可以重写 `supportsReturnValue(Object)` 按运行时结果匹配。
+`handleReturnValue(ServerHttpExchange, Object, Object)`；也可以重写 `supportsReturnValue(Object)` 按运行时结果匹配。
 普通处理器的处理器匹配与返回值匹配是“或”关系，因此不要用无条件返回 `true` 的匹配方法，
 否则会截获视图、异步响应或其他默认结果。需要联合判断时可实现 `SmartReturnValueHandler`。
 
@@ -91,7 +91,7 @@ import java.nio.charset.StandardCharsets;
 import org.jspecify.annotations.Nullable;
 
 import infra.context.annotation.Configuration;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.ReturnValueHandler;
 import infra.web.config.annotation.WebMvcConfigurer;
 import infra.web.handler.ReturnValueHandlerManager;
@@ -115,11 +115,11 @@ public class TextResultConfiguration implements WebMvcConfigurer {
       }
 
       @Override
-      public void handleReturnValue(HttpContext context, @Nullable Object handler,
+      public void handleReturnValue(ServerHttpExchange exchange, @Nullable Object handler,
           @Nullable Object returnValue) throws Exception {
         TextResult result = (TextResult) returnValue;
-        context.responseHeaders().set("Content-Type", "text/plain;charset=UTF-8");
-        context.getOutputStream().write(result.text().getBytes(StandardCharsets.UTF_8));
+        exchange.responseHeaders().set("Content-Type", "text/plain;charset=UTF-8");
+        exchange.getOutputStream().write(result.text().getBytes(StandardCharsets.UTF_8));
       }
     });
   }

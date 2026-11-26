@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;
 
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -30,7 +30,7 @@ class AsyncInterceptorDefaultsTests {
 
   @Test
   void defaultCallableInterceptorDoesNotInterfereWithProcessing() throws Exception {
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     Callable<String> task = () -> "result";
     CallableProcessingInterceptor interceptor = new CallableProcessingInterceptor() { };
     interceptor.beforeConcurrentHandling(request, task);
@@ -44,7 +44,7 @@ class AsyncInterceptorDefaultsTests {
 
   @Test
   void timeoutInterceptorSuppliesTimeoutExceptionForBothAsyncTypes() {
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     var interceptor = new TimeoutAsyncProcessingInterceptor();
     assertThat(interceptor.handleTimeout(request, () -> "result")).isInstanceOf(AsyncRequestTimeoutException.class);
     DeferredResult<String> deferred = new DeferredResult<>();

@@ -24,12 +24,12 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.Callable;
 
 import infra.core.task.AsyncTaskExecutor;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.api.AsyncEvent;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockAsyncContext;
 import infra.web.mock.MockResponse;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.async.CallableProcessingInterceptor;
 import infra.web.async.DeferredResult;
 import infra.web.async.DeferredResultProcessingInterceptor;
@@ -60,7 +60,7 @@ public class WebAsyncManagerErrorTests {
 
   private MockResponse mockResponse;
 
-  private MockHttpContext request;
+  private MockServerHttpExchange request;
 
   @BeforeEach
   public void setup() {
@@ -69,7 +69,7 @@ public class WebAsyncManagerErrorTests {
     this.mockResponse = new MockResponse();
 
     AsyncTaskExecutor executor = mock(AsyncTaskExecutor.class);
-    request = new MockHttpContext(null, mockRequest, mockResponse);
+    request = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
     this.asyncRequest = (StandardMockWebAsyncRequest) request.asyncRequest();
     this.asyncManager = request.asyncManager();
@@ -226,7 +226,7 @@ public class WebAsyncManagerErrorTests {
 
     DeferredResultProcessingInterceptor interceptor = new DeferredResultProcessingInterceptor() {
       @Override
-      public <T> boolean handleError(HttpContext request, DeferredResult<T> result, Throwable t)
+      public <T> boolean handleError(ServerHttpExchange request, DeferredResult<T> result, Throwable t)
               throws Exception {
         result.setErrorResult(t);
         return true;
@@ -254,7 +254,7 @@ public class WebAsyncManagerErrorTests {
     DeferredResultProcessingInterceptor interceptor = new DeferredResultProcessingInterceptor() {
       @Override
       public <T> boolean handleError(
-              HttpContext request, DeferredResult<T> deferredResult, Throwable t) throws Exception {
+              ServerHttpExchange request, DeferredResult<T> deferredResult, Throwable t) throws Exception {
         throw exception;
       }
     };

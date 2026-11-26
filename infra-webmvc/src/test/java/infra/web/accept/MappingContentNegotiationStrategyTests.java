@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import infra.http.MediaType;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpMediaTypeNotAcceptableException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -110,7 +110,7 @@ class MappingContentNegotiationStrategyTests {
     }
 
     @Override
-    protected String getMediaTypeKey(HttpContext request) {
+    protected String getMediaTypeKey(ServerHttpExchange request) {
       return this.extension;
     }
 

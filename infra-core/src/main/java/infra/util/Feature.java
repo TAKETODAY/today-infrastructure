@@ -63,7 +63,7 @@ public final class Feature {
   public static final Feature WEB = Feature.of("infra.web.ErrorResponse");
 
   /** infra-webmvc: the web MVC stack. */
-  public static final Feature WEB_MVC = Feature.of("infra.web.HttpContext");
+  public static final Feature WEB_MVC = Feature.of("infra.web.ServerHttpExchange");
 
   /** infra-web-reactive: the reactive web stack. */
   public static final Feature WEB_REACTIVE = Feature.of("infra.web.reactive.client.WebClient");

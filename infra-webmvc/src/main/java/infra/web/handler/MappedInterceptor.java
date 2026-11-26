@@ -26,7 +26,7 @@ import infra.util.Assert;
 import infra.util.ObjectUtils;
 import infra.util.PathMatcher;
 import infra.web.HandlerInterceptor;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.InterceptorChain;
 import infra.web.util.WebUtils;
 import infra.web.util.pattern.PathPattern;
@@ -147,7 +147,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
    * @param request the request to match to
    * @return {@code true} if the interceptor should be applied to the request
    */
-  public boolean matches(HttpContext request) {
+  public boolean matches(ServerHttpExchange request) {
     PathContainer lookupPath = request.getRequestPath();
     return matches(lookupPath);
   }
@@ -192,21 +192,21 @@ public final class MappedInterceptor implements HandlerInterceptor {
   // HandlerInterceptor delegation
 
   @Override
-  public boolean preProcessing(HttpContext context, Object handler) throws Exception {
-    return interceptor.preProcessing(context, handler);
+  public boolean preProcessing(ServerHttpExchange exchange, Object handler) throws Exception {
+    return interceptor.preProcessing(exchange, handler);
   }
 
   @Override
-  public void postProcessing(HttpContext context, Object handler, @Nullable Object result) throws Exception {
-    interceptor.postProcessing(context, handler, result);
+  public void postProcessing(ServerHttpExchange exchange, Object handler, @Nullable Object result) throws Exception {
+    interceptor.postProcessing(exchange, handler, result);
   }
 
   @Override
-  public @Nullable Object intercept(HttpContext context, InterceptorChain chain) throws Exception {
-    if (matches(context)) {
-      return interceptor.intercept(context, chain);
+  public @Nullable Object intercept(ServerHttpExchange exchange, InterceptorChain chain) throws Exception {
+    if (matches(exchange)) {
+      return interceptor.intercept(exchange, chain);
     }
-    return chain.proceed(context);
+    return chain.proceed(exchange);
   }
 
   /**

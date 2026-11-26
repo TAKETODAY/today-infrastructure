@@ -23,7 +23,7 @@ import java.io.Serializable;
 
 import infra.context.ApplicationContext;
 import infra.web.DispatcherHandler;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpContextHolder;
 import infra.web.async.WebAsyncManager;
 import infra.web.mock.api.DispatcherType;
@@ -51,7 +51,7 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
     if (request.getDispatcherType() == DispatcherType.ASYNC) {
       // send async results
       Object concurrentResult = request.getAttribute(WebAsyncManager.WEB_ASYNC_RESULT_ATTRIBUTE);
-      HttpContext context = (HttpContext) request.getAttribute(WebAsyncManager.WEB_ASYNC_REQUEST_ATTRIBUTE);
+      ServerHttpExchange context = (ServerHttpExchange) request.getAttribute(WebAsyncManager.WEB_ASYNC_REQUEST_ATTRIBUTE);
       Object httpRequestHandler = WebAsyncManager.findHttpRequestHandler(context);
 
       try {
@@ -63,11 +63,11 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
       return;
     }
 
-    HttpContext context = HttpContextHolder.current();
+    ServerHttpExchange context = HttpContextHolder.current();
 
     boolean reset = false;
     if (context == null) {
-      context = new MockHttpContext(getApplicationContext(),
+      context = new MockServerHttpExchange(getApplicationContext(),
               request, response, this);
       HttpContextHolder.set(context);
       reset = true;

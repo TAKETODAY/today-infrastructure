@@ -45,7 +45,7 @@ import infra.http.RequestEntity;
 import infra.http.ResponseEntity;
 import infra.http.converter.config.HttpMessageConvertersAutoConfiguration;
 import infra.validation.BindException;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.annotation.PostMapping;
 import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestMapping;
@@ -384,7 +384,7 @@ class BasicErrorControllerIntegrationTests {
       return new AbstractView() {
 
         @Override
-        protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
+        protected void renderMergedOutputModel(Map<String, Object> model, ServerHttpExchange http) throws Exception {
           http.getWriter().write("ERROR_BEAN");
         }
       };

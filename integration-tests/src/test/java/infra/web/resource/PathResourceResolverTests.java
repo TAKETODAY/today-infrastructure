@@ -32,7 +32,7 @@ import java.util.Map;
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
 import infra.core.io.UrlResource;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -159,7 +159,7 @@ class PathResourceResolverTests {
 
     // UTF-8 by default
     this.resolver.setLocationCharsets(Collections.emptyMap());
-    MockHttpContext request = getContext();
+    MockServerHttpExchange request = getContext();
     this.resolver.resolveResource(request, "/Ä ;ä.txt", locations, null);
 
     assertThat(location.getSavedRelativePath()).isEqualTo("%C3%84%20%3B%C3%A4.txt");
@@ -338,7 +338,7 @@ class PathResourceResolverTests {
   @Test
   void encodeOrDecodeIfNecessaryShouldDecodePathWhenNecessary() {
     Resource location = new ClassPathResource("test/");
-    MockHttpContext request = getContext();
+    MockServerHttpExchange request = getContext();
     String path = "%E4%B8%AD%E6%96%87.txt"; // "中文.txt" URL encoded
 
     String result = resolver.encodeOrDecodeIfNecessary(path, request, location);
@@ -399,8 +399,8 @@ class PathResourceResolverTests {
     assertThat(result).isFalse();
   }
 
-  private MockHttpContext getContext() {
-    return new MockHttpContext(null, new MockRequest(), null);
+  private MockServerHttpExchange getContext() {
+    return new MockServerHttpExchange(null, new MockRequest(), null);
   }
 
   private Resource getResource(String filePath) {

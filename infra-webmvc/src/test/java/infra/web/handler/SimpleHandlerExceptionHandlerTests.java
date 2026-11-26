@@ -38,7 +38,7 @@ import infra.http.converter.HttpMessageNotReadableException;
 import infra.http.converter.HttpMessageNotWritableException;
 import infra.validation.BeanPropertyBindingResult;
 import infra.web.HandlerExceptionHandler;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.HttpRequestMethodNotSupportedException;
 import infra.web.MultipartException;
@@ -48,7 +48,7 @@ import infra.web.bind.MissingPathVariableException;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.MissingRequestPartException;
 import infra.web.bind.RequestBindingException;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.view.ModelAndView;
@@ -67,7 +67,7 @@ class SimpleHandlerExceptionHandlerTests {
 
   private final MockResponse response = new MockResponse();
 
-  private final MockHttpContext context = new MockHttpContext(request, response);
+  private final MockServerHttpExchange context = new MockServerHttpExchange(request, response);
 
   @BeforeEach
   void setup() {
@@ -99,7 +99,7 @@ class SimpleHandlerExceptionHandlerTests {
     HttpMediaTypeNotSupportedException ex = new HttpMediaTypeNotSupportedException(new MediaType("text", "plain"),
             Collections.singletonList(new MediaType("application", "pdf")), HttpMethod.PATCH);
     MockRequest request = new MockRequest("PATCH", "/");
-    MockHttpContext context1 = new MockHttpContext(request, response);
+    MockServerHttpExchange context1 = new MockServerHttpExchange(request, response);
     Object mav = exceptionResolver.handleException(context1, ex, null);
     assertThat(mav).as("No ModelAndView returned").isNotNull().isEqualTo(HandlerExceptionHandler.NONE_RETURN_VALUE);
     assertThat(response.getStatus()).as("Invalid status code").isEqualTo(415);
@@ -252,7 +252,7 @@ class SimpleHandlerExceptionHandlerTests {
 
       @Override
       protected ModelAndView handleHttpRequestMethodNotSupported(
-              HttpRequestMethodNotSupportedException ex, HttpContext httpContext, @Nullable Object handler) {
+              HttpRequestMethodNotSupportedException ex, ServerHttpExchange httpContext, @Nullable Object handler) {
         return expected;
       }
     };

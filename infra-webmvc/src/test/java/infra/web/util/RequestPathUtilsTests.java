@@ -19,7 +19,7 @@ package infra.web.util;
 import org.junit.jupiter.api.Test;
 
 import infra.http.server.RequestPath;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +47,7 @@ class RequestPathUtilsTests {
 
   private void testParseAndCache(String requestUri, String pathWithinApplication) {
     MockRequest request = new MockRequest("GET", requestUri);
-    MockHttpContext context = new MockHttpContext(null, request, null);
+    MockServerHttpExchange context = new MockServerHttpExchange(null, request, null);
     RequestPath requestPath = context.getRequestPath();
 
     assertThat(requestPath.pathWithinApplication().value()).isEqualTo(pathWithinApplication);

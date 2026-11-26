@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.http.HttpStatus;
 import infra.stereotype.Component;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.NotFoundHandler;
 import infra.web.handler.SimpleNotFoundHandler;
 
@@ -34,10 +34,10 @@ class ResourceNotFoundHandler implements NotFoundHandler {
 
   @Nullable
   @Override
-  public Object handleNotFound(HttpContext request) {
-    request.setStatus(HttpStatus.NOT_FOUND);
+  public Object handleNotFound(ServerHttpExchange exchange) {
+    exchange.setStatus(HttpStatus.NOT_FOUND);
 
-    SimpleNotFoundHandler.logNotFound(request);
+    SimpleNotFoundHandler.logNotFound(exchange);
     return ErrorMessage.failed("资源找不到");
   }
 

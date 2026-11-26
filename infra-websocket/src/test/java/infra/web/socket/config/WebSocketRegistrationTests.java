@@ -22,8 +22,8 @@ import java.util.Map;
 
 import infra.context.Lifecycle;
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.socket.WebSocketHandler;
@@ -58,7 +58,7 @@ class WebSocketRegistrationTests {
     assertThat(mapping.getUrlMap()).containsOnlyKeys("/one", "/two");
 
     var request = new MockRequest("GET", "/one");
-    var context = new MockHttpContext(null, request, new MockResponse());
+    var context = new MockServerHttpExchange(null, request, new MockResponse());
     given(interceptor.beforeHandshake(context, handler, Map.of())).willReturn(true);
     var requestHandler = (WebSocketHttpRequestHandler) mapping.getUrlMap().get("/one");
     requestHandler.handleRequest(context);
@@ -101,10 +101,10 @@ class WebSocketRegistrationTests {
     }
   }
 
-  private static HttpContext request(String path, String upgrade) {
+  private static ServerHttpExchange request(String path, String upgrade) {
     var request = new MockRequest("GET", path);
     request.addHeader("Upgrade", upgrade);
-    return new MockHttpContext(null, request, new MockResponse());
+    return new MockServerHttpExchange(null, request, new MockResponse());
   }
 
 }

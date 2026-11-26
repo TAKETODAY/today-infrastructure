@@ -35,7 +35,7 @@ import infra.validation.BindingResult;
 import infra.validation.DataBinder;
 import infra.validation.Errors;
 import infra.validation.SmartValidator;
-import infra.web.bind.HttpContextDataBinder;
+import infra.web.bind.HttpExchangeDataBinder;
 import infra.web.bind.WebDataBinder;
 import infra.web.bind.support.BindParamNameResolver;
 import infra.web.bind.support.WebBindingInitializer;
@@ -100,7 +100,7 @@ public class BindingContext {
    * @return the created data binder
    * @throws Exception if {@code @InitBinder} method invocation fails
    */
-  public WebDataBinder createBinder(HttpContext context, String objectName) throws Exception {
+  public WebDataBinder createBinder(ServerHttpExchange context, String objectName) throws Exception {
     return createBinder(context, null, objectName, null);
   }
 
@@ -114,17 +114,17 @@ public class BindingContext {
    * @return the created data binder
    * @throws Exception if {@code @InitBinder} method invocation fails
    */
-  public WebDataBinder createBinder(HttpContext context, @Nullable Object target, String objectName) throws Exception {
+  public WebDataBinder createBinder(ServerHttpExchange context, @Nullable Object target, String objectName) throws Exception {
     return createBinder(context, target, objectName, null);
   }
 
   /**
-   * Variant of {@link #createBinder(HttpContext, Object, String)} with a
+   * Variant of {@link #createBinder(ServerHttpExchange, Object, String)} with a
    * {@link ResolvableType} for which the {@code DataBinder} is created.
    * This may be used to construct the target, or otherwise provide more
    * insight on how to initialize the binder.
    */
-  public WebDataBinder createBinder(HttpContext context, @Nullable Object target,
+  public WebDataBinder createBinder(ServerHttpExchange context, @Nullable Object target,
           String objectName, @Nullable ResolvableType targetType) throws Exception {
 
     WebDataBinder dataBinder = createBinderInstance(target, objectName, context);
@@ -157,8 +157,8 @@ public class BindingContext {
    * @param context the current context
    * @throws Exception in case of invalid state or arguments
    */
-  protected WebDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
-    return new HttpContextDataBinder(target, objectName);
+  protected WebDataBinder createBinderInstance(@Nullable Object target, String objectName, ServerHttpExchange context) throws Exception {
+    return new HttpExchangeDataBinder(target, objectName);
   }
 
   /**
@@ -166,13 +166,13 @@ public class BindingContext {
    *
    * @throws Exception if {@code @InitBinder} method invocation fails
    */
-  public void initBinder(WebDataBinder dataBinder, HttpContext context) throws Exception {
+  public void initBinder(WebDataBinder dataBinder, ServerHttpExchange context) throws Exception {
   }
 
   /**
    * Get a {@link ModelAndView}
    * <p>
-   * If there isn't a {@link ModelAndView} in this {@link HttpContext},
+   * If there isn't a {@link ModelAndView} in this {@link ServerHttpExchange},
    * <b>Create One</b>
    *
    * @return Returns {@link ModelAndView}
@@ -223,7 +223,7 @@ public class BindingContext {
    * @param context the current context
    * @throws Exception if creating BindingResult attributes fails
    */
-  public void updateModel(HttpContext context) throws Exception {
+  public void updateModel(ServerHttpExchange context) throws Exception {
   }
 
   /**
@@ -239,7 +239,7 @@ public class BindingContext {
    * @param context the current context
    * @throws Exception may arise from {@code @ModelAttribute} methods
    */
-  public void initModel(HttpContext context) throws Exception {
+  public void initModel(ServerHttpExchange context) throws Exception {
   }
 
   /**
@@ -422,7 +422,7 @@ public class BindingContext {
    * @param binding the binding context, or {@code null} to clear it
    * @since 5.0
    */
-  public static void set(HttpContext request, @Nullable BindingContext binding) {
+  public static void set(ServerHttpExchange request, @Nullable BindingContext binding) {
     request.setAttribute(REQUEST_ATTRIBUTE, binding);
   }
 

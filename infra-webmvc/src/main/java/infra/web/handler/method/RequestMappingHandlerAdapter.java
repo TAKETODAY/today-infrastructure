@@ -25,7 +25,7 @@ import infra.http.HttpHeaders;
 import infra.session.Session;
 import infra.validation.method.MethodValidator;
 import infra.web.BindingContext;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.RedirectModel;
 import infra.web.RedirectModelManager;
 import infra.web.annotation.RequestMapping;
@@ -155,7 +155,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
   }
 
   @Override
-  protected @Nullable Object handleInternal(HttpContext request, HandlerMethod handlerMethod) throws Exception {
+  protected @Nullable Object handleInternal(ServerHttpExchange request, HandlerMethod handlerMethod) throws Exception {
     Object returnValue;
 
     // Execute invokeHandlerMethod in synchronized block if required.
@@ -184,7 +184,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
     return returnValue;
   }
 
-  private @Nullable Session getSession(HttpContext request) {
+  private @Nullable Session getSession(ServerHttpExchange request) {
     return request.getSession(false);
   }
 
@@ -194,7 +194,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
    *
    * @see ControllerMethodResolver#createHandlerMethod(HandlerMethod)
    */
-  protected @Nullable Object invokeHandlerMethod(HttpContext request, HandlerMethod handlerMethod) throws Exception {
+  protected @Nullable Object invokeHandlerMethod(ServerHttpExchange request, HandlerMethod handlerMethod) throws Exception {
     InvocableHandlerMethod invocableMethod = methodResolver.createHandlerMethod(handlerMethod);
 
     var binding = new InitBinderBindingContext(modelHandler, webBindingInitializer, methodResolver, invocableMethod);

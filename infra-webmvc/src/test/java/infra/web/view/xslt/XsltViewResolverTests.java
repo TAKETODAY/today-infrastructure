@@ -29,7 +29,7 @@ import javax.xml.transform.OutputKeys;
 
 import infra.context.support.StaticApplicationContext;
 import infra.util.ClassUtils;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.view.View;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,7 +75,7 @@ public class XsltViewResolverTests {
       resolver.setApplicationContext(applicationContext);
       View view = resolver.resolveViewName("report", Locale.ENGLISH);
       assertThat(view).isInstanceOf(XsltView.class);
-      MockHttpContext context = new MockHttpContext();
+      MockServerHttpExchange context = new MockServerHttpExchange();
 
       view.render(Map.of("unusedXml", new StringReader("<report><title>Wrong source</title></report>"),
               "reportXml", new StringReader("<report><title>Quarterly report</title></report>")), context);

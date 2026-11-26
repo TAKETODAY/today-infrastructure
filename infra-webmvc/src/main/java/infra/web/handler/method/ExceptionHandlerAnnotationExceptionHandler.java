@@ -31,7 +31,7 @@ import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.util.Assert;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.annotation.ControllerAdvice;
@@ -127,7 +127,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
   }
 
   @Override
-  protected @Nullable Object handleInternal(HttpContext context, @Nullable HandlerMethod handlerMethod, Throwable target) {
+  protected @Nullable Object handleInternal(ServerHttpExchange context, @Nullable HandlerMethod handlerMethod, Throwable target) {
     // catch all handlers
     var exHandler = getExceptionHandlerMethod(context, handlerMethod, target);
     if (exHandler == null) {
@@ -211,7 +211,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
    * @return the matching exception handler or problem detail fallback,
    * or {@code null} if neither is available
    */
-  protected @Nullable InvocableHandlerMethod getExceptionHandlerMethod(HttpContext context, @Nullable HandlerMethod handlerMethod, Throwable exception) {
+  protected @Nullable InvocableHandlerMethod getExceptionHandlerMethod(ServerHttpExchange context, @Nullable HandlerMethod handlerMethod, Throwable exception) {
     List<MediaType> acceptedMediaTypes = List.of(MediaType.ALL);
     try {
       acceptedMediaTypes = contentNegotiationManager.resolveMediaTypes(context);
@@ -233,7 +233,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
     return exception instanceof Exception ? getProblemDetailHandlerMethod(context) : null;
   }
 
-  private @Nullable InvocableHandlerMethod getProblemDetailHandlerMethod(HttpContext context) {
+  private @Nullable InvocableHandlerMethod getProblemDetailHandlerMethod(ServerHttpExchange context) {
     return context.isCommitted() ? null : this.problemDetailHandlerMethod;
   }
 
@@ -244,7 +244,7 @@ public class ExceptionHandlerAnnotationExceptionHandler extends AbstractHandlerM
   }
 
   @Override
-  protected boolean shouldApplyTo(HttpContext request, @Nullable Object handler) {
+  protected boolean shouldApplyTo(ServerHttpExchange request, @Nullable Object handler) {
     if (this.problemDetailHandlerMethod != null && !hasHandlerMappings()) {
       return true;  // render problem details for any handler
     }

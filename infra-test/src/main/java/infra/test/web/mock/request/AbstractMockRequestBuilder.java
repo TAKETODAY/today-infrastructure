@@ -58,7 +58,7 @@ import infra.util.StringUtils;
 import infra.web.RedirectModel;
 import infra.web.client.ApiVersionFormatter;
 import infra.web.client.ApiVersionInserter;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockSession;
 import infra.web.mock.api.Cookie;
@@ -963,7 +963,7 @@ public abstract class AbstractMockRequestBuilder<B extends AbstractMockRequestBu
   }
 
   @Override
-  public void customize(MockRequest request, MockHttpContext context) {
+  public void customize(MockRequest request, MockServerHttpExchange context) {
     for (MockRequestCustomizer postProcessor : this.requestCustomizers) {
       postProcessor.customize(request, context);
     }

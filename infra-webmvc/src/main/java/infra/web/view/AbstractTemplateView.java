@@ -22,7 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import infra.session.Session;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * Adapter base class for template-based view technologies such as FreeMarker,
@@ -98,7 +98,7 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
   }
 
   @Override
-  protected final void prepareModel(Map<String, Object> model, HttpContext http) throws Exception {
+  protected final void prepareModel(Map<String, Object> model, ServerHttpExchange http) throws Exception {
     if (exposeRequestAttributes) {
       Map<String, Object> exposed = null;
       for (String attribute : http.attributeNames()) {
@@ -126,7 +126,7 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
   }
 
   @Override
-  protected final void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
+  protected final void renderMergedOutputModel(Map<String, Object> model, ServerHttpExchange http) throws Exception {
     applyContentType(http);
 
     if (logger.isDebugEnabled()) {
@@ -136,7 +136,7 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
     renderMergedTemplateModel(model, http);
   }
 
-  private void exposeSessionAttributes(Map<String, Object> model, HttpContext context) {
+  private void exposeSessionAttributes(Map<String, Object> model, ServerHttpExchange context) {
     Session session = context.getSession(false);
     if (session != null) {
       Map<String, Object> exposed = null;
@@ -169,7 +169,7 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
    * @param response current HTTP response
    * @see #setContentType
    */
-  protected void applyContentType(HttpContext response) {
+  protected void applyContentType(ServerHttpExchange response) {
     if (response.getResponseContentType() == null) {
       response.setContentType(getContentType());
     }
@@ -183,6 +183,6 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
    * @param context current HTTP request
    * @throws Exception if rendering failed
    */
-  protected abstract void renderMergedTemplateModel(Map<String, Object> model, HttpContext context) throws Exception;
+  protected abstract void renderMergedTemplateModel(Map<String, Object> model, ServerHttpExchange context) throws Exception;
 
 }

@@ -32,7 +32,7 @@ import infra.http.ResponseEntity;
 import infra.stereotype.Controller;
 import infra.util.MimeTypeUtils;
 import infra.util.StringUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.annotation.ExceptionHandler;
 import infra.web.annotation.RequestMapping;
@@ -69,16 +69,16 @@ public class BasicErrorController extends AbstractErrorController implements Sen
   }
 
   @RequestMapping("${server.error.path:${error.path:/error}}")
-  public Object error(HttpContext ctx) {
+  public Object error(ServerHttpExchange ctx) {
     return handleRequest(ctx, null);
   }
 
   @Override
-  public void handleError(HttpContext http, @Nullable String message) throws IOException {
+  public void handleError(ServerHttpExchange http, @Nullable String message) throws IOException {
     http.send(handleRequest(http, message));
   }
 
-  private Object handleRequest(HttpContext http, @Nullable String message) {
+  private Object handleRequest(ServerHttpExchange http, @Nullable String message) {
     if (StringUtils.hasText(message)) {
       http.setAttribute(WebUtils.ERROR_MESSAGE_ATTRIBUTE, message);
     }
@@ -103,7 +103,7 @@ public class BasicErrorController extends AbstractErrorController implements Sen
    * <p>
    * The "match-all" media type is not considered here.
    */
-  static boolean ifAcceptsTextHtml(HttpContext context) {
+  static boolean ifAcceptsTextHtml(ServerHttpExchange context) {
     try {
       ArrayList<MediaType> acceptedMediaTypes = new ArrayList<>(context.getHeaders().getAccept());
       acceptedMediaTypes.removeIf(MediaType.ALL::equalsTypeAndSubtype);
@@ -116,7 +116,7 @@ public class BasicErrorController extends AbstractErrorController implements Sen
   }
 
   @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
-  public ResponseEntity<String> mediaTypeNotAcceptable(HttpContext request) {
+  public ResponseEntity<String> mediaTypeNotAcceptable(ServerHttpExchange request) {
     HttpStatus status = getStatus(request);
     return ResponseEntity.status(status).build();
   }

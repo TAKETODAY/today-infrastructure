@@ -25,7 +25,7 @@ import java.util.Map;
 import infra.beans.factory.InitializingBean;
 import infra.validation.BeanPropertyBindingResult;
 import infra.validation.BindingResult;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -74,7 +74,7 @@ class ViewSupportTests {
     InternalResourceView view = new InternalResourceView("/views/sample.html");
     view.setPreventDispatchLoop(true);
     assertThat(view.getApplicationContext()).isNull();
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     given(request.getRequestURI()).willReturn("/sample");
 
     view.render(Map.of("title", "Sample"), request);
@@ -88,7 +88,7 @@ class ViewSupportTests {
   void internalResourceViewRejectsCircularForward() throws Exception {
     InternalResourceView view = new InternalResourceView("sample");
     view.setPreventDispatchLoop(true);
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     given(request.getRequestURI()).willReturn("/sample");
 
     assertThatIllegalStateException().isThrownBy(() -> view.render(Map.of(), request))

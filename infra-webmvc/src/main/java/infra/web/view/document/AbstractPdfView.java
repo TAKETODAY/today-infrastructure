@@ -27,7 +27,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.view.AbstractView;
 
 /**
@@ -67,7 +67,7 @@ public abstract class AbstractPdfView extends AbstractView {
   }
 
   @Override
-  protected final void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
+  protected final void renderMergedOutputModel(Map<String, Object> model, ServerHttpExchange http) throws Exception {
     // IE workaround: write into byte array first.
     ByteArrayOutputStream baos = createTemporaryOutputStream();
 
@@ -126,7 +126,7 @@ public abstract class AbstractPdfView extends AbstractView {
    * @see com.lowagie.text.pdf.PdfWriter#setViewerPreferences
    * @see #getViewerPreferences()
    */
-  protected void prepareWriter(Map<String, Object> model, PdfWriter writer, HttpContext request)
+  protected void prepareWriter(Map<String, Object> model, PdfWriter writer, ServerHttpExchange request)
           throws DocumentException {
 
     writer.setViewerPreferences(getViewerPreferences());
@@ -166,7 +166,7 @@ public abstract class AbstractPdfView extends AbstractView {
    * @see com.lowagie.text.Document#addCreationDate
    * @see com.lowagie.text.Document#addHeader
    */
-  protected void buildPdfMetadata(Map<String, Object> model, Document document, HttpContext request) {
+  protected void buildPdfMetadata(Map<String, Object> model, Document document, ServerHttpExchange request) {
   }
 
   /**
@@ -185,7 +185,7 @@ public abstract class AbstractPdfView extends AbstractView {
    * @see com.lowagie.text.Document#open()
    * @see com.lowagie.text.Document#close()
    */
-  protected abstract void buildPdfDocument(Map<String, Object> model, Document document, PdfWriter writer, HttpContext context)
+  protected abstract void buildPdfDocument(Map<String, Object> model, Document document, PdfWriter writer, ServerHttpExchange context)
           throws Exception;
 
 }

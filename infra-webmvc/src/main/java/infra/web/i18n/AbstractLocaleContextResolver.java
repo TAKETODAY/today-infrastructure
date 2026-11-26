@@ -24,7 +24,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import infra.core.i18n.SimpleLocaleContext;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.LocaleContextResolver;
 
 /**
@@ -62,7 +62,7 @@ public abstract class AbstractLocaleContextResolver
   }
 
   @Override
-  public Locale resolveLocale(HttpContext context) {
+  public Locale resolveLocale(ServerHttpExchange context) {
     Locale locale = resolveLocaleContext(context).getLocale();
     if (locale == null) {
       locale = getDefaultLocale();
@@ -74,8 +74,8 @@ public abstract class AbstractLocaleContextResolver
   }
 
   @Override
-  public void setLocale(HttpContext context, @Nullable Locale locale) {
-    setLocaleContext(context, locale != null ? new SimpleLocaleContext(locale) : null);
+  public void setLocale(ServerHttpExchange exchange, @Nullable Locale locale) {
+    setLocaleContext(exchange, locale != null ? new SimpleLocaleContext(locale) : null);
   }
 
 }

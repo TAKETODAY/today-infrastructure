@@ -21,7 +21,7 @@ import org.jspecify.annotations.Nullable;
 import infra.util.Assert;
 import infra.web.BindingContext;
 import infra.web.HandlerExceptionHandler;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.view.ModelAndView;
 import infra.web.view.ViewReturnValueHandler;
@@ -56,18 +56,18 @@ public class VoidReturnValueHandler implements SmartReturnValueHandler {
   /**
    * mainly for ModelAndView
    *
-   * @param context Current HTTP request context
+   * @param exchange Current HTTP request context
    * @param handler Target HTTP handler
    * @param returnValue Handler execution result
    * Or {@link HandlerExceptionHandler} return value
    */
   @Override
-  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
-    BindingContext binding = BindingContext.find(context);
+  public void handleReturnValue(ServerHttpExchange exchange, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+    BindingContext binding = BindingContext.find(exchange);
     if (binding != null && binding.hasModelAndView()) {
       ModelAndView modelAndView = binding.getModelAndView();
       // user constructed a ModelAndView hold in context
-      delegate.renderView(context, modelAndView);
+      delegate.renderView(exchange, modelAndView);
     }
   }
 

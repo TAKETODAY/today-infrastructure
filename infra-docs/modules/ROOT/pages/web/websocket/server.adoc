@@ -60,7 +60,7 @@ import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.server.HandshakeInterceptor;
 
@@ -72,14 +72,14 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
     registry.addHandler(new MyHandler(), "/myHandler")
       .addInterceptors(new HandshakeInterceptor() {
         @Override
-        public boolean beforeHandshake(HttpContext request, WebSocketHandler handler,
+        public boolean beforeHandshake(ServerHttpExchange exchange, WebSocketHandler handler,
             Map<String, Object> attributes) {
           attributes.put("channel", "notifications");
           return true;
         }
 
         @Override
-        public void afterHandshake(HttpContext request, WebSocketHandler handler,
+        public void afterHandshake(ServerHttpExchange exchange, WebSocketHandler handler,
             @Nullable Throwable exception) {
           // 握手完成或失败后的处理
         }
@@ -104,7 +104,7 @@ TIP: Infra 提供了一个 `WebSocketHandlerDecorator` 基类，您可以使用�
 == 部署
 
 WebSocket API 很容易集成到 Web MVC 应用程序中，其中 `DispatcherHandler` 既提供 HTTP WebSocket 握手，也提供其他 HTTP 请求服务。
-通过调用 `WebSocketHttpRequestHandler`，也可以集成到其他基于 `HttpContext` 的 HTTP 处理场景中。
+通过调用 `WebSocketHttpRequestHandler`，也可以集成到其他基于 `ServerHttpExchange` 的 HTTP 处理场景中。
 底层服务器的协议升级由 `RequestUpgradeStrategy` 完成，需要使用与服务器匹配的实现。
 
 [[websocket-server-allowed-origins]]

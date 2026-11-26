@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
 
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.view.AbstractView;
 
 /**
@@ -57,7 +57,7 @@ public abstract class AbstractXlsView extends AbstractView {
    * Renders the Excel view, given the specified model.
    */
   @Override
-  protected final void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
+  protected final void renderMergedOutputModel(Map<String, Object> model, ServerHttpExchange http) throws Exception {
     // Create a fresh workbook instance for this render step.
     Workbook workbook = createWorkbook(model, http);
 
@@ -81,7 +81,7 @@ public abstract class AbstractXlsView extends AbstractView {
    * @param request current HTTP request (for taking the URL or headers into account)
    * @return the new {@link Workbook} instance
    */
-  protected Workbook createWorkbook(Map<String, Object> model, HttpContext request) {
+  protected Workbook createWorkbook(Map<String, Object> model, ServerHttpExchange request) {
     return new HSSFWorkbook();
   }
 
@@ -93,7 +93,7 @@ public abstract class AbstractXlsView extends AbstractView {
    * @param response current HTTP response
    * @throws IOException when thrown by I/O methods that we're delegating to
    */
-  protected void renderWorkbook(Workbook workbook, HttpContext response) throws IOException {
+  protected void renderWorkbook(Workbook workbook, ServerHttpExchange response) throws IOException {
     OutputStream out = response.getOutputStream();
     workbook.write(out);
     workbook.close();
@@ -107,7 +107,7 @@ public abstract class AbstractXlsView extends AbstractView {
    * @param workbook the Excel workbook to populate
    * @param context in case we need locale etc. Shouldn't look at attributes.
    */
-  protected abstract void buildExcelDocument(Map<String, Object> model, Workbook workbook, HttpContext context)
+  protected abstract void buildExcelDocument(Map<String, Object> model, Workbook workbook, ServerHttpExchange context)
           throws Exception;
 
 }

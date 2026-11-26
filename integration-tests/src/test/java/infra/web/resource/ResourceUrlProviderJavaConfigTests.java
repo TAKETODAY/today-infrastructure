@@ -23,13 +23,13 @@ import org.junit.jupiter.api.Test;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Configuration;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.api.MockHandler;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockFilterChain;
 import infra.web.mock.MockResponse;
 import infra.web.config.annotation.ResourceHandlerRegistry;
 import infra.web.config.annotation.WebMvcConfigurationSupport;
-import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -70,7 +70,7 @@ public class ResourceUrlProviderJavaConfigTests {
   @Test
   public void resolvePathNoMatch() throws Exception {
     this.request.setRequestURI("/myapp/index");
-    this.filterChain.doFilter(new MockHttpContext(this.request, this.response));
+    this.filterChain.doFilter(new MockServerHttpExchange(this.request, this.response));
 
     assertThat(resolvePublicResourceUrlPath("/myapp/myservlet/index")).isEqualTo("/myapp/myservlet/index");
   }

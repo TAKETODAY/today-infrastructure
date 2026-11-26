@@ -24,12 +24,12 @@ import infra.util.StringUtils;
  */
 public class XMLController {
 
-  public void test(HttpContext request) {
+  public void test(ServerHttpExchange request) {
     request.setAttribute("key", "World");
     System.err.println(request);
   }
 
-  public Object obj(HttpContext request) {
+  public Object obj(ServerHttpExchange request) {
 
     String key = request.getParameter("r");
     if (StringUtils.isNotEmpty(key)) {

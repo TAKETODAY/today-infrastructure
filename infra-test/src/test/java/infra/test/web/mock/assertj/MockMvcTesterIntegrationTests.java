@@ -58,7 +58,7 @@ import infra.test.web.mock.assertj.MockMvcTester.MockMultipartMvcRequestBuilder;
 import infra.ui.Model;
 import infra.validation.Errors;
 import infra.web.HandlerInterceptor;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.RedirectModel;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.PathVariable;
@@ -288,8 +288,8 @@ public class MockMvcTesterIntegrationTests {
               new HandlerInterceptor() {
 
                 @Override
-                public boolean preProcessing(HttpContext context, Object handler) {
-                  context.addCookie(ResponseCookie.forSimple(cookie.getName(), cookie.getValue()));
+                public boolean preProcessing(ServerHttpExchange exchange, Object handler) {
+                  exchange.addCookie(ResponseCookie.forSimple(cookie.getName(), cookie.getValue()));
                   return true;
                 }
               }).build());

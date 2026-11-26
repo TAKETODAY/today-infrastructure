@@ -27,7 +27,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 import infra.http.MediaType;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
@@ -60,7 +60,7 @@ class StandardApiVersionDeprecationHandlerTests {
             .setSunsetDate(getDate(sunsetDate))
             .setSunsetLink(URI.create(sunsetUrl));
 
-    MockHttpContext context = new MockHttpContext(request, response);
+    MockServerHttpExchange context = new MockServerHttpExchange(request, response);
     handler.handleVersion("1.1", this.handler, context);
     context.flush();
 
@@ -86,7 +86,7 @@ class StandardApiVersionDeprecationHandlerTests {
     StandardApiVersionDeprecationHandler handler = new StandardApiVersionDeprecationHandler(parser);
 
     handler.configureVersion("1").setSunsetDate(ZonedDateTime.parse(date));
-    MockHttpContext context = new MockHttpContext(request, response);
+    MockServerHttpExchange context = new MockServerHttpExchange(request, response);
     handler.handleVersion("1", this.handler, context);
     context.flush();
 
@@ -103,7 +103,7 @@ class StandardApiVersionDeprecationHandlerTests {
 
     MockRequest request = new MockRequest("GET", "/api/v2.0/resource");
     MockResponse response = new MockResponse();
-    MockHttpContext context = new MockHttpContext(request, response);
+    MockServerHttpExchange context = new MockServerHttpExchange(request, response);
 
     handler.handleVersion("2.0", this.handler, context);
     context.flush();
@@ -122,7 +122,7 @@ class StandardApiVersionDeprecationHandlerTests {
 
     MockRequest request = new MockRequest("GET", "/api/v1.0/resource");
     MockResponse response = new MockResponse();
-    MockHttpContext context = new MockHttpContext(request, response);
+    MockServerHttpExchange context = new MockServerHttpExchange(request, response);
 
     handler.handleVersion("1.0", this.handler, context);
     context.flush();
@@ -143,7 +143,7 @@ class StandardApiVersionDeprecationHandlerTests {
 
     MockRequest request = new MockRequest("GET", "/api/v1.0/resource");
     MockResponse response = new MockResponse();
-    MockHttpContext context = new MockHttpContext(request, response);
+    MockServerHttpExchange context = new MockServerHttpExchange(request, response);
 
     handler.handleVersion("1.0", this.handler, context);
     context.flush();
@@ -166,7 +166,7 @@ class StandardApiVersionDeprecationHandlerTests {
 
     MockRequest request = new MockRequest("GET", "/api/v1.0/resource");
     MockResponse response = new MockResponse();
-    MockHttpContext context = new MockHttpContext(request, response);
+    MockServerHttpExchange context = new MockServerHttpExchange(request, response);
 
     handler.handleVersion("1.0", this.handler, context);
     context.flush();
@@ -190,7 +190,7 @@ class StandardApiVersionDeprecationHandlerTests {
 
     MockRequest request = new MockRequest("GET", "/api/v1.0/resource");
     MockResponse response = new MockResponse();
-    MockHttpContext context = new MockHttpContext(request, response);
+    MockServerHttpExchange context = new MockServerHttpExchange(request, response);
 
     handler.handleVersion("1.0", this.handler, context);
     context.flush();
@@ -219,7 +219,7 @@ class StandardApiVersionDeprecationHandlerTests {
 
     MockRequest request = new MockRequest("GET", "/api/v1.0/resource");
     MockResponse response = new MockResponse();
-    MockHttpContext context = new MockHttpContext(request, response);
+    MockServerHttpExchange context = new MockServerHttpExchange(request, response);
 
     handler.handleVersion("1.0", this.handler, context);
     context.flush();

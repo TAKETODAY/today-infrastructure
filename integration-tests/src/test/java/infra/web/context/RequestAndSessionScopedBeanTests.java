@@ -24,8 +24,8 @@ import infra.beans.factory.BeanCreationException;
 import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.session.Session;
@@ -50,14 +50,14 @@ public class RequestAndSessionScopedBeanTests {
 
     AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
     RootBeanDefinition bd = new RootBeanDefinition(TestBean.class);
-    bd.setScope(HttpContext.SCOPE_REQUEST);
+    bd.setScope(ServerHttpExchange.SCOPE_REQUEST);
     bd.getPropertyValues().add("name", "abc");
     wac.registerBeanDefinition(targetBeanName, bd);
     WebScopeRegistrar.registerScopes(wac.getBeanFactory());
     wac.refresh();
 
     MockRequest request = new MockRequest();
-    HttpContextHolder.set(new MockHttpContext(null, request, null));
+    HttpContextHolder.set(new MockServerHttpExchange(null, request, null));
     TestBean target = (TestBean) wac.getBean(targetBeanName);
     assertThat(target.getName()).isEqualTo("abc");
     assertThat(request.getAttribute(targetBeanName)).isSameAs(target);
@@ -68,7 +68,7 @@ public class RequestAndSessionScopedBeanTests {
     assertThat(request.getAttribute(targetBeanName)).isSameAs(target2);
 
     request = new MockRequest();
-    HttpContextHolder.set(new MockHttpContext(null, request, null));
+    HttpContextHolder.set(new MockServerHttpExchange(null, request, null));
     TestBean target3 = (TestBean) wac.getBean(targetBeanName);
     assertThat(target3.getName()).isEqualTo("abc");
     assertThat(request.getAttribute(targetBeanName)).isSameAs(target3);
@@ -86,11 +86,11 @@ public class RequestAndSessionScopedBeanTests {
 
     AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
 
-    MockHttpContext context = new MockHttpContext(wac, request, new MockResponse(), new DispatcherHandler(wac));
+    MockServerHttpExchange context = new MockServerHttpExchange(wac, request, new MockResponse(), new DispatcherHandler(wac));
     HttpContextHolder.set(context);
 
     RootBeanDefinition bd = new RootBeanDefinition(TestBean.class);
-    bd.setScope(HttpContext.SCOPE_SESSION);
+    bd.setScope(ServerHttpExchange.SCOPE_SESSION);
     bd.getPropertyValues().add("name", "abc");
 
     wac.register(Config.class);

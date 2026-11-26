@@ -24,7 +24,7 @@ import java.util.List;
 
 import infra.http.HttpHeaders;
 import infra.util.MultiValueMap;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.MultipartException;
 import infra.web.server.NotMultipartRequestException;
 
@@ -46,7 +46,7 @@ public interface MultipartRequest {
    *
    * @return the multipart data, mapping from name to part(s)
    * @throws NotMultipartRequestException if this request is not multipart request
-   * @see HttpContext#asMultipartRequest()
+   * @see ServerHttpExchange#asMultipartRequest()
    * @see MultipartRequest#getParts()
    */
   MultiValueMap<String, Part> getParts();

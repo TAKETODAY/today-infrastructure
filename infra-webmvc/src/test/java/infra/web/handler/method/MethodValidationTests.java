@@ -64,7 +64,7 @@ import infra.web.bind.annotation.InitBinder;
 import infra.web.bind.annotation.ModelAttribute;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.handler.method.support.ParameterResolvingRegistryFactory;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockMemoryPart;
 import infra.web.mock.MockMultipartRequest;
 import infra.web.mock.MockRequest;
@@ -106,7 +106,7 @@ class MethodValidationTests {
 
   private final MockResponse response = new MockResponse();
 
-  private final MockHttpContext context = new MockHttpContext(request, response);
+  private final MockServerHttpExchange context = new MockServerHttpExchange(request, response);
 
   private RequestMappingHandlerAdapter handlerAdapter;
 

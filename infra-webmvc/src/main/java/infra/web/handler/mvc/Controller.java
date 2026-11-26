@@ -22,12 +22,12 @@ import infra.context.ApplicationContextAware;
 import infra.context.ResourceLoaderAware;
 import infra.web.DispatcherHandler;
 import infra.web.HandlerMapping;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpRequestHandler;
 
 /**
  * Base Controller interface, representing a component that receives
- * {@code HttpContext} instances just like a {@code HttpServlet}
+ * {@code ServerHttpExchange} instances just like a {@code HttpServlet}
  * but is able to participate in an MVC workflow. Controllers are
  * comparable to the notion of a Struts {@code Action}.
  *
@@ -43,7 +43,7 @@ import infra.web.HttpRequestHandler;
  * done its work to resolve locales, themes, and suchlike, it then tries
  * to resolve a Controller, using a  {@link HandlerMapping HandlerMapping}.
  * When a Controller has been found to handle the request, the
- * {@link #handleRequest(HttpContext) handleRequest}
+ * {@link #handleRequest(ServerHttpExchange) handleRequest}
  * method of the located Controller will be invoked; the located Controller
  * is then responsible for handling the actual request and &mdash; if applicable
  * &mdash; returning an appropriate Object result.
@@ -60,7 +60,7 @@ import infra.web.HttpRequestHandler;
  *
  * <h3>Notes on design and testing</h3>
  *
- * <p>The Controller interface is explicitly designed to operate on HttpContext
+ * <p>The Controller interface is explicitly designed to operate on ServerHttpExchange
  * objects, just like an HttpServlet. It does not aim to  decouple itself from
  * the Web API, in contrast to, for example, WebWork, JSF or Tapestry.
  * Instead, the full power of the Web API is available, allowing Controllers to be
@@ -68,13 +68,13 @@ import infra.web.HttpRequestHandler;
  * requests but also to process remoting protocols or to generate reports on demand.
  *
  * <p>Controllers can easily be tested by passing in mock objects for the
- * HttpContext objects as parameters to the
- * {@link #handleRequest(HttpContext) handleRequest}
+ * ServerHttpExchange objects as parameters to the
+ * {@link #handleRequest(ServerHttpExchange) handleRequest}
  * method. As a convenience, Framework ships with a set of Web API mocks
  * that are suitable for testing any kind of web components, but are particularly
  * suitable for testing web controllers. In contrast to a Struts Action,
  * there is no need to mock the ActionServlet or any other infrastructure;
- * mocking HttpContext is sufficient.
+ * mocking ServerHttpExchange is sufficient.
  *
  * <p>If Controllers need to be aware of specific environment references, they can
  * choose to implement specific awareness interfaces, just like any other bean in a

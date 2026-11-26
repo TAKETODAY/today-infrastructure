@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import infra.context.ApplicationContext;
 import infra.web.DispatcherHandler;
+import infra.web.ServerHttpExchange;
 import infra.web.multipart.MultipartParser;
 import infra.web.server.error.SendErrorHandler;
 import infra.web.socket.CloseStatus;
@@ -78,7 +79,7 @@ class NettyRequestUpgradeStrategyTests {
 
   @Test
   void upgradeRequiresAnHttp1Context() {
-    var context = mock(infra.web.HttpContext.class);
+    var context = mock(ServerHttpExchange.class);
     assertThat(strategy.getSupportedVersions()).containsExactly("13");
     assertThat(strategy.getSupportedExtensions(context)).isEmpty();
     assertThatIllegalStateException().isThrownBy(() -> strategy.upgrade(context, null, List.of(), socketHandler, Map.of()))
@@ -148,11 +149,11 @@ class NettyRequestUpgradeStrategyTests {
     var context = mock(ApplicationContext.class);
     var dispatcher = new DispatcherHandler(context) {
       @Override
-      public void handleRequest(infra.web.HttpContext request) throws Exception {
-        var upgraded = strategy.upgrade(request, protocol, List.of(), socketHandler, Map.of("source", "test"));
+      public void handleRequest(ServerHttpExchange exchange) throws Exception {
+        var upgraded = strategy.upgrade(exchange, protocol, List.of(), socketHandler, Map.of("source", "test"));
         session.set(upgraded);
         if (upgraded != null) {
-          completeRequest(request, null);
+          completeRequest(exchange, null);
         }
       }
     };

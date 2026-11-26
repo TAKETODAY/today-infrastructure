@@ -25,7 +25,7 @@ import infra.http.HttpStatusCode;
 import infra.http.ResponseCookie;
 import infra.util.Assert;
 import infra.util.MultiValueMap;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * {@link AsyncServerResponse} implementation for completed futures.
@@ -69,7 +69,7 @@ final class CompletedAsyncServerResponse implements AsyncServerResponse {
   }
 
   @Override
-  public @Nullable Object writeTo(HttpContext request, Context context) throws Exception {
+  public @Nullable Object writeTo(ServerHttpExchange request, Context context) throws Exception {
     return this.serverResponse.writeTo(request, context);
   }
 

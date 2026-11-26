@@ -26,7 +26,7 @@ import java.util.Map;
 
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketSession;
 import infra.web.socket.server.HandshakeCapable;
@@ -54,7 +54,7 @@ public class HandshakeInterceptorChain {
     this.wsHandler = wsHandler;
   }
 
-  public boolean applyBeforeHandshake(HttpContext request, Map<String, Object> attributes) throws Exception {
+  public boolean applyBeforeHandshake(ServerHttpExchange request, Map<String, Object> attributes) throws Exception {
     for (int i = 0; i < this.interceptors.size(); i++) {
       HandshakeInterceptor interceptor = interceptors.get(i);
       if (!interceptor.beforeHandshake(request, this.wsHandler, attributes)) {
@@ -80,7 +80,7 @@ public class HandshakeInterceptorChain {
     return true;
   }
 
-  public void applyAfterHandshake(HttpContext request, @Nullable WebSocketSession session, @Nullable Throwable failure) throws Exception {
+  public void applyAfterHandshake(ServerHttpExchange request, @Nullable WebSocketSession session, @Nullable Throwable failure) throws Exception {
     if (wsHandler instanceof HandshakeCapable hc) {
       hc.afterHandshake(request, session, failure);
     }

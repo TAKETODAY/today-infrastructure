@@ -29,7 +29,7 @@ import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.SseUtils;
 import infra.util.Assert;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.handler.result.SseEmitter;
 
 /**
@@ -59,7 +59,7 @@ final class SseServerResponse extends AbstractServerResponse {
   }
 
   @Override
-  protected Object writeToInternal(HttpContext request, Context context) throws Exception {
+  protected Object writeToInternal(ServerHttpExchange request, Context context) throws Exception {
     request.setHeader(HttpHeaders.CACHE_CONTROL, HttpHeaders.NO_CACHE);
     SseEmitter emitter = new SseEmitter(timeout, null);
     sseConsumer.accept(new DefaultSseBuilder(emitter));

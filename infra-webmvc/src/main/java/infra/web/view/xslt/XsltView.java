@@ -52,7 +52,7 @@ import infra.util.CollectionUtils;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
 import infra.util.xml.TransformerUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.resource.ResourceHandlerUtils;
 import infra.web.util.WebUtils;
 import infra.web.view.AbstractUrlBasedView;
@@ -226,7 +226,7 @@ public class XsltView extends AbstractUrlBasedView {
   }
 
   @Override
-  protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
+  protected void renderMergedOutputModel(Map<String, Object> model, ServerHttpExchange http) throws Exception {
     Templates templates = this.cachedTemplates;
     if (templates == null) {
       templates = loadTemplates();
@@ -251,13 +251,13 @@ public class XsltView extends AbstractUrlBasedView {
   /**
    * Create the XSLT {@link Result} used to render the result of the transformation.
    * <p>The default implementation creates a {@link StreamResult} wrapping the supplied
-   * HttpContext's {@link HttpContext#getOutputStream() OutputStream}.
+   * ServerHttpExchange's {@link ServerHttpExchange#getOutputStream() OutputStream}.
    *
    * @param response current HTTP response
    * @return the XSLT Result to use
    * @throws Exception if the Result cannot be built
    */
-  protected Result createResult(HttpContext response) throws Exception {
+  protected Result createResult(ServerHttpExchange response) throws Exception {
     return new StreamResult(response.getOutputStream());
   }
 
@@ -343,7 +343,7 @@ public class XsltView extends AbstractUrlBasedView {
    * @see #copyOutputProperties(Transformer)
    * @see #configureIndentation(Transformer)
    */
-  protected void configureTransformer(Map<String, Object> model, HttpContext response, Transformer transformer) {
+  protected void configureTransformer(Map<String, Object> model, ServerHttpExchange response, Transformer transformer) {
     copyModelParameters(model, transformer);
     copyOutputProperties(transformer);
     configureIndentation(transformer);
@@ -395,9 +395,9 @@ public class XsltView extends AbstractUrlBasedView {
   }
 
   /**
-   * Configure the supplied {@link HttpContext}.
+   * Configure the supplied {@link ServerHttpExchange}.
    * <p>The default implementation of this method sets the
-   * {@link HttpContext#setContentType content type}
+   * {@link ServerHttpExchange#setContentType content type}
    * from the "media-type" and "encoding" output properties
    * specified in the {@link Transformer}.
    *
@@ -405,7 +405,7 @@ public class XsltView extends AbstractUrlBasedView {
    * @param response current HTTP response
    * @param transformer the target transformer
    */
-  protected void configureResponse(Map<String, Object> model, HttpContext response, Transformer transformer) {
+  protected void configureResponse(Map<String, Object> model, ServerHttpExchange response, Transformer transformer) {
     String contentType = getContentType();
     String mediaType = transformer.getOutputProperty(OutputKeys.MEDIA_TYPE);
     String encoding = transformer.getOutputProperty(OutputKeys.ENCODING);

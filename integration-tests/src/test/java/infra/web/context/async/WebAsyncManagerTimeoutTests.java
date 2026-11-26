@@ -29,14 +29,14 @@ import infra.web.mock.MockRequest;
 import infra.web.mock.MockAsyncContext;
 import infra.web.mock.MockResponse;
 import infra.util.concurrent.Future;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.async.AsyncRequestTimeoutException;
 import infra.web.async.CallableProcessingInterceptor;
 import infra.web.async.DeferredResult;
 import infra.web.async.DeferredResultProcessingInterceptor;
 import infra.web.async.WebAsyncManager;
 import infra.web.async.WebAsyncTask;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.StandardMockWebAsyncRequest;
 
 import static infra.web.async.CallableProcessingInterceptor.RESULT_NONE;
@@ -65,7 +65,7 @@ public class WebAsyncManagerTimeoutTests {
 
   private MockResponse mockResponse;
 
-  private MockHttpContext request;
+  private MockServerHttpExchange request;
 
   @BeforeEach
   public void setup() {
@@ -75,7 +75,7 @@ public class WebAsyncManagerTimeoutTests {
     this.asyncRequest = new StandardMockWebAsyncRequest(mockRequest, mockResponse);
 
     AsyncTaskExecutor executor = mock(AsyncTaskExecutor.class);
-    request = new MockHttpContext(null, mockRequest, mockResponse);
+    request = new MockServerHttpExchange(null, mockRequest, mockResponse);
     this.asyncManager = request.asyncManager();
     this.asyncManager.setTaskExecutor(executor);
     this.request.setAsyncRequest(this.asyncRequest);
@@ -238,7 +238,7 @@ public class WebAsyncManagerTimeoutTests {
 
     DeferredResultProcessingInterceptor interceptor = new DeferredResultProcessingInterceptor() {
       @Override
-      public <T> boolean handleTimeout(HttpContext request, DeferredResult<T> result) throws Exception {
+      public <T> boolean handleTimeout(ServerHttpExchange request, DeferredResult<T> result) throws Exception {
         result.setErrorResult(23);
         return true;
       }
@@ -263,7 +263,7 @@ public class WebAsyncManagerTimeoutTests {
 
     DeferredResultProcessingInterceptor interceptor = new DeferredResultProcessingInterceptor() {
       @Override
-      public <T> boolean handleTimeout(HttpContext request, DeferredResult<T> result) throws Exception {
+      public <T> boolean handleTimeout(ServerHttpExchange request, DeferredResult<T> result) throws Exception {
         throw exception;
       }
     };

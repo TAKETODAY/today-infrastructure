@@ -47,7 +47,7 @@ public interface LocaleContextResolver extends LocaleResolver {
    * Resolve the current locale context via the given request.
    * <p>This is primarily intended for framework-level processing; consider using
    * {@link WebUtils} or
-   * {@link HttpContext} for
+   * {@link ServerHttpExchange} for
    * application-level access to the current locale and/or time zone.
    * <p>The returned context may be a
    * {@link TimeZoneAwareLocaleContext},
@@ -58,11 +58,11 @@ public interface LocaleContextResolver extends LocaleResolver {
    *
    * @param context the request to resolve the locale context for
    * @return the current locale context (never {@code null}
-   * @see #resolveLocale(HttpContext)
+   * @see #resolveLocale(ServerHttpExchange)
    * @see WebUtils#resolveLocale
    * @see WebUtils#getTimeZone
    */
-  LocaleContext resolveLocaleContext(HttpContext context);
+  LocaleContext resolveLocaleContext(ServerHttpExchange context);
 
   /**
    * Set the current locale context to the given one,
@@ -72,10 +72,10 @@ public interface LocaleContextResolver extends LocaleResolver {
    * @param localeContext the new locale context, or {@code null} to clear the locale
    * @throws UnsupportedOperationException if the LocaleResolver implementation
    * does not support dynamic changing of the locale or time zone
-   * @see #setLocale(HttpContext, Locale)
+   * @see #setLocale(ServerHttpExchange, Locale)
    * @see SimpleLocaleContext
    * @see SimpleTimeZoneAwareLocaleContext
    */
-  void setLocaleContext(HttpContext context, @Nullable LocaleContext localeContext);
+  void setLocaleContext(ServerHttpExchange context, @Nullable LocaleContext localeContext);
 
 }

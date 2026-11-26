@@ -37,7 +37,7 @@ import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import org.jspecify.annotations.Nullable;
 
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.view.PathPatternsTestUtils;
@@ -239,7 +239,7 @@ class RouterFunctionBuilderTests {
     MockRequest mockRequest = new MockRequest("GET", "/error");
 
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
     ServerRequest serverRequest = new DefaultServerRequest(httpContext, emptyList());
 
@@ -258,7 +258,7 @@ class RouterFunctionBuilderTests {
           String httpMethod, String requestUri, @Nullable Consumer<MockRequest> consumer) {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest(httpMethod, null, requestUri, true, consumer);
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
     return new DefaultServerRequest(httpContext, emptyList());
   }
 

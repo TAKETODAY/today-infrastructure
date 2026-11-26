@@ -54,7 +54,7 @@ import infra.web.annotation.RequestMapping;
 import infra.web.annotation.ResponseBody;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.HandlerParameter;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
@@ -100,7 +100,7 @@ class HttpEntityMethodProcessorTests {
 
   private MockRequest mockRequest;
 
-  private MockHttpContext webRequest;
+  private MockServerHttpExchange webRequest;
 
   private MockResponse mockResponse;
 
@@ -113,7 +113,7 @@ class HttpEntityMethodProcessorTests {
     mockRequest = new MockRequest();
     mockResponse = new MockResponse();
     mockRequest.setMethod("POST");
-    webRequest = new MockHttpContext(null, mockRequest, mockResponse);
+    webRequest = new MockServerHttpExchange(null, mockRequest, mockResponse);
   }
 
   @Test

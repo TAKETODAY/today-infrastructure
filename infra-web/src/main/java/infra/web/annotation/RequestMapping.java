@@ -135,7 +135,7 @@ public @interface RequestMapping {
    * the type level condition.
    *
    * @see MediaType
-   * @see infra.web.HttpContext#getContentType()
+   * @see infra.web.ServerHttpExchange#getContentType()
    * @since 3.0
    */
   String[] consumes() default {};

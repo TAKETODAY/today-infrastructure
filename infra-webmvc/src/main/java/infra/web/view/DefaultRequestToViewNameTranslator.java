@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.http.HttpStatus;
 import infra.util.StringUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.RequestToViewNameTranslator;
 import infra.web.server.ResponseStatusException;
 import infra.web.util.WebUtils;
@@ -136,7 +136,7 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
   }
 
   /**
-   * Translates the request URI of the incoming {@link HttpContext}
+   * Translates the request URI of the incoming {@link ServerHttpExchange}
    * into the view name based on the configured parameters.
    *
    * @throws IllegalArgumentException if neither a parsed RequestPath, nor a
@@ -144,7 +144,7 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
    * @see #transformPath
    */
   @Override
-  public String getViewName(HttpContext http) {
+  public String getViewName(ServerHttpExchange http) {
     String path = removeSemicolonContent
             ? WebUtils.removeSemicolonContent(http.getRequestPath().value())
             : http.getRequestPath().value();

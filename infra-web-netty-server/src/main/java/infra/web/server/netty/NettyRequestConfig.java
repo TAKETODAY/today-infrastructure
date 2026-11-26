@@ -22,7 +22,7 @@ import java.util.function.Function;
 
 import infra.util.Assert;
 import infra.util.DataSize;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.multipart.MultipartParser;
 import infra.web.server.error.SendErrorHandler;
 import io.netty.buffer.ByteBuf;
@@ -102,7 +102,7 @@ public final class NettyRequestConfig {
    *
    * @see #responseBodyInitialCapacity
    */
-  public final @Nullable Function<HttpContext, ByteBuf> responseBodyFactory;
+  public final @Nullable Function<ServerHttpExchange, ByteBuf> responseBodyFactory;
 
   /**
    * Handler invoked to render an error response.
@@ -214,7 +214,7 @@ public final class NettyRequestConfig {
     /**
      * Optional factory for the initial response body buffer.
      */
-    private @Nullable Function<HttpContext, ByteBuf> responseBodyFactory;
+    private @Nullable Function<ServerHttpExchange, ByteBuf> responseBodyFactory;
 
     /**
      * Maximum accepted request content length; 1GB by default.
@@ -312,7 +312,7 @@ public final class NettyRequestConfig {
     /**
      * Sets a factory function to generate the response body for HTTP responses.
      * <p>
-     * The provided factory function takes a {@link HttpContext} as input and returns
+     * The provided factory function takes a {@link ServerHttpExchange} as input and returns
      * a {@link ByteBuf} representing the response body. This allows dynamic generation
      * of response bodies based on the request context.
      * <p>
@@ -330,7 +330,7 @@ public final class NettyRequestConfig {
      * no custom response body generation will be applied.
      * @return the current {@link Builder} instance, enabling method chaining
      */
-    public Builder responseBodyFactory(@Nullable Function<HttpContext, ByteBuf> factory) {
+    public Builder responseBodyFactory(@Nullable Function<ServerHttpExchange, ByteBuf> factory) {
       this.responseBodyFactory = factory;
       return this;
     }

@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.ReturnValueHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -172,7 +172,7 @@ class SelectableReturnValueHandlerTests {
     List<ReturnValueHandler> handlers = List.of(handler1, handler2);
 
     SelectableReturnValueHandler selectableHandler = new SelectableReturnValueHandler(handlers);
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
 
     selectableHandler.handleReturnValue(context, "testHandler", "testReturnValue");
 
@@ -188,7 +188,7 @@ class SelectableReturnValueHandlerTests {
     List<ReturnValueHandler> handlers = List.of(handler1, handler2);
 
     SelectableReturnValueHandler selectableHandler = new SelectableReturnValueHandler(handlers);
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
 
     assertThatThrownBy(() -> selectableHandler.handleReturnValue(context, "testHandler", "testReturnValue"))
             .isInstanceOf(ReturnValueHandlerNotFoundException.class);
@@ -203,7 +203,7 @@ class SelectableReturnValueHandlerTests {
     List<ReturnValueHandler> handlers = List.of(handler1, handler2);
 
     SelectableReturnValueHandler selectableHandler = new SelectableReturnValueHandler(handlers);
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
 
     ReturnValueHandler result = selectableHandler.handleSelectively(context, "testHandler", "testReturnValue");
 
@@ -220,7 +220,7 @@ class SelectableReturnValueHandlerTests {
     List<ReturnValueHandler> handlers = List.of(handler1, handler2);
 
     SelectableReturnValueHandler selectableHandler = new SelectableReturnValueHandler(handlers);
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
 
     ReturnValueHandler result = selectableHandler.handleSelectively(context, "testHandler", "testReturnValue");
 

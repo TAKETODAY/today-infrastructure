@@ -40,7 +40,7 @@ import infra.http.converter.HttpMessageConverter;
 import infra.util.Assert;
 import infra.util.StringUtils;
 import infra.web.ErrorResponse;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.RedirectModelManager;
 import infra.web.accept.ContentNegotiationManager;
@@ -121,7 +121,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
   }
 
   @Override
-  public @Nullable Object resolveArgument(HttpContext context, HandlerParameter resolvable)
+  public @Nullable Object resolveArgument(ServerHttpExchange exchange, HandlerParameter resolvable)
           throws IOException, HttpMediaTypeNotSupportedException //
   {
     MethodParameter parameter = resolvable.getMethodParameter();
@@ -131,13 +131,13 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
               .formatted(parameter.getParameterName(), parameter.getMethod()));
     }
 
-    Object body = readWithMessageConverters(context, parameter, paramType);
+    Object body = readWithMessageConverters(exchange, parameter, paramType);
     if (RequestEntity.class == parameter.getParameterType()) {
-      return new RequestEntity<>(body, context.requestHeaders(),
-              context.getMethod(), context.getURI());
+      return new RequestEntity<>(body, exchange.requestHeaders(),
+              exchange.getMethod(), exchange.getURI());
     }
     else {
-      return new HttpEntity<>(body, context.requestHeaders());
+      return new HttpEntity<>(body, exchange.requestHeaders());
     }
   }
 
@@ -180,7 +180,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
   }
 
   @Override
-  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(ServerHttpExchange exchange, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue == null) {
       return;
     }
@@ -208,12 +208,12 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
           }
         }
       }
-      invokeErrorResponseInterceptors(detail, returnValue instanceof ErrorResponse response ? response : null, context);
+      invokeErrorResponseInterceptors(detail, returnValue instanceof ErrorResponse response ? response : null, exchange);
     }
 
     if (httpEntity.hasHeaders()) {
       HttpHeaders entityHeaders = httpEntity.headers();
-      HttpHeaders outputHeaders = context.responseHeaders();
+      HttpHeaders outputHeaders = exchange.responseHeaders();
 
       for (var entry : entityHeaders.entries()) {
         String key = entry.getKey();
@@ -231,18 +231,18 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 
     if (httpEntity instanceof ResponseEntity<?> responseEntity) {
       HttpStatusCode returnStatus = responseEntity.getStatusCode();
-      context.setStatus(returnStatus);
+      exchange.setStatus(returnStatus);
       if (returnStatus.is2xxSuccessful()) {
-        HttpMethod method = context.getMethod();
+        HttpMethod method = exchange.getMethod();
         if ((HttpMethod.GET == method || HttpMethod.HEAD == method)
-                && isResourceNotModified(context, method)) {
+                && isResourceNotModified(exchange, method)) {
           return;
         }
       }
       else if (returnStatus.is3xxRedirection()) {
-        String location = context.responseHeaders().getFirst(HttpHeaders.LOCATION);
+        String location = exchange.responseHeaders().getFirst(HttpHeaders.LOCATION);
         if (location != null) {
-          saveOutputRedirectModel(context, location);
+          saveOutputRedirectModel(exchange, location);
         }
       }
     }
@@ -250,18 +250,18 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
     if (body instanceof ProblemDetail detail && resolveErrorView(detail,
             returnValue instanceof ErrorResponse response ? response : null,
             httpEntity instanceof ResponseEntity<?> entity ? entity.getStatusCode() :
-                    HttpStatusCode.valueOf(detail.getStatus()), context)) {
+                    HttpStatusCode.valueOf(detail.getStatus()), exchange)) {
       return;
     }
 
     HandlerMethod handlerMethod = HandlerMethod.resolve(handler);
     if (handlerMethod != null && handlerMethod.getRawReturnType().isInstance(returnValue)) {
       // Try even with null body. ResponseBodyAdvice could get involved.
-      writeWithMessageConverters(body, handlerMethod.getReturnType(), context);
+      writeWithMessageConverters(body, handlerMethod.getReturnType(), exchange);
     }
     else if (body != null) {
       // value can not-assignable to returnType, value maybe from HandlerInterceptor
-      writeWithMessageConverters(body, null, context);
+      writeWithMessageConverters(body, null, exchange);
     }
   }
 
@@ -287,7 +287,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
     return entityHeadersVary;
   }
 
-  private boolean isResourceNotModified(HttpContext context, HttpMethod method) {
+  private boolean isResourceNotModified(ServerHttpExchange context, HttpMethod method) {
     HttpHeaders responseHeaders = context.responseHeaders();
     String etag = responseHeaders.getETag();
     long lastModifiedTimestamp = responseHeaders.getLastModified();
@@ -298,7 +298,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
     return context.checkNotModified(etag, lastModifiedTimestamp);
   }
 
-  private void saveOutputRedirectModel(HttpContext request, String location) {
+  private void saveOutputRedirectModel(ServerHttpExchange request, String location) {
     WebUtils.saveRedirectModel(location, request, redirectModelManager);
   }
 

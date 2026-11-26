@@ -21,7 +21,7 @@ package infra.web.handler;
 import org.jspecify.annotations.Nullable;
 
 import infra.web.HandlerExceptionHandler;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.handler.method.HandlerMethod;
 
 /**
@@ -37,11 +37,11 @@ public abstract class AbstractHandlerMethodExceptionHandler extends AbstractHand
 
   /**
    * Checks if the handler is a {@link HandlerMethod} and then delegates to the
-   * base class implementation of {@code #shouldApplyTo(HttpContext, Object)}
+   * base class implementation of {@code #shouldApplyTo(ServerHttpExchange, Object)}
    * passing the bean of the {@code HandlerMethod}. Otherwise returns {@code false}.
    */
   @Override
-  protected boolean shouldApplyTo(HttpContext request, @Nullable Object handler) {
+  protected boolean shouldApplyTo(ServerHttpExchange request, @Nullable Object handler) {
     if (handler == null) {
       return super.shouldApplyTo(request, null);
     }
@@ -70,7 +70,7 @@ public abstract class AbstractHandlerMethodExceptionHandler extends AbstractHand
   }
 
   @Override
-  protected @Nullable Object handleInternal(HttpContext request, @Nullable Object handler, Throwable ex) throws Exception {
+  protected @Nullable Object handleInternal(ServerHttpExchange request, @Nullable Object handler, Throwable ex) throws Exception {
     handler = HandlerWrapper.unwrapIfNecessary(handler);
 
     if (handler instanceof HandlerMethod handlerMethod) {
@@ -96,6 +96,6 @@ public abstract class AbstractHandlerMethodExceptionHandler extends AbstractHand
    * @return a corresponding ModelAndView to forward to, or {@code null} for default processing
    */
   protected abstract @Nullable Object handleInternal(
-          HttpContext request, @Nullable HandlerMethod handlerMethod, Throwable ex) throws Exception;
+          ServerHttpExchange request, @Nullable HandlerMethod handlerMethod, Throwable ex) throws Exception;
 
 }

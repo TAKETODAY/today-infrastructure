@@ -27,7 +27,7 @@ import infra.http.HttpStatusCode;
 import infra.ui.ModelMap;
 import infra.util.CollectionUtils;
 import infra.web.HandlerInterceptor;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * Holder for both Model and View in the web MVC framework.
@@ -314,7 +314,7 @@ public class ModelAndView {
    * in the {@code postHandle} method of a HandlerInterceptor.
    *
    * @see #isEmpty()
-   * @see HandlerInterceptor#postProcessing(HttpContext, Object, Object)
+   * @see HandlerInterceptor#postProcessing(ServerHttpExchange, Object, Object)
    */
   public void clear() {
     this.view = null;

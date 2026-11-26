@@ -119,22 +119,22 @@ class NettyWebAsyncRequestTests {
     }
   }
 
-  private HttpContext newRequest() {
+  private ServerHttpExchange newRequest() {
     return newRequest(mock(DispatcherHandler.class));
   }
 
-  private HttpContext newRequest(DispatcherHandler dispatcher) {
+  private ServerHttpExchange newRequest(DispatcherHandler dispatcher) {
     var context = mock(ApplicationContext.class);
     var config = NettyRequestConfig.forBuilder(false)
             .sendErrorHandler(mock(SendErrorHandler.class)).multipartParser(mock(MultipartParser.class)).build();
     var handler = new HttpTrafficHandler(config, context, dispatcher, (request, task) -> task.run());
-    return new HttpContext(channel, new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/"),
+    return new ServerHttpExchange(channel, new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/"),
             config, context, dispatcher, handler);
   }
 
   @Test
   void dispatchIgnoresLateResultsAndTimeouts() throws Exception {
-    NettyHttpContext request = mock(NettyHttpContext.class);
+    NettyServerHttpExchange request = mock(NettyServerHttpExchange.class);
     var asyncRequest = new NettyWebAsyncRequest(request);
     var completions = new AtomicInteger();
     var timeouts = new AtomicInteger();
@@ -158,7 +158,7 @@ class NettyWebAsyncRequestTests {
 
   @Test
   void constructorShouldInitializeFields() {
-    NettyHttpContext request = mock(NettyHttpContext.class);
+    NettyServerHttpExchange request = mock(NettyServerHttpExchange.class);
     NettyWebAsyncRequest asyncRequest = new NettyWebAsyncRequest(request);
 
     assertThat(asyncRequest.isAsyncStarted()).isFalse();
@@ -166,7 +166,7 @@ class NettyWebAsyncRequestTests {
 
   @Test
   void startAsyncShouldSetAsyncStartedFlag() {
-    NettyHttpContext request = mock(NettyHttpContext.class);
+    NettyServerHttpExchange request = mock(NettyServerHttpExchange.class);
     NettyWebAsyncRequest asyncRequest = new NettyWebAsyncRequest(request);
 
     asyncRequest.startAsync();
@@ -176,7 +176,7 @@ class NettyWebAsyncRequestTests {
 
   @Test
   void isAsyncStartedShouldReturnFalseByDefault() {
-    NettyHttpContext request = mock(NettyHttpContext.class);
+    NettyServerHttpExchange request = mock(NettyServerHttpExchange.class);
     NettyWebAsyncRequest asyncRequest = new NettyWebAsyncRequest(request);
 
     assertThat(asyncRequest.isAsyncStarted()).isFalse();

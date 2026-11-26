@@ -41,12 +41,12 @@ import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
-import infra.web.AbstractDelegatingHttpContext;
-import infra.web.HttpContext;
+import infra.web.AbstractDelegatingServerHttpExchange;
 import infra.web.LocaleContextResolver;
 import infra.web.LocaleResolver;
 import infra.web.RedirectModel;
 import infra.web.RedirectModelManager;
+import infra.web.ServerHttpExchange;
 import infra.web.bind.MissingRequestParameterException;
 import infra.web.bind.RequestBindingException;
 import infra.web.multipart.Part;
@@ -81,27 +81,27 @@ public abstract class WebUtils {
   public static final String SESSION_MUTEX_ATTRIBUTE = WebUtils.class.getName() + ".MUTEX";
 
   /**
-   * Return the native context of the given type, checking the supplied context
-   * first and then unwrapping {@link AbstractDelegatingHttpContext} instances.
+   * Return the native context of the given type, checking the supplied exchange
+   * first and then unwrapping {@link AbstractDelegatingServerHttpExchange} instances.
    * Only the delegate chain is inspected; the outermost matching context wins.
    *
-   * @param context the context to introspect
+   * @param exchange the exchange to introspect
    * @param requiredType the desired type, or {@code null} for no match
    * @param <T> the type of the native context
    * @return the matching context, or {@code null} if the type is {@code null}
    * or no matching context is available
-   * @see #nativeContext(HttpContext, Class)
+   * @see #nativeContext(ServerHttpExchange, Class)
    * @since 5.0
    */
   @SuppressWarnings("unchecked")
-  public static <T> @Nullable T getNativeContext(HttpContext context, @Nullable Class<T> requiredType) {
+  public static <T> @Nullable T getNativeContext(ServerHttpExchange exchange, @Nullable Class<T> requiredType) {
     if (requiredType != null) {
       while (true) {
-        if (requiredType.isInstance(context)) {
-          return (T) context;
+        if (requiredType.isInstance(exchange)) {
+          return (T) exchange;
         }
-        else if (context instanceof AbstractDelegatingHttpContext wrapper) {
-          context = wrapper.delegate();
+        else if (exchange instanceof AbstractDelegatingServerHttpExchange wrapper) {
+          exchange = wrapper.delegate();
         }
         else {
           break;
@@ -115,16 +115,16 @@ public abstract class WebUtils {
    * Return the native context of the given type, throwing an exception if none
    * is available. The outermost matching context in the delegate chain wins.
    *
-   * @param context the context to introspect
+   * @param exchange the exchange to introspect
    * @param type the desired type of native context
    * @param <T> the type of the native context
    * @return the matching native context (never {@code null})
    * @throws IllegalStateException if no matching context is available
-   * @see #getNativeContext(HttpContext, Class)
+   * @see #getNativeContext(ServerHttpExchange, Class)
    * @since 5.0
    */
-  public static <T> T nativeContext(HttpContext context, Class<T> type) {
-    T nativeContext = getNativeContext(context, type);
+  public static <T> T nativeContext(ServerHttpExchange exchange, Class<T> type) {
+    T nativeContext = getNativeContext(exchange, type);
     if (nativeContext == null) {
       throw new IllegalStateException("No native context of type " + type.getName() + " is available");
     }
@@ -250,7 +250,7 @@ public abstract class WebUtils {
    * @return {@code true} if the request origin is valid, {@code false} otherwise
    * @see <a href="https://tools.ietf.org/html/rfc6454">RFC 6454: The Web Origin Concept</a>
    */
-  public static boolean isValidOrigin(HttpContext request, Collection<String> allowedOrigins) {
+  public static boolean isValidOrigin(ServerHttpExchange request, Collection<String> allowedOrigins) {
     Assert.notNull(request, "Request is required");
     Assert.notNull(allowedOrigins, "Allowed origins is required");
 
@@ -279,7 +279,7 @@ public abstract class WebUtils {
    * @return {@code true} if the request is a same-origin one, {@code false} in case
    * of cross-origin request
    */
-  public static boolean isSameOrigin(HttpContext request) {
+  public static boolean isSameOrigin(ServerHttpExchange request) {
     HttpHeaders headers = request.getHeaders();
     String origin = headers.getOrigin();
     if (origin == null) {
@@ -347,10 +347,10 @@ public abstract class WebUtils {
    * @throws infra.beans.factory.BeanNotOfRequiredTypeException if the named bean
    * does not match the required type
    * @throws infra.beans.BeansException if the bean cannot be obtained
-   * @see HttpContext#getApplicationContext()
+   * @see ServerHttpExchange#getApplicationContext()
    * @see BeanFactoryUtils#find(infra.beans.factory.BeanFactory, String, Class)
    */
-  public static <T> @Nullable T getBean(HttpContext request, String beanName, Class<T> requiredType) {
+  public static <T> @Nullable T getBean(ServerHttpExchange request, String beanName, Class<T> requiredType) {
     ApplicationContext beanFactory = request.getApplicationContext();
     if (beanFactory != null) {
       return BeanFactoryUtils.find(beanFactory, beanName, requiredType);
@@ -367,7 +367,7 @@ public abstract class WebUtils {
    * @return the configured resolver, or {@code null} if no application context
    * or matching bean is available
    */
-  public static @Nullable LocaleResolver getLocaleResolver(HttpContext request) {
+  public static @Nullable LocaleResolver getLocaleResolver(ServerHttpExchange request) {
     return getBean(request, LocaleResolver.BEAN_NAME, LocaleResolver.class);
   }
 
@@ -377,28 +377,28 @@ public abstract class WebUtils {
    * <p>If a configured {@link #getLocaleResolver LocaleResolver} is available,
    * return its result directly: the resolver is responsible for its own defaults
    * and must return a non-null locale. Only when no resolver is available, use
-   * {@link HttpContext#getPreferredLocale()} and, if that is null, {@link Locale#getDefault()}.
-   * <p>Unlike {@link HttpContext#getPreferredLocale()}, this method always returns
+   * {@link ServerHttpExchange#getPreferredLocale()} and, if that is null, {@link Locale#getDefault()}.
+   * <p>Unlike {@link ServerHttpExchange#getPreferredLocale()}, this method always returns
    * a non-null locale on successful resolution. It does not suppress parsing
    * or resolver exceptions, or restrict the result to supported languages.
    * Configure application defaults and supported languages on the resolver.
    * <p>Resolver implementations must not call this method to obtain a fallback,
    * since doing so may invoke the same resolver recursively. They should read
-   * {@link HttpContext#getPreferredLocale()} directly instead.
+   * {@link ServerHttpExchange#getPreferredLocale()} directly instead.
    * <p>Consider using {@link LocaleContextHolder#getLocale()}
    * which will normally be populated with the same Locale.
    *
-   * @param request current HTTP request
+   * @param exchange current HTTP exchange
    * @return the effective locale (never {@code null})
    * @see #getLocaleResolver
    * @see LocaleContextHolder#getLocale()
    */
-  public static Locale resolveLocale(HttpContext request) {
-    LocaleResolver localeResolver = getLocaleResolver(request);
+  public static Locale resolveLocale(ServerHttpExchange exchange) {
+    LocaleResolver localeResolver = getLocaleResolver(exchange);
     if (localeResolver != null) {
-      return localeResolver.resolveLocale(request);
+      return localeResolver.resolveLocale(exchange);
     }
-    Locale locale = request.getPreferredLocale();
+    Locale locale = exchange.getPreferredLocale();
     return locale != null ? locale : Locale.getDefault();
   }
 
@@ -415,16 +415,16 @@ public abstract class WebUtils {
    * differs in terms of its fallback to the system time zone if the {@code LocaleResolver}
    * hasn't provided a specific time zone (instead of this method's {@code null}).
    *
-   * @param request current HTTP request
+   * @param exchange current HTTP exchange
    * @return the current time zone for the given request, either from the
    * {@code TimeZoneAwareLocaleContext} or {@code null} if none associated
    * @see #getLocaleResolver
    * @see LocaleContextHolder#getTimeZone()
    */
-  public static @Nullable TimeZone getTimeZone(HttpContext request) {
-    LocaleResolver localeResolver = getLocaleResolver(request);
+  public static @Nullable TimeZone getTimeZone(ServerHttpExchange exchange) {
+    LocaleResolver localeResolver = getLocaleResolver(exchange);
     if (localeResolver instanceof LocaleContextResolver lcr) {
-      LocaleContext localeContext = lcr.resolveLocaleContext(request);
+      LocaleContext localeContext = lcr.resolveLocaleContext(exchange);
       if (localeContext instanceof TimeZoneAwareLocaleContext) {
         return ((TimeZoneAwareLocaleContext) localeContext).getTimeZone();
       }
@@ -435,11 +435,11 @@ public abstract class WebUtils {
   /**
    * Return "output" RedirectModel to save attributes for request after redirect.
    *
-   * @param request current request
+   * @param exchange current request
    * @return a {@link RedirectModel} instance
    */
-  public static @Nullable RedirectModel getOutputRedirectModel(HttpContext request) {
-    return RedirectModel.findOutputModel(request);
+  public static @Nullable RedirectModel getOutputRedirectModel(ServerHttpExchange exchange) {
+    return RedirectModel.findOutputModel(exchange);
   }
 
   /**
@@ -450,7 +450,7 @@ public abstract class WebUtils {
    * @param request the current request
    * @return a {@link RedirectModelManager} instance
    */
-  public static @Nullable RedirectModelManager getRedirectModelManager(HttpContext request) {
+  public static @Nullable RedirectModelManager getRedirectModelManager(ServerHttpExchange request) {
     return getBean(request, RedirectModelManager.BEAN_NAME, RedirectModelManager.class);
   }
 
@@ -462,7 +462,7 @@ public abstract class WebUtils {
    * @param location the target URL for the redirect
    * @param request the current request
    */
-  public static void saveRedirectModel(String location, HttpContext request) {
+  public static void saveRedirectModel(String location, ServerHttpExchange request) {
     saveRedirectModel(location, request, null);
   }
 
@@ -475,7 +475,7 @@ public abstract class WebUtils {
    * @param request the current request
    * @param manager RedirectModelManager
    */
-  public static void saveRedirectModel(String location, HttpContext request, @Nullable RedirectModelManager manager) {
+  public static void saveRedirectModel(String location, ServerHttpExchange request, @Nullable RedirectModelManager manager) {
     RedirectModel redirectModel = getOutputRedirectModel(request);
     if (CollectionUtils.isNotEmpty(redirectModel)) {
       if (manager == null) {
@@ -505,7 +505,7 @@ public abstract class WebUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static @Nullable Integer getIntParameter(HttpContext request, String name)
+  public static @Nullable Integer getIntParameter(ServerHttpExchange request, String name)
           throws RequestBindingException {
 
     if (request.getParameter(name) == null) {
@@ -522,7 +522,7 @@ public abstract class WebUtils {
    * @param name the name of the parameter
    * @param defaultVal the default value to use as fallback
    */
-  public static int getIntParameter(HttpContext request, String name, int defaultVal) {
+  public static int getIntParameter(ServerHttpExchange request, String name, int defaultVal) {
     if (request.getParameter(name) == null) {
       return defaultVal;
     }
@@ -540,7 +540,7 @@ public abstract class WebUtils {
    * @param request current HTTP request
    * @param name the name of the parameter with multiple possible values
    */
-  public static int[] getIntParameters(HttpContext request, String name) {
+  public static int[] getIntParameters(ServerHttpExchange request, String name) {
     try {
       return getRequiredIntParameters(request, name);
     }
@@ -557,7 +557,7 @@ public abstract class WebUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static int getRequiredIntParameter(HttpContext request, String name)
+  public static int getRequiredIntParameter(ServerHttpExchange request, String name)
           throws RequestBindingException {
 
     return IntParser.INSTANCE.parseInt(name, request.getParameter(name));
@@ -571,7 +571,7 @@ public abstract class WebUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static int[] getRequiredIntParameters(HttpContext request, String name)
+  public static int[] getRequiredIntParameters(ServerHttpExchange request, String name)
           throws RequestBindingException {
 
     return IntParser.INSTANCE.parseInts(name, request.getParameterValues(name));
@@ -587,7 +587,7 @@ public abstract class WebUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static @Nullable Long getLongParameter(HttpContext request, String name)
+  public static @Nullable Long getLongParameter(ServerHttpExchange request, String name)
           throws RequestBindingException {
 
     if (request.getParameter(name) == null) {
@@ -604,7 +604,7 @@ public abstract class WebUtils {
    * @param name the name of the parameter
    * @param defaultVal the default value to use as fallback
    */
-  public static long getLongParameter(HttpContext request, String name, long defaultVal) {
+  public static long getLongParameter(ServerHttpExchange request, String name, long defaultVal) {
     if (request.getParameter(name) == null) {
       return defaultVal;
     }
@@ -622,7 +622,7 @@ public abstract class WebUtils {
    * @param request current HTTP request
    * @param name the name of the parameter with multiple possible values
    */
-  public static long[] getLongParameters(HttpContext request, String name) {
+  public static long[] getLongParameters(ServerHttpExchange request, String name) {
     try {
       return getRequiredLongParameters(request, name);
     }
@@ -639,7 +639,7 @@ public abstract class WebUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static long getRequiredLongParameter(HttpContext request, String name)
+  public static long getRequiredLongParameter(ServerHttpExchange request, String name)
           throws RequestBindingException {
 
     return LongParser.INSTANCE.parseLong(name, request.getParameter(name));
@@ -653,7 +653,7 @@ public abstract class WebUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static long[] getRequiredLongParameters(HttpContext request, String name)
+  public static long[] getRequiredLongParameters(ServerHttpExchange request, String name)
           throws RequestBindingException {
 
     return LongParser.INSTANCE.parseLongs(name, request.getParameterValues(name));
@@ -669,7 +669,7 @@ public abstract class WebUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static @Nullable Float getFloatParameter(HttpContext request, String name)
+  public static @Nullable Float getFloatParameter(ServerHttpExchange request, String name)
           throws RequestBindingException {
 
     if (request.getParameter(name) == null) {
@@ -686,7 +686,7 @@ public abstract class WebUtils {
    * @param name the name of the parameter
    * @param defaultVal the default value to use as fallback
    */
-  public static float getFloatParameter(HttpContext request, String name, float defaultVal) {
+  public static float getFloatParameter(ServerHttpExchange request, String name, float defaultVal) {
     if (request.getParameter(name) == null) {
       return defaultVal;
     }
@@ -704,7 +704,7 @@ public abstract class WebUtils {
    * @param request current HTTP request
    * @param name the name of the parameter with multiple possible values
    */
-  public static float[] getFloatParameters(HttpContext request, String name) {
+  public static float[] getFloatParameters(ServerHttpExchange request, String name) {
     try {
       return getRequiredFloatParameters(request, name);
     }
@@ -721,7 +721,7 @@ public abstract class WebUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static float getRequiredFloatParameter(HttpContext request, String name)
+  public static float getRequiredFloatParameter(ServerHttpExchange request, String name)
           throws RequestBindingException {
 
     return FloatParser.INSTANCE.parseFloat(name, request.getParameter(name));
@@ -735,7 +735,7 @@ public abstract class WebUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static float[] getRequiredFloatParameters(HttpContext request, String name)
+  public static float[] getRequiredFloatParameters(ServerHttpExchange request, String name)
           throws RequestBindingException {
 
     return FloatParser.INSTANCE.parseFloats(name, request.getParameterValues(name));
@@ -751,7 +751,7 @@ public abstract class WebUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static @Nullable Double getDoubleParameter(HttpContext request, String name)
+  public static @Nullable Double getDoubleParameter(ServerHttpExchange request, String name)
           throws RequestBindingException {
 
     if (request.getParameter(name) == null) {
@@ -768,7 +768,7 @@ public abstract class WebUtils {
    * @param name the name of the parameter
    * @param defaultVal the default value to use as fallback
    */
-  public static double getDoubleParameter(HttpContext request, String name, double defaultVal) {
+  public static double getDoubleParameter(ServerHttpExchange request, String name, double defaultVal) {
     if (request.getParameter(name) == null) {
       return defaultVal;
     }
@@ -786,7 +786,7 @@ public abstract class WebUtils {
    * @param request current HTTP request
    * @param name the name of the parameter with multiple possible values
    */
-  public static double[] getDoubleParameters(HttpContext request, String name) {
+  public static double[] getDoubleParameters(ServerHttpExchange request, String name) {
     try {
       return getRequiredDoubleParameters(request, name);
     }
@@ -803,7 +803,7 @@ public abstract class WebUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static double getRequiredDoubleParameter(HttpContext request, String name)
+  public static double getRequiredDoubleParameter(ServerHttpExchange request, String name)
           throws RequestBindingException {
 
     return DoubleParser.INSTANCE.parseDouble(name, request.getParameter(name));
@@ -817,7 +817,7 @@ public abstract class WebUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static double[] getRequiredDoubleParameters(HttpContext request, String name)
+  public static double[] getRequiredDoubleParameters(ServerHttpExchange request, String name)
           throws RequestBindingException {
 
     return DoubleParser.INSTANCE.parseDoubles(name, request.getParameterValues(name));
@@ -835,7 +835,7 @@ public abstract class WebUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static @Nullable Boolean getBooleanParameter(HttpContext request, String name)
+  public static @Nullable Boolean getBooleanParameter(ServerHttpExchange request, String name)
           throws RequestBindingException {
 
     if (request.getParameter(name) == null) {
@@ -854,7 +854,7 @@ public abstract class WebUtils {
    * @param name the name of the parameter
    * @param defaultVal the default value to use as fallback
    */
-  public static boolean getBooleanParameter(HttpContext request, String name, boolean defaultVal) {
+  public static boolean getBooleanParameter(ServerHttpExchange request, String name, boolean defaultVal) {
     if (request.getParameter(name) == null) {
       return defaultVal;
     }
@@ -874,7 +874,7 @@ public abstract class WebUtils {
    * @param request current HTTP request
    * @param name the name of the parameter with multiple possible values
    */
-  public static boolean[] getBooleanParameters(HttpContext request, String name) {
+  public static boolean[] getBooleanParameters(ServerHttpExchange request, String name) {
     try {
       return getRequiredBooleanParameters(request, name);
     }
@@ -894,7 +894,7 @@ public abstract class WebUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static boolean getRequiredBooleanParameter(HttpContext request, String name)
+  public static boolean getRequiredBooleanParameter(ServerHttpExchange request, String name)
           throws RequestBindingException {
 
     return BooleanParser.INSTANCE.parseBoolean(name, request.getParameter(name));
@@ -911,7 +911,7 @@ public abstract class WebUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static boolean[] getRequiredBooleanParameters(HttpContext request, String name)
+  public static boolean[] getRequiredBooleanParameters(ServerHttpExchange request, String name)
           throws RequestBindingException {
     return BooleanParser.INSTANCE.parseBooleans(name, request.getParameterValues(name));
   }
@@ -925,7 +925,7 @@ public abstract class WebUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static @Nullable String getStringParameter(HttpContext request, String name)
+  public static @Nullable String getStringParameter(ServerHttpExchange request, String name)
           throws RequestBindingException {
 
     if (request.getParameter(name) == null) {
@@ -942,7 +942,7 @@ public abstract class WebUtils {
    * @param name the name of the parameter
    * @param defaultVal the default value to use as fallback
    */
-  public static String getStringParameter(HttpContext request, String name, String defaultVal) {
+  public static String getStringParameter(ServerHttpExchange request, String name, String defaultVal) {
     String val = request.getParameter(name);
     return (val != null ? val : defaultVal);
   }
@@ -953,7 +953,7 @@ public abstract class WebUtils {
    * @param request current HTTP request
    * @param name the name of the parameter with multiple possible values
    */
-  public static String[] getStringParameters(HttpContext request, String name) {
+  public static String[] getStringParameters(ServerHttpExchange request, String name) {
     try {
       return getRequiredStringParameters(request, name);
     }
@@ -970,7 +970,7 @@ public abstract class WebUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static String getRequiredStringParameter(HttpContext request, String name)
+  public static String getRequiredStringParameter(ServerHttpExchange request, String name)
           throws RequestBindingException {
 
     return StringParser.INSTANCE.validateRequiredString(name, request.getParameter(name));
@@ -984,7 +984,7 @@ public abstract class WebUtils {
    * @throws RequestBindingException a subclass of NestedRuntimeException,
    * so it doesn't need to be caught
    */
-  public static String[] getRequiredStringParameters(HttpContext request, String name)
+  public static String[] getRequiredStringParameters(ServerHttpExchange request, String name)
           throws RequestBindingException {
 
     return StringParser.INSTANCE.validateRequiredStrings(name, request.getParameterValues(name));

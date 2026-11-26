@@ -21,7 +21,7 @@ import infra.context.ApplicationEventPublisher;
 import infra.context.event.EventListener;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.annotation.GET;
 import infra.web.annotation.RestController;
 import lombok.ToString;
@@ -61,9 +61,9 @@ class DemoController {
   }
 
   @GET("/request-context")
-  public String context(HttpContext context) {
-    String requestURL = context.getRequestURL();
-    String queryString = context.getQueryString();
+  public String context(ServerHttpExchange exchange) {
+    String requestURL = exchange.getRequestURL();
+    String queryString = exchange.getQueryString();
     System.out.println(requestURL);
     System.out.println(queryString);
 

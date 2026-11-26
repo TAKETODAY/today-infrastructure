@@ -31,7 +31,7 @@ import infra.web.annotation.RequestBody;
 import infra.web.annotation.RequestMapping;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.HandlerParameter;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +46,7 @@ class MapMethodProcessorTests {
 
   private BindingContext mavContainer;
 
-  private MockHttpContext webRequest;
+  private MockServerHttpExchange webRequest;
 
   private final ResolvableMethod resolvable =
           ResolvableMethod.on(getClass()).annotPresent(RequestMapping.class).build();
@@ -57,7 +57,7 @@ class MapMethodProcessorTests {
   public void setUp() throws Exception {
     this.processor = new MapMethodProcessor();
     this.mavContainer = new BindingContext();
-    this.webRequest = new MockHttpContext(null, new MockRequest(), null);
+    this.webRequest = new MockServerHttpExchange(null, new MockRequest(), null);
     BindingContext.set(webRequest, mavContainer);
 
   }
@@ -186,7 +186,7 @@ class MapMethodProcessorTests {
 
   @Test
   public void handleReturnValueWhenBindingContextIsNull() throws Exception {
-    MockHttpContext request = new MockHttpContext(null, new MockRequest(), null);
+    MockServerHttpExchange request = new MockServerHttpExchange(null, new MockRequest(), null);
     // Not setting binding context to simulate null case
 
     Map<String, Object> returnValue = Map.of("key", "value");

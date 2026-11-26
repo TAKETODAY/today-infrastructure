@@ -21,7 +21,7 @@ package infra.web.filter;
 import infra.util.Assert;
 import infra.web.Filter;
 import infra.web.FilterChain;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.cors.CorsConfiguration;
 import infra.web.cors.CorsConfigurationSource;
 import infra.web.cors.CorsProcessor;
@@ -76,13 +76,13 @@ public class CorsFilter implements Filter {
   }
 
   @Override
-  public void doFilter(HttpContext http, FilterChain chain) throws Exception {
-    CorsConfiguration corsConfiguration = this.configSource.getCorsConfiguration(http);
-    boolean isValid = this.processor.process(corsConfiguration, http);
-    if (!isValid || http.isPreFlightRequest()) {
+  public void doFilter(ServerHttpExchange exchange, FilterChain chain) throws Exception {
+    CorsConfiguration corsConfiguration = this.configSource.getCorsConfiguration(exchange);
+    boolean isValid = this.processor.process(corsConfiguration, exchange);
+    if (!isValid || exchange.isPreFlightRequest()) {
       return;
     }
-    chain.doFilter(http);
+    chain.doFilter(exchange);
   }
 
 }

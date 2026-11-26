@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 import infra.util.ObjectUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * Implements the {@link RequestCondition} contract by delegating to multiple
@@ -147,7 +147,7 @@ public class CompositeRequestCondition extends AbstractRequestCondition<Composit
   @Override
   @Nullable
   @SuppressWarnings("NullAway")
-  public CompositeRequestCondition getMatchingCondition(HttpContext request) {
+  public CompositeRequestCondition getMatchingCondition(ServerHttpExchange request) {
     if (isEmpty()) {
       return this;
     }
@@ -168,7 +168,7 @@ public class CompositeRequestCondition extends AbstractRequestCondition<Composit
    * conditions, compare them in the order in which they were provided.
    */
   @Override
-  public int compareTo(CompositeRequestCondition other, HttpContext request) {
+  public int compareTo(CompositeRequestCondition other, ServerHttpExchange request) {
     if (isEmpty() && other.isEmpty()) {
       return 0;
     }

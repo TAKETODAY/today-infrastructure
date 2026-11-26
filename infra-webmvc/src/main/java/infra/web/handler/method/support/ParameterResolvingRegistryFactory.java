@@ -31,7 +31,7 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.RedirectModelManager;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.annotation.RequestAttribute;
@@ -113,7 +113,7 @@ public final class ParameterResolvingRegistryFactory {
     // type-based argument resolution
     CookieParameterResolver.register(strategies, beanFactory);
 
-    strategies.add(new HttpContextMethodArgumentResolver());
+    strategies.add(new HttpExchangeMethodArgumentResolver());
     strategies.add(new ModelAndViewMethodArgumentResolver());
     strategies.add(new ModelMethodProcessor());
     strategies.add(new MapMethodProcessor());
@@ -178,7 +178,7 @@ public final class ParameterResolvingRegistryFactory {
     }
 
     @Override
-    protected @Nullable Object resolveName(String name, HandlerParameter resolvable, HttpContext context) {
+    protected @Nullable Object resolveName(String name, HandlerParameter resolvable, ServerHttpExchange context) {
       return context.getAttribute(name);
     }
 

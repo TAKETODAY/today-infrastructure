@@ -27,7 +27,7 @@ import infra.http.MediaType;
 import infra.http.server.PathContainer;
 import infra.lang.NullValue;
 import infra.util.MultiValueMap;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.util.pattern.PathMatchInfo;
 import infra.web.util.pattern.PathPattern;
 import infra.web.util.pattern.PathPatternParser;
@@ -47,26 +47,26 @@ import static org.mockito.Mockito.mock;
 class HandlerMatchingMetadataTests {
   @Test
   void matchingMetadataUsesOnlyTheRequestAttributeContract() {
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     var attributes = new DefaultAttributeAccessor();
     given(request.getAttribute(anyString())).willAnswer(invocation -> attributes.getAttribute(invocation.getArgument(0)));
     doAnswer(invocation -> {
       attributes.setAttribute(invocation.getArgument(0), invocation.getArgument(1));
       return null;
     }).when(request).setAttribute(anyString(), any());
-    var wrapper = new DelegatingHttpContext(new DelegatingHttpContext(request));
+    var wrapper = new DelegatingServerHttpExchange(new DelegatingServerHttpExchange(request));
     assertThat(HandlerMatchingMetadata.has(wrapper)).isFalse();
     assertThat(HandlerMatchingMetadata.find(wrapper)).isNull();
     assertThatIllegalStateException().isThrownBy(() -> HandlerMatchingMetadata.obtain(wrapper))
             .withMessage("HandlerMatchingMetadata is required");
     assertThat(attributes.getAttributeNames()).isEmpty();
 
-    var original = new HandlerMatchingMetadata(createContext());
+    var original = new HandlerMatchingMetadata(createExchange());
     HandlerMatchingMetadata.set(request, original);
     assertThat(HandlerMatchingMetadata.has(wrapper)).isTrue();
     assertThat(HandlerMatchingMetadata.obtain(wrapper)).isSameAs(original);
 
-    var replacement = new HandlerMatchingMetadata(createContext());
+    var replacement = new HandlerMatchingMetadata(createExchange());
     HandlerMatchingMetadata.set(wrapper, replacement);
     assertThat(HandlerMatchingMetadata.obtain(request)).isSameAs(replacement);
 
@@ -75,8 +75,8 @@ class HandlerMatchingMetadataTests {
   }
 
   @Test
-  void constructorWithHttpContext() {
-    HttpContext request = createContext();
+  void constructorWithExchange() {
+    ServerHttpExchange request = createExchange();
     HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(request);
 
     assertThat(metadata.getHandler()).isEqualTo(NullValue.INSTANCE);
@@ -91,7 +91,7 @@ class HandlerMatchingMetadataTests {
   @Test
   void constructorWithHandlerAndHttpContext() {
     Object handler = new Object();
-    MockHttpContext request = createContext();
+    MockServerHttpExchange request = createExchange();
     HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(handler, request);
 
     assertThat(metadata.getHandler()).isSameAs(handler);
@@ -99,8 +99,8 @@ class HandlerMatchingMetadataTests {
     assertThat(metadata.getLookupPath().value()).isEqualTo("/test");
   }
 
-  private static MockHttpContext createContext() {
-    MockHttpContext mock = new MockHttpContext();
+  private static MockServerHttpExchange createExchange() {
+    MockServerHttpExchange mock = new MockServerHttpExchange();
     mock.setRequestURI("/test");
     return mock;
   }
@@ -146,7 +146,7 @@ class HandlerMatchingMetadataTests {
 
   @Test
   void getBestMatchingPatternParsesPatternIfNeeded() {
-    MockHttpContext request = createContext();
+    MockServerHttpExchange request = createExchange();
     HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(request);
 
     PathPattern pattern = metadata.getBestMatchingPattern();
@@ -156,7 +156,7 @@ class HandlerMatchingMetadataTests {
 
   @Test
   void getPathWithinMappingReturnsFullLookupPathForExactMatch() {
-    MockHttpContext request = createContext();
+    MockServerHttpExchange request = createExchange();
     HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(request);
 
     PathContainer pathWithinMapping = metadata.getPathWithinMapping();
@@ -189,7 +189,7 @@ class HandlerMatchingMetadataTests {
 
   @Test
   void getPathVariablesReturnsEmptyMapInitially() {
-    MockHttpContext request = createContext();
+    MockServerHttpExchange request = createExchange();
     HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(request);
 
     Map<String, Object> pathVariables = metadata.getPathVariables();
@@ -198,7 +198,7 @@ class HandlerMatchingMetadataTests {
 
   @Test
   void hasPathVariablesReturnsFalseInitially() {
-    MockHttpContext request = createContext();
+    MockServerHttpExchange request = createExchange();
     HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(request);
 
     assertThat(metadata.hasPathVariables()).isFalse();
@@ -206,7 +206,7 @@ class HandlerMatchingMetadataTests {
 
   @Test
   void getUriVariablesReturnsEmptyMapInitially() {
-    MockHttpContext request = createContext();
+    MockServerHttpExchange request = createExchange();
     HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(request);
 
     Map<String, String> uriVariables = metadata.getUriVariables();
@@ -215,7 +215,7 @@ class HandlerMatchingMetadataTests {
 
   @Test
   void getUriVariableReturnsNullForNonExistentVariable() {
-    MockHttpContext request = createContext();
+    MockServerHttpExchange request = createExchange();
     HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(request);
 
     String value = metadata.getUriVariable("nonexistent");
@@ -224,7 +224,7 @@ class HandlerMatchingMetadataTests {
 
   @Test
   void getMatrixVariablesReturnsEmptyMapInitially() {
-    MockHttpContext request = createContext();
+    MockServerHttpExchange request = createExchange();
     HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(request);
 
     Map<String, MultiValueMap<String, String>> matrixVariables = metadata.getMatrixVariables();
@@ -233,7 +233,7 @@ class HandlerMatchingMetadataTests {
 
   @Test
   void getMatrixVariableReturnsNullForNonExistentMatrixVariable() {
-    MockHttpContext request = createContext();
+    MockServerHttpExchange request = createExchange();
     HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(request);
 
     MultiValueMap<String, String> matrixVariable = metadata.getMatrixVariable("nonexistent");
@@ -242,7 +242,7 @@ class HandlerMatchingMetadataTests {
 
   @Test
   void setAndGetProducibleMediaTypes() {
-    MockHttpContext request = createContext();
+    MockServerHttpExchange request = createExchange();
     HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(request);
     Collection<MediaType> mediaTypes = List.of(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN);
 
@@ -252,7 +252,7 @@ class HandlerMatchingMetadataTests {
 
   @Test
   void setHandlerUpdatesHandlerReference() {
-    MockHttpContext request = createContext();
+    MockServerHttpExchange request = createExchange();
     HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(request);
     Object newHandler = new Object();
 

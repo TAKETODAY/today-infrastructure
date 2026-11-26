@@ -25,7 +25,7 @@ import java.util.Map;
 import infra.core.ResolvableType;
 import infra.util.MultiValueMap;
 import infra.util.StringUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.annotation.RequestParam;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.method.ParameterResolvingStrategy;
@@ -48,7 +48,7 @@ import infra.web.multipart.Part;
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see RequestParamMethodArgumentResolver
- * @see HttpContext#getParameters()
+ * @see ServerHttpExchange#getParameters()
  * @see MultipartRequest#getParts()
  * @since 4.0 2022/4/28 15:26
  */
@@ -66,17 +66,17 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, HandlerParameter parameter) throws Exception {
+  public Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) throws Exception {
     ResolvableType resolvableType = parameter.getResolvableType();
 
     if (MultiValueMap.class.isAssignableFrom(parameter.getParameterType())) {
       // MultiValueMap
       Class<?> valueType = resolvableType.as(MultiValueMap.class).getGeneric(1).resolve();
       if (valueType == Part.class) {
-        return context.asMultipartRequest().getParts();
+        return exchange.asMultipartRequest().getParts();
       }
       else {
-        return context.getParameters();
+        return exchange.getParameters();
       }
     }
 
@@ -84,10 +84,10 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
       // Regular Map
       Class<?> valueType = resolvableType.asMap().getGeneric(1).resolve();
       if (valueType == Part.class) {
-        return context.asMultipartRequest().getParts().toSingleValueMap();
+        return exchange.asMultipartRequest().getParts().toSingleValueMap();
       }
       else {
-        return context.getParameters().toSingleValueMap();
+        return exchange.getParameters().toSingleValueMap();
       }
     }
   }

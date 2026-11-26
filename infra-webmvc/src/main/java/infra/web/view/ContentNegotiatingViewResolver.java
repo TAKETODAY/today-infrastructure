@@ -40,7 +40,7 @@ import infra.util.CollectionUtils;
 import infra.util.MimeTypeUtils;
 import infra.util.StringUtils;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpContextHolder;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.accept.ContentNegotiationManager;
@@ -212,7 +212,7 @@ public class ContentNegotiatingViewResolver extends ApplicationObjectSupport imp
   @Override
   @Nullable
   public View resolveViewName(String viewName, Locale locale) throws Exception {
-    HttpContext context = HttpContextHolder.required();
+    ServerHttpExchange context = HttpContextHolder.required();
     List<MediaType> requestedMediaTypes = getMediaTypes(context);
     if (requestedMediaTypes != null) {
       List<View> candidateViews = getCandidateViews(viewName, locale, requestedMediaTypes);
@@ -236,13 +236,13 @@ public class ContentNegotiatingViewResolver extends ApplicationObjectSupport imp
   }
 
   /**
-   * Determines the list of {@link MediaType} for the given {@link HttpContext}.
+   * Determines the list of {@link MediaType} for the given {@link ServerHttpExchange}.
    *
    * @param context the current request
    * @return the list of media types requested, if any
    */
   @Nullable
-  protected List<MediaType> getMediaTypes(HttpContext context) {
+  protected List<MediaType> getMediaTypes(ServerHttpExchange context) {
     ContentNegotiationManager manager = getContentNegotiationManager();
     Assert.state(manager != null, "No ContentNegotiationManager set");
     try {
@@ -268,7 +268,7 @@ public class ContentNegotiatingViewResolver extends ApplicationObjectSupport imp
     }
   }
 
-  private Collection<MediaType> getProducibleMediaTypes(HttpContext context) {
+  private Collection<MediaType> getProducibleMediaTypes(ServerHttpExchange context) {
     HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(context);
     if (matchingMetadata != null) {
       var mediaTypes = matchingMetadata.getProducibleMediaTypes();
@@ -334,7 +334,7 @@ public class ContentNegotiatingViewResolver extends ApplicationObjectSupport imp
   }
 
   @Nullable
-  private View getBestView(List<View> candidateViews, List<MediaType> requestedMediaTypes, HttpContext context) {
+  private View getBestView(List<View> candidateViews, List<MediaType> requestedMediaTypes, ServerHttpExchange context) {
     for (View candidateView : candidateViews) {
       if (candidateView instanceof SmartView smartView) {
         if (smartView.isRedirectView()) {

@@ -27,7 +27,7 @@ import infra.http.MediaType;
 import infra.context.ApplicationContext;
 import infra.util.Assert;
 import infra.util.ObjectUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.mock.api.MockIndicator;
 import infra.web.util.WebUtils;
 
@@ -46,9 +46,9 @@ public abstract class MockUtils {
    *
    * @param context the context to introspect
    * @return the matching request object
-   * @see WebUtils#getNativeContext(HttpContext, Class)
+   * @see WebUtils#getNativeContext(ServerHttpExchange, Class)
    */
-  public static MockRequest getMockRequest(HttpContext context) {
+  public static MockRequest getMockRequest(ServerHttpExchange context) {
     if (context instanceof MockIndicator mockIndicator) {
       return mockIndicator.getRequest();
     }
@@ -62,9 +62,9 @@ public abstract class MockUtils {
    *
    * @param context the context to introspect
    * @return the matching response object
-   * @see WebUtils#getNativeContext(HttpContext, Class)
+   * @see WebUtils#getNativeContext(ServerHttpExchange, Class)
    */
-  public static MockResponse getMockResponse(HttpContext context) {
+  public static MockResponse getMockResponse(ServerHttpExchange context) {
     if (context instanceof MockIndicator mockIndicator) {
       return mockIndicator.getResponse();
     }

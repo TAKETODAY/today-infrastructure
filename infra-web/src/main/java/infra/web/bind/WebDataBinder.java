@@ -35,7 +35,7 @@ import infra.validation.DataBinder;
  * Special {@link DataBinder} for data binding from web request parameters
  * to JavaBean objects. Designed for web environments, but not dependent on
  * the Web API; serves as base class for more specific DataBinder variants,
- * such as {@link infra.web.bind.HttpContextDataBinder}.
+ * such as {@link infra.web.bind.HttpExchangeDataBinder}.
  *
  * <p><strong>WARNING</strong>: Data binding can lead to security issues by exposing
  * parts of the object graph that are not meant to be accessed or modified by

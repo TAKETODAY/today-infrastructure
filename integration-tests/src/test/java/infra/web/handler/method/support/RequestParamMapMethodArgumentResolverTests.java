@@ -28,7 +28,7 @@ import infra.util.MultiValueMap;
 import infra.web.ResolvableMethod;
 import infra.web.annotation.RequestParam;
 import infra.web.handler.method.HandlerParameter;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.MultipartMockRequest;
@@ -47,7 +47,7 @@ class RequestParamMapMethodArgumentResolverTests {
 
   private MockRequest request = new MockRequest();
 
-  private MockHttpContext webRequest = new MockHttpContext(null, request, new MockResponse());
+  private MockServerHttpExchange webRequest = new MockServerHttpExchange(null, request, new MockResponse());
 
   private ResolvableMethod testMethod = ResolvableMethod.on(getClass()).named("handle").build();
 
@@ -108,7 +108,7 @@ class RequestParamMapMethodArgumentResolverTests {
     Part expected2 = new MockMultipartFile("other", "Hello World 3".getBytes());
     request.addPart(expected1);
     request.addPart(expected2);
-    webRequest = new MockHttpContext(null, request, null);
+    webRequest = new MockServerHttpExchange(null, request, null);
 
     HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(Map.class, String.class, Part.class);
     Object result = resolver.resolveArgument(webRequest, param);
@@ -131,7 +131,7 @@ class RequestParamMapMethodArgumentResolverTests {
     request.addPart(expected1);
     request.addPart(expected2);
     request.addPart(expected3);
-    webRequest = new MockHttpContext(null, request, null);
+    webRequest = new MockServerHttpExchange(null, request, null);
 
     HandlerParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(MultiValueMap.class, String.class, Part.class);
     Object result = resolver.resolveArgument(webRequest, param);

@@ -25,9 +25,9 @@ import infra.core.MethodParameter;
 import infra.validation.BindingResult;
 import infra.validation.Errors;
 import infra.web.BindingContext;
-import infra.web.bind.HttpContextDataBinder;
+import infra.web.bind.HttpExchangeDataBinder;
 import infra.web.handler.method.support.ErrorsMethodArgumentResolver;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,13 +46,13 @@ public class ErrorsMethodArgumentResolverTests {
 
   private HandlerParameter paramErrors;
 
-  private MockHttpContext webRequest;
+  private MockServerHttpExchange webRequest;
 
   @BeforeEach
   public void setup() throws Exception {
     paramErrors = new HandlerParameter(new MethodParameter(getClass().getDeclaredMethod("handle", Errors.class), 0));
-    bindingResult = new HttpContextDataBinder(new Object(), "attr").getBindingResult();
-    webRequest = new MockHttpContext(null, new MockRequest(), null);
+    bindingResult = new HttpExchangeDataBinder(new Object(), "attr").getBindingResult();
+    webRequest = new MockServerHttpExchange(null, new MockRequest(), null);
   }
 
   @Test

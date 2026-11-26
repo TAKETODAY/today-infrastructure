@@ -1,0 +1,1171 @@
+/*
+ * Copyright 2017 - 2026 the TODAY authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package infra.web.server.netty;
+
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+import infra.context.ApplicationContext;
+import infra.http.HttpHeaders;
+import infra.http.HttpStatus;
+import infra.http.MediaType;
+import infra.http.support.Netty4HttpHeaders;
+import infra.util.MultiValueMap;
+import infra.web.DispatcherHandler;
+import infra.web.server.ResponseStatusException;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.embedded.EmbeddedChannel;
+import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.QueryStringEncoder;
+
+import static infra.web.server.netty.ServerHttpExchange.newResponseHeaders;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+/**
+ * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @since 5.0 2025/5/19 16:56
+ */
+class NettyServerHttpExchangeTests {
+
+  @Test
+  void parseParameters() {
+    MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
+
+    parseParameters(parameters, "most-popular");
+    assertThat(parameters).hasSize(1).containsKey("most-popular");
+
+    parameters.clear();
+    parseParameters(parameters, "most-popular&name=value&name=");
+    assertThat(parameters).hasSize(2).containsKeys("name", "most-popular")
+            .containsValues(List.of(""), List.of("value", ""));
+
+    parameters.clear();
+
+    parseParameters(parameters, "1=1&=2&n=v");
+    assertThat(parameters).hasSize(3).containsKey("n").containsKey("1").containsKey("2");
+  }
+
+  @Test
+  void parseParameters_withEmptyString_shouldNotAddParameters() {
+    MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
+    parseParameters(parameters, "");
+    assertThat(parameters).isEmpty();
+  }
+
+  @Test
+  void parseParameters_withSingleKeyValuePair_shouldParseCorrectly() {
+    MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
+    parseParameters(parameters, "key=value");
+    assertThat(parameters).hasSize(1)
+            .containsEntry("key", List.of("value"));
+  }
+
+  @Test
+  void parseParameters_withMultipleKeyValuePairs_shouldParseCorrectly() {
+    MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
+    parseParameters(parameters, "key1=value1&key2=value2;key3=value3");
+    assertThat(parameters).hasSize(3)
+            .containsEntry("key1", List.of("value1"))
+            .containsEntry("key2", List.of("value2"))
+            .containsEntry("key3", List.of("value3"));
+  }
+
+  @Test
+  void parseParameters_withEmptyValue_shouldParseCorrectly() {
+    MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
+    parseParameters(parameters, "key=");
+    assertThat(parameters).hasSize(1)
+            .containsEntry("key", List.of(""));
+  }
+
+  @Test
+  void parseParameters_withKeyOnly_shouldParseCorrectly() {
+    MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
+    parseParameters(parameters, "key");
+    assertThat(parameters).hasSize(1)
+            .containsEntry("key", List.of(""));
+  }
+
+  @Test
+  void parseParameters_withMultipleEquals_shouldParseCorrectly() {
+    MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
+    parseParameters(parameters, "key=value=more");
+    assertThat(parameters).hasSize(1)
+            .containsEntry("key", List.of("value=more"));
+  }
+
+  @Test
+  void parseParameters_withFragmentInUrl_shouldIgnoreFragmentPart() {
+    MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
+    parseParameters(parameters, "key1=value1#key2=value2");
+    assertThat(parameters).hasSize(1)
+            .containsEntry("key1", List.of("value1"));
+  }
+
+  @Test
+  void parseParameters_withSpecialCharactersInKeyAndValue_shouldParseCorrectly() {
+    MultiValueMap<String, String> parameters = MultiValueMap.forLinkedHashMap();
+    QueryStringEncoder encoder = new QueryStringEncoder("");
+    encoder.addParam("key@123", "value$456");
+    encoder.addParam("key#789", "value%0A");
+    parseParameters(parameters, encoder.toString().substring(1));
+    assertThat(parameters).hasSize(2)
+            .containsEntry("key@123", List.of("value$456"))
+            .containsEntry("key#789", List.of("value%0A"));
+  }
+
+  @Test
+  void parseParameters_withUTF8SpecialCharacters_shouldParseCorrectly() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    parseParameters(params, "name=张三&age=25&city=北京");
+
+    assertThat(params)
+            .hasSize(3)
+            .containsEntry("name", List.of("张三"))
+            .containsEntry("age", List.of("25"))
+            .containsEntry("city", List.of("北京"));
+  }
+
+  @Test
+  void parseParameters_withEncodedCharacters_shouldDecodeCorrectly() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    parseParameters(params, "title=Hello+World&q=Java%2BSpring");
+
+    assertThat(params)
+            .hasSize(2)
+            .containsEntry("title", List.of("Hello World"))
+            .containsEntry("q", List.of("Java+Spring"));
+  }
+
+  @Test
+  void parseParameters_withMixedDelimiters_shouldParseAllParameters() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    parseParameters(params, "a=1&b=2;c=3&d=4");
+
+    assertThat(params)
+            .hasSize(4)
+            .containsEntry("a", List.of("1"))
+            .containsEntry("b", List.of("2"))
+            .containsEntry("c", List.of("3"))
+            .containsEntry("d", List.of("4"));
+  }
+
+  @Test
+  void parseParameters_withEmptyValues_shouldParseAsEmptyStrings() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    parseParameters(params, "a=&b&c=");
+
+    assertThat(params)
+            .hasSize(3)
+            .containsEntry("a", List.of(""))
+            .containsEntry("b", List.of(""))
+            .containsEntry("c", List.of(""));
+  }
+
+  @Test
+  void parseParameters_withEqualSignInValue_shouldParseCorrectly() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    parseParameters(params, "equation=x=1&formula=a=b=c");
+
+    assertThat(params)
+            .hasSize(2)
+            .containsEntry("equation", List.of("x=1"))
+            .containsEntry("formula", List.of("a=b=c"));
+  }
+
+  @Test
+  void parseParameters_withMoreThanMaxParams_shouldLimitParameters() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    StringBuilder query = new StringBuilder();
+    for (int i = 0; i < 2000; i++) {
+      query.append("p").append(i).append("=").append(i).append("&");
+    }
+
+    parseParameters(params, query.toString());
+    assertThat(params).hasSize(1024);
+  }
+
+  @Test
+  void parseParameters_withFragmentIdentifier_shouldIgnoreFragment() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    parseParameters(params, "a=1&b=2#fragment&c=3");
+
+    assertThat(params)
+            .hasSize(2)
+            .containsEntry("a", List.of("1"))
+            .containsEntry("b", List.of("2"))
+            .doesNotContainKey("c");
+  }
+
+  @Test
+  void parseParameters_withMalformedEncoding_shouldThrowBadRequest() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+
+    assertThatThrownBy(() -> parseParameters(params, "key=%2"))
+            .isInstanceOfSatisfying(ResponseStatusException.class,
+                    ex -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST))
+            .hasCauseInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void parseParameters_withPercentEncodedValues_shouldDecodeCorrectly() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    parseParameters(params, "name=%E5%BC%A0%E4%B8%89&city=%E5%8C%97%E4%BA%AC");
+
+    assertThat(params)
+            .hasSize(2)
+            .containsEntry("name", List.of("张三"))
+            .containsEntry("city", List.of("北京"));
+  }
+
+  @Test
+  void parseParameters_withReservedCharacters_shouldParseCorrectly() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    parseParameters(params, "q=Java%3A%24%26%2B%2C%2F%3F%23%5B%5D%40");
+
+    assertThat(params)
+            .hasSize(1)
+            .containsEntry("q", List.of("Java:$&+,/?#[]@"));
+  }
+
+  @Test
+  void parseParameters_withMalformedPercentEncoding_shouldThrowBadRequest() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+
+    assertThatThrownBy(() -> parseParameters(params, "invalid=%2"))
+            .isInstanceOfSatisfying(ResponseStatusException.class,
+                    ex -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST))
+            .hasCauseInstanceOf(IllegalArgumentException.class);
+
+    assertThatThrownBy(() -> parseParameters(params, "invalid=%2G"))
+            .isInstanceOfSatisfying(ResponseStatusException.class,
+                    ex -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST))
+            .hasCauseInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void parseParameters_withSpaceEncoding_shouldHandlePlusAndPercent20() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    parseParameters(params, "q1=hello+world&q2=hello%20world");
+
+    assertThat(params)
+            .hasSize(2)
+            .containsEntry("q1", List.of("hello world"))
+            .containsEntry("q2", List.of("hello world"));
+  }
+
+  @Test
+  void parseParameters_withControlCharacters_shouldParseCorrectly() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    parseParameters(params, "data=%00%01%02%03%04%05");
+
+    assertThat(params)
+            .hasSize(1)
+            .containsEntry("data", List.of("\u0000\u0001\u0002\u0003\u0004\u0005"));
+  }
+
+  @Test
+  void parseParameters_withMultipleEncodedDelimiters_shouldParseCorrectly() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    parseParameters(params, "key1=value%26one&key2=value%3Btwo");
+
+    assertThat(params)
+            .hasSize(2)
+            .containsEntry("key1", List.of("value&one"))
+            .containsEntry("key2", List.of("value;two"));
+  }
+
+  @Test
+  void parseParameters_withNonAsciiCharactersInKeys_shouldParseCorrectly() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    parseParameters(params, "%E5%90%8D%E5%AD%97=zhang&%E5%B9%B4%E9%BE%84=20");
+
+    assertThat(params)
+            .hasSize(2)
+            .containsEntry("名字", List.of("zhang"))
+            .containsEntry("年龄", List.of("20"));
+  }
+
+  @Test
+  void parseParameters_withMultipleEmptyValues_shouldParseCorrectly() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    parseParameters(params, "key1=&key2=&key3=");
+
+    assertThat(params)
+            .hasSize(3)
+            .containsEntry("key1", List.of(""))
+            .containsEntry("key2", List.of(""))
+            .containsEntry("key3", List.of(""));
+  }
+
+  @Test
+  void parseParameters_withMultipleKeysNoValues_shouldParseCorrectly() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    parseParameters(params, "key1&key2&key3");
+
+    assertThat(params)
+            .hasSize(3)
+            .containsEntry("key1", List.of(""))
+            .containsEntry("key2", List.of(""))
+            .containsEntry("key3", List.of(""));
+  }
+
+  @Test
+  void parseParameters_withComplexEncodedCharacters_shouldParseCorrectly() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    parseParameters(params, "key=%E2%98%83%E2%9C%88%F0%9F%98%80");
+
+    assertThat(params)
+            .hasSize(1)
+            .containsEntry("key", List.of("☃✈😀"));
+  }
+
+  @Test
+  void parseParameters_withNullBytes_shouldParseCorrectly() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    parseParameters(params, "key1=abc%00def&key2=ghi%00jkl");
+
+    assertThat(params)
+            .hasSize(2)
+            .containsEntry("key1", List.of("abc\u0000def"))
+            .containsEntry("key2", List.of("ghi\u0000jkl"));
+  }
+
+  @Test
+  void parseParameters_withLongChainedParams_shouldParseCorrectly() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    StringBuilder longValue = new StringBuilder();
+    for (int i = 0; i < 1000; i++) {
+      longValue.append("a");
+    }
+    parseParameters(params, "key=" + longValue);
+
+    assertThat(params)
+            .hasSize(1)
+            .containsEntry("key", List.of(longValue.toString()));
+  }
+
+  @Test
+  void parseParameters_withConsecutiveDelimiters_shouldParseCorrectly() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    parseParameters(params, "key1=value1&&&&key2=value2;;;;key3=value3");
+
+    assertThat(params)
+            .hasSize(3)
+            .containsEntry("key1", List.of("value1"))
+            .containsEntry("key2", List.of("value2"))
+            .containsEntry("key3", List.of("value3"));
+  }
+
+  @Test
+  void parseParameters_withSemicolonAndFlagTrue_shouldTreatSemicolonAsNormal() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    parseParameters(params, "key1=value;1&key2=value;2", true);
+
+    assertThat(params)
+            .hasSize(2)
+            .containsEntry("key1", List.of("value;1"))
+            .containsEntry("key2", List.of("value;2"));
+  }
+
+  @Test
+  void parseParameters_withMultipleSemicolonsAndFlagTrue_shouldNotSplitOnSemicolons() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    parseParameters(params, "key=a;b;c;d", true);
+
+    assertThat(params)
+            .hasSize(1)
+            .containsEntry("key", List.of("a;b;c;d"));
+  }
+
+  @Test
+  void parseParameters_withSemicolonInKeyAndFlagTrue_shouldTreatAsNormal() {
+    MultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    parseParameters(params, "key;with;semicolons=value", true);
+
+    assertThat(params)
+            .hasSize(1)
+            .containsEntry("key;with;semicolons", List.of("value"));
+
+  }
+
+  // -- request URI and query string tests --
+
+  @Test
+  void requestUriIsReadBeforeQueryString() {
+    var ctx = newContext("/path/to?name=value&x=1");
+    assertThat(ctx.getRequestURI()).isEqualTo("/path/to");
+    assertThat(ctx.getQueryString()).isEqualTo("name=value&x=1");
+  }
+
+  @Test
+  void queryStringIsReadBeforeRequestUri() {
+    var ctx = newContext("/path/to?name=value&x=1");
+    assertThat(ctx.getQueryString()).isEqualTo("name=value&x=1");
+    assertThat(ctx.getRequestURI()).isEqualTo("/path/to");
+  }
+
+  @Test
+  void requestUriWithoutQueryString() {
+    var ctx = newContext("/path/to");
+    assertThat(ctx.getRequestURI()).isEqualTo("/path/to");
+    assertThat(ctx.getQueryString()).isNull();
+  }
+
+  @Test
+  void requestUriWithEmptyQueryString() {
+    var ctx = newContext("/path/to?");
+    assertThat(ctx.getRequestURI()).isEqualTo("/path/to");
+    // an empty query string is normalized to null by AbstractServerHttpExchange
+    assertThat(ctx.getQueryString()).isNull();
+  }
+
+  // -- response content type tests --
+
+  @Test
+  void responseContentTypeTracksHeaderMutations() {
+    var ctx = newContext("/test");
+    assertThat(ctx.getResponseContentType()).isNull();
+
+    ctx.setContentType("text/html");
+    assertThat(ctx.getResponseContentType()).isEqualTo("text/html");
+
+    // reading the value must not freeze it against later header changes
+    ctx.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+    assertThat(ctx.getResponseContentType()).isEqualTo("application/json");
+
+    ctx.removeHeader(HttpHeaders.CONTENT_TYPE);
+    assertThat(ctx.getResponseContentType()).isNull();
+  }
+
+  @Test
+  void outputMessageContentTypeTracksHeaderMutations() {
+    var ctx = newContext("/test");
+    var outputMessage = ctx.asHttpOutputMessage();
+    assertThat(outputMessage.getContentType()).isNull();
+
+    outputMessage.setContentType(MediaType.APPLICATION_JSON);
+    assertThat(outputMessage.getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+    outputMessage.setHeader(HttpHeaders.CONTENT_TYPE, "text/plain");
+    assertThat(outputMessage.getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(outputMessage.getContentTypeAsString()).isEqualTo("text/plain");
+
+    outputMessage.removeHeader(HttpHeaders.CONTENT_TYPE);
+    assertThat(outputMessage.getContentType()).isNull();
+    assertThat(outputMessage.getContentTypeAsString()).isNull();
+  }
+
+  @Test
+  void resetClearsContentTypeForContextAndOutputMessage() {
+    var ctx = newContext("/test");
+    var outputMessage = ctx.asHttpOutputMessage();
+    outputMessage.setContentType(MediaType.APPLICATION_JSON);
+    assertThat(outputMessage.getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+
+    ctx.reset();
+
+    assertThat(ctx.getResponseContentType()).isNull();
+    assertThat(outputMessage.getContentType()).isNull();
+  }
+
+  @Test
+  void resetDiscardsHeadContentLengthAccumulatedBeforeReset() throws IOException {
+    var channel = new EmbeddedChannel();
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.HEAD, "/test");
+    var ctx = new NettyServerHttpExchangeStub(request, channel);
+
+    ctx.getOutputStream().write("abc".getBytes(StandardCharsets.UTF_8));
+    ctx.reset();
+    ctx.getOutputStream().write("de".getBytes(StandardCharsets.UTF_8));
+    ctx.flush();
+
+    var head = (io.netty.handler.codec.http.HttpResponse) channel.readOutbound();
+    assertThat(head.headers().getInt(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH))
+            .isEqualTo(2);
+    channel.finishAndReleaseAll();
+  }
+
+  @Test
+  void resetClearsResponseCookies() throws IOException {
+    var channel = new EmbeddedChannel();
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new NettyServerHttpExchangeStub(request, channel);
+
+    ctx.addCookie(infra.http.ResponseCookie.forSimple("session", "old"));
+    ctx.reset();
+    ctx.flush();
+
+    var head = (io.netty.handler.codec.http.HttpResponse) channel.readOutbound();
+    assertThat(head.headers().contains(io.netty.handler.codec.http.HttpHeaderNames.SET_COOKIE)).isFalse();
+    channel.finishAndReleaseAll();
+  }
+
+  @Test
+  void resetKeepsCachedOutputStream() throws IOException {
+    var ctx = newContext("/test");
+
+    var outputStream = ctx.getOutputStream();
+    ctx.reset();
+
+    assertThat(ctx.getOutputStream()).isSameAs(outputStream);
+  }
+
+  @Test
+  void resetKeepsCachedOutputMessage() {
+    var ctx = newContext("/test");
+
+    var outputMessage = ctx.asHttpOutputMessage();
+    ctx.reset();
+
+    assertThat(ctx.asHttpOutputMessage()).isSameAs(outputMessage);
+  }
+
+  private static NettyServerHttpExchangeStub newContext(String uri) {
+    var request = new DefaultHttpRequest(
+            HttpVersion.HTTP_1_1, io.netty.handler.codec.http.HttpMethod.GET, uri);
+    return new NettyServerHttpExchangeStub(request, null);
+  }
+
+  // -- getServerName tests --
+
+  @Test
+  void getServerNameFromHostHeaderWithoutPort() {
+    var request = new DefaultHttpRequest(
+            HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "example.com");
+
+    var ctx = new NettyServerHttpExchangeStub(request, null);
+    assertThat(ctx.getServerName()).isEqualTo("example.com");
+  }
+
+  @Test
+  void getServerNameFromHostHeaderWithPort() {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "example.com:8080");
+
+    var ctx = new NettyServerHttpExchangeStub(request, null);
+    assertThat(ctx.getServerName()).isEqualTo("example.com");
+  }
+
+  @Test
+  void getServerNameFromHostHeaderWithIpv6WithoutPort() {
+    var request = new DefaultHttpRequest(
+            HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "[::1]");
+
+    var ctx = new NettyServerHttpExchangeStub(request, null);
+    assertThat(ctx.getServerName()).isEqualTo("[::1]");
+  }
+
+  @Test
+  void getServerNameFromHostHeaderWithIpv6WithPort() {
+    var request = new DefaultHttpRequest(
+            HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "[::1]:8080");
+
+    var ctx = new NettyServerHttpExchangeStub(request, null);
+    assertThat(ctx.getServerName()).isEqualTo("[::1]");
+  }
+
+  @Test
+  void getServerNameFallbackToLocalAddress() {
+    var request = new DefaultHttpRequest(
+            HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+
+    var channel = mock(Channel.class);
+    var pipeline = mock(ChannelPipeline.class);
+    when(channel.pipeline()).thenReturn(pipeline);
+    when(channel.localAddress()).thenReturn(new InetSocketAddress("192.168.1.1", 80));
+
+    var ctx = new NettyServerHttpExchangeStub(request, channel);
+    assertThat(ctx.getServerName()).isEqualTo("192.168.1.1");
+  }
+
+  @Test
+  void getServerNameFallbackToLocalhost() {
+    var request = new DefaultHttpRequest(
+            HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+
+    var channel = mock(Channel.class);
+    var pipeline = mock(ChannelPipeline.class);
+    when(channel.pipeline()).thenReturn(pipeline);
+    when(channel.localAddress()).thenReturn(null);
+
+    var ctx = new NettyServerHttpExchangeStub(request, channel);
+    assertThat(ctx.getServerName()).isEqualTo("localhost");
+  }
+
+  // -- getServerPort tests --
+
+  @Test
+  void getServerPortFromLocalAddress() {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "example.com:9999");
+
+    var channel = mock(Channel.class);
+    var pipeline = mock(ChannelPipeline.class);
+    when(channel.pipeline()).thenReturn(pipeline);
+    when(channel.localAddress()).thenReturn(new InetSocketAddress("0.0.0.0", 3000));
+
+    var ctx = new NettyServerHttpExchangeStub(request, channel);
+    assertThat(ctx.getServerPort()).isEqualTo(3000);
+  }
+
+  @Test
+  void getServerPortFromHostHeaderWhenNoLocalAddress() {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "example.com:8080");
+
+    var ctx = new NettyServerHttpExchangeStub(request, null);
+    assertThat(ctx.getServerPort()).isEqualTo(8080);
+  }
+
+  @Test
+  void getServerPortFromHostHeaderWithIpv6WhenNoLocalAddress() {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "[::1]:9090");
+
+    var ctx = new NettyServerHttpExchangeStub(request, null);
+    assertThat(ctx.getServerPort()).isEqualTo(9090);
+  }
+
+  @Test
+  void getServerPortDefaultsTo80WhenNoLocalAddressAndNoPortInHostHeader() {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "example.com");
+
+    var ctx = new NettyServerHttpExchangeStub(request, null);
+    assertThat(ctx.getServerPort()).isEqualTo(80);
+  }
+
+  @Test
+  void getServerPortDefaultsTo80WhenNoAddressAndNoHostHeader() {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+
+    var ctx = new NettyServerHttpExchangeStub(request, null);
+    assertThat(ctx.getServerPort()).isEqualTo(80);
+  }
+
+  @Test
+  void getServerPortDefaultsTo443WhenSecureAndNoAddressAndNoHostHeader() {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+
+    var ctx = new SecureNettyServerHttpExchangeStub(request, null);
+    assertThat(ctx.getServerPort()).isEqualTo(443);
+  }
+
+  @Test
+  void getServerPortWithMalformedPortInHostHeader_fallsBackToDefault() {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    request.headers().set(io.netty.handler.codec.http.HttpHeaderNames.HOST, "example.com:abc");
+
+    var ctx = new NettyServerHttpExchangeStub(request, null);
+    assertThat(ctx.getServerPort()).isEqualTo(80);
+  }
+
+  // -- onResponseCommitted tests --
+
+  @Test
+  void onResponseCommittedFiredOnFlush() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+
+    var ctx = new OnCommittedTrackingStub(request, null);
+    assertThat(ctx.isCommitted()).isFalse();
+    assertThat(ctx.onCommittedCallCount).isEqualTo(0);
+
+    ctx.flush();
+
+    assertThat(ctx.isCommitted()).isTrue();
+    assertThat(ctx.onCommittedCallCount).isEqualTo(1);
+  }
+
+  @Test
+  void onResponseCommittedFiredOnlyOnce() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+
+    var ctx = new OnCommittedTrackingStub(request, null);
+
+    ctx.flush();
+    ctx.flush();
+    ctx.flush();
+
+    assertThat(ctx.onCommittedCallCount).isEqualTo(1);
+  }
+
+  @Test
+  void onResponseCommittedFiredOnSendRedirect() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+
+    var ctx = new OnCommittedTrackingStub(request, null);
+
+    ctx.sendRedirect("/redirect");
+
+    assertThat(ctx.isCommitted()).isTrue();
+    assertThat(ctx.onCommittedCallCount).isEqualTo(1);
+  }
+
+  @Test
+  void onResponseCommittedFiredOnOutputStreamWriteThenFlush() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+
+    var ctx = new OnCommittedTrackingStub(request, null);
+
+    ctx.getOutputStream().write('X');
+    assertThat(ctx.isCommitted()).isFalse();
+    assertThat(ctx.onCommittedCallCount).isEqualTo(0);
+
+    ctx.flush();
+    assertThat(ctx.isCommitted()).isTrue();
+    assertThat(ctx.onCommittedCallCount).isEqualTo(1);
+  }
+
+  @Test
+  void onResponseCommittedNotCalledOnResetAfterFlushWithoutCommit() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+
+    var ctx = new OnCommittedTrackingStub(request, null);
+
+    ctx.getOutputStream();
+    // flush not called, so response not committed
+    ctx.reset();
+
+    assertThat(ctx.isCommitted()).isFalse();
+    assertThat(ctx.onCommittedCallCount).isEqualTo(0);
+  }
+
+  @Test
+  void committedCallback_FiresWhenFlushed() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new NettyServerHttpExchangeStub(request, null);
+    var committed = new boolean[1];
+
+    ctx.registerCommittedCallback(() -> committed[0] = true);
+    ctx.flush();
+
+    assertThat(committed[0]).isTrue();
+  }
+
+  @Test
+  void committingCallback_FiresWhenFlushed() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new NettyServerHttpExchangeStub(request, null);
+    var committed = new boolean[1];
+
+    ctx.registerCommittingCallback(() -> committed[0] = true);
+    ctx.flush();
+
+    assertThat(committed[0]).isTrue();
+  }
+
+  @Test
+  void committingCallbackFailureLeavesResponseUncommitted() {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new OnCommittedTrackingStub(request, null);
+    ctx.registerCommittingCallback(() -> {
+      throw new IllegalStateException("commit failed");
+    });
+
+    assertThatThrownBy(ctx::flush)
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage("commit failed");
+
+    assertThat(ctx.isCommitted()).isFalse();
+    assertThat(ctx.onCommittedCallCount).isZero();
+  }
+
+  @Test
+  void responseCanCommitAfterCommittingCallbackFailure() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new OnCommittedTrackingStub(request, null);
+    ctx.registerCommittingCallback(() -> {
+      throw new IllegalStateException("commit failed");
+    });
+
+    assertThatThrownBy(ctx::flush).isInstanceOf(IllegalStateException.class);
+
+    // committing callbacks are one-shot, so the retry can commit the response
+    ctx.flush();
+    assertThat(ctx.isCommitted()).isTrue();
+    assertThat(ctx.onCommittedCallCount).isEqualTo(1);
+  }
+
+  @Test
+  void committedCallbackSeesCommittedState() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new NettyServerHttpExchangeStub(request, null);
+    var committed = new boolean[1];
+
+    ctx.registerCommittedCallback(() -> committed[0] = ctx.isCommitted());
+    ctx.flush();
+
+    assertThat(committed[0]).isTrue();
+  }
+
+  @Test
+  void flushWritesBufferedWriterContent() throws IOException {
+    var channel = new EmbeddedChannel();
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new NettyServerHttpExchangeStub(request, channel);
+
+    ctx.getWriter().write("hello-writer");
+    ctx.flush();
+    channel.flush();
+
+    var head = (io.netty.handler.codec.http.HttpResponse) channel.readOutbound();
+    assertThat(head.headers().getInt(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH))
+            .isEqualTo("hello-writer".length());
+    var body = (io.netty.buffer.ByteBuf) channel.readOutbound();
+    try {
+      assertThat(body.toString(StandardCharsets.UTF_8)).isEqualTo("hello-writer");
+    }
+    finally {
+      body.release();
+      channel.finishAndReleaseAll();
+    }
+  }
+
+  @Test
+  void directWriterFlushWritesResponseWithoutRecursing() throws IOException {
+    var channel = new EmbeddedChannel();
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new NettyServerHttpExchangeStub(request, channel);
+
+    var writer = ctx.getWriter();
+    writer.write("direct");
+    writer.flush();
+    channel.flush();
+
+    Object head = channel.readOutbound();
+    assertThat(head).isInstanceOf(io.netty.handler.codec.http.DefaultHttpResponse.class);
+    var body = (io.netty.buffer.ByteBuf) channel.readOutbound();
+    try {
+      assertThat(body.toString(StandardCharsets.UTF_8)).isEqualTo("direct");
+    }
+    finally {
+      body.release();
+      channel.finishAndReleaseAll();
+    }
+  }
+
+  @Test
+  void emptyFlushPushesHeadToTheClient() {
+    var channel = new FlushCountingChannel();
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new NettyServerHttpExchangeStub(request, channel);
+
+    ctx.flush();
+
+    assertThat(channel.flushCount).isEqualTo(1);
+    Object head = channel.readOutbound();
+    assertThat(head).isInstanceOf(io.netty.handler.codec.http.HttpResponse.class);
+    assertThat(((io.netty.handler.codec.http.HttpResponse) head).headers()
+            .getInt(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH)).isZero();
+    Object extra = channel.readOutbound();
+    assertThat(extra).isNull();
+    channel.finishAndReleaseAll();
+  }
+
+  @Test
+  void repeatedEmptyFlushesWriteTheHeadOnlyOnce() {
+    var channel = new FlushCountingChannel();
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new NettyServerHttpExchangeStub(request, channel);
+
+    ctx.flush();
+    ctx.flush();
+
+    // both flushes reach the channel, but the head is committed only once
+    assertThat(channel.flushCount).isEqualTo(2);
+    Object head = channel.readOutbound();
+    assertThat(head).isInstanceOf(io.netty.handler.codec.http.HttpResponse.class);
+    Object extra = channel.readOutbound();
+    assertThat(extra).isNull();
+    channel.finishAndReleaseAll();
+  }
+
+  @Test
+  void emptyWriterFlushPushesHeadToTheClient() throws IOException {
+    var channel = new FlushCountingChannel();
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new NettyServerHttpExchangeStub(request, channel);
+
+    // nothing is written, but flushing the writer must still push the head
+    ctx.getWriter().flush();
+
+    assertThat(channel.flushCount).isEqualTo(1);
+    Object head = channel.readOutbound();
+    assertThat(head).isInstanceOf(io.netty.handler.codec.http.HttpResponse.class);
+    channel.finishAndReleaseAll();
+  }
+
+  @Test
+  void flushWithBodyWritesHeadAndBodyInOrder() throws IOException {
+    var channel = new EmbeddedChannel();
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new NettyServerHttpExchangeStub(request, channel);
+
+    ctx.getOutputStream().write('X');
+    ctx.flush();
+
+    Object head = channel.readOutbound();
+    Object body = channel.readOutbound();
+    assertThat(head).isInstanceOf(io.netty.handler.codec.http.HttpResponse.class);
+    assertThat(body).isInstanceOf(io.netty.buffer.ByteBuf.class);
+    ((io.netty.buffer.ByteBuf) body).release();
+    channel.finishAndReleaseAll();
+  }
+
+  @Test
+  void headWriterFlushWritesHeadWithoutBody() throws IOException {
+    var channel = new EmbeddedChannel();
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.HEAD, "/test");
+    var ctx = new NettyServerHttpExchangeStub(request, channel);
+
+    ctx.getWriter().write("ignored-body");
+    ctx.flush();
+
+    Object head = channel.readOutbound();
+    assertThat(head).isInstanceOf(io.netty.handler.codec.http.HttpResponse.class);
+    assertThat(((io.netty.handler.codec.http.HttpResponse) head).headers()
+            .getInt(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH)).isEqualTo(12);
+    Object extra = channel.readOutbound();
+    assertThat(extra).isNull();
+    channel.finishAndReleaseAll();
+  }
+
+  @Test
+  void writerUsesCharsetDeclaredByResponseContentType() throws IOException {
+    var channel = new EmbeddedChannel();
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new NettyServerHttpExchangeStub(request, channel);
+    ctx.setContentType("text/plain;charset=ISO-8859-1");
+
+    ctx.getWriter().write("é");
+    ctx.flush();
+    channel.flush();
+
+    var head = (io.netty.handler.codec.http.HttpResponse) channel.readOutbound();
+    assertThat(head.headers().getInt(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH))
+            .isEqualTo(1);
+    var body = (io.netty.buffer.ByteBuf) channel.readOutbound();
+    try {
+      assertThat(body.toString(StandardCharsets.ISO_8859_1)).isEqualTo("é");
+    }
+    finally {
+      body.release();
+      channel.finishAndReleaseAll();
+    }
+  }
+
+  @Test
+  void reentrantFlushFromCommittingCallbackWritesHeadBeforeBody() throws IOException {
+    var channel = new EmbeddedChannel();
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new OnCommittedTrackingStub(request, channel);
+    ctx.getOutputStream().write('X');
+    ctx.registerCommittingCallback(ctx::flush);
+
+    ctx.flush();
+    channel.flush();
+
+    Object head = channel.readOutbound();
+    Object body = channel.readOutbound();
+    assertThat(head).isInstanceOf(io.netty.handler.codec.http.DefaultHttpResponse.class);
+    assertThat(body).isInstanceOf(io.netty.buffer.ByteBuf.class);
+    assertThat(ctx.onCommittedCallCount).isEqualTo(1);
+  }
+
+  @Test
+  void committingBitsSetDuringCommittingCallback() throws IOException {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new OnCommittedTrackingStub(request, null);
+    var committing = new boolean[1];
+    var committed = new boolean[1];
+    ctx.registerCommittingCallback(() -> {
+      committing[0] = ctx.isCommittingState();
+      committed[0] = ctx.isCommitted();
+    });
+
+    ctx.flush();
+
+    assertThat(committing[0]).isTrue();
+    // the head has not been written yet, so the response is not committed
+    assertThat(committed[0]).isFalse();
+    assertThat(ctx.isCommittingState()).isFalse();
+    assertThat(ctx.isCommitted()).isTrue();
+  }
+
+  @Test
+  void commitBitsClearedWhenCommittingCallbackFails() {
+    var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1,
+            io.netty.handler.codec.http.HttpMethod.GET, "/test");
+    var ctx = new OnCommittedTrackingStub(request, null);
+    ctx.registerCommittingCallback(() -> {
+      throw new IllegalStateException("commit failed");
+    });
+
+    assertThatThrownBy(ctx::flush).isInstanceOf(IllegalStateException.class);
+
+    assertThat(ctx.isCommittingState()).isFalse();
+    assertThat(ctx.isCommitted()).isFalse();
+  }
+
+  // -- stub --
+
+  private static void parseParameters(MultiValueMap<String, String> params, String s) {
+    NettyServerHttpExchange.parseParameters(params, s, false, StandardCharsets.UTF_8);
+  }
+
+  private static void parseParameters(MultiValueMap<String, String> params, String s, boolean semicolonAsNormalChar) {
+    NettyServerHttpExchange.parseParameters(params, s, semicolonAsNormalChar, StandardCharsets.UTF_8);
+  }
+
+  private static Channel mockChannel() {
+    return new EmbeddedChannel();
+  }
+
+  private static class NettyServerHttpExchangeStub extends NettyServerHttpExchange {
+
+    private final io.netty.handler.codec.http.HttpRequest request;
+
+    NettyServerHttpExchangeStub(io.netty.handler.codec.http.HttpRequest request, Channel channel) {
+      this(request, channel, NettyRequestConfig.forBuilder(false));
+    }
+
+    NettyServerHttpExchangeStub(io.netty.handler.codec.http.HttpRequest request, Channel channel, NettyRequestConfig.Builder configBuilder) {
+      super(mock(ApplicationContext.class),
+              channel != null ? channel : mockChannel(),
+              configBuilder
+                      .sendErrorHandler((req, msg) -> { })
+                      .multipartParser(mock(infra.web.multipart.MultipartParser.class))
+                      .build(),
+              mock(DispatcherHandler.class),
+              mock(HttpTrafficHandler.class),
+              0,
+              request.method(),
+              newResponseHeaders());
+      this.request = request;
+    }
+
+    @Override
+    public HttpVersion version() {
+      return request.protocolVersion();
+    }
+
+    @Override
+    protected String requestUri() {
+      return request.uri();
+    }
+
+    @Override
+    protected infra.http.HttpHeaders createRequestHeaders() {
+      return new Netty4HttpHeaders(request.headers());
+    }
+
+    @Override
+    protected boolean is100ContinueExpected() {
+      return HttpUtil.is100ContinueExpected(request);
+    }
+
+    @Override
+    protected void writeResponseContinue() {
+    }
+
+    @Override
+    protected void writeRejectResponseContinue() {
+    }
+
+    boolean isCommittingState() {
+      return isCommitting();
+    }
+  }
+
+  private static class FlushCountingChannel extends EmbeddedChannel {
+
+    int flushCount;
+
+    @Override
+    public Channel flush() {
+      flushCount++;
+      return super.flush();
+    }
+  }
+
+  private static class SecureNettyServerHttpExchangeStub extends NettyServerHttpExchangeStub {
+
+    SecureNettyServerHttpExchangeStub(io.netty.handler.codec.http.HttpRequest request, Channel channel) {
+      super(request, channel, NettyRequestConfig.forBuilder(true));
+    }
+  }
+
+  private static class OnCommittedTrackingStub extends NettyServerHttpExchangeStub {
+
+    int onCommittedCallCount;
+
+    OnCommittedTrackingStub(io.netty.handler.codec.http.HttpRequest request, Channel channel) {
+      super(request, channel);
+      registerCommittedCallback(() -> onCommittedCallCount++);
+    }
+  }
+
+}

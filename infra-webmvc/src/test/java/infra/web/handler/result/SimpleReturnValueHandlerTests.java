@@ -30,11 +30,11 @@ import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
 import infra.web.BindingContext;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.handler.SelectableReturnValueHandler;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.support.HttpEntityMethodProcessor;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.view.ModelAndView;
 import infra.web.view.ViewReturnValueHandler;
 
@@ -48,7 +48,7 @@ class SimpleReturnValueHandlerTests {
 
   @Test
   void copiesNonEmptyHeadersOnly() {
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
     var handler = new HttpHeadersReturnValueHandler();
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("X-Sample", "value");
@@ -61,7 +61,7 @@ class SimpleReturnValueHandlerTests {
 
   @Test
   void appliesStatusOnlyForHttpStatusResults() {
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
     var handler = new HttpStatusReturnValueHandler();
     handler.handleReturnValue(context, null, null);
     then(context).shouldHaveNoInteractions();
@@ -71,7 +71,7 @@ class SimpleReturnValueHandlerTests {
 
   @Test
   void rendersBindingModelForVoidResult() throws Exception {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     ViewReturnValueHandler renderer = mock(ViewReturnValueHandler.class);
     var handler = new VoidReturnValueHandler(renderer);
     HandlerMethod method = mock(HandlerMethod.class);
@@ -92,7 +92,7 @@ class SimpleReturnValueHandlerTests {
 
   @Test
   void delegatesObjectReturnValueSelection() throws Exception {
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
     SelectableReturnValueHandler delegate = mock(SelectableReturnValueHandler.class);
     var handler = new ObjectHandlerMethodReturnValueHandler(delegate);
     HandlerMethod method = mock(HandlerMethod.class);
@@ -106,7 +106,7 @@ class SimpleReturnValueHandlerTests {
 
   @Test
   void selectsEmitterForStreamingEntity() throws Exception {
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
     HttpEntityMethodProcessor processor = mock(HttpEntityMethodProcessor.class);
     ResponseBodyEmitterReturnValueHandler emitterHandler = mock(ResponseBodyEmitterReturnValueHandler.class);
     var handler = new ResponseEntityReturnValueHandler(processor, emitterHandler);
@@ -120,7 +120,7 @@ class SimpleReturnValueHandlerTests {
 
   @Test
   void writesImageUsingTheConfiguredFormatAndContentType() throws Exception {
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     given(context.getOutputStream()).willReturn(output);
     var handler = new RenderedImageReturnValueHandler();
@@ -151,7 +151,7 @@ class SimpleReturnValueHandlerTests {
       }
 
       @Override
-      public void handleReturnValue(HttpContext context, Object handler, Object value) {
+      public void handleReturnValue(ServerHttpExchange exchange, Object handler, Object value) {
       }
     };
     assertThat(smart.supportsHandler(new Object(), "sample")).isTrue();

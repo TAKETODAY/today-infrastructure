@@ -37,9 +37,9 @@ import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.ui.template.TemplateAvailabilityProvider;
 import infra.ui.template.TemplateAvailabilityProviders;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.config.WebProperties.Resources;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.view.ModelAndView;
@@ -70,7 +70,7 @@ class DefaultErrorViewResolverTests {
 
   private final MockResponse mockResponse = new MockResponse();
 
-  private final HttpContext request = new MockHttpContext(null,
+  private final ServerHttpExchange request = new MockServerHttpExchange(null,
           new MockRequest(), mockResponse);
 
   @BeforeEach

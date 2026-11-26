@@ -47,7 +47,7 @@ import infra.context.ApplicationContextException;
 import infra.context.MessageSource;
 import infra.context.support.MessageSourceAccessor;
 import infra.util.Assert;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.view.AbstractTemplateView;
 
 /**
@@ -279,7 +279,7 @@ public class FreeMarkerView extends AbstractTemplateView {
    * <p>This method can be overridden if custom behavior is needed.
    */
   @Override
-  protected void renderMergedTemplateModel(Map<String, Object> model, HttpContext context) throws Exception {
+  protected void renderMergedTemplateModel(Map<String, Object> model, ServerHttpExchange context) throws Exception {
     exposeHelpers(model, context);
     doRender(model, context);
   }
@@ -295,7 +295,7 @@ public class FreeMarkerView extends AbstractTemplateView {
    * @throws Exception if there's a fatal error while we're adding information to the context
    * @see #renderMergedTemplateModel
    */
-  protected void exposeHelpers(Map<String, Object> model, HttpContext context) throws Exception {
+  protected void exposeHelpers(Map<String, Object> model, ServerHttpExchange context) throws Exception {
   }
 
   /**
@@ -316,7 +316,7 @@ public class FreeMarkerView extends AbstractTemplateView {
    * @see #getTemplate(java.util.Locale)
    * @see #processTemplate
    */
-  protected void doRender(Map<String, Object> model, HttpContext context) throws Exception {
+  protected void doRender(Map<String, Object> model, ServerHttpExchange context) throws Exception {
     // Expose model to JSP tags (as request attributes).
     if (isExposeMessages() || isExposeBindings()) {
       Map<String, Object> requestModel = new LinkedHashMap<>(model);
@@ -341,12 +341,12 @@ public class FreeMarkerView extends AbstractTemplateView {
   }
 
   @Override
-  protected Locale resolveLocale(HttpContext context) {
+  protected Locale resolveLocale(ServerHttpExchange context) {
     return this.locale != null ? this.locale : super.resolveLocale(context);
   }
 
   @Override
-  protected MessageSourceAccessor createMessageSourceAccessor(HttpContext context, Locale locale) {
+  protected MessageSourceAccessor createMessageSourceAccessor(ServerHttpExchange context, Locale locale) {
     return new FreeMarkerMessages(context.getMessageSource(), locale);
   }
 
@@ -359,7 +359,7 @@ public class FreeMarkerView extends AbstractTemplateView {
    * @param request current HTTP request
    * @return the FreeMarker template model, as a {@link SimpleHash} or subclass thereof
    */
-  protected SimpleHash buildTemplateModel(Map<String, Object> model, HttpContext request) {
+  protected SimpleHash buildTemplateModel(Map<String, Object> model, ServerHttpExchange request) {
     SimpleHash fmModel = new RequestHashModel(getObjectWrapper(), request);
     fmModel.putAll(model);
     return fmModel;
@@ -415,7 +415,7 @@ public class FreeMarkerView extends AbstractTemplateView {
    * @see freemarker.template.Template#createProcessingEnvironment(Object, java.io.Writer)
    * @see freemarker.core.Environment#process()
    */
-  protected void processTemplate(Template template, SimpleHash model, HttpContext response)
+  protected void processTemplate(Template template, SimpleHash model, ServerHttpExchange response)
           throws IOException, TemplateException {
 
     String encoding = getEncoding();
@@ -437,9 +437,9 @@ public class FreeMarkerView extends AbstractTemplateView {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private final HttpContext request;
+    private final ServerHttpExchange request;
 
-    public RequestHashModel(ObjectWrapper wrapper, HttpContext request) {
+    public RequestHashModel(ObjectWrapper wrapper, ServerHttpExchange request) {
       super(wrapper);
       this.request = request;
     }

@@ -65,7 +65,7 @@ public abstract class InterceptorChain {
    * @throws Exception if any interceptor or the handler throws an exception
    * @see infra.web.ReturnValueHandler
    */
-  public final @Nullable Object proceed(HttpContext context) throws Exception {
+  public final @Nullable Object proceed(ServerHttpExchange context) throws Exception {
     if (currentIndex < interceptorLength) {
       return interceptors[currentIndex++].intercept(context, this);
     }
@@ -75,7 +75,7 @@ public abstract class InterceptorChain {
   /**
    * Invokes the target handler after all interceptors in the chain have been executed.
    * <p>
-   * This method is called by {@link #proceed(HttpContext)} when there are no more
+   * This method is called by {@link #proceed(ServerHttpExchange)} when there are no more
    * interceptors to process. Subclasses must implement this method to handle the
    * actual invocation of the target handler, which may be a {@link HandlerMethod}
    * or another type of handler wrapped by {@link HandlerWrapper}.
@@ -89,7 +89,7 @@ public abstract class InterceptorChain {
    * @see HandlerMethod
    * @see HandlerWrapper
    */
-  protected abstract @Nullable Object invokeHandler(HttpContext context, Object handler)
+  protected abstract @Nullable Object invokeHandler(ServerHttpExchange context, Object handler)
           throws Exception;
 
   /**

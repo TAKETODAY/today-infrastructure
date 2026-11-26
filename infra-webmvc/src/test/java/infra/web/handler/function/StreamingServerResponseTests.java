@@ -29,7 +29,7 @@ import java.util.Collections;
 import infra.http.CacheControl;
 import infra.http.MediaType;
 import infra.http.converter.json.JacksonJsonHttpMessageConverter;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
@@ -45,7 +45,7 @@ class StreamingServerResponseTests {
 
   private MockResponse mockResponse;
 
-  MockHttpContext httpContext;
+  MockServerHttpExchange httpContext;
 
   @BeforeEach
   void setUp() {
@@ -53,7 +53,7 @@ class StreamingServerResponseTests {
     this.mockRequest.setAsyncSupported(true);
     this.mockResponse = new MockResponse();
 
-    httpContext = new MockHttpContext(mockRequest, mockResponse);
+    httpContext = new MockServerHttpExchange(mockRequest, mockResponse);
   }
 
   @Test

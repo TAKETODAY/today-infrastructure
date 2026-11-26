@@ -33,7 +33,7 @@ import java.util.function.Predicate;
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
 import infra.util.Assert;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * {@code ApiVersionDeprecationHandler} based on
@@ -96,7 +96,7 @@ public class StandardApiVersionDeprecationHandler implements ApiVersionDeprecati
   }
 
   @Override
-  public void handleVersion(Comparable<?> requestVersion, Object handler, HttpContext request) {
+  public void handleVersion(Comparable<?> requestVersion, Object handler, ServerHttpExchange request) {
     for (VersionInfo info : this.infos.values()) {
       if (info.match(requestVersion, request)) {
         if (info.deprecationDate() != null) {
@@ -141,7 +141,7 @@ public class StandardApiVersionDeprecationHandler implements ApiVersionDeprecati
      * @param predicate a predicate to check the request with
      * @return the same spec instance
      */
-    public VersionSpec setRequestPredicate(Predicate<HttpContext> predicate) {
+    public VersionSpec setRequestPredicate(Predicate<ServerHttpExchange> predicate) {
       return map(info -> info.withRequestPredicate(predicate));
     }
 
@@ -222,7 +222,7 @@ public class StandardApiVersionDeprecationHandler implements ApiVersionDeprecati
   }
 
   private record VersionInfo(Comparable<?> version,
-          Predicate<HttpContext> requestPredicate,
+          Predicate<ServerHttpExchange> requestPredicate,
           @Nullable String deprecationDate, @Nullable String deprecationLink,
           @Nullable String sunsetDate, @Nullable String sunsetLink) {
 
@@ -230,7 +230,7 @@ public class StandardApiVersionDeprecationHandler implements ApiVersionDeprecati
       this(version, request -> true, null, null, null, null);
     }
 
-    public VersionInfo withRequestPredicate(Predicate<HttpContext> predicate) {
+    public VersionInfo withRequestPredicate(Predicate<ServerHttpExchange> predicate) {
       return new VersionInfo(version(), predicate,
               deprecationDate(), deprecationLink(), sunsetDate(), sunsetLink());
     }
@@ -259,7 +259,7 @@ public class StandardApiVersionDeprecationHandler implements ApiVersionDeprecati
               sunsetDate(), String.format("<%s>; rel=\"sunset\"; type=\"%s\"", uri, mediaType));
     }
 
-    boolean match(Comparable<?> requestVersion, HttpContext request) {
+    boolean match(Comparable<?> requestVersion, ServerHttpExchange request) {
       return (version().equals(requestVersion) && requestPredicate().test(request));
     }
   }

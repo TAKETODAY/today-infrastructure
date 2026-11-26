@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import infra.util.Assert;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.view.AbstractUrlBasedView;
 
 /**
@@ -59,7 +59,7 @@ public abstract class AbstractPdfStamperView extends AbstractUrlBasedView {
   }
 
   @Override
-  protected final void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
+  protected final void renderMergedOutputModel(Map<String, Object> model, ServerHttpExchange http) throws Exception {
     // IE workaround: write into byte array first.
     ByteArrayOutputStream baos = createTemporaryOutputStream();
 
@@ -113,7 +113,7 @@ public abstract class AbstractPdfStamperView extends AbstractUrlBasedView {
    * @param context in case we need locale etc. Shouldn't look at attributes.
    * @throws Exception any exception that occurred during document building
    */
-  protected abstract void mergePdfDocument(Map<String, Object> model, PdfStamper stamper, HttpContext context)
+  protected abstract void mergePdfDocument(Map<String, Object> model, PdfStamper stamper, ServerHttpExchange context)
           throws Exception;
 
 }

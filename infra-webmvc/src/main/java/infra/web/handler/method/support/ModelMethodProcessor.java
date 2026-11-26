@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import infra.ui.Model;
 import infra.web.BindingContext;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.RedirectModel;
 import infra.web.ReturnValueHandler;
 import infra.web.handler.method.HandlerMethod;
@@ -52,16 +52,16 @@ public class ModelMethodProcessor implements ReturnValueHandler, ParameterResolv
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, HandlerParameter parameter) throws Exception {
+  public Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) throws Exception {
     if (parameter.is(RedirectModel.class)) {
       RedirectModel redirectModel = new RedirectModel();
-      context.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, redirectModel);
+      exchange.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, redirectModel);
       // set redirect model to current BindingContext
-      BindingContext.obtain(context).setRedirectModel(redirectModel);
+      BindingContext.obtain(exchange).setRedirectModel(redirectModel);
       return redirectModel;
     }
 
-    return BindingContext.obtain(context).getModel();
+    return BindingContext.obtain(exchange).getModel();
   }
 
   //---------------------------------------------------------------------
@@ -83,9 +83,9 @@ public class ModelMethodProcessor implements ReturnValueHandler, ParameterResolv
   }
 
   @Override
-  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(ServerHttpExchange exchange, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof Model model) {
-      BindingContext bindingContext = BindingContext.obtain(context);
+      BindingContext bindingContext = BindingContext.obtain(exchange);
       if (returnValue instanceof RedirectModel redirectModel) {
         // RedirectModel is a special case:
         RedirectModel existRedirectModel = bindingContext.getRedirectModel();
@@ -97,7 +97,7 @@ public class ModelMethodProcessor implements ReturnValueHandler, ParameterResolv
         }
         else {
           // No RedirectModel is present: just set
-          context.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, redirectModel);
+          exchange.setAttribute(RedirectModel.OUTPUT_ATTRIBUTE, redirectModel);
           bindingContext.setRedirectModel(redirectModel);
         }
       }

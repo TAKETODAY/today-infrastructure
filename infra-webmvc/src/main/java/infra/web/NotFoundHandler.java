@@ -60,12 +60,12 @@ public interface NotFoundHandler {
    * or perform custom fallback logic. If the response has been fully processed within this
    * method, {@link #NONE_RETURN_VALUE} should be returned.</p>
    *
-   * @param http the current request context containing request details and response access
+   * @param exchange the current request context containing request details and response access
    * @return the handler return value, or {@link #NONE_RETURN_VALUE} if no value is returned
    * or the response has already been processed
    * @throws Exception if an error occurs during the handling process
    */
   @Nullable
-  Object handleNotFound(HttpContext http) throws Exception;
+  Object handleNotFound(ServerHttpExchange exchange) throws Exception;
 
 }

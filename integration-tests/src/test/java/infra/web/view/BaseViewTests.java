@@ -29,11 +29,11 @@ import java.util.Properties;
 
 import infra.context.ApplicationContext;
 import infra.context.ApplicationContextException;
+import infra.web.ServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -65,9 +65,9 @@ public class BaseViewTests {
     model.put("foo", "bar");
     model.put("something", new Object());
 
-    HttpContext httpContext = new MockHttpContext(wac, request, response);
+    ServerHttpExchange exchange = new MockServerHttpExchange(wac, request, response);
 
-    tv.render(model, httpContext);
+    tv.render(model, exchange);
 
     checkContainsAll(model, tv.model);
 
@@ -95,9 +95,9 @@ public class BaseViewTests {
     model.put("one", new HashMap<>());
     model.put("two", new Object());
 
-    HttpContext httpContext = new MockHttpContext(wac, request, response);
+    ServerHttpExchange exchange = new MockServerHttpExchange(wac, request, response);
 
-    tv.render(model, httpContext);
+    tv.render(model, exchange);
 
     checkContainsAll(model, tv.model);
     checkContainsAll(p, tv.model);
@@ -123,12 +123,12 @@ public class BaseViewTests {
     Map<String, Object> pathVars = new HashMap<>();
     pathVars.put("one", new HashMap<>());
     pathVars.put("two", new Object());
-    HttpContext httpContext = new MockHttpContext(wac, request, response);
-    HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(httpContext);
+    ServerHttpExchange exchange = new MockServerHttpExchange(wac, request, response);
+    HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(exchange);
     metadata.getPathVariables().putAll(pathVars);
-    HandlerMatchingMetadata.set(httpContext, metadata);
+    HandlerMatchingMetadata.set(exchange, metadata);
 
-    tv.render(new HashMap<>(), httpContext);
+    tv.render(new HashMap<>(), exchange);
 
     checkContainsAll(pathVars, tv.model);
 
@@ -154,9 +154,9 @@ public class BaseViewTests {
     Map<String, Object> model = new HashMap<>();
     model.put("one", new HashMap<>());
     model.put("two", new Object());
-    HttpContext httpContext = new MockHttpContext(wac, request, response);
+    ServerHttpExchange exchange = new MockServerHttpExchange(wac, request, response);
 
-    tv.render(model, httpContext);
+    tv.render(model, exchange);
 
     // Check it contains all
     checkContainsAll(model, tv.model);
@@ -179,17 +179,17 @@ public class BaseViewTests {
     Map<String, Object> pathVars = new HashMap<>();
     pathVars.put("one", "bar");
     pathVars.put("something", "else");
-    HttpContext httpContext = new MockHttpContext(wac, request, response);
+    ServerHttpExchange exchange = new MockServerHttpExchange(wac, request, response);
 
-    HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(httpContext);
+    HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(exchange);
     metadata.getPathVariables().putAll(pathVars);
-    HandlerMatchingMetadata.set(httpContext, metadata);
+    HandlerMatchingMetadata.set(exchange, metadata);
 
     Map<String, Object> model = new HashMap<>();
     model.put("one", new HashMap<>());
     model.put("two", new Object());
 
-    tv.render(model, httpContext);
+    tv.render(model, exchange);
 
     checkContainsAll(model, tv.model);
     assertThat(tv.model.size()).isEqualTo(3);
@@ -288,7 +288,7 @@ public class BaseViewTests {
   private static class ConcreteView extends AbstractView {
     // Do-nothing concrete subclass
     @Override
-    protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws IOException {
+    protected void renderMergedOutputModel(Map<String, Object> model, ServerHttpExchange http) throws IOException {
       throw new UnsupportedOperationException();
     }
   }
@@ -310,7 +310,7 @@ public class BaseViewTests {
     }
 
     @Override
-    protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws IOException {
+    protected void renderMergedOutputModel(Map<String, Object> model, ServerHttpExchange http) throws IOException {
       this.model = model;
     }
 

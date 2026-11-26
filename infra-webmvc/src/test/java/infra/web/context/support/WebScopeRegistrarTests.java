@@ -24,9 +24,9 @@ import java.util.function.Supplier;
 
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.session.Session;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpContextHolder;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -48,27 +48,27 @@ class WebScopeRegistrarTests {
     ConfigurableBeanFactory beanFactory = mock(ConfigurableBeanFactory.class);
     WebScopeRegistrar.registerScopes(beanFactory);
 
-    then(beanFactory).should().registerScope(HttpContext.SCOPE_REQUEST, RequestScope.instance);
-    then(beanFactory).should().registerScope(eq(HttpContext.SCOPE_SESSION), isA(SessionScope.class));
+    then(beanFactory).should().registerScope(ServerHttpExchange.SCOPE_REQUEST, RequestScope.instance);
+    then(beanFactory).should().registerScope(eq(ServerHttpExchange.SCOPE_SESSION), isA(SessionScope.class));
     ArgumentCaptor<Object> requestDependency = ArgumentCaptor.forClass(Object.class);
     ArgumentCaptor<Object> sessionDependency = ArgumentCaptor.forClass(Object.class);
-    then(beanFactory).should().registerResolvableDependency(eq(HttpContext.class), requestDependency.capture());
+    then(beanFactory).should().registerResolvableDependency(eq(ServerHttpExchange.class), requestDependency.capture());
     then(beanFactory).should().registerResolvableDependency(eq(Session.class), sessionDependency.capture());
     then(beanFactory).shouldHaveNoMoreInteractions();
 
-    HttpContext request = (HttpContext) requestDependency.getValue();
+    ServerHttpExchange request = (ServerHttpExchange) requestDependency.getValue();
     Supplier<?> session = (Supplier<?>) sessionDependency.getValue();
     assertThatIllegalStateException().isThrownBy(request::getRequestURI);
     assertThatIllegalStateException().isThrownBy(session::get);
 
-    MockHttpContext first = new MockHttpContext();
+    MockServerHttpExchange first = new MockServerHttpExchange();
     first.setRequestURI("/first");
     HttpContextHolder.set(first);
     assertThat(request.getRequestURI()).isEqualTo("/first");
     assertThat(first.getSession(false)).isNull();
     assertThat(session.get()).isSameAs(first.getSession());
 
-    MockHttpContext second = new MockHttpContext();
+    MockServerHttpExchange second = new MockServerHttpExchange();
     second.setRequestURI("/second");
     HttpContextHolder.set(second);
     assertThat(request.getRequestURI()).isEqualTo("/second");

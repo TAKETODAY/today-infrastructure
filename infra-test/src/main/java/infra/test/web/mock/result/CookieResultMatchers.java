@@ -27,7 +27,7 @@ import java.util.List;
 import infra.http.ResponseCookie;
 import infra.test.web.mock.MvcResult;
 import infra.test.web.mock.ResultMatcher;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 import static infra.test.util.AssertionErrors.assertEquals;
 import static infra.test.util.AssertionErrors.assertNotNull;
@@ -201,14 +201,14 @@ public class CookieResultMatchers {
   }
 
   private static ResponseCookie getCookie(MvcResult result, String cookieName) {
-    HttpContext context = result.getContext();
+    ServerHttpExchange context = result.getContext();
     ResponseCookie cookie = getCookie(context, cookieName);
     assertNotNull("No cookie with name '" + cookieName + "'", cookie);
     return cookie;
   }
 
   @Nullable
-  private static ResponseCookie getCookie(HttpContext context, String cookieName) {
+  private static ResponseCookie getCookie(ServerHttpExchange context, String cookieName) {
     List<ResponseCookie> httpCookies = context.responseCookies();
     for (ResponseCookie httpCookie : httpCookies) {
       if (cookieName.equals(httpCookie.getName())) {

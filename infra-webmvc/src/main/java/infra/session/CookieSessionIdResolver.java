@@ -22,7 +22,7 @@ import infra.http.HttpCookie;
 import infra.http.ResponseCookie;
 import infra.session.config.CookieProperties;
 import infra.util.Assert;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * A {@link SessionIdResolver} that uses a cookie to obtain the session from.
@@ -77,7 +77,7 @@ public class CookieSessionIdResolver implements SessionIdResolver {
   }
 
   @Override
-  public @Nullable String getSessionId(HttpContext exchange) {
+  public @Nullable String getSessionId(ServerHttpExchange exchange) {
     // find in request attribute
     Object attribute = exchange.getAttribute(WRITTEN_SESSION_ID_ATTR);
     if (attribute instanceof String sessionId) {
@@ -101,7 +101,7 @@ public class CookieSessionIdResolver implements SessionIdResolver {
   }
 
   @Override
-  public void setSessionId(HttpContext exchange, String sessionId) {
+  public void setSessionId(ServerHttpExchange exchange, String sessionId) {
     if (!sessionId.equals(exchange.getAttribute(WRITTEN_SESSION_ID_ATTR))) {
       ResponseCookie cookie = createCookie(sessionId);
       exchange.addCookie(cookie);
@@ -110,7 +110,7 @@ public class CookieSessionIdResolver implements SessionIdResolver {
   }
 
   @Override
-  public void expireSession(HttpContext exchange) {
+  public void expireSession(ServerHttpExchange exchange) {
     exchange.removeCookies(cookieName);
     exchange.removeAttribute(WRITTEN_SESSION_ID_ATTR);
   }

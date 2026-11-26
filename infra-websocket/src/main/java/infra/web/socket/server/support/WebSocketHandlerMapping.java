@@ -24,7 +24,7 @@ import infra.context.Lifecycle;
 import infra.context.SmartLifecycle;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.handler.HandlerWrapper;
 import infra.web.handler.SimpleUrlHandlerMapping;
 
@@ -88,12 +88,12 @@ public class WebSocketHandlerMapping extends SimpleUrlHandlerMapping implements 
   }
 
   @Override
-  protected @Nullable Object getHandlerInternal(HttpContext request) {
+  protected @Nullable Object getHandlerInternal(ServerHttpExchange request) {
     Object handler = super.getHandlerInternal(request);
     return matchWebSocketUpgrade(handler, request) ? handler : null;
   }
 
-  private boolean matchWebSocketUpgrade(@Nullable Object handler, HttpContext request) {
+  private boolean matchWebSocketUpgrade(@Nullable Object handler, ServerHttpExchange request) {
     handler = HandlerWrapper.unwrapIfNecessary(handler);
     if (this.webSocketUpgradeMatch && handler instanceof WebSocketHttpRequestHandler) {
       String header = request.requestHeaders().getUpgrade();

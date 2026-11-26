@@ -32,7 +32,7 @@ import java.util.function.Predicate;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.MediaType;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.accept.ApiVersionStrategy;
@@ -722,7 +722,7 @@ class RequestPredicatesTests {
             PathPatternsTestUtils.initRequest("GET", null, "/path", true,
                     req -> req.setAttribute(API_VERSION_ATTRIBUTE, strategy.parseVersion(version)));
 
-    return new DefaultServerRequest(new MockHttpContext(null, mockRequest,
+    return new DefaultServerRequest(new MockServerHttpExchange(null, mockRequest,
             new MockResponse()), Collections.emptyList(), strategy);
   }
 
@@ -734,7 +734,7 @@ class RequestPredicatesTests {
           String httpMethod, String requestUri, @Nullable Consumer<MockRequest> initializer) {
     MockRequest request = PathPatternsTestUtils.initRequest(httpMethod, null, requestUri, true, initializer);
     return new DefaultServerRequest(
-            new MockHttpContext(null, request, new MockResponse()),
+            new MockServerHttpExchange(null, request, new MockResponse()),
             Collections.emptyList());
   }
 

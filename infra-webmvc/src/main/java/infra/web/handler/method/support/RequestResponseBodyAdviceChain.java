@@ -34,7 +34,7 @@ import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.SmartHttpMessageConverter;
 import infra.util.CollectionUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.handler.method.ControllerAdviceBean;
 import infra.web.handler.method.RequestBodyAdvice;
 import infra.web.handler.method.ResponseBodyAdvice;
@@ -134,7 +134,7 @@ public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, Respon
   @Nullable
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public Object beforeBodyWrite(@Nullable Object body, @Nullable MethodParameter returnType,
-          MediaType contentType, HttpMessageConverter<?> selected, HttpContext context) {
+          MediaType contentType, HttpMessageConverter<?> selected, ServerHttpExchange context) {
 
     for (ResponseBodyAdvice advice : getMatchingAdvice(returnType, ResponseBodyAdvice.class, responseBodyAdvice)) {
       if (advice.supports(body, returnType, selected)) {

@@ -83,8 +83,8 @@ public @interface Scope {
    *
    * @see BeanDefinition#SCOPE_PROTOTYPE
    * @see BeanDefinition#SCOPE_SINGLETON
-   * @see infra.web.HttpContext#SCOPE_REQUEST
-   * @see infra.web.HttpContext#SCOPE_SESSION
+   * @see infra.web.ServerHttpExchange#SCOPE_REQUEST
+   * @see infra.web.ServerHttpExchange#SCOPE_SESSION
    * @see #value
    * @since 4.0
    */

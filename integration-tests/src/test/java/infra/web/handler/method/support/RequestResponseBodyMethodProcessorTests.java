@@ -69,7 +69,7 @@ import infra.web.annotation.RestController;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.method.RequestBodyAdvice;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.view.ModelAndView;
@@ -93,7 +93,7 @@ class RequestResponseBodyMethodProcessorTests {
 
   private MockResponse mockResponse;
 
-  private MockHttpContext request;
+  private MockServerHttpExchange request;
 
   private HandlerParameter paramGenericList;
   private HandlerParameter paramSimpleBean;
@@ -108,7 +108,7 @@ class RequestResponseBodyMethodProcessorTests {
     mockRequest = new MockRequest();
     mockRequest.setMethod("POST");
     mockResponse = new MockResponse();
-    request = new MockHttpContext(null, mockRequest, mockResponse);
+    request = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
     Method method = getClass().getDeclaredMethod("handle",
             List.class, SimpleBean.class, MultiValueMap.class, String.class);
@@ -879,7 +879,7 @@ class RequestResponseBodyMethodProcessorTests {
 
     this.mockRequest = new MockRequest();
     this.mockResponse = new MockResponse();
-    this.request = new MockHttpContext(null, mockRequest, mockResponse);
+    this.request = new MockServerHttpExchange(null, mockRequest, mockResponse);
   }
 
   String handle(

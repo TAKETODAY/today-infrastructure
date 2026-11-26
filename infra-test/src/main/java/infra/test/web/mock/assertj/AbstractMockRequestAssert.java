@@ -21,7 +21,7 @@ package infra.test.web.mock.assertj;
 import org.jspecify.annotations.Nullable;
 
 import infra.test.web.mock.MvcResult;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.mock.MockRequest;
 
 /**
@@ -48,7 +48,7 @@ public abstract class AbstractMockRequestAssert<SELF extends AbstractMockRequest
   }
 
   @Override
-  protected @Nullable HttpContext getHttpContext() {
+  protected @Nullable ServerHttpExchange getHttpContext() {
     return result != null ? result.getContext() : null;
   }
 

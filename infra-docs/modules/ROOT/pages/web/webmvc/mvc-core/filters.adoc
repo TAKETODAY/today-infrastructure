@@ -2,7 +2,7 @@
 = 过滤器
 
 `infra.web.Filter` 用于在请求进入处理器之前执行检查，或围绕后续处理执行逻辑。
-调用 `FilterChain.doFilter(HttpContext)` 将请求交给后续过滤器和处理器；
+调用 `FilterChain.doFilter(ServerHttpExchange)` 将请求交给后续过滤器和处理器；
 不调用过滤链并直接返回，则短路后续处理。
 
 过滤器从 5.0 开始提供，运行在 `DispatcherHandler` 层，在处理器查找和执行之前介入。
@@ -31,26 +31,26 @@ public class FilterConfiguration {
   @Bean
   @Order(0)
   Filter responseHeaderFilter() {
-    return (http, chain) -> {
-      http.setHeader("X-Application", "example");
-      chain.doFilter(http);
+    return (exchange, chain) -> {
+      exchange.setHeader("X-Application", "example");
+      chain.doFilter(exchange);
     };
   }
 }
 ----
 
 过滤器默认参与该调度器接收的所有请求，不需要通过 MVC 拦截器注册器注册。
-需要按路径生效时，在过滤器中检查 `http.getRequestURI()` 等请求信息，
+需要按路径生效时，在过滤器中检查 `exchange.getRequestURI()` 等请求信息，
 对不适用的请求直接调用过滤链并返回。
 过滤器 Bean 通常由多个请求共享，不要将当前请求、响应或计时状态保存在实例字段中；
-请求相关状态应保存在局部变量或 `HttpContext` 属性中。
+请求相关状态应保存在局部变量或 `ServerHttpExchange` 属性中。
 
 == 执行顺序与前后置处理
 
-过滤器通过 `doFilter(HttpContext, FilterChain)` 处理请求。通常只调用一次
+过滤器通过 `doFilter(ServerHttpExchange, FilterChain)` 处理请求。通常只调用一次
 `chain.doFilter(http)`；重复调用会再次执行下游链，而不是从上次结束的位置继续。
 链的终点进入处理器查找、执行及返回值处理。
-调用 `HttpContext.forward(path)` 则直接重新查找目标处理器，不会重新执行过滤器链。
+调用 `ServerHttpExchange.forward(path)` 则直接重新查找目标处理器，不会重新执行过滤器链。
 参见 xref:web/webmvc/mvc-core/sequence.adoc#mvc-internal-forward[内部转发]。
 
 例如，两个过滤器的顺序值分别为 `0` 和 `10`，正常同步执行时顺序如下：
@@ -70,10 +70,10 @@ Filter(0) 后置逻辑
 [source,java]
 ----
 @Override
-public void doFilter(HttpContext http, FilterChain chain) throws Exception {
+public void doFilter(ServerHttpExchange exchange, FilterChain chain) throws Exception {
   long start = System.nanoTime();
   try {
-    chain.doFilter(http);
+    chain.doFilter(exchange);
   }
   finally {
     long elapsedNanos = System.nanoTime() - start;
@@ -84,7 +84,7 @@ public void doFilter(HttpContext http, FilterChain chain) throws Exception {
 
 这里的后置逻辑只表示过滤链调用已返回，不保证客户端已收到响应，
 也不代表异步请求已经完成。需要跟随请求完成时机执行的动作，应使用
-`HttpContext.registerCompletedCallback(Runnable)` 等生命周期回调，
+`ServerHttpExchange.registerCompletedCallback(Runnable)` 等生命周期回调，
 而不是依赖过滤器的 `finally`。
 同步处理返回时，响应可能已经提交、请求也可能已经完成，
 因此应在调用过滤链之前设置响应头，不要把后置逻辑当作修改响应结果的入口。
@@ -110,7 +110,7 @@ xref:web/webmvc/mvc-core/handlermapping-interceptor.adoc[处理器拦截器]。
 
 == 在过滤器中发送响应
 
-从 5.0 开始，可以通过 `HttpContext.send(Object)` 发送响应结果，无需注入额外的发送器，
+从 5.0 开始，可以通过 `ServerHttpExchange.send(Object)` 发送响应结果，无需注入额外的发送器，
 也不需要先匹配控制器方法。该方法复用已配置的返回值处理器和消息转换器。
 
 下面的过滤器在缺少认证信息时发送 JSON 错误响应，否则继续过滤链。
@@ -126,28 +126,28 @@ import infra.http.ResponseEntity;
 import infra.stereotype.Component;
 import infra.web.Filter;
 import infra.web.FilterChain;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 @Component
 public class AuthenticationFilter implements Filter {
 
   @Override
-  public void doFilter(HttpContext http, FilterChain chain) throws Exception {
-    if (http.getHeader("Authorization") == null) {
-      http.send(ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+  public void doFilter(ServerHttpExchange exchange, FilterChain chain) throws Exception {
+    if (exchange.getHeader("Authorization") == null) {
+      exchange.send(ResponseEntity.status(HttpStatus.UNAUTHORIZED)
           .contentType(MediaType.APPLICATION_JSON)
           .body(Map.of("code", "UNAUTHORIZED", "message", "请先登录")));
       return;
     }
 
-    chain.doFilter(http);
+    chain.doFilter(exchange);
   }
 }
 ----
 
 JSON 响应需要配置能够写入该对象类型的 JSON 消息转换器。
 `ResponseEntity` 同时表达状态码、响应头和响应体；仅需发送对象时，也可以直接调用
-`http.send(result)`，具体行为由配置的返回值处理器决定。
+`exchange.send(result)`，具体行为由配置的返回值处理器决定。
 
 == 结果处理规则
 
@@ -164,7 +164,7 @@ JSON 响应需要配置能够写入该对象类型的 JSON 消息转换器。
 
 [source,java]
 ----
-http.send(ResponseEntity.ok()
+ exchange.send(ResponseEntity.ok()
     .contentType(MediaType.TEXT_PLAIN)
     .body("Service is available"));
 ----

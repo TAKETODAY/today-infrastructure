@@ -24,9 +24,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
 
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 import static java.util.Locale.CANADA;
 import static java.util.Locale.CHINA;
@@ -88,7 +88,7 @@ class AcceptHeaderLocaleResolverTests {
     this.resolver.setSupportedLocales(Arrays.asList(US, JAPAN));
     this.resolver.setDefaultLocale(Locale.JAPAN);
     MockRequest request = new MockRequest();
-    MockHttpContext context = new MockHttpContext(null, request, null);
+    MockServerHttpExchange context = new MockServerHttpExchange(null, request, null);
 
     request.addHeader("Accept-Language", KOREA.toLanguageTag());
     request.setPreferredLocales(Collections.singletonList(KOREA));
@@ -99,7 +99,7 @@ class AcceptHeaderLocaleResolverTests {
   public void defaultLocale() {
     this.resolver.setDefaultLocale(CHINA);
     MockRequest request = new MockRequest();
-    MockHttpContext context = new MockHttpContext(null, request, null);
+    MockServerHttpExchange context = new MockServerHttpExchange(null, request, null);
     assertThat(this.resolver.resolveLocale(context)).isEqualTo(CHINA);
 
     context.requestHeaders().setOrRemove("Accept-Language", US.toLanguageTag());
@@ -112,14 +112,14 @@ class AcceptHeaderLocaleResolverTests {
     this.resolver.setDefaultLocale(CHINA);
     MockRequest request = new MockRequest();
     request.addHeader("Accept-Language", "");
-    MockHttpContext context = new MockHttpContext(null, request, null);
+    MockServerHttpExchange context = new MockServerHttpExchange(null, request, null);
     assertThat(this.resolver.resolveLocale(context)).isEqualTo(CHINA);
   }
 
-  private HttpContext request(Locale... locales) {
+  private ServerHttpExchange request(Locale... locales) {
     MockRequest request = new MockRequest();
     request.setPreferredLocales(Arrays.asList(locales));
-    return new MockHttpContext(null, request, null);
+    return new MockServerHttpExchange(null, request, null);
   }
 
 }

@@ -32,7 +32,7 @@ import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
 import org.jspecify.annotations.Nullable;
 
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.util.ExceptionUtils;
@@ -58,7 +58,7 @@ class MockWebRequestHttpMethodsTests {
 
   private final MockResponse mockResponse = new MockResponse();
 
-  private final MockHttpContext request = new MockHttpContext(null, mockRequest, mockResponse);
+  private final MockServerHttpExchange request = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
   @Test
   void ifMatchWildcardShouldMatchWhenETagPresent() {

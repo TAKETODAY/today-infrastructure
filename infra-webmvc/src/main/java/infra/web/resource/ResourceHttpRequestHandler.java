@@ -49,7 +49,7 @@ import infra.util.CollectionUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpRequestHandler;
 import infra.web.NotFoundHandler;
 import infra.web.WebContentGenerator;
@@ -308,7 +308,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * Return the specified CORS configuration.
    */
   @Override
-  public @Nullable CorsConfiguration getCorsConfiguration(HttpContext ctx) {
+  public @Nullable CorsConfiguration getCorsConfiguration(ServerHttpExchange ctx) {
     return this.corsConfiguration;
   }
 
@@ -335,7 +335,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * Configure a generator function that will be used to create the ETag information,
    * given a {@link Resource} that is about to be written to the response.
    * <p>This function should return a String that will be used as an argument in
-   * {@link HttpContext#checkNotModified(String)}, or {@code null} if no value
+   * {@link ServerHttpExchange#checkNotModified(String)}, or {@code null} if no value
    * can be generated for the given resource.
    *
    * @param etagGenerator the HTTP ETag generator function to use.
@@ -512,7 +512,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * set to expire one year in the future.
    */
   @Override
-  public @Nullable Object handleRequest(HttpContext context) throws Exception {
+  public @Nullable Object handleRequest(ServerHttpExchange context) throws Exception {
     // For very general mappings (e.g. "/") we need to check 404 first
     Resource resource = getResource(context);
     if (resource == null) {
@@ -581,7 +581,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     return null;
   }
 
-  protected @Nullable Resource getResource(HttpContext request) throws IOException {
+  protected @Nullable Resource getResource(ServerHttpExchange request) throws IOException {
     String path;
     var matchingMetadata = HandlerMatchingMetadata.find(request);
     if (matchingMetadata == null) {
@@ -639,7 +639,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * @param resource the resource to check
    * @return the corresponding media type, or {@code null} if none found
    */
-  protected @Nullable MediaType getMediaType(HttpContext request, Resource resource) {
+  protected @Nullable MediaType getMediaType(ServerHttpExchange request, Resource resource) {
     MediaType result = null;
     MediaType mediaType = null;
     String filename = resource.getName();
@@ -668,7 +668,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * @param mediaType the resource's media type (never {@code null})
    * @throws IOException in case of errors while setting the headers
    */
-  protected void setHeaders(HttpContext response, Resource resource, @Nullable MediaType mediaType)
+  protected void setHeaders(ServerHttpExchange response, Resource resource, @Nullable MediaType mediaType)
           throws IOException {
 
     if (mediaType != null) {

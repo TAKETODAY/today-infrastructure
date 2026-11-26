@@ -18,7 +18,7 @@ package infra.session;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.method.ParameterResolvingStrategy;
 
@@ -67,13 +67,13 @@ public class SessionMethodArgumentResolver extends SessionManagerOperations impl
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
+  public Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) {
     // todo type checking?
     if (parameter.isRequired()) {
-      return getSession(context);
+      return getSession(exchange);
     }
     // Nullable
-    return getSession(context, false);
+    return getSession(exchange, false);
   }
 
 }

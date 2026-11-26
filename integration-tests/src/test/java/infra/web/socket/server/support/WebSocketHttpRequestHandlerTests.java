@@ -28,10 +28,10 @@ import org.jspecify.annotations.Nullable;
 
 import infra.http.HttpHeaders;
 import infra.http.HttpStatus;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.server.HandshakeHandler;
 import infra.web.socket.server.HandshakeInterceptor;
@@ -61,7 +61,7 @@ public class WebSocketHttpRequestHandlerTests {
   public void success() throws Throwable {
     TestInterceptor interceptor = new TestInterceptor(true);
     this.requestHandler.setHandshakeInterceptors(Collections.singletonList(interceptor));
-    MockHttpContext request = new MockHttpContext(
+    MockServerHttpExchange request = new MockServerHttpExchange(
             null, new MockRequest(), this.response);
     this.requestHandler.handleRequest(request);
     request.flush();
@@ -78,7 +78,7 @@ public class WebSocketHttpRequestHandlerTests {
     given(this.handshakeHandler.doHandshake(any(), any(), any()))
             .willThrow(new IllegalStateException("bad state"));
 
-    MockHttpContext request = new MockHttpContext(
+    MockServerHttpExchange request = new MockServerHttpExchange(
             null, new MockRequest(), this.response);
     assertThatThrownBy(() -> this.requestHandler.handleRequest(request))
             .isInstanceOf(IllegalStateException.class)
@@ -95,7 +95,7 @@ public class WebSocketHttpRequestHandlerTests {
     TestInterceptor interceptor = new TestInterceptor(false);
     this.requestHandler.setHandshakeInterceptors(Collections.singletonList(interceptor));
 
-    MockHttpContext request = new MockHttpContext(
+    MockServerHttpExchange request = new MockServerHttpExchange(
             null, new MockRequest(), this.response);
     this.requestHandler.handleRequest(request);
     request.flush();
@@ -108,7 +108,7 @@ public class WebSocketHttpRequestHandlerTests {
   void corsRequestRejected() throws Exception {
     MockRequest request = new MockRequest();
     request.addHeader(HttpHeaders.ORIGIN, "https://domain.example");
-    MockHttpContext context = new MockHttpContext(null, request, this.response);
+    MockServerHttpExchange context = new MockServerHttpExchange(null, request, this.response);
     this.requestHandler.handleRequest(context);
     context.flush();
 
@@ -122,7 +122,7 @@ public class WebSocketHttpRequestHandlerTests {
     MockRequest request = new MockRequest();
     request.addHeader(HttpHeaders.ORIGIN, origin);
     this.requestHandler.setHandshakeInterceptors(List.of(new OriginHandshakeInterceptor(List.of(origin))));
-    MockHttpContext context = new MockHttpContext(null, request, this.response);
+    MockServerHttpExchange context = new MockServerHttpExchange(null, request, this.response);
     this.requestHandler.handleRequest(context);
     context.flush();
 
@@ -139,7 +139,7 @@ public class WebSocketHttpRequestHandlerTests {
     }
 
     @Override
-    public boolean beforeHandshake(HttpContext request,
+    public boolean beforeHandshake(ServerHttpExchange request,
             WebSocketHandler wsHandler, Map<String, Object> attributes) {
 
       request.responseHeaders().add("headerName", "headerValue");
@@ -147,7 +147,7 @@ public class WebSocketHttpRequestHandlerTests {
     }
 
     @Override
-    public void afterHandshake(HttpContext request,
+    public void afterHandshake(ServerHttpExchange request,
             WebSocketHandler wsHandler, @Nullable Throwable exception) {
 
       request.responseHeaders().add("exceptionHeaderName", "exceptionHeaderValue");

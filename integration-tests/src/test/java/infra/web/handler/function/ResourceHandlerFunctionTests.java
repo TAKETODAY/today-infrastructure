@@ -37,7 +37,7 @@ import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.converter.ResourceHttpMessageConverter;
 import infra.http.converter.ResourceRegionHttpMessageConverter;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.util.StringUtils;
@@ -61,7 +61,7 @@ class ResourceHandlerFunctionTests {
     mockRequest.addHeader(HttpHeaders.RANGE, "bytes=0-5");
     mockRequest.addHeader(HttpHeaders.IF_RANGE, "\"stale\"");
     MockResponse mockResponse = new MockResponse();
-    MockHttpContext httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
     ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(this.messageConverter));
     ServerResponse response = handlerFunction.handle(request);
     response.writeTo(httpContext, this.context);
@@ -80,7 +80,7 @@ class ResourceHandlerFunctionTests {
     mockRequest.addHeader(HttpHeaders.RANGE, "bytes=0-5");
     mockRequest.addHeader(HttpHeaders.IF_RANGE, "\"current\"");
     MockResponse mockResponse = new MockResponse();
-    MockHttpContext httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
     ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(this.messageConverter));
     ServerResponse response = handlerFunction.handle(request);
     response.writeTo(httpContext, this.context);
@@ -110,7 +110,7 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(messageConverter));
 
@@ -138,7 +138,7 @@ class ResourceHandlerFunctionTests {
     mockRequest.addHeader("Range", "bytes=0-5");
     MockResponse mockResponse = new MockResponse();
 
-    MockHttpContext httpContext = new MockHttpContext(
+    MockServerHttpExchange httpContext = new MockServerHttpExchange(
             null, mockRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(messageConverter));
@@ -171,7 +171,7 @@ class ResourceHandlerFunctionTests {
     mockRequest.addHeader("Range", "bytes=0-10, 0-10, 0-10, 0-10, 0-10, 0-10");
 
     MockResponse mockResponse = new MockResponse();
-    MockHttpContext httpContext = new MockHttpContext(
+    MockServerHttpExchange httpContext = new MockServerHttpExchange(
             null, mockRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(messageConverter));
@@ -200,7 +200,7 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("HEAD", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(messageConverter));
 
@@ -227,7 +227,7 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("OPTIONS", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(messageConverter));
 
@@ -252,7 +252,7 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("POST", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
@@ -266,7 +266,7 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("PUT", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
@@ -280,7 +280,7 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("DELETE", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
@@ -294,7 +294,7 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("PATCH", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
@@ -308,7 +308,7 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("TRACE", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
     ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
@@ -347,7 +347,7 @@ class ResourceHandlerFunctionTests {
   void resourceHandlerFunctionWithHeadersConsumer() throws Throwable {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
     ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(new ResourceHttpMessageConverter()));
 
     BiConsumer<Resource, HttpHeaders> headersConsumer = (resource, headers) -> headers.set("X-Test-Header", "test-value");

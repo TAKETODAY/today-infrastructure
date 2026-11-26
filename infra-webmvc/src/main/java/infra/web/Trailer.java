@@ -36,11 +36,11 @@ import infra.util.Assert;
  *
  * <p>Instances are immutable records and can be created with
  * {@link #field(String, Supplier)} or the canonical constructor. Register them
- * through {@link HttpContext#setTrailerFields(Trailer...)}. Registering multiple
+ * through {@link ServerHttpExchange#setTrailerFields(Trailer...)}. Registering multiple
  * trailers with the same name produces multiple values for that field.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see HttpContext#setTrailerFields(Trailer...)
+ * @see ServerHttpExchange#setTrailerFields(Trailer...)
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc9110#section-6.5">RFC 9110, Section 6.5</a>
  * @since 5.0
  */

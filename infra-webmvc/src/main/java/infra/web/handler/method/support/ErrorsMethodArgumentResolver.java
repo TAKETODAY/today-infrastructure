@@ -25,7 +25,7 @@ import infra.util.CollectionUtils;
 import infra.validation.BindingResult;
 import infra.validation.Errors;
 import infra.web.BindingContext;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.method.ParameterResolvingStrategy;
 
@@ -51,8 +51,8 @@ public class ErrorsMethodArgumentResolver implements ParameterResolvingStrategy 
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
-    ModelMap model = BindingContext.obtain(context).getModel();
+  public Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) {
+    ModelMap model = BindingContext.obtain(exchange).getModel();
     String lastKey = CollectionUtils.lastElement(model.keySet());
     if (lastKey != null && lastKey.startsWith(BindingResult.MODEL_KEY_PREFIX)) {
       return model.getAttribute(lastKey);

@@ -46,13 +46,13 @@ public class StandardMockWebAsyncRequest extends WebAsyncRequest implements Asyn
   @Nullable
   private AsyncContext asyncContext;
 
-  private final MockHttpContext request;
+  private final MockServerHttpExchange request;
 
   private final MockRequest mockRequest;
 
   private final MockResponse mockResponse;
 
-  public StandardMockWebAsyncRequest(MockHttpContext context) {
+  public StandardMockWebAsyncRequest(MockServerHttpExchange context) {
     this.request = context;
     this.mockRequest = context.getRequest();
     this.mockResponse = context.getResponse();
@@ -65,7 +65,7 @@ public class StandardMockWebAsyncRequest extends WebAsyncRequest implements Asyn
    * @param response current HTTP response
    */
   public StandardMockWebAsyncRequest(MockRequest request, MockResponse response) {
-    this.request = new MockHttpContext(null, request, response);
+    this.request = new MockServerHttpExchange(null, request, response);
     this.mockRequest = request;
     this.mockResponse = response;
   }

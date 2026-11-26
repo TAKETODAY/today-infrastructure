@@ -20,7 +20,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.ReturnValueHandler;
 import infra.web.handler.SelectableReturnValueHandler;
 import infra.web.handler.method.HandlerMethod;
@@ -32,13 +32,13 @@ import infra.web.handler.method.HandlerMethod;
  * </p>
  * <pre> {@code
  * @GET("/object")
- * public Object object(boolean key1, boolean key2, boolean key3, HttpContext context) throws IOException {
+ * public Object object(boolean key1, boolean key2, boolean key3, ServerHttpExchange exchange) throws IOException {
  *   if (key1) {
  *     return new Body("key1", 1);
  *   }
  *   if (key2) {
  *     Resource resource = new ClassPathResource("error/404.png");
- *     context.setContentType(MediaType.IMAGE_JPEG_VALUE);
+ *     exchange.setContentType(MediaType.IMAGE_JPEG_VALUE);
  *     return ImageIO.read(resource.getInputStream());
  *   }
  *   if (key3) {
@@ -63,8 +63,8 @@ public class ObjectHandlerMethodReturnValueHandler implements HandlerMethodRetur
   }
 
   @Override
-  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
-    delegate.handleReturnValue(context, handler, returnValue);
+  public void handleReturnValue(ServerHttpExchange exchange, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+    delegate.handleReturnValue(exchange, handler, returnValue);
   }
 
   @Override

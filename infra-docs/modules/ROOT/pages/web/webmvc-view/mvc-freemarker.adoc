@@ -8,7 +8,7 @@ Infra Framework 内置了使用 FreeMarker 模板的 Infra MVC 集成。
 == 消息解析与输出转义
 
 模板视图为每次渲染提供 `messages` 对象，基于现有的 `MessageSourceAccessor`
-解析消息并格式化参数。它使用当前 `HttpContext.getMessageSource()`，因此保留自定义消息源及上下文装饰器的委托语义。
+解析消息并格式化参数。它使用当前 `ServerHttpExchange.getMessageSource()`，因此保留自定义消息源及 exchange 装饰器的委托语义。
 显式配置的视图 Locale 优先，否则通过当前请求的 `LocaleResolver` 解析语言；
 模板选择、消息解析和 FreeMarker 格式化使用相同的渲染语言。
 
@@ -333,7 +333,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
-	protected Map<String, ?> referenceData(HttpContext request) throws Exception {
+	protected Map<String, ?> referenceData(ServerHttpExchange exchange) throws Exception {
 		Map<String, String> cityMap = new LinkedHashMap<>();
 		cityMap.put("LDN", "London");
 		cityMap.put("PRS", "Paris");

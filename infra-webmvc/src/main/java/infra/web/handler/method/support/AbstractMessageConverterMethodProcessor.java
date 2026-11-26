@@ -61,7 +61,7 @@ import infra.util.StringUtils;
 import infra.web.ErrorResponse;
 import infra.web.ErrorResponseViewResolver;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.ReturnValueHandler;
 import infra.web.accept.ContentNegotiationManager;
@@ -109,7 +109,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
    * header with a safe attachment file name ("f.txt") is added to prevent
    * RFD exploits.
    *
-   * @see #addContentDispositionHeader(HttpContext, Object)
+   * @see #addContentDispositionHeader(ServerHttpExchange, Object)
    * @since 5.0
    */
   private static final boolean preventRFDExploits = InfraStrategies.getFlag("infra.web.prevent-RFD-exploits", true);
@@ -215,7 +215,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
    * @since 5.0
    */
   protected boolean resolveErrorView(ProblemDetail detail, @Nullable ErrorResponse errorResponse,
-          HttpStatusCode status, HttpContext context) throws Exception {
+          HttpStatusCode status, ServerHttpExchange context) throws Exception {
     ErrorResponseViewResolver resolver = this.errorResponseViewResolver;
     if (resolver == null || context.getResponseContentType() != null || !isHtmlPreferred(context)) {
       return false;
@@ -241,7 +241,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
     return true;
   }
 
-  private boolean isHtmlPreferred(HttpContext context) {
+  private boolean isHtmlPreferred(ServerHttpExchange context) {
     HandlerMatchingMetadata metadata = HandlerMatchingMetadata.find(context);
     if (metadata != null) {
       var producibleTypes = metadata.getProducibleMediaTypes();
@@ -282,7 +282,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
    * has no compatible converter.
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  protected <T> void writeWithMessageConverters(@Nullable T value, @Nullable MethodParameter returnType, HttpContext context)
+  protected <T> void writeWithMessageConverters(@Nullable T value, @Nullable MethodParameter returnType, ServerHttpExchange context)
           throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException //
   {
 
@@ -496,7 +496,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
    * </ul>
    */
   @SuppressWarnings("NullAway")
-  protected Collection<MediaType> getProducibleMediaTypes(HttpContext request, Class<?> valueClass, @Nullable Type targetType) {
+  protected Collection<MediaType> getProducibleMediaTypes(ServerHttpExchange request, Class<?> valueClass, @Nullable Type targetType) {
     HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(request);
     if (matchingMetadata != null) {
       var mediaTypes = matchingMetadata.getProducibleMediaTypes();
@@ -549,7 +549,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
     }
   }
 
-  private List<MediaType> getAcceptableMediaTypes(HttpContext request) throws HttpMediaTypeNotAcceptableException {
+  private List<MediaType> getAcceptableMediaTypes(ServerHttpExchange request) throws HttpMediaTypeNotAcceptableException {
     return this.contentNegotiationManager.resolveMediaTypes(request);
   }
 
@@ -588,7 +588,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
    * header with a safe attachment file name ("f.txt") is added to prevent
    * RFD exploits.
    */
-  private void addContentDispositionHeader(HttpContext request, Object body) {
+  private void addContentDispositionHeader(ServerHttpExchange request, Object body) {
     if (request.containsResponseHeader(HttpHeaders.CONTENT_DISPOSITION)) {
       return;
     }
@@ -633,7 +633,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
     }
   }
 
-  private boolean notSafeExtension(HttpContext request, @Nullable String extension) {
+  private boolean notSafeExtension(ServerHttpExchange request, @Nullable String extension) {
     if (StringUtils.isBlank(extension)) {
       return false;
     }

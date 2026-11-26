@@ -26,7 +26,7 @@ import infra.beans.factory.support.DependencyInjector;
 import infra.beans.factory.support.DependencyInjectorProvider;
 import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.handler.method.HandlerParameter;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -73,7 +73,7 @@ class AutowiredParameterResolverTests {
     when(injector.resolveValue(any(DependencyDescriptor.class))).thenReturn("injectedValue");
 
     AutowiredParameterResolver resolver = new AutowiredParameterResolver(provider);
-    Object result = resolver.resolveArgument(mock(HttpContext.class), parameter);
+    Object result = resolver.resolveArgument(mock(ServerHttpExchange.class), parameter);
 
     assertThat(result).isEqualTo("injectedValue");
     verify(injector).resolveValue(any(DependencyDescriptor.class));
@@ -91,7 +91,7 @@ class AutowiredParameterResolverTests {
     when(injector.resolveValue(any(DependencyDescriptor.class))).thenReturn(null);
 
     AutowiredParameterResolver resolver = new AutowiredParameterResolver(provider);
-    Object result = resolver.resolveArgument(mock(HttpContext.class), parameter);
+    Object result = resolver.resolveArgument(mock(ServerHttpExchange.class), parameter);
 
     assertThat(result).isNull();
   }

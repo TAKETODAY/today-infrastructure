@@ -31,7 +31,7 @@ import java.util.function.Consumer;
 
 import infra.http.HttpHeaders;
 import infra.http.MediaType;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIOException;
@@ -60,7 +60,7 @@ class ResponseBodyEmitterTests {
 
   @Test
   void extendResponseSetsChunkedTransferEncoding() {
-    HttpContext context = mock();
+    ServerHttpExchange context = mock();
     ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding(MediaType.TEXT_PLAIN);
 
     emitter.extendResponse(context);
@@ -70,7 +70,7 @@ class ResponseBodyEmitterTests {
 
   @Test
   void extendResponseSetsContentTypeWhenAbsent() {
-    HttpContext context = mock();
+    ServerHttpExchange context = mock();
     when(context.getResponseContentType()).thenReturn(null);
     ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding(MediaType.TEXT_PLAIN);
 
@@ -81,7 +81,7 @@ class ResponseBodyEmitterTests {
 
   @Test
   void extendResponseKeepsExistingContentType() {
-    HttpContext context = mock();
+    ServerHttpExchange context = mock();
     when(context.getResponseContentType()).thenReturn(MediaType.APPLICATION_JSON_VALUE);
     ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding(MediaType.TEXT_PLAIN);
 
@@ -150,7 +150,7 @@ class ResponseBodyEmitterTests {
 
   @Test
   void createsChunkedEmitterWithBothTimeoutAndContentType() {
-    HttpContext context = mock();
+    ServerHttpExchange context = mock();
     Duration timeout = Duration.ofSeconds(2);
     ResponseBodyEmitter configured = ResponseBodyEmitter.forChunkedTransferEncoding(timeout, MediaType.TEXT_PLAIN);
 

@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.Map;
 
 import infra.http.HttpStatusCode;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.view.ModelAndView;
 
 /**
@@ -45,6 +45,6 @@ public interface ErrorViewResolver {
    * @return a resolved {@link ModelAndView} or {@code null}
    */
   @Nullable
-  ModelAndView resolveErrorView(HttpContext context, HttpStatusCode status, Map<String, Object> model);
+  ModelAndView resolveErrorView(ServerHttpExchange context, HttpStatusCode status, Map<String, Object> model);
 
 }

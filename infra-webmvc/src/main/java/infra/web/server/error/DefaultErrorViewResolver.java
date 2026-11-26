@@ -34,7 +34,7 @@ import infra.http.MediaType;
 import infra.util.Assert;
 import infra.ui.template.TemplateAvailabilityProviders;
 import infra.util.FileCopyUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.view.ModelAndView;
 import infra.web.view.View;
 
@@ -96,7 +96,7 @@ public class DefaultErrorViewResolver implements ErrorViewResolver, Ordered {
 
   @Nullable
   @Override
-  public ModelAndView resolveErrorView(HttpContext context, HttpStatusCode status, Map<String, Object> model) {
+  public ModelAndView resolveErrorView(ServerHttpExchange context, HttpStatusCode status, Map<String, Object> model) {
     ModelAndView view = resolve(String.valueOf(status.value()), model);
     if (view == null) {
       HttpStatus.Series series = HttpStatus.Series.resolve(status.value());
@@ -159,7 +159,7 @@ public class DefaultErrorViewResolver implements ErrorViewResolver, Ordered {
     }
 
     @Override
-    public void render(@Nullable Map<String, ?> model, HttpContext context) throws Exception {
+    public void render(@Nullable Map<String, ?> model, ServerHttpExchange context) throws Exception {
       context.setContentType(getContentType());
       FileCopyUtils.copy(resource.getInputStream(), context.getOutputStream());
     }

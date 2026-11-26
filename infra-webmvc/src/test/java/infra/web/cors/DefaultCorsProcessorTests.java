@@ -28,7 +28,7 @@ import java.util.Set;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
@@ -51,7 +51,7 @@ class DefaultCorsProcessorTests {
 
   private CorsConfiguration conf;
 
-  private MockHttpContext request;
+  private MockServerHttpExchange request;
 
   @BeforeEach
   void setup() {
@@ -63,7 +63,7 @@ class DefaultCorsProcessorTests {
     this.mockResponse.setStatus(200);
     this.processor = new DefaultCorsProcessor();
 
-    request = new MockHttpContext(null, mockRequest, mockResponse);
+    request = new MockServerHttpExchange(null, mockRequest, mockResponse);
   }
 
   @Test
@@ -540,7 +540,7 @@ class DefaultCorsProcessorTests {
     mockRequest.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
 
     MockResponse mockResponse = new MockResponse();
-    MockHttpContext request = new MockHttpContext(null, mockRequest, mockResponse);
+    MockServerHttpExchange request = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
     DefaultCorsProcessor processor = new DefaultCorsProcessor();
 
@@ -561,7 +561,7 @@ class DefaultCorsProcessorTests {
 
     MockResponse mockResponse = new MockResponse();
     mockResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
-    MockHttpContext request = new MockHttpContext(null, mockRequest, mockResponse);
+    MockServerHttpExchange request = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
     DefaultCorsProcessor processor = new DefaultCorsProcessor();
     CorsConfiguration config = new CorsConfiguration();
@@ -577,7 +577,7 @@ class DefaultCorsProcessorTests {
   void rejectRequestSetsForbiddenStatusAndMessage() throws Exception {
     MockRequest mockRequest = new MockRequest();
     MockResponse mockResponse = new MockResponse();
-    MockHttpContext request = new MockHttpContext(null, mockRequest, mockResponse);
+    MockServerHttpExchange request = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
     DefaultCorsProcessor processor = new DefaultCorsProcessor();
 
@@ -596,7 +596,7 @@ class DefaultCorsProcessorTests {
     mockRequest.addHeader(HttpHeaders.ORIGIN, "https://invalid.com");
 
     MockResponse mockResponse = new MockResponse();
-    MockHttpContext request = new MockHttpContext(null, mockRequest, mockResponse);
+    MockServerHttpExchange request = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
     DefaultCorsProcessor processor = new DefaultCorsProcessor();
     CorsConfiguration config = new CorsConfiguration();
@@ -617,7 +617,7 @@ class DefaultCorsProcessorTests {
     mockRequest.addHeader(HttpHeaders.ORIGIN, "https://domain2.com");
 
     MockResponse mockResponse = new MockResponse();
-    MockHttpContext request = new MockHttpContext(null, mockRequest, mockResponse);
+    MockServerHttpExchange request = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
     DefaultCorsProcessor processor = new DefaultCorsProcessor();
     CorsConfiguration config = new CorsConfiguration();
@@ -641,7 +641,7 @@ class DefaultCorsProcessorTests {
     mockRequest.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, "Invalid-Header");
 
     MockResponse mockResponse = new MockResponse();
-    MockHttpContext request = new MockHttpContext(null, mockRequest, mockResponse);
+    MockServerHttpExchange request = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
     DefaultCorsProcessor processor = new DefaultCorsProcessor();
     CorsConfiguration config = new CorsConfiguration();
@@ -728,7 +728,7 @@ class DefaultCorsProcessorTests {
     MockRequest mockRequest = new MockRequest();
     mockRequest.setMethod(HttpMethod.GET.name());
 
-    MockHttpContext request = mock(MockHttpContext.class);
+    MockServerHttpExchange request = mock(MockServerHttpExchange.class);
     given(request.getMethod()).willReturn(HttpMethod.GET);
 
     DefaultCorsProcessor processor = new DefaultCorsProcessor();
@@ -743,7 +743,7 @@ class DefaultCorsProcessorTests {
     MockRequest mockRequest = new MockRequest();
     mockRequest.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "POST");
 
-    MockHttpContext request = mock(MockHttpContext.class);
+    MockServerHttpExchange request = mock(MockServerHttpExchange.class);
     HttpHeaders headers = mock(HttpHeaders.class);
     given(request.getHeaders()).willReturn(headers);
     given(headers.getAccessControlRequestMethod()).willReturn(HttpMethod.POST);
@@ -761,7 +761,7 @@ class DefaultCorsProcessorTests {
     mockRequest.addHeader("Header1", "value1");
     mockRequest.addHeader("Header2", "value2");
 
-    MockHttpContext request = mock(MockHttpContext.class);
+    MockServerHttpExchange request = mock(MockServerHttpExchange.class);
     HttpHeaders headers = mock(HttpHeaders.class);
     given(request.requestHeaders()).willReturn(headers);
     given(headers.names()).willReturn(Set.of("Header1", "Header2"));
@@ -778,7 +778,7 @@ class DefaultCorsProcessorTests {
     MockRequest mockRequest = new MockRequest();
     mockRequest.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS, "Header1, Header2");
 
-    MockHttpContext request = mock(MockHttpContext.class);
+    MockServerHttpExchange request = mock(MockServerHttpExchange.class);
     HttpHeaders headers = mock(HttpHeaders.class);
     given(request.requestHeaders()).willReturn(headers);
     given(headers.getAccessControlRequestHeaders()).willReturn(Arrays.asList("Header1", "Header2"));

@@ -32,10 +32,10 @@ import infra.beans.factory.support.RootBeanDefinition;
 import infra.beans.propertyeditors.CustomDateEditor;
 import infra.context.ApplicationContext;
 import infra.http.HttpMethod;
+import infra.web.ServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.stereotype.Controller;
 import infra.util.MultiValueMap;
-import infra.web.HttpContext;
 import infra.web.annotation.MatrixVariable;
 import infra.web.annotation.PathVariable;
 import infra.web.annotation.RequestMapping;
@@ -653,7 +653,7 @@ public class UriTemplateMockAnnotationControllerHandlerMethodTests extends Abstr
 
         @Override
         protected void renderMergedOutputModel(Map<String, Object> model,
-                HttpContext http) throws Exception {
+                ServerHttpExchange http) throws Exception {
           for (String key : attrsToValidate.keySet()) {
             assertThat(model.containsKey(key)).as("Model should contain attribute named " + key).isTrue();
             assertThat(model.get(key)).isEqualTo(attrsToValidate.get(key));

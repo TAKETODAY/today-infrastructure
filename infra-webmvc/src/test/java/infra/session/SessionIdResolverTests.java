@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import infra.core.Conventions;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -38,11 +38,11 @@ import static org.mockito.Mockito.when;
  */
 class SessionIdResolverTests {
 
-  private MockHttpContext httpContext;
+  private MockServerHttpExchange exchange;
 
   @BeforeEach
   void setUp() {
-    httpContext = new MockHttpContext();
+    exchange = new MockServerHttpExchange();
   }
 
   // HeaderSessionIdResolver 测试
@@ -51,9 +51,9 @@ class SessionIdResolverTests {
     HeaderSessionIdResolver resolver = SessionIdResolver.forHeader("X-Custom-Token");
     String sessionId = "test-session-id";
 
-    httpContext.requestHeaders().add("X-Custom-Token", sessionId);
+    exchange.requestHeaders().add("X-Custom-Token", sessionId);
 
-    String resolvedId = resolver.getSessionId(httpContext);
+    String resolvedId = resolver.getSessionId(exchange);
     assertThat(resolvedId).isEqualTo(sessionId);
   }
 
@@ -61,7 +61,7 @@ class SessionIdResolverTests {
   void headerSessionIdResolver_getSessionId_whenHeaderNotPresent_shouldReturnNull() {
     HeaderSessionIdResolver resolver = SessionIdResolver.forHeader("X-Custom-Token");
 
-    String resolvedId = resolver.getSessionId(httpContext);
+    String resolvedId = resolver.getSessionId(exchange);
     assertThat(resolvedId).isNull();
   }
 
@@ -70,9 +70,9 @@ class SessionIdResolverTests {
     HeaderSessionIdResolver resolver = SessionIdResolver.forHeader("X-Custom-Token");
     String sessionId = "test-session-id";
 
-    resolver.setSessionId(httpContext, sessionId);
+    resolver.setSessionId(exchange, sessionId);
 
-    assertThat(httpContext.responseHeaders().getFirst("X-Custom-Token")).isEqualTo(sessionId);
+    assertThat(exchange.responseHeaders().getFirst("X-Custom-Token")).isEqualTo(sessionId);
   }
 
   @Test
@@ -81,12 +81,12 @@ class SessionIdResolverTests {
     String sessionId = "test-session-id";
 
     // 先设置 session ID
-    httpContext.requestHeaders().add("X-Custom-Token", sessionId);
-    resolver.expireSession(httpContext);
+    exchange.requestHeaders().add("X-Custom-Token", sessionId);
+    resolver.expireSession(exchange);
 
     // 验证头部被移除的逻辑（这里根据实现可能有所不同）
     // 由于 expireSession 实现为空，这里只是验证不会抛异常
-    assertThatCode(() -> resolver.expireSession(httpContext)).doesNotThrowAnyException();
+    assertThatCode(() -> resolver.expireSession(exchange)).doesNotThrowAnyException();
   }
 
   // X-Auth-Token 静态工厂方法测试
@@ -95,9 +95,9 @@ class SessionIdResolverTests {
     HeaderSessionIdResolver resolver = SessionIdResolver.xAuthToken();
     String sessionId = "test-session-id";
 
-    httpContext.requestHeaders().add(SessionIdResolver.HEADER_X_AUTH_TOKEN, sessionId);
+    exchange.requestHeaders().add(SessionIdResolver.HEADER_X_AUTH_TOKEN, sessionId);
 
-    String resolvedId = resolver.getSessionId(httpContext);
+    String resolvedId = resolver.getSessionId(exchange);
     assertThat(resolvedId).isEqualTo(sessionId);
   }
 
@@ -107,9 +107,9 @@ class SessionIdResolverTests {
     HeaderSessionIdResolver resolver = SessionIdResolver.authenticationInfo();
     String sessionId = "test-session-id";
 
-    httpContext.requestHeaders().add(SessionIdResolver.HEADER_AUTHENTICATION_INFO, sessionId);
+    exchange.requestHeaders().add(SessionIdResolver.HEADER_AUTHENTICATION_INFO, sessionId);
 
-    String resolvedId = resolver.getSessionId(httpContext);
+    String resolvedId = resolver.getSessionId(exchange);
     assertThat(resolvedId).isEqualTo(sessionId);
   }
 
@@ -119,9 +119,9 @@ class SessionIdResolverTests {
     RequestParameterSessionIdResolver resolver = SessionIdResolver.forParameter("jsessionid");
     String sessionId = "test-session-id";
 
-    httpContext.setParameter("jsessionid", sessionId);
+    exchange.setParameter("jsessionid", sessionId);
 
-    String resolvedId = resolver.getSessionId(httpContext);
+    String resolvedId = resolver.getSessionId(exchange);
     assertThat(resolvedId).isEqualTo(sessionId);
   }
 
@@ -129,7 +129,7 @@ class SessionIdResolverTests {
   void requestParameterSessionIdResolver_getSessionId_whenParameterNotPresent_shouldReturnNull() {
     RequestParameterSessionIdResolver resolver = SessionIdResolver.forParameter("jsessionid");
 
-    String resolvedId = resolver.getSessionId(httpContext);
+    String resolvedId = resolver.getSessionId(exchange);
     assertThat(resolvedId).isNull();
   }
 
@@ -138,9 +138,9 @@ class SessionIdResolverTests {
     RequestParameterSessionIdResolver resolver = SessionIdResolver.forParameter("jsessionid");
     String sessionId = "test-session-id";
 
-    resolver.setSessionId(httpContext, sessionId);
+    resolver.setSessionId(exchange, sessionId);
 
-    assertThat(httpContext.getAttribute(SessionIdResolver.WRITTEN_SESSION_ID_ATTR)).isEqualTo(sessionId);
+    assertThat(exchange.getAttribute(SessionIdResolver.WRITTEN_SESSION_ID_ATTR)).isEqualTo(sessionId);
   }
 
   // CookieSessionIdResolver 测试
@@ -149,9 +149,9 @@ class SessionIdResolverTests {
     CookieSessionIdResolver resolver = SessionIdResolver.forCookie("JSESSIONID");
     String sessionId = "test-session-id";
 
-    httpContext.addCookie("JSESSIONID", sessionId);
+    exchange.addCookie("JSESSIONID", sessionId);
 
-    String resolvedId = resolver.getSessionId(httpContext);
+    String resolvedId = resolver.getSessionId(exchange);
     assertThat(resolvedId).isEqualTo(sessionId);
   }
 
@@ -159,7 +159,7 @@ class SessionIdResolverTests {
   void cookieSessionIdResolver_getSessionId_whenCookieNotPresent_shouldReturnNull() {
     CookieSessionIdResolver resolver = SessionIdResolver.forCookie("JSESSIONID");
 
-    String resolvedId = resolver.getSessionId(httpContext);
+    String resolvedId = resolver.getSessionId(exchange);
     assertThat(resolvedId).isNull();
   }
 
@@ -173,10 +173,10 @@ class SessionIdResolverTests {
 
     // 测试第一个解析器找到的情况
     String headerSessionId = "header-session-id";
-    httpContext.requestHeaders().add("X-Token", headerSessionId);
-    httpContext.setParameter("sid", "param-session-id");
+    exchange.requestHeaders().add("X-Token", headerSessionId);
+    exchange.setParameter("sid", "param-session-id");
 
-    String resolvedId = composite.getSessionId(httpContext);
+    String resolvedId = composite.getSessionId(exchange);
     assertThat(resolvedId).isEqualTo(headerSessionId);
   }
 
@@ -189,9 +189,9 @@ class SessionIdResolverTests {
 
     // 只在第二个解析器中设置 session ID
     String paramSessionId = "param-session-id";
-    httpContext.setParameter("sid", paramSessionId);
+    exchange.setParameter("sid", paramSessionId);
 
-    String resolvedId = composite.getSessionId(httpContext);
+    String resolvedId = composite.getSessionId(exchange);
     assertThat(resolvedId).isEqualTo(paramSessionId);
   }
 
@@ -202,7 +202,7 @@ class SessionIdResolverTests {
 
     SessionIdResolver composite = SessionIdResolver.forComposite(headerResolver, paramResolver);
 
-    String resolvedId = composite.getSessionId(httpContext);
+    String resolvedId = composite.getSessionId(exchange);
     assertThat(resolvedId).isNull();
   }
 
@@ -214,10 +214,10 @@ class SessionIdResolverTests {
     SessionIdResolver composite = SessionIdResolver.forComposite(resolver1, resolver2);
     String sessionId = "test-session-id";
 
-    composite.setSessionId(httpContext, sessionId);
+    composite.setSessionId(exchange, sessionId);
 
-    verify(resolver1).setSessionId(httpContext, sessionId);
-    verify(resolver2).setSessionId(httpContext, sessionId);
+    verify(resolver1).setSessionId(exchange, sessionId);
+    verify(resolver2).setSessionId(exchange, sessionId);
   }
 
   @Test
@@ -225,14 +225,14 @@ class SessionIdResolverTests {
     SessionIdResolver resolver1 = mock(SessionIdResolver.class);
     SessionIdResolver resolver2 = mock(SessionIdResolver.class);
 
-    when(resolver1.getSessionId(httpContext)).thenReturn("session-id");
-    when(resolver2.getSessionId(httpContext)).thenReturn(null);
+    when(resolver1.getSessionId(exchange)).thenReturn("session-id");
+    when(resolver2.getSessionId(exchange)).thenReturn(null);
 
     SessionIdResolver composite = SessionIdResolver.forComposite(resolver1, resolver2);
 
-    composite.expireSession(httpContext);
+    composite.expireSession(exchange);
 
-    verify(resolver1).expireSession(httpContext);
+    verify(resolver1).expireSession(exchange);
     verify(resolver2, never()).expireSession(any());
   }
 
@@ -260,14 +260,14 @@ class SessionIdResolverTests {
     SessionIdResolver resolver = SessionIdResolver.forHeader("X-Token");
 
     // MockHttpContext 不允许 null，所以这里验证不会抛出 NPE
-    assertThatCode(() -> resolver.getSessionId(httpContext)).doesNotThrowAnyException();
+    assertThatCode(() -> resolver.getSessionId(exchange)).doesNotThrowAnyException();
   }
 
   @Test
   void composite_withEmptyResolverList_shouldHandle() {
     SessionIdResolver composite = SessionIdResolver.forComposite(List.of());
 
-    String resolvedId = composite.getSessionId(httpContext);
+    String resolvedId = composite.getSessionId(exchange);
     assertThat(resolvedId).isNull();
   }
 
@@ -275,11 +275,11 @@ class SessionIdResolverTests {
   void composite_withSingleResolver_shouldWork() {
     HeaderSessionIdResolver headerResolver = SessionIdResolver.forHeader("X-Token");
     String sessionId = "test-session-id";
-    httpContext.requestHeaders().add("X-Token", sessionId);
+    exchange.requestHeaders().add("X-Token", sessionId);
 
     SessionIdResolver composite = SessionIdResolver.forComposite(headerResolver);
 
-    String resolvedId = composite.getSessionId(httpContext);
+    String resolvedId = composite.getSessionId(exchange);
     assertThat(resolvedId).isEqualTo(sessionId);
   }
 }

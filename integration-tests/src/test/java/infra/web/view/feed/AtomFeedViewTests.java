@@ -30,10 +30,10 @@ import java.util.List;
 import java.util.Map;
 
 import infra.core.testfixture.xml.XmlContent;
-import infra.web.mock.MockHttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.HttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,7 +50,7 @@ public class AtomFeedViewTests {
 
     MockRequest request = new MockRequest();
     MockResponse response = new MockResponse();
-    view.render(Map.of("1", "Configured feed"), new MockHttpContext(null, request, response));
+    view.render(Map.of("1", "Configured feed"), new MockServerHttpExchange(null, request, response));
 
     assertThat(response.getContentType()).isEqualTo("application/atom+xml");
     assertThat(response.getContentAsString()).contains("Configured feed");
@@ -64,7 +64,7 @@ public class AtomFeedViewTests {
     Map<String, String> model = new LinkedHashMap<>();
     model.put("2", "This is entry 2");
     model.put("1", "This is entry 1");
-    view.render(model, new MockHttpContext(null, request, response));
+    view.render(model, new MockServerHttpExchange(null, request, response));
 
     assertThat(response.getContentType()).as("Invalid content-type").isEqualTo("application/atom+xml");
     String expected = "<feed xmlns=\"http://www.w3.org/2005/Atom\">" + "<title>Test Feed</title>" +
@@ -76,12 +76,12 @@ public class AtomFeedViewTests {
   private static class MyAtomFeedView extends AbstractAtomFeedView {
 
     @Override
-    protected void buildFeedMetadata(Map<String, Object> model, Feed feed, HttpContext request) {
+    protected void buildFeedMetadata(Map<String, Object> model, Feed feed, ServerHttpExchange request) {
       feed.setTitle("Test Feed");
     }
 
     @Override
-    protected List<Entry> buildFeedEntries(Map<String, Object> model, HttpContext httpContext) {
+    protected List<Entry> buildFeedEntries(Map<String, Object> model, ServerHttpExchange exchange) {
       List<Entry> entries = new ArrayList<>();
       for (String name : model.keySet()) {
         Entry entry = new Entry();

@@ -14,9 +14,9 @@ import java.util.Enumeration;
 import infra.http.HttpStatus;
 import infra.web.Filter;
 import infra.web.FilterChain;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.mock.MockFilterChain;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.api.DispatcherType;
@@ -71,12 +71,12 @@ class ForwardedHeaderFilterTests {
   private void testShouldFilter(String headerName) {
     MockRequest request = new MockRequest();
     request.addHeader(headerName, "1");
-    assertThat(new ForwardedHeaderFilter(false).shouldNotFilter(new MockHttpContext(request))).isFalse();
+    assertThat(new ForwardedHeaderFilter(false).shouldNotFilter(new MockServerHttpExchange(request))).isFalse();
   }
 
   @Test
   void shouldNotFilter() {
-    assertThat(new ForwardedHeaderFilter(false).shouldNotFilter(new MockHttpContext(request))).isTrue();
+    assertThat(new ForwardedHeaderFilter(false).shouldNotFilter(new MockServerHttpExchange(request))).isTrue();
   }
 
   @ParameterizedTest
@@ -90,8 +90,8 @@ class ForwardedHeaderFilterTests {
     this.request.addHeader(X_FORWARDED_FOR, "[203.0.113.195]");
 
     ForwardedHeaderFilter filter = new ForwardedHeaderFilter(false);
-    filter.doFilter(new MockHttpContext(request), this.filterChain);
-    HttpContext actual = this.filterChain.getContext();
+    filter.doFilter(new MockServerHttpExchange(request), this.filterChain);
+    ServerHttpExchange actual = this.filterChain.getContext();
 
     assertThat(actual).isNotNull();
     assertThat(actual.getRequestURL().toString()).isEqualTo(protocol + "://84.198.58.199/mvc-showcase");
@@ -114,8 +114,8 @@ class ForwardedHeaderFilterTests {
     this.request.addHeader(X_FORWARDED_HOST, "84.198.58.199");
 
     ForwardedHeaderFilter filter = new ForwardedHeaderFilter(false);
-    filter.doFilter(new MockHttpContext(request), this.filterChain);
-    HttpContext actual = this.filterChain.getContext();
+    filter.doFilter(new MockServerHttpExchange(request), this.filterChain);
+    ServerHttpExchange actual = this.filterChain.getContext();
 
     assertThat(actual.getScheme()).isEqualTo("HTTPS");
     assertThat(actual.getServerPort()).isEqualTo(443);
@@ -135,10 +135,10 @@ class ForwardedHeaderFilterTests {
 
     ForwardedHeaderFilter filter = new ForwardedHeaderFilter(false);
     filter.setRemoveOnly(true);
-    filter.doFilter(new MockHttpContext(request), this.filterChain);
+    filter.doFilter(new MockServerHttpExchange(request), this.filterChain);
     MockRequest actual = this.filterChain.getRequest();
 
-    HttpContext context = filterChain.getContext();
+    ServerHttpExchange context = filterChain.getContext();
 
     assertThat(actual).isNotNull();
     assertThat(context.getRequestURL()).isEqualTo("http://localhost/mvc-showcase");
@@ -165,10 +165,10 @@ class ForwardedHeaderFilterTests {
     this.request.addHeader("foo", "bar");
 
     ForwardedHeaderFilter filter = new ForwardedHeaderFilter(false);
-    filter.doFilter(new MockHttpContext(request), this.filterChain);
+    filter.doFilter(new MockServerHttpExchange(request), this.filterChain);
     MockRequest actual = this.filterChain.getRequest();
 
-    HttpContext context = filterChain.getContext();
+    ServerHttpExchange context = filterChain.getContext();
     assertThat(actual).isNotNull();
     assertThat(context.getRequestURL()).isEqualTo("https://84.198.58.199/mvc-showcase");
     assertThat(context.getScheme()).isEqualTo("https");
@@ -188,11 +188,11 @@ class ForwardedHeaderFilterTests {
     this.request.addHeader(X_FORWARDED_PROTO, "https");
     this.request.addHeader(FORWARDED, "proto=https");
     this.request.addHeader("foo", "bar");
-    MockHttpContext original = new MockHttpContext(this.request);
+    MockServerHttpExchange original = new MockServerHttpExchange(this.request);
     ForwardedHeaderFilter filter = new ForwardedHeaderFilter(false);
     filter.setRemoveOnly(removeOnly);
     filter.doFilter(original, this.filterChain);
-    HttpContext actual = this.filterChain.getContext();
+    ServerHttpExchange actual = this.filterChain.getContext();
 
     for (String name : new String[] { FORWARDED, X_FORWARDED_PROTO }) {
       assertThat(actual.getHeader(name)).isNull();
@@ -220,8 +220,8 @@ class ForwardedHeaderFilterTests {
     this.request.addHeader(X_FORWARDED_PREFIX, "/edge%20app");
     ForwardedHeaderFilter filter = new ForwardedHeaderFilter(false);
     filter.setUseForwardedPrefix(true);
-    filter.doFilter(new MockHttpContext(this.request), this.filterChain);
-    HttpContext actual = this.filterChain.getContext();
+    filter.doFilter(new MockServerHttpExchange(this.request), this.filterChain);
+    ServerHttpExchange actual = this.filterChain.getContext();
 
     assertThat(actual.getURI().toString())
             .isEqualTo("https://example.org/edge%20app/items/a%2Fb?q=a%2Bb&next=%2Fhome");
@@ -234,7 +234,7 @@ class ForwardedHeaderFilterTests {
   void supportsNonInetLocalAddress() throws Exception {
     this.request.addHeader(X_FORWARDED_PROTO, "https");
     var localAddress = UnixDomainSocketAddress.of("infra.sock");
-    MockHttpContext original = new MockHttpContext(this.request) {
+    MockServerHttpExchange original = new MockServerHttpExchange(this.request) {
       @Override
       public SocketAddress localAddress() {
         return localAddress;
@@ -251,7 +251,7 @@ class ForwardedHeaderFilterTests {
     this.request.setRequestURI("/before");
     this.request.addHeader(X_FORWARDED_PROTO, "https");
     this.request.addHeader(X_FORWARDED_PREFIX, "/edge");
-    MockHttpContext original = new MockHttpContext(this.request) {
+    MockServerHttpExchange original = new MockServerHttpExchange(this.request) {
       @Override
       public String getRequestURI() {
         return request.getRequestURI();
@@ -260,7 +260,7 @@ class ForwardedHeaderFilterTests {
     ForwardedHeaderFilter filter = new ForwardedHeaderFilter(false);
     filter.setUseForwardedPrefix(true);
     filter.doFilter(original, this.filterChain);
-    HttpContext actual = this.filterChain.getContext();
+    ServerHttpExchange actual = this.filterChain.getContext();
     assertThat(actual.getURI().getRawPath()).isEqualTo("/edge/before");
     assertThat(actual.getRequestPath().pathWithinApplication().value()).isEqualTo("/before");
 
@@ -276,7 +276,7 @@ class ForwardedHeaderFilterTests {
     this.request.setRequestURI("/path%20name");
     this.request.setQueryString("q=bad%query");
     this.request.addHeader(X_FORWARDED_PROTO, "https");
-    new ForwardedHeaderFilter(false).doFilter(new MockHttpContext(this.request), this.filterChain);
+    new ForwardedHeaderFilter(false).doFilter(new MockServerHttpExchange(this.request), this.filterChain);
 
     assertThat(this.filterChain.getContext().getURI().toString()).isEqualTo("https://localhost/path%20name");
   }
@@ -289,17 +289,17 @@ class ForwardedHeaderFilterTests {
     this.request.addHeader(X_FORWARDED_PORT, "443");
 
     ForwardedHeaderFilter filter = new ForwardedHeaderFilter(false);
-    filter.doFilter(new MockHttpContext(request), this.filterChain);
+    filter.doFilter(new MockServerHttpExchange(request), this.filterChain);
     MockRequest wrappedRequest = this.filterChain.getRequest();
 
     this.request.setDispatcherType(DispatcherType.FORWARD);
     this.request.setRequestURI("/bar");
     this.filterChain.reset();
 
-    filter.doFilter(new MockHttpContext(wrappedRequest), this.filterChain);
+    filter.doFilter(new MockServerHttpExchange(wrappedRequest), this.filterChain);
     MockRequest actual = this.filterChain.getRequest();
 
-    HttpContext context = filterChain.getContext();
+    ServerHttpExchange context = filterChain.getContext();
 
     assertThat(actual).isNotNull();
     assertThat(context.getRequestURI()).isEqualTo("/bar");
@@ -314,7 +314,7 @@ class ForwardedHeaderFilterTests {
       request.addHeader(FORWARDED, "for=127.0.0.1:");
 
       MockResponse response = new MockResponse();
-      new ForwardedHeaderFilter(true).doFilter(new MockHttpContext(request, response), filterChain);
+      new ForwardedHeaderFilter(true).doFilter(new MockServerHttpExchange(request, response), filterChain);
       assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
@@ -323,7 +323,7 @@ class ForwardedHeaderFilterTests {
       request.addHeader(FORWARDED, "for=\"2a02:918:175:ab60:45ee:c12c:dac1:808b\"");
 
       MockResponse response = new MockResponse();
-      new ForwardedHeaderFilter(true).doFilter(new MockHttpContext(request, response), filterChain);
+      new ForwardedHeaderFilter(true).doFilter(new MockServerHttpExchange(request, response), filterChain);
       assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
@@ -332,7 +332,7 @@ class ForwardedHeaderFilterTests {
       request.addHeader(X_FORWARDED_PORT, "invalid");
 
       MockResponse response = new MockResponse();
-      new ForwardedHeaderFilter(false).doFilter(new MockHttpContext(request, response), filterChain);
+      new ForwardedHeaderFilter(false).doFilter(new MockServerHttpExchange(request, response), filterChain);
       assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
@@ -344,7 +344,7 @@ class ForwardedHeaderFilterTests {
     @Test
     void contextPathPreserveEncoding() throws Exception {
       request.setRequestURI("/app%20/path/");
-      HttpContext actual = filterAndGetWrappedRequest(false);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(false);
 
       assertThat(actual.getRequestURI()).isEqualTo("/app%20/path/");
       assertThat(actual.getRequestURL()).isEqualTo("http://localhost/app%20/path/");
@@ -354,7 +354,7 @@ class ForwardedHeaderFilterTests {
     void requestUri() throws Exception {
       request.addHeader(X_FORWARDED_PREFIX, "/");
       request.setRequestURI("/app/path");
-      HttpContext actual = filterAndGetWrappedRequest(false);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(false);
 
       assertThat(actual.getRequestURI()).isEqualTo("/app/path");
     }
@@ -363,7 +363,7 @@ class ForwardedHeaderFilterTests {
     void requestUriWithTrailingSlash() throws Exception {
       request.addHeader(X_FORWARDED_PREFIX, "/");
       request.setRequestURI("/app/path/");
-      HttpContext actual = filterAndGetWrappedRequest(false);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(false);
 
       assertThat(actual.getRequestURI()).isEqualTo("/app/path/");
     }
@@ -371,7 +371,7 @@ class ForwardedHeaderFilterTests {
     @Test
     void requestUriPreserveEncoding() throws Exception {
       request.setRequestURI("/app/path%20with%20spaces/");
-      HttpContext actual = filterAndGetWrappedRequest(true);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(true);
 
       assertThat(actual.getRequestURI()).isEqualTo("/app/path%20with%20spaces/");
       assertThat(actual.getRequestURL()).isEqualTo("http://localhost/app/path%20with%20spaces/");
@@ -381,7 +381,7 @@ class ForwardedHeaderFilterTests {
     void requestUriRootUrl() throws Exception {
       request.addHeader(X_FORWARDED_PREFIX, "/");
       request.setRequestURI("/app");
-      HttpContext actual = filterAndGetWrappedRequest(false);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(false);
 
       assertThat(actual.getRequestURI()).isEqualTo("/app");
     }
@@ -389,7 +389,7 @@ class ForwardedHeaderFilterTests {
     @Test
     void requestUriPreserveSemicolonContent() throws Exception {
       request.setRequestURI("/path;a=b/with/semicolon");
-      HttpContext actual = filterAndGetWrappedRequest(true);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(true);
 
       assertThat(actual.getRequestURI()).isEqualTo("/path;a=b/with/semicolon");
       assertThat(actual.getRequestURL()).isEqualTo("http://localhost/path;a=b/with/semicolon");
@@ -413,7 +413,7 @@ class ForwardedHeaderFilterTests {
       };
       request.addHeader(X_FORWARDED_PREFIX, "/prefix");
       request.setRequestURI("/path");
-      HttpContext actual = filterAndGetWrappedRequest(false);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(false);
 
       assertThat(actual.getRequestURI()).isEqualTo("/prefix/path");
     }
@@ -423,7 +423,7 @@ class ForwardedHeaderFilterTests {
       request.addHeader(X_FORWARDED_PREFIX, "/prefix");
       request.setRequestURI("/mvc-showcase");
 
-      HttpContext actual = filterAndGetWrappedRequest(false);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(false);
       assertThat(actual.getRequestURL()).isEqualTo("http://localhost/prefix/mvc-showcase");
     }
 
@@ -432,7 +432,7 @@ class ForwardedHeaderFilterTests {
       request.addHeader(X_FORWARDED_PREFIX, "prefix");
       request.setRequestURI("/mvc-showcase");
 
-      HttpContext actual = filterAndGetWrappedRequest(false);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(false);
       assertThat(actual.getRequestURI()).isEqualTo("/prefix/mvc-showcase");
       assertThat(actual.getRequestURL()).isEqualTo("http://localhost/prefix/mvc-showcase");
     }
@@ -442,7 +442,7 @@ class ForwardedHeaderFilterTests {
       request.addHeader(X_FORWARDED_PREFIX, "/prefix/");
       request.setRequestURI("/mvc-showcase");
 
-      HttpContext actual = filterAndGetWrappedRequest(false);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(false);
       assertThat(actual.getRequestURL()).isEqualTo("http://localhost/prefix/mvc-showcase");
     }
 
@@ -451,7 +451,7 @@ class ForwardedHeaderFilterTests {
       request.addHeader(X_FORWARDED_PREFIX, "/first,/second");
       request.setRequestURI("/mvc-showcase");
 
-      HttpContext actual = filterAndGetWrappedRequest(false);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(false);
       assertThat(actual.getRequestURL()).isEqualTo("http://localhost/first/second/mvc-showcase");
     }
 
@@ -460,7 +460,7 @@ class ForwardedHeaderFilterTests {
       request.addHeader(X_FORWARDED_PREFIX, "/first/,/second//");
       request.setRequestURI("/mvc-showcase");
 
-      HttpContext actual = filterAndGetWrappedRequest(false);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(false);
       assertThat(actual.getRequestURL()).isEqualTo("http://localhost/first/second/mvc-showcase");
     }
 
@@ -469,7 +469,7 @@ class ForwardedHeaderFilterTests {
       request.addHeader(X_FORWARDED_PREFIX, "/prefix,/");
       request.setRequestURI("/mvc-showcase");
 
-      HttpContext actual = filterAndGetWrappedRequest(false);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(false);
       assertThat(actual.getRequestURL()).isEqualTo("http://localhost/prefix/mvc-showcase");
     }
 
@@ -481,7 +481,7 @@ class ForwardedHeaderFilterTests {
     @Test
     void xForwardedForEmpty() throws Exception {
       request.addHeader(X_FORWARDED_FOR, "");
-      HttpContext actual = filterAndGetWrappedRequest(false);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(false);
 
       assertThat(actual.getRemoteAddress()).isEqualTo(MockRequest.DEFAULT_REMOTE_ADDR);
       assertThat(actual.getRemotePort()).isEqualTo(MockRequest.DEFAULT_SERVER_PORT);
@@ -490,7 +490,7 @@ class ForwardedHeaderFilterTests {
     @Test
     void xForwardedForSingleIdentifier() throws Exception {
       request.addHeader(X_FORWARDED_FOR, "203.0.113.195");
-      HttpContext actual = filterAndGetWrappedRequest(false);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(false);
 
       assertThat(actual.getRemoteAddress()).isEqualTo("203.0.113.195");
       assertThat(actual.getRemotePort()).isEqualTo(MockRequest.DEFAULT_SERVER_PORT);
@@ -499,7 +499,7 @@ class ForwardedHeaderFilterTests {
     @Test
     void xForwardedForMultipleIdentifiers() throws Exception {
       request.addHeader(X_FORWARDED_FOR, "203.0.113.195, 70.41.3.18, 150.172.238.178");
-      HttpContext actual = filterAndGetWrappedRequest(false);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(false);
 
       assertThat(actual.getRemoteAddress()).isEqualTo("203.0.113.195");
       assertThat(actual.getRemotePort()).isEqualTo(MockRequest.DEFAULT_SERVER_PORT);
@@ -508,7 +508,7 @@ class ForwardedHeaderFilterTests {
     @Test
     void forwardedForIpV4Identifier() throws Exception {
       request.addHeader(FORWARDED, "for=203.0.113.195");
-      HttpContext actual = filterAndGetWrappedRequest(true);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(true);
 
       assertThat(actual.getRemoteAddress()).isEqualTo("203.0.113.195");
       assertThat(actual.getRemotePort()).isEqualTo(MockRequest.DEFAULT_SERVER_PORT);
@@ -517,7 +517,7 @@ class ForwardedHeaderFilterTests {
     @Test
     void forwardedForIpV6Identifier() throws Exception {
       request.addHeader(FORWARDED, "for=\"[2001:db8:cafe::17]\"");
-      HttpContext actual = filterAndGetWrappedRequest(true);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(true);
 
       assertThat(actual.getRemoteAddress()).isEqualTo("[2001:db8:cafe::17]");
       assertThat(actual.getRemotePort()).isEqualTo(MockRequest.DEFAULT_SERVER_PORT);
@@ -526,7 +526,7 @@ class ForwardedHeaderFilterTests {
     @Test
     void forwardedForIpV4IdentifierWithPort() throws Exception {
       request.addHeader(FORWARDED, "for=\"203.0.113.195:47011\"");
-      HttpContext actual = filterAndGetWrappedRequest(true);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(true);
 
       assertThat(actual.getRemoteAddress()).isEqualTo("203.0.113.195");
       assertThat(actual.getRemotePort()).isEqualTo(47011);
@@ -535,7 +535,7 @@ class ForwardedHeaderFilterTests {
     @Test
     void forwardedForIpV6IdentifierWithPort() throws Exception {
       request.addHeader(FORWARDED, "For=\"[2001:db8:cafe::17]:47011\"");
-      HttpContext actual = filterAndGetWrappedRequest(true);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(true);
 
       assertThat(actual.getRemoteAddress()).isEqualTo("[2001:db8:cafe::17]");
       assertThat(actual.getRemotePort()).isEqualTo(47011);
@@ -544,7 +544,7 @@ class ForwardedHeaderFilterTests {
     @Test
     void forwardedForMultipleIdentifiers() throws Exception {
       request.addHeader(FORWARDED, "for=203.0.113.195;proto=http, for=\"[2001:db8:cafe::17]\", for=unknown");
-      HttpContext actual = filterAndGetWrappedRequest(true);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(true);
 
       assertThat(actual.getRemoteAddress()).isEqualTo("203.0.113.195");
       assertThat(actual.getRemotePort()).isEqualTo(MockRequest.DEFAULT_SERVER_PORT);
@@ -558,7 +558,7 @@ class ForwardedHeaderFilterTests {
     @Test
     void forwardedByIpV4Identifier() throws Exception {
       request.addHeader(FORWARDED, "By=203.0.113.195");
-      HttpContext actual = filterAndGetWrappedRequest(true);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(true);
       InetSocketAddress localAddress = (InetSocketAddress) actual.localAddress();
 
       assertThat(localAddress.getHostString()).isEqualTo("203.0.113.195");
@@ -568,7 +568,7 @@ class ForwardedHeaderFilterTests {
     @Test
     void forwardedByIpV6Identifier() throws Exception {
       request.addHeader(FORWARDED, "By=\"[2001:db8:cafe::17]\"");
-      HttpContext actual = filterAndGetWrappedRequest(true);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(true);
       InetSocketAddress localAddress = (InetSocketAddress) actual.localAddress();
 
       assertThat(localAddress.getHostString()).isEqualTo("[2001:db8:cafe::17]");
@@ -578,7 +578,7 @@ class ForwardedHeaderFilterTests {
     @Test
     void forwardedByIpV4IdentifierWithPort() throws Exception {
       request.addHeader(FORWARDED, "By=\"203.0.113.195:47011\"");
-      HttpContext actual = filterAndGetWrappedRequest(true);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(true);
       InetSocketAddress localAddress = (InetSocketAddress) actual.localAddress();
       assertThat(localAddress.getHostString()).isEqualTo("203.0.113.195");
       assertThat(localAddress.getPort()).isEqualTo(47011);
@@ -587,7 +587,7 @@ class ForwardedHeaderFilterTests {
     @Test
     void forwardedByIpV6IdentifierWithPort() throws Exception {
       request.addHeader(FORWARDED, "By=\"[2001:db8:cafe::17]:47011\"");
-      HttpContext actual = filterAndGetWrappedRequest(true);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(true);
       InetSocketAddress localAddress = (InetSocketAddress) actual.localAddress();
       assertThat(localAddress.getHostString()).isEqualTo("[2001:db8:cafe::17]");
       assertThat(localAddress.getPort()).isEqualTo(47011);
@@ -596,7 +596,7 @@ class ForwardedHeaderFilterTests {
     @Test
     void forwardedByMultipleIdentifiers() throws Exception {
       request.addHeader(FORWARDED, "by=203.0.113.195;proto=http, by=\"[2001:db8:cafe::17]\", by=unknown");
-      HttpContext actual = filterAndGetWrappedRequest(true);
+      ServerHttpExchange actual = filterAndGetWrappedRequest(true);
       InetSocketAddress localAddress = (InetSocketAddress) actual.localAddress();
 
       assertThat(localAddress.getHostString()).isEqualTo("203.0.113.195");
@@ -767,22 +767,22 @@ class ForwardedHeaderFilterTests {
     private String sendRedirect(final String location) throws Exception {
       Filter redirectFilter = new Filter() {
         @Override
-        public void doFilter(HttpContext http, FilterChain chain) throws Exception {
-          http.sendRedirect(location);
+        public void doFilter(ServerHttpExchange exchange, FilterChain chain) throws Exception {
+          exchange.sendRedirect(location);
         }
       };
       this.filter = this.filter == null ? new ForwardedHeaderFilter(false) : this.filter;
       MockResponse response = new MockResponse();
       FilterChain filterChain = new MockFilterChain(mock(), this.filter, redirectFilter);
-      filterChain.doFilter(new MockHttpContext(request, response));
+      filterChain.doFilter(new MockServerHttpExchange(request, response));
       return response.getRedirectedUrl();
     }
   }
 
-  private HttpContext filterAndGetWrappedRequest(boolean useStandardHeader) throws Exception {
+  private ServerHttpExchange filterAndGetWrappedRequest(boolean useStandardHeader) throws Exception {
     ForwardedHeaderFilter filter = new ForwardedHeaderFilter(useStandardHeader);
     filter.setUseForwardedPrefix(true);
-    filter.doFilter(new MockHttpContext(request), this.filterChain);
+    filter.doFilter(new MockServerHttpExchange(request), this.filterChain);
     return this.filterChain.getContext();
   }
 

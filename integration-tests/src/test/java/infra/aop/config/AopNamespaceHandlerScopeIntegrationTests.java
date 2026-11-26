@@ -33,7 +33,7 @@ import infra.beans.testfixture.beans.ITestBean;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.ApplicationContext;
 import infra.context.annotation.ImportResource;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.session.config.EnableSession;
@@ -97,7 +97,7 @@ class AopNamespaceHandlerScopeIntegrationTests {
   void testRequestScoping() throws Exception {
     MockRequest oldRequest = new MockRequest();
     MockRequest newRequest = new MockRequest();
-    HttpContextHolder.set(new MockHttpContext(context, oldRequest, null));
+    HttpContextHolder.set(new MockServerHttpExchange(context, oldRequest, null));
 
     assertThat(AopUtils.isAopProxy(requestScoped)).as("Should be AOP proxy").isTrue();
     boolean condition = requestScoped instanceof TestBean;
@@ -112,9 +112,9 @@ class AopNamespaceHandlerScopeIntegrationTests {
 
     assertThat(requestScoped.getName()).isEqualTo(rob);
     requestScoped.setName(bram);
-    HttpContextHolder.set(new MockHttpContext(context, newRequest, null));
+    HttpContextHolder.set(new MockServerHttpExchange(context, newRequest, null));
     assertThat(requestScoped.getName()).isEqualTo(rob);
-    HttpContextHolder.set(new MockHttpContext(context, oldRequest, null));
+    HttpContextHolder.set(new MockServerHttpExchange(context, oldRequest, null));
     assertThat(requestScoped.getName()).isEqualTo(bram);
 
     assertThat(((Advised) requestScoped).getAdvisors().length > 0).as("Should have advisors").isTrue();
@@ -123,7 +123,7 @@ class AopNamespaceHandlerScopeIntegrationTests {
   @Test
   void testSessionScoping() throws Exception {
     MockRequest request = new MockRequest();
-    HttpContextHolder.set(new MockHttpContext(context, request, new MockResponse(), new DispatcherHandler(context)));
+    HttpContextHolder.set(new MockServerHttpExchange(context, request, new MockResponse(), new DispatcherHandler(context)));
 
     assertThat(AopUtils.isAopProxy(sessionScoped)).as("Should be AOP proxy").isTrue();
     boolean condition1 = sessionScoped instanceof TestBean;

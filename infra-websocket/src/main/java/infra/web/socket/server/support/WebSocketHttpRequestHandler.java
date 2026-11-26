@@ -29,7 +29,7 @@ import infra.http.HttpStatus;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.Assert;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpRequestHandler;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketSession;
@@ -86,7 +86,7 @@ public class WebSocketHttpRequestHandler implements HttpRequestHandler {
   }
 
   @Override
-  public @Nullable Object handleRequest(HttpContext context) throws Exception {
+  public @Nullable Object handleRequest(ServerHttpExchange context) throws Exception {
     if (!this.hasOriginChecks && context.isCorsRequest()) {
       if (logger.isDebugEnabled()) {
         logger.debug("Rejecting cross-origin WebSocket request from: '{}'. "

@@ -106,7 +106,7 @@ public class FreeMarkerProperties implements InitializingBean, ApplicationContex
   private String suffix;
 
   /**
-   * Name of the HttpContext attribute for all views.
+   * Name of the ServerHttpExchange attribute for all views.
    */
   private @Nullable String httpContextAttribute = DEFAULT_HTTP_CONTEXT_ATTRIBUTE;
 

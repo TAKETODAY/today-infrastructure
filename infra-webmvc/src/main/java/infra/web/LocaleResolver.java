@@ -36,18 +36,18 @@ import infra.web.util.WebUtils;
  * {@link infra.web.i18n.AcceptHeaderLocaleResolver},
  * simply using the request's locale provided by the respective HTTP header.
  *
- * <p>Use {@link WebUtils#resolveLocale(HttpContext)}
+ * <p>Use {@link WebUtils#resolveLocale(ServerHttpExchange)}
  * to retrieve the current locale in controllers or views, independent
  * of the actual resolution strategy.
- * <p>In contrast, {@link HttpContext#getPreferredLocale()} only exposes the request's
+ * <p>In contrast, {@link ServerHttpExchange#getPreferredLocale()} only exposes the request's
  * {@code Accept-Language} preference and may return {@code null}. Implementations
  * may use that preference as an input, but must supply their own fallback to
  * satisfy the non-null resolution contract. They must not call
- * {@link WebUtils#resolveLocale(HttpContext)} for a fallback, since that
+ * {@link WebUtils#resolveLocale(ServerHttpExchange)} for a fallback, since that
  * may invoke the same resolver recursively.
  * <p>Register the application strategy under {@link #BEAN_NAME}. Changing a
  * locale through this strategy does not modify the request's language header
- * or the value exposed by {@link HttpContext#getPreferredLocale()}.
+ * or the value exposed by {@link ServerHttpExchange#getPreferredLocale()}.
  *
  * <p>there is an extended strategy interface
  * called {@link LocaleContextResolver}, allowing for resolution of
@@ -60,7 +60,7 @@ import infra.web.util.WebUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see LocaleContextResolver
  * @see LocaleContextHolder
- * @see HttpContext#getPreferredLocale
+ * @see ServerHttpExchange#getPreferredLocale
  * @see WebUtils#resolveLocale
  * @since 4.0 2022/2/3 22:54
  */
@@ -74,22 +74,22 @@ public interface LocaleResolver {
   /**
    * Resolve the effective application locale for the given request, applying
    * this strategy's configured defaults when necessary.
-   * <p>The result may differ from {@link HttpContext#getPreferredLocale()}, for example
+   * <p>The result may differ from {@link ServerHttpExchange#getPreferredLocale()}, for example
    * when a cookie or session contains an explicit language selection.
    *
    * @param context the request to resolve the locale for
    * @return the current locale (never {@code null})
    */
-  Locale resolveLocale(HttpContext context);
+  Locale resolveLocale(ServerHttpExchange context);
 
   /**
    * Set the current locale to the given one.
    *
-   * @param context the request to be used for locale modification
+   * @param exchange the request to be used for locale modification
    * @param locale the new locale, or {@code null} to clear the locale
    * @throws UnsupportedOperationException if the LocaleResolver
    * implementation does not support dynamic changing of the locale
    */
-  void setLocale(HttpContext context, @Nullable Locale locale);
+  void setLocale(ServerHttpExchange exchange, @Nullable Locale locale);
 
 }

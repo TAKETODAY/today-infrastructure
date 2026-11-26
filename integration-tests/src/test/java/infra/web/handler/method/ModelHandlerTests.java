@@ -28,13 +28,13 @@ import infra.session.config.EnableSession;
 import infra.ui.Model;
 import infra.validation.BindingResult;
 import infra.web.BindingContext;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.RedirectModel;
-import infra.web.bind.HttpContextDataBinder;
+import infra.web.bind.HttpExchangeDataBinder;
 import infra.web.bind.annotation.ModelAttribute;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.handler.method.support.ModelMethodProcessor;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
@@ -48,7 +48,7 @@ import static org.mockito.Mockito.mock;
  */
 class ModelHandlerTests {
 
-  private MockHttpContext webRequest;
+  private MockServerHttpExchange webRequest;
 
   private TestController controller = new TestController();
 
@@ -66,7 +66,7 @@ class ModelHandlerTests {
 
   @BeforeEach
   public void setUp() throws Throwable {
-    this.webRequest = new MockHttpContext(
+    this.webRequest = new MockServerHttpExchange(
             context, new MockRequest(), new MockResponse());
 
     BindingContext.set(webRequest, new BindingContext());
@@ -140,7 +140,7 @@ class ModelHandlerTests {
   public void updateModelBindingResult() throws Throwable {
     String commandName = "attr1";
     Object command = new Object();
-    HttpContextDataBinder dataBinder = new HttpContextDataBinder(command, commandName);
+    HttpExchangeDataBinder dataBinder = new HttpExchangeDataBinder(command, commandName);
     BindingContext container = new BindingContext0(dataBinder);
     container.addAttribute(commandName, command);
 
@@ -154,14 +154,14 @@ class ModelHandlerTests {
   }
 
   static class BindingContext0 extends BindingContext {
-    final HttpContextDataBinder dataBinder;
+    final HttpExchangeDataBinder dataBinder;
 
-    BindingContext0(HttpContextDataBinder dataBinder) {
+    BindingContext0(HttpExchangeDataBinder dataBinder) {
       this.dataBinder = dataBinder;
     }
 
     @Override
-    public HttpContextDataBinder createBinder(HttpContext context, @Nullable Object target, String objectName) {
+    public HttpExchangeDataBinder createBinder(ServerHttpExchange context, @Nullable Object target, String objectName) {
       return dataBinder;
     }
   }
@@ -171,7 +171,7 @@ class ModelHandlerTests {
     String attributeName = "sessionAttr";
     String attribute = "value";
 
-    HttpContextDataBinder dataBinder = new HttpContextDataBinder(attribute, attributeName);
+    HttpExchangeDataBinder dataBinder = new HttpExchangeDataBinder(attribute, attributeName);
     BindingContext container = new BindingContext0(dataBinder);
     container.addAttribute(attributeName, attribute);
 

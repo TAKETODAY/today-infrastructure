@@ -12,14 +12,14 @@
 `HandlerExceptionHandler` 用于将处理请求时的异常转换为错误响应或视图。响应提交后不能再生成替代响应。
 参见 xref:web/webmvc/mvc-core/exceptionhandlers.adoc[异常]，以及 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-exceptions[异步异常处理]。
 
-对于 HTTP 缓存支持，处理程序可以使用 `HttpContext` 的 `checkNotModified` 方法，
+对于 HTTP 缓存支持，处理程序可以使用 `ServerHttpExchange` 的 `checkNotModified` 方法，
 以及 xref:web/webmvc/mvc-caching.adoc#mvc-caching-etag-lastmodified[控制器的 HTTP 缓存]
 中描述的带注解控制器的更多选项。
 
 [[mvc-internal-forward]]
 == 内部转发
 
-响应尚未提交时，可以调用 `HttpContext.forward(path)`，在同一请求中将处理交给目标路径，例如 `http.forward("/orders?status=open")`。
+响应尚未提交时，可以调用 `ServerHttpExchange.forward(path)`，在同一请求中将处理交给目标路径，例如 `exchange.forward("/orders?status=open")`。
 调度器重置响应、更新请求路径及查询字符串，然后重新查找并执行目标处理器，但不会重新执行过滤器链。
 这不是 HTTP 重定向：客户端不会发起新请求，地址栏也不会改变。
 

@@ -18,7 +18,7 @@ package infra.web.handler.method;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.bind.MethodParameterResolvingException;
 
 /**
@@ -27,7 +27,7 @@ import infra.web.bind.MethodParameterResolvingException;
  *
  * <p>Implementations first declare applicability in
  * {@link #supportsParameter(HandlerParameter)} and then perform the actual
- * resolution in {@link #resolveArgument(HttpContext, HandlerParameter)}.
+ * resolution in {@link #resolveArgument(ServerHttpExchange, HandlerParameter)}.
  * A {@link ParameterResolvingRegistry} consults registered strategies in order
  * and delegates to the first one that supports the parameter.
  *
@@ -46,7 +46,7 @@ import infra.web.bind.MethodParameterResolvingException;
  *   }
  *
  *   @Override
- *   public @Nullable Object resolveArgument(HttpContext context, HandlerParameter parameter) {
+ *   public @Nullable Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) {
  *     Session session = context.getSession(false);
  *     return session != null ? session.getAttribute(parameter.getName()) : null;
  *   }
@@ -71,7 +71,7 @@ public interface ParameterResolvingStrategy {
    * <p>This method is called while selecting a strategy for a parameter and
    * should have no side effects. Implementations typically inspect the
    * parameter's annotations, type, or other metadata. Returning {@code true}
-   * means that {@link #resolveArgument(HttpContext, HandlerParameter)} can
+   * means that {@link #resolveArgument(ServerHttpExchange, HandlerParameter)} can
    * handle the parameter; it does not guarantee that resolution will succeed.
    *
    * @param parameter the parameter to inspect
@@ -89,13 +89,13 @@ public interface ParameterResolvingStrategy {
    * model context, convert it to the declared parameter type if necessary, and
    * return the value to be passed to the handler method.
    *
-   * @param context the current request context
+   * @param exchange the current exchange
    * @param parameter the parameter to resolve
    * @return the resolved argument value, or {@code null} if the value is
    * absent or resolves to {@code null}
    * @throws Exception if the argument cannot be resolved
    */
   @Nullable
-  Object resolveArgument(HttpContext context, HandlerParameter parameter) throws Exception;
+  Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) throws Exception;
 
 }

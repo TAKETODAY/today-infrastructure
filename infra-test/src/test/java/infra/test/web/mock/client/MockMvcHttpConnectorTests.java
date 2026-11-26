@@ -35,7 +35,7 @@ import infra.test.web.reactive.server.MockServerClientHttpResponse;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.DefaultMockContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,12 +56,12 @@ class MockMvcHttpConnectorTests {
     MockResponse serverResponse = new MockResponse();
     given(result.getRequest()).willReturn(serverRequest);
     given(result.getResponse()).willReturn(serverResponse);
-    given(result.getContext()).willReturn(new MockHttpContext(null, serverRequest, serverResponse));
+    given(result.getContext()).willReturn(new MockServerHttpExchange(null, serverRequest, serverResponse));
     ResultActions actions = ResultActions.forMvcResult(result);
     given(mvc.perform(any())).willAnswer(invocation -> {
       MockHttpRequestBuilder builder = invocation.getArgument(0);
       MockRequest request = builder.buildRequest(new DefaultMockContext());
-      builder.customize(request, new MockHttpContext(request));
+      builder.customize(request, new MockServerHttpExchange(request));
       assertThat(request.getContentAsByteArray()).isEqualTo("payload".getBytes(StandardCharsets.UTF_8));
       assertThat(request.getHeader("X-Test")).isEqualTo("header");
       assertThat(request.getAttribute("customized")).isEqualTo(true);

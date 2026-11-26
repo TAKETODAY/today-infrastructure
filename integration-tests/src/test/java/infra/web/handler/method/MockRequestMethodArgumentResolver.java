@@ -21,8 +21,8 @@ package infra.web.handler.method;
 import org.jspecify.annotations.Nullable;
 
 import infra.session.Session;
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 
 /**
@@ -50,8 +50,8 @@ public class MockRequestMethodArgumentResolver implements ParameterResolvingStra
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
-    MockRequest request = ((MockHttpContext) context).getRequest();
+  public Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) {
+    MockRequest request = ((MockServerHttpExchange) exchange).getRequest();
 
     Class<?> paramType = parameter.getParameterType();
     if (Session.class.isAssignableFrom(paramType)) {

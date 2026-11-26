@@ -26,7 +26,7 @@ import java.util.function.Predicate;
 
 import infra.util.Assert;
 import infra.util.ExceptionUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * Base class for {@link ServerResponse} implementations with error handling.
@@ -47,7 +47,7 @@ abstract class ErrorHandlingServerResponse implements ServerResponse {
     this.errorHandlers.add(new ErrorHandler<>(predicate, errorHandler));
   }
 
-  protected final @Nullable Object handleError(Throwable t, HttpContext request, Context context) throws Exception {
+  protected final @Nullable Object handleError(Throwable t, ServerHttpExchange request, Context context) throws Exception {
     ServerResponse serverResponse = errorResponse(t, request);
     if (serverResponse != null) {
       return serverResponse.writeTo(request, context);
@@ -55,7 +55,7 @@ abstract class ErrorHandlingServerResponse implements ServerResponse {
     throw ExceptionUtils.sneakyThrow(t);
   }
 
-  protected final @Nullable ServerResponse errorResponse(Throwable t, HttpContext request) {
+  protected final @Nullable ServerResponse errorResponse(Throwable t, ServerHttpExchange request) {
     for (ErrorHandler<?> errorHandler : errorHandlers) {
       if (errorHandler.test(t)) {
         ServerRequest serverRequest = ServerRequest.findRequired(request);

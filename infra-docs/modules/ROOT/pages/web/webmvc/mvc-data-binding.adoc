@@ -29,7 +29,7 @@ xref:web/webmvc/mvc-controller/ann-initbinder.adoc[@InitBinder 方法]自定义�
 [[mvc-data-binding-request-values]]
 == 请求值来源与优先级
 
-MVC 的 `HttpContextDataBinder` 除了查询参数和表单字段，还可以绑定 multipart 部件、
+MVC 的 `HttpExchangeDataBinder` 除了查询参数和表单字段，还可以绑定 multipart 部件、
 当前请求映射提取的 URI 路径变量，以及通过筛选的请求头。同名值的优先级取决于绑定方式：
 
 * *构造函数绑定*：先查请求参数，再查同名路径变量和请求头。如果都没有找到，

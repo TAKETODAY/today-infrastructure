@@ -22,7 +22,7 @@ import java.util.concurrent.RejectedExecutionException;
 
 import infra.http.HttpStatus;
 import infra.util.Assert;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * Simple {@link HttpRequestExecutor} implementation that delegates to an {@link Executor}.
@@ -53,7 +53,7 @@ public class SimpleHttpRequestExecutor implements HttpRequestExecutor {
    * @throws IOException if an I/O error occurs
    */
   @Override
-  public void execute(HttpContext ctx, Runnable command) throws IOException {
+  public void execute(ServerHttpExchange ctx, Runnable command) throws IOException {
     try {
       executor.execute(command);
     }

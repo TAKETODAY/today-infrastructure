@@ -35,13 +35,13 @@ import infra.format.support.DefaultFormattingConversionService;
 import infra.validation.BindingResult;
 import infra.validation.Errors;
 import infra.web.BindingContext;
-import infra.web.HttpContext;
-import infra.web.bind.HttpContextDataBinder;
+import infra.web.ServerHttpExchange;
+import infra.web.bind.HttpExchangeDataBinder;
 import infra.web.bind.MethodArgumentNotValidException;
 import infra.web.bind.annotation.ModelAttribute;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.HandlerParameter;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.multipart.Part;
 
@@ -65,7 +65,7 @@ import static org.mockito.Mockito.verify;
  */
 class ModelAttributeMethodProcessorTests {
 
-  private MockHttpContext request;
+  private MockServerHttpExchange request;
 
   private BindingContext container;
 
@@ -84,7 +84,7 @@ class ModelAttributeMethodProcessorTests {
 
   @BeforeEach
   public void setup() throws Throwable {
-    this.request = new MockHttpContext(null, new MockRequest(), null);
+    this.request = new MockServerHttpExchange(null, new MockRequest(), null);
     this.container = new BindingContext();
     BindingContext.set(request, container);
     this.processor = new ModelAttributeMethodProcessor(false);
@@ -160,7 +160,7 @@ class ModelAttributeMethodProcessorTests {
 
   @Test
   public void resolveArgumentViaDefaultConstructor() throws Throwable {
-    HttpContextDataBinder dataBinder = new HttpContextDataBinder(null);
+    HttpExchangeDataBinder dataBinder = new HttpExchangeDataBinder(null);
     dataBinder.setTargetType(ResolvableType.forMethodParameter(paramNamedValidModelAttr.getMethodParameter()));
 
     BindingContext factory = mock();
@@ -181,7 +181,7 @@ class ModelAttributeMethodProcessorTests {
 
     BindingContext factory = new BindingContext() {
       @Override
-      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
+      protected HttpExchangeDataBinder createBinderInstance(@Nullable Object target, String objectName, ServerHttpExchange context) throws Exception {
         StubHttpDataBinder dataBinder = new StubHttpDataBinder(target, objectName);
         ref.set(dataBinder);
         return dataBinder;
@@ -205,7 +205,7 @@ class ModelAttributeMethodProcessorTests {
     BindingContext factory = new BindingContext() {
 
       @Override
-      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
+      protected HttpExchangeDataBinder createBinderInstance(@Nullable Object target, String objectName, ServerHttpExchange context) throws Exception {
         return dataBinder;
       }
     };
@@ -230,7 +230,7 @@ class ModelAttributeMethodProcessorTests {
     StubHttpDataBinder dataBinder = new StubHttpDataBinder(target, name);
     BindingContext factory = new BindingContext() {
       @Override
-      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
+      protected HttpExchangeDataBinder createBinderInstance(@Nullable Object target, String objectName, ServerHttpExchange context) throws Exception {
         return dataBinder;
       }
     };
@@ -252,7 +252,7 @@ class ModelAttributeMethodProcessorTests {
     BindingContext binderFactory = new BindingContext() {
 
       @Override
-      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
+      protected HttpExchangeDataBinder createBinderInstance(@Nullable Object target, String objectName, ServerHttpExchange context) throws Exception {
         StubHttpDataBinder dataBinder = new StubHttpDataBinder(target, name);
         dataBinder.getBindingResult().reject("error");
         return dataBinder;
@@ -272,7 +272,7 @@ class ModelAttributeMethodProcessorTests {
 
     BindingContext factory = new BindingContext() {
       @Override
-      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
+      protected HttpExchangeDataBinder createBinderInstance(@Nullable Object target, String objectName, ServerHttpExchange context) throws Exception {
         return dataBinder;
       }
     };
@@ -309,12 +309,12 @@ class ModelAttributeMethodProcessorTests {
   public void resolveConstructorListArgumentFromCommaSeparatedRequestParameter() throws Throwable {
     MockRequest mockRequest = new MockRequest();
     mockRequest.addParameter("listOfStrings", "1,2");
-    MockHttpContext requestWithParam = new MockHttpContext(null, mockRequest, null);
+    MockServerHttpExchange requestWithParam = new MockServerHttpExchange(null, mockRequest, null);
 
     BindingContext factory = new BindingContext() {
       @Override
-      protected HttpContextDataBinder createBinderInstance(@Nullable Object target, String objectName, HttpContext context) throws Exception {
-        HttpContextDataBinder binder = new HttpContextDataBinder(target, objectName);
+      protected HttpExchangeDataBinder createBinderInstance(@Nullable Object target, String objectName, ServerHttpExchange context) throws Exception {
+        HttpExchangeDataBinder binder = new HttpExchangeDataBinder(target, objectName);
         binder.setTargetType(ResolvableType.forMethodParameter(beanWithConstructorArgs.getMethodParameter()));
 
         // Add conversion service which will convert "1,2" to a list
@@ -341,7 +341,7 @@ class ModelAttributeMethodProcessorTests {
     this.processor.resolveArgument(request, param);
   }
 
-  private static class StubHttpDataBinder extends HttpContextDataBinder {
+  private static class StubHttpDataBinder extends HttpExchangeDataBinder {
 
     private boolean bindInvoked;
 
@@ -360,7 +360,7 @@ class ModelAttributeMethodProcessorTests {
     }
 
     @Override
-    public void bind(HttpContext request) {
+    public void bind(ServerHttpExchange request) {
       bindInvoked = true;
     }
 

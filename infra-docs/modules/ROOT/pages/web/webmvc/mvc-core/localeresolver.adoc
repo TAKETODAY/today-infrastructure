@@ -10,7 +10,7 @@ Infra 架构的大部分都支持国际化，Infra Web MVC 框架也是如此。
 |===
 | API | 含义 | 使用场景
 
-| `HttpContext.getPreferredLocale()`
+| `ServerHttpExchange.getPreferredLocale()`
 | 仅从 `Accept-Language` 读取请求首选语言，可以为 `null`
 | 检查客户端偏好，或作为自定义解析器的输入
 
@@ -18,25 +18,25 @@ Infra 架构的大部分都支持国际化，Infra Web MVC 框架也是如此。
 | 定义应用如何选择区域设置，成功解析时返回非空值
 | 配置请求头、Cookie、Session 或固定语言策略，以及修改用户的语言选择
 
-| `WebUtils.resolveLocale(request)`
+| `WebUtils.resolveLocale(exchange)`
 | 按应用策略获取非空的最终区域设置
 | 消息查找、视图渲染、日期和数字格式化
 |===
 
-`HttpContext.getPreferredLocale()` 按质量权重降序选择具体语言，忽略通配符范围和 `q=0` 的范围。
+`ServerHttpExchange.getPreferredLocale()` 按质量权重降序选择具体语言，忽略通配符范围和 `q=0` 的范围。
 请求头缺失、空白或不含可接受的具体语言时返回 `null`；非法请求头仍会抛出解析异常。
 该方法不读取 Cookie、Session 或 `LocaleResolver`，也不回退到 JVM 默认语言。
-它不保证应用支持返回的语言；需要所有语言候选和权重时，使用 `request.requestHeaders().getAcceptLanguage()`。
+它不保证应用支持返回的语言；需要所有语言候选和权重时，使用 `exchange.requestHeaders().getAcceptLanguage()`。
 
-应用代码通常应使用 `WebUtils.resolveLocale(request)`：
+应用代码通常应使用 `WebUtils.resolveLocale(exchange)`：
 
 . 从请求关联的 `ApplicationContext` 中按 `LocaleResolver.BEAN_NAME`（`mvcLocaleResolver`）查找 MVC 语言解析器。
 . 如果存在解析器，直接返回其结果，由解析器负责默认值和支持语言等策略。
-. 只有不存在解析器时，才读取 `request.getPreferredLocale()`，并在其为空时回退到 `Locale.getDefault()`。
+. 只有不存在解析器时，才读取 `exchange.getPreferredLocale()`，并在其为空时回退到 `Locale.getDefault()`。
 
-控制器和异常处理方法的 `Locale` 参数，以及 `HttpContext.getMessage(...)`，使用最终解析语言。
-例如，请求头为法语，而 `SessionLocaleResolver` 中保存了中文选择时，`request.getPreferredLocale()` 返回法语，
-`WebUtils.resolveLocale(request)` 返回中文。更改会话中的选择不会修改请求头语言。
+控制器和异常处理方法的 `Locale` 参数，以及 `ServerHttpExchange.getMessage(...)`，使用最终解析语言。
+例如，请求头为法语，而 `SessionLocaleResolver` 中保存了中文选择时，`exchange.getPreferredLocale()` 返回法语，
+`WebUtils.resolveLocale(exchange)` 返回中文。更改会话中的选择不会修改请求头语言。
 
 工具方法不依赖线程语言上下文，但早期过滤器或独立测试中的请求可能尚未关联应用上下文，因而无法查到解析器。
 不要将 `Locale.getDefault()` 当作稳定的应用默认语言；需要固定默认值时，应在解析器中显式配置。
@@ -50,8 +50,8 @@ Infra 架构的大部分都支持国际化，Infra Web MVC 框架也是如此。
 消息资源的默认语言只影响资源查找，不能替代语言协商；设置 `Content-Language` 时，应与实际响应正文采用的语言保持一致。
 ====
 
-自定义 `LocaleResolver` 应读取 `request.getPreferredLocale()` 作为请求偏好，并自行处理空值及回退。
-不要在解析器内部调用 `WebUtils.resolveLocale(request)` 取得回退值，否则可能递归调用自身。
+自定义 `LocaleResolver` 应读取 `exchange.getPreferredLocale()` 作为请求偏好，并自行处理空值及回退。
+不要在解析器内部调用 `WebUtils.resolveLocale(exchange)` 取得回退值，否则可能递归调用自身。
 
 除了自动区域设置解析之外，您还可以将拦截器附加到处理程序映射
 （有关处理程序映射拦截器的更多信息，请参阅 xref:web/webmvc/mvc-core/handlermapping-interceptor.adoc[拦截]）
@@ -73,7 +73,7 @@ Infra 中包含以下区域设置解析器选择。
 除了获取客户端的区域设置外，了解其时区通常很有用。`LocaleContextResolver` 接口提供了对 `LocaleResolver`
 的扩展，让解析器提供更丰富的 `LocaleContext`，其中可能包括时区信息。
 
-如果可用，可以使用 `WebUtils.getTimeZone(request)` 方法获取用户的 `TimeZone`；
+如果可用，可以使用 `WebUtils.getTimeZone(exchange)` 方法获取用户的 `TimeZone`；
 没有解析器提供时区时，此方法返回 `null`，不会回退到系统默认时区。
 任何向 Infra `ConversionService` 注册的日期/时间 `Converter` 和 `Formatter` 对象都会自动使用时区信息。
 
@@ -158,8 +158,8 @@ public LocaleResolver mvcLocaleResolver() {
 与 `CookieLocaleResolver` 相比，此策略将本地选择的区域设置存储在 `infra.session.Session` 中。
 因此，这些设置对于每个会话都是临时的，因此在每个会话结束时会丢失。
 
-此 `SessionLocaleResolver` 通过当前 `HttpContext.getSession(false)` 读取会话属性，
-并在设置区域或时区时通过 `HttpContext.getSession()` 获取或创建会话。应用需要配置可用的会话管理支持。
+此 `SessionLocaleResolver` 通过当前 `ServerHttpExchange.getSession(false)` 读取会话属性，
+并在设置区域或时区时通过 `ServerHttpExchange.getSession()` 获取或创建会话。应用需要配置可用的会话管理支持。
 
 
 [[mvc-localeresolver-interceptor]]
@@ -169,7 +169,7 @@ public LocaleResolver mvcLocaleResolver() {
 它检测请求中的参数并相应地更改区域设置，在调度程序的应用程序上下文中的 `LocaleResolver` 上调用 `setLocale` 方法。
 也可以通过拦截器的 `setLocaleResolver(...)` 显式指定解析器。
 Cookie 和 Session 策略支持保存语言选择，而 `AcceptHeaderLocaleResolver` 不支持动态修改，调用其 `setLocale` 会抛出
-`UnsupportedOperationException`。拦截器更改的是策略中的选择，不是 `HttpContext.getPreferredLocale()` 表示的请求头偏好。
+`UnsupportedOperationException`。拦截器更改的是策略中的选择，不是 `ServerHttpExchange.getPreferredLocale()` 表示的请求头偏好。
 下一个示例显示，对包含名为 `siteLanguage` 参数的所有 `{asterisk}.view` 资源的调用现在会更改区域设置。
 因此，例如，对 URL `https://www.sf.net/home.view?siteLanguage=nl` 的请求会将站点语言更改为荷兰语。
 以下示例显示了如何拦截区域设置：

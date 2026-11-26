@@ -25,7 +25,7 @@ import java.util.Map;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.concurrent.Future;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.socket.CloseStatus;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketMessage;
@@ -48,7 +48,7 @@ public class LoggingWebSocketHandler extends WebSocketHandler implements Handsha
   }
 
   @Override
-  public boolean beforeHandshake(HttpContext context, Map<String, Object> attributes) throws Exception {
+  public boolean beforeHandshake(ServerHttpExchange context, Map<String, Object> attributes) throws Exception {
     if (logger.isDebugEnabled()) {
       logger.debug("Before Handshake {}", context);
     }
@@ -59,7 +59,7 @@ public class LoggingWebSocketHandler extends WebSocketHandler implements Handsha
   }
 
   @Override
-  public void afterHandshake(HttpContext context, @Nullable WebSocketSession session, @Nullable Throwable failure) throws Exception {
+  public void afterHandshake(ServerHttpExchange context, @Nullable WebSocketSession session, @Nullable Throwable failure) throws Exception {
     if (failure != null) {
       logger.error("Handshake failed {}", context, failure);
     }

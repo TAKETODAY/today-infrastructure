@@ -28,9 +28,9 @@ import java.util.Optional;
 import infra.http.HttpCookie;
 import infra.http.HttpMethod;
 import infra.http.converter.HttpMessageConverter;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.accept.ApiVersionStrategy;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -44,7 +44,7 @@ class ServerRequestTests {
 
   @Test
   void createServerRequest() {
-    HttpContext mockContext = new MockHttpContext();
+    ServerHttpExchange mockContext = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
 
     ServerRequest request = ServerRequest.create(mockContext, converters);
@@ -55,7 +55,7 @@ class ServerRequestTests {
 
   @Test
   void createServerRequestWithVersionStrategy() {
-    HttpContext mockContext = new MockHttpContext();
+    ServerHttpExchange mockContext = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ApiVersionStrategy versionStrategy = mock();
 
@@ -67,7 +67,7 @@ class ServerRequestTests {
 
   @Test
   void findServerRequest() {
-    HttpContext mockContext = new MockHttpContext();
+    ServerHttpExchange mockContext = new MockServerHttpExchange();
     ServerRequest mockRequest = mock();
     mockContext.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE, mockRequest);
 
@@ -78,7 +78,7 @@ class ServerRequestTests {
 
   @Test
   void findServerRequestNotFound() {
-    HttpContext mockContext = new MockHttpContext();
+    ServerHttpExchange mockContext = new MockServerHttpExchange();
 
     ServerRequest foundRequest = ServerRequest.find(mockContext);
 
@@ -87,7 +87,7 @@ class ServerRequestTests {
 
   @Test
   void findRequiredServerRequest() {
-    HttpContext mockContext = new MockHttpContext();
+    ServerHttpExchange mockContext = new MockServerHttpExchange();
     ServerRequest mockRequest = mock();
     mockContext.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE, mockRequest);
 
@@ -98,7 +98,7 @@ class ServerRequestTests {
 
   @Test
   void findRequiredServerRequestNotFound() {
-    HttpContext mockContext = new MockHttpContext();
+    ServerHttpExchange mockContext = new MockServerHttpExchange();
 
     assertThatThrownBy(() -> ServerRequest.findRequired(mockContext))
             .isInstanceOf(IllegalStateException.class)
@@ -107,7 +107,7 @@ class ServerRequestTests {
 
   @Test
   void builderFromServerRequest() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest originalRequest = ServerRequest.create(context, converters);
 
@@ -118,7 +118,7 @@ class ServerRequestTests {
 
   @Test
   void builderMethod() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest originalRequest = ServerRequest.create(context, converters);
     ServerRequest.Builder builder = ServerRequest.from(originalRequest);
@@ -130,7 +130,7 @@ class ServerRequestTests {
 
   @Test
   void builderUri() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest originalRequest = ServerRequest.create(context, converters);
     ServerRequest.Builder builder = ServerRequest.from(originalRequest);
@@ -143,7 +143,7 @@ class ServerRequestTests {
 
   @Test
   void builderHeader() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest originalRequest = ServerRequest.create(context, converters);
     ServerRequest.Builder builder = ServerRequest.from(originalRequest);
@@ -155,7 +155,7 @@ class ServerRequestTests {
 
   @Test
   void builderCookie() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest originalRequest = ServerRequest.create(context, converters);
     ServerRequest.Builder builder = ServerRequest.from(originalRequest);
@@ -167,7 +167,7 @@ class ServerRequestTests {
 
   @Test
   void builderAttribute() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest originalRequest = ServerRequest.create(context, converters);
     ServerRequest.Builder builder = ServerRequest.from(originalRequest);
@@ -179,7 +179,7 @@ class ServerRequestTests {
 
   @Test
   void builderParam() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest originalRequest = ServerRequest.create(context, converters);
     ServerRequest.Builder builder = ServerRequest.from(originalRequest);
@@ -191,7 +191,7 @@ class ServerRequestTests {
 
   @Test
   void builderRemoteAddress() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest originalRequest = ServerRequest.create(context, converters);
     ServerRequest.Builder builder = ServerRequest.from(originalRequest);
@@ -204,7 +204,7 @@ class ServerRequestTests {
 
   @Test
   void builderBodyByteArray() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest originalRequest = ServerRequest.create(context, converters);
     ServerRequest.Builder builder = ServerRequest.from(originalRequest);
@@ -217,7 +217,7 @@ class ServerRequestTests {
 
   @Test
   void builderBodyString() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest originalRequest = ServerRequest.create(context, converters);
     ServerRequest.Builder builder = ServerRequest.from(originalRequest);
@@ -229,7 +229,7 @@ class ServerRequestTests {
 
   @Test
   void builderHeadersConsumer() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest originalRequest = ServerRequest.create(context, converters);
     ServerRequest.Builder builder = ServerRequest.from(originalRequest);
@@ -241,7 +241,7 @@ class ServerRequestTests {
 
   @Test
   void builderCookiesConsumer() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest originalRequest = ServerRequest.create(context, converters);
     ServerRequest.Builder builder = ServerRequest.from(originalRequest);
@@ -257,7 +257,7 @@ class ServerRequestTests {
 
   @Test
   void builderAttributesConsumer() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest originalRequest = ServerRequest.create(context, converters);
     ServerRequest.Builder builder = ServerRequest.from(originalRequest);
@@ -273,7 +273,7 @@ class ServerRequestTests {
 
   @Test
   void builderParamsConsumer() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest originalRequest = ServerRequest.create(context, converters);
     ServerRequest.Builder builder = ServerRequest.from(originalRequest);
@@ -289,7 +289,7 @@ class ServerRequestTests {
 
   @Test
   void builderChaining() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest originalRequest = ServerRequest.create(context, converters);
     ServerRequest.Builder builder = ServerRequest.from(originalRequest);
@@ -317,7 +317,7 @@ class ServerRequestTests {
 
   @Test
   void paramMethods() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest request = ServerRequest.create(context, converters);
 
@@ -328,7 +328,7 @@ class ServerRequestTests {
 
   @Test
   void pathMethods() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest request = ServerRequest.create(context, converters);
 
@@ -338,7 +338,7 @@ class ServerRequestTests {
 
   @Test
   void checkNotModifiedWithLastModified() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest request = ServerRequest.create(context, converters);
     Instant lastModified = Instant.now().minusSeconds(3600);
@@ -350,7 +350,7 @@ class ServerRequestTests {
 
   @Test
   void checkNotModifiedWithEtag() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest request = ServerRequest.create(context, converters);
     String etag = "\"abc123\"";
@@ -362,7 +362,7 @@ class ServerRequestTests {
 
   @Test
   void checkNotModifiedWithLastModifiedAndEtag() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest request = ServerRequest.create(context, converters);
     Instant lastModified = Instant.now().minusSeconds(3600);
@@ -375,7 +375,7 @@ class ServerRequestTests {
 
   @Test
   void pathVariableMethods() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest request = ServerRequest.create(context, converters);
 
@@ -385,7 +385,7 @@ class ServerRequestTests {
 
   @Test
   void headersMethods() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest request = ServerRequest.create(context, converters);
 
@@ -395,7 +395,7 @@ class ServerRequestTests {
 
   @Test
   void cookiesMethods() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest request = ServerRequest.create(context, converters);
 
@@ -405,7 +405,7 @@ class ServerRequestTests {
 
   @Test
   void attributesMethods() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest request = ServerRequest.create(context, converters);
 
@@ -415,7 +415,7 @@ class ServerRequestTests {
 
   @Test
   void messageConvertersMethod() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest request = ServerRequest.create(context, converters);
 
@@ -425,7 +425,7 @@ class ServerRequestTests {
 
   @Test
   void exchangeMethod() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest request = ServerRequest.create(context, converters);
 
@@ -435,7 +435,7 @@ class ServerRequestTests {
 
   @Test
   void apiVersionStrategyMethod() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest request = ServerRequest.create(context, converters);
 
@@ -445,7 +445,7 @@ class ServerRequestTests {
 
   @Test
   void requestPathMethod() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest request = ServerRequest.create(context, converters);
 
@@ -455,7 +455,7 @@ class ServerRequestTests {
 
   @Test
   void methodNameMethod() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest request = ServerRequest.create(context, converters);
 
@@ -465,7 +465,7 @@ class ServerRequestTests {
 
   @Test
   void methodMethod() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest request = ServerRequest.create(context, converters);
 
@@ -475,7 +475,7 @@ class ServerRequestTests {
 
   @Test
   void uriMethod() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest request = ServerRequest.create(context, converters);
 
@@ -485,7 +485,7 @@ class ServerRequestTests {
 
   @Test
   void uriBuilderMethod() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest request = ServerRequest.create(context, converters);
 
@@ -495,7 +495,7 @@ class ServerRequestTests {
 
   @Test
   void remoteAddressMethod() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest request = ServerRequest.create(context, converters);
 
@@ -505,7 +505,7 @@ class ServerRequestTests {
 
   @Test
   void paramsMethod() {
-    HttpContext context = new MockHttpContext();
+    ServerHttpExchange context = new MockServerHttpExchange();
     List<HttpMessageConverter<?>> converters = new ArrayList<>();
     ServerRequest request = ServerRequest.create(context, converters);
 

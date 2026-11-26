@@ -48,7 +48,7 @@ import infra.http.converter.HttpMessageConverter;
 import infra.util.MultiValueMap;
 import infra.util.function.ThrowingConsumer;
 import infra.web.ErrorResponse;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpRequestHandler;
 import infra.web.view.ModelAndView;
 
@@ -101,7 +101,7 @@ public interface ServerResponse {
    * @return a Web result to render, or {@code null} if handled directly
    */
   @Nullable
-  Object writeTo(HttpContext request, Context context) throws Exception;
+  Object writeTo(ServerHttpExchange request, Context context) throws Exception;
 
   // Static methods
 
@@ -535,7 +535,7 @@ public interface ServerResponse {
     /**
      * Build the response entity with a custom write function.
      *
-     * @param writeFunction the function used to write to the {@link HttpContext}
+     * @param writeFunction the function used to write to the {@link ServerHttpExchange}
      */
     ServerResponse build(WriteFunction writeFunction);
 
@@ -554,7 +554,7 @@ public interface ServerResponse {
        * @throws Exception in case of Web errors
        */
       @Nullable
-      Object write(HttpContext request) throws Exception;
+      Object write(ServerHttpExchange request) throws Exception;
 
     }
 
@@ -856,7 +856,7 @@ public interface ServerResponse {
   }
 
   /**
-   * Defines the context used during the {@link #writeTo(HttpContext, Context)}.
+   * Defines the context used during the {@link #writeTo(ServerHttpExchange, Context)}.
    */
   interface Context {
 

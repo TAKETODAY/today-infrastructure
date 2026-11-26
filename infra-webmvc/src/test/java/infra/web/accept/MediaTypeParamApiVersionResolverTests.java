@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import infra.http.MediaType;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -89,7 +89,7 @@ class MediaTypeParamApiVersionResolverTests {
     MediaTypeParamApiVersionResolver resolver = new MediaTypeParamApiVersionResolver(mediaType, "version");
     MockRequest request = new MockRequest("GET", "/path");
 
-    String result = resolver.resolveVersion(new MockHttpContext(request));
+    String result = resolver.resolveVersion(new MockServerHttpExchange(request));
 
     assertThat(result).isNull();
   }
@@ -101,7 +101,7 @@ class MediaTypeParamApiVersionResolverTests {
     MockRequest request = new MockRequest("GET", "/path");
     request.addHeader("Accept", "application/xml;version=1");
 
-    String result = resolver.resolveVersion(new MockHttpContext(request));
+    String result = resolver.resolveVersion(new MockServerHttpExchange(request));
 
     assertThat(result).isNull();
   }
@@ -113,7 +113,7 @@ class MediaTypeParamApiVersionResolverTests {
     MockRequest request = new MockRequest("GET", "/path");
     request.addHeader("Accept", "application/xml, application/x.abc+json;version=2, text/plain");
 
-    String result = resolver.resolveVersion(new MockHttpContext(request));
+    String result = resolver.resolveVersion(new MockServerHttpExchange(request));
 
     assertThat(result).isEqualTo("2");
   }
@@ -125,7 +125,7 @@ class MediaTypeParamApiVersionResolverTests {
     MockRequest request = new MockRequest("POST", "/path");
     request.setContentType("application/x.abc+json;version=3");
 
-    String result = resolver.resolveVersion(new MockHttpContext(request));
+    String result = resolver.resolveVersion(new MockServerHttpExchange(request));
 
     assertThat(result).isEqualTo("3");
   }
@@ -137,7 +137,7 @@ class MediaTypeParamApiVersionResolverTests {
     MockRequest request = new MockRequest("POST", "/path");
     request.setContentType("application/xml;version=1");
 
-    String result = resolver.resolveVersion(new MockHttpContext(request));
+    String result = resolver.resolveVersion(new MockServerHttpExchange(request));
 
     assertThat(result).isNull();
   }
@@ -149,7 +149,7 @@ class MediaTypeParamApiVersionResolverTests {
     MockRequest request = new MockRequest("GET", "/path");
     request.addHeader("Accept", "application/x.abc+json");
 
-    String result = resolver.resolveVersion(new MockHttpContext(request));
+    String result = resolver.resolveVersion(new MockServerHttpExchange(request));
 
     assertThat(result).isNull();
   }
@@ -161,7 +161,7 @@ class MediaTypeParamApiVersionResolverTests {
     MockRequest request = new MockRequest("POST", "/path");
     request.setContentType("application/x.abc+json");
 
-    String result = resolver.resolveVersion(new MockHttpContext(request));
+    String result = resolver.resolveVersion(new MockServerHttpExchange(request));
 
     assertThat(result).isNull();
   }
@@ -174,7 +174,7 @@ class MediaTypeParamApiVersionResolverTests {
     request.addHeader("Accept", "application/x.abc+json;version=accept-version");
     request.setContentType("application/x.abc+json;version=content-version");
 
-    String result = resolver.resolveVersion(new MockHttpContext(request));
+    String result = resolver.resolveVersion(new MockServerHttpExchange(request));
 
     assertThat(result).isEqualTo("accept-version");
   }
@@ -187,7 +187,7 @@ class MediaTypeParamApiVersionResolverTests {
     request.addHeader("Accept", "application/xml;version=1");
     request.addHeader("Accept", "application/x.abc+json;version=2");
 
-    String result = resolver.resolveVersion(new MockHttpContext(request));
+    String result = resolver.resolveVersion(new MockServerHttpExchange(request));
 
     assertThat(result).isEqualTo("2");
   }
@@ -199,7 +199,7 @@ class MediaTypeParamApiVersionResolverTests {
     MockRequest request = new MockRequest("GET", "/path");
     request.addHeader("Accept", "application/vnd.api.v1+json;version=1, application/vnd.api.v2+json;version=2");
 
-    String result = resolver.resolveVersion(new MockHttpContext(request));
+    String result = resolver.resolveVersion(new MockServerHttpExchange(request));
 
     assertThat(result).isEqualTo("1");
   }
@@ -209,7 +209,7 @@ class MediaTypeParamApiVersionResolverTests {
   }
 
   private void testResolve(ApiVersionResolver resolver, MockRequest request, String expected) {
-    String actual = resolver.resolveVersion(new MockHttpContext(request));
+    String actual = resolver.resolveVersion(new MockServerHttpExchange(request));
     assertThat(actual).isEqualTo(expected);
   }
 

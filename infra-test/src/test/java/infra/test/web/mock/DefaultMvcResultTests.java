@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CountDownLatch;
 
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.BindingContext;
@@ -76,7 +76,7 @@ public class DefaultMvcResultTests {
     request.setAsyncSupported(true);
     request.startAsync().setTimeout(timeout);
     MockResponse response = new MockResponse();
-    return new DefaultMvcResult(request, response, new MockHttpContext(request, response));
+    return new DefaultMvcResult(request, response, new MockServerHttpExchange(request, response));
   }
 
   MockRequest request = new MockRequest();
@@ -84,7 +84,7 @@ public class DefaultMvcResultTests {
   MockResponse response = new MockResponse();
 
   private final DefaultMvcResult mvcResult = new DefaultMvcResult(
-          request, response, new MockHttpContext(request, response));
+          request, response, new MockServerHttpExchange(request, response));
 
   @Test
   public void getAsyncResultSuccess() {
@@ -122,14 +122,14 @@ public class DefaultMvcResultTests {
     assertThat(mvcResult.getModelAndView()).isSameAs(explicit);
     assertThat(mvcResult.getModelAndView()).isSameAs(explicit);
     assertThat(DefaultMvcResult.forContext(context)).isSameAs(mvcResult);
-    assertThatIllegalStateException().isThrownBy(() -> DefaultMvcResult.forContext(new MockHttpContext()))
+    assertThatIllegalStateException().isThrownBy(() -> DefaultMvcResult.forContext(new MockServerHttpExchange()))
             .withMessage("No DefaultMvcResult");
   }
 
   @Test
   void resultBuildsModelAndViewFromBindingModelAndViewAttributes() {
     for (Object view : new Object[] { "view-name", mock(View.class), new Object() }) {
-      var context = new MockHttpContext();
+      var context = new MockServerHttpExchange();
       var binding = new BindingContext();
       BindingContext.set(context, binding);
       binding.getModel().addAttribute("key", "value");

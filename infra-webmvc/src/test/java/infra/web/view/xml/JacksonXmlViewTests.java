@@ -35,8 +35,8 @@ import infra.http.MediaType;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.validation.BindingResult;
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.view.View;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
@@ -69,7 +69,7 @@ class JacksonXmlViewTests {
 
   private ScriptableObject jsScope = jsContext.initStandardObjects();
 
-  HttpContext context = new MockHttpContext(request, response);
+  ServerHttpExchange context = new MockServerHttpExchange(request, response);
 
   @Test
   void isExposePathVars() {

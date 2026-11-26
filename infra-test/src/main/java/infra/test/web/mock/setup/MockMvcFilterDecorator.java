@@ -27,7 +27,7 @@ import java.util.List;
 import infra.util.Assert;
 import infra.web.Filter;
 import infra.web.FilterChain;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.mock.MockUtils;
 import infra.web.mock.api.DispatcherType;
 
@@ -112,14 +112,14 @@ final class MockMvcFilterDecorator implements Filter {
   }
 
   @Override
-  public void doFilter(HttpContext http, FilterChain filterChain) throws Exception {
-    String requestPath = http.getRequestURI();
-    if (matchDispatcherType(MockUtils.getMockRequest(http).getDispatcherType())
+  public void doFilter(ServerHttpExchange exchange, FilterChain filterChain) throws Exception {
+    String requestPath = exchange.getRequestURI();
+    if (matchDispatcherType(MockUtils.getMockRequest(exchange).getDispatcherType())
             && matchRequestPath(requestPath)) {
-      this.delegate.doFilter(http, filterChain);
+      this.delegate.doFilter(exchange, filterChain);
     }
     else {
-      filterChain.doFilter(http);
+      filterChain.doFilter(exchange);
     }
   }
 

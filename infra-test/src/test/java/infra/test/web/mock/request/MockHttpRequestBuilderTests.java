@@ -37,7 +37,7 @@ import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
 import infra.web.RedirectModel;
 import infra.web.mock.DefaultMockContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.MockSession;
@@ -478,7 +478,7 @@ class MockHttpRequestBuilderTests {
     MockRequest request = this.builder.buildRequest(this.mockContext);
 
     RedirectModel inputRedirectModel =
-            RedirectModel.findInputModel(new MockHttpContext(null, request, new MockResponse()));
+            RedirectModel.findInputModel(new MockServerHttpExchange(null, request, new MockResponse()));
 
     assertThat(inputRedirectModel.asMap()).containsEntry("foo", "bar").containsEntry("order", 42);
   }
@@ -514,7 +514,7 @@ class MockHttpRequestBuilderTests {
     builder.merge(defaultBuilder);
 
     MockRequest request = builder.buildRequest(mockContext);
-    MockHttpContext context = new MockHttpContext(request);
+    MockServerHttpExchange context = new MockServerHttpExchange(request);
     builder.customize(request, context);
 
     assertThat(request.getAttribute(ATTR)).isEqualTo(EXPECTED);
@@ -549,7 +549,7 @@ class MockHttpRequestBuilderTests {
     }
 
     @Override
-    public void customize(MockRequest request, MockHttpContext context) {
+    public void customize(MockRequest request, MockServerHttpExchange context) {
       request.setAttribute(attr, value);
     }
   }

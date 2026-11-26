@@ -34,7 +34,7 @@ import infra.http.HttpMethod;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.util.LinkedMultiValueMap;
@@ -184,7 +184,7 @@ class DefaultEntityResponseBuilderTests {
 
     MockResponse mockResponse = new MockResponse();
 
-    MockHttpContext context = new MockHttpContext(null, mockRequest, mockResponse);
+    MockServerHttpExchange context = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
     Object mav = entityResponse.writeTo(context, EMPTY_CONTEXT);
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);
@@ -205,7 +205,7 @@ class DefaultEntityResponseBuilderTests {
     mockRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, DateTimeFormatter.RFC_1123_DATE_TIME.format(now));
 
     MockResponse mockResponse = new MockResponse();
-    MockHttpContext context = new MockHttpContext(null, mockRequest, mockResponse);
+    MockServerHttpExchange context = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
     Object mav = entityResponse.writeTo(context, EMPTY_CONTEXT);
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);

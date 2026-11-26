@@ -28,7 +28,7 @@ import java.util.ListIterator;
 
 import infra.core.io.Resource;
 import infra.util.Assert;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * Default immutable implementation of {@link ResourceTransformerChain}.
@@ -81,7 +81,7 @@ class DefaultResourceTransformerChain implements ResourceTransformerChain {
   }
 
   @Override
-  public Resource transform(HttpContext request, Resource resource) throws IOException {
+  public Resource transform(ServerHttpExchange request, Resource resource) throws IOException {
     return transformer != null && nextChain != null
             ? transformer.transform(request, resource, nextChain) : resource;
   }

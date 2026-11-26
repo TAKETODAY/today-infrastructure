@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 import infra.core.io.Resource;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * A strategy for resolving a request to a server-side resource.
@@ -52,7 +52,7 @@ public interface ResourceResolver {
    * @return the resolved resource, or {@code null} if unresolved
    */
   @Nullable
-  Resource resolveResource(@Nullable HttpContext context, String requestPath,
+  Resource resolveResource(@Nullable ServerHttpExchange context, String requestPath,
           List<? extends Resource> locations, ResourceResolvingChain chain);
 
   /**

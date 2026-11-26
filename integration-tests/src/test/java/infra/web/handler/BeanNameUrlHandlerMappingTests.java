@@ -29,7 +29,7 @@ import infra.context.annotation.Configuration;
 import infra.context.support.ClassPathXmlApplicationContext;
 import infra.context.support.StaticApplicationContext;
 import infra.core.env.MapPropertySource;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.api.MockException;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
@@ -59,12 +59,12 @@ class BeanNameUrlHandlerMappingTests {
     HandlerMapping hm = (HandlerMapping) wac.getBean("handlerMapping");
 
     MockRequest req = new MockRequest("GET", "/mypath/nonsense.html");
-    MockHttpContext request = new MockHttpContext(null, req, new MockResponse());
+    MockServerHttpExchange request = new MockServerHttpExchange(null, req, new MockResponse());
     Object h = hm.getHandler(request);
     assertThat(h).as("Handler is null").isNull();
 
     req = new MockRequest("GET", "/foo/bar/baz.html");
-    h = hm.getHandler(new MockHttpContext(null, req, new MockResponse()));
+    h = hm.getHandler(new MockServerHttpExchange(null, req, new MockResponse()));
     assertThat(h).as("Handler is null").isNull();
   }
 
@@ -117,7 +117,7 @@ class BeanNameUrlHandlerMappingTests {
 
   @Nullable
   private static HandlerExecutionChain getChain(HandlerMapping hm, MockRequest req) throws Exception {
-    return (HandlerExecutionChain) hm.getHandler(new MockHttpContext(null, req, new MockResponse()));
+    return (HandlerExecutionChain) hm.getHandler(new MockServerHttpExchange(null, req, new MockResponse()));
   }
 
   @Test

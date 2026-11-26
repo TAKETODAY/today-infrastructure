@@ -26,13 +26,13 @@ import java.util.List;
 import infra.core.conversion.ConversionService;
 import infra.format.support.DefaultFormattingConversionService;
 import infra.web.BindingContext;
-import infra.web.DelegatingHttpContext;
+import infra.web.DelegatingServerHttpExchange;
 import infra.web.annotation.RequestParam;
 import infra.web.bind.WebDataBinder;
 import infra.web.bind.annotation.InitBinder;
 import infra.web.bind.support.ConfigurableWebBindingInitializer;
 import infra.web.handler.method.support.RequestParamMethodArgumentResolver;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +52,7 @@ class InitBinderBindingContextTests {
 
   MockRequest request = new MockRequest();
 
-  private final MockHttpContext webRequest = new MockHttpContext(null, request, null);
+  private final MockServerHttpExchange webRequest = new MockServerHttpExchange(null, request, null);
 
   @Test
   public void createBinder() throws Throwable {
@@ -150,7 +150,7 @@ class InitBinderBindingContextTests {
     argumentResolvers.addCustomizedStrategies(new RequestParamMethodArgumentResolver(null, false));
 
     InitBinderBindingContext factory = createFactory("initBinderTypeConversion", WebDataBinder.class, int.class);
-    var wrapper = new DelegatingHttpContext(webRequest);
+    var wrapper = new DelegatingServerHttpExchange(webRequest);
     WebDataBinder dataBinder = factory.createBinder(wrapper, null, "foo");
 
     assertThat(dataBinder.getDisallowedFields()).containsExactly("requestParam-22");

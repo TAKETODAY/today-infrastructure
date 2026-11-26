@@ -22,52 +22,52 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Supplier;
 
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpContextHolder;
 
 /**
- * RequestScope beans just available in current {@link HttpContext}
+ * RequestScope beans just available in current {@link ServerHttpExchange}
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/19 21:40
  */
-public class RequestScope extends AbstractWebContextScope<HttpContext> {
+public class RequestScope extends AbstractWebContextScope<ServerHttpExchange> {
 
   public static final RequestScope instance = new RequestScope();
 
   @Override
   public Object get(String beanName, Supplier<?> objectFactory) {
-    HttpContext context = HttpContextHolder.required();
+    ServerHttpExchange context = HttpContextHolder.required();
     return doGetBean(context, beanName, objectFactory);
   }
 
   @Override
   public @Nullable Object remove(String name) {
-    HttpContext context = HttpContextHolder.required();
+    ServerHttpExchange context = HttpContextHolder.required();
     return remove(context, name);
   }
 
   @Override
-  protected void setAttribute(HttpContext context, String beanName, Object scopedObject) {
+  protected void setAttribute(ServerHttpExchange context, String beanName, Object scopedObject) {
     context.setAttribute(beanName, scopedObject);
   }
 
   @Override
-  protected @Nullable Object getAttribute(HttpContext context, String beanName) {
+  protected @Nullable Object getAttribute(ServerHttpExchange context, String beanName) {
     return context.getAttribute(beanName);
   }
 
   @Override
-  protected void removeAttribute(HttpContext context, String name) {
+  protected void removeAttribute(ServerHttpExchange context, String name) {
     context.removeAttribute(name);
   }
 
   @Override
   public @Nullable Object resolveContextualObject(String key) {
-    if (HttpContext.SCOPE_REQUEST.equals(key)) {
+    if (ServerHttpExchange.SCOPE_REQUEST.equals(key)) {
       return HttpContextHolder.current();
     }
-    else if (HttpContext.SCOPE_SESSION.equals(key)) {
+    else if (ServerHttpExchange.SCOPE_SESSION.equals(key)) {
       var request = HttpContextHolder.current();
       if (request != null) {
         return request.getSession(true);
@@ -79,7 +79,7 @@ public class RequestScope extends AbstractWebContextScope<HttpContext> {
   @Override
   public void registerDestructionCallback(String name, Runnable callback) {
     var request = HttpContextHolder.required();
-    request.registerCallback(HttpContext.Lifecycle.COMPLETED, name, callback);
+    request.registerCallback(ServerHttpExchange.Lifecycle.COMPLETED, name, callback);
   }
 
 }

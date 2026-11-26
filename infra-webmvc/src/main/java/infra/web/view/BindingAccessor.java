@@ -26,7 +26,7 @@ import infra.validation.BindException;
 import infra.validation.BindingResult;
 import infra.validation.Errors;
 import infra.web.BindingContext;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * Rendering-specific access to binding values and localized errors.
@@ -37,7 +37,7 @@ import infra.web.HttpContext;
  */
 public class BindingAccessor {
 
-  private final HttpContext context;
+  private final ServerHttpExchange context;
 
   private final Map<String, ?> model;
 
@@ -50,8 +50,8 @@ public class BindingAccessor {
    * @param model the final rendering model, taking precedence over request data
    * @param messages the message accessor with the effective rendering locale
    */
-  public BindingAccessor(HttpContext context, Map<String, ?> model, MessageSourceAccessor messages) {
-    Assert.notNull(context, "HttpContext is required");
+  public BindingAccessor(ServerHttpExchange context, Map<String, ?> model, MessageSourceAccessor messages) {
+    Assert.notNull(context, "ServerHttpExchange is required");
     Assert.notNull(model, "Model is required");
     Assert.notNull(messages, "MessageSourceAccessor is required");
     this.context = context;

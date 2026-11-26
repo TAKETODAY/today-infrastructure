@@ -39,11 +39,11 @@ public interface ErrorResponseViewResolver {
    * Resolve a view for the given problem detail.
    * <p>The view may declare a status; otherwise the entity or problem status is used.
    *
-   * @param request the current request
+   * @param exchange the current exchange
    * @param problemDetail the detail to render
    * @param errorResponse the originating error response, if any
    * @return the view, or {@code null} to use message converters
    */
-  @Nullable ModelAndView resolveErrorView(HttpContext request, ProblemDetail problemDetail,
+  @Nullable ModelAndView resolveErrorView(ServerHttpExchange exchange, ProblemDetail problemDetail,
           @Nullable ErrorResponse errorResponse);
 }

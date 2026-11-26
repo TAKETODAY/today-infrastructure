@@ -39,13 +39,13 @@ import infra.http.server.ServerHttpRequest;
 import infra.http.server.ServerHttpResponse;
 import infra.stereotype.Controller;
 import infra.util.ReflectionUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.annotation.ResponseBody;
 import infra.web.handler.method.ControllerAdviceBean;
 import infra.web.handler.method.RequestBodyAdvice;
 import infra.web.handler.method.ResponseBodyAdvice;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
@@ -70,7 +70,7 @@ class RequestResponseBodyAdviceChainTests {
 
   private ServerHttpRequest request;
   private ServerHttpResponse response;
-  private MockHttpContext httpContext;
+  private MockServerHttpExchange httpContext;
 
   @BeforeEach
   public void setup() {
@@ -85,7 +85,7 @@ class RequestResponseBodyAdviceChainTests {
     MockResponse mockResponse = new MockResponse();
 
     this.response = new MockServerHttpResponse(mockResponse);
-    this.httpContext = new MockHttpContext(null, mockRequest, mockResponse);
+    this.httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
   }
 
   @SuppressWarnings("unchecked")
@@ -163,7 +163,7 @@ class RequestResponseBodyAdviceChainTests {
     @Nullable
     @Override
     public String beforeBodyWrite(@Nullable Object body, MethodParameter returnType,
-            MediaType contentType, HttpMessageConverter<?> selected, HttpContext context) {
+            MediaType contentType, HttpMessageConverter<?> selected, ServerHttpExchange context) {
       return body + "-MyControllerAdvice";
     }
   }
@@ -181,7 +181,7 @@ class RequestResponseBodyAdviceChainTests {
     @Override
     public String beforeBodyWrite(
             @Nullable Object body, MethodParameter returnType,
-            MediaType contentType, HttpMessageConverter<?> selected, HttpContext context) {
+            MediaType contentType, HttpMessageConverter<?> selected, ServerHttpExchange context) {
       return body + "-TargetedControllerAdvice";
     }
   }

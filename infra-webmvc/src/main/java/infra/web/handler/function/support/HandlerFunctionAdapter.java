@@ -23,7 +23,7 @@ import org.jspecify.annotations.Nullable;
 import infra.core.Ordered;
 import infra.core.OrderedSupport;
 import infra.web.HandlerAdapter;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.handler.function.HandlerFunction;
 import infra.web.handler.function.ServerRequest;
 
@@ -42,8 +42,8 @@ public class HandlerFunctionAdapter extends OrderedSupport implements HandlerAda
   }
 
   @Override
-  public @Nullable Object handle(HttpContext context, Object handler) throws Exception {
-    ServerRequest serverRequest = ServerRequest.findRequired(context);
+  public @Nullable Object handle(ServerHttpExchange exchange, Object handler) throws Exception {
+    ServerRequest serverRequest = ServerRequest.findRequired(exchange);
     return ((HandlerFunction<?>) handler).handle(serverRequest);
   }
 

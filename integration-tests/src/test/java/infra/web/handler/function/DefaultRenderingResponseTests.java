@@ -31,7 +31,7 @@ import infra.http.HttpStatus;
 import org.jspecify.annotations.Nullable;
 
 import infra.http.ResponseCookie;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.util.LinkedMultiValueMap;
@@ -75,7 +75,7 @@ public class DefaultRenderingResponseTests {
   @Nullable
   private static ModelAndView getModelAndView(
           RenderingResponse result, MockRequest request, MockResponse response) throws Throwable {
-    MockHttpContext mockHttpContext = new MockHttpContext(null, request, response);
+    MockServerHttpExchange mockHttpContext = new MockServerHttpExchange(null, request, response);
     Object write = result.writeTo(mockHttpContext, EMPTY_CONTEXT);
     mockHttpContext.flush();
     if (write instanceof ModelAndView andView) {

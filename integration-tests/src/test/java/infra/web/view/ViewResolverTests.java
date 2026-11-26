@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,26 +45,26 @@ public class ViewResolverTests {
 
   @Test
   public void urlBasedViewResolverOverridesCustomHttpContextAttributeWithNonNullValue() throws Exception {
-    Assertions.assertThat(new TestView().getHttpContextAttribute())
+    Assertions.assertThat(new TestView().getExchangeAttribute())
             .as("httpContextAttribute when instantiated directly")
             .isEqualTo("testHttpContext");
 
     UrlBasedViewResolver vr = new UrlBasedViewResolver();
     vr.setViewClass(TestView.class);
     vr.setApplicationContext(this.wac);
-    vr.setHttpContextAttribute("viewResolverHttpContext");
+    vr.setExchangeAttribute("viewResolverHttpContext");
     this.wac.refresh();
 
     View view = vr.resolveViewName("example", Locale.getDefault());
     assertThat(view).isInstanceOf(TestView.class);
-    Assertions.assertThat(((TestView) view).getHttpContextAttribute())
+    Assertions.assertThat(((TestView) view).getExchangeAttribute())
             .as("httpContextAttribute when instantiated dynamically by UrlBasedViewResolver")
             .isEqualTo("viewResolverHttpContext");
   }
 
   @Test
   public void urlBasedViewResolverDoesNotOverrideCustomHttpContextAttributeWithNull() throws Exception {
-    Assertions.assertThat(new TestView().getHttpContextAttribute())
+    Assertions.assertThat(new TestView().getExchangeAttribute())
             .as("httpContextAttribute when instantiated directly")
             .isEqualTo("testHttpContext");
 
@@ -75,7 +75,7 @@ public class ViewResolverTests {
 
     View view = vr.resolveViewName("example", Locale.getDefault());
     assertThat(view).isInstanceOf(TestView.class);
-    Assertions.assertThat(((TestView) view).getHttpContextAttribute())
+    Assertions.assertThat(((TestView) view).getExchangeAttribute())
             .as("httpContextAttribute when instantiated dynamically by UrlBasedViewResolver")
             .isEqualTo("testHttpContext");
   }
@@ -153,11 +153,11 @@ public class ViewResolverTests {
   public static class TestView extends AbstractUrlBasedView {
 
     public TestView() {
-      setHttpContextAttribute("testHttpContext");
+      setExchangeAttribute("testHttpContext");
     }
 
     @Override
-    protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
+    protected void renderMergedOutputModel(Map<String, Object> model, ServerHttpExchange http) throws Exception {
 
     }
   }

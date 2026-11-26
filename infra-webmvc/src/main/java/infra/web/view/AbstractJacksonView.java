@@ -34,7 +34,7 @@ import java.util.Objects;
 import infra.http.HttpHeaders;
 import infra.http.converter.AbstractJacksonHttpMessageConverter;
 import infra.util.Assert;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.JacksonModule;
@@ -131,7 +131,7 @@ public abstract class AbstractJacksonView extends AbstractView {
   }
 
   @Override
-  protected void prepareResponse(HttpContext context) {
+  protected void prepareResponse(ServerHttpExchange context) {
     setResponseContentType(context);
     if (disableCaching) {
       context.addHeader(HttpHeaders.CACHE_CONTROL, "no-store");
@@ -139,7 +139,7 @@ public abstract class AbstractJacksonView extends AbstractView {
   }
 
   @Override
-  protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
+  protected void renderMergedOutputModel(Map<String, Object> model, ServerHttpExchange http) throws Exception {
     ByteArrayOutputStream temporaryStream = null;
     OutputStream stream;
 
@@ -219,7 +219,7 @@ public abstract class AbstractJacksonView extends AbstractView {
    * @param request current HTTP request
    * @return the value to be rendered
    */
-  protected abstract Object filterModel(Map<String, Object> model, HttpContext request);
+  protected abstract Object filterModel(Map<String, Object> model, ServerHttpExchange request);
 
   /**
    * Write a prefix before the main content.

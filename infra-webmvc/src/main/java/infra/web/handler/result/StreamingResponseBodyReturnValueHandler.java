@@ -26,7 +26,7 @@ import java.util.concurrent.Callable;
 import infra.core.MethodParameter;
 import infra.core.ResolvableType;
 import infra.http.ResponseEntity;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.handler.StreamingResponseBody;
 import infra.web.handler.method.HandlerMethod;
 
@@ -65,14 +65,14 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
   }
 
   @Override
-  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(ServerHttpExchange exchange, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue == null) {
       return;
     }
 
     if (returnValue instanceof ResponseEntity<?> entity) {
-      context.setStatus(entity.getStatusCode());
-      context.addHeaders(entity.getHeaders());
+      exchange.setStatus(entity.getStatusCode());
+      exchange.addHeaders(entity.getHeaders());
       returnValue = entity.getBody();
       if (returnValue == null) {
         return;
@@ -83,11 +83,11 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
       // The application controls framing: set Transfer-Encoding: chunked before
       // the first flush to stream incrementally. Otherwise the first flush
       // determines Content-Length and the task's final flush completes the body.
-      var callable = new StreamingBodyTask(context.getOutputStream(), streamingBody);
-      context.asyncManager().startCallableProcessing(callable, handler);
+      var callable = new StreamingBodyTask(exchange.getOutputStream(), streamingBody);
+      exchange.asyncManager().startCallableProcessing(callable, handler);
     }
     else if (HandlerMethod.isHandlerMethod(handler)) {
-      startCallableProcessing(context, handler, returnValue);
+      startCallableProcessing(exchange, handler, returnValue);
     }
     else {
       throw new IllegalArgumentException("StreamingResponseBody expected");

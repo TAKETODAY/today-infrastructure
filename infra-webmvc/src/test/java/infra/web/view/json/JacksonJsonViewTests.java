@@ -36,12 +36,12 @@ import java.util.Set;
 
 import infra.beans.DirectFieldAccessor;
 import infra.http.MediaType;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.ui.ModelMap;
 import infra.validation.BindingResult;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.view.View;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonEncoding;
@@ -78,7 +78,7 @@ class JacksonJsonViewTests {
 
   private ScriptableObject jsScope = jsContext.initStandardObjects();
 
-  private HttpContext context = new MockHttpContext(request, response);
+  private ServerHttpExchange context = new MockServerHttpExchange(request, response);
 
   @Test
   void isExposePathVars() {

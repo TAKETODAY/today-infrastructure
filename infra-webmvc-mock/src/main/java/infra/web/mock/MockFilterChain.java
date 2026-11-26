@@ -29,7 +29,7 @@ import infra.util.Assert;
 import infra.util.ObjectUtils;
 import infra.web.Filter;
 import infra.web.FilterChain;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.mock.api.MockHandler;
 
 /**
@@ -51,7 +51,7 @@ public class MockFilterChain implements FilterChain {
 
   private @Nullable Iterator<Filter> iterator;
 
-  private @Nullable HttpContext httpContext;
+  private @Nullable ServerHttpExchange exchange;
 
   /**
    * Register a single do-nothing {@link Filter} implementation. The first
@@ -89,25 +89,25 @@ public class MockFilterChain implements FilterChain {
    * Return the request that {@link #doFilter} has been called with.
    */
   public @Nullable MockRequest getRequest() {
-    return httpContext != null ? MockUtils.getMockRequest(httpContext) : null;
+    return exchange != null ? MockUtils.getMockRequest(exchange) : null;
   }
 
   /**
    * Return the response that {@link #doFilter} has been called with.
    */
   public @Nullable MockResponse getResponse() {
-    return httpContext != null ? MockUtils.getMockResponse(httpContext) : null;
+    return exchange != null ? MockUtils.getMockResponse(exchange) : null;
   }
 
-  public @Nullable HttpContext getContext() {
-    return httpContext;
+  public @Nullable ServerHttpExchange getContext() {
+    return exchange;
   }
 
   @Override
-  public void doFilter(HttpContext context) throws Exception {
-    Assert.notNull(context, "Request is required");
+  public void doFilter(ServerHttpExchange exchange) throws Exception {
+    Assert.notNull(exchange, "Request is required");
 
-    this.httpContext = context;
+    this.exchange = exchange;
 
     if (this.iterator == null) {
       this.iterator = this.filters.iterator();
@@ -115,7 +115,7 @@ public class MockFilterChain implements FilterChain {
 
     if (this.iterator.hasNext()) {
       Filter nextFilter = this.iterator.next();
-      nextFilter.doFilter(context, this);
+      nextFilter.doFilter(exchange, this);
     }
   }
 
@@ -123,7 +123,7 @@ public class MockFilterChain implements FilterChain {
    * Reset the {@link MockFilterChain} allowing it to be invoked again.
    */
   public void reset() {
-    this.httpContext = null;
+    this.exchange = null;
     this.iterator = null;
   }
 
@@ -137,8 +137,8 @@ public class MockFilterChain implements FilterChain {
     }
 
     @Override
-    public void doFilter(HttpContext http, FilterChain chain) throws Exception {
-      this.delegateMockHandler.service(MockUtils.getMockRequest(http), MockUtils.getMockResponse(http));
+    public void doFilter(ServerHttpExchange exchange, FilterChain chain) throws Exception {
+      this.delegateMockHandler.service(MockUtils.getMockRequest(exchange), MockUtils.getMockResponse(exchange));
     }
 
     @Override

@@ -22,9 +22,9 @@ import org.mockito.BDDMockito;
 
 import infra.context.ApplicationContext;
 import infra.test.context.TestContext;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpContextHolder;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
@@ -56,7 +56,7 @@ class WebMockTestExecutionListenerTests {
 
     MockRequest request = new MockRequest();
     MockResponse response = new MockResponse();
-    HttpContext servletWebRequest = new MockHttpContext(null, request, response);
+    ServerHttpExchange servletWebRequest = new MockServerHttpExchange(null, request, response);
 
     request.setAttribute(SET_UP_OUTSIDE_OF_STEL, "true");
 
@@ -163,8 +163,8 @@ class WebMockTestExecutionListenerTests {
     assertWebAppConfigTestCase();
   }
 
-  private HttpContext assertRequestAttributesExist() {
-    HttpContext requestAttributes = HttpContextHolder.current();
+  private ServerHttpExchange assertRequestAttributesExist() {
+    ServerHttpExchange requestAttributes = HttpContextHolder.current();
     assertThat(requestAttributes).as("request attributes should exist").isNotNull();
     return requestAttributes;
   }
@@ -174,13 +174,13 @@ class WebMockTestExecutionListenerTests {
   }
 
   private void assertSetUpOutsideOfStelAttributeExists() {
-    HttpContext requestAttributes = assertRequestAttributesExist();
+    ServerHttpExchange requestAttributes = assertRequestAttributesExist();
     Object setUpOutsideOfStel = requestAttributes.getAttribute(SET_UP_OUTSIDE_OF_STEL);
     assertThat(setUpOutsideOfStel).as(SET_UP_OUTSIDE_OF_STEL + " should exist as a request attribute").isNotNull();
   }
 
   private void assertSetUpOutsideOfStelAttributeDoesNotExist() {
-    HttpContext requestAttributes = assertRequestAttributesExist();
+    ServerHttpExchange requestAttributes = assertRequestAttributesExist();
     Object setUpOutsideOfStel = requestAttributes.getAttribute(SET_UP_OUTSIDE_OF_STEL);
     assertThat(setUpOutsideOfStel).as(SET_UP_OUTSIDE_OF_STEL + " should NOT exist as a request attribute").isNull();
   }

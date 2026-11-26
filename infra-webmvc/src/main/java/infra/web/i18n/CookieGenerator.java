@@ -25,7 +25,7 @@ import infra.http.ResponseCookie.Builder;
 import infra.util.Assert;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * Helper class for cookie generation, carrying cookie descriptor settings
@@ -200,8 +200,8 @@ public class CookieGenerator {
    * @see #setCookiePath
    * @see #setCookieMaxAge
    */
-  public void addCookie(HttpContext response, String cookieValue) {
-    Assert.notNull(response, "HttpContext is required");
+  public void addCookie(ServerHttpExchange response, String cookieValue) {
+    Assert.notNull(response, "ServerHttpExchange is required");
     Builder cookie = createCookie(cookieValue);
     Integer maxAge = getCookieMaxAge();
     if (maxAge != null) {
@@ -224,8 +224,8 @@ public class CookieGenerator {
    * @see #setCookieDomain
    * @see #setCookiePath
    */
-  public void removeCookie(HttpContext response) {
-    Assert.notNull(response, "HttpContext is required");
+  public void removeCookie(ServerHttpExchange response) {
+    Assert.notNull(response, "ServerHttpExchange is required");
     Builder cookie = createCookie("");
     cookie.maxAge(0);
 

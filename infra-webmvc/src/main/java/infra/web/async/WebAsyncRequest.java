@@ -26,11 +26,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import infra.util.Assert;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.util.TimeoutUtils;
 
 /**
- * Controls asynchronous processing for an {@link HttpContext}, including
+ * Controls asynchronous processing for an {@link ServerHttpExchange}, including
  * timeouts, lifecycle callbacks, and dispatch of the concurrent result.
  *
  * @author Rossen Stoyanchev

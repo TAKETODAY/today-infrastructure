@@ -25,7 +25,7 @@ import java.util.List;
 import infra.util.Assert;
 import infra.util.ObjectUtils;
 import infra.web.BindingContext;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.bind.WebDataBinder;
 import infra.web.bind.annotation.InitBinder;
 import infra.web.bind.support.WebBindingInitializer;
@@ -88,7 +88,7 @@ public class InitBinderBindingContext extends BindingContext {
    * @see #isBinderMethodApplicable(HandlerMethod, WebDataBinder)
    */
   @Override
-  public void initBinder(WebDataBinder dataBinder, HttpContext context) throws Exception {
+  public void initBinder(WebDataBinder dataBinder, ServerHttpExchange context) throws Exception {
     List<InvocableHandlerMethod> binderMethods = this.binderMethods;
     if (binderMethods == null) {
       binderMethods = methodResolver.getBinderMethods(handlerMethod);
@@ -146,12 +146,12 @@ public class InitBinderBindingContext extends BindingContext {
   }
 
   @Override
-  public void updateModel(HttpContext context) throws Exception {
+  public void updateModel(ServerHttpExchange context) throws Exception {
     modelHandler.updateModel(context, this);
   }
 
   @Override
-  public void initModel(HttpContext context) throws Exception {
+  public void initModel(ServerHttpExchange context) throws Exception {
     modelHandler.initModel(context, this, handlerMethod);
   }
 

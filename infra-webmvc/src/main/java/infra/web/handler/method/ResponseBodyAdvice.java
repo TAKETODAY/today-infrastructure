@@ -26,7 +26,7 @@ import infra.core.MethodParameter;
 import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.SmartHttpMessageConverter;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * Allows customizing the response after the execution of an {@code @ResponseBody}
@@ -69,7 +69,7 @@ public interface ResponseBodyAdvice<T> {
    */
   @Nullable
   T beforeBodyWrite(@Nullable Object body, @Nullable MethodParameter returnType, MediaType contentType,
-          HttpMessageConverter<?> selected, HttpContext context);
+          HttpMessageConverter<?> selected, ServerHttpExchange context);
 
   /**
    * Invoked to determine write hints if the converter is a {@link SmartHttpMessageConverter}.

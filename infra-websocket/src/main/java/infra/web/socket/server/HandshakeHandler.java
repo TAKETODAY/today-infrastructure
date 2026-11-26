@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.socket.WebSocketHandler;
 import infra.web.socket.WebSocketSession;
 import infra.web.socket.handler.PerConnectionWebSocketHandler;
@@ -55,7 +55,7 @@ public interface HandshakeHandler {
    * opposed to a failure to successfully negotiate the handshake.
    */
   @Nullable
-  WebSocketSession doHandshake(HttpContext context, WebSocketHandler wsHandler, Map<String, Object> attributes)
+  WebSocketSession doHandshake(ServerHttpExchange context, WebSocketHandler wsHandler, Map<String, Object> attributes)
           throws HandshakeFailureException;
 
 }

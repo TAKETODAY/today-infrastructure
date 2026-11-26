@@ -26,7 +26,7 @@ import java.util.Map;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.core.MethodParameter;
 import infra.http.HttpHeaders;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.annotation.RequestHeader;
 import infra.web.bind.MissingRequestHeaderException;
 import infra.web.bind.WebDataBinder;
@@ -69,7 +69,7 @@ public class RequestHeaderMethodArgumentResolver extends AbstractNamedValueResol
   }
 
   @Override
-  protected @Nullable Object resolveName(String name, HandlerParameter resolvable, HttpContext context) throws Exception {
+  protected @Nullable Object resolveName(String name, HandlerParameter resolvable, ServerHttpExchange context) throws Exception {
     final HttpHeaders httpHeaders = context.requestHeaders();
     List<String> headerValues = httpHeaders.get(name);
     if (headerValues != null) {
@@ -86,7 +86,7 @@ public class RequestHeaderMethodArgumentResolver extends AbstractNamedValueResol
   }
 
   @Override
-  protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, HttpContext request) throws Exception {
+  protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, ServerHttpExchange request) throws Exception {
     throw new MissingRequestHeaderException(name, parameter, true);
   }
 

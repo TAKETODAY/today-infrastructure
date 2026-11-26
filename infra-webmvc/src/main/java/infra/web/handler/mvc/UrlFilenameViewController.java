@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import infra.http.HttpStatus;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.server.ResponseStatusException;
 import infra.web.util.WebUtils;
 import infra.web.view.UrlBasedViewResolver;
@@ -108,7 +108,7 @@ public class UrlFilenameViewController extends AbstractUrlViewController {
    * @see #setSuffix
    */
   @Override
-  protected String getViewNameForRequest(HttpContext request) {
+  protected String getViewNameForRequest(ServerHttpExchange request) {
     String uri = extractOperableUrl(request);
     return getViewNameForUrlPath(uri);
   }
@@ -120,7 +120,7 @@ public class UrlFilenameViewController extends AbstractUrlViewController {
    * @param request current HTTP request
    * @return the URL to use for view name extraction
    */
-  protected String extractOperableUrl(HttpContext request) {
+  protected String extractOperableUrl(ServerHttpExchange request) {
     String path = request.getRequestPath().value();
     path = removeSemicolonContent
             ? WebUtils.removeSemicolonContent(path)

@@ -29,12 +29,12 @@ import infra.test.context.TestContext;
 import infra.test.context.TestExecutionListener;
 import infra.test.context.support.AbstractTestExecutionListener;
 import infra.test.context.support.DependencyInjectionTestExecutionListener;
-import infra.web.HttpContext;
 import infra.web.HttpContextHolder;
+import infra.web.ServerHttpExchange;
 import infra.web.mock.DefaultMockContext;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockHttpContext;
 import infra.web.mock.MockResponse;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.support.GenericMockWebApplicationContext;
 
 /**
@@ -47,9 +47,9 @@ import infra.web.mock.support.GenericMockWebApplicationContext;
  * #prepareTestInstance(TestContext) test instance preparation} and {@linkplain
  * #beforeTestMethod(TestContext) before each test method} and creates a {@link
  * MockRequest}, {@link MockResponse}, and
- * {@link HttpContext} based on the {@link DefaultMockContext} present in
+ * {@link ServerHttpExchange} based on the {@link DefaultMockContext} present in
  * the {@code WebApplicationContext}. This listener also ensures that the
- * {@code MockResponse} and {@code MockHttpContext} can be injected
+ * {@code MockResponse} and {@code MockServerHttpExchange} can be injected
  * into the test instance, and once the test is complete this listener {@linkplain
  * #afterTestMethod(TestContext) cleans up} thread-local state.
  *
@@ -86,7 +86,7 @@ public class WebMockTestExecutionListener extends AbstractTestExecutionListener 
 
   /**
    * Attribute name for a request attribute which indicates that the
-   * {@link MockRequest} stored in the {@link HttpContext}
+   * {@link MockRequest} stored in the {@link ServerHttpExchange}
    * in Infra Web's {@link HttpContextHolder} was created by the TestContext
    * framework.
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
@@ -191,7 +191,7 @@ public class WebMockTestExecutionListener extends AbstractTestExecutionListener 
     request.setAttribute(CREATED_BY_THE_TESTCONTEXT_FRAMEWORK, Boolean.TRUE);
     MockResponse response = new MockResponse();
 
-    MockHttpContext httpContext = new MockHttpContext(context, request, response);
+    MockServerHttpExchange httpContext = new MockServerHttpExchange(context, request, response);
     HttpContextHolder.set(httpContext);
     testContext.setAttribute(POPULATED_REQUEST_CONTEXT_HOLDER_ATTRIBUTE, Boolean.TRUE);
     testContext.setAttribute(RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE, Boolean.TRUE);

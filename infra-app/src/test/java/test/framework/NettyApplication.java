@@ -41,7 +41,7 @@ import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ResourceUtils;
 import infra.util.concurrent.Future;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.annotation.ExceptionHandler;
 import infra.web.annotation.GET;
 import infra.web.annotation.RestController;
@@ -82,7 +82,7 @@ public class NettyApplication {
   }
 
   @GET("/object")
-  public Object object(boolean key1, boolean key2, boolean key3, HttpContext context) throws IOException {
+  public Object object(boolean key1, boolean key2, boolean key3, ServerHttpExchange context) throws IOException {
     if (key1) {
       return new Body("key1", 1);
     }
@@ -113,7 +113,7 @@ public class NettyApplication {
   }
 
   @GET("/request-context")
-  public String context(HttpContext context) {
+  public String context(ServerHttpExchange context) {
     final String requestURL = context.getRequestURL();
     final String queryString = context.getQueryString();
     System.out.println(requestURL);
@@ -192,7 +192,7 @@ public class NettyApplication {
     }
 
     @Override
-    public void afterHandshake(HttpContext context, @Nullable WebSocketSession session, @Nullable Throwable failure) {
+    public void afterHandshake(ServerHttpExchange context, @Nullable WebSocketSession session, @Nullable Throwable failure) {
       System.out.println("afterHandshake");
       context.addCookie("name", "demo");
     }

@@ -25,7 +25,7 @@ import java.util.TimeZone;
 
 import infra.core.i18n.LocaleContext;
 import infra.core.i18n.TimeZoneAwareLocaleContext;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * {@link infra.web.LocaleResolver} implementation
@@ -75,7 +75,7 @@ public class FixedLocaleResolver extends AbstractLocaleContextResolver {
   }
 
   @Override
-  public Locale resolveLocale(HttpContext context) {
+  public Locale resolveLocale(ServerHttpExchange context) {
     Locale locale = getDefaultLocale();
     if (locale == null) {
       locale = Locale.getDefault();
@@ -84,7 +84,7 @@ public class FixedLocaleResolver extends AbstractLocaleContextResolver {
   }
 
   @Override
-  public LocaleContext resolveLocaleContext(HttpContext context) {
+  public LocaleContext resolveLocaleContext(ServerHttpExchange context) {
     return new TimeZoneAwareLocaleContext() {
       @Override
       @Nullable
@@ -101,7 +101,7 @@ public class FixedLocaleResolver extends AbstractLocaleContextResolver {
   }
 
   @Override
-  public void setLocaleContext(HttpContext context, @Nullable LocaleContext localeContext) {
+  public void setLocaleContext(ServerHttpExchange context, @Nullable LocaleContext localeContext) {
     throw new UnsupportedOperationException("Cannot change fixed locale - use a different locale resolution strategy");
   }
 

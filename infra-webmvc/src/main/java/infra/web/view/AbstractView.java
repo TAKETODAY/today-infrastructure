@@ -40,10 +40,10 @@ import infra.http.MediaType;
 import infra.logging.LogMessage;
 import infra.util.CollectionUtils;
 import infra.util.LogFormatUtils;
-import infra.web.ContextExposingHttpContext;
+import infra.web.ContextExposingServerHttpExchange;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.HttpContext;
 import infra.web.RedirectModel;
+import infra.web.ServerHttpExchange;
 import infra.web.util.WebUtils;
 
 /**
@@ -109,7 +109,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 
   private @Nullable String contentType = DEFAULT_CONTENT_TYPE;
 
-  private @Nullable String httpContextAttribute;
+  private @Nullable String exchangeAttribute;
 
   private @Nullable LinkedHashMap<String, Object> staticAttributes;
 
@@ -164,18 +164,18 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
   }
 
   /**
-   * Set the name of the HttpContext attribute for this view.
+   * Set the name of the ServerHttpExchange attribute for this view.
    * Default is none.
    */
-  public void setHttpContextAttribute(@Nullable String httpContextAttribute) {
-    this.httpContextAttribute = httpContextAttribute;
+  public void setExchangeAttribute(@Nullable String exchangeAttribute) {
+    this.exchangeAttribute = exchangeAttribute;
   }
 
   /**
-   * Return the name of the HttpContext attribute, if any.
+   * Return the name of the ServerHttpExchange attribute, if any.
    */
-  public @Nullable String getHttpContextAttribute() {
-    return this.httpContextAttribute;
+  public @Nullable String getExchangeAttribute() {
+    return this.exchangeAttribute;
   }
 
   /**
@@ -326,7 +326,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * attributes (as explicitly exposed to this view) of the same name will
    * always override context beans.
    *
-   * @see #getHttpContextToExpose
+   * @see #getExchangeToExpose
    */
   public void setExposeContextBeansAsAttributes(boolean exposeContextBeansAsAttributes) {
     this.exposeContextBeansAsAttributes = exposeContextBeansAsAttributes;
@@ -367,7 +367,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    *
    * @param exposeOutputRedirectModel If true, all 'output' RedirectModel
    * will be put to current view
-   * @see WebUtils#getOutputRedirectModel(HttpContext)
+   * @see WebUtils#getOutputRedirectModel(ServerHttpExchange)
    */
   public void setExposeOutputRedirectModel(boolean exposeOutputRedirectModel) {
     this.exposeOutputRedirectModel = exposeOutputRedirectModel;
@@ -375,13 +375,13 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 
   /**
    * Prepares the view given the specified model, merging it with static
-   * attributes and a HttpContext attribute, if necessary.
+   * attributes and a ServerHttpExchange attribute, if necessary.
    * Delegates to renderMergedOutputModel for the actual rendering.
    *
    * @see #renderMergedOutputModel
    */
   @Override
-  public void render(@Nullable Map<String, ?> model, HttpContext context) throws Exception {
+  public void render(@Nullable Map<String, ?> model, ServerHttpExchange context) throws Exception {
     if (logger.isDebugEnabled()) {
       LogFormatUtils.traceDebug(logger, traceOn -> LogFormatUtils.formatValue(LogMessage.format("View {}, model {} {}",
               formatViewName(), model != null ? model : Collections.emptyMap(),
@@ -390,7 +390,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
 
     Map<String, Object> mergedModel = createMergedOutputModel(model, context);
     prepareResponse(context);
-    HttpContext contextToExpose = getHttpContextToExpose(context);
+    ServerHttpExchange contextToExpose = getExchangeToExpose(context);
     prepareModel(mergedModel, contextToExpose);
     renderMergedOutputModel(mergedModel, contextToExpose);
   }
@@ -399,7 +399,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * Creates a combined output Map (never {@code null}) that includes dynamic values and static attributes.
    * Dynamic values take precedence over static attributes.
    */
-  protected Map<String, Object> createMergedOutputModel(@Nullable Map<String, ?> model, HttpContext context) {
+  protected Map<String, Object> createMergedOutputModel(@Nullable Map<String, ?> model, ServerHttpExchange context) {
     // Consolidate static and dynamic model attributes.
     Map<String, Object> staticAttributes = getStaticAttributes();
     int size = model != null ? model.size() : 0;
@@ -427,9 +427,9 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
       mergedModel.putAll(model);
     }
 
-    // Expose HttpContext?
-    if (httpContextAttribute != null) {
-      mergedModel.put(httpContextAttribute, context);
+    // Expose ServerHttpExchange?
+    if (exchangeAttribute != null) {
+      mergedModel.put(exchangeAttribute, context);
     }
 
     if (exposeOutputRedirectModel) {
@@ -450,7 +450,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    *
    * @param context current HTTP request context
    */
-  protected void prepareResponse(HttpContext context) {
+  protected void prepareResponse(ServerHttpExchange context) {
     if (generatesDownloadContent()) {
       HttpHeaders headers = context.responseHeaders();
       headers.setPragma("private");
@@ -467,7 +467,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * @throws Exception if model preparation fails
    * @since 5.0
    */
-  protected void prepareModel(Map<String, Object> model, HttpContext context) throws Exception {
+  protected void prepareModel(Map<String, Object> model, ServerHttpExchange context) throws Exception {
     if (this.exposeBindings) {
       if (model.containsKey(BINDINGS_ATTRIBUTE) || context.getAttribute(BINDINGS_ATTRIBUTE) != null) {
         throw new ViewRenderingException("Cannot expose bindings because of an existing model object of the same name");
@@ -489,7 +489,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * @return the rendering locale
    * @since 5.0
    */
-  protected Locale resolveLocale(HttpContext context) {
+  protected Locale resolveLocale(ServerHttpExchange context) {
     return WebUtils.resolveLocale(context);
   }
 
@@ -501,7 +501,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * @return the message accessor
    * @since 5.0
    */
-  protected MessageSourceAccessor createMessageSourceAccessor(HttpContext context, Locale locale) {
+  protected MessageSourceAccessor createMessageSourceAccessor(ServerHttpExchange context, Locale locale) {
     return new MessageSourceAccessor(context.getMessageSource(), locale);
   }
 
@@ -514,7 +514,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * @return the binding accessor
    * @since 5.0
    */
-  protected BindingAccessor createBindingAccessor(HttpContext context, Map<String, Object> model, Locale locale) {
+  protected BindingAccessor createBindingAccessor(ServerHttpExchange context, Map<String, Object> model, Locale locale) {
     return new BindingAccessor(context, model, new MessageSourceAccessor(context.getMessageSource(), locale));
   }
 
@@ -527,7 +527,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * client side, typically via the response OutputStream.
    *
    * @see #prepareResponse
-   * @see HttpContext#getOutputStream()
+   * @see ServerHttpExchange#getOutputStream()
    */
   protected boolean generatesDownloadContent() {
     return false;
@@ -543,10 +543,10 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * @see #setExposeContextBeansAsAttributes
    * @see #setExposedContextBeanNames
    */
-  protected HttpContext getHttpContextToExpose(HttpContext original) {
+  protected ServerHttpExchange getExchangeToExpose(ServerHttpExchange original) {
     if (this.exposeContextBeansAsAttributes || this.exposedContextBeanNames != null) {
       ApplicationContext wac = applicationContext();
-      return new ContextExposingHttpContext(original, wac, this.exposedContextBeanNames);
+      return new ContextExposingServerHttpExchange(original, wac, this.exposedContextBeanNames);
     }
     return original;
   }
@@ -563,7 +563,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * @param http current HTTP request context
    * @throws Exception if rendering failed
    */
-  protected abstract void renderMergedOutputModel(Map<String, Object> model, HttpContext http)
+  protected abstract void renderMergedOutputModel(Map<String, Object> model, ServerHttpExchange http)
           throws Exception;
 
   /**
@@ -573,7 +573,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * @param model a Map of model objects to expose
    * @param request current HTTP request
    */
-  protected void exposeModelAsRequestAttributes(Map<String, Object> model, HttpContext request) {
+  protected void exposeModelAsRequestAttributes(Map<String, Object> model, ServerHttpExchange request) {
     for (var entry : model.entrySet()) {
       String name = entry.getKey();
       request.setAttribute(name, entry.getValue());
@@ -596,7 +596,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * @param baos the temporary OutputStream to write
    * @throws IOException if writing/flushing failed
    */
-  protected void writeToResponse(HttpContext response, ByteArrayOutputStream baos) throws IOException {
+  protected void writeToResponse(ServerHttpExchange response, ByteArrayOutputStream baos) throws IOException {
     // Write content type and also length (determined via byte array).
     response.setContentType(getContentType());
     response.setContentLength(baos.size());
@@ -613,7 +613,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * {@link View#SELECTED_CONTENT_TYPE} request attribute is present and set
    * to a concrete media type.
    */
-  protected void setResponseContentType(HttpContext context) {
+  protected void setResponseContentType(ServerHttpExchange context) {
     if (context.getAttribute(View.SELECTED_CONTENT_TYPE) instanceof MediaType mediaType && mediaType.isConcrete()) {
       context.setContentType(mediaType.toString());
     }

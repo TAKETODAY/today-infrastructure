@@ -41,7 +41,7 @@ import infra.logging.LoggerFactory;
 import infra.util.ClassUtils;
 import infra.util.LogFormatUtils;
 import infra.util.StringUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.socket.SubProtocolCapable;
 import infra.web.socket.WebSocketExtension;
 import infra.web.socket.WebSocketHandler;
@@ -130,7 +130,7 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
   }
 
   @Override
-  public final @Nullable WebSocketSession doHandshake(HttpContext context, WebSocketHandler wsHandler, Map<String, Object> attributes)
+  public final @Nullable WebSocketSession doHandshake(ServerHttpExchange context, WebSocketHandler wsHandler, Map<String, Object> attributes)
           throws HandshakeFailureException {
 
     WebSocketHttpHeaders headers = new WebSocketHttpHeaders(context.getHeaders());
@@ -194,7 +194,7 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
     return requestUpgradeStrategy.upgrade(context, subProtocol, extensions, wsHandler, attributes);
   }
 
-  protected void handleInvalidUpgradeHeader(HttpContext request) throws IOException {
+  protected void handleInvalidUpgradeHeader(ServerHttpExchange request) throws IOException {
     if (logger.isErrorEnabled()) {
       logger.error(LogFormatUtils.formatValue(
               "Handshake failed due to invalid Upgrade header: " + request.getHeaders().getUpgrade(),
@@ -205,7 +205,7 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
             .write("Can \"Upgrade\" only to \"WebSocket\".".getBytes(StandardCharsets.UTF_8));
   }
 
-  protected void handleInvalidConnectHeader(HttpContext request) throws IOException {
+  protected void handleInvalidConnectHeader(ServerHttpExchange request) throws IOException {
     if (logger.isErrorEnabled()) {
       logger.error(LogFormatUtils.formatValue("Handshake failed due to invalid Connection header" +
               request.getHeaders().getConnection(), -1, true));
@@ -230,7 +230,7 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
     return requestUpgradeStrategy.getSupportedVersions();
   }
 
-  protected void handleWebSocketVersionNotSupported(HttpContext request) {
+  protected void handleWebSocketVersionNotSupported(ServerHttpExchange request) {
     if (logger.isErrorEnabled()) {
       String version = request.getHeaders().getFirst(HttpHeaders.SEC_WEBSOCKET_VERSION);
       logger.error(LogFormatUtils.formatValue("Handshake failed due to unsupported WebSocket version: %s. Supported versions: %s"
@@ -246,7 +246,7 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
    * By default, all origins as considered as valid. Consider using an
    * {@link OriginHandshakeInterceptor} for filtering origins if needed.
    */
-  protected boolean isValidOrigin(HttpContext request) {
+  protected boolean isValidOrigin(ServerHttpExchange request) {
     return true;
   }
 
@@ -305,7 +305,7 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
    * @param supportedExtensions the list of extensions supported by the server
    * @return the selected extensions or an empty list
    */
-  protected List<WebSocketExtension> filterRequestedExtensions(HttpContext request,
+  protected List<WebSocketExtension> filterRequestedExtensions(ServerHttpExchange request,
           List<WebSocketExtension> requestedExtensions, List<WebSocketExtension> supportedExtensions) {
     if (requestedExtensions.isEmpty()) {
       return Collections.emptyList();

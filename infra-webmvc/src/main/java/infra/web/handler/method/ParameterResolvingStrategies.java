@@ -28,7 +28,7 @@ import java.util.function.Predicate;
 import infra.core.ArraySizeTrimmer;
 import infra.core.style.ToStringBuilder;
 import infra.util.CollectionUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * A composite strategy that manages an ordered list of
@@ -53,7 +53,7 @@ import infra.web.HttpContext;
  *
  * Resolving arguments using the first supporting strategy:
  * <pre>{@code
- * HttpContext context = ...;
+ * ServerHttpExchange exchange = ...;
  * HandlerParameter parameter = ...;
  * Object result = strategies.resolveArgument(context, parameter);
  * }</pre>
@@ -83,7 +83,7 @@ import infra.web.HttpContext;
  * <h3>Implementation details</h3>
  *
  * <p>This class delegates the {@link #supportsParameter(HandlerParameter)} and
- * {@link #resolveArgument(HttpContext, HandlerParameter)} methods to the
+ * {@link #resolveArgument(ServerHttpExchange, HandlerParameter)} methods to the
  * first strategy in the list that supports the given parameter. If no strategy supports
  * the parameter, the methods return {@code false} or {@code null}, respectively.
  *
@@ -146,7 +146,7 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
    * Resolve the given parameter using the first registered strategy that
    * supports it.
    *
-   * @param context the current request context
+   * @param exchange the current HTTP exchange
    * @param parameter the parameter to resolve
    * @return the resolved argument value, or {@code null} if no registered
    * strategy supports the parameter or the selected strategy returns
@@ -154,10 +154,10 @@ public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<
    * @throws Exception if the selected strategy cannot resolve the argument
    */
   @Override
-  public @Nullable Object resolveArgument(HttpContext context, HandlerParameter parameter) throws Exception {
+  public @Nullable Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) throws Exception {
     for (ParameterResolvingStrategy strategy : strategies) {
       if (strategy.supportsParameter(parameter)) {
-        return strategy.resolveArgument(context, parameter);
+        return strategy.resolveArgument(exchange, parameter);
       }
     }
     return null;

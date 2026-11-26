@@ -23,7 +23,8 @@ import java.util.Map;
 
 import infra.context.support.MessageSourceAccessor;
 import infra.context.support.StaticMessageSource;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.view.freemarker.FreeMarkerView;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +38,7 @@ class AbstractViewTests {
   void bindingExposureDefaultsAndResolverOverrides() throws Exception {
     var ordinary = new CapturingView();
     assertThat(ordinary.isExposeBindings()).isFalse();
-    ordinary.render(Map.of("bindings", "business"), mock(HttpContext.class));
+    ordinary.render(Map.of("bindings", "business"), mock(ServerHttpExchange.class));
     assertThat(ordinary.model).containsEntry("bindings", "business");
     var resolver = new UrlBasedViewResolver();
     resolver.setViewClass(CapturingView.class);
@@ -53,7 +54,7 @@ class AbstractViewTests {
 
   @Test
   void bindingExposureRejectsRequestAndMergedTemplateConflicts() {
-    var context = new infra.web.mock.MockHttpContext();
+    var context = new MockServerHttpExchange();
     context.setAttribute("bindings", "request");
     var view = new FreeMarkerView();
     view.setExposeRequestAttributes(true);
@@ -67,25 +68,25 @@ class AbstractViewTests {
   void disabledBindingsDoNotCreateAccessor() throws Exception {
     var view = new CapturingView() {
       @Override
-      protected BindingAccessor createBindingAccessor(HttpContext context, Map<String, Object> model, Locale locale) {
+      protected BindingAccessor createBindingAccessor(ServerHttpExchange context, Map<String, Object> model, Locale locale) {
         throw new AssertionError("Binding accessor must not be created");
       }
     };
-    view.render(Map.of(), mock(HttpContext.class));
+    view.render(Map.of(), mock(ServerHttpExchange.class));
   }
 
   @Test
   void ordinaryViewsLeaveMessagesNameAvailableByDefault() throws Exception {
     var view = new CapturingView();
     assertThat(view.isExposeMessages()).isFalse();
-    view.render(Map.of("messages", "business value"), mock(HttpContext.class));
+    view.render(Map.of("messages", "business value"), mock(ServerHttpExchange.class));
     assertThat(view.model).containsEntry("messages", "business value");
     assertThat(new FreeMarkerView().isExposeMessages()).isTrue();
   }
 
   @Test
   void ordinaryViewsCanOptIntoUnescapedMessages() throws Exception {
-    var context = mock(HttpContext.class);
+    var context = mock(ServerHttpExchange.class);
     var source = new StaticMessageSource();
     source.addMessage("hello", Locale.GERMANY, "Hallo & <world>");
     given(context.getMessageSource()).willReturn(source);
@@ -101,7 +102,7 @@ class AbstractViewTests {
   void enabledExposureRejectsModelAndRequestConflicts() {
     var view = new CapturingView();
     view.setExposeMessages(true);
-    var context = mock(HttpContext.class);
+    var context = mock(ServerHttpExchange.class);
     assertThatExceptionOfType(ViewRenderingException.class)
             .isThrownBy(() -> view.render(Map.of("messages", "business"), context));
     given(context.getAttribute("messages")).willReturn("request value");
@@ -123,7 +124,7 @@ class AbstractViewTests {
 
   @Test
   void templateAttributeMergingCannotOverrideAutomaticMessages() {
-    var context = new infra.web.mock.MockHttpContext();
+    var context = new MockServerHttpExchange();
     context.setAttribute("messages", "request value");
     var view = new FreeMarkerView();
     view.setExposeRequestAttributes(true);
@@ -138,7 +139,7 @@ class AbstractViewTests {
     Map<String, Object> model = Map.of();
 
     @Override
-    protected void renderMergedOutputModel(Map<String, Object> model, HttpContext context) {
+    protected void renderMergedOutputModel(Map<String, Object> model, ServerHttpExchange context) {
       this.model = model;
     }
   }

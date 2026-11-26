@@ -41,7 +41,7 @@ import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.util.UriUtils;
 import infra.web.util.WebUtils;
 
@@ -79,7 +79,7 @@ import infra.web.util.WebUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setHttp10Compatible
  * @see #setExposeModelAttributes
- * @see HttpContext#sendRedirect
+ * @see ServerHttpExchange#sendRedirect
  * @since 4.0
  */
 public class RedirectView extends AbstractUrlBasedView implements SmartView {
@@ -155,7 +155,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * difference. However, some clients depend on 303 when redirecting
    * after a POST request; turn this flag off in such a scenario.
    *
-   * @see HttpContext#sendRedirect
+   * @see ServerHttpExchange#sendRedirect
    */
   public void setHttp10Compatible(boolean http10Compatible) {
     this.http10Compatible = http10Compatible;
@@ -253,7 +253,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * @see #sendRedirect
    */
   @Override
-  protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws IOException {
+  protected void renderMergedOutputModel(Map<String, Object> model, ServerHttpExchange http) throws IOException {
     String targetUrl = createTargetUrl(model, http);
 
     // Save RedirectModel
@@ -268,7 +268,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * expanding it with the given model, and then optionally appending simple type model
    * attributes as query String parameters.
    */
-  protected final String createTargetUrl(Map<String, Object> model, HttpContext request) {
+  protected final String createTargetUrl(Map<String, Object> model, ServerHttpExchange request) {
 
     // Prepare target URL.
     StringBuilder targetUrl = new StringBuilder();
@@ -326,7 +326,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
     return result;
   }
 
-  private Map<String, String> getCurrentRequestUriVariables(HttpContext request) {
+  private Map<String, String> getCurrentRequestUriVariables(ServerHttpExchange request) {
     HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(request);
     if (matchingMetadata != null) {
       return matchingMetadata.getUriVariables();
@@ -340,7 +340,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * @param targetUrl the StringBuilder to append the properties to
    * @param request the current request
    */
-  protected void appendCurrentQueryParams(StringBuilder targetUrl, HttpContext request) {
+  protected void appendCurrentQueryParams(StringBuilder targetUrl, ServerHttpExchange request) {
     String query = request.getQueryString();
     if (StringUtils.hasText(query)) {
       // Extract anchor fragment, if any.
@@ -523,7 +523,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * @param targetUrl the target URL to redirect to
    * @throws IOException if thrown by response methods
    */
-  protected void sendRedirect(HttpContext context, String targetUrl) throws IOException {
+  protected void sendRedirect(ServerHttpExchange context, String targetUrl) throws IOException {
     HttpStatusCode httpStatus = getHttpStatus(context, targetUrl);
     if (httpStatus != null) {
       context.setStatus(httpStatus);
@@ -545,7 +545,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * @param targetUrl the target URL
    * @return the response status
    */
-  protected @Nullable HttpStatusCode getHttpStatus(HttpContext context, String targetUrl) {
+  protected @Nullable HttpStatusCode getHttpStatus(ServerHttpExchange context, String targetUrl) {
     if (statusCode != null) {
       return statusCode;
     }

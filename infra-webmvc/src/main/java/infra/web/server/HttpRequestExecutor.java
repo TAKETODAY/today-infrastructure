@@ -18,7 +18,7 @@ package infra.web.server;
 
 import java.io.IOException;
 
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * Executes HTTP request handling tasks dispatched from I/O worker threads.
@@ -46,6 +46,6 @@ public interface HttpRequestExecutor {
    * @param command the runnable task
    * @throws IOException if an I/O error occurs during execution
    */
-  void execute(HttpContext ctx, Runnable command) throws IOException;
+  void execute(ServerHttpExchange ctx, Runnable command) throws IOException;
 
 }

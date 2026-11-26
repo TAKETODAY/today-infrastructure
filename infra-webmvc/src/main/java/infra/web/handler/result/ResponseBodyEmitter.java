@@ -33,7 +33,7 @@ import infra.http.MediaType;
 import infra.http.ResponseEntity;
 import infra.http.converter.HttpMessageConverter;
 import infra.util.ObjectUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.async.DeferredResult;
 import infra.web.util.TimeoutUtils;
 
@@ -376,7 +376,7 @@ public class ResponseBodyEmitter {
    * @see HttpHeaders#TRANSFER_ENCODING
    * @see HttpHeaders#CHUNKED
    */
-  protected void extendResponse(HttpContext context) {
+  protected void extendResponse(ServerHttpExchange context) {
     context.setHeader(HttpHeaders.TRANSFER_ENCODING, HttpHeaders.CHUNKED);
     if (contentType != null && context.getResponseContentType() == null) {
       context.setContentType(contentType);

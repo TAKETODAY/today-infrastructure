@@ -22,8 +22,8 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import infra.http.HttpStatus;
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.server.ResponseStatusException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,103 +41,103 @@ class DefaultRequestToViewNameTranslatorTests {
   private final DefaultRequestToViewNameTranslator translator = new DefaultRequestToViewNameTranslator();
 
   @SuppressWarnings("unused")
-  private static Stream<Function<String, MockHttpContext>> pathPatternsArguments() {
+  private static Stream<Function<String, MockServerHttpExchange>> pathPatternsArguments() {
     return PathPatternsTestUtils.requestArguments("");
   }
 
   @PathPatternsParameterizedTest
-  void testGetViewNameLeavesLeadingSlashIfSoConfigured(Function<String, HttpContext> requestFactory) {
-    HttpContext request = requestFactory.apply(VIEW_NAME + "/");
+  void testGetViewNameLeavesLeadingSlashIfSoConfigured(Function<String, ServerHttpExchange> requestFactory) {
+    ServerHttpExchange request = requestFactory.apply(VIEW_NAME + "/");
     this.translator.setStripLeadingSlash(false);
     assertViewName(request, "/" + VIEW_NAME);
   }
 
   @PathPatternsParameterizedTest
-  void testGetViewNameLeavesTrailingSlashIfSoConfigured(Function<String, HttpContext> requestFactory) {
-    HttpContext request = requestFactory.apply(VIEW_NAME + "/");
+  void testGetViewNameLeavesTrailingSlashIfSoConfigured(Function<String, ServerHttpExchange> requestFactory) {
+    ServerHttpExchange request = requestFactory.apply(VIEW_NAME + "/");
     this.translator.setStripTrailingSlash(false);
     assertViewName(request, VIEW_NAME + "/");
   }
 
   @PathPatternsParameterizedTest
-  void testGetViewNameLeavesExtensionIfSoConfigured(Function<String, HttpContext> requestFactory) {
-    HttpContext request = requestFactory.apply(VIEW_NAME + EXTENSION);
+  void testGetViewNameLeavesExtensionIfSoConfigured(Function<String, ServerHttpExchange> requestFactory) {
+    ServerHttpExchange request = requestFactory.apply(VIEW_NAME + EXTENSION);
     this.translator.setStripExtension(false);
     assertViewName(request, VIEW_NAME + EXTENSION);
   }
 
   @PathPatternsParameterizedTest
-  void testGetViewNameWithDefaultConfiguration(Function<String, HttpContext> requestFactory) {
-    HttpContext request = requestFactory.apply(VIEW_NAME + EXTENSION);
+  void testGetViewNameWithDefaultConfiguration(Function<String, ServerHttpExchange> requestFactory) {
+    ServerHttpExchange request = requestFactory.apply(VIEW_NAME + EXTENSION);
     assertViewName(request, VIEW_NAME);
   }
 
   @PathPatternsParameterizedTest
-  void testGetViewNameWithCustomSeparator(Function<String, HttpContext> requestFactory) {
-    HttpContext request = requestFactory.apply(VIEW_NAME + "/fiona" + EXTENSION);
+  void testGetViewNameWithCustomSeparator(Function<String, ServerHttpExchange> requestFactory) {
+    ServerHttpExchange request = requestFactory.apply(VIEW_NAME + "/fiona" + EXTENSION);
     this.translator.setSeparator("_");
     assertViewName(request, VIEW_NAME + "_fiona");
   }
 
   @PathPatternsParameterizedTest
-  void testGetViewNameWithNoExtension(Function<String, HttpContext> requestFactory) {
-    HttpContext request = requestFactory.apply(VIEW_NAME);
+  void testGetViewNameWithNoExtension(Function<String, ServerHttpExchange> requestFactory) {
+    ServerHttpExchange request = requestFactory.apply(VIEW_NAME);
     assertViewName(request, VIEW_NAME);
   }
 
   @PathPatternsParameterizedTest
-  void testGetViewNameWithSemicolonContent(Function<String, HttpContext> requestFactory) {
-    HttpContext request = requestFactory.apply(VIEW_NAME + ";a=A;b=B");
+  void testGetViewNameWithSemicolonContent(Function<String, ServerHttpExchange> requestFactory) {
+    ServerHttpExchange request = requestFactory.apply(VIEW_NAME + ";a=A;b=B");
     assertViewName(request, VIEW_NAME);
   }
 
   @PathPatternsParameterizedTest
-  void testGetViewNameWithPrefix(Function<String, HttpContext> requestFactory) {
+  void testGetViewNameWithPrefix(Function<String, ServerHttpExchange> requestFactory) {
     final String prefix = "fiona_";
-    HttpContext request = requestFactory.apply(VIEW_NAME);
+    ServerHttpExchange request = requestFactory.apply(VIEW_NAME);
     this.translator.setPrefix(prefix);
     assertViewName(request, prefix + VIEW_NAME);
   }
 
   @PathPatternsParameterizedTest
-  void testGetViewNameWithNullPrefix(Function<String, HttpContext> requestFactory) {
-    HttpContext request = requestFactory.apply(VIEW_NAME);
+  void testGetViewNameWithNullPrefix(Function<String, ServerHttpExchange> requestFactory) {
+    ServerHttpExchange request = requestFactory.apply(VIEW_NAME);
     this.translator.setPrefix(null);
     assertViewName(request, VIEW_NAME);
   }
 
   @PathPatternsParameterizedTest
-  void testGetViewNameWithSuffix(Function<String, HttpContext> requestFactory) {
+  void testGetViewNameWithSuffix(Function<String, ServerHttpExchange> requestFactory) {
     final String suffix = ".fiona";
-    HttpContext request = requestFactory.apply(VIEW_NAME);
+    ServerHttpExchange request = requestFactory.apply(VIEW_NAME);
     this.translator.setSuffix(suffix);
     assertViewName(request, VIEW_NAME + suffix);
   }
 
   @PathPatternsParameterizedTest
-  void testGetViewNameWithNullSuffix(Function<String, HttpContext> requestFactory) {
-    HttpContext request = requestFactory.apply(VIEW_NAME);
+  void testGetViewNameWithNullSuffix(Function<String, ServerHttpExchange> requestFactory) {
+    ServerHttpExchange request = requestFactory.apply(VIEW_NAME);
     this.translator.setSuffix(null);
     assertViewName(request, VIEW_NAME);
   }
 
   @PathPatternsParameterizedTest
-  void getViewNameWithRedirectPrefixFails(Function<String, HttpContext> requestFactory) {
-    HttpContext request = requestFactory.apply(UrlBasedViewResolver.REDIRECT_URL_PREFIX + VIEW_NAME);
+  void getViewNameWithRedirectPrefixFails(Function<String, ServerHttpExchange> requestFactory) {
+    ServerHttpExchange request = requestFactory.apply(UrlBasedViewResolver.REDIRECT_URL_PREFIX + VIEW_NAME);
     assertThatExceptionOfType(ResponseStatusException.class)
             .isThrownBy(() -> this.translator.getViewName(request))
             .satisfies(ex -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST));
   }
 
   @PathPatternsParameterizedTest
-  void getViewNameWithForwardPrefixFails(Function<String, HttpContext> requestFactory) {
-    HttpContext request = requestFactory.apply(UrlBasedViewResolver.FORWARD_URL_PREFIX + VIEW_NAME);
+  void getViewNameWithForwardPrefixFails(Function<String, ServerHttpExchange> requestFactory) {
+    ServerHttpExchange request = requestFactory.apply(UrlBasedViewResolver.FORWARD_URL_PREFIX + VIEW_NAME);
     assertThatExceptionOfType(ResponseStatusException.class)
             .isThrownBy(() -> this.translator.getViewName(request))
             .satisfies(ex -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST));
   }
 
-  private void assertViewName(HttpContext request, String expectedViewName) {
+  private void assertViewName(ServerHttpExchange request, String expectedViewName) {
     String actualViewName = this.translator.getViewName(request);
     assertThat(actualViewName).isNotNull();
     assertThat(actualViewName)

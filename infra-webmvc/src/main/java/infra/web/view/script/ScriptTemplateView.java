@@ -50,7 +50,7 @@ import infra.scripting.support.StandardScriptUtils;
 import infra.util.FileCopyUtils;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.resource.ResourceHandlerUtils;
 import infra.web.util.WebUtils;
 import infra.web.view.AbstractUrlBasedView;
@@ -383,13 +383,13 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
   }
 
   @Override
-  protected void prepareResponse(HttpContext context) {
+  protected void prepareResponse(ServerHttpExchange context) {
     super.prepareResponse(context);
     setResponseContentType(context);
   }
 
   @Override
-  protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
+  protected void renderMergedOutputModel(Map<String, Object> model, ServerHttpExchange http) throws Exception {
     try {
       ScriptEngine engine = getEngine();
       String url = getUrl();

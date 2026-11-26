@@ -31,14 +31,14 @@ import infra.validation.BeanPropertyBindingResult;
 import infra.validation.BindingResult;
 import infra.validation.FieldError;
 import infra.web.BindingContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 class BindingAccessorTests {
 
-  private final MockHttpContext context = new MockHttpContext();
+  private final MockServerHttpExchange context = new MockServerHttpExchange();
 
   private final StaticMessageSource source = new StaticMessageSource();
 

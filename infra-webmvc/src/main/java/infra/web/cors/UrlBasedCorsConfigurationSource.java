@@ -26,7 +26,7 @@ import java.util.Map;
 import infra.http.server.PathContainer;
 import infra.util.Assert;
 import infra.util.AntPathMatcher;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.util.pattern.PathPattern;
 import infra.web.util.pattern.PathPatternParser;
 
@@ -105,7 +105,7 @@ public class UrlBasedCorsConfigurationSource implements CorsConfigurationSource 
   }
 
   @Override
-  public @Nullable CorsConfiguration getCorsConfiguration(final HttpContext ctx) {
+  public @Nullable CorsConfiguration getCorsConfiguration(final ServerHttpExchange ctx) {
     PathContainer lookupPath = ctx.getRequestPath();
     for (Map.Entry<PathPattern, CorsConfiguration> entry : corsConfigurations.entrySet()) {
       if (entry.getKey().matches(lookupPath)) {

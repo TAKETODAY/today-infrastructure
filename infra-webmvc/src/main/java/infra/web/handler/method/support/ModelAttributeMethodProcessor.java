@@ -41,8 +41,8 @@ import infra.validation.annotation.Validated;
 import infra.validation.annotation.ValidationAnnotationUtils;
 import infra.web.BindingContext;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.HttpContext;
-import infra.web.bind.HttpContextDataBinder;
+import infra.web.ServerHttpExchange;
+import infra.web.bind.HttpExchangeDataBinder;
 import infra.web.bind.MethodArgumentNotValidException;
 import infra.web.bind.WebDataBinder;
 import infra.web.bind.annotation.ModelAttribute;
@@ -110,8 +110,8 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    * @throws Exception if WebDataBinder initialization fails
    */
   @Override
-  public @Nullable Object resolveArgument(HttpContext context, HandlerParameter resolvable) throws Exception {
-    BindingContext bindingContext = BindingContext.obtain(context);
+  public @Nullable Object resolveArgument(ServerHttpExchange exchange, HandlerParameter resolvable) throws Exception {
+    BindingContext bindingContext = BindingContext.obtain(exchange);
 
     MethodParameter parameter = resolvable.getMethodParameter();
     String name = ModelAttributeNames.getNameForParameter(parameter);
@@ -127,14 +127,14 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
     if (bindingContext.containsAttribute(name)) {
       attribute = bindingContext.getModel().get(name);
       if (ObjectUtils.unwrapOptional(attribute) == null) {
-        bindingResult = bindingContext.createBinder(context, null, name).getBindingResult();
+        bindingResult = bindingContext.createBinder(exchange, null, name).getBindingResult();
         attribute = null;
       }
     }
     else {
       try {
         // Mainly to allow subclasses alternative to create attribute
-        attribute = createAttribute(name, parameter, bindingContext, context);
+        attribute = createAttribute(name, parameter, bindingContext, exchange);
       }
       catch (MethodArgumentNotValidException ex) {
         if (isBindExceptionRequired(parameter)) {
@@ -148,14 +148,14 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
     // No BindingResult yet, proceed with binding and validation
     if (bindingResult == null) {
       ResolvableType type = ResolvableType.forMethodParameter(parameter);
-      WebDataBinder binder = bindingContext.createBinder(context, attribute, name, type);
+      WebDataBinder binder = bindingContext.createBinder(exchange, attribute, name, type);
       if (attribute == null) {
-        constructAttribute(binder, context);
+        constructAttribute(binder, exchange);
         attribute = binder.getTarget();
       }
       if (!binder.getBindingResult().hasErrors()) {
         if (!bindingContext.isBindingDisabled(name)) {
-          bindRequestParameters(binder, context);
+          bindRequestParameters(binder, exchange);
         }
         validateIfApplicable(binder, parameter);
       }
@@ -192,7 +192,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    * @return the created model attribute, or {@code null}
    */
   protected @Nullable Object createAttribute(String attributeName, MethodParameter parameter,
-          BindingContext bindingContext, HttpContext request) throws Exception {
+          BindingContext bindingContext, ServerHttpExchange request) throws Exception {
 
     String value = getRequestValueForAttribute(attributeName, request);
     if (value != null) {
@@ -213,7 +213,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    * @param request the current request
    * @return the request value to try to convert, or {@code null} if none
    */
-  protected @Nullable String getRequestValueForAttribute(String attributeName, HttpContext request) {
+  protected @Nullable String getRequestValueForAttribute(String attributeName, ServerHttpExchange request) {
     String variableValue = getUriVariables(request).get(attributeName);
     if (StringUtils.hasText(variableValue)) {
       return variableValue;
@@ -225,7 +225,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
     return null;
   }
 
-  private Map<String, String> getUriVariables(HttpContext request) {
+  private Map<String, String> getUriVariables(ServerHttpExchange request) {
     HandlerMatchingMetadata matchingMetadata = HandlerMatchingMetadata.find(request);
     if (matchingMetadata != null) {
       return matchingMetadata.getUriVariables();
@@ -248,7 +248,7 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    * conversion found
    */
   protected @Nullable Object createAttributeFromRequestValue(String sourceValue, String attributeName,
-          MethodParameter parameter, BindingContext binderFactory, HttpContext request) throws Exception {
+          MethodParameter parameter, BindingContext binderFactory, ServerHttpExchange request) throws Exception {
 
     DataBinder binder = binderFactory.createBinder(request, attributeName);
     ConversionService conversionService = binder.getConversionService();
@@ -268,8 +268,8 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    * @param binder the data binder instance to use for the binding
    * @param request the current request
    */
-  protected void constructAttribute(WebDataBinder binder, HttpContext request) {
-    if (binder instanceof HttpContextDataBinder rcdb) {
+  protected void constructAttribute(WebDataBinder binder, ServerHttpExchange request) {
+    if (binder instanceof HttpExchangeDataBinder rcdb) {
       rcdb.construct(request);
     }
   }
@@ -280,8 +280,8 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
    * @param binder the data binder instance to use for the binding
    * @param request the current request
    */
-  protected void bindRequestParameters(WebDataBinder binder, HttpContext request) {
-    if (binder instanceof HttpContextDataBinder rcdb) {
+  protected void bindRequestParameters(WebDataBinder binder, ServerHttpExchange request) {
+    if (binder instanceof HttpExchangeDataBinder rcdb) {
       rcdb.bind(request);
     }
   }
@@ -346,11 +346,11 @@ public class ModelAttributeMethodProcessor implements ParameterResolvingStrategy
   }
 
   @Override
-  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(ServerHttpExchange exchange, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     HandlerMethod handlerMethod = HandlerMethod.resolve(handler);
     if (handlerMethod != null && returnValue != null) {
       String name = ModelAttributeNames.getNameForReturnValue(returnValue, handlerMethod.getReturnType());
-      BindingContext.obtain(context).addAttribute(name, returnValue);
+      BindingContext.obtain(exchange).addAttribute(name, returnValue);
     }
   }
 

@@ -37,7 +37,7 @@ import infra.validation.BindException;
 import infra.validation.method.MethodValidationException;
 import infra.web.ErrorResponse;
 import infra.web.ErrorResponseException;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.HttpMediaTypeNotSupportedException;
 import infra.web.HttpRequestMethodNotSupportedException;
@@ -68,7 +68,7 @@ import infra.web.util.WebUtils;
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see #handleException(Exception, HttpContext)
+ * @see #handleException(Exception, ServerHttpExchange)
  * @see SimpleHandlerExceptionHandler
  * @since 4.0 2022/3/2 18:12
  */
@@ -113,7 +113,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
           MethodValidationException.class,
           BindException.class
   })
-  public final @Nullable ResponseEntity<@Nullable Object> handleException(Exception ex, HttpContext request) throws Exception {
+  public final @Nullable ResponseEntity<@Nullable Object> handleException(Exception ex, ServerHttpExchange request) throws Exception {
     // ErrorResponse exceptions that expose HTTP response details
 
     if (ex instanceof ErrorResponse errorEx) {
@@ -203,7 +203,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * {@code null} when the response is already committed
    */
   protected @Nullable ResponseEntity<@Nullable Object> handleHttpRequestMethodNotSupported(
-          HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, HttpContext request) {
+          HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, ServerHttpExchange request) {
 
     NotFoundHandler.pageNotFoundLogger.warn(ex.getMessage());
     return handleExceptionInternal(ex, null, headers, status, request);
@@ -221,7 +221,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * {@code null} when the response is already committed
    */
   protected @Nullable ResponseEntity<@Nullable Object> handleHttpMediaTypeNotSupported(
-          HttpMediaTypeNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, HttpContext request) {
+          HttpMediaTypeNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, ServerHttpExchange request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -238,7 +238,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * {@code null} when the response is already committed
    */
   protected @Nullable ResponseEntity<@Nullable Object> handleHttpMediaTypeNotAcceptable(
-          HttpMediaTypeNotAcceptableException ex, HttpHeaders headers, HttpStatusCode status, HttpContext request) {
+          HttpMediaTypeNotAcceptableException ex, HttpHeaders headers, HttpStatusCode status, ServerHttpExchange request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -255,7 +255,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * {@code null} when the response is already committed
    */
   protected @Nullable ResponseEntity<@Nullable Object> handleMissingPathVariable(
-          MissingPathVariableException ex, HttpHeaders headers, HttpStatusCode status, HttpContext request) {
+          MissingPathVariableException ex, HttpHeaders headers, HttpStatusCode status, ServerHttpExchange request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -272,7 +272,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * {@code null} when the response is already committed
    */
   protected @Nullable ResponseEntity<@Nullable Object> handleMissingRequestParameter(
-          MissingRequestParameterException ex, HttpHeaders headers, HttpStatusCode status, HttpContext request) {
+          MissingRequestParameterException ex, HttpHeaders headers, HttpStatusCode status, ServerHttpExchange request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -289,7 +289,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * {@code null} when the response is already committed
    */
   protected @Nullable ResponseEntity<@Nullable Object> handleMissingRequestPart(
-          MissingRequestPartException ex, HttpHeaders headers, HttpStatusCode status, HttpContext request) {
+          MissingRequestPartException ex, HttpHeaders headers, HttpStatusCode status, ServerHttpExchange request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -306,7 +306,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * {@code null} when the response is already committed
    */
   protected @Nullable ResponseEntity<@Nullable Object> handleRequestBindingException(
-          RequestBindingException ex, HttpHeaders headers, HttpStatusCode status, HttpContext request) {
+          RequestBindingException ex, HttpHeaders headers, HttpStatusCode status, ServerHttpExchange request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -323,7 +323,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * {@code null} when the response is already committed
    */
   protected @Nullable ResponseEntity<@Nullable Object> handleMethodArgumentNotValid(
-          MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, HttpContext request) {
+          MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, ServerHttpExchange request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -341,7 +341,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * @since 5.0
    */
   protected @Nullable ResponseEntity<@Nullable Object> handleHandlerMethodValidationException(
-          HandlerMethodValidationException ex, HttpHeaders headers, HttpStatusCode status, HttpContext request) {
+          HandlerMethodValidationException ex, HttpHeaders headers, HttpStatusCode status, ServerHttpExchange request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -359,7 +359,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * @since 4.0
    */
   protected @Nullable ResponseEntity<@Nullable Object> handleHandlerNotFoundException(
-          HandlerNotFoundException ex, HttpHeaders headers, HttpStatusCode status, HttpContext request) {
+          HandlerNotFoundException ex, HttpHeaders headers, HttpStatusCode status, ServerHttpExchange request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -376,7 +376,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * {@code null} when the response is already committed
    */
   protected @Nullable ResponseEntity<@Nullable Object> handleAsyncRequestTimeoutException(
-          AsyncRequestTimeoutException ex, HttpHeaders headers, HttpStatusCode status, HttpContext request) {
+          AsyncRequestTimeoutException ex, HttpHeaders headers, HttpStatusCode status, ServerHttpExchange request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -393,7 +393,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * {@code null} when the response is already committed
    */
   protected @Nullable ResponseEntity<@Nullable Object> handleErrorResponseException(
-          ErrorResponseException ex, HttpHeaders headers, HttpStatusCode status, HttpContext request) {
+          ErrorResponseException ex, HttpHeaders headers, HttpStatusCode status, ServerHttpExchange request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -410,7 +410,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * {@code null} when the response is already committed
    */
   protected @Nullable ResponseEntity<@Nullable Object> handleMultipartException(MultipartException ex,
-          HttpHeaders headers, HttpStatusCode status, HttpContext request) {
+          HttpHeaders headers, HttpStatusCode status, ServerHttpExchange request) {
 
     return handleExceptionInternal(ex, null, headers, status, request);
   }
@@ -430,7 +430,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * {@code null} when the response is already committed
    */
   protected @Nullable ResponseEntity<@Nullable Object> handleConversionNotSupported(ConversionNotSupportedException ex,
-          HttpHeaders headers, HttpStatusCode status, HttpContext request) {
+          HttpHeaders headers, HttpStatusCode status, ServerHttpExchange request) {
 
     @Nullable Object[] args = { ex.getPropertyName(), ex.getValue() };
     String defaultDetail = "Failed to convert '%s' with value: '%s'".formatted(args[0], args[1]);
@@ -454,7 +454,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * {@code null} when the response is already committed
    */
   protected @Nullable ResponseEntity<@Nullable Object> handleTypeMismatch(TypeMismatchException ex,
-          HttpHeaders headers, HttpStatusCode status, HttpContext request) {
+          HttpHeaders headers, HttpStatusCode status, ServerHttpExchange request) {
     @Nullable Object[] args = { ex.getPropertyName(), ex.getValue() };
 
     String defaultDetail = "Failed to convert '%s' with value: '%s'".formatted(args[0], args[1]);
@@ -479,7 +479,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * {@code null} when the response is already committed
    */
   protected @Nullable ResponseEntity<@Nullable Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
-          HttpHeaders headers, HttpStatusCode status, HttpContext request) {
+          HttpHeaders headers, HttpStatusCode status, ServerHttpExchange request) {
     ProblemDetail body = createProblemDetail(ex, status, "Failed to read request", null, null, request);
     return handleExceptionInternal(ex, body, headers, status, request);
   }
@@ -499,7 +499,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * {@code null} when the response is already committed
    */
   protected @Nullable ResponseEntity<@Nullable Object> handleHttpMessageNotWritable(HttpMessageNotWritableException ex,
-          HttpHeaders headers, HttpStatusCode status, HttpContext request) {
+          HttpHeaders headers, HttpStatusCode status, ServerHttpExchange request) {
 
     ProblemDetail body = createProblemDetail(ex, status, "Failed to write request", null, null, request);
     return handleExceptionInternal(ex, body, headers, status, request);
@@ -518,7 +518,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * @return a {@code ResponseEntity} for the response to use, possibly
    * {@code null} when the response is already committed
    */
-  protected @Nullable ResponseEntity<@Nullable Object> handleBindException(BindException ex, HttpHeaders headers, HttpStatusCode status, HttpContext request) {
+  protected @Nullable ResponseEntity<@Nullable Object> handleBindException(BindException ex, HttpHeaders headers, HttpStatusCode status, ServerHttpExchange request) {
     ProblemDetail body = createProblemDetail(ex, status, "Failed to bind request", null, null, request);
     return handleExceptionInternal(ex, body, headers, status, request);
   }
@@ -539,7 +539,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * @since 5.0
    */
   protected @Nullable ResponseEntity<@Nullable Object> handleMethodValidationException(
-          MethodValidationException ex, HttpHeaders headers, HttpStatusCode status, HttpContext request) {
+          MethodValidationException ex, HttpHeaders headers, HttpStatusCode status, ServerHttpExchange request) {
 
     ProblemDetail body = createProblemDetail(ex, status, "Validation failed", null, null, request);
     return handleExceptionInternal(ex, body, headers, status, request);
@@ -564,7 +564,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * {@code null} when the response is already committed
    */
   protected @Nullable ResponseEntity<@Nullable Object> handleExceptionInternal(Exception ex,
-          @Nullable Object body, @Nullable HttpHeaders headers, HttpStatusCode statusCode, HttpContext request) {
+          @Nullable Object body, @Nullable HttpHeaders headers, HttpStatusCode statusCode, ServerHttpExchange request) {
 
     if (HttpStatus.INTERNAL_SERVER_ERROR.isSameCodeAs(statusCode)) {
       request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
@@ -595,7 +595,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * @since 5.0
    */
   protected ProblemDetail createProblemDetail(Exception ex, HttpStatusCode status, String defaultDetail,
-          @Nullable String detailMessageCode, Object @Nullable [] detailMessageArguments, HttpContext request) {
+          @Nullable String detailMessageCode, Object @Nullable [] detailMessageArguments, ServerHttpExchange request) {
 
     var builder = ErrorResponse.builder(ex, status, defaultDetail);
     if (detailMessageCode != null) {
@@ -620,7 +620,7 @@ public class ResponseEntityExceptionHandler implements MessageSourceAware {
    * @return the {@code ResponseEntity} instance to use
    */
   protected ResponseEntity<@Nullable Object> createResponseEntity(@Nullable Object body,
-          @Nullable HttpHeaders headers, HttpStatusCode statusCode, HttpContext request) {
+          @Nullable HttpHeaders headers, HttpStatusCode statusCode, ServerHttpExchange request) {
 
     return new ResponseEntity<>(body, headers, statusCode);
   }

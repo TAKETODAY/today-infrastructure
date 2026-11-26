@@ -33,7 +33,7 @@ import infra.http.ResponseEntity;
 import infra.web.async.WebAsyncRequest;
 import infra.web.handler.StreamingResponseBody;
 import infra.web.handler.result.StreamingResponseBodyReturnValueHandler;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.StandardMockWebAsyncRequest;
@@ -47,7 +47,7 @@ public class StreamingResponseBodyReturnValueHandlerTests {
 
   private StreamingResponseBodyReturnValueHandler handler;
 
-  private MockHttpContext webRequest;
+  private MockServerHttpExchange webRequest;
 
   private MockRequest request;
 
@@ -59,7 +59,7 @@ public class StreamingResponseBodyReturnValueHandlerTests {
 
     this.request = new MockRequest("GET", "/path");
     this.response = new MockResponse();
-    this.webRequest = new MockHttpContext(null, this.request, this.response);
+    this.webRequest = new MockServerHttpExchange(null, this.request, this.response);
 
     WebAsyncRequest asyncRequest = new StandardMockWebAsyncRequest(this.request, this.response);
     webRequest.setAsyncRequest(asyncRequest);

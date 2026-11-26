@@ -40,7 +40,7 @@ import infra.http.MediaType;
 import infra.http.service.annotation.HttpExchange;
 import infra.http.service.annotation.PostExchange;
 import infra.http.service.annotation.PutExchange;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.stereotype.Controller;
 import infra.util.CollectionUtils;
@@ -139,11 +139,11 @@ class RequestMappingHandlerMappingTests {
 
     MockRequest request = new MockRequest("GET", "/api/get");
 
-    assertThat(info.getPathPatternsCondition().getMatchingCondition(new MockHttpContext(null, request, null))).isNotNull();
+    assertThat(info.getPathPatternsCondition().getMatchingCondition(new MockServerHttpExchange(null, request, null))).isNotNull();
 
     request = new MockRequest("GET", "/api/get.pdf");
 
-    assertThat(info.getPathPatternsCondition().getMatchingCondition(new MockHttpContext(null, request, null))).isNull();
+    assertThat(info.getPathPatternsCondition().getMatchingCondition(new MockServerHttpExchange(null, request, null))).isNull();
   }
 
   @PathPatternsParameterizedTest
@@ -282,10 +282,10 @@ class RequestMappingHandlerMappingTests {
     assertThat(info.getPathPatternsCondition()).isNotNull();
 
     MockRequest request = new MockRequest("POST", "/service/postExchange");
-    assertThat(info.getPathPatternsCondition().getMatchingCondition(new MockHttpContext(request))).isNull();
+    assertThat(info.getPathPatternsCondition().getMatchingCondition(new MockServerHttpExchange(request))).isNull();
 
     request = new MockRequest("POST", "/controller/postExchange");
-    assertThat(info.getPathPatternsCondition().getMatchingCondition(new MockHttpContext(request))).isNotNull();
+    assertThat(info.getPathPatternsCondition().getMatchingCondition(new MockServerHttpExchange(request))).isNotNull();
   }
 
   @Test
@@ -302,11 +302,11 @@ class RequestMappingHandlerMappingTests {
 
     MockRequest request = new MockRequest("POST", "/service/postExchange");
 
-    assertThat(info.getPathPatternsCondition().getMatchingCondition(new MockHttpContext(request))).isNull();
+    assertThat(info.getPathPatternsCondition().getMatchingCondition(new MockServerHttpExchange(request))).isNull();
 
     request = new MockRequest("POST", "/controller/postMapping");
 
-    assertThat(info.getPathPatternsCondition().getMatchingCondition(new MockHttpContext(request))).isNotNull();
+    assertThat(info.getPathPatternsCondition().getMatchingCondition(new MockServerHttpExchange(request))).isNotNull();
   }
 
   @SuppressWarnings("DataFlowIssue")
@@ -412,7 +412,7 @@ class RequestMappingHandlerMappingTests {
 
     request.setContentType(mediaType.toString());
 
-    RequestMappingInfo matchingInfo = info.getMatchingCondition(new MockHttpContext(request));
+    RequestMappingInfo matchingInfo = info.getMatchingCondition(new MockServerHttpExchange(request));
     // Since the request has no body AND the required flag is false, the
     // ConsumesCondition in the matching condition in an EMPTY_CONDITION.
     // In other words, the "consumes" expressions are removed.
@@ -449,7 +449,7 @@ class RequestMappingHandlerMappingTests {
     MockRequest request = new MockRequest("POST", path);
     request.setContentType(mediaType.toString());
 
-    RequestMappingInfo matchingInfo = info.getMatchingCondition(new MockHttpContext(request));
+    RequestMappingInfo matchingInfo = info.getMatchingCondition(new MockServerHttpExchange(request));
     RequestMappingInfo expected = paths(path).methods(POST).consumes(mediaType.toString()).build();
     assertThat(matchingInfo).isEqualTo(expected);
   }

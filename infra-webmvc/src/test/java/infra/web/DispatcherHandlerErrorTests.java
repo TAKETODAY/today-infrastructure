@@ -29,7 +29,7 @@ import infra.web.context.support.RequestScope;
 import infra.web.annotation.ExceptionHandler;
 import infra.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import infra.web.handler.method.HandlerMethod;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.multipart.MultipartRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,8 +67,8 @@ class DispatcherHandlerErrorTests {
       dispatcher.start();
 
       var multipart = mock(MultipartRequest.class);
-      var request = new TrackingContext(multipart);
-      request.registerCallback(HttpContext.Lifecycle.COMPLETED, "test", callbacks::incrementAndGet);
+      var request = new TrackingExchangeServer(multipart);
+      request.registerCallback(ServerHttpExchange.Lifecycle.COMPLETED, "test", callbacks::incrementAndGet);
       HttpContextHolder.set(request);
       try {
         RequestScope.instance.registerDestructionCallback("bean", destroyed::incrementAndGet);
@@ -114,7 +114,7 @@ class DispatcherHandlerErrorTests {
       dispatcher.setExceptionHandler(resolver);
       dispatcher.setHandlerMapping(request -> new HandlerMethod(controller, "handle"));
       dispatcher.start();
-      var request = new MockHttpContext(application);
+      var request = new MockServerHttpExchange(application);
 
       dispatcher.handleRequest(request);
 
@@ -141,7 +141,7 @@ class DispatcherHandlerErrorTests {
       dispatcher.addRequestCompletedActions((request, failure) -> observed.set(failure));
       dispatcher.start();
       var sends = new AtomicInteger();
-      var request = new MockHttpContext() {
+      var request = new MockServerHttpExchange() {
         @Override
         public void sendError(int status, @Nullable String message) throws java.io.IOException {
           sends.incrementAndGet();
@@ -181,7 +181,7 @@ class DispatcherHandlerErrorTests {
       });
       dispatcher.addRequestCompletedActions((request, failure) -> listeners.incrementAndGet());
       dispatcher.start();
-      var request = new MockHttpContext();
+      var request = new MockServerHttpExchange();
 
       assertThat(catchThrowable(() -> dispatcher.handleRequest(request)))
               .isSameAs(error);
@@ -198,7 +198,7 @@ class DispatcherHandlerErrorTests {
     try (var application = new AnnotationConfigApplicationContext()) {
       application.refresh();
       var dispatcher = new DispatcherHandler(application);
-      var request = new MockHttpContext() {
+      var request = new MockServerHttpExchange() {
         @Override
         public boolean isCommitted() {
           return true;
@@ -210,7 +210,7 @@ class DispatcherHandlerErrorTests {
         }
       };
       var callbacks = new AtomicInteger();
-      request.registerCallback(HttpContext.Lifecycle.COMPLETED, "test", callbacks::incrementAndGet);
+      request.registerCallback(ServerHttpExchange.Lifecycle.COMPLETED, "test", callbacks::incrementAndGet);
 
       assertThat(catchThrowable(() -> dispatcher.completeRequest(request, failure)))
               .isSameAs(failure).hasSuppressedException(cleanupError);
@@ -225,7 +225,7 @@ class DispatcherHandlerErrorTests {
     try (var application = new AnnotationConfigApplicationContext()) {
       application.refresh();
       var dispatcher = new DispatcherHandler(application);
-      var request = new MockHttpContext() {
+      var request = new MockServerHttpExchange() {
         @Override
         protected void completeRequestInternal(@Nullable Throwable failure) {
           throw cleanupError;
@@ -268,7 +268,7 @@ class DispatcherHandlerErrorTests {
     }
 
     @Override
-    public Object handleRequest(HttpContext request) {
+    public Object handleRequest(ServerHttpExchange request) {
       return "result";
     }
 
@@ -278,17 +278,17 @@ class DispatcherHandlerErrorTests {
     }
 
     @Override
-    public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object value) {
+    public void handleReturnValue(ServerHttpExchange exchange, @Nullable Object handler, @Nullable Object value) {
       throw error;
     }
 
   }
 
-  static class TrackingContext extends MockHttpContext {
+  static class TrackingExchangeServer extends MockServerHttpExchange {
 
     int transportCompletions;
 
-    TrackingContext(MultipartRequest multipart) {
+    TrackingExchangeServer(MultipartRequest multipart) {
       this.multipartRequest = multipart;
     }
 

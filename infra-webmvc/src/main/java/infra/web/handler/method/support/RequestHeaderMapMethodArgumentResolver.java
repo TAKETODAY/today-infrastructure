@@ -26,7 +26,7 @@ import java.util.Map;
 import infra.http.HttpHeaders;
 import infra.util.CollectionUtils;
 import infra.util.MultiValueMap;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.annotation.RequestHeader;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.method.ParameterResolvingStrategy;
@@ -54,8 +54,8 @@ public class RequestHeaderMapMethodArgumentResolver implements ParameterResolvin
   }
 
   @Override
-  public @Nullable Object resolveArgument(HttpContext context, HandlerParameter parameter) throws Exception {
-    HttpHeaders headers = context.getHeaders();
+  public @Nullable Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) throws Exception {
+    HttpHeaders headers = exchange.getHeaders();
     Class<?> paramType = parameter.getParameterType();
     if (paramType == HttpHeaders.class) {
       return headers;

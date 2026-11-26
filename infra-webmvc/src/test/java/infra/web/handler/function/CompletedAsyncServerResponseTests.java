@@ -27,8 +27,8 @@ import infra.http.ResponseCookie;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.util.MultiValueMap;
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -96,7 +96,7 @@ class CompletedAsyncServerResponseTests {
   void writeToDelegatesToWrappedResponse() throws Throwable {
     ServerResponse wrappedResponse = ServerResponse.ok().body("test content");
     CompletedAsyncServerResponse asyncResponse = new CompletedAsyncServerResponse(wrappedResponse);
-    HttpContext http = new MockHttpContext();
+    ServerHttpExchange http = new MockServerHttpExchange();
 
     Object result = asyncResponse.writeTo(http, new ServerResponse.Context() {
       @Override

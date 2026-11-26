@@ -78,7 +78,7 @@ import infra.web.handler.method.RequestMappingInfo;
 import infra.web.handler.method.support.ParameterResolvingRegistryFactory;
 import infra.web.handler.method.support.ModelAttributeMethodProcessor;
 import infra.web.i18n.LocaleChangeInterceptor;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.view.ContentNegotiatingViewResolver;
@@ -125,7 +125,7 @@ class WebMvcConfigurationSupportTests {
     rmHandlerMapping.afterPropertiesSet();
 
     HandlerExecutionChain chain = (HandlerExecutionChain) rmHandlerMapping.getHandler(
-            new MockHttpContext(new MockRequest("GET", "/")));
+            new MockServerHttpExchange(new MockRequest("GET", "/")));
 
     assertThat(chain).isNotNull();
     HandlerInterceptor[] interceptors = chain.getInterceptors();
@@ -148,13 +148,13 @@ class WebMvcConfigurationSupportTests {
     assertThat(handlerMapping).isNotNull();
     assertThat(handlerMapping.getOrder()).isEqualTo(1);
     chain = (HandlerExecutionChain) handlerMapping.getHandler(
-            new MockHttpContext(new MockRequest("GET", "/path")));
+            new MockServerHttpExchange(new MockRequest("GET", "/path")));
     assertThat(chain).isNotNull();
     assertThat(chain.getRawHandler()).isNotNull();
-    chain = (HandlerExecutionChain) handlerMapping.getHandler(new MockHttpContext(new MockRequest("GET", "/bad")));
+    chain = (HandlerExecutionChain) handlerMapping.getHandler(new MockServerHttpExchange(new MockRequest("GET", "/bad")));
     assertThat(chain).isNotNull();
     assertThat(chain.getRawHandler()).isNotNull();
-    chain = (HandlerExecutionChain) handlerMapping.getHandler(new MockHttpContext(new MockRequest("GET", "/old")));
+    chain = (HandlerExecutionChain) handlerMapping.getHandler(new MockServerHttpExchange(new MockRequest("GET", "/old")));
     assertThat(chain).isNotNull();
     assertThat(chain.getRawHandler()).isNotNull();
 
@@ -164,7 +164,7 @@ class WebMvcConfigurationSupportTests {
     assertThat(handlerMapping).isNotNull();
     assertThat(handlerMapping.getOrder()).isEqualTo((Integer.MAX_VALUE - 1));
     chain = (HandlerExecutionChain) handlerMapping.getHandler(
-            new MockHttpContext(new MockRequest("GET", "/resources/foo.gif")));
+            new MockServerHttpExchange(new MockRequest("GET", "/resources/foo.gif")));
     assertThat(chain).isNotNull();
     assertThat(chain.getRawHandler()).isNotNull();
     interceptors = chain.getInterceptors();
@@ -219,14 +219,14 @@ class WebMvcConfigurationSupportTests {
 
     request.setParameter("f", "json");
     ContentNegotiationManager manager = mapping.getContentNegotiationManager();
-    assertThat(manager.resolveMediaTypes(new MockHttpContext(request))).isEqualTo(Collections.singletonList(APPLICATION_JSON));
+    assertThat(manager.resolveMediaTypes(new MockServerHttpExchange(request))).isEqualTo(Collections.singletonList(APPLICATION_JSON));
 
     SimpleUrlHandlerMapping handlerMapping = (SimpleUrlHandlerMapping) this.config.resourceHandlerMapping(
             null, this.config.mvcContentNegotiationManager());
     handlerMapping.setApplicationContext(this.context);
 
     request = new MockRequest("GET", "/resources/foo.gif");
-    HandlerExecutionChain chain = (HandlerExecutionChain) handlerMapping.getHandler(new MockHttpContext(request));
+    HandlerExecutionChain chain = (HandlerExecutionChain) handlerMapping.getHandler(new MockServerHttpExchange(request));
     assertThat(chain).isNotNull();
   }
 
@@ -375,7 +375,7 @@ class WebMvcConfigurationSupportTests {
       assertThat(handler.isRenderUnhandledExceptionsAsProblemDetails()).isFalse();
       assertThat(application.getBean(ReturnValueHandlerManager.class).getErrorResponseViewResolver()).isNull();
 
-      var request = new MockHttpContext(application, new MockRequest("GET", "/"), new MockResponse());
+      var request = new MockServerHttpExchange(application, new MockRequest("GET", "/"), new MockResponse());
       assertThat(handler.handleException(request, new IllegalStateException(), null)).isNull();
     }
   }
@@ -388,7 +388,7 @@ class WebMvcConfigurationSupportTests {
       assertThat(application.getBean(ReturnValueHandlerManager.class).getErrorResponseViewResolver()).isNotNull();
 
       var response = new MockResponse();
-      var request = new MockHttpContext(application, new MockRequest("GET", "/"), response);
+      var request = new MockServerHttpExchange(application, new MockRequest("GET", "/"), response);
       var method = new HandlerMethod(application.getBean(TestController.class), TestController.class.getMethod("handle"));
       Object value = handler.handleException(request, new IllegalStateException(), method);
       assertThat(value).isNotNull();

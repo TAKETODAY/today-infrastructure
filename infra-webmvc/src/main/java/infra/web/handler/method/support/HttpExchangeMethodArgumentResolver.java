@@ -1,0 +1,156 @@
+/*
+ * Copyright 2017 - 2026 the TODAY authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package infra.web.handler.method.support;
+
+import org.jspecify.annotations.Nullable;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.Writer;
+import java.time.ZoneId;
+import java.util.Locale;
+import java.util.TimeZone;
+
+import infra.core.io.InputStreamSource;
+import infra.core.io.OutputStreamSource;
+import infra.http.HttpMethod;
+import infra.web.ServerHttpExchange;
+import infra.web.handler.method.HandlerParameter;
+import infra.web.handler.method.ParameterResolvingStrategy;
+import infra.web.multipart.MultipartRequest;
+import infra.web.util.WebUtils;
+
+/**
+ * Resolves backed request-related method arguments. Supports values of the
+ * following types:
+ * <ul>
+ * <li>{@link ServerHttpExchange}
+ * <li>{@link MultipartRequest}
+ * <li>{@link InputStream}
+ * <li>{@link OutputStream}
+ * <li>{@link Reader}
+ * <li>{@link Writer}
+ * <li>{@link HttpMethod}
+ * <li>{@link Locale}
+ * <li>{@link TimeZone}
+ * <li>{@link InputStreamSource}
+ * <li>{@link OutputStreamSource}
+ * <li>{@link java.time.ZoneId}
+ * </ul>
+ *
+ * @author Arjen Poutsma
+ * @author Rossen Stoyanchev
+ * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2022/4/28 10:35
+ */
+public class HttpExchangeMethodArgumentResolver implements ParameterResolvingStrategy {
+
+  @Override
+  public boolean supportsParameter(HandlerParameter parameter) {
+    Class<?> paramType = parameter.getParameterType();
+    return ServerHttpExchange.class.isAssignableFrom(paramType)
+            || MultipartRequest.class.isAssignableFrom(paramType)
+            || InputStream.class.isAssignableFrom(paramType)
+            || OutputStream.class.isAssignableFrom(paramType)
+            || Reader.class.isAssignableFrom(paramType)
+            || Writer.class.isAssignableFrom(paramType)
+            || HttpMethod.class == paramType
+            || Locale.class == paramType
+            || TimeZone.class == paramType
+            || InputStreamSource.class == paramType
+            || OutputStreamSource.class == paramType
+            || ZoneId.class == paramType;
+  }
+
+  @Override
+  public @Nullable Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) throws Exception {
+    Class<?> paramType = parameter.getParameterType();
+    // ServerHttpExchange
+    if (ServerHttpExchange.class.isAssignableFrom(paramType)) {
+      if (paramType.isInstance(exchange)) {
+        return exchange;
+      }
+      throw new IllegalStateException(
+              "Current request is not of type [%s]: %s".formatted(paramType.getName(), exchange));
+    }
+    if (MultipartRequest.class.isAssignableFrom(paramType)) {
+      MultipartRequest multipartRequest = exchange.asMultipartRequest();
+      if (paramType.isInstance(multipartRequest)) {
+        return multipartRequest;
+      }
+      throw new IllegalStateException(
+              "Current multipart request is not of type [%s]: %s".formatted(paramType.getName(), multipartRequest));
+    }
+    if (InputStream.class.isAssignableFrom(paramType)) {
+      InputStream inputStream = exchange.getInputStream();
+      if (!paramType.isInstance(inputStream)) {
+        throw new IllegalStateException(
+                "Request input stream is not of type [%s]: %s".formatted(paramType.getName(), inputStream));
+      }
+      return inputStream;
+    }
+    else if (OutputStream.class.isAssignableFrom(paramType)) {
+      OutputStream outputStream = exchange.getOutputStream();
+      if (!paramType.isInstance(outputStream)) {
+        throw new IllegalStateException(
+                "Response output stream is not of type [%s]: %s".formatted(paramType.getName(), outputStream));
+      }
+      return outputStream;
+    }
+    else if (Reader.class.isAssignableFrom(paramType)) {
+      Reader reader = exchange.getReader();
+      if (!paramType.isInstance(reader)) {
+        throw new IllegalStateException(
+                "Request body reader is not of type [%s]: %s".formatted(paramType.getName(), reader));
+      }
+      return reader;
+    }
+    else if (Writer.class.isAssignableFrom(paramType)) {
+      PrintWriter writer = exchange.getWriter();
+      if (!paramType.isInstance(writer)) {
+        throw new IllegalStateException(
+                "Request body writer is not of type [%s]: %s".formatted(paramType.getName(), writer));
+      }
+      return writer;
+    }
+    else if (HttpMethod.class == paramType) {
+      return exchange.getMethod();
+    }
+    else if (Locale.class == paramType) {
+      return WebUtils.resolveLocale(exchange);
+    }
+    else if (TimeZone.class == paramType) {
+      TimeZone timeZone = WebUtils.getTimeZone(exchange);
+      return timeZone != null ? timeZone : TimeZone.getDefault();
+    }
+    else if (ZoneId.class == paramType) {
+      TimeZone timeZone = WebUtils.getTimeZone(exchange);
+      return timeZone != null ? timeZone.toZoneId() : ZoneId.systemDefault();
+    }
+    else if (InputStreamSource.class == paramType
+            || OutputStreamSource.class == paramType) {
+      return exchange;
+    }
+
+    // Should never happen...
+    throw new UnsupportedOperationException("Unknown parameter type: " + paramType.getName());
+  }
+
+}

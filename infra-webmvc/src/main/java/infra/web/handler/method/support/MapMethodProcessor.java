@@ -24,7 +24,7 @@ import java.util.Map;
 
 import infra.core.ResolvableType;
 import infra.web.BindingContext;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.handler.method.HandlerMethod;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.method.ParameterResolvingStrategy;
@@ -60,8 +60,8 @@ public class MapMethodProcessor implements ParameterResolvingStrategy, HandlerMe
 
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
-    return BindingContext.obtain(context).getModel();
+  public Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) {
+    return BindingContext.obtain(exchange).getModel();
   }
 
   // HandlerMethodReturnValueHandler
@@ -78,10 +78,10 @@ public class MapMethodProcessor implements ParameterResolvingStrategy, HandlerMe
 
   @Override
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  public void handleReturnValue(HttpContext context,
+  public void handleReturnValue(ServerHttpExchange exchange,
           @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue instanceof Map map) {
-      BindingContext bindingContext = BindingContext.find(context);
+      BindingContext bindingContext = BindingContext.find(exchange);
       if (bindingContext != null) {
         bindingContext.addAllAttributes(map);
       }

@@ -20,7 +20,7 @@ package infra.web.handler.condition;
 
 import org.junit.jupiter.api.Test;
 
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.util.pattern.PathPatternParser;
 
@@ -90,7 +90,7 @@ public class PathPatternsRequestConditionTests {
     MockRequest request = createRequest("/foo");
 
     PathPatternsRequestCondition condition = createCondition("/foo");
-    PathPatternsRequestCondition match = condition.getMatchingCondition(new MockHttpContext(null, request, null));
+    PathPatternsRequestCondition match = condition.getMatchingCondition(new MockServerHttpExchange(null, request, null));
 
     assertThat(match).isNotNull();
   }
@@ -100,7 +100,7 @@ public class PathPatternsRequestConditionTests {
     MockRequest request = createRequest("/foo/bar");
 
     PathPatternsRequestCondition condition = createCondition("/foo/*");
-    PathPatternsRequestCondition match = condition.getMatchingCondition(new MockHttpContext(null, request, null));
+    PathPatternsRequestCondition match = condition.getMatchingCondition(new MockServerHttpExchange(null, request, null));
 
     assertThat(match).isNotNull();
   }
@@ -110,7 +110,7 @@ public class PathPatternsRequestConditionTests {
     MockRequest request = createRequest("", "/foo/bar");
 
     PathPatternsRequestCondition condition = createCondition("/foo/*");
-    PathPatternsRequestCondition match = condition.getMatchingCondition(new MockHttpContext(null, request, null));
+    PathPatternsRequestCondition match = condition.getMatchingCondition(new MockServerHttpExchange(null, request, null));
 
     assertThat(match).isNotNull();
   }
@@ -120,7 +120,7 @@ public class PathPatternsRequestConditionTests {
     MockRequest request = createRequest("/foo/bar");
 
     PathPatternsRequestCondition condition = createCondition("/**", "/foo/bar", "/foo/*");
-    PathPatternsRequestCondition match = condition.getMatchingCondition(new MockHttpContext(null, request, null));
+    PathPatternsRequestCondition match = condition.getMatchingCondition(new MockServerHttpExchange(null, request, null));
     PathPatternsRequestCondition expected = createCondition("/foo/bar", "/foo/*", "/**");
 
     assertThat(match).isEqualTo(expected);
@@ -131,7 +131,7 @@ public class PathPatternsRequestConditionTests {
     MockRequest request = createRequest("/foo/");
 
     PathPatternsRequestCondition condition = createCondition("/foo");
-    PathPatternsRequestCondition match = condition.getMatchingCondition(new MockHttpContext(null, request, null));
+    PathPatternsRequestCondition match = condition.getMatchingCondition(new MockServerHttpExchange(null, request, null));
 
     assertThat(match).isNotNull();
     assertThat(match.getPatternValues().iterator().next()).as("Should match by default").isEqualTo("/foo");
@@ -140,7 +140,7 @@ public class PathPatternsRequestConditionTests {
     strictParser.setMatchOptionalTrailingSeparator(false);
 
     condition = new PathPatternsRequestCondition(strictParser, "/foo");
-    match = condition.getMatchingCondition(new MockHttpContext(null, request, null));
+    match = condition.getMatchingCondition(new MockServerHttpExchange(null, request, null));
 
     assertThat(match).isNull();
   }
@@ -149,7 +149,7 @@ public class PathPatternsRequestConditionTests {
   void matchPatternContainsExtension() {
     MockRequest request = createRequest("/foo.html");
     PathPatternsRequestCondition match = createCondition("/foo.jpg")
-            .getMatchingCondition(new MockHttpContext(null, request, null));
+            .getMatchingCondition(new MockServerHttpExchange(null, request, null));
 
     assertThat(match).isNull();
   }
@@ -189,22 +189,22 @@ public class PathPatternsRequestConditionTests {
     PathPatternsRequestCondition c1 = createCondition("/foo", "/bar");
     PathPatternsRequestCondition c2 = createCondition("/foo", "/f*");
 
-    PathPatternsRequestCondition match1 = c1.getMatchingCondition(new MockHttpContext(null, request, null));
-    PathPatternsRequestCondition match2 = c2.getMatchingCondition(new MockHttpContext(null, request, null));
+    PathPatternsRequestCondition match1 = c1.getMatchingCondition(new MockServerHttpExchange(null, request, null));
+    PathPatternsRequestCondition match2 = c2.getMatchingCondition(new MockServerHttpExchange(null, request, null));
 
-    assertThat(match1.compareTo(match2, new MockHttpContext(null, request, null))).isEqualTo(1);
+    assertThat(match1.compareTo(match2, new MockServerHttpExchange(null, request, null))).isEqualTo(1);
   }
 
   private MockRequest createRequest(String requestURI) {
     return createRequest("", requestURI);
   }
 
-  private MockHttpContext createContext(String requestURI) {
-    return new MockHttpContext(null, createRequest("", requestURI), null);
+  private MockServerHttpExchange createContext(String requestURI) {
+    return new MockServerHttpExchange(null, createRequest("", requestURI), null);
   }
 
-  private MockHttpContext createContext(String contextPath, String requestURI) {
-    return new MockHttpContext(null, createRequest(contextPath, requestURI), null);
+  private MockServerHttpExchange createContext(String contextPath, String requestURI) {
+    return new MockServerHttpExchange(null, createRequest(contextPath, requestURI), null);
   }
 
   private MockRequest createRequest(String contextPath, String requestURI) {

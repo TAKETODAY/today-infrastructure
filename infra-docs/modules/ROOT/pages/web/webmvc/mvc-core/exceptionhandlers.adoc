@@ -61,7 +61,7 @@ public User create(@RequestBody User user) {
 ----
 
 `reason` 的语义不同于普通的响应正文。设置非空 `reason` 后，MVC 会调用
-`HttpContext.sendError(status, reason)`，将状态码和说明交给配置的错误处理机制。默认错误处理机制可以根据内容协商生成 HTML 错误页面或其他错误表示；自定义
+`ServerHttpExchange.sendError(status, reason)`，将状态码和说明交给配置的错误处理机制。默认错误处理机制可以根据内容协商生成 HTML 错误页面或其他错误表示；自定义
 `SendErrorHandler` 也可以改变最终的渲染方式。
 
 [source,java]
@@ -83,8 +83,8 @@ public ErrorBody submit(@RequestBody RequestBody body) {
 ----
 
 `reason` 可以作为消息编码使用。对于处理器方法，MVC 优先使用创建该方法处理器时传入的 `MessageSource`；
-未传入时，使用 `HttpContext.getMessageSource()`，它默认返回当前请求关联的 `ApplicationContext`。
-处理器方法和 `ResponseStatusExceptionHandler` 都通过 `WebUtils.resolveLocale(request)` 获取 Locale。
+未传入时，使用 `ServerHttpExchange.getMessageSource()`，它默认返回当前请求关联的 `ApplicationContext`。
+处理器方法和 `ResponseStatusExceptionHandler` 都通过 `WebUtils.resolveLocale(exchange)` 获取 Locale。
 `LocaleResolver` 存在时优先使用它，否则使用请求的首选 Locale，
 最后回退到 JVM 默认 Locale。找不到对应消息时，保留原始 `reason`。
 

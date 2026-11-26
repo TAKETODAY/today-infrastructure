@@ -23,7 +23,7 @@ import java.util.TimeZone;
 
 import infra.core.i18n.SimpleLocaleContext;
 import infra.core.i18n.TimeZoneAwareLocaleContext;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 
 class FixedLocaleResolverTests {
 
-  private final HttpContext request = mock(HttpContext.class);
+  private final ServerHttpExchange request = mock(ServerHttpExchange.class);
 
   @Test
   void usesJvmDefaultLocaleWhenCreatedWithoutArguments() {

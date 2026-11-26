@@ -27,7 +27,7 @@ import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.HttpRequestHandler;
 import infra.web.handler.HandlerExecutionChain;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.socket.WebSocketHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,7 +51,7 @@ public class WebSocketHandlerMappingTests {
     mapping.setApplicationContext(context1);
 
     MockRequest request = new MockRequest("GET", "/path");
-    MockHttpContext context = new MockHttpContext(null, request, new MockResponse());
+    MockServerHttpExchange context = new MockServerHttpExchange(null, request, new MockResponse());
     HandlerExecutionChain chain = (HandlerExecutionChain) mapping.getHandler(context);
     assertThat(chain).isNotNull();
     assertThat(chain.getRawHandler()).isSameAs(handler);
@@ -62,13 +62,13 @@ public class WebSocketHandlerMappingTests {
     assertThat(chain).isNull();
 
     request.addHeader("Upgrade", "websocket");
-    context = new MockHttpContext(null, request, new MockResponse());
+    context = new MockServerHttpExchange(null, request, new MockResponse());
     chain = (HandlerExecutionChain) mapping.getHandler(context);
     assertThat(chain).isNotNull();
     assertThat(chain.getRawHandler()).isSameAs(handler);
 
     request.setMethod("POST");
-    context = new MockHttpContext(null, request, new MockResponse());
+    context = new MockServerHttpExchange(null, request, new MockResponse());
     chain = (HandlerExecutionChain) mapping.getHandler(context);
     assertThat(chain).isNull();
   }

@@ -36,14 +36,14 @@ import infra.stereotype.Controller;
 import infra.util.AntPathMatcher;
 import infra.util.PathMatcher;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpRequestHandler;
 import infra.web.annotation.CrossOrigin;
 import infra.web.annotation.RequestMapping;
 import infra.web.cors.CorsConfiguration;
 import infra.web.handler.HandlerExecutionChain;
 import infra.web.handler.HandlerMethodMappingNamingStrategy;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
@@ -88,7 +88,7 @@ public class HandlerMethodMappingTests {
     this.mapping.registerMapping("/fo*", this.handler, this.method2);
 
     MockRequest request = new MockRequest("GET", "/foo");
-    MockHttpContext context = new MockHttpContext(null, request, null);
+    MockServerHttpExchange context = new MockServerHttpExchange(null, request, null);
     HandlerMethod result = this.mapping.getHandlerInternal(context);
 
     assertThat(result.getMethod()).isEqualTo(method1);
@@ -106,7 +106,7 @@ public class HandlerMethodMappingTests {
 
     MockRequest request = new MockRequest("GET", "/foo");
 
-    MockHttpContext context = new MockHttpContext(null, request, null);
+    MockServerHttpExchange context = new MockServerHttpExchange(null, request, null);
     HandlerMethod result = this.mapping.getHandlerInternal(context);
 
     assertThat(result.getMethod()).isEqualTo(method1);
@@ -124,7 +124,7 @@ public class HandlerMethodMappingTests {
     this.mapping.registerMapping("/fo?", this.handler, this.method2);
 
     assertThatIllegalStateException().isThrownBy(() ->
-            this.mapping.getHandlerInternal(new MockHttpContext(
+            this.mapping.getHandlerInternal(new MockServerHttpExchange(
                     null, new MockRequest("GET", "/foo"), null)));
   }
 
@@ -139,7 +139,7 @@ public class HandlerMethodMappingTests {
 
     MockResponse response = new MockResponse();
 
-    MockHttpContext context = new MockHttpContext(null, request, response);
+    MockServerHttpExchange context = new MockServerHttpExchange(null, request, response);
 
     HandlerExecutionChain chain = getHandler(context);
 
@@ -164,7 +164,7 @@ public class HandlerMethodMappingTests {
     request.addHeader(HttpHeaders.ORIGIN, "https://domain.com");
     request.addHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET");
     MockResponse response = new MockResponse();
-    MockHttpContext context = new MockHttpContext(null, request, response);
+    MockServerHttpExchange context = new MockServerHttpExchange(null, request, response);
 
     HandlerExecutionChain chain = getHandler(context);
     assertThat(chain.getRawHandler()).isInstanceOf(HttpRequestHandler.class);
@@ -176,7 +176,7 @@ public class HandlerMethodMappingTests {
     assertThat(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS)).isNull();
   }
 
-  private HandlerExecutionChain getHandler(MockHttpContext context) throws Exception {
+  private HandlerExecutionChain getHandler(MockServerHttpExchange context) throws Exception {
     Object mappingHandler = this.mapping.getHandler(context);
     if (mappingHandler instanceof HandlerExecutionChain chain) {
       return chain;
@@ -195,7 +195,7 @@ public class HandlerMethodMappingTests {
 
     MockResponse response = new MockResponse();
 
-    MockHttpContext context = new MockHttpContext(null, request, response);
+    MockServerHttpExchange context = new MockServerHttpExchange(null, request, response);
     HandlerExecutionChain chain = getHandler(context);
     assertThat(chain).isNotNull();
     assertThat(chain.getRawHandler()).isInstanceOf(HttpRequestHandler.class);
@@ -297,10 +297,10 @@ public class HandlerMethodMappingTests {
     HandlerMethod handlerMethod = new HandlerMethod(this.handler, this.method1);
 
     this.mapping.registerMapping(key, this.handler, this.method1);
-    assertThat(this.mapping.getHandlerInternal(new MockHttpContext(null, new MockRequest("GET", key), null))).isNotNull();
+    assertThat(this.mapping.getHandlerInternal(new MockServerHttpExchange(null, new MockRequest("GET", key), null))).isNotNull();
 
     this.mapping.unregisterMapping(key);
-    assertThat(mapping.getHandlerInternal(new MockHttpContext(null, new MockRequest("GET", key), null))).isNull();
+    assertThat(mapping.getHandlerInternal(new MockServerHttpExchange(null, new MockRequest("GET", key), null))).isNull();
     assertThat(this.mapping.mappingRegistry.getDirectPathMappings(key)).isNull();
     assertThat(this.mapping.mappingRegistry.getHandlerMethodsByMappingName(this.method1.getName())).isNull();
     assertThat(this.mapping.mappingRegistry.getCorsConfiguration(handlerMethod)).isNull();
@@ -317,7 +317,7 @@ public class HandlerMethodMappingTests {
 
     this.mapping.setApplicationContext(context);
     this.mapping.registerMapping(key, beanName, this.method1);
-    HandlerMethod handlerMethod = this.mapping.getHandlerInternal(new MockHttpContext(
+    HandlerMethod handlerMethod = this.mapping.getHandlerInternal(new MockServerHttpExchange(
             null, new MockRequest("GET", key), null));
   }
 
@@ -363,12 +363,12 @@ public class HandlerMethodMappingTests {
     }
 
     @Override
-    protected void handleMatch(Match<String> bestMatch, String directLookupPath, HttpContext request) {
+    protected void handleMatch(Match<String> bestMatch, String directLookupPath, ServerHttpExchange request) {
 
     }
 
     @Override
-    protected String getMatchingMapping(String pattern, HttpContext request) {
+    protected String getMatchingMapping(String pattern, ServerHttpExchange request) {
       String lookupPath = request.getRequestPath().value();
       String match = (this.pathMatcher.match(pattern, lookupPath) ? pattern : null);
       if (match != null) {
@@ -378,7 +378,7 @@ public class HandlerMethodMappingTests {
     }
 
     @Override
-    protected Comparator<String> getMappingComparator(HttpContext request) {
+    protected Comparator<String> getMappingComparator(ServerHttpExchange request) {
       String lookupPath = request.getRequestPath().value();
       return this.pathMatcher.getPatternComparator(lookupPath);
     }

@@ -28,7 +28,7 @@ import java.util.Optional;
 
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.http.converter.HttpMessageConverter;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.handler.HandlerExecutionChain;
@@ -57,7 +57,7 @@ class RouterFunctionMappingTests {
     RouterFunctionMapping mapping = new RouterFunctionMapping(routerFunction);
     mapping.setMessageConverters(this.messageConverters);
 
-    MockHttpContext request = createTestRequest("/match");
+    MockServerHttpExchange request = createTestRequest("/match");
     HandlerExecutionChain result = (HandlerExecutionChain) mapping.getHandler(request);
 
     assertThat(result).isNotNull();
@@ -71,7 +71,7 @@ class RouterFunctionMappingTests {
     RouterFunctionMapping mapping = new RouterFunctionMapping(routerFunction);
     mapping.setMessageConverters(this.messageConverters);
 
-    MockHttpContext request = createTestRequest("/match");
+    MockServerHttpExchange request = createTestRequest("/match");
     Object result = mapping.getHandler(request);
 
     assertThat(result).isNull();
@@ -87,7 +87,7 @@ class RouterFunctionMappingTests {
     mapping.setApplicationContext(context);
     mapping.afterPropertiesSet();
 
-    MockHttpContext request = createTestRequest("/match");
+    MockServerHttpExchange request = createTestRequest("/match");
     Object result = mapping.getHandler(request);
 
     assertThat(result).isNull();
@@ -149,7 +149,7 @@ class RouterFunctionMappingTests {
     mapping.setUseCaseSensitiveMatch(false);
     mapping.afterPropertiesSet();
 
-    MockHttpContext request = createTestRequest("/FOO");
+    MockServerHttpExchange request = createTestRequest("/FOO");
     HandlerExecutionChain result = (HandlerExecutionChain) mapping.getHandler(request);
 
     assertThat(result).isNotNull();
@@ -166,15 +166,15 @@ class RouterFunctionMappingTests {
     RouterFunctionMapping mapping = new RouterFunctionMapping(routerFunction);
     mapping.setMessageConverters(this.messageConverters);
 
-    MockHttpContext request = createTestRequest("/match");
+    MockServerHttpExchange request = createTestRequest("/match");
     HandlerExecutionChain result = (HandlerExecutionChain) mapping.getHandler(request);
 
     assertThat(result).isNotNull();
   }
 
-  private MockHttpContext createTestRequest(String path) {
+  private MockServerHttpExchange createTestRequest(String path) {
     MockRequest request = new MockRequest("GET", path);
-    return new MockHttpContext(null, request, new MockResponse());
+    return new MockServerHttpExchange(null, request, new MockResponse());
   }
 
 }

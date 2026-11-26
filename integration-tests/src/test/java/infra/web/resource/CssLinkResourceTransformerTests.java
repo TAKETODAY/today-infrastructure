@@ -29,7 +29,7 @@ import java.util.List;
 
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.util.StringUtils;
 import infra.web.resource.EncodedResourceResolver.EncodedResource;
@@ -93,7 +93,7 @@ public class CssLinkResourceTransformerTests {
             "@import \"/static/foo-e36d2e05253c6c7085a91522ce43a0b4.css\";\n" +
             "@import '/static/foo-e36d2e05253c6c7085a91522ce43a0b4.css';\n\n" +
             "body { background: url(\"/static/images/image-f448cd1d5dba82b774f3202c878230b3.png?#iefix\") }\n";
-    MockHttpContext httpContext = new MockHttpContext(null, request, null);
+    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, request, null);
 
     TransformedResource actual = (TransformedResource) this.transformerChain.transform(httpContext, css);
     String result = new String(actual.getByteArray(), StandardCharsets.UTF_8);
@@ -105,7 +105,7 @@ public class CssLinkResourceTransformerTests {
   public void transformNoLinks() throws Exception {
     this.request = new MockRequest("GET", "/static/foo.css");
     Resource expected = getResource("foo.css");
-    MockHttpContext httpContext = new MockHttpContext(null, request, null);
+    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, request, null);
 
     Resource actual = this.transformerChain.transform(httpContext, expected);
     assertThat(actual).isSameAs(expected);
@@ -124,7 +124,7 @@ public class CssLinkResourceTransformerTests {
             "body { background: url(\"file:///home/spring/image.png\") }\n" +
             "figure { background: url(\"//example.org/style.css\")}";
 
-    MockHttpContext httpContext = new MockHttpContext(null, request, null);
+    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, request, null);
 
     TransformedResource transformedResource = (TransformedResource) chain.transform(httpContext, resource);
     String result = new String(transformedResource.getByteArray(), StandardCharsets.UTF_8);
@@ -140,7 +140,7 @@ public class CssLinkResourceTransformerTests {
   @Test
   public void transformSkippedForNonCssResource() throws Exception {
     this.request = new MockRequest("GET", "/static/images/image.png");
-    MockHttpContext httpContext = new MockHttpContext(null, request, null);
+    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, request, null);
 
     Resource expected = getResource("images/image.png");
     Resource actual = this.transformerChain.transform(httpContext, expected);
@@ -154,7 +154,7 @@ public class CssLinkResourceTransformerTests {
 
     this.request = new MockRequest("GET", "/static/main.css");
     Resource original = new ClassPathResource("test/main.css", getClass());
-    MockHttpContext httpContext = new MockHttpContext(null, request, null);
+    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, request, null);
 
     EncodedResource gzipped = new EncodedResource(original, "gzip", ".gz");
     Resource actual = this.transformerChain.transform(httpContext, gzipped);
@@ -166,7 +166,7 @@ public class CssLinkResourceTransformerTests {
   public void transformEmptyUrlFunction() throws Exception {
     this.request = new MockRequest("GET", "/static/empty_url_function.css");
     Resource expected = getResource("empty_url_function.css");
-    MockHttpContext httpContext = new MockHttpContext(null, request, null);
+    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, request, null);
 
     // An empty url() is not a link at all, so the resource is left untouched,
     // exactly like a CSS file that has no link in it at all.
@@ -181,7 +181,7 @@ public class CssLinkResourceTransformerTests {
     String expected =
             "body { background: url(\"/static/images/image-f448cd1d5dba82b774f3202c878230b3.png?#iefix\") }\n" +
                     "div { background: url(images/image.png\n";
-    MockHttpContext httpContext = new MockHttpContext(null, request, null);
+    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, request, null);
 
     TransformedResource actual = (TransformedResource) this.transformerChain.transform(httpContext, css);
     String result = new String(actual.getByteArray(), StandardCharsets.UTF_8);

@@ -25,7 +25,7 @@ import java.util.Map;
 import infra.util.CollectionUtils;
 import infra.util.StringUtils;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.annotation.PathVariable;
 import infra.web.handler.method.HandlerParameter;
 import infra.web.handler.method.ParameterResolvingStrategy;
@@ -53,8 +53,8 @@ public class PathVariableMapMethodArgumentResolver implements ParameterResolving
    */
   @Nullable
   @Override
-  public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
-    HandlerMatchingMetadata metadata = HandlerMatchingMetadata.find(context);
+  public Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) {
+    HandlerMatchingMetadata metadata = HandlerMatchingMetadata.find(exchange);
     Map<Object, Object> map = CollectionUtils.createMap(parameter.getParameterType());
     if (metadata != null) {
       Map<String, String> uriVariables = metadata.getUriVariables();

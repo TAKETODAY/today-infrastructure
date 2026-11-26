@@ -23,7 +23,7 @@ import java.util.List;
 
 import infra.web.Filter;
 import infra.web.FilterChain;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * A generic composite mock {@link Filter} that just delegates its behavior
@@ -52,11 +52,11 @@ public class CompositeFilter implements Filter {
    * and executes them in order. Each filter delegates to the next one in the list, achieving
    * the normal behavior of a {@link FilterChain}, despite the fact that this is a {@link Filter}.
    *
-   * @see Filter#doFilter(HttpContext, FilterChain)
+   * @see Filter#doFilter(ServerHttpExchange, FilterChain)
    */
   @Override
-  public void doFilter(HttpContext http, FilterChain chain) throws Exception {
-    new VirtualFilterChain(chain, this.filters).doFilter(http);
+  public void doFilter(ServerHttpExchange exchange, FilterChain chain) throws Exception {
+    new VirtualFilterChain(chain, this.filters).doFilter(exchange);
   }
 
   private static class VirtualFilterChain implements FilterChain {
@@ -73,14 +73,14 @@ public class CompositeFilter implements Filter {
     }
 
     @Override
-    public void doFilter(HttpContext context) throws Exception {
+    public void doFilter(ServerHttpExchange exchange) throws Exception {
       if (this.currentPosition == this.additionalFilters.size()) {
-        this.originalChain.doFilter(context);
+        this.originalChain.doFilter(exchange);
       }
       else {
         this.currentPosition++;
         Filter nextFilter = this.additionalFilters.get(this.currentPosition - 1);
-        nextFilter.doFilter(context, this);
+        nextFilter.doFilter(exchange, this);
       }
     }
   }

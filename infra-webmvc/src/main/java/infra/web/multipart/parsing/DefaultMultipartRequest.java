@@ -17,7 +17,7 @@
 package infra.web.multipart.parsing;
 
 import infra.util.MultiValueMap;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.multipart.AbstractMultipartRequest;
 import infra.web.multipart.Part;
 
@@ -31,9 +31,9 @@ final class DefaultMultipartRequest extends AbstractMultipartRequest {
 
   private final DefaultMultipartParser multipartParser;
 
-  private final HttpContext context;
+  private final ServerHttpExchange context;
 
-  public DefaultMultipartRequest(DefaultMultipartParser multipartParser, HttpContext context) {
+  public DefaultMultipartRequest(DefaultMultipartParser multipartParser, ServerHttpExchange context) {
     this.multipartParser = multipartParser;
     this.context = context;
   }

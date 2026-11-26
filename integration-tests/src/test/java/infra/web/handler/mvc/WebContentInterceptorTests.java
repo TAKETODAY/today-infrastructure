@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.function.Function;
 
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
@@ -44,11 +44,11 @@ class WebContentInterceptorTests {
   private final WebContentInterceptor interceptor = new WebContentInterceptor();
 
   private final Object handler = new Object();
-  HttpContext context = new MockHttpContext(null, mockRequest, response);
+  ServerHttpExchange context = new MockServerHttpExchange(null, mockRequest, response);
 
-  Function<String, HttpContext> requestFactory = path -> {
+  Function<String, ServerHttpExchange> requestFactory = path -> {
     MockRequest mockRequest = new MockRequest("GET", path);
-    return new MockHttpContext(null, mockRequest, response);
+    return new MockServerHttpExchange(null, mockRequest, response);
   };
 
   @Test
@@ -69,7 +69,7 @@ class WebContentInterceptorTests {
     interceptor.setCacheSeconds(10);
     interceptor.setCacheMappings(mappings);
 
-    HttpContext request = requestFactory.apply("/example/adminhandle.vm");
+    ServerHttpExchange request = requestFactory.apply("/example/adminhandle.vm");
     interceptor.preProcessing(request, handler);
 
     List<String> cacheControlHeaders = response.getHeaders("Cache-Control");
@@ -87,7 +87,7 @@ class WebContentInterceptorTests {
   @Test
   void preventCacheConfiguration() throws Exception {
     interceptor.setCacheSeconds(0);
-    HttpContext http = requestFactory.apply("/");
+    ServerHttpExchange http = requestFactory.apply("/");
     interceptor.preProcessing(http, handler);
     http.flush();
     Iterable<String> cacheControlHeaders = response.getHeaders("Cache-Control");

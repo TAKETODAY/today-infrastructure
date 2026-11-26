@@ -45,7 +45,7 @@ import infra.util.Assert;
 import infra.util.ReflectionUtils;
 import infra.util.function.SingletonSupplier;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.annotation.RequestMapping;
 import infra.web.bind.annotation.InitBinder;
 import infra.web.bind.annotation.ModelAttribute;
@@ -305,7 +305,7 @@ public final class ControllerMethodResolver {
   }
 
   @Nullable
-  InvocableHandlerMethod resolveExceptionHandlerMethod(HttpContext context, @Nullable HandlerMethod handlerMethod,
+  InvocableHandlerMethod resolveExceptionHandlerMethod(ServerHttpExchange context, @Nullable HandlerMethod handlerMethod,
           Throwable exception, List<MediaType> acceptedMediaTypes) {
 
     Class<?> handlerType = null;
@@ -347,7 +347,7 @@ public final class ControllerMethodResolver {
     return null;
   }
 
-  private InvocableHandlerMethod createExceptionHandlerMethod(HttpContext context, Object bean,
+  private InvocableHandlerMethod createExceptionHandlerMethod(ServerHttpExchange context, Object bean,
           ExceptionHandlerMappingInfo mapping) {
     if (!mapping.getProducibleTypes().isEmpty()) {
       var metadata = HandlerMatchingMetadata.find(context);

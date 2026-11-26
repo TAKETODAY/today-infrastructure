@@ -35,12 +35,12 @@ import infra.http.server.RequestPath;
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.StringUtils;
-import infra.web.DelegatingHttpContext;
+import infra.web.DelegatingServerHttpExchange;
 import infra.web.Filter;
 import infra.web.FilterChain;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.util.ForwardedHeaderUtils;
-import infra.web.util.HttpContextUriComponentsBuilder;
+import infra.web.util.HttpExchangeUriComponentsBuilder;
 import infra.web.util.UriComponents;
 import infra.web.util.UriComponentsBuilder;
 
@@ -121,7 +121,7 @@ public class ForwardedHeaderFilter implements Filter {
    * {@link RelativeRedirectFilter}, and also using the same response wrapper
    * as that filter does, or if both are configured, only one will wrap.
    * <p>By default, if this property is set to false, in which case calls to
-   * {@link HttpContext#sendRedirect(String)} are overridden in order
+   * {@link ServerHttpExchange#sendRedirect(String)} are overridden in order
    * to turn relative into absolute URLs, also taking into account forwarded
    * headers.
    *
@@ -131,7 +131,7 @@ public class ForwardedHeaderFilter implements Filter {
     this.relativeRedirects = relativeRedirects;
   }
 
-  protected boolean shouldNotFilter(HttpContext request) {
+  protected boolean shouldNotFilter(ServerHttpExchange request) {
     for (String headerName : ForwardedHeaderUtils.FORWARDED_HEADER_NAMES) {
       if (request.containsHeader(headerName)) {
         return false;
@@ -141,28 +141,28 @@ public class ForwardedHeaderFilter implements Filter {
   }
 
   @Override
-  public void doFilter(HttpContext context, FilterChain filterChain) throws Exception {
-    if (shouldNotFilter(context)) {
-      filterChain.doFilter(context);
+  public void doFilter(ServerHttpExchange exchange, FilterChain filterChain) throws Exception {
+    if (shouldNotFilter(exchange)) {
+      filterChain.doFilter(exchange);
     }
     else {
       if (this.removeOnly) {
-        ForwardedHeaderRemovingRequest wrappedRequest = new ForwardedHeaderRemovingRequest(context);
+        ForwardedHeaderRemovingRequest wrappedRequest = new ForwardedHeaderRemovingRequest(exchange);
         filterChain.doFilter(wrappedRequest);
       }
       else {
-        HttpContext wrappedRequest;
+        ServerHttpExchange wrappedRequest;
         try {
-          wrappedRequest = new ForwardedHeaderExtractingContext(context, this.useStandardHeader, this.useForwardedPrefix);
+          wrappedRequest = new ForwardedHeaderExtractingExchangeServer(exchange, this.useStandardHeader, this.useForwardedPrefix);
           if (relativeRedirects) {
             wrappedRequest = RelativeRedirectResponseWrapper.wrapIfNecessary(wrappedRequest, HttpStatus.SEE_OTHER);
           }
         }
         catch (Exception ex) {
           if (logger.isDebugEnabled()) {
-            logger.debug("Failed to apply forwarded headers to {}", formatRequest(context), ex);
+            logger.debug("Failed to apply forwarded headers to {}", formatRequest(exchange), ex);
           }
-          context.sendError(HttpStatus.BAD_REQUEST);
+          exchange.sendError(HttpStatus.BAD_REQUEST);
           return;
         }
         filterChain.doFilter(wrappedRequest);
@@ -176,7 +176,7 @@ public class ForwardedHeaderFilter implements Filter {
    * @param request the request to format
    * @return the String to display, never empty or {@code null}
    */
-  protected String formatRequest(HttpContext request) {
+  protected String formatRequest(ServerHttpExchange request) {
     return "HTTP " + request.getMethod() + " \"" + request.getRequestURI() + "\"";
   }
 
@@ -192,11 +192,11 @@ public class ForwardedHeaderFilter implements Filter {
   /**
    * Hide "Forwarded" or "X-Forwarded-*" headers.
    */
-  private static class ForwardedHeaderRemovingRequest extends DelegatingHttpContext {
+  private static class ForwardedHeaderRemovingRequest extends DelegatingServerHttpExchange {
 
     private final HttpHeaders headers;
 
-    public ForwardedHeaderRemovingRequest(HttpContext delegate) {
+    public ForwardedHeaderRemovingRequest(ServerHttpExchange delegate) {
       super(delegate);
       HttpHeaders headers = HttpHeaders.copyOf(delegate.getHeaders());
       for (String name : ForwardedHeaderUtils.FORWARDED_HEADER_NAMES) {
@@ -246,7 +246,7 @@ public class ForwardedHeaderFilter implements Filter {
   /**
    * Extract and use "Forwarded" or "X-Forwarded-*" headers.
    */
-  private static class ForwardedHeaderExtractingContext extends ForwardedHeaderRemovingRequest {
+  private static class ForwardedHeaderExtractingExchangeServer extends ForwardedHeaderRemovingRequest {
 
     private static final String FOLDER_SEPARATOR = "/";
 
@@ -266,7 +266,7 @@ public class ForwardedHeaderFilter implements Filter {
 
     private @Nullable RequestPath requestPath;
 
-    ForwardedHeaderExtractingContext(HttpContext context, boolean useStandardHeader, boolean useForwardedPrefix) {
+    ForwardedHeaderExtractingExchangeServer(ServerHttpExchange context, boolean useStandardHeader, boolean useForwardedPrefix) {
       super(context);
       var info = getForwardedInfo(useStandardHeader, context.getURI(), context.getHeaders(),
               context.remoteAddress(), context.localAddress() instanceof InetSocketAddress address ? address : null);
@@ -285,7 +285,7 @@ public class ForwardedHeaderFilter implements Filter {
       this.localAddress = info.byAddress();
 
       // Use Supplier as Tomcat updates delegate request on FORWARD
-      Supplier<HttpContext> requestSupplier = this::delegate;
+      Supplier<ServerHttpExchange> requestSupplier = this::delegate;
 
       String baseUrl = (scheme != null ? scheme : context.getScheme()) + "://"
               + (host != null ? host : context.getServerName())
@@ -340,7 +340,7 @@ public class ForwardedHeaderFilter implements Filter {
         return new URI(url);
       }
       catch (URISyntaxException ex) {
-        throw new IllegalStateException("Could not resolve HttpContext as URI: " + url, ex);
+        throw new IllegalStateException("Could not resolve ServerHttpExchange as URI: " + url, ex);
       }
     }
 
@@ -400,7 +400,7 @@ public class ForwardedHeaderFilter implements Filter {
                 StringUtils.applyRelativePath(getRequestURI(), path));
       }
 
-      String result = HttpContextUriComponentsBuilder.fromRequest(this)
+      String result = HttpExchangeUriComponentsBuilder.fromRequest(this)
               .replacePath(path)
               .replaceQuery(uriComponents.getQuery())
               .fragment(uriComponents.getFragment())
@@ -418,7 +418,7 @@ public class ForwardedHeaderFilter implements Filter {
    */
   private static class ForwardedPrefixExtractor {
 
-    private final Supplier<HttpContext> delegate;
+    private final Supplier<ServerHttpExchange> delegate;
 
     private final String baseUrl;
 
@@ -434,12 +434,12 @@ public class ForwardedHeaderFilter implements Filter {
      * Constructor with required information.
      *
      * @param delegate supplier for the current
-     * {@link DelegatingHttpContext#delegate() delegate request} which
+     * {@link DelegatingServerHttpExchange#delegate() delegate request} which
      * may change during a forward (for example, Tomcat.
      * @param baseUrl the host, scheme, and port based on forwarded headers
      * @param useForwardedPrefix whether to use "X-Forwarded-Prefix"
      */
-    public ForwardedPrefixExtractor(Supplier<HttpContext> delegate, String baseUrl, boolean useForwardedPrefix) {
+    public ForwardedPrefixExtractor(Supplier<ServerHttpExchange> delegate, String baseUrl, boolean useForwardedPrefix) {
       this.delegate = delegate;
       this.baseUrl = baseUrl;
       this.actualRequestUri = delegate.get().getRequestURI();
@@ -450,7 +450,7 @@ public class ForwardedHeaderFilter implements Filter {
       this.requestUrl = initRequestUrl();
     }
 
-    private static @Nullable String initForwardedPrefix(HttpContext request) {
+    private static @Nullable String initForwardedPrefix(ServerHttpExchange request) {
       String result = null;
       Collection<String> names = request.getHeaderNames();
       for (String name : names) {

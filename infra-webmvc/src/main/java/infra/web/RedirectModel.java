@@ -59,7 +59,7 @@ import infra.web.util.WebUtils;
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see WebUtils#getOutputRedirectModel
- * @see #findInputModel(HttpContext)
+ * @see #findInputModel(ServerHttpExchange)
  * @since 2.3.3 2018-11-18 16:39
  */
 public class RedirectModel extends ModelMap implements Serializable, Comparable<RedirectModel> {
@@ -71,7 +71,7 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
    * Name of request attribute that holds a RedirectModel with "input"
    * redirect attributes saved by a previous request, if any.
    *
-   * @see #findInputModel(HttpContext)
+   * @see #findInputModel(ServerHttpExchange)
    */
   public static final String INPUT_ATTRIBUTE = Conventions.getQualifiedAttributeName(
           RedirectModel.class, "INPUT");
@@ -80,7 +80,7 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
    * Name of request attribute that holds the "output" {@link RedirectModel} with
    * attributes to save for a subsequent request.
    *
-   * @see WebUtils#getOutputRedirectModel(HttpContext)
+   * @see WebUtils#getOutputRedirectModel(ServerHttpExchange)
    */
   public static final String OUTPUT_ATTRIBUTE = Conventions.getQualifiedAttributeName(
           RedirectModel.class, "OUTPUT");
@@ -279,10 +279,10 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
    *
    * @param request the current request
    * @return the input redirect model, or {@code null} if none is available
-   * @see #findInputModel(HttpContext, RedirectModelManager)
+   * @see #findInputModel(ServerHttpExchange, RedirectModelManager)
    * @since 5.0
    */
-  public static @Nullable RedirectModel findInputModel(HttpContext request) {
+  public static @Nullable RedirectModel findInputModel(ServerHttpExchange request) {
     return findInputModel(request, null);
   }
 
@@ -296,7 +296,7 @@ public class RedirectModel extends ModelMap implements Serializable, Comparable<
    * @return the input redirect model, or {@code null} if none is available
    * @since 5.0
    */
-  public static @Nullable RedirectModel findInputModel(HttpContext request, @Nullable RedirectModelManager manager) {
+  public static @Nullable RedirectModel findInputModel(ServerHttpExchange request, @Nullable RedirectModelManager manager) {
     Object cached = request.getAttribute(INPUT_CACHE_ATTRIBUTE);
     if (cached instanceof RedirectModel model) {
       return model;

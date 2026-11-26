@@ -21,7 +21,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 import infra.web.AbstractRedirectModelManager;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.RedirectModel;
 import infra.web.RedirectModelManager;
 import infra.web.util.WebUtils;
@@ -38,17 +38,17 @@ public class SessionRedirectModelManager extends AbstractRedirectModelManager im
 
   @Override
   @SuppressWarnings("unchecked")
-  protected @Nullable List<RedirectModel> retrieveRedirectModel(HttpContext request) {
+  protected @Nullable List<RedirectModel> retrieveRedirectModel(ServerHttpExchange request) {
     return (List<RedirectModel>) request.getSessionAttribute(SESSION_ATTRIBUTE);
   }
 
   @Override
-  protected void updateRedirectModel(List<RedirectModel> redirectModels, HttpContext request) {
+  protected void updateRedirectModel(List<RedirectModel> redirectModels, ServerHttpExchange request) {
     request.setSessionAttribute(SESSION_ATTRIBUTE, redirectModels.isEmpty() ? null : redirectModels);
   }
 
   @Override
-  protected @Nullable Object getRedirectModelMutex(HttpContext request) {
+  protected @Nullable Object getRedirectModelMutex(ServerHttpExchange request) {
     Session session = request.getSession(false);
     if (session != null) {
       return WebUtils.getSessionMutex(session);

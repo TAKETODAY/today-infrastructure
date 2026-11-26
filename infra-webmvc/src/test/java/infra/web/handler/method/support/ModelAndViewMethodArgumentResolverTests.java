@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import infra.web.BindingContext;
 import infra.web.handler.method.HandlerParameter;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.view.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +35,7 @@ class ModelAndViewMethodArgumentResolverTests {
 
   @Test
   void resolveArgumentReturnsModelAndViewFromContext() throws Throwable {
-    var context = new MockHttpContext();
+    var context = new MockServerHttpExchange();
     BindingContext binding = mock(BindingContext.class);
     ModelAndView modelAndView = new ModelAndView();
 

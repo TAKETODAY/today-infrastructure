@@ -32,7 +32,7 @@ import infra.beans.factory.NoUniqueBeanDefinitionException;
 import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Import;
 import infra.core.MethodParameter;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.MockHandlerParameter;
 import infra.web.annotation.RequestParam;
 import infra.web.config.annotation.EnableWebMvc;
@@ -114,7 +114,7 @@ class ParameterResolvingRegistryTests {
       var parameter = factory.createParameter(optionalParameter());
 
       assertThat(registry.obtainStrategy(parameter)).isSameAs(context.getBean(ParameterResolvingStrategy0.class));
-      assertThat(parameter.resolveArgument(mock(HttpContext.class))).isEqualTo(Optional.of(42));
+      assertThat(parameter.resolveArgument(mock(ServerHttpExchange.class))).isEqualTo(Optional.of(42));
     }
   }
 
@@ -230,7 +230,7 @@ class ParameterResolvingRegistryTests {
 
     @Nullable
     @Override
-    public Object resolveArgument(HttpContext context, HandlerParameter parameter) {
+    public Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) {
       return parameter.is(Optional.class) ? Optional.of(42) : null;
     }
   }

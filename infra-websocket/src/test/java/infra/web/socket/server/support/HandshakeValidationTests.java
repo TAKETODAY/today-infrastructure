@@ -33,7 +33,7 @@ import ch.qos.logback.classic.Logger;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.socket.SubProtocolCapable;
 import infra.web.socket.WebSocketExtension;
 import infra.web.socket.WebSocketHandler;
@@ -58,7 +58,7 @@ class HandshakeValidationTests {
 
   private final WebSocketHandler handler = new WebSocketHandler() { };
 
-  private final HttpContext context = mock(HttpContext.class);
+  private final ServerHttpExchange context = mock(ServerHttpExchange.class);
 
   private final WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
 
@@ -126,7 +126,7 @@ class HandshakeValidationTests {
     given(strategy.getSupportedVersions()).willReturn(new String[] { "13" });
     AbstractHandshakeHandler restrictive = new AbstractHandshakeHandler(strategy) {
       @Override
-      protected boolean isValidOrigin(HttpContext request) {
+      protected boolean isValidOrigin(ServerHttpExchange request) {
         return false;
       }
     };

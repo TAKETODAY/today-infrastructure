@@ -26,7 +26,7 @@ import java.io.OutputStreamWriter;
 import java.util.Map;
 
 import infra.util.StringUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.view.AbstractView;
 
 /**
@@ -52,7 +52,7 @@ import infra.web.view.AbstractView;
 public abstract class AbstractFeedView<T extends WireFeed> extends AbstractView {
 
   @Override
-  protected final void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
+  protected final void renderMergedOutputModel(Map<String, Object> model, ServerHttpExchange http) throws Exception {
     T wireFeed = newFeed();
     buildFeedMetadata(model, wireFeed, http);
     buildFeedEntries(model, wireFeed, http);
@@ -84,7 +84,7 @@ public abstract class AbstractFeedView<T extends WireFeed> extends AbstractView 
    * @param feed the feed being populated
    * @param request in case we need locale etc. Shouldn't look at attributes.
    */
-  protected void buildFeedMetadata(Map<String, Object> model, T feed, HttpContext request) {
+  protected void buildFeedMetadata(Map<String, Object> model, T feed, ServerHttpExchange request) {
   }
 
   /**
@@ -98,7 +98,7 @@ public abstract class AbstractFeedView<T extends WireFeed> extends AbstractView 
    * @param context in case we need locale etc. Shouldn't look at attributes.
    * @throws Exception any exception that occurred during building
    */
-  protected abstract void buildFeedEntries(Map<String, Object> model, T feed, HttpContext context)
+  protected abstract void buildFeedEntries(Map<String, Object> model, T feed, ServerHttpExchange context)
           throws Exception;
 
 }

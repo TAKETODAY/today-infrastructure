@@ -53,13 +53,13 @@ import infra.util.ObjectUtils;
 import infra.util.PathMatcher;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpContextHolder;
 import infra.web.annotation.RequestMapping;
 import infra.web.handler.method.support.CompositeUriComponentsContributor;
 import infra.web.handler.method.support.PathVariableMethodArgumentResolver;
 import infra.web.handler.method.support.RequestParamMethodArgumentResolver;
-import infra.web.util.HttpContextUriComponentsBuilder;
+import infra.web.util.HttpExchangeUriComponentsBuilder;
 import infra.web.util.UriComponentsBuilder;
 
 /**
@@ -522,7 +522,7 @@ public class MvcUriComponentsBuilder {
 
   private static UriComponentsBuilder getBaseUrlToUse(@Nullable UriComponentsBuilder baseUrl) {
     return baseUrl == null ?
-            HttpContextUriComponentsBuilder.fromCurrentRequest() :
+            HttpExchangeUriComponentsBuilder.fromCurrentRequest() :
             baseUrl.cloneBuilder();
   }
 
@@ -630,7 +630,7 @@ public class MvcUriComponentsBuilder {
 
   @Nullable
   private static ApplicationContext getApplicationContext() {
-    HttpContext context = HttpContextHolder.current();
+    ServerHttpExchange context = HttpContextHolder.current();
     if (context == null) {
       return null;
     }
@@ -820,7 +820,7 @@ public class MvcUriComponentsBuilder {
 
     @Deprecated
     private static String getPath() {
-      UriComponentsBuilder builder = HttpContextUriComponentsBuilder.fromCurrentRequest();
+      UriComponentsBuilder builder = HttpExchangeUriComponentsBuilder.fromCurrentRequest();
       String path = builder.build().getPath();
       return path != null ? path : "";
     }

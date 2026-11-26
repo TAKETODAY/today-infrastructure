@@ -27,7 +27,7 @@ import java.util.Set;
 import infra.util.Assert;
 import infra.util.StringUtils;
 import infra.web.HandlerMapping;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.accept.NotAcceptableApiVersionException;
 import infra.web.annotation.RequestMapping;
@@ -98,7 +98,7 @@ public final class VersionRequestCondition extends AbstractRequestCondition<Vers
 
   @Nullable
   @Override
-  public VersionRequestCondition getMatchingCondition(HttpContext request) {
+  public VersionRequestCondition getMatchingCondition(ServerHttpExchange request) {
     if (this.version == null) {
       return this;
     }
@@ -121,7 +121,7 @@ public final class VersionRequestCondition extends AbstractRequestCondition<Vers
   }
 
   @Override
-  public int compareTo(VersionRequestCondition other, HttpContext request) {
+  public int compareTo(VersionRequestCondition other, ServerHttpExchange request) {
     Object otherVersion = other.version;
     if (this.version == null && otherVersion == null) {
       return 0;
@@ -142,7 +142,7 @@ public final class VersionRequestCondition extends AbstractRequestCondition<Vers
    * Perform a final check on the matched request mapping version.
    * <p>In order to ensure baseline versions are properly capped by higher
    * fixed versions, initially we match all versions as baseline versions in
-   * {@link #getMatchingCondition(HttpContext)}. Once the highest of
+   * {@link #getMatchingCondition(ServerHttpExchange)}. Once the highest of
    * potentially multiple matches is selected, we enforce the strict match
    * for fixed versions.
    * <p>For example, given controller methods for "1.2+" and "1.5", and
@@ -153,7 +153,7 @@ public final class VersionRequestCondition extends AbstractRequestCondition<Vers
    * @throws NotAcceptableApiVersionException if the matched condition has a
    * fixed version that is not equal to the request version
    */
-  public void handleMatch(HttpContext request) {
+  public void handleMatch(ServerHttpExchange request) {
     if (this.version != null && !this.baselineVersion) {
       Comparable<?> version = (Comparable<?>) request.getAttribute(HandlerMapping.API_VERSION_ATTRIBUTE);
       if (version != null && !this.version.equals(version)) {

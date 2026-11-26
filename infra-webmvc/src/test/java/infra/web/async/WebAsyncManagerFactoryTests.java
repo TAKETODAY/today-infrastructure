@@ -22,7 +22,7 @@ import java.time.Duration;
 import java.util.List;
 
 import infra.core.task.AsyncTaskExecutor;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -42,7 +42,7 @@ class WebAsyncManagerFactoryTests {
     factory.setCallableInterceptors(List.of(callable));
     factory.setDeferredResultInterceptors(List.of(deferred));
 
-    WebAsyncManager manager = factory.createWebAsyncManager(mock(HttpContext.class));
+    WebAsyncManager manager = factory.createWebAsyncManager(mock(ServerHttpExchange.class));
 
     assertThat(manager.getCallableInterceptor(callable.getClass().getName() + ":" + callable.hashCode()))
             .isSameAs(callable);
@@ -57,7 +57,7 @@ class WebAsyncManagerFactoryTests {
     factory.setCallableInterceptors(null);
     factory.setDeferredResultInterceptors(null);
 
-    assertThat(factory.createWebAsyncManager(mock(HttpContext.class))).isNotNull();
+    assertThat(factory.createWebAsyncManager(mock(ServerHttpExchange.class))).isNotNull();
     assertThatIllegalArgumentException().isThrownBy(() -> factory.setAsyncRequestTimeout(Duration.ofNanos(-1)))
             .withMessageContaining("must not be negative");
     assertThatIllegalArgumentException().isThrownBy(() -> factory.setAsyncRequestTimeout(Duration.ofNanos(1)))

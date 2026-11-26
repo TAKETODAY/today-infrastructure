@@ -30,7 +30,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import infra.context.support.GenericApplicationContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -79,7 +79,7 @@ class DispatcherHandlerLoggingTests {
         return HttpRequestHandler.NONE_RETURN_VALUE;
       });
       dispatcher.start();
-      MockHttpContext request = new MockHttpContext(application);
+      MockServerHttpExchange request = new MockServerHttpExchange(application);
       request.request.setRequestURI("/sample");
       request.request.setQueryString("page=1");
       request.request.addParameter("name", "sample-param");
@@ -108,7 +108,7 @@ class DispatcherHandlerLoggingTests {
       DispatcherHandler dispatcher = new DispatcherHandler(application);
       dispatcher.setHandlerMapping(context -> (HttpRequestHandler) request -> HttpRequestHandler.NONE_RETURN_VALUE);
       dispatcher.start();
-      MockHttpContext request = new MockHttpContext(application) {
+      MockServerHttpExchange request = new MockServerHttpExchange(application) {
         @Override
         public boolean isMultipart() {
           return true;
@@ -132,7 +132,7 @@ class DispatcherHandlerLoggingTests {
       dispatcher.setHandlerMapping(context -> { throw failure; });
       dispatcher.setExceptionHandler((context, exception, handler) -> null);
       dispatcher.start();
-      MockHttpContext request = new MockHttpContext(application);
+      MockServerHttpExchange request = new MockServerHttpExchange(application);
 
       dispatcher.handleRequest(request);
 

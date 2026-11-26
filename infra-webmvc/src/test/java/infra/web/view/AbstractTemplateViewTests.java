@@ -20,8 +20,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +37,7 @@ class AbstractTemplateViewTests {
 
   @Test
   void exposesRequestAndSessionAttributesWithConfiguredOverrides() throws Exception {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     context.setAttribute("requestOnly", "request");
     context.setAttribute("title", "request title");
     context.setAttribute("theme", "request theme");
@@ -60,7 +60,7 @@ class AbstractTemplateViewTests {
 
   @Test
   void rejectsRequestAttributeCollisionByDefault() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     context.setAttribute("title", "request title");
     view.setExposeRequestAttributes(true);
 
@@ -71,7 +71,7 @@ class AbstractTemplateViewTests {
 
   @Test
   void rejectsSessionAttributeCollisionByDefault() {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     MockSession session = new MockSession();
     session.setAttribute("theme", "session theme");
     context.request.setSession(session);
@@ -84,7 +84,7 @@ class AbstractTemplateViewTests {
 
   @Test
   void sessionExposureDoesNotCreateASession() throws Exception {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     view.setExposeSessionAttributes(true);
 
     view.render(Map.of("title", "model title"), context);
@@ -95,7 +95,7 @@ class AbstractTemplateViewTests {
 
   @Test
   void appliesConfiguredContentType() throws Exception {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     view.setContentType("text/html");
 
     view.render(null, context);
@@ -105,7 +105,7 @@ class AbstractTemplateViewTests {
 
   @Test
   void preservesExistingContentType() throws Exception {
-    MockHttpContext context = new MockHttpContext();
+    MockServerHttpExchange context = new MockServerHttpExchange();
     context.setContentType("application/json");
     view.setContentType("text/html");
 
@@ -124,7 +124,7 @@ class AbstractTemplateViewTests {
     }
 
     @Override
-    protected void renderMergedTemplateModel(Map<String, Object> model, HttpContext context) {
+    protected void renderMergedTemplateModel(Map<String, Object> model, ServerHttpExchange context) {
       this.renderedModel = model;
     }
   }

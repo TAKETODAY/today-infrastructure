@@ -26,7 +26,7 @@ import java.util.concurrent.Future;
 
 import infra.logging.Logger;
 import infra.logging.LoggerFactory;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * Assists with the invocation of {@link CallableProcessingInterceptor}'s.
@@ -55,20 +55,20 @@ class CallableInterceptorChain {
     this.taskFuture = taskFuture;
   }
 
-  public void applyBeforeConcurrentHandling(HttpContext request, Callable<?> task) throws Exception {
+  public void applyBeforeConcurrentHandling(ServerHttpExchange request, Callable<?> task) throws Exception {
     for (CallableProcessingInterceptor interceptor : this.interceptors) {
       interceptor.beforeConcurrentHandling(request, task);
     }
   }
 
-  public void applyPreProcess(HttpContext request, Callable<?> task) throws Exception {
+  public void applyPreProcess(ServerHttpExchange request, Callable<?> task) throws Exception {
     for (CallableProcessingInterceptor interceptor : this.interceptors) {
       interceptor.preProcess(request, task);
       this.preProcessIndex++;
     }
   }
 
-  public Object applyPostProcess(HttpContext request, Callable<?> task, Object concurrentResult) {
+  public Object applyPostProcess(ServerHttpExchange request, Callable<?> task, Object concurrentResult) {
     Throwable exceptionResult = null;
     for (int i = this.preProcessIndex; i >= 0; i--) {
       try {
@@ -89,7 +89,7 @@ class CallableInterceptorChain {
     return (exceptionResult != null) ? exceptionResult : concurrentResult;
   }
 
-  public Object triggerAfterTimeout(HttpContext request, Callable<?> task) {
+  public Object triggerAfterTimeout(ServerHttpExchange request, Callable<?> task) {
     cancelTask();
     for (CallableProcessingInterceptor interceptor : this.interceptors) {
       try {
@@ -120,7 +120,7 @@ class CallableInterceptorChain {
     }
   }
 
-  public Object triggerAfterError(HttpContext request, Callable<?> task, Throwable throwable) {
+  public Object triggerAfterError(ServerHttpExchange request, Callable<?> task, Throwable throwable) {
     cancelTask();
     for (CallableProcessingInterceptor interceptor : this.interceptors) {
       try {
@@ -139,7 +139,7 @@ class CallableInterceptorChain {
     return CallableProcessingInterceptor.RESULT_NONE;
   }
 
-  public void triggerAfterCompletion(HttpContext request, Callable<?> task) {
+  public void triggerAfterCompletion(ServerHttpExchange request, Callable<?> task) {
     for (int i = this.interceptors.size() - 1; i >= 0; i--) {
       try {
         this.interceptors.get(i).afterCompletion(request, task);

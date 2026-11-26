@@ -24,7 +24,7 @@ import infra.session.DefaultSessionManager;
 import infra.session.InMemorySessionRepository;
 import infra.session.SecureRandomSessionIdGenerator;
 import infra.session.SessionEventDispatcher;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -61,7 +61,7 @@ class SessionManagerDiscoverTests {
   void obtain() {
     AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
     applicationContext.refresh();
-    MockHttpContext context = new MockHttpContext(applicationContext);
+    MockServerHttpExchange context = new MockServerHttpExchange(applicationContext);
 
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     SessionManagerDiscover discover = new SessionManagerDiscover(beanFactory);

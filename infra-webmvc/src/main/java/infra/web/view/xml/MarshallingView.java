@@ -28,7 +28,7 @@ import javax.xml.transform.stream.StreamResult;
 import infra.util.Assert;
 import infra.oxm.Marshaller;
 import infra.validation.BindingResult;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.view.AbstractView;
 import infra.web.view.View;
 import jakarta.xml.bind.JAXBElement;
@@ -100,7 +100,7 @@ public class MarshallingView extends AbstractView {
   }
 
   @Override
-  protected void renderMergedOutputModel(Map<String, Object> model, HttpContext http) throws Exception {
+  protected void renderMergedOutputModel(Map<String, Object> model, ServerHttpExchange http) throws Exception {
 
     Object toBeMarshalled = locateToBeMarshalled(model);
     if (toBeMarshalled == null) {

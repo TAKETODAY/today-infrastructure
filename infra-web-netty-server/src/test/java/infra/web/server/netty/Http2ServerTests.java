@@ -33,9 +33,9 @@ import java.util.concurrent.Executors;
 
 import infra.context.ApplicationContext;
 import infra.http.MediaType;
+import infra.web.ServerHttpExchange;
 import infra.web.Trailer;
 import infra.web.DispatcherHandler;
-import infra.web.HttpContext;
 import infra.web.server.Http2;
 import infra.web.server.HttpRequestExecutor;
 import infra.web.server.SimpleHttpRequestExecutor;
@@ -451,56 +451,56 @@ class Http2ServerTests {
     }
 
     @Override
-    public void handleRequest(HttpContext context) throws Exception {
-      String path = context.getRequestURI();
+    public void handleRequest(ServerHttpExchange exchange) throws Exception {
+      String path = exchange.getRequestURI();
       if ("/echo".equals(path)) {
-        byte[] body = readAll(context.getInputStream());
-        writeResponse(context, body);
+        byte[] body = readAll(exchange.getInputStream());
+        writeResponse(exchange, body);
       }
       else if ("/large".equals(path)) {
-        writeResponse(context, new byte[256 * 1024]);
+        writeResponse(exchange, new byte[256 * 1024]);
       }
       else if ("/file".equals(path)) {
         long length = Files.size(file);
-        context.setContentType(MediaType.TEXT_PLAIN);
-        context.setContentLength(length);
-        context.asHttpOutputMessage().sendFile(file, 0, length);
+        exchange.setContentType(MediaType.TEXT_PLAIN);
+        exchange.setContentLength(length);
+        exchange.asHttpOutputMessage().sendFile(file, 0, length);
       }
       else if ("/trailers".equals(path)) {
-        context.setTrailerFields(
+        exchange.setTrailerFields(
                 Trailer.field("Content-Digest", () -> "sha-256=:abc:"));
-        writeResponse(context, "hello-trailers".getBytes(StandardCharsets.UTF_8));
+        writeResponse(exchange, "hello-trailers".getBytes(StandardCharsets.UTF_8));
       }
       else if ("/trailers/empty".equals(path)) {
-        context.setTrailerFields(
+        exchange.setTrailerFields(
                 Trailer.field("Content-Digest", () -> null));
-        writeResponse(context, "hello-empty".getBytes(StandardCharsets.UTF_8));
+        writeResponse(exchange, "hello-empty".getBytes(StandardCharsets.UTF_8));
       }
       else if ("/trailers/file".equals(path)) {
         long length = Files.size(file);
-        context.setContentType(MediaType.TEXT_PLAIN);
-        context.setContentLength(length);
-        context.setTrailerFields(
+        exchange.setContentType(MediaType.TEXT_PLAIN);
+        exchange.setContentLength(length);
+        exchange.setTrailerFields(
                 Trailer.field("Content-Digest", () -> "sha-256=:file:"));
-        context.asHttpOutputMessage().sendFile(file, 0, length);
+        exchange.asHttpOutputMessage().sendFile(file, 0, length);
       }
       else if ("/trailers/file/late".equals(path)) {
         long length = Files.size(file);
-        context.setContentType(MediaType.TEXT_PLAIN);
-        context.asHttpOutputMessage().sendFile(file, 0, length);
-        context.setTrailerFields(
+        exchange.setContentType(MediaType.TEXT_PLAIN);
+        exchange.asHttpOutputMessage().sendFile(file, 0, length);
+        exchange.setTrailerFields(
                 Trailer.field("Content-Digest", () -> "sha-256=:late:"));
       }
       else if ("/error".equals(path)) {
         throw new IllegalStateException("boom");
       }
       else {
-        writeResponse(context, "hello".getBytes(StandardCharsets.UTF_8));
+        writeResponse(exchange, "hello".getBytes(StandardCharsets.UTF_8));
       }
-      completeRequest(context, null);
+      completeRequest(exchange, null);
     }
 
-    private static void writeResponse(HttpContext context, byte[] body) throws Exception {
+    private static void writeResponse(ServerHttpExchange context, byte[] body) throws Exception {
       context.setContentType(MediaType.TEXT_PLAIN);
       context.setContentLength(body.length);
       context.getOutputStream().write(body);

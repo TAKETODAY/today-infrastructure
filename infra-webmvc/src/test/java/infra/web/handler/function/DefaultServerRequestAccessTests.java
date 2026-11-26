@@ -31,7 +31,7 @@ import infra.http.converter.GenericHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.server.RequestPath;
 import infra.util.LinkedMultiValueMap;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpMediaTypeNotSupportedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +41,7 @@ import static org.mockito.Mockito.mock;
 
 class DefaultServerRequestAccessTests {
 
-  private final HttpContext context = mock(HttpContext.class);
+  private final ServerHttpExchange context = mock(ServerHttpExchange.class);
 
   private final HttpHeaders headers = HttpHeaders.forWritable();
 

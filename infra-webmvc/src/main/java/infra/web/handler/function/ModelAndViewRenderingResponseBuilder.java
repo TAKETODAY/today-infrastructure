@@ -32,7 +32,7 @@ import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.util.LinkedMultiValueMap;
 import infra.util.MultiValueMap;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.view.ModelAndView;
 
 /**
@@ -149,7 +149,7 @@ final class ModelAndViewRenderingResponseBuilder implements RenderingResponse.Vi
     }
 
     @Override
-    protected Object writeToInternal(HttpContext request, Context context) {
+    protected Object writeToInternal(ServerHttpExchange request, Context context) {
       if (modelAndView.getStatus() == null) {
         modelAndView.setStatus(statusCode());
       }

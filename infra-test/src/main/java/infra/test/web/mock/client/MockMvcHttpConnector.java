@@ -59,7 +59,7 @@ import infra.test.web.reactive.server.MockServerClientHttpResponse;
 import infra.util.ObjectUtils;
 import infra.util.StringUtils;
 import infra.web.HandlerInterceptor;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.RedirectModel;
 import infra.web.mock.MockMemoryPart;
 import infra.web.mock.MockRequest;
@@ -259,7 +259,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
     }
 
     @Override
-    public HttpContext getContext() {
+    public ServerHttpExchange getContext() {
       return mvcResult.getContext();
     }
 

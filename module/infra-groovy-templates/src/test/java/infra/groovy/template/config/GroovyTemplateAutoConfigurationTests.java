@@ -45,7 +45,7 @@ import infra.test.stdio.CapturedOutput;
 import infra.test.stdio.OutputCaptureExtension;
 import infra.test.util.TestPropertyValues;
 import infra.web.context.StandardWebEnvironment;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.view.View;
@@ -133,7 +133,7 @@ class GroovyTemplateAutoConfigurationTests {
     assertThat(view).isNotNull();
 
     var response = new MockResponse();
-    var http = new MockHttpContext(new MockRequest(), response);
+    var http = new MockServerHttpExchange(new MockRequest(), response);
     http.setAttribute("requestValue", "from request");
     http.getSession().setAttribute("sessionValue", "from session");
     view.render(Map.of("requestValue", "from model", "sessionValue", "from model", "messages", "custom messages"), http);
@@ -353,7 +353,7 @@ class GroovyTemplateAutoConfigurationTests {
 
     MockRequest request = new MockRequest();
     MockResponse response = new MockResponse();
-    view.render(null, new MockHttpContext(request, response));
+    view.render(null, new MockServerHttpExchange(request, response));
     return response;
   }
 

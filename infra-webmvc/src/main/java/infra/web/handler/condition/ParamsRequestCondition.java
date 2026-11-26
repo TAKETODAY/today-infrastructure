@@ -27,7 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import infra.util.ObjectUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.annotation.RequestMapping;
 
 /**
@@ -109,7 +109,7 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
    */
   @Override
   @Nullable
-  public ParamsRequestCondition getMatchingCondition(HttpContext request) {
+  public ParamsRequestCondition getMatchingCondition(ServerHttpExchange request) {
     for (ParamExpression expression : this.expressions) {
       if (!expression.match(request)) {
         return null;
@@ -126,11 +126,11 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
    * <li>A greater number of non-negated expressions with a concrete value.
    * </ol>
    * <p>It is assumed that both instances have been obtained via
-   * {@link #getMatchingCondition(HttpContext)} and each instance
+   * {@link #getMatchingCondition(ServerHttpExchange)} and each instance
    * contains the matching parameter expressions only or is otherwise empty.
    */
   @Override
-  public int compareTo(ParamsRequestCondition other, HttpContext request) {
+  public int compareTo(ParamsRequestCondition other, ServerHttpExchange request) {
     int result = other.expressions.size() - this.expressions.size();
     if (result != 0) {
       return result;
@@ -171,7 +171,7 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
     }
 
     @Override
-    protected boolean matchName(HttpContext request) {
+    protected boolean matchName(ServerHttpExchange request) {
       var parameters = request.getParameters();
       for (String current : namesToMatch) {
         if (parameters.get(current) != null) {
@@ -182,7 +182,7 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
     }
 
     @Override
-    protected boolean matchValue(HttpContext request) {
+    protected boolean matchValue(ServerHttpExchange request) {
       return ObjectUtils.nullSafeEquals(this.value, request.getParameter(this.name));
     }
   }

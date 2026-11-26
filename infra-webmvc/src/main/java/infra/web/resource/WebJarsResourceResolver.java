@@ -24,7 +24,7 @@ import org.webjars.WebJarAssetLocator;
 import java.util.List;
 
 import infra.core.io.Resource;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * A {@code ResourceResolver} that delegates to the chain to locate a resource and then
@@ -69,7 +69,7 @@ public class WebJarsResourceResolver extends AbstractResourceResolver {
 
   @Nullable
   @Override
-  protected Resource resolveResourceInternal(@Nullable HttpContext request,
+  protected Resource resolveResourceInternal(@Nullable ServerHttpExchange request,
           String requestPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     Resource resolved = chain.resolveResource(request, requestPath, locations);

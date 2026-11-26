@@ -26,14 +26,14 @@ import infra.core.Ordered;
 import infra.core.ParameterNameDiscoverer;
 import infra.stereotype.Controller;
 import infra.web.BindingContext;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.annotation.ControllerAdvice;
 import infra.web.annotation.RequestMapping;
 import infra.web.bind.WebDataBinder;
 import infra.web.bind.annotation.InitBinder;
 import infra.web.bind.annotation.ModelAttribute;
 import infra.web.handler.CompositeHandlerExceptionHandler;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.testfixture.ReflectionTestUtils;
@@ -143,7 +143,7 @@ class ControllerMethodResolverTests {
       }
 
       @Override
-      public Object resolveArgument(HttpContext request, HandlerParameter parameter) {
+      public Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) {
         return name;
       }
     });
@@ -217,7 +217,7 @@ class ControllerMethodResolverTests {
         }
 
         @Override
-        public Object resolveArgument(HttpContext request, HandlerParameter parameter) {
+        public Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) {
           return "custom value";
         }
       });
@@ -250,7 +250,7 @@ class ControllerMethodResolverTests {
         }
 
         @Override
-        public Object resolveArgument(HttpContext request, HandlerParameter parameter) {
+        public Object resolveArgument(ServerHttpExchange exchange, HandlerParameter parameter) {
           return parameter.getParameterType() == String.class ? "text" : 42;
         }
       });
@@ -265,8 +265,8 @@ class ControllerMethodResolverTests {
       customMapping.registerMapping(text, new TextController(), inherited);
       customMapping.registerMapping(number, new NumberController(), inherited);
 
-      var textRequest = new MockHttpContext(null, new MockRequest("GET", "/text"), new MockResponse());
-      var numberRequest = new MockHttpContext(null, new MockRequest("GET", "/number"), new MockResponse());
+      var textRequest = new MockServerHttpExchange(null, new MockRequest("GET", "/text"), new MockResponse());
+      var numberRequest = new MockServerHttpExchange(null, new MockRequest("GET", "/number"), new MockResponse());
       assertThat(adapter.handle(textRequest, customMapping.getHandlerInternal(textRequest))).isEqualTo("text");
       assertThat(adapter.handle(numberRequest, customMapping.getHandlerInternal(numberRequest))).isEqualTo(42);
     }
@@ -362,8 +362,8 @@ class ControllerMethodResolverTests {
     }
   }
 
-  private static MockHttpContext metadataRequest() {
-    return new MockHttpContext(null, new MockRequest("GET", "/metadata"), new MockResponse());
+  private static MockServerHttpExchange metadataRequest() {
+    return new MockServerHttpExchange(null, new MockRequest("GET", "/metadata"), new MockResponse());
   }
 
   private InvocableHandlerMethod handler(TestController controller) throws Exception {

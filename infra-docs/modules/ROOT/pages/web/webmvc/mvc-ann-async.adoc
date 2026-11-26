@@ -30,7 +30,7 @@ public class MyHttpRequestHandler implements HttpRequestHandler {
 
   @Nullable
   @Override
-  public DeferredResult<String> handleRequest(HttpContext request) throws Throwable {
+  public DeferredResult<String> handleRequest(ServerHttpExchange exchange) throws Throwable {
     DeferredResult<String> deferredResult = new DeferredResult<>();
     // 其他地方引用 deferredResult 变量.
     return deferredResult;
@@ -63,8 +63,8 @@ public class MyHttpRequestHandler implements HttpRequestHandler {
 
   @Nullable
   @Override
-  public Callable<String> handleRequest(HttpContext request) throws Throwable {
-    Part file = request.asMultipartRequest().getPart("file");
+  public Callable<String> handleRequest(ServerHttpExchange exchange) throws Throwable {
+    Part file = exchange.asMultipartRequest().getPart("file");
     // ...
     return () -> "someView";
   }
@@ -148,7 +148,7 @@ public class MyHttpRequestHandler implements HttpRequestHandler {
 
   @Nullable
   @Override
-  public ResponseBodyEmitter handleRequest(HttpContext request) throws Throwable {
+  public ResponseBodyEmitter handleRequest(ServerHttpExchange exchange) throws Throwable {
     ResponseBodyEmitter emitter = ResponseBodyEmitter.forChunkedTransferEncoding();
     // 其他地方引用 emitter 变量.
     return emitter;
@@ -194,7 +194,7 @@ public class MyHttpRequestHandler implements HttpRequestHandler {
 
   @Nullable
   @Override
-  public SseEmitter handleRequest(HttpContext request) throws Throwable {
+  public SseEmitter handleRequest(ServerHttpExchange exchange) throws Throwable {
     SseEmitter emitter = ResponseBodyEmitter.forServerSentEvents();
     // 其他地方引用 emitter 变量.
     return emitter;

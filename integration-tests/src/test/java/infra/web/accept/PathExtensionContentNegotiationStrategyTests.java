@@ -24,8 +24,8 @@ import java.util.Map;
 
 import infra.core.io.ClassPathResource;
 import infra.http.MediaType;
-import infra.web.HttpContext;
-import infra.web.mock.MockHttpContext;
+import infra.web.ServerHttpExchange;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.HttpMediaTypeNotAcceptableException;
 
@@ -41,7 +41,7 @@ class PathExtensionContentNegotiationStrategyTests {
 
   private final MockRequest mockRequest = new MockRequest();
 
-  private final HttpContext webRequest = new MockHttpContext(null, mockRequest, null);
+  private final ServerHttpExchange webRequest = new MockServerHttpExchange(null, mockRequest, null);
 
   private PathExtensionContentNegotiationStrategy strategy = new PathExtensionContentNegotiationStrategy();
 

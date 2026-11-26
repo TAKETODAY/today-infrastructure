@@ -24,13 +24,13 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 
 import infra.core.MethodParameter;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.filter.ForwardedHeaderFilter;
 import infra.web.handler.method.support.UriComponentsBuilderParameterStrategy;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.util.HttpContextUriComponentsBuilder;
+import infra.web.util.HttpExchangeUriComponentsBuilder;
 import infra.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +42,7 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
 
   private UriComponentsBuilderParameterStrategy resolver;
 
-  private HttpContext webRequest;
+  private ServerHttpExchange webRequest;
 
   private MockRequest mockRequest;
 
@@ -54,11 +54,11 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
   public void setup() throws Exception {
     this.resolver = new UriComponentsBuilderParameterStrategy();
     this.mockRequest = new MockRequest();
-    this.webRequest = new MockHttpContext(
+    this.webRequest = new MockServerHttpExchange(
             null, this.mockRequest, new MockResponse());
 
     Method method = this.getClass().getDeclaredMethod(
-            "handle", UriComponentsBuilder.class, HttpContextUriComponentsBuilder.class, int.class);
+            "handle", UriComponentsBuilder.class, HttpExchangeUriComponentsBuilder.class, int.class);
     this.builderParam = new HandlerParameter(new MethodParameter(method, 0));
     this.mockBuilderParam = new HandlerParameter(new MethodParameter(method, 1));
     this.intParam = new HandlerParameter(new MethodParameter(method, 2));
@@ -76,11 +76,11 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
     Object actual = this.resolver.resolveArgument(webRequest, builderParam);
 
     assertThat(actual).isNotNull();
-    assertThat(actual.getClass()).isEqualTo(HttpContextUriComponentsBuilder.class);
+    assertThat(actual.getClass()).isEqualTo(HttpExchangeUriComponentsBuilder.class);
     assertThat(((UriComponentsBuilder) actual).build().toUriString()).isEqualTo("http://localhost");
   }
 
-  void handle(UriComponentsBuilder builder, HttpContextUriComponentsBuilder contextBuilder, int value) {
+  void handle(UriComponentsBuilder builder, HttpExchangeUriComponentsBuilder contextBuilder, int value) {
   }
 
   @Test
@@ -90,7 +90,7 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
     this.mockRequest.setRequestURI("/items/a%2Fb.json");
     this.mockRequest.setQueryString("q=a%2Bb");
 
-    HttpContextUriComponentsBuilder builder = this.resolver.resolveArgument(this.webRequest, this.mockBuilderParam);
+    HttpExchangeUriComponentsBuilder builder = this.resolver.resolveArgument(this.webRequest, this.mockBuilderParam);
 
     assertThat(builder.build().toUriString()).isEqualTo("https://localhost/items/a%2Fb.json?q=a%2Bb");
     assertThat(builder.removePathExtension()).isEqualTo("json");

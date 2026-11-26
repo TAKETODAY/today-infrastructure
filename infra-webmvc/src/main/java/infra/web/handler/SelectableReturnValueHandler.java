@@ -23,7 +23,7 @@ import java.util.List;
 import infra.core.ArraySizeTrimmer;
 import infra.util.Assert;
 import infra.util.CollectionUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.ReturnValueHandler;
 
 /**
@@ -31,7 +31,7 @@ import infra.web.ReturnValueHandler;
  * in list order.
  *
  * <p>Use {@link #selectHandler(Object, Object)} to find a match without
- * invoking it, or {@link #handleSelectively(HttpContext, Object, Object)}
+ * invoking it, or {@link #handleSelectively(ServerHttpExchange, Object, Object)}
  * to delegate and find out which handler processed the result.
  *
  * @author TODAY 2021/9/3 23:09
@@ -89,17 +89,17 @@ public class SelectableReturnValueHandler implements ReturnValueHandler, ArraySi
   /**
    * Delegate processing to the first matching handler.
    *
-   * @param context the current HTTP request and response context
+   * @param exchange the current HTTP request and response context
    * @param handler the request handler, which may be {@code null}
    * @param returnValue the result to process; may be {@code null} or {@link #NONE_RETURN_VALUE}
    * @throws ReturnValueHandlerNotFoundException if no handler matches or the
    * selected handler is this instance
    * @throws Exception if the selected handler fails to process the return value
-   * @see #handleSelectively(HttpContext, Object, Object)
+   * @see #handleSelectively(ServerHttpExchange, Object, Object)
    */
   @Override
-  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
-    if (handleSelectively(context, handler, returnValue) == null) {
+  public void handleReturnValue(ServerHttpExchange exchange, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+    if (handleSelectively(exchange, handler, returnValue) == null) {
       throw new ReturnValueHandlerNotFoundException(returnValue, handler);
     }
   }
@@ -118,7 +118,7 @@ public class SelectableReturnValueHandler implements ReturnValueHandler, ArraySi
    */
   @Nullable
   public final ReturnValueHandler handleSelectively(
-          HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+          ServerHttpExchange context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     ReturnValueHandler selected = selectHandler(handler, returnValue);
     if (selected != null && selected != this) {
       selected.handleReturnValue(context, handler, returnValue);

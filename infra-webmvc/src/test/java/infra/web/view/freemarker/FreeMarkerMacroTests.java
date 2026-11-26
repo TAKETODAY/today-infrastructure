@@ -38,9 +38,10 @@ import infra.context.support.StaticMessageSource;
 import infra.core.io.ClassPathResource;
 import infra.util.FileCopyUtils;
 import infra.util.StringUtils;
-import infra.web.HttpContext;
+import infra.web.AbstractDelegatingServerHttpExchange;
+import infra.web.ServerHttpExchange;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.view.BindStatus;
@@ -67,7 +68,7 @@ class FreeMarkerMacroTests {
 
   private final MockResponse response = new MockResponse();
 
-  private final MockHttpContext context = new MockHttpContext(wac, request, response);
+  private final MockServerHttpExchange context = new MockServerHttpExchange(wac, request, response);
 
   private final FreeMarkerConfigurer fc = new FreeMarkerConfigurer();
 
@@ -96,9 +97,9 @@ class FreeMarkerMacroTests {
     FreeMarkerView fv = new FreeMarkerView() {
 
       @Override
-      protected void processTemplate(Template template, SimpleHash fmModel, HttpContext response) throws IOException, TemplateException {
+      protected void processTemplate(Template template, SimpleHash fmModel, ServerHttpExchange response) throws IOException, TemplateException {
         Map model = fmModel.toMap();
-        assertThat(model.get(DEFAULT_HTTP_CONTEXT_ATTRIBUTE)).isInstanceOf(HttpContext.class);
+        assertThat(model.get(DEFAULT_HTTP_CONTEXT_ATTRIBUTE)).isInstanceOf(ServerHttpExchange.class);
         BindingAccessor bindings = (BindingAccessor) model.get(BINDINGS_ATTRIBUTE);
         BindStatus status = bindings.getBindStatus("tb.name");
         assertThat(status.getExpression()).isEqualTo("name");
@@ -107,7 +108,7 @@ class FreeMarkerMacroTests {
     };
     fv.setUrl(TEMPLATE_FILE);
     fv.setApplicationContext(wac);
-    fv.setHttpContextAttribute(DEFAULT_HTTP_CONTEXT_ATTRIBUTE);
+    fv.setExchangeAttribute(DEFAULT_HTTP_CONTEXT_ATTRIBUTE);
 
     Map<String, Object> model = new HashMap<>();
     model.put("tb", new TestBean("juergen", 99));
@@ -298,7 +299,7 @@ class FreeMarkerMacroTests {
     storeTemplateInTempDir("${messages!'absent'}");
     FreeMarkerView view = new FreeMarkerView() {
       @Override
-      protected infra.context.support.MessageSourceAccessor createMessageSourceAccessor(HttpContext context, Locale locale) {
+      protected infra.context.support.MessageSourceAccessor createMessageSourceAccessor(ServerHttpExchange context, Locale locale) {
         throw new AssertionError("Message accessor must not be created");
       }
     };
@@ -322,7 +323,7 @@ class FreeMarkerMacroTests {
     MockRequest secondRequest = new MockRequest();
     secondRequest.addPreferredLocale(Locale.GERMANY);
     MockResponse secondResponse = new MockResponse();
-    MockHttpContext secondContext = new MockHttpContext(wac, secondRequest, secondResponse);
+    MockServerHttpExchange secondContext = new MockServerHttpExchange(wac, secondRequest, secondResponse);
     view.render(Map.of(), secondContext);
     assertThat(secondResponse.getContentAsString()).isEqualTo("Hallo");
     assertThat(secondContext.getAttribute("messages")).isNull();
@@ -332,9 +333,9 @@ class FreeMarkerMacroTests {
   void decoratedContextRetainsCustomMessageSourceAndLocaleResolver() throws Exception {
     StaticMessageSource source = new StaticMessageSource();
     source.addMessage("hello", Locale.GERMANY, "Custom Hallo");
-    HttpContext custom = new infra.web.AbstractDelegatingHttpContext() {
+    ServerHttpExchange custom = new AbstractDelegatingServerHttpExchange() {
       @Override
-      public HttpContext delegate() {
+      public ServerHttpExchange delegate() {
         return context;
       }
 
@@ -343,9 +344,9 @@ class FreeMarkerMacroTests {
         return source;
       }
     };
-    HttpContext decorated = new infra.web.AbstractDelegatingHttpContext() {
+    ServerHttpExchange decorated = new AbstractDelegatingServerHttpExchange() {
       @Override
-      public HttpContext delegate() {
+      public ServerHttpExchange delegate() {
         return custom;
       }
     };

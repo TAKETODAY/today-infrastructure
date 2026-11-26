@@ -27,7 +27,7 @@ import infra.web.ReturnValueHandler;
 import infra.web.handler.function.RouterFunctions;
 import infra.web.handler.function.ServerRequest;
 import infra.web.handler.function.ServerResponse;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 
@@ -47,7 +47,7 @@ class ServerResponseReturnValueHandlerTests {
 
   private final List<HttpMessageConverter<?>> messageConverters = List.of(new StringHttpMessageConverter());
 
-  private MockHttpContext httpContext;
+  private MockServerHttpExchange httpContext;
 
   private ServerRequest serverRequest;
 
@@ -57,7 +57,7 @@ class ServerResponseReturnValueHandlerTests {
 
   @BeforeEach
   void setUp() {
-    this.httpContext = new MockHttpContext(new MockRequest(), new MockResponse());
+    this.httpContext = new MockServerHttpExchange(new MockRequest(), new MockResponse());
     this.serverRequest = ServerRequest.create(this.httpContext, this.messageConverters);
     this.httpContext.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE, this.serverRequest);
 

@@ -26,7 +26,7 @@ import infra.core.annotation.SynthesizingMethodParameter;
 import infra.web.annotation.CookieValue;
 import infra.web.bind.RequestBindingException;
 import infra.web.handler.method.support.CookieParameterResolver;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.mock.api.Cookie;
@@ -46,7 +46,7 @@ class CookieMethodArgumentResolversTests {
 
   private HandlerParameter paramString;
 
-  private MockHttpContext webRequest;
+  private MockServerHttpExchange webRequest;
 
   private MockRequest request;
 
@@ -66,7 +66,7 @@ class CookieMethodArgumentResolversTests {
     paramString = new HandlerParameter(new SynthesizingMethodParameter(method, 2));
 
     request = new MockRequest();
-    webRequest = new MockHttpContext(null, request, new MockResponse());
+    webRequest = new MockServerHttpExchange(null, request, new MockResponse());
   }
 
   @Test

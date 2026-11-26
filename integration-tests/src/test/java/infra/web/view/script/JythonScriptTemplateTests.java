@@ -30,7 +30,7 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.context.annotation.Bean;
 import infra.context.annotation.Configuration;
 import infra.web.mock.MockRequest;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,7 +63,7 @@ public class JythonScriptTemplateTests {
     ScriptTemplateView view = createViewWithUrl(viewUrl);
     MockResponse response = new MockResponse();
     MockRequest request = new MockRequest();
-    view.renderMergedOutputModel(model, new MockHttpContext(webAppContext, request, response));
+    view.renderMergedOutputModel(model, new MockServerHttpExchange(webAppContext, request, response));
     return response;
   }
 

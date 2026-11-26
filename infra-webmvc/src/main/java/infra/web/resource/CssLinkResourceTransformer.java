@@ -28,7 +28,7 @@ import infra.core.io.Resource;
 import infra.lang.Constant;
 import infra.util.StreamUtils;
 import infra.util.StringUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * A {@link ResourceTransformer} implementation that modifies links in a CSS
@@ -51,7 +51,7 @@ public class CssLinkResourceTransformer extends ResourceTransformerSupport {
   private static final Charset DEFAULT_CHARSET = Constant.DEFAULT_CHARSET;
 
   @Override
-  public Resource transform(HttpContext context, Resource resource, ResourceTransformerChain transformerChain)
+  public Resource transform(ServerHttpExchange context, Resource resource, ResourceTransformerChain transformerChain)
           throws IOException {
 
     resource = transformerChain.transform(context, resource);
@@ -79,7 +79,7 @@ public class CssLinkResourceTransformer extends ResourceTransformerSupport {
     return new TransformedResource(resource, output.toByteArray());
   }
 
-  private void writeTokens(List<CssLinkParser.Token> tokens, HttpContext context, Resource resource,
+  private void writeTokens(List<CssLinkParser.Token> tokens, ServerHttpExchange context, Resource resource,
           ResourceTransformerChain transformerChain, ByteArrayOutputStream output) {
 
     for (CssLinkParser.Token token : tokens) {
@@ -88,7 +88,7 @@ public class CssLinkResourceTransformer extends ResourceTransformerSupport {
     }
   }
 
-  private byte[] resolveLink(byte[] linkBytes, HttpContext context, Resource resource,
+  private byte[] resolveLink(byte[] linkBytes, ServerHttpExchange context, Resource resource,
           ResourceTransformerChain transformerChain) {
 
     String link = new String(linkBytes, DEFAULT_CHARSET);

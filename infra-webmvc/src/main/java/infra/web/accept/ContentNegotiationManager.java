@@ -33,7 +33,7 @@ import java.util.function.Function;
 import infra.http.MediaType;
 import infra.util.Assert;
 import infra.util.CollectionUtils;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpMediaTypeNotAcceptableException;
 
 /**
@@ -125,7 +125,7 @@ public class ContentNegotiationManager implements ContentNegotiationStrategy, Me
   }
 
   @Override
-  public List<MediaType> resolveMediaTypes(HttpContext request) throws HttpMediaTypeNotAcceptableException {
+  public List<MediaType> resolveMediaTypes(ServerHttpExchange request) throws HttpMediaTypeNotAcceptableException {
     for (ContentNegotiationStrategy strategy : this.strategies) {
       List<MediaType> mediaTypes = strategy.resolveMediaTypes(request);
       if (mediaTypes.equals(MEDIA_TYPE_ALL_LIST)) {

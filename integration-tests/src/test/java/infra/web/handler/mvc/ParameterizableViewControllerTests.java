@@ -28,12 +28,12 @@ import infra.context.annotation.AnnotationConfigApplicationContext;
 import infra.http.HttpMethod;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.HttpRequestHandler;
 import infra.web.RedirectModel;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.view.ModelAndView;
 import infra.web.view.RedirectView;
 import infra.web.view.View;
@@ -52,7 +52,7 @@ class ParameterizableViewControllerTests {
 
   private MockRequest request;
 
-  private HttpContext context;
+  private ServerHttpExchange context;
 
   private final MockResponse response = new MockResponse();
 
@@ -62,7 +62,7 @@ class ParameterizableViewControllerTests {
     this.request = new MockRequest("GET", "/");
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.refresh();
-    this.context = new MockHttpContext(context, request, response);
+    this.context = new MockServerHttpExchange(context, request, response);
   }
 
   @Test
@@ -209,7 +209,7 @@ class ParameterizableViewControllerTests {
       }
 
       @Override
-      public void render(Map m, HttpContext context) {
+      public void render(Map m, ServerHttpExchange context) {
         // noop
       }
     };
@@ -309,7 +309,7 @@ class ParameterizableViewControllerTests {
   void handleRequestInternalWithContentType() throws Throwable {
     ParameterizableViewController controller = new ParameterizableViewController();
     controller.setContentType("text/plain");
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
 
     controller.handleRequestInternal(context);
 
@@ -320,7 +320,7 @@ class ParameterizableViewControllerTests {
   void handleRequestInternalWith3xxStatusCode() throws Throwable {
     ParameterizableViewController controller = new ParameterizableViewController();
     controller.setStatusCode(HttpStatus.PERMANENT_REDIRECT);
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
 
     controller.handleRequestInternal(context);
 
@@ -331,7 +331,7 @@ class ParameterizableViewControllerTests {
   void handleRequestInternalWith204StatusCodeAndNoView() throws Throwable {
     ParameterizableViewController controller = new ParameterizableViewController();
     controller.setStatusCode(HttpStatus.NO_CONTENT);
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
 
     Object result = controller.handleRequestInternal(context);
 
@@ -344,7 +344,7 @@ class ParameterizableViewControllerTests {
     ParameterizableViewController controller = new ParameterizableViewController();
     controller.setStatusCode(HttpStatus.NOT_FOUND);
     controller.setStatusOnly(true);
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
 
     Object result = controller.handleRequestInternal(context);
 
@@ -357,7 +357,7 @@ class ParameterizableViewControllerTests {
     ParameterizableViewController controller = new ParameterizableViewController();
     Supplier<String> supplier = () -> "suppliedValue";
     controller.setReturnValue(supplier);
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
 
     Object result = controller.handleRequestInternal(context);
 
@@ -370,7 +370,7 @@ class ParameterizableViewControllerTests {
     Object handlerResult = new Object();
     HttpRequestHandler handler = request -> handlerResult;
     controller.setReturnValue(handler);
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
 
     Object result = controller.handleRequestInternal(context);
 
@@ -382,7 +382,7 @@ class ParameterizableViewControllerTests {
     ParameterizableViewController controller = new ParameterizableViewController();
     String returnValue = "plainValue";
     controller.setReturnValue(returnValue);
-    HttpContext context = mock(HttpContext.class);
+    ServerHttpExchange context = mock(ServerHttpExchange.class);
 
     Object result = controller.handleRequestInternal(context);
 
@@ -399,7 +399,7 @@ class ParameterizableViewControllerTests {
     MockRequest request = new MockRequest("GET", "/");
     MockResponse response = new MockResponse();
     request.setAttribute(RedirectModel.INPUT_ATTRIBUTE, new RedirectModel("notice", "Saved"));
-    HttpContext context = new MockHttpContext(appContext, request, response);
+    ServerHttpExchange context = new MockServerHttpExchange(appContext, request, response);
 
     Object result = controller.handleRequestInternal(context);
 

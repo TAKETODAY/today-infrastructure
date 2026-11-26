@@ -31,7 +31,7 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockCookie;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.view.PathPatternsTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,7 +53,7 @@ class DefaultServerRequestBuilderTests {
     request.setRemoteHost("127.0.0.1");
     request.setRemotePort(80);
 
-    MockHttpContext context = new MockHttpContext(null, request, null);
+    MockServerHttpExchange context = new MockServerHttpExchange(null, request, null);
     context.setAttribute("foo", "bar");
 
     ServerRequest other = ServerRequest.create(context, messageConverters);

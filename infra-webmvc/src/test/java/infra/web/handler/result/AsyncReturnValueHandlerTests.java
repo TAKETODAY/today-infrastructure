@@ -26,7 +26,7 @@ import java.util.concurrent.CompletionException;
 import infra.beans.factory.BeanFactory;
 import infra.core.task.AsyncTaskExecutor;
 import infra.http.ResponseEntity;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.async.DeferredResult;
 import infra.web.async.WebAsyncManager;
 import infra.web.async.WebAsyncTask;
@@ -44,7 +44,7 @@ import static org.mockito.Mockito.times;
 
 class AsyncReturnValueHandlerTests {
 
-  private final HttpContext context = mock(HttpContext.class);
+  private final ServerHttpExchange context = mock(ServerHttpExchange.class);
 
   private final WebAsyncManager manager = mock(WebAsyncManager.class);
 

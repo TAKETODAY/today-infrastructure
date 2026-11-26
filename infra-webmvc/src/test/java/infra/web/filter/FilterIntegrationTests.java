@@ -31,11 +31,11 @@ import infra.web.Filter;
 import infra.web.FilterChain;
 import infra.web.HandlerAdapter;
 import infra.web.HandlerMapping;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.HttpRequestHandler;
 import infra.web.RequestCompletedListener;
 import infra.web.handler.ReturnValueHandlerManager;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockAsyncContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,7 +75,7 @@ class FilterIntegrationTests {
     handler.setHandlerAdapter(mockHandlerAdapter());
     handler.start();
 
-    MockHttpContext request = new MockHttpContext();
+    MockServerHttpExchange request = new MockServerHttpExchange();
     handler.handleRequest(request);
 
     assertThat(request.getAttribute("filterCalled")).isEqualTo(Boolean.TRUE);
@@ -101,7 +101,7 @@ class FilterIntegrationTests {
     handler.setHandlerAdapter(mockHandlerAdapter());
     handler.start();
 
-    MockHttpContext request = new MockHttpContext();
+    MockServerHttpExchange request = new MockServerHttpExchange();
     handler.handleRequest(request);
 
     assertThat(order.toString()).isEqualTo("AB");
@@ -125,7 +125,7 @@ class FilterIntegrationTests {
       handler.start();
 
       for (int i = 0; i < 2; i++) {
-        MockHttpContext request = new MockHttpContext();
+        MockServerHttpExchange request = new MockServerHttpExchange();
         handler.handleRequest(request);
         assertThat(request.getAttribute("filterCalled")).isEqualTo(Boolean.TRUE);
         assertThat(request.getAttribute("handlerInvoked")).isEqualTo(Boolean.TRUE);
@@ -165,7 +165,7 @@ class FilterIntegrationTests {
       handler.setHandlerAdapter(mockHandlerAdapter());
       handler.start();
 
-      handler.handleRequest(new MockHttpContext());
+      handler.handleRequest(new MockServerHttpExchange());
 
       assertThat(order.toString()).isEqualTo("ABHbBHb");
       assertThat(completions).hasValue(1);
@@ -187,7 +187,7 @@ class FilterIntegrationTests {
     handler.setHandlerAdapter(mockHandlerAdapter());
     handler.start();
 
-    MockHttpContext request = new MockHttpContext();
+    MockServerHttpExchange request = new MockServerHttpExchange();
     handler.handleRequest(request);
 
     assertThat(request.getAttribute("filterCalled")).isEqualTo(Boolean.TRUE);
@@ -211,7 +211,7 @@ class FilterIntegrationTests {
       handler.setHandlerAdapter(mockHandlerAdapter());
       handler.start();
 
-      MockHttpContext request = new MockHttpContext();
+      MockServerHttpExchange request = new MockServerHttpExchange();
       handler.handleRequest(request);
 
       assertThat(request.isRequestCompleted()).isTrue();
@@ -234,7 +234,7 @@ class FilterIntegrationTests {
       handler.setHandlerAdapter(mockHandlerAdapter());
       handler.start();
 
-      MockHttpContext request = new MockHttpContext();
+      MockServerHttpExchange request = new MockServerHttpExchange();
       handler.handleRequest(request);
 
       assertThat(request.isRequestCompleted()).isTrue();
@@ -253,7 +253,7 @@ class FilterIntegrationTests {
     handler.setHandlerAdapter(mockHandlerAdapter());
     handler.start();
 
-    MockHttpContext request = new MockHttpContext();
+    MockServerHttpExchange request = new MockServerHttpExchange();
     handler.handleRequest(request);
 
     // No filters configured, request should reach handler mapping
@@ -286,7 +286,7 @@ class FilterIntegrationTests {
       handler.setHandlerAdapter(mockHandlerAdapter());
       handler.start();
 
-      handler.handleRequest(new MockHttpContext());
+      handler.handleRequest(new MockServerHttpExchange());
 
       assertThat(order.toString()).isEqualTo("ABHba");
     }
@@ -311,7 +311,7 @@ class FilterIntegrationTests {
       handler.setHandlerAdapter(mockHandlerAdapter());
       handler.start();
 
-      handler.handleRequest(new MockHttpContext());
+      handler.handleRequest(new MockServerHttpExchange());
 
       assertThat(order.toString()).isEqualTo("ABCHcba");
     }
@@ -347,7 +347,7 @@ class FilterIntegrationTests {
       handler.setHandlerAdapter(mockHandlerAdapter());
       handler.start();
 
-      handler.handleRequest(new MockHttpContext());
+      handler.handleRequest(new MockServerHttpExchange());
 
       assertThat(order.toString()).isEqualTo("ABa");
       assertThat(completions).hasValue(1);
@@ -375,7 +375,7 @@ class FilterIntegrationTests {
       });
       handler.start();
 
-      MockHttpContext request = new MockHttpContext();
+      MockServerHttpExchange request = new MockServerHttpExchange();
       assertThatThrownBy(() -> handler.handleRequest(request)).isSameAs(failure);
       assertThat(request.isRequestCompleted()).isTrue();
       assertThat(failures).containsExactly((Throwable) null);
@@ -397,7 +397,7 @@ class FilterIntegrationTests {
       handler.addRequestCompletedActions((request, notHandled) -> {
         throw new IllegalStateException("listener failed");
       }, (request, notHandled) -> failures.add(notHandled));
-      MockHttpContext request = new MockHttpContext();
+      MockServerHttpExchange request = new MockServerHttpExchange();
 
       handler.handleRequest(request);
 
@@ -428,7 +428,7 @@ class FilterIntegrationTests {
         throw listenerFailure;
       }, (request, notHandled) -> completions.incrementAndGet());
 
-      MockHttpContext request = new MockHttpContext();
+      MockServerHttpExchange request = new MockServerHttpExchange();
       request.getResponse().setCommitted(true);
       assertThatThrownBy(() -> handler.handleRequest(request)).isSameAs(failure);
       assertThat(request.isRequestCompleted()).isTrue();
@@ -477,7 +477,7 @@ class FilterIntegrationTests {
         return HttpRequestHandler.NONE_RETURN_VALUE;
       });
       handler.start();
-      var request = new MockHttpContext();
+      var request = new MockServerHttpExchange();
       request.getRequest().setAsyncSupported(true);
       if (async) {
         request.asyncRequest().startAsync();
@@ -541,7 +541,7 @@ class FilterIntegrationTests {
       handler.setHandlerAdapter(mockHandlerAdapter());
       handler.start();
 
-      MockHttpContext request = new MockHttpContext();
+      MockServerHttpExchange request = new MockServerHttpExchange();
       request.getRequest().setAsyncSupported(true);
       if (async) {
         request.asyncRequest().startAsync();
@@ -599,7 +599,7 @@ class FilterIntegrationTests {
       handler.setHandlerAdapter(mockHandlerAdapter());
       handler.start();
 
-      assertThatCode(() -> handler.handleRequest(new MockHttpContext())).doesNotThrowAnyException();
+      assertThatCode(() -> handler.handleRequest(new MockServerHttpExchange())).doesNotThrowAnyException();
 
       assertThat(order.toString()).isEqualTo("AB");
     }
@@ -618,9 +618,9 @@ class FilterIntegrationTests {
     }
 
     @Override
-    public void doFilter(HttpContext http, FilterChain chain) throws Exception {
+    public void doFilter(ServerHttpExchange exchange, FilterChain chain) throws Exception {
       log.append(name);
-      chain.doFilter(http);
+      chain.doFilter(exchange);
       log.append(name.toLowerCase(Locale.ROOT));
     }
 
@@ -645,7 +645,7 @@ class FilterIntegrationTests {
       }
 
       @Override
-      public Object handle(HttpContext request, Object handler) {
+      public Object handle(ServerHttpExchange exchange, Object handler) {
         return null;
       }
     };

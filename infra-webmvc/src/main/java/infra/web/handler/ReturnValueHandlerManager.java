@@ -41,7 +41,7 @@ import infra.util.Assert;
 import infra.util.CollectionUtils;
 import infra.web.ErrorResponse;
 import infra.web.ErrorResponseViewResolver;
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 import infra.web.RedirectModelManager;
 import infra.web.ReturnValueHandler;
 import infra.web.accept.ContentNegotiationManager;
@@ -293,7 +293,7 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   /**
    * Delegate processing to the first matching return value handler.
    *
-   * @param context the current HTTP request and response context
+   * @param exchange the current HTTP request and response context
    * @param handler the request handler, which may be {@code null}
    * @param returnValue the result to process, which may be {@code null} or
    * {@link ReturnValueHandler#NONE_RETURN_VALUE}
@@ -301,8 +301,8 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
    * @throws Exception if the selected handler fails to process the return value
    */
   @Override
-  public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
-    delegate.handleReturnValue(context, handler, returnValue);
+  public void handleReturnValue(ServerHttpExchange exchange, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+    delegate.handleReturnValue(exchange, handler, returnValue);
   }
 
   /**

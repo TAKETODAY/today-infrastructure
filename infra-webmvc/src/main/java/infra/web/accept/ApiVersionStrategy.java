@@ -20,7 +20,7 @@ package infra.web.accept;
 
 import org.jspecify.annotations.Nullable;
 
-import infra.web.HttpContext;
+import infra.web.ServerHttpExchange;
 
 /**
  * The main component that encapsulates configuration preferences and strategies
@@ -39,7 +39,7 @@ public interface ApiVersionStrategy {
    * @return the version, if present or {@code null}
    */
   @Nullable
-  String resolveVersion(HttpContext request);
+  String resolveVersion(ServerHttpExchange request);
 
   /**
    * Parse the version of a request into an Object.
@@ -57,7 +57,7 @@ public interface ApiVersionStrategy {
    * @throws MissingApiVersionException if the version is required, but not specified
    * @throws InvalidApiVersionException if the version is not supported
    */
-  void validateVersion(@Nullable Comparable<?> requestVersion, HttpContext request)
+  void validateVersion(@Nullable Comparable<?> requestVersion, ServerHttpExchange request)
           throws MissingApiVersionException, InvalidApiVersionException;
 
   /**
@@ -75,7 +75,7 @@ public interface ApiVersionStrategy {
    * @throws MissingApiVersionException if the version is required, but not specified
    * @throws InvalidApiVersionException if the version is not supported
    */
-  default @Nullable Comparable<?> resolveParseAndValidateVersion(HttpContext request) {
+  default @Nullable Comparable<?> resolveParseAndValidateVersion(ServerHttpExchange request) {
     String value = resolveVersion(request);
     Comparable<?> version;
     if (value == null) {
@@ -103,6 +103,6 @@ public interface ApiVersionStrategy {
    * @param request the current request
    * @see ApiVersionDeprecationHandler
    */
-  void handleDeprecations(Comparable<?> version, Object handler, HttpContext request);
+  void handleDeprecations(Comparable<?> version, Object handler, ServerHttpExchange request);
 
 }

@@ -27,7 +27,7 @@ import infra.core.ResolvableType;
 import infra.ui.ModelMap;
 import infra.web.bind.WebDataBinder;
 import infra.web.bind.support.WebBindingInitializer;
-import infra.web.mock.MockHttpContext;
+import infra.web.mock.MockServerHttpExchange;
 import infra.web.view.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,8 +42,8 @@ import static org.mockito.Mockito.mock;
 class BindingContextTests {
   @Test
   void bindingIsSharedByNestedDelegatesAndCanBeReplacedAndCleared() {
-    var request = new MockHttpContext();
-    var wrapper = new DelegatingHttpContext(new DelegatingHttpContext(request));
+    var request = new MockServerHttpExchange();
+    var wrapper = new DelegatingServerHttpExchange(new DelegatingServerHttpExchange(request));
     assertThat(BindingContext.has(wrapper)).isFalse();
     assertThat(BindingContext.find(wrapper)).isNull();
     assertThatIllegalStateException().isThrownBy(() -> BindingContext.obtain(wrapper))
@@ -335,7 +335,7 @@ class BindingContextTests {
   @Test
   void createBinderWithoutTarget_ShouldCreateBinder() throws Throwable {
     BindingContext bindingContext = new BindingContext();
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
 
     WebDataBinder binder = bindingContext.createBinder(request, "objectName");
 
@@ -347,7 +347,7 @@ class BindingContextTests {
   @Test
   void createBinderWithTarget_ShouldCreateBinder() throws Throwable {
     BindingContext bindingContext = new BindingContext();
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     Object target = new Object();
 
     WebDataBinder binder = bindingContext.createBinder(request, target, "objectName");
@@ -360,7 +360,7 @@ class BindingContextTests {
   @Test
   void createBinderWithTargetAndType_ShouldCreateBinder() throws Throwable {
     BindingContext bindingContext = new BindingContext();
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     Object target = new Object();
     ResolvableType targetType = ResolvableType.forClass(String.class);
 
@@ -374,7 +374,7 @@ class BindingContextTests {
   @Test
   void createBinderWithoutTargetButWithType_ShouldCreateBinder() throws Throwable {
     BindingContext bindingContext = new BindingContext();
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     ResolvableType targetType = ResolvableType.forClass(String.class);
 
     WebDataBinder binder = bindingContext.createBinder(request, null, "objectName", targetType);
@@ -388,7 +388,7 @@ class BindingContextTests {
   @Test
   void createBinderInstance_ShouldCreateWebDataBinder() throws Exception {
     BindingContext bindingContext = new BindingContext();
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
     Object target = new Object();
 
     WebDataBinder binder = bindingContext.createBinderInstance(target, "objectName", request);
@@ -403,7 +403,7 @@ class BindingContextTests {
   void initBinder_ShouldNotThrowException() throws Throwable {
     BindingContext bindingContext = new BindingContext();
     WebDataBinder dataBinder = mock(WebDataBinder.class);
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
 
     assertThatNoException().isThrownBy(() -> bindingContext.initBinder(dataBinder, request));
   }
@@ -411,7 +411,7 @@ class BindingContextTests {
   @Test
   void updateModel_ShouldNotThrowException() throws Throwable {
     BindingContext bindingContext = new BindingContext();
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
 
     assertThatNoException().isThrownBy(() -> bindingContext.updateModel(request));
   }
@@ -419,7 +419,7 @@ class BindingContextTests {
   @Test
   void initModel_ShouldNotThrowException() throws Throwable {
     BindingContext bindingContext = new BindingContext();
-    HttpContext request = mock(HttpContext.class);
+    ServerHttpExchange request = mock(ServerHttpExchange.class);
 
     assertThatNoException().isThrownBy(() -> bindingContext.initModel(request));
   }
