@@ -25,14 +25,17 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import infra.http.HttpHeaders;
+import infra.http.HttpInputMessage;
 import infra.http.HttpMethod;
 import infra.http.HttpRequest;
 import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.http.client.ClientHttpResponse;
+import infra.http.converter.StringHttpMessageConverter;
 import infra.mock.http.client.MockClientHttpRequest;
 import infra.util.StreamUtils;
 
@@ -120,6 +123,8 @@ public class DefaultResponseErrorHandlerTests {
     if (textBody != null) {
       headers.setContentType(MediaType.TEXT_PLAIN);
       given(response.getBody()).willReturn(new ByteArrayInputStream(textBody.getBytes(StandardCharsets.UTF_8)));
+      given(response.getContentLength()).willReturn((long) textBody.length());
+      given(response.getContentType()).willReturn(headers.getContentType());
     }
     given(response.getHeaders()).willReturn(headers);
   }
@@ -149,6 +154,64 @@ public class DefaultResponseErrorHandlerTests {
 
     assertThatExceptionOfType(HttpClientErrorException.class).isThrownBy(() ->
             handler.handleError(mockRequest(), response));
+  }
+
+  @Test
+  void handleErrorUsesConfiguredMessageConvertersForResponseBody() throws Exception {
+    setupClientHttpResponse(HttpStatus.NOT_FOUND, "Hello World");
+    handler.setMessageConverters(List.of(new StringHttpMessageConverter()));
+
+    Throwable throwable = catchThrowable(() -> handler.handleError(mockRequest(), response));
+
+    assertThat(throwable).isInstanceOf(HttpClientErrorException.class);
+    HttpClientErrorException exception = (HttpClientErrorException) throwable;
+    assertThat(exception.getResponseBodyAs(String.class)).isEqualTo("Hello World");
+  }
+
+  @Test
+  void handleErrorWrapsIOExceptionFromResponseBodyConverter() throws Exception {
+    setupClientHttpResponse(HttpStatus.NOT_FOUND, "Hello World");
+    IOException failure = new IOException("conversion failed");
+    handler.setMessageConverters(List.of(new FailingStringHttpMessageConverter(failure)));
+
+    Throwable throwable = catchThrowable(() -> handler.handleError(mockRequest(), response));
+
+    assertThat(throwable).isInstanceOf(HttpClientErrorException.class);
+    HttpClientErrorException exception = (HttpClientErrorException) throwable;
+    Throwable conversionFailure = catchThrowable(() -> exception.getResponseBodyAs(String.class));
+    assertThat(conversionFailure).isInstanceOf(RestClientException.class).hasCause(failure);
+  }
+
+  @Test
+  void handleErrorUsesResponseCharsetWhenFormattingBody() throws Exception {
+    HttpHeaders headers = HttpHeaders.forWritable();
+    headers.setContentType(MediaType.parseMediaType("text/plain; charset=ISO-8859-1"));
+    String responseBody = "Hällo World";
+    given(response.getStatusCode()).willReturn(HttpStatus.NOT_FOUND);
+    given(response.getStatusText()).willReturn("Not Found");
+    given(response.getHeaders()).willReturn(headers);
+    given(response.getBody()).willReturn(new ByteArrayInputStream(responseBody.getBytes(StandardCharsets.ISO_8859_1)));
+    given(response.getContentLength()).willReturn((long) responseBody.getBytes(StandardCharsets.ISO_8859_1).length);
+    given(response.getContentType()).willReturn(headers.getContentType());
+
+    assertThatExceptionOfType(HttpClientErrorException.class)
+            .isThrownBy(() -> handler.handleError(mockRequest(), response))
+            .withMessageContaining(responseBody);
+  }
+
+  @Test
+  void handleErrorSupportsNullResponseBody() throws Exception {
+    setupClientHttpResponse(HttpStatus.NOT_FOUND, null);
+    DefaultResponseErrorHandler nullBodyHandler = new DefaultResponseErrorHandler() {
+      @Override
+      protected byte @Nullable [] getResponseBody(ClientHttpResponse response) {
+        return null;
+      }
+    };
+
+    assertThatExceptionOfType(HttpClientErrorException.class)
+            .isThrownBy(() -> nullBodyHandler.handleError(mockRequest(), response))
+            .withMessage("404 Not Found on GET request for \"/\": [no body]");
   }
 
   @Test
@@ -304,6 +367,20 @@ public class DefaultResponseErrorHandlerTests {
     public void close() throws IOException {
       super.close();
       this.closed = true;
+    }
+  }
+
+  private static final class FailingStringHttpMessageConverter extends StringHttpMessageConverter {
+
+    private final IOException failure;
+
+    private FailingStringHttpMessageConverter(IOException failure) {
+      this.failure = failure;
+    }
+
+    @Override
+    protected String readInternal(Class<? extends String> clazz, HttpInputMessage inputMessage) throws IOException {
+      throw this.failure;
     }
   }
 
