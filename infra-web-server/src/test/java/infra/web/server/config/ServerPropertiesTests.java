@@ -21,6 +21,7 @@ package infra.web.server.config;
 import org.junit.jupiter.api.Test;
 
 import java.net.InetAddress;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
 
@@ -28,6 +29,11 @@ import infra.context.properties.bind.Bindable;
 import infra.context.properties.bind.Binder;
 import infra.context.properties.source.ConfigurationPropertySource;
 import infra.context.properties.source.MapConfigurationPropertySource;
+import infra.core.ApplicationTemp;
+import infra.web.server.Compression;
+import infra.web.server.MockWebServerFactory;
+import infra.web.server.Shutdown;
+import infra.web.server.Ssl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -61,6 +67,66 @@ class ServerPropertiesTests {
   void testPortBinding() {
     bind("server.port", "9000");
     assertThat(this.properties.port.intValue()).isEqualTo(9000);
+  }
+
+  @Test
+  void applyToShouldApplyConfiguredValues() throws Exception {
+    this.properties.port = 9000;
+    this.properties.address = InetAddress.getByName("127.0.0.1");
+    this.properties.ssl = new Ssl();
+    this.properties.compression = new Compression();
+    this.properties.shutdown = Shutdown.IMMEDIATE;
+    MockWebServerFactory factory = new MockWebServerFactory();
+    ApplicationTemp applicationTemp = ApplicationTemp.instance;
+
+    this.properties.applyTo(factory, null, applicationTemp);
+
+    assertThat(factory.getPort()).isEqualTo(9000);
+    assertThat(factory.getAddress()).isEqualTo(this.properties.address);
+    assertThat(factory.getSsl()).isSameAs(this.properties.ssl);
+    assertThat(factory.getCompression()).isSameAs(this.properties.compression);
+    assertThat(factory.getShutdown()).isEqualTo(Shutdown.IMMEDIATE);
+    assertThat(factory.getApplicationTemp()).isSameAs(applicationTemp);
+  }
+
+  @Test
+  void multipartTempRepositoryShouldUseExplicitBaseAndSubDirectory() {
+    this.properties.multipart.tempBaseDir = "/tmp/uploads";
+    this.properties.multipart.tempSubDir = "requests";
+
+    assertThat(this.properties.multipart.computeTempRepository(null))
+            .isEqualTo(Path.of("/tmp/uploads", "requests"));
+  }
+
+  @Test
+  void multipartTempRepositoryShouldUseBaseDirectoryWithoutSubDirectory() {
+    this.properties.multipart.tempBaseDir = "/tmp/uploads";
+
+    assertThat(this.properties.multipart.computeTempRepository(null))
+            .isEqualTo(Path.of("/tmp/uploads"));
+  }
+
+  @Test
+  void multipartTempRepositoryShouldUseApplicationTempAndDefaultSubDirectory() {
+    ApplicationTemp applicationTemp = ApplicationTemp.instance;
+
+    assertThat(this.properties.multipart.computeTempRepository(applicationTemp))
+            .isEqualTo(applicationTemp.getDir("multipart"));
+  }
+
+  @Test
+  void multipartTempRepositoryShouldUseApplicationTempAndConfiguredSubDirectory() {
+    this.properties.multipart.tempSubDir = "requests";
+    ApplicationTemp applicationTemp = ApplicationTemp.instance;
+
+    assertThat(this.properties.multipart.computeTempRepository(applicationTemp))
+            .isEqualTo(applicationTemp.getDir("requests"));
+  }
+
+  @Test
+  void multipartTempRepositoryShouldUseSingletonApplicationTempWhenNull() {
+    assertThat(this.properties.multipart.computeTempRepository(null))
+            .isEqualTo(ApplicationTemp.instance.getDir("multipart"));
   }
 
   private void bind(String name, String value) {

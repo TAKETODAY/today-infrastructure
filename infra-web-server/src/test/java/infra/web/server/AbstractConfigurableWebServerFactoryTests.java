@@ -20,7 +20,9 @@ import org.junit.jupiter.api.Test;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 import infra.core.ApplicationTemp;
 import infra.core.ssl.SslBundle;
@@ -29,7 +31,11 @@ import infra.core.ssl.SslBundles;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
@@ -84,6 +90,54 @@ class AbstractConfigurableWebServerFactoryTests {
     InetSocketAddress bindAddress = new InetSocketAddress(address, 90);
     factory.setBindAddress(bindAddress);
     assertThat(factory.getBindAddress()).isSameAs(bindAddress);
+  }
+
+  @Test
+  void bindAddressShouldUseConfiguredPortWhenNoAddressIsSet() {
+    TestFactory factory = new TestFactory();
+    factory.setPort(9090);
+
+    assertThat(factory.resolveBindAddress()).isEqualTo(new InetSocketAddress(9090));
+  }
+
+  @Test
+  void bindAddressShouldUseConfiguredNetworkAddressAndPort() throws Exception {
+    TestFactory factory = new TestFactory();
+    factory.setPort(9090);
+    factory.setAddress(InetAddress.getByName("127.0.0.1"));
+
+    assertThat(factory.resolveBindAddress()).isEqualTo(new InetSocketAddress("127.0.0.1", 9090));
+  }
+
+  @Test
+  void bindAddressShouldPreferExplicitSocketAddress() {
+    TestFactory factory = new TestFactory();
+    SocketAddress bindAddress = new InetSocketAddress("127.0.0.1", 9191);
+    factory.setBindAddress(bindAddress);
+
+    assertThat(factory.resolveBindAddress()).isSameAs(bindAddress);
+  }
+
+  @Test
+  void forwardedRequestHeadersShouldBeConfigurable() {
+    TestFactory factory = new TestFactory();
+    ForwardedRequestHeaders headers = ForwardedRequestHeaders.X_FORWARDED_WITHOUT_PREFIX;
+
+    assertThat(factory.getForwardedRequestHeaders()).isNull();
+    factory.setForwardedRequestHeaders(headers);
+    assertThat(factory.getForwardedRequestHeaders()).isSameAs(headers);
+  }
+
+  @Test
+  void settingNullHttp2ShouldRestoreDefaultConfiguration() {
+    TestFactory factory = new TestFactory();
+    Http2 configured = new Http2();
+    factory.setHttp2(configured);
+
+    factory.setHttp2(null);
+
+    assertThat(factory.getHttp2()).isNotSameAs(configured);
+    assertThat(factory.isHttp2Enabled()).isFalse();
   }
 
   @Test
@@ -295,6 +349,54 @@ class AbstractConfigurableWebServerFactoryTests {
 
     assertThatNoException().isThrownBy(() ->
             factory.addBundleUpdateHandler(ssl, (serverName, sslBundle) -> { }));
+  }
+
+  @Test
+  void serverNameSslBundlesShouldResolveNamedBundles() {
+    TestFactory factory = new TestFactory();
+    SslBundles sslBundles = mock(SslBundles.class);
+    SslBundle bundle = mock(SslBundle.class);
+    Ssl ssl = new Ssl();
+    ssl.serverNameBundles.add(new Ssl.ServerNameSslBundle("example.com", "test-bundle"));
+    factory.setSsl(ssl);
+    factory.setSslBundles(sslBundles);
+    org.mockito.BDDMockito.given(sslBundles.getBundle("test-bundle")).willReturn(bundle);
+
+    assertThat(factory.serverNameSslBundles()).containsEntry("example.com", bundle);
+  }
+
+  @Test
+  void bundleUpdateHandlerShouldBeRegisteredForDefaultAndServerNameBundles() {
+    TestFactory factory = new TestFactory();
+    SslBundles sslBundles = mock(SslBundles.class);
+    @SuppressWarnings("unchecked")
+    BiConsumer<String, SslBundle> updateHandler = mock(BiConsumer.class);
+    Ssl ssl = new Ssl();
+    ssl.bundle = "default-bundle";
+    ssl.serverNameBundles.add(new Ssl.ServerNameSslBundle("example.com", "server-bundle"));
+    factory.setSslBundles(sslBundles);
+
+    factory.registerBundleUpdateHandler(ssl, updateHandler);
+
+    verify(sslBundles, times(2)).addBundleUpdateHandler(any(), any());
+    verify(sslBundles).addBundleUpdateHandler(eq("default-bundle"), any());
+    verify(sslBundles).addBundleUpdateHandler(eq("server-bundle"), any());
+  }
+
+  private static class TestFactory extends AbstractConfigurableWebServerFactory {
+
+    SocketAddress resolveBindAddress() {
+      return bindAddress();
+    }
+
+    Map<String, SslBundle> serverNameSslBundles() {
+      return getServerNameSslBundles();
+    }
+
+    void registerBundleUpdateHandler(Ssl ssl, BiConsumer<String, SslBundle> updateHandler) {
+      addBundleUpdateHandler(ssl, updateHandler);
+    }
+
   }
 
 }
