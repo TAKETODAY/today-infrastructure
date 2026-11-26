@@ -251,7 +251,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
     }
 
     @Override
-    public String methodName() {
+    public String methodAsString() {
       return this.method.name();
     }
 

@@ -67,19 +67,23 @@ import infra.web.util.UriBuilder;
 public interface ServerRequest extends ServerResponse.Context {
 
   /**
-   * Get the HTTP method.
+   * Return the HTTP method as an {@link HttpMethod} enum constant.
    *
-   * @return the HTTP method as an HttpMethod enum value, or {@code null}
-   * if not resolvable (e.g. in case of a non-standard HTTP method)
+   * @return the HTTP method, never {@code null}
+   * @throws IllegalArgumentException if the method does not match an {@code HttpMethod} constant
+   * @see #methodAsString()
    */
   HttpMethod method();
 
   /**
-   * Get the name of the HTTP method.
+   * Return the HTTP method name, such as {@code GET} or {@code POST}.
    *
-   * @return the HTTP method as a String
+   * @return the HTTP method name
+   * @throws IllegalArgumentException if the implementation derives the name from
+   * an {@link HttpMethod} constant and the method has no matching constant
+   * @see #method()
    */
-  String methodName();
+  String methodAsString();
 
   /**
    * Get the request URI.

@@ -460,7 +460,7 @@ class ServerRequestTests {
     ServerRequest request = ServerRequest.create(context, converters);
 
     // Testing default implementations of methodName methods
-    assertThat(request.methodName()).isNotNull();
+    assertThat(request.methodAsString()).isNotNull();
   }
 
   @Test

@@ -1153,8 +1153,8 @@ public abstract class RequestPredicates {
     }
 
     @Override
-    public String methodName() {
-      return this.request.methodName();
+    public String methodAsString() {
+      return this.request.methodAsString();
     }
 
     @Override

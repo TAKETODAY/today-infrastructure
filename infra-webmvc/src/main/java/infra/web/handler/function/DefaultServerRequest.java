@@ -116,7 +116,7 @@ class DefaultServerRequest implements ServerRequest {
   }
 
   @Override
-  public String methodName() {
+  public String methodAsString() {
     return httpContext.getMethodAsString();
   }
 
