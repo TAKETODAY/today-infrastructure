@@ -71,4 +71,29 @@ public abstract class HttpExchangeHolder {
     return exchange;
   }
 
+  /**
+   * Wrap the given task so that it runs with the given {@link ServerHttpExchange}
+   * bound to the current thread, clearing the binding afterward.
+   * <p>
+   * This is intended for tasks handed to an executor: the binding is established
+   * on the executing thread and always cleared in a {@code finally} block, even
+   * if the task throws an exception.
+   *
+   * @param exchange the exchange to bind while the task runs
+   * @param task the task to wrap
+   * @return a runnable that binds the exchange, runs the task, and clears the binding
+   * @since 5.0
+   */
+  public static Runnable wrap(ServerHttpExchange exchange, Runnable task) {
+    return () -> {
+      set(exchange);
+      try {
+        task.run();
+      }
+      finally {
+        cleanup();
+      }
+    };
+  }
+
 }

@@ -38,6 +38,8 @@ import infra.web.ServerHttpExchange;
 import infra.web.util.DisconnectedClientHelper;
 import infra.web.util.TimeoutUtils;
 
+import static infra.web.HttpExchangeHolder.wrap;
+
 /**
  * The central class for managing asynchronous request processing, mainly intended
  * as an SPI and not typically used directly by application classes.
@@ -341,9 +343,7 @@ public final class WebAsyncManager {
     interceptorChain.applyBeforeConcurrentHandling(exchange, callable);
     startAsyncProcessing(asyncRequest, processingContext);
     try {
-      Future<?> future = taskExecutor.submit(() -> {
-        // context aware
-        HttpExchangeHolder.set(exchange);
+      Future<?> future = taskExecutor.submit(wrap(exchange, () -> {
         Object result = null;
         try {
           interceptorChain.applyPreProcess(exchange, callable);
@@ -356,8 +356,7 @@ public final class WebAsyncManager {
           result = interceptorChain.applyPostProcess(exchange, callable, result);
         }
         setConcurrentResultAndDispatch(result);
-        HttpExchangeHolder.cleanup();
-      });
+      }));
       interceptorChain.setTaskFuture(future);
     }
     catch (Throwable ex) {
