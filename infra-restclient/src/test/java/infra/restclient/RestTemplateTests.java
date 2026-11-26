@@ -21,6 +21,9 @@ package infra.restclient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -34,7 +37,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import infra.core.ParameterizedTypeReference;
 import infra.core.ResolvableType;
@@ -45,6 +51,7 @@ import infra.http.HttpMethod;
 import infra.http.HttpRequest;
 import infra.http.HttpStatus;
 import infra.http.MediaType;
+import infra.http.RequestEntity;
 import infra.http.ResponseEntity;
 import infra.http.client.ClientHttpRequest;
 import infra.http.client.ClientHttpRequestFactory;
@@ -57,7 +64,11 @@ import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.SmartHttpMessageConverter;
 import infra.http.converter.StringHttpMessageConverter;
 import infra.util.FileCopyUtils;
+import infra.web.testfixture.http.MockClientHttpRequest;
+import infra.web.testfixture.http.MockClientHttpResponse;
 import infra.web.util.DefaultUriBuilderFactory;
+import infra.web.util.DefaultUriTemplateHandler;
+import infra.web.util.UriTemplateHandler;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -78,6 +89,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -90,6 +102,12 @@ import static org.mockito.Mockito.verify;
  */
 @SuppressWarnings("unchecked")
 class RestTemplateTests {
+
+  private static final String ITEM_TEMPLATE = "https://example.com/items/{id}";
+
+  private static final URI ITEM_URI = URI.create("https://example.com/items/42");
+
+  private static final Map<String, Integer> ITEM_VARIABLES = Map.of("id", 42);
 
   private final ClientHttpRequestFactory requestFactory = mock(ClientHttpRequestFactory.class);
 
@@ -108,6 +126,146 @@ class RestTemplateTests {
   void setup() {
     template.setRequestFactory(requestFactory);
     template.setErrorHandler(errorHandler);
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("textRequests")
+  void readsTextFromExpandedAndAbsoluteUris(String name, HttpMethod method, Function<RestTemplate, String> exchange)
+          throws IOException {
+    MockClientHttpResponse response = spy(new MockClientHttpResponse("result".getBytes(UTF_8), HttpStatus.OK));
+    response.getHeaders().setContentType(MediaType.TEXT_PLAIN);
+    MockClientHttpRequest request = stubRequest(method, response);
+    template.setMessageConverters(List.of(new StringHttpMessageConverter()));
+
+    assertThat(exchange.apply(template)).isEqualTo("result");
+
+    assertThat(request.getHeaders().getAccept()).contains(MediaType.TEXT_PLAIN);
+    if (method != GET) {
+      assertThat(request.getBodyAsString(UTF_8)).isEqualTo("payload");
+    }
+    verify(response).close();
+  }
+
+  static Stream<Arguments> textRequests() {
+    return Stream.of(
+            textRequest("GET entity with named variables", GET,
+                    t -> t.getForEntity(ITEM_TEMPLATE, String.class, ITEM_VARIABLES).getBody()),
+            textRequest("GET entity with URI", GET, t -> t.getForEntity(ITEM_URI, String.class).getBody()),
+            textRequest("POST object with named variables", POST,
+                    t -> t.postForObject(ITEM_TEMPLATE, "payload", String.class, ITEM_VARIABLES)),
+            textRequest("POST object with URI", POST, t -> t.postForObject(ITEM_URI, "payload", String.class)),
+            textRequest("POST entity with named variables", POST,
+                    t -> t.postForEntity(ITEM_TEMPLATE, "payload", String.class, ITEM_VARIABLES).getBody()),
+            textRequest("POST entity with URI", POST, t -> t.postForEntity(ITEM_URI, "payload", String.class).getBody()),
+            textRequest("PATCH with named variables", PATCH,
+                    t -> t.patchForObject(ITEM_TEMPLATE, "payload", String.class, ITEM_VARIABLES)),
+            textRequest("PATCH with URI", PATCH, t -> t.patchForObject(ITEM_URI, "payload", String.class))
+    );
+  }
+
+  private static Arguments textRequest(String name, HttpMethod method, Function<RestTemplate, String> exchange) {
+    return Arguments.of(name, method, exchange);
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("bodilessRequests")
+  void sendsBodilessRequestsToExpandedAndAbsoluteUris(String name, HttpMethod method, Consumer<RestTemplate> exchange)
+          throws IOException {
+    MockClientHttpResponse response = spy(new MockClientHttpResponse(new byte[0], HttpStatus.NO_CONTENT));
+    MockClientHttpRequest request = stubRequest(method, response);
+
+    exchange.accept(template);
+
+    assertThat(request.isExecuted()).isTrue();
+    if (method == PUT) {
+      assertThat(request.getHeaders().getContentLength()).isZero();
+    }
+    verify(response).close();
+  }
+
+  static Stream<Arguments> bodilessRequests() {
+    return Stream.of(
+            bodilessRequest("PUT with named variables", PUT, t -> t.put(ITEM_TEMPLATE, null, ITEM_VARIABLES)),
+            bodilessRequest("PUT with URI", PUT, t -> t.put(ITEM_URI, null)),
+            bodilessRequest("DELETE with named variables", DELETE, t -> t.delete(ITEM_TEMPLATE, ITEM_VARIABLES)),
+            bodilessRequest("DELETE with URI", DELETE, t -> t.delete(ITEM_URI))
+    );
+  }
+
+  private static Arguments bodilessRequest(String name, HttpMethod method, Consumer<RestTemplate> exchange) {
+    return Arguments.of(name, method, exchange);
+  }
+
+  @ParameterizedTest
+  @MethodSource("postRequestEntities")
+  void exchangeExpandsRequestEntityUriAndPreservesGenericBodyTypes(RequestEntity<List<Integer>> entity) throws IOException {
+    MockClientHttpResponse response = spy(new MockClientHttpResponse("[42]".getBytes(UTF_8), HttpStatus.CREATED));
+    response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+    MockClientHttpRequest request = stubRequest(POST, response);
+    RestTemplate template = new RestTemplate(requestFactory);
+
+    ResponseEntity<List<Integer>> result = template.exchange(entity, new ParameterizedTypeReference<List<Integer>>() { });
+
+    assertThat(request.getBodyAsString(UTF_8)).isEqualTo("[7]");
+    assertThat(request.getHeaders().getAccept()).contains(MediaType.APPLICATION_JSON);
+    assertThat(result.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    assertThat(result.getBody()).containsExactly(42);
+    verify(response).close();
+  }
+
+  static Stream<RequestEntity<List<Integer>>> postRequestEntities() {
+    ParameterizedTypeReference<List<Integer>> listType = new ParameterizedTypeReference<>() { };
+    return Stream.of(
+            RequestEntity.post(ITEM_URI),
+            RequestEntity.post(ITEM_TEMPLATE, 42),
+            RequestEntity.method(POST, ITEM_TEMPLATE, ITEM_VARIABLES)
+    ).map(builder -> builder.contentType(MediaType.APPLICATION_JSON).body(List.of(7), listType.getType()));
+  }
+
+  @ParameterizedTest
+  @MethodSource("handlersWithDefaultVariables")
+  void appliesDefaultUriVariables(UriTemplateHandler uriHandler) throws IOException {
+    MockClientHttpResponse response = new MockClientHttpResponse();
+    response.getHeaders().setETag("\"v1\"");
+    stubRequest(HEAD, response);
+    template.setUriTemplateHandler(uriHandler);
+    template.setDefaultUriVariables(ITEM_VARIABLES);
+
+    assertThat(template.headForHeaders(ITEM_TEMPLATE, Map.of()).getETag()).isEqualTo("\"v1\"");
+  }
+
+  @SuppressWarnings("deprecation")
+  static Stream<UriTemplateHandler> handlersWithDefaultVariables() {
+    return Stream.of(new DefaultUriBuilderFactory(), new DefaultUriTemplateHandler());
+  }
+
+  @Test
+  void rejectsDefaultVariablesForUnsupportedUriHandler() {
+    template.setUriTemplateHandler(mock(UriTemplateHandler.class));
+
+    assertThatIllegalArgumentException().isThrownBy(() -> template.setDefaultUriVariables(ITEM_VARIABLES))
+            .withMessage("This property is not supported with the configured UriTemplateHandler.");
+  }
+
+  @Test
+  void extractorIoFailureClosesResponse() throws IOException {
+    MockClientHttpResponse response = spy(new MockClientHttpResponse());
+    stubRequest(GET, response);
+    IOException failure = new IOException("read failed");
+
+    assertThatExceptionOfType(ResourceAccessException.class)
+            .isThrownBy(() -> template.execute(ITEM_URI, GET, null, ignored -> { throw failure; }))
+            .withMessage("I/O error on GET request for \"https://example.com/items/42\": read failed")
+            .withCause(failure);
+
+    verify(response).close();
+  }
+
+  private MockClientHttpRequest stubRequest(HttpMethod method, ClientHttpResponse response) throws IOException {
+    MockClientHttpRequest request = new MockClientHttpRequest(method, ITEM_URI);
+    request.setResponse(response);
+    given(requestFactory.createRequest(ITEM_URI, method)).willReturn(request);
+    return request;
   }
 
   @Test
