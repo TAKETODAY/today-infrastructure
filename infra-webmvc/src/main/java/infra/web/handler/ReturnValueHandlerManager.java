@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Spliterator;
-import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -33,7 +32,7 @@ import infra.core.ArraySizeTrimmer;
 import infra.core.ReactiveAdapterRegistry;
 import infra.core.style.ToStringBuilder;
 import infra.core.task.AsyncTaskExecutor;
-import infra.core.task.SimpleAsyncTaskExecutor;
+import infra.core.task.SyncTaskExecutor;
 import infra.http.converter.AllEncompassingFormHttpMessageConverter;
 import infra.http.converter.ByteArrayHttpMessageConverter;
 import infra.http.converter.HttpMessageConverter;
@@ -46,7 +45,6 @@ import infra.web.HttpContext;
 import infra.web.RedirectModelManager;
 import infra.web.ReturnValueHandler;
 import infra.web.accept.ContentNegotiationManager;
-import infra.web.async.WebAsyncTask;
 import infra.web.handler.method.RequestBodyAdvice;
 import infra.web.handler.method.ResponseBodyAdvice;
 import infra.web.handler.method.support.HttpEntityMethodProcessor;
@@ -69,24 +67,19 @@ import infra.web.view.ViewResolver;
 import infra.web.view.ViewReturnValueHandler;
 
 /**
- * Manages return value handlers for processing the results of HTTP request executions.
- * This class provides mechanisms to register, retrieve, and delegate to various
- * {@link ReturnValueHandler} implementations based on the type of return value
- * and the context of the HTTP request.
+ * Manages an ordered list of {@link ReturnValueHandler} implementations for
+ * processing results from HTTP request handlers.
  *
- * <p>The manager supports a wide range of return types including views, HTTP entities,
- * asynchronous results, and custom objects. It also integrates with message converters,
- * content negotiation, and reactive type handling.
+ * <p>The first matching handler in list order processes the result. Use
+ * {@link #selectHandler(Object, Object)} to find a match without invoking it.
  *
- * <p>Key features include:
- * <ul>
- *   <li>Registration of default and custom return value handlers</li>
- *   <li>Selection of appropriate handlers based on return value and context</li>
- *   <li>Support for reactive programming models</li>
- *   <li>Integration with view resolution and content negotiation</li>
- * </ul>
+ * <p>New instances have no registered handlers. Configure the view resolver,
+ * message converters, and other options before calling {@link #registerDefaultHandlers()}
+ * to append built-in handlers for views, HTTP entities, response bodies, and
+ * asynchronous results.
  *
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
+ * @see SelectableReturnValueHandler
  * @since 2019-12-28 13:47
  */
 public class ReturnValueHandlerManager extends ApplicationObjectSupport implements ArraySizeTrimmer, ReturnValueHandler, Iterable<ReturnValueHandler> {
@@ -104,7 +97,8 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   private @Nullable ErrorResponseViewResolver errorResponseViewResolver;
 
   /**
-   * Configure the resolver for HTML problem detail views.
+   * Configure the resolver used by the default handlers to resolve HTML views
+   * for {@link infra.http.ProblemDetail} responses.
    *
    * @param resolver the resolver, or {@code null} to use message converters
    * @since 5.0
@@ -116,6 +110,7 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   /**
    * Return the configured problem detail view resolver, if any.
    *
+   * @return the resolver, or {@code null} if none is configured
    * @since 5.0
    */
   public @Nullable ErrorResponseViewResolver getErrorResponseViewResolver() {
@@ -147,6 +142,10 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
 
   private @Nullable AsyncTaskExecutor taskExecutor;
 
+  /**
+   * Create a manager with no registered handlers and default message converters
+   * for byte arrays, strings, and form data.
+   */
   public ReturnValueHandlerManager() {
     this.messageConverters = new ArrayList<>(4);
     this.messageConverters.add(new ByteArrayHttpMessageConverter());
@@ -154,13 +153,24 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
     this.messageConverters.add(new AllEncompassingFormHttpMessageConverter());
   }
 
+  /**
+   * Create a manager with no registered handlers and the given message converters.
+   *
+   * @param messageConverters the converters to use (never {@code null})
+   * @see #setMessageConverters(List)
+   */
   public ReturnValueHandlerManager(List<HttpMessageConverter<?>> messageConverters) {
     setMessageConverters(messageConverters);
   }
 
   /**
-   * Configure the registry for reactive library types to be supported as
-   * return values from controller methods.
+   * Configure the registry used to adapt reactive return values.
+   * The default response body emitter handler uses this registry only when a
+   * {@linkplain #setTaskExecutor(AsyncTaskExecutor) task executor} is configured;
+   * otherwise it uses the shared registry.
+   *
+   * @param reactiveAdapterRegistry the registry to use, or {@code null} to use
+   * {@link ReactiveAdapterRegistry#getSharedInstance() the shared registry}
    */
   public void setReactiveAdapterRegistry(@Nullable ReactiveAdapterRegistry reactiveAdapterRegistry) {
     this.reactiveAdapterRegistry = reactiveAdapterRegistry == null
@@ -168,22 +178,37 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   }
 
   /**
-   * Return the configured reactive type registry of adapters.
+   * Return the configured registry, which defaults to the shared registry.
    */
   public ReactiveAdapterRegistry getReactiveAdapterRegistry() {
     return this.reactiveAdapterRegistry;
   }
 
+  /**
+   * Append the given handlers in the order supplied.
+   *
+   * @param handlers the handlers to append (never {@code null})
+   */
   public void addHandlers(ReturnValueHandler... handlers) {
     Assert.notNull(handlers, "ReturnValueHandler is required");
     Collections.addAll(this.handlers, handlers);
   }
 
+  /**
+   * Append the handlers in the given list in order.
+   *
+   * @param handlers the handlers to append (never {@code null})
+   */
   public void addHandlers(List<ReturnValueHandler> handlers) {
     Assert.notNull(handlers, "ReturnValueHandler is required");
     this.handlers.addAll(handlers);
   }
 
+  /**
+   * Replace all registered handlers with those in the given list, preserving their order.
+   *
+   * @param handlers the replacement handlers (never {@code null})
+   */
   public void setHandlers(List<ReturnValueHandler> handlers) {
     Assert.notNull(handlers, "ReturnValueHandler is required");
     this.handlers.clear();
@@ -205,14 +230,18 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
     return handlers.spliterator();
   }
 
+  /**
+   * Return the live, mutable list of handlers in selection order.
+   * Changes to this list affect subsequent selection by this manager and any
+   * delegates created via {@link #asSelectable()}.
+   */
   public List<ReturnValueHandler> getHandlers() {
     return handlers;
   }
 
   /**
-   * Configure a list of {@link ErrorResponse.Interceptor}'s to apply when
-   * rendering an RFC 7807 {@link infra.http.ProblemDetail}
-   * error response.
+   * Replace the interceptors used by the default handlers before rendering a
+   * {@link infra.http.ProblemDetail} response.
    *
    * @param interceptors the interceptors to use
    * @since 5.0
@@ -223,8 +252,7 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   }
 
   /**
-   * Return the {@link #setErrorResponseInterceptors(List) configured}
-   * {@link ErrorResponse.Interceptor}'s.
+   * Return the live, mutable list of configured error response interceptors.
    *
    * @since 5.0
    */
@@ -233,15 +261,26 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   }
 
   /**
-   * @return Returns SelectableReturnValueHandler
+   * Create a selectable handler backed by this manager's live handler list.
+   * Subsequent changes to the list are visible to the returned handler.
+   *
+   * @return a new selectable handler sharing the registered handlers
    */
   public SelectableReturnValueHandler asSelectable() {
     return new SelectableReturnValueHandler(handlers);
   }
 
   /**
-   * @param returnValue if returnValue is {@link ReturnValueHandler#NONE_RETURN_VALUE} match handler only
-   * @return null if returnValue is {@link ReturnValueHandler#NONE_RETURN_VALUE} or no one matched
+   * Select the first matching handler in list order without invoking it.
+   * A {@code null} return value participates in matching, while
+   * {@link ReturnValueHandler#NONE_RETURN_VALUE} matches only against the request handler.
+   *
+   * @param handler the request handler, or {@code null} to match by return value only
+   * @param returnValue the result to match, which may be {@code null} or
+   * {@link ReturnValueHandler#NONE_RETURN_VALUE}
+   * @return the first matching handler, or {@code null} if none matches or if
+   * {@code handler} is {@code null} and no return value is available
+   * @see ReturnValueHandler#select(Iterable, Object, Object)
    */
   public @Nullable ReturnValueHandler selectHandler(@Nullable Object handler, @Nullable Object returnValue) {
     return ReturnValueHandler.select(handlers, handler, returnValue);
@@ -252,22 +291,33 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   //---------------------------------------------------------------------
 
   /**
-   * @param context Current HTTP request context
-   * @param handler Target HTTP handler
-   * @param returnValue Handler execution result
-   * @throws ReturnValueHandlerNotFoundException not found ReturnValueHandler
-   * @throws Exception throws when write data to response
+   * Delegate processing to the first matching return value handler.
+   *
+   * @param context the current HTTP request and response context
+   * @param handler the request handler, which may be {@code null}
+   * @param returnValue the result to process, which may be {@code null} or
+   * {@link ReturnValueHandler#NONE_RETURN_VALUE}
+   * @throws ReturnValueHandlerNotFoundException if no handler matches
+   * @throws Exception if the selected handler fails to process the return value
    */
   @Override
   public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     delegate.handleReturnValue(context, handler, returnValue);
   }
 
+  /**
+   * {@inheritDoc}
+   * <p>Checks support without a return value.
+   */
   @Override
   public boolean supportsHandler(Object handler) {
     return delegate.supportsHandler(handler);
   }
 
+  /**
+   * {@inheritDoc}
+   * <p>Checks support without a request handler.
+   */
   @Override
   public boolean supportsReturnValue(@Nullable Object returnValue) {
     return delegate.supportsReturnValue(returnValue);
@@ -276,7 +326,12 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   //
 
   /**
-   * register default return-value handlers
+   * Append the default return value handlers using the current configuration.
+   * Existing handlers remain at the front of the list and are considered first.
+   * Each call appends the defaults again without deduplicating entries.
+   *
+   * @throws IllegalStateException if no application context is available for the
+   * default {@link BeanNameViewResolver} and no view resolver or view handler is configured
    */
   public void registerDefaultHandlers() {
     logger.debug("Registering default return-value handlers to {}", this);
@@ -377,6 +432,10 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   }
 
   /**
+   * Remove all registered handlers that match the given predicate.
+   *
+   * @param filter the predicate that identifies handlers to remove
+   * @return {@code true} if any handler was removed
    * @since 4.0
    */
   public boolean removeIf(Predicate<ReturnValueHandler> filter) {
@@ -384,6 +443,10 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   }
 
   /**
+   * Check whether any registered handler is an instance of the given type.
+   *
+   * @param handlerClass the type to look for, or {@code null} to return {@code false}
+   * @return {@code true} if a matching handler is registered
    * @since 4.0
    */
   public boolean contains(@Nullable Class<?> handlerClass) {
@@ -391,6 +454,11 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   }
 
   /**
+   * Check whether the given list contains a handler of the requested type.
+   *
+   * @param handlerClass the type to look for
+   * @param handlers the handlers to search
+   * @return {@code true} if the list contains an instance of the given type
    * @since 4.0
    */
   protected boolean contains(Class<?> handlerClass, List<ReturnValueHandler> handlers) {
@@ -398,6 +466,11 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   }
 
   /**
+   * Return the first registered handler that is an instance of the given type.
+   *
+   * @param <T> the requested handler type
+   * @param handlerClass the type to look for, or {@code null} to return {@code null}
+   * @return the first matching handler, or {@code null} if none matches
    * @since 4.0
    */
   public <T> @Nullable T get(@Nullable Class<T> handlerClass) {
@@ -408,6 +481,12 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   }
 
   /**
+   * Return the first handler in the given list that is an instance of the given type.
+   *
+   * @param <T> the requested handler type
+   * @param handlerClass the type to look for
+   * @param handlers the handlers to search in list order
+   * @return the first matching handler, or {@code null} if none matches
    * @since 4.0
    */
   @SuppressWarnings("unchecked")
@@ -421,6 +500,8 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   }
 
   /**
+   * Trim the backing list's capacity to the number of registered handlers.
+   *
    * @since 4.0
    */
   @Override
@@ -428,39 +509,77 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
     handlers.trimToSize();
   }
 
+  /**
+   * Set the resolver to use when creating the default view return value handler.
+   * This setting does not affect an existing view return value handler.
+   *
+   * @param webViewResolver the resolver to use, or {@code null} to use a
+   * {@link BeanNameViewResolver}
+   * @see #setViewReturnValueHandler(ViewReturnValueHandler)
+   */
   public void setViewResolver(@Nullable ViewResolver webViewResolver) {
     this.viewResolver = webViewResolver;
   }
 
+  /**
+   * Set the manager used by the default HTTP entity processor to save redirect models.
+   *
+   * @param redirectModelManager the manager to use, or {@code null} if none is configured
+   */
   public void setRedirectModelManager(@Nullable RedirectModelManager redirectModelManager) {
     this.redirectModelManager = redirectModelManager;
   }
 
+  /**
+   * Return the configured redirect model manager, or {@code null} if none is configured.
+   */
   public @Nullable RedirectModelManager getRedirectModelManager() {
     return redirectModelManager;
   }
 
+  /**
+   * Store an object handler without registering it for return value selection.
+   * Default registration looks for a fallback object handler in the registered
+   * handler list, not in this property.
+   *
+   * @param objectHandler the object handler to store, or {@code null} to clear it
+   * @see #getObjectHandler()
+   */
   public void setObjectHandler(@Nullable ObjectHandlerMethodReturnValueHandler objectHandler) {
     this.objectHandler = objectHandler;
   }
 
+  /**
+   * Return the object handler set via {@link #setObjectHandler(ObjectHandlerMethodReturnValueHandler)},
+   * or {@code null} if none is set. This method does not search the registered handlers.
+   */
   public @Nullable ObjectHandlerMethodReturnValueHandler getObjectHandler() {
     return objectHandler;
   }
 
+  /**
+   * Set the output format for newly created default rendered image handlers.
+   * An already registered rendered image handler is reused without changing its format.
+   *
+   * @param imageFormatName the image format name (never {@code null})
+   */
   public void setImageFormatName(String imageFormatName) {
     Assert.notNull(imageFormatName, "imageFormatName is required");
     this.imageFormatName = imageFormatName;
   }
 
+  /**
+   * Return the configured image format name, which defaults to PNG.
+   */
   public String getImageFormatName() {
     return imageFormatName;
   }
 
   /**
-   * Set the {@link ContentNegotiationManager} to use to determine requested media types.
-   * If not set, the default constructor is used.
+   * Set the manager used by the default handlers to determine requested media types.
    *
+   * @param contentNegotiationManager the manager to use, or {@code null} to use
+   * a {@linkplain ContentNegotiationManager#ContentNegotiationManager() default manager}
    * @since 4.0
    */
   public void setContentNegotiationManager(@Nullable ContentNegotiationManager contentNegotiationManager) {
@@ -469,10 +588,11 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   }
 
   /**
-   * Provide the converters to use in argument resolvers and return value
-   * handlers that support reading and/or writing to the body of the
-   * request and response.
+   * Set the message converters used when creating the default handlers
+   * that read request bodies or write response bodies.
    *
+   * @param messageConverters the converter list to use (never {@code null});
+   * must not be empty when registering the default handlers
    * @since 4.0
    */
   public void setMessageConverters(List<HttpMessageConverter<?>> messageConverters) {
@@ -481,7 +601,7 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   }
 
   /**
-   * Return the configured message body converters.
+   * Return the configured converter list, not a copy.
    *
    * @since 4.0
    */
@@ -490,8 +610,9 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   }
 
   /**
-   * Add one or more {@code RequestBodyAdvice} {@code ResponseBodyAdvice}
+   * Append the given request and response body advice entries.
    *
+   * @param list the advice entries to append, or {@code null} to leave the list unchanged
    * @see RequestBodyAdvice
    * @see ResponseBodyAdvice
    * @since 4.0
@@ -501,11 +622,9 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   }
 
   /**
-   * Set one or more {@code RequestBodyAdvice} {@code ResponseBodyAdvice}
+   * Replace the configured request and response body advice entries.
    *
-   * <p>
-   * clear all and add all
-   *
+   * @param list the replacement advice entries, or {@code null} to clear existing entries
    * @see RequestBodyAdvice
    * @see ResponseBodyAdvice
    * @since 4.0
@@ -516,24 +635,32 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport implemen
   }
 
   /**
+   * Return the live, mutable list of configured request and response body advice entries.
+   *
    * @since 4.0
    */
   public List<Object> getRequestResponseBodyAdvice() {
     return bodyAdvice;
   }
 
+  /**
+   * Set the view handler to use when registering the default handlers.
+   *
+   * @param viewReturnValueHandler the view handler to use, or {@code null} to
+   * create one from the configured or default view resolver on the next registration
+   * @see #setViewResolver(ViewResolver)
+   */
   public void setViewReturnValueHandler(@Nullable ViewReturnValueHandler viewReturnValueHandler) {
     this.viewReturnValueHandler = viewReturnValueHandler;
   }
 
   /**
-   * Set the default {@link AsyncTaskExecutor} to use when a controller method
-   * return a {@link Callable}. Controller methods can override this default on
-   * a per-request basis by returning an {@link WebAsyncTask}.
-   * <p>By default a {@link SimpleAsyncTaskExecutor} instance is used.
-   * It's recommended to change that default in production as the simple executor
-   * does not re-use threads.
+   * Set the executor used by the default response body emitter handler for
+   * blocking writes of items emitted by reactive return values.
+   * If no executor is configured, the handler uses a {@link SyncTaskExecutor}.
    *
+   * @param taskExecutor the executor to use
+   * @see #setReactiveAdapterRegistry(ReactiveAdapterRegistry)
    * @since 4.0
    */
   public void setTaskExecutor(AsyncTaskExecutor taskExecutor) {

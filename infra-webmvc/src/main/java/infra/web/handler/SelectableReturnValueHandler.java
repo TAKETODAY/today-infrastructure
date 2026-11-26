@@ -18,7 +18,6 @@ package infra.web.handler;
 
 import org.jspecify.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.List;
 
 import infra.core.ArraySizeTrimmer;
@@ -28,33 +27,59 @@ import infra.web.HttpContext;
 import infra.web.ReturnValueHandler;
 
 /**
- * select {@link ReturnValueHandler} handler in list
+ * Selects and delegates to the first matching {@link ReturnValueHandler}
+ * in list order.
+ *
+ * <p>Use {@link #selectHandler(Object, Object)} to find a match without
+ * invoking it, or {@link #handleSelectively(HttpContext, Object, Object)}
+ * to delegate and find out which handler processed the result.
  *
  * @author TODAY 2021/9/3 23:09
+ * @see ReturnValueHandler#select(Iterable, Object, Object)
  * @since 4.0
  */
 public class SelectableReturnValueHandler implements ReturnValueHandler, ArraySizeTrimmer {
 
   private final List<ReturnValueHandler> internalHandlers;
 
+  /**
+   * Create a selectable handler backed by the supplied list without copying it.
+   *
+   * @param internalHandlers the candidates in selection order (never {@code null})
+   */
   public SelectableReturnValueHandler(List<ReturnValueHandler> internalHandlers) {
     Assert.notNull(internalHandlers, "internalHandlers is required");
     this.internalHandlers = internalHandlers;
   }
 
+  /**
+   * {@inheritDoc}
+   * <p>Checks only handler support, without a return value.
+   */
   @Override
   public boolean supportsHandler(Object handler) {
     return selectHandler(handler, NONE_RETURN_VALUE) != null;
   }
 
+  /**
+   * {@inheritDoc}
+   * <p>Checks only return value support, without a request handler.
+   */
   @Override
   public boolean supportsReturnValue(@Nullable Object returnValue) {
     return selectHandler(null, returnValue) != null;
   }
 
   /**
-   * @param returnValue if returnValue is {@link #NONE_RETURN_VALUE} match handler only
-   * @return null if returnValue is {@link #NONE_RETURN_VALUE} or no one matched
+   * Select the first matching handler in list order without invoking it.
+   * A {@code null} return value participates in matching, whereas
+   * {@link #NONE_RETURN_VALUE} disables return value checks.
+   *
+   * @param handler the request handler, or {@code null} to check only the return value
+   * @param returnValue the result to check; may be {@code null} or {@link #NONE_RETURN_VALUE}
+   * @return the first matching handler, or {@code null} if none matches or if
+   * {@code handler} is {@code null} and {@code returnValue} is {@code NONE_RETURN_VALUE}
+   * @see ReturnValueHandler#select(Iterable, Object, Object)
    */
   @Nullable
   public final ReturnValueHandler selectHandler(@Nullable Object handler, @Nullable Object returnValue) {
@@ -62,11 +87,15 @@ public class SelectableReturnValueHandler implements ReturnValueHandler, ArraySi
   }
 
   /**
-   * @param context Current HTTP request context
-   * @param handler Target HTTP handler
-   * @param returnValue Handler execution result
-   * @throws ReturnValueHandlerNotFoundException not found ReturnValueHandler
-   * @throws Exception throws when write data to response
+   * Delegate processing to the first matching handler.
+   *
+   * @param context the current HTTP request and response context
+   * @param handler the request handler, which may be {@code null}
+   * @param returnValue the result to process; may be {@code null} or {@link #NONE_RETURN_VALUE}
+   * @throws ReturnValueHandlerNotFoundException if no handler matches or the
+   * selected handler is this instance
+   * @throws Exception if the selected handler fails to process the return value
+   * @see #handleSelectively(HttpContext, Object, Object)
    */
   @Override
   public void handleReturnValue(HttpContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
@@ -76,13 +105,16 @@ public class SelectableReturnValueHandler implements ReturnValueHandler, ArraySi
   }
 
   /**
-   * select a handler and handle return-value with selected handler
+   * Select and invoke the first matching handler. If that handler is this
+   * instance, do not invoke it or try later candidates.
    *
-   * @param context current request context
-   * @param handler web request handler
-   * @param returnValue handler execution result
-   * @return selected handler or which handler handled this result(return-value)
-   * @throws IOException throws when write data to response
+   * @param context the current HTTP request and response context
+   * @param handler the request handler, which may be {@code null}
+   * @param returnValue the result to process; may be {@code null} or {@link #NONE_RETURN_VALUE}
+   * @return the handler that processed the result, or {@code null} if no handler
+   * matches or the selected handler is this instance
+   * @throws Exception if the selected handler fails to process the return value
+   * @see #selectHandler(Object, Object)
    */
   @Nullable
   public final ReturnValueHandler handleSelectively(
@@ -96,10 +128,20 @@ public class SelectableReturnValueHandler implements ReturnValueHandler, ArraySi
     return null;
   }
 
+  /**
+   * Return the original list of candidates. Changes to that list, if mutable,
+   * affect subsequent selection.
+   *
+   * @return the candidates in selection order
+   */
   public List<ReturnValueHandler> getInternalHandlers() {
     return internalHandlers;
   }
 
+  /**
+   * Trim the backing list's capacity if it is an {@link java.util.ArrayList}
+   * or implements {@link ArraySizeTrimmer}; otherwise do nothing.
+   */
   @Override
   public void trimToSize() {
     CollectionUtils.trimToSize(internalHandlers);

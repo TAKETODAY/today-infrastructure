@@ -17,75 +17,30 @@
 package infra.lang;
 
 /**
- * An interface representing an entity that can provide a description.
- * Implementations of this interface are expected to return a meaningful
- * textual representation via the {@link #getDescription()} method.
+ * Provides a human-readable description for display, logging, or diagnostics.
  *
- * <p>Example usage:
+ * <p>For example, a product can describe itself by name:
  * <pre>{@code
- * public enum Color implements Descriptive {
- *   RED,
- *   GREEN,
- *   BLUE;
- *
+ * record Product(String name) implements Descriptive {
  *   @Override
  *   public String getDescription() {
- *     return "Color: " + name().toLowerCase();
- *   }
- * }
- *
- * public class Example {
- *   public static void main(String[] args) {
- *     Color color = Color.RED;
- *     System.out.println(color.getDescription());
- *     // Output: Color: red
+ *     return "Product: " + name;
  *   }
  * }
  * }</pre>
  *
- * <p>This interface can also be extended to provide additional functionality,
- * such as debugging support or value-based enumeration handling.
- *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see Enumerable
  * @since 4.0 2022/8/1 17:18
  */
 public interface Descriptive {
 
   /**
-   * Returns a textual description of the implementing entity.
+   * Return a human-readable description of this object. The implementation
+   * determines the content and format, so callers should not rely on a
+   * particular format unless it is documented by that implementation.
    *
-   * <p>This method is intended to provide a meaningful representation
-   * of the object, which can be used for display, logging, or debugging
-   * purposes. The format and content of the description are determined
-   * by the implementation.
-   *
-   * <p>Example usage:
-   * <pre>{@code
-   * public class Product implements Descriptive {
-   *   private String name;
-   *   private double price;
-   *
-   *   public Product(String name, double price) {
-   *     this.name = name;
-   *     this.price = price;
-   *   }
-   *
-   *   @Override
-   *   public String getDescription() {
-   *     return "Product{name='" + name + "', price=" + price + "}";
-   *   }
-   * }
-   *
-   * public class Example {
-   *   public static void main(String[] args) {
-   *     Product product = new Product("Laptop", 999.99);
-   *     System.out.println(product.getDescription());
-   *     // Output: Product{name='Laptop', price=999.99}
-   *   }
-   * }
-   * }</pre>
-   *
-   * @return a {@code String} containing the description of the object
+   * @return the description (never {@code null})
    */
   String getDescription();
 
